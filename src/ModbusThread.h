@@ -33,8 +33,7 @@ private slots:
 private:
 
     volatile bool bStop;
-    volatile unsigned int Cmd;
-    volatile bool bCommRunning;
+    volatile bool bActive;
 
     QThread *thread;
 
@@ -42,11 +41,6 @@ private:
     QList<unsigned short> registerList;
 
     void process();
-    unsigned int doModbusComm(void);
-
-    static const unsigned int cCmdNone = 0;
-    static const unsigned int cCmdStart = 1;
-    static const unsigned int cCmdStop = 2;
 
 };
 

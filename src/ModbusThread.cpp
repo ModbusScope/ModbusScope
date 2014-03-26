@@ -9,8 +9,7 @@
 // Constructor
 ModbusThread::ModbusThread() :
     bStop(false),
-    Cmd(cCmdNone),
-    bCommRunning(false),
+    bActive(false),
     thread(NULL)
 {
     // NEVER create object with new here
@@ -29,12 +28,12 @@ void ModbusThread::startCommunication(/*QList<unsigned short> registers*/)
     registerList.clear();
     registerList.append(registers);
     */
-    Cmd = cCmdStart;
+    bActive = true;
 }
 
 void ModbusThread::stopCommunication()
 {
-    Cmd = cCmdStop;
+    bActive = false;
 }
 
 
@@ -94,92 +93,35 @@ void ModbusThread::process()
 
         QCoreApplication::processEvents();
 
-        if (bCommRunning)
+        if (bActive)
         {
-            // We have no cmd
-            if (Cmd == cCmdNone)
+
+            if(conToUiTimer.elapsed() > 2000)
             {
-                if(conToUiTimer.elapsed() > 2000)
+                if (modbusMaster.Open("127.0.0.1", 1502) != -1)   // Open modbus
                 {
-                    // Read modbus vars
-                    conToUiTimer.restart();
 
-                    Cmd = doModbusComm();
-                }
-            }
-            else
-            {
-                // Always close comm if cmd
-                qDebug("Close\n");
-
-                modbusMaster.Close(); // Close modbus
-                bCommRunning = false;
-
-                // Reopen comm if cmd == start
-                if (Cmd == cCmdStart)
-                {
-                    if (modbusMaster.Open("127.0.0.1", 1502) == 0)
+                    QList<unsigned short> l;
+                    if (modbusMaster.ReadRegisters(0, 2, &l) != -1)
                     {
-                        bCommRunning = true;
+                        emit modbusResults(l[0], l[1]);
+                        /*
+                        qDebug() << "reg 0: " << l[0] << "\n";
+                        qDebug() << "reg 1: " << (unsigned short)l[1] << "\n";
+                        */
+
+                        // Read modbus vars
                         conToUiTimer.restart();
-
-                        // Perform first comm
-                        Cmd = doModbusComm();
                     }
-                }
-                else
-                {
-                    Cmd = cCmdNone;
-                }
 
-            }
-
-        }
-        else // not running
-        {
-
-            if (Cmd == cCmdStart)
-            {
-                qDebug("Open\n");
-
-                if (modbusMaster.Open("127.0.0.1", 1502) == 0)
-                {
-                    bCommRunning = true;
-                    conToUiTimer.restart();
-
-                    // Perform first comm
-                    Cmd = doModbusComm();
-                }
-                else
-                {
-                    Cmd = cCmdNone;
+                    modbusMaster.Close(); // Close modbus
                 }
             }
         }
+
     }
 
     qDebug("Byebye\n");
 
     thread->quit();
-}
-
-
-unsigned int ModbusThread::doModbusComm(void)
-{
-    unsigned int retCmd = cCmdNone;
-    QList<unsigned short> l;
-    if (modbusMaster.ReadRegisters(0, 2, &l) != -1)
-    {
-        emit modbusResults(l[0], l[1]);
-        /*
-        qDebug() << "reg 0: " << l[0] << "\n";
-        qDebug() << "reg 1: " << (unsigned short)l[1] << "\n";
-        */
-    }
-    else
-    {
-        retCmd = cCmdStart;
-    }
-
-    return retCmd;
 }

@@ -86,7 +86,7 @@ void MainWindow::plotResults(unsigned short result0, unsigned short result1)
     double now = QDateTime::currentDateTime().toTime_t();
 
     ui->customPlot->graph(0)->addData(now, (double)result0);
-    ui->customPlot->graph(1)->addData(now, (double)result1);
+    ui->customPlot->graph(1)->addData(now, (double)(signed short)result1);
 
     ui->customPlot->rescaleAxes();
     ui->customPlot->replot();
