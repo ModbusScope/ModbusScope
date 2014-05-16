@@ -1,5 +1,6 @@
 
 
+#include "modbussettings.h"
 #include "ModbusThread.h"
 #include "QDebug"
 #include "QThread"
@@ -10,8 +11,10 @@
 ModbusThread::ModbusThread() :
     bStop(false),
     bActive(false),
-    thread(NULL)
+    thread(NULL),
+    settings(NULL)
 {
+
     // NEVER create object with new here
 }
 
@@ -19,6 +22,11 @@ ModbusThread::ModbusThread() :
 ModbusThread::~ModbusThread()
 {
 
+}
+
+void ModbusThread::SetSettingsPointer(ModbusSettings * settings)
+{
+    this->settings = settings;
 }
 
 
@@ -96,23 +104,35 @@ void ModbusThread::process()
         if (bActive)
         {
 
-            if(conToUiTimer.elapsed() > 2000)
+            if(conToUiTimer.elapsed() > 200)
             {
-                if (modbusMaster.Open("127.0.0.1", 1502) != -1)   // Open modbus
+                if (modbusMaster.Open(settings->GetIpAddress().toStdString(), settings->GetPort()) != -1)   // Open modbus
                 {
 
-                    QList<unsigned short> l;
-                    if (modbusMaster.ReadRegisters(0, 2, &l) != -1)
-                    {
-                        emit modbusResults(l[0], l[1]);
-                        /*
-                        qDebug() << "reg 0: " << l[0] << "\n";
-                        qDebug() << "reg 1: " << (unsigned short)l[1] << "\n";
-                        */
+                    QList<u_int16_t> l;
+                    QList<u_int16_t> registers;
+                    QList<u_int16_t> result;
 
-                        // Read modbus vars
-                        conToUiTimer.restart();
+                    settings->GetRegisters(&registers);
+
+                    qDebug() << "Start regs read (" << registers.size() << ")" << "\n";
+                    for( int32_t i = 0; i < registers.size(); i++)
+                    {
+
+                        if (modbusMaster.ReadRegisters(registers[i]-40001, 1, &l) != -1)
+                        {
+                            result.append(l[0]);
+                        }
+                        else
+                        {
+                            result.append(0);
+                        }
+                        qDebug() << "reg " << registers[i] << ": " << result[i] << "\n";
                     }
+
+                    emit modbusResults(result);
+
+                    conToUiTimer.restart();
 
                     modbusMaster.Close(); // Close modbus
                 }

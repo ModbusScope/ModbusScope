@@ -19,6 +19,8 @@ INCLUDEPATH += \
 SOURCES +=  \
     ../src/ModbusThread.cpp \
     ../src/mainwindow.cpp \
+    ../src/settingsdialog.cpp \
+    ../src/modbussettings.cpp \
     ../src/main.cpp \
     ../src/ModbusMaster.cpp \
     ../libraries/libmodbus/src/modbus-data.c \
@@ -27,10 +29,13 @@ SOURCES +=  \
     ../libraries/qcustomplot/qcustomplot.cpp \
 
 FORMS    += \
-    ../src/mainwindow.ui
+    ../src/mainwindow.ui \
+    ../src/settingsdialog.ui
 
 HEADERS += \
     ../src/mainwindow.h \
+    ../src/settingsdialog.h \
+    ../src/modbussettings.h \
     ../src/ModbusMaster.h \
     ../src/ModbusThread.h \
     ../libraries/libmodbus/src/modbus-private.h \

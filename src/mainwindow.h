@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "ModbusThread.h"
+#include "modbussettings.h"
 
 namespace Ui {
 class MainWindow;
@@ -32,14 +33,18 @@ private slots:
     void mousePress();
     void mouseWheel();
 
+    void startScope(void);
+    void stopScope(void);
+
 public slots:
     void workerStopped();
     void errorString(QString error);
-    void plotResults(unsigned short result0, unsigned short result1);
+    void plotResults(QList<u_int16_t> values);
 
 private:
     Ui::MainWindow *ui;
     ModbusThread* worker;
+    ModbusSettings modbusSettings;
 };
 
 #endif // MAINWINDOW_H

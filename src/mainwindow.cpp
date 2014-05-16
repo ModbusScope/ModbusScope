@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "settingsdialog.h"
 #include "QDebug"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -9,36 +10,44 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    modbusSettings.SetIpAddress("127.0.0.1");
+    modbusSettings.SetPort(1502);
+
     if (!worker)
     {
         worker = new ModbusThread();
 
+        worker->SetSettingsPointer(&modbusSettings);
+
         connect(worker, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
         connect(worker, SIGNAL(done()), this, SLOT(workerStopped()));
         connect(worker, SIGNAL(done()), worker, SLOT(deleteLater()));
-        connect(worker, SIGNAL(modbusResults(unsigned short,unsigned short)), this, SLOT(plotResults(unsigned short,unsigned short)));
+
+        qRegisterMetaType<QList<u_int16_t> >("QList<u_int16_t>");
+
+        connect(worker, SIGNAL(modbusResults(QList<u_int16_t>)), this, SLOT(plotResults(QList<u_int16_t>)), Qt::QueuedConnection);
 
         connect(this, SIGNAL(closing()), worker, SLOT(stopThread()));
 
-        connect(ui->btnStartModbus, SIGNAL(released()), worker, SLOT(startCommunication(/*QList<unsigned short>*/)));
-        connect(ui->btnStopModbus, SIGNAL(released()), worker, SLOT(stopCommunication()));
+        connect(ui->btnStartModbus, SIGNAL(released()), this, SLOT(startScope()));
+        connect(ui->btnStopModbus, SIGNAL(released()), this, SLOT(stopScope()));
 
         worker->start();
     }
 
     ui->customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes);
+
     ui->customPlot->xAxis->setRange(0, 10);
+    ui->customPlot->xAxis->setTickLabelType(QCPAxis::ltDateTime);
+    ui->customPlot->xAxis->setDateTimeFormat("hh:mm:ss:zzz");
+    ui->customPlot->xAxis->setLabel("x Axis");
+
     ui->customPlot->yAxis->setRange(0, 10);
+    ui->customPlot->yAxis->setLabel("y Axis");
 
     ui->customPlot->plotLayout()->insertRow(0);
     ui->customPlot->plotLayout()->addElement(0, 0, new QCPPlotTitle(ui->customPlot, "Interaction Example"));
 
-    // Add 2 graphs
-    ui->customPlot->addGraph();
-    ui->customPlot->addGraph();
-
-    ui->customPlot->xAxis->setLabel("x Axis");
-    ui->customPlot->yAxis->setLabel("y Axis");
     ui->customPlot->legend->setVisible(true);
     QFont legendFont = font();
     legendFont.setPointSize(10);
@@ -75,18 +84,48 @@ void MainWindow::errorString(QString error)
     qDebug() << "Error: " << error << "\n";
 }
 
+void MainWindow::startScope(void)
+{
+    SettingsDialog dialog;
+    dialog.setModal(true);
+    dialog.exec();
+    if (dialog.result() == QDialog::Accepted)
+    {
+        dialog.getModbusSettings(&modbusSettings);
+
+        ui->customPlot->clearGraphs();
+
+        // Add graph(s)
+        for (u_int32_t i = 0; i < modbusSettings.GetRegisterCount(); i++)
+        {
+            ui->customPlot->addGraph();
+        }
+
+        worker->startCommunication();
+    }
+}
+
+void MainWindow::stopScope(void)
+{
+    worker->stopCommunication();
+}
+
 
 void MainWindow::workerStopped()
 {
     worker = NULL;
 }
 
-void MainWindow::plotResults(unsigned short result0, unsigned short result1)
+void MainWindow::plotResults(QList<u_int16_t> values)
 {
     double now = QDateTime::currentDateTime().toTime_t();
 
-    ui->customPlot->graph(0)->addData(now, (double)result0);
-    ui->customPlot->graph(1)->addData(now, (double)(signed short)result1);
+    qDebug() << "Number of regs to graph (" << values.size() << ")" << "\n";
+
+    for (int32_t i = 0; i < values.size(); i++)
+    {
+        ui->customPlot->graph(i)->addData(now, (double)values[i]);
+    }
 
     ui->customPlot->rescaleAxes();
     ui->customPlot->replot();

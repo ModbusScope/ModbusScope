@@ -54,8 +54,10 @@ int32_t ModbusMaster::ReadRegisters(unsigned short startRegister, unsigned char 
     {
 
         pList->clear();
-        pList->append(tab_reg[0]);
-        pList->append(tab_reg[1]);
+        for (u_int32_t i = 0; i < num; i++)
+        {
+            pList->append(tab_reg[i]);
+        }
     }
 
     return rc;
