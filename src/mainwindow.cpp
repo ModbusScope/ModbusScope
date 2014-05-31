@@ -1,39 +1,25 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "settingsdialog.h"
+#include "modbusscope.h"
 #include "QDebug"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    worker(NULL)
+    _scope(NULL)
 {
     ui->setupUi(this);
 
-    modbusSettings.SetIpAddress("127.0.0.1");
-    modbusSettings.SetPort(1502);
+    _modbusSettings.SetIpAddress("127.0.0.1");
+    _modbusSettings.SetPort(1502);
 
-    if (!worker)
-    {
-        worker = new ModbusThread();
+    _scope = new ModbusScope();
 
-        worker->SetSettingsPointer(&modbusSettings);
+    qRegisterMetaType<ModbusSettings>("ModbusSettings");
 
-        connect(worker, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
-        connect(worker, SIGNAL(done()), this, SLOT(workerStopped()));
-        connect(worker, SIGNAL(done()), worker, SLOT(deleteLater()));
-
-        qRegisterMetaType<QList<u_int16_t> >("QList<u_int16_t>");
-
-        connect(worker, SIGNAL(modbusResults(QList<u_int16_t>)), this, SLOT(plotResults(QList<u_int16_t>)), Qt::QueuedConnection);
-
-        connect(this, SIGNAL(closing()), worker, SLOT(stopThread()));
-
-        connect(ui->btnStartModbus, SIGNAL(released()), this, SLOT(startScope()));
-        connect(ui->btnStopModbus, SIGNAL(released()), this, SLOT(stopScope()));
-
-        worker->start();
-    }
+    connect(ui->btnStartModbus, SIGNAL(released()), this, SLOT(startScope()));
+    connect(ui->btnStopModbus, SIGNAL(released()), this, SLOT(stopScope()));
 
     ui->customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes);
 
@@ -63,25 +49,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    delete _scope;
     delete ui;
-}
-
-
-void MainWindow::closeEvent(QCloseEvent *event)
-{
-    event = event;
-
-    emit closing();
-
-    if (worker)
-    {
-        worker->wait();
-    }
-}
-
-void MainWindow::errorString(QString error)
-{
-    qDebug() << "Error: " << error << "\n";
 }
 
 void MainWindow::startScope(void)
@@ -91,29 +60,24 @@ void MainWindow::startScope(void)
     dialog.exec();
     if (dialog.result() == QDialog::Accepted)
     {
-        dialog.getModbusSettings(&modbusSettings);
+        dialog.getModbusSettings(&_modbusSettings);
+        dialog.getRegisterList(&_registerList);
 
         ui->customPlot->clearGraphs();
 
         // Add graph(s)
-        for (u_int32_t i = 0; i < modbusSettings.GetRegisterCount(); i++)
+        for (qint32 i = 0; i < _registerList.size(); i++)
         {
             ui->customPlot->addGraph();
         }
 
-        worker->startCommunication();
+        _scope->StartCommunication(&_modbusSettings, &_registerList);
     }
 }
 
 void MainWindow::stopScope(void)
 {
-    worker->stopCommunication();
-}
-
-
-void MainWindow::workerStopped()
-{
-    worker = NULL;
+    _scope->StopCommunication();
 }
 
 void MainWindow::plotResults(QList<u_int16_t> values)
@@ -130,7 +94,6 @@ void MainWindow::plotResults(QList<u_int16_t> values)
     ui->customPlot->rescaleAxes();
     ui->customPlot->replot();
 }
-
 
 
 void MainWindow::selectionChanged()

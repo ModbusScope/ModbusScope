@@ -2,6 +2,7 @@
 #define SETTINGSDIALOG_H
 
 #include <QDialog>
+#include <QList>
 #include <modbussettings.h>
 #include <QStringListModel>
 
@@ -17,6 +18,7 @@ public:
     explicit SettingsDialog(QWidget *parent = 0);
     ~SettingsDialog();
     void getModbusSettings(ModbusSettings * pSettings);
+    void getRegisterList(QList <quint16> * pRegisterList);
 
 public slots:
     void accept();
@@ -29,6 +31,7 @@ private slots:
 private:
     Ui::SettingsDialog *ui;
     ModbusSettings commSettings;
+    QList <quint16> registerList;
 
     QStringListModel modelReg;
 

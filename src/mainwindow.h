@@ -2,26 +2,23 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "ModbusThread.h"
 #include "modbussettings.h"
 
 namespace Ui {
 class MainWindow;
 }
 
+class ModbusScope;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
-protected:
-     void closeEvent(QCloseEvent *event);
 
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
 signals:
-    void closing();
 
     void stopThread();
 
@@ -37,14 +34,13 @@ private slots:
     void stopScope(void);
 
 public slots:
-    void workerStopped();
-    void errorString(QString error);
     void plotResults(QList<u_int16_t> values);
 
 private:
     Ui::MainWindow *ui;
-    ModbusThread* worker;
-    ModbusSettings modbusSettings;
+    ModbusScope * _scope;
+    ModbusSettings _modbusSettings;
+    QList<quint16> _registerList;
 };
 
 #endif // MAINWINDOW_H
