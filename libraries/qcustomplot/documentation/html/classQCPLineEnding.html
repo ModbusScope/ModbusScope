@@ -76,7 +76,7 @@ The various ending styles currently supported</div></div>
 <img src="QCPLineEnding.png" alt="QCPLineEnding.png"/>
 </div>
 <p>The width and length of these decorations can be controlled with the functions <a class="el" href="classQCPLineEnding.html#a26dc020ea985a72cc25881ce2115e34e">setWidth</a> and <a class="el" href="classQCPLineEnding.html#ae36fa01763751cd64b7f56c3507e935a">setLength</a>. Some decorations like <a class="el" href="classQCPLineEnding.html#a5ef16e6876b4b74959c7261d8d4c2cd5ae5a3414916817258bcc6dddd605e8f5c">esDisc</a>, <a class="el" href="classQCPLineEnding.html#a5ef16e6876b4b74959c7261d8d4c2cd5ae1836502fa43d8990bb62b2d493a140a">esSquare</a>, <a class="el" href="classQCPLineEnding.html#a5ef16e6876b4b74959c7261d8d4c2cd5a378fe5a8b768411b0bc1765210fe7200">esDiamond</a> and <a class="el" href="classQCPLineEnding.html#a5ef16e6876b4b74959c7261d8d4c2cd5a2cf543bbca332df26d89bf779f50469f">esBar</a> only support a width, the length property is ignored.</p>
-<dl class="section see"><dt>See Also</dt><dd><a class="el" href="classQCPItemLine.html#aebf3d687114d584e0459db6759e2c3c3">QCPItemLine::setHead</a>, <a class="el" href="classQCPItemLine.html#ac264222c3297a7efe33df9345c811a5f">QCPItemLine::setTail</a>, <a class="el" href="classQCPItemCurve.html#a08a30d9cdd63995deea3d9e20430676f">QCPItemCurve::setHead</a>, <a class="el" href="classQCPItemCurve.html#ac3488d8b1a6489c845dc5bff3ef71124">QCPItemCurve::setTail</a> </dd></dl>
+<dl class="section see"><dt>See Also</dt><dd><a class="el" href="classQCPItemLine.html#aebf3d687114d584e0459db6759e2c3c3">QCPItemLine::setHead</a>, <a class="el" href="classQCPItemLine.html#ac264222c3297a7efe33df9345c811a5f">QCPItemLine::setTail</a>, <a class="el" href="classQCPItemCurve.html#a08a30d9cdd63995deea3d9e20430676f">QCPItemCurve::setHead</a>, <a class="el" href="classQCPItemCurve.html#ac3488d8b1a6489c845dc5bff3ef71124">QCPItemCurve::setTail</a>, <a class="el" href="classQCPAxis.html#a08af1c72db9ae4dc8cb8a973d44405ab">QCPAxis::setLowerEnding</a>, <a class="el" href="classQCPAxis.html#a69119b892fc306f651763596685aa377">QCPAxis::setUpperEnding</a> </dd></dl>
 <dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
 <tr><td valign="top"><em><a class="anchor" id="a5ef16e6876b4b74959c7261d8d4c2cd5aca12d500f50cd6871766801bac30fb03"></a>esNone</em>&nbsp;</td><td>
 <p>No ending decoration. </p>
@@ -103,7 +103,7 @@ The various ending styles currently supported</div></div>
 <p>A bar perpendicular to the line. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="a5ef16e6876b4b74959c7261d8d4c2cd5a126c390f0c359fcd8df1fc5e38d26d5b"></a>esHalfBar</em>&nbsp;</td><td>
-<p>A bar perpendicular to the line sticking out to one side. </p>
+<p>A bar perpendicular to the line, pointing out to only one side (to which side can be changed with <a class="el" href="classQCPLineEnding.html#a580e4e2360b35ebb8d68f3494aa2335d">setInverted</a>) </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="a5ef16e6876b4b74959c7261d8d4c2cd5a2b2cc96e757ca9bcd91fb70221ed43ab"></a>esSkewedBar</em>&nbsp;</td><td>
 <p>A bar that is skewed (skew controllable via <a class="el" href="classQCPLineEnding.html#ae36fa01763751cd64b7f56c3507e935a">setLength</a>) </p>

@@ -65,14 +65,17 @@ QPointF&#160;</td><td class="memItemRight" valign="bottom"><b>coords</b> () cons
 <tr class="memitem:a2185f45c75ac8cb9be89daeaaad50e37"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCPItemPosition.html#a2185f45c75ac8cb9be89daeaaad50e37">setAxes</a> (<a class="el" href="classQCPAxis.html">QCPAxis</a> *keyAxis, <a class="el" href="classQCPAxis.html">QCPAxis</a> *valueAxis)</td></tr>
 <tr class="memitem:a0cd9b326fb324710169e92e8ca0041c2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCPItemPosition.html#a0cd9b326fb324710169e92e8ca0041c2">setAxisRect</a> (<a class="el" href="classQCPAxisRect.html">QCPAxisRect</a> *axisRect)</td></tr>
 <tr class="memitem:ab404e56d9ac2ac2df0382c57933a71ef"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCPItemPosition.html#ab404e56d9ac2ac2df0382c57933a71ef">setPixelPoint</a> (const QPointF &amp;<a class="el" href="classQCPItemPosition.html#ae490f9c76ee2ba33752c495d3b6e8fb5">pixelPoint</a>)</td></tr>
-<tr class="memitem:ac93984042a58c875e76847dc3e5f75fe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac93984042a58c875e76847dc3e5f75fe"></a>
+<tr class="inherit_header pub_methods_classQCPItemAnchor"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classQCPItemAnchor')"><img src="closed.png" alt="-"/>&nbsp;Public Functions inherited from <a class="el" href="classQCPItemAnchor.html">QCPItemAnchor</a></td></tr>
+<tr class="memitem:aeb6b681d2bf324db40a915d32ec5624f inherit pub_methods_classQCPItemAnchor"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCPItemAnchor.html#aeb6b681d2bf324db40a915d32ec5624f">QCPItemAnchor</a> (<a class="el" href="classQCustomPlot.html">QCustomPlot</a> *parentPlot, <a class="el" href="classQCPAbstractItem.html">QCPAbstractItem</a> *parentItem, const QString name, int anchorId=-1)</td></tr>
+<tr class="memitem:ac93984042a58c875e76847dc3e5f75fe inherit pub_methods_classQCPItemAnchor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac93984042a58c875e76847dc3e5f75fe"></a>
 QString&#160;</td><td class="memItemRight" valign="bottom"><b>name</b> () const </td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pro-methods"></a>
 Protected Functions</h2></td></tr>
 <tr class="memitem:a577a7efc601df85a20b3e709d1ac320e"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classQCPItemPosition.html">QCPItemPosition</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCPItemPosition.html#a577a7efc601df85a20b3e709d1ac320e">toQCPItemPosition</a> ()</td></tr>
-<tr class="memitem:ad11517e2ce5c2f9a798e78fb45e2e0d0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCPItemAnchor.html#ad11517e2ce5c2f9a798e78fb45e2e0d0">addChild</a> (<a class="el" href="classQCPItemPosition.html">QCPItemPosition</a> *pos)</td></tr>
-<tr class="memitem:ab65ec61984575f737f43c2bb59dd0d76"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCPItemAnchor.html#ab65ec61984575f737f43c2bb59dd0d76">removeChild</a> (<a class="el" href="classQCPItemPosition.html">QCPItemPosition</a> *pos)</td></tr>
+<tr class="inherit_header pro_methods_classQCPItemAnchor"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classQCPItemAnchor')"><img src="closed.png" alt="-"/>&nbsp;Protected Functions inherited from <a class="el" href="classQCPItemAnchor.html">QCPItemAnchor</a></td></tr>
+<tr class="memitem:ad11517e2ce5c2f9a798e78fb45e2e0d0 inherit pro_methods_classQCPItemAnchor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCPItemAnchor.html#ad11517e2ce5c2f9a798e78fb45e2e0d0">addChild</a> (<a class="el" href="classQCPItemPosition.html">QCPItemPosition</a> *pos)</td></tr>
+<tr class="memitem:ab65ec61984575f737f43c2bb59dd0d76 inherit pro_methods_classQCPItemAnchor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCPItemAnchor.html#ab65ec61984575f737f43c2bb59dd0d76">removeChild</a> (<a class="el" href="classQCPItemPosition.html">QCPItemPosition</a> *pos)</td></tr>
 </table>
 <a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>Manages the position of an item. </p>
@@ -97,10 +100,10 @@ Protected Functions</h2></td></tr>
 <p>Static positioning in pixels, starting from the top left corner of the viewport/widget. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="aad9936c22bf43e3d358552f6e86dbdc8ac7d6aa89ceacb39658b0d6da061c789a"></a>ptViewportRatio</em>&nbsp;</td><td>
-<p>Static positioning given by a fraction of the viewport size. </p>
+<p>Static positioning given by a fraction of the viewport size. For example, if you call setCoords(0, 0), the position will be at the top left corner of the viewport/widget. setCoords(1, 1) will be at the bottom right corner, setCoords(0.5, 0) will be horizontally centered and vertically at the top of the viewport/widget, etc. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="aad9936c22bf43e3d358552f6e86dbdc8a01080fd00eaf09fa238ef6b73bbfef75"></a>ptAxisRectRatio</em>&nbsp;</td><td>
-<p>Static positioning given by a fraction of the axis rect size (see <a class="el" href="classQCPItemPosition.html#a0cd9b326fb324710169e92e8ca0041c2">setAxisRect</a>). </p>
+<p>Static positioning given by a fraction of the axis rect size (see <a class="el" href="classQCPItemPosition.html#a0cd9b326fb324710169e92e8ca0041c2">setAxisRect</a>). For example, if you call setCoords(0, 0), the position will be at the top left corner of the axis rect. setCoords(1, 1) will be at the bottom right corner, setCoords(0.5, 0) will be horizontally centered and vertically at the top of the axis rect, etc. You can also go beyond the axis rect by providing negative coordinates or coordinates larger than 1. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="aad9936c22bf43e3d358552f6e86dbdc8ad5ffb8dc99ad73263f7010c77342294c"></a>ptPlotCoords</em>&nbsp;</td><td>
 <p>Dynamic positioning at a plot coordinate defined by two axes (see <a class="el" href="classQCPItemPosition.html#a2185f45c75ac8cb9be89daeaaad50e37">setAxes</a>). </p>
@@ -363,58 +366,6 @@ Protected Functions</h2></td></tr>
 <p>This safe downcast functionality could also be achieved with a dynamic_cast. However, <a class="el" href="classQCustomPlot.html" title="The central class of the library. This is the QWidget which displays the plot and interacts with the ...">QCustomPlot</a> avoids dynamic_cast to work with projects that don't have RTTI support enabled (e.g. -fno-rtti flag with gcc compiler). </p>
 
 <p>Reimplemented from <a class="el" href="classQCPItemAnchor.html#ac54b20120669950255a63587193dbb86">QCPItemAnchor</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="ad11517e2ce5c2f9a798e78fb45e2e0d0"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void QCPItemAnchor::addChild </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classQCPItemPosition.html">QCPItemPosition</a> *&#160;</td>
-          <td class="paramname"><em>pos</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">inherited</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Adds <em>pos</em> to the child list of this anchor. This is necessary to notify the children prior to destruction of the anchor.</p>
-<p>Note that this function does not change the parent setting in <em>pos</em>. </p>
-
-</div>
-</div>
-<a class="anchor" id="ab65ec61984575f737f43c2bb59dd0d76"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void QCPItemAnchor::removeChild </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classQCPItemPosition.html">QCPItemPosition</a> *&#160;</td>
-          <td class="paramname"><em>pos</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">inherited</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Removes <em>pos</em> from the child list of this anchor.</p>
-<p>Note that this function does not change the parent setting in <em>pos</em>. </p>
 
 </div>
 </div>

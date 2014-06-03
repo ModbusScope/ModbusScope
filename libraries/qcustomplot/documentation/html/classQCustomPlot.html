@@ -32,6 +32,7 @@
 <tr class="heading"><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a75a8afbe6ef333b1f3d47abb25b9add7"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCustomPlot.html#a75a8afbe6ef333b1f3d47abb25b9add7">LayerInsertMode</a> </td></tr>
+<tr class="memitem:a45d61392d13042e712a956d27762aa39"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCustomPlot.html#a45d61392d13042e712a956d27762aa39">RefreshPriority</a> </td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-methods"></a>
 Public Functions</h2></td></tr>
@@ -123,14 +124,14 @@ Qt::KeyboardModifier&#160;</td><td class="memItemRight" valign="bottom"><b>multi
 <tr class="memitem:aa6baf867e8beb96ed5bd471f83ece903"><td class="memItemLeft" align="right" valign="top">QList&lt; <a class="el" href="classQCPAxis.html">QCPAxis</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCustomPlot.html#aa6baf867e8beb96ed5bd471f83ece903">selectedAxes</a> () const </td></tr>
 <tr class="memitem:a1ea6297300c3e2770e65f95836411755"><td class="memItemLeft" align="right" valign="top">QList&lt; <a class="el" href="classQCPLegend.html">QCPLegend</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCustomPlot.html#a1ea6297300c3e2770e65f95836411755">selectedLegends</a> () const </td></tr>
 <tr class="memitem:a9d4808ab925b003054085246c92a257c"><td class="memItemLeft" align="right" valign="top">Q_SLOT void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCustomPlot.html#a9d4808ab925b003054085246c92a257c">deselectAll</a> ()</td></tr>
-<tr class="memitem:a84e33ad7492180f20ff520e557ed102d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCustomPlot.html#a84e33ad7492180f20ff520e557ed102d">savePdf</a> (const QString &amp;fileName, bool noCosmeticPen=false, int width=0, int height=0)</td></tr>
+<tr class="memitem:aaf05c57a72daaeebc9685b670ec57b6d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCustomPlot.html#aaf05c57a72daaeebc9685b670ec57b6d">savePdf</a> (const QString &amp;fileName, bool noCosmeticPen=false, int width=0, int height=0, const QString &amp;pdfCreator=&quot;&quot;, const QString &amp;pdfTitle=&quot;&quot;)</td></tr>
 <tr class="memitem:a7636261aff1f6d25c9da749ece3fc8b8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCustomPlot.html#a7636261aff1f6d25c9da749ece3fc8b8">savePng</a> (const QString &amp;fileName, int width=0, int height=0, double scale=1.0, int quality=-1)</td></tr>
 <tr class="memitem:a490c722092d1771e8ce4a7a73dfd84ab"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCustomPlot.html#a490c722092d1771e8ce4a7a73dfd84ab">saveJpg</a> (const QString &amp;fileName, int width=0, int height=0, double scale=1.0, int quality=-1)</td></tr>
 <tr class="memitem:a6629d9e8e6da4bf18055ee0257fdce9a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCustomPlot.html#a6629d9e8e6da4bf18055ee0257fdce9a">saveBmp</a> (const QString &amp;fileName, int width=0, int height=0, double scale=1.0)</td></tr>
 <tr class="memitem:ab528b84cf92baabe29b1d0ef2f77c93e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCustomPlot.html#ab528b84cf92baabe29b1d0ef2f77c93e">saveRastered</a> (const QString &amp;fileName, int width, int height, double scale, const char *format, int quality=-1)</td></tr>
 <tr class="memitem:aabb974d71ce96c137dc04eb6eab844fe"><td class="memItemLeft" align="right" valign="top">QPixmap&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCustomPlot.html#aabb974d71ce96c137dc04eb6eab844fe">toPixmap</a> (int width=0, int height=0, double scale=1.0)</td></tr>
 <tr class="memitem:a1be68d5c0f1e086d6374d1340a193fb9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCustomPlot.html#a1be68d5c0f1e086d6374d1340a193fb9">toPainter</a> (<a class="el" href="classQCPPainter.html">QCPPainter</a> *painter, int width=0, int height=0)</td></tr>
-<tr class="memitem:a563540b54b2a09c8ef092d42e9621f42"><td class="memItemLeft" align="right" valign="top">Q_SLOT void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCustomPlot.html#a563540b54b2a09c8ef092d42e9621f42">replot</a> ()</td></tr>
+<tr class="memitem:a606fd384b2a637ce2c24899bcbde77d6"><td class="memItemLeft" align="right" valign="top">Q_SLOT void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCustomPlot.html#a606fd384b2a637ce2c24899bcbde77d6">replot</a> (<a class="el" href="classQCustomPlot.html#a45d61392d13042e712a956d27762aa39">QCustomPlot::RefreshPriority</a> refreshPriority=<a class="el" href="classQCustomPlot.html#a45d61392d13042e712a956d27762aa39adfa1f2387617168d9299f4c8ad15b332">QCustomPlot::rpHint</a>)</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pub-attribs"></a>
 Public Members</h2></td></tr>
@@ -201,6 +202,33 @@ Protected Functions</h2></td></tr>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="a75a8afbe6ef333b1f3d47abb25b9add7a062b0b7825650b432a713c0df6742d41"></a>limAbove</em>&nbsp;</td><td>
 <p>Layer is inserted above other layer. </p>
+</td></tr>
+</table>
+</dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a45d61392d13042e712a956d27762aa39"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="classQCustomPlot.html#a45d61392d13042e712a956d27762aa39">QCustomPlot::RefreshPriority</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Defines with what timing the <a class="el" href="classQCustomPlot.html" title="The central class of the library. This is the QWidget which displays the plot and interacts with the ...">QCustomPlot</a> surface is refreshed after a replot.</p>
+<dl class="section see"><dt>See Also</dt><dd><a class="el" href="classQCustomPlot.html#a606fd384b2a637ce2c24899bcbde77d6">replot</a> </dd></dl>
+<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" id="a45d61392d13042e712a956d27762aa39a0d4831572370d871f2b7cb88806bac59"></a>rpImmediate</em>&nbsp;</td><td>
+<p>The <a class="el" href="classQCustomPlot.html" title="The central class of the library. This is the QWidget which displays the plot and interacts with the ...">QCustomPlot</a> surface is immediately refreshed, by calling QWidget::repaint() after the replot. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a45d61392d13042e712a956d27762aa39aaaae083a19bc668597bf0f86e000f798"></a>rpQueued</em>&nbsp;</td><td>
+<p>Queues the refresh such that it is performed at a slightly delayed point in time after the replot, by calling QWidget::update() after the replot. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a45d61392d13042e712a956d27762aa39adfa1f2387617168d9299f4c8ad15b332"></a>rpHint</em>&nbsp;</td><td>
+<p>Whether to use immediate repaint or queued update depends on whether the plotting hint <a class="el" href="namespaceQCP.html#a5400e5fcb9528d92002ddb938c1f4ef4aa3090dafa0e0f9a28c579c79d6c2d283">QCP::phForceRepaint</a> is set, see <a class="el" href="classQCustomPlot.html#a94a33cbdadbbac5934843508bcfc210d">setPlottingHints</a>. </p>
 </td></tr>
 </table>
 </dd>
@@ -299,7 +327,7 @@ Protected Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Sets the viewport of this <a class="el" href="classQCustomPlot.html" title="The central class of the library. This is the QWidget which displays the plot and interacts with the ...">QCustomPlot</a>. The Viewport is the area that the top level layout (<a class="el" href="classQCustomPlot.html#afd280d4d621ae64a106543a545c508d7">QCustomPlot::plotLayout()</a>) uses as its rect. Normally, the viewport is the entire widget rect.</p>
-<p>This function is used to allow arbitrary size exports with <a class="el" href="classQCustomPlot.html#aabb974d71ce96c137dc04eb6eab844fe">toPixmap</a>, <a class="el" href="classQCustomPlot.html#a7636261aff1f6d25c9da749ece3fc8b8">savePng</a>, <a class="el" href="classQCustomPlot.html#a84e33ad7492180f20ff520e557ed102d">savePdf</a>, etc. by temporarily changing the viewport size. </p>
+<p>This function is used to allow arbitrary size exports with <a class="el" href="classQCustomPlot.html#aabb974d71ce96c137dc04eb6eab844fe">toPixmap</a>, <a class="el" href="classQCustomPlot.html#a7636261aff1f6d25c9da749ece3fc8b8">savePng</a>, <a class="el" href="classQCustomPlot.html#aaf05c57a72daaeebc9685b670ec57b6d">savePdf</a>, etc. by temporarily changing the viewport size. </p>
 
 </div>
 </div>
@@ -1585,7 +1613,7 @@ Protected Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a84e33ad7492180f20ff520e557ed102d"></a>
+<a class="anchor" id="aaf05c57a72daaeebc9685b670ec57b6d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1611,7 +1639,19 @@ Protected Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>height</em> = <code>0</code>&#160;</td>
+          <td class="paramname"><em>height</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const QString &amp;&#160;</td>
+          <td class="paramname"><em>pdfCreator</em> = <code>&quot;&quot;</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const QString &amp;&#160;</td>
+          <td class="paramname"><em>pdfTitle</em> = <code>&quot;&quot;</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1628,7 +1668,7 @@ Protected Functions</h2></td></tr>
 <li>If you plan on editing the exported PDF file with a vector graphics editor like Inkscape, it is advised to set <em>noCosmeticPen</em> to true to avoid losing those cosmetic lines (which might be quite many, because cosmetic pens are the default for e.g. axes and tick marks). </li>
 <li>If calling this function inside the constructor of the parent of the <a class="el" href="classQCustomPlot.html" title="The central class of the library. This is the QWidget which displays the plot and interacts with the ...">QCustomPlot</a> widget (i.e. the MainWindow constructor, if <a class="el" href="classQCustomPlot.html" title="The central class of the library. This is the QWidget which displays the plot and interacts with the ...">QCustomPlot</a> is inside the MainWindow), always provide explicit non-zero widths and heights. If you leave <em>width</em> or <em>height</em> as 0 (default), this function uses the current width and height of the <a class="el" href="classQCustomPlot.html" title="The central class of the library. This is the QWidget which displays the plot and interacts with the ...">QCustomPlot</a> widget. However, in Qt, these aren't defined yet inside the constructor, so you would get an image that has strange widths/heights.</li>
 </ul>
-</dd></dl>
+<em>pdfCreator</em> and <em>pdfTitle</em> may be used to set the according metadata fields in the resulting PDF file.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>On Android systems, this method does nothing and issues an according qDebug warning message. This is also the case if for other reasons the define flag QT_NO_PRINTER is set.</dd></dl>
 <dl class="section see"><dt>See Also</dt><dd><a class="el" href="classQCustomPlot.html#a7636261aff1f6d25c9da749ece3fc8b8">savePng</a>, <a class="el" href="classQCustomPlot.html#a6629d9e8e6da4bf18055ee0257fdce9a">saveBmp</a>, <a class="el" href="classQCustomPlot.html#a490c722092d1771e8ce4a7a73dfd84ab">saveJpg</a>, <a class="el" href="classQCustomPlot.html#ab528b84cf92baabe29b1d0ef2f77c93e">saveRastered</a> </dd></dl>
 
@@ -1683,7 +1723,7 @@ Protected Functions</h2></td></tr>
 <p>If you want the PNG to have a transparent background, call <a class="el" href="classQCustomPlot.html#a130358592cfca353ff3cf5571b49fb00">setBackground</a>(const QBrush &amp;brush) with no brush (Qt::NoBrush) or a transparent color (Qt::transparent), before saving.</p>
 <p>PNG compression can be controlled with the <em>quality</em> parameter which must be between 0 and 100 or -1 to use the default setting.</p>
 <p>Returns true on success. If this function fails, most likely the PNG format isn't supported by the system, see Qt docs about QImageWriter::supportedImageFormats().</p>
-<dl class="section see"><dt>See Also</dt><dd><a class="el" href="classQCustomPlot.html#a84e33ad7492180f20ff520e557ed102d">savePdf</a>, <a class="el" href="classQCustomPlot.html#a6629d9e8e6da4bf18055ee0257fdce9a">saveBmp</a>, <a class="el" href="classQCustomPlot.html#a490c722092d1771e8ce4a7a73dfd84ab">saveJpg</a>, <a class="el" href="classQCustomPlot.html#ab528b84cf92baabe29b1d0ef2f77c93e">saveRastered</a> </dd></dl>
+<dl class="section see"><dt>See Also</dt><dd><a class="el" href="classQCustomPlot.html#aaf05c57a72daaeebc9685b670ec57b6d">savePdf</a>, <a class="el" href="classQCustomPlot.html#a6629d9e8e6da4bf18055ee0257fdce9a">saveBmp</a>, <a class="el" href="classQCustomPlot.html#a490c722092d1771e8ce4a7a73dfd84ab">saveJpg</a>, <a class="el" href="classQCustomPlot.html#ab528b84cf92baabe29b1d0ef2f77c93e">saveRastered</a> </dd></dl>
 
 </div>
 </div>
@@ -1735,7 +1775,7 @@ Protected Functions</h2></td></tr>
 <p>The objects of the plot will appear in the current selection state. If you don't want any selected objects to be painted in their selected look, deselect everything with <a class="el" href="classQCustomPlot.html#a9d4808ab925b003054085246c92a257c">deselectAll</a> before calling this function.</p>
 <p>JPG compression can be controlled with the <em>quality</em> parameter which must be between 0 and 100 or -1 to use the default setting.</p>
 <p>Returns true on success. If this function fails, most likely the JPG format isn't supported by the system, see Qt docs about QImageWriter::supportedImageFormats().</p>
-<dl class="section see"><dt>See Also</dt><dd><a class="el" href="classQCustomPlot.html#a84e33ad7492180f20ff520e557ed102d">savePdf</a>, <a class="el" href="classQCustomPlot.html#a7636261aff1f6d25c9da749ece3fc8b8">savePng</a>, <a class="el" href="classQCustomPlot.html#a6629d9e8e6da4bf18055ee0257fdce9a">saveBmp</a>, <a class="el" href="classQCustomPlot.html#ab528b84cf92baabe29b1d0ef2f77c93e">saveRastered</a> </dd></dl>
+<dl class="section see"><dt>See Also</dt><dd><a class="el" href="classQCustomPlot.html#aaf05c57a72daaeebc9685b670ec57b6d">savePdf</a>, <a class="el" href="classQCustomPlot.html#a7636261aff1f6d25c9da749ece3fc8b8">savePng</a>, <a class="el" href="classQCustomPlot.html#a6629d9e8e6da4bf18055ee0257fdce9a">saveBmp</a>, <a class="el" href="classQCustomPlot.html#ab528b84cf92baabe29b1d0ef2f77c93e">saveRastered</a> </dd></dl>
 
 </div>
 </div>
@@ -1780,7 +1820,7 @@ Protected Functions</h2></td></tr>
 <dl class="section warning"><dt>Warning</dt><dd>If calling this function inside the constructor of the parent of the <a class="el" href="classQCustomPlot.html" title="The central class of the library. This is the QWidget which displays the plot and interacts with the ...">QCustomPlot</a> widget (i.e. the MainWindow constructor, if <a class="el" href="classQCustomPlot.html" title="The central class of the library. This is the QWidget which displays the plot and interacts with the ...">QCustomPlot</a> is inside the MainWindow), always provide explicit non-zero widths and heights. If you leave <em>width</em> or <em>height</em> as 0 (default), this function uses the current width and height of the <a class="el" href="classQCustomPlot.html" title="The central class of the library. This is the QWidget which displays the plot and interacts with the ...">QCustomPlot</a> widget. However, in Qt, these aren't defined yet inside the constructor, so you would get an image that has strange widths/heights.</dd></dl>
 <p>The objects of the plot will appear in the current selection state. If you don't want any selected objects to be painted in their selected look, deselect everything with <a class="el" href="classQCustomPlot.html#a9d4808ab925b003054085246c92a257c">deselectAll</a> before calling this function.</p>
 <p>Returns true on success. If this function fails, most likely the BMP format isn't supported by the system, see Qt docs about QImageWriter::supportedImageFormats().</p>
-<dl class="section see"><dt>See Also</dt><dd><a class="el" href="classQCustomPlot.html#a84e33ad7492180f20ff520e557ed102d">savePdf</a>, <a class="el" href="classQCustomPlot.html#a7636261aff1f6d25c9da749ece3fc8b8">savePng</a>, <a class="el" href="classQCustomPlot.html#a490c722092d1771e8ce4a7a73dfd84ab">saveJpg</a>, <a class="el" href="classQCustomPlot.html#ab528b84cf92baabe29b1d0ef2f77c93e">saveRastered</a> </dd></dl>
+<dl class="section see"><dt>See Also</dt><dd><a class="el" href="classQCustomPlot.html#aaf05c57a72daaeebc9685b670ec57b6d">savePdf</a>, <a class="el" href="classQCustomPlot.html#a7636261aff1f6d25c9da749ece3fc8b8">savePng</a>, <a class="el" href="classQCustomPlot.html#a490c722092d1771e8ce4a7a73dfd84ab">saveJpg</a>, <a class="el" href="classQCustomPlot.html#ab528b84cf92baabe29b1d0ef2f77c93e">saveRastered</a> </dd></dl>
 
 </div>
 </div>
@@ -1833,7 +1873,7 @@ Protected Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Saves the plot to a rastered image file <em>fileName</em> in the image format <em>format</em>. The plot is sized to <em>width</em> and <em>height</em> in pixels and scaled with <em>scale</em>. (width 100 and scale 2.0 lead to a full resolution file with width 200.) If the <em>format</em> supports compression, <em>quality</em> may be between 0 and 100 to control it.</p>
 <p>Returns true on success. If this function fails, most likely the given <em>format</em> isn't supported by the system, see Qt docs about QImageWriter::supportedImageFormats().</p>
-<dl class="section see"><dt>See Also</dt><dd><a class="el" href="classQCustomPlot.html#a6629d9e8e6da4bf18055ee0257fdce9a">saveBmp</a>, <a class="el" href="classQCustomPlot.html#a490c722092d1771e8ce4a7a73dfd84ab">saveJpg</a>, <a class="el" href="classQCustomPlot.html#a7636261aff1f6d25c9da749ece3fc8b8">savePng</a>, <a class="el" href="classQCustomPlot.html#a84e33ad7492180f20ff520e557ed102d">savePdf</a> </dd></dl>
+<dl class="section see"><dt>See Also</dt><dd><a class="el" href="classQCustomPlot.html#a6629d9e8e6da4bf18055ee0257fdce9a">saveBmp</a>, <a class="el" href="classQCustomPlot.html#a490c722092d1771e8ce4a7a73dfd84ab">saveJpg</a>, <a class="el" href="classQCustomPlot.html#a7636261aff1f6d25c9da749ece3fc8b8">savePng</a>, <a class="el" href="classQCustomPlot.html#aaf05c57a72daaeebc9685b670ec57b6d">savePdf</a> </dd></dl>
 
 </div>
 </div>
@@ -1868,7 +1908,7 @@ Protected Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Renders the plot to a pixmap and returns it.</p>
 <p>The plot is sized to <em>width</em> and <em>height</em> in pixels and scaled with <em>scale</em>. (width 100 and scale 2.0 lead to a full resolution pixmap with width 200.)</p>
-<dl class="section see"><dt>See Also</dt><dd><a class="el" href="classQCustomPlot.html#a1be68d5c0f1e086d6374d1340a193fb9">toPainter</a>, <a class="el" href="classQCustomPlot.html#ab528b84cf92baabe29b1d0ef2f77c93e">saveRastered</a>, <a class="el" href="classQCustomPlot.html#a6629d9e8e6da4bf18055ee0257fdce9a">saveBmp</a>, <a class="el" href="classQCustomPlot.html#a7636261aff1f6d25c9da749ece3fc8b8">savePng</a>, <a class="el" href="classQCustomPlot.html#a490c722092d1771e8ce4a7a73dfd84ab">saveJpg</a>, <a class="el" href="classQCustomPlot.html#a84e33ad7492180f20ff520e557ed102d">savePdf</a> </dd></dl>
+<dl class="section see"><dt>See Also</dt><dd><a class="el" href="classQCustomPlot.html#a1be68d5c0f1e086d6374d1340a193fb9">toPainter</a>, <a class="el" href="classQCustomPlot.html#ab528b84cf92baabe29b1d0ef2f77c93e">saveRastered</a>, <a class="el" href="classQCustomPlot.html#a6629d9e8e6da4bf18055ee0257fdce9a">saveBmp</a>, <a class="el" href="classQCustomPlot.html#a7636261aff1f6d25c9da749ece3fc8b8">savePng</a>, <a class="el" href="classQCustomPlot.html#a490c722092d1771e8ce4a7a73dfd84ab">saveJpg</a>, <a class="el" href="classQCustomPlot.html#aaf05c57a72daaeebc9685b670ec57b6d">savePdf</a> </dd></dl>
 
 </div>
 </div>
@@ -1908,14 +1948,15 @@ Protected Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a563540b54b2a09c8ef092d42e9621f42"></a>
+<a class="anchor" id="a606fd384b2a637ce2c24899bcbde77d6"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void QCustomPlot::replot </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype"><a class="el" href="classQCustomPlot.html#a45d61392d13042e712a956d27762aa39">QCustomPlot::RefreshPriority</a>&#160;</td>
+          <td class="paramname"><em>refreshPriority</em> = <code><a class="el" href="classQCustomPlot.html#a45d61392d13042e712a956d27762aa39adfa1f2387617168d9299f4c8ad15b332">QCustomPlot::rpHint</a></code></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -2497,9 +2538,9 @@ Protected Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This signal is emitted immediately before a replot takes place (caused by a call to the slot <a class="el" href="classQCustomPlot.html#a563540b54b2a09c8ef092d42e9621f42">replot</a>).</p>
+<p>This signal is emitted immediately before a replot takes place (caused by a call to the slot <a class="el" href="classQCustomPlot.html#a606fd384b2a637ce2c24899bcbde77d6">replot</a>).</p>
 <p>It is safe to mutually connect the replot slot with this signal on two QCustomPlots to make them replot synchronously, it won't cause an infinite recursion.</p>
-<dl class="section see"><dt>See Also</dt><dd><a class="el" href="classQCustomPlot.html#a563540b54b2a09c8ef092d42e9621f42">replot</a>, <a class="el" href="classQCustomPlot.html#a6f4fa624af060bc5919c5f266cf426a0">afterReplot</a> </dd></dl>
+<dl class="section see"><dt>See Also</dt><dd><a class="el" href="classQCustomPlot.html#a606fd384b2a637ce2c24899bcbde77d6">replot</a>, <a class="el" href="classQCustomPlot.html#a6f4fa624af060bc5919c5f266cf426a0">afterReplot</a> </dd></dl>
 
 </div>
 </div>
@@ -2523,9 +2564,9 @@ Protected Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This signal is emitted immediately after a replot has taken place (caused by a call to the slot <a class="el" href="classQCustomPlot.html#a563540b54b2a09c8ef092d42e9621f42">replot</a>).</p>
+<p>This signal is emitted immediately after a replot has taken place (caused by a call to the slot <a class="el" href="classQCustomPlot.html#a606fd384b2a637ce2c24899bcbde77d6">replot</a>).</p>
 <p>It is safe to mutually connect the replot slot with this signal on two QCustomPlots to make them replot synchronously, it won't cause an infinite recursion.</p>
-<dl class="section see"><dt>See Also</dt><dd><a class="el" href="classQCustomPlot.html#a563540b54b2a09c8ef092d42e9621f42">replot</a>, <a class="el" href="classQCustomPlot.html#a0cd30e29b73efd6afe096e44bc5956f5">beforeReplot</a> </dd></dl>
+<dl class="section see"><dt>See Also</dt><dd><a class="el" href="classQCustomPlot.html#a606fd384b2a637ce2c24899bcbde77d6">replot</a>, <a class="el" href="classQCustomPlot.html#a0cd30e29b73efd6afe096e44bc5956f5">beforeReplot</a> </dd></dl>
 
 </div>
 </div>
@@ -2598,7 +2639,7 @@ Protected Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Event handler for when the <a class="el" href="classQCustomPlot.html" title="The central class of the library. This is the QWidget which displays the plot and interacts with the ...">QCustomPlot</a> widget needs repainting. This does not cause a <a class="el" href="classQCustomPlot.html#a563540b54b2a09c8ef092d42e9621f42">replot</a>, but draws the internal buffer on the widget surface. </p>
+<p>Event handler for when the <a class="el" href="classQCustomPlot.html" title="The central class of the library. This is the QWidget which displays the plot and interacts with the ...">QCustomPlot</a> widget needs repainting. This does not cause a <a class="el" href="classQCustomPlot.html#a606fd384b2a637ce2c24899bcbde77d6">replot</a>, but draws the internal buffer on the widget surface. </p>
 
 </div>
 </div>
@@ -2623,7 +2664,7 @@ Protected Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Event handler for a resize of the <a class="el" href="classQCustomPlot.html" title="The central class of the library. This is the QWidget which displays the plot and interacts with the ...">QCustomPlot</a> widget. Causes the internal buffer to be resized to the new size. The viewport (which becomes the outer rect of mPlotLayout) is resized appropriately. Finally a <a class="el" href="classQCustomPlot.html#a563540b54b2a09c8ef092d42e9621f42">replot</a> is performed. </p>
+<p>Event handler for a resize of the <a class="el" href="classQCustomPlot.html" title="The central class of the library. This is the QWidget which displays the plot and interacts with the ...">QCustomPlot</a> widget. Causes the internal buffer to be resized to the new size. The viewport (which becomes the outer rect of mPlotLayout) is resized appropriately. Finally a <a class="el" href="classQCustomPlot.html#a606fd384b2a637ce2c24899bcbde77d6">replot</a> is performed. </p>
 
 </div>
 </div>
@@ -2780,7 +2821,7 @@ Protected Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This is the main draw function. It draws the entire plot, including background pixmap, with the specified <em>painter</em>. Note that it does not fill the background with the background brush (as the user may specify with <a class="el" href="classQCustomPlot.html#a8ed256cf467bfa7ba1f9feaae62c3bd0">setBackground(const QBrush &amp;brush)</a>), this is up to the respective functions calling this method (e.g. <a class="el" href="classQCustomPlot.html#a563540b54b2a09c8ef092d42e9621f42">replot</a>, <a class="el" href="classQCustomPlot.html#aabb974d71ce96c137dc04eb6eab844fe">toPixmap</a> and <a class="el" href="classQCustomPlot.html#a1be68d5c0f1e086d6374d1340a193fb9">toPainter</a>). </p>
+<p>This is the main draw function. It draws the entire plot, including background pixmap, with the specified <em>painter</em>. Note that it does not fill the background with the background brush (as the user may specify with <a class="el" href="classQCustomPlot.html#a8ed256cf467bfa7ba1f9feaae62c3bd0">setBackground(const QBrush &amp;brush)</a>), this is up to the respective functions calling this method (e.g. <a class="el" href="classQCustomPlot.html#a606fd384b2a637ce2c24899bcbde77d6">replot</a>, <a class="el" href="classQCustomPlot.html#aabb974d71ce96c137dc04eb6eab844fe">toPixmap</a> and <a class="el" href="classQCustomPlot.html#a1be68d5c0f1e086d6374d1340a193fb9">toPainter</a>). </p>
 
 </div>
 </div>
@@ -2922,7 +2963,7 @@ Protected Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 <p>Draws the viewport background pixmap of the plot.</p>
-<p>If a pixmap was provided via <a class="el" href="classQCustomPlot.html#a130358592cfca353ff3cf5571b49fb00">setBackground</a>, this function buffers the scaled version depending on <a class="el" href="classQCustomPlot.html#a36f0fa1317325dc7b7efea615ee2de1f">setBackgroundScaled</a> and <a class="el" href="classQCustomPlot.html#a4c0eb4865b7949f62e1cb97db04a3de0">setBackgroundScaledMode</a> and then draws it inside the viewport with the provided <em>painter</em>. The scaled version is buffered in mScaledBackgroundPixmap to prevent expensive rescaling at every redraw. It is only updated, when the axis rect has changed in a way that requires a rescale of the background pixmap (this is dependant on the <a class="el" href="classQCustomPlot.html#a4c0eb4865b7949f62e1cb97db04a3de0">setBackgroundScaledMode</a>), or when a differend axis backgroud pixmap was set.</p>
+<p>If a pixmap was provided via <a class="el" href="classQCustomPlot.html#a130358592cfca353ff3cf5571b49fb00">setBackground</a>, this function buffers the scaled version depending on <a class="el" href="classQCustomPlot.html#a36f0fa1317325dc7b7efea615ee2de1f">setBackgroundScaled</a> and <a class="el" href="classQCustomPlot.html#a4c0eb4865b7949f62e1cb97db04a3de0">setBackgroundScaledMode</a> and then draws it inside the viewport with the provided <em>painter</em>. The scaled version is buffered in mScaledBackgroundPixmap to prevent expensive rescaling at every redraw. It is only updated, when the axis rect has changed in a way that requires a rescale of the background pixmap (this is dependent on the <a class="el" href="classQCustomPlot.html#a4c0eb4865b7949f62e1cb97db04a3de0">setBackgroundScaledMode</a>), or when a differend axis background pixmap was set.</p>
 <p>Note that this function does not draw a fill with the background brush (<a class="el" href="classQCustomPlot.html#a130358592cfca353ff3cf5571b49fb00">setBackground</a>(const QBrush &amp;brush)) beneath the pixmap.</p>
 <dl class="section see"><dt>See Also</dt><dd><a class="el" href="classQCustomPlot.html#a130358592cfca353ff3cf5571b49fb00">setBackground</a>, <a class="el" href="classQCustomPlot.html#a36f0fa1317325dc7b7efea615ee2de1f">setBackgroundScaled</a>, <a class="el" href="classQCustomPlot.html#a4c0eb4865b7949f62e1cb97db04a3de0">setBackgroundScaledMode</a> </dd></dl>
 

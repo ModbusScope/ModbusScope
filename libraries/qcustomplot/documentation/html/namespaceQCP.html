@@ -153,7 +153,7 @@ Functions</h2></td></tr>
 <p><code>0x001</code> Graph/Curve lines are drawn with a faster method. This reduces the quality especially of the line segment joins. (Only relevant for solid line pens.) </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="a5400e5fcb9528d92002ddb938c1f4ef4aa3090dafa0e0f9a28c579c79d6c2d283"></a>phForceRepaint</em>&nbsp;</td><td>
-<p><code>0x002</code> causes an immediate repaint() instead of a soft update() when <a class="el" href="classQCustomPlot.html#a563540b54b2a09c8ef092d42e9621f42">QCustomPlot::replot()</a> is called. This is set by default on Windows-Systems to prevent the plot from freezing on fast consecutive replots (e.g. user drags ranges with mouse). </p>
+<p><code>0x002</code> causes an immediate repaint() instead of a soft update() when <a class="el" href="classQCustomPlot.html#a606fd384b2a637ce2c24899bcbde77d6">QCustomPlot::replot()</a> is called with parameter <a class="el" href="classQCustomPlot.html#a45d61392d13042e712a956d27762aa39adfa1f2387617168d9299f4c8ad15b332">QCustomPlot::rpHint</a>. This is set by default to prevent the plot from freezing on fast consecutive replots (e.g. user drags ranges with mouse). </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="a5400e5fcb9528d92002ddb938c1f4ef4a8e9cfe5ee0c5cd36dd7accf9739aff65"></a>phCacheLabels</em>&nbsp;</td><td>
 <p><code>0x004</code> axis (tick) labels will be cached as pixmaps, increasing replot performance. </p>

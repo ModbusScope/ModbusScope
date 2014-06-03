@@ -35,6 +35,9 @@ Public Functions</h2></td></tr>
 QString&#160;</td><td class="memItemRight" valign="bottom"><b>name</b> () const </td></tr>
 <tr class="memitem:ad5d7010829a6b99f326b07d7e37c8c99"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCPLayer.html#ad5d7010829a6b99f326b07d7e37c8c99">index</a> () const </td></tr>
 <tr class="memitem:a94c2f0100e48cefad2de8fe0fbb03c27"><td class="memItemLeft" align="right" valign="top">QList&lt; <a class="el" href="classQCPLayerable.html">QCPLayerable</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCPLayer.html#a94c2f0100e48cefad2de8fe0fbb03c27">children</a> () const </td></tr>
+<tr class="memitem:a9efca636e4dcad721999a6282f296016"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9efca636e4dcad721999a6282f296016"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>visible</b> () const </td></tr>
+<tr class="memitem:ac07671f74edf6884b51a82afb2c19516"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQCPLayer.html#ac07671f74edf6884b51a82afb2c19516">setVisible</a> (bool visible)</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2><a name="pro-methods"></a>
 Protected Functions</h2></td></tr>
@@ -128,6 +131,24 @@ Protected Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 <p>Returns a list of all layerables on this layer. The order corresponds to the rendering order: layerables with higher indices are drawn above layerables with lower indices. </p>
+
+</div>
+</div>
+<a class="anchor" id="ac07671f74edf6884b51a82afb2c19516"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void QCPLayer::setVisible </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>visible</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Sets whether this layer is visible or not. If <em>visible</em> is set to false, all layerables on this layer will be invisible.</p>
+<p>This function doesn't change the visibility property of the layerables (<a class="el" href="classQCPLayerable.html#a3bed99ddc396b48ce3ebfdc0418744f8">QCPLayerable::setVisible</a>), but the <a class="el" href="classQCPLayerable.html#a30809f7455e9794bca7b6c737622fa63">QCPLayerable::realVisibility</a> of each layerable takes the visibility of the parent layer into account. </p>
 
 </div>
 </div>

@@ -26,7 +26,7 @@
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">/***************************************************************************</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment">**                                                                        **</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment">**  QCustomPlot, an easy to use, modern plotting widget for Qt            **</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment">**  Copyright (C) 2011, 2012, 2013 Emanuel Eichhammer                     **</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment">**  Copyright (C) 2011, 2012, 2013, 2014 Emanuel Eichhammer               **</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="comment">**                                                                        **</span></div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="comment">**  This program is free software: you can redistribute it and/or modify  **</span></div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="comment">**  it under the terms of the GNU General Public License as published by  **</span></div>
@@ -44,8 +44,8 @@
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="comment">****************************************************************************</span></div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="comment">**           Author: Emanuel Eichhammer                                   **</span></div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment">**  Website/Contact: http://www.qcustomplot.com/                          **</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment">**             Date: 09.12.13                                             **</span></div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="comment">**          Version: 1.1.1                                                **</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment">**             Date: 07.04.14                                             **</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="comment">**          Version: 1.2.1                                                **</span></div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment">****************************************************************************/</span></div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">#ifndef QCP_LAYOUTELEMENT_AXISRECT_H</span></div>
@@ -60,7 +60,7 @@
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="keyword">class </span><a class="code" href="classQCPAxis.html" title="Manages a single axis inside a QCustomPlot.">QCPAxis</a>;</div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="keyword">class </span><a class="code" href="classQCPAbstractPlottable.html" title="The abstract base class for all data representing objects in a plot.">QCPAbstractPlottable</a>;</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="keyword">class </span><a class="code" href="classQCPGraph.html" title="A plottable representing a graph in a plot.">QCPGraph</a>;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="keyword">class </span><a class="code" href="classQCPAbstractItem.html" title="The abstract base class for all items in a plot.">QCPAbstractItem</a>; </div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="keyword">class </span><a class="code" href="classQCPAbstractItem.html" title="The abstract base class for all items in a plot.">QCPAbstractItem</a>;</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
 <div class="line"><a name="l00040"></a><span class="lineno"><a class="code" href="classQCPAxisRect.html">   40</a></span>&#160;<span class="keyword">class </span>QCP_LIB_DECL <a class="code" href="classQCPAxisRect.html" title="Holds multiple axes and arranges them in a rectangular shape.">QCPAxisRect</a> : <span class="keyword">public</span> <a class="code" href="classQCPLayoutElement.html" title="The abstract base class for all objects that form the layout system.">QCPLayoutElement</a></div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;{</div>
@@ -127,7 +127,7 @@
 <div class="line"><a name="l00104"></a><span class="lineno"><a class="code" href="classQCPAxisRect.html#aea5e6042bca198424fa1bc02fc282e59">  104</a></span>&#160;  QPoint <a class="code" href="classQCPAxisRect.html#aea5e6042bca198424fa1bc02fc282e59">center</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> mRect.center(); }</div>
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;  </div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;  <span class="comment">// reimplemented virtual methods:</span></div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classQCPLayoutElement.html#a46d52cb1f07ba05564920321f4ada184">update</a>();</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classQCPLayoutElement.html#a929c2ec62e0e0e1d8418eaa802e2af9b">update</a>(UpdatePhase phase);</div>
 <div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;  <span class="keyword">virtual</span> QList&lt;QCPLayoutElement*&gt; <a class="code" href="classQCPLayoutElement.html#a311d60d78e62ef8eaaedb1b6ceb9e788">elements</a>(<span class="keywordtype">bool</span> recursive) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;</div>
 <div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="keyword">protected</span>:</div>
