@@ -151,7 +151,7 @@ qint32 ModbusMaster::ReadRegisters(ModbusSettings * pSettings, quint16 startReg,
         else
         {
             pResultList->clear();
-            for (u_int32_t i = 0; i < num; i++)
+            for (quint32 i = 0; i < num; i++)
             {
 #ifdef QT_DEBUG_OUTPUT
                 qDebug() << "Register result (" << i << "): " << aRegister[i];

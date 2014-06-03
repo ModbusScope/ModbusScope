@@ -20,24 +20,24 @@ public:
 
 signals:
 
-    void stopThread();
+    void StopThread();
 
-    void startModbus();
-    void stopModbus();
+    void StartModbus();
+    void StopModbus();
 
 private slots:
-    void selectionChanged();
-    void mousePress();
-    void mouseWheel();
+    void SelectionChanged();
+    void MousePress();
+    void MouseWheel();
 
-    void startScope(void);
-    void stopScope(void);
+    void StartScope();
+    void StopScope();
 
 public slots:
-    void plotResults(QList<u_int16_t> values);
+    void PlotResults(QList<quint16> values);
 
 private:
-    Ui::MainWindow *ui;
+    Ui::MainWindow * _ui;
     ModbusScope * _scope;
     ModbusSettings _modbusSettings;
     QList<quint16> _registerList;

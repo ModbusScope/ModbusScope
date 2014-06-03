@@ -17,23 +17,23 @@ class SettingsDialog : public QDialog
 public:
     explicit SettingsDialog(QWidget *parent = 0);
     ~SettingsDialog();
-    void getModbusSettings(ModbusSettings * pSettings);
-    void getRegisterList(QList <quint16> * pRegisterList);
+    void GetModbusSettings(ModbusSettings * pSettings);
+    void GetRegisterList(QList <quint16> * pRegisterList);
 
 public slots:
-    void accept();
-    void reject();
+    void Accept();
+    void Reject();
 
 private slots:
-    void addRegister();
-    void removeRegister();
+    void AddRegister();
+    void RemoveRegister();
 
 private:
-    Ui::SettingsDialog *ui;
-    ModbusSettings commSettings;
-    QList <quint16> registerList;
+    Ui::SettingsDialog * _ui;
+    ModbusSettings _commSettings;
+    QList <quint16> _registerList;
 
-    QStringListModel modelReg;
+    QStringListModel _modelReg;
 
 };
 

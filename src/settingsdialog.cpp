@@ -6,71 +6,71 @@
 
 SettingsDialog::SettingsDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::SettingsDialog)
+    _ui(new Ui::SettingsDialog)
 {
-    ui->setupUi(this);
+    _ui->setupUi(this);
 
-    modelReg.insertRow(modelReg.rowCount());
-    QModelIndex index = modelReg.index(modelReg.rowCount() - 1);
-    modelReg.setData(index, "40001");
+    _modelReg.insertRow(_modelReg.rowCount());
+    QModelIndex index = _modelReg.index(_modelReg.rowCount() - 1);
+    _modelReg.setData(index, "40001");
 
-    ui->listReg->setModel(&modelReg);
-    ui->listReg->show();
+    _ui->listReg->setModel(&_modelReg);
+    _ui->listReg->show();
 
     // Setup handler for buttons
-    connect(ui->btnAdd, SIGNAL(released()), this, SLOT(addRegister()));
-    connect(ui->btnRemove, SIGNAL(released()), this, SLOT(removeRegister()));
+    connect(_ui->btnAdd, SIGNAL(released()), this, SLOT(AddRegister()));
+    connect(_ui->btnRemove, SIGNAL(released()), this, SLOT(RemoveRegister()));
 }
 
 SettingsDialog::~SettingsDialog()
 {
-    delete ui;
+    delete _ui;
 }
 
-void SettingsDialog::addRegister()
+void SettingsDialog::AddRegister()
 {
-    modelReg.insertRow(modelReg.rowCount());
-    QModelIndex index = modelReg.index(modelReg.rowCount() - 1);
-    modelReg.setData(index, ui->spinReg->text());
+    _modelReg.insertRow(_modelReg.rowCount());
+    QModelIndex index = _modelReg.index(_modelReg.rowCount() - 1);
+    _modelReg.setData(index, _ui->spinReg->text());
 }
 
 
-void SettingsDialog::removeRegister()
+void SettingsDialog::RemoveRegister()
 {
-    modelReg.removeRows(ui->listReg->currentIndex().row(), 1);
+    _modelReg.removeRows(_ui->listReg->currentIndex().row(), 1);
 }
 
-void SettingsDialog::getModbusSettings(ModbusSettings * pSettings)
+void SettingsDialog::GetModbusSettings(ModbusSettings * pSettings)
 {
-    pSettings->Copy(&commSettings);
+    pSettings->Copy(&_commSettings);
 }
 
-void SettingsDialog::getRegisterList(QList <quint16> * pRegisterList)
+void SettingsDialog::GetRegisterList(QList <quint16> * pRegisterList)
 {
     pRegisterList->clear();
 
-    for(qint32 i = 0; i < registerList.size(); i++)
+    for(qint32 i = 0; i < _registerList.size(); i++)
     {
-        pRegisterList->append(registerList[i]);
+        pRegisterList->append(_registerList[i]);
     }
 }
 
-void SettingsDialog::accept()
+void SettingsDialog::Accept()
 {
     /* Process data */
 
     // TODO: add some checks */
-    commSettings.SetIpAddress(ui->lineIP->text());
-    commSettings.SetPort(ui->spinPort->text().toInt());
+    _commSettings.SetIpAddress(_ui->lineIP->text());
+    _commSettings.SetPort(_ui->spinPort->text().toInt());
 
-    qDebug() << "Number of regs (" << modelReg.rowCount() << ")" << "\n";
+    qDebug() << "Number of regs (" << _modelReg.rowCount() << ")" << "\n";
 
-    registerList.clear();
-    for(int32_t i = 0; i < modelReg.rowCount(); i++)
+    _registerList.clear();
+    for(int32_t i = 0; i < _modelReg.rowCount(); i++)
     {
-        registerList.append(modelReg.data(modelReg.index(i), Qt::DisplayRole).toInt());
+        _registerList.append(_modelReg.data(_modelReg.index(i), Qt::DisplayRole).toInt());
     }
-    qDebug() << "Number of regs 2 (" << registerList.size() << ")" << "\n";
+    qDebug() << "Number of regs 2 (" << _registerList.size() << ")" << "\n";
 
     //if processing is ok
     QDialog::accept();
@@ -83,7 +83,7 @@ void SettingsDialog::accept()
          * */
 }
 
-void SettingsDialog::reject()
+void SettingsDialog::Reject()
 {
     QDialog::reject();
 }
