@@ -2,13 +2,15 @@
 
 #include "modbusmaster.h"
 #include "modbussettings.h"
+#include "scopegui.h"
 #include "QTimer"
+#include "qcustomplot.h"
 #include "QDebug"
 
 #include "modbusscope.h"
 
-ModbusScope::ModbusScope(QObject *parent) :
-    QObject(parent), _master(NULL), _active(false), _timer(new QTimer())
+ModbusScope::ModbusScope(QCustomPlot * pGraph, QObject *parent) :
+    QObject(parent), _master(NULL), _gui(NULL), _active(false), _timer(new QTimer())
 {
 
     qRegisterMetaType<QList<quint16> *>("QList<quint16> *");
@@ -16,6 +18,9 @@ ModbusScope::ModbusScope(QObject *parent) :
 
     /* Setup modbus master */
     _master = new ModbusMaster();
+
+    /* Setup GUI graph */
+    _gui = new ScopeGui(pGraph, this);
 
     connect(this, SIGNAL(RequestStop()), _master, SLOT(StopThread()));
 
@@ -25,7 +30,7 @@ ModbusScope::ModbusScope(QObject *parent) :
     _master->StartThread();
 
     connect(this, SIGNAL(RegisterRequest(ModbusSettings *, QList<quint16> *)), _master, SLOT(ReadRegisterList(ModbusSettings *, QList<quint16> *)));
-    connect(_master, SIGNAL(ReadRegisterResult(bool, QList<quint16>)), this, SLOT(RegisterProcess(bool, QList<quint16>)));
+    connect(_master, SIGNAL(ReadRegisterResult(bool, QList<quint16>)), _gui, SLOT(PlotResults(bool, QList<quint16>)));
 }
 
 ModbusScope::~ModbusScope()
@@ -48,19 +53,21 @@ ModbusScope::~ModbusScope()
     delete _timer;
 }
 
-void ModbusScope::StartCommunication(ModbusSettings * settings, QList<quint16> * registerList)
+void ModbusScope::StartCommunication(ModbusSettings * pSettings, QList<quint16> * pRegisterList)
 {
     if (!_active)
     {
-        _settings.Copy(settings);
+        _settings.Copy(pSettings);
 
         _registerlist.clear();
 
-        for(qint32 i = 0; i < registerList->size(); i++)
+        for(qint32 i = 0; i < pRegisterList->size(); i++)
         {
             //TODO option
-            _registerlist.append(registerList->at(i) - 40001);
+            _registerlist.append(pRegisterList->at(i) - 40001);
         }
+
+        _gui->ResetGraph(pRegisterList->size());
 
         // Start timer
         _timer->singleShot(1000, this, SLOT(ReadData()));
@@ -83,12 +90,6 @@ void ModbusScope::StopCommunication()
     qDebug() << "ModbusScope::StopCommunication";
 #endif
     _active = false;
-}
-
-void ModbusScope::RegisterProcess(bool success, QList<quint16> resultList)
-{
-    Q_UNUSED(success);
-    Q_UNUSED(resultList);
 }
 
 void ModbusScope::ReadData()

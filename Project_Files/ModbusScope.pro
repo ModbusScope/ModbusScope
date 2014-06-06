@@ -28,7 +28,8 @@ SOURCES +=  \
     ../libraries/libmodbus/src/modbus.c \
     ../libraries/libmodbus/src/modbus-tcp.c \
     ../libraries/qcustomplot/qcustomplot.cpp \
-    ../src/modbusscope.cpp
+    ../src/modbusscope.cpp \
+    ../src/scopegui.cpp
 
 FORMS    += \
     ../src/mainwindow.ui \
@@ -46,4 +47,5 @@ HEADERS += \
     ../libraries/libmodbus/src/modbus-tcp-private.h \
     ../libraries/libmodbus/src/config.h \
     ../libraries/qcustomplot/qcustomplot.h \
-    ../src/modbusscope.h
+    ../src/modbusscope.h \
+    ../src/scopegui.h

@@ -19,7 +19,7 @@ public:
     void Wait();
 
 signals:
-    void ReadRegisterResult(bool success, QList<quint16> resultList);
+    void ReadRegisterResult(bool bSuccess, QList<quint16> pRegisterList);
     void ThreadStopped();
 
 public slots:
@@ -34,7 +34,7 @@ private:
 
     modbus_t * Connect(QString ip, quint16 port);
     void Close(modbus_t *);
-    qint32 ReadRegisters(ModbusSettings * pSettings, quint16 startReg, quint32 num, QList<quint16> * pResultList);
+    qint32 ReadRegisters(modbus_t * pCtx, quint16 startReg, quint32 num, QList<quint16> * pResultList);
 
 
     QThread * _thread;

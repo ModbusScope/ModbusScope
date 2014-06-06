@@ -21,20 +21,14 @@ public:
 signals:
 
     void StopThread();
-
     void StartModbus();
     void StopModbus();
 
 private slots:
-    void SelectionChanged();
-    void MousePress();
-    void MouseWheel();
-
     void StartScope();
     void StopScope();
 
 public slots:
-    void PlotResults(QList<quint16> values);
 
 private:
     Ui::MainWindow * _ui;

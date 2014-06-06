@@ -55,7 +55,7 @@ void SettingsDialog::GetRegisterList(QList <quint16> * pRegisterList)
     }
 }
 
-void SettingsDialog::Accept()
+void SettingsDialog::accept()
 {
     /* Process data */
 
@@ -63,14 +63,11 @@ void SettingsDialog::Accept()
     _commSettings.SetIpAddress(_ui->lineIP->text());
     _commSettings.SetPort(_ui->spinPort->text().toInt());
 
-    qDebug() << "Number of regs (" << _modelReg.rowCount() << ")" << "\n";
-
     _registerList.clear();
     for(int32_t i = 0; i < _modelReg.rowCount(); i++)
     {
         _registerList.append(_modelReg.data(_modelReg.index(i), Qt::DisplayRole).toInt());
     }
-    qDebug() << "Number of regs 2 (" << _registerList.size() << ")" << "\n";
 
     //if processing is ok
     QDialog::accept();
@@ -83,7 +80,7 @@ void SettingsDialog::Accept()
          * */
 }
 
-void SettingsDialog::Reject()
+void SettingsDialog::reject()
 {
     QDialog::reject();
 }

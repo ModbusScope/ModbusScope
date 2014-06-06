@@ -21,8 +21,8 @@ public:
     void GetRegisterList(QList <quint16> * pRegisterList);
 
 public slots:
-    void Accept();
-    void Reject();
+    void accept();
+    void reject();
 
 private slots:
     void AddRegister();

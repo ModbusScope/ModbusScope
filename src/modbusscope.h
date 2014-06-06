@@ -7,24 +7,23 @@
 
 //Forward declaration
 class ModbusMaster;
+class ScopeGui;
+class QCustomPlot;
 class QTimer;
 
 class ModbusScope : public QObject
 {
     Q_OBJECT
 public:
-    explicit ModbusScope(QObject *parent = 0);
+    explicit ModbusScope(QCustomPlot * pGraph, QObject *parent = 0);
     ~ModbusScope();
 
-    void StartCommunication(ModbusSettings * settings, QList<quint16> * registerList);
+    void StartCommunication(ModbusSettings * pSettings, QList<quint16> * pRegisterList);
     void StopCommunication();
 
 signals:
     void RegisterRequest(ModbusSettings * pSettings, QList<quint16> * pRegisterList);
     void RequestStop();
-
-public slots:
-    void RegisterProcess(bool success, QList<quint16> resultList);
 
 private slots:
     void ReadData();
@@ -33,6 +32,7 @@ private slots:
 private:   
 
     ModbusMaster * _master;
+    ScopeGui * _gui;
     bool _active;
     QTimer * _timer;
 
