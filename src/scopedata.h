@@ -11,12 +11,12 @@ class ScopeGui;
 class QCustomPlot;
 class QTimer;
 
-class ModbusScope : public QObject
+class ScopeData : public QObject
 {
     Q_OBJECT
 public:
-    explicit ModbusScope(QCustomPlot * pGraph, QObject *parent = 0);
-    ~ModbusScope();
+    explicit ScopeData(QCustomPlot * pGraph, QObject *parent = 0);
+    ~ScopeData();
 
     void StartCommunication(ModbusSettings * pSettings, QList<quint16> * pRegisterList);
     void StopCommunication();

@@ -8,7 +8,7 @@ namespace Ui {
 class MainWindow;
 }
 
-class ModbusScope;
+class ScopeData;
 
 class MainWindow : public QMainWindow
 {
@@ -32,7 +32,7 @@ public slots:
 
 private:
     Ui::MainWindow * _ui;
-    ModbusScope * _scope;
+    ScopeData * _scope;
     ModbusSettings _modbusSettings;
     QList<quint16> _registerList;
 };

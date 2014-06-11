@@ -7,9 +7,9 @@
 #include "qcustomplot.h"
 #include "QDebug"
 
-#include "modbusscope.h"
+#include "scopedata.h"
 
-ModbusScope::ModbusScope(QCustomPlot * pGraph, QObject *parent) :
+ScopeData::ScopeData(QCustomPlot * pGraph, QObject *parent) :
     QObject(parent), _master(NULL), _gui(NULL), _active(false), _timer(new QTimer())
 {
 
@@ -33,12 +33,12 @@ ModbusScope::ModbusScope(QCustomPlot * pGraph, QObject *parent) :
     connect(_master, SIGNAL(ReadRegisterResult(bool, QList<quint16>)), _gui, SLOT(PlotResults(bool, QList<quint16>)));
 }
 
-ModbusScope::~ModbusScope()
+ScopeData::~ScopeData()
 {
     emit RequestStop();
 
 #ifdef QT_DEBUG_OUTPUT
-    qDebug() << "ModbusScope::~ModbusScope() before wait";
+    qDebug() << "ScopeData::~ScopeData() before wait";
 #endif
 
     if (_master)
@@ -47,13 +47,13 @@ ModbusScope::~ModbusScope()
     }
 
 #ifdef QT_DEBUG_OUTPUT
-    qDebug() << "ModbusScope::~ModbusScope() after wait";
+    qDebug() << "ScopeData::~ScopeData() after wait";
 #endif
 
     delete _timer;
 }
 
-void ModbusScope::StartCommunication(ModbusSettings * pSettings, QList<quint16> * pRegisterList)
+void ScopeData::StartCommunication(ModbusSettings * pSettings, QList<quint16> * pRegisterList)
 {
     if (!_active)
     {
@@ -76,23 +76,23 @@ void ModbusScope::StartCommunication(ModbusSettings * pSettings, QList<quint16> 
     }
 }
 
-void ModbusScope::MasterStopped()
+void ScopeData::MasterStopped()
 {
 #ifdef QT_DEBUG_OUTPUT
-    qDebug() << "ModbusScope::MasterStopped";
+    qDebug() << "ScopeData::MasterStopped";
 #endif
     _master = NULL;
 }
 
-void ModbusScope::StopCommunication()
+void ScopeData::StopCommunication()
 {
 #ifdef QT_DEBUG_OUTPUT
-    qDebug() << "ModbusScope::StopCommunication";
+    qDebug() << "ScopeData::StopCommunication";
 #endif
     _active = false;
 }
 
-void ModbusScope::ReadData()
+void ScopeData::ReadData()
 {
     if(_active)
     {

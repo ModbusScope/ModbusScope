@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "settingsdialog.h"
-#include "modbusscope.h"
+#include "scopedata.h"
 #include "QDebug"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent) :
     _modbusSettings.SetIpAddress("127.0.0.1");
     _modbusSettings.SetPort(1502);
 
-    _scope = new ModbusScope(_ui->customPlot);
+    _scope = new ScopeData(_ui->customPlot);
 
     qRegisterMetaType<ModbusSettings>("ModbusSettings");
 
