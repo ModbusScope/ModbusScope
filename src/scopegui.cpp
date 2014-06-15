@@ -57,10 +57,20 @@ void ScopeGui::PlotResults(bool bSuccess, QList<quint16> values)
             _pGraph->graph(i)->addData(now, (double)values[i]);
         }
 
-        _pGraph->rescaleAxes();
         _pGraph->replot();
+
+        if (_settings.bAutoScale)
+        {
+            _pGraph->rescaleAxes();
+
+        }
     }
 
+}
+
+void ScopeGui::SetAutoScale(int state)
+{
+    _settings.bAutoScale = (state ? true: false);
 }
 
 

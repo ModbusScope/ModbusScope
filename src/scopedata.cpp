@@ -4,13 +4,12 @@
 #include "modbussettings.h"
 #include "scopegui.h"
 #include "QTimer"
-#include "qcustomplot.h"
 #include "QDebug"
 
 #include "scopedata.h"
 
-ScopeData::ScopeData(QCustomPlot * pGraph, QObject *parent) :
-    QObject(parent), _master(NULL), _gui(NULL), _active(false), _timer(new QTimer())
+ScopeData::ScopeData(QObject *parent) :
+    QObject(parent), _master(NULL), _active(false), _timer(new QTimer())
 {
 
     qRegisterMetaType<QList<quint16> *>("QList<quint16> *");
@@ -18,9 +17,6 @@ ScopeData::ScopeData(QCustomPlot * pGraph, QObject *parent) :
 
     /* Setup modbus master */
     _master = new ModbusMaster();
-
-    /* Setup GUI graph */
-    _gui = new ScopeGui(pGraph, this);
 
     connect(this, SIGNAL(RequestStop()), _master, SLOT(StopThread()));
 
@@ -30,7 +26,9 @@ ScopeData::ScopeData(QCustomPlot * pGraph, QObject *parent) :
     _master->StartThread();
 
     connect(this, SIGNAL(RegisterRequest(ModbusSettings *, QList<quint16> *)), _master, SLOT(ReadRegisterList(ModbusSettings *, QList<quint16> *)));
-    connect(_master, SIGNAL(ReadRegisterResult(bool, QList<quint16>)), _gui, SLOT(PlotResults(bool, QList<quint16>)));
+
+    connect(_master, SIGNAL(ReadRegisterResult(bool, QList<quint16>)), this, SLOT(ReceiveNewData(bool, QList<quint16>)));
+    //connect(_master, SIGNAL(ReadRegisterResult(bool, QList<quint16>)), _gui, SLOT(PlotResults(bool, QList<quint16>)));
 }
 
 ScopeData::~ScopeData()
@@ -53,8 +51,10 @@ ScopeData::~ScopeData()
     delete _timer;
 }
 
-void ScopeData::StartCommunication(ModbusSettings * pSettings, QList<quint16> * pRegisterList)
+bool ScopeData::StartCommunication(ModbusSettings * pSettings, QList<quint16> * pRegisterList)
 {
+    bool bResetted = false;
+
     if (!_active)
     {
         _settings.Copy(pSettings);
@@ -67,13 +67,14 @@ void ScopeData::StartCommunication(ModbusSettings * pSettings, QList<quint16> * 
             _registerlist.append(pRegisterList->at(i) - 40001);
         }
 
-        _gui->ResetGraph(pRegisterList->size());
-
         // Start timer
         _timer->singleShot(1000, this, SLOT(ReadData()));
 
         _active = true;
+        bResetted = true;
     }
+
+    return bResetted;
 }
 
 void ScopeData::MasterStopped()
@@ -90,6 +91,11 @@ void ScopeData::StopCommunication()
     qDebug() << "ScopeData::StopCommunication";
 #endif
     _active = false;
+}
+
+void ScopeData::ReceiveNewData(bool bSuccess, QList<quint16> values)
+{
+    emit PropagateNewData(bSuccess, values);
 }
 
 void ScopeData::ReadData()

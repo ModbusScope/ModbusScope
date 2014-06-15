@@ -18,6 +18,7 @@ signals:
 
 public slots:
     void PlotResults(bool bSuccess, QList<quint16> values);
+    void SetAutoScale(int state);
 
 private slots:
     void SelectionChanged();
@@ -25,9 +26,14 @@ private slots:
     void MouseWheel();
 
 private:
-
+    typedef struct
+    {
+        bool bAutoScale;
+    } GuiSettings;
 
     QCustomPlot * _pGraph;
+
+    GuiSettings _settings;
 };
 
 #endif // SCOPEGUI_H

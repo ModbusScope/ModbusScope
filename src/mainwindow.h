@@ -8,7 +8,10 @@ namespace Ui {
 class MainWindow;
 }
 
+// Forward declaration
 class ScopeData;
+class QCustomPlot;
+class ScopeGui;
 
 class MainWindow : public QMainWindow
 {
@@ -33,6 +36,7 @@ public slots:
 private:
     Ui::MainWindow * _ui;
     ScopeData * _scope;
+    ScopeGui * _gui;
     ModbusSettings _modbusSettings;
     QList<quint16> _registerList;
 };
