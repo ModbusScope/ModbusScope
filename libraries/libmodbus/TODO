@@ -1,0 +1,43 @@
+Ideas
+=====
+- blog of Armin Ronacher about symbols
+  Compare DSO
+  nm -C -D
+
+- use TCP size in header to read full request at once
+
+- callback mechanism
+
+- exploit
+
+glibc has byteswapping calls, don't invent your own:
+  - le32toh(), htole32() and friends
+  - bswap32() and friends()
+
+inttypes.h
+Replace select by  poll
+• ntohl sur les floats (ask mailing list)
+• link for get_socket
+• documentation of modbus_tcp_accept, modbus_tcp_pi_listen, modbus_tcp_pi_accept
+• see bug report for karlp:
+has anyone used the "report slave id" function much?
+with debug mode, I get: Received function not corresponding to the request (145 != 17)
+but I expect to be getting ERROR Illegal function
+(the device is returning 0x91 for the function code of 0x11)
+it seems to be falling into the path for regular replies in check_confirmation, rather than the exception path
+- to merge in v3.0.X branch
++ c7051e0d3fc8649efdb15f22e1a1707c284521a6 Fix and improve documentation of modbus_set_error_recovery
++ 9dcfed8189c473bd6308c30fdb783a2124490925 Add documentation for modbus_tcp_listen
+talk about http://wz2b.users.sourceforge.net/ on SRAlab
+• merge RTAI and release 3.1
+ASCII
+http://www.lammertbies.nl/comm/info/modbus.html
+have a look to freemodbus code for RTU/ASCII/TCP API
+have a look to UDP
+Add others projects on wiki:
+• arduino
+• python binding
+Others
+• gateway with zeromq
+• fuzzer
+• GTK+ IHM ~/src/blablabus (git)

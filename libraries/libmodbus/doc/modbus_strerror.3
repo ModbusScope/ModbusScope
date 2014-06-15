@@ -2,12 +2,12 @@
 .\"     Title: modbus_strerror
 .\"    Author: [see the "AUTHORS" section]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 10/06/2013
+.\"      Date: 04/02/2014
 .\"    Manual: Libmodbus Manual
-.\"    Source: libmodbus 3.0.4
+.\"    Source: libmodbus 3.0.6
 .\"  Language: English
 .\"
-.TH "MODBUS_STRERROR" "3" "10/06/2013" "libmodbus 3\&.0\&.4" "Libmodbus Manual"
+.TH "MODBUS_STRERROR" "3" "04/02/2014" "libmodbus 3\&.0\&.6" "Libmodbus Manual"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -42,6 +42,8 @@ The \fImodbus_strerror()\fR function shall return a pointer to an error message 
 .sp
 No errors are defined\&.
 .SH "EXAMPLE"
+.PP
+\fBDisplaying an error message when a Modbus connection cannot be established\fR. 
 .sp
 .if n \{\
 .RS 4
@@ -55,6 +57,7 @@ if (modbus_connect(ctx) == \-1) {
 .if n \{\
 .RE
 .\}
+.sp
 .SH "SEE ALSO"
 .sp
 linkmb:libmodbus
