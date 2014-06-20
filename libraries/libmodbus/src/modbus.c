@@ -27,7 +27,9 @@
 #include <limits.h>
 #include <time.h>
 
-#include <config.h>
+#if defined(_WIN32)
+#include <config_win32.h>
+#endif
 
 #include "modbus.h"
 #include "modbus-private.h"

@@ -26,10 +26,12 @@ MODBUS_BEGIN_DECLS
 #if defined(_WIN32) && !defined(__CYGWIN__)
 /* Win32 with MinGW, supplement to <errno.h> */
 #include <winsock2.h>
+/*
 #define ECONNRESET   WSAECONNRESET
 #define ECONNREFUSED WSAECONNREFUSED
 #define ETIMEDOUT    WSAETIMEDOUT
 #define ENOPROTOOPT  WSAENOPROTOOPT
+*/
 #endif
 
 #define MODBUS_TCP_DEFAULT_PORT   502
