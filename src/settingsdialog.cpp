@@ -64,7 +64,7 @@ void SettingsDialog::accept()
     _commSettings.SetPort(_ui->spinPort->text().toInt());
 
     _registerList.clear();
-    for(int32_t i = 0; i < _modelReg.rowCount(); i++)
+    for(qint32 i = 0; i < _modelReg.rowCount(); i++)
     {
         _registerList.append(_modelReg.data(_modelReg.index(i), Qt::DisplayRole).toInt());
     }
