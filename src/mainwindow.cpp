@@ -22,11 +22,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(_ui->btnStartModbus, SIGNAL(released()), this, SLOT(StartScope()));
     connect(_ui->btnStopModbus, SIGNAL(released()), this, SLOT(StopScope()));
 
-    connect(_ui->chkAutoScale, SIGNAL(stateChanged(int)), _gui, SLOT(SetAutoScale(int)));
+    connect(_ui->chkXAxisAutoScale, SIGNAL(stateChanged(int)), _gui, SLOT(SetXAxisAutoScale(int)));
+    connect(_ui->chkYAxisAutoScale, SIGNAL(stateChanged(int)), _gui, SLOT(SetYAxisAutoScale(int)));
 
     connect(_scope, SIGNAL(PropagateNewData(bool, QList<quint16>)), _gui, SLOT(PlotResults(bool, QList<quint16>)));
-
-
 
 }
 
@@ -46,6 +45,9 @@ void MainWindow::StartScope()
         dialog.GetModbusSettings(&_modbusSettings);
         dialog.GetRegisterList(&_registerList);
 
+        _ui->btnStartModbus->setEnabled(false);
+        _ui->btnStopModbus->setEnabled(true);
+
         if (_scope->StartCommunication(&_modbusSettings, &_registerList))
         {
             _gui->ResetGraph(_registerList.size());
@@ -56,4 +58,7 @@ void MainWindow::StartScope()
 void MainWindow::StopScope()
 {
     _scope->StopCommunication();
+    _ui->btnStartModbus->setEnabled(true);
+    _ui->btnStopModbus->setEnabled(false);
+
 }

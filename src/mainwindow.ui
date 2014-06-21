@@ -24,6 +24,9 @@
         </property>
         <item>
          <widget class="QPushButton" name="btnStartModbus">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
           <property name="text">
            <string>Start modbus</string>
           </property>
@@ -31,15 +34,28 @@
         </item>
         <item>
          <widget class="QPushButton" name="btnStopModbus">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Stop modbus</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="chkAutoScale">
+         <widget class="QCheckBox" name="chkYAxisAutoScale">
           <property name="text">
-           <string>Auto scale axis</string>
+           <string>Auto scale  X axis</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="chkXAxisAutoScale">
+          <property name="text">
+           <string>Auto scale  Y axis</string>
           </property>
           <property name="checked">
            <bool>true</bool>

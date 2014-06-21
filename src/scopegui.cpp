@@ -59,18 +59,26 @@ void ScopeGui::PlotResults(bool bSuccess, QList<quint16> values)
 
         _pGraph->replot();
 
-        if (_settings.bAutoScale)
+        if (_settings.bXAxisAutoScale)
         {
-            _pGraph->rescaleAxes();
-
+            _pGraph->xAxis->rescale();
+        }
+        if (_settings.bYAxisAutoScale)
+        {
+            _pGraph->yAxis->rescale();
         }
     }
 
 }
 
-void ScopeGui::SetAutoScale(int state)
+void ScopeGui::SetYAxisAutoScale(int state)
 {
-    _settings.bAutoScale = (state ? true: false);
+    _settings.bYAxisAutoScale = (state ? true: false);
+}
+
+void ScopeGui::SetXAxisAutoScale(int state)
+{
+    _settings.bXAxisAutoScale = (state ? true: false);
 }
 
 

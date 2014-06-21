@@ -18,7 +18,8 @@ signals:
 
 public slots:
     void PlotResults(bool bSuccess, QList<quint16> values);
-    void SetAutoScale(int state);
+    void SetYAxisAutoScale(int state);
+    void SetXAxisAutoScale(int state);
 
 private slots:
     void SelectionChanged();
@@ -28,7 +29,8 @@ private slots:
 private:
     typedef struct
     {
-        bool bAutoScale;
+        bool bXAxisAutoScale;
+        bool bYAxisAutoScale;
     } GuiSettings;
 
     QCustomPlot * _pGraph;
