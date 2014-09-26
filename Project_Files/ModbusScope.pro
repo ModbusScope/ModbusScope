@@ -11,6 +11,10 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 TARGET = ModbusScope
 TEMPLATE = app
 
+win32 {
+LIBS += -lws2_32
+}
+
 DEFINES += QT_DEBUG_OUTPUT
 
 INCLUDEPATH += \
@@ -45,7 +49,6 @@ HEADERS += \
     ../libraries/libmodbus/src/modbus.h \
     ../libraries/libmodbus/src/modbus-tcp.h \
     ../libraries/libmodbus/src/modbus-tcp-private.h \
-    ../libraries/libmodbus/src/config.h \
     ../libraries/qcustomplot/qcustomplot.h \
     ../src/scopedata.h \
     ../src/scopegui.h
