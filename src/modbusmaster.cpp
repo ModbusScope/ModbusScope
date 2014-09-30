@@ -80,6 +80,10 @@ void ModbusMaster::ReadRegisterList(ModbusSettings * pSettings, QList<quint16> *
     modbus_t * pCtx = Connect(pSettings->GetIpAddress(), pSettings->GetPort());
     if (pCtx)
     {
+
+        /* Set modbus slave */
+        modbus_set_slave(pCtx, pSettings->GetSlaveId());
+
         // TODO: optimize reads
         for (qint32 i = 0; i < pRegisterList->size(); i++)
         {

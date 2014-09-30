@@ -13,13 +13,16 @@ public:
 
     void SetIpAddress(QString ip);
     void SetPort(quint16 port);
+    void SetSlaveId(quint8 id);
 
     QString GetIpAddress();
     quint16 GetPort();
+    quint8 GetSlaveId();
 
 private:
     QString ipAddress;
     quint16 port;
+    quint8 slaveId;
 
 };
 

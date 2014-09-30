@@ -62,6 +62,7 @@ void SettingsDialog::accept()
     // TODO: add some checks */
     _commSettings.SetIpAddress(_ui->lineIP->text());
     _commSettings.SetPort(_ui->spinPort->text().toInt());
+    _commSettings.SetSlaveId(_ui->spinSlaveId->text().toInt());
 
     _registerList.clear();
     for(qint32 i = 0; i < _modelReg.rowCount(); i++)

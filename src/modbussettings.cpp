@@ -10,6 +10,7 @@ void ModbusSettings::Copy(const ModbusSettings * pSettings)
 {
     this->ipAddress = QString(pSettings->ipAddress);
     this->port = pSettings->port;
+    this->slaveId = pSettings->slaveId;
 }
 
 
@@ -31,4 +32,14 @@ void ModbusSettings::SetPort(quint16 port)
 quint16 ModbusSettings::GetPort()
 {
     return this->port;
+}
+
+void ModbusSettings::SetSlaveId(quint8 id)
+{
+    this->slaveId = id;
+}
+
+quint8 ModbusSettings::GetSlaveId()
+{
+    return this->slaveId;
 }
