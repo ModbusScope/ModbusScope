@@ -14,6 +14,13 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     _ui->setupUi(this);
 
+    // Set window title
+    QString windowTitle;
+    windowTitle.append("ModbusScope (V");
+    windowTitle.append(APP_VERSION);
+    windowTitle.append(")");
+    this->setWindowTitle(windowTitle);
+
     _scope = new ScopeData();
     _gui = new ScopeGui(_ui->customPlot, this);
 
