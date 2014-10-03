@@ -15,26 +15,26 @@ public:
     explicit ModbusMaster(QObject *parent = 0);
     virtual ~ModbusMaster();
 
-    void StartThread();
-    void Wait();
+    void startThread();
+    void wait();
 
 signals:
-    void ReadRegisterResult(bool bSuccess, QList<quint16> pRegisterList);
-    void ThreadStopped();
+    void readRegisterResult(bool bSuccess, QList<quint16> pRegisterList);
+    void threadStopped();
 
 public slots:
-    void ReadRegisterList(ModbusSettings * pSettings, QList<quint16> * pRegisterList);
-    void StopThread();
+    void readRegisterList(ModbusSettings * pSettings, QList<quint16> * pRegisterList);
+    void stopThread();
 
 private slots:
-    void Stopped();
+    void stopped();
 
 
 private:
 
-    modbus_t * Connect(QString ip, quint16 port);
-    void Close(modbus_t *);
-    qint32 ReadRegisters(modbus_t * pCtx, quint16 startReg, quint32 num, QList<quint16> * pResultList);
+    modbus_t * openPort(QString ip, quint16 port);
+    void closePort(modbus_t *);
+    qint32 readRegisters(modbus_t * pCtx, quint16 startReg, quint32 num, QList<quint16> * pResultList);
 
 
     QThread * _thread;

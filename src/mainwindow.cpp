@@ -26,13 +26,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     qRegisterMetaType<ModbusSettings>("ModbusSettings");
 
-    connect(_ui->btnStartModbus, SIGNAL(released()), this, SLOT(StartScope()));
-    connect(_ui->btnStopModbus, SIGNAL(released()), this, SLOT(StopScope()));
+    connect(_ui->btnStartModbus, SIGNAL(released()), this, SLOT(startScope()));
+    connect(_ui->btnStopModbus, SIGNAL(released()), this, SLOT(stopScope()));
 
-    connect(_ui->chkXAxisAutoScale, SIGNAL(stateChanged(int)), _gui, SLOT(SetXAxisAutoScale(int)));
-    connect(_ui->chkYAxisAutoScale, SIGNAL(stateChanged(int)), _gui, SLOT(SetYAxisAutoScale(int)));
+    connect(_ui->chkXAxisAutoScale, SIGNAL(stateChanged(int)), _gui, SLOT(setXAxisAutoScale(int)));
+    connect(_ui->chkYAxisAutoScale, SIGNAL(stateChanged(int)), _gui, SLOT(setYAxisAutoScale(int)));
 
-    connect(_scope, SIGNAL(PropagateNewData(bool, QList<quint16>)), _gui, SLOT(PlotResults(bool, QList<quint16>)));
+    connect(_scope, SIGNAL(propagateNewData(bool, QList<quint16>)), _gui, SLOT(plotResults(bool, QList<quint16>)));
 
 }
 
@@ -42,29 +42,29 @@ MainWindow::~MainWindow()
     delete _ui;
 }
 
-void MainWindow::StartScope()
+void MainWindow::startScope()
 {
     SettingsDialog dialog;
     dialog.setModal(true);
     dialog.exec();
     if (dialog.result() == QDialog::Accepted)
     {
-        dialog.GetModbusSettings(&_modbusSettings);
-        dialog.GetRegisterList(&_registerList);
+        dialog.getModbusSettings(&_modbusSettings);
+        dialog.getRegisterList(&_registerList);
 
         _ui->btnStartModbus->setEnabled(false);
         _ui->btnStopModbus->setEnabled(true);
 
-        if (_scope->StartCommunication(&_modbusSettings, &_registerList))
+        if (_scope->startCommunication(&_modbusSettings, &_registerList))
         {
-            _gui->ResetGraph(_registerList.size());
+            _gui->resetGraph(_registerList.size());
         }
     }
 }
 
-void MainWindow::StopScope()
+void MainWindow::stopScope()
 {
-    _scope->StopCommunication();
+    _scope->stopCommunication();
     _ui->btnStartModbus->setEnabled(true);
     _ui->btnStopModbus->setEnabled(false);
 

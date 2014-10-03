@@ -6,40 +6,40 @@ ModbusSettings::ModbusSettings()
 {
 }
 
-void ModbusSettings::Copy(const ModbusSettings * pSettings)
+void ModbusSettings::copy(const ModbusSettings * pSettings)
 {
-    this->ipAddress = QString(pSettings->ipAddress);
-    this->port = pSettings->port;
-    this->slaveId = pSettings->slaveId;
+    this->_ipAddress = QString(pSettings->_ipAddress);
+    this->_port = pSettings->_port;
+    this->_slaveId = pSettings->_slaveId;
 }
 
 
-void ModbusSettings::SetIpAddress(QString ip)
+void ModbusSettings::setIpAddress(QString ip)
 {
-    this->ipAddress = QString(ip);
+    this->_ipAddress = QString(ip);
 }
 
-QString ModbusSettings::GetIpAddress()
+QString ModbusSettings::getIpAddress()
 {
-    return this->ipAddress;
+    return this->_ipAddress;
 }
 
-void ModbusSettings::SetPort(quint16 port)
+void ModbusSettings::setPort(quint16 port)
 {
-    this->port = port;
+    this->_port = port;
 }
 
-quint16 ModbusSettings::GetPort()
+quint16 ModbusSettings::getPort()
 {
-    return this->port;
+    return this->_port;
 }
 
-void ModbusSettings::SetSlaveId(quint8 id)
+void ModbusSettings::setSlaveId(quint8 id)
 {
-    this->slaveId = id;
+    this->_slaveId = id;
 }
 
-quint8 ModbusSettings::GetSlaveId()
+quint8 ModbusSettings::getSlaveId()
 {
-    return this->slaveId;
+    return this->_slaveId;
 }

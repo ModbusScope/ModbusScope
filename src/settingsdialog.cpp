@@ -18,8 +18,8 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     _ui->listReg->show();
 
     // Setup handler for buttons
-    connect(_ui->btnAdd, SIGNAL(released()), this, SLOT(AddRegister()));
-    connect(_ui->btnRemove, SIGNAL(released()), this, SLOT(RemoveRegister()));
+    connect(_ui->btnAdd, SIGNAL(released()), this, SLOT(addRegister()));
+    connect(_ui->btnRemove, SIGNAL(released()), this, SLOT(removeRegister()));
 }
 
 SettingsDialog::~SettingsDialog()
@@ -27,7 +27,7 @@ SettingsDialog::~SettingsDialog()
     delete _ui;
 }
 
-void SettingsDialog::AddRegister()
+void SettingsDialog::addRegister()
 {
     _modelReg.insertRow(_modelReg.rowCount());
     QModelIndex index = _modelReg.index(_modelReg.rowCount() - 1);
@@ -35,17 +35,17 @@ void SettingsDialog::AddRegister()
 }
 
 
-void SettingsDialog::RemoveRegister()
+void SettingsDialog::removeRegister()
 {
     _modelReg.removeRows(_ui->listReg->currentIndex().row(), 1);
 }
 
-void SettingsDialog::GetModbusSettings(ModbusSettings * pSettings)
+void SettingsDialog::getModbusSettings(ModbusSettings * pSettings)
 {
-    pSettings->Copy(&_commSettings);
+    pSettings->copy(&_commSettings);
 }
 
-void SettingsDialog::GetRegisterList(QList <quint16> * pRegisterList)
+void SettingsDialog::getRegisterList(QList <quint16> * pRegisterList)
 {
     pRegisterList->clear();
 
@@ -60,9 +60,9 @@ void SettingsDialog::accept()
     /* Process data */
 
     // TODO: add some checks */
-    _commSettings.SetIpAddress(_ui->lineIP->text());
-    _commSettings.SetPort(_ui->spinPort->text().toInt());
-    _commSettings.SetSlaveId(_ui->spinSlaveId->text().toInt());
+    _commSettings.setIpAddress(_ui->lineIP->text());
+    _commSettings.setPort(_ui->spinPort->text().toInt());
+    _commSettings.setSlaveId(_ui->spinSlaveId->text().toInt());
 
     _registerList.clear();
     for(qint32 i = 0; i < _modelReg.rowCount(); i++)

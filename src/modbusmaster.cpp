@@ -20,7 +20,7 @@ ModbusMaster::~ModbusMaster()
 
 }
 
-void ModbusMaster::StartThread()
+void ModbusMaster::startThread()
 {
     if(_thread == NULL)
     {
@@ -37,7 +37,7 @@ void ModbusMaster::StartThread()
     }
 }
 
-void ModbusMaster::Wait()
+void ModbusMaster::wait()
 {
     if(_thread)
     {
@@ -45,7 +45,7 @@ void ModbusMaster::Wait()
     }
 }
 
-void ModbusMaster::StopThread()
+void ModbusMaster::stopThread()
 {
 #ifdef QT_DEBUG_OUTPUT
     qDebug() << "Thread stop: " << _thread->currentThreadId();
@@ -53,7 +53,7 @@ void ModbusMaster::StopThread()
     _thread->quit();
 }
 
-void ModbusMaster::Stopped()
+void ModbusMaster::stopped()
 {
 
 #ifdef QT_DEBUG_OUTPUT
@@ -62,10 +62,10 @@ void ModbusMaster::Stopped()
     /* thread is deleted using a connection between thread->finished and thread->deleteLater */
     _thread = NULL;
 
-    emit ThreadStopped();
+    emit threadStopped();
 }
 
-void ModbusMaster::ReadRegisterList(ModbusSettings * pSettings, QList<quint16> * pRegisterList)
+void ModbusMaster::readRegisterList(ModbusSettings * pSettings, QList<quint16> * pRegisterList)
 {
     QList<quint16> globalResultList;
     QList<quint16> resultList;
@@ -77,19 +77,19 @@ void ModbusMaster::ReadRegisterList(ModbusSettings * pSettings, QList<quint16> *
 #endif
 
     /* Open port */
-    modbus_t * pCtx = Connect(pSettings->GetIpAddress(), pSettings->GetPort());
+    modbus_t * pCtx = openPort(pSettings->getIpAddress(), pSettings->getPort());
     if (pCtx)
     {
 
         /* Set modbus slave */
-        modbus_set_slave(pCtx, pSettings->GetSlaveId());
+        modbus_set_slave(pCtx, pSettings->getSlaveId());
 
         // TODO: optimize reads
         for (qint32 i = 0; i < pRegisterList->size(); i++)
         {
 
             /* handle failure correctly */
-            if (ReadRegisters(pCtx, pRegisterList->at(i), 1, &resultList) == 0)
+            if (readRegisters(pCtx, pRegisterList->at(i), 1, &resultList) == 0)
             {
                 globalResultList.append(resultList[0]);
                 bSuccess = true;
@@ -101,17 +101,17 @@ void ModbusMaster::ReadRegisterList(ModbusSettings * pSettings, QList<quint16> *
             }
         }
 
-        Close(pCtx); /* Close port */
+        closePort(pCtx); /* Close port */
     }
     else
     {
         bSuccess = false;
     }
 
-    emit ReadRegisterResult(bSuccess, globalResultList);
+    emit readRegisterResult(bSuccess, globalResultList);
 }
 
-void ModbusMaster::Close(modbus_t *connection)
+void ModbusMaster::closePort(modbus_t *connection)
 {
 #ifdef QT_DEBUG_OUTPUT
         qDebug() << "Close connection ";
@@ -121,7 +121,7 @@ void ModbusMaster::Close(modbus_t *connection)
 }
 
 
-modbus_t * ModbusMaster::Connect(QString ip, quint16 port)
+modbus_t * ModbusMaster::openPort(QString ip, quint16 port)
 {
     modbus_t * conn;
 
@@ -151,7 +151,7 @@ modbus_t * ModbusMaster::Connect(QString ip, quint16 port)
     return conn;
 }
 
-qint32 ModbusMaster::ReadRegisters(modbus_t * pCtx, quint16 startReg, quint32 num, QList<quint16> * pResultList)
+qint32 ModbusMaster::readRegisters(modbus_t * pCtx, quint16 startReg, quint32 num, QList<quint16> * pResultList)
 {
     qint32 rc = 0;
 

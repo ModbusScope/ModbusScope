@@ -16,18 +16,18 @@ public:
     explicit ScopeData(QObject *parent = 0);
     ~ScopeData();
 
-    bool StartCommunication(ModbusSettings * pSettings, QList<quint16> * pRegisterList);
-    void StopCommunication();
+    bool startCommunication(ModbusSettings * pSettings, QList<quint16> * pRegisterList);
+    void stopCommunication();
 
 signals:
-    void RegisterRequest(ModbusSettings * pSettings, QList<quint16> * pRegisterList);
-    void RequestStop();
-    void PropagateNewData(bool bSuccess, QList<quint16> values);
+    void registerRequest(ModbusSettings * pSettings, QList<quint16> * pRegisterList);
+    void requestStop();
+    void propagateNewData(bool bSuccess, QList<quint16> values);
 
 private slots:
-    void ReadData();
-    void MasterStopped();
-    void ReceiveNewData(bool bSuccess, QList<quint16> values);
+    void readData();
+    void masterStopped();
+    void receiveNewData(bool bSuccess, QList<quint16> values);
 
 private:   
 

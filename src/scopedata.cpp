@@ -18,22 +18,22 @@ ScopeData::ScopeData(QObject *parent) :
     /* Setup modbus master */
     _master = new ModbusMaster();
 
-    connect(this, SIGNAL(RequestStop()), _master, SLOT(StopThread()));
+    connect(this, SIGNAL(requestStop()), _master, SLOT(stopThread()));
 
-    connect(_master, SIGNAL(ThreadStopped()), this, SLOT(MasterStopped()));
-    connect(_master, SIGNAL(ThreadStopped()), _master, SLOT(deleteLater()));
+    connect(_master, SIGNAL(threadStopped()), this, SLOT(masterStopped()));
+    connect(_master, SIGNAL(threadStopped()), _master, SLOT(deleteLater()));
 
-    _master->StartThread();
+    _master->startThread();
 
-    connect(this, SIGNAL(RegisterRequest(ModbusSettings *, QList<quint16> *)), _master, SLOT(ReadRegisterList(ModbusSettings *, QList<quint16> *)));
+    connect(this, SIGNAL(registerRequest(ModbusSettings *, QList<quint16> *)), _master, SLOT(readRegisterList(ModbusSettings *, QList<quint16> *)));
 
-    connect(_master, SIGNAL(ReadRegisterResult(bool, QList<quint16>)), this, SLOT(ReceiveNewData(bool, QList<quint16>)));
-    //connect(_master, SIGNAL(ReadRegisterResult(bool, QList<quint16>)), _gui, SLOT(PlotResults(bool, QList<quint16>)));
+    connect(_master, SIGNAL(readRegisterResult(bool, QList<quint16>)), this, SLOT(receiveNewData(bool, QList<quint16>)));
+    //connect(_master, SIGNAL(readRegisterResult(bool, QList<quint16>)), _gui, SLOT(plotResults(bool, QList<quint16>)));
 }
 
 ScopeData::~ScopeData()
 {
-    emit RequestStop();
+    emit requestStop();
 
 #ifdef QT_DEBUG_OUTPUT
     qDebug() << "ScopeData::~ScopeData() before wait";
@@ -41,7 +41,7 @@ ScopeData::~ScopeData()
 
     if (_master)
     {
-        _master->Wait();
+        _master->wait();
     }
 
 #ifdef QT_DEBUG_OUTPUT
@@ -51,13 +51,13 @@ ScopeData::~ScopeData()
     delete _timer;
 }
 
-bool ScopeData::StartCommunication(ModbusSettings * pSettings, QList<quint16> * pRegisterList)
+bool ScopeData::startCommunication(ModbusSettings * pSettings, QList<quint16> * pRegisterList)
 {
     bool bResetted = false;
 
     if (!_active)
     {
-        _settings.Copy(pSettings);
+        _settings.copy(pSettings);
 
         _registerlist.clear();
 
@@ -68,7 +68,7 @@ bool ScopeData::StartCommunication(ModbusSettings * pSettings, QList<quint16> * 
         }
 
         // Start timer
-        _timer->singleShot(1000, this, SLOT(ReadData()));
+        _timer->singleShot(1000, this, SLOT(readData()));
 
         _active = true;
         bResetted = true;
@@ -77,7 +77,7 @@ bool ScopeData::StartCommunication(ModbusSettings * pSettings, QList<quint16> * 
     return bResetted;
 }
 
-void ScopeData::MasterStopped()
+void ScopeData::masterStopped()
 {
 #ifdef QT_DEBUG_OUTPUT
     qDebug() << "ScopeData::MasterStopped";
@@ -85,7 +85,7 @@ void ScopeData::MasterStopped()
     _master = NULL;
 }
 
-void ScopeData::StopCommunication()
+void ScopeData::stopCommunication()
 {
 #ifdef QT_DEBUG_OUTPUT
     qDebug() << "ScopeData::StopCommunication";
@@ -93,18 +93,18 @@ void ScopeData::StopCommunication()
     _active = false;
 }
 
-void ScopeData::ReceiveNewData(bool bSuccess, QList<quint16> values)
+void ScopeData::receiveNewData(bool bSuccess, QList<quint16> values)
 {
-    emit PropagateNewData(bSuccess, values);
+    emit propagateNewData(bSuccess, values);
 }
 
-void ScopeData::ReadData()
+void ScopeData::readData()
 {
     if(_active)
     {
-        emit RegisterRequest(&_settings, &_registerlist);
+        emit registerRequest(&_settings, &_registerlist);
 
-        _timer->singleShot(1000, this, SLOT(ReadData()));
+        _timer->singleShot(1000, this, SLOT(readData()));
     }
 }
 

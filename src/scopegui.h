@@ -12,19 +12,19 @@ class ScopeGui : public QObject
 public:
     explicit ScopeGui(QCustomPlot * pGraph, QObject *parent);
 
-    void ResetGraph(quint32 variableCount);
+    void resetGraph(quint32 variableCount);
 
 signals:
 
 public slots:
-    void PlotResults(bool bSuccess, QList<quint16> values);
-    void SetYAxisAutoScale(int state);
-    void SetXAxisAutoScale(int state);
+    void plotResults(bool bSuccess, QList<quint16> values);
+    void setYAxisAutoScale(int state);
+    void setXAxisAutoScale(int state);
 
 private slots:
-    void SelectionChanged();
-    void MousePress();
-    void MouseWheel();
+    void selectionChanged();
+    void mousePress();
+    void mouseWheel();
 
 private:
     typedef struct

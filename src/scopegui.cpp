@@ -26,14 +26,14 @@ ScopeGui::ScopeGui(QCustomPlot * pGraph, QObject *parent) :
     _pGraph->legend->setFont(legendFont);
 
     // connect slot that ties some axis selections together (especially opposite axes):
-    connect(_pGraph, SIGNAL(selectionChangedByUser()), this, SLOT(SelectionChanged()));
+    connect(_pGraph, SIGNAL(selectionChangedByUser()), this, SLOT(selectionChanged()));
     // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
-    connect(_pGraph, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(MousePress()));
-    connect(_pGraph, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(MouseWheel()));
+    connect(_pGraph, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress()));
+    connect(_pGraph, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel()));
 }
 
 
-void ScopeGui::ResetGraph(quint32 variableCount)
+void ScopeGui::resetGraph(quint32 variableCount)
 {
     _pGraph->clearGraphs();
 
@@ -44,7 +44,7 @@ void ScopeGui::ResetGraph(quint32 variableCount)
     }
 }
 
-void ScopeGui::PlotResults(bool bSuccess, QList<quint16> values)
+void ScopeGui::plotResults(bool bSuccess, QList<quint16> values)
 {
     double now = QDateTime::currentDateTime().toTime_t();
     /* TODO: handle failure correctly */
@@ -71,18 +71,18 @@ void ScopeGui::PlotResults(bool bSuccess, QList<quint16> values)
 
 }
 
-void ScopeGui::SetYAxisAutoScale(int state)
+void ScopeGui::setYAxisAutoScale(int state)
 {
     _settings.bYAxisAutoScale = (state ? true: false);
 }
 
-void ScopeGui::SetXAxisAutoScale(int state)
+void ScopeGui::setXAxisAutoScale(int state)
 {
     _settings.bXAxisAutoScale = (state ? true: false);
 }
 
 
-void ScopeGui::SelectionChanged()
+void ScopeGui::selectionChanged()
 {
     /*
     normally, axis base line, axis tick labels and axis labels are selectable separately, but we want
@@ -103,7 +103,7 @@ void ScopeGui::SelectionChanged()
 
 }
 
-void ScopeGui::MousePress()
+void ScopeGui::mousePress()
 {
     // if an axis is selected, only allow the direction of that axis to be dragged
     // if no axis is selected, both directions may be dragged
@@ -116,7 +116,7 @@ void ScopeGui::MousePress()
         _pGraph->axisRect()->setRangeDrag(Qt::Horizontal|Qt::Vertical);
 }
 
-void ScopeGui::MouseWheel()
+void ScopeGui::mouseWheel()
 {
     // if an axis is selected, only allow the direction of that axis to be zoomed
     // if no axis is selected, both directions may be zoomed

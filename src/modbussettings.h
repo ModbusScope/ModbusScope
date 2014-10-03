@@ -9,20 +9,20 @@ class ModbusSettings {
 public:
     ModbusSettings();
 
-    void Copy(const ModbusSettings * pSettings);
+    void copy(const ModbusSettings * pSettings);
 
-    void SetIpAddress(QString ip);
-    void SetPort(quint16 port);
-    void SetSlaveId(quint8 id);
+    void setIpAddress(QString ip);
+    void setPort(quint16 port);
+    void setSlaveId(quint8 id);
 
-    QString GetIpAddress();
-    quint16 GetPort();
-    quint8 GetSlaveId();
+    QString getIpAddress();
+    quint16 getPort();
+    quint8 getSlaveId();
 
 private:
-    QString ipAddress;
-    quint16 port;
-    quint8 slaveId;
+    QString _ipAddress;
+    quint16 _port;
+    quint8 _slaveId;
 
 };
 

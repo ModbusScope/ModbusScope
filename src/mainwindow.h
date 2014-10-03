@@ -23,13 +23,13 @@ public:
 
 signals:
 
-    void StopThread();
-    void StartModbus();
-    void StopModbus();
+    void stopThread();
+    void startModbus();
+    void stopModbus();
 
 private slots:
-    void StartScope();
-    void StopScope();
+    void startScope();
+    void stopScope();
 
 public slots:
 
