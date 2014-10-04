@@ -28,7 +28,6 @@ INCLUDEPATH += \
 
 SOURCES +=  \
     ../src/mainwindow.cpp \
-    ../src/settingsdialog.cpp \
     ../src/modbussettings.cpp \
     ../src/main.cpp \
     ../src/modbusmaster.cpp \
@@ -40,12 +39,10 @@ SOURCES +=  \
     ../src/scopegui.cpp
 
 FORMS    += \
-    ../src/mainwindow.ui \
-    ../src/settingsdialog.ui
+    ../src/mainwindow.ui
 
 HEADERS += \
     ../src/mainwindow.h \
-    ../src/settingsdialog.h \
     ../src/modbussettings.h \
     ../src/modbusmaster.h \
     ../libraries/libmodbus/src/modbus-private.h \

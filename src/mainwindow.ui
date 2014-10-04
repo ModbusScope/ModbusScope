@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>956</width>
-    <height>521</height>
+    <height>643</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,9 +19,98 @@
      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1">
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
-        <property name="sizeConstraint">
-         <enum>QLayout::SetDefaultConstraint</enum>
-        </property>
+        <item>
+         <layout class="QFormLayout" name="formLayout">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>IP</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="lineIP">
+            <property name="text">
+             <string>127.0.0.1</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Port</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QSpinBox" name="spinPort">
+            <property name="maximum">
+             <number>2000</number>
+            </property>
+            <property name="value">
+             <number>502</number>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Slave ID</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QSpinBox" name="spinSlaveId">
+            <property name="maximum">
+             <number>255</number>
+            </property>
+            <property name="value">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Registers</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0">
+           <layout class="QGridLayout" name="gridLayout_2"/>
+          </item>
+          <item row="6" column="1">
+           <widget class="QListView" name="listReg"/>
+          </item>
+          <item row="8" column="1">
+           <widget class="QSpinBox" name="spinReg">
+            <property name="maximum">
+             <number>100000</number>
+            </property>
+            <property name="value">
+             <number>40001</number>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="1">
+           <widget class="QPushButton" name="btnAdd">
+            <property name="text">
+             <string>Add register</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="1">
+           <widget class="QPushButton" name="btnRemove">
+            <property name="text">
+             <string>Remove register</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
         <item>
          <widget class="QPushButton" name="btnStartModbus">
           <property name="enabled">
@@ -43,26 +132,6 @@
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="chkYAxisAutoScale">
-          <property name="text">
-           <string>Auto scale  X axis</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="chkXAxisAutoScale">
-          <property name="text">
-           <string>Auto scale  Y axis</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
          <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -78,7 +147,42 @@
        </layout>
       </item>
       <item>
-       <widget class="QCustomPlot" name="customPlot" native="true"/>
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,0">
+        <item>
+         <widget class="QCustomPlot" name="customPlot" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>10</width>
+            <height>0</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,0">
+          <item>
+           <widget class="QCheckBox" name="chkXAxisAutoScale">
+            <property name="text">
+             <string>Auto scale  Y axis</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="chkYAxisAutoScale">
+            <property name="text">
+             <string>Auto scale  X axis</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
