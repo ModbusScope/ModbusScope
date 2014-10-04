@@ -33,6 +33,7 @@ private slots:
     void stopScope();
     void addRegister();
     void removeRegister();
+    void exitApplication();
 
 public slots:
 

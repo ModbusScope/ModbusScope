@@ -32,9 +32,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     qRegisterMetaType<ModbusSettings>("ModbusSettings");
 
-    connect(_ui->btnStartModbus, SIGNAL(released()), this, SLOT(startScope()));
-    connect(_ui->btnStopModbus, SIGNAL(released()), this, SLOT(stopScope()));
-
     connect(_ui->chkXAxisAutoScale, SIGNAL(stateChanged(int)), _gui, SLOT(setXAxisAutoScale(int)));
     connect(_ui->chkYAxisAutoScale, SIGNAL(stateChanged(int)), _gui, SLOT(setYAxisAutoScale(int)));
 
@@ -43,6 +40,11 @@ MainWindow::MainWindow(QWidget *parent) :
     // Setup handler for buttons
     connect(_ui->btnAdd, SIGNAL(released()), this, SLOT(addRegister()));
     connect(_ui->btnRemove, SIGNAL(released()), this, SLOT(removeRegister()));
+
+    // Handler for menu bar
+    connect(_ui->actionStart, SIGNAL(triggered()), this, SLOT(startScope()));
+    connect(_ui->actionStop, SIGNAL(triggered()), this, SLOT(stopScope()));
+    connect(_ui->actionExit, SIGNAL(triggered()), this, SLOT(exitApplication()));
 
 }
 
@@ -66,8 +68,8 @@ void MainWindow::startScope()
         registerList.append(_modelReg.data(_modelReg.index(i), Qt::DisplayRole).toInt());
     }
 
-    _ui->btnStartModbus->setEnabled(false);
-    _ui->btnStopModbus->setEnabled(true);
+    _ui->actionStart->setEnabled(false);
+    _ui->actionStop->setEnabled(true);
 
     if (_scope->startCommunication(&_commSettings, &registerList))
     {
@@ -78,8 +80,13 @@ void MainWindow::startScope()
 void MainWindow::stopScope()
 {
     _scope->stopCommunication();
-    _ui->btnStartModbus->setEnabled(true);
-    _ui->btnStopModbus->setEnabled(false);
+    _ui->actionStart->setEnabled(true);
+    _ui->actionStop->setEnabled(false);
+}
+
+void MainWindow::exitApplication()
+{
+    QApplication::quit();
 }
 
 void MainWindow::addRegister()
