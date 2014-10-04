@@ -27,7 +27,7 @@ void ModbusMaster::startThread()
         _thread = new QThread();
         _thread->start();
         connect(_thread, SIGNAL(finished()), _thread, SLOT(deleteLater()));
-        connect(_thread, SIGNAL(finished()), this, SLOT(Stopped()));
+        connect(_thread, SIGNAL(finished()), this, SLOT(stopped()));
 
 #ifdef QT_DEBUG_OUTPUT
         qDebug() << "Thread start: " << _thread->currentThreadId();
@@ -57,7 +57,7 @@ void ModbusMaster::stopped()
 {
 
 #ifdef QT_DEBUG_OUTPUT
-    qDebug() << "ModbusMaster::Stopped";
+    qDebug() << "ModbusMaster::stopped";
 #endif
     /* thread is deleted using a connection between thread->finished and thread->deleteLater */
     _thread = NULL;
