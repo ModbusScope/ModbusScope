@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include "modbussettings.h"
-#include <QStringListModel>
+#include <QListWidgetItem>
 
 namespace Ui {
 class MainWindow;
@@ -27,6 +27,8 @@ signals:
     void stopThread();
     void startModbus();
     void stopModbus();
+    void registerStateChange(quint16 registerAddress);
+    void registerRemove(quint16 registerAddress);
 
 private slots:
     void startScope();
@@ -34,6 +36,7 @@ private slots:
     void addRegister();
     void removeRegister();
     void exitApplication();
+    void doubleClickedRegister(QListWidgetItem * item);
 
 public slots:
 
@@ -42,8 +45,6 @@ private:
     ScopeData * _scope;
     ScopeGui * _gui;
     ModbusSettings _commSettings;
-
-    QStringListModel _modelReg;
 };
 
 #endif // MAINWINDOW_H

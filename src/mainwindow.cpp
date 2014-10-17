@@ -3,7 +3,10 @@
 #include "qcustomplot.h"
 #include "scopedata.h"
 #include "scopegui.h"
+
 #include "QDebug"
+#include "QAbstractItemView"
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -23,12 +26,9 @@ MainWindow::MainWindow(QWidget *parent) :
     _scope = new ScopeData();
     _gui = new ScopeGui(_ui->customPlot, this);
 
-    _modelReg.insertRow(_modelReg.rowCount());
-    QModelIndex index = _modelReg.index(_modelReg.rowCount() - 1);
-    _modelReg.setData(index, "40001");
+    _ui->listReg->addItem("40001");
 
-    _ui->listReg->setModel(&_modelReg);
-    _ui->listReg->show();
+    _ui->listReg->setEditTriggers(QAbstractItemView::NoEditTriggers); // non-editable
 
     qRegisterMetaType<ModbusSettings>("ModbusSettings");
 
@@ -36,6 +36,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(_ui->chkYAxisAutoScale, SIGNAL(stateChanged(int)), _gui, SLOT(setYAxisAutoScale(int)));
 
     connect(_scope, SIGNAL(propagateNewData(bool, QList<quint16>)), _gui, SLOT(plotResults(bool, QList<quint16>)));
+
+    connect(_ui->listReg, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(doubleClickedRegister(QListWidgetItem *)));
+    connect(this, SIGNAL(registerStateChange(quint16)), _scope, SLOT(toggleRegister(quint16)));
+    connect(this, SIGNAL(registerRemove(quint16)), _scope, SLOT(removedRegister(quint16)));
 
     // Setup handler for buttons
     connect(_ui->btnAdd, SIGNAL(released()), this, SLOT(addRegister()));
@@ -56,24 +60,16 @@ MainWindow::~MainWindow()
 
 void MainWindow::startScope()
 {
-    QList<quint16> registerList;
-
     _commSettings.setIpAddress(_ui->lineIP->text());
     _commSettings.setPort(_ui->spinPort->text().toInt());
     _commSettings.setSlaveId(_ui->spinSlaveId->text().toInt());
 
-    registerList.clear();
-    for(qint32 i = 0; i < _modelReg.rowCount(); i++)
-    {
-        registerList.append(_modelReg.data(_modelReg.index(i), Qt::DisplayRole).toInt());
-    }
-
     _ui->actionStart->setEnabled(false);
     _ui->actionStop->setEnabled(true);
 
-    if (_scope->startCommunication(&_commSettings, &registerList))
+    if (_scope->startCommunication(&_commSettings))
     {
-        _gui->resetGraph(registerList.size());
+        _gui->resetGraph(_scope->getRegisterCount());
     }
 }
 
@@ -89,15 +85,55 @@ void MainWindow::exitApplication()
     QApplication::quit();
 }
 
+void MainWindow::doubleClickedRegister(QListWidgetItem * item)
+{
+    // Set background color
+    QBrush selectedColor;
+    selectedColor.setColor(QColor("green"));
+    selectedColor.setStyle(Qt::SolidPattern);
+
+    if (item->background() != selectedColor)
+    {
+         item->setBackground(selectedColor);
+    }
+    else
+    {
+        item->setBackground(QBrush(QColor("white"), Qt::SolidPattern));
+    }
+
+    emit registerStateChange((quint16)item->text().toInt());
+}
+
 void MainWindow::addRegister()
 {
-    _modelReg.insertRow(_modelReg.rowCount());
-    QModelIndex index = _modelReg.index(_modelReg.rowCount() - 1);
-    _modelReg.setData(index, _ui->spinReg->text());
+    bool bFound = false;
+    QString addr = _ui->spinReg->text();
+
+    for (qint32 i = 0; i < (qint32)_ui->listReg->count(); i++)
+    {
+        if (_ui->listReg->item(i)->text() == addr)
+        {
+            bFound = true;
+            break;
+        }
+    }
+
+    if (bFound)
+    {
+        QMessageBox::warning(this, "Duplicate register!", "The register is already present in the list.");
+    }
+    else
+    {
+        _ui->listReg->addItem(addr);
+    }
 }
 
 
 void MainWindow::removeRegister()
 {
-    _modelReg.removeRows(_ui->listReg->currentIndex().row(), 1);
+    if (_ui->listReg->count() != 0)
+    {
+        _ui->listReg->removeItemWidget(_ui->listReg->selectedItems()[0]);
+        emit registerRemove((quint16)_ui->listReg->selectedItems()[0]->text().toInt());
+    }
 }

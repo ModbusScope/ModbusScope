@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QList>
 #include <modbussettings.h>
+#include <QStringListModel>
 
 //Forward declaration
 class ModbusMaster;
@@ -16,8 +17,13 @@ public:
     explicit ScopeData(QObject *parent = 0);
     ~ScopeData();
 
-    bool startCommunication(ModbusSettings * pSettings, QList<quint16> * pRegisterList);
+    bool startCommunication(ModbusSettings * pSettings);
     void stopCommunication();
+    quint32 getRegisterCount();
+
+public slots:
+    void toggleRegister(quint16 registerAddress);
+    void removedRegister(quint16 registerAddress);
 
 signals:
     void registerRequest(ModbusSettings * pSettings, QList<quint16> * pRegisterList);

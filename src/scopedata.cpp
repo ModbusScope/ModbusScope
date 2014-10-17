@@ -15,6 +15,8 @@ ScopeData::ScopeData(QObject *parent) :
     qRegisterMetaType<QList<quint16> *>("QList<quint16> *");
     qRegisterMetaType<QList<quint16> >("QList<quint16>");
 
+    _registerlist.clear();
+
     /* Setup modbus master */
     _master = new ModbusMaster();
 
@@ -51,21 +53,13 @@ ScopeData::~ScopeData()
     delete _timer;
 }
 
-bool ScopeData::startCommunication(ModbusSettings * pSettings, QList<quint16> * pRegisterList)
+bool ScopeData::startCommunication(ModbusSettings * pSettings)
 {
     bool bResetted = false;
 
     if (!_active)
     {
         _settings.copy(pSettings);
-
-        _registerlist.clear();
-
-        for(qint32 i = 0; i < pRegisterList->size(); i++)
-        {
-            //TODO option
-            _registerlist.append(pRegisterList->at(i) - 40001);
-        }
 
         // Start timer
         _timer->singleShot(1000, this, SLOT(readData()));
@@ -76,6 +70,57 @@ bool ScopeData::startCommunication(ModbusSettings * pSettings, QList<quint16> * 
 
     return bResetted;
 }
+
+quint32 ScopeData::getRegisterCount()
+{
+    return _registerlist.size();
+}
+
+void ScopeData::toggleRegister(quint16 registerAddress)
+{
+    bool bFound = false;
+    const quint16 regAddr = registerAddress - 40001;
+
+    for(qint32 i = 0; i < _registerlist.size(); i++)
+    {
+        if (_registerlist.at(i) == regAddr)
+        {
+            _registerlist.removeAt(i);
+            bFound = true;
+#ifdef QT_DEBUG_OUTPUT
+            qDebug() << "ScopeData::Disabled register: " << regAddr;
+#endif
+            break;
+        }
+    }
+
+    if (!bFound)
+    {
+        _registerlist.append(regAddr);
+#ifdef QT_DEBUG_OUTPUT
+        qDebug() << "ScopeData::Enabled register: " << regAddr;
+#endif
+    }
+}
+
+
+void ScopeData::removedRegister(quint16 registerAddress)
+{
+    const quint16 regAddr = registerAddress - 40001;
+
+    for(qint32 i = 0; i < _registerlist.size(); i++)
+    {
+        if (_registerlist.at(i) == regAddr)
+        {
+            _registerlist.removeAt(i);
+#ifdef QT_DEBUG_OUTPUT
+            qDebug() << "ScopeData::Removed register: " << regAddr;
+#endif
+            break;
+        }
+    }
+}
+
 
 void ScopeData::masterStopped()
 {
