@@ -41,6 +41,9 @@ private slots:
 public slots:
 
 private:
+
+    void setSettingsObjectsState(bool bState);
+
     Ui::MainWindow * _ui;
     ScopeData * _scope;
     ScopeGui * _gui;

@@ -67,6 +67,8 @@ void MainWindow::startScope()
     _ui->actionStart->setEnabled(false);
     _ui->actionStop->setEnabled(true);
 
+    setSettingsObjectsState(false);
+
     if (_scope->startCommunication(&_commSettings))
     {
         _gui->resetGraph(_scope->getRegisterCount());
@@ -78,6 +80,8 @@ void MainWindow::stopScope()
     _scope->stopCommunication();
     _ui->actionStart->setEnabled(true);
     _ui->actionStop->setEnabled(false);
+
+    setSettingsObjectsState(true);
 }
 
 void MainWindow::exitApplication()
@@ -136,4 +140,15 @@ void MainWindow::removeRegister()
         _ui->listReg->removeItemWidget(_ui->listReg->selectedItems()[0]);
         emit registerRemove((quint16)_ui->listReg->selectedItems()[0]->text().toInt());
     }
+}
+
+void MainWindow::setSettingsObjectsState(bool bState)
+{
+    _ui->spinPort->setEnabled(bState);
+    _ui->btnAdd->setEnabled(bState);
+    _ui->btnRemove->setEnabled(bState);
+    _ui->spinReg->setEnabled(bState);
+    _ui->spinSlaveId->setEnabled(bState);
+    _ui->lineIP->setEnabled(bState);
+    _ui->listReg->setEnabled(bState);
 }
