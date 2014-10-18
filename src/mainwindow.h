@@ -36,7 +36,7 @@ private slots:
     void addRegister();
     void removeRegister();
     void exitApplication();
-    void doubleClickedRegister(QListWidgetItem * item);
+    void addRemoveRegisterFromScopeList(QListWidgetItem * item);
 
 public slots:
 

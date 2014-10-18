@@ -37,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(_scope, SIGNAL(propagateNewData(bool, QList<quint16>)), _gui, SLOT(plotResults(bool, QList<quint16>)));
 
-    connect(_ui->listReg, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(doubleClickedRegister(QListWidgetItem *)));
+    connect(_ui->listReg, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(addRemoveRegisterFromScopeList(QListWidgetItem *)));
     connect(this, SIGNAL(registerStateChange(quint16)), _scope, SLOT(toggleRegister(quint16)));
     connect(this, SIGNAL(registerRemove(quint16)), _scope, SLOT(removedRegister(quint16)));
 
@@ -60,18 +60,25 @@ MainWindow::~MainWindow()
 
 void MainWindow::startScope()
 {
-    _commSettings.setIpAddress(_ui->lineIP->text());
-    _commSettings.setPort(_ui->spinPort->text().toInt());
-    _commSettings.setSlaveId(_ui->spinSlaveId->text().toInt());
-
-    _ui->actionStart->setEnabled(false);
-    _ui->actionStop->setEnabled(true);
-
-    setSettingsObjectsState(false);
-
-    if (_scope->startCommunication(&_commSettings))
+    if (_scope->getRegisterCount() != 0)
     {
-        _gui->resetGraph(_scope->getRegisterCount());
+        _commSettings.setIpAddress(_ui->lineIP->text());
+        _commSettings.setPort(_ui->spinPort->text().toInt());
+        _commSettings.setSlaveId(_ui->spinSlaveId->text().toInt());
+
+        _ui->actionStart->setEnabled(false);
+        _ui->actionStop->setEnabled(true);
+
+        setSettingsObjectsState(false);
+
+        if (_scope->startCommunication(&_commSettings))
+        {
+            _gui->resetGraph(_scope->getRegisterCount());
+        }
+    }
+    else
+    {
+        QMessageBox::warning(this, "No register in scope list!", "There are no register in the scope list. Please select at least one register.");
     }
 }
 
@@ -89,7 +96,7 @@ void MainWindow::exitApplication()
     QApplication::quit();
 }
 
-void MainWindow::doubleClickedRegister(QListWidgetItem * item)
+void MainWindow::addRemoveRegisterFromScopeList(QListWidgetItem * item)
 {
     // Set background color
     QBrush selectedColor;
