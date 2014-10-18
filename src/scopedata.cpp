@@ -62,7 +62,7 @@ bool ScopeData::startCommunication(ModbusSettings * pSettings)
         _settings.copy(pSettings);
 
         // Start timer
-        _timer->singleShot(1000, this, SLOT(readData()));
+        _timer->singleShot(_settings.getPollTime(), this, SLOT(readData()));
 
         _active = true;
         bResetted = true;
@@ -155,7 +155,7 @@ void ScopeData::readData()
     {
         emit registerRequest(&_settings, &_registerlist);
 
-        _timer->singleShot(1000, this, SLOT(readData()));
+        _timer->singleShot(_settings.getPollTime(), this, SLOT(readData()));
     }
 }
 

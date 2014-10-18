@@ -60,34 +60,54 @@ MainWindow::~MainWindow()
 
 void MainWindow::startScope()
 {
-    if (_scope->getRegisterCount() != 0)
+    bool bCommunicationSettingsValid = true;
+
+    const quint32 pollTime = _ui->spinPollTime->text().toInt();
+
+    if (bCommunicationSettingsValid)
     {
-        _commSettings.setIpAddress(_ui->lineIP->text());
-        _commSettings.setPort(_ui->spinPort->text().toInt());
-        _commSettings.setSlaveId(_ui->spinSlaveId->text().toInt());
-
-        _ui->actionStart->setEnabled(false);
-        _ui->actionStop->setEnabled(true);
-
-        setSettingsObjectsState(false);
-
-        if (_scope->startCommunication(&_commSettings))
+        if ((pollTime < 100) || (pollTime > 90000))
         {
-            _gui->resetGraph();
-
-            QList<quint16> regList;
-            _scope->getRegisterList(&regList);
-
-            for (quint32 i = 0; i < (quint32)regList.size(); i++)
-            {
-                _gui->addGraph(regList[i]);
-            }
+            QMessageBox::warning(this, "Poll time not valid!", "The poll time is invalid. Make sure the poll time is longer than 100 ms and shorter than 90000 ms.");
+            bCommunicationSettingsValid = false;
         }
     }
-    else
+    /* TODO: check other fields */
+
+
+    if (bCommunicationSettingsValid)
     {
-        QMessageBox::warning(this, "No register in scope list!", "There are no register in the scope list. Please select at least one register.");
+        if (_scope->getRegisterCount() != 0)
+        {
+            _commSettings.setIpAddress(_ui->lineIP->text());
+            _commSettings.setPort(_ui->spinPort->text().toInt());
+            _commSettings.setSlaveId(_ui->spinSlaveId->text().toInt());
+            _commSettings.setPollTime(pollTime);
+
+            _ui->actionStart->setEnabled(false);
+            _ui->actionStop->setEnabled(true);
+
+            setSettingsObjectsState(false);
+
+            if (_scope->startCommunication(&_commSettings))
+            {
+                _gui->resetGraph();
+
+                QList<quint16> regList;
+                _scope->getRegisterList(&regList);
+
+                for (quint32 i = 0; i < (quint32)regList.size(); i++)
+                {
+                    _gui->addGraph(regList[i]);
+                }
+            }
+        }
+        else
+        {
+            QMessageBox::warning(this, "No register in scope list!", "There are no register in the scope list. Please select at least one register.");
+        }
     }
+
 }
 
 void MainWindow::stopScope()
@@ -161,6 +181,7 @@ void MainWindow::setSettingsObjectsState(bool bState)
 {
     _ui->spinPort->setEnabled(bState);
     _ui->btnAdd->setEnabled(bState);
+    _ui->spinPollTime->setEnabled(bState);
     _ui->btnRemove->setEnabled(bState);
     _ui->spinReg->setEnabled(bState);
     _ui->spinSlaveId->setEnabled(bState);
