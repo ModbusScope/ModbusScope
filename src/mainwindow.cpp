@@ -73,7 +73,15 @@ void MainWindow::startScope()
 
         if (_scope->startCommunication(&_commSettings))
         {
-            _gui->resetGraph(_scope->getRegisterCount());
+            _gui->resetGraph();
+
+            QList<quint16> regList;
+            _scope->getRegisterList(&regList);
+
+            for (quint32 i = 0; i < (quint32)regList.size(); i++)
+            {
+                _gui->addGraph(regList[i]);
+            }
         }
     }
     else

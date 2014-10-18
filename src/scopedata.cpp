@@ -76,10 +76,16 @@ quint32 ScopeData::getRegisterCount()
     return _registerlist.size();
 }
 
+void ScopeData::getRegisterList(QList<quint16> * pList)
+{
+    pList->clear();
+    pList->append(_registerlist);
+}
+
 void ScopeData::toggleRegister(quint16 registerAddress)
 {
     bool bFound = false;
-    const quint16 regAddr = registerAddress - 40001;
+    const quint16 regAddr = registerAddress;
 
     for(qint32 i = 0; i < _registerlist.size(); i++)
     {
@@ -106,7 +112,7 @@ void ScopeData::toggleRegister(quint16 registerAddress)
 
 void ScopeData::removedRegister(quint16 registerAddress)
 {
-    const quint16 regAddr = registerAddress - 40001;
+    const quint16 regAddr = registerAddress;
 
     for(qint32 i = 0; i < _registerlist.size(); i++)
     {

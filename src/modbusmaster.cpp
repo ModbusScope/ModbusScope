@@ -89,7 +89,7 @@ void ModbusMaster::readRegisterList(ModbusSettings * pSettings, QList<quint16> *
         {
 
             /* handle failure correctly */
-            if (readRegisters(pCtx, pRegisterList->at(i), 1, &resultList) == 0)
+            if (readRegisters(pCtx, pRegisterList->at(i) - 40001, 1, &resultList) == 0)
             {
                 globalResultList.append(resultList[0]);
                 bSuccess = true;

@@ -10,9 +10,10 @@ class ScopeGui : public QObject
 {
     Q_OBJECT
 public:
-    explicit ScopeGui(QCustomPlot * pGraph, QObject *parent);
+    explicit ScopeGui(QCustomPlot * pPlot, QObject *parent);
 
-    void resetGraph(quint32 variableCount);
+    void resetGraph(void);
+    void addGraph(quint16 registerAddress);
 
 signals:
 
@@ -33,7 +34,9 @@ private:
         bool bYAxisAutoScale;
     } GuiSettings;
 
-    QCustomPlot * _pGraph;
+    QCustomPlot * _pPlot;
+
+    static const QList<QColor> _colorlist;
 
     GuiSettings _settings;
 };

@@ -20,6 +20,7 @@ public:
     bool startCommunication(ModbusSettings * pSettings);
     void stopCommunication();
     quint32 getRegisterCount();
+    void getRegisterList(QList<quint16> * pList);
 
 public slots:
     void toggleRegister(quint16 registerAddress);
