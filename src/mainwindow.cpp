@@ -170,10 +170,10 @@ void MainWindow::addRegister()
 
 void MainWindow::removeRegister()
 {
-    if (_ui->listReg->count() != 0)
+    if (_ui->listReg->selectedItems().count() != 0)
     {
-        _ui->listReg->removeItemWidget(_ui->listReg->selectedItems()[0]);
         emit registerRemove((quint16)_ui->listReg->selectedItems()[0]->text().toInt());
+        qDeleteAll(_ui->listReg->selectedItems());
     }
 }
 
