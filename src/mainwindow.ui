@@ -173,7 +173,7 @@
           <item>
            <widget class="QCheckBox" name="chkYAxisAutoScale">
             <property name="text">
-             <string>Auto scale   axis</string>
+             <string>Auto scale Y  axis</string>
             </property>
             <property name="checked">
              <bool>true</bool>
