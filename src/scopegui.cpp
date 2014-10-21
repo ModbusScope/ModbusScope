@@ -19,17 +19,13 @@ ScopeGui::ScopeGui(QCustomPlot * pPlot, QObject *parent) :
    _pPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes);
 
    _pPlot->xAxis->setRange(0, 10);
-   _pPlot->xAxis->setTickLabelType(QCPAxis::ltDateTime);
-   _pPlot->xAxis->setDateTimeFormat("hh:mm:ss:zzz");
-   _pPlot->xAxis->setLabel("x Axis");
+   _pPlot->xAxis->setTickLabelType(QCPAxis::ltNumber);
+   _pPlot->xAxis->setNumberFormat("gb");
+   _pPlot->xAxis->setLabel("Time (s)");
 
    _pPlot->yAxis->setRange(0, 10);
-   _pPlot->yAxis->setLabel("y Axis");
 
-   _pPlot->plotLayout()->insertRow(0);
-   _pPlot->plotLayout()->addElement(0, 0, new QCPPlotTitle(_pPlot, "Interaction Example"));
-
-   _pPlot->legend->setVisible(true);
+   _pPlot->legend->setVisible(false);
    QFont legendFont = QApplication::font();
    legendFont.setPointSize(10);
    _pPlot->legend->setFont(legendFont);
@@ -56,19 +52,24 @@ void ScopeGui::addGraph(quint16 registerAddress)
    pGraph->setName(label);
 
    pGraph->setPen(QPen(_colorlist[colorIndex]));
+
+   _pPlot->replot();
+   _pPlot->legend->setVisible(true);
+
+   _startTimeS = QDateTime::currentMSecsSinceEpoch() / 1000;
+
 }
 
 void ScopeGui::plotResults(bool bSuccess, QList<quint16> values)
 {
-   double now = QDateTime::currentDateTime().toTime_t();
-   /* TODO: handle failure correctly */
+   const quint32 nowS = (QDateTime::currentMSecsSinceEpoch() / 1000) - _startTimeS;
 
+   /* TODO: handle failure correctly */
    if (bSuccess)
    {
        for (qint32 i = 0; i < values.size(); i++)
        {
-
-           _pPlot->graph(i)->addData(now, (double)values[i]);
+           _pPlot->graph(i)->addData(nowS, (double)values[i]);
        }
 
        _pPlot->replot();

@@ -35,6 +35,7 @@ private:
     } GuiSettings;
 
     QCustomPlot * _pPlot;
+    qint64 _startTimeS; /* Start time is seconds */
 
     static const QList<QColor> _colorlist;
 
