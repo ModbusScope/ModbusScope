@@ -29,10 +29,6 @@ void ModbusMaster::startThread()
         connect(_thread, SIGNAL(finished()), _thread, SLOT(deleteLater()));
         connect(_thread, SIGNAL(finished()), this, SLOT(stopped()));
 
-#ifdef QT_DEBUG_OUTPUT
-        qDebug() << "Thread start: " << _thread->currentThreadId();
-#endif
-
         moveToThread(_thread);
     }
 }
@@ -47,18 +43,11 @@ void ModbusMaster::wait()
 
 void ModbusMaster::stopThread()
 {
-#ifdef QT_DEBUG_OUTPUT
-    qDebug() << "Thread stop: " << _thread->currentThreadId();
-#endif
     _thread->quit();
 }
 
 void ModbusMaster::stopped()
 {
-
-#ifdef QT_DEBUG_OUTPUT
-    qDebug() << "ModbusMaster::stopped";
-#endif
     /* thread is deleted using a connection between thread->finished and thread->deleteLater */
     _thread = NULL;
 
@@ -70,11 +59,6 @@ void ModbusMaster::readRegisterList(ModbusSettings * pSettings, QList<quint16> *
     QList<quint16> globalResultList;
     QList<quint16> resultList;
     bool bSuccess = false;
-
-#ifdef QT_DEBUG_OUTPUT
-    qDebug() << "Register read: thread " << _thread->currentThreadId();
-    qDebug() << "Register read: number " << pRegisterList->size();
-#endif
 
     /* Open port */
     modbus_t * pCtx = openPort(pSettings->getIpAddress(), pSettings->getPort());
@@ -113,9 +97,6 @@ void ModbusMaster::readRegisterList(ModbusSettings * pSettings, QList<quint16> *
 
 void ModbusMaster::closePort(modbus_t *connection)
 {
-#ifdef QT_DEBUG_OUTPUT
-        qDebug() << "Close connection ";
-#endif
     modbus_close(connection);
     modbus_free(connection);
 }
@@ -125,9 +106,6 @@ modbus_t * ModbusMaster::openPort(QString ip, quint16 port)
 {
     modbus_t * conn;
 
-#ifdef QT_DEBUG_OUTPUT
-        qDebug() << "Open connection (" << ip.toStdString().c_str() << ":" << port << ")";
-#endif
     conn = modbus_new_tcp(ip.toStdString().c_str(), port);
     if (conn)
     {
@@ -157,9 +135,6 @@ qint32 ModbusMaster::readRegisters(modbus_t * pCtx, quint16 startReg, quint32 nu
 
     quint16 * aRegister = (quint16 *)malloc(num * sizeof(quint16));
 
-#ifdef QT_DEBUG_OUTPUT
-    qDebug() << "Read registers: start (" << startReg << "), number (" << num << ")";
-#endif
     if (modbus_read_registers(pCtx, startReg, num, aRegister) == -1)
     {
         qDebug() << "MB: Read failed: " << modbus_strerror(errno) << endl;
@@ -170,9 +145,6 @@ qint32 ModbusMaster::readRegisters(modbus_t * pCtx, quint16 startReg, quint32 nu
         pResultList->clear();
         for (quint32 i = 0; i < num; i++)
         {
-#ifdef QT_DEBUG_OUTPUT
-            qDebug() << "Register result (" << i << "): " << aRegister[i];
-#endif
             pResultList->append(aRegister[i]);
         }
     }

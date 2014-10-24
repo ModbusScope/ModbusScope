@@ -37,18 +37,10 @@ ScopeData::~ScopeData()
 {
     emit requestStop();
 
-#ifdef QT_DEBUG_OUTPUT
-    qDebug() << "ScopeData::~ScopeData() before wait";
-#endif
-
     if (_master)
     {
         _master->wait();
     }
-
-#ifdef QT_DEBUG_OUTPUT
-    qDebug() << "ScopeData::~ScopeData() after wait";
-#endif
 
     delete _timer;
 }
@@ -93,9 +85,6 @@ void ScopeData::toggleRegister(quint16 registerAddress)
         {
             _registerlist.removeAt(i);
             bFound = true;
-#ifdef QT_DEBUG_OUTPUT
-            qDebug() << "ScopeData::Disabled register: " << regAddr;
-#endif
             break;
         }
     }
@@ -103,9 +92,6 @@ void ScopeData::toggleRegister(quint16 registerAddress)
     if (!bFound)
     {
         _registerlist.append(regAddr);
-#ifdef QT_DEBUG_OUTPUT
-        qDebug() << "ScopeData::Enabled register: " << regAddr;
-#endif
     }
 }
 
@@ -119,9 +105,6 @@ void ScopeData::removedRegister(quint16 registerAddress)
         if (_registerlist.at(i) == regAddr)
         {
             _registerlist.removeAt(i);
-#ifdef QT_DEBUG_OUTPUT
-            qDebug() << "ScopeData::Removed register: " << regAddr;
-#endif
             break;
         }
     }
@@ -130,17 +113,11 @@ void ScopeData::removedRegister(quint16 registerAddress)
 
 void ScopeData::masterStopped()
 {
-#ifdef QT_DEBUG_OUTPUT
-    qDebug() << "ScopeData::MasterStopped";
-#endif
     _master = NULL;
 }
 
 void ScopeData::stopCommunication()
 {
-#ifdef QT_DEBUG_OUTPUT
-    qDebug() << "ScopeData::StopCommunication";
-#endif
     _active = false;
 }
 
