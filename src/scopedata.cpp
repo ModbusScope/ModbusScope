@@ -53,8 +53,8 @@ bool ScopeData::startCommunication(ModbusSettings * pSettings)
     {
         _settings.copy(pSettings);
 
-        // Start timer
-        _timer->singleShot(_settings.getPollTime(), this, SLOT(readData()));
+        // Trigger read immediatly
+        _timer->singleShot(1, this, SLOT(readData()));
 
         _active = true;
         bResetted = true;
