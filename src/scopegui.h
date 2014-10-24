@@ -2,6 +2,7 @@
 #define SCOPEGUI_H
 
 #include <QObject>
+#include <QVector>
 
 // Foward declaration
 class QCustomPlot;
@@ -23,6 +24,7 @@ public slots:
     void setXAxisAutoScale(int state);
 
 private slots:
+    void generateTickLabels();
     void selectionChanged();
     void mousePress();
     void mouseWheel();
@@ -39,7 +41,13 @@ private:
 
     static const QList<QColor> _colorlist;
 
+    QVector<QString> tickLabels;
+
     GuiSettings _settings;
+
+    static const quint32 _cMinuteTripPoint = 5*60*1000; /* in ms */
+    static const quint32 _cHourTripPoint = 10*60*60*1000; /* in ms */
+
 };
 
 #endif // SCOPEGUI_H

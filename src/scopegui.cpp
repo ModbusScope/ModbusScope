@@ -16,11 +16,19 @@ ScopeGui::ScopeGui(QCustomPlot * pPlot, QObject *parent) :
 
    _pPlot = pPlot;
 
+   setYAxisAutoScale(true);
+   setXAxisAutoScale(true);
+
    _pPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes);
 
-   _pPlot->xAxis->setRange(0, 10);
+   _pPlot->xAxis->setRange(0, 10000);
    _pPlot->xAxis->setTickLabelType(QCPAxis::ltNumber);
    _pPlot->xAxis->setNumberFormat("gb");
+
+   _pPlot->xAxis->setAutoTicks(true);
+   _pPlot->xAxis->setAutoTickLabels(false);
+   connect(_pPlot->xAxis, SIGNAL(ticksRequest()), this, SLOT(generateTickLabels()));
+
    _pPlot->xAxis->setLabel("Time (s)");
 
    _pPlot->yAxis->setRange(0, 10);
@@ -32,6 +40,7 @@ ScopeGui::ScopeGui(QCustomPlot * pPlot, QObject *parent) :
 
    // connect slot that ties some axis selections together (especially opposite axes):
    connect(_pPlot, SIGNAL(selectionChangedByUser()), this, SLOT(selectionChanged()));
+
    // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
    connect(_pPlot, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress()));
    connect(_pPlot, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel()));
@@ -56,13 +65,13 @@ void ScopeGui::addGraph(quint16 registerAddress)
    _pPlot->replot();
    _pPlot->legend->setVisible(true);
 
-   _startTimeS = QDateTime::currentMSecsSinceEpoch() / 1000;
+   _startTimeS = QDateTime::currentMSecsSinceEpoch();
 
 }
 
 void ScopeGui::plotResults(bool bSuccess, QList<quint16> values)
 {
-   const quint32 nowS = (QDateTime::currentMSecsSinceEpoch() / 1000) - _startTimeS;
+   const quint32 nowS = QDateTime::currentMSecsSinceEpoch() - _startTimeS;
 
    /* TODO: handle failure correctly */
    if (bSuccess)
@@ -96,6 +105,41 @@ void ScopeGui::setXAxisAutoScale(int state)
    _settings.bXAxisAutoScale = (state ? true: false);
 }
 
+
+void ScopeGui::generateTickLabels()
+{
+    QVector<double> ticks = _pPlot->xAxis->tickVector();
+    quint32 scaleFactor;
+
+    /* Clear ticks vector */
+    tickLabels.clear();
+
+    /* Check if we need seconds, minute or hours on x-axis */
+    if (ticks[ticks.size()-1] > _cHourTripPoint)
+    {
+        _pPlot->xAxis->setLabel("Time (hour)");
+        scaleFactor = 60*60*1000;
+    }
+    else if (ticks[ticks.size()-1] > _cMinuteTripPoint)
+    {
+        _pPlot->xAxis->setLabel("Time (min)");
+        scaleFactor = 60*1000;
+    }
+    else
+    {
+        _pPlot->xAxis->setLabel("Time (s)");
+        scaleFactor = 1000;
+    }
+
+    /* Generate correct labels */
+    for (qint32 index = 0; index < ticks.size(); index++)
+    {
+        tickLabels.append(QString::number(ticks[index] / scaleFactor));
+    }
+
+    /* Set labels */
+    _pPlot->xAxis->setTickVectorLabels(tickLabels);
+}
 
 void ScopeGui::selectionChanged()
 {
