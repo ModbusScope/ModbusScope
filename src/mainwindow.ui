@@ -202,6 +202,8 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionExportDataCsv"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuCommunication">
@@ -230,6 +232,14 @@
    </property>
    <property name="text">
     <string>Stop</string>
+   </property>
+  </action>
+  <action name="actionExportDataCsv">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Export data</string>
    </property>
   </action>
  </widget>

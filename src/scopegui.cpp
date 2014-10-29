@@ -65,20 +65,20 @@ void ScopeGui::addGraph(quint16 registerAddress)
    _pPlot->replot();
    _pPlot->legend->setVisible(true);
 
-   _startTimeS = QDateTime::currentMSecsSinceEpoch();
+   _startTime = QDateTime::currentMSecsSinceEpoch();
 
 }
 
 void ScopeGui::plotResults(bool bSuccess, QList<quint16> values)
 {
-   const quint32 nowS = QDateTime::currentMSecsSinceEpoch() - _startTimeS;
+   const quint32 diff = QDateTime::currentMSecsSinceEpoch() - _startTime;
 
    /* TODO: handle failure correctly */
    if (bSuccess)
    {
        for (qint32 i = 0; i < values.size(); i++)
        {
-           _pPlot->graph(i)->addData(nowS, (double)values[i]);
+           _pPlot->graph(i)->addData(diff, (double)values[i]);
        }
 
        _pPlot->replot();
@@ -105,6 +105,60 @@ void ScopeGui::setXAxisAutoScale(int state)
    _settings.bXAxisAutoScale = (state ? true: false);
 }
 
+void ScopeGui::exportDataCsv(QString dataFile)
+{
+
+    if (_pPlot->graphCount() != 0)
+    {
+        const QList<double> keyList = _pPlot->graph(0)->data()->keys();
+        QList<QList<QCPData> > dataList;
+        QString logData;
+        QString line;
+
+        line.append("ModbusScope version;");
+        line.append(APP_VERSION);
+        line.append("\n");
+        logData.append(line);
+
+        QDateTime dt;
+        dt = QDateTime::fromMSecsSinceEpoch(_startTime);
+        line.clear();
+        line.append("Start time;" + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
+        logData.append(line);
+
+        logData.append("\n");
+
+        line.clear();
+        line.append("Time (ms)");
+        for(qint32 i = 0; i < _pPlot->graphCount(); i++)
+        {
+            // Get headers
+            line.append(";" +_pPlot->graph(i)->name());
+
+            // Save data lists
+            dataList.append(_pPlot->graph(i)->data()->values());
+        }
+        line.append("\n");
+
+        logData.append(line);
+
+        for(qint32 i = 0; i < keyList.size(); i++)
+        {
+            line.clear();
+            line.append(QString::number(keyList[i]));
+
+            for(qint32 d = 0; d < dataList.size(); d++)
+            {
+                line.append(";" + QString::number((dataList[d])[i].value));
+            }
+            line.append("\n");
+
+            logData.append(line);
+        }
+
+        writeToFile(dataFile, logData);
+    }
+}
 
 void ScopeGui::generateTickLabels()
 {
@@ -186,4 +240,16 @@ void ScopeGui::mouseWheel()
        _pPlot->axisRect()->setRangeZoom(_pPlot->yAxis->orientation());
    else
        _pPlot->axisRect()->setRangeZoom(Qt::Horizontal|Qt::Vertical);
+}
+
+
+
+void ScopeGui::writeToFile(QString filePath, QString logData)
+{
+    QFile file(filePath);
+    if ( file.open(QIODevice::ReadWrite) )
+    {
+        QTextStream stream(&file);
+        stream << logData;
+    }
 }

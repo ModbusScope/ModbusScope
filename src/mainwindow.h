@@ -29,6 +29,7 @@ signals:
     void stopModbus();
     void registerStateChange(quint16 registerAddress);
     void registerRemove(quint16 registerAddress);
+    void dataExport(QString dataFile);
 
 private slots:
     void startScope();
@@ -37,6 +38,7 @@ private slots:
     void removeRegister();
     void exitApplication();
     void addRemoveRegisterFromScopeList(QListWidgetItem * item);
+    void prepareDataExport();
 
 public slots:
 

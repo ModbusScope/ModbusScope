@@ -5,8 +5,6 @@
 #include "scopegui.h"
 
 #include "QDebug"
-#include "QAbstractItemView"
-
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -40,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(_ui->listReg, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(addRemoveRegisterFromScopeList(QListWidgetItem *)));
     connect(this, SIGNAL(registerStateChange(quint16)), _scope, SLOT(toggleRegister(quint16)));
     connect(this, SIGNAL(registerRemove(quint16)), _scope, SLOT(removedRegister(quint16)));
+    connect(this, SIGNAL(dataExport(QString)), _gui, SLOT(exportDataCsv(QString)));
 
     // Setup handler for buttons
     connect(_ui->btnAdd, SIGNAL(released()), this, SLOT(addRegister()));
@@ -49,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(_ui->actionStart, SIGNAL(triggered()), this, SLOT(startScope()));
     connect(_ui->actionStop, SIGNAL(triggered()), this, SLOT(stopScope()));
     connect(_ui->actionExit, SIGNAL(triggered()), this, SLOT(exitApplication()));
-
+    connect(_ui->actionExportDataCsv, SIGNAL(triggered()), this, SLOT(prepareDataExport()));
 }
 
 MainWindow::~MainWindow()
@@ -85,6 +84,8 @@ void MainWindow::startScope()
             _commSettings.setPollTime(pollTime);
 
             _ui->actionStart->setEnabled(false);
+            _ui->actionExportDataCsv->setEnabled(false);
+
             _ui->actionStop->setEnabled(true);
 
             setSettingsObjectsState(false);
@@ -114,6 +115,8 @@ void MainWindow::stopScope()
 {
     _scope->stopCommunication();
     _ui->actionStart->setEnabled(true);
+    _ui->actionExportDataCsv->setEnabled(true);
+
     _ui->actionStop->setEnabled(false);
 
     setSettingsObjectsState(true);
@@ -123,6 +126,7 @@ void MainWindow::exitApplication()
 {
     QApplication::quit();
 }
+
 
 void MainWindow::addRemoveRegisterFromScopeList(QListWidgetItem * item)
 {
@@ -141,6 +145,24 @@ void MainWindow::addRemoveRegisterFromScopeList(QListWidgetItem * item)
     }
 
     emit registerStateChange((quint16)item->text().toInt());
+}
+
+void MainWindow::prepareDataExport()
+{
+    QString filePath;
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
+    dialog.setDefaultSuffix("csv");
+    dialog.setWindowTitle(tr("Select csv file"));
+    dialog.setNameFilter(tr("CSV files (*.csv)"));
+
+    if (dialog.exec())
+    {
+        filePath = dialog.selectedFiles().first();
+        emit dataExport(filePath);
+    }
 }
 
 void MainWindow::addRegister()

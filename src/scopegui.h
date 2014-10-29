@@ -22,6 +22,7 @@ public slots:
     void plotResults(bool bSuccess, QList<quint16> values);
     void setYAxisAutoScale(int state);
     void setXAxisAutoScale(int state);
+    void exportDataCsv(QString dataFile);
 
 private slots:
     void generateTickLabels();
@@ -30,6 +31,9 @@ private slots:
     void mouseWheel();
 
 private:
+
+    void writeToFile(QString filePath, QString logData);
+
     typedef struct
     {
         bool bXAxisAutoScale;
@@ -37,7 +41,7 @@ private:
     } GuiSettings;
 
     QCustomPlot * _pPlot;
-    qint64 _startTimeS; /* Start time is seconds */
+    qint64 _startTime;
 
     static const QList<QColor> _colorlist;
 
