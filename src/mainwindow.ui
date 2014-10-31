@@ -202,6 +202,8 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionLoadProjectFile"/>
+    <addaction name="separator"/>
     <addaction name="actionExportDataCsv"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
@@ -240,6 +242,11 @@
    </property>
    <property name="text">
     <string>Export data</string>
+   </property>
+  </action>
+  <action name="actionLoadProjectFile">
+   <property name="text">
+    <string>Load Project File</string>
    </property>
   </action>
  </widget>

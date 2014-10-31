@@ -4,6 +4,7 @@
 #include "scopedata.h"
 #include "scopegui.h"
 
+
 #include "QDebug"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -49,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(_ui->actionStop, SIGNAL(triggered()), this, SLOT(stopScope()));
     connect(_ui->actionExit, SIGNAL(triggered()), this, SLOT(exitApplication()));
     connect(_ui->actionExportDataCsv, SIGNAL(triggered()), this, SLOT(prepareDataExport()));
+    connect(_ui->actionLoadProjectFile, SIGNAL(triggered()), this, SLOT(loadProjectSettings()));
 }
 
 MainWindow::~MainWindow()
@@ -165,6 +167,43 @@ void MainWindow::prepareDataExport()
     }
 }
 
+void MainWindow::loadProjectSettings()
+{
+    ProjectFileParser fileParser;
+    ProjectFileParser::ProjectSettings loadedSettings;
+
+    QString projectFilePath;
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    dialog.setAcceptMode(QFileDialog::AcceptOpen);
+    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
+    dialog.setWindowTitle(tr("Select mbs file"));
+    dialog.setNameFilter(tr("mbs files (*.mbs)"));
+
+    if (dialog.exec())
+    {
+        projectFilePath = dialog.selectedFiles().first();
+    }
+
+    QFile* file = new QFile(projectFilePath);
+
+    /* If we can't open it, let's show an error message. */
+    if (file->open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        if (fileParser.parseFile(file, &loadedSettings))
+        {
+            updateBoxes(&loadedSettings);
+        }
+    }
+    else
+    {
+        QString errMsg("Couldn't open file: ");
+        errMsg.append(projectFilePath);
+        QMessageBox::critical(this, "ModbusScope", errMsg,
+                              QMessageBox::Ok);
+    }
+}
+
 void MainWindow::addRegister()
 {
     bool bFound = false;
@@ -209,4 +248,35 @@ void MainWindow::setSettingsObjectsState(bool bState)
     _ui->spinSlaveId->setEnabled(bState);
     _ui->lineIP->setEnabled(bState);
     _ui->listReg->setEnabled(bState);
+    _ui->actionLoadProjectFile->setEnabled(bState);
+}
+
+void MainWindow::updateBoxes(ProjectFileParser::ProjectSettings * pProjectSettings)
+{
+    if (pProjectSettings->general.bIp)
+    {
+        _ui->lineIP->setText(pProjectSettings->general.ip);
+    }
+
+    if (pProjectSettings->general.bPort)
+    {
+        _ui->spinPort->setValue(pProjectSettings->general.port);
+    }
+
+    if (pProjectSettings->general.bPollTime)
+    {
+        _ui->spinPollTime->setValue(pProjectSettings->general.pollTime);
+    }
+
+    if (pProjectSettings->general.bSlaveId)
+    {
+        _ui->spinSlaveId->setValue(pProjectSettings->general.slaveId);
+    }
+
+    _ui->listReg->clear();
+    for (qint32 i = 0; i < pProjectSettings->scope.registerList.size(); i++)
+    {
+        _ui->listReg->addItem(QString::number(pProjectSettings->scope.registerList[i].address));
+    }
+
 }

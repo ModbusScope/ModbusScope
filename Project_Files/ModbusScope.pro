@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
@@ -36,7 +36,8 @@ SOURCES +=  \
     ../libraries/libmodbus/src/modbus-tcp.c \
     ../libraries/qcustomplot/qcustomplot.cpp \
     ../src/scopedata.cpp \
-    ../src/scopegui.cpp
+    ../src/scopegui.cpp \
+    ../src/projectfileparser.cpp
 
 FORMS    += \
     ../src/mainwindow.ui
@@ -52,4 +53,5 @@ HEADERS += \
     ../libraries/libmodbus/src/modbus-tcp-private.h \
     ../libraries/qcustomplot/qcustomplot.h \
     ../src/scopedata.h \
-    ../src/scopegui.h
+    ../src/scopegui.h \
+    ../src/projectfileparser.h

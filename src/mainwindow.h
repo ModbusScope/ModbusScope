@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "modbussettings.h"
+#include "projectfileparser.h"
 #include <QListWidgetItem>
 
 namespace Ui {
@@ -39,12 +40,14 @@ private slots:
     void exitApplication();
     void addRemoveRegisterFromScopeList(QListWidgetItem * item);
     void prepareDataExport();
+    void loadProjectSettings();
 
 public slots:
 
 private:
 
     void setSettingsObjectsState(bool bState);
+    void updateBoxes(ProjectFileParser::ProjectSettings *pProjectSettings);
 
     Ui::MainWindow * _ui;
     ScopeData * _scope;

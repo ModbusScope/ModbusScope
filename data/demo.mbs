@@ -1,0 +1,25 @@
+<modbusscope>
+	<modbus>
+		<ip>127.0.0.1</ip>
+		<port>502</port>
+		<polltime>1000</polltime>
+		<slaveid>1</slaveid>
+		<unknown>1</unknown>
+	</modbus>
+	<scope>
+		<var>
+			<reg>40001</reg>
+			<!--<text>Software version Major (major.minor.rev)</text>-->
+			<!--<type>int16</type>-->
+			<unknowntag2>1</unknowntag2>
+		</var>
+		<var>
+			<reg>40002</reg>
+			<!--<text>Software version Major (major.minor.rev)</text>-->
+			<!--<type>int16</type>-->
+			<unknowntag2>1</unknowntag2>
+		</var>
+		
+		<unknowntag>1</unknowntag>
+	</scope>
+</modbusscope>
