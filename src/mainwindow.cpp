@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(_ui->actionExit, SIGNAL(triggered()), this, SLOT(exitApplication()));
     connect(_ui->actionExportDataCsv, SIGNAL(triggered()), this, SLOT(prepareDataExport()));
     connect(_ui->actionLoadProjectFile, SIGNAL(triggered()), this, SLOT(loadProjectSettings()));
+    connect(_ui->actionExportImage, SIGNAL(triggered()), this, SLOT(prepareImageExport()));
 }
 
 MainWindow::~MainWindow()
@@ -118,6 +119,7 @@ void MainWindow::stopScope()
     _scope->stopCommunication();
     _ui->actionStart->setEnabled(true);
     _ui->actionExportDataCsv->setEnabled(true);
+    _ui->actionExportImage->setEnabled(true);
 
     _ui->actionStop->setEnabled(false);
 
@@ -201,6 +203,24 @@ void MainWindow::loadProjectSettings()
         errMsg.append(projectFilePath);
         QMessageBox::critical(this, "ModbusScope", errMsg,
                               QMessageBox::Ok);
+    }
+}
+
+void MainWindow::prepareImageExport()
+{
+    QString filePath;
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
+    dialog.setDefaultSuffix("png");
+    dialog.setWindowTitle(tr("Select png file"));
+    dialog.setNameFilter(tr("PNG files (*.png)"));
+
+    if (dialog.exec())
+    {
+        filePath = dialog.selectedFiles().first();
+        _gui->exportGraphImage(filePath);
     }
 }
 

@@ -41,6 +41,7 @@ private slots:
     void addRemoveRegisterFromScopeList(QListWidgetItem * item);
     void prepareDataExport();
     void loadProjectSettings();
+    void prepareImageExport();
 
 public slots:
 

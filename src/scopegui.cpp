@@ -1,5 +1,7 @@
-#include "scopegui.h"
 
+#include <QMessageBox>
+
+#include "scopegui.h"
 #include "qcustomplot.h"
 
 const QList<QColor> ScopeGui::_colorlist = QList<QColor>() << QColor("red")
@@ -160,6 +162,18 @@ void ScopeGui::exportDataCsv(QString dataFile)
     }
 }
 
+void ScopeGui::exportGraphImage(QString imageFile)
+{
+    if (!_pPlot->savePng(imageFile))
+    {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle(tr("ModbusScope export error"));
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setText(tr("Save to png file (%1) failed").arg(imageFile));
+        msgBox.exec();
+    }
+}
+
 void ScopeGui::generateTickLabels()
 {
     QVector<double> ticks = _pPlot->xAxis->tickVector();
@@ -251,5 +265,13 @@ void ScopeGui::writeToFile(QString filePath, QString logData)
     {
         QTextStream stream(&file);
         stream << logData;
+    }
+    else
+    {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle(tr("ModbusScope export error"));
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setText(tr("Save to data file (%1) failed").arg(filePath));
+        msgBox.exec();
     }
 }

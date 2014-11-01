@@ -23,6 +23,7 @@ public slots:
     void setYAxisAutoScale(int state);
     void setXAxisAutoScale(int state);
     void exportDataCsv(QString dataFile);
+    void exportGraphImage(QString imageFile);
 
 private slots:
     void generateTickLabels();
