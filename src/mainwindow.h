@@ -20,7 +20,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QStringList cmdArguments, QWidget *parent = 0);
     ~MainWindow();
 
 signals:
@@ -49,6 +49,7 @@ private:
 
     void setSettingsObjectsState(bool bState);
     void updateBoxes(ProjectFileParser::ProjectSettings *pProjectSettings);
+    void loadProjectFile(QString dataFilePath);
 
     Ui::MainWindow * _ui;
     ScopeData * _scope;

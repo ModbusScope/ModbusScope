@@ -7,7 +7,7 @@
 
 #include "QDebug"
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     QMainWindow(parent),
     _ui(new Ui::MainWindow),
     _scope(NULL),
@@ -25,11 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     _scope = new ScopeData();
     _gui = new ScopeGui(_ui->customPlot, this);
 
-    _ui->listReg->addItem("40001");
-
     _ui->listReg->setEditTriggers(QAbstractItemView::NoEditTriggers); // non-editable
-
-    qRegisterMetaType<ModbusSettings>("ModbusSettings");
 
     connect(_ui->chkXAxisAutoScale, SIGNAL(stateChanged(int)), _gui, SLOT(setXAxisAutoScale(int)));
     connect(_ui->chkYAxisAutoScale, SIGNAL(stateChanged(int)), _gui, SLOT(setYAxisAutoScale(int)));
@@ -52,6 +48,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(_ui->actionExportDataCsv, SIGNAL(triggered()), this, SLOT(prepareDataExport()));
     connect(_ui->actionLoadProjectFile, SIGNAL(triggered()), this, SLOT(loadProjectSettings()));
     connect(_ui->actionExportImage, SIGNAL(triggered()), this, SLOT(prepareImageExport()));
+
+    if (cmdArguments.size() > 1)
+    {
+        loadProjectFile(cmdArguments[1]);
+    }
+
 }
 
 MainWindow::~MainWindow()
@@ -171,9 +173,6 @@ void MainWindow::prepareDataExport()
 
 void MainWindow::loadProjectSettings()
 {
-    ProjectFileParser fileParser;
-    ProjectFileParser::ProjectSettings loadedSettings;
-
     QString projectFilePath;
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::ExistingFile);
@@ -187,23 +186,7 @@ void MainWindow::loadProjectSettings()
         projectFilePath = dialog.selectedFiles().first();
     }
 
-    QFile* file = new QFile(projectFilePath);
-
-    /* If we can't open it, let's show an error message. */
-    if (file->open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        if (fileParser.parseFile(file, &loadedSettings))
-        {
-            updateBoxes(&loadedSettings);
-        }
-    }
-    else
-    {
-        QString errMsg("Couldn't open file: ");
-        errMsg.append(projectFilePath);
-        QMessageBox::critical(this, "ModbusScope", errMsg,
-                              QMessageBox::Ok);
-    }
+    loadProjectFile(projectFilePath);
 }
 
 void MainWindow::prepareImageExport()
@@ -299,4 +282,27 @@ void MainWindow::updateBoxes(ProjectFileParser::ProjectSettings * pProjectSettin
         _ui->listReg->addItem(QString::number(pProjectSettings->scope.registerList[i].address));
     }
 
+}
+
+void MainWindow::loadProjectFile(QString dataFilePath)
+{
+    ProjectFileParser fileParser;
+    ProjectFileParser::ProjectSettings loadedSettings;
+    QFile* file = new QFile(dataFilePath);
+
+    /* If we can't open it, let's show an error message. */
+    if (file->open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        if (fileParser.parseFile(file, &loadedSettings))
+        {
+            updateBoxes(&loadedSettings);
+        }
+    }
+    else
+    {
+        QMessageBox::critical(this,
+                              "ModbusScope",
+                              tr("Couldn't open project file: %1").arg(dataFilePath),
+                              QMessageBox::Ok);
+    }
 }
