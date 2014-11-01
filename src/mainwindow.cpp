@@ -276,6 +276,7 @@ void MainWindow::updateBoxes(ProjectFileParser::ProjectSettings * pProjectSettin
         _ui->spinSlaveId->setValue(pProjectSettings->general.slaveId);
     }
 
+    _scope->clearRegisterList();
     _ui->listReg->clear();
     for (qint32 i = 0; i < pProjectSettings->scope.registerList.size(); i++)
     {

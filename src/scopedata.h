@@ -21,6 +21,7 @@ public:
     void stopCommunication();
     quint32 getRegisterCount();
     void getRegisterList(QList<quint16> * pList);
+    void clearRegisterList();
 
 public slots:
     void toggleRegister(quint16 registerAddress);

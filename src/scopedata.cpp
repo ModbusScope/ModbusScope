@@ -74,6 +74,11 @@ void ScopeData::getRegisterList(QList<quint16> * pList)
     pList->append(_registerlist);
 }
 
+void ScopeData::clearRegisterList()
+{
+    _registerlist.clear();
+}
+
 void ScopeData::toggleRegister(quint16 registerAddress)
 {
     bool bFound = false;
