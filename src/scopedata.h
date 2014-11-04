@@ -30,13 +30,11 @@ public slots:
 signals:
     void registerRequest(ModbusSettings * pSettings, QList<quint16> * pRegisterList);
     void requestStop();
-    void propagateNewData(bool bSuccess, QList<quint16> values);
+    void handleReceivedData(bool bSuccess, QList<quint16> values);
 
 private slots:
     void readData();
     void masterStopped();
-    void receiveNewData(bool bSuccess, QList<quint16> values);
-
 private:   
 
     ModbusMaster * _master;

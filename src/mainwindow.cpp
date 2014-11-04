@@ -30,7 +30,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_ui->chkXAxisAutoScale, SIGNAL(stateChanged(int)), _gui, SLOT(setXAxisAutoScale(int)));
     connect(_ui->chkYAxisAutoScale, SIGNAL(stateChanged(int)), _gui, SLOT(setYAxisAutoScale(int)));
 
-    connect(_scope, SIGNAL(propagateNewData(bool, QList<quint16>)), _gui, SLOT(plotResults(bool, QList<quint16>)));
+    connect(_scope, SIGNAL(handleReceivedData(bool, QList<quint16>)), _gui, SLOT(plotResults(bool, QList<quint16>)));
 
     connect(_ui->listReg, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(addRemoveRegisterFromScopeList(QListWidgetItem *)));
     connect(this, SIGNAL(registerStateChange(quint16)), _scope, SLOT(toggleRegister(quint16)));
@@ -90,6 +90,7 @@ void MainWindow::startScope()
 
             _ui->actionStart->setEnabled(false);
             _ui->actionExportDataCsv->setEnabled(false);
+            _ui->actionExportImage->setEnabled(false);
 
             _ui->actionStop->setEnabled(true);
 
@@ -119,6 +120,7 @@ void MainWindow::startScope()
 void MainWindow::stopScope()
 {
     _scope->stopCommunication();
+
     _ui->actionStart->setEnabled(true);
     _ui->actionExportDataCsv->setEnabled(true);
     _ui->actionExportImage->setEnabled(true);
@@ -184,9 +186,9 @@ void MainWindow::loadProjectSettings()
     if (dialog.exec())
     {
         projectFilePath = dialog.selectedFiles().first();
+        loadProjectFile(projectFilePath);
     }
 
-    loadProjectFile(projectFilePath);
 }
 
 void MainWindow::prepareImageExport()

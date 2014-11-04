@@ -29,8 +29,7 @@ ScopeData::ScopeData(QObject *parent) :
 
     connect(this, SIGNAL(registerRequest(ModbusSettings *, QList<quint16> *)), _master, SLOT(readRegisterList(ModbusSettings *, QList<quint16> *)));
 
-    connect(_master, SIGNAL(readRegisterResult(bool, QList<quint16>)), this, SLOT(receiveNewData(bool, QList<quint16>)));
-    //connect(_master, SIGNAL(readRegisterResult(bool, QList<quint16>)), _gui, SLOT(plotResults(bool, QList<quint16>)));
+    connect(_master, SIGNAL(readRegisterResult(bool, QList<quint16>)), this, SIGNAL(handleReceivedData(bool, QList<quint16>)));
 }
 
 ScopeData::~ScopeData()
@@ -124,11 +123,6 @@ void ScopeData::masterStopped()
 void ScopeData::stopCommunication()
 {
     _active = false;
-}
-
-void ScopeData::receiveNewData(bool bSuccess, QList<quint16> values)
-{
-    emit propagateNewData(bSuccess, values);
 }
 
 void ScopeData::readData()
