@@ -51,6 +51,7 @@ ScopeGui::ScopeGui(QCustomPlot * pPlot, QObject *parent) :
 void ScopeGui::resetGraph(void)
 {
    _pPlot->clearGraphs();
+   graphNames.clear();
 }
 
 void ScopeGui::addGraph(quint16 registerAddress)
@@ -60,6 +61,7 @@ void ScopeGui::addGraph(quint16 registerAddress)
 
    QString label = QString("Register %1").arg(registerAddress);
    pGraph->setName(label);
+   graphNames.append(label);
 
    pGraph->setPen(QPen(_colorlist[colorIndex]));
 
@@ -81,10 +83,15 @@ void ScopeGui::plotResults(QList<bool> successList, QList<quint16> valueList)
         {
             // No error, add points
             _pPlot->graph(i)->addData(diff, (double)valueList[i]);
+
+            _pPlot->graph(i)->setName(QString("(%1) %2").arg(QString::number(valueList[i])).arg(graphNames[i]));
+
         }
         else
         {
             _pPlot->graph(i)->addData(diff, 0);
+
+            _pPlot->graph(i)->setName(QString("(-) %1").arg(graphNames[i]));
         }
     }
 

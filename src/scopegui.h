@@ -47,6 +47,7 @@ private:
     static const QList<QColor> _colorlist;
 
     QVector<QString> tickLabels;
+    QList<QString> graphNames;
 
     GuiSettings _settings;
 
