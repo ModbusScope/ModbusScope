@@ -44,6 +44,7 @@ private slots:
     void prepareImageExport();
 
 public slots:
+    void updateStats(quint32 successCount, quint32 errorCount);
 
 private:
 
@@ -55,6 +56,13 @@ private:
     ScopeData * _scope;
     ScopeGui * _gui;
     ModbusSettings _commSettings;
+
+    QLabel * _statusStats;
+    QLabel * _statusState;
+
+    static const QString _cStateRunning;
+    static const QString _cStateStopped;
+    static const QString _cStatsTemplate;
 };
 
 #endif // MAINWINDOW_H

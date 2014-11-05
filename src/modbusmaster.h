@@ -19,8 +19,9 @@ public:
     void wait();
 
 signals:
-    void readRegisterResult(bool bSuccess, QList<quint16> pRegisterList);
+    void readRegisterResult(QList<bool> resultList, QList<quint16> registerList);
     void threadStopped();
+    void modbusCommDone(quint32 success,quint32 error);
 
 public slots:
     void readRegisterList(ModbusSettings * pSettings, QList<quint16> * pRegisterList);

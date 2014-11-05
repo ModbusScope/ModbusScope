@@ -4,8 +4,7 @@
 #include "scopegui.h"
 #include "qcustomplot.h"
 
-const QList<QColor> ScopeGui::_colorlist = QList<QColor>() << QColor("red")
-                                                           << QColor("blue")
+const QList<QColor> ScopeGui::_colorlist = QList<QColor>() << QColor("blue")
                                                            << QColor("gray")
                                                            << QColor("green")
                                                            << QColor("black")
@@ -71,28 +70,33 @@ void ScopeGui::addGraph(quint16 registerAddress)
 
 }
 
-void ScopeGui::plotResults(bool bSuccess, QList<quint16> values)
+void ScopeGui::plotResults(QList<bool> successList, QList<quint16> valueList)
 {
-   const quint32 diff = QDateTime::currentMSecsSinceEpoch() - _startTime;
+    const quint32 diff = QDateTime::currentMSecsSinceEpoch() - _startTime;
 
-   /* TODO: handle failure correctly */
-   if (bSuccess)
+    for (qint32 i = 0; i < valueList.size(); i++)
+    {
+
+        if (successList[i])
+        {
+            // No error, add points
+            _pPlot->graph(i)->addData(diff, (double)valueList[i]);
+        }
+        else
+        {
+            _pPlot->graph(i)->addData(diff, 0);
+        }
+    }
+
+   _pPlot->replot();
+
+   if (_settings.bXAxisAutoScale)
    {
-       for (qint32 i = 0; i < values.size(); i++)
-       {
-           _pPlot->graph(i)->addData(diff, (double)values[i]);
-       }
-
-       _pPlot->replot();
-
-       if (_settings.bXAxisAutoScale)
-       {
-           _pPlot->xAxis->rescale();
-       }
-       if (_settings.bYAxisAutoScale)
-       {
-           _pPlot->yAxis->rescale();
-       }
+       _pPlot->xAxis->rescale();
+   }
+   if (_settings.bYAxisAutoScale)
+   {
+       _pPlot->yAxis->rescale();
    }
 
 }

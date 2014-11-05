@@ -9,11 +9,12 @@
 #include "scopedata.h"
 
 ScopeData::ScopeData(QObject *parent) :
-    QObject(parent), _master(NULL), _active(false), _timer(new QTimer())
+    QObject(parent), _master(NULL), _active(false), _timer(new QTimer()), _successCount(0), _errorCount(0)
 {
 
     qRegisterMetaType<QList<quint16> *>("QList<quint16> *");
     qRegisterMetaType<QList<quint16> >("QList<quint16>");
+    qRegisterMetaType<QList<bool> >("QList<bool>");
 
     _registerlist.clear();
 
@@ -29,7 +30,8 @@ ScopeData::ScopeData(QObject *parent) :
 
     connect(this, SIGNAL(registerRequest(ModbusSettings *, QList<quint16> *)), _master, SLOT(readRegisterList(ModbusSettings *, QList<quint16> *)));
 
-    connect(_master, SIGNAL(readRegisterResult(bool, QList<quint16>)), this, SIGNAL(handleReceivedData(bool, QList<quint16>)));
+    connect(_master, SIGNAL(readRegisterResult(QList<bool>, QList<quint16>)), this, SIGNAL(handleReceivedData(QList<bool>, QList<quint16>)));
+    connect(_master, SIGNAL(modbusCommDone(quint32, quint32)), this, SLOT(processCommStats(quint32, quint32)));
 }
 
 ScopeData::~ScopeData()
@@ -51,6 +53,9 @@ bool ScopeData::startCommunication(ModbusSettings * pSettings)
     if (!_active)
     {
         _settings.copy(pSettings);
+
+        _successCount = 0;
+        _errorCount = 0;
 
         // Trigger read immediatly
         _timer->singleShot(1, this, SLOT(readData()));
@@ -112,6 +117,14 @@ void ScopeData::removedRegister(quint16 registerAddress)
             break;
         }
     }
+}
+
+void ScopeData::processCommStats(quint32 success,quint32 error)
+{
+    _successCount += success;
+    _errorCount += error;
+
+    emit triggerStatUpdate(_successCount, _errorCount);
 }
 
 

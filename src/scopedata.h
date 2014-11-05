@@ -26,11 +26,13 @@ public:
 public slots:
     void toggleRegister(quint16 registerAddress);
     void removedRegister(quint16 registerAddress);
+    void processCommStats(quint32 success,quint32 error);
 
 signals:
     void registerRequest(ModbusSettings * pSettings, QList<quint16> * pRegisterList);
     void requestStop();
-    void handleReceivedData(bool bSuccess, QList<quint16> values);
+    void handleReceivedData(QList<bool> successList, QList<quint16> values);
+    void triggerStatUpdate(quint32 successCount, quint32 errorCount);
 
 private slots:
     void readData();
@@ -40,6 +42,9 @@ private:
     ModbusMaster * _master;
     bool _active;
     QTimer * _timer;
+
+    quint32 _successCount;
+    quint32 _errorCount;
 
     ModbusSettings _settings;
     QList<quint16> _registerlist;

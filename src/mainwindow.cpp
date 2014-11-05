@@ -7,6 +7,11 @@
 
 #include "QDebug"
 
+
+const QString MainWindow::_cStateRunning = QString("Running");
+const QString MainWindow::_cStateStopped = QString("Stopped");
+const QString MainWindow::_cStatsTemplate = QString("Succcess: %1\tErrors: %2");
+
 MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     QMainWindow(parent),
     _ui(new Ui::MainWindow),
@@ -22,6 +27,15 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     windowTitle.append(")");
     this->setWindowTitle(windowTitle);
 
+    // Add multipart status bar
+    _statusState = new QLabel(_cStateRunning, this);
+    _statusState->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    _statusStats = new QLabel("", this);
+    _statusStats->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+
+    _ui->statusBar->addPermanentWidget(_statusState, 0);
+    _ui->statusBar->addPermanentWidget(_statusStats, 2);
+
     _scope = new ScopeData();
     _gui = new ScopeGui(_ui->customPlot, this);
 
@@ -30,11 +44,12 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_ui->chkXAxisAutoScale, SIGNAL(stateChanged(int)), _gui, SLOT(setXAxisAutoScale(int)));
     connect(_ui->chkYAxisAutoScale, SIGNAL(stateChanged(int)), _gui, SLOT(setYAxisAutoScale(int)));
 
-    connect(_scope, SIGNAL(handleReceivedData(bool, QList<quint16>)), _gui, SLOT(plotResults(bool, QList<quint16>)));
+    connect(_scope, SIGNAL(handleReceivedData(QList<bool>, QList<quint16>)), _gui, SLOT(plotResults(QList<bool>, QList<quint16>)));
 
     connect(_ui->listReg, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(addRemoveRegisterFromScopeList(QListWidgetItem *)));
     connect(this, SIGNAL(registerStateChange(quint16)), _scope, SLOT(toggleRegister(quint16)));
     connect(this, SIGNAL(registerRemove(quint16)), _scope, SLOT(removedRegister(quint16)));
+    connect(_scope, SIGNAL(triggerStatUpdate(quint32, quint32)), this, SLOT(updateStats(quint32, quint32)));
     connect(this, SIGNAL(dataExport(QString)), _gui, SLOT(exportDataCsv(QString)));
 
     // Setup handler for buttons
@@ -89,12 +104,11 @@ void MainWindow::startScope()
             _commSettings.setPollTime(pollTime);
 
             _ui->actionStart->setEnabled(false);
-            _ui->actionExportDataCsv->setEnabled(false);
-            _ui->actionExportImage->setEnabled(false);
-
             _ui->actionStop->setEnabled(true);
 
             setSettingsObjectsState(false);
+
+            _statusState->setText(_cStateRunning);
 
             if (_scope->startCommunication(&_commSettings))
             {
@@ -122,10 +136,9 @@ void MainWindow::stopScope()
     _scope->stopCommunication();
 
     _ui->actionStart->setEnabled(true);
-    _ui->actionExportDataCsv->setEnabled(true);
-    _ui->actionExportImage->setEnabled(true);
-
     _ui->actionStop->setEnabled(false);
+
+    _statusState->setText(_cStateStopped);
 
     setSettingsObjectsState(true);
 }
@@ -209,6 +222,12 @@ void MainWindow::prepareImageExport()
     }
 }
 
+void MainWindow::updateStats(quint32 successCount, quint32 errorCount)
+{
+    // Update statistics
+    _statusStats->setText(_cStatsTemplate.arg(successCount).arg(errorCount));
+}
+
 void MainWindow::addRegister()
 {
     bool bFound = false;
@@ -254,6 +273,8 @@ void MainWindow::setSettingsObjectsState(bool bState)
     _ui->lineIP->setEnabled(bState);
     _ui->listReg->setEnabled(bState);
     _ui->actionLoadProjectFile->setEnabled(bState);
+    _ui->actionExportDataCsv->setEnabled(bState);
+    _ui->actionExportImage->setEnabled(bState);
 }
 
 void MainWindow::updateBoxes(ProjectFileParser::ProjectSettings * pProjectSettings)

@@ -56,9 +56,10 @@ void ModbusMaster::stopped()
 
 void ModbusMaster::readRegisterList(ModbusSettings * pSettings, QList<quint16> * pRegisterList)
 {
-    QList<quint16> globalResultList;
-    QList<quint16> resultList;
-    bool bSuccess = false;
+    QList<quint16> registerList;
+    QList<bool> resultList;
+    quint32 success = 0;
+    quint32 error = 0;
 
     /* Open port */
     modbus_t * pCtx = openPort(pSettings->getIpAddress(), pSettings->getPort());
@@ -73,15 +74,18 @@ void ModbusMaster::readRegisterList(ModbusSettings * pSettings, QList<quint16> *
         {
 
             /* handle failure correctly */
-            if (readRegisters(pCtx, pRegisterList->at(i) - 40001, 1, &resultList) == 0)
+            QList<quint16> registerDataList;
+            if (readRegisters(pCtx, pRegisterList->at(i) - 40001, 1, &registerDataList) == 0)
             {
-                globalResultList.append(resultList[0]);
-                bSuccess = true;
+                success++;
+                registerList.append(registerDataList[0]);
+                resultList.append(true);
             }
             else
             {
-                globalResultList.append(0);
-                bSuccess = false;
+                error++;
+                registerList.append(0);
+                resultList.append(false);
             }
         }
 
@@ -89,10 +93,16 @@ void ModbusMaster::readRegisterList(ModbusSettings * pSettings, QList<quint16> *
     }
     else
     {
-        bSuccess = false;
+        for (qint32 i = 0; i < pRegisterList->size(); i++)
+        {
+            error++;
+            registerList.append(0);
+            resultList.append(false);
+        }
     }
 
-    emit readRegisterResult(bSuccess, globalResultList);
+    emit readRegisterResult(resultList, registerList);
+    emit modbusCommDone(success, error);
 }
 
 void ModbusMaster::closePort(modbus_t *connection)

@@ -19,7 +19,7 @@ public:
 signals:
 
 public slots:
-    void plotResults(bool bSuccess, QList<quint16> values);
+    void plotResults(QList<bool> successList, QList<quint16> valueList);
     void setYAxisAutoScale(int state);
     void setXAxisAutoScale(int state);
     void exportDataCsv(QString dataFile);
