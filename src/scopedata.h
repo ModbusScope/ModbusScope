@@ -27,6 +27,7 @@ public slots:
     void toggleRegister(quint16 registerAddress);
     void removedRegister(quint16 registerAddress);
     void processCommStats(quint32 success,quint32 error);
+    void handlePollDone(QList<bool> successList, QList<quint16> values);
 
 signals:
     void registerRequest(ModbusSettings * pSettings, QList<quint16> * pRegisterList);

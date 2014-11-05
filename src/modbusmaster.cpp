@@ -101,7 +101,7 @@ void ModbusMaster::readRegisterList(ModbusSettings * pSettings, QList<quint16> *
         }
     }
 
-    emit readRegisterResult(resultList, registerList);
+    emit modbusPollDone(resultList, registerList);
     emit modbusCommDone(success, error);
 }
 

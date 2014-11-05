@@ -85,14 +85,8 @@ void MainWindow::startScope()
 
     if (bCommunicationSettingsValid)
     {
-        if ((pollTime < 100) || (pollTime > 90000))
-        {
-            QMessageBox::warning(this, "Poll time not valid!", "The poll time is invalid. Make sure the poll time is longer than 100 ms and shorter than 90000 ms.");
-            bCommunicationSettingsValid = false;
-        }
+        /* TODO: check fields */
     }
-    /* TODO: check other fields */
-
 
     if (bCommunicationSettingsValid)
     {

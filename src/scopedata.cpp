@@ -29,8 +29,7 @@ ScopeData::ScopeData(QObject *parent) :
     _master->startThread();
 
     connect(this, SIGNAL(registerRequest(ModbusSettings *, QList<quint16> *)), _master, SLOT(readRegisterList(ModbusSettings *, QList<quint16> *)));
-
-    connect(_master, SIGNAL(readRegisterResult(QList<bool>, QList<quint16>)), this, SIGNAL(handleReceivedData(QList<bool>, QList<quint16>)));
+    connect(_master, SIGNAL(modbusPollDone(QList<bool>, QList<quint16>)), this, SLOT(handlePollDone(QList<bool>, QList<quint16>)));
     connect(_master, SIGNAL(modbusCommDone(quint32, quint32)), this, SLOT(processCommStats(quint32, quint32)));
 }
 
@@ -127,6 +126,15 @@ void ScopeData::processCommStats(quint32 success,quint32 error)
     emit triggerStatUpdate(_successCount, _errorCount);
 }
 
+void ScopeData::handlePollDone(QList<bool> successList, QList<quint16> values)
+{
+    // Restart timer when previous request has been handled
+    _timer->singleShot(_settings.getPollTime(), this, SLOT(readData()));
+
+    // propagate data
+    emit handleReceivedData(successList, values);
+}
+
 
 void ScopeData::masterStopped()
 {
@@ -143,8 +151,6 @@ void ScopeData::readData()
     if(_active)
     {
         emit registerRequest(&_settings, &_registerlist);
-
-        _timer->singleShot(_settings.getPollTime(), this, SLOT(readData()));
     }
 }
 

@@ -19,7 +19,7 @@ public:
     void wait();
 
 signals:
-    void readRegisterResult(QList<bool> resultList, QList<quint16> registerList);
+    void modbusPollDone(QList<bool> resultList, QList<quint16> registerList);
     void threadStopped();
     void modbusCommDone(quint32 success,quint32 error);
 
