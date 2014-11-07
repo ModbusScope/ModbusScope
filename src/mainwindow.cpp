@@ -37,12 +37,21 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _ui->statusBar->addPermanentWidget(_statusStats, 2);
 
     _scope = new ScopeData();
-    _gui = new ScopeGui(_ui->customPlot, this);
+    _gui = new ScopeGui(this, _ui->customPlot, this);
 
     _ui->listReg->setEditTriggers(QAbstractItemView::NoEditTriggers); // non-editable
 
-    connect(_ui->chkXAxisAutoScale, SIGNAL(stateChanged(int)), _gui, SLOT(setXAxisAutoScale(int)));
-    connect(_ui->chkYAxisAutoScale, SIGNAL(stateChanged(int)), _gui, SLOT(setYAxisAutoScale(int)));
+
+    // Crate button group for X axis scaling options
+    _xAxisScaleGroup = new QButtonGroup();
+    _xAxisScaleGroup->setExclusive(true);
+    _xAxisScaleGroup->addButton(_ui->radioFullScale, 0);
+    _xAxisScaleGroup->addButton(_ui->radioSliding, 1);
+    _xAxisScaleGroup->addButton(_ui->radioManual, 2);
+    connect(_xAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(changeXAxisScaling(int)));
+
+    // Default to full auto scaling
+    changeXAxisScaling(0);
 
     connect(_scope, SIGNAL(handleReceivedData(QList<bool>, QList<quint16>)), _gui, SLOT(plotResults(QList<bool>, QList<quint16>)));
 
@@ -220,6 +229,31 @@ void MainWindow::updateStats(quint32 successCount, quint32 errorCount)
 {
     // Update statistics
     _statusStats->setText(_cStatsTemplate.arg(successCount).arg(errorCount));
+}
+
+void MainWindow::changeXAxisScaling(int id)
+{
+    if (id == 0)
+    {
+        // Full auto scaling
+        _ui->radioFullScale->setChecked(true);
+        _ui->spinSlidingXInterval->setEnabled(false);
+        _gui->setxAxisAutoScale();
+    }
+    else if (id == 1)
+    {
+        // Sliding window
+        _ui->radioSliding->setChecked(true);
+        _ui->spinSlidingXInterval->setEnabled(true);
+        _gui->setxAxisSlidingScale(_ui->spinSlidingXInterval->text().toUInt());
+    }
+    else
+    {
+        // manual
+        _ui->radioManual->setChecked(true);
+        _ui->spinSlidingXInterval->setEnabled(false);
+        _gui->setxAxisManualScale();
+    }
 }
 
 void MainWindow::addRegister()

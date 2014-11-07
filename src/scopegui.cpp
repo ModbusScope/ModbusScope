@@ -11,26 +11,26 @@ const QList<QColor> ScopeGui::_colorlist = QList<QColor>() << QColor("blue")
                                                            << QColor("purple")
                                                            ;
 
-ScopeGui::ScopeGui(QCustomPlot * pPlot, QObject *parent) :
+ScopeGui::ScopeGui(MainWindow *window, QCustomPlot * pPlot, QObject *parent) :
    QObject(parent)
 {
 
    _pPlot = pPlot;
+   _window = window;
 
    setYAxisAutoScale(true);
-   setXAxisAutoScale(true);
 
    _pPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes);
 
-   _pPlot->xAxis->setRange(0, 10000);
    _pPlot->xAxis->setTickLabelType(QCPAxis::ltNumber);
    _pPlot->xAxis->setNumberFormat("gb");
-
+   _pPlot->xAxis->setRange(0, 10000);
    _pPlot->xAxis->setAutoTicks(true);
    _pPlot->xAxis->setAutoTickLabels(false);
+   _pPlot->xAxis->setLabel("Time (s)");
+
    connect(_pPlot->xAxis, SIGNAL(ticksRequest()), this, SLOT(generateTickLabels()));
 
-   _pPlot->xAxis->setLabel("Time (s)");
 
    _pPlot->yAxis->setRange(0, 10);
 
@@ -45,6 +45,9 @@ ScopeGui::ScopeGui(QCustomPlot * pPlot, QObject *parent) :
    // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
    connect(_pPlot, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress()));
    connect(_pPlot, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel()));
+   connect(_pPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMove(QMouseEvent*)));
+
+   connect(this, SIGNAL(updateXScalingUi(int)), _window,SLOT(changeXAxisScaling(int)));
 }
 
 
@@ -72,6 +75,26 @@ void ScopeGui::addGraph(quint16 registerAddress)
 
 }
 
+void ScopeGui::setxAxisAutoScale()
+{
+    _settings.scaleXSetting = SCALE_AUTO;
+
+    scalePlot();
+}
+
+void ScopeGui::setxAxisSlidingScale(quint32 interval)
+{
+     _settings.scaleXSetting = SCALE_SLIDING;
+     _settings.xslidingInterval = interval;
+
+     scalePlot();
+}
+
+void ScopeGui::setxAxisManualScale()
+{
+    _settings.scaleXSetting = SCALE_MANUAL;
+}
+
 void ScopeGui::plotResults(QList<bool> successList, QList<quint16> valueList)
 {
     const quint32 diff = QDateTime::currentMSecsSinceEpoch() - _startTime;
@@ -95,27 +118,13 @@ void ScopeGui::plotResults(QList<bool> successList, QList<quint16> valueList)
         }
     }
 
-   _pPlot->replot();
-
-   if (_settings.bXAxisAutoScale)
-   {
-       _pPlot->xAxis->rescale();
-   }
-   if (_settings.bYAxisAutoScale)
-   {
-       _pPlot->yAxis->rescale();
-   }
+   scalePlot();
 
 }
 
 void ScopeGui::setYAxisAutoScale(int state)
 {
    _settings.bYAxisAutoScale = (state ? true: false);
-}
-
-void ScopeGui::setXAxisAutoScale(int state)
-{
-   _settings.bXAxisAutoScale = (state ? true: false);
 }
 
 void ScopeGui::exportDataCsv(QString dataFile)
@@ -247,11 +256,17 @@ void ScopeGui::mousePress()
    // if no axis is selected, both directions may be dragged
 
    if (_pPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
+   {
        _pPlot->axisRect()->setRangeDrag(_pPlot->xAxis->orientation());
+   }
    else if (_pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
+   {
        _pPlot->axisRect()->setRangeDrag(_pPlot->yAxis->orientation());
+   }
    else
+   {
        _pPlot->axisRect()->setRangeDrag(Qt::Horizontal|Qt::Vertical);
+   }
 }
 
 void ScopeGui::mouseWheel()
@@ -260,13 +275,29 @@ void ScopeGui::mouseWheel()
    // if no axis is selected, both directions may be zoomed
 
    if (_pPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
+   {
        _pPlot->axisRect()->setRangeZoom(_pPlot->xAxis->orientation());
+   }
    else if (_pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
+   {
        _pPlot->axisRect()->setRangeZoom(_pPlot->yAxis->orientation());
+   }
    else
+   {
        _pPlot->axisRect()->setRangeZoom(Qt::Horizontal|Qt::Vertical);
+   }
+
+   emit updateXScalingUi(2); // change to manual scaling
 }
 
+
+void ScopeGui::mouseMove(QMouseEvent *event)
+{
+    if(event->buttons() & Qt::LeftButton)
+    {
+        emit updateXScalingUi(2); // change to manual scaling
+    }
+}
 
 
 void ScopeGui::writeToFile(QString filePath, QString logData)
@@ -285,4 +316,50 @@ void ScopeGui::writeToFile(QString filePath, QString logData)
         msgBox.setText(tr("Save to data file (%1) failed").arg(filePath));
         msgBox.exec();
     }
+}
+
+void ScopeGui::scalePlot()
+{
+
+    if (_pPlot->graphCount() != 0)
+    {
+        const qint32 dataSize = _pPlot->graph(0)->data()->keys().size();
+
+        // Check if there is data
+        if (dataSize != 0)
+        {
+            // scale x-axis
+            if (_settings.scaleXSetting == SCALE_AUTO)
+            {
+                _pPlot->xAxis->rescale();
+            }
+            else if (_settings.scaleXSetting == SCALE_SLIDING)
+            {
+
+                // TODO: implement sliding window routine
+                _pPlot->xAxis->rescale();
+            }
+            else // Manual
+            {
+
+            }
+        }
+        else
+        {
+            // set default range
+            _pPlot->xAxis->setRange(0, 10000);
+            _pPlot->yAxis->setRange(0, 10);
+        }
+
+
+        // TODO: scale y-axis
+        if (_settings.bYAxisAutoScale)
+        {
+            _pPlot->yAxis->rescale();
+        }
+
+        _pPlot->replot();
+
+    }
+
 }

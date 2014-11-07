@@ -2,9 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QListWidgetItem>
+#include <QButtonGroup>
+
 #include "modbussettings.h"
 #include "projectfileparser.h"
-#include <QListWidgetItem>
 
 namespace Ui {
 class MainWindow;
@@ -45,6 +47,7 @@ private slots:
 
 public slots:
     void updateStats(quint32 successCount, quint32 errorCount);
+    void changeXAxisScaling(int id);
 
 private:
 
@@ -59,6 +62,7 @@ private:
 
     QLabel * _statusStats;
     QLabel * _statusState;
+    QButtonGroup * _xAxisScaleGroup;
 
     static const QString _cStateRunning;
     static const QString _cStateStopped;

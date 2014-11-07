@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QVector>
 
+#include "mainwindow.h"
+
 // Foward declaration
 class QCustomPlot;
 
@@ -11,17 +13,20 @@ class ScopeGui : public QObject
 {
     Q_OBJECT
 public:
-    explicit ScopeGui(QCustomPlot * pPlot, QObject *parent);
+    explicit ScopeGui(MainWindow * window, QCustomPlot * pPlot, QObject *parent);
 
     void resetGraph(void);
     void addGraph(quint16 registerAddress);
+    void setxAxisAutoScale();
+    void setxAxisSlidingScale(quint32 interval);
+    void setxAxisManualScale();
 
 signals:
+    void updateXScalingUi(int);
 
 public slots:
     void plotResults(QList<bool> successList, QList<quint16> valueList);
     void setYAxisAutoScale(int state);
-    void setXAxisAutoScale(int state);
     void exportDataCsv(QString dataFile);
     void exportGraphImage(QString imageFile);
 
@@ -30,14 +35,24 @@ private slots:
     void selectionChanged();
     void mousePress();
     void mouseWheel();
+    void mouseMove(QMouseEvent *event);
 
 private:
 
     void writeToFile(QString filePath, QString logData);
+    void scalePlot();
+
+    typedef enum
+    {
+        SCALE_AUTO = 0,
+        SCALE_SLIDING,
+        SCALE_MANUAL
+    } XAxisScaleOptions;
 
     typedef struct
     {
-        bool bXAxisAutoScale;
+        XAxisScaleOptions scaleXSetting;
+        quint32 xslidingInterval;
         bool bYAxisAutoScale;
     } GuiSettings;
 
@@ -45,6 +60,8 @@ private:
     qint64 _startTime;
 
     static const QList<QColor> _colorlist;
+
+    MainWindow * _window;
 
     QVector<QString> tickLabels;
     QList<QString> graphNames;

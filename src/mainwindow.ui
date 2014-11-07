@@ -79,9 +79,6 @@
             </property>
            </widget>
           </item>
-          <item row="9" column="0">
-           <layout class="QGridLayout" name="gridLayout_2"/>
-          </item>
           <item row="8" column="1">
            <widget class="QSpinBox" name="spinReg">
             <property name="maximum">
@@ -159,11 +156,11 @@
          </widget>
         </item>
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,0">
+         <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,1">
           <item>
-           <widget class="QCheckBox" name="chkXAxisAutoScale">
+           <widget class="QCheckBox" name="chkYAxisAutoScale">
             <property name="text">
-             <string>Auto scale X axis</string>
+             <string>Auto scale Y axis</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -171,13 +168,67 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="chkYAxisAutoScale">
-            <property name="text">
-             <string>Auto scale Y  axis</string>
+           <widget class="QGroupBox" name="groupBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
-            <property name="checked">
-             <bool>true</bool>
+            <property name="title">
+             <string>X-axis scale settings</string>
             </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QRadioButton" name="radioFullScale">
+                 <property name="text">
+                  <string>Full auto-scale</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_3">
+                 <item>
+                  <widget class="QRadioButton" name="radioSliding">
+                   <property name="text">
+                    <string>Sliding window</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <layout class="QFormLayout" name="formLayout_2">
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_6">
+                     <property name="text">
+                      <string>Interval (s)</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QSpinBox" name="spinSlidingXInterval"/>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioManual">
+                 <property name="text">
+                  <string>Manual</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
            </widget>
           </item>
          </layout>
