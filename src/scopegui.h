@@ -15,18 +15,25 @@ class ScopeGui : public QObject
 public:
     explicit ScopeGui(MainWindow * window, QCustomPlot * pPlot, QObject *parent);
 
+    typedef enum
+    {
+        SCALE_AUTO = 0,
+        SCALE_SLIDING,
+        SCALE_MANUAL
+    } XAxisScaleOptions;
+
     void resetGraph(void);
     void addGraph(quint16 registerAddress);
-    void setxAxisAutoScale();
-    void setxAxisSlidingScale(quint32 interval);
-    void setxAxisManualScale();
+    void setxAxisScale(XAxisScaleOptions scaleMode);
+    void setxAxisScale(XAxisScaleOptions scaleMode, quint32 interval);
 
 signals:
-    void updateXScalingUi(int);
+    void updateXScalingUi(int); // TODO: clean up, dirty!
 
 public slots:
     void plotResults(QList<bool> successList, QList<quint16> valueList);
     void setYAxisAutoScale(int state);
+    void setxAxisSlidingInterval(int interval);
     void exportDataCsv(QString dataFile);
     void exportGraphImage(QString imageFile);
 
@@ -41,13 +48,6 @@ private:
 
     void writeToFile(QString filePath, QString logData);
     void scalePlot();
-
-    typedef enum
-    {
-        SCALE_AUTO = 0,
-        SCALE_SLIDING,
-        SCALE_MANUAL
-    } XAxisScaleOptions;
 
     typedef struct
     {

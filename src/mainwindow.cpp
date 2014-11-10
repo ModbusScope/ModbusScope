@@ -39,6 +39,12 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _scope = new ScopeData();
     _gui = new ScopeGui(this, _ui->customPlot, this);
 
+    connect(_ui->chkYAxisAutoScale, SIGNAL(stateChanged(int)), _gui, SLOT(setYAxisAutoScale(int)));
+    connect(_ui->spinSlidingXInterval, SIGNAL(valueChanged(int)), _gui, SLOT(setxAxisSlidingInterval(int)));
+
+    //valueChanged is only send when done editing...
+    _ui->spinSlidingXInterval->setKeyboardTracking(false);
+
     _ui->listReg->setEditTriggers(QAbstractItemView::NoEditTriggers); // non-editable
 
 
@@ -237,22 +243,19 @@ void MainWindow::changeXAxisScaling(int id)
     {
         // Full auto scaling
         _ui->radioFullScale->setChecked(true);
-        _ui->spinSlidingXInterval->setEnabled(false);
-        _gui->setxAxisAutoScale();
+        _gui->setxAxisScale(ScopeGui::SCALE_AUTO);
     }
     else if (id == 1)
     {
         // Sliding window
         _ui->radioSliding->setChecked(true);
-        _ui->spinSlidingXInterval->setEnabled(true);
-        _gui->setxAxisSlidingScale(_ui->spinSlidingXInterval->text().toUInt());
+        _gui->setxAxisScale(ScopeGui::SCALE_SLIDING, _ui->spinSlidingXInterval->text().toUInt());
     }
     else
     {
         // manual
         _ui->radioManual->setChecked(true);
-        _ui->spinSlidingXInterval->setEnabled(false);
-        _gui->setxAxisManualScale();
+        _gui->setxAxisScale(ScopeGui::SCALE_MANUAL);
     }
 }
 

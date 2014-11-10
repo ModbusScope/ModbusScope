@@ -75,24 +75,17 @@ void ScopeGui::addGraph(quint16 registerAddress)
 
 }
 
-void ScopeGui::setxAxisAutoScale()
+void ScopeGui::setxAxisScale(XAxisScaleOptions scaleMode)
 {
-    _settings.scaleXSetting = SCALE_AUTO;
-
+    _settings.scaleXSetting = scaleMode;
     scalePlot();
 }
 
-void ScopeGui::setxAxisSlidingScale(quint32 interval)
+void ScopeGui::setxAxisScale(XAxisScaleOptions scaleMode, quint32 interval)
 {
-     _settings.scaleXSetting = SCALE_SLIDING;
-     _settings.xslidingInterval = interval;
-
-     scalePlot();
-}
-
-void ScopeGui::setxAxisManualScale()
-{
-    _settings.scaleXSetting = SCALE_MANUAL;
+    _settings.scaleXSetting = scaleMode;
+    _settings.xslidingInterval = interval * 1000;
+    scalePlot();
 }
 
 void ScopeGui::plotResults(QList<bool> successList, QList<quint16> valueList)
@@ -125,6 +118,12 @@ void ScopeGui::plotResults(QList<bool> successList, QList<quint16> valueList)
 void ScopeGui::setYAxisAutoScale(int state)
 {
    _settings.bYAxisAutoScale = (state ? true: false);
+}
+
+void ScopeGui::setxAxisSlidingInterval(int interval)
+{
+    _settings.xslidingInterval = (quint32)interval * 1000;
+    updateXScalingUi(1); // set sliding window scaling
 }
 
 void ScopeGui::exportDataCsv(QString dataFile)
@@ -277,6 +276,7 @@ void ScopeGui::mouseWheel()
    if (_pPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
    {
        _pPlot->axisRect()->setRangeZoom(_pPlot->xAxis->orientation());
+       emit updateXScalingUi(2); // change to manual scaling
    }
    else if (_pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
    {
@@ -285,9 +285,8 @@ void ScopeGui::mouseWheel()
    else
    {
        _pPlot->axisRect()->setRangeZoom(Qt::Horizontal|Qt::Vertical);
+       emit updateXScalingUi(2); // change to manual scaling
    }
-
-   emit updateXScalingUi(2); // change to manual scaling
 }
 
 
@@ -321,45 +320,46 @@ void ScopeGui::writeToFile(QString filePath, QString logData)
 void ScopeGui::scalePlot()
 {
 
-    if (_pPlot->graphCount() != 0)
+    if ((_pPlot->graphCount() != 0) && (_pPlot->graph(0)->data()->keys().size()))
     {
-        const qint32 dataSize = _pPlot->graph(0)->data()->keys().size();
-
-        // Check if there is data
-        if (dataSize != 0)
+        // scale x-axis
+        if (_settings.scaleXSetting == SCALE_AUTO)
         {
-            // scale x-axis
-            if (_settings.scaleXSetting == SCALE_AUTO)
+            _pPlot->xAxis->rescale();
+        }
+        else if (_settings.scaleXSetting == SCALE_SLIDING)
+        {
+            // sliding window scale routine
+            const quint32 lastTime = _pPlot->graph(0)->data()->keys().last();
+            if (lastTime > _settings.xslidingInterval)
+            {
+                _pPlot->xAxis->setRange(lastTime - _settings.xslidingInterval, lastTime);
+            }
+            else
             {
                 _pPlot->xAxis->rescale();
             }
-            else if (_settings.scaleXSetting == SCALE_SLIDING)
-            {
-
-                // TODO: implement sliding window routine
-                _pPlot->xAxis->rescale();
-            }
-            else // Manual
-            {
-
-            }
         }
-        else
+        else // Manual
         {
-            // set default range
-            _pPlot->xAxis->setRange(0, 10000);
-            _pPlot->yAxis->setRange(0, 10);
+
         }
-
-
-        // TODO: scale y-axis
-        if (_settings.bYAxisAutoScale)
-        {
-            _pPlot->yAxis->rescale();
-        }
-
-        _pPlot->replot();
-
     }
+    else
+    {
+        // set default range
+        _pPlot->xAxis->setRange(0, 10000);
+        _pPlot->yAxis->setRange(0, 10);
+    }
+
+
+    // TODO: scale y-axis
+    if (_settings.bYAxisAutoScale)
+    {
+        _pPlot->yAxis->rescale();
+    }
+
+    _pPlot->replot();
+
 
 }
