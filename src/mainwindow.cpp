@@ -28,7 +28,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     this->setWindowTitle(windowTitle);
 
     // Add multipart status bar
-    _statusState = new QLabel(_cStateRunning, this);
+    _statusState = new QLabel(_cStateStopped, this);
     _statusState->setFrameStyle(QFrame::Panel | QFrame::Sunken);
     _statusStats = new QLabel("", this);
     _statusStats->setFrameStyle(QFrame::Panel | QFrame::Sunken);
@@ -39,25 +39,40 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _scope = new ScopeData();
     _gui = new ScopeGui(this, _ui->customPlot, this);
 
-    connect(_ui->chkYAxisAutoScale, SIGNAL(stateChanged(int)), _gui, SLOT(setYAxisAutoScale(int)));
     connect(_ui->spinSlidingXInterval, SIGNAL(valueChanged(int)), _gui, SLOT(setxAxisSlidingInterval(int)));
+    connect(_ui->spinYMin, SIGNAL(valueChanged(int)), this, SLOT(updateYMin(int)));
+    connect(_ui->spinYMax, SIGNAL(valueChanged(int)), this, SLOT(updateYMax(int)));
 
     //valueChanged is only send when done editing...
     _ui->spinSlidingXInterval->setKeyboardTracking(false);
+    _ui->spinYMin->setKeyboardTracking(false);
+    _ui->spinYMax->setKeyboardTracking(false);
 
     _ui->listReg->setEditTriggers(QAbstractItemView::NoEditTriggers); // non-editable
 
 
-    // Crate button group for X axis scaling options
+    // Create button group for X axis scaling options
     _xAxisScaleGroup = new QButtonGroup();
     _xAxisScaleGroup->setExclusive(true);
-    _xAxisScaleGroup->addButton(_ui->radioFullScale, 0);
-    _xAxisScaleGroup->addButton(_ui->radioSliding, 1);
-    _xAxisScaleGroup->addButton(_ui->radioManual, 2);
+    _xAxisScaleGroup->addButton(_ui->radioXFullScale, ScopeGui::SCALE_AUTO);
+    _xAxisScaleGroup->addButton(_ui->radioXSliding, ScopeGui::SCALE_SLIDING);
+    _xAxisScaleGroup->addButton(_ui->radioXManual, ScopeGui::SCALE_MANUAL);
     connect(_xAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(changeXAxisScaling(int)));
 
     // Default to full auto scaling
-    changeXAxisScaling(0);
+    changeXAxisScaling(ScopeGui::SCALE_AUTO);
+
+
+    // Create button group for Y axis scaling options
+    _yAxisScaleGroup = new QButtonGroup();
+    _yAxisScaleGroup->setExclusive(true);
+    _yAxisScaleGroup->addButton(_ui->radioYFullScale, ScopeGui::SCALE_AUTO);
+    _yAxisScaleGroup->addButton(_ui->radioYMinMax, ScopeGui::SCALE_MINMAX);
+    _yAxisScaleGroup->addButton(_ui->radioYManual, ScopeGui::SCALE_MANUAL);
+    connect(_yAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(changeYAxisScaling(int)));
+
+    // Default to full auto scaling
+    changeYAxisScaling(ScopeGui::SCALE_AUTO);
 
     connect(_scope, SIGNAL(handleReceivedData(QList<bool>, QList<quint16>)), _gui, SLOT(plotResults(QList<bool>, QList<quint16>)));
 
@@ -231,6 +246,43 @@ void MainWindow::prepareImageExport()
     }
 }
 
+
+void MainWindow::updateYMin(int newMin)
+{
+    const qint32 min = _gui->getyAxisMin();
+    const qint32 max = _gui->getyAxisMax();
+    const qint32 diff = max - min;
+    qint32 newMax = max;
+
+    if (newMin >= max)
+    {
+        newMax = newMin + diff;
+    }
+
+    _gui->setyAxisMinMax(newMin, newMax);
+    _ui->spinYMax->setValue(newMax);
+}
+
+
+void MainWindow::updateYMax(int newMax)
+{
+    const qint32 min = _gui->getyAxisMin();
+    const qint32 max = _gui->getyAxisMax();
+    const qint32 diff = max - min;
+
+    qint32 newMin = min;
+
+    if (newMax <= min)
+    {
+        newMin = newMax - diff;
+    }
+
+    _gui->setyAxisMinMax(newMin, newMax);
+    _ui->spinYMin->setValue(newMin);
+}
+
+
+
 void MainWindow::updateStats(quint32 successCount, quint32 errorCount)
 {
     // Update statistics
@@ -239,23 +291,47 @@ void MainWindow::updateStats(quint32 successCount, quint32 errorCount)
 
 void MainWindow::changeXAxisScaling(int id)
 {
-    if (id == 0)
+    if (id == ScopeGui::SCALE_AUTO)
     {
         // Full auto scaling
-        _ui->radioFullScale->setChecked(true);
+        _ui->radioXFullScale->setChecked(true);
         _gui->setxAxisScale(ScopeGui::SCALE_AUTO);
     }
-    else if (id == 1)
+    else if (id == ScopeGui::SCALE_SLIDING)
     {
         // Sliding window
-        _ui->radioSliding->setChecked(true);
+        _ui->radioXSliding->setChecked(true);
         _gui->setxAxisScale(ScopeGui::SCALE_SLIDING, _ui->spinSlidingXInterval->text().toUInt());
     }
     else
     {
         // manual
-        _ui->radioManual->setChecked(true);
+        _ui->radioXManual->setChecked(true);
         _gui->setxAxisScale(ScopeGui::SCALE_MANUAL);
+    }
+}
+
+
+
+void MainWindow::changeYAxisScaling(int id)
+{
+    if (id == ScopeGui::SCALE_AUTO)
+    {
+        // Full auto scaling
+        _ui->radioYFullScale->setChecked(true);
+        _gui->setyAxisScale(ScopeGui::SCALE_AUTO);
+    }
+    else if (id == ScopeGui::SCALE_MINMAX)
+    {
+        // Min and max selected
+        _ui->radioYMinMax->setChecked(true);
+        _gui->setyAxisScale(ScopeGui::SCALE_MINMAX, _ui->spinYMin->text().toInt(), _ui->spinYMax->text().toInt());
+    }
+    else
+    {
+        // manual
+        _ui->radioYManual->setChecked(true);
+        _gui->setyAxisScale(ScopeGui::SCALE_MANUAL);
     }
 }
 

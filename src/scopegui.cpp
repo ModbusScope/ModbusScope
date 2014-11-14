@@ -18,8 +18,6 @@ ScopeGui::ScopeGui(MainWindow *window, QCustomPlot * pPlot, QObject *parent) :
    _pPlot = pPlot;
    _window = window;
 
-   setYAxisAutoScale(true);
-
    _pPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes);
 
    _pPlot->xAxis->setTickLabelType(QCPAxis::ltNumber);
@@ -31,8 +29,9 @@ ScopeGui::ScopeGui(MainWindow *window, QCustomPlot * pPlot, QObject *parent) :
 
    connect(_pPlot->xAxis, SIGNAL(ticksRequest()), this, SLOT(generateTickLabels()));
 
-
-   _pPlot->yAxis->setRange(0, 10);
+   _settings.yMin = 0;
+   _settings.yMax = 10;
+   _pPlot->yAxis->setRange(_settings.yMin, _settings.yMax);
 
    _pPlot->legend->setVisible(false);
    QFont legendFont = QApplication::font();
@@ -48,6 +47,7 @@ ScopeGui::ScopeGui(MainWindow *window, QCustomPlot * pPlot, QObject *parent) :
    connect(_pPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMove(QMouseEvent*)));
 
    connect(this, SIGNAL(updateXScalingUi(int)), _window,SLOT(changeXAxisScaling(int)));
+   connect(this, SIGNAL(updateYScalingUi(int)), _window,SLOT(changeYAxisScaling(int)));
 }
 
 
@@ -75,16 +75,31 @@ void ScopeGui::addGraph(quint16 registerAddress)
 
 }
 
-void ScopeGui::setxAxisScale(XAxisScaleOptions scaleMode)
+void ScopeGui::setxAxisScale(AxisScaleOptions scaleMode)
 {
     _settings.scaleXSetting = scaleMode;
     scalePlot();
 }
 
-void ScopeGui::setxAxisScale(XAxisScaleOptions scaleMode, quint32 interval)
+void ScopeGui::setxAxisScale(AxisScaleOptions scaleMode, quint32 interval)
 {
     _settings.scaleXSetting = scaleMode;
     _settings.xslidingInterval = interval * 1000;
+    scalePlot();
+}
+
+void ScopeGui::setyAxisScale(AxisScaleOptions scaleMode)
+{
+    _settings.scaleYSetting = scaleMode;
+    scalePlot();
+}
+
+
+void ScopeGui::setyAxisScale(AxisScaleOptions scaleMode, qint32 min, qint32 max)
+{
+    _settings.scaleYSetting = scaleMode;
+    _settings.yMin = min;
+    _settings.yMax = max;
     scalePlot();
 }
 
@@ -115,15 +130,27 @@ void ScopeGui::plotResults(QList<bool> successList, QList<quint16> valueList)
 
 }
 
-void ScopeGui::setYAxisAutoScale(int state)
-{
-   _settings.bYAxisAutoScale = (state ? true: false);
-}
-
 void ScopeGui::setxAxisSlidingInterval(int interval)
 {
     _settings.xslidingInterval = (quint32)interval * 1000;
-    updateXScalingUi(1); // set sliding window scaling
+    updateXScalingUi(ScopeGui::SCALE_SLIDING); // set sliding window scaling
+}
+
+void ScopeGui::setyAxisMinMax(quint32 min, quint32 max)
+{
+    _settings.yMin = min;
+    _settings.yMax = max;
+    updateYScalingUi(ScopeGui::SCALE_MINMAX); // set min max scaling
+}
+
+qint32 ScopeGui::getyAxisMin()
+{
+    return _settings.yMin;
+}
+
+qint32 ScopeGui::getyAxisMax()
+{
+    return _settings.yMax;
 }
 
 void ScopeGui::exportDataCsv(QString dataFile)
@@ -276,16 +303,18 @@ void ScopeGui::mouseWheel()
    if (_pPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
    {
        _pPlot->axisRect()->setRangeZoom(_pPlot->xAxis->orientation());
-       emit updateXScalingUi(2); // change to manual scaling
+       emit updateXScalingUi(ScopeGui::SCALE_MANUAL); // change to manual scaling
    }
    else if (_pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
    {
        _pPlot->axisRect()->setRangeZoom(_pPlot->yAxis->orientation());
+       emit updateYScalingUi(ScopeGui::SCALE_MANUAL); // change to manual scaling
    }
    else
    {
        _pPlot->axisRect()->setRangeZoom(Qt::Horizontal|Qt::Vertical);
-       emit updateXScalingUi(2); // change to manual scaling
+       emit updateXScalingUi(ScopeGui::SCALE_MANUAL); // change to manual scaling
+       emit updateYScalingUi(ScopeGui::SCALE_MANUAL); // change to manual scaling
    }
 }
 
@@ -294,7 +323,8 @@ void ScopeGui::mouseMove(QMouseEvent *event)
 {
     if(event->buttons() & Qt::LeftButton)
     {
-        emit updateXScalingUi(2); // change to manual scaling
+        emit updateXScalingUi(ScopeGui::SCALE_MANUAL); // change to manual scaling
+        emit updateYScalingUi(ScopeGui::SCALE_MANUAL); // change to manual scaling
     }
 }
 
@@ -320,46 +350,60 @@ void ScopeGui::writeToFile(QString filePath, QString logData)
 void ScopeGui::scalePlot()
 {
 
-    if ((_pPlot->graphCount() != 0) && (_pPlot->graph(0)->data()->keys().size()))
+    // scale x-axis
+    if (_settings.scaleXSetting == SCALE_AUTO)
     {
-        // scale x-axis
-        if (_settings.scaleXSetting == SCALE_AUTO)
+        if ((_pPlot->graphCount() != 0) && (_pPlot->graph(0)->data()->keys().size()))
         {
             _pPlot->xAxis->rescale();
         }
-        else if (_settings.scaleXSetting == SCALE_SLIDING)
+        else
         {
-            // sliding window scale routine
+            _pPlot->xAxis->setRange(0, 10000);
+        }
+    }
+    else if (_settings.scaleXSetting == SCALE_SLIDING)
+    {
+        // sliding window scale routine
+        if ((_pPlot->graphCount() != 0) && (_pPlot->graph(0)->data()->keys().size()))
+        {
             const quint32 lastTime = _pPlot->graph(0)->data()->keys().last();
             if (lastTime > _settings.xslidingInterval)
             {
                 _pPlot->xAxis->setRange(lastTime - _settings.xslidingInterval, lastTime);
             }
-            else
-            {
-                _pPlot->xAxis->rescale();
-            }
         }
-        else // Manual
+        else
         {
-
+            _pPlot->xAxis->setRange(0, _settings.xslidingInterval);
         }
     }
-    else
+    else // Manual
     {
-        // set default range
-        _pPlot->xAxis->setRange(0, 10000);
-        _pPlot->yAxis->setRange(0, 10);
+
     }
 
-
-    // TODO: scale y-axis
-    if (_settings.bYAxisAutoScale)
+    // scale y-axis
+    if (_settings.scaleYSetting == SCALE_AUTO)
     {
-        _pPlot->yAxis->rescale();
+        if ((_pPlot->graphCount() != 0) && (_pPlot->graph(0)->data()->keys().size()))
+        {
+            _pPlot->yAxis->rescale();
+        }
+        else
+        {
+            _pPlot->yAxis->setRange(0, 10);
+        }
+    }
+    else if (_settings.scaleYSetting == SCALE_MINMAX)
+    {
+        // min max scale routine
+        _pPlot->yAxis->setRange(_settings.yMin, _settings.yMax);
+    }
+    else // Manual
+    {
+
     }
 
     _pPlot->replot();
-
-
 }

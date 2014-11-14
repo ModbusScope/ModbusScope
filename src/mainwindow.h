@@ -44,10 +44,13 @@ private slots:
     void prepareDataExport();
     void loadProjectSettings();
     void prepareImageExport();
+    void updateYMin(int newMin);
+    void updateYMax(int newMax);
 
 public slots:
     void updateStats(quint32 successCount, quint32 errorCount);
     void changeXAxisScaling(int id);
+    void changeYAxisScaling(int id);
 
 private:
 
@@ -63,6 +66,7 @@ private:
     QLabel * _statusStats;
     QLabel * _statusState;
     QButtonGroup * _xAxisScaleGroup;
+    QButtonGroup * _yAxisScaleGroup;
 
     static const QString _cStateRunning;
     static const QString _cStateStopped;

@@ -19,20 +19,29 @@ public:
     {
         SCALE_AUTO = 0,
         SCALE_SLIDING,
+        SCALE_MINMAX,
         SCALE_MANUAL
-    } XAxisScaleOptions;
+    } AxisScaleOptions;
 
     void resetGraph(void);
     void addGraph(quint16 registerAddress);
-    void setxAxisScale(XAxisScaleOptions scaleMode);
-    void setxAxisScale(XAxisScaleOptions scaleMode, quint32 interval);
+    void setxAxisScale(AxisScaleOptions scaleMode);
+    void setxAxisScale(AxisScaleOptions scaleMode, quint32 interval);
+
+    void setyAxisScale(AxisScaleOptions scaleMode);
+    void setyAxisScale(AxisScaleOptions scaleMode, qint32 min, qint32 max);
+
+    void setyAxisMinMax(quint32 min, quint32 max);
+
+    qint32 getyAxisMin();
+    qint32 getyAxisMax();
 
 signals:
-    void updateXScalingUi(int); // TODO: clean up, dirty!
+    void updateXScalingUi(int);
+    void updateYScalingUi(int);
 
 public slots:
     void plotResults(QList<bool> successList, QList<quint16> valueList);
-    void setYAxisAutoScale(int state);
     void setxAxisSlidingInterval(int interval);
     void exportDataCsv(QString dataFile);
     void exportGraphImage(QString imageFile);
@@ -51,9 +60,13 @@ private:
 
     typedef struct
     {
-        XAxisScaleOptions scaleXSetting;
+        AxisScaleOptions scaleXSetting;
         quint32 xslidingInterval;
-        bool bYAxisAutoScale;
+
+        AxisScaleOptions scaleYSetting;
+        qint32 yMin;
+        qint32 yMax;
+
     } GuiSettings;
 
     QCustomPlot * _pPlot;
