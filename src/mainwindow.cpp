@@ -10,7 +10,7 @@
 
 const QString MainWindow::_cStateRunning = QString("Running");
 const QString MainWindow::_cStateStopped = QString("Stopped");
-const QString MainWindow::_cStatsTemplate = QString("Succcess: %1\tErrors: %2");
+const QString MainWindow::_cStatsTemplate = QString("Success: %1\tErrors: %2");
 
 MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     QMainWindow(parent),
