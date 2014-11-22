@@ -372,6 +372,10 @@ void ScopeGui::scalePlot()
             {
                 _pPlot->xAxis->setRange(lastTime - _settings.xslidingInterval, lastTime);
             }
+            else
+            {
+                _pPlot->xAxis->setRange(0, _settings.xslidingInterval);
+            }
         }
         else
         {
