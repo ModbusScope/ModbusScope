@@ -5,10 +5,12 @@
 #include "qcustomplot.h"
 
 const QList<QColor> ScopeGui::_colorlist = QList<QColor>() << QColor("blue")
-                                                           << QColor("gray")
                                                            << QColor("green")
-                                                           << QColor("black")
+                                                           << QColor("red")
+                                                           << QColor("yellow")
+                                                           << QColor("orange")
                                                            << QColor("purple")
+                                                           << QColor("black")
                                                            ;
 
 ScopeGui::ScopeGui(MainWindow *window, QCustomPlot * pPlot, QObject *parent) :
@@ -66,7 +68,12 @@ void ScopeGui::addGraph(quint16 registerAddress)
    pGraph->setName(label);
    graphNames.append(label);
 
-   pGraph->setPen(QPen(_colorlist[colorIndex]));
+   QPen pen;
+   pen.setColor(_colorlist[colorIndex]);
+   pen.setWidth(2);
+   pen.setCosmetic(true);
+
+   pGraph->setPen(pen);
 
    _pPlot->replot();
    _pPlot->legend->setVisible(true);
