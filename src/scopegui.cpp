@@ -323,8 +323,20 @@ void ScopeGui::mouseMove(QMouseEvent *event)
 {
     if(event->buttons() & Qt::LeftButton)
     {
-        emit updateXScalingUi(ScopeGui::SCALE_MANUAL); // change to manual scaling
-        emit updateYScalingUi(ScopeGui::SCALE_MANUAL); // change to manual scaling
+        if (_pPlot->axisRect()->rangeDrag() == Qt::Horizontal)
+        {
+            emit updateXScalingUi(ScopeGui::SCALE_MANUAL); // change to manual scaling
+        }
+        else if (_pPlot->axisRect()->rangeDrag() == Qt::Vertical)
+        {
+            emit updateYScalingUi(ScopeGui::SCALE_MANUAL); // change to manual scaling
+        }
+        else
+        {
+            // Both
+            emit updateXScalingUi(ScopeGui::SCALE_MANUAL); // change to manual scaling
+            emit updateYScalingUi(ScopeGui::SCALE_MANUAL); // change to manual scaling
+        }
     }
 }
 
