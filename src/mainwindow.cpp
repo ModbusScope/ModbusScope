@@ -427,6 +427,11 @@ void MainWindow::loadProjectFile(QString dataFilePath)
         if (fileParser.parseFile(file, &loadedSettings))
         {
             updateBoxes(&loadedSettings);
+
+            // Set scaling to default
+            // TODO: get scaling values from project file
+            changeYAxisScaling(ScopeGui::SCALE_AUTO);
+            changeXAxisScaling(ScopeGui::SCALE_AUTO);
         }
     }
     else
