@@ -393,12 +393,12 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Export Data</string>
+    <string>Export Data...</string>
    </property>
   </action>
   <action name="actionLoadProjectFile">
    <property name="text">
-    <string>Load Project File</string>
+    <string>Load Project File...</string>
    </property>
   </action>
   <action name="actionExportImage">
@@ -406,7 +406,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Export Image</string>
+    <string>Export Image...</string>
    </property>
   </action>
  </widget>
