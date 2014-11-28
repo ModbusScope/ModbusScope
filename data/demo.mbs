@@ -7,16 +7,19 @@
 		<unknown>1</unknown>
 	</modbus>
 	<scope>
-		<var>
+		<var active="true">
 			<reg>40001</reg>
-			<!--<text>Software version Major (major.minor.rev)</text>-->
-			<!--<type>int16</type>-->
+			<text>Very interesting register</text>
 			<unknowntag2>1</unknowntag2>
 		</var>
 		<var>
 			<reg>40002</reg>
-			<!--<text>Software version Major (major.minor.rev)</text>-->
-			<!--<type>int16</type>-->
+			<text>Very interesting register 2</text>
+			<unknowntag2>1</unknowntag2>
+		</var>
+		<var active="false">
+			<reg>40003</reg>
+			<text>Very interesting register 3</text>
 			<unknowntag2>1</unknowntag2>
 		</var>
 		

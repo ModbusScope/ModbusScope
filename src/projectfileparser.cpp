@@ -152,6 +152,21 @@ bool ProjectFileParser::parseScopeTag(const QDomElement &element, ScopeSettings 
 bool ProjectFileParser::parseVariableTag(const QDomElement &element, RegisterSettings *pRegisterSettings)
 {
     bool bRet = true;
+
+
+    // Check attribute
+    QString active = element.attribute("active", "false");
+
+    if (!active.toLower().compare("true"))
+    {
+        pRegisterSettings->bActive = true;
+    }
+    else
+    {
+        pRegisterSettings->bActive = false;
+    }
+
+    // Check nodes
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
@@ -164,6 +179,10 @@ bool ProjectFileParser::parseVariableTag(const QDomElement &element, RegisterSet
                 _msgBox.exec();
                 break;
             }
+        }
+        else if (child.tagName() == "text")
+        {
+            pRegisterSettings->text = child.text();
         }
         else
         {

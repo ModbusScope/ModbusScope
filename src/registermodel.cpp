@@ -6,23 +6,6 @@ RegisterModel::RegisterModel(QObject *parent) :
     QAbstractTableModel(parent)
 {
     dataList.clear();
-
-    // TODO: this is dummy data
-    RegisterData data;
-    data.bActive = true;
-    data.reg = 40001;
-    data.text = "Register 1";
-    dataList.append(data);
-
-    data.reg = 40002;
-    data.bActive = false;
-    data.text = "Register 2";
-    dataList.append(data);
-
-    data.reg = 40003;
-    data.bActive = false;
-    data.text = "Register 3";
-    dataList.append(data);
 }
 
 int RegisterModel::rowCount(const QModelIndex & /*parent*/) const
@@ -243,3 +226,21 @@ void RegisterModel::getCheckedRegisterTextList(QList<QString> * pRegisterTextLis
         }
     }
 }
+
+void RegisterModel::clear()
+{
+    if (dataList.size() != 0)
+    {
+        removeRows(0, dataList.size(), QModelIndex());
+    }
+}
+
+void RegisterModel::appendRow(RegisterData rowData)
+{
+    insertRows(dataList.size(), 1, QModelIndex());
+
+    dataList[dataList.size() - 1].bActive = rowData.bActive;
+    dataList[dataList.size() - 1].reg = rowData.reg;
+    dataList[dataList.size() - 1].text = rowData.text;
+}
+

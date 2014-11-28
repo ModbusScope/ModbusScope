@@ -9,6 +9,13 @@ class RegisterModel : public QAbstractTableModel
 public:
     explicit RegisterModel(QObject *parent = 0);
 
+    typedef struct
+    {
+        bool bActive;
+        quint16 reg;
+        QString text;
+    } RegisterData;
+
     int rowCount(const QModelIndex &parent = QModelIndex()) const ;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
@@ -23,18 +30,15 @@ public:
     void getCheckedRegisterList(QList<quint16> * pRegisterList);
     void getCheckedRegisterTextList(QList<QString> * pRegisterTextList);
 
+    void clear();
+    void appendRow(RegisterData rowData);
+
+
 signals:
 
 public slots:
 
 private:
-
-    typedef struct
-    {
-        bool bActive;
-        quint16 reg;
-        QString text;
-    } RegisterData;
 
     QList<RegisterData> dataList;
 

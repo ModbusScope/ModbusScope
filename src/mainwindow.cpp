@@ -377,15 +377,16 @@ void MainWindow::updateBoxes(ProjectFileParser::ProjectSettings * pProjectSettin
         _ui->spinSlaveId->setValue(pProjectSettings->general.slaveId);
     }
 
-    /*
-     * TODO: add register data to view
-    _ui->listReg->clear();
+
+    _pRegisterModel->clear();
     for (qint32 i = 0; i < pProjectSettings->scope.registerList.size(); i++)
     {
-        _ui->listReg->addItem(QString::number(pProjectSettings->scope.registerList[i].address));
+        RegisterModel::RegisterData rowData;
+        rowData.bActive = pProjectSettings->scope.registerList[i].bActive;
+        rowData.reg = pProjectSettings->scope.registerList[i].address;
+        rowData.text = pProjectSettings->scope.registerList[i].text;
+        _pRegisterModel->appendRow(rowData);
     }
-    */
-
 }
 
 void MainWindow::loadProjectFile(QString dataFilePath)

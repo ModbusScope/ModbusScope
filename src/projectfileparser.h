@@ -13,6 +13,8 @@ public:
     typedef struct
     {
         quint16 address;
+        QString text;
+        bool bActive;
     } RegisterSettings;
 
     typedef struct
