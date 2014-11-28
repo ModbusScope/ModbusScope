@@ -4,7 +4,6 @@
 #include "scopedata.h"
 #include "scopegui.h"
 
-
 #include "QDebug"
 
 
@@ -36,6 +35,17 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _ui->statusBar->addPermanentWidget(_statusState, 0);
     _ui->statusBar->addPermanentWidget(_statusStats, 2);
 
+    // Setup registerView
+    _pRegisterModel = new RegisterModel();
+    _ui->registerView->setModel(_pRegisterModel);
+    _ui->registerView->verticalHeader()->hide();
+    _ui->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    _ui->registerView->horizontalHeader()->setStretchLastSection(true);
+
+    // Select using click, shift and control
+     _ui->registerView->setSelectionBehavior(QAbstractItemView::SelectRows);
+     _ui->registerView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
     _scope = new ScopeData();
     _gui = new ScopeGui(this, _ui->customPlot, this);
 
@@ -47,9 +57,6 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _ui->spinSlidingXInterval->setKeyboardTracking(false);
     _ui->spinYMin->setKeyboardTracking(false);
     _ui->spinYMax->setKeyboardTracking(false);
-
-    _ui->listReg->setEditTriggers(QAbstractItemView::NoEditTriggers); // non-editable
-
 
     // Create button group for X axis scaling options
     _xAxisScaleGroup = new QButtonGroup();
@@ -75,10 +82,6 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     changeYAxisScaling(ScopeGui::SCALE_AUTO);
 
     connect(_scope, SIGNAL(handleReceivedData(QList<bool>, QList<quint16>)), _gui, SLOT(plotResults(QList<bool>, QList<quint16>)));
-
-    connect(_ui->listReg, SIGNAL(itemDoubleClicked(QListWidgetItem *)), this, SLOT(addRemoveRegisterFromScopeList(QListWidgetItem *)));
-    connect(this, SIGNAL(registerStateChange(quint16)), _scope, SLOT(toggleRegister(quint16)));
-    connect(this, SIGNAL(registerRemove(quint16)), _scope, SLOT(removedRegister(quint16)));
     connect(_scope, SIGNAL(triggerStatUpdate(quint32, quint32)), this, SLOT(updateStats(quint32, quint32)));
     connect(this, SIGNAL(dataExport(QString)), _gui, SLOT(exportDataCsv(QString)));
 
@@ -121,7 +124,8 @@ void MainWindow::startScope()
 
     if (bCommunicationSettingsValid)
     {
-        if (_scope->getRegisterCount() != 0)
+
+        if (_pRegisterModel->checkedRegisterCount() != 0)
         {
             _commSettings.setIpAddress(_ui->lineIP->text());
             _commSettings.setPort(_ui->spinPort->text().toInt());
@@ -135,17 +139,16 @@ void MainWindow::startScope()
 
             _statusState->setText(_cStateRunning);
 
-            if (_scope->startCommunication(&_commSettings))
+            QList<quint16> regList;
+            _pRegisterModel->getCheckedRegisterList(&regList);
+
+            if (_scope->startCommunication(&_commSettings, regList))
             {
+                QList<QString> regTextList;
+                _pRegisterModel->getCheckedRegisterTextList(&regTextList);
+
                 _gui->resetGraph();
-
-                QList<quint16> regList;
-                _scope->getRegisterList(&regList);
-
-                for (quint32 i = 0; i < (quint32)regList.size(); i++)
-                {
-                    _gui->addGraph(regList[i]);
-                }
+                _gui->setupGraph(regTextList);
             }
         }
         else
@@ -171,26 +174,6 @@ void MainWindow::stopScope()
 void MainWindow::exitApplication()
 {
     QApplication::quit();
-}
-
-
-void MainWindow::addRemoveRegisterFromScopeList(QListWidgetItem * item)
-{
-    // Set background color
-    QBrush selectedColor;
-    selectedColor.setColor(QColor("green"));
-    selectedColor.setStyle(Qt::SolidPattern);
-
-    if (item->background() != selectedColor)
-    {
-         item->setBackground(selectedColor);
-    }
-    else
-    {
-        item->setBackground(QBrush(QColor("white"), Qt::SolidPattern));
-    }
-
-    emit registerStateChange((quint16)item->text().toInt());
 }
 
 void MainWindow::prepareDataExport()
@@ -338,35 +321,23 @@ void MainWindow::changeYAxisScaling(int id)
 
 void MainWindow::addRegister()
 {
-    bool bFound = false;
-    QString addr = _ui->spinReg->text();
-
-    for (qint32 i = 0; i < (qint32)_ui->listReg->count(); i++)
-    {
-        if (_ui->listReg->item(i)->text() == addr)
-        {
-            bFound = true;
-            break;
-        }
-    }
-
-    if (bFound)
-    {
-        QMessageBox::warning(this, "Duplicate register!", "The register is already present in the list.");
-    }
-    else
-    {
-        _ui->listReg->addItem(addr);
-    }
+    _pRegisterModel->insertRow(_pRegisterModel->rowCount());
 }
 
 
 void MainWindow::removeRegister()
 {
-    if (_ui->listReg->selectedItems().count() != 0)
+    // get list of selected rows
+    QItemSelectionModel *selected = _ui->registerView->selectionModel();
+    QModelIndexList rowList = selected->selectedRows();
+
+    // sort QModelIndexList
+    // We need to remove the highest rows first
+    qSort(rowList.begin(), rowList.end(), &MainWindow::sortRegistersLastFirst);
+
+    foreach(QModelIndex rowIndex, rowList)
     {
-        emit registerRemove((quint16)_ui->listReg->selectedItems()[0]->text().toInt());
-        qDeleteAll(_ui->listReg->selectedItems());
+        _pRegisterModel->removeRow(rowIndex.row(), rowIndex.parent());
     }
 }
 
@@ -376,10 +347,9 @@ void MainWindow::setSettingsObjectsState(bool bState)
     _ui->btnAdd->setEnabled(bState);
     _ui->spinPollTime->setEnabled(bState);
     _ui->btnRemove->setEnabled(bState);
-    _ui->spinReg->setEnabled(bState);
     _ui->spinSlaveId->setEnabled(bState);
     _ui->lineIP->setEnabled(bState);
-    _ui->listReg->setEnabled(bState);
+    _ui->registerView->setEnabled(bState);
     _ui->actionLoadProjectFile->setEnabled(bState);
     _ui->actionExportDataCsv->setEnabled(bState);
     _ui->actionExportImage->setEnabled(bState);
@@ -407,12 +377,14 @@ void MainWindow::updateBoxes(ProjectFileParser::ProjectSettings * pProjectSettin
         _ui->spinSlaveId->setValue(pProjectSettings->general.slaveId);
     }
 
-    _scope->clearRegisterList();
+    /*
+     * TODO: add register data to view
     _ui->listReg->clear();
     for (qint32 i = 0; i < pProjectSettings->scope.registerList.size(); i++)
     {
         _ui->listReg->addItem(QString::number(pProjectSettings->scope.registerList[i].address));
     }
+    */
 
 }
 
@@ -470,9 +442,8 @@ void MainWindow::showAbout()
     msgBox.exec();
 }
 
-
-
-
-
-
+bool MainWindow::sortRegistersLastFirst(const QModelIndex &s1, const QModelIndex &s2)
+{
+    return s1.row() > s2.row();
+}
 

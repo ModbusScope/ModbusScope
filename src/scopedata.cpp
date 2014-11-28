@@ -45,13 +45,16 @@ ScopeData::~ScopeData()
     delete _timer;
 }
 
-bool ScopeData::startCommunication(ModbusSettings * pSettings)
+bool ScopeData::startCommunication(ModbusSettings * pSettings, QList<quint16> registers)
 {
     bool bResetted = false;
 
     if (!_active)
     {
         _settings.copy(pSettings);
+
+        _registerlist.clear();
+        _registerlist.append(registers);
 
         _successCount = 0;
         _errorCount = 0;
@@ -64,58 +67,6 @@ bool ScopeData::startCommunication(ModbusSettings * pSettings)
     }
 
     return bResetted;
-}
-
-quint32 ScopeData::getRegisterCount()
-{
-    return _registerlist.size();
-}
-
-void ScopeData::getRegisterList(QList<quint16> * pList)
-{
-    pList->clear();
-    pList->append(_registerlist);
-}
-
-void ScopeData::clearRegisterList()
-{
-    _registerlist.clear();
-}
-
-void ScopeData::toggleRegister(quint16 registerAddress)
-{
-    bool bFound = false;
-    const quint16 regAddr = registerAddress;
-
-    for(qint32 i = 0; i < _registerlist.size(); i++)
-    {
-        if (_registerlist.at(i) == regAddr)
-        {
-            _registerlist.removeAt(i);
-            bFound = true;
-            break;
-        }
-    }
-
-    if (!bFound)
-    {
-        _registerlist.append(regAddr);
-    }
-}
-
-
-void ScopeData::removedRegister(quint16 registerAddress)
-{
-    const quint16 regAddr = registerAddress;
-
-    for(qint32 i = 0; i < _registerlist.size(); i++)
-    {
-        if (_registerlist.at(i) == regAddr)
-        {
-            _registerlist.removeAt(i);
-            break;
-        }
-    }
 }
 
 void ScopeData::processCommStats(quint32 success,quint32 error)

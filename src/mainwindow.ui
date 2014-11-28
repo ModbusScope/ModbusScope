@@ -55,6 +55,26 @@
             </property>
            </widget>
           </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Poll time</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QSpinBox" name="spinPollTime">
+            <property name="maximum">
+             <number>90000</number>
+            </property>
+            <property name="singleStep">
+             <number>10</number>
+            </property>
+            <property name="value">
+             <number>1000</number>
+            </property>
+           </widget>
+          </item>
           <item row="5" column="0">
            <widget class="QLabel" name="label_4">
             <property name="text">
@@ -79,50 +99,20 @@
             </property>
            </widget>
           </item>
-          <item row="8" column="1">
-           <widget class="QSpinBox" name="spinReg">
-            <property name="maximum">
-             <number>100000</number>
-            </property>
-            <property name="value">
-             <number>40001</number>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="1">
-           <widget class="QPushButton" name="btnAdd">
-            <property name="text">
-             <string>Add register</string>
-            </property>
-           </widget>
+          <item row="6" column="1">
+           <widget class="QTableView" name="registerView"/>
           </item>
           <item row="7" column="1">
            <widget class="QPushButton" name="btnRemove">
             <property name="text">
-             <string>Remove register</string>
+             <string>Remove selected register</string>
             </property>
            </widget>
           </item>
-          <item row="6" column="1">
-           <widget class="QListWidget" name="listReg"/>
-          </item>
-          <item row="4" column="1">
-           <widget class="QSpinBox" name="spinPollTime">
-            <property name="maximum">
-             <number>90000</number>
-            </property>
-            <property name="singleStep">
-             <number>10</number>
-            </property>
-            <property name="value">
-             <number>1000</number>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_5">
+          <item row="8" column="1">
+           <widget class="QPushButton" name="btnAdd">
             <property name="text">
-             <string>Poll time</string>
+             <string>Add new register</string>
             </property>
            </widget>
           </item>

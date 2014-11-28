@@ -37,7 +37,8 @@ SOURCES +=  \
     ../libraries/qcustomplot/qcustomplot.cpp \
     ../src/scopedata.cpp \
     ../src/scopegui.cpp \
-    ../src/projectfileparser.cpp
+    ../src/projectfileparser.cpp \
+    ../src/registermodel.cpp
 
 FORMS    += \
     ../src/mainwindow.ui
@@ -54,4 +55,5 @@ HEADERS += \
     ../libraries/qcustomplot/qcustomplot.h \
     ../src/scopedata.h \
     ../src/scopegui.h \
-    ../src/projectfileparser.h
+    ../src/projectfileparser.h \
+    ../src/registermodel.h

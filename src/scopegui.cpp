@@ -55,25 +55,30 @@ ScopeGui::ScopeGui(MainWindow *window, QCustomPlot * pPlot, QObject *parent) :
 
 void ScopeGui::resetGraph(void)
 {
-   _pPlot->clearGraphs();
-   graphNames.clear();
+    _pPlot->clearGraphs();
+    graphNames.clear();
 }
 
-void ScopeGui::addGraph(quint16 registerAddress)
+void ScopeGui::setupGraph(QList<QString> registerTextList)
 {
-   const quint32 colorIndex = _pPlot->graphCount() % _colorlist.size();
-   QCPGraph * pGraph = _pPlot->addGraph();
+   quint32 colorIndex;
 
-   QString label = QString("Register %1").arg(registerAddress);
-   pGraph->setName(label);
-   graphNames.append(label);
+   for (qint32 i = 0; i < registerTextList.size(); i++)
+   {
+       colorIndex = _pPlot->graphCount() % _colorlist.size();
 
-   QPen pen;
-   pen.setColor(_colorlist[colorIndex]);
-   pen.setWidth(2);
-   pen.setCosmetic(true);
+       QCPGraph * pGraph = _pPlot->addGraph();
 
-   pGraph->setPen(pen);
+       pGraph->setName(registerTextList[i]);
+       graphNames.append(registerTextList[i]);
+
+       QPen pen;
+       pen.setColor(_colorlist[colorIndex]);
+       pen.setWidth(2);
+       pen.setCosmetic(true);
+
+       pGraph->setPen(pen);
+   }
 
    _pPlot->replot();
    _pPlot->legend->setVisible(true);

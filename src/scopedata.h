@@ -17,15 +17,10 @@ public:
     explicit ScopeData(QObject *parent = 0);
     ~ScopeData();
 
-    bool startCommunication(ModbusSettings * pSettings);
+    bool startCommunication(ModbusSettings * pSettings, QList<quint16> registers);
     void stopCommunication();
-    quint32 getRegisterCount();
-    void getRegisterList(QList<quint16> * pList);
-    void clearRegisterList();
 
 public slots:
-    void toggleRegister(quint16 registerAddress);
-    void removedRegister(quint16 registerAddress);
     void processCommStats(quint32 success,quint32 error);
     void handlePollDone(QList<bool> successList, QList<quint16> values);
 
@@ -38,6 +33,7 @@ signals:
 private slots:
     void readData();
     void masterStopped();
+
 private:   
 
     ModbusMaster * _master;

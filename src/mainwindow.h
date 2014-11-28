@@ -5,6 +5,7 @@
 #include <QListWidgetItem>
 #include <QButtonGroup>
 
+#include "registermodel.h"
 #include "modbussettings.h"
 #include "projectfileparser.h"
 
@@ -31,7 +32,6 @@ signals:
     void startModbus();
     void stopModbus();
     void registerStateChange(quint16 registerAddress);
-    void registerRemove(quint16 registerAddress);
     void dataExport(QString dataFile);
 
 private slots:
@@ -40,7 +40,6 @@ private slots:
     void addRegister();
     void removeRegister();
     void exitApplication();
-    void addRemoveRegisterFromScopeList(QListWidgetItem * item);
     void prepareDataExport();
     void loadProjectSettings();
     void prepareImageExport();
@@ -55,6 +54,8 @@ public slots:
 
 private:
 
+    static bool sortRegistersLastFirst(const QModelIndex &s1, const QModelIndex &s2);
+
     void setSettingsObjectsState(bool bState);
     void updateBoxes(ProjectFileParser::ProjectSettings *pProjectSettings);
     void loadProjectFile(QString dataFilePath);
@@ -63,6 +64,7 @@ private:
     ScopeData * _scope;
     ScopeGui * _gui;
     ModbusSettings _commSettings;
+    RegisterModel * _pRegisterModel;
 
     QLabel * _statusStats;
     QLabel * _statusState;
