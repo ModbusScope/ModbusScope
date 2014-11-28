@@ -93,6 +93,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_ui->actionExportDataCsv, SIGNAL(triggered()), this, SLOT(prepareDataExport()));
     connect(_ui->actionLoadProjectFile, SIGNAL(triggered()), this, SLOT(loadProjectSettings()));
     connect(_ui->actionExportImage, SIGNAL(triggered()), this, SLOT(prepareImageExport()));
+    connect(_ui->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
 
     if (cmdArguments.size() > 1)
     {
@@ -442,3 +443,36 @@ void MainWindow::loadProjectFile(QString dataFilePath)
                               QMessageBox::Ok);
     }
 }
+
+void MainWindow::showAbout()
+{
+    QString lnkAuthor("<a href='mailto:jensgeudens@hotmail.com'>jgeudens</a>");
+    QString lnkGpl("<a href='http://www.gnu.org/licenses/gpl.html#content'>GPL</a>");
+    QString lnkGitHub("<a href='https://github.com/jgeudens/ModbusScope'>GitHub</a>");
+
+    QString lnkQt("<a href='http://qt-project.org/'>Qt</a>");
+    QString lnkLibModbus("<a href='http://libmodbus.org/'>libmodbus</a>");
+    QString lnkQCustomPlot("<a href='http://www.qcustomplot.com/'>QCustomPlot</a>");
+
+
+    QString aboutTxt = tr(
+                        "ModbusScope is created and maintained by %1. This software is released under the %2 license. "
+                        "The source is freely available at %3.<br><br>"
+                        "ModbusScope uses following libraries:<br>"
+                        "%4<br>"
+                        "%5<br>"
+                        "%6<br>").arg(lnkAuthor, lnkGpl, lnkGitHub, lnkQt, lnkLibModbus, lnkQCustomPlot);
+
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle("About");
+    msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
+    msgBox.setText(aboutTxt);
+    msgBox.exec();
+}
+
+
+
+
+
+
+

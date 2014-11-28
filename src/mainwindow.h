@@ -46,6 +46,7 @@ private slots:
     void prepareImageExport();
     void updateYMin(int newMin);
     void updateYMax(int newMax);
+    void showAbout();
 
 public slots:
     void updateStats(quint32 successCount, quint32 errorCount);

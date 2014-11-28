@@ -367,8 +367,15 @@
     <addaction name="actionStart"/>
     <addaction name="actionStop"/>
    </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>?</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuCommunication"/>
+   <addaction name="menu"/>
   </widget>
   <action name="actionExit">
    <property name="text">
@@ -407,6 +414,11 @@
    </property>
    <property name="text">
     <string>Export Image...</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About...</string>
    </property>
   </action>
  </widget>
