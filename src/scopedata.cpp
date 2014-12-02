@@ -4,6 +4,7 @@
 #include "modbussettings.h"
 #include "scopegui.h"
 #include "QTimer"
+#include "QDateTime"
 #include "QDebug"
 
 #include "scopedata.h"
@@ -80,7 +81,21 @@ void ScopeData::processCommStats(quint32 success,quint32 error)
 void ScopeData::handlePollDone(QList<bool> successList, QList<quint16> values)
 {
     // Restart timer when previous request has been handled
-    _timer->singleShot(_settings.getPollTime(), this, SLOT(readData()));
+    uint waitInterval;
+    const uint passedInterval = QDateTime::currentMSecsSinceEpoch() - _lastPollStart;
+
+    if (passedInterval > _settings.getPollTime())
+    {
+        // Poll again immediatly
+        waitInterval = 1;
+    }
+    else
+    {
+        // Set waitInterval to remaining time
+        waitInterval = _settings.getPollTime() - passedInterval;
+    }
+
+    _timer->singleShot(waitInterval, this, SLOT(readData()));
 
     // propagate data
     emit handleReceivedData(successList, values);
@@ -101,6 +116,7 @@ void ScopeData::readData()
 {
     if(_active)
     {
+        _lastPollStart = QDateTime::currentMSecsSinceEpoch();
         emit registerRequest(&_settings, &_registerlist);
     }
 }

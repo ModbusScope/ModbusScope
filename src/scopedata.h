@@ -43,6 +43,8 @@ private:
     quint32 _successCount;
     quint32 _errorCount;
 
+    qint64 _lastPollStart;
+
     ModbusSettings _settings;
     QList<quint16> _registerlist;
 };
