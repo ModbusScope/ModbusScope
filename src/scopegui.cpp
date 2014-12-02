@@ -193,7 +193,7 @@ void ScopeGui::exportDataCsv(QString dataFile)
         for(qint32 i = 0; i < _pPlot->graphCount(); i++)
         {
             // Get headers
-            line.append(";" +_pPlot->graph(i)->name());
+            line.append(";" + graphNames[i]);
 
             // Save data lists
             dataList.append(_pPlot->graph(i)->data()->values());
