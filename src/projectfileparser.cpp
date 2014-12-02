@@ -136,7 +136,30 @@ bool ProjectFileParser::parseScopeTag(const QDomElement &element, ScopeSettings 
             {
                 break;
             }
-            pScopeSettings->registerList.append(registerData);
+
+            // check for duplicate registers
+            bool bFound = false;
+
+            for (int i = 0; i < pScopeSettings->registerList.size(); i++)
+            {
+                if (pScopeSettings->registerList[i].address == registerData.address)
+                {
+                    bFound = true;
+                    break;
+                }
+            }
+
+            if (bFound)
+            {
+                _msgBox.setText(tr("The register (%1) is defined twice in the list.").arg(registerData.address));
+                _msgBox.exec();
+                bRet = false;
+                break;
+            }
+            else
+            {
+                pScopeSettings->registerList.append(registerData);
+            }
         }
         else
         {

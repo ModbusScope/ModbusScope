@@ -27,18 +27,21 @@ public:
     bool insertRows (int row, int count, const QModelIndex &parent);
 
     uint checkedRegisterCount();
+    void getRegisterList(QList<quint16> * pRegisterList);
     void getCheckedRegisterList(QList<quint16> * pRegisterList);
     void getCheckedRegisterTextList(QList<QString> * pRegisterTextList);
 
     void clear();
     void appendRow(RegisterData rowData);
 
-
 signals:
 
 public slots:
 
 private:
+
+    bool IsAlreadyPresent(quint16 newReg);
+    quint16 getNextFreeAddress();
 
     QList<RegisterData> dataList;
 

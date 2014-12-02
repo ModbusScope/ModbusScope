@@ -1,6 +1,7 @@
 #include "registermodel.h"
 
 #include "QDebug"
+#include <QMessageBox>
 
 RegisterModel::RegisterModel(QObject *parent) :
     QAbstractTableModel(parent)
@@ -92,6 +93,7 @@ QVariant RegisterModel::headerData(int section, Qt::Orientation orientation, int
 
 bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, int role)
 {
+    bool bRet = true;
 
     switch (index.column())
     {
@@ -111,14 +113,23 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
     case 1:
         if (role == Qt::EditRole)
         {
-            // TODO: check and parse data
-            dataList[index.row()].reg = value.toInt();
+            const quint16 newAddr = value.toInt();
+            if (
+                (dataList[index.row()].reg != newAddr)
+                && (IsAlreadyPresent(newAddr))
+                )
+            {
+                bRet = false;
+            }
+            else
+            {
+                dataList[index.row()].reg = newAddr;
+            }
         }
         break;
     case 2:
         if (role == Qt::EditRole)
         {
-            // TODO: check and parse data
             dataList[index.row()].text = value.toString();
         }
         break;
@@ -127,8 +138,7 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
 
     }
 
-    /* TODO: Return only true is succeeded */
-    return true;
+    return bRet;
 }
 
 Qt::ItemFlags RegisterModel::flags(const QModelIndex & index) const
@@ -179,8 +189,8 @@ bool RegisterModel::insertRows (int row, int count, const QModelIndex &parent)
 
     RegisterData data;
     data.bActive = false;
-    data.reg = 0;
-    data.text = "Register x";
+    data.reg = getNextFreeAddress();
+    data.text = QString("Register %1").arg(data.reg);
     dataList.append(data);
 
     endInsertRows();
@@ -201,6 +211,15 @@ uint RegisterModel::checkedRegisterCount()
     }
 
     return count;
+}
+
+void RegisterModel::getRegisterList(QList<quint16> * pRegisterList)
+{
+    pRegisterList->clear();
+    for (int i = 0; i < dataList.size(); i++)
+    {
+        pRegisterList->append(dataList[i].reg);
+    }
 }
 
 void RegisterModel::getCheckedRegisterList(QList<quint16> * pRegisterList)
@@ -244,3 +263,50 @@ void RegisterModel::appendRow(RegisterData rowData)
     dataList[dataList.size() - 1].text = rowData.text;
 }
 
+bool RegisterModel::IsAlreadyPresent(quint16 newReg)
+{
+    bool bFound = false;
+
+    for (int i = 0; i < dataList.size(); i++)
+    {
+        if (dataList[i].reg == newReg)
+        {
+            bFound = true;
+            break;
+        }
+    }
+
+    if (bFound)
+    {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle(tr("Duplicate register!"));
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setText(tr("The register is already present in the list."));
+        msgBox.exec();
+    }
+
+    return bFound;
+}
+
+quint16 RegisterModel::getNextFreeAddress()
+{
+    QList<quint16> registerList;
+    quint16 nextFreeAddress;
+
+    // get register list
+    getRegisterList(&registerList);
+
+    // sort qList
+    qSort(registerList);
+
+    if (registerList.size() > 0)
+    {
+        nextFreeAddress = registerList.last() + 1;
+    }
+    else
+    {
+        nextFreeAddress = 40001;
+    }
+
+    return nextFreeAddress;
+}
