@@ -83,6 +83,7 @@ void ScopeGui::setupGraph(QList<QString> registerTextList)
    _pPlot->replot();
    _pPlot->legend->setVisible(true);
 
+
    _startTime = QDateTime::currentMSecsSinceEpoch();
 
 }
@@ -117,7 +118,7 @@ void ScopeGui::setyAxisScale(AxisScaleOptions scaleMode, qint32 min, qint32 max)
 
 void ScopeGui::plotResults(QList<bool> successList, QList<quint16> valueList)
 {
-    const quint32 diff = QDateTime::currentMSecsSinceEpoch() - _startTime;
+    const quint64 diff = QDateTime::currentMSecsSinceEpoch() - _startTime;
 
     for (qint32 i = 0; i < valueList.size(); i++)
     {
@@ -205,7 +206,9 @@ void ScopeGui::exportDataCsv(QString dataFile)
         for(qint32 i = 0; i < keyList.size(); i++)
         {
             line.clear();
-            line.append(QString::number(keyList[i]));
+
+            const quint64 t = static_cast<quint64>(keyList[i]);
+            line.append(QString::number(t, 'f', 0));
 
             for(qint32 d = 0; d < dataList.size(); d++)
             {
@@ -356,7 +359,7 @@ void ScopeGui::mouseMove(QMouseEvent *event)
 void ScopeGui::writeToFile(QString filePath, QString logData)
 {
     QFile file(filePath);
-    if ( file.open(QIODevice::ReadWrite) )
+    if ( file.open(QIODevice::WriteOnly) ) // Remove all data from file
     {
         QTextStream stream(&file);
         stream << logData;
