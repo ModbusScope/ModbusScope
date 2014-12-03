@@ -71,6 +71,7 @@ private:
     QButtonGroup * _xAxisScaleGroup;
     QButtonGroup * _yAxisScaleGroup;
 
+    static const QString _cWindowTitle;
     static const QString _cStateRunning;
     static const QString _cStateStopped;
     static const QString _cStatsTemplate;

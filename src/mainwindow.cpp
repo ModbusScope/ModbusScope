@@ -7,6 +7,8 @@
 #include "QDebug"
 
 
+
+const QString MainWindow::_cWindowTitle = QString("ModbusScope");
 const QString MainWindow::_cStateRunning = QString("Running");
 const QString MainWindow::_cStateStopped = QString("Stopped");
 const QString MainWindow::_cStatsTemplate = QString("Success: %1\tErrors: %2");
@@ -20,11 +22,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _ui->setupUi(this);
 
     // Set window title
-    QString windowTitle;
-    windowTitle.append("ModbusScope (V");
-    windowTitle.append(APP_VERSION);
-    windowTitle.append(")");
-    this->setWindowTitle(windowTitle);
+    this->setWindowTitle(_cWindowTitle);
 
     // Add multipart status bar
     _statusState = new QLabel(_cStateStopped, this);
@@ -427,14 +425,16 @@ void MainWindow::showAbout()
     QString lnkLibModbus("<a href='http://libmodbus.org/'>libmodbus</a>");
     QString lnkQCustomPlot("<a href='http://www.qcustomplot.com/'>QCustomPlot</a>");
 
+    QString version = QString(tr("<b>ModbusScope v%1</b><br><br>")).arg(APP_VERSION);
 
     QString aboutTxt = tr(
-                        "ModbusScope is created and maintained by %1. This software is released under the %2 license. "
-                        "The source is freely available at %3.<br><br>"
+                        "%1"
+                        "ModbusScope is created and maintained by %2. This software is released under the %3 license. "
+                        "The source is freely available at %4.<br><br>"
                         "ModbusScope uses following libraries:<br>"
-                        "%4<br>"
                         "%5<br>"
-                        "%6<br>").arg(lnkAuthor, lnkGpl, lnkGitHub, lnkQt, lnkLibModbus, lnkQCustomPlot);
+                        "%6<br>"
+                        "%7<br>").arg(version, lnkAuthor, lnkGpl, lnkGitHub, lnkQt, lnkLibModbus, lnkQCustomPlot);
 
     QMessageBox msgBox(this);
     msgBox.setWindowTitle("About");
