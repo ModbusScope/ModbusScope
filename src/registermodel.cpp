@@ -242,7 +242,7 @@ void RegisterModel::getCheckedRegisterTextList(QList<QString> * pRegisterTextLis
         if (dataList[i].bActive)
         {
             // Set default text with register address when there is no text
-            if (dataList[i].text.compare("") == 0)
+            if (dataList[i].text.isEmpty())
             {
                 dataList[i].text = QString("Register %1").arg(dataList[i].reg);
             }

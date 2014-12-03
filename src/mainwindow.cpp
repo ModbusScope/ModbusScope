@@ -47,6 +47,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _scope = new ScopeData();
     _gui = new ScopeGui(this, _ui->customPlot, this);
 
+    _projectFilePath = QString("");
+
     connect(_ui->spinSlidingXInterval, SIGNAL(valueChanged(int)), _gui, SLOT(setxAxisSlidingInterval(int)));
     connect(_ui->spinYMin, SIGNAL(valueChanged(int)), this, SLOT(updateYMin(int)));
     connect(_ui->spinYMax, SIGNAL(valueChanged(int)), this, SLOT(updateYMax(int)));
@@ -93,6 +95,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_ui->actionExit, SIGNAL(triggered()), this, SLOT(exitApplication()));
     connect(_ui->actionExportDataCsv, SIGNAL(triggered()), this, SLOT(prepareDataExport()));
     connect(_ui->actionLoadProjectFile, SIGNAL(triggered()), this, SLOT(loadProjectSettings()));
+    connect(_ui->actionReloadProjectFile, SIGNAL(triggered()), this, SLOT(reloadProjectSettings()));
     connect(_ui->actionExportImage, SIGNAL(triggered()), this, SLOT(prepareImageExport()));
     connect(_ui->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
 
@@ -194,7 +197,7 @@ void MainWindow::prepareDataExport()
 
 void MainWindow::loadProjectSettings()
 {
-    QString projectFilePath;
+    QString filePath;
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::ExistingFile);
     dialog.setAcceptMode(QFileDialog::AcceptOpen);
@@ -204,11 +207,19 @@ void MainWindow::loadProjectSettings()
 
     if (dialog.exec())
     {
-        projectFilePath = dialog.selectedFiles().first();
-        loadProjectFile(projectFilePath);
+        filePath = dialog.selectedFiles().first();
+        loadProjectFile(filePath);
     }
 
 }
+
+
+void MainWindow::reloadProjectSettings()
+{
+    loadProjectFile(_projectFilePath);
+}
+
+
 
 void MainWindow::prepareImageExport()
 {
@@ -349,6 +360,17 @@ void MainWindow::setSettingsObjectsState(bool bState)
     _ui->lineIP->setEnabled(bState);
     _ui->registerView->setEnabled(bState);
     _ui->actionLoadProjectFile->setEnabled(bState);
+
+    // if a project file is previously loaded, then it can be reloaded
+    if (_projectFilePath.isEmpty())
+    {
+        _ui->actionReloadProjectFile->setEnabled(false);
+    }
+    else
+    {
+        _ui->actionReloadProjectFile->setEnabled(bState);
+    }
+
     _ui->actionExportDataCsv->setEnabled(bState);
     _ui->actionExportImage->setEnabled(bState);
 }
@@ -399,6 +421,12 @@ void MainWindow::loadProjectFile(QString dataFilePath)
         if (fileParser.parseFile(file, &loadedSettings))
         {
             updateBoxes(&loadedSettings);
+
+            _projectFilePath = dataFilePath;
+            setWindowTitle(QString(tr("%1 - %2")).arg(_cWindowTitle, QFileInfo(_projectFilePath).fileName()));
+
+            // Enable reload menu item
+            _ui->actionReloadProjectFile->setEnabled(true);
 
             // Set scaling to default
             // TODO: get scaling values from project file

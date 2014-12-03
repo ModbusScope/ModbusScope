@@ -42,6 +42,7 @@ private slots:
     void exitApplication();
     void prepareDataExport();
     void loadProjectSettings();
+    void reloadProjectSettings();
     void prepareImageExport();
     void updateYMin(int newMin);
     void updateYMax(int newMax);
@@ -70,6 +71,7 @@ private:
     QLabel * _statusState;
     QButtonGroup * _xAxisScaleGroup;
     QButtonGroup * _yAxisScaleGroup;
+    QString _projectFilePath;
 
     static const QString _cWindowTitle;
     static const QString _cStateRunning;

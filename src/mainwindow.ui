@@ -344,6 +344,7 @@
      <string>File</string>
     </property>
     <addaction name="actionLoadProjectFile"/>
+    <addaction name="actionReloadProjectFile"/>
     <addaction name="separator"/>
     <addaction name="actionExportDataCsv"/>
     <addaction name="actionExportImage"/>
@@ -409,6 +410,14 @@
   <action name="actionAbout">
    <property name="text">
     <string>About...</string>
+   </property>
+  </action>
+  <action name="actionReloadProjectFile">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Reload Project File</string>
    </property>
   </action>
  </widget>
