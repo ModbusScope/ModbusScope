@@ -40,6 +40,8 @@ public slots:
 
 private:
 
+    static bool sortRegisterByAddress(const RegisterData& s1, const RegisterData& s2);
+
     bool IsAlreadyPresent(quint16 newReg);
     quint16 getNextFreeAddress();
 

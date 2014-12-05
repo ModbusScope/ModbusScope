@@ -342,7 +342,7 @@ void MainWindow::removeRegister()
 
     // sort QModelIndexList
     // We need to remove the highest rows first
-    qSort(rowList.begin(), rowList.end(), &MainWindow::sortRegistersLastFirst);
+    std::sort(rowList.begin(), rowList.end(), &MainWindow::sortRegistersLastFirst);
 
     foreach(QModelIndex rowIndex, rowList)
     {

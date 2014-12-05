@@ -5,8 +5,6 @@
 #include "scopegui.h"
 #include "QTimer"
 #include "QDateTime"
-#include "QDebug"
-
 #include "scopedata.h"
 
 ScopeData::ScopeData(QObject *parent) :

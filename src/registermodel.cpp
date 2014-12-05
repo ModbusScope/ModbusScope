@@ -222,6 +222,9 @@ void RegisterModel::getRegisterList(QList<quint16> * pRegisterList)
     }
 }
 
+/*
+ *  Get sorted list of checked register addresses
+ */
 void RegisterModel::getCheckedRegisterList(QList<quint16> * pRegisterList)
 {
     pRegisterList->clear();
@@ -232,23 +235,42 @@ void RegisterModel::getCheckedRegisterList(QList<quint16> * pRegisterList)
             pRegisterList->append(dataList[i].reg);
         }
     }
+
+    // sort list
+    qSort(*pRegisterList);
 }
 
+/*
+ *  Get list of checked register texts (sorted on register address)
+ */
 void RegisterModel::getCheckedRegisterTextList(QList<QString> * pRegisterTextList)
 {
     pRegisterTextList->clear();
+
+    QList<RegisterData> sortedRegisterList;
+
+    // Get checked registers
     for (int i = 0; i < dataList.size(); i++)
     {
         if (dataList[i].bActive)
         {
-            // Set default text with register address when there is no text
-            if (dataList[i].text.isEmpty())
-            {
-                dataList[i].text = QString("Register %1").arg(dataList[i].reg);
-            }
-
-            pRegisterTextList->append(dataList[i].text);
+            sortedRegisterList.append(dataList[i]);
         }
+    }
+
+    // Sort by register address
+    std::sort(sortedRegisterList.begin(), sortedRegisterList.end(), &RegisterModel::sortRegisterByAddress);
+
+    // Create text list
+    for (int i = 0; i < sortedRegisterList.size(); i++)
+    {
+        // Set default text with register address when there is no text
+        if (sortedRegisterList[i].text.isEmpty())
+        {
+            sortedRegisterList[i].text = QString("Register %1").arg(sortedRegisterList[i].reg);
+        }
+
+        pRegisterTextList->append(sortedRegisterList[i].text);
     }
 }
 
@@ -267,6 +289,11 @@ void RegisterModel::appendRow(RegisterData rowData)
     dataList[dataList.size() - 1].bActive = rowData.bActive;
     dataList[dataList.size() - 1].reg = rowData.reg;
     dataList[dataList.size() - 1].text = rowData.text;
+}
+
+bool RegisterModel::sortRegisterByAddress(const RegisterData& s1, const RegisterData& s2)
+{
+    return s1.reg < s2.reg;
 }
 
 bool RegisterModel::IsAlreadyPresent(quint16 newReg)
