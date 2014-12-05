@@ -69,24 +69,69 @@ void ModbusMaster::readRegisterList(ModbusSettings * pSettings, QList<quint16> *
         /* Set modbus slave */
         modbus_set_slave(pCtx, pSettings->getSlaveId());
 
-        // TODO: optimize reads
-        for (qint32 i = 0; i < pRegisterList->size(); i++)
+        // Do optimized reads
+        qint32 regIndex = 0;
+        while (regIndex < pRegisterList->size())
         {
+            quint32 count = 0;
 
-            /* handle failure correctly */
+            // get number of subsequent registers
+            if ((pRegisterList->size() - regIndex) > 1)
+            {
+                bool bSubsequent;
+                do
+                {
+                    bSubsequent = false;
+
+                    // if next is current + 1, dan subsequent = true
+                    if (pRegisterList->at(regIndex + count + 1) == pRegisterList->at(regIndex + count) + 1)
+                    {
+                        bSubsequent = true;
+                        count++;
+                    }
+
+                    // Break loop when end of list
+                    if ((regIndex + count) >= ((uint)pRegisterList->size() - 1))
+                    {
+                        break;
+                    }
+
+                    // Limit number of register in 1 read
+                    if (count > (_cMaxRegistersInOneRead - 1 - 1))
+                    {
+                        break;
+                    }
+
+                } while(bSubsequent == true);
+            }
+
+            // At least one register
+            count++;
+
+            // Read registers
             QList<quint16> registerDataList;
-            if (readRegisters(pCtx, pRegisterList->at(i) - 40001, 1, &registerDataList) == 0)
+            if (readRegisters(pCtx, pRegisterList->at(regIndex) - 40001, count, &registerDataList) == 0)
             {
                 success++;
-                registerList.append(registerDataList[0]);
-                resultList.append(true);
+                registerList.append(registerDataList);
+                for (uint i = 0; i < count; i++)
+                {
+                    resultList.append(true);
+                }
             }
             else
             {
                 error++;
-                registerList.append(0);
-                resultList.append(false);
+                for (uint i = 0; i < count; i++)
+                {
+                    registerList.append(0);
+                    resultList.append(false);
+                }
             }
+
+
+            // Set register index to next register
+            regIndex += count;
         }
 
         closePort(pCtx); /* Close port */
