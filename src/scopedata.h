@@ -19,6 +19,9 @@ public:
 
     bool startCommunication(ModbusSettings * pSettings, QList<quint16> registers);
     void stopCommunication();
+    qint64 getCommunicationStartTime();
+    qint64 getCommunicationEndTime();
+    void getCommunicationSettings(quint32 * successCount, quint32 * errorCount);
 
 public slots:
     void processCommStats(quint32 success,quint32 error);
@@ -42,6 +45,8 @@ private:
 
     quint32 _successCount;
     quint32 _errorCount;
+    qint64 _startTime;
+    qint64 _endTime;
 
     qint64 _lastPollStart;
 

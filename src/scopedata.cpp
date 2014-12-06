@@ -58,6 +58,8 @@ bool ScopeData::startCommunication(ModbusSettings * pSettings, QList<quint16> re
         _successCount = 0;
         _errorCount = 0;
 
+        _startTime = QDateTime::currentMSecsSinceEpoch();
+
         // Trigger read immediatly
         _timer->singleShot(1, this, SLOT(readData()));
 
@@ -108,6 +110,23 @@ void ScopeData::masterStopped()
 void ScopeData::stopCommunication()
 {
     _active = false;
+    _endTime = QDateTime::currentMSecsSinceEpoch();
+}
+
+qint64 ScopeData::getCommunicationStartTime()
+{
+    return _startTime;
+}
+
+qint64 ScopeData::getCommunicationEndTime()
+{
+    return _endTime;
+}
+
+void ScopeData::getCommunicationSettings(quint32 * successCount, quint32 * errorCount)
+{
+    *successCount = _successCount;
+    *errorCount = _errorCount;
 }
 
 void ScopeData::readData()

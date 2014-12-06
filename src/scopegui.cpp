@@ -13,12 +13,13 @@ const QList<QColor> ScopeGui::_colorlist = QList<QColor>() << QColor("blue")
                                                            << QColor("black")
                                                            ;
 
-ScopeGui::ScopeGui(MainWindow *window, QCustomPlot * pPlot, QObject *parent) :
+ScopeGui::ScopeGui(MainWindow *window, ScopeData *scopedata, QCustomPlot * pPlot, QObject *parent) :
    QObject(parent)
 {
 
    _pPlot = pPlot;
    _window = window;
+   _scopedata = scopedata;
 
    _pPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes);
 
@@ -83,9 +84,6 @@ void ScopeGui::setupGraph(QList<QString> registerTextList)
    _pPlot->replot();
    _pPlot->legend->setVisible(true);
 
-
-   _startTime = QDateTime::currentMSecsSinceEpoch();
-
 }
 
 void ScopeGui::setxAxisScale(AxisScaleOptions scaleMode)
@@ -118,7 +116,7 @@ void ScopeGui::setyAxisScale(AxisScaleOptions scaleMode, qint32 min, qint32 max)
 
 void ScopeGui::plotResults(QList<bool> successList, QList<quint16> valueList)
 {
-    const quint64 diff = QDateTime::currentMSecsSinceEpoch() - _startTime;
+    const quint64 diff = QDateTime::currentMSecsSinceEpoch() - _scopedata->getCommunicationStartTime();
 
     for (qint32 i = 0; i < valueList.size(); i++)
     {
@@ -174,18 +172,24 @@ void ScopeGui::exportDataCsv(QString dataFile)
         const QList<double> keyList = _pPlot->graph(0)->data()->keys();
         QList<QList<QCPData> > dataList;
         QString logData;
+        QDateTime dt;
         QString line;
 
-        line.append("ModbusScope version;");
-        line.append(APP_VERSION);
-        line.append("\n");
-        logData.append(line);
+        logData.append("ModbusScope version;" + QString(APP_VERSION) + "\n");
 
-        QDateTime dt;
-        dt = QDateTime::fromMSecsSinceEpoch(_startTime);
-        line.clear();
-        line.append("Start time;" + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
-        logData.append(line);
+        // Save start time
+        dt = QDateTime::fromMSecsSinceEpoch(_scopedata->getCommunicationStartTime());
+        logData.append("Start time;" + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
+
+        // Save end time
+        dt = QDateTime::fromMSecsSinceEpoch(_scopedata->getCommunicationEndTime());
+        logData.append("End time;" + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
+
+        quint32 success;
+        quint32 error;
+        _scopedata->getCommunicationSettings(&success, &error);
+        logData.append("Communication success;" + QString::number(success) + "\n");
+        logData.append("Communication errors;" + QString::number(error) + "\n");
 
         logData.append("\n");
 

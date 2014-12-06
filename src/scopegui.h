@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QVector>
 
+#include "scopedata.h"
 #include "mainwindow.h"
 
 // Foward declaration
@@ -13,7 +14,7 @@ class ScopeGui : public QObject
 {
     Q_OBJECT
 public:
-    explicit ScopeGui(MainWindow * window, QCustomPlot * pPlot, QObject *parent);
+    explicit ScopeGui(MainWindow * window, ScopeData * scopedata, QCustomPlot * pPlot, QObject *parent);
 
     typedef enum
     {
@@ -70,16 +71,17 @@ private:
     } GuiSettings;
 
     QCustomPlot * _pPlot;
-    qint64 _startTime;
 
     static const QList<QColor> _colorlist;
 
     MainWindow * _window;
+    ScopeData * _scopedata;
 
     QVector<QString> tickLabels;
     QList<QString> graphNames;
 
     GuiSettings _settings;
+
 
     static const quint32 _cMinuteTripPoint = 5*60*1000; /* in ms */
     static const quint32 _cHourTripPoint = 10*60*60*1000; /* in ms */

@@ -45,7 +45,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
      _ui->registerView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     _scope = new ScopeData();
-    _gui = new ScopeGui(this, _ui->customPlot, this);
+    _gui = new ScopeGui(this, _scope, _ui->customPlot, this);
 
     _projectFilePath = QString("");
 
