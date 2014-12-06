@@ -65,9 +65,20 @@ void ModbusMaster::readRegisterList(ModbusSettings * pSettings, QList<quint16> *
     modbus_t * pCtx = openPort(pSettings->getIpAddress(), pSettings->getPort());
     if (pCtx)
     {
-
         /* Set modbus slave */
         modbus_set_slave(pCtx, pSettings->getSlaveId());
+
+        struct timeval timeInterval;
+
+        // Disable byte time-out
+        timeInterval.tv_sec = -1;
+        timeInterval.tv_usec = 0;
+        modbus_set_byte_timeout(pCtx, &timeInterval);
+
+        // Set response timeout
+        timeInterval.tv_sec = pSettings->getTimeout() / 1000;
+        timeInterval.tv_usec = (pSettings->getTimeout() % 1000) * 1000uL;
+        modbus_set_response_timeout(pCtx, &timeInterval);
 
         // Do optimized reads
         qint32 regIndex = 0;

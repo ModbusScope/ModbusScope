@@ -131,6 +131,7 @@ void MainWindow::startScope()
             _commSettings.setIpAddress(_ui->lineIP->text());
             _commSettings.setPort(_ui->spinPort->text().toInt());
             _commSettings.setSlaveId(_ui->spinSlaveId->text().toInt());
+            _commSettings.setTimeout(_ui->spinTimeout->text().toUInt());
             _commSettings.setPollTime(pollTime);
 
             _ui->actionStart->setEnabled(false);
@@ -357,6 +358,7 @@ void MainWindow::setSettingsObjectsState(bool bState)
     _ui->spinPollTime->setEnabled(bState);
     _ui->btnRemove->setEnabled(bState);
     _ui->spinSlaveId->setEnabled(bState);
+    _ui->spinTimeout->setEnabled(bState);
     _ui->lineIP->setEnabled(bState);
     _ui->registerView->setEnabled(bState);
     _ui->actionLoadProjectFile->setEnabled(bState);
@@ -395,6 +397,11 @@ void MainWindow::updateBoxes(ProjectFileParser::ProjectSettings * pProjectSettin
     if (pProjectSettings->general.bSlaveId)
     {
         _ui->spinSlaveId->setValue(pProjectSettings->general.slaveId);
+    }
+
+    if (pProjectSettings->general.bTimeout)
+    {
+        _ui->spinTimeout->setValue(pProjectSettings->general.timeout);
     }
 
 

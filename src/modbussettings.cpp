@@ -12,6 +12,7 @@ void ModbusSettings::copy(const ModbusSettings * pSettings)
     this->_port = pSettings->_port;
     this->_slaveId = pSettings->_slaveId;
     this->_pollTime = pSettings->_pollTime;
+    this->_timeout = pSettings->_timeout;
 }
 
 
@@ -30,19 +31,19 @@ void ModbusSettings::setPort(quint16 port)
     this->_port = port;
 }
 
-void ModbusSettings::setPollTime(quint32 pollTime)
-{
-    this->_pollTime = pollTime;
-}
-
 quint16 ModbusSettings::getPort()
 {
     return this->_port;
 }
 
-void ModbusSettings::setSlaveId(quint8 id)
+void ModbusSettings::setPollTime(quint32 pollTime)
 {
-    this->_slaveId = id;
+    this->_pollTime = pollTime;
+}
+
+quint32 ModbusSettings::getPollTime()
+{
+    return this->_pollTime;
 }
 
 quint8 ModbusSettings::getSlaveId()
@@ -50,7 +51,17 @@ quint8 ModbusSettings::getSlaveId()
     return this->_slaveId;
 }
 
-quint32 ModbusSettings::getPollTime()
+void ModbusSettings::setSlaveId(quint8 id)
 {
-    return this->_pollTime;
+    this->_slaveId = id;
+}
+
+quint32 ModbusSettings::getTimeout()
+{
+    return this->_timeout;
+}
+
+void ModbusSettings::setTimeout(quint32 timeout)
+{
+    this->_timeout = timeout;
 }

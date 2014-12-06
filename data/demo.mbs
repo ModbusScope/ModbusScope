@@ -4,6 +4,7 @@
 		<port>502</port>
 		<polltime>1000</polltime>
 		<slaveid>1</slaveid>
+		<timeout>1000</timeout>
 		<unknown>1</unknown>
 	</modbus>
 	<scope>

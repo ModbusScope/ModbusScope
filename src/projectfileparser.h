@@ -36,6 +36,9 @@ public:
         bool bSlaveId;
         quint8 slaveId;
 
+        bool bTimeout;
+        quint32 timeout;
+
     } GeneralSettings;
 
     typedef struct

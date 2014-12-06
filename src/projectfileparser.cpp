@@ -111,6 +111,18 @@ bool ProjectFileParser::parseModbusTag(const QDomElement &element, GeneralSettin
                 break;
             }
         }
+        else if (child.tagName() == "timeout")
+        {
+            pGeneralSettings->bTimeout = true;
+            pGeneralSettings->timeout = child.text().toUInt(&bRet);
+            if (!bRet)
+            {
+                _msgBox.setText(tr("Timeout ( %1 ) is not a valid number").arg(child.text()));
+                _msgBox.exec();
+
+                break;
+            }
+        }
         else
         {
             // unkown tag: ignore
