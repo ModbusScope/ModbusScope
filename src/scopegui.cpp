@@ -185,6 +185,14 @@ void ScopeGui::exportDataCsv(QString dataFile)
         dt = QDateTime::fromMSecsSinceEpoch(_scopedata->getCommunicationEndTime());
         logData.append("End time;" + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
 
+        // Export communication settings
+        ModbusSettings commSettings;
+        _scopedata->getSettings(&commSettings);
+        logData.append("Slave IP;" + commSettings.getIpAddress() + ":" + QString::number(commSettings.getPort()) + "\n");
+        logData.append("Slave ID;" + QString::number(commSettings.getSlaveId()) + "\n");
+        logData.append("Time-out;" + QString::number(commSettings.getTimeout()) + "\n");
+        logData.append("Poll interval;" + QString::number(commSettings.getPollTime()) + "\n");
+
         quint32 success;
         quint32 error;
         _scopedata->getCommunicationSettings(&success, &error);

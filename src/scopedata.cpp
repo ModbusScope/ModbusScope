@@ -129,6 +129,11 @@ void ScopeData::getCommunicationSettings(quint32 * successCount, quint32 * error
     *errorCount = _errorCount;
 }
 
+void ScopeData::getSettings(ModbusSettings * pSettings)
+{
+    pSettings->copy(&_settings);
+}
+
 void ScopeData::readData()
 {
     if(_active)
