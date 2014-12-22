@@ -17,6 +17,13 @@ bool ProjectFileParser::parseFile(QIODevice *device, ProjectSettings *pSettings)
     qint32 errorLine;
     qint32 errorColumn;
 
+    // reset to defaults
+    pSettings->general.bIp = false;
+    pSettings->general.bPollTime = false;
+    pSettings->general.bPort = false;
+    pSettings->general.bSlaveId = false;
+    pSettings->general.bTimeout = false;
+
     if (!_domDocument.setContent(device, true, &errorStr, &errorLine, &errorColumn))
     {
         _msgBox.setText(tr("Parse error at line %1, column %2:\n%3")
