@@ -174,30 +174,31 @@ void ScopeGui::exportDataCsv(QString dataFile)
         QString logData;
         QDateTime dt;
         QString line;
+        QString comment = QString("//");
 
-        logData.append("ModbusScope version;" + QString(APP_VERSION) + "\n");
+        logData.append(comment + "ModbusScope version;" + QString(APP_VERSION) + "\n");
 
         // Save start time
         dt = QDateTime::fromMSecsSinceEpoch(_scopedata->getCommunicationStartTime());
-        logData.append("Start time;" + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
+        logData.append(comment + "Start time;" + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
 
         // Save end time
         dt = QDateTime::fromMSecsSinceEpoch(_scopedata->getCommunicationEndTime());
-        logData.append("End time;" + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
+        logData.append(comment + "End time;" + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
 
         // Export communication settings
         ModbusSettings commSettings;
         _scopedata->getSettings(&commSettings);
-        logData.append("Slave IP;" + commSettings.getIpAddress() + ":" + QString::number(commSettings.getPort()) + "\n");
-        logData.append("Slave ID;" + QString::number(commSettings.getSlaveId()) + "\n");
-        logData.append("Time-out;" + QString::number(commSettings.getTimeout()) + "\n");
-        logData.append("Poll interval;" + QString::number(commSettings.getPollTime()) + "\n");
+        logData.append(comment + "Slave IP;" + commSettings.getIpAddress() + ":" + QString::number(commSettings.getPort()) + "\n");
+        logData.append(comment + "Slave ID;" + QString::number(commSettings.getSlaveId()) + "\n");
+        logData.append(comment + "Time-out;" + QString::number(commSettings.getTimeout()) + "\n");
+        logData.append(comment + "Poll interval;" + QString::number(commSettings.getPollTime()) + "\n");
 
         quint32 success;
         quint32 error;
         _scopedata->getCommunicationSettings(&success, &error);
-        logData.append("Communication success;" + QString::number(success) + "\n");
-        logData.append("Communication errors;" + QString::number(error) + "\n");
+        logData.append(comment + "Communication success;" + QString::number(success) + "\n");
+        logData.append(comment + "Communication errors;" + QString::number(error) + "\n");
 
         logData.append("\n");
 

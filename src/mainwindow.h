@@ -47,6 +47,7 @@ private slots:
     void updateYMin(int newMin);
     void updateYMax(int newMax);
     void showAbout();
+    void importData();
 
 public slots:
     void updateStats(quint32 successCount, quint32 errorCount);
@@ -60,6 +61,7 @@ private:
     void setSettingsObjectsState(bool bState);
     void updateBoxes(ProjectFileParser::ProjectSettings *pProjectSettings);
     void loadProjectFile(QString dataFilePath);
+    void loadDataFile(QString dataFilePath);
 
     Ui::MainWindow * _ui;
     ScopeData * _scope;
