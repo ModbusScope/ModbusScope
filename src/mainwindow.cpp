@@ -96,6 +96,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_ui->actionExportDataCsv, SIGNAL(triggered()), this, SLOT(prepareDataExport()));
     connect(_ui->actionLoadProjectFile, SIGNAL(triggered()), this, SLOT(loadProjectSettings()));
     connect(_ui->actionReloadProjectFile, SIGNAL(triggered()), this, SLOT(reloadProjectSettings()));
+    connect(_ui->actionImportDataFile, SIGNAL(triggered()), this, SLOT(importData()));
     connect(_ui->actionExportImage, SIGNAL(triggered()), this, SLOT(prepareImageExport()));
     connect(_ui->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
 
@@ -136,6 +137,7 @@ void MainWindow::startScope()
 
             _ui->actionStart->setEnabled(false);
             _ui->actionStop->setEnabled(true);
+            _ui->actionImportDataFile->setEnabled(false);
 
             setSettingsObjectsState(false);
 
@@ -167,6 +169,7 @@ void MainWindow::stopScope()
 
     _ui->actionStart->setEnabled(true);
     _ui->actionStop->setEnabled(false);
+    _ui->actionImportDataFile->setEnabled(true);
 
     _statusState->setText(_cStateStopped);
 
@@ -450,6 +453,28 @@ void MainWindow::loadProjectFile(QString dataFilePath)
     }
 }
 
+void MainWindow::loadDataFile(QString dataFilePath)
+{
+    QFile* file = new QFile(dataFilePath);
+
+    /* If we can't open it, let's show an error message. */
+    if (file->open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        // If success, disable export data
+        _ui->actionExportDataCsv->setEnabled(false);
+
+
+
+    }
+    else
+    {
+        QMessageBox::critical(this,
+                              "ModbusScope",
+                              tr("Couldn't open data file: %1").arg(dataFilePath),
+                              QMessageBox::Ok);
+    }
+}
+
 void MainWindow::showAbout()
 {
     QString lnkAuthor("<a href='mailto:jensgeudens@hotmail.com'>jgeudens</a>");
@@ -476,6 +501,23 @@ void MainWindow::showAbout()
     msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
     msgBox.setText(aboutTxt);
     msgBox.exec();
+}
+
+void MainWindow::importData()
+{
+    QString filePath;
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    dialog.setAcceptMode(QFileDialog::AcceptOpen);
+    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
+    dialog.setWindowTitle(tr("Select csv file"));
+    dialog.setNameFilter(tr("csv files (*.csv)"));
+
+    if (dialog.exec())
+    {
+        filePath = dialog.selectedFiles().first();
+        loadDataFile(filePath);
+    }
 }
 
 bool MainWindow::sortRegistersLastFirst(const QModelIndex &s1, const QModelIndex &s2)

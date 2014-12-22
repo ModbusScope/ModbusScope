@@ -362,6 +362,7 @@
     </property>
     <addaction name="actionLoadProjectFile"/>
     <addaction name="actionReloadProjectFile"/>
+    <addaction name="actionImportDataFile"/>
     <addaction name="separator"/>
     <addaction name="actionExportDataCsv"/>
     <addaction name="actionExportImage"/>
@@ -435,6 +436,11 @@
    </property>
    <property name="text">
     <string>Reload Project File</string>
+   </property>
+  </action>
+  <action name="actionImportDataFile">
+   <property name="text">
+    <string>Import Data File...</string>
    </property>
   </action>
  </widget>
