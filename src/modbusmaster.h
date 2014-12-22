@@ -24,7 +24,7 @@ signals:
     void modbusCommDone(quint32 success,quint32 error);
 
 public slots:
-    void readRegisterList(ModbusSettings * pSettings, QList<quint16> * pRegisterList);
+    void readRegisterList(ModbusSettings settings, QList<quint16> registerList);
     void stopThread();
 
 private slots:
