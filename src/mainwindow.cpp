@@ -3,6 +3,7 @@
 #include "qcustomplot.h"
 #include "scopedata.h"
 #include "scopegui.h"
+#include "datafileparser.h"
 
 #include "QDebug"
 
@@ -463,7 +464,16 @@ void MainWindow::loadDataFile(QString dataFilePath)
         // If success, disable export data
         _ui->actionExportDataCsv->setEnabled(false);
 
+        DataFileParser dataParser(file);
+        DataFileParser::FileData data;
+        dataParser.processDataFile(&data);
 
+        for (qint32 i = 0; i < data.dataRows.at(0).size(); i++)
+        {
+            qDebug() << QString::number(data.dataRows.at(0).at(i)) << ";"
+                     << QString::number(data.dataRows.at(1).at(i)) << ";"
+                     << QString::number(data.dataRows.at(2).at(i));
+        }
 
     }
     else
