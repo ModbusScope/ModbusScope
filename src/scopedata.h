@@ -29,7 +29,7 @@ public slots:
     void handlePollDone(QList<bool> successList, QList<quint16> values);
 
 signals:
-    void registerRequest(ModbusSettings * pSettings, QList<quint16> * pRegisterList);
+    void registerRequest(ModbusSettings settings, QList<quint16> registerList);
     void requestStop();
     void handleReceivedData(QList<bool> successList, QList<quint16> values);
     void triggerStatUpdate(quint32 successCount, quint32 errorCount);
