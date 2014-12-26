@@ -1,5 +1,6 @@
 
 #include <QMessageBox>
+#include <QVector>
 
 #include "scopegui.h"
 #include "qcustomplot.h"
@@ -83,6 +84,30 @@ void ScopeGui::setupGraph(QList<QString> registerTextList)
 
    _pPlot->replot();
    _pPlot->legend->setVisible(true);
+
+}
+
+void ScopeGui::loadFileData(DataFileParser::FileData * pData)
+{
+    // Clear data
+    resetGraph();
+
+    // Init graphs, remove first label because is the time scale
+    QStringList labelList = QStringList(pData->dataLabel);
+    labelList.removeFirst();
+    setupGraph(labelList);
+
+    QVector<double> timeData = pData->dataRows.at(0).toVector();
+
+    //Add data to graphs
+    for (qint32 i = 1; i < pData->dataLabel.size(); i++)
+    {
+        QVector<double> graphData = pData->dataRows.at(i).toVector();
+        _pPlot->graph(i-1)->addData(timeData, graphData);
+    }
+
+    //Rescale
+    scalePlot();
 
 }
 

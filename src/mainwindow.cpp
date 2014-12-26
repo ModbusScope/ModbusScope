@@ -468,12 +468,13 @@ void MainWindow::loadDataFile(QString dataFilePath)
         DataFileParser::FileData data;
         dataParser.processDataFile(&data);
 
-        for (qint32 i = 0; i < data.dataRows.at(0).size(); i++)
-        {
-            qDebug() << QString::number(data.dataRows.at(0).at(i)) << ";"
-                     << QString::number(data.dataRows.at(1).at(i)) << ";"
-                     << QString::number(data.dataRows.at(2).at(i));
-        }
+        // Set to full auto scaling
+        changeXAxisScaling(ScopeGui::SCALE_AUTO);
+
+        // Set to full auto scaling
+        changeYAxisScaling(ScopeGui::SCALE_AUTO);
+
+        _gui->loadFileData(&data);
 
     }
     else

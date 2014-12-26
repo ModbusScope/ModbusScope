@@ -6,6 +6,7 @@
 
 #include "scopedata.h"
 #include "mainwindow.h"
+#include "datafileparser.h"
 
 // Foward declaration
 class QCustomPlot;
@@ -26,6 +27,7 @@ public:
 
     void resetGraph(void);
     void setupGraph(QList<QString> registerTextList);
+    void loadFileData(DataFileParser::FileData * pData);
     void setxAxisScale(AxisScaleOptions scaleMode);
     void setxAxisScale(AxisScaleOptions scaleMode, quint32 interval);
 

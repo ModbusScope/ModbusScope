@@ -59,28 +59,6 @@ bool DataFileParser::processDataFile(FileData * pData)
         _expectedFields = pData->dataLabel.size();
     }
 
-#if 0
-    // Read seconds line of data (register address)
-    if (bRet)
-    {
-        if (readLineFromFile(&line))
-        {
-            pData->dataRegister.clear();
-            pData->dataRegister.append(line.split(";"));
-            if ((qint32)_expectedFields != pData->dataRegister.size())
-            {
-                showError(tr("Too many data header columns (while processing register line)"));
-                bRet = false;
-            }
-        }
-        else
-        {
-            showError(tr("Invalid data file (error while reading file)"));
-            bRet = false;
-        }
-    }
-#endif
-
     // read data
     if (bRet)
     {
@@ -90,7 +68,7 @@ bool DataFileParser::processDataFile(FileData * pData)
     return bRet;
 }
 
-bool DataFileParser::parseDataLines(QList<QList<qint64> > & dataRows)
+bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
 {
     QString line;
     bool bRet = true;
@@ -100,7 +78,7 @@ bool DataFileParser::parseDataLines(QList<QList<qint64> > & dataRows)
     bResult = readLineFromFile(&line);
 
     // Init data row QLists to empty list
-    QList<qint64> t;
+    QList<double> t;
     for (quint32 i = 0; i < _expectedFields; i++)
     {
         dataRows.append(t);
@@ -119,7 +97,7 @@ bool DataFileParser::parseDataLines(QList<QList<qint64> > & dataRows)
         for (qint32 i = 0; i < paramList.size(); i++)
         {
             bool bError = false;
-            const qint64 number = paramList[i].toLongLong(&bError);
+            const double number = paramList[i].toDouble(&bError);
 
             if (bError == false)
             {

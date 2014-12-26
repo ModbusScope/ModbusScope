@@ -15,8 +15,7 @@ public:
     typedef struct
     {
         QStringList dataLabel;
-        QStringList dataRegister;
-        QList<QList<qint64> > dataRows;
+        QList<QList<double> > dataRows;
 
     } FileData;
 
@@ -25,7 +24,7 @@ public:
     bool processDataFile(FileData * pData);
 
 private:
-    bool parseDataLines(QList<QList<qint64> > &dataRows);
+    bool parseDataLines(QList<QList<double> > &dataRows);
     void showError(QString text);
     bool readLineFromFile(QString *pLine);
 
