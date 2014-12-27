@@ -24,6 +24,21 @@ ScopeGui::ScopeGui(MainWindow *window, ScopeData *scopedata, QCustomPlot * pPlot
 
    _pPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes);
 
+   // disable anti aliasing while dragging
+   _pPlot->setNoAntialiasingOnDrag(true);
+
+   /*
+    * Greatly improves performance
+    *
+    * phFastPolylines	Graph/Curve lines are drawn with a faster method. This reduces the quality especially
+    *                   of the line segment joins. (Only relevant for solid line pens.)
+    * phForceRepaint	causes an immediate repaint() instead of a soft update() when QCustomPlot::replot()
+    *                   is called with parameter QCustomPlot::rpHint. This is set by default to prevent the
+    *                   plot from freezing on fast consecutive replots (e.g. user drags ranges with mouse).
+    * phCacheLabels		axis (tick) labels will be cached as pixmaps, increasing replot performance.
+    * */
+   _pPlot->setPlottingHints(QCP::phCacheLabels | QCP::phFastPolylines | QCP::phForceRepaint);
+
    _pPlot->xAxis->setTickLabelType(QCPAxis::ltNumber);
    _pPlot->xAxis->setNumberFormat("gb");
    _pPlot->xAxis->setRange(0, 10000);
