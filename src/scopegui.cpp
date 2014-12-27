@@ -114,20 +114,32 @@ void ScopeGui::loadFileData(DataFileParser::FileData * pData)
 void ScopeGui::setxAxisScale(AxisScaleOptions scaleMode)
 {
     _settings.scaleXSetting = scaleMode;
-    scalePlot();
+
+    if (scaleMode != SCALE_MANUAL)
+    {
+        scalePlot();
+    }
 }
 
 void ScopeGui::setxAxisScale(AxisScaleOptions scaleMode, quint32 interval)
 {
     _settings.scaleXSetting = scaleMode;
     _settings.xslidingInterval = interval * 1000;
-    scalePlot();
+
+    if (scaleMode != SCALE_MANUAL)
+    {
+        scalePlot();
+    }
 }
 
 void ScopeGui::setyAxisScale(AxisScaleOptions scaleMode)
 {
     _settings.scaleYSetting = scaleMode;
-    scalePlot();
+
+    if (scaleMode != SCALE_MANUAL)
+    {
+        scalePlot();
+    }
 }
 
 
@@ -136,7 +148,11 @@ void ScopeGui::setyAxisScale(AxisScaleOptions scaleMode, qint32 min, qint32 max)
     _settings.scaleYSetting = scaleMode;
     _settings.yMin = min;
     _settings.yMax = max;
-    scalePlot();
+
+    if (scaleMode != SCALE_MANUAL)
+    {
+        scalePlot();
+    }
 }
 
 void ScopeGui::plotResults(QList<bool> successList, QList<quint16> valueList)
