@@ -11,9 +11,9 @@ ScopeData::ScopeData(QObject *parent) :
     QObject(parent), _master(NULL), _active(false), _timer(new QTimer()), _successCount(0), _errorCount(0)
 {
 
-    qRegisterMetaType<QList<quint16> *>("QList<quint16> *");
     qRegisterMetaType<QList<quint16> >("QList<quint16>");
     qRegisterMetaType<QList<bool> >("QList<bool>");
+    qRegisterMetaType<ModbusSettings>("ModbusSettings");
 
     _registerlist.clear();
 
@@ -27,7 +27,7 @@ ScopeData::ScopeData(QObject *parent) :
 
     _master->startThread();
 
-    connect(this, SIGNAL(registerRequest(ModbusSettings *, QList<quint16> *)), _master, SLOT(readRegisterList(ModbusSettings *, QList<quint16> *)));
+    connect(this, SIGNAL(registerRequest(ModbusSettings, QList<quint16>)), _master, SLOT(readRegisterList(ModbusSettings, QList<quint16>)));
     connect(_master, SIGNAL(modbusPollDone(QList<bool>, QList<quint16>)), this, SLOT(handlePollDone(QList<bool>, QList<quint16>)));
     connect(_master, SIGNAL(modbusCommDone(quint32, quint32)), this, SLOT(processCommStats(quint32, quint32)));
 }
@@ -139,7 +139,7 @@ void ScopeData::readData()
     if(_active)
     {
         _lastPollStart = QDateTime::currentMSecsSinceEpoch();
-        emit registerRequest(&_settings, &_registerlist);
+        emit registerRequest(_settings, _registerlist);
     }
 }
 
