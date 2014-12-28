@@ -24,6 +24,16 @@ public:
 
     typedef struct
     {
+        bool bSliding;
+        quint32 slidingInterval;
+
+        bool bMinMax;
+        qint32 scaleMin;
+        qint32 scaleMax;
+    } ScaleSettings;
+
+    typedef struct
+    {
         bool bIp;
         QString ip;
 
@@ -45,6 +55,7 @@ public:
     {
         GeneralSettings general;
         ScopeSettings scope;
+        ScaleSettings scale;
     } ProjectSettings;
 
     explicit ProjectFileParser();
@@ -58,8 +69,13 @@ public slots:
 private:
 
     bool parseModbusTag(const QDomElement &element, GeneralSettings *pGeneralSettings);
+
     bool parseScopeTag(const QDomElement &element, ScopeSettings *pScopeSettings);
     bool parseVariableTag(const QDomElement &element, RegisterSettings *pRegisterSettings);
+
+    bool parseScaleTag(const QDomElement &element, ScaleSettings *pScaleSettings);
+    bool parseScaleXAxis(const QDomElement &element, ScaleSettings *pScaleSettings);
+    bool parseScaleYAxis(const QDomElement &element, ScaleSettings *pScaleSettings);
 
     QDomDocument _domDocument;
 

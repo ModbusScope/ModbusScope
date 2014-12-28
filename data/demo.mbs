@@ -26,4 +26,14 @@
 		
 		<unknowntag>1</unknowntag>
 	</scope>
+	
+	<scale>
+		<xaxis mode="sliding">
+			<slidinginterval>20</slidinginterval>
+		</xaxis>
+		<yaxis mode="minmax">
+			<min>0</min>
+			<max>25</max>
+		</yaxis>
+	</scale>
 </modbusscope>

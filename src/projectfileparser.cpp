@@ -23,6 +23,8 @@ bool ProjectFileParser::parseFile(QIODevice *device, ProjectSettings *pSettings)
     pSettings->general.bPort = false;
     pSettings->general.bSlaveId = false;
     pSettings->general.bTimeout = false;
+    pSettings->scale.bSliding = false;
+    pSettings->scale.bMinMax = false;
 
     if (!_domDocument.setContent(device, true, &errorStr, &errorLine, &errorColumn))
     {
@@ -59,6 +61,14 @@ bool ProjectFileParser::parseFile(QIODevice *device, ProjectSettings *pSettings)
                 else if (tag.tagName() == "scope")
                 {
                     bRet = parseScopeTag(tag, &pSettings->scope);
+                    if (!bRet)
+                    {
+                        break;
+                    }
+                }
+                else if (tag.tagName() == "scale")
+                {
+                    bRet = parseScaleTag(tag, &pSettings->scale);
                     if (!bRet)
                     {
                         break;
@@ -231,6 +241,158 @@ bool ProjectFileParser::parseVariableTag(const QDomElement &element, RegisterSet
             // unkown tag: ignore
         }
         child = child.nextSiblingElement();
+    }
+
+    return bRet;
+}
+
+
+bool ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleSettings *pScaleSettings)
+{
+    bool bRet = true;
+    QDomElement child = element.firstChildElement();
+    while (!child.isNull())
+    {
+        if (child.tagName() == "xaxis")
+        {
+            // Check attribute
+            QString active = child.attribute("mode");
+
+            if (!active.toLower().compare("sliding"))
+            {
+                // Sliding interval mode
+                pScaleSettings->bSliding = true;
+
+                bRet = parseScaleXAxis(child, pScaleSettings);
+                if (!bRet)
+                {
+                    break;
+                }
+            }
+        }
+        else if (child.tagName() == "yaxis")
+        {
+            // Check attribute
+            QString active = child.attribute("mode");
+
+            if (!active.toLower().compare("minmax"))
+            {
+                // min max mode
+                pScaleSettings->bMinMax = true;
+
+                bRet = parseScaleYAxis(child, pScaleSettings);
+                if (!bRet)
+                {
+                    break;
+                }
+            }
+        }
+        else
+        {
+            // unkown tag: ignore
+        }
+        child = child.nextSiblingElement();
+    }
+
+    return bRet;
+}
+
+bool ProjectFileParser::parseScaleXAxis(const QDomElement &element, ScaleSettings *pScaleSettings)
+{
+    bool bRet = true;
+    bool bSlidingInterval = false;
+
+    // Check nodes
+    QDomElement child = element.firstChildElement();
+    while (!child.isNull())
+    {
+        if (child.tagName() == "slidinginterval")
+        {
+            pScaleSettings->slidingInterval = child.text().toUInt(&bRet);
+            if (bRet)
+            {
+                bSlidingInterval = true;
+            }
+            else
+            {
+                _msgBox.setText(tr("Scale (x-axis) has an incorrect sliding interval. \"%1\" is not a valid number").arg(child.text()));
+                _msgBox.exec();
+                break;
+            }
+        }
+        else
+        {
+            // unkown tag: ignore
+        }
+        child = child.nextSiblingElement();
+    }
+
+    if (!bSlidingInterval)
+    {
+        _msgBox.setText(tr("If x-axis has sliding window scaling then slidinginterval variable should be defined."));
+        _msgBox.exec();
+        bRet = false;
+    }
+
+    return bRet;
+}
+
+bool ProjectFileParser::parseScaleYAxis(const QDomElement &element, ScaleSettings *pScaleSettings)
+{
+    bool bRet = true;
+    bool bMin = false;
+    bool bMax = false;
+
+    // Check nodes
+    QDomElement child = element.firstChildElement();
+    while (!child.isNull())
+    {
+        if (child.tagName() == "min")
+        {
+            pScaleSettings->scaleMin = child.text().toInt(&bRet);
+            if (bRet)
+            {
+                bMin = true;
+            }
+            else
+            {
+                _msgBox.setText(tr("Scale (y-axis) has an incorrect minimum. \"%1\" is not a valid number").arg(child.text()));
+                _msgBox.exec();
+                break;
+            }
+        }
+        else if (child.tagName() == "max")
+        {
+            pScaleSettings->scaleMax = child.text().toInt(&bRet);
+            if (bRet)
+            {
+                bMax = true;
+            }
+            else
+            {
+                _msgBox.setText(tr("Scale (y-axis) has an incorrect maximum. \"%1\" is not a valid number").arg(child.text()));
+                _msgBox.exec();
+                break;
+            }
+        }
+        else
+        {
+            // unkown tag: ignore
+        }
+        child = child.nextSiblingElement();
+    }
+
+    if (!bMin)
+    {
+        _msgBox.setText(tr("If y-axis has min max scaling then min variable should be defined."));
+        _msgBox.exec();
+        bRet = false;
+    }
+    else if (!bMax)
+    {
+        _msgBox.setText(tr("If y-axis has min max scaling then max variable should be defined."));
+        _msgBox.exec();
+        bRet = false;
     }
 
     return bRet;
