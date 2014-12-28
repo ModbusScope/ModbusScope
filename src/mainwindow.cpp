@@ -407,6 +407,18 @@ void MainWindow::updateBoxes(ProjectFileParser::ProjectSettings * pProjectSettin
         _ui->spinTimeout->setValue(pProjectSettings->general.timeout);
     }
 
+    if (pProjectSettings->scale.bSliding)
+    {
+        _ui->spinSlidingXInterval->setValue(pProjectSettings->scale.slidingInterval);
+        _ui->radioXSliding->setChecked(true);
+    }
+
+    if (pProjectSettings->scale.bMinMax)
+    {
+        _ui->spinYMin->setValue(pProjectSettings->scale.scaleMin);
+        _ui->spinYMax->setValue(pProjectSettings->scale.scaleMax);
+        _ui->radioYMinMax->setChecked(true);
+    }
 
     _pRegisterModel->clear();
     for (qint32 i = 0; i < pProjectSettings->scope.registerList.size(); i++)
@@ -438,10 +450,6 @@ void MainWindow::loadProjectFile(QString dataFilePath)
             // Enable reload menu item
             _ui->actionReloadProjectFile->setEnabled(true);
 
-            // Set scaling to default
-            // TODO: get scaling values from project file
-            changeYAxisScaling(ScopeGui::SCALE_AUTO);
-            changeXAxisScaling(ScopeGui::SCALE_AUTO);
         }
     }
     else
