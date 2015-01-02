@@ -49,6 +49,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _gui = new ScopeGui(this, _scope, _ui->customPlot, this);
 
     _projectFilePath = QString("");
+    _lastDataFilePath = QString("");
 
     connect(_ui->spinSlidingXInterval, SIGNAL(valueChanged(int)), _gui, SLOT(setxAxisSlidingInterval(int)));
     connect(_ui->spinYMin, SIGNAL(valueChanged(int)), this, SLOT(updateYMin(int)));
@@ -193,9 +194,19 @@ void MainWindow::prepareDataExport()
     dialog.setWindowTitle(tr("Select csv file"));
     dialog.setNameFilter(tr("CSV files (*.csv)"));
 
+    if (_lastDataFilePath.trimmed().isEmpty())
+    {
+        dialog.setDirectory(QStandardPaths::displayName(QStandardPaths::DocumentsLocation));
+    }
+    else
+    {
+        dialog.setDirectory(QFileInfo(_lastDataFilePath).dir());
+    }
+
     if (dialog.exec())
     {
         filePath = dialog.selectedFiles().first();
+        _lastDataFilePath = filePath;
         emit dataExport(filePath);
     }
 }
@@ -209,6 +220,15 @@ void MainWindow::loadProjectSettings()
     dialog.setOption(QFileDialog::HideNameFilterDetails, false);
     dialog.setWindowTitle(tr("Select mbs file"));
     dialog.setNameFilter(tr("mbs files (*.mbs)"));
+
+    if (_projectFilePath.trimmed().isEmpty())
+    {
+        dialog.setDirectory(QStandardPaths::displayName(QStandardPaths::DocumentsLocation));
+    }
+    else
+    {
+        dialog.setDirectory(QFileInfo(_projectFilePath).dir());
+    }
 
     if (dialog.exec())
     {
@@ -237,9 +257,19 @@ void MainWindow::prepareImageExport()
     dialog.setWindowTitle(tr("Select png file"));
     dialog.setNameFilter(tr("PNG files (*.png)"));
 
+    if (_lastDataFilePath.trimmed().isEmpty())
+    {
+        dialog.setDirectory(QStandardPaths::displayName(QStandardPaths::DocumentsLocation));
+    }
+    else
+    {
+        dialog.setDirectory(QFileInfo(_lastDataFilePath).dir());
+    }
+
     if (dialog.exec())
     {
         filePath = dialog.selectedFiles().first();
+        _lastDataFilePath  = filePath;
         _gui->exportGraphImage(filePath);
     }
 }
@@ -533,9 +563,23 @@ void MainWindow::importData()
     dialog.setWindowTitle(tr("Select csv file"));
     dialog.setNameFilter(tr("csv files (*.csv)"));
 
+    if (_lastDataFilePath.trimmed().isEmpty())
+    {
+        QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+        if (docPath.size() > 0)
+        {
+            dialog.setDirectory(docPath[0]);
+        }
+    }
+    else
+    {
+        dialog.setDirectory(QFileInfo(_lastDataFilePath).dir());
+    }
+
     if (dialog.exec())
     {
         filePath = dialog.selectedFiles().first();
+        _lastDataFilePath = filePath;
         loadDataFile(filePath);
     }
 }

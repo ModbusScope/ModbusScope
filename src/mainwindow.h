@@ -74,6 +74,7 @@ private:
     QButtonGroup * _xAxisScaleGroup;
     QButtonGroup * _yAxisScaleGroup;
     QString _projectFilePath;
+    QString _lastDataFilePath;
 
     static const QString _cWindowTitle;
     static const QString _cStateRunning;
