@@ -82,7 +82,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     // Default to full auto scaling
     changeYAxisScaling(ScopeGui::SCALE_AUTO);
 
-    connect(_scope, SIGNAL(handleReceivedData(QList<bool>, QList<quint16>)), _gui, SLOT(plotResults(QList<bool>, QList<quint16>)));
+    connect(_scope, SIGNAL(handleReceivedData(QList<bool>, QList<qint32>)), _gui, SLOT(plotResults(QList<bool>, QList<qint32>)));
     connect(_scope, SIGNAL(triggerStatUpdate(quint32, quint32)), this, SLOT(updateStats(quint32, quint32)));
     connect(this, SIGNAL(dataExport(QString)), _gui, SLOT(exportDataCsv(QString)));
 
@@ -144,7 +144,7 @@ void MainWindow::startScope()
 
             _statusState->setText(_cStateRunning);
 
-            QList<quint16> regList;
+            QList<ScopeData::RegisterData> regList;
             _pRegisterModel->getCheckedRegisterList(&regList);
 
             if (_scope->startCommunication(&_commSettings, regList))
@@ -426,6 +426,7 @@ void MainWindow::updateBoxes(ProjectFileParser::ProjectSettings * pProjectSettin
     {
         RegisterModel::RegisterData rowData;
         rowData.bActive = pProjectSettings->scope.registerList[i].bActive;
+        rowData.bUnsigned = pProjectSettings->scope.registerList[i].bUnsigned;
         rowData.reg = pProjectSettings->scope.registerList[i].address;
         rowData.text = pProjectSettings->scope.registerList[i].text;
         _pRegisterModel->appendRow(rowData);

@@ -44,7 +44,7 @@ ScopeData::~ScopeData()
     delete _timer;
 }
 
-bool ScopeData::startCommunication(ModbusSettings * pSettings, QList<quint16> registers)
+bool ScopeData::startCommunication(ModbusSettings * pSettings, QList<RegisterData> registers)
 {
     bool bResetted = false;
 
@@ -52,7 +52,7 @@ bool ScopeData::startCommunication(ModbusSettings * pSettings, QList<quint16> re
     {
         _settings.copy(pSettings);
 
-        _registerlist.clear();
+        _registerlist.clear();        
         _registerlist.append(registers);
 
         _successCount = 0;
@@ -97,8 +97,22 @@ void ScopeData::handlePollDone(QList<bool> successList, QList<quint16> values)
 
     _timer->singleShot(waitInterval, this, SLOT(readData()));
 
-    // propagate data
-    emit handleReceivedData(successList, values);
+    // Process values
+    QList<qint32> processedValue;
+    for (qint32 i = 0; i < values.size(); i++)
+    {
+        if (_registerlist[i].bUnsigned)
+        {
+            processedValue.append(values[i]);
+        }
+        else
+        {
+            processedValue.append((qint16)values[i]);
+        }
+    }
+
+    // propagate processed data
+    emit handleReceivedData(successList, processedValue);
 }
 
 
@@ -139,7 +153,18 @@ void ScopeData::readData()
     if(_active)
     {
         _lastPollStart = QDateTime::currentMSecsSinceEpoch();
-        emit registerRequest(_settings, _registerlist);
+
+        QList<quint16> regAddrList;
+        for (qint32 i = 0; i < _registerlist.size(); i++)
+        {
+            regAddrList.append(_registerlist[i].reg);
+        }
+        emit registerRequest(_settings, regAddrList);
     }
 }
 
+
+bool ScopeData::sortRegisterDataList(const RegisterData& s1, const RegisterData& s2)
+{
+    return s1.reg < s2.reg;
+}

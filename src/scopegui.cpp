@@ -170,25 +170,21 @@ void ScopeGui::setyAxisScale(AxisScaleOptions scaleMode, qint32 min, qint32 max)
     }
 }
 
-void ScopeGui::plotResults(QList<bool> successList, QList<quint16> valueList)
+void ScopeGui::plotResults(QList<bool> successList, QList<qint32> valueList)
 {
     const quint64 diff = QDateTime::currentMSecsSinceEpoch() - _scopedata->getCommunicationStartTime();
 
     for (qint32 i = 0; i < valueList.size(); i++)
     {
-
         if (successList[i])
         {
             // No error, add points
             _pPlot->graph(i)->addData(diff, (double)valueList[i]);
-
             _pPlot->graph(i)->setName(QString("(%1) %2").arg(QString::number(valueList[i])).arg(graphNames[i]));
-
         }
         else
         {
             _pPlot->graph(i)->addData(diff, 0);
-
             _pPlot->graph(i)->setName(QString("(-) %1").arg(graphNames[i]));
         }
     }

@@ -17,7 +17,16 @@ public:
     explicit ScopeData(QObject *parent = 0);
     ~ScopeData();
 
-    bool startCommunication(ModbusSettings * pSettings, QList<quint16> registers);
+    typedef struct _RegisterData
+    {
+        _RegisterData() : bUnsigned(false) {}
+        quint16 reg;
+        bool bUnsigned;
+    } RegisterData;
+
+    static bool sortRegisterDataList(const RegisterData& s1, const RegisterData& s2);
+
+    bool startCommunication(ModbusSettings * pSettings, QList<RegisterData> registers);
     void stopCommunication();
     qint64 getCommunicationStartTime();
     qint64 getCommunicationEndTime();
@@ -31,7 +40,7 @@ public slots:
 signals:
     void registerRequest(ModbusSettings settings, QList<quint16> registerList);
     void requestStop();
-    void handleReceivedData(QList<bool> successList, QList<quint16> values);
+    void handleReceivedData(QList<bool> successList, QList<qint32> values);
     void triggerStatUpdate(quint32 successCount, quint32 errorCount);
 
 private slots:
@@ -52,7 +61,7 @@ private:
     qint64 _lastPollStart;
 
     ModbusSettings _settings;
-    QList<quint16> _registerlist;
+    QList<RegisterData> _registerlist;
 };
 
 #endif // MODBUSSCOPE_H

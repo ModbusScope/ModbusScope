@@ -236,10 +236,22 @@ bool ProjectFileParser::parseVariableTag(const QDomElement &element, RegisterSet
         {
             pRegisterSettings->text = child.text();
         }
+        else if (child.tagName() == "unsigned")
+        {
+            if (!child.text().toLower().compare("true"))
+            {
+                pRegisterSettings->bUnsigned = true;
+            }
+            else
+            {
+                pRegisterSettings->bUnsigned = false;
+            }
+        }
         else
         {
             // unkown tag: ignore
         }
+
         child = child.nextSiblingElement();
     }
 

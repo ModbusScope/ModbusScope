@@ -11,12 +11,14 @@
 		<var active="true">
 			<reg>40001</reg>
 			<text>Very interesting register</text>
-			<unknowntag2>1</unknowntag2>
+			<unsigned>true</unsigned>
+			<unknowntag2>true</unknowntag2>
 		</var>
 		<var>
 			<reg>40002</reg>
 			<text>Very interesting register 2</text>
-			<unknowntag2>1</unknowntag2>
+			<unsigned>false</unsigned>
+			<unknowntag2>false</unknowntag2>
 		</var>
 		<var active="false">
 			<reg>40003</reg>

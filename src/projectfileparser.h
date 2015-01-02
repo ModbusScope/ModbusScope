@@ -10,11 +10,14 @@ class ProjectFileParser : public QObject
     Q_OBJECT
 public:
 
-    typedef struct
+    typedef struct _RegisterSettings
     {
+        _RegisterSettings() : bActive(false), bUnsigned(false) {}
+
         quint16 address;
         QString text;
         bool bActive;
+        bool bUnsigned;
     } RegisterSettings;
 
     typedef struct
@@ -32,8 +35,10 @@ public:
         qint32 scaleMax;
     } ScaleSettings;
 
-    typedef struct
+    typedef struct _GeneralSettings
     {
+        _GeneralSettings() : bIp(false), bPort(false), bPollTime(false), bSlaveId(false), bTimeout(false) {}
+
         bool bIp;
         QString ip;
 

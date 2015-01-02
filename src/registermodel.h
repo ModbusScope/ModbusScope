@@ -2,6 +2,7 @@
 #define REGISTERMODEL_H
 
 #include <QAbstractTableModel>
+#include <scopedata.h>
 
 class RegisterModel : public QAbstractTableModel
 {
@@ -9,9 +10,11 @@ class RegisterModel : public QAbstractTableModel
 public:
     explicit RegisterModel(QObject *parent = 0);
 
-    typedef struct
+    typedef struct _RegisterData
     {
+        _RegisterData() : bActive(false), bUnsigned(false) {}
         bool bActive;
+        bool bUnsigned;
         quint16 reg;
         QString text;
     } RegisterData;
@@ -28,7 +31,7 @@ public:
 
     uint checkedRegisterCount();
     void getRegisterList(QList<quint16> * pRegisterList);
-    void getCheckedRegisterList(QList<quint16> * pRegisterList);
+    void getCheckedRegisterList(QList<ScopeData::RegisterData> *pRegisterList);
     void getCheckedRegisterTextList(QList<QString> * pRegisterTextList);
 
     void clear();

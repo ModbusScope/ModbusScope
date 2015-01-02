@@ -44,7 +44,7 @@ signals:
     void updateYScalingUi(int);
 
 public slots:
-    void plotResults(QList<bool> successList, QList<quint16> valueList);
+    void plotResults(QList<bool> successList, QList<qint32> valueList);
     void setxAxisSlidingInterval(int interval);
     void exportDataCsv(QString dataFile);
     void exportGraphImage(QString imageFile);
@@ -61,8 +61,10 @@ private:
     void writeToFile(QString filePath, QString logData);
     void scalePlot();
 
-    typedef struct
+    typedef struct _GuiSettings
     {
+        _GuiSettings() : scaleXSetting(SCALE_AUTO), scaleYSetting(SCALE_AUTO) {}
+
         AxisScaleOptions scaleXSetting;
         quint32 xslidingInterval;
 

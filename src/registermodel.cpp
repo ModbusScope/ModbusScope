@@ -18,10 +18,11 @@ int RegisterModel::columnCount(const QModelIndex & /*parent*/) const
 {
     /*
     * bActive
+    * bUnsigned
     * Register
     * Text
     * */
-    return 3; // Number of visible members of struct
+    return 4; // Number of visible members of struct
 }
 
 QVariant RegisterModel::data(const QModelIndex &index, int role) const
@@ -43,12 +44,25 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
         }
         break;
     case 1:
+        if (role == Qt::CheckStateRole)
+        {
+            if (dataList[index.row()].bUnsigned)
+            {
+                return Qt::Checked;
+            }
+            else
+            {
+                return Qt::Unchecked;
+            }
+        }
+        break;
+    case 2:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return dataList[index.row()].reg;
         }
         break;
-    case 2:
+    case 3:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return dataList[index.row()].text;
@@ -74,8 +88,10 @@ QVariant RegisterModel::headerData(int section, Qt::Orientation orientation, int
             case 0:
                 return QString("Active");
             case 1:
-                return QString("Register");
+                return QString("Unsigned");
             case 2:
+                return QString("Register");
+            case 3:
                 return QString("Text");
             default:
                 return QVariant();
@@ -111,6 +127,19 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
         }
         break;
     case 1:
+        if (role == Qt::CheckStateRole)
+        {
+            if (value == Qt::Checked)
+            {
+                dataList[index.row()].bUnsigned = true;
+            }
+            else
+            {
+                dataList[index.row()].bUnsigned = false;
+            }
+        }
+        break;
+    case 2:
         if (role == Qt::EditRole)
         {
             const quint16 newAddr = value.toInt();
@@ -127,7 +156,7 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
             }
         }
         break;
-    case 2:
+    case 3:
         if (role == Qt::EditRole)
         {
             dataList[index.row()].text = value.toString();
@@ -143,7 +172,10 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
 
 Qt::ItemFlags RegisterModel::flags(const QModelIndex & index) const
 {
-    if (index.column() == 0)
+    if (
+            (index.column() == 0)
+            || (index.column() == 1)
+        )
     {
         // checkable
         return Qt::ItemIsSelectable |  Qt::ItemIsUserCheckable | Qt::ItemIsEnabled ;
@@ -189,6 +221,7 @@ bool RegisterModel::insertRows (int row, int count, const QModelIndex &parent)
 
     RegisterData data;
     data.bActive = false;
+    data.bUnsigned = false;
     data.reg = getNextFreeAddress();
     data.text = QString("Register %1").arg(data.reg);
     dataList.append(data);
@@ -225,19 +258,24 @@ void RegisterModel::getRegisterList(QList<quint16> * pRegisterList)
 /*
  *  Get sorted list of checked register addresses
  */
-void RegisterModel::getCheckedRegisterList(QList<quint16> * pRegisterList)
+void RegisterModel::getCheckedRegisterList(QList<ScopeData::RegisterData> * pRegisterList)
 {
     pRegisterList->clear();
     for (int i = 0; i < dataList.size(); i++)
     {
         if (dataList[i].bActive)
         {
-            pRegisterList->append(dataList[i].reg);
+            ScopeData::RegisterData tmpData;
+            tmpData.bUnsigned = dataList[i].bUnsigned;
+            tmpData.reg = dataList[i].reg;
+
+            pRegisterList->append(tmpData);
         }
     }
 
-    // sort list
-    qSort(*pRegisterList);
+    // Sort by register address
+    std::sort(pRegisterList->begin(), pRegisterList->end(), &ScopeData::sortRegisterDataList);
+    //qSort(*pRegisterList);
 }
 
 /*
@@ -287,6 +325,7 @@ void RegisterModel::appendRow(RegisterData rowData)
     insertRows(dataList.size(), 1, QModelIndex());
 
     dataList[dataList.size() - 1].bActive = rowData.bActive;
+    dataList[dataList.size() - 1].bUnsigned = rowData.bUnsigned;
     dataList[dataList.size() - 1].reg = rowData.reg;
     dataList[dataList.size() - 1].text = rowData.text;
 }
