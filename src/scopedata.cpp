@@ -148,6 +148,11 @@ void ScopeData::getSettings(ModbusSettings * pSettings)
     pSettings->copy(&_settings);
 }
 
+bool ScopeData::isActive()
+{
+    return _active;
+}
+
 void ScopeData::readData()
 {
     if(_active)

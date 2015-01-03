@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QListWidgetItem>
 #include <QButtonGroup>
+#include <QTimer>
 
 #include "registermodel.h"
 #include "modbussettings.h"
@@ -48,6 +49,7 @@ private slots:
     void updateYMax(int newMax);
     void showAbout();
     void importData();
+    void UpdateRuntime();
 
 public slots:
     void updateStats(quint32 successCount, quint32 errorCount);
@@ -71,15 +73,19 @@ private:
 
     QLabel * _statusStats;
     QLabel * _statusState;
+    QLabel * _statusRuntime;
     QButtonGroup * _xAxisScaleGroup;
     QButtonGroup * _yAxisScaleGroup;
     QString _projectFilePath;
     QString _lastDataFilePath;
 
+    QTimer _runtimeTimer;
+
     static const QString _cWindowTitle;
     static const QString _cStateRunning;
     static const QString _cStateStopped;
     static const QString _cStatsTemplate;
+    static const QString _cRuntime;
 };
 
 #endif // MAINWINDOW_H

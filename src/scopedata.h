@@ -32,6 +32,7 @@ public:
     qint64 getCommunicationEndTime();
     void getCommunicationSettings(quint32 * successCount, quint32 * errorCount);
     void getSettings(ModbusSettings * pSettings);
+    bool isActive();
 
 public slots:
     void processCommStats(quint32 success,quint32 error);

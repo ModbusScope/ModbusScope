@@ -6,13 +6,14 @@
 #include "datafileparser.h"
 
 #include "QDebug"
-
+#include "QDateTime"
 
 
 const QString MainWindow::_cWindowTitle = QString("ModbusScope");
 const QString MainWindow::_cStateRunning = QString("Running");
 const QString MainWindow::_cStateStopped = QString("Stopped");
 const QString MainWindow::_cStatsTemplate = QString("Success: %1\tErrors: %2");
+const QString MainWindow::_cRuntime = QString("Runtime: %1");
 
 MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     QMainWindow(parent),
@@ -30,8 +31,11 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _statusState->setFrameStyle(QFrame::Panel | QFrame::Sunken);
     _statusStats = new QLabel("", this);
     _statusStats->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    _statusRuntime = new QLabel(_cRuntime.arg("0 hours, 0 minutes 0 seconds"), this);
+    _statusRuntime->setFrameStyle(QFrame::Panel | QFrame::Sunken);
 
     _ui->statusBar->addPermanentWidget(_statusState, 0);
+    _ui->statusBar->addPermanentWidget(_statusRuntime, 0);
     _ui->statusBar->addPermanentWidget(_statusStats, 2);
 
     // Setup registerView
@@ -144,6 +148,9 @@ void MainWindow::startScope()
             setSettingsObjectsState(false);
 
             _statusState->setText(_cStateRunning);
+            _statusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
+
+            _runtimeTimer.singleShot(250, this, SLOT(UpdateRuntime()));
 
             QList<ScopeData::RegisterData> regList;
             _pRegisterModel->getCheckedRegisterList(&regList);
@@ -581,6 +588,32 @@ void MainWindow::importData()
         filePath = dialog.selectedFiles().first();
         _lastDataFilePath = filePath;
         loadDataFile(filePath);
+    }
+}
+
+void MainWindow::UpdateRuntime()
+{
+    qint64 timePassed = QDateTime::currentMSecsSinceEpoch() - _scope->getCommunicationStartTime();
+
+    // Convert to s
+    timePassed /= 1000;
+
+    const quint32 h = (timePassed / 3600);
+    timePassed = timePassed % 3600;
+
+    const quint32 m = (timePassed / 60);
+    timePassed = timePassed % 60;
+
+    const quint32 s = timePassed;
+
+    QString strTimePassed = QString("%1 hours, %2 minutes %3 seconds").arg(h).arg(m).arg(s);
+
+    _statusRuntime->setText(_cRuntime.arg(strTimePassed));
+
+    // restart timer
+    if (_scope->isActive())
+    {
+        _runtimeTimer.singleShot(250, this, SLOT(UpdateRuntime()));
     }
 }
 
