@@ -512,15 +512,16 @@ void MainWindow::loadDataFile(QString dataFilePath)
 
         DataFileParser dataParser(file);
         DataFileParser::FileData data;
-        dataParser.processDataFile(&data);
+        if (dataParser.processDataFile(&data))
+        {
+            // Set to full auto scaling
+            changeXAxisScaling(ScopeGui::SCALE_AUTO);
 
-        // Set to full auto scaling
-        changeXAxisScaling(ScopeGui::SCALE_AUTO);
+            // Set to full auto scaling
+            changeYAxisScaling(ScopeGui::SCALE_AUTO);
 
-        // Set to full auto scaling
-        changeYAxisScaling(ScopeGui::SCALE_AUTO);
-
-        _gui->loadFileData(&data);
+            _gui->loadFileData(&data);
+        }
 
     }
     else

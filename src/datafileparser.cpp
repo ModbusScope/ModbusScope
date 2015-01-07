@@ -2,6 +2,7 @@
 #include <QtWidgets>
 #include <QMessageBox>
 #include "datafileparser.h"
+#include "scopegui.h"
 
 DataFileParser::DataFileParser(QFile *pDataFile)
 {
@@ -55,14 +56,23 @@ bool DataFileParser::processDataFile(FileData * pData)
     if (bRet)
     {
         pData->dataLabel.clear();
-        pData->dataLabel.append(line.split(";"));
+        pData->dataLabel.append(line.split(ScopeGui::getSeparatorCharacter()));
         _expectedFields = pData->dataLabel.size();
+    }
+
+    if (_expectedFields <= 1)
+    {
+        showError(QString(tr("No graph data is found. "
+                             "Are you sure the separator character is according to your locale?"
+                             "<br><br>Expected separator: \'%1\'")).arg(ScopeGui::getSeparatorCharacter()));
+
+        bRet = false;
     }
 
     // read data
     if (bRet)
     {
-        parseDataLines(pData->dataRows);
+        bRet = parseDataLines(pData->dataRows);
     }
 
     return bRet;
@@ -86,7 +96,7 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
 
     while (bResult && bRet)
     {
-        QStringList paramList = line.split(";");
+        QStringList paramList = line.split(ScopeGui::getSeparatorCharacter());
 
         if (paramList.size() != (qint32)_expectedFields)
         {
@@ -152,6 +162,7 @@ void DataFileParser::showError(QString text)
     msgBox.setIcon(QMessageBox::Warning);
     msgBox.setText(text);
     msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.exec();
 }
 
 
