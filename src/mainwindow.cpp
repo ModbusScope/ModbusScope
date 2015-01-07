@@ -203,7 +203,11 @@ void MainWindow::prepareDataExport()
 
     if (_lastDataFilePath.trimmed().isEmpty())
     {
-        dialog.setDirectory(QStandardPaths::displayName(QStandardPaths::DocumentsLocation));
+        QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+        if (docPath.size() > 0)
+        {
+            dialog.setDirectory(docPath[0]);
+        }
     }
     else
     {
@@ -230,7 +234,11 @@ void MainWindow::loadProjectSettings()
 
     if (_projectFilePath.trimmed().isEmpty())
     {
-        dialog.setDirectory(QStandardPaths::displayName(QStandardPaths::DocumentsLocation));
+        QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+        if (docPath.size() > 0)
+        {
+            dialog.setDirectory(docPath[0]);
+        }
     }
     else
     {
@@ -266,7 +274,11 @@ void MainWindow::prepareImageExport()
 
     if (_lastDataFilePath.trimmed().isEmpty())
     {
-        dialog.setDirectory(QStandardPaths::displayName(QStandardPaths::DocumentsLocation));
+        QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+        if (docPath.size() > 0)
+        {
+            dialog.setDirectory(docPath[0]);
+        }
     }
     else
     {
