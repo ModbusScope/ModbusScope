@@ -519,13 +519,16 @@ void MainWindow::loadDataFile(QString dataFilePath)
     /* If we can't open it, let's show an error message. */
     if (file->open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        // If success, disable export data
-        _ui->actionExportDataCsv->setEnabled(false);
-
         DataFileParser dataParser(file);
         DataFileParser::FileData data;
         if (dataParser.processDataFile(&data))
         {
+            // If success, disable export data
+            _ui->actionExportDataCsv->setEnabled(false);
+
+            _statusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
+            _statusStats->setText(_cStatsTemplate.arg(0).arg(0));
+
             // Set to full auto scaling
             changeXAxisScaling(ScopeGui::SCALE_AUTO);
 
