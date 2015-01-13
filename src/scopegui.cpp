@@ -1,8 +1,9 @@
 
 #include <QMessageBox>
 #include <QVector>
-#include <QLocale>
+//#include <QLocale>
 
+#include "util.h"
 #include "scopegui.h"
 #include "qcustomplot.h"
 
@@ -218,18 +219,6 @@ qint32 ScopeGui::getyAxisMax()
     return _settings.yMax;
 }
 
-QChar ScopeGui::getSeparatorCharacter()
-{
-    if (QLocale::system().decimalPoint() == ',')
-    {
-        return ';';
-    }
-    else
-    {
-        return ',';
-    }
-}
-
 void ScopeGui::exportDataCsv(QString dataFile)
 {
 
@@ -242,29 +231,29 @@ void ScopeGui::exportDataCsv(QString dataFile)
         QString line;
         QString comment = QString("//");
 
-        logData.append(comment + "ModbusScope version" + getSeparatorCharacter() + QString(APP_VERSION) + "\n");
+        logData.append(comment + "ModbusScope version" + Util::getSeparatorCharacter() + QString(APP_VERSION) + "\n");
 
         // Save start time
         dt = QDateTime::fromMSecsSinceEpoch(_scopedata->getCommunicationStartTime());
-        logData.append(comment + "Start time" + getSeparatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
+        logData.append(comment + "Start time" + Util::getSeparatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
 
         // Save end time
         dt = QDateTime::fromMSecsSinceEpoch(_scopedata->getCommunicationEndTime());
-        logData.append(comment + "End time" + getSeparatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
+        logData.append(comment + "End time" + Util::getSeparatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
 
         // Export communication settings
         ModbusSettings commSettings;
         _scopedata->getSettings(&commSettings);
-        logData.append(comment + "Slave IP" + getSeparatorCharacter() + commSettings.getIpAddress() + ":" + QString::number(commSettings.getPort()) + "\n");
-        logData.append(comment + "Slave ID" + getSeparatorCharacter() + QString::number(commSettings.getSlaveId()) + "\n");
-        logData.append(comment + "Time-out" + getSeparatorCharacter() + QString::number(commSettings.getTimeout()) + "\n");
-        logData.append(comment + "Poll interval" + getSeparatorCharacter() + QString::number(commSettings.getPollTime()) + "\n");
+        logData.append(comment + "Slave IP" + Util::getSeparatorCharacter() + commSettings.getIpAddress() + ":" + QString::number(commSettings.getPort()) + "\n");
+        logData.append(comment + "Slave ID" + Util::getSeparatorCharacter() + QString::number(commSettings.getSlaveId()) + "\n");
+        logData.append(comment + "Time-out" + Util::getSeparatorCharacter() + QString::number(commSettings.getTimeout()) + "\n");
+        logData.append(comment + "Poll interval" + Util::getSeparatorCharacter() + QString::number(commSettings.getPollTime()) + "\n");
 
         quint32 success;
         quint32 error;
         _scopedata->getCommunicationSettings(&success, &error);
-        logData.append(comment + "Communication success" + getSeparatorCharacter() + QString::number(success) + "\n");
-        logData.append(comment + "Communication errors" + getSeparatorCharacter() + QString::number(error) + "\n");
+        logData.append(comment + "Communication success" + Util::getSeparatorCharacter() + QString::number(success) + "\n");
+        logData.append(comment + "Communication errors" + Util::getSeparatorCharacter() + QString::number(error) + "\n");
 
         logData.append("\n");
 
@@ -273,7 +262,7 @@ void ScopeGui::exportDataCsv(QString dataFile)
         for(qint32 i = 0; i < _pPlot->graphCount(); i++)
         {
             // Get headers
-            line.append(getSeparatorCharacter() + graphNames[i]);
+            line.append(Util::getSeparatorCharacter() + graphNames[i]);
 
             // Save data lists
             dataList.append(_pPlot->graph(i)->data()->values());
@@ -291,7 +280,7 @@ void ScopeGui::exportDataCsv(QString dataFile)
 
             for(qint32 d = 0; d < dataList.size(); d++)
             {
-                line.append(getSeparatorCharacter() + QString::number((dataList[d])[i].value));
+                line.append(Util::getSeparatorCharacter() + QString::number((dataList[d])[i].value));
             }
             line.append("\n");
 

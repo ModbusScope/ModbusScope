@@ -39,8 +39,6 @@ public:
     qint32 getyAxisMin();
     qint32 getyAxisMax();
 
-    static QChar getSeparatorCharacter();
-
 signals:
     void updateXScalingUi(int);
     void updateYScalingUi(int);

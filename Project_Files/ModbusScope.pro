@@ -58,4 +58,5 @@ HEADERS += \
     ../src/scopegui.h \
     ../src/projectfileparser.h \
     ../src/registermodel.h \
-    ../src/datafileparser.h
+    ../src/datafileparser.h \
+    ../src/util.h
