@@ -291,6 +291,11 @@ bool ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleSettings 
                     break;
                 }
             }
+            else if (!active.toLower().compare("auto"))
+            {
+                // auto interval mode
+                pScaleSettings->bSliding = false;
+            }
         }
         else if (child.tagName() == "yaxis")
         {
@@ -307,6 +312,11 @@ bool ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleSettings 
                 {
                     break;
                 }
+            }
+            else if (!active.toLower().compare("auto"))
+            {
+                // auto interval mode
+                pScaleSettings->bMinMax = false;
             }
         }
         else

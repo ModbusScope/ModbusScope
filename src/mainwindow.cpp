@@ -462,12 +462,20 @@ void MainWindow::updateBoxes(ProjectFileParser::ProjectSettings * pProjectSettin
         _ui->spinSlidingXInterval->setValue(pProjectSettings->scale.slidingInterval);
         _ui->radioXSliding->setChecked(true);
     }
+    else
+    {
+        _ui->radioXFullScale->setChecked(true);
+    }
 
     if (pProjectSettings->scale.bMinMax)
     {
         _ui->spinYMin->setValue(pProjectSettings->scale.scaleMin);
         _ui->spinYMax->setValue(pProjectSettings->scale.scaleMax);
         _ui->radioYMinMax->setChecked(true);
+    }
+    else
+    {
+        _ui->radioYFullScale->setChecked(true);
     }
 
     _pRegisterModel->clear();
