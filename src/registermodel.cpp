@@ -224,6 +224,7 @@ bool RegisterModel::insertRows (int row, int count, const QModelIndex &parent)
     data.bUnsigned = false;
     data.reg = getNextFreeAddress();
     data.text = QString("Register %1").arg(data.reg);
+    data.scaleFactor = 1;
     dataList.append(data);
 
     endInsertRows();
@@ -268,6 +269,7 @@ void RegisterModel::getCheckedRegisterList(QList<ScopeData::RegisterData> * pReg
             ScopeData::RegisterData tmpData;
             tmpData.bUnsigned = dataList[i].bUnsigned;
             tmpData.reg = dataList[i].reg;
+            tmpData.scaleFactor = dataList[i].scaleFactor;
 
             pRegisterList->append(tmpData);
         }
@@ -328,6 +330,7 @@ void RegisterModel::appendRow(RegisterData rowData)
     dataList[dataList.size() - 1].bUnsigned = rowData.bUnsigned;
     dataList[dataList.size() - 1].reg = rowData.reg;
     dataList[dataList.size() - 1].text = rowData.text;
+    dataList[dataList.size() - 1].scaleFactor = rowData.scaleFactor;
 }
 
 bool RegisterModel::sortRegisterByAddress(const RegisterData& s1, const RegisterData& s2)

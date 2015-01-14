@@ -1,6 +1,6 @@
 
 #include <QtWidgets>
-
+#include "util.h"
 #include "projectfileparser.h"
 
 ProjectFileParser::ProjectFileParser()
@@ -245,6 +245,16 @@ bool ProjectFileParser::parseVariableTag(const QDomElement &element, RegisterSet
             else
             {
                 pRegisterSettings->bUnsigned = false;
+            }
+        }
+        else if (child.tagName() == "scalefactor")
+        {
+            pRegisterSettings->scaleFactor = QLocale::system().toDouble(child.text(), &bRet);
+            if (!bRet)
+            {
+                _msgBox.setText(tr("Scale factor is not a valid double. Did you use correct decimal separator character? Expecting \"%1\"").arg(QLocale::system().decimalPoint()));
+                _msgBox.exec();
+                break;
             }
         }
         else

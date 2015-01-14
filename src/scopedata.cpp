@@ -98,7 +98,7 @@ void ScopeData::handlePollDone(QList<bool> successList, QList<quint16> values)
     _timer->singleShot(waitInterval, this, SLOT(readData()));
 
     // Process values
-    QList<qint32> processedValue;
+    QList<double> processedValue;
     for (qint32 i = 0; i < values.size(); i++)
     {
         if (_registerlist[i].bUnsigned)
@@ -109,6 +109,9 @@ void ScopeData::handlePollDone(QList<bool> successList, QList<quint16> values)
         {
             processedValue.append((qint16)values[i]);
         }
+
+        // Apply scaleFactor
+        processedValue[processedValue.size() - 1] = processedValue[processedValue.size() - 1] * _registerlist[i].scaleFactor;
     }
 
     // propagate processed data

@@ -87,7 +87,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     // Default to full auto scaling
     changeYAxisScaling(ScopeGui::SCALE_AUTO);
 
-    connect(_scope, SIGNAL(handleReceivedData(QList<bool>, QList<qint32>)), _gui, SLOT(plotResults(QList<bool>, QList<qint32>)));
+    connect(_scope, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _gui, SLOT(plotResults(QList<bool>, QList<double>)));
     connect(_scope, SIGNAL(triggerStatUpdate(quint32, quint32)), this, SLOT(updateStats(quint32, quint32)));
     connect(this, SIGNAL(dataExport(QString)), _gui, SLOT(exportDataCsv(QString)));
 
@@ -478,6 +478,7 @@ void MainWindow::updateBoxes(ProjectFileParser::ProjectSettings * pProjectSettin
         rowData.bUnsigned = pProjectSettings->scope.registerList[i].bUnsigned;
         rowData.reg = pProjectSettings->scope.registerList[i].address;
         rowData.text = pProjectSettings->scope.registerList[i].text;
+        rowData.scaleFactor = pProjectSettings->scope.registerList[i].scaleFactor;
         _pRegisterModel->appendRow(rowData);
     }
 }

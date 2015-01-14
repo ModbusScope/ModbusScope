@@ -173,7 +173,7 @@ void ScopeGui::setyAxisScale(AxisScaleOptions scaleMode, qint32 min, qint32 max)
     }
 }
 
-void ScopeGui::plotResults(QList<bool> successList, QList<qint32> valueList)
+void ScopeGui::plotResults(QList<bool> successList, QList<double> valueList)
 {
     const quint64 diff = QDateTime::currentMSecsSinceEpoch() - _scopedata->getCommunicationStartTime();
 
@@ -182,8 +182,8 @@ void ScopeGui::plotResults(QList<bool> successList, QList<qint32> valueList)
         if (successList[i])
         {
             // No error, add points
-            _pPlot->graph(i)->addData(diff, (double)valueList[i]);
-            _pPlot->graph(i)->setName(QString("(%1) %2").arg(QString::number(valueList[i])).arg(graphNames[i]));
+            _pPlot->graph(i)->addData(diff, valueList[i]);
+            _pPlot->graph(i)->setName(QString("(%1) %2").arg(formatDoubleForExport(valueList[i])).arg(graphNames[i]));
         }
         else
         {
@@ -275,12 +275,14 @@ void ScopeGui::exportDataCsv(QString dataFile)
         {
             line.clear();
 
+            // Format time (no decimals)
             const quint64 t = static_cast<quint64>(keyList[i]);
             line.append(QString::number(t, 'f', 0));
 
+            // Add formatted data (maximum 3 decimals, no trailing zeros)
             for(qint32 d = 0; d < dataList.size(); d++)
             {
-                line.append(Util::getSeparatorCharacter() + QString::number((dataList[d])[i].value));
+                line.append(Util::getSeparatorCharacter() + formatDoubleForExport((dataList[d])[i].value));
             }
             line.append("\n");
 
@@ -440,6 +442,22 @@ void ScopeGui::writeToFile(QString filePath, QString logData)
         msgBox.setText(tr("Save to data file (%1) failed").arg(filePath));
         msgBox.exec();
     }
+}
+
+QString ScopeGui::formatDoubleForExport(double number)
+{
+    QString tmp;
+
+    // Round number to 3 decimals and remove group separator
+    tmp = QLocale::system().toString(number, 'f', 3).replace(QLocale::system().groupSeparator(), "");
+
+    // convert back to double
+    double doubleTmp = QLocale::system().toDouble(tmp);
+
+    // Make sure trailing zeros are removed and remove group separator
+    tmp = QLocale::system().toString(doubleTmp, 'g', 9).replace(QLocale::system().groupSeparator(), "");
+
+    return tmp;
 }
 
 void ScopeGui::scalePlot()

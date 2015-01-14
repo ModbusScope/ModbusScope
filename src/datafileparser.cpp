@@ -107,11 +107,15 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
         for (qint32 i = 0; i < paramList.size(); i++)
         {
             bool bError = false;
-            const double number = paramList[i].toDouble(&bError);
+            const double number = QLocale::system().toDouble(paramList[i], &bError);
 
             if (bError == false)
             {
-                QString error = QString(tr("Invalid data (while processing data)\n Line:\"%1\"").arg(line));
+                QString error = QString(tr("Invalid data (while processing data)\n"
+                                           "Line: %1\n"
+                                           "Are you sure the decimal separator character is according to your locale?"
+                                           "\n\nExpected decimal separator: \'%2\'"
+                                           ).arg(line).arg(Util::getSeparatorCharacter()));
                 showError(error);
                 bRet = false;
                 break;

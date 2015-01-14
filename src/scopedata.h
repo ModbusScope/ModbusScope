@@ -19,9 +19,10 @@ public:
 
     typedef struct _RegisterData
     {
-        _RegisterData() : bUnsigned(false) {}
+        _RegisterData() : bUnsigned(false), scaleFactor(1) {}
         quint16 reg;
         bool bUnsigned;
+        double scaleFactor;
     } RegisterData;
 
     static bool sortRegisterDataList(const RegisterData& s1, const RegisterData& s2);
@@ -41,7 +42,7 @@ public slots:
 signals:
     void registerRequest(ModbusSettings settings, QList<quint16> registerList);
     void requestStop();
-    void handleReceivedData(QList<bool> successList, QList<qint32> values);
+    void handleReceivedData(QList<bool> successList, QList<double> values);
     void triggerStatUpdate(quint32 successCount, quint32 errorCount);
 
 private slots:

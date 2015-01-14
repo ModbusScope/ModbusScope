@@ -12,9 +12,10 @@ public:
 
     typedef struct _RegisterData
     {
-        _RegisterData() : bActive(false), bUnsigned(false) {}
+        _RegisterData() : bActive(false), bUnsigned(false), scaleFactor(1) {}
         bool bActive;
         bool bUnsigned;
+        double scaleFactor;
         quint16 reg;
         QString text;
     } RegisterData;
