@@ -86,9 +86,9 @@ QVariant RegisterModel::headerData(int section, Qt::Orientation orientation, int
             switch (section)
             {
             case 0:
-                return QString("Active");
+                return QString("");
             case 1:
-                return QString("Unsigned");
+                return QString("u");
             case 2:
                 return QString("Register");
             case 3:
@@ -277,7 +277,6 @@ void RegisterModel::getCheckedRegisterList(QList<ScopeData::RegisterData> * pReg
 
     // Sort by register address
     std::sort(pRegisterList->begin(), pRegisterList->end(), &ScopeData::sortRegisterDataList);
-    //qSort(*pRegisterList);
 }
 
 /*

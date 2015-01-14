@@ -42,6 +42,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pRegisterModel = new RegisterModel();
     _ui->registerView->setModel(_pRegisterModel);
     _ui->registerView->verticalHeader()->hide();
+
     _ui->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     _ui->registerView->horizontalHeader()->setStretchLastSection(true);
 
@@ -489,6 +490,10 @@ void MainWindow::updateBoxes(ProjectFileParser::ProjectSettings * pProjectSettin
         rowData.scaleFactor = pProjectSettings->scope.registerList[i].scaleFactor;
         _pRegisterModel->appendRow(rowData);
     }
+
+    // make regsiterview resize to content
+    _ui->registerView->resizeColumnsToContents();
+
 }
 
 void MainWindow::loadProjectFile(QString dataFilePath)

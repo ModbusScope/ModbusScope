@@ -92,27 +92,10 @@
             </property>
            </widget>
           </item>
-          <item row="7" column="0">
-           <widget class="QLabel" name="label_3">
+          <item row="6" column="0">
+           <widget class="QLabel" name="label_9">
             <property name="text">
-             <string>Registers</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="1">
-           <widget class="QTableView" name="registerView"/>
-          </item>
-          <item row="8" column="1">
-           <widget class="QPushButton" name="btnRemove">
-            <property name="text">
-             <string>Remove selected register</string>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="1">
-           <widget class="QPushButton" name="btnAdd">
-            <property name="text">
-             <string>Add new register</string>
+             <string>Timeout (ms)</string>
             </property>
            </widget>
           </item>
@@ -126,10 +109,30 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="0">
-           <widget class="QLabel" name="label_9">
+          <item row="7" column="0" colspan="2">
+           <widget class="QTableView" name="registerView">
+            <property name="minimumSize">
+             <size>
+              <width>300</width>
+              <height>0</height>
+             </size>
+            </property>
+            <attribute name="horizontalHeaderMinimumSectionSize">
+             <number>30</number>
+            </attribute>
+           </widget>
+          </item>
+          <item row="9" column="0" colspan="2">
+           <widget class="QPushButton" name="btnRemove">
             <property name="text">
-             <string>Timeout (ms)</string>
+             <string>Remove selected register</string>
+            </property>
+           </widget>
+          </item>
+          <item row="10" column="0" colspan="2">
+           <widget class="QPushButton" name="btnAdd">
+            <property name="text">
+             <string>Add new register</string>
             </property>
            </widget>
           </item>
