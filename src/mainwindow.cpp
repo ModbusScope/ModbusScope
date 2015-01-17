@@ -151,7 +151,7 @@ void MainWindow::startScope()
             _statusState->setText(_cStateRunning);
             _statusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
 
-            _runtimeTimer.singleShot(250, this, SLOT(UpdateRuntime()));
+            _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
 
             QList<ScopeData::RegisterData> regList;
             _pRegisterModel->getCheckedRegisterList(&regList);
@@ -643,7 +643,7 @@ void MainWindow::updateRuntime()
     // restart timer
     if (_scope->isActive())
     {
-        _runtimeTimer.singleShot(250, this, SLOT(UpdateRuntime()));
+        _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
     }
 }
 
