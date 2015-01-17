@@ -1,5 +1,5 @@
 #include "registermodel.h"
-
+#include "util.h"
 #include "QDebug"
 #include <QMessageBox>
 
@@ -21,8 +21,9 @@ int RegisterModel::columnCount(const QModelIndex & /*parent*/) const
     * bUnsigned
     * Register
     * Text
+    * Scale factor
     * */
-    return 4; // Number of visible members of struct
+    return 5; // Number of visible members of struct
 }
 
 QVariant RegisterModel::data(const QModelIndex &index, int role) const
@@ -68,6 +69,12 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
             return dataList[index.row()].text;
         }
         break;
+    case 4:
+        if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
+        {
+            return Util::formatDoubleForExport(dataList[index.row()].scaleFactor);
+        }
+        break;
     default:
         return QVariant();
         break;
@@ -93,6 +100,8 @@ QVariant RegisterModel::headerData(int section, Qt::Orientation orientation, int
                 return QString("Register");
             case 3:
                 return QString("Text");
+            case 4:
+                return QString("Scale");
             default:
                 return QVariant();
             }
@@ -162,10 +171,34 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
             dataList[index.row()].text = value.toString();
         }
         break;
+    case 4:
+        if (role == Qt::EditRole)
+        {
+            bool bSuccess = false;
+            const double parseResult = QLocale::system().toDouble(value.toString(), &bSuccess);
+            if (bSuccess)
+            {
+                dataList[index.row()].scaleFactor = parseResult;
+            }
+            else
+            {
+                bRet = false;
+                QMessageBox msgBox;
+                msgBox.setWindowTitle(tr("ModbusScope data error"));
+                msgBox.setIcon(QMessageBox::Warning);
+                msgBox.setText(tr("Scale factor is not a valid double. Did you use correct decimal separator character? Expecting \"%1\"").arg(QLocale::system().decimalPoint()));
+                msgBox.exec();
+                break;
+            }
+        }
+        break;
     default:
         break;
 
     }
+
+    // Notify view(s) of change
+    emit dataChanged(index, index);
 
     return bRet;
 }
@@ -201,6 +234,9 @@ bool RegisterModel::removeRows (int row, int count, const QModelIndex & parent)
     }
     endRemoveRows();
 
+    // Notify view(s) of change
+    emit dataChanged(parent, parent);
+
     return true;
 }
 
@@ -228,6 +264,9 @@ bool RegisterModel::insertRows (int row, int count, const QModelIndex &parent)
     dataList.append(data);
 
     endInsertRows();
+
+    // Notify view(s) of change
+    emit dataChanged(parent, parent);
 
     return true;
 }
@@ -313,15 +352,18 @@ void RegisterModel::getCheckedRegisterTextList(QList<QString> * pRegisterTextLis
     }
 }
 
-void RegisterModel::clear()
+void RegisterModel::clear(const QModelIndex &parent)
 {
     if (dataList.size() != 0)
     {
         removeRows(0, dataList.size(), QModelIndex());
     }
+
+    // Notify view(s) of change
+    emit dataChanged(parent, parent);
 }
 
-void RegisterModel::appendRow(RegisterData rowData)
+void RegisterModel::appendRow(RegisterData rowData, const QModelIndex &parent)
 {
     insertRows(dataList.size(), 1, QModelIndex());
 
@@ -330,6 +372,9 @@ void RegisterModel::appendRow(RegisterData rowData)
     dataList[dataList.size() - 1].reg = rowData.reg;
     dataList[dataList.size() - 1].text = rowData.text;
     dataList[dataList.size() - 1].scaleFactor = rowData.scaleFactor;
+
+    // Notify view(s) of change
+    emit dataChanged(parent, parent);
 }
 
 bool RegisterModel::sortRegisterByAddress(const RegisterData& s1, const RegisterData& s2)

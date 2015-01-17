@@ -183,7 +183,7 @@ void ScopeGui::plotResults(QList<bool> successList, QList<double> valueList)
         {
             // No error, add points
             _pPlot->graph(i)->addData(diff, valueList[i]);
-            _pPlot->graph(i)->setName(QString("(%1) %2").arg(formatDoubleForExport(valueList[i])).arg(graphNames[i]));
+            _pPlot->graph(i)->setName(QString("(%1) %2").arg(Util::formatDoubleForExport(valueList[i])).arg(graphNames[i]));
         }
         else
         {
@@ -282,7 +282,7 @@ void ScopeGui::exportDataCsv(QString dataFile)
             // Add formatted data (maximum 3 decimals, no trailing zeros)
             for(qint32 d = 0; d < dataList.size(); d++)
             {
-                line.append(Util::getSeparatorCharacter() + formatDoubleForExport((dataList[d])[i].value));
+                line.append(Util::getSeparatorCharacter() + Util::formatDoubleForExport((dataList[d])[i].value));
             }
             line.append("\n");
 
@@ -442,22 +442,6 @@ void ScopeGui::writeToFile(QString filePath, QString logData)
         msgBox.setText(tr("Save to data file (%1) failed").arg(filePath));
         msgBox.exec();
     }
-}
-
-QString ScopeGui::formatDoubleForExport(double number)
-{
-    QString tmp;
-
-    // Round number to 3 decimals and remove group separator
-    tmp = QLocale::system().toString(number, 'f', 3).replace(QLocale::system().groupSeparator(), "");
-
-    // convert back to double
-    double doubleTmp = QLocale::system().toDouble(tmp);
-
-    // Make sure trailing zeros are removed and remove group separator
-    tmp = QLocale::system().toString(doubleTmp, 'g', 9).replace(QLocale::system().groupSeparator(), "");
-
-    return tmp;
 }
 
 void ScopeGui::scalePlot()

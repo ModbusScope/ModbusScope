@@ -35,8 +35,8 @@ public:
     void getCheckedRegisterList(QList<ScopeData::RegisterData> *pRegisterList);
     void getCheckedRegisterTextList(QList<QString> * pRegisterTextList);
 
-    void clear();
-    void appendRow(RegisterData rowData);
+    void clear(const QModelIndex &parent = QModelIndex());
+    void appendRow(RegisterData rowData, const QModelIndex &parent = QModelIndex());
 
 signals:
 

@@ -491,7 +491,7 @@ void MainWindow::updateBoxes(ProjectFileParser::ProjectSettings * pProjectSettin
         _pRegisterModel->appendRow(rowData);
     }
 
-    // make regsiterview resize to content
+    // make registerview resize to content
     _ui->registerView->resizeColumnsToContents();
 
 }
@@ -621,7 +621,7 @@ void MainWindow::importData()
     }
 }
 
-void MainWindow::UpdateRuntime()
+void MainWindow::updateRuntime()
 {
     qint64 timePassed = QDateTime::currentMSecsSinceEpoch() - _scope->getCommunicationStartTime();
 

@@ -59,7 +59,6 @@ private slots:
 private:
 
     void writeToFile(QString filePath, QString logData);
-    QString formatDoubleForExport(double number);
     void scalePlot();
 
     typedef struct _GuiSettings

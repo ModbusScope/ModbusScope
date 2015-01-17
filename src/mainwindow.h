@@ -49,7 +49,7 @@ private slots:
     void updateYMax(int newMax);
     void showAbout();
     void importData();
-    void UpdateRuntime();
+    void updateRuntime();
 
 public slots:
     void updateStats(quint32 successCount, quint32 errorCount);
