@@ -500,12 +500,12 @@ void MainWindow::loadProjectFile(QString dataFilePath)
 {
     ProjectFileParser fileParser;
     ProjectFileParser::ProjectSettings loadedSettings;
-    QFile* file = new QFile(dataFilePath);
+    QFile file(dataFilePath);
 
     /* If we can't open it, let's show an error message. */
-    if (file->open(QIODevice::ReadOnly | QIODevice::Text))
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        if (fileParser.parseFile(file, &loadedSettings))
+        if (fileParser.parseFile(&file, &loadedSettings))
         {
             updateBoxes(&loadedSettings);
 
@@ -528,12 +528,12 @@ void MainWindow::loadProjectFile(QString dataFilePath)
 
 void MainWindow::loadDataFile(QString dataFilePath)
 {
-    QFile* file = new QFile(dataFilePath);
+    QFile file(dataFilePath);
 
     /* If we can't open it, let's show an error message. */
-    if (file->open(QIODevice::ReadOnly | QIODevice::Text))
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        DataFileParser dataParser(file);
+        DataFileParser dataParser(&file);
         DataFileParser::FileData data;
         if (dataParser.processDataFile(&data))
         {
