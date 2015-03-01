@@ -65,17 +65,17 @@ private:
     void loadProjectFile(QString dataFilePath);
     void loadDataFile(QString dataFilePath);
 
-    Ui::MainWindow * _ui;
-    ScopeData * _scope;
-    ScopeGui * _gui;
+    Ui::MainWindow * _pUi;
+    ScopeData * _pScope;
+    ScopeGui * _pGui;
     ModbusSettings _commSettings;
     RegisterModel * _pRegisterModel;
 
-    QLabel * _statusStats;
-    QLabel * _statusState;
-    QLabel * _statusRuntime;
-    QButtonGroup * _xAxisScaleGroup;
-    QButtonGroup * _yAxisScaleGroup;
+    QLabel * _pStatusStats;
+    QLabel * _pStatusState;
+    QLabel * _pStatusRuntime;
+    QButtonGroup * _pXAxisScaleGroup;
+    QButtonGroup * _pYAxisScaleGroup;
     QString _projectFilePath;
     QString _lastDataFilePath;
 

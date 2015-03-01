@@ -76,7 +76,7 @@ ScopeGui::ScopeGui(MainWindow *window, ScopeData *scopedata, QCustomPlot * pPlot
 void ScopeGui::resetGraph(void)
 {
     _pPlot->clearGraphs();
-    graphNames.clear();
+    _graphNames.clear();
 }
 
 void ScopeGui::setupGraph(QList<QString> registerTextList)
@@ -90,7 +90,7 @@ void ScopeGui::setupGraph(QList<QString> registerTextList)
        QCPGraph * pGraph = _pPlot->addGraph();
 
        pGraph->setName(registerTextList[i]);
-       graphNames.append(registerTextList[i]);
+       _graphNames.append(registerTextList[i]);
 
        QPen pen;
        pen.setColor(_colorlist[colorIndex]);
@@ -183,12 +183,12 @@ void ScopeGui::plotResults(QList<bool> successList, QList<double> valueList)
         {
             // No error, add points
             _pPlot->graph(i)->addData(diff, valueList[i]);
-            _pPlot->graph(i)->setName(QString("(%1) %2").arg(Util::formatDoubleForExport(valueList[i])).arg(graphNames[i]));
+            _pPlot->graph(i)->setName(QString("(%1) %2").arg(Util::formatDoubleForExport(valueList[i])).arg(_graphNames[i]));
         }
         else
         {
             _pPlot->graph(i)->addData(diff, 0);
-            _pPlot->graph(i)->setName(QString("(-) %1").arg(graphNames[i]));
+            _pPlot->graph(i)->setName(QString("(-) %1").arg(_graphNames[i]));
         }
     }
 
@@ -262,7 +262,7 @@ void ScopeGui::exportDataCsv(QString dataFile)
         for(qint32 i = 0; i < _pPlot->graphCount(); i++)
         {
             // Get headers
-            line.append(Util::getSeparatorCharacter() + graphNames[i]);
+            line.append(Util::getSeparatorCharacter() + _graphNames[i]);
 
             // Save data lists
             dataList.append(_pPlot->graph(i)->data()->values());
@@ -311,7 +311,7 @@ void ScopeGui::generateTickLabels()
     quint32 scaleFactor;
 
     /* Clear ticks vector */
-    tickLabels.clear();
+    _tickLabels.clear();
 
     /* Check if we need seconds, minute or hours on x-axis */
     if (ticks[ticks.size()-1] > _cHourTripPoint)
@@ -333,11 +333,11 @@ void ScopeGui::generateTickLabels()
     /* Generate correct labels */
     for (qint32 index = 0; index < ticks.size(); index++)
     {
-        tickLabels.append(QString::number(ticks[index] / scaleFactor));
+        _tickLabels.append(QString::number(ticks[index] / scaleFactor));
     }
 
     /* Set labels */
-    _pPlot->xAxis->setTickVectorLabels(tickLabels);
+    _pPlot->xAxis->setTickVectorLabels(_tickLabels);
 }
 
 void ScopeGui::selectionChanged()

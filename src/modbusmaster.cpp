@@ -10,7 +10,7 @@
 
 ModbusMaster::ModbusMaster(QObject *parent) :
     QObject(parent),
-    _thread(NULL)
+    _pThread(NULL)
 {
     // NEVER create object with new here
 }
@@ -22,34 +22,34 @@ ModbusMaster::~ModbusMaster()
 
 void ModbusMaster::startThread()
 {
-    if(_thread == NULL)
+    if(_pThread == NULL)
     {
-        _thread = new QThread();
-        _thread->start();
-        connect(_thread, SIGNAL(finished()), _thread, SLOT(deleteLater()));
-        connect(_thread, SIGNAL(finished()), this, SLOT(stopped()));
+        _pThread = new QThread();
+        _pThread->start();
+        connect(_pThread, SIGNAL(finished()), _pThread, SLOT(deleteLater()));
+        connect(_pThread, SIGNAL(finished()), this, SLOT(stopped()));
 
-        moveToThread(_thread);
+        moveToThread(_pThread);
     }
 }
 
 void ModbusMaster::wait()
 {
-    if(_thread)
+    if(_pThread)
     {
-        _thread->wait();
+        _pThread->wait();
     }
 }
 
 void ModbusMaster::stopThread()
 {
-    _thread->quit();
+    _pThread->quit();
 }
 
 void ModbusMaster::stopped()
 {
     /* thread is deleted using a connection between thread->finished and thread->deleteLater */
-    _thread = NULL;
+    _pThread = NULL;
 
     emit threadStopped();
 }

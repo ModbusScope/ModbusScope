@@ -6,12 +6,12 @@
 RegisterModel::RegisterModel(QObject *parent) :
     QAbstractTableModel(parent)
 {
-    dataList.clear();
+    _dataList.clear();
 }
 
 int RegisterModel::rowCount(const QModelIndex & /*parent*/) const
 {
-    return dataList.size();
+    return _dataList.size();
 }
 
 int RegisterModel::columnCount(const QModelIndex & /*parent*/) const
@@ -34,7 +34,7 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
     case 0:
         if (role == Qt::CheckStateRole)
         {
-            if (dataList[index.row()].bActive)
+            if (_dataList[index.row()].bActive)
             {
                 return Qt::Checked;
             }
@@ -47,7 +47,7 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
     case 1:
         if (role == Qt::CheckStateRole)
         {
-            if (dataList[index.row()].bUnsigned)
+            if (_dataList[index.row()].bUnsigned)
             {
                 return Qt::Checked;
             }
@@ -60,19 +60,19 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
     case 2:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return dataList[index.row()].reg;
+            return _dataList[index.row()].reg;
         }
         break;
     case 3:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return dataList[index.row()].text;
+            return _dataList[index.row()].text;
         }
         break;
     case 4:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return Util::formatDoubleForExport(dataList[index.row()].scaleFactor);
+            return Util::formatDoubleForExport(_dataList[index.row()].scaleFactor);
         }
         break;
     default:
@@ -127,11 +127,11 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
         {
             if (value == Qt::Checked)
             {
-                dataList[index.row()].bActive = true;
+                _dataList[index.row()].bActive = true;
             }
             else
             {
-                dataList[index.row()].bActive = false;
+                _dataList[index.row()].bActive = false;
             }
         }
         break;
@@ -140,11 +140,11 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
         {
             if (value == Qt::Checked)
             {
-                dataList[index.row()].bUnsigned = true;
+                _dataList[index.row()].bUnsigned = true;
             }
             else
             {
-                dataList[index.row()].bUnsigned = false;
+                _dataList[index.row()].bUnsigned = false;
             }
         }
         break;
@@ -153,7 +153,7 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
         {
             const quint16 newAddr = value.toInt();
             if (
-                (dataList[index.row()].reg != newAddr)
+                (_dataList[index.row()].reg != newAddr)
                 && (IsAlreadyPresent(newAddr))
                 )
             {
@@ -161,14 +161,14 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
             }
             else
             {
-                dataList[index.row()].reg = newAddr;
+                _dataList[index.row()].reg = newAddr;
             }
         }
         break;
     case 3:
         if (role == Qt::EditRole)
         {
-            dataList[index.row()].text = value.toString();
+            _dataList[index.row()].text = value.toString();
         }
         break;
     case 4:
@@ -178,7 +178,7 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
             const double parseResult = QLocale::system().toDouble(value.toString(), &bSuccess);
             if (bSuccess)
             {
-                dataList[index.row()].scaleFactor = parseResult;
+                _dataList[index.row()].scaleFactor = parseResult;
             }
             else
             {
@@ -227,9 +227,9 @@ bool RegisterModel::removeRows (int row, int count, const QModelIndex & parent)
     for (qint32 i = 0; i < count; i++)
     {
         Q_UNUSED(i);
-        if (row < dataList.size())
+        if (row < _dataList.size())
         {
-            dataList.removeAt(row);
+            _dataList.removeAt(row);
         }
     }
     endRemoveRows();
@@ -245,7 +245,7 @@ bool RegisterModel::insertRows (int row, int count, const QModelIndex &parent)
 
     if (
         (count != 1)
-        || (row != dataList.size())
+        || (row != _dataList.size())
         )
     {
         qDebug() << "RegisterModel: Not supported";
@@ -253,7 +253,7 @@ bool RegisterModel::insertRows (int row, int count, const QModelIndex &parent)
 
     Q_UNUSED(row);
     Q_UNUSED(count);
-    beginInsertRows(parent, dataList.size(), dataList.size());
+    beginInsertRows(parent, _dataList.size(), _dataList.size());
 
     RegisterData data;
     data.bActive = false;
@@ -261,7 +261,7 @@ bool RegisterModel::insertRows (int row, int count, const QModelIndex &parent)
     data.reg = getNextFreeAddress();
     data.text = QString("Register %1").arg(data.reg);
     data.scaleFactor = 1;
-    dataList.append(data);
+    _dataList.append(data);
 
     endInsertRows();
 
@@ -275,9 +275,9 @@ uint RegisterModel::checkedRegisterCount()
 {
     uint count = 0;
 
-    for (int i = 0; i < dataList.size(); i++)
+    for (int i = 0; i < _dataList.size(); i++)
     {
-        if (dataList[i].bActive)
+        if (_dataList[i].bActive)
         {
             count++;
         }
@@ -289,9 +289,9 @@ uint RegisterModel::checkedRegisterCount()
 void RegisterModel::getRegisterList(QList<quint16> * pRegisterList)
 {
     pRegisterList->clear();
-    for (int i = 0; i < dataList.size(); i++)
+    for (int i = 0; i < _dataList.size(); i++)
     {
-        pRegisterList->append(dataList[i].reg);
+        pRegisterList->append(_dataList[i].reg);
     }
 }
 
@@ -301,14 +301,14 @@ void RegisterModel::getRegisterList(QList<quint16> * pRegisterList)
 void RegisterModel::getCheckedRegisterList(QList<ScopeData::RegisterData> * pRegisterList)
 {
     pRegisterList->clear();
-    for (int i = 0; i < dataList.size(); i++)
+    for (int i = 0; i < _dataList.size(); i++)
     {
-        if (dataList[i].bActive)
+        if (_dataList[i].bActive)
         {
             ScopeData::RegisterData tmpData;
-            tmpData.bUnsigned = dataList[i].bUnsigned;
-            tmpData.reg = dataList[i].reg;
-            tmpData.scaleFactor = dataList[i].scaleFactor;
+            tmpData.bUnsigned = _dataList[i].bUnsigned;
+            tmpData.reg = _dataList[i].reg;
+            tmpData.scaleFactor = _dataList[i].scaleFactor;
 
             pRegisterList->append(tmpData);
         }
@@ -328,11 +328,11 @@ void RegisterModel::getCheckedRegisterTextList(QList<QString> * pRegisterTextLis
     QList<RegisterData> sortedRegisterList;
 
     // Get checked registers
-    for (int i = 0; i < dataList.size(); i++)
+    for (int i = 0; i < _dataList.size(); i++)
     {
-        if (dataList[i].bActive)
+        if (_dataList[i].bActive)
         {
-            sortedRegisterList.append(dataList[i]);
+            sortedRegisterList.append(_dataList[i]);
         }
     }
 
@@ -354,9 +354,9 @@ void RegisterModel::getCheckedRegisterTextList(QList<QString> * pRegisterTextLis
 
 void RegisterModel::clear(const QModelIndex &parent)
 {
-    if (dataList.size() != 0)
+    if (_dataList.size() != 0)
     {
-        removeRows(0, dataList.size(), QModelIndex());
+        removeRows(0, _dataList.size(), QModelIndex());
     }
 
     // Notify view(s) of change
@@ -365,13 +365,13 @@ void RegisterModel::clear(const QModelIndex &parent)
 
 void RegisterModel::appendRow(RegisterData rowData, const QModelIndex &parent)
 {
-    insertRows(dataList.size(), 1, QModelIndex());
+    insertRows(_dataList.size(), 1, QModelIndex());
 
-    dataList[dataList.size() - 1].bActive = rowData.bActive;
-    dataList[dataList.size() - 1].bUnsigned = rowData.bUnsigned;
-    dataList[dataList.size() - 1].reg = rowData.reg;
-    dataList[dataList.size() - 1].text = rowData.text;
-    dataList[dataList.size() - 1].scaleFactor = rowData.scaleFactor;
+    _dataList[_dataList.size() - 1].bActive = rowData.bActive;
+    _dataList[_dataList.size() - 1].bUnsigned = rowData.bUnsigned;
+    _dataList[_dataList.size() - 1].reg = rowData.reg;
+    _dataList[_dataList.size() - 1].text = rowData.text;
+    _dataList[_dataList.size() - 1].scaleFactor = rowData.scaleFactor;
 
     // Notify view(s) of change
     emit dataChanged(parent, parent);
@@ -386,9 +386,9 @@ bool RegisterModel::IsAlreadyPresent(quint16 newReg)
 {
     bool bFound = false;
 
-    for (int i = 0; i < dataList.size(); i++)
+    for (int i = 0; i < _dataList.size(); i++)
     {
-        if (dataList[i].reg == newReg)
+        if (_dataList[i].reg == newReg)
         {
             bFound = true;
             break;

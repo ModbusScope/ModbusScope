@@ -37,7 +37,7 @@ private:
     void closePort(modbus_t *);
     qint32 readRegisters(modbus_t * pCtx, quint16 startReg, quint32 num, QList<quint16> * pResultList);
 
-    QThread * _thread;
+    QThread * _pThread;
 
     static const quint32 _cMaxRegistersInOneRead = 20;
 

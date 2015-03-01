@@ -17,95 +17,95 @@ const QString MainWindow::_cRuntime = QString("Runtime: %1");
 
 MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     QMainWindow(parent),
-    _ui(new Ui::MainWindow),
-    _scope(NULL),
-    _gui(NULL)
+    _pUi(new Ui::MainWindow),
+    _pScope(NULL),
+    _pGui(NULL)
 {
-    _ui->setupUi(this);
+    _pUi->setupUi(this);
 
     // Set window title
     this->setWindowTitle(_cWindowTitle);
 
     // Add multipart status bar
-    _statusState = new QLabel(_cStateStopped, this);
-    _statusState->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-    _statusStats = new QLabel("", this);
-    _statusStats->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-    _statusRuntime = new QLabel(_cRuntime.arg("0 hours, 0 minutes 0 seconds"), this);
-    _statusRuntime->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    _pStatusState = new QLabel(_cStateStopped, this);
+    _pStatusState->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    _pStatusStats = new QLabel("", this);
+    _pStatusStats->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    _pStatusRuntime = new QLabel(_cRuntime.arg("0 hours, 0 minutes 0 seconds"), this);
+    _pStatusRuntime->setFrameStyle(QFrame::Panel | QFrame::Sunken);
 
-    _ui->statusBar->addPermanentWidget(_statusState, 0);
-    _ui->statusBar->addPermanentWidget(_statusRuntime, 0);
-    _ui->statusBar->addPermanentWidget(_statusStats, 2);
+    _pUi->statusBar->addPermanentWidget(_pStatusState, 0);
+    _pUi->statusBar->addPermanentWidget(_pStatusRuntime, 0);
+    _pUi->statusBar->addPermanentWidget(_pStatusStats, 2);
 
     // Setup registerView
     _pRegisterModel = new RegisterModel();
-    _ui->registerView->setModel(_pRegisterModel);
-    _ui->registerView->verticalHeader()->hide();
+    _pUi->registerView->setModel(_pRegisterModel);
+    _pUi->registerView->verticalHeader()->hide();
 
-    _ui->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    _ui->registerView->horizontalHeader()->setStretchLastSection(true);
+    _pUi->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    _pUi->registerView->horizontalHeader()->setStretchLastSection(true);
 
     // Select using click, shift and control
-     _ui->registerView->setSelectionBehavior(QAbstractItemView::SelectRows);
-     _ui->registerView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+     _pUi->registerView->setSelectionBehavior(QAbstractItemView::SelectRows);
+     _pUi->registerView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-    _scope = new ScopeData();
-    _gui = new ScopeGui(this, _scope, _ui->customPlot, this);
+    _pScope = new ScopeData();
+    _pGui = new ScopeGui(this, _pScope, _pUi->customPlot, this);
 
     _projectFilePath = QString("");
     _lastDataFilePath = QString("");
 
-    connect(_ui->spinSlidingXInterval, SIGNAL(valueChanged(int)), _gui, SLOT(setxAxisSlidingInterval(int)));
-    connect(_ui->spinYMin, SIGNAL(valueChanged(int)), this, SLOT(updateYMin(int)));
-    connect(_ui->spinYMax, SIGNAL(valueChanged(int)), this, SLOT(updateYMax(int)));
+    connect(_pUi->spinSlidingXInterval, SIGNAL(valueChanged(int)), _pGui, SLOT(setxAxisSlidingInterval(int)));
+    connect(_pUi->spinYMin, SIGNAL(valueChanged(int)), this, SLOT(updateYMin(int)));
+    connect(_pUi->spinYMax, SIGNAL(valueChanged(int)), this, SLOT(updateYMax(int)));
 
     //valueChanged is only send when done editing...
-    _ui->spinSlidingXInterval->setKeyboardTracking(false);
-    _ui->spinYMin->setKeyboardTracking(false);
-    _ui->spinYMax->setKeyboardTracking(false);
+    _pUi->spinSlidingXInterval->setKeyboardTracking(false);
+    _pUi->spinYMin->setKeyboardTracking(false);
+    _pUi->spinYMax->setKeyboardTracking(false);
 
     // Create button group for X axis scaling options
-    _xAxisScaleGroup = new QButtonGroup();
-    _xAxisScaleGroup->setExclusive(true);
-    _xAxisScaleGroup->addButton(_ui->radioXFullScale, ScopeGui::SCALE_AUTO);
-    _xAxisScaleGroup->addButton(_ui->radioXSliding, ScopeGui::SCALE_SLIDING);
-    _xAxisScaleGroup->addButton(_ui->radioXManual, ScopeGui::SCALE_MANUAL);
-    connect(_xAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(changeXAxisScaling(int)));
+    _pXAxisScaleGroup = new QButtonGroup();
+    _pXAxisScaleGroup->setExclusive(true);
+    _pXAxisScaleGroup->addButton(_pUi->radioXFullScale, ScopeGui::SCALE_AUTO);
+    _pXAxisScaleGroup->addButton(_pUi->radioXSliding, ScopeGui::SCALE_SLIDING);
+    _pXAxisScaleGroup->addButton(_pUi->radioXManual, ScopeGui::SCALE_MANUAL);
+    connect(_pXAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(changeXAxisScaling(int)));
 
     // Default to full auto scaling
     changeXAxisScaling(ScopeGui::SCALE_AUTO);
 
 
     // Create button group for Y axis scaling options
-    _yAxisScaleGroup = new QButtonGroup();
-    _yAxisScaleGroup->setExclusive(true);
-    _yAxisScaleGroup->addButton(_ui->radioYFullScale, ScopeGui::SCALE_AUTO);
-    _yAxisScaleGroup->addButton(_ui->radioYMinMax, ScopeGui::SCALE_MINMAX);
-    _yAxisScaleGroup->addButton(_ui->radioYManual, ScopeGui::SCALE_MANUAL);
-    connect(_yAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(changeYAxisScaling(int)));
+    _pYAxisScaleGroup = new QButtonGroup();
+    _pYAxisScaleGroup->setExclusive(true);
+    _pYAxisScaleGroup->addButton(_pUi->radioYFullScale, ScopeGui::SCALE_AUTO);
+    _pYAxisScaleGroup->addButton(_pUi->radioYMinMax, ScopeGui::SCALE_MINMAX);
+    _pYAxisScaleGroup->addButton(_pUi->radioYManual, ScopeGui::SCALE_MANUAL);
+    connect(_pYAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(changeYAxisScaling(int)));
 
     // Default to full auto scaling
     changeYAxisScaling(ScopeGui::SCALE_AUTO);
 
-    connect(_scope, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _gui, SLOT(plotResults(QList<bool>, QList<double>)));
-    connect(_scope, SIGNAL(triggerStatUpdate(quint32, quint32)), this, SLOT(updateStats(quint32, quint32)));
-    connect(this, SIGNAL(dataExport(QString)), _gui, SLOT(exportDataCsv(QString)));
+    connect(_pScope, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pGui, SLOT(plotResults(QList<bool>, QList<double>)));
+    connect(_pScope, SIGNAL(triggerStatUpdate(quint32, quint32)), this, SLOT(updateStats(quint32, quint32)));
+    connect(this, SIGNAL(dataExport(QString)), _pGui, SLOT(exportDataCsv(QString)));
 
     // Setup handler for buttons
-    connect(_ui->btnAdd, SIGNAL(released()), this, SLOT(addRegister()));
-    connect(_ui->btnRemove, SIGNAL(released()), this, SLOT(removeRegister()));
+    connect(_pUi->btnAdd, SIGNAL(released()), this, SLOT(addRegister()));
+    connect(_pUi->btnRemove, SIGNAL(released()), this, SLOT(removeRegister()));
 
     // Handler for menu bar
-    connect(_ui->actionStart, SIGNAL(triggered()), this, SLOT(startScope()));
-    connect(_ui->actionStop, SIGNAL(triggered()), this, SLOT(stopScope()));
-    connect(_ui->actionExit, SIGNAL(triggered()), this, SLOT(exitApplication()));
-    connect(_ui->actionExportDataCsv, SIGNAL(triggered()), this, SLOT(prepareDataExport()));
-    connect(_ui->actionLoadProjectFile, SIGNAL(triggered()), this, SLOT(loadProjectSettings()));
-    connect(_ui->actionReloadProjectFile, SIGNAL(triggered()), this, SLOT(reloadProjectSettings()));
-    connect(_ui->actionImportDataFile, SIGNAL(triggered()), this, SLOT(importData()));
-    connect(_ui->actionExportImage, SIGNAL(triggered()), this, SLOT(prepareImageExport()));
-    connect(_ui->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
+    connect(_pUi->actionStart, SIGNAL(triggered()), this, SLOT(startScope()));
+    connect(_pUi->actionStop, SIGNAL(triggered()), this, SLOT(stopScope()));
+    connect(_pUi->actionExit, SIGNAL(triggered()), this, SLOT(exitApplication()));
+    connect(_pUi->actionExportDataCsv, SIGNAL(triggered()), this, SLOT(prepareDataExport()));
+    connect(_pUi->actionLoadProjectFile, SIGNAL(triggered()), this, SLOT(loadProjectSettings()));
+    connect(_pUi->actionReloadProjectFile, SIGNAL(triggered()), this, SLOT(reloadProjectSettings()));
+    connect(_pUi->actionImportDataFile, SIGNAL(triggered()), this, SLOT(importData()));
+    connect(_pUi->actionExportImage, SIGNAL(triggered()), this, SLOT(prepareImageExport()));
+    connect(_pUi->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
 
     if (cmdArguments.size() > 1)
     {
@@ -116,15 +116,15 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete _scope;
-    delete _ui;
+    delete _pScope;
+    delete _pUi;
 }
 
 void MainWindow::startScope()
 {
     bool bCommunicationSettingsValid = true;
 
-    const quint32 pollTime = _ui->spinPollTime->text().toInt();
+    const quint32 pollTime = _pUi->spinPollTime->text().toInt();
 
     if (bCommunicationSettingsValid)
     {
@@ -136,33 +136,33 @@ void MainWindow::startScope()
 
         if (_pRegisterModel->checkedRegisterCount() != 0)
         {
-            _commSettings.setIpAddress(_ui->lineIP->text());
-            _commSettings.setPort(_ui->spinPort->text().toInt());
-            _commSettings.setSlaveId(_ui->spinSlaveId->text().toInt());
-            _commSettings.setTimeout(_ui->spinTimeout->text().toUInt());
+            _commSettings.setIpAddress(_pUi->lineIP->text());
+            _commSettings.setPort(_pUi->spinPort->text().toInt());
+            _commSettings.setSlaveId(_pUi->spinSlaveId->text().toInt());
+            _commSettings.setTimeout(_pUi->spinTimeout->text().toUInt());
             _commSettings.setPollTime(pollTime);
 
-            _ui->actionStart->setEnabled(false);
-            _ui->actionStop->setEnabled(true);
-            _ui->actionImportDataFile->setEnabled(false);
+            _pUi->actionStart->setEnabled(false);
+            _pUi->actionStop->setEnabled(true);
+            _pUi->actionImportDataFile->setEnabled(false);
 
             setSettingsObjectsState(false);
 
-            _statusState->setText(_cStateRunning);
-            _statusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
+            _pStatusState->setText(_cStateRunning);
+            _pStatusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
 
             _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
 
             QList<ScopeData::RegisterData> regList;
             _pRegisterModel->getCheckedRegisterList(&regList);
 
-            if (_scope->startCommunication(&_commSettings, regList))
+            if (_pScope->startCommunication(&_commSettings, regList))
             {
                 QList<QString> regTextList;
                 _pRegisterModel->getCheckedRegisterTextList(&regTextList);
 
-                _gui->resetGraph();
-                _gui->setupGraph(regTextList);
+                _pGui->resetGraph();
+                _pGui->setupGraph(regTextList);
             }
         }
         else
@@ -175,13 +175,13 @@ void MainWindow::startScope()
 
 void MainWindow::stopScope()
 {
-    _scope->stopCommunication();
+    _pScope->stopCommunication();
 
-    _ui->actionStart->setEnabled(true);
-    _ui->actionStop->setEnabled(false);
-    _ui->actionImportDataFile->setEnabled(true);
+    _pUi->actionStart->setEnabled(true);
+    _pUi->actionStop->setEnabled(false);
+    _pUi->actionImportDataFile->setEnabled(true);
 
-    _statusState->setText(_cStateStopped);
+    _pStatusState->setText(_cStateStopped);
 
     setSettingsObjectsState(true);
 }
@@ -290,15 +290,15 @@ void MainWindow::prepareImageExport()
     {
         filePath = dialog.selectedFiles().first();
         _lastDataFilePath  = filePath;
-        _gui->exportGraphImage(filePath);
+        _pGui->exportGraphImage(filePath);
     }
 }
 
 
 void MainWindow::updateYMin(int newMin)
 {
-    const qint32 min = _gui->getyAxisMin();
-    const qint32 max = _gui->getyAxisMax();
+    const qint32 min = _pGui->getyAxisMin();
+    const qint32 max = _pGui->getyAxisMax();
     const qint32 diff = max - min;
     qint32 newMax = max;
 
@@ -307,15 +307,15 @@ void MainWindow::updateYMin(int newMin)
         newMax = newMin + diff;
     }
 
-    _gui->setyAxisMinMax(newMin, newMax);
-    _ui->spinYMax->setValue(newMax);
+    _pGui->setyAxisMinMax(newMin, newMax);
+    _pUi->spinYMax->setValue(newMax);
 }
 
 
 void MainWindow::updateYMax(int newMax)
 {
-    const qint32 min = _gui->getyAxisMin();
-    const qint32 max = _gui->getyAxisMax();
+    const qint32 min = _pGui->getyAxisMin();
+    const qint32 max = _pGui->getyAxisMax();
     const qint32 diff = max - min;
 
     qint32 newMin = min;
@@ -325,8 +325,8 @@ void MainWindow::updateYMax(int newMax)
         newMin = newMax - diff;
     }
 
-    _gui->setyAxisMinMax(newMin, newMax);
-    _ui->spinYMin->setValue(newMin);
+    _pGui->setyAxisMinMax(newMin, newMax);
+    _pUi->spinYMin->setValue(newMin);
 }
 
 
@@ -334,7 +334,7 @@ void MainWindow::updateYMax(int newMax)
 void MainWindow::updateStats(quint32 successCount, quint32 errorCount)
 {
     // Update statistics
-    _statusStats->setText(_cStatsTemplate.arg(successCount).arg(errorCount));
+    _pStatusStats->setText(_cStatsTemplate.arg(successCount).arg(errorCount));
 }
 
 void MainWindow::changeXAxisScaling(int id)
@@ -342,20 +342,20 @@ void MainWindow::changeXAxisScaling(int id)
     if (id == ScopeGui::SCALE_AUTO)
     {
         // Full auto scaling
-        _ui->radioXFullScale->setChecked(true);
-        _gui->setxAxisScale(ScopeGui::SCALE_AUTO);
+        _pUi->radioXFullScale->setChecked(true);
+        _pGui->setxAxisScale(ScopeGui::SCALE_AUTO);
     }
     else if (id == ScopeGui::SCALE_SLIDING)
     {
         // Sliding window
-        _ui->radioXSliding->setChecked(true);
-        _gui->setxAxisScale(ScopeGui::SCALE_SLIDING, _ui->spinSlidingXInterval->text().toUInt());
+        _pUi->radioXSliding->setChecked(true);
+        _pGui->setxAxisScale(ScopeGui::SCALE_SLIDING, _pUi->spinSlidingXInterval->text().toUInt());
     }
     else
     {
         // manual
-        _ui->radioXManual->setChecked(true);
-        _gui->setxAxisScale(ScopeGui::SCALE_MANUAL);
+        _pUi->radioXManual->setChecked(true);
+        _pGui->setxAxisScale(ScopeGui::SCALE_MANUAL);
     }
 }
 
@@ -366,20 +366,20 @@ void MainWindow::changeYAxisScaling(int id)
     if (id == ScopeGui::SCALE_AUTO)
     {
         // Full auto scaling
-        _ui->radioYFullScale->setChecked(true);
-        _gui->setyAxisScale(ScopeGui::SCALE_AUTO);
+        _pUi->radioYFullScale->setChecked(true);
+        _pGui->setyAxisScale(ScopeGui::SCALE_AUTO);
     }
     else if (id == ScopeGui::SCALE_MINMAX)
     {
         // Min and max selected
-        _ui->radioYMinMax->setChecked(true);
-        _gui->setyAxisScale(ScopeGui::SCALE_MINMAX, _ui->spinYMin->text().toInt(), _ui->spinYMax->text().toInt());
+        _pUi->radioYMinMax->setChecked(true);
+        _pGui->setyAxisScale(ScopeGui::SCALE_MINMAX, _pUi->spinYMin->text().toInt(), _pUi->spinYMax->text().toInt());
     }
     else
     {
         // manual
-        _ui->radioYManual->setChecked(true);
-        _gui->setyAxisScale(ScopeGui::SCALE_MANUAL);
+        _pUi->radioYManual->setChecked(true);
+        _pGui->setyAxisScale(ScopeGui::SCALE_MANUAL);
     }
 }
 
@@ -392,7 +392,7 @@ void MainWindow::addRegister()
 void MainWindow::removeRegister()
 {
     // get list of selected rows
-    QItemSelectionModel *selected = _ui->registerView->selectionModel();
+    QItemSelectionModel *selected = _pUi->registerView->selectionModel();
     QModelIndexList rowList = selected->selectedRows();
 
     // sort QModelIndexList
@@ -407,76 +407,76 @@ void MainWindow::removeRegister()
 
 void MainWindow::setSettingsObjectsState(bool bState)
 {
-    _ui->spinPort->setEnabled(bState);
-    _ui->btnAdd->setEnabled(bState);
-    _ui->spinPollTime->setEnabled(bState);
-    _ui->btnRemove->setEnabled(bState);
-    _ui->spinSlaveId->setEnabled(bState);
-    _ui->spinTimeout->setEnabled(bState);
-    _ui->lineIP->setEnabled(bState);
-    _ui->registerView->setEnabled(bState);
-    _ui->actionLoadProjectFile->setEnabled(bState);
+    _pUi->spinPort->setEnabled(bState);
+    _pUi->btnAdd->setEnabled(bState);
+    _pUi->spinPollTime->setEnabled(bState);
+    _pUi->btnRemove->setEnabled(bState);
+    _pUi->spinSlaveId->setEnabled(bState);
+    _pUi->spinTimeout->setEnabled(bState);
+    _pUi->lineIP->setEnabled(bState);
+    _pUi->registerView->setEnabled(bState);
+    _pUi->actionLoadProjectFile->setEnabled(bState);
 
     // if a project file is previously loaded, then it can be reloaded
     if (_projectFilePath.isEmpty())
     {
-        _ui->actionReloadProjectFile->setEnabled(false);
+        _pUi->actionReloadProjectFile->setEnabled(false);
     }
     else
     {
-        _ui->actionReloadProjectFile->setEnabled(bState);
+        _pUi->actionReloadProjectFile->setEnabled(bState);
     }
 
-    _ui->actionExportDataCsv->setEnabled(bState);
-    _ui->actionExportImage->setEnabled(bState);
+    _pUi->actionExportDataCsv->setEnabled(bState);
+    _pUi->actionExportImage->setEnabled(bState);
 }
 
 void MainWindow::updateBoxes(ProjectFileParser::ProjectSettings * pProjectSettings)
 {
     if (pProjectSettings->general.bIp)
     {
-        _ui->lineIP->setText(pProjectSettings->general.ip);
+        _pUi->lineIP->setText(pProjectSettings->general.ip);
     }
 
     if (pProjectSettings->general.bPort)
     {
-        _ui->spinPort->setValue(pProjectSettings->general.port);
+        _pUi->spinPort->setValue(pProjectSettings->general.port);
     }
 
     if (pProjectSettings->general.bPollTime)
     {
-        _ui->spinPollTime->setValue(pProjectSettings->general.pollTime);
+        _pUi->spinPollTime->setValue(pProjectSettings->general.pollTime);
     }
 
     if (pProjectSettings->general.bSlaveId)
     {
-        _ui->spinSlaveId->setValue(pProjectSettings->general.slaveId);
+        _pUi->spinSlaveId->setValue(pProjectSettings->general.slaveId);
     }
 
     if (pProjectSettings->general.bTimeout)
     {
-        _ui->spinTimeout->setValue(pProjectSettings->general.timeout);
+        _pUi->spinTimeout->setValue(pProjectSettings->general.timeout);
     }
 
     if (pProjectSettings->scale.bSliding)
     {
-        _ui->spinSlidingXInterval->setValue(pProjectSettings->scale.slidingInterval);
-        _ui->radioXSliding->setChecked(true);
+        _pUi->spinSlidingXInterval->setValue(pProjectSettings->scale.slidingInterval);
+        _pUi->radioXSliding->setChecked(true);
     }
     else
     {
-        _ui->radioXFullScale->setChecked(true);
+        _pUi->radioXFullScale->setChecked(true);
     }
 
     if (pProjectSettings->scale.bMinMax)
     {
-        _ui->spinYMin->setValue(pProjectSettings->scale.scaleMin);
-        _ui->spinYMax->setValue(pProjectSettings->scale.scaleMax);
-        _ui->radioYMinMax->setChecked(true);
+        _pUi->spinYMin->setValue(pProjectSettings->scale.scaleMin);
+        _pUi->spinYMax->setValue(pProjectSettings->scale.scaleMax);
+        _pUi->radioYMinMax->setChecked(true);
     }
     else
     {
-        _ui->radioYFullScale->setChecked(true);
+        _pUi->radioYFullScale->setChecked(true);
     }
 
     _pRegisterModel->clear();
@@ -492,7 +492,7 @@ void MainWindow::updateBoxes(ProjectFileParser::ProjectSettings * pProjectSettin
     }
 
     // make registerview resize to content
-    _ui->registerView->resizeColumnsToContents();
+    _pUi->registerView->resizeColumnsToContents();
 
 }
 
@@ -513,7 +513,7 @@ void MainWindow::loadProjectFile(QString dataFilePath)
             setWindowTitle(QString(tr("%1 - %2")).arg(_cWindowTitle, QFileInfo(_projectFilePath).fileName()));
 
             // Enable reload menu item
-            _ui->actionReloadProjectFile->setEnabled(true);
+            _pUi->actionReloadProjectFile->setEnabled(true);
 
         }
     }
@@ -538,10 +538,10 @@ void MainWindow::loadDataFile(QString dataFilePath)
         if (dataParser.processDataFile(&data))
         {
             // If success, disable export data
-            _ui->actionExportDataCsv->setEnabled(false);
+            _pUi->actionExportDataCsv->setEnabled(false);
 
-            _statusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
-            _statusStats->setText(_cStatsTemplate.arg(0).arg(0));
+            _pStatusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
+            _pStatusStats->setText(_cStatsTemplate.arg(0).arg(0));
 
             // Set to full auto scaling
             changeXAxisScaling(ScopeGui::SCALE_AUTO);
@@ -549,7 +549,7 @@ void MainWindow::loadDataFile(QString dataFilePath)
             // Set to full auto scaling
             changeYAxisScaling(ScopeGui::SCALE_AUTO);
 
-            _gui->loadFileData(&data);
+            _pGui->loadFileData(&data);
         }
 
     }
@@ -623,7 +623,7 @@ void MainWindow::importData()
 
 void MainWindow::updateRuntime()
 {
-    qint64 timePassed = QDateTime::currentMSecsSinceEpoch() - _scope->getCommunicationStartTime();
+    qint64 timePassed = QDateTime::currentMSecsSinceEpoch() - _pScope->getCommunicationStartTime();
 
     // Convert to s
     timePassed /= 1000;
@@ -638,10 +638,10 @@ void MainWindow::updateRuntime()
 
     QString strTimePassed = QString("%1 hours, %2 minutes %3 seconds").arg(h).arg(m).arg(s);
 
-    _statusRuntime->setText(_cRuntime.arg(strTimePassed));
+    _pStatusRuntime->setText(_cRuntime.arg(strTimePassed));
 
     // restart timer
-    if (_scope->isActive())
+    if (_pScope->isActive())
     {
         _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
     }

@@ -8,7 +8,7 @@
 #include "scopedata.h"
 
 ScopeData::ScopeData(QObject *parent) :
-    QObject(parent), _master(NULL), _active(false), _timer(new QTimer()), _successCount(0), _errorCount(0)
+    QObject(parent), _master(NULL), _active(false), _pPollTimer(new QTimer()), _successCount(0), _errorCount(0)
 {
 
     qRegisterMetaType<QList<quint16> >("QList<quint16>");
@@ -41,7 +41,7 @@ ScopeData::~ScopeData()
         _master->wait();
     }
 
-    delete _timer;
+    delete _pPollTimer;
 }
 
 bool ScopeData::startCommunication(ModbusSettings * pSettings, QList<RegisterData> registers)
@@ -61,7 +61,7 @@ bool ScopeData::startCommunication(ModbusSettings * pSettings, QList<RegisterDat
         _startTime = QDateTime::currentMSecsSinceEpoch();
 
         // Trigger read immediatly
-        _timer->singleShot(1, this, SLOT(readData()));
+        _pPollTimer->singleShot(1, this, SLOT(readData()));
 
         _active = true;
         bResetted = true;
@@ -95,7 +95,7 @@ void ScopeData::handlePollDone(QList<bool> successList, QList<quint16> values)
         waitInterval = _settings.getPollTime() - passedInterval;
     }
 
-    _timer->singleShot(waitInterval, this, SLOT(readData()));
+    _pPollTimer->singleShot(waitInterval, this, SLOT(readData()));
 
     // Process values
     QList<double> processedValue;

@@ -81,8 +81,8 @@ private:
     MainWindow * _window;
     ScopeData * _scopedata;
 
-    QVector<QString> tickLabels;
-    QList<QString> graphNames;
+    QVector<QString> _tickLabels;
+    QList<QString> _graphNames;
 
     GuiSettings _settings;
 

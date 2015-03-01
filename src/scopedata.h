@@ -53,7 +53,7 @@ private:
 
     ModbusMaster * _master;
     bool _active;
-    QTimer * _timer;
+    QTimer * _pPollTimer;
 
     quint32 _successCount;
     quint32 _errorCount;
