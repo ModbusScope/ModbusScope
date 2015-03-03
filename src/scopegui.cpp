@@ -60,6 +60,9 @@ ScopeGui::ScopeGui(MainWindow *window, ScopeData *scopedata, QCustomPlot * pPlot
    legendFont.setPointSize(10);
    _pPlot->legend->setFont(legendFont);
 
+    // Tooltip is enabled
+    _bEnableTooltip = true;
+
    // Add layer to move graph on front
    _pPlot->addLayer("topMain", _pPlot->layer("main"), QCustomPlot::limAbove);
 
@@ -340,6 +343,11 @@ void ScopeGui::exportGraphImage(QString imageFile)
     }
 }
 
+void ScopeGui::enableValueTooltip(bool bState)
+{
+    _bEnableTooltip = bState;
+}
+
 void ScopeGui::generateTickLabels()
 {
     QVector<double> ticks = _pPlot->xAxis->tickVector();
@@ -423,6 +431,7 @@ void ScopeGui::mouseWheel()
 
 void ScopeGui::mouseMove(QMouseEvent *event)
 {
+    // Check for graph drag
     if(event->buttons() & Qt::LeftButton)
     {
         if (_pPlot->axisRect()->rangeDrag() == Qt::Horizontal)
@@ -438,6 +447,90 @@ void ScopeGui::mouseMove(QMouseEvent *event)
             // Both
             emit updateXScalingUi(ScopeGui::SCALE_MANUAL); // change to manual scaling
             emit updateYScalingUi(ScopeGui::SCALE_MANUAL); // change to manual scaling
+        }
+    }
+    else if  (_bEnableTooltip) // Check to show tooltip
+    {
+        const double xPos = _pPlot->xAxis->pixelToCoord(event->pos().x());
+
+        if (_pPlot->graphCount() > 0)
+        {
+            QString toolText;
+            const QList<double> keyList = _pPlot->graph(0)->data()->keys();
+
+            // Find if cursor is in range to show tooltip
+            qint32 i = 0;
+            bool bInRange = false;
+            for (i = 1; i < keyList.size(); i++)
+            {
+                // find the two nearest points
+                if (
+                    (xPos > keyList[i - 1])
+                    && (xPos <= keyList[i])
+                    )
+                {
+                    const double leftPointPxl = _pPlot->xAxis->coordToPixel(keyList[i - 1]);
+                    const double rightPointPxl = _pPlot->xAxis->coordToPixel(keyList[i]);
+                    const double xCoordPxl = event->pos().x();
+                    double keyIndex = -1;
+
+                    if (
+                        (xCoordPxl >= leftPointPxl)
+                        && (xCoordPxl <= (leftPointPxl + _cPixelNearThreshold))
+                        )
+                    {
+                        keyIndex = i - 1;
+                    }
+                    else if (
+                         (xCoordPxl >= (rightPointPxl - _cPixelNearThreshold))
+                         && (xCoordPxl <= rightPointPxl)
+                        )
+                    {
+                        keyIndex = i;
+                    }
+                    else
+                    {
+                        // no point near enough
+                        keyIndex = -1;
+                    }
+
+                    if (keyIndex != -1)
+                    {
+                        bInRange = true;
+
+                        // Add tick key string
+                        toolText = createTickLabelString(keyList[keyIndex]);
+
+                        // Check all graphs
+                        for (qint32 graphIndex = 0; graphIndex < _pPlot->graphCount(); graphIndex++)
+                        {
+                            if (_pPlot->graph(graphIndex)->visible())
+                            {
+                                const double value = _pPlot->graph(graphIndex)->data()->values()[keyIndex].value;
+                                toolText += QString("\n%1: %2").arg(_graphNames[graphIndex]).arg(value);
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if (!bInRange)
+            {
+                // Hide tooltip
+                QToolTip::hideText();
+            }
+            else
+            {
+                QToolTip::showText(_pPlot->mapToGlobal(event->pos()), toolText, _pPlot);
+            }
+        }
+    }
+    else
+    {
+        if (QToolTip::isVisible())
+        {
+            QToolTip::hideText();
         }
     }
 }

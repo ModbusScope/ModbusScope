@@ -116,6 +116,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionImportDataFile, SIGNAL(triggered()), this, SLOT(importData()));
     connect(_pUi->actionExportImage, SIGNAL(triggered()), this, SLOT(prepareImageExport()));
     connect(_pUi->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
+    connect(_pUi->actionShowValueTooltip, SIGNAL(toggled(bool)), _pGui, SLOT(enableValueTooltip(bool)));
 
     if (cmdArguments.size() > 1)
     {
@@ -157,6 +158,7 @@ void MainWindow::startScope()
             _pUi->actionStart->setEnabled(false);
             _pUi->actionStop->setEnabled(true);
             _pUi->actionImportDataFile->setEnabled(false);
+            _pUi->actionShowValueTooltip->setEnabled(true);
 
             setSettingsObjectsState(false);
 

@@ -407,6 +407,8 @@
     </widget>
     <addaction name="menuBringToFront"/>
     <addaction name="menuShowHide"/>
+    <addaction name="separator"/>
+    <addaction name="actionShowValueTooltip"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuCommunication"/>
@@ -468,6 +470,20 @@
   <action name="actionImportDataFile">
    <property name="text">
     <string>Import Data File...</string>
+   </property>
+  </action>
+  <action name="actionShowValueTooltip">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Show Value Tooltip</string>
    </property>
   </action>
  </widget>

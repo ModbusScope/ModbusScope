@@ -50,6 +50,7 @@ public slots:
     void setxAxisSlidingInterval(int interval);
     void exportDataCsv(QString dataFile);
     void exportGraphImage(QString imageFile);
+    void enableValueTooltip(bool bState);
 
 private slots:
     void generateTickLabels();
@@ -89,11 +90,9 @@ private:
     QList<QString> _graphNames;
 
     GuiSettings _settings;
+    bool _bEnableTooltip;
 
-
-    static const quint32 _cMinuteTripPoint = 5*60*1000; /* in ms */
-    static const quint32 _cHourTripPoint = 10*60*60*1000; /* in ms */
-
+    static const qint32 _cPixelNearThreshold = 20; /* in pixels */
 };
 
 #endif // SCOPEGUI_H
