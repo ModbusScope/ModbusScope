@@ -50,6 +50,8 @@ private slots:
     void showAbout();
     void importData();
     void updateRuntime();
+    void dragEnterEvent(QDragEnterEvent *e);
+    void dropEvent(QDropEvent *e);
 
 public slots:
     void updateStats(quint32 successCount, quint32 errorCount);

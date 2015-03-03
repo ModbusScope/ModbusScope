@@ -25,6 +25,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     // Set window title
     this->setWindowTitle(_cWindowTitle);
+    this->setAcceptDrops(true);
 
     // Add multipart status bar
     _pStatusState = new QLabel(_cStateStopped, this);
@@ -644,6 +645,22 @@ void MainWindow::updateRuntime()
     if (_pScope->isActive())
     {
         _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
+    }
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *e)
+{
+    if (e->mimeData()->hasUrls())
+    {
+        e->acceptProposedAction();
+    }
+}
+
+void MainWindow::dropEvent(QDropEvent *e)
+{
+    foreach (const QUrl &url, e->mimeData()->urls())
+    {
+        loadProjectFile(url.toLocalFile());
     }
 }
 
