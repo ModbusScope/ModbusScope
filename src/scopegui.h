@@ -60,6 +60,7 @@ private:
 
     void writeToFile(QString filePath, QString logData);
     void scalePlot();
+    QString createTickLabelString(qint32 tickKey);
 
     typedef struct _GuiSettings
     {

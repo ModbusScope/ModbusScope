@@ -308,32 +308,14 @@ void ScopeGui::exportGraphImage(QString imageFile)
 void ScopeGui::generateTickLabels()
 {
     QVector<double> ticks = _pPlot->xAxis->tickVector();
-    quint32 scaleFactor;
 
     /* Clear ticks vector */
     _tickLabels.clear();
 
-    /* Check if we need seconds, minute or hours on x-axis */
-    if (ticks[ticks.size()-1] > _cHourTripPoint)
-    {
-        _pPlot->xAxis->setLabel("Time (hour)");
-        scaleFactor = 60*60*1000;
-    }
-    else if (ticks[ticks.size()-1] > _cMinuteTripPoint)
-    {
-        _pPlot->xAxis->setLabel("Time (min)");
-        scaleFactor = 60*1000;
-    }
-    else
-    {
-        _pPlot->xAxis->setLabel("Time (s)");
-        scaleFactor = 1000;
-    }
-
     /* Generate correct labels */
     for (qint32 index = 0; index < ticks.size(); index++)
     {
-        _tickLabels.append(QString::number(ticks[index] / scaleFactor));
+        _tickLabels.append(createTickLabelString(ticks[index]));
     }
 
     /* Set labels */
@@ -507,4 +489,45 @@ void ScopeGui::scalePlot()
     }
 
     _pPlot->replot();
+}
+
+QString ScopeGui::createTickLabelString(qint32 tickKey)
+{
+    QString tickLabel;
+    bool bNegative;
+    quint32 tmp;
+
+    if (tickKey < 0)
+    {
+        bNegative = true;
+        tmp = -1 * tickKey;
+    }
+    else
+    {
+        bNegative = false;
+        tmp = tickKey;
+    }
+
+    quint32 hours = tmp / (60 * 60 * 1000);
+    tmp = tmp % (60 * 60 * 1000);
+
+    quint32 minutes = tmp / (60 * 1000);
+    tmp = tmp % (60 * 1000);
+
+    quint32 seconds = tmp / 1000;
+    quint32 milliseconds = tmp % 1000;
+
+    tickLabel = QString("%1:%2:%3%4%5").arg(hours)
+                                                .arg(minutes, 2, 10, QChar('0'))
+                                                .arg(seconds, 2, 10, QChar('0'))
+                                                .arg(QLocale::system().decimalPoint())
+                                               .arg(milliseconds, 2, 10, QChar('0'));
+
+    // Make sure minus sign is shown when tick number is negative
+    if (bNegative)
+    {
+        tickLabel = "-" + tickLabel;
+    }
+
+    return tickLabel;
 }
