@@ -256,7 +256,7 @@ bool RegisterModel::insertRows (int row, int count, const QModelIndex &parent)
     beginInsertRows(parent, _dataList.size(), _dataList.size());
 
     RegisterData data;
-    data.bActive = false;
+    data.bActive = true;
     data.bUnsigned = false;
     data.reg = getNextFreeAddress();
     data.text = QString("Register %1").arg(data.reg);
