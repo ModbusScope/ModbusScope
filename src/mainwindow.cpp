@@ -61,6 +61,11 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _projectFilePath = QString("");
     _lastDataFilePath = QString("");
 
+    // For rightclick menu
+    _pUi->customPlot->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(_pUi->customPlot, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
+
+
     connect(_pUi->spinSlidingXInterval, SIGNAL(valueChanged(int)), _pGui, SLOT(setxAxisSlidingInterval(int)));
     connect(_pUi->spinYMin, SIGNAL(valueChanged(int)), this, SLOT(updateYMin(int)));
     connect(_pUi->spinYMax, SIGNAL(valueChanged(int)), this, SLOT(updateYMax(int)));
@@ -731,6 +736,11 @@ void MainWindow::showHideGraph(bool bState)
     }
 
     _pGraphBringToFront->setEnabled(bVisible);
+}
+
+void MainWindow::showContextMenu(const QPoint& pos)
+{
+    _pUi->menuView->popup(_pUi->customPlot->mapToGlobal(pos));
 }
 
 bool MainWindow::sortRegistersLastFirst(const QModelIndex &s1, const QModelIndex &s2)

@@ -55,6 +55,7 @@ private slots:
     void dropEvent(QDropEvent *e);
     void bringToFrontGraph(bool bState);
     void showHideGraph(bool bState);
+    void showContextMenu(const QPoint& pos);
 
 public slots:
     void updateStats(quint32 successCount, quint32 errorCount);
