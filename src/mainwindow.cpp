@@ -704,9 +704,9 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *e)
 
 void MainWindow::dropEvent(QDropEvent *e)
 {
-    foreach (const QUrl &url, e->mimeData()->urls())
+    if (!_pScope->isActive())
     {
-        loadProjectFile(url.toLocalFile());
+        loadProjectFile(e->mimeData()->urls().last().toLocalFile());
     }
 }
 
