@@ -54,6 +54,7 @@ private slots:
     void dragEnterEvent(QDragEnterEvent *e);
     void dropEvent(QDropEvent *e);
     void bringToFrontGraph(bool bState);
+    void showHideGraph(bool bState);
 
 public slots:
     void updateStats(quint32 successCount, quint32 errorCount);
@@ -86,6 +87,7 @@ private:
     QTimer _runtimeTimer;
 
     QMenu * _pGraphBringToFront;
+    QMenu * _pGraphShowHide;
     QActionGroup* _pBringToFrontGroup;
 
     static const QString _cWindowTitle;

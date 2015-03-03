@@ -237,6 +237,18 @@ void ScopeGui::bringToFront(quint32 index, bool bFront)
     _pPlot->replot();
 }
 
+void ScopeGui::showGraph(quint32 index, bool bShow)
+{
+    _pPlot->graph(index)->setVisible(bShow);
+
+    QFont itemFont = _pPlot->legend->item(index)->font();
+    itemFont.setStrikeOut(!bShow);
+
+    _pPlot->legend->item(index)->setFont(itemFont);
+
+    _pPlot->replot();
+}
+
 QColor ScopeGui::getGraphColor(quint32 index)
 {
     return _pPlot->graph(index)->pen().color();

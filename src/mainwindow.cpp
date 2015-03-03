@@ -27,6 +27,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     this->setWindowTitle(_cWindowTitle);
     this->setAcceptDrops(true);
 
+    _pGraphShowHide = _pUi->menuShowHide;
     _pGraphBringToFront = _pUi->menuBringToFront;
     _pBringToFrontGroup = new QActionGroup(this);
 
@@ -121,6 +122,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete _pScope;
+    delete _pGraphShowHide;
     delete _pGraphBringToFront;
     delete _pUi;
 }
@@ -170,26 +172,36 @@ void MainWindow::startScope()
                 _pGui->setupGraph(regTextList);
 
                 // Clear actions
+                _pGraphShowHide->clear();
                 _pBringToFrontGroup->actions().clear();
                 _pGraphBringToFront->clear();
 
                 // Add menu-items
                 for (qint32 i = 0; i < regTextList.size(); i++)
                 {
+                    QAction * pShowHideAction = _pGraphShowHide->addAction(regTextList[i]);
                     QAction * pBringToFront = _pGraphBringToFront->addAction(regTextList[i]);
 
                     QPixmap pixmap(20,5);
                     pixmap.fill(_pGui->getGraphColor(i));
+                    QIcon * pBringToFrontIcon = new QIcon(pixmap);
                     QIcon * pShowHideIcon = new QIcon(pixmap);
+
+                    pShowHideAction->setData(i);
+                    pShowHideAction->setIcon(*pBringToFrontIcon);
+                    pShowHideAction->setCheckable(true);
+                    pShowHideAction->setChecked(true);
 
                     pBringToFront->setData(i);
                     pBringToFront->setIcon(*pShowHideIcon);
                     pBringToFront->setCheckable(true);
                     pBringToFront->setActionGroup(_pBringToFrontGroup);
 
+                    QObject::connect(pShowHideAction, SIGNAL(toggled(bool)), this, SLOT(showHideGraph(bool)));
                     QObject::connect(pBringToFront, SIGNAL(toggled(bool)), this, SLOT(bringToFrontGraph(bool)));
                 }
 
+                _pGraphShowHide->setEnabled(true);
                 _pGraphBringToFront->setEnabled(true);
             }
         }
@@ -696,6 +708,29 @@ void MainWindow::bringToFrontGraph(bool bState)
     QAction * pAction = qobject_cast<QAction *>(QObject::sender());
 
     _pGui->bringToFront(pAction->data().toInt(), bState);
+}
+
+void MainWindow::showHideGraph(bool bState)
+{
+    QAction * pAction = qobject_cast<QAction *>(QObject::sender());
+
+    _pGui->showGraph(pAction->data().toInt(), bState);
+
+    // Show/Hide corresponding "BringToFront" action
+    _pGraphBringToFront->actions().at(pAction->data().toInt())->setVisible(bState);
+
+    // Enable/Disable BringToFront menu
+    bool bVisible = false;
+    foreach(QAction * pAction, _pGraphBringToFront->actions())
+    {
+        if (pAction->isVisible())
+        {
+            bVisible = true;
+            break;
+        }
+    }
+
+    _pGraphBringToFront->setEnabled(bVisible);
 }
 
 bool MainWindow::sortRegistersLastFirst(const QModelIndex &s1, const QModelIndex &s2)
