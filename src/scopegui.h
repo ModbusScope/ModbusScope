@@ -7,9 +7,7 @@
 #include "scopedata.h"
 #include "mainwindow.h"
 #include "datafileparser.h"
-
-// Foward declaration
-class QCustomPlot;
+#include "qcustomplot.h"
 
 class ScopeGui : public QObject
 {
@@ -55,6 +53,7 @@ private slots:
     void mousePress();
     void mouseWheel();
     void mouseMove(QMouseEvent *event);
+    void axisDoubleClicked(QCPAxis * axis);
 
 private:
 

@@ -67,6 +67,7 @@ ScopeGui::ScopeGui(MainWindow *window, ScopeData *scopedata, QCustomPlot * pPlot
    connect(_pPlot, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress()));
    connect(_pPlot, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel()));
    connect(_pPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMove(QMouseEvent*)));
+   connect(_pPlot, SIGNAL(axisDoubleClick(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)), this, SLOT(axisDoubleClicked(QCPAxis*)));
 
    connect(this, SIGNAL(updateXScalingUi(int)), _window,SLOT(changeXAxisScaling(int)));
    connect(this, SIGNAL(updateYScalingUi(int)), _window,SLOT(changeYAxisScaling(int)));
@@ -407,6 +408,11 @@ void ScopeGui::mouseMove(QMouseEvent *event)
     }
 }
 
+void ScopeGui::axisDoubleClicked(QCPAxis * axis)
+{
+    axis->rescale();
+    _pPlot->replot();
+}
 
 void ScopeGui::writeToFile(QString filePath, QString logData)
 {
