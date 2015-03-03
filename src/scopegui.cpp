@@ -60,6 +60,9 @@ ScopeGui::ScopeGui(MainWindow *window, ScopeData *scopedata, QCustomPlot * pPlot
    legendFont.setPointSize(10);
    _pPlot->legend->setFont(legendFont);
 
+   // Add layer to move graph on front
+   _pPlot->addLayer("topMain", _pPlot->layer("main"), QCustomPlot::limAbove);
+
    // connect slot that ties some axis selections together (especially opposite axes):
    connect(_pPlot, SIGNAL(selectionChangedByUser()), this, SLOT(selectionChanged()));
 
@@ -218,6 +221,25 @@ qint32 ScopeGui::getyAxisMin()
 qint32 ScopeGui::getyAxisMax()
 {
     return _settings.yMax;
+}
+
+void ScopeGui::bringToFront(quint32 index, bool bFront)
+{
+    if (bFront)
+    {
+        _pPlot->graph(index)->setLayer("topMain");
+    }
+    else
+    {
+        _pPlot->graph(index)->setLayer("grid");
+    }
+
+    _pPlot->replot();
+}
+
+QColor ScopeGui::getGraphColor(quint32 index)
+{
+    return _pPlot->graph(index)->pen().color();
 }
 
 void ScopeGui::exportDataCsv(QString dataFile)

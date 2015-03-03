@@ -27,6 +27,9 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     this->setWindowTitle(_cWindowTitle);
     this->setAcceptDrops(true);
 
+    _pGraphBringToFront = _pUi->menuBringToFront;
+    _pBringToFrontGroup = new QActionGroup(this);
+
     // Add multipart status bar
     _pStatusState = new QLabel(_cStateStopped, this);
     _pStatusState->setFrameStyle(QFrame::Panel | QFrame::Sunken);
@@ -118,6 +121,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete _pScope;
+    delete _pGraphBringToFront;
     delete _pUi;
 }
 
@@ -164,6 +168,29 @@ void MainWindow::startScope()
 
                 _pGui->resetGraph();
                 _pGui->setupGraph(regTextList);
+
+                // Clear actions
+                _pBringToFrontGroup->actions().clear();
+                _pGraphBringToFront->clear();
+
+                // Add menu-items
+                for (qint32 i = 0; i < regTextList.size(); i++)
+                {
+                    QAction * pBringToFront = _pGraphBringToFront->addAction(regTextList[i]);
+
+                    QPixmap pixmap(20,5);
+                    pixmap.fill(_pGui->getGraphColor(i));
+                    QIcon * pShowHideIcon = new QIcon(pixmap);
+
+                    pBringToFront->setData(i);
+                    pBringToFront->setIcon(*pShowHideIcon);
+                    pBringToFront->setCheckable(true);
+                    pBringToFront->setActionGroup(_pBringToFrontGroup);
+
+                    QObject::connect(pBringToFront, SIGNAL(toggled(bool)), this, SLOT(bringToFrontGraph(bool)));
+                }
+
+                _pGraphBringToFront->setEnabled(true);
             }
         }
         else
@@ -662,6 +689,13 @@ void MainWindow::dropEvent(QDropEvent *e)
     {
         loadProjectFile(url.toLocalFile());
     }
+}
+
+void MainWindow::bringToFrontGraph(bool bState)
+{
+    QAction * pAction = qobject_cast<QAction *>(QObject::sender());
+
+    _pGui->bringToFront(pAction->data().toInt(), bState);
 }
 
 bool MainWindow::sortRegistersLastFirst(const QModelIndex &s1, const QModelIndex &s2)

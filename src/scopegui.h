@@ -37,6 +37,9 @@ public:
     qint32 getyAxisMin();
     qint32 getyAxisMax();
 
+    void bringToFront(quint32 index, bool bFront);
+    QColor getGraphColor(quint32 index);
+
 signals:
     void updateXScalingUi(int);
     void updateYScalingUi(int);

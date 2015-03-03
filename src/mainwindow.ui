@@ -385,8 +385,23 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <widget class="QMenu" name="menuBringToFront">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Bring To Front</string>
+     </property>
+    </widget>
+    <addaction name="menuBringToFront"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuCommunication"/>
+   <addaction name="menuView"/>
    <addaction name="menu"/>
   </widget>
   <action name="actionExit">

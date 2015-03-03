@@ -5,6 +5,7 @@
 #include <QListWidgetItem>
 #include <QButtonGroup>
 #include <QTimer>
+#include <QMenu>
 
 #include "registermodel.h"
 #include "modbussettings.h"
@@ -52,6 +53,7 @@ private slots:
     void updateRuntime();
     void dragEnterEvent(QDragEnterEvent *e);
     void dropEvent(QDropEvent *e);
+    void bringToFrontGraph(bool bState);
 
 public slots:
     void updateStats(quint32 successCount, quint32 errorCount);
@@ -82,6 +84,9 @@ private:
     QString _lastDataFilePath;
 
     QTimer _runtimeTimer;
+
+    QMenu * _pGraphBringToFront;
+    QActionGroup* _pBringToFrontGroup;
 
     static const QString _cWindowTitle;
     static const QString _cStateRunning;
