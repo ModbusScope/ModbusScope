@@ -536,6 +536,8 @@ void MainWindow::updateBoxes(ProjectFileParser::ProjectSettings * pProjectSettin
         rowData.setRegisterAddress(pProjectSettings->scope.registerList[i].address);
         rowData.setText(pProjectSettings->scope.registerList[i].text);
         rowData.setScaleFactor(pProjectSettings->scope.registerList[i].scaleFactor);
+        rowData.setColor(pProjectSettings->scope.registerList[i].color);
+
         _pRegisterModel->appendRow(rowData);
     }
 

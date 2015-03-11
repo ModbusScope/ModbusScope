@@ -13,6 +13,7 @@
 			<text>Very interesting register</text>
 			<unsigned>true</unsigned>
 			<scalefactor>0,5</scalefactor>
+			<color>#FF0000</color>
 			<unknowntag2>true</unknowntag2>
 		</var>
 		<var>

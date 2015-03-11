@@ -257,6 +257,21 @@ bool ProjectFileParser::parseVariableTag(const QDomElement &element, RegisterSet
                 break;
             }
         }
+        else if (child.tagName() == "color")
+        {
+            bRet = QColor::isValidColor(child.text());
+            pRegisterSettings->bColor = bRet;
+            if (bRet)
+            {
+                pRegisterSettings->color = QColor(child.text());
+            }
+            else
+            {
+                _msgBox.setText(tr("Color is not a valid double. Did you use correct color format? Expecting #FF0000 (red)"));
+                _msgBox.exec();
+                break;
+            }
+        }
         else
         {
             // unkown tag: ignore

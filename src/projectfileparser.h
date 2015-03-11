@@ -12,13 +12,17 @@ public:
 
     typedef struct _RegisterSettings
     {
-        _RegisterSettings() : bActive(false), bUnsigned(false), scaleFactor(1) {}
+        _RegisterSettings() : bActive(false), bUnsigned(false), scaleFactor(1), bColor(false) {}
 
         quint16 address;
         QString text;
         bool bActive;
         bool bUnsigned;
         double scaleFactor;
+
+        bool bColor;
+        QColor color;
+
     } RegisterSettings;
 
     typedef struct

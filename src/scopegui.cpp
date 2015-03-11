@@ -99,11 +99,11 @@ void ScopeGui::resetGraph(void)
 
 void ScopeGui::setupGraph(QList<RegisterData> registerList)
 {
-   quint32 colorIndex;
+   quint32 colorIndex = 0;
 
    for (qint32 i = 0; i < registerList.size(); i++)
    {
-       colorIndex = _pPlot->graphCount() % _colorlist.size();
+       colorIndex %= _colorlist.size();
 
        QCPGraph * pGraph = _pPlot->addGraph();
 
@@ -111,7 +111,16 @@ void ScopeGui::setupGraph(QList<RegisterData> registerList)
        _graphNames.append(registerList[i].getText());
 
        QPen pen;
-       pen.setColor(_colorlist[colorIndex]);
+       if (registerList[i].getColor().isValid())
+       {
+           pen.setColor(registerList[i].getColor());
+       }
+       else
+       {
+           pen.setColor(_colorlist[colorIndex]);
+           colorIndex++;
+       }
+
        pen.setWidth(2);
        pen.setCosmetic(true);
 

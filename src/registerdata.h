@@ -26,6 +26,9 @@ public:
     QString getText() const;
     void setText(const QString &value);
 
+    QColor getColor() const;
+    void setColor(const QColor &value);
+
     static bool sortRegisterDataList(const RegisterData& s1, const RegisterData& s2);
 
 private:
@@ -35,6 +38,7 @@ private:
     double scaleFactor;
     quint16 reg;
     QString text;
+    QColor color;
 };
 
 #endif // REGISTERDATA_H

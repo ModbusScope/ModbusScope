@@ -7,11 +7,13 @@ RegisterData::RegisterData()
     scaleFactor = 1;
     reg = 0;
     text = "";
+    color = QColor("-1");
 }
 
 void RegisterData::CopyTo(RegisterData * pData)
 {
     pData->setActive(this->getActive());
+    pData->setColor(this->getColor());
     pData->setRegisterAddress(this->getRegisterAddress());
     pData->setScaleFactor(this->getScaleFactor());
     pData->setText(this->getText());
@@ -47,6 +49,16 @@ QString RegisterData::getText() const
 void RegisterData::setText(const QString &value)
 {
     text = value;
+}
+
+QColor RegisterData::getColor() const
+{
+    return color;
+}
+
+void RegisterData::setColor(const QColor &value)
+{
+    color = value;
 }
 
 quint16 RegisterData::getRegisterAddress() const

@@ -261,6 +261,7 @@ bool RegisterModel::insertRows (int row, int count, const QModelIndex &parent)
     data.setRegisterAddress(getNextFreeAddress());
     data.setText(QString("Register %1").arg(data.getRegisterAddress()));
     data.setScaleFactor(1);
+    data.setColor("-1"); // Invalid color
     _dataList.append(data);
 
     endInsertRows();
