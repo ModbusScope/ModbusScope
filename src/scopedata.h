@@ -3,8 +3,11 @@
 
 #include <QObject>
 #include <QList>
-#include <modbussettings.h>
 #include <QStringListModel>
+
+#include "modbussettings.h"
+#include "registerdata.h"
+
 
 //Forward declaration
 class ModbusMaster;
@@ -16,16 +19,6 @@ class ScopeData : public QObject
 public:
     explicit ScopeData(QObject *parent = 0);
     ~ScopeData();
-
-    typedef struct _RegisterData
-    {
-        _RegisterData() : bUnsigned(false), scaleFactor(1) {}
-        quint16 reg;
-        bool bUnsigned;
-        double scaleFactor;
-    } RegisterData;
-
-    static bool sortRegisterDataList(const RegisterData& s1, const RegisterData& s2);
 
     bool startCommunication(ModbusSettings * pSettings, QList<RegisterData> registers);
     void stopCommunication();

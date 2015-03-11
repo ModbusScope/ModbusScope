@@ -24,7 +24,7 @@ public:
     } AxisScaleOptions;
 
     void resetGraph(void);
-    void setupGraph(QList<QString> registerTextList);
+    void setupGraph(QList<RegisterData> registerList);
     void loadFileData(DataFileParser::FileData * pData);
     void setxAxisScale(AxisScaleOptions scaleMode);
     void setxAxisScale(AxisScaleOptions scaleMode, quint32 interval);

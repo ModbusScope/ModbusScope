@@ -2,23 +2,14 @@
 #define REGISTERMODEL_H
 
 #include <QAbstractTableModel>
-#include <scopedata.h>
+#include "scopedata.h"
+#include "registerdata.h"
 
 class RegisterModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
     explicit RegisterModel(QObject *parent = 0);
-
-    typedef struct _RegisterData
-    {
-        _RegisterData() : bActive(false), bUnsigned(false), scaleFactor(1) {}
-        bool bActive;
-        bool bUnsigned;
-        double scaleFactor;
-        quint16 reg;
-        QString text;
-    } RegisterData;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const ;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -32,8 +23,7 @@ public:
 
     uint checkedRegisterCount();
     void getRegisterList(QList<quint16> * pRegisterList);
-    void getCheckedRegisterList(QList<ScopeData::RegisterData> *pRegisterList);
-    void getCheckedRegisterTextList(QList<QString> * pRegisterTextList);
+    void getCheckedRegisterList(QList<RegisterData> *pRegisterList);
 
     void clear(const QModelIndex &parent = QModelIndex());
     void appendRow(RegisterData rowData, const QModelIndex &parent = QModelIndex());
@@ -44,7 +34,6 @@ public slots:
 
 private:
 
-    static bool sortRegisterByAddress(const RegisterData& s1, const RegisterData& s2);
     bool IsAlreadyPresent(quint16 newReg);
     quint16 getNextFreeAddress();
 

@@ -39,7 +39,8 @@ SOURCES +=  \
     ../src/scopegui.cpp \
     ../src/projectfileparser.cpp \
     ../src/registermodel.cpp \
-    ../src/datafileparser.cpp
+    ../src/datafileparser.cpp \
+    ../src/registerdata.cpp
 
 FORMS    += \
     ../src/mainwindow.ui
@@ -59,4 +60,5 @@ HEADERS += \
     ../src/projectfileparser.h \
     ../src/registermodel.h \
     ../src/datafileparser.h \
-    ../src/util.h
+    ../src/util.h \
+    ../src/registerdata.h

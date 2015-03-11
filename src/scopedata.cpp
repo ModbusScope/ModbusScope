@@ -101,7 +101,7 @@ void ScopeData::handlePollDone(QList<bool> successList, QList<quint16> values)
     QList<double> processedValue;
     for (qint32 i = 0; i < values.size(); i++)
     {
-        if (_registerlist[i].bUnsigned)
+        if (_registerlist[i].getUnsigned())
         {
             processedValue.append(values[i]);
         }
@@ -111,7 +111,7 @@ void ScopeData::handlePollDone(QList<bool> successList, QList<quint16> values)
         }
 
         // Apply scaleFactor
-        processedValue[processedValue.size() - 1] = processedValue[processedValue.size() - 1] * _registerlist[i].scaleFactor;
+        processedValue[processedValue.size() - 1] = processedValue[processedValue.size() - 1] * _registerlist[i].getScaleFactor();
     }
 
     // propagate processed data
@@ -165,14 +165,8 @@ void ScopeData::readData()
         QList<quint16> regAddrList;
         for (qint32 i = 0; i < _registerlist.size(); i++)
         {
-            regAddrList.append(_registerlist[i].reg);
+            regAddrList.append(_registerlist[i].getRegisterAddress());
         }
         emit registerRequest(_settings, regAddrList);
     }
-}
-
-
-bool ScopeData::sortRegisterDataList(const RegisterData& s1, const RegisterData& s2)
-{
-    return s1.reg < s2.reg;
 }

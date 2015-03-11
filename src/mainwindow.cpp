@@ -4,9 +4,10 @@
 #include "scopedata.h"
 #include "scopegui.h"
 #include "datafileparser.h"
+#include "registerdata.h"
 
-#include "QDebug"
-#include "QDateTime"
+#include <QDebug>
+#include <QDateTime>
 
 
 const QString MainWindow::_cWindowTitle = QString("ModbusScope");
@@ -167,16 +168,16 @@ void MainWindow::startScope()
 
             _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
 
-            QList<ScopeData::RegisterData> regList;
+            QList<RegisterData> regList;
             _pRegisterModel->getCheckedRegisterList(&regList);
 
             if (_pScope->startCommunication(&_commSettings, regList))
             {
-                QList<QString> regTextList;
-                _pRegisterModel->getCheckedRegisterTextList(&regTextList);
+                QList<RegisterData> regList;
+                _pRegisterModel->getCheckedRegisterList(&regList);
 
                 _pGui->resetGraph();
-                _pGui->setupGraph(regTextList);
+                _pGui->setupGraph(regList);
 
                 // Clear actions
                 _pGraphShowHide->clear();
@@ -184,10 +185,10 @@ void MainWindow::startScope()
                 _pGraphBringToFront->clear();
 
                 // Add menu-items
-                for (qint32 i = 0; i < regTextList.size(); i++)
+                for (qint32 i = 0; i < regList.size(); i++)
                 {
-                    QAction * pShowHideAction = _pGraphShowHide->addAction(regTextList[i]);
-                    QAction * pBringToFront = _pGraphBringToFront->addAction(regTextList[i]);
+                    QAction * pShowHideAction = _pGraphShowHide->addAction(regList[i].getText());
+                    QAction * pBringToFront = _pGraphBringToFront->addAction(regList[i].getText());
 
                     QPixmap pixmap(20,5);
                     pixmap.fill(_pGui->getGraphColor(i));
@@ -529,12 +530,12 @@ void MainWindow::updateBoxes(ProjectFileParser::ProjectSettings * pProjectSettin
     _pRegisterModel->clear();
     for (qint32 i = 0; i < pProjectSettings->scope.registerList.size(); i++)
     {
-        RegisterModel::RegisterData rowData;
-        rowData.bActive = pProjectSettings->scope.registerList[i].bActive;
-        rowData.bUnsigned = pProjectSettings->scope.registerList[i].bUnsigned;
-        rowData.reg = pProjectSettings->scope.registerList[i].address;
-        rowData.text = pProjectSettings->scope.registerList[i].text;
-        rowData.scaleFactor = pProjectSettings->scope.registerList[i].scaleFactor;
+        RegisterData rowData;
+        rowData.setActive(pProjectSettings->scope.registerList[i].bActive);
+        rowData.setUnsigned(pProjectSettings->scope.registerList[i].bUnsigned);
+        rowData.setRegisterAddress(pProjectSettings->scope.registerList[i].address);
+        rowData.setText(pProjectSettings->scope.registerList[i].text);
+        rowData.setScaleFactor(pProjectSettings->scope.registerList[i].scaleFactor);
         _pRegisterModel->appendRow(rowData);
     }
 

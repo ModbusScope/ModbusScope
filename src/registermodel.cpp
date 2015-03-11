@@ -34,7 +34,7 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
     case 0:
         if (role == Qt::CheckStateRole)
         {
-            if (_dataList[index.row()].bActive)
+            if (_dataList[index.row()].getActive())
             {
                 return Qt::Checked;
             }
@@ -47,7 +47,7 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
     case 1:
         if (role == Qt::CheckStateRole)
         {
-            if (_dataList[index.row()].bUnsigned)
+            if (_dataList[index.row()].getUnsigned())
             {
                 return Qt::Checked;
             }
@@ -60,19 +60,19 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
     case 2:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return _dataList[index.row()].reg;
+            return _dataList[index.row()].getRegisterAddress();
         }
         break;
     case 3:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return _dataList[index.row()].text;
+            return _dataList[index.row()].getText();
         }
         break;
     case 4:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return Util::formatDoubleForExport(_dataList[index.row()].scaleFactor);
+            return Util::formatDoubleForExport(_dataList[index.row()].getScaleFactor());
         }
         break;
     default:
@@ -127,11 +127,11 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
         {
             if (value == Qt::Checked)
             {
-                _dataList[index.row()].bActive = true;
+                _dataList[index.row()].setActive(true);
             }
             else
             {
-                _dataList[index.row()].bActive = false;
+                _dataList[index.row()].setActive(false);
             }
         }
         break;
@@ -140,11 +140,11 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
         {
             if (value == Qt::Checked)
             {
-                _dataList[index.row()].bUnsigned = true;
+                _dataList[index.row()].setUnsigned(true);
             }
             else
             {
-                _dataList[index.row()].bUnsigned = false;
+                _dataList[index.row()].setUnsigned(false);
             }
         }
         break;
@@ -153,7 +153,7 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
         {
             const quint16 newAddr = value.toInt();
             if (
-                (_dataList[index.row()].reg != newAddr)
+                (_dataList[index.row()].getRegisterAddress() != newAddr)
                 && (IsAlreadyPresent(newAddr))
                 )
             {
@@ -161,14 +161,14 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
             }
             else
             {
-                _dataList[index.row()].reg = newAddr;
+                _dataList[index.row()].setRegisterAddress(newAddr);
             }
         }
         break;
     case 3:
         if (role == Qt::EditRole)
         {
-            _dataList[index.row()].text = value.toString();
+            _dataList[index.row()].setText(value.toString());
         }
         break;
     case 4:
@@ -178,7 +178,7 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
             const double parseResult = QLocale::system().toDouble(value.toString(), &bSuccess);
             if (bSuccess)
             {
-                _dataList[index.row()].scaleFactor = parseResult;
+                _dataList[index.row()].setScaleFactor(parseResult);
             }
             else
             {
@@ -256,11 +256,11 @@ bool RegisterModel::insertRows (int row, int count, const QModelIndex &parent)
     beginInsertRows(parent, _dataList.size(), _dataList.size());
 
     RegisterData data;
-    data.bActive = true;
-    data.bUnsigned = false;
-    data.reg = getNextFreeAddress();
-    data.text = QString("Register %1").arg(data.reg);
-    data.scaleFactor = 1;
+    data.setActive(true);
+    data.setUnsigned(false);
+    data.setRegisterAddress(getNextFreeAddress());
+    data.setText(QString("Register %1").arg(data.getRegisterAddress()));
+    data.setScaleFactor(1);
     _dataList.append(data);
 
     endInsertRows();
@@ -277,7 +277,7 @@ uint RegisterModel::checkedRegisterCount()
 
     for (int i = 0; i < _dataList.size(); i++)
     {
-        if (_dataList[i].bActive)
+        if (_dataList[i].getActive())
         {
             count++;
         }
@@ -291,65 +291,26 @@ void RegisterModel::getRegisterList(QList<quint16> * pRegisterList)
     pRegisterList->clear();
     for (int i = 0; i < _dataList.size(); i++)
     {
-        pRegisterList->append(_dataList[i].reg);
+        pRegisterList->append(_dataList[i].getRegisterAddress());
     }
 }
 
 /*
  *  Get sorted list of checked register addresses
  */
-void RegisterModel::getCheckedRegisterList(QList<ScopeData::RegisterData> * pRegisterList)
+void RegisterModel::getCheckedRegisterList(QList<RegisterData> * pRegisterList)
 {
     pRegisterList->clear();
     for (int i = 0; i < _dataList.size(); i++)
     {
-        if (_dataList[i].bActive)
+        if (_dataList[i].getActive())
         {
-            ScopeData::RegisterData tmpData;
-            tmpData.bUnsigned = _dataList[i].bUnsigned;
-            tmpData.reg = _dataList[i].reg;
-            tmpData.scaleFactor = _dataList[i].scaleFactor;
-
-            pRegisterList->append(tmpData);
+            pRegisterList->append(_dataList[i]);
         }
     }
 
     // Sort by register address
-    std::sort(pRegisterList->begin(), pRegisterList->end(), &ScopeData::sortRegisterDataList);
-}
-
-/*
- *  Get list of checked register texts (sorted on register address)
- */
-void RegisterModel::getCheckedRegisterTextList(QList<QString> * pRegisterTextList)
-{
-    pRegisterTextList->clear();
-
-    QList<RegisterData> sortedRegisterList;
-
-    // Get checked registers
-    for (int i = 0; i < _dataList.size(); i++)
-    {
-        if (_dataList[i].bActive)
-        {
-            sortedRegisterList.append(_dataList[i]);
-        }
-    }
-
-    // Sort by register address
-    std::sort(sortedRegisterList.begin(), sortedRegisterList.end(), &RegisterModel::sortRegisterByAddress);
-
-    // Create text list
-    for (int i = 0; i < sortedRegisterList.size(); i++)
-    {
-        // Set default text with register address when there is no text
-        if (sortedRegisterList[i].text.isEmpty())
-        {
-            sortedRegisterList[i].text = QString("Register %1").arg(sortedRegisterList[i].reg);
-        }
-
-        pRegisterTextList->append(sortedRegisterList[i].text);
-    }
+    std::sort(pRegisterList->begin(), pRegisterList->end(), &RegisterData::sortRegisterDataList);
 }
 
 void RegisterModel::clear(const QModelIndex &parent)
@@ -367,19 +328,10 @@ void RegisterModel::appendRow(RegisterData rowData, const QModelIndex &parent)
 {
     insertRows(_dataList.size(), 1, QModelIndex());
 
-    _dataList[_dataList.size() - 1].bActive = rowData.bActive;
-    _dataList[_dataList.size() - 1].bUnsigned = rowData.bUnsigned;
-    _dataList[_dataList.size() - 1].reg = rowData.reg;
-    _dataList[_dataList.size() - 1].text = rowData.text;
-    _dataList[_dataList.size() - 1].scaleFactor = rowData.scaleFactor;
+    rowData.CopyTo(&_dataList[_dataList.size() - 1]);
 
     // Notify view(s) of change
     emit dataChanged(parent, parent);
-}
-
-bool RegisterModel::sortRegisterByAddress(const RegisterData& s1, const RegisterData& s2)
-{
-    return s1.reg < s2.reg;
 }
 
 bool RegisterModel::IsAlreadyPresent(quint16 newReg)
@@ -388,7 +340,7 @@ bool RegisterModel::IsAlreadyPresent(quint16 newReg)
 
     for (int i = 0; i < _dataList.size(); i++)
     {
-        if (_dataList[i].reg == newReg)
+        if (_dataList[i].getRegisterAddress() == newReg)
         {
             bFound = true;
             break;

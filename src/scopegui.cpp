@@ -97,18 +97,18 @@ void ScopeGui::resetGraph(void)
     _graphNames.clear();
 }
 
-void ScopeGui::setupGraph(QList<QString> registerTextList)
+void ScopeGui::setupGraph(QList<RegisterData> registerList)
 {
    quint32 colorIndex;
 
-   for (qint32 i = 0; i < registerTextList.size(); i++)
+   for (qint32 i = 0; i < registerList.size(); i++)
    {
        colorIndex = _pPlot->graphCount() % _colorlist.size();
 
        QCPGraph * pGraph = _pPlot->addGraph();
 
-       pGraph->setName(registerTextList[i]);
-       _graphNames.append(registerTextList[i]);
+       pGraph->setName(registerList[i].getText());
+       _graphNames.append(registerList[i].getText());
 
        QPen pen;
        pen.setColor(_colorlist[colorIndex]);
@@ -129,9 +129,17 @@ void ScopeGui::loadFileData(DataFileParser::FileData * pData)
     resetGraph();
 
     // Init graphs, remove first label because is the time scale
-    QStringList labelList = QStringList(pData->dataLabel);
-    labelList.removeFirst();
-    setupGraph(labelList);
+    QList<RegisterData> graphList;
+
+    // Start from 1 because first column is time data
+    for (qint32 i = 1; i < pData->dataLabel.size(); i++)
+    {
+        RegisterData graph;
+        graph.setText(pData->dataLabel[i]);
+        graphList.append(graph);
+    }
+
+    setupGraph(graphList);
 
     QVector<double> timeData = pData->dataRows.at(0).toVector();
 
