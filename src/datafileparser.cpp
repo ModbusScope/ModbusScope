@@ -69,6 +69,15 @@ bool DataFileParser::processDataFile(FileData * pData)
         bRet = false;
     }
 
+    // Trim labels
+    if (bRet)
+    {
+        for(qint32 i = 0; i < pData->dataLabel.size(); i++)
+        {
+            pData->dataLabel[i] = pData->dataLabel[i].trimmed();
+        }
+    }
+
     // read data
     if (bRet)
     {
