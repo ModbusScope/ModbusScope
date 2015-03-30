@@ -376,6 +376,22 @@ void ScopeGui::enableValueTooltip(bool bState)
     _bEnableTooltip = bState;
 }
 
+void ScopeGui::enableSamplePoints(bool bState)
+{
+    for (qint32 graphIndex = 0; graphIndex < _pPlot->graphCount(); graphIndex++)
+    {
+        if (bState)
+        {
+            _pPlot->graph(graphIndex)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 4));
+        }
+        else
+        {
+            _pPlot->graph(graphIndex)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
+        }
+    }
+    _pPlot->replot();
+}
+
 void ScopeGui::generateTickLabels()
 {
     QVector<double> ticks = _pPlot->xAxis->tickVector();

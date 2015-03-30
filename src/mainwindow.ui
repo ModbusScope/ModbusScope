@@ -409,6 +409,7 @@
     <addaction name="menuShowHide"/>
     <addaction name="separator"/>
     <addaction name="actionShowValueTooltip"/>
+    <addaction name="actionHighlightSamplePoints"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuCommunication"/>
@@ -484,6 +485,20 @@
    </property>
    <property name="text">
     <string>Show Value Tooltip</string>
+   </property>
+  </action>
+  <action name="actionHighlightSamplePoints">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Highlight Sample Points</string>
    </property>
   </action>
  </widget>

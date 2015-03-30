@@ -118,6 +118,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionExportImage, SIGNAL(triggered()), this, SLOT(prepareImageExport()));
     connect(_pUi->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
     connect(_pUi->actionShowValueTooltip, SIGNAL(toggled(bool)), _pGui, SLOT(enableValueTooltip(bool)));
+    connect(_pUi->actionHighlightSamplePoints, SIGNAL(toggled(bool)), _pGui, SLOT(enableSamplePoints(bool)));
 
     if (cmdArguments.size() > 1)
     {
@@ -160,6 +161,7 @@ void MainWindow::startScope()
             _pUi->actionStop->setEnabled(true);
             _pUi->actionImportDataFile->setEnabled(false);
             _pUi->actionShowValueTooltip->setEnabled(true);
+            _pUi->actionHighlightSamplePoints->setEnabled(true);
 
             setSettingsObjectsState(false);
 
@@ -178,6 +180,8 @@ void MainWindow::startScope()
 
                 _pGui->resetGraph();
                 _pGui->setupGraph(regList);
+
+                _pGui->enableSamplePoints(_pUi->actionHighlightSamplePoints->isChecked());
 
                 // Clear actions
                 _pGraphShowHide->clear();

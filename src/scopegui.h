@@ -51,6 +51,7 @@ public slots:
     void exportDataCsv(QString dataFile);
     void exportGraphImage(QString imageFile);
     void enableValueTooltip(bool bState);
+    void enableSamplePoints(bool bState);
 
 private slots:
     void generateTickLabels();
