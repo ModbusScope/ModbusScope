@@ -581,6 +581,19 @@ void ScopeGui::mouseMove(QMouseEvent *event)
 
 void ScopeGui::axisDoubleClicked(QCPAxis * axis)
 {
+    if (axis == _pPlot->xAxis)
+    {
+        emit updateXScalingUi(ScopeGui::SCALE_MANUAL); // change to manual scaling
+    }
+    else if (axis == _pPlot->yAxis)
+    {
+       emit updateYScalingUi(ScopeGui::SCALE_MANUAL); // change to manual scaling
+    }
+    else
+    {
+        // Do nothing
+    }
+
     axis->rescale();
     _pPlot->replot();
 }
