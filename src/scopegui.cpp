@@ -594,7 +594,7 @@ void ScopeGui::axisDoubleClicked(QCPAxis * axis)
         // Do nothing
     }
 
-    axis->rescale();
+    axis->rescale(true);
     _pPlot->replot();
 }
 
@@ -661,7 +661,7 @@ void ScopeGui::scalePlot()
     {
         if ((_pPlot->graphCount() != 0) && (_pPlot->graph(0)->data()->keys().size()))
         {
-            _pPlot->yAxis->rescale();
+            _pPlot->yAxis->rescale(true);
         }
         else
         {
