@@ -119,6 +119,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
     connect(_pUi->actionShowValueTooltip, SIGNAL(toggled(bool)), _pGui, SLOT(enableValueTooltip(bool)));
     connect(_pUi->actionHighlightSamplePoints, SIGNAL(toggled(bool)), _pGui, SLOT(enableSamplePoints(bool)));
+    connect(_pUi->actionClearData, SIGNAL(triggered()), this, SLOT(clearData()));
 
     if (cmdArguments.size() > 1)
     {
@@ -162,6 +163,7 @@ void MainWindow::startScope()
             _pUi->actionImportDataFile->setEnabled(false);
             _pUi->actionShowValueTooltip->setEnabled(true);
             _pUi->actionHighlightSamplePoints->setEnabled(true);
+            _pUi->actionClearData->setEnabled(true);
 
             setSettingsObjectsState(false);
 
@@ -751,6 +753,13 @@ void MainWindow::showContextMenu(const QPoint& pos)
 {
     _pUi->menuView->popup(_pUi->customPlot->mapToGlobal(pos));
 }
+
+void MainWindow::clearData()
+{
+    _pScope->resetCommunicationStats();
+    _pGui->resetResults();
+}
+
 
 bool MainWindow::sortRegistersLastFirst(const QModelIndex &s1, const QModelIndex &s2)
 {

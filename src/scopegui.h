@@ -40,6 +40,7 @@ public:
     void bringToFront(quint32 index, bool bFront);
     void showGraph(quint32 index, bool bShow);
     QColor getGraphColor(quint32 index);
+    void resetResults();
 
 signals:
     void updateXScalingUi(int);

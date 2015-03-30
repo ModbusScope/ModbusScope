@@ -56,6 +56,7 @@ private slots:
     void bringToFrontGraph(bool bState);
     void showHideGraph(bool bState);
     void showContextMenu(const QPoint& pos);
+    void clearData();
 
 public slots:
     void updateStats(quint32 successCount, quint32 errorCount);

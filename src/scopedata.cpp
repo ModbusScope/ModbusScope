@@ -55,19 +55,29 @@ bool ScopeData::startCommunication(ModbusSettings * pSettings, QList<RegisterDat
         _registerlist.clear();        
         _registerlist.append(registers);
 
-        _successCount = 0;
-        _errorCount = 0;
-
-        _startTime = QDateTime::currentMSecsSinceEpoch();
-
         // Trigger read immediatly
         _pPollTimer->singleShot(1, this, SLOT(readData()));
 
         _active = true;
         bResetted = true;
+
+        resetCommunicationStats();
     }
 
     return bResetted;
+}
+
+void ScopeData::resetCommunicationStats()
+{
+    if (_active)
+    {
+        _successCount = 0;
+        _errorCount = 0;
+        emit triggerStatUpdate(_successCount, _errorCount);
+
+        _lastPollStart = QDateTime::currentMSecsSinceEpoch();
+        _startTime = QDateTime::currentMSecsSinceEpoch();
+    }
 }
 
 void ScopeData::processCommStats(quint32 success,quint32 error)

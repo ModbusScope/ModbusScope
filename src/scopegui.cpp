@@ -598,6 +598,17 @@ void ScopeGui::axisDoubleClicked(QCPAxis * axis)
     _pPlot->replot();
 }
 
+void ScopeGui::resetResults()
+{
+    for (qint32 i = 0; i < _pPlot->graphCount(); i++)
+    {
+        _pPlot->graph(i)->clearData();
+        _pPlot->graph(i)->setName(QString("(-) %1").arg(_graphNames[i]));
+    }
+
+   scalePlot();
+}
+
 void ScopeGui::writeToFile(QString filePath, QString logData)
 {
     QFile file(filePath);

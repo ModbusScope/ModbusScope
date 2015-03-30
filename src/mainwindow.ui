@@ -410,6 +410,8 @@
     <addaction name="separator"/>
     <addaction name="actionShowValueTooltip"/>
     <addaction name="actionHighlightSamplePoints"/>
+    <addaction name="separator"/>
+    <addaction name="actionClearData"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuCommunication"/>
@@ -499,6 +501,14 @@
    </property>
    <property name="text">
     <string>Highlight Sample Points</string>
+   </property>
+  </action>
+  <action name="actionClearData">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Clear Data</string>
    </property>
   </action>
  </widget>

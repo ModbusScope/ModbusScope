@@ -27,6 +27,7 @@ public:
     void getCommunicationSettings(quint32 * successCount, quint32 * errorCount);
     void getSettings(ModbusSettings * pSettings);
     bool isActive();
+    void resetCommunicationStats();
 
 public slots:
     void processCommStats(quint32 success,quint32 error);
