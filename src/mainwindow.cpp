@@ -586,6 +586,8 @@ void MainWindow::loadDataFile(QString dataFilePath)
 {
     QFile file(dataFilePath);
 
+    _lastDataFilePath = dataFilePath;
+
     /* If we can't open it, let's show an error message. */
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
@@ -672,7 +674,6 @@ void MainWindow::importData()
     if (dialog.exec())
     {
         filePath = dialog.selectedFiles().first();
-        _lastDataFilePath = filePath;
         loadDataFile(filePath);
     }
 }
@@ -715,7 +716,20 @@ void MainWindow::dropEvent(QDropEvent *e)
 {
     if (!_pScope->isActive())
     {
-        loadProjectFile(e->mimeData()->urls().last().toLocalFile());
+        const QString filename(e->mimeData()->urls().last().toLocalFile());
+        QFileInfo fileInfo(filename);
+        if (fileInfo.completeSuffix() == QString("mbs"))
+        {
+            loadProjectFile(filename);
+        }
+        else if (fileInfo.completeSuffix() == QString("csv"))
+        {
+            loadDataFile(filename);
+        }
+        else
+        {
+            // ignore drop
+        }
     }
 }
 
