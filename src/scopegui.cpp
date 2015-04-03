@@ -1,7 +1,7 @@
 
 #include <QMessageBox>
 #include <QVector>
-//#include <QLocale>
+#include <algorithm> // std::upperbound, std::lowerbound
 
 #include "util.h"
 #include "scopegui.h"
@@ -74,6 +74,9 @@ ScopeGui::ScopeGui(MainWindow *window, ScopeData *scopedata, QCustomPlot * pPlot
     // Tooltip is enabled
     _bEnableTooltip = true;
 
+    // Samples are enabled
+    _bEnableSampleHighlight = true;
+
    // Add layer to move graph on front
    _pPlot->addLayer("topMain", _pPlot->layer("main"), QCustomPlot::limAbove);
 
@@ -85,6 +88,7 @@ ScopeGui::ScopeGui(MainWindow *window, ScopeData *scopedata, QCustomPlot * pPlot
    connect(_pPlot, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel()));
    connect(_pPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMove(QMouseEvent*)));
    connect(_pPlot, SIGNAL(axisDoubleClick(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)), this, SLOT(axisDoubleClicked(QCPAxis*)));
+   connect(_pPlot, SIGNAL(beforeReplot()), this, SLOT(handleSamplePoints()));
 
    connect(this, SIGNAL(updateXScalingUi(int)), _window,SLOT(changeXAxisScaling(int)));
    connect(this, SIGNAL(updateYScalingUi(int)), _window,SLOT(changeYAxisScaling(int)));
@@ -378,17 +382,7 @@ void ScopeGui::enableValueTooltip(bool bState)
 
 void ScopeGui::enableSamplePoints(bool bState)
 {
-    for (qint32 graphIndex = 0; graphIndex < _pPlot->graphCount(); graphIndex++)
-    {
-        if (bState)
-        {
-            _pPlot->graph(graphIndex)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 4));
-        }
-        else
-        {
-            _pPlot->graph(graphIndex)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
-        }
-    }
+    _bEnableSampleHighlight = bState;
     _pPlot->replot();
 }
 
@@ -598,6 +592,37 @@ void ScopeGui::axisDoubleClicked(QCPAxis * axis)
     _pPlot->replot();
 }
 
+void ScopeGui::handleSamplePoints()
+{
+    bool bHighlight = false;
+
+    if (_bEnableSampleHighlight)
+    {
+        if (_pPlot->graphCount() > 0)
+        {
+            const double sizePx = _pPlot->xAxis->coordToPixel(_pPlot->xAxis->range().upper) - _pPlot->xAxis->coordToPixel(_pPlot->xAxis->range().lower);
+
+            const quint32 lowerBoundKey = _pPlot->graph(0)->data()->lowerBound(_pPlot->xAxis->range().lower).key();
+            const quint32 upperBoundKey = _pPlot->graph(0)->data()->upperBound(_pPlot->xAxis->range().upper).key();
+
+            const quint32 lowerBoundIndex = _pPlot->graph(0)->data()->keys().indexOf(lowerBoundKey);
+            const quint32 upperBoundIndex = _pPlot->graph(0)->data()->keys().lastIndexOf(upperBoundKey);
+
+            //qDebug() << "size: " << sizePx << ", Low :" << lowerBoundIndex << ", upper: " << upperBoundIndex;
+
+            const double nrOfPixelsPerPoint = sizePx / qAbs(upperBoundIndex - lowerBoundIndex);
+
+            if (nrOfPixelsPerPoint > _cPixelPerPointThreshold)
+            {
+                bHighlight = true;
+            }
+        }
+    }
+
+    highlightSamples(bHighlight);
+
+}
+
 void ScopeGui::resetResults()
 {
     for (qint32 i = 0; i < _pPlot->graphCount(); i++)
@@ -732,3 +757,19 @@ QString ScopeGui::createTickLabelString(qint32 tickKey)
 
     return tickLabel;
 }
+
+void ScopeGui::highlightSamples(bool bState)
+{
+    for (qint32 graphIndex = 0; graphIndex < _pPlot->graphCount(); graphIndex++)
+    {
+        if (bState)
+        {
+            _pPlot->graph(graphIndex)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 4));
+        }
+        else
+        {
+            _pPlot->graph(graphIndex)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
+        }
+    }
+}
+

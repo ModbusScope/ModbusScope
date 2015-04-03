@@ -61,12 +61,14 @@ private slots:
     void mouseWheel();
     void mouseMove(QMouseEvent *event);
     void axisDoubleClicked(QCPAxis * axis);
+    void handleSamplePoints();
 
 private:
 
     void writeToFile(QString filePath, QString logData);
     void scalePlot();
     QString createTickLabelString(qint32 tickKey);
+    void highlightSamples(bool bState);
 
     typedef struct _GuiSettings
     {
@@ -93,8 +95,11 @@ private:
 
     GuiSettings _settings;
     bool _bEnableTooltip;
+    bool _bEnableSampleHighlight;
 
     static const qint32 _cPixelNearThreshold = 20; /* in pixels */
+    static const qint32 _cPixelPerPointThreshold = 5; /* in pixels */
+
 };
 
 #endif // SCOPEGUI_H

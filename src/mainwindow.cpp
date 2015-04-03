@@ -597,6 +597,9 @@ void MainWindow::loadDataFile(QString dataFilePath)
         {
             // If success, disable export data
             _pUi->actionExportDataCsv->setEnabled(false);
+            _pUi->actionShowValueTooltip->setEnabled(true);
+            _pUi->actionHighlightSamplePoints->setEnabled(true);
+            _pUi->actionClearData->setEnabled(true);
 
             _pStatusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
             _pStatusStats->setText(_cStatsTemplate.arg(0).arg(0));
