@@ -61,6 +61,7 @@ ScopeGui::ScopeGui(MainWindow *window, ScopeData *scopedata, QCustomPlot * pPlot
    _pPlot->xAxis->setLabel("Time (s)");
 
    connect(_pPlot->xAxis, SIGNAL(ticksRequest()), this, SLOT(generateTickLabels()));
+   connect(_pPlot->xAxis, SIGNAL(rangeChanged(QCPRange, QCPRange)), this, SLOT(xAxisRangeChanged(QCPRange, QCPRange)));
 
    _settings.yMin = 0;
    _settings.yMax = 10;
@@ -621,6 +622,23 @@ void ScopeGui::handleSamplePoints()
 
     highlightSamples(bHighlight);
 
+}
+
+void ScopeGui::xAxisRangeChanged(const QCPRange &newRange, const QCPRange &oldRange)
+{
+    QCPRange range = newRange;
+
+    if (newRange.upper <= 0)
+    {
+        range.upper = oldRange.upper;
+    }
+
+    if (newRange.lower <= 0)
+    {
+        range.lower = 0;
+    }
+
+    _pPlot->xAxis->setRange(range);
 }
 
 void ScopeGui::resetResults()

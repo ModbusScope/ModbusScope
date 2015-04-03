@@ -62,6 +62,7 @@ private slots:
     void mouseMove(QMouseEvent *event);
     void axisDoubleClicked(QCPAxis * axis);
     void handleSamplePoints();
+    void xAxisRangeChanged(const QCPRange &newRange, const QCPRange &oldRange);
 
 private:
 
