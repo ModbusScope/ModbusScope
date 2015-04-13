@@ -17,7 +17,7 @@ RC_ICONS = ../icon/application.ico
 }
 
 
-VERSION = 0.7.2
+VERSION = 0.7.3
 
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 DEFINES += QT_DEBUG_OUTPUT
