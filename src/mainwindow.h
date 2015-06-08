@@ -57,6 +57,7 @@ private slots:
     void showHideGraph(bool bState);
     void showContextMenu(const QPoint& pos);
     void clearData();
+    void changeLegendPosition(QAction* pAction);
 
 public slots:
     void updateStats(quint32 successCount, quint32 errorCount);
@@ -91,6 +92,7 @@ private:
     QMenu * _pGraphBringToFront;
     QMenu * _pGraphShowHide;
     QActionGroup* _pBringToFrontGroup;
+    QActionGroup* _pLegendPositionGroup;
 
     static const QString _cWindowTitle;
     static const QString _cStateRunning;

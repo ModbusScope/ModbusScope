@@ -32,6 +32,13 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGraphBringToFront = _pUi->menuBringToFront;
     _pBringToFrontGroup = new QActionGroup(this);
 
+    _pLegendPositionGroup = new QActionGroup(this);
+    _pUi->actionLegendLeft->setActionGroup(_pLegendPositionGroup);
+    _pUi->actionLegendMiddle->setActionGroup(_pLegendPositionGroup);
+    _pUi->actionLegendRight->setActionGroup(_pLegendPositionGroup);
+    connect(_pLegendPositionGroup, SIGNAL(triggered(QAction*)), this, SLOT(changeLegendPosition(QAction*)));
+
+
     // Add multipart status bar
     _pStatusState = new QLabel(_cStateStopped, this);
     _pStatusState->setFrameStyle(QFrame::Panel | QFrame::Sunken);
@@ -164,6 +171,7 @@ void MainWindow::startScope()
             _pUi->actionShowValueTooltip->setEnabled(true);
             _pUi->actionHighlightSamplePoints->setEnabled(true);
             _pUi->actionClearData->setEnabled(true);
+            _pUi->menuLegendPosition->setEnabled(true);
 
             setSettingsObjectsState(false);
 
@@ -775,6 +783,22 @@ void MainWindow::clearData()
 {
     _pScope->resetCommunicationStats();
     _pGui->resetResults();
+}
+
+void MainWindow::changeLegendPosition(QAction* pAction)
+{
+    if (pAction == _pUi->actionLegendLeft)
+    {
+        _pGui->setLegendPosition(ScopeGui::LEGEND_LEFT);
+    }
+    else if (pAction == _pUi->actionLegendMiddle)
+    {
+        _pGui->setLegendPosition(ScopeGui::LEGEND_MIDDLE);
+    }
+    else if (pAction == _pUi->actionLegendRight)
+    {
+        _pGui->setLegendPosition(ScopeGui::LEGEND_RIGHT);
+    }
 }
 
 
