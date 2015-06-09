@@ -326,7 +326,7 @@ void ScopeGui::exportDataCsv(QString dataFile)
         logData.append(comment + "Communication success" + Util::getSeparatorCharacter() + QString::number(success) + "\n");
         logData.append(comment + "Communication errors" + Util::getSeparatorCharacter() + QString::number(error) + "\n");
 
-        logData.append("\n");
+        logData.append("//\n");
 
         line.clear();
         line.append("Time (ms)");
