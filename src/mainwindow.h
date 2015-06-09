@@ -8,7 +8,9 @@
 #include <QMenu>
 
 #include "registermodel.h"
-#include "modbussettings.h"
+#include "registerdialog.h"
+#include "connectiondialog.h"
+#include "connectionmodel.h"
 #include "projectfileparser.h"
 
 namespace Ui {
@@ -39,8 +41,6 @@ signals:
 private slots:
     void startScope();
     void stopScope();
-    void addRegister();
-    void removeRegister();
     void exitApplication();
     void prepareDataExport();
     void loadProjectSettings();
@@ -57,6 +57,8 @@ private slots:
     void showHideGraph(bool bState);
     void showContextMenu(const QPoint& pos);
     void clearData();
+    void showConnectionDialog();
+    void showRegisterDialog();
 
 public slots:
     void updateStats(quint32 successCount, quint32 errorCount);
@@ -65,18 +67,20 @@ public slots:
 
 private:
 
-    static bool sortRegistersLastFirst(const QModelIndex &s1, const QModelIndex &s2);
-
     void setSettingsObjectsState(bool bState);
-    void updateBoxes(ProjectFileParser::ProjectSettings *pProjectSettings);
+    void updateConnectionSetting(ProjectFileParser::ProjectSettings *pProjectSettings);
     void loadProjectFile(QString dataFilePath);
     void loadDataFile(QString dataFilePath);
 
     Ui::MainWindow * _pUi;
     ScopeData * _pScope;
     ScopeGui * _pGui;
-    ModbusSettings _commSettings;
+
+    ConnectionModel * _pConnectionModel;
+    ConnectionDialog * _pConnectionDialog;
+
     RegisterModel * _pRegisterModel;
+    RegisterDialog * _pRegisterDialog;
 
     QLabel * _pStatusStats;
     QLabel * _pStatusState;

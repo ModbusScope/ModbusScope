@@ -4,7 +4,6 @@
 #include <QDebug>
 #include "modbusmaster.h"
 #include <modbus.h>
-#include "modbussettings.h"
 
 #include "errno.h"
 
@@ -54,7 +53,7 @@ void ModbusMaster::stopped()
     emit threadStopped();
 }
 
-void ModbusMaster::readRegisterList(ModbusSettings settings, QList<quint16> registerList)
+void ModbusMaster::readRegisterList(ConnectionModel * pConnSettings, QList<quint16> registerList)
 {
     QList<quint16> resultList;
     QList<bool> resultStateList;
@@ -62,11 +61,11 @@ void ModbusMaster::readRegisterList(ModbusSettings settings, QList<quint16> regi
     quint32 error = 0;
 
     /* Open port */
-    modbus_t * pCtx = openPort(settings.getIpAddress(), settings.getPort());
+    modbus_t * pCtx = openPort(pConnSettings->ipAddress(), pConnSettings->port());
     if (pCtx)
     {
         /* Set modbus slave */
-        modbus_set_slave(pCtx, settings.getSlaveId());
+        modbus_set_slave(pCtx, pConnSettings->slaveId());
 
         struct timeval timeInterval;
 
@@ -76,8 +75,8 @@ void ModbusMaster::readRegisterList(ModbusSettings settings, QList<quint16> regi
         modbus_set_byte_timeout(pCtx, &timeInterval);
 
         // Set response timeout
-        timeInterval.tv_sec = settings.getTimeout() / 1000;
-        timeInterval.tv_usec = (settings.getTimeout() % 1000) * 1000uL;
+        timeInterval.tv_sec = pConnSettings->timeout() / 1000;
+        timeInterval.tv_usec = (pConnSettings->timeout() % 1000) * 1000uL;
         modbus_set_response_timeout(pCtx, &timeInterval);
 
         // Do optimized reads

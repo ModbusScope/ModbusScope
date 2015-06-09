@@ -5,8 +5,7 @@
 #include "QList"
 
 #include <modbus.h>
-#include <modbussettings.h>
-
+#include <connectionmodel.h>
 
 class ModbusMaster : public QObject
 {
@@ -24,7 +23,7 @@ signals:
     void modbusCommDone(quint32 success,quint32 error);
 
 public slots:
-    void readRegisterList(ModbusSettings settings, QList<quint16> registerList);
+    void readRegisterList(ConnectionModel *pConnSettings, QList<quint16> registerList);
     void stopThread();
 
 private slots:

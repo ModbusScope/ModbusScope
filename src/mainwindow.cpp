@@ -18,15 +18,23 @@ const QString MainWindow::_cRuntime = QString("Runtime: %1");
 
 MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     QMainWindow(parent),
-    _pUi(new Ui::MainWindow),
-    _pScope(NULL),
-    _pGui(NULL)
+    _pUi(new Ui::MainWindow)
 {
     _pUi->setupUi(this);
 
     // Set window title
     this->setWindowTitle(_cWindowTitle);
     this->setAcceptDrops(true);
+
+    _pConnectionModel = new ConnectionModel();
+    _pConnectionDialog = new ConnectionDialog(_pConnectionModel);
+
+    _pRegisterModel = new RegisterModel();
+    _pRegisterDialog = new RegisterDialog(_pRegisterModel);
+
+    _pScope = new ScopeData(_pConnectionModel);
+    _pGui = new ScopeGui(this, _pScope, _pUi->customPlot, this);
+
 
     _pGraphShowHide = _pUi->menuShowHide;
     _pGraphBringToFront = _pUi->menuBringToFront;
@@ -44,28 +52,12 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pUi->statusBar->addPermanentWidget(_pStatusRuntime, 0);
     _pUi->statusBar->addPermanentWidget(_pStatusStats, 2);
 
-    // Setup registerView
-    _pRegisterModel = new RegisterModel();
-    _pUi->registerView->setModel(_pRegisterModel);
-    _pUi->registerView->verticalHeader()->hide();
-
-    _pUi->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    _pUi->registerView->horizontalHeader()->setStretchLastSection(true);
-
-    // Select using click, shift and control
-     _pUi->registerView->setSelectionBehavior(QAbstractItemView::SelectRows);
-     _pUi->registerView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-
-    _pScope = new ScopeData();
-    _pGui = new ScopeGui(this, _pScope, _pUi->customPlot, this);
-
     _projectFilePath = QString("");
     _lastDataFilePath = QString("");
 
     // For rightclick menu
     _pUi->customPlot->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(_pUi->customPlot, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
-
 
     connect(_pUi->spinSlidingXInterval, SIGNAL(valueChanged(int)), _pGui, SLOT(setxAxisSlidingInterval(int)));
     connect(_pUi->spinYMin, SIGNAL(valueChanged(int)), this, SLOT(updateYMin(int)));
@@ -103,10 +95,6 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pScope, SIGNAL(triggerStatUpdate(quint32, quint32)), this, SLOT(updateStats(quint32, quint32)));
     connect(this, SIGNAL(dataExport(QString)), _pGui, SLOT(exportDataCsv(QString)));
 
-    // Setup handler for buttons
-    connect(_pUi->btnAdd, SIGNAL(released()), this, SLOT(addRegister()));
-    connect(_pUi->btnRemove, SIGNAL(released()), this, SLOT(removeRegister()));
-
     // Handler for menu bar
     connect(_pUi->actionStart, SIGNAL(triggered()), this, SLOT(startScope()));
     connect(_pUi->actionStop, SIGNAL(triggered()), this, SLOT(stopScope()));
@@ -120,6 +108,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionShowValueTooltip, SIGNAL(toggled(bool)), _pGui, SLOT(enableValueTooltip(bool)));
     connect(_pUi->actionHighlightSamplePoints, SIGNAL(toggled(bool)), _pGui, SLOT(enableSamplePoints(bool)));
     connect(_pUi->actionClearData, SIGNAL(triggered()), this, SLOT(clearData()));
+    connect(_pUi->actionConnectionSettings, SIGNAL(triggered()), this, SLOT(showConnectionDialog()));
+    connect(_pUi->actionRegisterSettings, SIGNAL(triggered()), this, SLOT(showRegisterDialog()));
 
     if (cmdArguments.size() > 1)
     {
@@ -130,6 +120,10 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    delete _pConnectionDialog;
+    delete _pRegisterDialog;
+    delete _pRegisterModel;
+    delete _pConnectionModel;
     delete _pScope;
     delete _pGraphShowHide;
     delete _pGraphBringToFront;
@@ -138,93 +132,73 @@ MainWindow::~MainWindow()
 
 void MainWindow::startScope()
 {
-    bool bCommunicationSettingsValid = true;
-
-    const quint32 pollTime = _pUi->spinPollTime->text().toInt();
-
-    if (bCommunicationSettingsValid)
+    if (_pRegisterModel->checkedRegisterCount() != 0)
     {
-        /* TODO: check fields */
-    }
+        _pUi->actionStart->setEnabled(false);
+        _pUi->actionStop->setEnabled(true);
+        _pUi->actionImportDataFile->setEnabled(false);
+        _pUi->actionShowValueTooltip->setEnabled(true);
+        _pUi->actionHighlightSamplePoints->setEnabled(true);
+        _pUi->actionClearData->setEnabled(true);
 
-    if (bCommunicationSettingsValid)
-    {
+        setSettingsObjectsState(false);
 
-        if (_pRegisterModel->checkedRegisterCount() != 0)
+        _pStatusState->setText(_cStateRunning);
+        _pStatusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
+
+        _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
+
+        QList<RegisterData> regList;
+        _pRegisterModel->getCheckedRegisterList(&regList);
+
+        if (_pScope->startCommunication(regList))
         {
-            _commSettings.setIpAddress(_pUi->lineIP->text());
-            _commSettings.setPort(_pUi->spinPort->text().toInt());
-            _commSettings.setSlaveId(_pUi->spinSlaveId->text().toInt());
-            _commSettings.setTimeout(_pUi->spinTimeout->text().toUInt());
-            _commSettings.setPollTime(pollTime);
-
-            _pUi->actionStart->setEnabled(false);
-            _pUi->actionStop->setEnabled(true);
-            _pUi->actionImportDataFile->setEnabled(false);
-            _pUi->actionShowValueTooltip->setEnabled(true);
-            _pUi->actionHighlightSamplePoints->setEnabled(true);
-            _pUi->actionClearData->setEnabled(true);
-
-            setSettingsObjectsState(false);
-
-            _pStatusState->setText(_cStateRunning);
-            _pStatusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
-
-            _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
-
             QList<RegisterData> regList;
             _pRegisterModel->getCheckedRegisterList(&regList);
 
-            if (_pScope->startCommunication(&_commSettings, regList))
+            _pGui->resetGraph();
+            _pGui->setupGraph(regList);
+
+            _pGui->enableSamplePoints(_pUi->actionHighlightSamplePoints->isChecked());
+
+            // Clear actions
+            _pGraphShowHide->clear();
+            _pBringToFrontGroup->actions().clear();
+            _pGraphBringToFront->clear();
+
+            // Add menu-items
+            for (qint32 i = 0; i < regList.size(); i++)
             {
-                QList<RegisterData> regList;
-                _pRegisterModel->getCheckedRegisterList(&regList);
+                QAction * pShowHideAction = _pGraphShowHide->addAction(regList[i].getText());
+                QAction * pBringToFront = _pGraphBringToFront->addAction(regList[i].getText());
 
-                _pGui->resetGraph();
-                _pGui->setupGraph(regList);
+                QPixmap pixmap(20,5);
+                pixmap.fill(_pGui->getGraphColor(i));
+                QIcon * pBringToFrontIcon = new QIcon(pixmap);
+                QIcon * pShowHideIcon = new QIcon(pixmap);
 
-                _pGui->enableSamplePoints(_pUi->actionHighlightSamplePoints->isChecked());
+                pShowHideAction->setData(i);
+                pShowHideAction->setIcon(*pBringToFrontIcon);
+                pShowHideAction->setCheckable(true);
+                pShowHideAction->setChecked(true);
 
-                // Clear actions
-                _pGraphShowHide->clear();
-                _pBringToFrontGroup->actions().clear();
-                _pGraphBringToFront->clear();
+                pBringToFront->setData(i);
+                pBringToFront->setIcon(*pShowHideIcon);
+                pBringToFront->setCheckable(true);
+                pBringToFront->setActionGroup(_pBringToFrontGroup);
 
-                // Add menu-items
-                for (qint32 i = 0; i < regList.size(); i++)
-                {
-                    QAction * pShowHideAction = _pGraphShowHide->addAction(regList[i].getText());
-                    QAction * pBringToFront = _pGraphBringToFront->addAction(regList[i].getText());
-
-                    QPixmap pixmap(20,5);
-                    pixmap.fill(_pGui->getGraphColor(i));
-                    QIcon * pBringToFrontIcon = new QIcon(pixmap);
-                    QIcon * pShowHideIcon = new QIcon(pixmap);
-
-                    pShowHideAction->setData(i);
-                    pShowHideAction->setIcon(*pBringToFrontIcon);
-                    pShowHideAction->setCheckable(true);
-                    pShowHideAction->setChecked(true);
-
-                    pBringToFront->setData(i);
-                    pBringToFront->setIcon(*pShowHideIcon);
-                    pBringToFront->setCheckable(true);
-                    pBringToFront->setActionGroup(_pBringToFrontGroup);
-
-                    QObject::connect(pShowHideAction, SIGNAL(toggled(bool)), this, SLOT(showHideGraph(bool)));
-                    QObject::connect(pBringToFront, SIGNAL(toggled(bool)), this, SLOT(bringToFrontGraph(bool)));
-                }
-
-                _pGraphShowHide->setEnabled(true);
-                _pGraphBringToFront->setEnabled(true);
+                QObject::connect(pShowHideAction, SIGNAL(toggled(bool)), this, SLOT(showHideGraph(bool)));
+                QObject::connect(pBringToFront, SIGNAL(toggled(bool)), this, SLOT(bringToFrontGraph(bool)));
             }
-        }
-        else
-        {
-            QMessageBox::warning(this, "No register in scope list!", "There are no register in the scope list. Please select at least one register.");
+
+            _pGraphShowHide->setEnabled(true);
+            _pGraphBringToFront->setEnabled(true);
         }
     }
-
+    else
+    {
+        QMessageBox::warning(this, "No register in scope list!", "There are no register in the scope list. Please select at least one register.");
+    }
 }
 
 void MainWindow::stopScope()
@@ -437,38 +411,8 @@ void MainWindow::changeYAxisScaling(int id)
     }
 }
 
-void MainWindow::addRegister()
-{
-    _pRegisterModel->insertRow(_pRegisterModel->rowCount());
-}
-
-
-void MainWindow::removeRegister()
-{
-    // get list of selected rows
-    QItemSelectionModel *selected = _pUi->registerView->selectionModel();
-    QModelIndexList rowList = selected->selectedRows();
-
-    // sort QModelIndexList
-    // We need to remove the highest rows first
-    std::sort(rowList.begin(), rowList.end(), &MainWindow::sortRegistersLastFirst);
-
-    foreach(QModelIndex rowIndex, rowList)
-    {
-        _pRegisterModel->removeRow(rowIndex.row(), rowIndex.parent());
-    }
-}
-
 void MainWindow::setSettingsObjectsState(bool bState)
 {
-    _pUi->spinPort->setEnabled(bState);
-    _pUi->btnAdd->setEnabled(bState);
-    _pUi->spinPollTime->setEnabled(bState);
-    _pUi->btnRemove->setEnabled(bState);
-    _pUi->spinSlaveId->setEnabled(bState);
-    _pUi->spinTimeout->setEnabled(bState);
-    _pUi->lineIP->setEnabled(bState);
-    _pUi->registerView->setEnabled(bState);
     _pUi->actionLoadProjectFile->setEnabled(bState);
 
     // if a project file is previously loaded, then it can be reloaded
@@ -485,31 +429,33 @@ void MainWindow::setSettingsObjectsState(bool bState)
     _pUi->actionExportImage->setEnabled(bState);
 }
 
-void MainWindow::updateBoxes(ProjectFileParser::ProjectSettings * pProjectSettings)
+void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pProjectSettings)
 {
+    _pConnectionModel->clearData();
+
     if (pProjectSettings->general.bIp)
     {
-        _pUi->lineIP->setText(pProjectSettings->general.ip);
+        _pConnectionModel->setIpAddress(pProjectSettings->general.ip);
     }
 
     if (pProjectSettings->general.bPort)
     {
-        _pUi->spinPort->setValue(pProjectSettings->general.port);
+         _pConnectionModel->setPort(pProjectSettings->general.port);
     }
 
     if (pProjectSettings->general.bPollTime)
     {
-        _pUi->spinPollTime->setValue(pProjectSettings->general.pollTime);
+        _pConnectionModel->setPollTime(pProjectSettings->general.pollTime);
     }
 
     if (pProjectSettings->general.bSlaveId)
     {
-        _pUi->spinSlaveId->setValue(pProjectSettings->general.slaveId);
+        _pConnectionModel->setSlaveId(pProjectSettings->general.slaveId);
     }
 
     if (pProjectSettings->general.bTimeout)
     {
-        _pUi->spinTimeout->setValue(pProjectSettings->general.timeout);
+        _pConnectionModel->setTimeout(pProjectSettings->general.timeout);
     }
 
     if (pProjectSettings->scale.bSliding)
@@ -546,10 +492,6 @@ void MainWindow::updateBoxes(ProjectFileParser::ProjectSettings * pProjectSettin
 
         _pRegisterModel->appendRow(rowData);
     }
-
-    // make registerview resize to content
-    _pUi->registerView->resizeColumnsToContents();
-
 }
 
 void MainWindow::loadProjectFile(QString dataFilePath)
@@ -563,7 +505,7 @@ void MainWindow::loadProjectFile(QString dataFilePath)
     {
         if (fileParser.parseFile(&file, &loadedSettings))
         {
-            updateBoxes(&loadedSettings);
+            updateConnectionSetting(&loadedSettings);
 
             _projectFilePath = dataFilePath;
             setWindowTitle(QString(tr("%1 - %2")).arg(_cWindowTitle, QFileInfo(_projectFilePath).fileName()));
@@ -777,9 +719,13 @@ void MainWindow::clearData()
     _pGui->resetResults();
 }
 
-
-bool MainWindow::sortRegistersLastFirst(const QModelIndex &s1, const QModelIndex &s2)
+void MainWindow::showConnectionDialog()
 {
-    return s1.row() > s2.row();
+    _pConnectionDialog->exec();
+}
+
+void MainWindow::showRegisterDialog()
+{
+    _pRegisterDialog->exec();
 }
 

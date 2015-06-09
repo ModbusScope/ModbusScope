@@ -29,7 +29,6 @@ INCLUDEPATH += \
 
 SOURCES +=  \
     ../src/mainwindow.cpp \
-    ../src/modbussettings.cpp \
     ../src/main.cpp \
     ../src/modbusmaster.cpp \
     ../libraries/libmodbus/src/modbus-data.c \
@@ -41,14 +40,18 @@ SOURCES +=  \
     ../src/projectfileparser.cpp \
     ../src/registermodel.cpp \
     ../src/datafileparser.cpp \
-    ../src/registerdata.cpp
+    ../src/registerdata.cpp \
+    ../src/connectiondialog.cpp \
+    ../src/registerdialog.cpp \
+    ../src/connectionmodel.cpp
 
 FORMS    += \
-    ../src/mainwindow.ui
+    ../src/mainwindow.ui \
+    ../src/connectiondialog.ui \
+    ../src/registerdialog.ui
 
 HEADERS += \
     ../src/mainwindow.h \
-    ../src/modbussettings.h \
     ../src/modbusmaster.h \
     ../libraries/libmodbus/src/modbus-private.h \
     ../libraries/libmodbus/src/modbus-version.h \
@@ -62,4 +65,7 @@ HEADERS += \
     ../src/registermodel.h \
     ../src/datafileparser.h \
     ../src/util.h \
-    ../src/registerdata.h
+    ../src/registerdata.h \
+    ../src/connectiondialog.h \
+    ../src/registerdialog.h \
+    ../src/connectionmodel.h

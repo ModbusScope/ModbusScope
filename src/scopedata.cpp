@@ -1,19 +1,19 @@
-
+#include <QTimer>
+#include <QDateTime>
 
 #include "modbusmaster.h"
-#include "modbussettings.h"
 #include "scopegui.h"
-#include "QTimer"
-#include "QDateTime"
 #include "scopedata.h"
 
-ScopeData::ScopeData(QObject *parent) :
-    QObject(parent), _master(NULL), _active(false), _pPollTimer(new QTimer()), _successCount(0), _errorCount(0)
+ScopeData::ScopeData(ConnectionModel * pConnectionModel, QObject *parent) :
+    QObject(parent), _active(false), _successCount(0), _errorCount(0)
 {
+
+    _pPollTimer = new QTimer();
+    _pConnectionModel = pConnectionModel;
 
     qRegisterMetaType<QList<quint16> >("QList<quint16>");
     qRegisterMetaType<QList<bool> >("QList<bool>");
-    qRegisterMetaType<ModbusSettings>("ModbusSettings");
 
     _registerlist.clear();
 
@@ -27,7 +27,7 @@ ScopeData::ScopeData(QObject *parent) :
 
     _master->startThread();
 
-    connect(this, SIGNAL(registerRequest(ModbusSettings, QList<quint16>)), _master, SLOT(readRegisterList(ModbusSettings, QList<quint16>)));
+    connect(this, SIGNAL(registerRequest(ConnectionModel*, QList<quint16>)), _master, SLOT(readRegisterList(ConnectionModel*, QList<quint16>)));
     connect(_master, SIGNAL(modbusPollDone(QList<bool>, QList<quint16>)), this, SLOT(handlePollDone(QList<bool>, QList<quint16>)));
     connect(_master, SIGNAL(modbusCommDone(quint32, quint32)), this, SLOT(processCommStats(quint32, quint32)));
 }
@@ -44,14 +44,12 @@ ScopeData::~ScopeData()
     delete _pPollTimer;
 }
 
-bool ScopeData::startCommunication(ModbusSettings * pSettings, QList<RegisterData> registers)
+bool ScopeData::startCommunication(QList<RegisterData> registers)
 {
     bool bResetted = false;
 
     if (!_active)
     {
-        _settings.copy(pSettings);
-
         _registerlist.clear();        
         _registerlist.append(registers);
 
@@ -94,7 +92,7 @@ void ScopeData::handlePollDone(QList<bool> successList, QList<quint16> values)
     uint waitInterval;
     const uint passedInterval = QDateTime::currentMSecsSinceEpoch() - _lastPollStart;
 
-    if (passedInterval > _settings.getPollTime())
+    if (passedInterval > _pConnectionModel->pollTime())
     {
         // Poll again immediatly
         waitInterval = 1;
@@ -102,7 +100,7 @@ void ScopeData::handlePollDone(QList<bool> successList, QList<quint16> values)
     else
     {
         // Set waitInterval to remaining time
-        waitInterval = _settings.getPollTime() - passedInterval;
+        waitInterval = _pConnectionModel->pollTime() - passedInterval;
     }
 
     _pPollTimer->singleShot(waitInterval, this, SLOT(readData()));
@@ -156,11 +154,6 @@ void ScopeData::getCommunicationSettings(quint32 * successCount, quint32 * error
     *errorCount = _errorCount;
 }
 
-void ScopeData::getSettings(ModbusSettings * pSettings)
-{
-    pSettings->copy(&_settings);
-}
-
 bool ScopeData::isActive()
 {
     return _active;
@@ -177,6 +170,6 @@ void ScopeData::readData()
         {
             regAddrList.append(_registerlist[i].getRegisterAddress());
         }
-        emit registerRequest(_settings, regAddrList);
+        emit registerRequest(_pConnectionModel, regAddrList);
     }
 }

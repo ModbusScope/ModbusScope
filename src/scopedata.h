@@ -5,7 +5,7 @@
 #include <QList>
 #include <QStringListModel>
 
-#include "modbussettings.h"
+#include "connectionmodel.h"
 #include "registerdata.h"
 
 
@@ -17,15 +17,14 @@ class ScopeData : public QObject
 {
     Q_OBJECT
 public:
-    explicit ScopeData(QObject *parent = 0);
+    explicit ScopeData(ConnectionModel * pConnectionModel, QObject *parent = 0);
     ~ScopeData();
 
-    bool startCommunication(ModbusSettings * pSettings, QList<RegisterData> registers);
+    bool startCommunication(QList<RegisterData> registers);
     void stopCommunication();
     qint64 getCommunicationStartTime();
     qint64 getCommunicationEndTime();
     void getCommunicationSettings(quint32 * successCount, quint32 * errorCount);
-    void getSettings(ModbusSettings * pSettings);
     bool isActive();
     void resetCommunicationStats();
 
@@ -34,7 +33,7 @@ public slots:
     void handlePollDone(QList<bool> successList, QList<quint16> values);
 
 signals:
-    void registerRequest(ModbusSettings settings, QList<quint16> registerList);
+    void registerRequest(ConnectionModel*, QList<quint16> registerList);
     void requestStop();
     void handleReceivedData(QList<bool> successList, QList<double> values);
     void triggerStatUpdate(quint32 successCount, quint32 errorCount);
@@ -56,7 +55,7 @@ private:
 
     qint64 _lastPollStart;
 
-    ModbusSettings _settings;
+    ConnectionModel * _pConnectionModel;
     QList<RegisterData> _registerlist;
 };
 

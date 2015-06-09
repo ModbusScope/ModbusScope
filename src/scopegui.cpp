@@ -33,7 +33,7 @@ ScopeGui::ScopeGui(MainWindow *window, ScopeData *scopedata, QCustomPlot * pPlot
 {
 
    _pPlot = pPlot;
-   _window = window;
+   _window = window; /* TODO: delete */
    _scopedata = scopedata;
 
    _pPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes);
@@ -292,7 +292,8 @@ QColor ScopeGui::getGraphColor(quint32 index)
 
 void ScopeGui::exportDataCsv(QString dataFile)
 {
-
+#if 0
+    TODO: fix
     if (_pPlot->graphCount() != 0)
     {
         const QList<double> keyList = _pPlot->graph(0)->data()->keys();
@@ -313,8 +314,6 @@ void ScopeGui::exportDataCsv(QString dataFile)
         logData.append(comment + "End time" + Util::getSeparatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
 
         // Export communication settings
-        ModbusSettings commSettings;
-        _scopedata->getSettings(&commSettings);
         logData.append(comment + "Slave IP" + Util::getSeparatorCharacter() + commSettings.getIpAddress() + ":" + QString::number(commSettings.getPort()) + "\n");
         logData.append(comment + "Slave ID" + Util::getSeparatorCharacter() + QString::number(commSettings.getSlaveId()) + "\n");
         logData.append(comment + "Time-out" + Util::getSeparatorCharacter() + QString::number(commSettings.getTimeout()) + "\n");
@@ -362,6 +361,7 @@ void ScopeGui::exportDataCsv(QString dataFile)
 
         writeToFile(dataFile, logData);
     }
+#endif
 }
 
 void ScopeGui::exportGraphImage(QString imageFile)
