@@ -325,7 +325,7 @@ void ScopeGui::exportDataCsv(QString dataFile)
         logData.append(comment + "Communication success" + Util::getSeparatorCharacter() + QString::number(success) + "\n");
         logData.append(comment + "Communication errors" + Util::getSeparatorCharacter() + QString::number(error) + "\n");
 
-        logData.append("\n");
+        logData.append("//\n");
 
         line.clear();
         line.append("Time (ms)");
@@ -670,6 +670,23 @@ void ScopeGui::resetResults()
     }
 
    scalePlot();
+}
+
+void ScopeGui::setLegendPosition(LegensPositionOptions pos)
+{
+    if (pos == LEGEND_LEFT)
+    {
+         _pPlot ->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignLeft|Qt::AlignTop);
+    }
+    else if (pos == LEGEND_MIDDLE)
+    {
+         _pPlot ->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignCenter|Qt::AlignTop);
+    }
+    else if (pos == LEGEND_RIGHT)
+    {
+         _pPlot ->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignRight|Qt::AlignTop);
+    }
+    _pPlot->replot();
 }
 
 void ScopeGui::writeToFile(QString filePath, QString logData)

@@ -40,6 +40,13 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGraphBringToFront = _pUi->menuBringToFront;
     _pBringToFrontGroup = new QActionGroup(this);
 
+    _pLegendPositionGroup = new QActionGroup(this);
+    _pUi->actionLegendLeft->setActionGroup(_pLegendPositionGroup);
+    _pUi->actionLegendMiddle->setActionGroup(_pLegendPositionGroup);
+    _pUi->actionLegendRight->setActionGroup(_pLegendPositionGroup);
+    connect(_pLegendPositionGroup, SIGNAL(triggered(QAction*)), this, SLOT(changeLegendPosition(QAction*)));
+
+
     // Add multipart status bar
     _pStatusState = new QLabel(_cStateStopped, this);
     _pStatusState->setFrameStyle(QFrame::Panel | QFrame::Sunken);
@@ -58,6 +65,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     // For rightclick menu
     _pUi->customPlot->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(_pUi->customPlot, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
+
 
     connect(_pUi->spinSlidingXInterval, SIGNAL(valueChanged(int)), _pGui, SLOT(setxAxisSlidingInterval(int)));
     connect(_pUi->spinYMin, SIGNAL(valueChanged(int)), this, SLOT(updateYMin(int)));
@@ -140,7 +148,7 @@ void MainWindow::startScope()
         _pUi->actionShowValueTooltip->setEnabled(true);
         _pUi->actionHighlightSamplePoints->setEnabled(true);
         _pUi->actionClearData->setEnabled(true);
-
+	_pUi->menuLegendPosition->setEnabled(true);
         setSettingsObjectsState(false);
 
         _pStatusState->setText(_cStateRunning);
@@ -727,5 +735,21 @@ void MainWindow::showConnectionDialog()
 void MainWindow::showRegisterDialog()
 {
     _pRegisterDialog->exec();
+}
+
+void MainWindow::changeLegendPosition(QAction* pAction)
+{
+    if (pAction == _pUi->actionLegendLeft)
+    {
+        _pGui->setLegendPosition(ScopeGui::LEGEND_LEFT);
+    }
+    else if (pAction == _pUi->actionLegendMiddle)
+    {
+        _pGui->setLegendPosition(ScopeGui::LEGEND_MIDDLE);
+    }
+    else if (pAction == _pUi->actionLegendRight)
+    {
+        _pGui->setLegendPosition(ScopeGui::LEGEND_RIGHT);
+    }
 }
 

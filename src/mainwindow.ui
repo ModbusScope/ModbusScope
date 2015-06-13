@@ -264,11 +264,23 @@
       <string>Show/Hide</string>
      </property>
     </widget>
+    <widget class="QMenu" name="menuLegendPosition">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Legend Position</string>
+     </property>
+     <addaction name="actionLegendLeft"/>
+     <addaction name="actionLegendMiddle"/>
+     <addaction name="actionLegendRight"/>
+    </widget>
     <addaction name="menuBringToFront"/>
     <addaction name="menuShowHide"/>
     <addaction name="separator"/>
     <addaction name="actionShowValueTooltip"/>
     <addaction name="actionHighlightSamplePoints"/>
+    <addaction name="menuLegendPosition"/>
     <addaction name="separator"/>
     <addaction name="actionClearData"/>
    </widget>
@@ -378,6 +390,36 @@
   <action name="actionRegisterSettings">
    <property name="text">
     <string>Register settings</string>
+   </property>
+  </action>
+  <action name="actionLegendLeft">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Left</string>
+   </property>
+  </action>
+  <action name="actionLegendMiddle">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Middle</string>
+   </property>
+  </action>
+  <action name="actionLegendRight">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Right</string>
    </property>
   </action>
  </widget>

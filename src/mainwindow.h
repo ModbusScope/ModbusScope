@@ -59,6 +59,7 @@ private slots:
     void clearData();
     void showConnectionDialog();
     void showRegisterDialog();
+    void changeLegendPosition(QAction* pAction);
 
 public slots:
     void updateStats(quint32 successCount, quint32 errorCount);
@@ -95,6 +96,7 @@ private:
     QMenu * _pGraphBringToFront;
     QMenu * _pGraphShowHide;
     QActionGroup* _pBringToFrontGroup;
+    QActionGroup* _pLegendPositionGroup;
 
     static const QString _cWindowTitle;
     static const QString _cStateRunning;

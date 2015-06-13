@@ -23,6 +23,13 @@ public:
         SCALE_MANUAL
     } AxisScaleOptions;
 
+    typedef enum
+    {
+        LEGEND_LEFT = 0,
+        LEGEND_MIDDLE,
+        LEGEND_RIGHT,
+    } LegensPositionOptions;
+
     void resetGraph(void);
     void setupGraph(QList<RegisterData> registerList);
     void loadFileData(DataFileParser::FileData * pData);
@@ -41,6 +48,7 @@ public:
     void showGraph(quint32 index, bool bShow);
     QColor getGraphColor(quint32 index);
     void resetResults();
+    void setLegendPosition(LegensPositionOptions pos);
 
 signals:
     void updateXScalingUi(int);
