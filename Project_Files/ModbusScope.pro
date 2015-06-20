@@ -36,14 +36,16 @@ SOURCES +=  \
     ../libraries/libmodbus/src/modbus-tcp.c \
     ../libraries/qcustomplot/qcustomplot.cpp \
     ../src/scopedata.cpp \
-    ../src/scopegui.cpp \
     ../src/projectfileparser.cpp \
     ../src/registermodel.cpp \
     ../src/datafileparser.cpp \
     ../src/registerdata.cpp \
     ../src/connectiondialog.cpp \
     ../src/registerdialog.cpp \
-    ../src/connectionmodel.cpp
+    ../src/connectionmodel.cpp \
+    ../src/basicgraphview.cpp \
+    ../src/extendedgraphview.cpp \
+    ../src/guimodel.cpp
 
 FORMS    += \
     ../src/mainwindow.ui \
@@ -60,7 +62,6 @@ HEADERS += \
     ../libraries/libmodbus/src/modbus-tcp-private.h \
     ../libraries/qcustomplot/qcustomplot.h \
     ../src/scopedata.h \
-    ../src/scopegui.h \
     ../src/projectfileparser.h \
     ../src/registermodel.h \
     ../src/datafileparser.h \
@@ -68,4 +69,8 @@ HEADERS += \
     ../src/registerdata.h \
     ../src/connectiondialog.h \
     ../src/registerdialog.h \
-    ../src/connectionmodel.h
+    ../src/connectionmodel.h \
+    ../src/basicgraphview.h \
+    ../src/extendedgraphview.h \
+    ../src/guimodel.h \
+    ../src/graphdata.h

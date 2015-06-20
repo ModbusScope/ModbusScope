@@ -7,10 +7,7 @@
 #include <QTimer>
 #include <QMenu>
 
-#include "registermodel.h"
-#include "registerdialog.h"
-#include "connectiondialog.h"
-#include "connectionmodel.h"
+#include "datafileparser.h"
 #include "projectfileparser.h"
 
 namespace Ui {
@@ -20,7 +17,13 @@ class MainWindow;
 // Forward declaration
 class ScopeData;
 class QCustomPlot;
-class ScopeGui;
+class RegisterModel;
+class RegisterDialog;
+class ConnectionModel;
+class ConnectionDialog;
+class GuiModel;
+class ExtendedGraphView;
+
 
 class MainWindow : public QMainWindow
 {
@@ -38,33 +41,52 @@ signals:
     void registerStateChange(quint16 registerAddress);
     void dataExport(QString dataFile);
 
-private slots:
-    void startScope();
-    void stopScope();
-    void exitApplication();
-    void prepareDataExport();
-    void loadProjectSettings();
-    void reloadProjectSettings();
-    void prepareImageExport();
-    void updateYMin(int newMin);
-    void updateYMax(int newMax);
-    void showAbout();
-    void importData();
-    void updateRuntime();
-    void dragEnterEvent(QDragEnterEvent *e);
-    void dropEvent(QDropEvent *e);
-    void bringToFrontGraph(bool bState);
-    void showHideGraph(bool bState);
-    void showContextMenu(const QPoint& pos);
-    void clearData();
-    void showConnectionDialog();
-    void showRegisterDialog();
-    void changeLegendPosition(QAction* pAction);
-
 public slots:
     void updateStats(quint32 successCount, quint32 errorCount);
     void changeXAxisScaling(int id);
     void changeYAxisScaling(int id);
+
+private slots:
+
+    /* Menu handlers */
+    void loadProjectSettings();
+    void reloadProjectSettings();
+    void importData();
+    void exitApplication();
+    void prepareDataExport();
+    void prepareImageExport();
+    void showAbout();
+    void menuBringToFrontGraphClicked(bool bState);
+    void menuShowHideGraphClicked(bool bState);
+    void showConnectionDialog();
+    void showRegisterDialog();
+    void changeLegendPosition(QAction* pAction);
+    void clearData();
+    void startScope();
+    void stopScope();
+
+    /* Model change handlers */
+    void showHideGraph(const quint32 index);
+    void updateBringToFrontGrapMenu();
+    void updateHighlightSampleMenu();
+    void updateValueTooltipMenu();
+    void clearGraphMenu();
+    void addGraphMenu();
+    void updateWindowTitle();
+
+
+    /* Misc */
+    void showContextMenu(const QPoint& pos);
+
+    void dragEnterEvent(QDragEnterEvent *e);
+    void dropEvent(QDropEvent *e);
+
+
+    void updateYMin(int newMin);
+    void updateYMax(int newMax);
+
+    void updateRuntime();
+
 
 private:
 
@@ -72,10 +94,11 @@ private:
     void updateConnectionSetting(ProjectFileParser::ProjectSettings *pProjectSettings);
     void loadProjectFile(QString dataFilePath);
     void loadDataFile(QString dataFilePath);
+    void parseDataFile(DataFileParser::FileData * pData);
 
     Ui::MainWindow * _pUi;
     ScopeData * _pScope;
-    ScopeGui * _pGui;
+    ExtendedGraphView * _pGraphView;
 
     ConnectionModel * _pConnectionModel;
     ConnectionDialog * _pConnectionDialog;
@@ -83,22 +106,21 @@ private:
     RegisterModel * _pRegisterModel;
     RegisterDialog * _pRegisterDialog;
 
+    GuiModel * _pGuiModel;
+
     QLabel * _pStatusStats;
     QLabel * _pStatusState;
     QLabel * _pStatusRuntime;
     QButtonGroup * _pXAxisScaleGroup;
     QButtonGroup * _pYAxisScaleGroup;
-    QString _projectFilePath;
-    QString _lastDataFilePath;
 
     QTimer _runtimeTimer;
 
     QMenu * _pGraphBringToFront;
     QMenu * _pGraphShowHide;
-    QActionGroup* _pBringToFrontGroup;
-    QActionGroup* _pLegendPositionGroup;
+    QActionGroup * _pBringToFrontGroup;
+    QActionGroup * _pLegendPositionGroup;
 
-    static const QString _cWindowTitle;
     static const QString _cStateRunning;
     static const QString _cStateStopped;
     static const QString _cStatsTemplate;

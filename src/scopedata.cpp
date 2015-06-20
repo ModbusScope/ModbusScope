@@ -2,7 +2,6 @@
 #include <QDateTime>
 
 #include "modbusmaster.h"
-#include "scopegui.h"
 #include "scopedata.h"
 
 ScopeData::ScopeData(ConnectionModel * pConnectionModel, QObject *parent) :

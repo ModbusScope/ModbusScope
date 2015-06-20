@@ -2,15 +2,17 @@
 #include "ui_mainwindow.h"
 #include "qcustomplot.h"
 #include "scopedata.h"
-#include "scopegui.h"
-#include "datafileparser.h"
 #include "registerdata.h"
+#include "registermodel.h"
+#include "registerdialog.h"
+#include "connectiondialog.h"
+#include "connectionmodel.h"
+#include "guimodel.h"
+#include "extendedgraphview.h"
 
 #include <QDebug>
 #include <QDateTime>
 
-
-const QString MainWindow::_cWindowTitle = QString("ModbusScope");
 const QString MainWindow::_cStateRunning = QString("Running");
 const QString MainWindow::_cStateStopped = QString("Stopped");
 const QString MainWindow::_cStatsTemplate = QString("Success: %1\tErrors: %2");
@@ -22,9 +24,6 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 {
     _pUi->setupUi(this);
 
-    // Set window title
-    this->setWindowTitle(_cWindowTitle);
-    this->setAcceptDrops(true);
 
     _pConnectionModel = new ConnectionModel();
     _pConnectionDialog = new ConnectionDialog(_pConnectionModel);
@@ -32,14 +31,52 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pRegisterModel = new RegisterModel();
     _pRegisterDialog = new RegisterDialog(_pRegisterModel);
 
+    _pGraphView = new ExtendedGraphView(_pGuiModel, _pUi->customPlot, this);
     _pScope = new ScopeData(_pConnectionModel);
-    _pGui = new ScopeGui(this, _pScope, _pUi->customPlot, this);
+
+    /*-- Connect menu actions --*/
+    connect(_pUi->actionStart, SIGNAL(triggered()), this, SLOT(startScope()));
+    connect(_pUi->actionStop, SIGNAL(triggered()), this, SLOT(stopScope()));
+    connect(_pUi->actionExit, SIGNAL(triggered()), this, SLOT(exitApplication()));
+    connect(_pUi->actionExportDataCsv, SIGNAL(triggered()), this, SLOT(prepareDataExport()));
+    connect(_pUi->actionLoadProjectFile, SIGNAL(triggered()), this, SLOT(loadProjectSettings()));
+    connect(_pUi->actionReloadProjectFile, SIGNAL(triggered()), this, SLOT(reloadProjectSettings()));
+    connect(_pUi->actionImportDataFile, SIGNAL(triggered()), this, SLOT(importData()));
+    connect(_pUi->actionExportImage, SIGNAL(triggered()), this, SLOT(prepareImageExport()));
+    connect(_pUi->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
+    connect(_pUi->actionShowValueTooltip, SIGNAL(toggled(bool)), _pGuiModel, SLOT(setValueTooltip(bool)));
+    connect(_pUi->actionHighlightSamplePoints, SIGNAL(toggled(bool)), _pGuiModel, SLOT(setHighlightSamples(bool)));
+    connect(_pUi->actionClearData, SIGNAL(triggered()), this, SLOT(clearData()));
+    connect(_pUi->actionConnectionSettings, SIGNAL(triggered()), this, SLOT(showConnectionDialog()));
+    connect(_pUi->actionRegisterSettings, SIGNAL(triggered()), this, SLOT(showRegisterDialog()));
+
+    /*-- connect model to view --*/
+    connect(_pGuiModel, SIGNAL(graphVisibilityChanged(const quint32)), this, SLOT(showHideGraph(const quint32)));
+    connect(_pGuiModel, SIGNAL(graphVisibilityChanged(const quint32)), _pGraphView, SLOT(showGraph(const quint32)));
+    connect(_pGuiModel, SIGNAL(frontGraphChanged()), this, SLOT(updateBringToFrontGrapMenu()));
+    connect(_pGuiModel, SIGNAL(frontGraphChanged()), _pGraphView, SLOT(bringToFront()));
+    connect(_pGuiModel, SIGNAL(highlightSamplesChanged()), this, SLOT(updateHighlightSampleMenu()));
+    connect(_pGuiModel, SIGNAL(highlightSamplesChanged()), _pGraphView, SLOT(enableSamplePoints()));
+    connect(_pGuiModel, SIGNAL(valueTooltipChanged()), this, SLOT(updateValueTooltipMenu()));
+    connect(_pGuiModel, SIGNAL(valueTooltipChanged()), _pGraphView, SLOT(enableValueTooltip()));
+    connect(_pGuiModel, SIGNAL(graphCleared()), _pGraphView, SLOT(clearGraphs()));
+    connect(_pGuiModel, SIGNAL(graphCleared()), this, SLOT(clearGraphMenu()));
+    connect(_pGuiModel, SIGNAL(graphsAdded()), _pGraphView, SLOT(addGraphs()));
+    connect(_pGuiModel, SIGNAL(graphsAddedWithData(QList<QList<double> >)), _pGraphView, SLOT(addGraphs(QList<QList<double> >)));
+    connect(_pGuiModel, SIGNAL(graphsAdded()), this, SLOT(addGraphMenu()));
+    connect(_pGuiModel, SIGNAL(windowTitleChanged()), this, SLOT(updateWindowTitle()));
+    //connect(_pGuiModel, SIGNAL(loadedFileChanged()), this, SLOT(enableGlobalMenu()));
+    //connect(_pGuiModel, SIGNAL(legendVisibilityChanged()), _pGraphView, SLOT(showHideLegend()));
 
 
     _pGraphShowHide = _pUi->menuShowHide;
     _pGraphBringToFront = _pUi->menuBringToFront;
     _pBringToFrontGroup = new QActionGroup(this);
 
+    _pGuiModel->setWindowTitleDetail("");
+
+
+    // TODO; mode to correct model code
     _pLegendPositionGroup = new QActionGroup(this);
     _pUi->actionLegendLeft->setActionGroup(_pLegendPositionGroup);
     _pUi->actionLegendMiddle->setActionGroup(_pLegendPositionGroup);
@@ -59,18 +96,23 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pUi->statusBar->addPermanentWidget(_pStatusRuntime, 0);
     _pUi->statusBar->addPermanentWidget(_pStatusStats, 2);
 
-    _projectFilePath = QString("");
-    _lastDataFilePath = QString("");
+    _pGuiModel->setProjectFilePath(QString(""));
+    _pGuiModel->setLastDataFilePath(QString(""));
+
+    this->setAcceptDrops(true);
 
     // For rightclick menu
     _pUi->customPlot->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(_pUi->customPlot, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
 
-
+    /* Update interface via model */
+    _pGuiModel->triggerUpdate();
+/*
+ * TODO
     connect(_pUi->spinSlidingXInterval, SIGNAL(valueChanged(int)), _pGui, SLOT(setxAxisSlidingInterval(int)));
     connect(_pUi->spinYMin, SIGNAL(valueChanged(int)), this, SLOT(updateYMin(int)));
     connect(_pUi->spinYMax, SIGNAL(valueChanged(int)), this, SLOT(updateYMax(int)));
-
+*/
     //valueChanged is only send when done editing...
     _pUi->spinSlidingXInterval->setKeyboardTracking(false);
     _pUi->spinYMin->setKeyboardTracking(false);
@@ -79,45 +121,29 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     // Create button group for X axis scaling options
     _pXAxisScaleGroup = new QButtonGroup();
     _pXAxisScaleGroup->setExclusive(true);
-    _pXAxisScaleGroup->addButton(_pUi->radioXFullScale, ScopeGui::SCALE_AUTO);
-    _pXAxisScaleGroup->addButton(_pUi->radioXSliding, ScopeGui::SCALE_SLIDING);
-    _pXAxisScaleGroup->addButton(_pUi->radioXManual, ScopeGui::SCALE_MANUAL);
+    _pXAxisScaleGroup->addButton(_pUi->radioXFullScale, BasicGraphView::SCALE_AUTO);
+    _pXAxisScaleGroup->addButton(_pUi->radioXSliding, BasicGraphView::SCALE_SLIDING);
+    _pXAxisScaleGroup->addButton(_pUi->radioXManual, BasicGraphView::SCALE_MANUAL);
     connect(_pXAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(changeXAxisScaling(int)));
 
     // Default to full auto scaling
-    changeXAxisScaling(ScopeGui::SCALE_AUTO);
+    changeXAxisScaling(BasicGraphView::SCALE_AUTO);
 
 
     // Create button group for Y axis scaling options
     _pYAxisScaleGroup = new QButtonGroup();
     _pYAxisScaleGroup->setExclusive(true);
-    _pYAxisScaleGroup->addButton(_pUi->radioYFullScale, ScopeGui::SCALE_AUTO);
-    _pYAxisScaleGroup->addButton(_pUi->radioYMinMax, ScopeGui::SCALE_MINMAX);
-    _pYAxisScaleGroup->addButton(_pUi->radioYManual, ScopeGui::SCALE_MANUAL);
+    _pYAxisScaleGroup->addButton(_pUi->radioYFullScale, BasicGraphView::SCALE_AUTO);
+    _pYAxisScaleGroup->addButton(_pUi->radioYMinMax, BasicGraphView::SCALE_MINMAX);
+    _pYAxisScaleGroup->addButton(_pUi->radioYManual, BasicGraphView::SCALE_MANUAL);
     connect(_pYAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(changeYAxisScaling(int)));
 
     // Default to full auto scaling
-    changeYAxisScaling(ScopeGui::SCALE_AUTO);
+    changeYAxisScaling(BasicGraphView::SCALE_AUTO);
 
-    connect(_pScope, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pGui, SLOT(plotResults(QList<bool>, QList<double>)));
+    connect(_pScope, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pGraphView, SLOT(plotResults(QList<bool>, QList<double>)));
     connect(_pScope, SIGNAL(triggerStatUpdate(quint32, quint32)), this, SLOT(updateStats(quint32, quint32)));
-    connect(this, SIGNAL(dataExport(QString)), _pGui, SLOT(exportDataCsv(QString)));
-
-    // Handler for menu bar
-    connect(_pUi->actionStart, SIGNAL(triggered()), this, SLOT(startScope()));
-    connect(_pUi->actionStop, SIGNAL(triggered()), this, SLOT(stopScope()));
-    connect(_pUi->actionExit, SIGNAL(triggered()), this, SLOT(exitApplication()));
-    connect(_pUi->actionExportDataCsv, SIGNAL(triggered()), this, SLOT(prepareDataExport()));
-    connect(_pUi->actionLoadProjectFile, SIGNAL(triggered()), this, SLOT(loadProjectSettings()));
-    connect(_pUi->actionReloadProjectFile, SIGNAL(triggered()), this, SLOT(reloadProjectSettings()));
-    connect(_pUi->actionImportDataFile, SIGNAL(triggered()), this, SLOT(importData()));
-    connect(_pUi->actionExportImage, SIGNAL(triggered()), this, SLOT(prepareImageExport()));
-    connect(_pUi->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
-    connect(_pUi->actionShowValueTooltip, SIGNAL(toggled(bool)), _pGui, SLOT(enableValueTooltip(bool)));
-    connect(_pUi->actionHighlightSamplePoints, SIGNAL(toggled(bool)), _pGui, SLOT(enableSamplePoints(bool)));
-    connect(_pUi->actionClearData, SIGNAL(triggered()), this, SLOT(clearData()));
-    connect(_pUi->actionConnectionSettings, SIGNAL(triggered()), this, SLOT(showConnectionDialog()));
-    connect(_pUi->actionRegisterSettings, SIGNAL(triggered()), this, SLOT(showRegisterDialog()));
+    connect(this, SIGNAL(dataExport(QString)), _pGraphView, SLOT(exportDataCsv(QString)));
 
     if (cmdArguments.size() > 1)
     {
@@ -128,6 +154,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    delete _pGraphView;
+    delete _pGuiModel;
     delete _pConnectionDialog;
     delete _pRegisterDialog;
     delete _pRegisterModel;
@@ -136,6 +164,270 @@ MainWindow::~MainWindow()
     delete _pGraphShowHide;
     delete _pGraphBringToFront;
     delete _pUi;
+}
+
+void MainWindow::updateStats(quint32 successCount, quint32 errorCount)
+{
+    // Update statistics
+    _pStatusStats->setText(_cStatsTemplate.arg(successCount).arg(errorCount));
+}
+/*
+ * TODO
+void MainWindow::changeXAxisScaling(int id)
+{
+    if (id == BasicGraphView::SCALE_AUTO)
+    {
+        // Full auto scaling
+        _pUi->radioXFullScale->setChecked(true);
+        _pGui->setxAxisScale(BasicGraphView::SCALE_AUTO);
+    }
+    else if (id == BasicGraphView::SCALE_SLIDING)
+    {
+        // Sliding window
+        _pUi->radioXSliding->setChecked(true);
+        _pGui->setxAxisScale(BasicGraphView::SCALE_SLIDING, _pUi->spinSlidingXInterval->text().toUInt());
+    }
+    else
+    {
+        // manual
+        _pUi->radioXManual->setChecked(true);
+        _pGui->setxAxisScale(BasicGraphView::SCALE_MANUAL);
+    }
+}
+
+void MainWindow::changeYAxisScaling(int id)
+{
+    if (id == BasicGraphView::SCALE_AUTO)
+    {
+        // Full auto scaling
+        _pUi->radioYFullScale->setChecked(true);
+        _pGui->setyAxisScale(BasicGraphView::SCALE_AUTO);
+    }
+    else if (id == BasicGraphView::SCALE_MINMAX)
+    {
+        // Min and max selected
+        _pUi->radioYMinMax->setChecked(true);
+        _pGui->setyAxisScale(BasicGraphView::SCALE_MINMAX, _pUi->spinYMin->text().toInt(), _pUi->spinYMax->text().toInt());
+    }
+    else
+    {
+        // manual
+        _pUi->radioYManual->setChecked(true);
+        _pGui->setyAxisScale(BasicGraphView::SCALE_MANUAL);
+    }
+}
+*/
+void MainWindow::loadProjectSettings()
+{
+    QString filePath;
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    dialog.setAcceptMode(QFileDialog::AcceptOpen);
+    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
+    dialog.setWindowTitle(tr("Select mbs file"));
+    dialog.setNameFilter(tr("mbs files (*.mbs)"));
+
+    if (_pGuiModel->projectFilePath().trimmed().isEmpty())
+    {
+        QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+        if (docPath.size() > 0)
+        {
+            dialog.setDirectory(docPath[0]);
+        }
+    }
+    else
+    {
+        dialog.setDirectory(QFileInfo(_pGuiModel->projectFilePath()).dir());
+    }
+
+    if (dialog.exec())
+    {
+        filePath = dialog.selectedFiles().first();
+        loadProjectFile(filePath);
+    }
+
+}
+
+void MainWindow::reloadProjectSettings()
+{
+    loadProjectFile(_pGuiModel->projectFilePath());
+}
+
+void MainWindow::importData()
+{
+    QString filePath;
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    dialog.setAcceptMode(QFileDialog::AcceptOpen);
+    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
+    dialog.setWindowTitle(tr("Select csv file"));
+    dialog.setNameFilter(tr("csv files (*.csv)"));
+
+    if (_pGuiModel->lastDataFilePath().trimmed().isEmpty())
+    {
+        QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+        if (docPath.size() > 0)
+        {
+            dialog.setDirectory(docPath[0]);
+        }
+    }
+    else
+    {
+        dialog.setDirectory(QFileInfo(_pGuiModel->lastDataFilePath()).dir());
+    }
+
+    if (dialog.exec())
+    {
+        filePath = dialog.selectedFiles().first();
+        loadDataFile(filePath);
+    }
+}
+
+void MainWindow::exitApplication()
+{
+    QApplication::quit();
+}
+
+void MainWindow::prepareDataExport()
+{
+    QString filePath;
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
+    dialog.setDefaultSuffix("csv");
+    dialog.setWindowTitle(tr("Select csv file"));
+    dialog.setNameFilter(tr("CSV files (*.csv)"));
+
+    if (_pGuiModel->lastDataFilePath().trimmed().isEmpty())
+    {
+        QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+        if (docPath.size() > 0)
+        {
+            dialog.setDirectory(docPath[0]);
+        }
+    }
+    else
+    {
+        dialog.setDirectory(QFileInfo(_pGuiModel->lastDataFilePath()).dir());
+    }
+
+    if (dialog.exec())
+    {
+        filePath = dialog.selectedFiles().first();
+        _pGuiModel->setLastDataFilePath(filePath);
+        emit dataExport(filePath);
+    }
+}
+
+void MainWindow::prepareImageExport()
+{
+    QString filePath;
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
+    dialog.setDefaultSuffix("png");
+    dialog.setWindowTitle(tr("Select png file"));
+    dialog.setNameFilter(tr("PNG files (*.png)"));
+
+    if (_pGuiModel->lastDataFilePath().trimmed().isEmpty())
+    {
+        QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+        if (docPath.size() > 0)
+        {
+            dialog.setDirectory(docPath[0]);
+        }
+    }
+    else
+    {
+        dialog.setDirectory(QFileInfo(_pGuiModel->lastDataFilePath()).dir());
+    }
+
+    if (dialog.exec())
+    {
+        filePath = dialog.selectedFiles().first();
+        _pGuiModel->setLastDataFilePath(filePath);
+        _pGraphView->exportGraphImage(filePath);
+    }
+}
+
+void MainWindow::showAbout()
+{
+    QString lnkAuthor("<a href='mailto:jensgeudens@hotmail.com'>jgeudens</a>");
+    QString lnkGpl("<a href='http://www.gnu.org/licenses/gpl.html#content'>GPL</a>");
+    QString lnkGitHub("<a href='https://github.com/jgeudens/ModbusScope'>GitHub</a>");
+
+    QString lnkQt("<a href='http://qt-project.org/'>Qt</a>");
+    QString lnkLibModbus("<a href='http://libmodbus.org/'>libmodbus</a>");
+    QString lnkQCustomPlot("<a href='http://www.qcustomplot.com/'>QCustomPlot</a>");
+
+    QString version = QString(tr("<b>ModbusScope v%1</b><br><br>")).arg(APP_VERSION);
+
+    QString aboutTxt = tr(
+                        "%1"
+                        "ModbusScope is created and maintained by %2. This software is released under the %3 license. "
+                        "The source is freely available at %4.<br><br>"
+                        "ModbusScope uses following libraries:<br>"
+                        "%5<br>"
+                        "%6<br>"
+                        "%7<br>").arg(version, lnkAuthor, lnkGpl, lnkGitHub, lnkQt, lnkLibModbus, lnkQCustomPlot);
+
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle("About");
+    msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
+    msgBox.setText(aboutTxt);
+    msgBox.exec();
+}
+
+void MainWindow::menuBringToFrontGraphClicked(bool bState)
+{
+    QAction * pAction = qobject_cast<QAction *>(QObject::sender());
+
+    if (bState)
+    {
+        _pGuiModel->setFrontGraph(pAction->data().toInt());
+    }
+}
+
+void MainWindow::menuShowHideGraphClicked(bool bState)
+{
+    QAction * pAction = qobject_cast<QAction *>(QObject::sender());
+
+    _pGuiModel->setGraphVisibility(pAction->data().toInt(), bState);
+
+}
+
+void MainWindow::showConnectionDialog()
+{
+    _pConnectionDialog->exec();
+}
+
+void MainWindow::showRegisterDialog()
+{
+    _pRegisterDialog->exec();
+}
+
+void MainWindow::changeLegendPosition(QAction* pAction)
+{
+    if (pAction == _pUi->actionLegendLeft)
+    {
+        _pGraphView->setLegendPosition(BasicGraphView::LEGEND_LEFT);
+    }
+    else if (pAction == _pUi->actionLegendMiddle)
+    {
+        _pGraphView->setLegendPosition(BasicGraphView::LEGEND_MIDDLE);
+    }
+    else if (pAction == _pUi->actionLegendRight)
+    {
+        _pGraphView->setLegendPosition(BasicGraphView::LEGEND_RIGHT);
+    }
+}
+
+void MainWindow::clearData()
+{
+    _pScope->resetCommunicationStats();
+    _pGraphView->clearResults();
 }
 
 void MainWindow::startScope()
@@ -148,7 +440,7 @@ void MainWindow::startScope()
         _pUi->actionShowValueTooltip->setEnabled(true);
         _pUi->actionHighlightSamplePoints->setEnabled(true);
         _pUi->actionClearData->setEnabled(true);
-	_pUi->menuLegendPosition->setEnabled(true);
+        _pUi->menuLegendPosition->setEnabled(true);
         setSettingsObjectsState(false);
 
         _pStatusState->setText(_cStateRunning);
@@ -164,43 +456,8 @@ void MainWindow::startScope()
             QList<RegisterData> regList;
             _pRegisterModel->getCheckedRegisterList(&regList);
 
-            _pGui->resetGraph();
-            _pGui->setupGraph(regList);
-
-            _pGui->enableSamplePoints(_pUi->actionHighlightSamplePoints->isChecked());
-
-            // Clear actions
-            _pGraphShowHide->clear();
-            _pBringToFrontGroup->actions().clear();
-            _pGraphBringToFront->clear();
-
-            // Add menu-items
-            for (qint32 i = 0; i < regList.size(); i++)
-            {
-                QAction * pShowHideAction = _pGraphShowHide->addAction(regList[i].getText());
-                QAction * pBringToFront = _pGraphBringToFront->addAction(regList[i].getText());
-
-                QPixmap pixmap(20,5);
-                pixmap.fill(_pGui->getGraphColor(i));
-                QIcon * pBringToFrontIcon = new QIcon(pixmap);
-                QIcon * pShowHideIcon = new QIcon(pixmap);
-
-                pShowHideAction->setData(i);
-                pShowHideAction->setIcon(*pBringToFrontIcon);
-                pShowHideAction->setCheckable(true);
-                pShowHideAction->setChecked(true);
-
-                pBringToFront->setData(i);
-                pBringToFront->setIcon(*pShowHideIcon);
-                pBringToFront->setCheckable(true);
-                pBringToFront->setActionGroup(_pBringToFrontGroup);
-
-                QObject::connect(pShowHideAction, SIGNAL(toggled(bool)), this, SLOT(showHideGraph(bool)));
-                QObject::connect(pBringToFront, SIGNAL(toggled(bool)), this, SLOT(bringToFrontGraph(bool)));
-            }
-
-            _pGraphShowHide->setEnabled(true);
-            _pGraphBringToFront->setEnabled(true);
+            _pGuiModel->clearGraph();
+            _pGuiModel->addGraphs(regList);
         }
     }
     else
@@ -222,115 +479,127 @@ void MainWindow::stopScope()
     setSettingsObjectsState(true);
 }
 
-void MainWindow::exitApplication()
+void MainWindow::showHideGraph(const quint32 index)
 {
-    QApplication::quit();
-}
+    _pGraphShowHide->actions().at(index)->setChecked(_pGuiModel->graphVisibility(index));
 
-void MainWindow::prepareDataExport()
-{
-    QString filePath;
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
-    dialog.setDefaultSuffix("csv");
-    dialog.setWindowTitle(tr("Select csv file"));
-    dialog.setNameFilter(tr("CSV files (*.csv)"));
+    // Show/Hide corresponding "BringToFront" action
+    _pGraphBringToFront->actions().at(index)->setVisible(_pGuiModel->graphVisibility((index)));
 
-    if (_lastDataFilePath.trimmed().isEmpty())
+    // Enable/Disable global BringToFront menu
+    bool bVisible = false;
+    foreach(QAction * pAction, _pGraphBringToFront->actions())
     {
-        QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
-        if (docPath.size() > 0)
+        if (pAction->isVisible())
         {
-            dialog.setDirectory(docPath[0]);
+            bVisible = true;
+            break;
         }
     }
-    else
-    {
-        dialog.setDirectory(QFileInfo(_lastDataFilePath).dir());
-    }
+    _pGraphBringToFront->setEnabled(bVisible);
+}
 
-    if (dialog.exec())
+void MainWindow::updateBringToFrontGrapMenu()
+{
+    if (_pBringToFrontGroup->actions().size() > 0)
     {
-        filePath = dialog.selectedFiles().first();
-        _lastDataFilePath = filePath;
-        emit dataExport(filePath);
+        _pBringToFrontGroup->actions().at(_pGuiModel->frontGraph())->setChecked(true);
     }
 }
 
-void MainWindow::loadProjectSettings()
+void MainWindow::updateHighlightSampleMenu()
 {
-    QString filePath;
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::ExistingFile);
-    dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
-    dialog.setWindowTitle(tr("Select mbs file"));
-    dialog.setNameFilter(tr("mbs files (*.mbs)"));
+    /* set menu to checked */
+    _pUi->actionHighlightSamplePoints->setChecked(_pGuiModel->highlightSamples());
+}
 
-    if (_projectFilePath.trimmed().isEmpty())
+void MainWindow::updateValueTooltipMenu()
+{
+    /* set menu to checked */
+    _pUi->actionShowValueTooltip->setChecked(_pGuiModel->valueTooltip());
+}
+
+void MainWindow::clearGraphMenu()
+{
+    // Clear actions
+    _pGraphShowHide->clear();
+    _pBringToFrontGroup->actions().clear();
+    _pGraphBringToFront->clear();
+}
+
+void MainWindow::addGraphMenu()
+{
+
+    for (quint32 idx = 0; idx < _pGuiModel->graphCount(); idx++)
     {
-        QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
-        if (docPath.size() > 0)
+        QString label = _pGuiModel->graphLabel(idx);
+        QAction * pShowHideAction = _pGraphShowHide->addAction(label);
+        QAction * pBringToFront = _pGraphBringToFront->addAction(label);
+
+        QPixmap pixmap(20,5);
+        pixmap.fill(_pGuiModel->graphColor(idx));
+        QIcon * pBringToFrontIcon = new QIcon(pixmap);
+        QIcon * pShowHideIcon = new QIcon(pixmap);
+
+        pShowHideAction->setData(idx);
+        pShowHideAction->setIcon(*pBringToFrontIcon);
+        pShowHideAction->setCheckable(true);
+        pShowHideAction->setChecked(_pGuiModel->graphVisibility(idx));
+
+        pBringToFront->setData(idx);
+        pBringToFront->setIcon(*pShowHideIcon);
+        pBringToFront->setCheckable(true);
+        pBringToFront->setActionGroup(_pBringToFrontGroup);
+
+        QObject::connect(pShowHideAction, SIGNAL(toggled(bool)), this, SLOT(menuShowHideGraphClicked(bool)));
+        QObject::connect(pBringToFront, SIGNAL(toggled(bool)), this, SLOT(menuBringToFrontGraphClicked(bool)));
+    }
+
+    _pGraphShowHide->setEnabled(true);
+    _pGraphBringToFront->setEnabled(true);
+}
+
+void MainWindow::updateWindowTitle()
+{
+    setWindowTitle(_pGuiModel->windowTitle());
+}
+
+void MainWindow::showContextMenu(const QPoint& pos)
+{
+    _pUi->menuView->popup(_pUi->customPlot->mapToGlobal(pos));
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *e)
+{
+    if (e->mimeData()->hasUrls())
+    {
+        e->acceptProposedAction();
+    }
+}
+
+void MainWindow::dropEvent(QDropEvent *e)
+{
+    if (!_pScope->isActive())
+    {
+        const QString filename(e->mimeData()->urls().last().toLocalFile());
+        QFileInfo fileInfo(filename);
+        if (fileInfo.completeSuffix() == QString("mbs"))
         {
-            dialog.setDirectory(docPath[0]);
+            loadProjectFile(filename);
+        }
+        else if (fileInfo.completeSuffix() == QString("csv"))
+        {
+            loadDataFile(filename);
+        }
+        else
+        {
+            // ignore drop
         }
     }
-    else
-    {
-        dialog.setDirectory(QFileInfo(_projectFilePath).dir());
-    }
-
-    if (dialog.exec())
-    {
-        filePath = dialog.selectedFiles().first();
-        loadProjectFile(filePath);
-    }
-
 }
 
-
-void MainWindow::reloadProjectSettings()
-{
-    loadProjectFile(_projectFilePath);
-}
-
-
-
-void MainWindow::prepareImageExport()
-{
-    QString filePath;
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
-    dialog.setDefaultSuffix("png");
-    dialog.setWindowTitle(tr("Select png file"));
-    dialog.setNameFilter(tr("PNG files (*.png)"));
-
-    if (_lastDataFilePath.trimmed().isEmpty())
-    {
-        QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
-        if (docPath.size() > 0)
-        {
-            dialog.setDirectory(docPath[0]);
-        }
-    }
-    else
-    {
-        dialog.setDirectory(QFileInfo(_lastDataFilePath).dir());
-    }
-
-    if (dialog.exec())
-    {
-        filePath = dialog.selectedFiles().first();
-        _lastDataFilePath  = filePath;
-        _pGui->exportGraphImage(filePath);
-    }
-}
-
-
+#if 0
+TODO
 void MainWindow::updateYMin(int newMin)
 {
     const qint32 min = _pGui->getyAxisMin();
@@ -346,7 +615,6 @@ void MainWindow::updateYMin(int newMin)
     _pGui->setyAxisMinMax(newMin, newMax);
     _pUi->spinYMax->setValue(newMax);
 }
-
 
 void MainWindow::updateYMax(int newMax)
 {
@@ -364,58 +632,31 @@ void MainWindow::updateYMax(int newMax)
     _pGui->setyAxisMinMax(newMin, newMax);
     _pUi->spinYMin->setValue(newMin);
 }
+#endif
 
-
-
-void MainWindow::updateStats(quint32 successCount, quint32 errorCount)
+void MainWindow::updateRuntime()
 {
-    // Update statistics
-    _pStatusStats->setText(_cStatsTemplate.arg(successCount).arg(errorCount));
-}
+    qint64 timePassed = QDateTime::currentMSecsSinceEpoch() - _pScope->getCommunicationStartTime();
 
-void MainWindow::changeXAxisScaling(int id)
-{
-    if (id == ScopeGui::SCALE_AUTO)
-    {
-        // Full auto scaling
-        _pUi->radioXFullScale->setChecked(true);
-        _pGui->setxAxisScale(ScopeGui::SCALE_AUTO);
-    }
-    else if (id == ScopeGui::SCALE_SLIDING)
-    {
-        // Sliding window
-        _pUi->radioXSliding->setChecked(true);
-        _pGui->setxAxisScale(ScopeGui::SCALE_SLIDING, _pUi->spinSlidingXInterval->text().toUInt());
-    }
-    else
-    {
-        // manual
-        _pUi->radioXManual->setChecked(true);
-        _pGui->setxAxisScale(ScopeGui::SCALE_MANUAL);
-    }
-}
+    // Convert to s
+    timePassed /= 1000;
 
+    const quint32 h = (timePassed / 3600);
+    timePassed = timePassed % 3600;
 
+    const quint32 m = (timePassed / 60);
+    timePassed = timePassed % 60;
 
-void MainWindow::changeYAxisScaling(int id)
-{
-    if (id == ScopeGui::SCALE_AUTO)
+    const quint32 s = timePassed;
+
+    QString strTimePassed = QString("%1 hours, %2 minutes %3 seconds").arg(h).arg(m).arg(s);
+
+    _pStatusRuntime->setText(_cRuntime.arg(strTimePassed));
+
+    // restart timer
+    if (_pScope->isActive())
     {
-        // Full auto scaling
-        _pUi->radioYFullScale->setChecked(true);
-        _pGui->setyAxisScale(ScopeGui::SCALE_AUTO);
-    }
-    else if (id == ScopeGui::SCALE_MINMAX)
-    {
-        // Min and max selected
-        _pUi->radioYMinMax->setChecked(true);
-        _pGui->setyAxisScale(ScopeGui::SCALE_MINMAX, _pUi->spinYMin->text().toInt(), _pUi->spinYMax->text().toInt());
-    }
-    else
-    {
-        // manual
-        _pUi->radioYManual->setChecked(true);
-        _pGui->setyAxisScale(ScopeGui::SCALE_MANUAL);
+        _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
     }
 }
 
@@ -424,7 +665,7 @@ void MainWindow::setSettingsObjectsState(bool bState)
     _pUi->actionLoadProjectFile->setEnabled(bState);
 
     // if a project file is previously loaded, then it can be reloaded
-    if (_projectFilePath.isEmpty())
+    if (_pGuiModel->projectFilePath().isEmpty())
     {
         _pUi->actionReloadProjectFile->setEnabled(false);
     }
@@ -515,8 +756,8 @@ void MainWindow::loadProjectFile(QString dataFilePath)
         {
             updateConnectionSetting(&loadedSettings);
 
-            _projectFilePath = dataFilePath;
-            setWindowTitle(QString(tr("%1 - %2")).arg(_cWindowTitle, QFileInfo(_projectFilePath).fileName()));
+            _pGuiModel->setProjectFilePath(dataFilePath);
+            _pGuiModel->setWindowTitleDetail(QFileInfo(_pGuiModel->projectFilePath()).fileName());
 
             // Enable reload menu item
             _pUi->actionReloadProjectFile->setEnabled(true);
@@ -536,7 +777,7 @@ void MainWindow::loadDataFile(QString dataFilePath)
 {
     QFile file(dataFilePath);
 
-    _lastDataFilePath = dataFilePath;
+    _pGuiModel->setLastDataFilePath(dataFilePath);
 
     /* If we can't open it, let's show an error message. */
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -555,14 +796,13 @@ void MainWindow::loadDataFile(QString dataFilePath)
             _pStatusStats->setText(_cStatsTemplate.arg(0).arg(0));
 
             // Set to full auto scaling
-            changeXAxisScaling(ScopeGui::SCALE_AUTO);
+            changeXAxisScaling(BasicGraphView::SCALE_AUTO);
 
             // Set to full auto scaling
-            changeYAxisScaling(ScopeGui::SCALE_AUTO);
+            changeYAxisScaling(BasicGraphView::SCALE_AUTO);
 
-            _pGui->loadFileData(&data);
+            parseDataFile(&data);
         }
-
     }
     else
     {
@@ -573,183 +813,22 @@ void MainWindow::loadDataFile(QString dataFilePath)
     }
 }
 
-void MainWindow::showAbout()
+void MainWindow::parseDataFile(DataFileParser::FileData * pData)
 {
-    QString lnkAuthor("<a href='mailto:jensgeudens@hotmail.com'>jgeudens</a>");
-    QString lnkGpl("<a href='http://www.gnu.org/licenses/gpl.html#content'>GPL</a>");
-    QString lnkGitHub("<a href='https://github.com/jgeudens/ModbusScope'>GitHub</a>");
+    // Init graphs, remove first label because is the time scale
+    QList<RegisterData> graphList;
 
-    QString lnkQt("<a href='http://qt-project.org/'>Qt</a>");
-    QString lnkLibModbus("<a href='http://libmodbus.org/'>libmodbus</a>");
-    QString lnkQCustomPlot("<a href='http://www.qcustomplot.com/'>QCustomPlot</a>");
-
-    QString version = QString(tr("<b>ModbusScope v%1</b><br><br>")).arg(APP_VERSION);
-
-    QString aboutTxt = tr(
-                        "%1"
-                        "ModbusScope is created and maintained by %2. This software is released under the %3 license. "
-                        "The source is freely available at %4.<br><br>"
-                        "ModbusScope uses following libraries:<br>"
-                        "%5<br>"
-                        "%6<br>"
-                        "%7<br>").arg(version, lnkAuthor, lnkGpl, lnkGitHub, lnkQt, lnkLibModbus, lnkQCustomPlot);
-
-    QMessageBox msgBox(this);
-    msgBox.setWindowTitle("About");
-    msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
-    msgBox.setText(aboutTxt);
-    msgBox.exec();
-}
-
-void MainWindow::importData()
-{
-    QString filePath;
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::ExistingFile);
-    dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
-    dialog.setWindowTitle(tr("Select csv file"));
-    dialog.setNameFilter(tr("csv files (*.csv)"));
-
-    if (_lastDataFilePath.trimmed().isEmpty())
+    // Include time data (first column)
+    for (qint32 i = 0; i < pData->dataLabel.size(); i++)
     {
-        QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
-        if (docPath.size() > 0)
-        {
-            dialog.setDirectory(docPath[0]);
-        }
-    }
-    else
-    {
-        dialog.setDirectory(QFileInfo(_lastDataFilePath).dir());
+        RegisterData graph;
+        graph.setText(pData->dataLabel[i]);
+        graphList.append(graph);
     }
 
-    if (dialog.exec())
-    {
-        filePath = dialog.selectedFiles().first();
-        loadDataFile(filePath);
-    }
+    _pGuiModel->clearGraph();
+    _pGuiModel->addGraphs(graphList, pData->dataRows);
+    _pGuiModel->setFrontGraph(0);
+    // TODO_pGuiModel->setLoadedFile(QFileInfo(_pDataFileParser->getDataParseSettings()->getPath()).fileName());
+    _pGuiModel->setWindowTitleDetail(_pGuiModel->loadedFile());
 }
-
-void MainWindow::updateRuntime()
-{
-    qint64 timePassed = QDateTime::currentMSecsSinceEpoch() - _pScope->getCommunicationStartTime();
-
-    // Convert to s
-    timePassed /= 1000;
-
-    const quint32 h = (timePassed / 3600);
-    timePassed = timePassed % 3600;
-
-    const quint32 m = (timePassed / 60);
-    timePassed = timePassed % 60;
-
-    const quint32 s = timePassed;
-
-    QString strTimePassed = QString("%1 hours, %2 minutes %3 seconds").arg(h).arg(m).arg(s);
-
-    _pStatusRuntime->setText(_cRuntime.arg(strTimePassed));
-
-    // restart timer
-    if (_pScope->isActive())
-    {
-        _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
-    }
-}
-
-void MainWindow::dragEnterEvent(QDragEnterEvent *e)
-{
-    if (e->mimeData()->hasUrls())
-    {
-        e->acceptProposedAction();
-    }
-}
-
-void MainWindow::dropEvent(QDropEvent *e)
-{
-    if (!_pScope->isActive())
-    {
-        const QString filename(e->mimeData()->urls().last().toLocalFile());
-        QFileInfo fileInfo(filename);
-        if (fileInfo.completeSuffix() == QString("mbs"))
-        {
-            loadProjectFile(filename);
-        }
-        else if (fileInfo.completeSuffix() == QString("csv"))
-        {
-            loadDataFile(filename);
-        }
-        else
-        {
-            // ignore drop
-        }
-    }
-}
-
-void MainWindow::bringToFrontGraph(bool bState)
-{
-    QAction * pAction = qobject_cast<QAction *>(QObject::sender());
-
-    _pGui->bringToFront(pAction->data().toInt(), bState);
-}
-
-void MainWindow::showHideGraph(bool bState)
-{
-    QAction * pAction = qobject_cast<QAction *>(QObject::sender());
-
-    _pGui->showGraph(pAction->data().toInt(), bState);
-
-    // Show/Hide corresponding "BringToFront" action
-    _pGraphBringToFront->actions().at(pAction->data().toInt())->setVisible(bState);
-
-    // Enable/Disable BringToFront menu
-    bool bVisible = false;
-    foreach(QAction * pAction, _pGraphBringToFront->actions())
-    {
-        if (pAction->isVisible())
-        {
-            bVisible = true;
-            break;
-        }
-    }
-
-    _pGraphBringToFront->setEnabled(bVisible);
-}
-
-void MainWindow::showContextMenu(const QPoint& pos)
-{
-    _pUi->menuView->popup(_pUi->customPlot->mapToGlobal(pos));
-}
-
-void MainWindow::clearData()
-{
-    _pScope->resetCommunicationStats();
-    _pGui->resetResults();
-}
-
-void MainWindow::showConnectionDialog()
-{
-    _pConnectionDialog->exec();
-}
-
-void MainWindow::showRegisterDialog()
-{
-    _pRegisterDialog->exec();
-}
-
-void MainWindow::changeLegendPosition(QAction* pAction)
-{
-    if (pAction == _pUi->actionLegendLeft)
-    {
-        _pGui->setLegendPosition(ScopeGui::LEGEND_LEFT);
-    }
-    else if (pAction == _pUi->actionLegendMiddle)
-    {
-        _pGui->setLegendPosition(ScopeGui::LEGEND_MIDDLE);
-    }
-    else if (pAction == _pUi->actionLegendRight)
-    {
-        _pGui->setLegendPosition(ScopeGui::LEGEND_RIGHT);
-    }
-}
-
