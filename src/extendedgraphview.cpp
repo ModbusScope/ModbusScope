@@ -11,14 +11,8 @@ ExtendedGraphView::ExtendedGraphView(GuiModel * pGuiModel, QCustomPlot * pPlot, 
 
     connect(_pPlot->xAxis, SIGNAL(rangeChanged(QCPRange, QCPRange)), this, SLOT(xAxisRangeChanged(QCPRange, QCPRange)));
 
-    // TODO: _settings.yMin = 0;
-    // TODO: _settings.yMax = 10;
-    // TODO: _pPlot->yAxis->setRange(_settings.yMin, _settings.yMax);
-
     // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
     connect(_pPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMove(QMouseEvent*)));
-    // TODO: connect(this, SIGNAL(updateXScalingUi(int)), _window,SLOT(changeXAxisScaling(int)));
-    // TODO: connect(this, SIGNAL(updateYScalingUi(int)), _window,SLOT(changeYAxisScaling(int)));
 }
 
 ExtendedGraphView::~ExtendedGraphView()
@@ -53,7 +47,7 @@ void ExtendedGraphView::plotResults(QList<bool> successList, QList<double> value
         }
     }
 
-   scalePlot();
+   rescalePlot();
 
 }
 
@@ -65,13 +59,11 @@ void ExtendedGraphView::clearResults()
         _pPlot->graph(i)->setName(QString("(-) %1").arg(_pGuiModel->graphLabel(i)));
     }
 
-   scalePlot();
+   rescalePlot();
 }
 
 void ExtendedGraphView::exportDataCsv(QString dataFile)
 {
-#if 0
-    TODO: fix
     if (_pPlot->graphCount() != 0)
     {
         const QList<double> keyList = _pPlot->graph(0)->data()->keys();
@@ -139,14 +131,13 @@ void ExtendedGraphView::exportDataCsv(QString dataFile)
 
         writeToFile(dataFile, logData);
     }
-#endif
 }
 
-void ExtendedGraphView::scalePlot()
+void ExtendedGraphView::rescalePlot()
 {
 
     // scale x-axis
-    if (_settings.scaleXSetting == SCALE_AUTO)
+    if (_pGuiModel->xAxisScalingMode() == SCALE_AUTO)
     {
         if ((_pPlot->graphCount() != 0) && (_pPlot->graph(0)->data()->keys().size()))
         {
@@ -157,24 +148,24 @@ void ExtendedGraphView::scalePlot()
             _pPlot->xAxis->setRange(0, 10000);
         }
     }
-    else if (_settings.scaleXSetting == SCALE_SLIDING)
+    else if (_pGuiModel->xAxisScalingMode() == SCALE_SLIDING)
     {
         // sliding window scale routine
         if ((_pPlot->graphCount() != 0) && (_pPlot->graph(0)->data()->keys().size()))
         {
             const quint32 lastTime = _pPlot->graph(0)->data()->keys().last();
-            if (lastTime > _settings.xslidingInterval)
+            if (lastTime > _pGuiModel->xAxisSlidingSec())
             {
-                _pPlot->xAxis->setRange(lastTime - _settings.xslidingInterval, lastTime);
+                _pPlot->xAxis->setRange(lastTime - _pGuiModel->xAxisSlidingSec(), lastTime);
             }
             else
             {
-                _pPlot->xAxis->setRange(0, _settings.xslidingInterval);
+                _pPlot->xAxis->setRange(0, _pGuiModel->xAxisSlidingSec());
             }
         }
         else
         {
-            _pPlot->xAxis->setRange(0, _settings.xslidingInterval);
+            _pPlot->xAxis->setRange(0, _pGuiModel->xAxisSlidingSec());
         }
     }
     else // Manual
@@ -183,7 +174,7 @@ void ExtendedGraphView::scalePlot()
     }
 
     // scale y-axis
-    if (_settings.scaleYSetting == SCALE_AUTO)
+    if (_pGuiModel->yAxisScalingMode() == SCALE_AUTO)
     {
         if ((_pPlot->graphCount() != 0) && (_pPlot->graph(0)->data()->keys().size()))
         {
@@ -194,10 +185,10 @@ void ExtendedGraphView::scalePlot()
             _pPlot->yAxis->setRange(0, 10);
         }
     }
-    else if (_settings.scaleYSetting == SCALE_MINMAX)
+    else if (_pGuiModel->yAxisScalingMode() == SCALE_MINMAX)
     {
         // min max scale routine
-        _pPlot->yAxis->setRange(_settings.yMin, _settings.yMax);
+        _pPlot->yAxis->setRange(_pGuiModel->yAxisMin(), _pGuiModel->yAxisMax());
     }
     else // Manual
     {
@@ -214,17 +205,17 @@ void ExtendedGraphView::mouseMove(QMouseEvent *event)
     {
         if (_pPlot->axisRect()->rangeDrag() == Qt::Horizontal)
         {
-            emit updateXScalingUi(ScopeGui::SCALE_MANUAL); // change to manual scaling
+            _pGuiModel->setxAxisScale(SCALE_MANUAL); // change to manual scaling
         }
         else if (_pPlot->axisRect()->rangeDrag() == Qt::Vertical)
         {
-            emit updateYScalingUi(ScopeGui::SCALE_MANUAL); // change to manual scaling
+            _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
         }
         else
         {
-            // Both
-            emit updateXScalingUi(ScopeGui::SCALE_MANUAL); // change to manual scaling
-            emit updateYScalingUi(ScopeGui::SCALE_MANUAL); // change to manual scaling
+            // Both change to manual scaling
+            _pGuiModel->setxAxisScale(SCALE_MANUAL);
+            _pGuiModel->setyAxisScale(SCALE_MANUAL);
         }
     }
     else if  (_bEnableTooltip) // Check to show tooltip

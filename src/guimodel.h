@@ -35,15 +35,14 @@ public:
     bool legendVisibility();
     QString projectFilePath();
     QString lastDataFilePath();
+    BasicGraphView::AxisScaleOptions xAxisScalingMode();
+    quint32 xAxisSlidingSec();
+    BasicGraphView::AxisScaleOptions  yAxisScalingMode();
+    qint32 yAxisMin();
+    qint32 yAxisMax();
 
     void setProjectFilePath(QString path);
     void setLastDataFilePath(QString path);
-
-    void setxAxisScale(BasicGraphView::AxisScaleOptions scaleMode);
-    void setxAxisScale(BasicGraphView::AxisScaleOptions scaleMode, quint32 interval);
-    void setyAxisScale(BasicGraphView::AxisScaleOptions scaleMode);
-    void setyAxisScale(BasicGraphView::AxisScaleOptions scaleMode, qint32 min, qint32 max);
-    void setyAxisMinMax(quint32 min, quint32 max);
 
 public slots:
     void setValueTooltip(bool bValueTooltip);
@@ -52,6 +51,13 @@ public slots:
     void setGraphVisibility(quint32 index, const bool &value);
     void setWindowTitleDetail(QString detail);
     void setLegendVisibility(bool bLegendVisibility);
+
+    void setxAxisScale(BasicGraphView::AxisScaleOptions scaleMode);
+    void setxAxisSlidingInterval(quint32 slidingSec);
+
+    void setyAxisScale(BasicGraphView::AxisScaleOptions scaleMode);
+    void setyAxisMin(quint32 min);
+    void setyAxisMax(quint32 max);
 
 signals:
 
@@ -65,20 +71,22 @@ signals:
     void valueTooltipChanged();
     void windowTitleChanged();
     void legendVisibilityChanged();
+    void xAxisScalingChanged();
+    void xAxisSlidingIntervalChanged();
+    void yAxisScalingChanged();
+    void yAxisMinMaxchanged();
 
 public slots:
 
 
 private:
 
-    typedef struct _GuiSettings
+    typedef struct
     {
-        _GuiSettings() : scaleXSetting(BasicGraphView::SCALE_AUTO), scaleYSetting(BasicGraphView::SCALE_AUTO) {}
-
-        BasicGraphView::AxisScaleOptions scaleXSetting;
+        BasicGraphView::AxisScaleOptions xScaleMode;
         quint32 xslidingInterval;
 
-        BasicGraphView::AxisScaleOptions scaleYSetting;
+        BasicGraphView::AxisScaleOptions yScaleMode;
         qint32 yMin;
         qint32 yMax;
 

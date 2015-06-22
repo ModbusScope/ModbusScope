@@ -102,15 +102,12 @@ void BasicGraphView::manualScaleYAxis(qint64 min, qint64 max)
 void BasicGraphView::autoScaleXAxis()
 {
     _pPlot->rescaleAxes(true);
-    // TODO: emit updateXScalingUi(SCALE_AUTO);
-    // TODO: emit updateYScalingUi(SCALE_AUTO);
     _pPlot->replot();
 }
 
 void BasicGraphView::autoScaleYAxis()
 {
     _pPlot->yAxis->rescale(true);
-    // TODO: emit updateYScalingUi(SCALE_AUTO);
     _pPlot->replot();
 }
 
@@ -259,18 +256,18 @@ void BasicGraphView::mouseWheel()
    if (_pPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
    {
        _pPlot->axisRect()->setRangeZoom(_pPlot->xAxis->orientation());
-       // TODO: emit updateXScalingUi(SCALE_MANUAL); // change to manual scaling
+       _pGuiModel->setxAxisScale(SCALE_MANUAL); // change to manual scaling
    }
    else if (_pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
    {
        _pPlot->axisRect()->setRangeZoom(_pPlot->yAxis->orientation());
-       // TODO: emit updateYScalingUi(SCALE_MANUAL); // change to manual scaling
+       _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
    }
    else
    {
        _pPlot->axisRect()->setRangeZoom(Qt::Horizontal|Qt::Vertical);
-       // TODO: emit updateXScalingUi(SCALE_MANUAL); // change to manual scaling
-       // TODO: emit updateYScalingUi(SCALE_MANUAL); // change to manual scaling
+       _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
+       _pGuiModel->setxAxisScale(SCALE_MANUAL);
    }
 }
 
@@ -455,11 +452,11 @@ void BasicGraphView::axisDoubleClicked(QCPAxis * axis)
 {
     if (axis == _pPlot->xAxis)
     {
-        autoScaleXAxis();
+        _pGuiModel->setxAxisScale(SCALE_AUTO);
     }
     else if (axis == _pPlot->yAxis)
     {
-        autoScaleYAxis();
+        _pGuiModel->setyAxisScale(SCALE_AUTO);
     }
     else
     {

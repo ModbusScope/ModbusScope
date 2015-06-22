@@ -43,8 +43,6 @@ signals:
 
 public slots:
     void updateStats(quint32 successCount, quint32 errorCount);
-    void changeXAxisScaling(int id);
-    void changeYAxisScaling(int id);
 
 private slots:
 
@@ -73,7 +71,10 @@ private slots:
     void clearGraphMenu();
     void addGraphMenu();
     void updateWindowTitle();
-
+    void updatexAxisSlidingMode();
+    void updatexAxisSlidingInterval();
+    void updateyAxisSlidingMode();
+    void updateyAxisMinMax();
 
     /* Misc */
     void showContextMenu(const QPoint& pos);

@@ -68,6 +68,15 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     //connect(_pGuiModel, SIGNAL(loadedFileChanged()), this, SLOT(enableGlobalMenu()));
     //connect(_pGuiModel, SIGNAL(legendVisibilityChanged()), _pGraphView, SLOT(showHideLegend()));
 
+    connect(_pGuiModel, SIGNAL(xAxisScalingChanged()), this, SLOT(updatexAxisSlidingMode()));
+    connect(_pGuiModel, SIGNAL(xAxisScalingChanged()), _pGraphView, SLOT(rescalePlot()));
+    connect(_pGuiModel, SIGNAL(xAxisSlidingIntervalChanged()), this, SLOT(updatexAxisSlidingInterval()));
+    connect(_pGuiModel, SIGNAL(xAxisSlidingIntervalChanged()), _pGraphView, SLOT(rescalePlot()));
+
+    connect(_pGuiModel, SIGNAL(yAxisScalingChanged()), this, SLOT(updateyAxisSlidingMode()));
+    connect(_pGuiModel, SIGNAL(yAxisScalingChanged()), _pGraphView, SLOT(rescalePlot()));
+    connect(_pGuiModel, SIGNAL(yAxisMinMaxchanged()), this, SLOT(updateyAxisMinMax()));
+    connect(_pGuiModel, SIGNAL(yAxisMinMaxchanged()), _pGraphView, SLOT(rescalePlot()));
 
     _pGraphShowHide = _pUi->menuShowHide;
     _pGraphBringToFront = _pUi->menuBringToFront;
@@ -107,12 +116,11 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     /* Update interface via model */
     _pGuiModel->triggerUpdate();
-/*
- * TODO
-    connect(_pUi->spinSlidingXInterval, SIGNAL(valueChanged(int)), _pGui, SLOT(setxAxisSlidingInterval(int)));
-    connect(_pUi->spinYMin, SIGNAL(valueChanged(int)), this, SLOT(updateYMin(int)));
-    connect(_pUi->spinYMax, SIGNAL(valueChanged(int)), this, SLOT(updateYMax(int)));
-*/
+
+    connect(_pUi->spinSlidingXInterval, SIGNAL(valueChanged(int)), _pGuiModel, SLOT(setxAxisSlidingInterval(quint32)));
+    connect(_pUi->spinYMin, SIGNAL(valueChanged(int)), _pGuiModel, SLOT(setyAxisMin(quint32)));
+    connect(_pUi->spinYMax, SIGNAL(valueChanged(int)), _pGuiModel, SLOT(setyAxisMax(quint32)));
+
     //valueChanged is only send when done editing...
     _pUi->spinSlidingXInterval->setKeyboardTracking(false);
     _pUi->spinYMin->setKeyboardTracking(false);
@@ -124,11 +132,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pXAxisScaleGroup->addButton(_pUi->radioXFullScale, BasicGraphView::SCALE_AUTO);
     _pXAxisScaleGroup->addButton(_pUi->radioXSliding, BasicGraphView::SCALE_SLIDING);
     _pXAxisScaleGroup->addButton(_pUi->radioXManual, BasicGraphView::SCALE_MANUAL);
-    connect(_pXAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(changeXAxisScaling(int)));
-
-    // Default to full auto scaling
-    changeXAxisScaling(BasicGraphView::SCALE_AUTO);
-
+    connect(_pXAxisScaleGroup, SIGNAL(buttonClicked(int)), _pGuiModel, SLOT(setxAxisScale(BasicGraphView::AxisScaleOptions)));
 
     // Create button group for Y axis scaling options
     _pYAxisScaleGroup = new QButtonGroup();
@@ -136,10 +140,11 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pYAxisScaleGroup->addButton(_pUi->radioYFullScale, BasicGraphView::SCALE_AUTO);
     _pYAxisScaleGroup->addButton(_pUi->radioYMinMax, BasicGraphView::SCALE_MINMAX);
     _pYAxisScaleGroup->addButton(_pUi->radioYManual, BasicGraphView::SCALE_MANUAL);
-    connect(_pYAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(changeYAxisScaling(int)));
+    connect(_pYAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(setyAxisScale(BasicGraphView::AxisScaleOptions)));
 
     // Default to full auto scaling
-    changeYAxisScaling(BasicGraphView::SCALE_AUTO);
+    _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
+    _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
 
     connect(_pScope, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pGraphView, SLOT(plotResults(QList<bool>, QList<double>)));
     connect(_pScope, SIGNAL(triggerStatUpdate(quint32, quint32)), this, SLOT(updateStats(quint32, quint32)));
@@ -149,7 +154,6 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     {
         loadProjectFile(cmdArguments[1]);
     }
-
 }
 
 MainWindow::~MainWindow()
@@ -171,52 +175,7 @@ void MainWindow::updateStats(quint32 successCount, quint32 errorCount)
     // Update statistics
     _pStatusStats->setText(_cStatsTemplate.arg(successCount).arg(errorCount));
 }
-/*
- * TODO
-void MainWindow::changeXAxisScaling(int id)
-{
-    if (id == BasicGraphView::SCALE_AUTO)
-    {
-        // Full auto scaling
-        _pUi->radioXFullScale->setChecked(true);
-        _pGui->setxAxisScale(BasicGraphView::SCALE_AUTO);
-    }
-    else if (id == BasicGraphView::SCALE_SLIDING)
-    {
-        // Sliding window
-        _pUi->radioXSliding->setChecked(true);
-        _pGui->setxAxisScale(BasicGraphView::SCALE_SLIDING, _pUi->spinSlidingXInterval->text().toUInt());
-    }
-    else
-    {
-        // manual
-        _pUi->radioXManual->setChecked(true);
-        _pGui->setxAxisScale(BasicGraphView::SCALE_MANUAL);
-    }
-}
 
-void MainWindow::changeYAxisScaling(int id)
-{
-    if (id == BasicGraphView::SCALE_AUTO)
-    {
-        // Full auto scaling
-        _pUi->radioYFullScale->setChecked(true);
-        _pGui->setyAxisScale(BasicGraphView::SCALE_AUTO);
-    }
-    else if (id == BasicGraphView::SCALE_MINMAX)
-    {
-        // Min and max selected
-        _pUi->radioYMinMax->setChecked(true);
-        _pGui->setyAxisScale(BasicGraphView::SCALE_MINMAX, _pUi->spinYMin->text().toInt(), _pUi->spinYMax->text().toInt());
-    }
-    else
-    {
-        // manual
-        _pUi->radioYManual->setChecked(true);
-        _pGui->setyAxisScale(BasicGraphView::SCALE_MANUAL);
-    }
-}
-*/
 void MainWindow::loadProjectSettings()
 {
     QString filePath;
@@ -564,6 +523,55 @@ void MainWindow::updateWindowTitle()
     setWindowTitle(_pGuiModel->windowTitle());
 }
 
+void MainWindow::updatexAxisSlidingMode()
+{
+    if (_pGuiModel->xAxisScalingMode() == BasicGraphView::SCALE_AUTO)
+    {
+        // Full auto scaling
+        _pUi->radioXFullScale->setChecked(true);
+    }
+    else if (_pGuiModel->xAxisScalingMode() == BasicGraphView::SCALE_SLIDING)
+    {
+        // Sliding window
+        _pUi->radioXSliding->setChecked(true);
+    }
+    else
+    {
+        // manual
+        _pUi->radioXManual->setChecked(true);
+    }
+}
+
+void MainWindow::updatexAxisSlidingInterval()
+{
+    _pUi->spinSlidingXInterval->setValue(_pGuiModel->xAxisSlidingSec());
+}
+
+void MainWindow::updateyAxisSlidingMode()
+{
+    if (_pGuiModel->yAxisScalingMode() == BasicGraphView::SCALE_AUTO)
+    {
+        // Full auto scaling
+        _pUi->radioYFullScale->setChecked(true);
+    }
+    else if (_pGuiModel->yAxisScalingMode() == BasicGraphView::SCALE_MINMAX)
+    {
+        // Min and max selected
+        _pUi->radioYMinMax->setChecked(true);
+    }
+    else
+    {
+        // manual
+        _pUi->radioYManual->setChecked(true);
+    }
+}
+
+void MainWindow::updateyAxisMinMax()
+{
+    _pUi->spinYMin->setValue(_pGuiModel->yAxisMin());
+    _pUi->spinYMax->setValue(_pGuiModel->yAxisMax());
+}
+
 void MainWindow::showContextMenu(const QPoint& pos)
 {
     _pUi->menuView->popup(_pUi->customPlot->mapToGlobal(pos));
@@ -597,42 +605,6 @@ void MainWindow::dropEvent(QDropEvent *e)
         }
     }
 }
-
-#if 0
-TODO
-void MainWindow::updateYMin(int newMin)
-{
-    const qint32 min = _pGui->getyAxisMin();
-    const qint32 max = _pGui->getyAxisMax();
-    const qint32 diff = max - min;
-    qint32 newMax = max;
-
-    if (newMin >= max)
-    {
-        newMax = newMin + diff;
-    }
-
-    _pGui->setyAxisMinMax(newMin, newMax);
-    _pUi->spinYMax->setValue(newMax);
-}
-
-void MainWindow::updateYMax(int newMax)
-{
-    const qint32 min = _pGui->getyAxisMin();
-    const qint32 max = _pGui->getyAxisMax();
-    const qint32 diff = max - min;
-
-    qint32 newMin = min;
-
-    if (newMax <= min)
-    {
-        newMin = newMax - diff;
-    }
-
-    _pGui->setyAxisMinMax(newMin, newMax);
-    _pUi->spinYMin->setValue(newMin);
-}
-#endif
 
 void MainWindow::updateRuntime()
 {
@@ -796,10 +768,10 @@ void MainWindow::loadDataFile(QString dataFilePath)
             _pStatusStats->setText(_cStatsTemplate.arg(0).arg(0));
 
             // Set to full auto scaling
-            changeXAxisScaling(BasicGraphView::SCALE_AUTO);
+            _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
 
             // Set to full auto scaling
-            changeYAxisScaling(BasicGraphView::SCALE_AUTO);
+             _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
 
             parseDataFile(&data);
         }

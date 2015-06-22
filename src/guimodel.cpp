@@ -32,6 +32,12 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
     _bHighlightSamples = true;
     _bValueTooltip = false;
     _bLegendVisibility = true;
+
+    _guiSettings.scaleXSetting = BasicGraphView::SCALE_AUTO;
+    _guiSettings.scaleYSetting = BasicGraphView::SCALE_AUTO;
+    _guiSettings.yMax = 10;
+    _guiSettings.yMin = 0;
+    _guiSettings.xslidingInterval = 30;
 }
 
 GuiModel::~GuiModel()
@@ -257,76 +263,99 @@ void GuiModel::setLastDataFilePath(QString path)
     _lastDataFilePath = path;
 }
 
-void ScopeGui::setxAxisScale(BasicGraphView::AxisScaleOptions scaleMode)
+void GuiModel::setxAxisScale(BasicGraphView::AxisScaleOptions scaleMode)
 {
-    _settings.scaleXSetting = scaleMode;
-
-    if (scaleMode != SCALE_MANUAL)
+    if (_guiSettings.scaleXSetting != scaleMode)
     {
-        scalePlot();
+        _guiSettings.scaleXSetting = scaleMode;
+        emit xAxisScalingChanged();
     }
 }
 
-void ScopeGui::setxAxisScale(BasicGraphView::AxisScaleOptions scaleMode, quint32 interval)
+BasicGraphView::AxisScaleOptions GuiModel::xAxisScalingMode()
 {
-    _settings.scaleXSetting = scaleMode;
-    _settings.xslidingInterval = interval * 1000;
+    return _guiSettings.xScaleMode;
+}
 
-    if (scaleMode != SCALE_MANUAL)
+void GuiModel::setxAxisSlidingInterval(quint32 slidingSec)
+{
+    if (_guiSettings.scaleXSetting != slidingSec * 1000)
     {
-        scalePlot();
+        _guiSettings.xslidingInterval = slidingSec * 1000;
+        emit xAxisSlidingIntervalChanged();
+    }
+
+}
+
+quint32 GuiModel::xAxisSlidingSec()
+{
+    return _guiSettings.xslidingInterval * 1000;
+}
+
+BasicGraphView::AxisScaleOptions GuiModel::yAxisScalingMode()
+{
+    return _guiSettings.yScaleMode;
+}
+
+void GuiModel::setyAxisScale(BasicGraphView::AxisScaleOptions scaleMode)
+{
+    if (_guiSettings.scaleYSetting != scaleMode)
+    {
+        _guiSettings.scaleYSetting = scaleMode;
+        emit yAxisScalingChanged();
     }
 }
 
-void ScopeGui::setyAxisScale(BasicGraphView::AxisScaleOptions scaleMode)
+void GuiModel::setyAxisMin(quint32 min)
 {
-    _settings.scaleYSetting = scaleMode;
+    const qint32 diff = GuiSettings.yMax - GuiSettings.yMin;
+    qint32 newMax = GuiSettings.yMax;
 
-    if (scaleMode != SCALE_MANUAL)
+    if (newMin >= GuiSettings.yMax)
     {
-        scalePlot();
+        newMax = newMin + diff;
+    }
+
+    if (_guiSettings.yMin != min)
+    {
+        _guiSettings.yMin = min;
+        setyAxisMax(newMax);
+        emit yAxisMinMaxchanged();
     }
 }
 
-
-void ScopeGui::setyAxisScale(BasicGraphView::AxisScaleOptions scaleMode, qint32 min, qint32 max)
+void GuiModel::setyAxisMax(quint32 max)
 {
-    _settings.scaleYSetting = scaleMode;
-    _settings.yMin = min;
-    _settings.yMax = max;
+    const qint32 diff = GuiSettings.yMax - GuiSettings.yMin;
 
-    if (scaleMode != SCALE_MANUAL)
+    qint32 newMin = GuiSettings.yMin;
+
+    if (newMax <= GuiSettings.yMin)
     {
-        scalePlot();
+        newMin = newMax - diff;
+    }
+
+    if (_guiSettings.yMax != max)
+    {
+        _guiSettings.yMax = max;
+        setyAxisMin(newMin);
+        emit yAxisMaxchanged();
     }
 }
 
-
-void ScopeGui::setxAxisSlidingInterval(int interval)
+qint32 GuiModel::yAxisMin()
 {
-    _settings.xslidingInterval = (quint32)interval * 1000;
-    updateXScalingUi(ScopeGui::SCALE_SLIDING); // set sliding window scaling
+    return _guiSettings.yMin;
 }
 
-void ScopeGui::setyAxisMinMax(quint32 min, quint32 max)
+qint32 GuiModel::yAxisMax()
 {
-    _settings.yMin = min;
-    _settings.yMax = max;
-    updateYScalingUi(ScopeGui::SCALE_MINMAX); // set min max scaling
+    return _guiSettings.yMax;
 }
 
-qint32 ScopeGui::getyAxisMin()
+void GuiModel::xAxisRangeChanged(const QCPRange &newRange, const QCPRange &oldRange)
 {
-    return _settings.yMin;
-}
-
-qint32 ScopeGui::getyAxisMax()
-{
-    return _settings.yMax;
-}
-
-void ScopeGui::xAxisRangeChanged(const QCPRange &newRange, const QCPRange &oldRange)
-{
+    todo
     QCPRange range = newRange;
 
     if (newRange.upper <= 0)

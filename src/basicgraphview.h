@@ -32,10 +32,12 @@ public:
     virtual ~BasicGraphView();
 
     void exportGraphImage(QString imageFile);
+
+public slots:
+
     virtual void manualScaleXAxis(qint64 min, qint64 max);
     virtual void manualScaleYAxis(qint64 min, qint64 max);
 
-public slots:
     virtual void autoScaleXAxis();
     virtual void autoScaleYAxis();
 

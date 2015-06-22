@@ -17,7 +17,7 @@ public slots:
     void plotResults(QList<bool> successList, QList<double> valueList);
     void clearResults();
     void exportDataCsv(QString dataFile);
-    void scalePlot();
+    void rescalePlot();
 
 private slots:
     void mouseMove(QMouseEvent *event);
