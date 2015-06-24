@@ -61,15 +61,16 @@ private slots:
     void legendClick(QCPLegend * legend, QCPAbstractLegendItem * abstractLegendItem, QMouseEvent * event);
     void legendDoubleClick(QCPLegend * legend,QCPAbstractLegendItem * abstractLegendItem, QMouseEvent * event);
 
+protected slots:
+    virtual void paintValueToolTip(QMouseEvent *event);
+    virtual void handleSamplePoints();
+    virtual void axisDoubleClicked(QCPAxis * axis);
+
 protected:
     GuiModel * _pGuiModel;
     QCustomPlot * _pPlot;
     bool _bEnableTooltip;
     bool _bEnableSampleHighlight;
-
-    virtual void paintValueToolTip(QMouseEvent *event);
-    virtual void handleSamplePoints();
-    virtual void axisDoubleClicked(QCPAxis * axis);
 
 private:
     QString createTickLabelString(qint32 tickKey);

@@ -33,7 +33,7 @@ public slots:
     void handlePollDone(QList<bool> successList, QList<quint16> values);
 
 signals:
-    void registerRequest(ConnectionModel*, QList<quint16> registerList);
+    void registerRequest(QList<quint16> registerList);
     void requestStop();
     void handleReceivedData(QList<bool> successList, QList<double> values);
     void triggerStatUpdate(quint32 successCount, quint32 errorCount);
@@ -48,10 +48,10 @@ private:
     bool _active;
     QTimer * _pPollTimer;
 
-    quint32 _successCount;
-    quint32 _errorCount;
-    qint64 _startTime;
-    qint64 _endTime;
+    quint32 _successCount; // TODO: move to model
+    quint32 _errorCount; // TODO: move to model
+    qint64 _startTime; // TODO: move to model
+    qint64 _endTime; // TODO: move to model
 
     qint64 _lastPollStart;
 

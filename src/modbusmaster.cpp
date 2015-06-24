@@ -3,15 +3,18 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include "modbusmaster.h"
+#include "connectionmodel.h"
 #include <modbus.h>
 
 #include "errno.h"
 
-ModbusMaster::ModbusMaster(QObject *parent) :
+ModbusMaster::ModbusMaster(ConnectionModel *pConnectionModel, QObject *parent) :
     QObject(parent),
     _pThread(NULL)
 {
     // NEVER create object with new here
+
+    _pConnectionModel = pConnectionModel;
 }
 
 ModbusMaster::~ModbusMaster()
@@ -53,7 +56,7 @@ void ModbusMaster::stopped()
     emit threadStopped();
 }
 
-void ModbusMaster::readRegisterList(ConnectionModel * pConnSettings, QList<quint16> registerList)
+void ModbusMaster::readRegisterList(QList<quint16> registerList)
 {
     QList<quint16> resultList;
     QList<bool> resultStateList;
@@ -61,11 +64,11 @@ void ModbusMaster::readRegisterList(ConnectionModel * pConnSettings, QList<quint
     quint32 error = 0;
 
     /* Open port */
-    modbus_t * pCtx = openPort(pConnSettings->ipAddress(), pConnSettings->port());
+    modbus_t * pCtx = openPort(_pConnectionModel->ipAddress(), _pConnectionModel->port());
     if (pCtx)
     {
         /* Set modbus slave */
-        modbus_set_slave(pCtx, pConnSettings->slaveId());
+        modbus_set_slave(pCtx, _pConnectionModel->slaveId());
 
         struct timeval timeInterval;
 
@@ -75,8 +78,8 @@ void ModbusMaster::readRegisterList(ConnectionModel * pConnSettings, QList<quint
         modbus_set_byte_timeout(pCtx, &timeInterval);
 
         // Set response timeout
-        timeInterval.tv_sec = pConnSettings->timeout() / 1000;
-        timeInterval.tv_usec = (pConnSettings->timeout() % 1000) * 1000uL;
+        timeInterval.tv_sec = _pConnectionModel->timeout() / 1000;
+        timeInterval.tv_usec = (_pConnectionModel->timeout() % 1000) * 1000uL;
         modbus_set_response_timeout(pCtx, &timeInterval);
 
         // Do optimized reads

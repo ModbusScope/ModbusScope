@@ -2,12 +2,14 @@
 #include "util.h"
 #include "guimodel.h"
 #include "extendedgraphview.h"
+#include "scopedata.h"
 
-
-ExtendedGraphView::ExtendedGraphView(GuiModel * pGuiModel, QCustomPlot * pPlot, QObject *parent):
+ExtendedGraphView::ExtendedGraphView(ScopeData * pScope, GuiModel * pGuiModel, QCustomPlot * pPlot, QObject *parent):
     BasicGraphView(pGuiModel, pPlot)
 {
     Q_UNUSED(parent);
+
+    _pScope = pScope;
 
     connect(_pPlot->xAxis, SIGNAL(rangeChanged(QCPRange, QCPRange)), this, SLOT(xAxisRangeChanged(QCPRange, QCPRange)));
 
@@ -20,6 +22,16 @@ ExtendedGraphView::~ExtendedGraphView()
 
 }
 
+QList<double> ExtendedGraphView::graphTimeData()
+{
+    return _pPlot->graph(0)->data()->keys();
+}
+
+QList<QCPData> ExtendedGraphView::graphData(qint32 index)
+{
+    return _pPlot->graph(index)->data()->values();
+}
+
 void ExtendedGraphView::addGraphs(QList<QList<double> > data)
 {
     BasicGraphView::addGraphs();
@@ -29,7 +41,7 @@ void ExtendedGraphView::addGraphs(QList<QList<double> > data)
 
 void ExtendedGraphView::plotResults(QList<bool> successList, QList<double> valueList)
 {
-    const quint64 diff = QDateTime::currentMSecsSinceEpoch() - _scopedata->getCommunicationStartTime();
+    const quint64 diff = QDateTime::currentMSecsSinceEpoch() - _pScope->getCommunicationStartTime();
 
     for (qint32 i = 0; i < valueList.size(); i++)
     {
@@ -60,77 +72,6 @@ void ExtendedGraphView::clearResults()
     }
 
    rescalePlot();
-}
-
-void ExtendedGraphView::exportDataCsv(QString dataFile)
-{
-    if (_pPlot->graphCount() != 0)
-    {
-        const QList<double> keyList = _pPlot->graph(0)->data()->keys();
-        QList<QList<QCPData> > dataList;
-        QString logData;
-        QDateTime dt;
-        QString line;
-        QString comment = QString("//");
-
-        logData.append(comment + "ModbusScope version" + Util::getSeparatorCharacter() + QString(APP_VERSION) + "\n");
-
-        // Save start time
-        dt = QDateTime::fromMSecsSinceEpoch(_scopedata->getCommunicationStartTime());
-        logData.append(comment + "Start time" + Util::getSeparatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
-
-        // Save end time
-        dt = QDateTime::fromMSecsSinceEpoch(_scopedata->getCommunicationEndTime());
-        logData.append(comment + "End time" + Util::getSeparatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
-
-        // Export communication settings
-        logData.append(comment + "Slave IP" + Util::getSeparatorCharacter() + commSettings.getIpAddress() + ":" + QString::number(commSettings.getPort()) + "\n");
-        logData.append(comment + "Slave ID" + Util::getSeparatorCharacter() + QString::number(commSettings.getSlaveId()) + "\n");
-        logData.append(comment + "Time-out" + Util::getSeparatorCharacter() + QString::number(commSettings.getTimeout()) + "\n");
-        logData.append(comment + "Poll interval" + Util::getSeparatorCharacter() + QString::number(commSettings.getPollTime()) + "\n");
-
-        quint32 success;
-        quint32 error;
-        _scopedata->getCommunicationSettings(&success, &error);
-        logData.append(comment + "Communication success" + Util::getSeparatorCharacter() + QString::number(success) + "\n");
-        logData.append(comment + "Communication errors" + Util::getSeparatorCharacter() + QString::number(error) + "\n");
-
-        logData.append("//\n");
-
-        line.clear();
-        line.append("Time (ms)");
-        for(qint32 i = 0; i < _pPlot->graphCount(); i++)
-        {
-            // Get headers
-            line.append(Util::getSeparatorCharacter() + _graphNames[i]);
-
-            // Save data lists
-            dataList.append(_pPlot->graph(i)->data()->values());
-        }
-        line.append("\n");
-
-        logData.append(line);
-
-        for(qint32 i = 0; i < keyList.size(); i++)
-        {
-            line.clear();
-
-            // Format time (no decimals)
-            const quint64 t = static_cast<quint64>(keyList[i]);
-            line.append(QString::number(t, 'f', 0));
-
-            // Add formatted data (maximum 3 decimals, no trailing zeros)
-            for(qint32 d = 0; d < dataList.size(); d++)
-            {
-                line.append(Util::getSeparatorCharacter() + Util::formatDoubleForExport((dataList[d])[i].value));
-            }
-            line.append("\n");
-
-            logData.append(line);
-        }
-
-        writeToFile(dataFile, logData);
-    }
 }
 
 void ExtendedGraphView::rescalePlot()
@@ -266,21 +207,19 @@ void ExtendedGraphView::updateData(QList<QList<double> > * pDataLists)
     _pPlot->replot();
 }
 
-
-void ExtendedGraphView::writeToFile(QString filePath, QString logData)
+void ExtendedGraphView::xAxisRangeChanged(const QCPRange &newRange, const QCPRange &oldRange)
 {
-    QFile file(filePath);
-    if ( file.open(QIODevice::WriteOnly) ) // Remove all data from file
+    QCPRange range = newRange;
+
+    if (newRange.upper <= 0)
     {
-        QTextStream stream(&file);
-        stream << logData;
+        range.upper = oldRange.upper;
     }
-    else
+
+    if (newRange.lower <= 0)
     {
-        QMessageBox msgBox;
-        msgBox.setWindowTitle(tr("ModbusScope export error"));
-        msgBox.setIcon(QMessageBox::Warning);
-        msgBox.setText(tr("Save to data file (%1) failed").arg(filePath));
-        msgBox.exec();
+        range.lower = 0;
     }
+
+    _pPlot->xAxis->setRange(range);
 }

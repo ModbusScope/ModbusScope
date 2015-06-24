@@ -33,8 +33,8 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
     _bValueTooltip = false;
     _bLegendVisibility = true;
 
-    _guiSettings.scaleXSetting = BasicGraphView::SCALE_AUTO;
-    _guiSettings.scaleYSetting = BasicGraphView::SCALE_AUTO;
+    _guiSettings.xScaleMode = BasicGraphView::SCALE_AUTO;
+    _guiSettings.yScaleMode = BasicGraphView::SCALE_AUTO;
     _guiSettings.yMax = 10;
     _guiSettings.yMin = 0;
     _guiSettings.xslidingInterval = 30;
@@ -59,22 +59,31 @@ void GuiModel::triggerUpdate(void)
     emit highlightSamplesChanged();
     emit valueTooltipChanged();
     emit windowTitleChanged();
+
+    emit graphCleared();
+    emit legendVisibilityChanged();
+
+    emit yAxisMinMaxchanged();
+    emit xAxisSlidingIntervalChanged();
+
+    emit xAxisScalingChanged();
+    emit yAxisScalingChanged();
 }
 
 void GuiModel::addGraphs(QList<RegisterData> registerList)
 {
     quint32 colorIndex = 0;
 
-    for (qint32 idx = 1; idx < registerList.size(); idx++)
+    for (qint32 idx = 0; idx < registerList.size(); idx++)
     {
         GraphData * pGraphData = new GraphData();
 
         pGraphData->bVisibility = true;
         pGraphData->label = registerList[idx].getText();;
 
-        if (registerList[i].getColor().isValid())
+        if (registerList[idx].getColor().isValid())
         {
-            pGraphData->color = registerList[i].getColor();
+            pGraphData->color = registerList[idx].getColor();
         }
         else
         {
@@ -91,6 +100,7 @@ void GuiModel::addGraphs(QList<RegisterData> registerList)
 
 void GuiModel::addGraphs(QList<RegisterData> registerList, QList<QList<double> > data)
 {
+    // TODO: time data
     addGraphs(registerList);
 
     emit graphsAddedWithData(data);
@@ -265,9 +275,9 @@ void GuiModel::setLastDataFilePath(QString path)
 
 void GuiModel::setxAxisScale(BasicGraphView::AxisScaleOptions scaleMode)
 {
-    if (_guiSettings.scaleXSetting != scaleMode)
+    if (_guiSettings.xScaleMode != scaleMode)
     {
-        _guiSettings.scaleXSetting = scaleMode;
+        _guiSettings.xScaleMode = scaleMode;
         emit xAxisScalingChanged();
     }
 }
@@ -277,11 +287,11 @@ BasicGraphView::AxisScaleOptions GuiModel::xAxisScalingMode()
     return _guiSettings.xScaleMode;
 }
 
-void GuiModel::setxAxisSlidingInterval(quint32 slidingSec)
+void GuiModel::setxAxisSlidingInterval(qint32 slidingSec)
 {
-    if (_guiSettings.scaleXSetting != slidingSec * 1000)
+    if (_guiSettings.xslidingInterval != (quint32)slidingSec * 1000)
     {
-        _guiSettings.xslidingInterval = slidingSec * 1000;
+        _guiSettings.xslidingInterval = (quint32)slidingSec * 1000;
         emit xAxisSlidingIntervalChanged();
     }
 
@@ -299,47 +309,47 @@ BasicGraphView::AxisScaleOptions GuiModel::yAxisScalingMode()
 
 void GuiModel::setyAxisScale(BasicGraphView::AxisScaleOptions scaleMode)
 {
-    if (_guiSettings.scaleYSetting != scaleMode)
+    if (_guiSettings.yScaleMode != scaleMode)
     {
-        _guiSettings.scaleYSetting = scaleMode;
+        _guiSettings.yScaleMode = scaleMode;
         emit yAxisScalingChanged();
     }
 }
 
-void GuiModel::setyAxisMin(quint32 min)
+void GuiModel::setyAxisMin(qint32 newMin)
 {
-    const qint32 diff = GuiSettings.yMax - GuiSettings.yMin;
-    qint32 newMax = GuiSettings.yMax;
+    const qint32 diff = _guiSettings.yMax - _guiSettings.yMin;
+    qint32 newMax = _guiSettings.yMax;
 
-    if (newMin >= GuiSettings.yMax)
+    if (newMin >= _guiSettings.yMax)
     {
         newMax = newMin + diff;
     }
 
-    if (_guiSettings.yMin != min)
+    if (_guiSettings.yMin != newMin)
     {
-        _guiSettings.yMin = min;
+        _guiSettings.yMin = newMin;
         setyAxisMax(newMax);
         emit yAxisMinMaxchanged();
     }
 }
 
-void GuiModel::setyAxisMax(quint32 max)
+void GuiModel::setyAxisMax(qint32 newMax)
 {
-    const qint32 diff = GuiSettings.yMax - GuiSettings.yMin;
+    const qint32 diff = _guiSettings.yMax - _guiSettings.yMin;
 
-    qint32 newMin = GuiSettings.yMin;
+    qint32 newMin = _guiSettings.yMin;
 
-    if (newMax <= GuiSettings.yMin)
+    if (newMax <= _guiSettings.yMin)
     {
         newMin = newMax - diff;
     }
 
-    if (_guiSettings.yMax != max)
+    if (_guiSettings.yMax != newMax)
     {
-        _guiSettings.yMax = max;
+        _guiSettings.yMax = newMax;
         setyAxisMin(newMin);
-        emit yAxisMaxchanged();
+        emit yAxisMinMaxchanged();
     }
 }
 
@@ -351,22 +361,4 @@ qint32 GuiModel::yAxisMin()
 qint32 GuiModel::yAxisMax()
 {
     return _guiSettings.yMax;
-}
-
-void GuiModel::xAxisRangeChanged(const QCPRange &newRange, const QCPRange &oldRange)
-{
-    todo
-    QCPRange range = newRange;
-
-    if (newRange.upper <= 0)
-    {
-        range.upper = oldRange.upper;
-    }
-
-    if (newRange.lower <= 0)
-    {
-        range.lower = 0;
-    }
-
-    _pPlot->xAxis->setRange(range);
 }

@@ -9,6 +9,7 @@
 #include "connectionmodel.h"
 #include "guimodel.h"
 #include "extendedgraphview.h"
+#include "util.h"
 
 #include <QDebug>
 #include <QDateTime>
@@ -24,6 +25,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 {
     _pUi->setupUi(this);
 
+    _pGuiModel = new GuiModel();
 
     _pConnectionModel = new ConnectionModel();
     _pConnectionDialog = new ConnectionDialog(_pConnectionModel);
@@ -31,8 +33,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pRegisterModel = new RegisterModel();
     _pRegisterDialog = new RegisterDialog(_pRegisterModel);
 
-    _pGraphView = new ExtendedGraphView(_pGuiModel, _pUi->customPlot, this);
     _pScope = new ScopeData(_pConnectionModel);
+    _pGraphView = new ExtendedGraphView(_pScope, _pGuiModel, _pUi->customPlot, this);
 
     /*-- Connect menu actions --*/
     connect(_pUi->actionStart, SIGNAL(triggered()), this, SLOT(startScope()));
@@ -114,12 +116,9 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pUi->customPlot->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(_pUi->customPlot, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
 
-    /* Update interface via model */
-    _pGuiModel->triggerUpdate();
-
-    connect(_pUi->spinSlidingXInterval, SIGNAL(valueChanged(int)), _pGuiModel, SLOT(setxAxisSlidingInterval(quint32)));
-    connect(_pUi->spinYMin, SIGNAL(valueChanged(int)), _pGuiModel, SLOT(setyAxisMin(quint32)));
-    connect(_pUi->spinYMax, SIGNAL(valueChanged(int)), _pGuiModel, SLOT(setyAxisMax(quint32)));
+    connect(_pUi->spinSlidingXInterval, SIGNAL(valueChanged(int)), _pGuiModel, SLOT(setxAxisSlidingInterval(qint32)));
+    connect(_pUi->spinYMin, SIGNAL(valueChanged(int)), _pGuiModel, SLOT(setyAxisMin(qint32)));
+    connect(_pUi->spinYMax, SIGNAL(valueChanged(int)), _pGuiModel, SLOT(setyAxisMax(qint32)));
 
     //valueChanged is only send when done editing...
     _pUi->spinSlidingXInterval->setKeyboardTracking(false);
@@ -132,7 +131,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pXAxisScaleGroup->addButton(_pUi->radioXFullScale, BasicGraphView::SCALE_AUTO);
     _pXAxisScaleGroup->addButton(_pUi->radioXSliding, BasicGraphView::SCALE_SLIDING);
     _pXAxisScaleGroup->addButton(_pUi->radioXManual, BasicGraphView::SCALE_MANUAL);
-    connect(_pXAxisScaleGroup, SIGNAL(buttonClicked(int)), _pGuiModel, SLOT(setxAxisScale(BasicGraphView::AxisScaleOptions)));
+    connect(_pXAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(xAxisScaleGroupClicked(int)));
 
     // Create button group for Y axis scaling options
     _pYAxisScaleGroup = new QButtonGroup();
@@ -140,7 +139,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pYAxisScaleGroup->addButton(_pUi->radioYFullScale, BasicGraphView::SCALE_AUTO);
     _pYAxisScaleGroup->addButton(_pUi->radioYMinMax, BasicGraphView::SCALE_MINMAX);
     _pYAxisScaleGroup->addButton(_pUi->radioYManual, BasicGraphView::SCALE_MANUAL);
-    connect(_pYAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(setyAxisScale(BasicGraphView::AxisScaleOptions)));
+    connect(_pYAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(yAxisScaleGroupClicked(int)));
 
     // Default to full auto scaling
     _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
@@ -148,7 +147,9 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     connect(_pScope, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pGraphView, SLOT(plotResults(QList<bool>, QList<double>)));
     connect(_pScope, SIGNAL(triggerStatUpdate(quint32, quint32)), this, SLOT(updateStats(quint32, quint32)));
-    connect(this, SIGNAL(dataExport(QString)), _pGraphView, SLOT(exportDataCsv(QString)));
+
+    /* Update interface via model */
+    _pGuiModel->triggerUpdate();
 
     if (cmdArguments.size() > 1)
     {
@@ -275,7 +276,7 @@ void MainWindow::prepareDataExport()
     {
         filePath = dialog.selectedFiles().first();
         _pGuiModel->setLastDataFilePath(filePath);
-        emit dataExport(filePath);
+        exportDataCsv(filePath);
     }
 }
 
@@ -308,6 +309,77 @@ void MainWindow::prepareImageExport()
         filePath = dialog.selectedFiles().first();
         _pGuiModel->setLastDataFilePath(filePath);
         _pGraphView->exportGraphImage(filePath);
+    }
+}
+
+void MainWindow::exportDataCsv(QString dataFile)
+{
+    if (_pGuiModel->graphCount() != 0)
+    {
+        const QList<double> keyList = _pGraphView->graphTimeData();
+        QList<QList<QCPData> > dataList;
+        QString logData;
+        QDateTime dt;
+        QString line;
+        QString comment = QString("//");
+
+        logData.append(comment + "ModbusScope version" + Util::getSeparatorCharacter() + QString(APP_VERSION) + "\n");
+
+        // Save start time
+        dt = QDateTime::fromMSecsSinceEpoch(_pScope->getCommunicationStartTime());
+        logData.append(comment + "Start time" + Util::getSeparatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
+
+        // Save end time
+        dt = QDateTime::fromMSecsSinceEpoch(_pScope->getCommunicationEndTime());
+        logData.append(comment + "End time" + Util::getSeparatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
+
+        // Export communication settings
+        logData.append(comment + "Slave IP" + Util::getSeparatorCharacter() + _pConnectionModel->ipAddress() + ":" + QString::number(_pConnectionModel->port()) + "\n");
+        logData.append(comment + "Slave ID" + Util::getSeparatorCharacter() + QString::number(_pConnectionModel->slaveId()) + "\n");
+        logData.append(comment + "Time-out" + Util::getSeparatorCharacter() + QString::number(_pConnectionModel->timeout()) + "\n");
+        logData.append(comment + "Poll interval" + Util::getSeparatorCharacter() + QString::number(_pConnectionModel->pollTime()) + "\n");
+
+        quint32 success;
+        quint32 error;
+        _pScope->getCommunicationSettings(&success, &error);
+        logData.append(comment + "Communication success" + Util::getSeparatorCharacter() + QString::number(success) + "\n");
+        logData.append(comment + "Communication errors" + Util::getSeparatorCharacter() + QString::number(error) + "\n");
+
+        logData.append("//\n");
+
+        line.clear();
+        line.append("Time (ms)");
+        for(quint32 i = 0; i < _pGuiModel->graphCount(); i++)
+        {
+            // Get headers
+            line.append(Util::getSeparatorCharacter() + _pGuiModel->graphLabel(i));
+
+            // Save data lists
+            dataList.append(_pGraphView->graphData(i));
+        }
+        line.append("\n");
+
+        logData.append(line);
+
+        for(qint32 i = 0; i < keyList.size(); i++)
+        {
+            line.clear();
+
+            // Format time (no decimals)
+            const quint64 t = static_cast<quint64>(keyList[i]);
+            line.append(QString::number(t, 'f', 0));
+
+            // Add formatted data (maximum 3 decimals, no trailing zeros)
+            for(qint32 d = 0; d < dataList.size(); d++)
+            {
+                line.append(Util::getSeparatorCharacter() + Util::formatDoubleForExport((dataList[d])[i].value));
+            }
+            line.append("\n");
+
+            logData.append(line);
+        }
+
+        writeToFile(dataFile, logData);
     }
 }
 
@@ -606,6 +678,16 @@ void MainWindow::dropEvent(QDropEvent *e)
     }
 }
 
+void MainWindow::xAxisScaleGroupClicked(int id)
+{
+    _pGuiModel->setxAxisScale((BasicGraphView::AxisScaleOptions)id);
+}
+
+void MainWindow::yAxisScaleGroupClicked(int id)
+{
+    _pGuiModel->setyAxisScale((BasicGraphView::AxisScaleOptions)id) ;
+}
+
 void MainWindow::updateRuntime()
 {
     qint64 timePassed = QDateTime::currentMSecsSinceEpoch() - _pScope->getCommunicationStartTime();
@@ -803,4 +885,22 @@ void MainWindow::parseDataFile(DataFileParser::FileData * pData)
     _pGuiModel->setFrontGraph(0);
     // TODO_pGuiModel->setLoadedFile(QFileInfo(_pDataFileParser->getDataParseSettings()->getPath()).fileName());
     _pGuiModel->setWindowTitleDetail(_pGuiModel->loadedFile());
+}
+
+void MainWindow::writeToFile(QString filePath, QString logData)
+{
+    QFile file(filePath);
+    if ( file.open(QIODevice::WriteOnly) ) // Remove all data from file
+    {
+        QTextStream stream(&file);
+        stream << logData;
+    }
+    else
+    {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle(tr("ModbusScope export error"));
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setText(tr("Save to data file (%1) failed").arg(filePath));
+        msgBox.exec();
+    }
 }

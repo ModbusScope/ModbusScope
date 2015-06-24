@@ -39,7 +39,6 @@ signals:
     void startModbus();
     void stopModbus();
     void registerStateChange(quint16 registerAddress);
-    void dataExport(QString dataFile);
 
 public slots:
     void updateStats(quint32 successCount, quint32 errorCount);
@@ -53,6 +52,7 @@ private slots:
     void exitApplication();
     void prepareDataExport();
     void prepareImageExport();
+    void exportDataCsv(QString dataFile);
     void showAbout();
     void menuBringToFrontGraphClicked(bool bState);
     void menuShowHideGraphClicked(bool bState);
@@ -78,16 +78,11 @@ private slots:
 
     /* Misc */
     void showContextMenu(const QPoint& pos);
-
     void dragEnterEvent(QDragEnterEvent *e);
     void dropEvent(QDropEvent *e);
-
-
-    void updateYMin(int newMin);
-    void updateYMax(int newMax);
-
+    void xAxisScaleGroupClicked(int id);
+    void yAxisScaleGroupClicked(int id);
     void updateRuntime();
-
 
 private:
 
@@ -96,6 +91,7 @@ private:
     void loadProjectFile(QString dataFilePath);
     void loadDataFile(QString dataFilePath);
     void parseDataFile(DataFileParser::FileData * pData);
+    void writeToFile(QString filePath, QString logData);
 
     Ui::MainWindow * _pUi;
     ScopeData * _pScope;

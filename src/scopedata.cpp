@@ -17,7 +17,7 @@ ScopeData::ScopeData(ConnectionModel * pConnectionModel, QObject *parent) :
     _registerlist.clear();
 
     /* Setup modbus master */
-    _master = new ModbusMaster();
+    _master = new ModbusMaster(pConnectionModel);
 
     connect(this, SIGNAL(requestStop()), _master, SLOT(stopThread()));
 
@@ -26,7 +26,7 @@ ScopeData::ScopeData(ConnectionModel * pConnectionModel, QObject *parent) :
 
     _master->startThread();
 
-    connect(this, SIGNAL(registerRequest(ConnectionModel*, QList<quint16>)), _master, SLOT(readRegisterList(ConnectionModel*, QList<quint16>)));
+    connect(this, SIGNAL(registerRequest(QList<quint16>)), _master, SLOT(readRegisterList(QList<quint16>)));
     connect(_master, SIGNAL(modbusPollDone(QList<bool>, QList<quint16>)), this, SLOT(handlePollDone(QList<bool>, QList<quint16>)));
     connect(_master, SIGNAL(modbusCommDone(quint32, quint32)), this, SLOT(processCommStats(quint32, quint32)));
 }
@@ -169,6 +169,6 @@ void ScopeData::readData()
         {
             regAddrList.append(_registerlist[i].getRegisterAddress());
         }
-        emit registerRequest(_pConnectionModel, regAddrList);
+        emit registerRequest(regAddrList);
     }
 }

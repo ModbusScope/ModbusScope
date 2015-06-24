@@ -5,13 +5,15 @@
 #include "QList"
 
 #include <modbus.h>
-#include <connectionmodel.h>
+
+/* Forward declaration */
+class ConnectionModel;
 
 class ModbusMaster : public QObject
 {
     Q_OBJECT
 public:
-    explicit ModbusMaster(QObject *parent = 0);
+    explicit ModbusMaster(ConnectionModel * pConnectionModel, QObject *parent = 0);
     virtual ~ModbusMaster();
 
     void startThread();
@@ -23,7 +25,7 @@ signals:
     void modbusCommDone(quint32 success,quint32 error);
 
 public slots:
-    void readRegisterList(ConnectionModel *pConnSettings, QList<quint16> registerList);
+    void readRegisterList(QList<quint16> registerList);
     void stopThread();
 
 private slots:
@@ -36,6 +38,7 @@ private:
     void closePort(modbus_t *);
     qint32 readRegisters(modbus_t * pCtx, quint16 startReg, quint32 num, QList<quint16> * pResultList);
 
+    ConnectionModel * _pConnectionModel;
     QThread * _pThread;
 
     static const quint32 _cMaxRegistersInOneRead = 20;

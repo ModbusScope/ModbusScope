@@ -53,11 +53,11 @@ public slots:
     void setLegendVisibility(bool bLegendVisibility);
 
     void setxAxisScale(BasicGraphView::AxisScaleOptions scaleMode);
-    void setxAxisSlidingInterval(quint32 slidingSec);
+    void setxAxisSlidingInterval(qint32 slidingSec);
 
     void setyAxisScale(BasicGraphView::AxisScaleOptions scaleMode);
-    void setyAxisMin(quint32 min);
-    void setyAxisMax(quint32 max);
+    void setyAxisMin(qint32 newMin);
+    void setyAxisMax(qint32 newMax);
 
 signals:
 
@@ -76,8 +76,7 @@ signals:
     void yAxisScalingChanged();
     void yAxisMinMaxchanged();
 
-public slots:
-
+private slots:
 
 private:
 
