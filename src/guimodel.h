@@ -19,12 +19,7 @@ public:
     bool graphVisibility(quint32 index) const;
     QColor graphColor(quint32 index) const;
     QString graphLabel(quint32 index) const;
-
     qint32 frontGraph() const;
-
-    QString loadedFile() const; /* TODO */
-    void setLoadedFile(const QString &loadedFile); /* TODO */
-
     bool highlightSamples() const;
     bool valueTooltip() const;
     void addGraphs(QList<RegisterData> registerList);
@@ -34,15 +29,18 @@ public:
     QString windowTitle();
     bool legendVisibility();
     QString projectFilePath();
-    QString lastDataFilePath();
+    QString dataFilePath();
+    QDir lastDataDir();
     BasicGraphView::AxisScaleOptions xAxisScalingMode();
     quint32 xAxisSlidingSec();
     BasicGraphView::AxisScaleOptions  yAxisScalingMode();
     qint32 yAxisMin();
     qint32 yAxisMax();
+    bool communicationState();
 
     void setProjectFilePath(QString path);
-    void setLastDataFilePath(QString path);
+    void setDataFilePath(QString path);
+    void setLastDataDir(QDir dir);
 
 public slots:
     void setValueTooltip(bool bValueTooltip);
@@ -58,6 +56,7 @@ public slots:
     void setyAxisScale(BasicGraphView::AxisScaleOptions scaleMode);
     void setyAxisMin(qint32 newMin);
     void setyAxisMax(qint32 newMax);
+    void setCommunicationState(bool bState);
 
 signals:
 
@@ -66,7 +65,6 @@ signals:
     void graphsAdded();
     void graphsAddedWithData(QList<QList<double> > data);
     void frontGraphChanged();
-    void loadedFileChanged();
     void highlightSamplesChanged();
     void valueTooltipChanged();
     void windowTitleChanged();
@@ -75,6 +73,9 @@ signals:
     void xAxisSlidingIntervalChanged();
     void yAxisScalingChanged();
     void yAxisMinMaxchanged();
+    void communicationStateChanged();
+    void projectFilePathChanged();
+    void dataFilePathChanged();
 
 private slots:
 
@@ -98,15 +99,16 @@ private:
 
     qint32 _frontGraph;
     GuiSettings _guiSettings;
-    QString _loadedFile;
     QString _windowTitle;
 
     QString _projectFilePath;
-    QString _lastDataFilePath;
+    QString _dataFilePath;
+    QDir _lastDataDir; // Last directory opened for import/export
 
     bool _bHighlightSamples;
     bool _bValueTooltip;
     bool _bLegendVisibility;
+    bool _communicationState;
 
     static const QString _cWindowTitle;
     static const QList<QColor> _colorlist;

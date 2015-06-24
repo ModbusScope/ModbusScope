@@ -67,7 +67,10 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGuiModel, SIGNAL(graphsAddedWithData(QList<QList<double> >)), _pGraphView, SLOT(addGraphs(QList<QList<double> >)));
     connect(_pGuiModel, SIGNAL(graphsAdded()), this, SLOT(addGraphMenu()));
     connect(_pGuiModel, SIGNAL(windowTitleChanged()), this, SLOT(updateWindowTitle()));
-    //connect(_pGuiModel, SIGNAL(loadedFileChanged()), this, SLOT(enableGlobalMenu()));
+    connect(_pGuiModel, SIGNAL(communicationStateChanged()), this, SLOT(updateCommunicationState()));
+    connect(_pGuiModel, SIGNAL(projectFilePathChanged()), this, SLOT(projectFileLoaded()));
+    connect(_pGuiModel, SIGNAL(dataFilePathChanged()), this, SLOT(dataFileLoaded()));
+
     //connect(_pGuiModel, SIGNAL(legendVisibilityChanged()), _pGraphView, SLOT(showHideLegend()));
 
     connect(_pGuiModel, SIGNAL(xAxisScalingChanged()), this, SLOT(updatexAxisSlidingMode()));
@@ -106,9 +109,6 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pUi->statusBar->addPermanentWidget(_pStatusState, 0);
     _pUi->statusBar->addPermanentWidget(_pStatusRuntime, 0);
     _pUi->statusBar->addPermanentWidget(_pStatusStats, 2);
-
-    _pGuiModel->setProjectFilePath(QString(""));
-    _pGuiModel->setLastDataFilePath(QString(""));
 
     this->setAcceptDrops(true);
 
@@ -223,7 +223,7 @@ void MainWindow::importData()
     dialog.setWindowTitle(tr("Select csv file"));
     dialog.setNameFilter(tr("csv files (*.csv)"));
 
-    if (_pGuiModel->lastDataFilePath().trimmed().isEmpty())
+    if (_pGuiModel->lastDataDir().absolutePath().trimmed().isEmpty())
     {
         QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
         if (docPath.size() > 0)
@@ -233,7 +233,7 @@ void MainWindow::importData()
     }
     else
     {
-        dialog.setDirectory(QFileInfo(_pGuiModel->lastDataFilePath()).dir());
+        dialog.setDirectory(_pGuiModel->lastDataDir());
     }
 
     if (dialog.exec())
@@ -259,7 +259,7 @@ void MainWindow::prepareDataExport()
     dialog.setWindowTitle(tr("Select csv file"));
     dialog.setNameFilter(tr("CSV files (*.csv)"));
 
-    if (_pGuiModel->lastDataFilePath().trimmed().isEmpty())
+    if (_pGuiModel->lastDataDir().absolutePath().trimmed().isEmpty())
     {
         QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
         if (docPath.size() > 0)
@@ -269,13 +269,13 @@ void MainWindow::prepareDataExport()
     }
     else
     {
-        dialog.setDirectory(QFileInfo(_pGuiModel->lastDataFilePath()).dir());
+        dialog.setDirectory(_pGuiModel->lastDataDir());
     }
 
     if (dialog.exec())
     {
         filePath = dialog.selectedFiles().first();
-        _pGuiModel->setLastDataFilePath(filePath);
+        _pGuiModel->setLastDataDir(QFileInfo(filePath).dir());
         exportDataCsv(filePath);
     }
 }
@@ -291,7 +291,7 @@ void MainWindow::prepareImageExport()
     dialog.setWindowTitle(tr("Select png file"));
     dialog.setNameFilter(tr("PNG files (*.png)"));
 
-    if (_pGuiModel->lastDataFilePath().trimmed().isEmpty())
+    if (_pGuiModel->lastDataDir().absolutePath().trimmed().isEmpty())
     {
         QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
         if (docPath.size() > 0)
@@ -301,13 +301,13 @@ void MainWindow::prepareImageExport()
     }
     else
     {
-        dialog.setDirectory(QFileInfo(_pGuiModel->lastDataFilePath()).dir());
+        dialog.setDirectory(_pGuiModel->lastDataDir());
     }
 
     if (dialog.exec())
     {
         filePath = dialog.selectedFiles().first();
-        _pGuiModel->setLastDataFilePath(filePath);
+        _pGuiModel->setLastDataDir(QFileInfo(filePath).dir());
         _pGraphView->exportGraphImage(filePath);
     }
 }
@@ -465,16 +465,9 @@ void MainWindow::startScope()
 {
     if (_pRegisterModel->checkedRegisterCount() != 0)
     {
-        _pUi->actionStart->setEnabled(false);
-        _pUi->actionStop->setEnabled(true);
-        _pUi->actionImportDataFile->setEnabled(false);
-        _pUi->actionShowValueTooltip->setEnabled(true);
-        _pUi->actionHighlightSamplePoints->setEnabled(true);
-        _pUi->actionClearData->setEnabled(true);
-        _pUi->menuLegendPosition->setEnabled(true);
-        setSettingsObjectsState(false);
 
-        _pStatusState->setText(_cStateRunning);
+        _pGuiModel->setCommunicationState(true);
+
         _pStatusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
 
         _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
@@ -501,13 +494,7 @@ void MainWindow::stopScope()
 {
     _pScope->stopCommunication();
 
-    _pUi->actionStart->setEnabled(true);
-    _pUi->actionStop->setEnabled(false);
-    _pUi->actionImportDataFile->setEnabled(true);
-
-    _pStatusState->setText(_cStateStopped);
-
-    setSettingsObjectsState(true);
+    _pGuiModel->setCommunicationState(false);
 }
 
 void MainWindow::showHideGraph(const quint32 index)
@@ -588,6 +575,12 @@ void MainWindow::addGraphMenu()
 
     _pGraphShowHide->setEnabled(true);
     _pGraphBringToFront->setEnabled(true);
+
+    _pUi->actionShowValueTooltip->setEnabled(true);
+    _pUi->actionHighlightSamplePoints->setEnabled(true);
+    _pUi->actionClearData->setEnabled(true);
+    _pUi->menuLegendPosition->setEnabled(true);
+
 }
 
 void MainWindow::updateWindowTitle()
@@ -642,6 +635,57 @@ void MainWindow::updateyAxisMinMax()
 {
     _pUi->spinYMin->setValue(_pGuiModel->yAxisMin());
     _pUi->spinYMax->setValue(_pGuiModel->yAxisMax());
+}
+
+void MainWindow::updateCommunicationState()
+{
+    const bool bEnabledWhenRunning = _pGuiModel->communicationState();
+    const bool bDisabledWhenRunning = !_pGuiModel->communicationState();
+
+    _pUi->actionStop->setEnabled(bEnabledWhenRunning);
+
+    _pUi->actionConnectionSettings->setEnabled(bDisabledWhenRunning);
+    _pUi->actionRegisterSettings->setEnabled(bDisabledWhenRunning);
+    _pUi->actionStart->setEnabled(bDisabledWhenRunning);
+    _pUi->actionImportDataFile->setEnabled(bDisabledWhenRunning);
+    _pUi->actionLoadProjectFile->setEnabled(bDisabledWhenRunning);
+    _pUi->actionExportDataCsv->setEnabled(bDisabledWhenRunning);
+    _pUi->actionExportImage->setEnabled(bDisabledWhenRunning);
+
+    if (_pGuiModel->communicationState())
+    {
+        // Communication active
+        _pStatusState->setText(_cStateRunning);
+    }
+    else
+    {
+        // Communication not active
+        _pStatusState->setText(_cStateStopped);
+    }
+}
+
+void MainWindow::projectFileLoaded()
+{
+    // if a project file is previously loaded, then it can be reloaded
+    if (_pGuiModel->projectFilePath().isEmpty())
+    {
+        _pUi->actionReloadProjectFile->setEnabled(false);
+    }
+    else
+    {
+        _pGuiModel->setWindowTitleDetail(QFileInfo(_pGuiModel->projectFilePath()).fileName());
+        _pUi->actionReloadProjectFile->setEnabled(true);
+    }
+}
+
+void MainWindow::dataFileLoaded()
+{
+    // if a project file is previously loaded, then it can be reloaded
+    if (!_pGuiModel->dataFilePath().isEmpty())
+    {
+        _pGuiModel->setWindowTitleDetail(QFileInfo(_pGuiModel->dataFilePath()).fileName());
+        _pUi->actionReloadProjectFile->setEnabled(false);
+    }
 }
 
 void MainWindow::showContextMenu(const QPoint& pos)
@@ -712,24 +756,6 @@ void MainWindow::updateRuntime()
     {
         _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
     }
-}
-
-void MainWindow::setSettingsObjectsState(bool bState)
-{
-    _pUi->actionLoadProjectFile->setEnabled(bState);
-
-    // if a project file is previously loaded, then it can be reloaded
-    if (_pGuiModel->projectFilePath().isEmpty())
-    {
-        _pUi->actionReloadProjectFile->setEnabled(false);
-    }
-    else
-    {
-        _pUi->actionReloadProjectFile->setEnabled(bState);
-    }
-
-    _pUi->actionExportDataCsv->setEnabled(bState);
-    _pUi->actionExportImage->setEnabled(bState);
 }
 
 void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pProjectSettings)
@@ -811,11 +837,6 @@ void MainWindow::loadProjectFile(QString dataFilePath)
             updateConnectionSetting(&loadedSettings);
 
             _pGuiModel->setProjectFilePath(dataFilePath);
-            _pGuiModel->setWindowTitleDetail(QFileInfo(_pGuiModel->projectFilePath()).fileName());
-
-            // Enable reload menu item
-            _pUi->actionReloadProjectFile->setEnabled(true);
-
         }
     }
     else
@@ -831,7 +852,7 @@ void MainWindow::loadDataFile(QString dataFilePath)
 {
     QFile file(dataFilePath);
 
-    _pGuiModel->setLastDataFilePath(dataFilePath);
+    _pGuiModel->setDataFilePath(dataFilePath);
 
     /* If we can't open it, let's show an error message. */
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -842,9 +863,6 @@ void MainWindow::loadDataFile(QString dataFilePath)
         {
             // If success, disable export data
             _pUi->actionExportDataCsv->setEnabled(false);
-            _pUi->actionShowValueTooltip->setEnabled(true);
-            _pUi->actionHighlightSamplePoints->setEnabled(true);
-            _pUi->actionClearData->setEnabled(true);
 
             _pStatusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
             _pStatusStats->setText(_cStatsTemplate.arg(0).arg(0));
@@ -883,8 +901,6 @@ void MainWindow::parseDataFile(DataFileParser::FileData * pData)
     _pGuiModel->clearGraph();
     _pGuiModel->addGraphs(graphList, pData->dataRows);
     _pGuiModel->setFrontGraph(0);
-    // TODO_pGuiModel->setLoadedFile(QFileInfo(_pDataFileParser->getDataParseSettings()->getPath()).fileName());
-    _pGuiModel->setWindowTitleDetail(_pGuiModel->loadedFile());
 }
 
 void MainWindow::writeToFile(QString filePath, QString logData)

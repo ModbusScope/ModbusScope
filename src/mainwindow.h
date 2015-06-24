@@ -75,6 +75,9 @@ private slots:
     void updatexAxisSlidingInterval();
     void updateyAxisSlidingMode();
     void updateyAxisMinMax();
+    void updateCommunicationState();
+    void projectFileLoaded();
+    void dataFileLoaded();
 
     /* Misc */
     void showContextMenu(const QPoint& pos);
@@ -86,7 +89,6 @@ private slots:
 
 private:
 
-    void setSettingsObjectsState(bool bState);
     void updateConnectionSetting(ProjectFileParser::ProjectSettings *pProjectSettings);
     void loadProjectFile(QString dataFilePath);
     void loadDataFile(QString dataFilePath);

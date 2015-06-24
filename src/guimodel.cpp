@@ -28,16 +28,19 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
 {
     _graphData.clear();
     _frontGraph = 0;
-    _loadedFile = "";
+    _projectFilePath = "";
+    _dataFilePath = "";
     _bHighlightSamples = true;
     _bValueTooltip = false;
     _bLegendVisibility = true;
+    _communicationState = false;
+    _windowTitle = _cWindowTitle;
 
     _guiSettings.xScaleMode = BasicGraphView::SCALE_AUTO;
     _guiSettings.yScaleMode = BasicGraphView::SCALE_AUTO;
     _guiSettings.yMax = 10;
     _guiSettings.yMin = 0;
-    _guiSettings.xslidingInterval = 30;
+    _guiSettings.xslidingInterval = 30;    
 }
 
 GuiModel::~GuiModel()
@@ -68,6 +71,10 @@ void GuiModel::triggerUpdate(void)
 
     emit xAxisScalingChanged();
     emit yAxisScalingChanged();
+
+    emit communicationStateChanged();
+    emit projectFilePathChanged();
+    emit dataFilePathChanged();
 }
 
 void GuiModel::addGraphs(QList<RegisterData> registerList)
@@ -167,20 +174,6 @@ void GuiModel::setFrontGraph(const qint32 &frontGraph)
     }
 }
 
-QString GuiModel::loadedFile() const
-{
-    return _loadedFile;
-}
-
-void GuiModel::setLoadedFile(const QString &loadedFile)
-{
-    if (_loadedFile != loadedFile)
-    {
-        _loadedFile = loadedFile;
-         emit loadedFileChanged();
-    }
-}
-
 bool GuiModel::highlightSamples() const
 {
     return _bHighlightSamples;
@@ -258,19 +251,37 @@ QString GuiModel::projectFilePath()
     return _projectFilePath;
 }
 
-QString GuiModel::lastDataFilePath()
+QString GuiModel::dataFilePath()
 {
-    return _lastDataFilePath;
+    return _dataFilePath;
 }
 
 void GuiModel::setProjectFilePath(QString path)
 {
-    _projectFilePath = path;
+    if (_projectFilePath != path)
+    {
+        _projectFilePath = path;
+        emit projectFilePathChanged();
+    }
 }
 
-void GuiModel::setLastDataFilePath(QString path)
+void GuiModel::setDataFilePath(QString path)
 {
-    _lastDataFilePath = path;
+    if (_dataFilePath != path)
+    {
+        _dataFilePath = path;
+        emit dataFilePathChanged();
+    }
+}
+
+void GuiModel::setLastDataDir(QDir dir)
+{
+    _lastDataDir = dir;
+}
+
+QDir GuiModel::lastDataDir()
+{
+    return _lastDataDir;
 }
 
 void GuiModel::setxAxisScale(BasicGraphView::AxisScaleOptions scaleMode)
@@ -351,6 +362,20 @@ void GuiModel::setyAxisMax(qint32 newMax)
         setyAxisMin(newMin);
         emit yAxisMinMaxchanged();
     }
+}
+
+void GuiModel::setCommunicationState(bool bState)
+{
+    if (_communicationState != bState)
+    {
+        _communicationState = bState;
+        emit communicationStateChanged();
+    }
+}
+
+bool GuiModel::communicationState()
+{
+    return _communicationState;
 }
 
 qint32 GuiModel::yAxisMin()
