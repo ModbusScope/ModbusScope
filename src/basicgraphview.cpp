@@ -369,7 +369,7 @@ void BasicGraphView::paintValueToolTip(QMouseEvent *event)
                             if (_pPlot->graph(graphIndex)->visible())
                             {
                                 const double value = _pPlot->graph(graphIndex)->data()->values()[keyIndex].value;
-                                toolText += QString("\n%1: %2").arg(_pPlot->graph(graphIndex)->name()).arg(value);
+                                toolText += QString("\n%1: %2").arg(_pGuiModel->graphLabel(graphIndex)).arg(value);
                             }
                         }
                         break;
