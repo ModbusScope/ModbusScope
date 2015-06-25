@@ -87,9 +87,6 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGraphBringToFront = _pUi->menuBringToFront;
     _pBringToFrontGroup = new QActionGroup(this);
 
-    _pGuiModel->setWindowTitleDetail("");
-
-
     // TODO; mode to correct model code
     _pLegendPositionGroup = new QActionGroup(this);
     _pUi->actionLegendLeft->setActionGroup(_pLegendPositionGroup);
@@ -656,6 +653,11 @@ void MainWindow::updateCommunicationState()
     {
         // Communication active
         _pStatusState->setText(_cStateRunning);
+
+        if (_pGuiModel->projectFilePath().isEmpty())
+        {
+            _pGuiModel->setWindowTitleDetail("");
+        }
     }
     else
     {
