@@ -687,6 +687,7 @@ void MainWindow::dataFileLoaded()
     {
         _pGuiModel->setWindowTitleDetail(QFileInfo(_pGuiModel->dataFilePath()).fileName());
         _pUi->actionReloadProjectFile->setEnabled(false);
+        _pUi->actionExportDataCsv->setEnabled(false);
     }
 }
 
