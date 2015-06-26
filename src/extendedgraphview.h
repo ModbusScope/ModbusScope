@@ -19,14 +19,14 @@ public:
     QList<QCPData> graphData(qint32 index);
 
 public slots:
-    void addGraphs(QList<QList<double> > data);
+    void addData(QList<double> timeData, QList<QList<double> > data);
     void plotResults(QList<bool> successList, QList<double> valueList);
     void clearResults();
     void rescalePlot();
 
 private slots:
     void mouseMove(QMouseEvent *event);
-    void updateData(QList<QList<double> > * pDataLists);
+    void updateData(QList<double> *pTimeData, QList<QList<double> > * pDataLists);
     void xAxisRangeChanged(const QCPRange &newRange, const QCPRange &oldRange);
 
 private:

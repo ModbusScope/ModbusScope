@@ -14,9 +14,11 @@ public:
 
     typedef struct
     {
+        QString axisLabel;
+        QList<double> timeRow;
+
         QStringList dataLabel;
         QList<QList<double> > dataRows;
-
     } FileData;
 
     DataFileParser(QFile * pDataFile);

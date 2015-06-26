@@ -72,7 +72,10 @@ bool DataFileParser::processDataFile(FileData * pData)
     // Trim labels
     if (bRet)
     {
-        for(qint32 i = 0; i < pData->dataLabel.size(); i++)
+		// axis (time) label
+        pData->axisLabel = pData->dataLabel[0].trimmed();
+
+        for(qint32 i = 1; i < pData->dataLabel.size(); i++)
         {
             pData->dataLabel[i] = pData->dataLabel[i].trimmed();
         }
@@ -82,6 +85,12 @@ bool DataFileParser::processDataFile(FileData * pData)
     if (bRet)
     {
         bRet = parseDataLines(pData->dataRows);
+
+		// Get time data from data
+        pData->timeRow = pData->dataRows[0];
+
+		// Remove time data
+        pData->dataLabel.removeAt(0);
     }
 
     return bRet;

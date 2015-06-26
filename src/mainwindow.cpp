@@ -64,7 +64,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGuiModel, SIGNAL(graphCleared()), _pGraphView, SLOT(clearGraphs()));
     connect(_pGuiModel, SIGNAL(graphCleared()), this, SLOT(clearGraphMenu()));
     connect(_pGuiModel, SIGNAL(graphsAdded()), _pGraphView, SLOT(addGraphs()));
-    connect(_pGuiModel, SIGNAL(graphsAddedWithData(QList<QList<double> >)), _pGraphView, SLOT(addGraphs(QList<QList<double> >)));
+    connect(_pGuiModel, SIGNAL(graphsAddData(QList<double>, QList<QList<double> >)), _pGraphView, SLOT(addData(QList<double>, QList<QList<double> >)));
     connect(_pGuiModel, SIGNAL(graphsAdded()), this, SLOT(addGraphMenu()));
     connect(_pGuiModel, SIGNAL(windowTitleChanged()), this, SLOT(updateWindowTitle()));
     connect(_pGuiModel, SIGNAL(communicationStateChanged()), this, SLOT(updateCommunicationState()));
@@ -890,10 +890,8 @@ void MainWindow::loadDataFile(QString dataFilePath)
 
 void MainWindow::parseDataFile(DataFileParser::FileData * pData)
 {
-    // Init graphs, remove first label because is the time scale
     QList<RegisterData> graphList;
 
-    // Include time data (first column)
     for (qint32 i = 0; i < pData->dataLabel.size(); i++)
     {
         RegisterData graph;
@@ -902,7 +900,7 @@ void MainWindow::parseDataFile(DataFileParser::FileData * pData)
     }
 
     _pGuiModel->clearGraph();
-    _pGuiModel->addGraphs(graphList, pData->dataRows);
+    _pGuiModel->addGraphs(graphList, pData->timeRow, pData->dataRows);
     _pGuiModel->setFrontGraph(0);
 }
 

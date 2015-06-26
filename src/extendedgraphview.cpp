@@ -32,11 +32,9 @@ QList<QCPData> ExtendedGraphView::graphData(qint32 index)
     return _pPlot->graph(index)->data()->values();
 }
 
-void ExtendedGraphView::addGraphs(QList<QList<double> > data)
+void ExtendedGraphView::addData(QList<double> timeData, QList<QList<double> > data)
 {
-    BasicGraphView::addGraphs();
-
-    updateData(&data);
+    updateData(&timeData, &data);
 }
 
 void ExtendedGraphView::plotResults(QList<bool> successList, QList<double> valueList)
@@ -172,10 +170,10 @@ void ExtendedGraphView::mouseMove(QMouseEvent *event)
     }
 }
 
-void ExtendedGraphView::updateData(QList<QList<double> > * pDataLists)
+void ExtendedGraphView::updateData(QList<double> *pTimeData, QList<QList<double> > * pDataLists)
 {
     bool bFullScale = false;
-    const QVector<double> timeData = pDataLists->at(0).toVector();
+    const QVector<double> timeData = pTimeData->toVector();
 
     if (_pPlot->graph(0)->data()->keys().size() > 0)
     {

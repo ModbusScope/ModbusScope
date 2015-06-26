@@ -23,7 +23,7 @@ public:
     bool highlightSamples() const;
     bool valueTooltip() const;
     void addGraphs(QList<RegisterData> registerList);
-    void addGraphs(QList<RegisterData> registerList, QList<QList<double> > data);
+    void addGraphs(QList<RegisterData> registerList, QList<double> timeData, QList<QList<double> > data);
     void clearGraph();
     quint32 graphCount();
     QString windowTitle();
@@ -63,7 +63,7 @@ signals:
     void graphVisibilityChanged(const quint32 index);
     void graphCleared();
     void graphsAdded();
-    void graphsAddedWithData(QList<QList<double> > data);
+    void graphsAddData(QList<double>, QList<QList<double> > data);
     void frontGraphChanged();
     void highlightSamplesChanged();
     void valueTooltipChanged();

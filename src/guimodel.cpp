@@ -105,12 +105,12 @@ void GuiModel::addGraphs(QList<RegisterData> registerList)
     emit graphsAdded();
 }
 
-void GuiModel::addGraphs(QList<RegisterData> registerList, QList<QList<double> > data)
+void GuiModel::addGraphs(QList<RegisterData> registerList, QList<double> timeData, QList<QList<double> > data)
 {
     // TODO: time data
     addGraphs(registerList);
 
-    emit graphsAddedWithData(data);
+    emit graphsAddData(timeData, data);
 }
 
 void GuiModel::clearGraph()
