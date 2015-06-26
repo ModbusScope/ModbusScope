@@ -125,6 +125,7 @@ void BasicGraphView::enableSamplePoints()
 void BasicGraphView::clearGraphs()
 {
     _pPlot->clearGraphs();
+    _pPlot->replot();
 }
 
 void BasicGraphView::addGraphs()
@@ -144,6 +145,7 @@ void BasicGraphView::addGraphs()
     }
 
     _pPlot->legend->setVisible(true);
+    _pPlot->replot();
 }
 
 void BasicGraphView::showHideLegend()
