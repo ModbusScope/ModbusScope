@@ -33,7 +33,7 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
     _bHighlightSamples = true;
     _bValueTooltip = false;
     _bLegendVisibility = true;
-    _communicationState = false;
+    _communicationState = INIT;
     _windowTitle = _cWindowTitle;
 
     _guiSettings.xScaleMode = BasicGraphView::SCALE_AUTO;
@@ -358,16 +358,16 @@ void GuiModel::setyAxisMax(qint32 newMax)
     }
 }
 
-void GuiModel::setCommunicationState(bool bState)
+void GuiModel::setCommunicationState(quint32 state)
 {
-    if (_communicationState != bState)
+    if (_communicationState != state)
     {
-        _communicationState = bState;
+        _communicationState = state;
         emit communicationStateChanged();
     }
 }
 
-bool GuiModel::communicationState()
+quint32 GuiModel::communicationState()
 {
     return _communicationState;
 }

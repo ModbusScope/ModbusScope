@@ -14,6 +14,13 @@ public:
     explicit GuiModel(QObject *parent = 0);
     ~GuiModel();
 
+    enum
+    {
+        INIT,
+        STARTED,
+        STOPPED,
+    };
+
     void triggerUpdate(void);
 
     bool graphVisibility(quint32 index) const;
@@ -36,7 +43,7 @@ public:
     BasicGraphView::AxisScaleOptions  yAxisScalingMode();
     qint32 yAxisMin();
     qint32 yAxisMax();
-    bool communicationState();
+    quint32 communicationState();
 
     void setProjectFilePath(QString path);
     void setDataFilePath(QString path);
@@ -56,7 +63,7 @@ public slots:
     void setyAxisScale(BasicGraphView::AxisScaleOptions scaleMode);
     void setyAxisMin(qint32 newMin);
     void setyAxisMax(qint32 newMax);
-    void setCommunicationState(bool bState);
+    void setCommunicationState(quint32 state);
 
 signals:
 
@@ -105,7 +112,7 @@ private:
     bool _bHighlightSamples;
     bool _bValueTooltip;
     bool _bLegendVisibility;
-    bool _communicationState;
+    quint32 _communicationState;
 
     static const QString _cWindowTitle;
     static const QList<QColor> _colorlist;

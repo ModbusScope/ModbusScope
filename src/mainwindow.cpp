@@ -463,7 +463,7 @@ void MainWindow::startScope()
     if (_pRegisterModel->checkedRegisterCount() != 0)
     {
 
-        _pGuiModel->setCommunicationState(true);
+        _pGuiModel->setCommunicationState(GuiModel::STARTED);
 
         _pStatusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
 
@@ -491,7 +491,7 @@ void MainWindow::stopScope()
 {
     _pScope->stopCommunication();
 
-    _pGuiModel->setCommunicationState(false);
+    _pGuiModel->setCommunicationState(GuiModel::STOPPED);
 }
 
 void MainWindow::showHideGraph(const quint32 index)
@@ -636,22 +636,33 @@ void MainWindow::updateyAxisMinMax()
 
 void MainWindow::updateCommunicationState()
 {
-    const bool bEnabledWhenRunning = _pGuiModel->communicationState();
-    const bool bDisabledWhenRunning = !_pGuiModel->communicationState();
 
-    _pUi->actionStop->setEnabled(bEnabledWhenRunning);
+    if (_pGuiModel->communicationState() == GuiModel::INIT)
+    {
+        _pStatusState->setText(_cStateStopped);
 
-    _pUi->actionConnectionSettings->setEnabled(bDisabledWhenRunning);
-    _pUi->actionRegisterSettings->setEnabled(bDisabledWhenRunning);
-    _pUi->actionStart->setEnabled(bDisabledWhenRunning);
-    _pUi->actionImportDataFile->setEnabled(bDisabledWhenRunning);
-    _pUi->actionLoadProjectFile->setEnabled(bDisabledWhenRunning);
-    _pUi->actionExportDataCsv->setEnabled(bDisabledWhenRunning);
-    _pUi->actionExportImage->setEnabled(bDisabledWhenRunning);
+        _pUi->actionStop->setEnabled(false);
+        _pUi->actionConnectionSettings->setEnabled(true);
+        _pUi->actionRegisterSettings->setEnabled(true);
+        _pUi->actionStart->setEnabled(true);
+        _pUi->actionImportDataFile->setEnabled(true);
+        _pUi->actionLoadProjectFile->setEnabled(true);
+        _pUi->actionExportDataCsv->setEnabled(false);
+        _pUi->actionExportImage->setEnabled(false);
 
-    if (_pGuiModel->communicationState())
+    }
+    else if (_pGuiModel->communicationState() == GuiModel::STARTED)
     {
         // Communication active
+        _pUi->actionStop->setEnabled(true);
+        _pUi->actionConnectionSettings->setEnabled(false);
+        _pUi->actionRegisterSettings->setEnabled(false);
+        _pUi->actionStart->setEnabled(false);
+        _pUi->actionImportDataFile->setEnabled(false);
+        _pUi->actionLoadProjectFile->setEnabled(false);
+        _pUi->actionExportDataCsv->setEnabled(false);
+        _pUi->actionExportImage->setEnabled(false);
+
         _pStatusState->setText(_cStateRunning);
 
         if (_pGuiModel->projectFilePath().isEmpty())
@@ -659,9 +670,18 @@ void MainWindow::updateCommunicationState()
             _pGuiModel->setWindowTitleDetail("");
         }
     }
-    else
+    else if (_pGuiModel->communicationState() == GuiModel::STOPPED)
     {
         // Communication not active
+        _pUi->actionStop->setEnabled(false);
+        _pUi->actionConnectionSettings->setEnabled(true);
+        _pUi->actionRegisterSettings->setEnabled(true);
+        _pUi->actionStart->setEnabled(true);
+        _pUi->actionImportDataFile->setEnabled(true);
+        _pUi->actionLoadProjectFile->setEnabled(true);
+        _pUi->actionExportDataCsv->setEnabled(true);
+        _pUi->actionExportImage->setEnabled(true);
+
         _pStatusState->setText(_cStateStopped);
     }
 }
