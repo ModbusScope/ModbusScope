@@ -183,23 +183,12 @@ void MainWindow::loadProjectSettings()
     dialog.setOption(QFileDialog::HideNameFilterDetails, false);
     dialog.setWindowTitle(tr("Select mbs file"));
     dialog.setNameFilter(tr("mbs files (*.mbs)"));
-
-    if (_pGuiModel->projectFilePath().trimmed().isEmpty())
-    {
-        QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
-        if (docPath.size() > 0)
-        {
-            dialog.setDirectory(docPath[0]);
-        }
-    }
-    else
-    {
-        dialog.setDirectory(QFileInfo(_pGuiModel->projectFilePath()).dir());
-    }
+    dialog.setDirectory(_pGuiModel->lastDir());
 
     if (dialog.exec())
     {
         filePath = dialog.selectedFiles().first();
+        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
         loadProjectFile(filePath);
     }
 
@@ -219,23 +208,12 @@ void MainWindow::importData()
     dialog.setOption(QFileDialog::HideNameFilterDetails, false);
     dialog.setWindowTitle(tr("Select csv file"));
     dialog.setNameFilter(tr("csv files (*.csv)"));
-
-    if (_pGuiModel->lastDataDir().absolutePath().trimmed().isEmpty())
-    {
-        QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
-        if (docPath.size() > 0)
-        {
-            dialog.setDirectory(docPath[0]);
-        }
-    }
-    else
-    {
-        dialog.setDirectory(_pGuiModel->lastDataDir());
-    }
+    dialog.setDirectory(_pGuiModel->lastDir());
 
     if (dialog.exec())
     {
         filePath = dialog.selectedFiles().first();
+        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
         loadDataFile(filePath);
     }
 }
@@ -255,24 +233,12 @@ void MainWindow::prepareDataExport()
     dialog.setDefaultSuffix("csv");
     dialog.setWindowTitle(tr("Select csv file"));
     dialog.setNameFilter(tr("CSV files (*.csv)"));
-
-    if (_pGuiModel->lastDataDir().absolutePath().trimmed().isEmpty())
-    {
-        QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
-        if (docPath.size() > 0)
-        {
-            dialog.setDirectory(docPath[0]);
-        }
-    }
-    else
-    {
-        dialog.setDirectory(_pGuiModel->lastDataDir());
-    }
+    dialog.setDirectory(_pGuiModel->lastDir());
 
     if (dialog.exec())
     {
         filePath = dialog.selectedFiles().first();
-        _pGuiModel->setLastDataDir(QFileInfo(filePath).dir());
+        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
         exportDataCsv(filePath);
     }
 }
@@ -287,24 +253,12 @@ void MainWindow::prepareImageExport()
     dialog.setDefaultSuffix("png");
     dialog.setWindowTitle(tr("Select png file"));
     dialog.setNameFilter(tr("PNG files (*.png)"));
-
-    if (_pGuiModel->lastDataDir().absolutePath().trimmed().isEmpty())
-    {
-        QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
-        if (docPath.size() > 0)
-        {
-            dialog.setDirectory(docPath[0]);
-        }
-    }
-    else
-    {
-        dialog.setDirectory(_pGuiModel->lastDataDir());
-    }
+    dialog.setDirectory(_pGuiModel->lastDir());
 
     if (dialog.exec())
     {
         filePath = dialog.selectedFiles().first();
-        _pGuiModel->setLastDataDir(QFileInfo(filePath).dir());
+        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
         _pGraphView->exportGraphImage(filePath);
     }
 }

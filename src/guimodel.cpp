@@ -36,6 +36,12 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
     _communicationState = INIT;
     _windowTitle = _cWindowTitle;
 
+    QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+    if (docPath.size() > 0)
+    {
+        _lastDir = docPath[0];
+    }
+
     _guiSettings.xScaleMode = BasicGraphView::SCALE_AUTO;
     _guiSettings.yScaleMode = BasicGraphView::SCALE_AUTO;
     _guiSettings.yMax = 10;
@@ -268,14 +274,14 @@ void GuiModel::setDataFilePath(QString path)
     }
 }
 
-void GuiModel::setLastDataDir(QDir dir)
+void GuiModel::setLastDir(QString dir)
 {
-    _lastDataDir = dir;
+    _lastDir = dir;
 }
 
-QDir GuiModel::lastDataDir()
+QString GuiModel::lastDir()
 {
-    return _lastDataDir;
+    return _lastDir;
 }
 
 void GuiModel::setxAxisScale(BasicGraphView::AxisScaleOptions scaleMode)

@@ -37,7 +37,7 @@ public:
     bool legendVisibility();
     QString projectFilePath();
     QString dataFilePath();
-    QDir lastDataDir();
+    QString lastDir();
     BasicGraphView::AxisScaleOptions xAxisScalingMode();
     quint32 xAxisSlidingSec();
     BasicGraphView::AxisScaleOptions  yAxisScalingMode();
@@ -47,7 +47,7 @@ public:
 
     void setProjectFilePath(QString path);
     void setDataFilePath(QString path);
-    void setLastDataDir(QDir dir);
+    void setLastDir(QString dir);
 
 public slots:
     void setValueTooltip(bool bValueTooltip);
@@ -107,7 +107,7 @@ private:
 
     QString _projectFilePath;
     QString _dataFilePath;
-    QDir _lastDataDir; // Last directory opened for import/export
+    QString _lastDir; // Last directory opened for import/export/load project
 
     bool _bHighlightSamples;
     bool _bValueTooltip;
