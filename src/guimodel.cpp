@@ -32,7 +32,7 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
     _dataFilePath = "";
     _bHighlightSamples = true;
     _bValueTooltip = false;
-    _bLegendVisibility = true;
+    _bLegendVisibility = false;
     _legendPosition = BasicGraphView::LEGEND_MIDDLE;
     _communicationState = INIT;
     _windowTitle = _cWindowTitle;

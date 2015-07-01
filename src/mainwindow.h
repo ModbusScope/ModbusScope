@@ -79,6 +79,7 @@ private slots:
     void projectFileLoaded();
     void dataFileLoaded();
     void updateLegendPositionMenu();
+    void updateLegendMenu();
 
     /* Misc */
     void showContextMenu(const QPoint& pos);

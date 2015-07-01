@@ -212,7 +212,7 @@
      <x>0</x>
      <y>0</y>
      <width>839</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -264,13 +264,15 @@
       <string>Show/Hide</string>
      </property>
     </widget>
-    <widget class="QMenu" name="menuLegendPosition">
+    <widget class="QMenu" name="menuLegend">
      <property name="enabled">
       <bool>false</bool>
      </property>
      <property name="title">
-      <string>Legend Position</string>
+      <string>Legend</string>
      </property>
+     <addaction name="actionShowLegend"/>
+     <addaction name="separator"/>
      <addaction name="actionLegendLeft"/>
      <addaction name="actionLegendMiddle"/>
      <addaction name="actionLegendRight"/>
@@ -280,7 +282,7 @@
     <addaction name="separator"/>
     <addaction name="actionShowValueTooltip"/>
     <addaction name="actionHighlightSamplePoints"/>
-    <addaction name="menuLegendPosition"/>
+    <addaction name="menuLegend"/>
     <addaction name="separator"/>
     <addaction name="actionClearData"/>
    </widget>
@@ -420,6 +422,20 @@
    </property>
    <property name="text">
     <string>Right</string>
+   </property>
+  </action>
+  <action name="actionShowLegend">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Legend</string>
    </property>
   </action>
  </widget>
