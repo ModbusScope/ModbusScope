@@ -390,7 +390,13 @@ void MainWindow::showAbout()
     QString lnkLibModbus("<a href='http://libmodbus.org/'>libmodbus</a>");
     QString lnkQCustomPlot("<a href='http://www.qcustomplot.com/'>QCustomPlot</a>");
 
-    QString version = QString(tr("<b>ModbusScope v%1</b><br><br>")).arg(APP_VERSION);
+    QString appVersion = QString(tr("v%1")).arg(APP_VERSION);
+
+#ifdef DEBUG
+    appVersion.append(QString(tr(" (git: %1:%2)")).arg(GIT_BRANCH).arg(GIT_HASH));
+#endif
+
+    QString version = QString(tr("<b>GraphViewer %1</b><br><br>")).arg(appVersion);
 
     QString aboutTxt = tr(
                         "%1"
