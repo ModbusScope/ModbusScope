@@ -202,12 +202,6 @@ void GuiModel::setValueTooltip(bool bValueTooltip)
     }
 }
 
-QColor GuiModel::getColor(const quint32 index)
-{
-    const quint32 colorIndex = index % _colorlist.size();
-    return _colorlist[colorIndex];
-}
-
 QString GuiModel::windowTitle()
 {
     return _windowTitle;

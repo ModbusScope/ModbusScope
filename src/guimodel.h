@@ -92,9 +92,6 @@ private:
 
     } GuiSettings;
 
-
-    QColor getColor(const quint32 index);
-
     QList<GraphData * > _graphData;
 
     qint32 _frontGraph;
