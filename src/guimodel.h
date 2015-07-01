@@ -35,6 +35,7 @@ public:
     quint32 graphCount();
     QString windowTitle();
     bool legendVisibility();
+    BasicGraphView::LegendsPositionOptions legendPosition();
     QString projectFilePath();
     QString dataFilePath();
     QString lastDir();
@@ -56,6 +57,7 @@ public slots:
     void setGraphVisibility(quint32 index, const bool &value);
     void setWindowTitleDetail(QString detail);
     void setLegendVisibility(bool bLegendVisibility);
+    void setLegendPosition(BasicGraphView::LegendsPositionOptions pos);
 
     void setxAxisScale(BasicGraphView::AxisScaleOptions scaleMode);
     void setxAxisSlidingInterval(qint32 slidingSec);
@@ -76,6 +78,7 @@ signals:
     void valueTooltipChanged();
     void windowTitleChanged();
     void legendVisibilityChanged();
+    void legendPositionChanged();
     void xAxisScalingChanged();
     void xAxisSlidingIntervalChanged();
     void yAxisScalingChanged();
@@ -112,6 +115,7 @@ private:
     bool _bHighlightSamples;
     bool _bValueTooltip;
     bool _bLegendVisibility;
+    BasicGraphView::LegendsPositionOptions _legendPosition;
     quint32 _communicationState;
 
     static const QString _cWindowTitle;

@@ -70,7 +70,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGuiModel, SIGNAL(communicationStateChanged()), this, SLOT(updateCommunicationState()));
     connect(_pGuiModel, SIGNAL(projectFilePathChanged()), this, SLOT(projectFileLoaded()));
     connect(_pGuiModel, SIGNAL(dataFilePathChanged()), this, SLOT(dataFileLoaded()));
-
+    connect(_pGuiModel, SIGNAL(legendPositionChanged()), this, SLOT(updateLegendPositionMenu()));
+    connect(_pGuiModel, SIGNAL(legendPositionChanged()), _pGraphView, SLOT(updateLegendPosition()));
     //connect(_pGuiModel, SIGNAL(legendVisibilityChanged()), _pGraphView, SLOT(showHideLegend()));
 
     connect(_pGuiModel, SIGNAL(xAxisScalingChanged()), this, SLOT(updatexAxisSlidingMode()));
@@ -87,13 +88,11 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGraphBringToFront = _pUi->menuBringToFront;
     _pBringToFrontGroup = new QActionGroup(this);
 
-    // TODO; mode to correct model code
     _pLegendPositionGroup = new QActionGroup(this);
     _pUi->actionLegendLeft->setActionGroup(_pLegendPositionGroup);
     _pUi->actionLegendMiddle->setActionGroup(_pLegendPositionGroup);
     _pUi->actionLegendRight->setActionGroup(_pLegendPositionGroup);
     connect(_pLegendPositionGroup, SIGNAL(triggered(QAction*)), this, SLOT(changeLegendPosition(QAction*)));
-
 
     // Add multipart status bar
     _pStatusState = new QLabel(_cStateStopped, this);
@@ -400,15 +399,15 @@ void MainWindow::changeLegendPosition(QAction* pAction)
 {
     if (pAction == _pUi->actionLegendLeft)
     {
-        _pGraphView->setLegendPosition(BasicGraphView::LEGEND_LEFT);
+        _pGuiModel->setLegendPosition(BasicGraphView::LEGEND_LEFT);
     }
     else if (pAction == _pUi->actionLegendMiddle)
     {
-        _pGraphView->setLegendPosition(BasicGraphView::LEGEND_MIDDLE);
+        _pGuiModel->setLegendPosition(BasicGraphView::LEGEND_MIDDLE);
     }
     else if (pAction == _pUi->actionLegendRight)
     {
-        _pGraphView->setLegendPosition(BasicGraphView::LEGEND_RIGHT);
+        _pGuiModel->setLegendPosition(BasicGraphView::LEGEND_RIGHT);
     }
 }
 
@@ -679,6 +678,22 @@ void MainWindow::dataFileLoaded()
         _pGuiModel->setWindowTitleDetail(QFileInfo(_pGuiModel->dataFilePath()).fileName());
         _pUi->actionReloadProjectFile->setEnabled(false);
         _pUi->actionExportDataCsv->setEnabled(false);
+    }
+}
+
+void MainWindow::updateLegendPositionMenu()
+{
+    if (_pGuiModel->legendPosition() == BasicGraphView::LEGEND_LEFT)
+    {
+        _pUi->actionLegendLeft->setChecked(true);
+    }
+    else if (_pGuiModel->legendPosition() == BasicGraphView::LEGEND_MIDDLE)
+    {
+        _pUi->actionLegendMiddle->setChecked(true);
+    }
+    else if (_pGuiModel->legendPosition() == BasicGraphView::LEGEND_RIGHT)
+    {
+        _pUi->actionLegendRight->setChecked(true);
     }
 }
 

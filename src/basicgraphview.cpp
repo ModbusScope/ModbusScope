@@ -176,17 +176,17 @@ void BasicGraphView::bringToFront()
     }
 }
 
-void BasicGraphView::setLegendPosition(LegendsPositionOptions pos)
+void BasicGraphView::updateLegendPosition()
 {
-    if (pos == LEGEND_LEFT)
+    if (_pGuiModel->legendPosition() == LEGEND_LEFT)
     {
          _pPlot ->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignLeft|Qt::AlignTop);
     }
-    else if (pos == LEGEND_MIDDLE)
+    else if (_pGuiModel->legendPosition() == LEGEND_MIDDLE)
     {
          _pPlot ->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignCenter|Qt::AlignTop);
     }
-    else if (pos == LEGEND_RIGHT)
+    else if (_pGuiModel->legendPosition() == LEGEND_RIGHT)
     {
          _pPlot ->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignRight|Qt::AlignTop);
     }

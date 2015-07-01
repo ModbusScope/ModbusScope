@@ -33,6 +33,7 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
     _bHighlightSamples = true;
     _bValueTooltip = false;
     _bLegendVisibility = true;
+    _legendPosition = BasicGraphView::LEGEND_RIGHT;
     _communicationState = INIT;
     _windowTitle = _cWindowTitle;
 
@@ -71,6 +72,7 @@ void GuiModel::triggerUpdate(void)
 
     emit graphCleared();
     emit legendVisibilityChanged();
+    emit legendPositionChanged();
 
     emit yAxisMinMaxchanged();
     emit xAxisSlidingIntervalChanged();
@@ -243,6 +245,20 @@ void GuiModel::setLegendVisibility(bool bLegendVisibility)
     {
         _bLegendVisibility = bLegendVisibility;
          emit legendVisibilityChanged();
+    }
+}
+
+BasicGraphView::LegendsPositionOptions GuiModel::legendPosition()
+{
+    return _legendPosition;
+}
+
+void GuiModel::setLegendPosition(BasicGraphView::LegendsPositionOptions pos)
+{
+    if (_legendPosition != pos)
+    {
+        _legendPosition = pos;
+         emit legendPositionChanged();
     }
 }
 

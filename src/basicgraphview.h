@@ -48,7 +48,7 @@ public slots:
     virtual void showHideLegend();
     virtual void showGraph(quint32 index);
     virtual void bringToFront();
-    virtual void setLegendPosition(LegendsPositionOptions pos);
+    virtual void updateLegendPosition();
 
 signals:
 

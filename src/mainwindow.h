@@ -78,6 +78,7 @@ private slots:
     void updateCommunicationState();
     void projectFileLoaded();
     void dataFileLoaded();
+    void updateLegendPositionMenu();
 
     /* Misc */
     void showContextMenu(const QPoint& pos);
