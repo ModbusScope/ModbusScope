@@ -33,7 +33,7 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
     _bHighlightSamples = true;
     _bValueTooltip = false;
     _bLegendVisibility = true;
-    _legendPosition = BasicGraphView::LEGEND_RIGHT;
+    _legendPosition = BasicGraphView::LEGEND_MIDDLE;
     _communicationState = INIT;
     _windowTitle = _cWindowTitle;
 

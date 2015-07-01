@@ -817,6 +817,23 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
         _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
     }
 
+    if (pProjectSettings->legend.bLegendPosition)
+    {
+        if (pProjectSettings->legend.legendPosition == 0)
+        {
+            _pGuiModel->setLegendPosition(BasicGraphView::LEGEND_LEFT);
+        }
+        else if (pProjectSettings->legend.legendPosition == 1)
+        {
+            _pGuiModel->setLegendPosition(BasicGraphView::LEGEND_MIDDLE);
+        }
+        else if (pProjectSettings->legend.legendPosition == 2)
+        {
+            _pGuiModel->setLegendPosition(BasicGraphView::LEGEND_RIGHT);
+        }
+
+    }
+
     _pRegisterModel->clear();
     for (qint32 i = 0; i < pProjectSettings->scope.registerList.size(); i++)
     {

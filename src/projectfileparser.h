@@ -40,6 +40,12 @@ public:
         qint32 scaleMax;
     } ScaleSettings;
 
+    typedef struct
+    {
+        bool bLegendPosition;
+        quint32 legendPosition;
+    } LegendSettings;
+
     typedef struct _GeneralSettings
     {
         _GeneralSettings() : bIp(false), bPort(false), bPollTime(false), bSlaveId(false), bTimeout(false) {}
@@ -66,6 +72,7 @@ public:
         GeneralSettings general;
         ScopeSettings scope;
         ScaleSettings scale;
+        LegendSettings legend;
     } ProjectSettings;
 
     explicit ProjectFileParser();
@@ -86,6 +93,8 @@ private:
     bool parseScaleTag(const QDomElement &element, ScaleSettings *pScaleSettings);
     bool parseScaleXAxis(const QDomElement &element, ScaleSettings *pScaleSettings);
     bool parseScaleYAxis(const QDomElement &element, ScaleSettings *pScaleSettings);
+
+    bool parseLegendTag(const QDomElement &element, LegendSettings *pLegendSettings);
 
     QDomDocument _domDocument;
 

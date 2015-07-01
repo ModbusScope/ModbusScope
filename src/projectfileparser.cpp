@@ -74,6 +74,14 @@ bool ProjectFileParser::parseFile(QIODevice *device, ProjectSettings *pSettings)
                         break;
                     }
                 }
+                else if (tag.tagName() == "legend")
+                {
+                    bRet = parseLegendTag(tag, &pSettings->legend);
+                    if (!bRet)
+                    {
+                        break;
+                    }
+                }
                 tag = tag.nextSiblingElement();
             }
         }
@@ -440,6 +448,46 @@ bool ProjectFileParser::parseScaleYAxis(const QDomElement &element, ScaleSetting
         _msgBox.setText(tr("If y-axis has min max scaling then max variable should be defined."));
         _msgBox.exec();
         bRet = false;
+    }
+
+    return bRet;
+}
+
+bool ProjectFileParser::parseLegendTag(const QDomElement &element, LegendSettings *pLegendSettings)
+{
+    bool bRet = true;
+    QDomElement child = element.firstChildElement();
+    while (!child.isNull())
+    {
+        if (child.tagName() == "position")
+        {
+            if (child.text().trimmed().toLower() == "left")
+            {
+                pLegendSettings->bLegendPosition = true;
+                pLegendSettings->legendPosition = 0;
+            }
+            else if (child.text().trimmed().toLower() == "middle")
+            {
+                pLegendSettings->bLegendPosition = true;
+                pLegendSettings->legendPosition = 1;
+            }
+            else if (child.text().trimmed().toLower() == "right")
+            {
+                pLegendSettings->bLegendPosition = true;
+                pLegendSettings->legendPosition = 2;
+            }
+            else
+            {
+                _msgBox.setText(tr("Legend position has an incorrect value. Only left, middle and right values are allowed"));
+                _msgBox.exec();
+                break;
+            }
+        }
+        else
+        {
+            // unkown tag: ignore
+        }
+        child = child.nextSiblingElement();
     }
 
     return bRet;
