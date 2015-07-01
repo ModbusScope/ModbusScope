@@ -300,9 +300,9 @@ BasicGraphView::AxisScaleOptions GuiModel::xAxisScalingMode()
 
 void GuiModel::setxAxisSlidingInterval(qint32 slidingSec)
 {
-    if (_guiSettings.xslidingInterval != (quint32)slidingSec * 1000)
+    if (_guiSettings.xslidingInterval != (quint32)slidingSec)
     {
-        _guiSettings.xslidingInterval = (quint32)slidingSec * 1000;
+        _guiSettings.xslidingInterval = (quint32)slidingSec;
         emit xAxisSlidingIntervalChanged();
     }
 
@@ -310,7 +310,7 @@ void GuiModel::setxAxisSlidingInterval(qint32 slidingSec)
 
 quint32 GuiModel::xAxisSlidingSec()
 {
-    return _guiSettings.xslidingInterval * 1000;
+    return _guiSettings.xslidingInterval;
 }
 
 BasicGraphView::AxisScaleOptions GuiModel::yAxisScalingMode()

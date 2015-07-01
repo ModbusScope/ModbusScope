@@ -90,21 +90,22 @@ void ExtendedGraphView::rescalePlot()
     else if (_pGuiModel->xAxisScalingMode() == SCALE_SLIDING)
     {
         // sliding window scale routine
+        const quint32 slidingInterval = _pGuiModel->xAxisSlidingSec() * 1000;
         if ((_pPlot->graphCount() != 0) && (_pPlot->graph(0)->data()->keys().size()))
         {
             const quint32 lastTime = _pPlot->graph(0)->data()->keys().last();
-            if (lastTime > _pGuiModel->xAxisSlidingSec())
+            if (lastTime > slidingInterval)
             {
-                _pPlot->xAxis->setRange(lastTime - _pGuiModel->xAxisSlidingSec(), lastTime);
+                _pPlot->xAxis->setRange(lastTime - slidingInterval, lastTime);
             }
             else
             {
-                _pPlot->xAxis->setRange(0, _pGuiModel->xAxisSlidingSec());
+                _pPlot->xAxis->setRange(0, slidingInterval);
             }
         }
         else
         {
-            _pPlot->xAxis->setRange(0, _pGuiModel->xAxisSlidingSec());
+            _pPlot->xAxis->setRange(0, slidingInterval);
         }
     }
     else // Manual
