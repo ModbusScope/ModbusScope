@@ -440,6 +440,17 @@ void MainWindow::startScope()
             _pGuiModel->clearGraph();
             _pGuiModel->addGraphs(regList);
         }
+
+        if (_pGuiModel->xAxisScalingMode() == BasicGraphView::SCALE_MANUAL)
+        {
+            _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO); // TODO: use scaling settings from project file?
+        }
+
+        if (_pGuiModel->yAxisScalingMode() == BasicGraphView::SCALE_MANUAL)
+        {
+            _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO); // TODO: use scaling settings from project file?
+        }
+
     }
     else
     {
@@ -772,23 +783,23 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
 
     if (pProjectSettings->scale.bSliding)
     {
-        _pUi->spinSlidingXInterval->setValue(pProjectSettings->scale.slidingInterval);
-        _pUi->radioXSliding->setChecked(true);
+        _pGuiModel->setxAxisSlidingInterval(pProjectSettings->scale.slidingInterval);
+        _pGuiModel->setxAxisScale(BasicGraphView::SCALE_SLIDING);
     }
     else
     {
-        _pUi->radioXFullScale->setChecked(true);
+        _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
     }
 
     if (pProjectSettings->scale.bMinMax)
     {
-        _pUi->spinYMin->setValue(pProjectSettings->scale.scaleMin);
-        _pUi->spinYMax->setValue(pProjectSettings->scale.scaleMax);
-        _pUi->radioYMinMax->setChecked(true);
+        _pGuiModel->setyAxisMin(pProjectSettings->scale.scaleMin);
+        _pGuiModel->setyAxisMax(pProjectSettings->scale.scaleMax);
+        _pGuiModel->setyAxisScale(BasicGraphView::SCALE_MINMAX);
     }
     else
     {
-        _pUi->radioYFullScale->setChecked(true);
+        _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
     }
 
     _pRegisterModel->clear();
