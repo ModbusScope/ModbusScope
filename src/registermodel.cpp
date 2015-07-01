@@ -34,7 +34,7 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
     case 0:
         if (role == Qt::CheckStateRole)
         {
-            if (_dataList[index.row()].getActive())
+            if (_dataList[index.row()].isActive())
             {
                 return Qt::Checked;
             }
@@ -47,7 +47,7 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
     case 1:
         if (role == Qt::CheckStateRole)
         {
-            if (_dataList[index.row()].getUnsigned())
+            if (_dataList[index.row()].isUnsigned())
             {
                 return Qt::Checked;
             }
@@ -60,19 +60,19 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
     case 2:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return _dataList[index.row()].getRegisterAddress();
+            return _dataList[index.row()].registerAddress();
         }
         break;
     case 3:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return _dataList[index.row()].getText();
+            return _dataList[index.row()].text();
         }
         break;
     case 4:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return Util::formatDoubleForExport(_dataList[index.row()].getScaleFactor());
+            return Util::formatDoubleForExport(_dataList[index.row()].scaleFactor());
         }
         break;
     default:
@@ -153,7 +153,7 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
         {
             const quint16 newAddr = value.toInt();
             if (
-                (_dataList[index.row()].getRegisterAddress() != newAddr)
+                (_dataList[index.row()].registerAddress() != newAddr)
                 && (IsAlreadyPresent(newAddr))
                 )
             {
@@ -258,8 +258,8 @@ bool RegisterModel::insertRows (int row, int count, const QModelIndex &parent)
     RegisterData data;
     data.setActive(true);
     data.setUnsigned(false);
-    data.setRegisterAddress(getNextFreeAddress());
-    data.setText(QString("Register %1").arg(data.getRegisterAddress()));
+    data.setRegisterAddress(nextFreeAddress());
+    data.setText(QString("Register %1").arg(data.registerAddress()));
     data.setScaleFactor(1);
     data.setColor("-1"); // Invalid color
     _dataList.append(data);
@@ -278,7 +278,7 @@ uint RegisterModel::checkedRegisterCount()
 
     for (int i = 0; i < _dataList.size(); i++)
     {
-        if (_dataList[i].getActive())
+        if (_dataList[i].isActive())
         {
             count++;
         }
@@ -287,24 +287,24 @@ uint RegisterModel::checkedRegisterCount()
     return count;
 }
 
-void RegisterModel::getRegisterList(QList<quint16> * pRegisterList)
+void RegisterModel::registerList(QList<quint16> * pRegisterList)
 {
     pRegisterList->clear();
     for (int i = 0; i < _dataList.size(); i++)
     {
-        pRegisterList->append(_dataList[i].getRegisterAddress());
+        pRegisterList->append(_dataList[i].registerAddress());
     }
 }
 
 /*
  *  Get sorted list of checked register addresses
  */
-void RegisterModel::getCheckedRegisterList(QList<RegisterData> * pRegisterList)
+void RegisterModel::checkedRegisterList(QList<RegisterData> * pRegisterList)
 {
     pRegisterList->clear();
     for (int i = 0; i < _dataList.size(); i++)
     {
-        if (_dataList[i].getActive())
+        if (_dataList[i].isActive())
         {
             pRegisterList->append(_dataList[i]);
         }
@@ -341,7 +341,7 @@ bool RegisterModel::IsAlreadyPresent(quint16 newReg)
 
     for (int i = 0; i < _dataList.size(); i++)
     {
-        if (_dataList[i].getRegisterAddress() == newReg)
+        if (_dataList[i].registerAddress() == newReg)
         {
             bFound = true;
             break;
@@ -360,25 +360,25 @@ bool RegisterModel::IsAlreadyPresent(quint16 newReg)
     return bFound;
 }
 
-quint16 RegisterModel::getNextFreeAddress()
+quint16 RegisterModel::nextFreeAddress()
 {
-    QList<quint16> registerList;
-    quint16 nextFreeAddress;
+    QList<quint16> regList;
+    quint16 nextAddress;
 
     // get register list
-    getRegisterList(&registerList);
+    this->registerList(&regList);
 
     // sort qList
-    qSort(registerList);
+    qSort(regList);
 
-    if (registerList.size() > 0)
+    if (regList.size() > 0)
     {
-        nextFreeAddress = registerList.last() + 1;
+        nextAddress = regList.last() + 1;
     }
     else
     {
-        nextFreeAddress = 40001;
+        nextAddress = 40001;
     }
 
-    return nextFreeAddress;
+    return nextAddress;
 }

@@ -56,7 +56,7 @@ bool DataFileParser::processDataFile(FileData * pData)
     if (bRet)
     {
         pData->dataLabel.clear();
-        pData->dataLabel.append(line.split(Util::getSeparatorCharacter()));
+        pData->dataLabel.append(line.split(Util::separatorCharacter()));
         _expectedFields = pData->dataLabel.size();
     }
 
@@ -64,7 +64,7 @@ bool DataFileParser::processDataFile(FileData * pData)
     {
         showError(QString(tr("No graph data is found. "
                              "Are you sure the separator character is according to your locale?"
-                             "<br><br>Expected separator: \'%1\'")).arg(Util::getSeparatorCharacter()));
+                             "<br><br>Expected separator: \'%1\'")).arg(Util::separatorCharacter()));
 
         bRet = false;
     }
@@ -114,7 +114,7 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
 
     while (bResult && bRet)
     {
-        QStringList paramList = line.split(Util::getSeparatorCharacter());
+        QStringList paramList = line.split(Util::separatorCharacter());
 
         if (paramList.size() != (qint32)_expectedFields)
         {
@@ -133,7 +133,7 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
                                            "Line: %1\n"
                                            "Are you sure the decimal separator character is according to your locale?"
                                            "\n\nExpected decimal separator: \'%2\'"
-                                           ).arg(line).arg(Util::getSeparatorCharacter()));
+                                           ).arg(line).arg(Util::separatorCharacter()));
                 showError(error);
                 bRet = false;
                 break;

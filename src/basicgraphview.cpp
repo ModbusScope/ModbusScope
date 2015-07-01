@@ -283,7 +283,7 @@ void BasicGraphView::legendClick(QCPLegend * legend, QCPAbstractLegendItem * abs
         QCPPlottableLegendItem *legendItem = qobject_cast<QCPPlottableLegendItem*>(abstractLegendItem);
         if (legendItem != 0)
         {
-            const qint32 graphIndex = getGraphIndex(qobject_cast<QCPGraph*>(legendItem->plottable()));
+            const qint32 graphIndex = this->graphIndex(qobject_cast<QCPGraph*>(legendItem->plottable()));
             if (graphIndex >= 0)
             {
                 _pGuiModel->setFrontGraph(graphIndex);
@@ -302,7 +302,7 @@ void BasicGraphView::legendDoubleClick(QCPLegend * legend,QCPAbstractLegendItem 
         QCPPlottableLegendItem *legendItem = qobject_cast<QCPPlottableLegendItem*>(abstractLegendItem);
         if (legendItem != 0)
         {
-            const qint32 graphIndex = getGraphIndex(qobject_cast<QCPGraph*>(legendItem->plottable()));
+            const qint32 graphIndex = this->graphIndex(qobject_cast<QCPGraph*>(legendItem->plottable()));
             if (graphIndex >= 0)
             {
                 _pGuiModel->setGraphVisibility(graphIndex, !_pGuiModel->graphVisibility(graphIndex));
@@ -522,7 +522,7 @@ void BasicGraphView::highlightSamples(bool bState)
     }
 }
 
-qint32 BasicGraphView::getGraphIndex(QCPGraph * pGraph)
+qint32 BasicGraphView::graphIndex(QCPGraph * pGraph)
 {
     qint32 ret = -1;
 

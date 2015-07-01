@@ -10,7 +10,7 @@ class Util : public QObject
 
 public:
 
-    static QChar getSeparatorCharacter()
+    static QChar separatorCharacter()
     {
         if (QLocale::system().decimalPoint() == ',')
         {

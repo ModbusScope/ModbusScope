@@ -108,7 +108,7 @@ void ScopeData::handlePollDone(QList<bool> successList, QList<quint16> values)
     QList<double> processedValue;
     for (qint32 i = 0; i < values.size(); i++)
     {
-        if (_registerlist[i].getUnsigned())
+        if (_registerlist[i].isUnsigned())
         {
             processedValue.append(values[i]);
         }
@@ -118,7 +118,7 @@ void ScopeData::handlePollDone(QList<bool> successList, QList<quint16> values)
         }
 
         // Apply scaleFactor
-        processedValue[processedValue.size() - 1] = processedValue[processedValue.size() - 1] * _registerlist[i].getScaleFactor();
+        processedValue[processedValue.size() - 1] = processedValue[processedValue.size() - 1] * _registerlist[i].scaleFactor();
     }
 
     // propagate processed data
@@ -137,17 +137,17 @@ void ScopeData::stopCommunication()
     _endTime = QDateTime::currentMSecsSinceEpoch();
 }
 
-qint64 ScopeData::getCommunicationStartTime()
+qint64 ScopeData::communicationStartTime()
 {
     return _startTime;
 }
 
-qint64 ScopeData::getCommunicationEndTime()
+qint64 ScopeData::communicationEndTime()
 {
     return _endTime;
 }
 
-void ScopeData::getCommunicationSettings(quint32 * successCount, quint32 * errorCount)
+void ScopeData::communicationSettings(quint32 * successCount, quint32 * errorCount)
 {
     *successCount = _successCount;
     *errorCount = _errorCount;
@@ -167,7 +167,7 @@ void ScopeData::readData()
         QList<quint16> regAddrList;
         for (qint32 i = 0; i < _registerlist.size(); i++)
         {
-            regAddrList.append(_registerlist[i].getRegisterAddress());
+            regAddrList.append(_registerlist[i].registerAddress());
         }
         emit registerRequest(regAddrList);
     }

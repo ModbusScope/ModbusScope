@@ -320,27 +320,27 @@ void MainWindow::exportDataCsv(QString dataFile)
         QString line;
         QString comment = QString("//");
 
-        logData.append(comment + "ModbusScope version" + Util::getSeparatorCharacter() + QString(APP_VERSION) + "\n");
+        logData.append(comment + "ModbusScope version" + Util::separatorCharacter() + QString(APP_VERSION) + "\n");
 
         // Save start time
-        dt = QDateTime::fromMSecsSinceEpoch(_pScope->getCommunicationStartTime());
-        logData.append(comment + "Start time" + Util::getSeparatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
+        dt = QDateTime::fromMSecsSinceEpoch(_pScope->communicationStartTime());
+        logData.append(comment + "Start time" + Util::separatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
 
         // Save end time
-        dt = QDateTime::fromMSecsSinceEpoch(_pScope->getCommunicationEndTime());
-        logData.append(comment + "End time" + Util::getSeparatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
+        dt = QDateTime::fromMSecsSinceEpoch(_pScope->communicationEndTime());
+        logData.append(comment + "End time" + Util::separatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
 
         // Export communication settings
-        logData.append(comment + "Slave IP" + Util::getSeparatorCharacter() + _pConnectionModel->ipAddress() + ":" + QString::number(_pConnectionModel->port()) + "\n");
-        logData.append(comment + "Slave ID" + Util::getSeparatorCharacter() + QString::number(_pConnectionModel->slaveId()) + "\n");
-        logData.append(comment + "Time-out" + Util::getSeparatorCharacter() + QString::number(_pConnectionModel->timeout()) + "\n");
-        logData.append(comment + "Poll interval" + Util::getSeparatorCharacter() + QString::number(_pConnectionModel->pollTime()) + "\n");
+        logData.append(comment + "Slave IP" + Util::separatorCharacter() + _pConnectionModel->ipAddress() + ":" + QString::number(_pConnectionModel->port()) + "\n");
+        logData.append(comment + "Slave ID" + Util::separatorCharacter() + QString::number(_pConnectionModel->slaveId()) + "\n");
+        logData.append(comment + "Time-out" + Util::separatorCharacter() + QString::number(_pConnectionModel->timeout()) + "\n");
+        logData.append(comment + "Poll interval" + Util::separatorCharacter() + QString::number(_pConnectionModel->pollTime()) + "\n");
 
         quint32 success;
         quint32 error;
-        _pScope->getCommunicationSettings(&success, &error);
-        logData.append(comment + "Communication success" + Util::getSeparatorCharacter() + QString::number(success) + "\n");
-        logData.append(comment + "Communication errors" + Util::getSeparatorCharacter() + QString::number(error) + "\n");
+        _pScope->communicationSettings(&success, &error);
+        logData.append(comment + "Communication success" + Util::separatorCharacter() + QString::number(success) + "\n");
+        logData.append(comment + "Communication errors" + Util::separatorCharacter() + QString::number(error) + "\n");
 
         logData.append("//\n");
 
@@ -349,7 +349,7 @@ void MainWindow::exportDataCsv(QString dataFile)
         for(quint32 i = 0; i < _pGuiModel->graphCount(); i++)
         {
             // Get headers
-            line.append(Util::getSeparatorCharacter() + _pGuiModel->graphLabel(i));
+            line.append(Util::separatorCharacter() + _pGuiModel->graphLabel(i));
 
             // Save data lists
             dataList.append(_pGraphView->graphData(i));
@@ -369,7 +369,7 @@ void MainWindow::exportDataCsv(QString dataFile)
             // Add formatted data (maximum 3 decimals, no trailing zeros)
             for(qint32 d = 0; d < dataList.size(); d++)
             {
-                line.append(Util::getSeparatorCharacter() + Util::formatDoubleForExport((dataList[d])[i].value));
+                line.append(Util::separatorCharacter() + Util::formatDoubleForExport((dataList[d])[i].value));
             }
             line.append("\n");
 
@@ -470,12 +470,12 @@ void MainWindow::startScope()
         _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
 
         QList<RegisterData> regList;
-        _pRegisterModel->getCheckedRegisterList(&regList);
+        _pRegisterModel->checkedRegisterList(&regList);
 
         if (_pScope->startCommunication(regList))
         {
             QList<RegisterData> regList;
-            _pRegisterModel->getCheckedRegisterList(&regList);
+            _pRegisterModel->checkedRegisterList(&regList);
 
             _pGuiModel->clearGraph();
             _pGuiModel->addGraphs(regList);
@@ -737,7 +737,7 @@ void MainWindow::yAxisScaleGroupClicked(int id)
 
 void MainWindow::updateRuntime()
 {
-    qint64 timePassed = QDateTime::currentMSecsSinceEpoch() - _pScope->getCommunicationStartTime();
+    qint64 timePassed = QDateTime::currentMSecsSinceEpoch() - _pScope->communicationStartTime();
 
     // Convert to s
     timePassed /= 1000;

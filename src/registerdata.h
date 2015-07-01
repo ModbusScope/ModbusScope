@@ -11,34 +11,34 @@ public:
 
     void CopyTo(RegisterData * pData);
 
-    bool getActive() const;
+    bool isActive() const;
     void setActive(bool value);
 
-    bool getUnsigned() const;
+    bool isUnsigned() const;
     void setUnsigned(bool value);
 
-    double getScaleFactor() const;
+    double scaleFactor() const;
     void setScaleFactor(double value);
 
-    quint16 getRegisterAddress() const;
+    quint16 registerAddress() const;
     void setRegisterAddress(const quint16 &value);
 
-    QString getText() const;
+    QString text() const;
     void setText(const QString &value);
 
-    QColor getColor() const;
+    QColor color() const;
     void setColor(const QColor &value);
 
     static bool sortRegisterDataList(const RegisterData& s1, const RegisterData& s2);
 
 private:
 
-    bool bActive;
-    bool bUnsigned;
-    double scaleFactor;
-    quint16 reg;
-    QString text;
-    QColor color;
+    bool _bActive;
+    bool _bUnsigned;
+    double _scaleFactor;
+    quint16 _reg;
+    QString _text;
+    QColor _color;
 };
 
 #endif // REGISTERDATA_H

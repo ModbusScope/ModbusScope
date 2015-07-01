@@ -2,87 +2,87 @@
 
 RegisterData::RegisterData()
 {
-    bActive = false;
-    bUnsigned = false;
-    scaleFactor = 1;
-    reg = 0;
-    text = "";
-    color = QColor("-1");
+    _bActive = false;
+    _bUnsigned = false;
+    _scaleFactor = 1;
+    _reg = 0;
+    _text = "";
+    _color = QColor("-1");
 }
 
 void RegisterData::CopyTo(RegisterData * pData)
 {
-    pData->setActive(this->getActive());
-    pData->setColor(this->getColor());
-    pData->setRegisterAddress(this->getRegisterAddress());
-    pData->setScaleFactor(this->getScaleFactor());
-    pData->setText(this->getText());
-    pData->setUnsigned(this->getUnsigned());
+    pData->setActive(this->isActive());
+    pData->setColor(this->color());
+    pData->setRegisterAddress(this->registerAddress());
+    pData->setScaleFactor(this->scaleFactor());
+    pData->setText(this->text());
+    pData->setUnsigned(this->isUnsigned());
 }
 
 
-bool RegisterData::getUnsigned() const
+bool RegisterData::isUnsigned() const
 {
-    return bUnsigned;
+    return _bUnsigned;
 }
 
 void RegisterData::setUnsigned(bool value)
 {
-    bUnsigned = value;
+    _bUnsigned = value;
 }
 
-double RegisterData::getScaleFactor() const
+double RegisterData::scaleFactor() const
 {
-    return scaleFactor;
+    return _scaleFactor;
 }
 
 void RegisterData::setScaleFactor(double value)
 {
-    scaleFactor = value;
+    _scaleFactor = value;
 }
 
-QString RegisterData::getText() const
+QString RegisterData::text() const
 {
-    return text;
+    return _text;
 }
 
 void RegisterData::setText(const QString &value)
 {
-    text = value;
+    _text = value;
 }
 
-QColor RegisterData::getColor() const
+QColor RegisterData::color() const
 {
-    return color;
+    return _color;
 }
 
 void RegisterData::setColor(const QColor &value)
 {
-    color = value;
+    _color = value;
 }
 
-quint16 RegisterData::getRegisterAddress() const
+quint16 RegisterData::registerAddress() const
 {
-    return reg;
+    return _reg;
 }
 
 void RegisterData::setRegisterAddress(const quint16 &value)
 {
-    reg = value;
+    _reg = value;
 }
 
-bool RegisterData::getActive() const
+bool RegisterData::isActive() const
 {
-    return bActive;
+    return _bActive;
 }
 
 void RegisterData::setActive(bool value)
 {
-    bActive = value;
+    _bActive = value;
 }
 
 bool RegisterData::sortRegisterDataList(const RegisterData& s1, const RegisterData& s2)
 {
-    return s1.getRegisterAddress() < s2.getRegisterAddress();
+    return s1.registerAddress() < s2.registerAddress();
 }
 

@@ -75,7 +75,7 @@ protected:
 private:
     QString createTickLabelString(qint32 tickKey);
     void highlightSamples(bool bState);
-    qint32 getGraphIndex(QCPGraph * pGraph);
+    qint32 graphIndex(QCPGraph * pGraph);
 
     QVector<QString> tickLabels;
 

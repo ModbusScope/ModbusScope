@@ -22,9 +22,9 @@ public:
 
     bool startCommunication(QList<RegisterData> registers);
     void stopCommunication();
-    qint64 getCommunicationStartTime();
-    qint64 getCommunicationEndTime();
-    void getCommunicationSettings(quint32 * successCount, quint32 * errorCount);
+    qint64 communicationStartTime();
+    qint64 communicationEndTime();
+    void communicationSettings(quint32 * successCount, quint32 * errorCount);
     bool isActive();
     void resetCommunicationStats();
 

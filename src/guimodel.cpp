@@ -86,11 +86,11 @@ void GuiModel::addGraphs(QList<RegisterData> registerList)
         GraphData * pGraphData = new GraphData();
 
         pGraphData->bVisibility = true;
-        pGraphData->label = registerList[idx].getText();;
+        pGraphData->label = registerList[idx].text();;
 
-        if (registerList[idx].getColor().isValid())
+        if (registerList[idx].color().isValid())
         {
-            pGraphData->color = registerList[idx].getColor();
+            pGraphData->color = registerList[idx].color();
         }
         else
         {
