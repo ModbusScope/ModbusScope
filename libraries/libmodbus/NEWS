@@ -1,14 +1,139 @@
-libmodbus 3.0.6 (2014-02-21)
+libmodbus 3.1.2 (2015-02-13)
 ============================
 
-- Backport fix remote buffer overflow vulnerability on write requests
-- Replace deprecated INCLUDES by AM_CPPFLAGS
+If you still want to listen any addresses in your TCP IPv4 server, you must now
+set the IP address to NULL in modbus_new_tcp before listening. Now,
+modbus_tcp_listen only listen the IP address set in the Modbus context (see
+documentation).
 
-libmodbus 3.0.5 (2013-10-06)
+This release introduces API changes on modbus_get_byte_timeout,
+modbus_get_response_timeout, modbus_set_byte_timeout,
+modbus_set_response_timeout to ease writing of language bindings.
+
+- Rewrite documentation building system
+- Fix timeouts in unit tests
+- Don't flush on illegal address errors in single write functions
+- Fix compilation on compilers not supporting c99 mode.
+  Thanks to Michael Heimpold.
+- Update license for the tests in Debian packaging (#221)
+- Move check of device earlier to avoid a free call
+- Unit test for baud rate check and error message.
+- Fix crash modbus_new_rtu when baud is 0.
+  Thank you to Daniel Schürmann.
+- Removed function prototype without implementation
+  Thank you Andrej Skvortzov.
+- Switch test programs to a BSD license
+- Fix remote buffer overflow vulnerability on write requests
+- Avoid twice connect() in source code (closes #194)
+- Fix compilation with MinGW (GCC 4.8.1) under Win7 (closes #163)
+  Thank you MarjanTomas and SwissKnife.
+- Fix TCP IPv4 modbus_connect() on win32 (closes #100 and #165)
+  Thank you Petr Gladkiy and Marjan Tomas.
+- Fix 24a05ebd3c0 - win32: init of modbus_tcp_pi_listen (#187)
+- INADDR_* macros are defined in host byte order
+- Filter of IP addresses in IPv4 server (closes #190)
+- Allow to listen any hosts in IPv6 (closes #32)
+- Define and public export of MODBUS_MAX_PDU_LENGTH (closes #167)
+- Truncate data from response in report_slave_id to new max arg (closes #167)
+- Fix response timeout modification on connect (closes #80)
+- New API to set/get response and byte timeouts.
+  New unit tests and updated documentation.
+- Export Modbus function codes supported by libmodbus
+- Fix bandwidth-server-one (closes #152)
+- Check debug flag in RTU code
+- Remove warnings caused by shadowed 'index' variable.
+  Thanks to Åke Forslund.
+- Use accept4 in TCP PI if available
+- Add documentation for tcp[_pi]_accept (closes #31)
+- Fix mistake in modbus_tcp_listen documentation
+- Add documentation for modbus_tcp_pi_listen
+- Fix for MinGW and Windows (#144, #169, #175, #180, #181, #187)
+  Thanks to Marjan Tomas.
+- Many other fixes (#134, #157, #158, #183, #184) and improvements.
+
+libmodbus 3.1.1 (2013-10-06)
 ============================
 
-- Fix remote buffer overflow vulnerability
-- Fix receiving of incorrect queries in write_single
+More robust to exploits, more compliant and better handling of connect/close
+sequences. Windows support still broken.
+
+- New unit tests
+- Fix remote buffer overflow vulnerability (closes #25, #105)
+- Explain how to define response timeouts when many RTU slaves
+- Fix receiving of incorrect queries in write_single and mask_write_register
+  Thanks to James Nutaro.
+- Check return value of autoreconf.
+  Thanks to Lauri Nurmi
+- Constant for broacast and test ordering
+- Fix the fix of device string check
+- Various changes to try to improve *broken* Windows support
+- Try to fix MinGW compilation
+- Portable use of bswap_32
+- Improve support of MacOS X
+- Fix socket value on init/close
+- Returns -1 on invalid mode in modbus_rtu_set_rts
+- Protect all public functions against invalid context
+- Sleep for delay of response timeout before reconnect (closes #77).
+  Thanks to Karl Palsson.
+- Baud rate until 4,000,000 (POSIX), 1,000,000 (Windows) (closes #93)
+- New modbus_get|set_float_dcba to get|set float in inversed byte order
+- Remove unsupported -Wtype-limits for GCC < 4.3.5 (closes #109)
+- Enable out-of-source build. Thanks to Yegor Yefremov.
+- Fix alignment problem on ARMv5 platform
+- Improvement to Debian package. Thanks to Alexander Klauer.
+- Improve support of VS 2005. Thanks to Petr Gladkiy.
+- Add documentation for modbus_mask_write_register (closes #91).
+  Thanks to Martijn de Gouw.
+- Avoid C99 declaration in win32 section code (closes #92).
+  Thanks to oldfaber and endrelovas.
+- Add a windows scripting host configure file.
+  Thanks to oldfaber and Stéphane Raimbault.
+- Fix typo in modbus_strerror documentation. Thanks to Mirko Rajkovaca.
+- Rename reserved C++ keywords of modbus_mask_write_register.
+  Thanks Tobias Doerffel.
+- Another quick workaround for deficient OS (closes #63)
+- Add support for Mask Write Register
+- Fix missing close on socket in random-test-server.
+  Thanks to Damian Zieliński.
+- Use nonblocking sockets on Win32 and OS X/iOS too.
+  Thanks to Julian Raschke.
+- Fix all compilations warnings spotted by new compilation flags
+- Major update of build system
+- Calculate RTS activation time by send length
+- Dynamic memory allocation of device name (closes #11)
+- Add unit tests for modbus_mapping_new
+- Add Visual Studio 2008 project files by oldfaber
+- Fix missing argument in synopsis section of modbus_rtu_set_serial_mode
+- Fix wrong constant names to create version number
+- More compilation fixes for Windows by oldfaber.
+- Fix wrong constant names to create version number.
+  Thanks to Denis Davydov.
+
+libmodbus 3.1.0 (2012-06-22)
+============================
+
+Major changes to handle many slaves in RTU mode, non blocking connections and
+RTS flow control.
+
+- Fixes for Microsoft Visual C++ compiler
+- Fixes for Windows. Thanks to oldfaber
+- Return value of _modbus_tcp_pi_connect() on failure (closes #61)
+- Avoid ioctl call on non-RS485 ports. Thanks to Michael Haberler
+- Display node and service in PI and port in IPv4 at connection
+- Return -1 on getaddrinfo error and print error in debug mode
+- More robust way to establish the connection in non blocking mode
+- TCP - Socket in non blocking mode by default. Thanks to Thomas Stalder
+- Apply CLOEXEC flag for TCP protocol independent too (IPv6)
+- New RTU receive() to ignore confirmation from other slaves (closes #18)
+- Move RTU filtering in CRC check to avoid useless call to modbus_reply
+- Unique transaction identifier by TCP connection
+- Use accept4 with SOCK_CLOEXEC when available (Linux)
+- Open fd and socket with the CLOEXEC flag when available
+- Exception response on report slave ID wasn't detected (closes #27)
+- Provides a way to disable the byte timeout (Alex Stapleton)
+- Added slave ID check for response messages (Alex Stapleton)
+- RTS flow control with modbus_rtu_set_rts and modbus_rtu_get_rts
+  functions by Torello Querci <tquerci@gmail.com> and Stéphane Raimbault.
 
 libmodbus 3.0.4 (2012-05-08)
 ============================

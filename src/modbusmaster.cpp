@@ -70,17 +70,15 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
         /* Set modbus slave */
         modbus_set_slave(pCtx, _pConnectionModel->slaveId());
 
-        struct timeval timeInterval;
-
         // Disable byte time-out
-        timeInterval.tv_sec = -1;
-        timeInterval.tv_usec = 0;
-        modbus_set_byte_timeout(pCtx, &timeInterval);
+        uint32_t sec = -1;
+        uint32_t usec = 0;
+        modbus_set_byte_timeout(pCtx, sec, usec);
 
         // Set response timeout
-        timeInterval.tv_sec = _pConnectionModel->timeout() / 1000;
-        timeInterval.tv_usec = (_pConnectionModel->timeout() % 1000) * 1000uL;
-        modbus_set_response_timeout(pCtx, &timeInterval);
+        sec = _pConnectionModel->timeout() / 1000;
+        usec = (_pConnectionModel->timeout() % 1000) * 1000uL;
+        modbus_set_response_timeout(pCtx, sec, usec);
 
         // Do optimized reads
         qint32 regIndex = 0;

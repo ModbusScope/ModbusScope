@@ -1,27 +1,23 @@
 /*
- * Copyright © 2008-2010 Stéphane Raimbault <stephane.raimbault@gmail.com>
+ * Copyright © 2008-2014 Stéphane Raimbault <stephane.raimbault@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * it under the terms of the BSD License.
  */
 
 #include <stdio.h>
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
 
 #include <modbus.h>
+
+#if defined(_WIN32)
+#define close closesocket
+#endif
 
 enum {
     TCP,
@@ -30,9 +26,9 @@ enum {
 
 int main(int argc, char *argv[])
 {
-    int socket;
-    modbus_t *ctx;
-    modbus_mapping_t *mb_mapping;
+    int s = -1;
+    modbus_t *ctx = NULL;
+    modbus_mapping_t *mb_mapping = NULL;
     int rc;
     int use_backend;
 
@@ -53,8 +49,8 @@ int main(int argc, char *argv[])
 
     if (use_backend == TCP) {
         ctx = modbus_new_tcp("127.0.0.1", 1502);
-        socket = modbus_tcp_listen(ctx, 1);
-        modbus_tcp_accept(ctx, &socket);
+        s = modbus_tcp_listen(ctx, 1);
+        modbus_tcp_accept(ctx, &s);
 
     } else {
         ctx = modbus_new_rtu("/dev/ttyUSB0", 115200, 'N', 8, 1);
@@ -75,10 +71,10 @@ int main(int argc, char *argv[])
         uint8_t query[MODBUS_TCP_MAX_ADU_LENGTH];
 
         rc = modbus_receive(ctx, query);
-        if (rc >= 0) {
+        if (rc > 0) {
             modbus_reply(ctx, query, rc, mb_mapping);
-        } else {
-            /* Connection closed by the client or server */
+        } else if (rc  == -1) {
+            /* Connection closed by the client or error */
             break;
         }
     }
@@ -86,7 +82,11 @@ int main(int argc, char *argv[])
     printf("Quit the loop: %s\n", modbus_strerror(errno));
 
     modbus_mapping_free(mb_mapping);
-    close(socket);
+    if (s != -1) {
+        close(s);
+    }
+    /* For RTU, skipped by TCP (no TCP connect) */
+    modbus_close(ctx);
     modbus_free(ctx);
 
     return 0;
