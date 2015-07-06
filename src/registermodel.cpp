@@ -93,9 +93,9 @@ QVariant RegisterModel::headerData(int section, Qt::Orientation orientation, int
             switch (section)
             {
             case 0:
-                return QString("");
+                return QString("Active");
             case 1:
-                return QString("u");
+                return QString("Unsigned");
             case 2:
                 return QString("Register");
             case 3:

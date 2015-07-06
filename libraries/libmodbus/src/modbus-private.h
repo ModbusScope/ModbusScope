@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef _MODBUS_PRIVATE_H_
-#define _MODBUS_PRIVATE_H_
+#ifndef MODBUS_PRIVATE_H
+#define MODBUS_PRIVATE_H
 
 #ifndef _MSC_VER
 # include <stdint.h>
@@ -28,12 +28,7 @@
 typedef int ssize_t;
 #endif
 #include <sys/types.h>
-
-#if defined(_WIN32)
-#include <config_win32.h>
-#else
 #include <config.h>
-#endif
 
 #include "modbus.h"
 
@@ -56,23 +51,22 @@ MODBUS_BEGIN_DECLS
 #define _RESPONSE_TIMEOUT    500000
 #define _BYTE_TIMEOUT        500000
 
-/* Function codes */
-#define _FC_READ_COILS                0x01
-#define _FC_READ_DISCRETE_INPUTS      0x02
-#define _FC_READ_HOLDING_REGISTERS    0x03
-#define _FC_READ_INPUT_REGISTERS      0x04
-#define _FC_WRITE_SINGLE_COIL         0x05
-#define _FC_WRITE_SINGLE_REGISTER     0x06
-#define _FC_READ_EXCEPTION_STATUS     0x07
-#define _FC_WRITE_MULTIPLE_COILS      0x0F
-#define _FC_WRITE_MULTIPLE_REGISTERS  0x10
-#define _FC_REPORT_SLAVE_ID           0x11
-#define _FC_WRITE_AND_READ_REGISTERS  0x17
-
 typedef enum {
     _MODBUS_BACKEND_TYPE_RTU=0,
     _MODBUS_BACKEND_TYPE_TCP
-} modbus_bakend_type_t;
+} modbus_backend_type_t;
+
+/*
+ *  ---------- Request     Indication ----------
+ *  | Client | ---------------------->| Server |
+ *  ---------- Confirmation  Response ----------
+ */
+typedef enum {
+    /* Request message on the server side */
+    MSG_INDICATION,
+    /* Request message on the client side */
+    MSG_CONFIRMATION
+} msg_type_t;
 
 /* This structure reduces the number of params in functions and so
  * optimizes the speed of execution (~ 37%). */
@@ -94,6 +88,7 @@ typedef struct _modbus_backend {
     int (*prepare_response_tid) (const uint8_t *req, int *req_length);
     int (*send_msg_pre) (uint8_t *req, int req_length);
     ssize_t (*send) (modbus_t *ctx, const uint8_t *req, int req_length);
+    int (*receive) (modbus_t *ctx, uint8_t *req);
     ssize_t (*recv) (modbus_t *ctx, uint8_t *rsp, int rsp_length);
     int (*check_integrity) (modbus_t *ctx, uint8_t *msg,
                             const int msg_length);
@@ -102,8 +97,8 @@ typedef struct _modbus_backend {
     int (*connect) (modbus_t *ctx);
     void (*close) (modbus_t *ctx);
     int (*flush) (modbus_t *ctx);
-    int (*select) (modbus_t *ctx, fd_set *rfds, struct timeval *tv, int msg_length);
-    int (*filter_request) (modbus_t *ctx, int slave);
+    int (*select) (modbus_t *ctx, fd_set *rset, struct timeval *tv, int msg_length);
+    void (*free) (modbus_t *ctx);
 } modbus_backend_t;
 
 struct _modbus {
@@ -121,6 +116,7 @@ struct _modbus {
 
 void _modbus_init_common(modbus_t *ctx);
 void _error_print(modbus_t *ctx, const char *context);
+int _modbus_receive_msg(modbus_t *ctx, uint8_t *msg, msg_type_t msg_type);
 
 #ifndef HAVE_STRLCPY
 size_t strlcpy(char *dest, const char *src, size_t dest_size);
@@ -128,4 +124,4 @@ size_t strlcpy(char *dest, const char *src, size_t dest_size);
 
 MODBUS_END_DECLS
 
-#endif  /* _MODBUS_PRIVATE_H_ */
+#endif  /* MODBUS_PRIVATE_H */

@@ -1,18 +1,8 @@
 /*
- * Copyright © 2008-2010 Stéphane Raimbault <stephane.raimbault@gmail.com>
+ * Copyright © 2008-2014 Stéphane Raimbault <stephane.raimbault@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * it under the terms of the BSD License.
  */
 
 #include <stdio.h>
@@ -21,6 +11,16 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <modbus.h>
+#ifdef _WIN32
+# include <winsock2.h>
+#else
+# include <sys/socket.h>
+#endif
+
+/* For MinGW */
+#ifndef MSG_NOSIGNAL
+# define MSG_NOSIGNAL 0
+#endif
 
 #include "unit-test.h"
 
@@ -32,7 +32,7 @@ enum {
 
 int main(int argc, char*argv[])
 {
-    int socket;
+    int s = -1;
     modbus_t *ctx;
     modbus_mapping_t *mb_mapping;
     int rc;
@@ -84,6 +84,32 @@ int main(int argc, char*argv[])
         return -1;
     }
 
+    /* Unit tests of modbus_mapping_new (tests would not be sufficient if two
+       nb_* were identical) */
+    if (mb_mapping->nb_bits != UT_BITS_ADDRESS + UT_BITS_NB) {
+        printf("Invalid nb bits (%d != %d)\n", UT_BITS_ADDRESS + UT_BITS_NB, mb_mapping->nb_bits);
+        modbus_free(ctx);
+        return -1;
+    }
+
+    if (mb_mapping->nb_input_bits != UT_INPUT_BITS_ADDRESS + UT_INPUT_BITS_NB) {
+        printf("Invalid nb input bits: %d\n", UT_INPUT_BITS_ADDRESS + UT_INPUT_BITS_NB);
+        modbus_free(ctx);
+        return -1;
+    }
+
+    if (mb_mapping->nb_registers != UT_REGISTERS_ADDRESS + UT_REGISTERS_NB) {
+        printf("Invalid nb registers: %d\n", UT_REGISTERS_ADDRESS + UT_REGISTERS_NB);
+        modbus_free(ctx);
+        return -1;
+    }
+
+    if (mb_mapping->nb_input_registers != UT_INPUT_REGISTERS_ADDRESS + UT_INPUT_REGISTERS_NB) {
+        printf("Invalid nb input registers: %d\n", UT_INPUT_REGISTERS_ADDRESS + UT_INPUT_REGISTERS_NB);
+        modbus_free(ctx);
+        return -1;
+    }
+
     /* Examples from PI_MODBUS_300.pdf.
        Only the read-only input values are assigned. */
 
@@ -99,11 +125,11 @@ int main(int argc, char*argv[])
     }
 
     if (use_backend == TCP) {
-        socket = modbus_tcp_listen(ctx, 1);
-        modbus_tcp_accept(ctx, &socket);
+        s = modbus_tcp_listen(ctx, 1);
+        modbus_tcp_accept(ctx, &s);
     } else if (use_backend == TCP_PI) {
-        socket = modbus_tcp_pi_listen(ctx, 1);
-        modbus_tcp_pi_accept(ctx, &socket);
+        s = modbus_tcp_pi_listen(ctx, 1);
+        modbus_tcp_pi_accept(ctx, &s);
     } else {
         rc = modbus_connect(ctx);
         if (rc == -1) {
@@ -114,24 +140,64 @@ int main(int argc, char*argv[])
     }
 
     for (;;) {
-        rc = modbus_receive(ctx, query);
-        if (rc == -1) {
-            /* Connection closed by the client or error */
+        do {
+            rc = modbus_receive(ctx, query);
+            /* Filtered queries return 0 */
+        } while (rc == 0);
+
+        /* The connection is not closed on errors which require on reply such as
+           bad CRC in RTU. */
+        if (rc == -1 && errno != EMBBADCRC) {
+            /* Quit */
             break;
         }
 
-        /* Read holding registers */
+        /* Special server behavior to test client */
         if (query[header_length] == 0x03) {
+            /* Read holding registers */
+
             if (MODBUS_GET_INT16_FROM_INT8(query, header_length + 3)
                 == UT_REGISTERS_NB_SPECIAL) {
                 printf("Set an incorrect number of values\n");
                 MODBUS_SET_INT16_TO_INT8(query, header_length + 3,
                                          UT_REGISTERS_NB_SPECIAL - 1);
             } else if (MODBUS_GET_INT16_FROM_INT8(query, header_length + 1)
-                == UT_REGISTERS_ADDRESS_SPECIAL) {
+                       == UT_REGISTERS_ADDRESS_SPECIAL) {
                 printf("Reply to this special register address by an exception\n");
                 modbus_reply_exception(ctx, query,
                                        MODBUS_EXCEPTION_SLAVE_OR_SERVER_BUSY);
+                continue;
+            } else if (MODBUS_GET_INT16_FROM_INT8(query, header_length + 1)
+                       == UT_REGISTERS_ADDRESS_INVALID_TID_OR_SLAVE) {
+                const int RAW_REQ_LENGTH = 5;
+                uint8_t raw_req[] = {
+                    (use_backend == RTU) ? INVALID_SERVER_ID : 0xFF,
+                    0x03,
+                    0x02, 0x00, 0x00
+                };
+
+                printf("Reply with an invalid TID or slave\n");
+                modbus_send_raw_request(ctx, raw_req, RAW_REQ_LENGTH * sizeof(uint8_t));
+                continue;
+            } else if (MODBUS_GET_INT16_FROM_INT8(query, header_length + 1)
+                       == UT_REGISTERS_ADDRESS_SLEEP_500_MS) {
+                printf("Sleep 0.5 s before replying\n");
+                usleep(500000);
+            } else if (MODBUS_GET_INT16_FROM_INT8(query, header_length + 1)
+                       == UT_REGISTERS_ADDRESS_BYTE_SLEEP_5_MS) {
+                /* Test low level only available in TCP mode */
+                /* Catch the reply and send reply byte a byte */
+                uint8_t req[] = "\x00\x1C\x00\x00\x00\x05\xFF\x03\x02\x00\x00";
+                int req_length = 11;
+                int w_s = modbus_get_socket(ctx);
+
+                /* Copy TID */
+                req[1] = query[1];
+                for (i=0; i < req_length; i++) {
+                    printf("(%.2X)", req[i]);
+                    usleep(5000);
+                    send(w_s, (const char*)(req + i), 1, MSG_NOSIGNAL);
+                }
                 continue;
             }
         }
@@ -145,10 +211,14 @@ int main(int argc, char*argv[])
     printf("Quit the loop: %s\n", modbus_strerror(errno));
 
     if (use_backend == TCP) {
-        close(socket);
+        if (s != -1) {
+            close(s);
+        }
     }
     modbus_mapping_free(mb_mapping);
     free(query);
+    /* For RTU */
+    modbus_close(ctx);
     modbus_free(ctx);
 
     return 0;

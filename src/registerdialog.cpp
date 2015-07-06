@@ -13,8 +13,13 @@ RegisterDialog::RegisterDialog(RegisterModel * pRegisterModel, QWidget *parent) 
     _pUi->registerView->setModel(_pRegisterModel);
     _pUi->registerView->verticalHeader()->hide();
 
-    _pUi->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    _pUi->registerView->horizontalHeader()->setStretchLastSection(true);
+    /* Stretch all columns */
+    _pUi->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+    /* Except following columns */
+    //_pUi->registerView->horizontalHeader()->set(0, QHeaderView::ResizeToContents);
+    _pUi->registerView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    _pUi->registerView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 
     // Select using click, shift and control
     _pUi->registerView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -39,8 +44,6 @@ void RegisterDialog::addRegisterRow()
 
 void RegisterDialog::updateColumns()
 {
-    // make registerview resize to content
-    _pUi->registerView->resizeColumnsToContents();
 }
 
 void RegisterDialog::removeRegisterRow()
