@@ -2,7 +2,7 @@
 #define REGISTERMODEL_H
 
 #include <QAbstractTableModel>
-#include "scopedata.h"
+#include "communicationmanager.h"
 #include "registerdata.h"
 
 class RegisterModel : public QAbstractTableModel

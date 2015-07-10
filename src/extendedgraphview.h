@@ -5,14 +5,14 @@
 #include "basicgraphview.h"
 
 /* Forward declaration */
-class ScopeData;
+class CommunicationManager;
 
 class ExtendedGraphView : public BasicGraphView
 {
     Q_OBJECT
 
 public:
-    ExtendedGraphView(ScopeData * pScope, GuiModel *pGuiModel, QCustomPlot *pPlot, QObject *parent);
+    ExtendedGraphView(CommunicationManager * pConnMan, GuiModel *pGuiModel, QCustomPlot *pPlot, QObject *parent);
     virtual ~ExtendedGraphView();
 
     QList<double> graphTimeData();
@@ -31,7 +31,7 @@ private slots:
 
 private:
 
-    ScopeData * _pScope;
+    CommunicationManager * _pConnMan;
 
 };
 

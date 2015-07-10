@@ -40,7 +40,6 @@ SOURCES +=  \
     ../libraries/libmodbus/src/modbus.c \
     ../libraries/libmodbus/src/modbus-tcp.c \
     ../libraries/qcustomplot/qcustomplot.cpp \
-    ../src/scopedata.cpp \
     ../src/projectfileparser.cpp \
     ../src/registermodel.cpp \
     ../src/datafileparser.cpp \
@@ -50,7 +49,8 @@ SOURCES +=  \
     ../src/connectionmodel.cpp \
     ../src/basicgraphview.cpp \
     ../src/extendedgraphview.cpp \
-    ../src/guimodel.cpp
+    ../src/guimodel.cpp \
+    ../src/communicationmanager.cpp
 
 FORMS    += \
     ../src/mainwindow.ui \
@@ -66,7 +66,6 @@ HEADERS += \
     ../libraries/libmodbus/src/modbus-tcp.h \
     ../libraries/libmodbus/src/modbus-tcp-private.h \
     ../libraries/qcustomplot/qcustomplot.h \
-    ../src/scopedata.h \
     ../src/projectfileparser.h \
     ../src/registermodel.h \
     ../src/datafileparser.h \
@@ -78,4 +77,5 @@ HEADERS += \
     ../src/basicgraphview.h \
     ../src/extendedgraphview.h \
     ../src/guimodel.h \
-    ../src/graphdata.h
+    ../src/graphdata.h \
+    ../src/communicationmanager.h

@@ -2,9 +2,9 @@
 #include <QDateTime>
 
 #include "modbusmaster.h"
-#include "scopedata.h"
+#include "communicationmanager.h"
 
-ScopeData::ScopeData(ConnectionModel * pConnectionModel, QObject *parent) :
+CommunicationManager::CommunicationManager(ConnectionModel * pConnectionModel, QObject *parent) :
     QObject(parent), _active(false), _successCount(0), _errorCount(0)
 {
 
@@ -31,7 +31,7 @@ ScopeData::ScopeData(ConnectionModel * pConnectionModel, QObject *parent) :
     connect(_master, SIGNAL(modbusCommDone(quint32, quint32)), this, SLOT(processCommStats(quint32, quint32)));
 }
 
-ScopeData::~ScopeData()
+CommunicationManager::~CommunicationManager()
 {
     emit requestStop();
 
@@ -43,7 +43,7 @@ ScopeData::~ScopeData()
     delete _pPollTimer;
 }
 
-bool ScopeData::startCommunication(QList<RegisterData> registers)
+bool CommunicationManager::startCommunication(QList<RegisterData> registers)
 {
     bool bResetted = false;
 
@@ -64,7 +64,7 @@ bool ScopeData::startCommunication(QList<RegisterData> registers)
     return bResetted;
 }
 
-void ScopeData::resetCommunicationStats()
+void CommunicationManager::resetCommunicationStats()
 {
     if (_active)
     {
@@ -77,7 +77,7 @@ void ScopeData::resetCommunicationStats()
     }
 }
 
-void ScopeData::processCommStats(quint32 success,quint32 error)
+void CommunicationManager::processCommStats(quint32 success,quint32 error)
 {
     _successCount += success;
     _errorCount += error;
@@ -85,7 +85,7 @@ void ScopeData::processCommStats(quint32 success,quint32 error)
     emit triggerStatUpdate(_successCount, _errorCount);
 }
 
-void ScopeData::handlePollDone(QList<bool> successList, QList<quint16> values)
+void CommunicationManager::handlePollDone(QList<bool> successList, QList<quint16> values)
 {
     // Restart timer when previous request has been handled
     uint waitInterval;
@@ -126,39 +126,39 @@ void ScopeData::handlePollDone(QList<bool> successList, QList<quint16> values)
 }
 
 
-void ScopeData::masterStopped()
+void CommunicationManager::masterStopped()
 {
     _master = NULL;
 }
 
-void ScopeData::stopCommunication()
+void CommunicationManager::stopCommunication()
 {
     _active = false;
     _endTime = QDateTime::currentMSecsSinceEpoch();
 }
 
-qint64 ScopeData::communicationStartTime()
+qint64 CommunicationManager::communicationStartTime()
 {
     return _startTime;
 }
 
-qint64 ScopeData::communicationEndTime()
+qint64 CommunicationManager::communicationEndTime()
 {
     return _endTime;
 }
 
-void ScopeData::communicationSettings(quint32 * successCount, quint32 * errorCount)
+void CommunicationManager::communicationSettings(quint32 * successCount, quint32 * errorCount)
 {
     *successCount = _successCount;
     *errorCount = _errorCount;
 }
 
-bool ScopeData::isActive()
+bool CommunicationManager::isActive()
 {
     return _active;
 }
 
-void ScopeData::readData()
+void CommunicationManager::readData()
 {
     if(_active)
     {

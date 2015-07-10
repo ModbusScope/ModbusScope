@@ -15,7 +15,7 @@ class MainWindow;
 }
 
 // Forward declaration
-class ScopeData;
+class CommunicationManager;
 class QCustomPlot;
 class RegisterModel;
 class RegisterDialog;
@@ -98,7 +98,7 @@ private:
     void writeToFile(QString filePath, QString logData);
 
     Ui::MainWindow * _pUi;
-    ScopeData * _pScope;
+    CommunicationManager * _pConnMan;
     ExtendedGraphView * _pGraphView;
 
     ConnectionModel * _pConnectionModel;

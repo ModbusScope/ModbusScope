@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "qcustomplot.h"
-#include "scopedata.h"
+#include "communicationmanager.h"
 #include "registerdata.h"
 #include "registermodel.h"
 #include "registerdialog.h"
@@ -33,8 +33,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pRegisterModel = new RegisterModel();
     _pRegisterDialog = new RegisterDialog(_pRegisterModel);
 
-    _pScope = new ScopeData(_pConnectionModel);
-    _pGraphView = new ExtendedGraphView(_pScope, _pGuiModel, _pUi->customPlot, this);
+    _pConnMan = new CommunicationManager(_pConnectionModel);
+    _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pUi->customPlot, this);
 
     /*-- Connect menu actions --*/
     connect(_pUi->actionStart, SIGNAL(triggered()), this, SLOT(startScope()));
@@ -143,8 +143,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
     _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
 
-    connect(_pScope, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pGraphView, SLOT(plotResults(QList<bool>, QList<double>)));
-    connect(_pScope, SIGNAL(triggerStatUpdate(quint32, quint32)), this, SLOT(updateStats(quint32, quint32)));
+    connect(_pConnMan, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pGraphView, SLOT(plotResults(QList<bool>, QList<double>)));
+    connect(_pConnMan, SIGNAL(triggerStatUpdate(quint32, quint32)), this, SLOT(updateStats(quint32, quint32)));
 
     /* Update interface via model */
     _pGuiModel->triggerUpdate();
@@ -163,7 +163,7 @@ MainWindow::~MainWindow()
     delete _pRegisterDialog;
     delete _pRegisterModel;
     delete _pConnectionModel;
-    delete _pScope;
+    delete _pConnMan;
     delete _pGraphShowHide;
     delete _pGraphBringToFront;
     delete _pUi;
@@ -278,11 +278,11 @@ void MainWindow::exportDataCsv(QString dataFile)
         logData.append(comment + "ModbusScope version" + Util::separatorCharacter() + QString(APP_VERSION) + "\n");
 
         // Save start time
-        dt = QDateTime::fromMSecsSinceEpoch(_pScope->communicationStartTime());
+        dt = QDateTime::fromMSecsSinceEpoch(_pConnMan->communicationStartTime());
         logData.append(comment + "Start time" + Util::separatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
 
         // Save end time
-        dt = QDateTime::fromMSecsSinceEpoch(_pScope->communicationEndTime());
+        dt = QDateTime::fromMSecsSinceEpoch(_pConnMan->communicationEndTime());
         logData.append(comment + "End time" + Util::separatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
 
         // Export communication settings
@@ -293,7 +293,7 @@ void MainWindow::exportDataCsv(QString dataFile)
 
         quint32 success;
         quint32 error;
-        _pScope->communicationSettings(&success, &error);
+        _pConnMan->communicationSettings(&success, &error);
         logData.append(comment + "Communication success" + Util::separatorCharacter() + QString::number(success) + "\n");
         logData.append(comment + "Communication errors" + Util::separatorCharacter() + QString::number(error) + "\n");
 
@@ -415,7 +415,7 @@ void MainWindow::changeLegendPosition(QAction* pAction)
 
 void MainWindow::clearData()
 {
-    _pScope->resetCommunicationStats();
+    _pConnMan->resetCommunicationStats();
     _pGraphView->clearResults();
 }
 
@@ -433,7 +433,7 @@ void MainWindow::startScope()
         QList<RegisterData> regList;
         _pRegisterModel->checkedRegisterList(&regList);
 
-        if (_pScope->startCommunication(regList))
+        if (_pConnMan->startCommunication(regList))
         {
             QList<RegisterData> regList;
             _pRegisterModel->checkedRegisterList(&regList);
@@ -463,7 +463,7 @@ void MainWindow::startScope()
 
 void MainWindow::stopScope()
 {
-    _pScope->stopCommunication();
+    _pConnMan->stopCommunication();
 
     _pGuiModel->setCommunicationState(GuiModel::STOPPED);
 }
@@ -725,7 +725,7 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *e)
 
 void MainWindow::dropEvent(QDropEvent *e)
 {
-    if (!_pScope->isActive())
+    if (!_pConnMan->isActive())
     {
         const QString filename(e->mimeData()->urls().last().toLocalFile());
         QFileInfo fileInfo(filename);
@@ -756,7 +756,7 @@ void MainWindow::yAxisScaleGroupClicked(int id)
 
 void MainWindow::updateRuntime()
 {
-    qint64 timePassed = QDateTime::currentMSecsSinceEpoch() - _pScope->communicationStartTime();
+    qint64 timePassed = QDateTime::currentMSecsSinceEpoch() - _pConnMan->communicationStartTime();
 
     // Convert to s
     timePassed /= 1000;
@@ -774,7 +774,7 @@ void MainWindow::updateRuntime()
     _pStatusRuntime->setText(_cRuntime.arg(strTimePassed));
 
     // restart timer
-    if (_pScope->isActive())
+    if (_pConnMan->isActive())
     {
         _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
     }

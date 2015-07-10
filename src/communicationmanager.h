@@ -1,5 +1,5 @@
-#ifndef MODBUSSCOPE_H
-#define MODBUSSCOPE_H
+#ifndef COMMUNICATION_MANAGER_H
+#define COMMUNICATION_MANAGER_H
 
 #include <QObject>
 #include <QList>
@@ -13,12 +13,12 @@
 class ModbusMaster;
 class QTimer;
 
-class ScopeData : public QObject
+class CommunicationManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit ScopeData(ConnectionModel * pConnectionModel, QObject *parent = 0);
-    ~ScopeData();
+    explicit CommunicationManager(ConnectionModel * pConnectionModel, QObject *parent = 0);
+    ~CommunicationManager();
 
     bool startCommunication(QList<RegisterData> registers);
     void stopCommunication();
@@ -59,4 +59,4 @@ private:
     QList<RegisterData> _registerlist;
 };
 
-#endif // MODBUSSCOPE_H
+#endif // COMMUNICATION_MANAGER_H

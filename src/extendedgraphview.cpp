@@ -2,14 +2,14 @@
 #include "util.h"
 #include "guimodel.h"
 #include "extendedgraphview.h"
-#include "scopedata.h"
+#include "communicationmanager.h"
 
-ExtendedGraphView::ExtendedGraphView(ScopeData * pScope, GuiModel * pGuiModel, QCustomPlot * pPlot, QObject *parent):
+ExtendedGraphView::ExtendedGraphView(CommunicationManager * pConnMan, GuiModel * pGuiModel, QCustomPlot * pPlot, QObject *parent):
     BasicGraphView(pGuiModel, pPlot)
 {
     Q_UNUSED(parent);
 
-    _pScope = pScope;
+    _pConnMan = pConnMan;
 
     connect(_pPlot->xAxis, SIGNAL(rangeChanged(QCPRange, QCPRange)), this, SLOT(xAxisRangeChanged(QCPRange, QCPRange)));
 
@@ -39,7 +39,7 @@ void ExtendedGraphView::addData(QList<double> timeData, QList<QList<double> > da
 
 void ExtendedGraphView::plotResults(QList<bool> successList, QList<double> valueList)
 {
-    const quint64 diff = QDateTime::currentMSecsSinceEpoch() - _pScope->communicationStartTime();
+    const quint64 diff = QDateTime::currentMSecsSinceEpoch() - _pConnMan->communicationStartTime();
 
     for (qint32 i = 0; i < valueList.size(); i++)
     {
