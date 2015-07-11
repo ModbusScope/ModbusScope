@@ -79,3 +79,6 @@ HEADERS += \
     ../src/guimodel.h \
     ../src/graphdata.h \
     ../src/communicationmanager.h
+
+RESOURCES += \
+    ../resources/resource.qrc

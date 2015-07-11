@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/menu_icon">
+        <file>menu_icon/icons/control_play_blue.png</file>
+        <file>menu_icon/icons/control_stop_blue.png</file>
+        <file>menu_icon/icons/folder.png</file>
+        <file>menu_icon/icons/folder_page.png</file>
+        <file>menu_icon/icons/link_edit.png</file>
+        <file>menu_icon/icons/picture_go.png</file>
+        <file>menu_icon/icons/table_edit.png</file>
+        <file>menu_icon/icons/table_go.png</file>
+        <file>menu_icon/icons/book_open.png</file>
+    </qresource>
+</RCC>
