@@ -37,6 +37,11 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
     _communicationState = INIT;
     _windowTitle = _cWindowTitle;
 
+    _startTime = 0;
+    _endTime = 0;
+    _successCount = 0;
+    _errorCount = 0;
+
     QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
     if (docPath.size() > 0)
     {
@@ -69,6 +74,7 @@ void GuiModel::triggerUpdate(void)
     emit highlightSamplesChanged();
     emit valueTooltipChanged();
     emit windowTitleChanged();
+    emit communicationStatsChanged();
 
     emit graphCleared();
     emit legendVisibilityChanged();
@@ -419,6 +425,29 @@ void GuiModel::setCommunicationEndTime(qint64 endTime)
     {
         _endTime = endTime;
         // No signal yet
+    }
+}
+
+quint32 GuiModel::communicationErrorCount()
+{
+    return _errorCount;
+}
+
+quint32 GuiModel::communicationSuccessCount()
+{
+    return _successCount;
+}
+
+void GuiModel::setCommunicationStats(quint32 successCount, quint32 errorCount)
+{
+    if (
+        (_successCount != successCount)
+        || (_errorCount != errorCount)
+        )
+    {
+        _successCount = successCount;
+        _errorCount = errorCount;
+        emit communicationStatsChanged();
     }
 }
 

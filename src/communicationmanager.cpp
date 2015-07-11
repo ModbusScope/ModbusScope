@@ -6,7 +6,7 @@
 #include "guimodel.h"
 
 CommunicationManager::CommunicationManager(ConnectionModel * pConnectionModel, GuiModel *pGuiModel, QObject *parent) :
-    QObject(parent), _active(false), _successCount(0), _errorCount(0)
+    QObject(parent), _active(false)
 {
 
     _pPollTimer = new QTimer();
@@ -19,7 +19,7 @@ CommunicationManager::CommunicationManager(ConnectionModel * pConnectionModel, G
     _registerlist.clear();
 
     /* Setup modbus master */
-    _master = new ModbusMaster(pConnectionModel);
+    _master = new ModbusMaster(pConnectionModel, _pGuiModel);
 
     connect(this, SIGNAL(requestStop()), _master, SLOT(stopThread()));
 
@@ -30,7 +30,6 @@ CommunicationManager::CommunicationManager(ConnectionModel * pConnectionModel, G
 
     connect(this, SIGNAL(registerRequest(QList<quint16>)), _master, SLOT(readRegisterList(QList<quint16>)));
     connect(_master, SIGNAL(modbusPollDone(QList<bool>, QList<quint16>)), this, SLOT(handlePollDone(QList<bool>, QList<quint16>)));
-    connect(_master, SIGNAL(modbusCommDone(quint32, quint32)), this, SLOT(processCommStats(quint32, quint32)));
 }
 
 CommunicationManager::~CommunicationManager()
@@ -70,21 +69,11 @@ void CommunicationManager::resetCommunicationStats()
 {
     if (_active)
     {
-        _successCount = 0;
-        _errorCount = 0;
-        emit triggerStatUpdate(_successCount, _errorCount);
+        _pGuiModel->setCommunicationStats(0, 0);
 
         _lastPollStart = QDateTime::currentMSecsSinceEpoch();
         _pGuiModel->setCommunicationStartTime(QDateTime::currentMSecsSinceEpoch());
     }
-}
-
-void CommunicationManager::processCommStats(quint32 success,quint32 error)
-{
-    _successCount += success;
-    _errorCount += error;
-
-    emit triggerStatUpdate(_successCount, _errorCount);
 }
 
 void CommunicationManager::handlePollDone(QList<bool> successList, QList<quint16> values)
@@ -137,12 +126,6 @@ void CommunicationManager::stopCommunication()
 {
     _active = false;
     _pGuiModel->setCommunicationEndTime(QDateTime::currentMSecsSinceEpoch());
-}
-
-void CommunicationManager::communicationSettings(quint32 * successCount, quint32 * errorCount)
-{
-    *successCount = _successCount;
-    *errorCount = _errorCount;
 }
 
 bool CommunicationManager::isActive()

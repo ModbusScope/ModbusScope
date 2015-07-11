@@ -47,6 +47,8 @@ public:
     quint32 communicationState();
     qint64 communicationStartTime();
     qint64 communicationEndTime();
+    quint32 communicationErrorCount();
+    quint32 communicationSuccessCount();
 
     void setProjectFilePath(QString path);
     void setDataFilePath(QString path);
@@ -70,6 +72,7 @@ public slots:
     void setCommunicationState(quint32 state);
     void setCommunicationStartTime(qint64 startTime);
     void setCommunicationEndTime(qint64 endTime);
+    void setCommunicationStats(quint32 successCount, quint32 errorCount);
 
 signals:
 
@@ -90,6 +93,7 @@ signals:
     void communicationStateChanged();
     void projectFilePathChanged();
     void dataFilePathChanged();
+    void communicationStatsChanged();
 
 private slots:
 
@@ -114,6 +118,8 @@ private:
 
     qint64 _startTime;
     qint64 _endTime;
+    quint32 _successCount;
+    quint32 _errorCount;
 
     QString _projectFilePath;
     QString _dataFilePath;

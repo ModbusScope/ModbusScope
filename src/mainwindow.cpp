@@ -85,6 +85,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGuiModel, SIGNAL(yAxisScalingChanged()), _pGraphView, SLOT(rescalePlot()));
     connect(_pGuiModel, SIGNAL(yAxisMinMaxchanged()), this, SLOT(updateyAxisMinMax()));
     connect(_pGuiModel, SIGNAL(yAxisMinMaxchanged()), _pGraphView, SLOT(rescalePlot()));
+    connect(_pGuiModel, SIGNAL(communicationStatsChanged()), this, SLOT(updateStats()));
 
     _pGraphShowHide = _pUi->menuShowHide;
     _pGraphBringToFront = _pUi->menuBringToFront;
@@ -144,7 +145,6 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
 
     connect(_pConnMan, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pGraphView, SLOT(plotResults(QList<bool>, QList<double>)));
-    connect(_pConnMan, SIGNAL(triggerStatUpdate(quint32, quint32)), this, SLOT(updateStats(quint32, quint32)));
 
     /* Update interface via model */
     _pGuiModel->triggerUpdate();
@@ -167,12 +167,6 @@ MainWindow::~MainWindow()
     delete _pGraphShowHide;
     delete _pGraphBringToFront;
     delete _pUi;
-}
-
-void MainWindow::updateStats(quint32 successCount, quint32 errorCount)
-{
-    // Update statistics
-    _pStatusStats->setText(_cStatsTemplate.arg(successCount).arg(errorCount));
 }
 
 void MainWindow::loadProjectSettings()
@@ -291,9 +285,8 @@ void MainWindow::exportDataCsv(QString dataFile)
         logData.append(comment + "Time-out" + Util::separatorCharacter() + QString::number(_pConnectionModel->timeout()) + "\n");
         logData.append(comment + "Poll interval" + Util::separatorCharacter() + QString::number(_pConnectionModel->pollTime()) + "\n");
 
-        quint32 success;
-        quint32 error;
-        _pConnMan->communicationSettings(&success, &error);
+        quint32 success = _pGuiModel->communicationSuccessCount();
+        quint32 error = _pGuiModel->communicationErrorCount();
         logData.append(comment + "Communication success" + Util::separatorCharacter() + QString::number(success) + "\n");
         logData.append(comment + "Communication errors" + Util::separatorCharacter() + QString::number(error) + "\n");
 
@@ -708,6 +701,12 @@ void MainWindow::updateLegendMenu()
     _pUi->actionLegendLeft->setEnabled(_pGuiModel->legendVisibility());
     _pUi->actionLegendMiddle->setEnabled(_pGuiModel->legendVisibility());
     _pUi->actionLegendRight->setEnabled(_pGuiModel->legendVisibility());
+}
+
+void MainWindow::updateStats()
+{
+    // Update statistics
+    _pStatusStats->setText(_cStatsTemplate.arg(_pGuiModel->communicationSuccessCount()).arg(_pGuiModel->communicationErrorCount()));
 }
 
 void MainWindow::showContextMenu(const QPoint& pos)

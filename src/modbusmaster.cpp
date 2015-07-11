@@ -4,17 +4,19 @@
 #include <QDebug>
 #include "modbusmaster.h"
 #include "connectionmodel.h"
+#include "guimodel.h"
 #include <modbus.h>
 
 #include "errno.h"
 
-ModbusMaster::ModbusMaster(ConnectionModel *pConnectionModel, QObject *parent) :
+ModbusMaster::ModbusMaster(ConnectionModel *pConnectionModel, GuiModel * pGuiModel, QObject *parent) :
     QObject(parent),
     _pThread(NULL)
 {
     // NEVER create object with new here
 
     _pConnectionModel = pConnectionModel;
+    _pGuiModel = pGuiModel;
 }
 
 ModbusMaster::~ModbusMaster()
@@ -157,8 +159,9 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
         }
     }
 
+    _pGuiModel->setCommunicationStats(_pGuiModel->communicationSuccessCount() + success, _pGuiModel->communicationErrorCount() + error);
+
     emit modbusPollDone(resultStateList, resultList);
-    emit modbusCommDone(success, error);
 }
 
 void ModbusMaster::closePort(modbus_t *connection)

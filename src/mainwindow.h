@@ -40,9 +40,6 @@ signals:
     void stopModbus();
     void registerStateChange(quint16 registerAddress);
 
-public slots:
-    void updateStats(quint32 successCount, quint32 errorCount);
-
 private slots:
 
     /* Menu handlers */
@@ -80,6 +77,8 @@ private slots:
     void dataFileLoaded();
     void updateLegendPositionMenu();
     void updateLegendMenu();
+    void updateStats();
+
 
     /* Misc */
     void showContextMenu(const QPoint& pos);
