@@ -39,7 +39,7 @@ void ExtendedGraphView::addData(QList<double> timeData, QList<QList<double> > da
 
 void ExtendedGraphView::plotResults(QList<bool> successList, QList<double> valueList)
 {
-    const quint64 diff = QDateTime::currentMSecsSinceEpoch() - _pConnMan->communicationStartTime();
+    const quint64 diff = QDateTime::currentMSecsSinceEpoch() - _pGuiModel->communicationStartTime();
 
     for (qint32 i = 0; i < valueList.size(); i++)
     {

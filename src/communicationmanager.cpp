@@ -3,13 +3,15 @@
 
 #include "modbusmaster.h"
 #include "communicationmanager.h"
+#include "guimodel.h"
 
-CommunicationManager::CommunicationManager(ConnectionModel * pConnectionModel, QObject *parent) :
+CommunicationManager::CommunicationManager(ConnectionModel * pConnectionModel, GuiModel *pGuiModel, QObject *parent) :
     QObject(parent), _active(false), _successCount(0), _errorCount(0)
 {
 
     _pPollTimer = new QTimer();
     _pConnectionModel = pConnectionModel;
+    _pGuiModel = pGuiModel;
 
     qRegisterMetaType<QList<quint16> >("QList<quint16>");
     qRegisterMetaType<QList<bool> >("QList<bool>");
@@ -73,7 +75,7 @@ void CommunicationManager::resetCommunicationStats()
         emit triggerStatUpdate(_successCount, _errorCount);
 
         _lastPollStart = QDateTime::currentMSecsSinceEpoch();
-        _startTime = QDateTime::currentMSecsSinceEpoch();
+        _pGuiModel->setCommunicationStartTime(QDateTime::currentMSecsSinceEpoch());
     }
 }
 
@@ -134,17 +136,7 @@ void CommunicationManager::masterStopped()
 void CommunicationManager::stopCommunication()
 {
     _active = false;
-    _endTime = QDateTime::currentMSecsSinceEpoch();
-}
-
-qint64 CommunicationManager::communicationStartTime()
-{
-    return _startTime;
-}
-
-qint64 CommunicationManager::communicationEndTime()
-{
-    return _endTime;
+    _pGuiModel->setCommunicationEndTime(QDateTime::currentMSecsSinceEpoch());
 }
 
 void CommunicationManager::communicationSettings(quint32 * successCount, quint32 * errorCount)

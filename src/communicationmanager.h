@@ -10,6 +10,7 @@
 
 
 //Forward declaration
+class GuiModel;
 class ModbusMaster;
 class QTimer;
 
@@ -17,13 +18,12 @@ class CommunicationManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit CommunicationManager(ConnectionModel * pConnectionModel, QObject *parent = 0);
+    explicit CommunicationManager(ConnectionModel * pConnectionModel, GuiModel * pGuiModel, QObject *parent = 0);
     ~CommunicationManager();
 
     bool startCommunication(QList<RegisterData> registers);
     void stopCommunication();
-    qint64 communicationStartTime();
-    qint64 communicationEndTime();
+
     void communicationSettings(quint32 * successCount, quint32 * errorCount);
     bool isActive();
     void resetCommunicationStats();
@@ -50,11 +50,10 @@ private:
 
     quint32 _successCount; // TODO: move to model
     quint32 _errorCount; // TODO: move to model
-    qint64 _startTime; // TODO: move to model
-    qint64 _endTime; // TODO: move to model
 
     qint64 _lastPollStart;
 
+    GuiModel * _pGuiModel;
     ConnectionModel * _pConnectionModel;
     QList<RegisterData> _registerlist;
 };

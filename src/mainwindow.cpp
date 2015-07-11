@@ -33,7 +33,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pRegisterModel = new RegisterModel();
     _pRegisterDialog = new RegisterDialog(_pRegisterModel);
 
-    _pConnMan = new CommunicationManager(_pConnectionModel);
+    _pConnMan = new CommunicationManager(_pConnectionModel, _pGuiModel);
     _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pUi->customPlot, this);
 
     /*-- Connect menu actions --*/
@@ -278,11 +278,11 @@ void MainWindow::exportDataCsv(QString dataFile)
         logData.append(comment + "ModbusScope version" + Util::separatorCharacter() + QString(APP_VERSION) + "\n");
 
         // Save start time
-        dt = QDateTime::fromMSecsSinceEpoch(_pConnMan->communicationStartTime());
+        dt = QDateTime::fromMSecsSinceEpoch(_pGuiModel->communicationStartTime());
         logData.append(comment + "Start time" + Util::separatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
 
         // Save end time
-        dt = QDateTime::fromMSecsSinceEpoch(_pConnMan->communicationEndTime());
+        dt = QDateTime::fromMSecsSinceEpoch(_pGuiModel->communicationEndTime());
         logData.append(comment + "End time" + Util::separatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
 
         // Export communication settings
@@ -756,7 +756,7 @@ void MainWindow::yAxisScaleGroupClicked(int id)
 
 void MainWindow::updateRuntime()
 {
-    qint64 timePassed = QDateTime::currentMSecsSinceEpoch() - _pConnMan->communicationStartTime();
+    qint64 timePassed = QDateTime::currentMSecsSinceEpoch() - _pGuiModel->communicationStartTime();
 
     // Convert to s
     timePassed /= 1000;

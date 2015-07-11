@@ -394,6 +394,34 @@ quint32 GuiModel::communicationState()
     return _communicationState;
 }
 
+qint64 GuiModel::communicationStartTime()
+{
+    return _startTime;
+}
+
+void GuiModel::setCommunicationStartTime(qint64 startTime)
+{
+    if (_startTime != startTime)
+    {
+        _startTime = startTime;
+        // No signal yet
+    }
+}
+
+qint64 GuiModel::communicationEndTime()
+{
+    return _endTime;
+}
+
+void GuiModel::setCommunicationEndTime(qint64 endTime)
+{
+    if (_endTime != endTime)
+    {
+        _endTime = endTime;
+        // No signal yet
+    }
+}
+
 qint32 GuiModel::yAxisMin()
 {
     return _guiSettings.yMin;

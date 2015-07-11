@@ -45,6 +45,8 @@ public:
     qint32 yAxisMin();
     qint32 yAxisMax();
     quint32 communicationState();
+    qint64 communicationStartTime();
+    qint64 communicationEndTime();
 
     void setProjectFilePath(QString path);
     void setDataFilePath(QString path);
@@ -66,6 +68,8 @@ public slots:
     void setyAxisMin(qint32 newMin);
     void setyAxisMax(qint32 newMax);
     void setCommunicationState(quint32 state);
+    void setCommunicationStartTime(qint64 startTime);
+    void setCommunicationEndTime(qint64 endTime);
 
 signals:
 
@@ -107,6 +111,9 @@ private:
     qint32 _frontGraph;
     GuiSettings _guiSettings;
     QString _windowTitle;
+
+    qint64 _startTime;
+    qint64 _endTime;
 
     QString _projectFilePath;
     QString _dataFilePath;
