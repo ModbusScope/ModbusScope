@@ -937,6 +937,9 @@ void MainWindow::parseDataFile(DataFileParser::FileData * pData)
     _pGuiModel->clearGraph();
     _pGuiModel->addGraphs(graphList, pData->timeRow, pData->dataRows);
     _pGuiModel->setFrontGraph(0);
+
+    // Show legend
+    _pGuiModel->setLegendVisibility(true);
 }
 
 void MainWindow::writeToFile(QString filePath, QString logData)
