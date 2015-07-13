@@ -125,6 +125,7 @@ void CommunicationManager::masterStopped()
 void CommunicationManager::stopCommunication()
 {
     _active = false;
+    _pPollTimer->stop();
     _pGuiModel->setCommunicationEndTime(QDateTime::currentMSecsSinceEpoch());
 }
 
