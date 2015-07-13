@@ -118,6 +118,8 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
 
         if (paramList.size() != (qint32)_expectedFields)
         {
+            QString txt = QString(tr("The number of label columns doesn't match number of data columns!\nLabel count: %1\nData count: %2")).arg(_expectedFields).arg(paramList.size());
+            showError(txt);
             bRet = false;
             break;
         }
@@ -162,7 +164,7 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
 bool DataFileParser::readLineFromFile(QString *pLine)
 {
     bool bRet = false;
-    char buf[512];
+    char buf[2048];
     qint32 lineLength;
 
     // Read first line of data (labels)
