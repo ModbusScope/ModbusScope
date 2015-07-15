@@ -371,7 +371,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Start</string>
+    <string>Start logging</string>
    </property>
   </action>
   <action name="actionStop">
@@ -384,7 +384,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Stop</string>
+    <string>Stop logging</string>
    </property>
   </action>
   <action name="actionExportDataCsv">
@@ -515,7 +515,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Left</string>
+    <string>Legend to left</string>
    </property>
   </action>
   <action name="actionLegendMiddle">
@@ -523,7 +523,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Middle</string>
+    <string>Legend to middle</string>
    </property>
   </action>
   <action name="actionLegendRight">
@@ -534,7 +534,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Right</string>
+    <string>Legend to right</string>
    </property>
   </action>
   <action name="actionShowLegend">
@@ -548,7 +548,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Show Legend</string>
+    <string>Show/hide Legend</string>
    </property>
   </action>
  </widget>
