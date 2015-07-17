@@ -9,6 +9,7 @@
 
 #include "datafileparser.h"
 #include "projectfileparser.h"
+#include "datafileexporter.h"
 
 namespace Ui {
 class MainWindow;
@@ -51,7 +52,6 @@ private slots:
     void exitApplication();
     void prepareDataExport();
     void prepareImageExport();
-    void exportDataCsv(QString dataFile);
     void showAbout();
     void menuBringToFrontGraphClicked(bool bState);
     void menuShowHideGraphClicked(bool bState);
@@ -82,7 +82,6 @@ private slots:
     void updateLegendMenu();
     void updateStats();
 
-
     /* Misc */
     void showContextMenu(const QPoint& pos);
     void dragEnterEvent(QDragEnterEvent *e);
@@ -97,7 +96,6 @@ private:
     void loadProjectFile(QString dataFilePath);
     void loadDataFile(QString dataFilePath);
     void parseDataFile(DataFileParser::FileData * pData);
-    void writeToFile(QString filePath, QString logData);
 
     Ui::MainWindow * _pUi;
     CommunicationManager * _pConnMan;
@@ -113,6 +111,8 @@ private:
     RegisterDialog * _pRegisterDialog;
 
     GuiModel * _pGuiModel;
+
+    DataFileExporter * _pDataFileExporter;
 
     QLabel * _pStatusStats;
     QLabel * _pStatusState;

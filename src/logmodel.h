@@ -13,13 +13,25 @@ public:
     void setPollTime(quint32 pollTime);
     quint32 pollTime();
 
+    quint32 writeDuringLog();
+
+    void setWriteDuringLogPath(QString path);
+    QString writeDuringLogPath();
+
+public slots:
+    void setWriteDuringLog(bool bState);
+
 signals:
     void pollTimeChanged();
+    void writeDuringLogChanged();
+    void writeDuringLogPathChanged();
 
 private:
 
     quint32 _pollTime;
 
+    bool _bWriteDuringLog;
+    QString _writeDuringLogPath;
 
 };
 

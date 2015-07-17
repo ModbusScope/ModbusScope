@@ -52,7 +52,8 @@ SOURCES +=  \
     ../src/guimodel.cpp \
     ../src/communicationmanager.cpp \
     ../src/logdialog.cpp \
-    ../src/logmodel.cpp
+    ../src/logmodel.cpp \
+    ../src/datafileexporter.cpp
 
 FORMS    += \
     ../src/mainwindow.ui \
@@ -83,7 +84,8 @@ HEADERS += \
     ../src/graphdata.h \
     ../src/communicationmanager.h \
     ../src/logdialog.h \
-    ../src/logmodel.h
+    ../src/logmodel.h \
+    ../src/datafileexporter.h
 
 RESOURCES += \
     ../resources/resource.qrc
