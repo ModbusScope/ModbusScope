@@ -11,6 +11,7 @@
 
 //Forward declaration
 class GuiModel;
+class LogModel;
 class ModbusMaster;
 class QTimer;
 
@@ -18,7 +19,7 @@ class CommunicationManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit CommunicationManager(ConnectionModel * pConnectionModel, GuiModel * pGuiModel, QObject *parent = 0);
+    explicit CommunicationManager(ConnectionModel * pConnectionModel, GuiModel * pGuiModel, LogModel * pLogModel, QObject *parent = 0);
     ~CommunicationManager();
 
     bool startCommunication(QList<RegisterData> registers);
@@ -48,6 +49,7 @@ private:
 
     GuiModel * _pGuiModel;
     ConnectionModel * _pConnectionModel;
+    LogModel * _pLogModel;
     QList<RegisterData> _registerlist;
 };
 

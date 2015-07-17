@@ -7,6 +7,9 @@
 #include "registerdialog.h"
 #include "connectiondialog.h"
 #include "connectionmodel.h"
+#include "logdialog.h"
+#include "logmodel.h"
+
 #include "guimodel.h"
 #include "extendedgraphview.h"
 #include "util.h"
@@ -30,10 +33,13 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pConnectionModel = new ConnectionModel();
     _pConnectionDialog = new ConnectionDialog(_pConnectionModel);
 
+    _pLogModel = new LogModel();
+    _pLogDialog = new LogDialog(_pLogModel);
+
     _pRegisterModel = new RegisterModel();
     _pRegisterDialog = new RegisterDialog(_pRegisterModel);
 
-    _pConnMan = new CommunicationManager(_pConnectionModel, _pGuiModel);
+    _pConnMan = new CommunicationManager(_pConnectionModel, _pGuiModel, _pLogModel);
     _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pUi->customPlot, this);
 
     /*-- Connect menu actions --*/
@@ -50,6 +56,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionHighlightSamplePoints, SIGNAL(toggled(bool)), _pGuiModel, SLOT(setHighlightSamples(bool)));
     connect(_pUi->actionClearData, SIGNAL(triggered()), this, SLOT(clearData()));
     connect(_pUi->actionConnectionSettings, SIGNAL(triggered()), this, SLOT(showConnectionDialog()));
+    connect(_pUi->actionLogSettings, SIGNAL(triggered()), this, SLOT(showLogDialog()));
     connect(_pUi->actionRegisterSettings, SIGNAL(triggered()), this, SLOT(showRegisterDialog()));
     connect(_pUi->actionShowLegend, SIGNAL(triggered(bool)), _pGuiModel, SLOT(setLegendVisibility(bool)));
 
@@ -283,7 +290,7 @@ void MainWindow::exportDataCsv(QString dataFile)
         logData.append(comment + "Slave IP" + Util::separatorCharacter() + _pConnectionModel->ipAddress() + ":" + QString::number(_pConnectionModel->port()) + "\n");
         logData.append(comment + "Slave ID" + Util::separatorCharacter() + QString::number(_pConnectionModel->slaveId()) + "\n");
         logData.append(comment + "Time-out" + Util::separatorCharacter() + QString::number(_pConnectionModel->timeout()) + "\n");
-        logData.append(comment + "Poll interval" + Util::separatorCharacter() + QString::number(_pConnectionModel->pollTime()) + "\n");
+        logData.append(comment + "Poll interval" + Util::separatorCharacter() + QString::number(_pLogModel->pollTime()) + "\n");
 
         quint32 success = _pGuiModel->communicationSuccessCount();
         quint32 error = _pGuiModel->communicationErrorCount();
@@ -383,6 +390,11 @@ void MainWindow::menuShowHideGraphClicked(bool bState)
 void MainWindow::showConnectionDialog()
 {
     _pConnectionDialog->exec();
+}
+
+void MainWindow::showLogDialog()
+{
+    _pLogDialog->exec();
 }
 
 void MainWindow::showRegisterDialog()
@@ -610,6 +622,7 @@ void MainWindow::updateCommunicationState()
 
         _pUi->actionStop->setEnabled(false);
         _pUi->actionConnectionSettings->setEnabled(true);
+        _pUi->actionLogSettings->setEnabled(true);
         _pUi->actionRegisterSettings->setEnabled(true);
         _pUi->actionStart->setEnabled(true);
         _pUi->actionImportDataFile->setEnabled(true);
@@ -623,6 +636,7 @@ void MainWindow::updateCommunicationState()
         // Communication active
         _pUi->actionStop->setEnabled(true);
         _pUi->actionConnectionSettings->setEnabled(false);
+        _pUi->actionLogSettings->setEnabled(false);
         _pUi->actionRegisterSettings->setEnabled(false);
         _pUi->actionStart->setEnabled(false);
         _pUi->actionImportDataFile->setEnabled(false);
@@ -642,6 +656,7 @@ void MainWindow::updateCommunicationState()
         // Communication not active
         _pUi->actionStop->setEnabled(false);
         _pUi->actionConnectionSettings->setEnabled(true);
+        _pUi->actionLogSettings->setEnabled(true);
         _pUi->actionRegisterSettings->setEnabled(true);
         _pUi->actionStart->setEnabled(true);
         _pUi->actionImportDataFile->setEnabled(true);
@@ -795,7 +810,7 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
 
     if (pProjectSettings->general.bPollTime)
     {
-        _pConnectionModel->setPollTime(pProjectSettings->general.pollTime);
+        _pLogModel->setPollTime(pProjectSettings->general.pollTime);
     }
 
     if (pProjectSettings->general.bSlaveId)

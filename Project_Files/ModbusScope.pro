@@ -50,12 +50,15 @@ SOURCES +=  \
     ../src/basicgraphview.cpp \
     ../src/extendedgraphview.cpp \
     ../src/guimodel.cpp \
-    ../src/communicationmanager.cpp
+    ../src/communicationmanager.cpp \
+    ../src/logdialog.cpp \
+    ../src/logmodel.cpp
 
 FORMS    += \
     ../src/mainwindow.ui \
     ../src/connectiondialog.ui \
-    ../src/registerdialog.ui
+    ../src/registerdialog.ui \
+    ../src/logdialog.ui
 
 HEADERS += \
     ../src/mainwindow.h \
@@ -78,7 +81,9 @@ HEADERS += \
     ../src/extendedgraphview.h \
     ../src/guimodel.h \
     ../src/graphdata.h \
-    ../src/communicationmanager.h
+    ../src/communicationmanager.h \
+    ../src/logdialog.h \
+    ../src/logmodel.h
 
 RESOURCES += \
     ../resources/resource.qrc

@@ -61,6 +61,7 @@
     <addaction name="actionExportImage"/>
     <addaction name="separator"/>
     <addaction name="actionConnectionSettings"/>
+    <addaction name="actionLogSettings"/>
     <addaction name="actionRegisterSettings"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
@@ -144,6 +145,7 @@
    <addaction name="actionLoadProjectFile"/>
    <addaction name="separator"/>
    <addaction name="actionConnectionSettings"/>
+   <addaction name="actionLogSettings"/>
    <addaction name="actionRegisterSettings"/>
    <addaction name="separator"/>
    <addaction name="actionStart"/>
@@ -166,7 +168,7 @@
     <string>Scale options</string>
    </property>
    <attribute name="dockWidgetArea">
-    <number>4</number>
+    <number>8</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -549,6 +551,16 @@
    </property>
    <property name="text">
     <string>Show/hide Legend</string>
+   </property>
+  </action>
+  <action name="actionLogSettings">
+   <property name="icon">
+    <iconset>
+     <normalon>:/menu_icon/menu_icon/icons/database_edit.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Log Settings</string>
    </property>
   </action>
  </widget>

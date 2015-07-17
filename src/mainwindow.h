@@ -21,6 +21,8 @@ class RegisterModel;
 class RegisterDialog;
 class ConnectionModel;
 class ConnectionDialog;
+class LogModel;
+class LogDialog;
 class GuiModel;
 class ExtendedGraphView;
 
@@ -54,6 +56,7 @@ private slots:
     void menuBringToFrontGraphClicked(bool bState);
     void menuShowHideGraphClicked(bool bState);
     void showConnectionDialog();
+    void showLogDialog();
     void showRegisterDialog();
     void changeLegendPosition(QAction* pAction);
     void clearData();
@@ -102,6 +105,9 @@ private:
 
     ConnectionModel * _pConnectionModel;
     ConnectionDialog * _pConnectionDialog;
+
+    LogModel * _pLogModel;
+    LogDialog * _pLogDialog;
 
     RegisterModel * _pRegisterModel;
     RegisterDialog * _pRegisterDialog;

@@ -11,7 +11,6 @@ ConnectionDialog::ConnectionDialog(ConnectionModel * pConnectionModel, QWidget *
 
     connect(_pConnectionModel, SIGNAL(ipChanged()), this, SLOT(updateIp()));
     connect(_pConnectionModel, SIGNAL(portChanged()), this, SLOT(updatePort()));
-    connect(_pConnectionModel, SIGNAL(pollTimeChanged()), this, SLOT(updatePollTime()));
     connect(_pConnectionModel, SIGNAL(slaveIdChanged()), this, SLOT(updateSlaveId()));
     connect(_pConnectionModel, SIGNAL(timeoutChanged()), this, SLOT(updateTimeout()));
 }
@@ -29,11 +28,6 @@ void ConnectionDialog::updateIp()
 void ConnectionDialog::updatePort()
 {
     _pUi->spinPort->setValue(_pConnectionModel->port());
-}
-
-void ConnectionDialog::updatePollTime()
-{
-    _pUi->spinPollTime->setValue(_pConnectionModel->pollTime());
 }
 
 void ConnectionDialog::updateSlaveId()
@@ -56,7 +50,6 @@ void ConnectionDialog::done(int r)
         _pConnectionModel->setPort(_pUi->spinPort->text().toInt());
         _pConnectionModel->setSlaveId(_pUi->spinSlaveId->text().toInt());
         _pConnectionModel->setTimeout(_pUi->spinTimeout->text().toUInt());
-        _pConnectionModel->setPollTime(_pUi->spinPollTime->text().toUInt());
 
         // Validate the data
         //bValid = validateSettingsData();

@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "connectionmodel.h"
+#include "logmodel.h"
 
 namespace Ui {
 class ConnectionDialog;
@@ -21,7 +22,6 @@ private slots:
 
     void updateIp();
     void updatePort();
-    void updatePollTime();
     void updateSlaveId();
     void updateTimeout();
 

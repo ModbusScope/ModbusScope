@@ -17,7 +17,6 @@ void ConnectionModel::clearData()
 {
    setIpAddress("127.0.0.1");
    setPort(502);
-   setPollTime(1000);
    setSlaveId(1);
    setTimeout(1000);
 }
@@ -48,20 +47,6 @@ void ConnectionModel::setPort(quint16 port)
 quint16 ConnectionModel::port()
 {
     return _port;
-}
-
-void ConnectionModel::setPollTime(quint32 pollTime)
-{
-    if (_pollTime != pollTime)
-    {
-        _pollTime = pollTime;
-        emit pollTimeChanged();
-    }
-}
-
-quint32 ConnectionModel::pollTime()
-{
-    return _pollTime;
 }
 
 quint8 ConnectionModel::slaveId()
