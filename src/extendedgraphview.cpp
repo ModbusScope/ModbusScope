@@ -41,21 +41,27 @@ void ExtendedGraphView::plotResults(QList<bool> successList, QList<double> value
 {
     const quint64 diff = QDateTime::currentMSecsSinceEpoch() - _pGuiModel->communicationStartTime();
 
+    QList<double> dataList;
+
     for (qint32 i = 0; i < valueList.size(); i++)
     {
         if (successList[i])
         {
             // No error, add points
             _pPlot->graph(i)->addData(diff, valueList[i]);
+            dataList.append(valueList[i]);
 
             _pPlot->graph(i)->setName(QString("(%1) %2").arg(Util::formatDoubleForExport(valueList[i])).arg(_pGuiModel->graphLabel(i)));
         }
         else
         {
             _pPlot->graph(i)->addData(diff, 0);
+            dataList.append(0);
             _pPlot->graph(i)->setName(QString("(-) %1").arg(_pGuiModel->graphLabel(i)));
         }
     }
+
+    emit dataAddedToPlot(diff, dataList);
 
    rescalePlot();
 

@@ -24,6 +24,9 @@ public slots:
     void clearResults();
     void rescalePlot();
 
+signals:
+    void dataAddedToPlot(double timeData, QList<double> dataList);
+
 private slots:
     void mouseMove(QMouseEvent *event);
     void updateData(QList<double> *pTimeData, QList<QList<double> > * pDataLists);

@@ -243,7 +243,7 @@ void MainWindow::prepareDataExport()
     {
         filePath = dialog.selectedFiles().first();
         _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-        _pDataFileExporter->exportDataCsv(filePath);
+        _pDataFileExporter->exportDataFile(filePath);
     }
 }
 
@@ -370,6 +370,11 @@ void MainWindow::startScope()
         QList<RegisterData> regList;
         _pRegisterModel->checkedRegisterList(&regList);
 
+        if (_pLogModel->writeDuringLog())
+        {
+            _pDataFileExporter->enableExporterDuringLog();
+        }
+
         if (_pConnMan->startCommunication(regList))
         {
             QList<RegisterData> regList;
@@ -401,6 +406,11 @@ void MainWindow::startScope()
 void MainWindow::stopScope()
 {
     _pConnMan->stopCommunication();
+
+    if (_pLogModel->writeDuringLog())
+    {
+        _pDataFileExporter->disableExporterDuringLog();
+    }
 
     _pGuiModel->setCommunicationState(GuiModel::STOPPED);
 }
