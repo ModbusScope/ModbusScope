@@ -1,18 +1,20 @@
 #include "connectiondialog.h"
 #include "ui_connectiondialog.h"
 
-ConnectionDialog::ConnectionDialog(ConnectionModel * pConnectionModel, QWidget *parent) :
+#include "settingsmodel.h"
+
+ConnectionDialog::ConnectionDialog(SettingsModel * pSettingsModel, QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::ConnectionDialog)
 {
     _pUi->setupUi(this);
 
-    _pConnectionModel = pConnectionModel;
+    _pSettingsModel = pSettingsModel;
 
-    connect(_pConnectionModel, SIGNAL(ipChanged()), this, SLOT(updateIp()));
-    connect(_pConnectionModel, SIGNAL(portChanged()), this, SLOT(updatePort()));
-    connect(_pConnectionModel, SIGNAL(slaveIdChanged()), this, SLOT(updateSlaveId()));
-    connect(_pConnectionModel, SIGNAL(timeoutChanged()), this, SLOT(updateTimeout()));
+    connect(_pSettingsModel, SIGNAL(ipChanged()), this, SLOT(updateIp()));
+    connect(_pSettingsModel, SIGNAL(portChanged()), this, SLOT(updatePort()));
+    connect(_pSettingsModel, SIGNAL(slaveIdChanged()), this, SLOT(updateSlaveId()));
+    connect(_pSettingsModel, SIGNAL(timeoutChanged()), this, SLOT(updateTimeout()));
 }
 
 ConnectionDialog::~ConnectionDialog()
@@ -22,22 +24,22 @@ ConnectionDialog::~ConnectionDialog()
 
 void ConnectionDialog::updateIp()
 {
-    _pUi->lineIP->setText(_pConnectionModel->ipAddress());
+    _pUi->lineIP->setText(_pSettingsModel->ipAddress());
 }
 
 void ConnectionDialog::updatePort()
 {
-    _pUi->spinPort->setValue(_pConnectionModel->port());
+    _pUi->spinPort->setValue(_pSettingsModel->port());
 }
 
 void ConnectionDialog::updateSlaveId()
 {
-    _pUi->spinSlaveId->setValue(_pConnectionModel->slaveId());
+    _pUi->spinSlaveId->setValue(_pSettingsModel->slaveId());
 }
 
 void ConnectionDialog::updateTimeout()
 {
-    _pUi->spinTimeout->setValue(_pConnectionModel->timeout());
+    _pUi->spinTimeout->setValue(_pSettingsModel->timeout());
 }
 
 void ConnectionDialog::done(int r)
@@ -46,10 +48,10 @@ void ConnectionDialog::done(int r)
 
     if(QDialog::Accepted == r)  // ok was pressed
     {
-        _pConnectionModel->setIpAddress(_pUi->lineIP->text());
-        _pConnectionModel->setPort(_pUi->spinPort->text().toInt());
-        _pConnectionModel->setSlaveId(_pUi->spinSlaveId->text().toInt());
-        _pConnectionModel->setTimeout(_pUi->spinTimeout->text().toUInt());
+        _pSettingsModel->setIpAddress(_pUi->lineIP->text());
+        _pSettingsModel->setPort(_pUi->spinPort->text().toInt());
+        _pSettingsModel->setSlaveId(_pUi->spinSlaveId->text().toInt());
+        _pSettingsModel->setTimeout(_pUi->spinTimeout->text().toUInt());
 
         // Validate the data
         //bValid = validateSettingsData();

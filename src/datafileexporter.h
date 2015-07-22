@@ -2,16 +2,18 @@
 #define DATAFILEEXPORTER_H
 
 #include <QObject>
-#include "guimodel.h"
-#include "logmodel.h"
-#include "connectionmodel.h"
-#include "extendedgraphview.h"
+#include <QStringList>
+
+/* Forward declaration */
+class SettingsModel;
+class GuiModel;
+class ExtendedGraphView;
 
 class DataFileExporter : public QObject
 {
     Q_OBJECT
 public:
-    explicit DataFileExporter(GuiModel *pGuiModel, LogModel * pLogModel, ConnectionModel * pConnectionModel, ExtendedGraphView * pGraphView, QObject *parent = 0);
+    explicit DataFileExporter(GuiModel *pGuiModel, SettingsModel *pSettingsModel, ExtendedGraphView * pGraphView, QObject *parent = 0);
     ~DataFileExporter();
 
     void enableExporterDuringLog();
@@ -33,9 +35,8 @@ private:
     void writeToFile(QString filePath, QStringList logData);
     void clearFile(QString filePath);
 
-    LogModel * _pLogModel;
     GuiModel * _pGuiModel;
-    ConnectionModel * _pConnectionModel;
+    SettingsModel * _pSettingsModel;
     ExtendedGraphView * _pGraphView;
 
     QStringList _dataExportBuffer;

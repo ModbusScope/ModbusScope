@@ -5,13 +5,12 @@
 #include <QList>
 #include <QStringListModel>
 
-#include "connectionmodel.h"
 #include "registerdata.h"
 
 
 //Forward declaration
 class GuiModel;
-class LogModel;
+class SettingsModel;
 class ModbusMaster;
 class QTimer;
 
@@ -19,7 +18,7 @@ class CommunicationManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit CommunicationManager(ConnectionModel * pConnectionModel, GuiModel * pGuiModel, LogModel * pLogModel, QObject *parent = 0);
+    explicit CommunicationManager(SettingsModel * pSettingsModel, GuiModel * pGuiModel, QObject *parent = 0);
     ~CommunicationManager();
 
     bool startCommunication(QList<RegisterData> registers);
@@ -48,8 +47,7 @@ private:
     qint64 _lastPollStart;
 
     GuiModel * _pGuiModel;
-    ConnectionModel * _pConnectionModel;
-    LogModel * _pLogModel;
+    SettingsModel * _pSettingsModel;
     QList<RegisterData> _registerlist;
 };
 

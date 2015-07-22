@@ -4,17 +4,16 @@
 #include "modbusmaster.h"
 #include "communicationmanager.h"
 #include "guimodel.h"
-#include "logmodel.h"
+#include "settingsmodel.h"
 
 
-CommunicationManager::CommunicationManager(ConnectionModel * pConnectionModel, GuiModel *pGuiModel, LogModel * pLogModel, QObject *parent) :
+CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiModel *pGuiModel, QObject *parent) :
     QObject(parent), _active(false)
 {
 
     _pPollTimer = new QTimer();
-    _pConnectionModel = pConnectionModel;
     _pGuiModel = pGuiModel;
-    _pLogModel = pLogModel;
+    _pSettingsModel = pSettingsModel;
 
     qRegisterMetaType<QList<quint16> >("QList<quint16>");
     qRegisterMetaType<QList<bool> >("QList<bool>");
@@ -22,7 +21,7 @@ CommunicationManager::CommunicationManager(ConnectionModel * pConnectionModel, G
     _registerlist.clear();
 
     /* Setup modbus master */
-    _master = new ModbusMaster(pConnectionModel, _pGuiModel);
+    _master = new ModbusMaster(_pSettingsModel, _pGuiModel);
 
     connect(this, SIGNAL(requestStop()), _master, SLOT(stopThread()));
 
@@ -85,7 +84,7 @@ void CommunicationManager::handlePollDone(QList<bool> successList, QList<quint16
     uint waitInterval;
     const uint passedInterval = QDateTime::currentMSecsSinceEpoch() - _lastPollStart;
 
-    if (passedInterval > _pLogModel->pollTime())
+    if (passedInterval > _pSettingsModel->pollTime())
     {
         // Poll again immediatly
         waitInterval = 1;
@@ -93,7 +92,7 @@ void CommunicationManager::handlePollDone(QList<bool> successList, QList<quint16
     else
     {
         // Set waitInterval to remaining time
-        waitInterval = _pLogModel->pollTime() - passedInterval;
+        waitInterval = _pSettingsModel->pollTime() - passedInterval;
     }
 
     _pPollTimer->singleShot(waitInterval, this, SLOT(readData()));

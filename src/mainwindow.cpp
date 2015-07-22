@@ -6,9 +6,8 @@
 #include "registermodel.h"
 #include "registerdialog.h"
 #include "connectiondialog.h"
-#include "connectionmodel.h"
+#include "settingsmodel.h"
 #include "logdialog.h"
-#include "logmodel.h"
 
 #include "guimodel.h"
 #include "extendedgraphview.h"
@@ -30,19 +29,18 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     _pGuiModel = new GuiModel();
 
-    _pConnectionModel = new ConnectionModel();
-    _pConnectionDialog = new ConnectionDialog(_pConnectionModel);
+    _pSettingsModel = new SettingsModel();
 
-    _pLogModel = new LogModel();
-    _pLogDialog = new LogDialog(_pLogModel, _pGuiModel);
+    _pConnectionDialog = new ConnectionDialog(_pSettingsModel);
+    _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel);
 
     _pRegisterModel = new RegisterModel();
     _pRegisterDialog = new RegisterDialog(_pRegisterModel);
 
-    _pConnMan = new CommunicationManager(_pConnectionModel, _pGuiModel, _pLogModel);
+    _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pSettingsModel);
     _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pUi->customPlot, this);
 
-    _pDataFileExporter = new DataFileExporter(_pGuiModel, _pLogModel, _pConnectionModel, _pGraphView);
+    _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphView);
 
     /*-- Connect menu actions --*/
     connect(_pUi->actionStart, SIGNAL(triggered()), this, SLOT(startScope()));
@@ -157,6 +155,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     /* Update interface via model */
     _pGuiModel->triggerUpdate();
+    _pSettingsModel->triggerUpdate();
 
     if (cmdArguments.size() > 1)
     {
@@ -170,8 +169,7 @@ MainWindow::~MainWindow()
     delete _pGuiModel;
     delete _pConnectionDialog;
     delete _pRegisterDialog;
-    delete _pRegisterModel;
-    delete _pConnectionModel;
+    delete _pSettingsModel;
     delete _pConnMan;
     delete _pGraphShowHide;
     delete _pGraphBringToFront;
@@ -370,7 +368,7 @@ void MainWindow::startScope()
         QList<RegisterData> regList;
         _pRegisterModel->checkedRegisterList(&regList);
 
-        if (_pLogModel->writeDuringLog())
+        if (_pSettingsModel->writeDuringLog())
         {
             _pDataFileExporter->enableExporterDuringLog();
         }
@@ -407,7 +405,7 @@ void MainWindow::stopScope()
 {
     _pConnMan->stopCommunication();
 
-    if (_pLogModel->writeDuringLog())
+    if (_pSettingsModel->writeDuringLog())
     {
         _pDataFileExporter->disableExporterDuringLog();
     }
@@ -738,31 +736,29 @@ void MainWindow::updateRuntime()
 
 void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pProjectSettings)
 {
-    _pConnectionModel->clearData();
-
     if (pProjectSettings->general.bIp)
     {
-        _pConnectionModel->setIpAddress(pProjectSettings->general.ip);
+        _pSettingsModel->setIpAddress(pProjectSettings->general.ip);
     }
 
     if (pProjectSettings->general.bPort)
     {
-         _pConnectionModel->setPort(pProjectSettings->general.port);
+         _pSettingsModel->setPort(pProjectSettings->general.port);
     }
 
     if (pProjectSettings->general.bPollTime)
     {
-        _pLogModel->setPollTime(pProjectSettings->general.pollTime);
+        _pSettingsModel->setPollTime(pProjectSettings->general.pollTime);
     }
 
     if (pProjectSettings->general.bSlaveId)
     {
-        _pConnectionModel->setSlaveId(pProjectSettings->general.slaveId);
+        _pSettingsModel->setSlaveId(pProjectSettings->general.slaveId);
     }
 
     if (pProjectSettings->general.bTimeout)
     {
-        _pConnectionModel->setTimeout(pProjectSettings->general.timeout);
+        _pSettingsModel->setTimeout(pProjectSettings->general.timeout);
     }
 
     if (pProjectSettings->scale.bSliding)

@@ -3,19 +3,19 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include "modbusmaster.h"
-#include "connectionmodel.h"
+#include "settingsmodel.h"
 #include "guimodel.h"
 #include <modbus.h>
 
 #include "errno.h"
 
-ModbusMaster::ModbusMaster(ConnectionModel *pConnectionModel, GuiModel * pGuiModel, QObject *parent) :
+ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, GuiModel * pGuiModel, QObject *parent) :
     QObject(parent),
     _pThread(NULL)
 {
     // NEVER create object with new here
 
-    _pConnectionModel = pConnectionModel;
+    _pSettingsModel = pSettingsModel;
     _pGuiModel = pGuiModel;
 }
 
@@ -66,11 +66,11 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
     quint32 error = 0;
 
     /* Open port */
-    modbus_t * pCtx = openPort(_pConnectionModel->ipAddress(), _pConnectionModel->port());
+    modbus_t * pCtx = openPort(_pSettingsModel->ipAddress(), _pSettingsModel->port());
     if (pCtx)
     {
         /* Set modbus slave */
-        modbus_set_slave(pCtx, _pConnectionModel->slaveId());
+        modbus_set_slave(pCtx, _pSettingsModel->slaveId());
 
         // Disable byte time-out
         uint32_t sec = -1;
@@ -78,8 +78,8 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
         modbus_set_byte_timeout(pCtx, sec, usec);
 
         // Set response timeout
-        sec = _pConnectionModel->timeout() / 1000;
-        usec = (_pConnectionModel->timeout() % 1000) * 1000uL;
+        sec = _pSettingsModel->timeout() / 1000;
+        usec = (_pSettingsModel->timeout() % 1000) * 1000uL;
         modbus_set_response_timeout(pCtx, sec, usec);
 
         // Do optimized reads

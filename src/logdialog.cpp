@@ -1,24 +1,27 @@
 #include "logdialog.h"
 #include "ui_logdialog.h"
 
+#include "settingsmodel.h"
+#include "guimodel.h"
+
 #include <QFileDialog>
 
-LogDialog::LogDialog(LogModel * pLogModel, GuiModel * pGuiModel, QWidget *parent) :
+LogDialog::LogDialog(SettingsModel * pSettingsModel, GuiModel * pGuiModel, QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::LogDialog)
 {
     _pUi->setupUi(this);
 
-    _pLogModel = pLogModel;
+    _pSettingsModel = pSettingsModel;
     _pGuiModel = pGuiModel;
 
     /*-- View connections --*/
-    connect(_pUi->checkWriteDuringLog, SIGNAL(toggled(bool)), _pLogModel, SLOT(setWriteDuringLog(bool)));
+    connect(_pUi->checkWriteDuringLog, SIGNAL(toggled(bool)), _pSettingsModel, SLOT(setWriteDuringLog(bool)));
     connect(_pUi->buttonWriteDuringLogPath, SIGNAL(clicked()), this, SLOT(selectLogFile()));
 
     /*-- connect model to view --*/
-    connect(_pLogModel, SIGNAL(pollTimeChanged()), this, SLOT(updatePollTime()));
-    connect(_pLogModel, SIGNAL(writeDuringLogChanged()), this, SLOT(updateWriteDuringLog()));
+    connect(_pSettingsModel, SIGNAL(pollTimeChanged()), this, SLOT(updatePollTime()));
+    connect(_pSettingsModel, SIGNAL(writeDuringLogChanged()), this, SLOT(updateWriteDuringLog()));
 }
 
 LogDialog::~LogDialog()
@@ -32,8 +35,8 @@ void LogDialog::done(int r)
 
     if(QDialog::Accepted == r)  // ok was pressed
     {
-        _pLogModel->setPollTime(_pUi->spinPollTime->text().toUInt());
-        _pLogModel->setWriteDuringLogPath(_pUi->lineWriteDuringLogPath->text());
+        _pSettingsModel->setPollTime(_pUi->spinPollTime->text().toUInt());
+        _pSettingsModel->setWriteDuringLogPath(_pUi->lineWriteDuringLogPath->text());
 
         // Validate the data
         //bValid = validateSettingsData();
@@ -70,12 +73,12 @@ void LogDialog::selectLogFile()
 
 void LogDialog::updatePollTime()
 {
-    _pUi->spinPollTime->setValue(_pLogModel->pollTime());
+    _pUi->spinPollTime->setValue(_pSettingsModel->pollTime());
 }
 
 void LogDialog::updateWriteDuringLog()
 {
-    if (_pLogModel->writeDuringLog())
+    if (_pSettingsModel->writeDuringLog())
     {
         _pUi->lineWriteDuringLogPath->setEnabled(true);
         _pUi->buttonWriteDuringLogPath->setEnabled(true);

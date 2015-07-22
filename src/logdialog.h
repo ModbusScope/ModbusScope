@@ -2,8 +2,10 @@
 #define LOGDIALOG_H
 
 #include <QDialog>
-#include "logmodel.h"
-#include "guimodel.h"
+
+/* Foward declaration */
+class SettingsModel;
+class GuiModel;
 
 namespace Ui {
 class LogDialog;
@@ -14,7 +16,7 @@ class LogDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit LogDialog(LogModel * pLogModel, GuiModel * pGuiModel, QWidget *parent = 0);
+    explicit LogDialog(SettingsModel * pSettingsModel, GuiModel * pGuiModel, QWidget *parent = 0);
     ~LogDialog();
 
 private slots:
@@ -28,7 +30,7 @@ private:
 
     Ui::LogDialog * _pUi;
 
-    LogModel * _pLogModel;
+    SettingsModel * _pSettingsModel;
     GuiModel * _pGuiModel;
 };
 

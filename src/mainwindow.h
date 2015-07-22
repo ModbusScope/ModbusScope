@@ -20,9 +20,8 @@ class CommunicationManager;
 class QCustomPlot;
 class RegisterModel;
 class RegisterDialog;
-class ConnectionModel;
 class ConnectionDialog;
-class LogModel;
+class SettingsModel;
 class LogDialog;
 class GuiModel;
 class ExtendedGraphView;
@@ -101,10 +100,8 @@ private:
     CommunicationManager * _pConnMan;
     ExtendedGraphView * _pGraphView;
 
-    ConnectionModel * _pConnectionModel;
+    SettingsModel * _pSettingsModel;
     ConnectionDialog * _pConnectionDialog;
-
-    LogModel * _pLogModel;
     LogDialog * _pLogDialog;
 
     RegisterModel * _pRegisterModel;

@@ -2,8 +2,10 @@
 #define CONNECTIONDIALOG_H
 
 #include <QDialog>
-#include "connectionmodel.h"
-#include "logmodel.h"
+
+
+/* Forward declaration */
+class SettingsModel;
 
 namespace Ui {
 class ConnectionDialog;
@@ -14,7 +16,7 @@ class ConnectionDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ConnectionDialog(ConnectionModel * pConnectionModel, QWidget *parent = 0);
+    explicit ConnectionDialog(SettingsModel * pSettingsModel, QWidget *parent = 0);
     ~ConnectionDialog();
 
 private slots:
@@ -28,7 +30,7 @@ private slots:
 private:
     Ui::ConnectionDialog * _pUi;
 
-    ConnectionModel * _pConnectionModel;
+    SettingsModel * _pSettingsModel;
 };
 
 #endif // CONNECTIONDIALOG_H

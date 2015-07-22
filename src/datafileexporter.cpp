@@ -1,15 +1,18 @@
 
 #include "util.h"
+
 #include "qcustomplot.h"
+#include "guimodel.h"
+#include "settingsmodel.h"
+#include "extendedgraphview.h"
 
 #include "datafileexporter.h"
 
-DataFileExporter::DataFileExporter(GuiModel *pGuiModel, LogModel * pLogModel, ConnectionModel * pConnectionModel, ExtendedGraphView * pGraphView, QObject *parent) :
+DataFileExporter::DataFileExporter(GuiModel *pGuiModel, SettingsModel * pSettingsModel, ExtendedGraphView * pGraphView, QObject *parent) :
     QObject(parent)
 {
     _pGuiModel = pGuiModel;
-    _pLogModel = pLogModel;
-    _pConnectionModel = pConnectionModel;
+    _pSettingsModel = pSettingsModel;
     _pGraphView = pGraphView;
 
     _bExportDuringLog = false;
@@ -30,7 +33,7 @@ void DataFileExporter::enableExporterDuringLog()
     _bExportDuringLog = true;
 
     // Clean file
-    clearFile(_pLogModel->writeDuringLogPath());
+    clearFile(_pSettingsModel->writeDuringLogPath());
 
     exportDataHeader();
 }
@@ -98,7 +101,7 @@ void DataFileExporter::exportDataFile(QString dataFile)
 void DataFileExporter::flushExportBuffer()
 {
     // Write to file
-    writeToFile(_pLogModel->writeDuringLogPath(), _dataExportBuffer);
+    writeToFile(_pSettingsModel->writeDuringLogPath(), _dataExportBuffer);
 
     _dataExportBuffer.clear();
     lastLogTime = QDateTime::currentMSecsSinceEpoch();
@@ -115,7 +118,7 @@ void DataFileExporter::exportDataHeader()
     logData.append(createLabelRow());
 
     // Write to file
-    writeToFile(_pLogModel->writeDuringLogPath(), logData);
+    writeToFile(_pSettingsModel->writeDuringLogPath(), logData);
 }
 
 QString DataFileExporter::constructDataHeader(bool bDuringLog)
@@ -146,10 +149,10 @@ QString DataFileExporter::constructDataHeader(bool bDuringLog)
         }
 
         // Export communication settings
-        header.append(comment + "Slave IP" + Util::separatorCharacter() + _pConnectionModel->ipAddress() + ":" + QString::number(_pConnectionModel->port()) + "\n");
-        header.append(comment + "Slave ID" + Util::separatorCharacter() + QString::number(_pConnectionModel->slaveId()) + "\n");
-        header.append(comment + "Time-out" + Util::separatorCharacter() + QString::number(_pConnectionModel->timeout()) + "\n");
-        header.append(comment + "Poll interval" + Util::separatorCharacter() + QString::number(_pLogModel->pollTime()) + "\n");
+        header.append(comment + "Slave IP" + Util::separatorCharacter() + _pSettingsModel->ipAddress() + ":" + QString::number(_pSettingsModel->port()) + "\n");
+        header.append(comment + "Slave ID" + Util::separatorCharacter() + QString::number(_pSettingsModel->slaveId()) + "\n");
+        header.append(comment + "Time-out" + Util::separatorCharacter() + QString::number(_pSettingsModel->timeout()) + "\n");
+        header.append(comment + "Poll interval" + Util::separatorCharacter() + QString::number(_pSettingsModel->pollTime()) + "\n");
 
         quint32 success = _pGuiModel->communicationSuccessCount();
         quint32 error = _pGuiModel->communicationErrorCount();

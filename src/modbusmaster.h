@@ -7,14 +7,14 @@
 #include <modbus.h>
 
 /* Forward declaration */
-class ConnectionModel;
+class SettingsModel;
 class GuiModel;
 
 class ModbusMaster : public QObject
 {
     Q_OBJECT
 public:
-    explicit ModbusMaster(ConnectionModel * pConnectionModel, GuiModel *pGuiModel, QObject *parent = 0);
+    explicit ModbusMaster(SettingsModel * pSettingsModel, GuiModel *pGuiModel, QObject *parent = 0);
     virtual ~ModbusMaster();
 
     void startThread();
@@ -38,7 +38,7 @@ private:
     void closePort(modbus_t *);
     qint32 readRegisters(modbus_t * pCtx, quint16 startReg, quint32 num, QList<quint16> * pResultList);
 
-    ConnectionModel * _pConnectionModel;
+    SettingsModel * _pSettingsModel;
     GuiModel * _pGuiModel;
     QThread * _pThread;
 

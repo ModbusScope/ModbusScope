@@ -46,14 +46,13 @@ SOURCES +=  \
     ../src/registerdata.cpp \
     ../src/connectiondialog.cpp \
     ../src/registerdialog.cpp \
-    ../src/connectionmodel.cpp \
     ../src/basicgraphview.cpp \
     ../src/extendedgraphview.cpp \
     ../src/guimodel.cpp \
     ../src/communicationmanager.cpp \
     ../src/logdialog.cpp \
-    ../src/logmodel.cpp \
-    ../src/datafileexporter.cpp
+    ../src/datafileexporter.cpp \
+    ../src/settingsmodel.cpp
 
 FORMS    += \
     ../src/mainwindow.ui \
@@ -77,15 +76,14 @@ HEADERS += \
     ../src/registerdata.h \
     ../src/connectiondialog.h \
     ../src/registerdialog.h \
-    ../src/connectionmodel.h \
     ../src/basicgraphview.h \
     ../src/extendedgraphview.h \
     ../src/guimodel.h \
     ../src/graphdata.h \
     ../src/communicationmanager.h \
     ../src/logdialog.h \
-    ../src/logmodel.h \
-    ../src/datafileexporter.h
+    ../src/datafileexporter.h \
+    ../src/settingsmodel.h
 
 RESOURCES += \
     ../resources/resource.qrc
