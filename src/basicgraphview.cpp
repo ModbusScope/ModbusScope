@@ -466,11 +466,11 @@ void BasicGraphView::axisDoubleClicked(QCPAxis * axis)
     }
 }
 
-QString BasicGraphView::createTickLabelString(qint32 tickKey)
+QString BasicGraphView::createTickLabelString(qint64 tickKey)
 {
     QString tickLabel;
     bool bNegative;
-    quint32 tmp;
+    quint64 tmp;
 
     if (tickKey < 0)
     {
@@ -482,6 +482,8 @@ QString BasicGraphView::createTickLabelString(qint32 tickKey)
         bNegative = false;
         tmp = tickKey;
     }
+
+    tmp %= 24 * 60 * 60 * 1000; // Number of seconds in a day
 
     quint32 hours = tmp / (60 * 60 * 1000);
     tmp = tmp % (60 * 60 * 1000);

@@ -6,13 +6,14 @@
 
 /* Forward declaration */
 class CommunicationManager;
+class SettingsModel;
 
 class ExtendedGraphView : public BasicGraphView
 {
     Q_OBJECT
 
 public:
-    ExtendedGraphView(CommunicationManager * pConnMan, GuiModel *pGuiModel, QCustomPlot *pPlot, QObject *parent);
+    ExtendedGraphView(CommunicationManager * pConnMan, GuiModel *pGuiModel, SettingsModel * pSettingsModel, QCustomPlot *pPlot, QObject *parent);
     virtual ~ExtendedGraphView();
 
     QList<double> graphTimeData();
@@ -35,6 +36,9 @@ private slots:
 private:
 
     CommunicationManager * _pConnMan;
+    SettingsModel * _pSettingsModel;
+
+    qint32 _diffWithUtc;
 
 };
 

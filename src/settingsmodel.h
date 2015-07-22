@@ -19,6 +19,7 @@ public:
     void setSlaveId(quint8 id);
     void setTimeout(quint32 timeout);
 
+
     QString writeDuringLogPath();
     quint32 writeDuringLog();
     QString ipAddress();
@@ -26,9 +27,11 @@ public:
     quint8 slaveId();
     quint32 timeout();
     quint32 pollTime();
+    bool absoluteTimes();
 
 public slots:
     void setWriteDuringLog(bool bState);
+    void setAbsoluteTimes(bool bAbsolute);
 
 signals:
     void pollTimeChanged();
@@ -38,6 +41,7 @@ signals:
     void portChanged();
     void slaveIdChanged();
     void timeoutChanged();
+    void absoluteTimesChanged();
 
 private:
 
@@ -46,6 +50,7 @@ private:
     quint8 _slaveId;
     quint32 _timeout;
     quint32 _pollTime;
+    bool _bAbsoluteTimes;
 
     bool _bWriteDuringLog;
     QString _writeDuringLogPath;

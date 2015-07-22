@@ -73,7 +73,7 @@ protected:
     bool _bEnableSampleHighlight;
 
 private:
-    QString createTickLabelString(qint32 tickKey);
+    QString createTickLabelString(qint64 tickKey);
     void highlightSamples(bool bState);
     qint32 graphIndex(QCPGraph * pGraph);
 

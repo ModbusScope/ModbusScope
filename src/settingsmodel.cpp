@@ -10,6 +10,7 @@ SettingsModel::SettingsModel(QObject *parent) :
     _port = 502;
     _slaveId = 1;
     _timeout = 1000;
+    _bAbsoluteTimes = false;
 }
 
 SettingsModel::~SettingsModel()
@@ -26,6 +27,7 @@ void SettingsModel::triggerUpdate(void)
     emit portChanged();
     emit slaveIdChanged();
     emit timeoutChanged();
+    emit absoluteTimesChanged();
 }
 
 void SettingsModel::setPollTime(quint32 pollTime)
@@ -40,6 +42,20 @@ void SettingsModel::setPollTime(quint32 pollTime)
 quint32 SettingsModel::pollTime()
 {
     return _pollTime;
+}
+
+void SettingsModel::setAbsoluteTimes(bool bAbsolute)
+{
+    if (_bAbsoluteTimes != bAbsolute)
+    {
+        _bAbsoluteTimes = bAbsolute;
+        emit absoluteTimesChanged();
+    }
+}
+
+bool SettingsModel::absoluteTimes()
+{
+    return _bAbsoluteTimes;
 }
 
 void SettingsModel::setWriteDuringLog(bool bState)

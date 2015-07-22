@@ -18,10 +18,12 @@ LogDialog::LogDialog(SettingsModel * pSettingsModel, GuiModel * pGuiModel, QWidg
     /*-- View connections --*/
     connect(_pUi->checkWriteDuringLog, SIGNAL(toggled(bool)), _pSettingsModel, SLOT(setWriteDuringLog(bool)));
     connect(_pUi->buttonWriteDuringLogPath, SIGNAL(clicked()), this, SLOT(selectLogFile()));
+    connect(_pUi->checkAbsoluteTimes, SIGNAL(toggled(bool)), _pSettingsModel, SLOT(setAbsoluteTimes(bool)));
 
     /*-- connect model to view --*/
     connect(_pSettingsModel, SIGNAL(pollTimeChanged()), this, SLOT(updatePollTime()));
     connect(_pSettingsModel, SIGNAL(writeDuringLogChanged()), this, SLOT(updateWriteDuringLog()));
+    connect(_pSettingsModel, SIGNAL(absoluteTimesChanged()), this, SLOT(updateAbsoluteTime()));
 }
 
 LogDialog::~LogDialog()
@@ -80,12 +82,21 @@ void LogDialog::updateWriteDuringLog()
 {
     if (_pSettingsModel->writeDuringLog())
     {
+        _pUi->checkWriteDuringLog->setChecked(true);
         _pUi->lineWriteDuringLogPath->setEnabled(true);
         _pUi->buttonWriteDuringLogPath->setEnabled(true);
     }
     else
     {
+        _pUi->checkWriteDuringLog->setChecked(false);
         _pUi->lineWriteDuringLogPath->setEnabled(false);
         _pUi->buttonWriteDuringLogPath->setEnabled(false);
     }
 }
+
+void LogDialog::updateAbsoluteTime()
+{
+    _pUi->checkAbsoluteTimes->setChecked(_pSettingsModel->absoluteTimes());
+}
+
+

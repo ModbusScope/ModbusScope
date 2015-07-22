@@ -38,7 +38,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pRegisterDialog = new RegisterDialog(_pRegisterModel);
 
     _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pSettingsModel);
-    _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pUi->customPlot, this);
+    _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pUi->customPlot, this);
 
     _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphView);
 

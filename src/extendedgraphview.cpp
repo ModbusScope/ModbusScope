@@ -3,13 +3,21 @@
 #include "guimodel.h"
 #include "extendedgraphview.h"
 #include "communicationmanager.h"
+#include "settingsmodel.h"
 
-ExtendedGraphView::ExtendedGraphView(CommunicationManager * pConnMan, GuiModel * pGuiModel, QCustomPlot * pPlot, QObject *parent):
+ExtendedGraphView::ExtendedGraphView(CommunicationManager * pConnMan, GuiModel * pGuiModel, SettingsModel * pSettingsModel, QCustomPlot * pPlot, QObject *parent):
     BasicGraphView(pGuiModel, pPlot)
 {
     Q_UNUSED(parent);
 
     _pConnMan = pConnMan;
+    _pSettingsModel = pSettingsModel;
+
+    //Get difference between UTC and local in milliseconds
+    QDateTime local(QDateTime::currentDateTime());
+    QDateTime UTC(local.toUTC());
+    QDateTime dt(UTC.date(), UTC.time(), Qt::LocalTime);
+    _diffWithUtc = dt.secsTo(local) * 1000;
 
     connect(_pPlot->xAxis, SIGNAL(rangeChanged(QCPRange, QCPRange)), this, SLOT(xAxisRangeChanged(QCPRange, QCPRange)));
 
@@ -39,7 +47,16 @@ void ExtendedGraphView::addData(QList<double> timeData, QList<QList<double> > da
 
 void ExtendedGraphView::plotResults(QList<bool> successList, QList<double> valueList)
 {
-    const quint64 diff = QDateTime::currentMSecsSinceEpoch() - _pGuiModel->communicationStartTime();
+    quint64 timeData;
+    if (_pSettingsModel->absoluteTimes())
+    {
+        // Epoch is UTC time, so add the difference between zones in milliseconds
+        timeData = QDateTime::currentMSecsSinceEpoch() + _diffWithUtc;
+    }
+    else
+    {
+        timeData = QDateTime::currentMSecsSinceEpoch() - _pGuiModel->communicationStartTime();
+    }
 
     QList<double> dataList;
 
@@ -48,20 +65,20 @@ void ExtendedGraphView::plotResults(QList<bool> successList, QList<double> value
         if (successList[i])
         {
             // No error, add points
-            _pPlot->graph(i)->addData(diff, valueList[i]);
+            _pPlot->graph(i)->addData(timeData, valueList[i]);
             dataList.append(valueList[i]);
 
             _pPlot->graph(i)->setName(QString("(%1) %2").arg(Util::formatDoubleForExport(valueList[i])).arg(_pGuiModel->graphLabel(i)));
         }
         else
         {
-            _pPlot->graph(i)->addData(diff, 0);
+            _pPlot->graph(i)->addData(timeData, 0);
             dataList.append(0);
             _pPlot->graph(i)->setName(QString("(-) %1").arg(_pGuiModel->graphLabel(i)));
         }
     }
 
-    emit dataAddedToPlot(diff, dataList);
+    emit dataAddedToPlot(timeData, dataList);
 
    rescalePlot();
 
