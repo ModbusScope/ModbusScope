@@ -114,35 +114,38 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
 
     while (bResult && bRet)
     {
-        QStringList paramList = line.split(Util::separatorCharacter());
-
-        if (paramList.size() != (qint32)_expectedFields)
+        if (!line.trimmed().isEmpty())
         {
-            QString txt = QString(tr("The number of label columns doesn't match number of data columns!\nLabel count: %1\nData count: %2")).arg(_expectedFields).arg(paramList.size());
-            showError(txt);
-            bRet = false;
-            break;
-        }
+            QStringList paramList = line.split(Util::separatorCharacter());
 
-        for (qint32 i = 0; i < paramList.size(); i++)
-        {
-            bool bError = false;
-            const double number = QLocale::system().toDouble(paramList[i], &bError);
-
-            if (bError == false)
+            if (paramList.size() != (qint32)_expectedFields)
             {
-                QString error = QString(tr("Invalid data (while processing data)\n"
-                                           "Line: %1\n"
-                                           "Are you sure the decimal separator character is according to your locale?"
-                                           "\n\nExpected decimal separator: \'%2\'"
-                                           ).arg(line).arg(Util::separatorCharacter()));
-                showError(error);
+                QString txt = QString(tr("The number of label columns doesn't match number of data columns!\nLabel count: %1\nData count: %2")).arg(_expectedFields).arg(paramList.size());
+                showError(txt);
                 bRet = false;
                 break;
             }
-            else
+
+            for (qint32 i = 0; i < paramList.size(); i++)
             {
-                dataRows[i].append(number);
+                bool bError = false;
+                const double number = QLocale::system().toDouble(paramList[i], &bError);
+
+                if (bError == false)
+                {
+                    QString error = QString(tr("Invalid data (while processing data)\n"
+                                               "Line: %1\n"
+                                               "Are you sure the decimal separator character is according to your locale?"
+                                               "\n\nExpected decimal separator: \'%2\'"
+                                               ).arg(line).arg(Util::separatorCharacter()));
+                    showError(error);
+                    bRet = false;
+                    break;
+                }
+                else
+                {
+                    dataRows[i].append(number);
+                }
             }
         }
 

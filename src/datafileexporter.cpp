@@ -207,8 +207,6 @@ void DataFileExporter::writeToFile(QString filePath, QStringList logData)
         {
             stream << line << "\n";
         }
-
-        stream << "\n";
     }
     else
     {
