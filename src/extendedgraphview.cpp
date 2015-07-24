@@ -113,10 +113,10 @@ void ExtendedGraphView::rescalePlot()
     else if (_pGuiModel->xAxisScalingMode() == SCALE_SLIDING)
     {
         // sliding window scale routine
-        const quint32 slidingInterval = _pGuiModel->xAxisSlidingSec() * 1000;
+        const quint64 slidingInterval = _pGuiModel->xAxisSlidingSec() * 1000;
         if ((_pPlot->graphCount() != 0) && (_pPlot->graph(0)->data()->keys().size()))
         {
-            const quint32 lastTime = _pPlot->graph(0)->data()->keys().last();
+            const quint64 lastTime = _pPlot->graph(0)->data()->keys().last();
             if (lastTime > slidingInterval)
             {
                 _pPlot->xAxis->setRange(lastTime - slidingInterval, lastTime);
