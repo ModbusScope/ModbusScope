@@ -166,11 +166,11 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete _pGraphView;
-    delete _pGuiModel;
     delete _pConnectionDialog;
     delete _pRegisterDialog;
-    delete _pSettingsModel;
     delete _pConnMan;
+    delete _pSettingsModel;
+    delete _pGuiModel;
     delete _pGraphShowHide;
     delete _pGraphBringToFront;
     delete _pUi;
