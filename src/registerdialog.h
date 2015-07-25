@@ -18,6 +18,7 @@ public:
     ~RegisterDialog();
 
 private slots:
+    void done(int r);
     void addRegisterRow();
     void removeRegisterRow();
     void updateColumns();

@@ -1,3 +1,6 @@
+
+#include <QMessageBox>
+
 #include "registerdialog.h"
 #include "ui_registerdialog.h"
 
@@ -36,6 +39,37 @@ RegisterDialog::~RegisterDialog()
 {
     delete _pUi;
 }
+
+void RegisterDialog::done(int r)
+{
+    bool bValid = true;
+
+    if(QDialog::Accepted == r)  // ok was pressed
+    {
+        quint16 duplicateReg = 0;
+        if (!_pRegisterModel->areExclusive(&duplicateReg))
+        {
+            bValid = false;
+
+            QMessageBox msgBox;
+            msgBox.setWindowTitle(tr("Duplicate register!"));
+            msgBox.setIcon(QMessageBox::Warning);
+            msgBox.setText(tr("The register (%1) is already present in the list.").arg(duplicateReg));
+            msgBox.exec();
+        }
+    }
+    else
+    {
+        // cancel, close or exc was pressed
+        bValid = true;
+    }
+
+    if (bValid)
+    {
+        QDialog::done(r);
+    }
+}
+
 
 void RegisterDialog::addRegisterRow()
 {

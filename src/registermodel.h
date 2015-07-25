@@ -28,13 +28,13 @@ public:
     void clear(const QModelIndex &parent = QModelIndex());
     void appendRow(RegisterData rowData, const QModelIndex &parent = QModelIndex());
 
+    bool areExclusive(quint16 * pRegister);
+
 signals:
 
 public slots:
 
 private:
-
-    bool IsAlreadyPresent(quint16 newReg);
     quint16 nextFreeAddress();
 
     QList<RegisterData> _dataList;

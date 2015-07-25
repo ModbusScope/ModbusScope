@@ -152,17 +152,7 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
         if (role == Qt::EditRole)
         {
             const quint16 newAddr = value.toInt();
-            if (
-                (_dataList[index.row()].registerAddress() != newAddr)
-                && (IsAlreadyPresent(newAddr))
-                )
-            {
-                bRet = false;
-            }
-            else
-            {
-                _dataList[index.row()].setRegisterAddress(newAddr);
-            }
+            _dataList[index.row()].setRegisterAddress(newAddr);
         }
         break;
     case 3:
@@ -335,29 +325,21 @@ void RegisterModel::appendRow(RegisterData rowData, const QModelIndex &parent)
     emit dataChanged(parent, parent);
 }
 
-bool RegisterModel::IsAlreadyPresent(quint16 newReg)
+bool RegisterModel::areExclusive(quint16 * pRegister)
 {
-    bool bFound = false;
-
-    for (int i = 0; i < _dataList.size(); i++)
+    for (qint32 idx = 0; idx < (_dataList.size() - 1); idx++) // Don't need to check last entry
     {
-        if (_dataList[i].registerAddress() == newReg)
+        for (int checkIdx = (idx + 1); checkIdx < _dataList.size(); checkIdx++)
         {
-            bFound = true;
-            break;
+            if (_dataList[idx].registerAddress() == _dataList[checkIdx].registerAddress())
+            {
+                *pRegister = _dataList[idx].registerAddress();
+                return false;
+            }
         }
     }
 
-    if (bFound)
-    {
-        QMessageBox msgBox;
-        msgBox.setWindowTitle(tr("Duplicate register!"));
-        msgBox.setIcon(QMessageBox::Warning);
-        msgBox.setText(tr("The register is already present in the list."));
-        msgBox.exec();
-    }
-
-    return bFound;
+    return true;
 }
 
 quint16 RegisterModel::nextFreeAddress()
