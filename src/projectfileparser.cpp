@@ -17,15 +17,6 @@ bool ProjectFileParser::parseFile(QIODevice *device, ProjectSettings *pSettings)
     qint32 errorLine;
     qint32 errorColumn;
 
-    // reset to defaults
-    pSettings->general.bIp = false;
-    pSettings->general.bPollTime = false;
-    pSettings->general.bPort = false;
-    pSettings->general.bSlaveId = false;
-    pSettings->general.bTimeout = false;
-    pSettings->scale.bSliding = false;
-    pSettings->scale.bMinMax = false;
-
     if (!_domDocument.setContent(device, true, &errorStr, &errorLine, &errorColumn))
     {
         _msgBox.setText(tr("Parse error at line %1, column %2:\n%3")
@@ -179,7 +170,10 @@ bool ProjectFileParser::parseScopeTag(const QDomElement &element, ScopeSettings 
 
             for (int i = 0; i < pScopeSettings->registerList.size(); i++)
             {
-                if (pScopeSettings->registerList[i].address == registerData.address)
+                if (
+                        (pScopeSettings->registerList[i].address == registerData.address)
+                        && (pScopeSettings->registerList[i].bitmask == registerData.bitmask)
+                    )
                 {
                     bFound = true;
                     break;
@@ -188,7 +182,7 @@ bool ProjectFileParser::parseScopeTag(const QDomElement &element, ScopeSettings 
 
             if (bFound)
             {
-                _msgBox.setText(tr("The register (%1) is defined twice in the list.").arg(registerData.address));
+                _msgBox.setText(tr("Register %1 with bitmask 0x%2 is defined twice in the list.").arg(registerData.address).arg(registerData.bitmask, 0, 16));
                 _msgBox.exec();
                 bRet = false;
                 break;
@@ -212,7 +206,6 @@ bool ProjectFileParser::parseScopeTag(const QDomElement &element, ScopeSettings 
 bool ProjectFileParser::parseVariableTag(const QDomElement &element, RegisterSettings *pRegisterSettings)
 {
     bool bRet = true;
-
 
     // Check attribute
     QString active = element.attribute("active", "false");
@@ -276,6 +269,21 @@ bool ProjectFileParser::parseVariableTag(const QDomElement &element, RegisterSet
             else
             {
                 _msgBox.setText(tr("Color is not a valid double. Did you use correct color format? Expecting #FF0000 (red)"));
+                _msgBox.exec();
+                break;
+            }
+        }
+        else if (child.tagName() == "bitmask")
+        {
+            const quint16 newBitMask = child.text().toUInt(&bRet, 0);
+
+            if (bRet)
+            {
+                pRegisterSettings->bitmask = newBitMask;
+            }
+            else
+            {
+                _msgBox.setText(tr("Bitmask (\"%1\") is not a valid integer.").arg(child.text()));
                 _msgBox.exec();
                 break;
             }

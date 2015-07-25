@@ -16,13 +16,12 @@ RegisterDialog::RegisterDialog(RegisterModel * pRegisterModel, QWidget *parent) 
     _pUi->registerView->setModel(_pRegisterModel);
     _pUi->registerView->verticalHeader()->hide();
 
-    /* Stretch all columns */
-    _pUi->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    /* Don't stretch columns */
+    _pUi->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     /* Except following columns */
     //_pUi->registerView->horizontalHeader()->set(0, QHeaderView::ResizeToContents);
-    _pUi->registerView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    _pUi->registerView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    _pUi->registerView->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
 
     // Select using click, shift and control
     _pUi->registerView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -47,14 +46,15 @@ void RegisterDialog::done(int r)
     if(QDialog::Accepted == r)  // ok was pressed
     {
         quint16 duplicateReg = 0;
-        if (!_pRegisterModel->areExclusive(&duplicateReg))
+        quint16 duplicateBitMask = 0;
+        if (!_pRegisterModel->areExclusive(&duplicateReg, &duplicateBitMask))
         {
             bValid = false;
 
             QMessageBox msgBox;
             msgBox.setWindowTitle(tr("Duplicate register!"));
             msgBox.setIcon(QMessageBox::Warning);
-            msgBox.setText(tr("The register (%1) is already present in the list.").arg(duplicateReg));
+            msgBox.setText(tr("Register %1 with bitmask 0x%2 is defined twice in the list.").arg(duplicateReg).arg(duplicateBitMask, 0, 16));
             msgBox.exec();
         }
     }

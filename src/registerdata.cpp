@@ -6,6 +6,7 @@ RegisterData::RegisterData()
     _bUnsigned = false;
     _scaleFactor = 1;
     _reg = 0;
+    _bitmask = 0xFFFF;
     _text = "";
     _color = QColor("-1");
 }
@@ -15,6 +16,7 @@ void RegisterData::CopyTo(RegisterData * pData)
     pData->setActive(this->isActive());
     pData->setColor(this->color());
     pData->setRegisterAddress(this->registerAddress());
+    pData->setBitmask(this->bitmask());
     pData->setScaleFactor(this->scaleFactor());
     pData->setText(this->text());
     pData->setUnsigned(this->isUnsigned());
@@ -69,6 +71,16 @@ quint16 RegisterData::registerAddress() const
 void RegisterData::setRegisterAddress(const quint16 &value)
 {
     _reg = value;
+}
+
+quint16 RegisterData::bitmask() const
+{
+    return _bitmask;
+}
+
+void RegisterData::setBitmask(const quint16 &value)
+{
+    _bitmask = value;
 }
 
 bool RegisterData::isActive() const

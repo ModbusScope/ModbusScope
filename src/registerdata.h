@@ -23,6 +23,9 @@ public:
     quint16 registerAddress() const;
     void setRegisterAddress(const quint16 &value);
 
+    quint16 bitmask() const;
+    void setBitmask(const quint16 &value);
+
     QString text() const;
     void setText(const QString &value);
 
@@ -37,6 +40,7 @@ private:
     bool _bUnsigned;
     double _scaleFactor;
     quint16 _reg;
+    quint16 _bitmask;
     QString _text;
     QColor _color;
 };

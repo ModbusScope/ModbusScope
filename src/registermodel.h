@@ -28,7 +28,7 @@ public:
     void clear(const QModelIndex &parent = QModelIndex());
     void appendRow(RegisterData rowData, const QModelIndex &parent = QModelIndex());
 
-    bool areExclusive(quint16 * pRegister);
+    bool areExclusive(quint16 * pRegister, quint16 *pBitmask);
 
 signals:
 

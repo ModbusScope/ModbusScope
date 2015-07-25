@@ -806,6 +806,7 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
         rowData.setActive(pProjectSettings->scope.registerList[i].bActive);
         rowData.setUnsigned(pProjectSettings->scope.registerList[i].bUnsigned);
         rowData.setRegisterAddress(pProjectSettings->scope.registerList[i].address);
+        rowData.setBitmask(pProjectSettings->scope.registerList[i].bitmask);
         rowData.setText(pProjectSettings->scope.registerList[i].text);
         rowData.setScaleFactor(pProjectSettings->scope.registerList[i].scaleFactor);
         rowData.setColor(pProjectSettings->scope.registerList[i].color);

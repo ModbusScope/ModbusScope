@@ -22,8 +22,9 @@ int RegisterModel::columnCount(const QModelIndex & /*parent*/) const
     * Register
     * Text
     * Scale factor
+    * Bitmask
     * */
-    return 5; // Number of visible members of struct
+    return 6; // Number of visible members of struct
 }
 
 QVariant RegisterModel::data(const QModelIndex &index, int role) const
@@ -75,6 +76,13 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
             return Util::formatDoubleForExport(_dataList[index.row()].scaleFactor());
         }
         break;
+    case 5:
+        if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
+        {
+            // Show hex value
+            return QString("0x%1").arg(_dataList[index.row()].bitmask(), 0, 16);
+        }
+        break;
     default:
         return QVariant();
         break;
@@ -102,6 +110,8 @@ QVariant RegisterModel::headerData(int section, Qt::Orientation orientation, int
                 return QString("Text");
             case 4:
                 return QString("Scale");
+            case 5:
+                return QString("Bitmask");
             default:
                 return QVariant();
             }
@@ -182,6 +192,28 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
             }
         }
         break;
+    case 5:
+        if (role == Qt::EditRole)
+        {
+            bool bSuccess = false;
+            const quint16 newBitMask = value.toString().toUInt(&bSuccess, 0);
+
+            if (bSuccess)
+            {
+                _dataList[index.row()].setBitmask(newBitMask);
+            }
+            else
+            {
+                bRet = false;
+                QMessageBox msgBox;
+                msgBox.setWindowTitle(tr("ModbusScope data error"));
+                msgBox.setIcon(QMessageBox::Warning);
+                msgBox.setText(tr("Bitmask is not a valid integer."));
+                msgBox.exec();
+                break;
+            }
+        }
+        break;
     default:
         break;
 
@@ -249,7 +281,8 @@ bool RegisterModel::insertRows (int row, int count, const QModelIndex &parent)
     data.setActive(true);
     data.setUnsigned(false);
     data.setRegisterAddress(nextFreeAddress());
-    data.setText(QString("Register %1").arg(data.registerAddress()));
+    data.setBitmask(0xFFFF);
+    data.setText(QString("Register %1 (bitmask: 0x%2)").arg(data.registerAddress()).arg(data.bitmask(), 0, 16));
     data.setScaleFactor(1);
     data.setColor("-1"); // Invalid color
     _dataList.append(data);
@@ -300,7 +333,7 @@ void RegisterModel::checkedRegisterList(QList<RegisterData> * pRegisterList)
         }
     }
 
-    // Sort by register address
+    // Sort by register addresscolor
     std::sort(pRegisterList->begin(), pRegisterList->end(), &RegisterData::sortRegisterDataList);
 }
 
@@ -325,15 +358,19 @@ void RegisterModel::appendRow(RegisterData rowData, const QModelIndex &parent)
     emit dataChanged(parent, parent);
 }
 
-bool RegisterModel::areExclusive(quint16 * pRegister)
+bool RegisterModel::areExclusive(quint16 * pRegister, quint16 * pBitmask)
 {
     for (qint32 idx = 0; idx < (_dataList.size() - 1); idx++) // Don't need to check last entry
     {
         for (int checkIdx = (idx + 1); checkIdx < _dataList.size(); checkIdx++)
         {
-            if (_dataList[idx].registerAddress() == _dataList[checkIdx].registerAddress())
+            if (
+                (_dataList[idx].registerAddress() == _dataList[checkIdx].registerAddress())
+                && (_dataList[idx].bitmask() == _dataList[checkIdx].bitmask())
+            )
             {
                 *pRegister = _dataList[idx].registerAddress();
+                *pBitmask = _dataList[idx].bitmask();
                 return false;
             }
         }

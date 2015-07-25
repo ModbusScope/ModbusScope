@@ -12,13 +12,14 @@ public:
 
     typedef struct _RegisterSettings
     {
-        _RegisterSettings() : bActive(false), bUnsigned(false), scaleFactor(1), bColor(false) {}
+        _RegisterSettings() : bActive(false), bUnsigned(false), scaleFactor(1), bitmask(0xFFFF), bColor(false) {}
 
         quint16 address;
         QString text;
         bool bActive;
         bool bUnsigned;
         double scaleFactor;
+        quint16 bitmask;
 
         bool bColor;
         QColor color;
@@ -30,8 +31,10 @@ public:
         QList<RegisterSettings> registerList;
     } ScopeSettings;
 
-    typedef struct
+    typedef struct _ScaleSettings
     {
+        _ScaleSettings() : bSliding(false), bMinMax(false) {}
+
         bool bSliding;
         quint32 slidingInterval;
 
