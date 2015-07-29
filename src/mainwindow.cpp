@@ -368,11 +368,6 @@ void MainWindow::startScope()
         QList<RegisterData> regList;
         _pRegisterModel->checkedRegisterList(&regList);
 
-        if (_pSettingsModel->writeDuringLog())
-        {
-            _pDataFileExporter->enableExporterDuringLog();
-        }
-
         if (_pConnMan->startCommunication(regList))
         {
             QList<RegisterData> regList;
@@ -380,6 +375,11 @@ void MainWindow::startScope()
 
             _pGuiModel->clearGraph();
             _pGuiModel->addGraphs(regList);
+        }
+
+        if (_pSettingsModel->writeDuringLog())
+        {
+            _pDataFileExporter->enableExporterDuringLog();
         }
 
         if (_pGuiModel->xAxisScalingMode() == BasicGraphView::SCALE_MANUAL)
