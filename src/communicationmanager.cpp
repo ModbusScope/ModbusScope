@@ -110,8 +110,11 @@ void CommunicationManager::handlePollDone(QList<bool> successList, QList<quint16
             processedValue.append((qint16)values[i]);
         }
 
+        // Apply bitmask
+        processedValue[i] = (quint16)(processedValue[i]) & _registerlist[i].bitmask();
+
         // Apply scaleFactor
-        processedValue[processedValue.size() - 1] = processedValue[processedValue.size() - 1] * _registerlist[i].scaleFactor();
+        processedValue[i] = processedValue[i] * _registerlist[i].scaleFactor();
     }
 
     // propagate processed data

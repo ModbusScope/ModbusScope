@@ -21,8 +21,8 @@ int RegisterModel::columnCount(const QModelIndex & /*parent*/) const
     * bUnsigned
     * Register
     * Text
-    * Scale factor
     * Bitmask
+    * Scale factor
     * */
     return 6; // Number of visible members of struct
 }
@@ -73,14 +73,14 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
     case 4:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return Util::formatDoubleForExport(_dataList[index.row()].scaleFactor());
+            // Show hex value
+            return QString("0x%1").arg(_dataList[index.row()].bitmask(), 0, 16);
         }
         break;
     case 5:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            // Show hex value
-            return QString("0x%1").arg(_dataList[index.row()].bitmask(), 0, 16);
+            return Util::formatDoubleForExport(_dataList[index.row()].scaleFactor());
         }
         break;
     default:
@@ -109,9 +109,9 @@ QVariant RegisterModel::headerData(int section, Qt::Orientation orientation, int
             case 3:
                 return QString("Text");
             case 4:
-                return QString("Scale");
-            case 5:
                 return QString("Bitmask");
+            case 5:
+                return QString("Scale");
             default:
                 return QVariant();
             }
@@ -175,27 +175,6 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
         if (role == Qt::EditRole)
         {
             bool bSuccess = false;
-            const double parseResult = QLocale::system().toDouble(value.toString(), &bSuccess);
-            if (bSuccess)
-            {
-                _dataList[index.row()].setScaleFactor(parseResult);
-            }
-            else
-            {
-                bRet = false;
-                QMessageBox msgBox;
-                msgBox.setWindowTitle(tr("ModbusScope data error"));
-                msgBox.setIcon(QMessageBox::Warning);
-                msgBox.setText(tr("Scale factor is not a valid double. Did you use correct decimal separator character? Expecting \"%1\"").arg(QLocale::system().decimalPoint()));
-                msgBox.exec();
-                break;
-            }
-        }
-        break;
-    case 5:
-        if (role == Qt::EditRole)
-        {
-            bool bSuccess = false;
             const quint16 newBitMask = value.toString().toUInt(&bSuccess, 0);
 
             if (bSuccess)
@@ -209,6 +188,27 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
                 msgBox.setWindowTitle(tr("ModbusScope data error"));
                 msgBox.setIcon(QMessageBox::Warning);
                 msgBox.setText(tr("Bitmask is not a valid integer."));
+                msgBox.exec();
+                break;
+            }
+        }
+        break;
+    case 5:
+        if (role == Qt::EditRole)
+        {
+            bool bSuccess = false;
+            const double parseResult = QLocale::system().toDouble(value.toString(), &bSuccess);
+            if (bSuccess)
+            {
+                _dataList[index.row()].setScaleFactor(parseResult);
+            }
+            else
+            {
+                bRet = false;
+                QMessageBox msgBox;
+                msgBox.setWindowTitle(tr("ModbusScope data error"));
+                msgBox.setIcon(QMessageBox::Warning);
+                msgBox.setText(tr("Scale factor is not a valid double. Did you use correct decimal separator character? Expecting \"%1\"").arg(QLocale::system().decimalPoint()));
                 msgBox.exec();
                 break;
             }

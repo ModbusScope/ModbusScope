@@ -20,7 +20,6 @@ RegisterDialog::RegisterDialog(RegisterModel * pRegisterModel, QWidget *parent) 
     _pUi->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     /* Except following columns */
-    //_pUi->registerView->horizontalHeader()->set(0, QHeaderView::ResizeToContents);
     _pUi->registerView->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
 
     // Select using click, shift and control
