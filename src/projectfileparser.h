@@ -51,7 +51,7 @@ public:
 
     typedef struct _GeneralSettings
     {
-        _GeneralSettings() : bIp(false), bPort(false), bPollTime(false), bSlaveId(false), bTimeout(false) {}
+        _GeneralSettings() : bIp(false), bPort(false), bPollTime(false), bSlaveId(false), bTimeout(false), bConsecutiveMax(false) {}
 
         bool bIp;
         QString ip;
@@ -67,6 +67,9 @@ public:
 
         bool bTimeout;
         quint32 timeout;
+
+        bool bConsecutiveMax;
+        quint8 consecutiveMax;
 
     } GeneralSettings;
 

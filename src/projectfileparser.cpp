@@ -139,6 +139,18 @@ bool ProjectFileParser::parseModbusTag(const QDomElement &element, GeneralSettin
                 break;
             }
         }
+        else if (child.tagName() == "consecutivemax")
+        {
+            pGeneralSettings->bConsecutiveMax = true;
+            pGeneralSettings->consecutiveMax = child.text().toUInt(&bRet);
+            if (!bRet)
+            {
+                _msgBox.setText(tr("Consecutive register maximum ( %1 ) is not a valid number").arg(child.text()));
+                _msgBox.exec();
+
+                break;
+            }
+        }
         else
         {
             // unkown tag: ignore

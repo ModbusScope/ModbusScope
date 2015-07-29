@@ -42,8 +42,6 @@ private:
     GuiModel * _pGuiModel;
     QThread * _pThread;
 
-    static const quint32 _cMaxRegistersInOneRead = 20;
-
 };
 
 #endif // MODBUSMASTER_H

@@ -110,7 +110,7 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
                     }
 
                     // Limit number of register in 1 read
-                    if (count > (_cMaxRegistersInOneRead - 1 - 1))
+                    if (count > (_pSettingsModel->consecutiveMax() - 1u - 1u))
                     {
                         break;
                     }

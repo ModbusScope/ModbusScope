@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>226</width>
-    <height>213</height>
+    <width>367</width>
+    <height>246</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -102,6 +102,20 @@
         </property>
         <property name="value">
          <number>1000</number>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Max consecutive registers</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QSpinBox" name="spinConsecutiveMax">
+        <property name="maximum">
+         <number>125</number>
         </property>
        </widget>
       </item>

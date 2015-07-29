@@ -761,6 +761,11 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
         _pSettingsModel->setTimeout(pProjectSettings->general.timeout);
     }
 
+    if (pProjectSettings->general.bConsecutiveMax)
+    {
+        _pSettingsModel->setConsecutiveMax(pProjectSettings->general.consecutiveMax);
+    }
+
     if (pProjectSettings->scale.bSliding)
     {
         _pGuiModel->setxAxisSlidingInterval(pProjectSettings->scale.slidingInterval);

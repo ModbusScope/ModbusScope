@@ -5,6 +5,7 @@
 		<polltime>1000</polltime>
 		<slaveid>1</slaveid>
 		<timeout>1000</timeout>
+		<consecutivemax>100</consecutivemax>
 		<unknown>1</unknown>
 	</modbus>
 	<scope>

@@ -15,6 +15,7 @@ ConnectionDialog::ConnectionDialog(SettingsModel * pSettingsModel, QWidget *pare
     connect(_pSettingsModel, SIGNAL(portChanged()), this, SLOT(updatePort()));
     connect(_pSettingsModel, SIGNAL(slaveIdChanged()), this, SLOT(updateSlaveId()));
     connect(_pSettingsModel, SIGNAL(timeoutChanged()), this, SLOT(updateTimeout()));
+    connect(_pSettingsModel, SIGNAL(consecutiveMaxChanged()), this, SLOT(updateConsecutiveMax()));
 }
 
 ConnectionDialog::~ConnectionDialog()
@@ -42,6 +43,11 @@ void ConnectionDialog::updateTimeout()
     _pUi->spinTimeout->setValue(_pSettingsModel->timeout());
 }
 
+void ConnectionDialog::updateConsecutiveMax()
+{
+    _pUi->spinConsecutiveMax->setValue(_pSettingsModel->consecutiveMax());
+}
+
 void ConnectionDialog::done(int r)
 {
     bool bValid = true;
@@ -52,6 +58,7 @@ void ConnectionDialog::done(int r)
         _pSettingsModel->setPort(_pUi->spinPort->text().toInt());
         _pSettingsModel->setSlaveId(_pUi->spinSlaveId->text().toInt());
         _pSettingsModel->setTimeout(_pUi->spinTimeout->text().toUInt());
+        _pSettingsModel->setConsecutiveMax(_pUi->spinConsecutiveMax->text().toUInt());
 
         // Validate the data
         //bValid = validateSettingsData();

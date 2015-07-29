@@ -20,6 +20,7 @@ SettingsModel::SettingsModel(QObject *parent) :
     _port = 502;
     _slaveId = 1;
     _timeout = 1000;
+    _consecutiveMax = 125;
     _bAbsoluteTimes = false;
 }
 
@@ -38,6 +39,7 @@ void SettingsModel::triggerUpdate(void)
     emit slaveIdChanged();
     emit timeoutChanged();
     emit absoluteTimesChanged();
+    emit consecutiveMaxChanged();
 }
 
 void SettingsModel::setPollTime(quint32 pollTime)
@@ -66,6 +68,20 @@ void SettingsModel::setAbsoluteTimes(bool bAbsolute)
 bool SettingsModel::absoluteTimes()
 {
     return _bAbsoluteTimes;
+}
+
+void SettingsModel::setConsecutiveMax(quint8 max)
+{
+    if (_consecutiveMax != max)
+    {
+        _consecutiveMax = max;
+        emit consecutiveMaxChanged();
+    }
+}
+
+quint8 SettingsModel::consecutiveMax(void)
+{
+    return _consecutiveMax;
 }
 
 void SettingsModel::setWriteDuringLog(bool bState)

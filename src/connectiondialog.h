@@ -26,6 +26,7 @@ private slots:
     void updatePort();
     void updateSlaveId();
     void updateTimeout();
+    void updateConsecutiveMax();
 
 private:
     Ui::ConnectionDialog * _pUi;

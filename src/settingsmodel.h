@@ -18,7 +18,7 @@ public:
     void setPort(quint16 port);
     void setSlaveId(quint8 id);
     void setTimeout(quint32 timeout);
-
+    void setConsecutiveMax(quint8 max);
 
     QString writeDuringLogPath();
     quint32 writeDuringLog();
@@ -28,6 +28,7 @@ public:
     quint32 timeout();
     quint32 pollTime();
     bool absoluteTimes();
+    quint8 consecutiveMax();
 
 public slots:
     void setWriteDuringLog(bool bState);
@@ -42,6 +43,7 @@ signals:
     void slaveIdChanged();
     void timeoutChanged();
     void absoluteTimesChanged();
+    void consecutiveMaxChanged();
 
 private:
 
@@ -50,6 +52,8 @@ private:
     quint8 _slaveId;
     quint32 _timeout;
     quint32 _pollTime;
+    quint8 _consecutiveMax;
+
     bool _bAbsoluteTimes;
 
     bool _bWriteDuringLog;
