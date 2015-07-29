@@ -23,6 +23,7 @@ LogDialog::LogDialog(SettingsModel * pSettingsModel, GuiModel * pGuiModel, QWidg
     /*-- connect model to view --*/
     connect(_pSettingsModel, SIGNAL(pollTimeChanged()), this, SLOT(updatePollTime()));
     connect(_pSettingsModel, SIGNAL(writeDuringLogChanged()), this, SLOT(updateWriteDuringLog()));
+    connect(_pSettingsModel, SIGNAL(writeDuringLogPathChanged()), this, SLOT(updateWriteDuringLogPath()));
     connect(_pSettingsModel, SIGNAL(absoluteTimesChanged()), this, SLOT(updateAbsoluteTime()));
 }
 
@@ -92,6 +93,11 @@ void LogDialog::updateWriteDuringLog()
         _pUi->lineWriteDuringLogPath->setEnabled(false);
         _pUi->buttonWriteDuringLogPath->setEnabled(false);
     }
+}
+
+void LogDialog::updateWriteDuringLogPath()
+{
+    _pUi->lineWriteDuringLogPath->setText(_pSettingsModel->writeDuringLogPath());
 }
 
 void LogDialog::updateAbsoluteTime()

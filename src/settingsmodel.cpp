@@ -1,11 +1,21 @@
+
+#include <QDir>
+
 #include "settingsmodel.h"
 
 SettingsModel::SettingsModel(QObject *parent) :
     QObject(parent)
 {
+    QString tempDir = QDir::toNativeSeparators(QDir::tempPath());
+
+    if (tempDir.right(1) != QDir::separator())
+    {
+        tempDir.append(QDir::separator());
+    }
+
     _pollTime = 1000;
-    _bWriteDuringLog = false;
-    _writeDuringLogPath = "";
+    _bWriteDuringLog = true;
+    _writeDuringLogPath = tempDir.append(tr("ModbusScope-autolog.csv"));
     _ipAddress = "127.0.0.1";
     _port = 502;
     _slaveId = 1;

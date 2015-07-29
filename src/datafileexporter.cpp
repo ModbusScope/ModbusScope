@@ -15,8 +15,6 @@ DataFileExporter::DataFileExporter(GuiModel *pGuiModel, SettingsModel * pSetting
     _pSettingsModel = pSettingsModel;
     _pGraphView = pGraphView;
 
-    _bExportDuringLog = false;
-
     connect(_pGraphView, SIGNAL(dataAddedToPlot(double, QList<double>)), this, SLOT(exportDataLine(double, QList <double>)));
 }
 
@@ -30,8 +28,6 @@ void DataFileExporter::enableExporterDuringLog()
     _dataExportBuffer.clear();
     lastLogTime = QDateTime::currentMSecsSinceEpoch();
 
-    _bExportDuringLog = true;
-
     // Clean file
     clearFile(_pSettingsModel->writeDuringLogPath());
 
@@ -40,13 +36,12 @@ void DataFileExporter::enableExporterDuringLog()
 
 void DataFileExporter::disableExporterDuringLog()
 {
-    _bExportDuringLog = false;
     flushExportBuffer();
 }
 
 void DataFileExporter::exportDataLine(double timeData, QList <double> dataValues)
 {
-    if (_bExportDuringLog)
+    if (_pSettingsModel->writeDuringLog())
     {
         // Use buffering
         _dataExportBuffer.append(formatData(timeData, dataValues));
@@ -210,6 +205,15 @@ void DataFileExporter::writeToFile(QString filePath, QStringList logData)
     }
     else
     {
+        if (
+                (_pSettingsModel->writeDuringLogPath() == filePath)
+                && (_pSettingsModel->writeDuringLog())
+            )
+        {
+            // Disable logging to file on write error
+            _pSettingsModel->setWriteDuringLog(false);
+        }
+
         QMessageBox msgBox;
         msgBox.setWindowTitle(tr("ModbusScope export error"));
         msgBox.setIcon(QMessageBox::Warning);

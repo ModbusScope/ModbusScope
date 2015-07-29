@@ -41,7 +41,6 @@ private:
 
     QStringList _dataExportBuffer;
     quint64 lastLogTime;
-    bool _bExportDuringLog;
 
     static const quint64 _cLogBufferTimeout = 1000; /* in milliseconds */
 
