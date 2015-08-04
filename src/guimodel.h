@@ -132,7 +132,6 @@ private:
     quint32 _communicationState;
 
     static const QString _cWindowTitle;
-    static const QList<QColor> _colorlist;
 
 };
 

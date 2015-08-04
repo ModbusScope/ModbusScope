@@ -3,6 +3,26 @@
 #include "QDebug"
 #include <QMessageBox>
 
+const QList<QColor> RegisterModel::_colorlist = QList<QColor>() << QColor(0, 0, 0)
+                                                           << QColor(0, 0, 255)
+                                                           << QColor(0, 255, 255)
+                                                           << QColor(0, 255, 0)
+                                                           << QColor(220, 220, 0)
+                                                           << QColor(220, 153, 14)
+                                                           << QColor(255, 165, 0)
+                                                           << QColor(255, 0, 0)
+                                                           << QColor(255, 160, 122)
+                                                           << QColor(230, 104, 86)
+                                                           << QColor(205, 205, 180)
+                                                           << QColor(157, 153, 120)
+                                                           << QColor(139, 69, 19)
+                                                           << QColor(255, 20, 147)
+                                                           << QColor(74, 112, 139)
+                                                           << QColor(46, 139, 87)
+                                                           << QColor(128, 0, 128)
+                                                           << QColor(189, 183, 107)
+                                                           ;
+
 RegisterModel::RegisterModel(QObject *parent) :
     QAbstractTableModel(parent)
 {
@@ -17,6 +37,7 @@ int RegisterModel::rowCount(const QModelIndex & /*parent*/) const
 int RegisterModel::columnCount(const QModelIndex & /*parent*/) const
 {
     /*
+    * color
     * bActive
     * bUnsigned
     * Register
@@ -24,7 +45,7 @@ int RegisterModel::columnCount(const QModelIndex & /*parent*/) const
     * Bitmask
     * Scale factor
     * */
-    return 6; // Number of visible members of struct
+    return 7; // Number of visible members of struct
 }
 
 QVariant RegisterModel::data(const QModelIndex &index, int role) const
@@ -33,6 +54,12 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
     switch (index.column())
     {
     case 0:
+        if (role == Qt::BackgroundColorRole)
+        {
+            return _dataList[index.row()].color();
+        }
+        break;
+    case 1:
         if (role == Qt::CheckStateRole)
         {
             if (_dataList[index.row()].isActive())
@@ -45,7 +72,7 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
             }
         }
         break;
-    case 1:
+    case 2:
         if (role == Qt::CheckStateRole)
         {
             if (_dataList[index.row()].isUnsigned())
@@ -58,26 +85,26 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
             }
         }
         break;
-    case 2:
+    case 3:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return _dataList[index.row()].registerAddress();
         }
         break;
-    case 3:
+    case 4:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return _dataList[index.row()].text();
         }
         break;
-    case 4:
+    case 5:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             // Show hex value
             return QString("0x%1").arg(_dataList[index.row()].bitmask(), 0, 16);
         }
         break;
-    case 5:
+    case 6:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return Util::formatDoubleForExport(_dataList[index.row()].scaleFactor());
@@ -101,16 +128,18 @@ QVariant RegisterModel::headerData(int section, Qt::Orientation orientation, int
             switch (section)
             {
             case 0:
-                return QString("Active");
+                return QString("Color");
             case 1:
-                return QString("Unsigned");
+                return QString("Active");
             case 2:
-                return QString("Register");
+                return QString("Unsigned");
             case 3:
-                return QString("Text");
+                return QString("Register");
             case 4:
-                return QString("Bitmask");
+                return QString("Text");
             case 5:
+                return QString("Bitmask");
+            case 6:
                 return QString("Scale");
             default:
                 return QVariant();
@@ -133,6 +162,13 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
     switch (index.column())
     {
     case 0:
+        if (role == Qt::EditRole)
+        {
+            QColor color = value.value<QColor>();
+            _dataList[index.row()].setColor(color);
+        }
+        break;
+    case 1:
         if (role == Qt::CheckStateRole)
         {
             if (value == Qt::Checked)
@@ -145,7 +181,7 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
             }
         }
         break;
-    case 1:
+    case 2:
         if (role == Qt::CheckStateRole)
         {
             if (value == Qt::Checked)
@@ -158,20 +194,20 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
             }
         }
         break;
-    case 2:
+    case 3:
         if (role == Qt::EditRole)
         {
             const quint16 newAddr = value.toInt();
             _dataList[index.row()].setRegisterAddress(newAddr);
         }
         break;
-    case 3:
+    case 4:
         if (role == Qt::EditRole)
         {
             _dataList[index.row()].setText(value.toString());
         }
         break;
-    case 4:
+    case 5:
         if (role == Qt::EditRole)
         {
             bool bSuccess = false;
@@ -193,7 +229,7 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
             }
         }
         break;
-    case 5:
+    case 6:
         if (role == Qt::EditRole)
         {
             bool bSuccess = false;
@@ -228,16 +264,20 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
 Qt::ItemFlags RegisterModel::flags(const QModelIndex & index) const
 {
     if (
-            (index.column() == 0)
-            || (index.column() == 1)
+            (index.column() == 1)
+            || (index.column() == 2)
         )
     {
         // checkable
-        return Qt::ItemIsSelectable |  Qt::ItemIsUserCheckable | Qt::ItemIsEnabled ;
+        return Qt::ItemIsSelectable |  Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
+    }
+    else if (index.column() == 0)
+    {
+        return Qt::ItemIsSelectable | Qt::ItemIsEnabled ;
     }
     else
     {
-        return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled ;
+        return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled;
     }
 
 }
@@ -262,7 +302,7 @@ bool RegisterModel::removeRows (int row, int count, const QModelIndex & parent)
     return true;
 }
 
-bool RegisterModel::insertRows (int row, int count, const QModelIndex &parent)
+bool RegisterModel::insertRows(RegisterData data, int row, int count, const QModelIndex &parent)
 {
 
     if (
@@ -277,14 +317,12 @@ bool RegisterModel::insertRows (int row, int count, const QModelIndex &parent)
     Q_UNUSED(count);
     beginInsertRows(parent, _dataList.size(), _dataList.size());
 
-    RegisterData data;
-    data.setActive(true);
-    data.setUnsigned(false);
-    data.setRegisterAddress(nextFreeAddress());
-    data.setBitmask(0xFFFF);
-    data.setText(QString("Register %1 (bitmask: 0x%2)").arg(data.registerAddress()).arg(data.bitmask(), 0, 16));
-    data.setScaleFactor(1);
-    data.setColor("-1"); // Invalid color
+    if (!data.color().isValid())
+    {
+        quint32 colorIndex = _dataList.size() % _colorlist.size();
+        data.setColor(_colorlist[colorIndex]);
+    }
+
     _dataList.append(data);
 
     endInsertRows();
@@ -293,6 +331,21 @@ bool RegisterModel::insertRows (int row, int count, const QModelIndex &parent)
     emit dataChanged(parent, parent);
 
     return true;
+}
+
+
+bool RegisterModel::insertRows (int row, int count, const QModelIndex &parent)
+{
+    RegisterData data;
+    data.setActive(true);
+    data.setUnsigned(false);
+    data.setRegisterAddress(nextFreeAddress());
+    data.setBitmask(0xFFFF);
+    data.setText(QString("Register %1 (bitmask: 0x%2)").arg(data.registerAddress()).arg(data.bitmask(), 0, 16));
+    data.setScaleFactor(1);
+    data.setColor("-1"); // Invalid color
+
+    return insertRows(data, row, count, parent);;
 }
 
 uint RegisterModel::checkedRegisterCount()
@@ -308,6 +361,15 @@ uint RegisterModel::checkedRegisterCount()
     }
 
     return count;
+}
+
+RegisterData RegisterModel::registerAtIndex(qint32 index)
+{
+    RegisterData retRegister;
+
+    _dataList[index].CopyTo(&retRegister);
+
+    return retRegister;
 }
 
 void RegisterModel::registerList(QList<quint16> * pRegisterList)
@@ -350,12 +412,7 @@ void RegisterModel::clear(const QModelIndex &parent)
 
 void RegisterModel::appendRow(RegisterData rowData, const QModelIndex &parent)
 {
-    insertRows(_dataList.size(), 1, QModelIndex());
-
-    rowData.CopyTo(&_dataList[_dataList.size() - 1]);
-
-    // Notify view(s) of change
-    emit dataChanged(parent, parent);
+    insertRows(rowData, _dataList.size(), 1, parent);
 }
 
 bool RegisterModel::areExclusive(quint16 * pRegister, quint16 * pBitmask)

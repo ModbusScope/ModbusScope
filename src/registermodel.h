@@ -20,8 +20,10 @@ public:
 
     bool removeRows (int row, int count, const QModelIndex &parent);
     bool insertRows (int row, int count, const QModelIndex &parent);
+    bool insertRows (RegisterData data, int row, int count, const QModelIndex &parent);
 
     uint checkedRegisterCount();
+    RegisterData registerAtIndex(qint32 index);
     void registerList(QList<quint16> * pRegisterList);
     void checkedRegisterList(QList<RegisterData> *pRegisterList);
 
@@ -38,6 +40,8 @@ private:
     quint16 nextFreeAddress();
 
     QList<RegisterData> _dataList;
+
+    static const QList<QColor> _colorlist;
 
 };
 

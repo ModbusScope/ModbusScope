@@ -22,6 +22,7 @@ private slots:
     void addRegisterRow();
     void removeRegisterRow();
     void updateColumns();
+    void activatedCell(QModelIndex modelIndex);
 
 private:
 

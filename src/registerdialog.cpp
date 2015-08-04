@@ -1,5 +1,6 @@
 
 #include <QMessageBox>
+#include <QColorDialog>
 
 #include "registerdialog.h"
 #include "ui_registerdialog.h"
@@ -20,11 +21,14 @@ RegisterDialog::RegisterDialog(RegisterModel * pRegisterModel, QWidget *parent) 
     _pUi->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     /* Except following columns */
-    _pUi->registerView->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+    _pUi->registerView->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
 
     // Select using click, shift and control
     _pUi->registerView->setSelectionBehavior(QAbstractItemView::SelectRows);
     _pUi->registerView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+    // Handle color cell active signal
+    connect(_pUi->registerView, SIGNAL(activated(QModelIndex)), this, SLOT(activatedCell(QModelIndex)));
 
     // Setup handler for buttons
     connect(_pUi->btnAdd, SIGNAL(released()), this, SLOT(addRegisterRow()));
@@ -77,6 +81,32 @@ void RegisterDialog::addRegisterRow()
 
 void RegisterDialog::updateColumns()
 {
+}
+
+void RegisterDialog::activatedCell(QModelIndex modelIndex)
+{
+    if (modelIndex.column() == 0)
+    {
+        // Get current color
+        RegisterData reg = _pRegisterModel->registerAtIndex(modelIndex.row());
+
+        // Let use pick color
+        QColor color = QColorDialog::getColor(reg.color());
+
+        if (color.isValid())
+        {
+            // Set color in model
+            _pRegisterModel->setData(modelIndex, color, Qt::EditRole);
+        }
+        else
+        {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle(tr("Not a valid color"));
+            msgBox.setIcon(QMessageBox::Warning);
+            msgBox.setText(tr("%1 is not a valid color").arg(color.name()));
+            msgBox.exec();
+        }
+    }
 }
 
 void RegisterDialog::removeRegisterRow()

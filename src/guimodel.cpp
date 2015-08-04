@@ -4,26 +4,6 @@
 
 const QString GuiModel::_cWindowTitle = QString("ModbusScope");
 
-const QList<QColor> GuiModel::_colorlist = QList<QColor>() << QColor(0, 0, 0)
-                                                           << QColor(0, 0, 255)
-                                                           << QColor(0, 255, 255)
-                                                           << QColor(0, 255, 0)
-                                                           << QColor(220, 220, 0)
-                                                           << QColor(220, 153, 14)
-                                                           << QColor(255, 165, 0)
-                                                           << QColor(255, 0, 0)
-                                                           << QColor(255, 160, 122)
-                                                           << QColor(230, 104, 86)
-                                                           << QColor(205, 205, 180)
-                                                           << QColor(157, 153, 120)
-                                                           << QColor(139, 69, 19)
-                                                           << QColor(255, 20, 147)
-                                                           << QColor(74, 112, 139)
-                                                           << QColor(46, 139, 87)
-                                                           << QColor(128, 0, 128)
-                                                           << QColor(189, 183, 107)
-                                                           ;
-
 GuiModel::GuiModel(QObject *parent) : QObject(parent)
 {
     _graphData.clear();
@@ -93,7 +73,6 @@ void GuiModel::triggerUpdate(void)
 
 void GuiModel::addGraphs(QList<RegisterData> registerList)
 {
-    quint32 colorIndex = 0;
 
     for (qint32 idx = 0; idx < registerList.size(); idx++)
     {
@@ -101,17 +80,7 @@ void GuiModel::addGraphs(QList<RegisterData> registerList)
 
         pGraphData->bVisibility = true;
         pGraphData->label = registerList[idx].text();;
-
-        if (registerList[idx].color().isValid())
-        {
-            pGraphData->color = registerList[idx].color();
-        }
-        else
-        {
-            colorIndex %= _colorlist.size();
-            pGraphData->color = _colorlist[colorIndex];
-            colorIndex++;
-        }
+        pGraphData->color = registerList[idx].color();
 
         _graphData.append(pGraphData);
     }
