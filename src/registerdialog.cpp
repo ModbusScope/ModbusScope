@@ -100,12 +100,9 @@ void RegisterDialog::activatedCell(QModelIndex modelIndex)
         }
         else
         {
-            QMessageBox msgBox;
-            msgBox.setWindowTitle(tr("Not a valid color"));
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.setText(tr("%1 is not a valid color").arg(color.name()));
-            msgBox.exec();
+            // user aborted
         }
+
     }
 }
 
