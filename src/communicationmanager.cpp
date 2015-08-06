@@ -111,7 +111,14 @@ void CommunicationManager::handlePollDone(QList<bool> successList, QList<quint16
         }
 
         // Apply bitmask
-        processedValue[i] = (quint16)(processedValue[i]) & _registerlist[i].bitmask();
+        if (_registerlist[i].isUnsigned())
+        {
+            processedValue[i] = (quint16)((quint16)processedValue[i] & _registerlist[i].bitmask());
+        }
+        else
+        {
+            processedValue[i] = (qint16)((quint16)processedValue[i] & _registerlist[i].bitmask());
+        }
 
         // Apply scaleFactor
         processedValue[i] = processedValue[i] * _registerlist[i].scaleFactor();
