@@ -105,6 +105,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>checkWriteDuringLog</tabstop>
+  <tabstop>lineWriteDuringLogPath</tabstop>
+  <tabstop>buttonWriteDuringLogPath</tabstop>
+  <tabstop>spinPollTime</tabstop>
+  <tabstop>checkAbsoluteTimes</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

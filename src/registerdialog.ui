@@ -75,6 +75,11 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>btnAdd</tabstop>
+  <tabstop>btnRemove</tabstop>
+  <tabstop>registerView</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
