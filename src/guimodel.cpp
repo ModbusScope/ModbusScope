@@ -16,6 +16,7 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
     _legendPosition = BasicGraphView::LEGEND_MIDDLE;
     _communicationState = INIT;
     _windowTitle = _cWindowTitle;
+    _bGraphReset = true;
 
     _startTime = 0;
     _endTime = 0;
@@ -273,6 +274,16 @@ void GuiModel::setLastDir(QString dir)
 QString GuiModel::lastDir()
 {
     return _lastDir;
+}
+
+void GuiModel::setGraphReset(bool bGraphReset)
+{
+    _bGraphReset = bGraphReset;
+}
+
+bool GuiModel::graphReset()
+{
+    return _bGraphReset;
 }
 
 void GuiModel::setxAxisScale(BasicGraphView::AxisScaleOptions scaleMode)

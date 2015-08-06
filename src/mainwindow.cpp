@@ -330,6 +330,7 @@ void MainWindow::showLogDialog()
 void MainWindow::showRegisterDialog()
 {
     _pRegisterDialog->exec();
+    _pGuiModel->setGraphReset(true);
 }
 
 void MainWindow::changeLegendPosition(QAction* pAction)
@@ -370,11 +371,16 @@ void MainWindow::startScope()
 
         if (_pConnMan->startCommunication(regList))
         {
-            QList<RegisterData> regList;
-            _pRegisterModel->checkedRegisterList(&regList);
+            if (_pGuiModel->graphReset())
+            {
+                QList<RegisterData> regList;
+                _pRegisterModel->checkedRegisterList(&regList);
 
-            _pGuiModel->clearGraph();
-            _pGuiModel->addGraphs(regList);
+                _pGuiModel->clearGraph();
+                _pGuiModel->addGraphs(regList);
+
+                _pGuiModel->setGraphReset(false);
+            }
         }
 
         if (_pSettingsModel->writeDuringLog())
@@ -818,6 +824,8 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
 
         _pRegisterModel->appendRow(rowData);
     }
+
+    _pGuiModel->setGraphReset(true);
 }
 
 void MainWindow::loadProjectFile(QString dataFilePath)

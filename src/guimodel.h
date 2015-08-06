@@ -53,6 +53,8 @@ public:
     void setProjectFilePath(QString path);
     void setDataFilePath(QString path);
     void setLastDir(QString dir);
+    void setGraphReset(bool bGraphReset);
+    bool graphReset();
 
 public slots:
     void setValueTooltip(bool bValueTooltip);
@@ -62,10 +64,8 @@ public slots:
     void setWindowTitleDetail(QString detail);
     void setLegendVisibility(bool bLegendVisibility);
     void setLegendPosition(BasicGraphView::LegendsPositionOptions pos);
-
     void setxAxisScale(BasicGraphView::AxisScaleOptions scaleMode);
     void setxAxisSlidingInterval(qint32 slidingSec);
-
     void setyAxisScale(BasicGraphView::AxisScaleOptions scaleMode);
     void setyAxisMin(qint32 newMin);
     void setyAxisMax(qint32 newMax);
@@ -120,6 +120,7 @@ private:
     qint64 _endTime;
     quint32 _successCount;
     quint32 _errorCount;
+    bool _bGraphReset;
 
     QString _projectFilePath;
     QString _dataFilePath;
