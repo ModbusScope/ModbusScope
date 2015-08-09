@@ -43,9 +43,10 @@ int RegisterModel::columnCount(const QModelIndex & /*parent*/) const
     * Register
     * Text
     * Bitmask
+    * Shift
     * Scale factor
     * */
-    return 7; // Number of visible members of struct
+    return 8; // Number of visible members of struct
 }
 
 QVariant RegisterModel::data(const QModelIndex &index, int role) const
@@ -107,6 +108,12 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
     case 6:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
+            return _dataList[index.row()].shift();
+        }
+        break;
+    case 7:
+        if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
+        {
             return Util::formatDoubleForExport(_dataList[index.row()].scaleFactor());
         }
         break;
@@ -140,6 +147,8 @@ QVariant RegisterModel::headerData(int section, Qt::Orientation orientation, int
             case 5:
                 return QString("Bitmask");
             case 6:
+                return QString("Shift");
+            case 7:
                 return QString("Scale");
             default:
                 return QVariant();
@@ -230,6 +239,35 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
         }
         break;
     case 6:
+        if (role == Qt::EditRole)
+        {
+            bool bSuccess = false;
+            const qint32 newShift = value.toString().toInt(&bSuccess);
+
+            if (
+                    (bSuccess)
+                    &&
+                    (
+                        (newShift > -16)
+                        && (newShift < 16)
+                    )
+                )
+            {
+                _dataList[index.row()].setShift(newShift);
+            }
+            else
+            {
+                bRet = false;
+                QMessageBox msgBox;
+                msgBox.setWindowTitle(tr("ModbusScope data error"));
+                msgBox.setIcon(QMessageBox::Warning);
+                msgBox.setText(tr("Shift is not a valid integer between -16 and 16."));
+                msgBox.exec();
+                break;
+            }
+        }
+        break;
+    case 7:
         if (role == Qt::EditRole)
         {
             bool bSuccess = false;
@@ -343,6 +381,7 @@ bool RegisterModel::insertRows (int row, int count, const QModelIndex &parent)
     data.setBitmask(0xFFFF);
     data.setText(QString("Register %1 (bitmask: 0x%2)").arg(data.registerAddress()).arg(data.bitmask(), 0, 16));
     data.setScaleFactor(1);
+    data.setShift(0);
     data.setColor("-1"); // Invalid color
 
     return insertRows(data, row, count, parent);;

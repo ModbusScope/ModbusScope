@@ -300,6 +300,34 @@ bool ProjectFileParser::parseVariableTag(const QDomElement &element, RegisterSet
                 break;
             }
         }
+        else if (child.tagName() == "shift")
+        {
+            const qint32 newShift = child.text().toInt(&bRet);
+
+            if (
+                    (bRet)
+                    &&
+                    (
+                        (newShift < -15)
+                        ||
+                        (newShift > 15)
+                    )
+                )
+            {
+                bRet = false;
+            }
+
+            if (bRet)
+            {
+                pRegisterSettings->shift = newShift;
+            }
+            else
+            {
+                _msgBox.setText(tr("Shift factor (%1) is not a valid integer between -16 and 16.").arg(child.text()));
+                _msgBox.exec();
+                break;
+            }
+        }
         else
         {
             // unkown tag: ignore

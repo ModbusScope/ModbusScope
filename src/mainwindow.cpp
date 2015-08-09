@@ -821,6 +821,7 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
         rowData.setText(pProjectSettings->scope.registerList[i].text);
         rowData.setScaleFactor(pProjectSettings->scope.registerList[i].scaleFactor);
         rowData.setColor(pProjectSettings->scope.registerList[i].color);
+        rowData.setShift(pProjectSettings->scope.registerList[i].shift);
 
         _pRegisterModel->appendRow(rowData);
     }

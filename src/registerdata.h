@@ -32,6 +32,9 @@ public:
     QColor color() const;
     void setColor(const QColor &value);
 
+    qint32 shift() const;
+    void setShift(const qint32 &value);
+
     static bool sortRegisterDataList(const RegisterData& s1, const RegisterData& s2);
 
 private:
@@ -43,6 +46,7 @@ private:
     quint16 _bitmask;
     QString _text;
     QColor _color;
+    qint32 _shift;
 };
 
 #endif // REGISTERDATA_H

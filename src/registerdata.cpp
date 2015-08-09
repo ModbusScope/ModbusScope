@@ -9,6 +9,7 @@ RegisterData::RegisterData()
     _bitmask = 0xFFFF;
     _text = "";
     _color = QColor("-1");
+    _shift = 0;
 }
 
 void RegisterData::CopyTo(RegisterData * pData)
@@ -20,6 +21,7 @@ void RegisterData::CopyTo(RegisterData * pData)
     pData->setScaleFactor(this->scaleFactor());
     pData->setText(this->text());
     pData->setUnsigned(this->isUnsigned());
+    pData->setShift(this->shift());
 }
 
 
@@ -61,6 +63,16 @@ QColor RegisterData::color() const
 void RegisterData::setColor(const QColor &value)
 {
     _color = value;
+}
+
+qint32 RegisterData::shift() const
+{
+    return _shift;
+}
+
+void RegisterData::setShift(const qint32 &value)
+{
+    _shift = value;
 }
 
 quint16 RegisterData::registerAddress() const

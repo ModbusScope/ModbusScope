@@ -120,6 +120,24 @@ void CommunicationManager::handlePollDone(QList<bool> successList, QList<quint16
             processedValue[i] = (qint16)((quint16)processedValue[i] & _registerlist[i].bitmask());
         }
 
+        // Apply shift
+        if (_registerlist[i].shift() != 0)
+        {
+            if (_registerlist[i].shift() > 0)
+            {
+                processedValue[i] = (quint16)((quint16)processedValue[i] << _registerlist[i].shift());
+            }
+            else
+            {
+                processedValue[i] = (quint16)((quint16)processedValue[i] >> abs(_registerlist[i].shift()));
+            }
+
+            if (!_registerlist[i].isUnsigned())
+            {
+                processedValue[i] = (qint16)processedValue[i];
+            }
+        }
+
         // Apply scaleFactor
         processedValue[i] = processedValue[i] * _registerlist[i].scaleFactor();
     }
