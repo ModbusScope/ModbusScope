@@ -166,19 +166,22 @@ void ExtendedGraphView::mouseMove(QMouseEvent *event)
     // Check for graph drag
     if(event->buttons() & Qt::LeftButton)
     {
-        if (_pPlot->axisRect()->rangeDrag() == Qt::Horizontal)
+        if (_pPlot->legend->selectTest(event->pos(), false) <= 0)
         {
-            _pGuiModel->setxAxisScale(SCALE_MANUAL); // change to manual scaling
-        }
-        else if (_pPlot->axisRect()->rangeDrag() == Qt::Vertical)
-        {
-            _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
-        }
-        else
-        {
-            // Both change to manual scaling
-            _pGuiModel->setxAxisScale(SCALE_MANUAL);
-            _pGuiModel->setyAxisScale(SCALE_MANUAL);
+            if (_pPlot->axisRect()->rangeDrag() == Qt::Horizontal)
+            {
+                _pGuiModel->setxAxisScale(SCALE_MANUAL); // change to manual scaling
+            }
+            else if (_pPlot->axisRect()->rangeDrag() == Qt::Vertical)
+            {
+                _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
+            }
+            else
+            {
+                // Both change to manual scaling
+                _pGuiModel->setxAxisScale(SCALE_MANUAL);
+                _pGuiModel->setyAxisScale(SCALE_MANUAL);
+            }
         }
     }
     else if  (_bEnableTooltip) // Check to show tooltip
