@@ -13,7 +13,7 @@
 			<reg>40001</reg>
 			<text>Very interesting register</text>
 			<unsigned>true</unsigned>
-			<scalefactor>0,5</scalefactor>
+			<scalefactor>0.5</scalefactor>
 			<color>#FF0000</color>
 			<unknowntag2>true</unknowntag2>
 		</var>
@@ -26,7 +26,7 @@
 		<var active="false">
 			<reg>40003</reg>
 			<text>Very interesting register 3</text>
-			<scalefactor>10</scalefactor>
+			<scalefactor>10.0</scalefactor>
 			<unknowntag2>1</unknowntag2>
 		</var>
 		

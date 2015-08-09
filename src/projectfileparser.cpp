@@ -262,10 +262,14 @@ bool ProjectFileParser::parseVariableTag(const QDomElement &element, RegisterSet
         }
         else if (child.tagName() == "scalefactor")
         {
-            pRegisterSettings->scaleFactor = QLocale::system().toDouble(child.text(), &bRet);
+            // set to C locale => '.' as decimal separator
+            QLocale locale = QLocale("C");
+
+            pRegisterSettings->scaleFactor = locale.toDouble(child.text(), &bRet);
+
             if (!bRet)
             {
-                _msgBox.setText(tr("Scale factor is not a valid double. Did you use correct decimal separator character? Expecting \"%1\"").arg(QLocale::system().decimalPoint()));
+                _msgBox.setText(tr("Scale factor (%1) is not a valid double. Expected decimal separator is point").arg(child.text()));
                 _msgBox.exec();
                 break;
             }
@@ -280,7 +284,7 @@ bool ProjectFileParser::parseVariableTag(const QDomElement &element, RegisterSet
             }
             else
             {
-                _msgBox.setText(tr("Color is not a valid double. Did you use correct color format? Expecting #FF0000 (red)"));
+                _msgBox.setText(tr("Color is not a valid color. Did you use correct color format? Expecting #FF0000 (red)"));
                 _msgBox.exec();
                 break;
             }
