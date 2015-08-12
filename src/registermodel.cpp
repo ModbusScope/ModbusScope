@@ -148,7 +148,7 @@ QVariant RegisterModel::headerData(int section, Qt::Orientation orientation, int
             case 2:
                 return QString("Unsigned");
             case 3:
-                return QString("Register");
+                return QString("Address");
             case 4:
                 return QString("Text");
             case 5:

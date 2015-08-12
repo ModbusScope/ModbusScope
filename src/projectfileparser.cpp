@@ -168,7 +168,7 @@ bool ProjectFileParser::parseScopeTag(const QDomElement &element, ScopeSettings 
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
-        if (child.tagName() == "var")
+        if (child.tagName() == "register")
         {
             RegisterSettings registerData;
             bRet = parseVariableTag(child, &registerData);
@@ -219,30 +219,29 @@ bool ProjectFileParser::parseVariableTag(const QDomElement &element, RegisterSet
 {
     bool bRet = true;
 
-    // Check attribute
-    QString active = element.attribute("active", "false");
-
-    if (!active.toLower().compare("true"))
-    {
-        pRegisterSettings->bActive = true;
-    }
-    else
-    {
-        pRegisterSettings->bActive = false;
-    }
-
     // Check nodes
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
-        if (child.tagName() == "reg")
+        if (child.tagName() == "address")
         {
             pRegisterSettings->address = child.text().toUInt(&bRet);
             if (!bRet)
             {
-                _msgBox.setText(tr("Register ( %1 ) is not a valid number").arg(child.text()));
+                _msgBox.setText(tr("Address ( %1 ) is not a valid number").arg(child.text()));
                 _msgBox.exec();
                 break;
+            }
+        }
+        else if (child.tagName() == "active")
+        {
+            if (!child.text().toLower().compare("true"))
+            {
+                pRegisterSettings->bActive = true;
+            }
+            else
+            {
+                pRegisterSettings->bActive = false;
             }
         }
         else if (child.tagName() == "text")

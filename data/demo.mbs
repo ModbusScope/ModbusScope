@@ -9,27 +9,29 @@
 		<unknown>1</unknown>
 	</modbus>
 	<scope>
-		<var active="true">
-			<reg>40001</reg>
+		<register>
+			<active>true</active>
+			<address>40001</address>
 			<text>Very interesting register</text>
 			<unsigned>true</unsigned>
 			<multiply>1</multiply>
 			<divide>2.0</divide>
 			<color>#FF0000</color>
 			<unknowntag2>true</unknowntag2>
-		</var>
-		<var>
-			<reg>40002</reg>
+		</register>
+		<register>
+			<address>40002</address>
 			<text>Very interesting register 2</text>
 			<unsigned>false</unsigned>
 			<unknowntag2>false</unknowntag2>
-		</var>
-		<var active="false">
-			<reg>40003</reg>
+		</register>
+		<register>
+			<active>false</active>
+			<address>40003</address>
 			<text>Very interesting register 3</text>
 			<multiply>10.0</multiply>
 			<unknowntag2>1</unknowntag2>
-		</var>
+		</register>
 		
 		<unknowntag>1</unknowntag>
 	</scope>

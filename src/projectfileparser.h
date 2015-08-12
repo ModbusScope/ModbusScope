@@ -12,7 +12,7 @@ public:
 
     typedef struct _RegisterSettings
     {
-        _RegisterSettings() : bActive(false), bUnsigned(false), divideFactor(1), multiplyFactor(1), bitmask(0xFFFF), shift(0), bColor(false) {}
+        _RegisterSettings() : address(40001), text(""), bActive(false), bUnsigned(false), divideFactor(1), multiplyFactor(1), bitmask(0xFFFF), shift(0), bColor(false) {}
 
         quint16 address;
         QString text;
