@@ -17,8 +17,11 @@ public:
     bool isUnsigned() const;
     void setUnsigned(bool value);
 
-    double scaleFactor() const;
-    void setScaleFactor(double value);
+    double divideFactor() const;
+    void setDivideFactor(double value);
+
+    double multiplyFactor() const;
+    void setMultiplyFactor(double value);
 
     quint16 registerAddress() const;
     void setRegisterAddress(const quint16 &value);
@@ -41,7 +44,8 @@ private:
 
     bool _bActive;
     bool _bUnsigned;
-    double _scaleFactor;
+    double _multiplyFactor;
+    double _divideFactor;
     quint16 _reg;
     quint16 _bitmask;
     QString _text;

@@ -260,16 +260,30 @@ bool ProjectFileParser::parseVariableTag(const QDomElement &element, RegisterSet
                 pRegisterSettings->bUnsigned = false;
             }
         }
-        else if (child.tagName() == "scalefactor")
+        else if (child.tagName() == "divide")
         {
             // set to C locale => '.' as decimal separator
             QLocale locale = QLocale("C");
 
-            pRegisterSettings->scaleFactor = locale.toDouble(child.text(), &bRet);
+            pRegisterSettings->divideFactor = locale.toDouble(child.text(), &bRet);
 
             if (!bRet)
             {
-                _msgBox.setText(tr("Scale factor (%1) is not a valid double. Expected decimal separator is point").arg(child.text()));
+                _msgBox.setText(tr("Divide factor (%1) is not a valid double. Expected decimal separator is point").arg(child.text()));
+                _msgBox.exec();
+                break;
+            }
+        }
+        else if (child.tagName() == "multiply")
+        {
+            // set to C locale => '.' as decimal separator
+            QLocale locale = QLocale("C");
+
+            pRegisterSettings->multiplyFactor = locale.toDouble(child.text(), &bRet);
+
+            if (!bRet)
+            {
+                _msgBox.setText(tr("Multiply factor (%1) is not a valid double. Expected decimal separator is point").arg(child.text()));
                 _msgBox.exec();
                 break;
             }

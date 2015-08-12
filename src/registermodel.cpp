@@ -44,9 +44,10 @@ int RegisterModel::columnCount(const QModelIndex & /*parent*/) const
     * Text
     * Bitmask
     * Shift
-    * Scale factor
+    * Multiply factor
+    * Divide factor
     * */
-    return 8; // Number of visible members of struct
+    return 9; // Number of visible members of struct
 }
 
 QVariant RegisterModel::data(const QModelIndex &index, int role) const
@@ -114,7 +115,13 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
     case 7:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return Util::formatDoubleForExport(_dataList[index.row()].scaleFactor());
+            return Util::formatDoubleForExport(_dataList[index.row()].multiplyFactor());
+        }
+        break;
+    case 8:
+        if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
+        {
+            return Util::formatDoubleForExport(_dataList[index.row()].divideFactor());
         }
         break;
     default:
@@ -149,7 +156,9 @@ QVariant RegisterModel::headerData(int section, Qt::Orientation orientation, int
             case 6:
                 return QString("Shift");
             case 7:
-                return QString("Scale");
+                return QString("Multiply");
+            case 8:
+                return QString("Divide");
             default:
                 return QVariant();
             }
@@ -274,7 +283,7 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
             const double parseResult = QLocale::system().toDouble(value.toString(), &bSuccess);
             if (bSuccess)
             {
-                _dataList[index.row()].setScaleFactor(parseResult);
+                _dataList[index.row()].setMultiplyFactor(parseResult);
             }
             else
             {
@@ -282,7 +291,28 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
                 QMessageBox msgBox;
                 msgBox.setWindowTitle(tr("ModbusScope data error"));
                 msgBox.setIcon(QMessageBox::Warning);
-                msgBox.setText(tr("Scale factor is not a valid double. Did you use correct decimal separator character? Expecting \"%1\"").arg(QLocale::system().decimalPoint()));
+                msgBox.setText(tr("Multiply factor is not a valid double. Did you use correct decimal separator character? Expecting \"%1\"").arg(QLocale::system().decimalPoint()));
+                msgBox.exec();
+                break;
+            }
+        }
+        break;
+    case 8:
+        if (role == Qt::EditRole)
+        {
+            bool bSuccess = false;
+            const double parseResult = QLocale::system().toDouble(value.toString(), &bSuccess);
+            if (bSuccess)
+            {
+                _dataList[index.row()].setDivideFactor(parseResult);
+            }
+            else
+            {
+                bRet = false;
+                QMessageBox msgBox;
+                msgBox.setWindowTitle(tr("ModbusScope data error"));
+                msgBox.setIcon(QMessageBox::Warning);
+                msgBox.setText(tr("Divide factor is not a valid double. Did you use correct decimal separator character? Expecting \"%1\"").arg(QLocale::system().decimalPoint()));
                 msgBox.exec();
                 break;
             }
@@ -380,7 +410,8 @@ bool RegisterModel::insertRows (int row, int count, const QModelIndex &parent)
     data.setRegisterAddress(nextFreeAddress());
     data.setBitmask(0xFFFF);
     data.setText(QString("Register %1 (bitmask: 0x%2)").arg(data.registerAddress()).arg(data.bitmask(), 0, 16));
-    data.setScaleFactor(1);
+    data.setDivideFactor(1);
+    data.setMultiplyFactor(1);
     data.setShift(0);
     data.setColor("-1"); // Invalid color
 

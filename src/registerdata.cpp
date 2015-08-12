@@ -4,7 +4,8 @@ RegisterData::RegisterData()
 {
     _bActive = false;
     _bUnsigned = false;
-    _scaleFactor = 1;
+    _divideFactor = 1;
+    _multiplyFactor = 1;
     _reg = 0;
     _bitmask = 0xFFFF;
     _text = "";
@@ -18,7 +19,8 @@ void RegisterData::CopyTo(RegisterData * pData)
     pData->setColor(this->color());
     pData->setRegisterAddress(this->registerAddress());
     pData->setBitmask(this->bitmask());
-    pData->setScaleFactor(this->scaleFactor());
+    pData->setDivideFactor(this->divideFactor());
+    pData->setMultiplyFactor(this->multiplyFactor());
     pData->setText(this->text());
     pData->setUnsigned(this->isUnsigned());
     pData->setShift(this->shift());
@@ -35,14 +37,24 @@ void RegisterData::setUnsigned(bool value)
     _bUnsigned = value;
 }
 
-double RegisterData::scaleFactor() const
+double RegisterData::divideFactor() const
 {
-    return _scaleFactor;
+    return _divideFactor;
 }
 
-void RegisterData::setScaleFactor(double value)
+void RegisterData::setDivideFactor(double value)
 {
-    _scaleFactor = value;
+    _divideFactor = value;
+}
+
+double RegisterData::multiplyFactor() const
+{
+    return _multiplyFactor;
+}
+
+void RegisterData::setMultiplyFactor(double value)
+{
+    _multiplyFactor = value;
 }
 
 QString RegisterData::text() const

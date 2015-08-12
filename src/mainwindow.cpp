@@ -819,7 +819,8 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
         rowData.setRegisterAddress(pProjectSettings->scope.registerList[i].address);
         rowData.setBitmask(pProjectSettings->scope.registerList[i].bitmask);
         rowData.setText(pProjectSettings->scope.registerList[i].text);
-        rowData.setScaleFactor(pProjectSettings->scope.registerList[i].scaleFactor);
+        rowData.setDivideFactor(pProjectSettings->scope.registerList[i].divideFactor);
+        rowData.setMultiplyFactor(pProjectSettings->scope.registerList[i].multiplyFactor);
         rowData.setColor(pProjectSettings->scope.registerList[i].color);
         rowData.setShift(pProjectSettings->scope.registerList[i].shift);
 

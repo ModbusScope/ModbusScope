@@ -138,8 +138,11 @@ void CommunicationManager::handlePollDone(QList<bool> successList, QList<quint16
             }
         }
 
-        // Apply scaleFactor
-        processedValue[i] = processedValue[i] * _registerlist[i].scaleFactor();
+        // Apply multiplyFactor
+        processedValue[i] *= _registerlist[i].multiplyFactor();
+
+        // Apply divideFactor
+        processedValue[i] /= _registerlist[i].divideFactor();
     }
 
     // propagate processed data
