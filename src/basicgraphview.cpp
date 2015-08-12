@@ -144,7 +144,6 @@ void BasicGraphView::addGraphs()
         pGraph->setPen(pen);
     }
 
-    _pPlot->legend->setVisible(true);
     _pPlot->replot();
 }
 

@@ -521,6 +521,19 @@ bool ProjectFileParser::parseScaleYAxis(const QDomElement &element, ScaleSetting
 bool ProjectFileParser::parseLegendTag(const QDomElement &element, LegendSettings *pLegendSettings)
 {
     bool bRet = true;
+
+    // Check attribute
+    QString visibility = element.attribute("visible", "true");
+
+    if (!visibility.toLower().compare("true"))
+    {
+        pLegendSettings->bVisible = true;
+    }
+    else
+    {
+        pLegendSettings->bVisible = false;
+    }
+
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
@@ -528,18 +541,18 @@ bool ProjectFileParser::parseLegendTag(const QDomElement &element, LegendSetting
         {
             if (child.text().trimmed().toLower() == "left")
             {
-                pLegendSettings->bLegendPosition = true;
-                pLegendSettings->legendPosition = 0;
+                pLegendSettings->bPosition = true;
+                pLegendSettings->position = 0;
             }
             else if (child.text().trimmed().toLower() == "middle")
             {
-                pLegendSettings->bLegendPosition = true;
-                pLegendSettings->legendPosition = 1;
+                pLegendSettings->bPosition = true;
+                pLegendSettings->position = 1;
             }
             else if (child.text().trimmed().toLower() == "right")
             {
-                pLegendSettings->bLegendPosition = true;
-                pLegendSettings->legendPosition = 2;
+                pLegendSettings->bPosition = true;
+                pLegendSettings->position = 2;
             }
             else
             {

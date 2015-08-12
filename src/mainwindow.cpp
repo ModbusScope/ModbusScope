@@ -398,8 +398,6 @@ void MainWindow::startScope()
             _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO); // TODO: use scaling settings from project file?
         }
 
-        _pGuiModel->setLegendVisibility(true);
-
     }
     else
     {
@@ -793,17 +791,19 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
         _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
     }
 
-    if (pProjectSettings->legend.bLegendPosition)
+    _pGuiModel->setLegendVisibility(pProjectSettings->legend.bVisible);
+
+    if (pProjectSettings->legend.bPosition)
     {
-        if (pProjectSettings->legend.legendPosition == 0)
+        if (pProjectSettings->legend.position == 0)
         {
             _pGuiModel->setLegendPosition(BasicGraphView::LEGEND_LEFT);
         }
-        else if (pProjectSettings->legend.legendPosition == 1)
+        else if (pProjectSettings->legend.position == 1)
         {
             _pGuiModel->setLegendPosition(BasicGraphView::LEGEND_MIDDLE);
         }
-        else if (pProjectSettings->legend.legendPosition == 2)
+        else if (pProjectSettings->legend.position == 2)
         {
             _pGuiModel->setLegendPosition(BasicGraphView::LEGEND_RIGHT);
         }
