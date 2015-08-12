@@ -381,6 +381,10 @@ void MainWindow::startScope()
 
                 _pGuiModel->setGraphReset(false);
             }
+            else
+            {
+                clearData();
+            }
         }
 
         if (_pSettingsModel->writeDuringLog())
