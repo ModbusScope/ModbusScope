@@ -63,10 +63,12 @@ public:
 
     typedef struct _LogSettings
     {
-        _LogSettings() : bPollTime(false) {}
+        _LogSettings() : bPollTime(false), bAbsoluteTimes(false) {}
 
         bool bPollTime;
         quint32 pollTime;
+
+        bool bAbsoluteTimes;
 
     } LogSettings;
 

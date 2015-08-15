@@ -759,11 +759,6 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
          _pSettingsModel->setPort(pProjectSettings->general.connectionSettings.port);
     }
 
-    if (pProjectSettings->general.logSettings.bPollTime)
-    {
-        _pSettingsModel->setPollTime(pProjectSettings->general.logSettings.pollTime);
-    }
-
     if (pProjectSettings->general.connectionSettings.bSlaveId)
     {
         _pSettingsModel->setSlaveId(pProjectSettings->general.connectionSettings.slaveId);
@@ -778,6 +773,13 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
     {
         _pSettingsModel->setConsecutiveMax(pProjectSettings->general.connectionSettings.consecutiveMax);
     }
+
+    if (pProjectSettings->general.logSettings.bPollTime)
+    {
+        _pSettingsModel->setPollTime(pProjectSettings->general.logSettings.pollTime);
+    }
+
+    _pSettingsModel->setAbsoluteTimes(pProjectSettings->general.logSettings.bAbsoluteTimes);
 
     if (pProjectSettings->view.scaleSettings.bSliding)
     {

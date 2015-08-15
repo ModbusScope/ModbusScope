@@ -181,7 +181,7 @@ bool ProjectFileParser::parseLogTag(const QDomElement &element, LogSettings * pL
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
-         if (child.tagName() == "polltime")
+        if (child.tagName() == "polltime")
         {
             pLogSettings->bPollTime = true;
             pLogSettings->pollTime = child.text().toUInt(&bRet);
@@ -190,6 +190,17 @@ bool ProjectFileParser::parseLogTag(const QDomElement &element, LogSettings * pL
                 _msgBox.setText(tr("Poll time ( %1 ) is not a valid number").arg(child.text()));
                 _msgBox.exec();
                 break;
+            }
+        } 
+        else if (child.tagName() == "absolutetimes")
+        {
+            if (!child.text().toLower().compare("true"))
+            {
+                pLogSettings->bAbsoluteTimes = true;
+            }
+            else
+            {
+                pLogSettings->bAbsoluteTimes = false;
             }
         }
         else
