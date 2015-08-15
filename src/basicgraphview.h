@@ -60,9 +60,10 @@ private slots:
     void mouseWheel();
     void legendClick(QCPLegend * legend, QCPAbstractLegendItem * abstractLegendItem, QMouseEvent * event);
     void legendDoubleClick(QCPLegend * legend,QCPAbstractLegendItem * abstractLegendItem, QMouseEvent * event);
+    void mouseMove(QMouseEvent *event);
+    void paintValueToolTip(QMouseEvent *event);
 
 protected slots:
-    virtual void paintValueToolTip(QMouseEvent *event);
     virtual void handleSamplePoints();
     virtual void axisDoubleClicked(QCPAxis * axis);
 

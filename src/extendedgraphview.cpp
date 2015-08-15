@@ -20,9 +20,6 @@ ExtendedGraphView::ExtendedGraphView(CommunicationManager * pConnMan, GuiModel *
     _diffWithUtc = dt.secsTo(local) * 1000;
 
     connect(_pPlot->xAxis, SIGNAL(rangeChanged(QCPRange, QCPRange)), this, SLOT(xAxisRangeChanged(QCPRange, QCPRange)));
-
-    // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
-    connect(_pPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMove(QMouseEvent*)));
 }
 
 ExtendedGraphView::~ExtendedGraphView()
@@ -159,42 +156,6 @@ void ExtendedGraphView::rescalePlot()
     }
 
     _pPlot->replot();
-}
-
-void ExtendedGraphView::mouseMove(QMouseEvent *event)
-{
-    // Check for graph drag
-    if(event->buttons() & Qt::LeftButton)
-    {
-        if (_pPlot->legend->selectTest(event->pos(), false) <= 0)
-        {
-            if (_pPlot->axisRect()->rangeDrag() == Qt::Horizontal)
-            {
-                _pGuiModel->setxAxisScale(SCALE_MANUAL); // change to manual scaling
-            }
-            else if (_pPlot->axisRect()->rangeDrag() == Qt::Vertical)
-            {
-                _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
-            }
-            else
-            {
-                // Both change to manual scaling
-                _pGuiModel->setxAxisScale(SCALE_MANUAL);
-                _pGuiModel->setyAxisScale(SCALE_MANUAL);
-            }
-        }
-    }
-    else if  (_bEnableTooltip) // Check to show tooltip
-    {
-        BasicGraphView::paintValueToolTip(event);
-    }
-    else
-    {
-        if (QToolTip::isVisible())
-        {
-            QToolTip::hideText();
-        }
-    }
 }
 
 void ExtendedGraphView::updateData(QList<double> *pTimeData, QList<QList<double> > * pDataLists)

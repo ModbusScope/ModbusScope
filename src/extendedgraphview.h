@@ -29,7 +29,6 @@ signals:
     void dataAddedToPlot(double timeData, QList<double> dataList);
 
 private slots:
-    void mouseMove(QMouseEvent *event);
     void updateData(QList<double> *pTimeData, QList<QList<double> > * pDataLists);
     void xAxisRangeChanged(const QCPRange &newRange, const QCPRange &oldRange);
 

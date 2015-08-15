@@ -38,7 +38,6 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, QCustomPlot * pPlot, QObjec
    _pPlot->xAxis->setAutoTicks(true);
    _pPlot->xAxis->setAutoTickLabels(false);
    _pPlot->xAxis->setLabel("Time (s)");
-
    connect(_pPlot->xAxis, SIGNAL(ticksRequest()), this, SLOT(generateTickLabels()));
 
    _pPlot->yAxis->setRange(0, 65535);
@@ -66,7 +65,7 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, QCustomPlot * pPlot, QObjec
    connect(_pPlot, SIGNAL(axisDoubleClick(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)), this, SLOT(axisDoubleClicked(QCPAxis*)));
    connect(_pPlot, SIGNAL(legendClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)), this, SLOT(legendClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)));
    connect(_pPlot, SIGNAL(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)), this, SLOT(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)));
-   connect(_pPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(paintValueToolTip(QMouseEvent*)));
+   connect(_pPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMove(QMouseEvent*)));
    connect(_pPlot, SIGNAL(beforeReplot()), this, SLOT(handleSamplePoints()));
 }
 
@@ -307,6 +306,35 @@ void BasicGraphView::legendDoubleClick(QCPLegend * legend,QCPAbstractLegendItem 
                 _pGuiModel->setGraphVisibility(graphIndex, !_pGuiModel->graphVisibility(graphIndex));
             }
         }
+    }
+}
+
+void BasicGraphView::mouseMove(QMouseEvent *event)
+{
+    // Check for graph drag
+    if(event->buttons() & Qt::LeftButton)
+    {
+        if (_pPlot->legend->selectTest(event->pos(), false) <= 0)
+        {
+            if (_pPlot->axisRect()->rangeDrag() == Qt::Horizontal)
+            {
+                _pGuiModel->setxAxisScale(SCALE_MANUAL); // change to manual scaling
+            }
+            else if (_pPlot->axisRect()->rangeDrag() == Qt::Vertical)
+            {
+                _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
+            }
+            else
+            {
+                // Both change to manual scaling
+                _pGuiModel->setxAxisScale(SCALE_MANUAL);
+                _pGuiModel->setyAxisScale(SCALE_MANUAL);
+            }
+        }
+    }
+    else
+    {
+        paintValueToolTip(event);
     }
 }
 
