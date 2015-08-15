@@ -50,7 +50,7 @@
 				<max>25</max>
 			</yaxis>
 		</scale>
-		<legend visible="false">
+		<legend visible="true">
 			<position>left</position>
 		</legend>
 	</view>

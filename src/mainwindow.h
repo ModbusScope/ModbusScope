@@ -91,6 +91,7 @@ private slots:
 
 private:
 
+    void setupGraphs(void);
     void updateConnectionSetting(ProjectFileParser::ProjectSettings *pProjectSettings);
     void loadProjectFile(QString dataFilePath);
     void loadDataFile(QString dataFilePath);

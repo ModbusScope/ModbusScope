@@ -373,13 +373,7 @@ void MainWindow::startScope()
         {
             if (_pGuiModel->graphReset())
             {
-                QList<RegisterData> regList;
-                _pRegisterModel->checkedRegisterList(&regList);
-
-                _pGuiModel->clearGraph();
-                _pGuiModel->addGraphs(regList);
-
-                _pGuiModel->setGraphReset(false);
+                setupGraphs();
             }
             else
             {
@@ -742,6 +736,17 @@ void MainWindow::updateRuntime()
     }
 }
 
+void MainWindow::setupGraphs(void)
+{
+    QList<RegisterData> regList;
+    _pRegisterModel->checkedRegisterList(&regList);
+
+    _pGuiModel->clearGraph();
+    _pGuiModel->addGraphs(regList);
+
+    _pGuiModel->setGraphReset(false);
+}
+
 void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pProjectSettings)
 {
     if (pProjectSettings->general.connectionSettings.bIp)
@@ -811,7 +816,6 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
         {
             _pGuiModel->setLegendPosition(BasicGraphView::LEGEND_RIGHT);
         }
-
     }
 
     _pRegisterModel->clear();
@@ -831,7 +835,7 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
         _pRegisterModel->appendRow(rowData);
     }
 
-    _pGuiModel->setGraphReset(true);
+    setupGraphs();
 }
 
 void MainWindow::loadProjectFile(QString dataFilePath)
@@ -883,6 +887,8 @@ void MainWindow::loadDataFile(QString dataFilePath)
 
             // Set to full auto scaling
              _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
+
+             _pGuiModel->setGraphReset(true);
 
             parseDataFile(&data);
         }
