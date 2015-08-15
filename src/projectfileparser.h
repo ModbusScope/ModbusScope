@@ -63,12 +63,16 @@ public:
 
     typedef struct _LogSettings
     {
-        _LogSettings() : bPollTime(false), bAbsoluteTimes(false) {}
+        _LogSettings() : bPollTime(false), bAbsoluteTimes(false), bLogToFile(true), bLogToFilePath(false) {}
 
         bool bPollTime;
         quint32 pollTime;
 
         bool bAbsoluteTimes;
+
+        bool bLogToFile;
+        bool bLogToFilePath;
+        QString logPath;
 
     } LogSettings;
 
@@ -119,8 +123,9 @@ private:
 
     bool parseModbusTag(const QDomElement &element, GeneralSettings *pGeneralSettings);
 
-    bool parseConnectionTag(const QDomElement &element, ConnectionSettings *pGeneralSettings);
-    bool parseLogTag(const QDomElement &element, LogSettings *pGeneralSettings);
+    bool parseConnectionTag(const QDomElement &element, ConnectionSettings *pConnectionSettings);
+    bool parseLogTag(const QDomElement &element, LogSettings *pLogSettings);
+    bool parseLogToFile(const QDomElement &element, LogSettings *pLogSettings);
 
     bool parseScopeTag(const QDomElement &element, ScopeSettings *pScopeSettings);
     bool parseRegisterTag(const QDomElement &element, RegisterSettings *pRegisterSettings);

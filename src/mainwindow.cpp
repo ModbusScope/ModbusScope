@@ -781,6 +781,12 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
 
     _pSettingsModel->setAbsoluteTimes(pProjectSettings->general.logSettings.bAbsoluteTimes);
 
+    _pSettingsModel->setWriteDuringLog(pProjectSettings->general.logSettings.bLogToFile);
+    if (pProjectSettings->general.logSettings.bLogToFilePath)
+    {
+        _pSettingsModel->setWriteDuringLogPath(pProjectSettings->general.logSettings.logPath);
+    }
+
     if (pProjectSettings->view.scaleSettings.bSliding)
     {
         _pGuiModel->setxAxisSlidingInterval(pProjectSettings->view.scaleSettings.slidingInterval);

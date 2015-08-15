@@ -203,6 +203,14 @@ bool ProjectFileParser::parseLogTag(const QDomElement &element, LogSettings * pL
                 pLogSettings->bAbsoluteTimes = false;
             }
         }
+        else if (child.tagName() == "logtofile")
+        {
+            bRet = parseLogToFile(child, pLogSettings);
+            if (!bRet)
+            {
+                break;
+            }
+        }
         else
         {
             // unkown tag: ignore
@@ -213,6 +221,57 @@ bool ProjectFileParser::parseLogTag(const QDomElement &element, LogSettings * pL
     return bRet;
 }
 
+bool ProjectFileParser::parseLogToFile(const QDomElement &element, LogSettings *pLogSettings)
+{
+    bool bRet = true;
+
+    // Check attribute
+    QString enabled = element.attribute("enabled", "true");
+
+    if (!enabled.toLower().compare("true"))
+    {
+        pLogSettings->bLogToFile = true;
+    }
+    else
+    {
+        pLogSettings->bLogToFile = false;
+    }
+
+    // Check nodes
+    QDomElement child = element.firstChildElement();
+    while (!child.isNull())
+    {
+        if (child.tagName() == "path")
+        {
+            qDebug() << child.text();
+
+            QFileInfo fileInfo = QFileInfo(child.text());
+            QDir dir = fileInfo.dir();
+            dir.makeAbsolute();
+            bRet = dir.exists();
+
+            if (bRet)
+            {
+                pLogSettings->bLogToFilePath = true;
+                pLogSettings->logPath = fileInfo.filePath();
+            }
+            else
+            {
+                pLogSettings->bLogToFilePath = false;
+                _msgBox.setText(tr("Log file path does not exists (%1)").arg(fileInfo.filePath()));
+                _msgBox.exec();
+                break;
+            }
+        }
+        else
+        {
+            // unkown tag: ignore
+        }
+        child = child.nextSiblingElement();
+    }
+
+    return bRet;
+}
 
 bool ProjectFileParser::parseScopeTag(const QDomElement &element, ScopeSettings *pScopeSettings)
 {

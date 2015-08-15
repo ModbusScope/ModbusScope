@@ -12,7 +12,7 @@
 			<polltime>1000</polltime>
 			<absolutetimes>false</absolutetimes>
 			<logtofile enabled="true">
-				<path>C:\...</path>
+<!--				<path>C:\...</path> -->
 			</logtofile>
 		</log>
 	</modbus>
