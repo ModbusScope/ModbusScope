@@ -744,39 +744,39 @@ void MainWindow::updateRuntime()
 
 void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pProjectSettings)
 {
-    if (pProjectSettings->general.bIp)
+    if (pProjectSettings->general.connectionSettings.bIp)
     {
-        _pSettingsModel->setIpAddress(pProjectSettings->general.ip);
+        _pSettingsModel->setIpAddress(pProjectSettings->general.connectionSettings.ip);
     }
 
-    if (pProjectSettings->general.bPort)
+    if (pProjectSettings->general.connectionSettings.bPort)
     {
-         _pSettingsModel->setPort(pProjectSettings->general.port);
+         _pSettingsModel->setPort(pProjectSettings->general.connectionSettings.port);
     }
 
-    if (pProjectSettings->general.bPollTime)
+    if (pProjectSettings->general.logSettings.bPollTime)
     {
-        _pSettingsModel->setPollTime(pProjectSettings->general.pollTime);
+        _pSettingsModel->setPollTime(pProjectSettings->general.logSettings.pollTime);
     }
 
-    if (pProjectSettings->general.bSlaveId)
+    if (pProjectSettings->general.connectionSettings.bSlaveId)
     {
-        _pSettingsModel->setSlaveId(pProjectSettings->general.slaveId);
+        _pSettingsModel->setSlaveId(pProjectSettings->general.connectionSettings.slaveId);
     }
 
-    if (pProjectSettings->general.bTimeout)
+    if (pProjectSettings->general.connectionSettings.bTimeout)
     {
-        _pSettingsModel->setTimeout(pProjectSettings->general.timeout);
+        _pSettingsModel->setTimeout(pProjectSettings->general.connectionSettings.timeout);
     }
 
-    if (pProjectSettings->general.bConsecutiveMax)
+    if (pProjectSettings->general.connectionSettings.bConsecutiveMax)
     {
-        _pSettingsModel->setConsecutiveMax(pProjectSettings->general.consecutiveMax);
+        _pSettingsModel->setConsecutiveMax(pProjectSettings->general.connectionSettings.consecutiveMax);
     }
 
-    if (pProjectSettings->scale.bSliding)
+    if (pProjectSettings->view.scaleSettings.bSliding)
     {
-        _pGuiModel->setxAxisSlidingInterval(pProjectSettings->scale.slidingInterval);
+        _pGuiModel->setxAxisSlidingInterval(pProjectSettings->view.scaleSettings.slidingInterval);
         _pGuiModel->setxAxisScale(BasicGraphView::SCALE_SLIDING);
     }
     else
@@ -784,10 +784,10 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
         _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
     }
 
-    if (pProjectSettings->scale.bMinMax)
+    if (pProjectSettings->view.scaleSettings.bMinMax)
     {
-        _pGuiModel->setyAxisMin(pProjectSettings->scale.scaleMin);
-        _pGuiModel->setyAxisMax(pProjectSettings->scale.scaleMax);
+        _pGuiModel->setyAxisMin(pProjectSettings->view.scaleSettings.scaleMin);
+        _pGuiModel->setyAxisMax(pProjectSettings->view.scaleSettings.scaleMax);
         _pGuiModel->setyAxisScale(BasicGraphView::SCALE_MINMAX);
     }
     else
@@ -795,19 +795,19 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
         _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
     }
 
-    _pGuiModel->setLegendVisibility(pProjectSettings->legend.bVisible);
+    _pGuiModel->setLegendVisibility(pProjectSettings->view.legendSettings.bVisible);
 
-    if (pProjectSettings->legend.bPosition)
+    if (pProjectSettings->view.legendSettings.bPosition)
     {
-        if (pProjectSettings->legend.position == 0)
+        if (pProjectSettings->view.legendSettings.position == 0)
         {
             _pGuiModel->setLegendPosition(BasicGraphView::LEGEND_LEFT);
         }
-        else if (pProjectSettings->legend.position == 1)
+        else if (pProjectSettings->view.legendSettings.position == 1)
         {
             _pGuiModel->setLegendPosition(BasicGraphView::LEGEND_MIDDLE);
         }
-        else if (pProjectSettings->legend.position == 2)
+        else if (pProjectSettings->view.legendSettings.position == 2)
         {
             _pGuiModel->setLegendPosition(BasicGraphView::LEGEND_RIGHT);
         }

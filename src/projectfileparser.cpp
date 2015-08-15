@@ -57,22 +57,15 @@ bool ProjectFileParser::parseFile(QIODevice *device, ProjectSettings *pSettings)
                         break;
                     }
                 }
-                else if (tag.tagName() == "scale")
+                else if (tag.tagName() == "view")
                 {
-                    bRet = parseScaleTag(tag, &pSettings->scale);
+                    bRet = parseViewTag(tag, &pSettings->view);
                     if (!bRet)
                     {
                         break;
                     }
                 }
-                else if (tag.tagName() == "legend")
-                {
-                    bRet = parseLegendTag(tag, &pSettings->legend);
-                    if (!bRet)
-                    {
-                        break;
-                    }
-                }
+
                 tag = tag.nextSiblingElement();
             }
         }
@@ -88,15 +81,47 @@ bool ProjectFileParser::parseModbusTag(const QDomElement &element, GeneralSettin
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
+        if (child.tagName() == "connection")
+        {
+            bRet = parseConnectionTag(child, &pGeneralSettings->connectionSettings);
+            if (!bRet)
+            {
+                break;
+            }
+        }
+        else if (child.tagName() == "log")
+        {
+            bRet = parseLogTag(child, &pGeneralSettings->logSettings);
+            if (!bRet)
+            {
+                break;
+            }
+        }
+        else
+        {
+            // unkown tag: ignore
+        }
+        child = child.nextSiblingElement();
+    }
+
+    return bRet;
+}
+
+bool ProjectFileParser::parseConnectionTag(const QDomElement &element, ConnectionSettings * pConnectionSettings)
+{
+    bool bRet = true;
+    QDomElement child = element.firstChildElement();
+    while (!child.isNull())
+    {
         if (child.tagName() == "ip")
         {
-            pGeneralSettings->bIp = true;
-            pGeneralSettings->ip = child.text();
+            pConnectionSettings->bIp = true;
+            pConnectionSettings->ip = child.text();
         }
         else if (child.tagName() == "port")
         {
-            pGeneralSettings->bPort = true;
-            pGeneralSettings->port = child.text().toUInt(&bRet);
+            pConnectionSettings->bPort = true;
+            pConnectionSettings->port = child.text().toUInt(&bRet);
             if (!bRet)
             {
                 _msgBox.setText(tr("Port ( %1 ) is not a valid number").arg(child.text()));
@@ -104,21 +129,10 @@ bool ProjectFileParser::parseModbusTag(const QDomElement &element, GeneralSettin
                 break;
             }
         }
-        else if (child.tagName() == "polltime")
-        {
-            pGeneralSettings->bPollTime = true;
-            pGeneralSettings->pollTime = child.text().toUInt(&bRet);
-            if (!bRet)
-            {
-                _msgBox.setText(tr("Poll time ( %1 ) is not a valid number").arg(child.text()));
-                _msgBox.exec();
-                break;
-            }
-        }
         else if (child.tagName() == "slaveid")
         {
-            pGeneralSettings->bSlaveId = true;
-            pGeneralSettings->slaveId = child.text().toUInt(&bRet);
+            pConnectionSettings->bSlaveId = true;
+            pConnectionSettings->slaveId = child.text().toUInt(&bRet);
             if (!bRet)
             {
                 _msgBox.setText(tr("Slave id ( %1 ) is not a valid number").arg(child.text()));
@@ -129,8 +143,8 @@ bool ProjectFileParser::parseModbusTag(const QDomElement &element, GeneralSettin
         }
         else if (child.tagName() == "timeout")
         {
-            pGeneralSettings->bTimeout = true;
-            pGeneralSettings->timeout = child.text().toUInt(&bRet);
+            pConnectionSettings->bTimeout = true;
+            pConnectionSettings->timeout = child.text().toUInt(&bRet);
             if (!bRet)
             {
                 _msgBox.setText(tr("Timeout ( %1 ) is not a valid number").arg(child.text()));
@@ -141,13 +155,40 @@ bool ProjectFileParser::parseModbusTag(const QDomElement &element, GeneralSettin
         }
         else if (child.tagName() == "consecutivemax")
         {
-            pGeneralSettings->bConsecutiveMax = true;
-            pGeneralSettings->consecutiveMax = child.text().toUInt(&bRet);
+            pConnectionSettings->bConsecutiveMax = true;
+            pConnectionSettings->consecutiveMax = child.text().toUInt(&bRet);
             if (!bRet)
             {
                 _msgBox.setText(tr("Consecutive register maximum ( %1 ) is not a valid number").arg(child.text()));
                 _msgBox.exec();
 
+                break;
+            }
+        }
+        else
+        {
+            // unkown tag: ignore
+        }
+        child = child.nextSiblingElement();
+    }
+
+    return bRet;
+}
+
+bool ProjectFileParser::parseLogTag(const QDomElement &element, LogSettings * pLogSettings)
+{
+    bool bRet = true;
+    QDomElement child = element.firstChildElement();
+    while (!child.isNull())
+    {
+         if (child.tagName() == "polltime")
+        {
+            pLogSettings->bPollTime = true;
+            pLogSettings->pollTime = child.text().toUInt(&bRet);
+            if (!bRet)
+            {
+                _msgBox.setText(tr("Poll time ( %1 ) is not a valid number").arg(child.text()));
+                _msgBox.exec();
                 break;
             }
         }
@@ -171,7 +212,7 @@ bool ProjectFileParser::parseScopeTag(const QDomElement &element, ScopeSettings 
         if (child.tagName() == "register")
         {
             RegisterSettings registerData;
-            bRet = parseVariableTag(child, &registerData);
+            bRet = parseRegisterTag(child, &registerData);
             if (!bRet)
             {
                 break;
@@ -215,7 +256,7 @@ bool ProjectFileParser::parseScopeTag(const QDomElement &element, ScopeSettings 
 }
 
 
-bool ProjectFileParser::parseVariableTag(const QDomElement &element, RegisterSettings *pRegisterSettings)
+bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSettings *pRegisterSettings)
 {
     bool bRet = true;
 
@@ -357,6 +398,37 @@ bool ProjectFileParser::parseVariableTag(const QDomElement &element, RegisterSet
     return bRet;
 }
 
+bool ProjectFileParser::parseViewTag(const QDomElement &element, ViewSettings *pViewSettings)
+{
+    bool bRet = true;
+    QDomElement child = element.firstChildElement();
+    while (!child.isNull())
+    {
+        if (child.tagName() == "scale")
+        {
+            bRet = parseScaleTag(child, &pViewSettings->scaleSettings);
+            if (!bRet)
+            {
+                break;
+            }
+        }
+        else if (child.tagName() == "legend")
+        {
+            bRet = parseLegendTag(child, &pViewSettings->legendSettings);
+            if (!bRet)
+            {
+                break;
+            }
+        }
+        else
+        {
+            // unkown tag: ignore
+        }
+        child = child.nextSiblingElement();
+    }
+
+    return bRet;
+}
 
 bool ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleSettings *pScaleSettings)
 {

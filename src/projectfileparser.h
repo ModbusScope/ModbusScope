@@ -54,18 +54,31 @@ public:
 
     } LegendSettings;
 
-    typedef struct _GeneralSettings
+    typedef struct
     {
-        _GeneralSettings() : bIp(false), bPort(false), bPollTime(false), bSlaveId(false), bTimeout(false), bConsecutiveMax(false) {}
+        LegendSettings legendSettings;
+        ScaleSettings scaleSettings;
+
+    } ViewSettings;
+
+    typedef struct _LogSettings
+    {
+        _LogSettings() : bPollTime(false) {}
+
+        bool bPollTime;
+        quint32 pollTime;
+
+    } LogSettings;
+
+    typedef struct _ConnectionSettings
+    {
+        _ConnectionSettings() : bIp(false), bPort(false), bSlaveId(false), bTimeout(false), bConsecutiveMax(false) {}
 
         bool bIp;
         QString ip;
 
         bool bPort;
         quint32 port;
-
-        bool bPollTime;
-        quint32 pollTime;
 
         bool bSlaveId;
         quint8 slaveId;
@@ -76,14 +89,20 @@ public:
         bool bConsecutiveMax;
         quint8 consecutiveMax;
 
+    } ConnectionSettings;
+
+    typedef struct _GeneralSettings
+    {
+        ConnectionSettings connectionSettings;
+        LogSettings logSettings;
+
     } GeneralSettings;
 
     typedef struct
     {
         GeneralSettings general;
         ScopeSettings scope;
-        ScaleSettings scale;
-        LegendSettings legend;
+        ViewSettings view;
     } ProjectSettings;
 
     explicit ProjectFileParser();
@@ -98,13 +117,16 @@ private:
 
     bool parseModbusTag(const QDomElement &element, GeneralSettings *pGeneralSettings);
 
-    bool parseScopeTag(const QDomElement &element, ScopeSettings *pScopeSettings);
-    bool parseVariableTag(const QDomElement &element, RegisterSettings *pRegisterSettings);
+    bool parseConnectionTag(const QDomElement &element, ConnectionSettings *pGeneralSettings);
+    bool parseLogTag(const QDomElement &element, LogSettings *pGeneralSettings);
 
+    bool parseScopeTag(const QDomElement &element, ScopeSettings *pScopeSettings);
+    bool parseRegisterTag(const QDomElement &element, RegisterSettings *pRegisterSettings);
+
+    bool parseViewTag(const QDomElement &element, ViewSettings *pViewSettings);
     bool parseScaleTag(const QDomElement &element, ScaleSettings *pScaleSettings);
     bool parseScaleXAxis(const QDomElement &element, ScaleSettings *pScaleSettings);
     bool parseScaleYAxis(const QDomElement &element, ScaleSettings *pScaleSettings);
-
     bool parseLegendTag(const QDomElement &element, LegendSettings *pLegendSettings);
 
     QDomDocument _domDocument;
