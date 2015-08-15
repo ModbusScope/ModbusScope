@@ -9,8 +9,7 @@
 		<unknown>1</unknown>
 	</modbus>
 	<scope>
-		<register>
-			<active>true</active>
+		<register active="true">
 			<address>40001</address>
 			<text>Very interesting register</text>
 			<unsigned>true</unsigned>
@@ -25,8 +24,7 @@
 			<unsigned>false</unsigned>
 			<unknowntag2>false</unknowntag2>
 		</register>
-		<register>
-			<active>false</active>
+		<register active="false">
 			<address>40003</address>
 			<text>Very interesting register 3</text>
 			<multiply>10.0</multiply>
