@@ -82,6 +82,7 @@ private slots:
     void updateStats();
 
     /* Misc */
+    void scaleWidgetUndocked(bool bFloat);
     void showContextMenu(const QPoint& pos);
     void dragEnterEvent(QDragEnterEvent *e);
     void dropEvent(QDropEvent *e);
