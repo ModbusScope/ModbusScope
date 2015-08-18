@@ -118,6 +118,9 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     this->setAcceptDrops(true);
 
+    // For scale dock undock
+    connect(_pUi->scaleOptionsDock, SIGNAL(topLevelChanged(bool)), this, SLOT(scaleWidgetUndocked(bool)));
+
     // For rightclick menu
     _pUi->customPlot->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(_pUi->customPlot, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
@@ -664,6 +667,14 @@ void MainWindow::updateStats()
 {
     // Update statistics
     _pStatusStats->setText(_cStatsTemplate.arg(_pGuiModel->communicationSuccessCount()).arg(_pGuiModel->communicationErrorCount()));
+}
+
+void MainWindow::scaleWidgetUndocked(bool bFloat)
+{
+    if (bFloat)
+    {
+        _pUi->scaleOptionsDock->adjustSize();
+    }
 }
 
 void MainWindow::showContextMenu(const QPoint& pos)
