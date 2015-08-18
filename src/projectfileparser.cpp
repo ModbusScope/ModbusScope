@@ -38,35 +38,57 @@ bool ProjectFileParser::parseFile(QIODevice *device, ProjectSettings *pSettings)
         }
         else
         {
-            QDomElement tag = root.firstChildElement();
-            while (!tag.isNull())
-            {
-                if (tag.tagName() == "modbus")
-                {
-                    bRet = parseModbusTag(tag, &pSettings->general);
-                    if (!bRet)
-                    {
-                        break;
-                    }
-                }
-                else if (tag.tagName() == "scope")
-                {
-                    bRet = parseScopeTag(tag, &pSettings->scope);
-                    if (!bRet)
-                    {
-                        break;
-                    }
-                }
-                else if (tag.tagName() == "view")
-                {
-                    bRet = parseViewTag(tag, &pSettings->view);
-                    if (!bRet)
-                    {
-                        break;
-                    }
-                }
+            // Check data level attribute
+            QString strDataLevel = root.attribute("datalevel", "1");
+            quint32 datalevel = strDataLevel.toUInt(&bRet);
 
-                tag = tag.nextSiblingElement();
+            if (bRet)
+            {
+                if (datalevel != 2)
+                {
+                    _msgBox.setText(tr("Data level (%1) is not supported. Only datalevel 2 is allowed. Project file loading is aborted.").arg(datalevel));
+                    _msgBox.exec();
+                    bRet = false;
+                }
+            }
+            else
+            {
+                _msgBox.setText(tr("Data level (%1) is not a valid number").arg(strDataLevel));
+                _msgBox.exec();
+            }
+
+            if (bRet)
+            {
+                QDomElement tag = root.firstChildElement();
+                while (!tag.isNull())
+                {
+                    if (tag.tagName() == "modbus")
+                    {
+                        bRet = parseModbusTag(tag, &pSettings->general);
+                        if (!bRet)
+                        {
+                            break;
+                        }
+                    }
+                    else if (tag.tagName() == "scope")
+                    {
+                        bRet = parseScopeTag(tag, &pSettings->scope);
+                        if (!bRet)
+                        {
+                            break;
+                        }
+                    }
+                    else if (tag.tagName() == "view")
+                    {
+                        bRet = parseViewTag(tag, &pSettings->view);
+                        if (!bRet)
+                        {
+                            break;
+                        }
+                    }
+
+                    tag = tag.nextSiblingElement();
+                }
             }
         }
     }
@@ -243,8 +265,6 @@ bool ProjectFileParser::parseLogToFile(const QDomElement &element, LogSettings *
     {
         if (child.tagName() == "path")
         {
-            qDebug() << child.text();
-
             QFileInfo fileInfo = QFileInfo(child.text());
             QDir dir = fileInfo.dir();
             dir.makeAbsolute();

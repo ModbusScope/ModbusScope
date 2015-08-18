@@ -1,4 +1,4 @@
-<modbusscope>
+<modbusscope datalevel="2">
 	<modbus>
 		<connection>
 			<ip>127.0.0.1</ip>
