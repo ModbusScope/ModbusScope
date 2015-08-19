@@ -35,14 +35,17 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0">
         <item>
-         <widget class="QLineEdit" name="lineWriteDuringLogPath">
+         <widget class="QLineEdit" name="lineWriteDuringLogFile">
           <property name="enabled">
            <bool>false</bool>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QToolButton" name="buttonWriteDuringLogPath">
+         <widget class="QToolButton" name="buttonWriteDuringLogFile">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -112,8 +115,8 @@
  </widget>
  <tabstops>
   <tabstop>checkWriteDuringLog</tabstop>
-  <tabstop>lineWriteDuringLogPath</tabstop>
-  <tabstop>buttonWriteDuringLogPath</tabstop>
+  <tabstop>lineWriteDuringLogFile</tabstop>
+  <tabstop>buttonWriteDuringLogFile</tabstop>
   <tabstop>spinPollTime</tabstop>
   <tabstop>checkAbsoluteTimes</tabstop>
  </tabstops>

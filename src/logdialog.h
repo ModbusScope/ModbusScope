@@ -25,7 +25,7 @@ private slots:
 
     void updatePollTime();
     void updateWriteDuringLog();
-    void updateWriteDuringLogPath();
+    void updateWriteDuringLogFile();
     void updateAbsoluteTime();
 
 private:

@@ -29,7 +29,7 @@ void DataFileExporter::enableExporterDuringLog()
     lastLogTime = QDateTime::currentMSecsSinceEpoch();
 
     // Clean file
-    clearFile(_pSettingsModel->writeDuringLogPath());
+    clearFile(_pSettingsModel->writeDuringLogFile());
 
     exportDataHeader();
 }
@@ -96,7 +96,7 @@ void DataFileExporter::exportDataFile(QString dataFile)
 void DataFileExporter::flushExportBuffer()
 {
     // Write to file
-    writeToFile(_pSettingsModel->writeDuringLogPath(), _dataExportBuffer);
+    writeToFile(_pSettingsModel->writeDuringLogFile(), _dataExportBuffer);
 
     _dataExportBuffer.clear();
     lastLogTime = QDateTime::currentMSecsSinceEpoch();
@@ -113,7 +113,7 @@ void DataFileExporter::exportDataHeader()
     logData.append(createLabelRow());
 
     // Write to file
-    writeToFile(_pSettingsModel->writeDuringLogPath(), logData);
+    writeToFile(_pSettingsModel->writeDuringLogFile(), logData);
 }
 
 QString DataFileExporter::constructDataHeader(bool bDuringLog)
@@ -206,7 +206,7 @@ void DataFileExporter::writeToFile(QString filePath, QStringList logData)
     else
     {
         if (
-                (_pSettingsModel->writeDuringLogPath() == filePath)
+                (_pSettingsModel->writeDuringLogFile() == filePath)
                 && (_pSettingsModel->writeDuringLog())
             )
         {

@@ -793,9 +793,9 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
     _pSettingsModel->setAbsoluteTimes(pProjectSettings->general.logSettings.bAbsoluteTimes);
 
     _pSettingsModel->setWriteDuringLog(pProjectSettings->general.logSettings.bLogToFile);
-    if (pProjectSettings->general.logSettings.bLogToFilePath)
+    if (pProjectSettings->general.logSettings.bLogToFileFile)
     {
-        _pSettingsModel->setWriteDuringLogPath(pProjectSettings->general.logSettings.logPath);
+        _pSettingsModel->setWriteDuringLogFile(pProjectSettings->general.logSettings.logFile);
     }
 
     if (pProjectSettings->view.scaleSettings.bSliding)

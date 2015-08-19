@@ -13,14 +13,14 @@ public:
     void triggerUpdate(void);
 
     void setPollTime(quint32 pollTime);
-    void setWriteDuringLogPath(QString path);    
+    void setWriteDuringLogFile(QString filename);
     void setIpAddress(QString ip);
     void setPort(quint16 port);
     void setSlaveId(quint8 id);
     void setTimeout(quint32 timeout);
     void setConsecutiveMax(quint8 max);
 
-    QString writeDuringLogPath();
+    QString writeDuringLogFile();
     quint32 writeDuringLog();
     QString ipAddress();
     quint16 port();
@@ -37,7 +37,7 @@ public slots:
 signals:
     void pollTimeChanged();
     void writeDuringLogChanged();
-    void writeDuringLogPathChanged();
+    void writeDuringLogFileChanged();
     void ipChanged();
     void portChanged();
     void slaveIdChanged();
@@ -57,7 +57,7 @@ private:
     bool _bAbsoluteTimes;
 
     bool _bWriteDuringLog;
-    QString _writeDuringLogPath;
+    QString _writeDuringLogFile;
 
     static const QString _cDefaultLogFileName;
 

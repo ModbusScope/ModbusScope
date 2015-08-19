@@ -20,13 +20,13 @@ LogDialog::LogDialog(SettingsModel * pSettingsModel, GuiModel * pGuiModel, QWidg
 
     /*-- View connections --*/
     connect(_pUi->checkWriteDuringLog, SIGNAL(toggled(bool)), _pSettingsModel, SLOT(setWriteDuringLog(bool)));
-    connect(_pUi->buttonWriteDuringLogPath, SIGNAL(clicked()), this, SLOT(selectLogFile()));
+    connect(_pUi->buttonWriteDuringLogFile, SIGNAL(clicked()), this, SLOT(selectLogFile()));
     connect(_pUi->checkAbsoluteTimes, SIGNAL(toggled(bool)), _pSettingsModel, SLOT(setAbsoluteTimes(bool)));
 
     /*-- connect model to view --*/
     connect(_pSettingsModel, SIGNAL(pollTimeChanged()), this, SLOT(updatePollTime()));
     connect(_pSettingsModel, SIGNAL(writeDuringLogChanged()), this, SLOT(updateWriteDuringLog()));
-    connect(_pSettingsModel, SIGNAL(writeDuringLogPathChanged()), this, SLOT(updateWriteDuringLogPath()));
+    connect(_pSettingsModel, SIGNAL(writeDuringLogFileChanged()), this, SLOT(updateWriteDuringLogFile()));
     connect(_pSettingsModel, SIGNAL(absoluteTimesChanged()), this, SLOT(updateAbsoluteTime()));
 }
 
@@ -42,7 +42,7 @@ void LogDialog::done(int r)
     if(QDialog::Accepted == r)  // ok was pressed
     {
         _pSettingsModel->setPollTime(_pUi->spinPollTime->text().toUInt());
-        _pSettingsModel->setWriteDuringLogPath(_pUi->lineWriteDuringLogPath->text());
+        _pSettingsModel->setWriteDuringLogFile(_pUi->lineWriteDuringLogFile->text());
 
         // Validate the data
         //bValid = validateSettingsData();
@@ -73,7 +73,7 @@ void LogDialog::selectLogFile()
 
     if (dialog.exec() == QDialog::Accepted)
     {
-        _pUi->lineWriteDuringLogPath->setText(dialog.selectedFiles().first());
+        _pUi->lineWriteDuringLogFile->setText(dialog.selectedFiles().first());
     }
 }
 
@@ -87,20 +87,20 @@ void LogDialog::updateWriteDuringLog()
     if (_pSettingsModel->writeDuringLog())
     {
         _pUi->checkWriteDuringLog->setChecked(true);
-        _pUi->lineWriteDuringLogPath->setEnabled(true);
-        _pUi->buttonWriteDuringLogPath->setEnabled(true);
+        _pUi->lineWriteDuringLogFile->setEnabled(true);
+        _pUi->buttonWriteDuringLogFile->setEnabled(true);
     }
     else
     {
         _pUi->checkWriteDuringLog->setChecked(false);
-        _pUi->lineWriteDuringLogPath->setEnabled(false);
-        _pUi->buttonWriteDuringLogPath->setEnabled(false);
+        _pUi->lineWriteDuringLogFile->setEnabled(false);
+        _pUi->buttonWriteDuringLogFile->setEnabled(false);
     }
 }
 
-void LogDialog::updateWriteDuringLogPath()
+void LogDialog::updateWriteDuringLogFile()
 {
-    _pUi->lineWriteDuringLogPath->setText(_pSettingsModel->writeDuringLogPath());
+    _pUi->lineWriteDuringLogFile->setText(_pSettingsModel->writeDuringLogFile());
 }
 
 void LogDialog::updateAbsoluteTime()

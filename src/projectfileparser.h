@@ -63,7 +63,7 @@ public:
 
     typedef struct _LogSettings
     {
-        _LogSettings() : bPollTime(false), bAbsoluteTimes(false), bLogToFile(true), bLogToFilePath(false) {}
+        _LogSettings() : bPollTime(false), bAbsoluteTimes(false), bLogToFile(true), bLogToFileFile(false) {}
 
         bool bPollTime;
         quint32 pollTime;
@@ -71,8 +71,8 @@ public:
         bool bAbsoluteTimes;
 
         bool bLogToFile;
-        bool bLogToFilePath;
-        QString logPath;
+        bool bLogToFileFile;
+        QString logFile;
 
     } LogSettings;
 

@@ -19,7 +19,7 @@ SettingsModel::SettingsModel(QObject *parent) :
 
     _pollTime = 1000;
     _bWriteDuringLog = true;
-    _writeDuringLogPath = tempDir.append(_cDefaultLogFileName);
+    _writeDuringLogFile = tempDir.append(_cDefaultLogFileName);
     _ipAddress = "127.0.0.1";
     _port = 502;
     _slaveId = 1;
@@ -37,7 +37,7 @@ void SettingsModel::triggerUpdate(void)
 {
     emit pollTimeChanged();
     emit writeDuringLogChanged();
-    emit writeDuringLogPathChanged();
+    emit writeDuringLogFileChanged();
     emit ipChanged();
     emit portChanged();
     emit slaveIdChanged();
@@ -102,18 +102,18 @@ quint32 SettingsModel::writeDuringLog()
     return _bWriteDuringLog;
 }
 
-void SettingsModel::setWriteDuringLogPath(QString path)
+void SettingsModel::setWriteDuringLogFile(QString path)
 {
-    if (_writeDuringLogPath != path)
+    if (_writeDuringLogFile != path)
     {
-        _writeDuringLogPath = path;
-        emit writeDuringLogPathChanged();
+        _writeDuringLogFile = path;
+        emit writeDuringLogFileChanged();
     }
 }
 
-QString SettingsModel::writeDuringLogPath()
+QString SettingsModel::writeDuringLogFile()
 {
-    return _writeDuringLogPath;
+    return _writeDuringLogFile;
 }
 
 void SettingsModel::setIpAddress(QString ip)
