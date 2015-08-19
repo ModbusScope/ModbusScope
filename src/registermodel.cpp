@@ -3,7 +3,7 @@
 #include "QDebug"
 #include <QMessageBox>
 
-const QList<QColor> RegisterModel::_colorlist = QList<QColor>() << QColor(0, 0, 0)
+const QList<QColor> RegisterModel::_cColorlist = QList<QColor>() << QColor(0, 0, 0)
                                                            << QColor(0, 0, 255)
                                                            << QColor(0, 255, 255)
                                                            << QColor(0, 255, 0)
@@ -387,8 +387,8 @@ bool RegisterModel::insertRows(RegisterData data, int row, int count, const QMod
 
     if (!data.color().isValid())
     {
-        quint32 colorIndex = _dataList.size() % _colorlist.size();
-        data.setColor(_colorlist[colorIndex]);
+        quint32 colorIndex = _dataList.size() % _cColorlist.size();
+        data.setColor(_cColorlist[colorIndex]);
     }
 
     _dataList.append(data);

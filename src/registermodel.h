@@ -41,7 +41,7 @@ private:
 
     QList<RegisterData> _dataList;
 
-    static const QList<QColor> _colorlist;
+    static const QList<QColor> _cColorlist;
 
 };
 
