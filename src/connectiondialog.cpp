@@ -9,6 +9,9 @@ ConnectionDialog::ConnectionDialog(SettingsModel * pSettingsModel, QWidget *pare
 {
     _pUi->setupUi(this);
 
+    /* Disable question mark button */
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
     _pSettingsModel = pSettingsModel;
 
     connect(_pSettingsModel, SIGNAL(ipChanged()), this, SLOT(updateIp()));

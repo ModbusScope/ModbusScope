@@ -15,6 +15,9 @@ LogDialog::LogDialog(SettingsModel * pSettingsModel, GuiModel * pGuiModel, QWidg
     _pSettingsModel = pSettingsModel;
     _pGuiModel = pGuiModel;
 
+    /* Disable question mark button */
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
     /*-- View connections --*/
     connect(_pUi->checkWriteDuringLog, SIGNAL(toggled(bool)), _pSettingsModel, SLOT(setWriteDuringLog(bool)));
     connect(_pUi->buttonWriteDuringLogPath, SIGNAL(clicked()), this, SLOT(selectLogFile()));

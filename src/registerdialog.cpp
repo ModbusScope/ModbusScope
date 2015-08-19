@@ -11,6 +11,9 @@ RegisterDialog::RegisterDialog(RegisterModel * pRegisterModel, QWidget *parent) 
 {
     _pUi->setupUi(this);
 
+    /* Disable question mark button */
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
     _pRegisterModel = pRegisterModel;
 
     // Setup registerView
