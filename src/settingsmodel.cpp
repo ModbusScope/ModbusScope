@@ -1,7 +1,11 @@
 
 #include <QDir>
+#include <QDebug>
 
 #include "settingsmodel.h"
+
+
+const QString SettingsModel::_cDefaultLogFileName = "ModbusScope-autolog.csv";
 
 SettingsModel::SettingsModel(QObject *parent) :
     QObject(parent)
@@ -15,7 +19,7 @@ SettingsModel::SettingsModel(QObject *parent) :
 
     _pollTime = 1000;
     _bWriteDuringLog = true;
-    _writeDuringLogPath = tempDir.append(tr("ModbusScope-autolog.csv"));
+    _writeDuringLogPath = tempDir.append(_cDefaultLogFileName);
     _ipAddress = "127.0.0.1";
     _port = 502;
     _slaveId = 1;

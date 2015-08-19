@@ -59,6 +59,8 @@ private:
     bool _bWriteDuringLog;
     QString _writeDuringLogPath;
 
+    static const QString _cDefaultLogFileName;
+
 };
 
 #endif // SETTINGSMODEL_H
