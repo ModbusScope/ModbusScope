@@ -797,6 +797,10 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
     {
         _pSettingsModel->setWriteDuringLogFile(pProjectSettings->general.logSettings.logFile);
     }
+    else
+    {
+         _pSettingsModel->setWriteDuringLogFileToDefault();
+    }
 
     if (pProjectSettings->view.scaleSettings.bSliding)
     {

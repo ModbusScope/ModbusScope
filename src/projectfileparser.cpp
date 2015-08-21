@@ -267,16 +267,41 @@ bool ProjectFileParser::parseLogToFile(const QDomElement &element, LogSettings *
         {
             QFileInfo fileInfo = QFileInfo(child.text());
 
-            if ( fileInfo.dir().exists())
+            bool bValid = true;
+
+            /* check file path points to existing file */
+            if (!fileInfo.isFile())
+            {
+                /* Check if file path points to something else that already exists */
+                if (fileInfo.exists())
+                {
+                    /* path exist, but it is not a file */
+                    bValid = false;
+                    _msgBox.setText(tr("Log file path (%1) already exists, but it is not a file. Log file is set to default.").arg(fileInfo.filePath()));
+                    _msgBox.exec();
+                }
+                else
+                {
+                    /* file path does not exist yet */
+
+                    /* Does parent directory exist? */
+                    if (!fileInfo.dir().exists())
+                    {
+                        bValid = false;
+                        _msgBox.setText(tr("Log file path (parent directory) does not exists (%1). Log file is set to default.").arg(fileInfo.filePath()));
+                        _msgBox.exec();
+                    }
+                }
+            }
+
+            if (bValid)
             {
                 pLogSettings->bLogToFileFile = true;
                 pLogSettings->logFile = fileInfo.filePath();
             }
             else
             {
-                pLogSettings->bLogToFile = false;
-                _msgBox.setText(tr("Log file path does not exists (%1). Path is set to default").arg(fileInfo.filePath()));
-                _msgBox.exec();
+                pLogSettings->bLogToFileFile = false;
             }
         }
         else

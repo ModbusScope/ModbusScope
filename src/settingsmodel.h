@@ -14,6 +14,7 @@ public:
 
     void setPollTime(quint32 pollTime);
     void setWriteDuringLogFile(QString filename);
+    void setWriteDuringLogFileToDefault(void);
     void setIpAddress(QString ip);
     void setPort(quint16 port);
     void setSlaveId(quint8 id);
@@ -58,6 +59,8 @@ private:
 
     bool _bWriteDuringLog;
     QString _writeDuringLogFile;
+
+    QString defaultLogFilePath;
 
     static const QString _cDefaultLogFileName;
 

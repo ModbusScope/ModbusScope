@@ -17,9 +17,11 @@ SettingsModel::SettingsModel(QObject *parent) :
         tempDir.append(QDir::separator());
     }
 
+    defaultLogFilePath = tempDir.append(_cDefaultLogFileName);
+
     _pollTime = 1000;
     _bWriteDuringLog = true;
-    _writeDuringLogFile = tempDir.append(_cDefaultLogFileName);
+    _writeDuringLogFile = defaultLogFilePath;
     _ipAddress = "127.0.0.1";
     _port = 502;
     _slaveId = 1;
@@ -109,6 +111,11 @@ void SettingsModel::setWriteDuringLogFile(QString path)
         _writeDuringLogFile = path;
         emit writeDuringLogFileChanged();
     }
+}
+
+void SettingsModel::setWriteDuringLogFileToDefault(void)
+{
+    setWriteDuringLogFile(defaultLogFilePath);
 }
 
 QString SettingsModel::writeDuringLogFile()
