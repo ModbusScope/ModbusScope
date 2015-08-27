@@ -30,60 +30,65 @@ DEFINES += QT_DEBUG_OUTPUT
 INCLUDEPATH += \
     ../libraries/libmodbus/src \
     ../libraries/qcustomplot \
-    ../src
+    ../src/communication \
+    ../src/importexport \
+    ../src/dialogs \
+    ../src/graphview \
+    ../src/models \
+    ../src/util
 
 SOURCES +=  \
-    ../src/mainwindow.cpp \
-    ../src/main.cpp \
-    ../src/modbusmaster.cpp \
     ../libraries/libmodbus/src/modbus-data.c \
     ../libraries/libmodbus/src/modbus.c \
     ../libraries/libmodbus/src/modbus-tcp.c \
     ../libraries/qcustomplot/qcustomplot.cpp \
-    ../src/projectfileparser.cpp \
-    ../src/registermodel.cpp \
-    ../src/datafileparser.cpp \
-    ../src/registerdata.cpp \
-    ../src/connectiondialog.cpp \
-    ../src/registerdialog.cpp \
-    ../src/basicgraphview.cpp \
-    ../src/extendedgraphview.cpp \
-    ../src/guimodel.cpp \
-    ../src/communicationmanager.cpp \
-    ../src/logdialog.cpp \
-    ../src/datafileexporter.cpp \
-    ../src/settingsmodel.cpp
+    ../src/communication/communicationmanager.cpp \
+    ../src/communication/modbusmaster.cpp \
+    ../src/importexport/datafileexporter.cpp \
+    ../src/importexport/datafileparser.cpp \
+    ../src/importexport/projectfileparser.cpp \
+    ../src/importexport/registerdata.cpp \
+    ../src/dialogs/connectiondialog.cpp \
+    ../src/dialogs/logdialog.cpp \
+    ../src/dialogs/mainwindow.cpp \
+    ../src/dialogs/registerdialog.cpp \
+    ../src/graphview/basicgraphview.cpp \
+    ../src/graphview/extendedgraphview.cpp \
+    ../src/models/guimodel.cpp \
+    ../src/models/registermodel.cpp \
+    ../src/models/settingsmodel.cpp \
+    ../src/main.cpp
 
 FORMS    += \
-    ../src/mainwindow.ui \
-    ../src/connectiondialog.ui \
-    ../src/registerdialog.ui \
-    ../src/logdialog.ui
+    ../src/dialogs/connectiondialog.ui \
+    ../src/dialogs/logdialog.ui \
+    ../src/dialogs/mainwindow.ui \
+    ../src/dialogs/registerdialog.ui
 
 HEADERS += \
-    ../src/mainwindow.h \
-    ../src/modbusmaster.h \
     ../libraries/libmodbus/src/modbus-private.h \
     ../libraries/libmodbus/src/modbus-version.h \
     ../libraries/libmodbus/src/modbus.h \
     ../libraries/libmodbus/src/modbus-tcp.h \
     ../libraries/libmodbus/src/modbus-tcp-private.h \
     ../libraries/qcustomplot/qcustomplot.h \
-    ../src/projectfileparser.h \
-    ../src/registermodel.h \
-    ../src/datafileparser.h \
-    ../src/util.h \
-    ../src/registerdata.h \
-    ../src/connectiondialog.h \
-    ../src/registerdialog.h \
-    ../src/basicgraphview.h \
-    ../src/extendedgraphview.h \
-    ../src/guimodel.h \
-    ../src/graphdata.h \
-    ../src/communicationmanager.h \
-    ../src/logdialog.h \
-    ../src/datafileexporter.h \
-    ../src/settingsmodel.h
+    ../src/communication/communicationmanager.h \
+    ../src/communication/modbusmaster.h \
+    ../src/importexport/datafileexporter.h \
+    ../src/importexport/datafileparser.h \
+    ../src/importexport/projectfileparser.h \
+    ../src/importexport/registerdata.h \
+    ../src/dialogs/connectiondialog.h \
+    ../src/dialogs/logdialog.h \
+    ../src/dialogs/mainwindow.h \
+    ../src/dialogs/registerdialog.h \
+    ../src/graphview/basicgraphview.h \
+    ../src/graphview/extendedgraphview.h \
+    ../src/models/graphdata.h \
+    ../src/models/guimodel.h \
+    ../src/models/registermodel.h \
+    ../src/models/settingsmodel.h \
+    ../src/util/util.h
 
 RESOURCES += \
     ../resources/resource.qrc
