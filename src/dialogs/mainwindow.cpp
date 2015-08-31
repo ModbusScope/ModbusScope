@@ -31,11 +31,11 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     _pSettingsModel = new SettingsModel();
 
-    _pConnectionDialog = new ConnectionDialog(_pSettingsModel);
-    _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel);
+    _pConnectionDialog = new ConnectionDialog(_pSettingsModel, this);
+    _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
 
     _pRegisterModel = new RegisterModel();
-    _pRegisterDialog = new RegisterDialog(_pRegisterModel);
+    _pRegisterDialog = new RegisterDialog(_pRegisterModel, this);
 
     _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pSettingsModel);
     _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pUi->customPlot, this);
