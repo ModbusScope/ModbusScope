@@ -57,13 +57,15 @@ SOURCES +=  \
     ../src/models/guimodel.cpp \
     ../src/models/registermodel.cpp \
     ../src/models/settingsmodel.cpp \
-    ../src/main.cpp
+    ../src/main.cpp \
+    ../src/dialogs/aboutdialog.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
     ../src/dialogs/logdialog.ui \
     ../src/dialogs/mainwindow.ui \
-    ../src/dialogs/registerdialog.ui
+    ../src/dialogs/registerdialog.ui \
+    ../src/dialogs/aboutdialog.ui
 
 HEADERS += \
     ../libraries/libmodbus/src/modbus-private.h \
@@ -88,7 +90,8 @@ HEADERS += \
     ../src/models/guimodel.h \
     ../src/models/registermodel.h \
     ../src/models/settingsmodel.h \
-    ../src/util/util.h
+    ../src/util/util.h \
+    ../src/dialogs/aboutdialog.h
 
 RESOURCES += \
     ../resources/resource.qrc

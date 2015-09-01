@@ -8,6 +8,7 @@
 #include "connectiondialog.h"
 #include "settingsmodel.h"
 #include "logdialog.h"
+#include "aboutdialog.h"
 
 #include "guimodel.h"
 #include "extendedgraphview.h"
@@ -270,36 +271,9 @@ void MainWindow::prepareImageExport()
 
 void MainWindow::showAbout()
 {
-    QString lnkAuthor("<a href='mailto:jensgeudens@hotmail.com'>jgeudens</a>");
-    QString lnkGpl("<a href='http://www.gnu.org/licenses/gpl.html#content'>GPL</a>");
-    QString lnkGitHub("<a href='https://github.com/jgeudens/ModbusScope'>GitHub</a>");
+    AboutDialog aboutDialog(this);
 
-    QString lnkQt("<a href='http://qt-project.org/'>Qt</a>");
-    QString lnkLibModbus("<a href='http://libmodbus.org/'>libmodbus</a>");
-    QString lnkQCustomPlot("<a href='http://www.qcustomplot.com/'>QCustomPlot</a>");
-
-    QString appVersion = QString(tr("v%1")).arg(APP_VERSION);
-
-#ifdef DEBUG
-    appVersion.append(QString(tr(" (git: %1:%2)")).arg(GIT_BRANCH).arg(GIT_HASH));
-#endif
-
-    QString version = QString(tr("<b>GraphViewer %1</b><br><br>")).arg(appVersion);
-
-    QString aboutTxt = tr(
-                        "%1"
-                        "ModbusScope is created and maintained by %2. This software is released under the %3 license. "
-                        "The source is freely available at %4.<br><br>"
-                        "ModbusScope uses following libraries:<br>"
-                        "%5<br>"
-                        "%6<br>"
-                        "%7<br>").arg(version, lnkAuthor, lnkGpl, lnkGitHub, lnkQt, lnkLibModbus, lnkQCustomPlot);
-
-    QMessageBox msgBox(this);
-    msgBox.setWindowTitle("About");
-    msgBox.setTextFormat(Qt::RichText);   //this is what makes the links clickable
-    msgBox.setText(aboutTxt);
-    msgBox.exec();
+    aboutDialog.exec();
 }
 
 void MainWindow::menuBringToFrontGraphClicked(bool bState)
