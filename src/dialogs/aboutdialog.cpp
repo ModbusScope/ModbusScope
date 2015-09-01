@@ -24,24 +24,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
      _pUi->lblDebug->setText("");
 #endif
 
-    QString lnkAuthor("<a href='https://github.com/jgeudens'>jgeudens</a>");
-    QString lnkGpl("<a href='http://www.gnu.org/licenses/gpl.html#content'>GPL</a>");
-    QString lnkGitHub("<a href='https://github.com/jgeudens/ModbusScope'>GitHub</a>");
-
-    QString lnkQt("<a href='http://qt-project.org/'>Qt</a>");
-    QString lnkLibModbus("<a href='http://libmodbus.org/'>libmodbus</a>");
-    QString lnkQCustomPlot("<a href='http://www.qcustomplot.com/'>QCustomPlot</a>");
-
-    QString aboutTxt = tr(
-                        "ModbusScope is created and maintained by %1. This software is released under the %2 license. "
-                        "The source is freely available at %3.<br><br>"
-                        "ModbusScope uses following libraries:"
-                        "<ul><li>%5</li>"
-                        "<li>%6</li>"
-                        "<li>%7</li></ul>").arg(lnkAuthor, lnkGpl, lnkGitHub, lnkQt, lnkLibModbus, lnkQCustomPlot);
-
     _pUi->textAbout->setOpenExternalLinks(true);
-    _pUi->textAbout->setText(aboutTxt);
 
 }
 
