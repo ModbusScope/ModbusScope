@@ -136,8 +136,8 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
                     QString error = QString(tr("Invalid data (while processing data)\n"
                                                "Line: %1\n"
                                                "Are you sure the decimal separator character is according to your locale?"
-                                               "\n\nExpected decimal separator: \'%2\'"
-                                               ).arg(line).arg(Util::separatorCharacter()));
+                                               "\n\nExpected decimal separator character: \'%2\'"
+                                               ).arg(line).arg(QLocale::system().decimalPoint()));
                     showError(error);
                     bRet = false;
                     break;
