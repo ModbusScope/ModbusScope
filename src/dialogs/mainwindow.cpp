@@ -549,6 +549,15 @@ void MainWindow::updateCommunicationState()
         _pUi->actionExportDataCsv->setEnabled(false);
         _pUi->actionExportImage->setEnabled(false);
 
+        if (_pGuiModel->projectFilePath().isEmpty())
+        {
+            _pUi->actionReloadProjectFile->setEnabled(false);
+        }
+        else
+        {
+            _pUi->actionReloadProjectFile->setEnabled(true);
+        }
+
     }
     else if (_pGuiModel->communicationState() == GuiModel::STARTED)
     {
@@ -562,6 +571,7 @@ void MainWindow::updateCommunicationState()
         _pUi->actionLoadProjectFile->setEnabled(false);
         _pUi->actionExportDataCsv->setEnabled(false);
         _pUi->actionExportImage->setEnabled(false);
+        _pUi->actionReloadProjectFile->setEnabled(false);
 
         _pStatusState->setText(_cStateRunning);
 
@@ -583,6 +593,15 @@ void MainWindow::updateCommunicationState()
         _pUi->actionExportDataCsv->setEnabled(true);
         _pUi->actionExportImage->setEnabled(true);
 
+        if (_pGuiModel->projectFilePath().isEmpty())
+        {
+            _pUi->actionReloadProjectFile->setEnabled(false);
+        }
+        else
+        {
+            _pUi->actionReloadProjectFile->setEnabled(true);
+        }
+
         _pStatusState->setText(_cStateStopped);
     }
 }
@@ -592,6 +611,7 @@ void MainWindow::projectFileLoaded()
     // if a project file is previously loaded, then it can be reloaded
     if (_pGuiModel->projectFilePath().isEmpty())
     {
+        _pGuiModel->setWindowTitleDetail("");
         _pUi->actionReloadProjectFile->setEnabled(false);
     }
     else
