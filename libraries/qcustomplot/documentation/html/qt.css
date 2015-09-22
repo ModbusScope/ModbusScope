@@ -7,22 +7,22 @@
 ****************************************************************************/
 
 body {
-  font: 14px/1.2 "Open Sans", Arial, Helvetica, sans-serif;
+  font: 14px/1.25 "Open Sans", Arial, Helvetica, sans-serif;
 }
 p {
   margin-left: 0.5em;
 }
 body {
   background: none repeat scroll 0 0 #FFFFFF;
-  color: #000000;
+  color: #333333;
 }
-a:link {
+a:link, a:visited {
   color: #00732F;
   text-decoration: none;
 }
 a:hover {
-  color: #4C0033;
-  text-decoration: underline;
+  color: #45a51c;
+  text-decoration: none;
 }
 table {
   border-collapse: collapse;
@@ -38,16 +38,28 @@ table.memberdecls {
   background-color: #F6F6F6;
   border: 1px solid #E6E6E6;
   border-collapse: separate;
-  border-radius: 7px 7px 7px 7px;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
   font-size: 12px;
   max-width: 1400px;
-  padding: 1em 1em 1em 1em;
+  padding: 1em 1em 0;
   margin-bottom: 15px;
 }
 table.memberdecls h2 {
   font-size: 140%;
   margin: 0 0 0.3em;
   padding: 0 0 0 0;
+}
+table.memberdecls tr:last-child td.memSeparator {
+    display:none;
+}
+table.memberdecls td.memSeparator {
+    border-bottom: 1px dotted #ccc;
+    height: 0;
+    line-height: 0;
+    margin: 0;
+    padding: 0;
 }
 table.memberdecls td {
   padding: 2px 0;
@@ -88,7 +100,7 @@ div.memdoc dl dd table tbody tr td p code {
 }
 h1 {
   font-size: 130%;
-  margin: 1.6em 0;
+  margin: 1.8em 0 1em;
 }
 h2 {
   font-size: 120%;
@@ -101,12 +113,24 @@ h3.version {
   font-size: 90%;
   text-align: center;
 }
+a.headerLink:hover {
+  background-color: #fff;
+  text-decoration: none;
+}
 a.headerLink {
+  background: none repeat scroll 0 0 #f6f6f6;
+  border: 1px solid #ddd;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
   font-size: 14px;
   font-weight: bold;
+  line-height: 2.2em;
+  padding: 0.3em 0.5em;
+  white-space: nowrap;
 }
 div.header {
-  margin: 1em 0;
+  margin-bottom: 1em;
   vertical-align: middle;
 }
 div.header img {
@@ -114,10 +138,8 @@ div.header img {
   margin: 0 1em 0 6px;
   vertical-align: middle;
 }
-div.footer {
-  font-size: 80%;
-  margin-top: 4em;
-  text-align: right;
+div#top {
+  margin-bottom: 0.5em;
 }
 hr {
   -moz-border-bottom-colors: none;
@@ -163,16 +185,17 @@ tr.inherit_header > td{
 tr.inherit_header > td > img{
   display: none;
 }
+/*
 td.memItemLeft, td.memItemRight, td.memTemplItemLeft, td.memTemplItemRight, td.memTemplParams {
-  border: medium none;
   margin: 4px;
   padding: 1px 0 0 8px;
 }
+*/
 td.memItemLeft, td.memTemplItemLeft, td.memTemplParams {
   white-space: nowrap;
 }
 td.memItemLeft, td.memTemplItemLeft {
-  width: 180px;
+  width: 10%;
 }
 td.memItemRight .el {
   font-weight: 700;
@@ -187,12 +210,67 @@ div.memitem {
 }
 div.memproto {
   background-color: #F6F6F6;
-  border-color: #E6E6E6;
-  border-radius: 7px 7px 7px 7px;
-  border-style: solid;
-  border-width: 1px;
+  border: 1px solid #E6E6E6;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
   font: bold 14px/1.2 Arial,FreeSans,sans-serif;
   padding: 3px 5px;
+}
+td.fieldname {
+  padding-right: 1em;
+  width: 1%;
+  white-space: nowrap;
+}
+td.fieldname > em {
+  font-family: "Droid Sans Mono";
+  font-style: normal;
+  font-size: 0.85em;
+}
+td.fielddoc > p {
+  margin: 0.2em;
+  position: relative;
+  padding-left: 4.4em;
+}
+td.fielddoc div.image {
+  position: relative;
+}
+td.fielddoc img {
+  position: absolute;
+  left: 1em;
+  top: 0;
+}
+td.fielddoc > p > code
+{
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+table.fieldtable {
+  background-color: #f6f6f6;
+  border: 1px solid #e6e6e6;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  padding: 3px 5px;
+  margin-left: 2em;
+  width: 90%;
+  max-width: 60em;
+  padding: 0.5em 0.5em 0;
+  border-collapse: separate;
+}
+table.fieldtable th {
+  background: none repeat scroll 0 0 #e5e5e5;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  padding: 0.3em 0;
+}
+table.fieldtable tr:last-child td {
+  border-bottom: none;
+}
+table.fieldtable td {
+  border-bottom: 1px dotted #ccc;
 }
 div.memdoc {
 }
@@ -258,6 +336,11 @@ tr + tr td.indexvalue {
 }
 td.mlabels-right {
   text-align: right;
+}
+.title span.mlabel {
+  color: #a0a0a0;
+  font-size: 0.7em;
+  font-style: italic;
 }
 span.mlabel {
   margin-left: 1em;
