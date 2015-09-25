@@ -58,7 +58,8 @@ SOURCES +=  \
     ../src/models/registermodel.cpp \
     ../src/models/settingsmodel.cpp \
     ../src/main.cpp \
-    ../src/dialogs/aboutdialog.cpp
+    ../src/dialogs/aboutdialog.cpp \
+    ../src/graphview/myqcustomplot.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
@@ -91,7 +92,8 @@ HEADERS += \
     ../src/models/registermodel.h \
     ../src/models/settingsmodel.h \
     ../src/util/util.h \
-    ../src/dialogs/aboutdialog.h
+    ../src/dialogs/aboutdialog.h \
+    ../src/graphview/myqcustomplot.h
 
 RESOURCES += \
     ../resources/resource.qrc

@@ -28,7 +28,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QCustomPlot" name="customPlot" native="true">
+     <widget class="MyQCustomPlot" name="customPlot" native="true">
       <property name="minimumSize">
        <size>
         <width>10</width>
@@ -573,9 +573,9 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>QCustomPlot</class>
+   <class>MyQCustomPlot</class>
    <extends>QWidget</extends>
-   <header>qcustomplot.h</header>
+   <header>myqcustomplot.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
