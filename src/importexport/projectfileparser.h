@@ -45,8 +45,10 @@ public:
         qint32 scaleMax;
     } ScaleSettings;
 
-    typedef struct
+    typedef struct _LegendSettings
     {
+        _LegendSettings() : bPosition(false), bVisible(true) {}
+
         bool bPosition;
         quint32 position;
 
