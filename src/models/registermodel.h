@@ -41,8 +41,6 @@ private:
 
     QList<RegisterData> _dataList;
 
-    static const QList<QColor> _cColorlist;
-
 };
 
 #endif // REGISTERMODEL_H

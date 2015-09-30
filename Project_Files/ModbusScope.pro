@@ -59,7 +59,8 @@ SOURCES +=  \
     ../src/models/settingsmodel.cpp \
     ../src/main.cpp \
     ../src/dialogs/aboutdialog.cpp \
-    ../src/graphview/myqcustomplot.cpp
+    ../src/graphview/myqcustomplot.cpp \
+    ../src/util/util.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \

@@ -1,8 +1,9 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include "QObject"
-#include "QLocale"
+#include <QObject>
+#include <QLocale>
+#include <QColor>
 
 class Util : public QObject
 {
@@ -37,6 +38,8 @@ public:
 
         return tmp;
     }
+
+    static const QList<QColor> cColorlist;
 
 private:
 

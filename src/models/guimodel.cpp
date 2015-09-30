@@ -1,4 +1,5 @@
 #include <QColor>
+#include "util.h"
 #include "guimodel.h"
 
 
@@ -75,13 +76,25 @@ void GuiModel::triggerUpdate(void)
 void GuiModel::addGraphs(QList<RegisterData> registerList)
 {
 
+    quint32 colorIdx = 0;
     for (qint32 idx = 0; idx < registerList.size(); idx++)
     {
         GraphData * pGraphData = new GraphData();
 
         pGraphData->bVisibility = true;
-        pGraphData->label = registerList[idx].text();;
-        pGraphData->color = registerList[idx].color();
+        pGraphData->label = registerList[idx].text();
+
+        if (registerList[idx].color().isValid())
+        {
+            pGraphData->color = registerList[idx].color();
+        }
+        else
+        {
+            pGraphData->color = Util::cColorlist[colorIdx];
+
+            colorIdx++;
+            colorIdx %= Util::cColorlist.size();
+        }
 
         _graphData.append(pGraphData);
     }
