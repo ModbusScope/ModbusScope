@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui xml
+QT       += core gui xml network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
@@ -58,7 +58,9 @@ SOURCES +=  \
     ../src/models/registermodel.cpp \
     ../src/models/settingsmodel.cpp \
     ../src/main.cpp \
-    ../src/dialogs/aboutdialog.cpp
+    ../src/dialogs/aboutdialog.cpp \
+    ../src/util/versiondownloader.cpp \
+    ../src/util/updatenotify.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
@@ -91,7 +93,9 @@ HEADERS += \
     ../src/models/registermodel.h \
     ../src/models/settingsmodel.h \
     ../src/util/util.h \
-    ../src/dialogs/aboutdialog.h
+    ../src/dialogs/aboutdialog.h \
+    ../src/util/versiondownloader.h \
+    ../src/util/updatenotify.h
 
 RESOURCES += \
     ../resources/resource.qrc

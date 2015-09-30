@@ -126,7 +126,7 @@ QString DataFileExporter::constructDataHeader(bool bDuringLog)
 
         QString comment = QString("//");
 
-        header.append(comment + "ModbusScope version" + Util::separatorCharacter() + QString(APP_VERSION) + "\n");
+        header.append(comment + "ModbusScope version" + Util::separatorCharacter() + Util::currentVersion() + "\n");
 
         // Save start time
         dt = QDateTime::fromMSecsSinceEpoch(_pGuiModel->communicationStartTime());

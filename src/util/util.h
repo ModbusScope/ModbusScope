@@ -10,6 +10,8 @@ class Util : public QObject
 
 public:
 
+    static const quint32 cCurrentDataLevel = 2;
+
     static QChar separatorCharacter()
     {
         if (QLocale::system().decimalPoint() == ',')
@@ -20,6 +22,17 @@ public:
         {
             return ',';
         }
+    }
+
+    static quint32 currentDataLevel()
+    {
+        return cCurrentDataLevel;
+    }
+
+    static const QString & currentVersion()
+    {
+        static const QString version(APP_VERSION);
+        return version;
     }
 
     static QString formatDoubleForExport(double number)

@@ -44,7 +44,7 @@ bool ProjectFileParser::parseFile(QIODevice *device, ProjectSettings *pSettings)
 
             if (bRet)
             {
-                if (datalevel != 2)
+                if (datalevel != Util::currentDataLevel())
                 {
                     _msgBox.setText(tr("Data level (%1) is not supported. Only datalevel 2 is allowed. Project file loading is aborted.").arg(datalevel));
                     _msgBox.exec();

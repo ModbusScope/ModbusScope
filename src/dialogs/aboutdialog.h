@@ -2,6 +2,7 @@
 #define ABOUTDIALOG_H
 
 #include <QDialog>
+#include "updatenotify.h"
 
 namespace Ui {
 class AboutDialog;
@@ -16,12 +17,15 @@ public:
     ~AboutDialog();
 
 private slots:
-    void OpenHomePage(void);
-    void OpenLicense(void);
+    void openHomePage(void);
+    void openLicense(void);
+    void showVersionUpdate(UpdateNotify::UpdateState state, bool bDataLevelUpdate);
 
 private:
 
     Ui::AboutDialog * _pUi;
+
+    UpdateNotify _updateNotify;
 };
 
 #endif // ABOUTDIALOG_H
