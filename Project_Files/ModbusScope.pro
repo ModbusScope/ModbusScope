@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui xml
+QT       += core gui xml network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
@@ -59,6 +59,8 @@ SOURCES +=  \
     ../src/models/settingsmodel.cpp \
     ../src/main.cpp \
     ../src/dialogs/aboutdialog.cpp \
+    ../src/util/versiondownloader.cpp \
+    ../src/util/updatenotify.cpp \
     ../src/graphview/myqcustomplot.cpp \
     ../src/util/util.cpp
 
@@ -94,6 +96,8 @@ HEADERS += \
     ../src/models/settingsmodel.h \
     ../src/util/util.h \
     ../src/dialogs/aboutdialog.h \
+    ../src/util/versiondownloader.h \
+    ../src/util/updatenotify.h \
     ../src/graphview/myqcustomplot.h
 
 RESOURCES += \
