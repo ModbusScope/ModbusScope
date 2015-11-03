@@ -1,10 +1,12 @@
 #ifndef DATAFILEPARSER_H
 #define DATAFILEPARSER_H
 
-#include "QObject"
-#include "QStringList"
-#include "QList"
-#include "QFile"
+#include <QObject>
+#include <QStringList>
+#include <QList>
+#include <QFile>
+
+#include "settingsauto.h"
 
 class DataFileParser : public QObject
 {
@@ -22,6 +24,7 @@ public:
     } FileData;
 
     DataFileParser(QFile * pDataFile);
+    ~DataFileParser();
 
     bool processDataFile(FileData * pData);
 
@@ -29,9 +32,15 @@ private:
     bool parseDataLines(QList<QList<double> > &dataRows);
     void showError(QString text);
     bool readLineFromFile(QString *pLine);
+    void loadDataFileSample();
 
     QFile * _pDataFile;
     quint32 _expectedFields;
+
+    SettingsAuto * _pAutoSettingsParser;
+    QStringList _dataFileSample;
+
+    static const qint32 _cSampleLineLength = 50;
 
 };
 

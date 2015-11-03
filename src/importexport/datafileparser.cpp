@@ -2,71 +2,67 @@
 #include <QtWidgets>
 #include <QMessageBox>
 #include "datafileparser.h"
-#include "util.h"
 
 DataFileParser::DataFileParser(QFile *pDataFile)
 {
     _pDataFile = pDataFile;
+
+    loadDataFileSample();
+
+    _pDataFile->seek(0);
+
+    _pAutoSettingsParser = new SettingsAuto();
+}
+
+DataFileParser::~DataFileParser()
+{
+    delete _pAutoSettingsParser;
 }
 
 // Return false on error
 bool DataFileParser::processDataFile(FileData * pData)
 {
     QString line;
+    qint32 lineIdx = 0;
     bool bRet = true;
 
-    /*-- Read until real data --*/
-    qint32 state = 0; /* -1: error or end of file, 0: continue reading, 1 = start of data */
-    do
+    bRet = _pAutoSettingsParser->updateSettings(_dataFileSample);
+
+    if (!bRet)
     {
-        bool bResult = readLineFromFile(&line);
-
-        if (!bResult)
-        {
-            state = -1;
-        }
-        else if (line.size() == 1)
-        {
-            // Empty line, so skip line
-        }
-        else
-        {
-            if (line.left(2) == "//")
-            {
-                // Comment line, so skip line
-            }
-            else
-            {
-                // Ok first non comment and not empty line
-                state = 1;
-            }
-        }
-    } while (state == 0);
-
-
-    // Next data line is already read
-
-    if (state == -1)
-    {        
-        showError(tr("Invalid data file (while reading comments)"));
+        showError(tr("Invalid data file (error while auto parsing for settings)"));
         bRet = false;
+    }
+
+    if (bRet)
+    {
+        do
+        {
+            bRet = readLineFromFile(&line);
+
+            if (!bRet)
+            {
+                showError(tr("Invalid data file (while reading comments)"));
+            }
+
+            lineIdx++;
+        } while(lineIdx <= _pAutoSettingsParser->labelRow());
     }
 
     // Process register labels
     if (bRet)
     {
         pData->dataLabel.clear();
-        pData->dataLabel.append(line.split(Util::separatorCharacter()));
+        pData->dataLabel.append(line.split(_pAutoSettingsParser->fieldSeparator()));
         _expectedFields = pData->dataLabel.size();
-    }
 
-    if (_expectedFields <= 1)
-    {
-        showError(QString(tr("No graph data is found. "
-                             "Are you sure the separator character is according to your locale?"
-                             "<br><br>Expected separator: \'%1\'")).arg(Util::separatorCharacter()));
+        if (_expectedFields <= 1)
+        {
+            showError(QString(tr("Incorrect graph data found. "
+                                 "<br><br>Found field separator: \'%1\'")).arg(_pAutoSettingsParser->fieldSeparator()));
 
-        bRet = false;
+            bRet = false;
+        }
     }
 
     // Trim labels
@@ -79,6 +75,22 @@ bool DataFileParser::processDataFile(FileData * pData)
         {
             pData->dataLabel[i] = pData->dataLabel[i].trimmed();
         }
+    }
+
+    if (bRet)
+    {
+        // Read till data
+        do
+        {
+            bRet = readLineFromFile(&line);
+
+            if (!bRet)
+            {
+                showError(tr("Invalid data file (while reading data from file)"));
+            }
+
+            lineIdx++;
+        } while(lineIdx <= (qint32)_pAutoSettingsParser->dataRow());
     }
 
     // read data
@@ -116,7 +128,7 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
     {
         if (!line.trimmed().isEmpty())
         {
-            QStringList paramList = line.split(Util::separatorCharacter());
+            QStringList paramList = line.split(_pAutoSettingsParser->fieldSeparator());
 
             if (paramList.size() != (qint32)_expectedFields)
             {
@@ -129,15 +141,14 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
             for (qint32 i = 0; i < paramList.size(); i++)
             {
                 bool bError = false;
-                const double number = QLocale::system().toDouble(paramList[i], &bError);
+                const double number = _pAutoSettingsParser->locale().toDouble(paramList[i], &bError);
 
                 if (bError == false)
                 {
                     QString error = QString(tr("Invalid data (while processing data)\n"
                                                "Line: %1\n"
-                                               "Are you sure the decimal separator character is according to your locale?"
                                                "\n\nExpected decimal separator character: \'%2\'"
-                                               ).arg(line).arg(QLocale::system().decimalPoint()));
+                                               ).arg(line).arg(_pAutoSettingsParser->locale().decimalPoint()));
                     showError(error);
                     bRet = false;
                     break;
@@ -180,6 +191,28 @@ bool DataFileParser::readLineFromFile(QString *pLine)
 
     return bRet;
 
+}
+
+void DataFileParser::loadDataFileSample()
+{
+    char buf[2048];
+    qint32 lineLength;
+
+    _dataFileSample.clear();
+
+    while((!_pDataFile->atEnd()) && (_dataFileSample.size() < _cSampleLineLength))
+    {
+        lineLength = _pDataFile->readLine(buf, sizeof(buf));
+        if (lineLength > -1)
+        {
+            _dataFileSample.append(QString(buf));
+        }
+        else
+        {
+            _dataFileSample.clear();
+            break;
+        }
+    }
 }
 
 void DataFileParser::showError(QString text)

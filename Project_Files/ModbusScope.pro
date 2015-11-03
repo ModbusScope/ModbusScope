@@ -62,7 +62,8 @@ SOURCES +=  \
     ../src/util/versiondownloader.cpp \
     ../src/util/updatenotify.cpp \
     ../src/graphview/myqcustomplot.cpp \
-    ../src/util/util.cpp
+    ../src/util/util.cpp \
+    ../src/importexport/settingsauto.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
@@ -98,7 +99,8 @@ HEADERS += \
     ../src/dialogs/aboutdialog.h \
     ../src/util/versiondownloader.h \
     ../src/util/updatenotify.h \
-    ../src/graphview/myqcustomplot.h
+    ../src/graphview/myqcustomplot.h \
+    ../src/importexport/settingsauto.h
 
 RESOURCES += \
     ../resources/resource.qrc
