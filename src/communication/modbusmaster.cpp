@@ -89,7 +89,10 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
             quint32 count = 0;
 
             // get number of subsequent registers
-            if ((registerList.size() - regIndex) > 1)
+            if (
+                    ((registerList.size() - regIndex) > 1)
+                    && (_pSettingsModel->consecutiveMax() > 1)
+                )
             {
                 bool bSubsequent;
                 do
