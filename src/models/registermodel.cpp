@@ -162,8 +162,15 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
     case 0:
         if (role == Qt::EditRole)
         {
-            QColor color = value.value<QColor>();
-            _dataList[index.row()].setColor(color);
+            if (value.canConvert(QMetaType::QColor))
+            {
+                QColor color = value.value<QColor>();
+                _dataList[index.row()].setColor(color);
+            }
+            else
+            {
+                bRet = false;
+            }
         }
         break;
     case 1:
@@ -195,8 +202,30 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
     case 3:
         if (role == Qt::EditRole)
         {
-            const quint16 newAddr = value.toInt();
-            _dataList[index.row()].setRegisterAddress(newAddr);
+            bool bOk = false;
+
+            if (value.canConvert(QMetaType::UInt))
+            {
+                 const quint32 newAddr = value.toUInt();
+                 if (
+                         (newAddr >= 40001)
+                         && (newAddr <= 49999)
+                    )
+                 {
+                     bOk = true;
+                     _dataList[index.row()].setRegisterAddress((quint16)newAddr);
+                 }
+            }
+
+            if (!bOk)
+            {
+                QMessageBox msgBox;
+                msgBox.setWindowTitle(tr("ModbusScope data error"));
+                msgBox.setIcon(QMessageBox::Warning);
+                msgBox.setText(tr("Register address is not a valid address between 40001 and 49999."));
+                msgBox.exec();
+                bRet = false;
+            }
         }
         break;
     case 4:
@@ -223,7 +252,6 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
                 msgBox.setIcon(QMessageBox::Warning);
                 msgBox.setText(tr("Bitmask is not a valid integer."));
                 msgBox.exec();
-                break;
             }
         }
         break;
