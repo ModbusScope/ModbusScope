@@ -17,7 +17,7 @@ void RegisterData::CopyTo(RegisterData * pData)
 {
     pData->setActive(this->isActive());
     pData->setColor(this->color());
-    pData->setRegisterAddress(this->registerAddress());
+    pData->setAddress(this->address());
     pData->setBitmask(this->bitmask());
     pData->setDivideFactor(this->divideFactor());
     pData->setMultiplyFactor(this->multiplyFactor());
@@ -87,12 +87,12 @@ void RegisterData::setShift(const qint32 &value)
     _shift = value;
 }
 
-quint16 RegisterData::registerAddress() const
+quint16 RegisterData::address() const
 {
     return _reg;
 }
 
-void RegisterData::setRegisterAddress(const quint16 &value)
+void RegisterData::setAddress(const quint16 &value)
 {
     _reg = value;
 }
@@ -119,6 +119,6 @@ void RegisterData::setActive(bool value)
 
 bool RegisterData::sortRegisterDataList(const RegisterData& s1, const RegisterData& s2)
 {
-    return s1.registerAddress() < s2.registerAddress();
+    return s1.address() < s2.address();
 }
 

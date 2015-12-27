@@ -176,7 +176,7 @@ void CommunicationManager::readData()
         QList<quint16> regAddrList;
         for (qint32 i = 0; i < _registerlist.size(); i++)
         {
-            regAddrList.append(_registerlist[i].registerAddress());
+            regAddrList.append(_registerlist[i].address());
         }
         emit registerRequest(regAddrList);
     }

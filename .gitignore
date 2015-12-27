@@ -1,4 +1,5 @@
-/build-ModbusScope-Desktop_Qt_5_2_1_GCC_64bit-Debug/ModbusScope
+/build-ModbusScope-*
+
 # https://github.com/github/gitignore
 
 # C++ objects and libs

@@ -3,7 +3,7 @@
 #include "qcustomplot.h"
 #include "communicationmanager.h"
 #include "registerdata.h"
-#include "registermodel.h"
+#include "registerdatamodel.h"
 #include "registerdialog.h"
 #include "connectiondialog.h"
 #include "settingsmodel.h"
@@ -35,8 +35,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pConnectionDialog = new ConnectionDialog(_pSettingsModel, this);
     _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
 
-    _pRegisterModel = new RegisterModel();
-    _pRegisterDialog = new RegisterDialog(_pRegisterModel, this);
+    _pRegisterDataModel = new RegisterDataModel();
+    _pRegisterDialog = new RegisterDialog(_pRegisterDataModel, this);
 
     _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pSettingsModel);
     _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pUi->customPlot, this);
@@ -334,7 +334,7 @@ void MainWindow::clearData()
 
 void MainWindow::startScope()
 {
-    if (_pRegisterModel->checkedRegisterCount() != 0)
+    if (_pRegisterDataModel->checkedRegisterCount() != 0)
     {
 
         _pGuiModel->setCommunicationState(GuiModel::STARTED);
@@ -344,7 +344,7 @@ void MainWindow::startScope()
         _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
 
         QList<RegisterData> regList;
-        _pRegisterModel->checkedRegisterList(&regList);
+        _pRegisterDataModel->checkedRegisterList(&regList);
 
         if (_pConnMan->startCommunication(regList))
         {
@@ -744,7 +744,7 @@ void MainWindow::updateRuntime()
 void MainWindow::setupGraphs(void)
 {
     QList<RegisterData> regList;
-    _pRegisterModel->checkedRegisterList(&regList);
+    _pRegisterDataModel->checkedRegisterList(&regList);
 
     _pGuiModel->clearGraph();
     _pGuiModel->addGraphs(regList);
@@ -835,13 +835,13 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
         }
     }
 
-    _pRegisterModel->clear();
+    _pRegisterDataModel->clear();
     for (qint32 i = 0; i < pProjectSettings->scope.registerList.size(); i++)
     {
         RegisterData rowData;
         rowData.setActive(pProjectSettings->scope.registerList[i].bActive);
         rowData.setUnsigned(pProjectSettings->scope.registerList[i].bUnsigned);
-        rowData.setRegisterAddress(pProjectSettings->scope.registerList[i].address);
+        rowData.setAddress(pProjectSettings->scope.registerList[i].address);
         rowData.setBitmask(pProjectSettings->scope.registerList[i].bitmask);
         rowData.setText(pProjectSettings->scope.registerList[i].text);
         rowData.setDivideFactor(pProjectSettings->scope.registerList[i].divideFactor);
@@ -849,7 +849,7 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
         rowData.setColor(pProjectSettings->scope.registerList[i].color);
         rowData.setShift(pProjectSettings->scope.registerList[i].shift);
 
-        _pRegisterModel->appendRow(rowData);
+        _pRegisterDataModel->addRegister(rowData);
     }
 
     setupGraphs();

@@ -23,8 +23,8 @@ public:
     double multiplyFactor() const;
     void setMultiplyFactor(double value);
 
-    quint16 registerAddress() const;
-    void setRegisterAddress(const quint16 &value);
+    quint16 address() const;
+    void setAddress(const quint16 &value);
 
     quint16 bitmask() const;
     void setBitmask(const quint16 &value);

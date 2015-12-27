@@ -3,7 +3,8 @@
 
 #include <QDialog>
 
-#include "registermodel.h"
+#include "registerdialogmodel.h"
+#include "registerdatamodel.h"
 
 namespace Ui {
 class RegisterDialog;
@@ -14,14 +15,13 @@ class RegisterDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit RegisterDialog(RegisterModel * pRegisterModel, QWidget *parent = 0);
+    explicit RegisterDialog(RegisterDataModel *pRegisterDataModel, QWidget *parent = 0);
     ~RegisterDialog();
 
 private slots:
     void done(int r);
     void addRegisterRow();
     void removeRegisterRow();
-    void updateColumns();
     void activatedCell(QModelIndex modelIndex);
 
 private:
@@ -30,7 +30,8 @@ private:
 
     Ui::RegisterDialog * _pUi;
 
-    RegisterModel * _pRegisterModel;
+    RegisterDialogModel * _pRegisterDialogModel;
+    RegisterDataModel * _pRegisterDataModel;
 };
 
 #endif // REGISTERDIALOG_H

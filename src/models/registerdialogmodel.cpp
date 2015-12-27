@@ -1,20 +1,25 @@
-#include "registermodel.h"
+#include "registerdialogmodel.h"
 #include "util.h"
 #include "QDebug"
 #include <QMessageBox>
 
-RegisterModel::RegisterModel(QObject *parent) :
+RegisterDialogModel::RegisterDialogModel(RegisterDataModel * pRegisterDataModel, QObject *parent) :
     QAbstractTableModel(parent)
 {
-    _dataList.clear();
+    _pRegisterDataModel = pRegisterDataModel;
+
+    connect(_pRegisterDataModel, SIGNAL(removed(qint32)), this, SIGNAL(modelDataChanged(qint32)));
+    connect(_pRegisterDataModel, SIGNAL(added(qint32)), this, SIGNAL(modelDataChanged(qint32)));
+
+    connect(_pRegisterDataModel, SIGNAL(cleared()), this, SIGNAL(modelDataChanged()));
 }
 
-int RegisterModel::rowCount(const QModelIndex & /*parent*/) const
+int RegisterDialogModel::rowCount(const QModelIndex & /*parent*/) const
 {
-    return _dataList.size();
+    return _pRegisterDataModel->size();
 }
 
-int RegisterModel::columnCount(const QModelIndex & /*parent*/) const
+int RegisterDialogModel::columnCount(const QModelIndex & /*parent*/) const
 {
     /*
     * color
@@ -30,7 +35,7 @@ int RegisterModel::columnCount(const QModelIndex & /*parent*/) const
     return 9; // Number of visible members of struct
 }
 
-QVariant RegisterModel::data(const QModelIndex &index, int role) const
+QVariant RegisterDialogModel::data(const QModelIndex &index, int role) const
 {
 
     switch (index.column())
@@ -38,13 +43,13 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
     case 0:
         if (role == Qt::BackgroundColorRole)
         {
-            return _dataList[index.row()].color();
+            return _pRegisterDataModel->registerData(index.row())->color();
         }
         break;
     case 1:
         if (role == Qt::CheckStateRole)
         {
-            if (_dataList[index.row()].isActive())
+            if (_pRegisterDataModel->registerData(index.row())->isActive())
             {
                 return Qt::Checked;
             }
@@ -57,7 +62,7 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
     case 2:
         if (role == Qt::CheckStateRole)
         {
-            if (_dataList[index.row()].isUnsigned())
+            if (_pRegisterDataModel->registerData(index.row())->isUnsigned())
             {
                 return Qt::Checked;
             }
@@ -70,38 +75,38 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
     case 3:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return _dataList[index.row()].registerAddress();
+            return _pRegisterDataModel->registerData(index.row())->address();
         }
         break;
     case 4:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return _dataList[index.row()].text();
+            return _pRegisterDataModel->registerData(index.row())->text();
         }
         break;
     case 5:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             // Show hex value
-            return QString("0x%1").arg(_dataList[index.row()].bitmask(), 0, 16);
+            return QString("0x%1").arg(_pRegisterDataModel->registerData(index.row())->bitmask(), 0, 16);
         }
         break;
     case 6:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return _dataList[index.row()].shift();
+            return _pRegisterDataModel->registerData(index.row())->shift();
         }
         break;
     case 7:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return Util::formatDoubleForExport(_dataList[index.row()].multiplyFactor());
+            return Util::formatDoubleForExport(_pRegisterDataModel->registerData(index.row())->multiplyFactor());
         }
         break;
     case 8:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return Util::formatDoubleForExport(_dataList[index.row()].divideFactor());
+            return Util::formatDoubleForExport(_pRegisterDataModel->registerData(index.row())->divideFactor());
         }
         break;
     default:
@@ -113,7 +118,7 @@ QVariant RegisterModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-QVariant RegisterModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant RegisterDialogModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (role == Qt::DisplayRole)
     {
@@ -153,7 +158,7 @@ QVariant RegisterModel::headerData(int section, Qt::Orientation orientation, int
 }
 
 
-bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, int role)
+bool RegisterDialogModel::setData(const QModelIndex & index, const QVariant & value, int role)
 {
     bool bRet = true;
 
@@ -163,7 +168,7 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
         if (role == Qt::EditRole)
         {
             QColor color = value.value<QColor>();
-            _dataList[index.row()].setColor(color);
+            _pRegisterDataModel->registerData(index.row())->setColor(color);
         }
         break;
     case 1:
@@ -171,11 +176,11 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
         {
             if (value == Qt::Checked)
             {
-                _dataList[index.row()].setActive(true);
+                _pRegisterDataModel->registerData(index.row())->setActive(true);
             }
             else
             {
-                _dataList[index.row()].setActive(false);
+                _pRegisterDataModel->registerData(index.row())->setActive(false);
             }
         }
         break;
@@ -184,11 +189,11 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
         {
             if (value == Qt::Checked)
             {
-                _dataList[index.row()].setUnsigned(true);
+                _pRegisterDataModel->registerData(index.row())->setUnsigned(true);
             }
             else
             {
-                _dataList[index.row()].setUnsigned(false);
+                _pRegisterDataModel->registerData(index.row())->setUnsigned(false);
             }
         }
         break;
@@ -196,13 +201,13 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
         if (role == Qt::EditRole)
         {
             const quint16 newAddr = value.toInt();
-            _dataList[index.row()].setRegisterAddress(newAddr);
+            _pRegisterDataModel->registerData(index.row())->setAddress(newAddr);
         }
         break;
     case 4:
         if (role == Qt::EditRole)
         {
-            _dataList[index.row()].setText(value.toString());
+            _pRegisterDataModel->registerData(index.row())->setText(value.toString());
         }
         break;
     case 5:
@@ -213,7 +218,7 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
 
             if (bSuccess)
             {
-                _dataList[index.row()].setBitmask(newBitMask);
+                _pRegisterDataModel->registerData(index.row())->setBitmask(newBitMask);
             }
             else
             {
@@ -242,7 +247,7 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
                     )
                 )
             {
-                _dataList[index.row()].setShift(newShift);
+                _pRegisterDataModel->registerData(index.row())->setShift(newShift);
             }
             else
             {
@@ -263,7 +268,7 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
             const double parseResult = QLocale::system().toDouble(value.toString(), &bSuccess);
             if (bSuccess)
             {
-                _dataList[index.row()].setMultiplyFactor(parseResult);
+                _pRegisterDataModel->registerData(index.row())->setMultiplyFactor(parseResult);
             }
             else
             {
@@ -284,7 +289,7 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
             const double parseResult = QLocale::system().toDouble(value.toString(), &bSuccess);
             if (bSuccess)
             {
-                _dataList[index.row()].setDivideFactor(parseResult);
+                _pRegisterDataModel->registerData(index.row())->setDivideFactor(parseResult);
             }
             else
             {
@@ -309,7 +314,7 @@ bool RegisterModel::setData(const QModelIndex & index, const QVariant & value, i
     return bRet;
 }
 
-Qt::ItemFlags RegisterModel::flags(const QModelIndex & index) const
+Qt::ItemFlags RegisterDialogModel::flags(const QModelIndex & index) const
 {
     if (
             (index.column() == 1)
@@ -331,31 +336,26 @@ Qt::ItemFlags RegisterModel::flags(const QModelIndex & index) const
 }
 
 
-bool RegisterModel::removeRows (int row, int count, const QModelIndex & parent)
+bool RegisterDialogModel::removeRows (int row, int count, const QModelIndex & parent)
 {
     beginRemoveRows(parent, row, row + count - 1);
+
     for (qint32 i = 0; i < count; i++)
     {
         Q_UNUSED(i);
-        if (row < _dataList.size())
-        {
-            _dataList.removeAt(row);
-        }
+        _pRegisterDataModel->removeRegister((qint32)row);
     }
-    endRemoveRows();
 
-    // Notify view(s) of change
-    emit dataChanged(parent, parent);
+    endRemoveRows();
 
     return true;
 }
 
-bool RegisterModel::insertRows(RegisterData data, int row, int count, const QModelIndex &parent)
+bool RegisterDialogModel::insertRows(RegisterData data, int row, int count, const QModelIndex &parent)
 {
-
     if (
         (count != 1)
-        || (row != _dataList.size())
+        || (row != _pRegisterDataModel->size())
         )
     {
         qDebug() << "RegisterModel: Not supported";
@@ -363,149 +363,44 @@ bool RegisterModel::insertRows(RegisterData data, int row, int count, const QMod
 
     Q_UNUSED(row);
     Q_UNUSED(count);
-    beginInsertRows(parent, _dataList.size(), _dataList.size());
+    beginInsertRows(parent, _pRegisterDataModel->size(), _pRegisterDataModel->size());
 
-    /* Select color when adding through register dialog */
-    if (!data.color().isValid())
-    {
-        quint32 colorIndex = _dataList.size() % Util::cColorlist.size();
-        data.setColor(Util::cColorlist[colorIndex]);
-    }
-
-    _dataList.append(data);
+    _pRegisterDataModel->addRegister(data);
 
     endInsertRows();
 
-    // Notify view(s) of change
-    emit dataChanged(parent, parent);
-
     return true;
 }
 
 
-bool RegisterModel::insertRows (int row, int count, const QModelIndex &parent)
+bool RegisterDialogModel::insertRows (int row, int count, const QModelIndex &parent)
 {
-    RegisterData data;
-    data.setActive(true);
-    data.setUnsigned(false);
-    data.setRegisterAddress(nextFreeAddress());
-    data.setBitmask(0xFFFF);
-    data.setText(QString("Register %1 (bitmask: 0x%2)").arg(data.registerAddress()).arg(data.bitmask(), 0, 16));
-    data.setDivideFactor(1);
-    data.setMultiplyFactor(1);
-    data.setShift(0);
-    data.setColor("-1"); // Invalid color
-
-    return insertRows(data, row, count, parent);;
-}
-
-uint RegisterModel::checkedRegisterCount()
-{
-    uint count = 0;
-
-    for (int i = 0; i < _dataList.size(); i++)
+    if (
+        (count != 1)
+        || (row != _pRegisterDataModel->size())
+        )
     {
-        if (_dataList[i].isActive())
-        {
-            count++;
-        }
+        qDebug() << "RegisterModel: Not supported";
     }
 
-    return count;
-}
+    Q_UNUSED(row);
+    Q_UNUSED(count);
+    beginInsertRows(parent, _pRegisterDataModel->size(), _pRegisterDataModel->size());
 
-RegisterData RegisterModel::registerAtIndex(qint32 index)
-{
-    RegisterData retRegister;
+    _pRegisterDataModel->addRegister();
 
-    _dataList[index].CopyTo(&retRegister);
-
-    return retRegister;
-}
-
-void RegisterModel::registerList(QList<quint16> * pRegisterList)
-{
-    pRegisterList->clear();
-    for (int i = 0; i < _dataList.size(); i++)
-    {
-        pRegisterList->append(_dataList[i].registerAddress());
-    }
-}
-
-/*
- *  Get sorted list of checked register addresses
- */
-void RegisterModel::checkedRegisterList(QList<RegisterData> * pRegisterList)
-{
-    pRegisterList->clear();
-    for (int i = 0; i < _dataList.size(); i++)
-    {
-        if (_dataList[i].isActive())
-        {
-            pRegisterList->append(_dataList[i]);
-        }
-    }
-
-    // Sort by register addresscolor
-    std::sort(pRegisterList->begin(), pRegisterList->end(), &RegisterData::sortRegisterDataList);
-}
-
-void RegisterModel::clear(const QModelIndex &parent)
-{
-    if (_dataList.size() != 0)
-    {
-        removeRows(0, _dataList.size(), QModelIndex());
-    }
-
-    // Notify view(s) of change
-    emit dataChanged(parent, parent);
-}
-
-void RegisterModel::appendRow(RegisterData rowData, const QModelIndex &parent)
-{
-    insertRows(rowData, _dataList.size(), 1, parent);
-}
-
-bool RegisterModel::areExclusive(quint16 * pRegister, quint16 * pBitmask)
-{
-    for (qint32 idx = 0; idx < (_dataList.size() - 1); idx++) // Don't need to check last entry
-    {
-        for (int checkIdx = (idx + 1); checkIdx < _dataList.size(); checkIdx++)
-        {
-            if (
-                (_dataList[idx].registerAddress() == _dataList[checkIdx].registerAddress())
-                && (_dataList[idx].bitmask() == _dataList[checkIdx].bitmask())
-            )
-            {
-                *pRegister = _dataList[idx].registerAddress();
-                *pBitmask = _dataList[idx].bitmask();
-                return false;
-            }
-        }
-    }
+    endInsertRows();
 
     return true;
 }
 
-quint16 RegisterModel::nextFreeAddress()
+void RegisterDialogModel::modelDataChanged(qint32 idx)
 {
-    QList<quint16> regList;
-    quint16 nextAddress;
+    // Notify view(s) of changes
+    emit dataChanged(createIndex(idx, 0), createIndex(idx, columnCount()));
+}
 
-    // get register list
-    this->registerList(&regList);
-
-    // sort qList
-    qSort(regList);
-
-    if (regList.size() > 0)
-    {
-        nextAddress = regList.last() + 1;
-    }
-    else
-    {
-        nextAddress = 40001;
-    }
-
-    return nextAddress;
+void RegisterDialogModel::modelDataChanged()
+{
+    emit dataChanged(createIndex(0, 0), createIndex(rowCount(), columnCount()));
 }

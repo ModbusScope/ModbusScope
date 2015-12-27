@@ -3,13 +3,13 @@
 
 #include <QAbstractTableModel>
 #include "communicationmanager.h"
-#include "registerdata.h"
+#include "registerdatamodel.h"
 
-class RegisterModel : public QAbstractTableModel
+class RegisterDialogModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit RegisterModel(QObject *parent = 0);
+    explicit RegisterDialogModel(RegisterDataModel * pRegisterDataModel, QObject *parent = 0);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const ;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -22,24 +22,17 @@ public:
     bool insertRows (int row, int count, const QModelIndex &parent);
     bool insertRows (RegisterData data, int row, int count, const QModelIndex &parent);
 
-    uint checkedRegisterCount();
-    RegisterData registerAtIndex(qint32 index);
-    void registerList(QList<quint16> * pRegisterList);
-    void checkedRegisterList(QList<RegisterData> *pRegisterList);
-
-    void clear(const QModelIndex &parent = QModelIndex());
-    void appendRow(RegisterData rowData, const QModelIndex &parent = QModelIndex());
-
-    bool areExclusive(quint16 * pRegister, quint16 *pBitmask);
-
 signals:
 
 public slots:
 
-private:
-    quint16 nextFreeAddress();
+private slots:
+    void modelDataChanged(qint32 idx);
+    void modelDataChanged();
 
-    QList<RegisterData> _dataList;
+private:
+
+    RegisterDataModel * _pRegisterDataModel;
 
 };
 

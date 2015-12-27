@@ -18,7 +18,7 @@ class MainWindow;
 // Forward declaration
 class CommunicationManager;
 class QCustomPlot;
-class RegisterModel;
+class RegisterDataModel;
 class RegisterDialog;
 class ConnectionDialog;
 class SettingsModel;
@@ -106,7 +106,7 @@ private:
     ConnectionDialog * _pConnectionDialog;
     LogDialog * _pLogDialog;
 
-    RegisterModel * _pRegisterModel;
+    RegisterDataModel * _pRegisterDataModel;
     RegisterDialog * _pRegisterDialog;
 
     GuiModel * _pGuiModel;

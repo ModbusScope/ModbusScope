@@ -5,7 +5,7 @@
 #include "registerdialog.h"
 #include "ui_registerdialog.h"
 
-RegisterDialog::RegisterDialog(RegisterModel * pRegisterModel, QWidget *parent) :
+RegisterDialog::RegisterDialog(RegisterDataModel * pRegisterDataModel,  QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::RegisterDialog)
 {
@@ -14,10 +14,11 @@ RegisterDialog::RegisterDialog(RegisterModel * pRegisterModel, QWidget *parent) 
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    _pRegisterModel = pRegisterModel;
+    _pRegisterDataModel = pRegisterDataModel;
+    _pRegisterDialogModel = new RegisterDialogModel(_pRegisterDataModel);
 
     // Setup registerView
-    _pUi->registerView->setModel(_pRegisterModel);
+    _pUi->registerView->setModel(_pRegisterDialogModel);
     _pUi->registerView->verticalHeader()->hide();
 
     /* Don't stretch columns */
@@ -36,8 +37,6 @@ RegisterDialog::RegisterDialog(RegisterModel * pRegisterModel, QWidget *parent) 
     // Setup handler for buttons
     connect(_pUi->btnAdd, SIGNAL(released()), this, SLOT(addRegisterRow()));
     connect(_pUi->btnRemove, SIGNAL(released()), this, SLOT(removeRegisterRow()));
-
-    connect(_pRegisterModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateColumns()));
 }
 
 RegisterDialog::~RegisterDialog()
@@ -53,7 +52,7 @@ void RegisterDialog::done(int r)
     {
         quint16 duplicateReg = 0;
         quint16 duplicateBitMask = 0;
-        if (!_pRegisterModel->areExclusive(&duplicateReg, &duplicateBitMask))
+        if (!_pRegisterDataModel->areExclusive(&duplicateReg, &duplicateBitMask))
         {
             bValid = false;
 
@@ -79,33 +78,31 @@ void RegisterDialog::done(int r)
 
 void RegisterDialog::addRegisterRow()
 {
-    _pRegisterModel->insertRow(_pRegisterModel->rowCount());
-}
-
-void RegisterDialog::updateColumns()
-{
+    _pRegisterDialogModel->insertRow(_pRegisterDataModel->size());
 }
 
 void RegisterDialog::activatedCell(QModelIndex modelIndex)
 {
     if (modelIndex.column() == 0)
     {
-        // Get current color
-        RegisterData reg = _pRegisterModel->registerAtIndex(modelIndex.row());
-
-        // Let use pick color
-        QColor color = QColorDialog::getColor(reg.color());
-
-        if (color.isValid())
+        if (modelIndex.row() < _pRegisterDataModel->size())
         {
-            // Set color in model
-            _pRegisterModel->setData(modelIndex, color, Qt::EditRole);
-        }
-        else
-        {
-            // user aborted
-        }
+            // Get current color
+            RegisterData * pReg = _pRegisterDataModel->registerData(modelIndex.row());
 
+            // Let user pick color
+            QColor color = QColorDialog::getColor(pReg->color());
+
+            if (color.isValid())
+            {
+                // Set color in model
+                _pRegisterDialogModel->setData(modelIndex, color, Qt::EditRole);
+            }
+            else
+            {
+                // user aborted
+            }
+        }
     }
 }
 
@@ -121,7 +118,7 @@ void RegisterDialog::removeRegisterRow()
 
     foreach(QModelIndex rowIndex, rowList)
     {
-        _pRegisterModel->removeRow(rowIndex.row(), rowIndex.parent());
+        _pRegisterDialogModel->removeRow(rowIndex.row());
     }
 }
 
