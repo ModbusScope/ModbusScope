@@ -5,6 +5,7 @@
 #include "communicationmanager.h"
 #include "guimodel.h"
 #include "settingsmodel.h"
+#include "graphdatamodel.h"
 
 
 CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiModel *pGuiModel, QObject *parent) :
@@ -16,9 +17,7 @@ CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiMo
     _pSettingsModel = pSettingsModel;
 
     qRegisterMetaType<QList<quint16> >("QList<quint16>");
-    qRegisterMetaType<QList<bool> >("QList<bool>");
-
-    _registerlist.clear();
+    qRegisterMetaType<QMap<quint16, ModbusResult> >("QMap<ModbusResult>");
 
     /* Setup modbus master */
     _master = new ModbusMaster(_pSettingsModel, _pGuiModel);
@@ -31,7 +30,7 @@ CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiMo
     _master->startThread();
 
     connect(this, SIGNAL(registerRequest(QList<quint16>)), _master, SLOT(readRegisterList(QList<quint16>)));
-    connect(_master, SIGNAL(modbusPollDone(QList<bool>, QList<quint16>)), this, SLOT(handlePollDone(QList<bool>, QList<quint16>)));
+    connect(_master, SIGNAL(modbusPollDone(QMap<quint16, ModbusResult>)), this, SLOT(handlePollDone(QMap<quint16, ModbusResult>)));
 }
 
 CommunicationManager::~CommunicationManager()
@@ -46,15 +45,12 @@ CommunicationManager::~CommunicationManager()
     delete _pPollTimer;
 }
 
-bool CommunicationManager::startCommunication(QList<RegisterData> registers)
+bool CommunicationManager::startCommunication()
 {
     bool bResetted = false;
 
     if (!_active)
     {
-        _registerlist.clear();        
-        _registerlist.append(registers);
-
         // Trigger read immediatly
         _pPollTimer->singleShot(1, this, SLOT(readData()));
 
@@ -78,7 +74,7 @@ void CommunicationManager::resetCommunicationStats()
     }
 }
 
-void CommunicationManager::handlePollDone(QList<bool> successList, QList<quint16> values)
+void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> resultMap)
 {
     // Restart timer when previous request has been handled
     uint waitInterval;
@@ -97,56 +93,81 @@ void CommunicationManager::handlePollDone(QList<bool> successList, QList<quint16
 
     _pPollTimer->singleShot(waitInterval, this, SLOT(readData()));
 
-    // Process values
-    QList<double> processedValue;
-    for (qint32 i = 0; i < values.size(); i++)
+
+    /* Check response with current active registers, because it is possible that the graphs have changed during request */
+    bool bOk = true;
+    QList<quint16> activeList;
+    _pGraphDataModel->activeGraphAddresList(&activeList);
+
+    if (activeList.size() != resultMap.size())
     {
-        if (_registerlist[i].isUnsigned())
+        bOk = false;
+    }
+    else
+    {
+        for (quint32 regIdx = 0; regIdx < resultMap.size(); regIdx++)
         {
-            processedValue.append(values[i]);
-        }
-        else
-        {
-            processedValue.append((qint16)values[i]);
-        }
-
-        // Apply bitmask
-        if (_registerlist[i].isUnsigned())
-        {
-            processedValue[i] = (quint16)((quint16)processedValue[i] & _registerlist[i].bitmask());
-        }
-        else
-        {
-            processedValue[i] = (qint16)((quint16)processedValue[i] & _registerlist[i].bitmask());
-        }
-
-        // Apply shift
-        if (_registerlist[i].shift() != 0)
-        {
-            if (_registerlist[i].shift() > 0)
+            if (activeList[regIdx] != resultMap.keys()[regIdx])
             {
-                processedValue[i] = (quint16)((quint16)processedValue[i] << _registerlist[i].shift());
+                bOk = false;
+                break;
+            }
+        }
+    }
+
+    if (bOk)
+    {
+        // Process values
+        QList<double> processedValue;
+        for (qint32 i = 0; i < values.size(); i++)
+        {
+            if (_registerlist[i].isUnsigned())
+            {
+                processedValue.append(values[i]);
             }
             else
             {
-                processedValue[i] = (quint16)((quint16)processedValue[i] >> abs(_registerlist[i].shift()));
+                processedValue.append((qint16)values[i]);
             }
 
-            if (!_registerlist[i].isUnsigned())
+            // Apply bitmask
+            if (_registerlist[i].isUnsigned())
             {
-                processedValue[i] = (qint16)processedValue[i];
+                processedValue[i] = (quint16)((quint16)processedValue[i] & _registerlist[i].bitmask());
             }
+            else
+            {
+                processedValue[i] = (qint16)((quint16)processedValue[i] & _registerlist[i].bitmask());
+            }
+
+            // Apply shift
+            if (_registerlist[i].shift() != 0)
+            {
+                if (_registerlist[i].shift() > 0)
+                {
+                    processedValue[i] = (quint16)((quint16)processedValue[i] << _registerlist[i].shift());
+                }
+                else
+                {
+                    processedValue[i] = (quint16)((quint16)processedValue[i] >> abs(_registerlist[i].shift()));
+                }
+
+                if (!_registerlist[i].isUnsigned())
+                {
+                    processedValue[i] = (qint16)processedValue[i];
+                }
+            }
+
+            // Apply multiplyFactor
+            processedValue[i] *= _registerlist[i].multiplyFactor();
+
+            // Apply divideFactor
+            processedValue[i] /= _registerlist[i].divideFactor();
         }
 
-        // Apply multiplyFactor
-        processedValue[i] *= _registerlist[i].multiplyFactor();
-
-        // Apply divideFactor
-        processedValue[i] /= _registerlist[i].divideFactor();
+        // propagate processed data
+        emit handleReceivedData(successList, processedValue);
     }
-
-    // propagate processed data
-    emit handleReceivedData(successList, processedValue);
 }
 
 
@@ -174,10 +195,8 @@ void CommunicationManager::readData()
         _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 
         QList<quint16> regAddrList;
-        for (qint32 i = 0; i < _registerlist.size(); i++)
-        {
-            regAddrList.append(_registerlist[i].address());
-        }
+        _pGraphDataModel->activeGraphAddresList(&regAddrList);
+
         emit registerRequest(regAddrList);
     }
 }

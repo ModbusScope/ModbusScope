@@ -3,13 +3,13 @@
 
 #include <QAbstractTableModel>
 #include "communicationmanager.h"
-#include "registerdatamodel.h"
+#include "graphdatamodel.h"
 
 class RegisterDialogModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit RegisterDialogModel(RegisterDataModel * pRegisterDataModel, QObject *parent = 0);
+    explicit RegisterDialogModel(GraphDataModel * pGraphDataModel, QObject *parent = 0);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const ;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -20,7 +20,7 @@ public:
 
     bool removeRows (int row, int count, const QModelIndex &parent);
     bool insertRows (int row, int count, const QModelIndex &parent);
-    bool insertRows (RegisterData data, int row, int count, const QModelIndex &parent);
+    bool insertRows (GraphData data, int row, int count, const QModelIndex &parent);
 
 signals:
 
@@ -32,7 +32,7 @@ private slots:
 
 private:
 
-    RegisterDataModel * _pRegisterDataModel;
+    GraphDataModel * _pGraphDataModel;
 
 };
 

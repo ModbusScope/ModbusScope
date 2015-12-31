@@ -10,6 +10,20 @@
 class SettingsModel;
 class GuiModel;
 
+class ModbusResult
+{
+    public:
+
+        ModbusResult(quint16 value, bool bResult)
+        {
+            _value = value;
+            _bResult = bResult;
+        }
+
+        quint16 _value;
+        bool _bResult;
+};
+
 class ModbusMaster : public QObject
 {
     Q_OBJECT
@@ -21,7 +35,7 @@ public:
     void wait();
 
 signals:
-    void modbusPollDone(QList<bool> resultList, QList<quint16> registerList);
+    void modbusPollDone(QMap<quint16, ModbusResult> modbusResults);
     void threadStopped();
 
 public slots:

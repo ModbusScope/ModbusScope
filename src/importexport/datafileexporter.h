@@ -8,12 +8,13 @@
 class SettingsModel;
 class GuiModel;
 class ExtendedGraphView;
+class GraphDataModel;
 
 class DataFileExporter : public QObject
 {
     Q_OBJECT
 public:
-    explicit DataFileExporter(GuiModel *pGuiModel, SettingsModel *pSettingsModel, ExtendedGraphView * pGraphView, QObject *parent = 0);
+    explicit DataFileExporter(GuiModel *pGuiModel, SettingsModel *pSettingsModel, ExtendedGraphView * pGraphView, GraphDataModel * pGraphDataModel, QObject *parent = 0);
     ~DataFileExporter();
 
     void enableExporterDuringLog();
@@ -38,6 +39,7 @@ private:
     GuiModel * _pGuiModel;
     SettingsModel * _pSettingsModel;
     ExtendedGraphView * _pGraphView;
+    GraphDataModel * _pGraphDataModel;
 
     QStringList _dataExportBuffer;
     quint64 lastLogTime;

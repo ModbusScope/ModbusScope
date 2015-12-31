@@ -3,7 +3,7 @@
 #include "qcustomplot.h"
 #include "communicationmanager.h"
 #include "registerdata.h"
-#include "registerdatamodel.h"
+#include "graphdatamodel.h"
 #include "registerdialog.h"
 #include "connectiondialog.h"
 #include "settingsmodel.h"
@@ -35,13 +35,13 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pConnectionDialog = new ConnectionDialog(_pSettingsModel, this);
     _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
 
-    _pRegisterDataModel = new RegisterDataModel();
-    _pRegisterDialog = new RegisterDialog(_pRegisterDataModel, this);
+    _pGraphDataModel = new GraphDataModel();
+    _pRegisterDialog = new RegisterDialog(_pGraphDataModel, this);
 
     _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pSettingsModel);
-    _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pUi->customPlot, this);
+    _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pUi->customPlot, this);
 
-    _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphView);
+    _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphView, _pGraphDataModel);
 
     /*-- Connect menu actions --*/
     connect(_pUi->actionStart, SIGNAL(triggered()), this, SLOT(startScope()));
@@ -62,19 +62,12 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionShowLegend, SIGNAL(triggered(bool)), _pGuiModel, SLOT(setLegendVisibility(bool)));
 
     /*-- connect model to view --*/
-    connect(_pGuiModel, SIGNAL(graphVisibilityChanged(const quint32)), this, SLOT(showHideGraph(const quint32)));
-    connect(_pGuiModel, SIGNAL(graphVisibilityChanged(const quint32)), _pGraphView, SLOT(showGraph(const quint32)));
     connect(_pGuiModel, SIGNAL(frontGraphChanged()), this, SLOT(updateBringToFrontGrapMenu()));
     connect(_pGuiModel, SIGNAL(frontGraphChanged()), _pGraphView, SLOT(bringToFront()));
     connect(_pGuiModel, SIGNAL(highlightSamplesChanged()), this, SLOT(updateHighlightSampleMenu()));
     connect(_pGuiModel, SIGNAL(highlightSamplesChanged()), _pGraphView, SLOT(enableSamplePoints()));
     connect(_pGuiModel, SIGNAL(valueTooltipChanged()), this, SLOT(updateValueTooltipMenu()));
     connect(_pGuiModel, SIGNAL(valueTooltipChanged()), _pGraphView, SLOT(enableValueTooltip()));
-    connect(_pGuiModel, SIGNAL(graphCleared()), _pGraphView, SLOT(clearGraphs()));
-    connect(_pGuiModel, SIGNAL(graphCleared()), this, SLOT(clearGraphMenu()));
-    connect(_pGuiModel, SIGNAL(graphsAdded()), _pGraphView, SLOT(addGraphs()));
-    connect(_pGuiModel, SIGNAL(graphsAddData(QList<double>, QList<QList<double> >)), _pGraphView, SLOT(addData(QList<double>, QList<QList<double> >)));
-    connect(_pGuiModel, SIGNAL(graphsAdded()), this, SLOT(addGraphMenu()));
     connect(_pGuiModel, SIGNAL(windowTitleChanged()), this, SLOT(updateWindowTitle()));
     connect(_pGuiModel, SIGNAL(communicationStateChanged()), this, SLOT(updateCommunicationState()));
     connect(_pGuiModel, SIGNAL(projectFilePathChanged()), this, SLOT(projectFileLoaded()));
@@ -94,6 +87,14 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGuiModel, SIGNAL(yAxisMinMaxchanged()), this, SLOT(updateyAxisMinMax()));
     connect(_pGuiModel, SIGNAL(yAxisMinMaxchanged()), _pGraphView, SLOT(rescalePlot()));
     connect(_pGuiModel, SIGNAL(communicationStatsChanged()), this, SLOT(updateStats()));
+
+    connect(_pGraphDataModel, SIGNAL(graphVisibilityChanged(const quint32)), this, SLOT(showHideGraph(const quint32)));
+    connect(_pGraphDataModel, SIGNAL(graphVisibilityChanged(const quint32)), _pGraphView, SLOT(showGraph(const quint32)));
+    connect(_pGraphDataModel, SIGNAL(cleared()), _pGraphView, SLOT(clearGraphs()));
+    connect(_pGraphDataModel, SIGNAL(cleared()), this, SLOT(clearGraphMenu()));
+    connect(_pGraphDataModel, SIGNAL(graphsAddData(QList<double>, QList<QList<double> >)), _pGraphView, SLOT(addData(QList<double>, QList<QList<double> >)));
+    connect(_pGraphDataModel, SIGNAL(activeChanged(qint32)), _pGraphView, SLOT(addGraphs(qint32)));
+    connect(_pGraphDataModel, SIGNAL(activeChanged(qint32)), this, SLOT(addGraphMenu(qint32)));
 
     _pGraphShowHide = _pUi->menuShowHide;
     _pGraphBringToFront = _pUi->menuBringToFront;
@@ -290,7 +291,7 @@ void MainWindow::menuShowHideGraphClicked(bool bState)
 {
     QAction * pAction = qobject_cast<QAction *>(QObject::sender());
 
-    _pGuiModel->setGraphVisibility(pAction->data().toInt(), bState);
+    _pGraphDataModel->setVisible(pAction->data().toInt(), bState);
 
 }
 
@@ -307,7 +308,6 @@ void MainWindow::showLogDialog()
 void MainWindow::showRegisterDialog()
 {
     _pRegisterDialog->exec();
-    _pGuiModel->setGraphReset(true);
 }
 
 void MainWindow::changeLegendPosition(QAction* pAction)
@@ -334,7 +334,7 @@ void MainWindow::clearData()
 
 void MainWindow::startScope()
 {
-    if (_pRegisterDataModel->checkedRegisterCount() != 0)
+    if (_pGraphDataModel->activeCount() != 0)
     {
 
         _pGuiModel->setCommunicationState(GuiModel::STARTED);
@@ -343,19 +343,9 @@ void MainWindow::startScope()
 
         _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
 
-        QList<RegisterData> regList;
-        _pRegisterDataModel->checkedRegisterList(&regList);
-
-        if (_pConnMan->startCommunication(regList))
+        if (_pConnMan->startCommunication())
         {
-            if (_pGuiModel->graphReset())
-            {
-                setupGraphs();
-            }
-            else
-            {
-                clearData();
-            }
+            clearData();
         }
 
         if (_pSettingsModel->writeDuringLog())
@@ -394,10 +384,10 @@ void MainWindow::stopScope()
 
 void MainWindow::showHideGraph(const quint32 index)
 {
-    _pGraphShowHide->actions().at(index)->setChecked(_pGuiModel->graphVisibility(index));
+    _pGraphShowHide->actions().at(index)->setChecked(_pGraphDataModel->isVisible(index));
 
     // Show/Hide corresponding "BringToFront" action
-    _pGraphBringToFront->actions().at(index)->setVisible(_pGuiModel->graphVisibility((index)));
+    _pGraphBringToFront->actions().at(index)->setVisible(_pGraphDataModel->isVisible((index)));
 
     // Enable/Disable global BringToFront menu
     bool bVisible = false;
@@ -440,33 +430,29 @@ void MainWindow::clearGraphMenu()
     _pGraphBringToFront->clear();
 }
 
-void MainWindow::addGraphMenu()
+void MainWindow::addGraphMenu(qint32 idx)
 {
+    QString label = _pGraphDataModel->label(idx);
+    QAction * pShowHideAction = _pGraphShowHide->addAction(label);
+    QAction * pBringToFront = _pGraphBringToFront->addAction(label);
 
-    for (quint32 idx = 0; idx < _pGuiModel->graphCount(); idx++)
-    {
-        QString label = _pGuiModel->graphLabel(idx);
-        QAction * pShowHideAction = _pGraphShowHide->addAction(label);
-        QAction * pBringToFront = _pGraphBringToFront->addAction(label);
+    QPixmap pixmap(20,5);
+    pixmap.fill(_pGraphDataModel->color(idx));
+    QIcon * pBringToFrontIcon = new QIcon(pixmap);
+    QIcon * pShowHideIcon = new QIcon(pixmap);
 
-        QPixmap pixmap(20,5);
-        pixmap.fill(_pGuiModel->graphColor(idx));
-        QIcon * pBringToFrontIcon = new QIcon(pixmap);
-        QIcon * pShowHideIcon = new QIcon(pixmap);
+    pShowHideAction->setData(idx);
+    pShowHideAction->setIcon(*pBringToFrontIcon);
+    pShowHideAction->setCheckable(true);
+    pShowHideAction->setChecked(_pGraphDataModel->isVisible(idx));
 
-        pShowHideAction->setData(idx);
-        pShowHideAction->setIcon(*pBringToFrontIcon);
-        pShowHideAction->setCheckable(true);
-        pShowHideAction->setChecked(_pGuiModel->graphVisibility(idx));
+    pBringToFront->setData(idx);
+    pBringToFront->setIcon(*pShowHideIcon);
+    pBringToFront->setCheckable(true);
+    pBringToFront->setActionGroup(_pBringToFrontGroup);
 
-        pBringToFront->setData(idx);
-        pBringToFront->setIcon(*pShowHideIcon);
-        pBringToFront->setCheckable(true);
-        pBringToFront->setActionGroup(_pBringToFrontGroup);
-
-        QObject::connect(pShowHideAction, SIGNAL(toggled(bool)), this, SLOT(menuShowHideGraphClicked(bool)));
-        QObject::connect(pBringToFront, SIGNAL(toggled(bool)), this, SLOT(menuBringToFrontGraphClicked(bool)));
-    }
+    QObject::connect(pShowHideAction, SIGNAL(toggled(bool)), this, SLOT(menuShowHideGraphClicked(bool)));
+    QObject::connect(pBringToFront, SIGNAL(toggled(bool)), this, SLOT(menuBringToFrontGraphClicked(bool)));
 
     _pGraphShowHide->setEnabled(true);
     _pGraphBringToFront->setEnabled(true);
@@ -741,17 +727,6 @@ void MainWindow::updateRuntime()
     }
 }
 
-void MainWindow::setupGraphs(void)
-{
-    QList<RegisterData> regList;
-    _pRegisterDataModel->checkedRegisterList(&regList);
-
-    _pGuiModel->clearGraph();
-    _pGuiModel->addGraphs(regList);
-
-    _pGuiModel->setGraphReset(false);
-}
-
 void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pProjectSettings)
 {
     if (pProjectSettings->general.connectionSettings.bIp)
@@ -835,24 +810,24 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
         }
     }
 
-    _pRegisterDataModel->clear();
+    _pGraphDataModel->clear();
     for (qint32 i = 0; i < pProjectSettings->scope.registerList.size(); i++)
     {
-        RegisterData rowData;
+        GraphData rowData;
         rowData.setActive(pProjectSettings->scope.registerList[i].bActive);
         rowData.setUnsigned(pProjectSettings->scope.registerList[i].bUnsigned);
-        rowData.setAddress(pProjectSettings->scope.registerList[i].address);
+        rowData.setRegisterAddress(pProjectSettings->scope.registerList[i].address);
         rowData.setBitmask(pProjectSettings->scope.registerList[i].bitmask);
-        rowData.setText(pProjectSettings->scope.registerList[i].text);
+        rowData.setLabel(pProjectSettings->scope.registerList[i].text);
         rowData.setDivideFactor(pProjectSettings->scope.registerList[i].divideFactor);
         rowData.setMultiplyFactor(pProjectSettings->scope.registerList[i].multiplyFactor);
         rowData.setColor(pProjectSettings->scope.registerList[i].color);
         rowData.setShift(pProjectSettings->scope.registerList[i].shift);
 
-        _pRegisterDataModel->addRegister(rowData);
+        _pGraphDataModel->add(rowData);
     }
 
-    setupGraphs();
+    _pGuiModel->setFrontGraph(-1);
 }
 
 void MainWindow::loadProjectFile(QString dataFilePath)
@@ -905,8 +880,6 @@ void MainWindow::loadDataFile(QString dataFilePath)
             // Set to full auto scaling
              _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
 
-             _pGuiModel->setGraphReset(true);
-
             parseDataFile(&data);
         }
     }
@@ -921,19 +894,14 @@ void MainWindow::loadDataFile(QString dataFilePath)
 
 void MainWindow::parseDataFile(DataFileParser::FileData * pData)
 {
-    QList<RegisterData> graphList;
+    _pGraphDataModel->clear();
+    _pGuiModel->setFrontGraph(-1);
 
-    for (qint32 i = 0; i < pData->dataLabel.size(); i++)
-    {
-        RegisterData graph;
-        graph.setText(pData->dataLabel[i]);
-        graphList.append(graph);
-    }
-
-    _pGuiModel->clearGraph();
-    _pGuiModel->addGraphs(graphList, pData->timeRow, pData->dataRows);
+    _pGraphDataModel->add(pData->dataLabel, pData->timeRow, pData->dataRows);
     _pGuiModel->setFrontGraph(0);
 
     // Show legend
     _pGuiModel->setLegendVisibility(true);
+
+    // TODO: make sure "view mode" is started
 }

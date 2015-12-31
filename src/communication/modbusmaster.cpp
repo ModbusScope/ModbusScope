@@ -60,8 +60,8 @@ void ModbusMaster::stopped()
 
 void ModbusMaster::readRegisterList(QList<quint16> registerList)
 {
-    QList<quint16> resultList;
-    QList<bool> resultStateList;
+    QMap<quint16, ModbusResult> resultMap;
+
     quint32 success = 0;
     quint32 error = 0;
 
@@ -125,11 +125,12 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
             QList<quint16> registerDataList;
             if (readRegisters(pCtx, registerList.at(regIndex) - 40001, count, &registerDataList) == 0)
             {
+                const quint16 registerAddr = registerList.at(regIndex) + count;
                 success++;
-                resultList.append(registerDataList);
                 for (uint i = 0; i < count; i++)
                 {
-                    resultStateList.append(true);
+                    const ModbusResult result = ModbusResult(registerDataList[i], true);
+                    resultMap.insert(registerAddr, result);
                 }
             }
             else
@@ -137,8 +138,8 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
                 error++;
                 for (uint i = 0; i < count; i++)
                 {
-                    resultList.append(0);
-                    resultStateList.append(false);
+                    const ModbusResult result = ModbusResult(0, false);
+                    resultMap.insert(registerAddr,result);
                 }
             }
 
@@ -154,14 +155,14 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
         for (qint32 i = 0; i < registerList.size(); i++)
         {
             error++;
-            resultList.append(0);
-            resultStateList.append(false);
+            const ModbusResult result = ModbusResult(0, false);
+            resultMap.insert(registerAddr,result);
         }
     }
 
     _pGuiModel->setCommunicationStats(_pGuiModel->communicationSuccessCount() + success, _pGuiModel->communicationErrorCount() + error);
 
-    emit modbusPollDone(resultStateList, resultList);
+    emit modbusPollDone(resultMap);
 }
 
 void ModbusMaster::closePort(modbus_t *connection)

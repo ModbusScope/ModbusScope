@@ -5,7 +5,7 @@
 #include "registerdialog.h"
 #include "ui_registerdialog.h"
 
-RegisterDialog::RegisterDialog(RegisterDataModel * pRegisterDataModel,  QWidget *parent) :
+RegisterDialog::RegisterDialog(GraphDataModel * pGraphDataModel,  QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::RegisterDialog)
 {
@@ -14,8 +14,8 @@ RegisterDialog::RegisterDialog(RegisterDataModel * pRegisterDataModel,  QWidget 
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    _pRegisterDataModel = pRegisterDataModel;
-    _pRegisterDialogModel = new RegisterDialogModel(_pRegisterDataModel);
+    _pGraphDataModel = pGraphDataModel;
+    _pRegisterDialogModel = new RegisterDialogModel(_pGraphDataModel);
 
     // Setup registerView
     _pUi->registerView->setModel(_pRegisterDialogModel);
@@ -52,7 +52,7 @@ void RegisterDialog::done(int r)
     {
         quint16 duplicateReg = 0;
         quint16 duplicateBitMask = 0;
-        if (!_pRegisterDataModel->areExclusive(&duplicateReg, &duplicateBitMask))
+        if (!_pGraphDataModel->areExclusive(&duplicateReg, &duplicateBitMask))
         {
             bValid = false;
 
@@ -78,20 +78,17 @@ void RegisterDialog::done(int r)
 
 void RegisterDialog::addRegisterRow()
 {
-    _pRegisterDialogModel->insertRow(_pRegisterDataModel->size());
+    _pRegisterDialogModel->insertRow(_pGraphDataModel->size());
 }
 
 void RegisterDialog::activatedCell(QModelIndex modelIndex)
 {
     if (modelIndex.column() == 0)
     {
-        if (modelIndex.row() < _pRegisterDataModel->size())
+        if (modelIndex.row() < _pGraphDataModel->size())
         {
-            // Get current color
-            RegisterData * pReg = _pRegisterDataModel->registerData(modelIndex.row());
-
             // Let user pick color
-            QColor color = QColorDialog::getColor(pReg->color());
+            QColor color = QColorDialog::getColor(_pGraphDataModel->color(modelIndex.row()));
 
             if (color.isValid())
             {

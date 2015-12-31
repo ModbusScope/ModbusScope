@@ -4,7 +4,7 @@
 #include <QDialog>
 
 #include "registerdialogmodel.h"
-#include "registerdatamodel.h"
+#include "graphdatamodel.h"
 
 namespace Ui {
 class RegisterDialog;
@@ -15,7 +15,7 @@ class RegisterDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit RegisterDialog(RegisterDataModel *pRegisterDataModel, QWidget *parent = 0);
+    explicit RegisterDialog(GraphDataModel *pGraphDataModel, QWidget *parent = 0);
     ~RegisterDialog();
 
 private slots:
@@ -31,7 +31,7 @@ private:
     Ui::RegisterDialog * _pUi;
 
     RegisterDialogModel * _pRegisterDialogModel;
-    RegisterDataModel * _pRegisterDataModel;
+    GraphDataModel * _pGraphDataModel;
 };
 
 #endif // REGISTERDIALOG_H

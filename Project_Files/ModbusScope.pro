@@ -64,7 +64,8 @@ SOURCES +=  \
     ../src/util/util.cpp \
     ../src/importexport/settingsauto.cpp \
     ../src/models/registerdialogmodel.cpp \
-    ../src/models/registerdatamodel.cpp
+    ../src/models/graphdatamodel.cpp \
+    ../src/models/graphdata.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
@@ -101,8 +102,8 @@ HEADERS += \
     ../src/util/updatenotify.h \
     ../src/graphview/myqcustomplot.h \
     ../src/importexport/settingsauto.h \
-    ../src/models/registerdatamodel.h \
-    ../src/models/registerdialogmodel.h
+    ../src/models/registerdialogmodel.h \
+    ../src/models/graphdatamodel.h
 
 RESOURCES += \
     ../resources/resource.qrc

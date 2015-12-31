@@ -5,12 +5,12 @@
 #include <QList>
 #include <QStringListModel>
 
-#include "registerdata.h"
-
+#include "modbusmaster.h"
 
 //Forward declaration
 class GuiModel;
 class SettingsModel;
+class GraphDataModel;
 class ModbusMaster;
 class QTimer;
 
@@ -21,14 +21,14 @@ public:
     explicit CommunicationManager(SettingsModel * pSettingsModel, GuiModel * pGuiModel, QObject *parent = 0);
     ~CommunicationManager();
 
-    bool startCommunication(QList<RegisterData> registers);
+    bool startCommunication();
     void stopCommunication();
 
     bool isActive();
     void resetCommunicationStats();
 
 public slots:
-    void handlePollDone(QList<bool> successList, QList<quint16> values);
+    void handlePollDone(QMap<quint16, ModbusResult> resultMap);
 
 signals:
     void registerRequest(QList<quint16> registerList);
@@ -47,8 +47,9 @@ private:
     qint64 _lastPollStart;
 
     GuiModel * _pGuiModel;
+    GraphDataModel * _pGraphDataModel;
     SettingsModel * _pSettingsModel;
-    QList<RegisterData> _registerlist;
+
 };
 
 #endif // COMMUNICATION_MANAGER_H

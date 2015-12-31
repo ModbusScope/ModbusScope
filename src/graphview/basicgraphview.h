@@ -7,6 +7,7 @@
 
 /* forward declaration */
 class GuiModel;
+class GraphDataModel;
 
 class BasicGraphView : public QObject
 {
@@ -28,7 +29,7 @@ public:
         LEGEND_RIGHT,
     } LegendsPositionOptions;
 
-    explicit BasicGraphView(GuiModel *pGuiModel, QCustomPlot *pPlot, QObject *parent = 0);
+    explicit BasicGraphView(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel, QCustomPlot *pPlot, QObject *parent = 0);
     virtual ~BasicGraphView();
 
     void exportGraphImage(QString imageFile);
@@ -44,7 +45,7 @@ public slots:
     virtual void enableValueTooltip();
     virtual void enableSamplePoints();
     virtual void clearGraphs();
-    virtual void addGraphs();
+    virtual void addGraphs(const quint32 idx);
     virtual void showHideLegend();
     virtual void showGraph(quint32 index);
     virtual void bringToFront();
@@ -69,6 +70,7 @@ protected slots:
 
 protected:
     GuiModel * _pGuiModel;
+    GraphDataModel * _pGraphDataModel;
     QCustomPlot * _pPlot;
     bool _bEnableTooltip;
     bool _bEnableSampleHighlight;

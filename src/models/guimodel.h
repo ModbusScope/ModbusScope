@@ -2,7 +2,6 @@
 #define GUIMODEL_H
 
 #include <QObject>
-#include "graphdata.h"
 #include "basicgraphview.h"
 #include "registerdata.h"
 
@@ -23,16 +22,9 @@ public:
 
     void triggerUpdate(void);
 
-    bool graphVisibility(quint32 index) const;
-    QColor graphColor(quint32 index) const;
-    QString graphLabel(quint32 index) const;
     qint32 frontGraph() const;
     bool highlightSamples() const;
     bool valueTooltip() const;
-    void addGraphs(QList<RegisterData> registerList);
-    void addGraphs(QList<RegisterData> registerList, QList<double> timeData, QList<QList<double> > data);
-    void clearGraph();
-    quint32 graphCount();
     QString windowTitle();
     bool legendVisibility();
     BasicGraphView::LegendsPositionOptions legendPosition();
@@ -53,14 +45,12 @@ public:
     void setProjectFilePath(QString path);
     void setDataFilePath(QString path);
     void setLastDir(QString dir);
-    void setGraphReset(bool bGraphReset);
-    bool graphReset();
 
 public slots:
     void setValueTooltip(bool bValueTooltip);
     void setHighlightSamples(bool bHighlightSamples);
     void setFrontGraph(const qint32 &frontGraph);
-    void setGraphVisibility(quint32 index, const bool &value);
+
     void setWindowTitleDetail(QString detail);
     void setLegendVisibility(bool bLegendVisibility);
     void setLegendPosition(BasicGraphView::LegendsPositionOptions pos);
@@ -76,10 +66,6 @@ public slots:
 
 signals:
 
-    void graphVisibilityChanged(const quint32 index);
-    void graphCleared();
-    void graphsAdded();
-    void graphsAddData(QList<double>, QList<QList<double> > data);
     void frontGraphChanged();
     void highlightSamplesChanged();
     void valueTooltipChanged();
@@ -110,8 +96,6 @@ private:
 
     } GuiSettings;
 
-    QList<GraphData * > _graphData;
-
     qint32 _frontGraph;
     GuiSettings _guiSettings;
     QString _windowTitle;
@@ -120,7 +104,6 @@ private:
     qint64 _endTime;
     quint32 _successCount;
     quint32 _errorCount;
-    bool _bGraphReset;
 
     QString _projectFilePath;
     QString _dataFilePath;

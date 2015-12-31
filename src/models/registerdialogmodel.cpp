@@ -3,20 +3,31 @@
 #include "QDebug"
 #include <QMessageBox>
 
-RegisterDialogModel::RegisterDialogModel(RegisterDataModel * pRegisterDataModel, QObject *parent) :
+RegisterDialogModel::RegisterDialogModel(GraphDataModel * pGraphDataModel, QObject *parent) :
     QAbstractTableModel(parent)
 {
-    _pRegisterDataModel = pRegisterDataModel;
+    _pGraphDataModel = pGraphDataModel;
 
-    connect(_pRegisterDataModel, SIGNAL(removed(qint32)), this, SIGNAL(modelDataChanged(qint32)));
-    connect(_pRegisterDataModel, SIGNAL(added(qint32)), this, SIGNAL(modelDataChanged(qint32)));
+    connect(_pGraphDataModel, SIGNAL(removed(qint32)), this, SIGNAL(modelDataChanged(qint32)));
+    connect(_pGraphDataModel, SIGNAL(added(qint32)), this, SIGNAL(modelDataChanged(qint32)));
 
-    connect(_pRegisterDataModel, SIGNAL(cleared()), this, SIGNAL(modelDataChanged()));
+    connect(_pGraphDataModel, SIGNAL(visibilityChanged(qint32)), this, SIGNAL(modelDataChanged(qint32)));
+    connect(_pGraphDataModel, SIGNAL(labelChanged(qint32)), this, SIGNAL(modelDataChanged(qint32)));
+    connect(_pGraphDataModel, SIGNAL(colorChanged(qint32)), this, SIGNAL(modelDataChanged(qint32)));
+    connect(_pGraphDataModel, SIGNAL(activeChanged(qint32)), this, SIGNAL(modelDataChanged(qint32)));
+    connect(_pGraphDataModel, SIGNAL(unsignedChanged(qint32)), this, SIGNAL(modelDataChanged(qint32)));
+    connect(_pGraphDataModel, SIGNAL(multiplyFactorChanged(qint32)), this, SIGNAL(modelDataChanged(qint32)));
+    connect(_pGraphDataModel, SIGNAL(divideFactorChanged(qint32)), this, SIGNAL(modelDataChanged(qint32)));
+    connect(_pGraphDataModel, SIGNAL(registerAddressChanged(qint32)), this, SIGNAL(modelDataChanged(qint32)));
+    connect(_pGraphDataModel, SIGNAL(bitmaskChanged(qint32)), this, SIGNAL(modelDataChanged(qint32)));
+    connect(_pGraphDataModel, SIGNAL(shiftChanged(qint32)), this, SIGNAL(modelDataChanged(qint32)));
+
+    connect(_pGraphDataModel, SIGNAL(cleared()), this, SIGNAL(modelDataChanged()));
 }
 
 int RegisterDialogModel::rowCount(const QModelIndex & /*parent*/) const
 {
-    return _pRegisterDataModel->size();
+    return _pGraphDataModel->size();
 }
 
 int RegisterDialogModel::columnCount(const QModelIndex & /*parent*/) const
@@ -43,13 +54,13 @@ QVariant RegisterDialogModel::data(const QModelIndex &index, int role) const
     case 0:
         if (role == Qt::BackgroundColorRole)
         {
-            return _pRegisterDataModel->registerData(index.row())->color();
+            return _pGraphDataModel->color(index.row());
         }
         break;
     case 1:
         if (role == Qt::CheckStateRole)
         {
-            if (_pRegisterDataModel->registerData(index.row())->isActive())
+            if (_pGraphDataModel->isActive(index.row()))
             {
                 return Qt::Checked;
             }
@@ -62,7 +73,7 @@ QVariant RegisterDialogModel::data(const QModelIndex &index, int role) const
     case 2:
         if (role == Qt::CheckStateRole)
         {
-            if (_pRegisterDataModel->registerData(index.row())->isUnsigned())
+            if (_pGraphDataModel->isUnsigned(index.row()))
             {
                 return Qt::Checked;
             }
@@ -75,38 +86,38 @@ QVariant RegisterDialogModel::data(const QModelIndex &index, int role) const
     case 3:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return _pRegisterDataModel->registerData(index.row())->address();
+            return _pGraphDataModel->registerAddress(index.row());
         }
         break;
     case 4:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return _pRegisterDataModel->registerData(index.row())->text();
+            return _pGraphDataModel->label(index.row());
         }
         break;
     case 5:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             // Show hex value
-            return QString("0x%1").arg(_pRegisterDataModel->registerData(index.row())->bitmask(), 0, 16);
+            return QString("0x%1").arg(_pGraphDataModel->bitmask(index.row()), 0, 16);
         }
         break;
     case 6:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return _pRegisterDataModel->registerData(index.row())->shift();
+            return _pGraphDataModel->shift(index.row());
         }
         break;
     case 7:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return Util::formatDoubleForExport(_pRegisterDataModel->registerData(index.row())->multiplyFactor());
+            return Util::formatDoubleForExport(_pGraphDataModel->multiplyFactor(index.row()));
         }
         break;
     case 8:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return Util::formatDoubleForExport(_pRegisterDataModel->registerData(index.row())->divideFactor());
+            return Util::formatDoubleForExport(_pGraphDataModel->divideFactor(index.row()));
         }
         break;
     default:
@@ -168,7 +179,7 @@ bool RegisterDialogModel::setData(const QModelIndex & index, const QVariant & va
         if (role == Qt::EditRole)
         {
             QColor color = value.value<QColor>();
-            _pRegisterDataModel->registerData(index.row())->setColor(color);
+            _pGraphDataModel->setColor(index.row(), color);
         }
         break;
     case 1:
@@ -176,11 +187,11 @@ bool RegisterDialogModel::setData(const QModelIndex & index, const QVariant & va
         {
             if (value == Qt::Checked)
             {
-                _pRegisterDataModel->registerData(index.row())->setActive(true);
+                _pGraphDataModel->setActive(index.row(), true);
             }
             else
             {
-                _pRegisterDataModel->registerData(index.row())->setActive(false);
+                _pGraphDataModel->setActive(index.row(), false);
             }
         }
         break;
@@ -189,11 +200,11 @@ bool RegisterDialogModel::setData(const QModelIndex & index, const QVariant & va
         {
             if (value == Qt::Checked)
             {
-                _pRegisterDataModel->registerData(index.row())->setUnsigned(true);
+                _pGraphDataModel->setUnsigned(index.row(), true);
             }
             else
             {
-                _pRegisterDataModel->registerData(index.row())->setUnsigned(false);
+                _pGraphDataModel->setUnsigned(index.row(), false);
             }
         }
         break;
@@ -201,13 +212,13 @@ bool RegisterDialogModel::setData(const QModelIndex & index, const QVariant & va
         if (role == Qt::EditRole)
         {
             const quint16 newAddr = value.toInt();
-            _pRegisterDataModel->registerData(index.row())->setAddress(newAddr);
+            _pGraphDataModel->setRegisterAddress(index.row(), newAddr);
         }
         break;
     case 4:
         if (role == Qt::EditRole)
         {
-            _pRegisterDataModel->registerData(index.row())->setText(value.toString());
+            _pGraphDataModel->setLabel(index.row(), value.toString());
         }
         break;
     case 5:
@@ -218,7 +229,7 @@ bool RegisterDialogModel::setData(const QModelIndex & index, const QVariant & va
 
             if (bSuccess)
             {
-                _pRegisterDataModel->registerData(index.row())->setBitmask(newBitMask);
+                _pGraphDataModel->setBitmask(index.row(), newBitMask);
             }
             else
             {
@@ -247,7 +258,7 @@ bool RegisterDialogModel::setData(const QModelIndex & index, const QVariant & va
                     )
                 )
             {
-                _pRegisterDataModel->registerData(index.row())->setShift(newShift);
+                _pGraphDataModel->setShift(index.row(), newShift);
             }
             else
             {
@@ -268,7 +279,7 @@ bool RegisterDialogModel::setData(const QModelIndex & index, const QVariant & va
             const double parseResult = QLocale::system().toDouble(value.toString(), &bSuccess);
             if (bSuccess)
             {
-                _pRegisterDataModel->registerData(index.row())->setMultiplyFactor(parseResult);
+                _pGraphDataModel->setMultiplyFactor(index.row(), parseResult);
             }
             else
             {
@@ -289,7 +300,7 @@ bool RegisterDialogModel::setData(const QModelIndex & index, const QVariant & va
             const double parseResult = QLocale::system().toDouble(value.toString(), &bSuccess);
             if (bSuccess)
             {
-                _pRegisterDataModel->registerData(index.row())->setDivideFactor(parseResult);
+                _pGraphDataModel->setDivideFactor(index.row(), parseResult);
             }
             else
             {
@@ -343,7 +354,7 @@ bool RegisterDialogModel::removeRows (int row, int count, const QModelIndex & pa
     for (qint32 i = 0; i < count; i++)
     {
         Q_UNUSED(i);
-        _pRegisterDataModel->removeRegister((qint32)row);
+        _pGraphDataModel->removeRegister((qint32)row);
     }
 
     endRemoveRows();
@@ -351,11 +362,11 @@ bool RegisterDialogModel::removeRows (int row, int count, const QModelIndex & pa
     return true;
 }
 
-bool RegisterDialogModel::insertRows(RegisterData data, int row, int count, const QModelIndex &parent)
+bool RegisterDialogModel::insertRows(GraphData data, int row, int count, const QModelIndex &parent)
 {
     if (
         (count != 1)
-        || (row != _pRegisterDataModel->size())
+        || (row != _pGraphDataModel->size())
         )
     {
         qDebug() << "RegisterModel: Not supported";
@@ -363,9 +374,9 @@ bool RegisterDialogModel::insertRows(RegisterData data, int row, int count, cons
 
     Q_UNUSED(row);
     Q_UNUSED(count);
-    beginInsertRows(parent, _pRegisterDataModel->size(), _pRegisterDataModel->size());
+    beginInsertRows(parent, _pGraphDataModel->size(), _pGraphDataModel->size());
 
-    _pRegisterDataModel->addRegister(data);
+    _pGraphDataModel->add(data);
 
     endInsertRows();
 
@@ -377,7 +388,7 @@ bool RegisterDialogModel::insertRows (int row, int count, const QModelIndex &par
 {
     if (
         (count != 1)
-        || (row != _pRegisterDataModel->size())
+        || (row != _pGraphDataModel->size())
         )
     {
         qDebug() << "RegisterModel: Not supported";
@@ -385,9 +396,9 @@ bool RegisterDialogModel::insertRows (int row, int count, const QModelIndex &par
 
     Q_UNUSED(row);
     Q_UNUSED(count);
-    beginInsertRows(parent, _pRegisterDataModel->size(), _pRegisterDataModel->size());
+    beginInsertRows(parent, _pGraphDataModel->size(), _pGraphDataModel->size());
 
-    _pRegisterDataModel->addRegister();
+    _pGraphDataModel->add();
 
     endInsertRows();
 

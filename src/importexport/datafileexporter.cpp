@@ -4,16 +4,18 @@
 #include "qcustomplot.h"
 #include "guimodel.h"
 #include "settingsmodel.h"
+#include "graphdatamodel.h"
 #include "extendedgraphview.h"
 
 #include "datafileexporter.h"
 
-DataFileExporter::DataFileExporter(GuiModel *pGuiModel, SettingsModel * pSettingsModel, ExtendedGraphView * pGraphView, QObject *parent) :
+DataFileExporter::DataFileExporter(GuiModel *pGuiModel, SettingsModel * pSettingsModel, ExtendedGraphView * pGraphView, GraphDataModel * pGraphDataModel, QObject *parent) :
     QObject(parent)
 {
     _pGuiModel = pGuiModel;
     _pSettingsModel = pSettingsModel;
     _pGraphView = pGraphView;
+    _pGraphDataModel = pGraphDataModel;
 
     connect(_pGraphView, SIGNAL(dataAddedToPlot(double, QList<double>)), this, SLOT(exportDataLine(double, QList <double>)));
 }
@@ -55,7 +57,7 @@ void DataFileExporter::exportDataLine(double timeData, QList <double> dataValues
 
 void DataFileExporter::exportDataFile(QString dataFile)
 {
-    if (_pGuiModel->graphCount() != 0)
+    if (_pGraphDataModel->activeCount() != 0)
     {
         const QList<double> keyList = _pGraphView->graphTimeData();
         QList<QList<QCPData> > dataList;
@@ -67,7 +69,7 @@ void DataFileExporter::exportDataFile(QString dataFile)
         // Create label row
         logData.append(createLabelRow());
 
-        for(quint32 i = 0; i < _pGuiModel->graphCount(); i++)
+        for(qint32 i = 0; i < _pGraphDataModel->activeCount(); i++)
         {
             // Save data lists
             dataList.append(_pGraphView->graphData(i));
@@ -120,7 +122,7 @@ QString DataFileExporter::constructDataHeader(bool bDuringLog)
 {
     QString header = QString(tr(""));
 
-    if (_pGuiModel->graphCount() != 0)
+    if (_pGraphDataModel->activeCount() != 0)
     {
         QDateTime dt;
 
@@ -165,10 +167,10 @@ QString DataFileExporter::createLabelRow()
     QString line;
 
     line.append("Time (ms)");
-    for(quint32 i = 0; i < _pGuiModel->graphCount(); i++)
+    for(qint32 i = 0; i < _pGraphDataModel->activeCount(); i++)
     {
         // Get headers
-        line.append(Util::separatorCharacter() + _pGuiModel->graphLabel(i));
+        line.append(Util::separatorCharacter() + _pGraphDataModel->label(i));
     }
 
     return line;

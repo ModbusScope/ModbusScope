@@ -1,12 +1,13 @@
 
 #include "util.h"
 #include "guimodel.h"
+#include "graphdatamodel.h"
 #include "extendedgraphview.h"
 #include "communicationmanager.h"
 #include "settingsmodel.h"
 
-ExtendedGraphView::ExtendedGraphView(CommunicationManager * pConnMan, GuiModel * pGuiModel, SettingsModel * pSettingsModel, QCustomPlot * pPlot, QObject *parent):
-    BasicGraphView(pGuiModel, pPlot)
+ExtendedGraphView::ExtendedGraphView(CommunicationManager * pConnMan, GuiModel * pGuiModel, SettingsModel * pSettingsModel, GraphDataModel * pRegisterDataModel, QCustomPlot * pPlot, QObject *parent):
+    BasicGraphView(pGuiModel, pRegisterDataModel, pPlot)
 {
     Q_UNUSED(parent);
 
@@ -65,20 +66,19 @@ void ExtendedGraphView::plotResults(QList<bool> successList, QList<double> value
             _pPlot->graph(i)->addData(timeData, valueList[i]);
             dataList.append(valueList[i]);
 
-            _pPlot->graph(i)->setName(QString("(%1) %2").arg(Util::formatDoubleForExport(valueList[i])).arg(_pGuiModel->graphLabel(i)));
+            _pPlot->graph(i)->setName(QString("(%1) %2").arg(Util::formatDoubleForExport(valueList[i])).arg(_pGraphDataModel->label(i)));
         }
         else
         {
             _pPlot->graph(i)->addData(timeData, 0);
             dataList.append(0);
-            _pPlot->graph(i)->setName(QString("(-) %1").arg(_pGuiModel->graphLabel(i)));
+            _pPlot->graph(i)->setName(QString("(-) %1").arg(_pGraphDataModel->label(i)));
         }
     }
 
     emit dataAddedToPlot(timeData, dataList);
 
    rescalePlot();
-
 }
 
 void ExtendedGraphView::clearResults()
@@ -86,7 +86,7 @@ void ExtendedGraphView::clearResults()
     for (qint32 i = 0; i < _pPlot->graphCount(); i++)
     {
         _pPlot->graph(i)->clearData();
-        _pPlot->graph(i)->setName(QString("(-) %1").arg(_pGuiModel->graphLabel(i)));
+        _pPlot->graph(i)->setName(QString("(-) %1").arg(_pGraphDataModel->label(i)));
     }
 
    rescalePlot();

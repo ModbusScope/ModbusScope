@@ -18,7 +18,7 @@ class MainWindow;
 // Forward declaration
 class CommunicationManager;
 class QCustomPlot;
-class RegisterDataModel;
+class GraphDataModel;
 class RegisterDialog;
 class ConnectionDialog;
 class SettingsModel;
@@ -68,7 +68,7 @@ private slots:
     void updateHighlightSampleMenu();
     void updateValueTooltipMenu();
     void clearGraphMenu();
-    void addGraphMenu();
+    void addGraphMenu(qint32 idx);
     void updateWindowTitle();
     void updatexAxisSlidingMode();
     void updatexAxisSlidingInterval();
@@ -92,7 +92,6 @@ private slots:
 
 private:
 
-    void setupGraphs(void);
     void updateConnectionSetting(ProjectFileParser::ProjectSettings *pProjectSettings);
     void loadProjectFile(QString dataFilePath);
     void loadDataFile(QString dataFilePath);
@@ -106,7 +105,7 @@ private:
     ConnectionDialog * _pConnectionDialog;
     LogDialog * _pLogDialog;
 
-    RegisterDataModel * _pRegisterDataModel;
+    GraphDataModel * _pGraphDataModel;
     RegisterDialog * _pRegisterDialog;
 
     GuiModel * _pGuiModel;

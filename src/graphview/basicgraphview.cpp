@@ -6,12 +6,14 @@
 #include <algorithm> // std::upperbound, std::lowerbound
 
 #include "guimodel.h"
+#include "graphdatamodel.h"
 #include "basicgraphview.h"
 
-BasicGraphView::BasicGraphView(GuiModel * pGuiModel, QCustomPlot * pPlot, QObject *parent) :
+BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, QCustomPlot * pPlot, QObject *parent) :
     QObject(parent)
 {
     _pGuiModel = pGuiModel;
+    _pGraphDataModel = pGraphDataModel;
 
    _pPlot = pPlot;
 
@@ -127,21 +129,18 @@ void BasicGraphView::clearGraphs()
     _pPlot->replot();
 }
 
-void BasicGraphView::addGraphs()
+void BasicGraphView::addGraphs(const quint32 idx)
 {
-    for(quint32 idx = 0; idx < _pGuiModel->graphCount(); idx++)
-    {
-        QCPGraph * pGraph = _pPlot->addGraph();
+    QCPGraph * pGraph = _pPlot->addGraph();
 
-        pGraph->setName(_pGuiModel->graphLabel(idx));
+    pGraph->setName(_pGraphDataModel->label(idx));
 
-        QPen pen;
-        pen.setColor(_pGuiModel->graphColor(idx));
-        pen.setWidth(2);
-        pen.setCosmetic(true);
+    QPen pen;
+    pen.setColor(_pGraphDataModel->color(idx));
+    pen.setWidth(2);
+    pen.setCosmetic(true);
 
-        pGraph->setPen(pen);
-    }
+    pGraph->setPen(pen);
 
     _pPlot->replot();
 }
@@ -154,8 +153,10 @@ void BasicGraphView::showHideLegend()
 
 void BasicGraphView::showGraph(quint32 index)
 {
-    const bool bShow = _pGuiModel->graphVisibility(index);
-    _pPlot->graph(index)->setVisible(bShow);
+    const bool bShow = _pGraphDataModel->isVisible(index);
+
+    const quint32 graphIdx = _pGraphDataModel->convertToGraphIndex(index);
+    _pPlot->graph(graphIdx)->setVisible(bShow);
 
     QFont itemFont = _pPlot->legend->item(index)->font();
     itemFont.setStrikeOut(!bShow);
@@ -303,7 +304,7 @@ void BasicGraphView::legendDoubleClick(QCPLegend * legend,QCPAbstractLegendItem 
             const qint32 graphIndex = this->graphIndex(qobject_cast<QCPGraph*>(legendItem->plottable()));
             if (graphIndex >= 0)
             {
-                _pGuiModel->setGraphVisibility(graphIndex, !_pGuiModel->graphVisibility(graphIndex));
+                _pGraphDataModel->setVisible(graphIndex, !_pGraphDataModel->isVisible(graphIndex));
             }
         }
     }
@@ -398,7 +399,7 @@ void BasicGraphView::paintValueToolTip(QMouseEvent *event)
                             if (_pPlot->graph(graphIndex)->visible())
                             {
                                 const double value = _pPlot->graph(graphIndex)->data()->values()[keyIndex].value;
-                                toolText += QString("\n%1: %2").arg(_pGuiModel->graphLabel(graphIndex)).arg(value);
+                                toolText += QString("\n%1: %2").arg(_pGraphDataModel->label(graphIndex)).arg(value);
                             }
                         }
                         break;

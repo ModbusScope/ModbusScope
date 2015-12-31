@@ -7,7 +7,6 @@ const QString GuiModel::_cWindowTitle = QString("ModbusScope");
 
 GuiModel::GuiModel(QObject *parent) : QObject(parent)
 {
-    _graphData.clear();
     _frontGraph = 0;
     _projectFilePath = "";
     _dataFilePath = "";
@@ -17,7 +16,6 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
     _legendPosition = BasicGraphView::LEGEND_MIDDLE;
     _communicationState = INIT;
     _windowTitle = _cWindowTitle;
-    _bGraphReset = true;
 
     _startTime = 0;
     _endTime = 0;
@@ -44,21 +42,12 @@ GuiModel::~GuiModel()
 
 void GuiModel::triggerUpdate(void)
 {
-    if (_graphData.size() > 0)
-    {
-        for (quint8 idx = 0; idx < _graphData.size(); idx++)
-        {
-            emit graphVisibilityChanged(idx);
-        }
-    }
-
     emit frontGraphChanged();
     emit highlightSamplesChanged();
     emit valueTooltipChanged();
     emit windowTitleChanged();
     emit communicationStatsChanged();
 
-    emit graphCleared();
     emit legendVisibilityChanged();
     emit legendPositionChanged();
 
@@ -71,86 +60,6 @@ void GuiModel::triggerUpdate(void)
     emit communicationStateChanged();
     emit projectFilePathChanged();
     emit dataFilePathChanged();
-}
-
-void GuiModel::addGraphs(QList<RegisterData> registerList)
-{
-
-    quint32 colorIdx = 0;
-    for (qint32 idx = 0; idx < registerList.size(); idx++)
-    {
-        GraphData * pGraphData = new GraphData();
-
-        pGraphData->bVisibility = true;
-        pGraphData->label = registerList[idx].text();
-
-        if (registerList[idx].color().isValid())
-        {
-            pGraphData->color = registerList[idx].color();
-        }
-        else
-        {
-            pGraphData->color = Util::cColorlist[colorIdx];
-
-            colorIdx++;
-            colorIdx %= Util::cColorlist.size();
-        }
-
-        _graphData.append(pGraphData);
-    }
-
-    emit graphsAdded();
-}
-
-void GuiModel::addGraphs(QList<RegisterData> registerList, QList<double> timeData, QList<QList<double> > data)
-{
-    // TODO: time data
-    addGraphs(registerList);
-
-    emit graphsAddData(timeData, data);
-}
-
-void GuiModel::clearGraph()
-{
-    _graphData.clear();
-    setFrontGraph(-1);
-    emit graphCleared();
-}
-
-quint32 GuiModel::graphCount()
-{
-    if (_graphData.size() > 0)
-    {
-        return _graphData.size();
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-bool GuiModel::graphVisibility(quint32 index) const
-{
-    return _graphData[index]->bVisibility;
-}
-
-QColor GuiModel::graphColor(quint32 index) const
-{
-    return _graphData[index]->color;
-}
-
-QString GuiModel::graphLabel(quint32 index) const
-{
-    return _graphData[index]->label;
-}
-
-void GuiModel::setGraphVisibility(quint32 index, const bool &value)
-{
-    if (_graphData[index]->bVisibility != value)
-    {
-         _graphData[index]->bVisibility = value;
-         emit graphVisibilityChanged(index);
-    }
 }
 
 qint32 GuiModel::frontGraph() const
@@ -287,16 +196,6 @@ void GuiModel::setLastDir(QString dir)
 QString GuiModel::lastDir()
 {
     return _lastDir;
-}
-
-void GuiModel::setGraphReset(bool bGraphReset)
-{
-    _bGraphReset = bGraphReset;
-}
-
-bool GuiModel::graphReset()
-{
-    return _bGraphReset;
 }
 
 void GuiModel::setxAxisScale(BasicGraphView::AxisScaleOptions scaleMode)
