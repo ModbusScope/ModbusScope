@@ -8,21 +8,21 @@ RegisterDialogModel::RegisterDialogModel(GraphDataModel * pGraphDataModel, QObje
 {
     _pGraphDataModel = pGraphDataModel;
 
-    connect(_pGraphDataModel, SIGNAL(removed(qint32)), this, SIGNAL(modelDataChanged(qint32)));
-    connect(_pGraphDataModel, SIGNAL(added(qint32)), this, SIGNAL(modelDataChanged(qint32)));
+    connect(_pGraphDataModel, SIGNAL(removed(qint32)), this, SLOT(modelDataChanged(qint32)));
+    connect(_pGraphDataModel, SIGNAL(added(qint32)), this, SLOT(modelDataChanged(qint32)));
 
-    connect(_pGraphDataModel, SIGNAL(visibilityChanged(qint32)), this, SIGNAL(modelDataChanged(qint32)));
-    connect(_pGraphDataModel, SIGNAL(labelChanged(qint32)), this, SIGNAL(modelDataChanged(qint32)));
-    connect(_pGraphDataModel, SIGNAL(colorChanged(qint32)), this, SIGNAL(modelDataChanged(qint32)));
-    connect(_pGraphDataModel, SIGNAL(activeChanged(qint32)), this, SIGNAL(modelDataChanged(qint32)));
-    connect(_pGraphDataModel, SIGNAL(unsignedChanged(qint32)), this, SIGNAL(modelDataChanged(qint32)));
-    connect(_pGraphDataModel, SIGNAL(multiplyFactorChanged(qint32)), this, SIGNAL(modelDataChanged(qint32)));
-    connect(_pGraphDataModel, SIGNAL(divideFactorChanged(qint32)), this, SIGNAL(modelDataChanged(qint32)));
-    connect(_pGraphDataModel, SIGNAL(registerAddressChanged(qint32)), this, SIGNAL(modelDataChanged(qint32)));
-    connect(_pGraphDataModel, SIGNAL(bitmaskChanged(qint32)), this, SIGNAL(modelDataChanged(qint32)));
-    connect(_pGraphDataModel, SIGNAL(shiftChanged(qint32)), this, SIGNAL(modelDataChanged(qint32)));
+    connect(_pGraphDataModel, SIGNAL(visibilityChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
+    connect(_pGraphDataModel, SIGNAL(labelChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
+    connect(_pGraphDataModel, SIGNAL(colorChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
+    connect(_pGraphDataModel, SIGNAL(activeChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
+    connect(_pGraphDataModel, SIGNAL(unsignedChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
+    connect(_pGraphDataModel, SIGNAL(multiplyFactorChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
+    connect(_pGraphDataModel, SIGNAL(divideFactorChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
+    connect(_pGraphDataModel, SIGNAL(registerAddressChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
+    connect(_pGraphDataModel, SIGNAL(bitmaskChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
+    connect(_pGraphDataModel, SIGNAL(shiftChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
 
-    connect(_pGraphDataModel, SIGNAL(cleared()), this, SIGNAL(modelDataChanged()));
+    connect(_pGraphDataModel, SIGNAL(cleared()), this, SLOT(modelDataChanged()));
 }
 
 int RegisterDialogModel::rowCount(const QModelIndex & /*parent*/) const
@@ -362,28 +362,6 @@ bool RegisterDialogModel::removeRows (int row, int count, const QModelIndex & pa
     return true;
 }
 
-bool RegisterDialogModel::insertRows(GraphData data, int row, int count, const QModelIndex &parent)
-{
-    if (
-        (count != 1)
-        || (row != _pGraphDataModel->size())
-        )
-    {
-        qDebug() << "RegisterModel: Not supported";
-    }
-
-    Q_UNUSED(row);
-    Q_UNUSED(count);
-    beginInsertRows(parent, _pGraphDataModel->size(), _pGraphDataModel->size());
-
-    _pGraphDataModel->add(data);
-
-    endInsertRows();
-
-    return true;
-}
-
-
 bool RegisterDialogModel::insertRows (int row, int count, const QModelIndex &parent)
 {
     if (
@@ -409,6 +387,12 @@ void RegisterDialogModel::modelDataChanged(qint32 idx)
 {
     // Notify view(s) of changes
     emit dataChanged(createIndex(idx, 0), createIndex(idx, columnCount()));
+}
+
+void RegisterDialogModel::modelDataChanged(quint32 idx)
+{
+    // Notify view(s) of changes
+    emit dataChanged(createIndex((qint32)idx, 0), createIndex((qint32)idx, columnCount()));
 }
 
 void RegisterDialogModel::modelDataChanged()

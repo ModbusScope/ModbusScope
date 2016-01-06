@@ -2,27 +2,14 @@
 #define MODBUSMASTER_H
 
 #include <QObject>
-#include "QList"
+#include <QMap>
+#include "modbusresult.h"
 
 #include <modbus.h>
 
 /* Forward declaration */
 class SettingsModel;
 class GuiModel;
-
-class ModbusResult
-{
-    public:
-
-        ModbusResult(quint16 value, bool bResult)
-        {
-            _value = value;
-            _bResult = bResult;
-        }
-
-        quint16 _value;
-        bool _bResult;
-};
 
 class ModbusMaster : public QObject
 {

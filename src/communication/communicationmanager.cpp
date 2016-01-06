@@ -17,7 +17,6 @@ CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiMo
     _pSettingsModel = pSettingsModel;
 
     qRegisterMetaType<QList<quint16> >("QList<quint16>");
-    qRegisterMetaType<QMap<quint16, ModbusResult> >("QMap<ModbusResult>");
 
     /* Setup modbus master */
     _master = new ModbusMaster(_pSettingsModel, _pGuiModel);
@@ -95,7 +94,42 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> resultMap)
 
 
     /* Check response with current active registers, because it is possible that the graphs have changed during request */
+
+
+    // Get list of active graph indexes
     bool bOk = true;
+    QList<quint16> activeIndexList;
+    _pGraphDataModel->activeGraphIndexList(&activeIndexList);
+
+
+    // Process values
+    QList<double> processedValues;
+    QList<bool> successList;
+
+    foreach(quint16 graphIndex, activeIndexList)
+    {
+        const quint16 registerAddress = _pGraphDataModel->registerAddress(graphIndex);
+        if (resultMap.contains(registerAddress))
+        {
+            processedValues.append(processValue(graphIndex, resultMap[registerAddress].value()));
+            successList.append(resultMap[registerAddress].isSuccess());
+        }
+        else
+        {
+            bOk = false;
+            break;
+        }
+    }
+
+    if (bOk)
+    {
+        // propagate processed data
+        emit handleReceivedData(successList, processedValues);
+    }
+
+/*
+
+
     QList<quint16> activeList;
     _pGraphDataModel->activeGraphAddresList(&activeList);
 
@@ -117,57 +151,17 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> resultMap)
 
     if (bOk)
     {
-        // Process values
-        QList<double> processedValue;
+
         for (qint32 i = 0; i < values.size(); i++)
         {
-            if (_registerlist[i].isUnsigned())
-            {
-                processedValue.append(values[i]);
-            }
-            else
-            {
-                processedValue.append((qint16)values[i]);
-            }
 
-            // Apply bitmask
-            if (_registerlist[i].isUnsigned())
-            {
-                processedValue[i] = (quint16)((quint16)processedValue[i] & _registerlist[i].bitmask());
-            }
-            else
-            {
-                processedValue[i] = (qint16)((quint16)processedValue[i] & _registerlist[i].bitmask());
-            }
-
-            // Apply shift
-            if (_registerlist[i].shift() != 0)
-            {
-                if (_registerlist[i].shift() > 0)
-                {
-                    processedValue[i] = (quint16)((quint16)processedValue[i] << _registerlist[i].shift());
-                }
-                else
-                {
-                    processedValue[i] = (quint16)((quint16)processedValue[i] >> abs(_registerlist[i].shift()));
-                }
-
-                if (!_registerlist[i].isUnsigned())
-                {
-                    processedValue[i] = (qint16)processedValue[i];
-                }
-            }
-
-            // Apply multiplyFactor
-            processedValue[i] *= _registerlist[i].multiplyFactor();
-
-            // Apply divideFactor
-            processedValue[i] /= _registerlist[i].divideFactor();
         }
 
         // propagate processed data
         emit handleReceivedData(successList, processedValue);
     }
+
+    */
 }
 
 
@@ -199,4 +193,54 @@ void CommunicationManager::readData()
 
         emit registerRequest(regAddrList);
     }
+}
+
+double CommunicationManager::processValue(quint32 graphIndex, quint16 value)
+{
+    double processedValue = 0;
+
+    if (_pGraphDataModel->isUnsigned(graphIndex))
+    {
+        processedValue = value;
+    }
+    else
+    {
+        processedValue = (qint16)value;
+    }
+
+    // Apply bitmask
+    if (_pGraphDataModel->isUnsigned(graphIndex))
+    {
+        processedValue = (quint16)((quint16)processedValue & _pGraphDataModel->bitmask(graphIndex));
+    }
+    else
+    {
+        processedValue = (qint16)((quint16)processedValue & _pGraphDataModel->bitmask(graphIndex));
+    }
+
+    // Apply shift
+    if (_pGraphDataModel->shift(graphIndex) != 0)
+    {
+        if (_pGraphDataModel->shift(graphIndex) > 0)
+        {
+            processedValue = (quint16)((quint16)processedValue << _pGraphDataModel->shift(graphIndex));
+        }
+        else
+        {
+            processedValue = (quint16)((quint16)processedValue >> abs(_pGraphDataModel->shift(graphIndex)));
+        }
+
+        if (!_pGraphDataModel->isUnsigned(graphIndex))
+        {
+            processedValue = (qint16)processedValue;
+        }
+    }
+
+    // Apply multiplyFactor
+    processedValue *= _pGraphDataModel->multiplyFactor(graphIndex);
+
+    // Apply divideFactor
+    processedValue /= _pGraphDataModel->divideFactor(graphIndex);
+
+    return processedValue;
 }

@@ -129,18 +129,28 @@ void BasicGraphView::clearGraphs()
     _pPlot->replot();
 }
 
-void BasicGraphView::addGraphs(const quint32 idx)
+void BasicGraphView::updateGraph(const quint32 idx)
 {
-    QCPGraph * pGraph = _pPlot->addGraph();
+    if (_pGraphDataModel->isActive(idx))
+    {
+        // Add graph
+        QCPGraph * pGraph = _pPlot->addGraph();
 
-    pGraph->setName(_pGraphDataModel->label(idx));
+        pGraph->setName(_pGraphDataModel->label(idx));
 
-    QPen pen;
-    pen.setColor(_pGraphDataModel->color(idx));
-    pen.setWidth(2);
-    pen.setCosmetic(true);
+        QPen pen;
+        pen.setColor(_pGraphDataModel->color(idx));
+        pen.setWidth(2);
+        pen.setCosmetic(true);
 
-    pGraph->setPen(pen);
+        pGraph->setPen(pen);
+    }
+    else
+    {
+        // Remove graph
+        _pGraphDataModel->convertToActiveGraphIndex(idx)
+    }
+
 
     _pPlot->replot();
 }

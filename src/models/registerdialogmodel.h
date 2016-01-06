@@ -20,7 +20,6 @@ public:
 
     bool removeRows (int row, int count, const QModelIndex &parent);
     bool insertRows (int row, int count, const QModelIndex &parent);
-    bool insertRows (GraphData data, int row, int count, const QModelIndex &parent);
 
 signals:
 
@@ -28,6 +27,7 @@ public slots:
 
 private slots:
     void modelDataChanged(qint32 idx);
+    void modelDataChanged(quint32 idx);
     void modelDataChanged();
 
 private:

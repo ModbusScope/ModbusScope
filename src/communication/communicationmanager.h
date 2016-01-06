@@ -39,7 +39,9 @@ private slots:
     void readData();
     void masterStopped();
 
-private:   
+private:
+
+   double processValue(quint32 graphIndex, quint16 value);
 
     ModbusMaster * _master;
     bool _active;

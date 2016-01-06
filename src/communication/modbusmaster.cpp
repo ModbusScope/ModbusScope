@@ -15,6 +15,9 @@ ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, GuiModel * pGuiModel,
 {
     // NEVER create object with new here
 
+    qRegisterMetaType<ModbusResult>("ModbusResult");
+    qRegisterMetaType<QMap<quint16, ModbusResult> >("QMap<quint16, ModbusResult>");
+
     _pSettingsModel = pSettingsModel;
     _pGuiModel = pGuiModel;
 }
@@ -125,10 +128,10 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
             QList<quint16> registerDataList;
             if (readRegisters(pCtx, registerList.at(regIndex) - 40001, count, &registerDataList) == 0)
             {
-                const quint16 registerAddr = registerList.at(regIndex) + count;
                 success++;
                 for (uint i = 0; i < count; i++)
                 {
+                    const quint16 registerAddr = registerList.at(regIndex) + i;
                     const ModbusResult result = ModbusResult(registerDataList[i], true);
                     resultMap.insert(registerAddr, result);
                 }
@@ -138,8 +141,9 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
                 error++;
                 for (uint i = 0; i < count; i++)
                 {
+                    const quint16 registerAddr = registerList.at(regIndex) + i;
                     const ModbusResult result = ModbusResult(0, false);
-                    resultMap.insert(registerAddr,result);
+                    resultMap.insert(registerAddr, result);
                 }
             }
 
@@ -155,6 +159,7 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
         for (qint32 i = 0; i < registerList.size(); i++)
         {
             error++;
+            const quint16 registerAddr = registerList.at(i);
             const ModbusResult result = ModbusResult(0, false);
             resultMap.insert(registerAddr,result);
         }

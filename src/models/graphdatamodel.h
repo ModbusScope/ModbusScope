@@ -2,6 +2,7 @@
 #define GRAPHDATAMODEL_H
 
 #include <QObject>
+#include <QList>
 
 #include "graphdata.h"
 
@@ -37,7 +38,7 @@ public:
     void setBitmask(quint32 index, const quint16 &bitmask);
     void setShift(quint32 index, const qint32 &shift);
 
-    void add(GraphData &rowData);
+    void add(GraphData rowData);
     void add(QList<GraphData> graphDataList);
     void add();
     void add(QList<QString> labelList, QList<double> timeData, QList<QList<double> > data);
@@ -46,6 +47,7 @@ public:
     void clear();
 
     void activeGraphAddresList(QList<quint16> * pRegisterList);
+    void activeGraphIndexList(QList<quint16> * pList);
 
     bool areExclusive(quint16 * pRegister, quint16 *pBitmask);
 
@@ -76,7 +78,7 @@ public slots:
 private:
     quint16 nextFreeAddress();
 
-    QList<GraphData * > _graphData;
+    QList<GraphData> _graphData;
     QList<quint32> _activeGraphList;
 };
 

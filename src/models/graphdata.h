@@ -1,12 +1,10 @@
 #ifndef GRAPHDATA_H
 #define GRAPHDATA_H
 
-#include <QObject>
 #include <QColor>
 
-class GraphData : public QObject
+class GraphData
 {
-    Q_OBJECT
 
 public:
     explicit GraphData();

@@ -65,7 +65,8 @@ SOURCES +=  \
     ../src/importexport/settingsauto.cpp \
     ../src/models/registerdialogmodel.cpp \
     ../src/models/graphdatamodel.cpp \
-    ../src/models/graphdata.cpp
+    ../src/models/graphdata.cpp \
+    ../src/communication/modbusresult.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
@@ -93,7 +94,6 @@ HEADERS += \
     ../src/dialogs/registerdialog.h \
     ../src/graphview/basicgraphview.h \
     ../src/graphview/extendedgraphview.h \
-    ../src/models/graphdata.h \
     ../src/models/guimodel.h \
     ../src/models/settingsmodel.h \
     ../src/util/util.h \
@@ -103,7 +103,9 @@ HEADERS += \
     ../src/graphview/myqcustomplot.h \
     ../src/importexport/settingsauto.h \
     ../src/models/registerdialogmodel.h \
-    ../src/models/graphdatamodel.h
+    ../src/models/graphdatamodel.h \
+    ../src/models/graphdata.h \
+    ../src/communication/modbusresult.h
 
 RESOURCES += \
     ../resources/resource.qrc

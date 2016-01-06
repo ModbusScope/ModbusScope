@@ -4,6 +4,7 @@
 #include "communicationmanager.h"
 #include "registerdata.h"
 #include "graphdatamodel.h"
+#include "graphdata.h"
 #include "registerdialog.h"
 #include "connectiondialog.h"
 #include "settingsmodel.h"
@@ -88,13 +89,13 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGuiModel, SIGNAL(yAxisMinMaxchanged()), _pGraphView, SLOT(rescalePlot()));
     connect(_pGuiModel, SIGNAL(communicationStatsChanged()), this, SLOT(updateStats()));
 
-    connect(_pGraphDataModel, SIGNAL(graphVisibilityChanged(const quint32)), this, SLOT(showHideGraph(const quint32)));
-    connect(_pGraphDataModel, SIGNAL(graphVisibilityChanged(const quint32)), _pGraphView, SLOT(showGraph(const quint32)));
+    connect(_pGraphDataModel, SIGNAL(visibilityChanged(quint32)), this, SLOT(showHideGraph(const quint32)));
+    connect(_pGraphDataModel, SIGNAL(visibilityChanged(quint32)), _pGraphView, SLOT(showGraph(const quint32)));
     connect(_pGraphDataModel, SIGNAL(cleared()), _pGraphView, SLOT(clearGraphs()));
     connect(_pGraphDataModel, SIGNAL(cleared()), this, SLOT(clearGraphMenu()));
     connect(_pGraphDataModel, SIGNAL(graphsAddData(QList<double>, QList<QList<double> >)), _pGraphView, SLOT(addData(QList<double>, QList<QList<double> >)));
-    connect(_pGraphDataModel, SIGNAL(activeChanged(qint32)), _pGraphView, SLOT(addGraphs(qint32)));
-    connect(_pGraphDataModel, SIGNAL(activeChanged(qint32)), this, SLOT(addGraphMenu(qint32)));
+    connect(_pGraphDataModel, SIGNAL(activeChanged(quint32)), _pGraphView, SLOT(updateGraphs(quint32)));
+    connect(_pGraphDataModel, SIGNAL(activeChanged(quint32)), this, SLOT(updateGraphMenu(quint32)));
 
     _pGraphShowHide = _pUi->menuShowHide;
     _pGraphBringToFront = _pUi->menuBringToFront;
@@ -430,7 +431,7 @@ void MainWindow::clearGraphMenu()
     _pGraphBringToFront->clear();
 }
 
-void MainWindow::addGraphMenu(qint32 idx)
+void MainWindow::addGraphMenu(quint32 idx)
 {
     QString label = _pGraphDataModel->label(idx);
     QAction * pShowHideAction = _pGraphShowHide->addAction(label);
