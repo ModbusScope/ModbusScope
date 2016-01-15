@@ -43,6 +43,8 @@ void DataFileExporter::disableExporterDuringLog()
 
 void DataFileExporter::exportDataLine(double timeData, QList <double> dataValues)
 {
+    /* QList correspond with activeGraphList */
+
     if (_pSettingsModel->writeDuringLog())
     {
         // Use buffering

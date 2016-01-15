@@ -18,7 +18,7 @@ class CommunicationManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit CommunicationManager(SettingsModel * pSettingsModel, GuiModel * pGuiModel, QObject *parent = 0);
+    explicit CommunicationManager(SettingsModel * pSettingsModel, GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, QObject *parent = 0);
     ~CommunicationManager();
 
     bool startCommunication();

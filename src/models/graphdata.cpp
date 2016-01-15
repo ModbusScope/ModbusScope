@@ -12,6 +12,8 @@ GraphData::GraphData()
     _divideFactor = 1;
     _multiplyFactor = 1;
     _shift = 0;
+
+    _dataMap.clear();
 }
 
 bool GraphData::isVisible() const
@@ -112,4 +114,9 @@ qint32 GraphData::shift() const
 void GraphData::setShift(const qint32 &shift)
 {
     _shift = shift;
+}
+
+QCPDataMap * GraphData::dataMap()
+{
+    return &_dataMap;
 }

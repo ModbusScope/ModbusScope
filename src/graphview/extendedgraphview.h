@@ -13,7 +13,7 @@ class ExtendedGraphView : public BasicGraphView
     Q_OBJECT
 
 public:
-    ExtendedGraphView(CommunicationManager * pConnMan, GuiModel *pGuiModel, SettingsModel * pSettingsModel, GraphDataModel * pRegisterDataModel, QCustomPlot *pPlot, QObject *parent);
+    ExtendedGraphView(CommunicationManager * pConnMan, GuiModel *pGuiModel, SettingsModel * pSettingsModel, GraphDataModel * pRegisterDataModel, MyQCustomPlot *pPlot, QObject *parent);
     virtual ~ExtendedGraphView();
 
     QList<double> graphTimeData();

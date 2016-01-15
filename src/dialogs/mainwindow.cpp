@@ -39,7 +39,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGraphDataModel = new GraphDataModel();
     _pRegisterDialog = new RegisterDialog(_pGraphDataModel, this);
 
-    _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pSettingsModel);
+    _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pGraphDataModel);
     _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pUi->customPlot, this);
 
     _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphView, _pGraphDataModel);
@@ -94,8 +94,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGraphDataModel, SIGNAL(cleared()), _pGraphView, SLOT(clearGraphs()));
     connect(_pGraphDataModel, SIGNAL(cleared()), this, SLOT(clearGraphMenu()));
     connect(_pGraphDataModel, SIGNAL(graphsAddData(QList<double>, QList<QList<double> >)), _pGraphView, SLOT(addData(QList<double>, QList<QList<double> >)));
-    connect(_pGraphDataModel, SIGNAL(activeChanged(quint32)), _pGraphView, SLOT(updateGraphs(quint32)));
-    connect(_pGraphDataModel, SIGNAL(activeChanged(quint32)), this, SLOT(updateGraphMenu(quint32)));
+    connect(_pGraphDataModel, SIGNAL(activeChanged(quint32)), _pGraphView, SLOT(updateGraphs()));
+    connect(_pGraphDataModel, SIGNAL(activeChanged(quint32)), this, SLOT(updateGraphMenu()));
 
     _pGraphShowHide = _pUi->menuShowHide;
     _pGraphBringToFront = _pUi->menuBringToFront;
@@ -431,38 +431,59 @@ void MainWindow::clearGraphMenu()
     _pGraphBringToFront->clear();
 }
 
-void MainWindow::addGraphMenu(quint32 idx)
+void MainWindow::updateGraphMenu()
 {
-    QString label = _pGraphDataModel->label(idx);
-    QAction * pShowHideAction = _pGraphShowHide->addAction(label);
-    QAction * pBringToFront = _pGraphBringToFront->addAction(label);
+    //idx is Graphdata Index
 
-    QPixmap pixmap(20,5);
-    pixmap.fill(_pGraphDataModel->color(idx));
-    QIcon * pBringToFrontIcon = new QIcon(pixmap);
-    QIcon * pShowHideIcon = new QIcon(pixmap);
+    // TODO: is this correct optimal?
 
-    pShowHideAction->setData(idx);
-    pShowHideAction->setIcon(*pBringToFrontIcon);
-    pShowHideAction->setCheckable(true);
-    pShowHideAction->setChecked(_pGraphDataModel->isVisible(idx));
+    // Regenerate graph menu
+    _pGraphShowHide->clear();
+    _pGraphBringToFront->clear();
 
-    pBringToFront->setData(idx);
-    pBringToFront->setIcon(*pShowHideIcon);
-    pBringToFront->setCheckable(true);
-    pBringToFront->setActionGroup(_pBringToFrontGroup);
+    QList<quint16> activeGraphList;
+    _pGraphDataModel->activeGraphIndexList(&activeGraphList);
 
-    QObject::connect(pShowHideAction, SIGNAL(toggled(bool)), this, SLOT(menuShowHideGraphClicked(bool)));
-    QObject::connect(pBringToFront, SIGNAL(toggled(bool)), this, SLOT(menuBringToFrontGraphClicked(bool)));
+    foreach(quint16 idx, activeGraphList)
+    {
 
-    _pGraphShowHide->setEnabled(true);
-    _pGraphBringToFront->setEnabled(true);
+        QString label = _pGraphDataModel->label(idx);
+        QAction * pShowHideAction = _pGraphShowHide->addAction(label);
+        QAction * pBringToFront = _pGraphBringToFront->addAction(label);
 
-    _pUi->actionShowValueTooltip->setEnabled(true);
-    _pUi->actionHighlightSamplePoints->setEnabled(true);
-    _pUi->actionClearData->setEnabled(true);
-    _pUi->menuLegend->setEnabled(true);
+        QPixmap pixmap(20,5);
+        pixmap.fill(_pGraphDataModel->color(idx));
+        QIcon * pBringToFrontIcon = new QIcon(pixmap);
+        QIcon * pShowHideIcon = new QIcon(pixmap);
 
+        pShowHideAction->setData(idx);
+        pShowHideAction->setIcon(*pBringToFrontIcon);
+        pShowHideAction->setCheckable(true);
+        pShowHideAction->setChecked(_pGraphDataModel->isVisible(idx));
+
+        pBringToFront->setData(idx);
+        pBringToFront->setIcon(*pShowHideIcon);
+        pBringToFront->setCheckable(true);
+        pBringToFront->setActionGroup(_pBringToFrontGroup);
+
+        QObject::connect(pShowHideAction, SIGNAL(toggled(bool)), this, SLOT(menuShowHideGraphClicked(bool)));
+        QObject::connect(pBringToFront, SIGNAL(toggled(bool)), this, SLOT(menuBringToFrontGraphClicked(bool)));
+    }
+
+    if (activeGraphList.size() > 0)
+    {
+        _pGraphShowHide->setEnabled(true);
+        _pGraphBringToFront->setEnabled(true);
+
+        _pUi->menuLegend->setEnabled(true);
+    }
+    else
+    {
+        _pGraphShowHide->setEnabled(false);
+        _pGraphBringToFront->setEnabled(false);
+
+        _pUi->menuLegend->setEnabled(false);
+    }
 }
 
 void MainWindow::updateWindowTitle()
@@ -793,7 +814,8 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
         _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
     }
 
-    _pGuiModel->setLegendVisibility(pProjectSettings->view.legendSettings.bVisible);
+    //TODO: remove tag???
+    //_pGuiModel->setLegendVisibility(pProjectSettings->view.legendSettings.bVisible);
 
     if (pProjectSettings->view.legendSettings.bPosition)
     {
@@ -900,9 +922,6 @@ void MainWindow::parseDataFile(DataFileParser::FileData * pData)
 
     _pGraphDataModel->add(pData->dataLabel, pData->timeRow, pData->dataRows);
     _pGuiModel->setFrontGraph(0);
-
-    // Show legend
-    _pGuiModel->setLegendVisibility(true);
 
     // TODO: make sure "view mode" is started
 }

@@ -66,7 +66,8 @@ SOURCES +=  \
     ../src/models/registerdialogmodel.cpp \
     ../src/models/graphdatamodel.cpp \
     ../src/models/graphdata.cpp \
-    ../src/communication/modbusresult.cpp
+    ../src/communication/modbusresult.cpp \
+    ../src/graphview/myqcpgraph.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
@@ -105,7 +106,8 @@ HEADERS += \
     ../src/models/registerdialogmodel.h \
     ../src/models/graphdatamodel.h \
     ../src/models/graphdata.h \
-    ../src/communication/modbusresult.h
+    ../src/communication/modbusresult.h \
+    ../src/graphview/myqcpgraph.h
 
 RESOURCES += \
     ../resources/resource.qrc

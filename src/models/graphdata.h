@@ -2,6 +2,7 @@
 #define GRAPHDATA_H
 
 #include <QColor>
+#include "qcustomplot.h"
 
 class GraphData
 {
@@ -39,6 +40,8 @@ public:
     qint32 shift() const;
     void setShift(const qint32 &shift);
 
+    QCPDataMap * dataMap();
+
 private:
 
     bool _bVisible;
@@ -52,6 +55,8 @@ private:
     quint16 _registerAddress;
     quint16 _bitmask;
     qint32 _shift;
+
+    QCPDataMap _dataMap;
 
 };
 

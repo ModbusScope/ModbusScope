@@ -6,7 +6,7 @@
 #include "communicationmanager.h"
 #include "settingsmodel.h"
 
-ExtendedGraphView::ExtendedGraphView(CommunicationManager * pConnMan, GuiModel * pGuiModel, SettingsModel * pSettingsModel, GraphDataModel * pRegisterDataModel, QCustomPlot * pPlot, QObject *parent):
+ExtendedGraphView::ExtendedGraphView(CommunicationManager * pConnMan, GuiModel * pGuiModel, SettingsModel * pSettingsModel, GraphDataModel * pRegisterDataModel, MyQCustomPlot *pPlot, QObject *parent):
     BasicGraphView(pGuiModel, pRegisterDataModel, pPlot)
 {
     Q_UNUSED(parent);
@@ -45,6 +45,8 @@ void ExtendedGraphView::addData(QList<double> timeData, QList<QList<double> > da
 
 void ExtendedGraphView::plotResults(QList<bool> successList, QList<double> valueList)
 {
+    /* QList correspond with activeGraphList */
+
     quint64 timeData;
     if (_pSettingsModel->absoluteTimes())
     {

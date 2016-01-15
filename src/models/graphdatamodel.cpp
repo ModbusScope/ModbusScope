@@ -67,6 +67,10 @@ qint32 GraphDataModel::shift(quint32 index) const
     return _graphData[index].shift();
 }
 
+QCPDataMap * GraphDataModel::dataMap(quint32 index)
+{
+    return _graphData[index].dataMap();
+}
 
 void GraphDataModel::setVisible(quint32 index, bool bVisible)
 {
@@ -101,17 +105,13 @@ void GraphDataModel::setActive(quint32 index, bool bActive)
     {
         _graphData[index].setActive(bActive);
 
-        // When activated, keep activeList in sync
-        if (bActive)
+        // Update activeGraphList
+        updateActiveGraphList();
+
+        // When deactivated, clear data
+        if (!bActive)
         {
-            if (!_activeGraphList.contains(index))
-            {
-                _activeGraphList.append(index);
-            }
-        }
-        else
-        {
-            _activeGraphList.removeOne(index);
+            _graphData[index].dataMap()->clear();
         }
 
         emit activeChanged(index);
@@ -226,9 +226,11 @@ void GraphDataModel::removeRegister(qint32 idx)
     {
         if (_graphData[idx].isActive())
         {
-            _activeGraphList.removeOne(idx);
+            setActive(idx, false);
         }
         _graphData.removeAt(idx);
+
+        updateActiveGraphList();
     }
 
     emit removed(idx);
@@ -329,12 +331,9 @@ qint32 GraphDataModel::convertToGraphIndex(quint32 idx)
 quint16 GraphDataModel::nextFreeAddress()
 {
     // Create local copy of active register list
-
-    QList<quint32> regList = QList<quint32>(_activeGraphList);
-    quint16 nextAddress;   
-
-    // sort qList
-    qSort(regList);
+    quint16 nextAddress;
+    QList<quint16> regList;
+    activeGraphAddresList(&regList);
 
     if (regList.size() > 0)
     {
@@ -346,4 +345,18 @@ quint16 GraphDataModel::nextFreeAddress()
     }
 
     return nextAddress;
+}
+
+void GraphDataModel::updateActiveGraphList(void)
+{
+    // Clear list
+    _activeGraphList.clear();
+
+    for (qint32 idx = 0; idx < _graphData.size(); idx++)
+    {
+        if (_graphData[idx].isActive())
+        {
+            _activeGraphList.append(idx);
+        }
+    }
 }

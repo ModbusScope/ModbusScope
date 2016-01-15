@@ -68,7 +68,7 @@ private slots:
     void updateHighlightSampleMenu();
     void updateValueTooltipMenu();
     void clearGraphMenu();
-    void addGraphMenu(quint32 idx);
+    void updateGraphMenu();
     void updateWindowTitle();
     void updatexAxisSlidingMode();
     void updatexAxisSlidingInterval();

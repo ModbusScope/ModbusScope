@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "qcustomplot.h"
+#include "myqcpgraph.h"
 
 class MyQCustomPlot : public QCustomPlot
 {
@@ -12,6 +13,9 @@ public:
     ~MyQCustomPlot();
 
     virtual void enterEvent(QEvent * event);
+
+    MyQCPGraph *graph(int index) const;
+    MyQCPGraph *addCustomGraph();
 };
 
 #endif // MYQCUSTOMPLOT_H

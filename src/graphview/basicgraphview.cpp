@@ -9,7 +9,7 @@
 #include "graphdatamodel.h"
 #include "basicgraphview.h"
 
-BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, QCustomPlot * pPlot, QObject *parent) :
+BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, MyQCustomPlot * pPlot, QObject *parent) :
     QObject(parent)
 {
     _pGuiModel = pGuiModel;
@@ -129,28 +129,72 @@ void BasicGraphView::clearGraphs()
     _pPlot->replot();
 }
 
-void BasicGraphView::updateGraph(const quint32 idx)
+void BasicGraphView::updateGraphs()
 {
-    if (_pGraphDataModel->isActive(idx))
+    /* Clear graphs and add current active graphs */
+    _pPlot->clearGraphs();
+
+    QList<quint16> activeGraphList;
+    _pGraphDataModel->activeGraphIndexList(&activeGraphList);
+
+    if (activeGraphList.size() > 0)
     {
-        // Add graph
-        QCPGraph * pGraph = _pPlot->addGraph();
+        // All graphs should have the same amount of points.
+        // Loop over graphs and get maximum count of samples
+        qint32 maxSampleCount = 0;
+        quint32 maxSampleIdx = 0;
+        foreach(quint16 idx, activeGraphList)
+        {
+            const qint32 sampleCount = _pGraphDataModel->dataMap(idx)->keys().size();
+            if (sampleCount > maxSampleCount)
+            {
+                maxSampleCount = sampleCount;
+                maxSampleIdx = idx;
+            }
+        }
 
-        pGraph->setName(_pGraphDataModel->label(idx));
+        // Graph that have less points will be zeroed with that amount of points
 
-        QPen pen;
-        pen.setColor(_pGraphDataModel->color(idx));
-        pen.setWidth(2);
-        pen.setCosmetic(true);
+        foreach(quint16 idx, activeGraphList)
+        {
+            // Add graph
+            MyQCPGraph * pGraph = _pPlot->addCustomGraph();
 
-        pGraph->setPen(pen);
+            pGraph->setName(_pGraphDataModel->label(idx));
+
+            QPen pen;
+            pen.setColor(_pGraphDataModel->color(idx));
+            pen.setWidth(2);
+            pen.setCosmetic(true);
+
+            pGraph->setPen(pen);
+
+
+            QCPDataMap * pMap = _pGraphDataModel->dataMap(idx);
+
+            // Set data to zero when needed
+            if (_pGraphDataModel->dataMap(idx)->keys().size() != maxSampleCount)
+            {
+                const QCPDataMap * pReferenceMap = _pGraphDataModel->dataMap(maxSampleIdx);
+                pMap->clear();
+
+                // Add zero value for every key (x-coordinate)
+                foreach(double key, pReferenceMap->keys())
+                {
+                    pMap->insert(key, QCPData(key, 0));
+                }
+            }
+
+            // Set graph datamap
+            pGraph->setData(pMap, false);
+        }
+
+        _pGuiModel->setLegendVisibility(true);
     }
     else
     {
-        // Remove graph
-        _pGraphDataModel->convertToActiveGraphIndex(idx)
+        _pGuiModel->setLegendVisibility(false);
     }
-
 
     _pPlot->replot();
 }

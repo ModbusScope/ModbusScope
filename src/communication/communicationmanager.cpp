@@ -8,13 +8,14 @@
 #include "graphdatamodel.h"
 
 
-CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiModel *pGuiModel, QObject *parent) :
+CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiModel *pGuiModel, GraphDataModel *pGraphDataModel, QObject *parent) :
     QObject(parent), _active(false)
 {
 
     _pPollTimer = new QTimer();
     _pGuiModel = pGuiModel;
     _pSettingsModel = pSettingsModel;
+    _pGraphDataModel = pGraphDataModel;
 
     qRegisterMetaType<QList<quint16> >("QList<quint16>");
 
@@ -128,7 +129,7 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> resultMap)
     }
 
 /*
-
+    TODO: delete
 
     QList<quint16> activeList;
     _pGraphDataModel->activeGraphAddresList(&activeList);
