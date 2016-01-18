@@ -10,6 +10,7 @@ public:
     explicit MyQCPGraph(QCPAxis *keyAxis, QCPAxis *valueAxis);
     ~MyQCPGraph();
 
+    using QCPGraph::setData;
     void setData(QCPDataMap *data, bool copy);
 
 private:
