@@ -48,11 +48,11 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionStart, SIGNAL(triggered()), this, SLOT(startScope()));
     connect(_pUi->actionStop, SIGNAL(triggered()), this, SLOT(stopScope()));
     connect(_pUi->actionExit, SIGNAL(triggered()), this, SLOT(exitApplication()));
-    connect(_pUi->actionExportDataCsv, SIGNAL(triggered()), this, SLOT(prepareDataExport()));
-    connect(_pUi->actionLoadProjectFile, SIGNAL(triggered()), this, SLOT(loadProjectSettings()));
+    connect(_pUi->actionExportDataCsv, SIGNAL(triggered()), this, SLOT(selectDataExportFile()));
+    connect(_pUi->actionLoadProjectFile, SIGNAL(triggered()), this, SLOT(selectProjectSettingFile()));
     connect(_pUi->actionReloadProjectFile, SIGNAL(triggered()), this, SLOT(reloadProjectSettings()));
-    connect(_pUi->actionImportDataFile, SIGNAL(triggered()), this, SLOT(importData()));
-    connect(_pUi->actionExportImage, SIGNAL(triggered()), this, SLOT(prepareImageExport()));
+    connect(_pUi->actionImportDataFile, SIGNAL(triggered()), this, SLOT(selecDataImportFile()));
+    connect(_pUi->actionExportImage, SIGNAL(triggered()), this, SLOT(selectImageExportFile()));
     connect(_pUi->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
     connect(_pUi->actionShowValueTooltip, SIGNAL(toggled(bool)), _pGuiModel, SLOT(setValueTooltip(bool)));
     connect(_pUi->actionHighlightSamplePoints, SIGNAL(toggled(bool)), _pGuiModel, SLOT(setHighlightSamples(bool)));
@@ -192,7 +192,7 @@ MainWindow::~MainWindow()
     delete _pUi;
 }
 
-void MainWindow::loadProjectSettings()
+void MainWindow::selectProjectSettingFile()
 {
     QString filePath;
     QFileDialog dialog(this);
@@ -217,7 +217,7 @@ void MainWindow::reloadProjectSettings()
     loadProjectFile(_pGuiModel->projectFilePath());
 }
 
-void MainWindow::importData()
+void MainWindow::selecDataImportFile()
 {
     QString filePath;
     QFileDialog dialog(this);
@@ -241,7 +241,7 @@ void MainWindow::exitApplication()
     QApplication::quit();
 }
 
-void MainWindow::prepareDataExport()
+void MainWindow::selectDataExportFile()
 {
     QString filePath;
     QFileDialog dialog(this);
@@ -261,7 +261,7 @@ void MainWindow::prepareDataExport()
     }
 }
 
-void MainWindow::prepareImageExport()
+void MainWindow::selectImageExportFile()
 {
     QString filePath;
     QFileDialog dialog(this);

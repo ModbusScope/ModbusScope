@@ -45,12 +45,12 @@ signals:
 private slots:
 
     /* Menu handlers */
-    void loadProjectSettings();
+    void selectProjectSettingFile();
     void reloadProjectSettings();
-    void importData();
+    void selecDataImportFile();
     void exitApplication();
-    void prepareDataExport();
-    void prepareImageExport();
+    void selectDataExportFile();
+    void selectImageExportFile();
     void showAbout();
     void menuBringToFrontGraphClicked(bool bState);
     void menuShowHideGraphClicked(bool bState);
