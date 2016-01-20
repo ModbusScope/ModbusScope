@@ -102,7 +102,6 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> resultMap)
     QList<quint16> activeIndexList;
     _pGraphDataModel->activeGraphIndexList(&activeIndexList);
 
-
     // Process values
     QList<double> processedValues;
     QList<bool> successList;
@@ -127,42 +126,6 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> resultMap)
         // propagate processed data
         emit handleReceivedData(successList, processedValues);
     }
-
-/*
-    TODO: delete
-
-    QList<quint16> activeList;
-    _pGraphDataModel->activeGraphAddresList(&activeList);
-
-    if (activeList.size() != resultMap.size())
-    {
-        bOk = false;
-    }
-    else
-    {
-        for (quint32 regIdx = 0; regIdx < resultMap.size(); regIdx++)
-        {
-            if (activeList[regIdx] != resultMap.keys()[regIdx])
-            {
-                bOk = false;
-                break;
-            }
-        }
-    }
-
-    if (bOk)
-    {
-
-        for (qint32 i = 0; i < values.size(); i++)
-        {
-
-        }
-
-        // propagate processed data
-        emit handleReceivedData(successList, processedValue);
-    }
-
-    */
 }
 
 

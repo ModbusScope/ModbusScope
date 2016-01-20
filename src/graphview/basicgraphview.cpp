@@ -129,6 +129,61 @@ void BasicGraphView::clearGraphs()
     _pPlot->replot();
 }
 
+void BasicGraphView::clearGraph(const quint32 graphIdx)
+{
+    if (_pGraphDataModel->isActive(graphIdx))
+    {
+
+        QList<quint16> activeGraphList;
+        _pGraphDataModel->activeGraphIndexList(&activeGraphList);
+
+        if (activeGraphList.size() <= 0)
+        {
+            // No active graph: not possible
+        }
+        else if (activeGraphList.size() == 1)
+        {
+            /* Only one graph active: clear all data */
+            QCPDataMap * pMap = _pGraphDataModel->dataMap(graphIdx);
+            pMap->clear();
+
+            _pPlot->replot();
+        }
+        else
+        {
+            /* Several active graph, keep time data but clear data */
+
+            // All graphs should have the same amount of points.
+            // Loop over graphs and get maximum count of samples
+            qint32 maxSampleCount = 0;
+            quint32 maxSampleIdx = 0;
+
+            foreach(quint16 graphIdx, activeGraphList)
+            {
+                const qint32 sampleCount = _pGraphDataModel->dataMap(graphIdx)->keys().size();
+                if (sampleCount > maxSampleCount)
+                {
+                    maxSampleCount = sampleCount;
+                    maxSampleIdx = graphIdx;
+                }
+            }
+
+            QCPDataMap * pMap = _pGraphDataModel->dataMap(graphIdx);
+            const QCPDataMap * pReferenceMap = _pGraphDataModel->dataMap(maxSampleIdx);
+
+            pMap->clear();
+
+            // Add zero value for every key (x-coordinate)
+            foreach(double key, pReferenceMap->keys())
+            {
+                pMap->insert(key, QCPData(key, 0));
+            }
+
+            _pPlot->replot();
+        }
+    }
+}
+
 void BasicGraphView::updateGraphs()
 {
     /* Clear graphs and add current active graphs */
@@ -143,37 +198,37 @@ void BasicGraphView::updateGraphs()
         // Loop over graphs and get maximum count of samples
         qint32 maxSampleCount = 0;
         quint32 maxSampleIdx = 0;
-        foreach(quint16 idx, activeGraphList)
+
+        foreach(quint16 graphIdx, activeGraphList)
         {
-            const qint32 sampleCount = _pGraphDataModel->dataMap(idx)->keys().size();
+            const qint32 sampleCount = _pGraphDataModel->dataMap(graphIdx)->keys().size();
             if (sampleCount > maxSampleCount)
             {
                 maxSampleCount = sampleCount;
-                maxSampleIdx = idx;
+                maxSampleIdx = graphIdx;
             }
         }
 
         // Graph that have less points will be zeroed with that amount of points
-
-        foreach(quint16 idx, activeGraphList)
+        foreach(quint16 graphIdx, activeGraphList)
         {
             // Add graph
             MyQCPGraph * pGraph = _pPlot->addCustomGraph();
 
-            pGraph->setName(_pGraphDataModel->label(idx));
+            pGraph->setName(_pGraphDataModel->label(graphIdx));
 
             QPen pen;
-            pen.setColor(_pGraphDataModel->color(idx));
+            pen.setColor(_pGraphDataModel->color(graphIdx));
             pen.setWidth(2);
             pen.setCosmetic(true);
 
             pGraph->setPen(pen);
 
 
-            QCPDataMap * pMap = _pGraphDataModel->dataMap(idx);
+            QCPDataMap * pMap = _pGraphDataModel->dataMap(graphIdx);
 
             // Set data to zero when needed
-            if (_pGraphDataModel->dataMap(idx)->keys().size() != maxSampleCount)
+            if (_pGraphDataModel->dataMap(graphIdx)->keys().size() != maxSampleCount)
             {
                 const QCPDataMap * pReferenceMap = _pGraphDataModel->dataMap(maxSampleIdx);
                 pMap->clear();

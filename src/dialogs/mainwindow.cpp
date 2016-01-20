@@ -96,11 +96,16 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGraphDataModel, SIGNAL(graphsAddData(QList<double>, QList<QList<double> >)), _pGraphView, SLOT(addData(QList<double>, QList<QList<double> >)));
     connect(_pGraphDataModel, SIGNAL(activeChanged(quint32)), this, SLOT(rebuildGraphMenu()));
     connect(_pGraphDataModel, SIGNAL(activeChanged(quint32)), _pGraphView, SLOT(updateGraphs()));
-
     connect(_pGraphDataModel, SIGNAL(colorChanged(quint32)), this, SLOT(handleGraphColorChange(quint32)));
     connect(_pGraphDataModel, SIGNAL(colorChanged(quint32)), _pGraphView, SLOT(changeGraphColor(quint32)));
     connect(_pGraphDataModel, SIGNAL(labelChanged(quint32)), this, SLOT(handleGraphLabelChange(quint32)));
     connect(_pGraphDataModel, SIGNAL(labelChanged(quint32)), _pGraphView, SLOT(changeGraphLabel(quint32)));
+    connect(_pGraphDataModel, SIGNAL(unsignedChanged(quint32)), _pGraphView, SLOT(clearGraph(quint32)));
+    connect(_pGraphDataModel, SIGNAL(multiplyFactorChanged(quint32)), _pGraphView, SLOT(clearGraph(quint32)));
+    connect(_pGraphDataModel, SIGNAL(divideFactorChanged(quint32)), _pGraphView, SLOT(clearGraph(quint32)));
+    connect(_pGraphDataModel, SIGNAL(registerAddressChanged(quint32)), _pGraphView, SLOT(clearGraph(quint32)));
+    connect(_pGraphDataModel, SIGNAL(bitmaskChanged(quint32)), _pGraphView, SLOT(clearGraph(quint32)));
+    connect(_pGraphDataModel, SIGNAL(shiftChanged(quint32)), _pGraphView, SLOT(clearGraph(quint32)));
 
     _pGraphShowHide = _pUi->menuShowHide;
     _pGraphBringToFront = _pUi->menuBringToFront;
@@ -478,23 +483,23 @@ void MainWindow::rebuildGraphMenu()
     QList<quint16> activeGraphList;
     _pGraphDataModel->activeGraphIndexList(&activeGraphList);
 
-    for(qint32 graphIdx = 0; graphIdx < activeGraphList.size(); graphIdx++)
+    for(qint32 activeIdx = 0; activeIdx < activeGraphList.size(); activeIdx++)
     {
 
-        QString label = _pGraphDataModel->label(activeGraphList[graphIdx]);
+        QString label = _pGraphDataModel->label(activeGraphList[activeIdx]);
         QAction * pShowHideAction = _pGraphShowHide->addAction(label);
         QAction * pBringToFront = _pGraphBringToFront->addAction(label);
 
         QPixmap pixmap(20,5);
-        pixmap.fill(_pGraphDataModel->color(activeGraphList[graphIdx]));
+        pixmap.fill(_pGraphDataModel->color(activeGraphList[activeIdx]));
         QIcon icon = QIcon(pixmap);
 
-        pShowHideAction->setData(graphIdx);
+        pShowHideAction->setData(activeIdx);
         pShowHideAction->setIcon(icon);
         pShowHideAction->setCheckable(true);
-        pShowHideAction->setChecked(_pGraphDataModel->isVisible(activeGraphList[graphIdx]));
+        pShowHideAction->setChecked(_pGraphDataModel->isVisible(activeGraphList[activeIdx]));
 
-        pBringToFront->setData(graphIdx);
+        pBringToFront->setData(activeIdx);
         pBringToFront->setIcon(icon);
         pBringToFront->setCheckable(true);
         pBringToFront->setActionGroup(_pBringToFrontGroup);
