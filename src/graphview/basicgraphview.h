@@ -47,7 +47,9 @@ public slots:
     virtual void clearGraphs();
     virtual void updateGraphs();
     virtual void showHideLegend();
-    virtual void showGraph(quint32 index);
+    virtual void showGraph(quint32 graphIdx);
+    virtual void changeGraphColor(const quint32 graphIdx);
+    virtual void changeGraphLabel(const quint32 graphIdx);
     virtual void bringToFront();
     virtual void updateLegendPosition();
 

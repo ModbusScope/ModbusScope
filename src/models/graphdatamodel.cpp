@@ -113,6 +113,11 @@ void GraphDataModel::setActive(quint32 index, bool bActive)
         {
             _graphData[index].dataMap()->clear();
         }
+        else
+        {
+            // when (re)-added, make sure graph is always visible
+            _graphData[index].setVisible(true);
+        }
 
         emit activeChanged(index);
     }
@@ -298,13 +303,12 @@ bool GraphDataModel::areExclusive(quint16 * pRegister, quint16 * pBitmask)
     return true;
 }
 
-qint32 GraphDataModel::convertToActiveGraphIndex(quint32 idx)
+qint32 GraphDataModel::convertToActiveGraphIndex(quint32 graphIdx)
 {
-    qint32 activeIdx;
     qint16 result = -1;
-    for (activeIdx = 0; activeIdx < _activeGraphList.size(); activeIdx++)
+    for (qint32 activeIdx = 0; activeIdx < _activeGraphList.size(); activeIdx++)
     {
-        if (_activeGraphList[activeIdx] == idx)
+        if (_activeGraphList[activeIdx] == graphIdx)
         {
             result = activeIdx;
             break;
@@ -313,19 +317,9 @@ qint32 GraphDataModel::convertToActiveGraphIndex(quint32 idx)
     return result;
 }
 
-qint32 GraphDataModel::convertToGraphIndex(quint32 idx)
+qint32 GraphDataModel::convertToGraphIndex(quint32 activeIdx)
 {
-    qint32 activeIdx;
-    qint16 result = -1;
-    for (activeIdx = 0; activeIdx < _activeGraphList.size(); activeIdx++)
-    {
-        if (_activeGraphList[activeIdx] == idx)
-        {
-            result = activeIdx;
-            break;
-        }
-    }
-    return result;
+    return _activeGraphList[activeIdx];
 }
 
 quint16 GraphDataModel::nextFreeAddress()

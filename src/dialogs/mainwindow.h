@@ -63,12 +63,15 @@ private slots:
     void stopScope();
 
     /* Model change handlers */
-    void showHideGraph(const quint32 index);
+    void handleGraphVisibilityChange(const quint32 graphIdx);
+    void handleGraphColorChange(const quint32 graphIdx);
+    void handleGraphLabelChange(const quint32 graphIdx);
+
     void updateBringToFrontGrapMenu();
     void updateHighlightSampleMenu();
     void updateValueTooltipMenu();
     void clearGraphMenu();
-    void updateGraphMenu();
+    void rebuildGraphMenu();
     void updateWindowTitle();
     void updatexAxisSlidingMode();
     void updatexAxisSlidingInterval();

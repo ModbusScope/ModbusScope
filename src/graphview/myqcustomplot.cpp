@@ -28,8 +28,6 @@ void MyQCustomPlot::enterEvent(QEvent * event)
      )
     {
         this->setCursor(Qt::ArrowCursor);
-        //cursor().setShape(Qt::ArrowCursor);
-        qDebug() << "Changed";
     }
 
     QCustomPlot::enterEvent(event);

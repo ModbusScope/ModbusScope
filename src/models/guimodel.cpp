@@ -62,6 +62,8 @@ void GuiModel::triggerUpdate(void)
     emit dataFilePathChanged();
 }
 
+/*
+ Return index of activeGraphList */
 qint32 GuiModel::frontGraph() const
 {
     return _frontGraph;

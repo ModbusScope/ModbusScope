@@ -52,21 +52,21 @@ public:
 
     bool areExclusive(quint16 * pRegister, quint16 *pBitmask);
 
-    qint32 convertToActiveGraphIndex(quint32 idx);
-    qint32 convertToGraphIndex(quint32 idx);
+    qint32 convertToActiveGraphIndex(quint32 graphIdx);
+    qint32 convertToGraphIndex(quint32 activeIdx);
 
 signals:
 
-    void visibilityChanged(const quint32 index);
-    void labelChanged(const quint32 index);
-    void colorChanged(const quint32 index);
-    void activeChanged(const quint32 index); // when graph is actived / deactivated
-    void unsignedChanged(const quint32 index);
-    void multiplyFactorChanged(const quint32 index);
-    void divideFactorChanged(const quint32 index);
-    void registerAddressChanged(const quint32 index);
-    void bitmaskChanged(const quint32 index);
-    void shiftChanged(const quint32 index);
+    void visibilityChanged(const quint32 graphIdx);
+    void labelChanged(const quint32 graphIdx);
+    void colorChanged(const quint32 graphIdx);
+    void activeChanged(const quint32 graphIdx); // when graph is actived / deactivated
+    void unsignedChanged(const quint32 graphIdx);
+    void multiplyFactorChanged(const quint32 graphIdx);
+    void divideFactorChanged(const quint32 graphIdx);
+    void registerAddressChanged(const quint32 graphIdx);
+    void bitmaskChanged(const quint32 graphIdx);
+    void shiftChanged(const quint32 graphIdx);
 
     void added(const qint32 idx); // When graph definition is added
     void graphsAddData(QList<double>, QList<QList<double> > data);

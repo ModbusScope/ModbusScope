@@ -205,19 +205,52 @@ void BasicGraphView::showHideLegend()
     _pPlot->replot();
 }
 
-void BasicGraphView::showGraph(quint32 index)
+void BasicGraphView::showGraph(quint32 graphIdx)
+{    
+    if (_pGraphDataModel->isActive(graphIdx))
+    {
+        const bool bShow = _pGraphDataModel->isVisible(graphIdx);
+
+        const quint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+
+        _pPlot->graph(activeIdx)->setVisible(bShow);
+
+        QFont itemFont = _pPlot->legend->item(activeIdx)->font();
+        itemFont.setStrikeOut(!bShow);
+
+        _pPlot->legend->item(activeIdx)->setFont(itemFont);
+
+        _pPlot->replot();
+    }
+}
+
+void BasicGraphView::changeGraphColor(const quint32 graphIdx)
 {
-    const bool bShow = _pGraphDataModel->isVisible(index);
+    if (_pGraphDataModel->isActive(graphIdx))
+    {
+        const quint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
-    const quint32 graphIdx = _pGraphDataModel->convertToGraphIndex(index);
-    _pPlot->graph(graphIdx)->setVisible(bShow);
+        QPen pen;
+        pen.setColor(_pGraphDataModel->color(graphIdx));
+        pen.setWidth(2);
+        pen.setCosmetic(true);
 
-    QFont itemFont = _pPlot->legend->item(index)->font();
-    itemFont.setStrikeOut(!bShow);
+        _pPlot->graph(activeIdx)->setPen(pen);
 
-    _pPlot->legend->item(index)->setFont(itemFont);
+        _pPlot->replot();
+    }
+}
 
-    _pPlot->replot();
+void BasicGraphView::changeGraphLabel(const quint32 graphIdx)
+{
+    if (_pGraphDataModel->isActive(graphIdx))
+    {
+        const quint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+
+        _pPlot->graph(activeIdx)->setName(_pGraphDataModel->label(graphIdx));
+
+        _pPlot->replot();
+    }
 }
 
 void BasicGraphView::bringToFront()
