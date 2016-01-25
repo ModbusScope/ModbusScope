@@ -2,19 +2,34 @@
 #define GRAPHDATAMODEL_H
 
 #include <QObject>
+#include <QAbstractTableModel>
 #include <QList>
 
+//#include "communicationmanager.h"
 #include "graphdata.h"
 
 
-class GraphDataModel : public QObject
+class GraphDataModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
     explicit GraphDataModel(QObject *parent = 0);
 
-    qint32 size();
-    qint32 activeCount();
+    /* Functions for QTableView (model) */
+    int rowCount(const QModelIndex &parent = QModelIndex()) const ;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    bool setData(const QModelIndex & index, const QVariant & value, int role);
+    Qt::ItemFlags flags(const QModelIndex & index) const;
+
+    bool removeRows (int row, int count, const QModelIndex &parent);
+    bool insertRows (int row, int count, const QModelIndex &parent);
+
+
+    /* Functions for other classes */
+    qint32 size() const;
+    qint32 activeCount() const;
 
     bool isVisible(quint32 index) const;
     QString label(quint32 index) const;
@@ -76,9 +91,16 @@ signals:
 
 public slots:
 
+private slots:
+
+    void modelDataChanged(qint32 idx);
+    void modelDataChanged(quint32 idx);
+    void modelDataChanged();
+
 private:
     quint16 nextFreeAddress();
     void updateActiveGraphList(void);
+    void addToModel(GraphData * pGraphData);
 
     QList<GraphData> _graphData;
     QList<quint32> _activeGraphList;

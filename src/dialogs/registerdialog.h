@@ -3,7 +3,6 @@
 
 #include <QDialog>
 
-#include "registerdialogmodel.h"
 #include "graphdatamodel.h"
 
 namespace Ui {
@@ -30,7 +29,6 @@ private:
 
     Ui::RegisterDialog * _pUi;
 
-    RegisterDialogModel * _pRegisterDialogModel;
     GraphDataModel * _pGraphDataModel;
 };
 

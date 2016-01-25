@@ -15,10 +15,9 @@ RegisterDialog::RegisterDialog(GraphDataModel * pGraphDataModel,  QWidget *paren
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     _pGraphDataModel = pGraphDataModel;
-    _pRegisterDialogModel = new RegisterDialogModel(_pGraphDataModel);
 
     // Setup registerView
-    _pUi->registerView->setModel(_pRegisterDialogModel);
+    _pUi->registerView->setModel(_pGraphDataModel);
     _pUi->registerView->verticalHeader()->hide();
 
     /* Don't stretch columns */
@@ -78,7 +77,7 @@ void RegisterDialog::done(int r)
 
 void RegisterDialog::addRegisterRow()
 {
-    _pRegisterDialogModel->insertRow(_pGraphDataModel->size());
+    _pGraphDataModel->insertRow(_pGraphDataModel->size());
 }
 
 void RegisterDialog::activatedCell(QModelIndex modelIndex)
@@ -93,7 +92,7 @@ void RegisterDialog::activatedCell(QModelIndex modelIndex)
             if (color.isValid())
             {
                 // Set color in model
-                _pRegisterDialogModel->setData(modelIndex, color, Qt::EditRole);
+                _pGraphDataModel->setData(modelIndex, color, Qt::EditRole);
             }
             else
             {
@@ -115,7 +114,7 @@ void RegisterDialog::removeRegisterRow()
 
     foreach(QModelIndex rowIndex, rowList)
     {
-        _pRegisterDialogModel->removeRow(rowIndex.row());
+        _pGraphDataModel->removeRow(rowIndex.row());
     }
 }
 

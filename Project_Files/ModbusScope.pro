@@ -63,7 +63,6 @@ SOURCES +=  \
     ../src/graphview/myqcustomplot.cpp \
     ../src/util/util.cpp \
     ../src/importexport/settingsauto.cpp \
-    ../src/models/registerdialogmodel.cpp \
     ../src/models/graphdatamodel.cpp \
     ../src/models/graphdata.cpp \
     ../src/communication/modbusresult.cpp \
