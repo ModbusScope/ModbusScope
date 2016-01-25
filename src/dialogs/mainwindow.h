@@ -98,7 +98,6 @@ private:
     void updateConnectionSetting(ProjectFileParser::ProjectSettings *pProjectSettings);
     void loadProjectFile(QString dataFilePath);
     void loadDataFile(QString dataFilePath);
-    void parseDataFile(DataFileParser::FileData * pData);
 
     Ui::MainWindow * _pUi;
     CommunicationManager * _pConnMan;

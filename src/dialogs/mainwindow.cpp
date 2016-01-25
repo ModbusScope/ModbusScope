@@ -941,7 +941,13 @@ void MainWindow::loadDataFile(QString dataFilePath)
             // Set to full auto scaling
              _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
 
-            parseDataFile(&data);
+             _pGraphDataModel->clear();
+             _pGuiModel->setFrontGraph(-1);
+
+             _pGraphDataModel->add(data.dataLabel, data.timeRow, data.dataRows);
+             _pGuiModel->setFrontGraph(0);
+
+             // TODO: make sure "view mode" is started
         }
     }
     else
@@ -951,15 +957,4 @@ void MainWindow::loadDataFile(QString dataFilePath)
                               tr("Couldn't open data file: %1").arg(dataFilePath),
                               QMessageBox::Ok);
     }
-}
-
-void MainWindow::parseDataFile(DataFileParser::FileData * pData)
-{
-    _pGraphDataModel->clear();
-    _pGuiModel->setFrontGraph(-1);
-
-    _pGraphDataModel->add(pData->dataLabel, pData->timeRow, pData->dataRows);
-    _pGuiModel->setFrontGraph(0);
-
-    // TODO: make sure "view mode" is started
 }
