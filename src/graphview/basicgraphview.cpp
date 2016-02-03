@@ -153,30 +153,15 @@ void BasicGraphView::clearGraph(const quint32 graphIdx)
         {
             /* Several active graph, keep time data but clear data */
 
-            // All graphs should have the same amount of points.
-            // Loop over graphs and get maximum count of samples
-            qint32 maxSampleCount = 0;
-            quint32 maxSampleIdx = 0;
-
-            foreach(quint16 graphIdx, activeGraphList)
-            {
-                const qint32 sampleCount = _pGraphDataModel->dataMap(graphIdx)->keys().size();
-                if (sampleCount > maxSampleCount)
-                {
-                    maxSampleCount = sampleCount;
-                    maxSampleIdx = graphIdx;
-                }
-            }
-
             QCPDataMap * pMap = _pGraphDataModel->dataMap(graphIdx);
-            const QCPDataMap * pReferenceMap = _pGraphDataModel->dataMap(maxSampleIdx);
 
-            pMap->clear();
-
-            // Add zero value for every key (x-coordinate)
-            foreach(double key, pReferenceMap->keys())
+            /* Clear all values, keep keys */
+            QMutableMapIterator<double, QCPData> i(*pMap);
+            while (i.hasNext())
             {
-                pMap->insert(key, QCPData(key, 0));
+                i.next();
+
+                i.setValue(QCPData(i.key(), 0));
             }
 
             _pPlot->replot();

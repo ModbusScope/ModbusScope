@@ -57,12 +57,20 @@ void DataFileExporter::exportDataLine(double timeData, QList <double> dataValues
     }
 }
 
+void DataFileExporter::rewriteDataFile(void)
+{
+    _dataExportBuffer.clear();
+    lastLogTime = QDateTime::currentMSecsSinceEpoch();
+
+    exportDataFile(_pSettingsModel->writeDuringLogFile());
+}
+
 void DataFileExporter::exportDataFile(QString dataFile)
 {
     if (_pGraphDataModel->activeCount() != 0)
     {
         const QList<double> keyList = _pGraphView->graphTimeData();
-        QList<QList<QCPData> > dataList;
+        QList<QCPDataMap *> dataList;
         QStringList logData;
 
         // Create header
@@ -71,10 +79,13 @@ void DataFileExporter::exportDataFile(QString dataFile)
         // Create label row
         logData.append(createLabelRow());
 
-        for(qint32 i = 0; i < _pGraphDataModel->activeCount(); i++)
+        QList<quint16> activeGraphIndexes;
+        _pGraphDataModel->activeGraphIndexList(&activeGraphIndexes);
+
+        for(qint32 idx = 0; idx < activeGraphIndexes.size(); idx++)
         {
             // Save data lists
-            dataList.append(_pGraphView->graphData(i));
+            dataList.append(_pGraphDataModel->dataMap(activeGraphIndexes[idx]));
         }
 
         // Add data lines
@@ -83,7 +94,7 @@ void DataFileExporter::exportDataFile(QString dataFile)
             QList<double> dataRowValues;
             for(qint32 d = 0; d < dataList.size(); d++)
             {
-                dataRowValues.append((dataList[d])[i].value);
+                dataRowValues.append(dataList[d]->value(keyList[i]).value);
             }
 
             logData.append(formatData(keyList[i], dataRowValues));

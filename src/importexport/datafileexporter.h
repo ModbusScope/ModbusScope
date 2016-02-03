@@ -26,6 +26,7 @@ signals:
 
 public slots:
     void exportDataLine(double timeData, QList <double> dataValues);
+    void rewriteDataFile(void);
 
 private:
     void flushExportBuffer();
