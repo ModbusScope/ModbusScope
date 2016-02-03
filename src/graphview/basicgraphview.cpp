@@ -123,12 +123,6 @@ void BasicGraphView::enableSamplePoints()
     _pPlot->replot();
 }
 
-void BasicGraphView::clearGraphs()
-{
-    _pPlot->clearGraphs();
-    _pPlot->replot();
-}
-
 void BasicGraphView::clearGraph(const quint32 graphIdx)
 {
     if (_pGraphDataModel->isActive(graphIdx))

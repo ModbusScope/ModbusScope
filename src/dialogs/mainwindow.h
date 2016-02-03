@@ -70,7 +70,6 @@ private slots:
     void updateBringToFrontGrapMenu();
     void updateHighlightSampleMenu();
     void updateValueTooltipMenu();
-    void clearGraphMenu();
     void rebuildGraphMenu();
     void updateWindowTitle();
     void updatexAxisSlidingMode();

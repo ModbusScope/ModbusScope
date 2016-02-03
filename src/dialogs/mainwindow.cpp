@@ -91,8 +91,6 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     connect(_pGraphDataModel, SIGNAL(visibilityChanged(quint32)), this, SLOT(handleGraphVisibilityChange(const quint32)));
     connect(_pGraphDataModel, SIGNAL(visibilityChanged(quint32)), _pGraphView, SLOT(showGraph(const quint32)));
-    connect(_pGraphDataModel, SIGNAL(cleared()), _pGraphView, SLOT(clearGraphs()));
-    connect(_pGraphDataModel, SIGNAL(cleared()), this, SLOT(clearGraphMenu()));
     connect(_pGraphDataModel, SIGNAL(graphsAddData(QList<double>, QList<QList<double> >)), _pGraphView, SLOT(addData(QList<double>, QList<QList<double> >)));
     connect(_pGraphDataModel, SIGNAL(activeChanged(quint32)), this, SLOT(rebuildGraphMenu()));
     connect(_pGraphDataModel, SIGNAL(activeChanged(quint32)), _pGraphView, SLOT(updateGraphs()));
@@ -472,14 +470,6 @@ void MainWindow::updateValueTooltipMenu()
 {
     /* set menu to checked */
     _pUi->actionShowValueTooltip->setChecked(_pGuiModel->valueTooltip());
-}
-
-void MainWindow::clearGraphMenu()
-{
-    // Clear actions
-    _pGraphShowHide->clear();
-    _pBringToFrontGroup->actions().clear();
-    _pGraphBringToFront->clear();
 }
 
 void MainWindow::rebuildGraphMenu()

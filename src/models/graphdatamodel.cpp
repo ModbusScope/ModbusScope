@@ -11,8 +11,6 @@ GraphDataModel::GraphDataModel(QObject *parent) : QAbstractTableModel(parent)
 {
     _graphData.clear();
 
-    connect(this, SIGNAL(cleared()), this, SLOT(modelDataChanged()));
-
     connect(this, SIGNAL(visibilityChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(labelChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(colorChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
@@ -349,15 +347,9 @@ Qt::ItemFlags GraphDataModel::flags(const QModelIndex & index) const
 
 bool GraphDataModel::removeRows (int row, int count, const QModelIndex & parent)
 {
-    beginRemoveRows(parent, row, row + count - 1);
+    Q_UNUSED(parent);
 
-    for (qint32 i = 0; i < count; i++)
-    {
-        Q_UNUSED(i);
-        removeRegister((qint32)row);
-    }
-
-    endRemoveRows();
+    removeFromModel(row, count);
 
     return true;
 }
@@ -589,13 +581,7 @@ void GraphDataModel::removeRegister(qint32 idx)
 {   
     if (idx < _graphData.size())
     {
-        if (_graphData[idx].isActive())
-        {
-            setActive(idx, false);
-        }
-        _graphData.removeAt(idx);
-
-        updateActiveGraphList();
+        removeFromModel(idx, 1);
     }
 
     emit removed(idx);
@@ -603,10 +589,12 @@ void GraphDataModel::removeRegister(qint32 idx)
 
 void GraphDataModel::clear()
 {
-    _graphData.clear();
-    _activeGraphList.clear();
+    const qint32 size = _graphData.size();
 
-    emit cleared();
+    for(qint32 idx = 0; idx < size; idx++)
+    {
+        removeRegister(0);
+    }
 }
 
 // Get sorted list of active (unique) register addresses
@@ -753,4 +741,22 @@ void GraphDataModel::addToModel(GraphData * pGraphData)
 
     /* Call function to trigger view update */
     endInsertRows();
+}
+
+void GraphDataModel::removeFromModel(qint32 row, qint32 count)
+{
+    beginRemoveRows(QModelIndex(), row, row + count - 1);
+
+    for (qint32 idx = 0; idx < count; idx++)
+    {
+        if (_graphData[idx].isActive())
+        {
+            setActive(idx, false);
+        }
+        _graphData.removeAt(idx);
+
+        updateActiveGraphList();
+    }
+
+    endRemoveRows();
 }

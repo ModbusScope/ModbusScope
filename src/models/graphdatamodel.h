@@ -87,7 +87,6 @@ signals:
     void graphsAddData(QList<double>, QList<QList<double> > data);
 
     void removed(const qint32 idx);
-    void cleared();
 
 public slots:
 
@@ -101,6 +100,7 @@ private:
     quint16 nextFreeAddress();
     void updateActiveGraphList(void);
     void addToModel(GraphData * pGraphData);
+    void removeFromModel(qint32 row, qint32 count);
 
     QList<GraphData> _graphData;
     QList<quint32> _activeGraphList;

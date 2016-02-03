@@ -44,7 +44,6 @@ public slots:
 
     virtual void enableValueTooltip();
     virtual void enableSamplePoints();
-    virtual void clearGraphs();
     virtual void clearGraph(const quint32 graphIdx);
     virtual void updateGraphs();
     virtual void showHideLegend();
