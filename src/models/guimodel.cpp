@@ -14,7 +14,7 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
     _bValueTooltip = false;
     _bLegendVisibility = false;
     _legendPosition = BasicGraphView::LEGEND_MIDDLE;
-    _communicationState = INIT;
+    _guiState = INIT;
     _windowTitle = _cWindowTitle;
 
     _startTime = 0;
@@ -57,7 +57,7 @@ void GuiModel::triggerUpdate(void)
     emit xAxisScalingChanged();
     emit yAxisScalingChanged();
 
-    emit communicationStateChanged();
+    emit guiStateChanged();
     emit projectFilePathChanged();
     emit dataFilePathChanged();
 }
@@ -184,7 +184,7 @@ void GuiModel::setProjectFilePath(QString path)
 void GuiModel::setDataFilePath(QString path)
 {
     if (_dataFilePath != path)
-    {
+    {   
         _dataFilePath = path;
         emit dataFilePathChanged();
     }
@@ -280,18 +280,18 @@ void GuiModel::setyAxisMax(qint32 newMax)
     }
 }
 
-void GuiModel::setCommunicationState(quint32 state)
+void GuiModel::setGuiState(quint32 state)
 {
-    if (_communicationState != state)
+    if (_guiState != state)
     {
-        _communicationState = state;
-        emit communicationStateChanged();
+        _guiState = state;
+        emit guiStateChanged();
     }
 }
 
-quint32 GuiModel::communicationState()
+quint32 GuiModel::guiState()
 {
-    return _communicationState;
+    return _guiState;
 }
 
 qint64 GuiModel::communicationStartTime()

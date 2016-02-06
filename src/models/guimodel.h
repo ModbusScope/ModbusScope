@@ -18,6 +18,7 @@ public:
         INIT,
         STARTED,
         STOPPED,
+        DATA_LOADED,
     };
 
     void triggerUpdate(void);
@@ -36,7 +37,7 @@ public:
     BasicGraphView::AxisScaleOptions  yAxisScalingMode();
     qint32 yAxisMin();
     qint32 yAxisMax();
-    quint32 communicationState();
+    quint32 guiState();
     qint64 communicationStartTime();
     qint64 communicationEndTime();
     quint32 communicationErrorCount();
@@ -59,7 +60,7 @@ public slots:
     void setyAxisScale(BasicGraphView::AxisScaleOptions scaleMode);
     void setyAxisMin(qint32 newMin);
     void setyAxisMax(qint32 newMax);
-    void setCommunicationState(quint32 state);
+    void setGuiState(quint32 state);
     void setCommunicationStartTime(qint64 startTime);
     void setCommunicationEndTime(qint64 endTime);
     void setCommunicationStats(quint32 successCount, quint32 errorCount);
@@ -76,7 +77,7 @@ signals:
     void xAxisSlidingIntervalChanged();
     void yAxisScalingChanged();
     void yAxisMinMaxchanged();
-    void communicationStateChanged();
+    void guiStateChanged();
     void projectFilePathChanged();
     void dataFilePathChanged();
     void communicationStatsChanged();
@@ -113,7 +114,7 @@ private:
     bool _bValueTooltip;
     bool _bLegendVisibility;
     BasicGraphView::LegendsPositionOptions _legendPosition;
-    quint32 _communicationState;
+    quint32 _guiState;
 
     static const QString _cWindowTitle;
 

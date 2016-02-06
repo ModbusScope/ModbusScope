@@ -76,9 +76,9 @@ private slots:
     void updatexAxisSlidingInterval();
     void updateyAxisSlidingMode();
     void updateyAxisMinMax();
-    void updateCommunicationState();
     void projectFileLoaded();
     void dataFileLoaded();
+    void updateGuiState();
     void updateLegendPositionMenu();
     void updateLegendMenu();
     void updateStats();
@@ -95,7 +95,7 @@ private slots:
 private:
 
     void updateConnectionSetting(ProjectFileParser::ProjectSettings *pProjectSettings);
-    void loadProjectFile(QString dataFilePath);
+    void loadProjectFile(QString projectFilePath);
     void loadDataFile(QString dataFilePath);
 
     Ui::MainWindow * _pUi;
@@ -129,6 +129,7 @@ private:
     static const QString _cStateRunning;
     static const QString _cStateStopped;
     static const QString _cStatsTemplate;
+    static const QString _cStateDataLoaded;
     static const QString _cRuntime;
 };
 

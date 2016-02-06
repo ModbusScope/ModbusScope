@@ -20,6 +20,7 @@
 
 const QString MainWindow::_cStateRunning = QString("Running");
 const QString MainWindow::_cStateStopped = QString("Stopped");
+const QString MainWindow::_cStateDataLoaded = QString("Data File loaded");
 const QString MainWindow::_cStatsTemplate = QString("Success: %1\tErrors: %2");
 const QString MainWindow::_cRuntime = QString("Runtime: %1");
 
@@ -70,9 +71,9 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGuiModel, SIGNAL(valueTooltipChanged()), this, SLOT(updateValueTooltipMenu()));
     connect(_pGuiModel, SIGNAL(valueTooltipChanged()), _pGraphView, SLOT(enableValueTooltip()));
     connect(_pGuiModel, SIGNAL(windowTitleChanged()), this, SLOT(updateWindowTitle()));
-    connect(_pGuiModel, SIGNAL(communicationStateChanged()), this, SLOT(updateCommunicationState()));
     connect(_pGuiModel, SIGNAL(projectFilePathChanged()), this, SLOT(projectFileLoaded()));
     connect(_pGuiModel, SIGNAL(dataFilePathChanged()), this, SLOT(dataFileLoaded()));
+    connect(_pGuiModel, SIGNAL(guiStateChanged()), this, SLOT(updateGuiState()));
     connect(_pGuiModel, SIGNAL(legendPositionChanged()), this, SLOT(updateLegendPositionMenu()));
     connect(_pGuiModel, SIGNAL(legendPositionChanged()), _pGraphView, SLOT(updateLegendPosition()));
     connect(_pGuiModel, SIGNAL(legendVisibilityChanged()), this, SLOT(updateLegendMenu()));
@@ -130,12 +131,12 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pStatusState->setFrameStyle(QFrame::Panel | QFrame::Sunken);
     _pStatusStats = new QLabel("", this);
     _pStatusStats->setFrameStyle(QFrame::Panel | QFrame::Sunken);
-    _pStatusRuntime = new QLabel(_cRuntime.arg("0 hours, 0 minutes 0 seconds"), this);
+    _pStatusRuntime = new QLabel("", this);
     _pStatusRuntime->setFrameStyle(QFrame::Panel | QFrame::Sunken);
 
-    _pUi->statusBar->addPermanentWidget(_pStatusState, 0);
-    _pUi->statusBar->addPermanentWidget(_pStatusRuntime, 0);
-    _pUi->statusBar->addPermanentWidget(_pStatusStats, 2);
+    _pUi->statusBar->addPermanentWidget(_pStatusState, 1);
+    _pUi->statusBar->addPermanentWidget(_pStatusRuntime, 2);
+    _pUi->statusBar->addPermanentWidget(_pStatusStats, 3);
 
     this->setAcceptDrops(true);
 
@@ -326,6 +327,13 @@ void MainWindow::showLogDialog()
 
 void MainWindow::showRegisterDialog()
 {
+    if (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
+    {
+        _pGraphDataModel->clear();
+
+        _pGuiModel->setGuiState(GuiModel::INIT);
+    }
+
     _pRegisterDialog->exec();
 }
 
@@ -353,12 +361,17 @@ void MainWindow::clearData()
 
 void MainWindow::startScope()
 {
+    if (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
+    {
+        _pGraphDataModel->clear();
+
+        _pGuiModel->setGuiState(GuiModel::INIT);
+    }
+
     if (_pGraphDataModel->activeCount() != 0)
     {
 
-        _pGuiModel->setCommunicationState(GuiModel::STARTED);
-
-        _pStatusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
+        _pGuiModel->setGuiState(GuiModel::STARTED);
 
         _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
 
@@ -374,12 +387,12 @@ void MainWindow::startScope()
 
         if (_pGuiModel->xAxisScalingMode() == BasicGraphView::SCALE_MANUAL)
         {
-            _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO); // TODO: use scaling settings from project file?
+            _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
         }
 
         if (_pGuiModel->yAxisScalingMode() == BasicGraphView::SCALE_MANUAL)
         {
-            _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO); // TODO: use scaling settings from project file?
+            _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
         }
 
     }
@@ -398,7 +411,7 @@ void MainWindow::stopScope()
         _pDataFileExporter->disableExporterDuringLog();
     }
 
-    _pGuiModel->setCommunicationState(GuiModel::STOPPED);
+    _pGuiModel->setGuiState(GuiModel::STOPPED);
 }
 
 void MainWindow::handleGraphVisibilityChange(const quint32 graphIdx)
@@ -474,8 +487,6 @@ void MainWindow::updateValueTooltipMenu()
 
 void MainWindow::rebuildGraphMenu()
 {
-    // TODO: is this correct optimal?
-
     // Regenerate graph menu
     _pGraphShowHide->clear();
     _pGraphBringToFront->clear();
@@ -578,10 +589,10 @@ void MainWindow::updateyAxisMinMax()
     _pUi->spinYMax->setValue(_pGuiModel->yAxisMax());
 }
 
-void MainWindow::updateCommunicationState()
+void MainWindow::updateGuiState()
 {
 
-    if (_pGuiModel->communicationState() == GuiModel::INIT)
+    if (_pGuiModel->guiState() == GuiModel::INIT)
     {
         _pStatusState->setText(_cStateStopped);
 
@@ -595,19 +606,20 @@ void MainWindow::updateCommunicationState()
         _pUi->actionExportDataCsv->setEnabled(false);
         _pUi->actionExportImage->setEnabled(false);
 
-        if (_pGuiModel->projectFilePath().isEmpty())
-        {
-            _pUi->actionReloadProjectFile->setEnabled(false);
-        }
-        else
-        {
-            _pUi->actionReloadProjectFile->setEnabled(true);
-        }
+        _pStatusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
+        _pStatusRuntime->setVisible(true);
 
+        _pStatusStats->setText(_cStatsTemplate.arg(0).arg(0));
+        _pStatusRuntime->setVisible(true);
+
+        _pGuiModel->setDataFilePath(QString(""));
+        _pGuiModel->setProjectFilePath(QString(""));
     }
-    else if (_pGuiModel->communicationState() == GuiModel::STARTED)
+    else if (_pGuiModel->guiState() == GuiModel::STARTED)
     {
         // Communication active
+        _pStatusState->setText(_cStateRunning);
+
         _pUi->actionStop->setEnabled(true);
         _pUi->actionConnectionSettings->setEnabled(false);
         _pUi->actionLogSettings->setEnabled(false);
@@ -619,15 +631,16 @@ void MainWindow::updateCommunicationState()
         _pUi->actionExportImage->setEnabled(false);
         _pUi->actionReloadProjectFile->setEnabled(false);
 
-        _pStatusState->setText(_cStateRunning);
+        _pStatusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
+        _pStatusRuntime->setVisible(true);
 
-        if (_pGuiModel->projectFilePath().isEmpty())
-        {
-            _pGuiModel->setWindowTitleDetail("");
-        }
+        _pStatusStats->setText(_cStatsTemplate.arg(_pGuiModel->communicationSuccessCount()).arg(_pGuiModel->communicationErrorCount()));
+        _pStatusRuntime->setVisible(true);
     }
-    else if (_pGuiModel->communicationState() == GuiModel::STOPPED)
+    else if (_pGuiModel->guiState() == GuiModel::STOPPED)
     {
+        _pStatusState->setText(_cStateStopped);
+
         // Communication not active
         _pUi->actionStop->setEnabled(false);
         _pUi->actionConnectionSettings->setEnabled(true);
@@ -647,8 +660,30 @@ void MainWindow::updateCommunicationState()
         {
             _pUi->actionReloadProjectFile->setEnabled(true);
         }
+    }
+    else if (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
+    {
 
-        _pStatusState->setText(_cStateStopped);
+        _pStatusState->setText(_cStateDataLoaded);
+
+        // Communication not active
+        _pUi->actionStop->setEnabled(false);
+        _pUi->actionConnectionSettings->setEnabled(true);
+        _pUi->actionLogSettings->setEnabled(true);
+        _pUi->actionRegisterSettings->setEnabled(true);
+        _pUi->actionStart->setEnabled(true);
+        _pUi->actionImportDataFile->setEnabled(true);
+        _pUi->actionLoadProjectFile->setEnabled(true);
+        _pUi->actionExportDataCsv->setEnabled(false); // Can't export data when viewing data
+        _pUi->actionExportImage->setEnabled(true);
+
+        _pStatusRuntime->setText(QString(""));
+        _pStatusRuntime->setVisible(false);
+
+        _pStatusStats->setText(QString(""));
+        _pStatusStats->setVisible(false);
+
+        _pUi->actionReloadProjectFile->setEnabled(false);
     }
 }
 
@@ -669,12 +704,13 @@ void MainWindow::projectFileLoaded()
 
 void MainWindow::dataFileLoaded()
 {
-    // if a project file is previously loaded, then it can be reloaded
-    if (!_pGuiModel->dataFilePath().isEmpty())
+    if (_pGuiModel->dataFilePath().isEmpty())
+    {
+        _pGuiModel->setWindowTitleDetail("");
+    }
+    else
     {
         _pGuiModel->setWindowTitleDetail(QFileInfo(_pGuiModel->dataFilePath()).fileName());
-        _pUi->actionReloadProjectFile->setEnabled(false);
-        _pUi->actionExportDataCsv->setEnabled(false);
     }
 }
 
@@ -891,11 +927,11 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
     _pGuiModel->setFrontGraph(-1);
 }
 
-void MainWindow::loadProjectFile(QString dataFilePath)
+void MainWindow::loadProjectFile(QString projectFilePath)
 {
     ProjectFileParser fileParser;
     ProjectFileParser::ProjectSettings loadedSettings;
-    QFile file(dataFilePath);
+    QFile file(projectFilePath);
 
     /* If we can't open it, let's show an error message. */
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -904,14 +940,16 @@ void MainWindow::loadProjectFile(QString dataFilePath)
         {
             updateConnectionSetting(&loadedSettings);
 
-            _pGuiModel->setProjectFilePath(dataFilePath);
+            _pGuiModel->setDataFilePath("");
+            _pGuiModel->setProjectFilePath(projectFilePath);
+            _pGuiModel->setGuiState(GuiModel::STOPPED);
         }
     }
     else
     {
         QMessageBox::critical(this,
                               "ModbusScope",
-                              tr("Couldn't open project file: %1").arg(dataFilePath),
+                              tr("Couldn't open project file: %1").arg(projectFilePath),
                               QMessageBox::Ok);
     }
 }
@@ -920,8 +958,6 @@ void MainWindow::loadDataFile(QString dataFilePath)
 {
     QFile file(dataFilePath);
 
-    _pGuiModel->setDataFilePath(dataFilePath);
-
     /* If we can't open it, let's show an error message. */
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
@@ -929,25 +965,23 @@ void MainWindow::loadDataFile(QString dataFilePath)
         DataFileParser::FileData data;
         if (dataParser.processDataFile(&data))
         {
-            // If success, disable export data
-            _pUi->actionExportDataCsv->setEnabled(false);
-
-            _pStatusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
-            _pStatusStats->setText(_cStatsTemplate.arg(0).arg(0));
-
             // Set to full auto scaling
             _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
 
             // Set to full auto scaling
-             _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
+            _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
 
-             _pGraphDataModel->clear();
-             _pGuiModel->setFrontGraph(-1);
+            _pGraphDataModel->clear();
+            _pGuiModel->setFrontGraph(-1);
 
-             _pGraphDataModel->add(data.dataLabel, data.timeRow, data.dataRows);
-             _pGuiModel->setFrontGraph(0);
+            _pGraphDataModel->add(data.dataLabel, data.timeRow, data.dataRows);
+            _pGuiModel->setFrontGraph(0);
 
-             // TODO: make sure "view mode" is started
+            _pGuiModel->setProjectFilePath("");
+            _pGuiModel->setDataFilePath(dataFilePath);
+
+            _pGuiModel->setGuiState(GuiModel::DATA_LOADED);
+
         }
     }
     else
