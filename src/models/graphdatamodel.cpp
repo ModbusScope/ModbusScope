@@ -179,7 +179,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             if (value.canConvert(QMetaType::QColor))
             {
                 QColor color = value.value<QColor>();
-                _dataList[index.row()].setColor(color);
+                setColor(index.row(), color);
             }
             else
             {
@@ -227,7 +227,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
                     )
                  {
                      bOk = true;
-                     _dataList[index.row()].setRegisterAddress((quint16)newAddr);
+                     setRegisterAddress(index.row(), (quint16)newAddr);
                  }
             }
 
