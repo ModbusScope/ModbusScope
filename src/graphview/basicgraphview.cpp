@@ -647,7 +647,7 @@ QString BasicGraphView::createTickLabelString(qint64 tickKey)
                                                 .arg(minutes, 2, 10, QChar('0'))
                                                 .arg(seconds, 2, 10, QChar('0'))
                                                 .arg(QLocale::system().decimalPoint())
-                                               .arg(milliseconds, 2, 10, QChar('0'));
+                                               .arg(milliseconds, 3, 10, QChar('0'));
 
     // Make sure minus sign is shown when tick number is negative
     if (bNegative)
