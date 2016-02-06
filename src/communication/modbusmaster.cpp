@@ -141,15 +141,39 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
             }
             else
             {
-                error++;
-                for (uint i = 0; i < count; i++)
+                /* Consecutive read failed */
+                if (count == 1)
                 {
-                    const quint16 registerAddr = registerList.at(regIndex) + i;
+                    /* Log error */
+                    error++;
+                    const quint16 registerAddr = registerList.at(regIndex);
                     const ModbusResult result = ModbusResult(0, false);
                     resultMap.insert(registerAddr, result);
                 }
-            }
+                else
+                {
+                    error++;
 
+                    /* More than one => read all separately */
+                    for (quint32 i = 0; i < count; i++)
+                    {
+                        const quint16 registerAddr = registerList.at(regIndex + i);
+                        if (readRegisters(pCtx, registerAddr - 40001, 1, &registerDataList) == 0)
+                        {
+                            success++;
+                            const ModbusResult result = ModbusResult(registerDataList[0], true);
+                            resultMap.insert(registerAddr, result);
+                        }
+                        else
+                        {
+                            /* Log error */
+                            error++;
+                            const ModbusResult result = ModbusResult(0, false);
+                            resultMap.insert(registerAddr, result);
+                        }
+                    }
+                }
+            }
 
             // Set register index to next register
             regIndex += count;
