@@ -777,11 +777,12 @@ void GraphDataModel::removeFromModel(qint32 row, qint32 count)
 
     for (qint32 idx = 0; idx < count; idx++)
     {
-        if (_graphData[idx].isActive())
+        Q_UNUSED(idx);
+        if (_graphData[row].isActive())
         {
-            setActive(idx, false);
+            setActive(row, false);
         }
-        _graphData.removeAt(idx);
+        _graphData.removeAt(row);
 
         updateActiveGraphList();
     }
