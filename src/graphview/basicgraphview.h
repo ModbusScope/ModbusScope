@@ -59,7 +59,7 @@ private slots:
     void generateTickLabels();
     void selectionChanged();
 
-    void mousePress();
+    void mousePress(QMouseEvent *event);
     void mouseWheel();
     void legendClick(QCPLegend * legend, QCPAbstractLegendItem * abstractLegendItem, QMouseEvent * event);
     void legendDoubleClick(QCPLegend * legend,QCPAbstractLegendItem * abstractLegendItem, QMouseEvent * event);
@@ -83,6 +83,9 @@ private:
     qint32 graphIndex(QCPGraph * pGraph);
 
     QVector<QString> tickLabels;
+
+    QCPItemStraightLine * _pStartMarker;
+    QCPItemStraightLine * _pEndMarker;
 
     static const qint32 _cPixelNearThreshold = 20; /* in pixels */
     static const qint32 _cPixelPerPointThreshold = 5; /* in pixels */

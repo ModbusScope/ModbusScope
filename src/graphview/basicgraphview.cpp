@@ -62,13 +62,29 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
    connect(_pPlot, SIGNAL(selectionChangedByUser()), this, SLOT(selectionChanged()));
 
    // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
-   connect(_pPlot, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress()));
+   connect(_pPlot, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress(QMouseEvent*)));
    connect(_pPlot, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel()));
    connect(_pPlot, SIGNAL(axisDoubleClick(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)), this, SLOT(axisDoubleClicked(QCPAxis*)));
    connect(_pPlot, SIGNAL(legendClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)), this, SLOT(legendClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)));
    connect(_pPlot, SIGNAL(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)), this, SLOT(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)));
    connect(_pPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMove(QMouseEvent*)));
    connect(_pPlot, SIGNAL(beforeReplot()), this, SLOT(handleSamplePoints()));
+
+   QPen markerPen;
+   markerPen.setWidth(2);
+
+   markerPen.setColor(QColor(Qt::green));
+   _pStartMarker = new QCPItemStraightLine(_pPlot);
+   _pPlot->addItem(_pStartMarker);
+   _pStartMarker->setVisible(false);
+   _pStartMarker->setPen(markerPen);
+
+   markerPen.setColor(QColor(Qt::red));
+   _pEndMarker = new QCPItemStraightLine(_pPlot);
+   _pPlot->addItem(_pEndMarker);
+   _pEndMarker->setVisible(false);
+   _pEndMarker->setPen(markerPen);
+
 }
 
 BasicGraphView::~BasicGraphView()
@@ -351,22 +367,85 @@ void BasicGraphView::selectionChanged()
 
 }
 
-void BasicGraphView::mousePress()
+void BasicGraphView::mousePress(QMouseEvent *event)
 {
-   // if an axis is selected, only allow the direction of that axis to be dragged
-   // if no axis is selected, both directions may be dragged
+   if (event->modifiers() & Qt::ControlModifier)
+   {
+       const double xPos = _pPlot->xAxis->pixelToCoord(event->pos().x());
 
-   if (_pPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
-   {
-       _pPlot->axisRect()->setRangeDrag(_pPlot->xAxis->orientation());
-   }
-   else if (_pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
-   {
-       _pPlot->axisRect()->setRangeDrag(_pPlot->yAxis->orientation());
+       double correctXPos;
+       if (_pPlot->graphCount() > 0)
+       {
+           const QList<double> keyList = _pPlot->graph(0)->data()->keys();
+
+           // find the nearest point
+           for (qint32 i = 1; i < keyList.size(); i++)
+           {
+               const double leftPoint = keyList[i - 1];
+               const double rightPoint = keyList[i];
+
+               if (
+                   (xPos > leftPoint)
+                   && (xPos <= rightPoint)
+                   )
+               {
+                   const double xCoordPxl = xPos - leftPoint;
+                   const double diff = rightPoint - leftPoint;
+
+                   if (xCoordPxl > diff / 2)
+                   {
+                       correctXPos = rightPoint;
+                   }
+                   else
+                   {
+                       correctXPos = leftPoint;
+                   }
+
+                   break;
+               }
+           }
+       }
+
+       if (event->button() & Qt::LeftButton)
+       {
+           if (correctXPos != _pEndMarker->point1->coords().x())
+           {
+               _pStartMarker->setVisible(true);
+               _pStartMarker->point1->setCoords(correctXPos, 0);
+               _pStartMarker->point2->setCoords(correctXPos, 1);
+           }
+       }
+       else if (event->button() & Qt::MiddleButton)
+       {
+           if (correctXPos != _pStartMarker->point1->coords().x())
+           {
+                _pEndMarker->setVisible(true);
+                _pEndMarker->point1->setCoords(correctXPos, 0);
+                _pEndMarker->point2->setCoords(correctXPos, 1);
+           }
+       }
+       else
+       {
+           // No function
+       }
    }
    else
    {
-       _pPlot->axisRect()->setRangeDrag(Qt::Horizontal|Qt::Vertical);
+       // if an axis is selected, only allow the direction of that axis to be dragged
+       // if no axis is selected, both directions may be dragged
+
+       if (_pPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
+       {
+           _pPlot->axisRect()->setRangeDrag(_pPlot->xAxis->orientation());
+       }
+       else if (_pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
+       {
+           _pPlot->axisRect()->setRangeDrag(_pPlot->yAxis->orientation());
+       }
+       else
+       {
+           _pPlot->axisRect()->setRangeDrag(Qt::Horizontal|Qt::Vertical);
+       }
    }
 }
 
