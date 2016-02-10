@@ -42,6 +42,8 @@ public:
     qint64 communicationEndTime();
     quint32 communicationErrorCount();
     quint32 communicationSuccessCount();
+    double startMarkerPos();
+    double endMarkerPos();
 
     void setProjectFilePath(QString path);
     void setDataFilePath(QString path);
@@ -64,6 +66,9 @@ public slots:
     void setCommunicationStartTime(qint64 startTime);
     void setCommunicationEndTime(qint64 endTime);
     void setCommunicationStats(quint32 successCount, quint32 errorCount);
+    void clearMarkersState(void);
+    void setStartMarkerPos(double pos);
+    void setEndMarkerPos(double pos);
 
 signals:
 
@@ -81,6 +86,9 @@ signals:
     void projectFilePathChanged();
     void dataFilePathChanged();
     void communicationStatsChanged();
+    void markerStateCleared();
+    void startMarkerPosChanged();
+    void endMarkerPosChanged();
 
 private slots:
 
@@ -115,6 +123,12 @@ private:
     bool _bLegendVisibility;
     BasicGraphView::LegendsPositionOptions _legendPosition;
     quint32 _guiState;
+
+    bool _bStartMarkerState;
+    double _startMarkerPos;
+
+    bool _bEndMarkerState;
+    double _endMarkerPos;
 
     static const QString _cWindowTitle;
 

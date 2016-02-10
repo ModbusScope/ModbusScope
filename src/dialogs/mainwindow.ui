@@ -120,6 +120,7 @@
     <addaction name="menuLegend"/>
     <addaction name="separator"/>
     <addaction name="actionClearData"/>
+    <addaction name="actionClearMarkers"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuCommunication"/>
@@ -567,6 +568,11 @@
    </property>
    <property name="text">
     <string>Log Settings</string>
+   </property>
+  </action>
+  <action name="actionClearMarkers">
+   <property name="text">
+    <string>Clear Markers</string>
    </property>
   </action>
  </widget>

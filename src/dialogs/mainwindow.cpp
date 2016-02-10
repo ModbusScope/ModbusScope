@@ -58,6 +58,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionShowValueTooltip, SIGNAL(toggled(bool)), _pGuiModel, SLOT(setValueTooltip(bool)));
     connect(_pUi->actionHighlightSamplePoints, SIGNAL(toggled(bool)), _pGuiModel, SLOT(setHighlightSamples(bool)));
     connect(_pUi->actionClearData, SIGNAL(triggered()), this, SLOT(clearData()));
+    connect(_pUi->actionClearMarkers, SIGNAL(triggered()), _pGuiModel, SLOT(clearMarkersState()));
     connect(_pUi->actionConnectionSettings, SIGNAL(triggered()), this, SLOT(showConnectionDialog()));
     connect(_pUi->actionLogSettings, SIGNAL(triggered()), this, SLOT(showLogDialog()));
     connect(_pUi->actionRegisterSettings, SIGNAL(triggered()), this, SLOT(showRegisterDialog()));
@@ -89,6 +90,10 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGuiModel, SIGNAL(yAxisMinMaxchanged()), this, SLOT(updateyAxisMinMax()));
     connect(_pGuiModel, SIGNAL(yAxisMinMaxchanged()), _pGraphView, SLOT(rescalePlot()));
     connect(_pGuiModel, SIGNAL(communicationStatsChanged()), this, SLOT(updateStats()));
+
+    connect(_pGuiModel, SIGNAL(markerStateCleared()), _pGraphView, SLOT(clearMarkers()));
+    connect(_pGuiModel, SIGNAL(startMarkerPosChanged()), _pGraphView, SLOT(setStartMarker()));
+    connect(_pGuiModel, SIGNAL(endMarkerPosChanged()), _pGraphView, SLOT(setEndMarker()));
 
     connect(_pGraphDataModel, SIGNAL(visibilityChanged(quint32)), this, SLOT(handleGraphVisibilityChange(const quint32)));
     connect(_pGraphDataModel, SIGNAL(visibilityChanged(quint32)), _pGraphView, SLOT(showGraph(const quint32)));
@@ -357,6 +362,7 @@ void MainWindow::clearData()
 {
     _pConnMan->resetCommunicationStats();
     _pGraphView->clearResults();
+    _pGuiModel->clearMarkersState();
 }
 
 void MainWindow::startScope()

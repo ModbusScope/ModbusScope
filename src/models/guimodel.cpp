@@ -332,6 +332,16 @@ quint32 GuiModel::communicationSuccessCount()
     return _successCount;
 }
 
+double GuiModel::startMarkerPos()
+{
+    return _startMarkerPos;
+}
+
+double GuiModel::endMarkerPos()
+{
+    return _endMarkerPos;
+}
+
 void GuiModel::setCommunicationStats(quint32 successCount, quint32 errorCount)
 {
     if (
@@ -342,6 +352,51 @@ void GuiModel::setCommunicationStats(quint32 successCount, quint32 errorCount)
         _successCount = successCount;
         _errorCount = errorCount;
         emit communicationStatsChanged();
+    }
+}
+
+void GuiModel::clearMarkersState(void)
+{
+    if (_bStartMarkerState || _bEndMarkerState)
+    {
+        _bStartMarkerState = false;
+        _bEndMarkerState = false;
+
+        emit markerStateCleared();
+    }
+}
+
+void GuiModel::setStartMarkerPos(double pos)
+{
+    if (
+            (_startMarkerPos != pos)
+            || (!_bStartMarkerState)
+        )
+    {
+        if (pos != _endMarkerPos)
+        {
+            _bStartMarkerState = true;
+            _startMarkerPos = pos;
+
+            emit startMarkerPosChanged();
+        }
+    }
+}
+
+void GuiModel::setEndMarkerPos(double pos)
+{
+    if (
+            (_endMarkerPos != pos)
+            || (!_bEndMarkerState)
+        )
+    {
+        if (pos != _startMarkerPos)
+        {
+            _bEndMarkerState = true;
+            _endMarkerPos = pos;
+
+            emit endMarkerPosChanged();
+        }
     }
 }
 

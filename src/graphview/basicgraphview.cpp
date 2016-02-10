@@ -329,6 +329,32 @@ void BasicGraphView::updateLegendPosition()
     _pPlot->replot();
 }
 
+void BasicGraphView::clearMarkers()
+{
+    _pStartMarker->setVisible(false);
+    _pEndMarker->setVisible(false);
+
+    _pPlot->replot();
+}
+
+void BasicGraphView::setStartMarker()
+{
+    _pStartMarker->setVisible(true);
+    _pStartMarker->point1->setCoords(_pGuiModel->startMarkerPos(), 0);
+    _pStartMarker->point2->setCoords(_pGuiModel->startMarkerPos(), 1);
+
+    _pPlot->replot();
+}
+
+void BasicGraphView::setEndMarker()
+{
+    _pEndMarker->setVisible(true);
+    _pEndMarker->point1->setCoords(_pGuiModel->endMarkerPos(), 0);
+    _pEndMarker->point2->setCoords(_pGuiModel->endMarkerPos(), 1);
+
+    _pPlot->replot();
+}
+
 void BasicGraphView::generateTickLabels()
 {
     QVector<double> ticks = _pPlot->xAxis->tickVector();
@@ -408,21 +434,11 @@ void BasicGraphView::mousePress(QMouseEvent *event)
 
        if (event->button() & Qt::LeftButton)
        {
-           if (correctXPos != _pEndMarker->point1->coords().x())
-           {
-               _pStartMarker->setVisible(true);
-               _pStartMarker->point1->setCoords(correctXPos, 0);
-               _pStartMarker->point2->setCoords(correctXPos, 1);
-           }
+            _pGuiModel->setStartMarkerPos(correctXPos);
        }
        else if (event->button() & Qt::MiddleButton)
        {
-           if (correctXPos != _pStartMarker->point1->coords().x())
-           {
-                _pEndMarker->setVisible(true);
-                _pEndMarker->point1->setCoords(correctXPos, 0);
-                _pEndMarker->point2->setCoords(correctXPos, 1);
-           }
+            _pGuiModel->setEndMarkerPos(correctXPos);
        }
        else
        {
