@@ -148,8 +148,9 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     this->setAcceptDrops(true);
 
-    // For scale dock undock
+    // For dock undock
     connect(_pUi->scaleOptionsDock, SIGNAL(topLevelChanged(bool)), this, SLOT(scaleWidgetUndocked(bool)));
+    connect(_pUi->legendDock, SIGNAL(topLevelChanged(bool)), this, SLOT(legendWidgetUndocked(bool)));
 
     // For rightclick menu
     _pUi->customPlot->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -759,6 +760,15 @@ void MainWindow::scaleWidgetUndocked(bool bFloat)
     if (bFloat)
     {
         _pUi->scaleOptionsDock->adjustSize();
+    }
+}
+
+void MainWindow::legendWidgetUndocked(bool bFloat)
+{
+    if (bFloat)
+    {
+        // TODO: fix scaling to minimum
+        //_pUi->legendDock->adjustSize();
     }
 }
 

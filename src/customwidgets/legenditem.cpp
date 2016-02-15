@@ -15,7 +15,10 @@ LegendItem::LegendItem(QWidget *parent) : QFrame(parent)
     _pLabelColor->setMinimumSize(10, 10);
 
     _pLayout->addWidget(_pLabelColor);
+    _pLayout->setStretch(0, 0);
+
     _pLayout->addWidget(_pLabelText);
+    _pLayout->setStretch(1, 1);
 
     setLayout(_pLayout);
 }

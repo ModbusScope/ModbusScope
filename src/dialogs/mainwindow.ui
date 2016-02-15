@@ -394,7 +394,7 @@
       </widget>
      </item>
      <item>
-      <spacer name="verticalSpacer">
+      <spacer name="legendSpacer">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>

@@ -27,6 +27,9 @@ public slots:
 
 private slots:
     void updateLegend();
+    void showGraph(quint32 graphIdx);
+    void changeGraphColor(const quint32 graphIdx);
+    void changeGraphLabel(const quint32 graphIdx);
 
 private:
 
