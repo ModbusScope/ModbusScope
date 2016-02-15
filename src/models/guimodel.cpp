@@ -60,6 +60,10 @@ void GuiModel::triggerUpdate(void)
     emit guiStateChanged();
     emit projectFilePathChanged();
     emit dataFilePathChanged();
+
+    emit markerStateCleared();
+    emit startMarkerPosChanged();
+    emit endMarkerPosChanged();
 }
 
 /*
@@ -373,7 +377,10 @@ void GuiModel::setStartMarkerPos(double pos)
             || (!_bStartMarkerState)
         )
     {
-        if (pos != _endMarkerPos)
+        if (
+            (!_bEndMarkerState)
+            || (pos != _endMarkerPos)
+        )
         {
             _bStartMarkerState = true;
             _startMarkerPos = pos;
@@ -390,7 +397,10 @@ void GuiModel::setEndMarkerPos(double pos)
             || (!_bEndMarkerState)
         )
     {
-        if (pos != _startMarkerPos)
+        if (
+            (!_bStartMarkerState)
+            || (pos != _startMarkerPos)
+        )
         {
             _bEndMarkerState = true;
             _endMarkerPos = pos;
