@@ -10,7 +10,7 @@
 #include "settingsmodel.h"
 #include "logdialog.h"
 #include "aboutdialog.h"
-
+#include "markerinfo.h"
 #include "guimodel.h"
 #include "extendedgraphview.h"
 #include "util.h"
@@ -182,6 +182,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
 
     connect(_pConnMan, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pGraphView, SLOT(plotResults(QList<bool>, QList<double>)));
+
+    _pMarkerInfo = _pUi->markerInfo;
 
     /* Update interface via model */
     _pGuiModel->triggerUpdate();

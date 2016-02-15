@@ -25,7 +25,7 @@ class SettingsModel;
 class LogDialog;
 class GuiModel;
 class ExtendedGraphView;
-
+class MarkerInfo;
 
 class MainWindow : public QMainWindow
 {
@@ -108,6 +108,8 @@ private:
 
     GraphDataModel * _pGraphDataModel;
     RegisterDialog * _pRegisterDialog;
+
+    MarkerInfo * _pMarkerInfo;
 
     GuiModel * _pGuiModel;
 

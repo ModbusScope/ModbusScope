@@ -31,6 +31,7 @@ INCLUDEPATH += \
     ../libraries/libmodbus/src \
     ../libraries/qcustomplot \
     ../src/communication \
+    ../src/customwidgets \
     ../src/importexport \
     ../src/dialogs \
     ../src/graphview \
@@ -66,7 +67,9 @@ SOURCES +=  \
     ../src/models/graphdatamodel.cpp \
     ../src/models/graphdata.cpp \
     ../src/communication/modbusresult.cpp \
-    ../src/graphview/myqcpgraph.cpp
+    ../src/graphview/myqcpgraph.cpp \
+    ../src/customwidgets/markerinfo.cpp \
+    ../src/customwidgets/markerinfoitem.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
@@ -91,7 +94,6 @@ HEADERS += \
     ../src/dialogs/connectiondialog.h \
     ../src/dialogs/logdialog.h \
     ../src/dialogs/mainwindow.h \
-    ../src/dialogs/registerdialog.h \
     ../src/graphview/basicgraphview.h \
     ../src/graphview/extendedgraphview.h \
     ../src/models/guimodel.h \
@@ -102,11 +104,13 @@ HEADERS += \
     ../src/util/updatenotify.h \
     ../src/graphview/myqcustomplot.h \
     ../src/importexport/settingsauto.h \
-    ../src/models/registerdialogmodel.h \
     ../src/models/graphdatamodel.h \
     ../src/models/graphdata.h \
     ../src/communication/modbusresult.h \
-    ../src/graphview/myqcpgraph.h
+    ../src/graphview/myqcpgraph.h \
+    ../src/dialogs/registerdialog.h \
+    ../src/customwidgets/markerinfo.h \
+    ../src/customwidgets/markerinfoitem.h
 
 RESOURCES += \
     ../resources/resource.qrc
