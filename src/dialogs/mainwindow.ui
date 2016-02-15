@@ -99,25 +99,11 @@
       <string>Show/Hide</string>
      </property>
     </widget>
-    <widget class="QMenu" name="menuLegend">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="title">
-      <string>Legend</string>
-     </property>
-     <addaction name="actionShowLegend"/>
-     <addaction name="separator"/>
-     <addaction name="actionLegendLeft"/>
-     <addaction name="actionLegendMiddle"/>
-     <addaction name="actionLegendRight"/>
-    </widget>
     <addaction name="menuBringToFront"/>
     <addaction name="menuShowHide"/>
     <addaction name="separator"/>
     <addaction name="actionShowValueTooltip"/>
     <addaction name="actionHighlightSamplePoints"/>
-    <addaction name="menuLegend"/>
     <addaction name="separator"/>
     <addaction name="actionClearData"/>
     <addaction name="actionClearMarkers"/>
@@ -555,50 +541,6 @@
    </property>
    <property name="text">
     <string>Register settings</string>
-   </property>
-  </action>
-  <action name="actionLegendLeft">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Legend to left</string>
-   </property>
-  </action>
-  <action name="actionLegendMiddle">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Legend to middle</string>
-   </property>
-  </action>
-  <action name="actionLegendRight">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Legend to right</string>
-   </property>
-  </action>
-  <action name="actionShowLegend">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Show/hide Legend</string>
    </property>
   </action>
   <action name="actionLogSettings">

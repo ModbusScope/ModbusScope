@@ -105,7 +105,6 @@ HEADERS += \
     ../src/util/updatenotify.h \
     ../src/graphview/myqcustomplot.h \
     ../src/importexport/settingsauto.h \
-    ../src/models/registerdialogmodel.h \
     ../src/models/graphdatamodel.h \
     ../src/models/graphdata.h \
     ../src/communication/modbusresult.h \

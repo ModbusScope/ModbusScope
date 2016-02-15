@@ -27,8 +27,6 @@ public:
     bool highlightSamples() const;
     bool valueTooltip() const;
     QString windowTitle();
-    bool legendVisibility();
-    BasicGraphView::LegendsPositionOptions legendPosition();
     QString projectFilePath();
     QString dataFilePath();
     QString lastDir();
@@ -55,8 +53,6 @@ public slots:
     void setFrontGraph(const qint32 &frontGraph);
 
     void setWindowTitleDetail(QString detail);
-    void setLegendVisibility(bool bLegendVisibility);
-    void setLegendPosition(BasicGraphView::LegendsPositionOptions pos);
     void setxAxisScale(BasicGraphView::AxisScaleOptions scaleMode);
     void setxAxisSlidingInterval(qint32 slidingSec);
     void setyAxisScale(BasicGraphView::AxisScaleOptions scaleMode);
@@ -76,8 +72,6 @@ signals:
     void highlightSamplesChanged();
     void valueTooltipChanged();
     void windowTitleChanged();
-    void legendVisibilityChanged();
-    void legendPositionChanged();
     void xAxisScalingChanged();
     void xAxisSlidingIntervalChanged();
     void yAxisScalingChanged();
@@ -120,8 +114,6 @@ private:
 
     bool _bHighlightSamples;
     bool _bValueTooltip;
-    bool _bLegendVisibility;
-    BasicGraphView::LegendsPositionOptions _legendPosition;
     quint32 _guiState;
 
     bool _bStartMarkerState;

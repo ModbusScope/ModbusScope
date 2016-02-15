@@ -12,8 +12,6 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
     _dataFilePath = "";
     _bHighlightSamples = true;
     _bValueTooltip = false;
-    _bLegendVisibility = false;
-    _legendPosition = BasicGraphView::LEGEND_MIDDLE;
     _guiState = INIT;
     _windowTitle = _cWindowTitle;
 
@@ -47,16 +45,10 @@ void GuiModel::triggerUpdate(void)
     emit valueTooltipChanged();
     emit windowTitleChanged();
     emit communicationStatsChanged();
-
-    emit legendVisibilityChanged();
-    emit legendPositionChanged();
-
     emit yAxisMinMaxchanged();
     emit xAxisSlidingIntervalChanged();
-
     emit xAxisScalingChanged();
     emit yAxisScalingChanged();
-
     emit guiStateChanged();
     emit projectFilePathChanged();
     emit dataFilePathChanged();
@@ -131,34 +123,6 @@ void GuiModel::setWindowTitleDetail(QString detail)
     {
         _windowTitle = tmpTitle;
         emit windowTitleChanged();
-    }
-}
-
-bool GuiModel::legendVisibility()
-{
-    return _bLegendVisibility;
-}
-
-void GuiModel::setLegendVisibility(bool bLegendVisibility)
-{
-    if (_bLegendVisibility != bLegendVisibility)
-    {
-        _bLegendVisibility = bLegendVisibility;
-         emit legendVisibilityChanged();
-    }
-}
-
-BasicGraphView::LegendsPositionOptions GuiModel::legendPosition()
-{
-    return _legendPosition;
-}
-
-void GuiModel::setLegendPosition(BasicGraphView::LegendsPositionOptions pos)
-{
-    if (_legendPosition != pos)
-    {
-        _legendPosition = pos;
-         emit legendPositionChanged();
     }
 }
 

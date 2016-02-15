@@ -65,7 +65,6 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionConnectionSettings, SIGNAL(triggered()), this, SLOT(showConnectionDialog()));
     connect(_pUi->actionLogSettings, SIGNAL(triggered()), this, SLOT(showLogDialog()));
     connect(_pUi->actionRegisterSettings, SIGNAL(triggered()), this, SLOT(showRegisterDialog()));
-    connect(_pUi->actionShowLegend, SIGNAL(triggered(bool)), _pGuiModel, SLOT(setLegendVisibility(bool)));
 
     /*-- connect model to view --*/
     connect(_pGuiModel, SIGNAL(frontGraphChanged()), this, SLOT(updateBringToFrontGrapMenu()));
@@ -127,12 +126,6 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGraphShowHide = _pUi->menuShowHide;
     _pGraphBringToFront = _pUi->menuBringToFront;
     _pBringToFrontGroup = new QActionGroup(this);
-
-    _pLegendPositionGroup = new QActionGroup(this);
-    _pUi->actionLegendLeft->setActionGroup(_pLegendPositionGroup);
-    _pUi->actionLegendMiddle->setActionGroup(_pLegendPositionGroup);
-    _pUi->actionLegendRight->setActionGroup(_pLegendPositionGroup);
-    connect(_pLegendPositionGroup, SIGNAL(triggered(QAction*)), this, SLOT(changeLegendPosition(QAction*)));
 
     // Add multipart status bar
     _pStatusState = new QLabel(_cStateStopped, this);
@@ -346,22 +339,6 @@ void MainWindow::showRegisterDialog()
     _pRegisterDialog->exec();
 }
 
-void MainWindow::changeLegendPosition(QAction* pAction)
-{
-    if (pAction == _pUi->actionLegendLeft)
-    {
-        _pGuiModel->setLegendPosition(BasicGraphView::LEGEND_LEFT);
-    }
-    else if (pAction == _pUi->actionLegendMiddle)
-    {
-        _pGuiModel->setLegendPosition(BasicGraphView::LEGEND_MIDDLE);
-    }
-    else if (pAction == _pUi->actionLegendRight)
-    {
-        _pGuiModel->setLegendPosition(BasicGraphView::LEGEND_RIGHT);
-    }
-}
-
 void MainWindow::clearData()
 {
     _pConnMan->resetCommunicationStats();
@@ -533,15 +510,11 @@ void MainWindow::rebuildGraphMenu()
     {
         _pGraphShowHide->setEnabled(true);
         _pGraphBringToFront->setEnabled(true);
-
-        _pUi->menuLegend->setEnabled(true);
     }
     else
     {
         _pGraphShowHide->setEnabled(false);
         _pGraphBringToFront->setEnabled(false);
-
-        _pUi->menuLegend->setEnabled(false);
     }
 }
 
@@ -724,31 +697,6 @@ void MainWindow::dataFileLoaded()
     }
 }
 
-void MainWindow::updateLegendPositionMenu()
-{
-    if (_pGuiModel->legendPosition() == BasicGraphView::LEGEND_LEFT)
-    {
-        _pUi->actionLegendLeft->setChecked(true);
-    }
-    else if (_pGuiModel->legendPosition() == BasicGraphView::LEGEND_MIDDLE)
-    {
-        _pUi->actionLegendMiddle->setChecked(true);
-    }
-    else if (_pGuiModel->legendPosition() == BasicGraphView::LEGEND_RIGHT)
-    {
-        _pUi->actionLegendRight->setChecked(true);
-    }
-}
-
-void MainWindow::updateLegendMenu()
-{
-    _pUi->actionShowLegend->setChecked(_pGuiModel->legendVisibility());
-
-    _pUi->actionLegendLeft->setEnabled(_pGuiModel->legendVisibility());
-    _pUi->actionLegendMiddle->setEnabled(_pGuiModel->legendVisibility());
-    _pUi->actionLegendRight->setEnabled(_pGuiModel->legendVisibility());
-}
-
 void MainWindow::updateStats()
 {
     // Update statistics
@@ -905,25 +853,6 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
     else
     {
         _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
-    }
-
-    //TODO: remove tag???
-    //_pGuiModel->setLegendVisibility(pProjectSettings->view.legendSettings.bVisible);
-
-    if (pProjectSettings->view.legendSettings.bPosition)
-    {
-        if (pProjectSettings->view.legendSettings.position == 0)
-        {
-            _pGuiModel->setLegendPosition(BasicGraphView::LEGEND_LEFT);
-        }
-        else if (pProjectSettings->view.legendSettings.position == 1)
-        {
-            _pGuiModel->setLegendPosition(BasicGraphView::LEGEND_MIDDLE);
-        }
-        else if (pProjectSettings->view.legendSettings.position == 2)
-        {
-            _pGuiModel->setLegendPosition(BasicGraphView::LEGEND_RIGHT);
-        }
     }
 
     _pGraphDataModel->clear();

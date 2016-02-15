@@ -22,13 +22,6 @@ public:
         SCALE_MANUAL
     } AxisScaleOptions;
 
-    typedef enum
-    {
-        LEGEND_LEFT = 0,
-        LEGEND_MIDDLE,
-        LEGEND_RIGHT,
-    } LegendsPositionOptions;
-
     explicit BasicGraphView(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel, MyQCustomPlot *pPlot, QObject *parent = 0);
     virtual ~BasicGraphView();
 
@@ -46,12 +39,10 @@ public slots:
     virtual void enableSamplePoints();
     virtual void clearGraph(const quint32 graphIdx);
     virtual void updateGraphs();
-    virtual void showHideLegend();
     virtual void showGraph(quint32 graphIdx);
     virtual void changeGraphColor(const quint32 graphIdx);
     virtual void changeGraphLabel(const quint32 graphIdx);
     virtual void bringToFront();
-    virtual void updateLegendPosition();
     virtual void clearMarkers();
     virtual void setStartMarker();
     virtual void setEndMarker();
@@ -64,8 +55,6 @@ private slots:
 
     void mousePress(QMouseEvent *event);
     void mouseWheel();
-    void legendClick(QCPLegend * legend, QCPAbstractLegendItem * abstractLegendItem, QMouseEvent * event);
-    void legendDoubleClick(QCPLegend * legend,QCPAbstractLegendItem * abstractLegendItem, QMouseEvent * event);
     void mouseMove(QMouseEvent *event);
     void paintValueToolTip(QMouseEvent *event);
 

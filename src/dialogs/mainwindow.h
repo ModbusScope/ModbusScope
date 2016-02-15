@@ -58,7 +58,6 @@ private slots:
     void showConnectionDialog();
     void showLogDialog();
     void showRegisterDialog();
-    void changeLegendPosition(QAction* pAction);
     void clearData();
     void startScope();
     void stopScope();
@@ -80,8 +79,6 @@ private slots:
     void projectFileLoaded();
     void dataFileLoaded();
     void updateGuiState();
-    void updateLegendPositionMenu();
-    void updateLegendMenu();
     void updateStats();
 
     /* Misc */

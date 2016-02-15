@@ -238,20 +238,8 @@ void BasicGraphView::updateGraphs()
             // Set graph datamap
             pGraph->setData(pMap, false);
         }
-
-        _pGuiModel->setLegendVisibility(true);
-    }
-    else
-    {
-        _pGuiModel->setLegendVisibility(false);
     }
 
-    _pPlot->replot();
-}
-
-void BasicGraphView::showHideLegend()
-{
-    _pPlot->legend->setVisible(_pGuiModel->legendVisibility());
     _pPlot->replot();
 }
 
@@ -310,23 +298,6 @@ void BasicGraphView::bringToFront()
         _pPlot->graph(_pGuiModel->frontGraph())->setLayer("topMain");
         _pPlot->replot();
     }
-}
-
-void BasicGraphView::updateLegendPosition()
-{
-    if (_pGuiModel->legendPosition() == LEGEND_LEFT)
-    {
-         _pPlot ->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignLeft|Qt::AlignTop);
-    }
-    else if (_pGuiModel->legendPosition() == LEGEND_MIDDLE)
-    {
-         _pPlot ->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignCenter|Qt::AlignTop);
-    }
-    else if (_pGuiModel->legendPosition() == LEGEND_RIGHT)
-    {
-         _pPlot ->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignRight|Qt::AlignTop);
-    }
-    _pPlot->replot();
 }
 
 void BasicGraphView::clearMarkers()
@@ -486,44 +457,6 @@ void BasicGraphView::mouseWheel()
        _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
        _pGuiModel->setxAxisScale(SCALE_MANUAL);
    }
-}
-
-void BasicGraphView::legendClick(QCPLegend * legend, QCPAbstractLegendItem * abstractLegendItem, QMouseEvent * event)
-{
-    Q_UNUSED(event);
-
-    if ((NULL != legend) && (NULL != abstractLegendItem))
-    {
-        // Check for selection
-        QCPPlottableLegendItem *legendItem = qobject_cast<QCPPlottableLegendItem*>(abstractLegendItem);
-        if (legendItem != 0)
-        {
-            const qint32 graphIndex = this->graphIndex(qobject_cast<QCPGraph*>(legendItem->plottable()));
-            if (graphIndex >= 0)
-            {
-                _pGuiModel->setFrontGraph(graphIndex);
-            }
-        }
-    }
-}
-
-void BasicGraphView::legendDoubleClick(QCPLegend * legend,QCPAbstractLegendItem * abstractLegendItem, QMouseEvent * event)
-{
-    Q_UNUSED(event);
-
-    if ((NULL != legend) && (NULL != abstractLegendItem))
-    {
-        // Check for selection
-        QCPPlottableLegendItem *legendItem = qobject_cast<QCPPlottableLegendItem*>(abstractLegendItem);
-        if (legendItem != 0)
-        {
-            const qint32 graphIndex = this->graphIndex(qobject_cast<QCPGraph*>(legendItem->plottable()));
-            if (graphIndex >= 0)
-            {
-                _pGraphDataModel->setVisible(graphIndex, !_pGraphDataModel->isVisible(graphIndex));
-            }
-        }
-    }
 }
 
 void BasicGraphView::mouseMove(QMouseEvent *event)

@@ -45,20 +45,8 @@ public:
         qint32 scaleMax;
     } ScaleSettings;
 
-    typedef struct _LegendSettings
-    {
-        _LegendSettings() : bPosition(false), bVisible(true) {}
-
-        bool bPosition;
-        quint32 position;
-
-        bool bVisible;
-
-    } LegendSettings;
-
     typedef struct
     {
-        LegendSettings legendSettings;
         ScaleSettings scaleSettings;
 
     } ViewSettings;
@@ -136,7 +124,6 @@ private:
     bool parseScaleTag(const QDomElement &element, ScaleSettings *pScaleSettings);
     bool parseScaleXAxis(const QDomElement &element, ScaleSettings *pScaleSettings);
     bool parseScaleYAxis(const QDomElement &element, ScaleSettings *pScaleSettings);
-    bool parseLegendTag(const QDomElement &element, LegendSettings *pLegendSettings);
 
     QDomDocument _domDocument;
 
