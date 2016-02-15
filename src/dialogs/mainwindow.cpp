@@ -45,6 +45,9 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphView, _pGraphDataModel);
 
+    _pLegend = _pUi->legend;
+    _pLegend->setModels(_pGuiModel, _pGraphDataModel);
+
     /*-- Connect menu actions --*/
     connect(_pUi->actionStart, SIGNAL(triggered()), this, SLOT(startScope()));
     connect(_pUi->actionStop, SIGNAL(triggered()), this, SLOT(stopScope()));

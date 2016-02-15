@@ -7,6 +7,7 @@
 #include <QTimer>
 #include <QMenu>
 
+#include "legend.h"
 #include "datafileparser.h"
 #include "projectfileparser.h"
 #include "datafileexporter.h"
@@ -110,6 +111,8 @@ private:
     RegisterDialog * _pRegisterDialog;
 
     GuiModel * _pGuiModel;
+
+    Legend * _pLegend;
 
     DataFileExporter * _pDataFileExporter;
 

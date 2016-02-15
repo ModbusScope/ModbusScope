@@ -31,6 +31,7 @@ INCLUDEPATH += \
     ../libraries/libmodbus/src \
     ../libraries/qcustomplot \
     ../src/communication \
+    ../src/customwidgets \
     ../src/importexport \
     ../src/dialogs \
     ../src/graphview \
@@ -51,7 +52,6 @@ SOURCES +=  \
     ../src/dialogs/connectiondialog.cpp \
     ../src/dialogs/logdialog.cpp \
     ../src/dialogs/mainwindow.cpp \
-    ../src/dialogs/registerdialog.cpp \
     ../src/graphview/basicgraphview.cpp \
     ../src/graphview/extendedgraphview.cpp \
     ../src/models/guimodel.cpp \
@@ -66,7 +66,10 @@ SOURCES +=  \
     ../src/models/graphdatamodel.cpp \
     ../src/models/graphdata.cpp \
     ../src/communication/modbusresult.cpp \
-    ../src/graphview/myqcpgraph.cpp
+    ../src/graphview/myqcpgraph.cpp \
+    ../src/customwidgets/legend.cpp \
+    ../src/customwidgets/legenditem.cpp \
+    ../src/dialogs/registerdialog.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
@@ -106,7 +109,9 @@ HEADERS += \
     ../src/models/graphdatamodel.h \
     ../src/models/graphdata.h \
     ../src/communication/modbusresult.h \
-    ../src/graphview/myqcpgraph.h
+    ../src/graphview/myqcpgraph.h \
+    ../src/customwidgets/legend.h \
+    ../src/customwidgets/legenditem.h
 
 RESOURCES += \
     ../resources/resource.qrc
