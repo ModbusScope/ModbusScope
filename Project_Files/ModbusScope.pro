@@ -18,7 +18,7 @@ RC_ICONS = ../icon/application.ico
 
 VERSION = 1.1.0
 
-DEFINES += NDEBUG
+DEFINES += DEBUG
 
 DEFINES += GIT_HASH="\\\"$(shell git --git-dir \""$$PWD/../.git"\" rev-parse --short HEAD)\\\""
 DEFINES += GIT_BRANCH="\\\"$(shell git --git-dir \""$$PWD/../.git"\" rev-parse --abbrev-ref HEAD)\\\""

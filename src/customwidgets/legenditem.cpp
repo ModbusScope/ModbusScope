@@ -13,6 +13,10 @@ LegendItem::LegendItem(QWidget *parent) : QFrame(parent)
     _pLabelColor = new QLabel(this);
     _pLabelColor->setAutoFillBackground(true);
     _pLabelColor->setMinimumSize(10, 10);
+    _pLabelColor->setMaximumSize(10, 10);
+
+    _pLayout->setSpacing(4);
+    _pLayout->setContentsMargins(1, 1, 1, 1); // This is redundant with setMargin, which is deprecated
 
     _pLayout->addWidget(_pLabelColor);
     _pLayout->setStretch(0, 0);

@@ -16,8 +16,8 @@ Legend::Legend(QWidget *parent) : QFrame(parent)
 
     _pNoGraphs = new QLabel("No active graphs");
 
-    _pLayout->setSpacing(0);
-    _pLayout->setContentsMargins(0,0,0,0); // This is redundant with setMargin, which is deprecated
+    _pLayout->setSpacing(4);
+    _pLayout->setContentsMargins(1, 1, 1, 1); // This is redundant with setMargin, which is deprecated
 
     _pLayout->addWidget(_pNoGraphs);
     setLayout(_pLayout);
