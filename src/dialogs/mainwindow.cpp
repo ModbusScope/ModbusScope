@@ -175,6 +175,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
 
     connect(_pConnMan, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pGraphView, SLOT(plotResults(QList<bool>, QList<double>)));
+    connect(_pConnMan, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pLegend, SLOT(addDataToLegend(QList<bool>, QList<double>)));
 
     /* Update interface via model */
     _pGuiModel->triggerUpdate();

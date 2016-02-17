@@ -67,14 +67,11 @@ void ExtendedGraphView::plotResults(QList<bool> successList, QList<double> value
             // No error, add points
             _pPlot->graph(i)->addData(timeData, valueList[i]);
             dataList.append(valueList[i]);
-
-            _pPlot->graph(i)->setName(QString("(%1) %2").arg(Util::formatDoubleForExport(valueList[i])).arg(_pGraphDataModel->label(i)));
         }
         else
         {
             _pPlot->graph(i)->addData(timeData, 0);
             dataList.append(0);
-            _pPlot->graph(i)->setName(QString("(-) %1").arg(_pGraphDataModel->label(i)));
         }
     }
 

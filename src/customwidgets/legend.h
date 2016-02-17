@@ -24,6 +24,7 @@ public:
 signals:
 
 public slots:
+    void addDataToLegend(QList<bool> successList, QList<double> valueList);
 
 private slots:
     void updateLegend();

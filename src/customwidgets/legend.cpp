@@ -7,7 +7,7 @@
 
 #include "guimodel.h"
 #include "graphdatamodel.h"
-
+#include "util.h"
 #include "legend.h"
 
 Legend::Legend(QWidget *parent) : QFrame(parent)
@@ -56,6 +56,23 @@ void Legend::mouseDoubleClickEvent(QMouseEvent * event)
         const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(idx);
 
         _pGraphDataModel->setVisible(graphIdx, !_pGraphDataModel->isVisible(graphIdx));
+    }
+}
+
+void Legend::addDataToLegend(QList<bool> successList, QList<double> valueList)
+{
+    for (qint32 i = 0; i < valueList.size(); i++)
+    {
+        if (successList[i])
+        {
+           // No error
+          _items[i]->setText(QString("(%1) %2").arg(Util::formatDoubleForExport(valueList[i])).arg(_pGraphDataModel->label(i)));
+        }
+        else
+        {
+            /* Show error */
+          _items[i]->setText(QString("(-) %1").arg(_pGraphDataModel->label(i)));
+        }
     }
 }
 
