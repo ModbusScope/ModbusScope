@@ -44,11 +44,6 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
 
    _pPlot->yAxis->setRange(0, 65535);
 
-   _pPlot->legend->setVisible(false);
-   QFont legendFont = QApplication::font();
-   legendFont.setPointSize(10);
-   _pPlot->legend->setFont(legendFont);
-
    // Tooltip is enabled
    _bEnableTooltip = true;
 
@@ -65,8 +60,6 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
    connect(_pPlot, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress(QMouseEvent*)));
    connect(_pPlot, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel()));
    connect(_pPlot, SIGNAL(axisDoubleClick(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)), this, SLOT(axisDoubleClicked(QCPAxis*)));
-   connect(_pPlot, SIGNAL(legendClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)), this, SLOT(legendClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)));
-   connect(_pPlot, SIGNAL(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)), this, SLOT(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)));
    connect(_pPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMove(QMouseEvent*)));
    connect(_pPlot, SIGNAL(beforeReplot()), this, SLOT(handleSamplePoints()));
 
@@ -252,11 +245,6 @@ void BasicGraphView::showGraph(quint32 graphIdx)
         const quint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
         _pPlot->graph(activeIdx)->setVisible(bShow);
-
-        QFont itemFont = _pPlot->legend->item(activeIdx)->font();
-        itemFont.setStrikeOut(!bShow);
-
-        _pPlot->legend->item(activeIdx)->setFont(itemFont);
 
         _pPlot->replot();
     }
@@ -464,22 +452,19 @@ void BasicGraphView::mouseMove(QMouseEvent *event)
     // Check for graph drag
     if(event->buttons() & Qt::LeftButton)
     {
-        if (_pPlot->legend->selectTest(event->pos(), false) <= 0)
+        if (_pPlot->axisRect()->rangeDrag() == Qt::Horizontal)
         {
-            if (_pPlot->axisRect()->rangeDrag() == Qt::Horizontal)
-            {
-                _pGuiModel->setxAxisScale(SCALE_MANUAL); // change to manual scaling
-            }
-            else if (_pPlot->axisRect()->rangeDrag() == Qt::Vertical)
-            {
-                _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
-            }
-            else
-            {
-                // Both change to manual scaling
-                _pGuiModel->setxAxisScale(SCALE_MANUAL);
-                _pGuiModel->setyAxisScale(SCALE_MANUAL);
-            }
+            _pGuiModel->setxAxisScale(SCALE_MANUAL); // change to manual scaling
+        }
+        else if (_pPlot->axisRect()->rangeDrag() == Qt::Vertical)
+        {
+            _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
+        }
+        else
+        {
+            // Both change to manual scaling
+            _pGuiModel->setxAxisScale(SCALE_MANUAL);
+            _pGuiModel->setyAxisScale(SCALE_MANUAL);
         }
     }
     else
