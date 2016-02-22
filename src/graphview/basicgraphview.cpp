@@ -436,7 +436,7 @@ void BasicGraphView::mousePress(QMouseEvent *event)
        {
             _pGuiModel->setStartMarkerPos(correctXPos);
        }
-       else if (event->button() & Qt::MiddleButton)
+       else if (event->button() & Qt::RightButton)
        {
             _pGuiModel->setEndMarkerPos(correctXPos);
        }

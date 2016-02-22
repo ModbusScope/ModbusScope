@@ -763,7 +763,11 @@ void MainWindow::scaleWidgetUndocked(bool bFloat)
 
 void MainWindow::showContextMenu(const QPoint& pos)
 {
-    _pUi->menuView->popup(_pUi->customPlot->mapToGlobal(pos));
+    /* Don't show context menu when control key is pressed */
+    if (!(QApplication::keyboardModifiers() & Qt::ControlModifier))
+    {
+        _pUi->menuView->popup(_pUi->customPlot->mapToGlobal(pos));
+    }
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *e)
