@@ -2,26 +2,44 @@
 #define MARKERINFO_H
 
 #include <QFrame>
+#include <QLabel>
+#include <QComboBox>
 #include <QVBoxLayout>
 
-#include "markerinfoitem.h"
+
+/* Forward declarations */
+class GuiModel;
+class GraphDataModel;
 
 class MarkerInfo : public QFrame
 {
+    Q_OBJECT
+
 public:
     MarkerInfo(QWidget *parent = 0);
+
+    void setModel(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel);
 
 signals:
 
 public slots:
 
 private slots:
+    void updateGraphList(void);
+    void removeFromGraphList(const quint32 index);
+    void graphSelected(qint32 index);
 
 private:
 
-    QVBoxLayout * _pLayout;
-    QList<MarkerInfoItem *> _items;
+    void updateList();
+    void selectGraph(qint32 graphIndex);
 
+    QVBoxLayout * _pLayout;
+    QComboBox * _pGraphCombo;
+    QLabel * _pLabel;
+
+    GuiModel * _pGuiModel;
+    GraphDataModel * _pGraphDataModel;
 };
 
 #endif // MARKERINFO_H

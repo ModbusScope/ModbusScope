@@ -18,7 +18,7 @@ RC_ICONS = ../icon/application.ico
 
 VERSION = 1.1.0
 
-DEFINES += NDEBUG
+DEFINES += DEBUG
 
 DEFINES += GIT_HASH="\\\"$(shell git --git-dir \""$$PWD/../.git"\" rev-parse --short HEAD)\\\""
 DEFINES += GIT_BRANCH="\\\"$(shell git --git-dir \""$$PWD/../.git"\" rev-parse --abbrev-ref HEAD)\\\""
@@ -68,8 +68,7 @@ SOURCES +=  \
     ../src/models/graphdata.cpp \
     ../src/communication/modbusresult.cpp \
     ../src/graphview/myqcpgraph.cpp \
-    ../src/customwidgets/markerinfo.cpp \
-    ../src/customwidgets/markerinfoitem.cpp
+    ../src/customwidgets/markerinfo.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
@@ -109,8 +108,7 @@ HEADERS += \
     ../src/communication/modbusresult.h \
     ../src/graphview/myqcpgraph.h \
     ../src/dialogs/registerdialog.h \
-    ../src/customwidgets/markerinfo.h \
-    ../src/customwidgets/markerinfoitem.h
+    ../src/customwidgets/markerinfo.h
 
 RESOURCES += \
     ../resources/resource.qrc

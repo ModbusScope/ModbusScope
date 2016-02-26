@@ -21,6 +21,9 @@ GraphDataModel::GraphDataModel(QObject *parent) : QAbstractTableModel(parent)
     connect(this, SIGNAL(registerAddressChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(bitmaskChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(shiftChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
+
+    connect(this, SIGNAL(added(quint32)), this, SLOT(modelDataChanged()));
+    connect(this, SIGNAL(removed(quint32)), this, SLOT(modelDataChanged()));
 }
 
 int GraphDataModel::rowCount(const QModelIndex & /*parent*/) const
@@ -376,8 +379,9 @@ Qt::ItemFlags GraphDataModel::flags(const QModelIndex & index) const
 bool GraphDataModel::removeRows (int row, int count, const QModelIndex & parent)
 {
     Q_UNUSED(parent);
+    Q_UNUSED(count);
 
-    removeFromModel(row, count);
+    removeFromModel(row);
 
     return true;
 }
@@ -609,10 +613,8 @@ void GraphDataModel::removeRegister(qint32 idx)
 {   
     if (idx < _graphData.size())
     {
-        removeFromModel(idx, 1);
+        removeFromModel(idx);
     }
-
-    emit removed(idx);
 }
 
 void GraphDataModel::clear()
@@ -760,32 +762,23 @@ void GraphDataModel::addToModel(GraphData * pGraphData)
 
     _graphData.append(*pGraphData);
 
-    if (pGraphData->isActive())
-    {
-        // Always make sure active event is send when active is true
-        setActive(_graphData.size() - 1, false);
-        setActive(_graphData.size() - 1, true);
-    }
+    updateActiveGraphList();
 
     /* Call function to trigger view update */
     endInsertRows();
+
+    emit added(size() - 1);
 }
 
-void GraphDataModel::removeFromModel(qint32 row, qint32 count)
+void GraphDataModel::removeFromModel(qint32 row)
 {
-    beginRemoveRows(QModelIndex(), row, row + count - 1);
+    beginRemoveRows(QModelIndex(), row, row);
 
-    for (qint32 idx = 0; idx < count; idx++)
-    {
-        Q_UNUSED(idx);
-        if (_graphData[row].isActive())
-        {
-            setActive(row, false);
-        }
-        _graphData.removeAt(row);
+    _graphData.removeAt(row);
 
-        updateActiveGraphList();
-    }
+    updateActiveGraphList();
 
     endRemoveRows();
+
+    emit removed(row);
 }

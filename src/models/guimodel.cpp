@@ -32,7 +32,13 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
     _guiSettings.yScaleMode = BasicGraphView::SCALE_AUTO;
     _guiSettings.yMax = 10;
     _guiSettings.yMin = 0;
-    _guiSettings.xslidingInterval = 30;    
+    _guiSettings.xslidingInterval = 30;
+
+    _bStartMarkerState = false;
+    _startMarkerPos = 0;
+
+    _bEndMarkerState = false;
+    _endMarkerPos = 0;
 }
 
 GuiModel::~GuiModel()

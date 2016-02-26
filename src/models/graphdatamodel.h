@@ -82,11 +82,10 @@ signals:
     void registerAddressChanged(const quint32 graphIdx);
     void bitmaskChanged(const quint32 graphIdx);
     void shiftChanged(const quint32 graphIdx);
-
-    void added(const qint32 idx); // When graph definition is added
     void graphsAddData(QList<double>, QList<QList<double> > data);
 
-    void removed(const qint32 idx);
+    void added(const quint32 idx); // When graph definition is added
+    void removed(const quint32 idx); // When graph definition is removed
 
 public slots:
 
@@ -100,7 +99,7 @@ private:
     quint16 nextFreeAddress();
     void updateActiveGraphList(void);
     void addToModel(GraphData * pGraphData);
-    void removeFromModel(qint32 row, qint32 count);
+    void removeFromModel(qint32 row);
 
     QList<GraphData> _graphData;
     QList<quint32> _activeGraphList;
