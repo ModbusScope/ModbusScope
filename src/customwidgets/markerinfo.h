@@ -23,6 +23,7 @@ public:
 signals:
 
 public slots:
+    void updateMarkerData();
 
 private slots:
     void updateGraphList(void);
@@ -36,7 +37,8 @@ private:
 
     QVBoxLayout * _pLayout;
     QComboBox * _pGraphCombo;
-    QLabel * _pLabel;
+    QLabel * _pTimeDataLabel;
+    QLabel * _pGraphDataLabel;
 
     GuiModel * _pGuiModel;
     GraphDataModel * _pGraphDataModel;

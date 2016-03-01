@@ -2,6 +2,7 @@
 #include "guimodel.h"
 #include "graphdatamodel.h"
 
+#include "util.h"
 #include "markerinfo.h"
 
 MarkerInfo::MarkerInfo(QWidget *parent) : QFrame(parent)
@@ -10,10 +11,14 @@ MarkerInfo::MarkerInfo(QWidget *parent) : QFrame(parent)
 
     _pGraphCombo = new QComboBox(this);
     _pGraphCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    _pLayout->addWidget(_pGraphCombo);
 
-    _pLabel = new QLabel("Test", this);
-    _pLayout->addWidget(_pLabel);
+    _pTimeDataLabel = new QLabel("", this);
+
+    _pGraphDataLabel = new QLabel("", this);
+
+    _pLayout->addWidget(_pTimeDataLabel);
+    _pLayout->addWidget(_pGraphCombo);
+    _pLayout->addWidget(_pGraphDataLabel);
 
     _pLayout->setSpacing(1);
     _pLayout->setContentsMargins(1, 1, 1, 1); // This is redundant with setMargin, which is deprecated
@@ -32,6 +37,9 @@ void MarkerInfo::setModel(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel
     connect(_pGraphDataModel, SIGNAL(added(quint32)), this, SLOT(updateGraphList()));
     connect(_pGraphDataModel, SIGNAL(removed(quint32)), this, SLOT(removeFromGraphList(quint32)));
 
+    connect(_pGuiModel, SIGNAL(startMarkerPosChanged()), this, SLOT(updateGraphList()));
+    connect(_pGuiModel, SIGNAL(endMarkerPosChanged()), this, SLOT(updateGraphList()));
+
     /* TODO: Handle
      *
      * ColorChanged
@@ -39,6 +47,48 @@ void MarkerInfo::setModel(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel
      * */
 
     updateGraphList();
+}
+
+void MarkerInfo::updateMarkerData()
+{
+    const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(_pGraphCombo->currentData().toInt());
+
+    QCPDataMap * dataMap = _pGraphDataModel->dataMap(graphIdx);
+
+    QString timeData = QString(
+                "Start: %0\n"
+                "End: %1\n"
+                "Diff: %2\n"
+                )
+                .arg(Util::formatTime(_pGuiModel->startMarkerPos()))
+                .arg(Util::formatTime(_pGuiModel->endMarkerPos()))
+                .arg(Util::formatTime(_pGuiModel->endMarkerPos() - _pGuiModel->startMarkerPos()));
+
+    /* TODO: format time difference better */
+    _pTimeDataLabel->setText(timeData);
+
+    if (graphIdx >= 0)
+    {
+        /*dataMap[0].value() */
+        _pGraphDataLabel->setText(QString("%1").arg(graphIdx));
+
+
+        QString graphData = QString(
+                    "Start: %0\n"
+                    "End: %1\n"
+                    "Diff: %2\n"
+                    )
+                    .arg(dataMap->value(_pGuiModel->startMarkerPos()).value)
+                    .arg(dataMap->value(_pGuiModel->endMarkerPos()).value)
+                    .arg(dataMap->value(_pGuiModel->endMarkerPos()).value - dataMap->value(_pGuiModel->startMarkerPos()).value);
+
+        /* TODO: format time difference better */
+        _pGraphDataLabel->setText(graphData);
+    }
+    else
+    {
+
+    }
 }
 
 void MarkerInfo::updateGraphList(void)
@@ -83,14 +133,13 @@ void MarkerInfo::removeFromGraphList(const quint32 index)
 
 void MarkerInfo::graphSelected(qint32 index)
 {
-    // TODO: Problem when deleting a graph, index is not updated
     if (index > 0)
     {
-         _pLabel->setText(QString("%1").arg(_pGraphCombo->itemData(index).toUInt()));
+         updateMarkerData();
     }
     else
     {
-         _pLabel->setText("None");
+         _pGraphDataLabel->setText("None");
     }
 }
 
