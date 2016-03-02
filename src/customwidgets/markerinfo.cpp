@@ -36,15 +36,11 @@ void MarkerInfo::setModel(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel
     connect(_pGraphDataModel, SIGNAL(activeChanged(quint32)), this, SLOT(updateGraphList()));
     connect(_pGraphDataModel, SIGNAL(added(quint32)), this, SLOT(updateGraphList()));
     connect(_pGraphDataModel, SIGNAL(removed(quint32)), this, SLOT(removeFromGraphList(quint32)));
+    connect(_pGraphDataModel, SIGNAL(colorChanged(quint32)), this, SLOT(updateColor(quint32)));
+    connect(_pGraphDataModel, SIGNAL(labelChanged(quint32)), this, SLOT(updateLabel(quint32)));
 
     connect(_pGuiModel, SIGNAL(startMarkerPosChanged()), this, SLOT(updateGraphList()));
     connect(_pGuiModel, SIGNAL(endMarkerPosChanged()), this, SLOT(updateGraphList()));
-
-    /* TODO: Handle
-     *
-     * ColorChanged
-     * LabelChanged
-     * */
 
     updateGraphList();
 }
@@ -56,15 +52,14 @@ void MarkerInfo::updateMarkerData()
     QCPDataMap * dataMap = _pGraphDataModel->dataMap(graphIdx);
 
     QString timeData = QString(
-                "Start: %0\n"
-                "End: %1\n"
+                "x1: %0\n"
+                "x2: %1\n"
                 "Diff: %2\n"
                 )
                 .arg(Util::formatTime(_pGuiModel->startMarkerPos()))
                 .arg(Util::formatTime(_pGuiModel->endMarkerPos()))
-                .arg(Util::formatTime(_pGuiModel->endMarkerPos() - _pGuiModel->startMarkerPos()));
+                .arg(Util::formatTimeDiff(_pGuiModel->endMarkerPos() - _pGuiModel->startMarkerPos()));
 
-    /* TODO: format time difference better */
     _pTimeDataLabel->setText(timeData);
 
     if (graphIdx >= 0)
@@ -74,15 +69,14 @@ void MarkerInfo::updateMarkerData()
 
 
         QString graphData = QString(
-                    "Start: %0\n"
-                    "End: %1\n"
+                    "y1: %0\n"
+                    "y2: %1\n"
                     "Diff: %2\n"
                     )
                     .arg(dataMap->value(_pGuiModel->startMarkerPos()).value)
                     .arg(dataMap->value(_pGuiModel->endMarkerPos()).value)
                     .arg(dataMap->value(_pGuiModel->endMarkerPos()).value - dataMap->value(_pGuiModel->startMarkerPos()).value);
 
-        /* TODO: format time difference better */
         _pGraphDataLabel->setText(graphData);
     }
     else
@@ -99,6 +93,22 @@ void MarkerInfo::updateGraphList(void)
     updateList();
 
     selectGraph(currentSelectedIdx);
+}
+
+void MarkerInfo::updateColor(quint32 graphIdx)
+{
+    QPixmap pixmap(20,5);
+    pixmap.fill(_pGraphDataModel->color(graphIdx));
+
+    QIcon graphIcon = QIcon(pixmap);
+
+    /* + 1 for none selection */
+    _pGraphCombo->setItemIcon(_pGraphDataModel->convertToActiveGraphIndex(graphIdx) + 1, graphIcon);
+}
+
+void MarkerInfo::updateLabel(quint32 graphIdx)
+{
+    _pGraphCombo->setItemText(_pGraphDataModel->convertToActiveGraphIndex(graphIdx) + 1, _pGraphDataModel->label(graphIdx));
 }
 
 void MarkerInfo::removeFromGraphList(const quint32 index)
@@ -154,8 +164,9 @@ void MarkerInfo::updateList()
 
     foreach(quint16 idx, activeGraphList)
     {
-        /* TODO: add icon with color */
         _pGraphCombo->addItem(_pGraphDataModel->label(idx), QVariant(idx));
+
+        updateColor(idx);
     }
 }
 

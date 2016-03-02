@@ -27,8 +27,11 @@ public slots:
 
 private slots:
     void updateGraphList(void);
+    void updateColor(quint32 graphIdx);
+    void updateLabel(quint32 graphIdx);
     void removeFromGraphList(const quint32 index);
     void graphSelected(qint32 index);
+
 
 private:
 
