@@ -51,7 +51,7 @@ void MarkerInfo::setModel(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel
 
 void MarkerInfo::updateMarkerData()
 {
-    const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(_pGraphCombo->currentData().toInt());
+    const qint32 graphIdx = _pGraphCombo->currentData().toInt();
 
     QCPDataMap * dataMap = _pGraphDataModel->dataMap(graphIdx);
 
