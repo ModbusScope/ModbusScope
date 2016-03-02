@@ -377,7 +377,7 @@
        <property name="widgetResizable">
         <bool>true</bool>
        </property>
-       <widget class="QWidget" name="scrollAreaWidgetContents">
+       <widget class="VerticalScrollAreaContents" name="scrollAreaWidgetContents">
         <property name="geometry">
          <rect>
           <x>0</x>
@@ -599,6 +599,12 @@
    <class>Legend</class>
    <extends>QFrame</extends>
    <header>legend.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>VerticalScrollAreaContents</class>
+   <extends>QWidget</extends>
+   <header>verticalscrollareacontents.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -69,7 +69,8 @@ SOURCES +=  \
     ../src/graphview/myqcpgraph.cpp \
     ../src/customwidgets/legend.cpp \
     ../src/customwidgets/legenditem.cpp \
-    ../src/dialogs/registerdialog.cpp
+    ../src/dialogs/registerdialog.cpp \
+    ../src/customwidgets/verticalscrollareacontents.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
@@ -110,7 +111,8 @@ HEADERS += \
     ../src/communication/modbusresult.h \
     ../src/graphview/myqcpgraph.h \
     ../src/customwidgets/legend.h \
-    ../src/customwidgets/legenditem.h
+    ../src/customwidgets/legenditem.h \
+    ../src/customwidgets/verticalscrollareacontents.h
 
 RESOURCES += \
     ../resources/resource.qrc
