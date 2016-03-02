@@ -86,6 +86,8 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
    _pEndMarker->setVisible(false);
    _pEndMarker->setPen(markerPen);
 
+   _pPlot->replot();
+
 }
 
 BasicGraphView::~BasicGraphView()
@@ -330,12 +332,15 @@ void BasicGraphView::updateLegendPosition()
     _pPlot->replot();
 }
 
-void BasicGraphView::clearMarkers()
+void BasicGraphView::updateMarkersVisibility()
 {
-    _pStartMarker->setVisible(false);
-    _pEndMarker->setVisible(false);
+    if (_pGuiModel->markerState() == false)
+    {
+        _pStartMarker->setVisible(false);
+        _pEndMarker->setVisible(false);
 
-    _pPlot->replot();
+        _pPlot->replot();
+    }
 }
 
 void BasicGraphView::setStartMarker()

@@ -95,6 +95,62 @@ public:
         return tickLabel;
     }
 
+    static QString formatTimeDiff(qint64 tickKeyDiff)
+    {
+        QString tickLabel;
+        bool bNegative;
+        quint64 tmp;
+
+        if (tickKeyDiff < 0)
+        {
+            bNegative = true;
+            tmp = -1 * tickKeyDiff;
+        }
+        else
+        {
+            bNegative = false;
+            tmp = tickKeyDiff;
+        }
+
+        tmp %= 24 * 60 * 60 * 1000; // Number of seconds in a day
+
+        quint32 hours = tmp / (60 * 60 * 1000);
+        tmp = tmp % (60 * 60 * 1000);
+
+        quint32 minutes = tmp / (60 * 1000);
+        tmp = tmp % (60 * 1000);
+
+        quint32 seconds = tmp / 1000;
+        quint32 milliseconds = tmp % 1000;
+
+        if (
+            (hours == 0)
+            && (minutes == 0)
+            )
+        {
+            tickLabel = QString("%1%2%3").arg(seconds, 1, 10, QChar('0'))
+                                                       .arg(QLocale::system().decimalPoint())
+                                                       .arg(milliseconds, 3, 10, QChar('0'));
+        }
+        else
+        {
+            tickLabel = QString("%1:%2:%3%4%5").arg(hours)
+                                                        .arg(minutes, 2, 10, QChar('0'))
+                                                        .arg(seconds, 2, 10, QChar('0'))
+                                                        .arg(QLocale::system().decimalPoint())
+                                                        .arg(milliseconds, 3, 10, QChar('0'));
+        }
+
+
+        // Make sure minus sign is shown when tick number is negative
+        if (bNegative)
+        {
+            tickLabel = "-" + tickLabel;
+        }
+
+        return tickLabel;
+    }
+
     static const QList<QColor> cColorlist;
 
 private:

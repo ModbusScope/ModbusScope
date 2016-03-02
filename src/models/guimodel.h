@@ -44,6 +44,7 @@ public:
     quint32 communicationSuccessCount();
     double startMarkerPos();
     double endMarkerPos();
+    bool markerState();
 
     void setProjectFilePath(QString path);
     void setDataFilePath(QString path);
@@ -86,13 +87,17 @@ signals:
     void projectFilePathChanged();
     void dataFilePathChanged();
     void communicationStatsChanged();
-    void markerStateCleared();
+    void markerStateChanged();
     void startMarkerPosChanged();
     void endMarkerPosChanged();
 
 private slots:
 
 private:
+
+    void setStartMarkerState(bool bState);
+    void setEndMarkerState(bool bState);
+    void setMarkerState(bool bState);
 
     typedef struct
     {
@@ -124,6 +129,7 @@ private:
     BasicGraphView::LegendsPositionOptions _legendPosition;
     quint32 _guiState;
 
+    bool _bMarkerState;
     bool _bStartMarkerState;
     double _startMarkerPos;
 

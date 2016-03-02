@@ -91,7 +91,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGuiModel, SIGNAL(yAxisMinMaxchanged()), _pGraphView, SLOT(rescalePlot()));
     connect(_pGuiModel, SIGNAL(communicationStatsChanged()), this, SLOT(updateStats()));
 
-    connect(_pGuiModel, SIGNAL(markerStateCleared()), _pGraphView, SLOT(clearMarkers()));
+    connect(_pGuiModel, SIGNAL(markerStateChanged()), _pGraphView, SLOT(updateMarkersVisibility()));
+    connect(_pGuiModel, SIGNAL(markerStateChanged()), this, SLOT(updateMarkerDockVisibility()));
     connect(_pGuiModel, SIGNAL(startMarkerPosChanged()), _pGraphView, SLOT(setStartMarker()));
     connect(_pGuiModel, SIGNAL(endMarkerPosChanged()), _pGraphView, SLOT(setEndMarker()));
 
@@ -760,6 +761,11 @@ void MainWindow::updateStats()
 {
     // Update statistics
     _pStatusStats->setText(_cStatsTemplate.arg(_pGuiModel->communicationSuccessCount()).arg(_pGuiModel->communicationErrorCount()));
+}
+
+void MainWindow::updateMarkerDockVisibility()
+{
+    _pUi->markerInfoDock->setVisible(_pGuiModel->markerState());
 }
 
 void MainWindow::scaleWidgetUndocked(bool bFloat)

@@ -52,7 +52,7 @@ public slots:
     virtual void changeGraphLabel(const quint32 graphIdx);
     virtual void bringToFront();
     virtual void updateLegendPosition();
-    virtual void clearMarkers();
+    virtual void updateMarkersVisibility();
     virtual void setStartMarker();
     virtual void setEndMarker();
 

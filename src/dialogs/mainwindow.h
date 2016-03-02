@@ -82,6 +82,7 @@ private slots:
     void updateLegendPositionMenu();
     void updateLegendMenu();
     void updateStats();
+    void updateMarkerDockVisibility();
 
     /* Misc */
     void scaleWidgetUndocked(bool bFloat);

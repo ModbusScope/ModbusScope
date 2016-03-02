@@ -39,6 +39,8 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
 
     _bEndMarkerState = false;
     _endMarkerPos = 0;
+
+    _bMarkerState = false;
 }
 
 GuiModel::~GuiModel()
@@ -67,9 +69,7 @@ void GuiModel::triggerUpdate(void)
     emit projectFilePathChanged();
     emit dataFilePathChanged();
 
-    emit markerStateCleared();
-    emit startMarkerPosChanged();
-    emit endMarkerPosChanged();
+    emit markerStateChanged();
 }
 
 /*
@@ -352,6 +352,11 @@ double GuiModel::endMarkerPos()
     return _endMarkerPos;
 }
 
+bool GuiModel::markerState()
+{
+    return _bMarkerState;
+}
+
 void GuiModel::setCommunicationStats(quint32 successCount, quint32 errorCount)
 {
     if (
@@ -367,13 +372,8 @@ void GuiModel::setCommunicationStats(quint32 successCount, quint32 errorCount)
 
 void GuiModel::clearMarkersState(void)
 {
-    if (_bStartMarkerState || _bEndMarkerState)
-    {
-        _bStartMarkerState = false;
-        _bEndMarkerState = false;
-
-        emit markerStateCleared();
-    }
+    setStartMarkerState(false);
+    setEndMarkerState(false);
 }
 
 void GuiModel::setStartMarkerPos(double pos)
@@ -388,7 +388,7 @@ void GuiModel::setStartMarkerPos(double pos)
             || (pos != _endMarkerPos)
         )
         {
-            _bStartMarkerState = true;
+            setStartMarkerState(true);
             _startMarkerPos = pos;
 
             emit startMarkerPosChanged();
@@ -408,11 +408,58 @@ void GuiModel::setEndMarkerPos(double pos)
             || (pos != _startMarkerPos)
         )
         {
-            _bEndMarkerState = true;
+            setEndMarkerState(true);
             _endMarkerPos = pos;
 
             emit endMarkerPosChanged();
         }
+    }
+}
+
+
+void GuiModel::setStartMarkerState(bool bState)
+{
+    if (_bStartMarkerState != bState)
+    {
+        _bStartMarkerState = bState;
+
+        if (_bStartMarkerState && _bEndMarkerState)
+        {
+            setMarkerState(true);
+        }
+
+        if (!_bStartMarkerState && !_bEndMarkerState)
+        {
+             setMarkerState(false);
+        }
+    }
+}
+
+void GuiModel::setEndMarkerState(bool bState)
+{
+    if (_bEndMarkerState != bState)
+    {
+        _bEndMarkerState = bState;
+
+        if (_bStartMarkerState && _bEndMarkerState)
+        {
+            setMarkerState(true);
+        }
+
+        if (!_bStartMarkerState && !_bEndMarkerState)
+        {
+            setMarkerState(false);
+        }
+    }
+}
+
+void GuiModel::setMarkerState(bool bState)
+{
+    if (_bMarkerState != bState)
+    {
+        _bMarkerState = bState;
+
+        emit markerStateChanged();
     }
 }
 
