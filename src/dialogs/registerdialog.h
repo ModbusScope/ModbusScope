@@ -23,6 +23,8 @@ private slots:
     void removeRegisterRow();
     void activatedCell(QModelIndex modelIndex);
 
+    void onRegisterInserted(const QModelIndex &parent, int first, int last);
+
 private:
 
     static bool sortRegistersLastFirst(const QModelIndex &s1, const QModelIndex &s2);
