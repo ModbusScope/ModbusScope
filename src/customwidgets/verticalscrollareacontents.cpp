@@ -18,14 +18,6 @@ void VerticalScrollAreaContents::resizeEvent(QResizeEvent * event)
 
     QScrollArea * pParentScrollArea = (QScrollArea *)this->parentWidget();
 
-    //qDebug() << "Minimum size hint (scroll contents): " << minimumSizeHint();
-    pParentScrollArea->setMinimumWidth(minimumSizeHint().width() /* + pParentScrollArea->verticalScrollBar()->width()*/);
-
-    pParentScrollArea->updateGeometry();
-
-    // dirty dirty test
-    //pParentScrollArea->parentWidget()->parentWidget()->updateGeometry();
-
-    qDebug() << "Minimum size (scrollarea): " << pParentScrollArea->minimumSize();
+    pParentScrollArea->parentWidget()->setMinimumWidth(minimumSizeHint().width());
 
 }
