@@ -36,6 +36,8 @@ RegisterDialog::RegisterDialog(GraphDataModel * pGraphDataModel,  QWidget *paren
     // Setup handler for buttons
     connect(_pUi->btnAdd, SIGNAL(released()), this, SLOT(addRegisterRow()));
     connect(_pUi->btnRemove, SIGNAL(released()), this, SLOT(removeRegisterRow()));
+    connect(_pGraphDataModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(onRegisterInserted(QModelIndex,int,int)));
+
 }
 
 RegisterDialog::~RegisterDialog()
@@ -100,6 +102,15 @@ void RegisterDialog::activatedCell(QModelIndex modelIndex)
             }
         }
     }
+}
+
+void RegisterDialog::onRegisterInserted(const QModelIndex &parent, int first, int last)
+{
+    Q_UNUSED(parent);
+    Q_UNUSED(last);
+
+    /* select the first new row, this will also make the row visible */
+    _pUi->registerView->selectRow(first);
 }
 
 void RegisterDialog::removeRegisterRow()
