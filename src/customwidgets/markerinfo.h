@@ -10,6 +10,7 @@
 /* Forward declarations */
 class GuiModel;
 class GraphDataModel;
+class MarkerInfoItem;
 
 class MarkerInfo : public QFrame
 {
@@ -23,28 +24,21 @@ public:
 signals:
 
 public slots:
-    void updateMarkerData();
 
 private slots:
-    void updateGraphList(void);
-    void updateColor(quint32 graphIdx);
-    void updateLabel(quint32 graphIdx);
-    void removeFromGraphList(const quint32 index);
-    void graphSelected(qint32 index);
-
+	void updateMarkerData();
 
 private:
 
-    void updateList();
-    void selectGraph(qint32 graphIndex);
-
     QVBoxLayout * _pLayout;
-    QComboBox * _pGraphCombo;
     QLabel * _pTimeDataLabel;
-    QLabel * _pGraphDataLabel;
 
     GuiModel * _pGuiModel;
     GraphDataModel * _pGraphDataModel;
+    
+    QList<MarkerInfoItem *> graphMarkerData;
+    
+    static const quint32 graphMarkerCount = 3;
 };
 
 #endif // MARKERINFO_H

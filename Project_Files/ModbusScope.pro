@@ -68,7 +68,8 @@ SOURCES +=  \
     ../src/models/graphdata.cpp \
     ../src/communication/modbusresult.cpp \
     ../src/graphview/myqcpgraph.cpp \
-    ../src/customwidgets/markerinfo.cpp
+    ../src/customwidgets/markerinfo.cpp \
+    ../src/customwidgets/markerinfoitem.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
@@ -108,7 +109,8 @@ HEADERS += \
     ../src/communication/modbusresult.h \
     ../src/graphview/myqcpgraph.h \
     ../src/dialogs/registerdialog.h \
-    ../src/customwidgets/markerinfo.h
+    ../src/customwidgets/markerinfo.h \
+    ../src/customwidgets/markerinfoitem.h
 
 RESOURCES += \
     ../resources/resource.qrc
