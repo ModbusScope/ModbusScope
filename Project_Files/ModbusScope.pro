@@ -70,7 +70,9 @@ SOURCES +=  \
     ../src/customwidgets/legend.cpp \
     ../src/customwidgets/legenditem.cpp \
     ../src/dialogs/registerdialog.cpp \
-    ../src/customwidgets/verticalscrollareacontents.cpp
+    ../src/customwidgets/verticalscrollareacontents.cpp \
+    ../src/customwidgets/markerinfo.cpp \
+    ../src/customwidgets/markerinfoitem.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
@@ -112,7 +114,9 @@ HEADERS += \
     ../src/graphview/myqcpgraph.h \
     ../src/customwidgets/legend.h \
     ../src/customwidgets/legenditem.h \
-    ../src/customwidgets/verticalscrollareacontents.h
+    ../src/customwidgets/verticalscrollareacontents.h \
+    ../src/customwidgets/markerinfo.h \
+    ../src/customwidgets/markerinfoitem.h
 
 RESOURCES += \
     ../resources/resource.qrc

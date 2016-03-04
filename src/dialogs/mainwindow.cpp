@@ -10,7 +10,7 @@
 #include "settingsmodel.h"
 #include "logdialog.h"
 #include "aboutdialog.h"
-
+#include "markerinfo.h"
 #include "guimodel.h"
 #include "extendedgraphview.h"
 #include "util.h"
@@ -89,7 +89,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGuiModel, SIGNAL(yAxisMinMaxchanged()), _pGraphView, SLOT(rescalePlot()));
     connect(_pGuiModel, SIGNAL(communicationStatsChanged()), this, SLOT(updateStats()));
 
-    connect(_pGuiModel, SIGNAL(markerStateCleared()), _pGraphView, SLOT(clearMarkers()));
+    connect(_pGuiModel, SIGNAL(markerStateChanged()), _pGraphView, SLOT(updateMarkersVisibility()));
+    connect(_pGuiModel, SIGNAL(markerStateChanged()), this, SLOT(updateMarkerDockVisibility()));
     connect(_pGuiModel, SIGNAL(startMarkerPosChanged()), _pGraphView, SLOT(setStartMarker()));
     connect(_pGuiModel, SIGNAL(endMarkerPosChanged()), _pGraphView, SLOT(setEndMarker()));
 
@@ -102,6 +103,12 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGraphDataModel, SIGNAL(colorChanged(quint32)), _pGraphView, SLOT(changeGraphColor(quint32)));
     connect(_pGraphDataModel, SIGNAL(labelChanged(quint32)), this, SLOT(handleGraphLabelChange(quint32)));
     connect(_pGraphDataModel, SIGNAL(labelChanged(quint32)), _pGraphView, SLOT(changeGraphLabel(quint32)));
+
+    connect(_pGraphDataModel, SIGNAL(added(quint32)), this, SLOT(rebuildGraphMenu()));
+    connect(_pGraphDataModel, SIGNAL(added(quint32)), _pGraphView, SLOT(updateGraphs()));
+
+    connect(_pGraphDataModel, SIGNAL(removed(quint32)), this, SLOT(rebuildGraphMenu()));
+    connect(_pGraphDataModel, SIGNAL(removed(quint32)), _pGraphView, SLOT(updateGraphs()));
 
     connect(_pGraphDataModel, SIGNAL(unsignedChanged(quint32)), _pGraphView, SLOT(clearGraph(quint32)));
     connect(_pGraphDataModel, SIGNAL(multiplyFactorChanged(quint32)), _pGraphView, SLOT(clearGraph(quint32)));
@@ -176,6 +183,9 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     connect(_pConnMan, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pGraphView, SLOT(plotResults(QList<bool>, QList<double>)));
     connect(_pConnMan, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pLegend, SLOT(addDataToLegend(QList<bool>, QList<double>)));
+
+    _pMarkerInfo = _pUi->markerInfo;
+    _pMarkerInfo->setModel(_pGuiModel, _pGraphDataModel);
 
     /* Update interface via model */
     _pGuiModel->triggerUpdate();
@@ -700,6 +710,11 @@ void MainWindow::updateStats()
     _pStatusStats->setText(_cStatsTemplate.arg(_pGuiModel->communicationSuccessCount()).arg(_pGuiModel->communicationErrorCount()));
 }
 
+void MainWindow::updateMarkerDockVisibility()
+{
+    _pUi->markerInfoDock->setVisible(_pGuiModel->markerState());
+}
+
 void MainWindow::scaleWidgetUndocked(bool bFloat)
 {
     if (bFloat)
@@ -719,7 +734,11 @@ void MainWindow::legendWidgetUndocked(bool bFloat)
 
 void MainWindow::showContextMenu(const QPoint& pos)
 {
-    _pUi->menuView->popup(_pUi->customPlot->mapToGlobal(pos));
+    /* Don't show context menu when control key is pressed */
+    if (!(QApplication::keyboardModifiers() & Qt::ControlModifier))
+    {
+        _pUi->menuView->popup(_pUi->customPlot->mapToGlobal(pos));
+    }
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *e)

@@ -26,7 +26,7 @@ class SettingsModel;
 class LogDialog;
 class GuiModel;
 class ExtendedGraphView;
-
+class MarkerInfo;
 
 class MainWindow : public QMainWindow
 {
@@ -80,6 +80,7 @@ private slots:
     void dataFileLoaded();
     void updateGuiState();
     void updateStats();
+    void updateMarkerDockVisibility();
 
     /* Misc */
     void scaleWidgetUndocked(bool bFloat);
@@ -107,6 +108,8 @@ private:
 
     GraphDataModel * _pGraphDataModel;
     RegisterDialog * _pRegisterDialog;
+
+    MarkerInfo * _pMarkerInfo;
 
     GuiModel * _pGuiModel;
 

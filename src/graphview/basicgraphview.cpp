@@ -6,6 +6,7 @@
 #include <algorithm> // std::upperbound, std::lowerbound
 
 #include "guimodel.h"
+#include "util.h"
 #include "graphdatamodel.h"
 #include "basicgraphview.h"
 
@@ -77,6 +78,8 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
    _pPlot->addItem(_pEndMarker);
    _pEndMarker->setVisible(false);
    _pEndMarker->setPen(markerPen);
+
+   _pPlot->replot();
 
 }
 
@@ -288,12 +291,15 @@ void BasicGraphView::bringToFront()
     }
 }
 
-void BasicGraphView::clearMarkers()
+void BasicGraphView::updateMarkersVisibility()
 {
-    _pStartMarker->setVisible(false);
-    _pEndMarker->setVisible(false);
+    if (_pGuiModel->markerState() == false)
+    {
+        _pStartMarker->setVisible(false);
+        _pEndMarker->setVisible(false);
 
-    _pPlot->replot();
+        _pPlot->replot();
+    }
 }
 
 void BasicGraphView::setStartMarker()
@@ -324,7 +330,7 @@ void BasicGraphView::generateTickLabels()
     /* Generate correct labels */
     for (qint32 index = 0; index < ticks.size(); index++)
     {
-        tickLabels.append(createTickLabelString(ticks[index]));
+        tickLabels.append(Util::formatTime(ticks[index]));
     }
 
     /* Set labels */
@@ -395,7 +401,7 @@ void BasicGraphView::mousePress(QMouseEvent *event)
        {
             _pGuiModel->setStartMarkerPos(correctXPos);
        }
-       else if (event->button() & Qt::MiddleButton)
+       else if (event->button() & Qt::RightButton)
        {
             _pGuiModel->setEndMarkerPos(correctXPos);
        }
@@ -525,7 +531,7 @@ void BasicGraphView::paintValueToolTip(QMouseEvent *event)
                         bInRange = true;
 
                         // Add tick key string
-                        toolText = createTickLabelString(keyList[keyIndex]);
+                        toolText = Util::formatTime(keyList[keyIndex]);
 
                         // Check all graphs
                         for (qint32 graphIndex = 0; graphIndex < _pPlot->graphCount(); graphIndex++)
@@ -626,49 +632,6 @@ void BasicGraphView::axisDoubleClicked(QCPAxis * axis)
     {
         // do nothing
     }
-}
-
-QString BasicGraphView::createTickLabelString(qint64 tickKey)
-{
-    QString tickLabel;
-    bool bNegative;
-    quint64 tmp;
-
-    if (tickKey < 0)
-    {
-        bNegative = true;
-        tmp = -1 * tickKey;
-    }
-    else
-    {
-        bNegative = false;
-        tmp = tickKey;
-    }
-
-    tmp %= 24 * 60 * 60 * 1000; // Number of seconds in a day
-
-    quint32 hours = tmp / (60 * 60 * 1000);
-    tmp = tmp % (60 * 60 * 1000);
-
-    quint32 minutes = tmp / (60 * 1000);
-    tmp = tmp % (60 * 1000);
-
-    quint32 seconds = tmp / 1000;
-    quint32 milliseconds = tmp % 1000;
-
-    tickLabel = QString("%1:%2:%3%4%5").arg(hours)
-                                                .arg(minutes, 2, 10, QChar('0'))
-                                                .arg(seconds, 2, 10, QChar('0'))
-                                                .arg(QLocale::system().decimalPoint())
-                                               .arg(milliseconds, 3, 10, QChar('0'));
-
-    // Make sure minus sign is shown when tick number is negative
-    if (bNegative)
-    {
-        tickLabel = "-" + tickLabel;
-    }
-
-    return tickLabel;
 }
 
 void BasicGraphView::highlightSamples(bool bState)

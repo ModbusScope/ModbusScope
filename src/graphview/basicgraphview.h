@@ -43,7 +43,7 @@ public slots:
     virtual void changeGraphColor(const quint32 graphIdx);
     virtual void changeGraphLabel(const quint32 graphIdx);
     virtual void bringToFront();
-    virtual void clearMarkers();
+    virtual void updateMarkersVisibility();
     virtual void setStartMarker();
     virtual void setEndMarker();
 
@@ -70,7 +70,6 @@ protected:
     bool _bEnableSampleHighlight;
 
 private:
-    QString createTickLabelString(qint64 tickKey);
     void highlightSamples(bool bState);
     qint32 graphIndex(QCPGraph * pGraph);
 

@@ -29,6 +29,8 @@ void Legend::setModels(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel)
     _pGraphDataModel = pGraphDataModel;
 
     connect(_pGraphDataModel, SIGNAL(activeChanged(quint32)), this, SLOT(updateLegend()));
+    connect(_pGraphDataModel, SIGNAL(added(quint32)), this, SLOT(updateLegend()));
+    connect(_pGraphDataModel, SIGNAL(removed(quint32)), this, SLOT(updateLegend()));
     connect(_pGraphDataModel, SIGNAL(visibilityChanged(quint32)), this, SLOT(showGraph(const quint32)));
     connect(_pGraphDataModel, SIGNAL(colorChanged(quint32)), this, SLOT(changeGraphColor(quint32)));
     connect(_pGraphDataModel, SIGNAL(labelChanged(quint32)), this, SLOT(changeGraphLabel(quint32)));
