@@ -50,8 +50,5 @@
 				<max>25</max>
 			</yaxis>
 		</scale>
-		<legend visible="true">
-			<position>left</position>
-		</legend>
 	</view>
 </modbusscope>
