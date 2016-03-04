@@ -18,6 +18,7 @@ void VerticalScrollAreaContents::resizeEvent(QResizeEvent * event)
 
     QScrollArea * pParentScrollArea = (QScrollArea *)this->parentWidget();
 
-    pParentScrollArea->parentWidget()->setMinimumWidth(minimumSizeHint().width());
+    // Should use verticalbar width, but I get segmentation fault on Linux
+    pParentScrollArea->parentWidget()->setMinimumWidth(minimumSizeHint().width() + 20);
 
 }
