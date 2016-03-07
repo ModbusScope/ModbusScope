@@ -65,15 +65,16 @@ void Legend::addDataToLegend(QList<bool> successList, QList<double> valueList)
 {
     for (qint32 i = 0; i < valueList.size(); i++)
     {
+        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(i);
         if (successList[i])
         {
            // No error
-          _items[i]->setText(QString("(%1) %2").arg(Util::formatDoubleForExport(valueList[i])).arg(_pGraphDataModel->label(i)));
+          _items[i]->setText(QString("(%1) %2").arg(Util::formatDoubleForExport(valueList[i])).arg(_pGraphDataModel->label(graphIdx)));
         }
         else
         {
             /* Show error */
-          _items[i]->setText(QString("(-) %1").arg(_pGraphDataModel->label(i)));
+          _items[i]->setText(QString("(-) %1").arg(_pGraphDataModel->label(graphIdx)));
         }
     }
 }

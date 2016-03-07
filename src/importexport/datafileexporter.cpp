@@ -183,7 +183,7 @@ QString DataFileExporter::createLabelRow()
     for(qint32 i = 0; i < _pGraphDataModel->activeCount(); i++)
     {
         // Get headers
-        line.append(Util::separatorCharacter() + _pGraphDataModel->label(i));
+        line.append(Util::separatorCharacter() + _pGraphDataModel->label(_pGraphDataModel->convertToGraphIndex(i)));
     }
 
     return line;
