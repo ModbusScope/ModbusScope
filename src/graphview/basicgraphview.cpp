@@ -364,7 +364,7 @@ void BasicGraphView::mousePress(QMouseEvent *event)
    {
        const double xPos = _pPlot->xAxis->pixelToCoord(event->pos().x());
 
-       double correctXPos;
+       double correctXPos = 0;
        if (_pPlot->graphCount() > 0)
        {
            const QList<double> keyList = _pPlot->graph(0)->data()->keys();
@@ -534,12 +534,14 @@ void BasicGraphView::paintValueToolTip(QMouseEvent *event)
                         toolText = Util::formatTime(keyList[keyIndex]);
 
                         // Check all graphs
-                        for (qint32 graphIndex = 0; graphIndex < _pPlot->graphCount(); graphIndex++)
+                        for (qint32 activeGraphIndex = 0; activeGraphIndex < _pPlot->graphCount(); activeGraphIndex++)
                         {
-                            if (_pPlot->graph(graphIndex)->visible())
+                            if (_pPlot->graph(activeGraphIndex)->visible())
                             {
-                                const double value = _pPlot->graph(graphIndex)->data()->values()[keyIndex].value;
-                                toolText += QString("\n%1: %2").arg(_pGraphDataModel->label(graphIndex)).arg(value);
+                                const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeGraphIndex);
+                                const double value = _pGraphDataModel->dataMap(graphIdx)->values()[keyIndex].value;
+
+                                toolText += QString("\n%1: %2").arg(_pGraphDataModel->label(graphIdx)).arg(value);
                             }
                         }
                         break;
