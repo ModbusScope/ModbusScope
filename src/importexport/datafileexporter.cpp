@@ -209,7 +209,7 @@ QString DataFileExporter::formatData(double timeData, QList<double> dataValues)
 void DataFileExporter::writeToFile(QString filePath, QStringList logData)
 {
     QFile file(filePath);
-    if (file.open(QIODevice::Append))
+    if (file.open(QIODevice::Append | QIODevice::Text))
     {
         QTextStream stream(&file);
 
@@ -240,7 +240,7 @@ void DataFileExporter::writeToFile(QString filePath, QStringList logData)
 void DataFileExporter::clearFile(QString filePath)
 {
     QFile file(filePath);
-    file.open(QIODevice::WriteOnly); // Remove all data from file
+    file.open(QIODevice::WriteOnly | QIODevice::Text); // Remove all data from file
 }
 
 
