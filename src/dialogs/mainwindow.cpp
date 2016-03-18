@@ -922,39 +922,27 @@ void MainWindow::loadProjectFile(QString projectFilePath)
 
 void MainWindow::loadDataFile(QString dataFilePath)
 {
-    QFile file(dataFilePath);
+    DataFileParser dataParser;
 
-    /* If we can't open it, let's show an error message. */
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+    DataFileParser::FileData data;
+    if (dataParser.processDataFile(dataFilePath, &data))
     {
-        DataFileParser dataParser(&file);
-        DataFileParser::FileData data;
-        if (dataParser.processDataFile(&data))
-        {
-            // Set to full auto scaling
-            _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
+        // Set to full auto scaling
+        _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
 
-            // Set to full auto scaling
-            _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
+        // Set to full auto scaling
+        _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
 
-            _pGraphDataModel->clear();
-            _pGuiModel->setFrontGraph(-1);
+        _pGraphDataModel->clear();
+        _pGuiModel->setFrontGraph(-1);
 
-            _pGraphDataModel->add(data.dataLabel, data.timeRow, data.dataRows);
-            _pGuiModel->setFrontGraph(0);
+        _pGraphDataModel->add(data.dataLabel, data.timeRow, data.dataRows);
+        _pGuiModel->setFrontGraph(0);
 
-            _pGuiModel->setProjectFilePath("");
-            _pGuiModel->setDataFilePath(dataFilePath);
+        _pGuiModel->setProjectFilePath("");
+        _pGuiModel->setDataFilePath(dataFilePath);
 
-            _pGuiModel->setGuiState(GuiModel::DATA_LOADED);
+        _pGuiModel->setGuiState(GuiModel::DATA_LOADED);
 
-        }
-    }
-    else
-    {
-        QMessageBox::critical(this,
-                              "ModbusScope",
-                              tr("Couldn't open data file: %1").arg(dataFilePath),
-                              QMessageBox::Ok);
     }
 }

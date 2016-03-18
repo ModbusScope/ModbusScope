@@ -3,37 +3,59 @@
 #include <QMessageBox>
 #include "datafileparser.h"
 
-DataFileParser::DataFileParser(QFile *pDataFile)
+DataFileParser::DataFileParser()
 {
-    _pDataFile = pDataFile;
-
-    loadDataFileSample();
-
-    _pDataFile->seek(0);
-
-    _pAutoSettingsParser = new SettingsAuto();
 }
 
 DataFileParser::~DataFileParser()
 {
-    delete _pAutoSettingsParser;
+    if (_pDataStream)
+    {
+        delete _pDataStream;
+    }
+
+    if (_pAutoSettingsParser)
+    {
+       delete _pAutoSettingsParser;
+    }
 }
 
 // Return false on error
-bool DataFileParser::processDataFile(FileData * pData)
+bool DataFileParser::processDataFile(QString dataFile, FileData * pData)
 {
+    bool bRet = true;
     QString line;
     qint32 lineIdx = 0;
-    bool bRet = true;
+    QStringList dataFileSample;
 
-    bRet = _pAutoSettingsParser->updateSettings(_dataFileSample);
+    QFile * _pDataFile = new QFile(dataFile);
 
-    if (!bRet)
+    /* Read sample of file */
+    bRet = _pDataFile->open(QIODevice::ReadOnly | QIODevice::Text);
+    if (bRet)
     {
-        showError(tr("Invalid data file (error while auto parsing for settings)"));
-        bRet = false;
+        _pDataStream = new QTextStream(_pDataFile);
+
+        loadDataFileSample(&dataFileSample);
+    }
+    else
+    {
+        showError(tr("Couldn't open data file: %1").arg(dataFile));
     }
 
+    /* Try to determine settings */
+    if (bRet)
+    {
+        _pAutoSettingsParser = new SettingsAuto();
+        bRet = _pAutoSettingsParser->updateSettings(dataFileSample);
+
+        if (!bRet)
+        {
+            showError(tr("Invalid data file (error while auto parsing for settings)"));
+        }
+    }
+
+    /* Read complete file this time */
     if (bRet)
     {
         do
@@ -161,7 +183,7 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
         }
 
         // Check end of file
-        if (_pDataFile->atEnd())
+        if (_pDataStream->atEnd())
         {
             break;
         }
@@ -177,42 +199,40 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
 // Return false on error
 bool DataFileParser::readLineFromFile(QString *pLine)
 {
-    bool bRet = false;
-    char buf[2048];
-    qint32 lineLength;
-
-    // Read first line of data (labels)
-    lineLength = _pDataFile->readLine(buf, sizeof(buf));
-    if (lineLength > 0)
-    {
-        bRet = true;
-        *pLine = QString(buf);
-    }
-
-    return bRet;
-
+    // Read line of data
+    return _pDataStream->readLineInto(pLine, 0);
 }
 
-void DataFileParser::loadDataFileSample()
+void DataFileParser::loadDataFileSample(QStringList * pDataFileSample)
 {
-    char buf[2048];
-    qint32 lineLength;
-
-    _dataFileSample.clear();
-
-    while((!_pDataFile->atEnd()) && (_dataFileSample.size() < _cSampleLineLength))
+    QString lineData;
+    pDataFileSample->clear();
+    bool bRet = true;
+    do
     {
-        lineLength = _pDataFile->readLine(buf, sizeof(buf));
-        if (lineLength > -1)
+        if (_pDataStream->atEnd())
         {
-            _dataFileSample.append(QString(buf));
+            break;
+        }
+
+        /* Read line */
+        bRet = _pDataStream->readLineInto(&lineData, 0);
+
+        if (bRet)
+        {
+            pDataFileSample->append(lineData);
         }
         else
         {
-            _dataFileSample.clear();
+            pDataFileSample->clear();
             break;
         }
-    }
+
+    } while(bRet && (pDataFileSample->size() < _cSampleLineLength));
+
+    /* Set cursor back to beginning */
+    _pDataStream->seek(0);
+
 }
 
 void DataFileParser::showError(QString text)

@@ -5,6 +5,8 @@
 #include <QStringList>
 #include <QList>
 #include <QFile>
+#include <QTextStream>
+#include <QStringList>
 
 #include "settingsauto.h"
 
@@ -23,22 +25,27 @@ public:
         QList<QList<double> > dataRows;
     } FileData;
 
-    DataFileParser(QFile * pDataFile);
+    DataFileParser();
     ~DataFileParser();
 
-    bool processDataFile(FileData * pData);
+    bool processDataFile(QString dataFile, FileData * pData);
 
 private:
     bool parseDataLines(QList<QList<double> > &dataRows);
     void showError(QString text);
     bool readLineFromFile(QString *pLine);
-    void loadDataFileSample();
+    void loadDataFileSample(QStringList * pDataFileSample);
 
+    QTextStream * _pDataStream;
+
+    /* QFile is class variable because it closes file when it goes out-of-scope
+     * and read from _pDataStream then gives an SIGSENV error
+     */
     QFile * _pDataFile;
+
     quint32 _expectedFields;
 
     SettingsAuto * _pAutoSettingsParser;
-    QStringList _dataFileSample;
 
     static const qint32 _cSampleLineLength = 50;
 
