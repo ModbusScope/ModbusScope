@@ -34,7 +34,7 @@ private:
     QString constructDataHeader(bool bDuringLog);
     QString createLabelRow();
     QString formatData(double timeData, QList<double> dataValues);
-    void writeToFile(QString filePath, QStringList logData);
+    bool writeToFile(QString filePath, QStringList logData);
     void clearFile(QString filePath);
 
     GuiModel * _pGuiModel;
@@ -46,6 +46,7 @@ private:
     quint64 lastLogTime;
 
     static const quint64 _cLogBufferTimeout = 1000; /* in milliseconds */
+    static const quint32 _cLogChunkLineCount = 1000;
 
 };
 

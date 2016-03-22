@@ -79,32 +79,54 @@ void DataFileExporter::exportDataFile(QString dataFile)
         // Create label row
         logData.append(createLabelRow());
 
-        QList<quint16> activeGraphIndexes;
-        _pGraphDataModel->activeGraphIndexList(&activeGraphIndexes);
-
-        for(qint32 idx = 0; idx < activeGraphIndexes.size(); idx++)
-        {
-            // Save data lists
-            dataList.append(_pGraphDataModel->dataMap(activeGraphIndexes[idx]));
-        }
-
-        // Add data lines
-        for(qint32 i = 0; i < keyList.size(); i++)
-        {
-            QList<double> dataRowValues;
-            for(qint32 d = 0; d < dataList.size(); d++)
-            {
-                dataRowValues.append(dataList[d]->value(keyList[i]).value);
-            }
-
-            logData.append(formatData(keyList[i], dataRowValues));
-        }
-
         // Clean file
         clearFile(dataFile);
 
-        // Export data
-        writeToFile(dataFile, logData);
+        // Export header data
+        bool bRet = writeToFile(dataFile, logData);
+
+        logData.clear();
+
+        if (bRet)
+        {
+            QList<quint16> activeGraphIndexes;
+            _pGraphDataModel->activeGraphIndexList(&activeGraphIndexes);
+
+            for(qint32 idx = 0; idx < activeGraphIndexes.size(); idx++)
+            {
+                // Save data lists
+                dataList.append(_pGraphDataModel->dataMap(activeGraphIndexes[idx]));
+            }
+
+            // Add data lines
+            for(qint32 i = 0; i < keyList.size(); i++)
+            {
+                QList<double> dataRowValues;
+                for(qint32 d = 0; d < dataList.size(); d++)
+                {
+                    dataRowValues.append(dataList[d]->value(keyList[i]).value);
+                }
+
+                logData.append(formatData(keyList[i], dataRowValues));
+
+                if ( i % _cLogChunkLineCount == 0)
+                {
+                    bRet = writeToFile(dataFile, logData);
+
+                    logData.clear();
+
+                    if (!bRet)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            if (bRet && (logData.size() > 0))
+            {
+                writeToFile(dataFile, logData);
+            }
+        }
     }
 }
 
@@ -206,8 +228,9 @@ QString DataFileExporter::formatData(double timeData, QList<double> dataValues)
     return line;
 }
 
-void DataFileExporter::writeToFile(QString filePath, QStringList logData)
+bool DataFileExporter::writeToFile(QString filePath, QStringList logData)
 {
+    bool bRet = false;
     QFile file(filePath);
     if (file.open(QIODevice::Append | QIODevice::Text))
     {
@@ -217,6 +240,8 @@ void DataFileExporter::writeToFile(QString filePath, QStringList logData)
         {
             stream << line << "\n";
         }
+
+        bRet = true;
     }
     else
     {
@@ -235,6 +260,8 @@ void DataFileExporter::writeToFile(QString filePath, QStringList logData)
         msgBox.setText(tr("Save to data file (%1) failed").arg(filePath));
         msgBox.exec();
     }
+
+    return bRet;
 }
 
 void DataFileExporter::clearFile(QString filePath)
