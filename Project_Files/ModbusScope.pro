@@ -116,7 +116,8 @@ HEADERS += \
     ../src/customwidgets/legenditem.h \
     ../src/customwidgets/verticalscrollareacontents.h \
     ../src/customwidgets/markerinfo.h \
-    ../src/customwidgets/markerinfoitem.h
+    ../src/customwidgets/markerinfoitem.h \
+    ../src/importexport/projectfiledefinitions.h
 
 RESOURCES += \
     ../resources/resource.qrc

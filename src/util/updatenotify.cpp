@@ -3,6 +3,7 @@
 
 #include "util.h"
 #include "updatenotify.h"
+#include "projectfiledefinitions.h"
 
 UpdateNotify::UpdateNotify(QObject *parent) :
     QObject(parent)
@@ -33,7 +34,7 @@ void UpdateNotify::handleVersionData()
         _bValidData = true;
 
         const UpdateState versionState = checkVersions(Util::currentVersion(), _version);
-        const bool bDataLevelUpdate = (Util::currentDataLevel() != _dataLevel);
+        const bool bDataLevelUpdate = (ProjectFileDefinitions::cCurrentDataLevel != _dataLevel);
 
         // Emit signal only on success
         updateCheckResult(versionState, bDataLevelUpdate);

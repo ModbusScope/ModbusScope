@@ -2,6 +2,7 @@
 #include <QtWidgets>
 #include "util.h"
 #include "projectfileparser.h"
+#include "projectfiledefinitions.h"
 
 ProjectFileParser::ProjectFileParser()
 {
@@ -30,7 +31,7 @@ bool ProjectFileParser::parseFile(QIODevice *device, ProjectSettings *pSettings)
     else
     {
         QDomElement root = _domDocument.documentElement();
-        if (root.tagName() != "modbusscope")
+        if (root.tagName() != ProjectFileDefinitions::cModbusScopeTag)
         {
             _msgBox.setText(tr("The file is not a valid ModbusScope project file."));
             _msgBox.exec();
@@ -39,12 +40,12 @@ bool ProjectFileParser::parseFile(QIODevice *device, ProjectSettings *pSettings)
         else
         {
             // Check data level attribute
-            QString strDataLevel = root.attribute("datalevel", "1");
+            QString strDataLevel = root.attribute(ProjectFileDefinitions::cDatalevelAttribute, "1");
             quint32 datalevel = strDataLevel.toUInt(&bRet);
 
             if (bRet)
             {
-                if (datalevel != Util::currentDataLevel())
+                if (datalevel != ProjectFileDefinitions::cCurrentDataLevel)
                 {
                     _msgBox.setText(tr("Data level (%1) is not supported. Only datalevel 2 is allowed. Project file loading is aborted.").arg(datalevel));
                     _msgBox.exec();
@@ -62,7 +63,7 @@ bool ProjectFileParser::parseFile(QIODevice *device, ProjectSettings *pSettings)
                 QDomElement tag = root.firstChildElement();
                 while (!tag.isNull())
                 {
-                    if (tag.tagName() == "modbus")
+                    if (tag.tagName() == ProjectFileDefinitions::cModbusTag)
                     {
                         bRet = parseModbusTag(tag, &pSettings->general);
                         if (!bRet)
@@ -70,7 +71,7 @@ bool ProjectFileParser::parseFile(QIODevice *device, ProjectSettings *pSettings)
                             break;
                         }
                     }
-                    else if (tag.tagName() == "scope")
+                    else if (tag.tagName() == ProjectFileDefinitions::cScopeTag)
                     {
                         bRet = parseScopeTag(tag, &pSettings->scope);
                         if (!bRet)
@@ -78,7 +79,7 @@ bool ProjectFileParser::parseFile(QIODevice *device, ProjectSettings *pSettings)
                             break;
                         }
                     }
-                    else if (tag.tagName() == "view")
+                    else if (tag.tagName() == ProjectFileDefinitions::cViewTag)
                     {
                         bRet = parseViewTag(tag, &pSettings->view);
                         if (!bRet)
@@ -103,7 +104,7 @@ bool ProjectFileParser::parseModbusTag(const QDomElement &element, GeneralSettin
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
-        if (child.tagName() == "connection")
+        if (child.tagName() == ProjectFileDefinitions::cConnectionTag)
         {
             bRet = parseConnectionTag(child, &pGeneralSettings->connectionSettings);
             if (!bRet)
@@ -111,7 +112,7 @@ bool ProjectFileParser::parseModbusTag(const QDomElement &element, GeneralSettin
                 break;
             }
         }
-        else if (child.tagName() == "log")
+        else if (child.tagName() == ProjectFileDefinitions::cLogTag)
         {
             bRet = parseLogTag(child, &pGeneralSettings->logSettings);
             if (!bRet)
@@ -135,12 +136,12 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
-        if (child.tagName() == "ip")
+        if (child.tagName() == ProjectFileDefinitions::cIpTag)
         {
             pConnectionSettings->bIp = true;
             pConnectionSettings->ip = child.text();
         }
-        else if (child.tagName() == "port")
+        else if (child.tagName() == ProjectFileDefinitions::cPortTag)
         {
             pConnectionSettings->bPort = true;
             pConnectionSettings->port = child.text().toUInt(&bRet);
@@ -151,7 +152,7 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
                 break;
             }
         }
-        else if (child.tagName() == "slaveid")
+        else if (child.tagName() == ProjectFileDefinitions::cSlaveIdTag)
         {
             pConnectionSettings->bSlaveId = true;
             pConnectionSettings->slaveId = child.text().toUInt(&bRet);
@@ -163,7 +164,7 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
                 break;
             }
         }
-        else if (child.tagName() == "timeout")
+        else if (child.tagName() == ProjectFileDefinitions::cTimeoutTag)
         {
             pConnectionSettings->bTimeout = true;
             pConnectionSettings->timeout = child.text().toUInt(&bRet);
@@ -175,7 +176,7 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
                 break;
             }
         }
-        else if (child.tagName() == "consecutivemax")
+        else if (child.tagName() == ProjectFileDefinitions::cConsecutiveMaxTag)
         {
             pConnectionSettings->bConsecutiveMax = true;
             pConnectionSettings->consecutiveMax = child.text().toUInt(&bRet);
@@ -203,7 +204,7 @@ bool ProjectFileParser::parseLogTag(const QDomElement &element, LogSettings * pL
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
-        if (child.tagName() == "polltime")
+        if (child.tagName() == ProjectFileDefinitions::cPolTimeTag)
         {
             pLogSettings->bPollTime = true;
             pLogSettings->pollTime = child.text().toUInt(&bRet);
@@ -214,9 +215,9 @@ bool ProjectFileParser::parseLogTag(const QDomElement &element, LogSettings * pL
                 break;
             }
         } 
-        else if (child.tagName() == "absolutetimes")
+        else if (child.tagName() == ProjectFileDefinitions::cAbsoluteTimesTag)
         {
-            if (!child.text().toLower().compare("true"))
+            if (!child.text().toLower().compare(ProjectFileDefinitions::cTrueValue))
             {
                 pLogSettings->bAbsoluteTimes = true;
             }
@@ -225,7 +226,7 @@ bool ProjectFileParser::parseLogTag(const QDomElement &element, LogSettings * pL
                 pLogSettings->bAbsoluteTimes = false;
             }
         }
-        else if (child.tagName() == "logtofile")
+        else if (child.tagName() == ProjectFileDefinitions::cLogToFileTag)
         {
             bRet = parseLogToFile(child, pLogSettings);
             if (!bRet)
@@ -248,9 +249,9 @@ bool ProjectFileParser::parseLogToFile(const QDomElement &element, LogSettings *
     bool bRet = true;
 
     // Check attribute
-    QString enabled = element.attribute("enabled", "true");
+    QString enabled = element.attribute(ProjectFileDefinitions::cEnabledAttribute, ProjectFileDefinitions::cTrueValue);
 
-    if (!enabled.toLower().compare("true"))
+    if (!enabled.toLower().compare(ProjectFileDefinitions::cTrueValue))
     {
         pLogSettings->bLogToFile = true;
     }
@@ -263,7 +264,7 @@ bool ProjectFileParser::parseLogToFile(const QDomElement &element, LogSettings *
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
-        if (child.tagName() == "filename")
+        if (child.tagName() == ProjectFileDefinitions::cFilenameTag)
         {
             QFileInfo fileInfo = QFileInfo(child.text());
 
@@ -320,7 +321,7 @@ bool ProjectFileParser::parseScopeTag(const QDomElement &element, ScopeSettings 
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
-        if (child.tagName() == "register")
+        if (child.tagName() == ProjectFileDefinitions::cRegisterTag)
         {
             RegisterSettings registerData;
             bRet = parseRegisterTag(child, &registerData);
@@ -372,9 +373,9 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
     bool bRet = true;
 
     // Check attribute
-    QString active = element.attribute("active", "true");
+    QString active = element.attribute(ProjectFileDefinitions::cActiveAttribute, ProjectFileDefinitions::cTrueValue);
 
-    if (!active.toLower().compare("true"))
+    if (!active.toLower().compare(ProjectFileDefinitions::cTrueValue))
     {
         pRegisterSettings->bActive = true;
     }
@@ -387,7 +388,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
-        if (child.tagName() == "address")
+        if (child.tagName() == ProjectFileDefinitions::cAddressTag)
         {
             pRegisterSettings->address = child.text().toUInt(&bRet);
             if (!bRet)
@@ -397,13 +398,13 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
                 break;
             }
         }
-        else if (child.tagName() == "text")
+        else if (child.tagName() == ProjectFileDefinitions::cTextTag)
         {
             pRegisterSettings->text = child.text();
         }
-        else if (child.tagName() == "unsigned")
+        else if (child.tagName() == ProjectFileDefinitions::cUnsignedTag)
         {
-            if (!child.text().toLower().compare("true"))
+            if (!child.text().toLower().compare(ProjectFileDefinitions::cTrueValue))
             {
                 pRegisterSettings->bUnsigned = true;
             }
@@ -412,7 +413,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
                 pRegisterSettings->bUnsigned = false;
             }
         }
-        else if (child.tagName() == "divide")
+        else if (child.tagName() == ProjectFileDefinitions::cDivideTag)
         {
             // set to C locale => '.' as decimal separator
             QLocale locale = QLocale("C");
@@ -426,7 +427,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
                 break;
             }
         }
-        else if (child.tagName() == "multiply")
+        else if (child.tagName() == ProjectFileDefinitions::cMultiplyTag)
         {
             // set to C locale => '.' as decimal separator
             QLocale locale = QLocale("C");
@@ -440,7 +441,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
                 break;
             }
         }
-        else if (child.tagName() == "color")
+        else if (child.tagName() == ProjectFileDefinitions::cColorTag)
         {
             bRet = QColor::isValidColor(child.text());
             pRegisterSettings->bColor = bRet;
@@ -455,7 +456,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
                 break;
             }
         }
-        else if (child.tagName() == "bitmask")
+        else if (child.tagName() == ProjectFileDefinitions::cBitmaskTag)
         {
             const quint16 newBitMask = child.text().toUInt(&bRet, 0);
 
@@ -470,7 +471,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
                 break;
             }
         }
-        else if (child.tagName() == "shift")
+        else if (child.tagName() == ProjectFileDefinitions::cShiftTag)
         {
             const qint32 newShift = child.text().toInt(&bRet);
 
@@ -515,7 +516,7 @@ bool ProjectFileParser::parseViewTag(const QDomElement &element, ViewSettings *p
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
-        if (child.tagName() == "scale")
+        if (child.tagName() == ProjectFileDefinitions::cScaleTag)
         {
             bRet = parseScaleTag(child, &pViewSettings->scaleSettings);
             if (!bRet)
@@ -539,12 +540,12 @@ bool ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleSettings 
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
-        if (child.tagName() == "xaxis")
+        if (child.tagName() == ProjectFileDefinitions::cXaxisTag)
         {
             // Check attribute
-            QString active = child.attribute("mode");
+            QString active = child.attribute(ProjectFileDefinitions::cModeAttribute);
 
-            if (!active.toLower().compare("sliding"))
+            if (!active.toLower().compare(ProjectFileDefinitions::cSlidingValue))
             {
                 // Sliding interval mode
                 pScaleSettings->bSliding = true;
@@ -555,18 +556,18 @@ bool ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleSettings 
                     break;
                 }
             }
-            else if (!active.toLower().compare("auto"))
+            else if (!active.toLower().compare(ProjectFileDefinitions::cAutoValue))
             {
                 // auto interval mode
                 pScaleSettings->bSliding = false;
             }
         }
-        else if (child.tagName() == "yaxis")
+        else if (child.tagName() == ProjectFileDefinitions::cYaxisTag)
         {
             // Check attribute
-            QString active = child.attribute("mode");
+            QString active = child.attribute(ProjectFileDefinitions::cModeAttribute);
 
-            if (!active.toLower().compare("minmax"))
+            if (!active.toLower().compare(ProjectFileDefinitions::cMinmaxValue))
             {
                 // min max mode
                 pScaleSettings->bMinMax = true;
@@ -577,7 +578,7 @@ bool ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleSettings 
                     break;
                 }
             }
-            else if (!active.toLower().compare("auto"))
+            else if (!active.toLower().compare(ProjectFileDefinitions::cAutoValue))
             {
                 // auto interval mode
                 pScaleSettings->bMinMax = false;
@@ -602,7 +603,7 @@ bool ProjectFileParser::parseScaleXAxis(const QDomElement &element, ScaleSetting
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
-        if (child.tagName() == "slidinginterval")
+        if (child.tagName() == ProjectFileDefinitions::cSlidingintervalTag)
         {
             pScaleSettings->slidingInterval = child.text().toUInt(&bRet);
             if (bRet)
@@ -643,7 +644,7 @@ bool ProjectFileParser::parseScaleYAxis(const QDomElement &element, ScaleSetting
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
-        if (child.tagName() == "min")
+        if (child.tagName() == ProjectFileDefinitions::cMinTag)
         {
             pScaleSettings->scaleMin = child.text().toInt(&bRet);
             if (bRet)
@@ -657,7 +658,7 @@ bool ProjectFileParser::parseScaleYAxis(const QDomElement &element, ScaleSetting
                 break;
             }
         }
-        else if (child.tagName() == "max")
+        else if (child.tagName() == ProjectFileDefinitions::cMaxTag)
         {
             pScaleSettings->scaleMax = child.text().toInt(&bRet);
             if (bRet)
