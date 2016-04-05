@@ -23,12 +23,21 @@ public slots:
 private:
 
     void createDomDocument();
+    void createModbusTag(QDomElement * pParentElement);
+
+    void createConnectionTag(QDomElement * pParentElement);
+    void createLogTag(QDomElement * pParentElement);
+
+
+    QString convertBoolToText(bool bValue);
+    void addTextNode(QString tagName, QString tagValue, QDomElement * pParentElement);
 
     GuiModel * _pGuiModel;
     SettingsModel * _pSettingsModel;
     GraphDataModel * _pGraphDataModel;
 
     QDomDocument _domDocument;
+
 };
 
 #endif // PROJECTFILEEXPORTER_H

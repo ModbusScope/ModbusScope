@@ -204,7 +204,7 @@ bool ProjectFileParser::parseLogTag(const QDomElement &element, LogSettings * pL
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
-        if (child.tagName() == ProjectFileDefinitions::cPolTimeTag)
+        if (child.tagName() == ProjectFileDefinitions::cPollTimeTag)
         {
             pLogSettings->bPollTime = true;
             pLogSettings->pollTime = child.text().toUInt(&bRet);

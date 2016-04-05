@@ -295,12 +295,19 @@ void MainWindow::selectSettingsExportFile()
     dialog.setNameFilter(tr("MBS files (*.mbs)"));
     dialog.setDirectory(_pGuiModel->lastDir());
 
+    // TODO
+#if 0
     if (dialog.exec())
     {
         filePath = dialog.selectedFiles().first();
         _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
         _pProjectFileExporter->exportProjectFile(filePath);
     }
+#else
+    _pProjectFileExporter->exportProjectFile("filePath");
+#endif
+
+
 }
 
 void MainWindow::selectImageExportFile()

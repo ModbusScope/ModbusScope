@@ -1,27 +1,14 @@
 
-#include <QDir>
 #include <QDebug>
 
 #include "settingsmodel.h"
 
-
-const QString SettingsModel::_cDefaultLogFileName = "ModbusScope-autolog.csv";
-
 SettingsModel::SettingsModel(QObject *parent) :
     QObject(parent)
 {
-    QString tempDir = QDir::toNativeSeparators(QDir::tempPath());
-
-    if (tempDir.right(1) != QDir::separator())
-    {
-        tempDir.append(QDir::separator());
-    }
-
-    defaultLogFilePath = tempDir.append(_cDefaultLogFileName);
-
     _pollTime = 1000;
     _bWriteDuringLog = true;
-    _writeDuringLogFile = defaultLogFilePath;
+    _writeDuringLogFile = SettingsModel::defaultLogPath();
     _ipAddress = "127.0.0.1";
     _port = 502;
     _slaveId = 1;
@@ -99,7 +86,7 @@ void SettingsModel::setWriteDuringLog(bool bState)
     }
 }
 
-quint32 SettingsModel::writeDuringLog()
+bool SettingsModel::writeDuringLog()
 {
     return _bWriteDuringLog;
 }
@@ -115,7 +102,7 @@ void SettingsModel::setWriteDuringLogFile(QString path)
 
 void SettingsModel::setWriteDuringLogFileToDefault(void)
 {
-    setWriteDuringLogFile(defaultLogFilePath);
+    setWriteDuringLogFile(defaultLogPath());
 }
 
 QString SettingsModel::writeDuringLogFile()

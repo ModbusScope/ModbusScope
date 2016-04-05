@@ -18,7 +18,7 @@ namespace ProjectFileDefinitions
     const QString cPortTag = QString("port");
     const QString cTimeoutTag = QString("timeout");
     const QString cConsecutiveMaxTag = QString("consecutivemax");
-    const QString cPolTimeTag = QString("polltime");
+    const QString cPollTimeTag = QString("polltime");
     const QString cAbsoluteTimesTag = QString("absolutetimes");
     const QString cLogToFileTag = QString("logtofile");
     const QString cFilenameTag = QString("filename");

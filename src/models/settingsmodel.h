@@ -2,6 +2,7 @@
 #define SETTINGSMODEL_H
 
 #include <QObject>
+#include <QDir>
 
 class SettingsModel : public QObject
 {
@@ -22,7 +23,7 @@ public:
     void setConsecutiveMax(quint8 max);
 
     QString writeDuringLogFile();
-    quint32 writeDuringLog();
+    bool writeDuringLog();
     QString ipAddress();
     quint16 port();
     quint8 slaveId();
@@ -30,6 +31,19 @@ public:
     quint32 pollTime();
     bool absoluteTimes();
     quint8 consecutiveMax();
+
+    static const QString defaultLogPath()
+    {
+        const QString cDefaultLogFileName = "ModbusScope-autolog.csv";
+        QString tempDir = QDir::toNativeSeparators(QDir::tempPath());
+
+        if (tempDir.right(1) != QDir::separator())
+        {
+            tempDir.append(QDir::separator());
+        }
+
+        return tempDir.append(cDefaultLogFileName);
+    }
 
 public slots:
     void setWriteDuringLog(bool bState);
@@ -59,10 +73,6 @@ private:
 
     bool _bWriteDuringLog;
     QString _writeDuringLogFile;
-
-    QString defaultLogFilePath;
-
-    static const QString _cDefaultLogFileName;
 
 };
 
