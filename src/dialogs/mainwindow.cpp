@@ -44,6 +44,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pUi->customPlot, this);
 
     _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphView, _pGraphDataModel);
+    _pProjectFileExporter = new ProjectFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel);
 
     _pLegend = _pUi->legend;
     _pLegend->setModels(_pGuiModel, _pGraphDataModel);
@@ -57,6 +58,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionReloadProjectFile, SIGNAL(triggered()), this, SLOT(reloadProjectSettings()));
     connect(_pUi->actionImportDataFile, SIGNAL(triggered()), this, SLOT(selecDataImportFile()));
     connect(_pUi->actionExportImage, SIGNAL(triggered()), this, SLOT(selectImageExportFile()));
+    connect(_pUi->actionExportSettings, SIGNAL(triggered()), this, SLOT(selectSettingsExportFile()));
     connect(_pUi->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
     connect(_pUi->actionShowValueTooltip, SIGNAL(toggled(bool)), _pGuiModel, SLOT(setValueTooltip(bool)));
     connect(_pUi->actionHighlightSamplePoints, SIGNAL(toggled(bool)), _pGuiModel, SLOT(setHighlightSamples(bool)));
@@ -278,6 +280,26 @@ void MainWindow::selectDataExportFile()
         filePath = dialog.selectedFiles().first();
         _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
         _pDataFileExporter->exportDataFile(filePath);
+    }
+}
+
+void MainWindow::selectSettingsExportFile()
+{
+    QString filePath;
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
+    dialog.setDefaultSuffix("mbs");
+    dialog.setWindowTitle(tr("Select mbs file"));
+    dialog.setNameFilter(tr("MBS files (*.mbs)"));
+    dialog.setDirectory(_pGuiModel->lastDir());
+
+    if (dialog.exec())
+    {
+        filePath = dialog.selectedFiles().first();
+        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
+        _pProjectFileExporter->exportProjectFile(filePath);
     }
 }
 
@@ -597,6 +619,7 @@ void MainWindow::updateGuiState()
         _pUi->actionLoadProjectFile->setEnabled(true);
         _pUi->actionExportDataCsv->setEnabled(false);
         _pUi->actionExportImage->setEnabled(false);
+        _pUi->actionExportSettings->setEnabled(false);
 
         _pStatusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
         _pStatusRuntime->setVisible(true);
@@ -620,6 +643,7 @@ void MainWindow::updateGuiState()
         _pUi->actionImportDataFile->setEnabled(false);
         _pUi->actionLoadProjectFile->setEnabled(false);
         _pUi->actionExportDataCsv->setEnabled(false);
+        _pUi->actionExportSettings->setEnabled(false);
         _pUi->actionExportImage->setEnabled(false);
         _pUi->actionReloadProjectFile->setEnabled(false);
 
@@ -642,6 +666,7 @@ void MainWindow::updateGuiState()
         _pUi->actionImportDataFile->setEnabled(true);
         _pUi->actionLoadProjectFile->setEnabled(true);
         _pUi->actionExportDataCsv->setEnabled(true);
+        _pUi->actionExportSettings->setEnabled(true);
         _pUi->actionExportImage->setEnabled(true);
 
         if (_pGuiModel->projectFilePath().isEmpty())
@@ -667,6 +692,7 @@ void MainWindow::updateGuiState()
         _pUi->actionImportDataFile->setEnabled(true);
         _pUi->actionLoadProjectFile->setEnabled(true);
         _pUi->actionExportDataCsv->setEnabled(false); // Can't export data when viewing data
+        _pUi->actionExportSettings->setEnabled(false); // Can't export data when viewing data
         _pUi->actionExportImage->setEnabled(true);
 
         _pStatusRuntime->setText(QString(""));

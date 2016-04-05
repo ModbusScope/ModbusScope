@@ -72,7 +72,8 @@ SOURCES +=  \
     ../src/dialogs/registerdialog.cpp \
     ../src/customwidgets/verticalscrollareacontents.cpp \
     ../src/customwidgets/markerinfo.cpp \
-    ../src/customwidgets/markerinfoitem.cpp
+    ../src/customwidgets/markerinfoitem.cpp \
+    ../src/importexport/projectfileexporter.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
@@ -117,7 +118,8 @@ HEADERS += \
     ../src/customwidgets/verticalscrollareacontents.h \
     ../src/customwidgets/markerinfo.h \
     ../src/customwidgets/markerinfoitem.h \
-    ../src/importexport/projectfiledefinitions.h
+    ../src/importexport/projectfiledefinitions.h \
+    ../src/importexport/projectfileexporter.h
 
 RESOURCES += \
     ../resources/resource.qrc

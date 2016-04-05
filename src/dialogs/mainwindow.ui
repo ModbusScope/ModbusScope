@@ -46,7 +46,7 @@
      <x>0</x>
      <y>0</y>
      <width>839</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -59,6 +59,7 @@
     <addaction name="separator"/>
     <addaction name="actionExportDataCsv"/>
     <addaction name="actionExportImage"/>
+    <addaction name="actionExportSettings"/>
     <addaction name="separator"/>
     <addaction name="actionConnectionSettings"/>
     <addaction name="actionLogSettings"/>
@@ -450,8 +451,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>76</width>
-          <height>415</height>
+          <width>69</width>
+          <height>448</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -652,6 +653,14 @@
   <action name="actionClearMarkers">
    <property name="text">
     <string>Clear Markers</string>
+   </property>
+  </action>
+  <action name="actionExportSettings">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Export Settings</string>
    </property>
   </action>
  </widget>

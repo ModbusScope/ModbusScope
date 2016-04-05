@@ -11,6 +11,7 @@
 #include "datafileparser.h"
 #include "projectfileparser.h"
 #include "datafileexporter.h"
+#include "projectfileexporter.h"
 
 namespace Ui {
 class MainWindow;
@@ -52,6 +53,7 @@ private slots:
     void exitApplication();
     void selectDataExportFile();
     void selectImageExportFile();
+    void selectSettingsExportFile();
     void showAbout();
     void menuBringToFrontGraphClicked(bool bState);
     void menuShowHideGraphClicked(bool bState);
@@ -116,6 +118,7 @@ private:
     Legend * _pLegend;
 
     DataFileExporter * _pDataFileExporter;
+    ProjectFileExporter * _pProjectFileExporter;
 
     QLabel * _pStatusStats;
     QLabel * _pStatusState;
