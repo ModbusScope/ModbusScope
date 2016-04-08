@@ -359,7 +359,7 @@
    <property name="minimumSize">
     <size>
      <width>80</width>
-     <height>41</height>
+     <height>59</height>
     </size>
    </property>
    <property name="features">
@@ -377,19 +377,19 @@
    <widget class="QWidget" name="dockWidgetContents_3">
     <layout class="QVBoxLayout" name="verticalLayout_5">
      <property name="spacing">
-      <number>0</number>
+      <number>6</number>
      </property>
      <property name="leftMargin">
-      <number>0</number>
+      <number>9</number>
      </property>
      <property name="topMargin">
-      <number>0</number>
+      <number>9</number>
      </property>
      <property name="rightMargin">
-      <number>0</number>
+      <number>9</number>
      </property>
      <property name="bottomMargin">
-      <number>0</number>
+      <number>9</number>
      </property>
      <item>
       <widget class="MarkerInfo" name="markerInfo">
@@ -397,7 +397,7 @@
         <enum>QFrame::Box</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
+        <enum>QFrame::Sunken</enum>
        </property>
       </widget>
      </item>
