@@ -46,7 +46,7 @@
      <x>0</x>
      <y>0</y>
      <width>839</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -359,7 +359,7 @@
    <property name="minimumSize">
     <size>
      <width>80</width>
-     <height>38</height>
+     <height>41</height>
     </size>
    </property>
    <property name="features">
@@ -451,8 +451,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>69</width>
-          <height>448</height>
+          <width>76</width>
+          <height>413</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -659,6 +659,10 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset resource="../../resources/resource.qrc">
+     <normaloff>:/menu_icon/menu_icon/icons/folder_go.png</normaloff>:/menu_icon/menu_icon/icons/folder_go.png</iconset>
+   </property>
    <property name="text">
     <string>Export Settings</string>
    </property>
@@ -691,6 +695,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../resources/resource.qrc"/>
+ </resources>
  <connections/>
 </ui>

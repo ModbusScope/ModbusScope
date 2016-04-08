@@ -28,6 +28,10 @@ private:
     void createConnectionTag(QDomElement * pParentElement);
     void createLogTag(QDomElement * pParentElement);
 
+    void createScopeTag(QDomElement * pParentElement);
+    void createRegisterTag(QDomElement * pParentElement, qint32 idx);
+
+    void createViewTag(QDomElement * pParentElement);
 
     QString convertBoolToText(bool bValue);
     void addTextNode(QString tagName, QString tagValue, QDomElement * pParentElement);

@@ -295,19 +295,12 @@ void MainWindow::selectSettingsExportFile()
     dialog.setNameFilter(tr("MBS files (*.mbs)"));
     dialog.setDirectory(_pGuiModel->lastDir());
 
-    // TODO
-#if 0
     if (dialog.exec())
     {
         filePath = dialog.selectedFiles().first();
         _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
         _pProjectFileExporter->exportProjectFile(filePath);
     }
-#else
-    _pProjectFileExporter->exportProjectFile("filePath");
-#endif
-
-
 }
 
 void MainWindow::selectImageExportFile()
@@ -626,7 +619,7 @@ void MainWindow::updateGuiState()
         _pUi->actionLoadProjectFile->setEnabled(true);
         _pUi->actionExportDataCsv->setEnabled(false);
         _pUi->actionExportImage->setEnabled(false);
-        _pUi->actionExportSettings->setEnabled(false);
+        _pUi->actionExportSettings->setEnabled(true);
 
         _pStatusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
         _pStatusRuntime->setVisible(true);

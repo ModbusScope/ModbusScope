@@ -415,28 +415,24 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
         }
         else if (child.tagName() == ProjectFileDefinitions::cDivideTag)
         {
-            // set to C locale => '.' as decimal separator
-            QLocale locale = QLocale("C");
-
-            pRegisterSettings->divideFactor = locale.toDouble(child.text(), &bRet);
+            // use settings from system locale
+            pRegisterSettings->divideFactor = QLocale::system().toDouble(child.text(), &bRet);
 
             if (!bRet)
             {
-                _msgBox.setText(tr("Divide factor (%1) is not a valid double. Expected decimal separator is point").arg(child.text()));
+                _msgBox.setText(QString("Divide factor (%1) is not a valid double. Expected decimal separator is \"%2\".").arg(child.text()).arg(QLocale::system().decimalPoint()));
                 _msgBox.exec();
                 break;
             }
         }
         else if (child.tagName() == ProjectFileDefinitions::cMultiplyTag)
         {
-            // set to C locale => '.' as decimal separator
-            QLocale locale = QLocale("C");
-
-            pRegisterSettings->multiplyFactor = locale.toDouble(child.text(), &bRet);
+            // use settings from system locale
+            pRegisterSettings->multiplyFactor = QLocale::system().toDouble(child.text(), &bRet);
 
             if (!bRet)
             {
-                _msgBox.setText(tr("Multiply factor (%1) is not a valid double. Expected decimal separator is point").arg(child.text()));
+                _msgBox.setText(QString("Multiply factor (%1) is not a valid double. Expected decimal separator is \"%2\".").arg(child.text()).arg(QLocale::system().decimalPoint()));
                 _msgBox.exec();
                 break;
             }

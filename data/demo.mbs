@@ -36,7 +36,7 @@
 		<register active="false">
 			<address>40003</address>
 			<text>Very interesting register 3</text>
-			<multiply>10.0</multiply>
+			<multiply>10,0</multiply>
 		</register>
 	</scope>
 	

@@ -5,6 +5,7 @@
 #include "guimodel.h"
 #include "settingsmodel.h"
 #include "graphdatamodel.h"
+#include "util.h"
 
 #include "projectfiledefinitions.h"
 #include "projectfileexporter.h"
@@ -22,15 +23,9 @@ void ProjectFileExporter::exportProjectFile(QString projectFile)
 
     createDomDocument();
 
-    qDebug() << _domDocument.toString();
-
-    // TODO
-#if 0
     QFile file(projectFile);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-
-        //QString::toHtmlEscaped() => zorgt voor conversie van speciale tekens
         QTextStream stream(&file);
         stream << _domDocument.toString();
     }
@@ -42,12 +37,6 @@ void ProjectFileExporter::exportProjectFile(QString projectFile)
         msgBox.setText(tr("Export settings to file (%1) failed").arg(projectFile));
         msgBox.exec();
     }
-#endif
-
-    /* TODO
-    Export settings moet ge-enabled worden als configuratie veranderd wordt
-    Icon voor export settings
-    */
 }
 
 
@@ -59,6 +48,8 @@ void ProjectFileExporter::createDomDocument()
     rootElement.setAttribute(ProjectFileDefinitions::cDatalevelAttribute, QString("%1").arg(ProjectFileDefinitions::cCurrentDataLevel));
 
     createModbusTag(&rootElement);
+    createScopeTag(&rootElement);
+    createViewTag(&rootElement);
 
     _domDocument.appendChild(rootElement);
 
@@ -91,7 +82,7 @@ void ProjectFileExporter::createLogTag(QDomElement * pParentElement)
 {
     QDomElement logElement = _domDocument.createElement(ProjectFileDefinitions::cLogTag);
 
-    addTextNode(ProjectFileDefinitions::cPollTimeTag, QString("%").arg(_pSettingsModel->pollTime()), &logElement);
+    addTextNode(ProjectFileDefinitions::cPollTimeTag, QString("%1").arg(_pSettingsModel->pollTime()), &logElement);
     addTextNode(ProjectFileDefinitions::cAbsoluteTimesTag, convertBoolToText(_pSettingsModel->absoluteTimes()), &logElement);
 
     /* Create logtofile tag */
@@ -110,9 +101,80 @@ void ProjectFileExporter::createLogTag(QDomElement * pParentElement)
     pParentElement->appendChild(logElement);
 }
 
+void ProjectFileExporter::createScopeTag(QDomElement * pParentElement)
+{
+    QDomElement scopeElement = _domDocument.createElement(ProjectFileDefinitions::cScopeTag);
+
+    for (qint32 idx = 0; idx < _pGraphDataModel->size(); idx++)
+    {
+        createRegisterTag(&scopeElement, idx);
+    }
+
+    pParentElement->appendChild(scopeElement);
+}
+
+void ProjectFileExporter::createRegisterTag(QDomElement * pParentElement, qint32 idx)
+{
+    QDomElement registerElement = _domDocument.createElement(ProjectFileDefinitions::cRegisterTag);
+
+    registerElement.setAttribute(ProjectFileDefinitions::cActiveAttribute, convertBoolToText(_pGraphDataModel->isActive(idx)));
+
+    addTextNode(ProjectFileDefinitions::cAddressTag, QString("%1").arg(_pGraphDataModel->registerAddress(idx)), &registerElement);
+    addTextNode(ProjectFileDefinitions::cTextTag, _pGraphDataModel->label(idx).toHtmlEscaped(), &registerElement);
+    addTextNode(ProjectFileDefinitions::cUnsignedTag, convertBoolToText(_pGraphDataModel->isUnsigned(idx)), &registerElement);
+    addTextNode(ProjectFileDefinitions::cMultiplyTag, Util::formatDoubleForExport(_pGraphDataModel->multiplyFactor(idx)), &registerElement);
+    addTextNode(ProjectFileDefinitions::cDivideTag, Util::formatDoubleForExport(_pGraphDataModel->divideFactor(idx)), &registerElement);
+    addTextNode(ProjectFileDefinitions::cColorTag, _pGraphDataModel->color(idx).name(), &registerElement);
+    addTextNode(ProjectFileDefinitions::cBitmaskTag, QString("0x%1").arg(_pGraphDataModel->bitmask(idx), 0, 16), &registerElement);
+    addTextNode(ProjectFileDefinitions::cShiftTag, QString("%1").arg(_pGraphDataModel->shift(idx)), &registerElement);
+
+    pParentElement->appendChild(registerElement);
+}
+
+void ProjectFileExporter::createViewTag(QDomElement * pParentElement)
+{
+    QDomElement viewElement = _domDocument.createElement(ProjectFileDefinitions::cViewTag);
+    QDomElement scaleElement = _domDocument.createElement(ProjectFileDefinitions::cScaleTag);
+
+    /* Create xAxisElement tag */
+    QDomElement xAxisElement = _domDocument.createElement(ProjectFileDefinitions::cXaxisTag);
+
+    if (_pGuiModel->xAxisScalingMode() == BasicGraphView::SCALE_SLIDING)
+    {
+        xAxisElement.setAttribute(ProjectFileDefinitions::cModeAttribute, ProjectFileDefinitions::cSlidingValue);
+
+        addTextNode(ProjectFileDefinitions::cSlidingintervalTag, QString("%1").arg(_pGuiModel->xAxisSlidingSec()), &xAxisElement);
+    }
+    else
+    {
+        xAxisElement.setAttribute(ProjectFileDefinitions::cModeAttribute, ProjectFileDefinitions::cAutoValue);
+    }
+    scaleElement.appendChild(xAxisElement);
+
+
+    /* Create yAxisElement tag */
+    QDomElement yAxisElement = _domDocument.createElement(ProjectFileDefinitions::cYaxisTag);
+
+    if (_pGuiModel->yAxisScalingMode() == BasicGraphView::SCALE_MINMAX)
+    {
+        yAxisElement.setAttribute(ProjectFileDefinitions::cModeAttribute, ProjectFileDefinitions::cMinmaxValue);
+
+        addTextNode(ProjectFileDefinitions::cMinTag, QString("%1").arg(_pGuiModel->yAxisMin()), &yAxisElement);
+        addTextNode(ProjectFileDefinitions::cMaxTag, QString("%1").arg(_pGuiModel->yAxisMax()), &yAxisElement);
+    }
+    else
+    {
+        yAxisElement.setAttribute(ProjectFileDefinitions::cModeAttribute, ProjectFileDefinitions::cAutoValue);
+    }
+    scaleElement.appendChild(yAxisElement);
+
+    viewElement.appendChild(scaleElement);
+    pParentElement->appendChild(viewElement);
+}
+
 QString ProjectFileExporter::convertBoolToText(bool bValue)
 {
-    QString boolText = bValue ? tr("true") : tr("false");
+    QString boolText = bValue ? ProjectFileDefinitions::cTrueValue : ProjectFileDefinitions::cFalseValue;
     return boolText;
 }
 
@@ -124,5 +186,7 @@ void ProjectFileExporter::addTextNode(QString tagName, QString tagValue, QDomEle
 
     pParentElement->appendChild(tag);
 }
+
+
 
 
