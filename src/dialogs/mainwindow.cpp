@@ -740,6 +740,11 @@ void MainWindow::updateStats()
 
 void MainWindow::updateMarkerDockVisibility()
 {
+    if (_pGuiModel->markerState())
+    {
+        splitDockWidget(_pUi->legendDock, _pUi->markerInfoDock, Qt::Vertical);
+    }
+
     _pUi->markerInfoDock->setVisible(_pGuiModel->markerState());
 }
 

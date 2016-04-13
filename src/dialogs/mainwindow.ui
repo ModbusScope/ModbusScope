@@ -46,7 +46,7 @@
      <x>0</x>
      <y>0</y>
      <width>839</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -372,7 +372,7 @@
     <string>Markers</string>
    </property>
    <attribute name="dockWidgetArea">
-    <number>1</number>
+    <number>2</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_3">
     <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -451,8 +451,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>76</width>
-          <height>413</height>
+          <width>69</width>
+          <height>202</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_6">
