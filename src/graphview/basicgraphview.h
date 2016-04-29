@@ -54,6 +54,7 @@ private slots:
     void selectionChanged();
 
     void mousePress(QMouseEvent *event);
+    void mouserRelease();
     void mouseWheel();
     void mouseMove(QMouseEvent *event);
     void paintValueToolTip(QMouseEvent *event);

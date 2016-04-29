@@ -18,6 +18,7 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
 
    _pPlot = pPlot;
 
+   /* Range drag is also enabled/disabled on mousePress and mouseRelease event */
    _pPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes);
 
    // disable anti aliasing while dragging
@@ -59,6 +60,7 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
 
    // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
    connect(_pPlot, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress(QMouseEvent*)));
+   connect(_pPlot, SIGNAL(mouseRelease(QMouseEvent*)), this, SLOT(mouserRelease()));
    connect(_pPlot, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel()));
    connect(_pPlot, SIGNAL(axisDoubleClick(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)), this, SLOT(axisDoubleClicked(QCPAxis*)));
    connect(_pPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMove(QMouseEvent*)));
@@ -362,6 +364,10 @@ void BasicGraphView::mousePress(QMouseEvent *event)
 {
    if (event->modifiers() & Qt::ControlModifier)
    {
+       /* Disable range drag when control key is pressed */
+       _pPlot->setInteraction(QCP::iRangeDrag, false);
+       _pPlot->setInteraction(QCP::iRangeZoom, false);
+
        const double xPos = _pPlot->xAxis->pixelToCoord(event->pos().x());
 
        double correctXPos = 0;
@@ -430,6 +436,13 @@ void BasicGraphView::mousePress(QMouseEvent *event)
    }
 }
 
+void BasicGraphView::mouserRelease()
+{
+    /* Always re-enable range drag */
+    _pPlot->setInteraction(QCP::iRangeDrag, true);
+    _pPlot->setInteraction(QCP::iRangeZoom, true);
+}
+
 void BasicGraphView::mouseWheel()
 {
    // if an axis is selected, only allow the direction of that axis to be zoomed
@@ -458,19 +471,22 @@ void BasicGraphView::mouseMove(QMouseEvent *event)
     // Check for graph drag
     if(event->buttons() & Qt::LeftButton)
     {
-        if (_pPlot->axisRect()->rangeDrag() == Qt::Horizontal)
+        if (!(event->modifiers() & Qt::ControlModifier))
         {
-            _pGuiModel->setxAxisScale(SCALE_MANUAL); // change to manual scaling
-        }
-        else if (_pPlot->axisRect()->rangeDrag() == Qt::Vertical)
-        {
-            _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
-        }
-        else
-        {
-            // Both change to manual scaling
-            _pGuiModel->setxAxisScale(SCALE_MANUAL);
-            _pGuiModel->setyAxisScale(SCALE_MANUAL);
+            if (_pPlot->axisRect()->rangeDrag() == Qt::Horizontal)
+            {
+                _pGuiModel->setxAxisScale(SCALE_MANUAL); // change to manual scaling
+            }
+            else if (_pPlot->axisRect()->rangeDrag() == Qt::Vertical)
+            {
+                _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
+            }
+            else
+            {
+                // Both change to manual scaling
+                _pGuiModel->setxAxisScale(SCALE_MANUAL);
+                _pGuiModel->setyAxisScale(SCALE_MANUAL);
+            }
         }
     }
     else
