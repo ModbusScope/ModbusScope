@@ -375,6 +375,7 @@ void MainWindow::clearData()
     _pConnMan->resetCommunicationStats();
     _pGraphView->clearResults();
     _pGuiModel->clearMarkersState();
+    _pDataFileExporter->rewriteDataFile();
 }
 
 void MainWindow::startScope()
