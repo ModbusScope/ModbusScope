@@ -315,11 +315,36 @@ void MainWindow::selectImageExportFile()
     dialog.setNameFilter(tr("PNG files (*.png)"));
     dialog.setDirectory(_pGuiModel->lastDir());
 
-    if (dialog.exec())
+    /* Add question wether to save when legend is undocked */
+    bool bProceed = false;
+    if (_pUi->legendDock->isFloating())
     {
-        filePath = dialog.selectedFiles().first();
-        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-        _pGraphView->exportGraphImage(filePath);
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Save screenshot?", "The legend dock is floating, it won't be included in the screenshot. \n\nAre you sure want to proceed?", QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::Yes)
+        {
+            bProceed = true;
+        }
+        else
+        {
+            bProceed = false;
+        }
+    }
+    else
+    {
+        bProceed = true;
+    }
+
+    if (bProceed)
+    {
+        if (dialog.exec())
+        {
+            filePath = dialog.selectedFiles().first();
+            _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
+
+            QPixmap pixMap = this->window()->grab();
+            pixMap.save(filePath);
+        }
     }
 }
 

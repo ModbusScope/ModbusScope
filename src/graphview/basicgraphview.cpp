@@ -90,18 +90,6 @@ BasicGraphView::~BasicGraphView()
 
 }
 
-void BasicGraphView::exportGraphImage(QString imageFile)
-{
-    if (!_pPlot->savePng(imageFile))
-    {
-        QMessageBox msgBox;
-        msgBox.setWindowTitle(tr("Export image"));
-        msgBox.setIcon(QMessageBox::Warning);
-        msgBox.setText(tr("Save to png file (%1) failed").arg(imageFile));
-        msgBox.exec();
-    }
-}
-
 void BasicGraphView::manualScaleXAxis(qint64 min, qint64 max)
 {
     _pPlot->xAxis->setRange(min, max);

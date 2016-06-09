@@ -25,8 +25,6 @@ public:
     explicit BasicGraphView(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel, MyQCustomPlot *pPlot, QObject *parent = 0);
     virtual ~BasicGraphView();
 
-    void exportGraphImage(QString imageFile);
-
 public slots:
 
     virtual void manualScaleXAxis(qint64 min, qint64 max);
