@@ -452,7 +452,7 @@
           <x>0</x>
           <y>0</y>
           <width>69</width>
-          <height>202</height>
+          <height>69</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -627,7 +627,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Connection Settings</string>
+    <string>Connection Settings...</string>
    </property>
   </action>
   <action name="actionRegisterSettings">
@@ -637,7 +637,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Register settings</string>
+    <string>Register settings...</string>
    </property>
   </action>
   <action name="actionLogSettings">
@@ -647,7 +647,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Log Settings</string>
+    <string>Log Settings...</string>
    </property>
   </action>
   <action name="actionClearMarkers">
@@ -664,7 +664,7 @@
      <normaloff>:/menu_icon/menu_icon/icons/folder_go.png</normaloff>:/menu_icon/menu_icon/icons/folder_go.png</iconset>
    </property>
    <property name="text">
-    <string>Export Settings</string>
+    <string>Export Settings...</string>
    </property>
   </action>
  </widget>
