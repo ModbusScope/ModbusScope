@@ -41,7 +41,8 @@ private:
 
     QVBoxLayout * _pLayout;
     QComboBox * _pGraphCombo;
-    QLabel * _pGraphDataLabel;
+    QLabel * _pGraphDataLabelLeft;
+    QLabel * _pGraphDataLabelRight;
 
     GuiModel * _pGuiModel;
     GraphDataModel * _pGraphDataModel;

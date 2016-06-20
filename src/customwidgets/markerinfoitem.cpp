@@ -15,10 +15,21 @@ MarkerInfoItem::MarkerInfoItem(QWidget *parent) : QFrame(parent)
     _pGraphCombo = new QComboBox(this);
     _pGraphCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
-    _pGraphDataLabel = new QLabel("", this);
+    QWidget * pInfoWidget = new QWidget(this);
+    QHBoxLayout *pInfoLayout = new QHBoxLayout(this);
+
+    _pGraphDataLabelLeft = new QLabel("", this);
+    _pGraphDataLabelRight = new QLabel("", this);
+
+    pInfoLayout->setSpacing(0);
+    pInfoLayout->setContentsMargins(0, 2, 0, 0); // This is redundant with setMargin, which is deprecated
+    pInfoLayout->addWidget(_pGraphDataLabelLeft);
+    pInfoLayout->addWidget(_pGraphDataLabelRight);
+
+    pInfoWidget->setLayout(pInfoLayout);
 
     _pLayout->addWidget(_pGraphCombo);
-    _pLayout->addWidget(_pGraphDataLabel);
+    _pLayout->addWidget(pInfoWidget);
 
     connect(_pGraphCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(graphSelected(qint32)));
 
@@ -50,20 +61,27 @@ void MarkerInfoItem::updateData()
 
     if (graphIdx >= 0)
     {
-        /*dataMap[0].value() */
-        _pGraphDataLabel->setText(QString("%1").arg(graphIdx));
+        const double valueDiff = dataMap->value(_pGuiModel->endMarkerPos()).value - dataMap->value(_pGuiModel->startMarkerPos()).value;
+        const double timeDiff = _pGuiModel->endMarkerPos() - _pGuiModel->startMarkerPos();
 
-
-        QString graphData = QString(
+        QString graphDataLeft = QString(
                     "y1: %0\n"
                     "y2: %1\n"
-                    "Diff: %2\n"
+                    "Diff: %2"
                     )
                     .arg(dataMap->value(_pGuiModel->startMarkerPos()).value)
                     .arg(dataMap->value(_pGuiModel->endMarkerPos()).value)
-                    .arg(dataMap->value(_pGuiModel->endMarkerPos()).value - dataMap->value(_pGuiModel->startMarkerPos()).value);
+                    .arg(valueDiff);
 
-        _pGraphDataLabel->setText(graphData);
+        _pGraphDataLabelLeft->setText(graphDataLeft);
+
+        QString graphDataRight = QString(
+                    "Slope: %0\n"
+                    "\n"
+                    ""
+                    )
+                    .arg(Util::formatDoubleForExport(valueDiff / (timeDiff / 1000)));
+        _pGraphDataLabelRight->setText(graphDataRight);
     }
     else
     {
@@ -135,7 +153,8 @@ void MarkerInfoItem::graphSelected(qint32 index)
     }
     else
     {
-         _pGraphDataLabel->setText("None");
+         _pGraphDataLabelLeft->setText("None");
+         _pGraphDataLabelRight->setText("");
     }
 }
 
