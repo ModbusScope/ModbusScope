@@ -49,6 +49,9 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pLegend = _pUi->legend;
     _pLegend->setModels(_pGuiModel, _pGraphDataModel);
 
+    _pMarkerInfo = _pUi->markerInfo;
+    _pMarkerInfo->setModel(_pGuiModel, _pGraphDataModel);
+
     /*-- Connect menu actions --*/
     connect(_pUi->actionStart, SIGNAL(triggered()), this, SLOT(startScope()));
     connect(_pUi->actionStop, SIGNAL(triggered()), this, SLOT(stopScope()));
@@ -187,9 +190,6 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     connect(_pConnMan, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pGraphView, SLOT(plotResults(QList<bool>, QList<double>)));
     connect(_pConnMan, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pLegend, SLOT(addDataToLegend(QList<bool>, QList<double>)));
-
-    _pMarkerInfo = _pUi->markerInfo;
-    _pMarkerInfo->setModel(_pGuiModel, _pGraphDataModel);
 
     /* Update interface via model */
     _pGuiModel->triggerUpdate();

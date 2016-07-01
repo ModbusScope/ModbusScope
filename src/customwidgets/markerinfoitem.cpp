@@ -20,6 +20,7 @@ MarkerInfoItem::MarkerInfoItem(QWidget *parent) : QFrame(parent)
 
     _pGraphDataLabelLeft = new QLabel("", this);
     _pGraphDataLabelRight = new QLabel("", this);
+    _pGraphDataLabelRight->setAlignment(Qt::AlignTop);
 
     pInfoLayout->setSpacing(0);
     pInfoLayout->setContentsMargins(0, 2, 0, 0); // This is redundant with setMargin, which is deprecated
@@ -50,6 +51,9 @@ void MarkerInfoItem::setModel(GuiModel * pGuiModel, GraphDataModel * pGraphDataM
     connect(_pGuiModel, SIGNAL(startMarkerPosChanged()), this, SLOT(updateGraphList()));
     connect(_pGuiModel, SIGNAL(endMarkerPosChanged()), this, SLOT(updateGraphList()));
 
+    connect(_pGuiModel, SIGNAL(markerExpressionMaskChanged()), this, SLOT(updateData()));
+    connect(_pGuiModel, SIGNAL(markerExpressionCustomScriptChanged()), this, SLOT(updateData()));
+
     updateGraphList();
 }
 
@@ -61,6 +65,45 @@ void MarkerInfoItem::updateData()
 
     if (graphIdx >= 0)
     {
+        QStringList expressionList;
+        const quint32 mask = _pGuiModel->markerExpressionMask();
+
+        for(qint32 idx = 0; idx < GuiModel::cMarkerExpressionBits.size(); idx++)
+        {
+            if (mask & GuiModel::cMarkerExpressionBits[idx])
+            {
+                QString expression = GuiModel::cMarkerExpressionStrings[idx];
+                const double expressionValue = calculateMarkerExpressionValue(GuiModel::cMarkerExpressionBits[idx]);
+
+                expressionList.append(expression.arg(Util::formatDoubleForExport(expressionValue)));
+            }
+        }
+
+        /* Add permanent items (y1, y2) */
+        expressionList.prepend(GuiModel::cMarkerExpressionEnd.arg(Util::formatDoubleForExport(dataMap->value(_pGuiModel->endMarkerPos()).value)));
+        expressionList.prepend(GuiModel::cMarkerExpressionStart.arg(Util::formatDoubleForExport(dataMap->value(_pGuiModel->startMarkerPos()).value)));
+
+        /* Construct labels data */
+        const qint32 leftRowCount = expressionList.size() - expressionList.size() / 2;
+        QString graphDataLeft;
+        QString graphDataRight;
+        for(qint32 idx = 0; idx < expressionList.size(); idx++)
+        {
+            if (idx < leftRowCount)
+            {
+                graphDataLeft.append(expressionList[idx]);
+            }
+            else
+            {
+                graphDataRight.append(expressionList[idx]);
+            }
+        }
+
+        _pGraphDataLabelLeft->setText(graphDataLeft);
+        _pGraphDataLabelRight->setText(graphDataRight);
+
+
+#if 0
         const double valueDiff = dataMap->value(_pGuiModel->endMarkerPos()).value - dataMap->value(_pGuiModel->startMarkerPos()).value;
         const double timeDiff = _pGuiModel->endMarkerPos() - _pGuiModel->startMarkerPos();
 
@@ -82,10 +125,11 @@ void MarkerInfoItem::updateData()
                     )
                     .arg(Util::formatDoubleForExport(valueDiff / (timeDiff / 1000)));
         _pGraphDataLabelRight->setText(graphDataRight);
+#endif
     }
     else
     {
-
+        /* No graph selected */
     }
 }
 
@@ -185,4 +229,10 @@ void MarkerInfoItem::selectGraph(qint32 graphIndex)
             break;
         }
     }
+}
+
+double MarkerInfoItem::calculateMarkerExpressionValue(quint32 expressionMask)
+{
+    //TODO: calculate data over marker range
+    return 0;
 }

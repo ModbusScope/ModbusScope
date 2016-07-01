@@ -13,6 +13,19 @@ public:
     explicit GuiModel(QObject *parent = 0);
     ~GuiModel();
 
+    static const quint32 cDifferenceMask;
+    static const quint32 cSlopeMask;
+    static const quint32 cAverageMask;
+    static const quint32 cMinimumMask;
+    static const quint32 cMaximumMask;
+    static const quint32 cCustomMask;
+
+    static const QStringList cMarkerExpressionStrings;
+    static const QList<quint32> cMarkerExpressionBits;
+
+    static const QString cMarkerExpressionStart;
+    static const QString cMarkerExpressionEnd;
+
     enum
     {
         INIT,
@@ -43,10 +56,14 @@ public:
     double startMarkerPos();
     double endMarkerPos();
     bool markerState();
+    quint32 markerExpressionMask();
+    QString markerExpressionCustomScript();
 
     void setProjectFilePath(QString path);
     void setDataFilePath(QString path);
     void setLastDir(QString dir);
+    void setMarkerExpressionMask(quint32 mask);
+    void setMarkerExpressionCustomScript(QString path);
 
 public slots:
     void setValueTooltip(bool bValueTooltip);
@@ -84,6 +101,8 @@ signals:
     void markerStateChanged();
     void startMarkerPosChanged();
     void endMarkerPosChanged();
+    void markerExpressionMaskChanged();
+    void markerExpressionCustomScriptChanged();
 
 private slots:
 
@@ -127,6 +146,9 @@ private:
 
     bool _bEndMarkerState;
     double _endMarkerPos;
+
+    quint32 _markerExpressionMask;
+    QString _markerExpressionCustomScript;
 
     static const QString _cWindowTitle;
 

@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QVBoxLayout>
+#include <QMenu>
 
 
 /* Forward declarations */
@@ -26,7 +27,10 @@ signals:
 public slots:
 
 private slots:
+
 	void updateMarkerData();
+    void showContextMenu(const QPoint& pos);
+    void showMarkerInfoDialog();
 
 private:
 
@@ -37,6 +41,9 @@ private:
     GraphDataModel * _pGraphDataModel;
     
     QList<MarkerInfoItem *> graphMarkerData;
+
+    QMenu * _pEditMarkerInfoMenu;
+    QAction * _pEditMarkerInfoAction;
     
     static const quint32 graphMarkerCount = 3;
 };

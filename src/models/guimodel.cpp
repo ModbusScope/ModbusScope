@@ -1,9 +1,38 @@
 #include <QColor>
+#include <QStringList>
+#include <QList>
 #include "util.h"
 #include "guimodel.h"
 
 
 const QString GuiModel::_cWindowTitle = QString("ModbusScope");
+
+
+const quint32 GuiModel::cDifferenceMask    = 1 << 0;
+const quint32 GuiModel::cSlopeMask         = 1 << 1;
+const quint32 GuiModel::cAverageMask       = 1 << 2;
+const quint32 GuiModel::cMinimumMask       = 1 << 3;
+const quint32 GuiModel::cMaximumMask       = 1 << 4;
+const quint32 GuiModel::cCustomMask        = 1 << 5;
+
+const QStringList GuiModel::cMarkerExpressionStrings = QStringList()
+                                                        <<  "Diff: %0\n"
+                                                        <<  "Slope: %0\n"
+                                                        <<  "Avg: %0\n"
+                                                        <<  "Min: %0\n"
+                                                        <<  "Max: %0\n"
+                                                        <<  "Custom: %0\n";
+
+const QList<quint32> GuiModel::cMarkerExpressionBits = QList<quint32>()
+                        << GuiModel::cDifferenceMask
+                        << GuiModel::cSlopeMask
+                        << GuiModel::cAverageMask
+                        << GuiModel::cMinimumMask
+                        << GuiModel::cMaximumMask
+                        << GuiModel::cCustomMask
+                        ;
+const QString GuiModel::cMarkerExpressionStart = QString("y1: %0\n");
+const QString GuiModel::cMarkerExpressionEnd = QString("y2: %0\n");
 
 GuiModel::GuiModel(QObject *parent) : QObject(parent)
 {
@@ -39,6 +68,9 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
     _endMarkerPos = 0;
 
     _bMarkerState = false;
+
+    _markerExpressionMask = cDifferenceMask;
+    _markerExpressionCustomScript = "";
 }
 
 GuiModel::~GuiModel()
@@ -62,6 +94,8 @@ void GuiModel::triggerUpdate(void)
     emit dataFilePathChanged();
 
     emit markerStateChanged();
+    emit markerExpressionMaskChanged();
+    emit markerExpressionCustomScriptChanged();
 }
 
 /*
@@ -319,6 +353,37 @@ double GuiModel::endMarkerPos()
 bool GuiModel::markerState()
 {
     return _bMarkerState;
+}
+
+quint32 GuiModel::markerExpressionMask()
+{
+    return _markerExpressionMask;
+}
+
+void GuiModel::setMarkerExpressionMask(quint32 mask)
+{
+    if (_markerExpressionMask != mask)
+    {
+        qDebug() << "Marker bits changed:" << mask;
+        _markerExpressionMask = mask;
+
+        emit markerExpressionMaskChanged();
+    }
+}
+
+QString GuiModel::markerExpressionCustomScript()
+{
+    return _markerExpressionCustomScript;
+}
+
+void GuiModel::setMarkerExpressionCustomScript(QString path)
+{
+    if (_markerExpressionCustomScript != path)
+    {
+        _markerExpressionCustomScript = path;
+
+        emit markerExpressionCustomScriptChanged();
+    }
 }
 
 void GuiModel::setCommunicationStats(quint32 successCount, quint32 errorCount)

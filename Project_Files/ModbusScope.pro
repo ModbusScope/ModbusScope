@@ -18,7 +18,7 @@ RC_ICONS = ../icon/application.ico
 
 VERSION = 1.2.0
 
-DEFINES += NDEBUG
+DEFINES += DEBUG
 
 DEFINES += GIT_HASH="\\\"$(shell git --git-dir \""$$PWD/../.git"\" rev-parse --short HEAD)\\\""
 DEFINES += GIT_BRANCH="\\\"$(shell git --git-dir \""$$PWD/../.git"\" rev-parse --abbrev-ref HEAD)\\\""
@@ -73,14 +73,16 @@ SOURCES +=  \
     ../src/customwidgets/verticalscrollareacontents.cpp \
     ../src/customwidgets/markerinfo.cpp \
     ../src/customwidgets/markerinfoitem.cpp \
-    ../src/importexport/projectfileexporter.cpp
+    ../src/importexport/projectfileexporter.cpp \
+    ../src/dialogs/markerinfodialog.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
     ../src/dialogs/logdialog.ui \
     ../src/dialogs/mainwindow.ui \
     ../src/dialogs/registerdialog.ui \
-    ../src/dialogs/aboutdialog.ui
+    ../src/dialogs/aboutdialog.ui \
+    ../src/dialogs/markerinfodialog.ui
 
 HEADERS += \
     ../libraries/libmodbus/src/modbus-private.h \
@@ -119,7 +121,8 @@ HEADERS += \
     ../src/customwidgets/markerinfo.h \
     ../src/customwidgets/markerinfoitem.h \
     ../src/importexport/projectfiledefinitions.h \
-    ../src/importexport/projectfileexporter.h
+    ../src/importexport/projectfileexporter.h \
+    ../src/dialogs/markerinfodialog.h
 
 RESOURCES += \
     ../resources/resource.qrc

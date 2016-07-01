@@ -5,6 +5,7 @@
 #include "util.h"
 #include "markerinfoitem.h"
 #include "markerinfo.h"
+#include "markerinfodialog.h"
 
 MarkerInfo::MarkerInfo(QWidget *parent) : QFrame(parent)
 {
@@ -24,6 +25,15 @@ MarkerInfo::MarkerInfo(QWidget *parent) : QFrame(parent)
     }
 
     setLayout(_pLayout);
+
+    // For rightclick menu
+    _pEditMarkerInfoMenu = new QMenu(parent);
+    _pEditMarkerInfoAction = _pEditMarkerInfoMenu->addAction("Edit...");
+    connect(_pEditMarkerInfoAction, &QAction::triggered, this, &MarkerInfo::showMarkerInfoDialog);
+
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, &MarkerInfo::customContextMenuRequested, this, &MarkerInfo::showContextMenu);
+
 }
 
 void MarkerInfo::setModel(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel)
@@ -55,3 +65,17 @@ void MarkerInfo::updateMarkerData()
 
     _pTimeDataLabel->setText(timeData);
 }
+
+void MarkerInfo::showContextMenu(const QPoint& pos)
+{
+    _pEditMarkerInfoMenu->popup(mapToGlobal(pos));
+}
+
+void MarkerInfo::showMarkerInfoDialog()
+{
+    MarkerInfoDialog *pMarkerInfoDialog = new MarkerInfoDialog(_pGuiModel, this);
+
+    pMarkerInfoDialog->exec();
+}
+
+

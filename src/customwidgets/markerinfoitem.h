@@ -38,6 +38,7 @@ private:
 
     void updateList();
     void selectGraph(qint32 graphIndex);
+    double calculateMarkerExpressionValue(quint32 expressionMask);
 
     QVBoxLayout * _pLayout;
     QComboBox * _pGraphCombo;
