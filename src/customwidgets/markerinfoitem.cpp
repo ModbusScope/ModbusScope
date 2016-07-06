@@ -61,10 +61,9 @@ void MarkerInfoItem::updateData()
 {
     const qint32 graphIdx = _pGraphCombo->currentData().toInt();
 
-    QCPDataMap * dataMap = _pGraphDataModel->dataMap(graphIdx);
-
     if (graphIdx >= 0)
     {
+        QCPDataMap * dataMap = _pGraphDataModel->dataMap(graphIdx);
         QStringList expressionList;
         const quint32 mask = _pGuiModel->markerExpressionMask();
 
@@ -102,30 +101,6 @@ void MarkerInfoItem::updateData()
         _pGraphDataLabelLeft->setText(graphDataLeft);
         _pGraphDataLabelRight->setText(graphDataRight);
 
-
-#if 0
-        const double valueDiff = dataMap->value(_pGuiModel->endMarkerPos()).value - dataMap->value(_pGuiModel->startMarkerPos()).value;
-        const double timeDiff = _pGuiModel->endMarkerPos() - _pGuiModel->startMarkerPos();
-
-        QString graphDataLeft = QString(
-                    "y1: %0\n"
-                    "y2: %1\n"
-                    "Diff: %2"
-                    )
-                    .arg(dataMap->value(_pGuiModel->startMarkerPos()).value)
-                    .arg(dataMap->value(_pGuiModel->endMarkerPos()).value)
-                    .arg(valueDiff);
-
-        _pGraphDataLabelLeft->setText(graphDataLeft);
-
-        QString graphDataRight = QString(
-                    "Slope: %0\n"
-                    "\n"
-                    ""
-                    )
-                    .arg(Util::formatDoubleForExport(valueDiff / (timeDiff / 1000)));
-        _pGraphDataLabelRight->setText(graphDataRight);
-#endif
     }
     else
     {
@@ -233,6 +208,98 @@ void MarkerInfoItem::selectGraph(qint32 graphIndex)
 
 double MarkerInfoItem::calculateMarkerExpressionValue(quint32 expressionMask)
 {
-    //TODO: calculate data over marker range
-    return 0;
+    double result = 0;
+    const qint32 graphIdx = _pGraphCombo->currentData().toInt();
+
+    if (graphIdx >= 0)
+    {
+
+        QCPDataMap * pDataMap = _pGraphDataModel->dataMap(graphIdx);
+        const double valueDiff = pDataMap->value(_pGuiModel->endMarkerPos()).value - pDataMap->value(_pGuiModel->startMarkerPos()).value;
+        const double timeDiff = _pGuiModel->endMarkerPos() - _pGuiModel->startMarkerPos();
+
+        QCPDataMap::iterator dataPoint;
+        QCPDataMap::iterator start;
+        QCPDataMap::iterator end;
+
+        /* make sure we go in ascending order */
+        if (_pGuiModel->endMarkerPos() > _pGuiModel->startMarkerPos())
+        {
+            start = pDataMap->lowerBound(_pGuiModel->startMarkerPos());
+            end = pDataMap->upperBound(_pGuiModel->endMarkerPos());
+        }
+        else
+        {
+            /* Change order */
+            start = pDataMap->lowerBound(_pGuiModel->endMarkerPos());
+            end = pDataMap->upperBound(_pGuiModel->startMarkerPos());
+        }
+
+
+        if (expressionMask == GuiModel::cDifferenceMask)
+        {
+            result = valueDiff;
+        }
+        else if (expressionMask == GuiModel::cSlopeMask)
+        {
+            result = valueDiff / timeDiff;
+        }
+        else if (expressionMask == GuiModel::cAverageMask)
+        {
+            double avg = 0;
+            quint32 count = 0;
+            for (dataPoint = start; dataPoint != end; dataPoint++)
+            {
+                count++;
+                avg += dataPoint.value().value;
+            }
+
+            if (count == 0)
+            {
+                result = 0;
+            }
+            else
+            {
+                result = avg / count;
+            }
+        }
+        else if (expressionMask == GuiModel::cMinimumMask)
+        {
+            double min = 0xFFFFFFFF;
+
+            for (dataPoint = start; dataPoint != end; dataPoint++)
+            {
+                if (dataPoint.value().value < min)
+                {
+                    min = dataPoint.value().value;
+                }
+            }
+
+            result = min;
+        }
+        else if (expressionMask == GuiModel::cMaximumMask)
+        {
+            double max = -1 * 0xFFFFFFFF;;
+
+            for (dataPoint = start; dataPoint != end; dataPoint++)
+            {
+                if (dataPoint.value().value > max)
+                {
+                    max = dataPoint.value().value;
+                }
+            }
+
+            result = max;
+        }
+        else if (expressionMask == GuiModel::cCustomMask)
+        {
+            /* TODO: call python script */
+        }
+        else
+        {
+            result = 0;
+        }
+    }
+
+    return result;
 }
