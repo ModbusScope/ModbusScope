@@ -702,8 +702,9 @@ qint32 GraphDataModel::convertToGraphIndex(quint32 activeIdx)
 
 quint16 GraphDataModel::nextFreeAddress()
 {
-    /* Find highest address */
-    quint16 nextAddress = 40001;
+    quint16 nextAddress = 40000;
+
+    /* Find highest address of existing addresses */
     for (qint32 idx = 0; idx < _graphData.size(); idx++)
     {
         if (_graphData[idx].registerAddress() > nextAddress)
