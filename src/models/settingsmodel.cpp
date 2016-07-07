@@ -6,7 +6,7 @@
 SettingsModel::SettingsModel(QObject *parent) :
     QObject(parent)
 {
-    _pollTime = 1000;
+    _pollTime = 250;
     _bWriteDuringLog = true;
     _writeDuringLogFile = SettingsModel::defaultLogPath();
     _ipAddress = "127.0.0.1";
