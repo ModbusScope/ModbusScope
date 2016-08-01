@@ -160,6 +160,7 @@ void ExtendedGraphView::rescalePlot()
 void ExtendedGraphView::updateData(QList<double> *pTimeData, QList<QList<double> > * pDataLists)
 {
     bool bFullScale = false;
+    quint64 totalPoints = 0;
     const QVector<double> timeData = pTimeData->toVector();
 
     if (_pPlot->graph(0)->data()->keys().size() > 0)
@@ -183,6 +184,23 @@ void ExtendedGraphView::updateData(QList<double> *pTimeData, QList<QList<double>
         //Add data to graphs
         QVector<double> graphData = pDataLists->at(i).toVector();
         _pPlot->graph(i - 1)->setData(timeData, graphData);
+
+        totalPoints += graphData.size();
+    }
+
+    // Check if optimizations are needed
+    if (totalPoints > _cOptimizeThreshold)
+    {
+        _pGuiModel->setHighlightSamples(false);
+
+        // Set width to 1
+        for (qint32 i = 0; i <  _pPlot->graphCount(); i++)
+        {
+             _pPlot->graph(i)->pen().setWidth(1);
+        }
+
+        // Disable anti aliasing
+        _pPlot->setNotAntialiasedElements(QCP::aeAll);
     }
 
     if (bFullScale)

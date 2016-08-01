@@ -52,7 +52,7 @@ private slots:
     void selectionChanged();
 
     void mousePress(QMouseEvent *event);
-    void mouserRelease();
+    void mouseRelease();
     void mouseWheel();
     void mouseMove(QMouseEvent *event);
     void paintValueToolTip(QMouseEvent *event);
@@ -71,6 +71,7 @@ protected:
 private:
     void highlightSamples(bool bState);
     qint32 graphIndex(QCPGraph * pGraph);
+    bool smallScaleActive(QVector<double> tickList);
 
     QVector<QString> tickLabels;
 
@@ -80,6 +81,7 @@ private:
     static const qint32 _cPixelNearThreshold = 20; /* in pixels */
     static const qint32 _cPixelPerPointThreshold = 5; /* in pixels */
 
+    static const quint32 _cSmallScaleDiff = 2000;
 
 };
 

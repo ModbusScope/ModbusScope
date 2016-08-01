@@ -33,6 +33,7 @@ private slots:
     void xAxisRangeChanged(const QCPRange &newRange, const QCPRange &oldRange);
 
 private:
+    static const quint64 _cOptimizeThreshold = 1000000uL;
 
     CommunicationManager * _pConnMan;
     SettingsModel * _pSettingsModel;

@@ -2,6 +2,7 @@
 #define UTIL_H
 
 #include <QObject>
+#include <QMessageBox>
 #include <QLocale>
 #include <QColor>
 
@@ -21,6 +22,16 @@ public:
         {
             return ',';
         }
+    }
+
+    static void showError(QString text)
+    {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle(tr("GraphViewer"));
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setText(text);
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.exec();
     }
 
     static const QString & currentVersion()
@@ -45,44 +56,52 @@ public:
         return tmp;
     }
 
-    static QString formatTime(qint64 tickKey)
+    static QString formatTime(qint64 tickKey, bool bSmallScale)
     {
         QString tickLabel;
-        bool bNegative;
-        quint64 tmp;
 
-        if (tickKey < 0)
+        if (bSmallScale)
         {
-            bNegative = true;
-            tmp = -1 * tickKey;
+            tickLabel = QString("%1").arg(tickKey);
         }
         else
         {
-            bNegative = false;
-            tmp = tickKey;
-        }
+            bool bNegative;
+            quint64 tmp;
 
-        tmp %= 24 * 60 * 60 * 1000; // Number of seconds in a day
+            if (tickKey < 0)
+            {
+                bNegative = true;
+                tmp = -1 * tickKey;
+            }
+            else
+            {
+                bNegative = false;
+                tmp = tickKey;
+            }
 
-        quint32 hours = tmp / (60 * 60 * 1000);
-        tmp = tmp % (60 * 60 * 1000);
+            tmp %= 24 * 60 * 60 * 1000; // Number of seconds in a day
 
-        quint32 minutes = tmp / (60 * 1000);
-        tmp = tmp % (60 * 1000);
+            quint32 hours = tmp / (60 * 60 * 1000);
+            tmp = tmp % (60 * 60 * 1000);
 
-        quint32 seconds = tmp / 1000;
-        quint32 milliseconds = tmp % 1000;
+            quint32 minutes = tmp / (60 * 1000);
+            tmp = tmp % (60 * 1000);
 
-        tickLabel = QString("%1:%2:%3%4%5").arg(hours)
-                                                    .arg(minutes, 2, 10, QChar('0'))
-                                                    .arg(seconds, 2, 10, QChar('0'))
-                                                    .arg(QLocale::system().decimalPoint())
-                                                   .arg(milliseconds, 3, 10, QChar('0'));
+            quint32 seconds = tmp / 1000;
+            quint32 milliseconds = tmp % 1000;
 
-        // Make sure minus sign is shown when tick number is negative
-        if (bNegative)
-        {
-            tickLabel = "-" + tickLabel;
+            tickLabel = QString("%1:%2:%3%4%5").arg(hours)
+                                                        .arg(minutes, 2, 10, QChar('0'))
+                                                        .arg(seconds, 2, 10, QChar('0'))
+                                                        .arg(QLocale::system().decimalPoint())
+                                                       .arg(milliseconds, 3, 10, QChar('0'));
+
+            // Make sure minus sign is shown when tick number is negative
+            if (bNegative)
+            {
+                tickLabel = "-" + tickLabel;
+            }
         }
 
         return tickLabel;
@@ -143,7 +162,7 @@ public:
 
         return tickLabel;
     }
-
+    
     static const QList<QColor> cColorlist;
 
 private:

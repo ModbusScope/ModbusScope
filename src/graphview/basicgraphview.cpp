@@ -60,7 +60,7 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
 
    // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
    connect(_pPlot, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress(QMouseEvent*)));
-   connect(_pPlot, SIGNAL(mouseRelease(QMouseEvent*)), this, SLOT(mouserRelease()));
+   connect(_pPlot, SIGNAL(mouseRelease(QMouseEvent*)), this, SLOT(mouseRelease()));
    connect(_pPlot, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel()));
    connect(_pPlot, SIGNAL(axisDoubleClick(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)), this, SLOT(axisDoubleClicked(QCPAxis*)));
    connect(_pPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMove(QMouseEvent*)));
@@ -104,7 +104,7 @@ void BasicGraphView::manualScaleYAxis(qint64 min, qint64 max)
 
 void BasicGraphView::autoScaleXAxis()
 {
-    _pPlot->rescaleAxes(true);
+    _pPlot->xAxis->rescale(true);
     _pPlot->replot();
 }
 
@@ -317,10 +317,12 @@ void BasicGraphView::generateTickLabels()
     /* Clear ticks vector */
     tickLabels.clear();
 
+    const bool bSmallScale = smallScaleActive(ticks);
+
     /* Generate correct labels */
     for (qint32 index = 0; index < ticks.size(); index++)
     {
-        tickLabels.append(Util::formatTime(ticks[index]));
+        tickLabels.append(Util::formatTime(ticks[index], bSmallScale));
     }
 
     /* Set labels */
@@ -424,7 +426,7 @@ void BasicGraphView::mousePress(QMouseEvent *event)
    }
 }
 
-void BasicGraphView::mouserRelease()
+void BasicGraphView::mouseRelease()
 {
     /* Always re-enable range drag */
     _pPlot->setInteraction(QCP::iRangeDrag, true);
@@ -534,8 +536,10 @@ void BasicGraphView::paintValueToolTip(QMouseEvent *event)
                     {
                         bInRange = true;
 
+                        const bool bSmallScale = smallScaleActive(keyList.toVector());
+
                         // Add tick key string
-                        toolText = Util::formatTime(keyList[keyIndex]);
+                        toolText = Util::formatTime(keyList[keyIndex], bSmallScale);
 
                         // Check all graphs
                         for (qint32 activeGraphIndex = 0; activeGraphIndex < _pPlot->graphCount(); activeGraphIndex++)
@@ -669,4 +673,24 @@ qint32 BasicGraphView::graphIndex(QCPGraph * pGraph)
     }
 
     return ret;
+}
+
+bool BasicGraphView::smallScaleActive(QVector<double> tickList)
+{
+    bool bRet = false;
+    if (qAbs(tickList.last() - tickList.first()) < _cSmallScaleDiff)
+    {
+        bRet = true;
+    }
+
+    if (bRet)
+    {
+        _pPlot->xAxis->setLabel("Time (ms)");
+    }
+    else
+    {
+        _pPlot->xAxis->setLabel("Time (s)");
+    }
+
+    return bRet;
 }

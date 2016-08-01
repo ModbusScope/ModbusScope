@@ -59,8 +59,8 @@ void MarkerInfo::updateMarkerData()
                 "<b>Time 2</b>: %1<br />"
                 "<b>Time Diff</b>: %2<br />"
                 )
-                .arg(Util::formatTime(_pGuiModel->startMarkerPos()))
-                .arg(Util::formatTime(_pGuiModel->endMarkerPos()))
+                .arg(Util::formatTime(_pGuiModel->startMarkerPos(), false))
+                .arg(Util::formatTime(_pGuiModel->endMarkerPos(), false))
                 .arg(Util::formatTimeDiff(_pGuiModel->endMarkerPos() - _pGuiModel->startMarkerPos()));
 
     _pTimeDataLabel->setText(timeData);
