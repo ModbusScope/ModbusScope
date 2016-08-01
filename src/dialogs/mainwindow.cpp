@@ -506,6 +506,7 @@ void MainWindow::handleGraphLabelChange(const quint32 graphIdx)
         const quint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
         _pGraphShowHide->actions().at(activeIdx)->setText(_pGraphDataModel->label(graphIdx));
+        _pGraphBringToFront->actions().at(activeIdx)->setText(_pGraphDataModel->label(graphIdx));
     }
 }
 
