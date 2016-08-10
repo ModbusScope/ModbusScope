@@ -208,6 +208,9 @@
             <property name="formAlignment">
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
+            <property name="bottomMargin">
+             <number>2</number>
+            </property>
             <item row="0" column="0">
              <widget class="QLabel" name="label_6">
               <property name="text">
