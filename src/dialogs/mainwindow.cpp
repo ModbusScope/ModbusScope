@@ -197,6 +197,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     if (cmdArguments.size() > 1)
     {
+        QFileInfo fileInfo(cmdArguments[1]);
+        _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
         loadProjectFile(cmdArguments[1]);
     }
 }
@@ -815,6 +817,7 @@ void MainWindow::dropEvent(QDropEvent *e)
     {
         const QString filename(e->mimeData()->urls().last().toLocalFile());
         QFileInfo fileInfo(filename);
+        _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
         if (fileInfo.completeSuffix() == QString("mbs"))
         {
             loadProjectFile(filename);
