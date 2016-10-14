@@ -465,7 +465,7 @@ qint32 GraphDataModel::shift(quint32 index) const
     return _graphData[index].shift();
 }
 
-QCPDataMap * GraphDataModel::dataMap(quint32 index)
+QSharedPointer<QCPGraphDataContainer> GraphDataModel::dataMap(quint32 index)
 {
     return _graphData[index].dataMap();
 }

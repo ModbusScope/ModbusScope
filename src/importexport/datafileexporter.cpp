@@ -69,8 +69,7 @@ void DataFileExporter::exportDataFile(QString dataFile)
 {
     if (_pGraphDataModel->activeCount() != 0)
     {
-        const QList<double> keyList = _pGraphView->graphTimeData();
-        QList<QCPDataMap *> dataList;
+        const qint32 dataCount = _pGraphView->graphDataSize();
         QStringList logData;
 
         // Create header
@@ -91,23 +90,28 @@ void DataFileExporter::exportDataFile(QString dataFile)
         {
             QList<quint16> activeGraphIndexes;
             _pGraphDataModel->activeGraphIndexList(&activeGraphIndexes);
+            QList<QCPGraphDataContainer::const_iterator> dataListIterators;
 
             for(qint32 idx = 0; idx < activeGraphIndexes.size(); idx++)
             {
-                // Save data lists
-                dataList.append(_pGraphDataModel->dataMap(activeGraphIndexes[idx]));
+                // Save iterators to data lists
+                dataListIterators.append(_pGraphDataModel->dataMap(activeGraphIndexes[idx])->constBegin());
             }
 
             // Add data lines
-            for(qint32 i = 0; i < keyList.size(); i++)
+            for(qint32 i = 0; i < dataCount; i++)
             {
                 QList<double> dataRowValues;
-                for(qint32 d = 0; d < dataList.size(); d++)
+                double key = dataListIterators[0]->key;
+                for(qint32 d = 0; d < dataListIterators.size(); d++)
                 {
-                    dataRowValues.append(dataList[d]->value(keyList[i]).value);
+                    dataRowValues.append(dataListIterators[d]->value);
+
+                    dataListIterators[d]++;
                 }
 
-                logData.append(formatData(keyList[i], dataRowValues));
+                logData.append(formatData(key, dataRowValues));
+
 
                 if ( i % _cLogChunkLineCount == 0)
                 {

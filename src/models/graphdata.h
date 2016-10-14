@@ -9,6 +9,7 @@ class GraphData
 
 public:
     explicit GraphData();
+    ~GraphData();
 
     bool isVisible() const;
     void setVisible(bool bVisible);
@@ -40,7 +41,7 @@ public:
     qint32 shift() const;
     void setShift(const qint32 &shift);
 
-    QCPDataMap * dataMap();
+    QSharedPointer<QCPGraphDataContainer> dataMap();
 
 private:
 
@@ -56,7 +57,7 @@ private:
     quint16 _bitmask;
     qint32 _shift;
 
-    QCPDataMap _dataMap;
+    QSharedPointer<QCPGraphDataContainer> _pDataMap;
 
 };
 

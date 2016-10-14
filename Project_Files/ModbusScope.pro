@@ -11,6 +11,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 TARGET = ModbusScope
 TEMPLATE = app
 
+CONFIG += c++11
+
 win32 {
 LIBS += -lws2_32
 RC_ICONS = ../icon/application.ico
@@ -66,7 +68,6 @@ SOURCES +=  \
     ../src/models/graphdatamodel.cpp \
     ../src/models/graphdata.cpp \
     ../src/communication/modbusresult.cpp \
-    ../src/graphview/myqcpgraph.cpp \
     ../src/customwidgets/legend.cpp \
     ../src/customwidgets/legenditem.cpp \
     ../src/dialogs/registerdialog.cpp \
@@ -114,7 +115,6 @@ HEADERS += \
     ../src/models/graphdatamodel.h \
     ../src/models/graphdata.h \
     ../src/communication/modbusresult.h \
-    ../src/graphview/myqcpgraph.h \
     ../src/customwidgets/legend.h \
     ../src/customwidgets/legenditem.h \
     ../src/customwidgets/verticalscrollareacontents.h \

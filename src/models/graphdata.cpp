@@ -13,7 +13,12 @@ GraphData::GraphData()
     _multiplyFactor = 1;
     _shift = 0;
 
-    _dataMap.clear();
+    _pDataMap = QSharedPointer<QCPGraphDataContainer>(new QCPGraphDataContainer);
+}
+
+GraphData::~GraphData()
+{
+    _pDataMap.clear();
 }
 
 bool GraphData::isVisible() const
@@ -116,7 +121,7 @@ void GraphData::setShift(const qint32 &shift)
     _shift = shift;
 }
 
-QCPDataMap * GraphData::dataMap()
+QSharedPointer<QCPGraphDataContainer> GraphData::dataMap()
 {
-    return &_dataMap;
+    return _pDataMap;
 }
