@@ -28,16 +28,6 @@ ExtendedGraphView::~ExtendedGraphView()
 
 }
 
-QList<double> ExtendedGraphView::graphTimeData()
-{
-    return _pPlot->graph(0)->data()->keys();
-}
-
-QList<QCPData> ExtendedGraphView::graphData(qint32 index)
-{
-    return _pPlot->graph(index)->data()->values();
-}
-
 void ExtendedGraphView::addData(QList<double> timeData, QList<QList<double> > data)
 {
     updateData(&timeData, &data);
@@ -84,7 +74,7 @@ void ExtendedGraphView::clearResults()
 {
     for (qint32 i = 0; i < _pPlot->graphCount(); i++)
     {
-        _pPlot->graph(i)->clearData();
+        _pPlot->graph(i)->data()->clear();
         _pPlot->graph(i)->setName(QString("(-) %1").arg(_pGraphDataModel->label(i)));
     }
 
@@ -97,7 +87,7 @@ void ExtendedGraphView::rescalePlot()
     // scale x-axis
     if (_pGuiModel->xAxisScalingMode() == SCALE_AUTO)
     {
-        if ((_pPlot->graphCount() != 0) && (_pPlot->graph(0)->data()->keys().size()))
+        if ((_pPlot->graphCount() != 0) && (graphDataSize() != 0))
         {
             _pPlot->xAxis->rescale();
         }
@@ -110,9 +100,12 @@ void ExtendedGraphView::rescalePlot()
     {
         // sliding window scale routine
         const quint64 slidingInterval = _pGuiModel->xAxisSlidingSec() * 1000;
-        if ((_pPlot->graphCount() != 0) && (_pPlot->graph(0)->data()->keys().size()))
+        if ((_pPlot->graphCount() != 0) && (graphDataSize() != 0))
         {
-            const quint64 lastTime = _pPlot->graph(0)->data()->keys().last();
+            auto lastDataIt = _pPlot->graph(0)->data()->constEnd();
+            lastDataIt--; /* Point to last existing item */
+
+            const quint64 lastTime = (quint64)lastDataIt->key;
             if (lastTime > slidingInterval)
             {
                 _pPlot->xAxis->setRange(lastTime - slidingInterval, lastTime);
@@ -135,7 +128,7 @@ void ExtendedGraphView::rescalePlot()
     // scale y-axis
     if (_pGuiModel->yAxisScalingMode() == SCALE_AUTO)
     {
-        if ((_pPlot->graphCount() != 0) && (_pPlot->graph(0)->data()->keys().size()))
+        if ((_pPlot->graphCount() != 0) && (graphDataSize()))
         {
             _pPlot->yAxis->rescale(true);
         }
@@ -159,25 +152,8 @@ void ExtendedGraphView::rescalePlot()
 
 void ExtendedGraphView::updateData(QList<double> *pTimeData, QList<QList<double> > * pDataLists)
 {
-    bool bFullScale = false;
     quint64 totalPoints = 0;
     const QVector<double> timeData = pTimeData->toVector();
-
-    if (_pPlot->graph(0)->data()->keys().size() > 0)
-    {
-        if (
-        (_pPlot->xAxis->range().lower <= _pPlot->graph(0)->data()->keys().first())
-        && (_pPlot->xAxis->range().upper >= _pPlot->graph(0)->data()->keys().last())
-        )
-        {
-            bFullScale = true;
-        }
-    }
-    else
-    {
-        /* First load of file: always rescale */
-        bFullScale = true;
-    }
 
     for (qint32 i = 1; i < pDataLists->size(); i++)
     {
@@ -203,10 +179,7 @@ void ExtendedGraphView::updateData(QList<double> *pTimeData, QList<QList<double>
         _pPlot->setNotAntialiasedElements(QCP::aeAll);
     }
 
-    if (bFullScale)
-    {
-        _pPlot->rescaleAxes(true);
-    }
+    _pPlot->rescaleAxes(true);
     _pPlot->replot();
 }
 
