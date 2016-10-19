@@ -79,8 +79,8 @@ void MarkerInfoItem::updateData()
         }
 
         /* Add permanent items (y1, y2) */
-        expressionList.prepend(GuiModel::cMarkerExpressionEnd.arg(Util::formatDoubleForExport(dataMap->findBegin(_pGuiModel->endMarkerPos())->value)));
-        expressionList.prepend(GuiModel::cMarkerExpressionStart.arg(Util::formatDoubleForExport(dataMap->findBegin(_pGuiModel->startMarkerPos())->value)));
+        expressionList.prepend(GuiModel::cMarkerExpressionEnd.arg(Util::formatDoubleForExport(dataMap->findBegin(_pGuiModel->endMarkerPos(), false)->value)));
+        expressionList.prepend(GuiModel::cMarkerExpressionStart.arg(Util::formatDoubleForExport(dataMap->findBegin(_pGuiModel->startMarkerPos(), false)->value)));
 
         /* Construct labels data */
         const qint32 leftRowCount = expressionList.size() - expressionList.size() / 2;
@@ -216,7 +216,7 @@ double MarkerInfoItem::calculateMarkerExpressionValue(quint32 expressionMask)
 
         QSharedPointer<QCPGraphDataContainer> pDataMap = _pGraphDataModel->dataMap(graphIdx);
 
-        const double valueDiff = pDataMap->findBegin(_pGuiModel->endMarkerPos())->value - pDataMap->findBegin(_pGuiModel->startMarkerPos())->value;
+        const double valueDiff = pDataMap->findBegin(_pGuiModel->endMarkerPos(), false)->value - pDataMap->findBegin(_pGuiModel->startMarkerPos(), false)->value;
         const double timeDiff = _pGuiModel->endMarkerPos() - _pGuiModel->startMarkerPos();
 
         QCPGraphDataContainer::const_iterator dataPoint;
@@ -226,8 +226,8 @@ double MarkerInfoItem::calculateMarkerExpressionValue(quint32 expressionMask)
         /* make sure we go in ascending order */
         if (_pGuiModel->endMarkerPos() > _pGuiModel->startMarkerPos())
         {
-            start = pDataMap->findBegin(_pGuiModel->startMarkerPos());
-            end = pDataMap->findEnd(_pGuiModel->endMarkerPos());
+            start = pDataMap->findBegin(_pGuiModel->startMarkerPos(), false);
+            end = pDataMap->findEnd(_pGuiModel->endMarkerPos(), false);
         }
         else
         {
@@ -243,7 +243,7 @@ double MarkerInfoItem::calculateMarkerExpressionValue(quint32 expressionMask)
         }
         else if (expressionMask == GuiModel::cSlopeMask)
         {
-            result = valueDiff / timeDiff;
+            result = valueDiff / (timeDiff / 1000); // per second, TODO: round?
         }
         else if (expressionMask == GuiModel::cAverageMask)
         {

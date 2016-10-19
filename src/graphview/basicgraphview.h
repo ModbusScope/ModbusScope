@@ -25,6 +25,8 @@ public:
     explicit BasicGraphView(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel, MyQCustomPlot *pPlot, QObject *parent = 0);
     virtual ~BasicGraphView();
 
+    qint32 graphDataSize();
+
 public slots:
 
     virtual void manualScaleXAxis(qint64 min, qint64 max);
@@ -71,7 +73,7 @@ protected:
 private:
     void highlightSamples(bool bState);
     qint32 graphIndex(QCPGraph * pGraph);
-    bool smallScaleActive(QVector<double> tickList);
+    bool smallScaleActive(double begin, double end);
 
     QVector<QString> tickLabels;
 
