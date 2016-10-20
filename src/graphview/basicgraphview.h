@@ -50,7 +50,6 @@ public slots:
 signals:
 
 private slots:
-    void generateTickLabels();
     void selectionChanged();
 
     void mousePress(QMouseEvent *event);
@@ -73,7 +72,6 @@ protected:
 private:
     void highlightSamples(bool bState);
     qint32 graphIndex(QCPGraph * pGraph);
-    bool smallScaleActive(double begin, double end);
 
     QVector<QString> tickLabels;
 
@@ -82,8 +80,6 @@ private:
 
     static const qint32 _cPixelNearThreshold = 20; /* in pixels */
     static const qint32 _cPixelPerPointThreshold = 5; /* in pixels */
-
-    static const quint32 _cSmallScaleDiff = 2000;
 
 };
 

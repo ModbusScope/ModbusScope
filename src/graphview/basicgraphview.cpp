@@ -34,18 +34,12 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
     * */
    _pPlot->setPlottingHints(QCP::phCacheLabels | QCP::phFastPolylines);
 
-   QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime());
-   timeTicker->setTimeFormat("day %d\n%h:%m:%s:%z");
+   QSharedPointer<QCPAxisTickerTime> timeTicker(new MyQCPAxisTickerTime(_pPlot));
    _pPlot->xAxis->setTicker(timeTicker);
    _pPlot->xAxis->setLabel("Time");
-
    _pPlot->xAxis->setRange(0, 10000);
 
-    // TODO
-   connect(_pPlot->xAxis, SIGNAL(ticksRequest()), this, SLOT(generateTickLabels()));
-
    _pPlot->yAxis->setRange(0, 65535);
-
 
    // Tooltip is enabled
    _bEnableTooltip = true;
@@ -312,28 +306,6 @@ void BasicGraphView::setEndMarker()
     _pPlot->replot();
 }
 
-void BasicGraphView::generateTickLabels()
-{
-#if 0
-    // TODO
-    QVector<double> ticks = _pPlot->xAxis->tickVector();
-
-    /* Clear ticks vector */
-    tickLabels.clear();
-
-    const bool bSmallScale = smallScaleActive(ticks);
-
-    /* Generate correct labels */
-    for (qint32 index = 0; index < ticks.size(); index++)
-    {
-        tickLabels.append(Util::formatTime(ticks[index], bSmallScale));
-    }
-
-    /* Set labels */
-    _pPlot->xAxis->setTickVectorLabels(tickLabels);
-#endif
-}
-
 void BasicGraphView::selectionChanged()
 {
    /*
@@ -549,12 +521,8 @@ void BasicGraphView::paintValueToolTip(QMouseEvent *event)
                     {
                         bInRange = true;
 
-                        /* TODO: should we use visible graph time instead of total graph time? */
-                        const bool bSmallScale = smallScaleActive(beginIt->key, lastDataIt->key);
-
                         // Add tick key string
-						// TODO
-                        toolText = Util::formatTime(keyIt->key, bSmallScale);
+                        toolText = Util::formatTime(keyIt->key, false);
 
                         // Check all graphs
                         for (qint32 activeGraphIndex = 0; activeGraphIndex < _pPlot->graphCount(); activeGraphIndex++)
@@ -692,24 +660,4 @@ qint32 BasicGraphView::graphIndex(QCPGraph * pGraph)
     }
 
     return ret;
-}
-
-bool BasicGraphView::smallScaleActive(double begin, double end)
-{
-    bool bRet = false;
-    if (qAbs(end - begin) < _cSmallScaleDiff)
-    {
-        bRet = true;
-    }
-
-    if (bRet)
-    {
-        _pPlot->xAxis->setLabel("Time (ms)");
-    }
-    else
-    {
-        _pPlot->xAxis->setLabel("Time (s)");
-    }
-
-    return bRet;
 }
