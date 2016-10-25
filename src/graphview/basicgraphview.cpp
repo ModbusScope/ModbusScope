@@ -336,38 +336,15 @@ void BasicGraphView::mousePress(QMouseEvent *event)
        _pPlot->setInteraction(QCP::iRangeZoom, false);
 
        const double xPos = _pPlot->xAxis->pixelToCoord(event->pos().x());
-       double correctXPos = 0;
-
-       QCPGraphDataContainer::const_iterator leftIt = _pPlot->graph(0)->data()->findBegin(xPos);
-
-       auto rightIt = leftIt + 1;
-       if (rightIt !=  _pPlot->graph(0)->data()->constEnd())
-       {
-           
-           const double diffReference = rightIt->key - leftIt->key;
-           const double diffPos = xPos - leftIt->key;
-
-           if (diffPos > (diffReference / 2))
-           {
-               correctXPos = rightIt->key;
-           }
-           else
-           {
-               correctXPos = leftIt->key;
-           }
-       }
-       else
-       {
-           correctXPos = leftIt->key;
-       }
+       QCPGraphDataContainer::const_iterator markerPosIt = getClosestPoint(xPos);
 
        if (event->button() & Qt::LeftButton)
        {
-            _pGuiModel->setStartMarkerPos(correctXPos);
+            _pGuiModel->setStartMarkerPos(markerPosIt->key);
        }
        else if (event->button() & Qt::RightButton)
        {
-            _pGuiModel->setEndMarkerPos(correctXPos);
+            _pGuiModel->setEndMarkerPos(markerPosIt->key);
        }
        else
        {
@@ -455,91 +432,41 @@ void BasicGraphView::mouseMove(QMouseEvent *event)
 
 void BasicGraphView::paintValueToolTip(QMouseEvent *event)
 {
-    if  (_bEnableTooltip)
+    if  (_bEnableTooltip && (_pPlot->graphCount() > 0))
     {
+
         const double xPos = _pPlot->xAxis->pixelToCoord(event->pos().x());
+        QCPGraphDataContainer::const_iterator tooltipIt = getClosestPoint(xPos);
 
-        if (_pPlot->graphCount() > 0)
+        bool bValid;
+        const QCPRange keyRange = _pPlot->graph(0)->data()->keyRange(bValid);
+
+        if (bValid && keyRange.contains(xPos))
         {
-            QString toolText;
-            QCPGraphDataContainer::const_iterator dataIt;
-            QCPGraphDataContainer::const_iterator beginIt = _pPlot->graph(0)->data()->constBegin();
-            QCPGraphDataContainer::const_iterator lastDataIt = _pPlot->graph(0)->data()->constEnd();
-            lastDataIt--;
+            // Add tick key string
+            QString toolText = Util::formatTime(tooltipIt->key, false);
 
-            // Find if cursor is in range to show tooltip
-            bool bInRange = false;
-
-			// TODO: optimize by using only visible range???
-            for (dataIt = beginIt + 1; dataIt != _pPlot->graph(0)->data()->constEnd(); dataIt++)
+            // Check all graphs
+            for (qint32 activeGraphIndex = 0; activeGraphIndex < _pPlot->graphCount(); activeGraphIndex++)
             {
-                // find the two nearest points
-                if (
-                    (xPos > (dataIt-1)->key)
-                    && (xPos <= dataIt->key)
-                    )
+                if (_pPlot->graph(activeGraphIndex)->visible())
                 {
-                    const double leftPointPxl = _pPlot->xAxis->coordToPixel((dataIt-1)->key);
-                    const double rightPointPxl = _pPlot->xAxis->coordToPixel(dataIt->key);
-                    const double xCoordPxl = event->pos().x();
-                    QCPGraphDataContainer::const_iterator keyIt;
-                    bool bFound = false;
+                    const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeGraphIndex);
 
-                    if (
-                        (xCoordPxl >= leftPointPxl)
-                        && (xCoordPxl <= (leftPointPxl + _cPixelNearThreshold))
-                        )
-                    {
-                        keyIt = dataIt - 1;
-                        bFound = true;
-                    }
-                    else if (
-                         (xCoordPxl >= (rightPointPxl - _cPixelNearThreshold))
-                         && (xCoordPxl <= rightPointPxl)
-                        )
-                    {
-                        keyIt = dataIt;
-                        bFound = true;
-                    }
-                    else
-                    {
-                        // no point near enough
-                    }
+                    QCPGraphDataContainer::const_iterator graphDataIt = _pPlot->graph(graphIdx)->data()->findBegin(tooltipIt->key, false);
+                    const double value = graphDataIt->value;
 
-                    if (bFound)
-                    {
-                        bInRange = true;
-
-                        // Add tick key string
-                        toolText = Util::formatTime(keyIt->key, false);
-
-                        // Check all graphs
-                        for (qint32 activeGraphIndex = 0; activeGraphIndex < _pPlot->graphCount(); activeGraphIndex++)
-                        {
-                            if (_pPlot->graph(activeGraphIndex)->visible())
-                            {
-                                const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeGraphIndex);
-
-                                QCPGraphDataContainer::const_iterator graphDataIt = _pPlot->graph(graphIdx)->data()->findBegin(keyIt->key, false);
-                                const double value = graphDataIt->value;
-
-                                toolText += QString("\n%1: %2").arg(_pGraphDataModel->label(graphIdx)).arg(value);
-                            }
-                        }
-                        break;
-                    }
+                    toolText += QString("\n%1: %2").arg(_pGraphDataModel->label(graphIdx)).arg(value);
                 }
             }
 
-            if (!bInRange)
-            {
-                // Hide tooltip
-                QToolTip::hideText();
-            }
-            else
-            {
-                QToolTip::showText(_pPlot->mapToGlobal(event->pos()), toolText, _pPlot);
-            }
+            QToolTip::showText(_pPlot->mapToGlobal(event->pos()), toolText, _pPlot);
+
+        }
+        else
+        {
+            // Hide tooltip
+            QToolTip::hideText();
         }
     }
     else
@@ -649,4 +576,33 @@ qint32 BasicGraphView::graphIndex(QCPGraph * pGraph)
     }
 
     return ret;
+}
+
+QCPGraphDataContainer::const_iterator BasicGraphView::getClosestPoint(double xPos)
+{
+    QCPGraphDataContainer::const_iterator closestIt = _pPlot->graph(0)->data()->constBegin();
+    QCPGraphDataContainer::const_iterator leftIt = _pPlot->graph(0)->data()->findBegin(xPos);
+
+    auto rightIt = leftIt + 1;
+    if (rightIt !=  _pPlot->graph(0)->data()->constEnd())
+    {
+
+        const double diffReference = rightIt->key - leftIt->key;
+        const double diffPos = xPos - leftIt->key;
+
+        if (diffPos > (diffReference / 2))
+        {
+            closestIt = rightIt;
+        }
+        else
+        {
+            closestIt = leftIt;
+        }
+    }
+    else
+    {
+        closestIt = leftIt;
+    }
+
+    return closestIt;
 }

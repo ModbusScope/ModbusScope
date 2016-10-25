@@ -72,13 +72,13 @@ protected:
 private:
     void highlightSamples(bool bState);
     qint32 graphIndex(QCPGraph * pGraph);
+    QCPGraphDataContainer::const_iterator getClosestPoint(double xPos);
 
     QVector<QString> tickLabels;
 
     QCPItemStraightLine * _pStartMarker;
     QCPItemStraightLine * _pEndMarker;
 
-    static const qint32 _cPixelNearThreshold = 20; /* in pixels */
     static const qint32 _cPixelPerPointThreshold = 5; /* in pixels */
 
 };
