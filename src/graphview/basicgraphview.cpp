@@ -336,40 +336,29 @@ void BasicGraphView::mousePress(QMouseEvent *event)
        _pPlot->setInteraction(QCP::iRangeZoom, false);
 
        const double xPos = _pPlot->xAxis->pixelToCoord(event->pos().x());
-
-
-       // TODO: use findBegin or something
        double correctXPos = 0;
-       if (_pPlot->graphCount() > 0)
+
+       QCPGraphDataContainer::const_iterator leftIt = _pPlot->graph(0)->data()->findBegin(xPos);
+
+       auto rightIt = leftIt + 1;
+       if (rightIt !=  _pPlot->graph(0)->data()->constEnd())
        {
-           QCPGraphDataContainer::const_iterator dataIt;
+           
+           const double diffReference = rightIt->key - leftIt->key;
+           const double diffPos = xPos - leftIt->key;
 
-           // find the nearest point
-           for (dataIt = _pPlot->graph(0)->data()->constBegin() + 1u; dataIt != _pPlot->graph(0)->data()->constEnd(); dataIt++)
+           if (diffPos > (diffReference / 2))
            {
-               const double leftPoint = (dataIt - 1)->key;
-               const double rightPoint = dataIt->key;
-
-               if (
-                   (xPos > leftPoint)
-                   && (xPos <= rightPoint)
-                   )
-               {
-                   const double xCoordPxl = xPos - leftPoint;
-                   const double diff = rightPoint - leftPoint;
-
-                   if (xCoordPxl > diff / 2)
-                   {
-                       correctXPos = rightPoint;
-                   }
-                   else
-                   {
-                       correctXPos = leftPoint;
-                   }
-
-                   break;
-               }
+               correctXPos = rightIt->key;
            }
+           else
+           {
+               correctXPos = leftIt->key;
+           }
+       }
+       else
+       {
+           correctXPos = leftIt->key;
        }
 
        if (event->button() & Qt::LeftButton)
@@ -564,7 +553,7 @@ void BasicGraphView::paintValueToolTip(QMouseEvent *event)
 
 void BasicGraphView::handleSamplePoints()
 {
-    bool bHighlight = false;
+    bool bHighlight = true; // TODO: change back to false
 #if 0
 TODO
     if (_bEnableSampleHighlight)
