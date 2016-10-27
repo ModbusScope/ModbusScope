@@ -480,55 +480,44 @@ void BasicGraphView::paintValueToolTip(QMouseEvent *event)
 
 void BasicGraphView::handleSamplePoints()
 {
-    bool bHighlight = true; // TODO: change back to false
-#if 0
-TODO
+    bool bHighlight = false;
+
     if (_bEnableSampleHighlight)
     {
-        if (_pPlot->graphCount() > 0 && (graphDataSize() > 0)
+        if (_pPlot->graphCount() > 0 && (graphDataSize() > 0))
         {
-            /* Get key from visible lower bound */
-            double lowerBoundKey;
-            if (_pPlot->xAxis->range().lower <= _pPlot->graph(0)->data()->keys().first())
-            {
-                lowerBoundKey = _pPlot->graph(0)->data()->keys().first();
-            }
-            else
-            {
-                lowerBoundKey = _pPlot->graph(0)->data()->lowerBound(_pPlot->xAxis->range().lower).key();
-            }
+            QCPRange axisRange = _pPlot->xAxis->range();
 
-            /* Get key from visible upper bound */
-            double upperBoundKey;
-            if (_pPlot->xAxis->range().upper >= _pPlot->graph(0)->data()->keys().last())
-            {
-                upperBoundKey = _pPlot->graph(0)->data()->keys().last();
-            }
-            else
-            {
-                upperBoundKey = _pPlot->graph(0)->data()->upperBound(_pPlot->xAxis->range().upper).key();
-            }
+            auto lowerBoundIt = _pPlot->graph(0)->data()->findBegin(axisRange.lower, false);
+            auto upperBoundIt = _pPlot->graph(0)->data()->findBegin(axisRange.upper);
 
-            /* get indexes of keys */
-            const quint32 lowerBoundIndex = _pPlot->graph(0)->data()->keys().indexOf(lowerBoundKey);
-            const quint32 upperBoundIndex = _pPlot->graph(0)->data()->keys().lastIndexOf(upperBoundKey);
+            const int pointCount = upperBoundIt - lowerBoundIt;
 
             /* Get size in pixels */
-            const double sizePx = _pPlot->xAxis->coordToPixel(upperBoundKey) - _pPlot->xAxis->coordToPixel(lowerBoundKey);
+            const double sizePx = _pPlot->xAxis->coordToPixel(upperBoundIt->key) - _pPlot->xAxis->coordToPixel(lowerBoundIt->key);
 
             /* Calculate number of pixels per point */
-            const double nrOfPixelsPerPoint = sizePx / qAbs(upperBoundIndex - lowerBoundIndex);
+            double nrOfPixelsPerPoint;
+
+            if (lowerBoundIt != upperBoundIt)
+            {
+                nrOfPixelsPerPoint = sizePx / qAbs(pointCount);
+            }
+            else
+            {
+                nrOfPixelsPerPoint = sizePx;
+            }
 
             if (nrOfPixelsPerPoint > _cPixelPerPointThreshold)
             {
                 bHighlight = true;
             }
+
         }
     }
-#endif
 
+    /* TODO: add hsyteresis to highlight sample points */
     highlightSamples(bHighlight);
-
 }
 
 void BasicGraphView::axisDoubleClicked(QCPAxis * axis)
