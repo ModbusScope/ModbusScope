@@ -201,6 +201,16 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
         _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
         loadProjectFile(cmdArguments[1]);
     }
+
+    /* Show if OpenGL is enabled */
+    if (_pUi->customPlot->openGl())
+    {
+        _pGuiModel->setWindowTitleDetail("OpenGL: enabled");
+    }
+    else
+    {
+        _pGuiModel->setWindowTitleDetail("OpenGL: disabled");
+    }
 }
 
 MainWindow::~MainWindow()

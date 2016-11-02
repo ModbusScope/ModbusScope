@@ -18,6 +18,7 @@ LIBS += -lws2_32
 RC_ICONS = ../icon/application.ico
 }
 
+
 VERSION = 1.2.0
 
 DEFINES += DEBUG
@@ -28,6 +29,7 @@ DEFINES += GIT_BRANCH="\\\"$(shell git --git-dir \""$$PWD/../.git"\" rev-parse -
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
 DEFINES += QT_DEBUG_OUTPUT
+DEFINES += QCUSTOMPLOT_USE_OPENGL
 
 INCLUDEPATH += \
     ../libraries/libmodbus/src \
