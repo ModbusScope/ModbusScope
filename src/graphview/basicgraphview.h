@@ -46,6 +46,8 @@ public slots:
     virtual void updateMarkersVisibility();
     virtual void setStartMarker();
     virtual void setEndMarker();
+    virtual void setOpenGl(bool bState);
+    virtual bool openGl(void);
 
 signals:
 

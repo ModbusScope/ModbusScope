@@ -28,6 +28,7 @@ DEFINES += GIT_BRANCH="\\\"$(shell git --git-dir \""$$PWD/../.git"\" rev-parse -
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
 DEFINES += QT_DEBUG_OUTPUT
+DEFINES += QCUSTOMPLOT_USE_OPENGL
 
 INCLUDEPATH += \
     ../libraries/libmodbus/src \
