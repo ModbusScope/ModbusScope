@@ -484,12 +484,10 @@ void GuiModel::setEndMarkerState(bool bState)
 
 void GuiModel::setMarkerState(bool bState)
 {
-    if (_bMarkerState != bState)
-    {
-        _bMarkerState = bState;
+    // Always send signal, because we also need to clear markers when only one is visible */
+    _bMarkerState = bState;
 
-        emit markerStateChanged();
-    }
+    emit markerStateChanged();
 }
 
 qint32 GuiModel::yAxisMin()
