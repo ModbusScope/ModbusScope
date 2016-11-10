@@ -11,6 +11,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 TARGET = ModbusScope
 TEMPLATE = app
 
+CONFIG += c++11
+
 win32 {
 LIBS += -lws2_32
 RC_ICONS = ../icon/application.ico
@@ -26,6 +28,7 @@ DEFINES += GIT_BRANCH="\\\"$(shell git --git-dir \""$$PWD/../.git"\" rev-parse -
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
 DEFINES += QT_DEBUG_OUTPUT
+DEFINES += QCUSTOMPLOT_USE_OPENGL
 
 INCLUDEPATH += \
     ../libraries/libmodbus/src \
@@ -66,7 +69,6 @@ SOURCES +=  \
     ../src/models/graphdatamodel.cpp \
     ../src/models/graphdata.cpp \
     ../src/communication/modbusresult.cpp \
-    ../src/graphview/myqcpgraph.cpp \
     ../src/customwidgets/legend.cpp \
     ../src/customwidgets/legenditem.cpp \
     ../src/dialogs/registerdialog.cpp \
@@ -74,7 +76,8 @@ SOURCES +=  \
     ../src/customwidgets/markerinfo.cpp \
     ../src/customwidgets/markerinfoitem.cpp \
     ../src/importexport/projectfileexporter.cpp \
-    ../src/dialogs/markerinfodialog.cpp
+    ../src/dialogs/markerinfodialog.cpp \
+    ../src/graphview/myqcpaxistickertime.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
@@ -114,7 +117,6 @@ HEADERS += \
     ../src/models/graphdatamodel.h \
     ../src/models/graphdata.h \
     ../src/communication/modbusresult.h \
-    ../src/graphview/myqcpgraph.h \
     ../src/customwidgets/legend.h \
     ../src/customwidgets/legenditem.h \
     ../src/customwidgets/verticalscrollareacontents.h \
@@ -122,7 +124,8 @@ HEADERS += \
     ../src/customwidgets/markerinfoitem.h \
     ../src/importexport/projectfiledefinitions.h \
     ../src/importexport/projectfileexporter.h \
-    ../src/dialogs/markerinfodialog.h
+    ../src/dialogs/markerinfodialog.h \
+    ../src/graphview/myqcpaxistickertime.h
 
 RESOURCES += \
     ../resources/resource.qrc

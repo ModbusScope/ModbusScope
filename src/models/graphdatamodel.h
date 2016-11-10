@@ -41,7 +41,7 @@ public:
     quint16 registerAddress(quint32 index) const;
     quint16 bitmask(quint32 index) const;
     qint32 shift(quint32 index) const;
-    QCPDataMap * dataMap(quint32 index);
+    QSharedPointer<QCPGraphDataContainer> dataMap(quint32 index);
 
     void setVisible(quint32 index, bool bVisible);
     void setLabel(quint32 index, const QString &label);

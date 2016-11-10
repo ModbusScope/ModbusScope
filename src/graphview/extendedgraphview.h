@@ -16,9 +16,6 @@ public:
     ExtendedGraphView(CommunicationManager * pConnMan, GuiModel *pGuiModel, SettingsModel * pSettingsModel, GraphDataModel * pRegisterDataModel, MyQCustomPlot *pPlot, QObject *parent);
     virtual ~ExtendedGraphView();
 
-    QList<double> graphTimeData();
-    QList<QCPData> graphData(qint32 index);
-
 public slots:
     void addData(QList<double> timeData, QList<QList<double> > data);
     void plotResults(QList<bool> successList, QList<double> valueList);

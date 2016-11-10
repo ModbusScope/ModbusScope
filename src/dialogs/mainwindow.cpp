@@ -195,11 +195,29 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGuiModel->triggerUpdate();
     _pSettingsModel->triggerUpdate();
 
-    if (cmdArguments.size() > 1)
+    QCommandLineParser parser;
+    parser.setApplicationDescription("Log data through the Modbus protocol");
+    parser.addHelpOption();
+    parser.addPositionalArgument("project file", QCoreApplication::translate("main", "Project file (.mbs) to open"));
+
+    QCommandLineOption openGlOption("opengl", QCoreApplication::translate("main", "Use openGL to render plot"));
+    parser.addOption(openGlOption);
+
+
+    // Process the actual command line arguments given by the user
+    parser.process(cmdArguments);
+
+    const QStringList args = parser.positionalArguments();
+    // project file is args.at(0)
+
+    bool bOpenGl = parser.isSet(openGlOption);
+    _pGraphView->setOpenGl(bOpenGl);
+
+    if (args.size() > 0)
     {
-        QFileInfo fileInfo(cmdArguments[1]);
+        QFileInfo fileInfo(args[0]);
         _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
-        loadProjectFile(cmdArguments[1]);
+        loadProjectFile(args[0]);
     }
 }
 
@@ -352,7 +370,7 @@ void MainWindow::selectImageExportFile()
 
 void MainWindow::showAbout()
 {
-    AboutDialog aboutDialog(this);
+    AboutDialog aboutDialog(_pGraphView,this);
 
     aboutDialog.exec();
 }

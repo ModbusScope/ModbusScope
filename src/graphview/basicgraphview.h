@@ -25,6 +25,8 @@ public:
     explicit BasicGraphView(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel, MyQCustomPlot *pPlot, QObject *parent = 0);
     virtual ~BasicGraphView();
 
+    qint32 graphDataSize();
+
 public slots:
 
     virtual void manualScaleXAxis(qint64 min, qint64 max);
@@ -44,11 +46,12 @@ public slots:
     virtual void updateMarkersVisibility();
     virtual void setStartMarker();
     virtual void setEndMarker();
+    virtual void setOpenGl(bool bState);
+    virtual bool openGl(void);
 
 signals:
 
 private slots:
-    void generateTickLabels();
     void selectionChanged();
 
     void mousePress(QMouseEvent *event);
@@ -71,17 +74,14 @@ protected:
 private:
     void highlightSamples(bool bState);
     qint32 graphIndex(QCPGraph * pGraph);
-    bool smallScaleActive(QVector<double> tickList);
+    QCPGraphDataContainer::const_iterator getClosestPoint(double xPos);
 
     QVector<QString> tickLabels;
 
     QCPItemStraightLine * _pStartMarker;
     QCPItemStraightLine * _pEndMarker;
 
-    static const qint32 _cPixelNearThreshold = 20; /* in pixels */
     static const qint32 _cPixelPerPointThreshold = 5; /* in pixels */
-
-    static const quint32 _cSmallScaleDiff = 2000;
 
 };
 
