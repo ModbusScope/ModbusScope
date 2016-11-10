@@ -48,6 +48,7 @@ public slots:
     virtual void setEndMarker();
     virtual void setOpenGl(bool bState);
     virtual bool openGl(void);
+    virtual void rescalePlot();
 
 signals:
 

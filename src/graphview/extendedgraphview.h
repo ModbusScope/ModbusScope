@@ -20,7 +20,6 @@ public slots:
     void addData(QList<double> timeData, QList<QList<double> > data);
     void plotResults(QList<bool> successList, QList<double> valueList);
     void clearResults();
-    void rescalePlot();
 
 signals:
     void dataAddedToPlot(double timeData, QList<double> dataList);
