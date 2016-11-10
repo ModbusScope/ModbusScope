@@ -19,8 +19,6 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
 
    _pPlot = pPlot;
 
-   _pPlot->setOpenGl(true);
-
    /* Range drag is also enabled/disabled on mousePress and mouseRelease event */
    _pPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes);
 
@@ -30,11 +28,11 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
    /*
     * Greatly improves performance
     *
-    * phFastPolylines                               Graph/Curve lines are drawn with a faster method. This reduces the quality especially
-    *                                               of the line segment joins. (Only relevant for solid line pens.)
-    * phCacheLabels(done by enabling openGL)		axis (tick) labels will be cached as pixmaps, increasing replot performance.
+    * phFastPolylines	Graph/Curve lines are drawn with a faster method. This reduces the quality especially
+    *                   of the line segment joins. (Only relevant for solid line pens.)
+    * phCacheLabels		axis (tick) labels will be cached as pixmaps, increasing replot performance.
     * */
-   _pPlot->setPlottingHints(QCP::phFastPolylines);
+   _pPlot->setPlottingHints(QCP::phCacheLabels | QCP::phFastPolylines);
 
    QSharedPointer<QCPAxisTickerTime> timeTicker(new MyQCPAxisTickerTime(_pPlot));
    _pPlot->xAxis->setTicker(timeTicker);
