@@ -77,7 +77,8 @@ SOURCES +=  \
     ../src/customwidgets/markerinfoitem.cpp \
     ../src/importexport/projectfileexporter.cpp \
     ../src/dialogs/markerinfodialog.cpp \
-    ../src/graphview/myqcpaxistickertime.cpp
+    ../src/graphview/myqcpaxistickertime.cpp \
+    ../src/graphview/myqcpaxis.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
@@ -125,7 +126,8 @@ HEADERS += \
     ../src/importexport/projectfiledefinitions.h \
     ../src/importexport/projectfileexporter.h \
     ../src/dialogs/markerinfodialog.h \
-    ../src/graphview/myqcpaxistickertime.h
+    ../src/graphview/myqcpaxistickertime.h \
+    ../src/graphview/myqcpaxis.h
 
 RESOURCES += \
     ../resources/resource.qrc

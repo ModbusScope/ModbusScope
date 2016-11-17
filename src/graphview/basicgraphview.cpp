@@ -9,6 +9,7 @@
 #include "util.h"
 #include "graphdatamodel.h"
 #include "myqcpaxistickertime.h"
+#include "myqcpaxis.h"
 #include "basicgraphview.h"
 
 BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, MyQCustomPlot * pPlot, QObject *parent) :
@@ -34,6 +35,18 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
     * */
    _pPlot->setPlottingHints(QCP::phCacheLabels | QCP::phFastPolylines);
 
+    // Replace y-axis with custom axis
+   _pPlot->axisRect()->removeAxis(_pPlot->axisRect()->axes(QCPAxis::atLeft)[0]);
+   _pPlot->axisRect()->addAxis(QCPAxis::atLeft, new MyQCPAxis(_pPlot->axisRect(), QCPAxis::atLeft));
+
+    // Fix axis settings
+    QCPAxis * pXAxis = _pPlot->axisRect()->axes(QCPAxis::atBottom)[0];
+    QCPAxis * pYAxis = _pPlot->axisRect()->axes(QCPAxis::atLeft)[0];
+    pYAxis->grid()->setVisible(true);
+    _pPlot->axisRect()->setRangeDragAxes(pXAxis, pYAxis);
+    _pPlot->axisRect()->setRangeZoomAxes(pXAxis, pYAxis);
+
+    // Add custom axis ticker
    QSharedPointer<QCPAxisTickerTime> timeTicker(new MyQCPAxisTickerTime(_pPlot));
    _pPlot->xAxis->setTicker(timeTicker);
    _pPlot->xAxis->setLabel("Time");
@@ -376,6 +389,10 @@ void BasicGraphView::rescalePlot()
     {
         // min max scale routine
         _pPlot->yAxis->setRange(_pGuiModel->yAxisMin(), _pGuiModel->yAxisMax());
+    }
+    else if (_pGuiModel->yAxisScalingMode() == SCALE_WINDOW_AUTO)
+    {
+        (dynamic_cast<MyQCPAxis *>(_pPlot->yAxis))->rescaleValue(_pPlot->xAxis->range());
     }
     else // Manual
     {

@@ -155,7 +155,12 @@ void ProjectFileExporter::createViewTag(QDomElement * pParentElement)
     /* Create yAxisElement tag */
     QDomElement yAxisElement = _domDocument.createElement(ProjectFileDefinitions::cYaxisTag);
 
-    if (_pGuiModel->yAxisScalingMode() == BasicGraphView::SCALE_MINMAX)
+
+    if (_pGuiModel->yAxisScalingMode() == BasicGraphView::SCALE_WINDOW_AUTO)
+    {
+        yAxisElement.setAttribute(ProjectFileDefinitions::cModeAttribute, ProjectFileDefinitions::cWindowAutoValue);
+    }
+    else if (_pGuiModel->yAxisScalingMode() == BasicGraphView::SCALE_MINMAX)
     {
         yAxisElement.setAttribute(ProjectFileDefinitions::cModeAttribute, ProjectFileDefinitions::cMinmaxValue);
 

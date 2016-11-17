@@ -563,7 +563,11 @@ bool ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleSettings 
             // Check attribute
             QString active = child.attribute(ProjectFileDefinitions::cModeAttribute);
 
-            if (!active.toLower().compare(ProjectFileDefinitions::cMinmaxValue))
+            if (!active.toLower().compare(ProjectFileDefinitions::cWindowAutoValue))
+            {
+                pScaleSettings->bWindowScale = true;
+            }
+            else if (!active.toLower().compare(ProjectFileDefinitions::cMinmaxValue))
             {
                 // min max mode
                 pScaleSettings->bMinMax = true;
@@ -577,7 +581,6 @@ bool ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleSettings 
             else if (!active.toLower().compare(ProjectFileDefinitions::cAutoValue))
             {
                 // auto interval mode
-                pScaleSettings->bMinMax = false;
             }
         }
         else

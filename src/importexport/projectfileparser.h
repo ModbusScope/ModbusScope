@@ -35,10 +35,12 @@ public:
 
     typedef struct _ScaleSettings
     {
-        _ScaleSettings() : bSliding(false), bMinMax(false) {}
+        _ScaleSettings() : bSliding(false), bMinMax(false), bWindowScale(false) {}
 
         bool bSliding;
         quint32 slidingInterval;
+
+        bool bWindowScale;
 
         bool bMinMax;
         qint32 scaleMin;

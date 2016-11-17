@@ -48,6 +48,7 @@ namespace ProjectFileDefinitions
     const QString cSlidingValue = QString("sliding");
     const QString cAutoValue = QString("auto");
     const QString cMinmaxValue = QString("minmax");
+    const QString cWindowAutoValue = QString("windowauto");
     const QString cTrueValue = QString("true");
     const QString cFalseValue = QString("false");
 

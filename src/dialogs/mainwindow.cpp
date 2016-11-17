@@ -180,6 +180,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pYAxisScaleGroup = new QButtonGroup();
     _pYAxisScaleGroup->setExclusive(true);
     _pYAxisScaleGroup->addButton(_pUi->radioYFullScale, BasicGraphView::SCALE_AUTO);
+    _pYAxisScaleGroup->addButton(_pUi->radioYWindowScale, BasicGraphView::SCALE_WINDOW_AUTO);
     _pYAxisScaleGroup->addButton(_pUi->radioYMinMax, BasicGraphView::SCALE_MINMAX);
     _pYAxisScaleGroup->addButton(_pUi->radioYManual, BasicGraphView::SCALE_MANUAL);
     connect(_pYAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(yAxisScaleGroupClicked(int)));
@@ -637,6 +638,11 @@ void MainWindow::updateyAxisSlidingMode()
         // Min and max selected
         _pUi->radioYMinMax->setChecked(true);
     }
+    else if (_pGuiModel->yAxisScalingMode() == BasicGraphView::SCALE_WINDOW_AUTO)
+    {
+        // Window auto scale selected
+        _pUi->radioYWindowScale->setChecked(true);
+    }
     else
     {
         // manual
@@ -946,6 +952,10 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
         _pGuiModel->setyAxisMin(pProjectSettings->view.scaleSettings.scaleMin);
         _pGuiModel->setyAxisMax(pProjectSettings->view.scaleSettings.scaleMax);
         _pGuiModel->setyAxisScale(BasicGraphView::SCALE_MINMAX);
+    }
+    else if (pProjectSettings->view.scaleSettings.bWindowScale)
+    {
+        _pGuiModel->setyAxisScale(BasicGraphView::SCALE_WINDOW_AUTO);
     }
     else
     {

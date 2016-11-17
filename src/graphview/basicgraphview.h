@@ -17,6 +17,7 @@ public:
     typedef enum
     {
         SCALE_AUTO = 0,
+        SCALE_WINDOW_AUTO,
         SCALE_SLIDING,
         SCALE_MINMAX,
         SCALE_MANUAL
