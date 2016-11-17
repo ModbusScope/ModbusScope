@@ -549,7 +549,7 @@ void BasicGraphView::paintValueToolTip(QMouseEvent *event)
                 {
                     const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeGraphIndex);
 
-                    QCPGraphDataContainer::const_iterator graphDataIt = _pPlot->graph(graphIdx)->data()->findBegin(tooltipIt->key, false);
+                    QCPGraphDataContainer::const_iterator graphDataIt = _pGraphDataModel->dataMap(graphIdx).data()->findBegin(tooltipIt->key, false);
                     const double value = graphDataIt->value;
 
                     toolText += QString("\n%1: %2").arg(_pGraphDataModel->label(graphIdx)).arg(value);
