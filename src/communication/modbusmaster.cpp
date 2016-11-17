@@ -129,7 +129,8 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
 
             // Read registers
             QList<quint16> registerDataList;
-            if (readRegisters(pCtx, registerList.at(regIndex) - 40001, count, &registerDataList) == 0)
+            qint32 returnCode = readRegisters(pCtx, registerList.at(regIndex) - 40001, count, &registerDataList);
+            if (returnCode == 0)
             {
                 success++;
                 for (uint i = 0; i < count; i++)
@@ -140,38 +141,59 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
                 }
             }
             else
-            {
-                /* Consecutive read failed */
-                if (count == 1)
+            {                
+                /* only split when no time-out */
+                if (
+                        (returnCode != ETIMEDOUT )
+                        && (returnCode != (MODBUS_ENOBASE + MODBUS_EXCEPTION_GATEWAY_TARGET))
+                    )
+
                 {
-                    /* Log error */
-                    error++;
-                    const quint16 registerAddr = registerList.at(regIndex);
-                    const ModbusResult result = ModbusResult(0, false);
-                    resultMap.insert(registerAddr, result);
+
+                    /* Consecutive read failed */
+                    if (count == 1)
+                    {
+                        /* Log error */
+                        error++;
+                        const quint16 registerAddr = registerList.at(regIndex);
+                        const ModbusResult result = ModbusResult(0, false);
+                        resultMap.insert(registerAddr, result);
+                    }
+                    else
+                    {
+                        error++;
+
+                        /* More than one => read all separately */
+                        for (quint32 i = 0; i < count; i++)
+                        {
+                            const quint16 registerAddr = registerList.at(regIndex + i);
+                            if (readRegisters(pCtx, registerAddr - 40001, 1, &registerDataList) == 0)
+                            {
+                                success++;
+                                const ModbusResult result = ModbusResult(registerDataList[0], true);
+                                resultMap.insert(registerAddr, result);
+                            }
+                            else
+                            {
+                                /* Log error */
+                                error++;
+                                const ModbusResult result = ModbusResult(0, false);
+                                resultMap.insert(registerAddr, result);
+                            }
+                        }
+                    }
                 }
                 else
                 {
-                    error++;
-
-                    /* More than one => read all separately */
-                    for (quint32 i = 0; i < count; i++)
+                    for (qint32 i = 0; i < registerList.size(); i++)
                     {
-                        const quint16 registerAddr = registerList.at(regIndex + i);
-                        if (readRegisters(pCtx, registerAddr - 40001, 1, &registerDataList) == 0)
-                        {
-                            success++;
-                            const ModbusResult result = ModbusResult(registerDataList[0], true);
-                            resultMap.insert(registerAddr, result);
-                        }
-                        else
-                        {
-                            /* Log error */
-                            error++;
-                            const ModbusResult result = ModbusResult(0, false);
-                            resultMap.insert(registerAddr, result);
-                        }
+                        error++;
+                        const quint16 registerAddr = registerList.at(i);
+                        const ModbusResult result = ModbusResult(0, false);
+                        resultMap.insert(registerAddr,result);
                     }
+
+                    break;
                 }
             }
 
@@ -239,8 +261,8 @@ qint32 ModbusMaster::readRegisters(modbus_t * pCtx, quint16 startReg, quint32 nu
 
     if (modbus_read_registers(pCtx, startReg, num, aRegister) == -1)
     {
+        rc = errno;
         qDebug() << "MB: Read failed: " << modbus_strerror(errno) << endl;
-        rc = -1;
     }
     else
     {
