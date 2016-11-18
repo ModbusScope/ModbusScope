@@ -142,12 +142,11 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
             }
             else
             {                
-                /* only split when no time-out */
+                /* only split on specific modbus exception (invalid value and invalid address) */
                 if (
-                        (returnCode != ETIMEDOUT )
-                        && (returnCode != (MODBUS_ENOBASE + MODBUS_EXCEPTION_GATEWAY_TARGET))
+                        (returnCode == (MODBUS_ENOBASE + MODBUS_EXCEPTION_ILLEGAL_DATA_ADDRESS))
+                        || (returnCode == (MODBUS_ENOBASE + MODBUS_EXCEPTION_ILLEGAL_DATA_VALUE))
                     )
-
                 {
 
                     /* Consecutive read failed */
@@ -185,9 +184,11 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
                 }
                 else
                 {
+                    error++;
+
                     for (qint32 i = 0; i < registerList.size(); i++)
                     {
-                        error++;
+
                         const quint16 registerAddr = registerList.at(i);
                         const ModbusResult result = ModbusResult(0, false);
                         resultMap.insert(registerAddr,result);
@@ -205,9 +206,10 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
     }
     else
     {
+        error++;
+
         for (qint32 i = 0; i < registerList.size(); i++)
         {
-            error++;
             const quint16 registerAddr = registerList.at(i);
             const ModbusResult result = ModbusResult(0, false);
             resultMap.insert(registerAddr,result);
