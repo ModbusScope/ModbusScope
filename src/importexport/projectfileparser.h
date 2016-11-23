@@ -35,7 +35,7 @@ public:
 
     typedef struct _ScaleSettings
     {
-        _ScaleSettings() : bSliding(false), bMinMax(false), bWindowScale(false) {}
+        _ScaleSettings() : bSliding(false), bWindowScale(false), bMinMax(false) {}
 
         bool bSliding;
         quint32 slidingInterval;

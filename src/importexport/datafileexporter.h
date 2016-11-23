@@ -29,10 +29,25 @@ public slots:
     void rewriteDataFile(void);
 
 private:
+
+    typedef enum
+    {
+        E_LABEL = 0u,
+        E_PROPERTY,
+        E_COLOR,
+
+        E_MULTIPLY_FACTOR,
+        E_DIVIDE_FACTOR,
+        E_REGISTER_ADDRESS,
+        E_BITMASK,
+        E_SHIFT,
+
+    } registerProperty;
+
     void flushExportBuffer();
     void exportDataHeader();
-    QString constructDataHeader(bool bDuringLog);
-    QString createLabelRow();
+    QStringList constructDataHeader(bool bDuringLog);
+    QString createPropertyRow(registerProperty prop);
     QString formatData(double timeData, QList<double> dataValues);
     bool writeToFile(QString filePath, QStringList logData);
     void clearFile(QString filePath);

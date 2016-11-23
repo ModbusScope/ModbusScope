@@ -76,7 +76,7 @@ void DataFileExporter::exportDataFile(QString dataFile)
         logData.append(constructDataHeader(false));
 
         // Create label row
-        logData.append(createLabelRow());
+        logData.append(createPropertyRow(E_LABEL));
 
         // Clean file
         clearFile(dataFile);
@@ -151,15 +151,15 @@ void DataFileExporter::exportDataHeader()
     logData.append(constructDataHeader(true));
 
     // Create label row
-    logData.append(createLabelRow());
+    logData.append(createPropertyRow(E_LABEL));
 
     // Write to file
     writeToFile(_pSettingsModel->writeDuringLogFile(), logData);
 }
 
-QString DataFileExporter::constructDataHeader(bool bDuringLog)
+QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
 {
-    QString header = QString(tr(""));
+    QStringList header;
 
     if (_pGraphDataModel->activeCount() != 0)
     {
@@ -167,33 +167,43 @@ QString DataFileExporter::constructDataHeader(bool bDuringLog)
 
         QString comment = QString("//");
 
-        header.append(comment + "ModbusScope version" + Util::separatorCharacter() + Util::currentVersion() + "\n");
+        header.append(comment + "ModbusScope version" + Util::separatorCharacter() + Util::currentVersion());
 
         // Save start time
         dt = QDateTime::fromMSecsSinceEpoch(_pGuiModel->communicationStartTime());
-        header.append(comment + "Start time" + Util::separatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
+        header.append(comment + "Start time" + Util::separatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss"));
 
         // Save end time
         if (bDuringLog)
         {
-            header.append(comment + "End time" + Util::separatorCharacter() + "data written during logging\n");
+            header.append(comment + "End time" + Util::separatorCharacter() + "data written during logging");
         }
         else
         {
             dt = QDateTime::fromMSecsSinceEpoch(_pGuiModel->communicationEndTime());
-            header.append(comment + "End time" + Util::separatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss") + "\n");
+            header.append(comment + "End time" + Util::separatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss"));
         }
 
         // Export communication settings
-        header.append(comment + "Slave IP" + Util::separatorCharacter() + _pSettingsModel->ipAddress() + ":" + QString::number(_pSettingsModel->port()) + "\n");
-        header.append(comment + "Slave ID" + Util::separatorCharacter() + QString::number(_pSettingsModel->slaveId()) + "\n");
-        header.append(comment + "Time-out" + Util::separatorCharacter() + QString::number(_pSettingsModel->timeout()) + "\n");
-        header.append(comment + "Poll interval" + Util::separatorCharacter() + QString::number(_pSettingsModel->pollTime()) + "\n");
+        header.append(comment + "Slave IP" + Util::separatorCharacter() + _pSettingsModel->ipAddress() + ":" + QString::number(_pSettingsModel->port()));
+        header.append(comment + "Slave ID" + Util::separatorCharacter() + QString::number(_pSettingsModel->slaveId()));
+        header.append(comment + "Time-out" + Util::separatorCharacter() + QString::number(_pSettingsModel->timeout()));
+        header.append(comment + "Poll interval" + Util::separatorCharacter() + QString::number(_pSettingsModel->pollTime()));
 
         quint32 success = _pGuiModel->communicationSuccessCount();
         quint32 error = _pGuiModel->communicationErrorCount();
-        header.append(comment + "Communication success" + Util::separatorCharacter() + QString::number(success) + "\n");
-        header.append(comment + "Communication errors" + Util::separatorCharacter() + QString::number(error) + "\n");
+        header.append(comment + "Communication success" + Util::separatorCharacter() + QString::number(success));
+        header.append(comment + "Communication errors" + Util::separatorCharacter() + QString::number(error));
+
+        header.append("//");
+
+        header.append("//" + createPropertyRow(E_PROPERTY));
+        header.append("//" + createPropertyRow(E_REGISTER_ADDRESS));
+        header.append("//" + createPropertyRow(E_COLOR));
+        header.append("//" + createPropertyRow(E_MULTIPLY_FACTOR));
+        header.append("//" + createPropertyRow(E_DIVIDE_FACTOR));
+        header.append("//" + createPropertyRow(E_BITMASK));
+        header.append("//" + createPropertyRow(E_SHIFT));
 
         header.append("//");
     }
@@ -201,15 +211,90 @@ QString DataFileExporter::constructDataHeader(bool bDuringLog)
     return header;
 }
 
-QString DataFileExporter::createLabelRow()
+QString DataFileExporter::createPropertyRow(registerProperty prop)
 {
     QString line;
 
-    line.append("Time (ms)");
+    switch(prop)
+    {
+    case E_LABEL:
+        line.append("Time (ms)");
+        break;
+
+    case E_PROPERTY:
+        line.append("Property");
+        break;
+
+    case E_COLOR:
+        line.append("Color");
+        break;
+
+    case E_MULTIPLY_FACTOR:
+        line.append("Multiply");
+        break;
+
+    case E_DIVIDE_FACTOR:
+        line.append("Divide");
+        break;
+
+    case E_REGISTER_ADDRESS:
+        line.append("Register Address");
+        break;
+
+    case E_BITMASK:
+        line.append("Bitmask");
+        break;
+
+    case E_SHIFT:
+        line.append("Shift");
+        break;
+
+    default:
+        break;
+    }
+
     for(qint32 i = 0; i < _pGraphDataModel->activeCount(); i++)
     {
+        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(i);
+
+        QString propertyString;
+        switch(prop)
+        {
+        case E_LABEL:
+        case E_PROPERTY:
+            propertyString = _pGraphDataModel->label(graphIdx);
+            break;
+        case E_COLOR:
+            propertyString = _pGraphDataModel->color(graphIdx).name();
+            break;
+
+        case E_MULTIPLY_FACTOR:
+            propertyString = Util::formatDoubleForExport(_pGraphDataModel->multiplyFactor(graphIdx));
+            break;
+
+        case E_DIVIDE_FACTOR:
+            propertyString =  Util::formatDoubleForExport(_pGraphDataModel->divideFactor(graphIdx));
+            break;
+
+        case E_REGISTER_ADDRESS:
+            propertyString = QString("%1").arg(_pGraphDataModel->registerAddress(graphIdx));
+            break;
+
+        case E_BITMASK:
+            propertyString = QString("0x%1").arg(_pGraphDataModel->bitmask(graphIdx), 0, 16);
+            break;
+
+        case E_SHIFT:
+            propertyString = QString("%1").arg(_pGraphDataModel->shift(graphIdx));
+            break;
+
+        default:
+            break;
+
+        }
+
         // Get headers
-        line.append(Util::separatorCharacter() + _pGraphDataModel->label(_pGraphDataModel->convertToGraphIndex(i)));
+        line.append(Util::separatorCharacter() + propertyString);
     }
 
     return line;
