@@ -23,6 +23,7 @@ public:
 
         QStringList dataLabel;
         QList<QList<double> > dataRows;
+        QList<QColor> colors;
     } FileData;
 
     DataFileParser();

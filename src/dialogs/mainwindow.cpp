@@ -1026,6 +1026,15 @@ void MainWindow::loadDataFile(QString dataFilePath)
         _pGuiModel->setFrontGraph(-1);
 
         _pGraphDataModel->add(data.dataLabel, data.timeRow, data.dataRows);
+
+        if (!data.colors.isEmpty())
+        {
+            for (int idx = 0; idx < data.dataLabel.size(); idx++)
+            {
+                _pGraphDataModel->setColor((quint32)idx, data.colors[idx]);
+            }
+        }
+
         _pGuiModel->setFrontGraph(0);
 
         _pGuiModel->setProjectFilePath("");

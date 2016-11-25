@@ -62,9 +62,38 @@ bool DataFileParser::processDataFile(QString dataFile, FileData * pData)
         {
             bRet = readLineFromFile(&line);
 
-            if (!bRet)
+            if (bRet)
+            {
+                /* Check for color properties */
+                QStringList colorList = line.split(_pAutoSettingsParser->fieldSeparator());
+
+                if (static_cast<QString>(colorList.first()).toLower() == "//color")
+                {
+                    bool bValidColor;
+
+                    // Remove color property name
+                    colorList.removeFirst();
+
+                    foreach(QString strColor, colorList)
+                    {
+                        bValidColor = QColor::isValidColor(strColor);
+                        if (bValidColor)
+                        {
+                            pData->colors.append(QColor(strColor));
+                        }
+                        else
+                        {
+                            // If not valid color, then clear color list and break loop
+                            pData->colors.clear();
+                            break;
+                        }
+                    }
+                }
+            }
+            else
             {
                 showError(tr("Invalid data file (while reading comments)"));
+                break;
             }
 
             lineIdx++;
@@ -85,6 +114,12 @@ bool DataFileParser::processDataFile(QString dataFile, FileData * pData)
 
             bRet = false;
         }
+    }
+
+    /* Clear color list when size is not ok */
+    if ((pData->colors.size() + 1) != (int)_expectedFields)
+    {
+         pData->colors.clear();
     }
 
     // Trim labels
