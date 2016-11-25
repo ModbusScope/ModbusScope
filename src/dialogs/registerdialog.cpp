@@ -33,6 +33,11 @@ RegisterDialog::RegisterDialog(GraphDataModel * pGraphDataModel,  QWidget *paren
     // Handle color cell active signal
     connect(_pUi->registerView, SIGNAL(activated(QModelIndex)), this, SLOT(activatedCell(QModelIndex)));
 
+    // Handle delete
+    QShortcut* shortcut = new QShortcut(QKeySequence(QKeySequence::Delete), _pUi->registerView);
+    connect(shortcut, SIGNAL(activated()), this, SLOT(removeRegisterRow()));
+
+
     // Setup handler for buttons
     connect(_pUi->btnAdd, SIGNAL(released()), this, SLOT(addRegisterRow()));
     connect(_pUi->btnRemove, SIGNAL(released()), this, SLOT(removeRegisterRow()));
