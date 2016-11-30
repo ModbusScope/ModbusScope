@@ -44,6 +44,9 @@ void ProjectFileExporter::createDomDocument()
 {
     _domDocument.clear();
 
+    QDomNode versionNode(_domDocument.createProcessingInstruction("xml", "version=\"1.0\""));
+    _domDocument.appendChild(versionNode);
+
     QDomElement rootElement = _domDocument.createElement(ProjectFileDefinitions::cModbusScopeTag);
     rootElement.setAttribute(ProjectFileDefinitions::cDatalevelAttribute, QString("%1").arg(ProjectFileDefinitions::cCurrentDataLevel));
 
