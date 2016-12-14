@@ -2027,9 +2027,9 @@ public:
   
   // setters:
   Q_SLOT void setScaleType(QCPAxis::ScaleType type);
-  Q_SLOT void setRange(const QCPRange &range);
-  void setRange(double lower, double upper);
-  void setRange(double position, double size, Qt::AlignmentFlag alignment);
+  Q_SLOT virtual void setRange(const QCPRange &range);
+  virtual void setRange(double lower, double upper);
+  virtual void setRange(double position, double size, Qt::AlignmentFlag alignment);
   void setRangeLower(double lower);
   void setRangeUpper(double upper);
   void setRangeReversed(bool reversed);
