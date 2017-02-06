@@ -78,7 +78,9 @@ SOURCES +=  \
     ../src/importexport/projectfileexporter.cpp \
     ../src/dialogs/markerinfodialog.cpp \
     ../src/graphview/myqcpaxistickertime.cpp \
-    ../src/graphview/myqcpaxis.cpp
+    ../src/graphview/myqcpaxis.cpp \
+    ../src/dialogs/importmbcdialog.cpp \
+    ../src/importexport/mbcfileimporter.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
@@ -86,7 +88,8 @@ FORMS    += \
     ../src/dialogs/mainwindow.ui \
     ../src/dialogs/registerdialog.ui \
     ../src/dialogs/aboutdialog.ui \
-    ../src/dialogs/markerinfodialog.ui
+    ../src/dialogs/markerinfodialog.ui \
+    ../src/dialogs/importmbcdialog.ui
 
 HEADERS += \
     ../libraries/libmodbus/src/modbus-private.h \
@@ -127,7 +130,9 @@ HEADERS += \
     ../src/importexport/projectfileexporter.h \
     ../src/dialogs/markerinfodialog.h \
     ../src/graphview/myqcpaxistickertime.h \
-    ../src/graphview/myqcpaxis.h
+    ../src/graphview/myqcpaxis.h \
+    ../src/dialogs/importmbcdialog.h \
+    ../src/importexport/mbcfileimporter.h
 
 RESOURCES += \
     ../resources/resource.qrc

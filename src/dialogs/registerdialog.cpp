@@ -3,9 +3,10 @@
 #include <QColorDialog>
 
 #include "registerdialog.h"
+#include "importmbcdialog.h"
 #include "ui_registerdialog.h"
 
-RegisterDialog::RegisterDialog(GraphDataModel * pGraphDataModel,  QWidget *parent) :
+RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel,  QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::RegisterDialog)
 {
@@ -15,6 +16,8 @@ RegisterDialog::RegisterDialog(GraphDataModel * pGraphDataModel,  QWidget *paren
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     _pGraphDataModel = pGraphDataModel;
+
+    _pImportMbcDialog = new ImportMbcDialog(pGuiModel, this);
 
     // Setup registerView
     _pUi->registerView->setModel(_pGraphDataModel);
@@ -39,9 +42,13 @@ RegisterDialog::RegisterDialog(GraphDataModel * pGraphDataModel,  QWidget *paren
 
 
     // Setup handler for buttons
+    connect(_pUi->btnImportFromMbc, SIGNAL(released()), this, SLOT(showImportDialog()));
     connect(_pUi->btnAdd, SIGNAL(released()), this, SLOT(addRegisterRow()));
     connect(_pUi->btnRemove, SIGNAL(released()), this, SLOT(removeRegisterRow()));
     connect(_pGraphDataModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(onRegisterInserted(QModelIndex,int,int)));
+
+    // Setup handler for dialog
+    connect(_pImportMbcDialog, SIGNAL(finished(int)), this, SLOT(handleRegisterImport(int)));
 
 }
 
@@ -85,6 +92,17 @@ void RegisterDialog::done(int r)
 void RegisterDialog::addRegisterRow()
 {
     _pGraphDataModel->insertRow(_pGraphDataModel->size());
+}
+
+void RegisterDialog::showImportDialog()
+{
+    _pImportMbcDialog->exec();
+}
+
+void RegisterDialog::handleRegisterImport(int result)
+{
+/*QDialog::Accepted
+QDialog::Rejected*/
 }
 
 void RegisterDialog::activatedCell(QModelIndex modelIndex)

@@ -38,7 +38,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
 
     _pGraphDataModel = new GraphDataModel();
-    _pRegisterDialog = new RegisterDialog(_pGraphDataModel, this);
+    _pRegisterDialog = new RegisterDialog(_pGuiModel, _pGraphDataModel, this);
 
     _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pGraphDataModel);
     _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pUi->customPlot, this);

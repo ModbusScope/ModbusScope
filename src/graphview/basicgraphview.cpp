@@ -337,7 +337,7 @@ void BasicGraphView::rescalePlot()
     {
         if ((_pPlot->graphCount() != 0) && (graphDataSize() != 0))
         {
-            _pPlot->xAxis->rescale();
+            _pPlot->xAxis->rescale(true);
         }
         else
         {
