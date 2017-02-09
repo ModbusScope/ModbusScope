@@ -50,26 +50,6 @@ int ImportMbcDialog::exec()
     return QDialog::exec();
 }
 
-void ImportMbcDialog::done(int r)
-{
-    bool bValid = true;
-
-    if(QDialog::Accepted == r)  // ok was pressed
-    {
-
-    }
-    else
-    {
-        // cancel, close or exc was pressed
-        bValid = true;
-    }
-
-    if (bValid)
-    {
-        QDialog::done(r);
-    }
-}
-
 void ImportMbcDialog::selectMbcFile()
 {
     QFileDialog dialog(this);
@@ -131,7 +111,7 @@ bool ImportMbcDialog::updateMbcRegisters()
             const MbcRegisterData registerData = registerList[row];
 
             /* Disable all flags */
-            Qt::ItemFlags flags = Qt::ItemIsSelectable;
+            Qt::ItemFlags flags = Qt::NoItemFlags;
             QString toolTipTxt;
 
             /* Disable all 32 bits registers and duplicates */
@@ -167,9 +147,10 @@ bool ImportMbcDialog::updateMbcRegisters()
 
             /* Checkbox */
             _pUi->tblMbcRegisters->item(row, 0)->setFlags(flags | Qt::ItemIsUserCheckable);
+            _pUi->tblMbcRegisters->item(row, 0)->setCheckState(Qt::Unchecked);
 
             /* Register address */
-            _pUi->tblMbcRegisters->item(row, 1)->setText(QString("%1").arg(registerData.name));
+            _pUi->tblMbcRegisters->item(row, 1)->setText(QString("%1").arg(registerData.registerAddress));
 
             /* Text */
             _pUi->tblMbcRegisters->item(row, 2)->setText(registerData.name);
@@ -180,11 +161,19 @@ bool ImportMbcDialog::updateMbcRegisters()
             {
                 _pUi->tblMbcRegisters->item(row, 3)->setCheckState(Qt::Checked);
             }
+            else
+            {
+                _pUi->tblMbcRegisters->item(row, 3)->setCheckState(Qt::Unchecked);
+            }
 
             /* TabName */
             _pUi->tblMbcRegisters->item(row, 4)->setText(registerData.tabName);
 
         }
+
+        /* Resize */
+        _pUi->tblMbcRegisters->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
 
         bSuccess = true;
     }

@@ -22,7 +22,6 @@ public slots:
     int exec();
 
 private slots:
-    void done(int r);
     void selectMbcFile();
 
 private:
