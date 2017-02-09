@@ -3,7 +3,7 @@
 RegisterData::RegisterData()
 {
     _bActive = false;
-    _bUnsigned = false;
+    _bUnsigned = true;
     _divideFactor = 1;
     _multiplyFactor = 1;
     _reg = 0;
