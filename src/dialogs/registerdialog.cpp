@@ -101,6 +101,30 @@ void RegisterDialog::showImportDialog()
 
 void RegisterDialog::handleRegisterImport(int result)
 {
+/*
+    if (result == QDialog::Accepted)
+    {
+        _pImportMbcDialog->
+    }
+
+    for (qint32 i = 0; i < pProjectSettings->scope.registerList.size(); i++)
+    {
+        GraphData rowData;
+        rowData.setActive(pProjectSettings->scope.registerList[i].bActive);
+        rowData.setUnsigned(pProjectSettings->scope.registerList[i].bUnsigned);
+        rowData.setRegisterAddress(pProjectSettings->scope.registerList[i].address);
+        rowData.setBitmask(pProjectSettings->scope.registerList[i].bitmask);
+        rowData.setLabel(pProjectSettings->scope.registerList[i].text);
+        rowData.setDivideFactor(pProjectSettings->scope.registerList[i].divideFactor);
+        rowData.setMultiplyFactor(pProjectSettings->scope.registerList[i].multiplyFactor);
+        rowData.setColor(pProjectSettings->scope.registerList[i].color);
+        rowData.setShift(pProjectSettings->scope.registerList[i].shift);
+
+        _pGraphDataModel->add(rowData);
+    }
+*/
+
+
 /*QDialog::Accepted
 QDialog::Rejected*/
 }

@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include "basicgraphview.h"
-#include "registerdata.h"
 
 class GuiModel : public QObject
 {

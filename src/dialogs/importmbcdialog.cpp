@@ -50,6 +50,18 @@ int ImportMbcDialog::exec()
     return QDialog::exec();
 }
 
+void ImportMbcDialog::done(int r)
+{
+    if(QDialog::Accepted == r)  // ok was pressed
+    {
+
+
+    }
+
+     QDialog::done(r);
+}
+
+
 void ImportMbcDialog::selectMbcFile()
 {
     QFileDialog dialog(this);
@@ -72,7 +84,7 @@ void ImportMbcDialog::selectMbcFile()
         {
             if (updateMbcRegisters())
             {
-
+                /* TODO: handle correctly */
             }
             else
             {

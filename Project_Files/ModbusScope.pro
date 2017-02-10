@@ -51,7 +51,6 @@ SOURCES +=  \
     ../src/importexport/datafileexporter.cpp \
     ../src/importexport/datafileparser.cpp \
     ../src/importexport/projectfileparser.cpp \
-    ../src/importexport/registerdata.cpp \
     ../src/dialogs/connectiondialog.cpp \
     ../src/dialogs/logdialog.cpp \
     ../src/dialogs/mainwindow.cpp \
@@ -103,7 +102,6 @@ HEADERS += \
     ../src/importexport/datafileexporter.h \
     ../src/importexport/datafileparser.h \
     ../src/importexport/projectfileparser.h \
-    ../src/importexport/registerdata.h \
     ../src/dialogs/connectiondialog.h \
     ../src/dialogs/logdialog.h \
     ../src/dialogs/mainwindow.h \

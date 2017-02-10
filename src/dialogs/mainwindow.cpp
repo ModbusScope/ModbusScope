@@ -2,7 +2,6 @@
 #include "ui_mainwindow.h"
 #include "qcustomplot.h"
 #include "communicationmanager.h"
-#include "registerdata.h"
 #include "graphdatamodel.h"
 #include "graphdata.h"
 #include "registerdialog.h"
