@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>524</width>
-    <height>380</height>
+    <width>832</width>
+    <height>405</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Import registers from mbc file</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

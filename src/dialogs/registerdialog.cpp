@@ -17,7 +17,7 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
 
     _pGraphDataModel = pGraphDataModel;
 
-    _pImportMbcDialog = new ImportMbcDialog(pGuiModel, this);
+    _pImportMbcDialog = new ImportMbcDialog(pGuiModel, pGraphDataModel, this);
 
     // Setup registerView
     _pUi->registerView->setModel(_pGraphDataModel);
@@ -65,7 +65,7 @@ void RegisterDialog::done(int r)
     {
         quint16 duplicateReg = 0;
         quint16 duplicateBitMask = 0;
-        if (!_pGraphDataModel->areExclusive(&duplicateReg, &duplicateBitMask))
+        if (!_pGraphDataModel->getDuplicate(&duplicateReg, &duplicateBitMask))
         {
             bValid = false;
 
@@ -101,32 +101,18 @@ void RegisterDialog::showImportDialog()
 
 void RegisterDialog::handleRegisterImport(int result)
 {
-/*
     if (result == QDialog::Accepted)
     {
-        _pImportMbcDialog->
+        QList<GraphData> regList;
+
+        _pImportMbcDialog->selectedRegisterList(&regList);
+
+        if (regList.size() > 0)
+        {
+            _pGraphDataModel->add(regList);
+        }
+
     }
-
-    for (qint32 i = 0; i < pProjectSettings->scope.registerList.size(); i++)
-    {
-        GraphData rowData;
-        rowData.setActive(pProjectSettings->scope.registerList[i].bActive);
-        rowData.setUnsigned(pProjectSettings->scope.registerList[i].bUnsigned);
-        rowData.setRegisterAddress(pProjectSettings->scope.registerList[i].address);
-        rowData.setBitmask(pProjectSettings->scope.registerList[i].bitmask);
-        rowData.setLabel(pProjectSettings->scope.registerList[i].text);
-        rowData.setDivideFactor(pProjectSettings->scope.registerList[i].divideFactor);
-        rowData.setMultiplyFactor(pProjectSettings->scope.registerList[i].multiplyFactor);
-        rowData.setColor(pProjectSettings->scope.registerList[i].color);
-        rowData.setShift(pProjectSettings->scope.registerList[i].shift);
-
-        _pGraphDataModel->add(rowData);
-    }
-*/
-
-
-/*QDialog::Accepted
-QDialog::Rejected*/
 }
 
 void RegisterDialog::activatedCell(QModelIndex modelIndex)

@@ -5,6 +5,8 @@
 
 /* Forward declaration */
 class GuiModel;
+class GraphData;
+class GraphDataModel;
 
 namespace Ui {
 class ImportMbcDialog;
@@ -15,8 +17,10 @@ class ImportMbcDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ImportMbcDialog(GuiModel * pGuiModel, QWidget *parent = 0);
+    explicit ImportMbcDialog(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, QWidget *parent = 0);
     ~ImportMbcDialog();
+
+    void selectedRegisterList(QList<GraphData> * pRegList);
 
 public slots:
     int exec();
@@ -31,6 +35,7 @@ private:
     Ui::ImportMbcDialog *_pUi;
 
     GuiModel * _pGuiModel;
+    GraphDataModel * _pGraphDataModel;
 
     QString _mbcFilePath;
 };

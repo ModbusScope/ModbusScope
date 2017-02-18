@@ -5,16 +5,19 @@
 #include "util.h"
 #include "guimodel.h"
 #include "mbcfileimporter.h"
+#include "graphdata.h"
+#include "graphdatamodel.h"
 
 #include <QFileDialog>
 
-ImportMbcDialog::ImportMbcDialog(GuiModel * pGuiModel, QWidget *parent) :
+ImportMbcDialog::ImportMbcDialog(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::ImportMbcDialog)
 {
     _pUi->setupUi(this);
 
     _pGuiModel = pGuiModel;
+    _pGraphDataModel = pGraphDataModel;
 
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -33,8 +36,6 @@ ImportMbcDialog::ImportMbcDialog(GuiModel * pGuiModel, QWidget *parent) :
     _pUi->tblMbcRegisters->setHorizontalHeaderLabels(headerNames);
 
     connect(_pUi->btnSelectMbcFile, SIGNAL(clicked()), this, SLOT(selectMbcFile()));
-
-    //Add checkbox to row: void QTableWidget::setCellWidget ( int row, int column, QWidget * widget )
 }
 
 ImportMbcDialog::~ImportMbcDialog()
@@ -45,20 +46,34 @@ ImportMbcDialog::~ImportMbcDialog()
 
 int ImportMbcDialog::exec()
 {
+    _mbcFilePath = QString("");
+    _pUi->lineMbcfile->setText(_mbcFilePath);
+
     updateMbcRegisters();
 
     return QDialog::exec();
 }
 
-void ImportMbcDialog::done(int r)
+void ImportMbcDialog::selectedRegisterList(QList<GraphData> *regList)
 {
-    if(QDialog::Accepted == r)  // ok was pressed
+    //Clear list
+    regList->clear();
+
+    // Get selected register from table widget */
+    for (qint32 row = 0; row < _pUi->tblMbcRegisters->rowCount(); row++)
     {
+        if (_pUi->tblMbcRegisters->item(row, 0)->checkState() == Qt::Checked)
+        {
+            GraphData graphData;
 
+            graphData.setActive(true);
+            graphData.setRegisterAddress(_pUi->tblMbcRegisters->item(row, 1)->text().toUInt());
+            graphData.setLabel(_pUi->tblMbcRegisters->item(row, 2)->text());
+            graphData.setUnsigned(_pUi->tblMbcRegisters->item(row, 3)->checkState() == Qt::Checked);
 
+            regList->append(graphData);
+        }
     }
-
-     QDialog::done(r);
 }
 
 
@@ -121,6 +136,7 @@ bool ImportMbcDialog::updateMbcRegisters()
         for (qint32 row = 0; row < registerList.size(); row++)
         {
             const MbcRegisterData registerData = registerList[row];
+            const uint16_t bitmask = 0xFFFF;
 
             /* Disable all flags */
             Qt::ItemFlags flags = Qt::NoItemFlags;
@@ -134,6 +150,10 @@ bool ImportMbcDialog::updateMbcRegisters()
             else if (registerData.bUint32)
             {
                 toolTipTxt = tr("32 bit register is not supported");
+            }
+            else if (!_pGraphDataModel->isPresent(registerData.registerAddress, bitmask))
+            {
+                toolTipTxt = tr("Already added address");
             }
             else
             {
@@ -186,6 +206,8 @@ bool ImportMbcDialog::updateMbcRegisters()
         /* Resize */
         _pUi->tblMbcRegisters->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
+        /* Resize dialog window to fix table widget */
+        // TODO
 
         bSuccess = true;
     }
