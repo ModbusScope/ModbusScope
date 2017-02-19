@@ -44,14 +44,19 @@ ImportMbcDialog::~ImportMbcDialog()
 }
 
 
-int ImportMbcDialog::exec()
+int ImportMbcDialog::exec(QString mbcPath)
 {
-    _mbcFilePath = QString("");
+    _mbcFilePath = mbcPath;
     _pUi->lineMbcfile->setText(_mbcFilePath);
 
     updateMbcRegisters();
 
     return QDialog::exec();
+}
+
+int ImportMbcDialog::exec(void)
+{
+    return exec(QString(""));
 }
 
 void ImportMbcDialog::selectedRegisterList(QList<GraphData> *regList)

@@ -6,9 +6,6 @@
 #include "graphdatamodel.h"
 #include "guimodel.h"
 
-/* Forward declaration */
-class ImportMbcDialog;
-
 namespace Ui {
 class RegisterDialog;
 }
@@ -21,10 +18,15 @@ public:
     explicit RegisterDialog(GuiModel * pGuiModel,GraphDataModel *pGraphDataModel, QWidget *parent = 0);
     ~RegisterDialog();
 
+
+public slots:
+    int exec();
+    int exec(QString mbcFile);
+
 private slots:
     void done(int r);
     void showImportDialog();
-    void handleRegisterImport(int result);
+    void showImportDialog(QString mbcPath);
     void addRegisterRow();
     void removeRegisterRow();
     void activatedCell(QModelIndex modelIndex);
@@ -38,7 +40,7 @@ private:
     Ui::RegisterDialog * _pUi;
 
     GraphDataModel * _pGraphDataModel;
-    ImportMbcDialog * _pImportMbcDialog;
+    GuiModel * _pGuiModel;
 };
 
 #endif // REGISTERDIALOG_H

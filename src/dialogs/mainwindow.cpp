@@ -37,7 +37,6 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
 
     _pGraphDataModel = new GraphDataModel();
-    _pRegisterDialog = new RegisterDialog(_pGuiModel, _pGraphDataModel, this);
 
     _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pGraphDataModel);
     _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pUi->customPlot, this);
@@ -225,7 +224,6 @@ MainWindow::~MainWindow()
 {
     delete _pGraphView;
     delete _pConnectionDialog;
-    delete _pRegisterDialog;
     delete _pConnMan;
     delete _pSettingsModel;
     delete _pGuiModel;
@@ -405,6 +403,11 @@ void MainWindow::showLogDialog()
 
 void MainWindow::showRegisterDialog()
 {
+    showRegisterDialog(QString(""));
+}
+
+void MainWindow::showRegisterDialog(QString mbcFile)
+{
     if (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
     {
         _pGraphDataModel->clear();
@@ -412,7 +415,8 @@ void MainWindow::showRegisterDialog()
         _pGuiModel->setGuiState(GuiModel::INIT);
     }
 
-    _pRegisterDialog->exec();
+    RegisterDialog registerDialog(_pGuiModel, _pGraphDataModel, this);
+    registerDialog.exec(mbcFile);
 }
 
 void MainWindow::clearData()
@@ -841,13 +845,17 @@ void MainWindow::dropEvent(QDropEvent *e)
         const QString filename(e->mimeData()->urls().last().toLocalFile());
         QFileInfo fileInfo(filename);
         _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
-        if (fileInfo.completeSuffix() == QString("mbs"))
+        if (fileInfo.completeSuffix().toLower() == QString("mbs"))
         {
             loadProjectFile(filename);
         }
-        else if (fileInfo.completeSuffix() == QString("csv"))
+        else if (fileInfo.completeSuffix().toLower() == QString("csv"))
         {
             loadDataFile(filename);
+        }
+        else if (fileInfo.completeSuffix().toLower() == QString("mbc"))
+        {
+            showRegisterDialog(filename);
         }
         else
         {

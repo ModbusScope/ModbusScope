@@ -21,7 +21,6 @@ class MainWindow;
 class CommunicationManager;
 class QCustomPlot;
 class GraphDataModel;
-class RegisterDialog;
 class ConnectionDialog;
 class SettingsModel;
 class LogDialog;
@@ -60,6 +59,7 @@ private slots:
     void showConnectionDialog();
     void showLogDialog();
     void showRegisterDialog();
+    void showRegisterDialog(QString mbcFile);
     void clearData();
     void startScope();
     void stopScope();
@@ -109,7 +109,6 @@ private:
     LogDialog * _pLogDialog;
 
     GraphDataModel * _pGraphDataModel;
-    RegisterDialog * _pRegisterDialog;
 
     MarkerInfo * _pMarkerInfo;
 

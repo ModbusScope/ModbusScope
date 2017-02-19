@@ -16,8 +16,7 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     _pGraphDataModel = pGraphDataModel;
-
-    _pImportMbcDialog = new ImportMbcDialog(pGuiModel, pGraphDataModel, this);
+    _pGuiModel = pGuiModel;
 
     // Setup registerView
     _pUi->registerView->setModel(_pGraphDataModel);
@@ -46,10 +45,6 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     connect(_pUi->btnAdd, SIGNAL(released()), this, SLOT(addRegisterRow()));
     connect(_pUi->btnRemove, SIGNAL(released()), this, SLOT(removeRegisterRow()));
     connect(_pGraphDataModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(onRegisterInserted(QModelIndex,int,int)));
-
-    // Setup handler for dialog
-    connect(_pImportMbcDialog, SIGNAL(finished(int)), this, SLOT(handleRegisterImport(int)));
-
 }
 
 RegisterDialog::~RegisterDialog()
@@ -88,6 +83,17 @@ void RegisterDialog::done(int r)
     }
 }
 
+int RegisterDialog::exec()
+{
+    return QDialog::exec();
+}
+
+int RegisterDialog::exec(QString mbcFile)
+{
+    showImportDialog(mbcFile);
+
+    return exec();
+}
 
 void RegisterDialog::addRegisterRow()
 {
@@ -96,22 +102,23 @@ void RegisterDialog::addRegisterRow()
 
 void RegisterDialog::showImportDialog()
 {
-    _pImportMbcDialog->exec();
+    showImportDialog(QString(""));
 }
 
-void RegisterDialog::handleRegisterImport(int result)
+void RegisterDialog::showImportDialog(QString mbcPath)
 {
-    if (result == QDialog::Accepted)
+    ImportMbcDialog importMbcDialog(_pGuiModel, _pGraphDataModel, this);
+
+    if (importMbcDialog.exec(mbcPath) == QDialog::Accepted)
     {
         QList<GraphData> regList;
 
-        _pImportMbcDialog->selectedRegisterList(&regList);
+        importMbcDialog.selectedRegisterList(&regList);
 
         if (regList.size() > 0)
         {
             _pGraphDataModel->add(regList);
         }
-
     }
 }
 

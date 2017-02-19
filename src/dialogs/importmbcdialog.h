@@ -23,7 +23,8 @@ public:
     void selectedRegisterList(QList<GraphData> * pRegList);
 
 public slots:
-    int exec();
+    int exec(void);
+    int exec(QString mbcPath);
 
 private slots:
     void selectMbcFile();
