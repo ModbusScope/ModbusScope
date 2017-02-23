@@ -416,7 +416,15 @@ void MainWindow::showRegisterDialog(QString mbcFile)
     }
 
     RegisterDialog registerDialog(_pGuiModel, _pGraphDataModel, this);
-    registerDialog.exec(mbcFile);
+
+    if (mbcFile.isEmpty())
+    {
+        registerDialog.exec();
+    }
+    else
+    {
+        registerDialog.exec(mbcFile);
+    }
 }
 
 void MainWindow::clearData()
