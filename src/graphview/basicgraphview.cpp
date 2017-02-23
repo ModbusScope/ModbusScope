@@ -54,8 +54,7 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
 
    _pPlot->yAxis->setRange(0, 65535);
 
-   // Tooltip is enabled
-   _bEnableTooltip = true;
+   connect(_pPlot->xAxis, SIGNAL(rangeChanged(QCPRange, QCPRange)), this, SLOT(updateTooltip()));
 
    // Samples are enabled
    _bEnableSampleHighlight = true;
@@ -125,9 +124,9 @@ void BasicGraphView::autoScaleYAxis()
     _pPlot->replot();
 }
 
-void BasicGraphView::enableValueTooltip()
+void BasicGraphView::updateTooltip()
 {
-    _bEnableTooltip = _pGuiModel->valueTooltip();
+    paintValueToolTip(_pPlot->mapFromGlobal(QCursor::pos()));
 }
 
 void BasicGraphView::enableSamplePoints()
@@ -522,16 +521,17 @@ void BasicGraphView::mouseMove(QMouseEvent *event)
     }
     else
     {
-        paintValueToolTip(event);
+        paintValueToolTip(event->pos());
     }
 }
 
-void BasicGraphView::paintValueToolTip(QMouseEvent *event)
+void BasicGraphView::paintValueToolTip(QPoint pos)
 {
-    if  (_bEnableTooltip && (_pPlot->graphCount() > 0))
+
+    if  (_pGuiModel->cursorValues() && (_pPlot->graphCount() > 0))
     {
 
-        const double xPos = _pPlot->xAxis->pixelToCoord(event->pos().x());
+        const double xPos = _pPlot->xAxis->pixelToCoord(pos.x());
         QCPGraphDataContainer::const_iterator tooltipIt = getClosestPoint(xPos);
 
         bool bValid;
@@ -556,7 +556,7 @@ void BasicGraphView::paintValueToolTip(QMouseEvent *event)
                 }
             }
 
-            QToolTip::showText(_pPlot->mapToGlobal(event->pos()), toolText, _pPlot);
+            QToolTip::showText(_pPlot->mapToGlobal(pos), toolText, _pPlot);
 
         }
         else
@@ -612,7 +612,7 @@ void BasicGraphView::handleSamplePoints()
         }
     }
 
-    /* TODO: add hsyteresis to highlight sample points */
+    /* TODO: add hysteresis to highlight sample points */
     highlightSamples(bHighlight);
 }
 

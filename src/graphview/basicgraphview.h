@@ -36,7 +36,7 @@ public slots:
     virtual void autoScaleXAxis();
     virtual void autoScaleYAxis();
 
-    virtual void enableValueTooltip();
+    virtual void updateTooltip();
     virtual void enableSamplePoints();
     virtual void clearGraph(const quint32 graphIdx);
     virtual void updateGraphs();
@@ -60,17 +60,17 @@ private slots:
     void mouseRelease();
     void mouseWheel();
     void mouseMove(QMouseEvent *event);
-    void paintValueToolTip(QMouseEvent *event);
 
 protected slots:
     virtual void handleSamplePoints();
     virtual void axisDoubleClicked(QCPAxis * axis);
 
 protected:
+    void paintValueToolTip(QPoint pos);
+
     GuiModel * _pGuiModel;
     GraphDataModel * _pGraphDataModel;
     MyQCustomPlot * _pPlot;
-    bool _bEnableTooltip;
     bool _bEnableSampleHighlight;
 
 private:

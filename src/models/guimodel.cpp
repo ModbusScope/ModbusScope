@@ -40,7 +40,7 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
     _projectFilePath = "";
     _dataFilePath = "";
     _bHighlightSamples = true;
-    _bValueTooltip = false;
+    _bCursorValues = false;
     _guiState = INIT;
     _windowTitle = _cWindowTitle;
 
@@ -82,7 +82,7 @@ void GuiModel::triggerUpdate(void)
 {
     emit frontGraphChanged();
     emit highlightSamplesChanged();
-    emit valueTooltipChanged();
+    emit cursorValuesChanged();
     emit windowTitleChanged();
     emit communicationStatsChanged();
     emit yAxisMinMaxchanged();
@@ -132,17 +132,17 @@ void GuiModel::setHighlightSamples(bool bHighlightSamples)
     }
 }
 
-bool GuiModel::valueTooltip() const
+bool GuiModel::cursorValues() const
 {
-    return _bValueTooltip;
+    return _bCursorValues;
 }
 
-void GuiModel::setValueTooltip(bool bValueTooltip)
+void GuiModel::setCursorValues(bool bCursorValues)
 {
-    if (_bValueTooltip != bValueTooltip)
+    if (_bCursorValues != bCursorValues)
     {
-        _bValueTooltip = bValueTooltip;
-         emit valueTooltipChanged();
+        _bCursorValues = bCursorValues;
+         emit cursorValuesChanged();
     }
 }
 

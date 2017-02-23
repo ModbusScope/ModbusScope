@@ -36,6 +36,10 @@ public:
     explicit MainWindow(QStringList cmdArguments, QWidget *parent = 0);
     ~MainWindow();
 
+protected:
+    void keyPressEvent(QKeyEvent* event);
+    void keyReleaseEvent(QKeyEvent* event);
+
 signals:
 
     void stopThread();
@@ -71,7 +75,6 @@ private slots:
 
     void updateBringToFrontGrapMenu();
     void updateHighlightSampleMenu();
-    void updateValueTooltipMenu();
     void rebuildGraphMenu();
     void updateWindowTitle();
     void updatexAxisSlidingMode();

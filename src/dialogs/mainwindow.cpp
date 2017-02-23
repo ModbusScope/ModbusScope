@@ -61,7 +61,6 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionExportImage, SIGNAL(triggered()), this, SLOT(selectImageExportFile()));
     connect(_pUi->actionExportSettings, SIGNAL(triggered()), this, SLOT(selectSettingsExportFile()));
     connect(_pUi->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
-    connect(_pUi->actionShowValueTooltip, SIGNAL(toggled(bool)), _pGuiModel, SLOT(setValueTooltip(bool)));
     connect(_pUi->actionHighlightSamplePoints, SIGNAL(toggled(bool)), _pGuiModel, SLOT(setHighlightSamples(bool)));
     connect(_pUi->actionClearData, SIGNAL(triggered()), this, SLOT(clearData()));
     connect(_pUi->actionClearMarkers, SIGNAL(triggered()), _pGuiModel, SLOT(clearMarkersState()));
@@ -74,8 +73,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGuiModel, SIGNAL(frontGraphChanged()), _pGraphView, SLOT(bringToFront()));
     connect(_pGuiModel, SIGNAL(highlightSamplesChanged()), this, SLOT(updateHighlightSampleMenu()));
     connect(_pGuiModel, SIGNAL(highlightSamplesChanged()), _pGraphView, SLOT(enableSamplePoints()));
-    connect(_pGuiModel, SIGNAL(valueTooltipChanged()), this, SLOT(updateValueTooltipMenu()));
-    connect(_pGuiModel, SIGNAL(valueTooltipChanged()), _pGraphView, SLOT(enableValueTooltip()));
+    connect(_pGuiModel, SIGNAL(cursorValuesChanged()), _pGraphView, SLOT(updateTooltip()));
     connect(_pGuiModel, SIGNAL(windowTitleChanged()), this, SLOT(updateWindowTitle()));
     connect(_pGuiModel, SIGNAL(projectFilePathChanged()), this, SLOT(projectFileLoaded()));
     connect(_pGuiModel, SIGNAL(dataFilePathChanged()), this, SLOT(dataFileLoaded()));
@@ -230,6 +228,26 @@ MainWindow::~MainWindow()
     delete _pGraphShowHide;
     delete _pGraphBringToFront;
     delete _pUi;
+}
+
+void MainWindow::keyPressEvent(QKeyEvent* event)
+{
+    if (event->modifiers() & Qt::ControlModifier)
+    {
+        _pGuiModel->setCursorValues(true);
+    }
+
+    QMainWindow::keyPressEvent(event);
+}
+
+void MainWindow::keyReleaseEvent(QKeyEvent* event)
+{
+    if (!(event->modifiers() & Qt::ControlModifier))
+    {
+        _pGuiModel->setCursorValues(false);
+    }
+
+    QMainWindow::keyReleaseEvent(event);
 }
 
 void MainWindow::selectProjectSettingFile()
@@ -554,12 +572,6 @@ void MainWindow::updateHighlightSampleMenu()
 {
     /* set menu to checked */
     _pUi->actionHighlightSamplePoints->setChecked(_pGuiModel->highlightSamples());
-}
-
-void MainWindow::updateValueTooltipMenu()
-{
-    /* set menu to checked */
-    _pUi->actionShowValueTooltip->setChecked(_pGuiModel->valueTooltip());
 }
 
 void MainWindow::rebuildGraphMenu()
