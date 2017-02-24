@@ -27,6 +27,7 @@ public:
     virtual ~BasicGraphView();
 
     qint32 graphDataSize();
+    bool valuesUnderCursor(QList<double> &valueList);
 
 public slots:
 
@@ -52,6 +53,7 @@ public slots:
     virtual void rescalePlot();
 
 signals:
+    void cursorValueUpdate();
 
 private slots:
     void selectionChanged();
@@ -66,7 +68,7 @@ protected slots:
     virtual void axisDoubleClicked(QCPAxis * axis);
 
 protected:
-    void paintValueToolTip(QPoint pos);
+    void paintTimeStampToolTip(QPoint pos);
 
     GuiModel * _pGuiModel;
     GraphDataModel * _pGraphDataModel;
