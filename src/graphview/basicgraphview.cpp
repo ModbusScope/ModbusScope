@@ -473,20 +473,23 @@ void BasicGraphView::mousePress(QMouseEvent *event)
        _pPlot->setInteraction(QCP::iRangeDrag, false);
        _pPlot->setInteraction(QCP::iRangeZoom, false);
 
-       const double xPos = _pPlot->xAxis->pixelToCoord(event->pos().x());
-       QCPGraphDataContainer::const_iterator markerPosIt = getClosestPoint(xPos);
+       if (_pPlot->graphCount() > 0)
+       {
+           const double xPos = _pPlot->xAxis->pixelToCoord(event->pos().x());
+           QCPGraphDataContainer::const_iterator markerPosIt = getClosestPoint(xPos);
 
-       if (event->button() & Qt::LeftButton)
-       {
-            _pGuiModel->setStartMarkerPos(markerPosIt->key);
-       }
-       else if (event->button() & Qt::RightButton)
-       {
-            _pGuiModel->setEndMarkerPos(markerPosIt->key);
-       }
-       else
-       {
-           // No function
+           if (event->button() & Qt::LeftButton)
+           {
+                _pGuiModel->setStartMarkerPos(markerPosIt->key);
+           }
+           else if (event->button() & Qt::RightButton)
+           {
+                _pGuiModel->setEndMarkerPos(markerPosIt->key);
+           }
+           else
+           {
+               // No function
+           }
        }
    }
    else
