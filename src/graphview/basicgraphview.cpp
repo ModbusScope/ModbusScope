@@ -105,29 +105,38 @@ bool BasicGraphView::valuesUnderCursor(QList<double> &valueList)
     bool bRet = true;
 
     const double xPos = _pPlot->xAxis->pixelToCoord(_pPlot->mapFromGlobal(QCursor::pos()).x());
-    QCPGraphDataContainer::const_iterator tooltipIt = getClosestPoint(xPos);
 
-    bool bValid;
-    const QCPRange keyRange = _pPlot->graph(0)->data()->keyRange(bValid);
-
-    // Check all graphs
-    for (qint32 activeGraphIndex = 0; activeGraphIndex < _pPlot->graphCount(); activeGraphIndex++)
+    if (_pPlot->graphCount() > 0)
     {
-        if (
-                _pPlot->underMouse()
-                && bValid
-                && keyRange.contains(xPos)
-            )
+        QCPGraphDataContainer::const_iterator tooltipIt = getClosestPoint(xPos);
+
+        bool bValid;
+        const QCPRange keyRange = _pPlot->graph(0)->data()->keyRange(bValid);
+
+        // Check all graphs
+        for (qint32 activeGraphIndex = 0; activeGraphIndex < _pPlot->graphCount(); activeGraphIndex++)
         {
-            const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeGraphIndex);
-            QCPGraphDataContainer::const_iterator graphDataIt = _pGraphDataModel->dataMap(graphIdx).data()->findBegin(tooltipIt->key, false);
-            valueList.append(graphDataIt->value);
+            if (
+                    _pPlot->underMouse()
+                    && bValid
+                    && keyRange.contains(xPos)
+                )
+            {
+                const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeGraphIndex);
+                QCPGraphDataContainer::const_iterator graphDataIt = _pGraphDataModel->dataMap(graphIdx).data()->findBegin(tooltipIt->key, false);
+                valueList.append(graphDataIt->value);
+            }
+            else
+            {
+                valueList.append(0);
+                bRet = false;
+            }
         }
-        else
-        {
-            valueList.append(0);
-            bRet = false;
-        }
+    }
+    else
+    {
+        valueList.append(0);
+        bRet = false;
     }
 
     return bRet;
