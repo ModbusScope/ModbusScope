@@ -361,6 +361,10 @@ void BasicGraphView::setEndMarker()
     _pPlot->replot();
 }
 
+//Hi! I'm sorry that I unceremoniously forge your repository, but I'm faced with a problem that I am not able to solve. 
+//When switching on OpenGL in my project, the porridge begins, as in the picture on the link, did you encounter such or have 
+//any considerations? Example from QCustomPlot
+//https://pp.userapi.com/c837424/v837424869/488e2/SZoA5L5n2Jw.jpg
 void BasicGraphView::setOpenGl(bool bState)
 {
     _pPlot->setOpenGl(bState);
