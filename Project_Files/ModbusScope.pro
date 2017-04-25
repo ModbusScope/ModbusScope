@@ -18,9 +18,9 @@ LIBS += -lws2_32
 RC_ICONS = ../icon/application.ico
 }
 
-VERSION = 1.2.0
+VERSION = 1.3.0
 
-DEFINES += DEBUG
+DEFINES += NDEBUG
 
 DEFINES += GIT_HASH="\\\"$(shell git --git-dir \""$$PWD/../.git"\" rev-parse --short HEAD)\\\""
 DEFINES += GIT_BRANCH="\\\"$(shell git --git-dir \""$$PWD/../.git"\" rev-parse --abbrev-ref HEAD)\\\""
@@ -51,7 +51,6 @@ SOURCES +=  \
     ../src/importexport/datafileexporter.cpp \
     ../src/importexport/datafileparser.cpp \
     ../src/importexport/projectfileparser.cpp \
-    ../src/importexport/registerdata.cpp \
     ../src/dialogs/connectiondialog.cpp \
     ../src/dialogs/logdialog.cpp \
     ../src/dialogs/mainwindow.cpp \
@@ -78,7 +77,9 @@ SOURCES +=  \
     ../src/importexport/projectfileexporter.cpp \
     ../src/dialogs/markerinfodialog.cpp \
     ../src/graphview/myqcpaxistickertime.cpp \
-    ../src/graphview/myqcpaxis.cpp
+    ../src/graphview/myqcpaxis.cpp \
+    ../src/dialogs/importmbcdialog.cpp \
+    ../src/importexport/mbcfileimporter.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
@@ -86,7 +87,8 @@ FORMS    += \
     ../src/dialogs/mainwindow.ui \
     ../src/dialogs/registerdialog.ui \
     ../src/dialogs/aboutdialog.ui \
-    ../src/dialogs/markerinfodialog.ui
+    ../src/dialogs/markerinfodialog.ui \
+    ../src/dialogs/importmbcdialog.ui
 
 HEADERS += \
     ../libraries/libmodbus/src/modbus-private.h \
@@ -100,7 +102,6 @@ HEADERS += \
     ../src/importexport/datafileexporter.h \
     ../src/importexport/datafileparser.h \
     ../src/importexport/projectfileparser.h \
-    ../src/importexport/registerdata.h \
     ../src/dialogs/connectiondialog.h \
     ../src/dialogs/logdialog.h \
     ../src/dialogs/mainwindow.h \
@@ -127,7 +128,9 @@ HEADERS += \
     ../src/importexport/projectfileexporter.h \
     ../src/dialogs/markerinfodialog.h \
     ../src/graphview/myqcpaxistickertime.h \
-    ../src/graphview/myqcpaxis.h
+    ../src/graphview/myqcpaxis.h \
+    ../src/dialogs/importmbcdialog.h \
+    ../src/importexport/mbcfileimporter.h
 
 RESOURCES += \
     ../resources/resource.qrc

@@ -9,6 +9,7 @@
 #include "graphdatamodel.h"
 #include "util.h"
 #include "legend.h"
+#include "basicgraphview.h"
 
 Legend::Legend(QWidget *parent) : QFrame(parent)
 {
@@ -21,6 +22,11 @@ Legend::Legend(QWidget *parent) : QFrame(parent)
 
     _pLayout->addWidget(_pNoGraphs);
     setLayout(_pLayout);
+}
+
+void Legend::setGraphview(BasicGraphView * pGraphView)
+{
+    _pGraphView = pGraphView;
 }
 
 void Legend::setModels(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel)
@@ -61,20 +67,48 @@ void Legend::mouseDoubleClickEvent(QMouseEvent * event)
     }
 }
 
-void Legend::addDataToLegend(QList<bool> successList, QList<double> valueList)
+void Legend::addLastReceivedDataToLegend(QList<bool> successList, QList<double> valueList)
 {
+    _lastReceivedValueList.clear();
+
     for (qint32 i = 0; i < valueList.size(); i++)
     {
-        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(i);
         if (successList[i])
         {
-           // No error
-          _items[i]->setText(QString("(%1) %2").arg(Util::formatDoubleForExport(valueList[i])).arg(_pGraphDataModel->label(graphIdx)));
+            // No error
+            _lastReceivedValueList.append(QString("(%1)").arg(Util::formatDoubleForExport(valueList[i])));
         }
         else
         {
             /* Show error */
-          _items[i]->setText(QString("(-) %1").arg(_pGraphDataModel->label(graphIdx)));
+            _lastReceivedValueList.append("(-)");
+        }
+    }
+
+    updateDataInLegend();
+}
+
+void Legend::updateDataInLegend()
+{
+    QStringList legendDataValues;
+
+    /* Select correct values to show */
+    if (_pGuiModel->cursorValues())
+    {
+        updateCursorDataInLegend(legendDataValues);
+    }
+    else
+    {
+        legendDataValues = _lastReceivedValueList;
+    }
+
+
+    if (_items.size() == legendDataValues.size())
+    {
+        for (qint32 i = 0; i < _items.size(); i++)
+        {
+            const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(i);
+            _items[i]->setText(QString("%1 %2").arg(legendDataValues[i]).arg(_pGraphDataModel->label(graphIdx)));
         }
     }
 }
@@ -149,6 +183,28 @@ void Legend::changeGraphLabel(const quint32 graphIdx)
     if (activeGraphIdx != -1)
     {
        _items[activeGraphIdx]->setText(_pGraphDataModel->label(graphIdx));
+    }
+}
+
+void Legend::updateCursorDataInLegend(QStringList &cursorValueList)
+{
+    QList<double> valueList;
+    const bool bInRange = _pGraphView->valuesUnderCursor(valueList);
+
+    cursorValueList.clear();
+
+    for (qint32 i = 0; i < valueList.size(); i++)
+    {
+        if (bInRange)
+        {
+            // No error
+            cursorValueList.append(QString("[%1]").arg(Util::formatDoubleForExport(valueList[i])));
+        }
+        else
+        {
+            /* Show error */
+            cursorValueList.append("[?]");
+        }
     }
 }
 

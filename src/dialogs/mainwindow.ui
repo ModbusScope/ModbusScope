@@ -46,7 +46,7 @@
      <x>0</x>
      <y>0</y>
      <width>839</width>
-     <height>19</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -103,7 +103,6 @@
     <addaction name="menuBringToFront"/>
     <addaction name="menuShowHide"/>
     <addaction name="separator"/>
-    <addaction name="actionShowValueTooltip"/>
     <addaction name="actionHighlightSamplePoints"/>
     <addaction name="separator"/>
     <addaction name="actionClearData"/>
@@ -596,20 +595,6 @@
    </property>
    <property name="text">
     <string>Import Data File...</string>
-   </property>
-  </action>
-  <action name="actionShowValueTooltip">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Show Value Tooltip</string>
    </property>
   </action>
   <action name="actionHighlightSamplePoints">

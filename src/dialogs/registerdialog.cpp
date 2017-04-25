@@ -3,9 +3,10 @@
 #include <QColorDialog>
 
 #include "registerdialog.h"
+#include "importmbcdialog.h"
 #include "ui_registerdialog.h"
 
-RegisterDialog::RegisterDialog(GraphDataModel * pGraphDataModel,  QWidget *parent) :
+RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel,  QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::RegisterDialog)
 {
@@ -15,6 +16,7 @@ RegisterDialog::RegisterDialog(GraphDataModel * pGraphDataModel,  QWidget *paren
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     _pGraphDataModel = pGraphDataModel;
+    _pGuiModel = pGuiModel;
 
     // Setup registerView
     _pUi->registerView->setModel(_pGraphDataModel);
@@ -39,10 +41,10 @@ RegisterDialog::RegisterDialog(GraphDataModel * pGraphDataModel,  QWidget *paren
 
 
     // Setup handler for buttons
+    connect(_pUi->btnImportFromMbc, SIGNAL(released()), this, SLOT(showImportDialog()));
     connect(_pUi->btnAdd, SIGNAL(released()), this, SLOT(addRegisterRow()));
     connect(_pUi->btnRemove, SIGNAL(released()), this, SLOT(removeRegisterRow()));
     connect(_pGraphDataModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(onRegisterInserted(QModelIndex,int,int)));
-
 }
 
 RegisterDialog::~RegisterDialog()
@@ -58,7 +60,7 @@ void RegisterDialog::done(int r)
     {
         quint16 duplicateReg = 0;
         quint16 duplicateBitMask = 0;
-        if (!_pGraphDataModel->areExclusive(&duplicateReg, &duplicateBitMask))
+        if (!_pGraphDataModel->getDuplicate(&duplicateReg, &duplicateBitMask))
         {
             bValid = false;
 
@@ -81,10 +83,43 @@ void RegisterDialog::done(int r)
     }
 }
 
+int RegisterDialog::exec()
+{
+    return QDialog::exec();
+}
+
+int RegisterDialog::exec(QString mbcFile)
+{
+    showImportDialog(mbcFile);
+
+    return exec();
+}
 
 void RegisterDialog::addRegisterRow()
 {
     _pGraphDataModel->insertRow(_pGraphDataModel->size());
+}
+
+void RegisterDialog::showImportDialog()
+{
+    showImportDialog(QString(""));
+}
+
+void RegisterDialog::showImportDialog(QString mbcPath)
+{
+    ImportMbcDialog importMbcDialog(_pGuiModel, _pGraphDataModel, this);
+
+    if (importMbcDialog.exec(mbcPath) == QDialog::Accepted)
+    {
+        QList<GraphData> regList;
+
+        importMbcDialog.selectedRegisterList(&regList);
+
+        if (regList.size() > 0)
+        {
+            _pGraphDataModel->add(regList);
+        }
+    }
 }
 
 void RegisterDialog::activatedCell(QModelIndex modelIndex)

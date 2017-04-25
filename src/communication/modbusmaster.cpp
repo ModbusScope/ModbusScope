@@ -24,7 +24,9 @@ ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, GuiModel * pGuiModel,
 
 ModbusMaster::~ModbusMaster()
 {
-
+    _pThread = NULL;
+    _pSettingsModel = NULL;
+    _pGuiModel = NULL;
 }
 
 void ModbusMaster::startThread()
@@ -50,7 +52,10 @@ void ModbusMaster::wait()
 
 void ModbusMaster::stopThread()
 {
-    _pThread->quit();
+    if(_pThread)
+    {
+        _pThread->quit();
+    }
 }
 
 void ModbusMaster::stopped()

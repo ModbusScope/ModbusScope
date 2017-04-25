@@ -1,4 +1,6 @@
 
+#include <limits>
+
 #include "guimodel.h"
 #include "graphdatamodel.h"
 
@@ -266,7 +268,7 @@ double MarkerInfoItem::calculateMarkerExpressionValue(quint32 expressionMask)
         }
         else if (expressionMask == GuiModel::cMinimumMask)
         {
-            double min = 0xFFFFFFFF;
+            double min = std::numeric_limits<double>::max();
 
             for (dataPoint = start; dataPoint != end; dataPoint++)
             {
@@ -280,7 +282,7 @@ double MarkerInfoItem::calculateMarkerExpressionValue(quint32 expressionMask)
         }
         else if (expressionMask == GuiModel::cMaximumMask)
         {
-            double max = -1 * 0xFFFFFFFF;;
+            double max = std::numeric_limits<double>::lowest();
 
             for (dataPoint = start; dataPoint != end; dataPoint++)
             {

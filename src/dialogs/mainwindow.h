@@ -21,7 +21,6 @@ class MainWindow;
 class CommunicationManager;
 class QCustomPlot;
 class GraphDataModel;
-class RegisterDialog;
 class ConnectionDialog;
 class SettingsModel;
 class LogDialog;
@@ -36,6 +35,10 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QStringList cmdArguments, QWidget *parent = 0);
     ~MainWindow();
+
+protected:
+    void keyPressEvent(QKeyEvent* event);
+    void keyReleaseEvent(QKeyEvent* event);
 
 signals:
 
@@ -60,6 +63,7 @@ private slots:
     void showConnectionDialog();
     void showLogDialog();
     void showRegisterDialog();
+    void showRegisterDialog(QString mbcFile);
     void clearData();
     void startScope();
     void stopScope();
@@ -71,7 +75,6 @@ private slots:
 
     void updateBringToFrontGrapMenu();
     void updateHighlightSampleMenu();
-    void updateValueTooltipMenu();
     void rebuildGraphMenu();
     void updateWindowTitle();
     void updatexAxisSlidingMode();
@@ -109,7 +112,6 @@ private:
     LogDialog * _pLogDialog;
 
     GraphDataModel * _pGraphDataModel;
-    RegisterDialog * _pRegisterDialog;
 
     MarkerInfo * _pMarkerInfo;
 

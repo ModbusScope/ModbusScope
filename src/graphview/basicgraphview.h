@@ -27,6 +27,7 @@ public:
     virtual ~BasicGraphView();
 
     qint32 graphDataSize();
+    bool valuesUnderCursor(QList<double> &valueList);
 
 public slots:
 
@@ -36,7 +37,7 @@ public slots:
     virtual void autoScaleXAxis();
     virtual void autoScaleYAxis();
 
-    virtual void enableValueTooltip();
+    virtual void updateTooltip();
     virtual void enableSamplePoints();
     virtual void clearGraph(const quint32 graphIdx);
     virtual void updateGraphs();
@@ -52,6 +53,7 @@ public slots:
     virtual void rescalePlot();
 
 signals:
+    void cursorValueUpdate();
 
 private slots:
     void selectionChanged();
@@ -60,17 +62,17 @@ private slots:
     void mouseRelease();
     void mouseWheel();
     void mouseMove(QMouseEvent *event);
-    void paintValueToolTip(QMouseEvent *event);
 
 protected slots:
     virtual void handleSamplePoints();
     virtual void axisDoubleClicked(QCPAxis * axis);
 
 protected:
+    void paintTimeStampToolTip(QPoint pos);
+
     GuiModel * _pGuiModel;
     GraphDataModel * _pGraphDataModel;
     MyQCustomPlot * _pPlot;
-    bool _bEnableTooltip;
     bool _bEnableSampleHighlight;
 
 private:

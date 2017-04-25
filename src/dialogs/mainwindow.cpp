@@ -2,7 +2,6 @@
 #include "ui_mainwindow.h"
 #include "qcustomplot.h"
 #include "communicationmanager.h"
-#include "registerdata.h"
 #include "graphdatamodel.h"
 #include "graphdata.h"
 #include "registerdialog.h"
@@ -38,7 +37,6 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
 
     _pGraphDataModel = new GraphDataModel();
-    _pRegisterDialog = new RegisterDialog(_pGraphDataModel, this);
 
     _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pGraphDataModel);
     _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pUi->customPlot, this);
@@ -48,6 +46,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     _pLegend = _pUi->legend;
     _pLegend->setModels(_pGuiModel, _pGraphDataModel);
+    _pLegend->setGraphview(_pGraphView);
 
     _pMarkerInfo = _pUi->markerInfo;
     _pMarkerInfo->setModel(_pGuiModel, _pGraphDataModel);
@@ -63,7 +62,6 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionExportImage, SIGNAL(triggered()), this, SLOT(selectImageExportFile()));
     connect(_pUi->actionExportSettings, SIGNAL(triggered()), this, SLOT(selectSettingsExportFile()));
     connect(_pUi->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
-    connect(_pUi->actionShowValueTooltip, SIGNAL(toggled(bool)), _pGuiModel, SLOT(setValueTooltip(bool)));
     connect(_pUi->actionHighlightSamplePoints, SIGNAL(toggled(bool)), _pGuiModel, SLOT(setHighlightSamples(bool)));
     connect(_pUi->actionClearData, SIGNAL(triggered()), this, SLOT(clearData()));
     connect(_pUi->actionClearMarkers, SIGNAL(triggered()), _pGuiModel, SLOT(clearMarkersState()));
@@ -76,8 +74,9 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGuiModel, SIGNAL(frontGraphChanged()), _pGraphView, SLOT(bringToFront()));
     connect(_pGuiModel, SIGNAL(highlightSamplesChanged()), this, SLOT(updateHighlightSampleMenu()));
     connect(_pGuiModel, SIGNAL(highlightSamplesChanged()), _pGraphView, SLOT(enableSamplePoints()));
-    connect(_pGuiModel, SIGNAL(valueTooltipChanged()), this, SLOT(updateValueTooltipMenu()));
-    connect(_pGuiModel, SIGNAL(valueTooltipChanged()), _pGraphView, SLOT(enableValueTooltip()));
+    connect(_pGuiModel, SIGNAL(cursorValuesChanged()), _pGraphView, SLOT(updateTooltip()));
+    connect(_pGuiModel, SIGNAL(cursorValuesChanged()), _pGraphView, SLOT(updateDataInLegend()));
+
     connect(_pGuiModel, SIGNAL(windowTitleChanged()), this, SLOT(updateWindowTitle()));
     connect(_pGuiModel, SIGNAL(projectFilePathChanged()), this, SLOT(projectFileLoaded()));
     connect(_pGuiModel, SIGNAL(dataFilePathChanged()), this, SLOT(dataFileLoaded()));
@@ -132,6 +131,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGraphDataModel, SIGNAL(added(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
     connect(_pGraphDataModel, SIGNAL(removed(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
 
+    // Update cursor values in legend
+    connect(_pGraphView, SIGNAL(cursorValueUpdate()), _pLegend, SLOT(updateDataInLegend()));
 
     _pGraphShowHide = _pUi->menuShowHide;
     _pGraphBringToFront = _pUi->menuBringToFront;
@@ -190,7 +191,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
 
     connect(_pConnMan, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pGraphView, SLOT(plotResults(QList<bool>, QList<double>)));
-    connect(_pConnMan, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pLegend, SLOT(addDataToLegend(QList<bool>, QList<double>)));
+    connect(_pConnMan, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pLegend, SLOT(addLastReceivedDataToLegend(QList<bool>, QList<double>)));
 
     /* Update interface via model */
     _pGuiModel->triggerUpdate();
@@ -226,13 +227,32 @@ MainWindow::~MainWindow()
 {
     delete _pGraphView;
     delete _pConnectionDialog;
-    delete _pRegisterDialog;
     delete _pConnMan;
     delete _pSettingsModel;
     delete _pGuiModel;
     delete _pGraphShowHide;
     delete _pGraphBringToFront;
     delete _pUi;
+}
+
+void MainWindow::keyPressEvent(QKeyEvent* event)
+{
+    if (event->modifiers() & Qt::ControlModifier)
+    {
+        _pGuiModel->setCursorValues(true);
+    }
+
+    QMainWindow::keyPressEvent(event);
+}
+
+void MainWindow::keyReleaseEvent(QKeyEvent* event)
+{
+    if (!(event->modifiers() & Qt::ControlModifier))
+    {
+        _pGuiModel->setCursorValues(false);
+    }
+
+    QMainWindow::keyReleaseEvent(event);
 }
 
 void MainWindow::selectProjectSettingFile()
@@ -406,6 +426,11 @@ void MainWindow::showLogDialog()
 
 void MainWindow::showRegisterDialog()
 {
+    showRegisterDialog(QString(""));
+}
+
+void MainWindow::showRegisterDialog(QString mbcFile)
+{
     if (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
     {
         _pGraphDataModel->clear();
@@ -413,7 +438,16 @@ void MainWindow::showRegisterDialog()
         _pGuiModel->setGuiState(GuiModel::INIT);
     }
 
-    _pRegisterDialog->exec();
+    RegisterDialog registerDialog(_pGuiModel, _pGraphDataModel, this);
+
+    if (mbcFile.isEmpty())
+    {
+        registerDialog.exec();
+    }
+    else
+    {
+        registerDialog.exec(mbcFile);
+    }
 }
 
 void MainWindow::clearData()
@@ -543,12 +577,6 @@ void MainWindow::updateHighlightSampleMenu()
 {
     /* set menu to checked */
     _pUi->actionHighlightSamplePoints->setChecked(_pGuiModel->highlightSamples());
-}
-
-void MainWindow::updateValueTooltipMenu()
-{
-    /* set menu to checked */
-    _pUi->actionShowValueTooltip->setChecked(_pGuiModel->valueTooltip());
 }
 
 void MainWindow::rebuildGraphMenu()
@@ -842,13 +870,17 @@ void MainWindow::dropEvent(QDropEvent *e)
         const QString filename(e->mimeData()->urls().last().toLocalFile());
         QFileInfo fileInfo(filename);
         _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
-        if (fileInfo.completeSuffix() == QString("mbs"))
+        if (fileInfo.completeSuffix().toLower() == QString("mbs"))
         {
             loadProjectFile(filename);
         }
-        else if (fileInfo.completeSuffix() == QString("csv"))
+        else if (fileInfo.completeSuffix().toLower() == QString("csv"))
         {
             loadDataFile(filename);
+        }
+        else if (fileInfo.completeSuffix().toLower() == QString("mbc"))
+        {
+            showRegisterDialog(filename);
         }
         else
         {

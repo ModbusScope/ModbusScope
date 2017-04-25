@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include "basicgraphview.h"
-#include "registerdata.h"
 
 class GuiModel : public QObject
 {
@@ -38,7 +37,7 @@ public:
 
     qint32 frontGraph() const;
     bool highlightSamples() const;
-    bool valueTooltip() const;
+    bool cursorValues() const;
     QString windowTitle();
     QString projectFilePath();
     QString dataFilePath();
@@ -66,7 +65,7 @@ public:
     void setMarkerExpressionCustomScript(QString path);
 
 public slots:
-    void setValueTooltip(bool bValueTooltip);
+    void setCursorValues(bool bCursorValues);
     void setHighlightSamples(bool bHighlightSamples);
     void setFrontGraph(const qint32 &frontGraph);
 
@@ -88,7 +87,7 @@ signals:
 
     void frontGraphChanged();
     void highlightSamplesChanged();
-    void valueTooltipChanged();
+    void cursorValuesChanged();
     void windowTitleChanged();
     void xAxisScalingChanged();
     void xAxisSlidingIntervalChanged();
@@ -137,7 +136,7 @@ private:
     QString _lastDir; // Last directory opened for import/export/load project
 
     bool _bHighlightSamples;
-    bool _bValueTooltip;
+    bool _bCursorValues;
     quint32 _guiState;
 
     bool _bMarkerState;

@@ -660,7 +660,7 @@ void GraphDataModel::activeGraphIndexList(QList<quint16> * pList)
     qSort(*pList);
 }
 
-bool GraphDataModel::areExclusive(quint16 * pRegister, quint16 * pBitmask)
+bool GraphDataModel::getDuplicate(quint16 * pRegister, quint16 * pBitmask)
 {
     for (qint32 idx = 0; idx < (_graphData.size() - 1); idx++) // Don't need to check last entry
     {
@@ -675,6 +675,22 @@ bool GraphDataModel::areExclusive(quint16 * pRegister, quint16 * pBitmask)
                 *pBitmask = _graphData[idx].bitmask();
                 return false;
             }
+        }
+    }
+
+    return true;
+}
+
+bool GraphDataModel::isPresent(quint16 addr, quint16 bitmask)
+{
+    for (qint32 idx = 0; idx < _graphData.size(); idx++)
+    {
+        if (
+            (_graphData[idx].registerAddress() == addr)
+            && (_graphData[idx].bitmask() == bitmask)
+        )
+        {
+            return false;
         }
     }
 

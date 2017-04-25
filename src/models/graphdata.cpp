@@ -6,7 +6,7 @@ GraphData::GraphData()
     _label = QString("Unknown register");
     _color = "-1"; // Invalid color
     _bActive = true;
-    _bUnsigned = false;
+    _bUnsigned = true;
     _registerAddress = 0;
     _bitmask = 0xFFFF;
     _divideFactor = 1;
