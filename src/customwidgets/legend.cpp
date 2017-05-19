@@ -76,12 +76,12 @@ void Legend::addLastReceivedDataToLegend(QList<bool> successList, QList<double> 
         if (successList[i])
         {
             // No error
-            _lastReceivedValueList.append(QString("(%1)").arg(Util::formatDoubleForExport(valueList[i])));
+            _lastReceivedValueList.append(QString("(%1) ").arg(Util::formatDoubleForExport(valueList[i])));
         }
         else
         {
             /* Show error */
-            _lastReceivedValueList.append("(-)");
+            _lastReceivedValueList.append("(-) ");
         }
     }
 
@@ -108,7 +108,7 @@ void Legend::updateDataInLegend()
         for (qint32 i = 0; i < _items.size(); i++)
         {
             const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(i);
-            _items[i]->setText(QString("%1 %2").arg(legendDataValues[i]).arg(_pGraphDataModel->label(graphIdx)));
+            _items[i]->setText(QString("%1%2").arg(legendDataValues[i]).arg(_pGraphDataModel->label(graphIdx)));
         }
     }
 }
@@ -198,12 +198,12 @@ void Legend::updateCursorDataInLegend(QStringList &cursorValueList)
         if (bInRange)
         {
             // No error
-            cursorValueList.append(QString("[%1]").arg(Util::formatDoubleForExport(valueList[i])));
+            cursorValueList.append(QString("[%1] ").arg(Util::formatDoubleForExport(valueList[i])));
         }
         else
         {
             /* Show error */
-            cursorValueList.append("[?]");
+            cursorValueList.append("[?] ");
         }
     }
 }

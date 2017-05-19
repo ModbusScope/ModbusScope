@@ -75,7 +75,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGuiModel, SIGNAL(highlightSamplesChanged()), this, SLOT(updateHighlightSampleMenu()));
     connect(_pGuiModel, SIGNAL(highlightSamplesChanged()), _pGraphView, SLOT(enableSamplePoints()));
     connect(_pGuiModel, SIGNAL(cursorValuesChanged()), _pGraphView, SLOT(updateTooltip()));
-    connect(_pGuiModel, SIGNAL(cursorValuesChanged()), _pGraphView, SLOT(updateDataInLegend()));
+    connect(_pGuiModel, SIGNAL(cursorValuesChanged()), _pLegend, SLOT(updateDataInLegend()));
 
     connect(_pGuiModel, SIGNAL(windowTitleChanged()), this, SLOT(updateWindowTitle()));
     connect(_pGuiModel, SIGNAL(projectFilePathChanged()), this, SLOT(projectFileLoaded()));
@@ -197,30 +197,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGuiModel->triggerUpdate();
     _pSettingsModel->triggerUpdate();
 
-    QCommandLineParser parser;
-    parser.setApplicationDescription("Log data through the Modbus protocol");
-    parser.addHelpOption();
-    parser.addPositionalArgument("project file", QCoreApplication::translate("main", "Project file (.mbs) to open"));
-
-    QCommandLineOption openGlOption("opengl", QCoreApplication::translate("main", "Use openGL to render plot"));
-    parser.addOption(openGlOption);
-
-
-    // Process the actual command line arguments given by the user
-    parser.process(cmdArguments);
-
-    const QStringList args = parser.positionalArguments();
-    // project file is args.at(0)
-
-    bool bOpenGl = parser.isSet(openGlOption);
-    _pGraphView->setOpenGl(bOpenGl);
-
-    if (args.size() > 0)
-    {
-        QFileInfo fileInfo(args[0]);
-        _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
-        loadProjectFile(args[0]);
-    }
+    handleCommandLineArguments(cmdArguments);
 }
 
 MainWindow::~MainWindow()
@@ -1074,5 +1051,35 @@ void MainWindow::loadDataFile(QString dataFilePath)
 
         _pGuiModel->setGuiState(GuiModel::DATA_LOADED);
 
+    }
+}
+
+
+void MainWindow::handleCommandLineArguments(QStringList cmdArguments)
+{
+    QCommandLineParser argumentParser;
+    argumentParser.setApplicationDescription("Log data through the Modbus protocol");
+    argumentParser.addHelpOption();
+
+	// Project file option
+    argumentParser.addPositionalArgument("project file", QCoreApplication::translate("main", "Project file (.mbs) to open"));
+
+	// OpenGL argument
+    QCommandLineOption openGlOption("opengl", QCoreApplication::translate("main", "Use openGL to render plot"));
+    argumentParser.addOption(openGlOption);
+
+
+    // Process arguments
+    argumentParser.process(cmdArguments);
+
+    bool bOpenGl = argumentParser.isSet(openGlOption);
+    _pGraphView->setOpenGl(bOpenGl);
+
+    if (!argumentParser.positionalArguments().isEmpty())
+    {
+        QString filename = argumentParser.positionalArguments().first();
+        QFileInfo fileInfo(filename);
+        _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
+        loadProjectFile(filename);
     }
 }

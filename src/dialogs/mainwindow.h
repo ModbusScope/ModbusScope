@@ -101,6 +101,7 @@ private:
 
     void updateConnectionSetting(ProjectFileParser::ProjectSettings *pProjectSettings);
     void loadProjectFile(QString projectFilePath);
+    void handleCommandLineArguments(QStringList cmdArguments);
     void loadDataFile(QString dataFilePath);
 
     Ui::MainWindow * _pUi;

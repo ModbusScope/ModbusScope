@@ -280,20 +280,6 @@ void BasicGraphView::updateGraphs()
     _pPlot->replot();
 }
 
-void BasicGraphView::showGraph(quint32 graphIdx)
-{    
-    if (_pGraphDataModel->isActive(graphIdx))
-    {
-        const bool bShow = _pGraphDataModel->isVisible(graphIdx);
-
-        const quint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
-
-        _pPlot->graph(activeIdx)->setVisible(bShow);
-
-        rescalePlot();
-    }
-}
-
 void BasicGraphView::changeGraphColor(const quint32 graphIdx)
 {
     if (_pGraphDataModel->isActive(graphIdx))
@@ -369,79 +355,6 @@ void BasicGraphView::setOpenGl(bool bState)
 bool BasicGraphView::openGl(void)
 {
     return _pPlot->openGl();
-}
-
-void BasicGraphView::rescalePlot()
-{
-
-    // scale x-axis
-    if (_pGuiModel->xAxisScalingMode() == SCALE_AUTO)
-    {
-        if ((_pPlot->graphCount() != 0) && (graphDataSize() != 0))
-        {
-            _pPlot->xAxis->rescale(true);
-        }
-        else
-        {
-            _pPlot->xAxis->setRange(0, 10000);
-        }
-    }
-    else if (_pGuiModel->xAxisScalingMode() == SCALE_SLIDING)
-    {
-        // sliding window scale routine
-        const quint64 slidingInterval = _pGuiModel->xAxisSlidingSec() * 1000;
-        if ((_pPlot->graphCount() != 0) && (graphDataSize() != 0))
-        {
-            auto lastDataIt = _pPlot->graph(0)->data()->constEnd();
-            lastDataIt--; /* Point to last existing item */
-
-            const quint64 lastTime = (quint64)lastDataIt->key;
-            if (lastTime > slidingInterval)
-            {
-                _pPlot->xAxis->setRange(lastTime - slidingInterval, lastTime);
-            }
-            else
-            {
-                _pPlot->xAxis->setRange(0, slidingInterval);
-            }
-        }
-        else
-        {
-            _pPlot->xAxis->setRange(0, slidingInterval);
-        }
-    }
-    else // Manual
-    {
-
-    }
-
-    // scale y-axis
-    if (_pGuiModel->yAxisScalingMode() == SCALE_AUTO)
-    {
-        if ((_pPlot->graphCount() != 0) && (graphDataSize()))
-        {
-            _pPlot->yAxis->rescale(true);
-        }
-        else
-        {
-            _pPlot->yAxis->setRange(0, 10);
-        }
-    }
-    else if (_pGuiModel->yAxisScalingMode() == SCALE_MINMAX)
-    {
-        // min max scale routine
-        _pPlot->yAxis->setRange(_pGuiModel->yAxisMin(), _pGuiModel->yAxisMax());
-    }
-    else if (_pGuiModel->yAxisScalingMode() == SCALE_WINDOW_AUTO)
-    {
-        (dynamic_cast<MyQCPAxis *>(_pPlot->yAxis))->rescaleValue(_pPlot->xAxis->range());
-    }
-    else // Manual
-    {
-
-    }
-
-    _pPlot->replot();
 }
 
 void BasicGraphView::selectionChanged()

@@ -18,6 +18,8 @@ public:
 
 public slots:
     void addData(QList<double> timeData, QList<QList<double> > data);
+    void showGraph(quint32 graphIdx);
+    void rescalePlot();
     void plotResults(QList<bool> successList, QList<double> valueList);
     void clearResults();
 

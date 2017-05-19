@@ -41,7 +41,6 @@ public slots:
     virtual void enableSamplePoints();
     virtual void clearGraph(const quint32 graphIdx);
     virtual void updateGraphs();
-    virtual void showGraph(quint32 graphIdx);
     virtual void changeGraphColor(const quint32 graphIdx);
     virtual void changeGraphLabel(const quint32 graphIdx);
     virtual void bringToFront();
@@ -50,7 +49,6 @@ public slots:
     virtual void setEndMarker();
     virtual void setOpenGl(bool bState);
     virtual bool openGl(void);
-    virtual void rescalePlot();
 
 signals:
     void cursorValueUpdate();
