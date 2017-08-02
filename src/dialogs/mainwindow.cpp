@@ -186,6 +186,9 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pYAxisScaleGroup->addButton(_pUi->radioYManual, BasicGraphView::SCALE_MANUAL);
     connect(_pYAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(yAxisScaleGroupClicked(int)));
 
+    /* handle focus change */
+    connect(QApplication::instance(), SIGNAL(focusChanged(QWidget *, QWidget *)), this, SLOT(appFocusChanged(QWidget *, QWidget *)));
+
     // Default to full auto scaling
     _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
     _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
@@ -863,6 +866,15 @@ void MainWindow::dropEvent(QDropEvent *e)
         {
             // ignore drop
         }
+    }
+}
+
+void MainWindow::appFocusChanged(QWidget * old, QWidget * now)
+{
+    Q_UNUSED(now);
+    if (old != NULL)
+    {
+        _pGuiModel->setCursorValues(false);
     }
 }
 
