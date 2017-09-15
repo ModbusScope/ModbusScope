@@ -3,8 +3,13 @@
 #include <QMessageBox>
 #include "datafileparser.h"
 
+const QString DataFileParser::_cPattern = QString("\\s*(\\d{1,2})[\\-\\/\\s](\\d{1,2})[\\-\\/\\s](\\d{4})\\s*([0-2][0-9]):([0-5][0-9]):([0-5][0-9])[.,]?(\\d{0,3})");
+
+
 DataFileParser::DataFileParser()
 {
+    _dateParseRegex.setPattern(_cPattern);
+    _dateParseRegex.optimize();
 }
 
 DataFileParser::~DataFileParser()
@@ -195,7 +200,32 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
                 break;
             }
 
-            for (qint32 i = 0; i < paramList.size(); i++)
+            quint32 startColumn=1;
+            if (_pAutoSettingsParser->absoluteDate())
+            {
+                bool bOk;
+                const double number = (double)parseDateTime(paramList[0], &bOk);
+                if (bOk)
+                {
+                    dataRows[0].append(number);
+                }
+                else
+                {
+                    QString error = QString(tr("Invalid absolute date (while processing data)\n"
+                                               "Line: %1\n"
+                                               "\n\nExpected decimal separator character: \'%2\'"
+                                               ).arg(line).arg(_pAutoSettingsParser->locale().decimalPoint()));
+                    showError(error);
+                    bRet = false;
+                    break;
+                }
+            }
+            else
+            {
+                startColumn = 0;
+            }
+
+            for (qint32 i = startColumn; i < paramList.size(); i++)
             {
                 bool bError = false;
                 const double number = _pAutoSettingsParser->locale().toDouble(paramList[i], &bError);
@@ -267,6 +297,49 @@ void DataFileParser::loadDataFileSample(QStringList * pDataFileSample)
 
     /* Set cursor back to beginning */
     _pDataStream->seek(0);
+
+}
+
+qint64 DataFileParser::parseDateTime(QString rawData, bool *bOk)
+{
+    QRegularExpressionMatch match = _dateParseRegex.match(rawData);
+
+    QString day;
+    QString month;
+    QString year;
+    QString hours;
+    QString minutes;
+    QString seconds;
+    QString milliseconds;
+
+    if (match.hasMatch())
+    {
+        day = match.captured(1);
+        month = match.captured(2);
+        year = match.captured(3);
+        hours = match.captured(4);
+        minutes = match.captured(5);
+        seconds = match.captured(6);
+        milliseconds = match.captured(7);
+    }
+    if (milliseconds.isEmpty())
+    {
+        milliseconds = "0";
+    }
+
+    QString dateStr = QString("%1-%2-%3 %4:%5:%6.%7").arg(day,2, '0')
+                        .arg(month,2, '0')
+                        .arg(year)
+                        .arg(hours,2, '0')
+                        .arg(minutes,2, '0')
+                        .arg(seconds,2, '0')
+                        .arg(milliseconds,3, '0');
+
+    const QDateTime date = QDateTime::fromString(dateStr, "dd-MM-yyyy hh:mm:ss.zzz");
+
+    *bOk = date.isValid();
+
+    return date.toMSecsSinceEpoch();
 
 }
 

@@ -304,9 +304,20 @@ QString DataFileExporter::formatData(double timeData, QList<double> dataValues)
 {
     QString line;
 
-    // Format time (no decimals)
-    const quint64 t = static_cast<quint64>(timeData);
-    line.append(QString::number(t, 'f', 0));
+    if (_pSettingsModel->absoluteTimes())
+    {
+        QString timeString;
+        QDateTime dateTime;
+        dateTime.setMSecsSinceEpoch(timeData);
+        timeString = dateTime.toString("dd/MM/yyyy " + Util::timeStringFormat());
+        line.append(timeString);
+    }
+    else
+    {
+        // Format time (no decimals)
+        const quint64 t = static_cast<quint64>(timeData);
+        line.append(QString::number(t, 'f', 0));
+    }
 
     // Add formatted data (maximum 3 decimals, no trailing zeros)
     for(qint32 d = 0; d < dataValues.size(); d++)

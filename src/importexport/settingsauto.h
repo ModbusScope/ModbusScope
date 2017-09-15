@@ -17,6 +17,7 @@ public:
     quint32 dataRow();
     qint32 labelRow();
     QLocale locale();
+    bool absoluteDate();
 
 signals:
 
@@ -25,13 +26,17 @@ public slots:
 private:
 
     bool isComment(QString line);
-    bool parseFields(QStringList previewData, QLocale locale, QChar fieldSeparator);
+    bool isAbsoluteDate(QString rawData);
+    bool testLocale(QStringList previewData, QLocale locale, QChar fieldSeparator);
+    bool testAbsoluteDate(QStringList previewData);
     quint32 nextDataLine(quint32 startIdx, QStringList previewData, bool *bOk);
+
 
     QChar _fieldSeparator;
     QString _commentSequence;
     quint32 _dataRow;
     qint32 _labelRow;
+    bool _bAbsoluteDate;
     QLocale _locale;
 
 };

@@ -1,5 +1,6 @@
 #include <QFile>
 #include <QLocale>
+#include <QRegularExpression>
 
 #include "settingsauto.h"
 #include "util.h"
@@ -43,23 +44,29 @@ bool SettingsAuto::updateSettings(QStringList previewData)
 
         // First try French locale
         bool bParse;
-        bParse = parseFields(previewData, frLocale, ';');
+        bParse = testLocale(previewData, frLocale, ';');
 
         if (!bParse)
         {
             // Else try Italian locale
-            bParse = parseFields(previewData, itLocale, ';');
+            bParse = testLocale(previewData, itLocale, ';');
 
             if (!bParse)
             {
                 // Else try US English locale
-                bRet = parseFields(previewData, enLocale, ',');
+                bRet = testLocale(previewData, enLocale, ',');
             }
         }
     }
     else
     {
         bRet = false;
+    }
+
+    // Check for absolute dates
+    if (bRet)
+    {
+        _bAbsoluteDate = testAbsoluteDate(previewData);
     }
 
     return bRet;
@@ -89,6 +96,11 @@ qint32 SettingsAuto::labelRow()
 QLocale SettingsAuto::locale()
 {
     return _locale;
+}
+
+bool SettingsAuto::absoluteDate()
+{
+    return _bAbsoluteDate;
 }
 
 bool SettingsAuto::isComment(QString line)
@@ -126,29 +138,43 @@ bool SettingsAuto::isComment(QString line)
     return bRet;
 }
 
-bool SettingsAuto::parseFields(QStringList previewData, QLocale locale, QChar fieldSeparator)
+bool SettingsAuto::isAbsoluteDate(QString rawData)
+{
+    QRegularExpression re("\\d{2,4}.*\\d{2}.*\\d{2,4}\\s*\\d{1,2}:\\d{1,2}:\\d{1,2}.*");
+    QRegularExpressionMatch match = re.match(rawData);
+
+    return match.hasMatch();
+}
+
+bool SettingsAuto::testLocale(QStringList previewData, QLocale locale, QChar fieldSeparator)
 {
     quint32 aSeparatorCount[2];
     aSeparatorCount[0] = previewData[_labelRow].count(fieldSeparator);
     aSeparatorCount[1] = previewData[_dataRow].count(fieldSeparator);
 
-    if (aSeparatorCount[0] == aSeparatorCount[1])
+    if (
+            (aSeparatorCount[0] == aSeparatorCount[1])
+            && (aSeparatorCount[0] > 0)
+        )
     {
         qint32 parseIdx;
         for (parseIdx = _dataRow; parseIdx < previewData.size(); parseIdx++)
         {
             if (!isComment(previewData[parseIdx]))
             {
+
                 QStringList fields = previewData[parseIdx].split(fieldSeparator);
-                foreach(QString field, fields)
+
+                for (qint32 idx = 1; idx < fields.size(); idx++)
                 {
+
                     bool bOk;
-                    locale.toDouble(field, &bOk);
+                    locale.toDouble(fields[idx], &bOk);
                     if (!bOk)
                     {
                         return false;
                     }
-                }
+                }                
             }
         }
     }
@@ -163,6 +189,33 @@ bool SettingsAuto::parseFields(QStringList previewData, QLocale locale, QChar fi
     // save field separator
     _fieldSeparator = fieldSeparator;
 
+    return true;
+}
+
+bool SettingsAuto::testAbsoluteDate(QStringList previewData)
+{
+    qint32 parseIdx;
+    for (parseIdx = _dataRow; parseIdx < previewData.size(); parseIdx++)
+    {
+        if (!isComment(previewData[parseIdx]))
+        {
+
+            QStringList fields = previewData[parseIdx].split(_fieldSeparator);
+            QString timeOrDate = fields[0];
+
+            if (isAbsoluteDate(timeOrDate))
+            {
+                // Check next
+            }
+            else
+            {
+                // Not valid
+                return false;
+            }
+        }
+    }
+
+    // absolute date
     return true;
 }
 

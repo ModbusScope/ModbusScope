@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QStringList>
+#include <QRegularExpression>
 
 #include "settingsauto.h"
 
@@ -36,6 +37,8 @@ private:
     void showError(QString text);
     bool readLineFromFile(QString *pLine);
     void loadDataFileSample(QStringList * pDataFileSample);
+    qint64 parseDateTime(QString rawData, bool *bOk);
+
 
     QTextStream * _pDataStream;
 
@@ -47,7 +50,9 @@ private:
     quint32 _expectedFields;
 
     SettingsAuto * _pAutoSettingsParser;
+    QRegularExpression _dateParseRegex;
 
+    static const QString _cPattern;
     static const qint32 _cSampleLineLength = 50;
 
 };
