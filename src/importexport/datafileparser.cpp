@@ -1,6 +1,7 @@
 
 #include <QtWidgets>
-#include <QMessageBox>
+
+#include "util.h"
 #include "datafileparser.h"
 
 const QString DataFileParser::_cPattern = QString("\\s*(\\d{1,2})[\\-\\/\\s](\\d{1,2})[\\-\\/\\s](\\d{4})\\s*([0-2][0-9]):([0-5][0-9]):([0-5][0-9])[.,]?(\\d{0,3})");
@@ -45,7 +46,7 @@ bool DataFileParser::processDataFile(QString dataFile, FileData * pData)
     }
     else
     {
-        showError(tr("Couldn't open data file: %1").arg(dataFile));
+        Util::showError(tr("Couldn't open data file: %1").arg(dataFile));
     }
 
     /* Try to determine settings */
@@ -56,7 +57,7 @@ bool DataFileParser::processDataFile(QString dataFile, FileData * pData)
 
         if (!bRet)
         {
-            showError(tr("Invalid data file (error while auto parsing for settings)"));
+            Util::showError(tr("Invalid data file (error while auto parsing for settings)"));
         }
     }
 
@@ -97,7 +98,7 @@ bool DataFileParser::processDataFile(QString dataFile, FileData * pData)
             }
             else
             {
-                showError(tr("Invalid data file (while reading comments)"));
+                Util::showError(tr("Invalid data file (while reading comments)"));
                 break;
             }
 
@@ -114,7 +115,7 @@ bool DataFileParser::processDataFile(QString dataFile, FileData * pData)
 
         if (_expectedFields <= 1)
         {
-            showError(QString(tr("Incorrect graph data found. "
+            Util::showError(QString(tr("Incorrect graph data found. "
                                  "<br><br>Found field separator: \'%1\'")).arg(_pAutoSettingsParser->fieldSeparator()));
 
             bRet = false;
@@ -148,7 +149,7 @@ bool DataFileParser::processDataFile(QString dataFile, FileData * pData)
 
             if (!bRet)
             {
-                showError(tr("Invalid data file (while reading data from file)"));
+                Util::showError(tr("Invalid data file (while reading data from file)"));
             }
 
             lineIdx++;
@@ -195,7 +196,7 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
             if (paramList.size() != (qint32)_expectedFields)
             {
                 QString txt = QString(tr("The number of label columns doesn't match number of data columns!\nLabel count: %1\nData count: %2")).arg(_expectedFields).arg(paramList.size());
-                showError(txt);
+                Util::showError(txt);
                 bRet = false;
                 break;
             }
@@ -215,7 +216,7 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
                                                "Line: %1\n"
                                                "\n\nExpected decimal separator character: \'%2\'"
                                                ).arg(line).arg(_pAutoSettingsParser->locale().decimalPoint()));
-                    showError(error);
+                    Util::showError(error);
                     bRet = false;
                     break;
                 }
@@ -236,7 +237,7 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
                                                "Line: %1\n"
                                                "\n\nExpected decimal separator character: \'%2\'"
                                                ).arg(line).arg(_pAutoSettingsParser->locale().decimalPoint()));
-                    showError(error);
+                    Util::showError(error);
                     bRet = false;
                     break;
                 }
@@ -342,15 +343,3 @@ qint64 DataFileParser::parseDateTime(QString rawData, bool *bOk)
     return date.toMSecsSinceEpoch();
 
 }
-
-void DataFileParser::showError(QString text)
-{
-    QMessageBox msgBox;
-    msgBox.setWindowTitle(tr("ModbusScope data file load error"));
-    msgBox.setIcon(QMessageBox::Warning);
-    msgBox.setText(text);
-    msgBox.setStandardButtons(QMessageBox::Ok);
-    msgBox.exec();
-}
-
-

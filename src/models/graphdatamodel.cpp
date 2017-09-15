@@ -1,5 +1,4 @@
 
-#include <QMessageBox>
 #include "graphdata.h"
 #include "util.h"
 #include "QDebug"
@@ -236,11 +235,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
 
             if (!bOk)
             {
-                QMessageBox msgBox;
-                msgBox.setWindowTitle(tr("ModbusScope data error"));
-                msgBox.setIcon(QMessageBox::Warning);
-                msgBox.setText(tr("Register address is not a valid address between 40001 and 49999."));
-                msgBox.exec();
+                Util::showError(tr("Register address is not a valid address between 40001 and 49999."));
                 bRet = false;
             }
         }
@@ -264,11 +259,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             else
             {
                 bRet = false;
-                QMessageBox msgBox;
-                msgBox.setWindowTitle(tr("ModbusScope data error"));
-                msgBox.setIcon(QMessageBox::Warning);
-                msgBox.setText(tr("Bitmask is not a valid integer."));
-                msgBox.exec();
+                Util::showError(tr("Bitmask is not a valid integer."));
             }
         }
         break;
@@ -292,11 +283,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             else
             {
                 bRet = false;
-                QMessageBox msgBox;
-                msgBox.setWindowTitle(tr("ModbusScope data error"));
-                msgBox.setIcon(QMessageBox::Warning);
-                msgBox.setText(tr("Shift is not a valid integer between -16 and 16."));
-                msgBox.exec();
+                Util::showError(tr("Shift is not a valid integer between -16 and 16."));
                 break;
             }
         }
@@ -313,11 +300,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             else
             {
                 bRet = false;
-                QMessageBox msgBox;
-                msgBox.setWindowTitle(tr("ModbusScope data error"));
-                msgBox.setIcon(QMessageBox::Warning);
-                msgBox.setText(tr("Multiply factor is not a valid double. Did you use correct decimal separator character? Expecting \"%1\"").arg(QLocale::system().decimalPoint()));
-                msgBox.exec();
+                Util::showError(tr("Multiply factor is not a valid double. Did you use correct decimal separator character? Expecting \"%1\"").arg(QLocale::system().decimalPoint()));
                 break;
             }
         }
@@ -334,11 +317,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             else
             {
                 bRet = false;
-                QMessageBox msgBox;
-                msgBox.setWindowTitle(tr("ModbusScope data error"));
-                msgBox.setIcon(QMessageBox::Warning);
-                msgBox.setText(tr("Divide factor is not a valid double. Did you use correct decimal separator character? Expecting \"%1\"").arg(QLocale::system().decimalPoint()));
-                msgBox.exec();
+                Util::showError(tr("Divide factor is not a valid double. Did you use correct decimal separator character? Expecting \"%1\"").arg(QLocale::system().decimalPoint()));
                 break;
             }
         }

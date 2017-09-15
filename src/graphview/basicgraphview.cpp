@@ -1,4 +1,3 @@
-#include <QMessageBox>
 #include <QVector>
 #include <QtGlobal>
 #include <QLocale>

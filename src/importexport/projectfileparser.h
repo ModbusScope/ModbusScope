@@ -2,7 +2,7 @@
 #define PROJECTFILEPARSER_H
 
 #include <QObject>
-#include <QMessageBox>
+#include <QColor>
 #include <QDomDocument>
 
 class ProjectFileParser : public QObject
@@ -128,9 +128,6 @@ private:
     bool parseScaleYAxis(const QDomElement &element, ScaleSettings *pScaleSettings);
 
     QDomDocument _domDocument;
-
-    QMessageBox _msgBox;
-
 };
 
 #endif // PROJECTFILEPARSER_H

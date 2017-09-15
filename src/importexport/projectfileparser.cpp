@@ -6,8 +6,7 @@
 
 ProjectFileParser::ProjectFileParser()
 {
-    _msgBox.setWindowTitle(tr("ModbusScope project file load error"));
-    _msgBox.setIcon(QMessageBox::Warning);
+
 }
 
 
@@ -20,12 +19,10 @@ bool ProjectFileParser::parseFile(QIODevice *device, ProjectSettings *pSettings)
 
     if (!_domDocument.setContent(device, true, &errorStr, &errorLine, &errorColumn))
     {
-        _msgBox.setText(tr("Parse error at line %1, column %2:\n%3")
+       Util::showError(tr("Parse error at line %1, column %2:\n%3")
                 .arg(errorLine)
                 .arg(errorColumn)
                 .arg(errorStr));
-        _msgBox.exec();
-
         bRet = false;
     }
     else
@@ -33,8 +30,7 @@ bool ProjectFileParser::parseFile(QIODevice *device, ProjectSettings *pSettings)
         QDomElement root = _domDocument.documentElement();
         if (root.tagName() != ProjectFileDefinitions::cModbusScopeTag)
         {
-            _msgBox.setText(tr("The file is not a valid ModbusScope project file."));
-            _msgBox.exec();
+            Util::showError(tr("The file is not a valid ModbusScope project file."));
             bRet = false;
         }
         else
@@ -47,15 +43,13 @@ bool ProjectFileParser::parseFile(QIODevice *device, ProjectSettings *pSettings)
             {
                 if (datalevel != ProjectFileDefinitions::cCurrentDataLevel)
                 {
-                    _msgBox.setText(tr("Data level (%1) is not supported. Only datalevel 2 is allowed. Project file loading is aborted.").arg(datalevel));
-                    _msgBox.exec();
+                    Util::showError(tr("Data level (%1) is not supported. Only datalevel 2 is allowed. Project file loading is aborted.").arg(datalevel));
                     bRet = false;
                 }
             }
             else
             {
-                _msgBox.setText(tr("Data level (%1) is not a valid number").arg(strDataLevel));
-                _msgBox.exec();
+                Util::showError(tr("Data level (%1) is not a valid number").arg(strDataLevel));
             }
 
             if (bRet)
@@ -147,8 +141,7 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
             pConnectionSettings->port = child.text().toUInt(&bRet);
             if (!bRet)
             {
-                _msgBox.setText(tr("Port ( %1 ) is not a valid number").arg(child.text()));
-                _msgBox.exec();
+                Util::showError(tr("Port ( %1 ) is not a valid number").arg(child.text()));
                 break;
             }
         }
@@ -158,9 +151,7 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
             pConnectionSettings->slaveId = child.text().toUInt(&bRet);
             if (!bRet)
             {
-                _msgBox.setText(tr("Slave id ( %1 ) is not a valid number").arg(child.text()));
-                _msgBox.exec();
-
+                Util::showError(tr("Slave id ( %1 ) is not a valid number").arg(child.text()));
                 break;
             }
         }
@@ -170,9 +161,7 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
             pConnectionSettings->timeout = child.text().toUInt(&bRet);
             if (!bRet)
             {
-                _msgBox.setText(tr("Timeout ( %1 ) is not a valid number").arg(child.text()));
-                _msgBox.exec();
-
+                Util::showError(tr("Timeout ( %1 ) is not a valid number").arg(child.text()));
                 break;
             }
         }
@@ -182,9 +171,7 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
             pConnectionSettings->consecutiveMax = child.text().toUInt(&bRet);
             if (!bRet)
             {
-                _msgBox.setText(tr("Consecutive register maximum ( %1 ) is not a valid number").arg(child.text()));
-                _msgBox.exec();
-
+                Util::showError(tr("Consecutive register maximum ( %1 ) is not a valid number").arg(child.text()));
                 break;
             }
         }
@@ -210,8 +197,7 @@ bool ProjectFileParser::parseLogTag(const QDomElement &element, LogSettings * pL
             pLogSettings->pollTime = child.text().toUInt(&bRet);
             if (!bRet)
             {
-                _msgBox.setText(tr("Poll time ( %1 ) is not a valid number").arg(child.text()));
-                _msgBox.exec();
+                Util::showError(tr("Poll time ( %1 ) is not a valid number").arg(child.text()));
                 break;
             }
         } 
@@ -278,8 +264,7 @@ bool ProjectFileParser::parseLogToFile(const QDomElement &element, LogSettings *
                 {
                     /* path exist, but it is not a file */
                     bValid = false;
-                    _msgBox.setText(tr("Log file path (%1) already exists, but it is not a file. Log file is set to default.").arg(fileInfo.filePath()));
-                    _msgBox.exec();
+                    Util::showError(tr("Log file path (%1) already exists, but it is not a file. Log file is set to default.").arg(fileInfo.filePath()));
                 }
                 else
                 {
@@ -289,8 +274,7 @@ bool ProjectFileParser::parseLogToFile(const QDomElement &element, LogSettings *
                     if (!fileInfo.dir().exists())
                     {
                         bValid = false;
-                        _msgBox.setText(tr("Log file path (parent directory) does not exists (%1). Log file is set to default.").arg(fileInfo.filePath()));
-                        _msgBox.exec();
+                        Util::showError(tr("Log file path (parent directory) does not exists (%1). Log file is set to default.").arg(fileInfo.filePath()));
                     }
                 }
             }
@@ -347,8 +331,7 @@ bool ProjectFileParser::parseScopeTag(const QDomElement &element, ScopeSettings 
 
             if (bFound)
             {
-                _msgBox.setText(tr("Register %1 with bitmask 0x%2 is defined twice in the list.").arg(registerData.address).arg(registerData.bitmask, 0, 16));
-                _msgBox.exec();
+                Util::showError(tr("Register %1 with bitmask 0x%2 is defined twice in the list.").arg(registerData.address).arg(registerData.bitmask, 0, 16));
                 bRet = false;
                 break;
             }
@@ -393,8 +376,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
             pRegisterSettings->address = child.text().toUInt(&bRet);
             if (!bRet)
             {
-                _msgBox.setText(tr("Address ( %1 ) is not a valid number").arg(child.text()));
-                _msgBox.exec();
+                Util::showError(tr("Address ( %1 ) is not a valid number").arg(child.text()));
                 break;
             }
         }
@@ -420,8 +402,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
 
             if (!bRet)
             {
-                _msgBox.setText(QString("Divide factor (%1) is not a valid double. Expected decimal separator is \"%2\".").arg(child.text()).arg(QLocale::system().decimalPoint()));
-                _msgBox.exec();
+                Util::showError(QString("Divide factor (%1) is not a valid double. Expected decimal separator is \"%2\".").arg(child.text()).arg(QLocale::system().decimalPoint()));
                 break;
             }
         }
@@ -432,8 +413,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
 
             if (!bRet)
             {
-                _msgBox.setText(QString("Multiply factor (%1) is not a valid double. Expected decimal separator is \"%2\".").arg(child.text()).arg(QLocale::system().decimalPoint()));
-                _msgBox.exec();
+                Util::showError(QString("Multiply factor (%1) is not a valid double. Expected decimal separator is \"%2\".").arg(child.text()).arg(QLocale::system().decimalPoint()));
                 break;
             }
         }
@@ -447,8 +427,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
             }
             else
             {
-                _msgBox.setText(tr("Color is not a valid color. Did you use correct color format? Expecting #FF0000 (red)"));
-                _msgBox.exec();
+                Util::showError(tr("Color is not a valid color. Did you use correct color format? Expecting #FF0000 (red)"));
                 break;
             }
         }
@@ -462,8 +441,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
             }
             else
             {
-                _msgBox.setText(tr("Bitmask (\"%1\") is not a valid integer.").arg(child.text()));
-                _msgBox.exec();
+                Util::showError(tr("Bitmask (\"%1\") is not a valid integer.").arg(child.text()));
                 break;
             }
         }
@@ -490,8 +468,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
             }
             else
             {
-                _msgBox.setText(tr("Shift factor (%1) is not a valid integer between -16 and 16.").arg(child.text()));
-                _msgBox.exec();
+                Util::showError(tr("Shift factor (%1) is not a valid integer between -16 and 16.").arg(child.text()));
                 break;
             }
         }
@@ -611,8 +588,7 @@ bool ProjectFileParser::parseScaleXAxis(const QDomElement &element, ScaleSetting
             }
             else
             {
-                _msgBox.setText(tr("Scale (x-axis) has an incorrect sliding interval. \"%1\" is not a valid number").arg(child.text()));
-                _msgBox.exec();
+                Util::showError(tr("Scale (x-axis) has an incorrect sliding interval. \"%1\" is not a valid number").arg(child.text()));
                 break;
             }
         }
@@ -625,8 +601,7 @@ bool ProjectFileParser::parseScaleXAxis(const QDomElement &element, ScaleSetting
 
     if (!bSlidingInterval)
     {
-        _msgBox.setText(tr("If x-axis has sliding window scaling then slidinginterval variable should be defined."));
-        _msgBox.exec();
+        Util::showError(tr("If x-axis has sliding window scaling then slidinginterval variable should be defined."));
         bRet = false;
     }
 
@@ -652,8 +627,7 @@ bool ProjectFileParser::parseScaleYAxis(const QDomElement &element, ScaleSetting
             }
             else
             {
-                _msgBox.setText(tr("Scale (y-axis) has an incorrect minimum. \"%1\" is not a valid number").arg(child.text()));
-                _msgBox.exec();
+                Util::showError(tr("Scale (y-axis) has an incorrect minimum. \"%1\" is not a valid number").arg(child.text()));
                 break;
             }
         }
@@ -666,8 +640,7 @@ bool ProjectFileParser::parseScaleYAxis(const QDomElement &element, ScaleSetting
             }
             else
             {
-                _msgBox.setText(tr("Scale (y-axis) has an incorrect maximum. \"%1\" is not a valid number").arg(child.text()));
-                _msgBox.exec();
+                Util::showError(tr("Scale (y-axis) has an incorrect maximum. \"%1\" is not a valid number").arg(child.text()));
                 break;
             }
         }
@@ -680,14 +653,12 @@ bool ProjectFileParser::parseScaleYAxis(const QDomElement &element, ScaleSetting
 
     if (!bMin)
     {
-        _msgBox.setText(tr("If y-axis has min max scaling then min variable should be defined."));
-        _msgBox.exec();
+        Util::showError(tr("If y-axis has min max scaling then min variable should be defined."));
         bRet = false;
     }
     else if (!bMax)
     {
-        _msgBox.setText(tr("If y-axis has min max scaling then max variable should be defined."));
-        _msgBox.exec();
+        Util::showError(tr("If y-axis has min max scaling then max variable should be defined."));
         bRet = false;
     }
 

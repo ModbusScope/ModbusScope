@@ -1,7 +1,7 @@
 #include <QFileInfo>
 #include <QFileDialog>
-#include <QMessageBox>
 
+#include "util.h"
 #include "markerinfodialog.h"
 #include "ui_markerinfodialog.h"
 
@@ -173,13 +173,7 @@ void MarkerInfoDialog::done(int r)
             else
             {
                 bValid = false;
-
-                /* TODO: change with Util::ShowError */
-                QMessageBox msgBox;
-                msgBox.setWindowTitle(tr("SCript file does not exist!"));
-                msgBox.setIcon(QMessageBox::Warning);
-                msgBox.setText(tr("Script file does not exist.\n\n%1").arg(_pUi->lineCustom->text()));
-                msgBox.exec();
+                Util::showError(tr("Script file does not exist.\n\n%1").arg(_pUi->lineCustom->text()));
             }
         }
 

@@ -477,7 +477,7 @@ void MainWindow::startScope()
     }
     else
     {
-        QMessageBox::warning(this, "No register in scope list!", "There are no register in the scope list. Please select at least one register.");
+        Util::showError("There are no register in the scope list. Please select at least one register.");
     }
 }
 
@@ -1023,10 +1023,7 @@ void MainWindow::loadProjectFile(QString projectFilePath)
     }
     else
     {
-        QMessageBox::critical(this,
-                              "ModbusScope",
-                              tr("Couldn't open project file: %1").arg(projectFilePath),
-                              QMessageBox::Ok);
+        Util::showError(tr("Couldn't open project file: %1").arg(projectFilePath));
     }
 }
 

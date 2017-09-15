@@ -34,7 +34,6 @@ public:
 
 private:
     bool parseDataLines(QList<QList<double> > &dataRows);
-    void showError(QString text);
     bool readLineFromFile(QString *pLine);
     void loadDataFileSample(QStringList * pDataFileSample);
     qint64 parseDateTime(QString rawData, bool *bOk);

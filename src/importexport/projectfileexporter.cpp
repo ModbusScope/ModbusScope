@@ -31,11 +31,7 @@ void ProjectFileExporter::exportProjectFile(QString projectFile)
     }
     else
     {
-        QMessageBox msgBox;
-        msgBox.setWindowTitle(tr("ModbusScope settings export error"));
-        msgBox.setIcon(QMessageBox::Warning);
-        msgBox.setText(tr("Export settings to file (%1) failed").arg(projectFile));
-        msgBox.exec();
+        Util::showError(tr("Export settings to file (%1) failed").arg(projectFile));
     }
 }
 

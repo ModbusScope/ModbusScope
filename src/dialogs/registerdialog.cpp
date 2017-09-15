@@ -1,7 +1,6 @@
 
-#include <QMessageBox>
 #include <QColorDialog>
-
+#include "util.h"
 #include "registerdialog.h"
 #include "importmbcdialog.h"
 #include "ui_registerdialog.h"
@@ -64,11 +63,7 @@ void RegisterDialog::done(int r)
         {
             bValid = false;
 
-            QMessageBox msgBox;
-            msgBox.setWindowTitle(tr("Duplicate register!"));
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.setText(tr("Register %1 with bitmask 0x%2 is defined twice in the list.").arg(duplicateReg).arg(duplicateBitMask, 0, 16));
-            msgBox.exec();
+            Util::showError(tr("Register %1 with bitmask 0x%2 is defined twice in the list.").arg(duplicateReg).arg(duplicateBitMask, 0, 16));
         }
     }
     else

@@ -28,7 +28,7 @@ public:
     static void showError(QString text)
     {
         QMessageBox msgBox;
-        msgBox.setWindowTitle(tr("GraphViewer"));
+        msgBox.setWindowTitle(tr("ModbusScope"));
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.setText(text);
         msgBox.setStandardButtons(QMessageBox::Ok);

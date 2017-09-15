@@ -354,11 +354,7 @@ bool DataFileExporter::writeToFile(QString filePath, QStringList logData)
             _pSettingsModel->setWriteDuringLog(false);
         }
 
-        QMessageBox msgBox;
-        msgBox.setWindowTitle(tr("ModbusScope export error"));
-        msgBox.setIcon(QMessageBox::Warning);
-        msgBox.setText(tr("Save to data file (%1) failed").arg(filePath));
-        msgBox.exec();
+        Util::showError(tr("Save to data file (%1) failed").arg(filePath));
     }
 
     return bRet;
