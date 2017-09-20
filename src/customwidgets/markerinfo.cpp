@@ -36,6 +36,11 @@ MarkerInfo::MarkerInfo(QWidget *parent) : QFrame(parent)
 
 }
 
+MarkerInfo::~MarkerInfo()
+{
+    delete _pEditMarkerInfoMenu;
+}
+
 void MarkerInfo::setModel(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel)
 {
     _pGuiModel = pGuiModel;
