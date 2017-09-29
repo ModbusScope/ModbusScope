@@ -35,9 +35,20 @@ private slots:
 
 private:
 
-    modbus_t * openPort(QString ip, quint16 port);
+    bool openPort();
     void closePort(modbus_t *);
     qint32 readRegisters(modbus_t * pCtx, quint16 startReg, quint32 num, QList<quint16> * pResultList);
+    void readPartialList(QList<quint16> registerList);
+    QList<quint16> getSubsequentRegisterList(QList<quint16> registerList);
+    void addSuccessResults(QList<quint16> registerList, QList<quint16> registerDataList);
+    void addErrorResults(QList<quint16> registerList);
+
+    modbus_t * _pModbusContext;
+
+    bool _bOpen;
+    quint32 _success;
+    quint32 _error;
+    QMap<quint16, ModbusResult> _resultMap;
 
     SettingsModel * _pSettingsModel;
     GuiModel * _pGuiModel;
