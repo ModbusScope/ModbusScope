@@ -2,6 +2,7 @@
 #define MODBUSRESULT_H
 
 #include <QObject>
+#include <QDebug>
 
 class ModbusResult
 {
@@ -20,5 +21,7 @@ private:
     quint16 _value;
     bool _bResult;
 };
+
+QDebug operator<<(QDebug debug, const ModbusResult &result);
 
 #endif // MODBUSRESULT_H
