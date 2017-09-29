@@ -1,0 +1,6 @@
+- modbus_get_slave
+- Add const and unsigned int everywhere
+- Add https://github.com/stephane/libmodbus/issues/95
+- Release v3.1.5
+- Merge ASCII branch
+- signal is deprecated -> sigaction

@@ -1,19 +1,7 @@
 /*
  * Copyright © 2001-2011 Stéphane Raimbault <stephane.raimbault@gmail.com>
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * SPDX-License-Identifier: LGPL-2.1+
  */
 
 #ifndef MODBUS_RTU_PRIVATE_H
@@ -36,10 +24,6 @@
 #define _MODBUS_RTU_PRESET_RSP_LENGTH  2
 
 #define _MODBUS_RTU_CHECKSUM_LENGTH    2
-
-/* Time waited beetween the RTS switch before transmit data or after transmit
-   data before to read */
-#define _MODBUS_RTU_TIME_BETWEEN_RTS_SWITCH 10000
 
 #if defined(_WIN32)
 #if !defined(ENOTSUP)
@@ -81,7 +65,9 @@ typedef struct _modbus_rtu {
 #endif
 #if HAVE_DECL_TIOCM_RTS
     int rts;
+    int rts_delay;
     int onebyte_time;
+    void (*set_rts) (modbus_t *ctx, int on);
 #endif
     /* To handle many slaves on the same link */
     int confirmation_to_ignore;

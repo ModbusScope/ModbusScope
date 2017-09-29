@@ -1,8 +1,7 @@
 /*
  * Copyright © 2008-2014 Stéphane Raimbault <stephane.raimbault@gmail.com>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the BSD License.
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <stdio.h>
@@ -13,6 +12,8 @@
 #include <modbus.h>
 
 #include "unit-test.h"
+
+const int EXCEPTION_RC = 2;
 
 enum {
     TCP,
@@ -25,6 +26,7 @@ int send_crafted_request(modbus_t *ctx, int function,
                          uint8_t *req, int req_size,
                          uint16_t max_value, uint16_t bytes,
                          int backend_length, int backend_offset);
+int equal_dword(uint16_t *tab_reg, const uint32_t value);
 
 #define BUG_REPORT(_cond, _format, _args ...) \
     printf("\nLine %d: assertion error for '%s': " _format "\n", __LINE__, # _cond, ## _args)
@@ -38,6 +40,10 @@ int send_crafted_request(modbus_t *ctx, int function,
     }                                             \
 };
 
+int equal_dword(uint16_t *tab_reg, const uint32_t value) {
+    return ((tab_reg[0] == (value >> 16)) && (tab_reg[1] == (value & 0xFFFF)));
+}
+
 int main(int argc, char *argv[])
 {
     const int NB_REPORT_SLAVE_ID = 10;
@@ -50,7 +56,6 @@ int main(int argc, char *argv[])
     int nb_points;
     int rc;
     float real;
-    uint32_t ireal;
     uint32_t old_response_to_sec;
     uint32_t old_response_to_usec;
     uint32_t new_response_to_sec;
@@ -58,6 +63,7 @@ int main(int argc, char *argv[])
     uint32_t old_byte_to_sec;
     uint32_t old_byte_to_usec;
     int use_backend;
+    int success = FALSE;
 
     if (argc > 1) {
         if (strcmp(argv[1], "tcp") == 0) {
@@ -142,8 +148,7 @@ int main(int argc, char *argv[])
         uint8_t tab_value[UT_BITS_NB];
 
         modbus_set_bits_from_bytes(tab_value, 0, UT_BITS_NB, UT_BITS_TAB);
-        rc = modbus_write_bits(ctx, UT_BITS_ADDRESS,
-                               UT_BITS_NB, tab_value);
+        rc = modbus_write_bits(ctx, UT_BITS_ADDRESS, UT_BITS_NB, tab_value);
         printf("1/2 modbus_write_bits: ");
         ASSERT_TRUE(rc == UT_BITS_NB, "");
     }
@@ -267,36 +272,40 @@ int main(int argc, char *argv[])
                     tab_rp_registers[i], UT_INPUT_REGISTERS_TAB[i]);
     }
 
+    /* MASKS */
+    printf("1/1 Write mask: ");
+    rc = modbus_write_register(ctx, UT_REGISTERS_ADDRESS, 0x12);
+    rc = modbus_mask_write_register(ctx, UT_REGISTERS_ADDRESS, 0xF2, 0x25);
+    ASSERT_TRUE(rc != -1, "FAILED (%x == -1)\n", rc);
+    rc = modbus_read_registers(ctx, UT_REGISTERS_ADDRESS, 1, tab_rp_registers);
+    ASSERT_TRUE(tab_rp_registers[0] == 0x17,
+                "FAILED (%0X != %0X)\n",
+                tab_rp_registers[0], 0x17);
+
     printf("\nTEST FLOATS\n");
     /** FLOAT **/
-    printf("1/4 Set float: ");
-    modbus_set_float(UT_REAL, tab_rp_registers);
-    if (tab_rp_registers[1] == (UT_IREAL >> 16) &&
-        tab_rp_registers[0] == (UT_IREAL & 0xFFFF)) {
-        printf("OK\n");
-    } else {
-        /* Avoid *((uint32_t *)tab_rp_registers)
-         * https://github.com/stephane/libmodbus/pull/104 */
-        ireal = (uint32_t) tab_rp_registers[0] & 0xFFFF;
-        ireal |= (uint32_t) tab_rp_registers[1] << 16;
-        printf("FAILED (%x != %x)\n", ireal, UT_IREAL);
-        goto close;
-    }
-
-    printf("2/4 Get float: ");
-    real = modbus_get_float(tab_rp_registers);
+    printf("1/4 Set/get float ABCD: ");
+    modbus_set_float_abcd(UT_REAL, tab_rp_registers);
+    ASSERT_TRUE(equal_dword(tab_rp_registers, UT_IREAL_ABCD), "FAILED Set float ABCD");
+    real = modbus_get_float_abcd(tab_rp_registers);
     ASSERT_TRUE(real == UT_REAL, "FAILED (%f != %f)\n", real, UT_REAL);
 
-    printf("3/4 Set float in DBCA order: ");
+    printf("2/4 Set/get float DCBA: ");
     modbus_set_float_dcba(UT_REAL, tab_rp_registers);
-    ireal = (uint32_t) tab_rp_registers[0] & 0xFFFF;
-    ireal |= (uint32_t) tab_rp_registers[1] << 16;
-    ASSERT_TRUE(tab_rp_registers[1] == (UT_IREAL_DCBA >> 16) &&
-                tab_rp_registers[0] == (UT_IREAL_DCBA & 0xFFFF),
-                "FAILED (%x != %x)\n", ireal, UT_IREAL_DCBA);
-
-    printf("4/4 Get float in DCBA order: ");
+    ASSERT_TRUE(equal_dword(tab_rp_registers, UT_IREAL_DCBA), "FAILED Set float DCBA");
     real = modbus_get_float_dcba(tab_rp_registers);
+    ASSERT_TRUE(real == UT_REAL, "FAILED (%f != %f)\n", real, UT_REAL);
+
+    printf("3/4 Set/get float BADC: ");
+    modbus_set_float_badc(UT_REAL, tab_rp_registers);
+    ASSERT_TRUE(equal_dword(tab_rp_registers, UT_IREAL_BADC), "FAILED Set float BADC");
+    real = modbus_get_float_badc(tab_rp_registers);
+    ASSERT_TRUE(real == UT_REAL, "FAILED (%f != %f)\n", real, UT_REAL);
+
+    printf("4/4 Set/get float CDAB: ");
+    modbus_set_float_cdab(UT_REAL, tab_rp_registers);
+    ASSERT_TRUE(equal_dword(tab_rp_registers, UT_IREAL_CDAB), "FAILED Set float CDAB");
+    real = modbus_get_float_cdab(tab_rp_registers);
     ASSERT_TRUE(real == UT_REAL, "FAILED (%f != %f)\n", real, UT_REAL);
 
     printf("\nAt this point, error messages doesn't mean the test has failed\n");
@@ -304,41 +313,99 @@ int main(int argc, char *argv[])
     /** ILLEGAL DATA ADDRESS **/
     printf("\nTEST ILLEGAL DATA ADDRESS:\n");
 
-    /* The mapping begins at 0 and ends at address + nb_points so
-     * the addresses are not valid. */
+    /* The mapping begins at the defined addresses and ends at address +
+     * nb_points so these addresses are not valid. */
+
+    rc = modbus_read_bits(ctx, 0, 1, tab_rp_bits);
+    printf("* modbus_read_bits (0): ");
+    ASSERT_TRUE(rc == -1 && errno == EMBXILADD, "");
 
     rc = modbus_read_bits(ctx, UT_BITS_ADDRESS, UT_BITS_NB + 1, tab_rp_bits);
-    printf("* modbus_read_bits: ");
+    printf("* modbus_read_bits (max): ");
+    ASSERT_TRUE(rc == -1 && errno == EMBXILADD, "");
+
+    rc = modbus_read_input_bits(ctx, 0, 1, tab_rp_bits);
+    printf("* modbus_read_input_bits (0): ");
     ASSERT_TRUE(rc == -1 && errno == EMBXILADD, "");
 
     rc = modbus_read_input_bits(ctx, UT_INPUT_BITS_ADDRESS,
                                 UT_INPUT_BITS_NB + 1, tab_rp_bits);
-    printf("* modbus_read_input_bits: ");
+    printf("* modbus_read_input_bits (max): ");
+    ASSERT_TRUE(rc == -1 && errno == EMBXILADD, "");
+
+    rc = modbus_read_registers(ctx, 0, 1, tab_rp_registers);
+    printf("* modbus_read_registers (0): ");
     ASSERT_TRUE(rc == -1 && errno == EMBXILADD, "");
 
     rc = modbus_read_registers(ctx, UT_REGISTERS_ADDRESS,
-                               UT_REGISTERS_NB + 1, tab_rp_registers);
-    printf("* modbus_read_registers: ");
+                               UT_REGISTERS_NB_MAX + 1, tab_rp_registers);
+    printf("* modbus_read_registers (max): ");
+    ASSERT_TRUE(rc == -1 && errno == EMBXILADD, "");
+
+    rc = modbus_read_input_registers(ctx, 0, 1, tab_rp_registers);
+    printf("* modbus_read_input_registers (0): ");
     ASSERT_TRUE(rc == -1 && errno == EMBXILADD, "");
 
     rc = modbus_read_input_registers(ctx, UT_INPUT_REGISTERS_ADDRESS,
                                      UT_INPUT_REGISTERS_NB + 1,
                                      tab_rp_registers);
-    printf("* modbus_read_input_registers: ");
+    printf("* modbus_read_input_registers (max): ");
+    ASSERT_TRUE(rc == -1 && errno == EMBXILADD, "");
+
+    rc = modbus_write_bit(ctx, 0, ON);
+    printf("* modbus_write_bit (0): ");
     ASSERT_TRUE(rc == -1 && errno == EMBXILADD, "");
 
     rc = modbus_write_bit(ctx, UT_BITS_ADDRESS + UT_BITS_NB, ON);
-    printf("* modbus_write_bit: ");
+    printf("* modbus_write_bit (max): ");
+    ASSERT_TRUE(rc == -1 && errno == EMBXILADD, "");
+
+    rc = modbus_write_bits(ctx, 0, 1, tab_rp_bits);
+    printf("* modbus_write_coils (0): ");
     ASSERT_TRUE(rc == -1 && errno == EMBXILADD, "");
 
     rc = modbus_write_bits(ctx, UT_BITS_ADDRESS + UT_BITS_NB,
                            UT_BITS_NB, tab_rp_bits);
-    printf("* modbus_write_coils: ");
+    printf("* modbus_write_coils (max): ");
     ASSERT_TRUE(rc == -1 && errno == EMBXILADD, "");
 
-    rc = modbus_read_registers(ctx, UT_REGISTERS_ADDRESS + UT_REGISTERS_NB,
-                               UT_REGISTERS_NB, tab_rp_registers);
-    printf("* modbus_write_registers: ");
+    rc = modbus_write_register(ctx, 0, tab_rp_registers[0]);
+    printf("* modbus_write_register (0): ");
+    ASSERT_TRUE(rc == -1 && errno == EMBXILADD, "");
+
+    rc = modbus_write_register(ctx, UT_REGISTERS_ADDRESS + UT_REGISTERS_NB_MAX,
+                                tab_rp_registers[0]);
+    printf("* modbus_write_register (max): ");
+    ASSERT_TRUE(rc == -1 && errno == EMBXILADD, "");
+
+    rc = modbus_write_registers(ctx, 0, 1, tab_rp_registers);
+    printf("* modbus_write_registers (0): ");
+    ASSERT_TRUE(rc == -1 && errno == EMBXILADD, "");
+
+    rc = modbus_write_registers(ctx, UT_REGISTERS_ADDRESS + UT_REGISTERS_NB_MAX,
+                                UT_REGISTERS_NB, tab_rp_registers);
+    printf("* modbus_write_registers (max): ");
+    ASSERT_TRUE(rc == -1 && errno == EMBXILADD, "");
+
+    rc = modbus_mask_write_register(ctx, 0, 0xF2, 0x25);
+    printf("* modbus_mask_write_registers (0): ");
+    ASSERT_TRUE(rc == -1 && errno == EMBXILADD, "");
+
+    rc = modbus_mask_write_register(ctx, UT_REGISTERS_ADDRESS + UT_REGISTERS_NB_MAX,
+                                    0xF2, 0x25);
+    printf("* modbus_mask_write_registers (max): ");
+    ASSERT_TRUE(rc == -1 && errno == EMBXILADD, "");
+
+    rc = modbus_write_and_read_registers(ctx, 0, 1, tab_rp_registers, 0, 1, tab_rp_registers);
+    printf("* modbus_write_and_read_registers (0): ");
+    ASSERT_TRUE(rc == -1 && errno == EMBXILADD, "");
+
+    rc = modbus_write_and_read_registers(ctx,
+                                         UT_REGISTERS_ADDRESS + UT_REGISTERS_NB_MAX,
+                                         UT_REGISTERS_NB, tab_rp_registers,
+                                         UT_REGISTERS_ADDRESS + UT_REGISTERS_NB_MAX,
+                                         UT_REGISTERS_NB, tab_rp_registers);
+    printf("* modbus_write_and_read_registers (max): ");
     ASSERT_TRUE(rc == -1 && errno == EMBXILADD, "");
 
     /** TOO MANY DATA **/
@@ -387,8 +454,8 @@ int main(int argc, char *argv[])
         uint8_t raw_req[] = { INVALID_SERVER_ID, 0x03, 0x00, 0x01, 0x01, 0x01 };
         /* Too many points */
         uint8_t raw_invalid_req[] = { INVALID_SERVER_ID, 0x03, 0x00, 0x01, 0xFF, 0xFF };
-        const int RAW_REP_LENGTH = 7;
-        uint8_t raw_rep[] = { INVALID_SERVER_ID, 0x03, 0x04, 0, 0, 0, 0 };
+        const int RAW_RSP_LENGTH = 7;
+        uint8_t raw_rsp[] = { INVALID_SERVER_ID, 0x03, 0x04, 0, 0, 0, 0 };
         uint8_t rsp[MODBUS_RTU_MAX_ADU_LENGTH];
 
         /* No response in RTU mode */
@@ -404,7 +471,7 @@ int main(int argc, char *argv[])
          * slave will see the indication message then the confirmation, and it must
          * ignore both. */
         modbus_send_raw_request(ctx, raw_req, RAW_REQ_LENGTH * sizeof(uint8_t));
-        modbus_send_raw_request(ctx, raw_rep, RAW_REP_LENGTH * sizeof(uint8_t));
+        modbus_send_raw_request(ctx, raw_rsp, RAW_RSP_LENGTH * sizeof(uint8_t));
         rc = modbus_receive_confirmation(ctx, rsp);
 
         printf("1-B/3 No response from slave %d on indication/confirmation messages: ",
@@ -429,15 +496,11 @@ int main(int argc, char *argv[])
 
     rc = modbus_read_registers(ctx, UT_REGISTERS_ADDRESS,
                                UT_REGISTERS_NB, tab_rp_registers);
-    printf("2/3 Reply after a broadcast query: ");
-    ASSERT_TRUE(rc == UT_REGISTERS_NB, "");
+    printf("2/3 No reply after a broadcast query: ");
+    ASSERT_TRUE(rc == -1 && errno == ETIMEDOUT, "");
 
     /* Restore slave */
-    if (use_backend == RTU) {
-        modbus_set_slave(ctx, SERVER_ID);
-    } else {
-        modbus_set_slave(ctx, MODBUS_TCP_SLAVE);
-    }
+    modbus_set_slave(ctx, use_backend == RTU ? SERVER_ID : MODBUS_TCP_SLAVE);
 
     printf("3/3 Response with an invalid TID or slave: ");
     rc = modbus_read_registers(ctx, UT_REGISTERS_ADDRESS_INVALID_TID_OR_SLAVE,
@@ -584,10 +647,14 @@ int main(int argc, char *argv[])
     printf("* modbus_read_registers at special address: ");
     ASSERT_TRUE(rc == -1 && errno == EMBXSBUSY, "");
 
-    /** SERVER **/
+    /** Run a few tests to challenge the server code **/
     if (test_server(ctx, use_backend) == -1) {
         goto close;
     }
+
+    modbus_close(ctx);
+    modbus_free(ctx);
+    ctx = NULL;
 
     /* Test init functions */
     printf("\nTEST INVALID INITIALIZATION:\n");
@@ -601,6 +668,7 @@ int main(int argc, char *argv[])
     ASSERT_TRUE(ctx == NULL && errno == EINVAL, "");
 
     printf("\nALL TESTS PASS WITH SUCCESS.\n");
+    success = TRUE;
 
 close:
     /* Free the memory */
@@ -611,7 +679,7 @@ close:
     modbus_close(ctx);
     modbus_free(ctx);
 
-    return 0;
+    return (success) ? 0 : -1;
 }
 
 /* Send crafted requests to test server resilience
@@ -622,21 +690,22 @@ int test_server(modbus_t *ctx, int use_backend)
     int i;
     /* Read requests */
     const int READ_RAW_REQ_LEN = 6;
+    const int slave = (use_backend == RTU) ? SERVER_ID : MODBUS_TCP_SLAVE;
     uint8_t read_raw_req[] = {
-        /* slave */
-        (use_backend == RTU) ? SERVER_ID : 0xFF,
-        /* function, addr 1, 5 values */
-        MODBUS_FC_READ_HOLDING_REGISTERS, 0x00, 0x01, 0x0, 0x05
+        slave,
+        /* function, address, 5 values */
+        MODBUS_FC_READ_HOLDING_REGISTERS,
+        UT_REGISTERS_ADDRESS >> 8, UT_REGISTERS_ADDRESS & 0xFF,
+        0x0, 0x05
     };
     /* Write and read registers request */
     const int RW_RAW_REQ_LEN = 13;
     uint8_t rw_raw_req[] = {
-        /* slave */
-        (use_backend == RTU) ? SERVER_ID : 0xFF,
+        slave,
         /* function, addr to read, nb to read */
         MODBUS_FC_WRITE_AND_READ_REGISTERS,
         /* Read */
-        0, 0,
+        UT_REGISTERS_ADDRESS >> 8, UT_REGISTERS_ADDRESS & 0xFF,
         (MODBUS_MAX_WR_READ_REGISTERS + 1) >> 8,
         (MODBUS_MAX_WR_READ_REGISTERS + 1) & 0xFF,
         /* Write */
@@ -649,18 +718,22 @@ int test_server(modbus_t *ctx, int use_backend)
     };
     const int WRITE_RAW_REQ_LEN = 13;
     uint8_t write_raw_req[] = {
-        /* slave */
-        (use_backend == RTU) ? SERVER_ID : 0xFF,
+        slave,
         /* function will be set in the loop */
         MODBUS_FC_WRITE_MULTIPLE_REGISTERS,
         /* Address */
-        UT_REGISTERS_ADDRESS >> 8,
-        UT_REGISTERS_ADDRESS & 0xFF,
+        UT_REGISTERS_ADDRESS >> 8, UT_REGISTERS_ADDRESS & 0xFF,
         /* 3 values, 6 bytes */
         0x00, 0x03, 0x06,
         /* Dummy data to write */
         0x02, 0x2B, 0x00, 0x01, 0x00, 0x64
     };
+    const int INVALID_FC = 0x42;
+    const int INVALID_FC_REQ_LEN = 6;
+    uint8_t invalid_fc_raw_req[] = {
+        slave, 0x42, 0x00, 0x00, 0x00, 0x00
+    };
+
     int req_length;
     uint8_t rsp[MODBUS_TCP_MAX_ADU_LENGTH];
     int tab_read_function[] = {
@@ -688,6 +761,17 @@ int test_server(modbus_t *ctx, int use_backend)
 
     printf("\nTEST RAW REQUESTS:\n");
 
+    uint32_t old_response_to_sec;
+    uint32_t old_response_to_usec;
+
+    /* This requests can generate flushes server side so we need a higher
+     * response timeout than the server. The server uses the defined response
+     * timeout to sleep before flushing.
+     * The old timeouts are restored at the end.
+     */
+    modbus_get_response_timeout(ctx, &old_response_to_sec, &old_response_to_usec);
+    modbus_set_response_timeout(ctx, 0, 600000);
+
     req_length = modbus_send_raw_request(ctx, read_raw_req, READ_RAW_REQ_LEN);
     printf("* modbus_send_raw_request: ");
     ASSERT_TRUE(req_length == (backend_length + 5), "FAILED (%d)\n", req_length);
@@ -697,8 +781,7 @@ int test_server(modbus_t *ctx, int use_backend)
     ASSERT_TRUE(rc == (backend_length + 12), "FAILED (%d)\n", rc);
 
     /* Try to read more values than a response could hold for all data
-     * types.
-     */
+       types. */
     for (i=0; i<4; i++) {
         rc = send_crafted_request(ctx, tab_read_function[i],
                                   read_raw_req, READ_RAW_REQ_LEN,
@@ -732,8 +815,17 @@ int test_server(modbus_t *ctx, int use_backend)
     if (rc == -1)
         goto close;
 
+    /* Test invalid function code */
+    modbus_send_raw_request(ctx, invalid_fc_raw_req, INVALID_FC_REQ_LEN * sizeof(uint8_t));
+    rc = modbus_receive_confirmation(ctx, rsp);
+    printf("Return an exception on unknown function code: ");
+    ASSERT_TRUE(rc == (backend_length + EXCEPTION_RC) &&
+                rsp[backend_offset] == (0x80 + INVALID_FC), "")
+
+    modbus_set_response_timeout(ctx, old_response_to_sec, old_response_to_usec);
     return 0;
 close:
+    modbus_set_response_timeout(ctx, old_response_to_sec, old_response_to_usec);
     return -1;
 }
 
@@ -743,19 +835,8 @@ int send_crafted_request(modbus_t *ctx, int function,
                          uint16_t max_value, uint16_t bytes,
                          int backend_length, int backend_offset)
 {
-    const int EXCEPTION_RC = 2;
     uint8_t rsp[MODBUS_TCP_MAX_ADU_LENGTH];
     int j;
-    uint32_t old_response_to_sec;
-    uint32_t old_response_to_usec;
-
-    /* This requests can generate flushes server side so we need a higher
-     * response timeout than the server. The server uses the defined response
-     * timeout to sleep before flushing.
-     * The old timeouts are restored at the end.
-     */
-    modbus_get_response_timeout(ctx, &old_response_to_sec, &old_response_to_usec);
-    modbus_set_response_timeout(ctx, 0, 600000);
 
     for (j=0; j<2; j++) {
         int rc;
@@ -791,9 +872,7 @@ int send_crafted_request(modbus_t *ctx, int function,
                     rsp[backend_offset] == (0x80 + function) &&
                     rsp[backend_offset + 1] == MODBUS_EXCEPTION_ILLEGAL_DATA_VALUE, "");
     }
-    modbus_set_response_timeout(ctx, old_response_to_sec, old_response_to_usec);
     return 0;
 close:
-    modbus_set_response_timeout(ctx, old_response_to_sec, old_response_to_usec);
     return -1;
 }

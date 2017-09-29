@@ -1,19 +1,7 @@
 /*
  * Copyright © 2001-2013 Stéphane Raimbault <stephane.raimbault@gmail.com>
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * SPDX-License-Identifier: LGPL-2.1+
  */
 
 #ifndef MODBUS_H
@@ -109,13 +97,18 @@ MODBUS_BEGIN_DECLS
  * the first MODBUS implementation on Serial Line network (max. RS485 ADU = 256
  * bytes). Therefore, MODBUS PDU for serial line communication = 256 - Server
  * address (1 byte) - CRC (2 bytes) = 253 bytes.
- *
- * Consequently:
- * - RS232 / RS485 ADU = 253 bytes + Server address (1 byte) + CRC (2 bytes) =
- *   256 bytes.
- * - TCP MODBUS ADU = 253 bytes + MBAP (7 bytes) = 260 bytes.
  */
 #define MODBUS_MAX_PDU_LENGTH              253
+
+/* Consequently:
+ * - RTU MODBUS ADU = 253 bytes + Server address (1 byte) + CRC (2 bytes) = 256
+ *   bytes.
+ * - TCP MODBUS ADU = 253 bytes + MBAP (7 bytes) = 260 bytes.
+ * so the maximum of both backend in 260 bytes. This size can used to allocate
+ * an array of bytes to store responses and it will be compatible with the two
+ * backends.
+ */
+#define MODBUS_MAX_ADU_LENGTH              260
 
 /* Random number to avoid errno conflicts */
 #define MODBUS_ENOBASE 112345678
@@ -163,9 +156,13 @@ typedef struct _modbus modbus_t;
 
 typedef struct {
     int nb_bits;
+    int start_bits;
     int nb_input_bits;
+    int start_input_bits;
     int nb_input_registers;
+    int start_input_registers;
     int nb_registers;
+    int start_registers;
     uint8_t *tab_bits;
     uint8_t *tab_input_bits;
     uint16_t *tab_input_registers;
@@ -216,8 +213,14 @@ MODBUS_API int modbus_write_and_read_registers(modbus_t *ctx, int write_addr, in
                                                uint16_t *dest);
 MODBUS_API int modbus_report_slave_id(modbus_t *ctx, int max_dest, uint8_t *dest);
 
+MODBUS_API modbus_mapping_t* modbus_mapping_new_start_address(
+    unsigned int start_bits, unsigned int nb_bits,
+    unsigned int start_input_bits, unsigned int nb_input_bits,
+    unsigned int start_registers, unsigned int nb_registers,
+    unsigned int start_input_registers, unsigned int nb_input_registers);
+
 MODBUS_API modbus_mapping_t* modbus_mapping_new(int nb_bits, int nb_input_bits,
-                                            int nb_registers, int nb_input_registers);
+                                                int nb_registers, int nb_input_registers);
 MODBUS_API void modbus_mapping_free(modbus_mapping_t *mb_mapping);
 
 MODBUS_API int modbus_send_raw_request(modbus_t *ctx, uint8_t *raw_req, int raw_req_length);
@@ -237,6 +240,11 @@ MODBUS_API int modbus_reply_exception(modbus_t *ctx, const uint8_t *req,
 
 #define MODBUS_GET_HIGH_BYTE(data) (((data) >> 8) & 0xFF)
 #define MODBUS_GET_LOW_BYTE(data) ((data) & 0xFF)
+#define MODBUS_GET_INT64_FROM_INT16(tab_int16, index) \
+    (((int64_t)tab_int16[(index)    ] << 48) + \
+     ((int64_t)tab_int16[(index) + 1] << 32) + \
+     ((int64_t)tab_int16[(index) + 2] << 16) + \
+      (int64_t)tab_int16[(index) + 3])
 #define MODBUS_GET_INT32_FROM_INT16(tab_int16, index) ((tab_int16[(index)] << 16) + tab_int16[(index) + 1])
 #define MODBUS_GET_INT16_FROM_INT8(tab_int8, index) ((tab_int8[(index)] << 8) + tab_int8[(index) + 1])
 #define MODBUS_SET_INT16_TO_INT8(tab_int8, index, value) \
@@ -244,15 +252,34 @@ MODBUS_API int modbus_reply_exception(modbus_t *ctx, const uint8_t *req,
         tab_int8[(index)] = (value) >> 8;  \
         tab_int8[(index) + 1] = (value) & 0xFF; \
     } while (0)
+#define MODBUS_SET_INT32_TO_INT16(tab_int16, index, value) \
+    do { \
+        tab_int16[(index)    ] = (value) >> 16; \
+        tab_int16[(index) + 1] = (value); \
+    } while (0)
+#define MODBUS_SET_INT64_TO_INT16(tab_int16, index, value) \
+    do { \
+        tab_int16[(index)    ] = (value) >> 48; \
+        tab_int16[(index) + 1] = (value) >> 32; \
+        tab_int16[(index) + 2] = (value) >> 16; \
+        tab_int16[(index) + 3] = (value); \
+    } while (0)
 
 MODBUS_API void modbus_set_bits_from_byte(uint8_t *dest, int idx, const uint8_t value);
 MODBUS_API void modbus_set_bits_from_bytes(uint8_t *dest, int idx, unsigned int nb_bits,
                                        const uint8_t *tab_byte);
 MODBUS_API uint8_t modbus_get_byte_from_bits(const uint8_t *src, int idx, unsigned int nb_bits);
 MODBUS_API float modbus_get_float(const uint16_t *src);
+MODBUS_API float modbus_get_float_abcd(const uint16_t *src);
 MODBUS_API float modbus_get_float_dcba(const uint16_t *src);
+MODBUS_API float modbus_get_float_badc(const uint16_t *src);
+MODBUS_API float modbus_get_float_cdab(const uint16_t *src);
+
 MODBUS_API void modbus_set_float(float f, uint16_t *dest);
+MODBUS_API void modbus_set_float_abcd(float f, uint16_t *dest);
 MODBUS_API void modbus_set_float_dcba(float f, uint16_t *dest);
+MODBUS_API void modbus_set_float_badc(float f, uint16_t *dest);
+MODBUS_API void modbus_set_float_cdab(float f, uint16_t *dest);
 
 #include "modbus-tcp.h"
 #include "modbus-rtu.h"

@@ -1,8 +1,7 @@
 /*
  * Copyright © 2008-2014 Stéphane Raimbault <stephane.raimbault@gmail.com>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the BSD License.
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <stdio.h>
@@ -87,7 +86,7 @@ int main(void)
 
     nb_loop = nb_fail = 0;
     while (nb_loop++ < LOOP) {
-        for (addr = ADDRESS_START; addr <= ADDRESS_END; addr++) {
+        for (addr = ADDRESS_START; addr < ADDRESS_END; addr++) {
             int i;
 
             /* Random numbers (short) */

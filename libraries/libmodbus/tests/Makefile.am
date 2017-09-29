@@ -1,4 +1,4 @@
-EXTRA_DIST = README
+EXTRA_DIST = README.md unit-tests.sh
 
 noinst_PROGRAMS = \
 	bandwidth-server-one \
@@ -46,4 +46,7 @@ AM_CPPFLAGS = \
 
 AM_CFLAGS = ${my_CFLAGS}
 
-CLEANFILES = *~
+CLEANFILES = *~ *.log
+
+noinst_SCRIPTS=unit-tests.sh
+TESTS=./unit-tests.sh

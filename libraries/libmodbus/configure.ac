@@ -13,7 +13,7 @@
 #
 m4_define([libmodbus_version_major], [3])
 m4_define([libmodbus_version_minor], [1])
-m4_define([libmodbus_version_micro], [2])
+m4_define([libmodbus_version_micro], [4])
 
 m4_define([libmodbus_release_status],
     [m4_if(m4_eval(libmodbus_version_minor % 2), [1], [snapshot], [release])])
@@ -57,6 +57,7 @@ AC_CANONICAL_HOST
 
 # OS check
 os_win32="false"
+os_cygwin="false"
 os_qnx="false"
 case "${host_os}" in
       *mingw32*)
@@ -64,6 +65,9 @@ case "${host_os}" in
   ;;
       *nto-qnx*)
     os_qnx="true"
+  ;;
+      *cygwin*)
+    os_cygwin="true"
   ;;
 esac
 AM_CONDITIONAL(OS_WIN32, test "$os_win32" = "true")
@@ -81,6 +85,7 @@ AC_CHECK_HEADERS([ \
     netinet/in.h \
     netinet/tcp.h \
     sys/ioctl.h \
+    sys/params.h \
     sys/socket.h \
     sys/time.h \
     sys/types.h \
@@ -98,16 +103,33 @@ AC_CHECK_DECLS([__CYGWIN__])
 
 # Checks for library functions.
 AC_FUNC_FORK
+AC_FUNC_MALLOC
 AC_CHECK_FUNCS([accept4 getaddrinfo gettimeofday inet_ntoa memset select socket strerror strlcpy])
 
 # Required for MinGW with GCC v4.8.1 on Win7
 AC_DEFINE(WINVER, 0x0501, _)
 
-# Required for getaddrinfo (TCP PI - IPv6)
-AC_CHECK_HEADERS([winsock2.h], HAVE_WINSOCK2_H=yes)
-if test "x$HAVE_WINSOCK2_H" = "xyes"; then
-   LIBS="$LIBS -lws2_32"
-   AC_SUBST(LIBS)
+# Required for bswap
+AC_C_INLINE
+
+# libtool
+AC_PROG_CXX
+
+# Various types
+AC_TYPE_INT64_T
+AC_TYPE_SIZE_T
+AC_TYPE_SSIZE_T
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT8_T
+
+if test "$os_cygwin" = "false"; then
+    # Required for getaddrinfo (TCP IP - IPv6)
+    AC_CHECK_HEADERS([winsock2.h], HAVE_WINSOCK2_H=yes)
+    if test "x$HAVE_WINSOCK2_H" = "xyes"; then
+        LIBS="$LIBS -lws2_32"
+    AC_SUBST(LIBS)
+    fi
 fi
 
 # Check for RS485 support (Linux kernel version 2.6.28+)
@@ -123,6 +145,13 @@ my_CFLAGS="-Wall \
 -Wstrict-prototypes -Wshadow \
 -Wformat-security"
 AC_SUBST([my_CFLAGS])
+
+# Build options
+AC_ARG_ENABLE(tests,
+	AS_HELP_STRING([--disable-tests],
+	[Build tests (default: yes)]),,
+	[enable_tests=yes])
+AM_CONDITIONAL(BUILD_TESTS, [test $enable_tests != no])
 
 AC_CONFIG_HEADERS([config.h tests/unit-test.h])
 AC_CONFIG_FILES([
@@ -150,4 +179,5 @@ AC_MSG_RESULT([
         ldflags:                ${LDFLAGS}
 
         documentation:          ${ac_libmodbus_build_doc}
+        tests:                  ${enable_tests}
 ])
