@@ -3,6 +3,7 @@
 #include "qcustomplot.h"
 #include "communicationmanager.h"
 #include "graphdatamodel.h"
+#include "errorlogmodel.h"
 #include "graphdata.h"
 #include "registerdialog.h"
 #include "connectiondialog.h"
@@ -37,8 +38,9 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
 
     _pGraphDataModel = new GraphDataModel();
+    _pErrorLogModel = new ErrorLogModel();
 
-    _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pGraphDataModel);
+    _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pGraphDataModel, _pErrorLogModel);
     _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pUi->customPlot, this);
 
     _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphView, _pGraphDataModel);
@@ -212,6 +214,7 @@ MainWindow::~MainWindow()
     delete _pGuiModel;
     delete _pGraphShowHide;
     delete _pGraphBringToFront;
+    delete _pErrorLogModel;
     delete _pUi;
 }
 

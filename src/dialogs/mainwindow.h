@@ -21,6 +21,7 @@ class MainWindow;
 class CommunicationManager;
 class QCustomPlot;
 class GraphDataModel;
+class ErrorLogModel;
 class ConnectionDialog;
 class SettingsModel;
 class LogDialog;
@@ -114,6 +115,7 @@ private:
     LogDialog * _pLogDialog;
 
     GraphDataModel * _pGraphDataModel;
+    ErrorLogModel * _pErrorLogModel;
 
     MarkerInfo * _pMarkerInfo;
 

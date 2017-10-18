@@ -11,6 +11,7 @@
 class GuiModel;
 class SettingsModel;
 class GraphDataModel;
+class ErrorLogModel;
 class ModbusMaster;
 class QTimer;
 
@@ -18,7 +19,7 @@ class CommunicationManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit CommunicationManager(SettingsModel * pSettingsModel, GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, QObject *parent = 0);
+    explicit CommunicationManager(SettingsModel * pSettingsModel, GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, ErrorLogModel * pErrorLogModel, QObject *parent = 0);
     ~CommunicationManager();
 
     bool startCommunication();
@@ -29,6 +30,8 @@ public:
 
 public slots:
     void handlePollDone(QMap<quint16, ModbusResult> resultMap);
+    void handleModbusError(QString msg);
+    void handleModbusInfo(QString msg);
 
 signals:
     void registerRequest(QList<quint16> registerList);
@@ -50,6 +53,7 @@ private:
 
     GuiModel * _pGuiModel;
     GraphDataModel * _pGraphDataModel;
+    ErrorLogModel * _pErrorLogModel;
     SettingsModel * _pSettingsModel;
 
 };

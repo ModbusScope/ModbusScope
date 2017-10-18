@@ -1,11 +1,12 @@
 #include <QApplication>
 #include <QThread>
 #include <QCoreApplication>
-#include <QDebug>
 #include "modbusmaster.h"
 #include "settingsmodel.h"
 #include "guimodel.h"
+#include "errorlogmodel.h"
 #include <modbus.h>
+#include <util.h>
 
 #include "errno.h"
 
@@ -73,13 +74,7 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
     _success = 0;
     _error = 0;
 
-#ifdef DEBUG
-    qDebug() << "";
-    qDebug() << "";
-    qDebug() << "";
-    qDebug() << "";
-    qDebug() << "register list read:" << registerList;
-#endif
+    emit modbusLogInfo("Register list read: " + dumpToString(registerList));
 
     /* Open port */
     if (openPort())
@@ -102,8 +97,11 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
     }
     else
     {
+        emit modbusLogError(QString("Open port failed"));
         addErrorResults(registerList);
     }
+
+    emit modbusLogInfo("Result map: " + dumpToString(_resultMap));
 
     if (_bOpen)
     {
@@ -112,9 +110,6 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
 
     _pGuiModel->setCommunicationStats(_pGuiModel->communicationSuccessCount() + _success, _pGuiModel->communicationErrorCount() + _error);
 
-#ifdef DEBUG
-    qDebug() << "Result map: " << _resultMap;
-#endif
     emit modbusPollDone(_resultMap);
 
 }
@@ -122,14 +117,13 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
 
 void ModbusMaster::readPartialList(QList<quint16> registerList)
 {
-#ifdef DEBUG
-    qDebug() << "partial list read:" << registerList;
-#endif
+    emit modbusLogInfo("Partial list read:" + dumpToString(registerList));
 
     if (!_bOpen)
     {
         if (!openPort())
         {
+            emit modbusLogError(QString("Open port failed"));
             addErrorResults(registerList);
             return;
         }
@@ -150,6 +144,8 @@ void ModbusMaster::readPartialList(QList<quint16> registerList)
                 || (returnCode == (MODBUS_ENOBASE + MODBUS_EXCEPTION_ILLEGAL_DATA_VALUE))
             )
         {
+
+            emit modbusLogError(QString("Modbus Exception"));
 
             /* No need to close connection because we got exception */
 
@@ -176,6 +172,8 @@ void ModbusMaster::readPartialList(QList<quint16> registerList)
         }
         else
         {
+            emit modbusLogError(QString("No response"));
+
             /* Close connection because we didn't get response */
             closePort(_pModbusContext);
 
@@ -192,9 +190,7 @@ void ModbusMaster::closePort(modbus_t *connection)
 
     _bOpen = false;
 
-#ifdef DEBUG
-    qDebug() << "Conn closed";
-#endif
+    emit modbusLogInfo("Connection closed");
 }
 
 /* Open and configure port */
@@ -205,18 +201,15 @@ bool ModbusMaster::openPort()
     {
         if (modbus_connect(_pModbusContext) == -1)
         {
-#ifdef DEBUG
-            qDebug() << "Connection failed: " << modbus_strerror(errno) << endl;
-#endif
+            emit modbusLogError("Connection failed: " + QString(modbus_strerror(errno)));
+
             modbus_free(_pModbusContext);
             _pModbusContext = 0;
         }
     }
     else
     {
-#ifdef DEBUG
-        qDebug() << "New TCP failed: " << modbus_strerror(errno) << endl;
-#endif
+        emit modbusLogError("New TCP failed: " + QString(modbus_strerror(errno)));
         _pModbusContext = 0;
     }
 
@@ -236,15 +229,13 @@ bool ModbusMaster::openPort()
         modbus_set_response_timeout(_pModbusContext, sec, usec);
 
         _bOpen = true;
-#ifdef DEBUG
-        qDebug() << "Conn opened";
-#endif
+
+        emit modbusLogInfo("Connection opened");
 
         return true;
     }
-#ifdef DEBUG
-    qDebug() << "Conn open failed";
-#endif
+
+    emit modbusLogError("Connection open failed");
 
     return false;
 }
@@ -258,9 +249,8 @@ qint32 ModbusMaster::readRegisters(modbus_t * pCtx, quint16 startReg, quint32 nu
     if (modbus_read_registers(pCtx, startReg, num, aRegister) == -1)
     {
         rc = errno;
-#ifdef DEBUG
-        qDebug() << "MB: Read failed: " << modbus_strerror(errno) << endl;
-#endif
+
+        emit modbusLogError("MB: Read failed: " + QString(modbus_strerror(errno)));
     }
     else
     {
@@ -345,4 +335,24 @@ void ModbusMaster::addErrorResults(QList<quint16> registerList)
 
         _resultMap.insert(registerAddr,result);
     }
+}
+
+QString ModbusMaster::dumpToString(QMap<quint16, ModbusResult> map)
+{
+    QString str;
+    QDebug dStream(&str);
+
+    dStream << map;
+
+    return str;
+}
+
+QString ModbusMaster::dumpToString(QList<quint16> list)
+{
+    QString str;
+    QDebug dStream(&str);
+
+    dStream << list;
+
+    return str;
 }

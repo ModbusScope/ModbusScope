@@ -23,6 +23,8 @@ public:
 
 signals:
     void modbusPollDone(QMap<quint16, ModbusResult> modbusResults);
+    void modbusLogError(QString msg);
+    void modbusLogInfo(QString msg);
     void threadStopped();
 
 public slots:
@@ -42,6 +44,8 @@ private:
     QList<quint16> getSubsequentRegisterList(QList<quint16> registerList);
     void addSuccessResults(QList<quint16> registerList, QList<quint16> registerDataList);
     void addErrorResults(QList<quint16> registerList);
+    QString dumpToString(QMap<quint16, ModbusResult> map);
+    QString dumpToString(QList<quint16> list);
 
     modbus_t * _pModbusContext;
 

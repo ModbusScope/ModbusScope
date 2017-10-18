@@ -6,9 +6,10 @@
 #include "guimodel.h"
 #include "settingsmodel.h"
 #include "graphdatamodel.h"
+#include "errorlogmodel.h"
 
 
-CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiModel *pGuiModel, GraphDataModel *pGraphDataModel, QObject *parent) :
+CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiModel *pGuiModel, GraphDataModel *pGraphDataModel, ErrorLogModel *pErrorLogModel, QObject *parent) :
     QObject(parent), _active(false)
 {
 
@@ -16,11 +17,12 @@ CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiMo
     _pGuiModel = pGuiModel;
     _pSettingsModel = pSettingsModel;
     _pGraphDataModel = pGraphDataModel;
+    _pErrorLogModel = pErrorLogModel;
 
     qRegisterMetaType<QList<quint16> >("QList<quint16>");
 
     /* Setup modbus master */
-    _master = new ModbusMaster(_pSettingsModel, _pGuiModel);
+    _master = new ModbusMaster(_pSettingsModel, _pGuiModel, _pErrorLogModel);
 
     connect(this, SIGNAL(requestStop()), _master, SLOT(stopThread()));
 
@@ -31,6 +33,9 @@ CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiMo
 
     connect(this, SIGNAL(registerRequest(QList<quint16>)), _master, SLOT(readRegisterList(QList<quint16>)));
     connect(_master, SIGNAL(modbusPollDone(QMap<quint16, ModbusResult>)), this, SLOT(handlePollDone(QMap<quint16, ModbusResult>)));
+
+    connect(_master, SIGNAL(modbusLogError(QString)), this, SLOT(handleModbusError(QString)));
+    connect(_master, SIGNAL(modbusLogInfo(QString)), this, SLOT(handleModbusInfo(QString)));
 }
 
 CommunicationManager::~CommunicationManager()
@@ -128,6 +133,15 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> resultMap)
     }
 }
 
+void CommunicationManager::handleModbusError(QString msg)
+{
+    _pErrorLogModel->addError(msg);
+}
+
+void CommunicationManager::handleModbusInfo(QString msg)
+{
+    _pErrorLogModel->addInfo(msg);
+}
 
 void CommunicationManager::masterStopped()
 {

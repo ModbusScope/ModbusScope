@@ -78,7 +78,9 @@ SOURCES +=  \
     ../src/graphview/myqcpaxistickertime.cpp \
     ../src/graphview/myqcpaxis.cpp \
     ../src/dialogs/importmbcdialog.cpp \
-    ../src/importexport/mbcfileimporter.cpp
+    ../src/importexport/mbcfileimporter.cpp \
+    ../src/models/errorlog.cpp \
+    ../src/models/errorlogmodel.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
@@ -129,7 +131,9 @@ HEADERS += \
     ../src/graphview/myqcpaxistickertime.h \
     ../src/graphview/myqcpaxis.h \
     ../src/dialogs/importmbcdialog.h \
-    ../src/importexport/mbcfileimporter.h
+    ../src/importexport/mbcfileimporter.h \
+    ../src/models/errorlog.h \
+    ../src/models/errorlogmodel.h
 
 RESOURCES += \
     ../resources/resource.qrc
