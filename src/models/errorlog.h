@@ -29,6 +29,8 @@ public:
 
     QString categoryString() const;
 
+    QString toString() const;
+
 private:
 
     LogCategory _category;

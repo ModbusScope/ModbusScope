@@ -9,6 +9,7 @@
 #include "connectiondialog.h"
 #include "settingsmodel.h"
 #include "logdialog.h"
+#include "errorlogdialog.h"
 #include "aboutdialog.h"
 #include "markerinfo.h"
 #include "guimodel.h"
@@ -33,12 +34,12 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGuiModel = new GuiModel();
 
     _pSettingsModel = new SettingsModel();
+    _pGraphDataModel = new GraphDataModel();
+    _pErrorLogModel = new ErrorLogModel();
 
     _pConnectionDialog = new ConnectionDialog(_pSettingsModel, this);
     _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
-
-    _pGraphDataModel = new GraphDataModel();
-    _pErrorLogModel = new ErrorLogModel();
+    _pErrorLogDialog = new ErrorLogDialog(_pErrorLogModel, this);
 
     _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pGraphDataModel, _pErrorLogModel);
     _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pUi->customPlot, this);
@@ -56,6 +57,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     /*-- Connect menu actions --*/
     connect(_pUi->actionStart, SIGNAL(triggered()), this, SLOT(startScope()));
     connect(_pUi->actionStop, SIGNAL(triggered()), this, SLOT(stopScope()));
+    connect(_pUi->actionErrorLog, SIGNAL(triggered()), this, SLOT(showErrorLog()));
     connect(_pUi->actionExit, SIGNAL(triggered()), this, SLOT(exitApplication()));
     connect(_pUi->actionExportDataCsv, SIGNAL(triggered()), this, SLOT(selectDataExportFile()));
     connect(_pUi->actionLoadProjectFile, SIGNAL(triggered()), this, SLOT(selectProjectSettingFile()));
@@ -68,7 +70,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionClearData, SIGNAL(triggered()), this, SLOT(clearData()));
     connect(_pUi->actionClearMarkers, SIGNAL(triggered()), _pGuiModel, SLOT(clearMarkersState()));
     connect(_pUi->actionConnectionSettings, SIGNAL(triggered()), this, SLOT(showConnectionDialog()));
-    connect(_pUi->actionLogSettings, SIGNAL(triggered()), this, SLOT(showLogDialog()));
+    connect(_pUi->actionLogSettings, SIGNAL(triggered()), this, SLOT(showLogSettingsDialog()));
     connect(_pUi->actionRegisterSettings, SIGNAL(triggered()), this, SLOT(showRegisterDialog()));
 
     /*-- connect model to view --*/
@@ -203,6 +205,10 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pSettingsModel->triggerUpdate();
 
     handleCommandLineArguments(cmdArguments);
+
+    //Debugging
+    _pGraphDataModel->add();
+    showErrorLog();
 }
 
 MainWindow::~MainWindow()
@@ -402,7 +408,7 @@ void MainWindow::showConnectionDialog()
     _pConnectionDialog->exec();
 }
 
-void MainWindow::showLogDialog()
+void MainWindow::showLogSettingsDialog()
 {
     _pLogDialog->exec();
 }
@@ -494,6 +500,11 @@ void MainWindow::stopScope()
     }
 
     _pGuiModel->setGuiState(GuiModel::STOPPED);
+}
+
+void MainWindow::showErrorLog()
+{
+    _pErrorLogDialog->show();
 }
 
 void MainWindow::handleGraphVisibilityChange(const quint32 graphIdx)

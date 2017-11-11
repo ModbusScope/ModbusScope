@@ -80,7 +80,8 @@ SOURCES +=  \
     ../src/dialogs/importmbcdialog.cpp \
     ../src/importexport/mbcfileimporter.cpp \
     ../src/models/errorlog.cpp \
-    ../src/models/errorlogmodel.cpp
+    ../src/models/errorlogmodel.cpp \
+    ../src/dialogs/errorlogdialog.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
@@ -89,7 +90,8 @@ FORMS    += \
     ../src/dialogs/registerdialog.ui \
     ../src/dialogs/aboutdialog.ui \
     ../src/dialogs/markerinfodialog.ui \
-    ../src/dialogs/importmbcdialog.ui
+    ../src/dialogs/importmbcdialog.ui \
+    ../src/dialogs/errorlogdialog.ui
 
 HEADERS += \
     ../libraries/libmodbus/src/modbus-private.h \
@@ -133,7 +135,8 @@ HEADERS += \
     ../src/dialogs/importmbcdialog.h \
     ../src/importexport/mbcfileimporter.h \
     ../src/models/errorlog.h \
-    ../src/models/errorlogmodel.h
+    ../src/models/errorlogmodel.h \
+    ../src/dialogs/errorlogdialog.h
 
 RESOURCES += \
     ../resources/resource.qrc

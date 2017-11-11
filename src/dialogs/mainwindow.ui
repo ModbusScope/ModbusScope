@@ -73,6 +73,8 @@
     </property>
     <addaction name="actionStart"/>
     <addaction name="actionStop"/>
+    <addaction name="separator"/>
+    <addaction name="actionErrorLog"/>
    </widget>
    <widget class="QMenu" name="menu">
     <property name="title">
@@ -664,6 +666,11 @@
    </property>
    <property name="text">
     <string>Export Settings...</string>
+   </property>
+  </action>
+  <action name="actionErrorLog">
+   <property name="text">
+    <string>Error log</string>
    </property>
   </action>
  </widget>

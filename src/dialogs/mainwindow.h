@@ -25,6 +25,7 @@ class ErrorLogModel;
 class ConnectionDialog;
 class SettingsModel;
 class LogDialog;
+class ErrorLogDialog;
 class GuiModel;
 class ExtendedGraphView;
 class MarkerInfo;
@@ -62,12 +63,13 @@ private slots:
     void menuBringToFrontGraphClicked(bool bState);
     void menuShowHideGraphClicked(bool bState);
     void showConnectionDialog();
-    void showLogDialog();
+    void showLogSettingsDialog();
     void showRegisterDialog();
     void showRegisterDialog(QString mbcFile);
     void clearData();
     void startScope();
     void stopScope();
+    void showErrorLog();
 
     /* Model change handlers */
     void handleGraphVisibilityChange(const quint32 graphIdx);
@@ -113,6 +115,7 @@ private:
     SettingsModel * _pSettingsModel;
     ConnectionDialog * _pConnectionDialog;
     LogDialog * _pLogDialog;
+    ErrorLogDialog * _pErrorLogDialog;
 
     GraphDataModel * _pGraphDataModel;
     ErrorLogModel * _pErrorLogModel;

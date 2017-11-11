@@ -55,11 +55,19 @@ QString ErrorLog::categoryString() const
     }
 }
 
+QString ErrorLog::toString() const
+{
+    return QString("%1 [%2]: %3").arg(timestamp().toString(Util::timeStringFormat()))
+                          .arg(categoryString())
+                          .arg(message());
+}
+
 QDebug operator<<(QDebug debug, const ErrorLog &log)
 {
     QDebugStateSaver saver(debug);
 
-    debug.nospace() << log.timestamp().toString(Util::timeStringFormat()) << " [" << log.categoryString() << "]: " << log.message();
+    //debug.nospace() << log.timestamp().toString(Util::timeStringFormat()) << " [" << log.categoryString() << "]: " << log.message();
+    debug.nospace() << log.toString();
 
     return debug;
 }
