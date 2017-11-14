@@ -15,13 +15,10 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     Qt::ItemFlags flags(const QModelIndex & index) const;
-#if 0
-    bool setData(const QModelIndex & index, const QVariant & value, int role);
-    bool removeRows (int row, int count, const QModelIndex &parent);
-    bool insertRows (int row, int count, const QModelIndex &parent);
-#endif
 
     qint32 size() const;
+
+    void clear();
 
     void addError(QString message);
     void addInfo(QString message);
@@ -33,7 +30,7 @@ public slots:
 private:
     void addItem(ErrorLog::LogCategory cat, QString msg);
 
-    QList<ErrorLog> _errorLogList;
+    QList<ErrorLog> _logList;
 };
 
 #endif // ERRORLOGMODEL_H

@@ -24,6 +24,7 @@ private slots:
     void handleLogsInserted();
     void handleCheckAutoScrollChanged(int newState);
     void handleScrollbarChange();
+    void handleClearButton();
 
 private:
     void setAutoScroll(bool bAutoScroll);

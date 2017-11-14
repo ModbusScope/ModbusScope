@@ -26,6 +26,8 @@ ErrorLogDialog::ErrorLogDialog(ErrorLogModel * pErrorLogModel, QWidget *parent) 
 
     connect(_pUi->checkAutoScroll, SIGNAL(stateChanged(int)), this, SLOT(handleCheckAutoScrollChanged(int)));
 
+    connect(_pUi->pushClear, SIGNAL(clicked(bool)), this, SLOT(handleClearButton()));
+
     // default to autoscroll
     setAutoScroll(true);
 }
@@ -73,6 +75,11 @@ void ErrorLogDialog::handleScrollbarChange()
 
         _pUi->listError->clearSelection();
     }
+}
+
+void ErrorLogDialog::handleClearButton()
+{
+    _pErrorLogModel->clear();
 }
 
 void ErrorLogDialog::setAutoScroll(bool bAutoScroll)

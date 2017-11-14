@@ -17,7 +17,7 @@ QVariant ErrorLogModel::data(const QModelIndex &index, int role) const
 {
     if (index.isValid() && (role == Qt::DisplayRole))
     {
-        return _errorLogList[index.row()].toString();
+        return _logList[index.row()].toString();
     }
 
     return QVariant();
@@ -40,7 +40,17 @@ Qt::ItemFlags ErrorLogModel::flags(const QModelIndex & index) const
 
 qint32 ErrorLogModel::size() const
 {
-    return _errorLogList.size();
+    return _logList.size();
+}
+
+void ErrorLogModel::clear()
+{
+
+    beginRemoveRows(QModelIndex(), 0, size());
+
+    _logList.clear();
+
+    endRemoveRows();
 }
 
 void ErrorLogModel::addError(QString message)
@@ -59,7 +69,7 @@ void ErrorLogModel::addItem(ErrorLog::LogCategory cat, QString msg)
     beginInsertRows(QModelIndex(), size(), size());
 
     const QDateTime timestamp = QDateTime::currentDateTime();
-    _errorLogList.append(ErrorLog(cat, timestamp, msg));
+    _logList.append(ErrorLog(cat, timestamp, msg));
 
 #ifdef DEBUG
     //qDebug() << _errorLogList.last();
