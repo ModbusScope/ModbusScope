@@ -97,7 +97,6 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
     }
     else
     {
-        emit modbusLogError(QString("Open port failed"));
         addErrorResults(registerList);
     }
 
@@ -123,7 +122,6 @@ void ModbusMaster::readPartialList(QList<quint16> registerList)
     {
         if (!openPort())
         {
-            emit modbusLogError(QString("Open port failed"));
             addErrorResults(registerList);
             return;
         }
@@ -201,7 +199,7 @@ bool ModbusMaster::openPort()
     {
         if (modbus_connect(_pModbusContext) == -1)
         {
-            emit modbusLogError("Connection failed: " + QString(modbus_strerror(errno)));
+            emit modbusLogError("Connect failed: " + QString(modbus_strerror(errno)));
 
             modbus_free(_pModbusContext);
             _pModbusContext = 0;
@@ -209,7 +207,7 @@ bool ModbusMaster::openPort()
     }
     else
     {
-        emit modbusLogError("New TCP failed: " + QString(modbus_strerror(errno)));
+        emit modbusLogError("Creating TCP connection failed: " + QString(modbus_strerror(errno)));
         _pModbusContext = 0;
     }
 
@@ -234,8 +232,6 @@ bool ModbusMaster::openPort()
 
         return true;
     }
-
-    emit modbusLogError("Connection open failed");
 
     return false;
 }

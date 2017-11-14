@@ -28,17 +28,15 @@ public:
     bool isActive();
     void resetCommunicationStats();
 
-public slots:
-    void handlePollDone(QMap<quint16, ModbusResult> resultMap);
-    void handleModbusError(QString msg);
-    void handleModbusInfo(QString msg);
-
 signals:
     void registerRequest(QList<quint16> registerList);
     void requestStop();
     void handleReceivedData(QList<bool> successList, QList<double> values);
 
 private slots:
+    void handlePollDone(QMap<quint16, ModbusResult> resultMap);
+    void handleModbusError(QString msg);
+    void handleModbusInfo(QString msg);
     void readData();
     void masterStopped();
 

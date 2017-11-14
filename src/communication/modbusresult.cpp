@@ -34,7 +34,8 @@ void ModbusResult::setSuccess(bool bSuccess)
 QDebug operator<<(QDebug debug, const ModbusResult &result)
 {
     QDebugStateSaver saver(debug);
-    debug.nospace() << '(' << result.isSuccess() << ", " << result.value() << ')';
+    QString resultString = result.isSuccess() ? "Success" : "Fail" ;
+    debug.nospace() << '(' << resultString << ", " << result.value() << ')';
 
     return debug;
 }
