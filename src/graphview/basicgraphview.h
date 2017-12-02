@@ -52,6 +52,7 @@ public slots:
 
 signals:
     void cursorValueUpdate();
+    void addLog(QPointF coorPoint);
 
 private slots:
     void selectionChanged();
@@ -60,6 +61,7 @@ private slots:
     void mouseRelease();
     void mouseWheel();
     void mouseMove(QMouseEvent *event);
+    void handleAddLog(QPointF coorPoint);
 
 protected slots:
     virtual void handleSamplePoints();

@@ -1,6 +1,7 @@
 #include <QVector>
 #include <QtGlobal>
 #include <QLocale>
+#include <QInputDialog>
 
 #include <algorithm> // std::upperbound, std::lowerbound
 
@@ -71,6 +72,8 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
    connect(_pPlot, SIGNAL(axisDoubleClick(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)), this, SLOT(axisDoubleClicked(QCPAxis*)));
    connect(_pPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMove(QMouseEvent*)));
    connect(_pPlot, SIGNAL(beforeReplot()), this, SLOT(handleSamplePoints()));
+
+   connect(this, SIGNAL(addLog(QPointF)), this, SLOT(handleAddLog(QPointF)), Qt::QueuedConnection);
 
    QPen markerPen;
    markerPen.setWidth(2);
@@ -404,6 +407,17 @@ void BasicGraphView::mousePress(QMouseEvent *event)
            }
        }
    }
+   else if (event->modifiers() & Qt::ShiftModifier)
+   {
+       /* Disable range drag when control key is pressed */
+       _pPlot->setInteraction(QCP::iRangeDrag, false);
+       _pPlot->setInteraction(QCP::iRangeZoom, false);
+
+       const double xPos = _pPlot->xAxis->pixelToCoord(event->pos().x());
+       const double yPos = _pPlot->yAxis->pixelToCoord(event->pos().y());
+
+       emit addLog(QPointF(xPos, yPos));
+   }
    else
    {
        // if an axis is selected, only allow the direction of that axis to be dragged
@@ -486,6 +500,27 @@ void BasicGraphView::mouseMove(QMouseEvent *event)
             emit cursorValueUpdate();
         }
     }
+}
+
+void BasicGraphView::handleAddLog(QPointF coorPoint)
+{
+    bool ok;
+    QString text = QInputDialog::getText(_pPlot, tr("Add note"),
+                                         tr("Note Text:"), QLineEdit::Normal,
+                                         "", &ok);
+
+     if (ok && !text.isEmpty())
+     {
+         QCPItemText *textLabel = new QCPItemText(_pPlot);
+         textLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+         textLabel->setText(text);
+         textLabel->position->setType(QCPItemPosition::ptPlotCoords);
+         textLabel->setPen(QPen(Qt::black)); // show black border around text
+
+         textLabel->position->setCoords(coorPoint); // place position at left/top of axis rect
+
+         _pPlot->replot();
+     }
 }
 
 void BasicGraphView::paintTimeStampToolTip(QPoint pos)
