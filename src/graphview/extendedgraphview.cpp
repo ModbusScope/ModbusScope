@@ -7,8 +7,8 @@
 #include "communicationmanager.h"
 #include "settingsmodel.h"
 
-ExtendedGraphView::ExtendedGraphView(CommunicationManager * pConnMan, GuiModel * pGuiModel, SettingsModel * pSettingsModel, GraphDataModel * pRegisterDataModel, MyQCustomPlot *pPlot, QObject *parent):
-    BasicGraphView(pGuiModel, pRegisterDataModel, pPlot)
+ExtendedGraphView::ExtendedGraphView(CommunicationManager * pConnMan, GuiModel * pGuiModel, SettingsModel * pSettingsModel, GraphDataModel * pRegisterDataModel, NoteModel * pNoteModel, MyQCustomPlot *pPlot, QObject *parent):
+    BasicGraphView(pGuiModel, pRegisterDataModel, pNoteModel, pPlot)
 {
     Q_UNUSED(parent);
 

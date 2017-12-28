@@ -5,7 +5,6 @@
 #include <QAbstractTableModel>
 #include <QList>
 
-//#include "communicationmanager.h"
 #include "graphdata.h"
 
 

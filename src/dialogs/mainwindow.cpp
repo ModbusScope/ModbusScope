@@ -3,10 +3,12 @@
 #include "qcustomplot.h"
 #include "communicationmanager.h"
 #include "graphdatamodel.h"
+#include "notemodel.h"
 #include "errorlogmodel.h"
 #include "graphdata.h"
 #include "registerdialog.h"
 #include "connectiondialog.h"
+#include "notesdialog.h"
 #include "settingsmodel.h"
 #include "logdialog.h"
 #include "errorlogdialog.h"
@@ -35,14 +37,16 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     _pSettingsModel = new SettingsModel();
     _pGraphDataModel = new GraphDataModel();
+    _pNoteModel = new NoteModel();
     _pErrorLogModel = new ErrorLogModel();
 
     _pConnectionDialog = new ConnectionDialog(_pSettingsModel, this);
     _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
     _pErrorLogDialog = new ErrorLogDialog(_pErrorLogModel, this);
+    _pNotesDialog = new NotesDialog(_pNoteModel);
 
     _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pGraphDataModel, _pErrorLogModel);
-    _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pUi->customPlot, this);
+    _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
 
     _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphView, _pGraphDataModel);
     _pProjectFileExporter = new ProjectFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel);
@@ -58,6 +62,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionStart, SIGNAL(triggered()), this, SLOT(startScope()));
     connect(_pUi->actionStop, SIGNAL(triggered()), this, SLOT(stopScope()));
     connect(_pUi->actionErrorLog, SIGNAL(triggered()), this, SLOT(showErrorLog()));
+    connect(_pUi->actionManageNotes, SIGNAL(triggered()), this, SLOT(showNotesDialog()));
     connect(_pUi->actionExit, SIGNAL(triggered()), this, SLOT(exitApplication()));
     connect(_pUi->actionExportDataCsv, SIGNAL(triggered()), this, SLOT(selectDataExportFile()));
     connect(_pUi->actionLoadProjectFile, SIGNAL(triggered()), this, SLOT(selectProjectSettingFile()));
@@ -72,6 +77,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionConnectionSettings, SIGNAL(triggered()), this, SLOT(showConnectionDialog()));
     connect(_pUi->actionLogSettings, SIGNAL(triggered()), this, SLOT(showLogSettingsDialog()));
     connect(_pUi->actionRegisterSettings, SIGNAL(triggered()), this, SLOT(showRegisterDialog()));
+    connect(_pUi->actionAddNote, SIGNAL(triggered()), this, SLOT(addNoteToGraph()));
 
     /*-- connect model to view --*/
     connect(_pGuiModel, SIGNAL(frontGraphChanged()), this, SLOT(updateBringToFrontGrapMenu()));
@@ -207,8 +213,17 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     handleCommandLineArguments(cmdArguments);
 
 #if 0
-    // Add dummy register for easy debugging
+    //Debugging
     _pGraphDataModel->add();
+
+    Note newNote;
+    newNote.setKeyData(0);
+    newNote.setValueData(2);
+    newNote.setText("Note1");
+
+    _pNoteModel->add(newNote);
+
+    showNotesDialog();
 #endif
 
 }
@@ -441,6 +456,24 @@ void MainWindow::showRegisterDialog(QString mbcFile)
     }
 }
 
+void MainWindow::addNoteToGraph(void)
+{
+    Note newNote;
+
+    bool ok;
+    QString text = QInputDialog::getText(this, tr("Add note"),
+                                         tr("Note Text:"), QLineEdit::Normal,
+                                         "", &ok);
+    if (ok)
+    {
+        newNote.setKeyData(_pGraphView->pixelToKey(_lastRightClickPos.x()));
+        newNote.setValueData(_pGraphView->pixelToValue(_lastRightClickPos.y()));
+        newNote.setText(text);
+
+        _pNoteModel->add(newNote);
+    }
+}
+
 void MainWindow::clearData()
 {
     _pConnMan->resetCommunicationStats();
@@ -507,6 +540,11 @@ void MainWindow::stopScope()
 void MainWindow::showErrorLog()
 {
     _pErrorLogDialog->show();
+}
+
+void MainWindow::showNotesDialog()
+{
+    _pNotesDialog->show();
 }
 
 void MainWindow::handleGraphVisibilityChange(const quint32 graphIdx)

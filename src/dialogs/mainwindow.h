@@ -21,11 +21,13 @@ class MainWindow;
 class CommunicationManager;
 class QCustomPlot;
 class GraphDataModel;
+class NoteModel;
 class ErrorLogModel;
 class ConnectionDialog;
 class SettingsModel;
 class LogDialog;
 class ErrorLogDialog;
+class NotesDialog;
 class GuiModel;
 class ExtendedGraphView;
 class MarkerInfo;
@@ -66,10 +68,12 @@ private slots:
     void showLogSettingsDialog();
     void showRegisterDialog();
     void showRegisterDialog(QString mbcFile);
+    void addNoteToGraph(void);
     void clearData();
     void startScope();
     void stopScope();
     void showErrorLog();
+    void showNotesDialog();
 
     /* Model change handlers */
     void handleGraphVisibilityChange(const quint32 graphIdx);
@@ -114,10 +118,12 @@ private:
 
     SettingsModel * _pSettingsModel;
     ConnectionDialog * _pConnectionDialog;
+    NotesDialog * _pNotesDialog;
     LogDialog * _pLogDialog;
     ErrorLogDialog * _pErrorLogDialog;
 
     GraphDataModel * _pGraphDataModel;
+    NoteModel * _pNoteModel;
     ErrorLogModel * _pErrorLogModel;
 
     MarkerInfo * _pMarkerInfo;
@@ -141,6 +147,8 @@ private:
     QMenu * _pGraphShowHide;
     QActionGroup * _pBringToFrontGroup;
     QActionGroup * _pLegendPositionGroup;
+
+    QPoint _lastRightClickPos;
 
     static const QString _cStateRunning;
     static const QString _cStateStopped;
