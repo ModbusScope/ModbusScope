@@ -213,6 +213,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     handleCommandLineArguments(cmdArguments);
 
     //Debugging
+#ifdef DEBUG
+    // Add dummy register for easy debugging
     _pGraphDataModel->add();
 
     Note newNote;
@@ -223,6 +225,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pNoteModel->add(newNote);
 
     showNotesDialog();
+#endif
 }
 
 MainWindow::~MainWindow()
