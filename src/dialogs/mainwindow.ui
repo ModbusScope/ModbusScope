@@ -109,6 +109,9 @@
     <addaction name="separator"/>
     <addaction name="actionClearData"/>
     <addaction name="actionClearMarkers"/>
+    <addaction name="separator"/>
+    <addaction name="actionAddNote"/>
+    <addaction name="actionManageNotes"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuCommunication"/>
@@ -671,6 +674,16 @@
   <action name="actionErrorLog">
    <property name="text">
     <string>Error log</string>
+   </property>
+  </action>
+  <action name="actionAddNote">
+   <property name="text">
+    <string>Add Note</string>
+   </property>
+  </action>
+  <action name="actionManageNotes">
+   <property name="text">
+    <string>Manage Notes</string>
    </property>
   </action>
  </widget>

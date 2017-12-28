@@ -8,6 +8,7 @@
 /* forward declaration */
 class GuiModel;
 class GraphDataModel;
+class NoteModel;
 
 class BasicGraphView : public QObject
 {
@@ -23,11 +24,14 @@ public:
         SCALE_MANUAL
     } AxisScaleOptions;
 
-    explicit BasicGraphView(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel, MyQCustomPlot *pPlot, QObject *parent = 0);
+    explicit BasicGraphView(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel, NoteModel * pNoteModel, MyQCustomPlot *pPlot, QObject *parent = 0);
     virtual ~BasicGraphView();
 
     qint32 graphDataSize();
     bool valuesUnderCursor(QList<double> &valueList);
+
+    double pixelToKey(double pixel);
+    double pixelToValue(double pixel);
 
 public slots:
 
@@ -50,9 +54,14 @@ public slots:
     virtual void setOpenGl(bool bState);
     virtual bool openGl(void);
 
+    virtual void handleNoteValueDataChanged(const quint32 idx);
+    virtual void handleNoteKeyDataChanged(const quint32 idx);
+    virtual void handleNoteTextChanged(const quint32 idx);
+    virtual void handleNoteAdded(const quint32 idx);
+    virtual void handleNoteRemoved(const quint32 idx);
+
 signals:
     void cursorValueUpdate();
-    void addLog(QPointF coorPoint);
 
 private slots:
     void selectionChanged();
@@ -61,7 +70,6 @@ private slots:
     void mouseRelease();
     void mouseWheel();
     void mouseMove(QMouseEvent *event);
-    void handleAddLog(QPointF coorPoint);
 
 protected slots:
     virtual void handleSamplePoints();
@@ -72,6 +80,7 @@ protected:
 
     GuiModel * _pGuiModel;
     GraphDataModel * _pGraphDataModel;
+    NoteModel * _pNoteModel;
     MyQCustomPlot * _pPlot;
     bool _bEnableSampleHighlight;
 
@@ -80,7 +89,8 @@ private:
     qint32 graphIndex(QCPGraph * pGraph);
     QCPGraphDataContainer::const_iterator getClosestPoint(double xPos);
 
-    QVector<QString> tickLabels;
+    QVector<QString> _tickLabels;
+    QList<QCPItemText *> _notesItems;
 
     QCPItemStraightLine * _pStartMarker;
     QCPItemStraightLine * _pEndMarker;

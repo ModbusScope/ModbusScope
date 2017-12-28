@@ -8,15 +8,17 @@
 #include "guimodel.h"
 #include "util.h"
 #include "graphdatamodel.h"
+#include "notemodel.h"
 #include "myqcpaxistickertime.h"
 #include "myqcpaxis.h"
 #include "basicgraphview.h"
 
-BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, MyQCustomPlot * pPlot, QObject *parent) :
+BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, NoteModel *pNoteModel, MyQCustomPlot * pPlot, QObject *parent) :
     QObject(parent)
 {
     _pGuiModel = pGuiModel;
     _pGraphDataModel = pGraphDataModel;
+    _pNoteModel = pNoteModel;
 
    _pPlot = pPlot;
 
@@ -73,7 +75,12 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
    connect(_pPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMove(QMouseEvent*)));
    connect(_pPlot, SIGNAL(beforeReplot()), this, SLOT(handleSamplePoints()));
 
-   connect(this, SIGNAL(addLog(QPointF)), this, SLOT(handleAddLog(QPointF)), Qt::QueuedConnection);
+   // Note model
+   connect(_pNoteModel, SIGNAL(valueDataChanged(const quint32)), this, SLOT(handleNoteValueDataChanged(const quint32)));
+   connect(_pNoteModel, SIGNAL(keyDataChanged(const quint32)), this, SLOT(handleNoteKeyDataChanged(const quint32)));
+   connect(_pNoteModel, SIGNAL(textChanged(const quint32)), this, SLOT(handleNoteTextChanged(const quint32)));
+   connect(_pNoteModel, SIGNAL(added(const quint32)), this, SLOT(handleNoteAdded(const quint32)));
+   connect(_pNoteModel, SIGNAL(removed(const quint32)), this, SLOT(handleNoteRemoved(const quint32)));
 
    QPen markerPen;
    markerPen.setWidth(2);
@@ -143,6 +150,16 @@ bool BasicGraphView::valuesUnderCursor(QList<double> &valueList)
 
     return bRet;
 
+}
+
+double BasicGraphView::pixelToKey(double pixel)
+{
+    return _pPlot->xAxis->pixelToCoord(pixel);
+}
+
+double BasicGraphView::pixelToValue(double pixel)
+{
+    return _pPlot->yAxis->pixelToCoord(pixel);
 }
 
 void BasicGraphView::manualScaleXAxis(qint64 min, qint64 max)
@@ -359,6 +376,44 @@ bool BasicGraphView::openGl(void)
     return _pPlot->openGl();
 }
 
+void BasicGraphView::handleNoteValueDataChanged(const quint32 idx)
+{
+    _notesItems[idx]->position->setCoords(QPointF(_pNoteModel->keyData(idx), _pNoteModel->valueData(idx))); // place position at left/top of axis rect
+    _pPlot->replot();
+}
+
+void BasicGraphView::handleNoteKeyDataChanged(const quint32 idx)
+{
+    _notesItems[idx]->position->setCoords(QPointF(_pNoteModel->keyData(idx), _pNoteModel->valueData(idx))); // place position at left/top of axis rect
+    _pPlot->replot();
+}
+
+void BasicGraphView::handleNoteTextChanged(const quint32 idx)
+{
+    _notesItems[idx]->setText(_pNoteModel->textData(idx));
+    _pPlot->replot();
+}
+
+void BasicGraphView::handleNoteAdded(const quint32 idx)
+{
+    QCPItemText *pTextLabel = new QCPItemText(_pPlot);
+
+    pTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+    pTextLabel->setText(_pNoteModel->textData(idx));
+    pTextLabel->position->setType(QCPItemPosition::ptPlotCoords);
+    pTextLabel->setPen(QPen(Qt::black)); // show black border around text
+    pTextLabel->position->setCoords(QPointF(_pNoteModel->keyData(idx), _pNoteModel->valueData(idx))); // place position at left/top of axis rect
+
+    _notesItems.append(pTextLabel);
+
+    _pPlot->replot();
+}
+
+void BasicGraphView::handleNoteRemoved(const quint32 idx)
+{
+    _notesItems.removeAt(idx);
+}
+
 void BasicGraphView::selectionChanged()
 {
    /*
@@ -407,17 +462,7 @@ void BasicGraphView::mousePress(QMouseEvent *event)
            }
        }
    }
-   else if (event->modifiers() & Qt::ShiftModifier)
-   {
-       /* Disable range drag when control key is pressed */
-       _pPlot->setInteraction(QCP::iRangeDrag, false);
-       _pPlot->setInteraction(QCP::iRangeZoom, false);
 
-       const double xPos = _pPlot->xAxis->pixelToCoord(event->pos().x());
-       const double yPos = _pPlot->yAxis->pixelToCoord(event->pos().y());
-
-       emit addLog(QPointF(xPos, yPos));
-   }
    else
    {
        // if an axis is selected, only allow the direction of that axis to be dragged
@@ -500,27 +545,6 @@ void BasicGraphView::mouseMove(QMouseEvent *event)
             emit cursorValueUpdate();
         }
     }
-}
-
-void BasicGraphView::handleAddLog(QPointF coorPoint)
-{
-    bool ok;
-    QString text = QInputDialog::getText(_pPlot, tr("Add note"),
-                                         tr("Note Text:"), QLineEdit::Normal,
-                                         "", &ok);
-
-     if (ok && !text.isEmpty())
-     {
-         QCPItemText *textLabel = new QCPItemText(_pPlot);
-         textLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-         textLabel->setText(text);
-         textLabel->position->setType(QCPItemPosition::ptPlotCoords);
-         textLabel->setPen(QPen(Qt::black)); // show black border around text
-
-         textLabel->position->setCoords(coorPoint); // place position at left/top of axis rect
-
-         _pPlot->replot();
-     }
 }
 
 void BasicGraphView::paintTimeStampToolTip(QPoint pos)
