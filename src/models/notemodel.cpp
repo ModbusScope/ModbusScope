@@ -181,7 +181,7 @@ void NoteModel::setValueData(quint32 idx, double value)
     if (_noteList[idx].valueData() != value)
     {
          _noteList[idx].setValueData(value);
-         emit valueDataChanged(value);
+         emit valueDataChanged(idx);
     }
 }
 
@@ -190,7 +190,7 @@ void NoteModel::setKeyData(quint32 idx, double key)
     if (_noteList[idx].keyData() != key)
     {
          _noteList[idx].setKeyData(key);
-         emit keyDataChanged(key);
+         emit keyDataChanged(idx);
     }
 }
 

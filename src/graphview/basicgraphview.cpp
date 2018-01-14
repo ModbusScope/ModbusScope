@@ -82,6 +82,8 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
    connect(_pNoteModel, SIGNAL(added(const quint32)), this, SLOT(handleNoteAdded(const quint32)));
    connect(_pNoteModel, SIGNAL(removed(const quint32)), this, SLOT(handleNoteRemoved(const quint32)));
 
+   _pDraggedNoteIdx = -1;
+
    QPen markerPen;
    markerPen.setWidth(2);
 
@@ -462,29 +464,50 @@ void BasicGraphView::mousePress(QMouseEvent *event)
            }
        }
    }
-
    else
    {
-       // if an axis is selected, only allow the direction of that axis to be dragged
-       // if no axis is selected, both directions may be dragged
-
-       if (_pPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
+        _pDraggedNoteIdx = -1;
+        QCPAbstractItem * pItem = _pPlot->itemAt(event->pos(), false);
+       for(int idx = 0; idx < _notesItems.size(); idx++)
        {
-           _pPlot->axisRect()->setRangeDrag(_pPlot->xAxis->orientation());
+            if (_notesItems[idx] == pItem)
+            {
+                _pDraggedNoteIdx = idx;
+                break;
+            }
        }
-       else if (_pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
+
+       if (_pDraggedNoteIdx != -1)
        {
-           _pPlot->axisRect()->setRangeDrag(_pPlot->yAxis->orientation());
+          /* Ignore global drag */
+          /* Disable range drag when note item is selected */
+          _pPlot->setInteraction(QCP::iRangeDrag, false);
+          _pPlot->setInteraction(QCP::iRangeZoom, false);
        }
        else
        {
-           _pPlot->axisRect()->setRangeDrag(Qt::Horizontal|Qt::Vertical);
+           // if an axis is selected, only allow the direction of that axis to be dragged
+           // if no axis is selected, both directions may be dragged
+           if (_pPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
+           {
+               _pPlot->axisRect()->setRangeDrag(_pPlot->xAxis->orientation());
+           }
+           else if (_pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
+           {
+               _pPlot->axisRect()->setRangeDrag(_pPlot->yAxis->orientation());
+           }
+           else
+           {
+               _pPlot->axisRect()->setRangeDrag(Qt::Horizontal|Qt::Vertical);
+           }
        }
    }
 }
 
 void BasicGraphView::mouseRelease()
 {
+    _pDraggedNoteIdx = -1;
+
     /* Always re-enable range drag */
     _pPlot->setInteraction(QCP::iRangeDrag, true);
     _pPlot->setInteraction(QCP::iRangeZoom, true);
@@ -520,19 +543,27 @@ void BasicGraphView::mouseMove(QMouseEvent *event)
     {
         if (!(event->modifiers() & Qt::ControlModifier))
         {
-            if (_pPlot->axisRect()->rangeDrag() == Qt::Horizontal)
+            if (_pDraggedNoteIdx != -1)
             {
-                _pGuiModel->setxAxisScale(SCALE_MANUAL); // change to manual scaling
-            }
-            else if (_pPlot->axisRect()->rangeDrag() == Qt::Vertical)
-            {
-                _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
+                _pNoteModel->setKeyData(_pDraggedNoteIdx, pixelToKey(event->pos().x()));
+                _pNoteModel->setValueData(_pDraggedNoteIdx, pixelToValue(event->pos().y()));
             }
             else
             {
-                // Both change to manual scaling
-                _pGuiModel->setxAxisScale(SCALE_MANUAL);
-                _pGuiModel->setyAxisScale(SCALE_MANUAL);
+                if (_pPlot->axisRect()->rangeDrag() == Qt::Horizontal)
+                {
+                    _pGuiModel->setxAxisScale(SCALE_MANUAL); // change to manual scaling
+                }
+                else if (_pPlot->axisRect()->rangeDrag() == Qt::Vertical)
+                {
+                    _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
+                }
+                else
+                {
+                    // Both change to manual scaling
+                    _pGuiModel->setxAxisScale(SCALE_MANUAL);
+                    _pGuiModel->setyAxisScale(SCALE_MANUAL);
+                }
             }
         }
     }

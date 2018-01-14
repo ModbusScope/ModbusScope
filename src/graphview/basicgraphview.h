@@ -92,6 +92,8 @@ private:
     QVector<QString> _tickLabels;
     QList<QCPItemText *> _notesItems;
 
+    qint32 _pDraggedNoteIdx;
+
     QCPItemStraightLine * _pStartMarker;
     QCPItemStraightLine * _pEndMarker;
 
