@@ -413,7 +413,9 @@ void BasicGraphView::handleNoteAdded(const quint32 idx)
 
 void BasicGraphView::handleNoteRemoved(const quint32 idx)
 {
+    _pPlot->removeItem(_notesItems[idx]);
     _notesItems.removeAt(idx);
+    _pPlot->replot();
 }
 
 void BasicGraphView::selectionChanged()
@@ -479,6 +481,10 @@ void BasicGraphView::mousePress(QMouseEvent *event)
 
        if (_pDraggedNoteIdx != -1)
        {
+           /* Save cursor offset */
+           _pixelXOffset = event->pos().x() - _notesItems[_pDraggedNoteIdx]->topLeft->pixelPosition().x();
+           _pixelYOffset = event->pos().y() - _notesItems[_pDraggedNoteIdx]->topLeft->pixelPosition().y();
+
           /* Ignore global drag */
           /* Disable range drag when note item is selected */
           _pPlot->setInteraction(QCP::iRangeDrag, false);
@@ -545,8 +551,8 @@ void BasicGraphView::mouseMove(QMouseEvent *event)
         {
             if (_pDraggedNoteIdx != -1)
             {
-                _pNoteModel->setKeyData(_pDraggedNoteIdx, pixelToKey(event->pos().x()));
-                _pNoteModel->setValueData(_pDraggedNoteIdx, pixelToValue(event->pos().y()));
+                _pNoteModel->setKeyData(_pDraggedNoteIdx, pixelToKey(event->pos().x() - _pixelXOffset));
+                _pNoteModel->setValueData(_pDraggedNoteIdx, pixelToValue(event->pos().y() - _pixelYOffset));
             }
             else
             {

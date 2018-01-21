@@ -93,6 +93,8 @@ private:
     QList<QCPItemText *> _notesItems;
 
     qint32 _pDraggedNoteIdx;
+    qint32 _pixelXOffset;
+    qint32 _pixelYOffset;
 
     QCPItemStraightLine * _pStartMarker;
     QCPItemStraightLine * _pEndMarker;
