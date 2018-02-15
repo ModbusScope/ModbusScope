@@ -206,11 +206,11 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     handleCommandLineArguments(cmdArguments);
 
-    //Debugging
-#ifdef DEBUG
+#if 0
     // Add dummy register for easy debugging
     _pGraphDataModel->add();
 #endif
+
 }
 
 MainWindow::~MainWindow()
