@@ -3,7 +3,7 @@
 
 #include <QShortcut>
 
-NotesDialog::NotesDialog(NoteModel *pNoteModel, QWidget *parent) :
+NotesDialog::NotesDialog(NoteModel *pNoteModel, QWidget *parent):
     QDialog(parent),
     _pUi(new Ui::notesDialog)
 {
