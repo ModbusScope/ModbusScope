@@ -401,6 +401,7 @@ void BasicGraphView::handleNoteAdded(const quint32 idx)
     QCPItemText *pTextLabel = new QCPItemText(_pPlot);
 
     pTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+    pTextLabel->setTextAlignment(Qt::AlignLeft);
     pTextLabel->setText(_pNoteModel->textData(idx));
     pTextLabel->position->setType(QCPItemPosition::ptPlotCoords);
     pTextLabel->setPen(QPen(Qt::black)); // show black border around text

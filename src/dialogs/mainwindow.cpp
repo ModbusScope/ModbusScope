@@ -43,7 +43,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pConnectionDialog = new ConnectionDialog(_pSettingsModel, this);
     _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
     _pErrorLogDialog = new ErrorLogDialog(_pErrorLogModel, this);
-    _pNotesDialog = new NotesDialog(_pNoteModel);
+    _pNotesDialog = new NotesDialog(_pNoteModel, this);
 
     _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pGraphDataModel, _pErrorLogModel);
     _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
