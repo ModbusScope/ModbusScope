@@ -885,6 +885,7 @@ void MainWindow::showContextMenu(const QPoint& pos)
     /* Don't show context menu when control key is pressed */
     if (!(QApplication::keyboardModifiers() & Qt::ControlModifier))
     {
+        _lastRightClickPos = pos;
         _pUi->menuView->popup(_pUi->customPlot->mapToGlobal(pos));
     }
 }
