@@ -27,7 +27,7 @@ class ConnectionDialog;
 class SettingsModel;
 class LogDialog;
 class ErrorLogDialog;
-class NotesDialog;
+class NotesDock;
 class GuiModel;
 class ExtendedGraphView;
 class MarkerInfo;
@@ -118,7 +118,7 @@ private:
 
     SettingsModel * _pSettingsModel;
     ConnectionDialog * _pConnectionDialog;
-    NotesDialog * _pNotesDialog;
+    NotesDock * _pNotesDock;
     LogDialog * _pLogDialog;
     ErrorLogDialog * _pErrorLogDialog;
 

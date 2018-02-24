@@ -36,10 +36,12 @@ public:
     double valueData(quint32 idx);
     double keyData(quint32 idx);
     QString textData(quint32 idx);
+    bool draggableMode();
 
     void setValueData(quint32 idx, double value);
     void setKeyData(quint32 idx, double key);
     void setText(quint32 idx, QString text);
+    void setDraggableMode(bool bState);
 
 signals:
     void valueDataChanged(const quint32 idx);
@@ -57,6 +59,7 @@ private slots:
 private:
 
     QList<Note> _noteList;
+    bool _bDraggable;
 };
 
 #endif // NOTEMODEL_H

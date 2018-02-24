@@ -546,7 +546,7 @@ void BasicGraphView::mouseWheel()
 void BasicGraphView::mouseMove(QMouseEvent *event)
 {
     // Check for graph drag
-    if(event->buttons() & Qt::LeftButton)
+    if(_pNoteModel->draggableMode() && (event->buttons() & Qt::LeftButton))
     {
         if (!(event->modifiers() & Qt::ControlModifier))
         {

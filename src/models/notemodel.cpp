@@ -176,6 +176,11 @@ QString NoteModel::textData(quint32 idx)
     return _noteList[idx].text();
 }
 
+bool NoteModel::draggableMode()
+{
+    return _bDraggable;
+}
+
 void NoteModel::setValueData(quint32 idx, double value)
 {
     if (_noteList[idx].valueData() != value)
@@ -201,6 +206,11 @@ void NoteModel::setText(quint32 idx, QString text)
          _noteList[idx].setText(text);
          emit textChanged(idx);
     }
+}
+
+void NoteModel::setDraggableMode(bool bState)
+{
+    _bDraggable = bState;
 }
 
 void NoteModel::modelDataChanged(quint32 idx)

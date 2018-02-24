@@ -1,16 +1,13 @@
-#include "notesdialog.h"
-#include "ui_notesdialog.h"
+#include "notesdockwidget.h"
+#include "ui_notesdockwidget.h"
 
 #include <QShortcut>
 
-NotesDialog::NotesDialog(NoteModel *pNoteModel, QWidget *parent):
-    QDialog(parent),
-    _pUi(new Ui::notesDialog)
+NotesDockWidget::NotesDockWidget(NoteModel *pNoteModel, QWidget *parent) :
+    QWidget(parent),
+    _pUi(new Ui::NotesDockWidget)
 {
     _pUi->setupUi(this);
-
-    /* Disable question mark button */
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     _pNoteModel = pNoteModel;
 
@@ -33,20 +30,19 @@ NotesDialog::NotesDialog(NoteModel *pNoteModel, QWidget *parent):
     // Handle delete
     QShortcut* shortcut = new QShortcut(QKeySequence(QKeySequence::Delete), _pUi->noteView);
     connect(shortcut, SIGNAL(activated()), this, SLOT(removeNoteRow()));
-
 }
 
-NotesDialog::~NotesDialog()
+NotesDockWidget::~NotesDockWidget()
 {
     delete _pUi;
 }
 
-void NotesDialog::addNoteRow()
+void NotesDockWidget::addNoteRow()
 {
     _pNoteModel->insertRow(_pNoteModel->size());
 }
 
-void NotesDialog::onRegisterInserted(const QModelIndex &parent, int first, int last)
+void NotesDockWidget::onRegisterInserted(const QModelIndex &parent, int first, int last)
 {
     Q_UNUSED(parent);
     Q_UNUSED(last);
@@ -55,7 +51,7 @@ void NotesDialog::onRegisterInserted(const QModelIndex &parent, int first, int l
     _pUi->noteView->selectRow(first);
 }
 
-void NotesDialog::removeNoteRow()
+void NotesDockWidget::removeNoteRow()
 {
     // get list of selected rows
     QItemSelectionModel *selected = _pUi->noteView->selectionModel();

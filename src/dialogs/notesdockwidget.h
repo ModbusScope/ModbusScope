@@ -1,0 +1,32 @@
+#ifndef NOTESDOCK_H
+#define NOTESDOCK_H
+
+#include "notemodel.h"
+
+#include <QWidget>
+
+namespace Ui {
+class NotesDockWidget;
+}
+
+class NotesDockWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit NotesDockWidget(NoteModel *pNoteModel, QWidget *parent = 0);
+    ~NotesDockWidget();
+
+private slots:
+    void addNoteRow();
+    void removeNoteRow();
+
+    void onRegisterInserted(const QModelIndex &parent, int first, int last);
+
+private:
+    Ui::NotesDockWidget *_pUi;
+
+    NoteModel * _pNoteModel;
+};
+
+#endif // NOTESDOCK_H
