@@ -20,7 +20,7 @@ RC_ICONS = ../icon/application.ico
 
 VERSION = 1.4.0
 
-DEFINES += NDEBUG
+DEFINES += DEBUG
 
 DEFINES += GIT_HASH="\\\"$(shell git --git-dir \""$$PWD/../.git"\" rev-parse --short HEAD)\\\""
 DEFINES += GIT_BRANCH="\\\"$(shell git --git-dir \""$$PWD/../.git"\" rev-parse --abbrev-ref HEAD)\\\""
@@ -84,7 +84,8 @@ SOURCES +=  \
     ../src/dialogs/errorlogdialog.cpp \
     ../src/models/notemodel.cpp \
     ../src/models/note.cpp \
-    ../src/dialogs/notesdialog.cpp
+    ../src/dialogs/notesdockwidget.cpp \
+    ../src/dialogs/notesdock.cpp
 
 FORMS    += \
     ../src/dialogs/connectiondialog.ui \
@@ -95,7 +96,7 @@ FORMS    += \
     ../src/dialogs/markerinfodialog.ui \
     ../src/dialogs/importmbcdialog.ui \
     ../src/dialogs/errorlogdialog.ui \
-    ../src/dialogs/notesdialog.ui
+    ../src/dialogs/notesdockwidget.ui
 
 HEADERS += \
     ../libraries/libmodbus/src/modbus-private.h \
@@ -143,7 +144,8 @@ HEADERS += \
     ../src/dialogs/errorlogdialog.h \
     ../src/models/notemodel.h \
     ../src/models/note.h \
-    ../src/dialogs/notesdialog.h
+    ../src/dialogs/notesdockwidget.h \
+    ../src/dialogs/notesdock.h
 
 RESOURCES += \
     ../resources/resource.qrc
