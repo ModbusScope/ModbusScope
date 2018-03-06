@@ -2,7 +2,10 @@
 
 Note::Note()
 {
-
+    _valueData = 0;
+    _keyData = 0;
+    _text = QString("");
+    _bDraggable = false;
 }
 
 QString Note::text() const
@@ -33,4 +36,14 @@ double Note::keyData() const
 void Note::setKeyData(double keyData)
 {
     _keyData = keyData;
+}
+
+bool Note::draggable() const
+{
+    return _bDraggable;
+}
+
+void Note::setDraggable(bool state)
+{
+    _bDraggable = state;
 }

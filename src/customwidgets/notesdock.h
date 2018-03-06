@@ -19,8 +19,10 @@ public:
     void showEvent(QShowEvent *);
 
 private:
-    NotesDockWidget* _pNotesDockWidget;
 
+    void disableNoteDrag();
+
+    NotesDockWidget* _pNotesDockWidget;
     NoteModel * _pNoteModel;
 
 };

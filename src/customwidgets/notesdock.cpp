@@ -28,10 +28,18 @@ NotesDock::~NotesDock()
 
 void NotesDock::hideEvent(QHideEvent *)
 {
-    _pNoteModel->setDraggableMode(false);
+    disableNoteDrag();
 }
 
 void NotesDock::showEvent(QShowEvent *)
+{   
+    disableNoteDrag();
+}
+
+void NotesDock::disableNoteDrag()
 {
-    _pNoteModel->setDraggableMode(true);
+    for(qint32 idx = 0; idx < _pNoteModel->size(); idx++)
+    {
+        _pNoteModel->setDraggable(idx, false);
+    }
 }

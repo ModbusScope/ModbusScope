@@ -546,11 +546,11 @@ void BasicGraphView::mouseWheel()
 void BasicGraphView::mouseMove(QMouseEvent *event)
 {
     // Check for graph drag
-    if(_pNoteModel->draggableMode() && (event->buttons() & Qt::LeftButton))
+    if(event->buttons() & Qt::LeftButton)
     {
         if (!(event->modifiers() & Qt::ControlModifier))
         {
-            if (_pDraggedNoteIdx != -1)
+            if ((_pDraggedNoteIdx != -1) && _pNoteModel->draggable(_pDraggedNoteIdx))
             {
                 _pNoteModel->setKeyData(_pDraggedNoteIdx, pixelToKey(event->pos().x() - _pixelXOffset));
                 _pNoteModel->setValueData(_pDraggedNoteIdx, pixelToValue(event->pos().y() - _pixelYOffset));

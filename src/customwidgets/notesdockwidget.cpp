@@ -53,12 +53,17 @@ void NotesDockWidget::onRegisterInserted(const QModelIndex &parent, int first, i
 
 void NotesDockWidget::removeNoteRow()
 {
-    // get list of selected rows
-    QItemSelectionModel *selected = _pUi->noteView->selectionModel();
-    QModelIndexList rowList = selected->selectedRows();
-
-    foreach(QModelIndex rowIndex, rowList)
+    QList <int> rows;
+    QModelIndexList list = _pUi->noteView->selectionModel()->selectedRows();
+    for (const QModelIndex &idx: list)
     {
-        _pNoteModel->removeRow(rowIndex.row());
+        rows << idx.row();
+    }
+
+    qSort(rows.begin(), rows.end(), qGreater<int>());
+
+    for (int i: rows)
+    {
+        _pNoteModel->removeRow(i);
     }
 }
