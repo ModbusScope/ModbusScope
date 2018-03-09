@@ -32,6 +32,7 @@ public:
     qint32 size() const;
     void add(Note &note);
     void remove(qint32 idx);
+    void clear();
 
     double valueData(quint32 idx);
     double keyData(quint32 idx);

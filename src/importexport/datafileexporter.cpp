@@ -8,14 +8,16 @@
 #include "extendedgraphview.h"
 
 #include "datafileexporter.h"
+#include "notemodel.h"
 
-DataFileExporter::DataFileExporter(GuiModel *pGuiModel, SettingsModel * pSettingsModel, ExtendedGraphView * pGraphView, GraphDataModel * pGraphDataModel, QObject *parent) :
+DataFileExporter::DataFileExporter(GuiModel *pGuiModel, SettingsModel * pSettingsModel, ExtendedGraphView * pGraphView, GraphDataModel * pGraphDataModel, NoteModel *pNoteModel, QObject *parent) :
     QObject(parent)
 {
     _pGuiModel = pGuiModel;
     _pSettingsModel = pSettingsModel;
     _pGraphView = pGraphView;
     _pGraphDataModel = pGraphDataModel;
+    _pNoteModel = pNoteModel;
 
     connect(_pGraphView, SIGNAL(dataAddedToPlot(double, QList<double>)), this, SLOT(exportDataLine(double, QList <double>)));
 }
@@ -206,9 +208,34 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
         header.append("//" + createPropertyRow(E_SHIFT));
 
         header.append("//");
+
+        for (qint32 idx = 0; idx < _pNoteModel->size(); idx++)
+        {
+            header.append(createNoteRow(idx));
+        }
+
+        header.append("//");
     }
 
     return header;
+}
+
+QString DataFileExporter::createNoteRow(qint32 idx)
+{
+    QString line;
+    QString dataString;
+
+    line.append("//Note");
+
+    dataString = Util::formatDoubleForExport(_pNoteModel->keyData(idx));
+    line.append(Util::separatorCharacter() + dataString);
+
+    dataString = Util::formatDoubleForExport(_pNoteModel->valueData(idx));
+    line.append(Util::separatorCharacter() + dataString);
+
+    line.append(Util::separatorCharacter() + '"' + _pNoteModel->textData(idx) + '"');
+
+    return line;
 }
 
 QString DataFileExporter::createPropertyRow(registerProperty prop)

@@ -70,17 +70,17 @@ bool DataFileParser::processDataFile(QString dataFile, FileData * pData)
 
             if (bRet)
             {
-                /* Check for color properties */
-                QStringList colorList = line.split(_pAutoSettingsParser->fieldSeparator());
+                /* Check for properties */
+                QStringList idList = line.split(_pAutoSettingsParser->fieldSeparator());
 
-                if (static_cast<QString>(colorList.first()).toLower() == "//color")
+                if (static_cast<QString>(idList.first()).toLower() == "//color")
                 {
                     bool bValidColor;
 
                     // Remove color property name
-                    colorList.removeFirst();
+                    idList.removeFirst();
 
-                    foreach(QString strColor, colorList)
+                    foreach(QString strColor, idList)
                     {
                         bValidColor = QColor::isValidColor(strColor);
                         if (bValidColor)
@@ -93,6 +93,21 @@ bool DataFileParser::processDataFile(QString dataFile, FileData * pData)
                             pData->colors.clear();
                             break;
                         }
+                    }
+                }
+                else if (static_cast<QString>(idList.first()).toLower() == "//note")
+                {
+                    Note note;
+                    if (parseNoteField(idList, &note))
+                    {
+                        pData->notes.append(note);
+                    }
+                    else
+                    {
+                        QString error = QString(tr("Invalid note data\n"
+                                                   "Line: %1\n"
+                                                   ).arg(line));
+                        Util::showError(error);
                     }
                 }
             }
@@ -342,4 +357,47 @@ qint64 DataFileParser::parseDateTime(QString rawData, bool *bOk)
 
     return date.toMSecsSinceEpoch();
 
+}
+
+bool DataFileParser::parseNoteField(QStringList noteFieldList, Note * pNote)
+{
+
+    /* We expect
+     *
+     * 0: "//Note"
+     * 1: Key (double)
+     * 2: Value (double)
+     * 3: Note text
+     */
+    bool bSucces = true;
+
+    bool bError = false; // tmp variable
+
+    if (noteFieldList.size() == 4)
+    {
+        const double key = _pAutoSettingsParser->locale().toDouble(noteFieldList[1], &bError);
+        if (bError != false)
+        {
+            pNote->setKeyData(key);
+        }
+        else
+        {
+            bSucces = false;
+        }
+
+        const double value = _pAutoSettingsParser->locale().toDouble(noteFieldList[2], &bError);
+        if (bError != false)
+        {
+            pNote->setValueData(value);
+        }
+        else
+        {
+            bSucces = false;
+        }
+
+        QRegularExpression trimStringRegex("\"?(.[^\"]*)\"?");
+        pNote->setText(trimStringRegex.match(noteFieldList[3]).captured(1));
+    }
+
+    return bSucces;
 }

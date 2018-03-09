@@ -49,7 +49,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pGraphDataModel, _pErrorLogModel);
     _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
 
-    _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphView, _pGraphDataModel);
+    _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphView, _pGraphDataModel, _pNoteModel);
     _pProjectFileExporter = new ProjectFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel);
 
     _pLegend = _pUi->legend;
@@ -1106,6 +1106,15 @@ void MainWindow::loadDataFile(QString dataFilePath)
             for (int idx = 0; idx < data.dataLabel.size(); idx++)
             {
                 _pGraphDataModel->setColor((quint32)idx, data.colors[idx]);
+            }
+        }
+
+        _pNoteModel->clear();
+        if (!data.notes.isEmpty())
+        {
+            foreach(Note note, data.notes)
+            {
+                _pNoteModel->add(note);
             }
         }
 

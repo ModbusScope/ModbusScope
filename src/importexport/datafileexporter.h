@@ -9,12 +9,13 @@ class SettingsModel;
 class GuiModel;
 class ExtendedGraphView;
 class GraphDataModel;
+class NoteModel;
 
 class DataFileExporter : public QObject
 {
     Q_OBJECT
 public:
-    explicit DataFileExporter(GuiModel *pGuiModel, SettingsModel *pSettingsModel, ExtendedGraphView * pGraphView, GraphDataModel * pGraphDataModel, QObject *parent = 0);
+    explicit DataFileExporter(GuiModel *pGuiModel, SettingsModel *pSettingsModel, ExtendedGraphView * pGraphView, GraphDataModel * pGraphDataModel, NoteModel * pNoteModel, QObject *parent = 0);
     ~DataFileExporter();
 
     void enableExporterDuringLog();
@@ -47,6 +48,7 @@ private:
     void flushExportBuffer();
     void exportDataHeader();
     QStringList constructDataHeader(bool bDuringLog);
+    QString createNoteRow(qint32 idx);
     QString createPropertyRow(registerProperty prop);
     QString formatData(double timeData, QList<double> dataValues);
     bool writeToFile(QString filePath, QStringList logData);
@@ -56,6 +58,7 @@ private:
     SettingsModel * _pSettingsModel;
     ExtendedGraphView * _pGraphView;
     GraphDataModel * _pGraphDataModel;
+    NoteModel * _pNoteModel;
 
     QStringList _dataExportBuffer;
     quint64 lastLogTime;

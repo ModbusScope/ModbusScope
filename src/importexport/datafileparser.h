@@ -9,6 +9,7 @@
 #include <QStringList>
 #include <QRegularExpression>
 
+#include <note.h>
 #include "settingsauto.h"
 
 class DataFileParser : public QObject
@@ -25,6 +26,8 @@ public:
         QStringList dataLabel;
         QList<QList<double> > dataRows;
         QList<QColor> colors;
+        QList<Note> notes;
+
     } FileData;
 
     DataFileParser();
@@ -37,6 +40,7 @@ private:
     bool readLineFromFile(QString *pLine);
     void loadDataFileSample(QStringList * pDataFileSample);
     qint64 parseDateTime(QString rawData, bool *bOk);
+    bool parseNoteField(QStringList noteFieldList, Note * pNote);
 
 
     QTextStream * _pDataStream;

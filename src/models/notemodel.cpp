@@ -194,6 +194,15 @@ void NoteModel::remove(qint32 idx)
     emit removed(idx);
 }
 
+void NoteModel::clear()
+{
+    qint32 count = size();
+    for(qint32 idx = 0; idx < count; idx++)
+    {
+        remove(0);
+    }
+}
+
 double NoteModel::valueData(quint32 idx)
 {
     return _noteList[idx].valueData();
