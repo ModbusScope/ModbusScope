@@ -10,17 +10,33 @@
 #include "util.h"
 #include "legend.h"
 #include "basicgraphview.h"
+#include "legendmodel.h"
 
 Legend::Legend(QWidget *parent) : QFrame(parent)
 {
     _pLayout = new QVBoxLayout();
 
     _pNoGraphs = new QLabel("No active graphs");
+    _pLegendTable = new QTableWidget(this);
+    _pLegendTable->setRowCount(0);
+    _pLegendTable->setColumnCount(2);
+    _pLegendTable->horizontalHeader()->setStretchLastSection(true);
+    _pLegendTable->setColumnWidth(0,50);
+    _pLegendTable->setShowGrid(false);
+    _pLegendTable->verticalHeader()->setVisible(false);
+    _pLegendTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    _pLegendTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    //_pLegendTable->setFocusPolicy(Qt::NoFocus);
+    _pLegendTable->setHorizontalHeaderLabels(QStringList()<<"Value"<<"Register");
+    _pLegendTable->hide();
 
-    _pLayout->setSpacing(4);
-    _pLayout->setContentsMargins(1, 1, 1, 1); // This is redundant with setMargin, which is deprecated
+
+
+    _pLayout->setSpacing(0);
+    _pLayout->setContentsMargins(0, 0, 0, 0); // This is redundant with setMargin, which is deprecated
 
     _pLayout->addWidget(_pNoGraphs);
+    _pLayout->addWidget(_pLegendTable);
     setLayout(_pLayout);
 
     // For rightclick menu
@@ -39,6 +55,8 @@ Legend::Legend(QWidget *parent) : QFrame(parent)
     connect(_pToggleVisibilityAction, &QAction::triggered, this, &Legend::toggleVisibilityClicked);
     connect(_pHideAllAction, &QAction::triggered, this, &Legend::hideAll);
     connect(_pShowAllAction, &QAction::triggered, this, &Legend::showAll);
+    connect(_pLegendTable, &QTableWidget::cellClicked, this, &Legend::GraphToForeground);
+    connect(_pLegendTable, &QTableWidget::cellDoubleClicked, this, &Legend::ToggleGraphVisibility);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &Legend::customContextMenuRequested, this, &Legend::showContextMenu);
@@ -68,25 +86,15 @@ void Legend::setModels(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel)
 
 }
 
-void Legend::mousePressEvent(QMouseEvent * event)
+void Legend::GraphToForeground(int row, int column)
 {
-    Q_UNUSED(event);
-
-    qint32 idx = itemUnderCursor();
-    if (idx != -1)
-    {
-        _pGuiModel->setFrontGraph(idx);
-    }
+    _pGuiModel->setFrontGraph(row);
 }
 
-void Legend::mouseDoubleClickEvent(QMouseEvent * event)
+void Legend::ToggleGraphVisibility(int row, int column)
 {
-    Q_UNUSED(event);
-
-    const qint32 idx = itemUnderCursor();
-    toggleItemVisibility(idx);
+    toggleItemVisibility(row);
 }
-
 
 void Legend::addLastReceivedDataToLegend(QList<bool> successList, QList<double> valueList)
 {
@@ -124,37 +132,32 @@ void Legend::updateDataInLegend()
     }
 
 
-    if (_items.size() == legendDataValues.size())
+    if (_pLegendTable->rowCount() == legendDataValues.size())
     {
-        for (qint32 i = 0; i < _items.size(); i++)
+        for (qint32 i = 0; i < legendDataValues.size(); i++)
         {
-            const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(i);
-            _items[i]->setText(QString("%1%2").arg(legendDataValues[i]).arg(_pGraphDataModel->label(graphIdx)));
+            _pLegendTable->item(i,0)->setText(legendDataValues[i]);
         }
     }
 }
 
 void Legend::updateLegend()
 {
-    for(qint32 idx = 0; idx < _items.size(); idx++)
-    {
-        _pLayout->removeWidget(_items[idx]);
-        delete _items[idx];
-    }
-    _items.clear();
 
     if (_pGraphDataModel->activeCount() != 0)
     {
         QList<quint16> activeList;
 
         _pGraphDataModel->activeGraphIndexList(&activeList);
+        _pLegendTable->setRowCount(0);
 
         for (qint32 idx = 0; idx < activeList.size(); idx++)
         {
             addItem(activeList[idx]);
         }
 
-        _pNoGraphs->setVisible(false);
+        _pNoGraphs->hide();
+        _pLegendTable->show();
 
         _pToggleVisibilityAction->setEnabled(true);
         _pHideAllAction->setEnabled(true);
@@ -162,7 +165,8 @@ void Legend::updateLegend()
     }
     else
     {
-        _pNoGraphs->setVisible(true);
+        _pNoGraphs->show();
+        _pLegendTable->hide();
 
         _pToggleVisibilityAction->setEnabled(false);
         _pHideAllAction->setEnabled(false);
@@ -176,22 +180,24 @@ void Legend::showGraph(quint32 graphIdx)
 
     if (activeGraphIdx != -1)
     {
-        QFont font = _items[activeGraphIdx]->font();
-        QPalette palette = _items[activeGraphIdx]->palette();
+        QFont font = _pLegendTable->item( int (graphIdx), 0)->font();
 
         if (_pGraphDataModel->isVisible(graphIdx))
         {
             font.setItalic(false);
-            palette.setColor(QPalette::WindowText,Qt::black);
+            _pLegendTable->item(int (activeGraphIdx), 0)->setForeground(_pGraphDataModel->color(graphIdx));
+            _pLegendTable->item(int (activeGraphIdx), 1)->setForeground(_pGraphDataModel->color(graphIdx));
         }
         else
         {
             font.setItalic(true);
-            palette.setColor(QPalette::WindowText,Qt::gray);
+            _pLegendTable->item(int (activeGraphIdx), 0)->setForeground(Qt::gray);
+            _pLegendTable->item(int (activeGraphIdx), 1)->setForeground(Qt::gray);
         }
 
-        _items[activeGraphIdx]->setFont(font);
-        _items[activeGraphIdx]->setPalette(palette);
+        _pLegendTable->item( int (activeGraphIdx), 0)->setFont(font);
+        _pLegendTable->item( int (activeGraphIdx), 1)->setFont(font);
+
     }
 }
 
@@ -201,7 +207,8 @@ void Legend::changeGraphColor(const quint32 graphIdx)
 
     if (activeGraphIdx != -1)
     {
-        _items[activeGraphIdx]->setColor(_pGraphDataModel->color(graphIdx));
+         _pLegendTable->item( int (activeGraphIdx), 0)->setForeground(_pGraphDataModel->color(graphIdx));
+         _pLegendTable->item( int (activeGraphIdx), 1)->setForeground(_pGraphDataModel->color(graphIdx));
     }
 }
 
@@ -211,7 +218,7 @@ void Legend::changeGraphLabel(const quint32 graphIdx)
 
     if (activeGraphIdx != -1)
     {
-       _items[activeGraphIdx]->setText(_pGraphDataModel->label(graphIdx));
+       _pLegendTable->item( int (activeGraphIdx), 1)->setText(_pGraphDataModel->label(graphIdx));
     }
 }
 
@@ -227,43 +234,24 @@ void Legend::updateCursorDataInLegend(QStringList &cursorValueList)
         if (bInRange)
         {
             // No error
-            cursorValueList.append(QString("[%1] ").arg(Util::formatDoubleForExport(valueList[i])));
+            cursorValueList.append(QString("%1").arg(Util::formatDoubleForExport(valueList[i])));
         }
         else
         {
             /* Show error */
-            cursorValueList.append("[?] ");
+            cursorValueList.append("?");
         }
     }
 }
 
 void Legend::addItem(quint32 graphIdx)
 {
-    LegendItem * pNewItem = new LegendItem(this);
-
-    pNewItem->setText(_pGraphDataModel->label(graphIdx));
-    pNewItem->setColor(_pGraphDataModel->color(graphIdx));
-
-    _items.append(pNewItem);
-    _pLayout->addWidget(pNewItem);
-}
-
-qint32 Legend::itemUnderCursor()
-{
-    qint32 widgetIdx = -1;
-
-    for (qint32 idx = 0u; idx < _items.size(); idx++)
-    {
-        QRect widgetRect = _items[idx]->rect();
-        QPoint mousePos = _items[idx]->mapFromGlobal(QCursor::pos());
-        if(widgetRect.contains(mousePos))
-        {
-            widgetIdx = idx;
-            break;
-        }
-    }
-
-    return widgetIdx;
+    int row = _pLegendTable->rowCount();
+    _pLegendTable->insertRow(row);
+    _pLegendTable->setItem(row, 0, new QTableWidgetItem("?") );
+    _pLegendTable->setItem(row, 1, new QTableWidgetItem(_pGraphDataModel->label(graphIdx)) );
+    _pLegendTable->item(row, 0)->setForeground(_pGraphDataModel->color(graphIdx));
+    _pLegendTable->item(row, 1)->setForeground(_pGraphDataModel->color(graphIdx));
 }
 
 void Legend::toggleItemVisibility(qint32 idx)
@@ -278,7 +266,7 @@ void Legend::toggleItemVisibility(qint32 idx)
 
 void Legend::showContextMenu(const QPoint& pos)
 {
-    _popupMenuItem = itemUnderCursor();
+    _popupMenuItem = _pLegendTable->currentRow();
 
     if (_popupMenuItem == -1)
     {

@@ -46,7 +46,7 @@
      <x>0</x>
      <y>0</y>
      <width>839</width>
-     <height>22</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -69,7 +69,7 @@
    </widget>
    <widget class="QMenu" name="menuCommunication">
     <property name="title">
-     <string>Communication</string>
+     <string>&amp;Communication</string>
     </property>
     <addaction name="actionStart"/>
     <addaction name="actionStop"/>
@@ -84,14 +84,14 @@
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
-     <string>View</string>
+     <string>&amp;View</string>
     </property>
     <widget class="QMenu" name="menuBringToFront">
      <property name="enabled">
       <bool>false</bool>
      </property>
      <property name="title">
-      <string>Bring To Front</string>
+      <string>&amp;Bring To Front</string>
      </property>
     </widget>
     <widget class="QMenu" name="menuShowHide">
@@ -99,7 +99,7 @@
       <bool>false</bool>
      </property>
      <property name="title">
-      <string>Show/Hide</string>
+      <string>&amp;Show/Hide</string>
      </property>
     </widget>
     <addaction name="menuBringToFront"/>
@@ -144,19 +144,37 @@
   </widget>
   <widget class="QDockWidget" name="scaleOptionsDock">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
+   <property name="minimumSize">
+    <size>
+     <width>743</width>
+     <height>175</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>524287</width>
+     <height>175</height>
+    </size>
+   </property>
+   <property name="acceptDrops">
+    <bool>false</bool>
+   </property>
+   <property name="floating">
+    <bool>false</bool>
+   </property>
    <property name="features">
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetVerticalTitleBar</set>
+    <set>QDockWidget::DockWidgetFeatureMask</set>
    </property>
    <property name="allowedAreas">
     <set>Qt::BottomDockWidgetArea|Qt::TopDockWidgetArea</set>
    </property>
    <property name="windowTitle">
-    <string>Scale options</string>
+    <string notr="true">Scale options</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>8</number>
@@ -204,6 +222,9 @@
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <property name="spacing">
+             <number>0</number>
+            </property>
             <item>
              <widget class="QRadioButton" name="radioXSliding">
               <property name="text">
@@ -216,13 +237,25 @@
               <property name="formAlignment">
                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
               </property>
+              <property name="horizontalSpacing">
+               <number>0</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>6</number>
+              </property>
               <property name="bottomMargin">
-               <number>2</number>
+               <number>0</number>
               </property>
               <item row="0" column="0">
                <widget class="QLabel" name="label_6">
                 <property name="text">
                  <string>Interval (s)</string>
+                </property>
+                <property name="margin">
+                 <number>6</number>
                 </property>
                </widget>
               </item>
@@ -263,6 +296,19 @@
             </property>
            </widget>
           </item>
+          <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
          </layout>
         </item>
        </layout>
@@ -274,97 +320,116 @@
         <string>Y-axis scale settings</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_4">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetDefaultConstraint</enum>
+        </property>
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
+         <number>6</number>
+        </property>
         <item>
-         <widget class="QRadioButton" name="radioYFullScale">
-          <property name="text">
-           <string>Full auto-scale</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="radioYWindowScale">
-          <property name="text">
-           <string>Window auto-scale</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="0,0,0,0,1">
+         <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <widget class="QRadioButton" name="radioYMinMax">
+           <widget class="QRadioButton" name="radioYFullScale">
             <property name="text">
-             <string/>
+             <string>Full auto-scale</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
           <item>
-           <layout class="QGridLayout" name="gridLayout">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_7">
+           <widget class="QRadioButton" name="radioYWindowScale">
+            <property name="text">
+             <string>Window auto-scale</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="0,0,0,0,0">
+            <item>
+             <widget class="QRadioButton" name="radioYMinMax">
               <property name="text">
-               <string>Min: </string>
+               <string>Limit from</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
-             <widget class="QSpinBox" name="spinYMin">
+            <item>
+             <layout class="QGridLayout" name="gridLayout">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>Min: </string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QSpinBox" name="spinYMin">
+                <property name="minimum">
+                 <number>-65535</number>
+                </property>
+                <property name="maximum">
+                 <number>65535</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_8">
+              <property name="text">
+               <string>Max: </string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spinYMax">
               <property name="minimum">
                <number>-65535</number>
               </property>
               <property name="maximum">
                <number>65535</number>
               </property>
+              <property name="value">
+               <number>10</number>
+              </property>
              </widget>
+            </item>
+            <item>
+             <spacer name="spacerScaleX_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::MinimumExpanding</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </item>
           <item>
-           <widget class="QLabel" name="label_8">
+           <widget class="QRadioButton" name="radioYManual">
             <property name="text">
-             <string>Max: </string>
+             <string>Manual</string>
             </property>
            </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="spinYMax">
-            <property name="minimum">
-             <number>-65535</number>
-            </property>
-            <property name="maximum">
-             <number>65535</number>
-            </property>
-            <property name="value">
-             <number>10</number>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="spacerScaleX_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::MinimumExpanding</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="radioYManual">
-          <property name="text">
-           <string>Manual</string>
-          </property>
-         </widget>
         </item>
        </layout>
       </widget>
@@ -376,7 +441,7 @@
    <property name="minimumSize">
     <size>
      <width>80</width>
-     <height>59</height>
+     <height>68</height>
     </size>
    </property>
    <property name="features">
@@ -386,7 +451,7 @@
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
-    <string>Markers</string>
+    <string>&amp;Markers</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
@@ -442,7 +507,7 @@
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
-    <string>Legend</string>
+    <string>&amp;Legend</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
@@ -450,60 +515,19 @@
    <widget class="QWidget" name="dockWidgetContents_2">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QScrollArea" name="scrollArea">
+      <widget class="Legend" name="legend">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="frameShape">
-        <enum>QFrame::Box</enum>
+        <enum>QFrame::NoFrame</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
+        <enum>QFrame::Raised</enum>
        </property>
-       <property name="horizontalScrollBarPolicy">
-        <enum>Qt::ScrollBarAlwaysOff</enum>
-       </property>
-       <property name="widgetResizable">
-        <bool>true</bool>
-       </property>
-       <widget class="VerticalScrollAreaContents" name="scrollAreaWidgetContents">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>68</width>
-          <height>68</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_6">
-         <item>
-          <widget class="Legend" name="legend">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
       </widget>
      </item>
     </layout>
@@ -521,7 +545,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Start logging</string>
+    <string>&amp;Start logging</string>
    </property>
   </action>
   <action name="actionStop">
@@ -534,7 +558,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Stop logging</string>
+    <string>Stop &amp;logging</string>
    </property>
   </action>
   <action name="actionExportDataCsv">
@@ -547,7 +571,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Export Data...</string>
+    <string>&amp;Export Data...</string>
    </property>
   </action>
   <action name="actionLoadProjectFile">
@@ -557,7 +581,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Load Project File...</string>
+    <string>&amp;Load Project File...</string>
    </property>
   </action>
   <action name="actionExportImage">
@@ -570,7 +594,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Export Image...</string>
+    <string>E&amp;xport Image...</string>
    </property>
   </action>
   <action name="actionAbout">
@@ -580,7 +604,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>About...</string>
+    <string>&amp;About...</string>
    </property>
   </action>
   <action name="actionReloadProjectFile">
@@ -588,7 +612,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Reload Project File</string>
+    <string>&amp;Reload Project File</string>
    </property>
   </action>
   <action name="actionImportDataFile">
@@ -598,7 +622,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Import Data File...</string>
+    <string>&amp;Import Data File...</string>
    </property>
   </action>
   <action name="actionHighlightSamplePoints">
@@ -612,7 +636,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Highlight Sample Points</string>
+    <string>&amp;Highlight Sample Points</string>
    </property>
   </action>
   <action name="actionClearData">
@@ -620,7 +644,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Clear Data</string>
+    <string>&amp;Clear Data</string>
    </property>
   </action>
   <action name="actionConnectionSettings">
@@ -630,7 +654,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Connection Settings...</string>
+    <string>&amp;Connection Settings...</string>
    </property>
   </action>
   <action name="actionRegisterSettings">
@@ -640,7 +664,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Register settings...</string>
+    <string>Re&amp;gister settings...</string>
    </property>
   </action>
   <action name="actionLogSettings">
@@ -650,12 +674,12 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Log Settings...</string>
+    <string>Log &amp;Settings...</string>
    </property>
   </action>
   <action name="actionClearMarkers">
    <property name="text">
-    <string>Clear Markers</string>
+    <string>Clear &amp;Markers</string>
    </property>
   </action>
   <action name="actionExportSettings">
@@ -667,12 +691,12 @@
      <normaloff>:/menu_icon/menu_icon/icons/folder_go.png</normaloff>:/menu_icon/menu_icon/icons/folder_go.png</iconset>
    </property>
    <property name="text">
-    <string>Export Settings...</string>
+    <string>Ex&amp;port Settings...</string>
    </property>
   </action>
   <action name="actionErrorLog">
    <property name="text">
-    <string>Error log</string>
+    <string>&amp;Error log</string>
    </property>
   </action>
   <action name="actionAddNote">
@@ -698,12 +722,6 @@
    <class>Legend</class>
    <extends>QFrame</extends>
    <header>legend.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>VerticalScrollAreaContents</class>
-   <extends>QWidget</extends>
-   <header>verticalscrollareacontents.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

@@ -66,9 +66,9 @@ SOURCES +=  \
     ../src/importexport/settingsauto.cpp \
     ../src/models/graphdatamodel.cpp \
     ../src/models/graphdata.cpp \
+    ../src/models/legendmodel.cpp \
     ../src/communication/modbusresult.cpp \
     ../src/customwidgets/legend.cpp \
-    ../src/customwidgets/legenditem.cpp \
     ../src/dialogs/registerdialog.cpp \
     ../src/customwidgets/verticalscrollareacontents.cpp \
     ../src/customwidgets/markerinfo.cpp \
@@ -128,7 +128,6 @@ HEADERS += \
     ../src/models/graphdata.h \
     ../src/communication/modbusresult.h \
     ../src/customwidgets/legend.h \
-    ../src/customwidgets/legenditem.h \
     ../src/customwidgets/verticalscrollareacontents.h \
     ../src/customwidgets/markerinfo.h \
     ../src/customwidgets/markerinfoitem.h \
@@ -144,6 +143,7 @@ HEADERS += \
     ../src/dialogs/errorlogdialog.h \
     ../src/models/notemodel.h \
     ../src/models/note.h \
+    ../src/models/legendmodel.h
     ../src/customwidgets/notesdock.h \
     ../src/customwidgets/notesdockwidget.h
 
