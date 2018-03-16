@@ -3,9 +3,11 @@
 
 #include <QFrame>
 #include <QVBoxLayout>
+#include <QTableWidget>
+#include <QLabel>
+#include <QAbstractItemView>
+#include <QColor>
 #include <QMenu>
-
-#include "legenditem.h"
 
 /* Forward declaration */
 class GuiModel;
@@ -21,9 +23,8 @@ public:
 
     void setModels(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel);
     void setGraphview(BasicGraphView * pGraphView);
-
-    void mousePressEvent(QMouseEvent * event);
-    void mouseDoubleClickEvent(QMouseEvent * event);
+    void GraphToForeground(int row, int column);
+    void ToggleGraphVisibility(int row, int column);
 
 signals:
 
@@ -37,6 +38,7 @@ private slots:
     void changeGraphColor(const quint32 graphIdx);
     void changeGraphLabel(const quint32 graphIdx);
     void showContextMenu(const QPoint& pos);
+
     void toggleVisibilityClicked();
     void hideAll();
     void showAll();
@@ -44,7 +46,6 @@ private slots:
 private:
     void updateCursorDataInLegend(QStringList &cursorValueList);
     void addItem(quint32 graphIdx);
-    qint32 itemUnderCursor();
     void toggleItemVisibility(qint32 idx);
 
     // Last data
@@ -60,7 +61,7 @@ private:
     // Widgets
     QVBoxLayout * _pLayout;
     QLabel * _pNoGraphs;
-    QList<LegendItem *> _items;
+    QTableWidget* _pLegendTable;
 
     QMenu * _pLegendMenu;
     QAction * _pToggleVisibilityAction;
