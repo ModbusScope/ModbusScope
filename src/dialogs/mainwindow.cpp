@@ -440,7 +440,15 @@ void MainWindow::showRegisterDialog(QString mbcFile)
 {
     if (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
     {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Clear data?", "An imported data file is loaded. Do you want to clear the data and start adding registers for a new log?", QMessageBox::Yes|QMessageBox::No);
+        if (reply != QMessageBox::Yes)
+        {
+            return;
+        }
+
         _pGraphDataModel->clear();
+        _pNoteModel->clear();
 
         _pGuiModel->setGuiState(GuiModel::INIT);
     }
