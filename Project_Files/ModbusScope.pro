@@ -66,7 +66,6 @@ SOURCES +=  \
     ../src/importexport/settingsauto.cpp \
     ../src/models/graphdatamodel.cpp \
     ../src/models/graphdata.cpp \
-    ../src/models/legendmodel.cpp \
     ../src/communication/modbusresult.cpp \
     ../src/customwidgets/legend.cpp \
     ../src/dialogs/registerdialog.cpp \
@@ -95,8 +94,7 @@ FORMS    += \
     ../src/dialogs/aboutdialog.ui \
     ../src/dialogs/markerinfodialog.ui \
     ../src/dialogs/importmbcdialog.ui \
-    ../src/dialogs/errorlogdialog.ui \
-    ../src/customwidgets/notesdockwidget.ui
+    ../src/dialogs/errorlogdialog.ui
 
 HEADERS += \
     ../libraries/libmodbus/src/modbus-private.h \
@@ -143,7 +141,6 @@ HEADERS += \
     ../src/dialogs/errorlogdialog.h \
     ../src/models/notemodel.h \
     ../src/models/note.h \
-    ../src/models/legendmodel.h
     ../src/customwidgets/notesdock.h \
     ../src/customwidgets/notesdockwidget.h
 
