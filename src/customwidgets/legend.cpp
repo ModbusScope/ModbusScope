@@ -10,7 +10,6 @@
 #include "util.h"
 #include "legend.h"
 #include "basicgraphview.h"
-#include "legendmodel.h"
 
 Legend::Legend(QWidget *parent) : QFrame(parent)
 {

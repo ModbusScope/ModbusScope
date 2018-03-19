@@ -66,7 +66,6 @@ SOURCES +=  \
     ../src/importexport/settingsauto.cpp \
     ../src/models/graphdatamodel.cpp \
     ../src/models/graphdata.cpp \
-    ../src/models/legendmodel.cpp \
     ../src/communication/modbusresult.cpp \
     ../src/customwidgets/legend.cpp \
     ../src/dialogs/registerdialog.cpp \
@@ -135,8 +134,7 @@ HEADERS += \
     ../src/importexport/mbcfileimporter.h \
     ../src/models/errorlog.h \
     ../src/models/errorlogmodel.h \
-    ../src/dialogs/errorlogdialog.h \
-    ../src/models/legendmodel.h
+    ../src/dialogs/errorlogdialog.h
 
 RESOURCES += \
     ../resources/resource.qrc
