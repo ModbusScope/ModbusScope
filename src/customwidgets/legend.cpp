@@ -108,7 +108,7 @@ void Legend::addLastReceivedDataToLegend(QList<bool> successList, QList<double> 
         else
         {
             /* Show error */
-            _lastReceivedValueList.append("- ");
+            _lastReceivedValueList.append("-");
         }
     }
 
