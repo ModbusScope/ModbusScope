@@ -20,7 +20,6 @@
 
 #include <QDebug>
 #include <QDateTime>
-#include <QCloseEvent>
 
 const QString MainWindow::_cStateRunning = QString("Running");
 const QString MainWindow::_cStateStopped = QString("Stopped");
@@ -1230,24 +1229,4 @@ void MainWindow::handleCommandLineArguments(QStringList cmdArguments)
         _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
         loadProjectFile(filename);
     }
-}
-
-void MainWindow::closeEvent (QCloseEvent *event)
-{
-    if (_pGuiModel->guiState() == GuiModel::STARTED) {
-        QMessageBox::StandardButton resBtn = QMessageBox::question( this, windowTitle(),
-                                                                    tr("Are you sure?\n"),
-                                                                    QMessageBox::No | QMessageBox::Yes,
-                                                                    QMessageBox::Yes);
-        if (resBtn != QMessageBox::Yes) {
-            event->ignore();
-        } else {
-            event->accept();
-        }
-    }
-    else
-    {
-        event->accept();
-    }
-
 }

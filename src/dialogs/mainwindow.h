@@ -43,7 +43,6 @@ public:
 protected:
     void keyPressEvent(QKeyEvent* event);
     void keyReleaseEvent(QKeyEvent* event);
-    void closeEvent(QCloseEvent* event);
 
 signals:
 
