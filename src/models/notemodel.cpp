@@ -176,7 +176,7 @@ void NoteModel::add(Note &note)
     beginInsertRows(QModelIndex(), size(), size());
 
     _noteList.append(note);
-    _bDataChanged = true;
+    setNotesDataUpdated(true);
 
     /* Call function to trigger view update */
     endInsertRows();
@@ -189,7 +189,7 @@ void NoteModel::remove(qint32 idx)
     beginRemoveRows(QModelIndex(), idx, idx);
 
     _noteList.removeAt(idx);
-    _bDataChanged = true;
+    setNotesDataUpdated(true);
 
     endRemoveRows();
 
@@ -225,9 +225,9 @@ bool NoteModel::draggable(quint32 idx)
     return _noteList[idx].draggable();
 }
 
-bool NoteModel::isDataChanged()
+bool NoteModel::isNotesDataUpdated()
 {
-    return _bDataChanged;
+    return _bNotesDataUpdated;
 }
 
 void NoteModel::setValueData(quint32 idx, double value)
@@ -235,7 +235,7 @@ void NoteModel::setValueData(quint32 idx, double value)
     if (_noteList[idx].valueData() != value)
     {
          _noteList[idx].setValueData(value);
-         _bDataChanged = true;
+         setNotesDataUpdated(true);
          emit valueDataChanged(idx);
     }
 }
@@ -245,7 +245,7 @@ void NoteModel::setKeyData(quint32 idx, double key)
     if (_noteList[idx].keyData() != key)
     {
          _noteList[idx].setKeyData(key);
-         _bDataChanged = true;
+         setNotesDataUpdated(true);
          emit keyDataChanged(idx);
     }
 }
@@ -255,7 +255,7 @@ void NoteModel::setText(quint32 idx, QString text)
     if (_noteList[idx].text() != text)
     {
          _noteList[idx].setText(text);
-         _bDataChanged = true;
+         setNotesDataUpdated(true);
          emit textChanged(idx);
     }
 }
@@ -269,9 +269,13 @@ void NoteModel::setDraggable(quint32 idx, bool bState)
     }
 }
 
-void NoteModel::resetDataChanged()
+void NoteModel::setNotesDataUpdated(bool bUpdated)
 {
-    _bDataChanged = false;
+    if (_bNotesDataUpdated != bUpdated)
+    {
+         _bNotesDataUpdated = bUpdated;
+         emit notesDataUpdatedChanged();
+    }
 }
 
 void NoteModel::modelDataChanged(quint32 idx)

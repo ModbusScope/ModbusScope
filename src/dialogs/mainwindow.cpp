@@ -45,7 +45,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
     _pErrorLogDialog = new ErrorLogDialog(_pErrorLogModel, this);
 
-    _pNotesDock = new NotesDock(_pNoteModel, this);
+    _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
 
     _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pGraphDataModel, _pErrorLogModel);
     _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
@@ -201,6 +201,9 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     /* handle focus change */
     connect(QApplication::instance(), SIGNAL(focusChanged(QWidget *, QWidget *)), this, SLOT(appFocusChanged(QWidget *, QWidget *)));
 
+    /* Update notes in data file when requested by notes model */
+    connect(_pNoteModel, SIGNAL(dataFileUpdateRequested()), this, SLOT(updateDataFileNotes()));
+
     // Default to full auto scaling
     _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
     _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
@@ -267,7 +270,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (
             (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
-            && (_pNoteModel->isDataChanged())
+            && (_pNoteModel->isNotesDataUpdated())
         )
     {
         QMessageBox::StandardButton resBtn = QMessageBox::question(this, windowTitle(),
@@ -1018,6 +1021,17 @@ void MainWindow::updateRuntime()
     }
 }
 
+void MainWindow::updateDataFileNotes()
+{
+    if (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
+    {
+        if (_pNoteModel->isNotesDataUpdated())
+        {
+            _pDataFileExporter->updateNoteLines(_pGuiModel->dataFilePath());
+        }
+    }
+}
+
 void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pProjectSettings)
 {
     if (pProjectSettings->general.connectionSettings.bIp)
@@ -1165,7 +1179,7 @@ void MainWindow::loadDataFile(QString dataFilePath)
                 _pNoteModel->add(note);
             }
         }
-        _pNoteModel->resetDataChanged();
+        _pNoteModel->setNotesDataUpdated(false);
 
         _pGuiModel->setFrontGraph(0);
 

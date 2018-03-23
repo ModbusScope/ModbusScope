@@ -228,6 +228,7 @@ bool DataFileExporter::updateNoteLines(QString dataFile)
 
     if (bSuccess)
     {
+        _pNoteModel->setNotesDataUpdated(false);
         return true;
     }
     else

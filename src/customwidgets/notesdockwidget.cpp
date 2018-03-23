@@ -3,13 +3,14 @@
 
 #include <QShortcut>
 
-NotesDockWidget::NotesDockWidget(NoteModel *pNoteModel, QWidget *parent) :
+NotesDockWidget::NotesDockWidget(NoteModel *pNoteModel, GuiModel *pGuiModel, QWidget *parent) :
     QWidget(parent),
     _pUi(new Ui::NotesDockWidget)
 {
     _pUi->setupUi(this);
 
     _pNoteModel = pNoteModel;
+    _pGuiModel = pGuiModel;
 
     // Setup registerView
     _pUi->noteView->setModel(_pNoteModel);
@@ -23,6 +24,14 @@ NotesDockWidget::NotesDockWidget(NoteModel *pNoteModel, QWidget *parent) :
     // Select using click, shift and control
     _pUi->noteView->setSelectionBehavior(QAbstractItemView::SelectRows);
     _pUi->noteView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+
+    _pUi->btnUpdateDataFile->setVisible(false);
+
+    connect(_pGuiModel, SIGNAL(guiStateChanged()), this, SLOT(notesDataUpdatedChanged()));
+    connect(_pNoteModel, SIGNAL(notesDataUpdatedChanged()), this, SLOT(notesDataUpdatedChanged()));
+
+    connect(_pUi->btnUpdateDataFile, SIGNAL(clicked(bool)), this, SLOT(updateDataFileClicked()));
 
     // Handle remove button
     connect(_pUi->btnRemoveNote, SIGNAL(clicked(bool)), this, SLOT(removeNoteRow()));
@@ -67,3 +76,16 @@ void NotesDockWidget::removeNoteRow()
         _pNoteModel->removeRow(i);
     }
 }
+
+void NotesDockWidget::updateDataFileClicked()
+{
+    emit _pNoteModel->dataFileUpdateRequested();
+}
+
+void NotesDockWidget::notesDataUpdatedChanged()
+{
+    _pUi->btnUpdateDataFile->setVisible(_pGuiModel->guiState() == GuiModel::DATA_LOADED);
+    _pUi->btnUpdateDataFile->setEnabled(_pNoteModel->isNotesDataUpdated());
+}
+
+

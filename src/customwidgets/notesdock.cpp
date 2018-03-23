@@ -1,6 +1,6 @@
 #include "notesdock.h"
 
-NotesDock::NotesDock(NoteModel * pNoteModel, QWidget *parent) :
+NotesDock::NotesDock(NoteModel * pNoteModel, GuiModel *pGuiModel, QWidget *parent) :
     QDockWidget(parent)
 {
 
@@ -14,7 +14,7 @@ NotesDock::NotesDock(NoteModel * pNoteModel, QWidget *parent) :
     setWindowTitle("Notes");
     setFloating(true);
 
-    _pNotesDockWidget = new NotesDockWidget(pNoteModel, this);
+    _pNotesDockWidget = new NotesDockWidget(pNoteModel, pGuiModel, this);
     this->setWidget(_pNotesDockWidget);
 
     this->hide();

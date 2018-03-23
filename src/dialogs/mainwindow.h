@@ -105,6 +105,7 @@ private slots:
     void xAxisScaleGroupClicked(int id);
     void yAxisScaleGroupClicked(int id);
     void updateRuntime();
+    void updateDataFileNotes();
 
 private:
 
