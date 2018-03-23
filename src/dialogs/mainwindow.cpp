@@ -20,6 +20,7 @@
 
 #include <QDebug>
 #include <QDateTime>
+#include <QCloseEvent>
 
 const QString MainWindow::_cStateRunning = QString("Running");
 const QString MainWindow::_cStateStopped = QString("Stopped");
@@ -68,7 +69,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionExportDataCsv, SIGNAL(triggered()), this, SLOT(selectDataExportFile()));
     connect(_pUi->actionLoadProjectFile, SIGNAL(triggered()), this, SLOT(selectProjectSettingFile()));
     connect(_pUi->actionReloadProjectFile, SIGNAL(triggered()), this, SLOT(reloadProjectSettings()));
-    connect(_pUi->actionImportDataFile, SIGNAL(triggered()), this, SLOT(selecDataImportFile()));
+    connect(_pUi->actionImportDataFile, SIGNAL(triggered()), this, SLOT(selectDataImportFile()));
     connect(_pUi->actionExportImage, SIGNAL(triggered()), this, SLOT(selectImageExportFile()));
     connect(_pUi->actionExportSettings, SIGNAL(triggered()), this, SLOT(selectSettingsExportFile()));
     connect(_pUi->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
@@ -262,6 +263,43 @@ void MainWindow::keyReleaseEvent(QKeyEvent* event)
     QMainWindow::keyReleaseEvent(event);
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if (
+            (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
+            && (_pNoteModel->isDataChanged())
+        )
+    {
+        QMessageBox::StandardButton resBtn = QMessageBox::question(this, windowTitle(),
+                                                                    tr("The notes are changed.\nDo you want discard the changes or update (save) the data file?\n"),
+                                                                    QMessageBox::Cancel | QMessageBox::Discard | QMessageBox::Save,
+                                                                    QMessageBox::Cancel);
+        if (resBtn == QMessageBox::Cancel)
+        {
+            event->ignore();
+        }
+        else if (resBtn == QMessageBox::Discard)
+        {
+            event->accept();
+        }
+        else if (resBtn == QMessageBox::Save)
+        {
+            if (_pDataFileExporter->updateNoteLines(_pGuiModel->dataFilePath()))
+            {
+                event->accept();
+            }
+            else
+            {
+                event->ignore();
+            }
+        }
+    }
+    else
+    {
+        event->accept();
+    }
+}
+
 void MainWindow::selectProjectSettingFile()
 {
     QString filePath;
@@ -287,7 +325,7 @@ void MainWindow::reloadProjectSettings()
     loadProjectFile(_pGuiModel->projectFilePath());
 }
 
-void MainWindow::selecDataImportFile()
+void MainWindow::selectDataImportFile()
 {
     QString filePath;
     QFileDialog dialog(this);
@@ -489,6 +527,7 @@ void MainWindow::clearData()
     _pGraphView->clearResults();
     _pGuiModel->clearMarkersState();
     _pDataFileExporter->rewriteDataFile();
+    _pNoteModel->clear();
 }
 
 void MainWindow::startScope()
@@ -496,6 +535,7 @@ void MainWindow::startScope()
     if (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
     {
         _pGraphDataModel->clear();
+        _pNoteModel->clear();
 
         _pGuiModel->setGuiState(GuiModel::INIT);
     }
@@ -1125,6 +1165,7 @@ void MainWindow::loadDataFile(QString dataFilePath)
                 _pNoteModel->add(note);
             }
         }
+        _pNoteModel->resetDataChanged();
 
         _pGuiModel->setFrontGraph(0);
 

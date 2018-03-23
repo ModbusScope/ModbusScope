@@ -99,7 +99,7 @@ public:
 
                 QTime time = QTime::fromMSecsSinceStartOfDay(absoluteTime);
 
-                tickLabel = time.toString();
+                tickLabel = time.toString(Util::timeStringFormat());
             }
 
             // Make sure minus sign is shown when tick number is negative

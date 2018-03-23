@@ -38,11 +38,13 @@ public:
     double keyData(quint32 idx);
     QString textData(quint32 idx);
     bool draggable(quint32 idx);
+    bool isDataChanged();
 
     void setValueData(quint32 idx, double value);
     void setKeyData(quint32 idx, double key);
     void setText(quint32 idx, QString text);
     void setDraggable(quint32 idx, bool bState);
+    void resetDataChanged();
 
 signals:
     void valueDataChanged(const quint32 idx);
@@ -61,6 +63,7 @@ private slots:
 private:
 
     QList<Note> _noteList;
+    bool _bDataChanged;
 
 };
 

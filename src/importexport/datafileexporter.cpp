@@ -136,6 +136,107 @@ void DataFileExporter::exportDataFile(QString dataFile)
     }
 }
 
+bool DataFileExporter::updateNoteLines(QString dataFile)
+{
+    bool bSuccess = true;
+
+    QFileInfo fileInfo(dataFile);
+    QString tmpFileName = QString("%1/tmp_%2").arg(fileInfo.path()).arg(fileInfo.fileName());
+
+    QFile srcFile(dataFile);
+    QFile tmpFile(tmpFileName);
+
+    if (srcFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        if (tmpFile.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            // CLear tmp file
+            tmpFile.resize(0);
+
+            QTextStream srcStream(&srcFile);
+            QTextStream tmpStream(&tmpFile);
+            QString line;
+            bool bPreviousLineWasEmptyComment = false;
+
+            while(!srcStream.atEnd())
+            {
+                line = srcStream.readLine().trimmed();
+
+                if (line.left(2) == "//")
+                {
+                    bool bEmptyCommentLine = line.length() == 2;
+
+                    if (line.left(6).toLower() == "//note")
+                    {
+                        // Skip line
+                    }
+                    else if (bPreviousLineWasEmptyComment && bEmptyCommentLine)
+                    {
+                        // We want to avoid 2 subsequent comment lines, so skip
+                    }
+                    else
+                    {
+                        // copy line
+                        tmpStream << line << "\n";
+                        bPreviousLineWasEmptyComment = bEmptyCommentLine;
+                    }
+                }
+                else
+                {
+                    // No comment line
+                    // Keep first data line in variable to insert after notes
+                    break;
+                }
+            }
+
+            // Add notes
+            tmpStream << createNoteRows();
+            tmpStream << "//\n";
+
+            // Copy last line
+            tmpStream << line << "\n";
+
+            // Copy rest of the file
+            while(!srcStream.atEnd())
+            {
+                tmpStream << srcStream.readLine() << "\n";
+            }
+        }
+        else
+        {
+            bSuccess = false;
+        }
+
+    }
+    else
+    {
+        bSuccess = false;
+    }
+
+    srcFile.close();
+    tmpFile.close();
+
+    if (bSuccess)
+    {
+        bSuccess = srcFile.remove();
+
+        if (bSuccess)
+        {
+            bSuccess = tmpFile.rename(dataFile);
+        }
+    }
+
+    if (bSuccess)
+    {
+        return true;
+    }
+    else
+    {
+        Util::showError(tr("Update notes in data file (%1) failed").arg(dataFile));
+        return false;
+    }
+}
+
 void DataFileExporter::flushExportBuffer()
 {
     // Write to file
@@ -209,10 +310,7 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
 
         header.append("//");
 
-        for (qint32 idx = 0; idx < _pNoteModel->size(); idx++)
-        {
-            header.append(createNoteRow(idx));
-        }
+        header.append(createNoteRows());
 
         header.append("//");
     }
@@ -220,22 +318,31 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
     return header;
 }
 
-QString DataFileExporter::createNoteRow(qint32 idx)
+QString DataFileExporter::createNoteRows(void)
 {
-    QString line;
-    QString dataString;
+    QString noteRows;
 
-    line.append("//Note");
+    for (qint32 idx = 0; idx < _pNoteModel->size(); idx++)
+    {
+        QString noteline;
+        QString dataString;
 
-    dataString = Util::formatDoubleForExport(_pNoteModel->keyData(idx));
-    line.append(Util::separatorCharacter() + dataString);
+        noteline.append("//Note");
 
-    dataString = Util::formatDoubleForExport(_pNoteModel->valueData(idx));
-    line.append(Util::separatorCharacter() + dataString);
+        dataString = Util::formatDoubleForExport(_pNoteModel->keyData(idx));
+        noteline.append(Util::separatorCharacter() + dataString);
 
-    line.append(Util::separatorCharacter() + '"' + _pNoteModel->textData(idx) + '"');
+        dataString = Util::formatDoubleForExport(_pNoteModel->valueData(idx));
+        noteline.append(Util::separatorCharacter() + dataString);
 
-    return line;
+        noteline.append(Util::separatorCharacter() + '"' + _pNoteModel->textData(idx) + '"');
+
+        noteline.append("\n");
+
+        noteRows.append(noteline);
+    }
+
+    return noteRows;
 }
 
 QString DataFileExporter::createPropertyRow(registerProperty prop)

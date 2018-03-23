@@ -43,6 +43,7 @@ public:
 protected:
     void keyPressEvent(QKeyEvent* event);
     void keyReleaseEvent(QKeyEvent* event);
+    void closeEvent(QCloseEvent* event);
 
 signals:
 
@@ -56,7 +57,7 @@ private slots:
     /* Menu handlers */
     void selectProjectSettingFile();
     void reloadProjectSettings();
-    void selecDataImportFile();
+    void selectDataImportFile();
     void exitApplication();
     void selectDataExportFile();
     void selectImageExportFile();

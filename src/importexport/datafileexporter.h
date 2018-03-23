@@ -22,6 +22,7 @@ public:
     void disableExporterDuringLog();
 
     void exportDataFile(QString dataFile);
+    bool updateNoteLines(QString dataFile);
 
 signals:
 
@@ -48,7 +49,7 @@ private:
     void flushExportBuffer();
     void exportDataHeader();
     QStringList constructDataHeader(bool bDuringLog);
-    QString createNoteRow(qint32 idx);
+    QString createNoteRows();
     QString createPropertyRow(registerProperty prop);
     QString formatData(double timeData, QList<double> dataValues);
     bool writeToFile(QString filePath, QStringList logData);
