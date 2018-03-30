@@ -150,6 +150,17 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGraphBringToFront = _pUi->menuBringToFront;
     _pBringToFrontGroup = new QActionGroup(this);
 
+    // Compose rightclick menu
+    _menuRightClick.addMenu(_pUi->menuBringToFront);
+    _menuRightClick.addMenu(_pUi->menuShowHide);
+    _menuRightClick.addSeparator();
+    _menuRightClick.addAction(_pUi->actionHighlightSamplePoints);
+    _menuRightClick.addAction(_pUi->actionClearData);
+    _menuRightClick.addAction(_pUi->actionClearMarkers);
+    _menuRightClick.addSeparator();
+    _menuRightClick.addAction(_pUi->actionAddNote);
+    _menuRightClick.addAction(_pUi->actionManageNotes);
+
     // Add multipart status bar
     _pStatusState = new QLabel(_cStateStopped, this);
     _pStatusState->setFrameStyle(QFrame::Panel | QFrame::Sunken);
@@ -938,7 +949,7 @@ void MainWindow::showContextMenu(const QPoint& pos)
     if (!(QApplication::keyboardModifiers() & Qt::ControlModifier))
     {
         _lastRightClickPos = pos;
-        _pUi->menuView->popup(_pUi->customPlot->mapToGlobal(pos));
+        _menuRightClick.popup(_pUi->customPlot->mapToGlobal(pos));
     }
 }
 

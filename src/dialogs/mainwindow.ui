@@ -110,7 +110,6 @@
     <addaction name="actionClearData"/>
     <addaction name="actionClearMarkers"/>
     <addaction name="separator"/>
-    <addaction name="actionAddNote"/>
     <addaction name="actionManageNotes"/>
    </widget>
    <addaction name="menuFile"/>

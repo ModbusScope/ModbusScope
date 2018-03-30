@@ -145,10 +145,11 @@ private:
 
     QTimer _runtimeTimer;
 
+    QMenu _menuRightClick;
+
     QMenu * _pGraphBringToFront;
     QMenu * _pGraphShowHide;
     QActionGroup * _pBringToFrontGroup;
-    QActionGroup * _pLegendPositionGroup;
 
     QPoint _lastRightClickPos;
 
