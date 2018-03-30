@@ -19,7 +19,7 @@ NotesDockWidget::NotesDockWidget(NoteModel *pNoteModel, GuiModel *pGuiModel, QWi
     /* Don't stretch columns */
     _pUi->noteView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     /* Except following columns */
-    _pUi->noteView->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+    _pUi->noteView->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
 
     // Select using click, shift and control
     _pUi->noteView->setSelectionBehavior(QAbstractItemView::SelectRows);
