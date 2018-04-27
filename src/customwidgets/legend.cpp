@@ -23,6 +23,8 @@ Legend::Legend(QWidget *parent) : QFrame(parent)
     _pLegendTable->setColumnWidth(0,50);
     _pLegendTable->setShowGrid(false);
     _pLegendTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    _pLegendTable->setFocusPolicy(Qt::NoFocus);
+    _pLegendTable->setSelectionMode(QAbstractItemView::NoSelection);
     _pLegendTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     _pLegendTable->setHorizontalHeaderLabels(QStringList()<<"Value"<<"Register");
     _pLegendTable->hide();
@@ -100,7 +102,7 @@ void Legend::addLastReceivedDataToLegend(QList<bool> successList, QList<double> 
         if (successList[i])
         {
             // No error
-            _lastReceivedValueList.append(QString("(%1) ").arg(Util::formatDoubleForExport(valueList[i])));
+            _lastReceivedValueList.append(QString("%1").arg(Util::formatDoubleForExport(valueList[i])));
         }
         else
         {
@@ -175,22 +177,30 @@ void Legend::showGraph(quint32 graphIdx)
 
     if (activeGraphIdx != -1)
     {
-        QFont font = _pLegendTable->item( int (graphIdx), 0)->font();
+
+        QFont itemFont = _pLegendTable->item( int (graphIdx), 0)->font();
+        QColor foreGroundColor = Qt::black;
 
         if (_pGraphDataModel->isVisible(graphIdx))
         {
-            font.setItalic(false);
+            foreGroundColor = Qt::black;
+            itemFont.setItalic(false);
+
             _pLegendTable->verticalHeaderItem(int (activeGraphIdx))->setBackground(_pGraphDataModel->color(graphIdx));
         }
         else
         {
-            font.setItalic(true);
+            foreGroundColor = Qt::gray;
+            itemFont.setItalic(true);
+
             _pLegendTable->verticalHeaderItem(int (activeGraphIdx))->setBackground(Qt::gray);
         }
 
-        _pLegendTable->item( int (activeGraphIdx), 0)->setFont(font);
-        _pLegendTable->item( int (activeGraphIdx), 1)->setFont(font);
+        _pLegendTable->item( int (graphIdx), 0)->setFont(itemFont);
+        _pLegendTable->item( int (graphIdx), 1)->setFont(itemFont);
 
+        _pLegendTable->item( int (graphIdx), 0)->setForeground(foreGroundColor);
+        _pLegendTable->item( int (graphIdx), 1)->setForeground(foreGroundColor);
     }
 }
 
@@ -227,7 +237,7 @@ void Legend::updateCursorDataInLegend(QStringList &cursorValueList)
         if (bInRange)
         {
             // No error
-            cursorValueList.append(QString("%1").arg(Util::formatDoubleForExport(valueList[i])));
+            cursorValueList.append(QString("[%1]").arg(Util::formatDoubleForExport(valueList[i])));
         }
         else
         {
@@ -244,6 +254,7 @@ void Legend::addItem(quint32 graphIdx)
     _pLegendTable->setVerticalHeaderItem(row, new QTableWidgetItem());
     _pLegendTable->verticalHeaderItem(row)->setBackgroundColor(_pGraphDataModel->color(graphIdx));
     _pLegendTable->setItem(row, 0, new QTableWidgetItem("-") );
+    _pLegendTable->item(row,0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
     _pLegendTable->setItem(row, 1, new QTableWidgetItem(_pGraphDataModel->label(graphIdx)) );
 }
 
