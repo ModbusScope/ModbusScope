@@ -21,10 +21,10 @@ public:
     explicit Legend(QWidget *parent = 0);
     ~Legend();
 
-    void setModels(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel);
+    void setModels(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel);
     void setGraphview(BasicGraphView * pGraphView);
-    void GraphToForeground(int row, int column);
-    void ToggleGraphVisibility(int row, int column);
+    void graphToForeground(int row);
+    void toggleGraphVisibility(int row);
 
 signals:
 

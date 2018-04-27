@@ -24,11 +24,8 @@ Legend::Legend(QWidget *parent) : QFrame(parent)
     _pLegendTable->setShowGrid(false);
     _pLegendTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     _pLegendTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    //_pLegendTable->setFocusPolicy(Qt::NoFocus);
     _pLegendTable->setHorizontalHeaderLabels(QStringList()<<"Value"<<"Register");
     _pLegendTable->hide();
-
-
 
     _pLayout->setSpacing(0);
     _pLayout->setContentsMargins(0, 0, 0, 0); // This is redundant with setMargin, which is deprecated
@@ -53,8 +50,8 @@ Legend::Legend(QWidget *parent) : QFrame(parent)
     connect(_pToggleVisibilityAction, &QAction::triggered, this, &Legend::toggleVisibilityClicked);
     connect(_pHideAllAction, &QAction::triggered, this, &Legend::hideAll);
     connect(_pShowAllAction, &QAction::triggered, this, &Legend::showAll);
-    connect(_pLegendTable, &QTableWidget::cellClicked, this, &Legend::GraphToForeground);
-    connect(_pLegendTable, &QTableWidget::cellDoubleClicked, this, &Legend::ToggleGraphVisibility);
+    connect(_pLegendTable, &QTableWidget::cellClicked, this, &Legend::graphToForeground);
+    connect(_pLegendTable, &QTableWidget::cellDoubleClicked, this, &Legend::toggleGraphVisibility);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &Legend::customContextMenuRequested, this, &Legend::showContextMenu);
@@ -84,12 +81,12 @@ void Legend::setModels(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel)
 
 }
 
-void Legend::GraphToForeground(int row, int column)
+void Legend::graphToForeground(int row)
 {
     _pGuiModel->setFrontGraph(row);
 }
 
-void Legend::ToggleGraphVisibility(int row, int column)
+void Legend::toggleGraphVisibility(int row)
 {
     toggleItemVisibility(row);
 }
@@ -235,7 +232,7 @@ void Legend::updateCursorDataInLegend(QStringList &cursorValueList)
         else
         {
             /* Show error */
-            cursorValueList.append("-");
+            cursorValueList.append("?");
         }
     }
 }
