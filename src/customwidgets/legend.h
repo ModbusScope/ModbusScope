@@ -46,7 +46,7 @@ private slots:
 private:
     void updateCursorDataInLegend(QStringList &cursorValueList);
     void addItem(quint32 graphIdx);
-    void toggleItemVisibility(qint32 idx);
+    void toggleItemVisibility(qint32 activeGraphIdx);
 
     // Last data
     QStringList _lastReceivedValueList;

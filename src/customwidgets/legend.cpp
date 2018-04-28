@@ -178,7 +178,7 @@ void Legend::showGraph(quint32 graphIdx)
     if (activeGraphIdx != -1)
     {
 
-        QFont itemFont = _pLegendTable->item( int (graphIdx), 0)->font();
+        QFont itemFont = _pLegendTable->item((int)activeGraphIdx, 0)->font();
         QColor foreGroundColor = Qt::black;
 
         if (_pGraphDataModel->isVisible(graphIdx))
@@ -186,21 +186,21 @@ void Legend::showGraph(quint32 graphIdx)
             foreGroundColor = Qt::black;
             itemFont.setItalic(false);
 
-            _pLegendTable->verticalHeaderItem(int (activeGraphIdx))->setBackground(_pGraphDataModel->color(graphIdx));
+            _pLegendTable->verticalHeaderItem((int)activeGraphIdx)->setBackground(_pGraphDataModel->color(graphIdx));
         }
         else
         {
             foreGroundColor = Qt::gray;
             itemFont.setItalic(true);
 
-            _pLegendTable->verticalHeaderItem(int (activeGraphIdx))->setBackground(Qt::gray);
+            _pLegendTable->verticalHeaderItem((int)activeGraphIdx)->setBackground(Qt::gray);
         }
 
-        _pLegendTable->item( int (graphIdx), 0)->setFont(itemFont);
-        _pLegendTable->item( int (graphIdx), 1)->setFont(itemFont);
+        _pLegendTable->item((int)activeGraphIdx, 0)->setFont(itemFont);
+        _pLegendTable->item((int)activeGraphIdx, 1)->setFont(itemFont);
 
-        _pLegendTable->item( int (graphIdx), 0)->setForeground(foreGroundColor);
-        _pLegendTable->item( int (graphIdx), 1)->setForeground(foreGroundColor);
+        _pLegendTable->item((int)activeGraphIdx, 0)->setForeground(foreGroundColor);
+        _pLegendTable->item((int)activeGraphIdx, 1)->setForeground(foreGroundColor);
     }
 }
 
@@ -211,7 +211,6 @@ void Legend::changeGraphColor(const quint32 graphIdx)
     if (activeGraphIdx != -1)
     {
          _pLegendTable->verticalHeaderItem( int (activeGraphIdx))->setBackground(_pGraphDataModel->color(graphIdx));
-
     }
 }
 
@@ -258,11 +257,11 @@ void Legend::addItem(quint32 graphIdx)
     _pLegendTable->setItem(row, 1, new QTableWidgetItem(_pGraphDataModel->label(graphIdx)) );
 }
 
-void Legend::toggleItemVisibility(qint32 idx)
+void Legend::toggleItemVisibility(qint32 activeGraphIdx)
 {
-    if (idx != -1)
+    if (activeGraphIdx != -1)
     {
-        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(idx);
+        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeGraphIdx);
 
         _pGraphDataModel->setVisible(graphIdx, !_pGraphDataModel->isVisible(graphIdx));
     }
@@ -293,8 +292,7 @@ void Legend::hideAll()
 {
     for(qint32 idx = 0; idx < _pGraphDataModel->size(); idx++)
     {
-        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(idx);
-        _pGraphDataModel->setVisible(graphIdx, false);
+        _pGraphDataModel->setVisible(idx, false);
     }
 }
 
@@ -302,7 +300,6 @@ void Legend::showAll()
 {
     for(qint32 idx = 0; idx < _pGraphDataModel->size(); idx++)
     {
-        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(idx);
-        _pGraphDataModel->setVisible(graphIdx, true);
+        _pGraphDataModel->setVisible(idx, true);
     }
 }

@@ -122,7 +122,7 @@ private:
 
     } GuiSettings;
 
-    qint32 _frontGraph;
+    qint32 _frontGraph; /* active graph index */
     GuiSettings _guiSettings;
     QString _windowTitle;
 
