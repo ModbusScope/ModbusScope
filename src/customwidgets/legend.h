@@ -67,6 +67,10 @@ private:
     QAction * _pToggleVisibilityAction;
     QAction * _pHideAllAction;
     QAction * _pShowAllAction;
+
+    static const quint32 cColummnColor = 0;
+    static const quint32 cColummnValue = 1;
+    static const quint32 cColummnText = 2;
 };
 
 #endif // LEGEND_H

@@ -18,16 +18,30 @@ Legend::Legend(QWidget *parent) : QFrame(parent)
     _pNoGraphs = new QLabel("No active graphs");
     _pLegendTable = new QTableWidget(this);
     _pLegendTable->setRowCount(0);
-    _pLegendTable->setColumnCount(2);
-    _pLegendTable->horizontalHeader()->setStretchLastSection(true);
-    _pLegendTable->setColumnWidth(0,50);
+    _pLegendTable->setColumnCount(3);
+
+    _pLegendTable->verticalHeader()->setDefaultSectionSize(_pLegendTable->verticalHeader()->fontMetrics().height()+2);
+    _pLegendTable->verticalHeader()->hide();
+
     _pLegendTable->setShowGrid(false);
     _pLegendTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     _pLegendTable->setFocusPolicy(Qt::NoFocus);
     _pLegendTable->setSelectionMode(QAbstractItemView::NoSelection);
     _pLegendTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    _pLegendTable->setHorizontalHeaderLabels(QStringList()<<"Value"<<"Register");
+    _pLegendTable->setHorizontalHeaderLabels(QStringList()<<" "<<"Value"<<"Register");
     _pLegendTable->hide();
+
+    QHeaderView * horizontalHeader = _pLegendTable->horizontalHeader();
+    QFontMetrics fontMetric = _pLegendTable->horizontalHeader()->fontMetrics();
+    horizontalHeader->setMinimumSectionSize(fontMetric.width("X"));
+    horizontalHeader->setSectionResizeMode(QHeaderView::Interactive);
+
+    /* Set default size of columns */
+    horizontalHeader->resizeSection(cColummnColor, fontMetric.width("X"));
+    horizontalHeader->resizeSection(cColummnValue, fontMetric.width("-000000") + 2);
+
+    /* stretch text column */
+    horizontalHeader->setSectionResizeMode(cColummnText, QHeaderView::Stretch);
 
     _pLayout->setSpacing(0);
     _pLayout->setContentsMargins(0, 0, 0, 0); // This is redundant with setMargin, which is deprecated
@@ -133,7 +147,7 @@ void Legend::updateDataInLegend()
     {
         for (qint32 i = 0; i < legendDataValues.size(); i++)
         {
-            _pLegendTable->item(i,0)->setText(legendDataValues[i]);
+            _pLegendTable->item(i,cColummnValue)->setText(legendDataValues[i]);
         }
     }
 }
@@ -177,30 +191,31 @@ void Legend::showGraph(quint32 graphIdx)
 
     if (activeGraphIdx != -1)
     {
-
-        QFont itemFont = _pLegendTable->item((int)activeGraphIdx, 0)->font();
+        QFont itemFont = _pLegendTable->item((int)activeGraphIdx, cColummnValue)->font();
         QColor foreGroundColor = Qt::black;
+        QColor graphColor;
 
         if (_pGraphDataModel->isVisible(graphIdx))
         {
             foreGroundColor = Qt::black;
             itemFont.setItalic(false);
 
-            _pLegendTable->verticalHeaderItem((int)activeGraphIdx)->setBackground(_pGraphDataModel->color(graphIdx));
+            graphColor = _pGraphDataModel->color(graphIdx);
         }
         else
         {
             foreGroundColor = Qt::gray;
             itemFont.setItalic(true);
 
-            _pLegendTable->verticalHeaderItem((int)activeGraphIdx)->setBackground(Qt::gray);
+            graphColor = Qt::white;
         }
 
-        _pLegendTable->item((int)activeGraphIdx, 0)->setFont(itemFont);
-        _pLegendTable->item((int)activeGraphIdx, 1)->setFont(itemFont);
+        _pLegendTable->item((int)activeGraphIdx, cColummnValue)->setFont(itemFont);
+        _pLegendTable->item((int)activeGraphIdx, cColummnText)->setFont(itemFont);
 
-        _pLegendTable->item((int)activeGraphIdx, 0)->setForeground(foreGroundColor);
-        _pLegendTable->item((int)activeGraphIdx, 1)->setForeground(foreGroundColor);
+        _pLegendTable->item((int)activeGraphIdx, cColummnColor)->setBackgroundColor(graphColor);
+        _pLegendTable->item((int)activeGraphIdx, cColummnValue)->setForeground(foreGroundColor);
+        _pLegendTable->item((int)activeGraphIdx, cColummnText)->setForeground(foreGroundColor);
     }
 }
 
@@ -210,7 +225,7 @@ void Legend::changeGraphColor(const quint32 graphIdx)
 
     if (activeGraphIdx != -1)
     {
-         _pLegendTable->verticalHeaderItem( int (activeGraphIdx))->setBackground(_pGraphDataModel->color(graphIdx));
+        _pLegendTable->item((int)activeGraphIdx, cColummnColor)->setBackgroundColor(_pGraphDataModel->color(graphIdx));
     }
 }
 
@@ -220,7 +235,7 @@ void Legend::changeGraphLabel(const quint32 graphIdx)
 
     if (activeGraphIdx != -1)
     {
-       _pLegendTable->item( int (activeGraphIdx), 1)->setText(_pGraphDataModel->label(graphIdx));
+       _pLegendTable->item((int)activeGraphIdx, cColummnText)->setText(_pGraphDataModel->label(graphIdx));
     }
 }
 
@@ -250,11 +265,14 @@ void Legend::addItem(quint32 graphIdx)
 {
     int row = _pLegendTable->rowCount();
     _pLegendTable->insertRow(row);
-    _pLegendTable->setVerticalHeaderItem(row, new QTableWidgetItem());
-    _pLegendTable->verticalHeaderItem(row)->setBackgroundColor(_pGraphDataModel->color(graphIdx));
-    _pLegendTable->setItem(row, 0, new QTableWidgetItem("-") );
-    _pLegendTable->item(row,0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-    _pLegendTable->setItem(row, 1, new QTableWidgetItem(_pGraphDataModel->label(graphIdx)) );
+
+    _pLegendTable->setItem(row, cColummnColor, new QTableWidgetItem(""));
+    _pLegendTable->item(row, cColummnColor)->setBackgroundColor(_pGraphDataModel->color(graphIdx));
+
+    _pLegendTable->setItem(row, cColummnValue, new QTableWidgetItem("-") );
+    _pLegendTable->item(row,cColummnValue)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+
+    _pLegendTable->setItem(row, cColummnText, new QTableWidgetItem(_pGraphDataModel->label(graphIdx)));
 }
 
 void Legend::toggleItemVisibility(qint32 activeGraphIdx)
