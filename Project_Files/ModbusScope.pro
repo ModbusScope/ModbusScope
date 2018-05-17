@@ -94,7 +94,8 @@ FORMS    += \
     ../src/dialogs/aboutdialog.ui \
     ../src/dialogs/markerinfodialog.ui \
     ../src/dialogs/importmbcdialog.ui \
-    ../src/dialogs/errorlogdialog.ui
+    ../src/dialogs/errorlogdialog.ui \
+    ../src/customwidgets/notesdockwidget.ui
 
 HEADERS += \
     ../libraries/libmodbus/src/modbus-private.h \
