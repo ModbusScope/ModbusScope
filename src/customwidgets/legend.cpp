@@ -287,9 +287,12 @@ void Legend::toggleItemVisibility(qint32 activeGraphIdx)
 
 void Legend::showContextMenu(const QPoint& pos)
 {
-    _popupMenuItem = _pLegendTable->currentRow();
+    const QPoint posInLegendContent = _pLegendTable->viewport()->mapFromParent(pos);
+    qint32 row = _pLegendTable->indexAt(posInLegendContent).row();
 
-    if (_popupMenuItem == -1)
+    _popupMenuItem = row;
+
+    if (row == -1)
     {
         _pToggleVisibilityAction->setEnabled(false);
     }
