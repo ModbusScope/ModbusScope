@@ -18,7 +18,7 @@ LIBS += -lws2_32
 RC_ICONS = ../icon/application.ico
 }
 
-VERSION = 1.4.0
+VERSION = 1.5.0
 
 DEFINES += DEBUG
 
