@@ -22,7 +22,7 @@ CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiMo
     qRegisterMetaType<QList<quint16> >("QList<quint16>");
 
     /* Setup modbus master */
-    _master = new ModbusMaster(_pSettingsModel, _pGuiModel, _pErrorLogModel);
+    _master = new ModbusMaster(_pSettingsModel, _pGuiModel);
 
     connect(this, SIGNAL(requestStop()), _master, SLOT(stopThread()));
 
