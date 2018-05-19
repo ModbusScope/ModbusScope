@@ -253,6 +253,10 @@ void BasicGraphView::updateGraphs()
 
             pGraph->setPen(pen);
 
+            /* Keep visibility state */
+            /* TODO: partial duplicate of showGraph in ExtendedGraph */
+            const bool bShow = _pGraphDataModel->isVisible(graphIdx);
+            pGraph->setVisible(bShow);
 
             QSharedPointer<QCPGraphDataContainer> pMap = _pGraphDataModel->dataMap(graphIdx);
 

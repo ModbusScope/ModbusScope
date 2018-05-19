@@ -246,6 +246,8 @@ void Legend::addItem(quint32 graphIdx)
 
     _items.append(pNewItem);
     _pLayout->addWidget(pNewItem);
+
+    showGraph(graphIdx);
 }
 
 qint32 Legend::itemUnderCursor()
