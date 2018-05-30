@@ -38,8 +38,13 @@ AboutDialog::AboutDialog(BasicGraphView * _pGraphView, QWidget *parent) :
 
     _pUi->textAbout->setOpenExternalLinks(true);
 
+
+    /* TODO: update notification is disabled (#105) */
+    /*
     connect(&_updateNotify, SIGNAL(updateCheckResult(UpdateNotify::UpdateState,bool)), this, SLOT(showVersionUpdate(UpdateNotify::UpdateState, bool)));
     _updateNotify.checkForUpdate();
+    */
+    _pUi->lblUpdate->setVisible(false);
 }
 
 AboutDialog::~AboutDialog()

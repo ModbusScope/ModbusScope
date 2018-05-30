@@ -273,6 +273,8 @@ void Legend::addItem(quint32 graphIdx)
     _pLegendTable->item(row,cColummnValue)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 
     _pLegendTable->setItem(row, cColummnText, new QTableWidgetItem(_pGraphDataModel->label(graphIdx)));
+
+    showGraph(graphIdx);
 }
 
 void Legend::toggleItemVisibility(qint32 activeGraphIdx)
