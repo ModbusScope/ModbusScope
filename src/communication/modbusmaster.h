@@ -15,7 +15,7 @@ class ModbusMaster : public QObject
 {
     Q_OBJECT
 public:
-    explicit ModbusMaster(SettingsModel * pSettingsModel, GuiModel *pGuiModel, QObject *parent = 0);
+    explicit ModbusMaster(SettingsModel * pSettingsModel, GuiModel *pGuiModel);
     virtual ~ModbusMaster();
 
     void startThread();

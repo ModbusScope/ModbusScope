@@ -10,8 +10,9 @@
 
 #include "errno.h"
 
-ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, GuiModel * pGuiModel, QObject *parent) :
-    QObject(parent),
+/* ModbusMaster should never have a parent object, because then moveToThread wouldn't work */
+ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, GuiModel * pGuiModel) :
+    QObject(0),
     _pThread(NULL)
 {
     // NEVER create object with new here
