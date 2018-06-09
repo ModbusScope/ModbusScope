@@ -31,3 +31,4 @@ Makefile*
 
 *.autosave
 /libraries/qcustomplot/examples
+.qmake.stash
