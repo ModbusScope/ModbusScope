@@ -10,7 +10,7 @@ CONFIG += console c++11
 CONFIG += thread
 
 HEADERS += \
-        tests/tst_testcase.h
+    tests/tst_errorlog.h
 
 # Remove application main
 SOURCES -= \

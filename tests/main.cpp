@@ -1,4 +1,4 @@
-#include "tst_testcase.h"
+#include "tst_errorlog.h"
 
 #include <gtest/gtest.h>
 
