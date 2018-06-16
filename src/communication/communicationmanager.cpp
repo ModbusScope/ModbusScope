@@ -135,12 +135,14 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> resultMap)
 
 void CommunicationManager::handleModbusError(QString msg)
 {
-    _pErrorLogModel->addError(msg);
+    ErrorLog log = ErrorLog(ErrorLog::LOG_ERROR, QDateTime::currentDateTime(), msg);
+    _pErrorLogModel->addItem(log);
 }
 
 void CommunicationManager::handleModbusInfo(QString msg)
 {
-    _pErrorLogModel->addInfo(msg);
+    ErrorLog log = ErrorLog(ErrorLog::LOG_INFO, QDateTime::currentDateTime(), msg);
+    _pErrorLogModel->addItem(log);
 }
 
 void CommunicationManager::masterStopped()

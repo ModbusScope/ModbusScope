@@ -1,4 +1,5 @@
 #include "tst_errorlog.h"
+#include "tst_errorlogmodel.h"
 
 #include <gtest/gtest.h>
 
