@@ -9,7 +9,7 @@ before_install:
   - sudo apt-get update -qq
   
 install:
-  - sudo apt-get -qq install qt59-meta-full
+  - sudo apt-get -qq install qt59-meta-minimal
   - sudo apt-get -qq install -qq g++-7
 
 script:
