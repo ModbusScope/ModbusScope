@@ -11,7 +11,10 @@ before_install:
 install:
   - sudo apt-get -qq install qt59-meta-minimal
   - sudo apt-get -qq install -qq g++-7
+  - source /opt/qt59/bin/qt59-env.sh
+  - qmake -v
+  - g++ --version
 
 script:
-    - /opt/qt59/bin/qmake test.pro
+    - /opt/qt59/bin/qmake ./test.pro
     - make
