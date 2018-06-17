@@ -20,4 +20,4 @@ script:
     - git submodule update --init --recursive
     - /opt/qt59/bin/qmake ./tests.pro
     - make -j2
-    - ModbusScopeTests
+    - ./ModbusScopeTests
