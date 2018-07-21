@@ -134,6 +134,15 @@ void ImportMbcDialog::updateSelectedRegisters()
             _selectedRegisterList.append(graphData);
         }
     }
+
+    if (_selectedRegisterList.size() == 1)
+    {
+        _pUi->lblSelectedCount->setText(QString("You have selected %0 register.").arg(_selectedRegisterList.size()));
+    }
+    else
+    {
+        _pUi->lblSelectedCount->setText(QString("You have selected %0 registers.").arg(_selectedRegisterList.size()));
+    }
 }
 
 
