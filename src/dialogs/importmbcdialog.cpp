@@ -1,7 +1,6 @@
 #include "importmbcdialog.h"
 #include "ui_importmbcdialog.h"
 
-
 #include "util.h"
 #include "guimodel.h"
 #include "mbcfileimporter.h"
@@ -36,6 +35,8 @@ ImportMbcDialog::ImportMbcDialog(GuiModel * pGuiModel, GraphDataModel * pGraphDa
     _pUi->tblMbcRegisters->setHorizontalHeaderLabels(headerNames);
 
     connect(_pUi->btnSelectMbcFile, SIGNAL(clicked()), this, SLOT(selectMbcFile()));
+
+    connect(_pUi->tblMbcRegisters, &QTableWidget::itemChanged, this, &ImportMbcDialog::registerSelectionChanged);
 }
 
 ImportMbcDialog::~ImportMbcDialog()
@@ -59,26 +60,9 @@ int ImportMbcDialog::exec(void)
     return exec(QString(""));
 }
 
-void ImportMbcDialog::selectedRegisterList(QList<GraphData> *regList)
+QList<GraphData> ImportMbcDialog::selectedRegisterList(void)
 {
-    //Clear list
-    regList->clear();
-
-    // Get selected register from table widget */
-    for (qint32 row = 0; row < _pUi->tblMbcRegisters->rowCount(); row++)
-    {
-        if (_pUi->tblMbcRegisters->item(row, 0)->checkState() == Qt::Checked)
-        {
-            GraphData graphData;
-
-            graphData.setActive(true);
-            graphData.setRegisterAddress(_pUi->tblMbcRegisters->item(row, 1)->text().toUInt());
-            graphData.setLabel(_pUi->tblMbcRegisters->item(row, 2)->text());
-            graphData.setUnsigned(_pUi->tblMbcRegisters->item(row, 3)->checkState() == Qt::Checked);
-
-            regList->append(graphData);
-        }
-    }
+    return _selectedRegisterList;
 }
 
 
@@ -114,6 +98,40 @@ void ImportMbcDialog::selectMbcFile()
         else
         {
             Util::showError("No valid MBC file selected.");
+        }
+    }
+}
+
+void ImportMbcDialog::registerSelectionChanged(QTableWidgetItem * pItem)
+{
+    if (pItem->column() == 0)
+    {
+        updateSelectedRegisters();
+    }
+}
+
+void ImportMbcDialog::updateSelectedRegisters()
+{
+    //Clear list
+    _selectedRegisterList.clear();
+
+    // Get selected register from table widget */
+    for (qint32 row = 0; row < _pUi->tblMbcRegisters->rowCount(); row++)
+    {
+        QTableWidgetItem * pCheckItem = _pUi->tblMbcRegisters->item(row, 0);
+        if (
+                (pCheckItem != nullptr)
+                && (pCheckItem->checkState() == Qt::Checked)
+            )
+        {
+            GraphData graphData;
+
+            graphData.setActive(true);
+            graphData.setRegisterAddress(static_cast<quint16>(_pUi->tblMbcRegisters->item(row, 1)->text().toUInt()));
+            graphData.setLabel(_pUi->tblMbcRegisters->item(row, 2)->text());
+            graphData.setUnsigned(_pUi->tblMbcRegisters->item(row, 3)->checkState() == Qt::Checked);
+
+            _selectedRegisterList.append(graphData);
         }
     }
 }

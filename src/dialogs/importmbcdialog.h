@@ -2,6 +2,7 @@
 #define IMPORTMBCDIALOG_H
 
 #include <QDialog>
+#include <qtablewidget.h>
 
 /* Forward declaration */
 class GuiModel;
@@ -17,10 +18,10 @@ class ImportMbcDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ImportMbcDialog(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, QWidget *parent = 0);
+    explicit ImportMbcDialog(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, QWidget *parent = nullptr);
     ~ImportMbcDialog();
 
-    void selectedRegisterList(QList<GraphData> * pRegList);
+    QList<GraphData> selectedRegisterList(void);
 
 public slots:
     int exec(void);
@@ -28,10 +29,14 @@ public slots:
 
 private slots:
     void selectMbcFile();
+    void registerSelectionChanged(QTableWidgetItem * pItem);
 
 private:
 
     bool updateMbcRegisters();
+    void updateSelectedRegisters();
+
+    QList<GraphData> _selectedRegisterList;
 
     Ui::ImportMbcDialog *_pUi;
 
