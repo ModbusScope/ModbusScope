@@ -106,9 +106,7 @@ void RegisterDialog::showImportDialog(QString mbcPath)
 
     if (importMbcDialog.exec(mbcPath) == QDialog::Accepted)
     {
-        QList<GraphData> regList;
-
-        importMbcDialog.selectedRegisterList(&regList);
+        QList<GraphData> regList = importMbcDialog.selectedRegisterList();
 
         if (regList.size() > 0)
         {
