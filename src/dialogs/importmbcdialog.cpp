@@ -9,6 +9,8 @@
 
 #include <QFileDialog>
 
+const QString ImportMbcDialog::_cTabFilterAll = QString("No Filter");
+
 ImportMbcDialog::ImportMbcDialog(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::ImportMbcDialog)
@@ -35,8 +37,8 @@ ImportMbcDialog::ImportMbcDialog(GuiModel * pGuiModel, GraphDataModel * pGraphDa
     _pUi->tblMbcRegisters->setHorizontalHeaderLabels(headerNames);
 
     connect(_pUi->btnSelectMbcFile, SIGNAL(clicked()), this, SLOT(selectMbcFile()));
-
     connect(_pUi->tblMbcRegisters, &QTableWidget::itemChanged, this, &ImportMbcDialog::registerSelectionChanged);
+    connect(_pUi->cmbTabFilter, static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged), this, &ImportMbcDialog::tabFilterChanged);
 }
 
 ImportMbcDialog::~ImportMbcDialog()
@@ -110,6 +112,26 @@ void ImportMbcDialog::registerSelectionChanged(QTableWidgetItem * pItem)
     }
 }
 
+void ImportMbcDialog::tabFilterChanged(const QString &text)
+{
+    // Get selected register from table widget */
+    for (qint32 row = 0; row < _pUi->tblMbcRegisters->rowCount(); row++)
+    {
+        QTableWidgetItem * pTabItem = _pUi->tblMbcRegisters->item(row, 4);
+        if (
+                (pTabItem->text() == text)
+                || (pTabItem->text() == _cTabFilterAll)
+            )
+        {
+            _pUi->tblMbcRegisters->setRowHidden(row, true);
+        }
+        else
+        {
+            _pUi->tblMbcRegisters->setRowHidden(row, false);
+        }
+    }
+}
+
 void ImportMbcDialog::updateSelectedRegisters()
 {
     //Clear list
@@ -151,14 +173,16 @@ bool ImportMbcDialog::updateMbcRegisters()
     bool bSuccess = false;
 
     MbcFileImporter fileImporter(_mbcFilePath);
-    QList <MbcRegisterData> registerList;
+    QList <MbcRegisterData> registerList = fileImporter.registerList();
+    QStringList tabList = fileImporter.tabList();
 
     /* Clear data from table widget */
     _pUi->tblMbcRegisters->clearContents();
+    _pUi->cmbTabFilter->clear();
 
-    if (fileImporter.parseRegisters(&registerList))
+    if (registerList.size() > 0)
     {
-        QList<qint16> regList;
+        QList<quint16> regList;
 
         /* Create rows and columns */
         _pUi->tblMbcRegisters->setRowCount(registerList.count());
@@ -175,7 +199,7 @@ bool ImportMbcDialog::updateMbcRegisters()
             QString toolTipTxt;
 
             /* Disable all 32 bits registers and duplicates */
-            if (regList.contains(registerData.registerAddress))
+            if (regList.contains(static_cast<quint16>(registerData.registerAddress)))
             {
                 toolTipTxt = tr("Duplicate address");
             }
@@ -231,9 +255,14 @@ bool ImportMbcDialog::updateMbcRegisters()
             }
 
             /* TabName */
-            _pUi->tblMbcRegisters->item(row, 4)->setText(registerData.tabName);
+            _pUi->tblMbcRegisters->item(row, 4)->setText(tabList[registerData.tabIdx]);
 
         }
+
+        /* Update combo box */
+        _pUi->cmbTabFilter->clear();
+        _pUi->cmbTabFilter->addItem(_cTabFilterAll);
+        _pUi->cmbTabFilter->addItems(tabList);
 
         /* Resize */
         _pUi->tblMbcRegisters->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);

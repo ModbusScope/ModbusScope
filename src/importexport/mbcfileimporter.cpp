@@ -2,23 +2,40 @@
 
 #include "util.h"
 #include <QFile>
-#include <QDebug>
 
-MbcFileImporter::MbcFileImporter(QString filePath, QObject *parent) : QObject(parent)
+MbcFileImporter::MbcFileImporter(QString filePath) : QObject(nullptr)
 {
     _file = filePath;
+
+    if (!parseRegisters())
+    {
+        _registerList.clear();
+        _tabList.clear();
+    }
 }
 
-bool MbcFileImporter::parseRegisters(QList <MbcRegisterData> * pRegisterList)
+QList <MbcRegisterData> MbcFileImporter::registerList()
+{
+    return _registerList;
+}
+
+QStringList MbcFileImporter::tabList()
+{
+    return _tabList;
+}
+
+bool MbcFileImporter::parseRegisters()
 {
     bool bRet = true;
     QFile file(_file);
 
+    /* Clear register and tab list */
+    _registerList.clear();
+    _tabList.clear();
+
     /* If we can't open it, let's show an error message. */
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        /* Clear register list */
-        pRegisterList->clear();
 
         QString errorStr;
         qint32 errorLine;
@@ -32,10 +49,9 @@ bool MbcFileImporter::parseRegisters(QList <MbcRegisterData> * pRegisterList)
                 QDomElement tag = root.firstChildElement();
                 while (!tag.isNull())
                 {
-                    qDebug() << tag.tagName().toLower().trimmed();
                     if (tag.tagName().toLower().trimmed() == MbcFileDefinitions::cTabTag)
                     {
-                        bRet = parseTabTag(tag, pRegisterList);
+                        bRet = parseTabTag(tag);
                         if (!bRet)
                         {
                             break;
@@ -68,7 +84,7 @@ bool MbcFileImporter::parseRegisters(QList <MbcRegisterData> * pRegisterList)
     return bRet;
 }
 
-bool MbcFileImporter::parseTabTag(const QDomElement &element, QList <MbcRegisterData> * pRegisterList)
+bool MbcFileImporter::parseTabTag(const QDomElement &element)
 {
     bool bRet = true;
     bool bFoundName = false;
@@ -81,14 +97,14 @@ bool MbcFileImporter::parseTabTag(const QDomElement &element, QList <MbcRegister
     {
         if (child.tagName().toLower().trimmed() == MbcFileDefinitions::cTabNameTag)
         {
-            tabName = child.text();
+            _tabList.append(child.text());
             bFoundName = true;
         }
         else if (child.tagName().toLower().trimmed() == MbcFileDefinitions::cVarTag)
         {
             if (bFoundName)
             {
-                bRet = parseVarTag(child, tabName, pRegisterList);
+                bRet = parseVarTag(child, _tabList.size() - 1);
                 if (!bRet)
                 {
                     break;
@@ -111,7 +127,7 @@ bool MbcFileImporter::parseTabTag(const QDomElement &element, QList <MbcRegister
     return bRet;
 }
 
-bool MbcFileImporter::parseVarTag(const QDomElement &element, QString tabName, QList <MbcRegisterData> * pRegisterList)
+bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
 {
     bool bRet = true;
 
@@ -120,7 +136,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, QString tabName, Q
     QString type;
     MbcRegisterData modbusRegister;
 
-    modbusRegister.tabName = tabName;
+    modbusRegister.tabIdx = tabIdx;
     modbusRegister.registerAddress = 0;
     modbusRegister.bUnsigned = false;
     modbusRegister.name = "";
@@ -181,12 +197,12 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, QString tabName, Q
                 }
                 else
                 {
-                    modbusRegister.registerAddress = _nextRegisterAddr;
+                    modbusRegister.registerAddress = static_cast<quint16>(_nextRegisterAddr);
                 }
             }
             else
             {
-                modbusRegister.registerAddress = (quint16)addr.toUInt(&bRet);
+                modbusRegister.registerAddress = static_cast<quint16>(addr.toUInt(&bRet));
             }
         }
 
@@ -203,7 +219,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, QString tabName, Q
         if (bRet)
         {
             /* Save register in list */
-            pRegisterList->append(modbusRegister);
+            _registerList.append(modbusRegister);
 
             if (modbusRegister.bUint32)
             {               

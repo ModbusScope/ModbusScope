@@ -9,7 +9,7 @@ struct MbcRegisterData
     quint16 registerAddress;
     bool bUnsigned;
     QString name;
-    QString tabName;
+    qint32 tabIdx;
     bool bUint32;
 
 };
@@ -38,22 +38,27 @@ class MbcFileImporter : public QObject
 {
     Q_OBJECT
 public:
-    explicit MbcFileImporter(QString filePath, QObject *parent = 0);
+    explicit MbcFileImporter(QString filePath);
 
-    bool parseRegisters(QList <MbcRegisterData> * pRegisterList);
+    QList <MbcRegisterData> registerList();
+    QStringList tabList();
 
 signals:
 
 public slots:
 
 private:
-    bool parseTabTag(const QDomElement &element, QList <MbcRegisterData> * pRegisterList);
-    bool parseVarTag(const QDomElement &element, QString tabName, QList <MbcRegisterData> * pRegisterList);
+    bool parseRegisters();
+    bool parseTabTag(const QDomElement &element);
+    bool parseVarTag(const QDomElement &element, qint32 tabIdx);
     bool isUnsigned(QString type);
 
     QString _file;
     QDomDocument _domDocument;
     qint32 _nextRegisterAddr;
+
+    QList <MbcRegisterData> _registerList;
+    QStringList _tabList;
 };
 
 #endif // MBCFILEIMPORTER_H

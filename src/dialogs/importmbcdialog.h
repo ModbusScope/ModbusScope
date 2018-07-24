@@ -30,6 +30,7 @@ public slots:
 private slots:
     void selectMbcFile();
     void registerSelectionChanged(QTableWidgetItem * pItem);
+    void tabFilterChanged(const QString &text);
 
 private:
 
@@ -44,6 +45,8 @@ private:
     GraphDataModel * _pGraphDataModel;
 
     QString _mbcFilePath;
+
+    static const QString _cTabFilterAll;
 };
 
 #endif // IMPORTMBCDIALOG_H
