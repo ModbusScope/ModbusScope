@@ -27,11 +27,6 @@ namespace MbcFileDefinitions
     const QString cRegisterTag = QString("reg");
     const QString cTextTag = QString("text");
     const QString cTypeTag = QString("type");
-
-
-    /* Constant values */
-    //const quint32 cCurrentDataLevel = 2;
-
 }
 
 class MbcFileImporter : public QObject
