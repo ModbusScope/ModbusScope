@@ -2,6 +2,7 @@
 
 #include "util.h"
 #include <QFile>
+#include "mbcregisterdata.h"
 
 MbcFileImporter::MbcFileImporter(QString filePath) : QObject(nullptr)
 {
@@ -136,11 +137,11 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
     QString type;
     MbcRegisterData modbusRegister;
 
-    modbusRegister.tabIdx = tabIdx;
-    modbusRegister.registerAddress = 0;
-    modbusRegister.bUnsigned = false;
-    modbusRegister.name = "";
-    modbusRegister.bUint32 = false;
+    modbusRegister.setTabIdx(tabIdx);
+    modbusRegister.setRegisterAddress(0);
+    modbusRegister.setUnsigned(false);
+    modbusRegister.setName(QString());
+    modbusRegister.set32Bit(false);
 
     QDomElement child = element.firstChildElement();
 
@@ -179,7 +180,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
         }
         else
         {
-            modbusRegister.name = name;
+            modbusRegister.setName(name);
         }
 
         /* Obligated */
@@ -191,18 +192,18 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
             }
             else if (addr == "*")
             {
-                if (_nextRegisterAddr == -1)
+                if (_nextRegisterAddr > 0)
                 {
                     bRet = false;
                 }
                 else
                 {
-                    modbusRegister.registerAddress = static_cast<quint16>(_nextRegisterAddr);
+                    modbusRegister.setRegisterAddress(static_cast<quint16>(_nextRegisterAddr));
                 }
             }
             else
             {
-                modbusRegister.registerAddress = static_cast<quint16>(addr.toUInt(&bRet));
+                modbusRegister.setRegisterAddress(static_cast<quint16>(addr.toUInt(&bRet)));
             }
         }
 
@@ -211,9 +212,9 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
         {
             if (type.right(2) == "32")
             {
-                modbusRegister.bUint32 = true;
+                modbusRegister.set32Bit(true);
             }
-            modbusRegister.bUnsigned = isUnsigned(type);
+            modbusRegister.setUnsigned(isUnsigned(type));
         }
 
         if (bRet)
@@ -221,15 +222,15 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
             /* Save register in list */
             _registerList.append(modbusRegister);
 
-            if (modbusRegister.bUint32)
+            if (modbusRegister.is32Bit())
             {               
                 /* Increment address with 2 */
-                _nextRegisterAddr = modbusRegister.registerAddress + 2;
+                _nextRegisterAddr = static_cast<qint32>(modbusRegister.registerAddress()) + 2;
             }
             else
             {
                 /* Increment address with 1 */
-                _nextRegisterAddr = modbusRegister.registerAddress + 1;
+                _nextRegisterAddr = static_cast<qint32>(modbusRegister.registerAddress()) + 1;
             }
         }
         else

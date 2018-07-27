@@ -4,15 +4,7 @@
 #include <QObject>
 #include <QDomDocument>
 
-struct MbcRegisterData
-{
-    quint16 registerAddress;
-    bool bUnsigned;
-    QString name;
-    qint32 tabIdx;
-    bool bUint32;
-
-};
+#include "mbcregisterdata.h"
 
 namespace MbcFileDefinitions
 {

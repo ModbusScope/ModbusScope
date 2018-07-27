@@ -1,6 +1,7 @@
 #ifndef GRAPHDATA_H
 #define GRAPHDATA_H
 
+#include <QtGlobal>
 #include <QColor>
 #include "qcustomplot.h"
 

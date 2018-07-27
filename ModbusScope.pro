@@ -78,7 +78,8 @@ SOURCES +=  \
     src/models/notemodel.cpp \
     src/models/note.cpp \
     src/customwidgets/notesdock.cpp \
-    src/customwidgets/notesdockwidget.cpp
+    src/customwidgets/notesdockwidget.cpp \
+    src/importexport/mbcregisterdata.cpp
 
 FORMS    += \
     src/dialogs/connectiondialog.ui \
@@ -137,7 +138,8 @@ HEADERS += \
     src/models/notemodel.h \
     src/models/note.h \
     src/customwidgets/notesdock.h \
-    src/customwidgets/notesdockwidget.h
+    src/customwidgets/notesdockwidget.h \
+    src/importexport/mbcregisterdata.h
 
 RESOURCES += \
     resources/resource.qrc

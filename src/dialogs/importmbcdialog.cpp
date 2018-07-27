@@ -199,15 +199,15 @@ bool ImportMbcDialog::updateMbcRegisters()
             QString toolTipTxt;
 
             /* Disable all 32 bits registers and duplicates */
-            if (regList.contains(static_cast<quint16>(registerData.registerAddress)))
+            if (regList.contains(static_cast<quint16>(registerData.registerAddress())))
             {
                 toolTipTxt = tr("Duplicate address");
             }
-            else if (registerData.bUint32)
+            else if (registerData.is32Bit())
             {
                 toolTipTxt = tr("32 bit register is not supported");
             }
-            else if (!_pGraphDataModel->isPresent(registerData.registerAddress, bitmask))
+            else if (!_pGraphDataModel->isPresent(registerData.registerAddress(), bitmask))
             {
                 toolTipTxt = tr("Already added address");
             }
@@ -238,14 +238,14 @@ bool ImportMbcDialog::updateMbcRegisters()
             _pUi->tblMbcRegisters->item(row, 0)->setCheckState(Qt::Unchecked);
 
             /* Register address */
-            _pUi->tblMbcRegisters->item(row, 1)->setText(QString("%1").arg(registerData.registerAddress));
+            _pUi->tblMbcRegisters->item(row, 1)->setText(QString("%1").arg(registerData.registerAddress()));
 
             /* Text */
-            _pUi->tblMbcRegisters->item(row, 2)->setText(registerData.name);
+            _pUi->tblMbcRegisters->item(row, 2)->setText(registerData.name());
 
             /* unsigned */
             _pUi->tblMbcRegisters->item(row, 3)->setFlags(flags | Qt::ItemIsUserCheckable);
-            if (registerData.bUnsigned)
+            if (registerData.isUnsigned())
             {
                 _pUi->tblMbcRegisters->item(row, 3)->setCheckState(Qt::Checked);
             }
@@ -255,7 +255,7 @@ bool ImportMbcDialog::updateMbcRegisters()
             }
 
             /* TabName */
-            _pUi->tblMbcRegisters->item(row, 4)->setText(tabList[registerData.tabIdx]);
+            _pUi->tblMbcRegisters->item(row, 4)->setText(tabList[registerData.tabIdx()]);
 
         }
 
