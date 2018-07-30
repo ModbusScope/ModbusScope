@@ -4,6 +4,7 @@
 #include "util.h"
 #include "guimodel.h"
 #include "mbcfileimporter.h"
+#include "mbcregistermodel.h"
 #include "graphdata.h"
 #include "graphdatamodel.h"
 
@@ -11,7 +12,7 @@
 
 const QString ImportMbcDialog::_cTabFilterAll = QString("No Filter");
 
-ImportMbcDialog::ImportMbcDialog(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, QWidget *parent) :
+ImportMbcDialog::ImportMbcDialog(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, MbcRegisterModel * pMbcRegisterModel, QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::ImportMbcDialog)
 {
@@ -19,25 +20,30 @@ ImportMbcDialog::ImportMbcDialog(GuiModel * pGuiModel, GraphDataModel * pGraphDa
 
     _pGuiModel = pGuiModel;
     _pGraphDataModel = pGraphDataModel;
+    _pMbcRegisterModel = pMbcRegisterModel;
 
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    /*
-     * 0: checkbox
-     * 1: register address
-     * 2: Text
-     * 3: Unsigned
-     * 4: TabName
-     * */
-    _pUi->tblMbcRegisters->setColumnCount(5);
+    // Setup registerView
+    _pUi->tblMbcRegisters->setModel(_pMbcRegisterModel);
     _pUi->tblMbcRegisters->setSortingEnabled(false);
 
-    QStringList headerNames = QStringList() << "" << "Address" << "Text" << "Unsigned" << "Tab";
-    _pUi->tblMbcRegisters->setHorizontalHeaderLabels(headerNames);
+    /* Don't stretch columns */
+    _pUi->tblMbcRegisters->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    /* Except following columns */
+    _pUi->tblMbcRegisters->horizontalHeader()->setSectionResizeMode(MbcRegisterModel::cColumnText, QHeaderView::Stretch);
+    _pUi->tblMbcRegisters->horizontalHeader()->setSectionResizeMode(MbcRegisterModel::cColumnTab, QHeaderView::Stretch);
+
+    // Select using click, shift and control
+    _pUi->tblMbcRegisters->setSelectionBehavior(QAbstractItemView::SelectItems);
+    _pUi->tblMbcRegisters->setSelectionMode(QAbstractItemView::NoSelection);
+
+    _pUi->tblMbcRegisters->setFocusPolicy(Qt::NoFocus);
 
     connect(_pUi->btnSelectMbcFile, SIGNAL(clicked()), this, SLOT(selectMbcFile()));
-    connect(_pUi->tblMbcRegisters, &QTableWidget::itemChanged, this, &ImportMbcDialog::registerSelectionChanged);
+    connect(_pMbcRegisterModel, &QAbstractItemModel::dataChanged, this, &ImportMbcDialog::registerDataChanged);
+
     connect(_pUi->cmbTabFilter, static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged), this, &ImportMbcDialog::tabFilterChanged);
 }
 
@@ -45,7 +51,6 @@ ImportMbcDialog::~ImportMbcDialog()
 {
     delete _pUi;
 }
-
 
 int ImportMbcDialog::exec(QString mbcPath)
 {
@@ -61,12 +66,6 @@ int ImportMbcDialog::exec(void)
 {
     return exec(QString(""));
 }
-
-QList<GraphData> ImportMbcDialog::selectedRegisterList(void)
-{
-    return _selectedRegisterList;
-}
-
 
 void ImportMbcDialog::selectMbcFile()
 {
@@ -104,16 +103,24 @@ void ImportMbcDialog::selectMbcFile()
     }
 }
 
-void ImportMbcDialog::registerSelectionChanged(QTableWidgetItem * pItem)
+void ImportMbcDialog::registerDataChanged()
 {
-    if (pItem->column() == 0)
+    const quint32 count = _pMbcRegisterModel->selectedRegisterCount();
+    if (count == 1)
     {
-        updateSelectedRegisters();
+        _pUi->lblSelectedCount->setText(QString("You have selected %0 register.").arg(count));
+    }
+    else
+    {
+        _pUi->lblSelectedCount->setText(QString("You have selected %0 registers.").arg(count));
     }
 }
 
 void ImportMbcDialog::tabFilterChanged(const QString &text)
 {
+#if 0
+    TODO
+    FIXME
     // Get selected register from table widget */
     for (qint32 row = 0; row < _pUi->tblMbcRegisters->rowCount(); row++)
     {
@@ -130,43 +137,8 @@ void ImportMbcDialog::tabFilterChanged(const QString &text)
             _pUi->tblMbcRegisters->setRowHidden(row, false);
         }
     }
+#endif
 }
-
-void ImportMbcDialog::updateSelectedRegisters()
-{
-    //Clear list
-    _selectedRegisterList.clear();
-
-    // Get selected register from table widget */
-    for (qint32 row = 0; row < _pUi->tblMbcRegisters->rowCount(); row++)
-    {
-        QTableWidgetItem * pCheckItem = _pUi->tblMbcRegisters->item(row, 0);
-        if (
-                (pCheckItem != nullptr)
-                && (pCheckItem->checkState() == Qt::Checked)
-            )
-        {
-            GraphData graphData;
-
-            graphData.setActive(true);
-            graphData.setRegisterAddress(static_cast<quint16>(_pUi->tblMbcRegisters->item(row, 1)->text().toUInt()));
-            graphData.setLabel(_pUi->tblMbcRegisters->item(row, 2)->text());
-            graphData.setUnsigned(_pUi->tblMbcRegisters->item(row, 3)->checkState() == Qt::Checked);
-
-            _selectedRegisterList.append(graphData);
-        }
-    }
-
-    if (_selectedRegisterList.size() == 1)
-    {
-        _pUi->lblSelectedCount->setText(QString("You have selected %0 register.").arg(_selectedRegisterList.size()));
-    }
-    else
-    {
-        _pUi->lblSelectedCount->setText(QString("You have selected %0 registers.").arg(_selectedRegisterList.size()));
-    }
-}
-
 
 bool ImportMbcDialog::updateMbcRegisters()
 {
@@ -177,102 +149,23 @@ bool ImportMbcDialog::updateMbcRegisters()
     QStringList tabList = fileImporter.tabList();
 
     /* Clear data from table widget */
-    _pUi->tblMbcRegisters->clearContents();
-    _pUi->cmbTabFilter->clear();
+    _pMbcRegisterModel->reset();
+    registerDataChanged();
 
     if (registerList.size() > 0)
     {
-        QList<quint16> regList;
-
-        /* Create rows and columns */
-        _pUi->tblMbcRegisters->setRowCount(registerList.count());
-        _pUi->tblMbcRegisters->setColumnCount(5);
-
-        // Fill widget with data
-        for (qint32 row = 0; row < registerList.size(); row++)
-        {
-            const MbcRegisterData registerData = registerList[row];
-            const uint16_t bitmask = 0xFFFF;
-
-            /* Disable all flags */
-            Qt::ItemFlags flags = Qt::NoItemFlags;
-            QString toolTipTxt;
-
-            /* Disable all 32 bits registers and duplicates */
-            if (regList.contains(static_cast<quint16>(registerData.registerAddress())))
-            {
-                toolTipTxt = tr("Duplicate address");
-            }
-            else if (registerData.is32Bit())
-            {
-                toolTipTxt = tr("32 bit register is not supported");
-            }
-            else if (!_pGraphDataModel->isPresent(registerData.registerAddress(), bitmask))
-            {
-                toolTipTxt = tr("Already added address");
-            }
-            else
-            {
-                flags |= Qt::ItemIsEnabled;
-            }
-
-
-            for(qint32 column = 0; column <  _pUi->tblMbcRegisters->columnCount(); column++)
-            {
-                /* Create cell */
-                QTableWidgetItem *item = new QTableWidgetItem;
-                _pUi->tblMbcRegisters->setItem(row, column, item);
-
-                /* Set tooltip if required */
-                if (!toolTipTxt.isEmpty())
-                {
-                    item->setToolTip(toolTipTxt);
-                }
-
-                /* Set flags */
-                item->setFlags(flags);
-            }
-
-            /* Checkbox */
-            _pUi->tblMbcRegisters->item(row, 0)->setFlags(flags | Qt::ItemIsUserCheckable);
-            _pUi->tblMbcRegisters->item(row, 0)->setCheckState(Qt::Unchecked);
-
-            /* Register address */
-            _pUi->tblMbcRegisters->item(row, 1)->setText(QString("%1").arg(registerData.registerAddress()));
-
-            /* Text */
-            _pUi->tblMbcRegisters->item(row, 2)->setText(registerData.name());
-
-            /* unsigned */
-            _pUi->tblMbcRegisters->item(row, 3)->setFlags(flags | Qt::ItemIsUserCheckable);
-            if (registerData.isUnsigned())
-            {
-                _pUi->tblMbcRegisters->item(row, 3)->setCheckState(Qt::Checked);
-            }
-            else
-            {
-                _pUi->tblMbcRegisters->item(row, 3)->setCheckState(Qt::Unchecked);
-            }
-
-            /* TabName */
-            _pUi->tblMbcRegisters->item(row, 4)->setText(tabList[registerData.tabIdx()]);
-
-        }
+        _pMbcRegisterModel->fill(registerList, tabList);
 
         /* Update combo box */
         _pUi->cmbTabFilter->clear();
         _pUi->cmbTabFilter->addItem(_cTabFilterAll);
         _pUi->cmbTabFilter->addItems(tabList);
 
-        /* Resize */
-        _pUi->tblMbcRegisters->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-
         /* Resize dialog window to fix table widget */
         // TODO
 
         bSuccess = true;
     }
-
 
     return bSuccess;
 }

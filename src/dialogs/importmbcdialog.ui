@@ -60,7 +60,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QTableWidget" name="tblMbcRegisters"/>
+    <widget class="QTableView" name="tblMbcRegisters"/>
    </item>
    <item>
     <widget class="QLabel" name="lblSelectedCount">
