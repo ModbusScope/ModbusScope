@@ -183,7 +183,7 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
     }
 
     /* Call function to prepare view */
-    beginInsertRows(QModelIndex(), size(), size());
+    beginInsertRows(QModelIndex(), size(), size() + mbcRegisterList.size());
 
     _tabList = tabList;
 
@@ -222,6 +222,11 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
 
 Qt::ItemFlags MbcRegisterModel::flags(const QModelIndex & index) const
 {
+    if (!index.isValid())
+    {
+        return Qt::NoItemFlags;
+    }
+
     Qt::ItemFlags flags = Qt::NoItemFlags;
 
     if (index.column() == cColumnSelected)

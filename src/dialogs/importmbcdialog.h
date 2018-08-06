@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "mbcregistermodel.h"
+#include "mbcregisterfilter.h"
 
 /* Forward declaration */
 class GuiModel;
@@ -28,7 +29,6 @@ public slots:
 private slots:
     void selectMbcFile();
     void registerDataChanged();
-    void tabFilterChanged(const QString &text);
 
 private:
 
@@ -40,9 +40,9 @@ private:
     GraphDataModel * _pGraphDataModel;
     MbcRegisterModel * _pMbcRegisterModel;
 
-    QString _mbcFilePath;
+    MbcRegisterFilter * _pTabProxyFilter;
 
-    static const QString _cTabFilterAll;
+    QString _mbcFilePath;
 };
 
 #endif // IMPORTMBCDIALOG_H

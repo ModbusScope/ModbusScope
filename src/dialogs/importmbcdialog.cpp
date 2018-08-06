@@ -10,8 +10,6 @@
 
 #include <QFileDialog>
 
-const QString ImportMbcDialog::_cTabFilterAll = QString("No Filter");
-
 ImportMbcDialog::ImportMbcDialog(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, MbcRegisterModel * pMbcRegisterModel, QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::ImportMbcDialog)
@@ -22,11 +20,14 @@ ImportMbcDialog::ImportMbcDialog(GuiModel * pGuiModel, GraphDataModel * pGraphDa
     _pGraphDataModel = pGraphDataModel;
     _pMbcRegisterModel = pMbcRegisterModel;
 
+    _pTabProxyFilter = new MbcRegisterFilter();
+    _pTabProxyFilter->setSourceModel(_pMbcRegisterModel);
+
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     // Setup registerView
-    _pUi->tblMbcRegisters->setModel(_pMbcRegisterModel);
+    _pUi->tblMbcRegisters->setModel(_pTabProxyFilter);
     _pUi->tblMbcRegisters->setSortingEnabled(false);
 
     /* Don't stretch columns */
@@ -44,7 +45,7 @@ ImportMbcDialog::ImportMbcDialog(GuiModel * pGuiModel, GraphDataModel * pGraphDa
     connect(_pUi->btnSelectMbcFile, SIGNAL(clicked()), this, SLOT(selectMbcFile()));
     connect(_pMbcRegisterModel, &QAbstractItemModel::dataChanged, this, &ImportMbcDialog::registerDataChanged);
 
-    connect(_pUi->cmbTabFilter, static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged), this, &ImportMbcDialog::tabFilterChanged);
+    connect(_pUi->cmbTabFilter, static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged), _pTabProxyFilter, &MbcRegisterFilter::setTab);
 }
 
 ImportMbcDialog::~ImportMbcDialog()
@@ -116,30 +117,6 @@ void ImportMbcDialog::registerDataChanged()
     }
 }
 
-void ImportMbcDialog::tabFilterChanged(const QString &text)
-{
-#if 0
-    TODO
-    FIXME
-    // Get selected register from table widget */
-    for (qint32 row = 0; row < _pUi->tblMbcRegisters->rowCount(); row++)
-    {
-        QTableWidgetItem * pTabItem = _pUi->tblMbcRegisters->item(row, 4);
-        if (
-                (pTabItem->text() == text)
-                || (pTabItem->text() == _cTabFilterAll)
-            )
-        {
-            _pUi->tblMbcRegisters->setRowHidden(row, true);
-        }
-        else
-        {
-            _pUi->tblMbcRegisters->setRowHidden(row, false);
-        }
-    }
-#endif
-}
-
 bool ImportMbcDialog::updateMbcRegisters()
 {
     bool bSuccess = false;
@@ -158,7 +135,7 @@ bool ImportMbcDialog::updateMbcRegisters()
 
         /* Update combo box */
         _pUi->cmbTabFilter->clear();
-        _pUi->cmbTabFilter->addItem(_cTabFilterAll);
+        _pUi->cmbTabFilter->addItem(MbcRegisterFilter::cTabNoFilter);
         _pUi->cmbTabFilter->addItems(tabList);
 
         /* Resize dialog window to fix table widget */
