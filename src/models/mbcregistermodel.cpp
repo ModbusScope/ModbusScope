@@ -45,7 +45,7 @@ int MbcRegisterModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return size();
+    return _mbcRegisterList.size();;
 }
 
 int MbcRegisterModel::columnCount(const QModelIndex &parent) const
@@ -175,13 +175,13 @@ void MbcRegisterModel::reset()
 
 void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList tabList)
 {
-    if (size() != 0)
+    if (rowCount() != 0)
     {
         reset();
     }
 
     /* Call function to prepare view */
-    beginInsertRows(QModelIndex(), size(), size() + mbcRegisterList.size());
+    beginInsertRows(QModelIndex(), rowCount(), rowCount() + mbcRegisterList.size());
 
     _tabList = tabList;
 
@@ -244,11 +244,6 @@ Qt::ItemFlags MbcRegisterModel::flags(const QModelIndex & index) const
     }
 
     return flags;
-}
-
-qint32 MbcRegisterModel::size() const
-{
-    return _mbcRegisterList.size();
 }
 
 QList<GraphData> MbcRegisterModel::selectedRegisterList()

@@ -30,8 +30,6 @@ public:
     // Add data:
     void fill(QList<MbcRegisterData> mbcRegisterList, QStringList tabList);
 
-    qint32 size() const;
-
     QList<GraphData> selectedRegisterList();
     quint32 selectedRegisterCount();
 
