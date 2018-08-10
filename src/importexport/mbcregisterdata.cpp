@@ -10,6 +10,15 @@ MbcRegisterData::~MbcRegisterData()
 
 }
 
+MbcRegisterData::MbcRegisterData(quint16 registerAddress, bool bUnsigned, QString name, qint32 tabIdx, bool bUint32)
+{
+    _registerAddress = registerAddress;
+    _bUnsigned = bUnsigned;
+    _name = name;
+    _tabIdx = tabIdx;
+    _bUint32 = bUint32;
+}
+
 quint16 MbcRegisterData::registerAddress() const
 {
     return _registerAddress;

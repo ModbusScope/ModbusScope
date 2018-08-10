@@ -13,8 +13,6 @@ class MbcRegisterModel : public QAbstractTableModel
 public:
     explicit MbcRegisterModel(GraphDataModel * pGraphDataModel, QObject *parent = nullptr);
 
-     void setTabList(QStringList tabList);
-
     // Header:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 

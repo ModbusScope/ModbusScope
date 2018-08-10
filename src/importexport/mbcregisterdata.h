@@ -8,6 +8,7 @@ class MbcRegisterData
 {
 public:
     explicit MbcRegisterData();
+    MbcRegisterData(quint16 registerAddress, bool bUnsigned, QString name, qint32 tabIdx, bool bUint32);
     ~MbcRegisterData();
 
     quint16 registerAddress() const;

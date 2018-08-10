@@ -11,11 +11,6 @@ MbcRegisterModel::MbcRegisterModel(GraphDataModel *pGraphDataModel, QObject *par
     _tabList.clear();
 }
 
-void MbcRegisterModel::setTabList(QStringList tabList)
-{
-    _tabList = tabList;
-}
-
 QVariant MbcRegisterModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (role == Qt::DisplayRole)
@@ -158,8 +153,11 @@ bool MbcRegisterModel::setData(const QModelIndex & index, const QVariant & value
         break;
     }
 
-    // Notify view(s) of change
-    emit dataChanged(index, index);
+    if (bRet)
+    {
+        // Notify view(s) of change
+        emit dataChanged(index, index);
+    }
 
     return bRet;
 }
@@ -206,7 +204,7 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
         {
             _mbcRegisterMetaDataList.last().tooltip = tr("32 bit register is not supported");
         }
-        else if (!_pGraphDataModel->isPresent(mbcRegisterList[idx].registerAddress(), bitmask))
+        else if (_pGraphDataModel->isPresent(mbcRegisterList[idx].registerAddress(), bitmask))
         {
             _mbcRegisterMetaDataList.last().tooltip = tr("Already added address");
         }

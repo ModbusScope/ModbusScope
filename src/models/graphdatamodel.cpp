@@ -669,11 +669,11 @@ bool GraphDataModel::isPresent(quint16 addr, quint16 bitmask)
             && (_graphData[idx].bitmask() == bitmask)
         )
         {
-            return false;
+            return true;
         }
     }
 
-    return true;
+    return false;
 }
 
 qint32 GraphDataModel::convertToActiveGraphIndex(quint32 graphIdx)

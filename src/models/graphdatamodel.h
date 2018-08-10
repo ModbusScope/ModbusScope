@@ -12,7 +12,7 @@ class GraphDataModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit GraphDataModel(QObject *parent = 0);
+    explicit GraphDataModel(QObject *parent = nullptr);
 
     /* Functions for QTableView (model) */
     int rowCount(const QModelIndex &parent = QModelIndex()) const ;
@@ -65,7 +65,7 @@ public:
     void activeGraphIndexList(QList<quint16> * pList);
 
     bool getDuplicate(quint16 * pRegister, quint16 *pBitmask);
-    bool isPresent(quint16 addr, quint16 bitmask);
+    virtual bool isPresent(quint16 addr, quint16 bitmask);
 
     qint32 convertToActiveGraphIndex(quint32 graphIdx);
     qint32 convertToGraphIndex(quint32 activeIdx);
