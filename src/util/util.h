@@ -89,7 +89,7 @@ public:
             {
                 /* Absolute date */
                 QDateTime dateTime;
-                dateTime.setMSecsSinceEpoch(tickKey);
+                dateTime.setMSecsSinceEpoch(tickKey); /* Converts from ms since epoch in UTC to local timezone */
                 tickLabel = dateTime.toString("dd/MM/yyyy \n" + Util::timeStringFormat());
             }
             else

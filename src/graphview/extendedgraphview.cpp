@@ -15,12 +15,6 @@ ExtendedGraphView::ExtendedGraphView(CommunicationManager * pConnMan, GuiModel *
     _pConnMan = pConnMan;
     _pSettingsModel = pSettingsModel;
 
-    //Get difference between UTC and local in milliseconds
-    QDateTime local(QDateTime::currentDateTime());
-    QDateTime UTC(local.toUTC());
-    QDateTime dt(UTC.date(), UTC.time(), Qt::LocalTime);
-    _diffWithUtc = dt.secsTo(local) * 1000;
-
     connect(_pPlot->xAxis, SIGNAL(rangeChanged(QCPRange, QCPRange)), this, SLOT(xAxisRangeChanged(QCPRange, QCPRange)));
 }
 
@@ -131,8 +125,8 @@ void ExtendedGraphView::plotResults(QList<bool> successList, QList<double> value
     quint64 timeData;
     if (_pSettingsModel->absoluteTimes())
     {
-        // Epoch is UTC time, so add the difference between zones in milliseconds
-        timeData = QDateTime::currentMSecsSinceEpoch() + _diffWithUtc;
+        // Epoch is in UTC time
+        timeData = QDateTime::currentMSecsSinceEpoch();
     }
     else
     {

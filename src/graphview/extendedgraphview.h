@@ -36,8 +36,6 @@ private:
     CommunicationManager * _pConnMan;
     SettingsModel * _pSettingsModel;
 
-    qint32 _diffWithUtc;
-
 };
 
 #endif // EXTENDEDGRAPHVIEW_H
