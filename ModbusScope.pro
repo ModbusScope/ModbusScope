@@ -8,7 +8,6 @@ TEMPLATE = app
 CONFIG += c++11
 
 win32 {
-LIBS += -lws2_32
 RC_ICONS = icon/application.ico
 }
 
@@ -22,7 +21,6 @@ DEFINES += GIT_BRANCH="\\\"$(shell git --git-dir \""$$PWD/.git"\" rev-parse --ab
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
 INCLUDEPATH += \
-    libraries/libmodbus/src \
     libraries/qcustomplot \
     src/communication \
     src/customwidgets \
@@ -33,9 +31,6 @@ INCLUDEPATH += \
     src/util
 
 SOURCES +=  \
-    libraries/libmodbus/src/modbus-data.c \
-    libraries/libmodbus/src/modbus.c \
-    libraries/libmodbus/src/modbus-tcp.c \
     libraries/qcustomplot/qcustomplot.cpp \
     src/communication/communicationmanager.cpp \
     src/communication/modbusmaster.cpp \
@@ -94,11 +89,6 @@ FORMS    += \
     src/customwidgets/notesdockwidget.ui
 
 HEADERS += \
-    libraries/libmodbus/src/modbus-private.h \
-    libraries/libmodbus/src/modbus-version.h \
-    libraries/libmodbus/src/modbus.h \
-    libraries/libmodbus/src/modbus-tcp.h \
-    libraries/libmodbus/src/modbus-tcp-private.h \
     libraries/qcustomplot/qcustomplot.h \
     src/communication/communicationmanager.h \
     src/communication/modbusmaster.h \
