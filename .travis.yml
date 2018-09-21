@@ -12,7 +12,7 @@ install:
   - sudo apt-get -qq install -qq g++-7
   - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 60 --slave /usr/bin/g++ g++ /usr/bin/g++-7
   - g++ --version
-  - sudo apt-get -qq install qt59-meta-minimal
+  - sudo apt-get -qq install qt59-meta-minimal qt59serialbus
   - source /opt/qt59/bin/qt59-env.sh
   - qmake -v
 
