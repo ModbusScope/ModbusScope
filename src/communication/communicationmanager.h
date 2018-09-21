@@ -29,8 +29,6 @@ public:
     void resetCommunicationStats();
 
 signals:
-    void registerRequest(QList<quint16> registerList);
-    void requestStop();
     void handleReceivedData(QList<bool> successList, QList<double> values);
 
 private slots:
@@ -38,7 +36,6 @@ private slots:
     void handleModbusError(QString msg);
     void handleModbusInfo(QString msg);
     void readData();
-    void masterStopped();
 
 private:
 
@@ -53,6 +50,9 @@ private:
     GraphDataModel * _pGraphDataModel;
     ErrorLogModel * _pErrorLogModel;
     SettingsModel * _pSettingsModel;
+
+    ModbusConnection _modbusConnection;
+    ReadRegisters _readRegisterCollection;
 
 };
 

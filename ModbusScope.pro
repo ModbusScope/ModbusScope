@@ -1,6 +1,6 @@
 
 QT += core gui xml network
-QT += widgets printsupport
+QT += widgets printsupport serialbus
 
 TARGET = ModbusScope
 TEMPLATE = app
@@ -76,7 +76,9 @@ SOURCES +=  \
     src/customwidgets/notesdockwidget.cpp \
     src/importexport/mbcregisterdata.cpp \
     src/models/mbcregistermodel.cpp \
-    src/models/mbcregisterfilter.cpp
+    src/models/mbcregisterfilter.cpp \
+    src/communication/modbusconnection.cpp \
+    src/communication/readregisters.cpp
 
 FORMS    += \
     src/dialogs/connectiondialog.ui \
@@ -133,7 +135,9 @@ HEADERS += \
     src/customwidgets/notesdockwidget.h \
     src/importexport/mbcregisterdata.h \
     src/models/mbcregistermodel.h \
-    src/models/mbcregisterfilter.h
+    src/models/mbcregisterfilter.h \
+    src/communication/modbusconnection.h \
+    src/communication/readregisters.h
 
 RESOURCES += \
     resources/resource.qrc
