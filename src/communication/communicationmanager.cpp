@@ -1,6 +1,9 @@
 #include <QTimer>
 #include <QDateTime>
 
+#include "modbusconnection.h"
+#include "readregisters.h"
+
 #include "modbusmaster.h"
 #include "communicationmanager.h"
 #include "guimodel.h"
@@ -19,19 +22,9 @@ CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiMo
     _pGraphDataModel = pGraphDataModel;
     _pErrorLogModel = pErrorLogModel;
 
-    qRegisterMetaType<QList<quint16> >("QList<quint16>");
-
     /* Setup modbus master */
-    _master = new ModbusMaster(_pSettingsModel, _pGuiModel);
+    _master = new ModbusMaster(_pSettingsModel, _pGuiModel, &_modbusConnection, &_readRegisterCollection);
 
-    connect(this, SIGNAL(requestStop()), _master, SLOT(stopThread()));
-
-    connect(_master, SIGNAL(threadStopped()), this, SLOT(masterStopped()));
-    connect(_master, SIGNAL(threadStopped()), _master, SLOT(deleteLater()));
-
-    _master->startThread();
-
-    connect(this, SIGNAL(registerRequest(QList<quint16>)), _master, SLOT(readRegisterList(QList<quint16>)));
     connect(_master, SIGNAL(modbusPollDone(QMap<quint16, ModbusResult>)), this, SLOT(handlePollDone(QMap<quint16, ModbusResult>)));
 
     connect(_master, SIGNAL(modbusLogError(QString)), this, SLOT(handleModbusError(QString)));
@@ -40,13 +33,6 @@ CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiMo
 
 CommunicationManager::~CommunicationManager()
 {
-    emit requestStop();
-
-    if (_master)
-    {
-        _master->wait();
-    }
-
     delete _pPollTimer;
 }
 
@@ -145,11 +131,6 @@ void CommunicationManager::handleModbusInfo(QString msg)
     _pErrorLogModel->addItem(log);
 }
 
-void CommunicationManager::masterStopped()
-{
-    _master = NULL;
-}
-
 void CommunicationManager::stopCommunication()
 {
     _active = false;
@@ -171,7 +152,7 @@ void CommunicationManager::readData()
         QList<quint16> regAddrList;
         _pGraphDataModel->activeGraphAddresList(&regAddrList);
 
-        emit registerRequest(regAddrList);
+        _master->readRegisterList(regAddrList);
     }
 }
 
