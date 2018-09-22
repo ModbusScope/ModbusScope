@@ -45,6 +45,10 @@ void ReadRegisters::resetRead(QList<quint16> registerList, quint16 consecutiveMa
                     bSubsequent = true;
                     currentIdx++;
                 }
+                else
+                {
+                    bSubsequent = false;
+                }
 
                 // Break loop when end of list
                 if (currentIdx >= (registerList.size() - 1))
@@ -53,26 +57,24 @@ void ReadRegisters::resetRead(QList<quint16> registerList, quint16 consecutiveMa
                 }
 
                 // Limit number of register in 1 read
-                if (currentIdx >= consecutiveMax)
+                if ((currentIdx + 1) >= consecutiveMax)
                 {
                     break;
                 }
 
             } while(bSubsequent == true);
 
-            if (bSubsequent)
+
+            // Convert idx to count
+            quint8 count = static_cast<quint8>(currentIdx) + 1;
+
+            _readItemList.append(ModbusReadItem(registerList.first(), count));
+
+            for (int idx = 0; idx < count; idx++)
             {
-                // Convert idx to count
-                quint8 count = static_cast<quint8>(currentIdx) + 1;
-
-                _readItemList.append(ModbusReadItem(registerList.first(), count));
-
-                for (int idx = 0; idx < count; idx++)
-                {
-                    registerList.removeFirst();
-                }
-
+                registerList.removeFirst();
             }
+
 
         }
     }
