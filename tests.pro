@@ -15,7 +15,8 @@ HEADERS += \
     tests/tst_errorlog.h \
     tests/tst_errorlogmodel.h \
     tests/mockgraphdatamodel.h \
-    tests/tst_mbcregistermodel.h
+    tests/tst_mbcregistermodel.h \
+    tests/tst_readregisters.h
 
 # Remove application main
 SOURCES -= \
