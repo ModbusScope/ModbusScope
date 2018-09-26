@@ -74,8 +74,6 @@ void ReadRegisters::resetRead(QList<quint16> registerList, quint16 consecutiveMa
             {
                 registerList.removeFirst();
             }
-
-
         }
     }
 }
@@ -92,11 +90,18 @@ bool ReadRegisters::hasNext()
 
 /*!
  * Get next ModbusReadItem
- * \return next ModbusReadItem
+ * \return next ModbusReadItem (item with count 0 when no item available)
  */
 ModbusReadItem ReadRegisters::next()
 {
-    return _readItemList.first();
+    if (hasNext())
+    {
+        return _readItemList.first();
+    }
+    else
+    {
+        return ModbusReadItem(0,0);
+    }
 }
 
 /*!
@@ -106,9 +111,9 @@ ModbusReadItem ReadRegisters::next()
  */
 void ReadRegisters::addSuccess(quint16 startRegister, QList<quint16> registerDataList)
 {
-
     if (
-        (next().address() == startRegister)
+        hasNext()
+        && (next().address() == startRegister)
         && (next().count() == registerDataList.size())
     )
     {
@@ -132,7 +137,8 @@ void ReadRegisters::addSuccess(quint16 startRegister, QList<quint16> registerDat
 void ReadRegisters::addError(quint16 startRegister, quint32 count)
 {
     if (
-        (next().address() == startRegister)
+        hasNext()
+        && (next().address() == startRegister)
         && (next().count() == count)
     )
     {
@@ -164,13 +170,16 @@ void ReadRegisters::addAllErrors()
  */
 void ReadRegisters::splitNextToSingleReads()
 {
-    ModbusReadItem firstItem = _readItemList.first();
-
-    _readItemList.removeFirst();
-
-    for(int idx = 0; idx < firstItem.count(); idx++)
+    if (hasNext())
     {
-        _readItemList.prepend(ModbusReadItem(static_cast<quint16>(firstItem.address()) + static_cast<quint16>(idx), 1));
+        ModbusReadItem firstItem = _readItemList.first();
+
+        _readItemList.removeFirst();
+
+        for(int idx = firstItem.count(); idx > 0; idx--)
+        {
+            _readItemList.prepend(ModbusReadItem(static_cast<quint16>(firstItem.address()) + static_cast<quint16>(idx - 1), 1));
+        }
     }
 }
 
