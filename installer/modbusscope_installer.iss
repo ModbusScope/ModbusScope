@@ -10,7 +10,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{E2D28A15-1D34-4D76-AF4E-49A17C19A3A2}
 AppName={#MyAppName}
-AppVersion=1.4.0
+AppVersion=1.5.0
 AppPublisher="jgeudens"
 AppPublisherURL=http://jgeudens.github.io/
 AppSupportURL=http://jgeudens.github.io/
