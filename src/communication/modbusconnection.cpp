@@ -1,6 +1,6 @@
 
 #include <QVariant>
-
+#include <QLoggingCategory>
 #include "modbusconnection.h"
 
 /*!
@@ -8,7 +8,10 @@
  */
 ModbusConnection::ModbusConnection(QObject *parent) : QObject(parent)
 {
-
+#if 0
+    // Enable to have internal QModbus debug messages
+    QLoggingCategory::setFilterRules(QStringLiteral("qt.modbus* = true"));
+#endif
 }
 
 /*!
