@@ -15,13 +15,14 @@ class ConnectionData : public QObject
 public:
 
     explicit ConnectionData():
-        timeoutTimer(this), modbusClient(this)
+        timeoutTimer(this), modbusClient(this), bErrorHandled(false)
     {
 
     }
 
     QTimer timeoutTimer;
     QModbusTcpClient modbusClient;
+    bool bErrorHandled;
 };
 
 
@@ -51,10 +52,11 @@ private slots:
 
 private:
 
-    void handleError(QString errMsg);
+    void handleError(QPointer<ConnectionData> connectionData, QString errMsg);
     qint32 findConnectionData(QTimer * pTimer, QModbusTcpClient * pClient);
 
     QList<QPointer<ConnectionData>> _connectionList;
+    bool _bWaitingForConnection;
 
 };
 

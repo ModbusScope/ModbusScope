@@ -47,12 +47,13 @@ void ModbusConnection::openConnection(QString ip, qint32 port, quint32 timeout)
 
         if (_connectionList.last()->modbusClient.connectDevice())
         {
+            _bWaitingForConnection = true;
             _connectionList.last()->timeoutTimer.start(static_cast<int>(timeout));
         }
         else
         {
             auto pClient = &_connectionList.last()->modbusClient;
-            handleError(QString("Connect failed: %0").arg(pClient->error()));
+            handleError(_connectionList.last(), QString("Connect failed: %0").arg(pClient->error()));
         }
     }
 }
@@ -62,7 +63,10 @@ void ModbusConnection::openConnection(QString ip, qint32 port, quint32 timeout)
  */
 void ModbusConnection::closeConnection(void)
 {
-    if (!_connectionList.isEmpty())
+    if (
+            !_connectionList.isEmpty()
+            && _connectionList.last()->modbusClient.state() != QModbusDevice::UnconnectedState
+        )
     {
         _connectionList.last()->timeoutTimer.stop();
         _connectionList.last()->modbusClient.disconnectDevice();
@@ -135,6 +139,8 @@ void ModbusConnection::handleConnectionStateChanged(QModbusDevice::State state)
         {
             // Most recent connection is opened
             emit connectionSuccess();
+
+            _bWaitingForConnection = false;
         }
         else if (senderIdx != -1)
         {
@@ -148,9 +154,15 @@ void ModbusConnection::handleConnectionStateChanged(QModbusDevice::State state)
     }
     else if (state == QModbusDevice::UnconnectedState)
     {
-        //TODO: CLosed state can occur before timeout when connection is refused
-
-        if (senderIdx != -1)
+        // Unconnected state can occur before timeout when connection is refused
+        if (_bWaitingForConnection)
+        {
+            if (senderIdx == _connectionList.size() - 1)
+            {
+                handleError(_connectionList.last(), QString("Connection timeout"));
+            }
+        }
+        else if (senderIdx != -1)
         {
             // Prepare to remove old connection
             _connectionList[senderIdx]->modbusClient.disconnect();
@@ -184,7 +196,7 @@ void ModbusConnection::handleConnectionErrorOccurred(QModbusDevice::Error error)
     // Only handle error is latest connection, the rest is automaticaly closed on state change
     if (senderIdx == _connectionList.size() - 1)
     {
-        handleError(QString("Error: %0").arg(error));
+        handleError(_connectionList.last(), QString("Error: %0").arg(error));
     }
 }
 
@@ -199,7 +211,7 @@ void ModbusConnection::connectionTimeOut()
     // Only handle error is latest connection, the rest is automaticaly closed on state change
     if (senderIdx == _connectionList.size() - 1)
     {
-        handleError(QString("Connection timeout"));
+        handleError(_connectionList.last(), QString("Connection timeout"));
     }
 }
 
@@ -214,14 +226,20 @@ void ModbusConnection::connectionDestroyed()
 
 /*!
  * General internal error handler
- * Should onl be called for last connection in the list, the rest is stale
+ * Should only be called for last connection in the list, the rest is stale
  * \param errMsg    Error message
  */
-void ModbusConnection::handleError(QString errMsg)
+void ModbusConnection::handleError(QPointer<ConnectionData> connectionData, QString errMsg)
 {
-    closeConnection();
 
-    emit errorOccurred(QModbusDevice::ConnectionError, errMsg);
+    if (!connectionData->bErrorHandled)
+    {
+        connectionData->bErrorHandled = true;
+
+        closeConnection();
+
+        emit errorOccurred(QModbusDevice::ConnectionError, errMsg);
+    }
 }
 
 /*!
