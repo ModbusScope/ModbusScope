@@ -25,15 +25,6 @@ AboutDialog::AboutDialog(BasicGraphView * _pGraphView, QWidget *parent) :
     debugTxt = QString(tr("(git: %1:%2)")).arg(GIT_BRANCH).arg(GIT_HASH);
 #endif
 
-     debugTxt.append("\t OpenGL: ");
-     if (_pGraphView->openGl())
-     {
-         debugTxt.append("true");
-     }
-     else
-     {
-         debugTxt.append("false");
-     }
     _pUi->lblDebug->setText(debugTxt);
 
     _pUi->textAbout->setOpenExternalLinks(true);

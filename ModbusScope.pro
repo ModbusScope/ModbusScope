@@ -21,8 +21,6 @@ DEFINES += GIT_BRANCH="\\\"$(shell git --git-dir \""$$PWD/.git"\" rev-parse --ab
 
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
-DEFINES += QCUSTOMPLOT_USE_OPENGL
-
 INCLUDEPATH += \
     libraries/libmodbus/src \
     libraries/qcustomplot \

@@ -51,8 +51,6 @@ public slots:
     virtual void updateMarkersVisibility();
     virtual void setStartMarker();
     virtual void setEndMarker();
-    virtual void setOpenGl(bool bState);
-    virtual bool openGl(void);
 
     virtual void handleNoteValueDataChanged(const quint32 idx);
     virtual void handleNoteKeyDataChanged(const quint32 idx);

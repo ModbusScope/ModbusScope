@@ -372,16 +372,6 @@ void BasicGraphView::setEndMarker()
     _pPlot->replot();
 }
 
-void BasicGraphView::setOpenGl(bool bState)
-{
-    _pPlot->setOpenGl(bState);
-}
-
-bool BasicGraphView::openGl(void)
-{
-    return _pPlot->openGl();
-}
-
 void BasicGraphView::handleNoteValueDataChanged(const quint32 idx)
 {
     _notesItems[idx]->position->setCoords(QPointF(_pNoteModel->keyData(idx), _pNoteModel->valueData(idx))); // place position at left/top of axis rect

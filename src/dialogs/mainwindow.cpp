@@ -1211,16 +1211,8 @@ void MainWindow::handleCommandLineArguments(QStringList cmdArguments)
 	// Project file option
     argumentParser.addPositionalArgument("project file", QCoreApplication::translate("main", "Project file (.mbs) to open"));
 
-	// OpenGL argument
-    QCommandLineOption openGlOption("opengl", QCoreApplication::translate("main", "Use openGL to render plot"));
-    argumentParser.addOption(openGlOption);
-
-
     // Process arguments
     argumentParser.process(cmdArguments);
-
-    bool bOpenGl = argumentParser.isSet(openGlOption);
-    _pGraphView->setOpenGl(bOpenGl);
 
     if (!argumentParser.positionalArguments().isEmpty())
     {
