@@ -9,7 +9,6 @@ QT += testlib
 TARGET = ModbusScopeTests
 TEMPLATE = app
 CONFIG += console c++11
-CONFIG += thread
 
 HEADERS += \
     tests/tst_errorlog.h \
