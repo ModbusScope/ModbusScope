@@ -75,9 +75,9 @@ SOURCES +=  \
     src/importexport/mbcregisterdata.cpp \
     src/models/mbcregistermodel.cpp \
     src/models/mbcregisterfilter.cpp \
-    src/util/scopelogging.cpp
+    src/util/scopelogging.cpp \
     src/communication/modbusconnection.cpp \
-    src/communication/readregisters.cpp \
+    src/communication/readregisters.cpp
 
 FORMS    += \
     src/dialogs/connectiondialog.ui \
