@@ -18,7 +18,6 @@
 #include "extendedgraphview.h"
 #include "util.h"
 
-#include <QDebug>
 #include <QDateTime>
 
 const QString MainWindow::_cStateRunning = QString("Running");

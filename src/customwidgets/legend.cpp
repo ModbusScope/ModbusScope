@@ -1,7 +1,6 @@
 
 
 #include <QStyleOption>
-#include <QDebug>
 #include <QPainter>
 #include <QMouseEvent>
 

@@ -1,5 +1,4 @@
 #include "QWidget"
-#include "QDebug"
 
 #include "myqcustomplot.h"
 

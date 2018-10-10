@@ -1,6 +1,4 @@
 
-#include <QDebug>
-
 #include "settingsmodel.h"
 
 SettingsModel::SettingsModel(QObject *parent) :
