@@ -1,6 +1,6 @@
 
 #include <QVariant>
-#include <QLoggingCategory>
+#include "scopelogging.h"
 #include "modbusconnection.h"
 
 /*!
@@ -8,10 +8,7 @@
  */
 ModbusConnection::ModbusConnection(QObject *parent) : QObject(parent)
 {
-#if 0
-    // Enable to have internal QModbus debug messages
-    QLoggingCategory::setFilterRules(QStringLiteral("qt.modbus* = true"));
-#endif
+
 }
 
 /*!
@@ -45,6 +42,7 @@ void ModbusConnection::openConnection(QString ip, qint32 port, quint32 timeout)
 
         _connectionList.append(QPointer<ConnectionData>(connectionData));
 
+        qCDebug(scopeConnection) << "Connection start: " << _connectionList.last();
         if (_connectionList.last()->modbusClient.connectDevice())
         {
             _bWaitingForConnection = true;
@@ -68,6 +66,7 @@ void ModbusConnection::closeConnection(void)
             && _connectionList.last()->modbusClient.state() != QModbusDevice::UnconnectedState
         )
     {
+        qCDebug(scopeConnection) << "Connection close: " << _connectionList.last();
         _connectionList.last()->timeoutTimer.stop();
         _connectionList.last()->modbusClient.disconnectDevice();
     }
@@ -121,6 +120,15 @@ void ModbusConnection::handleConnectionStateChanged(QModbusDevice::State state)
 {
     QModbusTcpClient * pClient = qobject_cast<QModbusTcpClient *>(QObject::sender());    
     const qint32 senderIdx = findConnectionData(nullptr, pClient);
+
+    if (senderIdx != -1)
+    {
+        qCDebug(scopeConnection) << "Connection state change: " << _connectionList[senderIdx] << ", state: " << state;
+    }
+    else
+    {
+        qCDebug(scopeConnection) << "Connection state change: Unknown connection id" << ", state: " << state;
+    }
 
     if (state == QModbusDevice::ConnectingState)
     {
@@ -231,6 +239,7 @@ void ModbusConnection::connectionDestroyed()
  */
 void ModbusConnection::handleError(QPointer<ConnectionData> connectionData, QString errMsg)
 {
+    qCDebug(scopeConnection) << "Connection error:" << errMsg;
 
     if (!connectionData->bErrorHandled)
     {

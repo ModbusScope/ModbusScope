@@ -4,6 +4,7 @@
 #include "scopelogging.h"
 
 
+Q_LOGGING_CATEGORY(scopeConnection, "scope.connection")
 Q_LOGGING_CATEGORY(scopeModbus, "scope.modbus")
 Q_LOGGING_CATEGORY(scopeNotes, "scope.notes")
 

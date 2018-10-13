@@ -14,13 +14,11 @@ int main(int argc, char *argv[])
     /* Make sure debug messages are printed in console (disabled by default in Ubuntu) */
     QLoggingCategory::defaultCategory()->setEnabled(QtDebugMsg, true);
 
-    QLoggingCategory::setFilterRules("*.debug=false\n"
-                                 #if 0
-                                     "scope.notes*=true"
-                                 #endif
-                                     );
-
-#ifndef DEBUG
+#if DEBUG
+    // Enable to have internal QModbus debug messages
+    QLoggingCategory::setFilterRules(QStringLiteral("qt.modbus* = true"));
+    QLoggingCategory::setFilterRules(QStringLiteral("scope.connection* = false"));
+#else
     QLoggingCategory::setFilterRules("*=false\n");
 #endif
 

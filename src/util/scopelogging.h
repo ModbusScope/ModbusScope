@@ -3,6 +3,7 @@
 
 #include <QLoggingCategory>
 
+Q_DECLARE_LOGGING_CATEGORY(scopeConnection)
 Q_DECLARE_LOGGING_CATEGORY(scopeModbus)
 Q_DECLARE_LOGGING_CATEGORY(scopeNotes)
 
