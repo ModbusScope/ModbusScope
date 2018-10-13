@@ -213,8 +213,8 @@ void ModbusConnection::handleConnectionErrorOccurred(QModbusDevice::Error error)
  */
 void ModbusConnection::connectionTimeOut()
 {
-    QModbusTcpClient * pClient = qobject_cast<QModbusTcpClient *>(QObject::sender());
-    const qint32 senderIdx = findConnectionData(nullptr, pClient);
+    QTimer * pTimeoutTimer = qobject_cast<QTimer *>(QObject::sender());
+    const qint32 senderIdx = findConnectionData(pTimeoutTimer, nullptr);
 
     // Only handle error is latest connection, the rest is automaticaly closed on state change
     if (senderIdx == _connectionList.size() - 1)
