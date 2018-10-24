@@ -1,6 +1,6 @@
 include(ModbusScope.pro)
 
-QT += core gui widgets
+QT += core
 QT += testlib
 
 TARGET = ModbusScopeIntegrationTests

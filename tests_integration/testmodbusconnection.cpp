@@ -7,10 +7,13 @@
 
 #include "testmodbusconnection.h"
 
-void TestModbusConnection::connectionSuccess()
+void TestModbusConnection::initTestCase()
 {
     qRegisterMetaType<QModbusDevice::Error>("QModbusDevice::Error");
+}
 
+void TestModbusConnection::connectionSuccess()
+{
     TestSlaveModbus testSlaveModbus;
     TestSlaveData testSlaveData(&testSlaveModbus);
 
@@ -37,4 +40,58 @@ void TestModbusConnection::connectionSuccess()
 
 }
 
-QTEST_MAIN(TestModbusConnection)
+void TestModbusConnection::connectionFail()
+{
+    QUrl serverConnectionData = QUrl::fromUserInput("127.0.0.1:5002");
+
+    ModbusConnection * pConnection = new ModbusConnection(this);
+
+    QSignalSpy spySuccess(pConnection, &ModbusConnection::connectionSuccess);
+    QSignalSpy spyError(pConnection, &ModbusConnection::errorOccurred);
+
+    pConnection->openConnection(serverConnectionData.host(), serverConnectionData.port(), 1000);
+
+    QVERIFY(spyError.wait(1500));
+
+    QCOMPARE(spySuccess.count(), 0);
+    QCOMPARE(spyError.count(), 1);
+
+    QCOMPARE(pConnection->state(), QModbusDevice::UnconnectedState);
+}
+
+
+void TestModbusConnection::connectionSuccesAfterFail()
+{
+    QUrl serverConnectionData = QUrl::fromUserInput("127.0.0.1:5002");
+
+    ModbusConnection * pConnection = new ModbusConnection(this);
+
+    QSignalSpy spySuccess(pConnection, &ModbusConnection::connectionSuccess);
+    QSignalSpy spyError(pConnection, &ModbusConnection::errorOccurred);
+
+    pConnection->openConnection(serverConnectionData.host(), serverConnectionData.port(), 1000);
+
+    QVERIFY(spyError.wait(1500));
+
+    QCOMPARE(spySuccess.count(), 0);
+    QCOMPARE(spyError.count(), 1);
+
+    QCOMPARE(pConnection->state(), QModbusDevice::UnconnectedState);
+
+    // Start server
+    TestSlaveModbus testSlaveModbus;
+    TestSlaveData testSlaveData(&testSlaveModbus);
+
+    QVERIFY(testSlaveModbus.connect(serverConnectionData, true));
+
+    pConnection->openConnection(serverConnectionData.host(), serverConnectionData.port(), 1000);
+
+    QVERIFY(spySuccess.wait(500));
+
+    QCOMPARE(spySuccess.count(), 1);
+    QCOMPARE(pConnection->state(), QModbusDevice::ConnectedState);
+
+    pConnection->closeConnection();
+}
+
+QTEST_GUILESS_MAIN(TestModbusConnection)
