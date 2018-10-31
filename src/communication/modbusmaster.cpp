@@ -70,7 +70,6 @@ void ModbusMaster::handleRequestFinished()
 
     QModbusReply * pReply = qobject_cast<QModbusReply *>(QObject::sender());
     auto err = pReply->error();
-    QModbusDataUnit dataUnit = pReply->result();
 
     // Start deletion of reply object before handling data (and closing connection)
     pReply->deleteLater();
@@ -80,6 +79,7 @@ void ModbusMaster::handleRequestFinished()
         emit modbusLogInfo(QString("Read success"));
 
         // Success
+        QModbusDataUnit dataUnit = pReply->result();
         _pReadRegisters->addSuccess(dataUnit.startAddress() + 40001, dataUnit.values().toList());
     }
     else if (err == QModbusDevice::ProtocolError)
@@ -101,7 +101,7 @@ void ModbusMaster::handleRequestFinished()
             else
             {
                 // Add error to results
-                _pReadRegisters->addError(dataUnit.startAddress() + 40001, dataUnit.valueCount());
+                _pReadRegisters->addError();
             }
         }
         else if (exceptionCode == QModbusPdu::IllegalFunction)
@@ -111,7 +111,7 @@ void ModbusMaster::handleRequestFinished()
         }
         else
         {
-            _pReadRegisters->addError(dataUnit.startAddress() + 40001, dataUnit.valueCount());
+            _pReadRegisters->addError();
         }
     }
     else

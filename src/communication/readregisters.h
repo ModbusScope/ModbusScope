@@ -35,7 +35,7 @@ public:
     ModbusReadItem next();
 
     void addSuccess(quint16 startRegister, QList<quint16> registerDataList);
-    void addError(quint16 startRegister, quint32 count);
+    void addError();
     void addAllErrors();
     void splitNextToSingleReads();
 

@@ -11,7 +11,7 @@ void verifyAndAddErrorResult(ReadRegisters * pReadRegister, quint16 addr, quint1
     EXPECT_EQ(pReadRegister->next().address(), addr);
     EXPECT_EQ(pReadRegister->next().count(), cnt);
 
-    pReadRegister->addError(addr, cnt);
+    pReadRegister->addError();
 }
 
 TEST(ReadRegisters, resetRead_1)
@@ -243,7 +243,7 @@ TEST(ReadRegisters, addSuccessAndErrors)
     EXPECT_EQ(readRegister.next().address(), 5);
     EXPECT_EQ(readRegister.next().count(), 1);
 
-    readRegister.addError(5, 1);
+    readRegister.addError();
 
     EXPECT_TRUE(readRegister.hasNext());
     EXPECT_EQ(readRegister.next().address(), 8);

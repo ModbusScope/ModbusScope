@@ -131,20 +131,15 @@ void ReadRegisters::addSuccess(quint16 startRegister, QList<quint16> registerDat
 
 /*!
  * Add error result for current ReadRegister cluster
- * \param startRegister     Start register address
- * \param count             Number of failed registers reads
  */
-void ReadRegisters::addError(quint16 startRegister, quint32 count)
+void ReadRegisters::addError()
 {
-    if (
-        hasNext()
-        && (next().address() == startRegister)
-        && (next().count() == count)
-    )
+    if (hasNext())
     {
-        for (quint32 i = 0; i < count; i++)
+        auto nextRequestData = next();
+        for (quint32 i = 0; i < nextRequestData.count(); i++)
         {
-            const quint16 registerAddr = startRegister + static_cast<quint16>(i);
+            const quint16 registerAddr = nextRequestData.address() + static_cast<quint16>(i);
             const ModbusResult result = ModbusResult(0, false);
 
             _resultMap.insert(registerAddr, result);
@@ -161,7 +156,7 @@ void ReadRegisters::addAllErrors()
 {
     while(hasNext())
     {
-        addError(next().address(), next().count());
+        addError();
     }
 }
 
