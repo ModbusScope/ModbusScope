@@ -16,13 +16,14 @@ class ModbusMaster : public QObject
 {
     Q_OBJECT
 public:
-    explicit ModbusMaster(SettingsModel * pSettingsModel, GuiModel *pGuiModel, ModbusConnection * pModbusConnection, ReadRegisters * pReadRegisterCollection);
+    explicit ModbusMaster(SettingsModel * pSettingsModel, ModbusConnection * pModbusConnection, ReadRegisters * pReadRegisterCollection);
     virtual ~ModbusMaster();
 
     void readRegisterList(QList<quint16> registerList);
 
 signals:
     void modbusPollDone(QMap<quint16, ModbusResult> modbusResults);
+    void modbusAddToStats(quint32 successes, quint32 errors);
     void modbusLogError(QString msg);
     void modbusLogInfo(QString msg);
     void triggerNextRequest();
@@ -43,7 +44,6 @@ private:
     quint32 _error;
 
     SettingsModel * _pSettingsModel;
-    GuiModel * _pGuiModel;
     ModbusConnection * _pModbusConnection;
     ReadRegisters * _pReadRegisters;
 

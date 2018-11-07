@@ -1,13 +1,9 @@
-#include <QApplication>
-#include <QThread>
-#include <QCoreApplication>
 #include "modbusmaster.h"
 #include "settingsmodel.h"
-#include "guimodel.h"
 #include "errorlogmodel.h"
 #include <util.h>
 
-ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, GuiModel * pGuiModel, ModbusConnection * pModbusConnection, ReadRegisters * pReadRegisterCollection) :
+ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, ModbusConnection * pModbusConnection, ReadRegisters * pReadRegisterCollection) :
     QObject(nullptr)
 {
 
@@ -15,7 +11,6 @@ ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, GuiModel * pGuiModel,
     qRegisterMetaType<QMap<quint16, ModbusResult> >("QMap<quint16, ModbusResult>");
 
     _pSettingsModel = pSettingsModel;
-    _pGuiModel = pGuiModel;
     _pModbusConnection = pModbusConnection;
     _pReadRegisters = pReadRegisterCollection;
 
@@ -168,9 +163,7 @@ void ModbusMaster::finishRead()
     QMap<quint16, ModbusResult> results = _pReadRegisters->resultMap();
 
     emit modbusLogInfo("Result map: " + dumpToString(results));
-
-    _pGuiModel->setCommunicationStats(_pGuiModel->communicationSuccessCount() + _success, _pGuiModel->communicationErrorCount() + _error);
-
+    emit modbusAddToStats(_success, _error);
     emit modbusPollDone(results);
     emit modbusLogInfo("Connection closed");
 

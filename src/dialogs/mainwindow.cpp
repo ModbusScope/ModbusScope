@@ -226,18 +226,16 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     handleCommandLineArguments(cmdArguments);
 
-#if 0
+#if 1
     //Debugging
     _pGraphDataModel->add();
+    _pGraphDataModel->add();
 
-    Note newNote;
-    newNote.setKeyData(0);
-    newNote.setValueData(2);
-    newNote.setText("Note1");
+    _pSettingsModel->setPollTime(1000);
 
-    _pNoteModel->add(newNote);
-
-    showNotesDialog();
+    //_pSettingsModel->setIpAddress("192.168.0.142");
+    _pSettingsModel->setIpAddress("127.0.0.1");
+    _pSettingsModel->setPort(5020);
 #endif
 
 }
