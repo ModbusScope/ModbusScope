@@ -1,14 +1,13 @@
 #include "testslavedata.h"
 #include <QDebug>
 
-TestSlaveData::TestSlaveData(QModbusServer *pModbusServer) : QObject(nullptr)
+TestSlaveData::TestSlaveData(quint32 registerCount) : QObject(nullptr)
 {
-    /* Save reference */
-    _pModbusServer = pModbusServer;
-
-    setupDefaultData();
-
-    connect(_pModbusServer, &QModbusServer::dataWritten, this, &TestSlaveData::onDataChanged);
+    _registerList.clear();
+    for(quint32 idx = 0u; idx < registerCount; idx++)
+    {
+        _registerList.append({false, 0});
+    }
 }
 
 TestSlaveData::~TestSlaveData()
@@ -16,21 +15,86 @@ TestSlaveData::~TestSlaveData()
 
 }
 
-void TestSlaveData::onDataChanged(QModbusDataUnit::RegisterType reg, int address, int size)
+uint TestSlaveData::size()
 {
-    qDebug() << "reg: " << reg << ", addr: " << address << ", size: " << size;
+    if (_registerList.size() < 0)
+    {
+        return 0;
+    }
+
+    return static_cast<uint>(_registerList.size());
 }
 
-void TestSlaveData::setupDefaultData()
+void TestSlaveData::setRegisterState(uint registerAddress, bool bState)
 {
-    QModbusDataUnitMap reg;
-    const quint8 regCount = 10;
-    reg.insert(QModbusDataUnit::HoldingRegisters, { QModbusDataUnit::HoldingRegisters, 0, regCount });
-    _pModbusServer->setMap(reg);
+    setRegisterState(QList<uint>() << registerAddress, bState);
+}
 
-    /* init data */
-    for (quint8 reg = 0; reg < regCount; reg++)
+void TestSlaveData::setRegisterState(QList<uint> registerAddressList, bool bState)
+{
+    bool bChanged = false;
+
+    Q_FOREACH(uint registerAddress, registerAddressList)
     {
-        _pModbusServer->setData(QModbusDataUnit::HoldingRegisters, reg, reg + 1000);
+        if (registerAddress < _registerList.size())
+        {
+            if (_registerList[registerAddress].bState != bState)
+            {
+                _registerList[registerAddress].bState = bState;
+
+                bChanged = true;
+            }
+        }
     }
+
+    if (bChanged)
+    {
+        emit dataChanged();
+    }
+}
+
+void TestSlaveData::setRegisterValue(uint registerAddress, quint16 value)
+{
+    if (registerAddress < _registerList.size())
+    {
+        if (_registerList[registerAddress].value != value)
+        {
+            _registerList[registerAddress].value = value;
+
+            emit dataChanged();
+        }
+    }
+}
+
+bool TestSlaveData::registerState(uint registerAddress)
+{
+    if (registerAddress < _registerList.size())
+    {
+        return _registerList[registerAddress].bState;
+    }
+
+    return false;
+}
+
+quint16 TestSlaveData::registerValue(uint registerAddress)
+{
+    if (registerAddress < _registerList.size())
+    {
+        return _registerList[registerAddress].value;
+    }
+
+    return 0;
+}
+
+void TestSlaveData::incrementAllEnabledRegisters()
+{
+    for(uint idx = 0u; idx < _registerList.size(); idx++)
+    {
+        if (_registerList[idx].bState)
+        {
+            _registerList[idx].value++;
+        }
+    }
+
+    emit dataChanged();
 }

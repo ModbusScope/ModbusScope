@@ -14,8 +14,8 @@ void TestModbusConnection::initTestCase()
 
 void TestModbusConnection::connectionSuccess()
 {
-    TestSlaveModbus testSlaveModbus;
-    TestSlaveData testSlaveData(&testSlaveModbus);
+    TestSlaveData testSlaveData;
+    TestSlaveModbus testSlaveModbus(&testSlaveData);
 
     QUrl serverConnectionData = QUrl::fromUserInput("127.0.0.1:5002");
     QVERIFY(testSlaveModbus.connect(serverConnectionData, true));
@@ -79,8 +79,8 @@ void TestModbusConnection::connectionSuccesAfterFail()
     QCOMPARE(pConnection->state(), QModbusDevice::UnconnectedState);
 
     // Start server
-    TestSlaveModbus testSlaveModbus;
-    TestSlaveData testSlaveData(&testSlaveModbus);
+    TestSlaveData testSlaveData;
+    TestSlaveModbus testSlaveModbus(&testSlaveData);
 
     QVERIFY(testSlaveModbus.connect(serverConnectionData, true));
 
