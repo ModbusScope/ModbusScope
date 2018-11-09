@@ -3,7 +3,7 @@
 #include "errorlogmodel.h"
 #include <util.h>
 
-ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, ModbusConnection * pModbusConnection, ReadRegisters * pReadRegisterCollection) :
+ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel) :
     QObject(nullptr)
 {
 
@@ -11,8 +11,8 @@ ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, ModbusConnection * pM
     qRegisterMetaType<QMap<quint16, ModbusResult> >("QMap<quint16, ModbusResult>");
 
     _pSettingsModel = pSettingsModel;
-    _pModbusConnection = pModbusConnection;
-    _pReadRegisters = pReadRegisterCollection;
+    _pModbusConnection = new ModbusConnection();
+    _pReadRegisters = new ReadRegisters();
 
     // Use queued connection to make sure reply is deleted before closing connection
     connect(this, &ModbusMaster::triggerNextRequest, this, &ModbusMaster::handleTriggerNextRequest, Qt::QueuedConnection);
@@ -23,7 +23,8 @@ ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, ModbusConnection * pM
 
 ModbusMaster::~ModbusMaster()
 {
-
+    delete _pModbusConnection;
+    delete _pReadRegisters;
 }
 
 void ModbusMaster::readRegisterList(QList<quint16> registerList)

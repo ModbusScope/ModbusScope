@@ -23,7 +23,7 @@ CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiMo
     _pErrorLogModel = pErrorLogModel;
 
     /* Setup modbus master */
-    _master = new ModbusMaster(_pSettingsModel, &_modbusConnection, &_readRegisterCollection);
+    _master = new ModbusMaster(_pSettingsModel);
 
     connect(_master, SIGNAL(modbusPollDone(QMap<quint16, ModbusResult>)), this, SLOT(handlePollDone(QMap<quint16, ModbusResult>)));
 

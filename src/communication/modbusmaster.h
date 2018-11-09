@@ -16,7 +16,7 @@ class ModbusMaster : public QObject
 {
     Q_OBJECT
 public:
-    explicit ModbusMaster(SettingsModel * pSettingsModel, ModbusConnection * pModbusConnection, ReadRegisters * pReadRegisterCollection);
+    explicit ModbusMaster(SettingsModel * pSettingsModel);
     virtual ~ModbusMaster();
 
     void readRegisterList(QList<quint16> registerList);

@@ -51,9 +51,6 @@ private:
     ErrorLogModel * _pErrorLogModel;
     SettingsModel * _pSettingsModel;
 
-    ModbusConnection _modbusConnection;
-    ReadRegisters _readRegisterCollection;
-
 };
 
 #endif // COMMUNICATION_MANAGER_H
