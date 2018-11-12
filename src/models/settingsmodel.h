@@ -8,7 +8,7 @@ class SettingsModel : public QObject
 {
     Q_OBJECT
 public:
-    explicit SettingsModel(QObject *parent = 0);
+    explicit SettingsModel(QObject *parent = nullptr);
     ~SettingsModel();
 
     void triggerUpdate(void);
