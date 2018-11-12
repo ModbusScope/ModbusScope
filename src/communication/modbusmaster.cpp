@@ -3,12 +3,16 @@
 #include "errorlogmodel.h"
 #include <util.h>
 
+typedef QMap<quint16,ModbusResult> ModbusResultMap;
+Q_DECLARE_METATYPE(ModbusResultMap);
+Q_DECLARE_METATYPE(ModbusResult);
+
 ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel) :
     QObject(nullptr)
 {
 
-    qRegisterMetaType<ModbusResult>("ModbusResult");
-    qRegisterMetaType<QMap<quint16, ModbusResult> >("QMap<quint16, ModbusResult>");
+    qMetaTypeId<ModbusResult>();
+    qMetaTypeId<QMap<quint16, ModbusResult> >();
 
     _pSettingsModel = pSettingsModel;
     _pModbusConnection = new ModbusConnection();
