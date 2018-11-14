@@ -11,11 +11,13 @@ SOURCES -= \
         src/main.cpp
 
 SOURCES += \
-    tests_integration/testmodbusconnection.cpp \
+    #tests_integration/testmodbusconnection.cpp \
     tests_integration/testslave/testslavedata.cpp \
-    tests_integration/testslave/testslavemodbus.cpp
+    tests_integration/testslave/testslavemodbus.cpp \
+    tests_integration/testmodbusmaster.cpp
 
 HEADERS += \
-    tests_integration/testmodbusconnection.h \
+    #tests_integration/testmodbusconnection.h \
     tests_integration/testslave/testslavedata.h \
-    tests_integration/testslave/testslavemodbus.h
+    tests_integration/testslave/testslavemodbus.h \
+    tests_integration/testmodbusmaster.h
