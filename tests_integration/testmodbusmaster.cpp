@@ -21,6 +21,7 @@ void TestModbusMaster::init()
 
     _settingsModel.setIpAddress("127.0.0.1");
     _settingsModel.setPort(5020);
+    _settingsModel.setTimeout(500);
     _settingsModel.setSlaveId(1);
 
     _serverConnectionData.setPort(_settingsModel.port());
@@ -119,7 +120,7 @@ void TestModbusMaster::singleRequestNoResponse()
     {
         modbusMaster.readRegisterList(registerList);
 
-        QVERIFY(spyModbusPollDone.wait(_settingsModel.timeout() + 100));
+        spyModbusPollDone.wait(static_cast<int>(100));
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
@@ -181,7 +182,7 @@ void TestModbusMaster::multiRequestSuccess()
     {
         modbusMaster.readRegisterList(registerList);
 
-        QVERIFY(spyModbusPollDone.wait(10000));
+        QVERIFY(spyModbusPollDone.wait(static_cast<int>(_settingsModel.timeout())));
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
@@ -224,7 +225,7 @@ void TestModbusMaster::multiRequestGatewayNotAvailable()
     {
         modbusMaster.readRegisterList(registerList);
 
-        QVERIFY(spyModbusPollDone.wait(10000));
+        QVERIFY(spyModbusPollDone.wait(100));
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
@@ -243,6 +244,7 @@ void TestModbusMaster::multiRequestGatewayNotAvailable()
 
 void TestModbusMaster::multiRequestNoResponse()
 {
+
     _pTestSlaveModbus->disconnectDevice();
 
     _pTestSlaveData->setRegisterState(0, true);
@@ -262,7 +264,7 @@ void TestModbusMaster::multiRequestNoResponse()
     {
         modbusMaster.readRegisterList(registerList);
 
-        QVERIFY(spyModbusPollDone.wait(10000));
+        spyModbusPollDone.wait(static_cast<int>(100));
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
@@ -300,7 +302,7 @@ void TestModbusMaster::multiRequestInvalidAddress()
     {
         modbusMaster.readRegisterList(registerList);
 
-        QVERIFY(spyModbusPollDone.wait(10000));
+        QVERIFY(spyModbusPollDone.wait(static_cast<int>(_settingsModel.timeout()) + 100));
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
@@ -317,6 +319,15 @@ void TestModbusMaster::multiRequestInvalidAddress()
     }
 }
 
+
+/* TODO:
+ * Add extra test with actual timeout of no response
+ * When test slave is disconnected, the port is closed and the error will come directly
+ * and not after a response
+ *
+ * But this test is still valuable.
+ * This test when ModbusControl server is not enabled
+ */
 
 QTEST_GUILESS_MAIN(TestModbusMaster)
 
