@@ -135,7 +135,47 @@ void TestModbusMaster::singleRequestNoResponse()
     }
 }
 
-void TestModbusMaster::singleRequestInvalidAddress()
+void TestModbusMaster::singleRequestInvalidAddressOnce()
+{
+    ModbusMaster modbusMaster(&_settingsModel);
+    QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
+
+    QList<quint16> registerList = QList<quint16>() << 40001 << 40002 << 40003;
+
+    _pTestSlaveData->setRegisterState(0, false);
+    _pTestSlaveData->setRegisterState(1, true);
+    _pTestSlaveData->setRegisterState(2, true);
+
+    _pTestSlaveData->setRegisterValue(1, 1);
+    _pTestSlaveData->setRegisterValue(2, 2);
+
+    for (uint i = 0; i < _cReadCount; i++)
+    {
+        modbusMaster.readRegisterList(registerList);
+
+        QVERIFY(spyModbusPollDone.wait(100));
+        QCOMPARE(spyModbusPollDone.count(), 1);
+
+        QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
+        QCOMPARE(arguments.count(), 1);
+
+        QVariant varResultList = arguments.first();
+        QVERIFY((varResultList.canConvert<QMap<quint16,ModbusResult> >()));
+        QMap<quint16, ModbusResult> result = varResultList.value<QMap<quint16, ModbusResult> >();
+        QCOMPARE(result.keys().count(), 3);
+
+        QVERIFY(result[40001].isSuccess() == false);
+
+        QVERIFY(result[40002].isSuccess());
+        QCOMPARE(result[40002].value(), static_cast<quint16>(1));
+
+        QVERIFY(result[40003].isSuccess());
+        QCOMPARE(result[40003].value(), static_cast<quint16>(2));
+
+    }
+}
+
+void TestModbusMaster::singleRequestInvalidAddressPersistent()
 {
     _pTestSlaveModbus->setException(QModbusPdu::IllegalDataAddress, true);
 
@@ -160,6 +200,8 @@ void TestModbusMaster::singleRequestInvalidAddress()
         QCOMPARE(result.keys().count(), 1);
 
         QVERIFY(result[40001].isSuccess() == false);
+
+
     }
 }
 

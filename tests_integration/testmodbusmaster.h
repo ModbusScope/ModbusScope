@@ -17,7 +17,8 @@ private slots:
     void singleRequestSuccess();
     void singleRequestGatewayNotAvailable();
     void singleRequestNoResponse();
-    void singleRequestInvalidAddress();
+    void singleRequestInvalidAddressOnce();
+    void singleRequestInvalidAddressPersistent();
 
     void multiRequestSuccess();
     void multiRequestGatewayNotAvailable();
@@ -32,5 +33,5 @@ private:
     SettingsModel _settingsModel;
     QUrl _serverConnectionData;
 
-    const uint _cReadCount = 5;
+    const uint _cReadCount = 3;
 };
