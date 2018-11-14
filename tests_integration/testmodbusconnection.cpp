@@ -18,7 +18,7 @@ void TestModbusConnection::connectionSuccess()
     TestSlaveModbus testSlaveModbus(&testSlaveData);
 
     QUrl serverConnectionData = QUrl::fromUserInput("127.0.0.1:5002");
-    QVERIFY(testSlaveModbus.connect(serverConnectionData, true));
+    QVERIFY(testSlaveModbus.connect(serverConnectionData, 1));
 
     ModbusConnection * pConnection = new ModbusConnection(this);
 
@@ -82,7 +82,7 @@ void TestModbusConnection::connectionSuccesAfterFail()
     TestSlaveData testSlaveData;
     TestSlaveModbus testSlaveModbus(&testSlaveData);
 
-    QVERIFY(testSlaveModbus.connect(serverConnectionData, true));
+    QVERIFY(testSlaveModbus.connect(serverConnectionData, 1));
 
     pConnection->openConnection(serverConnectionData.host(), serverConnectionData.port(), 1000);
 
