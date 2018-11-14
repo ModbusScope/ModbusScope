@@ -5,6 +5,7 @@ TestSlaveModbus::TestSlaveModbus(TestSlaveData *pTestSlaveData, QObject *parent)
 {
     _pTestSlaveData = pTestSlaveData;
     _exceptionCode = static_cast<QModbusPdu::ExceptionCode>(0);
+    _bExceptionPersistent = false;
 }
 
 TestSlaveModbus::~TestSlaveModbus()
@@ -21,9 +22,10 @@ bool TestSlaveModbus::connect(QUrl host, int slaveId)
     return connectDevice();
 }
 
-void TestSlaveModbus::setException(QModbusPdu::ExceptionCode exception)
+void TestSlaveModbus::setException(QModbusPdu::ExceptionCode exception, bool bPersistent)
 {
     _exceptionCode = exception;
+    _bExceptionPersistent = bPersistent;
 }
 
 bool TestSlaveModbus::readData(QModbusDataUnit *newData) const
@@ -42,7 +44,7 @@ bool TestSlaveModbus::readData(QModbusDataUnit *newData) const
             return false;
         }
 
-        newData->setValue(regAddress, _pTestSlaveData->registerValue(regAddress));
+        newData->setValue(idx, _pTestSlaveData->registerValue(regAddress));
     }
 
     return true;
@@ -106,6 +108,12 @@ QModbusResponse TestSlaveModbus::processRequest(const QModbusPdu &request)
     }
 
     emit requestProcessed();
+
+    /* Reset exception when not persistent */
+    if (!_bExceptionPersistent)
+    {
+        _exceptionCode = static_cast<QModbusPdu::ExceptionCode>(0);
+    }
 
     return response;
 }

@@ -15,7 +15,7 @@ public:
 
     bool connect(QUrl host, int slaveId);
 
-    void setException(QModbusPdu::ExceptionCode exception);
+    void setException(QModbusPdu::ExceptionCode exception, bool bPersistent);
 
 signals:
     void requestProcessed();
@@ -34,6 +34,7 @@ private:
     TestSlaveData *_pTestSlaveData;
 
     QModbusPdu::ExceptionCode _exceptionCode;
+    bool _bExceptionPersistent;
 
 };
 
