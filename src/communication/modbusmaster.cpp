@@ -66,8 +66,6 @@ void ModbusMaster::handlerConnectionError(QModbusDevice::Error error, QString ms
 
 void ModbusMaster::handleRequestFinished()
 {
-    qDebug() << "handleRequestFinished";
-
     QModbusReply * pReply = qobject_cast<QModbusReply *>(QObject::sender());
     auto err = pReply->error();
 
