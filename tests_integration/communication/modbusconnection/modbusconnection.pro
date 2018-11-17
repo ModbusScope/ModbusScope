@@ -1,6 +1,6 @@
 include(../../tests_integration.pri)
 
-TARGET = testmodbusconnection
+TARGET = tst_modbusconnection
 
 SOURCES += testmodbusconnection.cpp
 HEADERS += testmodbusconnection.h

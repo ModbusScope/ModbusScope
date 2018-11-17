@@ -1,6 +1,6 @@
 include(../../tests_integration.pri)
 
-TARGET = testmodbusmaster
+TARGET = tst_modbusmaster
 
 SOURCES += testmodbusmaster.cpp
 HEADERS += testmodbusmaster.h

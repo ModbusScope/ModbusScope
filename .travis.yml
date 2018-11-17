@@ -23,6 +23,6 @@ script:
     - make -j2
     - ./ModbusScopeUnitTests
     
-    - /opt/qt59/bin/qmake ./tests_integration.pro
+    - /opt/qt59/bin/qmake ./ModbusScope.pro
     - make -j2
-    - ./ModbusScopeIntegrationTests
+    - python3 ./tests_integration/run_tests.py
