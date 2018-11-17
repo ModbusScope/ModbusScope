@@ -2,10 +2,10 @@
 #include <QObject>
 #include <QPointer>
 #include <QUrl>
-#include "src/models/settingsmodel.h"
+#include "settingsmodel.h"
 
-#include "testslave/testslavedata.h"
-#include "testslave/testslavemodbus.h"
+#include "testslavedata.h"
+#include "testslavemodbus.h"
 
 class TestModbusMaster: public QObject
 {

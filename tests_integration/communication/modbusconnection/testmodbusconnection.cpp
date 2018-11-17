@@ -1,9 +1,9 @@
 
 #include <QtTest/QtTest>
 
-#include "src/communication/modbusconnection.h"
-#include "testslave/testslavedata.h"
-#include "testslave/testslavemodbus.h"
+#include "modbusconnection.h"
+#include "testslavedata.h"
+#include "testslavemodbus.h"
 
 #include "testmodbusconnection.h"
 

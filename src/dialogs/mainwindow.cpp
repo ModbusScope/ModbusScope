@@ -230,6 +230,10 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     //Debugging
     _pGraphDataModel->add();
     _pGraphDataModel->add();
+    _pGraphDataModel->add();
+    _pGraphDataModel->add();
+
+    _pGraphDataModel->setActive(2, false);
 
     _pSettingsModel->setPollTime(1000);
 

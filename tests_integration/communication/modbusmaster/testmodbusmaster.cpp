@@ -2,9 +2,9 @@
 #include <QtTest/QtTest>
 #include <QMap>
 
-#include "src/communication/modbusmaster.h"
-#include "testslave/testslavedata.h"
-#include "testslave/testslavemodbus.h"
+#include "modbusmaster.h"
+#include "testslavedata.h"
+#include "testslavemodbus.h"
 
 #include "testmodbusmaster.h"
 
