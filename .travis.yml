@@ -19,9 +19,9 @@ install:
 script:
     - git submodule update --init --recursive
     
-    #- /opt/qt59/bin/qmake ./tests_unit.pro
-    #- make -j2
-    #- ./ModbusScopeUnitTests
+    - /opt/qt59/bin/qmake ./tests_unit.pro
+    - make -j2
+    - ./ModbusScopeUnitTests
     
     - /opt/qt59/bin/qmake ./ModbusScope.pro
     - make -j2

@@ -1,4 +1,4 @@
-include(ModbusScope.pro)
+include(ModbusScope.pri)
 
 GOOGLETEST_DIR = $$PWD/tests_unit/googletest
 include(tests_unit/gtest_dependency.pri)
