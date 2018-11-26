@@ -66,7 +66,8 @@
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap resource="../../resources/resource.qrc">:/about_images/about_images/icon_128x128.png</pixmap>
+        <pixmap resource="../resources/resource.qrc">:/about_images/about_images/icon_128x128.png</pixmap>
+        <pixmap resource="../resources/resource.qrc">:/about_images/about_images/icon_128x128.png</pixmap>
        </property>
        <property name="margin">
         <number>32</number>
@@ -175,7 +176,7 @@ p, li { white-space: pre-wrap; }
   </layout>
  </widget>
  <resources>
-  <include location="../../resources/resource.qrc"/>
+  <include location="../resources/resource.qrc"/>
  </resources>
  <connections/>
 </ui>

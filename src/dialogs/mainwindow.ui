@@ -46,7 +46,7 @@
      <x>0</x>
      <y>0</y>
      <width>839</width>
-     <height>30</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -429,6 +429,19 @@
             </property>
            </widget>
           </item>
+          <item>
+           <spacer name="verticalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
          </layout>
         </item>
        </layout>
@@ -687,7 +700,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../resources/resource.qrc">
+    <iconset resource="../resources/resource.qrc">
      <normaloff>:/menu_icon/menu_icon/icons/folder_go.png</normaloff>:/menu_icon/menu_icon/icons/folder_go.png</iconset>
    </property>
    <property name="text">
@@ -732,7 +745,9 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../resources/resource.qrc"/>
+  <include location="../resources/resource.qrc"/>
+  <include location="../resources/resource.qrc"/>
+  <include location="../resources/resource.qrc"/>
  </resources>
  <connections/>
 </ui>

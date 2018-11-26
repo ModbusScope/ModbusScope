@@ -8,7 +8,7 @@ SOURCES += \
         $$PWD/main.cpp
 
 win32 {
-    RC_ICONS = src/icon/application.ico
+    RC_ICONS = icon/application.ico
 }
 
 
