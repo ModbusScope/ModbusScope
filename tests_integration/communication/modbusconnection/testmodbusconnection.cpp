@@ -23,7 +23,7 @@ void TestModbusConnection::connectionSuccess()
     ModbusConnection * pConnection = new ModbusConnection(this);
 
     QSignalSpy spySuccess(pConnection, &ModbusConnection::connectionSuccess);
-    QSignalSpy spyError(pConnection, &ModbusConnection::errorOccurred);
+    QSignalSpy spyError(pConnection, &ModbusConnection::connectionError);
 
     pConnection->openConnection(serverConnectionData.host(), serverConnectionData.port(), 1000);
 
@@ -47,7 +47,7 @@ void TestModbusConnection::connectionFail()
     ModbusConnection * pConnection = new ModbusConnection(this);
 
     QSignalSpy spySuccess(pConnection, &ModbusConnection::connectionSuccess);
-    QSignalSpy spyError(pConnection, &ModbusConnection::errorOccurred);
+    QSignalSpy spyError(pConnection, &ModbusConnection::connectionError);
 
     pConnection->openConnection(serverConnectionData.host(), serverConnectionData.port(), 1000);
 
@@ -67,7 +67,7 @@ void TestModbusConnection::connectionSuccesAfterFail()
     ModbusConnection * pConnection = new ModbusConnection(this);
 
     QSignalSpy spySuccess(pConnection, &ModbusConnection::connectionSuccess);
-    QSignalSpy spyError(pConnection, &ModbusConnection::errorOccurred);
+    QSignalSpy spyError(pConnection, &ModbusConnection::connectionError);
 
     pConnection->openConnection(serverConnectionData.host(), serverConnectionData.port(), 1000);
 

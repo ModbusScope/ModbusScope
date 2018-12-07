@@ -41,7 +41,7 @@ public:
 
 signals:
     void connectionSuccess(void);
-    void errorOccurred(QModbusDevice::Error error, QString msg);
+    void connectionError(QModbusDevice::Error error, QString msg);
 
 private slots:
     void handleConnectionStateChanged(QModbusDevice::State state);

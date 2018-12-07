@@ -22,7 +22,7 @@ ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel) :
     connect(this, &ModbusMaster::triggerNextRequest, this, &ModbusMaster::handleTriggerNextRequest, Qt::QueuedConnection);
 
     connect(_pModbusConnection, &ModbusConnection::connectionSuccess, this, &ModbusMaster::handleConnectionOpened);
-    connect(_pModbusConnection, &ModbusConnection::errorOccurred, this, &ModbusMaster::handlerConnectionError);
+    connect(_pModbusConnection, &ModbusConnection::connectionError, this, &ModbusMaster::handlerConnectionError);
 }
 
 ModbusMaster::~ModbusMaster()

@@ -88,7 +88,7 @@ QModbusReply * ModbusConnection::sendReadRequest(const QModbusDataUnit &read, in
     }
     else
     {
-        emit errorOccurred(QModbusDevice::ReadError, QString("Not connected"));
+        emit connectionError(QModbusDevice::ReadError, QString("Not connected"));
     }
 
     return nullptr;
@@ -247,7 +247,7 @@ void ModbusConnection::handleError(QPointer<ConnectionData> connectionData, QStr
 
         closeConnection();
 
-        emit errorOccurred(QModbusDevice::ConnectionError, errMsg);
+        emit connectionError(QModbusDevice::ConnectionError, errMsg);
     }
 }
 
