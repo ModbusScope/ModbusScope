@@ -37,14 +37,14 @@ public:
 
     QModbusReply *sendReadRequest(const QModbusDataUnit &read, int serverAddress);
 
-    QModbusDevice::State state(void);
+    QModbusDevice::State connectionState(void);
 
 signals:
     void connectionSuccess(void);
     void connectionError(QModbusDevice::Error error, QString msg);
 
 private slots:
-    void handleConnectionStateChanged(QModbusDevice::State state);
+    void handleConnectionStateChanged(QModbusDevice::State connectionState);
     void handleConnectionErrorOccurred(QModbusDevice::Error error);
 
     void connectionTimeOut();
@@ -52,7 +52,7 @@ private slots:
 
 private:
 
-    void handleError(QPointer<ConnectionData> connectionData, QString errMsg);
+    void handleConnectionError(QPointer<ConnectionData> connectionData, QString errMsg);
     qint32 findConnectionData(QTimer * pTimer, QModbusTcpClient * pClient);
 
     QList<QPointer<ConnectionData>> _connectionList;

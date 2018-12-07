@@ -32,11 +32,11 @@ void TestModbusConnection::connectionSuccess()
     QCOMPARE(spySuccess.count(), 1);
     QCOMPARE(spyError.count(), 0);
 
-    QCOMPARE(pConnection->state(), QModbusDevice::ConnectedState);
+    QCOMPARE(pConnection->connectionState(), QModbusDevice::ConnectedState);
 
     pConnection->closeConnection();
 
-    QCOMPARE(pConnection->state(), QModbusDevice::UnconnectedState);
+    QCOMPARE(pConnection->connectionState(), QModbusDevice::UnconnectedState);
 
 }
 
@@ -56,7 +56,7 @@ void TestModbusConnection::connectionFail()
     QCOMPARE(spySuccess.count(), 0);
     QCOMPARE(spyError.count(), 1);
 
-    QCOMPARE(pConnection->state(), QModbusDevice::UnconnectedState);
+    QCOMPARE(pConnection->connectionState(), QModbusDevice::UnconnectedState);
 }
 
 
@@ -76,7 +76,7 @@ void TestModbusConnection::connectionSuccesAfterFail()
     QCOMPARE(spySuccess.count(), 0);
     QCOMPARE(spyError.count(), 1);
 
-    QCOMPARE(pConnection->state(), QModbusDevice::UnconnectedState);
+    QCOMPARE(pConnection->connectionState(), QModbusDevice::UnconnectedState);
 
     // Start server
     TestSlaveData testSlaveData;
@@ -89,7 +89,7 @@ void TestModbusConnection::connectionSuccesAfterFail()
     QVERIFY(spySuccess.wait(500));
 
     QCOMPARE(spySuccess.count(), 1);
-    QCOMPARE(pConnection->state(), QModbusDevice::ConnectedState);
+    QCOMPARE(pConnection->connectionState(), QModbusDevice::ConnectedState);
 
     pConnection->closeConnection();
 }

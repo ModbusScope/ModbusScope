@@ -21,7 +21,7 @@ ModbusConnection::ModbusConnection(QObject *parent) : QObject(parent)
  */
 void ModbusConnection::openConnection(QString ip, qint32 port, quint32 timeout)
 {
-    if (state() == QModbusDevice::ConnectedState)
+    if (connectionState() == QModbusDevice::ConnectedState)
     {
         // Already connected and ready
         emit connectionSuccess();
@@ -51,7 +51,7 @@ void ModbusConnection::openConnection(QString ip, qint32 port, quint32 timeout)
         else
         {
             auto pClient = &_connectionList.last()->modbusClient;
-            handleError(_connectionList.last(), QString("Connect failed: %0").arg(pClient->error()));
+            handleConnectionError(_connectionList.last(), QString("Connect failed: %0").arg(pClient->error()));
         }
     }
 }
@@ -82,7 +82,7 @@ void ModbusConnection::closeConnection(void)
  */
 QModbusReply * ModbusConnection::sendReadRequest(const QModbusDataUnit &read, int serverAddress)
 {
-    if (state() == QModbusDevice::ConnectedState)
+    if (connectionState() == QModbusDevice::ConnectedState)
     {
         return _connectionList.last()->modbusClient.sendReadRequest(read, serverAddress);
     }
@@ -99,7 +99,7 @@ QModbusReply * ModbusConnection::sendReadRequest(const QModbusDataUnit &read, in
  *
  * \return State of connection (\ref QModbusDevice::State)
  */
-QModbusDevice::State ModbusConnection::state(void)
+QModbusDevice::State ModbusConnection::connectionState(void)
 {
     if (_connectionList.isEmpty())
     {
@@ -167,7 +167,7 @@ void ModbusConnection::handleConnectionStateChanged(QModbusDevice::State state)
         {
             if (senderIdx == _connectionList.size() - 1)
             {
-                handleError(_connectionList.last(), QString("Connection timeout"));
+                handleConnectionError(_connectionList.last(), QString("Connection timeout"));
             }
         }
         else if (senderIdx != -1)
@@ -204,7 +204,7 @@ void ModbusConnection::handleConnectionErrorOccurred(QModbusDevice::Error error)
     // Only handle error is latest connection, the rest is automaticaly closed on state change
     if (senderIdx == _connectionList.size() - 1)
     {
-        handleError(_connectionList.last(), QString("Error: %0").arg(error));
+        handleConnectionError(_connectionList.last(), QString("Error: %0").arg(error));
     }
 }
 
@@ -219,7 +219,7 @@ void ModbusConnection::connectionTimeOut()
     // Only handle error is latest connection, the rest is automaticaly closed on state change
     if (senderIdx == _connectionList.size() - 1)
     {
-        handleError(_connectionList.last(), QString("Connection timeout"));
+        handleConnectionError(_connectionList.last(), QString("Connection timeout"));
     }
 }
 
@@ -237,7 +237,7 @@ void ModbusConnection::connectionDestroyed()
  * Should only be called for last connection in the list, the rest is stale
  * \param errMsg    Error message
  */
-void ModbusConnection::handleError(QPointer<ConnectionData> connectionData, QString errMsg)
+void ModbusConnection::handleConnectionError(QPointer<ConnectionData> connectionData, QString errMsg)
 {
     qCDebug(scopeConnection) << "Connection error:" << errMsg;
 
