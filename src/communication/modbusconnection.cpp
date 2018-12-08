@@ -46,7 +46,7 @@ void ModbusConnection::openConnection(QString ip, qint32 port, quint32 timeout)
         if (_connectionList.last()->modbusClient.connectDevice())
         {
             _bWaitingForConnection = true;
-            _connectionList.last()->timeoutTimer.start(static_cast<int>(timeout));
+            _connectionList.last()->connectionTimeoutTimer.start(static_cast<int>(timeout));
         }
         else
         {
@@ -67,7 +67,7 @@ void ModbusConnection::closeConnection(void)
         )
     {
         qCDebug(scopeConnection) << "Connection close: " << _connectionList.last();
-        _connectionList.last()->timeoutTimer.stop();
+        _connectionList.last()->connectionTimeoutTimer.stop();
         _connectionList.last()->modbusClient.disconnectDevice();
     }
 }
@@ -140,7 +140,7 @@ void ModbusConnection::handleConnectionStateChanged(QModbusDevice::State state)
         if (senderIdx != -1)
         {
             // Stop timeout counter
-            _connectionList[senderIdx]->timeoutTimer.stop();
+            _connectionList[senderIdx]->connectionTimeoutTimer.stop();
         }
 
         if (senderIdx == _connectionList.size() - 1)
@@ -174,7 +174,7 @@ void ModbusConnection::handleConnectionStateChanged(QModbusDevice::State state)
         {
             // Prepare to remove old connection
             _connectionList[senderIdx]->modbusClient.disconnect();
-            _connectionList[senderIdx]->timeoutTimer.disconnect();
+            _connectionList[senderIdx]->connectionTimeoutTimer.disconnect();
 
             connect(_connectionList[senderIdx], &ConnectionData::destroyed, this, &ModbusConnection::connectionDestroyed);
 
@@ -241,9 +241,9 @@ void ModbusConnection::handleConnectionError(QPointer<ConnectionData> connection
 {
     qCDebug(scopeConnection) << "Connection error:" << errMsg;
 
-    if (!connectionData->bErrorHandled)
+    if (!connectionData->bConnectionErrorHandled)
     {
-        connectionData->bErrorHandled = true;
+        connectionData->bConnectionErrorHandled = true;
 
         closeConnection();
 
@@ -264,7 +264,7 @@ qint32 ModbusConnection::findConnectionData(QTimer * pTimer, QModbusTcpClient * 
     {
         if (
             (pTimer != nullptr)
-            && (pTimer == &_connectionList[idx]->timeoutTimer)
+            && (pTimer == &_connectionList[idx]->connectionTimeoutTimer)
         )
         {
             return idx;

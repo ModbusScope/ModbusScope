@@ -15,14 +15,14 @@ class ConnectionData : public QObject
 public:
 
     explicit ConnectionData():
-        timeoutTimer(this), modbusClient(this), bErrorHandled(false)
+        connectionTimeoutTimer(this), modbusClient(this), bConnectionErrorHandled(false)
     {
 
     }
 
-    QTimer timeoutTimer;
+    QTimer connectionTimeoutTimer;
     QModbusTcpClient modbusClient;
-    bool bErrorHandled;
+    bool bConnectionErrorHandled;
 };
 
 
