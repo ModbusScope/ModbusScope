@@ -17,12 +17,35 @@ install:
   - qmake -v
 
 script:
-    - git submodule update --init --recursive
-    
-    - /opt/qt59/bin/qmake ./tests_unit.pro
-    - make -j2
-    - ./ModbusScopeUnitTests
-    
-    - /opt/qt59/bin/qmake ./ModbusScope.pro
-    - make -j2
-    - python3 ./tests_integration/run_tests.py
+  - git submodule update --init --recursive
+  - /opt/qt59/bin/qmake ./tests_unit.pro
+  - make -j2
+  - ./ModbusScopeUnitTests
+  - qmake CONFIG+=release PREFIX=/usr ./ModbusScope.pro
+  - make -j$(nproc)
+  - mkdir -p appdir/usr/bin ; cp src/ModbusScope appdir/usr/bin/
+  - mkdir -p appdir/usr/share/applications ; cp modbusscope.desktop appdir/usr/share/applications/
+  - mkdir -p appdir/usr/share/icons/hicolor/scalable/apps ; cp src/icon/icon_original.svg appdir/usr/share/icons/hicolor/scalable/apps/modbusscope.svg
+  - find appdir/
+  - wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+  - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
+  - unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
+  - export VERSION=$(git rev-parse --short HEAD) # linuxdeployqt uses this for naming the file
+  - ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -bundle-non-qt-libs
+  - mkdir -p appdir/usr/optional/ ; wget -c https://github.com/darealshinji/AppImageKit-checkrt/releases/download/continuous/exec-x86_64.so -O ./appdir/usr/optional/exec.so
+  - mkdir -p appdir/usr/optional/libstdc++/ ; cp /usr/lib/x86_64-linux-gnu/libstdc++.so.6 ./appdir/usr/optional/libstdc++/
+  - ( cd appdir ; rm AppRun ; wget -c https://github.com/darealshinji/AppImageKit-checkrt/releases/download/continuous/AppRun-patched-x86_64 -O AppRun ; chmod a+x AppRun)
+  - ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -appimage
+  
+# - python3 ./tests_integration/run_tests.py
+
+after_success:
+  - find appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
+  - # curl --upload-file ModbusScope*.AppImage https://transfer.sh/ModbusScope-git.$(git rev-parse --short HEAD)-x86_64.AppImage
+  - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+  - bash upload.sh ModbusScope*.AppImage*
+  
+branches:
+  except:
+    - # Do not build tags that we create when we upload to GitHub Releases
+    - /^(?i:continuous)/

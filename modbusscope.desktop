@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=ModbusScope
+Comment=Log data using the Modbus protocol and put the data into a nice graph
+Exec=ModbusScope
+Icon=modbusscope
+Categories=Development;
+Type=Application
