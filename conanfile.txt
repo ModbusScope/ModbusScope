@@ -1,0 +1,10 @@
+[requires]
+	Qt/5.9.7@bincrafters/stable
+
+[generators]
+	qmake
+
+[options]
+	Qt:config=-static-runtime
+	Qt:shared=False
+	Qt:qtserialbus=True

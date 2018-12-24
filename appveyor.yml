@@ -1,0 +1,30 @@
+version: 1.0.{build}
+
+platform:
+  - x64
+
+install:
+  - cmd: mkdir build
+  - cmd: cd build
+  
+  - cmd: SET QTDIR=C:\Qt_Static
+  - cmd: echo %QTDIR%
+  
+  - cmd: curl -fsSL "https://dl.bintray.com/jgeudens/Static-Qt/Qt_Static_5.9.7.zip" -o Qt_Static.zip
+  
+  - cmd: 7z x Qt_Static.zip -o%QTDIR% -y > null
+  
+  - cmd: set PATH=%QTDIR%\bin;%PATH%
+  - cmd: set PATH=C:\Qt\Tools\mingw530_32\bin;%PATH%
+  - cmd: echo %PATH%
+  
+build_script:
+  - cmd: qmake --version
+  - cmd: SET QMAKESPEC=win32-g++
+  
+  - cmd: qmake ..\ModbusScope.pro
+  - cmd: mingw32-make -j2
+
+artifacts:
+ - path: build\src\release\ModbusScope.exe
+
