@@ -15,7 +15,7 @@ class ConnectionData : public QObject
 public:
 
     explicit ConnectionData():
-        connectionTimeoutTimer(this), modbusClient(this), bConnectionErrorHandled(false)
+        connectionTimeoutTimer(this), modbusClient(this), bConnectionErrorHandled(false), pReply(nullptr)
     {
 
     }
@@ -23,6 +23,8 @@ public:
     QTimer connectionTimeoutTimer;
     QModbusTcpClient modbusClient;
     bool bConnectionErrorHandled;
+
+    QModbusReply * pReply;
 };
 
 
@@ -35,7 +37,7 @@ public:
     void openConnection(QString ip, qint32 port, quint32 timeout);
     void closeConnection(void);
 
-    QModbusReply *sendReadRequest(const QModbusDataUnit &read, int serverAddress);
+    void sendReadRequest(quint32 regAddress, quint16 size, int serverAddress);
 
     QModbusDevice::State connectionState(void);
 
@@ -43,12 +45,18 @@ signals:
     void connectionSuccess(void);
     void connectionError(QModbusDevice::Error error, QString msg);
 
+    void readRequestSuccess(quint16 startRegister, QList<quint16> registerDataList);
+    void readRequestProtocolError(QModbusPdu::ExceptionCode exceptionCode);
+    void readRequestError(QString errorString, QModbusDevice::Error error);
+
 private slots:
     void handleConnectionStateChanged(QModbusDevice::State connectionState);
     void handleConnectionErrorOccurred(QModbusDevice::Error error);
 
     void connectionTimeOut();
     void connectionDestroyed();
+
+    void handleRequestFinished();
 
 private:
 

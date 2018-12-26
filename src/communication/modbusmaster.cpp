@@ -21,8 +21,14 @@ ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel) :
     // Use queued connection to make sure reply is deleted before closing connection
     connect(this, &ModbusMaster::triggerNextRequest, this, &ModbusMaster::handleTriggerNextRequest, Qt::QueuedConnection);
 
+    // Connection signals/slots
     connect(_pModbusConnection, &ModbusConnection::connectionSuccess, this, &ModbusMaster::handleConnectionOpened);
     connect(_pModbusConnection, &ModbusConnection::connectionError, this, &ModbusMaster::handlerConnectionError);
+
+    // Read request signals/slots
+    connect(_pModbusConnection, &ModbusConnection::readRequestSuccess, this, &ModbusMaster::handleRequestSuccess);
+    connect(_pModbusConnection, &ModbusConnection::readRequestProtocolError, this, &ModbusMaster::handleRequestProtocolError);
+    connect(_pModbusConnection, &ModbusConnection::readRequestError, this, &ModbusMaster::handleRequestError);
 }
 
 ModbusMaster::~ModbusMaster()
@@ -64,79 +70,66 @@ void ModbusMaster::handlerConnectionError(QModbusDevice::Error error, QString ms
     finishRead();
 }
 
-void ModbusMaster::handleRequestFinished()
+void ModbusMaster::handleRequestSuccess(quint16 startRegister, QList<quint16> registerDataList)
 {
-    QModbusReply * pReply = qobject_cast<QModbusReply *>(QObject::sender());
-    auto err = pReply->error();
+    emit modbusLogInfo(QString("Read success"));
 
-    // Start deletion of reply object before handling data (and closing connection)
-    pReply->deleteLater();
+    // Success
+    _pReadRegisters->addSuccess(startRegister, registerDataList);
 
-    if (err == QModbusDevice::NoError)
-    {
-        emit modbusLogInfo(QString("Read success"));
-
-        // Success
-        QModbusDataUnit dataUnit = pReply->result();
-        _pReadRegisters->addSuccess(dataUnit.startAddress() + 40001, dataUnit.values().toList());
-    }
-    else if (err == QModbusDevice::ProtocolError)
-    {
-        auto exceptionCode = pReply->rawResult().exceptionCode();
-
-        emit modbusLogError(QString("Modbus Exception: %0").arg(exceptionCode));
-
-        if (
-            (exceptionCode == QModbusPdu::IllegalDataAddress)
-            || (exceptionCode == QModbusPdu::IllegalDataValue)
-            )
-        {
-            if (_pReadRegisters->next().count() > 1)
-            {
-                // Split read into separate reads on specific exception code and count is more than 1
-                _pReadRegisters->splitNextToSingleReads();
-            }
-            else
-            {
-                // Add error to results
-                _pReadRegisters->addError();
-            }
-        }
-        else if (exceptionCode == QModbusPdu::IllegalFunction)
-        {
-            // No need to continue this read
-            _pReadRegisters->addAllErrors();
-        }
-        else
-        {
-            _pReadRegisters->addError();
-        }
-    }
-    else
-    {
-        emit modbusLogError(QString("Request Failed:  %0 (%1)").arg(pReply->errorString()).arg(pReply->error()));
-
-        // When we don't receive an exception, abort read and close connection
-        _pReadRegisters->addAllErrors();
-    }
-
-    if (err == QModbusDevice::NoError)
-    {
-        _success++;
-    }
-    else
-    {
-        _error++;
-    }
+    _success++;
 
     // Start next read
     emit triggerNextRequest();
 }
 
-void ModbusMaster::handleRequestErrorOccurred(QModbusDevice::Error error)
+void ModbusMaster::handleRequestProtocolError(QModbusPdu::ExceptionCode exceptionCode)
 {
-    Q_UNUSED(error);
-    qDebug() << "Request error occurred (" << QString(error) << "). Should handle?";
+    emit modbusLogError(QString("Modbus Exception: %0").arg(exceptionCode));
+
+    if (
+        (exceptionCode == QModbusPdu::IllegalDataAddress)
+        || (exceptionCode == QModbusPdu::IllegalDataValue)
+        )
+    {
+        if (_pReadRegisters->next().count() > 1)
+        {
+            // Split read into separate reads on specific exception code and count is more than 1
+            _pReadRegisters->splitNextToSingleReads();
+        }
+        else
+        {
+            // Add error to results
+            _pReadRegisters->addError();
+        }
+    }
+    else if (exceptionCode == QModbusPdu::IllegalFunction)
+    {
+        // No need to continue this read
+        _pReadRegisters->addAllErrors();
+    }
+    else
+    {
+        _pReadRegisters->addError();
+    }
+
+    _error++;
+
+    // Start next read
+    emit triggerNextRequest();
+}
+
+void ModbusMaster::handleRequestError(QString errorString, QModbusDevice::Error error)
+{
+    emit modbusLogError(QString("Request Failed:  %0 (%1)").arg(errorString).arg(error));
+
+    // When we don't receive an exception, abort read and close connection
+    _pReadRegisters->addAllErrors();
+
+    _error++;
+
+    // Start next read
+    emit triggerNextRequest();
 }
 
 void ModbusMaster::handleTriggerNextRequest(void)
@@ -147,12 +140,7 @@ void ModbusMaster::handleTriggerNextRequest(void)
 
         emit modbusLogInfo("Partial list read: " + QString("Start address (%0) and count (%1)").arg(readItem.address()).arg(readItem.count()));
 
-        // read registers
-        QModbusDataUnit _dataUnit(QModbusDataUnit::HoldingRegisters, readItem.address() - 40001, readItem.count());
-        QModbusReply* pReply = _pModbusConnection->sendReadRequest(_dataUnit, _pSettingsModel->slaveId());
-
-        connect(pReply, SIGNAL(finished()), this, SLOT(handleRequestFinished()));
-        connect(pReply, SIGNAL(errorOccurred(QModbusDevice::Error)), this, SLOT(handleRequestErrorOccurred(QModbusDevice::Error)));
+        _pModbusConnection->sendReadRequest(readItem.address(), readItem.count(), _pSettingsModel->slaveId());
     }
     else
     {

@@ -30,7 +30,7 @@ void ModbusConnection::openConnection(QString ip, qint32 port, quint32 timeout)
     {
         auto connectionData = QPointer<ConnectionData>(new ConnectionData());
 
-        connect(&connectionData->timeoutTimer, &QTimer::timeout, this, &ModbusConnection::connectionTimeOut);
+        connect(&connectionData->connectionTimeoutTimer, &QTimer::timeout, this, &ModbusConnection::connectionTimeOut);
         connect(&connectionData->modbusClient, &QModbusTcpClient::stateChanged, this, &ModbusConnection::handleConnectionStateChanged);
         connect(&connectionData->modbusClient, &QModbusTcpClient::errorOccurred, this, &ModbusConnection::handleConnectionErrorOccurred);
 
@@ -75,23 +75,23 @@ void ModbusConnection::closeConnection(void)
 /*!
  * Send read request over connection
  *
- * \param read
+ * \param regAddress    register address
+ * \param size          number of registers
  * \param serverAddress     slave address
- * \retval Pointer to QModbusReply object
- * \retval nullptr when connection is not valid
  */
-QModbusReply * ModbusConnection::sendReadRequest(const QModbusDataUnit &read, int serverAddress)
+void ModbusConnection::sendReadRequest(quint32 regAddress, quint16 size, int serverAddress)
 {
     if (connectionState() == QModbusDevice::ConnectedState)
     {
-        return _connectionList.last()->modbusClient.sendReadRequest(read, serverAddress);
+        QModbusDataUnit _dataUnit(QModbusDataUnit::HoldingRegisters, static_cast<int>(regAddress - 40001), size);
+        _connectionList.last()->pReply = _connectionList.last()->modbusClient.sendReadRequest(_dataUnit, serverAddress);
+
+        connect(_connectionList.last()->pReply, &QModbusReply::finished, this, &ModbusConnection::handleRequestFinished);
     }
     else
     {
         emit connectionError(QModbusDevice::ReadError, QString("Not connected"));
     }
-
-    return nullptr;
 }
 
 /*!
@@ -230,6 +230,43 @@ void ModbusConnection::connectionDestroyed()
 {
     // Remove all nullptr from list
     _connectionList.removeAll(nullptr);
+}
+
+/*!
+ * Handle request finished
+ */
+void ModbusConnection::handleRequestFinished()
+{
+    QModbusReply * pReply = qobject_cast<QModbusReply *>(QObject::sender());
+     auto err = pReply->error();
+
+     // Start deletion of reply object before handling data (and closing connection)
+     pReply->deleteLater();
+
+     /* Check if reply is for valid connection (the last) */
+     if (pReply == _connectionList.last()->pReply)
+     {
+         if (err == QModbusDevice::NoError)
+         {
+             // Success
+             QModbusDataUnit dataUnit = pReply->result();
+             emit readRequestSuccess(static_cast<quint16>(dataUnit.startAddress()) + 40001, dataUnit.values().toList());
+         }
+         else if (err == QModbusDevice::ProtocolError)
+         {
+             auto exceptionCode = pReply->rawResult().exceptionCode();
+
+             emit readRequestProtocolError(exceptionCode);
+         }
+         else
+         {
+            emit readRequestError(pReply->errorString(), pReply->error());
+         }
+     }
+     else
+     {
+         // ignore data from reply
+     }
 }
 
 /*!
