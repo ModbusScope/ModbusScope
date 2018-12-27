@@ -606,8 +606,8 @@ void GraphDataModel::clear()
     }
 }
 
-// Get sorted list of active (unique) register addresses
-void GraphDataModel::activeGraphAddresList(QList<quint16> * pRegisterList)
+// Get sorted list of active (unique) register addresses for a specific connection id
+void GraphDataModel::activeGraphAddresList(QList<quint16> * pRegisterList, quint8 connectionId)
 {
     // Clear list
     pRegisterList->clear();
@@ -616,7 +616,10 @@ void GraphDataModel::activeGraphAddresList(QList<quint16> * pRegisterList)
     {
         if (!pRegisterList->contains(_graphData[idx].registerAddress()))
         {
-            pRegisterList->append(_graphData[idx].registerAddress());
+            if (_graphData[idx].connectionId() == connectionId)
+            {
+                pRegisterList->append(_graphData[idx].registerAddress());
+            }
         }
     }
 
