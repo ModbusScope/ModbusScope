@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QList>
 #include <QStringListModel>
+#include <QTimer>
 
 #include "modbusmaster.h"
 
@@ -12,14 +13,28 @@ class GuiModel;
 class SettingsModel;
 class GraphDataModel;
 class ErrorLogModel;
-class ModbusMaster;
-class QTimer;
+
+class ModbusMasterData : public QObject
+{
+    Q_OBJECT
+public:
+
+    explicit ModbusMasterData(ModbusMaster * pArgModbusMaster, QObject *parent = nullptr):
+        QObject(parent)
+    {
+        pModbusMaster = pArgModbusMaster;
+        bActive = false;
+    }
+
+    ModbusMaster * pModbusMaster;
+    bool bActive;
+};
 
 class CommunicationManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit CommunicationManager(SettingsModel * pSettingsModel, GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, ErrorLogModel * pErrorLogModel, QObject *parent = 0);
+    explicit CommunicationManager(SettingsModel * pSettingsModel, GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, ErrorLogModel * pErrorLogModel, QObject *parent = nullptr);
     ~CommunicationManager();
 
     bool startCommunication();
@@ -32,7 +47,7 @@ signals:
     void handleReceivedData(QList<bool> successList, QList<double> values);
 
 private slots:
-    void handlePollDone(QMap<quint16, ModbusResult> resultMap);
+    void handlePollDone(QMap<quint16, ModbusResult> resultMap, quint8 connectionId);
     void handleModbusError(QString msg);
     void handleModbusInfo(QString msg);
     void readData();
@@ -41,7 +56,10 @@ private:
 
    double processValue(quint32 graphIndex, quint16 value);
 
-    ModbusMaster * _master;
+    QList<ModbusMasterData *> _modbusMasters;
+
+    QMap<quint16, ModbusResult> _resultMap;
+
     bool _active;
     QTimer * _pPollTimer;
     qint64 _lastPollStart;
@@ -50,6 +68,8 @@ private:
     GraphDataModel * _pGraphDataModel;
     ErrorLogModel * _pErrorLogModel;
     SettingsModel * _pSettingsModel;
+
+    quint8 _cModbusMasterCount = 2; // TODO: Set max modbus master count in general place
 
 };
 

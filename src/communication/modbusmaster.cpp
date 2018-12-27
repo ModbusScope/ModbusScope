@@ -7,7 +7,7 @@ typedef QMap<quint16,ModbusResult> ModbusResultMap;
 Q_DECLARE_METATYPE(ModbusResultMap);
 Q_DECLARE_METATYPE(ModbusResult);
 
-ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel) :
+ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, quint8 connectionId) :
     QObject(nullptr)
 {
 
@@ -17,6 +17,8 @@ ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel) :
     _pSettingsModel = pSettingsModel;
     _pModbusConnection = new ModbusConnection();
     _pReadRegisters = new ReadRegisters();
+
+    _connectionId = connectionId;
 
     // Use queued connection to make sure reply is deleted before closing connection
     connect(this, &ModbusMaster::triggerNextRequest, this, &ModbusMaster::handleTriggerNextRequest, Qt::QueuedConnection);
@@ -167,7 +169,7 @@ void ModbusMaster::finishRead()
 
     emit modbusLogInfo("Result map: " + dumpToString(results));
     emit modbusAddToStats(_success, _error);
-    emit modbusPollDone(results);
+    emit modbusPollDone(results, _connectionId);
     emit modbusLogInfo("Connection closed");
 
     _pModbusConnection->closeConnection();
