@@ -4,15 +4,17 @@
 SettingsModel::SettingsModel(QObject *parent) :
     QObject(parent)
 {
+    _connectionSettings.ipAddress = "127.0.0.1";
+    _connectionSettings.port = 502;
+    _connectionSettings.slaveId = 1;
+    _connectionSettings.timeout = 1000;
+    _connectionSettings.consecutiveMax = 125;
+
     _pollTime = 250;
-    _bWriteDuringLog = true;
-    _writeDuringLogFile = SettingsModel::defaultLogPath();
-    _ipAddress = "127.0.0.1";
-    _port = 502;
-    _slaveId = 1;
-    _timeout = 1000;
-    _consecutiveMax = 125;
     _bAbsoluteTimes = false;
+    _bWriteDuringLog = true;
+    _writeDuringLogFile = SettingsModel::defaultLogPath();   
+
 }
 
 SettingsModel::~SettingsModel()
@@ -63,16 +65,16 @@ bool SettingsModel::absoluteTimes()
 
 void SettingsModel::setConsecutiveMax(quint8 max)
 {
-    if (_consecutiveMax != max)
+    if (_connectionSettings.consecutiveMax != max)
     {
-        _consecutiveMax = max;
+        _connectionSettings.consecutiveMax = max;
         emit consecutiveMaxChanged();
     }
 }
 
 quint8 SettingsModel::consecutiveMax(void)
 {
-    return _consecutiveMax;
+    return _connectionSettings.consecutiveMax;
 }
 
 void SettingsModel::setWriteDuringLog(bool bState)
@@ -110,56 +112,56 @@ QString SettingsModel::writeDuringLogFile()
 
 void SettingsModel::setIpAddress(QString ip)
 {
-    if (_ipAddress != ip)
+    if (_connectionSettings.ipAddress != ip)
     {
-        _ipAddress = ip;
+        _connectionSettings.ipAddress = ip;
         emit ipChanged();
     }
 }
 
 QString SettingsModel::ipAddress()
 {
-    return _ipAddress;
+    return _connectionSettings.ipAddress;
 }
 
 void SettingsModel::setPort(quint16 port)
 {
-    if (_port != port)
+    if (_connectionSettings.port != port)
     {
-        _port = port;
+        _connectionSettings.port = port;
         emit portChanged();
     }
 }
 
 quint16 SettingsModel::port()
 {
-    return _port;
+    return _connectionSettings.port;
 }
 
 quint8 SettingsModel::slaveId()
 {
-    return _slaveId;
+    return _connectionSettings.slaveId;
 }
 
 void SettingsModel::setSlaveId(quint8 id)
 {
-    if (_slaveId != id)
+    if (_connectionSettings.slaveId != id)
     {
-        _slaveId = id;
+        _connectionSettings.slaveId = id;
         emit slaveIdChanged();
     }
 }
 
 quint32 SettingsModel::timeout()
 {
-    return _timeout;
+    return _connectionSettings.timeout;
 }
 
 void SettingsModel::setTimeout(quint32 timeout)
 {
-    if (_timeout != timeout)
+    if (_connectionSettings.timeout != timeout)
     {
-        _timeout = timeout;
+        _connectionSettings.timeout = timeout;
         emit timeoutChanged();
     }
 }

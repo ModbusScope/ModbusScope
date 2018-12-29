@@ -62,13 +62,19 @@ signals:
 
 private:
 
-    QString _ipAddress;
-    quint16 _port;
-    quint8 _slaveId;
-    quint32 _timeout;
-    quint32 _pollTime;
-    quint8 _consecutiveMax;
+    typedef struct
+    {
+        QString ipAddress;
+        quint16 port;
+        quint8 slaveId;
+        quint32 timeout;
+        quint8 consecutiveMax;
 
+    } ConnectionSettings;
+
+    ConnectionSettings _connectionSettings;
+
+    quint32 _pollTime;
     bool _bAbsoluteTimes;
 
     bool _bWriteDuringLog;
