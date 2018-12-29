@@ -24,12 +24,19 @@ public:
 
     QString writeDuringLogFile();
     bool writeDuringLog();
-    QString ipAddress();
-    quint16 port();
-    quint8 slaveId();
-    quint32 timeout();
+    QString ipAddress(); // TODO: remove
+    QString ipAddress(quint8 connectionId);
+    quint16 port(); // TODO: remove
+    quint16 port(quint8 connectionId);
+    quint8 slaveId(); // TODO: remove
+    quint8 slaveId(quint8 connectionId);
+    quint32 timeout(); // TODO: remove
+    quint32 timeout(quint8 connectionId);
+
     quint32 pollTime();
     bool absoluteTimes();
+
+     // TODO: add connectionId arguments
     quint8 consecutiveMax();
 
     static const QString defaultLogPath()
@@ -72,7 +79,14 @@ private:
 
     } ConnectionSettings;
 
-    ConnectionSettings _connectionSettings;
+    enum
+    {
+        CONNECTION_ID_0 = 0,
+        CONNECTION_ID_1,
+        CONNECTION_ID_CNT
+    };
+
+    QList<ConnectionSettings> _connectionSettings;
 
     quint32 _pollTime;
     bool _bAbsoluteTimes;
