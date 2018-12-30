@@ -20,6 +20,7 @@ GraphDataModel::GraphDataModel(QObject *parent) : QAbstractTableModel(parent)
     connect(this, SIGNAL(registerAddressChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(bitmaskChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(shiftChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
+    connect(this, SIGNAL(connectionIdChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
 
     connect(this, SIGNAL(added(quint32)), this, SLOT(modelDataChanged()));
     connect(this, SIGNAL(removed(quint32)), this, SLOT(modelDataChanged()));
@@ -42,13 +43,13 @@ int GraphDataModel::columnCount(const QModelIndex & /*parent*/) const
     * Shift
     * Multiply factor
     * Divide factor
+    * Connection id
     * */
-    return 9; // Number of visible members of struct
+    return 10; // Number of visible members of struct
 }
 
 QVariant GraphDataModel::data(const QModelIndex &index, int role) const
 {
-
     switch (index.column())
     {
     case 0:
@@ -120,6 +121,12 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
             return Util::formatDoubleForExport(divideFactor(index.row()));
         }
         break;
+    case 9:
+        if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
+        {
+            return connectionId(index.row());
+        }
+        break;
     default:
         return QVariant();
         break;
@@ -155,6 +162,8 @@ QVariant GraphDataModel::headerData(int section, Qt::Orientation orientation, in
                 return QString("Multiply");
             case 8:
                 return QString("Divide");
+            case 9:
+                return QString("Connection Id");
             default:
                 return QVariant();
             }
@@ -322,6 +331,32 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             }
         }
         break;
+    case 9:
+        if (role == Qt::EditRole)
+        {
+            bool bSuccess = false;
+            const qint32 newConnectionId = value.toString().toInt(&bSuccess);
+
+            if (
+                    (bSuccess)
+                    &&
+                    (
+                        (newConnectionId == 0)
+                        || (newConnectionId == 1)
+                    )
+                )
+            {
+                setConnectionId(index.row(), static_cast<quint8>(newConnectionId));
+            }
+            else
+            {
+                bRet = false;
+                // TODO: rework
+                Util::showError(tr("Connection ID is not a valid integer between 0 and 1."));
+                break;
+            }
+        }
+        break;
     default:
         break;
 
@@ -444,6 +479,11 @@ qint32 GraphDataModel::shift(quint32 index) const
     return _graphData[index].shift();
 }
 
+quint8 GraphDataModel::connectionId(quint32 index) const
+{
+    return _graphData[index].connectionId();
+}
+
 QSharedPointer<QCPGraphDataContainer> GraphDataModel::dataMap(quint32 index)
 {
     return _graphData[index].dataMap();
@@ -551,6 +591,15 @@ void GraphDataModel::setShift(quint32 index, const qint32 &shift)
     {
          _graphData[index].setShift(shift);
          emit shiftChanged(index);
+    }
+}
+
+void GraphDataModel::setConnectionId(quint32 index, const qint8 &connectionId)
+{
+    if (_graphData[index].connectionId() != connectionId)
+    {
+         _graphData[index].setConnectionId(connectionId);
+         emit connectionIdChanged(index);
     }
 }
 
