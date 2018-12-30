@@ -31,6 +31,8 @@ namespace ProjectFileDefinitions
     const QString cColorTag = QString("color");
     const QString cBitmaskTag = QString("bitmask");
     const QString cShiftTag = QString("shift");
+    const QString cConnectionIdTag = QString("connectionid");
+
     const QString cScaleTag = QString("scale");
     const QString cXaxisTag = QString("xaxis");
     const QString cYaxisTag = QString("yaxis");
