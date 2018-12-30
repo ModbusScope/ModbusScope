@@ -26,7 +26,6 @@ SettingsModel::SettingsModel(QObject *parent) :
     _bAbsoluteTimes = false;
     _bWriteDuringLog = true;
     _writeDuringLogFile = SettingsModel::defaultLogPath();   
-
 }
 
 SettingsModel::~SettingsModel()
@@ -87,6 +86,11 @@ void SettingsModel::setConsecutiveMax(quint8 max)
 quint8 SettingsModel::consecutiveMax(void)
 {
     return _connectionSettings[CONNECTION_ID_0].consecutiveMax;
+}
+
+quint8 SettingsModel::consecutiveMax(quint8 connectionId)
+{
+    return _connectionSettings[connectionId].consecutiveMax;
 }
 
 void SettingsModel::setWriteDuringLog(bool bState)

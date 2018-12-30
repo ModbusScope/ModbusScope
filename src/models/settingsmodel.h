@@ -32,12 +32,11 @@ public:
     quint8 slaveId(quint8 connectionId);
     quint32 timeout(); // TODO: remove
     quint32 timeout(quint8 connectionId);
+    quint8 consecutiveMax(); // TODO: remove
+    quint8 consecutiveMax(quint8 connectionId);
 
     quint32 pollTime();
     bool absoluteTimes();
-
-     // TODO: add connectionId arguments
-    quint8 consecutiveMax();
 
     static const QString defaultLogPath()
     {
@@ -51,6 +50,13 @@ public:
 
         return tempDir.append(cDefaultLogFileName);
     }
+
+    enum
+    {
+        CONNECTION_ID_0 = 0,
+        CONNECTION_ID_1,
+        CONNECTION_ID_CNT
+    };
 
 public slots:
     void setWriteDuringLog(bool bState);
@@ -78,13 +84,6 @@ private:
         quint8 consecutiveMax;
 
     } ConnectionSettings;
-
-    enum
-    {
-        CONNECTION_ID_0 = 0,
-        CONNECTION_ID_1,
-        CONNECTION_ID_CNT
-    };
 
     QList<ConnectionSettings> _connectionSettings;
 

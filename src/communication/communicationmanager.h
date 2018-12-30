@@ -68,9 +68,6 @@ private:
     GraphDataModel * _pGraphDataModel;
     ErrorLogModel * _pErrorLogModel;
     SettingsModel * _pSettingsModel;
-
-    quint8 _cModbusMasterCount = 2; // TODO: Set max modbus master count in general place
-
 };
 
 #endif // COMMUNICATION_MANAGER_H

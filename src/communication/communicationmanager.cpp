@@ -23,7 +23,7 @@ CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiMo
     _pErrorLogModel = pErrorLogModel;
 
     /* Setup modbus master */
-    for (quint8 i = 0u; i < _cModbusMasterCount; i++) // TODO: Set max modbus master count
+    for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++) // TODO: Set max modbus master count
     {
         auto modbusData = new ModbusMasterData(new ModbusMaster(_pSettingsModel, i));
         _modbusMasters.append(modbusData);
@@ -80,7 +80,7 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
     bool lastResult = false;
 
     quint8 activeCnt = 0;
-    for(quint8 i = 0; i < _cModbusMasterCount; i++)
+    for(quint8 i = 0; i < SettingsModel::CONNECTION_ID_CNT; i++)
     {
         if (_modbusMasters[i]->bActive)
         {
@@ -88,7 +88,7 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
         }
     }
 
-    if (activeCnt == _cModbusMasterCount)
+    if (activeCnt == SettingsModel::CONNECTION_ID_CNT)
     {
         /* First results */
         firstResult = true;

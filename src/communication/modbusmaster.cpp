@@ -40,10 +40,10 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
 
     emit modbusLogInfo("Register list read: " + dumpToString(registerList));
 
-    _pReadRegisters->resetRead(registerList, _pSettingsModel->consecutiveMax());
+    _pReadRegisters->resetRead(registerList, _pSettingsModel->consecutiveMax(_connectionId));
 
     /* Open connection */
-    _pModbusConnection->openConnection(_pSettingsModel->ipAddress(), _pSettingsModel->port(), _pSettingsModel->timeout());
+    _pModbusConnection->openConnection(_pSettingsModel->ipAddress(_connectionId), _pSettingsModel->port(_connectionId), _pSettingsModel->timeout(_connectionId));
 }
 
 void ModbusMaster::handleConnectionOpened()
@@ -151,7 +151,7 @@ void ModbusMaster::handleTriggerNextRequest(void)
 
         // read registers
         QModbusDataUnit _dataUnit(QModbusDataUnit::HoldingRegisters, readItem.address() - 40001, readItem.count());
-        QModbusReply* pReply = _pModbusConnection->sendReadRequest(_dataUnit, _pSettingsModel->slaveId());
+        QModbusReply* pReply = _pModbusConnection->sendReadRequest(_dataUnit, _pSettingsModel->slaveId(_connectionId));
 
         connect(pReply, SIGNAL(finished()), this, SLOT(handleRequestFinished()));
         connect(pReply, SIGNAL(errorOccurred(QModbusDevice::Error)), this, SLOT(handleRequestErrorOccurred(QModbusDevice::Error)));
