@@ -16,11 +16,16 @@ public:
     void setPollTime(quint32 pollTime);
     void setWriteDuringLogFile(QString filename);
     void setWriteDuringLogFileToDefault(void);
-    void setIpAddress(QString ip);
-    void setPort(quint16 port);
-    void setSlaveId(quint8 id);
-    void setTimeout(quint32 timeout);
-    void setConsecutiveMax(quint8 max);
+    void setIpAddress(QString ip); // TODO: remove
+    void setIpAddress(quint8 connectionId, QString ip);
+    void setPort(quint16 port); // TODO: remove
+    void setPort(quint8 connectionId, quint16 port);
+    void setSlaveId(quint8 id); // TODO: remove
+    void setSlaveId(quint8 connectionId, quint8 id);
+    void setTimeout(quint32 timeout); // TODO: remove
+    void setTimeout(quint8 connectionId, quint32 timeout);
+    void setConsecutiveMax(quint8 max); // TODO: remove
+    void setConsecutiveMax(quint8 connectionId, quint8 max);
 
     QString writeDuringLogFile();
     bool writeDuringLog();
