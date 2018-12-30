@@ -38,12 +38,20 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
     _success = 0;
     _error = 0;
 
-    emit modbusLogInfo("Register list read: " + dumpToString(registerList));
+    if (registerList.count() > 0)
+    {
+        emit modbusLogInfo("Register list read: " + dumpToString(registerList));
 
-    _pReadRegisters->resetRead(registerList, _pSettingsModel->consecutiveMax(_connectionId));
+        _pReadRegisters->resetRead(registerList, _pSettingsModel->consecutiveMax(_connectionId));
 
-    /* Open connection */
-    _pModbusConnection->openConnection(_pSettingsModel->ipAddress(_connectionId), _pSettingsModel->port(_connectionId), _pSettingsModel->timeout(_connectionId));
+        /* Open connection */
+        _pModbusConnection->openConnection(_pSettingsModel->ipAddress(_connectionId), _pSettingsModel->port(_connectionId), _pSettingsModel->timeout(_connectionId));
+    }
+    else
+    {
+        QMap<quint16, ModbusResult> emptyResults;
+        emit modbusPollDone(emptyResults, _connectionId);
+    }
 }
 
 void ModbusMaster::handleConnectionOpened()
