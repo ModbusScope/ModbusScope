@@ -57,6 +57,7 @@ private:
    double processValue(quint32 graphIndex, quint16 value);
 
     QList<ModbusMasterData *> _modbusMasters;
+    quint32 _activeMastersCount;
 
     QMap<quint16, ModbusResult> _resultMap;
 

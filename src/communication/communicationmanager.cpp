@@ -88,41 +88,16 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
         }
     }
 
-    if (activeCnt == SettingsModel::CONNECTION_ID_CNT)
+    if (activeCnt == _activeMastersCount)
     {
         /* First results */
         firstResult = true;
     }
-    else if (activeCnt == 1)
+
+    if (activeCnt == 1)
     {
         /* Last result */
         lastResult = true;
-    }
-    else
-    {
-        qDebug() << "Oops: unexpected results";
-    }
-
-
-    if (lastResult)
-    {
-        // Restart timer when previous request has been handled
-        uint waitInterval;
-        const uint passedInterval = QDateTime::currentMSecsSinceEpoch() - _lastPollStart;
-
-        if (passedInterval > _pSettingsModel->pollTime())
-        {
-            // Poll again immediatly
-            waitInterval = 1;
-        }
-        else
-        {
-            // Set waitInterval to remaining time
-            waitInterval = _pSettingsModel->pollTime() - passedInterval;
-        }
-
-        _pPollTimer->singleShot(waitInterval, this, SLOT(readData()));
-
     }
 
     if (firstResult)
@@ -183,6 +158,27 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
 
     // Set master as inactive
     _modbusMasters[connectionId]->bActive = false;
+
+    if (lastResult)
+    {
+        // Restart timer when previous request has been handled
+        uint waitInterval;
+        const uint passedInterval = QDateTime::currentMSecsSinceEpoch() - _lastPollStart;
+
+        if (passedInterval > _pSettingsModel->pollTime())
+        {
+            // Poll again immediatly
+            waitInterval = 1;
+        }
+        else
+        {
+            // Set waitInterval to remaining time
+            waitInterval = _pSettingsModel->pollTime() - passedInterval;
+        }
+
+        _pPollTimer->singleShot(waitInterval, this, SLOT(readData()));
+
+    }
 }
 
 void CommunicationManager::handleModbusError(QString msg)
@@ -215,15 +211,40 @@ void CommunicationManager::readData()
     {
         _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 
-        QList<quint16> regAddrList;
+        /* Strange construction is required to avoid race condition:
+         *
+         * Result from first master is in while _activeMastersCount is still set at 1
+         */
 
-        _pGraphDataModel->activeGraphAddresList(&regAddrList, 0);
-        _modbusMasters[0]->pModbusMaster->readRegisterList(regAddrList);
-        _modbusMasters[0]->bActive = true;
+        QList<quint16> regAddrList0;
+        QList<quint16> regAddrList1;
+        _activeMastersCount = 0;
 
-        _pGraphDataModel->activeGraphAddresList(&regAddrList, 1);
-        _modbusMasters[1]->pModbusMaster->readRegisterList(regAddrList);
-        _modbusMasters[1]->bActive = true;
+        _pGraphDataModel->activeGraphAddresList(&regAddrList0, 0);
+        _pGraphDataModel->activeGraphAddresList(&regAddrList1, 1);
+
+        if (regAddrList0.count() > 0)
+        {
+            _activeMastersCount++;
+        }
+
+        if (regAddrList1.count() > 0)
+        {
+            _activeMastersCount++;
+        }
+
+
+        if (regAddrList0.count() > 0)
+        {
+            _modbusMasters[0]->bActive = true;
+            _modbusMasters[0]->pModbusMaster->readRegisterList(regAddrList0);
+        }
+
+        if (regAddrList1.count() > 0)
+        {
+            _modbusMasters[1]->bActive = true;
+            _modbusMasters[1]->pModbusMaster->readRegisterList(regAddrList1);
+        }
     }
 }
 
