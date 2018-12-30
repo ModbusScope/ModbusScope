@@ -472,6 +472,33 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
                 break;
             }
         }
+        else if (child.tagName() == ProjectFileDefinitions::cConnectionIdTag)
+        {
+            const qint32 newConnectionId = child.text().toInt(&bRet);
+
+            if (
+                    (bRet)
+                    &&
+                    (
+                        (newConnectionId != 0)
+                        &&
+                        (newConnectionId != 1)
+                    )
+                )
+            {
+                bRet = false;
+            }
+
+            if (bRet)
+            {
+                pRegisterSettings->connectionId = static_cast<quint8>(newConnectionId);
+            }
+            else
+            {
+                Util::showError(tr("Connection id (%1) is not a valid integer between 0 and 1.").arg(child.text()));
+                break;
+            }
+        }
         else
         {
             // unkown tag: ignore

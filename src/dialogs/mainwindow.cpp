@@ -1126,6 +1126,7 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
         rowData.setMultiplyFactor(pProjectSettings->scope.registerList[i].multiplyFactor);
         rowData.setColor(pProjectSettings->scope.registerList[i].color);
         rowData.setShift(pProjectSettings->scope.registerList[i].shift);
+        rowData.setConnectionId(pProjectSettings->scope.registerList[i].connectionId);
 
         _pGraphDataModel->add(rowData);
     }
