@@ -40,7 +40,7 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
 
     if (registerList.count() > 0)
     {
-        emit modbusLogInfo("Register list read: " + dumpToString(registerList));
+        logInfo("Register list read: " + dumpToString(registerList));
 
         _pReadRegisters->resetRead(registerList, _pSettingsModel->consecutiveMax(_connectionId));
 
@@ -56,7 +56,7 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
 
 void ModbusMaster::handleConnectionOpened()
 {
-    emit modbusLogInfo("Connection opened");
+    logInfo("Connection opened");
 
     emit triggerNextRequest();
 }
@@ -67,7 +67,7 @@ void ModbusMaster::handlerConnectionError(QModbusDevice::Error error, QString ms
 
     _error++;
 
-    emit modbusLogError(QString("Connection error (fatal):") + msg);
+    logError(QString("Connection error (fatal):") + msg);
 
     _pReadRegisters->addAllErrors();
 
@@ -84,7 +84,7 @@ void ModbusMaster::handleRequestFinished()
 
     if (err == QModbusDevice::NoError)
     {
-        emit modbusLogInfo(QString("Read success"));
+        logInfo(QString("Read success"));
 
         // Success
         QModbusDataUnit dataUnit = pReply->result();
@@ -94,7 +94,7 @@ void ModbusMaster::handleRequestFinished()
     {
         auto exceptionCode = pReply->rawResult().exceptionCode();
 
-        emit modbusLogError(QString("Modbus Exception: %0").arg(exceptionCode));
+        logError(QString("Modbus Exception: %0").arg(exceptionCode));
 
         if (
             (exceptionCode == QModbusPdu::IllegalDataAddress)
@@ -124,7 +124,7 @@ void ModbusMaster::handleRequestFinished()
     }
     else
     {
-        emit modbusLogError(QString("Request Failed:  %0 (%1)").arg(pReply->errorString()).arg(pReply->error()));
+        logError(QString("Request Failed:  %0 (%1)").arg(pReply->errorString()).arg(pReply->error()));
 
         // When we don't receive an exception, abort read and close connection
         _pReadRegisters->addAllErrors();
@@ -155,7 +155,7 @@ void ModbusMaster::handleTriggerNextRequest(void)
     {
         ModbusReadItem readItem = _pReadRegisters->next();
 
-        emit modbusLogInfo("Partial list read: " + QString("Start address (%0) and count (%1)").arg(readItem.address()).arg(readItem.count()));
+        logInfo("Partial list read: " + QString("Start address (%0) and count (%1)").arg(readItem.address()).arg(readItem.count()));
 
         // read registers
         QModbusDataUnit _dataUnit(QModbusDataUnit::HoldingRegisters, readItem.address() - 40001, readItem.count());
@@ -175,10 +175,10 @@ void ModbusMaster::finishRead()
 {
     QMap<quint16, ModbusResult> results = _pReadRegisters->resultMap();
 
-    emit modbusLogInfo("Result map: " + dumpToString(results));
+    logInfo("Result map: " + dumpToString(results));
     emit modbusAddToStats(_success, _error);
     emit modbusPollDone(results, _connectionId);
-    emit modbusLogInfo("Connection closed");
+    logInfo("Connection closed");
 
     _pModbusConnection->closeConnection();
 }
@@ -201,4 +201,14 @@ QString ModbusMaster::dumpToString(QList<quint16> list)
     dStream << list;
 
     return str;
+}
+
+void ModbusMaster::logInfo(QString msg)
+{
+    emit modbusLogInfo(QString("[Conn %0] %1").arg(_connectionId).arg(msg));
+}
+
+void ModbusMaster::logError(QString msg)
+{
+    emit modbusLogError(QString("[Conn %0] %1").arg(_connectionId).arg(msg));
 }

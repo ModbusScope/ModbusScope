@@ -40,6 +40,9 @@ private:
     QString dumpToString(QMap<quint16, ModbusResult> map);
     QString dumpToString(QList<quint16> list);
 
+    void logInfo(QString msg);
+    void logError(QString msg);
+
     quint32 _success;
     quint32 _error;
 
