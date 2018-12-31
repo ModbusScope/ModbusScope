@@ -1,4 +1,4 @@
-version: '${branch}_{build}'
+version: '{branch}_{build}'
 
 platform:
   - x64
