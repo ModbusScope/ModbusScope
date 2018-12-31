@@ -1,4 +1,4 @@
-version: 1.0.{build}
+version: %APPVEYOR_REPO_BRANCH%_{build}
 
 platform:
   - x64
