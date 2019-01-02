@@ -31,8 +31,11 @@ signals:
 private slots:
     void handleConnectionOpened();
     void handlerConnectionError(QModbusDevice::Error error, QString msg);
-    void handleRequestFinished();
-    void handleRequestErrorOccurred(QModbusDevice::Error error);
+
+    void handleRequestSuccess(quint16 startRegister, QList<quint16> registerDataList);
+    void handleRequestProtocolError(QModbusPdu::ExceptionCode exceptionCode);
+    void handleRequestError(QString errorString, QModbusDevice::Error error);
+
     void handleTriggerNextRequest(void);
 
 private:

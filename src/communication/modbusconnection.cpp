@@ -21,7 +21,7 @@ ModbusConnection::ModbusConnection(QObject *parent) : QObject(parent)
  */
 void ModbusConnection::openConnection(QString ip, qint32 port, quint32 timeout)
 {
-    if (state() == QModbusDevice::ConnectedState)
+    if (connectionState() == QModbusDevice::ConnectedState)
     {
         // Already connected and ready
         emit connectionSuccess();
@@ -30,7 +30,7 @@ void ModbusConnection::openConnection(QString ip, qint32 port, quint32 timeout)
     {
         auto connectionData = QPointer<ConnectionData>(new ConnectionData());
 
-        connect(&connectionData->timeoutTimer, &QTimer::timeout, this, &ModbusConnection::connectionTimeOut);
+        connect(&connectionData->connectionTimeoutTimer, &QTimer::timeout, this, &ModbusConnection::connectionTimeOut);
         connect(&connectionData->modbusClient, &QModbusTcpClient::stateChanged, this, &ModbusConnection::handleConnectionStateChanged);
         connect(&connectionData->modbusClient, &QModbusTcpClient::errorOccurred, this, &ModbusConnection::handleConnectionErrorOccurred);
 
@@ -46,12 +46,12 @@ void ModbusConnection::openConnection(QString ip, qint32 port, quint32 timeout)
         if (_connectionList.last()->modbusClient.connectDevice())
         {
             _bWaitingForConnection = true;
-            _connectionList.last()->timeoutTimer.start(static_cast<int>(timeout));
+            _connectionList.last()->connectionTimeoutTimer.start(static_cast<int>(timeout));
         }
         else
         {
             auto pClient = &_connectionList.last()->modbusClient;
-            handleError(_connectionList.last(), QString("Connect failed: %0").arg(pClient->error()));
+            handleConnectionError(_connectionList.last(), QString("Connect failed: %0").arg(pClient->error()));
         }
     }
 }
@@ -67,7 +67,7 @@ void ModbusConnection::closeConnection(void)
         )
     {
         qCDebug(scopeConnection) << "Connection close: " << _connectionList.last();
-        _connectionList.last()->timeoutTimer.stop();
+        _connectionList.last()->connectionTimeoutTimer.stop();
         _connectionList.last()->modbusClient.disconnectDevice();
     }
 }
@@ -75,23 +75,23 @@ void ModbusConnection::closeConnection(void)
 /*!
  * Send read request over connection
  *
- * \param read
+ * \param regAddress    register address
+ * \param size          number of registers
  * \param serverAddress     slave address
- * \retval Pointer to QModbusReply object
- * \retval nullptr when connection is not valid
  */
-QModbusReply * ModbusConnection::sendReadRequest(const QModbusDataUnit &read, int serverAddress)
+void ModbusConnection::sendReadRequest(quint32 regAddress, quint16 size, int serverAddress)
 {
-    if (state() == QModbusDevice::ConnectedState)
+    if (connectionState() == QModbusDevice::ConnectedState)
     {
-        return _connectionList.last()->modbusClient.sendReadRequest(read, serverAddress);
+        QModbusDataUnit _dataUnit(QModbusDataUnit::HoldingRegisters, static_cast<int>(regAddress - 40001), size);
+        _connectionList.last()->pReply = _connectionList.last()->modbusClient.sendReadRequest(_dataUnit, serverAddress);
+
+        connect(_connectionList.last()->pReply, &QModbusReply::finished, this, &ModbusConnection::handleRequestFinished);
     }
     else
     {
-        emit errorOccurred(QModbusDevice::ReadError, QString("Not connected"));
+        emit connectionError(QModbusDevice::ReadError, QString("Not connected"));
     }
-
-    return nullptr;
 }
 
 /*!
@@ -99,7 +99,7 @@ QModbusReply * ModbusConnection::sendReadRequest(const QModbusDataUnit &read, in
  *
  * \return State of connection (\ref QModbusDevice::State)
  */
-QModbusDevice::State ModbusConnection::state(void)
+QModbusDevice::State ModbusConnection::connectionState(void)
 {
     if (_connectionList.isEmpty())
     {
@@ -140,7 +140,7 @@ void ModbusConnection::handleConnectionStateChanged(QModbusDevice::State state)
         if (senderIdx != -1)
         {
             // Stop timeout counter
-            _connectionList[senderIdx]->timeoutTimer.stop();
+            _connectionList[senderIdx]->connectionTimeoutTimer.stop();
         }
 
         if (senderIdx == _connectionList.size() - 1)
@@ -167,14 +167,14 @@ void ModbusConnection::handleConnectionStateChanged(QModbusDevice::State state)
         {
             if (senderIdx == _connectionList.size() - 1)
             {
-                handleError(_connectionList.last(), QString("Connection timeout"));
+                handleConnectionError(_connectionList.last(), QString("Connection timeout"));
             }
         }
         else if (senderIdx != -1)
         {
             // Prepare to remove old connection
             _connectionList[senderIdx]->modbusClient.disconnect();
-            _connectionList[senderIdx]->timeoutTimer.disconnect();
+            _connectionList[senderIdx]->connectionTimeoutTimer.disconnect();
 
             connect(_connectionList[senderIdx], &ConnectionData::destroyed, this, &ModbusConnection::connectionDestroyed);
 
@@ -204,7 +204,7 @@ void ModbusConnection::handleConnectionErrorOccurred(QModbusDevice::Error error)
     // Only handle error is latest connection, the rest is automaticaly closed on state change
     if (senderIdx == _connectionList.size() - 1)
     {
-        handleError(_connectionList.last(), QString("Error: %0").arg(error));
+        handleConnectionError(_connectionList.last(), QString("Error: %0").arg(error));
     }
 }
 
@@ -219,7 +219,7 @@ void ModbusConnection::connectionTimeOut()
     // Only handle error is latest connection, the rest is automaticaly closed on state change
     if (senderIdx == _connectionList.size() - 1)
     {
-        handleError(_connectionList.last(), QString("Connection timeout"));
+        handleConnectionError(_connectionList.last(), QString("Connection timeout"));
     }
 }
 
@@ -233,21 +233,58 @@ void ModbusConnection::connectionDestroyed()
 }
 
 /*!
+ * Handle request finished
+ */
+void ModbusConnection::handleRequestFinished()
+{
+    QModbusReply * pReply = qobject_cast<QModbusReply *>(QObject::sender());
+     auto err = pReply->error();
+
+     // Start deletion of reply object before handling data (and closing connection)
+     pReply->deleteLater();
+
+     /* Check if reply is for valid connection (the last) */
+     if (pReply == _connectionList.last()->pReply)
+     {
+         if (err == QModbusDevice::NoError)
+         {
+             // Success
+             QModbusDataUnit dataUnit = pReply->result();
+             emit readRequestSuccess(static_cast<quint16>(dataUnit.startAddress()) + 40001, dataUnit.values().toList());
+         }
+         else if (err == QModbusDevice::ProtocolError)
+         {
+             auto exceptionCode = pReply->rawResult().exceptionCode();
+
+             emit readRequestProtocolError(exceptionCode);
+         }
+         else
+         {
+            emit readRequestError(pReply->errorString(), pReply->error());
+         }
+     }
+     else
+     {
+         // ignore data from reply
+     }
+}
+
+/*!
  * General internal error handler
  * Should only be called for last connection in the list, the rest is stale
  * \param errMsg    Error message
  */
-void ModbusConnection::handleError(QPointer<ConnectionData> connectionData, QString errMsg)
+void ModbusConnection::handleConnectionError(QPointer<ConnectionData> connectionData, QString errMsg)
 {
     qCDebug(scopeConnection) << "Connection error:" << errMsg;
 
-    if (!connectionData->bErrorHandled)
+    if (!connectionData->bConnectionErrorHandled)
     {
-        connectionData->bErrorHandled = true;
+        connectionData->bConnectionErrorHandled = true;
 
         closeConnection();
 
-        emit errorOccurred(QModbusDevice::ConnectionError, errMsg);
+        emit connectionError(QModbusDevice::ConnectionError, errMsg);
     }
 }
 
@@ -264,7 +301,7 @@ qint32 ModbusConnection::findConnectionData(QTimer * pTimer, QModbusTcpClient * 
     {
         if (
             (pTimer != nullptr)
-            && (pTimer == &_connectionList[idx]->timeoutTimer)
+            && (pTimer == &_connectionList[idx]->connectionTimeoutTimer)
         )
         {
             return idx;

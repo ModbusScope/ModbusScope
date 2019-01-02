@@ -15,14 +15,16 @@ class ConnectionData : public QObject
 public:
 
     explicit ConnectionData():
-        timeoutTimer(this), modbusClient(this), bErrorHandled(false)
+        connectionTimeoutTimer(this), modbusClient(this), bConnectionErrorHandled(false), pReply(nullptr)
     {
 
     }
 
-    QTimer timeoutTimer;
+    QTimer connectionTimeoutTimer;
     QModbusTcpClient modbusClient;
-    bool bErrorHandled;
+    bool bConnectionErrorHandled;
+
+    QModbusReply * pReply;
 };
 
 
@@ -35,24 +37,30 @@ public:
     void openConnection(QString ip, qint32 port, quint32 timeout);
     void closeConnection(void);
 
-    QModbusReply *sendReadRequest(const QModbusDataUnit &read, int serverAddress);
+    void sendReadRequest(quint32 regAddress, quint16 size, int serverAddress);
 
-    QModbusDevice::State state(void);
+    QModbusDevice::State connectionState(void);
 
 signals:
     void connectionSuccess(void);
-    void errorOccurred(QModbusDevice::Error error, QString msg);
+    void connectionError(QModbusDevice::Error error, QString msg);
+
+    void readRequestSuccess(quint16 startRegister, QList<quint16> registerDataList);
+    void readRequestProtocolError(QModbusPdu::ExceptionCode exceptionCode);
+    void readRequestError(QString errorString, QModbusDevice::Error error);
 
 private slots:
-    void handleConnectionStateChanged(QModbusDevice::State state);
+    void handleConnectionStateChanged(QModbusDevice::State connectionState);
     void handleConnectionErrorOccurred(QModbusDevice::Error error);
 
     void connectionTimeOut();
     void connectionDestroyed();
 
+    void handleRequestFinished();
+
 private:
 
-    void handleError(QPointer<ConnectionData> connectionData, QString errMsg);
+    void handleConnectionError(QPointer<ConnectionData> connectionData, QString errMsg);
     qint32 findConnectionData(QTimer * pTimer, QModbusTcpClient * pClient);
 
     QList<QPointer<ConnectionData>> _connectionList;
