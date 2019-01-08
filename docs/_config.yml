@@ -5,6 +5,8 @@ remote_theme: fongandrew/hydeout
 
 # Setup
 title:            ModbusScope
+tagline:          'The data loggr using Modbus'
+description:      'Show data in real time via Modbus'
 url:              https://jgeudens.github.io/ModbusScope
 baseurl:          '/ModbusScope'
                   # the optional subpath of your site, e.g. "/blog"
@@ -15,7 +17,6 @@ baseurl:          '/ModbusScope'
 
 author:
   name:           'Jens Geudens'
-  url:            https://twitter.com/fongandrewc
 
 paginate:         5
 # paginate_path:    '/page:num'
