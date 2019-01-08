@@ -5,8 +5,6 @@ remote_theme: fongandrew/hydeout
 
 # Setup
 title:            ModbusScope
-tagline:          ''
-description:      'The <a href="http://hyde.getpoole.com" target="_blank">Hyde</a> theme for <a href="http://jekyllrb.com" target="_blank">Jekyll</a>, refreshed.'
 url:              https://jgeudens.github.io/ModbusScope
 baseurl:          '/ModbusScope'
                   # the optional subpath of your site, e.g. "/blog"
