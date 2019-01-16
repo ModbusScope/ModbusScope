@@ -464,7 +464,7 @@
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
-    <string>&amp;Markers</string>
+    <string>Markers</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
@@ -520,7 +520,7 @@
     <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
    </property>
    <property name="windowTitle">
-    <string>&amp;Legend</string>
+    <string>Legend</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
