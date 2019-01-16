@@ -45,7 +45,7 @@ AboutDialog::~AboutDialog()
 
 void AboutDialog::openHomePage(void)
 {
-    QDesktopServices::openUrl(QUrl("http://jgeudens.github.io"));
+    QDesktopServices::openUrl(QUrl("https://github.com/jgeudens/ModbusScope/releases"));
 }
 
 void AboutDialog::openLicense(void)
