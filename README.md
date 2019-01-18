@@ -1,12 +1,11 @@
+# Build status
+[![Build status](https://ci.appveyor.com/api/projects/status/v7ysjn9c2koy1tb8?svg=true)](https://ci.appveyor.com/project/jgeudens/modbusscope)
+[![Build Status](https://travis-ci.org/jgeudens/ModbusScope.svg?branch=master)](https://travis-ci.org/jgeudens/ModbusScope)
 
 # What is ModbusScope
 ModbusScope is an application that can be used to log data using the [Modbus](https://en.wikipedia.org/wiki/Modbus) protocol and put the data into a nice graph. It is also possible to export the data or an image of the graph.
 
-![ModbusScope demo](ModbuScope_demo.gif)
-
-# Build status
-[![Build status](https://ci.appveyor.com/api/projects/status/v7ysjn9c2koy1tb8?svg=true)](https://ci.appveyor.com/project/jgeudens/modbusscope)
-[![Build Status](https://travis-ci.org/jgeudens/ModbusScope.svg?branch=master)](https://travis-ci.org/jgeudens/ModbusScope)
+![ModbusScope demo](ModbusScope_demo.gif)
 
 # Project 
 
