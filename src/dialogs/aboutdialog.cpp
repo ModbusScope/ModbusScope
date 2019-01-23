@@ -18,14 +18,15 @@ AboutDialog::AboutDialog(BasicGraphView * _pGraphView, QWidget *parent) :
     connect(_pUi->btnHomepage, SIGNAL(clicked()), this, SLOT(openHomePage()));
     connect(_pUi->btnLicense, SIGNAL(clicked()), this, SLOT(openLicense()));
 
-    _pUi->lblVersion->setText(QString(tr("v%1")).arg(Util::currentVersion()));
-
     QString debugTxt;
+    QString betaTxt;
 #ifdef DEBUG
     debugTxt = QString(tr("(git: %1:%2)")).arg(GIT_BRANCH).arg(GIT_HASH);
+    betaTxt = QString(tr(" beta"));
 #endif
 
     _pUi->lblDebug->setText(debugTxt);
+    _pUi->lblVersion->setText(QString(tr("v%1%2")).arg(Util::currentVersion()).arg(betaTxt));
 
     _pUi->textAbout->setOpenExternalLinks(true);
 
