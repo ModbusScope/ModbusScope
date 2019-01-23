@@ -15,8 +15,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    connect(_pUi->btnHomepage, SIGNAL(clicked()), this, SLOT(openHomePage()));
-    connect(_pUi->btnLicense, SIGNAL(clicked()), this, SLOT(openLicense()));
+    connect(_pUi->btnHomepage, &QPushButton::clicked, this, &AboutDialog::openHomePage);
+    connect(_pUi->btnLicense, &QPushButton::clicked, this, &AboutDialog::openLicense);
 
     QString debugTxt;
     QString betaTxt;
