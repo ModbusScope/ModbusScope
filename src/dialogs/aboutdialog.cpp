@@ -6,7 +6,7 @@
 
 #include "util.h"
 
-AboutDialog::AboutDialog(BasicGraphView * _pGraphView, QWidget *parent) :
+AboutDialog::AboutDialog(QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::AboutDialog)
 {

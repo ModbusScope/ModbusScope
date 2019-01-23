@@ -450,7 +450,7 @@ void MainWindow::selectImageExportFile()
 
 void MainWindow::showAbout()
 {
-    AboutDialog aboutDialog(_pGraphView,this);
+    AboutDialog aboutDialog(this);
 
     aboutDialog.exec();
 }
