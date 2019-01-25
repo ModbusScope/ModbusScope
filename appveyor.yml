@@ -16,7 +16,9 @@ install:
   
   - cmd: set PATH=%QTDIR%\bin;%PATH%
   - cmd: set PATH=C:\Qt\Tools\mingw530_32\bin;%PATH%
+  - cmd: set PATH=C:\Program Files (x86)\Inno Setup 5;%PATH%
   - cmd: echo %PATH%
+  
   
 build_script:
   - cmd: qmake --version
@@ -24,7 +26,11 @@ build_script:
   
   - cmd: qmake ..\ModbusScope.pro
   - cmd: mingw32-make -j2
+  
+  - cmd: copy src\release\ModbusScope.exe ..\installer\
+  - cmd: compil32 /cc "..\installer\modbusscope_installer.iss"
 
 artifacts:
  - path: build\src\release\ModbusScope.exe
+ - path: installer\Output\ModbusScope_setup.exe
 
