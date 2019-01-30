@@ -1,5 +1,7 @@
 #include "graphdata.h"
 
+#include "util.h"
+
 GraphData::GraphData()
 {
     _bVisible = true;
@@ -38,7 +40,10 @@ QString GraphData::label() const
 
 void GraphData::setLabel(const QString &label)
 {
-    _label = label;
+    /* Remove separator char (used in export) from label */
+    QString cleanedLabel = QString(label).remove(Util::separatorCharacter());
+
+    _label = cleanedLabel;
 }
 
 QColor GraphData::color() const
