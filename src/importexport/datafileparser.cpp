@@ -27,26 +27,26 @@ DataFileParser::~DataFileParser()
 }
 
 // Return false on error
-bool DataFileParser::processDataFile(QString dataFile, FileData * pData)
+bool DataFileParser::processDataFile(QString dataFilename, FileData * pData)
 {
     bool bRet = true;
     QString line;
     qint32 lineIdx = 0;
     QStringList dataFileSample;
 
-    QFile * _pDataFile = new QFile(dataFile);
+    QFile dataFile(dataFilename);
 
     /* Read sample of file */
-    bRet = _pDataFile->open(QIODevice::ReadOnly | QIODevice::Text);
+    bRet = dataFile.open(QIODevice::ReadOnly | QIODevice::Text);
     if (bRet)
     {
-        _pDataStream = new QTextStream(_pDataFile);
+        _pDataStream = new QTextStream(&dataFile);
 
         loadDataFileSample(&dataFileSample);
     }
     else
     {
-        Util::showError(tr("Couldn't open data file: %1").arg(dataFile));
+        Util::showError(tr("Couldn't open data file: %1").arg(dataFilename));
     }
 
     /* Try to determine settings */

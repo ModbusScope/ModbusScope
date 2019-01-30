@@ -33,7 +33,7 @@ public:
     DataFileParser();
     ~DataFileParser();
 
-    bool processDataFile(QString dataFile, FileData * pData);
+    bool processDataFile(QString dataFilename, FileData * pData);
 
 private:
     bool parseDataLines(QList<QList<double> > &dataRows);
@@ -44,11 +44,6 @@ private:
 
 
     QTextStream * _pDataStream;
-
-    /* QFile is class variable because it closes file when it goes out-of-scope
-     * and read from _pDataStream then gives an SIGSENV error
-     */
-    QFile * _pDataFile;
 
     quint32 _expectedFields;
 
