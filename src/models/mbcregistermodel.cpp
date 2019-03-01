@@ -45,7 +45,7 @@ int MbcRegisterModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return _mbcRegisterList.size();;
+    return _mbcRegisterList.size();
 }
 
 int MbcRegisterModel::columnCount(const QModelIndex &parent) const
@@ -296,10 +296,17 @@ bool MbcRegisterModel::isAlreadyPresent(QList<MbcRegisterData> mbcRegisterList, 
 
     foreach(MbcRegisterData registerData, mbcRegisterList)
     {
-        if (registerData.registerAddress() == registerAddress)
+        /* Exclude all 32 bits and non-readable register */
+        if (
+            (!registerData.is32Bit())
+            && (registerData.isReadable())
+        )
         {
-            bFound = true;
-            break;
+            if (registerData.registerAddress() == registerAddress)
+            {
+                bFound = true;
+                break;
+            }
         }
     }
 
