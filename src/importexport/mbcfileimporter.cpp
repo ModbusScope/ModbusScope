@@ -135,6 +135,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
     QString name;
     QString addr;
     QString type;
+    QString rw;
     MbcRegisterData modbusRegister;
 
     modbusRegister.setTabIdx(tabIdx);
@@ -159,6 +160,10 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
         {
             type = child.text().toLower().trimmed();
         }
+        else if (child.tagName().toLower().trimmed() == MbcFileDefinitions::cReadWrite)
+        {
+             rw = child.text().toLower().trimmed();
+        }
         else
         {
             // unknown tag: ignore
@@ -166,11 +171,12 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
         child = child.nextSiblingElement();
     }
 
-    /* Check for empty tag or unsopperted 32 bit register */
+    /* Check for empty tag or unsupported 32 bit register */
     if (
             !name.isEmpty()
             || !addr.isEmpty()
             || !type.isEmpty()
+            || !rw.isEmpty()
     )
     {
         /* Obligated */
@@ -204,6 +210,23 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
             else
             {
                 modbusRegister.setRegisterAddress(static_cast<quint16>(addr.toUInt(&bRet)));
+            }
+        }
+
+        /* Obligated */
+        if (rw.isEmpty())
+        {
+            bRet = false;
+        }
+        else
+        {
+            if (rw.contains("r"))
+            {
+                modbusRegister.setReadable(true);
+            }
+            else
+            {
+                modbusRegister.setReadable(false);
             }
         }
 

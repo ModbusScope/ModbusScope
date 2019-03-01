@@ -200,6 +200,10 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
         {
             _mbcRegisterMetaDataList.last().tooltip = tr("Duplicate address");
         }
+        else if (!_mbcRegisterList.last().isReadable())
+        {
+            _mbcRegisterMetaDataList.last().tooltip = tr("Not readable");
+        }
         else if (_mbcRegisterList.last().is32Bit())
         {
             _mbcRegisterMetaDataList.last().tooltip = tr("32 bit register is not supported");

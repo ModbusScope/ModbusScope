@@ -10,13 +10,14 @@ MbcRegisterData::~MbcRegisterData()
 
 }
 
-MbcRegisterData::MbcRegisterData(quint16 registerAddress, bool bUnsigned, QString name, qint32 tabIdx, bool bUint32)
+MbcRegisterData::MbcRegisterData(quint16 registerAddress, bool bUnsigned, QString name, qint32 tabIdx, bool bUint32, bool bReadable)
 {
     _registerAddress = registerAddress;
     _bUnsigned = bUnsigned;
     _name = name;
     _tabIdx = tabIdx;
     _bUint32 = bUint32;
+    _bReadable = bReadable;
 }
 
 quint16 MbcRegisterData::registerAddress() const
@@ -67,4 +68,14 @@ bool MbcRegisterData::is32Bit() const
 void MbcRegisterData::set32Bit(bool bUint32)
 {
     _bUint32 = bUint32;
+}
+
+bool MbcRegisterData::isReadable() const
+{
+    return _bReadable;
+}
+
+void MbcRegisterData::setReadable(bool isReadable)
+{
+    _bReadable = isReadable;
 }
