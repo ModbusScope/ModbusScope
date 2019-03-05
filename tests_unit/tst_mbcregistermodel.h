@@ -166,7 +166,8 @@ TEST(MbcRegisterModel, fill_data)
             << MbcRegisterData(40005, false, "Test5", 0, false, true)
             << MbcRegisterData(40010, true, "Test10", 2, false, true)
             << MbcRegisterData(40011, false, "Test11", 2, false, false) // Disabled: not readable
-            << MbcRegisterData(40002, false, "Test13", 0, false, true); // Disabled: Duplicate
+            << MbcRegisterData(40002, false, "Test6", 0, false, true) // Enabled (Duplicate, but other is 32 bit so ignored)
+            << MbcRegisterData(40004, false, "Test13", 0, false, true); // Disabled: Duplicate
 
     QStringList tabList = QStringList() << QString("Tab0") << QString("Tab1") << QString("Tab2");
     QSignalSpy rowsInsertedSpy(pMbcRegisterModel, SIGNAL(rowsInserted(const QModelIndex, int, int)));
@@ -219,8 +220,13 @@ TEST(MbcRegisterModel, fill_data)
     EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), disabledFlags); // flags
 
     row = 6;
+    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), enabledFlags); // flags
+
+    row = 7;
     EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "Duplicate address");
     EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), disabledFlags); // flags
+
 
     /* Loop when possible */
     for (int rowIdx = 0; rowIdx < mbcRegisterList.size(); rowIdx++)
