@@ -144,7 +144,91 @@ TEST(MbcRegisterModel, setData)
     EXPECT_EQ(pMbcRegisterModel->data(modelIdxSecondRow, Qt::CheckStateRole), Qt::Unchecked);
 }
 
-TEST(MbcRegisterModel, fill_data)
+TEST(MbcRegisterModel, disableAlreadyStagedRegisterAddress)
+{
+    MockGraphDataModel graphDataModel;
+    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
+
+    QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
+            << MbcRegisterData(40001, true, "Test1", 0, false, true)
+            << MbcRegisterData(40001, true, "Test1_2", 2, false, true)
+            << MbcRegisterData(40002, false, "Test2", 1, true, true) // Disabled: 32 bit
+            << MbcRegisterData(40011, false, "Test11", 2, false, false); // Disabled: not readable
+    QStringList tabList = QStringList() << QString("Tab0");
+
+    EXPECT_CALL(graphDataModel, isPresent(_, _))
+        .WillRepeatedly(Return(false));
+
+    pMbcRegisterModel->fill(mbcRegisterList, tabList);
+
+    QModelIndex modelIdx = pMbcRegisterModel->index(0, 0);
+    const Qt::ItemFlags enabledFlags = Qt::ItemIsSelectable |  Qt::ItemIsEnabled;
+    const Qt::ItemFlags disabledFlags = Qt::NoItemFlags;
+
+    // *** Start all unchecked
+    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), 0);
+
+    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), enabledFlags);
+
+    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(1, cColumnAddress)), enabledFlags);
+
+
+    // *** Check first
+    modelIdx = pMbcRegisterModel->index(0, cColumnSelected);
+    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
+
+    // Check disabled second
+    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), enabledFlags);
+
+    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::ToolTipRole).toString(), "Already selected address");
+    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(1, cColumnAddress)), disabledFlags);
+
+
+    // *** Uncheck first
+    modelIdx = pMbcRegisterModel->index(0, cColumnSelected);
+    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Unchecked), Qt::CheckStateRole), true);
+
+    // Check all enabled
+    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), 0);
+
+    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), enabledFlags);
+
+    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(1, cColumnAddress)), enabledFlags);
+
+
+    // *** Check second
+    modelIdx = pMbcRegisterModel->index(1, cColumnSelected);
+    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
+
+    // Check disabled first
+    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(), "Already selected address");
+    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), disabledFlags);
+
+    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(1, cColumnAddress)), enabledFlags);
+
+
+    // *** Uncheck second
+    modelIdx = pMbcRegisterModel->index(1, cColumnSelected);
+    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Unchecked), Qt::CheckStateRole), true);
+
+    // Check all enabled
+    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), 0);
+
+    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), enabledFlags);
+
+    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(1, cColumnAddress)), enabledFlags);
+
+}
+
+TEST(MbcRegisterModel, fillData)
 {
     MockGraphDataModel graphDataModel;
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
@@ -167,7 +251,7 @@ TEST(MbcRegisterModel, fill_data)
             << MbcRegisterData(40010, true, "Test10", 2, false, true)
             << MbcRegisterData(40011, false, "Test11", 2, false, false) // Disabled: not readable
             << MbcRegisterData(40002, false, "Test6", 0, false, true) // Enabled (Duplicate, but other is 32 bit so ignored)
-            << MbcRegisterData(40004, false, "Test13", 0, false, true); // Disabled: Duplicate
+            << MbcRegisterData(40004, false, "Test13", 0, false, true); // Enabled: Is duplicate, but will only be disabled when same reg address is selected
 
     QStringList tabList = QStringList() << QString("Tab0") << QString("Tab1") << QString("Tab2");
     QSignalSpy rowsInsertedSpy(pMbcRegisterModel, SIGNAL(rowsInserted(const QModelIndex, int, int)));
@@ -224,8 +308,8 @@ TEST(MbcRegisterModel, fill_data)
     EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), enabledFlags); // flags
 
     row = 7;
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "Duplicate address");
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), disabledFlags); // flags
+    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), enabledFlags); // flags
 
 
     /* Loop when possible */
@@ -256,8 +340,6 @@ TEST(MbcRegisterModel, reset)
     EXPECT_EQ(resetSignalSpy.count(), 1);
 }
 
-
-
 TEST(MbcRegisterModel, selectedRegisterListAndCount)
 {
     MockGraphDataModel graphDataModel;
@@ -276,8 +358,6 @@ TEST(MbcRegisterModel, selectedRegisterListAndCount)
 
     // At least 2 rows required for this test
     EXPECT_GE(pMbcRegisterModel->rowCount(), 2);
-
-
 
     QList<GraphData> graphListRef;
     GraphData graphData;

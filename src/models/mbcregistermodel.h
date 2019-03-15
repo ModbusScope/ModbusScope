@@ -47,9 +47,10 @@ private:
             bool bSelected;
             QString tooltip;
             bool bEnabled;
+            bool bAlreadyStaged;
         };
 
-        bool isAlreadyPresent(QList<MbcRegisterData> mbcRegisterList, quint16 registerAddress);
+        void updateAlreadySelected();
 
         QList<MbcRegisterData> _mbcRegisterList;
         QList<struct MbcMetaData> _mbcRegisterMetaDataList;

@@ -144,6 +144,8 @@ bool MbcRegisterModel::setData(const QModelIndex & index, const QVariant & value
         {
             _mbcRegisterMetaDataList[index.row()].bSelected = value == Qt::Checked;
 
+            updateAlreadySelected();
+
             bRet = true;
         }
         break;
@@ -156,7 +158,7 @@ bool MbcRegisterModel::setData(const QModelIndex & index, const QVariant & value
     if (bRet)
     {
         // Notify view(s) of change
-        emit dataChanged(index, index);
+        emit dataChanged(this->index(0, 0), this->index(rowCount() - 1, columnCount() - 1));
     }
 
     return bRet;
@@ -188,19 +190,14 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
     for(qint32 idx = 0; idx < mbcRegisterList.size(); idx++)
     {
         // Get result before adding to list
-        const bool bDuplicate = isAlreadyPresent(_mbcRegisterList, mbcRegisterList[idx].registerAddress());
         const uint16_t bitmask = 0xFFFF;
 
         _mbcRegisterList.append(mbcRegisterList[idx]);
 
-        _mbcRegisterMetaDataList.append( {false, QString(""), false} );
+        _mbcRegisterMetaDataList.append( {false, QString(""), false, false} );
 
         /* Disable all 32 bits registers and duplicates */
-        if (bDuplicate)
-        {
-            _mbcRegisterMetaDataList.last().tooltip = tr("Duplicate address");
-        }
-        else if (!_mbcRegisterList.last().isReadable())
+        if (!_mbcRegisterList.last().isReadable())
         {
             _mbcRegisterMetaDataList.last().tooltip = tr("Not readable");
         }
@@ -217,6 +214,8 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
             _mbcRegisterMetaDataList.last().bEnabled = true;
         }
     }
+
+    updateAlreadySelected();
 
     /* Call function to trigger view update */
     endInsertRows();
@@ -242,7 +241,7 @@ Qt::ItemFlags MbcRegisterModel::flags(const QModelIndex & index) const
         flags = Qt::ItemIsUserCheckable;
     }
 
-    if (_mbcRegisterMetaDataList[index.row()].bEnabled)
+    if (_mbcRegisterMetaDataList[index.row()].bEnabled  && !_mbcRegisterMetaDataList[index.row()].bAlreadyStaged)
     {
         flags |= Qt::ItemIsSelectable |  Qt::ItemIsEnabled;
     }
@@ -290,25 +289,42 @@ quint32 MbcRegisterModel::selectedRegisterCount()
     return cnt;
 }
 
-bool MbcRegisterModel::isAlreadyPresent(QList<MbcRegisterData> mbcRegisterList, quint16 registerAddress)
+void MbcRegisterModel::updateAlreadySelected()
 {
-    bool bFound = false;
-
-    foreach(MbcRegisterData registerData, mbcRegisterList)
+    for (int32_t idx = 0; idx < _mbcRegisterMetaDataList.size(); idx++)
     {
-        /* Exclude all 32 bits and non-readable register */
-        if (
-            (!registerData.is32Bit())
-            && (registerData.isReadable())
-        )
+        bool bFound = false;
+
+        for (int32_t idxSelected = 0; idxSelected < _mbcRegisterMetaDataList.size(); idxSelected++)
         {
-            if (registerData.registerAddress() == registerAddress)
+            if (_mbcRegisterMetaDataList[idxSelected].bSelected)
             {
-                bFound = true;
-                break;
+
+                if (idx != idxSelected)
+                {
+                    if (_mbcRegisterList[idx].registerAddress() == _mbcRegisterList[idxSelected].registerAddress())
+                    {
+                        bFound = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    /* Skip same id's */
+                }
             }
         }
-    }
 
-    return bFound;
+        /* Mark index as already selected (or not) */
+        if (bFound && !_mbcRegisterMetaDataList[idx].bSelected)
+        {
+            _mbcRegisterMetaDataList[idx].bAlreadyStaged = true;
+            _mbcRegisterMetaDataList[idx].tooltip = tr("Already selected address");
+        }
+        else
+        {
+            _mbcRegisterMetaDataList[idx].bAlreadyStaged = false;
+            _mbcRegisterMetaDataList[idx].tooltip = tr("");
+        }
+    }
 }
