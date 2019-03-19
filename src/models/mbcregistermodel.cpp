@@ -158,7 +158,7 @@ bool MbcRegisterModel::setData(const QModelIndex & index, const QVariant & value
     if (bRet)
     {
         // Notify view(s) of change
-        emit dataChanged(this->index(0, 0), this->index(rowCount() - 1, columnCount() - 1));
+        emit dataChanged(this->index(0, 0), this->index(rowCount() - 1, 0));
     }
 
     return bRet;
@@ -315,16 +315,19 @@ void MbcRegisterModel::updateAlreadySelected()
             }
         }
 
-        /* Mark index as already selected (or not) */
-        if (bFound && !_mbcRegisterMetaDataList[idx].bSelected)
+        if (_mbcRegisterMetaDataList[idx].bEnabled)
         {
-            _mbcRegisterMetaDataList[idx].bAlreadyStaged = true;
-            _mbcRegisterMetaDataList[idx].tooltip = tr("Already selected address");
-        }
-        else
-        {
-            _mbcRegisterMetaDataList[idx].bAlreadyStaged = false;
-            _mbcRegisterMetaDataList[idx].tooltip = tr("");
+            /* Mark index as already selected (or not) */
+            if (bFound && !_mbcRegisterMetaDataList[idx].bSelected)
+            {
+                _mbcRegisterMetaDataList[idx].bAlreadyStaged = true;
+                _mbcRegisterMetaDataList[idx].tooltip = tr("Already selected address");
+            }
+            else
+            {
+                _mbcRegisterMetaDataList[idx].bAlreadyStaged = false;
+                _mbcRegisterMetaDataList[idx].tooltip = tr("");
+            }
         }
     }
 }

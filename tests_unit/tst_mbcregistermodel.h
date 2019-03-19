@@ -114,7 +114,6 @@ TEST(MbcRegisterModel, setData)
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
     fillModel(&graphDataModel, pMbcRegisterModel, false);
 
-
     QSignalSpy spy(pMbcRegisterModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
     QModelIndex modelIdx = pMbcRegisterModel->index(0, cColumnSelected);
 
@@ -137,8 +136,8 @@ TEST(MbcRegisterModel, setData)
     EXPECT_EQ(pMbcRegisterModel->setData(modelIdxFirstRow, QVariant(Qt::Checked), Qt::CheckStateRole), true);
     EXPECT_EQ(spy.count(), 1);
     QList<QVariant> arguments = spy.takeFirst(); // take the first signal
-    EXPECT_EQ(qvariant_cast<QModelIndex>(arguments.at(0)).row(), 0);
-    EXPECT_EQ(qvariant_cast<QModelIndex>(arguments.at(1)).row(), 0);
+    EXPECT_EQ(qvariant_cast<QModelIndex>(arguments.at(0)).row(), 0); /* First argument (start index) */
+    EXPECT_EQ(qvariant_cast<QModelIndex>(arguments.at(1)).row(), 1); /* Second argument (end index) */
 
     EXPECT_EQ(pMbcRegisterModel->data(modelIdxFirstRow, Qt::CheckStateRole), Qt::Checked);
     EXPECT_EQ(pMbcRegisterModel->data(modelIdxSecondRow, Qt::CheckStateRole), Qt::Unchecked);
