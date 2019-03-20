@@ -22,6 +22,7 @@ public:
         double multiplyFactor;
         quint16 bitmask;
         quint32 shift;
+        quint8 connectionId;
 
         bool bColor;
         QColor color;

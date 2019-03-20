@@ -55,7 +55,7 @@ void TestModbusMaster::singleRequestSuccess()
 {
     _pTestSlaveData->setRegisterState(0, true);
 
-    ModbusMaster modbusMaster(&_settingsModel);
+    ModbusMaster modbusMaster(&_settingsModel, 0); // TODO
 
     QList<quint16> registerList = QList<quint16>() << 40001;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -68,7 +68,7 @@ void TestModbusMaster::singleRequestSuccess()
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
-        QCOMPARE(arguments.count(), 1);
+        QCOMPARE(arguments.count(), 2);
 
         QVariant varResultList = arguments.first();
         QVERIFY((varResultList.canConvert<QMap<quint16,ModbusResult> >()));
@@ -84,7 +84,7 @@ void TestModbusMaster::singleRequestGatewayNotAvailable()
 {
     _pTestSlaveModbus->setException(QModbusPdu::GatewayTargetDeviceFailedToRespond, true);
 
-    ModbusMaster modbusMaster(&_settingsModel);
+    ModbusMaster modbusMaster(&_settingsModel, 0); // TODO: FIX this
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
     QList<quint16> registerList = QList<quint16>() << 40001;
 
@@ -96,7 +96,7 @@ void TestModbusMaster::singleRequestGatewayNotAvailable()
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
-        QCOMPARE(arguments.count(), 1);
+        QCOMPARE(arguments.count(), 2);
 
         QVariant varResultList = arguments.first();
         QVERIFY((varResultList.canConvert<QMap<quint16,ModbusResult> >()));
@@ -111,7 +111,7 @@ void TestModbusMaster::singleRequestNoResponse()
 {
     _pTestSlaveModbus->disconnectDevice();
 
-    ModbusMaster modbusMaster(&_settingsModel);
+    ModbusMaster modbusMaster(&_settingsModel, 0); // TODO: FIX this
 
     QList<quint16> registerList = QList<quint16>() << 40001;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -124,7 +124,7 @@ void TestModbusMaster::singleRequestNoResponse()
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
-        QCOMPARE(arguments.count(), 1);
+        QCOMPARE(arguments.count(), 2);
 
         QVariant varResultList = arguments.first();
         QVERIFY((varResultList.canConvert<QMap<quint16,ModbusResult> >()));
@@ -137,7 +137,7 @@ void TestModbusMaster::singleRequestNoResponse()
 
 void TestModbusMaster::singleRequestInvalidAddressOnce()
 {
-    ModbusMaster modbusMaster(&_settingsModel);
+    ModbusMaster modbusMaster(&_settingsModel, 0); // TODO: FIX this
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     QList<quint16> registerList = QList<quint16>() << 40001 << 40002 << 40003;
@@ -157,7 +157,7 @@ void TestModbusMaster::singleRequestInvalidAddressOnce()
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
-        QCOMPARE(arguments.count(), 1);
+        QCOMPARE(arguments.count(), 2);
 
         QVariant varResultList = arguments.first();
         QVERIFY((varResultList.canConvert<QMap<quint16,ModbusResult> >()));
@@ -179,7 +179,7 @@ void TestModbusMaster::singleRequestInvalidAddressPersistent()
 {
     _pTestSlaveModbus->setException(QModbusPdu::IllegalDataAddress, true);
 
-    ModbusMaster modbusMaster(&_settingsModel);
+    ModbusMaster modbusMaster(&_settingsModel, 0); // TODO: FIX this
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     QList<quint16> registerList = QList<quint16>() << 40001;
@@ -192,7 +192,7 @@ void TestModbusMaster::singleRequestInvalidAddressPersistent()
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
-        QCOMPARE(arguments.count(), 1);
+        QCOMPARE(arguments.count(), 2);
 
         QVariant varResultList = arguments.first();
         QVERIFY((varResultList.canConvert<QMap<quint16,ModbusResult> >()));
@@ -215,7 +215,7 @@ void TestModbusMaster::multiRequestSuccess()
     _pTestSlaveData->setRegisterValue(1, 1);
     _pTestSlaveData->setRegisterValue(3, 3);
 
-    ModbusMaster modbusMaster(&_settingsModel);
+    ModbusMaster modbusMaster(&_settingsModel, 0); // TODO: FIX this
 
     QList<quint16> registerList = QList<quint16>() << 40001 << 40002 << 40004;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -228,7 +228,7 @@ void TestModbusMaster::multiRequestSuccess()
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
-        QCOMPARE(arguments.count(), 1);
+        QCOMPARE(arguments.count(), 2);
 
         QVariant varResultList = arguments.first();
         QVERIFY((varResultList.canConvert<QMap<quint16,ModbusResult> >()));
@@ -258,7 +258,7 @@ void TestModbusMaster::multiRequestGatewayNotAvailable()
     _pTestSlaveData->setRegisterValue(1, 1);
     _pTestSlaveData->setRegisterValue(3, 3);
 
-    ModbusMaster modbusMaster(&_settingsModel);
+    ModbusMaster modbusMaster(&_settingsModel, 0); // TODO: FIX this
 
     QList<quint16> registerList = QList<quint16>() << 40001 << 40002 << 40004;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -271,7 +271,7 @@ void TestModbusMaster::multiRequestGatewayNotAvailable()
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
-        QCOMPARE(arguments.count(), 1);
+        QCOMPARE(arguments.count(), 2);
 
         QVariant varResultList = arguments.first();
         QVERIFY((varResultList.canConvert<QMap<quint16,ModbusResult> >()));
@@ -297,7 +297,7 @@ void TestModbusMaster::multiRequestNoResponse()
     _pTestSlaveData->setRegisterValue(1, 1);
     _pTestSlaveData->setRegisterValue(3, 3);
 
-    ModbusMaster modbusMaster(&_settingsModel);
+    ModbusMaster modbusMaster(&_settingsModel, 0); // TODO: FIX this
 
     QList<quint16> registerList = QList<quint16>() << 40001 << 40002 << 40004;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -310,7 +310,7 @@ void TestModbusMaster::multiRequestNoResponse()
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
-        QCOMPARE(arguments.count(), 1);
+        QCOMPARE(arguments.count(), 2);
 
         QVariant varResultList = arguments.first();
         QVERIFY((varResultList.canConvert<QMap<quint16,ModbusResult> >()));
@@ -335,7 +335,7 @@ void TestModbusMaster::multiRequestInvalidAddress()
     _pTestSlaveData->setRegisterValue(1, 1);
     _pTestSlaveData->setRegisterValue(3, 3);
 
-    ModbusMaster modbusMaster(&_settingsModel);
+    ModbusMaster modbusMaster(&_settingsModel, 0); // TODO: FIX this
 
     QList<quint16> registerList = QList<quint16>() << 40001 << 40002 << 40004;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -348,7 +348,7 @@ void TestModbusMaster::multiRequestInvalidAddress()
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
-        QCOMPARE(arguments.count(), 1);
+        QCOMPARE(arguments.count(), 2);
 
         QVariant varResultList = arguments.first();
         QVERIFY((varResultList.canConvert<QMap<quint16,ModbusResult> >()));

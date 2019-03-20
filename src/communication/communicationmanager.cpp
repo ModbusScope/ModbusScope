@@ -1,4 +1,4 @@
-#include <QTimer>
+
 #include <QDateTime>
 
 #include "modbusconnection.h"
@@ -23,17 +23,21 @@ CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiMo
     _pErrorLogModel = pErrorLogModel;
 
     /* Setup modbus master */
-    _master = new ModbusMaster(_pSettingsModel);
+    for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++) // TODO: Set max modbus master count
+    {
+        auto modbusData = new ModbusMasterData(new ModbusMaster(_pSettingsModel, i));
+        _modbusMasters.append(modbusData);
 
-    connect(_master, SIGNAL(modbusPollDone(QMap<quint16, ModbusResult>)), this, SLOT(handlePollDone(QMap<quint16, ModbusResult>)));
+        connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusPollDone, this, &CommunicationManager::handlePollDone);
 
-    connect(_master, SIGNAL(modbusLogError(QString)), this, SLOT(handleModbusError(QString)));
-    connect(_master, SIGNAL(modbusLogInfo(QString)), this, SLOT(handleModbusInfo(QString)));
+        connect(_modbusMasters.last()->pModbusMaster, SIGNAL(modbusLogError(QString)), this, SLOT(handleModbusError(QString)));
+        connect(_modbusMasters.last()->pModbusMaster, SIGNAL(modbusLogInfo(QString)), this, SLOT(handleModbusInfo(QString)));
 
-    connect(_master, QOverload<quint32, quint32>::of(&ModbusMaster::modbusAddToStats),
-        [=](quint32 successes, quint32 errors){
-            _pGuiModel->setCommunicationStats(_pGuiModel->communicationSuccessCount() + successes, _pGuiModel->communicationErrorCount() + errors);
-        });
+        connect(_modbusMasters.last()->pModbusMaster, QOverload<quint32, quint32>::of(&ModbusMaster::modbusAddToStats),
+            [=](quint32 successes, quint32 errors){
+                _pGuiModel->setCommunicationStats(_pGuiModel->communicationSuccessCount() + successes, _pGuiModel->communicationErrorCount() + errors);
+            });
+    }
 }
 
 CommunicationManager::~CommunicationManager()
@@ -70,57 +74,110 @@ void CommunicationManager::resetCommunicationStats()
     }
 }
 
-void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> resultMap)
+void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialResultMap, quint8 connectionId)
 {
-    // Restart timer when previous request has been handled
-    uint waitInterval;
-    const uint passedInterval = QDateTime::currentMSecsSinceEpoch() - _lastPollStart;
+    bool firstResult = false;
+    bool lastResult = false;
 
-    if (passedInterval > _pSettingsModel->pollTime())
+    quint8 activeCnt = 0;
+    for(quint8 i = 0; i < SettingsModel::CONNECTION_ID_CNT; i++)
     {
-        // Poll again immediatly
-        waitInterval = 1;
-    }
-    else
-    {
-        // Set waitInterval to remaining time
-        waitInterval = _pSettingsModel->pollTime() - passedInterval;
-    }
-
-    _pPollTimer->singleShot(waitInterval, this, SLOT(readData()));
-
-
-    /* Check response with current active registers, because it is possible that the graphs have changed during request */
-
-
-    // Get list of active graph indexes
-    bool bOk = true;
-    QList<quint16> activeIndexList;
-    _pGraphDataModel->activeGraphIndexList(&activeIndexList);
-
-    // Process values
-    QList<double> processedValues;
-    QList<bool> successList;
-
-    foreach(quint16 graphIndex, activeIndexList)
-    {
-        const quint16 registerAddress = _pGraphDataModel->registerAddress(graphIndex);
-        if (resultMap.contains(registerAddress))
+        if (_modbusMasters[i]->bActive)
         {
-            processedValues.append(processValue(graphIndex, resultMap[registerAddress].value()));
-            successList.append(resultMap[registerAddress].isSuccess());
+            activeCnt++;
+        }
+    }
+
+    if (activeCnt == _activeMastersCount)
+    {
+        /* First results */
+        firstResult = true;
+    }
+
+    if (activeCnt == 1)
+    {
+        /* Last result */
+        lastResult = true;
+    }
+
+    if (firstResult)
+    {
+        // Clear result list
+        _resultMap.clear();
+    }
+
+    // Always add data to result map
+    QMapIterator<quint16, ModbusResult> i(partialResultMap);
+    while (i.hasNext())
+    {
+        i.next();
+        _resultMap.insert(i.key(), i.value());
+    }
+
+    if (lastResult)
+    {
+        /* Check all register have values and propagate result if correct */
+
+        bool bOk = true;
+        QList<quint16> activeIndexList;
+        _pGraphDataModel->activeGraphIndexList(&activeIndexList);
+
+        // Process values
+        QList<double> processedValues;
+        QList<bool> successList;
+
+        // Process values
+        if (activeIndexList.count() == _resultMap.count())
+        {
+            foreach(quint16 graphIndex, activeIndexList)
+            {
+                const quint16 registerAddress = _pGraphDataModel->registerAddress(graphIndex);
+                if (_resultMap.contains(registerAddress))
+                {
+                    processedValues.append(processValue(graphIndex, _resultMap[registerAddress].value()));
+                    successList.append(_resultMap[registerAddress].isSuccess());
+                }
+                else
+                {
+                    bOk = false;
+                    break;
+                }
+            }
         }
         else
         {
             bOk = false;
-            break;
+        }
+
+        if (bOk)
+        {
+            // propagate processed data
+            emit handleReceivedData(successList, processedValues);
         }
     }
 
-    if (bOk)
+    // Set master as inactive
+    _modbusMasters[connectionId]->bActive = false;
+
+    if (lastResult)
     {
-        // propagate processed data
-        emit handleReceivedData(successList, processedValues);
+        // Restart timer when previous request has been handled
+        uint waitInterval;
+        const uint passedInterval = QDateTime::currentMSecsSinceEpoch() - _lastPollStart;
+
+        if (passedInterval > _pSettingsModel->pollTime())
+        {
+            // Poll again immediatly
+            waitInterval = 1;
+        }
+        else
+        {
+            // Set waitInterval to remaining time
+            waitInterval = _pSettingsModel->pollTime() - passedInterval;
+        }
+
+        _pPollTimer->singleShot(waitInterval, this, SLOT(readData()));
+
     }
 }
 
@@ -154,10 +211,40 @@ void CommunicationManager::readData()
     {
         _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 
-        QList<quint16> regAddrList;
-        _pGraphDataModel->activeGraphAddresList(&regAddrList);
+        /* Strange construction is required to avoid race condition:
+         *
+         * Result from first master is in while _activeMastersCount is still set at 1
+         */
 
-        _master->readRegisterList(regAddrList);
+        QList<quint16> regAddrList0;
+        QList<quint16> regAddrList1;
+        _activeMastersCount = 0;
+
+        _pGraphDataModel->activeGraphAddresList(&regAddrList0, 0);
+        _pGraphDataModel->activeGraphAddresList(&regAddrList1, 1);
+
+        if (regAddrList0.count() > 0)
+        {
+            _activeMastersCount++;
+        }
+
+        if (regAddrList1.count() > 0)
+        {
+            _activeMastersCount++;
+        }
+
+
+        if (regAddrList0.count() > 0)
+        {
+            _modbusMasters[0]->bActive = true;
+            _modbusMasters[0]->pModbusMaster->readRegisterList(regAddrList0);
+        }
+
+        if (regAddrList1.count() > 0)
+        {
+            _modbusMasters[1]->bActive = true;
+            _modbusMasters[1]->pModbusMaster->readRegisterList(regAddrList1);
+        }
     }
 }
 

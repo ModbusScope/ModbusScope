@@ -126,6 +126,7 @@ void ProjectFileExporter::createRegisterTag(QDomElement * pParentElement, qint32
     addTextNode(ProjectFileDefinitions::cColorTag, _pGraphDataModel->color(idx).name(), &registerElement);
     addTextNode(ProjectFileDefinitions::cBitmaskTag, QString("0x%1").arg(_pGraphDataModel->bitmask(idx), 0, 16), &registerElement);
     addTextNode(ProjectFileDefinitions::cShiftTag, QString("%1").arg(_pGraphDataModel->shift(idx)), &registerElement);
+    addTextNode(ProjectFileDefinitions::cConnectionIdTag, QString("%1").arg(_pGraphDataModel->connectionId(idx)), &registerElement);
 
     pParentElement->appendChild(registerElement);
 }

@@ -138,6 +138,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGraphDataModel, SIGNAL(registerAddressChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
     connect(_pGraphDataModel, SIGNAL(bitmaskChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
     connect(_pGraphDataModel, SIGNAL(shiftChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
+    connect(_pGraphDataModel, SIGNAL(connectionIdChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
     connect(_pGraphDataModel, SIGNAL(added(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
     connect(_pGraphDataModel, SIGNAL(removed(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
 
@@ -233,13 +234,17 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGraphDataModel->add();
     _pGraphDataModel->add();
 
-    _pGraphDataModel->setActive(2, false);
+    //_pGraphDataModel->setActive(2, false);
 
     _pSettingsModel->setPollTime(1000);
 
-    //_pSettingsModel->setIpAddress("192.168.0.142");
-    _pSettingsModel->setIpAddress("127.0.0.1");
-    _pSettingsModel->setPort(5020);
+    _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_0, "192.168.0.142");
+    _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_1, "192.168.0.142");
+
+    //_pSettingsModel->setIpAddress("127.0.0.1");
+
+    _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_0, 5020);
+    _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_1, 5020);
 #endif
 
 }
@@ -1125,6 +1130,7 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
         rowData.setMultiplyFactor(pProjectSettings->scope.registerList[i].multiplyFactor);
         rowData.setColor(pProjectSettings->scope.registerList[i].color);
         rowData.setShift(pProjectSettings->scope.registerList[i].shift);
+        rowData.setConnectionId(pProjectSettings->scope.registerList[i].connectionId);
 
         _pGraphDataModel->add(rowData);
     }
