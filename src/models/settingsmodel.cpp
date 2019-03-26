@@ -5,7 +5,7 @@ SettingsModel::SettingsModel(QObject *parent) :
     QObject(parent)
 {
 
-    for(int i = 0; i < CONNECTION_ID_CNT; i++)
+    for(quint8 i = 0; i < CONNECTION_ID_CNT; i++)
     {
         ConnectionSettings connectionSettings;
 
@@ -17,10 +17,6 @@ SettingsModel::SettingsModel(QObject *parent) :
 
         _connectionSettings.append(connectionSettings);
     }
-
-    // TODO: remove hardcoded
-    _connectionSettings[CONNECTION_ID_0].slaveId = 1;
-    _connectionSettings[CONNECTION_ID_1].slaveId = 2;
 
     _pollTime = 250;
     _bAbsoluteTimes = false;
@@ -38,12 +34,16 @@ void SettingsModel::triggerUpdate(void)
     emit pollTimeChanged();
     emit writeDuringLogChanged();
     emit writeDuringLogFileChanged();
-    emit ipChanged();
-    emit portChanged();
-    emit slaveIdChanged();
-    emit timeoutChanged();
     emit absoluteTimesChanged();
-    emit consecutiveMaxChanged();
+
+    for(quint8 i = 0; i < CONNECTION_ID_CNT; i++)
+    {
+        emit ipChanged(i);
+        emit portChanged(i);
+        emit slaveIdChanged(i);
+        emit timeoutChanged(i);
+        emit consecutiveMaxChanged(i);
+    }
 }
 
 void SettingsModel::setPollTime(quint32 pollTime)
@@ -79,7 +79,7 @@ void SettingsModel::setConsecutiveMax(quint8 max)
     if (_connectionSettings[CONNECTION_ID_0].consecutiveMax != max)
     {
         _connectionSettings[CONNECTION_ID_0].consecutiveMax = max;
-        emit consecutiveMaxChanged();
+        emit consecutiveMaxChanged(CONNECTION_ID_0);
     }
 }
 
@@ -93,7 +93,7 @@ void SettingsModel::setConsecutiveMax(quint8 connectionId, quint8 max)
     if (_connectionSettings[connectionId].consecutiveMax != max)
     {
         _connectionSettings[connectionId].consecutiveMax = max;
-        emit consecutiveMaxChanged();
+        emit consecutiveMaxChanged(connectionId);
     }
 }
 
@@ -150,7 +150,7 @@ void SettingsModel::setIpAddress(QString ip)
     if (_connectionSettings[CONNECTION_ID_0].ipAddress != ip)
     {
         _connectionSettings[CONNECTION_ID_0].ipAddress = ip;
-        emit ipChanged();
+        emit ipChanged(CONNECTION_ID_0);
     }
 }
 
@@ -164,7 +164,7 @@ void SettingsModel::setIpAddress(quint8 connectionId, QString ip)
     if (_connectionSettings[connectionId].ipAddress != ip)
     {
         _connectionSettings[connectionId].ipAddress = ip;
-        emit ipChanged();
+        emit ipChanged(connectionId);
     }
 }
 
@@ -188,7 +188,7 @@ void SettingsModel::setPort(quint16 port)
     if (_connectionSettings[CONNECTION_ID_0].port != port)
     {
         _connectionSettings[CONNECTION_ID_0].port = port;
-        emit portChanged();
+        emit portChanged(CONNECTION_ID_0);
     }
 }
 
@@ -202,7 +202,7 @@ void SettingsModel::setPort(quint8 connectionId, quint16 port)
     if (_connectionSettings[connectionId].port != port)
     {
         _connectionSettings[connectionId].port = port;
-        emit portChanged();
+        emit portChanged(connectionId);
     }
 }
 
@@ -241,7 +241,7 @@ void SettingsModel::setSlaveId(quint8 id)
     if (_connectionSettings[CONNECTION_ID_0].slaveId != id)
     {
         _connectionSettings[CONNECTION_ID_0].slaveId = id;
-        emit slaveIdChanged();
+        emit slaveIdChanged(CONNECTION_ID_0);
     }
 }
 
@@ -255,7 +255,7 @@ void SettingsModel::setSlaveId(quint8 connectionId, quint8 id)
     if (_connectionSettings[connectionId].slaveId != id)
     {
         _connectionSettings[connectionId].slaveId = id;
-        emit slaveIdChanged();
+        emit slaveIdChanged(connectionId);
     }
 }
 
@@ -279,7 +279,7 @@ void SettingsModel::setTimeout(quint32 timeout)
     if (_connectionSettings[CONNECTION_ID_0].timeout != timeout)
     {
         _connectionSettings[CONNECTION_ID_0].timeout = timeout;
-        emit timeoutChanged();
+        emit timeoutChanged(CONNECTION_ID_0);
     }
 }
 
@@ -293,7 +293,7 @@ void SettingsModel::setTimeout(quint8 connectionId, quint32 timeout)
     if (_connectionSettings[connectionId].timeout != timeout)
     {
         _connectionSettings[connectionId].timeout = timeout;
-        emit timeoutChanged();
+        emit timeoutChanged(connectionId);
     }
 }
 

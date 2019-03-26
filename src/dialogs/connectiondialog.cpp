@@ -14,11 +14,11 @@ ConnectionDialog::ConnectionDialog(SettingsModel * pSettingsModel, QWidget *pare
 
     _pSettingsModel = pSettingsModel;
 
-    connect(_pSettingsModel, SIGNAL(ipChanged()), this, SLOT(updateIp()));
-    connect(_pSettingsModel, SIGNAL(portChanged()), this, SLOT(updatePort()));
-    connect(_pSettingsModel, SIGNAL(slaveIdChanged()), this, SLOT(updateSlaveId()));
-    connect(_pSettingsModel, SIGNAL(timeoutChanged()), this, SLOT(updateTimeout()));
-    connect(_pSettingsModel, SIGNAL(consecutiveMaxChanged()), this, SLOT(updateConsecutiveMax()));
+    connect(_pSettingsModel, &SettingsModel::ipChanged, this, &ConnectionDialog::updateIp);
+    connect(_pSettingsModel, &SettingsModel::portChanged, this, &ConnectionDialog::updatePort);
+    connect(_pSettingsModel, &SettingsModel::slaveIdChanged, this, &ConnectionDialog::updateSlaveId);
+    connect(_pSettingsModel, &SettingsModel::timeoutChanged, this, &ConnectionDialog::updateTimeout);
+    connect(_pSettingsModel, &SettingsModel::consecutiveMaxChanged, this, &ConnectionDialog::updateConsecutiveMax);
 }
 
 ConnectionDialog::~ConnectionDialog()
@@ -26,29 +26,65 @@ ConnectionDialog::~ConnectionDialog()
     delete _pUi;
 }
 
-void ConnectionDialog::updateIp()
+void ConnectionDialog::updateIp(quint8 connectionId)
 {
-    _pUi->lineIP->setText(_pSettingsModel->ipAddress());
+    if (connectionId == SettingsModel::CONNECTION_ID_0)
+    {
+        _pUi->lineIP->setText(_pSettingsModel->ipAddress(connectionId));
+    }
+    else
+    {
+        _pUi->lineIP_2->setText(_pSettingsModel->ipAddress(connectionId));
+    }
 }
 
-void ConnectionDialog::updatePort()
+void ConnectionDialog::updatePort(quint8 connectionId)
 {
-    _pUi->spinPort->setValue(_pSettingsModel->port());
+    if (connectionId == SettingsModel::CONNECTION_ID_0)
+    {
+        _pUi->spinPort->setValue(_pSettingsModel->port(connectionId));
+    }
+    else
+    {
+        _pUi->spinPort_2->setValue(_pSettingsModel->port(connectionId));
+    }
 }
 
-void ConnectionDialog::updateSlaveId()
+void ConnectionDialog::updateSlaveId(quint8 connectionId)
 {
-    _pUi->spinSlaveId->setValue(_pSettingsModel->slaveId());
+    if (connectionId == SettingsModel::CONNECTION_ID_0)
+    {
+        _pUi->spinSlaveId->setValue(_pSettingsModel->slaveId(connectionId));
+    }
+    else
+    {
+        _pUi->spinSlaveId_2->setValue(_pSettingsModel->slaveId(connectionId));
+    }
 }
 
-void ConnectionDialog::updateTimeout()
+void ConnectionDialog::updateTimeout(quint8 connectionId)
 {
-    _pUi->spinTimeout->setValue(_pSettingsModel->timeout());
+    if (connectionId == SettingsModel::CONNECTION_ID_0)
+    {
+        _pUi->spinTimeout->setValue(static_cast<int>(_pSettingsModel->timeout(connectionId)));
+    }
+    else
+    {
+        _pUi->spinTimeout_2->setValue(static_cast<int>(_pSettingsModel->timeout(connectionId)));
+    }
+
 }
 
-void ConnectionDialog::updateConsecutiveMax()
+void ConnectionDialog::updateConsecutiveMax(quint8 connectionId)
 {
-    _pUi->spinConsecutiveMax->setValue(_pSettingsModel->consecutiveMax());
+    if (connectionId == SettingsModel::CONNECTION_ID_0)
+    {
+        _pUi->spinConsecutiveMax->setValue(_pSettingsModel->consecutiveMax(connectionId));
+    }
+    else
+    {
+        _pUi->spinConsecutiveMax_2->setValue(_pSettingsModel->consecutiveMax(connectionId));
+    }
 }
 
 void ConnectionDialog::done(int r)
@@ -57,11 +93,17 @@ void ConnectionDialog::done(int r)
 
     if(QDialog::Accepted == r)  // ok was pressed
     {
-        _pSettingsModel->setIpAddress(_pUi->lineIP->text());
-        _pSettingsModel->setPort(_pUi->spinPort->text().toInt());
-        _pSettingsModel->setSlaveId(_pUi->spinSlaveId->text().toInt());
-        _pSettingsModel->setTimeout(_pUi->spinTimeout->text().toUInt());
-        _pSettingsModel->setConsecutiveMax(_pUi->spinConsecutiveMax->text().toUInt());
+        _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_0, _pUi->lineIP->text());
+        _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_0, _pUi->spinPort->text().toUInt());
+        _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_0, _pUi->spinSlaveId->text().toInt());
+        _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_0, _pUi->spinTimeout->text().toUInt());
+        _pSettingsModel->setConsecutiveMax(SettingsModel::CONNECTION_ID_0, _pUi->spinConsecutiveMax->text().toUInt());
+
+        _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_1, _pUi->lineIP_2->text());
+        _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_1, _pUi->spinPort_2->text().toUInt());
+        _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_1, _pUi->spinSlaveId_2->text().toUInt());
+        _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_1, _pUi->spinTimeout_2->text().toUInt());
+        _pSettingsModel->setConsecutiveMax(SettingsModel::CONNECTION_ID_1, _pUi->spinConsecutiveMax_2->text().toUInt());
 
         // Validate the data
         //bValid = validateSettingsData();

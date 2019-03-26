@@ -16,17 +16,17 @@ class ConnectionDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ConnectionDialog(SettingsModel * pSettingsModel, QWidget *parent = 0);
+    explicit ConnectionDialog(SettingsModel * pSettingsModel, QWidget *parent = nullptr);
     ~ConnectionDialog();
 
 private slots:
     void done(int r);
 
-    void updateIp();
-    void updatePort();
-    void updateSlaveId();
-    void updateTimeout();
-    void updateConsecutiveMax();
+    void updateIp(quint8 connectionId);
+    void updatePort(quint8 connectionId);
+    void updateSlaveId(quint8 connectionId);
+    void updateTimeout(quint8 connectionId);
+    void updateConsecutiveMax(quint8 connectionId);
 
 private:
     Ui::ConnectionDialog * _pUi;

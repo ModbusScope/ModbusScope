@@ -71,12 +71,13 @@ signals:
     void pollTimeChanged();
     void writeDuringLogChanged();
     void writeDuringLogFileChanged();
-    void ipChanged();
-    void portChanged();
-    void slaveIdChanged();
-    void timeoutChanged();
     void absoluteTimesChanged();
-    void consecutiveMaxChanged();
+
+    void ipChanged(quint8 connectionId);
+    void portChanged(quint8 connectionId);
+    void slaveIdChanged(quint8 connectionId);
+    void timeoutChanged(quint8 connectionId);
+    void consecutiveMaxChanged(quint8 connectionId);
 
 private:
 
