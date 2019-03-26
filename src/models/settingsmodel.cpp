@@ -21,7 +21,9 @@ SettingsModel::SettingsModel(QObject *parent) :
     _pollTime = 250;
     _bAbsoluteTimes = false;
     _bWriteDuringLog = true;
-    _writeDuringLogFile = SettingsModel::defaultLogPath();   
+    _writeDuringLogFile = SettingsModel::defaultLogPath();
+
+    _bSecondConnectionState = false;
 }
 
 SettingsModel::~SettingsModel()
@@ -44,6 +46,8 @@ void SettingsModel::triggerUpdate(void)
         emit timeoutChanged(i);
         emit consecutiveMaxChanged(i);
     }
+
+    emit secondConnectionStateChanged();
 }
 
 void SettingsModel::setPollTime(quint32 pollTime)
@@ -110,6 +114,20 @@ quint8 SettingsModel::consecutiveMax(quint8 connectionId)
     }
 
     return _connectionSettings[connectionId].consecutiveMax;
+}
+
+void SettingsModel::setSecondConnectionState(bool bState)
+{
+    if (_bSecondConnectionState != bState)
+    {
+        _bSecondConnectionState = bState;
+        emit secondConnectionStateChanged();
+    }
+}
+
+bool SettingsModel::secondConnectionState()
+{
+    return _bSecondConnectionState;
 }
 
 void SettingsModel::setWriteDuringLog(bool bState)

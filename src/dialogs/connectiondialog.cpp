@@ -19,11 +19,26 @@ ConnectionDialog::ConnectionDialog(SettingsModel * pSettingsModel, QWidget *pare
     connect(_pSettingsModel, &SettingsModel::slaveIdChanged, this, &ConnectionDialog::updateSlaveId);
     connect(_pSettingsModel, &SettingsModel::timeoutChanged, this, &ConnectionDialog::updateTimeout);
     connect(_pSettingsModel, &SettingsModel::consecutiveMaxChanged, this, &ConnectionDialog::updateConsecutiveMax);
+    connect(_pSettingsModel, &SettingsModel::secondConnectionStateChanged, this, &ConnectionDialog::updateSecondConnectionState);
+
+    connect(_pUi->checkSecondConn, &QCheckBox::stateChanged, this, &ConnectionDialog::secondConnectionStateChanged);
 }
 
 ConnectionDialog::~ConnectionDialog()
 {
     delete _pUi;
+}
+
+void ConnectionDialog::secondConnectionStateChanged(int state)
+{
+    bool bState = (state == Qt::Checked);
+
+    _pUi->lineIP_2->setEnabled(bState);
+    _pUi->spinPort_2->setEnabled(bState);
+    _pUi->spinSlaveId_2->setEnabled(bState);
+    _pUi->spinTimeout_2->setEnabled(bState);
+    _pUi->spinConsecutiveMax_2->setEnabled(bState);
+
 }
 
 void ConnectionDialog::updateIp(quint8 connectionId)
@@ -87,6 +102,11 @@ void ConnectionDialog::updateConsecutiveMax(quint8 connectionId)
     }
 }
 
+void ConnectionDialog::updateSecondConnectionState()
+{
+    _pUi->checkSecondConn->setChecked(_pSettingsModel->secondConnectionState());
+}
+
 void ConnectionDialog::done(int r)
 {
     bool bValid = true;
@@ -104,6 +124,8 @@ void ConnectionDialog::done(int r)
         _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_1, _pUi->spinSlaveId_2->text().toUInt());
         _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_1, _pUi->spinTimeout_2->text().toUInt());
         _pSettingsModel->setConsecutiveMax(SettingsModel::CONNECTION_ID_1, _pUi->spinConsecutiveMax_2->text().toUInt());
+
+        _pSettingsModel->setSecondConnectionState(_pUi->checkSecondConn->checkState() == Qt::Checked);
 
         // Validate the data
         //bValid = validateSettingsData();

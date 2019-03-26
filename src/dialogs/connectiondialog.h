@@ -22,11 +22,14 @@ public:
 private slots:
     void done(int r);
 
+    void secondConnectionStateChanged(int state);
+
     void updateIp(quint8 connectionId);
     void updatePort(quint8 connectionId);
     void updateSlaveId(quint8 connectionId);
     void updateTimeout(quint8 connectionId);
     void updateConsecutiveMax(quint8 connectionId);
+    void updateSecondConnectionState();
 
 private:
     Ui::ConnectionDialog * _pUi;

@@ -26,6 +26,7 @@ public:
     void setTimeout(quint8 connectionId, quint32 timeout);
     void setConsecutiveMax(quint8 max); // TODO: remove
     void setConsecutiveMax(quint8 connectionId, quint8 max);
+    void setSecondConnectionState(bool bState);
 
     QString writeDuringLogFile();
     bool writeDuringLog();
@@ -39,6 +40,7 @@ public:
     quint32 timeout(quint8 connectionId);
     quint8 consecutiveMax(); // TODO: remove
     quint8 consecutiveMax(quint8 connectionId);
+    bool secondConnectionState();
 
     quint32 pollTime();
     bool absoluteTimes();
@@ -78,6 +80,7 @@ signals:
     void slaveIdChanged(quint8 connectionId);
     void timeoutChanged(quint8 connectionId);
     void consecutiveMaxChanged(quint8 connectionId);
+    void secondConnectionStateChanged(void);
 
 private:
 
@@ -98,6 +101,8 @@ private:
 
     bool _bWriteDuringLog;
     QString _writeDuringLogFile;
+
+    bool _bSecondConnectionState;
 
 };
 

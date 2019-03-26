@@ -22,7 +22,7 @@
    <item>
     <widget class="QTabWidget" name="tabConnection">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="conn">
       <attribute name="title">
@@ -156,9 +156,9 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_2">
+        <widget class="QGroupBox" name="groupSecondConnection">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="title">
           <string>Connection Settings</string>
@@ -259,6 +259,9 @@
           </item>
           <item row="4" column="1">
            <widget class="QSpinBox" name="spinConsecutiveMax_2">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="minimum">
              <number>1</number>
             </property>
