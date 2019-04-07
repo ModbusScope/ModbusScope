@@ -3,14 +3,16 @@
 
 #include <QObject>
 #include <QMap>
-#include "modbusresult.h"
+#include <QModbusDevice>
+#include <QModbusReply>
 
-#include "modbusconnection.h"
-#include "readregisters.h"
+#include "modbusresult.h"
 
 /* Forward declaration */
 class SettingsModel;
-class GuiModel;
+class ReadRegisters;
+class ModbusConnection;
+
 
 class ModbusMaster : public QObject
 {
