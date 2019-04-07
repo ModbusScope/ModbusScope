@@ -55,7 +55,7 @@ void TestModbusMaster::singleRequestSuccess()
 {
     _pTestSlaveData->setRegisterState(0, true);
 
-    ModbusMaster modbusMaster(&_settingsModel, 0); // TODO
+    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_0);
 
     QList<quint16> registerList = QList<quint16>() << 40001;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -84,7 +84,7 @@ void TestModbusMaster::singleRequestGatewayNotAvailable()
 {
     _pTestSlaveModbus->setException(QModbusPdu::GatewayTargetDeviceFailedToRespond, true);
 
-    ModbusMaster modbusMaster(&_settingsModel, 0); // TODO: FIX this
+    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_0);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
     QList<quint16> registerList = QList<quint16>() << 40001;
 
@@ -111,7 +111,7 @@ void TestModbusMaster::singleRequestNoResponse()
 {
     _pTestSlaveModbus->disconnectDevice();
 
-    ModbusMaster modbusMaster(&_settingsModel, 0); // TODO: FIX this
+    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_0);
 
     QList<quint16> registerList = QList<quint16>() << 40001;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -137,7 +137,7 @@ void TestModbusMaster::singleRequestNoResponse()
 
 void TestModbusMaster::singleRequestInvalidAddressOnce()
 {
-    ModbusMaster modbusMaster(&_settingsModel, 0); // TODO: FIX this
+    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_0);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     QList<quint16> registerList = QList<quint16>() << 40001 << 40002 << 40003;
@@ -179,7 +179,7 @@ void TestModbusMaster::singleRequestInvalidAddressPersistent()
 {
     _pTestSlaveModbus->setException(QModbusPdu::IllegalDataAddress, true);
 
-    ModbusMaster modbusMaster(&_settingsModel, 0); // TODO: FIX this
+    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_0);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     QList<quint16> registerList = QList<quint16>() << 40001;
@@ -215,7 +215,7 @@ void TestModbusMaster::multiRequestSuccess()
     _pTestSlaveData->setRegisterValue(1, 1);
     _pTestSlaveData->setRegisterValue(3, 3);
 
-    ModbusMaster modbusMaster(&_settingsModel, 0); // TODO: FIX this
+    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_0);
 
     QList<quint16> registerList = QList<quint16>() << 40001 << 40002 << 40004;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -258,7 +258,7 @@ void TestModbusMaster::multiRequestGatewayNotAvailable()
     _pTestSlaveData->setRegisterValue(1, 1);
     _pTestSlaveData->setRegisterValue(3, 3);
 
-    ModbusMaster modbusMaster(&_settingsModel, 0); // TODO: FIX this
+    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_0);
 
     QList<quint16> registerList = QList<quint16>() << 40001 << 40002 << 40004;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -297,7 +297,7 @@ void TestModbusMaster::multiRequestNoResponse()
     _pTestSlaveData->setRegisterValue(1, 1);
     _pTestSlaveData->setRegisterValue(3, 3);
 
-    ModbusMaster modbusMaster(&_settingsModel, 0); // TODO: FIX this
+    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_0);
 
     QList<quint16> registerList = QList<quint16>() << 40001 << 40002 << 40004;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -335,7 +335,7 @@ void TestModbusMaster::multiRequestInvalidAddress()
     _pTestSlaveData->setRegisterValue(1, 1);
     _pTestSlaveData->setRegisterValue(3, 3);
 
-    ModbusMaster modbusMaster(&_settingsModel, 0); // TODO: FIX this
+    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_0);
 
     QList<quint16> registerList = QList<quint16>() << 40001 << 40002 << 40004;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -372,20 +372,3 @@ void TestModbusMaster::multiRequestInvalidAddress()
  */
 
 QTEST_GUILESS_MAIN(TestModbusMaster)
-
-
-/*
- *
-
- explicit ModbusMaster(SettingsModel * pSettingsModel);
- *
- *    void readRegisterList(QList<quint16> registerList);
-
-signals:
-    void modbusPollDone(QMap<quint16, ModbusResult> modbusResults);
-    void modbusAddToStats(quint32 successes, quint32 errors);
-    void modbusLogError(QString msg);
-    void modbusLogInfo(QString msg);
-
- *
- */
