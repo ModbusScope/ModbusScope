@@ -241,7 +241,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_0, "192.168.0.142");
     _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_1, "192.168.0.142");
 
-    //_pSettingsModel->setIpAddress("127.0.0.1");
+    //_pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_0, "127.0.0.1");
 
     _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_0, 5020);
     _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_1, 5020);
@@ -1050,29 +1050,30 @@ void MainWindow::updateDataFileNotes()
 
 void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pProjectSettings)
 {
+    /* TODO: Don't use hard-coded connection id 0 */
     if (pProjectSettings->general.connectionSettings.bIp)
     {
-        _pSettingsModel->setIpAddress(pProjectSettings->general.connectionSettings.ip);
+        _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_0, pProjectSettings->general.connectionSettings.ip);
     }
 
     if (pProjectSettings->general.connectionSettings.bPort)
     {
-         _pSettingsModel->setPort(pProjectSettings->general.connectionSettings.port);
+         _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_0, pProjectSettings->general.connectionSettings.port);
     }
 
     if (pProjectSettings->general.connectionSettings.bSlaveId)
     {
-        _pSettingsModel->setSlaveId(pProjectSettings->general.connectionSettings.slaveId);
+        _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_0, pProjectSettings->general.connectionSettings.slaveId);
     }
 
     if (pProjectSettings->general.connectionSettings.bTimeout)
     {
-        _pSettingsModel->setTimeout(pProjectSettings->general.connectionSettings.timeout);
+        _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_0, pProjectSettings->general.connectionSettings.timeout);
     }
 
     if (pProjectSettings->general.connectionSettings.bConsecutiveMax)
     {
-        _pSettingsModel->setConsecutiveMax(pProjectSettings->general.connectionSettings.consecutiveMax);
+        _pSettingsModel->setConsecutiveMax(SettingsModel::CONNECTION_ID_0, pProjectSettings->general.connectionSettings.consecutiveMax);
     }
 
     if (pProjectSettings->general.logSettings.bPollTime)

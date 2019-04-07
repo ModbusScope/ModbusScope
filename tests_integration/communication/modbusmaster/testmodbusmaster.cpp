@@ -19,13 +19,13 @@ void TestModbusMaster::init()
     qRegisterMetaType<ModbusResult>("ModbusResult");
     qRegisterMetaType<QMap<quint16, ModbusResult> >("QMap<quint16, ModbusResult>");
 
-    _settingsModel.setIpAddress("127.0.0.1");
-    _settingsModel.setPort(5020);
-    _settingsModel.setTimeout(500);
-    _settingsModel.setSlaveId(1);
+    _settingsModel.setIpAddress(SettingsModel::CONNECTION_ID_0, "127.0.0.1");
+    _settingsModel.setPort(SettingsModel::CONNECTION_ID_0, 5020);
+    _settingsModel.setTimeout(SettingsModel::CONNECTION_ID_0, 500);
+    _settingsModel.setSlaveId(SettingsModel::CONNECTION_ID_0, 1);
 
-    _serverConnectionData.setPort(_settingsModel.port());
-    _serverConnectionData.setHost(_settingsModel.ipAddress());
+    _serverConnectionData.setPort(_settingsModel.port(SettingsModel::CONNECTION_ID_0));
+    _serverConnectionData.setHost(_settingsModel.ipAddress(SettingsModel::CONNECTION_ID_0));
 
     if (!_pTestSlaveData.isNull())
     {
@@ -39,7 +39,7 @@ void TestModbusMaster::init()
     _pTestSlaveData = new TestSlaveData();
     _pTestSlaveModbus= new TestSlaveModbus(_pTestSlaveData);
 
-    QVERIFY(_pTestSlaveModbus->connect(_serverConnectionData, _settingsModel.slaveId()));
+    QVERIFY(_pTestSlaveModbus->connect(_serverConnectionData, _settingsModel.slaveId(SettingsModel::CONNECTION_ID_0)));
 
 }
 
@@ -224,7 +224,7 @@ void TestModbusMaster::multiRequestSuccess()
     {
         modbusMaster.readRegisterList(registerList);
 
-        QVERIFY(spyModbusPollDone.wait(static_cast<int>(_settingsModel.timeout())));
+        QVERIFY(spyModbusPollDone.wait(static_cast<int>(_settingsModel.timeout(SettingsModel::CONNECTION_ID_0))));
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
@@ -344,7 +344,7 @@ void TestModbusMaster::multiRequestInvalidAddress()
     {
         modbusMaster.readRegisterList(registerList);
 
-        QVERIFY(spyModbusPollDone.wait(static_cast<int>(_settingsModel.timeout()) + 100));
+        QVERIFY(spyModbusPollDone.wait(static_cast<int>(_settingsModel.timeout(SettingsModel::CONNECTION_ID_0)) + 100));
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal

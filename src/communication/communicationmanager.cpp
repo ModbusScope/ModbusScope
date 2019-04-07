@@ -23,7 +23,7 @@ CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiMo
     _pErrorLogModel = pErrorLogModel;
 
     /* Setup modbus master */
-    for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++) // TODO: Set max modbus master count
+    for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++)
     {
         auto modbusData = new ModbusMasterData(new ModbusMaster(_pSettingsModel, i));
         _modbusMasters.append(modbusData);

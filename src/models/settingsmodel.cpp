@@ -78,15 +78,6 @@ bool SettingsModel::absoluteTimes()
     return _bAbsoluteTimes;
 }
 
-void SettingsModel::setConsecutiveMax(quint8 max)
-{
-    if (_connectionSettings[CONNECTION_ID_0].consecutiveMax != max)
-    {
-        _connectionSettings[CONNECTION_ID_0].consecutiveMax = max;
-        emit consecutiveMaxChanged(CONNECTION_ID_0);
-    }
-}
-
 void SettingsModel::setConsecutiveMax(quint8 connectionId, quint8 max)
 {
     if (connectionId >= CONNECTION_ID_CNT)
@@ -99,11 +90,6 @@ void SettingsModel::setConsecutiveMax(quint8 connectionId, quint8 max)
         _connectionSettings[connectionId].consecutiveMax = max;
         emit consecutiveMaxChanged(connectionId);
     }
-}
-
-quint8 SettingsModel::consecutiveMax(void)
-{
-    return _connectionSettings[CONNECTION_ID_0].consecutiveMax;
 }
 
 quint8 SettingsModel::consecutiveMax(quint8 connectionId)
@@ -163,15 +149,6 @@ QString SettingsModel::writeDuringLogFile()
     return _writeDuringLogFile;
 }
 
-void SettingsModel::setIpAddress(QString ip)
-{
-    if (_connectionSettings[CONNECTION_ID_0].ipAddress != ip)
-    {
-        _connectionSettings[CONNECTION_ID_0].ipAddress = ip;
-        emit ipChanged(CONNECTION_ID_0);
-    }
-}
-
 void SettingsModel::setIpAddress(quint8 connectionId, QString ip)
 {
     if (connectionId >= CONNECTION_ID_CNT)
@@ -186,11 +163,6 @@ void SettingsModel::setIpAddress(quint8 connectionId, QString ip)
     }
 }
 
-QString SettingsModel::ipAddress()
-{
-    return _connectionSettings[CONNECTION_ID_0].ipAddress;
-}
-
 QString SettingsModel::ipAddress(quint8 connectionId)
 {
     if (connectionId >= CONNECTION_ID_CNT)
@@ -199,15 +171,6 @@ QString SettingsModel::ipAddress(quint8 connectionId)
     }
 
     return _connectionSettings[connectionId].ipAddress;
-}
-
-void SettingsModel::setPort(quint16 port)
-{
-    if (_connectionSettings[CONNECTION_ID_0].port != port)
-    {
-        _connectionSettings[CONNECTION_ID_0].port = port;
-        emit portChanged(CONNECTION_ID_0);
-    }
 }
 
 void SettingsModel::setPort(quint8 connectionId, quint16 port)
@@ -224,11 +187,6 @@ void SettingsModel::setPort(quint8 connectionId, quint16 port)
     }
 }
 
-quint16 SettingsModel::port()
-{
-    return _connectionSettings[CONNECTION_ID_0].port;
-}
-
 quint16 SettingsModel::port(quint8 connectionId)
 {
     if (connectionId >= CONNECTION_ID_CNT)
@@ -239,11 +197,6 @@ quint16 SettingsModel::port(quint8 connectionId)
     return _connectionSettings[connectionId].port;
 }
 
-quint8 SettingsModel::slaveId()
-{
-    return _connectionSettings[CONNECTION_ID_0].slaveId;
-}
-
 quint8 SettingsModel::slaveId(quint8 connectionId)
 {
     if (connectionId >= CONNECTION_ID_CNT)
@@ -252,15 +205,6 @@ quint8 SettingsModel::slaveId(quint8 connectionId)
     }
 
     return _connectionSettings[connectionId].slaveId;
-}
-
-void SettingsModel::setSlaveId(quint8 id)
-{
-    if (_connectionSettings[CONNECTION_ID_0].slaveId != id)
-    {
-        _connectionSettings[CONNECTION_ID_0].slaveId = id;
-        emit slaveIdChanged(CONNECTION_ID_0);
-    }
 }
 
 void SettingsModel::setSlaveId(quint8 connectionId, quint8 id)
@@ -277,11 +221,6 @@ void SettingsModel::setSlaveId(quint8 connectionId, quint8 id)
     }
 }
 
-quint32 SettingsModel::timeout()
-{
-    return _connectionSettings[CONNECTION_ID_0].timeout;
-}
-
 quint32 SettingsModel::timeout(quint8 connectionId)
 {
     if (connectionId >= CONNECTION_ID_CNT)
@@ -290,15 +229,6 @@ quint32 SettingsModel::timeout(quint8 connectionId)
     }
 
     return _connectionSettings[connectionId].timeout;
-}
-
-void SettingsModel::setTimeout(quint32 timeout)
-{
-    if (_connectionSettings[CONNECTION_ID_0].timeout != timeout)
-    {
-        _connectionSettings[CONNECTION_ID_0].timeout = timeout;
-        emit timeoutChanged(CONNECTION_ID_0);
-    }
 }
 
 void SettingsModel::setTimeout(quint8 connectionId, quint32 timeout)

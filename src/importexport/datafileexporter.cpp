@@ -289,9 +289,10 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
         }
 
         // Export communication settings
-        header.append(comment + "Slave IP" + Util::separatorCharacter() + _pSettingsModel->ipAddress() + ":" + QString::number(_pSettingsModel->port()));
-        header.append(comment + "Slave ID" + Util::separatorCharacter() + QString::number(_pSettingsModel->slaveId()));
-        header.append(comment + "Time-out" + Util::separatorCharacter() + QString::number(_pSettingsModel->timeout()));
+        //TODO: multiple connections
+        header.append(comment + "Slave IP" + Util::separatorCharacter() + _pSettingsModel->ipAddress(SettingsModel::CONNECTION_ID_0) + ":" + QString::number(_pSettingsModel->port(SettingsModel::CONNECTION_ID_0)));
+        header.append(comment + "Slave ID" + Util::separatorCharacter() + QString::number(_pSettingsModel->slaveId(SettingsModel::CONNECTION_ID_0)));
+        header.append(comment + "Time-out" + Util::separatorCharacter() + QString::number(_pSettingsModel->timeout(SettingsModel::CONNECTION_ID_0)));
         header.append(comment + "Poll interval" + Util::separatorCharacter() + QString::number(_pSettingsModel->pollTime()));
 
         quint32 success = _pGuiModel->communicationSuccessCount();
