@@ -1,16 +1,13 @@
 
 #include <QDateTime>
 
-#include "modbusconnection.h"
-#include "readregisters.h"
-
 #include "modbusmaster.h"
-#include "communicationmanager.h"
 #include "guimodel.h"
 #include "settingsmodel.h"
 #include "graphdatamodel.h"
 #include "errorlogmodel.h"
 
+#include "communicationmanager.h"
 
 CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiModel *pGuiModel, GraphDataModel *pGraphDataModel, ErrorLogModel *pErrorLogModel, QObject *parent) :
     QObject(parent), _active(false)
