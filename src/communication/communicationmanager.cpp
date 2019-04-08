@@ -160,7 +160,7 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
     {
         // Restart timer when previous request has been handled
         uint waitInterval;
-        const uint passedInterval = QDateTime::currentMSecsSinceEpoch() - _lastPollStart;
+        const quint32 passedInterval = static_cast<quint32>(QDateTime::currentMSecsSinceEpoch() - _lastPollStart);
 
         if (passedInterval > _pSettingsModel->pollTime())
         {
@@ -173,8 +173,7 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
             waitInterval = _pSettingsModel->pollTime() - passedInterval;
         }
 
-        _pPollTimer->singleShot(waitInterval, this, SLOT(readData()));
-
+        _pPollTimer->singleShot(static_cast<int>(waitInterval), this, SLOT(readData()));
     }
 }
 
@@ -255,17 +254,17 @@ double CommunicationManager::processValue(quint32 graphIndex, quint16 value)
     }
     else
     {
-        processedValue = (qint16)value;
+        processedValue = static_cast<qint16>(value);
     }
 
     // Apply bitmask
     if (_pGraphDataModel->isUnsigned(graphIndex))
     {
-        processedValue = (quint16)((quint16)processedValue & _pGraphDataModel->bitmask(graphIndex));
+        processedValue = static_cast<qint16>(processedValue) & _pGraphDataModel->bitmask(graphIndex);
     }
     else
     {
-        processedValue = (qint16)((quint16)processedValue & _pGraphDataModel->bitmask(graphIndex));
+        processedValue = static_cast<qint16>(processedValue) & _pGraphDataModel->bitmask(graphIndex);
     }
 
     // Apply shift
@@ -273,16 +272,16 @@ double CommunicationManager::processValue(quint32 graphIndex, quint16 value)
     {
         if (_pGraphDataModel->shift(graphIndex) > 0)
         {
-            processedValue = (quint16)((quint16)processedValue << _pGraphDataModel->shift(graphIndex));
+            processedValue = static_cast<qint16>(processedValue) << _pGraphDataModel->shift(graphIndex);
         }
         else
         {
-            processedValue = (quint16)((quint16)processedValue >> abs(_pGraphDataModel->shift(graphIndex)));
+            processedValue = static_cast<qint16>(processedValue) >> abs(_pGraphDataModel->shift(graphIndex));
         }
 
         if (!_pGraphDataModel->isUnsigned(graphIndex))
         {
-            processedValue = (qint16)processedValue;
+            processedValue = static_cast<qint16>(processedValue);
         }
     }
 
