@@ -209,39 +209,39 @@ void CommunicationManager::readData()
 
         /* Strange construction is required to avoid race condition:
          *
-         * Result from first master is in while _activeMastersCount is still set at 1
+         * First set _activeMastersCount to correct value
+         * And only then activate masters (readRegisterList)
+         *
+         * readRegisterList can return immediatly and this will give race condition
          */
 
-        QList<quint16> regAddrList0;
-        QList<quint16> regAddrList1;
         _activeMastersCount = 0;
 
-        _pGraphDataModel->activeGraphAddresList(&regAddrList0, 0);
-        _pGraphDataModel->activeGraphAddresList(&regAddrList1, 1);
+        QList<QList<quint16> > regAddrList;
 
-        if (regAddrList0.count() > 0)
+        for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++)
         {
-            _activeMastersCount++;
+            regAddrList.append(QList<quint16>());
+
+            _pGraphDataModel->activeGraphAddresList(&regAddrList.last(), i);
+
+            if (regAddrList.last().count() > 0)
+            {
+                _activeMastersCount++;
+            }
         }
 
-        if (regAddrList1.count() > 0)
+        for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++)
         {
-            _activeMastersCount++;
+            if (regAddrList.at(i).count() > 0)
+            {
+                _modbusMasters[0]->bActive = true;
+                _modbusMasters[0]->pModbusMaster->readRegisterList(regAddrList.at(i));
+            }
         }
 
-
-        if (regAddrList0.count() > 0)
-        {
-            _modbusMasters[0]->bActive = true;
-            _modbusMasters[0]->pModbusMaster->readRegisterList(regAddrList0);
-        }
-
-        if (regAddrList1.count() > 0)
-        {
-            _modbusMasters[1]->bActive = true;
-            _modbusMasters[1]->pModbusMaster->readRegisterList(regAddrList1);
-        }
     }
+
 }
 
 double CommunicationManager::processValue(quint32 graphIndex, quint16 value)
