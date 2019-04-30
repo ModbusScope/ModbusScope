@@ -235,8 +235,8 @@ void CommunicationManager::readData()
         {
             if (regAddrList.at(i).count() > 0)
             {
-                _modbusMasters[0]->bActive = true;
-                _modbusMasters[0]->pModbusMaster->readRegisterList(regAddrList.at(i));
+                _modbusMasters[i]->bActive = true;
+                _modbusMasters[i]->pModbusMaster->readRegisterList(regAddrList.at(i));
             }
         }
 
