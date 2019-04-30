@@ -13,7 +13,6 @@ void TestCommunicationManager::init()
     _pSettingsModel = new SettingsModel;
     _pGuiModel = new GuiModel;
     _pErrorLogModel = new ErrorLogModel;
-    _pServerConnectionData = new QUrl;
 
     _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_0, "127.0.0.1");
     _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_0, 5020);
@@ -27,23 +26,17 @@ void TestCommunicationManager::init()
 
     _pSettingsModel->setPollTime(100);
 
-    _pServerConnectionData->setPort(_pSettingsModel->port(SettingsModel::CONNECTION_ID_0));
-    _pServerConnectionData->setHost(_pSettingsModel->ipAddress(SettingsModel::CONNECTION_ID_0));
-
-    if (!_pTestSlaveData.isNull())
+    for (quint8 idx = 0; idx < SettingsModel::CONNECTION_ID_CNT; idx++)
     {
-        delete _pTestSlaveData;
+        _serverConnectionDataList.append(QUrl());
+        _serverConnectionDataList.last().setPort(_pSettingsModel->port(idx));
+        _serverConnectionDataList.last().setHost(_pSettingsModel->ipAddress(idx));
+
+        _testSlaveDataList.append(new TestSlaveData());
+        _testSlaveModbusList.append(new TestSlaveModbus(_testSlaveDataList.last()));
+
+        QVERIFY(_testSlaveModbusList.last()->connect(_serverConnectionDataList.last(), _pSettingsModel->slaveId(idx)));
     }
-    if (!_pTestSlaveModbus.isNull())
-    {
-        delete _pTestSlaveModbus;
-    }
-
-    _pTestSlaveData = new TestSlaveData();
-    _pTestSlaveModbus= new TestSlaveModbus(_pTestSlaveData);
-
-    QVERIFY(_pTestSlaveModbus->connect(*_pServerConnectionData, _pSettingsModel->slaveId(SettingsModel::CONNECTION_ID_0)));
-
 }
 
 void TestCommunicationManager::cleanup()
@@ -51,21 +44,27 @@ void TestCommunicationManager::cleanup()
     delete _pSettingsModel;
     delete _pGuiModel;
     delete _pErrorLogModel;
-    delete _pServerConnectionData;
 
-    _pTestSlaveModbus->disconnectDevice();
+    for (int idx = 0; idx < SettingsModel::CONNECTION_ID_CNT; idx++)
+    {
+        _testSlaveModbusList[idx]->disconnectDevice();
+    }
 
-    delete _pTestSlaveData;
-    delete _pTestSlaveModbus;
+    qDeleteAll(_testSlaveDataList);
+    qDeleteAll(_testSlaveModbusList);
+
+    _serverConnectionDataList.clear();
+    _testSlaveDataList.clear();
+    _testSlaveModbusList.clear();
 }
 
 void TestCommunicationManager::singleSlaveSuccess()
 {
-    _pTestSlaveData->setRegisterState(0, true);
-    _pTestSlaveData->setRegisterValue(0, 5);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(0, true);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(0, 5);
 
-    _pTestSlaveData->setRegisterState(1, true);
-    _pTestSlaveData->setRegisterValue(1, 65000);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(1, true);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(1, 65000);
 
     GraphDataModel graphDataModel;
     graphDataModel.add();
@@ -95,7 +94,10 @@ void TestCommunicationManager::singleSlaveSuccess()
 
 void TestCommunicationManager::singleSlaveFail()
 {
-    _pTestSlaveModbus->disconnectDevice();
+    for (quint8 idx = 0; idx < SettingsModel::CONNECTION_ID_CNT; idx++)
+    {
+        _testSlaveModbusList[idx]->disconnectDevice();
+    }
 
     GraphDataModel graphDataModel;
     graphDataModel.add();

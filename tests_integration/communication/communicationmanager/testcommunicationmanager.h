@@ -1,6 +1,5 @@
 
 #include <QObject>
-#include <QPointer>
 #include <QUrl>
 #include "communicationmanager.h"
 
@@ -26,13 +25,11 @@ private:
 
     void verifyReceivedDataSignal(QList<QVariant> arguments, QList<bool> expResultList, QList<double> expValueList);
 
-    QPointer<TestSlaveData> _pTestSlaveData;
-    QPointer<TestSlaveModbus> _pTestSlaveModbus;
-
     SettingsModel * _pSettingsModel;
     GuiModel * _pGuiModel;
     ErrorLogModel * _pErrorLogModel;
 
-    QUrl * _pServerConnectionData;
-
+    QList<QUrl> _serverConnectionDataList;
+    QList<TestSlaveData *> _testSlaveDataList;
+    QList<TestSlaveModbus *> _testSlaveModbusList;
 };
