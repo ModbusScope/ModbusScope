@@ -20,17 +20,19 @@ private slots:
     void cleanup();
 
     void singleSlaveSuccess();
+    void singleSlaveFail();
 
 private:
+
+    void verifyReceivedDataSignal(QList<QVariant> arguments, QList<bool> expResultList, QList<double> expValueList);
 
     QPointer<TestSlaveData> _pTestSlaveData;
     QPointer<TestSlaveModbus> _pTestSlaveModbus;
 
-    SettingsModel _settingsModel;
-    GuiModel _guiModel;
-    GraphDataModel _graphDataModel;
-    ErrorLogModel _errorLogModel;
+    SettingsModel * _pSettingsModel;
+    GuiModel * _pGuiModel;
+    ErrorLogModel * _pErrorLogModel;
 
-    QUrl _serverConnectionData;
+    QUrl * _pServerConnectionData;
 
 };
