@@ -59,7 +59,9 @@ private:
     QList<ModbusMasterData *> _modbusMasters;
     quint32 _activeMastersCount;
 
-    QMap<quint16, ModbusResult> _resultMap;
+    QList<double> _processedValues;
+    QList<bool> _successList;
+    QList<quint16> _activeIndexList;
 
     bool _active;
     QTimer * _pPollTimer;

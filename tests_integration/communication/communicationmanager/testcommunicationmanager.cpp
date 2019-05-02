@@ -125,6 +125,41 @@ void TestCommunicationManager::singleSlaveFail()
     verifyReceivedDataSignal(arguments, resultList, valueList);
 }
 
+void TestCommunicationManager::multiSlaveSuccess()
+{
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(0, true);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(0, 5020);
+
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(0, true);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(0, 5021);
+
+    GraphDataModel graphDataModel;
+    graphDataModel.add();
+    graphDataModel.setConnectionId(0, SettingsModel::CONNECTION_ID_0);
+    graphDataModel.setRegisterAddress(0, 40001);
+
+    graphDataModel.add();
+    graphDataModel.setConnectionId(1, SettingsModel::CONNECTION_ID_1);
+    graphDataModel.setRegisterAddress(1, 40001);
+
+    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel, _pErrorLogModel);
+
+    QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
+
+    /*-- Start communication --*/
+    QVERIFY(conMan.startCommunication());
+
+    QVERIFY(spyReceivedData.wait(20));
+    QCOMPARE(spyReceivedData.count(), 1);
+
+    QList<QVariant> arguments = spyReceivedData.takeFirst(); // take the first signal
+
+    QList<bool> resultList({true, true});
+    QList<double> valueList({5020, 5021});
+
+    /* Verify arguments of signal */
+    verifyReceivedDataSignal(arguments, resultList, valueList);
+}
 
 void TestCommunicationManager::verifyReceivedDataSignal(QList<QVariant> arguments, QList<bool> expResultList, QList<double> expValueList)
 {

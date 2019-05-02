@@ -21,6 +21,8 @@ private slots:
     void singleSlaveSuccess();
     void singleSlaveFail();
 
+    void multiSlaveSuccess();
+
 private:
 
     void verifyReceivedDataSignal(QList<QVariant> arguments, QList<bool> expResultList, QList<double> expValueList);

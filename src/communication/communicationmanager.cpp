@@ -73,7 +73,6 @@ void CommunicationManager::resetCommunicationStats()
 
 void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialResultMap, quint8 connectionId)
 {
-    bool firstResult = false;
     bool lastResult = false;
 
     quint8 activeCnt = 0;
@@ -85,22 +84,11 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
         }
     }
 
-    if (activeCnt == _activeMastersCount)
-    {
-        /* First results */
-        firstResult = true;
-    }
-
+    /* Last active modbus master has returned its result */
     if (activeCnt == 1)
     {
         /* Last result */
         lastResult = true;
-    }
-
-    if (firstResult)
-    {
-        // Clear result list
-        _resultMap.clear();
     }
 
     // Always add data to result map
@@ -108,49 +96,26 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
     while (i.hasNext())
     {
         i.next();
-        _resultMap.insert(i.key(), i.value());
+
+        for(quint16 listIdx = 0; listIdx < _activeIndexList.size(); listIdx++)
+        {
+            const quint16 activeIndex = _activeIndexList[listIdx];
+            if (_pGraphDataModel->connectionId(activeIndex) == connectionId)
+            {
+                if (_pGraphDataModel->registerAddress(activeIndex) == i.key())
+                {
+                    ModbusResult result = i.value();
+                    _processedValues[listIdx] = result.value();
+                    _successList[listIdx] = result.isSuccess();
+                }
+            }
+        }
     }
 
     if (lastResult)
     {
-        /* Check all register have values and propagate result if correct */
-
-        bool bOk = true;
-        QList<quint16> activeIndexList;
-        _pGraphDataModel->activeGraphIndexList(&activeIndexList);
-
-        // Process values
-        QList<double> processedValues;
-        QList<bool> successList;
-
-        // Process values
-        if (activeIndexList.count() == _resultMap.count())
-        {
-            foreach(quint16 graphIndex, activeIndexList)
-            {
-                const quint16 registerAddress = _pGraphDataModel->registerAddress(graphIndex);
-                if (_resultMap.contains(registerAddress))
-                {
-                    processedValues.append(processValue(graphIndex, _resultMap[registerAddress].value()));
-                    successList.append(_resultMap[registerAddress].isSuccess());
-                }
-                else
-                {
-                    bOk = false;
-                    break;
-                }
-            }
-        }
-        else
-        {
-            bOk = false;
-        }
-
-        if (bOk)
-        {
-            // propagate processed data
-            emit handleReceivedData(successList, processedValues);
-        }
+        // propagate processed data
+        emit handleReceivedData(_successList, _processedValues);
     }
 
     // Set master as inactive
@@ -179,12 +144,14 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
 
 void CommunicationManager::handleModbusError(QString msg)
 {
+    qDebug() << msg;
     ErrorLog log = ErrorLog(ErrorLog::LOG_ERROR, QDateTime::currentDateTime(), msg);
     _pErrorLogModel->addItem(log);
 }
 
 void CommunicationManager::handleModbusInfo(QString msg)
 {
+    qDebug() << msg;
     ErrorLog log = ErrorLog(ErrorLog::LOG_INFO, QDateTime::currentDateTime(), msg);
     _pErrorLogModel->addItem(log);
 }
@@ -206,6 +173,17 @@ void CommunicationManager::readData()
     if(_active)
     {
         _lastPollStart = QDateTime::currentMSecsSinceEpoch();
+
+        /* Prepare result lists */
+        _processedValues.clear();
+        _successList.clear();
+        _pGraphDataModel->activeGraphIndexList(&_activeIndexList);
+
+        for(int idx = 0; idx < _activeIndexList.size(); idx++)
+        {
+            _processedValues.append(0);
+            _successList.append(false);
+        }
 
         /* Strange construction is required to avoid race condition:
          *
