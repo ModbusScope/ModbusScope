@@ -22,6 +22,10 @@ private slots:
     void singleSlaveFail();
 
     void multiSlaveSuccess();
+    void multiSlaveSuccess_2();
+    void multiSlaveSuccess_3();
+    void multiSlaveSingleFail();
+    void multiSlaveAllFail();
 
 private:
 
