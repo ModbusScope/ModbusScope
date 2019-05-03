@@ -4,6 +4,7 @@
 #include <QDebug>
 
 #include "graphdatamodel.h"
+#include "settingsmodel.h"
 
 
 GraphDataModel::GraphDataModel(QObject *parent) : QAbstractTableModel(parent)
@@ -124,7 +125,7 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
     case 9:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return connectionId(index.row());
+            return QString("Connection %1").arg(connectionId(index.row()) + 1);
         }
         break;
     default:
@@ -163,7 +164,7 @@ QVariant GraphDataModel::headerData(int section, Qt::Orientation orientation, in
             case 8:
                 return QString("Divide");
             case 9:
-                return QString("Connection Id");
+                return QString("Connection");
             default:
                 return QVariant();
             }
@@ -335,24 +336,19 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
         if (role == Qt::EditRole)
         {
             bool bSuccess = false;
-            const qint32 newConnectionId = value.toString().toInt(&bSuccess);
+            const quint8 newConnectionId = static_cast<quint8>(value.toUInt(&bSuccess));
 
             if (
                     (bSuccess)
-                    &&
-                    (
-                        (newConnectionId == 0)
-                        || (newConnectionId == 1)
-                    )
+                    && (newConnectionId < SettingsModel::CONNECTION_ID_CNT)
                 )
             {
-                setConnectionId(index.row(), static_cast<quint8>(newConnectionId));
+                setConnectionId(index.row(), newConnectionId);
             }
             else
             {
                 bRet = false;
-                // TODO: rework
-                Util::showError(tr("Connection ID is not a valid integer between 0 and 1."));
+                Util::showError(tr("Connection ID is not valid"));
                 break;
             }
         }

@@ -3,6 +3,8 @@
 #include "util.h"
 #include "registerdialog.h"
 #include "importmbcdialog.h"
+#include "registerconndelegate.h"
+
 #include "ui_registerdialog.h"
 
 RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel,  QWidget *parent) :
@@ -20,6 +22,9 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     // Setup registerView
     _pUi->registerView->setModel(_pGraphDataModel);
     _pUi->registerView->verticalHeader()->hide();
+
+    RegisterConnDelegate* cbConn = new RegisterConnDelegate(_pUi->registerView);
+    _pUi->registerView->setItemDelegateForColumn(9, cbConn);
 
     /* Don't stretch columns */
     _pUi->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
