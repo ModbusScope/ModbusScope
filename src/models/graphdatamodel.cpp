@@ -4,11 +4,10 @@
 #include <QDebug>
 
 #include "graphdatamodel.h"
-#include "settingsmodel.h"
 
-
-GraphDataModel::GraphDataModel(QObject *parent) : QAbstractTableModel(parent)
+GraphDataModel::GraphDataModel(SettingsModel * pSettingsModel, QObject *parent) : QAbstractTableModel(parent)
 {
+    _pSettingsModel = pSettingsModel;
     _graphData.clear();
 
     connect(this, SIGNAL(visibilityChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
@@ -366,23 +365,38 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
 
 Qt::ItemFlags GraphDataModel::flags(const QModelIndex & index) const
 {
+    Qt::ItemFlags itemFlags = Qt::NoItemFlags;
+
+    /* default is enabled */
+    itemFlags |= Qt::ItemIsEnabled;
+
+    /* Disable when connection is disabled */
+    if (
+        (connectionId(index.row()) == SettingsModel::CONNECTION_ID_1)
+        && (!_pSettingsModel->secondConnectionState())
+    )
+    {
+        itemFlags &= ~(Qt::ItemIsEnabled);
+    }
+
     if (
             (index.column() == 1)
             || (index.column() == 2)
         )
     {
         // checkable
-        return Qt::ItemIsSelectable |  Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
+        itemFlags |= Qt::ItemIsSelectable |  Qt::ItemIsUserCheckable;
     }
     else if (index.column() == 0)
     {
-        return Qt::ItemIsSelectable | Qt::ItemIsEnabled ;
+        itemFlags |= Qt::ItemIsSelectable;
     }
     else
     {
-        return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled;
+        itemFlags |= Qt::ItemIsSelectable |  Qt::ItemIsEditable;
     }
 
+    return itemFlags;
 }
 
 

@@ -66,7 +66,7 @@ void TestCommunicationManager::singleSlaveSuccess()
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(1, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(1, 65000);
 
-    GraphDataModel graphDataModel;
+    GraphDataModel graphDataModel(_pSettingsModel);
     graphDataModel.add();
     graphDataModel.setRegisterAddress(0, 40001);
 
@@ -99,7 +99,7 @@ void TestCommunicationManager::singleSlaveFail()
         _testSlaveModbusList[idx]->disconnectDevice();
     }
 
-    GraphDataModel graphDataModel;
+    GraphDataModel graphDataModel(_pSettingsModel);
     graphDataModel.add();
     graphDataModel.setRegisterAddress(0, 40001);
 
@@ -133,7 +133,7 @@ void TestCommunicationManager::multiSlaveSuccess()
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(0, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(0, 5021);
 
-    GraphDataModel graphDataModel;
+    GraphDataModel graphDataModel(_pSettingsModel);
     graphDataModel.add();
     graphDataModel.setConnectionId(0, SettingsModel::CONNECTION_ID_0);
     graphDataModel.setRegisterAddress(0, 40001);
@@ -169,7 +169,7 @@ void TestCommunicationManager::multiSlaveSuccess_2()
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(1, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(1, 5021);
 
-    GraphDataModel graphDataModel;
+    GraphDataModel graphDataModel(_pSettingsModel);
     graphDataModel.add();
     graphDataModel.setConnectionId(0, SettingsModel::CONNECTION_ID_0);
     graphDataModel.setRegisterAddress(0, 40001);
@@ -208,7 +208,7 @@ void TestCommunicationManager::multiSlaveSuccess_3()
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(1, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(1, 5022);
 
-    GraphDataModel graphDataModel;
+    GraphDataModel graphDataModel(_pSettingsModel);
     graphDataModel.add();
     graphDataModel.setConnectionId(0, SettingsModel::CONNECTION_ID_0);
     graphDataModel.setRegisterAddress(0, 40001);
@@ -248,7 +248,7 @@ void TestCommunicationManager::multiSlaveSingleFail()
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(0, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(0, 5021);
 
-    GraphDataModel graphDataModel;
+    GraphDataModel graphDataModel(_pSettingsModel);
     graphDataModel.add();
     graphDataModel.setConnectionId(0, SettingsModel::CONNECTION_ID_0);
     graphDataModel.setRegisterAddress(0, 40001);
@@ -283,7 +283,7 @@ void TestCommunicationManager::multiSlaveAllFail()
         _testSlaveModbusList[idx]->disconnectDevice();
     }
 
-    GraphDataModel graphDataModel;
+    GraphDataModel graphDataModel(_pSettingsModel);
     graphDataModel.add();
     graphDataModel.setConnectionId(0, SettingsModel::CONNECTION_ID_0);
     graphDataModel.setRegisterAddress(0, 40001);

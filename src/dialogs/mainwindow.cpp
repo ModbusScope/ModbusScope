@@ -35,7 +35,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGuiModel = new GuiModel();
 
     _pSettingsModel = new SettingsModel();
-    _pGraphDataModel = new GraphDataModel();
+    _pGraphDataModel = new GraphDataModel(_pSettingsModel);
     _pNoteModel = new NoteModel();
     _pErrorLogModel = new ErrorLogModel();
 
