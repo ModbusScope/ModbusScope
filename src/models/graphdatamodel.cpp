@@ -5,9 +5,9 @@
 
 #include "graphdatamodel.h"
 
-
-GraphDataModel::GraphDataModel(QObject *parent) : QAbstractTableModel(parent)
+GraphDataModel::GraphDataModel(SettingsModel * pSettingsModel, QObject *parent) : QAbstractTableModel(parent)
 {
+    _pSettingsModel = pSettingsModel;
     _graphData.clear();
 
     connect(this, SIGNAL(visibilityChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
@@ -20,6 +20,7 @@ GraphDataModel::GraphDataModel(QObject *parent) : QAbstractTableModel(parent)
     connect(this, SIGNAL(registerAddressChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(bitmaskChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(shiftChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
+    connect(this, SIGNAL(connectionIdChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
 
     connect(this, SIGNAL(added(quint32)), this, SLOT(modelDataChanged()));
     connect(this, SIGNAL(removed(quint32)), this, SLOT(modelDataChanged()));
@@ -42,13 +43,13 @@ int GraphDataModel::columnCount(const QModelIndex & /*parent*/) const
     * Shift
     * Multiply factor
     * Divide factor
+    * Connection id
     * */
-    return 9; // Number of visible members of struct
+    return 10; // Number of visible members of struct
 }
 
 QVariant GraphDataModel::data(const QModelIndex &index, int role) const
 {
-
     switch (index.column())
     {
     case 0:
@@ -120,6 +121,12 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
             return Util::formatDoubleForExport(divideFactor(index.row()));
         }
         break;
+    case 9:
+        if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
+        {
+            return QString("Connection %1").arg(connectionId(index.row()) + 1);
+        }
+        break;
     default:
         return QVariant();
         break;
@@ -155,6 +162,8 @@ QVariant GraphDataModel::headerData(int section, Qt::Orientation orientation, in
                 return QString("Multiply");
             case 8:
                 return QString("Divide");
+            case 9:
+                return QString("Connection");
             default:
                 return QVariant();
             }
@@ -322,6 +331,27 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             }
         }
         break;
+    case 9:
+        if (role == Qt::EditRole)
+        {
+            bool bSuccess = false;
+            const quint8 newConnectionId = static_cast<quint8>(value.toUInt(&bSuccess));
+
+            if (
+                    (bSuccess)
+                    && (newConnectionId < SettingsModel::CONNECTION_ID_CNT)
+                )
+            {
+                setConnectionId(index.row(), newConnectionId);
+            }
+            else
+            {
+                bRet = false;
+                Util::showError(tr("Connection ID is not valid"));
+                break;
+            }
+        }
+        break;
     default:
         break;
 
@@ -335,23 +365,38 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
 
 Qt::ItemFlags GraphDataModel::flags(const QModelIndex & index) const
 {
+    Qt::ItemFlags itemFlags = Qt::NoItemFlags;
+
+    /* default is enabled */
+    itemFlags |= Qt::ItemIsEnabled;
+
+    /* Disable when connection is disabled */
+    if (
+        (connectionId(index.row()) == SettingsModel::CONNECTION_ID_1)
+        && (!_pSettingsModel->secondConnectionState())
+    )
+    {
+        itemFlags &= ~(Qt::ItemIsEnabled);
+    }
+
     if (
             (index.column() == 1)
             || (index.column() == 2)
         )
     {
         // checkable
-        return Qt::ItemIsSelectable |  Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
+        itemFlags |= Qt::ItemIsSelectable |  Qt::ItemIsUserCheckable;
     }
     else if (index.column() == 0)
     {
-        return Qt::ItemIsSelectable | Qt::ItemIsEnabled ;
+        itemFlags |= Qt::ItemIsSelectable;
     }
     else
     {
-        return Qt::ItemIsSelectable |  Qt::ItemIsEditable | Qt::ItemIsEnabled;
+        itemFlags |= Qt::ItemIsSelectable |  Qt::ItemIsEditable;
     }
 
+    return itemFlags;
 }
 
 
@@ -442,6 +487,11 @@ quint16 GraphDataModel::bitmask(quint32 index) const
 qint32 GraphDataModel::shift(quint32 index) const
 {
     return _graphData[index].shift();
+}
+
+quint8 GraphDataModel::connectionId(quint8 index) const
+{
+    return _graphData[index].connectionId();
 }
 
 QSharedPointer<QCPGraphDataContainer> GraphDataModel::dataMap(quint32 index)
@@ -554,6 +604,15 @@ void GraphDataModel::setShift(quint32 index, const qint32 &shift)
     }
 }
 
+void GraphDataModel::setConnectionId(quint32 index, const quint8 &connectionId)
+{
+    if (_graphData[index].connectionId() != connectionId)
+    {
+         _graphData[index].setConnectionId(connectionId);
+         emit connectionIdChanged(index);
+    }
+}
+
 void GraphDataModel::add(GraphData rowData)
 {
     addToModel(&rowData);
@@ -606,8 +665,8 @@ void GraphDataModel::clear()
     }
 }
 
-// Get sorted list of active (unique) register addresses
-void GraphDataModel::activeGraphAddresList(QList<quint16> * pRegisterList)
+// Get sorted list of active (unique) register addresses for a specific connection id
+void GraphDataModel::activeGraphAddresList(QList<quint16> * pRegisterList, quint8 connectionId)
 {
     // Clear list
     pRegisterList->clear();
@@ -616,7 +675,10 @@ void GraphDataModel::activeGraphAddresList(QList<quint16> * pRegisterList)
     {
         if (!pRegisterList->contains(_graphData[idx].registerAddress()))
         {
-            pRegisterList->append(_graphData[idx].registerAddress());
+            if (_graphData[idx].connectionId() == connectionId)
+            {
+                pRegisterList->append(_graphData[idx].registerAddress());
+            }
         }
     }
 
@@ -639,7 +701,7 @@ void GraphDataModel::activeGraphIndexList(QList<quint16> * pList)
     qSort(*pList);
 }
 
-bool GraphDataModel::getDuplicate(quint16 * pRegister, quint16 * pBitmask)
+bool GraphDataModel::getDuplicate(quint16 * pRegister, quint16 * pBitmask, quint8 * pConnectionId)
 {
     for (qint32 idx = 0; idx < (_graphData.size() - 1); idx++) // Don't need to check last entry
     {
@@ -648,10 +710,12 @@ bool GraphDataModel::getDuplicate(quint16 * pRegister, quint16 * pBitmask)
             if (
                 (_graphData[idx].registerAddress() == _graphData[checkIdx].registerAddress())
                 && (_graphData[idx].bitmask() == _graphData[checkIdx].bitmask())
+                && (_graphData[idx].connectionId() == _graphData[checkIdx].connectionId())
             )
             {
                 *pRegister = _graphData[idx].registerAddress();
                 *pBitmask = _graphData[idx].bitmask();
+                *pConnectionId = _graphData[idx].connectionId();
                 return false;
             }
         }

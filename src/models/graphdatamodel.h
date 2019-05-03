@@ -5,6 +5,7 @@
 #include <QAbstractTableModel>
 #include <QList>
 
+#include "settingsmodel.h"
 #include "graphdata.h"
 
 
@@ -12,7 +13,7 @@ class GraphDataModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit GraphDataModel(QObject *parent = nullptr);
+    explicit GraphDataModel(SettingsModel * pSettingsModel, QObject *parent = nullptr);
 
     /* Functions for QTableView (model) */
     int rowCount(const QModelIndex &parent = QModelIndex()) const ;
@@ -40,6 +41,7 @@ public:
     quint16 registerAddress(quint32 index) const;
     quint16 bitmask(quint32 index) const;
     qint32 shift(quint32 index) const;
+    quint8 connectionId(quint8 index) const;
     QSharedPointer<QCPGraphDataContainer> dataMap(quint32 index);
 
     void setVisible(quint32 index, bool bVisible);
@@ -52,6 +54,7 @@ public:
     void setRegisterAddress(quint32 index, const quint16 &registerAddress);
     void setBitmask(quint32 index, const quint16 &bitmask);
     void setShift(quint32 index, const qint32 &shift);
+    void setConnectionId(quint32 index, const quint8 &connectionId);
 
     void add(GraphData rowData);
     void add(QList<GraphData> graphDataList);
@@ -61,10 +64,10 @@ public:
     void removeRegister(qint32 idx);
     void clear();
 
-    void activeGraphAddresList(QList<quint16> * pRegisterList);
+    void activeGraphAddresList(QList<quint16> * pRegisterList, quint8 connectionId);
     void activeGraphIndexList(QList<quint16> * pList);
 
-    bool getDuplicate(quint16 * pRegister, quint16 *pBitmask);
+    bool getDuplicate(quint16 * pRegister, quint16 * pBitmask, quint8 * pConnectionId);
     virtual bool isPresent(quint16 addr, quint16 bitmask);
 
     qint32 convertToActiveGraphIndex(quint32 graphIdx);
@@ -82,6 +85,7 @@ signals:
     void registerAddressChanged(const quint32 graphIdx);
     void bitmaskChanged(const quint32 graphIdx);
     void shiftChanged(const quint32 graphIdx);
+    void connectionIdChanged(const quint32 graphIdx);
     void graphsAddData(QList<double>, QList<QList<double> > data);
 
     void added(const quint32 idx); // When graph definition is added
@@ -103,6 +107,8 @@ private:
 
     QList<GraphData> _graphData;
     QList<quint32> _activeGraphList;
+
+    SettingsModel * _pSettingsModel;
 };
 
 #endif // GRAPHDATAMODEL_H

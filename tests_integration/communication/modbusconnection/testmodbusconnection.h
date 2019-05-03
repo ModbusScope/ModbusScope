@@ -2,7 +2,6 @@
 #include <QObject>
 #include <QPointer>
 #include <QUrl>
-#include "settingsmodel.h"
 
 #include "testslavedata.h"
 #include "testslavemodbus.h"
@@ -28,6 +27,7 @@ private:
     QPointer<TestSlaveData> _pTestSlaveData;
     QPointer<TestSlaveModbus> _pTestSlaveModbus;
 
-    SettingsModel _settingsModel;
+    quint8 _slaveId;
+
     QUrl _serverConnectionData;
 };

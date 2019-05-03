@@ -48,6 +48,7 @@ SOURCES +=  \
     $$PWD/src/communication/modbusresult.cpp \
     $$PWD/src/customwidgets/legend.cpp \
     $$PWD/src/dialogs/registerdialog.cpp \
+    $$PWD/src/dialogs/registerconndelegate.cpp \
     $$PWD/src/customwidgets/verticalscrollareacontents.cpp \
     $$PWD/src/customwidgets/markerinfo.cpp \
     $$PWD/src/customwidgets/markerinfoitem.cpp \
@@ -93,6 +94,7 @@ HEADERS += \
     $$PWD/src/dialogs/logdialog.h \
     $$PWD/src/dialogs/mainwindow.h \
     $$PWD/src/dialogs/registerdialog.h \
+    $$PWD/src/dialogs/registerconndelegate.h \
     $$PWD/src/graphview/basicgraphview.h \
     $$PWD/src/graphview/extendedgraphview.h \
     $$PWD/src/models/guimodel.h \

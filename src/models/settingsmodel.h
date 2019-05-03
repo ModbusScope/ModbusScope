@@ -16,21 +16,24 @@ public:
     void setPollTime(quint32 pollTime);
     void setWriteDuringLogFile(QString filename);
     void setWriteDuringLogFileToDefault(void);
-    void setIpAddress(QString ip);
-    void setPort(quint16 port);
-    void setSlaveId(quint8 id);
-    void setTimeout(quint32 timeout);
-    void setConsecutiveMax(quint8 max);
+    void setIpAddress(quint8 connectionId, QString ip);
+    void setPort(quint8 connectionId, quint16 port);
+    void setSlaveId(quint8 connectionId, quint8 id);
+    void setTimeout(quint8 connectionId, quint32 timeout);
+    void setConsecutiveMax(quint8 connectionId, quint8 max);
+    void setSecondConnectionState(bool bState);
 
     QString writeDuringLogFile();
     bool writeDuringLog();
-    QString ipAddress();
-    quint16 port();
-    quint8 slaveId();
-    quint32 timeout();
+    QString ipAddress(quint8 connectionId);
+    quint16 port(quint8 connectionId);
+    quint8 slaveId(quint8 connectionId);
+    quint32 timeout(quint8 connectionId);
+    quint8 consecutiveMax(quint8 connectionId);
+    bool secondConnectionState();
+
     quint32 pollTime();
     bool absoluteTimes();
-    quint8 consecutiveMax();
 
     static const QString defaultLogPath()
     {
@@ -45,6 +48,13 @@ public:
         return tempDir.append(cDefaultLogFileName);
     }
 
+    enum
+    {
+        CONNECTION_ID_0 = 0,
+        CONNECTION_ID_1,
+        CONNECTION_ID_CNT
+    };
+
 public slots:
     void setWriteDuringLog(bool bState);
     void setAbsoluteTimes(bool bAbsolute);
@@ -53,26 +63,36 @@ signals:
     void pollTimeChanged();
     void writeDuringLogChanged();
     void writeDuringLogFileChanged();
-    void ipChanged();
-    void portChanged();
-    void slaveIdChanged();
-    void timeoutChanged();
     void absoluteTimesChanged();
-    void consecutiveMaxChanged();
+
+    void ipChanged(quint8 connectionId);
+    void portChanged(quint8 connectionId);
+    void slaveIdChanged(quint8 connectionId);
+    void timeoutChanged(quint8 connectionId);
+    void consecutiveMaxChanged(quint8 connectionId);
+    void secondConnectionStateChanged(void);
 
 private:
 
-    QString _ipAddress;
-    quint16 _port;
-    quint8 _slaveId;
-    quint32 _timeout;
-    quint32 _pollTime;
-    quint8 _consecutiveMax;
+    typedef struct
+    {
+        QString ipAddress;
+        quint16 port;
+        quint8 slaveId;
+        quint32 timeout;
+        quint8 consecutiveMax;
 
+    } ConnectionSettings;
+
+    QList<ConnectionSettings> _connectionSettings;
+
+    quint32 _pollTime;
     bool _bAbsoluteTimes;
 
     bool _bWriteDuringLog;
     QString _writeDuringLogFile;
+
+    bool _bSecondConnectionState;
 
 };
 

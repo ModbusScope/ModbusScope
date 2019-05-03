@@ -68,11 +68,12 @@ void ProjectFileExporter::createConnectionTag(QDomElement * pParentElement)
 {
     QDomElement connectionElement = _domDocument.createElement(ProjectFileDefinitions::cConnectionTag);
 
-    addTextNode(ProjectFileDefinitions::cIpTag, _pSettingsModel->ipAddress(), &connectionElement);
-    addTextNode(ProjectFileDefinitions::cPortTag, QString("%1").arg(_pSettingsModel->port()), &connectionElement);
-    addTextNode(ProjectFileDefinitions::cSlaveIdTag, QString("%1").arg(_pSettingsModel->slaveId()), &connectionElement);
-    addTextNode(ProjectFileDefinitions::cTimeoutTag, QString("%1").arg(_pSettingsModel->timeout()), &connectionElement);
-    addTextNode(ProjectFileDefinitions::cConsecutiveMaxTag, QString("%1").arg(_pSettingsModel->consecutiveMax()), &connectionElement);
+    // TODO: Multiple connections
+    addTextNode(ProjectFileDefinitions::cIpTag, _pSettingsModel->ipAddress(SettingsModel::CONNECTION_ID_0), &connectionElement);
+    addTextNode(ProjectFileDefinitions::cPortTag, QString("%1").arg(_pSettingsModel->port(SettingsModel::CONNECTION_ID_0)), &connectionElement);
+    addTextNode(ProjectFileDefinitions::cSlaveIdTag, QString("%1").arg(_pSettingsModel->slaveId(SettingsModel::CONNECTION_ID_0)), &connectionElement);
+    addTextNode(ProjectFileDefinitions::cTimeoutTag, QString("%1").arg(_pSettingsModel->timeout(SettingsModel::CONNECTION_ID_0)), &connectionElement);
+    addTextNode(ProjectFileDefinitions::cConsecutiveMaxTag, QString("%1").arg(_pSettingsModel->consecutiveMax(SettingsModel::CONNECTION_ID_0)), &connectionElement);
 
     pParentElement->appendChild(connectionElement);
 }
@@ -126,6 +127,7 @@ void ProjectFileExporter::createRegisterTag(QDomElement * pParentElement, qint32
     addTextNode(ProjectFileDefinitions::cColorTag, _pGraphDataModel->color(idx).name(), &registerElement);
     addTextNode(ProjectFileDefinitions::cBitmaskTag, QString("0x%1").arg(_pGraphDataModel->bitmask(idx), 0, 16), &registerElement);
     addTextNode(ProjectFileDefinitions::cShiftTag, QString("%1").arg(_pGraphDataModel->shift(idx)), &registerElement);
+    addTextNode(ProjectFileDefinitions::cConnectionIdTag, QString("%1").arg(_pGraphDataModel->connectionId(idx)), &registerElement);
 
     pParentElement->appendChild(registerElement);
 }

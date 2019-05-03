@@ -35,7 +35,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGuiModel = new GuiModel();
 
     _pSettingsModel = new SettingsModel();
-    _pGraphDataModel = new GraphDataModel();
+    _pGraphDataModel = new GraphDataModel(_pSettingsModel);
     _pNoteModel = new NoteModel();
     _pErrorLogModel = new ErrorLogModel();
 
@@ -138,6 +138,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGraphDataModel, SIGNAL(registerAddressChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
     connect(_pGraphDataModel, SIGNAL(bitmaskChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
     connect(_pGraphDataModel, SIGNAL(shiftChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
+    connect(_pGraphDataModel, SIGNAL(connectionIdChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
     connect(_pGraphDataModel, SIGNAL(added(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
     connect(_pGraphDataModel, SIGNAL(removed(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
 
@@ -233,13 +234,17 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGraphDataModel->add();
     _pGraphDataModel->add();
 
-    _pGraphDataModel->setActive(2, false);
+    //_pGraphDataModel->setActive(2, false);
 
     _pSettingsModel->setPollTime(1000);
 
-    //_pSettingsModel->setIpAddress("192.168.0.142");
-    _pSettingsModel->setIpAddress("127.0.0.1");
-    _pSettingsModel->setPort(5020);
+    _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_0, "192.168.0.142");
+    _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_1, "192.168.0.142");
+
+    //_pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_0, "127.0.0.1");
+
+    _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_0, 5020);
+    _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_1, 5020);
 #endif
 
 }
@@ -505,7 +510,7 @@ void MainWindow::showRegisterDialog(QString mbcFile)
         _pGuiModel->setGuiState(GuiModel::INIT);
     }
 
-    RegisterDialog registerDialog(_pGuiModel, _pGraphDataModel, this);
+    RegisterDialog registerDialog(_pGuiModel, _pGraphDataModel, _pSettingsModel, this);
 
     if (mbcFile.isEmpty())
     {
@@ -1045,29 +1050,30 @@ void MainWindow::updateDataFileNotes()
 
 void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pProjectSettings)
 {
+    /* TODO: Don't use hard-coded connection id 0 */
     if (pProjectSettings->general.connectionSettings.bIp)
     {
-        _pSettingsModel->setIpAddress(pProjectSettings->general.connectionSettings.ip);
+        _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_0, pProjectSettings->general.connectionSettings.ip);
     }
 
     if (pProjectSettings->general.connectionSettings.bPort)
     {
-         _pSettingsModel->setPort(pProjectSettings->general.connectionSettings.port);
+         _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_0, pProjectSettings->general.connectionSettings.port);
     }
 
     if (pProjectSettings->general.connectionSettings.bSlaveId)
     {
-        _pSettingsModel->setSlaveId(pProjectSettings->general.connectionSettings.slaveId);
+        _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_0, pProjectSettings->general.connectionSettings.slaveId);
     }
 
     if (pProjectSettings->general.connectionSettings.bTimeout)
     {
-        _pSettingsModel->setTimeout(pProjectSettings->general.connectionSettings.timeout);
+        _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_0, pProjectSettings->general.connectionSettings.timeout);
     }
 
     if (pProjectSettings->general.connectionSettings.bConsecutiveMax)
     {
-        _pSettingsModel->setConsecutiveMax(pProjectSettings->general.connectionSettings.consecutiveMax);
+        _pSettingsModel->setConsecutiveMax(SettingsModel::CONNECTION_ID_0, pProjectSettings->general.connectionSettings.consecutiveMax);
     }
 
     if (pProjectSettings->general.logSettings.bPollTime)
@@ -1125,6 +1131,7 @@ void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pP
         rowData.setMultiplyFactor(pProjectSettings->scope.registerList[i].multiplyFactor);
         rowData.setColor(pProjectSettings->scope.registerList[i].color);
         rowData.setShift(pProjectSettings->scope.registerList[i].shift);
+        rowData.setConnectionId(pProjectSettings->scope.registerList[i].connectionId);
 
         _pGraphDataModel->add(rowData);
     }

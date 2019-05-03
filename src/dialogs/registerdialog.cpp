@@ -3,9 +3,11 @@
 #include "util.h"
 #include "registerdialog.h"
 #include "importmbcdialog.h"
+#include "registerconndelegate.h"
+
 #include "ui_registerdialog.h"
 
-RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel,  QWidget *parent) :
+RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel, SettingsModel * pSettingsModel, QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::RegisterDialog)
 {
@@ -20,6 +22,9 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     // Setup registerView
     _pUi->registerView->setModel(_pGraphDataModel);
     _pUi->registerView->verticalHeader()->hide();
+
+    RegisterConnDelegate* cbConn = new RegisterConnDelegate(pSettingsModel,_pUi->registerView);
+    _pUi->registerView->setItemDelegateForColumn(9, cbConn);
 
     /* Don't stretch columns */
     _pUi->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -37,7 +42,6 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     // Handle delete
     QShortcut* shortcut = new QShortcut(QKeySequence(QKeySequence::Delete), _pUi->registerView);
     connect(shortcut, SIGNAL(activated()), this, SLOT(removeRegisterRow()));
-
 
     // Setup handler for buttons
     connect(_pUi->btnImportFromMbc, SIGNAL(released()), this, SLOT(showImportDialog()));
@@ -59,11 +63,12 @@ void RegisterDialog::done(int r)
     {
         quint16 duplicateReg = 0;
         quint16 duplicateBitMask = 0;
-        if (!_pGraphDataModel->getDuplicate(&duplicateReg, &duplicateBitMask))
+        quint8 duplicateConnectionId = 0;
+        if (!_pGraphDataModel->getDuplicate(&duplicateReg, &duplicateBitMask, &duplicateConnectionId))
         {
             bValid = false;
 
-            Util::showError(tr("Register %1 with bitmask 0x%2 is defined twice in the list.").arg(duplicateReg).arg(duplicateBitMask, 0, 16));
+            Util::showError(tr("Register %1 with bitmask 0x%2 of connection (%3) is defined twice in the list.").arg(duplicateReg).arg(duplicateBitMask, 0, 16).arg(duplicateConnectionId + 1));
         }
     }
     else

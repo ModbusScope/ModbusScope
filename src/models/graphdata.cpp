@@ -14,6 +14,7 @@ GraphData::GraphData()
     _divideFactor = 1;
     _multiplyFactor = 1;
     _shift = 0;
+    _connectionId = 0;
 
     _pDataMap = QSharedPointer<QCPGraphDataContainer>(new QCPGraphDataContainer);
 }
@@ -124,6 +125,16 @@ qint32 GraphData::shift() const
 void GraphData::setShift(const qint32 &shift)
 {
     _shift = shift;
+}
+
+quint8 GraphData::connectionId() const
+{
+    return _connectionId;
+}
+
+void GraphData::setConnectionId(const quint8 &connectionId)
+{
+    _connectionId = connectionId;
 }
 
 QSharedPointer<QCPGraphDataContainer> GraphData::dataMap()

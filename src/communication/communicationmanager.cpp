@@ -1,16 +1,13 @@
-#include <QTimer>
+
 #include <QDateTime>
 
-#include "modbusconnection.h"
-#include "readregisters.h"
-
 #include "modbusmaster.h"
-#include "communicationmanager.h"
 #include "guimodel.h"
 #include "settingsmodel.h"
 #include "graphdatamodel.h"
 #include "errorlogmodel.h"
 
+#include "communicationmanager.h"
 
 CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiModel *pGuiModel, GraphDataModel *pGraphDataModel, ErrorLogModel *pErrorLogModel, QObject *parent) :
     QObject(parent), _active(false)
@@ -23,17 +20,21 @@ CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiMo
     _pErrorLogModel = pErrorLogModel;
 
     /* Setup modbus master */
-    _master = new ModbusMaster(_pSettingsModel);
+    for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++)
+    {
+        auto modbusData = new ModbusMasterData(new ModbusMaster(_pSettingsModel, i));
+        _modbusMasters.append(modbusData);
 
-    connect(_master, SIGNAL(modbusPollDone(QMap<quint16, ModbusResult>)), this, SLOT(handlePollDone(QMap<quint16, ModbusResult>)));
+        connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusPollDone, this, &CommunicationManager::handlePollDone);
 
-    connect(_master, SIGNAL(modbusLogError(QString)), this, SLOT(handleModbusError(QString)));
-    connect(_master, SIGNAL(modbusLogInfo(QString)), this, SLOT(handleModbusInfo(QString)));
+        connect(_modbusMasters.last()->pModbusMaster, SIGNAL(modbusLogError(QString)), this, SLOT(handleModbusError(QString)));
+        connect(_modbusMasters.last()->pModbusMaster, SIGNAL(modbusLogInfo(QString)), this, SLOT(handleModbusInfo(QString)));
 
-    connect(_master, QOverload<quint32, quint32>::of(&ModbusMaster::modbusAddToStats),
-        [=](quint32 successes, quint32 errors){
-            _pGuiModel->setCommunicationStats(_pGuiModel->communicationSuccessCount() + successes, _pGuiModel->communicationErrorCount() + errors);
-        });
+        connect(_modbusMasters.last()->pModbusMaster, QOverload<quint32, quint32>::of(&ModbusMaster::modbusAddToStats),
+            [=](quint32 successes, quint32 errors){
+                _pGuiModel->setCommunicationStats(_pGuiModel->communicationSuccessCount() + successes, _pGuiModel->communicationErrorCount() + errors);
+            });
+    }
 }
 
 CommunicationManager::~CommunicationManager()
@@ -70,68 +71,87 @@ void CommunicationManager::resetCommunicationStats()
     }
 }
 
-void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> resultMap)
+void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialResultMap, quint8 connectionId)
 {
-    // Restart timer when previous request has been handled
-    uint waitInterval;
-    const uint passedInterval = QDateTime::currentMSecsSinceEpoch() - _lastPollStart;
+    bool lastResult = false;
 
-    if (passedInterval > _pSettingsModel->pollTime())
+    quint8 activeCnt = 0;
+    for(quint8 i = 0; i < SettingsModel::CONNECTION_ID_CNT; i++)
     {
-        // Poll again immediatly
-        waitInterval = 1;
-    }
-    else
-    {
-        // Set waitInterval to remaining time
-        waitInterval = _pSettingsModel->pollTime() - passedInterval;
-    }
-
-    _pPollTimer->singleShot(waitInterval, this, SLOT(readData()));
-
-
-    /* Check response with current active registers, because it is possible that the graphs have changed during request */
-
-
-    // Get list of active graph indexes
-    bool bOk = true;
-    QList<quint16> activeIndexList;
-    _pGraphDataModel->activeGraphIndexList(&activeIndexList);
-
-    // Process values
-    QList<double> processedValues;
-    QList<bool> successList;
-
-    foreach(quint16 graphIndex, activeIndexList)
-    {
-        const quint16 registerAddress = _pGraphDataModel->registerAddress(graphIndex);
-        if (resultMap.contains(registerAddress))
+        if (_modbusMasters[i]->bActive)
         {
-            processedValues.append(processValue(graphIndex, resultMap[registerAddress].value()));
-            successList.append(resultMap[registerAddress].isSuccess());
+            activeCnt++;
+        }
+    }
+
+    /* Last active modbus master has returned its result */
+    if (activeCnt == 1)
+    {
+        /* Last result */
+        lastResult = true;
+    }
+
+    // Always add data to result map
+    QMapIterator<quint16, ModbusResult> i(partialResultMap);
+    while (i.hasNext())
+    {
+        i.next();
+
+        for(quint16 listIdx = 0; listIdx < _activeIndexList.size(); listIdx++)
+        {
+            const quint16 activeIndex = _activeIndexList[listIdx];
+            if (_pGraphDataModel->connectionId(activeIndex) == connectionId)
+            {
+                if (_pGraphDataModel->registerAddress(activeIndex) == i.key())
+                {
+                    ModbusResult result = i.value();
+                    _processedValues[listIdx] = result.value();
+                    _successList[listIdx] = result.isSuccess();
+                }
+            }
+        }
+    }
+
+    if (lastResult)
+    {
+        // propagate processed data
+        emit handleReceivedData(_successList, _processedValues);
+    }
+
+    // Set master as inactive
+    _modbusMasters[connectionId]->bActive = false;
+
+    if (lastResult)
+    {
+        // Restart timer when previous request has been handled
+        uint waitInterval;
+        const quint32 passedInterval = static_cast<quint32>(QDateTime::currentMSecsSinceEpoch() - _lastPollStart);
+
+        if (passedInterval > _pSettingsModel->pollTime())
+        {
+            // Poll again immediatly
+            waitInterval = 1;
         }
         else
         {
-            bOk = false;
-            break;
+            // Set waitInterval to remaining time
+            waitInterval = _pSettingsModel->pollTime() - passedInterval;
         }
-    }
 
-    if (bOk)
-    {
-        // propagate processed data
-        emit handleReceivedData(successList, processedValues);
+        _pPollTimer->singleShot(static_cast<int>(waitInterval), this, SLOT(readData()));
     }
 }
 
 void CommunicationManager::handleModbusError(QString msg)
 {
+    qDebug() << msg;
     ErrorLog log = ErrorLog(ErrorLog::LOG_ERROR, QDateTime::currentDateTime(), msg);
     _pErrorLogModel->addItem(log);
 }
 
 void CommunicationManager::handleModbusInfo(QString msg)
 {
+    qDebug() << msg;
     ErrorLog log = ErrorLog(ErrorLog::LOG_INFO, QDateTime::currentDateTime(), msg);
     _pErrorLogModel->addItem(log);
 }
@@ -154,11 +174,52 @@ void CommunicationManager::readData()
     {
         _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 
-        QList<quint16> regAddrList;
-        _pGraphDataModel->activeGraphAddresList(&regAddrList);
+        /* Prepare result lists */
+        _processedValues.clear();
+        _successList.clear();
+        _pGraphDataModel->activeGraphIndexList(&_activeIndexList);
 
-        _master->readRegisterList(regAddrList);
+        for(int idx = 0; idx < _activeIndexList.size(); idx++)
+        {
+            _processedValues.append(0);
+            _successList.append(false);
+        }
+
+        /* Strange construction is required to avoid race condition:
+         *
+         * First set _activeMastersCount to correct value
+         * And only then activate masters (readRegisterList)
+         *
+         * readRegisterList can return immediatly and this will give race condition
+         */
+
+        _activeMastersCount = 0;
+
+        QList<QList<quint16> > regAddrList;
+
+        for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++)
+        {
+            regAddrList.append(QList<quint16>());
+
+            _pGraphDataModel->activeGraphAddresList(&regAddrList.last(), i);
+
+            if (regAddrList.last().count() > 0)
+            {
+                _activeMastersCount++;
+            }
+        }
+
+        for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++)
+        {
+            if (regAddrList.at(i).count() > 0)
+            {
+                _modbusMasters[i]->bActive = true;
+                _modbusMasters[i]->pModbusMaster->readRegisterList(regAddrList.at(i));
+            }
+        }
+
     }
+
 }
 
 double CommunicationManager::processValue(quint32 graphIndex, quint16 value)
@@ -171,17 +232,17 @@ double CommunicationManager::processValue(quint32 graphIndex, quint16 value)
     }
     else
     {
-        processedValue = (qint16)value;
+        processedValue = static_cast<qint16>(value);
     }
 
     // Apply bitmask
     if (_pGraphDataModel->isUnsigned(graphIndex))
     {
-        processedValue = (quint16)((quint16)processedValue & _pGraphDataModel->bitmask(graphIndex));
+        processedValue = static_cast<qint16>(processedValue) & _pGraphDataModel->bitmask(graphIndex);
     }
     else
     {
-        processedValue = (qint16)((quint16)processedValue & _pGraphDataModel->bitmask(graphIndex));
+        processedValue = static_cast<qint16>(processedValue) & _pGraphDataModel->bitmask(graphIndex);
     }
 
     // Apply shift
@@ -189,16 +250,16 @@ double CommunicationManager::processValue(quint32 graphIndex, quint16 value)
     {
         if (_pGraphDataModel->shift(graphIndex) > 0)
         {
-            processedValue = (quint16)((quint16)processedValue << _pGraphDataModel->shift(graphIndex));
+            processedValue = static_cast<qint16>(processedValue) << _pGraphDataModel->shift(graphIndex);
         }
         else
         {
-            processedValue = (quint16)((quint16)processedValue >> abs(_pGraphDataModel->shift(graphIndex)));
+            processedValue = static_cast<qint16>(processedValue) >> abs(_pGraphDataModel->shift(graphIndex));
         }
 
         if (!_pGraphDataModel->isUnsigned(graphIndex))
         {
-            processedValue = (qint16)processedValue;
+            processedValue = static_cast<qint16>(processedValue);
         }
     }
 

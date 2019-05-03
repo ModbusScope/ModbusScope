@@ -4,15 +4,26 @@
 SettingsModel::SettingsModel(QObject *parent) :
     QObject(parent)
 {
+
+    for(quint8 i = 0; i < CONNECTION_ID_CNT; i++)
+    {
+        ConnectionSettings connectionSettings;
+
+        connectionSettings.ipAddress = "127.0.0.1";
+        connectionSettings.port = 502;
+        connectionSettings.slaveId = 1;
+        connectionSettings.timeout = 1000;
+        connectionSettings.consecutiveMax = 125;
+
+        _connectionSettings.append(connectionSettings);
+    }
+
     _pollTime = 250;
+    _bAbsoluteTimes = false;
     _bWriteDuringLog = true;
     _writeDuringLogFile = SettingsModel::defaultLogPath();
-    _ipAddress = "127.0.0.1";
-    _port = 502;
-    _slaveId = 1;
-    _timeout = 1000;
-    _consecutiveMax = 125;
-    _bAbsoluteTimes = false;
+
+    _bSecondConnectionState = false;
 }
 
 SettingsModel::~SettingsModel()
@@ -25,12 +36,18 @@ void SettingsModel::triggerUpdate(void)
     emit pollTimeChanged();
     emit writeDuringLogChanged();
     emit writeDuringLogFileChanged();
-    emit ipChanged();
-    emit portChanged();
-    emit slaveIdChanged();
-    emit timeoutChanged();
     emit absoluteTimesChanged();
-    emit consecutiveMaxChanged();
+
+    for(quint8 i = 0; i < CONNECTION_ID_CNT; i++)
+    {
+        emit ipChanged(i);
+        emit portChanged(i);
+        emit slaveIdChanged(i);
+        emit timeoutChanged(i);
+        emit consecutiveMaxChanged(i);
+    }
+
+    emit secondConnectionStateChanged();
 }
 
 void SettingsModel::setPollTime(quint32 pollTime)
@@ -61,18 +78,42 @@ bool SettingsModel::absoluteTimes()
     return _bAbsoluteTimes;
 }
 
-void SettingsModel::setConsecutiveMax(quint8 max)
+void SettingsModel::setConsecutiveMax(quint8 connectionId, quint8 max)
 {
-    if (_consecutiveMax != max)
+    if (connectionId >= CONNECTION_ID_CNT)
     {
-        _consecutiveMax = max;
-        emit consecutiveMaxChanged();
+        connectionId = CONNECTION_ID_0;
+    }
+
+    if (_connectionSettings[connectionId].consecutiveMax != max)
+    {
+        _connectionSettings[connectionId].consecutiveMax = max;
+        emit consecutiveMaxChanged(connectionId);
     }
 }
 
-quint8 SettingsModel::consecutiveMax(void)
+quint8 SettingsModel::consecutiveMax(quint8 connectionId)
 {
-    return _consecutiveMax;
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    return _connectionSettings[connectionId].consecutiveMax;
+}
+
+void SettingsModel::setSecondConnectionState(bool bState)
+{
+    if (_bSecondConnectionState != bState)
+    {
+        _bSecondConnectionState = bState;
+        emit secondConnectionStateChanged();
+    }
+}
+
+bool SettingsModel::secondConnectionState()
+{
+    return _bSecondConnectionState;
 }
 
 void SettingsModel::setWriteDuringLog(bool bState)
@@ -108,59 +149,99 @@ QString SettingsModel::writeDuringLogFile()
     return _writeDuringLogFile;
 }
 
-void SettingsModel::setIpAddress(QString ip)
+void SettingsModel::setIpAddress(quint8 connectionId, QString ip)
 {
-    if (_ipAddress != ip)
+    if (connectionId >= CONNECTION_ID_CNT)
     {
-        _ipAddress = ip;
-        emit ipChanged();
+        connectionId = CONNECTION_ID_0;
+    }
+
+    if (_connectionSettings[connectionId].ipAddress != ip)
+    {
+        _connectionSettings[connectionId].ipAddress = ip;
+        emit ipChanged(connectionId);
     }
 }
 
-QString SettingsModel::ipAddress()
+QString SettingsModel::ipAddress(quint8 connectionId)
 {
-    return _ipAddress;
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    return _connectionSettings[connectionId].ipAddress;
 }
 
-void SettingsModel::setPort(quint16 port)
+void SettingsModel::setPort(quint8 connectionId, quint16 port)
 {
-    if (_port != port)
+    if (connectionId >= CONNECTION_ID_CNT)
     {
-        _port = port;
-        emit portChanged();
+        connectionId = CONNECTION_ID_0;
+    }
+
+    if (_connectionSettings[connectionId].port != port)
+    {
+        _connectionSettings[connectionId].port = port;
+        emit portChanged(connectionId);
     }
 }
 
-quint16 SettingsModel::port()
+quint16 SettingsModel::port(quint8 connectionId)
 {
-    return _port;
-}
-
-quint8 SettingsModel::slaveId()
-{
-    return _slaveId;
-}
-
-void SettingsModel::setSlaveId(quint8 id)
-{
-    if (_slaveId != id)
+    if (connectionId >= CONNECTION_ID_CNT)
     {
-        _slaveId = id;
-        emit slaveIdChanged();
+        connectionId = CONNECTION_ID_0;
+    }
+
+    return _connectionSettings[connectionId].port;
+}
+
+quint8 SettingsModel::slaveId(quint8 connectionId)
+{
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    return _connectionSettings[connectionId].slaveId;
+}
+
+void SettingsModel::setSlaveId(quint8 connectionId, quint8 id)
+{
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    if (_connectionSettings[connectionId].slaveId != id)
+    {
+        _connectionSettings[connectionId].slaveId = id;
+        emit slaveIdChanged(connectionId);
     }
 }
 
-quint32 SettingsModel::timeout()
+quint32 SettingsModel::timeout(quint8 connectionId)
 {
-    return _timeout;
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    return _connectionSettings[connectionId].timeout;
 }
 
-void SettingsModel::setTimeout(quint32 timeout)
+void SettingsModel::setTimeout(quint8 connectionId, quint32 timeout)
 {
-    if (_timeout != timeout)
+    if (connectionId >= CONNECTION_ID_CNT)
     {
-        _timeout = timeout;
-        emit timeoutChanged();
+        connectionId = CONNECTION_ID_0;
+    }
+
+    if (_connectionSettings[connectionId].timeout != timeout)
+    {
+        _connectionSettings[connectionId].timeout = timeout;
+        emit timeoutChanged(connectionId);
     }
 }
 

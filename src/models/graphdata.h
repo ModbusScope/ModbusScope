@@ -42,6 +42,9 @@ public:
     qint32 shift() const;
     void setShift(const qint32 &shift);
 
+    quint8 connectionId() const;
+    void setConnectionId(const quint8 &connectionId);
+
     QSharedPointer<QCPGraphDataContainer> dataMap();
 
 private:
@@ -57,6 +60,7 @@ private:
     quint16 _registerAddress;
     quint16 _bitmask;
     qint32 _shift;
+    quint8 _connectionId;
 
     QSharedPointer<QCPGraphDataContainer> _pDataMap;
 
