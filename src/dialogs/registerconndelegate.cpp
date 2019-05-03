@@ -1,9 +1,11 @@
-#include "registerconndelegate.h"
 #include <QComboBox>
 
-RegisterConnDelegate::RegisterConnDelegate(QObject *parent)
+#include "registerconndelegate.h"
+
+RegisterConnDelegate::RegisterConnDelegate(SettingsModel * pSettingsModel, QObject *parent)
     : QStyledItemDelegate(parent)
 {
+    _pSettingsModel = pSettingsModel;
 }
 
 RegisterConnDelegate::~RegisterConnDelegate()
@@ -18,7 +20,10 @@ QWidget *RegisterConnDelegate::createEditor(QWidget *parent, const QStyleOptionV
     // Create the combobox and populate it
     QComboBox *cb = new QComboBox(parent);
     cb->addItem(tr("Connection 1"));
-    cb->addItem(tr("Connection 2"));
+    if (_pSettingsModel->secondConnectionState())
+    {
+        cb->addItem(tr("Connection 2"));
+    }
     return cb;
 }
 

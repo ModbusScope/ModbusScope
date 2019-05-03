@@ -7,7 +7,7 @@
 
 #include "ui_registerdialog.h"
 
-RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel,  QWidget *parent) :
+RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel, SettingsModel * pSettingsModel, QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::RegisterDialog)
 {
@@ -23,7 +23,7 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     _pUi->registerView->setModel(_pGraphDataModel);
     _pUi->registerView->verticalHeader()->hide();
 
-    RegisterConnDelegate* cbConn = new RegisterConnDelegate(_pUi->registerView);
+    RegisterConnDelegate* cbConn = new RegisterConnDelegate(pSettingsModel,_pUi->registerView);
     _pUi->registerView->setItemDelegateForColumn(9, cbConn);
 
     /* Don't stretch columns */
@@ -42,7 +42,6 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     // Handle delete
     QShortcut* shortcut = new QShortcut(QKeySequence(QKeySequence::Delete), _pUi->registerView);
     connect(shortcut, SIGNAL(activated()), this, SLOT(removeRegisterRow()));
-
 
     // Setup handler for buttons
     connect(_pUi->btnImportFromMbc, SIGNAL(released()), this, SLOT(showImportDialog()));
