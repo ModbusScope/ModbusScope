@@ -59,11 +59,12 @@ void RegisterDialog::done(int r)
     {
         quint16 duplicateReg = 0;
         quint16 duplicateBitMask = 0;
-        if (!_pGraphDataModel->getDuplicate(&duplicateReg, &duplicateBitMask))
+        quint8 duplicateConnectionId = 0;
+        if (!_pGraphDataModel->getDuplicate(&duplicateReg, &duplicateBitMask, &duplicateConnectionId))
         {
             bValid = false;
 
-            Util::showError(tr("Register %1 with bitmask 0x%2 is defined twice in the list.").arg(duplicateReg).arg(duplicateBitMask, 0, 16));
+            Util::showError(tr("Register %1 with bitmask 0x%2 of connection (%3) is defined twice in the list.").arg(duplicateReg).arg(duplicateBitMask, 0, 16).arg(duplicateConnectionId + 1));
         }
     }
     else

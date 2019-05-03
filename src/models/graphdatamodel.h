@@ -66,7 +66,7 @@ public:
     void activeGraphAddresList(QList<quint16> * pRegisterList, quint8 connectionId);
     void activeGraphIndexList(QList<quint16> * pList);
 
-    bool getDuplicate(quint16 * pRegister, quint16 *pBitmask);
+    bool getDuplicate(quint16 * pRegister, quint16 * pBitmask, quint8 * pConnectionId);
     virtual bool isPresent(quint16 addr, quint16 bitmask);
 
     qint32 convertToActiveGraphIndex(quint32 graphIdx);

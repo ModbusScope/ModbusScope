@@ -691,7 +691,7 @@ void GraphDataModel::activeGraphIndexList(QList<quint16> * pList)
     qSort(*pList);
 }
 
-bool GraphDataModel::getDuplicate(quint16 * pRegister, quint16 * pBitmask)
+bool GraphDataModel::getDuplicate(quint16 * pRegister, quint16 * pBitmask, quint8 * pConnectionId)
 {
     for (qint32 idx = 0; idx < (_graphData.size() - 1); idx++) // Don't need to check last entry
     {
@@ -700,10 +700,12 @@ bool GraphDataModel::getDuplicate(quint16 * pRegister, quint16 * pBitmask)
             if (
                 (_graphData[idx].registerAddress() == _graphData[checkIdx].registerAddress())
                 && (_graphData[idx].bitmask() == _graphData[checkIdx].bitmask())
+                && (_graphData[idx].connectionId() == _graphData[checkIdx].connectionId())
             )
             {
                 *pRegister = _graphData[idx].registerAddress();
                 *pBitmask = _graphData[idx].bitmask();
+                *pConnectionId = _graphData[idx].connectionId();
                 return false;
             }
         }
