@@ -40,7 +40,7 @@ public:
     quint16 registerAddress(quint32 index) const;
     quint16 bitmask(quint32 index) const;
     qint32 shift(quint32 index) const;
-    quint8 connectionId(quint32 index) const;
+    quint8 connectionId(quint8 index) const;
     QSharedPointer<QCPGraphDataContainer> dataMap(quint32 index);
 
     void setVisible(quint32 index, bool bVisible);
@@ -53,7 +53,7 @@ public:
     void setRegisterAddress(quint32 index, const quint16 &registerAddress);
     void setBitmask(quint32 index, const quint16 &bitmask);
     void setShift(quint32 index, const qint32 &shift);
-    void setConnectionId(quint32 index, const qint8 &connectionId);
+    void setConnectionId(quint32 index, const quint8 &connectionId);
 
     void add(GraphData rowData);
     void add(QList<GraphData> graphDataList);

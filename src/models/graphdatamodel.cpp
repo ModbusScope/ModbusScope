@@ -479,7 +479,7 @@ qint32 GraphDataModel::shift(quint32 index) const
     return _graphData[index].shift();
 }
 
-quint8 GraphDataModel::connectionId(quint32 index) const
+quint8 GraphDataModel::connectionId(quint8 index) const
 {
     return _graphData[index].connectionId();
 }
@@ -594,7 +594,7 @@ void GraphDataModel::setShift(quint32 index, const qint32 &shift)
     }
 }
 
-void GraphDataModel::setConnectionId(quint32 index, const qint8 &connectionId)
+void GraphDataModel::setConnectionId(quint32 index, const quint8 &connectionId)
 {
     if (_graphData[index].connectionId() != connectionId)
     {
