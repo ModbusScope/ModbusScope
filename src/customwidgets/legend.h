@@ -18,18 +18,15 @@ class Legend : public QFrame
 {
     Q_OBJECT
 public:
-    explicit Legend(QWidget *parent = 0);
+    explicit Legend(QWidget *parent = nullptr);
     ~Legend();
 
     void setModels(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel);
     void setGraphview(BasicGraphView * pGraphView);
-    void graphToForeground(int row);
-    void toggleGraphVisibility(int row);
-
-signals:
 
 public slots:
     void addLastReceivedDataToLegend(QList<bool> successList, QList<double> valueList);
+    void graphToForeground(int row);
     void updateDataInLegend();
 
 private slots:
@@ -38,7 +35,7 @@ private slots:
     void changeGraphColor(const quint32 graphIdx);
     void changeGraphLabel(const quint32 graphIdx);
     void showContextMenu(const QPoint& pos);
-
+    void legendCellDoubleClicked(int row, int column);
     void toggleVisibilityClicked();
     void hideAll();
     void showAll();
