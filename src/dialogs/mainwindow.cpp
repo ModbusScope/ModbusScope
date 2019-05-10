@@ -548,6 +548,7 @@ void MainWindow::clearData()
     _pGuiModel->clearMarkersState();
     _pDataFileExporter->rewriteDataFile();
     _pNoteModel->clear();
+    _pLegend->clearLegendData();
 }
 
 void MainWindow::startScope()

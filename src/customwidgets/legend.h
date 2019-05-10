@@ -24,6 +24,8 @@ public:
     void setModels(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel);
     void setGraphview(BasicGraphView * pGraphView);
 
+    void clearLegendData();
+
 public slots:
     void addLastReceivedDataToLegend(QList<bool> successList, QList<double> valueList);
     void graphToForeground(int row);

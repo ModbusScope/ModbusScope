@@ -94,7 +94,16 @@ void Legend::setModels(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel)
     connect(_pGraphDataModel, SIGNAL(visibilityChanged(quint32)), this, SLOT(showGraph(const quint32)));
     connect(_pGraphDataModel, SIGNAL(colorChanged(quint32)), this, SLOT(changeGraphColor(quint32)));
     connect(_pGraphDataModel, SIGNAL(labelChanged(quint32)), this, SLOT(changeGraphLabel(quint32)));
+}
 
+void Legend::clearLegendData()
+{
+    for (qint32 i = 0; i < _lastReceivedValueList.size(); i++)
+    {
+        _lastReceivedValueList[i] = "-";
+    }
+
+    updateDataInLegend();
 }
 
 void Legend::graphToForeground(int row)
