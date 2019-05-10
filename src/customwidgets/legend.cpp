@@ -3,6 +3,7 @@
 #include <QStyleOption>
 #include <QPainter>
 #include <QMouseEvent>
+#include <QColorDialog>
 
 #include "guimodel.h"
 #include "graphdatamodel.h"
@@ -66,7 +67,7 @@ Legend::Legend(QWidget *parent) : QFrame(parent)
     connect(_pHideAllAction, &QAction::triggered, this, &Legend::hideAll);
     connect(_pShowAllAction, &QAction::triggered, this, &Legend::showAll);
     connect(_pLegendTable, &QTableWidget::cellClicked, this, &Legend::graphToForeground);
-    connect(_pLegendTable, &QTableWidget::cellDoubleClicked, this, &Legend::toggleGraphVisibility);
+    connect(_pLegendTable, &QTableWidget::cellDoubleClicked, this, &Legend::legendCellDoubleClicked);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &Legend::customContextMenuRequested, this, &Legend::showContextMenu);
@@ -101,9 +102,36 @@ void Legend::graphToForeground(int row)
     _pGuiModel->setFrontGraph(row);
 }
 
-void Legend::toggleGraphVisibility(int row)
+void Legend::legendCellDoubleClicked(int row, int column)
 {
-    toggleItemVisibility(row);
+    if (column == 0)
+    {
+        if (row != -1)
+        {
+            const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(static_cast<quint32>(row));
+
+            if (_pGraphDataModel->isVisible(graphIdx))
+            {
+                /* Color column */
+                QColor color = QColorDialog::getColor(_pGraphDataModel->color(graphIdx));
+
+                if (color.isValid())
+                {
+                    // Set color in model
+                    _pGraphDataModel->setColor(graphIdx, color);
+                }
+                else
+                {
+                    // user aborted
+                }
+            }
+        }
+    }
+    else
+    {
+        /* Other columns */
+        toggleItemVisibility(row);
+    }
 }
 
 void Legend::addLastReceivedDataToLegend(QList<bool> successList, QList<double> valueList)
