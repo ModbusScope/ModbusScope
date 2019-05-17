@@ -17,6 +17,7 @@
 #include "guimodel.h"
 #include "extendedgraphview.h"
 #include "datafilehandler.h"
+#include "projectfilehandler.h"
 #include "util.h"
 
 #include <QDateTime>
@@ -50,6 +51,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
 
     _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel);
+    _pProjectFileHandler = new ProjectFileHandler(_pGuiModel, _pSettingsModel, _pGraphDataModel);
+
     _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphView, _pGraphDataModel, _pNoteModel);
 
     _pLegend = _pUi->legend;
@@ -261,6 +264,9 @@ MainWindow::~MainWindow()
     delete _pGraphShowHide;
     delete _pGraphBringToFront;
     delete _pErrorLogModel;
+    delete _pDataFileHandler;
+    delete _pProjectFileHandler;
+
     delete _pUi;
 }
 
@@ -336,14 +342,14 @@ void MainWindow::selectProjectSettingFile()
     {
         filePath = dialog.selectedFiles().first();
         _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-        loadProjectFile(filePath);
+        _pProjectFileHandler->loadProjectFile(filePath);
     }
 
 }
 
 void MainWindow::reloadProjectSettings()
 {
-    loadProjectFile(_pGuiModel->projectFilePath());
+    _pProjectFileHandler->loadProjectFile(_pGuiModel->projectFilePath());
 }
 
 void MainWindow::selectDataImportFile()
@@ -979,7 +985,7 @@ void MainWindow::dropEvent(QDropEvent *e)
         _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
         if (fileInfo.completeSuffix().toLower() == QString("mbs"))
         {
-            loadProjectFile(filename);
+            _pProjectFileHandler->loadProjectFile(filename);
         }
         else if (fileInfo.completeSuffix().toLower() == QString("csv"))
         {
@@ -1052,121 +1058,6 @@ void MainWindow::updateDataFileNotes()
     }
 }
 
-void MainWindow::updateConnectionSetting(ProjectFileParser::ProjectSettings * pProjectSettings)
-{
-    /* TODO: Don't use hard-coded connection id 0 */
-    if (pProjectSettings->general.connectionSettings.bIp)
-    {
-        _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_0, pProjectSettings->general.connectionSettings.ip);
-    }
-
-    if (pProjectSettings->general.connectionSettings.bPort)
-    {
-         _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_0, pProjectSettings->general.connectionSettings.port);
-    }
-
-    if (pProjectSettings->general.connectionSettings.bSlaveId)
-    {
-        _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_0, pProjectSettings->general.connectionSettings.slaveId);
-    }
-
-    if (pProjectSettings->general.connectionSettings.bTimeout)
-    {
-        _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_0, pProjectSettings->general.connectionSettings.timeout);
-    }
-
-    if (pProjectSettings->general.connectionSettings.bConsecutiveMax)
-    {
-        _pSettingsModel->setConsecutiveMax(SettingsModel::CONNECTION_ID_0, pProjectSettings->general.connectionSettings.consecutiveMax);
-    }
-
-    if (pProjectSettings->general.logSettings.bPollTime)
-    {
-        _pSettingsModel->setPollTime(pProjectSettings->general.logSettings.pollTime);
-    }
-
-    _pSettingsModel->setAbsoluteTimes(pProjectSettings->general.logSettings.bAbsoluteTimes);
-
-    _pSettingsModel->setWriteDuringLog(pProjectSettings->general.logSettings.bLogToFile);
-    if (pProjectSettings->general.logSettings.bLogToFileFile)
-    {
-        _pSettingsModel->setWriteDuringLogFile(pProjectSettings->general.logSettings.logFile);
-    }
-    else
-    {
-         _pSettingsModel->setWriteDuringLogFileToDefault();
-    }
-
-    if (pProjectSettings->view.scaleSettings.bSliding)
-    {
-        _pGuiModel->setxAxisSlidingInterval(pProjectSettings->view.scaleSettings.slidingInterval);
-        _pGuiModel->setxAxisScale(BasicGraphView::SCALE_SLIDING);
-    }
-    else
-    {
-        _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
-    }
-
-    if (pProjectSettings->view.scaleSettings.bMinMax)
-    {
-        _pGuiModel->setyAxisMin(pProjectSettings->view.scaleSettings.scaleMin);
-        _pGuiModel->setyAxisMax(pProjectSettings->view.scaleSettings.scaleMax);
-        _pGuiModel->setyAxisScale(BasicGraphView::SCALE_MINMAX);
-    }
-    else if (pProjectSettings->view.scaleSettings.bWindowScale)
-    {
-        _pGuiModel->setyAxisScale(BasicGraphView::SCALE_WINDOW_AUTO);
-    }
-    else
-    {
-        _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
-    }
-
-    _pGraphDataModel->clear();
-    for (qint32 i = 0; i < pProjectSettings->scope.registerList.size(); i++)
-    {
-        GraphData rowData;
-        rowData.setActive(pProjectSettings->scope.registerList[i].bActive);
-        rowData.setUnsigned(pProjectSettings->scope.registerList[i].bUnsigned);
-        rowData.setRegisterAddress(pProjectSettings->scope.registerList[i].address);
-        rowData.setBitmask(pProjectSettings->scope.registerList[i].bitmask);
-        rowData.setLabel(pProjectSettings->scope.registerList[i].text);
-        rowData.setDivideFactor(pProjectSettings->scope.registerList[i].divideFactor);
-        rowData.setMultiplyFactor(pProjectSettings->scope.registerList[i].multiplyFactor);
-        rowData.setColor(pProjectSettings->scope.registerList[i].color);
-        rowData.setShift(pProjectSettings->scope.registerList[i].shift);
-        rowData.setConnectionId(pProjectSettings->scope.registerList[i].connectionId);
-
-        _pGraphDataModel->add(rowData);
-    }
-
-    _pGuiModel->setFrontGraph(-1);
-}
-
-void MainWindow::loadProjectFile(QString projectFilePath)
-{
-    ProjectFileParser fileParser;
-    ProjectFileParser::ProjectSettings loadedSettings;
-    QFile file(projectFilePath);
-
-    /* If we can't open it, let's show an error message. */
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        if (fileParser.parseFile(&file, &loadedSettings))
-        {
-            updateConnectionSetting(&loadedSettings);
-
-            _pGuiModel->setDataFilePath("");
-            _pGuiModel->setProjectFilePath(projectFilePath);
-            _pGuiModel->setGuiState(GuiModel::STOPPED);
-        }
-    }
-    else
-    {
-        Util::showError(tr("Couldn't open project file: %1").arg(projectFilePath));
-    }
-}
-
 void MainWindow::handleCommandLineArguments(QStringList cmdArguments)
 {
     QCommandLineParser argumentParser;
@@ -1184,6 +1075,6 @@ void MainWindow::handleCommandLineArguments(QStringList cmdArguments)
         QString filename = argumentParser.positionalArguments().first();
         QFileInfo fileInfo(filename);
         _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
-        loadProjectFile(filename);
+        _pProjectFileHandler->loadProjectFile(filename);
     }
 }

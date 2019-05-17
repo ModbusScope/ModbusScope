@@ -71,7 +71,8 @@ SOURCES +=  \
     $$PWD/src/util/scopelogging.cpp \
     $$PWD/src/communication/modbusconnection.cpp \
     $$PWD/src/communication/readregisters.cpp \
-    $$PWD/src/importexport/datafilehandler.cpp
+    $$PWD/src/importexport/datafilehandler.cpp \
+    $$PWD/src/importexport/projectfilehandler.cpp
 
 FORMS    += \
     $$PWD/src/dialogs/connectiondialog.ui \
@@ -133,7 +134,8 @@ HEADERS += \
     $$PWD/src/util/scopelogging.h \
     $$PWD/src/communication/modbusconnection.h \
     $$PWD/src/communication/readregisters.h \
-    $$PWD/src/importexport/datafilehandler.h
+    $$PWD/src/importexport/datafilehandler.h \
+    $$PWD/src/importexport/projectfilehandler.h
 
 RESOURCES += \
     $$PWD/src/resources/resource.qrc

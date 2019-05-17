@@ -31,6 +31,7 @@ class GuiModel;
 class ExtendedGraphView;
 class MarkerInfo;
 class DataFileHandler;
+class ProjectFileHandler;
 
 class MainWindow : public QMainWindow
 {
@@ -109,8 +110,6 @@ private slots:
 
 private:
 
-    void updateConnectionSetting(ProjectFileParser::ProjectSettings *pProjectSettings);
-    void loadProjectFile(QString projectFilePath);
     void handleCommandLineArguments(QStringList cmdArguments);
 
     Ui::MainWindow * _pUi;
@@ -128,6 +127,7 @@ private:
     ErrorLogDialog * _pErrorLogDialog;
 
     DataFileHandler* _pDataFileHandler;
+    ProjectFileHandler* _pProjectFileHandler;
 
     NotesDock * _pNotesDock;
     MarkerInfo * _pMarkerInfo;
