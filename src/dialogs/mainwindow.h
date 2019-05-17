@@ -8,7 +8,6 @@
 #include <QMenu>
 
 #include "legend.h"
-#include "datafileparser.h"
 #include "projectfileparser.h"
 #include "datafileexporter.h"
 #include "projectfileexporter.h"
@@ -31,13 +30,14 @@ class NotesDock;
 class GuiModel;
 class ExtendedGraphView;
 class MarkerInfo;
+class DataFileHandler;
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QStringList cmdArguments, QWidget *parent = 0);
+    explicit MainWindow(QStringList cmdArguments, QWidget *parent = nullptr);
     ~MainWindow();
 
 protected:
@@ -112,26 +112,25 @@ private:
     void updateConnectionSetting(ProjectFileParser::ProjectSettings *pProjectSettings);
     void loadProjectFile(QString projectFilePath);
     void handleCommandLineArguments(QStringList cmdArguments);
-    void loadDataFile(QString dataFilePath);
 
     Ui::MainWindow * _pUi;
     CommunicationManager * _pConnMan;
     ExtendedGraphView * _pGraphView;
 
     SettingsModel * _pSettingsModel;
-    ConnectionDialog * _pConnectionDialog;
-    NotesDock * _pNotesDock;
-    LogDialog * _pLogDialog;
-    ErrorLogDialog * _pErrorLogDialog;
-
     GraphDataModel * _pGraphDataModel;
     NoteModel * _pNoteModel;
     ErrorLogModel * _pErrorLogModel;
-
-    MarkerInfo * _pMarkerInfo;
-
     GuiModel * _pGuiModel;
 
+    ConnectionDialog * _pConnectionDialog;
+    LogDialog * _pLogDialog;
+    ErrorLogDialog * _pErrorLogDialog;
+
+    DataFileHandler* _pDataFileHandler;
+
+    NotesDock * _pNotesDock;
+    MarkerInfo * _pMarkerInfo;
     Legend * _pLegend;
 
     DataFileExporter * _pDataFileExporter;

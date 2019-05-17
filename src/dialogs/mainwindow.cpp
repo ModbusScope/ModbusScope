@@ -16,6 +16,7 @@
 #include "markerinfo.h"
 #include "guimodel.h"
 #include "extendedgraphview.h"
+#include "datafilehandler.h"
 #include "util.h"
 
 #include <QDateTime>
@@ -48,6 +49,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pGraphDataModel, _pErrorLogModel);
     _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
 
+    _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel);
     _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphView, _pGraphDataModel, _pNoteModel);
 
     _pLegend = _pUi->legend;
@@ -359,7 +361,7 @@ void MainWindow::selectDataImportFile()
     {
         filePath = dialog.selectedFiles().first();
         _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-        loadDataFile(filePath);
+        _pDataFileHandler->loadDataFile(filePath);
     }
 }
 
@@ -981,7 +983,7 @@ void MainWindow::dropEvent(QDropEvent *e)
         }
         else if (fileInfo.completeSuffix().toLower() == QString("csv"))
         {
-            loadDataFile(filename);
+            _pDataFileHandler->loadDataFile(filename);
         }
         else if (fileInfo.completeSuffix().toLower() == QString("mbc"))
         {
@@ -1164,53 +1166,6 @@ void MainWindow::loadProjectFile(QString projectFilePath)
         Util::showError(tr("Couldn't open project file: %1").arg(projectFilePath));
     }
 }
-
-void MainWindow::loadDataFile(QString dataFilePath)
-{
-    DataFileParser dataParser;
-
-    DataFileParser::FileData data;
-    if (dataParser.processDataFile(dataFilePath, &data))
-    {
-        // Set to full auto scaling
-        _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
-
-        // Set to full auto scaling
-        _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
-
-        _pGraphDataModel->clear();
-        _pGuiModel->setFrontGraph(-1);
-
-        _pGraphDataModel->add(data.dataLabel, data.timeRow, data.dataRows);
-
-        if (!data.colors.isEmpty())
-        {
-            for (int idx = 0; idx < data.dataLabel.size(); idx++)
-            {
-                _pGraphDataModel->setColor((quint32)idx, data.colors[idx]);
-            }
-        }
-
-        _pNoteModel->clear();
-        if (!data.notes.isEmpty())
-        {
-            foreach(Note note, data.notes)
-            {
-                _pNoteModel->add(note);
-            }
-        }
-        _pNoteModel->setNotesDataUpdated(false);
-
-        _pGuiModel->setFrontGraph(0);
-
-        _pGuiModel->setProjectFilePath("");
-        _pGuiModel->setDataFilePath(dataFilePath);
-
-        _pGuiModel->setGuiState(GuiModel::DATA_LOADED);
-
-    }
-}
-
 
 void MainWindow::handleCommandLineArguments(QStringList cmdArguments)
 {
