@@ -18,6 +18,7 @@ public:
 signals:
 
 public slots:
+    void selectDataImportFile();
 
 private:
 

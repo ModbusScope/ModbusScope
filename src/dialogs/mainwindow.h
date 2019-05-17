@@ -55,7 +55,6 @@ signals:
 private slots:
 
     /* Menu handlers */
-    void selectDataImportFile();
     void exitApplication();
     void selectDataExportFile();
     void selectImageExportFile();

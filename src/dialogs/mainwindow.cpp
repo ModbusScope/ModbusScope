@@ -71,7 +71,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionExportDataCsv, SIGNAL(triggered()), this, SLOT(selectDataExportFile()));
     connect(_pUi->actionLoadProjectFile, SIGNAL(triggered()), _pProjectFileHandler, SLOT(selectProjectSettingFile()));
     connect(_pUi->actionReloadProjectFile, SIGNAL(triggered()), _pProjectFileHandler, SLOT(reloadProjectFile()));
-    connect(_pUi->actionImportDataFile, SIGNAL(triggered()), this, SLOT(selectDataImportFile()));
+    connect(_pUi->actionImportDataFile, SIGNAL(triggered()), _pDataFileHandler, SLOT(selectDataImportFile()));
     connect(_pUi->actionExportImage, SIGNAL(triggered()), this, SLOT(selectImageExportFile()));
     connect(_pUi->actionExportSettings, SIGNAL(triggered()), _pProjectFileHandler, SLOT(selectSettingsExportFile()));
     connect(_pUi->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
@@ -324,25 +324,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
     else
     {
         event->accept();
-    }
-}
-
-void MainWindow::selectDataImportFile()
-{
-    QString filePath;
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::ExistingFile);
-    dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
-    dialog.setWindowTitle(tr("Select csv file"));
-    dialog.setNameFilter(tr("csv files (*.csv)"));
-    dialog.setDirectory(_pGuiModel->lastDir());
-
-    if (dialog.exec())
-    {
-        filePath = dialog.selectedFiles().first();
-        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-        _pDataFileHandler->loadDataFile(filePath);
     }
 }
 

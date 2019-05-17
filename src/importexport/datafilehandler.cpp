@@ -55,3 +55,22 @@ void DataFileHandler::loadDataFile(QString dataFilePath)
 
     }
 }
+
+void DataFileHandler::selectDataImportFile()
+{
+    QString filePath;
+    QFileDialog dialog;
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    dialog.setAcceptMode(QFileDialog::AcceptOpen);
+    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
+    dialog.setWindowTitle(tr("Select csv file"));
+    dialog.setNameFilter(tr("csv files (*.csv)"));
+    dialog.setDirectory(_pGuiModel->lastDir());
+
+    if (dialog.exec())
+    {
+        filePath = dialog.selectedFiles().first();
+        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
+        this->loadDataFile(filePath);
+    }
+}
