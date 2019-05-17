@@ -73,7 +73,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionReloadProjectFile, SIGNAL(triggered()), this, SLOT(reloadProjectSettings()));
     connect(_pUi->actionImportDataFile, SIGNAL(triggered()), this, SLOT(selectDataImportFile()));
     connect(_pUi->actionExportImage, SIGNAL(triggered()), this, SLOT(selectImageExportFile()));
-    connect(_pUi->actionExportSettings, SIGNAL(triggered()), this, SLOT(selectSettingsExportFile()));
+    connect(_pUi->actionExportSettings, SIGNAL(triggered()), _pProjectFileHandler, SLOT(selectSettingsExportFile()));
     connect(_pUi->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
     connect(_pUi->actionHighlightSamplePoints, SIGNAL(toggled(bool)), _pGuiModel, SLOT(setHighlightSamples(bool)));
     connect(_pUi->actionClearData, SIGNAL(triggered()), this, SLOT(clearData()));
@@ -393,27 +393,6 @@ void MainWindow::selectDataExportFile()
         filePath = dialog.selectedFiles().first();
         _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
         _pDataFileExporter->exportDataFile(filePath);
-    }
-}
-
-void MainWindow::selectSettingsExportFile()
-{
-    ProjectFileExporter projectFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel);
-    QString filePath;
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
-    dialog.setDefaultSuffix("mbs");
-    dialog.setWindowTitle(tr("Select mbs file"));
-    dialog.setNameFilter(tr("MBS files (*.mbs)"));
-    dialog.setDirectory(_pGuiModel->lastDir());
-
-    if (dialog.exec())
-    {
-        filePath = dialog.selectedFiles().first();
-        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-        projectFileExporter.exportProjectFile(filePath);
     }
 }
 

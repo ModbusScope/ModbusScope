@@ -1,7 +1,10 @@
 
 #include <QFile>
+#include <QFileDialog>
 
 #include "util.h"
+#include "projectfileexporter.h"
+
 #include "projectfilehandler.h"
 
 ProjectFileHandler::ProjectFileHandler(GuiModel* pGuiModel, SettingsModel* pSettingsModel, GraphDataModel* pGraphDataModel) : QObject(nullptr)
@@ -32,6 +35,27 @@ void ProjectFileHandler::loadProjectFile(QString projectFilePath)
     else
     {
         Util::showError(tr("Couldn't open project file: %1").arg(projectFilePath));
+    }
+}
+
+void ProjectFileHandler::selectSettingsExportFile()
+{
+    ProjectFileExporter projectFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel);
+    QString filePath;
+    QFileDialog dialog;
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
+    dialog.setDefaultSuffix("mbs");
+    dialog.setWindowTitle(tr("Select mbs file"));
+    dialog.setNameFilter(tr("MBS files (*.mbs)"));
+    dialog.setDirectory(_pGuiModel->lastDir());
+
+    if (dialog.exec())
+    {
+        filePath = dialog.selectedFiles().first();
+        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
+        projectFileExporter.exportProjectFile(filePath);
     }
 }
 

@@ -10,7 +10,6 @@
 #include "legend.h"
 #include "projectfileparser.h"
 #include "datafileexporter.h"
-#include "projectfileexporter.h"
 
 namespace Ui {
 class MainWindow;
@@ -62,7 +61,6 @@ private slots:
     void exitApplication();
     void selectDataExportFile();
     void selectImageExportFile();
-    void selectSettingsExportFile();
     void showAbout();
     void menuBringToFrontGraphClicked(bool bState);
     void menuShowHideGraphClicked(bool bState);
