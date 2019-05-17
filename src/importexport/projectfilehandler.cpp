@@ -59,6 +59,30 @@ void ProjectFileHandler::selectSettingsExportFile()
     }
 }
 
+void ProjectFileHandler::selectProjectSettingFile()
+{
+    QString filePath;
+    QFileDialog dialog;
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    dialog.setAcceptMode(QFileDialog::AcceptOpen);
+    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
+    dialog.setWindowTitle(tr("Select mbs file"));
+    dialog.setNameFilter(tr("mbs files (*.mbs)"));
+    dialog.setDirectory(_pGuiModel->lastDir());
+
+    if (dialog.exec())
+    {
+        filePath = dialog.selectedFiles().first();
+        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
+        this->loadProjectFile(filePath);
+    }
+}
+
+void ProjectFileHandler::reloadProjectFile()
+{
+    this->loadProjectFile(_pGuiModel->projectFilePath());
+}
+
 void ProjectFileHandler::updateConnectionSetting(ProjectFileParser::ProjectSettings * pProjectSettings)
 {
     /* TODO: Don't use hard-coded connection id 0 */

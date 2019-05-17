@@ -55,8 +55,6 @@ signals:
 private slots:
 
     /* Menu handlers */
-    void selectProjectSettingFile();
-    void reloadProjectSettings();
     void selectDataImportFile();
     void exitApplication();
     void selectDataExportFile();

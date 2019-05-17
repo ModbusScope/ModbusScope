@@ -69,8 +69,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionManageNotes, SIGNAL(triggered()), this, SLOT(showNotesDialog()));
     connect(_pUi->actionExit, SIGNAL(triggered()), this, SLOT(exitApplication()));
     connect(_pUi->actionExportDataCsv, SIGNAL(triggered()), this, SLOT(selectDataExportFile()));
-    connect(_pUi->actionLoadProjectFile, SIGNAL(triggered()), this, SLOT(selectProjectSettingFile()));
-    connect(_pUi->actionReloadProjectFile, SIGNAL(triggered()), this, SLOT(reloadProjectSettings()));
+    connect(_pUi->actionLoadProjectFile, SIGNAL(triggered()), _pProjectFileHandler, SLOT(selectProjectSettingFile()));
+    connect(_pUi->actionReloadProjectFile, SIGNAL(triggered()), _pProjectFileHandler, SLOT(reloadProjectFile()));
     connect(_pUi->actionImportDataFile, SIGNAL(triggered()), this, SLOT(selectDataImportFile()));
     connect(_pUi->actionExportImage, SIGNAL(triggered()), this, SLOT(selectImageExportFile()));
     connect(_pUi->actionExportSettings, SIGNAL(triggered()), _pProjectFileHandler, SLOT(selectSettingsExportFile()));
@@ -325,31 +325,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
     {
         event->accept();
     }
-}
-
-void MainWindow::selectProjectSettingFile()
-{
-    QString filePath;
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::ExistingFile);
-    dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
-    dialog.setWindowTitle(tr("Select mbs file"));
-    dialog.setNameFilter(tr("mbs files (*.mbs)"));
-    dialog.setDirectory(_pGuiModel->lastDir());
-
-    if (dialog.exec())
-    {
-        filePath = dialog.selectedFiles().first();
-        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-        _pProjectFileHandler->loadProjectFile(filePath);
-    }
-
-}
-
-void MainWindow::reloadProjectSettings()
-{
-    _pProjectFileHandler->loadProjectFile(_pGuiModel->projectFilePath());
 }
 
 void MainWindow::selectDataImportFile()
