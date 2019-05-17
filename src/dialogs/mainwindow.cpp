@@ -49,7 +49,6 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
 
     _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphView, _pGraphDataModel, _pNoteModel);
-    _pProjectFileExporter = new ProjectFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel);
 
     _pLegend = _pUi->legend;
     _pLegend->setModels(_pGuiModel, _pGraphDataModel);
@@ -391,6 +390,7 @@ void MainWindow::selectDataExportFile()
 
 void MainWindow::selectSettingsExportFile()
 {
+    ProjectFileExporter projectFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel);
     QString filePath;
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::AnyFile);
@@ -405,7 +405,7 @@ void MainWindow::selectSettingsExportFile()
     {
         filePath = dialog.selectedFiles().first();
         _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-        _pProjectFileExporter->exportProjectFile(filePath);
+        projectFileExporter.exportProjectFile(filePath);
     }
 }
 

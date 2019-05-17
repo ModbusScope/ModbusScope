@@ -135,7 +135,6 @@ private:
     Legend * _pLegend;
 
     DataFileExporter * _pDataFileExporter;
-    ProjectFileExporter * _pProjectFileExporter;
 
     QLabel * _pStatusStats;
     QLabel * _pStatusState;
