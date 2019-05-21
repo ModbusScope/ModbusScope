@@ -100,7 +100,9 @@ bool ProjectFileParser::parseModbusTag(const QDomElement &element, GeneralSettin
     {
         if (child.tagName() == ProjectFileDefinitions::cConnectionTag)
         {
-            bRet = parseConnectionTag(child, &pGeneralSettings->connectionSettings);
+            pGeneralSettings->connectionSettings.append(ConnectionSettings());
+
+            bRet = parseConnectionTag(child, &pGeneralSettings->connectionSettings.last());
             if (!bRet)
             {
                 break;
@@ -135,10 +137,20 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
             pConnectionSettings->bIp = true;
             pConnectionSettings->ip = child.text();
         }
+        else if (child.tagName() == ProjectFileDefinitions::cConnectionIdTag)
+        {
+            pConnectionSettings->bConnectionId = true;
+            pConnectionSettings->connectionId = static_cast<quint8>(child.text().toUInt(&bRet));
+            if (!bRet)
+            {
+                Util::showError(tr("Connection Id (%1) is not a valid number").arg(child.text()));
+                break;
+            }
+        }
         else if (child.tagName() == ProjectFileDefinitions::cPortTag)
         {
             pConnectionSettings->bPort = true;
-            pConnectionSettings->port = child.text().toUInt(&bRet);
+            pConnectionSettings->port = static_cast<quint16>(child.text().toUInt(&bRet));
             if (!bRet)
             {
                 Util::showError(tr("Port ( %1 ) is not a valid number").arg(child.text()));

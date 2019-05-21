@@ -85,30 +85,50 @@ void ProjectFileHandler::reloadProjectFile()
 
 void ProjectFileHandler::updateConnectionSetting(ProjectFileParser::ProjectSettings * pProjectSettings)
 {
-    /* TODO: Don't use hard-coded connection id 0 */
-    if (pProjectSettings->general.connectionSettings.bIp)
-    {
-        _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_0, pProjectSettings->general.connectionSettings.ip);
-    }
+    const int connCnt = pProjectSettings->general.connectionSettings.size();
 
-    if (pProjectSettings->general.connectionSettings.bPort)
+    for(int idx = 0; idx < connCnt; idx++)
     {
-         _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_0, pProjectSettings->general.connectionSettings.port);
-    }
+        quint8 connectionId;
 
-    if (pProjectSettings->general.connectionSettings.bSlaveId)
-    {
-        _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_0, pProjectSettings->general.connectionSettings.slaveId);
-    }
+        if (pProjectSettings->general.connectionSettings[idx].bConnectionId)
+        {
+            connectionId = pProjectSettings->general.connectionSettings[idx].connectionId;
+        }
+        else
+        {
+            /* Default to connection 0 */
+            connectionId = SettingsModel::CONNECTION_ID_0;
+        }
 
-    if (pProjectSettings->general.connectionSettings.bTimeout)
-    {
-        _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_0, pProjectSettings->general.connectionSettings.timeout);
-    }
+        if (connectionId < SettingsModel::CONNECTION_ID_CNT)
+        {
 
-    if (pProjectSettings->general.connectionSettings.bConsecutiveMax)
-    {
-        _pSettingsModel->setConsecutiveMax(SettingsModel::CONNECTION_ID_0, pProjectSettings->general.connectionSettings.consecutiveMax);
+            if (pProjectSettings->general.connectionSettings[idx].bIp)
+            {
+                _pSettingsModel->setIpAddress(connectionId, pProjectSettings->general.connectionSettings[idx].ip);
+            }
+
+            if (pProjectSettings->general.connectionSettings[idx].bPort)
+            {
+                 _pSettingsModel->setPort(connectionId, pProjectSettings->general.connectionSettings[idx].port);
+            }
+
+            if (pProjectSettings->general.connectionSettings[idx].bSlaveId)
+            {
+                _pSettingsModel->setSlaveId(connectionId, pProjectSettings->general.connectionSettings[idx].slaveId);
+            }
+
+            if (pProjectSettings->general.connectionSettings[idx].bTimeout)
+            {
+                _pSettingsModel->setTimeout(connectionId, pProjectSettings->general.connectionSettings[idx].timeout);
+            }
+
+            if (pProjectSettings->general.connectionSettings[idx].bConsecutiveMax)
+            {
+                _pSettingsModel->setConsecutiveMax(connectionId, pProjectSettings->general.connectionSettings[idx].consecutiveMax);
+            }
+        }
     }
 
     if (pProjectSettings->general.logSettings.bPollTime)

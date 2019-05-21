@@ -73,13 +73,16 @@ public:
 
     typedef struct _ConnectionSettings
     {
-        _ConnectionSettings() : bIp(false), bPort(false), bSlaveId(false), bTimeout(false), bConsecutiveMax(false) {}
+        _ConnectionSettings() : bIp(false), bConnectionId(false), bPort(false), bSlaveId(false), bTimeout(false), bConsecutiveMax(false) {}
 
         bool bIp;
         QString ip;
 
+        bool bConnectionId;
+        quint8 connectionId;
+
         bool bPort;
-        quint32 port;
+        quint16 port;
 
         bool bSlaveId;
         quint8 slaveId;
@@ -94,7 +97,7 @@ public:
 
     typedef struct _GeneralSettings
     {
-        ConnectionSettings connectionSettings;
+        QList<ConnectionSettings> connectionSettings;
         LogSettings logSettings;
 
     } GeneralSettings;
@@ -131,6 +134,7 @@ private:
     bool parseScaleYAxis(const QDomElement &element, ScaleSettings *pScaleSettings);
 
     QDomDocument _domDocument;
+
 };
 
 #endif // PROJECTFILEPARSER_H

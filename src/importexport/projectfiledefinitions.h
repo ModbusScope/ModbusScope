@@ -14,6 +14,7 @@ namespace ProjectFileDefinitions
     const QString cConnectionTag = QString("connection");
     const QString cLogTag = QString("log");
     const QString cIpTag = QString("ip");
+    const QString cConnectionIdTag = QString("connectionid");
     const QString cSlaveIdTag = QString("slaveid");
     const QString cPortTag = QString("port");
     const QString cTimeoutTag = QString("timeout");
@@ -31,7 +32,6 @@ namespace ProjectFileDefinitions
     const QString cColorTag = QString("color");
     const QString cBitmaskTag = QString("bitmask");
     const QString cShiftTag = QString("shift");
-    const QString cConnectionIdTag = QString("connectionid");
 
     const QString cScaleTag = QString("scale");
     const QString cXaxisTag = QString("xaxis");
