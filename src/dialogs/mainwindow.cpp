@@ -53,7 +53,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel);
     _pProjectFileHandler = new ProjectFileHandler(_pGuiModel, _pSettingsModel, _pGraphDataModel);
 
-    _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphView, _pGraphDataModel, _pNoteModel);
+    _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel);
 
     _pLegend = _pUi->legend;
     _pLegend->setModels(_pGuiModel, _pGraphDataModel);
@@ -149,6 +149,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     // Update cursor values in legend
     connect(_pGraphView, SIGNAL(cursorValueUpdate()), _pLegend, SLOT(updateDataInLegend()));
+
+    connect(_pGraphView, SIGNAL(dataAddedToPlot(double, QList<double>)), _pDataFileExporter, SLOT(exportDataLine(double, QList <double>)));
 
     _pGraphShowHide = _pUi->menuShowHide;
     _pGraphBringToFront = _pUi->menuBringToFront;
