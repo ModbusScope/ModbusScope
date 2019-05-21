@@ -148,7 +148,7 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
         else if (child.tagName() == ProjectFileDefinitions::cSlaveIdTag)
         {
             pConnectionSettings->bSlaveId = true;
-            pConnectionSettings->slaveId = child.text().toUInt(&bRet);
+            pConnectionSettings->slaveId = static_cast<quint8>(child.text().toUInt(&bRet));
             if (!bRet)
             {
                 Util::showError(tr("Slave id ( %1 ) is not a valid number").arg(child.text()));
@@ -168,7 +168,7 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
         else if (child.tagName() == ProjectFileDefinitions::cConsecutiveMaxTag)
         {
             pConnectionSettings->bConsecutiveMax = true;
-            pConnectionSettings->consecutiveMax = child.text().toUInt(&bRet);
+            pConnectionSettings->consecutiveMax = static_cast<quint8>(child.text().toUInt(&bRet));
             if (!bRet)
             {
                 Util::showError(tr("Consecutive register maximum ( %1 ) is not a valid number").arg(child.text()));
@@ -373,7 +373,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
     {
         if (child.tagName() == ProjectFileDefinitions::cAddressTag)
         {
-            pRegisterSettings->address = child.text().toUInt(&bRet);
+            pRegisterSettings->address = static_cast<quint16>(child.text().toUInt(&bRet));
             if (!bRet)
             {
                 Util::showError(tr("Address ( %1 ) is not a valid number").arg(child.text()));
@@ -433,7 +433,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
         }
         else if (child.tagName() == ProjectFileDefinitions::cBitmaskTag)
         {
-            const quint16 newBitMask = child.text().toUInt(&bRet, 0);
+            const quint16 newBitMask = static_cast<quint16>(child.text().toUInt(&bRet, 0));
 
             if (bRet)
             {
