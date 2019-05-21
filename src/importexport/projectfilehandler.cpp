@@ -103,6 +103,7 @@ void ProjectFileHandler::updateConnectionSetting(ProjectFileParser::ProjectSetti
 
         if (connectionId < SettingsModel::CONNECTION_ID_CNT)
         {
+            _pSettingsModel->setConnectionState(connectionId, true);
 
             if (pProjectSettings->general.connectionSettings[idx].bIp)
             {
