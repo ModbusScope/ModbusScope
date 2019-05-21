@@ -9,7 +9,7 @@
 
 #include "legend.h"
 #include "projectfileparser.h"
-#include "datafileexporter.h"
+
 
 namespace Ui {
 class MainWindow;
@@ -56,7 +56,6 @@ private slots:
 
     /* Menu handlers */
     void exitApplication();
-    void selectDataExportFile();
     void selectImageExportFile();
     void showAbout();
     void menuBringToFrontGraphClicked(bool bState);
@@ -127,8 +126,6 @@ private:
     NotesDock * _pNotesDock;
     MarkerInfo * _pMarkerInfo;
     Legend * _pLegend;
-
-    DataFileExporter * _pDataFileExporter;
 
     QLabel * _pStatusStats;
     QLabel * _pStatusState;

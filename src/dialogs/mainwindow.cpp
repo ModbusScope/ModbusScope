@@ -50,10 +50,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pGraphDataModel, _pErrorLogModel);
     _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
 
-    _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel);
+    _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel, _pSettingsModel);
     _pProjectFileHandler = new ProjectFileHandler(_pGuiModel, _pSettingsModel, _pGraphDataModel);
-
-    _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel);
 
     _pLegend = _pUi->legend;
     _pLegend->setModels(_pGuiModel, _pGraphDataModel);
@@ -68,7 +66,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionErrorLog, SIGNAL(triggered()), this, SLOT(showErrorLog()));
     connect(_pUi->actionManageNotes, SIGNAL(triggered()), this, SLOT(showNotesDialog()));
     connect(_pUi->actionExit, SIGNAL(triggered()), this, SLOT(exitApplication()));
-    connect(_pUi->actionExportDataCsv, SIGNAL(triggered()), this, SLOT(selectDataExportFile()));
+    connect(_pUi->actionExportDataCsv, SIGNAL(triggered()), _pDataFileHandler, SLOT(selectDataExportFile()));
     connect(_pUi->actionLoadProjectFile, SIGNAL(triggered()), _pProjectFileHandler, SLOT(selectProjectSettingFile()));
     connect(_pUi->actionReloadProjectFile, SIGNAL(triggered()), _pProjectFileHandler, SLOT(reloadProjectFile()));
     connect(_pUi->actionImportDataFile, SIGNAL(triggered()), _pDataFileHandler, SLOT(selectDataImportFile()));
@@ -135,22 +133,10 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGraphDataModel, SIGNAL(bitmaskChanged(quint32)), _pGraphView, SLOT(clearGraph(quint32)));
     connect(_pGraphDataModel, SIGNAL(shiftChanged(quint32)), _pGraphView, SLOT(clearGraph(quint32)));
 
-    connect(_pGraphDataModel, SIGNAL(colorChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
-    connect(_pGraphDataModel, SIGNAL(activeChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
-    connect(_pGraphDataModel, SIGNAL(unsignedChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
-    connect(_pGraphDataModel, SIGNAL(multiplyFactorChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
-    connect(_pGraphDataModel, SIGNAL(divideFactorChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
-    connect(_pGraphDataModel, SIGNAL(registerAddressChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
-    connect(_pGraphDataModel, SIGNAL(bitmaskChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
-    connect(_pGraphDataModel, SIGNAL(shiftChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
-    connect(_pGraphDataModel, SIGNAL(connectionIdChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
-    connect(_pGraphDataModel, SIGNAL(added(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
-    connect(_pGraphDataModel, SIGNAL(removed(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
-
     // Update cursor values in legend
     connect(_pGraphView, SIGNAL(cursorValueUpdate()), _pLegend, SLOT(updateDataInLegend()));
 
-    connect(_pGraphView, SIGNAL(dataAddedToPlot(double, QList<double>)), _pDataFileExporter, SLOT(exportDataLine(double, QList <double>)));
+    connect(_pGraphView, SIGNAL(dataAddedToPlot(double, QList<double>)), _pDataFileHandler, SLOT(exportDataLine(double, QList <double>)));
 
     _pGraphShowHide = _pUi->menuShowHide;
     _pGraphBringToFront = _pUi->menuBringToFront;
@@ -313,7 +299,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         }
         else if (resBtn == QMessageBox::Save)
         {
-            if (_pDataFileExporter->updateNoteLines(_pGuiModel->dataFilePath()))
+            if (_pDataFileHandler->updateNoteLines(_pGuiModel->dataFilePath()))
             {
                 event->accept();
             }
@@ -332,26 +318,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::exitApplication()
 {
     QApplication::quit();
-}
-
-void MainWindow::selectDataExportFile()
-{
-    QString filePath;
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
-    dialog.setDefaultSuffix("csv");
-    dialog.setWindowTitle(tr("Select csv file"));
-    dialog.setNameFilter(tr("CSV files (*.csv)"));
-    dialog.setDirectory(_pGuiModel->lastDir());
-
-    if (dialog.exec())
-    {
-        filePath = dialog.selectedFiles().first();
-        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-        _pDataFileExporter->exportDataFile(filePath);
-    }
 }
 
 void MainWindow::selectImageExportFile()
@@ -491,7 +457,7 @@ void MainWindow::clearData()
     _pConnMan->resetCommunicationStats();
     _pGraphView->clearResults();
     _pGuiModel->clearMarkersState();
-    _pDataFileExporter->rewriteDataFile();
+    _pDataFileHandler->rewriteDataFile();
     _pNoteModel->clear();
     _pLegend->clearLegendData();
 }
@@ -520,7 +486,7 @@ void MainWindow::startScope()
 
         if (_pSettingsModel->writeDuringLog())
         {
-            _pDataFileExporter->enableExporterDuringLog();
+            _pDataFileHandler->enableExporterDuringLog();
         }
 
         if (_pGuiModel->xAxisScalingMode() == BasicGraphView::SCALE_MANUAL)
@@ -546,7 +512,7 @@ void MainWindow::stopScope()
 
     if (_pSettingsModel->writeDuringLog())
     {
-        _pDataFileExporter->disableExporterDuringLog();
+        _pDataFileHandler->disableExporterDuringLog();
     }
 
     _pGuiModel->setGuiState(GuiModel::STOPPED);
@@ -990,7 +956,7 @@ void MainWindow::updateDataFileNotes()
     {
         if (_pNoteModel->isNotesDataUpdated())
         {
-            _pDataFileExporter->updateNoteLines(_pGuiModel->dataFilePath());
+            _pDataFileHandler->updateNoteLines(_pGuiModel->dataFilePath());
         }
     }
 }
