@@ -5,21 +5,17 @@
 #include "guimodel.h"
 #include "settingsmodel.h"
 #include "graphdatamodel.h"
-#include "extendedgraphview.h"
 
 #include "datafileexporter.h"
 #include "notemodel.h"
 
-DataFileExporter::DataFileExporter(GuiModel *pGuiModel, SettingsModel * pSettingsModel, ExtendedGraphView * pGraphView, GraphDataModel * pGraphDataModel, NoteModel *pNoteModel, QObject *parent) :
+DataFileExporter::DataFileExporter(GuiModel *pGuiModel, SettingsModel * pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel *pNoteModel, QObject *parent) :
     QObject(parent)
 {
     _pGuiModel = pGuiModel;
     _pSettingsModel = pSettingsModel;
-    _pGraphView = pGraphView;
     _pGraphDataModel = pGraphDataModel;
     _pNoteModel = pNoteModel;
-
-    connect(_pGraphView, SIGNAL(dataAddedToPlot(double, QList<double>)), this, SLOT(exportDataLine(double, QList <double>)));
 }
 
 DataFileExporter::~DataFileExporter()
@@ -71,7 +67,7 @@ void DataFileExporter::exportDataFile(QString dataFile)
 {
     if (_pGraphDataModel->activeCount() != 0)
     {
-        const qint32 dataCount = _pGraphView->graphDataSize();
+        const qint32 dataCount = _pGraphDataModel->dataMap(0)->size();
         QStringList logData;
 
         // Create header

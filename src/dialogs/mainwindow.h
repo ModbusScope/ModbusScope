@@ -8,10 +8,8 @@
 #include <QMenu>
 
 #include "legend.h"
-#include "datafileparser.h"
 #include "projectfileparser.h"
-#include "datafileexporter.h"
-#include "projectfileexporter.h"
+
 
 namespace Ui {
 class MainWindow;
@@ -31,13 +29,15 @@ class NotesDock;
 class GuiModel;
 class ExtendedGraphView;
 class MarkerInfo;
+class DataFileHandler;
+class ProjectFileHandler;
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QStringList cmdArguments, QWidget *parent = 0);
+    explicit MainWindow(QStringList cmdArguments, QWidget *parent = nullptr);
     ~MainWindow();
 
 protected:
@@ -55,13 +55,8 @@ signals:
 private slots:
 
     /* Menu handlers */
-    void selectProjectSettingFile();
-    void reloadProjectSettings();
-    void selectDataImportFile();
     void exitApplication();
-    void selectDataExportFile();
     void selectImageExportFile();
-    void selectSettingsExportFile();
     void showAbout();
     void menuBringToFrontGraphClicked(bool bState);
     void menuShowHideGraphClicked(bool bState);
@@ -109,33 +104,28 @@ private slots:
 
 private:
 
-    void updateConnectionSetting(ProjectFileParser::ProjectSettings *pProjectSettings);
-    void loadProjectFile(QString projectFilePath);
     void handleCommandLineArguments(QStringList cmdArguments);
-    void loadDataFile(QString dataFilePath);
 
     Ui::MainWindow * _pUi;
     CommunicationManager * _pConnMan;
     ExtendedGraphView * _pGraphView;
 
     SettingsModel * _pSettingsModel;
-    ConnectionDialog * _pConnectionDialog;
-    NotesDock * _pNotesDock;
-    LogDialog * _pLogDialog;
-    ErrorLogDialog * _pErrorLogDialog;
-
     GraphDataModel * _pGraphDataModel;
     NoteModel * _pNoteModel;
     ErrorLogModel * _pErrorLogModel;
-
-    MarkerInfo * _pMarkerInfo;
-
     GuiModel * _pGuiModel;
 
-    Legend * _pLegend;
+    ConnectionDialog * _pConnectionDialog;
+    LogDialog * _pLogDialog;
+    ErrorLogDialog * _pErrorLogDialog;
 
-    DataFileExporter * _pDataFileExporter;
-    ProjectFileExporter * _pProjectFileExporter;
+    DataFileHandler* _pDataFileHandler;
+    ProjectFileHandler* _pProjectFileHandler;
+
+    NotesDock * _pNotesDock;
+    MarkerInfo * _pMarkerInfo;
+    Legend * _pLegend;
 
     QLabel * _pStatusStats;
     QLabel * _pStatusState;
