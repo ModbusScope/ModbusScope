@@ -29,6 +29,7 @@
 	
 	<scope>
 		<register active="true">
+    		<connectionid>0</connectionid>
 			<address>40001</address>
 			<text>Very interesting register</text>
 			<unsigned>true</unsigned>
@@ -37,6 +38,7 @@
 			<color>#FF0000</color>
 		</register>
 		<register>
+		    <connectionid>1</connectionid>
 			<active>true</active>
 			<address>40002</address>
 			<text>Very interesting register 2</text>
