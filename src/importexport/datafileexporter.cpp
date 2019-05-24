@@ -290,8 +290,9 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
             if (_pSettingsModel->connectionState(i))
             {
                 header.append(comment + "Slave IP (Connection ID " + QString::number(i) + ")" + Util::separatorCharacter() + _pSettingsModel->ipAddress(i) + ":" + QString::number(_pSettingsModel->port(i)));
-                header.append(comment + "Slave ID (Connection ID " + QString::number(i) + ")" + Util::separatorCharacter() + QString::number(i));
-                header.append(comment + "Time-out (Connection ID " + QString::number(i) + ")" + Util::separatorCharacter() + QString::number(i));
+                header.append(comment + "Slave ID (Connection ID " + QString::number(i) + ")" + Util::separatorCharacter() + QString::number(_pSettingsModel->slaveId(i)));
+                header.append(comment + "Time-out (Connection ID " + QString::number(i) + ")" + Util::separatorCharacter() + QString::number(_pSettingsModel->timeout(i)));
+                header.append(comment + "Consecutive max (Connection ID " + QString::number(i) + ")" + Util::separatorCharacter() + QString::number(_pSettingsModel->consecutiveMax(i)));
             }
         }
 
