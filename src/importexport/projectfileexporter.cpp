@@ -58,24 +58,27 @@ void ProjectFileExporter::createModbusTag(QDomElement * pParentElement)
 {
     QDomElement modbusElement = _domDocument.createElement(ProjectFileDefinitions::cModbusTag);
 
-    createConnectionTag(&modbusElement);
+    createConnectionTags(&modbusElement);
     createLogTag(&modbusElement);
 
     pParentElement->appendChild(modbusElement);
 }
 
-void ProjectFileExporter::createConnectionTag(QDomElement * pParentElement)
+void ProjectFileExporter::createConnectionTags(QDomElement * pParentElement)
 {
-    QDomElement connectionElement = _domDocument.createElement(ProjectFileDefinitions::cConnectionTag);
+    for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++)
+    {
+        QDomElement connectionElement = _domDocument.createElement(ProjectFileDefinitions::cConnectionTag);
 
-    // TODO: Multiple connections
-    addTextNode(ProjectFileDefinitions::cIpTag, _pSettingsModel->ipAddress(SettingsModel::CONNECTION_ID_0), &connectionElement);
-    addTextNode(ProjectFileDefinitions::cPortTag, QString("%1").arg(_pSettingsModel->port(SettingsModel::CONNECTION_ID_0)), &connectionElement);
-    addTextNode(ProjectFileDefinitions::cSlaveIdTag, QString("%1").arg(_pSettingsModel->slaveId(SettingsModel::CONNECTION_ID_0)), &connectionElement);
-    addTextNode(ProjectFileDefinitions::cTimeoutTag, QString("%1").arg(_pSettingsModel->timeout(SettingsModel::CONNECTION_ID_0)), &connectionElement);
-    addTextNode(ProjectFileDefinitions::cConsecutiveMaxTag, QString("%1").arg(_pSettingsModel->consecutiveMax(SettingsModel::CONNECTION_ID_0)), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cConnectionIdTag, QString("%1").arg(i), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cIpTag, _pSettingsModel->ipAddress(i), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cPortTag, QString("%1").arg(_pSettingsModel->port(i)), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cSlaveIdTag, QString("%1").arg(_pSettingsModel->slaveId(i)), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cTimeoutTag, QString("%1").arg(_pSettingsModel->timeout(i)), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cConsecutiveMaxTag, QString("%1").arg(_pSettingsModel->consecutiveMax(i)), &connectionElement);
 
-    pParentElement->appendChild(connectionElement);
+        pParentElement->appendChild(connectionElement);
+    }
 }
 
 void ProjectFileExporter::createLogTag(QDomElement * pParentElement)

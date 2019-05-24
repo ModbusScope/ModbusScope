@@ -25,7 +25,7 @@ private:
     void createDomDocument();
     void createModbusTag(QDomElement * pParentElement);
 
-    void createConnectionTag(QDomElement * pParentElement);
+    void createConnectionTags(QDomElement * pParentElement);
     void createLogTag(QDomElement * pParentElement);
 
     void createScopeTag(QDomElement * pParentElement);
