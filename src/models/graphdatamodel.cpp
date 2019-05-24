@@ -373,7 +373,7 @@ Qt::ItemFlags GraphDataModel::flags(const QModelIndex & index) const
     /* Disable when connection is disabled */
     if (
         (connectionId(index.row()) == SettingsModel::CONNECTION_ID_1)
-        && (!_pSettingsModel->secondConnectionState())
+        && (!_pSettingsModel->connectionState(connectionId(index.row())))
     )
     {
         itemFlags &= ~(Qt::ItemIsEnabled);

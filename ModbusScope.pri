@@ -2,6 +2,7 @@
 VERSION = 1.6.1
 
 DEFINES += DEBUG
+DEFINES += nVERBOSE
 
 DEFINES += GIT_HASH="\\\"$(shell git --git-dir \""$$PWD/.git"\" rev-parse --short HEAD)\\\""
 DEFINES += GIT_BRANCH="\\\"$(shell git --git-dir \""$$PWD/.git"\" rev-parse --abbrev-ref HEAD)\\\""

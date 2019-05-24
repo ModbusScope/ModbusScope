@@ -29,7 +29,6 @@ private:
 
     void updateConnectionSetting(ProjectFileParser::ProjectSettings *pProjectSettings);
 
-
     GuiModel* _pGuiModel;
     SettingsModel* _pSettingsModel;
     GraphDataModel* _pGraphDataModel;

@@ -29,7 +29,7 @@ private slots:
     void updateSlaveId(quint8 connectionId);
     void updateTimeout(quint8 connectionId);
     void updateConsecutiveMax(quint8 connectionId);
-    void updateSecondConnectionState();
+    void updateConnectionState(quint8 connectionId);
 
 private:
     Ui::ConnectionDialog * _pUi;

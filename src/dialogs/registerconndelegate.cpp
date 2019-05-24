@@ -19,11 +19,15 @@ QWidget *RegisterConnDelegate::createEditor(QWidget *parent, const QStyleOptionV
 
     // Create the combobox and populate it
     QComboBox *cb = new QComboBox(parent);
-    cb->addItem(tr("Connection 1"));
-    if (_pSettingsModel->secondConnectionState())
+
+    for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++)
     {
-        cb->addItem(tr("Connection 2"));
+        if (_pSettingsModel->connectionState(i))
+        {
+            cb->addItem(QString(tr("Connection %1").arg(i + 1)));
+        }
     }
+
     return cb;
 }
 

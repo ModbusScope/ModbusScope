@@ -19,7 +19,7 @@ ConnectionDialog::ConnectionDialog(SettingsModel * pSettingsModel, QWidget *pare
     connect(_pSettingsModel, &SettingsModel::slaveIdChanged, this, &ConnectionDialog::updateSlaveId);
     connect(_pSettingsModel, &SettingsModel::timeoutChanged, this, &ConnectionDialog::updateTimeout);
     connect(_pSettingsModel, &SettingsModel::consecutiveMaxChanged, this, &ConnectionDialog::updateConsecutiveMax);
-    connect(_pSettingsModel, &SettingsModel::secondConnectionStateChanged, this, &ConnectionDialog::updateSecondConnectionState);
+    connect(_pSettingsModel, &SettingsModel::connectionStateChanged, this, &ConnectionDialog::updateConnectionState);
 
     connect(_pUi->checkSecondConn, &QCheckBox::stateChanged, this, &ConnectionDialog::secondConnectionStateChanged);
 }
@@ -102,9 +102,13 @@ void ConnectionDialog::updateConsecutiveMax(quint8 connectionId)
     }
 }
 
-void ConnectionDialog::updateSecondConnectionState()
+void ConnectionDialog::updateConnectionState(quint8 connectionId)
 {
-    _pUi->checkSecondConn->setChecked(_pSettingsModel->secondConnectionState());
+    /* TODO: change for more than 2 connections */
+    if (connectionId == SettingsModel::CONNECTION_ID_1)
+    {
+        _pUi->checkSecondConn->setChecked(_pSettingsModel->connectionState(connectionId));
+    }
 }
 
 void ConnectionDialog::done(int r)
@@ -124,8 +128,7 @@ void ConnectionDialog::done(int r)
         _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_1, _pUi->spinSlaveId_2->text().toUInt());
         _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_1, _pUi->spinTimeout_2->text().toUInt());
         _pSettingsModel->setConsecutiveMax(SettingsModel::CONNECTION_ID_1, _pUi->spinConsecutiveMax_2->text().toUInt());
-
-        _pSettingsModel->setSecondConnectionState(_pUi->checkSecondConn->checkState() == Qt::Checked);
+        _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_1, _pUi->checkSecondConn->checkState() == Qt::Checked);
 
         // Validate the data
         //bValid = validateSettingsData();

@@ -1,0 +1,66 @@
+<modbusscope datalevel="2">
+	<modbus>
+		<connection>
+			<ip>127.0.0.1</ip>
+			<connectionid>0</connectionid>
+			<port>502</port>
+			<slaveid>1</slaveid>
+			<timeout>1000</timeout>
+			<consecutivemax>100</consecutivemax>
+		</connection>
+		
+		<connection>
+			<ip>127.0.0.1</ip>
+			<connectionid>1</connectionid>
+			<port>503</port>
+			<slaveid>2</slaveid>
+			<timeout>2000</timeout>
+			<consecutivemax>100</consecutivemax>
+		</connection>
+
+		<log>
+			<polltime>1000</polltime>
+			<absolutetimes>false</absolutetimes>
+			<logtofile enabled="true">
+<!--				<filename>C:\...</filename> -->
+			</logtofile>
+		</log>
+	</modbus>
+	
+	<scope>
+		<register active="true">
+    		<connectionid>0</connectionid>
+			<address>40001</address>
+			<text>Very interesting register</text>
+			<unsigned>true</unsigned>
+			<multiply>1</multiply>
+			<divide>2</divide>
+			<color>#FF0000</color>
+		</register>
+		<register>
+		    <connectionid>1</connectionid>
+			<active>true</active>
+			<address>40002</address>
+			<text>Very interesting register 2</text>
+			<unsigned>false</unsigned>
+			<shift>0</shift>
+		</register>
+		<register active="false">
+			<address>40003</address>
+			<text>Very interesting register 3</text>
+			<multiply>10</multiply>
+		</register>
+	</scope>
+	
+	<view>
+		<scale>
+			<xaxis mode="sliding">
+				<slidinginterval>20</slidinginterval>
+			</xaxis>
+			<yaxis mode="minmax">
+				<min>0</min>
+				<max>25</max>
+			</yaxis>
+		</scale>
+	</view>
+</modbusscope>

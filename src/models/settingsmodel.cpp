@@ -14,16 +14,18 @@ SettingsModel::SettingsModel(QObject *parent) :
         connectionSettings.slaveId = 1;
         connectionSettings.timeout = 1000;
         connectionSettings.consecutiveMax = 125;
+        connectionSettings.bConnectionState = false;
 
         _connectionSettings.append(connectionSettings);
     }
+
+    /* Connection 0 is always enabled */
+    _connectionSettings[CONNECTION_ID_0].bConnectionState = true;
 
     _pollTime = 250;
     _bAbsoluteTimes = false;
     _bWriteDuringLog = true;
     _writeDuringLogFile = SettingsModel::defaultLogPath();
-
-    _bSecondConnectionState = false;
 }
 
 SettingsModel::~SettingsModel()
@@ -45,9 +47,8 @@ void SettingsModel::triggerUpdate(void)
         emit slaveIdChanged(i);
         emit timeoutChanged(i);
         emit consecutiveMaxChanged(i);
+        emit connectionStateChanged(i);
     }
-
-    emit secondConnectionStateChanged();
 }
 
 void SettingsModel::setPollTime(quint32 pollTime)
@@ -102,18 +103,35 @@ quint8 SettingsModel::consecutiveMax(quint8 connectionId)
     return _connectionSettings[connectionId].consecutiveMax;
 }
 
-void SettingsModel::setSecondConnectionState(bool bState)
+void SettingsModel::setConnectionState(quint8 connectionId, bool bState)
 {
-    if (_bSecondConnectionState != bState)
+    if (connectionId >= CONNECTION_ID_CNT)
     {
-        _bSecondConnectionState = bState;
-        emit secondConnectionStateChanged();
+        connectionId = CONNECTION_ID_0;
     }
+
+    /* Connection 0 can't be disabled */
+    if (connectionId == CONNECTION_ID_0)
+    {
+        bState = true;
+    }
+
+    if (_connectionSettings[connectionId].bConnectionState != bState)
+    {
+        _connectionSettings[connectionId].bConnectionState = bState;
+        emit connectionStateChanged(connectionId);
+    }
+
 }
 
-bool SettingsModel::secondConnectionState()
+bool SettingsModel::connectionState(quint8 connectionId)
 {
-    return _bSecondConnectionState;
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    return _connectionSettings[connectionId].bConnectionState;
 }
 
 void SettingsModel::setWriteDuringLog(bool bState)
