@@ -285,10 +285,16 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
         }
 
         // Export communication settings
-        //TODO: multiple connections
-        header.append(comment + "Slave IP" + Util::separatorCharacter() + _pSettingsModel->ipAddress(SettingsModel::CONNECTION_ID_0) + ":" + QString::number(_pSettingsModel->port(SettingsModel::CONNECTION_ID_0)));
-        header.append(comment + "Slave ID" + Util::separatorCharacter() + QString::number(_pSettingsModel->slaveId(SettingsModel::CONNECTION_ID_0)));
-        header.append(comment + "Time-out" + Util::separatorCharacter() + QString::number(_pSettingsModel->timeout(SettingsModel::CONNECTION_ID_0)));
+        for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++)
+        {
+            if (_pSettingsModel->connectionState(i))
+            {
+                header.append(comment + "Slave IP (Connection ID " + QString::number(i) + ")" + Util::separatorCharacter() + _pSettingsModel->ipAddress(i) + ":" + QString::number(_pSettingsModel->port(i)));
+                header.append(comment + "Slave ID (Connection ID " + QString::number(i) + ")" + Util::separatorCharacter() + QString::number(i));
+                header.append(comment + "Time-out (Connection ID " + QString::number(i) + ")" + Util::separatorCharacter() + QString::number(i));
+            }
+        }
+
         header.append(comment + "Poll interval" + Util::separatorCharacter() + QString::number(_pSettingsModel->pollTime()));
 
         quint32 success = _pGuiModel->communicationSuccessCount();
@@ -305,6 +311,7 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
         header.append("//" + createPropertyRow(E_DIVIDE_FACTOR));
         header.append("//" + createPropertyRow(E_BITMASK));
         header.append("//" + createPropertyRow(E_SHIFT));
+        header.append("//" + createPropertyRow(E_CONNECTION_ID));
 
         header.append("//");
 
@@ -381,6 +388,10 @@ QString DataFileExporter::createPropertyRow(registerProperty prop)
         line.append("Shift");
         break;
 
+    case E_CONNECTION_ID:
+        line.append("ConnectionId");
+        break;
+
     default:
         break;
     }
@@ -418,6 +429,10 @@ QString DataFileExporter::createPropertyRow(registerProperty prop)
 
         case E_SHIFT:
             propertyString = QString("%1").arg(_pGraphDataModel->shift(graphIdx));
+            break;
+
+        case E_CONNECTION_ID:
+            propertyString = QString("%1").arg(_pGraphDataModel->connectionId(graphIdx));
             break;
 
         default:

@@ -42,6 +42,7 @@ private:
         E_REGISTER_ADDRESS,
         E_BITMASK,
         E_SHIFT,
+        E_CONNECTION_ID,
 
     } registerProperty;
 
