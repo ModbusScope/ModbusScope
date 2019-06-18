@@ -105,7 +105,7 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
                 if (_pGraphDataModel->registerAddress(activeIndex) == i.key())
                 {
                     ModbusResult result = i.value();
-                    _processedValues[listIdx] = result.value();
+                    _processedValues[listIdx] = processValue(activeIndex, result.value());
                     _successList[listIdx] = result.isSuccess();
                 }
             }
@@ -238,11 +238,11 @@ double CommunicationManager::processValue(quint32 graphIndex, quint16 value)
     // Apply bitmask
     if (_pGraphDataModel->isUnsigned(graphIndex))
     {
-        processedValue = static_cast<qint16>(processedValue) & _pGraphDataModel->bitmask(graphIndex);
+        processedValue = static_cast<quint16>(processedValue) & _pGraphDataModel->bitmask(graphIndex);
     }
     else
     {
-        processedValue = static_cast<qint16>(processedValue) & _pGraphDataModel->bitmask(graphIndex);
+        processedValue = static_cast<qint16>(static_cast<qint16>(processedValue) & _pGraphDataModel->bitmask(graphIndex));
     }
 
     // Apply shift
