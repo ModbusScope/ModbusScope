@@ -9,12 +9,13 @@
 #include "settingsmodel.h"
 
 #include "datafileexporter.h"
+#include "dataparsermodel.h"
 
 class DataFileHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphDataModel, NoteModel* pNoteModel, SettingsModel *pSettingsModel);
+    explicit DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphDataModel, NoteModel* pNoteModel, SettingsModel *pSettingsModel, DataParserModel * pDataParserModel);
     ~DataFileHandler();
 
     void loadDataFile(QString dataFilePath);
@@ -23,7 +24,7 @@ public:
     void disableExporterDuringLog();
 
     void exportDataFile(QString dataFile);
-    bool updateNoteLines(QString dataFile);
+    bool updateNoteLines();
 
 
 signals:
@@ -43,7 +44,7 @@ private:
     SettingsModel* _pSettingsModel;
 
     DataFileExporter * _pDataFileExporter;
-
+    DataParserModel * _pDataParserModel;
 };
 
 #endif // DATAFILEHANDLER_H

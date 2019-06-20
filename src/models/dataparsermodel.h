@@ -22,6 +22,7 @@ public:
     qint32 labelRow() const;
     bool timeInMilliSeconds() const;
     bool stmStudioCorrection() const;
+    QString dataFilePath();
     
     void setFieldSeparator(QChar fieldSeparator);
     void setGroupSeparator(QChar groupSeparator);
@@ -32,6 +33,7 @@ public:
     void setLabelRow(qint32 labelRow);
     void setTimeInMilliSeconds(bool timeInMilliSeconds);
     void setStmStudioCorrection(bool stmStudioCorrection);
+    void setDataFilePath(QString path);
 
 signals:
     void fieldSeparatorChanged();
@@ -43,6 +45,7 @@ signals:
     void labelRowChanged();
     void timeInMilliSecondsChanged();
     void stmStudioCorrectionChanged();
+    void dataFilePathChanged();
 
 private:
 
@@ -55,6 +58,7 @@ private:
     qint32 _labelRow;
     bool _bTimeInMilliSeconds;
     bool _bStmStudioCorrection;
+    QString _dataFilePath;
 
 };
 

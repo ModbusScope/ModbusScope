@@ -29,7 +29,7 @@ const QColor LoadFileDialog::_cColorData = QColor(200, 255, 200); // lighter gre
 const QColor LoadFileDialog::_cColorIgnored = QColor(175, 175, 175); // grey
 
 
-LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, ParserModel * pParserModel, QWidget *parent) :
+LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserModel, QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::LoadFileDialog)
 {
@@ -63,7 +63,6 @@ LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, ParserModel * pParserModel, 
     }
 
     // Handle signals from model
-    connect(_pParserModel, SIGNAL(dynamicSessionChanged()), this, SLOT(updateDynamicSession()));
     connect(_pParserModel, SIGNAL(pathChanged()), this, SLOT(updatePath()));
     connect(_pParserModel, SIGNAL(fieldSeparatorChanged()), this, SLOT(updateFieldSeparator()));
     connect(_pParserModel, SIGNAL(groupSeparatorChanged()), this, SLOT(updategroupSeparator()));
@@ -77,7 +76,6 @@ LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, ParserModel * pParserModel, 
 
 
     // Handle signal from controls
-    connect(_pUi->checkDynamicSession, SIGNAL(toggled(bool)), this, SLOT(dynamicSessionUpdated(bool)));
     connect(_pUi->btnDataFile, SIGNAL(released()), this, SLOT(selectDataFile()));
     connect(_pUi->comboFieldSeparator, SIGNAL(currentIndexChanged(int)), this, SLOT(fieldSeparatorSelected(int)));
     connect(_pUi->lineCustomFieldSeparator, SIGNAL(editingFinished()), this, SLOT(customFieldSeparatorUpdated()));
@@ -122,21 +120,14 @@ void LoadFileDialog::open()
 
 void LoadFileDialog::open(QString file)
 {
-    _pParserModel->setPath(file);
+    _pParserModel->setDataFilePath(file);
 
     QDialog::open();
 }
 
-void LoadFileDialog::updateDynamicSession()
-{
-    _pUi->checkDynamicSession->setChecked(_pParserModel->dynamicSession());
-
-    updatePreview();
-}
-
 void LoadFileDialog::updatePath()
 {
-    _pUi->lineDataFile->setText(_pParserModel->path());
+    _pUi->lineDataFile->setText(_pParserModel->dataFilePath());
 
     loadDataFileSample();
     setPresetAccordingKeyword(_pUi->lineDataFile->text());
@@ -228,11 +219,6 @@ void LoadFileDialog::updateStmStudioCorrection()
     _pUi->checkStmStudioCorrection->setChecked(_pParserModel->stmStudioCorrection());
 }
 
-void LoadFileDialog::dynamicSessionUpdated(bool bDynamic)
-{
-    _pParserModel->setDynamicSession(bDynamic);
-}
-
 void LoadFileDialog::selectDataFile()
 {
     QFileDialog fileDialog(this);
@@ -247,7 +233,7 @@ void LoadFileDialog::selectDataFile()
     {
         QString filePath = fileDialog.selectedFiles().first();
         _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-        _pParserModel->setPath(filePath);
+        _pParserModel->setDataFilePath(filePath);
     }
 }
 
@@ -339,6 +325,7 @@ void LoadFileDialog::stmStudioCorrectionUpdated(bool bCorrectData)
 
 void LoadFileDialog::presetSelected(int index)
 {
+#if 0
     const qint32 presetIndex = index - _cPresetListOffset;
 
     if ((presetIndex >= 0) && (presetIndex < _presetParser.presetList().size()))
@@ -350,10 +337,10 @@ void LoadFileDialog::presetSelected(int index)
         _pParserModel->setFieldSeparator(_presetParser.presetList()[presetIndex].fieldSeparator);
         _pParserModel->setGroupSeparator(_presetParser.presetList()[presetIndex].thousandSeparator);
         _pParserModel->setCommentSequence(_presetParser.presetList()[presetIndex].commentSequence);
-        _pParserModel->setDynamicSession(_presetParser.presetList()[presetIndex].bDynamicSession);
         _pParserModel->setTimeInMilliSeconds(_presetParser.presetList()[presetIndex].bTimeInMilliSeconds);
         _pParserModel->setStmStudioCorrection(_presetParser.presetList()[presetIndex].bStmStudioCorrection);
     }
+#endif
 }
 
 void LoadFileDialog::done(int r)
@@ -388,7 +375,7 @@ bool LoadFileDialog::validateSettingsData()
 
     if (bOk)
     {
-        if (!QFileInfo(_pParserModel->path()).exists())
+        if (!QFileInfo(_pParserModel->dataFilePath()).exists())
         {
             bOk = false;
             Util::showError(tr("Data file doesn't exist"));
@@ -425,6 +412,7 @@ qint32 LoadFileDialog::findIndexInCombo(QList<ComboListItem> comboItemList, QStr
 
 void LoadFileDialog::loadPreset(void)
 {
+#if 0
     _presetParser.loadPresetsFromFile();
 
     _pUi->comboPreset->clear();
@@ -435,10 +423,12 @@ void LoadFileDialog::loadPreset(void)
     {
         _pUi->comboPreset->addItem(preset.name);
     }
+#endif
 }
 
 void LoadFileDialog::setPresetAccordingKeyword(QString filename)
 {
+#if 0
     qint32 presetComboIndex = -1;
 
     // Loop through presets and set preset if keyword is in filename
@@ -485,6 +475,7 @@ void LoadFileDialog::setPresetAccordingKeyword(QString filename)
 
     _pUi->comboPreset->setCurrentIndex(-1);
     _pUi->comboPreset->setCurrentIndex(presetComboIndex);
+#endif
 }
 
 void LoadFileDialog::updatePreview()
@@ -600,7 +591,7 @@ void LoadFileDialog::updatePreviewLayout()
 void LoadFileDialog::loadDataFileSample()
 {
     char buf[2048];
-    QFile file(_pParserModel->path());
+    QFile file(_pParserModel->dataFilePath());
     qint32 lineLength;
 
     _dataFileSample.clear();

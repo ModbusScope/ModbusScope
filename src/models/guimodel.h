@@ -9,7 +9,7 @@ class GuiModel : public QObject
     Q_OBJECT
 public:
 
-    explicit GuiModel(QObject *parent = 0);
+    explicit GuiModel(QObject *parent = nullptr);
     ~GuiModel();
 
     static const quint32 cDifferenceMask;
@@ -40,7 +40,6 @@ public:
     bool cursorValues() const;
     QString windowTitle();
     QString projectFilePath();
-    QString dataFilePath();
     QString lastDir();
     BasicGraphView::AxisScaleOptions xAxisScalingMode();
     quint32 xAxisSlidingSec();
@@ -59,7 +58,6 @@ public:
     QString markerExpressionCustomScript();
 
     void setProjectFilePath(QString path);
-    void setDataFilePath(QString path);
     void setLastDir(QString dir);
     void setMarkerExpressionMask(quint32 mask);
     void setMarkerExpressionCustomScript(QString path);
@@ -95,7 +93,6 @@ signals:
     void yAxisMinMaxchanged();
     void guiStateChanged();
     void projectFilePathChanged();
-    void dataFilePathChanged();
     void communicationStatsChanged();
     void markerStateChanged();
     void startMarkerPosChanged();
@@ -132,7 +129,6 @@ private:
     quint32 _errorCount;
 
     QString _projectFilePath;
-    QString _dataFilePath;
     QString _lastDir; // Last directory opened for import/export/load project
 
     bool _bHighlightSamples;

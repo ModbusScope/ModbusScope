@@ -140,6 +140,13 @@
          </property>
         </widget>
        </item>
+       <item row="11" column="0">
+        <widget class="QLabel" name="label_12">
+         <property name="text">
+          <string>Label Row Present?</string>
+         </property>
+        </widget>
+       </item>
        <item row="11" column="1">
         <widget class="QCheckBox" name="checkLabelRow">
          <property name="text">
@@ -147,6 +154,13 @@
          </property>
          <property name="checked">
           <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Label Row</string>
          </property>
         </widget>
        </item>
@@ -184,33 +198,13 @@
         </widget>
        </item>
        <item row="16" column="0">
-        <widget class="QLabel" name="label_10">
-         <property name="toolTip">
-          <string>Enables auto reload</string>
-         </property>
+        <widget class="QLabel" name="label_13">
          <property name="text">
-          <string>Dynamic session</string>
+          <string>Time data in milliseconds</string>
          </property>
         </widget>
        </item>
        <item row="16" column="1">
-        <widget class="QCheckBox" name="checkDynamicSession">
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="13" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>Label Row</string>
-         </property>
-        </widget>
-       </item>
-       <item row="17" column="1">
         <widget class="QCheckBox" name="checkTimeInMilliSeconds">
          <property name="text">
           <string/>
@@ -220,28 +214,14 @@
          </property>
         </widget>
        </item>
-       <item row="11" column="0">
-        <widget class="QLabel" name="label_12">
-         <property name="text">
-          <string>Label Row Present?</string>
-         </property>
-        </widget>
-       </item>
        <item row="17" column="0">
-        <widget class="QLabel" name="label_13">
-         <property name="text">
-          <string>Time data in milliseconds</string>
-         </property>
-        </widget>
-       </item>
-       <item row="18" column="0">
         <widget class="QLabel" name="label_14">
          <property name="text">
           <string>Correct STMStudio bad reads</string>
          </property>
         </widget>
        </item>
-       <item row="18" column="1">
+       <item row="17" column="1">
         <widget class="QCheckBox" name="checkStmStudioCorrection">
          <property name="text">
           <string/>
@@ -277,7 +257,6 @@
   <tabstop>checkLabelRow</tabstop>
   <tabstop>spinLabelRow</tabstop>
   <tabstop>spinDataRow</tabstop>
-  <tabstop>checkDynamicSession</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>

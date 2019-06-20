@@ -27,7 +27,6 @@ void ProjectFileHandler::loadProjectFile(QString projectFilePath)
         {
             this->updateConnectionSetting(&loadedSettings);
 
-            _pGuiModel->setDataFilePath("");
             _pGuiModel->setProjectFilePath(projectFilePath);
             _pGuiModel->setGuiState(GuiModel::STOPPED);
         }

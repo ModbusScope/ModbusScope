@@ -23,6 +23,7 @@ class NoteModel;
 class ErrorLogModel;
 class ConnectionDialog;
 class SettingsModel;
+class DataParserModel;
 class LogDialog;
 class ErrorLogDialog;
 class NotesDock;
@@ -115,6 +116,7 @@ private:
     NoteModel * _pNoteModel;
     ErrorLogModel * _pErrorLogModel;
     GuiModel * _pGuiModel;
+    DataParserModel * _pDataParserModel;
 
     ConnectionDialog * _pConnectionDialog;
     LogDialog * _pLogDialog;

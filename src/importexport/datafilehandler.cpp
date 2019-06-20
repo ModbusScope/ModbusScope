@@ -2,12 +2,13 @@
 
 #include "datafilehandler.h"
 
-DataFileHandler::DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphDataModel, NoteModel* pNoteModel, SettingsModel * pSettingsModel) : QObject(nullptr)
+DataFileHandler::DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphDataModel, NoteModel* pNoteModel, SettingsModel * pSettingsModel, DataParserModel * pDataParserModel) : QObject(nullptr)
 {
     _pGuiModel = pGuiModel;
     _pGraphDataModel = pGraphDataModel;
     _pNoteModel = pNoteModel;
     _pSettingsModel = pSettingsModel;
+    _pDataParserModel = pDataParserModel;
 
     _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel);
 
@@ -27,6 +28,7 @@ DataFileHandler::DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphData
 DataFileHandler::~DataFileHandler()
 {
     delete _pDataFileExporter;
+    delete _pDataParserModel;
 }
 
 void DataFileHandler::loadDataFile(QString dataFilePath)
@@ -68,7 +70,7 @@ void DataFileHandler::loadDataFile(QString dataFilePath)
         _pGuiModel->setFrontGraph(0);
 
         _pGuiModel->setProjectFilePath("");
-        _pGuiModel->setDataFilePath(dataFilePath);
+        _pDataParserModel->setDataFilePath(dataFilePath);
 
         _pGuiModel->setGuiState(GuiModel::DATA_LOADED);
 
@@ -90,9 +92,9 @@ void DataFileHandler::exportDataFile(QString dataFile)
     _pDataFileExporter->exportDataFile(dataFile);
 }
 
-bool DataFileHandler::updateNoteLines(QString dataFile)
+bool DataFileHandler::updateNoteLines()
 {
-    return _pDataFileExporter->updateNoteLines(dataFile);
+    return _pDataFileExporter->updateNoteLines(_pDataParserModel->dataFilePath());
 }
 
 void DataFileHandler::selectDataImportFile()

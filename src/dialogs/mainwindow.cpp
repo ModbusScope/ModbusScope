@@ -10,6 +10,7 @@
 #include "connectiondialog.h"
 #include "notesdock.h"
 #include "settingsmodel.h"
+#include "dataparsermodel.h"
 #include "logdialog.h"
 #include "errorlogdialog.h"
 #include "aboutdialog.h"
@@ -40,6 +41,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pGraphDataModel = new GraphDataModel(_pSettingsModel);
     _pNoteModel = new NoteModel();
     _pErrorLogModel = new ErrorLogModel();
+    _pDataParserModel = new DataParserModel();
 
     _pConnectionDialog = new ConnectionDialog(_pSettingsModel, this);
     _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
@@ -49,8 +51,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pGraphDataModel, _pErrorLogModel);
     _pGraphView = new ExtendedGraphView(_pConnMan, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
-
-    _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel, _pSettingsModel);
+    _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel, _pSettingsModel, _pDataParserModel);
     _pProjectFileHandler = new ProjectFileHandler(_pGuiModel, _pSettingsModel, _pGraphDataModel);
 
     _pLegend = _pUi->legend;
@@ -299,7 +300,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         }
         else if (resBtn == QMessageBox::Save)
         {
-            if (_pDataFileHandler->updateNoteLines(_pGuiModel->dataFilePath()))
+            if (_pDataFileHandler->updateNoteLines())
             {
                 event->accept();
             }
@@ -723,7 +724,7 @@ void MainWindow::updateGuiState()
         _pStatusStats->setText(_cStatsTemplate.arg(0).arg(0));
         _pStatusRuntime->setVisible(true);
 
-        _pGuiModel->setDataFilePath(QString(""));
+        _pDataParserModel->resetSettings();
         _pGuiModel->setProjectFilePath(QString(""));
     }
     else if (_pGuiModel->guiState() == GuiModel::STARTED)
@@ -764,6 +765,8 @@ void MainWindow::updateGuiState()
         _pUi->actionExportDataCsv->setEnabled(true);
         _pUi->actionExportSettings->setEnabled(true);
         _pUi->actionExportImage->setEnabled(true);
+
+        _pDataParserModel->resetSettings();
 
         if (_pGuiModel->projectFilePath().isEmpty())
         {
@@ -818,13 +821,13 @@ void MainWindow::projectFileLoaded()
 
 void MainWindow::dataFileLoaded()
 {
-    if (_pGuiModel->dataFilePath().isEmpty())
+    if (_pDataParserModel->dataFilePath().isEmpty())
     {
         _pGuiModel->setWindowTitleDetail("");
     }
     else
     {
-        _pGuiModel->setWindowTitleDetail(QFileInfo(_pGuiModel->dataFilePath()).fileName());
+        _pGuiModel->setWindowTitleDetail(QFileInfo(_pDataParserModel->dataFilePath()).fileName());
     }
 }
 
@@ -956,7 +959,7 @@ void MainWindow::updateDataFileNotes()
     {
         if (_pNoteModel->isNotesDataUpdated())
         {
-            _pDataFileHandler->updateNoteLines(_pGuiModel->dataFilePath());
+            _pDataFileHandler->updateNoteLines();
         }
     }
 }
