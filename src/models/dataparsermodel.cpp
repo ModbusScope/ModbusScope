@@ -1,20 +1,18 @@
 #include <QColor>
 #include <QLocale>
-#include "parsermodel.h"
+#include "dataparsermodel.h"
 
-ParserModel::ParserModel(QObject *parent) : QObject(parent)
+DataParserModel::DataParserModel(QObject *parent) : QObject(parent)
 {
-    _path = "";
-
     resetSettings();
 }
 
-ParserModel::~ParserModel()
+DataParserModel::~DataParserModel()
 {
 
 }
 
-void ParserModel::resetSettings()
+void DataParserModel::resetSettings()
 {
     /*-- Set default item --*/
     const QChar decimalPoint = QLocale::system().decimalPoint();
@@ -41,7 +39,6 @@ void ParserModel::resetSettings()
 
     _groupSeparator = QLocale::system().groupSeparator();
     _commentSequence = "";
-    _bDynamicSession = false;
     _dataRow = 1;
     _column = 0;
     _labelRow = 0;
@@ -49,10 +46,8 @@ void ParserModel::resetSettings()
     _bStmStudioCorrection = false;
 }
 
-void ParserModel::triggerUpdate(void)
+void DataParserModel::triggerUpdate(void)
 {
-    emit dynamicSessionChanged();
-    emit pathChanged();
     emit fieldSeparatorChanged();
     emit groupSeparatorChanged();
     emit decimalSeparatorChanged();
@@ -64,36 +59,7 @@ void ParserModel::triggerUpdate(void)
     emit stmStudioCorrectionChanged();
 }
 
-QString ParserModel::path()
-{
-    return _path;
-}
-
-bool ParserModel::dynamicSession() const
-{
-    return _bDynamicSession;
-}
-
-
-void ParserModel::setPath(QString path)
-{
-    if (_path != path.trimmed())
-    {
-        _path = path.trimmed();
-        emit pathChanged();
-    }
-}
-
-void ParserModel::setDynamicSession(bool bDynamicSession)
-{
-    if (_bDynamicSession != bDynamicSession)
-    {
-        _bDynamicSession = bDynamicSession;
-        emit dynamicSessionChanged();
-    }
-}
-
-void ParserModel::setFieldSeparator(QChar fieldSeparator)
+void DataParserModel::setFieldSeparator(QChar fieldSeparator)
 {
     // Exception to the rule, always generate event when field separator is changed
     // This is needed for these custom field separator
@@ -104,7 +70,7 @@ void ParserModel::setFieldSeparator(QChar fieldSeparator)
     }
 }
 
-void ParserModel::setGroupSeparator(QChar groupSeparator)
+void DataParserModel::setGroupSeparator(QChar groupSeparator)
 {
     if (_groupSeparator != groupSeparator)
     {
@@ -113,7 +79,7 @@ void ParserModel::setGroupSeparator(QChar groupSeparator)
     }
 }
 
-void ParserModel::setDecimalSeparator(QChar decimalSeparator)
+void DataParserModel::setDecimalSeparator(QChar decimalSeparator)
 {
     if (_decimalSeparator != decimalSeparator)
     {
@@ -122,7 +88,7 @@ void ParserModel::setDecimalSeparator(QChar decimalSeparator)
     }
 }
 
-void ParserModel::setCommentSequence(QString commentSequence)
+void DataParserModel::setCommentSequence(QString commentSequence)
 {
     if (_commentSequence != commentSequence.trimmed())
     {
@@ -131,7 +97,7 @@ void ParserModel::setCommentSequence(QString commentSequence)
     }
 }
 
-void ParserModel::setDataRow(quint32 dataRow)
+void DataParserModel::setDataRow(quint32 dataRow)
 {
     if (_dataRow != dataRow)
     {
@@ -140,7 +106,7 @@ void ParserModel::setDataRow(quint32 dataRow)
     }
 }
 
-void ParserModel::setColumn(quint32 column)
+void DataParserModel::setColumn(quint32 column)
 {
     if (_column != column)
     {
@@ -149,7 +115,7 @@ void ParserModel::setColumn(quint32 column)
     }
 }
 
-void ParserModel::setLabelRow(qint32 labelRow)
+void DataParserModel::setLabelRow(qint32 labelRow)
 {
     qint32 newLabelRow;
     if (labelRow >= 0)
@@ -168,7 +134,7 @@ void ParserModel::setLabelRow(qint32 labelRow)
     }
 }
 
-void ParserModel::setTimeInMilliSeconds(bool timeInMilliSeconds)
+void DataParserModel::setTimeInMilliSeconds(bool timeInMilliSeconds)
 {
     if (_bTimeInMilliSeconds != timeInMilliSeconds)
     {
@@ -177,7 +143,7 @@ void ParserModel::setTimeInMilliSeconds(bool timeInMilliSeconds)
     }
 }
 
-void ParserModel::setStmStudioCorrection(bool stmStudioCorrection)
+void DataParserModel::setStmStudioCorrection(bool stmStudioCorrection)
 {
     if (_bStmStudioCorrection != stmStudioCorrection)
     {
@@ -186,47 +152,47 @@ void ParserModel::setStmStudioCorrection(bool stmStudioCorrection)
     }
 }
 
-QChar ParserModel::fieldSeparator() const
+QChar DataParserModel::fieldSeparator() const
 {
     return _fieldSeparator;
 }
 
-QChar ParserModel::groupSeparator() const
+QChar DataParserModel::groupSeparator() const
 {
     return _groupSeparator;
 }
 
-QChar ParserModel::decimalSeparator() const
+QChar DataParserModel::decimalSeparator() const
 {
     return _decimalSeparator;
 }
 
-QString ParserModel::commentSequence() const
+QString DataParserModel::commentSequence() const
 {
     return _commentSequence;
 }
 
-quint32 ParserModel::dataRow() const
+quint32 DataParserModel::dataRow() const
 {
     return _dataRow;
 }
 
-quint32 ParserModel::column() const
+quint32 DataParserModel::column() const
 {
     return _column;
 }
 
-qint32 ParserModel::labelRow() const
+qint32 DataParserModel::labelRow() const
 {
     return _labelRow;
 }
 
-bool ParserModel::timeInMilliSeconds() const
+bool DataParserModel::timeInMilliSeconds() const
 {
     return _bTimeInMilliSeconds;
 }
 
-bool ParserModel::stmStudioCorrection() const
+bool DataParserModel::stmStudioCorrection() const
 {
     return _bStmStudioCorrection;
 }

@@ -73,7 +73,8 @@ SOURCES +=  \
     $$PWD/src/communication/modbusconnection.cpp \
     $$PWD/src/communication/readregisters.cpp \
     $$PWD/src/importexport/datafilehandler.cpp \
-    $$PWD/src/importexport/projectfilehandler.cpp
+    $$PWD/src/importexport/projectfilehandler.cpp \
+    $$PWD/src/models/dataparsermodel.cpp
 
 FORMS    += \
     $$PWD/src/dialogs/connectiondialog.ui \
@@ -136,7 +137,8 @@ HEADERS += \
     $$PWD/src/communication/modbusconnection.h \
     $$PWD/src/communication/readregisters.h \
     $$PWD/src/importexport/datafilehandler.h \
-    $$PWD/src/importexport/projectfilehandler.h
+    $$PWD/src/importexport/projectfilehandler.h \
+    $$PWD/src/models/dataparsermodel.h
 
 RESOURCES += \
     $$PWD/src/resources/resource.qrc

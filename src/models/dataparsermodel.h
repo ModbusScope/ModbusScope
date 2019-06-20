@@ -1,20 +1,18 @@
-#ifndef SETTINGSMODEL_H
-#define SETTINGSMODEL_H
+#ifndef DATAPARSERMODEL_H
+#define DATAPARSERMODEL_H
 
 #include <QObject>
 
-class ParserModel : public QObject
+class DataParserModel : public QObject
 {
     Q_OBJECT
 public:
-    explicit ParserModel(QObject *parent = 0);
-    ~ParserModel();
+    explicit DataParserModel(QObject *parent = nullptr);
+    ~DataParserModel();
 
     void triggerUpdate(void);
     void resetSettings();
 
-    QString path();
-    bool dynamicSession() const;
     QChar fieldSeparator() const;
     QChar groupSeparator() const;
     QChar decimalSeparator() const;
@@ -25,7 +23,6 @@ public:
     bool timeInMilliSeconds() const;
     bool stmStudioCorrection() const;
     
-    void setPath(QString path);
     void setFieldSeparator(QChar fieldSeparator);
     void setGroupSeparator(QChar groupSeparator);
     void setDecimalSeparator(QChar decimalSeparator);
@@ -37,8 +34,6 @@ public:
     void setStmStudioCorrection(bool stmStudioCorrection);
 
 signals:
-    void dynamicSessionChanged();
-    void pathChanged();
     void fieldSeparatorChanged();
     void groupSeparatorChanged();
     void decimalSeparatorChanged();
@@ -49,13 +44,8 @@ signals:
     void timeInMilliSecondsChanged();
     void stmStudioCorrectionChanged();
 
-public slots:
-    void setDynamicSession(bool bDynamicSession);
-
 private:
 
-    QString _path;
-    bool _bDynamicSession;
     QChar _fieldSeparator;
     QChar _groupSeparator;
     QChar _decimalSeparator;
@@ -68,4 +58,4 @@ private:
 
 };
 
-#endif // SETTINGSMODEL_H
+#endif // DATAPARSERMODEL_H
