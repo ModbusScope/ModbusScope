@@ -1,8 +1,8 @@
 #ifndef SETTINGSAUTO_H
 #define SETTINGSAUTO_H
 
-#include <QObject>
 #include <QLocale>
+
 class SettingsAuto : public QObject
 {
     Q_OBJECT
@@ -13,9 +13,13 @@ public:
     bool updateSettings(QStringList previewData);
 
     QChar fieldSeparator();
+    QChar groupSeparator();
+    QChar decimalSeparator();
     QString commentSequence();
     quint32 dataRow();
+    quint32 column();
     qint32 labelRow();
+    bool timeInMilliSeconds();
     QLocale locale();
     bool absoluteDate();
 
@@ -25,18 +29,20 @@ public slots:
 
 private:
 
-    bool isComment(QString line);
     bool isAbsoluteDate(QString rawData);
+    bool isComment(QString line);
     bool testLocale(QStringList previewData, QLocale locale, QChar fieldSeparator);
-    bool testAbsoluteDate(QStringList previewData);
     quint32 nextDataLine(quint32 startIdx, QStringList previewData, bool *bOk);
 
-
     QChar _fieldSeparator;
+    QChar _groupSeparator;
+    QChar _decimalSeparator;
     QString _commentSequence;
     quint32 _dataRow;
+    quint32 _column;
     qint32 _labelRow;
     bool _bAbsoluteDate;
+    bool _bTimeInMilliSeconds;
     QLocale _locale;
 
 };

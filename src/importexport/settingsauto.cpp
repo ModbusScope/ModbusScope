@@ -13,6 +13,8 @@ bool SettingsAuto::updateSettings(QStringList previewData)
 {
     bool bRet = true;
 
+    _column = 0;
+
     // Find first non-comment line
     qint32 lineIdx = 0;
     lineIdx = nextDataLine(0, previewData, &bRet);
@@ -63,12 +65,6 @@ bool SettingsAuto::updateSettings(QStringList previewData)
         bRet = false;
     }
 
-    // Check for absolute dates
-    if (bRet)
-    {
-        _bAbsoluteDate = testAbsoluteDate(previewData);
-    }
-
     return bRet;
 }
 
@@ -76,6 +72,16 @@ bool SettingsAuto::updateSettings(QStringList previewData)
 QChar SettingsAuto::fieldSeparator()
 {
     return _fieldSeparator;
+}
+
+QChar SettingsAuto::groupSeparator()
+{
+    return _groupSeparator;
+}
+
+QChar SettingsAuto::decimalSeparator()
+{
+    return _decimalSeparator;
 }
 
 QString SettingsAuto::commentSequence()
@@ -88,6 +94,11 @@ quint32 SettingsAuto::dataRow()
     return _dataRow;
 }
 
+quint32 SettingsAuto::column()
+{
+    return _column;
+}
+
 qint32 SettingsAuto::labelRow()
 {
     return _labelRow;
@@ -98,9 +109,23 @@ QLocale SettingsAuto::locale()
     return _locale;
 }
 
+bool SettingsAuto::timeInMilliSeconds()
+{
+    return _bTimeInMilliSeconds;
+}
+
 bool SettingsAuto::absoluteDate()
 {
     return _bAbsoluteDate;
+}
+
+bool SettingsAuto::isAbsoluteDate(QString rawData)
+{
+
+    QRegularExpression re("\\d{2,4}.*\\d{2}.*\\d{2,4}\\s*\\d{1,2}:\\d{1,2}:\\d{1,2}.*");
+    QRegularExpressionMatch match = re.match(rawData);
+
+    return match.hasMatch();
 }
 
 bool SettingsAuto::isComment(QString line)
@@ -111,19 +136,31 @@ bool SettingsAuto::isComment(QString line)
         // Check first character for comment char
         if (!line.at(0).isLetterOrNumber())
         {
-            // Check second character
-            if (
-                (!line.at(1).isLetterOrNumber())
-                && (!line.at(1).isSpace())
-                )
+            if (line.at(0) == QChar('-'))
             {
-                _commentSequence = line.left(2);
-                bRet = true;
+                // Minus sign can only be a comment sign when there are 2
+                if (line.at(1) == QChar('-'))
+                {
+                    _commentSequence = line.left(2);
+                    bRet = true;
+                }
             }
             else
             {
-                _commentSequence = line.left(1);
-                bRet = true;
+                // Check second character
+                if (
+                    (!line.at(1).isLetterOrNumber())
+                    && (!line.at(1).isSpace())
+                    )
+                {
+                    _commentSequence = line.left(2);
+                    bRet = true;
+                }
+                else
+                {
+                    _commentSequence = line.left(1);
+                    bRet = true;
+                }
             }
         }
     }
@@ -136,14 +173,6 @@ bool SettingsAuto::isComment(QString line)
     }
 
     return bRet;
-}
-
-bool SettingsAuto::isAbsoluteDate(QString rawData)
-{
-    QRegularExpression re("\\d{2,4}.*\\d{2}.*\\d{2,4}\\s*\\d{1,2}:\\d{1,2}:\\d{1,2}.*");
-    QRegularExpressionMatch match = re.match(rawData);
-
-    return match.hasMatch();
 }
 
 bool SettingsAuto::testLocale(QStringList previewData, QLocale locale, QChar fieldSeparator)
@@ -162,19 +191,26 @@ bool SettingsAuto::testLocale(QStringList previewData, QLocale locale, QChar fie
         {
             if (!isComment(previewData[parseIdx]))
             {
-
                 QStringList fields = previewData[parseIdx].split(fieldSeparator);
 
                 for (qint32 idx = 1; idx < fields.size(); idx++)
                 {
+                    const QString field = fields[idx];
 
-                    bool bOk;
-                    locale.toDouble(fields[idx], &bOk);
-                    if (!bOk)
+                    if (isAbsoluteDate(field))
                     {
-                        return false;
+                        _column = idx;
                     }
-                }                
+                    else
+                    {
+                        bool bOk;
+                        locale.toDouble(field, &bOk);
+                        if (!bOk)
+                        {
+                            return false;
+                        }
+                    }
+                }
             }
         }
     }
@@ -186,36 +222,37 @@ bool SettingsAuto::testLocale(QStringList previewData, QLocale locale, QChar fie
     // Save locale
     _locale = locale;
 
-    // save field separator
-    _fieldSeparator = fieldSeparator;
-
-    return true;
-}
-
-bool SettingsAuto::testAbsoluteDate(QStringList previewData)
-{
-    qint32 parseIdx;
-    for (parseIdx = _dataRow; parseIdx < previewData.size(); parseIdx++)
+    // If first time field is between 0 and 1, then presume in seconds
+    QString firstTimeField = previewData[_dataRow].split(fieldSeparator)[0];
+    if (
+        (locale.toDouble(firstTimeField) > 0)
+        && (locale.toDouble(firstTimeField) < 1)
+        )
     {
-        if (!isComment(previewData[parseIdx]))
-        {
-
-            QStringList fields = previewData[parseIdx].split(_fieldSeparator);
-            QString timeOrDate = fields[0];
-
-            if (isAbsoluteDate(timeOrDate))
-            {
-                // Check next
-            }
-            else
-            {
-                // Not valid
-                return false;
-            }
-        }
+        _bTimeInMilliSeconds = false;
+    }
+    else
+    {
+        _bTimeInMilliSeconds = true;
     }
 
-    // absolute date
+    _fieldSeparator = fieldSeparator;
+    _decimalSeparator = locale.decimalPoint();
+
+    // In US locale field separator is the same as group (thousands) point
+    if (fieldSeparator == locale.groupSeparator())
+    {
+        _groupSeparator = ' ';
+    }
+    else if (locale.groupSeparator() == 160) // Small space
+    {
+        _groupSeparator = ' ';
+    }
+    else
+    {
+       _groupSeparator = locale.groupSeparator();
+    }
+
     return true;
 }
 
