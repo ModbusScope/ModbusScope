@@ -33,8 +33,10 @@ DataFileHandler::~DataFileHandler()
 
 void DataFileHandler::loadDataFile(QString dataFilePath)
 {
-    DataFileParser dataParser;
+    // Set last used path
+    _pGuiModel->setLastDir(QFileInfo(dataFilePath).dir().absolutePath());
 
+    DataFileParser dataParser;
     DataFileParser::FileData data;
     if (dataParser.processDataFile(dataFilePath, &data))
     {
@@ -111,7 +113,6 @@ void DataFileHandler::selectDataImportFile()
     if (dialog.exec())
     {
         filePath = dialog.selectedFiles().first();
-        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
         this->loadDataFile(filePath);
     }
 }
