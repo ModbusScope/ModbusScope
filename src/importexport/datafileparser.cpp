@@ -137,10 +137,13 @@ bool DataFileParser::processDataFile(QString dataFilename, FileData * pData)
         }
     }
 
-    /* Clear color list when size is not ok */
-    if ((pData->colors.size() + 1) != (int)_expectedFields)
+    if (bRet)
     {
-         pData->colors.clear();
+        /* Clear color list when size is not ok */
+        if ((pData->colors.size() + 1) != static_cast<int>(_expectedFields))
+        {
+             pData->colors.clear();
+        }
     }
 
     // Trim labels
