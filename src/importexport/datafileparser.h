@@ -9,8 +9,8 @@
 #include <QStringList>
 #include <QRegularExpression>
 
-#include <note.h>
-#include "settingsauto.h"
+#include "note.h"
+#include "dataparsermodel.h"
 
 class DataFileParser : public QObject
 {
@@ -30,28 +30,26 @@ public:
 
     } FileData;
 
-    DataFileParser();
+    DataFileParser(DataParserModel * pDataParserModel);
     ~DataFileParser();
 
-    bool processDataFile(QString dataFilename, FileData * pData);
+    bool processDataFile(QTextStream * pDataStream, FileData * pData);
 
 private:
     bool parseDataLines(QList<QList<double> > &dataRows);
     bool readLineFromFile(QString *pLine);
-    void loadDataFileSample(QStringList * pDataFileSample);
     qint64 parseDateTime(QString rawData, bool *bOk);
     bool parseNoteField(QStringList noteFieldList, Note * pNote);
 
 
     QTextStream * _pDataStream;
+    DataParserModel * _pDataParserModel;
 
     quint32 _expectedFields;
 
-    SettingsAuto * _pAutoSettingsParser;
     QRegularExpression _dateParseRegex;
 
     static const QString _cPattern;
-    static const qint32 _cSampleLineLength = 50;
 
 };
 

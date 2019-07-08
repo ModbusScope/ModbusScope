@@ -1,4 +1,6 @@
 #include "datafileparser.h"
+#include "settingsauto.h"
+#include "util.h"
 
 #include "datafilehandler.h"
 
@@ -36,46 +38,81 @@ void DataFileHandler::loadDataFile(QString dataFilePath)
     // Set last used path
     _pGuiModel->setLastDir(QFileInfo(dataFilePath).dir().absolutePath());
 
-    DataFileParser dataParser;
+    DataFileParser dataParser(_pDataParserModel);
     DataFileParser::FileData data;
-    if (dataParser.processDataFile(dataFilePath, &data))
+
+    SettingsAuto * _pAutoSettingsParser;
+    QTextStream *pDataStream = nullptr;
+    QStringList dataFileSample;
+
+    QFile dataFile(dataFilePath);
+
+    /* Read sample of file */
+    bool bRet = dataFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    if (bRet)
     {
-        // Set to full auto scaling
-        _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
+        pDataStream = new QTextStream(&dataFile);
 
-        // Set to full auto scaling
-        _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
+        loadDataFileSample(pDataStream, &dataFileSample);
+    }
+    else
+    {
+        Util::showError(tr("Couldn't open data file: %1").arg(dataFilePath));
+    }
 
-        _pGraphDataModel->clear();
-        _pGuiModel->setFrontGraph(-1);
+    /* Try to determine settings */
+    if (bRet)
+    {
+        _pAutoSettingsParser = new SettingsAuto(_pDataParserModel);
+        bRet = _pAutoSettingsParser->updateSettings(dataFileSample);
 
-        _pGraphDataModel->add(data.dataLabel, data.timeRow, data.dataRows);
-
-        if (!data.colors.isEmpty())
+        if (!bRet)
         {
-            for (int idx = 0; idx < data.dataLabel.size(); idx++)
-            {
-                _pGraphDataModel->setColor(static_cast<quint32>(idx), data.colors[idx]);
-            }
+            Util::showError(tr("Invalid data file (error while auto parsing for settings)"));
         }
+    }
 
-        _pNoteModel->clear();
-        if (!data.notes.isEmpty())
+    if (bRet)
+    {
+        if (dataParser.processDataFile(pDataStream, &data))
         {
-            foreach(Note note, data.notes)
+            // Set to full auto scaling
+            _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
+
+            // Set to full auto scaling
+            _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
+
+            _pGraphDataModel->clear();
+            _pGuiModel->setFrontGraph(-1);
+
+            _pGraphDataModel->add(data.dataLabel, data.timeRow, data.dataRows);
+
+            if (!data.colors.isEmpty())
             {
-                _pNoteModel->add(note);
+                for (int idx = 0; idx < data.dataLabel.size(); idx++)
+                {
+                    _pGraphDataModel->setColor(static_cast<quint32>(idx), data.colors[idx]);
+                }
             }
+
+            _pNoteModel->clear();
+            if (!data.notes.isEmpty())
+            {
+                foreach(Note note, data.notes)
+                {
+                    _pNoteModel->add(note);
+                }
+            }
+            _pNoteModel->setNotesDataUpdated(false);
+
+            _pGuiModel->setFrontGraph(0);
+
+            _pGuiModel->setProjectFilePath("");
+            _pDataParserModel->setDataFilePath(dataFilePath);
+
+            _pGuiModel->setGuiState(GuiModel::DATA_LOADED);
+
         }
-        _pNoteModel->setNotesDataUpdated(false);
-
-        _pGuiModel->setFrontGraph(0);
-
-        _pGuiModel->setProjectFilePath("");
-        _pDataParserModel->setDataFilePath(dataFilePath);
-
-        _pGuiModel->setGuiState(GuiModel::DATA_LOADED);
-
     }
 }
 
@@ -145,4 +182,42 @@ void DataFileHandler::exportDataLine(double timeData, QList <double> dataValues)
 void DataFileHandler::rewriteDataFile(void)
 {
     _pDataFileExporter->rewriteDataFile();
+}
+
+void DataFileHandler::loadDataFileSample(QTextStream * pDataStream, QStringList * pDataFileSample)
+{
+    QString lineData;
+
+    /* Set cursor to beginning */
+    pDataStream->seek(0);
+
+    /* Clear result buffer */
+    pDataFileSample->clear();
+
+    bool bRet = true;
+    do
+    {
+        if (pDataStream->atEnd())
+        {
+            break;
+        }
+
+        /* Read line */
+        bRet = pDataStream->readLineInto(&lineData, 0);
+
+        if (bRet)
+        {
+            pDataFileSample->append(lineData);
+        }
+        else
+        {
+            pDataFileSample->clear();
+            break;
+        }
+
+    } while(bRet && (pDataFileSample->size() < _cSampleLineLength));
+
+    /* Set cursor back to beginning */
+    pDataStream->seek(0);
+
 }

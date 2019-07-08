@@ -38,6 +38,10 @@ public slots:
 
 private:
 
+    //TODO: remove this function
+    //Let settingsauto work with stream
+    void loadDataFileSample(QTextStream * pDataStream, QStringList * pDataFileSample);
+
     GuiModel* _pGuiModel;
     GraphDataModel* _pGraphDataModel;
     NoteModel* _pNoteModel;
@@ -45,6 +49,8 @@ private:
 
     DataFileExporter * _pDataFileExporter;
     DataParserModel * _pDataParserModel;
+
+    static const qint32 _cSampleLineLength = 50;
 };
 
 #endif // DATAFILEHANDLER_H

@@ -5,15 +5,18 @@
 #include "settingsauto.h"
 #include "util.h"
 
-SettingsAuto::SettingsAuto()
+SettingsAuto::SettingsAuto(DataParserModel *pDataParserModel)
 {
+    _pDataParserModel = pDataParserModel;
 }
 
 bool SettingsAuto::updateSettings(QStringList previewData)
 {
     bool bRet = true;
 
+    // Reset settings
     _column = 0;
+    _bAbsoluteDate = false;
 
     // Find first non-comment line
     qint32 lineIdx = 0;
@@ -65,63 +68,26 @@ bool SettingsAuto::updateSettings(QStringList previewData)
         bRet = false;
     }
 
+    if (bRet)
+    {
+        _pDataParserModel->setFieldSeparator(_fieldSeparator);
+        _pDataParserModel->setGroupSeparator(_groupSeparator);
+        _pDataParserModel->setDecimalSeparator(_decimalSeparator);
+        _pDataParserModel->setCommentSequence(_commentSequence);
+        _pDataParserModel->setDataRow(_dataRow);
+        _pDataParserModel->setColumn(_column);
+        _pDataParserModel->setLabelRow(_labelRow);
+        _pDataParserModel->setTimeInMilliSeconds(_bTimeInMilliSeconds);
+
+        _pDataParserModel->setLocale(_locale);
+        _pDataParserModel->setAbsoluteDate(_bAbsoluteDate);
+    }
+
     return bRet;
-}
-
-
-QChar SettingsAuto::fieldSeparator()
-{
-    return _fieldSeparator;
-}
-
-QChar SettingsAuto::groupSeparator()
-{
-    return _groupSeparator;
-}
-
-QChar SettingsAuto::decimalSeparator()
-{
-    return _decimalSeparator;
-}
-
-QString SettingsAuto::commentSequence()
-{
-    return _commentSequence;
-}
-
-quint32 SettingsAuto::dataRow()
-{
-    return _dataRow;
-}
-
-quint32 SettingsAuto::column()
-{
-    return _column;
-}
-
-qint32 SettingsAuto::labelRow()
-{
-    return _labelRow;
-}
-
-QLocale SettingsAuto::locale()
-{
-    return _locale;
-}
-
-bool SettingsAuto::timeInMilliSeconds()
-{
-    return _bTimeInMilliSeconds;
-}
-
-bool SettingsAuto::absoluteDate()
-{
-    return _bAbsoluteDate;
 }
 
 bool SettingsAuto::isAbsoluteDate(QString rawData)
 {
-
     QRegularExpression re("\\d{2,4}.*\\d{2}.*\\d{2,4}\\s*\\d{1,2}:\\d{1,2}:\\d{1,2}.*");
     QRegularExpressionMatch match = re.match(rawData);
 
@@ -199,6 +165,8 @@ bool SettingsAuto::testLocale(QStringList previewData, QLocale locale, QChar fie
 
                     if (isAbsoluteDate(field))
                     {
+                        _bAbsoluteDate = true;
+
                         _column = idx;
                     }
                     else

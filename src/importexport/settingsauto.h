@@ -3,25 +3,16 @@
 
 #include <QLocale>
 
+#include "dataparsermodel.h"
+
 class SettingsAuto : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit SettingsAuto();
+    explicit SettingsAuto(DataParserModel * pDataParserModel);
 
     bool updateSettings(QStringList previewData);
-
-    QChar fieldSeparator();
-    QChar groupSeparator();
-    QChar decimalSeparator();
-    QString commentSequence();
-    quint32 dataRow();
-    quint32 column();
-    qint32 labelRow();
-    bool timeInMilliSeconds();
-    QLocale locale();
-    bool absoluteDate();
 
 signals:
 
@@ -45,6 +36,7 @@ private:
     bool _bTimeInMilliSeconds;
     QLocale _locale;
 
+    DataParserModel *_pDataParserModel;
 };
 
 #endif // SETTINGSAUTO_H

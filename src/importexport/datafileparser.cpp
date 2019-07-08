@@ -7,8 +7,10 @@
 const QString DataFileParser::_cPattern = QString("\\s*(\\d{1,2})[\\-\\/\\s](\\d{1,2})[\\-\\/\\s](\\d{4})\\s*([0-2][0-9]):([0-5][0-9]):([0-5][0-9])[.,]?(\\d{0,3})");
 
 
-DataFileParser::DataFileParser()
+DataFileParser::DataFileParser(DataParserModel *pDataParserModel)
 {
+    _pDataParserModel = pDataParserModel;
+
     _dateParseRegex.setPattern(_cPattern);
     _dateParseRegex.optimize();
 }
@@ -19,49 +21,19 @@ DataFileParser::~DataFileParser()
     {
         delete _pDataStream;
     }
-
-    if (_pAutoSettingsParser)
-    {
-       delete _pAutoSettingsParser;
-    }
 }
 
 // Return false on error
-bool DataFileParser::processDataFile(QString dataFilename, FileData * pData)
+bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData)
 {
     bool bRet = true;
     QString line;
     qint32 lineIdx = 0;
-    QStringList dataFileSample;
 
-    QFile dataFile(dataFilename);
+    _pDataStream = pDataStream;
+    _pDataStream->seek(0);
 
-    /* Read sample of file */
-    bRet = dataFile.open(QIODevice::ReadOnly | QIODevice::Text);
-    if (bRet)
-    {
-        _pDataStream = new QTextStream(&dataFile);
-
-        loadDataFileSample(&dataFileSample);
-    }
-    else
-    {
-        Util::showError(tr("Couldn't open data file: %1").arg(dataFilename));
-    }
-
-    /* Try to determine settings */
-    if (bRet)
-    {
-        _pAutoSettingsParser = new SettingsAuto();
-        bRet = _pAutoSettingsParser->updateSettings(dataFileSample);
-
-        if (!bRet)
-        {
-            Util::showError(tr("Invalid data file (error while auto parsing for settings)"));
-        }
-    }
-
-    /* Read complete file this time */
+    /* Read complete file */
     if (bRet)
     {
         do
@@ -71,7 +43,7 @@ bool DataFileParser::processDataFile(QString dataFilename, FileData * pData)
             if (bRet)
             {
                 /* Check for properties */
-                QStringList idList = line.split(_pAutoSettingsParser->fieldSeparator());
+                QStringList idList = line.split(_pDataParserModel->fieldSeparator());
 
                 if (static_cast<QString>(idList.first()).toLower() == "//color")
                 {
@@ -118,20 +90,20 @@ bool DataFileParser::processDataFile(QString dataFilename, FileData * pData)
             }
 
             lineIdx++;
-        } while(lineIdx <= _pAutoSettingsParser->labelRow());
+        } while(lineIdx <= _pDataParserModel->labelRow());
     }
 
     // Process register labels
     if (bRet)
     {
         pData->dataLabel.clear();
-        pData->dataLabel.append(line.split(_pAutoSettingsParser->fieldSeparator()));
+        pData->dataLabel.append(line.split(_pDataParserModel->fieldSeparator()));
         _expectedFields = pData->dataLabel.size();
 
         if (_expectedFields <= 1)
         {
             Util::showError(QString(tr("Incorrect graph data found. "
-                                 "<br><br>Found field separator: \'%1\'")).arg(_pAutoSettingsParser->fieldSeparator()));
+                                 "<br><br>Found field separator: \'%1\'")).arg(_pDataParserModel->fieldSeparator()));
 
             bRet = false;
         }
@@ -171,7 +143,7 @@ bool DataFileParser::processDataFile(QString dataFilename, FileData * pData)
             }
 
             lineIdx++;
-        } while(lineIdx <= (qint32)_pAutoSettingsParser->dataRow());
+        } while(lineIdx <= (qint32)_pDataParserModel->dataRow());
     }
 
     // read data
@@ -209,7 +181,7 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
     {
         if (!line.trimmed().isEmpty())
         {
-            QStringList paramList = line.split(_pAutoSettingsParser->fieldSeparator());
+            QStringList paramList = line.split(_pDataParserModel->fieldSeparator());
 
             if (paramList.size() != (qint32)_expectedFields)
             {
@@ -220,7 +192,7 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
             }
 
             quint32 startColumn=1;
-            if (_pAutoSettingsParser->absoluteDate())
+            if (_pDataParserModel->absoluteDate())
             {
                 bool bOk;
                 const double number = (double)parseDateTime(paramList[0], &bOk);
@@ -233,7 +205,7 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
                     QString error = QString(tr("Invalid absolute date (while processing data)\n"
                                                "Line: %1\n"
                                                "\n\nExpected decimal separator character: \'%2\'"
-                                               ).arg(line).arg(_pAutoSettingsParser->locale().decimalPoint()));
+                                               ).arg(line).arg(_pDataParserModel->locale().decimalPoint()));
                     Util::showError(error);
                     bRet = false;
                     break;
@@ -247,14 +219,14 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
             for (qint32 i = startColumn; i < paramList.size(); i++)
             {
                 bool bError = false;
-                const double number = _pAutoSettingsParser->locale().toDouble(paramList[i], &bError);
+                const double number = _pDataParserModel->locale().toDouble(paramList[i], &bError);
 
                 if (bError == false)
                 {
                     QString error = QString(tr("Invalid data (while processing data)\n"
                                                "Line: %1\n"
                                                "\n\nExpected decimal separator character: \'%2\'"
-                                               ).arg(line).arg(_pAutoSettingsParser->locale().decimalPoint()));
+                                               ).arg(line).arg(_pDataParserModel->locale().decimalPoint()));
                     Util::showError(error);
                     bRet = false;
                     break;
@@ -285,38 +257,6 @@ bool DataFileParser::readLineFromFile(QString *pLine)
 {
     // Read line of data
     return _pDataStream->readLineInto(pLine, 0);
-}
-
-void DataFileParser::loadDataFileSample(QStringList * pDataFileSample)
-{
-    QString lineData;
-    pDataFileSample->clear();
-    bool bRet = true;
-    do
-    {
-        if (_pDataStream->atEnd())
-        {
-            break;
-        }
-
-        /* Read line */
-        bRet = _pDataStream->readLineInto(&lineData, 0);
-
-        if (bRet)
-        {
-            pDataFileSample->append(lineData);
-        }
-        else
-        {
-            pDataFileSample->clear();
-            break;
-        }
-
-    } while(bRet && (pDataFileSample->size() < _cSampleLineLength));
-
-    /* Set cursor back to beginning */
-    _pDataStream->seek(0);
-
 }
 
 qint64 DataFileParser::parseDateTime(QString rawData, bool *bOk)
@@ -378,7 +318,7 @@ bool DataFileParser::parseNoteField(QStringList noteFieldList, Note * pNote)
 
     if (noteFieldList.size() == 4)
     {
-        const double key = _pAutoSettingsParser->locale().toDouble(noteFieldList[1], &bError);
+        const double key = _pDataParserModel->locale().toDouble(noteFieldList[1], &bError);
         if (bError != false)
         {
             pNote->setKeyData(key);
@@ -388,7 +328,7 @@ bool DataFileParser::parseNoteField(QStringList noteFieldList, Note * pNote)
             bSucces = false;
         }
 
-        const double value = _pAutoSettingsParser->locale().toDouble(noteFieldList[2], &bError);
+        const double value = _pDataParserModel->locale().toDouble(noteFieldList[2], &bError);
         if (bError != false)
         {
             pNote->setValueData(value);
