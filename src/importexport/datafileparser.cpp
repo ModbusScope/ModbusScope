@@ -183,7 +183,7 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
         {
             QStringList paramList = line.split(_pDataParserModel->fieldSeparator());
 
-            if (paramList.size() != (qint32)_expectedFields)
+            if (paramList.size() != static_cast<qint32>(_expectedFields))
             {
                 QString txt = QString(tr("The number of label columns doesn't match number of data columns!\nLabel count: %1\nData count: %2")).arg(_expectedFields).arg(paramList.size());
                 Util::showError(txt);
@@ -195,7 +195,7 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
             if (_pDataParserModel->absoluteDate())
             {
                 bool bOk;
-                const double number = (double)parseDateTime(paramList[0], &bOk);
+                const double number = static_cast<double>(parseDateTime(paramList[0], &bOk));
                 if (bOk)
                 {
                     dataRows[0].append(number);
@@ -204,8 +204,8 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
                 {
                     QString error = QString(tr("Invalid absolute date (while processing data)\n"
                                                "Line: %1\n"
-                                               "\n\nExpected decimal separator character: \'%2\'"
-                                               ).arg(line).arg(_pDataParserModel->locale().decimalPoint()));
+                                               "\n\nExpected date format: \'%2\'"
+                                               ).arg(line).arg("dd-MM-yyyy hh:mm:ss.zzz"));
                     Util::showError(error);
                     bRet = false;
                     break;
