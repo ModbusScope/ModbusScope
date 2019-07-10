@@ -2,6 +2,7 @@
 #define SETTINGSAUTO_H
 
 #include <QLocale>
+#include <QTextStream>
 
 #include "dataparsermodel.h"
 
@@ -10,9 +11,23 @@ class SettingsAuto : public QObject
     Q_OBJECT
 
 public:
-    explicit SettingsAuto(DataParserModel * pDataParserModel);
+    explicit SettingsAuto();
 
-    bool updateSettings(QStringList previewData);
+    typedef struct
+    {
+        QChar fieldSeparator;
+        QChar groupSeparator;
+        QChar decimalSeparator;
+        QString commentSequence;
+        quint32 dataRow;
+        quint32 column;
+        qint32 labelRow;
+        bool bAbsoluteDate;
+        bool bTimeInMilliSeconds;
+        QLocale locale;
+    } settingsData_t;
+
+    bool updateSettings(QTextStream* pDataFileStream, settingsData_t* pSettingsData, qint32 sampleLength);
 
 signals:
 
@@ -24,6 +39,7 @@ private:
     bool isComment(QString line);
     bool testLocale(QStringList previewData, QLocale locale, QChar fieldSeparator);
     quint32 nextDataLine(quint32 startIdx, QStringList previewData, bool *bOk);
+    void loadDataFileSample(QTextStream* pDataStream, QStringList* pDataFileSample, qint32 sampleLength);
 
     QChar _fieldSeparator;
     QChar _groupSeparator;
@@ -36,7 +52,6 @@ private:
     bool _bTimeInMilliSeconds;
     QLocale _locale;
 
-    DataParserModel *_pDataParserModel;
 };
 
 #endif // SETTINGSAUTO_H

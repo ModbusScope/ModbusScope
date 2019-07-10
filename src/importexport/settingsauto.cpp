@@ -5,14 +5,18 @@
 #include "settingsauto.h"
 #include "util.h"
 
-SettingsAuto::SettingsAuto(DataParserModel *pDataParserModel)
+SettingsAuto::SettingsAuto()
 {
-    _pDataParserModel = pDataParserModel;
+
 }
 
-bool SettingsAuto::updateSettings(QStringList previewData)
+bool SettingsAuto::updateSettings(QTextStream* pDataFileStream, settingsData_t *pSettingsData, qint32 sampleLength)
 {
     bool bRet = true;
+
+    QStringList previewData;
+
+    loadDataFileSample(pDataFileStream, &previewData, sampleLength);
 
     // Reset settings
     _column = 0;
@@ -70,17 +74,16 @@ bool SettingsAuto::updateSettings(QStringList previewData)
 
     if (bRet)
     {
-        _pDataParserModel->setFieldSeparator(_fieldSeparator);
-        _pDataParserModel->setGroupSeparator(_groupSeparator);
-        _pDataParserModel->setDecimalSeparator(_decimalSeparator);
-        _pDataParserModel->setCommentSequence(_commentSequence);
-        _pDataParserModel->setDataRow(_dataRow);
-        _pDataParserModel->setColumn(_column);
-        _pDataParserModel->setLabelRow(_labelRow);
-        _pDataParserModel->setTimeInMilliSeconds(_bTimeInMilliSeconds);
-
-        _pDataParserModel->setLocale(_locale);
-        _pDataParserModel->setAbsoluteDate(_bAbsoluteDate);
+        pSettingsData->fieldSeparator = _fieldSeparator;
+        pSettingsData->groupSeparator = _groupSeparator;
+        pSettingsData->decimalSeparator = _decimalSeparator;
+        pSettingsData->commentSequence = _commentSequence;
+        pSettingsData->dataRow = _dataRow;
+        pSettingsData->column = _column;
+        pSettingsData->labelRow = _labelRow;
+        pSettingsData->bAbsoluteDate = _bAbsoluteDate;
+        pSettingsData->bTimeInMilliSeconds = _bTimeInMilliSeconds;
+        pSettingsData->locale =_locale;
     }
 
     return bRet;
@@ -252,3 +255,40 @@ quint32 SettingsAuto::nextDataLine(quint32 startIdx, QStringList previewData, bo
 }
 
 
+void SettingsAuto::loadDataFileSample(QTextStream* pDataStream, QStringList * pDataFileSample, qint32 sampleLength)
+{
+    QString lineData;
+
+    /* Set cursor to beginning */
+    pDataStream->seek(0);
+
+    /* Clear result buffer */
+    pDataFileSample->clear();
+
+    bool bRet = true;
+    do
+    {
+        if (pDataStream->atEnd())
+        {
+            break;
+        }
+
+        /* Read line */
+        bRet = pDataStream->readLineInto(&lineData, 0);
+
+        if (bRet)
+        {
+            pDataFileSample->append(lineData);
+        }
+        else
+        {
+            pDataFileSample->clear();
+            break;
+        }
+
+    } while(bRet && (pDataFileSample->size() < sampleLength));
+
+    /* Set cursor back to beginning */
+    pDataStream->seek(0);
+
+}

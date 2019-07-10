@@ -43,7 +43,6 @@ void DataFileHandler::loadDataFile(QString dataFilePath)
 
     SettingsAuto * _pAutoSettingsParser;
     QTextStream *pDataStream = nullptr;
-    QStringList dataFileSample;
 
     QFile dataFile(dataFilePath);
 
@@ -52,8 +51,6 @@ void DataFileHandler::loadDataFile(QString dataFilePath)
     if (bRet)
     {
         pDataStream = new QTextStream(&dataFile);
-
-        loadDataFileSample(pDataStream, &dataFileSample);
     }
     else
     {
@@ -63,10 +60,25 @@ void DataFileHandler::loadDataFile(QString dataFilePath)
     /* Try to determine settings */
     if (bRet)
     {
-        _pAutoSettingsParser = new SettingsAuto(_pDataParserModel);
-        bRet = _pAutoSettingsParser->updateSettings(dataFileSample);
+        _pAutoSettingsParser = new SettingsAuto();
+        SettingsAuto::settingsData_t settingsData;
 
-        if (!bRet)
+        bRet = _pAutoSettingsParser->updateSettings(pDataStream, &settingsData, _cSampleLineLength);
+        if (bRet)
+        {
+            _pDataParserModel->setFieldSeparator(settingsData.fieldSeparator);
+            _pDataParserModel->setGroupSeparator(settingsData.groupSeparator);
+            _pDataParserModel->setDecimalSeparator(settingsData.decimalSeparator);
+            _pDataParserModel->setCommentSequence(settingsData.commentSequence);
+            _pDataParserModel->setDataRow(settingsData.dataRow);
+            _pDataParserModel->setColumn(settingsData.column);
+            _pDataParserModel->setLabelRow(settingsData.labelRow);
+            _pDataParserModel->setTimeInMilliSeconds(settingsData.bTimeInMilliSeconds);
+
+            _pDataParserModel->setLocale(settingsData.locale);
+            _pDataParserModel->setAbsoluteDate(settingsData.bAbsoluteDate);
+        }
+        else
         {
             Util::showError(tr("Invalid data file (error while auto parsing for settings)"));
         }
@@ -182,42 +194,4 @@ void DataFileHandler::exportDataLine(double timeData, QList <double> dataValues)
 void DataFileHandler::rewriteDataFile(void)
 {
     _pDataFileExporter->rewriteDataFile();
-}
-
-void DataFileHandler::loadDataFileSample(QTextStream * pDataStream, QStringList * pDataFileSample)
-{
-    QString lineData;
-
-    /* Set cursor to beginning */
-    pDataStream->seek(0);
-
-    /* Clear result buffer */
-    pDataFileSample->clear();
-
-    bool bRet = true;
-    do
-    {
-        if (pDataStream->atEnd())
-        {
-            break;
-        }
-
-        /* Read line */
-        bRet = pDataStream->readLineInto(&lineData, 0);
-
-        if (bRet)
-        {
-            pDataFileSample->append(lineData);
-        }
-        else
-        {
-            pDataFileSample->clear();
-            break;
-        }
-
-    } while(bRet && (pDataFileSample->size() < _cSampleLineLength));
-
-    /* Set cursor back to beginning */
-    pDataStream->seek(0);
-
 }

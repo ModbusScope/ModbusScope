@@ -26,7 +26,6 @@ public:
     void exportDataFile(QString dataFile);
     bool updateNoteLines();
 
-
 signals:
 
 public slots:
@@ -37,10 +36,6 @@ public slots:
     void rewriteDataFile(void);
 
 private:
-
-    //TODO: remove this function
-    //Let settingsauto work with stream
-    void loadDataFileSample(QTextStream * pDataStream, QStringList * pDataFileSample);
 
     GuiModel* _pGuiModel;
     GraphDataModel* _pGraphDataModel;
