@@ -98,7 +98,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
     {
         pData->dataLabel.clear();
         pData->dataLabel.append(line.split(_pDataParserModel->fieldSeparator()));
-        _expectedFields = pData->dataLabel.size();
+        _expectedFields = static_cast<quint32>(pData->dataLabel.size() - static_cast<int>(_pDataParserModel->column()));
 
         if (_expectedFields <= 1)
         {
@@ -124,9 +124,9 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
 		// axis (time) label
         pData->axisLabel = pData->dataLabel[0].trimmed();
 
-        for(qint32 i = 1; i < pData->dataLabel.size(); i++)
+        for(qint32 i = static_cast<qint32>(_pDataParserModel->column()); i < pData->dataLabel.size(); i++)
         {
-            pData->dataLabel[i] = pData->dataLabel[i].trimmed();
+            pData->dataLabel[i - static_cast<qint32>(_pDataParserModel->column())] = pData->dataLabel[i].trimmed();
         }
     }
 
@@ -143,7 +143,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
             }
 
             lineIdx++;
-        } while(lineIdx <= (qint32)_pDataParserModel->dataRow());
+        } while(lineIdx <= static_cast<qint32>(_pDataParserModel->dataRow()));
     }
 
     // read data
@@ -182,46 +182,61 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
         if (!line.trimmed().isEmpty())
         {
             QStringList paramList = line.split(_pDataParserModel->fieldSeparator());
+            const quint32 lineDataCount = static_cast<quint32>(paramList.size() - static_cast<qint32>(_pDataParserModel->column()));
 
-            if (paramList.size() != static_cast<qint32>(_expectedFields))
+            if (lineDataCount != _expectedFields)
             {
-                QString txt = QString(tr("The number of label columns doesn't match number of data columns!\nLabel count: %1\nData count: %2")).arg(_expectedFields).arg(paramList.size());
+                QString txt = QString(tr("The number of label columns doesn't match number of data columns!\nLabel count: %1\nData count: %2")).arg(_expectedFields).arg(lineDataCount);
                 Util::showError(txt);
                 bRet = false;
                 break;
             }
 
-            quint32 startColumn=1;
-            if (_pDataParserModel->absoluteDate())
+            for (qint32 i = static_cast<qint32>(_pDataParserModel->column()); i < paramList.size(); i++)
             {
-                bool bOk;
-                const double number = static_cast<double>(parseDateTime(paramList[0], &bOk));
-                if (bOk)
+                bool bOk = true;
+
+                // Remove group separator
+                QString tmpData = paramList[i].simplified().replace(_pDataParserModel->groupSeparator(), "");
+
+                // Replace decimal point if needed
+                if (QLocale::system().decimalPoint() != _pDataParserModel->decimalSeparator())
                 {
-                    dataRows[0].append(number);
+                    tmpData = tmpData.replace(_pDataParserModel->decimalSeparator(), QLocale::system().decimalPoint());
+                }
+
+                double number;
+                if (tmpData.simplified().isEmpty())
+                {
+                    number = 0;
+                    bOk = false;
                 }
                 else
                 {
-                    QString error = QString(tr("Invalid absolute date (while processing data)\n"
-                                               "Line: %1\n"
-                                               "\n\nExpected date format: \'%2\'"
-                                               ).arg(line).arg("dd-MM-yyyy hh:mm:ss.zzz"));
-                    Util::showError(error);
-                    bRet = false;
-                    break;
+                    number = QLocale::system().toDouble(tmpData, &bOk);
+
+                    if (!bOk)
+                    {
+                        if (static_cast<quint32>(i) == _pDataParserModel->column())
+                        {
+                            // Parse time data
+                            number = static_cast<double>(parseDateTime(tmpData, &bOk));
+
+                            if (!bOk)
+                            {
+                                QString error = QString(tr("Invalid absolute date (while processing data)\n"
+                                                           "Line: %1\n"
+                                                           "\n\nExpected date format: \'%2\'"
+                                                           ).arg(line).arg("dd-MM-yyyy hh:mm:ss.zzz"));
+                                Util::showError(error);
+                                bRet = false;
+                                break;
+                            }
+                        }
+                    }
                 }
-            }
-            else
-            {
-                startColumn = 0;
-            }
 
-            for (qint32 i = startColumn; i < paramList.size(); i++)
-            {
-                bool bError = false;
-                const double number = _pDataParserModel->locale().toDouble(paramList[i], &bError);
-
-                if (bError == false)
+                if (bOk == false)
                 {
                     QString error = QString(tr("Invalid data (while processing data)\n"
                                                "Line: %1\n"
@@ -233,7 +248,16 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
                 }
                 else
                 {
-                    dataRows[i].append(number);
+                    /* Only multiply for first column (time data) */
+                    if (
+                        (static_cast<quint32>(i) == _pDataParserModel->column())
+                        && (!_pDataParserModel->timeInMilliSeconds())
+                        )
+                    {
+                        number *= 1000;
+                    }
+
+                    dataRows[i - static_cast<qint32>(_pDataParserModel->column())].append(number);
                 }
             }
         }
