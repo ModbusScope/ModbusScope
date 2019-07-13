@@ -40,6 +40,7 @@ private:
     bool readLineFromFile(QString *pLine);
     qint64 parseDateTime(QString rawData, bool *bOk);
     bool parseNoteField(QStringList noteFieldList, Note * pNote);
+    double parseDouble(QString strNumber, bool* bOk);
 
 
     QTextStream * _pDataStream;

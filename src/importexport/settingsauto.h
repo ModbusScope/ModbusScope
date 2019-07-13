@@ -22,9 +22,7 @@ public:
         quint32 dataRow;
         quint32 column;
         qint32 labelRow;
-        bool bAbsoluteDate;
         bool bTimeInMilliSeconds;
-        QLocale locale;
     } settingsData_t;
 
     bool updateSettings(QTextStream* pDataFileStream, settingsData_t* pSettingsData, qint32 sampleLength);
@@ -48,10 +46,7 @@ private:
     quint32 _dataRow;
     quint32 _column;
     qint32 _labelRow;
-    bool _bAbsoluteDate;
     bool _bTimeInMilliSeconds;
-    QLocale _locale;
-
 };
 
 #endif // SETTINGSAUTO_H

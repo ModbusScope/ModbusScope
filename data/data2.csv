@@ -1,0 +1,33 @@
+//ModbusScope version,1.6.1
+//Start time,13-07-2019 21:57:47
+//End time,13-07-2019 21:57:49
+//Slave IP (Connection ID 0),127.0.0.1:502
+//Slave ID (Connection ID 0),1
+//Time-out (Connection ID 0),1000
+//Consecutive max (Connection ID 0),125
+//Poll interval,250
+//Communication success,0
+//Communication errors,9
+//
+//Property,Register 40001,Register 40002
+//Register Address,40001,40002
+//Color,#000000,#0000ff
+//Multiply,1,1
+//Divide,1,1
+//Bitmask,0xffff,0xffff
+//Shift,0,0
+//ConnectionId,0,0
+//
+//Note,800.605,1.667,"Test"
+
+//
+Time (ms),Register 40001,Register 40002
+37,0,0
+262,0,0
+513,0,0
+763,0,0
+1012,0,0
+1266,0,0
+1517,0,0
+1768,0,0
+2017,0,0

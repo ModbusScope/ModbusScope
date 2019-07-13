@@ -212,24 +212,3 @@ QString DataParserModel::dataFilePath()
 {
     return _dataFilePath;
 }
-
-QLocale DataParserModel::locale() // TODO: remove
-{
-    return _locale;
-}
-
-bool DataParserModel::absoluteDate() // TODO: remove
-{
-    return _bAbsoluteDate;
-}
-
-void DataParserModel::setLocale(QLocale locale) // TODO: remove
-{
-    _locale = locale;
-}
-
-void DataParserModel::setAbsoluteDate(bool absoluteDate) // TODO: remove
-{
-    _bAbsoluteDate = absoluteDate;
-}
-

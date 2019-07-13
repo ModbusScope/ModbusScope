@@ -20,7 +20,6 @@ bool SettingsAuto::updateSettings(QTextStream* pDataFileStream, settingsData_t *
 
     // Reset settings
     _column = 0;
-    _bAbsoluteDate = false;
 
     // Find first non-comment line
     qint32 lineIdx = 0;
@@ -81,9 +80,7 @@ bool SettingsAuto::updateSettings(QTextStream* pDataFileStream, settingsData_t *
         pSettingsData->dataRow = _dataRow;
         pSettingsData->column = _column;
         pSettingsData->labelRow = _labelRow;
-        pSettingsData->bAbsoluteDate = _bAbsoluteDate;
         pSettingsData->bTimeInMilliSeconds = _bTimeInMilliSeconds;
-        pSettingsData->locale =_locale;
     }
 
     return bRet;
@@ -168,8 +165,6 @@ bool SettingsAuto::testLocale(QStringList previewData, QLocale locale, QChar fie
 
                     if (isAbsoluteDate(field))
                     {
-                        _bAbsoluteDate = true;
-
                         _column = idx;
                     }
                     else
@@ -189,9 +184,6 @@ bool SettingsAuto::testLocale(QStringList previewData, QLocale locale, QChar fie
     {
         return false;
     }
-
-    // Save locale
-    _locale = locale;
 
     // If first time field is between 0 and 1, then presume in seconds
     QString firstTimeField = previewData[_dataRow].split(fieldSeparator)[0];

@@ -74,9 +74,6 @@ void DataFileHandler::loadDataFile(QString dataFilePath)
             _pDataParserModel->setColumn(settingsData.column);
             _pDataParserModel->setLabelRow(settingsData.labelRow);
             _pDataParserModel->setTimeInMilliSeconds(settingsData.bTimeInMilliSeconds);
-
-            _pDataParserModel->setLocale(settingsData.locale);
-            _pDataParserModel->setAbsoluteDate(settingsData.bAbsoluteDate);
         }
         else
         {

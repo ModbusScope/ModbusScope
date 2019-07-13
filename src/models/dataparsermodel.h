@@ -25,9 +25,6 @@ public:
     bool timeInMilliSeconds() const;
     bool stmStudioCorrection() const;
     QString dataFilePath();
-
-    QLocale locale(); // TODO: remove
-    bool absoluteDate(); // TODO: remove
     
     void setFieldSeparator(QChar fieldSeparator);
     void setGroupSeparator(QChar groupSeparator);
@@ -39,9 +36,6 @@ public:
     void setTimeInMilliSeconds(bool timeInMilliSeconds);
     void setStmStudioCorrection(bool stmStudioCorrection);
     void setDataFilePath(QString path);
-
-    void setLocale(QLocale locale); // TODO: remove
-    void setAbsoluteDate(bool absoluteDate); // TODO: remove
 
 signals:
     void fieldSeparatorChanged();
@@ -67,9 +61,6 @@ private:
     bool _bTimeInMilliSeconds;
     bool _bStmStudioCorrection;
     QString _dataFilePath;
-
-    bool _bAbsoluteDate; // TODO: remove
-    QLocale _locale; // TODO: remove
 
 };
 

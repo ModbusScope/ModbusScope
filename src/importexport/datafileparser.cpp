@@ -195,58 +195,31 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
             for (qint32 i = static_cast<qint32>(_pDataParserModel->column()); i < paramList.size(); i++)
             {
                 bool bOk = true;
+                QString strNumber = paramList[i].simplified();
 
-                // Remove group separator
-                QString tmpData = paramList[i].simplified().replace(_pDataParserModel->groupSeparator(), "");
+                double number = parseDouble(strNumber, &bOk);
 
-                // Replace decimal point if needed
-                if (QLocale::system().decimalPoint() != _pDataParserModel->decimalSeparator())
+                if (
+                    (bOk == false)
+                    && (static_cast<quint32>(i) == _pDataParserModel->column())
+                )
                 {
-                    tmpData = tmpData.replace(_pDataParserModel->decimalSeparator(), QLocale::system().decimalPoint());
-                }
-
-                double number;
-                if (tmpData.simplified().isEmpty())
-                {
-                    number = 0;
-                    bOk = false;
-                }
-                else
-                {
-                    number = QLocale::system().toDouble(tmpData, &bOk);
+                    // Parse time data
+                    number = static_cast<double>(parseDateTime(strNumber, &bOk));
 
                     if (!bOk)
                     {
-                        if (static_cast<quint32>(i) == _pDataParserModel->column())
-                        {
-                            // Parse time data
-                            number = static_cast<double>(parseDateTime(tmpData, &bOk));
-
-                            if (!bOk)
-                            {
-                                QString error = QString(tr("Invalid absolute date (while processing data)\n"
-                                                           "Line: %1\n"
-                                                           "\n\nExpected date format: \'%2\'"
-                                                           ).arg(line).arg("dd-MM-yyyy hh:mm:ss.zzz"));
-                                Util::showError(error);
-                                bRet = false;
-                                break;
-                            }
-                        }
+                        QString error = QString(tr("Invalid absolute date (while processing data)\n"
+                                                   "Line: %1\n"
+                                                   "\n\nExpected date format: \'%2\'"
+                                                   ).arg(line).arg("dd-MM-yyyy hh:mm:ss.zzz"));
+                        Util::showError(error);
+                        bRet = false;
+                        break;
                     }
                 }
 
-                if (bOk == false)
-                {
-                    QString error = QString(tr("Invalid data (while processing data)\n"
-                                               "Line: %1\n"
-                                               "\n\nExpected decimal separator character: \'%2\'"
-                                               ).arg(line).arg(_pDataParserModel->locale().decimalPoint()));
-                    Util::showError(error);
-                    bRet = false;
-                    break;
-                }
-                else
+                if (bOk)
                 {
                     /* Only multiply for first column (time data) */
                     if (
@@ -258,6 +231,16 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
                     }
 
                     dataRows[i - static_cast<qint32>(_pDataParserModel->column())].append(number);
+                }
+                else
+                {
+                    QString error = QString(tr("Invalid data (while processing data)\n"
+                                               "Line: %1\n"
+                                               "\n\nExpected decimal separator character: \'%2\'"
+                                               ).arg(line).arg(_pDataParserModel->decimalSeparator()));
+                    Util::showError(error);
+                    bRet = false;
+                    break;
                 }
             }
         }
@@ -338,12 +321,12 @@ bool DataFileParser::parseNoteField(QStringList noteFieldList, Note * pNote)
      */
     bool bSucces = true;
 
-    bool bError = false; // tmp variable
+    bool bOk = true; // tmp variable
 
     if (noteFieldList.size() == 4)
     {
-        const double key = _pDataParserModel->locale().toDouble(noteFieldList[1], &bError);
-        if (bError != false)
+        const double key = parseDouble(noteFieldList[1], &bOk);
+        if (bOk)
         {
             pNote->setKeyData(key);
         }
@@ -352,8 +335,8 @@ bool DataFileParser::parseNoteField(QStringList noteFieldList, Note * pNote)
             bSucces = false;
         }
 
-        const double value = _pDataParserModel->locale().toDouble(noteFieldList[2], &bError);
-        if (bError != false)
+        const double value = parseDouble(noteFieldList[2], &bOk);
+        if (bOk)
         {
             pNote->setValueData(value);
         }
@@ -367,4 +350,33 @@ bool DataFileParser::parseNoteField(QStringList noteFieldList, Note * pNote)
     }
 
     return bSucces;
+}
+
+double DataFileParser::parseDouble(QString strNumber, bool* bOk)
+{
+    double number = 0;
+
+    /* Assume success */
+    *bOk = true;
+
+    // Remove group separator
+    QString tmpData = strNumber.simplified().replace(_pDataParserModel->groupSeparator(), "");
+
+    // Replace decimal point if needed
+    if (QLocale::system().decimalPoint() != _pDataParserModel->decimalSeparator())
+    {
+        tmpData = tmpData.replace(_pDataParserModel->decimalSeparator(), QLocale::system().decimalPoint());
+    }
+
+    if (tmpData.simplified().isEmpty())
+    {
+        number = 0;
+        *bOk = false;
+    }
+    else
+    {
+        number = QLocale::system().toDouble(tmpData, bOk);
+    }
+
+    return number;
 }
