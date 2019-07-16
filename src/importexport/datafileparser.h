@@ -42,6 +42,8 @@ private:
     bool parseNoteField(QStringList noteFieldList, Note * pNote);
     double parseDouble(QString strNumber, bool* bOk);
 
+    void correctStmStudioData(QList<QList<double> > &dataLists);
+    bool isNibbleCorrupt(quint16 ref, quint16 compare);
 
     QTextStream * _pDataStream;
     DataParserModel * _pDataParserModel;
