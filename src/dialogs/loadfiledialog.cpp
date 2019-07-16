@@ -76,7 +76,6 @@ LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserMod
 
 
     // Handle signal from controls
-    connect(_pUi->btnDataFile, SIGNAL(released()), this, SLOT(selectDataFile()));
     connect(_pUi->comboFieldSeparator, SIGNAL(currentIndexChanged(int)), this, SLOT(fieldSeparatorSelected(int)));
     connect(_pUi->lineCustomFieldSeparator, SIGNAL(editingFinished()), this, SLOT(customFieldSeparatorUpdated()));
     connect(_pUi->comboGroupSeparator, SIGNAL(currentIndexChanged(int)), this, SLOT(groupSeparatorSelected(int)));
@@ -115,12 +114,20 @@ LoadFileDialog::~LoadFileDialog()
 
 void LoadFileDialog::open()
 {
+    /* Shouldn't be used */
+    _dataFileSample.clear();
+
     QDialog::open();
 }
 
-void LoadFileDialog::open(QString file)
+void LoadFileDialog::open(QTextStream* pDataStream, qint32 sampleLineLength)
 {
-    _pParserModel->setDataFilePath(file);
+
+    SettingsAuto::loadDataFileSample(pDataStream, &_dataFileSample, sampleLineLength);
+
+    setPresetAccordingKeyword(_pParserModel->dataFilePath());
+
+    updatePreview();
 
     QDialog::open();
 }
@@ -128,11 +135,6 @@ void LoadFileDialog::open(QString file)
 void LoadFileDialog::updatePath()
 {
     _pUi->lineDataFile->setText(_pParserModel->dataFilePath());
-
-    loadDataFileSample();
-    setPresetAccordingKeyword(_pUi->lineDataFile->text());
-
-    updatePreview();
 }
 
 void LoadFileDialog::updateFieldSeparator()
@@ -217,24 +219,6 @@ void LoadFileDialog::updateTimeInMilliSeconds()
 void LoadFileDialog::updateStmStudioCorrection()
 {
     _pUi->checkStmStudioCorrection->setChecked(_pParserModel->stmStudioCorrection());
-}
-
-void LoadFileDialog::selectDataFile()
-{
-    QFileDialog fileDialog(this);
-    fileDialog.setFileMode(QFileDialog::ExistingFile);
-    fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
-    fileDialog.setOption(QFileDialog::HideNameFilterDetails, false);
-    fileDialog.setWindowTitle(tr("Select data file"));
-    fileDialog.setNameFilter(tr("*.* (*.*)"));
-    fileDialog.setDirectory(_pGuiModel->lastDir());
-
-    if (fileDialog.exec() == QDialog::Accepted)
-    {
-        QString filePath = fileDialog.selectedFiles().first();
-        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-        _pParserModel->setDataFilePath(filePath);
-    }
 }
 
 void LoadFileDialog::fieldSeparatorSelected(int index)
@@ -583,33 +567,6 @@ void LoadFileDialog::updatePreviewLayout()
                 {
                     _pUi->tablePreview->item(rowIdx, columnIdx)->setTextColor(_cColorIgnored);
                 }
-            }
-        }
-    }
-}
-
-void LoadFileDialog::loadDataFileSample()
-{
-    char buf[2048];
-    QFile file(_pParserModel->dataFilePath());
-    qint32 lineLength;
-
-    _dataFileSample.clear();
-
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        _dataFileSample.clear();
-        while((!file.atEnd()) && (_dataFileSample.size() < _cSampleLineLength))
-        {
-            lineLength = file.readLine(buf, sizeof(buf));
-            if (lineLength > -1)
-            {
-                _dataFileSample.append(QString(buf));
-            }
-            else
-            {
-                _dataFileSample.clear();
-                break;
             }
         }
     }

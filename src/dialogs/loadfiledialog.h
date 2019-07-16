@@ -22,7 +22,7 @@ public:
     ~LoadFileDialog();
 
     void open();
-    void open(QString file);
+    void open(QTextStream *pDataStream, qint32 sampleLineLength);
 
 private slots:
 
@@ -37,7 +37,6 @@ private slots:
     void updateTimeInMilliSeconds();
     void updateStmStudioCorrection();
 
-    void selectDataFile();
     void fieldSeparatorSelected(int index);
     void customFieldSeparatorUpdated();
     void groupSeparatorSelected(int  index);
@@ -84,7 +83,6 @@ private:
     void updatePreview();
     void updatePreviewData(QList<QStringList> & previewData);
     void updatePreviewLayout();
-    void loadDataFileSample();
 
     static const QList<ComboListItem> _fieldSeparatorList;
     static const QList<ComboListItem> _decimalSeparatorList;
@@ -92,7 +90,6 @@ private:
     static const QColor _cColorLabel;
     static const QColor _cColorData;
     static const QColor _cColorIgnored;
-    static const qint32 _cSampleLineLength = 50;
     static const quint32 _cPresetManualIndex = 0;
     static const quint32 _cPresetAutoIndex = 1;
     static const quint32 _cPresetListOffset = 2;

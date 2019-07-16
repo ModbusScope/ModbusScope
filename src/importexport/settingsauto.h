@@ -27,6 +27,8 @@ public:
 
     bool updateSettings(QTextStream* pDataFileStream, settingsData_t* pSettingsData, qint32 sampleLength);
 
+    static void loadDataFileSample(QTextStream* pDataStream, QStringList* pDataFileSample, qint32 sampleLength);
+
 signals:
 
 public slots:
@@ -37,7 +39,6 @@ private:
     bool isComment(QString line);
     bool testLocale(QStringList previewData, QLocale locale, QChar fieldSeparator);
     quint32 nextDataLine(quint32 startIdx, QStringList previewData, bool *bOk);
-    void loadDataFileSample(QTextStream* pDataStream, QStringList* pDataFileSample, qint32 sampleLength);
 
     QChar _fieldSeparator;
     QChar _groupSeparator;

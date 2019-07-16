@@ -152,8 +152,11 @@ void DataFileHandler::selectDataImportFile()
     dialog.setFileMode(QFileDialog::ExistingFile);
     dialog.setAcceptMode(QFileDialog::AcceptOpen);
     dialog.setOption(QFileDialog::HideNameFilterDetails, false);
-    dialog.setWindowTitle(tr("Select csv file"));
-    dialog.setNameFilter(tr("csv files (*.csv)"));
+    dialog.setWindowTitle(tr("Select data file"));
+
+    QStringList extensionFilter = QStringList() << tr("csv file (*.csv)") << tr("any file (*)");
+    dialog.setNameFilters(extensionFilter);
+
     dialog.setDirectory(_pGuiModel->lastDir());
 
     if (dialog.exec())
