@@ -282,5 +282,4 @@ void SettingsAuto::loadDataFileSample(QTextStream* pDataStream, QStringList * pD
 
     /* Set cursor back to beginning */
     pDataStream->seek(0);
-
 }

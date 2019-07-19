@@ -45,8 +45,8 @@ private:
     void correctStmStudioData(QList<QList<double> > &dataLists);
     bool isNibbleCorrupt(quint16 ref, quint16 compare);
 
-    QTextStream * _pDataStream;
-    DataParserModel * _pDataParserModel;
+    QTextStream* _pDataStream;
+    DataParserModel* _pDataParserModel;
 
     quint32 _expectedFields;
 

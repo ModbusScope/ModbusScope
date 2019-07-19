@@ -122,7 +122,6 @@ void LoadFileDialog::open()
 
 void LoadFileDialog::open(QTextStream* pDataStream, qint32 sampleLineLength)
 {
-
     SettingsAuto::loadDataFileSample(pDataStream, &_dataFileSample, sampleLineLength);
 
     setPresetAccordingKeyword(_pParserModel->dataFilePath());
