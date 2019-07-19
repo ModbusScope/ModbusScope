@@ -76,6 +76,9 @@ void DataFileHandler::loadDataFile(QString dataFilePath)
         _pAutoSettingsParser = new SettingsAuto();
         SettingsAuto::settingsData_t settingsData;
 
+        /* Always set data file name */
+        _pDataParserModel->setDataFilePath(dataFilePath);
+
         bRet = _pAutoSettingsParser->updateSettings(_pDataFileStream, &settingsData, _cSampleLineLength);
         if (bRet)
         {
@@ -87,7 +90,6 @@ void DataFileHandler::loadDataFile(QString dataFilePath)
             _pDataParserModel->setColumn(settingsData.column);
             _pDataParserModel->setLabelRow(settingsData.labelRow);
             _pDataParserModel->setTimeInMilliSeconds(settingsData.bTimeInMilliSeconds);
-            _pDataParserModel->setDataFilePath(dataFilePath);
 
             bModbusScopeDataFile = settingsData.bModbusScopeDataFile;
         }

@@ -63,7 +63,7 @@ LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserMod
     }
 
     // Handle signals from model
-    connect(_pParserModel, SIGNAL(pathChanged()), this, SLOT(updatePath()));
+    connect(_pParserModel, SIGNAL(dataFilePathChanged()), this, SLOT(updatePath()));
     connect(_pParserModel, SIGNAL(fieldSeparatorChanged()), this, SLOT(updateFieldSeparator()));
     connect(_pParserModel, SIGNAL(groupSeparatorChanged()), this, SLOT(updategroupSeparator()));
     connect(_pParserModel, SIGNAL(decimalSeparatorChanged()), this, SLOT(updateDecimalSeparator()));
@@ -133,7 +133,7 @@ void LoadFileDialog::open(QTextStream* pDataStream, qint32 sampleLineLength)
 
 void LoadFileDialog::updatePath()
 {
-    _pUi->lineDataFile->setText(_pParserModel->dataFilePath());
+    _pUi->lineDataFile->setText( QFileInfo(_pParserModel->dataFilePath()).fileName());
 }
 
 void LoadFileDialog::updateFieldSeparator()
