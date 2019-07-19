@@ -21,6 +21,9 @@ bool SettingsAuto::updateSettings(QTextStream* pDataFileStream, settingsData_t *
     // Reset settings
     _column = 0;
 
+    // Check whether data file is a ModbusScope file
+    _bModbusScopeDataFile = isModbusScopeDataFile(previewData.first());
+
     // Find first non-comment line
     qint32 lineIdx = 0;
     lineIdx = nextDataLine(0, previewData, &bRet);
@@ -73,6 +76,7 @@ bool SettingsAuto::updateSettings(QTextStream* pDataFileStream, settingsData_t *
 
     if (bRet)
     {
+        pSettingsData->bModbusScopeDataFile = _bModbusScopeDataFile;
         pSettingsData->fieldSeparator = _fieldSeparator;
         pSettingsData->groupSeparator = _groupSeparator;
         pSettingsData->decimalSeparator = _decimalSeparator;
@@ -84,6 +88,19 @@ bool SettingsAuto::updateSettings(QTextStream* pDataFileStream, settingsData_t *
     }
 
     return bRet;
+}
+
+bool SettingsAuto::isModbusScopeDataFile(QString firstLine)
+{
+    const QString modbusScopeIdentifier("ModbusScope version");
+    if (firstLine.indexOf(modbusScopeIdentifier, 0, Qt::CaseInsensitive) != -1)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 bool SettingsAuto::isAbsoluteDate(QString rawData)

@@ -17,10 +17,7 @@ DataFileParser::DataFileParser(DataParserModel *pDataParserModel)
 
 DataFileParser::~DataFileParser()
 {
-    if (_pDataStream)
-    {
-        delete _pDataStream;
-    }
+
 }
 
 // Return false on error

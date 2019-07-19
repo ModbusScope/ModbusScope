@@ -7,6 +7,7 @@
 #include "graphdatamodel.h"
 #include "notemodel.h"
 #include "settingsmodel.h"
+#include "loadfiledialog.h"
 
 #include "datafileexporter.h"
 #include "dataparsermodel.h"
@@ -27,6 +28,7 @@ public:
     bool updateNoteLines();
 
 signals:
+    void startDataParsing();
 
 public slots:
     void selectDataImportFile();
@@ -34,6 +36,8 @@ public slots:
 
     void exportDataLine(double timeData, QList <double> dataValues);
     void rewriteDataFile(void);
+
+    void parseDataFile();
 
 private:
 
@@ -44,6 +48,9 @@ private:
 
     DataFileExporter * _pDataFileExporter;
     DataParserModel * _pDataParserModel;
+
+    QTextStream* _pDataFileStream;
+    LoadFileDialog* _pLoadFileDialog;
 
     static const qint32 _cSampleLineLength = 50;
 };

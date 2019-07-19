@@ -25,12 +25,24 @@ DataFileHandler::DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphData
     connect(_pGraphDataModel, SIGNAL(connectionIdChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
     connect(_pGraphDataModel, SIGNAL(added(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
     connect(_pGraphDataModel, SIGNAL(removed(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
+
+    connect(this, &DataFileHandler::startDataParsing, this, &DataFileHandler::parseDataFile);
+
+    _pLoadFileDialog = new LoadFileDialog(pGuiModel, pDataParserModel);
+
+    connect(_pLoadFileDialog, &LoadFileDialog::accepted, this, &DataFileHandler::parseDataFile);
 }
 
 DataFileHandler::~DataFileHandler()
 {
+    delete _pLoadFileDialog;
     delete _pDataFileExporter;
     delete _pDataParserModel;
+
+    if (_pDataFileStream != nullptr)
+    {
+        delete _pDataFileStream;
+    }
 }
 
 void DataFileHandler::loadDataFile(QString dataFilePath)
@@ -38,23 +50,24 @@ void DataFileHandler::loadDataFile(QString dataFilePath)
     // Set last used path
     _pGuiModel->setLastDir(QFileInfo(dataFilePath).dir().absolutePath());
 
-    DataFileParser dataParser(_pDataParserModel);
-    DataFileParser::FileData data;
-
     SettingsAuto * _pAutoSettingsParser;
-    QTextStream *pDataStream = nullptr;
 
-    QFile dataFile(dataFilePath);
+    QFile* dataFile = new QFile(dataFilePath);
+
+    bool bModbusScopeDataFile = false;
 
     /* Read sample of file */
-    bool bRet = dataFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    bool bRet = dataFile->open(QIODevice::ReadOnly | QIODevice::Text);
     if (bRet)
     {
-        pDataStream = new QTextStream(&dataFile);
+        _pDataFileStream = new QTextStream(dataFile);
     }
     else
     {
         Util::showError(tr("Couldn't open data file: %1").arg(dataFilePath));
+
+        /* Stop processing because file is invalid */
+        return;
     }
 
     /* Try to determine settings */
@@ -63,7 +76,7 @@ void DataFileHandler::loadDataFile(QString dataFilePath)
         _pAutoSettingsParser = new SettingsAuto();
         SettingsAuto::settingsData_t settingsData;
 
-        bRet = _pAutoSettingsParser->updateSettings(pDataStream, &settingsData, _cSampleLineLength);
+        bRet = _pAutoSettingsParser->updateSettings(_pDataFileStream, &settingsData, _cSampleLineLength);
         if (bRet)
         {
             _pDataParserModel->setFieldSeparator(settingsData.fieldSeparator);
@@ -74,6 +87,9 @@ void DataFileHandler::loadDataFile(QString dataFilePath)
             _pDataParserModel->setColumn(settingsData.column);
             _pDataParserModel->setLabelRow(settingsData.labelRow);
             _pDataParserModel->setTimeInMilliSeconds(settingsData.bTimeInMilliSeconds);
+            _pDataParserModel->setDataFilePath(dataFilePath);
+
+            bModbusScopeDataFile = settingsData.bModbusScopeDataFile;
         }
         else
         {
@@ -81,47 +97,15 @@ void DataFileHandler::loadDataFile(QString dataFilePath)
         }
     }
 
-    if (bRet)
+    if (bRet && bModbusScopeDataFile)
     {
-        if (dataParser.processDataFile(pDataStream, &data))
-        {
-            // Set to full auto scaling
-            _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
-
-            // Set to full auto scaling
-            _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
-
-            _pGraphDataModel->clear();
-            _pGuiModel->setFrontGraph(-1);
-
-            _pGraphDataModel->add(data.dataLabel, data.timeRow, data.dataRows);
-
-            if (!data.colors.isEmpty())
-            {
-                for (int idx = 0; idx < data.dataLabel.size(); idx++)
-                {
-                    _pGraphDataModel->setColor(static_cast<quint32>(idx), data.colors[idx]);
-                }
-            }
-
-            _pNoteModel->clear();
-            if (!data.notes.isEmpty())
-            {
-                foreach(Note note, data.notes)
-                {
-                    _pNoteModel->add(note);
-                }
-            }
-            _pNoteModel->setNotesDataUpdated(false);
-
-            _pGuiModel->setFrontGraph(0);
-
-            _pGuiModel->setProjectFilePath("");
-            _pDataParserModel->setDataFilePath(dataFilePath);
-
-            _pGuiModel->setGuiState(GuiModel::DATA_LOADED);
-
-        }
+        /* ModbusScope file that can be automatically parsed */
+        emit startDataParsing();
+    }
+    else
+    {
+        /* Open load file dialog */
+        _pLoadFileDialog->open(_pDataFileStream, _cSampleLineLength);
     }
 }
 
@@ -194,4 +178,55 @@ void DataFileHandler::exportDataLine(double timeData, QList <double> dataValues)
 void DataFileHandler::rewriteDataFile(void)
 {
     _pDataFileExporter->rewriteDataFile();
+}
+
+void DataFileHandler::parseDataFile()
+{
+    if (_pDataFileStream != nullptr)
+    {
+        DataFileParser dataParser(_pDataParserModel);
+        DataFileParser::FileData data;
+
+        if (dataParser.processDataFile(_pDataFileStream, &data))
+        {
+            delete _pDataFileStream;
+            _pDataFileStream = nullptr;
+
+            // Set to full auto scaling
+            _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
+
+            // Set to full auto scaling
+            _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
+
+            _pGraphDataModel->clear();
+            _pGuiModel->setFrontGraph(-1);
+
+            _pGraphDataModel->add(data.dataLabel, data.timeRow, data.dataRows);
+
+            if (!data.colors.isEmpty())
+            {
+                for (int idx = 0; idx < data.dataLabel.size(); idx++)
+                {
+                    _pGraphDataModel->setColor(static_cast<quint32>(idx), data.colors[idx]);
+                }
+            }
+
+            _pNoteModel->clear();
+            if (!data.notes.isEmpty())
+            {
+                foreach(Note note, data.notes)
+                {
+                    _pNoteModel->add(note);
+                }
+            }
+            _pNoteModel->setNotesDataUpdated(false);
+
+            _pGuiModel->setFrontGraph(0);
+
+            _pGuiModel->setProjectFilePath("");
+
+            _pGuiModel->setGuiState(GuiModel::DATA_LOADED);
+
+        }
+    }
 }
