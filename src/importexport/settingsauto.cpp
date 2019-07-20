@@ -3,7 +3,6 @@
 #include <QRegularExpression>
 
 #include "settingsauto.h"
-#include "util.h"
 
 SettingsAuto::SettingsAuto()
 {
