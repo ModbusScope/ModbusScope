@@ -1,8 +1,6 @@
 
 #include <QtTest/QtTest>
 
-#include "settingsauto.h"
-
 #include "testsettingsauto.h"
 
 #include "testdata.h"
@@ -48,5 +46,179 @@ void TestSettingsAuto::loadDataFullSampleLimited()
     }
 }
 
+/*
+typedef struct
+{
+    bool bModbusScopeDataFile;
+    QChar fieldSeparator;
+    QChar groupSeparator;
+    QChar decimalSeparator;
+    QString commentSequence;
+    quint32 dataRow;
+    quint32 column;
+    qint32 labelRow;
+    bool bTimeInMilliSeconds;
+} settingsData_t;
+
+bool updateSettings(QTextStream* pDataFileStream, settingsData_t* pSettingsData, qint32 sampleLength);
+*/
+
+void TestSettingsAuto::processOldModbusScope()
+{
+    SettingsAuto::settingsData_t settingsData;
+
+    QVERIFY(processFile(&TestData::cModbusScopeOldFormat, &settingsData));
+
+    QCOMPARE(settingsData.bModbusScopeDataFile, true);
+    QCOMPARE(settingsData.fieldSeparator, QChar(';'));
+    QCOMPARE(settingsData.groupSeparator, QChar(' '));
+    QCOMPARE(settingsData.decimalSeparator, QChar(','));
+    QCOMPARE(settingsData.commentSequence, QString("//"));
+    QCOMPARE(settingsData.labelRow, static_cast<qint32>(12));
+    QCOMPARE(settingsData.dataRow, static_cast<quint32>(13));
+    QCOMPARE(settingsData.column, static_cast<quint32>(0));
+    QCOMPARE(settingsData.bTimeInMilliSeconds, true);
+
+}
+
+void TestSettingsAuto::processNewModbusScope()
+{
+    SettingsAuto::settingsData_t settingsData;
+
+    QVERIFY(processFile(&TestData::cModbusScopeNewFormat, &settingsData));
+
+    QCOMPARE(settingsData.bModbusScopeDataFile, true);
+    QCOMPARE(settingsData.fieldSeparator, QChar(','));
+    QCOMPARE(settingsData.groupSeparator, QChar(' '));
+    QCOMPARE(settingsData.decimalSeparator, QChar('.'));
+    QCOMPARE(settingsData.commentSequence, QString("//"));
+    QCOMPARE(settingsData.labelRow, static_cast<qint32>(23));
+    QCOMPARE(settingsData.dataRow, static_cast<quint32>(24));
+    QCOMPARE(settingsData.column, static_cast<quint32>(0));
+    QCOMPARE(settingsData.bTimeInMilliSeconds, true);
+}
+
+void TestSettingsAuto::processDatasetBe()
+{
+    SettingsAuto::settingsData_t settingsData;
+
+    QVERIFY(processFile(&TestData::cDatasetBe, &settingsData));
+
+    QCOMPARE(settingsData.bModbusScopeDataFile, false);
+    QCOMPARE(settingsData.fieldSeparator, QChar(';'));
+    QCOMPARE(settingsData.groupSeparator, QChar(' '));
+    QCOMPARE(settingsData.decimalSeparator, QChar(','));
+    QCOMPARE(settingsData.commentSequence, QString(""));
+    QCOMPARE(settingsData.labelRow, static_cast<qint32>(0));
+    QCOMPARE(settingsData.dataRow, static_cast<quint32>(1));
+    QCOMPARE(settingsData.column, static_cast<quint32>(0));
+    QCOMPARE(settingsData.bTimeInMilliSeconds, true);
+}
+
+void TestSettingsAuto::processDatasetUs()
+{
+    SettingsAuto::settingsData_t settingsData;
+
+    QVERIFY(processFile(&TestData::cDatasetUs, &settingsData));
+
+    QCOMPARE(settingsData.bModbusScopeDataFile, false);
+    QCOMPARE(settingsData.fieldSeparator, QChar(','));
+    QCOMPARE(settingsData.groupSeparator, QChar(' '));
+    QCOMPARE(settingsData.decimalSeparator, QChar('.'));
+    QCOMPARE(settingsData.commentSequence, QString(""));
+    QCOMPARE(settingsData.labelRow, static_cast<qint32>(0));
+    QCOMPARE(settingsData.dataRow, static_cast<quint32>(1));
+    QCOMPARE(settingsData.column, static_cast<quint32>(0));
+    QCOMPARE(settingsData.bTimeInMilliSeconds, true);
+}
+
+void TestSettingsAuto::processDatasetColumn2()
+{
+    SettingsAuto::settingsData_t settingsData;
+
+    QVERIFY(processFile(&TestData::cDatasetColumn2, &settingsData));
+
+    /* SettingsAuto isn't capable of detecting column */
+    /* So we expect the wrong value of 0 */
+    QCOMPARE(settingsData.column, static_cast<quint32>(0));
+
+    /* The rest is standard */
+    QCOMPARE(settingsData.bModbusScopeDataFile, false);
+    QCOMPARE(settingsData.fieldSeparator, QChar(';'));
+    QCOMPARE(settingsData.groupSeparator, QChar(' '));
+    QCOMPARE(settingsData.decimalSeparator, QChar(','));
+    QCOMPARE(settingsData.commentSequence, QString(""));
+    QCOMPARE(settingsData.dataRow, static_cast<quint32>(1));
+    QCOMPARE(settingsData.column, static_cast<quint32>(0));
+    QCOMPARE(settingsData.bTimeInMilliSeconds, true);
+}
+
+void TestSettingsAuto::processDatasetComment()
+{
+    SettingsAuto::settingsData_t settingsData;
+
+    QVERIFY(processFile(&TestData::cDatasetComment, &settingsData));
+
+    QCOMPARE(settingsData.bModbusScopeDataFile, false);
+    QCOMPARE(settingsData.fieldSeparator, QChar(';'));
+    QCOMPARE(settingsData.groupSeparator, QChar(' '));
+    QCOMPARE(settingsData.decimalSeparator, QChar(','));
+    QCOMPARE(settingsData.commentSequence, QString("--"));
+    QCOMPARE(settingsData.labelRow, static_cast<qint32>(0));
+    QCOMPARE(settingsData.dataRow, static_cast<quint32>(1));
+    QCOMPARE(settingsData.column, static_cast<quint32>(0));
+    QCOMPARE(settingsData.bTimeInMilliSeconds, true);
+}
+
+
+void TestSettingsAuto::processDatasetSigned()
+{
+    SettingsAuto::settingsData_t settingsData;
+
+    QVERIFY(processFile(&TestData::cDatasetSigned, &settingsData));
+
+    QCOMPARE(settingsData.bModbusScopeDataFile, false);
+    QCOMPARE(settingsData.fieldSeparator, QChar(';'));
+    QCOMPARE(settingsData.groupSeparator, QChar(' '));
+    QCOMPARE(settingsData.decimalSeparator, QChar(','));
+    QCOMPARE(settingsData.commentSequence, QString(""));
+    QCOMPARE(settingsData.labelRow, static_cast<qint32>(0));
+    QCOMPARE(settingsData.dataRow, static_cast<quint32>(1));
+    QCOMPARE(settingsData.column, static_cast<quint32>(0));
+    QCOMPARE(settingsData.bTimeInMilliSeconds, true);
+}
+
+
+void TestSettingsAuto::processDatasetNoLabel()
+{
+    SettingsAuto::settingsData_t settingsData;
+
+    QVERIFY(processFile(&TestData::cDatasetNoLabel, &settingsData));
+
+    /* SettingsAuto isn't capable of detecting column */
+    /* So we expect the wrong value of 0 */
+    QCOMPARE(settingsData.labelRow, static_cast<qint32>(0));
+
+    /* The rest is standard */
+    QCOMPARE(settingsData.bModbusScopeDataFile, false);
+    QCOMPARE(settingsData.fieldSeparator, QChar(';'));
+    QCOMPARE(settingsData.groupSeparator, QChar(' '));
+    QCOMPARE(settingsData.decimalSeparator, QChar(','));
+    QCOMPARE(settingsData.commentSequence, QString(""));
+    QCOMPARE(settingsData.dataRow, static_cast<quint32>(1));
+    QCOMPARE(settingsData.column, static_cast<quint32>(0));
+    QCOMPARE(settingsData.bTimeInMilliSeconds, true);
+}
+
+bool TestSettingsAuto::processFile(QString* pData, SettingsAuto::settingsData_t* pResultData)
+{
+    QTextStream dataStream(pData);
+
+    SettingsAuto::settingsData_t settingsData;
+    SettingsAuto settingsAuto;
+
+    return settingsAuto.updateSettings(&dataStream, pResultData, _cSampleLength);
+
+}
 
 QTEST_GUILESS_MAIN(TestSettingsAuto)
