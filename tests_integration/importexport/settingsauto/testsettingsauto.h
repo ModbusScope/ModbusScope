@@ -30,6 +30,7 @@ private slots:
 
 private:
 
+    void prepareReference(QString* pRefData, QStringList& refList);
     bool processFile(QString* pData, SettingsAuto::settingsData_t* pResultData);
 
 

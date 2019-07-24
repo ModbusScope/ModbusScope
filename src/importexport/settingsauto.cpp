@@ -287,7 +287,11 @@ void SettingsAuto::loadDataFileSample(QTextStream* pDataStream, QStringList * pD
 
         if (bRet)
         {
-            pDataFileSample->append(lineData);
+            if (!lineData.trimmed().isEmpty())
+            {
+                pDataFileSample->append(lineData);
+            }
+
         }
         else
         {

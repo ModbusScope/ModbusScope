@@ -22,9 +22,10 @@ void TestSettingsAuto::loadDataFullSample()
 
     SettingsAuto::loadDataFileSample(&dataStream, &list, 100);
 
-    QStringList refList = TestData::cModbusScopeOldFormat.split(QRegExp("\n|\r\n|\r"));
+    QStringList refList;
+    prepareReference(&TestData::cModbusScopeOldFormat, refList);
 
-    QCOMPARE(refList.size(), 18);
+    QCOMPARE(refList.size(), 16);
     QCOMPARE(refList, list);
 }
 
@@ -33,13 +34,14 @@ void TestSettingsAuto::loadDataFullSampleLimited()
     QStringList list;
     QTextStream dataStream(&TestData::cModbusScopeOldFormat);
 
-    const qint32 maxLine = 16;
+    const qint32 maxLine = 14;
 
     SettingsAuto::loadDataFileSample(&dataStream, &list, maxLine);
 
-    QStringList refList = TestData::cModbusScopeOldFormat.split(QRegExp("\n|\r\n|\r"));
+    QStringList refList;
+    prepareReference(&TestData::cModbusScopeOldFormat, refList);
 
-    QCOMPARE(list.size(), 16);
+    QCOMPARE(list.size(), maxLine);
     for (int i = 0; i < maxLine; i++)
     {
         QCOMPARE(refList[i], list[i]);
@@ -57,8 +59,8 @@ void TestSettingsAuto::processOldModbusScope()
     QCOMPARE(settingsData.groupSeparator, QChar(' '));
     QCOMPARE(settingsData.decimalSeparator, QChar(','));
     QCOMPARE(settingsData.commentSequence, QString("//"));
-    QCOMPARE(settingsData.labelRow, static_cast<qint32>(12));
-    QCOMPARE(settingsData.dataRow, static_cast<quint32>(13));
+    QCOMPARE(settingsData.labelRow, static_cast<qint32>(10));
+    QCOMPARE(settingsData.dataRow, static_cast<quint32>(11));
     QCOMPARE(settingsData.column, static_cast<quint32>(0));
     QCOMPARE(settingsData.bTimeInMilliSeconds, true);
 
@@ -75,8 +77,8 @@ void TestSettingsAuto::processNewModbusScope()
     QCOMPARE(settingsData.groupSeparator, QChar(' '));
     QCOMPARE(settingsData.decimalSeparator, QChar('.'));
     QCOMPARE(settingsData.commentSequence, QString("//"));
-    QCOMPARE(settingsData.labelRow, static_cast<qint32>(23));
-    QCOMPARE(settingsData.dataRow, static_cast<quint32>(24));
+    QCOMPARE(settingsData.labelRow, static_cast<qint32>(22));
+    QCOMPARE(settingsData.dataRow, static_cast<quint32>(23));
     QCOMPARE(settingsData.column, static_cast<quint32>(0));
     QCOMPARE(settingsData.bTimeInMilliSeconds, true);
 }
@@ -225,6 +227,20 @@ void TestSettingsAuto::processDatasetTimeInSeconds()
     QCOMPARE(settingsData.dataRow, static_cast<quint32>(1));
     QCOMPARE(settingsData.column, static_cast<quint32>(0));
     QCOMPARE(settingsData.bTimeInMilliSeconds, false);
+}
+
+
+void TestSettingsAuto::prepareReference(QString* pRefData, QStringList& refList)
+{
+    refList = pRefData->split(QRegExp("\n|\r\n|\r"));
+
+    for (int i = refList.size() - 1; i > 0; i--)
+    {
+        if (refList[i].trimmed().isEmpty())
+        {
+           refList.removeAt(i);
+        }
+    }
 }
 
 bool TestSettingsAuto::processFile(QString* pData, SettingsAuto::settingsData_t* pResultData)
