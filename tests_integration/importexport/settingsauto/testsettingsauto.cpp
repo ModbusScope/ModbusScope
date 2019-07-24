@@ -46,23 +46,6 @@ void TestSettingsAuto::loadDataFullSampleLimited()
     }
 }
 
-/*
-typedef struct
-{
-    bool bModbusScopeDataFile;
-    QChar fieldSeparator;
-    QChar groupSeparator;
-    QChar decimalSeparator;
-    QString commentSequence;
-    quint32 dataRow;
-    quint32 column;
-    qint32 labelRow;
-    bool bTimeInMilliSeconds;
-} settingsData_t;
-
-bool updateSettings(QTextStream* pDataFileStream, settingsData_t* pSettingsData, qint32 sampleLength);
-*/
-
 void TestSettingsAuto::processOldModbusScope()
 {
     SettingsAuto::settingsData_t settingsData;
