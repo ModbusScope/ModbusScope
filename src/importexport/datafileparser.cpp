@@ -1,6 +1,4 @@
 
-#include <QtWidgets>
-
 #include "util.h"
 #include "datafileparser.h"
 
@@ -159,7 +157,6 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
     {
         if (_pDataParserModel->stmStudioCorrection())
         {
-            qDebug() << "Start correction";
             correctStmStudioData(pData->dataRows);
         }
     }
@@ -419,14 +416,10 @@ void DataFileParser::correctStmStudioData(QList<QList<double> > &dataLists)
                     {
                         if (isNibbleCorrupt(static_cast<quint16>(refPoint), leftPoint))
                         {
-                            qDebug() << "left compare: ref: " << refPoint << ", compare: " << leftPoint;
-
                             dataLists[idx][pointIdx] = leftPoint;
                         }
                         else if (isNibbleCorrupt(static_cast<quint16>(refPoint), rightPoint))
                         {
-                            qDebug() << "right compare: ref: " << refPoint << ", compare: " << rightPoint;
-
                             dataLists[idx][pointIdx] = rightPoint;
                         }
                         else

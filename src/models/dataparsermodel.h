@@ -1,8 +1,6 @@
 #ifndef DATAPARSERMODEL_H
 #define DATAPARSERMODEL_H
 
-#include <QLocale>
-
 #include <QObject>
 
 class DataParserModel : public QObject

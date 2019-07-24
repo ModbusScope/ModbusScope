@@ -2,11 +2,7 @@
 #define DATAFILEPARSER_H
 
 #include <QObject>
-#include <QStringList>
-#include <QList>
-#include <QFile>
 #include <QTextStream>
-#include <QStringList>
 #include <QRegularExpression>
 
 #include "note.h"

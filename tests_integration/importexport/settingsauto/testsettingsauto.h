@@ -33,7 +33,5 @@ private:
     void prepareReference(QString* pRefData, QStringList& refList);
     bool processFile(QString* pData, SettingsAuto::settingsData_t* pResultData);
 
-
-
     static const qint32 _cSampleLength = 50;
 };

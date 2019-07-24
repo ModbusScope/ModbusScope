@@ -1,4 +1,3 @@
-#include <QFile>
 #include <QLocale>
 #include <QRegularExpression>
 
