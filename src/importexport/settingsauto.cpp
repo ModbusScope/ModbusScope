@@ -202,7 +202,8 @@ bool SettingsAuto::testLocale(QStringList previewData, QLocale locale, QChar fie
     }
 
     // If first time field is between 0 and 1, then presume in seconds
-    QString firstTimeField = previewData[_dataRow].split(fieldSeparator)[0];
+    /* Check second data row to avoid 0 */
+    QString firstTimeField = previewData[_dataRow + 1].split(fieldSeparator)[0];
     if (
         (locale.toDouble(firstTimeField) > 0)
         && (locale.toDouble(firstTimeField) < 1)

@@ -210,6 +210,40 @@ void TestSettingsAuto::processDatasetNoLabel()
     QCOMPARE(settingsData.bTimeInMilliSeconds, true);
 }
 
+void TestSettingsAuto::processDatasetAbsoluteDate()
+{
+    SettingsAuto::settingsData_t settingsData;
+
+    QVERIFY(processFile(&TestData::cDatasetAbsoluteDate, &settingsData));
+
+    QCOMPARE(settingsData.bModbusScopeDataFile, false);
+    QCOMPARE(settingsData.fieldSeparator, QChar(';'));
+    QCOMPARE(settingsData.groupSeparator, QChar(' '));
+    QCOMPARE(settingsData.decimalSeparator, QChar(','));
+    QCOMPARE(settingsData.commentSequence, QString(""));
+    QCOMPARE(settingsData.labelRow, static_cast<qint32>(0));
+    QCOMPARE(settingsData.dataRow, static_cast<quint32>(1));
+    QCOMPARE(settingsData.column, static_cast<quint32>(0));
+    QCOMPARE(settingsData.bTimeInMilliSeconds, true);
+}
+
+void TestSettingsAuto::processDatasetTimeInSeconds()
+{
+    SettingsAuto::settingsData_t settingsData;
+
+    QVERIFY(processFile(&TestData::cDatasetTimeInSecond, &settingsData));
+
+    QCOMPARE(settingsData.bModbusScopeDataFile, false);
+    QCOMPARE(settingsData.fieldSeparator, QChar(';'));
+    QCOMPARE(settingsData.groupSeparator, QChar(' '));
+    QCOMPARE(settingsData.decimalSeparator, QChar(','));
+    QCOMPARE(settingsData.commentSequence, QString(""));
+    QCOMPARE(settingsData.labelRow, static_cast<qint32>(0));
+    QCOMPARE(settingsData.dataRow, static_cast<quint32>(1));
+    QCOMPARE(settingsData.column, static_cast<quint32>(0));
+    QCOMPARE(settingsData.bTimeInMilliSeconds, false);
+}
+
 bool TestSettingsAuto::processFile(QString* pData, SettingsAuto::settingsData_t* pResultData)
 {
     QTextStream dataStream(pData);

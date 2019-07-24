@@ -25,6 +25,9 @@ private slots:
     void processDatasetSigned();
     void processDatasetNoLabel();
 
+    void processDatasetAbsoluteDate();
+    void processDatasetTimeInSeconds();
+
 private:
 
     bool processFile(QString* pData, SettingsAuto::settingsData_t* pResultData);

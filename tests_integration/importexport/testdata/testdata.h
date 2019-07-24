@@ -18,6 +18,10 @@ public:
     static QString cDatasetSigned;
     static QString cDatasetNoLabel;
 
+    static QString cDatasetAbsoluteDate;
+
+    static QString cDatasetTimeInSecond;
+
 private:
 
 };
