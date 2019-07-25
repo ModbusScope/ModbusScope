@@ -39,6 +39,9 @@ public slots:
 
     void parseDataFile();
 
+private slots:
+    void handleError(QString msg);
+
 private:
 
     GuiModel* _pGuiModel;

@@ -31,6 +31,9 @@ public:
 
     bool processDataFile(QTextStream * pDataStream, FileData * pData);
 
+signals:
+    void parseErrorOccurred(QString msg);
+
 private:
     bool parseDataLines(QList<QList<double> > &dataRows);
     bool readLineFromFile(QString *pLine);

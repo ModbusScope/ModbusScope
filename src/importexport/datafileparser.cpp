@@ -1,5 +1,5 @@
-
-#include "util.h"
+#include <QColor>
+#include <QDateTime>
 #include "datafileparser.h"
 
 const QString DataFileParser::_cPattern = QString("\\s*(\\d{1,2})[\\-\\/\\s](\\d{1,2})[\\-\\/\\s](\\d{4})\\s*([0-2][0-9]):([0-5][0-9]):([0-5][0-9])[.,]?(\\d{0,3})");
@@ -74,13 +74,13 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
                         QString error = QString(tr("Invalid note data\n"
                                                    "Line: %1\n"
                                                    ).arg(line));
-                        Util::showError(error);
+                        emit parseErrorOccurred(error);
                     }
                 }
             }
             else
             {
-                Util::showError(tr("Invalid data file (while reading comments)"));
+                emit parseErrorOccurred(tr("Invalid data file (while reading comments)"));
                 break;
             }
 
@@ -97,9 +97,8 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
 
         if (_expectedFields <= 1)
         {
-            Util::showError(QString(tr("Incorrect graph data found. "
+            emit parseErrorOccurred(QString(tr("Incorrect graph data found. "
                                  "<br><br>Found field separator: \'%1\'")).arg(_pDataParserModel->fieldSeparator()));
-
             bRet = false;
         }
     }
@@ -134,7 +133,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
 
             if (!bRet)
             {
-                Util::showError(tr("Invalid data file (while reading data from file)"));
+                emit parseErrorOccurred(tr("Invalid data file (while reading data from file)"));
             }
 
             lineIdx++;
@@ -190,7 +189,7 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
             if (lineDataCount != _expectedFields)
             {
                 QString txt = QString(tr("The number of label columns doesn't match number of data columns!\nLabel count: %1\nData count: %2")).arg(_expectedFields).arg(lineDataCount);
-                Util::showError(txt);
+                emit parseErrorOccurred(txt);
                 bRet = false;
                 break;
             }
@@ -216,7 +215,7 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
                                                    "Line: %1\n"
                                                    "\n\nExpected date format: \'%2\'"
                                                    ).arg(line).arg("dd-MM-yyyy hh:mm:ss.zzz"));
-                        Util::showError(error);
+                        emit parseErrorOccurred(error);
                         bRet = false;
                         break;
                     }
@@ -241,7 +240,7 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
                                                "Line: %1\n"
                                                "\n\nExpected decimal separator character: \'%2\'"
                                                ).arg(line).arg(_pDataParserModel->decimalSeparator()));
-                    Util::showError(error);
+                    emit parseErrorOccurred(error);
                     bRet = false;
                     break;
                 }

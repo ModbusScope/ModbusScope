@@ -189,6 +189,8 @@ void DataFileHandler::parseDataFile()
         DataFileParser dataParser(_pDataParserModel);
         DataFileParser::FileData data;
 
+        connect(&dataParser, &DataFileParser::parseErrorOccurred, this, &DataFileHandler::handleError);
+
         if (dataParser.processDataFile(_pDataFileStream, &data))
         {
             delete _pDataFileStream;
@@ -231,4 +233,10 @@ void DataFileHandler::parseDataFile()
 
         }
     }
+}
+
+
+void DataFileHandler::handleError(QString msg)
+{
+    Util::showError(msg);
 }
