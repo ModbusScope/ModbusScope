@@ -127,17 +127,18 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
     if (bRet)
     {
         // Read till data
-        do
+        while(lineIdx < static_cast<qint32>(_pDataParserModel->dataRow()))
         {
             bRet = readLineFromFile(&line);
 
             if (!bRet)
             {
                 emit parseErrorOccurred(tr("Invalid data file (while reading data from file)"));
+                break;
             }
 
             lineIdx++;
-        } while(lineIdx <= static_cast<qint32>(_pDataParserModel->dataRow()));
+        }
     }
 
     // read data
@@ -264,8 +265,16 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
 // Return false on error
 bool DataFileParser::readLineFromFile(QString *pLine)
 {
-    // Read line of data
-    return _pDataStream->readLineInto(pLine, 0);
+    bool bRet = false;
+
+    // Read line of data (skip empty line)
+    do
+    {
+        bRet = _pDataStream->readLineInto(pLine, 0);
+
+    } while (bRet && pLine->trimmed().isEmpty());
+
+    return bRet;
 }
 
 qint64 DataFileParser::parseDateTime(QString rawData, bool *bOk)
