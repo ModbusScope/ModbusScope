@@ -171,11 +171,11 @@ void ExtendedGraphView::updateData(QList<double> *pTimeData, QList<QList<double>
     quint64 totalPoints = 0;
     const QVector<double> timeData = pTimeData->toVector();
 
-    for (qint32 i = 1; i < pDataLists->size(); i++)
+    for (qint32 i = 0; i < pDataLists->size(); i++)
     {
         //Add data to graphs
         QVector<double> graphData = pDataLists->at(i).toVector();
-        _pPlot->graph(i - 1)->setData(timeData, graphData);
+        _pPlot->graph(i)->setData(timeData, graphData);
 
         totalPoints += graphData.size();
     }

@@ -151,6 +151,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
 
 		// Remove time data
         pData->dataLabel.removeAt(0);
+        pData->dataRows.removeAt(0);
     }
 
     if (bRet)
