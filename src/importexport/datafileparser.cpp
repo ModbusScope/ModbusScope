@@ -115,13 +115,23 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
     // Trim labels
     if (bRet)
     {
-		// axis (time) label
-        pData->axisLabel = pData->dataLabel[0].trimmed();
-
-        for(qint32 i = static_cast<qint32>(_pDataParserModel->column()); i < pData->dataLabel.size(); i++)
+        // Trim labels
+        for(qint32 i = 0; i < pData->dataLabel.size(); i++)
         {
-            pData->dataLabel[i - static_cast<qint32>(_pDataParserModel->column())] = pData->dataLabel[i].trimmed();
+            pData->dataLabel[i] = pData->dataLabel[i].trimmed();
         }
+
+        // Remove earlier columns
+        for (qint32 i = 0; i < static_cast<qint32>(_pDataParserModel->column()); i++)
+        {
+            pData->dataLabel.removeFirst();
+        }
+
+        // Save time label
+        pData->axisLabel = pData->dataLabel.first();
+
+        // Remove time label from data
+        pData->dataLabel.removeFirst();
     }
 
     if (bRet)
@@ -146,12 +156,13 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
     {
         bRet = parseDataLines(pData->dataRows);
 
+        // Time data is put on first row, rest is filtered out
+
 		// Get time data from data
         pData->timeRow = pData->dataRows[0];
 
-		// Remove time data
-        pData->dataLabel.removeAt(0);
-        pData->dataRows.removeAt(0);
+        // Remove time data from data row
+        pData->dataRows.removeFirst();
     }
 
     if (bRet)

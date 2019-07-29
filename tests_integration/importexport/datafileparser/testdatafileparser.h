@@ -12,6 +12,17 @@ private slots:
     void parseModbusScopeOldFormat();
     void parseModbusScopeNewFormat();
 
+    void parseDatasetBe();
+    void parseDatasetUs();
+
+    void parseDatasetColumn2();
+    void parseDatasetComment();
+    void parseDatasetSigned();
+    void parseDatasetNoLabel();
+
+    void parseDatasetAbsoluteDate();
+    void parseDatasetTimeInSecond();
+
 private:
 
 };
