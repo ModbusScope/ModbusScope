@@ -253,7 +253,7 @@ void TestDataFileParser::parseDatasetColumn2()
 void TestDataFileParser::parseDatasetComment()
 {
     DataParserModel dataParserModel;
-    QTextStream dataStream(&TestData::cDatasetUs);
+    QTextStream dataStream(&TestData::cDatasetComment);
     DataFileParser::FileData fileData;
     DataFileParser dataFileParser(&dataParserModel);
 
@@ -266,7 +266,7 @@ void TestDataFileParser::parseDatasetComment()
     dataParserModel.setCommentSequence(QString("--"));
     dataParserModel.setLabelRow(static_cast<qint32>(0));
     dataParserModel.setDataRow(static_cast<quint32>(1));
-    dataParserModel.setColumn(static_cast<quint32>(2));
+    dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(true);
     dataParserModel.setStmStudioCorrection(false);
 

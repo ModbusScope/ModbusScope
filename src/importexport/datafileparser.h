@@ -40,6 +40,7 @@ private:
     qint64 parseDateTime(QString rawData, bool *bOk);
     bool parseNoteField(QStringList noteFieldList, Note * pNote);
     double parseDouble(QString strNumber, bool* bOk);
+    bool isCommentLine(QString line);
 
     void correctStmStudioData(QList<QList<double> > &dataLists);
     bool isNibbleCorrupt(quint16 ref, quint16 compare);

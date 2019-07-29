@@ -194,9 +194,14 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
 
     while (bResult && bRet)
     {
-        if (!line.trimmed().isEmpty())
+        QString strippedLine = line.trimmed();
+
+        if (
+            (!strippedLine.isEmpty())
+            && (!isCommentLine(strippedLine))
+        )
         {
-            QStringList paramList = line.split(_pDataParserModel->fieldSeparator());
+            QStringList paramList = strippedLine.split(_pDataParserModel->fieldSeparator());
             const quint32 lineDataCount = static_cast<quint32>(paramList.size() - static_cast<qint32>(_pDataParserModel->column()));
 
             if (lineDataCount != _expectedFields)
@@ -227,7 +232,7 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
                         QString error = QString(tr("Invalid absolute date (while processing data)\n"
                                                    "Line: %1\n"
                                                    "\n\nExpected date format: \'%2\'"
-                                                   ).arg(line).arg("dd-MM-yyyy hh:mm:ss.zzz"));
+                                                   ).arg(strippedLine).arg("dd-MM-yyyy hh:mm:ss.zzz"));
                         emit parseErrorOccurred(error);
                         bRet = false;
                         break;
@@ -252,7 +257,7 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
                     QString error = QString(tr("Invalid data (while processing data)\n"
                                                "Line: %1\n"
                                                "\n\nExpected decimal separator character: \'%2\'"
-                                               ).arg(line).arg(_pDataParserModel->decimalSeparator()));
+                                               ).arg(strippedLine).arg(_pDataParserModel->decimalSeparator()));
                     emit parseErrorOccurred(error);
                     bRet = false;
                     break;
@@ -402,6 +407,22 @@ double DataFileParser::parseDouble(QString strNumber, bool* bOk)
     }
 
     return number;
+}
+
+bool DataFileParser::isCommentLine(QString line)
+{
+    bool bRet = false;
+
+    const QString commentSequence = _pDataParserModel->commentSequence();
+    if (!commentSequence.isEmpty())
+    {
+        if (line.trimmed().left(commentSequence.length()) == commentSequence)
+        {
+            bRet = true;
+        }
+    }
+
+    return bRet;
 }
 
 void DataFileParser::correctStmStudioData(QList<QList<double> > &dataLists)
