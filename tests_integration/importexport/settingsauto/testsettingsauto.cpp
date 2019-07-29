@@ -180,7 +180,7 @@ void TestSettingsAuto::processDatasetNoLabel()
 
     QVERIFY(processFile(&TestData::cDatasetNoLabel, &settingsData));
 
-    /* SettingsAuto isn't capable of detecting column */
+    /* SettingsAuto isn't capable of no label row */
     /* So we expect the wrong value of 0 */
     QCOMPARE(settingsData.labelRow, static_cast<qint32>(0));
 
