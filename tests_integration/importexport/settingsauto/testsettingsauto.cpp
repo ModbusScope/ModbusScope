@@ -173,28 +173,6 @@ void TestSettingsAuto::processDatasetSigned()
     QCOMPARE(settingsData.bTimeInMilliSeconds, true);
 }
 
-
-void TestSettingsAuto::processDatasetNoLabel()
-{
-    SettingsAuto::settingsData_t settingsData;
-
-    QVERIFY(processFile(&TestData::cDatasetNoLabel, &settingsData));
-
-    /* SettingsAuto isn't capable of no label row */
-    /* So we expect the wrong value of 0 */
-    QCOMPARE(settingsData.labelRow, static_cast<qint32>(0));
-
-    /* The rest is standard */
-    QCOMPARE(settingsData.bModbusScopeDataFile, false);
-    QCOMPARE(settingsData.fieldSeparator, QChar(';'));
-    QCOMPARE(settingsData.groupSeparator, QChar(' '));
-    QCOMPARE(settingsData.decimalSeparator, QChar(','));
-    QCOMPARE(settingsData.commentSequence, QString(""));
-    QCOMPARE(settingsData.dataRow, static_cast<quint32>(1));
-    QCOMPARE(settingsData.column, static_cast<quint32>(0));
-    QCOMPARE(settingsData.bTimeInMilliSeconds, true);
-}
-
 void TestSettingsAuto::processDatasetAbsoluteDate()
 {
     SettingsAuto::settingsData_t settingsData;

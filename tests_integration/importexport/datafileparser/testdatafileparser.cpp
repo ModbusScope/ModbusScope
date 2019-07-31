@@ -343,11 +343,6 @@ void TestDataFileParser::parseDatasetSigned()
     QCOMPARE(spyParseError.count(), 0);
 }
 
-void TestDataFileParser::parseDatasetNoLabel()
-{
-
-}
-
 void TestDataFileParser::parseDatasetAbsoluteDate()
 {
     DataParserModel dataParserModel;

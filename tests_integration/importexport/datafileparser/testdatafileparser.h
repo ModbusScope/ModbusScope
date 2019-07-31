@@ -18,7 +18,6 @@ private slots:
     void parseDatasetColumn2();
     void parseDatasetComment();
     void parseDatasetSigned();
-    void parseDatasetNoLabel();
 
     void parseDatasetAbsoluteDate();
     void parseDatasetTimeInSecond();

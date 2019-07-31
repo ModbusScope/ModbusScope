@@ -148,22 +148,6 @@ QString TestData::cDatasetSigned = QString(
     "12059;-0,0;-1,5"                                                      "\n"\
 );
 
-QString TestData::cDatasetNoLabel = QString(
-    "48;0;0,5"                                                      "\n"\
-    "1049;2;4,5"                                                      "\n"\
-    "2049;4;8,5"                                                      "\n"\
-    "3058;6;12,5"                                                      "\n"\
-    "4059;8;16,5"                                                      "\n"\
-    "5058;10;20,5"                                                      "\n"\
-    "6059;0;0,5"                                                      "\n"\
-    "7058;2;4,5"                                                      "\n"\
-    "8059;4;8,5"                                                      "\n"\
-    "9059;6;12,5"                                                      "\n"\
-    "10058;8;16,5"                                                      "\n"\
-    "11058;10;20,5"                                                      "\n"\
-    "12059;0;0,5"                                                      "\n"\
-);
-
 QString TestData::cDatasetAbsoluteDate = QString(
     "Time;Register 40001;Register 40002"                               "\n"\
     "24/07/2019 18:19:31,898;0;6"                                      "\n"\

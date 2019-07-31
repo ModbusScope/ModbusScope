@@ -23,7 +23,6 @@ private slots:
     void processDatasetComment();
 
     void processDatasetSigned();
-    void processDatasetNoLabel();
 
     void processDatasetAbsoluteDate();
     void processDatasetTimeInSeconds();

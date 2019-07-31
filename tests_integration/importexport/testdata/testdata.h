@@ -16,7 +16,6 @@ public:
     static QString cDatasetComment;
 
     static QString cDatasetSigned;
-    static QString cDatasetNoLabel;
 
     static QString cDatasetAbsoluteDate;
 
