@@ -12,6 +12,8 @@ DataFileHandler::DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphData
     _pSettingsModel = pSettingsModel;
     _pDataParserModel = pDataParserModel;
 
+    _pDataFileStream = nullptr;
+
     _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel);
 
     connect(_pGraphDataModel, SIGNAL(colorChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
