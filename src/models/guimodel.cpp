@@ -38,7 +38,6 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
 {
     _frontGraph = 0;
     _projectFilePath = "";
-    _dataFilePath = "";
     _bHighlightSamples = true;
     _bCursorValues = false;
     _guiState = INIT;
@@ -91,7 +90,6 @@ void GuiModel::triggerUpdate(void)
     emit yAxisScalingChanged();
     emit guiStateChanged();
     emit projectFilePathChanged();
-    emit dataFilePathChanged();
 
     emit markerStateChanged();
     emit markerExpressionMaskChanged();
@@ -175,11 +173,6 @@ QString GuiModel::projectFilePath()
     return _projectFilePath;
 }
 
-QString GuiModel::dataFilePath()
-{
-    return _dataFilePath;
-}
-
 void GuiModel::setProjectFilePath(QString path)
 {
     if (_projectFilePath != path)
@@ -189,14 +182,6 @@ void GuiModel::setProjectFilePath(QString path)
     }
 }
 
-void GuiModel::setDataFilePath(QString path)
-{
-    if (_dataFilePath != path)
-    {   
-        _dataFilePath = path;
-        emit dataFilePathChanged();
-    }
-}
 
 void GuiModel::setLastDir(QString dir)
 {

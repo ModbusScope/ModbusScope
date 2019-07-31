@@ -73,7 +73,9 @@ SOURCES +=  \
     $$PWD/src/communication/modbusconnection.cpp \
     $$PWD/src/communication/readregisters.cpp \
     $$PWD/src/importexport/datafilehandler.cpp \
-    $$PWD/src/importexport/projectfilehandler.cpp
+    $$PWD/src/importexport/projectfilehandler.cpp \
+    $$PWD/src/models/dataparsermodel.cpp \
+    $$PWD/src/dialogs/loadfiledialog.cpp
 
 FORMS    += \
     $$PWD/src/dialogs/connectiondialog.ui \
@@ -84,7 +86,8 @@ FORMS    += \
     $$PWD/src/dialogs/markerinfodialog.ui \
     $$PWD/src/dialogs/importmbcdialog.ui \
     $$PWD/src/dialogs/errorlogdialog.ui \
-    $$PWD/src/customwidgets/notesdockwidget.ui
+    $$PWD/src/customwidgets/notesdockwidget.ui \
+    $$PWD/src/dialogs/loadfiledialog.ui
 
 HEADERS += \
     $$PWD/src/libraries/qcustomplot/qcustomplot.h \
@@ -136,7 +139,9 @@ HEADERS += \
     $$PWD/src/communication/modbusconnection.h \
     $$PWD/src/communication/readregisters.h \
     $$PWD/src/importexport/datafilehandler.h \
-    $$PWD/src/importexport/projectfilehandler.h
+    $$PWD/src/importexport/projectfilehandler.h \
+    $$PWD/src/models/dataparsermodel.h \
+    $$PWD/src/dialogs/loadfiledialog.h
 
 RESOURCES += \
     $$PWD/src/resources/resource.qrc

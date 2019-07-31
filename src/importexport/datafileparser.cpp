@@ -1,67 +1,34 @@
-
-#include <QtWidgets>
-
-#include "util.h"
+#include <QColor>
+#include <QDateTime>
 #include "datafileparser.h"
 
 const QString DataFileParser::_cPattern = QString("\\s*(\\d{1,2})[\\-\\/\\s](\\d{1,2})[\\-\\/\\s](\\d{4})\\s*([0-2][0-9]):([0-5][0-9]):([0-5][0-9])[.,]?(\\d{0,3})");
 
 
-DataFileParser::DataFileParser()
+DataFileParser::DataFileParser(DataParserModel *pDataParserModel)
 {
+    _pDataParserModel = pDataParserModel;
+
     _dateParseRegex.setPattern(_cPattern);
     _dateParseRegex.optimize();
 }
 
 DataFileParser::~DataFileParser()
 {
-    if (_pDataStream)
-    {
-        delete _pDataStream;
-    }
 
-    if (_pAutoSettingsParser)
-    {
-       delete _pAutoSettingsParser;
-    }
 }
 
 // Return false on error
-bool DataFileParser::processDataFile(QString dataFilename, FileData * pData)
+bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData)
 {
     bool bRet = true;
     QString line;
     qint32 lineIdx = 0;
-    QStringList dataFileSample;
 
-    QFile dataFile(dataFilename);
+    _pDataStream = pDataStream;
+    _pDataStream->seek(0);
 
-    /* Read sample of file */
-    bRet = dataFile.open(QIODevice::ReadOnly | QIODevice::Text);
-    if (bRet)
-    {
-        _pDataStream = new QTextStream(&dataFile);
-
-        loadDataFileSample(&dataFileSample);
-    }
-    else
-    {
-        Util::showError(tr("Couldn't open data file: %1").arg(dataFilename));
-    }
-
-    /* Try to determine settings */
-    if (bRet)
-    {
-        _pAutoSettingsParser = new SettingsAuto();
-        bRet = _pAutoSettingsParser->updateSettings(dataFileSample);
-
-        if (!bRet)
-        {
-            Util::showError(tr("Invalid data file (error while auto parsing for settings)"));
-        }
-    }
-
-    /* Read complete file this time */
+    /* Read complete file */
     if (bRet)
     {
         do
@@ -71,7 +38,7 @@ bool DataFileParser::processDataFile(QString dataFilename, FileData * pData)
             if (bRet)
             {
                 /* Check for properties */
-                QStringList idList = line.split(_pAutoSettingsParser->fieldSeparator());
+                QStringList idList = line.split(_pDataParserModel->fieldSeparator());
 
                 if (static_cast<QString>(idList.first()).toLower() == "//color")
                 {
@@ -107,68 +74,81 @@ bool DataFileParser::processDataFile(QString dataFilename, FileData * pData)
                         QString error = QString(tr("Invalid note data\n"
                                                    "Line: %1\n"
                                                    ).arg(line));
-                        Util::showError(error);
+                        emit parseErrorOccurred(error);
                     }
                 }
             }
             else
             {
-                Util::showError(tr("Invalid data file (while reading comments)"));
+                emit parseErrorOccurred(tr("Invalid data file (while reading comments)"));
                 break;
             }
 
             lineIdx++;
-        } while(lineIdx <= _pAutoSettingsParser->labelRow());
+        } while(lineIdx <= _pDataParserModel->labelRow());
     }
 
     // Process register labels
     if (bRet)
     {
         pData->dataLabel.clear();
-        pData->dataLabel.append(line.split(_pAutoSettingsParser->fieldSeparator()));
-        _expectedFields = pData->dataLabel.size();
+        pData->dataLabel.append(line.split(_pDataParserModel->fieldSeparator()));
+        _expectedFields = static_cast<quint32>(pData->dataLabel.size() - static_cast<int>(_pDataParserModel->column()));
 
         if (_expectedFields <= 1)
         {
-            Util::showError(QString(tr("Incorrect graph data found. "
-                                 "<br><br>Found field separator: \'%1\'")).arg(_pAutoSettingsParser->fieldSeparator()));
-
+            emit parseErrorOccurred(QString(tr("Incorrect graph data found. "
+                                 "<br><br>Found field separator: \'%1\'")).arg(_pDataParserModel->fieldSeparator()));
             bRet = false;
         }
     }
 
-    /* Clear color list when size is not ok */
-    if ((pData->colors.size() + 1) != (int)_expectedFields)
+    if (bRet)
     {
-         pData->colors.clear();
+        /* Clear color list when size is not ok */
+        if ((pData->colors.size() + 1) != static_cast<int>(_expectedFields))
+        {
+             pData->colors.clear();
+        }
     }
 
     // Trim labels
     if (bRet)
     {
-		// axis (time) label
-        pData->axisLabel = pData->dataLabel[0].trimmed();
-
-        for(qint32 i = 1; i < pData->dataLabel.size(); i++)
+        // Trim labels
+        for(qint32 i = 0; i < pData->dataLabel.size(); i++)
         {
             pData->dataLabel[i] = pData->dataLabel[i].trimmed();
         }
+
+        // Remove earlier columns
+        for (qint32 i = 0; i < static_cast<qint32>(_pDataParserModel->column()); i++)
+        {
+            pData->dataLabel.removeFirst();
+        }
+
+        // Save time label
+        pData->axisLabel = pData->dataLabel.first();
+
+        // Remove time label from data
+        pData->dataLabel.removeFirst();
     }
 
     if (bRet)
     {
         // Read till data
-        do
+        while(lineIdx < static_cast<qint32>(_pDataParserModel->dataRow()))
         {
             bRet = readLineFromFile(&line);
 
             if (!bRet)
             {
-                Util::showError(tr("Invalid data file (while reading data from file)"));
+                emit parseErrorOccurred(tr("Invalid data file (while reading data from file)"));
+                break;
             }
 
             lineIdx++;
-        } while(lineIdx <= (qint32)_pAutoSettingsParser->dataRow());
+        }
     }
 
     // read data
@@ -176,11 +156,21 @@ bool DataFileParser::processDataFile(QString dataFilename, FileData * pData)
     {
         bRet = parseDataLines(pData->dataRows);
 
+        // Time data is put on first row, rest is filtered out
+
 		// Get time data from data
         pData->timeRow = pData->dataRows[0];
 
-		// Remove time data
-        pData->dataLabel.removeAt(0);
+        // Remove time data from data row
+        pData->dataRows.removeFirst();
+    }
+
+    if (bRet)
+    {
+        if (_pDataParserModel->stmStudioCorrection())
+        {
+            correctStmStudioData(pData->dataRows);
+        }
     }
 
     return bRet;
@@ -204,61 +194,73 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
 
     while (bResult && bRet)
     {
-        if (!line.trimmed().isEmpty())
-        {
-            QStringList paramList = line.split(_pAutoSettingsParser->fieldSeparator());
+        QString strippedLine = line.trimmed();
 
-            if (paramList.size() != (qint32)_expectedFields)
+        if (
+            (!strippedLine.isEmpty())
+            && (!isCommentLine(strippedLine))
+        )
+        {
+            QStringList paramList = strippedLine.split(_pDataParserModel->fieldSeparator());
+            const quint32 lineDataCount = static_cast<quint32>(paramList.size() - static_cast<qint32>(_pDataParserModel->column()));
+
+            if (lineDataCount != _expectedFields)
             {
-                QString txt = QString(tr("The number of label columns doesn't match number of data columns!\nLabel count: %1\nData count: %2")).arg(_expectedFields).arg(paramList.size());
-                Util::showError(txt);
+                QString txt = QString(tr("The number of label columns doesn't match number of data columns!\nLabel count: %1\nData count: %2")).arg(_expectedFields).arg(lineDataCount);
+                emit parseErrorOccurred(txt);
                 bRet = false;
                 break;
             }
 
-            quint32 startColumn=1;
-            if (_pAutoSettingsParser->absoluteDate())
+            for (qint32 i = static_cast<qint32>(_pDataParserModel->column()); i < paramList.size(); i++)
             {
-                bool bOk;
-                const double number = (double)parseDateTime(paramList[0], &bOk);
+                bool bOk = true;
+                QString strNumber = paramList[i].simplified();
+
+                double number = parseDouble(strNumber, &bOk);
+
+                if (
+                    (bOk == false)
+                    && (static_cast<quint32>(i) == _pDataParserModel->column())
+                )
+                {
+                    // Parse time data
+                    number = static_cast<double>(parseDateTime(strNumber, &bOk));
+
+                    if (!bOk)
+                    {
+                        QString error = QString(tr("Invalid absolute date (while processing data)\n"
+                                                   "Line: %1\n"
+                                                   "\n\nExpected date format: \'%2\'"
+                                                   ).arg(strippedLine).arg("dd-MM-yyyy hh:mm:ss.zzz"));
+                        emit parseErrorOccurred(error);
+                        bRet = false;
+                        break;
+                    }
+                }
+
                 if (bOk)
                 {
-                    dataRows[0].append(number);
+                    /* Only multiply for first column (time data) */
+                    if (
+                        (static_cast<quint32>(i) == _pDataParserModel->column())
+                        && (!_pDataParserModel->timeInMilliSeconds())
+                        )
+                    {
+                        number *= 1000;
+                    }
+
+                    dataRows[i - static_cast<qint32>(_pDataParserModel->column())].append(number);
                 }
                 else
-                {
-                    QString error = QString(tr("Invalid absolute date (while processing data)\n"
-                                               "Line: %1\n"
-                                               "\n\nExpected decimal separator character: \'%2\'"
-                                               ).arg(line).arg(_pAutoSettingsParser->locale().decimalPoint()));
-                    Util::showError(error);
-                    bRet = false;
-                    break;
-                }
-            }
-            else
-            {
-                startColumn = 0;
-            }
-
-            for (qint32 i = startColumn; i < paramList.size(); i++)
-            {
-                bool bError = false;
-                const double number = _pAutoSettingsParser->locale().toDouble(paramList[i], &bError);
-
-                if (bError == false)
                 {
                     QString error = QString(tr("Invalid data (while processing data)\n"
                                                "Line: %1\n"
                                                "\n\nExpected decimal separator character: \'%2\'"
-                                               ).arg(line).arg(_pAutoSettingsParser->locale().decimalPoint()));
-                    Util::showError(error);
+                                               ).arg(strippedLine).arg(_pDataParserModel->decimalSeparator()));
+                    emit parseErrorOccurred(error);
                     bRet = false;
                     break;
-                }
-                else
-                {
-                    dataRows[i].append(number);
                 }
             }
         }
@@ -280,40 +282,16 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
 // Return false on error
 bool DataFileParser::readLineFromFile(QString *pLine)
 {
-    // Read line of data
-    return _pDataStream->readLineInto(pLine, 0);
-}
+    bool bRet = false;
 
-void DataFileParser::loadDataFileSample(QStringList * pDataFileSample)
-{
-    QString lineData;
-    pDataFileSample->clear();
-    bool bRet = true;
+    // Read line of data (skip empty line)
     do
     {
-        if (_pDataStream->atEnd())
-        {
-            break;
-        }
+        bRet = _pDataStream->readLineInto(pLine, 0);
 
-        /* Read line */
-        bRet = _pDataStream->readLineInto(&lineData, 0);
+    } while (bRet && pLine->trimmed().isEmpty());
 
-        if (bRet)
-        {
-            pDataFileSample->append(lineData);
-        }
-        else
-        {
-            pDataFileSample->clear();
-            break;
-        }
-
-    } while(bRet && (pDataFileSample->size() < _cSampleLineLength));
-
-    /* Set cursor back to beginning */
-    _pDataStream->seek(0);
-
+    return bRet;
 }
 
 qint64 DataFileParser::parseDateTime(QString rawData, bool *bOk)
@@ -371,12 +349,12 @@ bool DataFileParser::parseNoteField(QStringList noteFieldList, Note * pNote)
      */
     bool bSucces = true;
 
-    bool bError = false; // tmp variable
+    bool bOk = true; // tmp variable
 
     if (noteFieldList.size() == 4)
     {
-        const double key = _pAutoSettingsParser->locale().toDouble(noteFieldList[1], &bError);
-        if (bError != false)
+        const double key = parseDouble(noteFieldList[1], &bOk);
+        if (bOk)
         {
             pNote->setKeyData(key);
         }
@@ -385,8 +363,8 @@ bool DataFileParser::parseNoteField(QStringList noteFieldList, Note * pNote)
             bSucces = false;
         }
 
-        const double value = _pAutoSettingsParser->locale().toDouble(noteFieldList[2], &bError);
-        if (bError != false)
+        const double value = parseDouble(noteFieldList[2], &bOk);
+        if (bOk)
         {
             pNote->setValueData(value);
         }
@@ -400,4 +378,118 @@ bool DataFileParser::parseNoteField(QStringList noteFieldList, Note * pNote)
     }
 
     return bSucces;
+}
+
+double DataFileParser::parseDouble(QString strNumber, bool* bOk)
+{
+    double number = 0;
+
+    /* Assume success */
+    *bOk = true;
+
+    // Remove group separator
+    QString tmpData = strNumber.simplified().replace(_pDataParserModel->groupSeparator(), "");
+
+    // Replace decimal point if needed
+    if (QLocale::system().decimalPoint() != _pDataParserModel->decimalSeparator())
+    {
+        tmpData = tmpData.replace(_pDataParserModel->decimalSeparator(), QLocale::system().decimalPoint());
+    }
+
+    if (tmpData.simplified().isEmpty())
+    {
+        number = 0;
+        *bOk = false;
+    }
+    else
+    {
+        number = QLocale::system().toDouble(tmpData, bOk);
+    }
+
+    return number;
+}
+
+bool DataFileParser::isCommentLine(QString line)
+{
+    bool bRet = false;
+
+    const QString commentSequence = _pDataParserModel->commentSequence();
+    if (!commentSequence.isEmpty())
+    {
+        if (line.trimmed().left(commentSequence.length()) == commentSequence)
+        {
+            bRet = true;
+        }
+    }
+
+    return bRet;
+}
+
+void DataFileParser::correctStmStudioData(QList<QList<double> > &dataLists)
+{
+    for (qint32 idx = 0; idx < dataLists.size(); idx++)
+    {
+        /* We need at least 3 points */
+        if (dataLists[idx].size() > 3)
+        {
+            /* Skip first and last point */
+            for (int32_t pointIdx = 1; pointIdx < dataLists[idx].size() - 1; pointIdx++)
+            {
+                const int32_t leftPoint = dataLists[idx][pointIdx - 1];
+                const int32_t refPoint = dataLists[idx][pointIdx];
+                const int32_t rightPoint = dataLists[idx][pointIdx + 1];
+
+                /* Only correct 16 bit variables */
+                if (
+                    (refPoint < 65535)
+                    && (refPoint > 0)
+                    )
+                {
+                    const uint32_t leftDiff = qAbs(leftPoint - refPoint);
+                    const uint32_t rightDiff = qAbs(refPoint - rightPoint);
+                    const uint32_t outerDiff = qAbs(leftPoint - rightPoint);
+
+                    /* difference between samples should be large enough */
+                    if (
+                        (leftDiff > (2 * outerDiff))
+                        && (rightDiff > (2 * outerDiff))
+                    )
+                    {
+                        if (isNibbleCorrupt(static_cast<quint16>(refPoint), leftPoint))
+                        {
+                            dataLists[idx][pointIdx] = leftPoint;
+                        }
+                        else if (isNibbleCorrupt(static_cast<quint16>(refPoint), rightPoint))
+                        {
+                            dataLists[idx][pointIdx] = rightPoint;
+                        }
+                        else
+                        {
+                            /* No change needed */
+                        }
+
+                    }
+
+                }
+            }
+
+        }
+    }
+}
+
+bool DataFileParser::isNibbleCorrupt(quint16 ref, quint16 compare)
+{
+    if (
+            /* Zeroed nibbles */
+            (ref == (compare & 0xFF00))
+            || (ref == (compare & 0x00FF))
+            /* Nibbles set to ones */
+            || (ref == (compare | 0xFF00))
+            || (ref == (compare | 0x00FF))
+            || (ref == 0)
+        )
+    {
+        return true;
+    }
+    return false;
 }

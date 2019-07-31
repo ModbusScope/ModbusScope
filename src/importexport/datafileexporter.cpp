@@ -146,7 +146,7 @@ bool DataFileExporter::updateNoteLines(QString dataFile)
     {
         if (tmpFile.open(QIODevice::WriteOnly | QIODevice::Text))
         {
-            // CLear tmp file
+            // Clear tmp file
             tmpFile.resize(0);
 
             QTextStream srcStream(&srcFile);

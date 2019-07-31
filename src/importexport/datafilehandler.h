@@ -7,14 +7,16 @@
 #include "graphdatamodel.h"
 #include "notemodel.h"
 #include "settingsmodel.h"
+#include "loadfiledialog.h"
 
 #include "datafileexporter.h"
+#include "dataparsermodel.h"
 
 class DataFileHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphDataModel, NoteModel* pNoteModel, SettingsModel *pSettingsModel);
+    explicit DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphDataModel, NoteModel* pNoteModel, SettingsModel *pSettingsModel, DataParserModel * pDataParserModel);
     ~DataFileHandler();
 
     void loadDataFile(QString dataFilePath);
@@ -23,10 +25,10 @@ public:
     void disableExporterDuringLog();
 
     void exportDataFile(QString dataFile);
-    bool updateNoteLines(QString dataFile);
-
+    bool updateNoteLines();
 
 signals:
+    void startDataParsing();
 
 public slots:
     void selectDataImportFile();
@@ -34,6 +36,11 @@ public slots:
 
     void exportDataLine(double timeData, QList <double> dataValues);
     void rewriteDataFile(void);
+
+    void parseDataFile();
+
+private slots:
+    void handleError(QString msg);
 
 private:
 
@@ -43,7 +50,12 @@ private:
     SettingsModel* _pSettingsModel;
 
     DataFileExporter * _pDataFileExporter;
+    DataParserModel * _pDataParserModel;
 
+    QTextStream* _pDataFileStream;
+    LoadFileDialog* _pLoadFileDialog;
+
+    static const qint32 _cSampleLineLength = 50;
 };
 
 #endif // DATAFILEHANDLER_H
