@@ -54,7 +54,6 @@ void MarkerInfoItem::setModel(GuiModel * pGuiModel, GraphDataModel * pGraphDataM
     connect(_pGuiModel, SIGNAL(endMarkerPosChanged()), this, SLOT(updateGraphList()));
 
     connect(_pGuiModel, SIGNAL(markerExpressionMaskChanged()), this, SLOT(updateData()));
-    connect(_pGuiModel, SIGNAL(markerExpressionCustomScriptChanged()), this, SLOT(updateData()));
 
     updateGraphList();
 }
@@ -293,10 +292,6 @@ double MarkerInfoItem::calculateMarkerExpressionValue(quint32 expressionMask)
             }
 
             result = max;
-        }
-        else if (expressionMask == GuiModel::cCustomMask)
-        {
-            /* TODO: call python script */
         }
         else
         {

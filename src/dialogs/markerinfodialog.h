@@ -13,13 +13,11 @@ class MarkerInfoDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit MarkerInfoDialog(GuiModel *pGuiModel, QWidget *parent = 0);
+    explicit MarkerInfoDialog(GuiModel *pGuiModel, QWidget *parent = nullptr);
     ~MarkerInfoDialog();
 
 private slots:
-    void customScriptStatechanged(int state);
     void checkBoxStatechanged(int state);
-    void selectScriptFile();
 
     void done(int r);
 

@@ -16,33 +16,18 @@ MarkerInfoDialog::MarkerInfoDialog(GuiModel *pGuiModel, QWidget *parent) :
 
     _expressionMask = 0;
 
-    /* Enable/disable custom script controls */
-    connect(_pUi->checkCustom, &QCheckBox::stateChanged, this, &MarkerInfoDialog::customScriptStatechanged);
-
     /* Update mask */
     connect(_pUi->checkAverage, &QCheckBox::stateChanged, this, &MarkerInfoDialog::checkBoxStatechanged);
     connect(_pUi->checkSlope, &QCheckBox::stateChanged, this, &MarkerInfoDialog::checkBoxStatechanged);
     connect(_pUi->checkMaximum, &QCheckBox::stateChanged, this, &MarkerInfoDialog::checkBoxStatechanged);
     connect(_pUi->checkMinimum, &QCheckBox::stateChanged, this, &MarkerInfoDialog::checkBoxStatechanged);
     connect(_pUi->checkDifference, &QCheckBox::stateChanged, this, &MarkerInfoDialog::checkBoxStatechanged);
-    connect(_pUi->checkCustom, &QCheckBox::stateChanged, this, &MarkerInfoDialog::checkBoxStatechanged);
-
-    /* Connect file chooser signal */
-    connect(_pUi->btnCustom, &QToolButton::clicked, this, &MarkerInfoDialog::selectScriptFile);
-
-    /* set according to data in model */
-    _pUi->lineCustom->setText(_pGuiModel->markerExpressionCustomScript());
 
     const quint32 mask = _pGuiModel->markerExpressionMask();
 
     if (mask & GuiModel::cAverageMask)
     {
         _pUi->checkAverage->setChecked(true);
-    }
-
-    if (mask & GuiModel::cCustomMask)
-    {
-        _pUi->checkCustom->setChecked(true);
     }
 
     if (mask & GuiModel::cDifferenceMask)
@@ -72,24 +57,6 @@ MarkerInfoDialog::~MarkerInfoDialog()
     delete _pUi;
 }
 
-void MarkerInfoDialog::customScriptStatechanged(int state)
-{
-    if (state == Qt::Unchecked)
-    {
-        _pUi->btnCustom->setEnabled(false);
-        _pUi->lineCustom->setEnabled(false);
-    }
-    else if (state == Qt::Checked)
-    {
-        _pUi->btnCustom->setEnabled(true);
-        _pUi->lineCustom->setEnabled(true);
-    }
-    else
-    {
-        /* Nothing to do */
-    }
-}
-
 void MarkerInfoDialog::checkBoxStatechanged(int state)
 {
     QObject* pObj = sender();
@@ -116,10 +83,6 @@ void MarkerInfoDialog::checkBoxStatechanged(int state)
     {
          mask = GuiModel::cMaximumMask;
     }
-    else if (pObj == _pUi->checkCustom)
-    {
-        mask = GuiModel::cCustomMask;
-    }
     else
     {
         mask = 0u;
@@ -140,47 +103,15 @@ void MarkerInfoDialog::checkBoxStatechanged(int state)
     }
 }
 
-void MarkerInfoDialog::selectScriptFile()
-{
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::ExistingFile);
-    dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
-    dialog.setWindowTitle(tr("Select py script file"));
-    dialog.setNameFilter(tr("py files (*.py *.pyc)"));
-
-    if (dialog.exec())
-    {
-        _pUi->lineCustom->setText(dialog.selectedFiles().first());
-    }
-}
-
 void MarkerInfoDialog::done(int r)
 {
     bool bValid = true;
 
     if(QDialog::Accepted == r)  // ok was pressed
     {
-        if (_pUi->checkCustom->checkState() == Qt::Checked)
-        {
-
-            QFileInfo fileInfo = QFileInfo(_pUi->lineCustom->text());
-
-            if (fileInfo.exists())
-            {
-                bValid = true;
-            }
-            else
-            {
-                bValid = false;
-                Util::showError(tr("Script file does not exist.\n\n%1").arg(_pUi->lineCustom->text()));
-            }
-        }
-
         if (bValid)
         {
             _pGuiModel->setMarkerExpressionMask(_expressionMask);
-            _pGuiModel->setMarkerExpressionCustomScript(_pUi->lineCustom->text());
         }
     }
     else

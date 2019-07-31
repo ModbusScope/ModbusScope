@@ -13,15 +13,13 @@ const quint32 GuiModel::cSlopeMask         = 1 << 1;
 const quint32 GuiModel::cAverageMask       = 1 << 2;
 const quint32 GuiModel::cMinimumMask       = 1 << 3;
 const quint32 GuiModel::cMaximumMask       = 1 << 4;
-const quint32 GuiModel::cCustomMask        = 1 << 5;
 
 const QStringList GuiModel::cMarkerExpressionStrings = QStringList()
                                                         <<  "Diff: %0\n"
                                                         <<  "Slope: %0\n"
                                                         <<  "Avg: %0\n"
                                                         <<  "Min: %0\n"
-                                                        <<  "Max: %0\n"
-                                                        <<  "Custom: %0\n";
+                                                        <<  "Max: %0\n";
 
 const QList<quint32> GuiModel::cMarkerExpressionBits = QList<quint32>()
                         << GuiModel::cDifferenceMask
@@ -29,7 +27,6 @@ const QList<quint32> GuiModel::cMarkerExpressionBits = QList<quint32>()
                         << GuiModel::cAverageMask
                         << GuiModel::cMinimumMask
                         << GuiModel::cMaximumMask
-                        << GuiModel::cCustomMask
                         ;
 const QString GuiModel::cMarkerExpressionStart = QString("y1: %0\n");
 const QString GuiModel::cMarkerExpressionEnd = QString("y2: %0\n");
@@ -69,7 +66,6 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
     _bMarkerState = false;
 
     _markerExpressionMask = cDifferenceMask;
-    _markerExpressionCustomScript = "";
 }
 
 GuiModel::~GuiModel()
@@ -93,7 +89,6 @@ void GuiModel::triggerUpdate(void)
 
     emit markerStateChanged();
     emit markerExpressionMaskChanged();
-    emit markerExpressionCustomScriptChanged();
 }
 
 /*
@@ -352,21 +347,6 @@ void GuiModel::setMarkerExpressionMask(quint32 mask)
         _markerExpressionMask = mask;
 
         emit markerExpressionMaskChanged();
-    }
-}
-
-QString GuiModel::markerExpressionCustomScript()
-{
-    return _markerExpressionCustomScript;
-}
-
-void GuiModel::setMarkerExpressionCustomScript(QString path)
-{
-    if (_markerExpressionCustomScript != path)
-    {
-        _markerExpressionCustomScript = path;
-
-        emit markerExpressionCustomScriptChanged();
     }
 }
 
