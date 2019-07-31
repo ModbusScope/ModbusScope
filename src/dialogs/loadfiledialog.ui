@@ -133,31 +133,14 @@
          </property>
         </widget>
        </item>
-       <item row="10" column="0">
-        <widget class="QLabel" name="label_12">
-         <property name="text">
-          <string>Label Row Present?</string>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="1">
-        <widget class="QCheckBox" name="checkLabelRow">
-         <property name="text">
-          <string/>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="0">
+       <item row="11" column="0">
         <widget class="QLabel" name="label_4">
          <property name="text">
           <string>Label Row</string>
          </property>
         </widget>
        </item>
-       <item row="12" column="1">
+       <item row="11" column="1">
         <widget class="QSpinBox" name="spinLabelRow">
          <property name="minimum">
           <number>1</number>
@@ -170,14 +153,14 @@
          </property>
         </widget>
        </item>
-       <item row="14" column="0">
+       <item row="13" column="0">
         <widget class="QLabel" name="label_2">
          <property name="text">
           <string>Data Row</string>
          </property>
         </widget>
        </item>
-       <item row="14" column="1">
+       <item row="13" column="1">
         <widget class="QSpinBox" name="spinDataRow">
          <property name="minimum">
           <number>1</number>
@@ -190,14 +173,14 @@
          </property>
         </widget>
        </item>
-       <item row="15" column="0">
+       <item row="14" column="0">
         <widget class="QLabel" name="label_13">
          <property name="text">
           <string>Time data in milliseconds</string>
          </property>
         </widget>
        </item>
-       <item row="15" column="1">
+       <item row="14" column="1">
         <widget class="QCheckBox" name="checkTimeInMilliSeconds">
          <property name="text">
           <string/>
@@ -207,14 +190,14 @@
          </property>
         </widget>
        </item>
-       <item row="16" column="0">
+       <item row="15" column="0">
         <widget class="QLabel" name="label_14">
          <property name="text">
           <string>Correct STMStudio bad reads</string>
          </property>
         </widget>
        </item>
-       <item row="16" column="1">
+       <item row="15" column="1">
         <widget class="QCheckBox" name="checkStmStudioCorrection">
          <property name="text">
           <string/>
@@ -246,7 +229,6 @@
   <tabstop>comboGroupSeparator</tabstop>
   <tabstop>lineComment</tabstop>
   <tabstop>spinColumn</tabstop>
-  <tabstop>checkLabelRow</tabstop>
   <tabstop>spinLabelRow</tabstop>
   <tabstop>spinDataRow</tabstop>
   <tabstop>buttonBox</tabstop>

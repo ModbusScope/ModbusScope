@@ -83,7 +83,6 @@ LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserMod
     connect(_pUi->lineComment, SIGNAL(editingFinished()), this, SLOT(commentUpdated()));
     connect(_pUi->spinDataRow, SIGNAL(valueChanged(int)), this, SLOT(dataRowUpdated()));
     connect(_pUi->spinColumn, SIGNAL(valueChanged(int)), this, SLOT(columnUpdated()));
-    connect(_pUi->checkLabelRow, SIGNAL(toggled(bool)), this, SLOT(toggledLabelRow(bool)));
     connect(_pUi->spinLabelRow, SIGNAL(valueChanged(int)), this, SLOT(labelRowUpdated()));
     connect(_pUi->comboPreset, SIGNAL(currentIndexChanged(int)), this, SLOT(presetSelected(int)));
     connect(_pUi->checkTimeInMilliSeconds, SIGNAL(toggled(bool)), this, SLOT(timeInMilliSecondsUpdated(bool)));
@@ -97,7 +96,6 @@ LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserMod
     connect(_pUi->lineComment, SIGNAL(textEdited(QString)), this, SLOT(setPresetToManual()));
     connect(_pUi->spinDataRow, SIGNAL(editingFinished()), this, SLOT(setPresetToManual()));
     connect(_pUi->spinColumn, SIGNAL(editingFinished()), this, SLOT(setPresetToManual()));
-    connect(_pUi->checkLabelRow, SIGNAL(clicked(bool)), this, SLOT(setPresetToManual()));
     connect(_pUi->spinLabelRow, SIGNAL(editingFinished()), this, SLOT(setPresetToManual()));
 
     // Select first preset
@@ -197,15 +195,7 @@ void LoadFileDialog::updateColumn()
 
 void LoadFileDialog::updateLabelRow()
 {
-    if (_pParserModel->labelRow() == -1)
-    {
-        _pUi->checkLabelRow->setCheckState(Qt::Unchecked);
-    }
-    else
-    {
-        _pUi->checkLabelRow->setCheckState(Qt::Checked);
-        _pUi->spinLabelRow->setValue(_pParserModel->labelRow() + 1);   // + 1 based because 0 based internally
-    }
+    _pUi->spinLabelRow->setValue(_pParserModel->labelRow() + 1);   // + 1 based because 0 based internally
 
     updatePreview();
 }
@@ -276,19 +266,6 @@ void LoadFileDialog::dataRowUpdated()
 void LoadFileDialog::columnUpdated()
 {
     _pParserModel->setColumn(_pUi->spinColumn->value() - 1);  // - 1 based because 0 based internally
-}
-
-void LoadFileDialog::toggledLabelRow(bool bLabelRow)
-{
-    _pUi->spinLabelRow->setEnabled(bLabelRow);
-    if (bLabelRow)
-    {
-         _pParserModel->setLabelRow(_pUi->spinLabelRow->value() - 1);   // - 1 based because 0 based internally
-    }
-    else
-    {
-        _pParserModel->setLabelRow(-1);
-    }
 }
 
 void LoadFileDialog::labelRowUpdated()
@@ -474,7 +451,7 @@ void LoadFileDialog::updatePreview()
     {
         previewData.append(QStringList(tr("Parser setting are not valid (field, group, decimal)!")));
     }
-    else if (_pParserModel->labelRow() >= (qint32)_pParserModel->dataRow())
+    else if (_pParserModel->labelRow() >= _pParserModel->dataRow())
     {
         previewData.append(QStringList(tr("Label row is greater data row!")));
     }
@@ -482,11 +459,11 @@ void LoadFileDialog::updatePreview()
     {
         previewData.append(QStringList(tr("No data file loaded!")));
     }
-    else if (_dataFileSample.size() < _pParserModel->labelRow())
+    else if (_dataFileSample.size() < static_cast<qint32>(_pParserModel->labelRow()))
     {
         previewData.append(QStringList(tr("No labels according to label row!")));
     }
-    else if (_dataFileSample.size() < (qint32)(_pParserModel->dataRow() + 1))
+    else if (_dataFileSample.size() < static_cast<qint32>(_pParserModel->dataRow() + 1))
     {
         previewData.append(QStringList(tr("No data according to data row!")));
     }
@@ -552,13 +529,13 @@ void LoadFileDialog::updatePreviewLayout()
     {
         for (qint32 columnIdx = 0; columnIdx < _pUi->tablePreview->columnCount(); columnIdx++)
         {
-            if (columnIdx >= (qint32)_pParserModel->column())
+            if (columnIdx >= static_cast<qint32>(_pParserModel->column()))
             {
-                if (rowIdx == _pParserModel->labelRow())
+                if (rowIdx == static_cast<qint32>(_pParserModel->labelRow()))
                 {
                     _pUi->tablePreview->item(rowIdx, columnIdx)->setBackgroundColor(_cColorLabel);
                 }
-                else if (rowIdx >= (qint32)_pParserModel->dataRow())
+                else if (rowIdx >= static_cast<qint32>(_pParserModel->dataRow()))
                 {
                     _pUi->tablePreview->item(rowIdx, columnIdx)->setBackgroundColor(_cColorData);
                 }

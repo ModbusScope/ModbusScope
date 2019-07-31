@@ -59,7 +59,7 @@ void TestSettingsAuto::processOldModbusScope()
     QCOMPARE(settingsData.groupSeparator, QChar(' '));
     QCOMPARE(settingsData.decimalSeparator, QChar(','));
     QCOMPARE(settingsData.commentSequence, QString("//"));
-    QCOMPARE(settingsData.labelRow, static_cast<qint32>(10));
+    QCOMPARE(settingsData.labelRow, static_cast<quint32>(10));
     QCOMPARE(settingsData.dataRow, static_cast<quint32>(11));
     QCOMPARE(settingsData.column, static_cast<quint32>(0));
     QCOMPARE(settingsData.bTimeInMilliSeconds, true);
@@ -77,7 +77,7 @@ void TestSettingsAuto::processNewModbusScope()
     QCOMPARE(settingsData.groupSeparator, QChar(' '));
     QCOMPARE(settingsData.decimalSeparator, QChar('.'));
     QCOMPARE(settingsData.commentSequence, QString("//"));
-    QCOMPARE(settingsData.labelRow, static_cast<qint32>(22));
+    QCOMPARE(settingsData.labelRow, static_cast<quint32>(22));
     QCOMPARE(settingsData.dataRow, static_cast<quint32>(23));
     QCOMPARE(settingsData.column, static_cast<quint32>(0));
     QCOMPARE(settingsData.bTimeInMilliSeconds, true);
@@ -94,7 +94,7 @@ void TestSettingsAuto::processDatasetBe()
     QCOMPARE(settingsData.groupSeparator, QChar(' '));
     QCOMPARE(settingsData.decimalSeparator, QChar(','));
     QCOMPARE(settingsData.commentSequence, QString(""));
-    QCOMPARE(settingsData.labelRow, static_cast<qint32>(0));
+    QCOMPARE(settingsData.labelRow, static_cast<quint32>(0));
     QCOMPARE(settingsData.dataRow, static_cast<quint32>(1));
     QCOMPARE(settingsData.column, static_cast<quint32>(0));
     QCOMPARE(settingsData.bTimeInMilliSeconds, true);
@@ -111,7 +111,7 @@ void TestSettingsAuto::processDatasetUs()
     QCOMPARE(settingsData.groupSeparator, QChar(' '));
     QCOMPARE(settingsData.decimalSeparator, QChar('.'));
     QCOMPARE(settingsData.commentSequence, QString(""));
-    QCOMPARE(settingsData.labelRow, static_cast<qint32>(0));
+    QCOMPARE(settingsData.labelRow, static_cast<quint32>(0));
     QCOMPARE(settingsData.dataRow, static_cast<quint32>(1));
     QCOMPARE(settingsData.column, static_cast<quint32>(0));
     QCOMPARE(settingsData.bTimeInMilliSeconds, true);
@@ -149,7 +149,7 @@ void TestSettingsAuto::processDatasetComment()
     QCOMPARE(settingsData.groupSeparator, QChar(' '));
     QCOMPARE(settingsData.decimalSeparator, QChar(','));
     QCOMPARE(settingsData.commentSequence, QString("--"));
-    QCOMPARE(settingsData.labelRow, static_cast<qint32>(0));
+    QCOMPARE(settingsData.labelRow, static_cast<quint32>(0));
     QCOMPARE(settingsData.dataRow, static_cast<quint32>(1));
     QCOMPARE(settingsData.column, static_cast<quint32>(0));
     QCOMPARE(settingsData.bTimeInMilliSeconds, true);
@@ -167,7 +167,7 @@ void TestSettingsAuto::processDatasetSigned()
     QCOMPARE(settingsData.groupSeparator, QChar(' '));
     QCOMPARE(settingsData.decimalSeparator, QChar(','));
     QCOMPARE(settingsData.commentSequence, QString(""));
-    QCOMPARE(settingsData.labelRow, static_cast<qint32>(0));
+    QCOMPARE(settingsData.labelRow, static_cast<quint32>(0));
     QCOMPARE(settingsData.dataRow, static_cast<quint32>(1));
     QCOMPARE(settingsData.column, static_cast<quint32>(0));
     QCOMPARE(settingsData.bTimeInMilliSeconds, true);
@@ -184,7 +184,7 @@ void TestSettingsAuto::processDatasetAbsoluteDate()
     QCOMPARE(settingsData.groupSeparator, QChar(' '));
     QCOMPARE(settingsData.decimalSeparator, QChar(','));
     QCOMPARE(settingsData.commentSequence, QString(""));
-    QCOMPARE(settingsData.labelRow, static_cast<qint32>(0));
+    QCOMPARE(settingsData.labelRow, static_cast<quint32>(0));
     QCOMPARE(settingsData.dataRow, static_cast<quint32>(1));
     QCOMPARE(settingsData.column, static_cast<quint32>(0));
     QCOMPARE(settingsData.bTimeInMilliSeconds, true);
@@ -201,7 +201,7 @@ void TestSettingsAuto::processDatasetTimeInSeconds()
     QCOMPARE(settingsData.groupSeparator, QChar(' '));
     QCOMPARE(settingsData.decimalSeparator, QChar(','));
     QCOMPARE(settingsData.commentSequence, QString(""));
-    QCOMPARE(settingsData.labelRow, static_cast<qint32>(0));
+    QCOMPARE(settingsData.labelRow, static_cast<quint32>(0));
     QCOMPARE(settingsData.dataRow, static_cast<quint32>(1));
     QCOMPARE(settingsData.column, static_cast<quint32>(0));
     QCOMPARE(settingsData.bTimeInMilliSeconds, false);

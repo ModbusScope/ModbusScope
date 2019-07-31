@@ -19,7 +19,7 @@ public:
     QString commentSequence() const;
     quint32 dataRow() const;
     quint32 column() const;
-    qint32 labelRow() const;
+    quint32 labelRow() const;
     bool timeInMilliSeconds() const;
     bool stmStudioCorrection() const;
     QString dataFilePath();
@@ -30,7 +30,7 @@ public:
     void setCommentSequence(QString commentSequence);
     void setDataRow(quint32 dataRow);
     void setColumn(quint32 column);
-    void setLabelRow(qint32 labelRow);
+    void setLabelRow(quint32 labelRow);
     void setTimeInMilliSeconds(bool timeInMilliSeconds);
     void setStmStudioCorrection(bool stmStudioCorrection);
     void setDataFilePath(QString path);
@@ -55,7 +55,7 @@ private:
     QString _commentSequence;
     quint32 _dataRow;
     quint32 _column;
-    qint32 _labelRow;
+    quint32 _labelRow;
     bool _bTimeInMilliSeconds;
     bool _bStmStudioCorrection;
     QString _dataFilePath;

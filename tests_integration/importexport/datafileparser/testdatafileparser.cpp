@@ -30,7 +30,7 @@ void TestDataFileParser::parseModbusScopeOldFormat()
     dataParserModel.setGroupSeparator(QChar(' '));
     dataParserModel.setDecimalSeparator(QChar(','));
     dataParserModel.setCommentSequence(QString("//"));
-    dataParserModel.setLabelRow(static_cast<qint32>(10));
+    dataParserModel.setLabelRow(static_cast<quint32>(10));
     dataParserModel.setDataRow(static_cast<quint32>(11));
     dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(true);
@@ -70,7 +70,7 @@ void TestDataFileParser::parseModbusScopeNewFormat()
     dataParserModel.setGroupSeparator(QChar(' '));
     dataParserModel.setDecimalSeparator(QChar('.'));
     dataParserModel.setCommentSequence(QString("//"));
-    dataParserModel.setLabelRow(static_cast<qint32>(22));
+    dataParserModel.setLabelRow(static_cast<quint32>(22));
     dataParserModel.setDataRow(static_cast<quint32>(23));
     dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(true);
@@ -117,7 +117,7 @@ void TestDataFileParser::parseDatasetBe()
     dataParserModel.setGroupSeparator(QChar(' '));
     dataParserModel.setDecimalSeparator(QChar(','));
     dataParserModel.setCommentSequence(QString(""));
-    dataParserModel.setLabelRow(static_cast<qint32>(0));
+    dataParserModel.setLabelRow(static_cast<quint32>(0));
     dataParserModel.setDataRow(static_cast<quint32>(1));
     dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(true);
@@ -166,7 +166,7 @@ void TestDataFileParser::parseDatasetUs()
     dataParserModel.setGroupSeparator(QChar(' '));
     dataParserModel.setDecimalSeparator(QChar('.'));
     dataParserModel.setCommentSequence(QString(""));
-    dataParserModel.setLabelRow(static_cast<qint32>(0));
+    dataParserModel.setLabelRow(static_cast<quint32>(0));
     dataParserModel.setDataRow(static_cast<quint32>(1));
     dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(true);
@@ -215,7 +215,7 @@ void TestDataFileParser::parseDatasetColumn2()
     dataParserModel.setGroupSeparator(QChar(' '));
     dataParserModel.setDecimalSeparator(QChar(','));
     dataParserModel.setCommentSequence(QString(""));
-    dataParserModel.setLabelRow(static_cast<qint32>(0));
+    dataParserModel.setLabelRow(static_cast<quint32>(0));
     dataParserModel.setDataRow(static_cast<quint32>(1));
     dataParserModel.setColumn(static_cast<quint32>(1));
     dataParserModel.setTimeInMilliSeconds(true);
@@ -264,7 +264,7 @@ void TestDataFileParser::parseDatasetComment()
     dataParserModel.setGroupSeparator(QChar(' '));
     dataParserModel.setDecimalSeparator(QChar(','));
     dataParserModel.setCommentSequence(QString("--"));
-    dataParserModel.setLabelRow(static_cast<qint32>(0));
+    dataParserModel.setLabelRow(static_cast<quint32>(0));
     dataParserModel.setDataRow(static_cast<quint32>(1));
     dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(true);
@@ -313,7 +313,7 @@ void TestDataFileParser::parseDatasetSigned()
     dataParserModel.setGroupSeparator(QChar(' '));
     dataParserModel.setDecimalSeparator(QChar(','));
     dataParserModel.setCommentSequence(QString("--"));
-    dataParserModel.setLabelRow(static_cast<qint32>(0));
+    dataParserModel.setLabelRow(static_cast<quint32>(0));
     dataParserModel.setDataRow(static_cast<quint32>(1));
     dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(true);
@@ -357,7 +357,7 @@ void TestDataFileParser::parseDatasetAbsoluteDate()
     dataParserModel.setGroupSeparator(QChar(' '));
     dataParserModel.setDecimalSeparator(QChar(','));
     dataParserModel.setCommentSequence(QString(""));
-    dataParserModel.setLabelRow(static_cast<qint32>(0));
+    dataParserModel.setLabelRow(static_cast<quint32>(0));
     dataParserModel.setDataRow(static_cast<quint32>(1));
     dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(true);
@@ -403,7 +403,7 @@ void TestDataFileParser::parseDatasetTimeInSecond()
     dataParserModel.setGroupSeparator(QChar(' '));
     dataParserModel.setDecimalSeparator(QChar(','));
     dataParserModel.setCommentSequence(QString(""));
-    dataParserModel.setLabelRow(static_cast<qint32>(0));
+    dataParserModel.setLabelRow(static_cast<quint32>(0));
     dataParserModel.setDataRow(static_cast<quint32>(1));
     dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(false);

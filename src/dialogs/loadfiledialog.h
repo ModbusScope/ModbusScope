@@ -44,7 +44,6 @@ private slots:
     void commentUpdated();
     void dataRowUpdated();
     void columnUpdated();
-    void toggledLabelRow(bool bLabelRow);
     void labelRowUpdated();
     void timeInMilliSecondsUpdated(bool bTimeInMilliSeconds);
     void stmStudioCorrectionUpdated(bool bCorrectData);

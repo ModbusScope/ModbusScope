@@ -117,21 +117,11 @@ void DataParserModel::setColumn(quint32 column)
     }
 }
 
-void DataParserModel::setLabelRow(qint32 labelRow)
+void DataParserModel::setLabelRow(quint32 labelRow)
 {
-    qint32 newLabelRow;
-    if (labelRow >= 0)
+    if (_labelRow != labelRow)
     {
-        newLabelRow = labelRow;
-    }
-    else
-    {
-        newLabelRow = -1;
-    }
-
-    if (_labelRow != newLabelRow)
-    {
-        _labelRow = newLabelRow;
+        _labelRow = labelRow;
         emit labelRowChanged();
     }
 }
@@ -193,7 +183,7 @@ quint32 DataParserModel::column() const
     return _column;
 }
 
-qint32 DataParserModel::labelRow() const
+quint32 DataParserModel::labelRow() const
 {
     return _labelRow;
 }

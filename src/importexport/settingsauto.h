@@ -22,7 +22,7 @@ public:
         QString commentSequence;
         quint32 dataRow;
         quint32 column;
-        qint32 labelRow;
+        quint32 labelRow;
         bool bTimeInMilliSeconds;
     } settingsData_t;
 
@@ -49,7 +49,7 @@ private:
     QString _commentSequence;
     quint32 _dataRow;
     quint32 _column;
-    qint32 _labelRow;
+    quint32 _labelRow;
     bool _bTimeInMilliSeconds;
 };
 
