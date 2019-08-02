@@ -371,8 +371,8 @@ void TestDataFileParser::parseDatasetAbsoluteDate()
 
     /* Simplified check */
 
-    QCOMPARE(fileData.timeRow.first(), static_cast<double>(1563985171898));
-    QCOMPARE(fileData.timeRow.last(),  static_cast<double>(1563985178035));
+    QCOMPARE(static_cast<quint64>(fileData.timeRow.first()), static_cast<quint64>(1563985171898));
+    QCOMPARE(static_cast<quint64>(fileData.timeRow.last()),  static_cast<quint64>(1563985178035));
 
     QCOMPARE(fileData.timeRow.size(), 7);
     QCOMPARE(fileData.dataLabel, QStringList() << "Register 40001" << "Register 40002");
