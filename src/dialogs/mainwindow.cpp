@@ -903,7 +903,8 @@ void MainWindow::dropEvent(QDropEvent *e)
         }
         else
         {
-            // ignore drop
+            /* Assume data file import */
+            _pDataFileHandler->loadDataFile(filename);
         }
     }
 }
