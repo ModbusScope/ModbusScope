@@ -6,7 +6,7 @@
 
 #include "dataparsermodel.h"
 #include "guimodel.h"
-//#include "presetparser.h" TODO
+#include "presetparser.h"
 
 namespace Ui {
 class LoadFileDialog;
@@ -71,7 +71,7 @@ private:
 
     DataParserModel * _pParserModel;
     GuiModel *_pGuiModel;
-    // PresetParser _presetParser; TODO
+    PresetParser _presetParser;
 
     QStringList _dataFileSample;
 
@@ -90,8 +90,7 @@ private:
     static const QColor _cColorData;
     static const QColor _cColorIgnored;
     static const quint32 _cPresetManualIndex = 0;
-    static const quint32 _cPresetAutoIndex = 1;
-    static const quint32 _cPresetListOffset = 2;
+    static const quint32 _cPresetListOffset = 1;
 };
 
 #endif // LoadFileDialog_H

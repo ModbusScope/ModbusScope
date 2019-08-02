@@ -285,7 +285,6 @@ void LoadFileDialog::stmStudioCorrectionUpdated(bool bCorrectData)
 
 void LoadFileDialog::presetSelected(int index)
 {
-#if 0
     const qint32 presetIndex = index - _cPresetListOffset;
 
     if ((presetIndex >= 0) && (presetIndex < _presetParser.presetList().size()))
@@ -300,7 +299,6 @@ void LoadFileDialog::presetSelected(int index)
         _pParserModel->setTimeInMilliSeconds(_presetParser.presetList()[presetIndex].bTimeInMilliSeconds);
         _pParserModel->setStmStudioCorrection(_presetParser.presetList()[presetIndex].bStmStudioCorrection);
     }
-#endif
 }
 
 void LoadFileDialog::done(int r)
@@ -372,23 +370,19 @@ qint32 LoadFileDialog::findIndexInCombo(QList<ComboListItem> comboItemList, QStr
 
 void LoadFileDialog::loadPreset(void)
 {
-#if 0
     _presetParser.loadPresetsFromFile();
 
     _pUi->comboPreset->clear();
     _pUi->comboPreset->addItem("Manual");
-    _pUi->comboPreset->addItem("Auto");
 
     foreach(PresetParser::Preset preset, _presetParser.presetList())
     {
         _pUi->comboPreset->addItem(preset.name);
     }
-#endif
 }
 
 void LoadFileDialog::setPresetAccordingKeyword(QString filename)
 {
-#if 0
     qint32 presetComboIndex = -1;
 
     // Loop through presets and set preset if keyword is in filename
@@ -407,35 +401,12 @@ void LoadFileDialog::setPresetAccordingKeyword(QString filename)
     // No preset found
     if (presetComboIndex == -1)
     {
-        SettingsAuto settingsAutoParser;
-
-        if (settingsAutoParser.updateSettings(_dataFileSample))
-        {
-            _pParserModel->setFieldSeparator(settingsAutoParser.fieldSeparator());
-            _pParserModel->setGroupSeparator(settingsAutoParser.groupSeparator());
-            _pParserModel->setDecimalSeparator(settingsAutoParser.decimalSeparator());
-            _pParserModel->setCommentSequence(settingsAutoParser.commentSequence());
-            _pParserModel->setDataRow(settingsAutoParser.dataRow());
-            _pParserModel->setColumn(settingsAutoParser.column());
-            _pParserModel->setLabelRow(settingsAutoParser.labelRow());
-            _pParserModel->setTimeInMilliSeconds(settingsAutoParser.timeInMilliSeconds());
-
-            // set to auto
-            presetComboIndex = _cPresetAutoIndex;
-        }
-        else
-        {
-            // Reset settings to defaults
-            _pParserModel->resetSettings();
-
-            // set to manual
-            presetComboIndex = _cPresetManualIndex;
-        }
+        // set to manual
+        presetComboIndex = _cPresetManualIndex;
     }
 
     _pUi->comboPreset->setCurrentIndex(-1);
     _pUi->comboPreset->setCurrentIndex(presetComboIndex);
-#endif
 }
 
 void LoadFileDialog::updatePreview()

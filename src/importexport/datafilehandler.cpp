@@ -95,10 +95,6 @@ void DataFileHandler::loadDataFile(QString dataFilePath)
 
             bModbusScopeDataFile = settingsData.bModbusScopeDataFile;
         }
-        else
-        {
-            Util::showError(tr("Invalid data file (error while auto parsing for settings)"));
-        }
     }
 
     if (bRet && bModbusScopeDataFile)

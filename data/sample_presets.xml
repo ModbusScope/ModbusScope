@@ -1,0 +1,53 @@
+<modbusscope>
+	<parsepreset>
+		<name>Default (be)</name>
+		<keyword>-be</keyword>
+		<fieldseparator><![CDATA[;]]></fieldseparator>
+		<decimalseparator><![CDATA[,]]></decimalseparator>
+		<thousandseparator><![CDATA[ ]]></thousandseparator>
+		<commentSequence><![CDATA[//]]></commentSequence>
+		<column>1</column>
+		<labelrow>1</labelrow>
+		<datarow>2</datarow>
+		<dynamicsession>false</dynamicsession>
+	</parsepreset>
+	
+	<parsepreset>
+		<name>Default (us)</name>
+		<keyword>-us</keyword>
+		<fieldseparator><![CDATA[,]]></fieldseparator>
+		<decimalseparator><![CDATA[.]]></decimalseparator>
+		<thousandseparator><![CDATA[ ]]></thousandseparator>
+		<column>1</column>
+		<labelrow>1</labelrow>
+		<datarow>2</datarow>
+		<dynamicsession>false</dynamicsession>
+	</parsepreset>
+	
+	<parsepreset>
+		<name>STMStudio</name>
+		<keyword>-stmstudio</keyword>
+		<fieldseparator><![CDATA[\t]]></fieldseparator>
+		<decimalseparator><![CDATA[.]]></decimalseparator>
+		<thousandseparator><![CDATA[]]></thousandseparator>
+		<column>2</column>
+		<labelrow>7</labelrow>
+		<datarow>9</datarow>
+		<dynamicsession>false</dynamicsession>
+		<stmstudiocorrection>true</stmstudiocorrection>
+	</parsepreset>
+	
+	<parsepreset>
+		<name>be-seconds</name>
+		<fieldseparator><![CDATA[;]]></fieldseparator>
+		<decimalseparator><![CDATA[,]]></decimalseparator>
+		<thousandseparator><![CDATA[ ]]></thousandseparator>
+		<commentSequence><![CDATA[//]]></commentSequence>
+		<column>1</column>
+		<labelrow>1</labelrow>
+		<datarow>2</datarow>
+		<dynamicsession>false</dynamicsession>
+		<timeinmilliseconds>false</timeinmilliseconds>
+	</parsepreset>
+
+</modbusscope>

@@ -25,6 +25,7 @@ INCLUDEPATH += \
     $$PWD/src/util
 
 SOURCES +=  \
+    $$PWD/src/importexport/presetparser.cpp \
     $$PWD/src/libraries/qcustomplot/qcustomplot.cpp \
     $$PWD/src/communication/communicationmanager.cpp \
     $$PWD/src/communication/modbusmaster.cpp \
@@ -90,6 +91,7 @@ FORMS    += \
     $$PWD/src/dialogs/loadfiledialog.ui
 
 HEADERS += \
+    $$PWD/src/importexport/presetparser.h \
     $$PWD/src/libraries/qcustomplot/qcustomplot.h \
     $$PWD/src/communication/communicationmanager.h \
     $$PWD/src/communication/modbusmaster.h \
