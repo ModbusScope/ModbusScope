@@ -369,10 +369,18 @@ void TestDataFileParser::parseDatasetAbsoluteDate()
     /* Check results */
     QCOMPARE(fileData.axisLabel, QString("Time"));
 
-    /* Simplified check */
+    /* Simplified check: only date */
+    qint64 firstExpected = static_cast<qint64>(1563985171898);
+    qint64 lastExpected = static_cast<qint64>(1563985178035);
 
-    QCOMPARE(static_cast<quint64>(fileData.timeRow.first()), static_cast<quint64>(1563985171898));
-    QCOMPARE(static_cast<quint64>(fileData.timeRow.last()),  static_cast<quint64>(1563985178035));
+    qint64 margin = static_cast<qint64>(12 * 60 * 60 * 1000); /* 12 hours in milliseconds */
+
+    qint64 firstActual = static_cast<qint64>(fileData.timeRow.first());
+    qint64 lastActual = static_cast<qint64>(fileData.timeRow.last());
+
+    QVERIFY((firstActual > (firstExpected - margin)) && (firstActual < (firstExpected + margin)));
+    QVERIFY((lastActual > (lastExpected - margin)) && (lastActual < (lastExpected + margin)));
+    QCOMPARE(lastActual - firstActual, lastExpected - firstExpected);
 
     QCOMPARE(fileData.timeRow.size(), 7);
     QCOMPARE(fileData.dataLabel, QStringList() << "Register 40001" << "Register 40002");
