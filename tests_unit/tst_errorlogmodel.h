@@ -65,6 +65,23 @@ TEST(ErrorLogModel, data)
     EXPECT_EQ(pErrorModel->data(indexNull), QVariant());
 }
 
+TEST(ErrorLogModel, dataCategory)
+{
+    ErrorLogModel * pErrorModel = new ErrorLogModel();
+
+    QDateTime now = QDateTime::currentDateTime();
+    ErrorLog logErr(ErrorLog::LOG_ERROR, now, QString("Error"));
+    pErrorModel->addItem(logErr);
+
+    ErrorLog logInfo(ErrorLog::LOG_INFO, now, QString("Info"));
+    pErrorModel->addItem(logInfo);
+
+    EXPECT_EQ(pErrorModel->dataCategory(0), logErr.category());
+    EXPECT_EQ(pErrorModel->dataCategory(1), logInfo.category());
+
+    EXPECT_EQ(pErrorModel->dataCategory(255), static_cast<ErrorLog::LogCategory>(-1));
+}
+
 TEST(ErrorLogModel, flags)
 {
     ErrorLogModel * pErrorModel = new ErrorLogModel();
