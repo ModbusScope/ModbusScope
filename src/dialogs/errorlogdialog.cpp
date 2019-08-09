@@ -33,7 +33,8 @@ ErrorLogDialog::ErrorLogDialog(ErrorLogModel * pErrorLogModel, QWidget *parent) 
     connect(_pUi->listError->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(handleErrorSelectionChanged(QItemSelection,QItemSelection)));
 
     // Handle inserted row
-    connect(_pUi->listError->model(), SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(handleLogsInserted()));
+    connect(_pUi->listError->model(), SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(handleLogsChanged()));
+    connect(_pUi->listError->model(), SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(handleLogsChanged()));
 
     connect(_pUi->checkAutoScroll, SIGNAL(stateChanged(int)), this, SLOT(handleCheckAutoScrollChanged(int)));
 
@@ -48,9 +49,11 @@ ErrorLogDialog::~ErrorLogDialog()
     delete _pUi;
 }
 
-void ErrorLogDialog::handleLogsInserted()
+void ErrorLogDialog::handleLogsChanged()
 {
     updateScroll();
+
+    updateLogCount();
 }
 
 void ErrorLogDialog::handleErrorSelectionChanged(QItemSelection selected, QItemSelection deselected)
@@ -110,6 +113,8 @@ void ErrorLogDialog::handleFilterChange(int id)
     }
 
     _pCategoryProxyFilter->setFilterBitmask(bitmask);
+
+    updateLogCount();
 }
 
 void ErrorLogDialog::setAutoScroll(bool bAutoScroll)
@@ -133,5 +138,17 @@ void ErrorLogDialog::updateScroll()
     else
     {
        // Don't auto scroll
+    }
+}
+
+void ErrorLogDialog::updateLogCount()
+{
+    if (_pUi->checkInfo->checkState() == Qt::Checked || _pUi->checkError->checkState() == Qt::Checked)
+    {
+        _pUi->grpBoxLogs->setTitle(QString("Logs (%1/%2)").arg(_pCategoryProxyFilter->rowCount()).arg(_pErrorLogModel->size()));
+    }
+    else
+    {
+        _pUi->grpBoxLogs->setTitle(QString("Logs"));
     }
 }

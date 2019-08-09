@@ -23,7 +23,7 @@ public:
 
 private slots:
     void handleErrorSelectionChanged(QItemSelection selected, QItemSelection deselected);
-    void handleLogsInserted();
+    void handleLogsChanged();
     void handleCheckAutoScrollChanged(int newState);
     void handleScrollbarChange();
     void handleClearButton();
@@ -32,6 +32,7 @@ private slots:
 private:
     void setAutoScroll(bool bAutoScroll);
     void updateScroll();
+    void updateLogCount();
 
     Ui::ErrorLogDialog *_pUi;
     bool _bAutoScroll;
