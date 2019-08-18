@@ -46,7 +46,7 @@
      <x>0</x>
      <y>0</y>
      <width>839</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -151,7 +151,7 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>743</width>
+     <width>758</width>
      <height>175</height>
     </size>
    </property>
@@ -709,7 +709,7 @@
   </action>
   <action name="actionErrorLog">
    <property name="text">
-    <string>&amp;Error log</string>
+    <string>&amp;Diagnostic logs</string>
    </property>
   </action>
   <action name="actionAddNote">
@@ -745,6 +745,9 @@
   </customwidget>
  </customwidgets>
  <resources>
+  <include location="../resources/resource.qrc"/>
+  <include location="../resources/resource.qrc"/>
+  <include location="../resources/resource.qrc"/>
   <include location="../resources/resource.qrc"/>
   <include location="../resources/resource.qrc"/>
   <include location="../resources/resource.qrc"/>

@@ -33,7 +33,7 @@ int ErrorLogModel::columnCount(const QModelIndex & /*parent*/) const
  * \brief Get data from model
  * \param index modelindex referring to requested data
  * \param role Requested data role
- * \return Requested data from model, Emptye QVariant() on invalid argument
+ * \return Requested data from model, Empty QVariant() on invalid argument
  */
 QVariant ErrorLogModel::data(const QModelIndex &index, int role) const
 {
@@ -43,6 +43,21 @@ QVariant ErrorLogModel::data(const QModelIndex &index, int role) const
     }
 
     return QVariant();
+}
+
+/*!
+ * \brief Get data category from model
+ * \param index row referring to requested data
+ * \return Requested data from model, -1 on invalid argument
+ */
+ErrorLog::LogCategory ErrorLogModel::dataCategory(quint32 index) const
+{
+    if (index < static_cast<quint32>(size()))
+    {
+        return _logList[static_cast<qint32>(index)].category();
+    }
+
+    return static_cast<ErrorLog::LogCategory>(-1);
 }
 
 /*!

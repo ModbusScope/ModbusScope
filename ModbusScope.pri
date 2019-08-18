@@ -37,6 +37,7 @@ SOURCES +=  \
     $$PWD/src/dialogs/mainwindow.cpp \
     $$PWD/src/graphview/basicgraphview.cpp \
     $$PWD/src/graphview/extendedgraphview.cpp \
+    $$PWD/src/models/errorlogfilter.cpp \
     $$PWD/src/models/guimodel.cpp \
     $$PWD/src/models/settingsmodel.cpp \
     $$PWD/src/dialogs/aboutdialog.cpp \
@@ -105,6 +106,7 @@ HEADERS += \
     $$PWD/src/dialogs/registerconndelegate.h \
     $$PWD/src/graphview/basicgraphview.h \
     $$PWD/src/graphview/extendedgraphview.h \
+    $$PWD/src/models/errorlogfilter.h \
     $$PWD/src/models/guimodel.h \
     $$PWD/src/models/settingsmodel.h \
     $$PWD/src/util/util.h \
