@@ -15,9 +15,11 @@ public:
 
 public slots:
     void setTab(QString tab);
+    void setTextFilter(QString filterText);
 
 private:
     QString _tab;
+    QString _textFilter;
 
 };
 
