@@ -76,7 +76,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
     connect(_pUi->actionHighlightSamplePoints, SIGNAL(toggled(bool)), _pGuiModel, SLOT(setHighlightSamples(bool)));
     connect(_pUi->actionClearData, SIGNAL(triggered()), this, SLOT(clearData()));
-    connect(_pUi->actionClearMarkers, SIGNAL(triggered()), _pGuiModel, SLOT(clearMarkersState()));
+    connect(_pUi->actionToggleMarkers, SIGNAL(triggered()), this, SLOT(toggleMarkersState()));
     connect(_pUi->actionConnectionSettings, SIGNAL(triggered()), this, SLOT(showConnectionDialog()));
     connect(_pUi->actionLogSettings, SIGNAL(triggered()), this, SLOT(showLogSettingsDialog()));
     connect(_pUi->actionRegisterSettings, SIGNAL(triggered()), this, SLOT(showRegisterDialog()));
@@ -149,7 +149,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _menuRightClick.addSeparator();
     _menuRightClick.addAction(_pUi->actionHighlightSamplePoints);
     _menuRightClick.addAction(_pUi->actionClearData);
-    _menuRightClick.addAction(_pUi->actionClearMarkers);
+    _menuRightClick.addAction(_pUi->actionToggleMarkers);
     _menuRightClick.addSeparator();
     _menuRightClick.addAction(_pUi->actionAddNote);
     _menuRightClick.addAction(_pUi->actionManageNotes);
@@ -527,6 +527,24 @@ void MainWindow::showErrorLog()
 void MainWindow::showNotesDialog()
 {
     _pNotesDock->show();
+}
+
+void MainWindow::toggleMarkersState()
+{
+    if (_pGuiModel->markerState())
+    {
+        /* One or more markers are visible, hide them */
+        _pGuiModel->clearMarkersState();
+    }
+    else
+    {
+        /* No markers are visible, hide them */
+        if (_pGraphDataModel->size() > 0)
+        {
+            _pGuiModel->setStartMarkerPos(_pUi->customPlot->xAxis->range().lower);
+            _pGuiModel->setEndMarkerPos(_pUi->customPlot->xAxis->range().upper);
+        }
+    }
 }
 
 void MainWindow::handleGraphVisibilityChange(const quint32 graphIdx)

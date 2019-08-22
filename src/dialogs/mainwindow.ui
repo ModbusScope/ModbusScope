@@ -108,7 +108,7 @@
     <addaction name="actionHighlightSamplePoints"/>
     <addaction name="separator"/>
     <addaction name="actionClearData"/>
-    <addaction name="actionClearMarkers"/>
+    <addaction name="actionToggleMarkers"/>
     <addaction name="separator"/>
     <addaction name="actionManageNotes"/>
    </widget>
@@ -690,9 +690,12 @@
     <string>Log &amp;Settings...</string>
    </property>
   </action>
-  <action name="actionClearMarkers">
+  <action name="actionToggleMarkers">
    <property name="text">
-    <string>Clear &amp;Markers</string>
+    <string>Toggle &amp;Markers</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle Markers</string>
    </property>
   </action>
   <action name="actionExportSettings">
