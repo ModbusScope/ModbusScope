@@ -92,7 +92,6 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     connect(_pGuiModel, SIGNAL(windowTitleChanged()), this, SLOT(updateWindowTitle()));
     connect(_pGuiModel, SIGNAL(projectFilePathChanged()), this, SLOT(projectFileLoaded()));
-    connect(_pGuiModel, SIGNAL(dataFilePathChanged()), this, SLOT(dataFileLoaded()));
     connect(_pGuiModel, SIGNAL(guiStateChanged()), this, SLOT(updateGuiState()));
 
     connect(_pGuiModel, SIGNAL(xAxisScalingChanged()), this, SLOT(updatexAxisSlidingMode()));
@@ -717,6 +716,7 @@ void MainWindow::updateGuiState()
         _pUi->actionExportDataCsv->setEnabled(false);
         _pUi->actionExportImage->setEnabled(false);
         _pUi->actionExportSettings->setEnabled(true);
+        _pUi->actionClearData->setEnabled(true);
 
         _pStatusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
         _pStatusRuntime->setVisible(true);
@@ -726,6 +726,8 @@ void MainWindow::updateGuiState()
 
         _pDataParserModel->resetSettings();
         _pGuiModel->setProjectFilePath(QString(""));
+
+        _pGuiModel->setWindowTitleDetail(QString(""));
     }
     else if (_pGuiModel->guiState() == GuiModel::STARTED)
     {
@@ -743,6 +745,7 @@ void MainWindow::updateGuiState()
         _pUi->actionExportSettings->setEnabled(false);
         _pUi->actionExportImage->setEnabled(false);
         _pUi->actionReloadProjectFile->setEnabled(false);
+        _pUi->actionClearData->setEnabled(true);
 
         _pStatusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
         _pStatusRuntime->setVisible(true);
@@ -765,6 +768,7 @@ void MainWindow::updateGuiState()
         _pUi->actionExportDataCsv->setEnabled(true);
         _pUi->actionExportSettings->setEnabled(true);
         _pUi->actionExportImage->setEnabled(true);
+        _pUi->actionClearData->setEnabled(true);
 
         _pDataParserModel->resetSettings();
 
@@ -793,6 +797,7 @@ void MainWindow::updateGuiState()
         _pUi->actionExportDataCsv->setEnabled(false); // Can't export data when viewing data
         _pUi->actionExportSettings->setEnabled(false); // Can't export data when viewing data
         _pUi->actionExportImage->setEnabled(true);
+        _pUi->actionClearData->setEnabled(false);
 
         _pStatusRuntime->setText(QString(""));
         _pStatusRuntime->setVisible(false);
@@ -801,6 +806,8 @@ void MainWindow::updateGuiState()
         _pStatusStats->setVisible(false);
 
         _pUi->actionReloadProjectFile->setEnabled(false);
+
+        _pGuiModel->setWindowTitleDetail(QFileInfo(_pDataParserModel->dataFilePath()).fileName());
     }
 }
 
@@ -816,18 +823,6 @@ void MainWindow::projectFileLoaded()
     {
         _pGuiModel->setWindowTitleDetail(QFileInfo(_pGuiModel->projectFilePath()).fileName());
         _pUi->actionReloadProjectFile->setEnabled(true);
-    }
-}
-
-void MainWindow::dataFileLoaded()
-{
-    if (_pDataParserModel->dataFilePath().isEmpty())
-    {
-        _pGuiModel->setWindowTitleDetail("");
-    }
-    else
-    {
-        _pGuiModel->setWindowTitleDetail(QFileInfo(_pDataParserModel->dataFilePath()).fileName());
     }
 }
 

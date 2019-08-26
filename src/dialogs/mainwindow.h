@@ -86,7 +86,6 @@ private slots:
     void updateyAxisSlidingMode();
     void updateyAxisMinMax();
     void projectFileLoaded();
-    void dataFileLoaded();
     void updateGuiState();
     void updateStats();
     void updateMarkerDockVisibility();
