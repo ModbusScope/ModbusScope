@@ -267,7 +267,7 @@ TEST(MbcRegisterModel, fillData)
 
     QList<QVariant> arguments = rowsInsertedSpy.takeFirst(); // take the first signal
     EXPECT_EQ(arguments.at(1), 0);
-    EXPECT_EQ(arguments.at(2), mbcRegisterList.size());
+    EXPECT_EQ(arguments.at(2), mbcRegisterList.size() - 1);
 
     /*-- Test result of fill with data function  --*/
 
