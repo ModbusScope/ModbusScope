@@ -183,7 +183,7 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
     }
 
     /* Call function to prepare view */
-    beginInsertRows(QModelIndex(), rowCount(), rowCount() + mbcRegisterList.size());
+    beginInsertRows(QModelIndex(), rowCount(), rowCount() + mbcRegisterList.size() - 1);
 
     _tabList = tabList;
 
