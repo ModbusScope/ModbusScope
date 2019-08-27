@@ -538,11 +538,10 @@ void MainWindow::toggleMarkersState()
     }
     else
     {
-        /* No markers are visible, hide them */
+        /* No markers are visible, show them */
         if (_pGraphDataModel->size() > 0)
         {
-            _pGuiModel->setStartMarkerPos(_pUi->customPlot->xAxis->range().lower);
-            _pGuiModel->setEndMarkerPos(_pUi->customPlot->xAxis->range().upper);
+            _pGraphView->showMarkers();
         }
     }
 }

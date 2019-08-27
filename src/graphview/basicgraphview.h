@@ -33,6 +33,8 @@ public:
     double pixelToKey(double pixel);
     double pixelToValue(double pixel);
 
+    void showMarkers();
+
 public slots:
 
     virtual void manualScaleXAxis(qint64 min, qint64 max);
