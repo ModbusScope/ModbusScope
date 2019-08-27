@@ -71,6 +71,7 @@ private slots:
     void stopScope();
     void showErrorLog();
     void showNotesDialog();
+    void toggleMarkersState();
 
     /* Model change handlers */
     void handleGraphVisibilityChange(const quint32 graphIdx);

@@ -434,6 +434,15 @@ void BasicGraphView::selectionChanged()
 
 }
 
+void BasicGraphView::showMarkers()
+{
+    double startPos = (_pPlot->xAxis->range().size() * 1 / 3) + _pPlot->xAxis->range().lower;
+    double endPos = (_pPlot->xAxis->range().size() * 2 / 3) + _pPlot->xAxis->range().lower;
+
+    _pGuiModel->setStartMarkerPos(getClosestPoint(startPos)->key);
+    _pGuiModel->setEndMarkerPos(getClosestPoint(endPos)->key);
+}
+
 void BasicGraphView::mousePress(QMouseEvent *event)
 {
    if (event->modifiers() & Qt::ControlModifier)
