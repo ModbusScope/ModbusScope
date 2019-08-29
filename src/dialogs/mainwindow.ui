@@ -141,6 +141,8 @@
    <addaction name="separator"/>
    <addaction name="actionStart"/>
    <addaction name="actionStop"/>
+   <addaction name="separator"/>
+   <addaction name="actionZoom"/>
   </widget>
   <widget class="QDockWidget" name="scaleOptionsDock">
    <property name="sizePolicy">
@@ -723,6 +725,21 @@
   <action name="actionManageNotes">
    <property name="text">
     <string>Manage Notes</string>
+   </property>
+  </action>
+  <action name="actionZoom">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resources/resource.qrc">
+     <normaloff>:/menu_icon/menu_icon/icons/magnifier.png</normaloff>:/menu_icon/menu_icon/icons/magnifier.png</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom</string>
+   </property>
+   <property name="toolTip">
+    <string>Draw zoom rectangle</string>
    </property>
   </action>
  </widget>

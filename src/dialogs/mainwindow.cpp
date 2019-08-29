@@ -81,6 +81,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionLogSettings, SIGNAL(triggered()), this, SLOT(showLogSettingsDialog()));
     connect(_pUi->actionRegisterSettings, SIGNAL(triggered()), this, SLOT(showRegisterDialog()));
     connect(_pUi->actionAddNote, SIGNAL(triggered()), this, SLOT(addNoteToGraph()));
+    connect(_pUi->actionZoom, SIGNAL(toggled(bool)), this, SLOT(toggleZoom(bool)));
 
     /*-- connect model to view --*/
     connect(_pGuiModel, SIGNAL(frontGraphChanged()), this, SLOT(updateBringToFrontGrapMenu()));
@@ -434,7 +435,7 @@ void MainWindow::showRegisterDialog(QString mbcFile)
     }
 }
 
-void MainWindow::addNoteToGraph(void)
+void MainWindow::addNoteToGraph()
 {
     Note newNote;
 
@@ -449,6 +450,20 @@ void MainWindow::addNoteToGraph(void)
         newNote.setText(text);
 
         _pNoteModel->add(newNote);
+    }
+}
+
+void MainWindow::toggleZoom(bool checked)
+{
+    if (checked)
+    {
+        /* Activate */
+        _pGuiModel->setZoomState(GuiModel::ZOOM_SELECTING);
+    }
+    else
+    {
+        /* Deactivate */
+        _pGuiModel->setZoomState(GuiModel::ZOOM_IDLE);
     }
 }
 
