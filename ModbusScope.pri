@@ -25,6 +25,7 @@ INCLUDEPATH += \
     $$PWD/src/util
 
 SOURCES +=  \
+    $$PWD/src/graphview/graphviewzoom.cpp \
     $$PWD/src/importexport/presetparser.cpp \
     $$PWD/src/libraries/qcustomplot/qcustomplot.cpp \
     $$PWD/src/communication/communicationmanager.cpp \
@@ -92,6 +93,7 @@ FORMS    += \
     $$PWD/src/dialogs/loadfiledialog.ui
 
 HEADERS += \
+    $$PWD/src/graphview/graphviewzoom.h \
     $$PWD/src/importexport/presetparser.h \
     $$PWD/src/libraries/qcustomplot/qcustomplot.h \
     $$PWD/src/communication/communicationmanager.h \

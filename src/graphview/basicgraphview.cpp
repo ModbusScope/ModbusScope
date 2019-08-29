@@ -12,6 +12,7 @@
 #include "myqcpaxistickertime.h"
 #include "myqcpaxis.h"
 #include "basicgraphview.h"
+#include "graphviewzoom.h"
 
 BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, NoteModel *pNoteModel, MyQCustomPlot * pPlot, QObject *parent) :
     QObject(parent)
@@ -21,6 +22,8 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
     _pNoteModel = pNoteModel;
 
    _pPlot = pPlot;
+
+   _pGraphViewZoom = new GraphViewZoom(_pGuiModel, _pPlot);
 
    /* Range drag is also enabled/disabled on mousePress and mouseRelease event */
    _pPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes);
@@ -103,7 +106,7 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
 
 BasicGraphView::~BasicGraphView()
 {
-
+    delete _pGraphViewZoom;
 }
 
 qint32 BasicGraphView::graphDataSize()

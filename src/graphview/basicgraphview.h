@@ -9,6 +9,7 @@
 class GuiModel;
 class GraphDataModel;
 class NoteModel;
+class GraphViewZoom;
 
 class BasicGraphView : public QObject
 {
@@ -24,7 +25,7 @@ public:
         SCALE_MANUAL
     } AxisScaleOptions;
 
-    explicit BasicGraphView(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel, NoteModel * pNoteModel, MyQCustomPlot *pPlot, QObject *parent = 0);
+    explicit BasicGraphView(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel, NoteModel * pNoteModel, MyQCustomPlot *pPlot, QObject *parent = nullptr);
     virtual ~BasicGraphView();
 
     qint32 graphDataSize();
@@ -95,6 +96,8 @@ private:
     qint32 _pDraggedNoteIdx;
     qint32 _pixelXOffset;
     qint32 _pixelYOffset;
+
+    GraphViewZoom* _pGraphViewZoom;
 
     QCPItemStraightLine * _pStartMarker;
     QCPItemStraightLine * _pEndMarker;
