@@ -2,6 +2,7 @@
 #define GRAPHVIEWZOOM_H
 
 #include <QObject>
+#include <QRubberBand>
 #include "myqcustomplot.h"
 #include "guimodel.h"
 
@@ -21,11 +22,14 @@ private slots:
     void handleZoomStateChanged();
 
 private:
+
+    void performZoom(void);
+
     GuiModel* _pGuiModel;
     MyQCustomPlot* _pPlot;
 
-    int _startX;
-    int _startY;
+    QPoint _selectionOrigin;
+    QRubberBand* _pRubberBand;
 
 };
 

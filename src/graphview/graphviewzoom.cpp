@@ -4,6 +4,7 @@
 GraphViewZoom::GraphViewZoom(GuiModel* pGuiModel, MyQCustomPlot* pPlot, QObject *parent) :
     QObject(parent)
 {
+    _pRubberBand = nullptr;
     _pGuiModel = pGuiModel;
     _pPlot = pPlot;
 
@@ -42,9 +43,13 @@ bool GraphViewZoom::handleMousePress(QMouseEvent *event)
 
         _pGuiModel->setZoomState(GuiModel::ZOOM_SELECTING);
 
-        /* Save coordinates */
-        _startX = event->pos().x();
-        _startY = event->pos().y();
+        _selectionOrigin = event->pos();
+        if (!_pRubberBand)
+        {
+            _pRubberBand = new QRubberBand(QRubberBand::Rectangle, _pPlot);
+        }
+        _pRubberBand->setGeometry(QRect(_selectionOrigin, QSize()));
+        _pRubberBand->show();
 
         return true;
     }
@@ -68,8 +73,12 @@ bool GraphViewZoom::handleMouseRelease(QMouseEvent *event)
 {
     if (_pGuiModel->zoomState() == GuiModel::ZOOM_SELECTING)
     {
-        /* Do zoom */
+        _pRubberBand->hide();
 
+        /* Perform zoom based on selected rubberband */
+        performZoom();
+
+        /* Reset state */
         _pGuiModel->setZoomState(GuiModel::ZOOM_IDLE);
 
         return true;
@@ -84,10 +93,15 @@ bool GraphViewZoom::handleMouseMove(QMouseEvent *event)
     if (_pGuiModel->zoomState() == GuiModel::ZOOM_SELECTING)
     {
         /* Draw rectangle */
-
+        _pRubberBand->setGeometry(QRect(_selectionOrigin, event->pos()).normalized());
 
         return true;
     }
 
     return false;
+}
+
+void GraphViewZoom::performZoom(void)
+{
+
 }
