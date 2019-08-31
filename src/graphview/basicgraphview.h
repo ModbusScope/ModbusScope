@@ -68,7 +68,7 @@ private slots:
     void selectionChanged();
 
     void mousePress(QMouseEvent *event);
-    void mouseRelease();
+    void mouseRelease(QMouseEvent *event);
     void mouseWheel();
     void mouseMove(QMouseEvent *event);
 

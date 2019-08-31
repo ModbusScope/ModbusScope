@@ -8,10 +8,14 @@
 class GraphViewZoom : public QObject
 {
     Q_OBJECT
-
 public:
-    GraphViewZoom(GuiModel* pGuiModel, MyQCustomPlot* pPlot);
-    ~GraphViewZoom();
+    explicit GraphViewZoom(GuiModel* pGuiModel, MyQCustomPlot* pPlot, QObject *parent = nullptr);
+    virtual ~GraphViewZoom();
+
+    bool handleMousePress(QMouseEvent *event);
+    bool handleMouseRelease(QMouseEvent *event);
+    bool handleMouseWheel();
+    bool handleMouseMove(QMouseEvent *event);
 
 private slots:
     void handleZoomStateChanged();
@@ -19,6 +23,9 @@ private slots:
 private:
     GuiModel* _pGuiModel;
     MyQCustomPlot* _pPlot;
+
+    int _startX;
+    int _startY;
 
 };
 

@@ -35,8 +35,8 @@ public:
     typedef enum
     {
         ZOOM_IDLE = 0,
-        ZOOM_TRIGGERED,
-        ZOOM_SELECTING,
+        ZOOM_TRIGGERED, /* Zoom has been enabled */
+        ZOOM_SELECTING, /* Zomm rectangle is selecting */
     } ZoomState;
 
     void triggerUpdate(void);

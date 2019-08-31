@@ -81,6 +81,7 @@ private slots:
 
     void updateBringToFrontGrapMenu();
     void updateHighlightSampleMenu();
+    void handleZoomStateChanged();
     void rebuildGraphMenu();
     void updateWindowTitle();
     void updatexAxisSlidingMode();

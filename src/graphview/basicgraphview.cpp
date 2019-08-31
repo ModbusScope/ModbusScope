@@ -72,7 +72,7 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
 
    // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
    connect(_pPlot, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress(QMouseEvent*)));
-   connect(_pPlot, SIGNAL(mouseRelease(QMouseEvent*)), this, SLOT(mouseRelease()));
+   connect(_pPlot, SIGNAL(mouseRelease(QMouseEvent*)), this, SLOT(mouseRelease(QMouseEvent*)));
    connect(_pPlot, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel()));
    connect(_pPlot, SIGNAL(axisDoubleClick(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)), this, SLOT(axisDoubleClicked(QCPAxis*)));
    connect(_pPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMove(QMouseEvent*)));
@@ -448,77 +448,83 @@ void BasicGraphView::showMarkers()
 
 void BasicGraphView::mousePress(QMouseEvent *event)
 {
-   if (event->modifiers() & Qt::ControlModifier)
-   {
-       /* Disable range drag when control key is pressed */
-       _pPlot->setInteraction(QCP::iRangeDrag, false);
-       _pPlot->setInteraction(QCP::iRangeZoom, false);
+    if (_pGraphViewZoom->handleMousePress(event))
+    {
+        /* Already handled by zoom */
+    }
+    else if (event->modifiers() & Qt::ControlModifier)
+    {
+        /* Disable range drag when control key is pressed */
+        _pPlot->setInteraction(QCP::iRangeDrag, false);
+        _pPlot->setInteraction(QCP::iRangeZoom, false);
 
-       if (_pPlot->graphCount() > 0)
-       {
-           const double xPos = _pPlot->xAxis->pixelToCoord(event->pos().x());
-           QCPGraphDataContainer::const_iterator markerPosIt = getClosestPoint(xPos);
+        if (_pPlot->graphCount() > 0)
+        {
+            const double xPos = _pPlot->xAxis->pixelToCoord(event->pos().x());
+            QCPGraphDataContainer::const_iterator markerPosIt = getClosestPoint(xPos);
 
-           if (event->button() & Qt::LeftButton)
-           {
+            if (event->button() & Qt::LeftButton)
+            {
                 _pGuiModel->setStartMarkerPos(markerPosIt->key);
-           }
-           else if (event->button() & Qt::RightButton)
-           {
+            }
+            else if (event->button() & Qt::RightButton)
+            {
                 _pGuiModel->setEndMarkerPos(markerPosIt->key);
-           }
-           else
-           {
-               // No function
-           }
-       }
-   }
-   else
-   {
+            }
+            else
+            {
+                // No function
+            }
+        }
+    }
+    else
+    {
         _pDraggedNoteIdx = -1;
         QCPAbstractItem * pItem = _pPlot->itemAt(event->pos(), false);
-       for(int idx = 0; idx < _notesItems.size(); idx++)
-       {
+        for(int idx = 0; idx < _notesItems.size(); idx++)
+        {
             if (_notesItems[idx] == pItem)
             {
                 _pDraggedNoteIdx = idx;
                 break;
             }
-       }
+        }
 
-       if (_pDraggedNoteIdx != -1)
-       {
-           /* Save cursor offset */
-           _pixelXOffset = event->pos().x() - _notesItems[_pDraggedNoteIdx]->topLeft->pixelPosition().x();
-           _pixelYOffset = event->pos().y() - _notesItems[_pDraggedNoteIdx]->topLeft->pixelPosition().y();
+        if (_pDraggedNoteIdx != -1)
+        {
+            /* Save cursor offset */
+            _pixelXOffset = event->pos().x() - _notesItems[_pDraggedNoteIdx]->topLeft->pixelPosition().x();
+            _pixelYOffset = event->pos().y() - _notesItems[_pDraggedNoteIdx]->topLeft->pixelPosition().y();
 
-          /* Ignore global drag */
-          /* Disable range drag when note item is selected */
-          _pPlot->setInteraction(QCP::iRangeDrag, false);
-          _pPlot->setInteraction(QCP::iRangeZoom, false);
-       }
-       else
-       {
-           // if an axis is selected, only allow the direction of that axis to be dragged
-           // if no axis is selected, both directions may be dragged
-           if (_pPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
-           {
-               _pPlot->axisRect()->setRangeDrag(_pPlot->xAxis->orientation());
-           }
-           else if (_pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
-           {
-               _pPlot->axisRect()->setRangeDrag(_pPlot->yAxis->orientation());
-           }
-           else
-           {
-               _pPlot->axisRect()->setRangeDrag(Qt::Horizontal|Qt::Vertical);
-           }
-       }
-   }
+            /* Ignore global drag */
+            /* Disable range drag when note item is selected */
+            _pPlot->setInteraction(QCP::iRangeDrag, false);
+            _pPlot->setInteraction(QCP::iRangeZoom, false);
+        }
+        else
+        {
+            // if an axis is selected, only allow the direction of that axis to be dragged
+            // if no axis is selected, both directions may be dragged
+            if (_pPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
+            {
+                _pPlot->axisRect()->setRangeDrag(_pPlot->xAxis->orientation());
+            }
+            else if (_pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
+            {
+                _pPlot->axisRect()->setRangeDrag(_pPlot->yAxis->orientation());
+            }
+            else
+            {
+                _pPlot->axisRect()->setRangeDrag(Qt::Horizontal|Qt::Vertical);
+            }
+        }
+    }
 }
 
-void BasicGraphView::mouseRelease()
+void BasicGraphView::mouseRelease(QMouseEvent *event)
 {
+    (void)_pGraphViewZoom->handleMouseRelease(event);
+
     _pDraggedNoteIdx = -1;
 
     /* Always re-enable range drag */
@@ -528,25 +534,32 @@ void BasicGraphView::mouseRelease()
 
 void BasicGraphView::mouseWheel()
 {
-   // if an axis is selected, only allow the direction of that axis to be zoomed
-   // if no axis is selected, both directions may be zoomed
+    if (_pGraphViewZoom->handleMouseWheel())
+    {
+        /* Already handled by zoom */
+    }
+    else
+    {
+        // if an axis is selected, only allow the direction of that axis to be zoomed
+        // if no axis is selected, both directions may be zoomed
 
-   if (_pPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
-   {
-       _pPlot->axisRect()->setRangeZoom(_pPlot->xAxis->orientation());
-       _pGuiModel->setxAxisScale(SCALE_MANUAL); // change to manual scaling
-   }
-   else if (_pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
-   {
-       _pPlot->axisRect()->setRangeZoom(_pPlot->yAxis->orientation());
-       _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
-   }
-   else
-   {
-       _pPlot->axisRect()->setRangeZoom(Qt::Horizontal|Qt::Vertical);
-       _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
-       _pGuiModel->setxAxisScale(SCALE_MANUAL);
-   }
+        if (_pPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
+        {
+           _pPlot->axisRect()->setRangeZoom(_pPlot->xAxis->orientation());
+           _pGuiModel->setxAxisScale(SCALE_MANUAL); // change to manual scaling
+        }
+        else if (_pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
+        {
+           _pPlot->axisRect()->setRangeZoom(_pPlot->yAxis->orientation());
+           _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
+        }
+        else
+        {
+           _pPlot->axisRect()->setRangeZoom(Qt::Horizontal|Qt::Vertical);
+           _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
+           _pGuiModel->setxAxisScale(SCALE_MANUAL);
+        }
+    }
 }
 
 void BasicGraphView::mouseMove(QMouseEvent *event)
@@ -556,7 +569,11 @@ void BasicGraphView::mouseMove(QMouseEvent *event)
     {
         if (!(event->modifiers() & Qt::ControlModifier))
         {
-            if ((_pDraggedNoteIdx != -1) && _pNoteModel->draggable(_pDraggedNoteIdx))
+            if (_pGraphViewZoom->handleMouseMove(event))
+            {
+                /* Already handled by graph zoom */
+            }
+            else if ((_pDraggedNoteIdx != -1) && _pNoteModel->draggable(_pDraggedNoteIdx))
             {
                 _pNoteModel->setKeyData(_pDraggedNoteIdx, pixelToKey(event->pos().x() - _pixelXOffset));
                 _pNoteModel->setValueData(_pDraggedNoteIdx, pixelToValue(event->pos().y() - _pixelYOffset));
