@@ -122,7 +122,7 @@ bool BasicGraphView::valuesUnderCursor(QList<double> &valueList)
 
     if (_pPlot->graphCount() > 0)
     {
-        QCPGraphDataContainer::const_iterator tooltipIt = getClosestPoint(xPos);
+        double tooltipPos = getClosestPoint(xPos);
 
         bool bValid;
         const QCPRange keyRange = _pPlot->graph(0)->data()->keyRange(bValid);
@@ -137,7 +137,7 @@ bool BasicGraphView::valuesUnderCursor(QList<double> &valueList)
                 )
             {
                 const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeGraphIndex);
-                QCPGraphDataContainer::const_iterator graphDataIt = _pGraphDataModel->dataMap(graphIdx).data()->findBegin(tooltipIt->key, false);
+                QCPGraphDataContainer::const_iterator graphDataIt = _pGraphDataModel->dataMap(graphIdx).data()->findBegin(tooltipPos, false);
                 valueList.append(graphDataIt->value);
             }
             else
@@ -442,8 +442,8 @@ void BasicGraphView::showMarkers()
     double startPos = (_pPlot->xAxis->range().size() * 1 / 3) + _pPlot->xAxis->range().lower;
     double endPos = (_pPlot->xAxis->range().size() * 2 / 3) + _pPlot->xAxis->range().lower;
 
-    _pGuiModel->setStartMarkerPos(getClosestPoint(startPos)->key);
-    _pGuiModel->setEndMarkerPos(getClosestPoint(endPos)->key);
+    _pGuiModel->setStartMarkerPos(getClosestPoint(startPos));
+    _pGuiModel->setEndMarkerPos(getClosestPoint(endPos));
 }
 
 void BasicGraphView::mousePress(QMouseEvent *event)
@@ -461,15 +461,15 @@ void BasicGraphView::mousePress(QMouseEvent *event)
         if (_pPlot->graphCount() > 0)
         {
             const double xPos = _pPlot->xAxis->pixelToCoord(event->pos().x());
-            QCPGraphDataContainer::const_iterator markerPosIt = getClosestPoint(xPos);
+            double markerPos = getClosestPoint(xPos);
 
             if (event->button() & Qt::LeftButton)
             {
-                _pGuiModel->setStartMarkerPos(markerPosIt->key);
+                _pGuiModel->setStartMarkerPos(markerPos);
             }
             else if (event->button() & Qt::RightButton)
             {
-                _pGuiModel->setEndMarkerPos(markerPosIt->key);
+                _pGuiModel->setEndMarkerPos(markerPos);
             }
             else
             {
@@ -615,7 +615,7 @@ void BasicGraphView::paintTimeStampToolTip(QPoint pos)
     {
 
         const double xPos = _pPlot->xAxis->pixelToCoord(pos.x());
-        QCPGraphDataContainer::const_iterator tooltipIt = getClosestPoint(xPos);
+        double tooltipPos = getClosestPoint(xPos);
 
         bool bValid;
         const QCPRange keyRange = _pPlot->graph(0)->data()->keyRange(bValid);
@@ -623,7 +623,7 @@ void BasicGraphView::paintTimeStampToolTip(QPoint pos)
         if (bValid && keyRange.contains(xPos))
         {
             // Add tick key string
-            QString toolText = Util::formatTime(tooltipIt->key, false);
+            QString toolText = Util::formatTime(tooltipPos, false);
 
             QToolTip::showText(_pPlot->mapToGlobal(pos), toolText, _pPlot);
 
@@ -732,17 +732,17 @@ qint32 BasicGraphView::graphIndex(QCPGraph * pGraph)
     return ret;
 }
 
-QCPGraphDataContainer::const_iterator BasicGraphView::getClosestPoint(double xPos)
+double BasicGraphView::getClosestPoint(double pixelInWidget)
 {
     QCPGraphDataContainer::const_iterator closestIt = _pPlot->graph(0)->data()->constBegin();
-    QCPGraphDataContainer::const_iterator leftIt = _pPlot->graph(0)->data()->findBegin(xPos);
+    QCPGraphDataContainer::const_iterator leftIt = _pPlot->graph(0)->data()->findBegin(pixelInWidget);
 
     auto rightIt = leftIt + 1;
     if (rightIt !=  _pPlot->graph(0)->data()->constEnd())
     {
 
         const double diffReference = rightIt->key - leftIt->key;
-        const double diffPos = xPos - leftIt->key;
+        const double diffPos = pixelInWidget - leftIt->key;
 
         if (diffPos > (diffReference / 2))
         {
@@ -758,5 +758,5 @@ QCPGraphDataContainer::const_iterator BasicGraphView::getClosestPoint(double xPo
         closestIt = leftIt;
     }
 
-    return closestIt;
+    return closestIt->key;
 }

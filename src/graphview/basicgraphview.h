@@ -33,6 +33,7 @@ public:
 
     double pixelToKey(double pixel);
     double pixelToValue(double pixel);
+    double getClosestPoint(double pixelInWidget);
 
     void showMarkers();
 
@@ -88,7 +89,6 @@ protected:
 private:
     void highlightSamples(bool bState);
     qint32 graphIndex(QCPGraph * pGraph);
-    QCPGraphDataContainer::const_iterator getClosestPoint(double xPos);
 
     QVector<QString> _tickLabels;
     QList<QCPItemText *> _notesItems;
