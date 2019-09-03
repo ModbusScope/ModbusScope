@@ -460,15 +460,23 @@ void MainWindow::toggleZoom(bool checked)
     Handler of triggered signal => only called when user clicks zoom button,
     Not when setChecked function is called
     */
-    if (checked)
+    if (_pGraphDataModel->size() > 0)
     {
-        /* Activate */
-        _pGuiModel->setZoomState(GuiModel::ZOOM_TRIGGERED);
+        if (checked)
+        {
+            /* Activate */
+            _pGuiModel->setZoomState(GuiModel::ZOOM_TRIGGERED);
+        }
+        else
+        {
+            /* Deactivate */
+            _pGuiModel->setZoomState(GuiModel::ZOOM_IDLE);
+        }
     }
     else
     {
-        /* Deactivate */
         _pGuiModel->setZoomState(GuiModel::ZOOM_IDLE);
+        _pUi->actionZoom->setChecked(false);
     }
 }
 
