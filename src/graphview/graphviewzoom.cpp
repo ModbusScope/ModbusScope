@@ -82,6 +82,9 @@ bool GraphViewZoom::handleMouseRelease()
         /* Reset state */
         _pGuiModel->setZoomState(GuiModel::ZOOM_IDLE);
 
+        _pGuiModel->setyAxisScale(BasicGraphView::SCALE_MANUAL); // change to manual scaling
+        _pGuiModel->setxAxisScale(BasicGraphView::SCALE_MANUAL);
+
         return true;
     }
 
