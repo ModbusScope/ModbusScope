@@ -11,6 +11,7 @@
         <file>menu_icon/icons/table_go.png</file>
         <file>menu_icon/icons/book_open.png</file>
         <file>menu_icon/icons/database_edit.png</file>
+        <file>menu_icon/icons/magnifier.png</file>
     </qresource>
     <qresource prefix="/about_images">
         <file>about_images/icon_128x128.png</file>

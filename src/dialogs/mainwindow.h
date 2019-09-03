@@ -65,7 +65,8 @@ private slots:
     void showLogSettingsDialog();
     void showRegisterDialog();
     void showRegisterDialog(QString mbcFile);
-    void addNoteToGraph(void);
+    void addNoteToGraph();
+    void toggleZoom(bool checked);
     void clearData();
     void startScope();
     void stopScope();
@@ -80,6 +81,7 @@ private slots:
 
     void updateBringToFrontGrapMenu();
     void updateHighlightSampleMenu();
+    void handleZoomStateChanged();
     void rebuildGraphMenu();
     void updateWindowTitle();
     void updatexAxisSlidingMode();

@@ -81,6 +81,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pUi->actionLogSettings, SIGNAL(triggered()), this, SLOT(showLogSettingsDialog()));
     connect(_pUi->actionRegisterSettings, SIGNAL(triggered()), this, SLOT(showRegisterDialog()));
     connect(_pUi->actionAddNote, SIGNAL(triggered()), this, SLOT(addNoteToGraph()));
+    connect(_pUi->actionZoom, SIGNAL(triggered(bool)), this, SLOT(toggleZoom(bool))); /* Only called on GUI click, not on setChecked */
 
     /*-- connect model to view --*/
     connect(_pGuiModel, SIGNAL(frontGraphChanged()), this, SLOT(updateBringToFrontGrapMenu()));
@@ -109,6 +110,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGuiModel, SIGNAL(markerStateChanged()), this, SLOT(updateMarkerDockVisibility()));
     connect(_pGuiModel, SIGNAL(startMarkerPosChanged()), _pGraphView, SLOT(setStartMarker()));
     connect(_pGuiModel, SIGNAL(endMarkerPosChanged()), _pGraphView, SLOT(setEndMarker()));
+    connect(_pGuiModel, SIGNAL(zoomStateChanged()), this, SLOT(handleZoomStateChanged()));
 
     connect(_pGraphDataModel, SIGNAL(visibilityChanged(quint32)), this, SLOT(handleGraphVisibilityChange(const quint32)));
     connect(_pGraphDataModel, SIGNAL(visibilityChanged(quint32)), _pGraphView, SLOT(showGraph(const quint32)));
@@ -434,7 +436,7 @@ void MainWindow::showRegisterDialog(QString mbcFile)
     }
 }
 
-void MainWindow::addNoteToGraph(void)
+void MainWindow::addNoteToGraph()
 {
     Note newNote;
 
@@ -449,6 +451,24 @@ void MainWindow::addNoteToGraph(void)
         newNote.setText(text);
 
         _pNoteModel->add(newNote);
+    }
+}
+
+void MainWindow::toggleZoom(bool checked)
+{
+    /*
+    Handler of triggered signal => only called when user clicks zoom button,
+    Not when setChecked function is called
+    */
+    if (checked)
+    {
+        /* Activate */
+        _pGuiModel->setZoomState(GuiModel::ZOOM_TRIGGERED);
+    }
+    else
+    {
+        /* Deactivate */
+        _pGuiModel->setZoomState(GuiModel::ZOOM_IDLE);
     }
 }
 
@@ -609,6 +629,18 @@ void MainWindow::updateHighlightSampleMenu()
 {
     /* set menu to checked */
     _pUi->actionHighlightSamplePoints->setChecked(_pGuiModel->highlightSamples());
+}
+
+void MainWindow::handleZoomStateChanged()
+{
+    if (_pGuiModel->zoomState() == GuiModel::ZOOM_IDLE)
+    {
+        _pUi->actionZoom->setChecked(false);
+    }
+    else
+    {
+        _pUi->actionZoom->setChecked(true);
+    }
 }
 
 void MainWindow::rebuildGraphMenu()

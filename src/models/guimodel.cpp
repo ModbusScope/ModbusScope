@@ -45,6 +45,8 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
     _successCount = 0;
     _errorCount = 0;
 
+    _zoomState = ZOOM_IDLE;
+
     QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
     if (docPath.size() > 0)
     {
@@ -345,6 +347,21 @@ void GuiModel::setMarkerExpressionMask(quint32 mask)
         _markerExpressionMask = mask;
 
         emit markerExpressionMaskChanged();
+    }
+}
+
+GuiModel::ZoomState GuiModel::zoomState(void)
+{
+    return _zoomState;
+}
+
+void GuiModel::setZoomState(ZoomState zoomState)
+{
+    if (zoomState != _zoomState)
+    {
+        _zoomState = zoomState;
+
+        emit zoomStateChanged();
     }
 }
 

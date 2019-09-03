@@ -32,6 +32,13 @@ public:
         DATA_LOADED,
     };
 
+    typedef enum
+    {
+        ZOOM_IDLE = 0,
+        ZOOM_TRIGGERED, /* Zoom has been enabled */
+        ZOOM_SELECTING, /* Zomm rectangle is selecting */
+    } ZoomState;
+
     void triggerUpdate(void);
 
     qint32 frontGraph() const;
@@ -54,6 +61,7 @@ public:
     double endMarkerPos();
     bool markerState();
     quint32 markerExpressionMask();
+    ZoomState zoomState();
 
     void setProjectFilePath(QString path);
     void setLastDir(QString dir);
@@ -77,6 +85,7 @@ public slots:
     void clearMarkersState(void);
     void setStartMarkerPos(double pos);
     void setEndMarkerPos(double pos);
+    void setZoomState(ZoomState zoomState);
 
 signals:
 
@@ -95,6 +104,7 @@ signals:
     void startMarkerPosChanged();
     void endMarkerPosChanged();
     void markerExpressionMaskChanged();
+    void zoomStateChanged();
 
 private slots:
 
@@ -137,6 +147,8 @@ private:
 
     bool _bEndMarkerState;
     double _endMarkerPos;
+
+    ZoomState _zoomState;
 
     quint32 _markerExpressionMask;
 

@@ -9,6 +9,7 @@
 class GuiModel;
 class GraphDataModel;
 class NoteModel;
+class GraphViewZoom;
 
 class BasicGraphView : public QObject
 {
@@ -24,7 +25,7 @@ public:
         SCALE_MANUAL
     } AxisScaleOptions;
 
-    explicit BasicGraphView(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel, NoteModel * pNoteModel, MyQCustomPlot *pPlot, QObject *parent = 0);
+    explicit BasicGraphView(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel, NoteModel * pNoteModel, MyQCustomPlot *pPlot, QObject *parent = nullptr);
     virtual ~BasicGraphView();
 
     qint32 graphDataSize();
@@ -32,6 +33,8 @@ public:
 
     double pixelToKey(double pixel);
     double pixelToValue(double pixel);
+    double pixelToClosestKey(double pixel);
+    double pixelToClosestValue(double pixel);
 
     void showMarkers();
 
@@ -67,7 +70,7 @@ private slots:
     void selectionChanged();
 
     void mousePress(QMouseEvent *event);
-    void mouseRelease();
+    void mouseRelease(QMouseEvent *event);
     void mouseWheel();
     void mouseMove(QMouseEvent *event);
 
@@ -87,7 +90,7 @@ protected:
 private:
     void highlightSamples(bool bState);
     qint32 graphIndex(QCPGraph * pGraph);
-    QCPGraphDataContainer::const_iterator getClosestPoint(double xPos);
+    double getClosestPoint(double coordinate);
 
     QVector<QString> _tickLabels;
     QList<QCPItemText *> _notesItems;
@@ -95,6 +98,8 @@ private:
     qint32 _pDraggedNoteIdx;
     qint32 _pixelXOffset;
     qint32 _pixelYOffset;
+
+    GraphViewZoom* _pGraphViewZoom;
 
     QCPItemStraightLine * _pStartMarker;
     QCPItemStraightLine * _pEndMarker;
