@@ -14,7 +14,7 @@ public:
     virtual ~GraphViewZoom();
 
     bool handleMousePress(QMouseEvent *event);
-    bool handleMouseRelease(QMouseEvent *event);
+    bool handleMouseRelease();
     bool handleMouseWheel();
     bool handleMouseMove(QMouseEvent *event);
 
@@ -27,10 +27,10 @@ private:
 
     GuiModel* _pGuiModel;
     MyQCustomPlot* _pPlot;
+    BasicGraphView* _pGraphview;
 
     QPoint _selectionOrigin;
     QRubberBand* _pRubberBand;
-
 };
 
 #endif // GRAPHVIEWZOOM_H

@@ -23,7 +23,7 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
 
    _pPlot = pPlot;
 
-   _pGraphViewZoom = new GraphViewZoom(_pGuiModel, _pPlot);
+   _pGraphViewZoom = new GraphViewZoom(_pGuiModel, _pPlot, this);
 
    /* Range drag is also enabled/disabled on mousePress and mouseRelease event */
    _pPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes);
@@ -165,6 +165,16 @@ double BasicGraphView::pixelToKey(double pixel)
 double BasicGraphView::pixelToValue(double pixel)
 {
     return _pPlot->yAxis->pixelToCoord(pixel);
+}
+
+double BasicGraphView::pixelToClosestKey(double pixel)
+{
+    return getClosestPoint(_pPlot->xAxis->pixelToCoord(pixel));
+}
+
+double BasicGraphView::pixelToClosestValue(double pixel)
+{
+    return getClosestPoint(_pPlot->yAxis->pixelToCoord(pixel));
 }
 
 void BasicGraphView::manualScaleXAxis(qint64 min, qint64 max)
@@ -523,7 +533,9 @@ void BasicGraphView::mousePress(QMouseEvent *event)
 
 void BasicGraphView::mouseRelease(QMouseEvent *event)
 {
-    (void)_pGraphViewZoom->handleMouseRelease(event);
+    Q_UNUSED(event);
+
+    (void)_pGraphViewZoom->handleMouseRelease();
 
     _pDraggedNoteIdx = -1;
 
@@ -732,17 +744,17 @@ qint32 BasicGraphView::graphIndex(QCPGraph * pGraph)
     return ret;
 }
 
-double BasicGraphView::getClosestPoint(double pixelInWidget)
+double BasicGraphView::getClosestPoint(double coordinate)
 {
     QCPGraphDataContainer::const_iterator closestIt = _pPlot->graph(0)->data()->constBegin();
-    QCPGraphDataContainer::const_iterator leftIt = _pPlot->graph(0)->data()->findBegin(pixelInWidget);
+    QCPGraphDataContainer::const_iterator leftIt = _pPlot->graph(0)->data()->findBegin(coordinate);
 
     auto rightIt = leftIt + 1;
     if (rightIt !=  _pPlot->graph(0)->data()->constEnd())
     {
 
         const double diffReference = rightIt->key - leftIt->key;
-        const double diffPos = pixelInWidget - leftIt->key;
+        const double diffPos = coordinate - leftIt->key;
 
         if (diffPos > (diffReference / 2))
         {

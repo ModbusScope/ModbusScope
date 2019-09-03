@@ -6,6 +6,7 @@ GraphViewZoom::GraphViewZoom(GuiModel* pGuiModel, MyQCustomPlot* pPlot, QObject 
 {
     _pRubberBand = nullptr;
     _pGuiModel = pGuiModel;
+    _pGraphview = dynamic_cast<BasicGraphView*>(parent);
     _pPlot = pPlot;
 
     connect(_pGuiModel, SIGNAL(zoomStateChanged()), this, SLOT(handleZoomStateChanged()));
@@ -69,7 +70,7 @@ bool GraphViewZoom::handleMouseWheel()
 
 }
 
-bool GraphViewZoom::handleMouseRelease(QMouseEvent *event)
+bool GraphViewZoom::handleMouseRelease()
 {
     if (_pGuiModel->zoomState() == GuiModel::ZOOM_SELECTING)
     {
@@ -103,5 +104,13 @@ bool GraphViewZoom::handleMouseMove(QMouseEvent *event)
 
 void GraphViewZoom::performZoom(void)
 {
+    const double correctTopLeftX = _pGraphview->pixelToClosestKey(_pRubberBand->geometry().topLeft().x());
+    const double correctTopLeftY = _pGraphview->pixelToClosestValue(_pRubberBand->geometry().topLeft().y());
 
+    const double correctBottomRightX = _pGraphview->pixelToClosestKey(_pRubberBand->geometry().bottomRight().x());
+    const double correctBottomRightY = _pGraphview->pixelToClosestValue(_pRubberBand->geometry().bottomRight().y());
+
+    _pPlot->xAxis->setRange(correctTopLeftX, correctBottomRightX);
+    _pPlot->yAxis->setRange(correctBottomRightY, correctTopLeftY);
 }
+
