@@ -270,11 +270,9 @@ void GuiModel::setyAxisMax(qint32 newMax)
 
 void GuiModel::setGuiState(quint32 state)
 {
-    if (_guiState != state)
-    {
-        _guiState = state;
-        emit guiStateChanged();
-    }
+    // GUI State is an exception, alway send signal to make sure GUI is updated
+    _guiState = state;
+    emit guiStateChanged();
 }
 
 quint32 GuiModel::guiState()
