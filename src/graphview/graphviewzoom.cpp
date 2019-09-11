@@ -76,14 +76,14 @@ bool GraphViewZoom::handleMouseRelease()
     {
         _pRubberBand->hide();
 
+        _pGuiModel->setyAxisScale(BasicGraphView::SCALE_MANUAL); // change to manual scaling
+        _pGuiModel->setxAxisScale(BasicGraphView::SCALE_MANUAL);
+
         /* Perform zoom based on selected rubberband */
         performZoom();
 
         /* Reset state */
         _pGuiModel->setZoomState(GuiModel::ZOOM_IDLE);
-
-        _pGuiModel->setyAxisScale(BasicGraphView::SCALE_MANUAL); // change to manual scaling
-        _pGuiModel->setxAxisScale(BasicGraphView::SCALE_MANUAL);
 
         return true;
     }
