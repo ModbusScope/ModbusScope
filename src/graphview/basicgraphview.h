@@ -40,9 +40,6 @@ public:
 
 public slots:
 
-    virtual void manualScaleXAxis(qint64 min, qint64 max);
-    virtual void manualScaleYAxis(qint64 min, qint64 max);
-
     virtual void autoScaleXAxis();
     virtual void autoScaleYAxis();
 

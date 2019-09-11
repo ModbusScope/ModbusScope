@@ -177,18 +177,6 @@ double BasicGraphView::pixelToClosestValue(double pixel)
     return getClosestPoint(_pPlot->yAxis->pixelToCoord(pixel));
 }
 
-void BasicGraphView::manualScaleXAxis(qint64 min, qint64 max)
-{
-    _pPlot->xAxis->setRange(min, max);
-    _pPlot->replot();
-}
-
-void BasicGraphView::manualScaleYAxis(qint64 min, qint64 max)
-{
-    _pPlot->yAxis->setRange(min, max);
-    _pPlot->replot();
-}
-
 void BasicGraphView::autoScaleXAxis()
 {
     _pPlot->xAxis->rescale(true);
