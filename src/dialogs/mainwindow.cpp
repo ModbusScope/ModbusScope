@@ -446,8 +446,7 @@ void MainWindow::addNoteToGraph()
                                          "", &ok);
     if (ok)
     {
-        newNote.setKeyData(_pGraphView->pixelToKey(_lastRightClickPos.x()));
-        newNote.setValueData(_pGraphView->pixelToValue(_lastRightClickPos.y()));
+        newNote.setNotePosition(_pGraphView->pixelToPointF(_lastRightClickPos));
         newNote.setText(text);
 
         _pNoteModel->add(newNote);

@@ -1,14 +1,34 @@
+/*!
+ * \file
+ *
+ * The note model holds all notes as they are added by the user.
+ */
+
 #include "notemodel.h"
 
 #include "util.h"
+
+namespace {
+
+enum role {
+    DRAGGABLE = 0,
+    KEY_DATA,
+    VALUE_DATA,
+    ARROW_POSITION,
+    TEXT,
+
+    COUNT
+};
+
+}
+
 
 NoteModel::NoteModel(QObject *parent) : QAbstractTableModel(parent)
 {
     _noteList.clear();
     _bNotesDataUpdated = false;
 
-    connect(this, SIGNAL(valueDataChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
-    connect(this, SIGNAL(keyDataChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
+    connect(this, SIGNAL(notePositionChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(textChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
 
     connect(this, SIGNAL(added(quint32)), this, SLOT(modelDataChanged()));
@@ -23,13 +43,15 @@ QVariant NoteModel::headerData(int section, Qt::Orientation orientation, int rol
         {
             switch (section)
             {
-            case 0:
+            case role::DRAGGABLE:
                 return QString("Draggable");
-            case 1:
+            case role::KEY_DATA:
                 return QString("Key");
-            case 2:
+            case role::VALUE_DATA:
                 return QString("Value");
-            case 3:
+            case role::ARROW_POSITION:
+                return QString("Arrow position");
+            case role::TEXT:
                 return QString("Text");
             default:
                 return QVariant();
@@ -51,20 +73,14 @@ int NoteModel::rowCount(const QModelIndex & /*parent*/) const
 
 int NoteModel::columnCount(const QModelIndex & /*parent*/) const
 {
-    /*
-    * draggable
-    * keyData
-    * valueData
-    * text
-    * */
-    return 4; // Number of visible members of struct
+    return role::COUNT; // Number of visible members of struct
 }
 
 QVariant NoteModel::data(const QModelIndex &index, int role) const
 {
     switch (index.column())
     {
-    case 0:
+    case role::DRAGGABLE:
         if (role == Qt::CheckStateRole)
         {
             if (_noteList[index.row()].draggable())
@@ -77,19 +93,26 @@ QVariant NoteModel::data(const QModelIndex &index, int role) const
             }
         }
         break;
-    case 1:
+    case role::KEY_DATA:
         if ((role == Qt::DisplayRole))
         {
-            return Util::formatTime(_noteList[index.row()].keyData(), false);
+            return Util::formatTime(_noteList[index.row()].notePosition().x(), false);
         }
         break;
-    case 2:
+    case role::VALUE_DATA:
         if ((role == Qt::DisplayRole))
         {
-            return Util::formatDoubleForExport(_noteList[index.row()].valueData());
+            return Util::formatDoubleForExport(_noteList[index.row()].notePosition().y());
         }
         break;
-    case 3:
+    case role::ARROW_POSITION:
+        if (role == Qt::DisplayRole)
+        {
+            return Util::formatDoubleForExport(_noteList[index.row()].arrowPosition().x()) +
+                    Util::formatDoubleForExport(_noteList[index.row()].arrowPosition().y());
+        }
+        break;
+    case role::TEXT:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return _noteList[index.row()].text();
@@ -111,7 +134,7 @@ bool NoteModel::setData(const QModelIndex &index, const QVariant &value, int rol
 
     switch (index.column())
     {
-    case 0:
+    case role::DRAGGABLE:
         if (role == Qt::CheckStateRole)
         {
             if (value == Qt::Checked)
@@ -125,7 +148,7 @@ bool NoteModel::setData(const QModelIndex &index, const QVariant &value, int rol
         }
         break;
 
-    case 3:
+    case role::TEXT:
         if (role == Qt::EditRole)
         {
             setText(index.row(), value.toString());
@@ -154,11 +177,11 @@ bool NoteModel::removeRows (int row, int count, const QModelIndex & parent)
 
 Qt::ItemFlags NoteModel::flags(const QModelIndex &index) const
 {
-    if (index.column() == 0)
+    if (index.column() == role::DRAGGABLE)
     {
         return Qt::ItemIsSelectable |  Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
     }
-    else if (index.column() == 3)
+    else if (index.column() == role::TEXT)
     {
         return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
     }
@@ -206,14 +229,15 @@ void NoteModel::clear()
     }
 }
 
-double NoteModel::valueData(quint32 idx)
+
+const QPointF& NoteModel::arrowPosition(qint32 idx) const
 {
-    return _noteList[idx].valueData();
+    return _noteList[idx].arrowPosition();
 }
 
-double NoteModel::keyData(quint32 idx)
+const QPointF&  NoteModel::notePosition(qint32 idx) const
 {
-    return _noteList[idx].keyData();
+    return _noteList[idx].notePosition();
 }
 
 QString NoteModel::textData(quint32 idx)
@@ -231,23 +255,23 @@ bool NoteModel::isNotesDataUpdated()
     return _bNotesDataUpdated;
 }
 
-void NoteModel::setValueData(quint32 idx, double value)
+void NoteModel::setArrowPosition(qint32 idx, const QPointF& value)
 {
-    if (_noteList[idx].valueData() != value)
+    if (_noteList[idx].arrowPosition() != value)
     {
-         _noteList[idx].setValueData(value);
+         _noteList[idx].setArrowPosition(value);
          setNotesDataUpdated(true);
-         emit valueDataChanged(idx);
+         emit arrowPositionChanged(idx);
     }
 }
 
-void NoteModel::setKeyData(quint32 idx, double key)
+void NoteModel::setNotePostion(quint32 idx, const QPointF &value)
 {
-    if (_noteList[idx].keyData() != key)
+    if (_noteList[idx].notePosition() != value)
     {
-         _noteList[idx].setKeyData(key);
+         _noteList[idx].setNotePosition(value);
          setNotesDataUpdated(true);
-         emit keyDataChanged(idx);
+         emit notePositionChanged(idx);
     }
 }
 

@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "myqcustomplot.h"
+#include "noteitem.h"
 
 
 /* forward declaration */
@@ -31,8 +32,7 @@ public:
     qint32 graphDataSize();
     bool valuesUnderCursor(QList<double> &valueList);
 
-    double pixelToKey(double pixel);
-    double pixelToValue(double pixel);
+    QPointF pixelToPointF(const QPointF& pixel) const;
     double pixelToClosestKey(double pixel);
     double pixelToClosestValue(double pixel);
 
@@ -54,8 +54,8 @@ public slots:
     virtual void setStartMarker();
     virtual void setEndMarker();
 
-    virtual void handleNoteValueDataChanged(const quint32 idx);
-    virtual void handleNoteKeyDataChanged(const quint32 idx);
+    virtual void handleNoteArrowPositionChanged(const quint32 idx);
+    virtual void handleNotePositionChanged(const quint32 idx);
     virtual void handleNoteTextChanged(const quint32 idx);
     virtual void handleNoteAdded(const quint32 idx);
     virtual void handleNoteRemoved(const quint32 idx);
@@ -90,11 +90,10 @@ private:
     double getClosestPoint(double coordinate);
 
     QVector<QString> _tickLabels;
-    QList<QCPItemText *> _notesItems;
+    QList<NoteItem *> _notesItems;
 
-    qint32 _pDraggedNoteIdx;
-    qint32 _pixelXOffset;
-    qint32 _pixelYOffset;
+    quint32 _pDraggedNoteIdx;
+    QPoint _pixelOffset;
 
     GraphViewZoom* _pGraphViewZoom;
 
