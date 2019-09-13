@@ -170,7 +170,7 @@
     <bool>false</bool>
    </property>
    <property name="features">
-    <set>QDockWidget::DockWidgetFeatureMask</set>
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetVerticalTitleBar</set>
    </property>
    <property name="allowedAreas">
     <set>Qt::BottomDockWidgetArea|Qt::TopDockWidgetArea</set>
@@ -765,11 +765,6 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../resources/resource.qrc"/>
-  <include location="../resources/resource.qrc"/>
-  <include location="../resources/resource.qrc"/>
-  <include location="../resources/resource.qrc"/>
-  <include location="../resources/resource.qrc"/>
   <include location="../resources/resource.qrc"/>
  </resources>
  <connections/>
