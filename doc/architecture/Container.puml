@@ -1,0 +1,28 @@
+@startuml Container diagram
+!include C4/C4_Container.puml
+
+Person(endUser, "End user", "")
+
+System(slave_tcp, "Device", "Modbus Slave (TCP)")
+
+System_Boundary(modbusscope, "ModbusScope") {
+
+    Container(comm, "Communication", "Modbus")
+    Container(models, "Data models", "Protectors of data")
+    Container(gui, "GUI", "Interface for user")
+    Container(imexport, "Import/Export", "Data and project file")
+
+    Rel(comm, models, "sets data", "")
+    Rel(gui, models, "sets data", "")
+    Rel(imexport, models, "sets data", "")
+
+    Rel_Back(comm, models, "reacts", "signal")
+    Rel_Back(gui, models, "reacts", "signal")
+    Rel_Back(imexport, models, "reacts", "signal")
+
+}
+
+Rel_Down(endUser, modbusscope, "controls", "GUI")
+Rel_Down(modbusscope, slave_tcp, "polls", "Modbus TCP")
+
+@enduml

@@ -1,0 +1,19 @@
+
+@startuml System Context Diagram
+
+!include C4/C4_Container.puml
+
+Person(endUser, "End user", "")
+System(modbusscope, "ModbusScope", "Modbus Master")
+
+System(bridge, "Bridge", "ModbusControl")
+System(slave_tcp, "Device", "Modbus Slave (TCP)")
+System(slave_rtu, "Device", "Modbus Slave (RTU)")
+
+Rel(endUser, modbusscope, "controls", "GUI")
+Rel(modbusscope, bridge, "polls", "Modbus TCP")
+Rel(bridge, slave_rtu, "polls", "Modbus RTU")
+
+Rel(modbusscope, slave_tcp, "polls", "Modbus TCP")
+
+@enduml
