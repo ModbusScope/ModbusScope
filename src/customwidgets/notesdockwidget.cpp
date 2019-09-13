@@ -5,12 +5,11 @@
 
 NotesDockWidget::NotesDockWidget(NoteModel *pNoteModel, GuiModel *pGuiModel, QWidget *parent) :
     QWidget(parent),
-    _pUi(new Ui::NotesDockWidget)
+    _pUi(new Ui::NotesDockWidget),
+    _pNoteModel(pNoteModel),
+    _pGuiModel(pGuiModel)
 {
     _pUi->setupUi(this);
-
-    _pNoteModel = pNoteModel;
-    _pGuiModel = pGuiModel;
 
     // Setup registerView
     _pUi->noteView->setModel(_pNoteModel);
@@ -19,12 +18,11 @@ NotesDockWidget::NotesDockWidget(NoteModel *pNoteModel, GuiModel *pGuiModel, QWi
     /* Don't stretch columns */
     _pUi->noteView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     /* Except following columns */
-    _pUi->noteView->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
+    _pUi->noteView->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Stretch);
 
     // Select using click, shift and control
     _pUi->noteView->setSelectionBehavior(QAbstractItemView::SelectRows);
     _pUi->noteView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-
 
     _pUi->btnUpdateDataFile->setVisible(false);
 
@@ -53,8 +51,8 @@ void NotesDockWidget::addNoteRow()
 
 void NotesDockWidget::onRegisterInserted(const QModelIndex &parent, int first, int last)
 {
-    Q_UNUSED(parent);
-    Q_UNUSED(last);
+    Q_UNUSED(parent)
+    Q_UNUSED(last)
 
     /* select the first new row, this will also make the row visible */
     _pUi->noteView->selectRow(first);
@@ -69,7 +67,7 @@ void NotesDockWidget::removeNoteRow()
         rows << idx.row();
     }
 
-    qSort(rows.begin(), rows.end(), qGreater<int>());
+    std::sort(rows.begin(), rows.end(), std::greater<int>());
 
     for (int i: rows)
     {

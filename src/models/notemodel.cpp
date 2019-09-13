@@ -14,7 +14,8 @@ enum role {
     DRAGGABLE = 0,
     KEY_DATA,
     VALUE_DATA,
-    ARROW_POSITION,
+    ARROW_POSITION_TIME,
+    ARROW_POSITION_VALUE,
     TEXT,
 
     COUNT
@@ -49,8 +50,10 @@ QVariant NoteModel::headerData(int section, Qt::Orientation orientation, int rol
                 return QString("Key");
             case role::VALUE_DATA:
                 return QString("Value");
-            case role::ARROW_POSITION:
-                return QString("Arrow position");
+            case role::ARROW_POSITION_TIME:
+                return QString("Arrow time");
+            case role::ARROW_POSITION_VALUE:
+                return QString("Arrow value");
             case role::TEXT:
                 return QString("Text");
             default:
@@ -94,22 +97,27 @@ QVariant NoteModel::data(const QModelIndex &index, int role) const
         }
         break;
     case role::KEY_DATA:
-        if ((role == Qt::DisplayRole))
+        if (role == Qt::DisplayRole)
         {
             return Util::formatTime(_noteList[index.row()].notePosition().x(), false);
         }
         break;
     case role::VALUE_DATA:
-        if ((role == Qt::DisplayRole))
+        if (role == Qt::DisplayRole)
         {
             return Util::formatDoubleForExport(_noteList[index.row()].notePosition().y());
         }
         break;
-    case role::ARROW_POSITION:
-        if (role == Qt::DisplayRole)
+    case role::ARROW_POSITION_TIME:
+        if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return Util::formatDoubleForExport(_noteList[index.row()].arrowPosition().x()) +
-                    Util::formatDoubleForExport(_noteList[index.row()].arrowPosition().y());
+            return Util::formatTime(_noteList[index.row()].arrowPosition().x(), false);
+        }
+        break;
+    case role::ARROW_POSITION_VALUE:
+        if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
+        {
+            return Util::formatDoubleForExport(_noteList[index.row()].arrowPosition().y());
         }
         break;
     case role::TEXT:
@@ -120,7 +128,6 @@ QVariant NoteModel::data(const QModelIndex &index, int role) const
         break;
 
     default:
-        return QVariant();
         break;
 
     }
@@ -147,7 +154,20 @@ bool NoteModel::setData(const QModelIndex &index, const QVariant &value, int rol
             }
         }
         break;
-
+    case role::ARROW_POSITION_TIME:
+        if (role == Qt::EditRole)
+        {
+            // TODO: What if invalid time?
+            const double timePos = QTime::fromString(value.toString(), Util::timeStringFormat()).msecsSinceStartOfDay();
+            setArrowTimePosition(index.row(), timePos );
+        }
+        break;
+    case role::ARROW_POSITION_VALUE:
+        if (role == Qt::EditRole)
+        {
+            setArrowValuePosition(index.row(), value.toDouble());
+        }
+        break;
     case role::TEXT:
         if (role == Qt::EditRole)
         {
@@ -167,8 +187,8 @@ bool NoteModel::setData(const QModelIndex &index, const QVariant &value, int rol
 
 bool NoteModel::removeRows (int row, int count, const QModelIndex & parent)
 {
-    Q_UNUSED(parent);
-    Q_UNUSED(count);
+    Q_UNUSED(parent)
+    Q_UNUSED(count)
 
     remove(row);
 
@@ -177,16 +197,23 @@ bool NoteModel::removeRows (int row, int count, const QModelIndex & parent)
 
 Qt::ItemFlags NoteModel::flags(const QModelIndex &index) const
 {
-    if (index.column() == role::DRAGGABLE)
+    Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+
+    switch (index.column())
     {
-        return Qt::ItemIsSelectable |  Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
-    }
-    else if (index.column() == role::TEXT)
-    {
-        return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
+    case role::DRAGGABLE:
+        flags |=  Qt::ItemIsUserCheckable;
+        break;
+    case role::ARROW_POSITION_TIME:
+    case role::ARROW_POSITION_VALUE:
+    case role::TEXT:
+        flags |= Qt::ItemIsEditable;
+        break;
+    default:
+        break;
     }
 
-    return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+    return flags;
 }
 
 qint32 NoteModel::size() const
@@ -229,7 +256,6 @@ void NoteModel::clear()
     }
 }
 
-
 const QPointF& NoteModel::arrowPosition(qint32 idx) const
 {
     return _noteList[idx].arrowPosition();
@@ -255,13 +281,23 @@ bool NoteModel::isNotesDataUpdated()
     return _bNotesDataUpdated;
 }
 
-void NoteModel::setArrowPosition(qint32 idx, const QPointF& value)
+void NoteModel::setArrowTimePosition(qint32 idx, const double& value)
 {
-    if (_noteList[idx].arrowPosition() != value)
+    if (_noteList[idx].arrowPosition().x() != value)
     {
-         _noteList[idx].setArrowPosition(value);
+         _noteList[idx].setArrowTimePosition(value);
          setNotesDataUpdated(true);
-         emit arrowPositionChanged(idx);
+         emit notePositionChanged(idx);
+    }
+}
+
+void NoteModel::setArrowValuePosition(qint32 idx, const double& value)
+{
+    if (_noteList[idx].arrowPosition().y() != value)
+    {
+         _noteList[idx].setArrowValuePosition(value);
+         setNotesDataUpdated(true);
+         emit notePositionChanged(idx);
     }
 }
 

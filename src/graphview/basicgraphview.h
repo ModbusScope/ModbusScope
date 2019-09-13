@@ -90,7 +90,7 @@ private:
     double getClosestPoint(double coordinate);
 
     QVector<QString> _tickLabels;
-    QList<NoteItem *> _notesItems;
+    QList<NoteItem*> _notesItems;
 
     quint32 _pDraggedNoteIdx;
     QPoint _pixelOffset;

@@ -382,7 +382,7 @@ void BasicGraphView::handleNoteArrowPositionChanged(const quint32 idx)
 void BasicGraphView::handleNotePositionChanged(const quint32 idx)
 {
     _notesItems[idx]->setArrowPosition(_pNoteModel->arrowPosition(idx));
-    _notesItems[idx]->position->setCoords(_pNoteModel->notePosition(idx)); // place position at left/top of axis rect
+    _notesItems[idx]->setNotePosition(_pNoteModel->notePosition(idx)); // place position at left/top of axis rect
     _pPlot->replot();
 }
 
@@ -394,9 +394,12 @@ void BasicGraphView::handleNoteTextChanged(const quint32 idx)
 
 void BasicGraphView::handleNoteAdded(const quint32 idx)
 {
-    NoteItem *pNoteItem = new NoteItem(_pPlot, _pNoteModel->textData(idx), _pNoteModel->notePosition(idx));
+    auto newNote =new NoteItem(_pPlot,
+                                              _pNoteModel->textData(idx),
+                                              _pNoteModel->notePosition(idx),
+                                              _pNoteModel->arrowPosition(idx));
 
-    _notesItems.append(pNoteItem);
+    _notesItems.append(newNote);
 
     _pPlot->replot();
 }

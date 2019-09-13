@@ -438,17 +438,14 @@ void MainWindow::showRegisterDialog(QString mbcFile)
 
 void MainWindow::addNoteToGraph()
 {
-    Note newNote;
-
     bool ok;
     QString text = QInputDialog::getText(this, tr("Add note"),
                                          tr("Note Text:"), QLineEdit::Normal,
                                          "", &ok);
     if (ok)
     {
-        newNote.setNotePosition(_pGraphView->pixelToPointF(_lastRightClickPos));
-        newNote.setText(text);
-
+        // TODO: Do smart caluclation to put note relative to arrow
+        Note newNote(text, _pGraphView->pixelToPointF(_lastRightClickPos));
         _pNoteModel->add(newNote);
     }
 }

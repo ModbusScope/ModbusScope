@@ -8,6 +8,15 @@ Note::Note() :
 {
 }
 
+Note::Note(const QString& text, const QPointF& position)
+    : _arrowPosition(position),
+      _relativeNotePosition(position),
+      _text(text),
+      _bDraggable(false)
+{
+
+}
+
 QString Note::text() const
 {
     return _text;
@@ -24,9 +33,14 @@ const QPointF& Note::arrowPosition() const
     return _arrowPosition;
 }
 
-void Note::setArrowPosition(const QPointF &position)
+void Note::setArrowTimePosition(const double& position)
 {
-    _arrowPosition = position;
+    _arrowPosition.setX(position);
+}
+
+void Note::setArrowValuePosition(const double& position)
+{
+    _arrowPosition.setY(position);
 }
 
 const QPointF& Note::notePosition() const
