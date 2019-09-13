@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="632px" preserveAspectRatio="none" style="width:352px;height:632px;" version="1.1" viewBox="0 0 352 632" width="352px" zoomAndPan="magnify"><defs/><g><!--entity endUser--><rect fill="#08427B" height="85.1875" style="stroke: #073B6F; stroke-width: 1.5;" width="98" x="149.5" y="8"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="57" x="170" y="29.1387">«person»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="78" x="159.5" y="46.8203">End user</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="200.5" y="63.5889"/><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="200.5" y="79.8857"/><!--entity modbusscope--><rect fill="#1168BD" height="85.1875" style="stroke: #3C7FC0; stroke-width: 1.5;" width="144" x="126.5" y="184"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="57" x="170" y="205.1387">«system»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="124" x="136.5" y="222.8203">ModbusScope</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="200.5" y="239.5889"/><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="107" x="145" y="255.8857">Modbus Master</text><!--entity bridge--><rect fill="#1168BD" height="85.1875" style="stroke: #3C7FC0; stroke-width: 1.5;" width="126" x="22.5" y="360"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="57" x="57" y="381.1387">«system»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="57" x="57" y="398.8203">Bridge</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="87.5" y="415.5889"/><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="106" x="32.5" y="431.8857">ModbusControl</text><!--entity slave_tcp--><rect fill="#1168BD" height="85.1875" style="stroke: #3C7FC0; stroke-width: 1.5;" width="158" x="183.5" y="360"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="57" x="234" y="381.1387">«system»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="59" x="233" y="398.8203">Device</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="264.5" y="415.5889"/><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="138" x="193.5" y="431.8857">Modbus Slave (TCP)</text><!--entity slave_rtu--><rect fill="#1168BD" height="85.1875" style="stroke: #3C7FC0; stroke-width: 1.5;" width="159" x="6" y="536"/><text fill="#FFFFFF" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="57" x="57" y="557.1387">«system»</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="59" x="56" y="574.8203">Device</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="0" x="87.5" y="591.5889"/><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="139" x="16" y="607.8857">Modbus Slave (RTU)</text><!--link endUser to modbusscope--><path d="M198.5,93.1047 C198.5,118.9514 198.5,151.993 198.5,178.7248 " fill="none" id="endUser-&gt;modbusscope" style="stroke: #666666; stroke-width: 1.0;"/><polygon fill="#666666" points="198.5,183.983,202.5,174.983,198.5,178.983,194.5,174.983,198.5,183.983" style="stroke: #666666; stroke-width: 1.0;"/><text fill="#666666" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="59" x="199.5" y="136.0669">controls</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="32" x="213" y="150.2715">[GUI]</text><!--link modbusscope to bridge--><path d="M155.672,269.159 C147.4103,278.5523 139.2406,288.765 132.5,299 C121.1398,316.2496 111.2127,336.694 103.4457,354.8378 " fill="none" id="modbusscope-&gt;bridge" style="stroke: #666666; stroke-width: 1.0;"/><polygon fill="#666666" points="101.3129,359.8898,108.4984,353.1542,103.2576,355.2835,101.1284,350.0427,101.3129,359.8898" style="stroke: #666666; stroke-width: 1.0;"/><text fill="#666666" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="35" x="158" y="312.0669">polls</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="84" x="133.5" y="326.2715">[Modbus TCP]</text><!--link bridge to slave_rtu--><path d="M85.5,445.1047 C85.5,470.9514 85.5,503.993 85.5,530.7248 " fill="none" id="bridge-&gt;slave_rtu" style="stroke: #666666; stroke-width: 1.0;"/><polygon fill="#666666" points="85.5,535.983,89.5,526.983,85.5,530.983,81.5,526.983,85.5,535.983" style="stroke: #666666; stroke-width: 1.0;"/><text fill="#666666" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="35" x="112" y="488.0669">polls</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="86" x="86.5" y="502.2715">[Modbus RTU]</text><!--link modbusscope to slave_tcp--><path d="M213.9926,269.1047 C223.4306,295.0591 235.5067,328.2685 245.2486,355.0586 " fill="none" id="modbusscope-&gt;slave_tcp" style="stroke: #666666; stroke-width: 1.0;"/><polygon fill="#666666" points="247.0393,359.983,247.7225,350.1579,245.3305,355.2841,240.2043,352.892,247.0393,359.983" style="stroke: #666666; stroke-width: 1.0;"/><text fill="#666666" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="35" x="259" y="312.0669">polls</text><text fill="#666666" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="84" x="234.5" y="326.2715">[Modbus TCP]</text><!--
+@startuml System Context Diagram
+
+
+
+
+
+
+
+skinparam defaultTextAlignment center
+
+skinparam wrapWidth 200
+skinparam maxMessageSize 150
+
+skinparam rectangle {
+    StereotypeFontSize 12
+    shadowing false
+}
+
+skinparam database {
+    StereotypeFontSize 12
+    shadowing false
+}
+
+skinparam Arrow {
+    Color #666666
+    FontColor #666666
+    FontSize 12
+}
+
+skinparam rectangle<<boundary>> {
+    Shadowing false
+    StereotypeFontSize 0
+    FontColor #444444
+    BorderColor #444444
+    BorderStyle dashed
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+skinparam rectangle<<person>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #08427B
+    BorderColor #073B6F
+}
+
+skinparam rectangle<<external_person>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #686868
+    BorderColor #8A8A8A
+}
+
+skinparam rectangle<<system>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #1168BD
+    BorderColor #3C7FC0
+}
+
+skinparam rectangle<<external_system>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #999999
+    BorderColor #8A8A8A
+}
+
+skinparam database<<system>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #1168BD
+    BorderColor #3C7FC0
+}
+
+skinparam database<<external_system>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #999999
+    BorderColor #8A8A8A
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+skinparam rectangle<<container>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #438DD5
+    BorderColor #3C7FC0
+}
+
+skinparam database<<container>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #438DD5
+    BorderColor #3C7FC0
+}
+
+
+
+
+
+
+
+
+rectangle "==End user\n\n " <<person>> as endUser
+rectangle "==ModbusScope\n\n Modbus Master" <<system>> as modbusscope
+
+rectangle "==Bridge\n\n ModbusControl" <<system>> as bridge
+rectangle "==Device\n\n Modbus Slave (TCP)" <<system>> as slave_tcp
+rectangle "==Device\n\n Modbus Slave (RTU)" <<system>> as slave_rtu
+
+endUser - -> modbusscope : "===controls\n//<size:12>[GUI]</size>//"
+modbusscope - -> bridge : "===polls\n//<size:12>[Modbus TCP]</size>//"
+bridge - -> slave_rtu : "===polls\n//<size:12>[Modbus RTU]</size>//"
+
+modbusscope - -> slave_tcp : "===polls\n//<size:12>[Modbus TCP]</size>//"
+
+@enduml
+
+PlantUML version 1.2019.09(Mon Aug 26 18:19:51 CEST 2019)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Java Version: 11.0.4+11-post-Ubuntu-1ubuntu219.04
+Operating System: Linux
+OS Version: 5.0.0-27-generic
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>
