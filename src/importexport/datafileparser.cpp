@@ -27,6 +27,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
 
     _pDataStream = pDataStream;
     _pDataStream->seek(0);
+    _lineNumber = 0u;
 
     /* Read complete file */
     if (bRet)
@@ -206,8 +207,10 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
 
             if (lineDataCount != _expectedFields)
             {
-                QString txt = QString(tr("The number of label columns doesn't match number of data columns!\nLabel count: %1\nData count: %2")).arg(_expectedFields).arg(lineDataCount);
-                emit parseErrorOccurred(txt);
+                QString error = QString(tr("The number of label columns doesn't match number of data columns!\n\n"
+                                        "Line number: %1\n"
+                                        ).arg(_lineNumber));
+                emit parseErrorOccurred(error);
                 bRet = false;
                 break;
             }
@@ -230,9 +233,10 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
                     if (!bOk)
                     {
                         QString error = QString(tr("Invalid absolute date (while processing data)\n"
-                                                   "Line: %1\n"
-                                                   "\n\nExpected date format: \'%2\'"
-                                                   ).arg(strippedLine).arg("dd-MM-yyyy hh:mm:ss.zzz"));
+                                                   "Line number: %1\n"
+                                                   "Line: \"%2\"\n"
+                                                   "\n\nExpected date format: \'%3\'"
+                                                   ).arg(_lineNumber).arg(strippedLine).arg("dd-MM-yyyy hh:mm:ss.zzz"));
                         emit parseErrorOccurred(error);
                         bRet = false;
                         break;
@@ -255,9 +259,10 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
                 else
                 {
                     QString error = QString(tr("Invalid data (while processing data)\n"
-                                               "Line: %1\n"
-                                               "\n\nExpected decimal separator character: \'%2\'"
-                                               ).arg(strippedLine).arg(_pDataParserModel->decimalSeparator()));
+                                               "Line number: %1\n"
+                                               "Line: \"%2\"\n"
+                                               "\n\nExpected decimal separator character: \'%3\'"
+                                               ).arg(_lineNumber).arg(strippedLine).arg(_pDataParserModel->decimalSeparator()));
                     emit parseErrorOccurred(error);
                     bRet = false;
                     break;
@@ -288,6 +293,7 @@ bool DataFileParser::readLineFromFile(QString *pLine)
     do
     {
         bRet = _pDataStream->readLineInto(pLine, 0);
+        _lineNumber++;
 
     } while (bRet && pLine->trimmed().isEmpty());
 

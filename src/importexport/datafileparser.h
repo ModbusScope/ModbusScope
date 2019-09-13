@@ -46,6 +46,8 @@ private:
     bool isNibbleCorrupt(quint16 ref, quint16 compare);
 
     QTextStream* _pDataStream;
+    quint32 _lineNumber;
+
     DataParserModel* _pDataParserModel;
 
     quint32 _expectedFields;
