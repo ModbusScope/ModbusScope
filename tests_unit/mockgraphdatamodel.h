@@ -1,8 +1,8 @@
 
 #include "gmock/gmock.h"
 
-#include "src/models/graphdatamodel.h"
-#include "src/models/settingsmodel.h"
+#include "../src/models/graphdatamodel.h"
+#include "../src/models/settingsmodel.h"
 
 class MockGraphDataModel : public GraphDataModel {
     public:
