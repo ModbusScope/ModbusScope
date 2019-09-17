@@ -1,9 +1,7 @@
 @startuml
 !includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/release/1-0/C4_Component.puml
 
-title Component diagram for Communication classes
-
-Container_Boundary(comm, "Communication classes"){
+Container_Boundary(comm, "Communication"){
 
     Component(comm_man, "Communication Manager", "Processes data and handles timing")
     Component(mb_conn, "Modbus Connection", "Pool of Modbus connections")
