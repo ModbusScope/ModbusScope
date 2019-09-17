@@ -12,13 +12,13 @@ System_Boundary(modbusscope, "ModbusScope") {
     Container(gui, "GUI", "Interface for user")
     Container(imexport, "Import/Export", "Data and project file")
 
-    Rel(comm, models, "sets data", "")
-    Rel(gui, models, "sets data", "")
-    Rel(imexport, models, "sets data", "")
+    Rel(comm, models, "setters")
+    Rel(gui, models, "setters")
+    Rel(imexport, models, "setters")
 
-    Rel_Back(comm, models, "reacts", "signal")
-    Rel_Back(gui, models, "reacts", "signal")
-    Rel_Back(imexport, models, "reacts", "signal")
+    Rel_Back(comm, models, "getters", "signal/slot")
+    Rel_Back(gui, models, "getters", "signal/slot")
+    Rel_Back(imexport, models, "getters", "signal/slot")
 
 }
 
