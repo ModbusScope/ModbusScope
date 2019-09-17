@@ -1,0 +1,31 @@
+@startuml
+!include C4/C4_Component.puml
+
+title Component diagram for Communication classes
+
+Container_Boundary(comm, "Communication classes"){
+
+    Component(comm_man, "Communication Manager", "Processes data and handles timing")
+    Component(mb_conn, "Modbus Connection", "Pool of Modbus connections")
+    Component(mb_master, "Modbus Master", "Responsible for modbus commands")
+    Component(read_reg, "Read Registers", "Sorts and groups registers")
+    Component(mb_result, "Modbus Result", "Holds modbus request data")
+
+    Rel(comm_man, mb_master, "Trigger poll")
+    Rel(mb_master, mb_conn, "Uses")
+    Rel(mb_master, read_reg, "Configures")
+
+    Rel_Up(mb_master, mb_result, "Read result")
+    Rel_Up(mb_result, comm_man, "Result data")
+
+    Rel_Up(read_reg, mb_master, "Meta data of next register(s)")
+}
+
+Container(models, "Data models", "Holds global data")
+System(slave_tcp, "Device", "Modbus Slave (TCP)")
+
+Rel_Right(comm, models, "Uses")
+Rel_Down(mb_conn, slave_tcp, "communicates")
+
+
+@enduml
