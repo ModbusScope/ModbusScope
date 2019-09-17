@@ -1,5 +1,5 @@
 @startuml Container diagram
-!include C4/C4_Container.puml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/release/1-0/C4_Container.puml
 
 Person(endUser, "End user", "")
 
