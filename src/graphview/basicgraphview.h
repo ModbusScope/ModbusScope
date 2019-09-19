@@ -2,6 +2,9 @@
 #define BASICGRAPHVIEW_H
 
 #include <QObject>
+
+#include <memory>    // std::shared_ptr
+
 #include "myqcustomplot.h"
 #include "noteitem.h"
 
