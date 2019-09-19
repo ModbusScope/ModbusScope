@@ -394,10 +394,10 @@ void BasicGraphView::handleNoteTextChanged(const quint32 idx)
 
 void BasicGraphView::handleNoteAdded(const quint32 idx)
 {
-    auto newNote = std::make_shared<NoteItem>(_pPlot,
+    auto newNote = QSharedPointer<NoteItem>( new NoteItem(_pPlot,
                                               _pNoteModel->textData(idx),
                                               _pNoteModel->notePosition(idx),
-                                              _pNoteModel->arrowPosition(idx));
+                                              _pNoteModel->arrowPosition(idx)));
 
     _notesItems.append(newNote);
 

@@ -3,8 +3,6 @@
 
 #include <QObject>
 
-#include <memory>    // std::shared_ptr
-
 #include "myqcustomplot.h"
 #include "noteitem.h"
 
@@ -93,7 +91,7 @@ private:
     double getClosestPoint(double coordinate);
 
     QVector<QString> _tickLabels;
-    QList< std::shared_ptr<NoteItem> > _notesItems;
+    QList< QSharedPointer<NoteItem> > _notesItems;
 
     quint32 _pDraggedNoteIdx;
     QPoint _pixelOffset;
