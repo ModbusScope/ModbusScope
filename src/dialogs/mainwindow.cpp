@@ -445,7 +445,9 @@ void MainWindow::addNoteToGraph()
     if (ok)
     {
         // TODO: Do smart caluclation to put note relative to arrow
-        Note newNote(text, _pGraphView->pixelToPointF(_lastRightClickPos));
+        Note newNote(text,
+                     _pGraphView->pixelToPointF(_lastRightClickPos),
+                     _pGraphView->pixelToPointF(_lastRightClickPos + QPoint(20, 20)));
         _pNoteModel->add(newNote);
     }
 }

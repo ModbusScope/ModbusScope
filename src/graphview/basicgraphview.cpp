@@ -394,7 +394,7 @@ void BasicGraphView::handleNoteTextChanged(const quint32 idx)
 
 void BasicGraphView::handleNoteAdded(const quint32 idx)
 {
-    auto newNote =new NoteItem(_pPlot,
+    auto newNote = std::make_shared<NoteItem>(_pPlot,
                                               _pNoteModel->textData(idx),
                                               _pNoteModel->notePosition(idx),
                                               _pNoteModel->arrowPosition(idx));
@@ -406,7 +406,6 @@ void BasicGraphView::handleNoteAdded(const quint32 idx)
 
 void BasicGraphView::handleNoteRemoved(const quint32 idx)
 {
-    _pPlot->removeItem(_notesItems[idx]);
     _notesItems.removeAt(idx);
     _pPlot->replot();
 }
@@ -478,7 +477,7 @@ void BasicGraphView::mousePress(QMouseEvent *event)
         QCPAbstractItem * pItem = _pPlot->itemAt(event->pos(), false);
         for(int idx = 0; idx < _notesItems.size(); idx++)
         {
-            if (_notesItems[idx] == pItem)
+            if (_notesItems[idx]->isItem(pItem))
             {
                 _pDraggedNoteIdx = idx;
                 break;
@@ -488,7 +487,7 @@ void BasicGraphView::mousePress(QMouseEvent *event)
         if (_pDraggedNoteIdx != NO_DRAGGED_NOTE)
         {
             /* Save cursor offset */
-            _pixelOffset = event->pos() - _notesItems[_pDraggedNoteIdx]->topLeft->pixelPosition().toPoint();
+            _pixelOffset = event->pos() - _notesItems[_pDraggedNoteIdx]->getNotePosition();
 
             /* Ignore global drag */
             /* Disable range drag when note item is selected */

@@ -9,6 +9,7 @@ class Note
 public:
     Note();
     Note(const QString& text, const QPointF& position);
+    Note(const QString& text, const QPointF& notePosition, const QPointF& arrowPosition);
 
     const QPointF& arrowPosition() const;
     const QPointF& notePosition() const;

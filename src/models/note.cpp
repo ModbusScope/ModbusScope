@@ -17,6 +17,15 @@ Note::Note(const QString& text, const QPointF& position)
 
 }
 
+Note::Note(const QString& text, const QPointF& notePosition, const QPointF& arrowPosition)
+    : _arrowPosition(arrowPosition),
+      _relativeNotePosition(notePosition),
+      _text(text),
+      _bDraggable(false)
+{
+
+}
+
 QString Note::text() const
 {
     return _text;
