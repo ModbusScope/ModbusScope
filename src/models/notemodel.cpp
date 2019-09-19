@@ -10,7 +10,7 @@
 
 namespace {
 
-enum role {
+enum column {
     DRAGGABLE = 0,
     KEY_DATA,
     VALUE_DATA,
@@ -44,17 +44,17 @@ QVariant NoteModel::headerData(int section, Qt::Orientation orientation, int rol
         {
             switch (section)
             {
-            case role::DRAGGABLE:
+            case column::DRAGGABLE:
                 return QString("Draggable");
-            case role::KEY_DATA:
+            case column::KEY_DATA:
                 return QString("Key");
-            case role::VALUE_DATA:
+            case column::VALUE_DATA:
                 return QString("Value");
-            case role::ARROW_POSITION_TIME:
+            case column::ARROW_POSITION_TIME:
                 return QString("Arrow time");
-            case role::ARROW_POSITION_VALUE:
+            case column::ARROW_POSITION_VALUE:
                 return QString("Arrow value");
-            case role::TEXT:
+            case column::TEXT:
                 return QString("Text");
             default:
                 return QVariant();
@@ -76,14 +76,14 @@ int NoteModel::rowCount(const QModelIndex & /*parent*/) const
 
 int NoteModel::columnCount(const QModelIndex & /*parent*/) const
 {
-    return role::COUNT; // Number of visible members of struct
+    return column::COUNT; // Number of visible members of struct
 }
 
 QVariant NoteModel::data(const QModelIndex &index, int role) const
 {
     switch (index.column())
     {
-    case role::DRAGGABLE:
+    case column::DRAGGABLE:
         if (role == Qt::CheckStateRole)
         {
             if (_noteList[index.row()].draggable())
@@ -96,31 +96,31 @@ QVariant NoteModel::data(const QModelIndex &index, int role) const
             }
         }
         break;
-    case role::KEY_DATA:
+    case column::KEY_DATA:
         if (role == Qt::DisplayRole)
         {
             return Util::formatTime(_noteList[index.row()].notePosition().x(), false);
         }
         break;
-    case role::VALUE_DATA:
+    case column::VALUE_DATA:
         if (role == Qt::DisplayRole)
         {
             return Util::formatDoubleForExport(_noteList[index.row()].notePosition().y());
         }
         break;
-    case role::ARROW_POSITION_TIME:
+    case column::ARROW_POSITION_TIME:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return Util::formatTime(_noteList[index.row()].arrowPosition().x(), false);
         }
         break;
-    case role::ARROW_POSITION_VALUE:
+    case column::ARROW_POSITION_VALUE:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return Util::formatDoubleForExport(_noteList[index.row()].arrowPosition().y());
         }
         break;
-    case role::TEXT:
+    case column::TEXT:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return _noteList[index.row()].text();
@@ -141,7 +141,7 @@ bool NoteModel::setData(const QModelIndex &index, const QVariant &value, int rol
 
     switch (index.column())
     {
-    case role::DRAGGABLE:
+    case column::DRAGGABLE:
         if (role == Qt::CheckStateRole)
         {
             if (value == Qt::Checked)
@@ -154,7 +154,7 @@ bool NoteModel::setData(const QModelIndex &index, const QVariant &value, int rol
             }
         }
         break;
-    case role::ARROW_POSITION_TIME:
+    case column::ARROW_POSITION_TIME:
         if (role == Qt::EditRole)
         {
             // TODO: What if invalid time?
@@ -162,13 +162,13 @@ bool NoteModel::setData(const QModelIndex &index, const QVariant &value, int rol
             setArrowTimePosition(index.row(), timePos );
         }
         break;
-    case role::ARROW_POSITION_VALUE:
+    case column::ARROW_POSITION_VALUE:
         if (role == Qt::EditRole)
         {
             setArrowValuePosition(index.row(), value.toDouble());
         }
         break;
-    case role::TEXT:
+    case column::TEXT:
         if (role == Qt::EditRole)
         {
             setText(index.row(), value.toString());
@@ -201,12 +201,12 @@ Qt::ItemFlags NoteModel::flags(const QModelIndex &index) const
 
     switch (index.column())
     {
-    case role::DRAGGABLE:
+    case column::DRAGGABLE:
         flags |=  Qt::ItemIsUserCheckable;
         break;
-    case role::ARROW_POSITION_TIME:
-    case role::ARROW_POSITION_VALUE:
-    case role::TEXT:
+    case column::ARROW_POSITION_TIME:
+    case column::ARROW_POSITION_VALUE:
+    case column::TEXT:
         flags |= Qt::ItemIsEditable;
         break;
     default:
