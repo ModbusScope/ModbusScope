@@ -395,11 +395,21 @@ bool DataFileParser::parseNoteField(QStringList noteFieldList, Note * pNote)
 
     if (noteFieldList.size() == 4)
     {
-        const double key = parseDouble(noteFieldList[1], &bOk);
-        const double value = parseDouble(noteFieldList[2], &bOk);
+        QPointF notePosition;
+        notePosition.setX(parseDouble(noteFieldList[1], &bOk));
+
         if (bOk)
         {
-            pNote->setNotePosition( QPointF(key, value));
+            notePosition.setY(parseDouble(noteFieldList[2], &bOk));
+        }
+        else
+        {
+            bSucces = false;
+        }
+
+        if (bOk)
+        {
+            pNote->setNotePosition(notePosition);
         }
         else
         {
