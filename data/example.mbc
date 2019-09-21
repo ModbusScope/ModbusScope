@@ -1,0 +1,34 @@
+<modbuscontrol>
+	<Size>
+		<Width>820</Width>
+		<Height>600</Height>
+	</Size>
+	
+	<Modbus>
+		<Port>COM3</Port>
+		<Baudrate>9600</Baudrate>
+		<Parity>none</Parity>
+		<SlaveID>1</SlaveID>
+		<SampleRate>500</SampleRate>
+		<ResponseTimeout>1000</ResponseTimeout>
+		<MaximumFramesize>129</MaximumFramesize>
+		<HoldingregisterStart>40001</HoldingregisterStart>
+		<WriteHoldingregisterFC>16</WriteHoldingregisterFC>
+		<Value32BitEndian>little</Value32BitEndian>
+		<ShowType>true</ShowType>
+		<ShowReadwrite>true</ShowReadwrite>
+	</Modbus>
+	
+	<modbustcpserver>
+		<enable>true</enable>
+		<port>502</port>
+	</modbustcpserver>
+
+	<tab>
+		<name>General Info and Commands</name>
+		<var><reg>40001</reg><text>Data 1</text><type>uint16</type><rw>r</rw></var>
+		<var><reg>40002</reg><text>Data 2</text><type>uint16</type><rw>r</rw></var>
+		<var><reg>40003</reg><text>Data 3</text><type>uint16</type><rw>r</rw></var>
+	</tab>
+	
+</modbuscontrol>
