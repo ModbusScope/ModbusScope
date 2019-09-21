@@ -5,7 +5,7 @@
 #include "mockgraphdatamodel.h"
 #include <QSignalSpy>
 
-#include "src/models/mbcregistermodel.h"
+#include "../src/models/mbcregistermodel.h"
 
 
 using ::testing::Return;

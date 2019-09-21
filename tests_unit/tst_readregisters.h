@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
 
-#include "src/communication/readregisters.h"
+#include "../src/communication/readregisters.h"
 
 using namespace testing;
 

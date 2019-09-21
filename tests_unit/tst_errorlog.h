@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
 
-#include "src/models/errorlog.h"
+#include "../src/models/errorlog.h"
 
 using namespace testing;
 

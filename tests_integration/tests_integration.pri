@@ -1,8 +1,13 @@
-include("../ModbusScope.pri")
+include(../ModbusScope.pri)
+include(testslave/testslave.pri)
 
-QT -= gui widget
+QT -= core gui widgets
 QT += testlib
 
 CONFIG += console
 
-include(testslave/testslave.pri)
+# Remove application main
+SOURCES -= \
+        ../src/main.cpp
+
+

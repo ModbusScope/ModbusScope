@@ -223,7 +223,10 @@ bool SettingsAuto::testLocale(QStringList previewData, QLocale locale, QChar fie
     {
         _groupSeparator = ' ';
     }
-    else if (locale.groupSeparator() == 160) // Small space
+    else if (
+             (locale.groupSeparator() == 0xA0) // no-break space
+             || (locale.groupSeparator() == 0x202F) //narrow no-break space
+        )
     {
         _groupSeparator = ' ';
     }

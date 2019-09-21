@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
 
-#include "src/models/graphdata.h"
+#include "../src/models/graphdata.h"
 
-#include "src/util/util.h"
+#include "../src/util/util.h"
 
 using namespace testing;
 

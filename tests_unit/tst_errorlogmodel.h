@@ -3,7 +3,7 @@
 
 #include <QSignalSpy>
 
-#include "src/models/errorlogmodel.h"
+#include "../src/models/errorlogmodel.h"
 
 using namespace testing;
 

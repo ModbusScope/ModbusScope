@@ -4,4 +4,5 @@ TEMPLATE = subdirs
 CONFIG += ordered
 
 SUBDIRS += \
-    src
+    tests_unit \
+    tests_integration
