@@ -1,0 +1,5 @@
+{
+    "plantuml.exportFormat": "svg",
+    "plantuml.exportSubFolder": false,
+    "plantuml.exportOutDir": ""
+}
