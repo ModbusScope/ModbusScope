@@ -38,6 +38,18 @@ void TestMbcFileImporter::importMultiTab()
     QCOMPARE(tabList, MbcTestData::cMultiTab_TabList);
 }
 
+void TestMbcFileImporter::importRegisterOptions()
+{
+    MbcFileImporter mbcFileImporter(&MbcTestData::cRegisterOptions);
+
+    QList <MbcRegisterData> regList = mbcFileImporter.registerList();
+    QStringList tabList = mbcFileImporter.tabList();
+
+    verifyRegList(MbcTestData::cRegisterOptions_RegList, regList);
+
+    QCOMPARE(tabList, MbcTestData::cRegisterOptions_TabList);
+}
+
 void TestMbcFileImporter::verifyRegList(QList <MbcRegisterData> list1, QList <MbcRegisterData> list2)
 {
     QVERIFY(list1.size() == list2.size());

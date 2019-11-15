@@ -16,6 +16,10 @@ public:
     static QStringList cMultiTab_TabList;
     static QList <MbcRegisterData> cMultiTab_RegList;
 
+    static QString cRegisterOptions;
+    static QStringList cRegisterOptions_TabList;
+    static QList <MbcRegisterData> cRegisterOptions_RegList;
+
 private:
 
 };
