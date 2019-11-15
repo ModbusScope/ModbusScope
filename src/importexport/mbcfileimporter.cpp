@@ -1,18 +1,11 @@
 #include "mbcfileimporter.h"
-
-#include "util.h"
-#include <QFile>
 #include "mbcregisterdata.h"
+#include "util.h"
 
-MbcFileImporter::MbcFileImporter(QString filePath) : QObject(nullptr)
+
+MbcFileImporter::MbcFileImporter(QString * pMbcFileContent) : QObject(nullptr)
 {
-    _file = filePath;
-
-    if (!parseRegisters())
-    {
-        _registerList.clear();
-        _tabList.clear();
-    }
+    parseRegisters(pMbcFileContent);
 }
 
 QList <MbcRegisterData> MbcFileImporter::registerList()
@@ -25,64 +18,63 @@ QStringList MbcFileImporter::tabList()
     return _tabList;
 }
 
-bool MbcFileImporter::parseRegisters()
+void MbcFileImporter::parseRegisters(QString* pMbcFileContent)
 {
     bool bRet = true;
-    QFile file(_file);
 
     /* Clear register and tab list */
     _registerList.clear();
     _tabList.clear();
 
-    /* If we can't open it, let's show an error message. */
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+    QDomDocument domDocument;
+    QString errorStr;
+    qint32 errorLine;
+    qint32 errorColumn;
+
+    if (domDocument.setContent(*pMbcFileContent, true, &errorStr, &errorLine, &errorColumn))
     {
-
-        QString errorStr;
-        qint32 errorLine;
-        qint32 errorColumn;
-
-        if (_domDocument.setContent(&file, true, &errorStr, &errorLine, &errorColumn))
+        QDomElement root = domDocument.documentElement();
+        if (root.tagName().toLower().trimmed() == MbcFileDefinitions::cModbusControlTag)
         {
-            QDomElement root = _domDocument.documentElement();
-            if (root.tagName().toLower().trimmed() == MbcFileDefinitions::cModbusControlTag)
+            QDomElement tag = root.firstChildElement();
+            while (!tag.isNull())
             {
-                QDomElement tag = root.firstChildElement();
-                while (!tag.isNull())
+                if (tag.tagName().toLower().trimmed() == MbcFileDefinitions::cTabTag)
                 {
-                    if (tag.tagName().toLower().trimmed() == MbcFileDefinitions::cTabTag)
+                    bRet = parseTabTag(tag);
+                    if (!bRet)
                     {
-                        bRet = parseTabTag(tag);
-                        if (!bRet)
-                        {
-                            break;
-                        }
+                        break;
                     }
-                    else
-                    {
-                        /* Ignore other tags */
-                    }
-
-                    tag = tag.nextSiblingElement();
                 }
-            }
-            else
-            {
-                Util::showError(tr("The file is not a valid ModbusControl project file."));
-                bRet = false;
+                else
+                {
+                    /* Ignore other tags */
+                }
+
+                tag = tag.nextSiblingElement();
             }
         }
         else
         {
-            Util::showError(tr("Parse error at line %1, column %2:\n%3")
-                            .arg(errorLine)
-                            .arg(errorColumn)
-                            .arg(errorStr));
+            Util::showError(tr("The file is not a valid ModbusControl project file."));
             bRet = false;
         }
     }
+    else
+    {
+        Util::showError(tr("Parse error at line %1, column %2:\n%3")
+                        .arg(errorLine)
+                        .arg(errorColumn)
+                        .arg(errorStr));
+        bRet = false;
+    }
 
-    return bRet;
+    if (bRet == false)
+    {
+        _registerList.clear();
+        _tabList.clear();
+    }
 }
 
 bool MbcFileImporter::parseTabTag(const QDomElement &element)

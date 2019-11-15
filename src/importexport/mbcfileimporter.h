@@ -26,7 +26,7 @@ class MbcFileImporter : public QObject
 {
     Q_OBJECT
 public:
-    explicit MbcFileImporter(QString filePath);
+    explicit MbcFileImporter(QString *mbcFileContent);
 
     QList <MbcRegisterData> registerList();
     QStringList tabList();
@@ -36,13 +36,11 @@ signals:
 public slots:
 
 private:
-    bool parseRegisters();
+    void parseRegisters(QString* mbcFileContent);
     bool parseTabTag(const QDomElement &element);
     bool parseVarTag(const QDomElement &element, qint32 tabIdx);
     bool isUnsigned(QString type);
 
-    QString _file;
-    QDomDocument _domDocument;
     qint32 _nextRegisterAddr;
 
     QList <MbcRegisterData> _registerList;
