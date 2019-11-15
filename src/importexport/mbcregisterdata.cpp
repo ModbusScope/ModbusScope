@@ -20,6 +20,43 @@ MbcRegisterData::MbcRegisterData(quint16 registerAddress, bool bUnsigned, QStrin
     _bReadable = bReadable;
 }
 
+bool MbcRegisterData::compare(MbcRegisterData* pMbcRegdata)
+{
+    bool bRet = true;
+
+    if (_registerAddress != pMbcRegdata->registerAddress())
+    {
+        bRet = false;
+    }
+
+    if (_bUnsigned != pMbcRegdata->isUnsigned())
+    {
+        bRet = false;
+    }
+
+    if (_tabIdx != pMbcRegdata->tabIdx())
+    {
+        bRet = false;
+    }
+
+    if (_name != pMbcRegdata->name())
+    {
+        bRet = false;
+    }
+
+    if (_bUint32 != pMbcRegdata->is32Bit())
+    {
+        bRet = false;
+    }
+
+    if (_bReadable != pMbcRegdata->isReadable())
+    {
+        bRet = false;
+    }
+
+    return bRet;
+}
+
 quint16 MbcRegisterData::registerAddress() const
 {
     return _registerAddress;

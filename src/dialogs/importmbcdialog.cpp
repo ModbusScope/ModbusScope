@@ -9,6 +9,7 @@
 #include "graphdatamodel.h"
 
 #include <QFileDialog>
+#include <QFile>
 
 ImportMbcDialog::ImportMbcDialog(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, MbcRegisterModel * pMbcRegisterModel, QWidget *parent) :
     QDialog(parent),
@@ -122,27 +123,37 @@ bool ImportMbcDialog::updateMbcRegisters()
 {
     bool bSuccess = false;
 
-    MbcFileImporter fileImporter(_mbcFilePath);
-    QList <MbcRegisterData> registerList = fileImporter.registerList();
-    QStringList tabList = fileImporter.tabList();
-
-    /* Clear data from table widget */
-    _pMbcRegisterModel->reset();
-    registerDataChanged();
-
-    if (registerList.size() > 0)
+    QFile file(_mbcFilePath);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        _pMbcRegisterModel->fill(registerList, tabList);
+        QTextStream in(&file);
+        QString mbcFileContent = in.readAll();
+        MbcFileImporter fileImporter(&mbcFileContent);
+        QList <MbcRegisterData> registerList = fileImporter.registerList();
+        QStringList tabList = fileImporter.tabList();
 
-        /* Update combo box */
-        _pUi->cmbTabFilter->clear();
-        _pUi->cmbTabFilter->addItem(MbcRegisterFilter::cTabNoFilter);
-        _pUi->cmbTabFilter->addItems(tabList);
+        /* Clear data from table widget */
+        _pMbcRegisterModel->reset();
+        registerDataChanged();
 
-        /* Resize dialog window to fix table widget */
-        // TODO
+        if (registerList.size() > 0)
+        {
+            _pMbcRegisterModel->fill(registerList, tabList);
 
-        bSuccess = true;
+            /* Update combo box */
+            _pUi->cmbTabFilter->clear();
+            _pUi->cmbTabFilter->addItem(MbcRegisterFilter::cTabNoFilter);
+            _pUi->cmbTabFilter->addItems(tabList);
+
+            /* Resize dialog window to fix table widget */
+            // TODO
+
+            bSuccess = true;
+        }
+    }
+    else
+    {
+        Util::showError(tr("The file can't be read."));
     }
 
     return bSuccess;

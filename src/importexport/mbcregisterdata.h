@@ -11,6 +11,8 @@ public:
     MbcRegisterData(quint16 registerAddress, bool bUnsigned, QString name, qint32 tabIdx, bool bUint32, bool bReadable);
     ~MbcRegisterData();
 
+    bool compare(MbcRegisterData* pMbcRegdata);
+
     quint16 registerAddress() const;
     void setRegisterAddress(const quint16 &registerAddress);
 

@@ -1,6 +1,8 @@
 
 #include <QObject>
 
+#include "mbcfileimporter.h"
+
 class TestMbcFileImporter: public QObject
 {
     Q_OBJECT
@@ -10,7 +12,8 @@ private slots:
     void cleanup();
 
     void importSingleTab();
+    void importMultiTab();
 
 private:
-
+    void verifyRegList(QList <MbcRegisterData> list1, QList <MbcRegisterData> list2);
 };
