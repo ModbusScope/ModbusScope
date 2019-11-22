@@ -102,6 +102,11 @@ LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserMod
     _pUi->comboPreset->setCurrentIndex(-1);
     _pUi->comboPreset->setCurrentIndex(0);
 
+    _pUi->lblImportStatus->setText(QString());
+    QPalette palette = _pUi->lblImportStatus->palette();
+    palette.setColor(_pUi->lblImportStatus->foregroundRole(), Qt::red);
+    _pUi->lblImportStatus->setPalette(palette);
+
     _pParserModel->triggerUpdate();
 }
 
@@ -413,6 +418,10 @@ void LoadFileDialog::updatePreview()
 {
     bool bRet = false;
     QList<QStringList> previewData;
+    QString stateText;
+
+    previewData.clear();
+    stateText.clear();
 
     if (
         (_pParserModel->fieldSeparator() == _pParserModel->groupSeparator())
@@ -420,43 +429,51 @@ void LoadFileDialog::updatePreview()
         || (_pParserModel->decimalSeparator() == _pParserModel->fieldSeparator())
         )
     {
-        previewData.append(QStringList(tr("Parser setting are not valid (field, group, decimal)!")));
+        stateText = tr("Parser setting are not valid (field, group, decimal)!");
     }
     else if (_pParserModel->labelRow() >= _pParserModel->dataRow())
     {
-        previewData.append(QStringList(tr("Label row is greater data row!")));
+        stateText = tr("Label row is greater data row!");
     }
     else if (_dataFileSample.size() == 0)
     {
-        previewData.append(QStringList(tr("No data file loaded!")));
+        stateText = tr("No data file loaded!");
     }
     else if (_dataFileSample.size() < static_cast<qint32>(_pParserModel->labelRow()))
     {
-        previewData.append(QStringList(tr("No labels according to label row!")));
+        stateText = tr("No labels according to label row!");
     }
     else if (_dataFileSample.size() < static_cast<qint32>(_pParserModel->dataRow() + 1))
     {
-        previewData.append(QStringList(tr("No data according to data row!")));
+        stateText = tr("No data according to data row!");
     }
     else
     {
-        for (qint32 idx = 0; idx < _dataFileSample.size(); idx++)
-        {
-            previewData.append(_dataFileSample[idx].trimmed().split(_pParserModel->fieldSeparator()));
-        }
+        stateText.clear();
 
         bRet = true;
+    }
+
+    for (qint32 idx = 0; idx < _dataFileSample.size(); idx++)
+    {
+        QStringList lineData;
+        if (bRet)
+        {
+            lineData = _dataFileSample[idx].trimmed().split(_pParserModel->fieldSeparator());
+        }
+        else
+        {
+            lineData = QStringList() << _dataFileSample[idx].trimmed();
+        }
+
+        previewData.append(lineData);
     }
 
     // Add data to table preview component
     updatePreviewData(previewData);
 
-    if (bRet)
-    {
-        // Update layout of table preview component
-        updatePreviewLayout();
-    }
-
+    // Update layout of table preview component
+    updatePreviewLayout(bRet, stateText);
 }
 
 void LoadFileDialog::updatePreviewData(QList<QStringList> & previewData)
@@ -494,26 +511,45 @@ void LoadFileDialog::updatePreviewData(QList<QStringList> & previewData)
     }
 }
 
-void LoadFileDialog::updatePreviewLayout()
+void LoadFileDialog::updatePreviewLayout(bool bValid, QString statusText)
 {
-    for (qint32 rowIdx = 0; rowIdx < _pUi->tablePreview->rowCount(); rowIdx++)
+    if (bValid)
     {
-        for (qint32 columnIdx = 0; columnIdx < _pUi->tablePreview->columnCount(); columnIdx++)
+        _pUi->btnBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+        _pUi->lblImportStatus->setText(QString());
+
+        for (qint32 rowIdx = 0; rowIdx < _pUi->tablePreview->rowCount(); rowIdx++)
         {
-            if (columnIdx >= static_cast<qint32>(_pParserModel->column()))
+            for (qint32 columnIdx = 0; columnIdx < _pUi->tablePreview->columnCount(); columnIdx++)
             {
-                if (rowIdx == static_cast<qint32>(_pParserModel->labelRow()))
+                if (columnIdx >= static_cast<qint32>(_pParserModel->column()))
                 {
-                    _pUi->tablePreview->item(rowIdx, columnIdx)->setBackgroundColor(_cColorLabel);
+                    if (rowIdx == static_cast<qint32>(_pParserModel->labelRow()))
+                    {
+                        _pUi->tablePreview->item(rowIdx, columnIdx)->setBackgroundColor(_cColorLabel);
+                    }
+                    else if (rowIdx >= static_cast<qint32>(_pParserModel->dataRow()))
+                    {
+                        _pUi->tablePreview->item(rowIdx, columnIdx)->setBackgroundColor(_cColorData);
+                    }
+                    else
+                    {
+                        _pUi->tablePreview->item(rowIdx, columnIdx)->setTextColor(_cColorIgnored);
+                    }
                 }
-                else if (rowIdx >= static_cast<qint32>(_pParserModel->dataRow()))
-                {
-                    _pUi->tablePreview->item(rowIdx, columnIdx)->setBackgroundColor(_cColorData);
-                }
-                else
-                {
-                    _pUi->tablePreview->item(rowIdx, columnIdx)->setTextColor(_cColorIgnored);
-                }
+            }
+        }
+    }
+    else
+    {
+        _pUi->btnBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+        _pUi->lblImportStatus->setText(statusText);
+
+        for (qint32 rowIdx = 0; rowIdx < _pUi->tablePreview->rowCount(); rowIdx++)
+        {
+            for (qint32 columnIdx = 0; columnIdx < _pUi->tablePreview->columnCount(); columnIdx++)
+            {
+                _pUi->tablePreview->item(rowIdx, columnIdx)->setTextColor(_cColorIgnored);
             }
         }
     }
