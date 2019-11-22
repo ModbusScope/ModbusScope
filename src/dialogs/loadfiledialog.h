@@ -81,7 +81,7 @@ private:
     void setPresetAccordingKeyword(QString filename);
     void updatePreview();
     void updatePreviewData(QList<QStringList> & previewData);
-    void updatePreviewLayout();
+    void updatePreviewLayout(bool bValid, QString statusText);
 
     static const QList<ComboListItem> _fieldSeparatorList;
     static const QList<ComboListItem> _decimalSeparatorList;
