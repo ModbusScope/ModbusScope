@@ -86,6 +86,8 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
    connect(_pNoteModel, SIGNAL(removed(const quint32)), this, SLOT(handleNoteRemoved(const quint32)));
 
    _pDraggedNoteIdx = -1;
+   _pixelXOffset = 0;
+   _pixelYOffset = 0;
 
    QPen markerPen;
    markerPen.setWidth(2);

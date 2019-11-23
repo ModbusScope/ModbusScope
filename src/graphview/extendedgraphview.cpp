@@ -108,7 +108,11 @@ void ExtendedGraphView::rescalePlot()
     }
     else if (_pGuiModel->yAxisScalingMode() == SCALE_WINDOW_AUTO)
     {
-        (dynamic_cast<MyQCPAxis *>(_pPlot->yAxis))->rescaleValue(_pPlot->xAxis->range());
+        auto pAxis = dynamic_cast<MyQCPAxis *>(_pPlot->yAxis);
+        if (pAxis != nullptr)
+        {
+            pAxis->rescaleValue(_pPlot->xAxis->range());
+        }
     }
     else // Manual
     {
