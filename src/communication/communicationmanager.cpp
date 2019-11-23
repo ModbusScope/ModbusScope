@@ -35,6 +35,9 @@ CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiMo
                 _pGuiModel->setCommunicationStats(_pGuiModel->communicationSuccessCount() + successes, _pGuiModel->communicationErrorCount() + errors);
             });
     }
+
+    _activeMastersCount = 0;
+    _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 }
 
 CommunicationManager::~CommunicationManager()

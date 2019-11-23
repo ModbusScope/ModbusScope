@@ -8,7 +8,7 @@
  */
 ModbusConnection::ModbusConnection(QObject *parent) : QObject(parent)
 {
-
+    _bWaitingForConnection = false;
 }
 
 /*!
