@@ -2,7 +2,12 @@
 
 MbcRegisterData::MbcRegisterData()
 {
-
+    _registerAddress = 0;
+    _bUnsigned = true;
+    _name = QString();
+    _tabIdx = 0;
+    _bUint32 = false;
+    _bReadable = true;
 }
 
 MbcRegisterData::~MbcRegisterData()
