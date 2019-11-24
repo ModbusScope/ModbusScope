@@ -5,6 +5,7 @@
 NoteModel::NoteModel(QObject *parent) : QAbstractTableModel(parent)
 {
     _noteList.clear();
+    _bNotesDataUpdated = false;
 
     connect(this, SIGNAL(valueDataChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(keyDataChanged(quint32)), this, SLOT(modelDataChanged(quint32)));

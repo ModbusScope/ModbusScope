@@ -22,6 +22,8 @@ ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, quint8 connectionId) 
     _pReadRegisters = new ReadRegisters();
 
     _connectionId = connectionId;
+    _success = 0;
+    _error = 0;
 
     // Use queued connection to make sure reply is deleted before closing connection
     connect(this, &ModbusMaster::triggerNextRequest, this, &ModbusMaster::handleTriggerNextRequest, Qt::QueuedConnection);

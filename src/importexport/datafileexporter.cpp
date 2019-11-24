@@ -16,6 +16,8 @@ DataFileExporter::DataFileExporter(GuiModel *pGuiModel, SettingsModel * pSetting
     _pSettingsModel = pSettingsModel;
     _pGraphDataModel = pGraphDataModel;
     _pNoteModel = pNoteModel;
+
+    lastLogTime = QDateTime::currentMSecsSinceEpoch();
 }
 
 DataFileExporter::~DataFileExporter()

@@ -63,7 +63,7 @@ void ExtendedGraphView::rescalePlot()
     else if (_pGuiModel->xAxisScalingMode() == SCALE_SLIDING)
     {
         // sliding window scale routine
-        const quint64 slidingInterval = _pGuiModel->xAxisSlidingSec() * 1000;
+        const quint64 slidingInterval = static_cast<quint64>(_pGuiModel->xAxisSlidingSec()) * 1000;
         if ((_pPlot->graphCount() != 0) && (graphDataSize() != 0))
         {
             auto lastDataIt = _pPlot->graph(0)->data()->constEnd();
@@ -108,7 +108,11 @@ void ExtendedGraphView::rescalePlot()
     }
     else if (_pGuiModel->yAxisScalingMode() == SCALE_WINDOW_AUTO)
     {
-        (dynamic_cast<MyQCPAxis *>(_pPlot->yAxis))->rescaleValue(_pPlot->xAxis->range());
+        auto pAxis = dynamic_cast<MyQCPAxis *>(_pPlot->yAxis);
+        if (pAxis != nullptr)
+        {
+            pAxis->rescaleValue(_pPlot->xAxis->range());
+        }
     }
     else // Manual
     {

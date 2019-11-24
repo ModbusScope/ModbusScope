@@ -8,6 +8,9 @@
 UpdateNotify::UpdateNotify(QObject *parent) :
     QObject(parent)
 {
+    _dataLevel = 0;
+    _bValidData = false;
+
     connect(&_versionDownloader, SIGNAL(versionDownloaded()), this, SLOT (handleVersionData()));
 }
 
