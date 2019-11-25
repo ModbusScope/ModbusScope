@@ -657,12 +657,15 @@ void GraphDataModel::removeRegister(qint32 idx)
 
 void GraphDataModel::clear()
 {
-    const qint32 size = _graphData.size();
+    beginRemoveRows(QModelIndex(), 0, _graphData.size() - 1);
 
-    for(qint32 idx = 0; idx < size; idx++)
-    {
-        removeRegister(0);
-    }
+    _graphData.clear();
+
+    updateActiveGraphList();
+
+    endRemoveRows();
+
+    emit removed(0);
 }
 
 // Get sorted list of active (unique) register addresses for a specific connection id
