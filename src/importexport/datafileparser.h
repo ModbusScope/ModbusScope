@@ -33,6 +33,7 @@ public:
 
 signals:
     void parseErrorOccurred(QString msg);
+    void updateProgress(int percentage);
 
 private:
     bool parseDataLines(QList<QList<double> > &dataRows);
@@ -41,12 +42,17 @@ private:
     bool parseNoteField(QStringList noteFieldList, Note * pNote);
     double parseDouble(QString strNumber, bool* bOk);
     bool isCommentLine(QString line);
+    void checkProgressUpdate(quint32 charRead);
 
     void correctStmStudioData(QList<QList<double> > &dataLists);
     bool isNibbleCorrupt(quint16 ref, quint16 compare);
 
     QTextStream* _pDataStream;
     quint32 _lineNumber;
+
+    quint64 _totalCharSize;
+    quint64 _charCount;
+    quint32 _lastPercentageUpdate;
 
     DataParserModel* _pDataParserModel;
 

@@ -443,4 +443,37 @@ void TestDataFileParser::parseDatasetTimeInSecond()
     QCOMPARE(spyParseError.count(), 0);
 }
 
+void TestDataFileParser::checkProgressSignal()
+{
+    DataParserModel dataParserModel;
+    QTextStream dataStream(&TestData::cDatasetBe);
+    DataFileParser::FileData fileData;
+    DataFileParser dataFileParser(&dataParserModel);
+
+    QSignalSpy spyParseError(&dataFileParser, &DataFileParser::parseErrorOccurred);
+    QSignalSpy spyProgressUpdate(&dataFileParser, &DataFileParser::updateProgress);
+
+    /* Prepare parsermodel */
+    dataParserModel.setFieldSeparator(QChar(';'));
+    dataParserModel.setGroupSeparator(QChar(' '));
+    dataParserModel.setDecimalSeparator(QChar(','));
+    dataParserModel.setCommentSequence(QString(""));
+    dataParserModel.setLabelRow(static_cast<quint32>(0));
+    dataParserModel.setDataRow(static_cast<quint32>(1));
+    dataParserModel.setColumn(static_cast<quint32>(0));
+    dataParserModel.setTimeInMilliSeconds(true);
+    dataParserModel.setStmStudioCorrection(false);
+
+    /* Process data */
+    QVERIFY(dataFileParser.processDataFile(&dataStream, &fileData));
+
+    QVERIFY(spyProgressUpdate.count() > 0);
+
+    QList<QVariant> arguments = spyProgressUpdate.takeLast();
+    QCOMPARE(arguments.count(), 1);
+
+    /* Check last percentage (clipped at 99 %) */
+    QVERIFY(arguments.first().toInt()> 90);
+}
+
 QTEST_GUILESS_MAIN(TestDataFileParser)

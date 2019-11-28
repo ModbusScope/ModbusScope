@@ -16,7 +16,7 @@ class DataFileHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphDataModel, NoteModel* pNoteModel, SettingsModel *pSettingsModel, DataParserModel * pDataParserModel);
+    explicit DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphDataModel, NoteModel* pNoteModel, SettingsModel *pSettingsModel, DataParserModel * pDataParserModel, QWidget *parent = nullptr);
     ~DataFileHandler();
 
     void loadDataFile(QString dataFilePath);
