@@ -513,7 +513,7 @@ bool DataFileExporter::writeToFile(QString filePath, QStringList logData)
 void DataFileExporter::clearFile(QString filePath)
 {
     QFile file(filePath);
-    file.open(QIODevice::WriteOnly | QIODevice::Text); // Remove all data from file
+    (void)file.open(QIODevice::WriteOnly | QIODevice::Text); // Remove all data from file
 }
 
 
