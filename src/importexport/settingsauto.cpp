@@ -5,7 +5,11 @@
 
 SettingsAuto::SettingsAuto()
 {
-
+    _bModbusScopeDataFile = false;
+    _dataRow = 0;
+    _column = 0;
+    _labelRow = 1;
+    _bTimeInMilliSeconds = false;
 }
 
 bool SettingsAuto::updateSettings(QTextStream* pDataFileStream, settingsData_t *pSettingsData, qint32 sampleLength)

@@ -60,7 +60,7 @@ public:
 
     typedef struct _LogSettings
     {
-        _LogSettings() : bPollTime(false), bAbsoluteTimes(false), bLogToFile(true), bLogToFileFile(false) {}
+        _LogSettings() : bPollTime(false), pollTime (), bAbsoluteTimes(false), bLogToFile(true), bLogToFileFile(false) {}
 
         bool bPollTime;
         quint32 pollTime;
