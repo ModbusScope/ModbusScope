@@ -179,7 +179,7 @@ void ExtendedGraphView::updateData(QList<double> *pTimeData, QList<QList<double>
     {
         //Add data to graphs
         QVector<double> graphData = pDataLists->at(i).toVector();
-        _pPlot->graph(i)->setData(timeData, graphData);
+        _pPlot->graph(i)->setData(timeData, graphData, true);
 
         totalPoints += graphData.size();
     }

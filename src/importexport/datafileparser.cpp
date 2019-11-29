@@ -26,6 +26,33 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
     qint32 lineIdx = 0;
 
     _pDataStream = pDataStream;
+
+    qint64 bytesAvailable = 0;
+    if (_pDataStream->device() != nullptr)
+    {
+        bytesAvailable = _pDataStream->device()->bytesAvailable();
+    }
+    else if (_pDataStream->string() != nullptr)
+    {
+        bytesAvailable = _pDataStream->string()->size();
+    }
+    else
+    {
+        bytesAvailable = 0;
+    }
+
+    // Get total number of bytes
+    if (bytesAvailable > 0)
+    {
+        _totalCharSize = static_cast<quint64>(bytesAvailable);
+    }
+    else
+    {
+        _totalCharSize = 1u;
+    }
+    _charCount = 0;
+    _lastPercentageUpdate = 0;
+
     _pDataStream->seek(0);
     _lineNumber = 0u;
 
@@ -297,6 +324,15 @@ bool DataFileParser::readLineFromFile(QString *pLine)
 
     } while (bRet && pLine->trimmed().isEmpty());
 
+    /*
+     * Moved outside of loop for some performance optimizations
+     * But this means that a small deviation will be created
+    */
+    if (bRet)
+    {
+        checkProgressUpdate(static_cast<quint32>(pLine->size()));
+    }
+
     return bRet;
 }
 
@@ -429,6 +465,29 @@ bool DataFileParser::isCommentLine(QString line)
     }
 
     return bRet;
+}
+
+
+void DataFileParser::checkProgressUpdate(quint32 charRead)
+{
+    quint32 percentage = 0;
+
+    _charCount += charRead;
+
+    percentage = static_cast<quint32>((_charCount * 100) / _totalCharSize);
+
+    // Clip percentage
+    if (percentage > 100)
+    {
+        percentage = 99;
+    }
+
+    if (percentage > _lastPercentageUpdate)
+    {
+        _lastPercentageUpdate = percentage;
+
+        emit updateProgress(static_cast<int>(_lastPercentageUpdate));
+    }
 }
 
 void DataFileParser::correctStmStudioData(QList<QList<double> > &dataLists)

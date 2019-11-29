@@ -4,7 +4,10 @@
 
 #include "datafilehandler.h"
 
-DataFileHandler::DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphDataModel, NoteModel* pNoteModel, SettingsModel * pSettingsModel, DataParserModel * pDataParserModel) : QObject(nullptr)
+#include <QWidget>
+#include <QProgressDialog>
+
+DataFileHandler::DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphDataModel, NoteModel* pNoteModel, SettingsModel * pSettingsModel, DataParserModel * pDataParserModel, QWidget *parent) : QObject(parent)
 {
     _pGuiModel = pGuiModel;
     _pGraphDataModel = pGraphDataModel;
@@ -186,11 +189,18 @@ void DataFileHandler::parseDataFile()
     {
         DataFileParser dataParser(_pDataParserModel);
         DataFileParser::FileData data;
+        QProgressDialog progressDialog("Loading file...", QString(), 0, 100, dynamic_cast<QWidget *>(parent()));
+
+        progressDialog.setWindowModality(Qt::WindowModal);
+        progressDialog.setMinimumDuration(0);
 
         connect(&dataParser, &DataFileParser::parseErrorOccurred, this, &DataFileHandler::handleError);
+        connect(&dataParser, &DataFileParser::updateProgress, &progressDialog, &QProgressDialog::setValue);
 
         if (dataParser.processDataFile(_pDataFileStream, &data))
         {
+            progressDialog.setValue(progressDialog.maximum());
+
             delete _pDataFileStream;
             _pDataFileStream = nullptr;
 
@@ -229,6 +239,10 @@ void DataFileHandler::parseDataFile()
 
             _pGuiModel->setGuiState(GuiModel::DATA_LOADED);
 
+        }
+        else
+        {
+            progressDialog.cancel();
         }
     }
 }
