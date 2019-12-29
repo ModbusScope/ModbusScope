@@ -21,7 +21,7 @@ ModbusConnection::ModbusConnection(QObject *parent) : QObject(parent)
  */
 void ModbusConnection::openConnection(QString ip, qint32 port, quint32 timeout)
 {
-    if (connectionState() == QModbusDevice::ConnectedState)
+    if (isConnected())
     {
         // Already connected and ready
         emit connectionSuccess();
@@ -81,7 +81,7 @@ void ModbusConnection::closeConnection(void)
  */
 void ModbusConnection::sendReadRequest(quint32 regAddress, quint16 size, int serverAddress)
 {
-    if (connectionState() == QModbusDevice::ConnectedState)
+    if (isConnected())
     {
         QModbusDataUnit _dataUnit(QModbusDataUnit::HoldingRegisters, static_cast<int>(regAddress - 40001), size);
         _connectionList.last()->pReply = _connectionList.last()->modbusClient.sendReadRequest(_dataUnit, serverAddress);
@@ -95,19 +95,19 @@ void ModbusConnection::sendReadRequest(quint32 regAddress, quint16 size, int ser
 }
 
 /*!
- *  Get state of connection
+ *  Return whether connection is ok
  *
- * \return State of connection (\ref QModbusDevice::State)
+ * \return Connection state
  */
-QModbusDevice::State ModbusConnection::connectionState(void)
+bool ModbusConnection::isConnected(void)
 {
-    if (_connectionList.isEmpty())
+    if (_connectionList.last()->modbusClient.state() == QModbusDevice::ConnectedState)
     {
-        return QModbusDevice::UnconnectedState;
+        return true;
     }
     else
     {
-        return _connectionList.last()->modbusClient.state();
+        return false;
     }
 }
 

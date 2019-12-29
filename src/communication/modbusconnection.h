@@ -39,7 +39,7 @@ public:
 
     void sendReadRequest(quint32 regAddress, quint16 size, int serverAddress);
 
-    QModbusDevice::State connectionState(void);
+    bool isConnected(void);
 
 signals:
     void connectionSuccess(void);

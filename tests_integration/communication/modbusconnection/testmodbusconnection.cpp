@@ -55,11 +55,11 @@ void TestModbusConnection::connectionSuccess()
     QCOMPARE(spySuccess.count(), 1);
     QCOMPARE(spyError.count(), 0);
 
-    QCOMPARE(pConnection->connectionState(), QModbusDevice::ConnectedState);
+    QVERIFY(pConnection->isConnected());
 
     pConnection->closeConnection();
 
-    QCOMPARE(pConnection->connectionState(), QModbusDevice::UnconnectedState);
+    QVERIFY(!pConnection->isConnected());
 
 }
 
@@ -77,7 +77,7 @@ void TestModbusConnection::connectionFail()
     QCOMPARE(spySuccess.count(), 0);
     QCOMPARE(spyError.count(), 1);
 
-    QCOMPARE(pConnection->connectionState(), QModbusDevice::UnconnectedState);
+    QVERIFY(!pConnection->isConnected());
 }
 
 
@@ -96,7 +96,7 @@ void TestModbusConnection::connectionSuccesAfterFail()
     QCOMPARE(spySuccess.count(), 0);
     QCOMPARE(spyError.count(), 1);
 
-    QCOMPARE(pConnection->connectionState(), QModbusDevice::UnconnectedState);
+    QVERIFY(!pConnection->isConnected());
 
     // Start server
     QVERIFY(_pTestSlaveModbus->connect(_serverConnectionData, _slaveId));
@@ -106,7 +106,7 @@ void TestModbusConnection::connectionSuccesAfterFail()
     QVERIFY(spySuccess.wait(500));
 
     QCOMPARE(spySuccess.count(), 1);
-    QCOMPARE(pConnection->connectionState(), QModbusDevice::ConnectedState);
+    QVERIFY(pConnection->isConnected());
 
     pConnection->closeConnection();
 }
@@ -131,7 +131,7 @@ void TestModbusConnection::readRequestSuccess()
 
     QVERIFY(spySuccess.wait(100));
 
-    QCOMPARE(pConnection->connectionState(), QModbusDevice::ConnectedState);
+    QVERIFY(pConnection->isConnected());
 
     QSignalSpy spyResultSuccess(pConnection, &ModbusConnection::readRequestSuccess);
     QSignalSpy spyResultProtocolError(pConnection, &ModbusConnection::readRequestProtocolError);
@@ -180,7 +180,7 @@ void TestModbusConnection::readRequestProtocolError()
 
     QVERIFY(spySuccess.wait(100));
 
-    QCOMPARE(pConnection->connectionState(), QModbusDevice::ConnectedState);
+    QVERIFY(pConnection->isConnected());
 
     QSignalSpy spyResultSuccess(pConnection, &ModbusConnection::readRequestSuccess);
     QSignalSpy spyResultProtocolError(pConnection, &ModbusConnection::readRequestProtocolError);
