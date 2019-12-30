@@ -153,7 +153,7 @@ void TestCommunicationManager::singleSlaveFail()
     /*-- Start communication --*/
     QVERIFY(conMan.startCommunication());
 
-    QVERIFY(spyReceivedData.wait(150));
+    QVERIFY(spyReceivedData.wait(static_cast<int>(_pSettingsModel->timeout(SettingsModel::CONNECTION_ID_0)) + 100));
     QCOMPARE(spyReceivedData.count(), 1);
 
     QList<QVariant> arguments = spyReceivedData.takeFirst(); // take the first signal
@@ -304,7 +304,7 @@ void TestCommunicationManager::multiSlaveSingleFail()
     /*-- Start communication --*/
     QVERIFY(conMan.startCommunication());
 
-    QVERIFY(spyReceivedData.wait(20));
+    QVERIFY(spyReceivedData.wait(static_cast<int>(_pSettingsModel->timeout(SettingsModel::CONNECTION_ID_0)) + 100));
     QCOMPARE(spyReceivedData.count(), 1);
 
     QList<QVariant> arguments = spyReceivedData.takeFirst(); // take the first signal
@@ -339,7 +339,7 @@ void TestCommunicationManager::multiSlaveAllFail()
     /*-- Start communication --*/
     QVERIFY(conMan.startCommunication());
 
-    QVERIFY(spyReceivedData.wait(20));
+    QVERIFY(spyReceivedData.wait(static_cast<int>(_pSettingsModel->timeout(SettingsModel::CONNECTION_ID_0)) + 100));
     QCOMPARE(spyReceivedData.count(), 1);
 
     QList<QVariant> arguments = spyReceivedData.takeFirst(); // take the first signal

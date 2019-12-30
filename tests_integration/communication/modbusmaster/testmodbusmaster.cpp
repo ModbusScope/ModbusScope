@@ -120,7 +120,7 @@ void TestModbusMaster::singleRequestNoResponse()
     {
         modbusMaster.readRegisterList(registerList);
 
-        spyModbusPollDone.wait(static_cast<int>(100));
+        spyModbusPollDone.wait(static_cast<int>(_settingsModel.timeout(SettingsModel::CONNECTION_ID_0)) + 100);
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
@@ -306,7 +306,7 @@ void TestModbusMaster::multiRequestNoResponse()
     {
         modbusMaster.readRegisterList(registerList);
 
-        spyModbusPollDone.wait(static_cast<int>(100));
+        spyModbusPollDone.wait(static_cast<int>(_settingsModel.timeout(SettingsModel::CONNECTION_ID_0)) + 100);
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
