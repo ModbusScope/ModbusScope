@@ -101,13 +101,17 @@ void ModbusConnection::sendReadRequest(quint32 regAddress, quint16 size, int ser
  */
 bool ModbusConnection::isConnected(void)
 {
-    if (_connectionList.last()->modbusClient.state() == QModbusDevice::ConnectedState)
+    if (_connectionList.isEmpty())
     {
-        return true;
+        return false;
+    }
+    else if (_connectionList.last()->modbusClient.state() != QModbusDevice::ConnectedState)
+    {
+        return false;
     }
     else
     {
-        return false;
+        return true;
     }
 }
 
