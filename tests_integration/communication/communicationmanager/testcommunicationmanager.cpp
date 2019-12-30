@@ -80,7 +80,7 @@ void TestCommunicationManager::singleSlaveSuccess()
     /*-- Start communication --*/
     QVERIFY(conMan.startCommunication());
 
-    QVERIFY(spyReceivedData.wait(20));
+    QVERIFY(spyReceivedData.wait(50));
     QCOMPARE(spyReceivedData.count(), 1);
 
     QList<QVariant> arguments = spyReceivedData.takeFirst(); // take the first signal
@@ -189,7 +189,7 @@ void TestCommunicationManager::multiSlaveSuccess()
     /*-- Start communication --*/
     QVERIFY(conMan.startCommunication());
 
-    QVERIFY(spyReceivedData.wait(20));
+    QVERIFY(spyReceivedData.wait(50));
     QCOMPARE(spyReceivedData.count(), 1);
 
     QList<QVariant> arguments = spyReceivedData.takeFirst(); // take the first signal
@@ -225,7 +225,7 @@ void TestCommunicationManager::multiSlaveSuccess_2()
     /*-- Start communication --*/
     QVERIFY(conMan.startCommunication());
 
-    QVERIFY(spyReceivedData.wait(20));
+    QVERIFY(spyReceivedData.wait(50));
     QCOMPARE(spyReceivedData.count(), 1);
 
     QList<QVariant> arguments = spyReceivedData.takeFirst(); // take the first signal
@@ -268,7 +268,7 @@ void TestCommunicationManager::multiSlaveSuccess_3()
     /*-- Start communication --*/
     QVERIFY(conMan.startCommunication());
 
-    QVERIFY(spyReceivedData.wait(20));
+    QVERIFY(spyReceivedData.wait(50));
     QCOMPARE(spyReceivedData.count(), 1);
 
     QList<QVariant> arguments = spyReceivedData.takeFirst(); // take the first signal
