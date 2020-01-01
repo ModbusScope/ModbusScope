@@ -4,33 +4,40 @@ platform:
   - x64
 
 install:
+  - cmd: set PATH=C:\Qt\5.12.5\mingw73_64\bin;%PATH%
+#  - cmd: windeployqt.exe (return code isn't correct)
+  
+  - cmd: set PATH=C:\Qt\Tools\mingw730_64\bin;%PATH%
+  - cmd: g++ -v
+
+  - cmd: set PATH=C:\Program Files (x86)\Inno Setup 5;%PATH%
+  
+  # Remove git sh.exe from PATH (required for CMAKE)
+  - cmd: set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
+  - cmd: cmake --version
+  
+  - cmd: echo %PATH%
+
+build_script:
+  - cmd: git submodule update --init --recursive
+
   - cmd: mkdir build
   - cmd: cd build
   
-  - cmd: SET QTDIR=C:\Qt_Static
-  - cmd: echo %QTDIR%
-  
-  - cmd: curl -fsSL "https://dl.bintray.com/jgeudens/Static-Qt/Qt_Static_5.9.7.zip" -o Qt_Static.zip
-  
-  - cmd: 7z x Qt_Static.zip -o%QTDIR% -y > null
-  
-  - cmd: set PATH=%QTDIR%\bin;%PATH%
-  - cmd: set PATH=C:\Qt\Tools\mingw530_32\bin;%PATH%
-  - cmd: set PATH=C:\Program Files (x86)\Inno Setup 5;%PATH%
-  - cmd: echo %PATH%
-  
-  
-build_script:
-  - cmd: qmake --version
-  - cmd: SET QMAKESPEC=win32-g++
-  
-  - cmd: qmake ..\ModbusScope.pro
+  - cmd: cmake .. -G "MinGW Makefiles"
   - cmd: mingw32-make -j2
+
+  - cmd: mkdir deploy
+  - cmd: copy src\ModbusScope.exe deploy
+  - cmd: cd deploy
+  - cmd: windeployqt.exe ModbusScope.exe --release --compiler-runtime -verbose 2
   
-  - cmd: copy src\release\ModbusScope.exe ..\installer\
-  - cmd: compil32 /cc "..\installer\modbusscope_installer.iss"
+#  - cmd: compil32 /cc "..\installer\modbusscope_installer.iss"
+
+  - cmd: 7z a ModbusScope.zip "*"
+
 
 artifacts:
- - path: build\src\release\ModbusScope.exe
- - path: installer\Output\ModbusScope_setup.exe
+ - path: build\deploy\ModbusScope.zip
+# - path: installer\Output\ModbusScope_setup.exe
 

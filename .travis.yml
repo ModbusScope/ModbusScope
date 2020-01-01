@@ -1,7 +1,7 @@
 
 language: cpp
 sudo: required
-dist: trusty
+dist: bionic
 compiler: gcc
 
 env:
@@ -11,19 +11,24 @@ env:
    - secure: "lw986TEuSrO1Yh2BRXs4WtOhTOeL566H1yXizPTSXZaWCtG4TblYl/FqLiXq6Y8VmP5LfBcWSlVyZPj+gEAzZDaaA78vtOIcf3xSgFRWMy68tkN/ygmPIyiTiigbaF8fAkj7Dh4vX8DlB9tcH/Ssbg4H1eLXymRU1RjmQoGHXrGG4VzzW2SIf2H/tdR41qFrM6E+cQ8uDfAeobM8eJV+TALt4omEXFsFcSpqt8tSdt8tvd/QzfTvpGv0AW44/7ef/LV1VU5Ybsjl+56ZBMYnq7tQcCRnaFMA9o6MRx6y4jvGH32pr4zHd/QnoOyo6pkq+rs5tL/DnP6gY0QQbNmPOqT6xfqsn/I1X3Z1gZWOxk8l2PM3dixgwICBqe6JHetptiPhriys+b0Qp6o+VF6tQnQn71ESlTz62XNDw4V8lSts59u0IzZJ1RiWBIr9jL6M9Fc/AmzrFGySi4yoIFBJ9Uyq+SKB29h20UZoTpbNA2ETqQ4YaK/ESb+cA/4B6BVwcjlak0X0fPd4FISImka/62PDe+K4EBl7MtFZUi2+PqEoptp5VW5/4nFeqabtXLlXvaz1kG776qusqAu7wuKYzrcnsgGCTYu6GU+JTduP+mHKP16q3sf3i5lyJUwGWl9kJUT/KkEgWOecVqqFKa/l9Wsl2ABf5mCQSCaTwc8Wjqg="
 
 before_install:
-  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-  - sudo add-apt-repository ppa:beineri/opt-qt597-trusty -y
-  - sudo apt-get update -qq
+  - sudo add-apt-repository ppa:beineri/opt-qt-5.12.6-bionic -y
+  - sudo apt update -qq
 
   - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
 install:
-  - sudo apt-get -qq install -qq g++-7
-  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 60 --slave /usr/bin/g++ g++ /usr/bin/g++-7
-  - g++ --version
-  - sudo apt-get -qq install qt59-meta-minimal qt59serialbus
-  - source /opt/qt59/bin/qt59-env.sh
-  - qmake -v
+  # install CMake
+  - sudo apt install -qq cmake
+  - cmake -version
+  
+  # Dependency for Qt
+  - sudo apt -qq install mesa-common-dev libglu1-mesa-dev
+  
+  # Install Qt
+  - sudo apt -qq install qt512-meta-minimal qt512serialbus
+  
+  # Setup Qt env
+  - source /opt/qt512/bin/qt512-env.sh
 
 addons:
   coverity_scan:
@@ -31,7 +36,7 @@ addons:
       name: "jgeudens/ModbusScope"
       description: "ModbusScope"
     notification_email: jensgeudens@hotmail.com
-    build_command_prepend: "/opt/qt59/bin/qmake ./ModbusScope.pro"
+    build_command_prepend: "cmake"
     build_command: "make -j4"
     branch_pattern: coverity_scan
 
@@ -44,12 +49,9 @@ script:
 
   - git submodule update --init --recursive
 
-  - /opt/qt59/bin/qmake ./ModbusScope.pro
+  - cmake .
   - make -j4
 
-  - /opt/qt59/bin/qmake ./tests.pro
-  - make -j4
-
-  - tests_unit/ModbusScopeUnitTests
+  - tests_unit/test_unit
 
   - python3 ./tests_integration/run_tests.py
