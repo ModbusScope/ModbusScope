@@ -5,6 +5,7 @@
 #include <QUrl>
 
 #include "util.h"
+#include "version.h"
 
 AboutDialog::AboutDialog(QWidget *parent) :
     QDialog(parent),
@@ -21,12 +22,26 @@ AboutDialog::AboutDialog(QWidget *parent) :
     QString debugTxt;
     QString betaTxt;
 #ifdef DEBUG
-    debugTxt = QString(tr("(git: %1:%2)")).arg(GIT_BRANCH).arg(GIT_HASH);
+    debugTxt = QString(tr("(git: %1:%2)")).arg(GIT_BRANCH).arg(GIT_COMMIT_HASH);
     betaTxt = QString(tr(" beta"));
 #endif
 
+    QString arch;
+    if (sizeof(void*) == 4)
+    {
+        arch = "32 bit";
+    }
+    else if (sizeof(void*) == 8)
+    {
+        arch = "64 bit";
+    }
+    else
+    {
+        arch = "unknown";
+    }
+
     _pUi->lblDebug->setText(debugTxt);
-    _pUi->lblVersion->setText(QString(tr("v%1%2")).arg(Util::currentVersion()).arg(betaTxt));
+    _pUi->lblVersion->setText(QString(tr("v%1%2 (%3)")).arg(Util::currentVersion()).arg(betaTxt).arg(arch));
 
     _pUi->textAbout->setOpenExternalLinks(true);
 
