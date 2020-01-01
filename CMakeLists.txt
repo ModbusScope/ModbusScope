@@ -57,4 +57,4 @@ include_directories(
 
 add_subdirectory(src)
 #add_subdirectory(tests_integration)
-#add_subdirectory(tests_unit)
+add_subdirectory(tests_unit)
