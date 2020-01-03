@@ -7,6 +7,7 @@
 #include <QColor>
 #include <QDebug>
 #include <QDateTime>
+#include "version.h"
 
 class Util : public QObject
 {
