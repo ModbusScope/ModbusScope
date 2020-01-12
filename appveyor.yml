@@ -1,16 +1,17 @@
 version: '{branch}_{build}'
+image: Visual Studio 2019
 
 platform:
   - x64
 
 install:
-  - cmd: set PATH=C:\Qt\5.12.5\mingw73_64\bin;%PATH%
+  - cmd: set PATH=C:\Qt\5.12.6\mingw73_64\bin;%PATH%
 #  - cmd: windeployqt.exe (return code isn't correct)
   
   - cmd: set PATH=C:\Qt\Tools\mingw730_64\bin;%PATH%
   - cmd: g++ -v
 
-  - cmd: set PATH=C:\Program Files (x86)\Inno Setup 5;%PATH%
+  - cmd: set PATH=C:\Program Files (x86)\Inno Setup 6;%PATH%
   
   # Remove git sh.exe from PATH (required for CMAKE)
   - cmd: set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
@@ -32,12 +33,19 @@ build_script:
   - cmd: cd deploy
   - cmd: windeployqt.exe ModbusScope.exe --release --compiler-runtime -verbose 2
   
-#  - cmd: compil32 /cc "..\installer\modbusscope_installer.iss"
-
   - cmd: 7z a ModbusScope.zip "*"
+  
+  # Back to build dir
+  - cmd: cd ..
+  
+  # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/xcopy
+  - cmd: xcopy deploy ..\installer\deploy /e /i /y /s
+  
+  - cmd: compil32 /cc "..\installer\modbusscope_installer.iss"
 
 
 artifacts:
  - path: build\deploy\ModbusScope.zip
-# - path: installer\Output\ModbusScope_setup.exe
+ - path: installer\Output\ModbusScope_setup.exe
+
 
