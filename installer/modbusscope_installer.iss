@@ -8,14 +8,14 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{E2D28A15-1D34-4D76-AF4E-49A17C19A3A2}
+AppId={{B5B201A8-51DE-418F-8BCF-F46686ED638C}
 AppName={#MyAppName}
-AppVersion=1.6.1
+AppVersion=2.0.0
 AppPublisher="jgeudens"
 AppPublisherURL=http://jgeudens.github.io/
 AppSupportURL=http://jgeudens.github.io/
 AppUpdatesURL=http://jgeudens.github.io/
-DefaultDirName={pf32}\{#MyAppName}
+DefaultDirName={commonpf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputBaseFilename="{#MyAppName}_setup"
@@ -23,6 +23,7 @@ Compression=lzma
 SolidCompression=yes
 ChangesAssociations=yes
 UninstallDisplayName={#MyAppName}
+ArchitecturesInstallIn64BitMode=x64
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -32,7 +33,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "mbsfileextension"; Description: "Associate ""mbs"" extension"; GroupDescription: "File extensions:"; Flags: unchecked
 
 [Files]
-Source: "ModbusScope.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "deploy\*"; DestDir: "{app}\"; Flags: ignoreversion recursesubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
