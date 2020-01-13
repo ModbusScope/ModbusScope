@@ -60,7 +60,15 @@ int ImportMbcDialog::exec(QString mbcPath)
     _mbcFilePath = mbcPath;
     _pUi->lineMbcfile->setText(_mbcFilePath);
 
-    updateMbcRegisters();
+    if (_mbcFilePath.length() > 0)
+    {
+        /* Auto load with supplied path */
+        updateMbcRegisters();
+    }
+    else
+    {
+        /* Skip auto load: no file path */
+    }
 
     return QDialog::exec();
 }
