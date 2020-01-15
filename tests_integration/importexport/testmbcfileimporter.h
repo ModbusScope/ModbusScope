@@ -14,6 +14,7 @@ private slots:
     void importSingleTab();
     void importMultiTab();
     void importRegisterOptions();
+    void importAutoIncrement();
 
 private:
     void verifyRegList(QList <MbcRegisterData> list1, QList <MbcRegisterData> list2);

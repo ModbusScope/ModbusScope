@@ -77,3 +77,29 @@ QList <MbcRegisterData> MbcTestData::cRegisterOptions_RegList =
                                               << MbcRegisterData(40008, true, "Reg7", 0, false, true, 5)
                                                 ;
 
+
+QString MbcTestData::cAutoincrement = QString(
+    "﻿<?xml version=\"1.0\" encoding=\"utf-8\"?>"            "\n"\
+    "<modbuscontrol>"                                       "\n"\
+    "<tab>"                                                 "\n"\
+    "	<name>Tab1</name>"                                  "\n"\
+    "	<var><reg>40001</reg><text>Reg1</text><type>uint16</type><rw>r</rw></var>"   "\n"\
+    "	<var><reg>*</reg><text>Reg2</text><type>uint16</type><rw>r</rw></var>"    "\n"\
+    "	<var><reg>*</reg><text>Reg3</text><type>uint16</type><rw>r</rw></var>"    "\n"\
+    "	<var><reg>40010</reg><text>Reg10</text><type>uint16</type><rw>r</rw></var>"   "\n"\
+    "	<var><reg>*</reg><text>Reg11</text><type>uint16</type><rw>r</rw></var>"    "\n"\
+
+    "</tab>"                                                "\n"\
+    "</modbuscontrol>"                                      "\n"\
+);
+
+QStringList MbcTestData::cAutoincrement_TabList =
+                    QStringList() << "Tab1";
+
+QList <MbcRegisterData> MbcTestData::cAutoincrement_RegList =
+                    QList <MbcRegisterData>() << MbcRegisterData(40001, true, "Reg1", 0, false, true, 0)
+                                              << MbcRegisterData(40002, true, "Reg2", 0, false, true, 0)
+                                              << MbcRegisterData(40003, true, "Reg3", 0, false, true, 0)
+                                              << MbcRegisterData(40010, true, "Reg10", 0, false, true, 0)
+                                              << MbcRegisterData(40011, true, "Reg11", 0, false, true, 0)
+                                                 ;

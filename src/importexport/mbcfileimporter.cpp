@@ -144,7 +144,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
     {
         if (child.tagName().toLower().trimmed() == MbcFileDefinitions::cRegisterTag)
         {
-            addr = child.text();
+            addr = child.text().toLower().trimmed();
         }
         else if (child.tagName().toLower().trimmed() == MbcFileDefinitions::cTextTag)
         {
@@ -199,11 +199,11 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
             {
                 if (_nextRegisterAddr > 0)
                 {
-                    bRet = false;
+                    modbusRegister.setRegisterAddress(static_cast<quint16>(_nextRegisterAddr));
                 }
                 else
                 {
-                    modbusRegister.setRegisterAddress(static_cast<quint16>(_nextRegisterAddr));
+                    bRet = false;
                 }
             }
             else

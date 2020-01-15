@@ -50,6 +50,20 @@ void TestMbcFileImporter::importRegisterOptions()
     QCOMPARE(tabList, MbcTestData::cRegisterOptions_TabList);
 }
 
+void TestMbcFileImporter::importAutoIncrement()
+{
+
+    MbcFileImporter mbcFileImporter(&MbcTestData::cAutoincrement);
+
+    QList <MbcRegisterData> regList = mbcFileImporter.registerList();
+    QStringList tabList = mbcFileImporter.tabList();
+
+    verifyRegList(MbcTestData::cAutoincrement_RegList, regList);
+
+    QCOMPARE(tabList, MbcTestData::cAutoincrement_TabList);
+
+}
+
 void TestMbcFileImporter::verifyRegList(QList <MbcRegisterData> list1, QList <MbcRegisterData> list2)
 {
     QVERIFY(list1.size() == list2.size());
