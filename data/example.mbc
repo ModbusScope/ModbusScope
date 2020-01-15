@@ -30,5 +30,13 @@
 		<var><reg>40002</reg><text>Data 2</text><type>uint16</type><rw>r</rw></var>
 		<var><reg>40003</reg><text>Data 3</text><type>uint16</type><rw>r</rw></var>
 	</tab>
+
+    <tab>
+        <name>System State</name>
+        <var><reg>40004</reg><text>System Pressure</text><type>uint16</type><decimals>2</decimals><rw>r</rw><bcol>225,225,255</bcol></var>
+        <var><reg>40005</reg><text>Inlet Pressure</text><type>uint16</type><decimals>2</decimals><rw>r</rw><bcol>225,225,255</bcol></var>
+        <var><reg>40006</reg><text>Setpoint</text><type>uint16</type><decimals>1</decimals><rw>rw</rw><bcol>255,225,225</bcol></var>
+        <var><reg>40007</reg><text>Bandwidth</text><type>uint16</type><decimals>2</decimals><rw>rw</rw><bcol>255,225,225</bcol></var>
+    </tab>
 	
 </modbuscontrol>

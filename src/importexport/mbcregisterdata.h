@@ -8,7 +8,7 @@ class MbcRegisterData
 {
 public:
     explicit MbcRegisterData();
-    MbcRegisterData(quint16 registerAddress, bool bUnsigned, QString name, qint32 tabIdx, bool bUint32, bool bReadable);
+    MbcRegisterData(quint16 registerAddress, bool bUnsigned, QString name, qint32 tabIdx, bool bUint32, bool bReadable, quint8 decimals);
     ~MbcRegisterData();
 
     bool compare(MbcRegisterData* pMbcRegdata);
@@ -31,6 +31,9 @@ public:
     bool isReadable() const;
     void setReadable(bool isReadable);
 
+    quint8 decimals() const;
+    void setDecimals(const quint8 &decimals);
+
 private:
 
     quint16 _registerAddress;
@@ -39,6 +42,7 @@ private:
     qint32 _tabIdx;
     bool _bUint32;
     bool _bReadable;
+    quint8 _decimals;
 };
 
 #endif // MBCREGISTERDATA_H

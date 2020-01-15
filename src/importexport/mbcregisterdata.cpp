@@ -8,6 +8,7 @@ MbcRegisterData::MbcRegisterData()
     _tabIdx = 0;
     _bUint32 = false;
     _bReadable = true;
+    _decimals = 0;
 }
 
 MbcRegisterData::~MbcRegisterData()
@@ -15,7 +16,7 @@ MbcRegisterData::~MbcRegisterData()
 
 }
 
-MbcRegisterData::MbcRegisterData(quint16 registerAddress, bool bUnsigned, QString name, qint32 tabIdx, bool bUint32, bool bReadable)
+MbcRegisterData::MbcRegisterData(quint16 registerAddress, bool bUnsigned, QString name, qint32 tabIdx, bool bUint32, bool bReadable, quint8 decimals)
 {
     _registerAddress = registerAddress;
     _bUnsigned = bUnsigned;
@@ -23,6 +24,7 @@ MbcRegisterData::MbcRegisterData(quint16 registerAddress, bool bUnsigned, QStrin
     _tabIdx = tabIdx;
     _bUint32 = bUint32;
     _bReadable = bReadable;
+    _decimals = decimals;
 }
 
 bool MbcRegisterData::compare(MbcRegisterData* pMbcRegdata)
@@ -55,6 +57,11 @@ bool MbcRegisterData::compare(MbcRegisterData* pMbcRegdata)
     }
 
     if (_bReadable != pMbcRegdata->isReadable())
+    {
+        bRet = false;
+    }
+
+    if (_decimals != pMbcRegdata->decimals())
     {
         bRet = false;
     }
@@ -120,4 +127,14 @@ bool MbcRegisterData::isReadable() const
 void MbcRegisterData::setReadable(bool isReadable)
 {
     _bReadable = isReadable;
+}
+
+quint8 MbcRegisterData::decimals() const
+{
+    return _decimals;
+}
+
+void MbcRegisterData::setDecimals(const quint8 &decimals)
+{
+    _decimals = decimals;
 }
