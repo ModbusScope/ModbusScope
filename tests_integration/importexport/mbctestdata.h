@@ -20,6 +20,10 @@ public:
     static QStringList cRegisterOptions_TabList;
     static QList <MbcRegisterData> cRegisterOptions_RegList;
 
+    static QString cAutoincrement;
+    static QStringList cAutoincrement_TabList;
+    static QList <MbcRegisterData> cAutoincrement_RegList;
+
 private:
 
 };

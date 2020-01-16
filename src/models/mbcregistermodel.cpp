@@ -1,5 +1,7 @@
 #include "mbcregistermodel.h"
 
+#include <QtMath>
+
 MbcRegisterModel::MbcRegisterModel(GraphDataModel *pGraphDataModel, QObject *parent)
     : QAbstractTableModel(parent)
 {
@@ -27,6 +29,9 @@ QVariant MbcRegisterModel::headerData(int section, Qt::Orientation orientation, 
                 return QString("Unsigned");
             case cColumnTab:
                 return QString("Tab");
+            case cColumnDecimals:
+                return QString("Decimals");
+
             default:
                 return QVariant();
             }
@@ -86,6 +91,13 @@ QVariant MbcRegisterModel::data(const QModelIndex &index, int role) const
         if (role == Qt::DisplayRole)
         {
             return _mbcRegisterList[index.row()].registerAddress();
+        }
+        break;
+
+    case cColumnDecimals:
+        if (role == Qt::DisplayRole)
+        {
+            return _mbcRegisterList[index.row()].decimals();
         }
         break;
 
@@ -265,6 +277,7 @@ QList<GraphData> MbcRegisterModel::selectedRegisterList()
             graphData.setRegisterAddress(_mbcRegisterList[row].registerAddress());
             graphData.setLabel(_mbcRegisterList[row].name());
             graphData.setUnsigned(_mbcRegisterList[row].isUnsigned());
+            graphData.setDivideFactor(static_cast<double>(qPow(10, _mbcRegisterList[row].decimals())));
 
             _selectedRegisterList.append(graphData);
         }

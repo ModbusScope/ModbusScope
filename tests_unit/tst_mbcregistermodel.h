@@ -16,13 +16,14 @@ static const quint32 cColumnAddress = 1;
 static const quint32 cColumnText = 2;
 static const quint32 cColumnUnsigned = 3;
 static const quint32 cColumnTab = 4;
-static const quint32 cColumnCnt = 5;
+static const quint32 cColumnDecimals = 5;
+static const quint32 cColumnCnt = 6;
 
 void fillModel(MockGraphDataModel * pGraphDataModel, MbcRegisterModel * pMbcRegisterModel, bool bAlreadyPresent)
 {
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
-            << MbcRegisterData(40001, true, "Test1", 0, false, true)
-            << MbcRegisterData(40002, true, "Test2", 0, false, true);
+            << MbcRegisterData(40001, true, "Test1", 0, false, true, 0)
+            << MbcRegisterData(40002, true, "Test2", 0, false, true, 0);
     QStringList tabList = QStringList() << QString("Tab0");
 
     EXPECT_CALL(*pGraphDataModel, isPresent(_, _))
@@ -64,6 +65,7 @@ TEST(MbcRegisterModel, headerData)
     EXPECT_EQ(pMbcRegisterModel->headerData(cColumnText, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Text"));
     EXPECT_EQ(pMbcRegisterModel->headerData(cColumnUnsigned, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Unsigned"));
     EXPECT_EQ(pMbcRegisterModel->headerData(cColumnTab, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Tab"));
+    EXPECT_EQ(pMbcRegisterModel->headerData(cColumnDecimals, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Decimals"));
 
     EXPECT_EQ(pMbcRegisterModel->headerData(cColumnCnt, Qt::Horizontal, Qt::DisplayRole), QVariant());
 }
@@ -85,6 +87,7 @@ TEST(MbcRegisterModel, flagsEnabled)
     EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), enabledFlags);
     EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnText)), enabledFlags);
     EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnTab)), enabledFlags);
+    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnDecimals)), enabledFlags);
 }
 
 
@@ -105,6 +108,7 @@ TEST(MbcRegisterModel, flagsDisabled)
     EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), disabledFlags);
     EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnText)), disabledFlags);
     EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnTab)), disabledFlags);
+    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnDecimals)), disabledFlags);
 
 }
 
@@ -149,10 +153,10 @@ TEST(MbcRegisterModel, disableAlreadyStagedRegisterAddress)
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
 
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
-            << MbcRegisterData(40001, true, "Test1", 0, false, true)
-            << MbcRegisterData(40001, true, "Test1_2", 2, false, true)
-            << MbcRegisterData(40002, false, "Test2", 1, true, true) // Disabled: 32 bit
-            << MbcRegisterData(40011, false, "Test11", 2, false, false); // Disabled: not readable
+            << MbcRegisterData(40001, true, "Test1", 0, false, true, 0)
+            << MbcRegisterData(40001, true, "Test1_2", 2, false, true, 0)
+            << MbcRegisterData(40002, false, "Test2", 1, true, true, 0) // Disabled: 32 bit
+            << MbcRegisterData(40011, false, "Test11", 2, false, false, 0); // Disabled: not readable
     QStringList tabList = QStringList() << QString("Tab0");
 
     EXPECT_CALL(graphDataModel, isPresent(_, _))
@@ -243,14 +247,14 @@ TEST(MbcRegisterModel, fillData)
     EXPECT_EQ(resetSignalSpy.count(), 0);
 
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
-            << MbcRegisterData(40001, true, "Test1", 0, false, true) // Disabled: Will be already present
-            << MbcRegisterData(40002, false, "Test2", 1, true, true) // Disabled: 32 bit
-            << MbcRegisterData(40004, true, "Test4", 1, false, true)
-            << MbcRegisterData(40005, false, "Test5", 0, false, true)
-            << MbcRegisterData(40010, true, "Test10", 2, false, true)
-            << MbcRegisterData(40011, false, "Test11", 2, false, false) // Disabled: not readable
-            << MbcRegisterData(40002, false, "Test6", 0, false, true) // Enabled (Duplicate, but other is 32 bit so ignored)
-            << MbcRegisterData(40004, false, "Test13", 0, false, true); // Enabled: Is duplicate, but will only be disabled when same reg address is selected
+            << MbcRegisterData(40001, true, "Test1", 0, false, true, 0) // Disabled: Will be already present
+            << MbcRegisterData(40002, false, "Test2", 1, true, true, 0) // Disabled: 32 bit
+            << MbcRegisterData(40004, true, "Test4", 1, false, true, 0)
+            << MbcRegisterData(40005, false, "Test5", 0, false, true, 2)
+            << MbcRegisterData(40010, true, "Test10", 2, false, true, 3)
+            << MbcRegisterData(40011, false, "Test11", 2, false, false, 0) // Disabled: not readable
+            << MbcRegisterData(40002, false, "Test6", 0, false, true, 0) // Enabled (Duplicate, but other is 32 bit so ignored)
+            << MbcRegisterData(40004, false, "Test13", 0, false, true, 0); // Enabled: Is duplicate, but will only be disabled when same reg address is selected
 
     QStringList tabList = QStringList() << QString("Tab0") << QString("Tab1") << QString("Tab2");
     QSignalSpy rowsInsertedSpy(pMbcRegisterModel, SIGNAL(rowsInserted(const QModelIndex, int, int)));
@@ -318,6 +322,7 @@ TEST(MbcRegisterModel, fillData)
         EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnAddress), Qt::DisplayRole), mbcRegisterList[rowIdx].registerAddress());
         EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnText), Qt::DisplayRole), mbcRegisterList[rowIdx].name());
         EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnTab), Qt::DisplayRole), tabList[mbcRegisterList[rowIdx].tabIdx()]);
+        EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnDecimals), Qt::DisplayRole), mbcRegisterList[rowIdx].decimals());
 
         Qt::CheckState state = mbcRegisterList[rowIdx].isUnsigned() ? Qt::Checked : Qt::Unchecked;
         EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnUnsigned), Qt::CheckStateRole), state);
@@ -345,8 +350,8 @@ TEST(MbcRegisterModel, selectedRegisterListAndCount)
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
 
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
-            << MbcRegisterData(40001, true, "Test1", 0, false, true)
-            << MbcRegisterData(40002, true, "Test2", 0, false, true);
+            << MbcRegisterData(40001, true, "Test1", 0, false, true, 0)
+            << MbcRegisterData(40002, true, "Test2", 0, false, true, 0);
     QStringList tabList = QStringList() << QString("Tab0");
 
     EXPECT_CALL(graphDataModel, isPresent(_, _))

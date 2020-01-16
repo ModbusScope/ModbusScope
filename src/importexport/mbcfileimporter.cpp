@@ -128,6 +128,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
     QString addr;
     QString type;
     QString rw;
+    QString decimals;
     MbcRegisterData modbusRegister;
 
     modbusRegister.setTabIdx(tabIdx);
@@ -135,6 +136,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
     modbusRegister.setUnsigned(false);
     modbusRegister.setName(QString());
     modbusRegister.set32Bit(false);
+    modbusRegister.setDecimals(0);
 
     QDomElement child = element.firstChildElement();
 
@@ -142,7 +144,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
     {
         if (child.tagName().toLower().trimmed() == MbcFileDefinitions::cRegisterTag)
         {
-            addr = child.text();
+            addr = child.text().toLower().trimmed();
         }
         else if (child.tagName().toLower().trimmed() == MbcFileDefinitions::cTextTag)
         {
@@ -155,6 +157,10 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
         else if (child.tagName().toLower().trimmed() == MbcFileDefinitions::cReadWrite)
         {
              rw = child.text().toLower().trimmed();
+        }
+        else if (child.tagName().toLower().trimmed() == MbcFileDefinitions::cDecimals)
+        {
+             decimals = child.text();
         }
         else
         {
@@ -169,6 +175,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
             || !addr.isEmpty()
             || !type.isEmpty()
             || !rw.isEmpty()
+            || !decimals.isEmpty()
     )
     {
         /* Obligated */
@@ -192,11 +199,11 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
             {
                 if (_nextRegisterAddr > 0)
                 {
-                    bRet = false;
+                    modbusRegister.setRegisterAddress(static_cast<quint16>(_nextRegisterAddr));
                 }
                 else
                 {
-                    modbusRegister.setRegisterAddress(static_cast<quint16>(_nextRegisterAddr));
+                    bRet = false;
                 }
             }
             else
@@ -232,6 +239,15 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
             modbusRegister.setUnsigned(isUnsigned(type));
         }
 
+        /* optional */
+        if (bRet)
+        {
+            if (!decimals.isEmpty())
+            {
+                modbusRegister.setDecimals(static_cast<quint16>(decimals.toUInt(&bRet)));
+            }
+        }
+
         if (bRet)
         {
             /* Save register in list */
@@ -250,10 +266,11 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
         }
         else
         {
-            Util::showError(tr("A tag is not present or value is not valid.\n\nName: %1\nRegister address: %2\nType: %3\n")
+            Util::showError(tr("A tag is not present or value is not valid.\n\nName: %1\nRegister address: %2\nType: %3\nDecimals: %4")
                                 .arg(name)
                                 .arg(addr)
                                 .arg(type)
+                                .arg(decimals)
                             );
         }
 

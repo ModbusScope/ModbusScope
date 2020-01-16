@@ -20,6 +20,7 @@ namespace MbcFileDefinitions
     const QString cTextTag = QString("text");
     const QString cTypeTag = QString("type");
     const QString cReadWrite = QString("rw");
+    const QString cDecimals = QString("decimals");
 }
 
 class MbcFileImporter : public QObject
