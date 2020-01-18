@@ -11,7 +11,7 @@ This user manual describes how to get started with ModbusScope.
 
 ## Adding Modbus registers
 
-When opening *ModbusScope* no Modbus registers are added. First click on *Register Settings* in the toolbar of interface. This will open a menu where registers can be added.
+When opening *ModbusScope*, no Modbus registers are added. First click on *Register Settings* in the toolbar of interface. This will open a menu where registers can be added.
 
 <img src="images/modbusscope/register_settings.png" style="zoom: 67%;" />
 
@@ -19,7 +19,7 @@ In the below dialog Modbus registers can be added either manually or imported fr
 
 ### Import mbc file
 
-The *.MBC* file is provided and used for the registers in *ModbusControl*.  Since this is the easiest way, click on *Import from MBC file*. You can also open this windows by dragging and dropping the MBC file in the main screen of *ModbusScope*.
+The *.MBC* file is provided and used for the registers in *ModbusControl*.  Since this is the easiest way, click on *Import from MBC file*. You can also open this window by dragging and dropping the MBC file in the main screen of *ModbusScope*.
 
 <img src="images/modbusscope/register_settings_dialog.png" style="zoom:67%;" />
 
