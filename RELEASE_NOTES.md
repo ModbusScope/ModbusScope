@@ -1,0 +1,97 @@
+# v2.0.0 (TBD)
+
+## Internal (code changes)
+
+- Add more tests
+- Fix most issues reported by static code analysis (Coverity)
+- Change linking from static to dynamic
+  - Application changes from one large executable to a smaller executable with extra dll's
+
+## Features
+
+* Added possibility to poll 2 different slaves in the same log
+* Added possibility to change graph color from legend
+* Added filter (error/info) in diagnostics window
+* Added mbc filter based on description / register number
+  * Toggle markers option
+  * Rectangle zoom
+* Integrated most used features from GraphViewer
+  * More flexible configuration of parsing settings
+  * Advanced auto detection of parsed settings
+  * Presets of parse settings
+* Improved file loading/parsing
+  * Improve file loading windows (keep showing raw data on invalid parse settings) (#120)
+  * Speed up loading large file (#121)
+  * Add progress bar on file load (#122)
+
+## Bugs
+
+* Small bug fixes (#111)
+
+# v1.6.1 (06/04/2019)
+
+## Bugfixes
+* Fix error when writing notes to imported data file (#109)
+* Automatically remove field seperator from register names (#106)
+
+## Improvements
+* When importing a mbc file already selected registers are now disabled dynamically.
+
+# v1.6.0 (25/01/2019)
+Most of the work in this release isn't visible for the user. A complete rework of the communication module has been done. Libmodbus was dropped in favor of Qt Modbus. The communication module has also been completely reworked to be able to implement integration and unit testing.
+
+# v1.5.0 (02/10/2018)
+## Features
+* Add support for notes (small texts in graph)
+  * Editable (even after data load)
+  * Saved with data in csv
+* Update legend component (thanks to @Fornax)
+* Add tab filter when importing mbc files (implements #96)
+
+## Bug fixes
+* Fix slow drag issue (#104)
+* Keep visibility state when adding/removing graphs (#102)
+* Absolute time is off by 2 hours (#103)
+
+## Under the hood
+* Add initial unit tests for some modules
+* Add Travis build
+
+## Screenshot
+![modbusscope_screenshot](https://user-images.githubusercontent.com/9089936/46371252-2695bf00-c688-11e8-88b1-8e9a609b1fa2.png)
+
+# v1.4.0 (17/02/2018)
+## Features
+* Rework modbus communication code
+* Update libraries
+  * QCustomPlot v2.0.0 (final)
+  * libmodbus to v3.14
+* Improve support for absolute timestamp
+* Add option to show/hide all graphs (#99)
+* Add logging (#71)
+
+## Bugfixes
+* Fix some minor bugs #95 (thanks to @pluyckx), #89
+
+# v1.3.0 (01/04/2017)
+## Features
+- Rework tooltip (show value under cursor in legend when control key is pressed) (#90)
+- Import registers from mbc file (drag and drop or button in register dialog) (#91)
+- Add window auto scale on y-axis (#36)
+- Add meta data when exporting data (keep color when importing) (#63)
+- Added extra marker calculations (minimum, maximum, average, median, slope, ...) (#79)
+- Use delete button to remove registers (#34)
+- Improve communication (only split modbus read on specific modbus exception)
+- Update QModbusPlot to v2.0.0 (beta)
+- Add command line argument to enable OpenGL (--opengl)
+
+## Bugs
+- Make sure legend window (when docked) is present on screenshot (#80)
+- Small fixes (#82, #83, #85, #88)
+
+# Older releases
+
+Older releases can be found on
+
+[Github]: https://github.com/jgeudens/ModbusScope/releases
+
