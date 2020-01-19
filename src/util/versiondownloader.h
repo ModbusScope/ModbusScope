@@ -15,7 +15,8 @@ public:
 
     void performCheck();
 
-    QByteArray downloadedVersionData();
+    QString version();
+    QString url();
 
 signals:
     void versionDownloaded();
@@ -26,7 +27,8 @@ private slots:
 private:
 
     QNetworkAccessManager _webCtrl;
-    QByteArray _downloadedVersionData;
+    QString _version;
+    QString _url;
 
 };
 

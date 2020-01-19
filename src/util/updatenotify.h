@@ -5,7 +5,6 @@
 #include <QWidget>
 
 #include "versiondownloader.h"
-#include "updatenotify.h"
 
 class UpdateNotify : public QObject
 {
@@ -17,18 +16,16 @@ public:
 
     QString version() const;
     QString link() const;
-    quint32 dataLevel() const;
     bool bValidData() const;
 
     typedef enum
     {
-        LATEST = 0,             /* Latest version */
-        REV_UPDATE,             /* Revision update */
-        MINOR_MAJOR_UPDATE,     /* Minor/major update */
+        VERSION_LATEST = 0,             /* Latest version */
+        VERSION_UPDATE_AVAILABLE,       /* Update available */
     } UpdateState;
 
 signals:
-    void updateCheckResult(UpdateNotify::UpdateState result, bool bDataLevelUpdate);
+    void updateCheckResult(UpdateNotify::UpdateState result);
 
 public slots:
 
@@ -43,7 +40,6 @@ private:
 
     QString _version;
     QString _link;
-    quint32 _dataLevel;
     bool _bValidData;
 
 };

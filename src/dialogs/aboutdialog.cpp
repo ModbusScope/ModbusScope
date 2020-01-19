@@ -45,12 +45,9 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
     _pUi->textAbout->setOpenExternalLinks(true);
 
-
-    /* TODO: update notification is disabled (#105) */
-    /*
-    connect(&_updateNotify, SIGNAL(updateCheckResult(UpdateNotify::UpdateState,bool)), this, SLOT(showVersionUpdate(UpdateNotify::UpdateState, bool)));
+    connect(&_updateNotify, SIGNAL(updateCheckResult(UpdateNotify::UpdateState)), this, SLOT(showVersionUpdate(UpdateNotify::UpdateState)));
     _updateNotify.checkForUpdate();
-    */
+
     _pUi->lblUpdate->setVisible(false);
 }
 
@@ -69,9 +66,9 @@ void AboutDialog::openLicense(void)
     QDesktopServices::openUrl(QUrl("http://www.gnu.org/licenses/gpl-3.0-standalone.html"));
 }
 
-void AboutDialog::showVersionUpdate(UpdateNotify::UpdateState state, bool bDataLevelUpdate)
+void AboutDialog::showVersionUpdate(UpdateNotify::UpdateState state)
 {
-    if (state == UpdateNotify::LATEST)
+    if (state == UpdateNotify::VERSION_LATEST)
     {
         _pUi->lblUpdate->setText("No update available");
     }
@@ -81,12 +78,9 @@ void AboutDialog::showVersionUpdate(UpdateNotify::UpdateState state, bool bDataL
 
         updateTxt.append(QString("Update available: <a href=\'%1\'>v%2</a>").arg(_updateNotify.link()).arg(_updateNotify.version()));
 
-        if (bDataLevelUpdate)
-        {
-            updateTxt.append("<br/><br/>Warning: Datalevel has changed. New version is not compatible with existing project files.");
-        }
-
         updateTxt.append("<br/>");
         _pUi->lblUpdate->setText(updateTxt);
     }
+
+    _pUi->lblUpdate->setVisible(true);
 }
