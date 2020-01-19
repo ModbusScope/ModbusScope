@@ -81,6 +81,18 @@ SET(SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/loadfiledialog.cpp
 )
 
+SET(UIS
+    ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/logdialog.ui
+    ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/mainwindow.ui
+    ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/aboutdialog.ui
+    ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/errorlogdialog.ui
+    ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/loadfiledialog.ui
+    ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/registerdialog.ui
+    ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/importmbcdialog.ui
+    ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/connectiondialog.ui
+    ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/markerinfodialog.ui
+)
+
 include_directories(
     ${QT_INCLUDES}
 )
@@ -92,7 +104,7 @@ if(WIN32)
     set(GUI_TYPE WIN32)
 endif()
 
-add_library (${SCOPESOURCE} ${SRCS})
+add_library (${SCOPESOURCE} ${SRCS} ${UIS})
 add_executable(${PROJECT_NAME} ${GUI_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/resources/resource.qrc ${CMAKE_CURRENT_SOURCE_DIR}/resources/app_icon.rc)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
