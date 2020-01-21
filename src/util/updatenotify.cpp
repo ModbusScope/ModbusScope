@@ -1,5 +1,6 @@
 
 #include <QDesktopServices>
+#include <QRegularExpression>
 
 #include "util.h"
 #include "updatenotify.h"
@@ -8,7 +9,6 @@
 UpdateNotify::UpdateNotify(QObject *parent) :
     QObject(parent)
 {
-    _dataLevel = 0;
     _bValidData = false;
 
     connect(&_versionDownloader, SIGNAL(versionDownloaded()), this, SLOT (handleVersionData()));
@@ -21,27 +21,21 @@ void UpdateNotify::checkForUpdate()
 
 void UpdateNotify::handleVersionData()
 {
-    QStringList updateFields = QString(_versionDownloader.downloadedVersionData()).trimmed().split(',');
+    QRegularExpression dateParseRegex;
+    dateParseRegex.setPattern("(\\d+\\.\\d+\\.\\d+)");
 
-    // Parse data
-    bool bRet = true;
-    if (updateFields.size() >= 3)
-    {
-        _version = updateFields[0];
-        _dataLevel = updateFields[1].toUInt(&bRet);
-        _link =  updateFields[2];
-    }
+    QRegularExpressionMatch match = dateParseRegex.match(_versionDownloader.version());
 
-    if (bRet)
+    _version = match.captured(1);
+    _link = _versionDownloader.url();
+
+    if (!_version.isEmpty() && !_link.isEmpty())
     {
         _bValidData = true;
 
         const UpdateState versionState = checkVersions(Util::currentVersion(), _version);
-        const bool bDataLevelUpdate = (ProjectFileDefinitions::cCurrentDataLevel != _dataLevel);
 
-        // Emit signal only on success
-        updateCheckResult(versionState, bDataLevelUpdate);
-
+        updateCheckResult(versionState);
     }
     else
     {
@@ -49,25 +43,44 @@ void UpdateNotify::handleVersionData()
     }
 }
 
+
 UpdateNotify::UpdateState UpdateNotify::checkVersions(QString current, QString latest)
 {
     QStringList currentVersionFields = current.split('.');
     QStringList latestVersionFields = latest.split('.');
 
-    if (
-        (currentVersionFields[0] < latestVersionFields[0])
-        || (currentVersionFields[1] < latestVersionFields[1])
-    )
+    /* Check major */
+    if (currentVersionFields[0] < latestVersionFields[0])
     {
-        return MINOR_MAJOR_UPDATE;
+        return VERSION_UPDATE_AVAILABLE;
     }
-    else if (currentVersionFields[2] < latestVersionFields[2])
+    else if (currentVersionFields[0] == latestVersionFields[0])
     {
-        return REV_UPDATE;
+        /* Major is equal, check minor */
+        if (currentVersionFields[1] < latestVersionFields[1])
+        {
+            return VERSION_UPDATE_AVAILABLE;
+        }
+        else if (currentVersionFields[1] == latestVersionFields[1])
+        {
+            /* Minor is equal, check revision */
+            if (currentVersionFields[2] < latestVersionFields[2])
+            {
+                return VERSION_UPDATE_AVAILABLE;
+            }
+            else
+            {
+                return VERSION_LATEST;
+            }
+        }
+        else
+        {
+            return VERSION_LATEST;
+        }
     }
     else
     {
-        return LATEST;
+        return VERSION_LATEST;
     }
 }
 
@@ -79,9 +92,4 @@ QString UpdateNotify::version() const
 QString UpdateNotify::link() const
 {
     return _link;
-}
-
-quint32 UpdateNotify::dataLevel() const
-{
-    return _dataLevel;
 }

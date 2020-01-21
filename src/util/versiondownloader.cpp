@@ -2,6 +2,8 @@
 
 #include <QUrl>
 #include <QByteArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 VersionDownloader::VersionDownloader(QObject *parent) :
     QObject(parent)
@@ -15,7 +17,7 @@ VersionDownloader::~VersionDownloader()
 
 void VersionDownloader::performCheck()
 {
-    QUrl versionManifest = QUrl("http://jgeudens.github.io/public/update/modbusscope-update-manifest");
+    QUrl versionManifest = QUrl("https://api.github.com/repos/jgeudens/ModbusScope/releases/latest");
 
     // Start request
     _webCtrl.get(QNetworkRequest(versionManifest));
@@ -25,7 +27,11 @@ void VersionDownloader::updateManifestDownloaded(QNetworkReply* pReply)
 {
     if (pReply->error() == QNetworkReply::NoError)
     {
-        _downloadedVersionData = pReply->readAll();
+        QJsonDocument document = QJsonDocument::fromJson(pReply->readAll());
+        QJsonObject rootObj = document.object();
+
+        _version = rootObj["tag_name"].toString();
+        _url = rootObj["html_url"].toString();
 
         emit versionDownloaded();
     }
@@ -34,7 +40,12 @@ void VersionDownloader::updateManifestDownloaded(QNetworkReply* pReply)
     pReply->deleteLater();
 }
 
-QByteArray VersionDownloader::downloadedVersionData()
+QString VersionDownloader::version()
 {
-    return _downloadedVersionData;
+    return _version;
+}
+
+QString VersionDownloader::url()
+{
+    return _url;
 }

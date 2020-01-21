@@ -20,7 +20,7 @@ public:
 private slots:
     void openHomePage(void);
     void openLicense(void);
-    void showVersionUpdate(UpdateNotify::UpdateState state, bool bDataLevelUpdate);
+    void showVersionUpdate(UpdateNotify::UpdateState state);
 
 private:
 
