@@ -36,7 +36,7 @@ build_script:
   # Back to build dir
   - cmd: cd ..
   
-  - cmd: 7z a ModbusScope.zip "deploy\*"
+  - cmd: 7z a ModbusScope.zip ".\deploy\*"
   
   # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/xcopy
   - cmd: xcopy deploy ..\installer\deploy /e /i /y /s
