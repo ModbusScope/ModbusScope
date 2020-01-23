@@ -33,10 +33,10 @@ build_script:
   - cmd: cd deploy
   - cmd: windeployqt.exe ModbusScope.exe --release --compiler-runtime -verbose 2
   
-  - cmd: 7z a ModbusScope.zip "*"
-  
   # Back to build dir
   - cmd: cd ..
+  
+  - cmd: 7z a ModbusScope.zip ".\deploy\*"
   
   # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/xcopy
   - cmd: xcopy deploy ..\installer\deploy /e /i /y /s
@@ -45,7 +45,7 @@ build_script:
 
 
 artifacts:
- - path: build\deploy\ModbusScope.zip
+ - path: build\ModbusScope.zip
  - path: installer\Output\ModbusScope_setup.exe
 
 
