@@ -41,6 +41,7 @@ public slots:
 
 private slots:
     void handleError(QString msg);
+    void cleanUpFileHandler();
 
 private:
 
@@ -53,6 +54,8 @@ private:
     DataParserModel * _pDataParserModel;
 
     QTextStream* _pDataFileStream;
+    QFile* _pDataFile;
+
     LoadFileDialog* _pLoadFileDialog;
 
     static const qint32 _cSampleLineLength = 50;

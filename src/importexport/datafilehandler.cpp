@@ -16,6 +16,7 @@ DataFileHandler::DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphData
     _pDataParserModel = pDataParserModel;
 
     _pDataFileStream = nullptr;
+    _pDataFile = nullptr;
 
     _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel);
 
@@ -36,6 +37,7 @@ DataFileHandler::DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphData
     _pLoadFileDialog = new LoadFileDialog(pGuiModel, pDataParserModel);
 
     connect(_pLoadFileDialog, &LoadFileDialog::accepted, this, &DataFileHandler::parseDataFile);
+    connect(_pLoadFileDialog, &LoadFileDialog::rejected, this, &DataFileHandler::cleanUpFileHandler);
 }
 
 DataFileHandler::~DataFileHandler()
@@ -44,10 +46,7 @@ DataFileHandler::~DataFileHandler()
     delete _pDataFileExporter;
     delete _pDataParserModel;
 
-    if (_pDataFileStream != nullptr)
-    {
-        delete _pDataFileStream;
-    }
+    cleanUpFileHandler();
 }
 
 void DataFileHandler::loadDataFile(QString dataFilePath)
@@ -57,19 +56,21 @@ void DataFileHandler::loadDataFile(QString dataFilePath)
 
     SettingsAuto * _pAutoSettingsParser;
 
-    QFile* dataFile = new QFile(dataFilePath);
+    _pDataFile = new QFile(dataFilePath);
 
     bool bModbusScopeDataFile = false;
 
     /* Read sample of file */
-    bool bRet = dataFile->open(QIODevice::ReadOnly | QIODevice::Text);
+    bool bRet = _pDataFile->open(QIODevice::ReadOnly | QIODevice::Text);
     if (bRet)
     {
-        _pDataFileStream = new QTextStream(dataFile);
+        _pDataFileStream = new QTextStream(_pDataFile);
     }
     else
     {
         Util::showError(tr("Couldn't open data file: %1").arg(dataFilePath));
+
+        cleanUpFileHandler();
 
         /* Stop processing because file is invalid */
         return;
@@ -201,9 +202,6 @@ void DataFileHandler::parseDataFile()
         {
             progressDialog.setValue(progressDialog.maximum());
 
-            delete _pDataFileStream;
-            _pDataFileStream = nullptr;
-
             // Set to full auto scaling
             _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
 
@@ -244,6 +242,8 @@ void DataFileHandler::parseDataFile()
         {
             progressDialog.cancel();
         }
+
+        cleanUpFileHandler();
     }
 }
 
@@ -251,4 +251,19 @@ void DataFileHandler::parseDataFile()
 void DataFileHandler::handleError(QString msg)
 {
     Util::showError(msg);
+}
+
+void DataFileHandler::cleanUpFileHandler()
+{
+    if (_pDataFileStream != nullptr)
+    {
+        delete _pDataFileStream;
+        _pDataFileStream = nullptr;
+    }
+
+    if (_pDataFile != nullptr)
+    {
+        delete _pDataFile;
+        _pDataFile = nullptr;
+    }
 }
