@@ -626,14 +626,20 @@ void BasicGraphView::paintTimeStampToolTip(QPoint pos)
         {
             // Add tick key string
             QString toolText = Util::formatTime(tooltipPos, false);
+            QPoint location= _pPlot->mapToGlobal(pos);
 
-            QToolTip::showText(_pPlot->mapToGlobal(pos), toolText, _pPlot);
+            if (location != _tooltipLocation)
+            {
+                QToolTip::showText(location, toolText, _pPlot);
 
+                _tooltipLocation = location;
+            }
         }
         else
         {
             // Hide tooltip
             QToolTip::hideText();
+            _tooltipLocation = QPoint(-1 ,-1);
         }
     }
     else
@@ -641,6 +647,7 @@ void BasicGraphView::paintTimeStampToolTip(QPoint pos)
         if (QToolTip::isVisible())
         {
             QToolTip::hideText();
+            _tooltipLocation = QPoint(-1 ,-1);
         }
     }
 }

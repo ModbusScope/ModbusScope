@@ -101,6 +101,8 @@ private:
     QCPItemStraightLine * _pStartMarker;
     QCPItemStraightLine * _pEndMarker;
 
+    QPoint _tooltipLocation;
+
     static const qint32 _cPixelPerPointThreshold = 5; /* in pixels */
 
 };
