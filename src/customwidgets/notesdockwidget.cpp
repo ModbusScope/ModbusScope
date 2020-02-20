@@ -5,12 +5,11 @@
 
 NotesDockWidget::NotesDockWidget(NoteModel *pNoteModel, GuiModel *pGuiModel, QWidget *parent) :
     QWidget(parent),
-    _pUi(new Ui::NotesDockWidget)
+    _pUi(new Ui::NotesDockWidget),
+    _pNoteModel(pNoteModel),
+    _pGuiModel(pGuiModel)
 {
     _pUi->setupUi(this);
-
-    _pNoteModel = pNoteModel;
-    _pGuiModel = pGuiModel;
 
     // Setup registerView
     _pUi->noteView->setModel(_pNoteModel);
@@ -69,7 +68,7 @@ void NotesDockWidget::removeNoteRow()
         rows << idx.row();
     }
 
-    qSort(rows.begin(), rows.end(), qGreater<int>());
+    std::sort(rows.begin(), rows.end(), std::greater<int>());
 
     for (int i: rows)
     {
