@@ -33,7 +33,7 @@ public:
     qint32 graphDataSize();
     bool valuesUnderCursor(QList<double> &valueList);
 
-    QPointF pixelToPointF(const QPointF& pixel) const;
+    QPointF pixelToPointF(const QPoint &pixel) const;
     double pixelToClosestKey(double pixel);
     double pixelToClosestValue(double pixel);
 

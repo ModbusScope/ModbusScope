@@ -161,7 +161,7 @@ bool BasicGraphView::valuesUnderCursor(QList<double> &valueList)
 
 }
 
-QPointF BasicGraphView::pixelToPointF(const QPointF& pixel) const
+QPointF BasicGraphView::pixelToPointF(const QPoint& pixel) const
 {
     return QPointF(_pPlot->xAxis->pixelToCoord(pixel.x()),
                    _pPlot->yAxis->pixelToCoord(pixel.y()));
