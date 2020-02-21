@@ -216,7 +216,7 @@ void NoteModel::clear()
     }
 }
 
-const QPointF&  NoteModel::notePosition(qint32 idx) const
+const QPointF& NoteModel::notePosition(qint32 idx) const
 {
     return _noteList[idx].notePosition();
 }
