@@ -165,18 +165,6 @@ double BasicGraphView::pixelToClosestValue(double pixel)
     return getClosestPoint(_pPlot->yAxis->pixelToCoord(pixel));
 }
 
-void BasicGraphView::autoScaleXAxis()
-{
-    _pPlot->xAxis->rescale(true);
-    _pPlot->replot();
-}
-
-void BasicGraphView::autoScaleYAxis()
-{
-    _pPlot->yAxis->rescale(true);
-    _pPlot->replot();
-}
-
 void BasicGraphView::updateTooltip()
 {
     paintTimeStampToolTip(_pPlot->mapFromGlobal(QCursor::pos()));

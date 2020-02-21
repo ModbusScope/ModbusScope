@@ -40,9 +40,6 @@ public:
 
 public slots:
 
-    virtual void autoScaleXAxis();
-    virtual void autoScaleYAxis();
-
     virtual void updateTooltip();
     virtual void enableSamplePoints();
     virtual void clearGraph(const quint32 graphIdx);
