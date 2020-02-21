@@ -60,6 +60,7 @@ SET(SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/markerinfodialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/graphview/myqcpaxistickertime.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/graphview/myqcpaxis.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/graphview/noteitem.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/importmbcdialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/importexport/mbcfileimporter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/errorlog.cpp

@@ -13,6 +13,9 @@
 #include "myqcpaxis.h"
 #include "basicgraphview.h"
 #include "graphviewzoom.h"
+#include "noteitem.h"
+
+const static quint32 NO_DRAGGED_NOTE = 0xFFFFFFFF;
 
 BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, NoteModel *pNoteModel, MyQCustomPlot * pPlot, QObject *parent) :
     QObject(parent)
@@ -79,15 +82,14 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
    connect(_pPlot, SIGNAL(beforeReplot()), this, SLOT(handleSamplePoints()));
 
    // Note model
-   connect(_pNoteModel, SIGNAL(valueDataChanged(const quint32)), this, SLOT(handleNoteValueDataChanged(const quint32)));
-   connect(_pNoteModel, SIGNAL(keyDataChanged(const quint32)), this, SLOT(handleNoteKeyDataChanged(const quint32)));
+   connect(_pNoteModel, SIGNAL(notePositionChanged(const quint32)), this, SLOT(handleNotePositionChanged(const quint32)));
    connect(_pNoteModel, SIGNAL(textChanged(const quint32)), this, SLOT(handleNoteTextChanged(const quint32)));
    connect(_pNoteModel, SIGNAL(added(const quint32)), this, SLOT(handleNoteAdded(const quint32)));
    connect(_pNoteModel, SIGNAL(removed(const quint32)), this, SLOT(handleNoteRemoved(const quint32)));
 
-   _pDraggedNoteIdx = -1;
-   _pixelXOffset = 0;
-   _pixelYOffset = 0;
+   _pDraggedNoteIdx = NO_DRAGGED_NOTE;
+   _pixelOffset.setX(0);
+   _pixelOffset.setY(0);
 
    QPen markerPen;
    markerPen.setWidth(2);
@@ -159,14 +161,10 @@ bool BasicGraphView::valuesUnderCursor(QList<double> &valueList)
 
 }
 
-double BasicGraphView::pixelToKey(double pixel)
+QPointF BasicGraphView::pixelToPointF(const QPointF& pixel) const
 {
-    return _pPlot->xAxis->pixelToCoord(pixel);
-}
-
-double BasicGraphView::pixelToValue(double pixel)
-{
-    return _pPlot->yAxis->pixelToCoord(pixel);
+    return QPointF(_pPlot->xAxis->pixelToCoord(pixel.x()),
+                   _pPlot->yAxis->pixelToCoord(pixel.y()));
 }
 
 double BasicGraphView::pixelToClosestKey(double pixel)
@@ -375,15 +373,9 @@ void BasicGraphView::setEndMarker()
     _pPlot->replot();
 }
 
-void BasicGraphView::handleNoteValueDataChanged(const quint32 idx)
+void BasicGraphView::handleNotePositionChanged(const quint32 idx)
 {
-    _notesItems[idx]->position->setCoords(QPointF(_pNoteModel->keyData(idx), _pNoteModel->valueData(idx))); // place position at left/top of axis rect
-    _pPlot->replot();
-}
-
-void BasicGraphView::handleNoteKeyDataChanged(const quint32 idx)
-{
-    _notesItems[idx]->position->setCoords(QPointF(_pNoteModel->keyData(idx), _pNoteModel->valueData(idx))); // place position at left/top of axis rect
+    _notesItems[idx]->setNotePosition(_pNoteModel->notePosition(idx)); // place position at left/top of axis rect
     _pPlot->replot();
 }
 
@@ -395,23 +387,17 @@ void BasicGraphView::handleNoteTextChanged(const quint32 idx)
 
 void BasicGraphView::handleNoteAdded(const quint32 idx)
 {
-    QCPItemText *pTextLabel = new QCPItemText(_pPlot);
+    auto newNote = QSharedPointer<NoteItem>( new NoteItem(_pPlot,
+                                              _pNoteModel->textData(idx),
+                                              _pNoteModel->notePosition(idx)));
 
-    pTextLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-    pTextLabel->setTextAlignment(Qt::AlignLeft);
-    pTextLabel->setText(_pNoteModel->textData(idx));
-    pTextLabel->position->setType(QCPItemPosition::ptPlotCoords);
-    pTextLabel->setPen(QPen(Qt::black)); // show black border around text
-    pTextLabel->position->setCoords(QPointF(_pNoteModel->keyData(idx), _pNoteModel->valueData(idx))); // place position at left/top of axis rect
-
-    _notesItems.append(pTextLabel);
+    _notesItems.append(newNote);
 
     _pPlot->replot();
 }
 
 void BasicGraphView::handleNoteRemoved(const quint32 idx)
 {
-    _pPlot->removeItem(_notesItems[idx]);
     _notesItems.removeAt(idx);
     _pPlot->replot();
 }
@@ -479,22 +465,21 @@ void BasicGraphView::mousePress(QMouseEvent *event)
     }
     else
     {
-        _pDraggedNoteIdx = -1;
+        _pDraggedNoteIdx = NO_DRAGGED_NOTE;
         QCPAbstractItem * pItem = _pPlot->itemAt(event->pos(), false);
         for(int idx = 0; idx < _notesItems.size(); idx++)
         {
-            if (_notesItems[idx] == pItem)
+            if (_notesItems[idx]->isItem(pItem))
             {
                 _pDraggedNoteIdx = idx;
                 break;
             }
         }
 
-        if (_pDraggedNoteIdx != -1)
+        if (_pDraggedNoteIdx != NO_DRAGGED_NOTE)
         {
             /* Save cursor offset */
-            _pixelXOffset = event->pos().x() - _notesItems[_pDraggedNoteIdx]->topLeft->pixelPosition().x();
-            _pixelYOffset = event->pos().y() - _notesItems[_pDraggedNoteIdx]->topLeft->pixelPosition().y();
+            _pixelOffset = event->pos() - _notesItems[_pDraggedNoteIdx]->getNotePosition();
 
             /* Ignore global drag */
             /* Disable range drag when note item is selected */
@@ -527,7 +512,7 @@ void BasicGraphView::mouseRelease(QMouseEvent *event)
 
     (void)_pGraphViewZoom->handleMouseRelease();
 
-    _pDraggedNoteIdx = -1;
+    _pDraggedNoteIdx = NO_DRAGGED_NOTE;
 
     /* Always re-enable range drag */
     _pPlot->setInteraction(QCP::iRangeDrag, true);
@@ -575,10 +560,9 @@ void BasicGraphView::mouseMove(QMouseEvent *event)
             {
                 /* Already handled by graph zoom */
             }
-            else if ((_pDraggedNoteIdx != -1) && _pNoteModel->draggable(_pDraggedNoteIdx))
+            else if ((_pDraggedNoteIdx != NO_DRAGGED_NOTE) && _pNoteModel->draggable(_pDraggedNoteIdx))
             {
-                _pNoteModel->setKeyData(_pDraggedNoteIdx, pixelToKey(event->pos().x() - _pixelXOffset));
-                _pNoteModel->setValueData(_pDraggedNoteIdx, pixelToValue(event->pos().y() - _pixelYOffset));
+                _pNoteModel->setNotePostion(_pDraggedNoteIdx, pixelToPointF(event->pos() - _pixelOffset));
             }
             else
             {

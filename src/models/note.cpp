@@ -1,11 +1,18 @@
 #include "note.h"
 
-Note::Note()
+Note::Note() :
+    _relativeNotePosition(0.0, 0.0),
+    _text(""),
+    _bDraggable(false)
 {
-    _valueData = 0;
-    _keyData = 0;
-    _text = QString("");
-    _bDraggable = false;
+}
+
+Note::Note(const QString& text, const QPointF& position)
+    : _relativeNotePosition(position),
+      _text(text),
+      _bDraggable(false)
+{
+
 }
 
 QString Note::text() const
@@ -18,24 +25,19 @@ void Note::setText(const QString &text)
     _text = text;
 }
 
-double Note::valueData() const
+const QPointF& Note::notePosition() const
 {
-    return _valueData;
+    return _relativeNotePosition;
 }
 
-void Note::setValueData(double valueData)
+void Note::setNotePosition(const QPointF &position)
 {
-    _valueData = valueData;
+    _relativeNotePosition = position;
 }
 
-double Note::keyData() const
+void Note::setNotePosition(double key, double value)
 {
-    return _keyData;
-}
-
-void Note::setKeyData(double keyData)
-{
-    _keyData = keyData;
+    setNotePosition(QPointF(key, value));
 }
 
 bool Note::draggable() const
