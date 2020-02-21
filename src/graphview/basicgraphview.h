@@ -4,14 +4,13 @@
 #include <QObject>
 
 #include "myqcustomplot.h"
-#include "noteitem.h"
-
 
 /* forward declaration */
 class GuiModel;
 class GraphDataModel;
 class NoteModel;
 class GraphViewZoom;
+class NoteHandling;
 
 class BasicGraphView : public QObject
 {
@@ -55,11 +54,6 @@ public slots:
     virtual void setStartMarker();
     virtual void setEndMarker();
 
-    virtual void handleNotePositionChanged(const quint32 idx);
-    virtual void handleNoteTextChanged(const quint32 idx);
-    virtual void handleNoteAdded(const quint32 idx);
-    virtual void handleNoteRemoved(const quint32 idx);
-
 signals:
     void cursorValueUpdate();
 
@@ -80,7 +74,6 @@ protected:
 
     GuiModel * _pGuiModel;
     GraphDataModel * _pGraphDataModel;
-    NoteModel * _pNoteModel;
     MyQCustomPlot * _pPlot;
     bool _bEnableSampleHighlight;
 
@@ -90,12 +83,9 @@ private:
     double getClosestPoint(double coordinate);
 
     QVector<QString> _tickLabels;
-    QList< QSharedPointer<NoteItem> > _notesItems;
-
-    quint32 _pDraggedNoteIdx;
-    QPoint _pixelOffset;
 
     GraphViewZoom* _pGraphViewZoom;
+    NoteHandling* _pNoteHandling;
 
     QCPItemStraightLine * _pStartMarker;
     QCPItemStraightLine * _pEndMarker;

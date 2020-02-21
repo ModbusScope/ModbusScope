@@ -13,20 +13,18 @@
 #include "myqcpaxis.h"
 #include "basicgraphview.h"
 #include "graphviewzoom.h"
-#include "noteitem.h"
-
-const static quint32 NO_DRAGGED_NOTE = 0xFFFFFFFF;
+#include "notehandling.h"
 
 BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, NoteModel *pNoteModel, MyQCustomPlot * pPlot, QObject *parent) :
     QObject(parent)
 {
     _pGuiModel = pGuiModel;
     _pGraphDataModel = pGraphDataModel;
-    _pNoteModel = pNoteModel;
 
    _pPlot = pPlot;
 
    _pGraphViewZoom = new GraphViewZoom(_pGuiModel, _pPlot, this);
+   _pNoteHandling = new NoteHandling(pNoteModel, _pPlot, this);
 
    /* Range drag is also enabled/disabled on mousePress and mouseRelease event */
    _pPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes);
@@ -80,16 +78,6 @@ BasicGraphView::BasicGraphView(GuiModel * pGuiModel, GraphDataModel * pGraphData
    connect(_pPlot, SIGNAL(axisDoubleClick(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)), this, SLOT(axisDoubleClicked(QCPAxis*)));
    connect(_pPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMove(QMouseEvent*)));
    connect(_pPlot, SIGNAL(beforeReplot()), this, SLOT(handleSamplePoints()));
-
-   // Note model
-   connect(_pNoteModel, SIGNAL(notePositionChanged(const quint32)), this, SLOT(handleNotePositionChanged(const quint32)));
-   connect(_pNoteModel, SIGNAL(textChanged(const quint32)), this, SLOT(handleNoteTextChanged(const quint32)));
-   connect(_pNoteModel, SIGNAL(added(const quint32)), this, SLOT(handleNoteAdded(const quint32)));
-   connect(_pNoteModel, SIGNAL(removed(const quint32)), this, SLOT(handleNoteRemoved(const quint32)));
-
-   _pDraggedNoteIdx = NO_DRAGGED_NOTE;
-   _pixelOffset.setX(0);
-   _pixelOffset.setY(0);
 
    QPen markerPen;
    markerPen.setWidth(2);
@@ -373,35 +361,6 @@ void BasicGraphView::setEndMarker()
     _pPlot->replot();
 }
 
-void BasicGraphView::handleNotePositionChanged(const quint32 idx)
-{
-    _notesItems[idx]->setNotePosition(_pNoteModel->notePosition(idx)); // place position at left/top of axis rect
-    _pPlot->replot();
-}
-
-void BasicGraphView::handleNoteTextChanged(const quint32 idx)
-{
-    _notesItems[idx]->setText(_pNoteModel->textData(idx));
-    _pPlot->replot();
-}
-
-void BasicGraphView::handleNoteAdded(const quint32 idx)
-{
-    auto newNote = QSharedPointer<NoteItem>( new NoteItem(_pPlot,
-                                              _pNoteModel->textData(idx),
-                                              _pNoteModel->notePosition(idx)));
-
-    _notesItems.append(newNote);
-
-    _pPlot->replot();
-}
-
-void BasicGraphView::handleNoteRemoved(const quint32 idx)
-{
-    _notesItems.removeAt(idx);
-    _pPlot->replot();
-}
-
 void BasicGraphView::selectionChanged()
 {
    /*
@@ -465,22 +424,9 @@ void BasicGraphView::mousePress(QMouseEvent *event)
     }
     else
     {
-        _pDraggedNoteIdx = NO_DRAGGED_NOTE;
-        QCPAbstractItem * pItem = _pPlot->itemAt(event->pos(), false);
-        for(int idx = 0; idx < _notesItems.size(); idx++)
-        {
-            if (_notesItems[idx]->isItem(pItem))
-            {
-                _pDraggedNoteIdx = idx;
-                break;
-            }
-        }
 
-        if (_pDraggedNoteIdx != NO_DRAGGED_NOTE)
+        if (_pNoteHandling->handleMousePress(event))
         {
-            /* Save cursor offset */
-            _pixelOffset = event->pos() - _notesItems[_pDraggedNoteIdx]->getNotePosition();
-
             /* Ignore global drag */
             /* Disable range drag when note item is selected */
             _pPlot->setInteraction(QCP::iRangeDrag, false);
@@ -511,8 +457,7 @@ void BasicGraphView::mouseRelease(QMouseEvent *event)
     Q_UNUSED(event);
 
     (void)_pGraphViewZoom->handleMouseRelease();
-
-    _pDraggedNoteIdx = NO_DRAGGED_NOTE;
+    (void)_pNoteHandling->handleMouseRelease();
 
     /* Always re-enable range drag */
     _pPlot->setInteraction(QCP::iRangeDrag, true);
@@ -560,9 +505,9 @@ void BasicGraphView::mouseMove(QMouseEvent *event)
             {
                 /* Already handled by graph zoom */
             }
-            else if ((_pDraggedNoteIdx != NO_DRAGGED_NOTE) && _pNoteModel->draggable(_pDraggedNoteIdx))
+            else if (_pNoteHandling->handleMouseMove(event))
             {
-                _pNoteModel->setNotePostion(_pDraggedNoteIdx, pixelToPointF(event->pos() - _pixelOffset));
+                /* Already handled by graph zoom */
             }
             else
             {

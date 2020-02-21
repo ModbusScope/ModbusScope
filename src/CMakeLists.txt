@@ -26,6 +26,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/util/version.h.in ${CMAKE_CURRENT_SOU
 
 SET(SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/graphview/graphviewzoom.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/graphview/notehandling.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/importexport/presetparser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libraries/qcustomplot/qcustomplot.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/communication/communicationmanager.cpp
