@@ -8,7 +8,7 @@ NoteItem::NoteItem(MyQCustomPlot* pPlot,
 {  
     _note = new QCPItemText(_plot);
 
-    _note->setPositionAlignment(Qt::AlignBottom|Qt::AlignRight);
+    _note->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
     _note->setTextAlignment(Qt::AlignLeft);
     _note->setText(rText);
     _note->position->setType(QCPItemPosition::ptPlotCoords);
