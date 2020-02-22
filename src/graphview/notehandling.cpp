@@ -7,7 +7,7 @@ NoteHandling::NoteHandling(NoteModel* pNoteModel, MyQCustomPlot* pPlot, QObject 
     QObject(parent),
     _pNoteModel(pNoteModel),
     _pPlot(pPlot),
-    _pGraphview(dynamic_cast<BasicGraphView*>(parent))
+    _pGraphview(dynamic_cast<GraphView*>(parent))
 {
 
 

@@ -32,7 +32,7 @@ private:
 
     NoteModel* _pNoteModel;
     MyQCustomPlot* _pPlot;
-    BasicGraphView* _pGraphview;
+    GraphView* _pGraphview;
 
     QList< QSharedPointer<NoteItem> > _notesItems;
     quint32 _pDraggedNoteIdx;

@@ -53,8 +53,8 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
         _lastDir = docPath[0];
     }
 
-    _guiSettings.xScaleMode = BasicGraphView::SCALE_AUTO;
-    _guiSettings.yScaleMode = BasicGraphView::SCALE_AUTO;
+    _guiSettings.xScaleMode = GraphView::SCALE_AUTO;
+    _guiSettings.yScaleMode = GraphView::SCALE_AUTO;
     _guiSettings.yMax = 10;
     _guiSettings.yMin = 0;
     _guiSettings.xslidingInterval = 30;
@@ -190,7 +190,7 @@ QString GuiModel::lastDir()
     return _lastDir;
 }
 
-void GuiModel::setxAxisScale(BasicGraphView::AxisScaleOptions scaleMode)
+void GuiModel::setxAxisScale(GraphView::AxisScaleOptions scaleMode)
 {
     if (_guiSettings.xScaleMode != scaleMode)
     {
@@ -199,7 +199,7 @@ void GuiModel::setxAxisScale(BasicGraphView::AxisScaleOptions scaleMode)
     }
 }
 
-BasicGraphView::AxisScaleOptions GuiModel::xAxisScalingMode()
+GraphView::AxisScaleOptions GuiModel::xAxisScalingMode()
 {
     return _guiSettings.xScaleMode;
 }
@@ -219,12 +219,12 @@ quint32 GuiModel::xAxisSlidingSec()
     return _guiSettings.xslidingInterval;
 }
 
-BasicGraphView::AxisScaleOptions GuiModel::yAxisScalingMode()
+GraphView::AxisScaleOptions GuiModel::yAxisScalingMode()
 {
     return _guiSettings.yScaleMode;
 }
 
-void GuiModel::setyAxisScale(BasicGraphView::AxisScaleOptions scaleMode)
+void GuiModel::setyAxisScale(GraphView::AxisScaleOptions scaleMode)
 {
     if (_guiSettings.yScaleMode != scaleMode)
     {

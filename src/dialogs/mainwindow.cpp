@@ -16,7 +16,7 @@
 #include "aboutdialog.h"
 #include "markerinfo.h"
 #include "guimodel.h"
-#include "extendedgraphview.h"
+#include "graphview.h"
 #include "datafilehandler.h"
 #include "projectfilehandler.h"
 #include "util.h"
@@ -50,7 +50,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
 
     _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pGraphDataModel, _pErrorLogModel);
-    _pGraphView = new ExtendedGraphView(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
+    _pGraphView = new GraphView(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
     _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel, _pSettingsModel, _pDataParserModel, this);
     _pProjectFileHandler = new ProjectFileHandler(_pGuiModel, _pSettingsModel, _pGraphDataModel);
 
@@ -189,18 +189,18 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     // Create button group for X axis scaling options
     _pXAxisScaleGroup = new QButtonGroup();
     _pXAxisScaleGroup->setExclusive(true);
-    _pXAxisScaleGroup->addButton(_pUi->radioXFullScale, BasicGraphView::SCALE_AUTO);
-    _pXAxisScaleGroup->addButton(_pUi->radioXSliding, BasicGraphView::SCALE_SLIDING);
-    _pXAxisScaleGroup->addButton(_pUi->radioXManual, BasicGraphView::SCALE_MANUAL);
+    _pXAxisScaleGroup->addButton(_pUi->radioXFullScale, GraphView::SCALE_AUTO);
+    _pXAxisScaleGroup->addButton(_pUi->radioXSliding, GraphView::SCALE_SLIDING);
+    _pXAxisScaleGroup->addButton(_pUi->radioXManual, GraphView::SCALE_MANUAL);
     connect(_pXAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(xAxisScaleGroupClicked(int)));
 
     // Create button group for Y axis scaling options
     _pYAxisScaleGroup = new QButtonGroup();
     _pYAxisScaleGroup->setExclusive(true);
-    _pYAxisScaleGroup->addButton(_pUi->radioYFullScale, BasicGraphView::SCALE_AUTO);
-    _pYAxisScaleGroup->addButton(_pUi->radioYWindowScale, BasicGraphView::SCALE_WINDOW_AUTO);
-    _pYAxisScaleGroup->addButton(_pUi->radioYMinMax, BasicGraphView::SCALE_MINMAX);
-    _pYAxisScaleGroup->addButton(_pUi->radioYManual, BasicGraphView::SCALE_MANUAL);
+    _pYAxisScaleGroup->addButton(_pUi->radioYFullScale, GraphView::SCALE_AUTO);
+    _pYAxisScaleGroup->addButton(_pUi->radioYWindowScale, GraphView::SCALE_WINDOW_AUTO);
+    _pYAxisScaleGroup->addButton(_pUi->radioYMinMax, GraphView::SCALE_MINMAX);
+    _pYAxisScaleGroup->addButton(_pUi->radioYManual, GraphView::SCALE_MANUAL);
     connect(_pYAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(yAxisScaleGroupClicked(int)));
 
     /* handle focus change */
@@ -210,8 +210,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pNoteModel, SIGNAL(dataFileUpdateRequested()), this, SLOT(updateDataFileNotes()));
 
     // Default to full auto scaling
-    _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
-    _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
+    _pGuiModel->setxAxisScale(GraphView::SCALE_AUTO);
+    _pGuiModel->setyAxisScale(GraphView::SCALE_AUTO);
 
     connect(_pConnMan, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pGraphView, SLOT(plotResults(QList<bool>, QList<double>)));
     connect(_pConnMan, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pLegend, SLOT(addLastReceivedDataToLegend(QList<bool>, QList<double>)));
@@ -512,14 +512,14 @@ void MainWindow::startScope()
             _pDataFileHandler->enableExporterDuringLog();
         }
 
-        if (_pGuiModel->xAxisScalingMode() == BasicGraphView::SCALE_MANUAL)
+        if (_pGuiModel->xAxisScalingMode() == GraphView::SCALE_MANUAL)
         {
-            _pGuiModel->setxAxisScale(BasicGraphView::SCALE_AUTO);
+            _pGuiModel->setxAxisScale(GraphView::SCALE_AUTO);
         }
 
-        if (_pGuiModel->yAxisScalingMode() == BasicGraphView::SCALE_MANUAL)
+        if (_pGuiModel->yAxisScalingMode() == GraphView::SCALE_MANUAL)
         {
-            _pGuiModel->setyAxisScale(BasicGraphView::SCALE_AUTO);
+            _pGuiModel->setyAxisScale(GraphView::SCALE_AUTO);
         }
 
     }
@@ -699,12 +699,12 @@ void MainWindow::updateWindowTitle()
 
 void MainWindow::updatexAxisSlidingMode()
 {
-    if (_pGuiModel->xAxisScalingMode() == BasicGraphView::SCALE_AUTO)
+    if (_pGuiModel->xAxisScalingMode() == GraphView::SCALE_AUTO)
     {
         // Full auto scaling
         _pUi->radioXFullScale->setChecked(true);
     }
-    else if (_pGuiModel->xAxisScalingMode() == BasicGraphView::SCALE_SLIDING)
+    else if (_pGuiModel->xAxisScalingMode() == GraphView::SCALE_SLIDING)
     {
         // Sliding window
         _pUi->radioXSliding->setChecked(true);
@@ -723,17 +723,17 @@ void MainWindow::updatexAxisSlidingInterval()
 
 void MainWindow::updateyAxisSlidingMode()
 {
-    if (_pGuiModel->yAxisScalingMode() == BasicGraphView::SCALE_AUTO)
+    if (_pGuiModel->yAxisScalingMode() == GraphView::SCALE_AUTO)
     {
         // Full auto scaling
         _pUi->radioYFullScale->setChecked(true);
     }
-    else if (_pGuiModel->yAxisScalingMode() == BasicGraphView::SCALE_MINMAX)
+    else if (_pGuiModel->yAxisScalingMode() == GraphView::SCALE_MINMAX)
     {
         // Min and max selected
         _pUi->radioYMinMax->setChecked(true);
     }
-    else if (_pGuiModel->yAxisScalingMode() == BasicGraphView::SCALE_WINDOW_AUTO)
+    else if (_pGuiModel->yAxisScalingMode() == GraphView::SCALE_WINDOW_AUTO)
     {
         // Window auto scale selected
         _pUi->radioYWindowScale->setChecked(true);
@@ -967,12 +967,12 @@ void MainWindow::appFocusChanged(QWidget * old, QWidget * now)
 
 void MainWindow::xAxisScaleGroupClicked(int id)
 {
-    _pGuiModel->setxAxisScale((BasicGraphView::AxisScaleOptions)id);
+    _pGuiModel->setxAxisScale((GraphView::AxisScaleOptions)id);
 }
 
 void MainWindow::yAxisScaleGroupClicked(int id)
 {
-    _pGuiModel->setyAxisScale((BasicGraphView::AxisScaleOptions)id) ;
+    _pGuiModel->setyAxisScale((GraphView::AxisScaleOptions)id) ;
 }
 
 void MainWindow::updateRuntime()

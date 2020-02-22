@@ -143,7 +143,7 @@ void ProjectFileExporter::createViewTag(QDomElement * pParentElement)
     /* Create xAxisElement tag */
     QDomElement xAxisElement = _domDocument.createElement(ProjectFileDefinitions::cXaxisTag);
 
-    if (_pGuiModel->xAxisScalingMode() == BasicGraphView::SCALE_SLIDING)
+    if (_pGuiModel->xAxisScalingMode() == GraphView::SCALE_SLIDING)
     {
         xAxisElement.setAttribute(ProjectFileDefinitions::cModeAttribute, ProjectFileDefinitions::cSlidingValue);
 
@@ -160,11 +160,11 @@ void ProjectFileExporter::createViewTag(QDomElement * pParentElement)
     QDomElement yAxisElement = _domDocument.createElement(ProjectFileDefinitions::cYaxisTag);
 
 
-    if (_pGuiModel->yAxisScalingMode() == BasicGraphView::SCALE_WINDOW_AUTO)
+    if (_pGuiModel->yAxisScalingMode() == GraphView::SCALE_WINDOW_AUTO)
     {
         yAxisElement.setAttribute(ProjectFileDefinitions::cModeAttribute, ProjectFileDefinitions::cWindowAutoValue);
     }
-    else if (_pGuiModel->yAxisScalingMode() == BasicGraphView::SCALE_MINMAX)
+    else if (_pGuiModel->yAxisScalingMode() == GraphView::SCALE_MINMAX)
     {
         yAxisElement.setAttribute(ProjectFileDefinitions::cModeAttribute, ProjectFileDefinitions::cMinmaxValue);
 

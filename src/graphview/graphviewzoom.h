@@ -27,7 +27,7 @@ private:
 
     GuiModel* _pGuiModel;
     MyQCustomPlot* _pPlot;
-    BasicGraphView* _pGraphview;
+    GraphView* _pGraphview;
 
     QPoint _selectionOrigin;
     QRubberBand* _pRubberBand;

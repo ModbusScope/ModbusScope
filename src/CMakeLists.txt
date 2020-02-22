@@ -37,8 +37,7 @@ SET(SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/connectiondialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/logdialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/mainwindow.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/graphview/basicgraphview.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/graphview/extendedgraphview.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/graphview/graphview.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/errorlogfilter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/guimodel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/settingsmodel.cpp

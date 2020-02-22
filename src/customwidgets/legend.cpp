@@ -9,7 +9,7 @@
 #include "graphdatamodel.h"
 #include "util.h"
 #include "legend.h"
-#include "basicgraphview.h"
+#include "graphview.h"
 
 Legend::Legend(QWidget *parent) : QFrame(parent)
 {
@@ -78,7 +78,7 @@ Legend::~Legend()
     delete _pLegendMenu;
 }
 
-void Legend::setGraphview(BasicGraphView * pGraphView)
+void Legend::setGraphview(GraphView * pGraphView)
 {
     _pGraphView = pGraphView;
 }
