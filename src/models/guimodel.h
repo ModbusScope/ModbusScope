@@ -2,7 +2,18 @@
 #define GUIMODEL_H
 
 #include <QObject>
-#include "graphview.h"
+
+namespace AxisMode
+{
+    typedef enum
+    {
+        SCALE_AUTO = 0,
+        SCALE_WINDOW_AUTO,
+        SCALE_SLIDING,
+        SCALE_MINMAX,
+        SCALE_MANUAL
+    } AxisScaleOptions;
+}
 
 class GuiModel : public QObject
 {
@@ -47,9 +58,9 @@ public:
     QString windowTitle();
     QString projectFilePath();
     QString lastDir();
-    GraphView::AxisScaleOptions xAxisScalingMode();
+    AxisMode::AxisScaleOptions xAxisScalingMode();
     quint32 xAxisSlidingSec();
-    GraphView::AxisScaleOptions  yAxisScalingMode();
+    AxisMode::AxisScaleOptions  yAxisScalingMode();
     qint32 yAxisMin();
     qint32 yAxisMax();
     quint32 guiState();
@@ -73,9 +84,9 @@ public slots:
     void setFrontGraph(const qint32 &frontGraph);
 
     void setWindowTitleDetail(QString detail);
-    void setxAxisScale(GraphView::AxisScaleOptions scaleMode);
+    void setxAxisScale(AxisMode::AxisScaleOptions scaleMode);
     void setxAxisSlidingInterval(qint32 slidingSec);
-    void setyAxisScale(GraphView::AxisScaleOptions scaleMode);
+    void setyAxisScale(AxisMode::AxisScaleOptions scaleMode);
     void setyAxisMin(qint32 newMin);
     void setyAxisMax(qint32 newMax);
     void setGuiState(quint32 state);
@@ -116,10 +127,10 @@ private:
 
     typedef struct
     {
-        GraphView::AxisScaleOptions xScaleMode;
+        AxisMode::AxisScaleOptions xScaleMode;
         quint32 xslidingInterval;
 
-        GraphView::AxisScaleOptions yScaleMode;
+        AxisMode::AxisScaleOptions yScaleMode;
         qint32 yMin;
         qint32 yMax;
 

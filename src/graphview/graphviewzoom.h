@@ -6,6 +6,9 @@
 #include "myqcustomplot.h"
 #include "guimodel.h"
 
+// Forward declaration
+class GraphView;
+
 class GraphViewZoom : public QObject
 {
     Q_OBJECT

@@ -355,8 +355,8 @@ void GraphView::setEndMarker()
 
 void GraphView::addData(QList<double> timeData, QList<QList<double> > data)
 {
-    _pGuiModel->setxAxisScale(GraphView::SCALE_AUTO);
-    _pGuiModel->setyAxisScale(GraphView::SCALE_AUTO);
+    _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
+    _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
 
     updateData(&timeData, &data);
 }
@@ -379,7 +379,7 @@ void GraphView::rescalePlot()
 {
 
     // scale x-axis
-    if (_pGuiModel->xAxisScalingMode() == SCALE_AUTO)
+    if (_pGuiModel->xAxisScalingMode() == AxisMode::SCALE_AUTO)
     {
         if ((_pPlot->graphCount() != 0) && (graphDataSize() != 0))
         {
@@ -390,7 +390,7 @@ void GraphView::rescalePlot()
             _pPlot->xAxis->setRange(0, 10000);
         }
     }
-    else if (_pGuiModel->xAxisScalingMode() == SCALE_SLIDING)
+    else if (_pGuiModel->xAxisScalingMode() == AxisMode::SCALE_SLIDING)
     {
         // sliding window scale routine
         const quint64 slidingInterval = static_cast<quint64>(_pGuiModel->xAxisSlidingSec()) * 1000;
@@ -420,7 +420,7 @@ void GraphView::rescalePlot()
     }
 
     // scale y-axis
-    if (_pGuiModel->yAxisScalingMode() == SCALE_AUTO)
+    if (_pGuiModel->yAxisScalingMode() == AxisMode::SCALE_AUTO)
     {
         if ((_pPlot->graphCount() != 0) && (graphDataSize()))
         {
@@ -431,12 +431,12 @@ void GraphView::rescalePlot()
             _pPlot->yAxis->setRange(0, 10);
         }
     }
-    else if (_pGuiModel->yAxisScalingMode() == SCALE_MINMAX)
+    else if (_pGuiModel->yAxisScalingMode() == AxisMode::SCALE_MINMAX)
     {
         // min max scale routine
         _pPlot->yAxis->setRange(_pGuiModel->yAxisMin(), _pGuiModel->yAxisMax());
     }
-    else if (_pGuiModel->yAxisScalingMode() == SCALE_WINDOW_AUTO)
+    else if (_pGuiModel->yAxisScalingMode() == AxisMode::SCALE_WINDOW_AUTO)
     {
         auto pAxis = dynamic_cast<MyQCPAxis *>(_pPlot->yAxis);
         if (pAxis != nullptr)
@@ -617,18 +617,18 @@ void GraphView::mouseWheel()
         if (_pPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
         {
            _pPlot->axisRect()->setRangeZoom(_pPlot->xAxis->orientation());
-           _pGuiModel->setxAxisScale(SCALE_MANUAL); // change to manual scaling
+           _pGuiModel->setxAxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
         }
         else if (_pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
         {
            _pPlot->axisRect()->setRangeZoom(_pPlot->yAxis->orientation());
-           _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
+           _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
         }
         else
         {
            _pPlot->axisRect()->setRangeZoom(Qt::Horizontal|Qt::Vertical);
-           _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
-           _pGuiModel->setxAxisScale(SCALE_MANUAL);
+           _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
+           _pGuiModel->setxAxisScale(AxisMode::SCALE_MANUAL);
         }
     }
 }
@@ -652,17 +652,17 @@ void GraphView::mouseMove(QMouseEvent *event)
             {
                 if (_pPlot->axisRect()->rangeDrag() == Qt::Horizontal)
                 {
-                    _pGuiModel->setxAxisScale(SCALE_MANUAL); // change to manual scaling
+                    _pGuiModel->setxAxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
                 }
                 else if (_pPlot->axisRect()->rangeDrag() == Qt::Vertical)
                 {
-                    _pGuiModel->setyAxisScale(SCALE_MANUAL); // change to manual scaling
+                    _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
                 }
                 else
                 {
                     // Both change to manual scaling
-                    _pGuiModel->setxAxisScale(SCALE_MANUAL);
-                    _pGuiModel->setyAxisScale(SCALE_MANUAL);
+                    _pGuiModel->setxAxisScale(AxisMode::SCALE_MANUAL);
+                    _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL);
                 }
             }
         }
@@ -766,11 +766,11 @@ void GraphView::axisDoubleClicked(QCPAxis * axis)
 {
     if (axis == _pPlot->xAxis)
     {
-        _pGuiModel->setxAxisScale(SCALE_AUTO);
+        _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
     }
     else if (axis == _pPlot->yAxis)
     {
-        _pGuiModel->setyAxisScale(SCALE_AUTO);
+        _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
     }
     else
     {

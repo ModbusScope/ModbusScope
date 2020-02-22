@@ -19,15 +19,6 @@ class GraphView : public QObject
     Q_OBJECT
 public:
 
-    typedef enum
-    {
-        SCALE_AUTO = 0,
-        SCALE_WINDOW_AUTO,
-        SCALE_SLIDING,
-        SCALE_MINMAX,
-        SCALE_MANUAL
-    } AxisScaleOptions;
-
     explicit GraphView(GuiModel *pGuiModel, SettingsModel * pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel * pNoteModel, MyQCustomPlot *pPlot, QObject *parent = nullptr);
     virtual ~GraphView();
 

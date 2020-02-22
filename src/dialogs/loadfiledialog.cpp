@@ -1,5 +1,6 @@
 
 #include <QFileDialog>
+#include <QPushButton>
 #include <QColor>
 
 #include "settingsauto.h"

@@ -9,6 +9,9 @@
 #include "notemodel.h"
 #include "noteitem.h"
 
+// Forward declaration
+class GraphView;
+
 class NoteHandling : public QObject
 {
     Q_OBJECT

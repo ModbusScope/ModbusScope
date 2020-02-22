@@ -1,5 +1,6 @@
 
 #include "graphviewzoom.h"
+#include "graphview.h"
 
 GraphViewZoom::GraphViewZoom(GuiModel* pGuiModel, MyQCustomPlot* pPlot, QObject *parent) :
     QObject(parent)
@@ -76,8 +77,8 @@ bool GraphViewZoom::handleMouseRelease()
     {
         _pRubberBand->hide();
 
-        _pGuiModel->setyAxisScale(GraphView::SCALE_MANUAL); // change to manual scaling
-        _pGuiModel->setxAxisScale(GraphView::SCALE_MANUAL);
+        _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
+        _pGuiModel->setxAxisScale(AxisMode::SCALE_MANUAL);
 
         /* Perform zoom based on selected rubberband */
         performZoom();

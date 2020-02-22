@@ -1,4 +1,6 @@
 
+
+#include "graphview.h"
 #include "notehandling.h"
 
 const static quint32 NO_DRAGGED_NOTE = 0xFFFFFFFF;
@@ -9,7 +11,6 @@ NoteHandling::NoteHandling(NoteModel* pNoteModel, MyQCustomPlot* pPlot, QObject 
     _pPlot(pPlot),
     _pGraphview(dynamic_cast<GraphView*>(parent))
 {
-
 
     // Note model
     connect(_pNoteModel, SIGNAL(notePositionChanged(const quint32)), this, SLOT(handleNotePositionChanged(const quint32)));

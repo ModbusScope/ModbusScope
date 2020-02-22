@@ -151,26 +151,26 @@ void ProjectFileHandler::updateConnectionSetting(ProjectFileParser::ProjectSetti
     if (pProjectSettings->view.scaleSettings.bSliding)
     {
         _pGuiModel->setxAxisSlidingInterval(static_cast<qint32>(pProjectSettings->view.scaleSettings.slidingInterval));
-        _pGuiModel->setxAxisScale(GraphView::SCALE_SLIDING);
+        _pGuiModel->setxAxisScale(AxisMode::SCALE_SLIDING);
     }
     else
     {
-        _pGuiModel->setxAxisScale(GraphView::SCALE_AUTO);
+        _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
     }
 
     if (pProjectSettings->view.scaleSettings.bMinMax)
     {
         _pGuiModel->setyAxisMin(pProjectSettings->view.scaleSettings.scaleMin);
         _pGuiModel->setyAxisMax(pProjectSettings->view.scaleSettings.scaleMax);
-        _pGuiModel->setyAxisScale(GraphView::SCALE_MINMAX);
+        _pGuiModel->setyAxisScale(AxisMode::SCALE_MINMAX);
     }
     else if (pProjectSettings->view.scaleSettings.bWindowScale)
     {
-        _pGuiModel->setyAxisScale(GraphView::SCALE_WINDOW_AUTO);
+        _pGuiModel->setyAxisScale(AxisMode::SCALE_WINDOW_AUTO);
     }
     else
     {
-        _pGuiModel->setyAxisScale(GraphView::SCALE_AUTO);
+        _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
     }
 
     _pGraphDataModel->clear();
