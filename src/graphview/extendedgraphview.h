@@ -5,7 +5,6 @@
 #include "basicgraphview.h"
 
 /* Forward declaration */
-class CommunicationManager;
 class SettingsModel;
 
 class ExtendedGraphView : public BasicGraphView
@@ -13,7 +12,7 @@ class ExtendedGraphView : public BasicGraphView
     Q_OBJECT
 
 public:
-    ExtendedGraphView(CommunicationManager * pConnMan, GuiModel *pGuiModel, SettingsModel * pSettingsModel, GraphDataModel * pRegisterDataModel, NoteModel * pNoteModel, MyQCustomPlot *pPlot, QObject *parent);
+    ExtendedGraphView(GuiModel *pGuiModel, SettingsModel * pSettingsModel, GraphDataModel * pRegisterDataModel, NoteModel * pNoteModel, MyQCustomPlot *pPlot, QObject *parent);
     virtual ~ExtendedGraphView();
 
 public slots:
@@ -33,7 +32,6 @@ private slots:
 private:
     static const quint64 _cOptimizeThreshold = 1000000uL;
 
-    CommunicationManager * _pConnMan;
     SettingsModel * _pSettingsModel;
 
 };

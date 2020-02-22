@@ -7,12 +7,11 @@
 #include "communicationmanager.h"
 #include "settingsmodel.h"
 
-ExtendedGraphView::ExtendedGraphView(CommunicationManager * pConnMan, GuiModel * pGuiModel, SettingsModel * pSettingsModel, GraphDataModel * pRegisterDataModel, NoteModel * pNoteModel, MyQCustomPlot *pPlot, QObject *parent):
+ExtendedGraphView::ExtendedGraphView(GuiModel * pGuiModel, SettingsModel * pSettingsModel, GraphDataModel * pRegisterDataModel, NoteModel * pNoteModel, MyQCustomPlot *pPlot, QObject *parent):
     BasicGraphView(pGuiModel, pRegisterDataModel, pNoteModel, pPlot)
 {
     Q_UNUSED(parent);
 
-    _pConnMan = pConnMan;
     _pSettingsModel = pSettingsModel;
 
     connect(_pPlot->xAxis, SIGNAL(rangeChanged(QCPRange, QCPRange)), this, SLOT(xAxisRangeChanged(QCPRange, QCPRange)));
