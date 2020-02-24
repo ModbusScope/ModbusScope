@@ -1,8 +1,12 @@
 #ifndef NOTEITEM_H
 #define NOTEITEM_H
 
-#include "qcustomplot.h"
-#include "myqcustomplot.h"
+#include <QPoint>
+
+// Forward declaration
+class QCPAbstractItem;
+class QCPItemText;
+class MyQCustomPlot;
 
 class NoteItem
 {

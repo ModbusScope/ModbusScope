@@ -1,3 +1,7 @@
+
+#include "qcustomplot.h"
+#include "myqcustomplot.h"
+
 #include "noteitem.h"
 
 NoteItem::NoteItem(MyQCustomPlot* pPlot,
