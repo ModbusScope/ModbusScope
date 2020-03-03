@@ -1,4 +1,4 @@
-# v2.0.0 (TBD)
+# v2.0.0 (03/03/2020)
 
 ## Internal (code changes)
 
