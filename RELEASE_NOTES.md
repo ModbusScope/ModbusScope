@@ -13,15 +13,15 @@
 * Added possibility to change graph color from legend
 * Added filter (error/info) in diagnostics window
 * Added mbc filter based on description / register number
-  * Toggle markers option
-  * Rectangle zoom
+* Toggle markers option
+* Rectangle zoom
 * Integrated most used features from GraphViewer
   * More flexible configuration of parsing settings
   * Advanced auto detection of parsed settings
   * Presets of parse settings
 * Improved file loading/parsing
   * Improve file loading windows (keep showing raw data on invalid parse settings) (#120)
-  * Speed up loading large file (#121)
+  * Speed up loading large data file (#121)
   * Add progress bar on file load (#122)
 
 ## Bugs
