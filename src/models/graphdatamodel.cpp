@@ -12,6 +12,7 @@ namespace {
         ACTIVE,
         UNSIGNED,
         REGISTER,
+        BIT32,
         TEXT,
         BITMASK,
         SHIFT,
@@ -34,6 +35,7 @@ GraphDataModel::GraphDataModel(SettingsModel * pSettingsModel, QObject *parent) 
     connect(this, SIGNAL(colorChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(activeChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(unsignedChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
+    connect(this, SIGNAL(bit32Changed(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(multiplyFactorChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(divideFactorChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(registerAddressChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
@@ -95,6 +97,19 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return registerAddress(index.row());
+        }
+        break;
+    case column::BIT32:
+        if (role == Qt::CheckStateRole)
+        {
+            if (isBit32(index.row()))
+            {
+                return Qt::Checked;
+            }
+            else
+            {
+                return Qt::Unchecked;
+            }
         }
         break;
     case column::TEXT:
@@ -159,6 +174,8 @@ QVariant GraphDataModel::headerData(int section, Qt::Orientation orientation, in
                 return QString("Unsigned");
             case column::REGISTER:
                 return QString("Address");
+            case column::BIT32:
+                return QString("32 bit");
             case column::TEXT:
                 return QString("Text");
             case column::BITMASK:
@@ -253,6 +270,19 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             {
                 Util::showError(tr("Register address is not a valid address between 40001 and 49999."));
                 bRet = false;
+            }
+        }
+        break;
+    case column::BIT32:
+        if (role == Qt::CheckStateRole)
+        {
+            if (value == Qt::Checked)
+            {
+                setBit32(index.row(), true);
+            }
+            else
+            {
+                setBit32(index.row(), false);
             }
         }
         break;
@@ -389,6 +419,7 @@ Qt::ItemFlags GraphDataModel::flags(const QModelIndex & index) const
     if (
             (index.column() == column::ACTIVE)
             || (index.column() == column::UNSIGNED)
+            || (index.column() == column::BIT32)
         )
     {
         // checkable
@@ -469,6 +500,11 @@ bool GraphDataModel::isActive(quint32 index) const
 bool GraphDataModel::isUnsigned(quint32 index) const
 {
     return _graphData[index].isUnsigned();
+}
+
+bool GraphDataModel::isBit32(quint32 index) const
+{
+    return _graphData[index].isBit32();
 }
 
 double GraphDataModel::multiplyFactor(quint32 index) const
@@ -563,6 +599,15 @@ void GraphDataModel::setUnsigned(quint32 index, bool bUnsigned)
     {
          _graphData[index].setUnsigned(bUnsigned);
          emit unsignedChanged(index);
+    }
+}
+
+void GraphDataModel::setBit32(quint32 index, bool b32Bit)
+{
+    if (_graphData[index].isBit32() != b32Bit)
+    {
+         _graphData[index].setBit32(b32Bit);
+         emit bit32Changed(index);
     }
 }
 

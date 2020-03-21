@@ -9,6 +9,7 @@ GraphData::GraphData()
     _color = "-1"; // Invalid color
     _bActive = true;
     _bUnsigned = true;
+    _bit32 = false;
     _registerAddress = 0;
     _bitmask = 0xFFFF;
     _divideFactor = 1;
@@ -75,6 +76,16 @@ bool GraphData::isUnsigned() const
 void GraphData::setUnsigned(bool bUnsigned)
 {
     _bUnsigned = bUnsigned;
+}
+
+bool GraphData::isBit32() const
+{
+    return _bit32;
+}
+
+void GraphData::setBit32(bool isBit32)
+{
+    _bit32 = isBit32;
 }
 
 double GraphData::multiplyFactor() const

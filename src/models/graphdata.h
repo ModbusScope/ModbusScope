@@ -27,6 +27,9 @@ public:
     bool isUnsigned() const;
     void setUnsigned(bool bUnsigned);
 
+    bool isBit32() const;
+    void setBit32(bool isBit32);
+
     double multiplyFactor() const;
     void setMultiplyFactor(double multiplyFactor);
 
@@ -55,6 +58,7 @@ private:
 
     bool _bActive;
     bool _bUnsigned;
+    bool _bit32;
     double _multiplyFactor;
     double _divideFactor;
     quint16 _registerAddress;

@@ -26,7 +26,6 @@ public:
     bool removeRows (int row, int count, const QModelIndex &parent);
     bool insertRows (int row, int count, const QModelIndex &parent);
 
-
     /* Functions for other classes */
     qint32 size() const;
     qint32 activeCount() const;
@@ -36,6 +35,7 @@ public:
     QColor color(quint32 index) const;
     bool isActive(quint32 index) const;
     bool isUnsigned(quint32 index) const;
+    bool isBit32(quint32 index) const;
     double multiplyFactor(quint32 index) const;
     double divideFactor(quint32 index) const;
     quint16 registerAddress(quint32 index) const;
@@ -49,6 +49,7 @@ public:
     void setColor(quint32 index, const QColor &color);
     void setActive(quint32 index, bool bActive);
     void setUnsigned(quint32 index, bool bUnsigned);
+    void setBit32(quint32 index, bool b32Bit);
     void setMultiplyFactor(quint32 index, double multiplyFactor);
     void setDivideFactor(quint32 index, double divideFactor);
     void setRegisterAddress(quint32 index, const quint16 &registerAddress);
@@ -80,6 +81,7 @@ signals:
     void colorChanged(const quint32 graphIdx);
     void activeChanged(const quint32 graphIdx); // when graph is actived / deactivated
     void unsignedChanged(const quint32 graphIdx);
+    void bit32Changed(const quint32 graphIdx);
     void multiplyFactorChanged(const quint32 graphIdx);
     void divideFactorChanged(const quint32 graphIdx);
     void registerAddressChanged(const quint32 graphIdx);
