@@ -5,6 +5,25 @@
 
 #include "graphdatamodel.h"
 
+namespace {
+
+    enum column {
+        COLOR = 0,
+        ACTIVE,
+        UNSIGNED,
+        REGISTER,
+        TEXT,
+        BITMASK,
+        SHIFT,
+        MULTIPLY,
+        DIVIDE,
+        CONNECTION_ID,
+
+        COUNT
+    };
+
+}
+
 GraphDataModel::GraphDataModel(SettingsModel * pSettingsModel, QObject *parent) : QAbstractTableModel(parent)
 {
     _pSettingsModel = pSettingsModel;
@@ -33,32 +52,20 @@ int GraphDataModel::rowCount(const QModelIndex & /*parent*/) const
 
 int GraphDataModel::columnCount(const QModelIndex & /*parent*/) const
 {
-    /*
-    * color
-    * bActive
-    * bUnsigned
-    * Register
-    * Text
-    * Bitmask
-    * Shift
-    * Multiply factor
-    * Divide factor
-    * Connection id
-    * */
-    return 10; // Number of visible members of struct
+    return column::COUNT;
 }
 
 QVariant GraphDataModel::data(const QModelIndex &index, int role) const
 {
     switch (index.column())
     {
-    case 0:
+    case column::COLOR:
         if (role == Qt::BackgroundColorRole)
         {
             return color(index.row());
         }
         break;
-    case 1:
+    case column::ACTIVE:
         if (role == Qt::CheckStateRole)
         {
             if (isActive(index.row()))
@@ -71,7 +78,7 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
             }
         }
         break;
-    case 2:
+    case column::UNSIGNED:
         if (role == Qt::CheckStateRole)
         {
             if (isUnsigned(index.row()))
@@ -84,44 +91,44 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
             }
         }
         break;
-    case 3:
+    case column::REGISTER:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return registerAddress(index.row());
         }
         break;
-    case 4:
+    case column::TEXT:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return label(index.row());
         }
         break;
-    case 5:
+    case column::BITMASK:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             // Show hex value
             return QString("0x%1").arg(bitmask(index.row()), 0, 16);
         }
         break;
-    case 6:
+    case column::SHIFT:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return shift(index.row());
         }
         break;
-    case 7:
+    case column::MULTIPLY:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return Util::formatDoubleForExport(multiplyFactor(index.row()));
         }
         break;
-    case 8:
+    case column::DIVIDE:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return Util::formatDoubleForExport(divideFactor(index.row()));
         }
         break;
-    case 9:
+    case column::CONNECTION_ID:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return QString("Connection %1").arg(connectionId(index.row()) + 1);
@@ -144,25 +151,25 @@ QVariant GraphDataModel::headerData(int section, Qt::Orientation orientation, in
         {
             switch (section)
             {
-            case 0:
+            case column::COLOR:
                 return QString("Color");
-            case 1:
+            case column::ACTIVE:
                 return QString("Active");
-            case 2:
+            case column::UNSIGNED:
                 return QString("Unsigned");
-            case 3:
+            case column::REGISTER:
                 return QString("Address");
-            case 4:
+            case column::TEXT:
                 return QString("Text");
-            case 5:
+            case column::BITMASK:
                 return QString("Bitmask");
-            case 6:
+            case column::SHIFT:
                 return QString("Shift");
-            case 7:
+            case column::MULTIPLY:
                 return QString("Multiply");
-            case 8:
+            case column::DIVIDE:
                 return QString("Divide");
-            case 9:
+            case column::CONNECTION_ID:
                 return QString("Connection");
             default:
                 return QVariant();
@@ -184,7 +191,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
 
     switch (index.column())
     {
-    case 0:
+    case column::COLOR:
         if (role == Qt::EditRole)
         {
             if (value.canConvert(QMetaType::QColor))
@@ -198,7 +205,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             }
         }
         break;
-    case 1:
+    case column::ACTIVE:
         if (role == Qt::CheckStateRole)
         {
             if (value == Qt::Checked)
@@ -211,7 +218,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             }
         }
         break;
-    case 2:
+    case column::UNSIGNED:
         if (role == Qt::CheckStateRole)
         {
             if (value == Qt::Checked)
@@ -224,7 +231,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             }
         }
         break;
-    case 3:
+    case column::REGISTER:
         if (role == Qt::EditRole)
         {
             bool bOk = false;
@@ -249,13 +256,13 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             }
         }
         break;
-    case 4:
+    case column::TEXT:
         if (role == Qt::EditRole)
         {
             setLabel(index.row(), value.toString());
         }
         break;
-    case 5:
+    case column::BITMASK:
         if (role == Qt::EditRole)
         {
             bool bSuccess = false;
@@ -272,7 +279,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             }
         }
         break;
-    case 6:
+    case column::SHIFT:
         if (role == Qt::EditRole)
         {
             bool bSuccess = false;
@@ -297,7 +304,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             }
         }
         break;
-    case 7:
+    case column::MULTIPLY:
         if (role == Qt::EditRole)
         {
             bool bSuccess = false;
@@ -314,7 +321,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             }
         }
         break;
-    case 8:
+    case column::DIVIDE:
         if (role == Qt::EditRole)
         {
             bool bSuccess = false;
@@ -331,7 +338,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             }
         }
         break;
-    case 9:
+    case column::CONNECTION_ID:
         if (role == Qt::EditRole)
         {
             bool bSuccess = false;
@@ -380,14 +387,14 @@ Qt::ItemFlags GraphDataModel::flags(const QModelIndex & index) const
     }
 
     if (
-            (index.column() == 1)
-            || (index.column() == 2)
+            (index.column() == column::ACTIVE)
+            || (index.column() == column::UNSIGNED)
         )
     {
         // checkable
         itemFlags |= Qt::ItemIsSelectable |  Qt::ItemIsUserCheckable;
     }
-    else if (index.column() == 0)
+    else if (index.column() == column::COLOR)
     {
         itemFlags |= Qt::ItemIsSelectable;
     }
