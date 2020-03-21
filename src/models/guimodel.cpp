@@ -1,6 +1,8 @@
 #include <QColor>
 #include <QStringList>
 #include <QList>
+#include <QStandardPaths>
+
 #include "util.h"
 #include "guimodel.h"
 
@@ -53,8 +55,8 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
         _lastDir = docPath[0];
     }
 
-    _guiSettings.xScaleMode = BasicGraphView::SCALE_AUTO;
-    _guiSettings.yScaleMode = BasicGraphView::SCALE_AUTO;
+    _guiSettings.xScaleMode = AxisMode::SCALE_AUTO;
+    _guiSettings.yScaleMode = AxisMode::SCALE_AUTO;
     _guiSettings.yMax = 10;
     _guiSettings.yMin = 0;
     _guiSettings.xslidingInterval = 30;
@@ -190,7 +192,7 @@ QString GuiModel::lastDir()
     return _lastDir;
 }
 
-void GuiModel::setxAxisScale(BasicGraphView::AxisScaleOptions scaleMode)
+void GuiModel::setxAxisScale(AxisMode::AxisScaleOptions scaleMode)
 {
     if (_guiSettings.xScaleMode != scaleMode)
     {
@@ -199,7 +201,7 @@ void GuiModel::setxAxisScale(BasicGraphView::AxisScaleOptions scaleMode)
     }
 }
 
-BasicGraphView::AxisScaleOptions GuiModel::xAxisScalingMode()
+AxisMode::AxisScaleOptions GuiModel::xAxisScalingMode()
 {
     return _guiSettings.xScaleMode;
 }
@@ -219,12 +221,12 @@ quint32 GuiModel::xAxisSlidingSec()
     return _guiSettings.xslidingInterval;
 }
 
-BasicGraphView::AxisScaleOptions GuiModel::yAxisScalingMode()
+AxisMode::AxisScaleOptions GuiModel::yAxisScalingMode()
 {
     return _guiSettings.yScaleMode;
 }
 
-void GuiModel::setyAxisScale(BasicGraphView::AxisScaleOptions scaleMode)
+void GuiModel::setyAxisScale(AxisMode::AxisScaleOptions scaleMode)
 {
     if (_guiSettings.yScaleMode != scaleMode)
     {

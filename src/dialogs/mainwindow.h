@@ -28,7 +28,7 @@ class LogDialog;
 class ErrorLogDialog;
 class NotesDock;
 class GuiModel;
-class ExtendedGraphView;
+class GraphView;
 class MarkerInfo;
 class DataFileHandler;
 class ProjectFileHandler;
@@ -111,7 +111,7 @@ private:
 
     Ui::MainWindow * _pUi;
     CommunicationManager * _pConnMan;
-    ExtendedGraphView * _pGraphView;
+    GraphView * _pGraphView;
 
     SettingsModel * _pSettingsModel;
     GraphDataModel * _pGraphDataModel;

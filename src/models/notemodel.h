@@ -2,6 +2,7 @@
 #define NOTEMODEL_H
 
 #include <QObject>
+#include <QPointF>
 #include <QModelIndex>
 #include <QList>
 #include <QAbstractTableModel>
@@ -12,7 +13,7 @@ class NoteModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    explicit NoteModel(QObject *parent = 0);
+    explicit NoteModel(QObject *parent = nullptr);
 
     // Header:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
@@ -34,21 +35,18 @@ public:
     void remove(qint32 idx);
     void clear();
 
-    double valueData(quint32 idx);
-    double keyData(quint32 idx);
+    const QPointF& notePosition(qint32 idx) const;
     QString textData(quint32 idx);
     bool draggable(quint32 idx);
     bool isNotesDataUpdated();
 
-    void setValueData(quint32 idx, double value);
-    void setKeyData(quint32 idx, double key);
+    void setNotePostion(quint32 idx, const QPointF& value);
     void setText(quint32 idx, QString text);
     void setDraggable(quint32 idx, bool bState);
     void setNotesDataUpdated(bool bUpdated);
 
 signals:
-    void valueDataChanged(const quint32 idx);
-    void keyDataChanged(const quint32 idx);
+    void notePositionChanged(const quint32 idx);
     void textChanged(const quint32 idx);
     void draggableChanged(const quint32 idx);
     void notesDataUpdatedChanged();

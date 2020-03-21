@@ -1,12 +1,13 @@
 
 #include "graphviewzoom.h"
+#include "graphview.h"
 
 GraphViewZoom::GraphViewZoom(GuiModel* pGuiModel, MyQCustomPlot* pPlot, QObject *parent) :
     QObject(parent)
 {
     _pRubberBand = nullptr;
     _pGuiModel = pGuiModel;
-    _pGraphview = dynamic_cast<BasicGraphView*>(parent);
+    _pGraphview = dynamic_cast<GraphView*>(parent);
     _pPlot = pPlot;
 
     connect(_pGuiModel, SIGNAL(zoomStateChanged()), this, SLOT(handleZoomStateChanged()));
@@ -76,8 +77,8 @@ bool GraphViewZoom::handleMouseRelease()
     {
         _pRubberBand->hide();
 
-        _pGuiModel->setyAxisScale(BasicGraphView::SCALE_MANUAL); // change to manual scaling
-        _pGuiModel->setxAxisScale(BasicGraphView::SCALE_MANUAL);
+        _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
+        _pGuiModel->setxAxisScale(AxisMode::SCALE_MANUAL);
 
         /* Perform zoom based on selected rubberband */
         performZoom();

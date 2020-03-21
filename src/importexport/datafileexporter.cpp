@@ -337,10 +337,12 @@ QString DataFileExporter::createNoteRows(void)
 
         noteline.append("//Note");
 
-        dataString = Util::formatDoubleForExport(_pNoteModel->keyData(idx));
+        const QPointF& position = _pNoteModel->notePosition(idx);
+
+        dataString = Util::formatDoubleForExport(position.x());
         noteline.append(Util::separatorCharacter() + dataString);
 
-        dataString = Util::formatDoubleForExport(_pNoteModel->valueData(idx));
+        dataString = Util::formatDoubleForExport(position.y());
         noteline.append(Util::separatorCharacter() + dataString);
 
         noteline.append(Util::separatorCharacter() + '"' + _pNoteModel->textData(idx) + '"');

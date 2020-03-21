@@ -26,6 +26,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/util/version.h.in ${CMAKE_CURRENT_SOU
 
 SET(SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/graphview/graphviewzoom.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/graphview/notehandling.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/importexport/presetparser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libraries/qcustomplot/qcustomplot.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/communication/communicationmanager.cpp
@@ -36,8 +37,7 @@ SET(SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/connectiondialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/logdialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/mainwindow.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/graphview/basicgraphview.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/graphview/extendedgraphview.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/graphview/graphview.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/errorlogfilter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/guimodel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/settingsmodel.cpp
@@ -60,6 +60,7 @@ SET(SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/markerinfodialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/graphview/myqcpaxistickertime.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/graphview/myqcpaxis.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/graphview/noteitem.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/importmbcdialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/importexport/mbcfileimporter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/errorlog.cpp

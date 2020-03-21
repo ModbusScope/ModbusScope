@@ -6,6 +6,9 @@
 #include "myqcustomplot.h"
 #include "guimodel.h"
 
+// Forward declaration
+class GraphView;
+
 class GraphViewZoom : public QObject
 {
     Q_OBJECT
@@ -27,7 +30,7 @@ private:
 
     GuiModel* _pGuiModel;
     MyQCustomPlot* _pPlot;
-    BasicGraphView* _pGraphview;
+    GraphView* _pGraphview;
 
     QPoint _selectionOrigin;
     QRubberBand* _pRubberBand;

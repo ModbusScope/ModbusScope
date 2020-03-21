@@ -3,7 +3,6 @@
 
 #include <QDialog>
 #include "updatenotify.h"
-#include "basicgraphview.h"
 
 namespace Ui {
 class AboutDialog;

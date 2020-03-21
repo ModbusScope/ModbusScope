@@ -12,7 +12,7 @@
 /* Forward declaration */
 class GuiModel;
 class GraphDataModel;
-class BasicGraphView;
+class GraphView;
 
 class Legend : public QFrame
 {
@@ -22,7 +22,7 @@ public:
     ~Legend();
 
     void setModels(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel);
-    void setGraphview(BasicGraphView * pGraphView);
+    void setGraphview(GraphView * pGraphView);
 
     void clearLegendData();
 
@@ -55,7 +55,7 @@ private:
     GuiModel * _pGuiModel;
     GraphDataModel * _pGraphDataModel;
 
-    BasicGraphView * _pGraphView;
+    GraphView * _pGraphView;
 
     // Widgets
     QVBoxLayout * _pLayout;

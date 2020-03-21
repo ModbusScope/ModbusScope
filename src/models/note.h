@@ -1,27 +1,26 @@
 #ifndef NOTE_H
 #define NOTE_H
 
+#include <QPointF>
 #include <QString>
 
 class Note
 {
 public:
     Note();
+    Note(const QString& text, const QPointF& position);
 
-
-    double valueData() const;
-    double keyData() const;
+    const QPointF& notePosition() const;
     QString text() const;
     bool draggable() const;
 
-    void setValueData(double valueData);
-    void setKeyData(double keyData);
+    void setNotePosition(const QPointF& position);
+    void setNotePosition(double key, double value);
     void setText(const QString &text);
     void setDraggable(bool state);
 
 private:
-    double _valueData;
-    double _keyData;
+    QPointF _relativeNotePosition;
     QString _text;
     bool _bDraggable;
 
