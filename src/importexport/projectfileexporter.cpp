@@ -125,6 +125,7 @@ void ProjectFileExporter::createRegisterTag(QDomElement * pParentElement, qint32
     addTextNode(ProjectFileDefinitions::cAddressTag, QString("%1").arg(_pGraphDataModel->registerAddress(idx)), &registerElement);
     addTextNode(ProjectFileDefinitions::cTextTag, _pGraphDataModel->label(idx).toHtmlEscaped(), &registerElement);
     addTextNode(ProjectFileDefinitions::cUnsignedTag, convertBoolToText(_pGraphDataModel->isUnsigned(idx)), &registerElement);
+    addTextNode(ProjectFileDefinitions::cBit32Tag, convertBoolToText(_pGraphDataModel->isBit32(idx)), &registerElement);
     addTextNode(ProjectFileDefinitions::cMultiplyTag, Util::formatDoubleForExport(_pGraphDataModel->multiplyFactor(idx)), &registerElement);
     addTextNode(ProjectFileDefinitions::cDivideTag, Util::formatDoubleForExport(_pGraphDataModel->divideFactor(idx)), &registerElement);
     addTextNode(ProjectFileDefinitions::cColorTag, _pGraphDataModel->color(idx).name(), &registerElement);

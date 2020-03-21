@@ -28,6 +28,7 @@ namespace ProjectFileDefinitions
     const QString cTextTag = QString("text");
     const QString cUnsignedTag = QString("unsigned");
     const QString cDivideTag = QString("divide");
+    const QString cBit32Tag = QString("bit32");
     const QString cMultiplyTag = QString("multiply");
     const QString cColorTag = QString("color");
     const QString cBitmaskTag = QString("bitmask");

@@ -407,6 +407,17 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
                 pRegisterSettings->bUnsigned = false;
             }
         }
+        else if (child.tagName() == ProjectFileDefinitions::cBit32Tag)
+        {
+            if (!child.text().toLower().compare(ProjectFileDefinitions::cTrueValue))
+            {
+                pRegisterSettings->b32Bit = true;
+            }
+            else
+            {
+                pRegisterSettings->b32Bit = false;
+            }
+        }
         else if (child.tagName() == ProjectFileDefinitions::cDivideTag)
         {
             // use settings from system locale
