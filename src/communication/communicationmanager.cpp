@@ -107,9 +107,35 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
             {
                 if (_pGraphDataModel->registerAddress(activeIndex) == i.key())
                 {
-                    ModbusResult result = i.value();
-                    _processedValues[listIdx] = processValue(activeIndex, result.value());
-                    _successList[listIdx] = result.isSuccess();
+                    bool bSuccess = i.value().isSuccess();
+                    uint16_t value = static_cast<uint16_t>(i.value().value());
+                    double processedResult = 0;
+
+                    if (_pGraphDataModel->isBit32(activeIndex))
+                    {
+
+                        ModbusResult nextResult = i.peekNext().value();
+
+                        /* TODO: use connection endiannes settings */
+                        uint32_t combinedValue = static_cast<uint32_t>(nextResult.value()) | value;
+
+                        if (nextResult.isSuccess())
+                        {
+                            processedResult = processValue(activeIndex, combinedValue);
+                        }
+                        else
+                        {
+                            bSuccess = false;
+                            processedResult = 0;
+                        }
+                    }
+                    else
+                    {
+                        processedResult = processValue(activeIndex, value);
+                    }
+
+                    _processedValues[listIdx] = processedResult;
+                    _successList[listIdx] = bSuccess;
                 }
             }
         }
@@ -193,7 +219,7 @@ void CommunicationManager::readData()
          * First set _activeMastersCount to correct value
          * And only then activate masters (readRegisterList)
          *
-         * readRegisterList can return immediatly and this will give race condition
+         * readRegisterList can return immediatly and this will give race condition otherwise
          */
 
         _activeMastersCount = 0;
@@ -220,13 +246,15 @@ void CommunicationManager::readData()
                 _modbusMasters[i]->pModbusMaster->readRegisterList(regAddrList.at(i));
             }
         }
-
     }
-
 }
 
 double CommunicationManager::processValue(quint32 graphIndex, quint16 value)
 {
+
+    /* TODO: Rework and unit test fully !!! */
+    /* 16 bit vs 32 bit */
+
     double processedValue = 0;
 
     if (_pGraphDataModel->isUnsigned(graphIndex))

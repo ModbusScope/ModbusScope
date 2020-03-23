@@ -731,11 +731,21 @@ void GraphDataModel::activeGraphAddresList(QList<quint16> * pRegisterList, quint
 
     foreach(quint32 idx, _activeGraphList)
     {
-        if (!pRegisterList->contains(_graphData[idx].registerAddress()))
+        if (_graphData[idx].connectionId() == connectionId)
         {
-            if (_graphData[idx].connectionId() == connectionId)
+            if (!pRegisterList->contains(_graphData[idx].registerAddress()))
             {
                 pRegisterList->append(_graphData[idx].registerAddress());
+            }
+
+            /* When reading 32 bit value, also read next address */
+            if (_graphData[idx].isBit32())
+            {
+                const uint16_t reg = _graphData[idx].registerAddress() + 1;
+                if (!pRegisterList->contains(reg))
+                {
+                    pRegisterList->append(reg);
+                }
             }
         }
     }
