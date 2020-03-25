@@ -723,37 +723,6 @@ void GraphDataModel::clear()
     }
 }
 
-// Get sorted list of active (unique) register addresses for a specific connection id
-void GraphDataModel::activeGraphAddresList(QList<quint16> * pRegisterList, quint8 connectionId)
-{
-    // Clear list
-    pRegisterList->clear();
-
-    foreach(quint32 idx, _activeGraphList)
-    {
-        if (_graphData[idx].connectionId() == connectionId)
-        {
-            if (!pRegisterList->contains(_graphData[idx].registerAddress()))
-            {
-                pRegisterList->append(_graphData[idx].registerAddress());
-            }
-
-            /* When reading 32 bit value, also read next address */
-            if (_graphData[idx].isBit32())
-            {
-                const uint16_t reg = _graphData[idx].registerAddress() + 1;
-                if (!pRegisterList->contains(reg))
-                {
-                    pRegisterList->append(reg);
-                }
-            }
-        }
-    }
-
-    // sort qList
-    qSort(*pRegisterList);
-}
-
 // Get list of active graph indexes
 void GraphDataModel::activeGraphIndexList(QList<quint16> * pList)
 {

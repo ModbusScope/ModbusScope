@@ -80,6 +80,7 @@ SET(SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/importexport/projectfilehandler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/dataparsermodel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/loadfiledialog.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/communication/registervaluehandler.cpp
 )
 
 SET(UIS

@@ -65,7 +65,6 @@ public:
     void removeRegister(qint32 idx);
     void clear();
 
-    void activeGraphAddresList(QList<quint16> * pRegisterList, quint8 connectionId);
     void activeGraphIndexList(QList<quint16> * pList);
 
     bool getDuplicate(quint16 * pRegister, quint16 * pBitmask, quint8 * pConnectionId);

@@ -7,6 +7,7 @@
 #include <QTimer>
 
 #include "modbusmaster.h"
+#include "registervaluehandler.h"
 
 //Forward declaration
 class GuiModel;
@@ -59,16 +60,13 @@ private:
     QList<ModbusMasterData *> _modbusMasters;
     quint32 _activeMastersCount;
 
-    QList<double> _processedValues;
-    QList<bool> _successList;
-    QList<quint16> _activeIndexList;
-
     bool _active;
     QTimer * _pPollTimer;
     qint64 _lastPollStart;
 
+    RegisterValueHandler _registerValueHandler;
+
     GuiModel * _pGuiModel;
-    GraphDataModel * _pGraphDataModel;
     ErrorLogModel * _pErrorLogModel;
     SettingsModel * _pSettingsModel;
 };
