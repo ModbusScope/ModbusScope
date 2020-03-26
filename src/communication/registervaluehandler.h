@@ -23,7 +23,7 @@ public:
     void activeGraphAddresList(QList<quint16> * pRegisterList, quint8 connectionId);
 
 private:
-    double processValue(quint32 graphIndex, quint16 value);
+    double processValue(quint32 graphIndex, quint32 value);
 
     GraphDataModel * _pGraphDataModel;
 

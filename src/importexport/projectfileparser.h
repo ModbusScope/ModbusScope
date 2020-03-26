@@ -13,7 +13,7 @@ public:
     typedef struct _RegisterSettings
     {
         _RegisterSettings() : address(40001), text(""), bActive(true), bUnsigned(false), b32Bit(false), divideFactor(1),
-                              multiplyFactor(1), bitmask(0xFFFF), shift(0), connectionId(0),
+                              multiplyFactor(1), bitmask(0xFFFFFFFF), shift(0), connectionId(0),
                               bColor(false) {}
 
         quint16 address;
@@ -23,7 +23,7 @@ public:
         bool b32Bit;
         double divideFactor;
         double multiplyFactor;
-        quint16 bitmask;
+        quint32 bitmask;
         quint32 shift;
         quint8 connectionId;
 

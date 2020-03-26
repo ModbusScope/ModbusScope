@@ -12,14 +12,13 @@ void TestRegisterValueHandler::init()
     _pGraphDataModel = new GraphDataModel(_pSettingsModel);
 
     GraphData graphData;
-
     graphData.setActive(true);
     graphData.setUnsigned(true);
     graphData.setBit32(false);
     graphData.setMultiplyFactor(1);
     graphData.setDivideFactor(1);
     graphData.setRegisterAddress(0);
-    graphData.setBitmask(0xFFFF);
+    graphData.setBitmask(0xFFFFFFFF);
     graphData.setShift(0);
     graphData.setConnectionId(SettingsModel::CONNECTION_ID_0);
 
@@ -49,7 +48,6 @@ void TestRegisterValueHandler::read16()
 
 }
 
-
 void TestRegisterValueHandler::connectionCheck()
 {
     RegisterValueHandler regHandler(_pGraphDataModel);
@@ -68,20 +66,18 @@ void TestRegisterValueHandler::connectionCheck()
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
     QCOMPARE(regHandler.processedValues()[0], 100);
     QCOMPARE(regHandler.successList()[0], true);
-
 }
 
 void TestRegisterValueHandler::twoConnectionsCheck()
 {
     GraphData graphData;
-
     graphData.setActive(true);
     graphData.setUnsigned(true);
     graphData.setBit32(false);
     graphData.setMultiplyFactor(1);
     graphData.setDivideFactor(1);
     graphData.setRegisterAddress(0);
-    graphData.setBitmask(0xFFFF);
+    graphData.setBitmask(0xFFFFFFFF);
     graphData.setShift(0);
     graphData.setConnectionId(SettingsModel::CONNECTION_ID_1); /* Second connection */
 

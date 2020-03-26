@@ -122,7 +122,7 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             // Show hex value
-            return QString("0x%1").arg(bitmask(index.row()), 0, 16);
+            return QString("0x%1").arg(bitmask(index.row()), 0, 32);
         }
         break;
     case column::SHIFT:
@@ -296,7 +296,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
         if (role == Qt::EditRole)
         {
             bool bSuccess = false;
-            const quint16 newBitMask = value.toString().toUInt(&bSuccess, 0);
+            const quint32 newBitMask = value.toString().toUInt(&bSuccess, 0);
 
             if (bSuccess)
             {
@@ -319,8 +319,8 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
                     (bSuccess)
                     &&
                     (
-                        (newShift > -16)
-                        && (newShift < 16)
+                        (newShift > -32)
+                        && (newShift < 32)
                     )
                 )
             {
@@ -329,7 +329,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             else
             {
                 bRet = false;
-                Util::showError(tr("Shift is not a valid integer between -16 and 16."));
+                Util::showError(tr("Shift is not a valid integer between -32 and 32."));
                 break;
             }
         }
@@ -522,7 +522,7 @@ quint16 GraphDataModel::registerAddress(quint32 index) const
     return _graphData[index].registerAddress();
 }
 
-quint16 GraphDataModel::bitmask(quint32 index) const
+quint32 GraphDataModel::bitmask(quint32 index) const
 {
     return _graphData[index].bitmask();
 }
@@ -638,7 +638,7 @@ void GraphDataModel::setRegisterAddress(quint32 index, const quint16 &registerAd
     }
 }
 
-void GraphDataModel::setBitmask(quint32 index, const quint16 &bitmask)
+void GraphDataModel::setBitmask(quint32 index, const quint32 &bitmask)
 {
     if (_graphData[index].bitmask() != bitmask)
     {
@@ -738,7 +738,7 @@ void GraphDataModel::activeGraphIndexList(QList<quint16> * pList)
     qSort(*pList);
 }
 
-bool GraphDataModel::getDuplicate(quint16 * pRegister, quint16 * pBitmask, quint8 * pConnectionId)
+bool GraphDataModel::getDuplicate(quint16 * pRegister, quint32 * pBitmask, quint8 * pConnectionId)
 {
     for (qint32 idx = 0; idx < (_graphData.size() - 1); idx++) // Don't need to check last entry
     {
@@ -761,7 +761,7 @@ bool GraphDataModel::getDuplicate(quint16 * pRegister, quint16 * pBitmask, quint
     return true;
 }
 
-bool GraphDataModel::isPresent(quint16 addr, quint16 bitmask)
+bool GraphDataModel::isPresent(quint16 addr, quint32 bitmask)
 {
     for (qint32 idx = 0; idx < _graphData.size(); idx++)
     {

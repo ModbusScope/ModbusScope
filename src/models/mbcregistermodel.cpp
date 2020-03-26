@@ -202,7 +202,7 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
     for(qint32 idx = 0; idx < mbcRegisterList.size(); idx++)
     {
         // Get result before adding to list
-        const uint16_t bitmask = 0xFFFF;
+        const uint32_t bitmask = 0xFFFFFFFF;
 
         _mbcRegisterList.append(mbcRegisterList[idx]);
 

@@ -11,7 +11,7 @@ GraphData::GraphData()
     _bUnsigned = true;
     _bit32 = false;
     _registerAddress = 0;
-    _bitmask = 0xFFFF;
+    _bitmask = 0xFFFFFFFF;
     _divideFactor = 1;
     _multiplyFactor = 1;
     _shift = 0;
@@ -118,12 +118,12 @@ void GraphData::setRegisterAddress(const quint16 &registerAddress)
     _registerAddress = registerAddress;
 }
 
-quint16 GraphData::bitmask() const
+quint32 GraphData::bitmask() const
 {
     return _bitmask;
 }
 
-void GraphData::setBitmask(const quint16 &bitmask)
+void GraphData::setBitmask(const quint32 &bitmask)
 {
     _bitmask = bitmask;
 }

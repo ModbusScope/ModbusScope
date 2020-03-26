@@ -429,7 +429,7 @@ QString DataFileExporter::createPropertyRow(registerProperty prop)
             break;
 
         case E_BITMASK:
-            propertyString = QString("0x%1").arg(_pGraphDataModel->bitmask(graphIdx), 0, 16);
+            propertyString = QString("0x%1").arg(_pGraphDataModel->bitmask(graphIdx), 0, 32);
             break;
 
         case E_SHIFT:

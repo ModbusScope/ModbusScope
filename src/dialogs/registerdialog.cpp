@@ -62,7 +62,7 @@ void RegisterDialog::done(int r)
     if(QDialog::Accepted == r)  // ok was pressed
     {
         quint16 duplicateReg = 0;
-        quint16 duplicateBitMask = 0;
+        quint32 duplicateBitMask = 0;
         quint8 duplicateConnectionId = 0;
         if (!_pGraphDataModel->getDuplicate(&duplicateReg, &duplicateBitMask, &duplicateConnectionId))
         {

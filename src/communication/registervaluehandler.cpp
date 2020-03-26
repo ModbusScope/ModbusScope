@@ -111,7 +111,7 @@ void RegisterValueHandler::activeGraphAddresList(QList<quint16> * pRegisterList,
     qSort(*pRegisterList);
 }
 
-double RegisterValueHandler::processValue(quint32 graphIndex, quint16 value)
+double RegisterValueHandler::processValue(quint32 graphIndex, quint32 value)
 {
 
     /* TODO: Rework and unit test fully !!! */
@@ -125,17 +125,17 @@ double RegisterValueHandler::processValue(quint32 graphIndex, quint16 value)
     }
     else
     {
-        processedValue = static_cast<qint16>(value);
+        processedValue = static_cast<qint32>(value);
     }
 
     // Apply bitmask
     if (_pGraphDataModel->isUnsigned(graphIndex))
     {
-        processedValue = static_cast<quint16>(processedValue) & _pGraphDataModel->bitmask(graphIndex);
+        processedValue = static_cast<quint32>(processedValue) & _pGraphDataModel->bitmask(graphIndex);
     }
     else
     {
-        processedValue = static_cast<qint16>(static_cast<qint16>(processedValue) & _pGraphDataModel->bitmask(graphIndex));
+        processedValue = static_cast<qint32>(static_cast<qint32>(processedValue) & _pGraphDataModel->bitmask(graphIndex));
     }
 
     // Apply shift
@@ -143,16 +143,16 @@ double RegisterValueHandler::processValue(quint32 graphIndex, quint16 value)
     {
         if (_pGraphDataModel->shift(graphIndex) > 0)
         {
-            processedValue = static_cast<qint16>(processedValue) << _pGraphDataModel->shift(graphIndex);
+            processedValue = static_cast<qint32>(processedValue) << _pGraphDataModel->shift(graphIndex);
         }
         else
         {
-            processedValue = static_cast<qint16>(processedValue) >> abs(_pGraphDataModel->shift(graphIndex));
+            processedValue = static_cast<qint32>(processedValue) >> abs(_pGraphDataModel->shift(graphIndex));
         }
 
         if (!_pGraphDataModel->isUnsigned(graphIndex))
         {
-            processedValue = static_cast<qint16>(processedValue);
+            processedValue = static_cast<qint32>(processedValue);
         }
     }
 

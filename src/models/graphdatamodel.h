@@ -39,7 +39,7 @@ public:
     double multiplyFactor(quint32 index) const;
     double divideFactor(quint32 index) const;
     quint16 registerAddress(quint32 index) const;
-    quint16 bitmask(quint32 index) const;
+    quint32 bitmask(quint32 index) const;
     qint32 shift(quint32 index) const;
     quint8 connectionId(quint8 index) const;
     QSharedPointer<QCPGraphDataContainer> dataMap(quint32 index);
@@ -53,7 +53,7 @@ public:
     void setMultiplyFactor(quint32 index, double multiplyFactor);
     void setDivideFactor(quint32 index, double divideFactor);
     void setRegisterAddress(quint32 index, const quint16 &registerAddress);
-    void setBitmask(quint32 index, const quint16 &bitmask);
+    void setBitmask(quint32 index, const quint32 &bitmask);
     void setShift(quint32 index, const qint32 &shift);
     void setConnectionId(quint32 index, const quint8 &connectionId);
 
@@ -67,8 +67,8 @@ public:
 
     void activeGraphIndexList(QList<quint16> * pList);
 
-    bool getDuplicate(quint16 * pRegister, quint16 * pBitmask, quint8 * pConnectionId);
-    virtual bool isPresent(quint16 addr, quint16 bitmask);
+    bool getDuplicate(quint16 * pRegister, quint32 *pBitmask, quint8 * pConnectionId);
+    virtual bool isPresent(quint16 addr, quint32 bitmask);
 
     qint32 convertToActiveGraphIndex(quint32 graphIdx);
     qint32 convertToGraphIndex(quint32 activeIdx);
