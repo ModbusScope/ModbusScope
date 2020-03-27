@@ -37,29 +37,55 @@ void RegisterValueHandler::processPartialResult(QMap<quint16, ModbusResult> part
                 {
                     bool bSuccess = i.value().isSuccess();
                     uint16_t value = static_cast<uint16_t>(i.value().value());
-                    double processedResult = 0;
 
-                    if (_pGraphDataModel->isBit32(activeIndex))
+                    int64_t combinedValueToProcess = 0;
+                    if (bSuccess)
                     {
-
-                        ModbusResult nextResult = i.peekNext().value();
-
-                        /* TODO: use connection endiannes settings */
-                        uint32_t combinedValue = static_cast<uint32_t>(nextResult.value()) | value;
-
-                        if (nextResult.isSuccess())
+                        if (_pGraphDataModel->isBit32(activeIndex))
                         {
-                            processedResult = processValue(activeIndex, combinedValue);
+                            ModbusResult nextResult = i.peekNext().value();
+
+                            /* TODO: use connection endiannes settings */
+                            uint32_t combinedValue = static_cast<uint32_t>(nextResult.value()) | value;
+
+                            if (nextResult.isSuccess())
+                            {
+                                if (_pGraphDataModel->isUnsigned(activeIndex))
+                                {
+                                    combinedValueToProcess = static_cast<qint64>(static_cast<quint32>(combinedValue));
+                                }
+                                else
+                                {
+                                    combinedValueToProcess = static_cast<qint64>(static_cast<qint32>(combinedValue));
+                                }
+                            }
+                            else
+                            {
+                                bSuccess = false;
+                                combinedValueToProcess = 0;
+                            }
                         }
                         else
                         {
-                            bSuccess = false;
-                            processedResult = 0;
+                            if (_pGraphDataModel->isUnsigned(activeIndex))
+                            {
+                                combinedValueToProcess = static_cast<qint64>(static_cast<quint16>(value));
+                            }
+                            else
+                            {
+                                combinedValueToProcess = static_cast<qint64>(static_cast<qint16>(value));
+                            }
                         }
                     }
                     else
                     {
-                        processedResult = processValue(activeIndex, value);
+                        combinedValueToProcess = 0;
+                    }
+
+                    double processedResult = 0;
+                    if (bSuccess)
+                    {
+                        processedResult = processValue(activeIndex, combinedValueToProcess);
                     }
 
                     _processedValues[listIdx] = processedResult;
@@ -111,31 +137,14 @@ void RegisterValueHandler::activeGraphAddresList(QList<quint16> * pRegisterList,
     qSort(*pRegisterList);
 }
 
-double RegisterValueHandler::processValue(quint32 graphIndex, quint32 value)
+double RegisterValueHandler::processValue(quint32 graphIndex, qint64 value)
 {
-
-    /* TODO: Rework and unit test fully !!! */
-    /* 16 bit vs 32 bit */
-
-    double processedValue = 0;
+    double processedValue = value;
 
     if (_pGraphDataModel->isUnsigned(graphIndex))
     {
-        processedValue = value;
-    }
-    else
-    {
-        processedValue = static_cast<qint32>(value);
-    }
-
-    // Apply bitmask
-    if (_pGraphDataModel->isUnsigned(graphIndex))
-    {
+        // Apply bitmask
         processedValue = static_cast<quint32>(processedValue) & _pGraphDataModel->bitmask(graphIndex);
-    }
-    else
-    {
-        processedValue = static_cast<qint32>(static_cast<qint32>(processedValue) & _pGraphDataModel->bitmask(graphIndex));
     }
 
     // Apply shift
