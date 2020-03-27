@@ -48,7 +48,7 @@ The calculations are done in a specific order.
 
 * Combine 2 registers to one (32 bit registers)
 * Signed/unsigned
-* Bitmask
+* Bitmask (is ignored for signed values)
 * Shift
 * Multiplication
 * Division
