@@ -122,7 +122,7 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             // Show hex value
-            return QString("0x%1").arg(bitmask(index.row()), 0, 32);
+            return QString("0x%1").arg(bitmask(index.row()), 0, 16);
         }
         break;
     case column::SHIFT:

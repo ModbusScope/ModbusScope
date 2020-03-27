@@ -343,7 +343,7 @@ bool ProjectFileParser::parseScopeTag(const QDomElement &element, ScopeSettings 
 
             if (bFound)
             {
-                Util::showError(tr("Register %1 with bitmask 0x%2 is defined twice in the list.").arg(registerData.address).arg(registerData.bitmask, 0, 32));
+                Util::showError(tr("Register %1 with bitmask 0x%2 is defined twice in the list.").arg(registerData.address).arg(registerData.bitmask, 0, 16));
                 bRet = false;
                 break;
             }
