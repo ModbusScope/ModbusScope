@@ -38,7 +38,7 @@ void RegisterValueHandler::processPartialResult(QMap<quint16, ModbusResult> part
                     bool bSuccess = i.value().isSuccess();
                     uint16_t value = static_cast<uint16_t>(i.value().value());
 
-                    int64_t combinedValueToProcess = 0;
+                    qint64 combinedValueToProcess = 0;
                     if (bSuccess)
                     {
                         if (_pGraphDataModel->isBit32(activeIndex))
@@ -46,7 +46,7 @@ void RegisterValueHandler::processPartialResult(QMap<quint16, ModbusResult> part
                             ModbusResult nextResult = i.peekNext().value();
 
                             /* TODO: use connection endiannes settings */
-                            uint32_t combinedValue = static_cast<uint32_t>(nextResult.value()) | value;
+                            uint32_t combinedValue = (static_cast<uint32_t>(nextResult.value()) << 16) | value;
 
                             if (nextResult.isSuccess())
                             {
