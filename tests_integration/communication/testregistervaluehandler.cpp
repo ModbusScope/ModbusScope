@@ -6,17 +6,6 @@
 #include "graphdatamodel.h"
 #include "settingsmodel.h"
 
-/*
- * _1: default (read)
- * _2: multiply
- * _3: divide
- * _4: multiply and divide
- * _5: Shift
- * _6: Signed shift
- * _7: Bitmask
- * _8: Full option (to test sequence)
- * */
-
 void TestRegisterValueHandler::init()
 {
     _pSettingsModel = new SettingsModel();
@@ -44,6 +33,118 @@ void TestRegisterValueHandler::read16_1()
 
 }
 
+void TestRegisterValueHandler::read16_2()
+{
+    addRegisterToModel();
+
+    _pGraphDataModel->setMultiplyFactor(0, 2);
+
+    auto partialResultMap = createResultMap(0, false, 60000, true);
+
+    RegisterValueHandler regHandler(_pGraphDataModel);
+    regHandler.startRead();
+    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
+
+    QCOMPARE(regHandler.processedValues()[0], 120000);
+    QCOMPARE(regHandler.successList()[0], true);
+}
+
+void TestRegisterValueHandler::read16_3()
+{
+    addRegisterToModel();
+
+    _pGraphDataModel->setDivideFactor(0, 2);
+
+    auto partialResultMap = createResultMap(0, false, 3000, true);
+
+    RegisterValueHandler regHandler(_pGraphDataModel);
+    regHandler.startRead();
+    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
+
+    QCOMPARE(regHandler.processedValues()[0], 1500);
+    QCOMPARE(regHandler.successList()[0], true);
+}
+
+void TestRegisterValueHandler::read16_4()
+{
+    addRegisterToModel();
+
+    _pGraphDataModel->setDivideFactor(0, 2);
+    _pGraphDataModel->setMultiplyFactor(0, 3);
+
+    auto partialResultMap = createResultMap(0, false, 3000, true);
+
+    RegisterValueHandler regHandler(_pGraphDataModel);
+    regHandler.startRead();
+    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
+
+    QCOMPARE(regHandler.processedValues()[0], 4500);
+    QCOMPARE(regHandler.successList()[0], true);
+}
+
+void TestRegisterValueHandler::read16_5()
+{
+    addRegisterToModel();
+
+    _pGraphDataModel->setShift(0, 2);
+    auto partialResultMap = createResultMap(0, false, 256, true);
+
+    RegisterValueHandler regHandler(_pGraphDataModel);
+    regHandler.startRead();
+    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
+
+    QCOMPARE(regHandler.processedValues()[0], 1024);
+    QCOMPARE(regHandler.successList()[0], true);
+}
+
+void TestRegisterValueHandler::read16_6()
+{
+    addRegisterToModel();
+
+    _pGraphDataModel->setShift(0, -2);
+    auto partialResultMap = createResultMap(0, false, 256, true);
+
+    RegisterValueHandler regHandler(_pGraphDataModel);
+    regHandler.startRead();
+    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
+
+    QCOMPARE(regHandler.processedValues()[0], 64);
+    QCOMPARE(regHandler.successList()[0], true);
+}
+
+void TestRegisterValueHandler::read16_7()
+{
+    addRegisterToModel();
+
+    _pGraphDataModel->setBitmask(0, 0xA5FF);
+    auto partialResultMap = createResultMap(0, false, 0x0FF0, true);
+
+    RegisterValueHandler regHandler(_pGraphDataModel);
+    regHandler.startRead();
+    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
+
+    QCOMPARE(regHandler.processedValues()[0], 0x05F0);
+    QCOMPARE(regHandler.successList()[0], true);
+}
+
+void TestRegisterValueHandler::read16_8()
+{
+    addRegisterToModel();
+
+    _pGraphDataModel->setShift(0, 2);
+    _pGraphDataModel->setMultiplyFactor(0, 2);
+    _pGraphDataModel->setDivideFactor(0, 4);
+
+    auto partialResultMap = createResultMap(0, false, 256, true);
+
+    RegisterValueHandler regHandler(_pGraphDataModel);
+    regHandler.startRead();
+    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
+
+    QCOMPARE(regHandler.processedValues()[0], 512);
+    QCOMPARE(regHandler.successList()[0], true);
+}
+
 void TestRegisterValueHandler::read32_1()
 {
     addRegisterToModel();
@@ -60,8 +161,21 @@ void TestRegisterValueHandler::read32_1()
 
 }
 
+void TestRegisterValueHandler::read32BitMixed_1()
+{
+    /* TODO: Read 32 bit register (40001) and 16 bit 40002 separately */
+}
+
+void TestRegisterValueHandler::read32BitMixed_2()
+{
+    /* TODO: Read 32 bit register (40001) and 40001 separately */
+}
+
 void TestRegisterValueHandler::multiRead()
 {
+    /*
+     * This test is added to test to make sure the correct options are used on the right indexes.
+     */
     addRegisterToModel();
     addRegisterToModel();
     addRegisterToModel();
