@@ -18,7 +18,7 @@ void TestRegisterValueHandler::cleanup()
     delete _pSettingsModel;
 }
 
-void TestRegisterValueHandler::read16_1()
+void TestRegisterValueHandler::read_16_1()
 {
     addRegisterToModel();
 
@@ -33,7 +33,7 @@ void TestRegisterValueHandler::read16_1()
 
 }
 
-void TestRegisterValueHandler::read16_2()
+void TestRegisterValueHandler::read_16_2()
 {
     addRegisterToModel();
 
@@ -49,7 +49,7 @@ void TestRegisterValueHandler::read16_2()
     QCOMPARE(regHandler.successList()[0], true);
 }
 
-void TestRegisterValueHandler::read16_3()
+void TestRegisterValueHandler::read_16_3()
 {
     addRegisterToModel();
 
@@ -65,7 +65,7 @@ void TestRegisterValueHandler::read16_3()
     QCOMPARE(regHandler.successList()[0], true);
 }
 
-void TestRegisterValueHandler::read16_4()
+void TestRegisterValueHandler::read_16_4()
 {
     addRegisterToModel();
 
@@ -82,7 +82,7 @@ void TestRegisterValueHandler::read16_4()
     QCOMPARE(regHandler.successList()[0], true);
 }
 
-void TestRegisterValueHandler::read16_5()
+void TestRegisterValueHandler::read_16_5()
 {
     addRegisterToModel();
 
@@ -97,7 +97,7 @@ void TestRegisterValueHandler::read16_5()
     QCOMPARE(regHandler.successList()[0], true);
 }
 
-void TestRegisterValueHandler::read16_6()
+void TestRegisterValueHandler::read_16_6()
 {
     addRegisterToModel();
 
@@ -112,7 +112,7 @@ void TestRegisterValueHandler::read16_6()
     QCOMPARE(regHandler.successList()[0], true);
 }
 
-void TestRegisterValueHandler::read16_7()
+void TestRegisterValueHandler::read_16_7()
 {
     addRegisterToModel();
 
@@ -127,7 +127,7 @@ void TestRegisterValueHandler::read16_7()
     QCOMPARE(regHandler.successList()[0], true);
 }
 
-void TestRegisterValueHandler::read16_8()
+void TestRegisterValueHandler::read_16_8()
 {
     addRegisterToModel();
 
@@ -145,7 +145,7 @@ void TestRegisterValueHandler::read16_8()
     QCOMPARE(regHandler.successList()[0], true);
 }
 
-void TestRegisterValueHandler::read32_1()
+void TestRegisterValueHandler::read_32_1()
 {
     addRegisterToModel();
     _pGraphDataModel->setBit32(0, true);
@@ -161,12 +161,12 @@ void TestRegisterValueHandler::read32_1()
 
 }
 
-void TestRegisterValueHandler::read32BitMixed_1()
+void TestRegisterValueHandler::read_32BitMixed_1()
 {
     /* TODO: Read 32 bit register (40001) and 16 bit 40002 separately */
 }
 
-void TestRegisterValueHandler::read32BitMixed_2()
+void TestRegisterValueHandler::read_32BitMixed_2()
 {
     /* TODO: Read 32 bit register (40001) and 40001 separately */
 }

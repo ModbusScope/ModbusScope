@@ -23,19 +23,20 @@ private slots:
      * _8: Full option (without bitmask, to test combinations)
      * */
 
-    void read16_1();
-    void read16_2();
-    void read16_3();
-    void read16_4();
-    void read16_5();
-    void read16_6();
-    void read16_7();
-    void read16_8();
+    void read_16_1();
+    void read_16_2();
+    void read_16_3();
+    void read_16_4();
+    void read_16_5();
+    void read_16_6();
+    void read_16_7();
+    void read_16_8();
+/*
+    void read_s16_1();
+    void read_32_1();
 
-    void read32_1();
-
-    void read32BitMixed_1();
-    void read32BitMixed_2();
+    void read_32BitMixed_1();
+    void read_32BitMixed_2();
 
     void multiRead();
 
