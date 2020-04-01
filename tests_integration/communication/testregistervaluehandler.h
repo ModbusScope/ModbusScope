@@ -49,6 +49,16 @@ private slots:
     void read_32_6();
     void read_32_7();
     void read_32_8();
+
+    void read_s32_1();
+    void read_s32_2();
+    void read_s32_3();
+    void read_s32_4();
+    void read_s32_5();
+    void read_s32_6();
+    void read_s32_7();
+    void read_s32_8();
+
     void read_32BitMixed_1();
     void read_32BitMixed_2();
 
