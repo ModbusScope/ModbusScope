@@ -67,6 +67,11 @@ private slots:
     void connectionCheck();
     void twoConnectionsCheck();
 
+    void graphList_1();
+    void graphList_2();
+    void graphList_3();
+    void graphList_4();
+
 private:
 
     QMap<quint16, ModbusResult> createResultMap(
