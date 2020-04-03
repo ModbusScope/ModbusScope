@@ -1,7 +1,6 @@
 
 #include "graphdata.h"
 #include "util.h"
-#include <QDebug>
 
 #include "graphdatamodel.h"
 
