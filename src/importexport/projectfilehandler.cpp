@@ -128,6 +128,8 @@ void ProjectFileHandler::updateConnectionSetting(ProjectFileParser::ProjectSetti
             {
                 _pSettingsModel->setConsecutiveMax(connectionId, pProjectSettings->general.connectionSettings[idx].consecutiveMax);
             }
+
+            _pSettingsModel->setInt32LittleEndian(connectionId, pProjectSettings->general.connectionSettings[idx].bInt32LittleEndian);
         }
     }
 

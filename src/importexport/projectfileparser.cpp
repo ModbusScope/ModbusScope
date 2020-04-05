@@ -187,6 +187,17 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
                 break;
             }
         }
+        else if (child.tagName() == ProjectFileDefinitions::cInt32LittleEndianTag)
+        {
+            if (!child.text().toLower().compare(ProjectFileDefinitions::cTrueValue))
+            {
+                pConnectionSettings->bInt32LittleEndian = true;
+            }
+            else
+            {
+                pConnectionSettings->bInt32LittleEndian = false;
+            }
+        }
         else
         {
             // unkown tag: ignore
