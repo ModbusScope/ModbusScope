@@ -1,10 +1,12 @@
 #include "registervaluehandler.h"
 
 #include "graphdatamodel.h"
+#include "settingsmodel.h"
 
-RegisterValueHandler::RegisterValueHandler(GraphDataModel *pGraphDataModel)
+RegisterValueHandler::RegisterValueHandler(GraphDataModel *pGraphDataModel, SettingsModel* pSettingsModel)
 {
     _pGraphDataModel = pGraphDataModel;
+    _pSettingsModel = pSettingsModel;
 }
 
 void RegisterValueHandler::startRead()
@@ -45,8 +47,15 @@ void RegisterValueHandler::processPartialResult(QMap<quint16, ModbusResult> part
                         {
                             ModbusResult nextResult = i.peekNext().value();
 
-                            /* TODO: use connection endiannes settings */
-                            uint32_t combinedValue = (static_cast<uint32_t>(nextResult.value()) << 16) | value;
+                            uint32_t combinedValue;
+                            if (_pSettingsModel->int32LittleEndian(connectionId))
+                            {
+                                combinedValue = (static_cast<uint32_t>(nextResult.value()) << 16) | value;
+                            }
+                            else
+                            {
+                                combinedValue = (static_cast<uint32_t>(value) << 16) | nextResult.value();
+                            }
 
                             if (nextResult.isSuccess())
                             {

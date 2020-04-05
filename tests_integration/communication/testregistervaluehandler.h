@@ -72,6 +72,10 @@ private slots:
     void graphList_3();
     void graphList_4();
 
+    void bigEndian_32_1();
+    void bigEndian_s32_2();
+
+
 private:
 
     QMap<quint16, ModbusResult> createResultMap(

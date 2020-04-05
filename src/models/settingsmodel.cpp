@@ -15,6 +15,7 @@ SettingsModel::SettingsModel(QObject *parent) :
         connectionSettings.timeout = 1000;
         connectionSettings.consecutiveMax = 125;
         connectionSettings.bConnectionState = false;
+        connectionSettings.bInt32LittleEndian = true;
 
         _connectionSettings.append(connectionSettings);
     }
@@ -48,6 +49,7 @@ void SettingsModel::triggerUpdate(void)
         emit timeoutChanged(i);
         emit consecutiveMaxChanged(i);
         emit connectionStateChanged(i);
+        emit int32LittleEndianChanged(i);
     }
 }
 
@@ -132,6 +134,30 @@ bool SettingsModel::connectionState(quint8 connectionId)
     }
 
     return _connectionSettings[connectionId].bConnectionState;
+}
+
+void SettingsModel::setInt32LittleEndian(quint8 connectionId, bool int32LittleEndian)
+{
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    if (_connectionSettings[connectionId].bInt32LittleEndian != int32LittleEndian)
+    {
+        _connectionSettings[connectionId].bInt32LittleEndian = int32LittleEndian;
+        emit int32LittleEndianChanged(connectionId);
+    }
+}
+
+bool SettingsModel::int32LittleEndian(quint8 connectionId)
+{
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    return _connectionSettings[connectionId].bInt32LittleEndian;
 }
 
 void SettingsModel::setWriteDuringLog(bool bState)

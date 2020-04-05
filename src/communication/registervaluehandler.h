@@ -7,11 +7,12 @@
 
 //Forward declaration
 class GraphDataModel;
+class SettingsModel;
 
 class RegisterValueHandler
 {
 public:
-    RegisterValueHandler(GraphDataModel *pGraphDataModel);
+    RegisterValueHandler(GraphDataModel *pGraphDataModel, SettingsModel *pSettingsModel);
 
     void startRead();
 
@@ -26,6 +27,7 @@ private:
     double processValue(quint32 graphIndex, qint64 value);
 
     GraphDataModel * _pGraphDataModel;
+    SettingsModel * _pSettingsModel;
 
     QList<double> _processedValues;
     QList<bool> _successList;

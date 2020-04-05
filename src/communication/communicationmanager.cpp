@@ -10,7 +10,7 @@
 #include "communicationmanager.h"
 
 CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiModel *pGuiModel, GraphDataModel *pGraphDataModel, ErrorLogModel *pErrorLogModel, QObject *parent) :
-    QObject(parent), _active(false), _registerValueHandler(pGraphDataModel)
+    QObject(parent), _active(false), _registerValueHandler(pGraphDataModel, pSettingsModel)
 {
 
     _pPollTimer = new QTimer();

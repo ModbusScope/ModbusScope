@@ -9,6 +9,10 @@
 void TestRegisterValueHandler::init()
 {
     _pSettingsModel = new SettingsModel();
+
+    _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_0, true);
+    _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_1, true);
+
     _pGraphDataModel = new GraphDataModel(_pSettingsModel);
 }
 
@@ -24,7 +28,7 @@ void TestRegisterValueHandler::read_16_1()
 
     auto partialResultMap = createResultMap(0, false, 100, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -41,7 +45,7 @@ void TestRegisterValueHandler::read_16_2()
 
     auto partialResultMap = createResultMap(0, false, 60000, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -57,7 +61,7 @@ void TestRegisterValueHandler::read_16_3()
 
     auto partialResultMap = createResultMap(0, false, 3000, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -74,7 +78,7 @@ void TestRegisterValueHandler::read_16_4()
 
     auto partialResultMap = createResultMap(0, false, 3000, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -89,7 +93,7 @@ void TestRegisterValueHandler::read_16_5()
     _pGraphDataModel->setShift(0, 2);
     auto partialResultMap = createResultMap(0, false, 256, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -104,7 +108,7 @@ void TestRegisterValueHandler::read_16_6()
     _pGraphDataModel->setShift(0, -2);
     auto partialResultMap = createResultMap(0, false, 256, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -119,7 +123,7 @@ void TestRegisterValueHandler::read_16_7()
     _pGraphDataModel->setBitmask(0, 0xA5FF);
     auto partialResultMap = createResultMap(0, false, 0x0FF0, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -137,7 +141,7 @@ void TestRegisterValueHandler::read_16_8()
 
     auto partialResultMap = createResultMap(0, false, 256, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -153,7 +157,7 @@ void TestRegisterValueHandler::read_s16_1()
 
     auto partialResultMap = createResultMap(0, false, -100, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -171,7 +175,7 @@ void TestRegisterValueHandler::read_s16_2()
 
     auto partialResultMap = createResultMap(0, false, -30000, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -188,7 +192,7 @@ void TestRegisterValueHandler::read_s16_3()
 
     auto partialResultMap = createResultMap(0, false, -3000, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -206,7 +210,7 @@ void TestRegisterValueHandler::read_s16_4()
 
     auto partialResultMap = createResultMap(0, false, -3000, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -222,7 +226,7 @@ void TestRegisterValueHandler::read_s16_5()
     _pGraphDataModel->setShift(0, 2);
     auto partialResultMap = createResultMap(0, false, -256, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -238,7 +242,7 @@ void TestRegisterValueHandler::read_s16_6()
     _pGraphDataModel->setShift(0, -2);
     auto partialResultMap = createResultMap(0, false, -256, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -254,7 +258,7 @@ void TestRegisterValueHandler::read_s16_7()
     _pGraphDataModel->setBitmask(0, 0xFF00);
     auto partialResultMap = createResultMap(0, false, -1, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -273,7 +277,7 @@ void TestRegisterValueHandler::read_s16_8()
 
     auto partialResultMap = createResultMap(0, false, -256, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -289,7 +293,7 @@ void TestRegisterValueHandler::read_32_1()
 
     auto partialResultMap = createResultMap(0, true, 100000, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -307,7 +311,7 @@ void TestRegisterValueHandler::read_32_2()
 
     auto partialResultMap = createResultMap(0, true, 100000, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -324,7 +328,7 @@ void TestRegisterValueHandler::read_32_3()
 
     auto partialResultMap = createResultMap(0, true, 100000, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -342,7 +346,7 @@ void TestRegisterValueHandler::read_32_4()
 
     auto partialResultMap = createResultMap(0, true, 100000, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -358,7 +362,7 @@ void TestRegisterValueHandler::read_32_5()
     _pGraphDataModel->setShift(0, 2);
     auto partialResultMap = createResultMap(0, true, 0x01000000, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -374,7 +378,7 @@ void TestRegisterValueHandler::read_32_6()
     _pGraphDataModel->setShift(0, -2);
     auto partialResultMap = createResultMap(0, true, 0x08000000, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -390,7 +394,7 @@ void TestRegisterValueHandler::read_32_7()
     _pGraphDataModel->setBitmask(0, 0x00FFFF00);
     auto partialResultMap = createResultMap(0, true, 0x05AAAA50, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -409,7 +413,7 @@ void TestRegisterValueHandler::read_32_8()
 
     auto partialResultMap = createResultMap(0, true, 11141120, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -426,7 +430,7 @@ void TestRegisterValueHandler::read_s32_1()
 
     auto partialResultMap = createResultMap(0, true, -100000, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -445,7 +449,7 @@ void TestRegisterValueHandler::read_s32_2()
 
     auto partialResultMap = createResultMap(0, true, -100000, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -463,7 +467,7 @@ void TestRegisterValueHandler::read_s32_3()
 
     auto partialResultMap = createResultMap(0, true, -100000, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -482,7 +486,7 @@ void TestRegisterValueHandler::read_s32_4()
 
     auto partialResultMap = createResultMap(0, true, -100000, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -499,7 +503,7 @@ void TestRegisterValueHandler::read_s32_5()
     _pGraphDataModel->setShift(0, 2);
     auto partialResultMap = createResultMap(0, true, -100000, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -516,7 +520,7 @@ void TestRegisterValueHandler::read_s32_6()
     _pGraphDataModel->setShift(0, -2);
     auto partialResultMap = createResultMap(0, true, -400000, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -533,7 +537,7 @@ void TestRegisterValueHandler::read_s32_7()
     _pGraphDataModel->setBitmask(0, 0x00FFFF00);
     auto partialResultMap = createResultMap(0, true, -100000, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -553,7 +557,7 @@ void TestRegisterValueHandler::read_s32_8()
 
     auto partialResultMap = createResultMap(0, true, -11141120, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -576,7 +580,7 @@ void TestRegisterValueHandler::read_32BitMixed_1()
 
     auto partialResultMap = createResultMap(0, true, 0xAA55FF00, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -602,7 +606,7 @@ void TestRegisterValueHandler::read_32BitMixed_2()
 
     auto partialResultMap = createResultMap(0, true, 0xAA55FF00, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -641,7 +645,7 @@ void TestRegisterValueHandler::multiRead()
     addToResultMap(partialResultMap, 5, true, 0x1F550, true);
     addToResultMap(partialResultMap, 7, true, 0x3A01, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -665,7 +669,7 @@ void TestRegisterValueHandler::connectionCheck()
 
     auto partialResultMap = createResultMap(0, false, 100, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
 
     /* Wrong connection */
@@ -688,7 +692,7 @@ void TestRegisterValueHandler::twoConnectionsCheck()
 
     auto partialResultMap = createResultMap(0, false, 100, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -708,7 +712,7 @@ void TestRegisterValueHandler::graphList_1()
 
     _pGraphDataModel->setRegisterAddress(0, 2);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
 
     QList<quint16> registerList;
@@ -727,7 +731,7 @@ void TestRegisterValueHandler::graphList_2()
     _pGraphDataModel->setRegisterAddress(1, 2);
     _pGraphDataModel->setBit32(1, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
 
     QList<quint16> registerList;
@@ -747,7 +751,7 @@ void TestRegisterValueHandler::graphList_3()
     _pGraphDataModel->setRegisterAddress(1, 0);
     _pGraphDataModel->setBit32(1, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
 
     QList<quint16> registerList;
@@ -770,7 +774,7 @@ void TestRegisterValueHandler::graphList_4()
     _pGraphDataModel->setRegisterAddress(1, 5);
     _pGraphDataModel->setBit32(1, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel);
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
     regHandler.startRead();
 
     QList<quint16> registerList;
@@ -782,6 +786,51 @@ void TestRegisterValueHandler::graphList_4()
     QCOMPARE(registerList[1], 6);
 }
 
+void TestRegisterValueHandler::bigEndian_32_1()
+{
+    addRegisterToModel();
+
+   _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_0, false);
+
+    _pGraphDataModel->setBit32(0, true);
+
+    QMap<quint16, ModbusResult> partialResultMap;
+    quint32 value = 100000;
+
+    partialResultMap.insert(0, ModbusResult(static_cast<quint32>(value) >> 16, true));
+    partialResultMap.insert(0 + 1, ModbusResult(static_cast<quint16>(value), true));
+
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.startRead();
+    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
+
+    QCOMPARE(regHandler.processedValues()[0], 100000);
+    QCOMPARE(regHandler.successList()[0], true);
+}
+
+void TestRegisterValueHandler::bigEndian_s32_2()
+{
+    addRegisterToModel();
+
+   _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_0, false);
+
+    _pGraphDataModel->setBit32(0, true);
+    _pGraphDataModel->setUnsigned(0, false);
+
+    QMap<quint16, ModbusResult> partialResultMap;
+    qint32 value = -100000;
+
+    partialResultMap.insert(0, ModbusResult(static_cast<quint32>(value) >> 16, true));
+    partialResultMap.insert(0 + 1, ModbusResult(static_cast<quint16>(value), true));
+
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.startRead();
+    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
+
+    QCOMPARE(regHandler.processedValues()[0], -100000);
+    QCOMPARE(regHandler.successList()[0], true);
+}
+
 QMap<quint16, ModbusResult> TestRegisterValueHandler::createResultMap(
         quint16 addr,
         bool b32bit,
@@ -791,12 +840,7 @@ QMap<quint16, ModbusResult> TestRegisterValueHandler::createResultMap(
 {
     QMap<quint16, ModbusResult> partialResultMap;
 
-    partialResultMap.insert(addr, ModbusResult(static_cast<quint16>(value), result));
-
-    if (b32bit)
-    {
-        partialResultMap.insert(addr + 1, ModbusResult(static_cast<quint32>(value) >> 16, result));
-    }
+    addToResultMap(partialResultMap, addr, b32bit, value, result);
 
     return partialResultMap;
 }
