@@ -30,6 +30,7 @@ private slots:
     void updateTimeout(quint8 connectionId);
     void updateConsecutiveMax(quint8 connectionId);
     void updateConnectionState(quint8 connectionId);
+    void updateInt32LittleEndian(quint8 connectionId);
 
 private:
     Ui::ConnectionDialog * _pUi;

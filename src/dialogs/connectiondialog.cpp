@@ -20,6 +20,7 @@ ConnectionDialog::ConnectionDialog(SettingsModel * pSettingsModel, QWidget *pare
     connect(_pSettingsModel, &SettingsModel::timeoutChanged, this, &ConnectionDialog::updateTimeout);
     connect(_pSettingsModel, &SettingsModel::consecutiveMaxChanged, this, &ConnectionDialog::updateConsecutiveMax);
     connect(_pSettingsModel, &SettingsModel::connectionStateChanged, this, &ConnectionDialog::updateConnectionState);
+    connect(_pSettingsModel, &SettingsModel::int32LittleEndianChanged, this, &ConnectionDialog::updateInt32LittleEndian);
 
     connect(_pUi->checkSecondConn, &QCheckBox::stateChanged, this, &ConnectionDialog::secondConnectionStateChanged);
 }
@@ -38,7 +39,7 @@ void ConnectionDialog::secondConnectionStateChanged(int state)
     _pUi->spinSlaveId_2->setEnabled(bState);
     _pUi->spinTimeout_2->setEnabled(bState);
     _pUi->spinConsecutiveMax_2->setEnabled(bState);
-
+    _pUi->checkInt32LittleEndian_2->setEnabled(bState);
 }
 
 void ConnectionDialog::updateIp(quint8 connectionId)
@@ -111,6 +112,18 @@ void ConnectionDialog::updateConnectionState(quint8 connectionId)
     }
 }
 
+void ConnectionDialog::updateInt32LittleEndian(quint8 connectionId)
+{
+    if (connectionId == SettingsModel::CONNECTION_ID_0)
+    {
+        _pUi->checkInt32LittleEndian->setChecked(_pSettingsModel->int32LittleEndian(connectionId));
+    }
+    else
+    {
+        _pUi->checkInt32LittleEndian_2->setChecked(_pSettingsModel->int32LittleEndian(connectionId));
+    }
+}
+
 void ConnectionDialog::done(int r)
 {
     bool bValid = true;
@@ -122,6 +135,7 @@ void ConnectionDialog::done(int r)
         _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_0, _pUi->spinSlaveId->text().toInt());
         _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_0, _pUi->spinTimeout->text().toUInt());
         _pSettingsModel->setConsecutiveMax(SettingsModel::CONNECTION_ID_0, _pUi->spinConsecutiveMax->text().toUInt());
+        _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_0, _pUi->checkInt32LittleEndian->checkState() == Qt::Checked);
 
         _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_1, _pUi->lineIP_2->text());
         _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_1, _pUi->spinPort_2->text().toUInt());
@@ -129,6 +143,7 @@ void ConnectionDialog::done(int r)
         _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_1, _pUi->spinTimeout_2->text().toUInt());
         _pSettingsModel->setConsecutiveMax(SettingsModel::CONNECTION_ID_1, _pUi->spinConsecutiveMax_2->text().toUInt());
         _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_1, _pUi->checkSecondConn->checkState() == Qt::Checked);
+        _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_1, _pUi->checkInt32LittleEndian_2->checkState() == Qt::Checked);
 
         // Validate the data
         //bValid = validateSettingsData();
