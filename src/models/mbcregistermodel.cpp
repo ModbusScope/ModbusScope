@@ -208,14 +208,10 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
 
         _mbcRegisterMetaDataList.append( {false, QString(""), false, false} );
 
-        /* Disable all 32 bits registers and duplicates */
+        /* Disable all duplicates */
         if (!_mbcRegisterList.last().isReadable())
         {
             _mbcRegisterMetaDataList.last().tooltip = tr("Not readable");
-        }
-        else if (_mbcRegisterList.last().is32Bit())
-        {
-            _mbcRegisterMetaDataList.last().tooltip = tr("32 bit register is not supported");
         }
         else if (_pGraphDataModel->isPresent(mbcRegisterList[idx].registerAddress(), bitmask))
         {
@@ -278,6 +274,7 @@ QList<GraphData> MbcRegisterModel::selectedRegisterList()
             graphData.setLabel(_mbcRegisterList[row].name());
             graphData.setUnsigned(_mbcRegisterList[row].isUnsigned());
             graphData.setDivideFactor(static_cast<double>(qPow(10, _mbcRegisterList[row].decimals())));
+            graphData.setBit32(_mbcRegisterList[row].is32Bit());
 
             _selectedRegisterList.append(graphData);
         }
