@@ -24,13 +24,13 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     _pUi->registerView->verticalHeader()->hide();
 
     RegisterConnDelegate* cbConn = new RegisterConnDelegate(pSettingsModel,_pUi->registerView);
-    _pUi->registerView->setItemDelegateForColumn(9, cbConn);
+    _pUi->registerView->setItemDelegateForColumn(10, cbConn);
 
     /* Don't stretch columns */
     _pUi->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     /* Except following columns */
-    _pUi->registerView->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
+    _pUi->registerView->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Stretch);
 
     // Select using click, shift and control
     _pUi->registerView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -62,7 +62,7 @@ void RegisterDialog::done(int r)
     if(QDialog::Accepted == r)  // ok was pressed
     {
         quint16 duplicateReg = 0;
-        quint16 duplicateBitMask = 0;
+        quint32 duplicateBitMask = 0;
         quint8 duplicateConnectionId = 0;
         if (!_pGraphDataModel->getDuplicate(&duplicateReg, &duplicateBitMask, &duplicateConnectionId))
         {

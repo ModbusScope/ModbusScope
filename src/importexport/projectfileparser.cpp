@@ -187,6 +187,17 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
                 break;
             }
         }
+        else if (child.tagName() == ProjectFileDefinitions::cInt32LittleEndianTag)
+        {
+            if (!child.text().toLower().compare(ProjectFileDefinitions::cTrueValue))
+            {
+                pConnectionSettings->bInt32LittleEndian = true;
+            }
+            else
+            {
+                pConnectionSettings->bInt32LittleEndian = false;
+            }
+        }
         else
         {
             // unkown tag: ignore
@@ -407,6 +418,17 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
                 pRegisterSettings->bUnsigned = false;
             }
         }
+        else if (child.tagName() == ProjectFileDefinitions::cBit32Tag)
+        {
+            if (!child.text().toLower().compare(ProjectFileDefinitions::cTrueValue))
+            {
+                pRegisterSettings->b32Bit = true;
+            }
+            else
+            {
+                pRegisterSettings->b32Bit = false;
+            }
+        }
         else if (child.tagName() == ProjectFileDefinitions::cDivideTag)
         {
             // use settings from system locale
@@ -445,7 +467,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
         }
         else if (child.tagName() == ProjectFileDefinitions::cBitmaskTag)
         {
-            const quint16 newBitMask = static_cast<quint16>(child.text().toUInt(&bRet, 0));
+            const quint32 newBitMask = static_cast<quint32>(child.text().toUInt(&bRet, 0));
 
             if (bRet)
             {

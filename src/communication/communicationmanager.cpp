@@ -10,13 +10,12 @@
 #include "communicationmanager.h"
 
 CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiModel *pGuiModel, GraphDataModel *pGraphDataModel, ErrorLogModel *pErrorLogModel, QObject *parent) :
-    QObject(parent), _active(false)
+    QObject(parent), _active(false), _registerValueHandler(pGraphDataModel, pSettingsModel)
 {
 
     _pPollTimer = new QTimer();
     _pGuiModel = pGuiModel;
     _pSettingsModel = pSettingsModel;
-    _pGraphDataModel = pGraphDataModel;
     _pErrorLogModel = pErrorLogModel;
 
     /* Setup modbus master */
@@ -95,30 +94,12 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
     }
 
     // Always add data to result map
-    QMapIterator<quint16, ModbusResult> i(partialResultMap);
-    while (i.hasNext())
-    {
-        i.next();
-
-        for(quint16 listIdx = 0; listIdx < _activeIndexList.size(); listIdx++)
-        {
-            const quint16 activeIndex = _activeIndexList[listIdx];
-            if (_pGraphDataModel->connectionId(activeIndex) == connectionId)
-            {
-                if (_pGraphDataModel->registerAddress(activeIndex) == i.key())
-                {
-                    ModbusResult result = i.value();
-                    _processedValues[listIdx] = processValue(activeIndex, result.value());
-                    _successList[listIdx] = result.isSuccess();
-                }
-            }
-        }
-    }
+    _registerValueHandler.processPartialResult(partialResultMap, connectionId);
 
     if (lastResult)
     {
         // propagate processed data
-        emit handleReceivedData(_successList, _processedValues);
+        emit handleReceivedData(_registerValueHandler.successList(), _registerValueHandler.processedValues());
     }
 
     // Set master as inactive
@@ -177,23 +158,14 @@ void CommunicationManager::readData()
     {
         _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 
-        /* Prepare result lists */
-        _processedValues.clear();
-        _successList.clear();
-        _pGraphDataModel->activeGraphIndexList(&_activeIndexList);
-
-        for(int idx = 0; idx < _activeIndexList.size(); idx++)
-        {
-            _processedValues.append(0);
-            _successList.append(false);
-        }
+        _registerValueHandler.startRead();
 
         /* Strange construction is required to avoid race condition:
          *
          * First set _activeMastersCount to correct value
          * And only then activate masters (readRegisterList)
          *
-         * readRegisterList can return immediatly and this will give race condition
+         * readRegisterList can return immediatly and this will give race condition otherwise
          */
 
         _activeMastersCount = 0;
@@ -204,7 +176,7 @@ void CommunicationManager::readData()
         {
             regAddrList.append(QList<quint16>());
 
-            _pGraphDataModel->activeGraphAddresList(&regAddrList.last(), i);
+            _registerValueHandler.activeGraphAddresList(&regAddrList.last(), i);
 
             if (regAddrList.last().count() > 0)
             {
@@ -220,57 +192,7 @@ void CommunicationManager::readData()
                 _modbusMasters[i]->pModbusMaster->readRegisterList(regAddrList.at(i));
             }
         }
-
     }
-
 }
 
-double CommunicationManager::processValue(quint32 graphIndex, quint16 value)
-{
-    double processedValue = 0;
 
-    if (_pGraphDataModel->isUnsigned(graphIndex))
-    {
-        processedValue = value;
-    }
-    else
-    {
-        processedValue = static_cast<qint16>(value);
-    }
-
-    // Apply bitmask
-    if (_pGraphDataModel->isUnsigned(graphIndex))
-    {
-        processedValue = static_cast<quint16>(processedValue) & _pGraphDataModel->bitmask(graphIndex);
-    }
-    else
-    {
-        processedValue = static_cast<qint16>(static_cast<qint16>(processedValue) & _pGraphDataModel->bitmask(graphIndex));
-    }
-
-    // Apply shift
-    if (_pGraphDataModel->shift(graphIndex) != 0)
-    {
-        if (_pGraphDataModel->shift(graphIndex) > 0)
-        {
-            processedValue = static_cast<qint16>(processedValue) << _pGraphDataModel->shift(graphIndex);
-        }
-        else
-        {
-            processedValue = static_cast<qint16>(processedValue) >> abs(_pGraphDataModel->shift(graphIndex));
-        }
-
-        if (!_pGraphDataModel->isUnsigned(graphIndex))
-        {
-            processedValue = static_cast<qint16>(processedValue);
-        }
-    }
-
-    // Apply multiplyFactor
-    processedValue *= _pGraphDataModel->multiplyFactor(graphIndex);
-
-    // Apply divideFactor
-    processedValue /= _pGraphDataModel->divideFactor(graphIndex);
-
-    return processedValue;
-}

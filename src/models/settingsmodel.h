@@ -22,6 +22,7 @@ public:
     void setTimeout(quint8 connectionId, quint32 timeout);
     void setConsecutiveMax(quint8 connectionId, quint8 max);
     void setConnectionState(quint8 connectionId, bool bState);
+    void setInt32LittleEndian(quint8 connectionId, bool int32LittleEndian);
 
     QString writeDuringLogFile();
     bool writeDuringLog();
@@ -31,6 +32,7 @@ public:
     quint32 timeout(quint8 connectionId);
     quint8 consecutiveMax(quint8 connectionId);
     bool connectionState(quint8 connectionId);
+    bool int32LittleEndian(quint8 connectionId);
 
     quint32 pollTime();
     bool absoluteTimes();
@@ -71,6 +73,7 @@ signals:
     void timeoutChanged(quint8 connectionId);
     void consecutiveMaxChanged(quint8 connectionId);
     void connectionStateChanged(quint8 connectionId);
+    void int32LittleEndianChanged(quint8 connectionId);
 
 private:
 
@@ -82,6 +85,7 @@ private:
         quint32 timeout;
         quint8 consecutiveMax;
         bool bConnectionState;
+        bool bInt32LittleEndian;
 
     } ConnectionSettings;
 

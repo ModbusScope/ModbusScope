@@ -76,6 +76,7 @@ void ProjectFileExporter::createConnectionTags(QDomElement * pParentElement)
         addTextNode(ProjectFileDefinitions::cSlaveIdTag, QString("%1").arg(_pSettingsModel->slaveId(i)), &connectionElement);
         addTextNode(ProjectFileDefinitions::cTimeoutTag, QString("%1").arg(_pSettingsModel->timeout(i)), &connectionElement);
         addTextNode(ProjectFileDefinitions::cConsecutiveMaxTag, QString("%1").arg(_pSettingsModel->consecutiveMax(i)), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cInt32LittleEndianTag, convertBoolToText(_pSettingsModel->int32LittleEndian(i)), &connectionElement);
 
         pParentElement->appendChild(connectionElement);
     }
@@ -125,6 +126,7 @@ void ProjectFileExporter::createRegisterTag(QDomElement * pParentElement, qint32
     addTextNode(ProjectFileDefinitions::cAddressTag, QString("%1").arg(_pGraphDataModel->registerAddress(idx)), &registerElement);
     addTextNode(ProjectFileDefinitions::cTextTag, _pGraphDataModel->label(idx).toHtmlEscaped(), &registerElement);
     addTextNode(ProjectFileDefinitions::cUnsignedTag, convertBoolToText(_pGraphDataModel->isUnsigned(idx)), &registerElement);
+    addTextNode(ProjectFileDefinitions::cBit32Tag, convertBoolToText(_pGraphDataModel->isBit32(idx)), &registerElement);
     addTextNode(ProjectFileDefinitions::cMultiplyTag, Util::formatDoubleForExport(_pGraphDataModel->multiplyFactor(idx)), &registerElement);
     addTextNode(ProjectFileDefinitions::cDivideTag, Util::formatDoubleForExport(_pGraphDataModel->divideFactor(idx)), &registerElement);
     addTextNode(ProjectFileDefinitions::cColorTag, _pGraphDataModel->color(idx).name(), &registerElement);

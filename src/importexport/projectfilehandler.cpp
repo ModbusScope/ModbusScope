@@ -128,6 +128,8 @@ void ProjectFileHandler::updateConnectionSetting(ProjectFileParser::ProjectSetti
             {
                 _pSettingsModel->setConsecutiveMax(connectionId, pProjectSettings->general.connectionSettings[idx].consecutiveMax);
             }
+
+            _pSettingsModel->setInt32LittleEndian(connectionId, pProjectSettings->general.connectionSettings[idx].bInt32LittleEndian);
         }
     }
 
@@ -179,6 +181,7 @@ void ProjectFileHandler::updateConnectionSetting(ProjectFileParser::ProjectSetti
         GraphData rowData;
         rowData.setActive(pProjectSettings->scope.registerList[i].bActive);
         rowData.setUnsigned(pProjectSettings->scope.registerList[i].bUnsigned);
+        rowData.setBit32(pProjectSettings->scope.registerList[i].b32Bit);
         rowData.setRegisterAddress(pProjectSettings->scope.registerList[i].address);
         rowData.setBitmask(pProjectSettings->scope.registerList[i].bitmask);
         rowData.setLabel(pProjectSettings->scope.registerList[i].text);

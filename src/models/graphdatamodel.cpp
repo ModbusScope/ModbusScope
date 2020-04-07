@@ -1,9 +1,28 @@
 
 #include "graphdata.h"
 #include "util.h"
-#include <QDebug>
 
 #include "graphdatamodel.h"
+
+namespace {
+
+    enum column {
+        COLOR = 0,
+        ACTIVE,
+        UNSIGNED,
+        REGISTER,
+        BIT32,
+        TEXT,
+        BITMASK,
+        SHIFT,
+        MULTIPLY,
+        DIVIDE,
+        CONNECTION_ID,
+
+        COUNT
+    };
+
+}
 
 GraphDataModel::GraphDataModel(SettingsModel * pSettingsModel, QObject *parent) : QAbstractTableModel(parent)
 {
@@ -15,6 +34,7 @@ GraphDataModel::GraphDataModel(SettingsModel * pSettingsModel, QObject *parent) 
     connect(this, SIGNAL(colorChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(activeChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(unsignedChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
+    connect(this, SIGNAL(bit32Changed(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(multiplyFactorChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(divideFactorChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(registerAddressChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
@@ -33,32 +53,20 @@ int GraphDataModel::rowCount(const QModelIndex & /*parent*/) const
 
 int GraphDataModel::columnCount(const QModelIndex & /*parent*/) const
 {
-    /*
-    * color
-    * bActive
-    * bUnsigned
-    * Register
-    * Text
-    * Bitmask
-    * Shift
-    * Multiply factor
-    * Divide factor
-    * Connection id
-    * */
-    return 10; // Number of visible members of struct
+    return column::COUNT;
 }
 
 QVariant GraphDataModel::data(const QModelIndex &index, int role) const
 {
     switch (index.column())
     {
-    case 0:
+    case column::COLOR:
         if (role == Qt::BackgroundColorRole)
         {
             return color(index.row());
         }
         break;
-    case 1:
+    case column::ACTIVE:
         if (role == Qt::CheckStateRole)
         {
             if (isActive(index.row()))
@@ -71,7 +79,7 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
             }
         }
         break;
-    case 2:
+    case column::UNSIGNED:
         if (role == Qt::CheckStateRole)
         {
             if (isUnsigned(index.row()))
@@ -84,44 +92,57 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
             }
         }
         break;
-    case 3:
+    case column::REGISTER:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return registerAddress(index.row());
         }
         break;
-    case 4:
+    case column::BIT32:
+        if (role == Qt::CheckStateRole)
+        {
+            if (isBit32(index.row()))
+            {
+                return Qt::Checked;
+            }
+            else
+            {
+                return Qt::Unchecked;
+            }
+        }
+        break;
+    case column::TEXT:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return label(index.row());
         }
         break;
-    case 5:
+    case column::BITMASK:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             // Show hex value
             return QString("0x%1").arg(bitmask(index.row()), 0, 16);
         }
         break;
-    case 6:
+    case column::SHIFT:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return shift(index.row());
         }
         break;
-    case 7:
+    case column::MULTIPLY:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return Util::formatDoubleForExport(multiplyFactor(index.row()));
         }
         break;
-    case 8:
+    case column::DIVIDE:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return Util::formatDoubleForExport(divideFactor(index.row()));
         }
         break;
-    case 9:
+    case column::CONNECTION_ID:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return QString("Connection %1").arg(connectionId(index.row()) + 1);
@@ -144,25 +165,27 @@ QVariant GraphDataModel::headerData(int section, Qt::Orientation orientation, in
         {
             switch (section)
             {
-            case 0:
+            case column::COLOR:
                 return QString("Color");
-            case 1:
+            case column::ACTIVE:
                 return QString("Active");
-            case 2:
+            case column::UNSIGNED:
                 return QString("Unsigned");
-            case 3:
+            case column::REGISTER:
                 return QString("Address");
-            case 4:
+            case column::BIT32:
+                return QString("32 bit");
+            case column::TEXT:
                 return QString("Text");
-            case 5:
+            case column::BITMASK:
                 return QString("Bitmask");
-            case 6:
+            case column::SHIFT:
                 return QString("Shift");
-            case 7:
+            case column::MULTIPLY:
                 return QString("Multiply");
-            case 8:
+            case column::DIVIDE:
                 return QString("Divide");
-            case 9:
+            case column::CONNECTION_ID:
                 return QString("Connection");
             default:
                 return QVariant();
@@ -184,7 +207,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
 
     switch (index.column())
     {
-    case 0:
+    case column::COLOR:
         if (role == Qt::EditRole)
         {
             if (value.canConvert(QMetaType::QColor))
@@ -198,7 +221,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             }
         }
         break;
-    case 1:
+    case column::ACTIVE:
         if (role == Qt::CheckStateRole)
         {
             if (value == Qt::Checked)
@@ -211,7 +234,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             }
         }
         break;
-    case 2:
+    case column::UNSIGNED:
         if (role == Qt::CheckStateRole)
         {
             if (value == Qt::Checked)
@@ -224,7 +247,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             }
         }
         break;
-    case 3:
+    case column::REGISTER:
         if (role == Qt::EditRole)
         {
             bool bOk = false;
@@ -249,17 +272,30 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             }
         }
         break;
-    case 4:
+    case column::BIT32:
+        if (role == Qt::CheckStateRole)
+        {
+            if (value == Qt::Checked)
+            {
+                setBit32(index.row(), true);
+            }
+            else
+            {
+                setBit32(index.row(), false);
+            }
+        }
+        break;
+    case column::TEXT:
         if (role == Qt::EditRole)
         {
             setLabel(index.row(), value.toString());
         }
         break;
-    case 5:
+    case column::BITMASK:
         if (role == Qt::EditRole)
         {
             bool bSuccess = false;
-            const quint16 newBitMask = value.toString().toUInt(&bSuccess, 0);
+            const quint32 newBitMask = value.toString().toUInt(&bSuccess, 0);
 
             if (bSuccess)
             {
@@ -272,7 +308,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             }
         }
         break;
-    case 6:
+    case column::SHIFT:
         if (role == Qt::EditRole)
         {
             bool bSuccess = false;
@@ -282,8 +318,8 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
                     (bSuccess)
                     &&
                     (
-                        (newShift > -16)
-                        && (newShift < 16)
+                        (newShift > -32)
+                        && (newShift < 32)
                     )
                 )
             {
@@ -292,12 +328,12 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             else
             {
                 bRet = false;
-                Util::showError(tr("Shift is not a valid integer between -16 and 16."));
+                Util::showError(tr("Shift is not a valid integer between -32 and 32."));
                 break;
             }
         }
         break;
-    case 7:
+    case column::MULTIPLY:
         if (role == Qt::EditRole)
         {
             bool bSuccess = false;
@@ -314,7 +350,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             }
         }
         break;
-    case 8:
+    case column::DIVIDE:
         if (role == Qt::EditRole)
         {
             bool bSuccess = false;
@@ -331,7 +367,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             }
         }
         break;
-    case 9:
+    case column::CONNECTION_ID:
         if (role == Qt::EditRole)
         {
             bool bSuccess = false;
@@ -379,15 +415,25 @@ Qt::ItemFlags GraphDataModel::flags(const QModelIndex & index) const
         itemFlags &= ~(Qt::ItemIsEnabled);
     }
 
+    /* Disable bitmask when signed register */
     if (
-            (index.column() == 1)
-            || (index.column() == 2)
+        (index.column() == column::BITMASK)
+        && !isUnsigned(index.row())
+    )
+    {
+        itemFlags &= ~(Qt::ItemIsEnabled);
+    }
+
+    if (
+            (index.column() == column::ACTIVE)
+            || (index.column() == column::UNSIGNED)
+            || (index.column() == column::BIT32)
         )
     {
         // checkable
         itemFlags |= Qt::ItemIsSelectable |  Qt::ItemIsUserCheckable;
     }
-    else if (index.column() == 0)
+    else if (index.column() == column::COLOR)
     {
         itemFlags |= Qt::ItemIsSelectable;
     }
@@ -464,6 +510,11 @@ bool GraphDataModel::isUnsigned(quint32 index) const
     return _graphData[index].isUnsigned();
 }
 
+bool GraphDataModel::isBit32(quint32 index) const
+{
+    return _graphData[index].isBit32();
+}
+
 double GraphDataModel::multiplyFactor(quint32 index) const
 {
     return _graphData[index].multiplyFactor();
@@ -479,7 +530,7 @@ quint16 GraphDataModel::registerAddress(quint32 index) const
     return _graphData[index].registerAddress();
 }
 
-quint16 GraphDataModel::bitmask(quint32 index) const
+quint32 GraphDataModel::bitmask(quint32 index) const
 {
     return _graphData[index].bitmask();
 }
@@ -559,6 +610,15 @@ void GraphDataModel::setUnsigned(quint32 index, bool bUnsigned)
     }
 }
 
+void GraphDataModel::setBit32(quint32 index, bool b32Bit)
+{
+    if (_graphData[index].isBit32() != b32Bit)
+    {
+         _graphData[index].setBit32(b32Bit);
+         emit bit32Changed(index);
+    }
+}
+
 void GraphDataModel::setMultiplyFactor(quint32 index, double multiplyFactor)
 {
     if (_graphData[index].multiplyFactor() != multiplyFactor)
@@ -586,7 +646,7 @@ void GraphDataModel::setRegisterAddress(quint32 index, const quint16 &registerAd
     }
 }
 
-void GraphDataModel::setBitmask(quint32 index, const quint16 &bitmask)
+void GraphDataModel::setBitmask(quint32 index, const quint32 &bitmask)
 {
     if (_graphData[index].bitmask() != bitmask)
     {
@@ -671,27 +731,6 @@ void GraphDataModel::clear()
     }
 }
 
-// Get sorted list of active (unique) register addresses for a specific connection id
-void GraphDataModel::activeGraphAddresList(QList<quint16> * pRegisterList, quint8 connectionId)
-{
-    // Clear list
-    pRegisterList->clear();
-
-    foreach(quint32 idx, _activeGraphList)
-    {
-        if (!pRegisterList->contains(_graphData[idx].registerAddress()))
-        {
-            if (_graphData[idx].connectionId() == connectionId)
-            {
-                pRegisterList->append(_graphData[idx].registerAddress());
-            }
-        }
-    }
-
-    // sort qList
-    qSort(*pRegisterList);
-}
-
 // Get list of active graph indexes
 void GraphDataModel::activeGraphIndexList(QList<quint16> * pList)
 {
@@ -707,7 +746,7 @@ void GraphDataModel::activeGraphIndexList(QList<quint16> * pList)
     qSort(*pList);
 }
 
-bool GraphDataModel::getDuplicate(quint16 * pRegister, quint16 * pBitmask, quint8 * pConnectionId)
+bool GraphDataModel::getDuplicate(quint16 * pRegister, quint32 * pBitmask, quint8 * pConnectionId)
 {
     for (qint32 idx = 0; idx < (_graphData.size() - 1); idx++) // Don't need to check last entry
     {
@@ -730,7 +769,7 @@ bool GraphDataModel::getDuplicate(quint16 * pRegister, quint16 * pBitmask, quint
     return true;
 }
 
-bool GraphDataModel::isPresent(quint16 addr, quint16 bitmask)
+bool GraphDataModel::isPresent(quint16 addr, quint32 bitmask)
 {
     for (qint32 idx = 0; idx < _graphData.size(); idx++)
     {

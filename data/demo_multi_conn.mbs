@@ -16,6 +16,7 @@
 			<slaveid>2</slaveid>
 			<timeout>2000</timeout>
 			<consecutivemax>100</consecutivemax>
+			<int32littleendian>true</int32littleendian>
 		</connection>
 
 		<log>

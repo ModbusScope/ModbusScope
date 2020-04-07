@@ -1,5 +1,8 @@
 # ModbusScope - User Manual
-This user manual describes how to get started with ModbusScope.
+
+[TOC]
+
+This user manual describes how to get started with *ModbusScope*.
 
 ## Installing
 
@@ -34,6 +37,21 @@ Now the registers are added they can be adjusted. Such as updating the name, add
 <img src="images/modbusscope/register_settings_dialog_with_registers.png" style="zoom:67%;" />
 
 The added registers are now shown in the *Legend* (right hand side of screen). 
+
+### Register calculations
+
+Some calculations can be performed before the data is added to the graph (and log). This calculations can be used to transform the values from a device to a format that is more clear for the user.
+
+##### Order
+
+The calculations are done in a specific order.
+
+* Combine 2 registers to one (32 bit registers)
+* Signed/unsigned
+* Bitmask (is ignored for signed values)
+* Shift
+* Multiplication
+* Division
 
 ## Storing and reusing configuration
 

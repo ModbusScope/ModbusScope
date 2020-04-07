@@ -27,6 +27,9 @@ public:
     bool isUnsigned() const;
     void setUnsigned(bool bUnsigned);
 
+    bool isBit32() const;
+    void setBit32(bool isBit32);
+
     double multiplyFactor() const;
     void setMultiplyFactor(double multiplyFactor);
 
@@ -36,8 +39,8 @@ public:
     quint16 registerAddress() const;
     void setRegisterAddress(const quint16 &registerAddress);
 
-    quint16 bitmask() const;
-    void setBitmask(const quint16 &bitmask);
+    quint32 bitmask() const;
+    void setBitmask(const quint32 &bitmask);
 
     qint32 shift() const;
     void setShift(const qint32 &shift);
@@ -55,10 +58,11 @@ private:
 
     bool _bActive;
     bool _bUnsigned;
+    bool _bit32;
     double _multiplyFactor;
     double _divideFactor;
     quint16 _registerAddress;
-    quint16 _bitmask;
+    quint32 _bitmask;
     qint32 _shift;
     quint8 _connectionId;
 

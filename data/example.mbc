@@ -37,6 +37,8 @@
         <var><reg>*</reg><text>Inlet Pressure</text><type>uint16</type><decimals>2</decimals><rw>r</rw><bcol>225,225,255</bcol></var>
         <var><reg>*</reg><text>Setpoint</text><type>uint16</type><decimals>1</decimals><rw>rw</rw><bcol>255,225,225</bcol></var>
         <var><reg>40007</reg><text>Bandwidth</text><type>uint16</type><decimals>2</decimals><rw>rw</rw><bcol>255,225,225</bcol></var>
+
+        <var><reg>40008</reg><text>Data large</text><type>uint32</type><rw>r</rw></var>
     </tab>
 	
 </modbuscontrol>

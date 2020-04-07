@@ -12,17 +12,18 @@ public:
 
     typedef struct _RegisterSettings
     {
-        _RegisterSettings() : address(40001), text(""), bActive(true), bUnsigned(false), divideFactor(1),
-                              multiplyFactor(1), bitmask(0xFFFF), shift(0), connectionId(0),
+        _RegisterSettings() : address(40001), text(""), bActive(true), bUnsigned(false), b32Bit(false), divideFactor(1),
+                              multiplyFactor(1), bitmask(0xFFFFFFFF), shift(0), connectionId(0),
                               bColor(false) {}
 
         quint16 address;
         QString text;
         bool bActive;
         bool bUnsigned;
+        bool b32Bit;
         double divideFactor;
         double multiplyFactor;
-        quint16 bitmask;
+        quint32 bitmask;
         quint32 shift;
         quint8 connectionId;
 
@@ -75,7 +76,7 @@ public:
 
     typedef struct _ConnectionSettings
     {
-        _ConnectionSettings() : bIp(false), bConnectionId(false), bPort(false), bSlaveId(false), bTimeout(false), bConsecutiveMax(false) {}
+        _ConnectionSettings() : bIp(false), bConnectionId(false), bPort(false), bSlaveId(false), bTimeout(false), bConsecutiveMax(false), bInt32LittleEndian(true) {}
 
         bool bIp;
         QString ip;
@@ -94,6 +95,8 @@ public:
 
         bool bConsecutiveMax;
         quint8 consecutiveMax;
+
+        bool bInt32LittleEndian;
 
     } ConnectionSettings;
 

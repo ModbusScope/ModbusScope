@@ -155,7 +155,7 @@ TEST(MbcRegisterModel, disableAlreadyStagedRegisterAddress)
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
             << MbcRegisterData(40001, true, "Test1", 0, false, true, 0)
             << MbcRegisterData(40001, true, "Test1_2", 2, false, true, 0)
-            << MbcRegisterData(40002, false, "Test2", 1, true, true, 0) // Disabled: 32 bit
+            << MbcRegisterData(40002, false, "Test2", 1, true, true, 0)
             << MbcRegisterData(40011, false, "Test11", 2, false, false, 0); // Disabled: not readable
     QStringList tabList = QStringList() << QString("Tab0");
 
@@ -248,12 +248,12 @@ TEST(MbcRegisterModel, fillData)
 
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
             << MbcRegisterData(40001, true, "Test1", 0, false, true, 0) // Disabled: Will be already present
-            << MbcRegisterData(40002, false, "Test2", 1, true, true, 0) // Disabled: 32 bit
+            << MbcRegisterData(40002, false, "Test2", 1, true, true, 0)
             << MbcRegisterData(40004, true, "Test4", 1, false, true, 0)
             << MbcRegisterData(40005, false, "Test5", 0, false, true, 2)
             << MbcRegisterData(40010, true, "Test10", 2, false, true, 3)
             << MbcRegisterData(40011, false, "Test11", 2, false, false, 0) // Disabled: not readable
-            << MbcRegisterData(40002, false, "Test6", 0, false, true, 0) // Enabled (Duplicate, but other is 32 bit so ignored)
+            << MbcRegisterData(40002, false, "Test6", 0, false, true, 0)
             << MbcRegisterData(40004, false, "Test13", 0, false, true, 0); // Enabled: Is duplicate, but will only be disabled when same reg address is selected
 
     QStringList tabList = QStringList() << QString("Tab0") << QString("Tab1") << QString("Tab2");
@@ -287,8 +287,8 @@ TEST(MbcRegisterModel, fillData)
     EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), disabledFlags); // flags
 
     row = 1;
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "32 bit register is not supported");
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), disabledFlags); // flags
+    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), enabledFlags); // flags
 
     row = 2;
     EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "");
@@ -369,12 +369,14 @@ TEST(MbcRegisterModel, selectedRegisterListAndCount)
     graphData.setRegisterAddress(40001);
     graphData.setLabel("Test1");
     graphData.setUnsigned(true);
+    graphData.setBit32(false);
     graphListRef.append(graphData);
 
     graphData.setActive(true);
     graphData.setRegisterAddress(40002);
     graphData.setLabel("Test2");
     graphData.setUnsigned(true);
+    graphData.setBit32(false);
     graphListRef.append(graphData);
 
 
@@ -396,6 +398,7 @@ TEST(MbcRegisterModel, selectedRegisterListAndCount)
     EXPECT_EQ(graphList[0].registerAddress(), graphListRef[0].registerAddress());
     EXPECT_EQ(graphList[0].label(), graphListRef[0].label());
     EXPECT_EQ(graphList[0].isUnsigned(), graphListRef[0].isUnsigned());
+    EXPECT_EQ(graphList[0].isBit32(), graphListRef[0].isBit32());
 
     // Check second
     modelIdx = pMbcRegisterModel->index(1, cColumnSelected);
@@ -409,11 +412,13 @@ TEST(MbcRegisterModel, selectedRegisterListAndCount)
     EXPECT_EQ(graphList[0].registerAddress(), graphListRef[0].registerAddress());
     EXPECT_EQ(graphList[0].label(), graphListRef[0].label());
     EXPECT_EQ(graphList[0].isUnsigned(), graphListRef[0].isUnsigned());
+    EXPECT_EQ(graphList[0].isBit32(), graphListRef[0].isBit32());
 
     EXPECT_EQ(graphList[1].isActive(), graphListRef[1].isActive());
     EXPECT_EQ(graphList[1].registerAddress(), graphListRef[1].registerAddress());
     EXPECT_EQ(graphList[1].label(), graphListRef[1].label());
     EXPECT_EQ(graphList[1].isUnsigned(), graphListRef[1].isUnsigned());
+    EXPECT_EQ(graphList[1].isBit32(), graphListRef[1].isBit32());
 
     // Uncheck first
     modelIdx = pMbcRegisterModel->index(0, cColumnSelected);
@@ -427,6 +432,7 @@ TEST(MbcRegisterModel, selectedRegisterListAndCount)
     EXPECT_EQ(graphList[0].registerAddress(), graphListRef[1].registerAddress());
     EXPECT_EQ(graphList[0].label(), graphListRef[1].label());
     EXPECT_EQ(graphList[0].isUnsigned(), graphListRef[1].isUnsigned());
+    EXPECT_EQ(graphList[0].isBit32(), graphListRef[1].isBit32());
 
 
     // Uncheck second
@@ -435,4 +441,37 @@ TEST(MbcRegisterModel, selectedRegisterListAndCount)
 
     EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), 0);
     EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), pMbcRegisterModel->selectedRegisterList().size());
+}
+
+TEST(MbcRegisterModel, selectedRegisterListAndCount32)
+{
+    MockGraphDataModel graphDataModel;
+    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
+
+    QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
+            << MbcRegisterData(40001, true, "Test1", 0, true, true, 0);
+    QStringList tabList = QStringList() << QString("Tab0");
+
+    EXPECT_CALL(graphDataModel, isPresent(_, _))
+        .WillRepeatedly(Return(false));
+
+    pMbcRegisterModel->fill(mbcRegisterList, tabList);
+
+    EXPECT_GE(pMbcRegisterModel->rowCount(), 1);
+
+    QList<GraphData> graphList;
+    QModelIndex modelIdx;
+
+    modelIdx = pMbcRegisterModel->index(0, cColumnSelected);
+    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
+
+    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), 1);
+    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), pMbcRegisterModel->selectedRegisterList().size());
+
+    graphList = pMbcRegisterModel->selectedRegisterList();
+    EXPECT_EQ(graphList[0].isActive(), true);
+    EXPECT_EQ(graphList[0].registerAddress(), 40001);
+    EXPECT_EQ(graphList[0].label(), "Test1");
+    EXPECT_EQ(graphList[0].isUnsigned(), true);
+    EXPECT_EQ(graphList[0].isBit32(), true);
 }

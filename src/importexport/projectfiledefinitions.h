@@ -19,6 +19,7 @@ namespace ProjectFileDefinitions
     const QString cPortTag = QString("port");
     const QString cTimeoutTag = QString("timeout");
     const QString cConsecutiveMaxTag = QString("consecutivemax");
+    const QString cInt32LittleEndianTag = QString("int32littleendian");
     const QString cPollTimeTag = QString("polltime");
     const QString cAbsoluteTimesTag = QString("absolutetimes");
     const QString cLogToFileTag = QString("logtofile");
@@ -28,6 +29,7 @@ namespace ProjectFileDefinitions
     const QString cTextTag = QString("text");
     const QString cUnsignedTag = QString("unsigned");
     const QString cDivideTag = QString("divide");
+    const QString cBit32Tag = QString("bit32");
     const QString cMultiplyTag = QString("multiply");
     const QString cColorTag = QString("color");
     const QString cBitmaskTag = QString("bitmask");

@@ -22,7 +22,7 @@
    <item>
     <widget class="QTabWidget" name="tabConnection">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="conn">
       <attribute name="title">
@@ -135,6 +135,23 @@
             </property>
             <property name="maximum">
              <number>125</number>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QCheckBox" name="checkInt32LittleEndian">
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>32-bit little endian</string>
             </property>
            </widget>
           </item>
@@ -267,6 +284,23 @@
             </property>
             <property name="maximum">
              <number>125</number>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_12">
+            <property name="text">
+             <string>32-bit little endian</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QCheckBox" name="checkInt32LittleEndian_2">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string/>
             </property>
            </widget>
           </item>

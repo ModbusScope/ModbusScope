@@ -39,7 +39,7 @@ QString TestData::cModbusScopeNewFormat = QString(
     "//Color,#000000,#0000ff"                                       "\n"\
     "//Multiply,1,1 "                                               "\n"\
     "//Divide,1,1"                                                  "\n"\
-    "//Bitmask,0xffff,0xffff"                                       "\n"\
+    "//Bitmask,0xffffffff,0xffffffff"                               "\n"\
     "//Shift,0,0"                                                   "\n"\
     "//ConnectionId,0,0"                                            "\n"\
     "//"                                                            "\n"\

@@ -9,8 +9,9 @@ GraphData::GraphData()
     _color = "-1"; // Invalid color
     _bActive = true;
     _bUnsigned = true;
+    _bit32 = false;
     _registerAddress = 0;
-    _bitmask = 0xFFFF;
+    _bitmask = 0xFFFFFFFF;
     _divideFactor = 1;
     _multiplyFactor = 1;
     _shift = 0;
@@ -77,6 +78,16 @@ void GraphData::setUnsigned(bool bUnsigned)
     _bUnsigned = bUnsigned;
 }
 
+bool GraphData::isBit32() const
+{
+    return _bit32;
+}
+
+void GraphData::setBit32(bool isBit32)
+{
+    _bit32 = isBit32;
+}
+
 double GraphData::multiplyFactor() const
 {
     return _multiplyFactor;
@@ -107,12 +118,12 @@ void GraphData::setRegisterAddress(const quint16 &registerAddress)
     _registerAddress = registerAddress;
 }
 
-quint16 GraphData::bitmask() const
+quint32 GraphData::bitmask() const
 {
     return _bitmask;
 }
 
-void GraphData::setBitmask(const quint16 &bitmask)
+void GraphData::setBitmask(const quint32 &bitmask)
 {
     _bitmask = bitmask;
 }
