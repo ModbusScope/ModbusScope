@@ -222,6 +222,9 @@ void ModbusConnection::connectionTimeOut()
     QTimer * pTimeoutTimer = qobject_cast<QTimer *>(QObject::sender());
     const qint32 senderIdx = findConnectionData(pTimeoutTimer, nullptr);
 
+    /* Stop timer */
+    pTimeoutTimer->stop();
+
     // Only handle error is latest connection, the rest is automaticaly closed on state change
     if (senderIdx == _connectionList.size() - 1)
     {
