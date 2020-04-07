@@ -89,7 +89,7 @@ void ModbusMaster::handlerConnectionError(QModbusDevice::Error error, QString ms
 
     _pReadRegisters->addAllErrors();
 
-    finishRead();
+    finishRead(true);
 }
 
 void ModbusMaster::handleRequestSuccess(quint16 startRegister, QList<quint16> registerDataList)
@@ -167,23 +167,34 @@ void ModbusMaster::handleTriggerNextRequest(void)
     else
     {
         // Done reading
-        finishRead();
+        finishRead(false);
     }
 }
 
-void ModbusMaster::finishRead()
+void ModbusMaster::finishRead(bool bError)
 {
     QMap<quint16, ModbusResult> results = _pReadRegisters->resultMap();
-
-    /* Check if close is required before sending results (because it will remove connections) */
-    if (!_pSettingsModel->reuseConnection(_connectionId))
-    {
-        _pModbusConnection->closeConnection();
-    }
 
     logInfo("Result map: " + dumpToString(results));
     emit modbusAddToStats(_success, _error);
     emit modbusPollDone(results, _connectionId);
+
+    bool bcloseConnection;
+
+    if (bError)
+    {
+        /* Always close connection on error */
+        bcloseConnection = true;
+    }
+    else
+    {
+        bcloseConnection = !_pSettingsModel->reuseConnection(_connectionId);
+    }
+
+    if (bcloseConnection)
+    {
+        _pModbusConnection->closeConnection();
+    }
 }
 
 QString ModbusMaster::dumpToString(QMap<quint16, ModbusResult> map)

@@ -43,7 +43,7 @@ private slots:
     void handleTriggerNextRequest(void);
 
 private:
-    void finishRead();
+    void finishRead(bool bError);
     QString dumpToString(QMap<quint16, ModbusResult> map);
     QString dumpToString(QList<quint16> list);
 
