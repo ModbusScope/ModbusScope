@@ -145,6 +145,11 @@ void CommunicationManager::stopCommunication()
     _bPollActive = false;
     _pPollTimer->stop();
     _pGuiModel->setCommunicationEndTime(QDateTime::currentMSecsSinceEpoch());
+
+    for(quint8 i = 0; i < SettingsModel::CONNECTION_ID_CNT; i++)
+    {
+        _modbusMasters[i]->pModbusMaster->cleanUp();
+    }
 }
 
 bool CommunicationManager::isActive()

@@ -23,6 +23,8 @@ public:
 
     void readRegisterList(QList<quint16> registerList);
 
+    void cleanUp();
+
 signals:
     void modbusPollDone(QMap<quint16, ModbusResult> modbusResults, quint8 connectionId);
     void modbusAddToStats(quint32 successes, quint32 errors);

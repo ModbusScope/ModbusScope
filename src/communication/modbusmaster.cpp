@@ -65,6 +65,15 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
     }
 }
 
+void ModbusMaster::cleanUp()
+{
+    /* Close connection when not closing automatically */
+    if (_pSettingsModel->reuseConnection(_connectionId))
+    {
+        _pModbusConnection->closeConnection();
+    }
+}
+
 void ModbusMaster::handleConnectionOpened()
 {
     emit triggerNextRequest();
@@ -166,11 +175,15 @@ void ModbusMaster::finishRead()
 {
     QMap<quint16, ModbusResult> results = _pReadRegisters->resultMap();
 
+    /* Check if close is required before sending results (because it will remove connections) */
+    if (!_pSettingsModel->reuseConnection(_connectionId))
+    {
+        _pModbusConnection->closeConnection();
+    }
+
     logInfo("Result map: " + dumpToString(results));
     emit modbusAddToStats(_success, _error);
     emit modbusPollDone(results, _connectionId);
-
-    _pModbusConnection->closeConnection();
 }
 
 QString ModbusMaster::dumpToString(QMap<quint16, ModbusResult> map)
