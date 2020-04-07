@@ -10,7 +10,7 @@
 #include "communicationmanager.h"
 
 CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiModel *pGuiModel, GraphDataModel *pGraphDataModel, ErrorLogModel *pErrorLogModel, QObject *parent) :
-    QObject(parent), _active(false), _registerValueHandler(pGraphDataModel, pSettingsModel)
+    QObject(parent), _bPollActive(false), _registerValueHandler(pGraphDataModel, pSettingsModel)
 {
 
     _pPollTimer = new QTimer();
@@ -48,12 +48,12 @@ bool CommunicationManager::startCommunication()
 {
     bool bResetted = false;
 
-    if (!_active)
+    if (!_bPollActive)
     {
         // Trigger read immediatly
         _pPollTimer->singleShot(1, this, SLOT(readData()));
 
-        _active = true;
+        _bPollActive = true;
         bResetted = true;
 
         resetCommunicationStats();
@@ -64,7 +64,7 @@ bool CommunicationManager::startCommunication()
 
 void CommunicationManager::resetCommunicationStats()
 {
-    if (_active)
+    if (_bPollActive)
     {
         _pGuiModel->setCommunicationStats(0, 0);
 
@@ -142,19 +142,19 @@ void CommunicationManager::handleModbusInfo(QString msg)
 
 void CommunicationManager::stopCommunication()
 {
-    _active = false;
+    _bPollActive = false;
     _pPollTimer->stop();
     _pGuiModel->setCommunicationEndTime(QDateTime::currentMSecsSinceEpoch());
 }
 
 bool CommunicationManager::isActive()
 {
-    return _active;
+    return _bPollActive;
 }
 
 void CommunicationManager::readData()
 {
-    if(_active)
+    if(_bPollActive)
     {
         _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 
