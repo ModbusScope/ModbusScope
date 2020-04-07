@@ -67,8 +67,6 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
 
 void ModbusMaster::handleConnectionOpened()
 {
-    logInfo("Connection opened");
-
     emit triggerNextRequest();
 }
 
@@ -171,7 +169,6 @@ void ModbusMaster::finishRead()
     logInfo("Result map: " + dumpToString(results));
     emit modbusAddToStats(_success, _error);
     emit modbusPollDone(results, _connectionId);
-    logInfo("Connection closed");
 
     _pModbusConnection->closeConnection();
 }

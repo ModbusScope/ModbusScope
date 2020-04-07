@@ -23,6 +23,8 @@ void ModbusConnection::openConnection(QString ip, qint32 port, quint32 timeout)
 {
     if (isConnected())
     {
+        qCDebug(scopeConnection) << "Connection already open";
+
         // Already connected and ready
         emit connectionSuccess();
     }
