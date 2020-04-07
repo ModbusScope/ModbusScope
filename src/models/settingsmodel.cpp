@@ -16,7 +16,7 @@ SettingsModel::SettingsModel(QObject *parent) :
         connectionSettings.consecutiveMax = 125;
         connectionSettings.bConnectionState = false;
         connectionSettings.bInt32LittleEndian = true;
-        connectionSettings.bReuseConnection = true;
+        connectionSettings.bPersistentConnection = true;
 
         _connectionSettings.append(connectionSettings);
     }
@@ -51,7 +51,7 @@ void SettingsModel::triggerUpdate(void)
         emit consecutiveMaxChanged(i);
         emit connectionStateChanged(i);
         emit int32LittleEndianChanged(i);
-        emit reuseConnectionChanged(i);
+        emit persistentConnectionChanged(i);
     }
 }
 
@@ -162,28 +162,28 @@ bool SettingsModel::int32LittleEndian(quint8 connectionId)
     return _connectionSettings[connectionId].bInt32LittleEndian;
 }
 
-void SettingsModel::setReuseConnection(quint8 connectionId, bool reuseConnection)
+void SettingsModel::setPersistentConnection(quint8 connectionId, bool persistentConnection)
 {
     if (connectionId >= CONNECTION_ID_CNT)
     {
         connectionId = CONNECTION_ID_0;
     }
 
-    if (_connectionSettings[connectionId].bReuseConnection != reuseConnection)
+    if (_connectionSettings[connectionId].bPersistentConnection != persistentConnection)
     {
-        _connectionSettings[connectionId].bReuseConnection = reuseConnection;
-        emit reuseConnectionChanged(connectionId);
+        _connectionSettings[connectionId].bPersistentConnection = persistentConnection;
+        emit persistentConnectionChanged(connectionId);
     }
 }
 
-bool SettingsModel::reuseConnection(quint8 connectionId)
+bool SettingsModel::persistentConnection(quint8 connectionId)
 {
     if (connectionId >= CONNECTION_ID_CNT)
     {
         connectionId = CONNECTION_ID_0;
     }
 
-    return _connectionSettings[connectionId].bReuseConnection;
+    return _connectionSettings[connectionId].bPersistentConnection;
 }
 
 void SettingsModel::setWriteDuringLog(bool bState)

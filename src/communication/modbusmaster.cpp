@@ -68,7 +68,7 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
 void ModbusMaster::cleanUp()
 {
     /* Close connection when not closing automatically */
-    if (_pSettingsModel->reuseConnection(_connectionId))
+    if (_pSettingsModel->persistentConnection(_connectionId))
     {
         _pModbusConnection->closeConnection();
     }
@@ -188,7 +188,7 @@ void ModbusMaster::finishRead(bool bError)
     }
     else
     {
-        bcloseConnection = !_pSettingsModel->reuseConnection(_connectionId);
+        bcloseConnection = !_pSettingsModel->persistentConnection(_connectionId);
     }
 
     if (bcloseConnection)
