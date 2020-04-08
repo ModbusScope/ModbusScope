@@ -76,7 +76,8 @@ public:
 
     typedef struct _ConnectionSettings
     {
-        _ConnectionSettings() : bIp(false), bConnectionId(false), bPort(false), bSlaveId(false), bTimeout(false), bConsecutiveMax(false), bInt32LittleEndian(true) {}
+        _ConnectionSettings() : bIp(false), bConnectionId(false), bPort(false), bSlaveId(false), bTimeout(false),
+                                bConsecutiveMax(false), bInt32LittleEndian(true), bPersistentConnection(true) {}
 
         bool bIp;
         QString ip;
@@ -97,6 +98,8 @@ public:
         quint8 consecutiveMax;
 
         bool bInt32LittleEndian;
+
+        bool bPersistentConnection;
 
     } ConnectionSettings;
 

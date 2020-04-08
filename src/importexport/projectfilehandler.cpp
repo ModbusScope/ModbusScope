@@ -130,6 +130,8 @@ void ProjectFileHandler::updateConnectionSetting(ProjectFileParser::ProjectSetti
             }
 
             _pSettingsModel->setInt32LittleEndian(connectionId, pProjectSettings->general.connectionSettings[idx].bInt32LittleEndian);
+
+            _pSettingsModel->setPersistentConnection(connectionId, pProjectSettings->general.connectionSettings[idx].bPersistentConnection);
         }
     }
 

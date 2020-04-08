@@ -77,6 +77,7 @@ void ProjectFileExporter::createConnectionTags(QDomElement * pParentElement)
         addTextNode(ProjectFileDefinitions::cTimeoutTag, QString("%1").arg(_pSettingsModel->timeout(i)), &connectionElement);
         addTextNode(ProjectFileDefinitions::cConsecutiveMaxTag, QString("%1").arg(_pSettingsModel->consecutiveMax(i)), &connectionElement);
         addTextNode(ProjectFileDefinitions::cInt32LittleEndianTag, convertBoolToText(_pSettingsModel->int32LittleEndian(i)), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cPersistentConnectionTag, convertBoolToText(_pSettingsModel->persistentConnection(i)), &connectionElement);
 
         pParentElement->appendChild(connectionElement);
     }

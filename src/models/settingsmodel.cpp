@@ -16,6 +16,7 @@ SettingsModel::SettingsModel(QObject *parent) :
         connectionSettings.consecutiveMax = 125;
         connectionSettings.bConnectionState = false;
         connectionSettings.bInt32LittleEndian = true;
+        connectionSettings.bPersistentConnection = true;
 
         _connectionSettings.append(connectionSettings);
     }
@@ -50,6 +51,7 @@ void SettingsModel::triggerUpdate(void)
         emit consecutiveMaxChanged(i);
         emit connectionStateChanged(i);
         emit int32LittleEndianChanged(i);
+        emit persistentConnectionChanged(i);
     }
 }
 
@@ -158,6 +160,30 @@ bool SettingsModel::int32LittleEndian(quint8 connectionId)
     }
 
     return _connectionSettings[connectionId].bInt32LittleEndian;
+}
+
+void SettingsModel::setPersistentConnection(quint8 connectionId, bool persistentConnection)
+{
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    if (_connectionSettings[connectionId].bPersistentConnection != persistentConnection)
+    {
+        _connectionSettings[connectionId].bPersistentConnection = persistentConnection;
+        emit persistentConnectionChanged(connectionId);
+    }
+}
+
+bool SettingsModel::persistentConnection(quint8 connectionId)
+{
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    return _connectionSettings[connectionId].bPersistentConnection;
 }
 
 void SettingsModel::setWriteDuringLog(bool bState)

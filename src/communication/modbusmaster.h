@@ -23,6 +23,8 @@ public:
 
     void readRegisterList(QList<quint16> registerList);
 
+    void cleanUp();
+
 signals:
     void modbusPollDone(QMap<quint16, ModbusResult> modbusResults, quint8 connectionId);
     void modbusAddToStats(quint32 successes, quint32 errors);
@@ -41,7 +43,7 @@ private slots:
     void handleTriggerNextRequest(void);
 
 private:
-    void finishRead();
+    void finishRead(bool bError);
     QString dumpToString(QMap<quint16, ModbusResult> map);
     QString dumpToString(QList<quint16> list);
 

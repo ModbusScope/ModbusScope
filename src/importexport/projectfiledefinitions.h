@@ -20,6 +20,7 @@ namespace ProjectFileDefinitions
     const QString cTimeoutTag = QString("timeout");
     const QString cConsecutiveMaxTag = QString("consecutivemax");
     const QString cInt32LittleEndianTag = QString("int32littleendian");
+    const QString cPersistentConnectionTag = QString("persistentconnection");
     const QString cPollTimeTag = QString("polltime");
     const QString cAbsoluteTimesTag = QString("absolutetimes");
     const QString cLogToFileTag = QString("logtofile");

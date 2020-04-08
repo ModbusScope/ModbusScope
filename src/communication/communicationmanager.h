@@ -60,7 +60,7 @@ private:
     QList<ModbusMasterData *> _modbusMasters;
     quint32 _activeMastersCount;
 
-    bool _active;
+    bool _bPollActive;
     QTimer * _pPollTimer;
     qint64 _lastPollStart;
 
