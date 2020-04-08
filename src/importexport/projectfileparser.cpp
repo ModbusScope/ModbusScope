@@ -198,6 +198,17 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
                 pConnectionSettings->bInt32LittleEndian = false;
             }
         }
+        else if (child.tagName() == ProjectFileDefinitions::cPersistentConnectionTag)
+        {
+            if (!child.text().toLower().compare(ProjectFileDefinitions::cTrueValue))
+            {
+                pConnectionSettings->bPersistentConnection = true;
+            }
+            else
+            {
+                pConnectionSettings->bPersistentConnection = false;
+            }
+        }
         else
         {
             // unkown tag: ignore
