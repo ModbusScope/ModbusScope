@@ -1,3 +1,13 @@
+# v2.1.0 (xx/xx/2020)
+
+## Defects
+* Fix tooltip
+
+## Improvements
+* Add support for 32 bit registers (#129)
+* Add support for persistent connection (default on) (#18)
+* Minimize scale dock
+
 # v2.0.0 (03/03/2020)
 
 ## Internal (code changes)
