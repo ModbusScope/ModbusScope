@@ -23,6 +23,9 @@ private slots:
 
 private:
 
+    void setVersionInfo();
+    void setLibraryVersionInfo();
+
     Ui::AboutDialog * _pUi;
 
     UpdateNotify _updateNotify;
