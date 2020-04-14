@@ -1,10 +1,8 @@
 
-#include <QDesktopServices>
 #include <QRegularExpression>
 
 #include "util.h"
 #include "updatenotify.h"
-#include "projectfiledefinitions.h"
 
 UpdateNotify::UpdateNotify(QObject *parent) :
     QObject(parent)

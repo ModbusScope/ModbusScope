@@ -2,7 +2,6 @@
 #define UPDATENOTIFY_H
 
 #include <QObject>
-#include <QWidget>
 
 #include "versiondownloader.h"
 
