@@ -22,9 +22,9 @@ add_executable(tst_datafileparser ${CMAKE_CURRENT_SOURCE_DIR}/testdatafileparser
 add_executable(tst_mbcfileimporter ${CMAKE_CURRENT_SOURCE_DIR}/testmbcfileimporter.cpp ${TEST_DATA_SRCS})
 add_executable(tst_settingsauto ${CMAKE_CURRENT_SOURCE_DIR}/testsettingsauto.cpp ${TEST_DATA_SRCS})
 
-add_test(tst_datafileparser COMMAND tst_communicationmanager)
-add_test(tst_mbcfileimporter COMMAND tst_modbusconnection)
-add_test(tst_settingsauto COMMAND tst_modbusmaster)
+add_test(tst_datafileparser COMMAND tst_datafileparser)
+add_test(tst_mbcfileimporter COMMAND tst_mbcfileimporter)
+add_test(tst_settingsauto COMMAND tst_settingsauto)
 
 
 target_link_libraries(tst_datafileparser  PRIVATE
