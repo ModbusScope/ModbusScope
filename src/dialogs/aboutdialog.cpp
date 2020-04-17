@@ -9,10 +9,12 @@
 
 #include "util.h"
 #include "version.h"
+#include "versiondownloader.h"
 
 AboutDialog::AboutDialog(QWidget *parent) :
     QDialog(parent),
-    _pUi(new Ui::AboutDialog)
+    _pUi(new Ui::AboutDialog),
+    _updateNotify(new VersionDownloader())
 {
     _pUi->setupUi(this);
 

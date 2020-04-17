@@ -3,13 +3,14 @@
 
 #include <QObject>
 
-#include "versiondownloader.h"
+/* Forward declaration */
+class VersionDownloader;
 
 class UpdateNotify : public QObject
 {
     Q_OBJECT
 public:
-    explicit UpdateNotify(QObject *parent = 0);
+    explicit UpdateNotify(VersionDownloader* pVersionDownloader, QObject *parent = 0);
 
     void checkForUpdate();
 
@@ -35,7 +36,7 @@ private:
 
     UpdateState checkVersions(QString current, QString latest);
 
-    VersionDownloader _versionDownloader;
+    VersionDownloader* _pVersionDownloader;
 
     QString _version;
     QString _link;

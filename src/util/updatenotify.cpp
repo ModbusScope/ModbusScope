@@ -3,18 +3,20 @@
 
 #include "util.h"
 #include "updatenotify.h"
+#include "versiondownloader.h"
 
-UpdateNotify::UpdateNotify(QObject *parent) :
+UpdateNotify::UpdateNotify(VersionDownloader* pVersionDownloader, QObject *parent) :
     QObject(parent)
 {
     _bValidData = false;
+    _pVersionDownloader = pVersionDownloader;
 
-    connect(&_versionDownloader, SIGNAL(versionDownloaded()), this, SLOT (handleVersionData()));
+    connect(_pVersionDownloader, SIGNAL(versionDownloaded()), this, SLOT (handleVersionData()));
 }
 
 void UpdateNotify::checkForUpdate()
 {
-    _versionDownloader.performCheck();
+    _pVersionDownloader->performCheck();
 }
 
 void UpdateNotify::handleVersionData()
@@ -22,10 +24,10 @@ void UpdateNotify::handleVersionData()
     QRegularExpression dateParseRegex;
     dateParseRegex.setPattern("(\\d+\\.\\d+\\.\\d+)");
 
-    QRegularExpressionMatch match = dateParseRegex.match(_versionDownloader.version());
+    QRegularExpressionMatch match = dateParseRegex.match(_pVersionDownloader->version());
 
     _version = match.captured(1);
-    _link = _versionDownloader.url();
+    _link = _pVersionDownloader->url();
 
     if (!_version.isEmpty() && !_link.isEmpty())
     {
