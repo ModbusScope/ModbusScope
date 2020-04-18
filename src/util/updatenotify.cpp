@@ -27,9 +27,9 @@ void UpdateNotify::handleVersionData()
     QRegularExpressionMatch match = dateParseRegex.match(_pVersionDownloader->version());
 
     _version = match.captured(1);
-    _link = _pVersionDownloader->url();
+    _link = QUrl(_pVersionDownloader->url());
 
-    if (!_version.isEmpty() && !_link.isEmpty())
+    if (!_version.isEmpty() && _link.isValid())
     {
         _bValidData = true;
 
@@ -89,7 +89,7 @@ QString UpdateNotify::version() const
     return _version;
 }
 
-QString UpdateNotify::link() const
+QUrl UpdateNotify::link() const
 {
     return _link;
 }

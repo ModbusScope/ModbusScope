@@ -58,7 +58,7 @@ void AboutDialog::showVersionUpdate(UpdateNotify::UpdateState state)
     {
         QString updateTxt;
 
-        updateTxt.append(QString("Update available: <a href=\'%1\'>v%2</a>").arg(_updateNotify.link()).arg(_updateNotify.version()));
+        updateTxt.append(QString("Update available: <a href=\'%1\'>v%2</a>").arg(_updateNotify.link().toString()).arg(_updateNotify.version()));
 
         updateTxt.append("<br/>");
         _pUi->lblUpdate->setText(updateTxt);

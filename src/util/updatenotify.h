@@ -2,6 +2,7 @@
 #define UPDATENOTIFY_H
 
 #include <QObject>
+#include <QUrl>
 
 /* Forward declaration */
 class VersionDownloader;
@@ -15,7 +16,7 @@ public:
     void checkForUpdate();
 
     QString version() const;
-    QString link() const;
+    QUrl link() const;
     bool bValidData() const;
 
     typedef enum
@@ -39,7 +40,7 @@ private:
     VersionDownloader* _pVersionDownloader;
 
     QString _version;
-    QString _link;
+    QUrl _link;
     bool _bValidData;
 
 };
