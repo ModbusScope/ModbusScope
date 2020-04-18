@@ -13,10 +13,10 @@ public:
     explicit VersionDownloader(QObject *parent = 0);
     virtual ~VersionDownloader();
 
-    void performCheck();
+    virtual void performCheck();
 
-    QString version();
-    QString url();
+    virtual QString version();
+    virtual QString url();
 
 signals:
     void versionDownloaded();
