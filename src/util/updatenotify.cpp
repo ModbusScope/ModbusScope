@@ -27,7 +27,7 @@ void UpdateNotify::handleVersionData()
     QRegularExpressionMatch match = dateParseRegex.match(_pVersionDownloader->version());
 
     _version = match.captured(1);
-    _link = QUrl(_pVersionDownloader->url());
+    _link = QUrl(_pVersionDownloader->url(), QUrl::StrictMode);
 
     if (!_version.isEmpty() && _link.isValid())
     {
