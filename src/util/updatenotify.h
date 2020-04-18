@@ -28,8 +28,6 @@ public:
 signals:
     void updateCheckResult(UpdateNotify::UpdateState result);
 
-public slots:
-
 private slots:
     void handleVersionData();
 

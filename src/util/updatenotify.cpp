@@ -35,7 +35,7 @@ void UpdateNotify::handleVersionData()
 
         const UpdateState versionState = checkVersions(Util::currentVersion(), _version);
 
-        updateCheckResult(versionState);
+        emit updateCheckResult(versionState);
     }
     else
     {
