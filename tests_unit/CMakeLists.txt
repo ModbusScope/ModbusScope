@@ -41,7 +41,6 @@ set(
     tst_errorlogmodel.h
     tst_graphdata.h
     tst_mbcregistermodel.h
-    tst_readregisters.h
 )
 
 add_executable(test_unit main.cpp
