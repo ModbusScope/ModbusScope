@@ -38,7 +38,7 @@ void TestUpdateNotify::init()
 
 void TestUpdateNotify::cleanup()
 {
-
+    delete _pVersionDownloader;
 }
 
 void TestUpdateNotify::triggerDownloader()
