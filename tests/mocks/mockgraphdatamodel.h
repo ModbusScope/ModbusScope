@@ -1,8 +1,10 @@
+#ifndef MOCKGRAPHDATAMODEL_H__
+#define MOCKGRAPHDATAMODEL_H__
 
 #include "gmock/gmock.h"
 
-#include "../src/models/graphdatamodel.h"
-#include "../src/models/settingsmodel.h"
+#include "graphdatamodel.h"
+#include "settingsmodel.h"
 
 class MockGraphDataModel : public GraphDataModel {
     public:
@@ -11,3 +13,4 @@ class MockGraphDataModel : public GraphDataModel {
         MOCK_METHOD2(isPresent, bool(quint16 addr, quint32 bitmask));
 };
 
+#endif /* MOCKGRAPHDATAMODEL_H__ */

@@ -37,7 +37,6 @@ include_directories(${Qt5test_INCLUDE_DIRS})
 
 set(
     UNIT_TEST_SOURCES
-    tst_mbcregistermodel.h
 )
 
 add_executable(test_unit main.cpp

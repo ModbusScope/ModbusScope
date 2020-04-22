@@ -1,12 +1,16 @@
-#include <gtest/gtest.h>
+
+#include <QtTest/QtTest>
+#include <QSignalSpy>
+
 #include "gmock/gmock.h"
 #include <gmock/gmock-matchers.h>
 
-#include "mockgraphdatamodel.h"
-#include <QSignalSpy>
+#include "../mocks/gmockutils.h"
+#include "../mocks/mockgraphdatamodel.h"
 
-#include "../src/models/mbcregistermodel.h"
+#include "testmbcregistermodel.h"
 
+#include "mbcregistermodel.h"
 
 using ::testing::Return;
 using namespace testing;
@@ -19,20 +23,18 @@ static const quint32 cColumnTab = 4;
 static const quint32 cColumnDecimals = 5;
 static const quint32 cColumnCnt = 6;
 
-void fillModel(MockGraphDataModel * pGraphDataModel, MbcRegisterModel * pMbcRegisterModel, bool bAlreadyPresent)
+void TestMbcRegisterModel::init()
 {
-    QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
-            << MbcRegisterData(40001, true, "Test1", 0, false, true, 0)
-            << MbcRegisterData(40002, true, "Test2", 0, false, true, 0);
-    QStringList tabList = QStringList() << QString("Tab0");
-
-    EXPECT_CALL(*pGraphDataModel, isPresent(_, _))
-        .WillRepeatedly(Return(bAlreadyPresent));
-
-    pMbcRegisterModel->fill(mbcRegisterList, tabList);
+    // IMPORTANT: This must be called before any mock object constructors
+    GMockUtils::InitGoogleMock();
 }
 
-TEST(MbcRegisterModel, rowCount)
+void TestMbcRegisterModel::cleanup()
+{
+
+}
+
+void TestMbcRegisterModel::rowCount()
 {
     MockGraphDataModel graphDataModel;
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
@@ -47,7 +49,7 @@ TEST(MbcRegisterModel, rowCount)
 }
 
 
-TEST(MbcRegisterModel, columnCount)
+void TestMbcRegisterModel::columnCount()
 {
     MockGraphDataModel graphDataModel;
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
@@ -55,7 +57,7 @@ TEST(MbcRegisterModel, columnCount)
     EXPECT_EQ(pMbcRegisterModel->columnCount(QModelIndex()), cColumnCnt);
 }
 
-TEST(MbcRegisterModel, headerData)
+void TestMbcRegisterModel::headerData()
 {
     MockGraphDataModel graphDataModel;
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
@@ -70,7 +72,7 @@ TEST(MbcRegisterModel, headerData)
     EXPECT_EQ(pMbcRegisterModel->headerData(cColumnCnt, Qt::Horizontal, Qt::DisplayRole), QVariant());
 }
 
-TEST(MbcRegisterModel, flagsEnabled)
+void TestMbcRegisterModel::flagsEnabled()
 {
     MockGraphDataModel graphDataModel;
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
@@ -91,7 +93,7 @@ TEST(MbcRegisterModel, flagsEnabled)
 }
 
 
-TEST(MbcRegisterModel, flagsDisabled)
+void TestMbcRegisterModel::flagsDisabled()
 {
     MockGraphDataModel graphDataModel;
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
@@ -112,7 +114,7 @@ TEST(MbcRegisterModel, flagsDisabled)
 
 }
 
-TEST(MbcRegisterModel, setData)
+void TestMbcRegisterModel::setData()
 {
     MockGraphDataModel graphDataModel;
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
@@ -147,7 +149,7 @@ TEST(MbcRegisterModel, setData)
     EXPECT_EQ(pMbcRegisterModel->data(modelIdxSecondRow, Qt::CheckStateRole), Qt::Unchecked);
 }
 
-TEST(MbcRegisterModel, disableAlreadyStagedRegisterAddress)
+void TestMbcRegisterModel::disableAlreadyStagedRegisterAddress()
 {
     MockGraphDataModel graphDataModel;
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
@@ -231,7 +233,7 @@ TEST(MbcRegisterModel, disableAlreadyStagedRegisterAddress)
 
 }
 
-TEST(MbcRegisterModel, fillData)
+void TestMbcRegisterModel::fillData()
 {
     MockGraphDataModel graphDataModel;
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
@@ -329,7 +331,7 @@ TEST(MbcRegisterModel, fillData)
     }
 }
 
-TEST(MbcRegisterModel, reset)
+void TestMbcRegisterModel::reset()
 {
     MockGraphDataModel graphDataModel;
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
@@ -344,7 +346,7 @@ TEST(MbcRegisterModel, reset)
     EXPECT_EQ(resetSignalSpy.count(), 1);
 }
 
-TEST(MbcRegisterModel, selectedRegisterListAndCount)
+void TestMbcRegisterModel::selectedRegisterListAndCount()
 {
     MockGraphDataModel graphDataModel;
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
@@ -443,7 +445,7 @@ TEST(MbcRegisterModel, selectedRegisterListAndCount)
     EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), pMbcRegisterModel->selectedRegisterList().size());
 }
 
-TEST(MbcRegisterModel, selectedRegisterListAndCount32)
+void TestMbcRegisterModel::selectedRegisterListAndCount32()
 {
     MockGraphDataModel graphDataModel;
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
@@ -475,3 +477,18 @@ TEST(MbcRegisterModel, selectedRegisterListAndCount32)
     EXPECT_EQ(graphList[0].isUnsigned(), true);
     EXPECT_EQ(graphList[0].isBit32(), true);
 }
+
+void TestMbcRegisterModel::fillModel(MockGraphDataModel * pGraphDataModel, MbcRegisterModel * pMbcRegisterModel, bool bAlreadyPresent)
+{
+    QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
+            << MbcRegisterData(40001, true, "Test1", 0, false, true, 0)
+            << MbcRegisterData(40002, true, "Test2", 0, false, true, 0);
+    QStringList tabList = QStringList() << QString("Tab0");
+
+    EXPECT_CALL(*pGraphDataModel, isPresent(_, _))
+        .WillRepeatedly(Return(bAlreadyPresent));
+
+    pMbcRegisterModel->fill(mbcRegisterList, tabList);
+}
+
+QTEST_GUILESS_MAIN(TestMbcRegisterModel)
