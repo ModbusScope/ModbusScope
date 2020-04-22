@@ -15,9 +15,11 @@ enable_testing()
 
 add_executable(tst_errorlog ${CMAKE_CURRENT_SOURCE_DIR}/testerrorlog.cpp ${TEST_SRCS})
 add_executable(tst_errorlogmodel ${CMAKE_CURRENT_SOURCE_DIR}/testerrorlogmodel.cpp ${TEST_SRCS})
+add_executable(tst_graphdata ${CMAKE_CURRENT_SOURCE_DIR}/testgraphdata.cpp ${TEST_SRCS})
 
 add_test(tst_errorlog COMMAND tst_errorlog)
 add_test(tst_errorlogmodel COMMAND tst_errorlogmodel)
+add_test(tst_graphdata COMMAND tst_graphdata)
 
 target_link_libraries(tst_errorlog  PRIVATE
     ${SCOPESOURCE}
@@ -26,6 +28,12 @@ target_link_libraries(tst_errorlog  PRIVATE
 )
 
 target_link_libraries(tst_errorlogmodel  PRIVATE
+    ${SCOPESOURCE}
+    ${QT_LIB}
+    Qt5::Test
+)
+
+target_link_libraries(tst_graphdata  PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
     Qt5::Test
