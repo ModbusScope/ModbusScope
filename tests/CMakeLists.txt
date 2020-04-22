@@ -6,7 +6,7 @@ if ($ENV{GOOGLETEST_DIR})
     set(GOOGLETEST_DIR $ENV{GOOGLETEST_DIR})
 else ()
     message("Set local path")
-    set(GOOGLETEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../tests_unit/googletest)
+    set(GOOGLETEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/googletest)
 endif ()
 
 if (EXISTS ${GOOGLETEST_DIR})
