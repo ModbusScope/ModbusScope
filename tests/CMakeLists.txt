@@ -29,6 +29,7 @@ set(
 
 add_subdirectory(communication)
 add_subdirectory(importexport)
+add_subdirectory(models)
 add_subdirectory(util)
 
 
