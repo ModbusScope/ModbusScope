@@ -1,3 +1,5 @@
+#ifndef MOCKVERSIONDOWNLOADER_H__
+#define MOCKVERSIONDOWNLOADER_H__
 
 #include "gmock/gmock.h"
 
@@ -12,3 +14,4 @@ class MockVersionDownloader : public VersionDownloader {
 
 };
 
+#endif /* MOCKVERSIONDOWNLOADER_H__ */
