@@ -52,6 +52,4 @@ script:
   - cmake .
   - make -j4
 
-  - tests_unit/test_unit
-
-  - python3 ./tests_integration/run_tests.py
+  - python3 ./tests/run_tests.py

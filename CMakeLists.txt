@@ -45,16 +45,15 @@ set(QT_LIB
 )
 
 include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/libraries/qcustomplot
     ${CMAKE_CURRENT_SOURCE_DIR}/src/communication
     ${CMAKE_CURRENT_SOURCE_DIR}/src/customwidgets
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/importexport
     ${CMAKE_CURRENT_SOURCE_DIR}/src/dialogs
     ${CMAKE_CURRENT_SOURCE_DIR}/src/graphview
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/importexport
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/libraries/qcustomplot
     ${CMAKE_CURRENT_SOURCE_DIR}/src/models
     ${CMAKE_CURRENT_SOURCE_DIR}/src/util
 )
 
 add_subdirectory(src)
-add_subdirectory(tests_integration)
-add_subdirectory(tests_unit)
+add_subdirectory(tests)
