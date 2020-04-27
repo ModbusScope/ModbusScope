@@ -40,16 +40,15 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pSettingsModel = new SettingsModel();
     _pGraphDataModel = new GraphDataModel(_pSettingsModel);
     _pNoteModel = new NoteModel();
-    _pErrorLogModel = new ErrorLogModel();
     _pDataParserModel = new DataParserModel();
 
     _pConnectionDialog = new ConnectionDialog(_pSettingsModel, this);
     _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
-    _pErrorLogDialog = new ErrorLogDialog(_pErrorLogModel, this);
+    _pErrorLogDialog = new ErrorLogDialog(this);
 
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
 
-    _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pGraphDataModel, _pErrorLogModel);
+    _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pGraphDataModel);
     _pGraphView = new GraphView(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
     _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel, _pSettingsModel, _pDataParserModel, this);
     _pProjectFileHandler = new ProjectFileHandler(_pGuiModel, _pSettingsModel, _pGraphDataModel);
@@ -253,7 +252,6 @@ MainWindow::~MainWindow()
     delete _pGuiModel;
     delete _pGraphShowHide;
     delete _pGraphBringToFront;
-    delete _pErrorLogModel;
     delete _pDataFileHandler;
     delete _pProjectFileHandler;
 

@@ -17,7 +17,7 @@ void TestErrorLogModel::cleanup()
 
 void TestErrorLogModel::addClear()
 {
-    ErrorLogModel * pErrorModel = new ErrorLogModel();
+    ErrorLogModel * pErrorModel = &ErrorLogModel::Logger();
 
     QCOMPARE(pErrorModel->size(), 0);
     QCOMPARE(pErrorModel->rowCount(), 0);
@@ -41,7 +41,7 @@ void TestErrorLogModel::addClear()
 
 void TestErrorLogModel::headerData()
 {
-    ErrorLogModel * pErrorModel = new ErrorLogModel();
+    ErrorLogModel * pErrorModel = &ErrorLogModel::Logger();
 
     QCOMPARE(pErrorModel->columnCount(QModelIndex()), 1);
     QCOMPARE(pErrorModel->headerData(0, Qt::Horizontal, Qt::DisplayRole), QString("Messages"));
@@ -54,7 +54,7 @@ void TestErrorLogModel::headerData()
 
 void TestErrorLogModel::data()
 {
-    ErrorLogModel * pErrorModel = new ErrorLogModel();
+    ErrorLogModel * pErrorModel = &ErrorLogModel::Logger();
 
     QDateTime now = QDateTime::currentDateTime();
     ErrorLog logErr(ErrorLog::LOG_ERROR, now, QString("Error"));
@@ -75,7 +75,7 @@ void TestErrorLogModel::data()
 
 void TestErrorLogModel::dataCategory()
 {
-    ErrorLogModel * pErrorModel = new ErrorLogModel();
+    ErrorLogModel * pErrorModel = &ErrorLogModel::Logger();
 
     QDateTime now = QDateTime::currentDateTime();
     ErrorLog logErr(ErrorLog::LOG_ERROR, now, QString("Error"));
@@ -92,7 +92,7 @@ void TestErrorLogModel::dataCategory()
 
 void TestErrorLogModel::flags()
 {
-    ErrorLogModel * pErrorModel = new ErrorLogModel();
+    ErrorLogModel * pErrorModel = &ErrorLogModel::Logger();
 
     QModelIndex index = pErrorModel->index(0);
 
@@ -101,7 +101,7 @@ void TestErrorLogModel::flags()
 
 void TestErrorLogModel::addItem()
 {
-    ErrorLogModel * pErrorModel = new ErrorLogModel();
+    ErrorLogModel * pErrorModel = &ErrorLogModel::Logger();
 
     QSignalSpy spy(pErrorModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
 

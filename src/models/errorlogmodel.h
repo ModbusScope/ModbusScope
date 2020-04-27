@@ -5,11 +5,14 @@
 #include "QAbstractListModel"
 #include "errorlog.h"
 
+
 class ErrorLogModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
     explicit ErrorLogModel(QObject *parent = nullptr);
+
+    static ErrorLogModel& Logger();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const ;
     int columnCount(const QModelIndex & parent = QModelIndex()) const;
@@ -34,5 +37,12 @@ private:
 
     QList<ErrorLog> _logList;
 };
+
+inline ErrorLogModel& ErrorLogModel::Logger()
+{
+    static ErrorLogModel errorLogModel;
+    return errorLogModel;
+}
+
 
 #endif // ERRORLOGMODEL_H

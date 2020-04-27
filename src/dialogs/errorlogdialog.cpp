@@ -5,16 +5,14 @@
 #include "errorlogmodel.h"
 #include "errorlogfilter.h"
 
-ErrorLogDialog::ErrorLogDialog(ErrorLogModel * pErrorLogModel, QWidget *parent) :
+ErrorLogDialog::ErrorLogDialog(QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::ErrorLogDialog)
 {
     _pUi->setupUi(this);
 
-    _pErrorLogModel = pErrorLogModel;
-
     _pSeverityProxyFilter = new ErrorLogFilter();
-    _pSeverityProxyFilter->setSourceModel(_pErrorLogModel);
+    _pSeverityProxyFilter->setSourceModel(&ErrorLogModel::Logger());
 
     // Create button group for filtering
     _categoryFilterGroup.setExclusive(false);
@@ -93,7 +91,7 @@ void ErrorLogDialog::handleScrollbarChange()
 
 void ErrorLogDialog::handleClearButton()
 {
-    _pErrorLogModel->clear();
+    ErrorLogModel::Logger().clear();
 }
 
 void ErrorLogDialog::handleFilterChange(int id)
@@ -145,7 +143,7 @@ void ErrorLogDialog::updateLogCount()
 {
     if (_pUi->checkInfo->checkState() == Qt::Checked || _pUi->checkError->checkState() == Qt::Checked)
     {
-        _pUi->grpBoxLogs->setTitle(QString("Logs (%1/%2)").arg(_pSeverityProxyFilter->rowCount()).arg(_pErrorLogModel->size()));
+        _pUi->grpBoxLogs->setTitle(QString("Logs (%1/%2)").arg(_pSeverityProxyFilter->rowCount()).arg(ErrorLogModel::Logger().size()));
     }
     else
     {

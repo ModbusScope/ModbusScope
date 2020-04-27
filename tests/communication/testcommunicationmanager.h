@@ -34,7 +34,6 @@ private:
 
     SettingsModel * _pSettingsModel;
     GuiModel * _pGuiModel;
-    ErrorLogModel * _pErrorLogModel;
 
     QList<QUrl> _serverConnectionDataList;
     QList<TestSlaveData *> _testSlaveDataList;

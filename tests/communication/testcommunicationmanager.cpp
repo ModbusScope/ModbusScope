@@ -12,7 +12,6 @@ void TestCommunicationManager::init()
 {
     _pSettingsModel = new SettingsModel;
     _pGuiModel = new GuiModel;
-    _pErrorLogModel = new ErrorLogModel;
 
     _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_0, "127.0.0.1");
     _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_0, 5020);
@@ -43,7 +42,6 @@ void TestCommunicationManager::cleanup()
 {
     delete _pSettingsModel;
     delete _pGuiModel;
-    delete _pErrorLogModel;
 
     for (int idx = 0; idx < SettingsModel::CONNECTION_ID_CNT; idx++)
     {
@@ -73,7 +71,7 @@ void TestCommunicationManager::singleSlaveSuccess()
     graphDataModel.add();
     graphDataModel.setRegisterAddress(1, 40002);
 
-    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel, _pErrorLogModel);
+    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel);
 
     QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
 
@@ -113,7 +111,7 @@ void TestCommunicationManager::singleSlaveCheckProcessing()
     graphDataModel.setRegisterAddress(1, 40002);
     graphDataModel.setUnsigned(1, false);
 
-    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel, _pErrorLogModel);
+    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel);
 
     QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
 
@@ -146,7 +144,7 @@ void TestCommunicationManager::singleSlaveFail()
     graphDataModel.add();
     graphDataModel.setRegisterAddress(1, 40002);
 
-    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel, _pErrorLogModel);
+    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel);
 
     QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
 
@@ -182,7 +180,7 @@ void TestCommunicationManager::multiSlaveSuccess()
     graphDataModel.setConnectionId(1, SettingsModel::CONNECTION_ID_1);
     graphDataModel.setRegisterAddress(1, 40001);
 
-    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel, _pErrorLogModel);
+    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel);
 
     QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
 
@@ -218,7 +216,7 @@ void TestCommunicationManager::multiSlaveSuccess_2()
     graphDataModel.setConnectionId(1, SettingsModel::CONNECTION_ID_1);
     graphDataModel.setRegisterAddress(1, 40002);
 
-    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel, _pErrorLogModel);
+    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel);
 
     QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
 
@@ -261,7 +259,7 @@ void TestCommunicationManager::multiSlaveSuccess_3()
     graphDataModel.setConnectionId(2, SettingsModel::CONNECTION_ID_0);
     graphDataModel.setRegisterAddress(2, 40002);
 
-    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel, _pErrorLogModel);
+    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel);
 
     QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
 
@@ -297,7 +295,7 @@ void TestCommunicationManager::multiSlaveSingleFail()
     graphDataModel.setConnectionId(1, SettingsModel::CONNECTION_ID_1);
     graphDataModel.setRegisterAddress(1, 40001);
 
-    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel, _pErrorLogModel);
+    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel);
 
     QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
 
@@ -332,7 +330,7 @@ void TestCommunicationManager::multiSlaveAllFail()
     graphDataModel.setConnectionId(1, SettingsModel::CONNECTION_ID_1);
     graphDataModel.setRegisterAddress(1, 40001);
 
-    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel, _pErrorLogModel);
+    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel);
 
     QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
 
