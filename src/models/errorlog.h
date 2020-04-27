@@ -14,12 +14,12 @@ public:
     {
         LOG_INFO = 0,
         LOG_ERROR,
-    } LogCategory;
+    } LogSeverity;
 
-    explicit ErrorLog(ErrorLog::LogCategory category, QDateTime timestamp, QString message);
+    explicit ErrorLog(ErrorLog::LogSeverity Severity, QDateTime timestamp, QString message);
 
-    LogCategory category() const;
-    void setCategory(const LogCategory &category);
+    LogSeverity severity() const;
+    void setSeverity(const LogSeverity &severity);
 
     QString message() const;
     void setMessage(const QString &message);
@@ -27,13 +27,13 @@ public:
     QDateTime timestamp() const;
     void setTimestamp(const QDateTime &timestamp);
 
-    QString categoryString() const;
+    QString severityString() const;
 
     QString toString() const;
 
 private:
 
-    LogCategory _category;
+    LogSeverity _severity;
     QDateTime _timestamp;
     QString _message;
 };

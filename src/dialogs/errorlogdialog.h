@@ -38,7 +38,7 @@ private:
     bool _bAutoScroll;
 
     ErrorLogModel * _pErrorLogModel;
-    ErrorLogFilter* _pCategoryProxyFilter;
+    ErrorLogFilter* _pSeverityProxyFilter;
     QButtonGroup _categoryFilterGroup;
 };
 

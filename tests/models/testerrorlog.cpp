@@ -18,25 +18,25 @@ void TestErrorLog::cleanup()
 void TestErrorLog::fullConstructor()
 {
     ErrorLog log = ErrorLog(ErrorLog::LOG_INFO, QDateTime(), QString("Test"));
-    QCOMPARE(log.category(), ErrorLog::LOG_INFO);
+    QCOMPARE(log.severity(), ErrorLog::LOG_INFO);
     QCOMPARE(log.message(), QString("Test"));
     QCOMPARE(log.timestamp(), QDateTime());
 
     QDateTime now = QDateTime::currentDateTime();
     log = ErrorLog(ErrorLog::LOG_ERROR, now, QString(""));
-    QCOMPARE(log.category(), ErrorLog::LOG_ERROR);
+    QCOMPARE(log.severity(), ErrorLog::LOG_ERROR);
     QCOMPARE(log.message(), QString(""));
     QCOMPARE(log.timestamp(), now);
 }
 
-void TestErrorLog::setCategory()
+void TestErrorLog::setSeverity()
 {
     ErrorLog log = ErrorLog(ErrorLog::LOG_INFO, QDateTime(), QString(""));
 
-    QCOMPARE(log.category(), ErrorLog::LOG_INFO);
+    QCOMPARE(log.severity(), ErrorLog::LOG_INFO);
 
-    log.setCategory(ErrorLog::LOG_ERROR);
-    QCOMPARE(log.category(), ErrorLog::LOG_ERROR);
+    log.setSeverity(ErrorLog::LOG_ERROR);
+    QCOMPARE(log.severity(), ErrorLog::LOG_ERROR);
 }
 
 void TestErrorLog::setTimeStamp()
@@ -66,13 +66,13 @@ void TestErrorLog::categoryString()
 {
     ErrorLog log = ErrorLog(ErrorLog::LOG_INFO, QDateTime(), QString(""));
 
-    QCOMPARE(log.categoryString(), QString("Info"));
+    QCOMPARE(log.severityString(), QString("Info"));
 
-    log.setCategory(ErrorLog::LOG_ERROR);
-    QCOMPARE(log.categoryString(), QString("Error"));
+    log.setSeverity(ErrorLog::LOG_ERROR);
+    QCOMPARE(log.severityString(), QString("Error"));
 
-    log.setCategory(static_cast<ErrorLog::LogCategory>(99));
-    QCOMPARE(log.categoryString(), QString("Unknown"));
+    log.setSeverity(static_cast<ErrorLog::LogSeverity>(99));
+    QCOMPARE(log.severityString(), QString("Unknown"));
 }
 
 QTEST_GUILESS_MAIN(TestErrorLog)
