@@ -3,33 +3,33 @@
 
 /*!
  * \brief Creates new error log data class
- * \param category Category of log
+ * \param category Severity of log
  * \param timestamp Timestamp of log
  * \param message Extra information
  */
-ErrorLog::ErrorLog(LogCategory category, QDateTime timestamp, QString message)
+ErrorLog::ErrorLog(LogSeverity severity, QDateTime timestamp, QString message)
 {
-    _category = category;
+    _severity = severity;
     _timestamp = timestamp;
     _message = message;
 }
 
 /*!
- * \brief ErrorLog::category
- * \return Category of log
+ * \brief ErrorLog::severity
+ * \return Severity of log
  */
-ErrorLog::LogCategory ErrorLog::category() const
+ErrorLog::LogSeverity ErrorLog::severity() const
 {
-    return _category;
+    return _severity;
 }
 
 /*!
- * \brief ErrorLog::setCategory
- * \param category New category to set
+ * \brief ErrorLog::setSeverity
+ * \param severity New severity to set
  */
-void ErrorLog::setCategory(const LogCategory &category)
+void ErrorLog::setSeverity(const LogSeverity &severity)
 {
-    _category = category;
+    _severity = severity;
 }
 
 /*!
@@ -69,12 +69,12 @@ void ErrorLog::setTimestamp(const QDateTime &timestamp)
 }
 
 /*!
- * \brief ErrorLog::categoryString
- * \return Strings of category
+ * \brief ErrorLog::severityString
+ * \return Strings of severity
  */
-QString ErrorLog::categoryString() const
+QString ErrorLog::severityString() const
 {
-    switch (_category)
+    switch (_severity)
     {
         case LOG_INFO:
             return QString("Info");
@@ -96,7 +96,7 @@ QString ErrorLog::categoryString() const
 QString ErrorLog::toString() const
 {
     return QString("%1 [%2]: %3").arg(timestamp().toString(Util::timeStringFormat()))
-                          .arg(categoryString())
+                          .arg(severityString())
                           .arg(message());
 }
 

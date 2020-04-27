@@ -84,10 +84,10 @@ void TestErrorLogModel::dataCategory()
     ErrorLog logInfo(ErrorLog::LOG_INFO, now, QString("Info"));
     pErrorModel->addItem(logInfo);
 
-    QCOMPARE(pErrorModel->dataCategory(0), logErr.category());
-    QCOMPARE(pErrorModel->dataCategory(1), logInfo.category());
+    QCOMPARE(pErrorModel->dataSeverity(0), logErr.severity());
+    QCOMPARE(pErrorModel->dataSeverity(1), logInfo.severity());
 
-    QCOMPARE(pErrorModel->dataCategory(255), static_cast<ErrorLog::LogCategory>(-1));
+    QCOMPARE(pErrorModel->dataSeverity(255), static_cast<ErrorLog::LogSeverity>(-1));
 }
 
 void TestErrorLogModel::flags()

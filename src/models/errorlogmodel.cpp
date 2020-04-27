@@ -46,18 +46,18 @@ QVariant ErrorLogModel::data(const QModelIndex &index, int role) const
 }
 
 /*!
- * \brief Get data category from model
+ * \brief Get data severity from model
  * \param index row referring to requested data
  * \return Requested data from model, -1 on invalid argument
  */
-ErrorLog::LogCategory ErrorLogModel::dataCategory(quint32 index) const
+ErrorLog::LogSeverity ErrorLogModel::dataSeverity(quint32 index) const
 {
     if (index < static_cast<quint32>(size()))
     {
-        return _logList[static_cast<qint32>(index)].category();
+        return _logList[static_cast<qint32>(index)].severity();
     }
 
-    return static_cast<ErrorLog::LogCategory>(-1);
+    return static_cast<ErrorLog::LogSeverity>(-1);
 }
 
 /*!

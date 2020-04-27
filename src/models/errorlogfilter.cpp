@@ -9,9 +9,9 @@ ErrorLogFilter::ErrorLogFilter(QObject* parent) : QSortFilterProxyModel(parent)
 bool ErrorLogFilter::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
     Q_UNUSED(source_parent);
-    ErrorLog::LogCategory category = reinterpret_cast<ErrorLogModel *>(sourceModel())->dataCategory(static_cast<quint32>(source_row));
+    ErrorLog::LogSeverity severity = reinterpret_cast<ErrorLogModel *>(sourceModel())->dataSeverity(static_cast<quint32>(source_row));
 
-    if (_filterBitmask & (1 << category))
+    if (_filterBitmask & (1 << severity))
     {
         return true;
     }
