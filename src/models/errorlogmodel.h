@@ -27,7 +27,8 @@ public:
 
     void clear();
 
-    void addItem(ErrorLog log);
+    void addLog(ErrorLog& log);
+    void addCommunicationLog(ErrorLog::LogSeverity severity, QString message);
 
 signals:
 

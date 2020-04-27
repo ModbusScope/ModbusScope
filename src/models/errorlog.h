@@ -16,7 +16,15 @@ public:
         LOG_ERROR,
     } LogSeverity;
 
-    explicit ErrorLog(ErrorLog::LogSeverity Severity, QDateTime timestamp, QString message);
+    typedef enum
+    {
+        LOG_COMMUNICATION = 0,
+    } LogCategory;
+
+    explicit ErrorLog(LogCategory category, LogSeverity severity, QDateTime timestamp, QString message);
+
+    LogCategory category() const;
+    void setCategory(const LogCategory &category);
 
     LogSeverity severity() const;
     void setSeverity(const LogSeverity &severity);
@@ -29,10 +37,13 @@ public:
 
     QString severityString() const;
 
+    QString categoryString() const;
+
     QString toString() const;
 
 private:
 
+    LogCategory _category;
     LogSeverity _severity;
     QDateTime _timestamp;
     QString _message;

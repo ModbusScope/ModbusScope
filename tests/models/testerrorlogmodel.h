@@ -14,9 +14,13 @@ private slots:
     void addClear();
     void headerData();
     void data();
-    void dataCategory();
+    void dataSeverity();
     void flags();
-    void addItem();
+
+    void addLog_1();
+    void addLog_2();
+
+    void addCommunicationLog();
 
 private:
 

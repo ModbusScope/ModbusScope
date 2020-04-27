@@ -118,7 +118,7 @@ void ErrorLogModel::clear()
  * \brief Add item to model
  * \param log
  */
-void ErrorLogModel::addItem(ErrorLog log)
+void ErrorLogModel::addLog(ErrorLog& log)
 {
     /* Call function to prepare view */
     beginInsertRows(QModelIndex(), size(), size());
@@ -131,4 +131,15 @@ void ErrorLogModel::addItem(ErrorLog log)
     QModelIndex nIndex = index(size() - 1, 0);
 
     emit dataChanged(nIndex, nIndex);
+}
+
+void ErrorLogModel::addCommunicationLog(ErrorLog::LogSeverity severity, QString message)
+{
+    auto log = ErrorLog(ErrorLog::LOG_COMMUNICATION,
+                        severity,
+                        QDateTime::currentDateTime(),
+                        message
+                        );
+
+    addLog(log);
 }
