@@ -10,7 +10,6 @@ class ErrorLogDialog;
 }
 
 // Forward declaration
-class ErrorLogModel;
 class ErrorLogFilter;
 
 class ErrorLogDialog : public QDialog
@@ -18,7 +17,7 @@ class ErrorLogDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ErrorLogDialog(ErrorLogModel * pErrorLogModel, QWidget *parent = nullptr);
+    explicit ErrorLogDialog(QWidget *parent = nullptr);
     ~ErrorLogDialog();
 
 private slots:
@@ -37,7 +36,6 @@ private:
     Ui::ErrorLogDialog *_pUi;
     bool _bAutoScroll;
 
-    ErrorLogModel * _pErrorLogModel;
     ErrorLogFilter* _pSeverityProxyFilter;
     QButtonGroup _categoryFilterGroup;
 };

@@ -13,7 +13,6 @@
 class GuiModel;
 class SettingsModel;
 class GraphDataModel;
-class ErrorLogModel;
 
 class ModbusMasterData : public QObject
 {
@@ -35,7 +34,7 @@ class CommunicationManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit CommunicationManager(SettingsModel * pSettingsModel, GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, ErrorLogModel * pErrorLogModel, QObject *parent = nullptr);
+    explicit CommunicationManager(SettingsModel * pSettingsModel, GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, QObject *parent = nullptr);
     ~CommunicationManager();
 
     bool startCommunication();
@@ -67,7 +66,6 @@ private:
     RegisterValueHandler _registerValueHandler;
 
     GuiModel * _pGuiModel;
-    ErrorLogModel * _pErrorLogModel;
     SettingsModel * _pSettingsModel;
 };
 

@@ -9,14 +9,13 @@
 
 #include "communicationmanager.h"
 
-CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiModel *pGuiModel, GraphDataModel *pGraphDataModel, ErrorLogModel *pErrorLogModel, QObject *parent) :
+CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiModel *pGuiModel, GraphDataModel *pGraphDataModel, QObject *parent) :
     QObject(parent), _bPollActive(false), _registerValueHandler(pGraphDataModel, pSettingsModel)
 {
 
     _pPollTimer = new QTimer();
     _pGuiModel = pGuiModel;
     _pSettingsModel = pSettingsModel;
-    _pErrorLogModel = pErrorLogModel;
 
     /* Setup modbus master */
     for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++)
@@ -130,14 +129,14 @@ void CommunicationManager::handleModbusError(QString msg)
 {
     qDebug() << msg;
     ErrorLog log = ErrorLog(ErrorLog::LOG_ERROR, QDateTime::currentDateTime(), msg);
-    _pErrorLogModel->addItem(log);
+    ErrorLogModel::Logger().addItem(log);
 }
 
 void CommunicationManager::handleModbusInfo(QString msg)
 {
     qDebug() << msg;
     ErrorLog log = ErrorLog(ErrorLog::LOG_INFO, QDateTime::currentDateTime(), msg);
-    _pErrorLogModel->addItem(log);
+    ErrorLogModel::Logger().addItem(log);
 }
 
 void CommunicationManager::stopCommunication()
