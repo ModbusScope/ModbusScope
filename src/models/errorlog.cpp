@@ -7,11 +7,22 @@
  * \param timestamp Timestamp of log
  * \param message Extra information
  */
-ErrorLog::ErrorLog(LogSeverity severity, QDateTime timestamp, QString message)
+ErrorLog::ErrorLog(LogCategory category, LogSeverity severity, QDateTime timestamp, QString message)
 {
+    _category = category;
     _severity = severity;
     _timestamp = timestamp;
     _message = message;
+}
+
+ErrorLog::LogCategory ErrorLog::category() const
+{
+    return _category;
+}
+
+void ErrorLog::setCategory(const ErrorLog::LogCategory &category)
+{
+    _category = category;
 }
 
 /*!
@@ -90,12 +101,29 @@ QString ErrorLog::severityString() const
 }
 
 /*!
+ * \return Strings of category
+ */
+QString ErrorLog::categoryString() const
+{
+    switch (_category)
+    {
+        case LOG_COMMUNICATION:
+            return QString("Communication");
+            break;
+        default:
+            return QString("Unknown");
+            break;
+    }
+}
+
+/*!
  * \brief ErrorLog::toString
  * \return Printable summary of log
  */
 QString ErrorLog::toString() const
 {
-    return QString("%1 [%2]: %3").arg(timestamp().toString(Util::timeStringFormat()))
+    return QString("%1 - %2 [%3]: %4").arg(timestamp().toString(Util::timeStringFormat()))
+                          .arg(categoryString())
                           .arg(severityString())
                           .arg(message());
 }

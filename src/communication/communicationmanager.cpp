@@ -128,15 +128,13 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
 void CommunicationManager::handleModbusError(QString msg)
 {
     qDebug() << msg;
-    ErrorLog log = ErrorLog(ErrorLog::LOG_ERROR, QDateTime::currentDateTime(), msg);
-    ErrorLogModel::Logger().addItem(log);
+    ErrorLogModel::Logger().addCommunicationLog(ErrorLog::LOG_ERROR, msg);
 }
 
 void CommunicationManager::handleModbusInfo(QString msg)
 {
     qDebug() << msg;
-    ErrorLog log = ErrorLog(ErrorLog::LOG_INFO, QDateTime::currentDateTime(), msg);
-    ErrorLogModel::Logger().addItem(log);
+    ErrorLogModel::Logger().addCommunicationLog(ErrorLog::LOG_INFO, msg);
 }
 
 void CommunicationManager::stopCommunication()

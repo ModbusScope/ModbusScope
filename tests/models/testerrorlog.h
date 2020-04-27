@@ -12,9 +12,13 @@ private slots:
     void cleanup();
 
     void fullConstructor();
+
+    void setCategory();
     void setSeverity();
     void setTimeStamp();
     void setMessage();
+
+    void severityString();
     void categoryString();
 
 private:
