@@ -13,23 +13,23 @@ include_directories(
 
 enable_testing()
 
-add_executable(tst_errorlog ${CMAKE_CURRENT_SOURCE_DIR}/testerrorlog.cpp ${TEST_SRCS})
-add_executable(tst_errorlogmodel ${CMAKE_CURRENT_SOURCE_DIR}/testerrorlogmodel.cpp ${TEST_SRCS})
+add_executable(tst_diagnostic ${CMAKE_CURRENT_SOURCE_DIR}/testdiagnostic.cpp ${TEST_SRCS})
+add_executable(tst_diagnosticmodel ${CMAKE_CURRENT_SOURCE_DIR}/testdiagnosticmodel.cpp ${TEST_SRCS})
 add_executable(tst_graphdata ${CMAKE_CURRENT_SOURCE_DIR}/testgraphdata.cpp ${TEST_SRCS})
 add_executable(tst_mbcregistermodel ${CMAKE_CURRENT_SOURCE_DIR}/testmbcregistermodel.cpp ${TEST_SRCS} ${GOOGLE_TEST_SOURCE})
 
-add_test(tst_errorlog COMMAND tst_errorlog)
-add_test(tst_errorlogmodel COMMAND tst_errorlogmodel)
+add_test(tst_diagnostic COMMAND tst_diagnostic)
+add_test(tst_diagnosticmodel COMMAND tst_diagnosticmodel)
 add_test(tst_graphdata COMMAND tst_graphdata)
 add_test(tst_mbcregistermodel COMMAND tst_mbcregistermodel)
 
-target_link_libraries(tst_errorlog  PRIVATE
+target_link_libraries(tst_diagnostic  PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
     Qt5::Test
 )
 
-target_link_libraries(tst_errorlogmodel  PRIVATE
+target_link_libraries(tst_diagnosticmodel  PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
     Qt5::Test

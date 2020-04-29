@@ -6,7 +6,7 @@
 #include "settingsmodel.h"
 #include "guimodel.h"
 #include "graphdatamodel.h"
-#include "errorlogmodel.h"
+#include "diagnosticmodel.h"
 
 #include "testslavedata.h"
 #include "testslavemodbus.h"

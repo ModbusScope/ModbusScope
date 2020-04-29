@@ -39,7 +39,7 @@ SET(SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/customwidgets/verticalscrollareacontents.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/aboutdialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/connectiondialog.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/errorlogdialog.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/diagnosticdialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/importmbcdialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/loadfiledialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/logdialog.cpp
@@ -65,9 +65,9 @@ SET(SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/importexport/projectfileparser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/importexport/settingsauto.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/dataparsermodel.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/models/errorlog.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/models/errorlogfilter.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/models/errorlogmodel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/models/diagnostic.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/models/diagnosticfilter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/models/diagnosticmodel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/graphdata.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/graphdatamodel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/guimodel.cpp
@@ -85,7 +85,7 @@ SET(SRCS
 SET(UIS
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/aboutdialog.ui
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/connectiondialog.ui
-    ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/errorlogdialog.ui
+    ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/diagnosticdialog.ui
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/importmbcdialog.ui
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/loadfiledialog.ui
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/logdialog.ui

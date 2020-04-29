@@ -1,11 +1,11 @@
-#ifndef ERRORLOG_H
-#define ERRORLOG_H
+#ifndef DIAGNOSTIC_H
+#define DIAGNOSTIC_H
 
 #include <QString>
 #include <QDateTime>
 #include <QDebug>
 
-class ErrorLog
+class Diagnostic
 {
 
 public:
@@ -21,7 +21,7 @@ public:
         LOG_COMMUNICATION = 0,
     } LogCategory;
 
-    explicit ErrorLog(LogCategory category, LogSeverity severity, QDateTime timestamp, QString message);
+    explicit Diagnostic(LogCategory category, LogSeverity severity, QDateTime timestamp, QString message);
 
     LogCategory category() const;
     void setCategory(const LogCategory &category);
@@ -49,6 +49,6 @@ private:
     QString _message;
 };
 
-QDebug operator<<(QDebug debug, const ErrorLog &log);
+QDebug operator<<(QDebug debug, const Diagnostic &log);
 
-#endif // ERRORLOG_H
+#endif // DIAGNOSTIC_H

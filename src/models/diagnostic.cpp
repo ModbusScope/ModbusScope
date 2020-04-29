@@ -1,4 +1,4 @@
-#include "errorlog.h"
+#include "diagnostic.h"
 #include "util.h"
 
 /*!
@@ -7,7 +7,7 @@
  * \param timestamp Timestamp of log
  * \param message Extra information
  */
-ErrorLog::ErrorLog(LogCategory category, LogSeverity severity, QDateTime timestamp, QString message)
+Diagnostic::Diagnostic(LogCategory category, LogSeverity severity, QDateTime timestamp, QString message)
 {
     _category = category;
     _severity = severity;
@@ -15,75 +15,75 @@ ErrorLog::ErrorLog(LogCategory category, LogSeverity severity, QDateTime timesta
     _message = message;
 }
 
-ErrorLog::LogCategory ErrorLog::category() const
+Diagnostic::LogCategory Diagnostic::category() const
 {
     return _category;
 }
 
-void ErrorLog::setCategory(const ErrorLog::LogCategory &category)
+void Diagnostic::setCategory(const Diagnostic::LogCategory &category)
 {
     _category = category;
 }
 
 /*!
- * \brief ErrorLog::severity
+ * \brief Diagnostic::severity
  * \return Severity of log
  */
-ErrorLog::LogSeverity ErrorLog::severity() const
+Diagnostic::LogSeverity Diagnostic::severity() const
 {
     return _severity;
 }
 
 /*!
- * \brief ErrorLog::setSeverity
+ * \brief Diagnostic::setSeverity
  * \param severity New severity to set
  */
-void ErrorLog::setSeverity(const LogSeverity &severity)
+void Diagnostic::setSeverity(const LogSeverity &severity)
 {
     _severity = severity;
 }
 
 /*!
- * \brief ErrorLog::message
+ * \brief Diagnostic::message
  * \return Extra information of log
  */
-QString ErrorLog::message() const
+QString Diagnostic::message() const
 {
     return _message;
 }
 
 /*!
- * \brief ErrorLog::setMessage
+ * \brief Diagnostic::setMessage
  * \param message Extra information to set
  */
-void ErrorLog::setMessage(const QString &message)
+void Diagnostic::setMessage(const QString &message)
 {
     _message = message;
 }
 
 /*!
- * \brief ErrorLog::timestamp
+ * \brief Diagnostic::timestamp
  * \return Timestamp of log
  */
-QDateTime ErrorLog::timestamp() const
+QDateTime Diagnostic::timestamp() const
 {
     return _timestamp;
 }
 
 /*!
- * \brief ErrorLog::setTimestamp
+ * \brief Diagnostic::setTimestamp
  * \param timestamp new timestamp for the log
  */
-void ErrorLog::setTimestamp(const QDateTime &timestamp)
+void Diagnostic::setTimestamp(const QDateTime &timestamp)
 {
     _timestamp = timestamp;
 }
 
 /*!
- * \brief ErrorLog::severityString
+ * \brief Diagnostic::severityString
  * \return Strings of severity
  */
-QString ErrorLog::severityString() const
+QString Diagnostic::severityString() const
 {
     switch (_severity)
     {
@@ -103,7 +103,7 @@ QString ErrorLog::severityString() const
 /*!
  * \return Strings of category
  */
-QString ErrorLog::categoryString() const
+QString Diagnostic::categoryString() const
 {
     switch (_category)
     {
@@ -117,10 +117,10 @@ QString ErrorLog::categoryString() const
 }
 
 /*!
- * \brief ErrorLog::toString
+ * \brief Diagnostic::toString
  * \return Printable summary of log
  */
-QString ErrorLog::toString() const
+QString Diagnostic::toString() const
 {
     return QString("%1 - %2 [%3]: %4").arg(timestamp().toString(Util::timeStringFormat()))
                           .arg(categoryString())
@@ -131,7 +131,7 @@ QString ErrorLog::toString() const
 /*!
  * \brief Operator overload to print log in debug window
  */
-QDebug operator<<(QDebug debug, const ErrorLog &log)
+QDebug operator<<(QDebug debug, const Diagnostic &log)
 {
     QDebugStateSaver saver(debug);
 
