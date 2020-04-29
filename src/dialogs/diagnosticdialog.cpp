@@ -1,24 +1,24 @@
-#include "errorlogdialog.h"
+#include "diagnosticdialog.h"
 #include <QScrollBar>
-#include "ui_errorlogdialog.h"
+#include "ui_diagnosticdialog.h"
 
-#include "errorlogmodel.h"
-#include "errorlogfilter.h"
+#include "diagnosticmodel.h"
+#include "diagnosticfilter.h"
 
-ErrorLogDialog::ErrorLogDialog(QWidget *parent) :
+DiagnosticDialog::DiagnosticDialog(QWidget *parent) :
     QDialog(parent),
-    _pUi(new Ui::ErrorLogDialog)
+    _pUi(new Ui::DiagnosticDialog)
 {
     _pUi->setupUi(this);
 
-    _pSeverityProxyFilter = new ErrorLogFilter();
-    _pSeverityProxyFilter->setSourceModel(&ErrorLogModel::Logger());
+    _pSeverityProxyFilter = new DiagnosticFilter();
+    _pSeverityProxyFilter->setSourceModel(&DiagnosticModel::Logger());
 
     // Create button group for filtering
     _categoryFilterGroup.setExclusive(false);
     _categoryFilterGroup.addButton(_pUi->checkInfo);
     _categoryFilterGroup.addButton(_pUi->checkError);
-    connect(&_categoryFilterGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &ErrorLogDialog::handleFilterChange);
+    connect(&_categoryFilterGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &DiagnosticDialog::handleFilterChange);
     this->handleFilterChange(0); // Update filter
 
     _pUi->listError->setModel(_pSeverityProxyFilter);
@@ -42,19 +42,19 @@ ErrorLogDialog::ErrorLogDialog(QWidget *parent) :
     setAutoScroll(true);
 }
 
-ErrorLogDialog::~ErrorLogDialog()
+DiagnosticDialog::~DiagnosticDialog()
 {
     delete _pUi;
 }
 
-void ErrorLogDialog::handleLogsChanged()
+void DiagnosticDialog::handleLogsChanged()
 {
     updateScroll();
 
     updateLogCount();
 }
 
-void ErrorLogDialog::handleErrorSelectionChanged(QItemSelection selected, QItemSelection deselected)
+void DiagnosticDialog::handleErrorSelectionChanged(QItemSelection selected, QItemSelection deselected)
 {
     Q_UNUSED(deselected);
 
@@ -65,7 +65,7 @@ void ErrorLogDialog::handleErrorSelectionChanged(QItemSelection selected, QItemS
     }
 }
 
-void ErrorLogDialog::handleCheckAutoScrollChanged(int newState)
+void DiagnosticDialog::handleCheckAutoScrollChanged(int newState)
 {
     if (newState == Qt::Unchecked)
     {
@@ -78,7 +78,7 @@ void ErrorLogDialog::handleCheckAutoScrollChanged(int newState)
 
 }
 
-void ErrorLogDialog::handleScrollbarChange()
+void DiagnosticDialog::handleScrollbarChange()
 {
     const QScrollBar * pScroll = _pUi->listError->verticalScrollBar();
     if (pScroll->value() == pScroll->maximum())
@@ -89,12 +89,12 @@ void ErrorLogDialog::handleScrollbarChange()
     }
 }
 
-void ErrorLogDialog::handleClearButton()
+void DiagnosticDialog::handleClearButton()
 {
-    ErrorLogModel::Logger().clear();
+    DiagnosticModel::Logger().clear();
 }
 
-void ErrorLogDialog::handleFilterChange(int id)
+void DiagnosticDialog::handleFilterChange(int id)
 {
     Q_UNUSED(id);
 
@@ -102,12 +102,12 @@ void ErrorLogDialog::handleFilterChange(int id)
 
     if (_pUi->checkInfo->checkState())
     {
-        bitmask |= 1 << ErrorLog::LOG_INFO;
+        bitmask |= 1 << Diagnostic::LOG_INFO;
     }
 
     if (_pUi->checkError->checkState())
     {
-        bitmask |= 1 << ErrorLog::LOG_ERROR;
+        bitmask |= 1 << Diagnostic::LOG_ERROR;
     }
 
     _pSeverityProxyFilter->setFilterBitmask(bitmask);
@@ -115,7 +115,7 @@ void ErrorLogDialog::handleFilterChange(int id)
     updateLogCount();
 }
 
-void ErrorLogDialog::setAutoScroll(bool bAutoScroll)
+void DiagnosticDialog::setAutoScroll(bool bAutoScroll)
 {
     if (_bAutoScroll != bAutoScroll)
     {
@@ -127,7 +127,7 @@ void ErrorLogDialog::setAutoScroll(bool bAutoScroll)
     }
 }
 
-void ErrorLogDialog::updateScroll()
+void DiagnosticDialog::updateScroll()
 {
     if (_bAutoScroll)
     {
@@ -139,11 +139,11 @@ void ErrorLogDialog::updateScroll()
     }
 }
 
-void ErrorLogDialog::updateLogCount()
+void DiagnosticDialog::updateLogCount()
 {
     if (_pUi->checkInfo->checkState() == Qt::Checked || _pUi->checkError->checkState() == Qt::Checked)
     {
-        _pUi->grpBoxLogs->setTitle(QString("Logs (%1/%2)").arg(_pSeverityProxyFilter->rowCount()).arg(ErrorLogModel::Logger().size()));
+        _pUi->grpBoxLogs->setTitle(QString("Logs (%1/%2)").arg(_pSeverityProxyFilter->rowCount()).arg(DiagnosticModel::Logger().size()));
     }
     else
     {

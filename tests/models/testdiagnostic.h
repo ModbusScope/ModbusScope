@@ -1,10 +1,10 @@
 
-#ifndef TEST_ERRORLOG_H__
-#define TEST_ERRORLOG_H__
+#ifndef TEST_DIAGNOSTIC_H__
+#define TEST_DIAGNOSTIC_H__
 
 #include <QObject>
 
-class TestErrorLog: public QObject
+class TestDiagnostic: public QObject
 {
     Q_OBJECT
 private slots:
@@ -25,4 +25,4 @@ private:
 
 };
 
-#endif /* TEST_ERRORLOG_H__ */
+#endif /* TEST_DIAGNOSTIC_H__ */

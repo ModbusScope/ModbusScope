@@ -1,12 +1,12 @@
-#include "errorlogmodel.h"
+#include "diagnosticmodel.h"
 #include "QModelIndex"
 #include "QAbstractItemModel"
 
 /*!
- * \brief Constructor for ErrorLogModel
+ * \brief Constructor for DiagnosticModel
  * \param parent    parent object
  */
-ErrorLogModel::ErrorLogModel(QObject *parent) : QAbstractListModel(parent)
+DiagnosticModel::DiagnosticModel(QObject *parent) : QAbstractListModel(parent)
 {
 
 }
@@ -15,7 +15,7 @@ ErrorLogModel::ErrorLogModel(QObject *parent) : QAbstractListModel(parent)
  * \brief Return numbers of rows in model
  * \return Numbers of rows in model
  */
-int ErrorLogModel::rowCount(const QModelIndex & /*parent*/) const
+int DiagnosticModel::rowCount(const QModelIndex & /*parent*/) const
 {
     return size();
 }
@@ -24,7 +24,7 @@ int ErrorLogModel::rowCount(const QModelIndex & /*parent*/) const
  * \brief Return numbers of columns in model
  * \return Numbers of columns in model
  */
-int ErrorLogModel::columnCount(const QModelIndex & /*parent*/) const
+int DiagnosticModel::columnCount(const QModelIndex & /*parent*/) const
 {
     return 1;
 }
@@ -35,7 +35,7 @@ int ErrorLogModel::columnCount(const QModelIndex & /*parent*/) const
  * \param role Requested data role
  * \return Requested data from model, Empty QVariant() on invalid argument
  */
-QVariant ErrorLogModel::data(const QModelIndex &index, int role) const
+QVariant DiagnosticModel::data(const QModelIndex &index, int role) const
 {
     if (index.isValid() && (role == Qt::DisplayRole))
     {
@@ -50,14 +50,14 @@ QVariant ErrorLogModel::data(const QModelIndex &index, int role) const
  * \param index row referring to requested data
  * \return Requested data from model, -1 on invalid argument
  */
-ErrorLog::LogSeverity ErrorLogModel::dataSeverity(quint32 index) const
+Diagnostic::LogSeverity DiagnosticModel::dataSeverity(quint32 index) const
 {
     if (index < static_cast<quint32>(size()))
     {
         return _logList[static_cast<qint32>(index)].severity();
     }
 
-    return static_cast<ErrorLog::LogSeverity>(-1);
+    return static_cast<Diagnostic::LogSeverity>(-1);
 }
 
 /*!
@@ -67,7 +67,7 @@ ErrorLog::LogSeverity ErrorLogModel::dataSeverity(quint32 index) const
  * \param role Requested header role
  * \return Requested header data from model, Emptye QVariant() on invalid argument
  */
-QVariant ErrorLogModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant DiagnosticModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     Q_UNUSED(orientation);
 
@@ -87,7 +87,7 @@ QVariant ErrorLogModel::headerData(int section, Qt::Orientation orientation, int
  * \param index modelindex referring to requested data
  * \return Flags of index
  */
-Qt::ItemFlags ErrorLogModel::flags(const QModelIndex & index) const
+Qt::ItemFlags DiagnosticModel::flags(const QModelIndex & index) const
 {
     Q_UNUSED(index);
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
@@ -97,7 +97,7 @@ Qt::ItemFlags ErrorLogModel::flags(const QModelIndex & index) const
  * \brief Return numbers of rows in model
  * \return Numbers of rows in model
  */
-qint32 ErrorLogModel::size() const
+qint32 DiagnosticModel::size() const
 {
     return _logList.size();
 }
@@ -105,7 +105,7 @@ qint32 ErrorLogModel::size() const
 /*!
  * \brief Clear the model data
  */
-void ErrorLogModel::clear()
+void DiagnosticModel::clear()
 {
     beginRemoveRows(QModelIndex(), 0, size());
 
@@ -118,7 +118,7 @@ void ErrorLogModel::clear()
  * \brief Add item to model
  * \param log
  */
-void ErrorLogModel::addLog(ErrorLog& log)
+void DiagnosticModel::addLog(Diagnostic& log)
 {
     /* Call function to prepare view */
     beginInsertRows(QModelIndex(), size(), size());
@@ -133,9 +133,9 @@ void ErrorLogModel::addLog(ErrorLog& log)
     emit dataChanged(nIndex, nIndex);
 }
 
-void ErrorLogModel::addCommunicationLog(ErrorLog::LogSeverity severity, QString message)
+void DiagnosticModel::addCommunicationLog(Diagnostic::LogSeverity severity, QString message)
 {
-    auto log = ErrorLog(ErrorLog::LOG_COMMUNICATION,
+    auto log = Diagnostic(Diagnostic::LOG_COMMUNICATION,
                         severity,
                         QDateTime::currentDateTime(),
                         message

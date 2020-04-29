@@ -74,7 +74,7 @@
     <addaction name="actionStart"/>
     <addaction name="actionStop"/>
     <addaction name="separator"/>
-    <addaction name="actionErrorLog"/>
+    <addaction name="actionDiagnostic"/>
    </widget>
    <widget class="QMenu" name="menu">
     <property name="title">
@@ -715,7 +715,7 @@
     <string>Ex&amp;port Settings...</string>
    </property>
   </action>
-  <action name="actionErrorLog">
+  <action name="actionDiagnostic">
    <property name="text">
     <string>&amp;Diagnostic logs</string>
    </property>

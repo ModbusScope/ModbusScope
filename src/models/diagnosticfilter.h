@@ -1,14 +1,14 @@
-#ifndef ERRORLOGFILTER_H
-#define ERRORLOGFILTER_H
+#ifndef DIAGNOSTICFILTER_H
+#define DIAGNOSTICFILTER_H
 
 #include <QObject>
 #include <QSortFilterProxyModel>
 
-class ErrorLogFilter : public QSortFilterProxyModel
+class DiagnosticFilter : public QSortFilterProxyModel
 {
 
 public:
-    ErrorLogFilter(QObject* parent = nullptr);
+    DiagnosticFilter(QObject* parent = nullptr);
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 
 public slots:
@@ -19,4 +19,4 @@ private:
 
 };
 
-#endif // ERRORLOGFILTER_H
+#endif // DIAGNOSTICFILTER_H

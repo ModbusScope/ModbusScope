@@ -4,7 +4,7 @@
 #include "communicationmanager.h"
 #include "graphdatamodel.h"
 #include "notemodel.h"
-#include "errorlogmodel.h"
+#include "diagnosticmodel.h"
 #include "graphdata.h"
 #include "registerdialog.h"
 #include "connectiondialog.h"
@@ -12,7 +12,7 @@
 #include "settingsmodel.h"
 #include "dataparsermodel.h"
 #include "logdialog.h"
-#include "errorlogdialog.h"
+#include "diagnosticdialog.h"
 #include "aboutdialog.h"
 #include "markerinfo.h"
 #include "guimodel.h"
@@ -44,7 +44,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     _pConnectionDialog = new ConnectionDialog(_pSettingsModel, this);
     _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
-    _pErrorLogDialog = new ErrorLogDialog(this);
+    _pDiagnosticDialog = new DiagnosticDialog(this);
 
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
 
@@ -63,7 +63,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     /*-- Connect menu actions --*/
     connect(_pUi->actionStart, SIGNAL(triggered()), this, SLOT(startScope()));
     connect(_pUi->actionStop, SIGNAL(triggered()), this, SLOT(stopScope()));
-    connect(_pUi->actionErrorLog, SIGNAL(triggered()), this, SLOT(showErrorLog()));
+    connect(_pUi->actionDiagnostic, SIGNAL(triggered()), this, SLOT(showDiagnostic()));
     connect(_pUi->actionManageNotes, SIGNAL(triggered()), this, SLOT(showNotesDialog()));
     connect(_pUi->actionExit, SIGNAL(triggered()), this, SLOT(exitApplication()));
     connect(_pUi->actionExportDataCsv, SIGNAL(triggered()), _pDataFileHandler, SLOT(selectDataExportFile()));
@@ -539,9 +539,9 @@ void MainWindow::stopScope()
     _pGuiModel->setGuiState(GuiModel::STOPPED);
 }
 
-void MainWindow::showErrorLog()
+void MainWindow::showDiagnostic()
 {
-    _pErrorLogDialog->show();
+    _pDiagnosticDialog->show();
 }
 
 void MainWindow::showNotesDialog()

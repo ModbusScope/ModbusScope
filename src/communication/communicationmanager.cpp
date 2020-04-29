@@ -5,7 +5,7 @@
 #include "guimodel.h"
 #include "settingsmodel.h"
 #include "graphdatamodel.h"
-#include "errorlogmodel.h"
+#include "diagnosticmodel.h"
 
 #include "communicationmanager.h"
 
@@ -128,13 +128,13 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
 void CommunicationManager::handleModbusError(QString msg)
 {
     qDebug() << msg;
-    ErrorLogModel::Logger().addCommunicationLog(ErrorLog::LOG_ERROR, msg);
+    DiagnosticModel::Logger().addCommunicationLog(Diagnostic::LOG_ERROR, msg);
 }
 
 void CommunicationManager::handleModbusInfo(QString msg)
 {
     qDebug() << msg;
-    ErrorLogModel::Logger().addCommunicationLog(ErrorLog::LOG_INFO, msg);
+    DiagnosticModel::Logger().addCommunicationLog(Diagnostic::LOG_INFO, msg);
 }
 
 void CommunicationManager::stopCommunication()

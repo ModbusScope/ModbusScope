@@ -24,7 +24,7 @@ class ConnectionDialog;
 class SettingsModel;
 class DataParserModel;
 class LogDialog;
-class ErrorLogDialog;
+class DiagnosticDialog;
 class NotesDock;
 class GuiModel;
 class GraphView;
@@ -69,7 +69,7 @@ private slots:
     void clearData();
     void startScope();
     void stopScope();
-    void showErrorLog();
+    void showDiagnostic();
     void showNotesDialog();
     void toggleMarkersState();
 
@@ -120,7 +120,7 @@ private:
 
     ConnectionDialog * _pConnectionDialog;
     LogDialog * _pLogDialog;
-    ErrorLogDialog * _pErrorLogDialog;
+    DiagnosticDialog * _pDiagnosticDialog;
 
     DataFileHandler* _pDataFileHandler;
     ProjectFileHandler* _pProjectFileHandler;

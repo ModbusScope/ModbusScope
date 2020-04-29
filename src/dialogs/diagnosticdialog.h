@@ -6,19 +6,19 @@
 #include <QItemSelection>
 
 namespace Ui {
-class ErrorLogDialog;
+class DiagnosticDialog;
 }
 
 // Forward declaration
-class ErrorLogFilter;
+class DiagnosticFilter;
 
-class ErrorLogDialog : public QDialog
+class DiagnosticDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit ErrorLogDialog(QWidget *parent = nullptr);
-    ~ErrorLogDialog();
+    explicit DiagnosticDialog(QWidget *parent = nullptr);
+    ~DiagnosticDialog();
 
 private slots:
     void handleErrorSelectionChanged(QItemSelection selected, QItemSelection deselected);
@@ -33,10 +33,10 @@ private:
     void updateScroll();
     void updateLogCount();
 
-    Ui::ErrorLogDialog *_pUi;
+    Ui::DiagnosticDialog *_pUi;
     bool _bAutoScroll;
 
-    ErrorLogFilter* _pSeverityProxyFilter;
+    DiagnosticFilter* _pSeverityProxyFilter;
     QButtonGroup _categoryFilterGroup;
 };
 
