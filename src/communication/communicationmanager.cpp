@@ -55,6 +55,8 @@ bool CommunicationManager::startCommunication()
         _bPollActive = true;
         bResetted = true;
 
+        DiagnosticModel::Logger().addCommunicationLog(Diagnostic::LOG_INFO, QString("Start logging"));
+
         resetCommunicationStats();
     }
 
@@ -134,7 +136,7 @@ void CommunicationManager::handleModbusError(QString msg)
 void CommunicationManager::handleModbusInfo(QString msg)
 {
     qDebug() << msg;
-    DiagnosticModel::Logger().addCommunicationLog(Diagnostic::LOG_INFO, msg);
+    DiagnosticModel::Logger().addCommunicationLog(Diagnostic::LOG_DEBUG, msg);
 }
 
 void CommunicationManager::stopCommunication()
@@ -142,6 +144,8 @@ void CommunicationManager::stopCommunication()
     _bPollActive = false;
     _pPollTimer->stop();
     _pGuiModel->setCommunicationEndTime(QDateTime::currentMSecsSinceEpoch());
+
+    DiagnosticModel::Logger().addCommunicationLog(Diagnostic::LOG_INFO, QString("Stop logging"));
 
     for(quint8 i = 0; i < SettingsModel::CONNECTION_ID_CNT; i++)
     {

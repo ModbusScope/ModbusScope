@@ -18,6 +18,7 @@ DiagnosticDialog::DiagnosticDialog(QWidget *parent) :
     _categoryFilterGroup.setExclusive(false);
     _categoryFilterGroup.addButton(_pUi->checkInfo);
     _categoryFilterGroup.addButton(_pUi->checkError);
+    _categoryFilterGroup.addButton(_pUi->checkDebug);
     connect(&_categoryFilterGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &DiagnosticDialog::handleFilterChange);
     this->handleFilterChange(0); // Update filter
 
@@ -108,6 +109,11 @@ void DiagnosticDialog::handleFilterChange(int id)
     if (_pUi->checkError->checkState())
     {
         bitmask |= 1 << Diagnostic::LOG_ERROR;
+    }
+
+    if (_pUi->checkDebug->checkState())
+    {
+        bitmask |= 1 << Diagnostic::LOG_DEBUG;
     }
 
     _pSeverityProxyFilter->setFilterBitmask(bitmask);

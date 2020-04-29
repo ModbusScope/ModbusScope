@@ -3,7 +3,7 @@
 
 DiagnosticFilter::DiagnosticFilter(QObject* parent) : QSortFilterProxyModel(parent)
 {
-    _filterBitmask = (1 << Diagnostic::LOG_INFO) | (1 << Diagnostic::LOG_ERROR);
+    _filterBitmask = (1 << Diagnostic::LOG_DEBUG) | (1 << Diagnostic::LOG_INFO) | (1 << Diagnostic::LOG_ERROR);
 }
 
 bool DiagnosticFilter::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const

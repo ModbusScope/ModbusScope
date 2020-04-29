@@ -39,6 +39,9 @@ void TestDiagnostic::setSeverity()
 
     log.setSeverity(Diagnostic::LOG_ERROR);
     QCOMPARE(log.severity(), Diagnostic::LOG_ERROR);
+
+    log.setSeverity(Diagnostic::LOG_DEBUG);
+    QCOMPARE(log.severity(), Diagnostic::LOG_DEBUG);
 }
 
 void TestDiagnostic::setCategory()
@@ -82,6 +85,9 @@ void TestDiagnostic::severityString()
 
     log.setSeverity(Diagnostic::LOG_ERROR);
     QCOMPARE(log.severityString(), QString("Error"));
+
+    log.setSeverity(Diagnostic::LOG_DEBUG);
+    QCOMPARE(log.severityString(), QString("Debug"));
 
     log.setSeverity(static_cast<Diagnostic::LogSeverity>(99));
     QCOMPARE(log.severityString(), QString("Unknown"));
