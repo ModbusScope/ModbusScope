@@ -12,8 +12,9 @@ public:
 
     typedef enum
     {
-        LOG_INFO = 0,
-        LOG_ERROR,
+        LOG_ERROR = 0,
+        LOG_INFO,
+        LOG_DEBUG
     } LogSeverity;
 
     typedef enum

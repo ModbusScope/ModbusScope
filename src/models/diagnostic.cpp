@@ -94,6 +94,11 @@ QString Diagnostic::severityString() const
         case LOG_ERROR:
             return QString("Error");
             break;
+
+        case LOG_DEBUG:
+            return QString("Debug");
+            break;
+
         default:
             return QString("Unknown");
             break;
