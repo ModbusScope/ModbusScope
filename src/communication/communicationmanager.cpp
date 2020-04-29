@@ -57,6 +57,22 @@ bool CommunicationManager::startCommunication()
 
         DiagnosticModel::Logger().addCommunicationLog(Diagnostic::LOG_INFO, QString("Start logging"));
 
+        for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++)
+        {
+            if (_pSettingsModel->connectionState(i))
+            {
+
+                QString logTxt = QString("[Conn %0] %1:%2 slave id %3")
+                                    .arg(i)
+                                    .arg(_pSettingsModel->ipAddress(i))
+                                    .arg(_pSettingsModel->port(i))
+                                    .arg(_pSettingsModel->slaveId(i))
+                                    ;
+
+                DiagnosticModel::Logger().addCommunicationLog(Diagnostic::LOG_INFO, logTxt);
+            }
+        }
+
         resetCommunicationStats();
     }
 
