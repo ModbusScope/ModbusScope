@@ -26,6 +26,8 @@ DiagnosticDialog::DiagnosticDialog(QWidget *parent) :
     _pUi->listError->setUniformItemSizes(true); // For performance
     _pUi->listError->setSelectionMode(QAbstractItemView::SingleSelection);
 
+    connect(_pUi->checkDebugLogs, &QCheckBox::stateChanged, this, &DiagnosticDialog::handleEnableDebugLog);
+
     connect(_pUi->listError->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(handleScrollbarChange()));
 
     // Disable auto scroll when selecting an item
@@ -119,6 +121,18 @@ void DiagnosticDialog::handleFilterChange(int id)
     _pSeverityProxyFilter->setFilterBitmask(bitmask);
 
     updateLogCount();
+}
+
+void DiagnosticDialog::handleEnableDebugLog(int state)
+{
+    if (state == Qt::Checked)
+    {
+        DiagnosticModel::Logger().setMaxSeverityLevel(Diagnostic::LOG_DEBUG);
+    }
+    else
+    {
+        DiagnosticModel::Logger().setMaxSeverityLevel(Diagnostic::LOG_INFO);
+    }
 }
 
 void DiagnosticDialog::setAutoScroll(bool bAutoScroll)
