@@ -1,5 +1,4 @@
 #include "testslavemodbus.h"
-#include <QDebug>
 
 TestSlaveModbus::TestSlaveModbus(TestSlaveData *pTestSlaveData, QObject *parent) : QModbusTcpServer(parent)
 {
