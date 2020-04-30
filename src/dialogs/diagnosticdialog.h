@@ -27,6 +27,7 @@ private slots:
     void handleScrollbarChange();
     void handleClearButton();
     void handleFilterChange(int id);
+    void handleEnableDebugLog(int state);
 
 private:
     void setAutoScroll(bool bAutoScroll);

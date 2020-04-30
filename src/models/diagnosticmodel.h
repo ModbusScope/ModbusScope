@@ -27,6 +27,8 @@ public:
 
     void clear();
 
+    void setMaxSeverityLevel(Diagnostic::LogSeverity maxSeverity);
+
     void addLog(Diagnostic& log);
     void addCommunicationLog(Diagnostic::LogSeverity severity, QString message);
 
@@ -37,6 +39,7 @@ public slots:
 private:
 
     QList<Diagnostic> _logList;
+    Diagnostic::LogSeverity _maxSeverityLevel;
 };
 
 inline DiagnosticModel& DiagnosticModel::Logger()
