@@ -1,5 +1,4 @@
 #include "testslavedata.h"
-#include <QDebug>
 
 TestSlaveData::TestSlaveData(quint32 registerCount) : QObject(nullptr)
 {

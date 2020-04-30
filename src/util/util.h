@@ -5,7 +5,6 @@
 #include <QMessageBox>
 #include <QLocale>
 #include <QColor>
-#include <QDebug>
 #include <QDateTime>
 #include "version.h"
 
