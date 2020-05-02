@@ -4,6 +4,7 @@
 
 #include "diagnosticmodel.h"
 #include "diagnosticfilter.h"
+#include "scopelogging.h"
 
 DiagnosticDialog::DiagnosticDialog(DiagnosticModel * pDiagnosticModel, QWidget *parent) :
     QDialog(parent),
@@ -19,7 +20,7 @@ DiagnosticDialog::DiagnosticDialog(DiagnosticModel * pDiagnosticModel, QWidget *
     // Create button group for filtering
     _categoryFilterGroup.setExclusive(false);
     _categoryFilterGroup.addButton(_pUi->checkInfo);
-    _categoryFilterGroup.addButton(_pUi->checkError);
+    _categoryFilterGroup.addButton(_pUi->checkWarning);
     _categoryFilterGroup.addButton(_pUi->checkDebug);
     connect(&_categoryFilterGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &DiagnosticDialog::handleFilterChange);
     this->handleFilterChange(0); // Update filter
@@ -96,7 +97,7 @@ void DiagnosticDialog::handleScrollbarChange()
 
 void DiagnosticDialog::handleClearButton()
 {
-    DiagnosticModel::Logger().clear();
+    _pDiagnosticModel->clear();
 }
 
 void DiagnosticDialog::handleFilterChange(int id)
@@ -110,9 +111,9 @@ void DiagnosticDialog::handleFilterChange(int id)
         bitmask |= 1 << Diagnostic::LOG_INFO;
     }
 
-    if (_pUi->checkError->checkState())
+    if (_pUi->checkWarning->checkState())
     {
-        bitmask |= 1 << Diagnostic::LOG_ERROR;
+        bitmask |= 1 << Diagnostic::LOG_WARNING;
     }
 
     if (_pUi->checkDebug->checkState())
@@ -129,11 +130,11 @@ void DiagnosticDialog::handleEnableDebugLog(int state)
 {
     if (state == Qt::Checked)
     {
-        DiagnosticModel::Logger().setMaxSeverityLevel(Diagnostic::LOG_DEBUG);
+        ScopeLogging::Logger().setMinimumSeverityLevel(Diagnostic::LOG_DEBUG);
     }
     else
     {
-        DiagnosticModel::Logger().setMaxSeverityLevel(Diagnostic::LOG_INFO);
+        ScopeLogging::Logger().setMinimumSeverityLevel(Diagnostic::LOG_INFO);
     }
 }
 
@@ -163,9 +164,9 @@ void DiagnosticDialog::updateScroll()
 
 void DiagnosticDialog::updateLogCount()
 {
-    if (_pUi->checkInfo->checkState() == Qt::Checked || _pUi->checkError->checkState() == Qt::Checked)
+    if (_pUi->checkInfo->checkState() == Qt::Checked || _pUi->checkWarning->checkState() == Qt::Checked)
     {
-        _pUi->grpBoxLogs->setTitle(QString("Logs (%1/%2)").arg(_pSeverityProxyFilter->rowCount()).arg(DiagnosticModel::Logger().size()));
+        _pUi->grpBoxLogs->setTitle(QString("Logs (%1/%2)").arg(_pSeverityProxyFilter->rowCount()).arg(_pDiagnosticModel->size()));
     }
     else
     {

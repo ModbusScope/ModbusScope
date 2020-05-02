@@ -6,6 +6,7 @@
 #include "settingsmodel.h"
 #include "graphdatamodel.h"
 #include "diagnosticmodel.h"
+#include "scopelogging.h"
 
 #include "communicationmanager.h"
 
@@ -55,7 +56,7 @@ bool CommunicationManager::startCommunication()
         _bPollActive = true;
         bResetted = true;
 
-        DiagnosticModel::Logger().addCommunicationLog(Diagnostic::LOG_INFO, QString("Start logging"));
+        qCInfo(scopeCommConnection) << QStringLiteral("Start logging");
 
         for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++)
         {
@@ -69,7 +70,7 @@ bool CommunicationManager::startCommunication()
                                     .arg(_pSettingsModel->slaveId(i))
                                     ;
 
-                DiagnosticModel::Logger().addCommunicationLog(Diagnostic::LOG_INFO, logTxt);
+                qCInfo(scopeCommConnection) << logTxt;
             }
         }
 
@@ -145,14 +146,12 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
 
 void CommunicationManager::handleModbusError(QString msg)
 {
-    qDebug() << msg;
-    DiagnosticModel::Logger().addCommunicationLog(Diagnostic::LOG_ERROR, msg);
+    qCWarning(scopeCommConnection) << msg;
 }
 
 void CommunicationManager::handleModbusInfo(QString msg)
 {
-    qDebug() << msg;
-    DiagnosticModel::Logger().addCommunicationLog(Diagnostic::LOG_DEBUG, msg);
+    qCDebug(scopeCommConnection) << msg;
 }
 
 void CommunicationManager::stopCommunication()
@@ -161,7 +160,7 @@ void CommunicationManager::stopCommunication()
     _pPollTimer->stop();
     _pGuiModel->setCommunicationEndTime(QDateTime::currentMSecsSinceEpoch());
 
-    DiagnosticModel::Logger().addCommunicationLog(Diagnostic::LOG_INFO, QString("Stop logging"));
+    qCInfo(scopeCommConnection) << QStringLiteral("Stop logging");
 
     for(quint8 i = 0; i < SettingsModel::CONNECTION_ID_CNT; i++)
     {

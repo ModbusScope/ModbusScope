@@ -7,7 +7,7 @@
 
 void TestDiagnosticModel::init()
 {
-    DiagnosticModel::Logger().clear();
+    _category = QStringLiteral("scope.comm");
 }
 
 void TestDiagnosticModel::cleanup()
@@ -17,139 +17,105 @@ void TestDiagnosticModel::cleanup()
 
 void TestDiagnosticModel::addClear()
 {
-    DiagnosticModel * pErrorModel = &DiagnosticModel::Logger();
+    DiagnosticModel diagModel;
 
-    QCOMPARE(pErrorModel->size(), 0);
-    QCOMPARE(pErrorModel->rowCount(), 0);
+    QCOMPARE(diagModel.size(), 0);
+    QCOMPARE(diagModel.rowCount(), 0);
 
-    Diagnostic log(Diagnostic::LOG_COMMUNICATION, Diagnostic::LOG_INFO, QDateTime(), QString("Test"));
-    pErrorModel->addLog(log);
+    diagModel.addLog(_category, Diagnostic::LOG_INFO, QStringLiteral("Test"));
 
-    QCOMPARE(pErrorModel->size(), 1);
-    QCOMPARE(pErrorModel->rowCount(), 1);
+    QCOMPARE(diagModel.size(), 1);
+    QCOMPARE(diagModel.rowCount(), 1);
 
-    pErrorModel->addLog(log);
+    diagModel.addLog(_category, Diagnostic::LOG_INFO, QStringLiteral("Test"));
 
-    QCOMPARE(pErrorModel->size(), 2);
-    QCOMPARE(pErrorModel->rowCount(), 2);
+    QCOMPARE(diagModel.size(), 2);
+    QCOMPARE(diagModel.rowCount(), 2);
 
-    pErrorModel->clear();
+    diagModel.clear();
 
-    QCOMPARE(pErrorModel->size(), 0);
-    QCOMPARE(pErrorModel->rowCount(), 0);
+    QCOMPARE(diagModel.size(), 0);
+    QCOMPARE(diagModel.rowCount(), 0);
 }
 
 void TestDiagnosticModel::headerData()
 {
-    DiagnosticModel * pErrorModel = &DiagnosticModel::Logger();
+    DiagnosticModel diagModel;
 
-    QCOMPARE(pErrorModel->columnCount(QModelIndex()), 1);
-    QCOMPARE(pErrorModel->headerData(0, Qt::Horizontal, Qt::DisplayRole), QString("Messages"));
-    QCOMPARE(pErrorModel->headerData(0, Qt::Vertical, Qt::DisplayRole), QString("Messages"));
+    QCOMPARE(diagModel.columnCount(QModelIndex()), 1);
+    QCOMPARE(diagModel.headerData(0, Qt::Horizontal, Qt::DisplayRole), QString("Messages"));
+    QCOMPARE(diagModel.headerData(0, Qt::Vertical, Qt::DisplayRole), QString("Messages"));
 
-    QCOMPARE(pErrorModel->headerData(1, Qt::Horizontal, Qt::DisplayRole), QVariant());
-    QCOMPARE(pErrorModel->headerData(1, Qt::Horizontal, Qt::EditRole), QVariant());
+    QCOMPARE(diagModel.headerData(1, Qt::Horizontal, Qt::DisplayRole), QVariant());
+    QCOMPARE(diagModel.headerData(1, Qt::Horizontal, Qt::EditRole), QVariant());
 
 }
 
 void TestDiagnosticModel::data()
 {
-    DiagnosticModel * pErrorModel = &DiagnosticModel::Logger();
+    DiagnosticModel diagModel;
 
     QDateTime now = QDateTime::currentDateTime();
-    Diagnostic logErr(Diagnostic::LOG_COMMUNICATION, Diagnostic::LOG_ERROR, now, QString("Error"));
-    pErrorModel->addLog(logErr);
+    Diagnostic logErr(_category, Diagnostic::LOG_WARNING, now, QString("Error"));
+    diagModel.addLog(logErr.category(), logErr.severity(), logErr.message());
 
-    Diagnostic logInfo(Diagnostic::LOG_COMMUNICATION, Diagnostic::LOG_INFO, now, QString("Info"));
-    pErrorModel->addLog(logInfo);
+    Diagnostic logInfo(_category, Diagnostic::LOG_INFO, now, QString("Info"));
+    diagModel.addLog(logInfo.category(), logInfo.severity(), logInfo.message());
 
-    QModelIndex index = pErrorModel->index(0);
-    QCOMPARE(pErrorModel->data(index), logErr.toString());
+    QModelIndex index = diagModel.index(0);
+    QCOMPARE(diagModel.data(index), logErr.toString());
 
-    index = pErrorModel->index(1);
-    QCOMPARE(pErrorModel->data(index), logInfo.toString());
+    index = diagModel.index(1);
+    QCOMPARE(diagModel.data(index), logInfo.toString());
 
     QModelIndex indexNull;
-    QCOMPARE(pErrorModel->data(indexNull), QVariant());
+    QCOMPARE(diagModel.data(indexNull), QVariant());
 }
 
 void TestDiagnosticModel::dataSeverity()
 {
-    DiagnosticModel * pErrorModel = &DiagnosticModel::Logger();
+    DiagnosticModel diagModel;
 
     QDateTime now = QDateTime::currentDateTime();
-    Diagnostic logErr(Diagnostic::LOG_COMMUNICATION, Diagnostic::LOG_ERROR, now, QString("Error"));
-    pErrorModel->addLog(logErr);
+    Diagnostic logErr(_category, Diagnostic::LOG_WARNING, now, QString("Error"));
+    diagModel.addLog(logErr.category(), logErr.severity(), logErr.message());
 
-    Diagnostic logInfo(Diagnostic::LOG_COMMUNICATION, Diagnostic::LOG_INFO, now, QString("Info"));
-    pErrorModel->addLog(logInfo);
+    Diagnostic logInfo(_category, Diagnostic::LOG_INFO, now, QString("Info"));
+    diagModel.addLog(logInfo.category(), logInfo.severity(), logInfo.message());
 
-    QCOMPARE(pErrorModel->dataSeverity(0), logErr.severity());
-    QCOMPARE(pErrorModel->dataSeverity(1), logInfo.severity());
+    QCOMPARE(diagModel.dataSeverity(0), logErr.severity());
+    QCOMPARE(diagModel.dataSeverity(1), logInfo.severity());
 
-    QCOMPARE(pErrorModel->dataSeverity(255), static_cast<Diagnostic::LogSeverity>(-1));
+    QCOMPARE(diagModel.dataSeverity(255), static_cast<Diagnostic::LogSeverity>(-1));
 }
 
 void TestDiagnosticModel::flags()
 {
-    DiagnosticModel * pErrorModel = &DiagnosticModel::Logger();
+    DiagnosticModel diagModel;
 
-    QModelIndex index = pErrorModel->index(0);
+    QModelIndex index = diagModel.index(0);
 
-    QCOMPARE(pErrorModel->flags(index), Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    QCOMPARE(diagModel.flags(index), Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 }
 
-void TestDiagnosticModel::addLog_1()
+void TestDiagnosticModel::addLog()
 {
-    DiagnosticModel * pErrorModel = &DiagnosticModel::Logger();
+    DiagnosticModel diagModel;
 
-    QSignalSpy spy(pErrorModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
+    QSignalSpy spy(&diagModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
 
     QDateTime now = QDateTime::currentDateTime();
-    Diagnostic logErr(Diagnostic::LOG_COMMUNICATION, Diagnostic::LOG_ERROR, now, QString("Error"));
-    pErrorModel->addLog(logErr);
+    Diagnostic logErr(_category, Diagnostic::LOG_WARNING, now, QString("Error"));
+    diagModel.addLog(logErr.category(), logErr.severity(), logErr.message());
 
     QCOMPARE(spy.count(), 1);
 
-    QModelIndex changedIndex = pErrorModel->index(pErrorModel->size()-1);
+    QModelIndex changedIndex = diagModel.index(diagModel.size()-1);
 
     QList<QVariant> arguments = spy.takeFirst(); // take the first signal
 
     QCOMPARE(qvariant_cast<QModelIndex>(arguments.at(0)).row(), changedIndex.row()); // verify the first argument
     QCOMPARE(qvariant_cast<QModelIndex>(arguments.at(1)).row(), changedIndex.row()); // verify the second argument
 }
-
-void TestDiagnosticModel::addLog_2()
-{
-    DiagnosticModel * pErrorModel = &DiagnosticModel::Logger();
-
-    QSignalSpy spy(pErrorModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
-
-    QDateTime now = QDateTime::currentDateTime();
-    pErrorModel->addCommunicationLog(Diagnostic::LOG_ERROR, QString("Error"));
-
-    QCOMPARE(spy.count(), 1);
-
-    QModelIndex changedIndex = pErrorModel->index(pErrorModel->size()-1);
-
-    QList<QVariant> arguments = spy.takeFirst(); // take the first signal
-
-    QCOMPARE(qvariant_cast<QModelIndex>(arguments.at(0)).row(), changedIndex.row()); // verify the first argument
-    QCOMPARE(qvariant_cast<QModelIndex>(arguments.at(1)).row(), changedIndex.row()); // verify the second argument
-}
-
-void TestDiagnosticModel::addCommunicationLog()
-{
-    DiagnosticModel * pErrorModel = &DiagnosticModel::Logger();
-
-    QCOMPARE(pErrorModel->size(), 0);
-    QCOMPARE(pErrorModel->rowCount(), 0);
-
-    pErrorModel->addCommunicationLog(Diagnostic::LOG_ERROR, QString("Error"));
-
-    QCOMPARE(pErrorModel->size(), 1);
-    QCOMPARE(pErrorModel->rowCount(), 1);
-}
-
 
 QTEST_GUILESS_MAIN(TestDiagnosticModel)

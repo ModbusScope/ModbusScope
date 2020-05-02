@@ -1,5 +1,5 @@
-#ifndef ERRORLOGDIALOG_H
-#define ERRORLOGDIALOG_H
+#ifndef DIAGNOSTICDIALOG_H
+#define DIAGNOSTICDIALOG_H
 
 #include <QDialog>
 #include <QButtonGroup>
@@ -43,4 +43,4 @@ private:
     QButtonGroup _categoryFilterGroup;
 };
 
-#endif // ERRORLOGDIALOG_H
+#endif // DIAGNOSTICDIALOG_H

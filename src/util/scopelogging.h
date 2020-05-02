@@ -4,9 +4,8 @@
 #include <QLoggingCategory>
 #include "diagnosticmodel.h"
 
-Q_DECLARE_LOGGING_CATEGORY(scopeConnection)
-Q_DECLARE_LOGGING_CATEGORY(scopeModbus)
-Q_DECLARE_LOGGING_CATEGORY(scopeNotes)
+Q_DECLARE_LOGGING_CATEGORY(scopeCommConnection)
+Q_DECLARE_LOGGING_CATEGORY(scopeComm)
 
 class ScopeLogging
 {
@@ -16,11 +15,13 @@ public:
     static ScopeLogging& Logger();
 
     void initLogging(DiagnosticModel* pDiagnosticModel);
+    void setMinimumSeverityLevel(Diagnostic::LogSeverity maxSeverity);
 
     void handleLog(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
 private:
     qint64 _logStartTime;
+    Diagnostic::LogSeverity _minSeverityLevel;
 
     DiagnosticModel* _pDiagnosticModel;
 };
