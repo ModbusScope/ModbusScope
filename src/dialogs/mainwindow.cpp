@@ -19,6 +19,7 @@
 #include "graphview.h"
 #include "datafilehandler.h"
 #include "projectfilehandler.h"
+#include "scopelogging.h"
 #include "util.h"
 
 #include <QDateTime>
@@ -40,11 +41,14 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     _pSettingsModel = new SettingsModel();
     _pGraphDataModel = new GraphDataModel(_pSettingsModel);
     _pNoteModel = new NoteModel();
+    _pDiagnosticModel = new DiagnosticModel();
     _pDataParserModel = new DataParserModel();
+
+    ScopeLogging::Logger().initLogging(_pDiagnosticModel);
 
     _pConnectionDialog = new ConnectionDialog(_pSettingsModel, this);
     _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
-    _pDiagnosticDialog = new DiagnosticDialog(this);
+    _pDiagnosticDialog = new DiagnosticDialog(_pDiagnosticModel, this);
 
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
 
@@ -252,6 +256,7 @@ MainWindow::~MainWindow()
     delete _pGuiModel;
     delete _pGraphShowHide;
     delete _pGraphBringToFront;
+    delete _pDiagnosticModel;
     delete _pDataFileHandler;
     delete _pProjectFileHandler;
 
