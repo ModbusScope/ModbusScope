@@ -111,9 +111,9 @@ QString Diagnostic::severityString() const
  */
 QString Diagnostic::toString() const
 {
-    return QString("%1 - %2 [%3]: %4").arg(timestamp().toString(Util::timeStringFormat()))
-                          .arg(category())
+    return QString("%1 - [%2] %3: %4").arg(timestamp().toString(Util::timeStringFormat()))
                           .arg(severityString())
+                          .arg(category())
                           .arg(message());
 }
 
