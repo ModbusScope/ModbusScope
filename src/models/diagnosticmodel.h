@@ -30,11 +30,9 @@ public:
     void setMaxSeverityLevel(Diagnostic::LogSeverity maxSeverity);
 
     void addLog(Diagnostic& log);
+    void addLog(QString category, Diagnostic::LogSeverity severity, QString message);
+
     void addCommunicationLog(Diagnostic::LogSeverity severity, QString message);
-
-signals:
-
-public slots:
 
 private:
 

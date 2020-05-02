@@ -20,6 +20,7 @@ class CommunicationManager;
 class QCustomPlot;
 class GraphDataModel;
 class NoteModel;
+class DiagnosticModel;
 class ConnectionDialog;
 class SettingsModel;
 class DataParserModel;
@@ -115,6 +116,7 @@ private:
     SettingsModel * _pSettingsModel;
     GraphDataModel * _pGraphDataModel;
     NoteModel * _pNoteModel;
+    DiagnosticModel * _pDiagnosticModel;
     GuiModel * _pGuiModel;
     DataParserModel * _pDataParserModel;
 

@@ -5,14 +5,16 @@
 #include "diagnosticmodel.h"
 #include "diagnosticfilter.h"
 
-DiagnosticDialog::DiagnosticDialog(QWidget *parent) :
+DiagnosticDialog::DiagnosticDialog(DiagnosticModel * pDiagnosticModel, QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::DiagnosticDialog)
 {
     _pUi->setupUi(this);
 
+    _pDiagnosticModel = pDiagnosticModel;
+
     _pSeverityProxyFilter = new DiagnosticFilter();
-    _pSeverityProxyFilter->setSourceModel(&DiagnosticModel::Logger());
+    _pSeverityProxyFilter->setSourceModel(_pDiagnosticModel);
 
     // Create button group for filtering
     _categoryFilterGroup.setExclusive(false);
