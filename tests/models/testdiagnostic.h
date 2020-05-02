@@ -19,7 +19,6 @@ private slots:
     void setMessage();
 
     void severityString();
-    void categoryString();
 
 private:
 

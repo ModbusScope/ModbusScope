@@ -8,7 +8,7 @@
  */
 DiagnosticModel::DiagnosticModel(QObject *parent) : QAbstractListModel(parent)
 {
-    _maxSeverityLevel = Diagnostic::LOG_INFO;
+
 }
 
 /*!
@@ -115,43 +115,22 @@ void DiagnosticModel::clear()
 }
 
 /*!
- * \brief Set the maximum severity level of the allowed logs.
- *  All logs with higher severity level aren't saved.
- */
-void DiagnosticModel::setMaxSeverityLevel(Diagnostic::LogSeverity maxSeverity)
-{
-    _maxSeverityLevel = maxSeverity;
-}
-
-/*!
  * \brief Add item to model
  * \param log
  */
-void DiagnosticModel::addLog(Diagnostic& log)
+void DiagnosticModel::addLog(QString category, Diagnostic::LogSeverity severity, QString message)
 {
-    if (log.severity() <= _maxSeverityLevel)
-    {
-        /* Call function to prepare view */
-        beginInsertRows(QModelIndex(), size(), size());
+    /* Call function to prepare view */
+    beginInsertRows(QModelIndex(), size(), size());
 
-        _logList.append(log);
+    Diagnostic log(category, severity, QDateTime::currentDateTime(), message);
 
-        /* Call functions to trigger view update */
-        endInsertRows();
+    _logList.append(log);
 
-        QModelIndex nIndex = index(size() - 1, 0);
+    /* Call functions to trigger view update */
+    endInsertRows();
 
-        emit dataChanged(nIndex, nIndex);
-    }
-}
+    QModelIndex nIndex = index(size() - 1, 0);
 
-void DiagnosticModel::addCommunicationLog(Diagnostic::LogSeverity severity, QString message)
-{
-    auto log = Diagnostic(Diagnostic::LOG_COMMUNICATION,
-                        severity,
-                        QDateTime::currentDateTime(),
-                        message
-                        );
-
-    addLog(log);
+    emit dataChanged(nIndex, nIndex);
 }

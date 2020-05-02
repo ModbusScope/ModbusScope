@@ -7,7 +7,7 @@
  * \param timestamp Timestamp of log
  * \param message Extra information
  */
-Diagnostic::Diagnostic(LogCategory category, LogSeverity severity, QDateTime timestamp, QString message)
+Diagnostic::Diagnostic(QString category, LogSeverity severity, QDateTime timestamp, QString message)
 {
     _category = category;
     _severity = severity;
@@ -15,12 +15,12 @@ Diagnostic::Diagnostic(LogCategory category, LogSeverity severity, QDateTime tim
     _message = message;
 }
 
-Diagnostic::LogCategory Diagnostic::category() const
+QString Diagnostic::category() const
 {
     return _category;
 }
 
-void Diagnostic::setCategory(const Diagnostic::LogCategory &category)
+void Diagnostic::setCategory(const QString &category)
 {
     _category = category;
 }
@@ -91,8 +91,8 @@ QString Diagnostic::severityString() const
             return QString("Info");
             break;
 
-        case LOG_ERROR:
-            return QString("Error");
+        case LOG_WARNING:
+            return QString("Warning");
             break;
 
         case LOG_DEBUG:
@@ -106,29 +106,13 @@ QString Diagnostic::severityString() const
 }
 
 /*!
- * \return Strings of category
- */
-QString Diagnostic::categoryString() const
-{
-    switch (_category)
-    {
-        case LOG_COMMUNICATION:
-            return QString("Communication");
-            break;
-        default:
-            return QString("Unknown");
-            break;
-    }
-}
-
-/*!
  * \brief Diagnostic::toString
  * \return Printable summary of log
  */
 QString Diagnostic::toString() const
 {
     return QString("%1 - %2 [%3]: %4").arg(timestamp().toString(Util::timeStringFormat()))
-                          .arg(categoryString())
+                          .arg(category())
                           .arg(severityString())
                           .arg(message());
 }

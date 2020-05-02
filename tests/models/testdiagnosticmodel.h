@@ -17,12 +17,11 @@ private slots:
     void dataSeverity();
     void flags();
 
-    void addLog_1();
-    void addLog_2();
-
-    void addCommunicationLog();
+    void addLog();
 
 private:
+
+        QString _category;
 
 };
 

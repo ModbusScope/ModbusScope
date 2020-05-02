@@ -12,20 +12,15 @@ public:
 
     typedef enum
     {
-        LOG_ERROR = 0,
+        LOG_WARNING = 0,
         LOG_INFO,
         LOG_DEBUG
     } LogSeverity;
 
-    typedef enum
-    {
-        LOG_COMMUNICATION = 0,
-    } LogCategory;
+    explicit Diagnostic(QString category, LogSeverity severity, QDateTime timestamp, QString message);
 
-    explicit Diagnostic(LogCategory category, LogSeverity severity, QDateTime timestamp, QString message);
-
-    LogCategory category() const;
-    void setCategory(const LogCategory &category);
+    QString category() const;
+    void setCategory(const QString &category);
 
     LogSeverity severity() const;
     void setSeverity(const LogSeverity &severity);
@@ -38,13 +33,11 @@ public:
 
     QString severityString() const;
 
-    QString categoryString() const;
-
     QString toString() const;
 
 private:
 
-    LogCategory _category;
+    QString _category;
     LogSeverity _severity;
     QDateTime _timestamp;
     QString _message;

@@ -17,7 +17,7 @@
    <item>
     <widget class="QGroupBox" name="grpBoxFilter">
      <property name="title">
-      <string>Severity level filters</string>
+      <string>Severity level display filter</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
@@ -38,9 +38,9 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkError">
+       <widget class="QCheckBox" name="checkWarning">
         <property name="text">
-         <string>Error</string>
+         <string>Warning</string>
         </property>
         <property name="checked">
          <bool>true</bool>

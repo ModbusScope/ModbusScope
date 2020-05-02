@@ -17,28 +17,28 @@ void TestDiagnostic::cleanup()
 
 void TestDiagnostic::fullConstructor()
 {
-    Diagnostic log = Diagnostic(Diagnostic::LOG_COMMUNICATION, Diagnostic::LOG_INFO, QDateTime(), QString("Test"));
-    QCOMPARE(log.category(), Diagnostic::LOG_COMMUNICATION);
+    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, QDateTime(), QString("Test"));
+    QCOMPARE(log.category(), QStringLiteral("scope.comm"));
     QCOMPARE(log.severity(), Diagnostic::LOG_INFO);
     QCOMPARE(log.message(), QString("Test"));
     QCOMPARE(log.timestamp(), QDateTime());
 
     QDateTime now = QDateTime::currentDateTime();
-    log = Diagnostic(Diagnostic::LOG_COMMUNICATION, Diagnostic::LOG_ERROR, now, QString(""));
-    QCOMPARE(log.category(), Diagnostic::LOG_COMMUNICATION);
-    QCOMPARE(log.severity(), Diagnostic::LOG_ERROR);
+    log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_WARNING, now, QString(""));
+    QCOMPARE(log.category(), QStringLiteral("scope.comm"));
+    QCOMPARE(log.severity(), Diagnostic::LOG_WARNING);
     QCOMPARE(log.message(), QString(""));
     QCOMPARE(log.timestamp(), now);
 }
 
 void TestDiagnostic::setSeverity()
 {
-    Diagnostic log = Diagnostic(Diagnostic::LOG_COMMUNICATION, Diagnostic::LOG_INFO, QDateTime(), QString(""));
+    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, QDateTime(), QString(""));
 
     QCOMPARE(log.severity(), Diagnostic::LOG_INFO);
 
-    log.setSeverity(Diagnostic::LOG_ERROR);
-    QCOMPARE(log.severity(), Diagnostic::LOG_ERROR);
+    log.setSeverity(Diagnostic::LOG_WARNING);
+    QCOMPARE(log.severity(), Diagnostic::LOG_WARNING);
 
     log.setSeverity(Diagnostic::LOG_DEBUG);
     QCOMPARE(log.severity(), Diagnostic::LOG_DEBUG);
@@ -46,17 +46,17 @@ void TestDiagnostic::setSeverity()
 
 void TestDiagnostic::setCategory()
 {
-    Diagnostic log = Diagnostic(Diagnostic::LOG_COMMUNICATION, Diagnostic::LOG_INFO, QDateTime(), QString(""));
+    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, QDateTime(), QString(""));
 
-    QCOMPARE(log.category(), Diagnostic::LOG_COMMUNICATION);
+    QCOMPARE(log.category(), QStringLiteral("scope.comm"));
 
-    log.setCategory(static_cast<Diagnostic::LogCategory>(99));
-    QCOMPARE(log.category(), static_cast<Diagnostic::LogCategory>(99));
+    log.setCategory(QStringLiteral("test"));
+    QCOMPARE(log.category(), QStringLiteral("test"));
 }
 
 void TestDiagnostic::setTimeStamp()
 {
-    Diagnostic log = Diagnostic(Diagnostic::LOG_COMMUNICATION, Diagnostic::LOG_INFO, QDateTime(), QString(""));
+    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, QDateTime(), QString(""));
 
     QCOMPARE(log.timestamp(), QDateTime());
 
@@ -67,7 +67,7 @@ void TestDiagnostic::setTimeStamp()
 
 void TestDiagnostic::setMessage()
 {
-    Diagnostic log = Diagnostic(Diagnostic::LOG_COMMUNICATION, Diagnostic::LOG_INFO, QDateTime(), QString(""));
+    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, QDateTime(), QString(""));
 
     QCOMPARE(log.message(), QString(""));
 
@@ -79,28 +79,18 @@ void TestDiagnostic::setMessage()
 
 void TestDiagnostic::severityString()
 {
-    Diagnostic log = Diagnostic(Diagnostic::LOG_COMMUNICATION, Diagnostic::LOG_INFO, QDateTime(), QString(""));
+    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, QDateTime(), QString(""));
 
     QCOMPARE(log.severityString(), QString("Info"));
 
-    log.setSeverity(Diagnostic::LOG_ERROR);
-    QCOMPARE(log.severityString(), QString("Error"));
+    log.setSeverity(Diagnostic::LOG_WARNING);
+    QCOMPARE(log.severityString(), QString("Warning"));
 
     log.setSeverity(Diagnostic::LOG_DEBUG);
     QCOMPARE(log.severityString(), QString("Debug"));
 
     log.setSeverity(static_cast<Diagnostic::LogSeverity>(99));
     QCOMPARE(log.severityString(), QString("Unknown"));
-}
-
-void TestDiagnostic::categoryString()
-{
-    Diagnostic log = Diagnostic(Diagnostic::LOG_COMMUNICATION, Diagnostic::LOG_INFO, QDateTime(), QString(""));
-
-    QCOMPARE(log.categoryString(), QString("Communication"));
-
-    log.setCategory(static_cast<Diagnostic::LogCategory>(99));
-    QCOMPARE(log.categoryString(), QString("Unknown"));
 }
 
 QTEST_GUILESS_MAIN(TestDiagnostic)

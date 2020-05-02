@@ -12,8 +12,6 @@ class DiagnosticModel : public QAbstractListModel
 public:
     explicit DiagnosticModel(QObject *parent = nullptr);
 
-    static DiagnosticModel& Logger();
-
     int rowCount(const QModelIndex &parent = QModelIndex()) const ;
     int columnCount(const QModelIndex & parent = QModelIndex()) const;
 
@@ -27,24 +25,11 @@ public:
 
     void clear();
 
-    void setMaxSeverityLevel(Diagnostic::LogSeverity maxSeverity);
-
-    void addLog(Diagnostic& log);
     void addLog(QString category, Diagnostic::LogSeverity severity, QString message);
-
-    void addCommunicationLog(Diagnostic::LogSeverity severity, QString message);
 
 private:
 
     QList<Diagnostic> _logList;
-    Diagnostic::LogSeverity _maxSeverityLevel;
 };
-
-inline DiagnosticModel& DiagnosticModel::Logger()
-{
-    static DiagnosticModel errorLogModel;
-    return errorLogModel;
-}
-
 
 #endif // DIAGNOSTICLOGMODEL_H
