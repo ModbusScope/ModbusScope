@@ -25,7 +25,7 @@ public:
 
     void clear();
 
-    void addLog(QString category, Diagnostic::LogSeverity severity, QString message);
+    void addLog(QString category, Diagnostic::LogSeverity severity, qint32 timeOffset, QString message);
 
 private:
 

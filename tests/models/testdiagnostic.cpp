@@ -17,23 +17,23 @@ void TestDiagnostic::cleanup()
 
 void TestDiagnostic::fullConstructor()
 {
-    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, QDateTime(), QString("Test"));
+    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, 10, QString("Test"));
     QCOMPARE(log.category(), QStringLiteral("scope.comm"));
     QCOMPARE(log.severity(), Diagnostic::LOG_INFO);
     QCOMPARE(log.message(), QString("Test"));
-    QCOMPARE(log.timestamp(), QDateTime());
+    QCOMPARE(log.timeOffset(), 10);
 
     QDateTime now = QDateTime::currentDateTime();
-    log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_WARNING, now, QString(""));
+    log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_WARNING, 100, QString(""));
     QCOMPARE(log.category(), QStringLiteral("scope.comm"));
     QCOMPARE(log.severity(), Diagnostic::LOG_WARNING);
     QCOMPARE(log.message(), QString(""));
-    QCOMPARE(log.timestamp(), now);
+    QCOMPARE(log.timeOffset(), 100);
 }
 
 void TestDiagnostic::setSeverity()
 {
-    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, QDateTime(), QString(""));
+    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, 0, QString(""));
 
     QCOMPARE(log.severity(), Diagnostic::LOG_INFO);
 
@@ -46,7 +46,7 @@ void TestDiagnostic::setSeverity()
 
 void TestDiagnostic::setCategory()
 {
-    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, QDateTime(), QString(""));
+    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, 20, QString(""));
 
     QCOMPARE(log.category(), QStringLiteral("scope.comm"));
 
@@ -56,18 +56,17 @@ void TestDiagnostic::setCategory()
 
 void TestDiagnostic::setTimeStamp()
 {
-    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, QDateTime(), QString(""));
+    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, 10, QString(""));
 
-    QCOMPARE(log.timestamp(), QDateTime());
+    QCOMPARE(log.timeOffset(), 10);
 
-    QDateTime now = QDateTime::currentDateTime();
-    log.setTimestamp(now);
-    QCOMPARE(log.timestamp(), now);
+    log.setTimeOffset(100);
+    QCOMPARE(log.timeOffset(), 100);
 }
 
 void TestDiagnostic::setMessage()
 {
-    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, QDateTime(), QString(""));
+    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, 0, QString(""));
 
     QCOMPARE(log.message(), QString(""));
 
@@ -79,7 +78,7 @@ void TestDiagnostic::setMessage()
 
 void TestDiagnostic::severityString()
 {
-    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, QDateTime(), QString(""));
+    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, 0, QString(""));
 
     QCOMPARE(log.severityString(), QString("Info"));
 

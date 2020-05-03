@@ -22,12 +22,12 @@ void TestDiagnosticModel::addClear()
     QCOMPARE(diagModel.size(), 0);
     QCOMPARE(diagModel.rowCount(), 0);
 
-    diagModel.addLog(_category, Diagnostic::LOG_INFO, QStringLiteral("Test"));
+    diagModel.addLog(_category, Diagnostic::LOG_INFO, 0, QStringLiteral("Test"));
 
     QCOMPARE(diagModel.size(), 1);
     QCOMPARE(diagModel.rowCount(), 1);
 
-    diagModel.addLog(_category, Diagnostic::LOG_INFO, QStringLiteral("Test"));
+    diagModel.addLog(_category, Diagnostic::LOG_INFO, 10, QStringLiteral("Test"));
 
     QCOMPARE(diagModel.size(), 2);
     QCOMPARE(diagModel.rowCount(), 2);
@@ -55,12 +55,11 @@ void TestDiagnosticModel::data()
 {
     DiagnosticModel diagModel;
 
-    QDateTime now = QDateTime::currentDateTime();
-    Diagnostic logErr(_category, Diagnostic::LOG_WARNING, now, QString("Error"));
-    diagModel.addLog(logErr.category(), logErr.severity(), logErr.message());
+    Diagnostic logErr(_category, Diagnostic::LOG_WARNING, 0, QString("Error"));
+    diagModel.addLog(logErr.category(), logErr.severity(), logErr.timeOffset(), logErr.message());
 
-    Diagnostic logInfo(_category, Diagnostic::LOG_INFO, now, QString("Info"));
-    diagModel.addLog(logInfo.category(), logInfo.severity(), logInfo.message());
+    Diagnostic logInfo(_category, Diagnostic::LOG_INFO, 10, QString("Info"));
+    diagModel.addLog(logInfo.category(), logInfo.severity(), logErr.timeOffset(), logInfo.message());
 
     QModelIndex index = diagModel.index(0);
     QCOMPARE(diagModel.data(index), logErr.toString());
@@ -76,12 +75,11 @@ void TestDiagnosticModel::dataSeverity()
 {
     DiagnosticModel diagModel;
 
-    QDateTime now = QDateTime::currentDateTime();
-    Diagnostic logErr(_category, Diagnostic::LOG_WARNING, now, QString("Error"));
-    diagModel.addLog(logErr.category(), logErr.severity(), logErr.message());
+    Diagnostic logErr(_category, Diagnostic::LOG_WARNING, 0, QString("Error"));
+    diagModel.addLog(logErr.category(), logErr.severity(), logErr.timeOffset(), logErr.message());
 
-    Diagnostic logInfo(_category, Diagnostic::LOG_INFO, now, QString("Info"));
-    diagModel.addLog(logInfo.category(), logInfo.severity(), logInfo.message());
+    Diagnostic logInfo(_category, Diagnostic::LOG_INFO, 10, QString("Info"));
+    diagModel.addLog(logInfo.category(), logInfo.severity(), logErr.timeOffset(), logInfo.message());
 
     QCOMPARE(diagModel.dataSeverity(0), logErr.severity());
     QCOMPARE(diagModel.dataSeverity(1), logInfo.severity());
@@ -105,8 +103,8 @@ void TestDiagnosticModel::addLog()
     QSignalSpy spy(&diagModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
 
     QDateTime now = QDateTime::currentDateTime();
-    Diagnostic logErr(_category, Diagnostic::LOG_WARNING, now, QString("Error"));
-    diagModel.addLog(logErr.category(), logErr.severity(), logErr.message());
+    Diagnostic logErr(_category, Diagnostic::LOG_WARNING, 10, QString("Error"));
+    diagModel.addLog(logErr.category(), logErr.severity(), logErr.timeOffset(), logErr.message());
 
     QCOMPARE(spy.count(), 1);
 
