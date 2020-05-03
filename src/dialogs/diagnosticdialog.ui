@@ -22,6 +22,9 @@
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
        <widget class="QCheckBox" name="checkDebug">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Debug</string>
         </property>
