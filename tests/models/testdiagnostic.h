@@ -20,6 +20,8 @@ private slots:
 
     void severityString();
 
+    void toString();
+
 private:
 
 };

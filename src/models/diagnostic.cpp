@@ -88,19 +88,19 @@ QString Diagnostic::severityString() const
     switch (_severity)
     {
         case LOG_INFO:
-            return QString("Info");
+            return QString("INFO");
             break;
 
         case LOG_WARNING:
-            return QString("Warning");
+            return QString("WARNING");
             break;
 
         case LOG_DEBUG:
-            return QString("Debug");
+            return QString("DEBUG");
             break;
 
         default:
-            return QString("Unknown");
+            return QString("UNKNOWN");
             break;
     }
 }
@@ -112,7 +112,7 @@ QString Diagnostic::severityString() const
 QString Diagnostic::toString() const
 {
 
-    return QString("%1 - [%2] %3: %4")
+    return QString("%1 - %2 [%3]: %4")
                           .arg(timeOffset(), 8, 10, QChar('0'))
                           .arg(severityString())
                           .arg(category())
