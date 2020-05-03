@@ -80,16 +80,25 @@ void TestDiagnostic::severityString()
 {
     Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, 0, QString(""));
 
-    QCOMPARE(log.severityString(), QString("Info"));
+    QCOMPARE(log.severityString(), QString("INFO"));
 
     log.setSeverity(Diagnostic::LOG_WARNING);
-    QCOMPARE(log.severityString(), QString("Warning"));
+    QCOMPARE(log.severityString(), QString("WARNING"));
 
     log.setSeverity(Diagnostic::LOG_DEBUG);
-    QCOMPARE(log.severityString(), QString("Debug"));
+    QCOMPARE(log.severityString(), QString("DEBUG"));
 
     log.setSeverity(static_cast<Diagnostic::LogSeverity>(99));
-    QCOMPARE(log.severityString(), QString("Unknown"));
+    QCOMPARE(log.severityString(), QString("UNKNOWN"));
+}
+
+void TestDiagnostic::toString()
+{
+    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, 100, QString("Test"));
+
+    QString result = QStringLiteral("00000100 - INFO [scope.comm]: Test");
+
+    QCOMPARE(log.toString(), result);
 }
 
 QTEST_GUILESS_MAIN(TestDiagnostic)
