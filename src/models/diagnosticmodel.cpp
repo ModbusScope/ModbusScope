@@ -118,12 +118,12 @@ void DiagnosticModel::clear()
  * \brief Add item to model
  * \param log
  */
-void DiagnosticModel::addLog(QString category, Diagnostic::LogSeverity severity, QString message)
+void DiagnosticModel::addLog(QString category, Diagnostic::LogSeverity severity, qint32 timeOffset, QString message)
 {
     /* Call function to prepare view */
     beginInsertRows(QModelIndex(), size(), size());
 
-    Diagnostic log(category, severity, QDateTime::currentDateTime(), message);
+    Diagnostic log(category, severity, timeOffset, message);
 
     _logList.append(log);
 

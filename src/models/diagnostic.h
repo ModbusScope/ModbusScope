@@ -2,7 +2,6 @@
 #define DIAGNOSTIC_H
 
 #include <QString>
-#include <QDateTime>
 #include <QDebug>
 
 class Diagnostic
@@ -17,7 +16,7 @@ public:
         LOG_DEBUG
     } LogSeverity;
 
-    explicit Diagnostic(QString category, LogSeverity severity, QDateTime timestamp, QString message);
+    explicit Diagnostic(QString category, LogSeverity severity, qint32 timeOffset, QString message);
 
     QString category() const;
     void setCategory(const QString &category);
@@ -28,8 +27,8 @@ public:
     QString message() const;
     void setMessage(const QString &message);
 
-    QDateTime timestamp() const;
-    void setTimestamp(const QDateTime &timestamp);
+    qint32 timeOffset() const;
+    void setTimeOffset(const qint32 &timeOffset);
 
     QString severityString() const;
 
@@ -39,7 +38,7 @@ private:
 
     QString _category;
     LogSeverity _severity;
-    QDateTime _timestamp;
+    qint32 _timeOffset;
     QString _message;
 };
 

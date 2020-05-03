@@ -7,11 +7,11 @@
  * \param timestamp Timestamp of log
  * \param message Extra information
  */
-Diagnostic::Diagnostic(QString category, LogSeverity severity, QDateTime timestamp, QString message)
+Diagnostic::Diagnostic(QString category, LogSeverity severity, qint32 timeOffset, QString message)
 {
     _category = category;
     _severity = severity;
-    _timestamp = timestamp;
+    _timeOffset = timeOffset;
     _message = message;
 }
 
@@ -65,18 +65,18 @@ void Diagnostic::setMessage(const QString &message)
  * \brief Diagnostic::timestamp
  * \return Timestamp of log
  */
-QDateTime Diagnostic::timestamp() const
+qint32 Diagnostic::timeOffset() const
 {
-    return _timestamp;
+    return _timeOffset;
 }
 
 /*!
  * \brief Diagnostic::setTimestamp
  * \param timestamp new timestamp for the log
  */
-void Diagnostic::setTimestamp(const QDateTime &timestamp)
+void Diagnostic::setTimeOffset(const qint32 &timeOffset)
 {
-    _timestamp = timestamp;
+    _timeOffset = timeOffset;
 }
 
 /*!
@@ -111,7 +111,9 @@ QString Diagnostic::severityString() const
  */
 QString Diagnostic::toString() const
 {
-    return QString("%1 - [%2] %3: %4").arg(timestamp().toString(Util::timeStringFormat()))
+
+    return QString("%1 - [%2] %3: %4")
+                          .arg(timeOffset(), 8, 10, QChar('0'))
                           .arg(severityString())
                           .arg(category())
                           .arg(message());

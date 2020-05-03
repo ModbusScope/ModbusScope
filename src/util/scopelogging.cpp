@@ -45,6 +45,7 @@ void ScopeLogging::setMinimumSeverityLevel(Diagnostic::LogSeverity minSeverity)
 void ScopeLogging::handleLog(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     Diagnostic::LogSeverity logSeverity;
+    qint32 offset = static_cast<qint32>(QDateTime::currentMSecsSinceEpoch() - _logStartTime);
 
     switch(type)
     {
@@ -64,12 +65,11 @@ void ScopeLogging::handleLog(QtMsgType type, const QMessageLogContext &context, 
 
     if (logSeverity <= _minSeverityLevel)
     {
-        _pDiagnosticModel->addLog(context.category, logSeverity, msg);
+        _pDiagnosticModel->addLog(context.category, logSeverity, offset, msg);
     }
 
 #if 0
     QByteArray localMsg = msg.toLocal8Bit();
-    int offset = static_cast<int>(QDateTime::currentMSecsSinceEpoch() - _logStartTime);
 
     fprintf(stderr, "%08d - %s\n", offset, localMsg.constData());
 #endif
