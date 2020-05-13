@@ -59,7 +59,7 @@ void TestDiagnosticModel::data()
     diagModel.addLog(logErr.category(), logErr.severity(), logErr.timeOffset(), logErr.message());
 
     Diagnostic logInfo(_category, Diagnostic::LOG_INFO, 10, QString("Info"));
-    diagModel.addLog(logInfo.category(), logInfo.severity(), logErr.timeOffset(), logInfo.message());
+    diagModel.addLog(logInfo.category(), logInfo.severity(), logInfo.timeOffset(), logInfo.message());
 
     QModelIndex index = diagModel.index(0);
     QCOMPARE(diagModel.data(index), logErr.toString());
