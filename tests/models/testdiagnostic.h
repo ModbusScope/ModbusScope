@@ -20,7 +20,8 @@ private slots:
 
     void severityString();
 
-    void toString();
+    void toString_1();
+    void toString_2();
 
 private:
 
