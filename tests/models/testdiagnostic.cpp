@@ -92,7 +92,7 @@ void TestDiagnostic::severityString()
     QCOMPARE(log.severityString(), QString("UNKNOWN"));
 }
 
-void TestDiagnostic::toString()
+void TestDiagnostic::toString_1()
 {
     Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, 100, QString("Test"));
 
@@ -100,5 +100,15 @@ void TestDiagnostic::toString()
 
     QCOMPARE(log.toString(), result);
 }
+
+void TestDiagnostic::toString_2()
+{
+    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, 99999999, QString("Test"));
+
+    QString result = QStringLiteral("99999999 - INFO [scope.comm]: Test");
+
+    QCOMPARE(log.toString(), result);
+}
+
 
 QTEST_GUILESS_MAIN(TestDiagnostic)
