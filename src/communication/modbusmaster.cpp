@@ -85,7 +85,7 @@ void ModbusMaster::handlerConnectionError(QModbusDevice::Error error, QString ms
 
     _error++;
 
-    logError(QString("Connection error (fatal):") + msg);
+    logError(QString("Connection error: ") + msg);
 
     _pReadRegisters->addAllErrors();
 
