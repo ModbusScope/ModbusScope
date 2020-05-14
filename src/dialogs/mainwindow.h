@@ -5,11 +5,8 @@
 #include <QListWidgetItem>
 #include <QButtonGroup>
 #include <QTimer>
+#include <QLabel>
 #include <QMenu>
-
-#include "legend.h"
-#include "projectfileparser.h"
-
 
 namespace Ui {
 class MainWindow;
@@ -32,6 +29,7 @@ class GraphView;
 class MarkerInfo;
 class DataFileHandler;
 class ProjectFileHandler;
+class Legend;
 
 class MainWindow : public QMainWindow
 {
