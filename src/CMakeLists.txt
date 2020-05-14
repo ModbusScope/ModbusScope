@@ -107,7 +107,7 @@ if(WIN32)
 endif()
 
 add_library (${SCOPESOURCE} ${SRCS} ${UIS})
-add_executable(${PROJECT_NAME} ${GUI_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/resources/resource.qrc ${CMAKE_CURRENT_SOURCE_DIR}/resources/app_icon.rc)
+add_executable(${PROJECT_NAME} ${GUI_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../resources/resource.qrc ${CMAKE_CURRENT_SOURCE_DIR}/../resources/app_icon.rc)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     ${SCOPESOURCE}
