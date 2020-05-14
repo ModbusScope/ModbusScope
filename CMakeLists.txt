@@ -2,23 +2,20 @@ cmake_minimum_required(VERSION 3.5)
 
 project(ModbusScopeProject)
 
+set(SCOPESOURCE ScopeSource)
+
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-set(SCOPESOURCE ScopeSource)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Qt5 COMPONENTS
-    Core
-    Gui
     Widgets
     Xml
-    PrintSupport
     Network
     SerialBus
 
@@ -26,8 +23,6 @@ find_package(Qt5 COMPONENTS
 )
 
 set(QT_INCLUDES
-    ${Qt5Core_INCLUDE_DIRS}
-    ${Qt5Gui_INCLUDE_DIRS}
     ${Qt5Widgets_INCLUDE_DIRS}
     ${Qt5Xml_INCLUDE_DIRS}
     ${Qt5Network_INCLUDE_DIRS}
@@ -35,11 +30,8 @@ set(QT_INCLUDES
 )
 
 set(QT_LIB
-    Qt5::Core
-    Qt5::Gui
     Qt5::Widgets
     Qt5::Xml
-    Qt5::PrintSupport
     Qt5::Network
     Qt5::SerialBus
 )
