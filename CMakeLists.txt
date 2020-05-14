@@ -44,16 +44,22 @@ set(QT_LIB
     Qt5::SerialBus
 )
 
+
 include_directories(
+    ${QT_INCLUDES}
+
     ${CMAKE_CURRENT_SOURCE_DIR}/src/communication
     ${CMAKE_CURRENT_SOURCE_DIR}/src/customwidgets
     ${CMAKE_CURRENT_SOURCE_DIR}/src/dialogs
     ${CMAKE_CURRENT_SOURCE_DIR}/src/graphview
     ${CMAKE_CURRENT_SOURCE_DIR}/src/importexport
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/libraries/qcustomplot
     ${CMAKE_CURRENT_SOURCE_DIR}/src/models
     ${CMAKE_CURRENT_SOURCE_DIR}/src/util
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/libraries/qcustomplot
 )
 
+
+add_subdirectory(libraries)
 add_subdirectory(src)
 add_subdirectory(tests)
