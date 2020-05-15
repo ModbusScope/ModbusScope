@@ -64,7 +64,6 @@ SET(SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/importexport/projectfilehandler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/importexport/projectfileparser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/importexport/settingsauto.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/libraries/qcustomplot/qcustomplot.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/dataparsermodel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/errorlog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/errorlogfilter.cpp
@@ -95,9 +94,8 @@ SET(UIS
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/registerdialog.ui
 )
 
-include_directories(
-    ${QT_INCLUDES}
-)
+add_library (${SCOPESOURCE} ${SRCS} ${UIS})
+
 
 # Default GUI type is blank
 set(GUI_TYPE "")
@@ -106,8 +104,9 @@ if(WIN32)
     set(GUI_TYPE WIN32)
 endif()
 
-add_library (${SCOPESOURCE} ${SRCS} ${UIS})
-add_executable(${PROJECT_NAME} ${GUI_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/resources/resource.qrc ${CMAKE_CURRENT_SOURCE_DIR}/resources/app_icon.rc)
+target_link_libraries(${SCOPESOURCE} qcustomplot)
+
+add_executable(${PROJECT_NAME} ${GUI_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../resources/resource.qrc ${CMAKE_CURRENT_SOURCE_DIR}/../resources/app_icon.rc)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     ${SCOPESOURCE}
