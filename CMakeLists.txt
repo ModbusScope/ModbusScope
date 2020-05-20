@@ -49,6 +49,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/util
 
     ${CMAKE_CURRENT_SOURCE_DIR}/libraries/qcustomplot
+    ${CMAKE_CURRENT_SOURCE_DIR}/libraries/muparser/include
 )
 
 
