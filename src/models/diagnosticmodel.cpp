@@ -107,7 +107,7 @@ qint32 DiagnosticModel::size() const
  */
 void DiagnosticModel::clear()
 {
-    beginRemoveRows(QModelIndex(), 0, size());
+    beginRemoveRows(QModelIndex(), 0, size() - 1);
 
     _logList.clear();
 
