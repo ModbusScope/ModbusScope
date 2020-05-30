@@ -20,7 +20,7 @@ private:
 
     void reset();
 
-    mu::Parser* _pExprParser;
+    mu::ParserBase* _pExprParser;
 
     bool _bSuccess;
     double _result;

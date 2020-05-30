@@ -1,9 +1,10 @@
 #include "qmuparser.h"
 
+#include "muParserInt.h"
 
 QMuParser::QMuParser(QString strExpression)
 {
-    _pExprParser = new mu::Parser();
+    _pExprParser = new mu::ParserInt();
     _pExprParser->SetExpr(strExpression.toStdString());
 
     reset();
