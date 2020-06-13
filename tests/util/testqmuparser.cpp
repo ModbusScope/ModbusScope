@@ -60,13 +60,15 @@ void TestQMuParser::evaluate_data()
     ADD_TEST("15.6 + 5.5",      21.1   );
     ADD_TEST("15.6 - 5.5",      10.1   );
     ADD_TEST("3.33 * 3",        9.99   );
-    ADD_TEST("9.5 % 4",         1.5    );
 
-    /* Floating point with binary operations: comma part is removed and ignored */
-    ADD_TEST("15.5 | 0xFF",     15  );
+    /* Floating point with binary/integer operations: comma part is removed and ignored */
+    ADD_TEST("15.5 | 0xF",     15  );
     ADD_TEST("16.5 & 0x10",     16  );
     ADD_TEST("1.3 << 3",        8    );
     ADD_TEST("8.6 >> 3",        1    );
+
+    ADD_TEST("9.5 % 4",         1    );
+
 }
 
 void TestQMuParser::evaluate()

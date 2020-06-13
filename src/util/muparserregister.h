@@ -58,6 +58,15 @@ namespace mu
 
         protected:
 
+            static int64_t ConvertToInteger(value_type v) { return (int64_t)(floor(v)); };
+
+            static value_type Shr(value_type v1, value_type v2);
+            static value_type Shl(value_type v1, value_type v2);
+            static value_type LogAnd(value_type v1, value_type v2);
+            static value_type LogOr(value_type v1, value_type v2);
+            static value_type Not(value_type v1);
+            static value_type  Mod(value_type v1, value_type v2);
+
             static int IsVal(const char_type* a_szExpr, int* a_iPos, value_type* a_fVal);
             static int IsHexVal(const char_type* a_szExpr, int* a_iPos, value_type* a_iVal);
 

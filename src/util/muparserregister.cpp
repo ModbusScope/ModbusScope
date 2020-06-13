@@ -30,6 +30,7 @@
 
 //--- Standard includes ------------------------------------------------------------------------
 #include <cmath>
+#include <math.h>       /* floor */
 #include <algorithm>
 #include <numeric>
 
@@ -44,6 +45,13 @@ using namespace std;
 /** \brief Namespace for mathematical applications. */
 namespace mu
 {
+
+    value_type ParserRegister::Shr(value_type v1, value_type v2) { return ConvertToInteger(v1) >> ConvertToInteger(v2); }
+    value_type ParserRegister::Shl(value_type v1, value_type v2) { return ConvertToInteger(v1) << ConvertToInteger(v2); }
+    value_type ParserRegister::LogAnd(value_type v1, value_type v2) { return ConvertToInteger(v1) & ConvertToInteger(v2); }
+    value_type ParserRegister::LogOr(value_type v1, value_type v2) { return ConvertToInteger(v1) | ConvertToInteger(v2); }
+    value_type ParserRegister::Not(value_type v) { return !ConvertToInteger(v); }
+    value_type ParserRegister::Mod(value_type v1, value_type v2) { return ConvertToInteger(v1) % ConvertToInteger(v2); }
 
     //---------------------------------------------------------------------------
     /** \brief Default value recognition callback.
@@ -164,6 +172,18 @@ namespace mu
 	*/
 	void ParserRegister::InitOprt()
 	{
+        DefineInfixOprt(_T("-"), MathImpl<value_type>::UnaryMinus);
+        DefineInfixOprt(_T("+"), MathImpl<value_type>::UnaryPlus);
+
+        DefineInfixOprt(_T("!"), Not);
+
+        DefineOprt(_T("&"), LogAnd, prLOGIC);
+        DefineOprt(_T("|"), LogOr, prLOGIC);
+
+        DefineOprt(_T(">>"), Shr, prMUL_DIV + 1);
+        DefineOprt(_T("<<"), Shl, prMUL_DIV + 1);
+
+        DefineOprt(_T("%"), Mod, prMUL_DIV);
 
 	}
 
