@@ -12,6 +12,7 @@ public:
     ~QMuParser();
 
     bool evaluate();
+    bool evaluate(uint32_t regValue);
 
     bool isSuccess();
     QString msg();
@@ -22,6 +23,8 @@ private:
     void reset();
 
     mu::ParserBase* _pExprParser;
+
+    double _registerValue;
 
     bool _bSuccess;
     double _result;

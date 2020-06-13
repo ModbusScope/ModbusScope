@@ -48,7 +48,7 @@ namespace mu
 	{
 	public:
 
-            ParserRegister();
+            ParserRegister(double *pRegisterValue);
 
             virtual void InitCharSets();
             virtual void InitFun();

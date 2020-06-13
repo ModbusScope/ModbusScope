@@ -113,7 +113,7 @@ namespace mu
 
 	  Call ParserBase class constructor and trigger Function, Operator and Constant initialization.
 	*/
-	ParserRegister::ParserRegister()
+    ParserRegister::ParserRegister(double * pRegisterValue)
 		:ParserBase()
 	{
         AddValIdent(IsVal);    // lowest priority
@@ -123,6 +123,12 @@ namespace mu
 		InitFun();
 		InitConst();
 		InitOprt();
+
+        /* Register variable */
+        if (pRegisterValue != nullptr)
+        {
+            DefineVar("REG", pRegisterValue);
+        }
 	}
 
 	//---------------------------------------------------------------------------

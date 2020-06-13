@@ -7,6 +7,8 @@
 
 #define ADD_TEST(expr, result)      QTest::newRow(expr) << QString(expr) << static_cast<double>(result)
 
+#define ADD_REG_TEST(expr, registerValue, result)      QTest::newRow(expr) << QString(expr) << static_cast<quint32>(registerValue) << static_cast<double>(result)
+
 void TestQMuParser::init()
 {
 
@@ -84,5 +86,36 @@ void TestQMuParser::evaluate()
     QVERIFY(parser.isSuccess());
     QVERIFY(bSuccess);
 }
+
+void TestQMuParser::evaluateRegister_data()
+{
+    QTest::addColumn<QString>("expression");
+    QTest::addColumn<quint32>("registerValue");
+    QTest::addColumn<double>("result");
+
+
+    ADD_REG_TEST("REG",           2,        2    );
+    ADD_REG_TEST("REG + 2",       3,        5    );
+    ADD_REG_TEST("REG * 2",       4,        8    );
+    ADD_REG_TEST("REG / 1000",    5,        0.005);
+    ADD_REG_TEST("REG & 0xFF",    257,      1);
+
+}
+
+void TestQMuParser::evaluateRegister()
+{
+    QFETCH(QString, expression);
+    QFETCH(quint32, registerValue);
+    QFETCH(double, result);
+
+    QMuParser parser(expression);
+
+    bool bSuccess = parser.evaluate(registerValue);
+
+    QCOMPARE(parser.result(), result);
+    QVERIFY(parser.isSuccess());
+    QVERIFY(bSuccess);
+}
+
 
 QTEST_GUILESS_MAIN(TestQMuParser)

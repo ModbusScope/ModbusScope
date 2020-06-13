@@ -6,7 +6,8 @@
 
 QMuParser::QMuParser(QString strExpression)
 {
-    _pExprParser = new mu::ParserRegister();
+    _registerValue = 0;
+    _pExprParser = new mu::ParserRegister(&_registerValue);
     _pExprParser->SetExpr(strExpression.toStdString());
 
     reset();
@@ -19,7 +20,15 @@ QMuParser::~QMuParser()
 
 bool QMuParser::evaluate()
 {
+    return evaluate(0);
+}
+
+bool QMuParser::evaluate(uint32_t regValue)
+{
     reset();
+
+    /* Set value to be used for REG variable */
+    _registerValue = regValue;
 
     try
     {
