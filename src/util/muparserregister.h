@@ -59,6 +59,7 @@ namespace mu
         protected:
 
             static int IsVal(const char_type* a_szExpr, int* a_iPos, value_type* a_fVal);
+            static int IsHexVal(const char_type* a_szExpr, int* a_iPos, value_type* a_iVal);
 
 	};
 } // namespace mu

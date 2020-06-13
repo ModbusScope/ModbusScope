@@ -70,6 +70,36 @@ namespace mu
         return 1;
     }
 
+    /** \brief Check a given position in the expression for the presence of
+               a hex value.
+        \param a_szExpr Pointer to the expression string
+        \param [in/out] a_iPos Pointer to an integer value holding the current parsing
+               position in the expression.
+        \param [out] a_fVal Pointer to the position where the detected value shall be stored.
+
+      Hey values must be prefixed with "0x" in order to be detected properly.
+    */
+    int ParserRegister::IsHexVal(const char_type* a_szExpr, int* a_iPos, value_type* a_fVal)
+    {
+        if (a_szExpr[1] == 0 || (a_szExpr[0] != '0' || a_szExpr[1] != 'x'))
+            return 0;
+
+        unsigned iVal(0);
+
+        // New code based on streams for UNICODE compliance:
+        stringstream_type::pos_type nPos(0);
+        stringstream_type ss(a_szExpr + 2);
+        ss >> std::hex >> iVal;
+        nPos = ss.tellg();
+
+        if (nPos == (stringstream_type::pos_type)0)
+            return 1;
+
+        *a_iPos += (int)(2 + nPos);
+        *a_fVal = (value_type)iVal;
+        return 1;
+    }
+
 	//---------------------------------------------------------------------------
 	/** \brief Constructor.
 
@@ -78,7 +108,8 @@ namespace mu
 	ParserRegister::ParserRegister()
 		:ParserBase()
 	{
-        AddValIdent(IsVal);
+        AddValIdent(IsVal);    // lowest priority
+        AddValIdent(IsHexVal); // highest priority
 
 		InitCharSets();
 		InitFun();
