@@ -76,6 +76,7 @@ SET(SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/models/note.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/notemodel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/settingsmodel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/util/muparserregister.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/util/qmuparser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/util/scopelogging.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/util/updatenotify.cpp

@@ -13,6 +13,7 @@ public:
 
     bool evaluate();
 
+    bool isSuccess();
     QString msg();
     double result();
 

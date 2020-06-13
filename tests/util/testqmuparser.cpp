@@ -51,21 +51,22 @@ void TestQMuParser::evaluate_data()
     ADD_TEST("0xff*10",         2550 );
     ADD_TEST("10+0xff+1",       266  );
     ADD_TEST("1+0xff+10",       266  );
+    ADD_TEST("0x12345678",      305419896  );
+    ADD_TEST("0xABCDEF",        11259375  );
 
-    /* Decision logic */
-    ADD_TEST("0 || 2",          1    );
-    ADD_TEST("0 || 0",          0    );
-    ADD_TEST("1 && 0",          0    );
-    ADD_TEST("1 && 123",        1    );
-    ADD_TEST("2 < 3",           1    );
-    ADD_TEST("3 > 2",           1    );
-    ADD_TEST("0 <= 1",          1    );
-    ADD_TEST("3 >= 2",          1    );
-    ADD_TEST("1 != 0",          1    );
-    ADD_TEST("1 == 1",          1    );
-    ADD_TEST("if(5%2,1,0)",     1    );
-    ADD_TEST("if(4%2,1,0)",     0    );
+    /* Floating point */
+    ADD_TEST("15 / 4",          3.75   );
+    ADD_TEST("1 / 1000",        0.001  );
+    ADD_TEST("15.6 + 5.5",      21.1   );
+    ADD_TEST("15.6 - 5.5",      10.1   );
+    ADD_TEST("3.33 * 3",        9.99   );
+    ADD_TEST("9.5 % 4",         1.5    );
 
+    /* Floating point with binary operations: comma part is removed and ignored */
+    ADD_TEST("15.5 | 0xFF",     15  );
+    ADD_TEST("16.5 & 0x10",     16  );
+    ADD_TEST("1.3 << 3",        8    );
+    ADD_TEST("8.6 >> 3",        1    );
 }
 
 void TestQMuParser::evaluate()
@@ -78,6 +79,7 @@ void TestQMuParser::evaluate()
     parser.evaluate();
 
     QCOMPARE(parser.result(), result);
+    QVERIFY(parser.isSuccess());
 }
 
 QTEST_GUILESS_MAIN(TestQMuParser)

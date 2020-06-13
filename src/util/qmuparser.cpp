@@ -1,10 +1,12 @@
-#include "qmuparser.h"
 
-#include "muParserInt.h"
+#include "qmuparser.h"
+#include "muparserregister.h"
+
+#include "muParser.h"
 
 QMuParser::QMuParser(QString strExpression)
 {
-    _pExprParser = new mu::ParserInt();
+    _pExprParser = new mu::ParserRegister();
     _pExprParser->SetExpr(strExpression.toStdString());
 
     reset();
@@ -45,6 +47,11 @@ QString QMuParser::msg()
 double QMuParser::result()
 {
     return _result;
+}
+
+bool QMuParser::isSuccess()
+{
+    return _bSuccess;
 }
 
 void QMuParser::reset()
