@@ -15,6 +15,8 @@ private slots:
     void evaluateRegister_data();
     void evaluateRegister();
 
+    void evaluateFaults();
+
 private:
 
 
