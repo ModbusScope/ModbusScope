@@ -1,4 +1,4 @@
-# v2.1.0 (xx/xx/2020)
+# v2.1.0 (15/06/2020)
 
 ## Defects
 * Fix tooltip
@@ -7,6 +7,8 @@
 * Add support for 32 bit registers (#129)
 * Add support for persistent connection (default on) (#18)
 * Minimize scale dock
+* Disable bit mask for signed numbers
+* Rework logging to be able improve logging in the future
 
 # v2.0.0 (03/03/2020)
 
