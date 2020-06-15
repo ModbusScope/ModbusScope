@@ -28,7 +28,7 @@ install:
   - sudo apt -qq install qt514-meta-minimal qt514serialbus
   
   # Setup Qt env
-  - source /opt/qt512/bin/qt514-env.sh
+  - source /opt/qt514/bin/qt514-env.sh
 
 addons:
   coverity_scan:
