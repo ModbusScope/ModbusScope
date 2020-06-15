@@ -17,7 +17,7 @@ ProjectFileHandler::ProjectFileHandler(GuiModel* pGuiModel, SettingsModel* pSett
 void ProjectFileHandler::loadProjectFile(QString projectFilePath)
 {
     ProjectFileParser fileParser;
-    ProjectFileParser::ProjectSettings loadedSettings;
+    ProjectFileData::ProjectSettings loadedSettings;
     QFile file(projectFilePath);
 
     /* If we can't open it, let's show an error message. */
@@ -82,7 +82,7 @@ void ProjectFileHandler::reloadProjectFile()
     this->loadProjectFile(_pGuiModel->projectFilePath());
 }
 
-void ProjectFileHandler::updateConnectionSetting(ProjectFileParser::ProjectSettings * pProjectSettings)
+void ProjectFileHandler::updateConnectionSetting(ProjectFileData::ProjectSettings * pProjectSettings)
 {
     const int connCnt = pProjectSettings->general.connectionSettings.size();
 

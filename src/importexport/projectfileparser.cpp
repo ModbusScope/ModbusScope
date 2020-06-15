@@ -4,6 +4,16 @@
 #include "projectfileparser.h"
 #include "projectfiledefinitions.h"
 
+using ProjectFileData::ProjectSettings;
+using ProjectFileData::ConnectionSettings;
+using ProjectFileData::LogSettings;
+using ProjectFileData::ScopeSettings;
+using ProjectFileData::RegisterSettings;
+using ProjectFileData::ViewSettings;
+using ProjectFileData::ScaleSettings;
+using ProjectFileData::GeneralSettings;
+
+
 ProjectFileParser::ProjectFileParser()
 {
 
