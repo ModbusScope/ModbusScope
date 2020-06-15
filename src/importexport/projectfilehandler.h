@@ -27,7 +27,7 @@ public slots:
 
 private:
 
-    void updateConnectionSetting(ProjectFileData::ProjectSettings *pProjectSettings);
+    void updateProjectSetting(ProjectFileData::ProjectSettings *pProjectSettings);
 
     GuiModel* _pGuiModel;
     SettingsModel* _pSettingsModel;

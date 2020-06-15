@@ -25,7 +25,7 @@ void ProjectFileHandler::loadProjectFile(QString projectFilePath)
     {
         if (fileParser.parseFile(&file, &loadedSettings))
         {
-            this->updateConnectionSetting(&loadedSettings);
+            this->updateProjectSetting(&loadedSettings);
 
             _pGuiModel->setProjectFilePath(projectFilePath);
             _pGuiModel->setGuiState(GuiModel::STOPPED);
@@ -82,7 +82,7 @@ void ProjectFileHandler::reloadProjectFile()
     this->loadProjectFile(_pGuiModel->projectFilePath());
 }
 
-void ProjectFileHandler::updateConnectionSetting(ProjectFileData::ProjectSettings * pProjectSettings)
+void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings * pProjectSettings)
 {
     const int connCnt = pProjectSettings->general.connectionSettings.size();
 
