@@ -1,17 +1,19 @@
 # ModbusScope release checklist
 
-## General
+## Release
 
-* Determine version number
-
-## Code
-
-* Update version number of application (`src/CMakeLists.txt`)
+* Check version (`src/CMakeLists.txt`)
 * Update version in installer (`installer/modbusscope_installer.iss`)
 * Update RELEASE_NOTES.md with changes and release date
-* Change *DEBUG* to *NDEBUG* (`src/CMakeLists.txt`)
+* Github
 
-## Github
+* * Close all implemented issues
+  * Close milestone on 
 
-* Close all implemented issues
-* Close milestone
+## After release
+
+* Determine next version number
+* Update version number test
+  * Required because mocking static (`Util::currentVersion`) function doesn't work
+* Update version number of application (`src/CMakeLists.txt`)
+* Reset *NDEBUG* to *DEBUG* (`src/CMakeLists.txt`)
