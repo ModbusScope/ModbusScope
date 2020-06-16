@@ -18,12 +18,12 @@ using namespace testing;
 // Configured to fixed version 2.1.0
 /* TODO: Mock Util::GetVersion */
 
-const QString TestUpdateNotify::_cVersionLowerRevision = QString("2.1.0");
-const QString TestUpdateNotify::_cVersionLowerMinor = QString("2.0.0");
+const QString TestUpdateNotify::_cVersionLowerRevision = QString("2.2.0");
+const QString TestUpdateNotify::_cVersionLowerMinor = QString("2.1.0");
 const QString TestUpdateNotify::_cVersionLowerMajor = QString("1.1.0");
 
-const QString TestUpdateNotify::_cVersionHigherRevision = QString("2.1.1");
-const QString TestUpdateNotify::_cVersionHigherMinor = QString("2.2.0");
+const QString TestUpdateNotify::_cVersionHigherRevision = QString("2.2.1");
+const QString TestUpdateNotify::_cVersionHigherMinor = QString("2.3.0");
 const QString TestUpdateNotify::_cVersionHigherMajor = QString("3.1.0");
 
 void TestUpdateNotify::init()
