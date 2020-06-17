@@ -185,13 +185,14 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
         rowData.setUnsigned(pProjectSettings->scope.registerList[i].bUnsigned);
         rowData.setBit32(pProjectSettings->scope.registerList[i].b32Bit);
         rowData.setRegisterAddress(pProjectSettings->scope.registerList[i].address);
-        rowData.setBitmask(pProjectSettings->scope.registerList[i].bitmask);
         rowData.setLabel(pProjectSettings->scope.registerList[i].text);
+        rowData.setColor(pProjectSettings->scope.registerList[i].color);
+        rowData.setConnectionId(pProjectSettings->scope.registerList[i].connectionId);
+
+        rowData.setBitmask(pProjectSettings->scope.registerList[i].bitmask);
         rowData.setDivideFactor(pProjectSettings->scope.registerList[i].divideFactor);
         rowData.setMultiplyFactor(pProjectSettings->scope.registerList[i].multiplyFactor);
-        rowData.setColor(pProjectSettings->scope.registerList[i].color);
         rowData.setShift(pProjectSettings->scope.registerList[i].shift);
-        rowData.setConnectionId(pProjectSettings->scope.registerList[i].connectionId);
 
         _pGraphDataModel->add(rowData);
     }

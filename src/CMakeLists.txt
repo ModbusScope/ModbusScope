@@ -64,6 +64,7 @@ SET(SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/importexport/projectfilehandler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/importexport/projectfileparser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/importexport/settingsauto.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/importexport/updateregisteroperations.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/dataparsermodel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/diagnostic.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/diagnosticfilter.cpp

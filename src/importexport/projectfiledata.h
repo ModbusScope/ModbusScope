@@ -1,6 +1,9 @@
 #ifndef PROJECTFILEDATA
 #define PROJECTFILEDATA
 
+#include <QColor>
+#include <QList>
+
 namespace ProjectFileData
 {
     typedef struct _RegisterSettings
