@@ -13,10 +13,7 @@ namespace {
         REGISTER,
         BIT32,
         TEXT,
-        BITMASK,
-        SHIFT,
-        MULTIPLY,
-        DIVIDE,
+        EXPRESSION,
         CONNECTION_ID,
 
         COUNT
@@ -35,11 +32,8 @@ GraphDataModel::GraphDataModel(SettingsModel * pSettingsModel, QObject *parent) 
     connect(this, SIGNAL(activeChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(unsignedChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(bit32Changed(quint32)), this, SLOT(modelDataChanged(quint32)));
-    connect(this, SIGNAL(multiplyFactorChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
-    connect(this, SIGNAL(divideFactorChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
+    connect(this, SIGNAL(expressionChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(registerAddressChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
-    connect(this, SIGNAL(bitmaskChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
-    connect(this, SIGNAL(shiftChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
     connect(this, SIGNAL(connectionIdChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
 
     connect(this, SIGNAL(added(quint32)), this, SLOT(modelDataChanged()));
@@ -117,29 +111,10 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
             return label(index.row());
         }
         break;
-    case column::BITMASK:
+    case column::EXPRESSION:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            // Show hex value
-            return QString("0x%1").arg(bitmask(index.row()), 0, 16);
-        }
-        break;
-    case column::SHIFT:
-        if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
-        {
-            return shift(index.row());
-        }
-        break;
-    case column::MULTIPLY:
-        if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
-        {
-            return Util::formatDoubleForExport(multiplyFactor(index.row()));
-        }
-        break;
-    case column::DIVIDE:
-        if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
-        {
-            return Util::formatDoubleForExport(divideFactor(index.row()));
+            return expression(index.row());
         }
         break;
     case column::CONNECTION_ID:
@@ -177,14 +152,8 @@ QVariant GraphDataModel::headerData(int section, Qt::Orientation orientation, in
                 return QString("32 bit");
             case column::TEXT:
                 return QString("Text");
-            case column::BITMASK:
-                return QString("Bitmask");
-            case column::SHIFT:
-                return QString("Shift");
-            case column::MULTIPLY:
-                return QString("Multiply");
-            case column::DIVIDE:
-                return QString("Divide");
+            case column::EXPRESSION:
+                return QString("Expression");
             case column::CONNECTION_ID:
                 return QString("Connection");
             default:
@@ -291,78 +260,19 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             setLabel(index.row(), value.toString());
         }
         break;
-    case column::BITMASK:
+    case column::EXPRESSION:
         if (role == Qt::EditRole)
         {
-            bool bSuccess = false;
-            const quint32 newBitMask = value.toString().toUInt(&bSuccess, 0);
+            QString newExpr = value.toString();
 
-            if (bSuccess)
+            if (newExpr.contains(QStringLiteral("reg"), Qt::CaseInsensitive))
             {
-                setBitmask(index.row(), newBitMask);
+                setExpression(index.row(), newExpr);
             }
             else
             {
                 bRet = false;
-                Util::showError(tr("Bitmask is not a valid integer."));
-            }
-        }
-        break;
-    case column::SHIFT:
-        if (role == Qt::EditRole)
-        {
-            bool bSuccess = false;
-            const qint32 newShift = value.toString().toInt(&bSuccess);
-
-            if (
-                    (bSuccess)
-                    &&
-                    (
-                        (newShift > -32)
-                        && (newShift < 32)
-                    )
-                )
-            {
-                setShift(index.row(), newShift);
-            }
-            else
-            {
-                bRet = false;
-                Util::showError(tr("Shift is not a valid integer between -32 and 32."));
-                break;
-            }
-        }
-        break;
-    case column::MULTIPLY:
-        if (role == Qt::EditRole)
-        {
-            bool bSuccess = false;
-            const double parseResult = QLocale::system().toDouble(value.toString(), &bSuccess);
-            if (bSuccess)
-            {
-                setMultiplyFactor(index.row(), parseResult);
-            }
-            else
-            {
-                bRet = false;
-                Util::showError(tr("Multiply factor is not a valid double. Did you use correct decimal separator character? Expecting \"%1\"").arg(QLocale::system().decimalPoint()));
-                break;
-            }
-        }
-        break;
-    case column::DIVIDE:
-        if (role == Qt::EditRole)
-        {
-            bool bSuccess = false;
-            const double parseResult = QLocale::system().toDouble(value.toString(), &bSuccess);
-            if (bSuccess)
-            {
-                setDivideFactor(index.row(), parseResult);
-            }
-            else
-            {
-                bRet = false;
-                Util::showError(tr("Divide factor is not a valid double. Did you use correct decimal separator character? Expecting \"%1\"").arg(QLocale::system().decimalPoint()));
+                Util::showError(tr("Every expression should contain the \"REG\" variable"));
                 break;
             }
         }
@@ -515,29 +425,14 @@ bool GraphDataModel::isBit32(quint32 index) const
     return _graphData[index].isBit32();
 }
 
-double GraphDataModel::multiplyFactor(quint32 index) const
+QString GraphDataModel::expression(quint32 index) const
 {
-    return _graphData[index].multiplyFactor();
-}
-
-double GraphDataModel::divideFactor(quint32 index) const
-{
-    return _graphData[index].divideFactor();
+    return _graphData[index].expression();
 }
 
 quint16 GraphDataModel::registerAddress(quint32 index) const
 {
     return _graphData[index].registerAddress();
-}
-
-quint32 GraphDataModel::bitmask(quint32 index) const
-{
-    return _graphData[index].bitmask();
-}
-
-qint32 GraphDataModel::shift(quint32 index) const
-{
-    return _graphData[index].shift();
 }
 
 quint8 GraphDataModel::connectionId(quint8 index) const
@@ -619,21 +514,15 @@ void GraphDataModel::setBit32(quint32 index, bool b32Bit)
     }
 }
 
-void GraphDataModel::setMultiplyFactor(quint32 index, double multiplyFactor)
+void GraphDataModel::setExpression(quint32 index, QString expression)
 {
-    if (_graphData[index].multiplyFactor() != multiplyFactor)
+    if (_graphData[index].expression() != expression)
     {
-         _graphData[index].setMultiplyFactor(multiplyFactor);
-         emit multiplyFactorChanged(index);
-    }
-}
+        /* Change "reg" in all cases to "REG" */
+        QString newExpr = expression.replace(QStringLiteral("reg"), QStringLiteral("REG"), Qt::CaseInsensitive);
 
-void GraphDataModel::setDivideFactor(quint32 index, double divideFactor)
-{
-    if (_graphData[index].divideFactor() != divideFactor)
-    {
-         _graphData[index].setDivideFactor(divideFactor);
-         emit divideFactorChanged(index);
+         _graphData[index].setExpression(expression);
+         emit expressionChanged(index);
     }
 }
 
@@ -643,24 +532,6 @@ void GraphDataModel::setRegisterAddress(quint32 index, const quint16 &registerAd
     {
          _graphData[index].setRegisterAddress(registerAddress);
          emit registerAddressChanged(index);
-    }
-}
-
-void GraphDataModel::setBitmask(quint32 index, const quint32 &bitmask)
-{
-    if (_graphData[index].bitmask() != bitmask)
-    {
-         _graphData[index].setBitmask(bitmask);
-         emit bitmaskChanged(index);
-    }
-}
-
-void GraphDataModel::setShift(quint32 index, const qint32 &shift)
-{
-    if (_graphData[index].shift() != shift)
-    {
-         _graphData[index].setShift(shift);
-         emit shiftChanged(index);
     }
 }
 
@@ -746,7 +617,7 @@ void GraphDataModel::activeGraphIndexList(QList<quint16> * pList)
     qSort(*pList);
 }
 
-bool GraphDataModel::getDuplicate(quint16 * pRegister, quint32 * pBitmask, quint8 * pConnectionId)
+bool GraphDataModel::getDuplicate(quint16 * pRegister, QString* pExpression, quint8 * pConnectionId)
 {
     for (qint32 idx = 0; idx < (_graphData.size() - 1); idx++) // Don't need to check last entry
     {
@@ -754,12 +625,12 @@ bool GraphDataModel::getDuplicate(quint16 * pRegister, quint32 * pBitmask, quint
         {
             if (
                 (_graphData[idx].registerAddress() == _graphData[checkIdx].registerAddress())
-                && (_graphData[idx].bitmask() == _graphData[checkIdx].bitmask())
+                && (_graphData[idx].expression() == _graphData[checkIdx].expression())
                 && (_graphData[idx].connectionId() == _graphData[checkIdx].connectionId())
             )
             {
                 *pRegister = _graphData[idx].registerAddress();
-                *pBitmask = _graphData[idx].bitmask();
+                *pExpression = _graphData[idx].expression();
                 *pConnectionId = _graphData[idx].connectionId();
                 return false;
             }
@@ -769,13 +640,13 @@ bool GraphDataModel::getDuplicate(quint16 * pRegister, quint32 * pBitmask, quint
     return true;
 }
 
-bool GraphDataModel::isPresent(quint16 addr, quint32 bitmask)
+bool GraphDataModel::isPresent(quint16 addr, QString* pExpression)
 {
     for (qint32 idx = 0; idx < _graphData.size(); idx++)
     {
         if (
             (_graphData[idx].registerAddress() == addr)
-            && (_graphData[idx].bitmask() == bitmask)
+            && (_graphData[idx].expression() == pExpression)
         )
         {
             return true;

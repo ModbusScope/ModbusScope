@@ -30,20 +30,11 @@ public:
     bool isBit32() const;
     void setBit32(bool isBit32);
 
-    double multiplyFactor() const;
-    void setMultiplyFactor(double multiplyFactor);
-
-    double divideFactor() const;
-    void setDivideFactor(double divideFactor);
+    QString expression() const;
+    void setExpression(QString expression);
 
     quint16 registerAddress() const;
     void setRegisterAddress(const quint16 &registerAddress);
-
-    quint32 bitmask() const;
-    void setBitmask(const quint32 &bitmask);
-
-    qint32 shift() const;
-    void setShift(const qint32 &shift);
 
     quint8 connectionId() const;
     void setConnectionId(const quint8 &connectionId);
@@ -59,12 +50,10 @@ private:
     bool _bActive;
     bool _bUnsigned;
     bool _bit32;
-    double _multiplyFactor;
-    double _divideFactor;
     quint16 _registerAddress;
-    quint32 _bitmask;
-    qint32 _shift;
     quint8 _connectionId;
+
+    QString _expression;
 
     QSharedPointer<QCPGraphDataContainer> _pDataMap;
 

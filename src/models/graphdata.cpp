@@ -88,24 +88,14 @@ void GraphData::setBit32(bool isBit32)
     _bit32 = isBit32;
 }
 
-double GraphData::multiplyFactor() const
+QString GraphData::expression() const
 {
-    return _multiplyFactor;
+    return _expression;
 }
 
-void GraphData::setMultiplyFactor(double multiplyFactor)
+void GraphData::setExpression(QString expression)
 {
-    _multiplyFactor = multiplyFactor;
-}
-
-double GraphData::divideFactor() const
-{
-    return _divideFactor;
-}
-
-void GraphData::setDivideFactor(double divideFactor)
-{
-    _divideFactor = divideFactor;
+    _expression = expression;
 }
 
 quint16 GraphData::registerAddress() const
@@ -116,26 +106,6 @@ quint16 GraphData::registerAddress() const
 void GraphData::setRegisterAddress(const quint16 &registerAddress)
 {
     _registerAddress = registerAddress;
-}
-
-quint32 GraphData::bitmask() const
-{
-    return _bitmask;
-}
-
-void GraphData::setBitmask(const quint32 &bitmask)
-{
-    _bitmask = bitmask;
-}
-
-qint32 GraphData::shift() const
-{
-    return _shift;
-}
-
-void GraphData::setShift(const qint32 &shift)
-{
-    _shift = shift;
 }
 
 quint8 GraphData::connectionId() const

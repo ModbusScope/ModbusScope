@@ -36,11 +36,8 @@ public:
     bool isActive(quint32 index) const;
     bool isUnsigned(quint32 index) const;
     bool isBit32(quint32 index) const;
-    double multiplyFactor(quint32 index) const;
-    double divideFactor(quint32 index) const;
+    QString expression(quint32 index) const;
     quint16 registerAddress(quint32 index) const;
-    quint32 bitmask(quint32 index) const;
-    qint32 shift(quint32 index) const;
     quint8 connectionId(quint8 index) const;
     QSharedPointer<QCPGraphDataContainer> dataMap(quint32 index);
 
@@ -50,11 +47,8 @@ public:
     void setActive(quint32 index, bool bActive);
     void setUnsigned(quint32 index, bool bUnsigned);
     void setBit32(quint32 index, bool b32Bit);
-    void setMultiplyFactor(quint32 index, double multiplyFactor);
-    void setDivideFactor(quint32 index, double divideFactor);
+    void setExpression(quint32 index, QString expression);
     void setRegisterAddress(quint32 index, const quint16 &registerAddress);
-    void setBitmask(quint32 index, const quint32 &bitmask);
-    void setShift(quint32 index, const qint32 &shift);
     void setConnectionId(quint32 index, const quint8 &connectionId);
 
     void add(GraphData rowData);
@@ -67,8 +61,8 @@ public:
 
     void activeGraphIndexList(QList<quint16> * pList);
 
-    bool getDuplicate(quint16 * pRegister, quint32 *pBitmask, quint8 * pConnectionId);
-    virtual bool isPresent(quint16 addr, quint32 bitmask);
+    bool getDuplicate(quint16 * pRegister, QString* pExpression, quint8 * pConnectionId);
+    virtual bool isPresent(quint16 addr, QString* pExpression);
 
     qint32 convertToActiveGraphIndex(quint32 graphIdx);
     qint32 convertToGraphIndex(quint32 activeIdx);
@@ -81,11 +75,8 @@ signals:
     void activeChanged(const quint32 graphIdx); // when graph is actived / deactivated
     void unsignedChanged(const quint32 graphIdx);
     void bit32Changed(const quint32 graphIdx);
-    void multiplyFactorChanged(const quint32 graphIdx);
-    void divideFactorChanged(const quint32 graphIdx);
+    void expressionChanged(const quint32 graphIdx);
     void registerAddressChanged(const quint32 graphIdx);
-    void bitmaskChanged(const quint32 graphIdx);
-    void shiftChanged(const quint32 graphIdx);
     void connectionIdChanged(const quint32 graphIdx);
     void graphsAddData(QList<double>, QList<QList<double> > data);
 
