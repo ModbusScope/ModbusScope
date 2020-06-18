@@ -20,7 +20,7 @@ namespace ProjectFileData
         double divideFactor;
         double multiplyFactor;
         quint32 bitmask;
-        quint32 shift;
+        qint32 shift;
         quint8 connectionId;
 
         bool bColor;
