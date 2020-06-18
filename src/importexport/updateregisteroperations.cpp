@@ -2,10 +2,11 @@
 #include "updateregisteroperations.h"
 
 #include <QStringLiteral>
+#include <stdlib.h>
 
 namespace UpdateRegisterOperations
 {
-    bool convert(ProjectFileData::RegisterSettings& regSettings, QString& resultExpr)
+    void convert(ProjectFileData::RegisterSettings& regSettings, QString& resultExpr)
     {
         /*
          * Bitmask
@@ -13,23 +14,76 @@ namespace UpdateRegisterOperations
          * Multiply
          * Divide
          */
+        bool defBitmask = false;
+        bool defShift = false;
+        bool defMultiply = false;
+        bool defDivide = false;
 
-        QString reg = QStringLiteral("REG");
+        if (regSettings.bitmask != defaultBitmask)
+        {
+            defBitmask = true;
+        }
 
-#if 0
-        double divideFactor;
-        double multiplyFactor;
-        quint32 bitmask;
-        quint32 shift;
+        if (regSettings.shift != defaultShift)
+        {
+            defShift = true;
+        }
 
-        divideFactor(1),
-        multiplyFactor(1)
-        bitmask(0xFFFFFFFF)
-        shift(0)
-#endif
+        if (regSettings.multiplyFactor != defaultMultiplyFactor)
+        {
+            defMultiply = true;
+        }
 
-        resultExpr = reg;
+        if (regSettings.divideFactor != defaultDivideFactor)
+        {
+            defDivide = true;
+        }
 
-        return true;
+
+
+        QString operation = QStringLiteral("REG");
+
+        if (defBitmask)
+        {
+            QString strBitmask = QString("0x%1").arg(QString::number(regSettings.bitmask, 16).toUpper());
+
+            operation = QString("%1&%2").arg(operation).arg(strBitmask);
+
+            /* Add parenthesis when other operations */
+            if (defShift | defMultiply | defDivide)
+            {
+                operation = QString("(%1)").arg(operation);
+            }
+        }
+
+        if (defShift)
+        {
+            if (regSettings.shift > 0)
+            {
+                operation = QString("%1<<%2").arg(operation).arg(regSettings.shift);
+            }
+            else
+            {
+                operation = QString("%1>>%2").arg(operation).arg(abs(regSettings.shift));
+            }
+
+            /* Add parenthesis when other operations */
+            if (defMultiply | defDivide)
+            {
+                operation = QString("(%1)").arg(operation);
+            }
+        }
+
+        if (defMultiply)
+        {
+            operation = QString("%1*%2").arg(operation).arg(regSettings.multiplyFactor);
+        }
+
+        if (defDivide)
+        {
+            operation = QString("%1/%2").arg(operation).arg(regSettings.divideFactor);
+        }
+
+        resultExpr = operation;
     }
 }

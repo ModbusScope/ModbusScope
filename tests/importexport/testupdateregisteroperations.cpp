@@ -27,16 +27,16 @@ void TestUpdateRegisterOperations::bitmask()
 {
     ProjectFileData::RegisterSettings regSettings;
 
-    regSettings.bitmask = 0x00FF;
+    regSettings.bitmask = 255;
 
-    checkOperation(regSettings, QStringLiteral("REG&0x00FF"));
+    checkOperation(regSettings, QStringLiteral("REG&0xFF"));
 }
 
 void TestUpdateRegisterOperations::shiftLeft()
 {
     ProjectFileData::RegisterSettings regSettings;
 
-    regSettings.shift = -1;
+    regSettings.shift = 1;
 
     checkOperation(regSettings, QStringLiteral("REG<<1"));
 }
@@ -45,7 +45,7 @@ void TestUpdateRegisterOperations::shiftRight()
 {
     ProjectFileData::RegisterSettings regSettings;
 
-    regSettings.shift = 1;
+    regSettings.shift = -1;
 
     checkOperation(regSettings, QStringLiteral("REG>>1"));
 }
@@ -75,7 +75,7 @@ void TestUpdateRegisterOperations::allOperations()
     regSettings.multiplyFactor = 3;
     regSettings.divideFactor = 2;
     regSettings.shift = 1;
-    regSettings.bitmask = 0xFF;
+    regSettings.bitmask = 255;
 
     checkOperation(regSettings, QStringLiteral("((REG&0xFF)<<1)*3/2"));
 }
@@ -85,9 +85,9 @@ void TestUpdateRegisterOperations::bitmaskShift()
     ProjectFileData::RegisterSettings regSettings;
 
     regSettings.shift = 2;
-    regSettings.bitmask = 0x55005500;
+    regSettings.bitmask = 21930;
 
-    checkOperation(regSettings, QStringLiteral("(REG&0x55005500)<<2"));
+    checkOperation(regSettings, QStringLiteral("(REG&0x55AA)<<2"));
 }
 
 void TestUpdateRegisterOperations::bitmaskMultiply()
@@ -95,9 +95,9 @@ void TestUpdateRegisterOperations::bitmaskMultiply()
     ProjectFileData::RegisterSettings regSettings;
 
     regSettings.multiplyFactor = 2;
-    regSettings.bitmask = 0x55005500;
+    regSettings.bitmask = 4294967040;
 
-    checkOperation(regSettings, QStringLiteral("(REG&0x55005500)*2"));
+    checkOperation(regSettings, QStringLiteral("(REG&0xFFFFFF00)*2"));
 }
 
 void TestUpdateRegisterOperations::shiftDivide()
