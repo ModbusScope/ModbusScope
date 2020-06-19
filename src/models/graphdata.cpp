@@ -11,10 +11,7 @@ GraphData::GraphData()
     _bUnsigned = true;
     _bit32 = false;
     _registerAddress = 0;
-    _bitmask = 0xFFFFFFFF;
-    _divideFactor = 1;
-    _multiplyFactor = 1;
-    _shift = 0;
+    _expression = QStringLiteral("REG");
     _connectionId = 0;
 
     _pDataMap = QSharedPointer<QCPGraphDataContainer>(new QCPGraphDataContainer);

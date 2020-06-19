@@ -150,6 +150,9 @@ double RegisterValueHandler::processValue(quint32 graphIndex, qint64 value)
 {
     double processedValue = value;
 
+    /* TODO */
+
+#if 0
     if (_pGraphDataModel->isUnsigned(graphIndex))
     {
         // Apply bitmask
@@ -179,6 +182,6 @@ double RegisterValueHandler::processValue(quint32 graphIndex, qint64 value)
 
     // Apply divideFactor
     processedValue /= _pGraphDataModel->divideFactor(graphIndex);
-
+#endif
     return processedValue;
 }

@@ -128,11 +128,8 @@ void ProjectFileExporter::createRegisterTag(QDomElement * pParentElement, qint32
     addTextNode(ProjectFileDefinitions::cTextTag, _pGraphDataModel->label(idx).toHtmlEscaped(), &registerElement);
     addTextNode(ProjectFileDefinitions::cUnsignedTag, convertBoolToText(_pGraphDataModel->isUnsigned(idx)), &registerElement);
     addTextNode(ProjectFileDefinitions::cBit32Tag, convertBoolToText(_pGraphDataModel->isBit32(idx)), &registerElement);
-    addTextNode(ProjectFileDefinitions::cMultiplyTag, Util::formatDoubleForExport(_pGraphDataModel->multiplyFactor(idx)), &registerElement);
-    addTextNode(ProjectFileDefinitions::cDivideTag, Util::formatDoubleForExport(_pGraphDataModel->divideFactor(idx)), &registerElement);
+    addTextNode(ProjectFileDefinitions::cExpressionTag, _pGraphDataModel->expression(idx), &registerElement);
     addTextNode(ProjectFileDefinitions::cColorTag, _pGraphDataModel->color(idx).name(), &registerElement);
-    addTextNode(ProjectFileDefinitions::cBitmaskTag, QString("0x%1").arg(_pGraphDataModel->bitmask(idx), 0, 16), &registerElement);
-    addTextNode(ProjectFileDefinitions::cShiftTag, QString("%1").arg(_pGraphDataModel->shift(idx)), &registerElement);
     addTextNode(ProjectFileDefinitions::cConnectionIdTag, QString("%1").arg(_pGraphDataModel->connectionId(idx)), &registerElement);
 
     pParentElement->appendChild(registerElement);

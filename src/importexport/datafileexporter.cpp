@@ -310,10 +310,7 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
         header.append("//" + createPropertyRow(E_PROPERTY));
         header.append("//" + createPropertyRow(E_REGISTER_ADDRESS));
         header.append("//" + createPropertyRow(E_COLOR));
-        header.append("//" + createPropertyRow(E_MULTIPLY_FACTOR));
-        header.append("//" + createPropertyRow(E_DIVIDE_FACTOR));
-        header.append("//" + createPropertyRow(E_BITMASK));
-        header.append("//" + createPropertyRow(E_SHIFT));
+        header.append("//" + createPropertyRow(E_EXPRESSION));
         header.append("//" + createPropertyRow(E_CONNECTION_ID));
 
         header.append("//");
@@ -373,24 +370,12 @@ QString DataFileExporter::createPropertyRow(registerProperty prop)
         line.append("Color");
         break;
 
-    case E_MULTIPLY_FACTOR:
-        line.append("Multiply");
-        break;
-
-    case E_DIVIDE_FACTOR:
-        line.append("Divide");
+    case E_EXPRESSION:
+        line.append("Expression");
         break;
 
     case E_REGISTER_ADDRESS:
         line.append("Register Address");
-        break;
-
-    case E_BITMASK:
-        line.append("Bitmask");
-        break;
-
-    case E_SHIFT:
-        line.append("Shift");
         break;
 
     case E_CONNECTION_ID:
@@ -416,24 +401,12 @@ QString DataFileExporter::createPropertyRow(registerProperty prop)
             propertyString = _pGraphDataModel->color(graphIdx).name();
             break;
 
-        case E_MULTIPLY_FACTOR:
-            propertyString = Util::formatDoubleForExport(_pGraphDataModel->multiplyFactor(graphIdx));
-            break;
-
-        case E_DIVIDE_FACTOR:
-            propertyString =  Util::formatDoubleForExport(_pGraphDataModel->divideFactor(graphIdx));
+        case E_EXPRESSION:
+            propertyString = _pGraphDataModel->expression(graphIdx);
             break;
 
         case E_REGISTER_ADDRESS:
             propertyString = QString("%1").arg(_pGraphDataModel->registerAddress(graphIdx));
-            break;
-
-        case E_BITMASK:
-            propertyString = QString("0x%1").arg(_pGraphDataModel->bitmask(graphIdx), 0, 16);
-            break;
-
-        case E_SHIFT:
-            propertyString = QString("%1").arg(_pGraphDataModel->shift(graphIdx));
             break;
 
         case E_CONNECTION_ID:

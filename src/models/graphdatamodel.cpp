@@ -325,15 +325,6 @@ Qt::ItemFlags GraphDataModel::flags(const QModelIndex & index) const
         itemFlags &= ~(Qt::ItemIsEnabled);
     }
 
-    /* Disable bitmask when signed register */
-    if (
-        (index.column() == column::BITMASK)
-        && !isUnsigned(index.row())
-    )
-    {
-        itemFlags &= ~(Qt::ItemIsEnabled);
-    }
-
     if (
             (index.column() == column::ACTIVE)
             || (index.column() == column::UNSIGNED)

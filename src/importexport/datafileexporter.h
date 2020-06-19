@@ -36,12 +36,8 @@ private:
         E_LABEL = 0u,
         E_PROPERTY,
         E_COLOR,
-
-        E_MULTIPLY_FACTOR,
-        E_DIVIDE_FACTOR,
+        E_EXPRESSION,
         E_REGISTER_ADDRESS,
-        E_BITMASK,
-        E_SHIFT,
         E_CONNECTION_ID,
 
     } registerProperty;

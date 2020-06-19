@@ -134,11 +134,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pGraphDataModel, SIGNAL(removed(quint32)), _pGraphView, SLOT(updateGraphs()));
 
     connect(_pGraphDataModel, SIGNAL(unsignedChanged(quint32)), _pGraphView, SLOT(clearGraph(quint32)));
-    connect(_pGraphDataModel, SIGNAL(multiplyFactorChanged(quint32)), _pGraphView, SLOT(clearGraph(quint32)));
-    connect(_pGraphDataModel, SIGNAL(divideFactorChanged(quint32)), _pGraphView, SLOT(clearGraph(quint32)));
+    connect(_pGraphDataModel, SIGNAL(expressionChanged(quint32)), _pGraphView, SLOT(clearGraph(quint32)));
     connect(_pGraphDataModel, SIGNAL(registerAddressChanged(quint32)), _pGraphView, SLOT(clearGraph(quint32)));
-    connect(_pGraphDataModel, SIGNAL(bitmaskChanged(quint32)), _pGraphView, SLOT(clearGraph(quint32)));
-    connect(_pGraphDataModel, SIGNAL(shiftChanged(quint32)), _pGraphView, SLOT(clearGraph(quint32)));
 
     // Update cursor values in legend
     connect(_pGraphView, SIGNAL(cursorValueUpdate()), _pLegend, SLOT(updateDataInLegend()));

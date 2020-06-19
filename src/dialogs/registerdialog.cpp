@@ -62,13 +62,13 @@ void RegisterDialog::done(int r)
     if(QDialog::Accepted == r)  // ok was pressed
     {
         quint16 duplicateReg = 0;
-        quint32 duplicateBitMask = 0;
+        QString duplicateExpression;
         quint8 duplicateConnectionId = 0;
-        if (!_pGraphDataModel->getDuplicate(&duplicateReg, &duplicateBitMask, &duplicateConnectionId))
+        if (!_pGraphDataModel->getDuplicate(&duplicateReg, &duplicateExpression, &duplicateConnectionId))
         {
             bValid = false;
 
-            Util::showError(tr("Register %1 with bitmask 0x%2 of connection (%3) is defined twice in the list.").arg(duplicateReg).arg(duplicateBitMask, 0, 16).arg(duplicateConnectionId + 1));
+            Util::showError(tr("Register %1 with expression \"%2\" of connection (%3) is defined twice in the list.").arg(duplicateReg).arg(duplicateExpression).arg(duplicateConnectionId + 1));
         }
     }
     else

@@ -201,9 +201,9 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
 
     for(qint32 idx = 0; idx < mbcRegisterList.size(); idx++)
     {
-        // Get result before adding to list
-        const uint32_t bitmask = 0xFFFFFFFF;
+        QString expr = QStringLiteral("REG");
 
+        // Get result before adding to list
         _mbcRegisterList.append(mbcRegisterList[idx]);
 
         _mbcRegisterMetaDataList.append( {false, QString(""), false, false} );
@@ -213,7 +213,7 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
         {
             _mbcRegisterMetaDataList.last().tooltip = tr("Not readable");
         }
-        else if (_pGraphDataModel->isPresent(mbcRegisterList[idx].registerAddress(), bitmask))
+        else if (_pGraphDataModel->isPresent(mbcRegisterList[idx].registerAddress(), &expr))
         {
             _mbcRegisterMetaDataList.last().tooltip = tr("Already added address");
         }
@@ -273,7 +273,7 @@ QList<GraphData> MbcRegisterModel::selectedRegisterList()
             graphData.setRegisterAddress(_mbcRegisterList[row].registerAddress());
             graphData.setLabel(_mbcRegisterList[row].name());
             graphData.setUnsigned(_mbcRegisterList[row].isUnsigned());
-            graphData.setDivideFactor(static_cast<double>(qPow(10, _mbcRegisterList[row].decimals())));
+            graphData.setExpression(QString("REG/%1").arg(static_cast<double>(qPow(10, _mbcRegisterList[row].decimals()))));
             graphData.setBit32(_mbcRegisterList[row].is32Bit());
 
             _selectedRegisterList.append(graphData);
