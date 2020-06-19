@@ -12,7 +12,7 @@ public:
     ~QMuParser();
 
     bool evaluate();
-    bool evaluate(uint32_t regValue);
+    bool evaluate(double regValue);
 
     bool isSuccess();
     QString msg();

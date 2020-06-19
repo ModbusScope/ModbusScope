@@ -8,6 +8,7 @@
 //Forward declaration
 class GraphDataModel;
 class SettingsModel;
+class QMuParser;
 
 class RegisterValueHandler
 {
@@ -23,8 +24,9 @@ public:
 
     void activeGraphAddresList(QList<quint16> * pRegisterList, quint8 connectionId);
 
+    void prepareForData();
+
 private:
-    double processValue(quint32 graphIndex, qint64 value);
 
     GraphDataModel * _pGraphDataModel;
     SettingsModel * _pSettingsModel;
@@ -33,6 +35,7 @@ private:
     QList<bool> _successList;
 
     QList<quint16> _activeIndexList;
+    QList<QMuParser*> _valueParsers;
 };
 
 #endif // REGISTERVALUEHANDLER_H

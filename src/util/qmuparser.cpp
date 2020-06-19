@@ -23,7 +23,7 @@ bool QMuParser::evaluate()
     return evaluate(0);
 }
 
-bool QMuParser::evaluate(uint32_t regValue)
+bool QMuParser::evaluate(double regValue)
 {
     reset();
 

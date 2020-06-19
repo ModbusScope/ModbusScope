@@ -22,13 +22,14 @@ void TestRegisterValueHandler::cleanup()
     delete _pSettingsModel;
 }
 
-void TestRegisterValueHandler::read_16_1()
+void TestRegisterValueHandler::read_16_default()
 {
     addRegisterToModel();
 
     auto partialResultMap = createResultMap(0, false, 100, true);
 
     RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -37,111 +38,16 @@ void TestRegisterValueHandler::read_16_1()
 
 }
 
-void TestRegisterValueHandler::read_16_2()
+void TestRegisterValueHandler::read_16_operation()
 {
     addRegisterToModel();
 
-    _pGraphDataModel->setMultiplyFactor(0, 2);
-
-    auto partialResultMap = createResultMap(0, false, 60000, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], 120000);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_16_3()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setDivideFactor(0, 2);
-
-    auto partialResultMap = createResultMap(0, false, 3000, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], 1500);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_16_4()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setDivideFactor(0, 2);
-    _pGraphDataModel->setMultiplyFactor(0, 3);
-
-    auto partialResultMap = createResultMap(0, false, 3000, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], 4500);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_16_5()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setShift(0, 2);
-    auto partialResultMap = createResultMap(0, false, 256, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], 1024);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_16_6()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setShift(0, -2);
-    auto partialResultMap = createResultMap(0, false, 256, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], 64);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_16_7()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setBitmask(0, 0xA5FF);
-    auto partialResultMap = createResultMap(0, false, 0x0FF0, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], 0x05F0);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_16_8()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setShift(0, 2);
-    _pGraphDataModel->setMultiplyFactor(0, 2);
-    _pGraphDataModel->setDivideFactor(0, 4);
+    _pGraphDataModel->setExpression(0, QStringLiteral("(REG<<2)*2/4"));
 
     auto partialResultMap = createResultMap(0, false, 256, true);
 
     RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -149,7 +55,7 @@ void TestRegisterValueHandler::read_16_8()
     QCOMPARE(regHandler.successList()[0], true);
 }
 
-void TestRegisterValueHandler::read_s16_1()
+void TestRegisterValueHandler::read_s16_default()
 {
     addRegisterToModel();
 
@@ -158,6 +64,7 @@ void TestRegisterValueHandler::read_s16_1()
     auto partialResultMap = createResultMap(0, false, -100, true);
 
     RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -166,118 +73,18 @@ void TestRegisterValueHandler::read_s16_1()
 
 }
 
-void TestRegisterValueHandler::read_s16_2()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setMultiplyFactor(0, 2);
-    _pGraphDataModel->setUnsigned(0, false);
-
-    auto partialResultMap = createResultMap(0, false, -30000, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], -60000);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_s16_3()
+void TestRegisterValueHandler::read_s16_operation()
 {
     addRegisterToModel();
 
     _pGraphDataModel->setUnsigned(0, false);
-    _pGraphDataModel->setDivideFactor(0, 2);
 
-    auto partialResultMap = createResultMap(0, false, -3000, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], -1500);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_s16_4()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setUnsigned(0, false);
-    _pGraphDataModel->setDivideFactor(0, 2);
-    _pGraphDataModel->setMultiplyFactor(0, 3);
-
-    auto partialResultMap = createResultMap(0, false, -3000, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], -4500);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_s16_5()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setUnsigned(0, false);
-    _pGraphDataModel->setShift(0, 2);
-    auto partialResultMap = createResultMap(0, false, -256, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], -1024);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_s16_6()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setUnsigned(0, false);
-    _pGraphDataModel->setShift(0, -2);
-    auto partialResultMap = createResultMap(0, false, -256, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], -64);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_s16_7()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setUnsigned(0, false);
-    _pGraphDataModel->setBitmask(0, 0xFF00);
-    auto partialResultMap = createResultMap(0, false, -1, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], -1); /* Bitmask is ignored */
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_s16_8()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setUnsigned(0, false);
-    _pGraphDataModel->setShift(0, 2);
-    _pGraphDataModel->setMultiplyFactor(0, 2);
-    _pGraphDataModel->setDivideFactor(0, 4);
+    _pGraphDataModel->setExpression(0, QStringLiteral("(REG<<2)*2/4"));
 
     auto partialResultMap = createResultMap(0, false, -256, true);
 
     RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -285,7 +92,7 @@ void TestRegisterValueHandler::read_s16_8()
     QCOMPARE(regHandler.successList()[0], true);
 }
 
-void TestRegisterValueHandler::read_32_1()
+void TestRegisterValueHandler::read_32_default()
 {
     addRegisterToModel();
 
@@ -294,6 +101,7 @@ void TestRegisterValueHandler::read_32_1()
     auto partialResultMap = createResultMap(0, true, 100000, true);
 
     RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -302,118 +110,17 @@ void TestRegisterValueHandler::read_32_1()
 
 }
 
-void TestRegisterValueHandler::read_32_2()
+void TestRegisterValueHandler::read_32_operation()
 {
     addRegisterToModel();
 
     _pGraphDataModel->setBit32(0, true);
-    _pGraphDataModel->setMultiplyFactor(0, 2);
-
-    auto partialResultMap = createResultMap(0, true, 100000, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], 200000);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_32_3()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setBit32(0, true);
-    _pGraphDataModel->setDivideFactor(0, 2);
-
-    auto partialResultMap = createResultMap(0, true, 100000, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], 50000);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_32_4()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setBit32(0, true);
-    _pGraphDataModel->setDivideFactor(0, 2);
-    _pGraphDataModel->setMultiplyFactor(0, 3);
-
-    auto partialResultMap = createResultMap(0, true, 100000, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], 150000);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_32_5()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setBit32(0, true);
-    _pGraphDataModel->setShift(0, 2);
-    auto partialResultMap = createResultMap(0, true, 0x01000000, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], 0x04000000);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_32_6()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setBit32(0, true);
-    _pGraphDataModel->setShift(0, -2);
-    auto partialResultMap = createResultMap(0, true, 0x08000000, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], 0x02000000);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_32_7()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setBit32(0, true);
-    _pGraphDataModel->setBitmask(0, 0x00FFFF00);
-    auto partialResultMap = createResultMap(0, true, 0x05AAAA50, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], 0x00AAAA00);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_32_8()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setBit32(0, true);
-    _pGraphDataModel->setShift(0, 2);
-    _pGraphDataModel->setMultiplyFactor(0, 2);
-    _pGraphDataModel->setDivideFactor(0, 4);
+    _pGraphDataModel->setExpression(0, QStringLiteral("(REG<<2)*2/4"));
 
     auto partialResultMap = createResultMap(0, true, 11141120, true);
 
     RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -421,7 +128,7 @@ void TestRegisterValueHandler::read_32_8()
     QCOMPARE(regHandler.successList()[0], true);
 }
 
-void TestRegisterValueHandler::read_s32_1()
+void TestRegisterValueHandler::read_s32_default()
 {
     addRegisterToModel();
 
@@ -431,6 +138,7 @@ void TestRegisterValueHandler::read_s32_1()
     auto partialResultMap = createResultMap(0, true, -100000, true);
 
     RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -439,125 +147,18 @@ void TestRegisterValueHandler::read_s32_1()
 
 }
 
-void TestRegisterValueHandler::read_s32_2()
+void TestRegisterValueHandler::read_s32_operation()
 {
     addRegisterToModel();
 
     _pGraphDataModel->setBit32(0, true);
     _pGraphDataModel->setUnsigned(0, false);
-    _pGraphDataModel->setMultiplyFactor(0, 2);
-
-    auto partialResultMap = createResultMap(0, true, -100000, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], -200000);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_s32_3()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setBit32(0, true);
-    _pGraphDataModel->setUnsigned(0, false);
-    _pGraphDataModel->setDivideFactor(0, 2);
-
-    auto partialResultMap = createResultMap(0, true, -100000, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], -50000);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_s32_4()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setBit32(0, true);
-    _pGraphDataModel->setUnsigned(0, false);
-    _pGraphDataModel->setDivideFactor(0, 2);
-    _pGraphDataModel->setMultiplyFactor(0, 3);
-
-    auto partialResultMap = createResultMap(0, true, -100000, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], -150000);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_s32_5()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setBit32(0, true);
-    _pGraphDataModel->setUnsigned(0, false);
-    _pGraphDataModel->setShift(0, 2);
-    auto partialResultMap = createResultMap(0, true, -100000, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], -400000);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_s32_6()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setBit32(0, true);
-    _pGraphDataModel->setUnsigned(0, false);
-    _pGraphDataModel->setShift(0, -2);
-    auto partialResultMap = createResultMap(0, true, -400000, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], -100000);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_s32_7()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setBit32(0, true);
-    _pGraphDataModel->setUnsigned(0, false);
-    _pGraphDataModel->setBitmask(0, 0x00FFFF00);
-    auto partialResultMap = createResultMap(0, true, -100000, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], -100000); /* Bitmask is ignored on signed registers */
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::read_s32_8()
-{
-    addRegisterToModel();
-
-    _pGraphDataModel->setBit32(0, true);
-    _pGraphDataModel->setUnsigned(0, false);
-    _pGraphDataModel->setShift(0, 2);
-    _pGraphDataModel->setMultiplyFactor(0, 2);
-    _pGraphDataModel->setDivideFactor(0, 4);
+    _pGraphDataModel->setExpression(0, QStringLiteral("(REG<<2)*2/4"));
 
     auto partialResultMap = createResultMap(0, true, -11141120, true);
 
     RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -581,6 +182,7 @@ void TestRegisterValueHandler::read_32BitMixed_1()
     auto partialResultMap = createResultMap(0, true, 0xAA55FF00, true);
 
     RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -607,6 +209,7 @@ void TestRegisterValueHandler::read_32BitMixed_2()
     auto partialResultMap = createResultMap(0, true, 0xAA55FF00, true);
 
     RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -627,17 +230,17 @@ void TestRegisterValueHandler::multiRead()
     addRegisterToModel();
     addRegisterToModel();
 
-    _pGraphDataModel->setMultiplyFactor(0, 2);
+    _pGraphDataModel->setExpression(0, QStringLiteral("REG*2"));
     _pGraphDataModel->setRegisterAddress(0, 0);
 
-    _pGraphDataModel->setDivideFactor(1, 3);
+    _pGraphDataModel->setExpression(1, QStringLiteral("REG/3"));
     _pGraphDataModel->setRegisterAddress(1, 3);
 
     _pGraphDataModel->setBit32(2, true);
-    _pGraphDataModel->setShift(2, 2);
+    _pGraphDataModel->setExpression(2, QStringLiteral("REG<<2"));
     _pGraphDataModel->setRegisterAddress(2, 5);
 
-    _pGraphDataModel->setBitmask(3, 0x1F00);
+    _pGraphDataModel->setExpression(3, QStringLiteral("REG&0x1F00"));
     _pGraphDataModel->setRegisterAddress(3, 7);
 
     auto partialResultMap = createResultMap(0, false, 100, true);
@@ -646,6 +249,7 @@ void TestRegisterValueHandler::multiRead()
     addToResultMap(partialResultMap, 7, true, 0x3A01, true);
 
     RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -670,6 +274,7 @@ void TestRegisterValueHandler::connectionCheck()
     auto partialResultMap = createResultMap(0, false, 100, true);
 
     RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
     regHandler.startRead();
 
     /* Wrong connection */
@@ -693,6 +298,7 @@ void TestRegisterValueHandler::twoConnectionsCheck()
     auto partialResultMap = createResultMap(0, false, 100, true);
 
     RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -713,6 +319,7 @@ void TestRegisterValueHandler::graphList_1()
     _pGraphDataModel->setRegisterAddress(0, 2);
 
     RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
     regHandler.startRead();
 
     QList<quint16> registerList;
@@ -732,6 +339,7 @@ void TestRegisterValueHandler::graphList_2()
     _pGraphDataModel->setBit32(1, true);
 
     RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
     regHandler.startRead();
 
     QList<quint16> registerList;
@@ -752,6 +360,7 @@ void TestRegisterValueHandler::graphList_3()
     _pGraphDataModel->setBit32(1, true);
 
     RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
     regHandler.startRead();
 
     QList<quint16> registerList;
@@ -775,6 +384,7 @@ void TestRegisterValueHandler::graphList_4()
     _pGraphDataModel->setBit32(1, true);
 
     RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
     regHandler.startRead();
 
     QList<quint16> registerList;
@@ -801,6 +411,7 @@ void TestRegisterValueHandler::bigEndian_32_1()
     partialResultMap.insert(0 + 1, ModbusResult(static_cast<quint16>(value), true));
 
     RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -824,6 +435,7 @@ void TestRegisterValueHandler::bigEndian_s32_2()
     partialResultMap.insert(0 + 1, ModbusResult(static_cast<quint16>(value), true));
 
     RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
 
@@ -863,16 +475,6 @@ void TestRegisterValueHandler::addToResultMap(QMap<quint16, ModbusResult> &resul
 void TestRegisterValueHandler::addRegisterToModel()
 {
     GraphData graphData;
-    graphData.setActive(true);
-    graphData.setUnsigned(true);
-    graphData.setBit32(false);
-    graphData.setMultiplyFactor(1);
-    graphData.setDivideFactor(1);
-    graphData.setRegisterAddress(0);
-    graphData.setBitmask(0xFFFFFFFF);
-    graphData.setShift(0);
-    graphData.setConnectionId(SettingsModel::CONNECTION_ID_0);
-
     _pGraphDataModel->add(graphData);
 }
 

@@ -1,5 +1,6 @@
 #include "registervaluehandler.h"
 
+#include "qmuparser.h"
 #include "graphdatamodel.h"
 #include "settingsmodel.h"
 
@@ -14,7 +15,6 @@ void RegisterValueHandler::startRead()
     /* Prepare result lists */
     _processedValues.clear();
     _successList.clear();
-    _pGraphDataModel->activeGraphIndexList(&_activeIndexList);
 
     for(int idx = 0; idx < _activeIndexList.size(); idx++)
     {
@@ -94,7 +94,15 @@ void RegisterValueHandler::processPartialResult(QMap<quint16, ModbusResult> part
                     double processedResult = 0;
                     if (bSuccess)
                     {
-                        processedResult = processValue(activeIndex, combinedValueToProcess);
+                        if (_valueParsers[activeIndex]->evaluate(combinedValueToProcess))
+                        {
+                            processedResult = _valueParsers[activeIndex]->result();
+                        }
+                        else
+                        {
+                            processedResult = 0u;
+                            /* TODO: log error */
+                        }
                     }
 
                     _processedValues[listIdx] = processedResult;
@@ -146,42 +154,15 @@ void RegisterValueHandler::activeGraphAddresList(QList<quint16> * pRegisterList,
     qSort(*pRegisterList);
 }
 
-double RegisterValueHandler::processValue(quint32 graphIndex, qint64 value)
+void RegisterValueHandler::prepareForData()
 {
-    double processedValue = value;
+    _pGraphDataModel->activeGraphIndexList(&_activeIndexList);
 
-    /* TODO */
+    qDeleteAll(_valueParsers);
+    _valueParsers.clear();
 
-#if 0
-    if (_pGraphDataModel->isUnsigned(graphIndex))
+    for(int idx = 0; idx < _activeIndexList.size(); idx++)
     {
-        // Apply bitmask
-        processedValue = static_cast<quint32>(processedValue) & _pGraphDataModel->bitmask(graphIndex);
+        _valueParsers.append(new QMuParser(_pGraphDataModel->expression(idx)));
     }
-
-    // Apply shift
-    if (_pGraphDataModel->shift(graphIndex) != 0)
-    {
-        if (_pGraphDataModel->shift(graphIndex) > 0)
-        {
-            processedValue = static_cast<qint32>(processedValue) << _pGraphDataModel->shift(graphIndex);
-        }
-        else
-        {
-            processedValue = static_cast<qint32>(processedValue) >> abs(_pGraphDataModel->shift(graphIndex));
-        }
-
-        if (!_pGraphDataModel->isUnsigned(graphIndex))
-        {
-            processedValue = static_cast<qint32>(processedValue);
-        }
-    }
-
-    // Apply multiplyFactor
-    processedValue *= _pGraphDataModel->multiplyFactor(graphIndex);
-
-    // Apply divideFactor
-    processedValue /= _pGraphDataModel->divideFactor(graphIndex);
-#endif
-    return processedValue;
 }

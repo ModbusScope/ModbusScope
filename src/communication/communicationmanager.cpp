@@ -51,6 +51,9 @@ bool CommunicationManager::startCommunication()
 
     if (!_bPollActive)
     {
+        /* Initialize _registerValueHandler with correct expressions */
+        _registerValueHandler.prepareForData();
+
         // Trigger read immediatly
         _pPollTimer->singleShot(1, this, SLOT(readData()));
 
