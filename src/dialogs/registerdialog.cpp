@@ -68,7 +68,7 @@ void RegisterDialog::done(int r)
         {
             bValid = false;
 
-            Util::showError(tr("Register %1 with expression \"%2\" of connection (%3) is defined twice in the list.").arg(duplicateReg).arg(duplicateExpression).arg(duplicateConnectionId + 1));
+            Util::showError(tr("Register %1 with expression \"%2\" of connection %3 is defined twice in the list.").arg(duplicateReg).arg(duplicateExpression).arg(duplicateConnectionId + 1));
         }
     }
     else
