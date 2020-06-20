@@ -554,6 +554,11 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
                 break;
             }
         }
+        else if (child.tagName() == ProjectFileDefinitions::cExpressionTag)
+        {
+            pRegisterSettings->bExpression = true;
+            pRegisterSettings->expression = child.text();
+        }
         else
         {
             // unkown tag: ignore

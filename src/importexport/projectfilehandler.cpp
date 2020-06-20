@@ -4,6 +4,7 @@
 
 #include "util.h"
 #include "projectfileexporter.h"
+#include "updateregisteroperations.h"
 
 #include "projectfilehandler.h"
 
@@ -181,18 +182,27 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
     for (qint32 i = 0; i < pProjectSettings->scope.registerList.size(); i++)
     {
         GraphData rowData;
-        rowData.setActive(pProjectSettings->scope.registerList[i].bActive);
-        rowData.setUnsigned(pProjectSettings->scope.registerList[i].bUnsigned);
-        rowData.setBit32(pProjectSettings->scope.registerList[i].b32Bit);
-        rowData.setRegisterAddress(pProjectSettings->scope.registerList[i].address);
-        rowData.setLabel(pProjectSettings->scope.registerList[i].text);
-        rowData.setColor(pProjectSettings->scope.registerList[i].color);
-        rowData.setConnectionId(pProjectSettings->scope.registerList[i].connectionId);
+        ProjectFileData::RegisterSettings* const pSettingData = &pProjectSettings->scope.registerList[i];
 
-        rowData.setBitmask(pProjectSettings->scope.registerList[i].bitmask);
-        rowData.setDivideFactor(pProjectSettings->scope.registerList[i].divideFactor);
-        rowData.setMultiplyFactor(pProjectSettings->scope.registerList[i].multiplyFactor);
-        rowData.setShift(pProjectSettings->scope.registerList[i].shift);
+        rowData.setActive(pSettingData->bActive);
+        rowData.setUnsigned(pSettingData->bUnsigned);
+        rowData.setBit32(pSettingData->b32Bit);
+        rowData.setRegisterAddress(pSettingData->address);
+        rowData.setLabel(pSettingData->text);
+        rowData.setColor(pSettingData->color);
+        rowData.setConnectionId(pSettingData->connectionId);
+
+        if (pSettingData->bExpression)
+        {
+            rowData.setExpression(pSettingData->expression);
+        }
+        else
+        {
+            QString convertedExpression;
+            UpdateRegisterOperations::convert(*pSettingData, convertedExpression);
+
+            rowData.setExpression(convertedExpression);
+        }
 
         _pGraphDataModel->add(rowData);
     }

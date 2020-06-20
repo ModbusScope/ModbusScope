@@ -9,7 +9,7 @@ namespace ProjectFileData
     typedef struct _RegisterSettings
     {
         _RegisterSettings() : address(40001), text(""), bActive(true), bUnsigned(false), b32Bit(false), divideFactor(1),
-                              multiplyFactor(1), bitmask(0xFFFFFFFF), shift(0), connectionId(0),
+                              multiplyFactor(1), bitmask(0xFFFFFFFF), shift(0), connectionId(0), bExpression(false),
                               bColor(false) {}
 
         quint16 address;
@@ -22,6 +22,9 @@ namespace ProjectFileData
         quint32 bitmask;
         qint32 shift;
         quint8 connectionId;
+
+        bool bExpression;
+        QString expression;
 
         bool bColor;
         QColor color;
