@@ -163,6 +163,8 @@ void RegisterValueHandler::prepareForData()
 
     for(int idx = 0; idx < _activeIndexList.size(); idx++)
     {
+        /* Use pointer because our class otherwise needs copy/assingment constructor and such */
+        /* Remember to delete before removal */
         _valueParsers.append(new QMuParser(_pGraphDataModel->expression(idx)));
     }
 }
