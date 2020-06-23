@@ -35,6 +35,7 @@ private:
 
     QString convertBoolToText(bool bValue);
     void addTextNode(QString tagName, QString tagValue, QDomElement * pParentElement);
+    void addCDataNode(QString tagName, QString tagValue, QDomElement * pParentElement);
 
     GuiModel * _pGuiModel;
     SettingsModel * _pSettingsModel;
