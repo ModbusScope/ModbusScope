@@ -402,7 +402,7 @@ QString DataFileExporter::createPropertyRow(registerProperty prop)
             break;
 
         case E_EXPRESSION:
-            propertyString = _pGraphDataModel->expression(graphIdx);
+            propertyString = QString("\"%1\"").arg(_pGraphDataModel->expression(graphIdx));
             break;
 
         case E_REGISTER_ADDRESS:
