@@ -107,7 +107,7 @@ if(WIN32)
     set(GUI_TYPE WIN32)
 endif()
 
-target_link_libraries(${SCOPESOURCE} qcustomplot muparser)
+target_link_libraries(${SCOPESOURCE} qcustomplot muparser ${QT_LIB})
 
 add_executable(${PROJECT_NAME} ${GUI_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../resources/resource.qrc ${CMAKE_CURRENT_SOURCE_DIR}/../resources/app_icon.rc)
 
