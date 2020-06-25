@@ -39,11 +39,11 @@ void TestMbcRegisterModel::rowCount()
     MockGraphDataModel graphDataModel;
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
 
-    EXPECT_EQ(pMbcRegisterModel->rowCount(), 0);
+    QCOMPARE(pMbcRegisterModel->rowCount(), 0);
 
     fillModel(&graphDataModel, pMbcRegisterModel, false);
 
-    EXPECT_NE(pMbcRegisterModel->rowCount(), 0);
+    QVERIFY(pMbcRegisterModel->rowCount() != 0);
 
     /* tested thoroughly in fill test case */
 }
@@ -54,7 +54,7 @@ void TestMbcRegisterModel::columnCount()
     MockGraphDataModel graphDataModel;
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
 
-    EXPECT_EQ(pMbcRegisterModel->columnCount(QModelIndex()), cColumnCnt);
+    QCOMPARE(pMbcRegisterModel->columnCount(QModelIndex()), cColumnCnt);
 }
 
 void TestMbcRegisterModel::headerData()
@@ -62,14 +62,14 @@ void TestMbcRegisterModel::headerData()
     MockGraphDataModel graphDataModel;
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
 
-    EXPECT_EQ(pMbcRegisterModel->headerData(cColumnSelected, Qt::Horizontal, Qt::DisplayRole).toString(), QString(""));
-    EXPECT_EQ(pMbcRegisterModel->headerData(cColumnAddress, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Address"));
-    EXPECT_EQ(pMbcRegisterModel->headerData(cColumnText, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Text"));
-    EXPECT_EQ(pMbcRegisterModel->headerData(cColumnUnsigned, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Unsigned"));
-    EXPECT_EQ(pMbcRegisterModel->headerData(cColumnTab, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Tab"));
-    EXPECT_EQ(pMbcRegisterModel->headerData(cColumnDecimals, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Decimals"));
+    QCOMPARE(pMbcRegisterModel->headerData(cColumnSelected, Qt::Horizontal, Qt::DisplayRole).toString(), QString(""));
+    QCOMPARE(pMbcRegisterModel->headerData(cColumnAddress, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Address"));
+    QCOMPARE(pMbcRegisterModel->headerData(cColumnText, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Text"));
+    QCOMPARE(pMbcRegisterModel->headerData(cColumnUnsigned, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Unsigned"));
+    QCOMPARE(pMbcRegisterModel->headerData(cColumnTab, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Tab"));
+    QCOMPARE(pMbcRegisterModel->headerData(cColumnDecimals, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Decimals"));
 
-    EXPECT_EQ(pMbcRegisterModel->headerData(cColumnCnt, Qt::Horizontal, Qt::DisplayRole), QVariant());
+    QCOMPARE(pMbcRegisterModel->headerData(cColumnCnt, Qt::Horizontal, Qt::DisplayRole), QVariant());
 }
 
 void TestMbcRegisterModel::flagsEnabled()
@@ -82,14 +82,14 @@ void TestMbcRegisterModel::flagsEnabled()
     QModelIndex modelIdx = pMbcRegisterModel->index(0,0);
     Qt::ItemFlags enabledFlags = Qt::ItemIsSelectable |  Qt::ItemIsEnabled;
 
-    EXPECT_EQ(pMbcRegisterModel->flags(QModelIndex()), Qt::NoItemFlags);
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnSelected)), Qt::ItemIsUserCheckable | enabledFlags);
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnUnsigned)), Qt::ItemIsUserCheckable | enabledFlags);
+    QCOMPARE(pMbcRegisterModel->flags(QModelIndex()), Qt::NoItemFlags);
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnSelected)), Qt::ItemIsUserCheckable | enabledFlags);
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnUnsigned)), Qt::ItemIsUserCheckable | enabledFlags);
 
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), enabledFlags);
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnText)), enabledFlags);
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnTab)), enabledFlags);
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnDecimals)), enabledFlags);
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), enabledFlags);
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnText)), enabledFlags);
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnTab)), enabledFlags);
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnDecimals)), enabledFlags);
 }
 
 
@@ -103,14 +103,14 @@ void TestMbcRegisterModel::flagsDisabled()
     QModelIndex modelIdx = pMbcRegisterModel->index(0,0);
     Qt::ItemFlags disabledFlags = Qt::NoItemFlags;
 
-    EXPECT_EQ(pMbcRegisterModel->flags(QModelIndex()), Qt::NoItemFlags);
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnSelected)), Qt::ItemIsUserCheckable | disabledFlags);
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnUnsigned)), Qt::ItemIsUserCheckable | disabledFlags);
+    QCOMPARE(pMbcRegisterModel->flags(QModelIndex()), Qt::NoItemFlags);
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnSelected)), Qt::ItemIsUserCheckable | disabledFlags);
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnUnsigned)), Qt::ItemIsUserCheckable | disabledFlags);
 
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), disabledFlags);
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnText)), disabledFlags);
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnTab)), disabledFlags);
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnDecimals)), disabledFlags);
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), disabledFlags);
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnText)), disabledFlags);
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnTab)), disabledFlags);
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnDecimals)), disabledFlags);
 
 }
 
@@ -124,29 +124,29 @@ void TestMbcRegisterModel::setData()
     QModelIndex modelIdx = pMbcRegisterModel->index(0, cColumnSelected);
 
     /* Check failures */
-    EXPECT_EQ(pMbcRegisterModel->setData(QModelIndex(), QVariant(), Qt::CheckStateRole), false);
-    EXPECT_EQ(spy.count(), 0);
+    QCOMPARE(pMbcRegisterModel->setData(QModelIndex(), QVariant(), Qt::CheckStateRole), false);
+    QCOMPARE(spy.count(), 0);
 
-    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx.sibling(0, cColumnUnsigned), QVariant(), Qt::CheckStateRole), false);
-    EXPECT_EQ(spy.count(), 0);
+    QCOMPARE(pMbcRegisterModel->setData(modelIdx.sibling(0, cColumnUnsigned), QVariant(), Qt::CheckStateRole), false);
+    QCOMPARE(spy.count(), 0);
 
     // At least 2 rows required for this test
-    EXPECT_GE(pMbcRegisterModel->rowCount(), 2);
+    QVERIFY(pMbcRegisterModel->rowCount() >= 2);
 
     QModelIndex modelIdxFirstRow = pMbcRegisterModel->index(0, cColumnSelected);
     QModelIndex modelIdxSecondRow = pMbcRegisterModel->index(1, cColumnSelected);
 
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdxFirstRow, Qt::CheckStateRole), Qt::Unchecked);
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdxSecondRow, Qt::CheckStateRole), Qt::Unchecked);
+    QCOMPARE(pMbcRegisterModel->data(modelIdxFirstRow, Qt::CheckStateRole), Qt::Unchecked);
+    QCOMPARE(pMbcRegisterModel->data(modelIdxSecondRow, Qt::CheckStateRole), Qt::Unchecked);
 
-    EXPECT_EQ(pMbcRegisterModel->setData(modelIdxFirstRow, QVariant(Qt::Checked), Qt::CheckStateRole), true);
-    EXPECT_EQ(spy.count(), 1);
+    QCOMPARE(pMbcRegisterModel->setData(modelIdxFirstRow, QVariant(Qt::Checked), Qt::CheckStateRole), true);
+    QCOMPARE(spy.count(), 1);
     QList<QVariant> arguments = spy.takeFirst(); // take the first signal
-    EXPECT_EQ(qvariant_cast<QModelIndex>(arguments.at(0)).row(), 0); /* First argument (start index) */
-    EXPECT_EQ(qvariant_cast<QModelIndex>(arguments.at(1)).row(), 1); /* Second argument (end index) */
+    QCOMPARE(qvariant_cast<QModelIndex>(arguments.at(0)).row(), 0); /* First argument (start index) */
+    QCOMPARE(qvariant_cast<QModelIndex>(arguments.at(1)).row(), 1); /* Second argument (end index) */
 
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdxFirstRow, Qt::CheckStateRole), Qt::Checked);
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdxSecondRow, Qt::CheckStateRole), Qt::Unchecked);
+    QCOMPARE(pMbcRegisterModel->data(modelIdxFirstRow, Qt::CheckStateRole), Qt::Checked);
+    QCOMPARE(pMbcRegisterModel->data(modelIdxSecondRow, Qt::CheckStateRole), Qt::Unchecked);
 }
 
 void TestMbcRegisterModel::disableAlreadyStagedRegisterAddress()
@@ -171,65 +171,65 @@ void TestMbcRegisterModel::disableAlreadyStagedRegisterAddress()
     const Qt::ItemFlags disabledFlags = Qt::NoItemFlags;
 
     // *** Start all unchecked
-    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), 0);
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 0);
 
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), enabledFlags);
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), enabledFlags);
 
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(1, cColumnAddress)), enabledFlags);
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(1, cColumnAddress)), enabledFlags);
 
 
     // *** Check first
     modelIdx = pMbcRegisterModel->index(0, cColumnSelected);
-    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
+    QCOMPARE(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
 
     // Check disabled second
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), enabledFlags);
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), enabledFlags);
 
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::ToolTipRole).toString(), "Already selected address");
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(1, cColumnAddress)), disabledFlags);
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::ToolTipRole).toString(), "Already selected address");
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(1, cColumnAddress)), disabledFlags);
 
 
     // *** Uncheck first
     modelIdx = pMbcRegisterModel->index(0, cColumnSelected);
-    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Unchecked), Qt::CheckStateRole), true);
+    QCOMPARE(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Unchecked), Qt::CheckStateRole), true);
 
     // Check all enabled
-    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), 0);
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 0);
 
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), enabledFlags);
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), enabledFlags);
 
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(1, cColumnAddress)), enabledFlags);
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(1, cColumnAddress)), enabledFlags);
 
 
     // *** Check second
     modelIdx = pMbcRegisterModel->index(1, cColumnSelected);
-    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
+    QCOMPARE(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
 
     // Check disabled first
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(), "Already selected address");
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), disabledFlags);
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(), "Already selected address");
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), disabledFlags);
 
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(1, cColumnAddress)), enabledFlags);
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(1, cColumnAddress)), enabledFlags);
 
 
     // *** Uncheck second
     modelIdx = pMbcRegisterModel->index(1, cColumnSelected);
-    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Unchecked), Qt::CheckStateRole), true);
+    QCOMPARE(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Unchecked), Qt::CheckStateRole), true);
 
     // Check all enabled
-    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), 0);
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 0);
 
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), enabledFlags);
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), enabledFlags);
 
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(1, cColumnAddress)), enabledFlags);
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(1, cColumnAddress)), enabledFlags);
 
 }
 
@@ -241,12 +241,12 @@ void TestMbcRegisterModel::fillData()
 
     /*-- Test fill and expected signals --*/
 
-    EXPECT_EQ(pMbcRegisterModel->rowCount(), 0);
+    QCOMPARE(pMbcRegisterModel->rowCount(), 0);
 
     fillModel(&graphDataModel, pMbcRegisterModel, false);
 
-    EXPECT_NE(pMbcRegisterModel->rowCount(), 0);
-    EXPECT_EQ(resetSignalSpy.count(), 0);
+    QVERIFY(pMbcRegisterModel->rowCount() != 0);
+    QCOMPARE(resetSignalSpy.count(), 0);
 
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
             << MbcRegisterData(40001, true, "Test1", 0, false, true, 0) // Disabled: Will be already present
@@ -267,13 +267,13 @@ void TestMbcRegisterModel::fillData()
 
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
 
-    EXPECT_EQ(pMbcRegisterModel->rowCount(), mbcRegisterList.size());
-    EXPECT_EQ(resetSignalSpy.count(), 1);
-    EXPECT_EQ(rowsInsertedSpy.count(), 1);
+    QCOMPARE(pMbcRegisterModel->rowCount(), mbcRegisterList.size());
+    QCOMPARE(resetSignalSpy.count(), 1);
+    QCOMPARE(rowsInsertedSpy.count(), 1);
 
     QList<QVariant> arguments = rowsInsertedSpy.takeFirst(); // take the first signal
-    EXPECT_EQ(arguments.at(1), 0);
-    EXPECT_EQ(arguments.at(2), mbcRegisterList.size() - 1);
+    QCOMPARE(arguments.at(1), 0);
+    QCOMPARE(arguments.at(2), mbcRegisterList.size() - 1);
 
     /*-- Test result of fill with data function  --*/
 
@@ -285,49 +285,49 @@ void TestMbcRegisterModel::fillData()
     int row = 0;
 
     row = 0;
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "Already added address");
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), disabledFlags); // flags
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "Already added address");
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), disabledFlags); // flags
 
     row = 1;
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), enabledFlags); // flags
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), enabledFlags); // flags
 
     row = 2;
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), enabledFlags); // flags
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), enabledFlags); // flags
 
     row = 3;
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), enabledFlags); // flags
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), enabledFlags); // flags
 
     row = 4;
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), enabledFlags); // flags
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), enabledFlags); // flags
 
     row = 5;
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "Not readable");
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), disabledFlags); // flags
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "Not readable");
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), disabledFlags); // flags
 
     row = 6;
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), enabledFlags); // flags
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), enabledFlags); // flags
 
     row = 7;
-    EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    EXPECT_EQ(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), enabledFlags); // flags
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), enabledFlags); // flags
 
 
     /* Loop when possible */
     for (int rowIdx = 0; rowIdx < mbcRegisterList.size(); rowIdx++)
     {
-        EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnSelected), Qt::CheckStateRole), Qt::Unchecked);
-        EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnAddress), Qt::DisplayRole), mbcRegisterList[rowIdx].registerAddress());
-        EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnText), Qt::DisplayRole), mbcRegisterList[rowIdx].name());
-        EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnTab), Qt::DisplayRole), tabList[mbcRegisterList[rowIdx].tabIdx()]);
-        EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnDecimals), Qt::DisplayRole), mbcRegisterList[rowIdx].decimals());
+        QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnSelected), Qt::CheckStateRole), Qt::Unchecked);
+        QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnAddress), Qt::DisplayRole), mbcRegisterList[rowIdx].registerAddress());
+        QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnText), Qt::DisplayRole), mbcRegisterList[rowIdx].name());
+        QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnTab), Qt::DisplayRole), tabList[mbcRegisterList[rowIdx].tabIdx()]);
+        QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnDecimals), Qt::DisplayRole), mbcRegisterList[rowIdx].decimals());
 
         Qt::CheckState state = mbcRegisterList[rowIdx].isUnsigned() ? Qt::Checked : Qt::Unchecked;
-        EXPECT_EQ(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnUnsigned), Qt::CheckStateRole), state);
+        QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnUnsigned), Qt::CheckStateRole), state);
     }
 }
 
@@ -338,12 +338,12 @@ void TestMbcRegisterModel::reset()
     QSignalSpy resetSignalSpy(pMbcRegisterModel, SIGNAL(modelReset()));
 
     fillModel(&graphDataModel, pMbcRegisterModel, false);
-    EXPECT_NE(pMbcRegisterModel->rowCount(), 0);
+    QVERIFY(pMbcRegisterModel->rowCount() != 0);
 
     pMbcRegisterModel->reset();
 
-    EXPECT_EQ(pMbcRegisterModel->rowCount(), 0);
-    EXPECT_EQ(resetSignalSpy.count(), 1);
+    QCOMPARE(pMbcRegisterModel->rowCount(), 0);
+    QCOMPARE(resetSignalSpy.count(), 1);
 }
 
 void TestMbcRegisterModel::selectedRegisterListAndCount()
@@ -363,7 +363,7 @@ void TestMbcRegisterModel::selectedRegisterListAndCount()
 
 
     // At least 2 rows required for this test
-    EXPECT_GE(pMbcRegisterModel->rowCount(), 2);
+    QVERIFY(pMbcRegisterModel->rowCount() >= 2);
 
     QList<GraphData> graphListRef;
     GraphData graphData;
@@ -388,67 +388,67 @@ void TestMbcRegisterModel::selectedRegisterListAndCount()
     QModelIndex modelIdx;
 
     // Start all unchecked
-    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), 0);
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 0);
 
     // Check first
     modelIdx = pMbcRegisterModel->index(0, cColumnSelected);
-    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
+    QCOMPARE(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
 
-    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), 1);
-    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), pMbcRegisterModel->selectedRegisterList().size());
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 1);
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), pMbcRegisterModel->selectedRegisterList().size());
 
     graphList = pMbcRegisterModel->selectedRegisterList();
-    EXPECT_EQ(graphList[0].isActive(), graphListRef[0].isActive());
-    EXPECT_EQ(graphList[0].registerAddress(), graphListRef[0].registerAddress());
-    EXPECT_EQ(graphList[0].label(), graphListRef[0].label());
-    EXPECT_EQ(graphList[0].isUnsigned(), graphListRef[0].isUnsigned());
-    EXPECT_EQ(graphList[0].isBit32(), graphListRef[0].isBit32());
-    EXPECT_EQ(graphList[0].expression(), graphListRef[0].expression());
+    QCOMPARE(graphList[0].isActive(), graphListRef[0].isActive());
+    QCOMPARE(graphList[0].registerAddress(), graphListRef[0].registerAddress());
+    QCOMPARE(graphList[0].label(), graphListRef[0].label());
+    QCOMPARE(graphList[0].isUnsigned(), graphListRef[0].isUnsigned());
+    QCOMPARE(graphList[0].isBit32(), graphListRef[0].isBit32());
+    QCOMPARE(graphList[0].expression(), graphListRef[0].expression());
 
     // Check second
     modelIdx = pMbcRegisterModel->index(1, cColumnSelected);
-    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
+    QCOMPARE(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
 
-    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), 2);
-    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), pMbcRegisterModel->selectedRegisterList().size());
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 2);
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), pMbcRegisterModel->selectedRegisterList().size());
 
     graphList = pMbcRegisterModel->selectedRegisterList();
-    EXPECT_EQ(graphList[0].isActive(), graphListRef[0].isActive());
-    EXPECT_EQ(graphList[0].registerAddress(), graphListRef[0].registerAddress());
-    EXPECT_EQ(graphList[0].label(), graphListRef[0].label());
-    EXPECT_EQ(graphList[0].isUnsigned(), graphListRef[0].isUnsigned());
-    EXPECT_EQ(graphList[0].isBit32(), graphListRef[0].isBit32());
-    EXPECT_EQ(graphList[0].expression(), graphListRef[0].expression());
+    QCOMPARE(graphList[0].isActive(), graphListRef[0].isActive());
+    QCOMPARE(graphList[0].registerAddress(), graphListRef[0].registerAddress());
+    QCOMPARE(graphList[0].label(), graphListRef[0].label());
+    QCOMPARE(graphList[0].isUnsigned(), graphListRef[0].isUnsigned());
+    QCOMPARE(graphList[0].isBit32(), graphListRef[0].isBit32());
+    QCOMPARE(graphList[0].expression(), graphListRef[0].expression());
 
-    EXPECT_EQ(graphList[1].isActive(), graphListRef[1].isActive());
-    EXPECT_EQ(graphList[1].registerAddress(), graphListRef[1].registerAddress());
-    EXPECT_EQ(graphList[1].label(), graphListRef[1].label());
-    EXPECT_EQ(graphList[1].isUnsigned(), graphListRef[1].isUnsigned());
-    EXPECT_EQ(graphList[1].isBit32(), graphListRef[1].isBit32());
-    EXPECT_EQ(graphList[1].expression(), graphListRef[1].expression());
+    QCOMPARE(graphList[1].isActive(), graphListRef[1].isActive());
+    QCOMPARE(graphList[1].registerAddress(), graphListRef[1].registerAddress());
+    QCOMPARE(graphList[1].label(), graphListRef[1].label());
+    QCOMPARE(graphList[1].isUnsigned(), graphListRef[1].isUnsigned());
+    QCOMPARE(graphList[1].isBit32(), graphListRef[1].isBit32());
+    QCOMPARE(graphList[1].expression(), graphListRef[1].expression());
 
     // Uncheck first
     modelIdx = pMbcRegisterModel->index(0, cColumnSelected);
-    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Unchecked), Qt::CheckStateRole), true);
+    QCOMPARE(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Unchecked), Qt::CheckStateRole), true);
 
-    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), 1);
-    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), pMbcRegisterModel->selectedRegisterList().size());
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 1);
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), pMbcRegisterModel->selectedRegisterList().size());
 
     graphList = pMbcRegisterModel->selectedRegisterList();
-    EXPECT_EQ(graphList[0].isActive(), graphListRef[1].isActive());
-    EXPECT_EQ(graphList[0].registerAddress(), graphListRef[1].registerAddress());
-    EXPECT_EQ(graphList[0].label(), graphListRef[1].label());
-    EXPECT_EQ(graphList[0].isUnsigned(), graphListRef[1].isUnsigned());
-    EXPECT_EQ(graphList[0].isBit32(), graphListRef[1].isBit32());
-    EXPECT_EQ(graphList[0].expression(), graphListRef[0].expression());
+    QCOMPARE(graphList[0].isActive(), graphListRef[1].isActive());
+    QCOMPARE(graphList[0].registerAddress(), graphListRef[1].registerAddress());
+    QCOMPARE(graphList[0].label(), graphListRef[1].label());
+    QCOMPARE(graphList[0].isUnsigned(), graphListRef[1].isUnsigned());
+    QCOMPARE(graphList[0].isBit32(), graphListRef[1].isBit32());
+    QCOMPARE(graphList[0].expression(), graphListRef[0].expression());
 
 
     // Uncheck second
     modelIdx = pMbcRegisterModel->index(1, cColumnSelected);
-    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Unchecked), Qt::CheckStateRole), true);
+    QCOMPARE(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Unchecked), Qt::CheckStateRole), true);
 
-    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), 0);
-    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), pMbcRegisterModel->selectedRegisterList().size());
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 0);
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), pMbcRegisterModel->selectedRegisterList().size());
 }
 
 void TestMbcRegisterModel::selectedRegisterListAndCount32()
@@ -465,24 +465,24 @@ void TestMbcRegisterModel::selectedRegisterListAndCount32()
 
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
 
-    EXPECT_GE(pMbcRegisterModel->rowCount(), 1);
+    QVERIFY(pMbcRegisterModel->rowCount() >= 1);
 
     QList<GraphData> graphList;
     QModelIndex modelIdx;
 
     modelIdx = pMbcRegisterModel->index(0, cColumnSelected);
-    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
+    QCOMPARE(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
 
-    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), 1);
-    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), pMbcRegisterModel->selectedRegisterList().size());
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 1);
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), pMbcRegisterModel->selectedRegisterList().size());
 
     graphList = pMbcRegisterModel->selectedRegisterList();
-    EXPECT_EQ(graphList[0].isActive(), true);
-    EXPECT_EQ(graphList[0].registerAddress(), 40001);
-    EXPECT_EQ(graphList[0].label(), "Test1");
-    EXPECT_EQ(graphList[0].isUnsigned(), true);
-    EXPECT_EQ(graphList[0].isBit32(), true);
-    EXPECT_EQ(graphList[0].expression(), "REG");
+    QCOMPARE(graphList[0].isActive(), true);
+    QCOMPARE(graphList[0].registerAddress(), 40001);
+    QCOMPARE(graphList[0].label(), "Test1");
+    QCOMPARE(graphList[0].isUnsigned(), true);
+    QCOMPARE(graphList[0].isBit32(), true);
+    QCOMPARE(graphList[0].expression(), "REG");
 }
 
 void TestMbcRegisterModel::selectedRegisterListDecimals()
@@ -501,37 +501,37 @@ void TestMbcRegisterModel::selectedRegisterListDecimals()
 
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
 
-    EXPECT_GE(pMbcRegisterModel->rowCount(), 3);
+    QVERIFY(pMbcRegisterModel->rowCount() >= 3);
 
     QList<GraphData> graphList;
     QModelIndex modelIdx;
 
     modelIdx = pMbcRegisterModel->index(0, cColumnSelected);
-    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
+    QCOMPARE(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
 
     modelIdx = pMbcRegisterModel->index(1, cColumnSelected);
-    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
+    QCOMPARE(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
 
     modelIdx = pMbcRegisterModel->index(2, cColumnSelected);
-    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
+    QCOMPARE(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
 
-    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), 3);
-    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), pMbcRegisterModel->selectedRegisterList().size());
-
-    graphList = pMbcRegisterModel->selectedRegisterList();
-    EXPECT_EQ(graphList[0].isActive(), true);
-    EXPECT_EQ(graphList[0].registerAddress(), 40001);
-    EXPECT_EQ(graphList[0].expression(), "REG");
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 3);
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), pMbcRegisterModel->selectedRegisterList().size());
 
     graphList = pMbcRegisterModel->selectedRegisterList();
-    EXPECT_EQ(graphList[1].isActive(), true);
-    EXPECT_EQ(graphList[1].registerAddress(), 40002);
-    EXPECT_EQ(graphList[1].expression(), "REG/10");
+    QCOMPARE(graphList[0].isActive(), true);
+    QCOMPARE(graphList[0].registerAddress(), 40001);
+    QCOMPARE(graphList[0].expression(), "REG");
 
     graphList = pMbcRegisterModel->selectedRegisterList();
-    EXPECT_EQ(graphList[2].isActive(), true);
-    EXPECT_EQ(graphList[2].registerAddress(), 40003);
-    EXPECT_EQ(graphList[2].expression(), "REG/100");
+    QCOMPARE(graphList[1].isActive(), true);
+    QCOMPARE(graphList[1].registerAddress(), 40002);
+    QCOMPARE(graphList[1].expression(), "REG/10");
+
+    graphList = pMbcRegisterModel->selectedRegisterList();
+    QCOMPARE(graphList[2].isActive(), true);
+    QCOMPARE(graphList[2].registerAddress(), 40003);
+    QCOMPARE(graphList[2].expression(), "REG/100");
 }
 
 void TestMbcRegisterModel::fillModel(MockGraphDataModel * pGraphDataModel, MbcRegisterModel * pMbcRegisterModel, bool bAlreadyPresent)
