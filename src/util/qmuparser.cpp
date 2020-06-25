@@ -34,6 +34,11 @@ bool QMuParser::evaluate(double regValue)
     {
         _result = _pExprParser->Eval();
 
+        if (qIsInf(_result) || qIsNaN(_result))
+        {
+            throw mu::ParserError("result is an undefined number");
+        }
+
         _msg = QStringLiteral("Success");
         _bSuccess = true;
     }

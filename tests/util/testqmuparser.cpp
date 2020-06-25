@@ -117,7 +117,7 @@ void TestQMuParser::evaluateRegister()
     QVERIFY(bSuccess);
 }
 
-void TestQMuParser::evaluateFaults()
+void TestQMuParser::evaluateinvalidExpr()
 {
     QMuParser parser("x11");
 
@@ -128,5 +128,15 @@ void TestQMuParser::evaluateFaults()
     QVERIFY(!bSuccess);
 }
 
+void TestQMuParser::evaluateDivByZero()
+{
+    QMuParser parser("1/0");
+
+    bool bSuccess = parser.evaluate();
+
+    QCOMPARE(parser.result(), 0);
+    QVERIFY(!parser.isSuccess());
+    QVERIFY(!bSuccess);
+}
 
 QTEST_GUILESS_MAIN(TestQMuParser)
