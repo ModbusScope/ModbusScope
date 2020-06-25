@@ -7,7 +7,6 @@
 
 /* Forward declaration */
 class GuiModel;
-class GraphData;
 class GraphDataModel;
 
 namespace Ui {
