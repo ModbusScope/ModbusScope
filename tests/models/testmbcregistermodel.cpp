@@ -372,6 +372,7 @@ void TestMbcRegisterModel::selectedRegisterListAndCount()
     graphData.setLabel("Test1");
     graphData.setUnsigned(true);
     graphData.setBit32(false);
+    graphData.setExpression(QStringLiteral("REG"));
     graphListRef.append(graphData);
 
     graphData.setActive(true);
@@ -379,6 +380,7 @@ void TestMbcRegisterModel::selectedRegisterListAndCount()
     graphData.setLabel("Test2");
     graphData.setUnsigned(true);
     graphData.setBit32(false);
+    graphData.setExpression(QStringLiteral("REG"));
     graphListRef.append(graphData);
 
 
@@ -401,6 +403,7 @@ void TestMbcRegisterModel::selectedRegisterListAndCount()
     EXPECT_EQ(graphList[0].label(), graphListRef[0].label());
     EXPECT_EQ(graphList[0].isUnsigned(), graphListRef[0].isUnsigned());
     EXPECT_EQ(graphList[0].isBit32(), graphListRef[0].isBit32());
+    EXPECT_EQ(graphList[0].expression(), graphListRef[0].expression());
 
     // Check second
     modelIdx = pMbcRegisterModel->index(1, cColumnSelected);
@@ -415,12 +418,14 @@ void TestMbcRegisterModel::selectedRegisterListAndCount()
     EXPECT_EQ(graphList[0].label(), graphListRef[0].label());
     EXPECT_EQ(graphList[0].isUnsigned(), graphListRef[0].isUnsigned());
     EXPECT_EQ(graphList[0].isBit32(), graphListRef[0].isBit32());
+    EXPECT_EQ(graphList[0].expression(), graphListRef[0].expression());
 
     EXPECT_EQ(graphList[1].isActive(), graphListRef[1].isActive());
     EXPECT_EQ(graphList[1].registerAddress(), graphListRef[1].registerAddress());
     EXPECT_EQ(graphList[1].label(), graphListRef[1].label());
     EXPECT_EQ(graphList[1].isUnsigned(), graphListRef[1].isUnsigned());
     EXPECT_EQ(graphList[1].isBit32(), graphListRef[1].isBit32());
+    EXPECT_EQ(graphList[1].expression(), graphListRef[1].expression());
 
     // Uncheck first
     modelIdx = pMbcRegisterModel->index(0, cColumnSelected);
@@ -435,6 +440,7 @@ void TestMbcRegisterModel::selectedRegisterListAndCount()
     EXPECT_EQ(graphList[0].label(), graphListRef[1].label());
     EXPECT_EQ(graphList[0].isUnsigned(), graphListRef[1].isUnsigned());
     EXPECT_EQ(graphList[0].isBit32(), graphListRef[1].isBit32());
+    EXPECT_EQ(graphList[0].expression(), graphListRef[0].expression());
 
 
     // Uncheck second
@@ -476,6 +482,56 @@ void TestMbcRegisterModel::selectedRegisterListAndCount32()
     EXPECT_EQ(graphList[0].label(), "Test1");
     EXPECT_EQ(graphList[0].isUnsigned(), true);
     EXPECT_EQ(graphList[0].isBit32(), true);
+    EXPECT_EQ(graphList[0].expression(), "REG");
+}
+
+void TestMbcRegisterModel::selectedRegisterListDecimals()
+{
+    MockGraphDataModel graphDataModel;
+    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
+
+    QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
+            << MbcRegisterData(40001, true, "Test1", 0, false, true, 0)
+            << MbcRegisterData(40002, true, "Test2", 0, false, true, 1)
+            << MbcRegisterData(40003, true, "Test3", 0, false, true, 2);
+    QStringList tabList = QStringList() << QString("Tab0");
+
+    EXPECT_CALL(graphDataModel, isPresent(_, _))
+        .WillRepeatedly(Return(false));
+
+    pMbcRegisterModel->fill(mbcRegisterList, tabList);
+
+    EXPECT_GE(pMbcRegisterModel->rowCount(), 3);
+
+    QList<GraphData> graphList;
+    QModelIndex modelIdx;
+
+    modelIdx = pMbcRegisterModel->index(0, cColumnSelected);
+    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
+
+    modelIdx = pMbcRegisterModel->index(1, cColumnSelected);
+    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
+
+    modelIdx = pMbcRegisterModel->index(2, cColumnSelected);
+    EXPECT_EQ(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
+
+    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), 3);
+    EXPECT_EQ(pMbcRegisterModel->selectedRegisterCount(), pMbcRegisterModel->selectedRegisterList().size());
+
+    graphList = pMbcRegisterModel->selectedRegisterList();
+    EXPECT_EQ(graphList[0].isActive(), true);
+    EXPECT_EQ(graphList[0].registerAddress(), 40001);
+    EXPECT_EQ(graphList[0].expression(), "REG");
+
+    graphList = pMbcRegisterModel->selectedRegisterList();
+    EXPECT_EQ(graphList[1].isActive(), true);
+    EXPECT_EQ(graphList[1].registerAddress(), 40002);
+    EXPECT_EQ(graphList[1].expression(), "REG/10");
+
+    graphList = pMbcRegisterModel->selectedRegisterList();
+    EXPECT_EQ(graphList[2].isActive(), true);
+    EXPECT_EQ(graphList[2].registerAddress(), 40003);
+    EXPECT_EQ(graphList[2].expression(), "REG/100");
 }
 
 void TestMbcRegisterModel::fillModel(MockGraphDataModel * pGraphDataModel, MbcRegisterModel * pMbcRegisterModel, bool bAlreadyPresent)

@@ -28,6 +28,8 @@ private slots:
     void selectedRegisterListAndCount();
     void selectedRegisterListAndCount32();
 
+    void selectedRegisterListDecimals();
+
 private:
 
     void fillModel(MockGraphDataModel * pGraphDataModel, MbcRegisterModel * pMbcRegisterModel, bool bAlreadyPresent);
