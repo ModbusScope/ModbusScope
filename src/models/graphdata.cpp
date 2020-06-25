@@ -92,6 +92,9 @@ QString GraphData::expression() const
 
 void GraphData::setExpression(QString expression)
 {
+    /* Change "reg" in all cases to "REG" */
+    expression.replace(QStringLiteral("reg"), QStringLiteral("REG"), Qt::CaseInsensitive);
+
     _expression = expression;
 }
 

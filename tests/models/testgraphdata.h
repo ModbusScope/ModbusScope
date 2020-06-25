@@ -13,6 +13,9 @@ private slots:
 
     void setLabel();
 
+    void setExpression_data();
+    void setExpression();
+
 private:
 
 };

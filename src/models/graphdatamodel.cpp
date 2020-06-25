@@ -509,9 +509,6 @@ void GraphDataModel::setExpression(quint32 index, QString expression)
 {
     if (_graphData[index].expression() != expression)
     {
-        /* Change "reg" in all cases to "REG" */
-        QString newExpr = expression.replace(QStringLiteral("reg"), QStringLiteral("REG"), Qt::CaseInsensitive);
-
          _graphData[index].setExpression(expression);
          emit expressionChanged(index);
     }
