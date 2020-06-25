@@ -4,6 +4,8 @@
 #include "graphdatamodel.h"
 #include "settingsmodel.h"
 
+#include "scopelogging.h"
+
 RegisterValueHandler::RegisterValueHandler(GraphDataModel *pGraphDataModel, SettingsModel* pSettingsModel)
 {
     _pGraphDataModel = pGraphDataModel;
@@ -101,7 +103,14 @@ void RegisterValueHandler::processPartialResult(QMap<quint16, ModbusResult> part
                         else
                         {
                             processedResult = 0u;
-                            /* TODO: log error */
+
+                            auto msg = QString("Expression evaluation failed (%1): address %2, expression %3, value %4")
+                                        .arg(_valueParsers[activeIndex]->msg())
+                                        .arg(_pGraphDataModel->registerAddress(activeIndex))
+                                        .arg(_pGraphDataModel->expression(activeIndex))
+                                        .arg(combinedValueToProcess);
+
+                            qCWarning(scopeComm) << msg;
                         }
                     }
 
