@@ -8,7 +8,6 @@ install:
   - cmd: set PATH=C:\Qt\5.12\mingw73_64\bin;%PATH%
 #  - cmd: windeployqt.exe (return code isn't correct)
   
-  - cmd: set PATH=C:\Qt\Tools\mingw730_64\bin;%PATH%
   - cmd: g++ -v
 
   - cmd: set PATH=C:\Program Files (x86)\Inno Setup 6;%PATH%
