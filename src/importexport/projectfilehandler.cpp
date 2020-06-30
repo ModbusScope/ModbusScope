@@ -22,9 +22,12 @@ void ProjectFileHandler::loadProjectFile(QString projectFilePath)
     QFile file(projectFilePath);
 
     /* If we can't open it, let's show an error message. */
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+    if (file.open(QFile::ReadOnly | QFile::Text))
     {
-        if (fileParser.parseFile(&file, &loadedSettings))
+        QTextStream in(&file);
+        QString projectFileContents = in.readAll();
+
+        if (fileParser.parseFile(projectFileContents, &loadedSettings))
         {
             this->updateProjectSetting(&loadedSettings);
 

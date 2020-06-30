@@ -20,14 +20,14 @@ ProjectFileParser::ProjectFileParser()
 }
 
 
-bool ProjectFileParser::parseFile(QIODevice *device, ProjectSettings *pSettings)
+bool ProjectFileParser::parseFile(QString& fileContent, ProjectSettings *pSettings)
 {
     bool bRet = true;
     QString errorStr;
     qint32 errorLine;
     qint32 errorColumn;
 
-    if (!_domDocument.setContent(device, true, &errorStr, &errorLine, &errorColumn))
+    if (!_domDocument.setContent(fileContent, true, &errorStr, &errorLine, &errorColumn))
     {
        Util::showError(tr("Parse error at line %1, column %2:\n%3")
                 .arg(errorLine)

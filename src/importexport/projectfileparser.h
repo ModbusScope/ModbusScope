@@ -15,7 +15,7 @@ public:
 
     explicit ProjectFileParser();
 
-    bool parseFile(QIODevice *device, ProjectFileData::ProjectSettings * pSettings);
+    bool parseFile(QString &fileContent, ProjectFileData::ProjectSettings * pSettings);
 
 signals:
 
