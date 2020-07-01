@@ -17,10 +17,6 @@ public:
 
     bool parseFile(QString &fileContent, ProjectFileData::ProjectSettings * pSettings);
 
-signals:
-
-public slots:
-
 private:
 
     bool parseModbusTag(const QDomElement &element, ProjectFileData::GeneralSettings *pGeneralSettings);
