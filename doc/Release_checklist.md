@@ -13,7 +13,5 @@
 ## After release
 
 * Determine next version number
-* Update version number test
-  * Required because mocking static (`Util::currentVersion`) function doesn't work
 * Update version number of application (`src/CMakeLists.txt`)
 * Reset *NDEBUG* to *DEBUG* (`src/CMakeLists.txt`)
