@@ -7,6 +7,7 @@
 #include "graphdatamodel.h"
 #include "diagnosticmodel.h"
 #include "scopelogging.h"
+#include "util.h"
 
 #include "communicationmanager.h"
 
@@ -56,7 +57,8 @@ bool CommunicationManager::startCommunication()
         _bPollActive = true;
         bResetted = true;
 
-        qCInfo(scopeCommConnection) << QStringLiteral("Start logging");
+        QString timeString = QDateTime::currentDateTime().toString("dd/MM/yyyy " + Util::timeStringFormat());
+        qCInfo(scopeCommConnection) << QString("Start logging: %1").arg(timeString);
 
         for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++)
         {
@@ -160,7 +162,8 @@ void CommunicationManager::stopCommunication()
     _pPollTimer->stop();
     _pGuiModel->setCommunicationEndTime(QDateTime::currentMSecsSinceEpoch());
 
-    qCInfo(scopeCommConnection) << QStringLiteral("Stop logging");
+    QString timeString = QDateTime::currentDateTime().toString("dd/MM/yyyy " + Util::timeStringFormat());
+    qCInfo(scopeCommConnection) << QString("Stop logging: %1").arg(timeString);
 
     for(quint8 i = 0; i < SettingsModel::CONNECTION_ID_CNT; i++)
     {

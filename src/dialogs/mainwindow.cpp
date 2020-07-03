@@ -1040,6 +1040,9 @@ void MainWindow::handleCommandLineArguments(QStringList cmdArguments)
 
 void MainWindow::logInitialInfo()
 {
+    QString timeString = QDateTime::currentDateTime().toString("dd/MM/yyyy " + Util::timeStringFormat());
+    qCInfo(scopeGeneralInfo) << QString("App start %1").arg(timeString);
+
     qCInfo(scopeGeneralInfo) << QString("ModbusScope v%1").arg(Util::currentVersion());
 #ifdef DEBUG
     qCInfo(scopeGeneralInfo) << QString("DEV git: %1:%2").arg(GIT_BRANCH).arg(GIT_COMMIT_HASH);
