@@ -46,6 +46,8 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     ScopeLogging::Logger().initLogging(_pDiagnosticModel);
 
+    logInitialInfo();
+
     _pConnectionDialog = new ConnectionDialog(_pSettingsModel, this);
     _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
     _pDiagnosticDialog = new DiagnosticDialog(_pDiagnosticModel, this);
@@ -1034,4 +1036,16 @@ void MainWindow::handleCommandLineArguments(QStringList cmdArguments)
         _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
         _pProjectFileHandler->loadProjectFile(filename);
     }
+}
+
+void MainWindow::logInitialInfo()
+{
+    qCInfo(scopeGeneralInfo) << QString("ModbusScope v%1").arg(Util::currentVersion());
+#ifdef DEBUG
+    qCInfo(scopeGeneralInfo) << QString("DEV git: %1:%2").arg(GIT_BRANCH).arg(GIT_COMMIT_HASH);
+#endif
+
+    qCInfo(scopeGeneralInfo) << QString("Qt library v%1").arg(QLibraryInfo::version().toString());
+
+    qCInfo(scopeGeneralInfo) << QString("OS: %1").arg(QSysInfo::prettyProductName());
 }

@@ -106,6 +106,7 @@ private slots:
 private:
 
     void handleCommandLineArguments(QStringList cmdArguments);
+    void logInitialInfo();
 
     Ui::MainWindow * _pUi;
     CommunicationManager * _pConnMan;
