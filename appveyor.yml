@@ -19,38 +19,9 @@ install:
   
   - cmd: echo %PATH%
 
-build_script:
-  - cmd: git submodule update --init --recursive
-
-  - cmd: mkdir build
-  - cmd: cd build
-  
-  - cmd: cmake .. -G "MinGW Makefiles"
-  - cmd: mingw32-make -j2
-
-  - cmd: mkdir deploy
-  - cmd: copy src\ModbusScope.exe deploy
-  - cmd: cd deploy
-  - cmd: windeployqt.exe ModbusScope.exe --release --compiler-runtime -verbose 2
-
   # Add OpenSSL dll's
-  - cmd: set "OPENSSL_DIR=C:\Qt\Tools\OpenSSL\Win_x64\bin"
-  - cmd: xcopy %OPENSSL_DIR%\libcrypto-1_1-x64.dll .
-  - cmd: xcopy %OPENSSL_DIR%\libssl-1_1-x64.dll .
-  
-  # Back to build dir
-  - cmd: cd ..
-  
-  - cmd: 7z a ModbusScope.zip ".\deploy\*"
-  
-  # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/xcopy
-  - cmd: xcopy deploy ..\installer\deploy /e /i /y /s
-  
-  - cmd: compil32 /cc "..\installer\modbusscope_installer.iss"
-
-
-artifacts:
- - path: build\ModbusScope.zip
- - path: installer\Output\ModbusScope_setup.exe
-
+  - cmd: dir C:\Qt\Tools\"
+  - cmd: dir C:\Qt\Tools\OpenSSL\"
+  - cmd: dir C:\Qt\Tools\OpenSSL\Win_x64"
+  - cmd: dir C:\Qt\Tools\OpenSSL\Win_x64\bin"
 
