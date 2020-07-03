@@ -34,7 +34,7 @@ build_script:
   - cmd: windeployqt.exe ModbusScope.exe --release --compiler-runtime -verbose 2
 
   # Add OpenSSL dll's
-  - cmd: set "OPENSSL_DIR=C:\OpenSSL-v111-Win64\bin"
+  - cmd: set "OPENSSL_DIR=C:\Qt\Tools\OpenSSL\Win_x64\bin"
   - cmd: xcopy %OPENSSL_DIR%\libcrypto-1_1-x64.dll .
   - cmd: xcopy %OPENSSL_DIR%\libssl-1_1-x64.dll .
   
