@@ -5,9 +5,10 @@
 #include "updatenotify.h"
 #include "versiondownloader.h"
 
-UpdateNotify::UpdateNotify(VersionDownloader* pVersionDownloader, QObject *parent) :
+UpdateNotify::UpdateNotify(VersionDownloader* pVersionDownloader, QString currentVersion, QObject *parent) :
     QObject(parent)
 {
+    _currentVersion = currentVersion;
     _bValidData = false;
     _pVersionDownloader = pVersionDownloader;
 
@@ -33,7 +34,7 @@ void UpdateNotify::handleVersionData()
     {
         _bValidData = true;
 
-        const UpdateState versionState = checkVersions(Util::currentVersion(), _version);
+        const UpdateState versionState = checkVersions(_currentVersion, _version);
 
         emit updateCheckResult(versionState);
     }

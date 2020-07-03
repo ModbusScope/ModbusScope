@@ -11,7 +11,7 @@ class UpdateNotify : public QObject
 {
     Q_OBJECT
 public:
-    explicit UpdateNotify(VersionDownloader* pVersionDownloader, QObject *parent = 0);
+    explicit UpdateNotify(VersionDownloader* pVersionDownloader, QString currentVersion, QObject *parent = 0);
 
     void checkForUpdate();
 
@@ -36,6 +36,8 @@ private:
     UpdateState checkVersions(QString current, QString latest);
 
     VersionDownloader* _pVersionDownloader;
+
+    QString _currentVersion;
 
     QString _version;
     QUrl _link;

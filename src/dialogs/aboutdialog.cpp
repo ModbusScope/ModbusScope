@@ -14,7 +14,7 @@
 AboutDialog::AboutDialog(QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::AboutDialog),
-    _updateNotify(new VersionDownloader())
+    _updateNotify(new VersionDownloader(), Util::currentVersion())
 {
     _pUi->setupUi(this);
 

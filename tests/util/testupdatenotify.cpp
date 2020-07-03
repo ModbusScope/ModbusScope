@@ -15,15 +15,15 @@
 using ::testing::Return;
 using namespace testing;
 
-// Configured to fixed version 2.1.0
-/* TODO: Mock Util::GetVersion */
+// Configured to fixed version 2.1.1
+const QString TestUpdateNotify::_cVersion = QString("2.1.1");
 
-const QString TestUpdateNotify::_cVersionLowerRevision = QString("2.2.0");
-const QString TestUpdateNotify::_cVersionLowerMinor = QString("2.1.0");
+const QString TestUpdateNotify::_cVersionLowerRevision = QString("2.1.0");
+const QString TestUpdateNotify::_cVersionLowerMinor = QString("2.0.0");
 const QString TestUpdateNotify::_cVersionLowerMajor = QString("1.1.0");
 
-const QString TestUpdateNotify::_cVersionHigherRevision = QString("2.2.1");
-const QString TestUpdateNotify::_cVersionHigherMinor = QString("2.3.0");
+const QString TestUpdateNotify::_cVersionHigherRevision = QString("2.1.2");
+const QString TestUpdateNotify::_cVersionHigherMinor = QString("2.2.0");
 const QString TestUpdateNotify::_cVersionHigherMajor = QString("3.1.0");
 
 void TestUpdateNotify::init()
@@ -43,7 +43,7 @@ void TestUpdateNotify::cleanup()
 
 void TestUpdateNotify::triggerDownloader()
 {
-    UpdateNotify updateNotify(_pVersionDownloader);
+    UpdateNotify updateNotify(_pVersionDownloader, _cVersion);
 
     EXPECT_CALL(*_pVersionDownloader, performCheck())
         .Times(1)
@@ -71,7 +71,7 @@ void TestUpdateNotify::versionEqual()
 {
     configureServerData(QString("v1.2.3"), QString("http://google.be"));
 
-    UpdateNotify updateNotify(_pVersionDownloader);
+    UpdateNotify updateNotify(_pVersionDownloader, _cVersion);
 
     QSignalSpy spyUpdateResult(&updateNotify, &UpdateNotify::updateCheckResult);
 
@@ -105,7 +105,7 @@ void TestUpdateNotify::incorrectVersion()
 {
     configureServerData(QString("v1.2"), QString("http://google.be"));
 
-    UpdateNotify updateNotify(_pVersionDownloader);
+    UpdateNotify updateNotify(_pVersionDownloader, _cVersion);
 
     QSignalSpy spyUpdateResult(&updateNotify, &UpdateNotify::updateCheckResult);
 
@@ -118,7 +118,7 @@ void TestUpdateNotify::incorrectUrl()
 {
     configureServerData(QString("v1.2.3"), QString(" "));
 
-    UpdateNotify updateNotify(_pVersionDownloader);
+    UpdateNotify updateNotify(_pVersionDownloader, _cVersion);
 
     QSignalSpy spyUpdateResult(&updateNotify, &UpdateNotify::updateCheckResult);
 
@@ -144,7 +144,7 @@ void TestUpdateNotify::checkServerCheck(QString version, UpdateNotify::UpdateSta
 {
     configureServerData(version, QString("http://google.be"));
 
-    UpdateNotify updateNotify(_pVersionDownloader);
+    UpdateNotify updateNotify(_pVersionDownloader, _cVersion);
 
     QSignalSpy spyUpdateResult(&updateNotify, &UpdateNotify::updateCheckResult);
 

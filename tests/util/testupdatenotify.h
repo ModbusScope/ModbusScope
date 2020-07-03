@@ -35,6 +35,8 @@ private:
 
     MockVersionDownloader* _pVersionDownloader;
 
+    static const QString _cVersion;
+
     static const QString _cVersionLowerRevision;
     static const QString _cVersionLowerMinor;
     static const QString _cVersionLowerMajor;
