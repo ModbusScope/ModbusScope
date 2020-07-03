@@ -1,3 +1,8 @@
+# v2.1.1 (03/07/2020)
+
+## Defects
+* Fix update check (add OpenSSL dll to install) (#136)
+
 # v2.1.0 (15/06/2020)
 
 ## Defects
