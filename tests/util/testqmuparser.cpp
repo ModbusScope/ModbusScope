@@ -94,11 +94,11 @@ void TestQMuParser::evaluateRegister_data()
     QTest::addColumn<double>("result");
 
 
-    ADD_REG_TEST("REG",           2,        2    );
-    ADD_REG_TEST("REG + 2",       3,        5    );
-    ADD_REG_TEST("REG * 2",       4,        8    );
-    ADD_REG_TEST("REG / 1000",    5,        0.005);
-    ADD_REG_TEST("REG & 0xFF",    257,      1);
+    ADD_REG_TEST("VAL",           2,        2    );
+    ADD_REG_TEST("VAL + 2",       3,        5    );
+    ADD_REG_TEST("VAL * 2",       4,        8    );
+    ADD_REG_TEST("VAL / 1000",    5,        0.005);
+    ADD_REG_TEST("VAL & 0xFF",    257,      1);
 
 }
 

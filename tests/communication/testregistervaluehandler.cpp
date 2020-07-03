@@ -42,7 +42,7 @@ void TestRegisterValueHandler::read_16_operation()
 {
     addRegisterToModel();
 
-    _pGraphDataModel->setExpression(0, QStringLiteral("(REG<<2)*2/4"));
+    _pGraphDataModel->setExpression(0, QStringLiteral("(VAL<<2)*2/4"));
 
     auto partialResultMap = createResultMap(0, false, 256, true);
 
@@ -79,7 +79,7 @@ void TestRegisterValueHandler::read_s16_operation()
 
     _pGraphDataModel->setUnsigned(0, false);
 
-    _pGraphDataModel->setExpression(0, QStringLiteral("(REG<<2)*2/4"));
+    _pGraphDataModel->setExpression(0, QStringLiteral("(VAL<<2)*2/4"));
 
     auto partialResultMap = createResultMap(0, false, -256, true);
 
@@ -115,7 +115,7 @@ void TestRegisterValueHandler::read_32_operation()
     addRegisterToModel();
 
     _pGraphDataModel->setBit32(0, true);
-    _pGraphDataModel->setExpression(0, QStringLiteral("(REG<<2)*2/4"));
+    _pGraphDataModel->setExpression(0, QStringLiteral("(VAL<<2)*2/4"));
 
     auto partialResultMap = createResultMap(0, true, 11141120, true);
 
@@ -153,7 +153,7 @@ void TestRegisterValueHandler::read_s32_operation()
 
     _pGraphDataModel->setBit32(0, true);
     _pGraphDataModel->setUnsigned(0, false);
-    _pGraphDataModel->setExpression(0, QStringLiteral("(REG<<2)*2/4"));
+    _pGraphDataModel->setExpression(0, QStringLiteral("(VAL<<2)*2/4"));
 
     auto partialResultMap = createResultMap(0, true, -11141120, true);
 
@@ -230,17 +230,17 @@ void TestRegisterValueHandler::multiRead()
     addRegisterToModel();
     addRegisterToModel();
 
-    _pGraphDataModel->setExpression(0, QStringLiteral("REG*2"));
+    _pGraphDataModel->setExpression(0, QStringLiteral("VAL*2"));
     _pGraphDataModel->setRegisterAddress(0, 0);
 
-    _pGraphDataModel->setExpression(1, QStringLiteral("REG/3"));
+    _pGraphDataModel->setExpression(1, QStringLiteral("VAL/3"));
     _pGraphDataModel->setRegisterAddress(1, 3);
 
     _pGraphDataModel->setBit32(2, true);
-    _pGraphDataModel->setExpression(2, QStringLiteral("REG<<2"));
+    _pGraphDataModel->setExpression(2, QStringLiteral("VAL<<2"));
     _pGraphDataModel->setRegisterAddress(2, 5);
 
-    _pGraphDataModel->setExpression(3, QStringLiteral("REG&0x1F00"));
+    _pGraphDataModel->setExpression(3, QStringLiteral("VAL&0x1F00"));
     _pGraphDataModel->setRegisterAddress(3, 7);
 
     auto partialResultMap = createResultMap(0, false, 100, true);

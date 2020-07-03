@@ -201,7 +201,7 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
 
     for(qint32 idx = 0; idx < mbcRegisterList.size(); idx++)
     {
-        QString expr = QStringLiteral("REG");
+        QString expr = QStringLiteral("VAL");
 
         // Get result before adding to list
         _mbcRegisterList.append(mbcRegisterList[idx]);
@@ -275,11 +275,11 @@ QList<GraphData> MbcRegisterModel::selectedRegisterList()
             graphData.setUnsigned(_mbcRegisterList[row].isUnsigned());
             if (_mbcRegisterList[row].decimals() != 0)
             {
-                graphData.setExpression(QString("REG/%1").arg(static_cast<double>(qPow(10, _mbcRegisterList[row].decimals()))));
+                graphData.setExpression(QString("VAL/%1").arg(static_cast<double>(qPow(10, _mbcRegisterList[row].decimals()))));
             }
             else
             {
-                graphData.setExpression(QStringLiteral("REG"));
+                graphData.setExpression(QStringLiteral("VAL"));
             }
             graphData.setBit32(_mbcRegisterList[row].is32Bit());
 

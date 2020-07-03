@@ -27,7 +27,7 @@ bool QMuParser::evaluate(double regValue)
 {
     reset();
 
-    /* Set value to be used for REG variable */
+    /* Set value to be used for VAL variable */
     _registerValue = regValue;
 
     try

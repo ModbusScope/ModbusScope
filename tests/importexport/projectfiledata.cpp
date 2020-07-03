@@ -37,7 +37,7 @@ QString ProjectFileData::cDefaultProjectFile = QString(
     "       <text>Register 40001</text>                             \n"\
     "       <unsigned>true</unsigned>                               \n"\
     "       <bit32>false</bit32>                                    \n"\
-    "       <expression><![CDATA[REG/2]]></expression>              \n"\
+    "       <expression><![CDATA[VAL/2]]></expression>              \n"\
     "       <color>#000000</color>                                  \n"\
     "       <connectionid>0</connectionid>                          \n"\
     "    </register>                                                \n"\
@@ -46,7 +46,7 @@ QString ProjectFileData::cDefaultProjectFile = QString(
     "       <text>Register 40002</text>                             \n"\
     "       <unsigned>true</unsigned>                               \n"\
     "       <bit32>false</bit32>                                    \n"\
-    "       <expression><![CDATA[(REG+6/2)+5+5+5]]></expression>    \n"\
+    "       <expression><![CDATA[(VAL+6/2)+5+5+5]]></expression>    \n"\
     "       <color>#0000ff</color>                                  \n"\
     "       <connectionid>0</connectionid>                          \n"\
     "    </register>                                                \n"\

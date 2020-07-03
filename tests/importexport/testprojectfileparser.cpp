@@ -48,7 +48,7 @@ void TestProjectFileParser::newRegExpressions()
     QCOMPARE(settings.scope.registerList[0].bitmask, 0xFFFFFFFF);
 
     QVERIFY(settings.scope.registerList[0].bExpression);
-    QCOMPARE(settings.scope.registerList[0].expression, QString("(REG+6/2)+5+5+5"));
+    QCOMPARE(settings.scope.registerList[0].expression, QString("(VAL+6/2)+5+5+5"));
 }
 
 void TestProjectFileParser::bothLegacyNewRegExpressions()
@@ -65,7 +65,7 @@ void TestProjectFileParser::bothLegacyNewRegExpressions()
     QCOMPARE(settings.scope.registerList[0].bitmask, 0xFF00);
 
     QVERIFY(settings.scope.registerList[0].bExpression);
-    QCOMPARE(settings.scope.registerList[0].expression, QString("(REG+6/2)+5+5+5"));
+    QCOMPARE(settings.scope.registerList[0].expression, QString("(VAL+6/2)+5+5+5"));
 
 }
 

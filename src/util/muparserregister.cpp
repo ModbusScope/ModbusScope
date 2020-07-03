@@ -127,7 +127,7 @@ namespace mu
         /* Register variable */
         if (pRegisterValue != nullptr)
         {
-            DefineVar("REG", pRegisterValue);
+            DefineVar("VAL", pRegisterValue);
         }
 	}
 

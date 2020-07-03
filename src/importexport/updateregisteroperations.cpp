@@ -41,7 +41,7 @@ namespace UpdateRegisterOperations
 
 
 
-        QString operation = QStringLiteral("REG");
+        QString operation = QStringLiteral("VAL");
 
         if (defBitmask)
         {

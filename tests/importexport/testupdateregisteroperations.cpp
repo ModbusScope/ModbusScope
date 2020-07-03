@@ -20,7 +20,7 @@ void TestUpdateRegisterOperations::noOperation()
 {
     ProjectFileData::RegisterSettings regSettings;
 
-    checkOperation(regSettings, QStringLiteral("REG"));
+    checkOperation(regSettings, QStringLiteral("VAL"));
 }
 
 void TestUpdateRegisterOperations::bitmask()
@@ -29,7 +29,7 @@ void TestUpdateRegisterOperations::bitmask()
 
     regSettings.bitmask = 255;
 
-    checkOperation(regSettings, QStringLiteral("REG&0xFF"));
+    checkOperation(regSettings, QStringLiteral("VAL&0xFF"));
 }
 
 void TestUpdateRegisterOperations::shiftLeft()
@@ -38,7 +38,7 @@ void TestUpdateRegisterOperations::shiftLeft()
 
     regSettings.shift = 1;
 
-    checkOperation(regSettings, QStringLiteral("REG<<1"));
+    checkOperation(regSettings, QStringLiteral("VAL<<1"));
 }
 
 void TestUpdateRegisterOperations::shiftRight()
@@ -47,7 +47,7 @@ void TestUpdateRegisterOperations::shiftRight()
 
     regSettings.shift = -1;
 
-    checkOperation(regSettings, QStringLiteral("REG>>1"));
+    checkOperation(regSettings, QStringLiteral("VAL>>1"));
 }
 
 void TestUpdateRegisterOperations::multiply()
@@ -56,7 +56,7 @@ void TestUpdateRegisterOperations::multiply()
 
     regSettings.multiplyFactor = 2;
 
-    checkOperation(regSettings, QStringLiteral("REG*2"));
+    checkOperation(regSettings, QStringLiteral("VAL*2"));
 }
 
 void TestUpdateRegisterOperations::divide()
@@ -65,7 +65,7 @@ void TestUpdateRegisterOperations::divide()
 
     regSettings.divideFactor = 2;
 
-    checkOperation(regSettings, QStringLiteral("REG/2"));
+    checkOperation(regSettings, QStringLiteral("VAL/2"));
 }
 
 void TestUpdateRegisterOperations::allOperations()
@@ -77,7 +77,7 @@ void TestUpdateRegisterOperations::allOperations()
     regSettings.shift = 1;
     regSettings.bitmask = 255;
 
-    checkOperation(regSettings, QStringLiteral("((REG&0xFF)<<1)*3/2"));
+    checkOperation(regSettings, QStringLiteral("((VAL&0xFF)<<1)*3/2"));
 }
 
 void TestUpdateRegisterOperations::bitmaskShift()
@@ -87,7 +87,7 @@ void TestUpdateRegisterOperations::bitmaskShift()
     regSettings.shift = 2;
     regSettings.bitmask = 21930;
 
-    checkOperation(regSettings, QStringLiteral("(REG&0x55AA)<<2"));
+    checkOperation(regSettings, QStringLiteral("(VAL&0x55AA)<<2"));
 }
 
 void TestUpdateRegisterOperations::bitmaskMultiply()
@@ -97,7 +97,7 @@ void TestUpdateRegisterOperations::bitmaskMultiply()
     regSettings.multiplyFactor = 2;
     regSettings.bitmask = 4294967040;
 
-    checkOperation(regSettings, QStringLiteral("(REG&0xFFFFFF00)*2"));
+    checkOperation(regSettings, QStringLiteral("(VAL&0xFFFFFF00)*2"));
 }
 
 void TestUpdateRegisterOperations::shiftDivide()
@@ -107,7 +107,7 @@ void TestUpdateRegisterOperations::shiftDivide()
     regSettings.shift = 2;
     regSettings.divideFactor = 3;
 
-    checkOperation(regSettings, QStringLiteral("(REG<<2)/3"));
+    checkOperation(regSettings, QStringLiteral("(VAL<<2)/3"));
 }
 
 void TestUpdateRegisterOperations::multiplyDivide()
@@ -117,7 +117,7 @@ void TestUpdateRegisterOperations::multiplyDivide()
     regSettings.multiplyFactor = 2;
     regSettings.divideFactor = 3;
 
-    checkOperation(regSettings, QStringLiteral("REG*2/3"));
+    checkOperation(regSettings, QStringLiteral("VAL*2/3"));
 }
 
 void TestUpdateRegisterOperations::checkOperation(ProjectFileData::RegisterSettings& regSettings, QString regResult)

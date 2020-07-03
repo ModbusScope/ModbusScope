@@ -48,23 +48,23 @@ void TestGraphData::setLabel()
 void TestGraphData::setExpression_data()
 {
 
-    QTest::addColumn<QString>("regString");
+    QTest::addColumn<QString>("valString");
 
-    QTest::newRow("reg") << "reg";
-    QTest::newRow("ReG") << "ReG";
-    QTest::newRow("REG") << "REG";
-    QTest::newRow("Reg") << "Reg";
+    QTest::newRow("val") << "val";
+    QTest::newRow("VaL") << "VaL";
+    QTest::newRow("VAL") << "VAL";
+    QTest::newRow("Val") << "Val";
 }
 
 void TestGraphData::setExpression()
 {
-    QFETCH(QString, regString);
+    QFETCH(QString, valString);
 
     GraphData graphData;
 
-    graphData.setExpression(regString);
+    graphData.setExpression(valString);
 
-    QCOMPARE(graphData.expression(), QStringLiteral("REG"));
+    QCOMPARE(graphData.expression(), QStringLiteral("VAL"));
 }
 
 /* TODO: Add extra test for other functions */

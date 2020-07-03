@@ -103,7 +103,7 @@ void TestCommunicationManager::singleSlaveCheckProcessing()
     graphDataModel.setRegisterAddress(0, 40001);
 
     /* Set processing parameters */
-    graphDataModel.setExpression(0, QStringLiteral("REG*2/5"));
+    graphDataModel.setExpression(0, QStringLiteral("VAL*2/5"));
 
     /* Set processing parameters */
     graphDataModel.add();

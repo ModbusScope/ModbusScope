@@ -372,7 +372,7 @@ void TestMbcRegisterModel::selectedRegisterListAndCount()
     graphData.setLabel("Test1");
     graphData.setUnsigned(true);
     graphData.setBit32(false);
-    graphData.setExpression(QStringLiteral("REG"));
+    graphData.setExpression(QStringLiteral("VAL"));
     graphListRef.append(graphData);
 
     graphData.setActive(true);
@@ -380,7 +380,7 @@ void TestMbcRegisterModel::selectedRegisterListAndCount()
     graphData.setLabel("Test2");
     graphData.setUnsigned(true);
     graphData.setBit32(false);
-    graphData.setExpression(QStringLiteral("REG"));
+    graphData.setExpression(QStringLiteral("VAL"));
     graphListRef.append(graphData);
 
 
@@ -482,7 +482,7 @@ void TestMbcRegisterModel::selectedRegisterListAndCount32()
     QCOMPARE(graphList[0].label(), "Test1");
     QCOMPARE(graphList[0].isUnsigned(), true);
     QCOMPARE(graphList[0].isBit32(), true);
-    QCOMPARE(graphList[0].expression(), "REG");
+    QCOMPARE(graphList[0].expression(), "VAL");
 }
 
 void TestMbcRegisterModel::selectedRegisterListDecimals()
@@ -521,17 +521,17 @@ void TestMbcRegisterModel::selectedRegisterListDecimals()
     graphList = pMbcRegisterModel->selectedRegisterList();
     QCOMPARE(graphList[0].isActive(), true);
     QCOMPARE(graphList[0].registerAddress(), 40001);
-    QCOMPARE(graphList[0].expression(), "REG");
+    QCOMPARE(graphList[0].expression(), "VAL");
 
     graphList = pMbcRegisterModel->selectedRegisterList();
     QCOMPARE(graphList[1].isActive(), true);
     QCOMPARE(graphList[1].registerAddress(), 40002);
-    QCOMPARE(graphList[1].expression(), "REG/10");
+    QCOMPARE(graphList[1].expression(), "VAL/10");
 
     graphList = pMbcRegisterModel->selectedRegisterList();
     QCOMPARE(graphList[2].isActive(), true);
     QCOMPARE(graphList[2].registerAddress(), 40003);
-    QCOMPARE(graphList[2].expression(), "REG/100");
+    QCOMPARE(graphList[2].expression(), "VAL/100");
 }
 
 void TestMbcRegisterModel::fillModel(MockGraphDataModel * pGraphDataModel, MbcRegisterModel * pMbcRegisterModel, bool bAlreadyPresent)

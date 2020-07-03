@@ -265,14 +265,14 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
         {
             QString newExpr = value.toString();
 
-            if (newExpr.contains(QStringLiteral("reg"), Qt::CaseInsensitive))
+            if (newExpr.contains(QStringLiteral("val"), Qt::CaseInsensitive))
             {
                 setExpression(index.row(), newExpr);
             }
             else
             {
                 bRet = false;
-                Util::showError(tr("Every expression should contain the \"REG\" variable"));
+                Util::showError(tr("Every expression should contain the \"VAL\" variable"));
                 break;
             }
         }
@@ -567,7 +567,7 @@ void GraphDataModel::add(QList<QString> labelList, QList<double> timeData, QList
 }
 
 void GraphDataModel::removeRegister(qint32 idx)
-{   
+{
     if (idx < _graphData.size())
     {
         removeFromModel(idx);

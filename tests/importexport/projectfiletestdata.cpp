@@ -34,7 +34,7 @@ QString ProjectFileTestData::cBothLegacyAndNewRegExpressions = QString(
     "       <divide>2</divide>                                      \n"\
     "       <shift>1</shift>                                        \n"\
     "       <bitmask>0xFF00</bitmask>                               \n"\
-    "       <expression><![CDATA[(REG+6/2)+5+5+5]]></expression>    \n"\
+    "       <expression><![CDATA[(VAL+6/2)+5+5+5]]></expression>    \n"\
     "       <color>#0000ff</color>                                  \n"\
     "       <connectionid>0</connectionid>                          \n"\
     "    </register>                                                \n"\
@@ -51,7 +51,7 @@ QString ProjectFileTestData::cNewRegExpressions = QString(
     "       <text>Register 40002</text>                             \n"\
     "       <unsigned>true</unsigned>                               \n"\
     "       <bit32>false</bit32>                                    \n"\
-    "       <expression><![CDATA[(REG+6/2)+5+5+5]]></expression>    \n"\
+    "       <expression><![CDATA[(VAL+6/2)+5+5+5]]></expression>    \n"\
     "       <color>#0000ff</color>                                  \n"\
     "       <connectionid>0</connectionid>                          \n"\
     "    </register>                                                \n"\
