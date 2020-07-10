@@ -19,9 +19,25 @@ namespace UpdateRegisterOperations
         bool defMultiply = false;
         bool defDivide = false;
 
-        if (regSettings.bitmask != defaultBitmask)
+        /*
+         * Workaround because older versions always export bitmask even when set to default.
+         * This wil cause issues with signed values. The workaround is to ignore the bitmask when
+         * the default 16-bit bitmask is used in combination with a 16 bit register
+        */
+        if (
+            (!regSettings.b32Bit) // 16 bit register
+            && (regSettings.bitmask == default16bitBitmask)
+        )
+        {
+            defBitmask = false;
+        }
+        else if (regSettings.bitmask != default32bitBitmask)
         {
             defBitmask = true;
+        }
+        else
+        {
+            defBitmask = false;
         }
 
         if (regSettings.shift != defaultShift)

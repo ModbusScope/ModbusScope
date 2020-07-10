@@ -100,6 +100,28 @@ void TestUpdateRegisterOperations::bitmaskMultiply()
     checkOperation(regSettings, QStringLiteral("(VAL&0xFFFFFF00)*2"));
 }
 
+void TestUpdateRegisterOperations::bitmaskSigned16()
+{
+    ProjectFileData::RegisterSettings regSettings;
+
+    regSettings.b32Bit = false;
+    regSettings.bUnsigned = false;
+    regSettings.bitmask = 0xFFFF;
+
+    checkOperation(regSettings, QStringLiteral("VAL"));
+}
+
+void TestUpdateRegisterOperations::bitmaskSigned32()
+{
+    ProjectFileData::RegisterSettings regSettings;
+
+    regSettings.b32Bit = true;
+    regSettings.bUnsigned = false;
+    regSettings.bitmask = 0xFFFFFFFF;
+
+    checkOperation(regSettings, QStringLiteral("VAL"));
+}
+
 void TestUpdateRegisterOperations::shiftDivide()
 {
     ProjectFileData::RegisterSettings regSettings;

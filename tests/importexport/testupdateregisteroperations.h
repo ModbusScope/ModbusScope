@@ -22,6 +22,10 @@ private slots:
     void allOperations();
     void bitmaskShift();
     void bitmaskMultiply();
+
+    void bitmaskSigned16();
+    void bitmaskSigned32();
+
     void shiftDivide();
     void multiplyDivide();
 

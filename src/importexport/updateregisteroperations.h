@@ -11,7 +11,8 @@ namespace UpdateRegisterOperations
 
     const double defaultDivideFactor = 1;
     const double defaultMultiplyFactor = 1;
-    const quint32 defaultBitmask = 0xFFFFFFFF;
+    const quint32 default32bitBitmask = 0xFFFFFFFF;
+    const quint32 default16bitBitmask = 0xFFFF;
     const quint32 defaultShift = 0;
 
 }
