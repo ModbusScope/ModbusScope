@@ -160,7 +160,7 @@ void RegisterValueHandler::activeGraphAddresList(QList<quint16> * pRegisterList,
     }
 
     // sort qList
-    qSort(*pRegisterList);
+    std::sort(pRegisterList->begin(), pRegisterList->end(), std::less<int>());
 }
 
 void RegisterValueHandler::prepareForData()

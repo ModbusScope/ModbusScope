@@ -602,7 +602,7 @@ void GraphDataModel::activeGraphIndexList(QList<quint16> * pList)
     }
 
     // sort qList
-    qSort(*pList);
+    std::sort(pList->begin(), pList->end(), std::less<int>());
 }
 
 bool GraphDataModel::getDuplicate(quint16 * pRegister, QString* pExpression, quint8 * pConnectionId)
