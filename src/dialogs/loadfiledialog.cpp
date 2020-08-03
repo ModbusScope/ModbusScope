@@ -527,15 +527,15 @@ void LoadFileDialog::updatePreviewLayout(bool bValid, QString statusText)
                 {
                     if (rowIdx == static_cast<qint32>(_pParserModel->labelRow()))
                     {
-                        _pUi->tablePreview->item(rowIdx, columnIdx)->setBackgroundColor(_cColorLabel);
+                        _pUi->tablePreview->item(rowIdx, columnIdx)->setBackground(_cColorLabel);
                     }
                     else if (rowIdx >= static_cast<qint32>(_pParserModel->dataRow()))
                     {
-                        _pUi->tablePreview->item(rowIdx, columnIdx)->setBackgroundColor(_cColorData);
+                        _pUi->tablePreview->item(rowIdx, columnIdx)->setBackground(_cColorData);
                     }
                     else
                     {
-                        _pUi->tablePreview->item(rowIdx, columnIdx)->setTextColor(_cColorIgnored);
+                        _pUi->tablePreview->item(rowIdx, columnIdx)->setForeground(_cColorIgnored);
                     }
                 }
             }
@@ -550,7 +550,7 @@ void LoadFileDialog::updatePreviewLayout(bool bValid, QString statusText)
         {
             for (qint32 columnIdx = 0; columnIdx < _pUi->tablePreview->columnCount(); columnIdx++)
             {
-                _pUi->tablePreview->item(rowIdx, columnIdx)->setTextColor(_cColorIgnored);
+                _pUi->tablePreview->item(rowIdx, columnIdx)->setForeground(_cColorIgnored);
             }
         }
     }

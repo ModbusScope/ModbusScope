@@ -249,7 +249,7 @@ void Legend::showGraph(quint32 graphIdx)
         _pLegendTable->item((int)activeGraphIdx, cColummnValue)->setFont(itemFont);
         _pLegendTable->item((int)activeGraphIdx, cColummnText)->setFont(itemFont);
 
-        _pLegendTable->item((int)activeGraphIdx, cColummnColor)->setBackgroundColor(graphColor);
+        _pLegendTable->item((int)activeGraphIdx, cColummnColor)->setBackground(graphColor);
         _pLegendTable->item((int)activeGraphIdx, cColummnValue)->setForeground(foreGroundColor);
         _pLegendTable->item((int)activeGraphIdx, cColummnText)->setForeground(foreGroundColor);
     }
@@ -261,7 +261,7 @@ void Legend::changeGraphColor(const quint32 graphIdx)
 
     if (activeGraphIdx != -1)
     {
-        _pLegendTable->item((int)activeGraphIdx, cColummnColor)->setBackgroundColor(_pGraphDataModel->color(graphIdx));
+        _pLegendTable->item((int)activeGraphIdx, cColummnColor)->setBackground(_pGraphDataModel->color(graphIdx));
     }
 }
 
@@ -303,7 +303,7 @@ void Legend::addItem(quint32 graphIdx)
     _pLegendTable->insertRow(row);
 
     _pLegendTable->setItem(row, cColummnColor, new QTableWidgetItem(""));
-    _pLegendTable->item(row, cColummnColor)->setBackgroundColor(_pGraphDataModel->color(graphIdx));
+    _pLegendTable->item(row, cColummnColor)->setBackground(_pGraphDataModel->color(graphIdx));
 
     _pLegendTable->setItem(row, cColummnValue, new QTableWidgetItem("-") );
     _pLegendTable->item(row,cColummnValue)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
