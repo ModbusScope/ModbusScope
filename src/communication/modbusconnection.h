@@ -6,7 +6,7 @@
 
 #include <QModbusDevice>
 #include <QModbusReply>
-#include <QModbusTcpClient>
+#include <QModbusClient>
 #include <QPointer>
 
 class ConnectionData : public QObject
@@ -14,14 +14,19 @@ class ConnectionData : public QObject
     Q_OBJECT
 public:
 
-    explicit ConnectionData():
-        connectionTimeoutTimer(this), modbusClient(this), bConnectionErrorHandled(false), pReply(nullptr)
+    explicit ConnectionData(QModbusClient* pModbus):
+        connectionTimeoutTimer(this), bConnectionErrorHandled(false), pReply(nullptr)
     {
+        pModbusClient = pModbus;
+    }
 
+    ~ConnectionData()
+    {
+        delete pModbusClient;
     }
 
     QTimer connectionTimeoutTimer;
-    QModbusTcpClient modbusClient;
+    QModbusClient* pModbusClient;
     bool bConnectionErrorHandled;
 
     QModbusReply * pReply;
@@ -61,7 +66,7 @@ private slots:
 private:
 
     void handleConnectionError(QPointer<ConnectionData> connectionData, QString errMsg);
-    qint32 findConnectionData(QTimer * pTimer, QModbusTcpClient * pClient);
+    qint32 findConnectionData(QTimer * pTimer, QModbusClient * pClient);
 
     QList<QPointer<ConnectionData>> _connectionList;
     bool _bWaitingForConnection;
