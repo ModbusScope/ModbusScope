@@ -26,18 +26,19 @@ GraphDataModel::GraphDataModel(SettingsModel * pSettingsModel, QObject *parent) 
     _pSettingsModel = pSettingsModel;
     _graphData.clear();
 
-    connect(this, SIGNAL(visibilityChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
-    connect(this, SIGNAL(labelChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
-    connect(this, SIGNAL(colorChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
-    connect(this, SIGNAL(activeChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
-    connect(this, SIGNAL(unsignedChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
-    connect(this, SIGNAL(bit32Changed(quint32)), this, SLOT(modelDataChanged(quint32)));
-    connect(this, SIGNAL(expressionChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
-    connect(this, SIGNAL(registerAddressChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
-    connect(this, SIGNAL(connectionIdChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
+    connect(this, &GraphDataModel::visibilityChanged, this, &GraphDataModel::modelDataChanged);
+    connect(this, &GraphDataModel::labelChanged, this, &GraphDataModel::modelDataChanged);
+    connect(this, &GraphDataModel::colorChanged, this, &GraphDataModel::modelDataChanged);
+    connect(this, &GraphDataModel::activeChanged, this, &GraphDataModel::modelDataChanged);
+    connect(this, &GraphDataModel::unsignedChanged, this, &GraphDataModel::modelDataChanged);
+    connect(this, &GraphDataModel::bit32Changed, this, &GraphDataModel::modelDataChanged);
+    connect(this, &GraphDataModel::expressionChanged, this, &GraphDataModel::modelDataChanged);
+    connect(this, &GraphDataModel::registerAddressChanged, this, &GraphDataModel::modelDataChanged);
+    connect(this, &GraphDataModel::connectionIdChanged, this, &GraphDataModel::modelDataChanged);
 
-    connect(this, SIGNAL(added(quint32)), this, SLOT(modelDataChanged()));
-    connect(this, SIGNAL(removed(quint32)), this, SLOT(modelDataChanged()));
+    /* When adding or removing graphs, the complete view should be refreshed to make sure all indexes are updated */
+    connect(this, &GraphDataModel::added, this, &GraphDataModel::modelCompleteDataChanged);
+    connect(this, &GraphDataModel::removed, this, &GraphDataModel::modelCompleteDataChanged);
 }
 
 int GraphDataModel::rowCount(const QModelIndex & /*parent*/) const
@@ -696,18 +697,12 @@ void GraphDataModel::updateActiveGraphList(void)
     }
 }
 
-void GraphDataModel::modelDataChanged(qint32 idx)
+void GraphDataModel::modelDataChanged(quint32 idx)
 {
-    // Notify view(s) of changes
     emit dataChanged(index(idx, 0), index(idx, columnCount() - 1));
 }
 
-void GraphDataModel::modelDataChanged(quint32 idx)
-{
-    modelDataChanged((qint32)idx);
-}
-
-void GraphDataModel::modelDataChanged()
+void GraphDataModel::modelCompleteDataChanged()
 {
     emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }

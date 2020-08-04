@@ -87,9 +87,8 @@ public slots:
 
 private slots:
 
-    void modelDataChanged(qint32 idx);
     void modelDataChanged(quint32 idx);
-    void modelDataChanged();
+    void modelCompleteDataChanged();
 
 private:
     quint16 nextFreeAddress();
