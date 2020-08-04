@@ -43,7 +43,7 @@ ImportMbcDialog::ImportMbcDialog(GuiModel * pGuiModel, GraphDataModel * pGraphDa
 
     _pUi->tblMbcRegisters->setFocusPolicy(Qt::NoFocus);
 
-    connect(_pUi->btnSelectMbcFile, SIGNAL(clicked()), this, SLOT(selectMbcFile()));
+    connect(_pUi->btnSelectMbcFile, &QToolButton::clicked, this, &ImportMbcDialog::selectMbcFile);
     connect(_pMbcRegisterModel, &QAbstractItemModel::dataChanged, this, &ImportMbcDialog::registerDataChanged);
 
     connect(_pUi->cmbTabFilter, static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged), _pTabProxyFilter, &MbcRegisterFilter::setTab);

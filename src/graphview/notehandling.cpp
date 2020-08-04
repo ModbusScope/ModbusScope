@@ -13,10 +13,10 @@ NoteHandling::NoteHandling(NoteModel* pNoteModel, MyQCustomPlot* pPlot, QObject 
 {
 
     // Note model
-    connect(_pNoteModel, SIGNAL(notePositionChanged(const quint32)), this, SLOT(handleNotePositionChanged(const quint32)));
-    connect(_pNoteModel, SIGNAL(textChanged(const quint32)), this, SLOT(handleNoteTextChanged(const quint32)));
-    connect(_pNoteModel, SIGNAL(added(const quint32)), this, SLOT(handleNoteAdded(const quint32)));
-    connect(_pNoteModel, SIGNAL(removed(const quint32)), this, SLOT(handleNoteRemoved(const quint32)));
+    connect(_pNoteModel, &NoteModel::notePositionChanged, this, &NoteHandling::handleNotePositionChanged);
+    connect(_pNoteModel, &NoteModel::textChanged, this, &NoteHandling::handleNoteTextChanged);
+    connect(_pNoteModel, &NoteModel::added, this, &NoteHandling::handleNoteAdded);
+    connect(_pNoteModel, &NoteModel::removed, this, &NoteHandling::handleNoteRemoved);
 
     _pDraggedNoteIdx = NO_DRAGGED_NOTE;
     _pixelOffset.setX(0);

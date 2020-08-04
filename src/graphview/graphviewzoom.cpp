@@ -10,7 +10,7 @@ GraphViewZoom::GraphViewZoom(GuiModel* pGuiModel, MyQCustomPlot* pPlot, QObject 
     _pGraphview = dynamic_cast<GraphView*>(parent);
     _pPlot = pPlot;
 
-    connect(_pGuiModel, SIGNAL(zoomStateChanged()), this, SLOT(handleZoomStateChanged()));
+    connect(_pGuiModel, &GuiModel::zoomStateChanged, this, &GraphViewZoom::handleZoomStateChanged);
 }
 
 GraphViewZoom::~GraphViewZoom()

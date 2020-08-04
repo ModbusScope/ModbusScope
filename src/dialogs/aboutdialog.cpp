@@ -27,7 +27,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     setVersionInfo();
     setLibraryVersionInfo();
 
-    connect(&_updateNotify, SIGNAL(updateCheckResult(UpdateNotify::UpdateState)), this, SLOT(showVersionUpdate(UpdateNotify::UpdateState)));
+    connect(&_updateNotify, &UpdateNotify::updateCheckResult, this, &AboutDialog::showVersionUpdate);
     _updateNotify.checkForUpdate();
 
     _pUi->lblUpdate->setVisible(false);
