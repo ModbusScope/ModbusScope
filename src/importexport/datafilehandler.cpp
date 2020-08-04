@@ -20,15 +20,6 @@ DataFileHandler::DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphData
 
     _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel);
 
-    connect(_pGraphDataModel, SIGNAL(colorChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
-    connect(_pGraphDataModel, SIGNAL(activeChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
-    connect(_pGraphDataModel, SIGNAL(unsignedChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
-    connect(_pGraphDataModel, SIGNAL(expressionChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
-    connect(_pGraphDataModel, SIGNAL(registerAddressChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
-    connect(_pGraphDataModel, SIGNAL(connectionIdChanged(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
-    connect(_pGraphDataModel, SIGNAL(added(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
-    connect(_pGraphDataModel, SIGNAL(removed(quint32)), _pDataFileExporter, SLOT(rewriteDataFile()));
-
     connect(this, &DataFileHandler::startDataParsing, this, &DataFileHandler::parseDataFile);
 
     _pLoadFileDialog = new LoadFileDialog(pGuiModel, pDataParserModel);
