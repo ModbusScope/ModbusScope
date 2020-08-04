@@ -89,12 +89,12 @@ void Legend::setModels(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel)
     _pGuiModel = pGuiModel;
     _pGraphDataModel = pGraphDataModel;
 
-    connect(_pGraphDataModel, SIGNAL(activeChanged(quint32)), this, SLOT(updateLegend()));
-    connect(_pGraphDataModel, SIGNAL(added(quint32)), this, SLOT(updateLegend()));
-    connect(_pGraphDataModel, SIGNAL(removed(quint32)), this, SLOT(updateLegend()));
-    connect(_pGraphDataModel, SIGNAL(visibilityChanged(quint32)), this, SLOT(showGraph(const quint32)));
-    connect(_pGraphDataModel, SIGNAL(colorChanged(quint32)), this, SLOT(changeGraphColor(quint32)));
-    connect(_pGraphDataModel, SIGNAL(labelChanged(quint32)), this, SLOT(changeGraphLabel(quint32)));
+    connect(_pGraphDataModel, &GraphDataModel::activeChanged, this, &Legend::updateLegend);
+    connect(_pGraphDataModel, &GraphDataModel::added, this, &Legend::updateLegend);
+    connect(_pGraphDataModel, &GraphDataModel::removed, this, &Legend::updateLegend);
+    connect(_pGraphDataModel, &GraphDataModel::visibilityChanged, this, &Legend::showGraph);
+    connect(_pGraphDataModel, &GraphDataModel::colorChanged, this, &Legend::changeGraphColor);
+    connect(_pGraphDataModel, &GraphDataModel::labelChanged, this, &Legend::changeGraphLabel);
 }
 
 void Legend::clearLegendData()

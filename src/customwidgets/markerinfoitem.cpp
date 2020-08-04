@@ -34,7 +34,7 @@ MarkerInfoItem::MarkerInfoItem(QWidget *parent) : QFrame(parent)
     _pLayout->addWidget(_pGraphCombo);
     _pLayout->addWidget(pInfoWidget);
 
-    connect(_pGraphCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(graphSelected(qint32)));
+    connect(_pGraphCombo, static_cast<void (QComboBox::*)(const int)>(&QComboBox::currentIndexChanged), this, &MarkerInfoItem::graphSelected);
 
     setLayout(_pLayout);
 }
@@ -44,16 +44,16 @@ void MarkerInfoItem::setModel(GuiModel * pGuiModel, GraphDataModel * pGraphDataM
     _pGuiModel = pGuiModel;
     _pGraphDataModel = pGraphDataModel;
 
-    connect(_pGraphDataModel, SIGNAL(activeChanged(quint32)), this, SLOT(updateGraphList()));
-    connect(_pGraphDataModel, SIGNAL(added(quint32)), this, SLOT(updateGraphList()));
-    connect(_pGraphDataModel, SIGNAL(removed(quint32)), this, SLOT(removeFromGraphList(quint32)));
-    connect(_pGraphDataModel, SIGNAL(colorChanged(quint32)), this, SLOT(updateColor(quint32)));
-    connect(_pGraphDataModel, SIGNAL(labelChanged(quint32)), this, SLOT(updateLabel(quint32)));
+    connect(_pGraphDataModel, &GraphDataModel::activeChanged, this, &MarkerInfoItem::updateGraphList);
+    connect(_pGraphDataModel, &GraphDataModel::added, this, &MarkerInfoItem::updateGraphList);
+    connect(_pGraphDataModel, &GraphDataModel::removed, this, &MarkerInfoItem::removeFromGraphList);
+    connect(_pGraphDataModel, &GraphDataModel::colorChanged, this, &MarkerInfoItem::updateColor);
+    connect(_pGraphDataModel, &GraphDataModel::labelChanged, this, &MarkerInfoItem::updateLabel);
 
-    connect(_pGuiModel, SIGNAL(startMarkerPosChanged()), this, SLOT(updateGraphList()));
-    connect(_pGuiModel, SIGNAL(endMarkerPosChanged()), this, SLOT(updateGraphList()));
+    connect(_pGuiModel, &GuiModel::startMarkerPosChanged, this, &MarkerInfoItem::updateGraphList);
+    connect(_pGuiModel, &GuiModel::endMarkerPosChanged, this, &MarkerInfoItem::updateGraphList);
 
-    connect(_pGuiModel, SIGNAL(markerExpressionMaskChanged()), this, SLOT(updateData()));
+    connect(_pGuiModel, &GuiModel::markerExpressionMaskChanged, this, &MarkerInfoItem::updateData);
 
     updateGraphList();
 }

@@ -46,8 +46,8 @@ void MarkerInfo::setModel(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel
     _pGuiModel = pGuiModel;
     _pGraphDataModel = pGraphDataModel;
 
-    connect(_pGuiModel, SIGNAL(startMarkerPosChanged()), this, SLOT(updateMarkerData()));
-    connect(_pGuiModel, SIGNAL(endMarkerPosChanged()), this, SLOT(updateMarkerData()));
+    connect(_pGuiModel, &GuiModel::startMarkerPosChanged, this, &MarkerInfo::updateMarkerData);
+    connect(_pGuiModel, &GuiModel::endMarkerPosChanged, this, &MarkerInfo::updateMarkerData);
 
     updateMarkerData();
 

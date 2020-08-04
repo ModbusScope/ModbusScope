@@ -26,9 +26,8 @@ CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiMo
         _modbusMasters.append(modbusData);
 
         connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusPollDone, this, &CommunicationManager::handlePollDone);
-
-        connect(_modbusMasters.last()->pModbusMaster, SIGNAL(modbusLogError(QString)), this, SLOT(handleModbusError(QString)));
-        connect(_modbusMasters.last()->pModbusMaster, SIGNAL(modbusLogInfo(QString)), this, SLOT(handleModbusInfo(QString)));
+        connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusLogError, this, &CommunicationManager::handleModbusError);
+        connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusLogInfo, this, &CommunicationManager::handleModbusInfo);
 
         connect(_modbusMasters.last()->pModbusMaster, QOverload<quint32, quint32>::of(&ModbusMaster::modbusAddToStats),
             [=](quint32 successes, quint32 errors){
@@ -55,7 +54,7 @@ bool CommunicationManager::startCommunication()
         _registerValueHandler.prepareForData();
 
         // Trigger read immediatly
-        _pPollTimer->singleShot(1, this, SLOT(readData()));
+        _pPollTimer->singleShot(1, this, &CommunicationManager::readData);
 
         _bPollActive = true;
         bResetted = true;
@@ -145,7 +144,7 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
             waitInterval = _pSettingsModel->pollTime() - passedInterval;
         }
 
-        _pPollTimer->singleShot(static_cast<int>(waitInterval), this, SLOT(readData()));
+        _pPollTimer->singleShot(static_cast<int>(waitInterval), this, &CommunicationManager::readData);
     }
 }
 
