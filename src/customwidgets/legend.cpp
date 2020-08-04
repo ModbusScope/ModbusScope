@@ -33,12 +33,13 @@ Legend::Legend(QWidget *parent) : QFrame(parent)
 
     QHeaderView * horizontalHeader = _pLegendTable->horizontalHeader();
     QFontMetrics fontMetric = _pLegendTable->horizontalHeader()->fontMetrics();
-    horizontalHeader->setMinimumSectionSize(fontMetric.width("X"));
+
+    horizontalHeader->setMinimumSectionSize(fontMetric.boundingRect("X").width());
     horizontalHeader->setSectionResizeMode(QHeaderView::Interactive);
 
     /* Set default size of columns */
-    horizontalHeader->resizeSection(cColummnColor, fontMetric.width("X"));
-    horizontalHeader->resizeSection(cColummnValue, fontMetric.width("-000000") + 2);
+    horizontalHeader->resizeSection(cColummnColor, fontMetric.boundingRect("X").width());
+    horizontalHeader->resizeSection(cColummnValue, fontMetric.boundingRect("[-0000000]").width());
 
     /* stretch text column */
     horizontalHeader->setSectionResizeMode(cColummnText, QHeaderView::Stretch);
