@@ -59,7 +59,6 @@ signals:
 private slots:
 
     void modelDataChanged(quint32 idx);
-    void modelDataChanged();
 
 private:
 

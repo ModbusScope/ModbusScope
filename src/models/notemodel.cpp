@@ -21,11 +21,11 @@ NoteModel::NoteModel(QObject *parent) : QAbstractTableModel(parent)
     _noteList.clear();
     _bNotesDataUpdated = false;
 
-    connect(this, SIGNAL(notePositionChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
-    connect(this, SIGNAL(textChanged(quint32)), this, SLOT(modelDataChanged(quint32)));
+    connect(this, &NoteModel::notePositionChanged, this, &NoteModel::modelDataChanged);
+    connect(this, &NoteModel::textChanged, this, &NoteModel::modelDataChanged);
 
-    connect(this, SIGNAL(added(quint32)), this, SLOT(modelDataChanged()));
-    connect(this, SIGNAL(removed(quint32)), this, SLOT(modelDataChanged()));
+    connect(this, &NoteModel::added, this, &NoteModel::modelDataChanged);
+    connect(this, &NoteModel::removed, this, &NoteModel::modelDataChanged);
 }
 
 QVariant NoteModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -278,9 +278,4 @@ void NoteModel::modelDataChanged(quint32 idx)
 {
     // Notify view(s) of changes
     emit dataChanged(index(idx, 0), index(idx, columnCount() - 1));
-}
-
-void NoteModel::modelDataChanged()
-{
-    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
