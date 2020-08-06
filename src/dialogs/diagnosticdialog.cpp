@@ -31,18 +31,18 @@ DiagnosticDialog::DiagnosticDialog(DiagnosticModel * pDiagnosticModel, QWidget *
 
     connect(_pUi->checkDebugLogs, &QCheckBox::stateChanged, this, &DiagnosticDialog::handleEnableDebugLog);
 
-    connect(_pUi->listError->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(handleScrollbarChange()));
+    connect(_pUi->listError->verticalScrollBar(), &QScrollBar::valueChanged, this, &DiagnosticDialog::handleScrollbarChange);
 
     // Disable auto scroll when selecting an item
-    connect(_pUi->listError->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(handleErrorSelectionChanged(QItemSelection,QItemSelection)));
+    connect(_pUi->listError->selectionModel(), &QItemSelectionModel::selectionChanged, this, &DiagnosticDialog::handleErrorSelectionChanged);
 
     // Handle inserted row
-    connect(_pUi->listError->model(), SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(handleLogsChanged()));
-    connect(_pUi->listError->model(), SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(handleLogsChanged()));
+    connect(_pUi->listError->model(), &QAbstractItemModel::rowsInserted, this, &DiagnosticDialog::handleLogsChanged);
+    connect(_pUi->listError->model(), &QAbstractItemModel::rowsRemoved, this, &DiagnosticDialog::handleLogsChanged);
 
-    connect(_pUi->checkAutoScroll, SIGNAL(stateChanged(int)), this, SLOT(handleCheckAutoScrollChanged(int)));
+    connect(_pUi->checkAutoScroll, &QCheckBox::stateChanged, this, &DiagnosticDialog::handleCheckAutoScrollChanged);
 
-    connect(_pUi->pushClear, SIGNAL(clicked(bool)), this, SLOT(handleClearButton()));
+    connect(_pUi->pushClear, &QPushButton::clicked, this, &DiagnosticDialog::handleClearButton);
 
     // default to autoscroll
     setAutoScroll(true);

@@ -73,15 +73,15 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
    _pPlot->addLayer("topMain", _pPlot->layer("main"), QCustomPlot::limAbove);
 
    // connect slot that ties some axis selections together (especially opposite axes):
-   connect(_pPlot, SIGNAL(selectionChangedByUser()), this, SLOT(selectionChanged()));
+   connect(_pPlot, &MyQCustomPlot::selectionChangedByUser, this, &GraphView::selectionChanged);
 
    // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
-   connect(_pPlot, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress(QMouseEvent*)));
-   connect(_pPlot, SIGNAL(mouseRelease(QMouseEvent*)), this, SLOT(mouseRelease(QMouseEvent*)));
-   connect(_pPlot, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel()));
-   connect(_pPlot, SIGNAL(axisDoubleClick(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)), this, SLOT(axisDoubleClicked(QCPAxis*)));
-   connect(_pPlot, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMove(QMouseEvent*)));
-   connect(_pPlot, SIGNAL(beforeReplot()), this, SLOT(handleSamplePoints()));
+   connect(_pPlot, &MyQCustomPlot::mousePress, this, &GraphView::mousePress);
+   connect(_pPlot, &MyQCustomPlot::mouseRelease, this, &GraphView::mouseRelease);
+   connect(_pPlot, &MyQCustomPlot::mouseWheel, this, &GraphView::mouseWheel);
+   connect(_pPlot, &MyQCustomPlot::axisDoubleClick, this, &GraphView::axisDoubleClicked);
+   connect(_pPlot, &MyQCustomPlot::mouseMove, this, &GraphView::mouseMove);
+   connect(_pPlot, &MyQCustomPlot::beforeReplot, this, &GraphView::handleSamplePoints);
 
    QPen markerPen;
    markerPen.setWidth(2);

@@ -19,15 +19,15 @@ LogDialog::LogDialog(SettingsModel * pSettingsModel, GuiModel * pGuiModel, QWidg
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     /*-- View connections --*/
-    connect(_pUi->checkWriteDuringLog, SIGNAL(toggled(bool)), _pSettingsModel, SLOT(setWriteDuringLog(bool)));
-    connect(_pUi->buttonWriteDuringLogFile, SIGNAL(clicked()), this, SLOT(selectLogFile()));
-    connect(_pUi->checkAbsoluteTimes, SIGNAL(toggled(bool)), _pSettingsModel, SLOT(setAbsoluteTimes(bool)));
+    connect(_pUi->checkWriteDuringLog, &QCheckBox::toggled, _pSettingsModel, &SettingsModel::setWriteDuringLog);
+    connect(_pUi->buttonWriteDuringLogFile, &QToolButton::clicked, this, &LogDialog::selectLogFile);
+    connect(_pUi->checkAbsoluteTimes, &QCheckBox::toggled, _pSettingsModel, &SettingsModel::setAbsoluteTimes);
 
     /*-- connect model to view --*/
-    connect(_pSettingsModel, SIGNAL(pollTimeChanged()), this, SLOT(updatePollTime()));
-    connect(_pSettingsModel, SIGNAL(writeDuringLogChanged()), this, SLOT(updateWriteDuringLog()));
-    connect(_pSettingsModel, SIGNAL(writeDuringLogFileChanged()), this, SLOT(updateWriteDuringLogFile()));
-    connect(_pSettingsModel, SIGNAL(absoluteTimesChanged()), this, SLOT(updateAbsoluteTime()));
+    connect(_pSettingsModel, &SettingsModel::pollTimeChanged, this, &LogDialog::updatePollTime);
+    connect(_pSettingsModel, &SettingsModel::writeDuringLogChanged, this, &LogDialog::updateWriteDuringLog);
+    connect(_pSettingsModel, &SettingsModel::writeDuringLogFileChanged, this, &LogDialog::updateWriteDuringLogFile);
+    connect(_pSettingsModel, &SettingsModel::absoluteTimesChanged, this, &LogDialog::updateAbsoluteTime);
 }
 
 LogDialog::~LogDialog()
