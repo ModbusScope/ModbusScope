@@ -26,7 +26,7 @@ public slots:
 
 private slots:
     void done(int r);
-    void showImportDialog();
+    void showImportDialogDefault();
     void showImportDialog(QString mbcPath);
     void addRegisterRow();
     void removeRegisterRow();

@@ -37,17 +37,17 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     _pUi->registerView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     // Handle color cell active signal
-    connect(_pUi->registerView, SIGNAL(activated(QModelIndex)), this, SLOT(activatedCell(QModelIndex)));
+    connect(_pUi->registerView, &QTableView::activated, this, &RegisterDialog::activatedCell);
 
     // Handle delete
     QShortcut* shortcut = new QShortcut(QKeySequence(QKeySequence::Delete), _pUi->registerView);
-    connect(shortcut, SIGNAL(activated()), this, SLOT(removeRegisterRow()));
+    connect(shortcut, &QShortcut::activated, this, &RegisterDialog::removeRegisterRow);
 
     // Setup handler for buttons
-    connect(_pUi->btnImportFromMbc, SIGNAL(released()), this, SLOT(showImportDialog()));
-    connect(_pUi->btnAdd, SIGNAL(released()), this, SLOT(addRegisterRow()));
-    connect(_pUi->btnRemove, SIGNAL(released()), this, SLOT(removeRegisterRow()));
-    connect(_pGraphDataModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(onRegisterInserted(QModelIndex,int,int)));
+    connect(_pUi->btnImportFromMbc, &QPushButton::released, this, &RegisterDialog::showImportDialogDefault);
+    connect(_pUi->btnAdd, &QPushButton::released, this, &RegisterDialog::addRegisterRow);
+    connect(_pUi->btnRemove, &QPushButton::released, this, &RegisterDialog::removeRegisterRow);
+    connect(_pGraphDataModel, &GraphDataModel::rowsInserted, this, &RegisterDialog::onRegisterInserted);
 }
 
 RegisterDialog::~RegisterDialog()
@@ -100,7 +100,7 @@ void RegisterDialog::addRegisterRow()
     _pGraphDataModel->insertRow(_pGraphDataModel->size());
 }
 
-void RegisterDialog::showImportDialog()
+void RegisterDialog::showImportDialogDefault()
 {
     showImportDialog(QString(""));
 }

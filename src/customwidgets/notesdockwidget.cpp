@@ -24,20 +24,19 @@ NotesDockWidget::NotesDockWidget(NoteModel *pNoteModel, GuiModel *pGuiModel, QWi
     _pUi->noteView->setSelectionBehavior(QAbstractItemView::SelectRows);
     _pUi->noteView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-
     _pUi->btnUpdateDataFile->setVisible(false);
 
-    connect(_pGuiModel, SIGNAL(guiStateChanged()), this, SLOT(notesDataUpdatedChanged()));
-    connect(_pNoteModel, SIGNAL(notesDataUpdatedChanged()), this, SLOT(notesDataUpdatedChanged()));
+    connect(_pGuiModel, &GuiModel::guiStateChanged, this, &NotesDockWidget::notesDataUpdatedChanged);
+    connect(_pNoteModel, &NoteModel::notesDataUpdatedChanged, this, &NotesDockWidget::notesDataUpdatedChanged);
 
-    connect(_pUi->btnUpdateDataFile, SIGNAL(clicked(bool)), this, SLOT(updateDataFileClicked()));
+    connect(_pUi->btnUpdateDataFile, &QPushButton::clicked, this, &NotesDockWidget::updateDataFileClicked);
 
     // Handle remove button
-    connect(_pUi->btnRemoveNote, SIGNAL(clicked(bool)), this, SLOT(removeNoteRow()));
+    connect(_pUi->btnRemoveNote, &QPushButton::clicked, this, &NotesDockWidget::removeNoteRow);
 
     // Handle delete
     QShortcut* shortcut = new QShortcut(QKeySequence(QKeySequence::Delete), _pUi->noteView);
-    connect(shortcut, SIGNAL(activated()), this, SLOT(removeNoteRow()));
+    connect(shortcut, &QShortcut::activated, this, &NotesDockWidget::removeNoteRow);
 }
 
 NotesDockWidget::~NotesDockWidget()
