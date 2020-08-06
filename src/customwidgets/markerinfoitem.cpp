@@ -34,7 +34,7 @@ MarkerInfoItem::MarkerInfoItem(QWidget *parent) : QFrame(parent)
     _pLayout->addWidget(_pGraphCombo);
     _pLayout->addWidget(pInfoWidget);
 
-    connect(_pGraphCombo, static_cast<void (QComboBox::*)(const int)>(&QComboBox::currentIndexChanged), this, &MarkerInfoItem::graphSelected);
+    connect(_pGraphCombo, QOverload<const int>::of(&QComboBox::currentIndexChanged), this, &MarkerInfoItem::graphSelected);
 
     setLayout(_pLayout);
 }
