@@ -63,8 +63,7 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
 
    _pPlot->yAxis->setRange(0, 65535);
 
-   connect(_pPlot->xAxis, SIGNAL(rangeChanged(QCPRange, QCPRange)), this, SLOT(updateTooltip()));
-   connect(_pPlot->xAxis, SIGNAL(rangeChanged(QCPRange, QCPRange)), this, SLOT(xAxisRangeChanged(QCPRange, QCPRange)));
+   connect(_pPlot->xAxis, QOverload<const QCPRange &, const QCPRange &>::of(&QCPAxis::rangeChanged), this, &GraphView::xAxisRangeChanged);
 
    // Samples are enabled
    _bEnableSampleHighlight = true;
@@ -826,6 +825,9 @@ void GraphView::xAxisRangeChanged(const QCPRange &newRange, const QCPRange &oldR
     }
 
     _pPlot->xAxis->setRange(range);
+
+
+    updateTooltip();
 }
 
 void GraphView::highlightSamples(bool bState)
