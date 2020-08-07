@@ -64,40 +64,39 @@ LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserMod
     }
 
     // Handle signals from model
-    connect(_pParserModel, SIGNAL(dataFilePathChanged()), this, SLOT(updatePath()));
-    connect(_pParserModel, SIGNAL(fieldSeparatorChanged()), this, SLOT(updateFieldSeparator()));
-    connect(_pParserModel, SIGNAL(groupSeparatorChanged()), this, SLOT(updategroupSeparator()));
-    connect(_pParserModel, SIGNAL(decimalSeparatorChanged()), this, SLOT(updateDecimalSeparator()));
-    connect(_pParserModel, SIGNAL(commentSequenceChanged()), this, SLOT(updateCommentSequence()));
-    connect(_pParserModel, SIGNAL(dataRowChanged()), this, SLOT(updateDataRow()));
-    connect(_pParserModel, SIGNAL(columnChanged()), this, SLOT(updateColumn()));
-    connect(_pParserModel, SIGNAL(labelRowChanged()), this, SLOT(updateLabelRow()));
-    connect(_pParserModel, SIGNAL(timeInMilliSecondsChanged()), this, SLOT(updateTimeInMilliSeconds()));
-    connect(_pParserModel, SIGNAL(stmStudioCorrectionChanged()), this, SLOT(updateStmStudioCorrection()));
-
+    connect(_pParserModel, &DataParserModel::dataFilePathChanged, this, &LoadFileDialog::updatePath);
+    connect(_pParserModel, &DataParserModel::fieldSeparatorChanged, this, &LoadFileDialog::updateFieldSeparator);
+    connect(_pParserModel, &DataParserModel::groupSeparatorChanged, this, &LoadFileDialog::updategroupSeparator);
+    connect(_pParserModel, &DataParserModel::decimalSeparatorChanged, this, &LoadFileDialog::updateDecimalSeparator);
+    connect(_pParserModel, &DataParserModel::commentSequenceChanged, this, &LoadFileDialog::updateCommentSequence);
+    connect(_pParserModel, &DataParserModel::dataRowChanged, this, &LoadFileDialog::updateDataRow);
+    connect(_pParserModel, &DataParserModel::columnChanged, this, &LoadFileDialog::updateColumn);
+    connect(_pParserModel, &DataParserModel::labelRowChanged, this, &LoadFileDialog::updateLabelRow);
+    connect(_pParserModel, &DataParserModel::timeInMilliSecondsChanged, this, &LoadFileDialog::updateTimeInMilliSeconds);
+    connect(_pParserModel, &DataParserModel::stmStudioCorrectionChanged, this, &LoadFileDialog::updateStmStudioCorrection);
 
     // Handle signal from controls
-    connect(_pUi->comboFieldSeparator, SIGNAL(currentIndexChanged(int)), this, SLOT(fieldSeparatorSelected(int)));
-    connect(_pUi->lineCustomFieldSeparator, SIGNAL(editingFinished()), this, SLOT(customFieldSeparatorUpdated()));
-    connect(_pUi->comboGroupSeparator, SIGNAL(currentIndexChanged(int)), this, SLOT(groupSeparatorSelected(int)));
-    connect(_pUi->comboDecimalSeparator, SIGNAL(currentIndexChanged(int)), this, SLOT(decimalSeparatorSelected(int)));
-    connect(_pUi->lineComment, SIGNAL(editingFinished()), this, SLOT(commentUpdated()));
-    connect(_pUi->spinDataRow, SIGNAL(valueChanged(int)), this, SLOT(dataRowUpdated()));
-    connect(_pUi->spinColumn, SIGNAL(valueChanged(int)), this, SLOT(columnUpdated()));
-    connect(_pUi->spinLabelRow, SIGNAL(valueChanged(int)), this, SLOT(labelRowUpdated()));
-    connect(_pUi->comboPreset, SIGNAL(currentIndexChanged(int)), this, SLOT(presetSelected(int)));
-    connect(_pUi->checkTimeInMilliSeconds, SIGNAL(toggled(bool)), this, SLOT(timeInMilliSecondsUpdated(bool)));
-    connect(_pUi->checkStmStudioCorrection, SIGNAL(toggled(bool)), this, SLOT(stmStudioCorrectionUpdated(bool)));
+    connect(_pUi->comboFieldSeparator, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &LoadFileDialog::fieldSeparatorSelected);
+    connect(_pUi->lineCustomFieldSeparator, &QLineEdit::editingFinished, this, &LoadFileDialog::customFieldSeparatorUpdated);
+    connect(_pUi->comboGroupSeparator, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &LoadFileDialog::groupSeparatorSelected);
+    connect(_pUi->comboDecimalSeparator, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &LoadFileDialog::decimalSeparatorSelected);
+    connect(_pUi->lineComment, &QLineEdit::editingFinished, this, &LoadFileDialog::commentUpdated);
+    connect(_pUi->spinDataRow, QOverload<int>::of(&QSpinBox::valueChanged), this, &LoadFileDialog::dataRowUpdated);
+    connect(_pUi->spinColumn, QOverload<int>::of(&QSpinBox::valueChanged), this, &LoadFileDialog::columnUpdated);
+    connect(_pUi->spinLabelRow, QOverload<int>::of(&QSpinBox::valueChanged), this, &LoadFileDialog::labelRowUpdated);
+    connect(_pUi->comboPreset, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &LoadFileDialog::presetSelected);
+    connect(_pUi->checkTimeInMilliSeconds, &QCheckBox::toggled, this, &LoadFileDialog::timeInMilliSecondsUpdated);
+    connect(_pUi->checkStmStudioCorrection, &QCheckBox::toggled, this, &LoadFileDialog::stmStudioCorrectionUpdated);
 
     // Signal to change preset to manual
-    connect(_pUi->comboFieldSeparator, SIGNAL(activated(int)), this, SLOT(setPresetToManual()));
-    connect(_pUi->lineCustomFieldSeparator, SIGNAL(textEdited(QString)), this, SLOT(setPresetToManual()));
-    connect(_pUi->comboGroupSeparator, SIGNAL(activated(int)), this, SLOT(setPresetToManual()));
-    connect(_pUi->comboDecimalSeparator, SIGNAL(activated(int)), this, SLOT(setPresetToManual()));
-    connect(_pUi->lineComment, SIGNAL(textEdited(QString)), this, SLOT(setPresetToManual()));
-    connect(_pUi->spinDataRow, SIGNAL(editingFinished()), this, SLOT(setPresetToManual()));
-    connect(_pUi->spinColumn, SIGNAL(editingFinished()), this, SLOT(setPresetToManual()));
-    connect(_pUi->spinLabelRow, SIGNAL(editingFinished()), this, SLOT(setPresetToManual()));
+    connect(_pUi->comboFieldSeparator, QOverload<int>::of(&QComboBox::activated), this, &LoadFileDialog::setPresetToManual);
+    connect(_pUi->lineCustomFieldSeparator, &QLineEdit::textEdited, this, &LoadFileDialog::setPresetToManual);
+    connect(_pUi->comboGroupSeparator, QOverload<int>::of(&QComboBox::activated), this, &LoadFileDialog::setPresetToManual);
+    connect(_pUi->comboDecimalSeparator, QOverload<int>::of(&QComboBox::activated), this, &LoadFileDialog::setPresetToManual);
+    connect(_pUi->lineComment, &QLineEdit::textEdited, this, &LoadFileDialog::setPresetToManual);
+    connect(_pUi->spinDataRow, &QSpinBox::editingFinished, this, &LoadFileDialog::setPresetToManual);
+    connect(_pUi->spinColumn, &QSpinBox::editingFinished, this, &LoadFileDialog::setPresetToManual);
+    connect(_pUi->spinLabelRow, &QSpinBox::editingFinished, this, &LoadFileDialog::setPresetToManual);
 
     // Select first preset
     _pUi->comboPreset->setCurrentIndex(-1);
