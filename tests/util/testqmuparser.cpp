@@ -117,7 +117,7 @@ void TestQMuParser::evaluateRegister()
     QVERIFY(bSuccess);
 }
 
-void TestQMuParser::evaluateinvalidExpr()
+void TestQMuParser::evaluateInvalidExpr()
 {
     QMuParser parser("x11");
 

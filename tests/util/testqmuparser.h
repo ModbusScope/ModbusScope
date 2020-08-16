@@ -15,7 +15,7 @@ private slots:
     void evaluateRegister_data();
     void evaluateRegister();
 
-    void evaluateinvalidExpr();
+    void evaluateInvalidExpr();
     void evaluateDivByZero();
 
 private:
