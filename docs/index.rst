@@ -10,11 +10,7 @@ Welcome to ModbusScope's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+    Release Notes <pages/release_notes>
+   
 
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
