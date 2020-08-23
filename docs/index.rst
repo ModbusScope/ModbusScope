@@ -10,7 +10,9 @@ Welcome to ModbusScope's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-    Release Notes <pages/release_notes>
+   User Manual <pages/user_manual>
+   Release Notes <pages/release_notes>
+   
    
 
 
