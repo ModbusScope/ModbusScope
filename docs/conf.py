@@ -44,6 +44,9 @@ source_suffix = {
     '.md': 'markdown',
 }
 
+# Set correct root document
+master_doc = 'index'
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
