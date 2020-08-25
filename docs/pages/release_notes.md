@@ -75,9 +75,6 @@ Most of the work in this release isn't visible for the user. A complete rework o
 * Add initial unit tests for some modules
 * Add Travis build
 
-### Screenshot
-![modbusscope_screenshot](https://user-images.githubusercontent.com/9089936/46371252-2695bf00-c688-11e8-88b1-8e9a609b1fa2.png)
-
 ## v1.4.0 (17/02/2018)
 ### Features
 * Rework modbus communication code
