@@ -67,3 +67,9 @@ html_theme_options = {
 
     'navigation_depth': 2,
 }
+
+# -- Options for PDF output -------------------------------------------------
+
+latex_elements = {
+  'extraclassoptions': 'openany,oneside'
+}
