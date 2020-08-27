@@ -26,7 +26,7 @@ install:
   - sudo apt -qq install mesa-common-dev libglu1-mesa-dev
   
   # Install Qt
-  - sudo apt -qq install qt5*-meta-minimal qt5*serialbus
+  - sudo apt -qq install qt515-meta-minimal qt515serialbus
 
   # Setup Qt env
   - source /opt/qt5*/bin/qt5*-env.sh
