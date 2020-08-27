@@ -5,7 +5,6 @@ platform:
   - x64
 
 install:
-  - cmd: dir C:\Qt\5.15.0\
   - cmd: set PATH=C:\Qt\5.15.0\mingw81_64\bin;%PATH%
 #  - cmd: windeployqt.exe (return code isn't correct)
   
@@ -32,7 +31,7 @@ build_script:
   - cmd: mkdir deploy
   - cmd: copy src\ModbusScope.exe deploy
   - cmd: cd deploy
-  - cmd: windeployqt.exe ModbusScope.exe --release --compiler-runtime -verbose 2
+  - cmd: windeployqt.exe ModbusScope.exe --compiler-runtime -verbose 2
 
   # Add OpenSSL dll's
   - cmd: set "OPENSSL_DIR=C:\OpenSSL-v111-Win64\bin"
