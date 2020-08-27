@@ -23,13 +23,13 @@ install:
   - cmake -version
   
   # Dependency for Qt
-  - sudo apt -qq install mesa-common-dev libglu1-mesa-dev
+  - sudo apt install -qq mesa-common-dev libglu1-mesa-dev
   
   # Install Qt
-  - sudo apt -qq install qt515base qt515serialbus
+  - sudo apt install -qq qt515base qt515serialbus
 
   # Setup Qt env
-  - source /opt/qt5*/bin/qt5*-env.sh
+  - source /opt/qt*/bin/qt*-env.sh
 
 addons:
   coverity_scan:
