@@ -8,6 +8,7 @@ install:
   - cmd: set PATH=C:\Qt\5.15.0\mingw81_64\bin;%PATH%
 #  - cmd: windeployqt.exe (return code isn't correct)
   
+  - cmd: dir C:\Qt\Tools\
   - cmd: set PATH=C:\Qt\Tools\mingw81_64\bin;%PATH%
   - cmd: g++ -v
 
