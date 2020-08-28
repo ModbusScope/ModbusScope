@@ -56,7 +56,7 @@ void TestQMuParser::evaluate_data()
     ADD_TEST("0x12345678",      305419896  );
     ADD_TEST("0xABCDEF",        11259375  );
 
-    /* Floating point */
+    /* Floating point result */
     ADD_TEST("15 / 4",          3.75   );
     ADD_TEST("1 / 1000",        0.001  );
     ADD_TEST("15.6 + 5.5",      21.1   );
@@ -70,6 +70,12 @@ void TestQMuParser::evaluate_data()
     ADD_TEST("8.6 >> 3",        1    );
 
     ADD_TEST("9.5 % 4",         1    );
+
+    /* Floating point result */
+    ADD_TEST("1.5 + 1.5",       3    );
+    ADD_TEST("1,5 + 1",         2.5  );
+    ADD_TEST("1.5 + 1",         2.5  );
+    ADD_TEST("1,5 + 1,5",       3    );
 
 }
 
@@ -120,6 +126,17 @@ void TestQMuParser::evaluateRegister()
 void TestQMuParser::evaluateInvalidExpr()
 {
     QMuParser parser("x11");
+
+    bool bSuccess = parser.evaluate();
+
+    QCOMPARE(parser.result(), 0);
+    QVERIFY(!parser.isSuccess());
+    QVERIFY(!bSuccess);
+}
+
+void TestQMuParser::evaluateInvalidDecimal()
+{
+    QMuParser parser("1.1 + 1,5");
 
     bool bSuccess = parser.evaluate();
 

@@ -26,6 +26,8 @@ private:
 
     double _registerValue;
 
+    bool _bInvalidExpression;
+
     bool _bSuccess;
     double _result;
     QString _msg;

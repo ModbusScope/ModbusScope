@@ -8,7 +8,44 @@ QMuParser::QMuParser(QString strExpression)
 {
     _registerValue = 0;
     _pExprParser = new mu::ParserRegister(&_registerValue);
-    _pExprParser->SetExpr(strExpression.toStdString());
+
+    /* Fixed by design */
+    _pExprParser->SetArgSep(static_cast<mu::char_type>(';'));
+
+    const bool bContainsDecimalPoint = strExpression.contains('.');
+    const bool bContainsComma = strExpression.contains(',');
+
+    if (bContainsDecimalPoint && bContainsComma)
+    {
+        _bInvalidExpression = true;
+    }
+    else
+    {
+        _bInvalidExpression = false;
+
+        if (bContainsDecimalPoint)
+        {
+            _pExprParser->SetDecSep('.');
+        }
+        else if (bContainsComma)
+        {
+            _pExprParser->SetDecSep(',');
+        }
+        else
+        {
+            /* Default to comma */
+            _pExprParser->SetDecSep(',');
+        }
+    }
+
+    try
+    {
+        _pExprParser->SetExpr(strExpression.toStdString());
+    }
+    catch (mu::Parser::exception_type &e)
+    {
+        _bInvalidExpression = false;
+    }
 
     reset();
 }
@@ -27,27 +64,37 @@ bool QMuParser::evaluate(double regValue)
 {
     reset();
 
-    /* Set value to be used for VAL variable */
-    _registerValue = regValue;
-
-    try
+    if (_bInvalidExpression)
     {
-        _result = _pExprParser->Eval();
-
-        if (qIsInf(_result) || qIsNaN(_result))
-        {
-            throw mu::ParserError("result is an undefined number");
-        }
-
-        _msg = QStringLiteral("Success");
-        _bSuccess = true;
-    }
-    catch (mu::Parser::exception_type &e)
-    {
-        _result = 0;
-
-        _msg = QString::fromStdString(e.GetMsg());
         _bSuccess = false;
+        _result = 0;
+        _msg = QStringLiteral("Invalid expression");
+    }
+    else
+    {
+
+        /* Set value to be used for VAL variable */
+        _registerValue = regValue;
+
+        try
+        {
+            _result = _pExprParser->Eval();
+
+            if (qIsInf(_result) || qIsNaN(_result))
+            {
+                throw mu::ParserError("result is an undefined number");
+            }
+
+            _msg = QStringLiteral("Success");
+            _bSuccess = true;
+        }
+        catch (mu::Parser::exception_type &e)
+        {
+            _result = 0;
+
+            _msg = QString::fromStdString(e.GetMsg());
+            _bSuccess = false;
+        }
     }
 
     return _bSuccess;

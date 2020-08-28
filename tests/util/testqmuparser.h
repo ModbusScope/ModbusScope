@@ -16,6 +16,7 @@ private slots:
     void evaluateRegister();
 
     void evaluateInvalidExpr();
+    void evaluateInvalidDecimal();
     void evaluateDivByZero();
 
 private:
