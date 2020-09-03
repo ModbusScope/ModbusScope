@@ -28,6 +28,7 @@ private slots:
     void done(int r);
     void showImportDialogDefault();
     void showImportDialog(QString mbcPath);
+    void showComposeRegisterDialog();
     void addRegisterRow();
     void removeRegisterRow();
     void activatedCell(QModelIndex modelIndex);
