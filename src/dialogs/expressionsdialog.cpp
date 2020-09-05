@@ -12,7 +12,8 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel *pGraphDataModel, QWidget *p
 
     /* Fill combo box */
 
-
+    _pUi->widgetInfo->setVisible(false);
+    connect(_pUi->btnInfo, &QAbstractButton::toggled, _pUi->widgetInfo, &QWidget::setVisible);
 }
 
 ExpressionsDialog::~ExpressionsDialog()
