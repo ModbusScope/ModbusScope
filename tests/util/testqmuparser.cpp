@@ -156,4 +156,32 @@ void TestQMuParser::evaluateDivByZero()
     QVERIFY(!bSuccess);
 }
 
+void TestQMuParser::expressionGet()
+{
+    QString expr = QStringLiteral("1.1 + 1,5");
+
+    QMuParser parser(expr);
+
+    QCOMPARE(parser.expression(), expr);
+}
+
+void TestQMuParser::expressionUpdate()
+{
+    QMuParser parser("VAL + 1");
+
+    bool bSuccess = parser.evaluate(5);
+
+    QCOMPARE(parser.result(), 6);
+    QVERIFY(parser.isSuccess());
+    QVERIFY(bSuccess);
+
+    parser.setExpression("VAL + 2");
+
+    bSuccess = parser.evaluate(5);
+
+    QCOMPARE(parser.result(), 7);
+    QVERIFY(parser.isSuccess());
+    QVERIFY(bSuccess);
+}
+
 QTEST_GUILESS_MAIN(TestQMuParser)

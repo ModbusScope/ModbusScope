@@ -62,7 +62,7 @@ void QMuParser::setExpression(QString expr)
 
 QString QMuParser::expression()
 {
-    return QString::fromStdString(_pExprParser->GetExpr());
+    return QString::fromStdString(_pExprParser->GetExpr()).trimmed();
 }
 
 bool QMuParser::evaluate()

@@ -41,7 +41,7 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel *pGraphDataModel, QWidget *p
 
     connect(_pUi->comboExpression, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ExpressionsDialog::handleRegisterSelected);
 
-    _pUi->lineExpression->setText(_expressionParser.expression().trimmed());
+    _pUi->lineExpression->setText(_expressionParser.expression());
     connect(_pUi->lineExpression, &QLineEdit::editingFinished, this, &ExpressionsDialog::handleExpressionChange);
 
     connect(_pUi->lineIn0, &QLineEdit::editingFinished, this, &ExpressionsDialog::handleInputChange);

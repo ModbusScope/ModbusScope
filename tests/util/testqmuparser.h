@@ -19,6 +19,9 @@ private slots:
     void evaluateInvalidDecimal();
     void evaluateDivByZero();
 
+    void expressionGet();
+    void expressionUpdate();
+
 private:
 
 
