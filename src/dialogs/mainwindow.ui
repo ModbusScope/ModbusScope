@@ -708,7 +708,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../resources/resource.qrc">
+    <iconset resource="../../resources/resource.qrc">
      <normaloff>:/menu_icon/menu_icon/icons/folder_go.png</normaloff>:/menu_icon/menu_icon/icons/folder_go.png</iconset>
    </property>
    <property name="text">
@@ -735,7 +735,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../resources/resource.qrc">
+    <iconset resource="../../resources/resource.qrc">
      <normaloff>:/menu_icon/menu_icon/icons/magnifier.png</normaloff>:/menu_icon/menu_icon/icons/magnifier.png</iconset>
    </property>
    <property name="text">
@@ -768,7 +768,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../resources/resource.qrc"/>
+  <include location="../../resources/resource.qrc"/>
  </resources>
  <connections/>
 </ui>
