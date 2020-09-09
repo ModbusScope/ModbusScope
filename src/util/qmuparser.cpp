@@ -9,11 +9,21 @@ QMuParser::QMuParser(QString strExpression)
     _registerValue = 0;
     _pExprParser = new mu::ParserRegister(&_registerValue);
 
+    setExpression(strExpression);
+}
+
+QMuParser::~QMuParser()
+{
+    delete _pExprParser;
+}
+
+void QMuParser::setExpression(QString expr)
+{
     /* Fixed by design */
     _pExprParser->SetArgSep(static_cast<mu::char_type>(';'));
 
-    const bool bContainsDecimalPoint = strExpression.contains('.');
-    const bool bContainsComma = strExpression.contains(',');
+    const bool bContainsDecimalPoint = expr.contains('.');
+    const bool bContainsComma = expr.contains(',');
 
     if (bContainsDecimalPoint && bContainsComma)
     {
@@ -40,7 +50,7 @@ QMuParser::QMuParser(QString strExpression)
 
     try
     {
-        _pExprParser->SetExpr(strExpression.toStdString());
+        _pExprParser->SetExpr(expr.toStdString());
     }
     catch (mu::Parser::exception_type &e)
     {
@@ -50,9 +60,9 @@ QMuParser::QMuParser(QString strExpression)
     reset();
 }
 
-QMuParser::~QMuParser()
+QString QMuParser::expression()
 {
-    delete _pExprParser;
+    return QString::fromStdString(_pExprParser->GetExpr());
 }
 
 bool QMuParser::evaluate()

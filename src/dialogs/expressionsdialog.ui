@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>746</width>
-    <height>444</height>
+    <height>448</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,7 +28,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout" stretch=""/>
+        <layout class="QHBoxLayout" name="horizontalLayout"/>
        </item>
        <item>
         <widget class="QGroupBox" name="groupBox_2">
@@ -176,6 +176,9 @@
               <family>Ubuntu Mono</family>
               <pointsize>12</pointsize>
              </font>
+            </property>
+            <property name="text">
+             <string>VAL</string>
             </property>
            </widget>
           </item>
