@@ -97,6 +97,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineMbcfile</tabstop>
+  <tabstop>btnSelectMbcFile</tabstop>
+  <tabstop>cmbTabFilter</tabstop>
+  <tabstop>lineTextFilter</tabstop>
+  <tabstop>tblMbcRegisters</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
