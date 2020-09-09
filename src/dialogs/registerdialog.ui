@@ -90,6 +90,8 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>btnImportFromMbc</tabstop>
+  <tabstop>btnComposeExpressions</tabstop>
   <tabstop>btnAdd</tabstop>
   <tabstop>btnRemove</tabstop>
   <tabstop>registerView</tabstop>
