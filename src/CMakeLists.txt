@@ -41,6 +41,7 @@ SET(SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/connectiondialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/diagnosticdialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/expressionsdialog.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/expressioncomposedelegate.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/importmbcdialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/loadfiledialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/logdialog.cpp
