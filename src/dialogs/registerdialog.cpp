@@ -24,13 +24,14 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     _pUi->registerView->verticalHeader()->hide();
 
     RegisterConnDelegate* cbConn = new RegisterConnDelegate(pSettingsModel,_pUi->registerView);
-    _pUi->registerView->setItemDelegateForColumn(10, cbConn);
+    _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::CONNECTION_ID, cbConn);
+
 
     /* Don't stretch columns */
     _pUi->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     /* Except following columns */
-    _pUi->registerView->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Stretch);
+    _pUi->registerView->horizontalHeader()->setSectionResizeMode(GraphDataModel::column::TEXT, QHeaderView::Stretch);
 
     // Select using click, shift and control
     _pUi->registerView->setSelectionBehavior(QAbstractItemView::SelectRows);

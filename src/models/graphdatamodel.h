@@ -13,6 +13,20 @@ class GraphDataModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
+
+    enum column {
+        COLOR = 0,
+        ACTIVE,
+        UNSIGNED,
+        REGISTER,
+        BIT32,
+        TEXT,
+        EXPRESSION,
+        CONNECTION_ID,
+
+        COUNT
+    };
+
     explicit GraphDataModel(SettingsModel * pSettingsModel, QObject *parent = nullptr);
 
     /* Functions for QTableView (model) */
