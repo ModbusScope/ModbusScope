@@ -443,6 +443,39 @@ void TestRegisterValueHandler::bigEndian_s32_2()
     QCOMPARE(regHandler.successList()[0], true);
 }
 
+void TestRegisterValueHandler::manyInactiveRegisters()
+{
+    /*
+     * This test is added to make sure inactive registers are handled correctly
+     */
+
+    for (uint32_t idx = 0; idx < 8; idx++)
+    {
+        addRegisterToModel();
+        _pGraphDataModel->setActive(idx, false);
+        _pGraphDataModel->setExpression(idx, QString("VAL + %1").arg(idx));
+        _pGraphDataModel->setRegisterAddress(idx, idx);
+    }
+
+    _pGraphDataModel->setActive(6, true);
+    _pGraphDataModel->setActive(7, true);
+
+
+    auto partialResultMap = createResultMap(6, false, 100, true);
+    addToResultMap(partialResultMap, 7, false, 100, true);
+
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
+    regHandler.startRead();
+    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
+
+    QCOMPARE(regHandler.processedValues()[0], 106);
+    QCOMPARE(regHandler.successList()[0], true);
+
+    QCOMPARE(regHandler.processedValues()[1], 107);
+    QCOMPARE(regHandler.successList()[1], true);
+}
+
 QMap<quint16, ModbusResult> TestRegisterValueHandler::createResultMap(
         quint16 addr,
         bool b32bit,

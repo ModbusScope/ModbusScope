@@ -96,16 +96,16 @@ void RegisterValueHandler::processPartialResult(QMap<quint16, ModbusResult> part
                     double processedResult = 0;
                     if (bSuccess)
                     {
-                        if (_valueParsers[activeIndex]->evaluate(combinedValueToProcess))
+                        if (_valueParsers[listIdx]->evaluate(combinedValueToProcess))
                         {
-                            processedResult = _valueParsers[activeIndex]->result();
+                            processedResult = _valueParsers[listIdx]->result();
                         }
                         else
                         {
                             processedResult = 0u;
 
                             auto msg = QString("Expression evaluation failed (%1): address %2, expression %3, value %4")
-                                        .arg(_valueParsers[activeIndex]->msg())
+                                        .arg(_valueParsers[listIdx]->msg())
                                         .arg(_pGraphDataModel->registerAddress(activeIndex))
                                         .arg(_pGraphDataModel->expression(activeIndex))
                                         .arg(combinedValueToProcess);
@@ -172,8 +172,8 @@ void RegisterValueHandler::prepareForData()
 
     for(int idx = 0; idx < _activeIndexList.size(); idx++)
     {
-        /* Use pointer because our class otherwise needs copy/assingment constructor and such */
+        /* Use pointer because our class otherwise needs copy/assignment constructor and such */
         /* Remember to delete before removal */
-        _valueParsers.append(new QMuParser(_pGraphDataModel->expression(idx)));
+        _valueParsers.append(new QMuParser(_pGraphDataModel->expression(_activeIndexList[idx])));
     }
 }

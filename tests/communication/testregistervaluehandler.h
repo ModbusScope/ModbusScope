@@ -40,6 +40,8 @@ private slots:
     void bigEndian_32_1();
     void bigEndian_s32_2();
 
+    void manyInactiveRegisters();
+
 
 private:
 
