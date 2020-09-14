@@ -4,23 +4,6 @@
 
 #include "graphdatamodel.h"
 
-namespace {
-
-    enum column {
-        COLOR = 0,
-        ACTIVE,
-        UNSIGNED,
-        REGISTER,
-        BIT32,
-        TEXT,
-        EXPRESSION,
-        CONNECTION_ID,
-
-        COUNT
-    };
-
-}
-
 GraphDataModel::GraphDataModel(SettingsModel * pSettingsModel, QObject *parent) : QAbstractTableModel(parent)
 {
     _pSettingsModel = pSettingsModel;
