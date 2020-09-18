@@ -13,34 +13,6 @@ ExpressionComposeDelegate::~ExpressionComposeDelegate()
 {
 }
 
-void ExpressionComposeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
-    Q_ASSERT(index.isValid());
-
-    QStyleOptionViewItem opt = option;
-    initStyleOption(&opt, index);
-
-    const QWidget *widget = option.widget;
-    QStyle *style = widget ? widget->style() : QApplication::style();
-    style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, widget);
-
-    if (!(option.state & QStyle::State_Selected))
-    {
-        return;
-    }
-
-    QStyleOptionButton editButtonOption;
-    editButtonOption.text = QStringLiteral("...");
-    editButtonOption.rect = QRect(option.rect.left() + option.rect.width() - option.rect.height(), option.rect.top(), option.rect.height(), option.rect.height());
-    editButtonOption.features = QStyleOptionButton::None;
-    editButtonOption.direction = option.direction;
-    editButtonOption.fontMetrics = option.fontMetrics;
-    editButtonOption.palette = option.palette;
-    editButtonOption.styleObject = option.styleObject;
-
-    style->drawControl(QStyle::CE_PushButton, &editButtonOption, painter, widget);
-}
-
 QSize ExpressionComposeDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     const QSize baseSize = QStyledItemDelegate::sizeHint(option, index);
