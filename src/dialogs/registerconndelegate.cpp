@@ -40,6 +40,8 @@ void RegisterConnDelegate::setEditorData(QWidget *editor, const QModelIndex &ind
     const quint8 cbIndex = static_cast<quint8>(index.data(Qt::EditRole).toUInt());
 
     cb->setCurrentIndex(cbIndex);
+
+    cb->showPopup();
 }
 
 void RegisterConnDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
