@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>746</width>
-    <height>299</height>
+    <width>677</width>
+    <height>462</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -182,6 +182,21 @@
    <item>
     <widget class="QWidget" name="widgetInfo" native="true">
      <layout class="QVBoxLayout" name="verticalLayout_4">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QLabel" name="lblInfo">
         <property name="sizePolicy">
@@ -191,7 +206,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>rhoncus est pellentesque elit ullamcorper dignissim cras tincidunt lobortis feugiat vivamus at augue eget arcu dictum varius duis at consectetur lorem donec massa sapien faucibus et molestie ac feugiat sed lectus vestibulum mattis ullamcorper velit sed ullamcorper morbi tincidunt ornare massa eget egestas purus viverra accumsan in nisl nisi scelerisque</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Expression Information&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The value read via modbus is represented as &amp;quot;VAL&amp;quot;. The most common binary operators are supported (!, |, &amp;amp;, &amp;lt;&amp;lt;, &amp;gt;&amp;gt;). The basic arithmetic operators are also supported (+, -, *, /, %, ^). Hexadecimal numbers can be represented with the &amp;quot;0x&amp;quot; prefix. Floating point number are also supported. Both a decimal point as comma can be used. The first encountered characters per expression is used as floating point separator.&lt;/p&gt;&lt;p&gt;Some examples:&lt;/p&gt;&lt;p&gt;(VAL + 10 / 2) / 10&lt;/p&gt;&lt;p&gt;(VAL &amp;amp; 0xFF) | 1&lt;/p&gt;&lt;p&gt;VAL * 0.001&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
