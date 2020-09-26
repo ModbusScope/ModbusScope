@@ -3,10 +3,13 @@
 
 #include <QStyledItemDelegate>
 
+/* Forward declaration */
+class GraphDataModel;
+
 class ExpressionComposeDelegate : public QStyledItemDelegate
 {
 public: 
-    ExpressionComposeDelegate(QObject *parent = nullptr);
+    ExpressionComposeDelegate(GraphDataModel *pGraphDataModel, QObject *parent = nullptr);
     ~ExpressionComposeDelegate() override;
 
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
@@ -15,6 +18,15 @@ public:
     void setEditorData(QWidget *editor, const QModelIndex &index) const override;
     void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &/* index */) const override;
+
+private slots:
+    void handleComposeButtonClicked();
+
+private:
+
+    GraphDataModel * _pGraphDataModel;
+
+    static const QString _cButtonRowProperty;
 
 };
 

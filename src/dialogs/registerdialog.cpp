@@ -26,8 +26,7 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
 
     RegisterConnDelegate* cbConn = new RegisterConnDelegate(pSettingsModel,_pUi->registerView);
     _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::CONNECTION_ID, cbConn);
-
-    _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::EXPRESSION, new ExpressionComposeDelegate(_pUi->registerView));
+    _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::EXPRESSION, new ExpressionComposeDelegate(_pGraphDataModel, _pUi->registerView));
 
     /* Don't stretch columns */
     _pUi->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);

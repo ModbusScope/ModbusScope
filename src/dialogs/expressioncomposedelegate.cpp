@@ -2,9 +2,16 @@
 
 #include <QPushButton>
 #include <QApplication>
+#include <QMetaType>
 
-ExpressionComposeDelegate::ExpressionComposeDelegate(QObject *parent)
-    : QStyledItemDelegate(parent)
+#include "graphdatamodel.h"
+#include "expressionsdialog.h"
+
+const QString ExpressionComposeDelegate::_cButtonRowProperty = QString("COMPOSE_INDEX");
+
+ExpressionComposeDelegate::ExpressionComposeDelegate(GraphDataModel *pGraphDataModel, QObject *parent)
+    : QStyledItemDelegate(parent),
+      _pGraphDataModel(pGraphDataModel)
 {
 
 }
@@ -31,7 +38,8 @@ QWidget* ExpressionComposeDelegate::createEditor(QWidget *parent, const QStyleOp
     QPushButton* editButton = new QPushButton(QStringLiteral("..."), result);
     editButton->setObjectName("editButton");
     editButton->setGeometry(option.rect.width() - option.rect.height(), 0, option.rect.height(), option.rect.height());
-    connect(editButton, &QPushButton::clicked, []() { qDebug("Edit"); } );
+    editButton->setProperty(qPrintable(_cButtonRowProperty), QVariant(index.row()));
+    connect(editButton, &QPushButton::clicked, this, &ExpressionComposeDelegate::handleComposeButtonClicked);
 
     return result;
 }
@@ -68,3 +76,16 @@ void ExpressionComposeDelegate::updateEditorGeometry(QWidget *editor, const QSty
     editor->setGeometry(option.rect);
 }
 
+void ExpressionComposeDelegate::handleComposeButtonClicked()
+{
+    QPushButton * pBtn = qobject_cast<QPushButton *>(QObject::sender());
+
+    QVariant varIdx = pBtn->property(qPrintable(_cButtonRowProperty));
+
+    if (varIdx.canConvert(QMetaType::Int))
+    {
+        ExpressionsDialog exprDialog(_pGraphDataModel, varIdx.toInt(), qobject_cast<QWidget *>(parent()));
+
+        exprDialog.exec();
+    }
+}

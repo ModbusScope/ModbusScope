@@ -17,22 +17,22 @@ class ExpressionsDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ExpressionsDialog(GraphDataModel * pGraphDataModel, QWidget *parent = nullptr);
+    explicit ExpressionsDialog(GraphDataModel * pGraphDataModel, qint32 idx, QWidget *parent = nullptr);
     ~ExpressionsDialog();
 
 private slots:
     void handleExpressionChange();
     void handleInputChange();
-    void handleSaveExpression();
-    void handleLoadExpression();
-    void handleClose();
-    void handleRegisterSelected(int idx);
+    void handleCancel();
+    void handleAccept();
 
 private:
 
     QString evaluateValue(QString strInput);
 
     Ui::ExpressionsDialog *_pUi;
+
+    qint32 _graphIdx;
 
     QMuParser _expressionParser;
 
