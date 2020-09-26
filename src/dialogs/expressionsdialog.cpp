@@ -18,15 +18,14 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel *pGraphDataModel, qint32 idx
     connect(_pUi->btnCancel, &QPushButton::clicked, this, &ExpressionsDialog::handleCancel);
     connect(_pUi->btnAccept, &QPushButton::clicked, this, &ExpressionsDialog::handleAccept);
 
-    _pUi->lineExpression->setText(_expressionParser.expression());
+    _pUi->lineExpression->setText(_pGraphDataModel->expression(_graphIdx));
     connect(_pUi->lineExpression, &QLineEdit::editingFinished, this, &ExpressionsDialog::handleExpressionChange);
 
-    connect(_pUi->lineIn0, &QLineEdit::editingFinished, this, &ExpressionsDialog::handleInputChange);
-    connect(_pUi->lineIn1, &QLineEdit::editingFinished, this, &ExpressionsDialog::handleInputChange);
-    connect(_pUi->lineIn2, &QLineEdit::editingFinished, this, &ExpressionsDialog::handleInputChange);
-
-    _pUi->lineExpression->setText(_pGraphDataModel->expression(_graphIdx));
     handleExpressionChange();
+
+    connect(_pUi->lineIn0, &QLineEdit::textChanged, this, &ExpressionsDialog::handleInputChange);
+    connect(_pUi->lineIn1, &QLineEdit::textChanged, this, &ExpressionsDialog::handleInputChange);
+    connect(_pUi->lineIn2, &QLineEdit::textChanged, this, &ExpressionsDialog::handleInputChange);
 }
 
 ExpressionsDialog::~ExpressionsDialog()
