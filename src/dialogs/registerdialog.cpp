@@ -3,7 +3,6 @@
 #include "util.h"
 #include "registerdialog.h"
 #include "importmbcdialog.h"
-#include "expressionsdialog.h"
 #include "registerconndelegate.h"
 #include "expressioncomposedelegate.h"
 
@@ -49,7 +48,6 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
 
     // Setup handler for buttons
     connect(_pUi->btnImportFromMbc, &QPushButton::released, this, &RegisterDialog::showImportDialogDefault);
-    connect(_pUi->btnComposeExpressions, &QPushButton::released, this, &RegisterDialog::showComposeRegisterDialog);
     connect(_pUi->btnAdd, &QPushButton::released, this, &RegisterDialog::addRegisterRow);
     connect(_pUi->btnRemove, &QPushButton::released, this, &RegisterDialog::removeRegisterRow);
     connect(_pGraphDataModel, &GraphDataModel::rowsInserted, this, &RegisterDialog::onRegisterInserted);
@@ -126,16 +124,9 @@ void RegisterDialog::showImportDialog(QString mbcPath)
     }
 }
 
-void RegisterDialog::showComposeRegisterDialog()
-{
-    ExpressionsDialog exprDialog(_pGraphDataModel, this);
-
-    exprDialog.exec();
-}
-
 void RegisterDialog::activatedCell(QModelIndex modelIndex)
 {
-    if (modelIndex.column() == 0)
+    if (modelIndex.column() == GraphDataModel::column::COLOR)
     {
         if (modelIndex.row() < _pGraphDataModel->size())
         {
