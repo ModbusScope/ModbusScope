@@ -19,7 +19,7 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel *pGraphDataModel, qint32 idx
     connect(_pUi->btnAccept, &QPushButton::clicked, this, &ExpressionsDialog::handleAccept);
 
     _pUi->lineExpression->setText(_pGraphDataModel->expression(_graphIdx));
-    connect(_pUi->lineExpression, &QLineEdit::editingFinished, this, &ExpressionsDialog::handleExpressionChange);
+    connect(_pUi->lineExpression, &QLineEdit::textChanged, this, &ExpressionsDialog::handleExpressionChange);
 
     handleExpressionChange();
 
