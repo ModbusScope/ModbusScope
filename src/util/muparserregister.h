@@ -68,6 +68,7 @@ namespace mu
 
         static int IsVal(const char_type* a_szExpr, int* a_iPos, value_type* a_fVal);
         static int IsHexVal(const char_type* a_szExpr, int* a_iPos, value_type* a_iVal);
+        static int IsBinVal(const char_type* a_szExpr, int* a_iPos, value_type* a_fVal);
 
 	};
 } // namespace mu

@@ -108,6 +108,31 @@ namespace mu
         return 1;
     }
 
+    int ParserRegister::IsBinVal(const char_type* a_szExpr, int* a_iPos, value_type* a_fVal)
+    {
+        if (a_szExpr[1] == 0 || (a_szExpr[0] != '0' || a_szExpr[1] != 'b'))
+            return 0;
+
+        unsigned int iVal(0),
+            iBits(sizeof(iVal) * 8),
+            i(0),
+            offset(2);
+
+        for (i = 0; (a_szExpr[i + offset] == '0' || a_szExpr[i + offset] == '1') && (i < iBits); ++i)
+            iVal |= (int)(a_szExpr[i + offset] == '1') << ((iBits - 1) - i);
+
+        if (i == 0)
+            return 0;
+
+        if (i - 1 == iBits)
+            throw exception_type(_T("Binary to integer conversion error (overflow)."));
+
+        *a_fVal = (unsigned)(iVal >> (iBits - i));
+        *a_iPos += i + offset;
+
+        return 1;
+    }
+
 	//---------------------------------------------------------------------------
 	/** \brief Constructor.
 
@@ -117,6 +142,7 @@ namespace mu
 		:ParserBase()
 	{
         AddValIdent(IsVal);    // lowest priority
+        AddValIdent(IsBinVal);
         AddValIdent(IsHexVal); // highest priority
 
 		InitCharSets();
