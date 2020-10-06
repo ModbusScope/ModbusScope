@@ -42,9 +42,20 @@ void ExpressionsDialog::handleExpressionChange()
 
 void ExpressionsDialog::handleInputChange()
 {
-    _pUi->lblOut0->setText(evaluateValue(_pUi->lineIn0->text()));
-    _pUi->lblOut1->setText(evaluateValue(_pUi->lineIn1->text()));
-    _pUi->lblOut2->setText(evaluateValue(_pUi->lineIn2->text()));
+    QString numOutput;
+    QString strTooltip;
+
+    evaluateValue(_pUi->lineIn0->text(), numOutput, strTooltip);
+    _pUi->lblOut0->setText(numOutput);
+    _pUi->lblOut0->setToolTip(strTooltip);
+
+    evaluateValue(_pUi->lineIn1->text(), numOutput, strTooltip);
+    _pUi->lblOut1->setText(numOutput);
+    _pUi->lblOut1->setToolTip(strTooltip);
+
+    evaluateValue(_pUi->lineIn2->text(), numOutput, strTooltip);
+    _pUi->lblOut2->setText(numOutput);
+    _pUi->lblOut2->setToolTip(strTooltip);
 }
 
 void ExpressionsDialog::handleCancel()
@@ -59,10 +70,8 @@ void ExpressionsDialog::handleAccept()
     done(QDialog::Accepted);
 }
 
-QString ExpressionsDialog::evaluateValue(QString strInput)
+void ExpressionsDialog::evaluateValue(QString strInput, QString &numOutput, QString &strTooltip)
 {
-    QString output;
-
     if (!strInput.isEmpty())
     {
         bool bOk;
@@ -71,18 +80,24 @@ QString ExpressionsDialog::evaluateValue(QString strInput)
         {
             if (_expressionParser.evaluate(value))
             {
-                output = QString("%0").arg(_expressionParser.result());
+                numOutput = QString("%0").arg(_expressionParser.result());
+                strTooltip = QString();
             }
             else
             {
-                output = _expressionParser.msg();
+                numOutput = QStringLiteral("-");
+                strTooltip = _expressionParser.msg();
             }
         }
         else
         {
-            output = QStringLiteral("Not a valid number");
+            numOutput = QStringLiteral("-");
+            strTooltip = QStringLiteral("Not a valid number");
         }
     }
-
-    return output;
+    else
+    {
+        numOutput = QString();
+        strTooltip = QString();
+    }
 }

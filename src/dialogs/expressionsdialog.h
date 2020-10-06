@@ -28,7 +28,7 @@ private slots:
 
 private:
 
-    QString evaluateValue(QString strInput);
+    void evaluateValue(QString strInput, QString &numOutput, QString &strTooltip);
 
     Ui::ExpressionsDialog *_pUi;
 
