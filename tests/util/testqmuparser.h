@@ -19,6 +19,13 @@ private slots:
     void evaluateInvalidDecimal();
     void evaluateDivByZero();
 
+    void evaluateInvalidHexExpr();
+    void evaluateInvalidBinExpr();
+    void evaluateInvalidBinExpr_2();
+
+    void expressionGet();
+    void expressionUpdate();
+
 private:
 
 

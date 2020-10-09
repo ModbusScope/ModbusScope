@@ -40,6 +40,7 @@ SET(SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/aboutdialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/connectiondialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/diagnosticdialog.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/expressionsdialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/importmbcdialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/loadfiledialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/logdialog.cpp
@@ -89,6 +90,7 @@ SET(UIS
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/aboutdialog.ui
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/connectiondialog.ui
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/diagnosticdialog.ui
+    ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/expressionsdialog.ui
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/importmbcdialog.ui
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/loadfiledialog.ui
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/logdialog.ui

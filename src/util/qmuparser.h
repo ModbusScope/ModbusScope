@@ -11,6 +11,9 @@ public:
     QMuParser(QString strExpression);
     ~QMuParser();
 
+    void setExpression(QString expr);
+    QString expression();
+
     bool evaluate();
     bool evaluate(double regValue);
 

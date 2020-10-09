@@ -56,6 +56,14 @@ void TestQMuParser::evaluate_data()
     ADD_TEST("0x12345678",      305419896  );
     ADD_TEST("0xABCDEF",        11259375  );
 
+    /* Binary */
+    ADD_TEST("0b11111111",      255  );
+    ADD_TEST("0b11111111111111111111111111111111",      4294967295);
+    ADD_TEST("0b000001",        1);
+    ADD_TEST("0b00",            0);
+    ADD_TEST("0b01 + 1 + 0x01", 3);
+    ADD_TEST("0b1 << 3",        8);
+
     /* Floating point result */
     ADD_TEST("15 / 4",          3.75   );
     ADD_TEST("1 / 1000",        0.001  );
@@ -134,6 +142,40 @@ void TestQMuParser::evaluateInvalidExpr()
     QVERIFY(!bSuccess);
 }
 
+void TestQMuParser::evaluateInvalidHexExpr()
+{
+    QMuParser parser("0x");
+
+    bool bSuccess = parser.evaluate();
+
+    QCOMPARE(parser.result(), 0);
+    QVERIFY(!parser.isSuccess());
+    QVERIFY(!bSuccess);
+}
+
+void TestQMuParser::evaluateInvalidBinExpr()
+{
+    QMuParser parser("0b");
+
+    bool bSuccess = parser.evaluate();
+
+    QCOMPARE(parser.result(), 0);
+    QVERIFY(!parser.isSuccess());
+    QVERIFY(!bSuccess);
+}
+
+void TestQMuParser::evaluateInvalidBinExpr_2()
+{
+    /* 33 bits */
+    QMuParser parser("0b111101110111011101110111011101110");
+
+    bool bSuccess = parser.evaluate();
+
+    QCOMPARE(parser.result(), 0);
+    QVERIFY(!parser.isSuccess());
+    QVERIFY(!bSuccess);
+}
+
 void TestQMuParser::evaluateInvalidDecimal()
 {
     QMuParser parser("1.1 + 1,5");
@@ -154,6 +196,34 @@ void TestQMuParser::evaluateDivByZero()
     QCOMPARE(parser.result(), 0);
     QVERIFY(!parser.isSuccess());
     QVERIFY(!bSuccess);
+}
+
+void TestQMuParser::expressionGet()
+{
+    QString expr = QStringLiteral("1.1 + 1,5");
+
+    QMuParser parser(expr);
+
+    QCOMPARE(parser.expression(), expr);
+}
+
+void TestQMuParser::expressionUpdate()
+{
+    QMuParser parser("VAL + 1");
+
+    bool bSuccess = parser.evaluate(5);
+
+    QCOMPARE(parser.result(), 6);
+    QVERIFY(parser.isSuccess());
+    QVERIFY(bSuccess);
+
+    parser.setExpression("VAL + 2");
+
+    bSuccess = parser.evaluate(5);
+
+    QCOMPARE(parser.result(), 7);
+    QVERIFY(parser.isSuccess());
+    QVERIFY(bSuccess);
 }
 
 QTEST_GUILESS_MAIN(TestQMuParser)

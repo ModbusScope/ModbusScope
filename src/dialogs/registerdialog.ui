@@ -83,6 +83,7 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>btnImportFromMbc</tabstop>
   <tabstop>btnAdd</tabstop>
   <tabstop>btnRemove</tabstop>
   <tabstop>registerView</tabstop>

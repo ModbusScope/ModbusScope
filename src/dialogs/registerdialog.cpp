@@ -3,6 +3,7 @@
 #include "util.h"
 #include "registerdialog.h"
 #include "importmbcdialog.h"
+#include "expressionsdialog.h"
 #include "registerconndelegate.h"
 
 #include "ui_registerdialog.h"
@@ -25,7 +26,6 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
 
     RegisterConnDelegate* cbConn = new RegisterConnDelegate(pSettingsModel,_pUi->registerView);
     _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::CONNECTION_ID, cbConn);
-
 
     /* Don't stretch columns */
     _pUi->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -124,7 +124,7 @@ void RegisterDialog::showImportDialog(QString mbcPath)
 
 void RegisterDialog::activatedCell(QModelIndex modelIndex)
 {
-    if (modelIndex.column() == 0)
+    if (modelIndex.column() == GraphDataModel::column::COLOR)
     {
         if (modelIndex.row() < _pGraphDataModel->size())
         {
@@ -141,6 +141,12 @@ void RegisterDialog::activatedCell(QModelIndex modelIndex)
                 // user aborted
             }
         }
+    }
+    else if (modelIndex.column() == GraphDataModel::column::EXPRESSION)
+    {
+        ExpressionsDialog exprDialog(_pGraphDataModel, modelIndex.row(), qobject_cast<QWidget *>(parent()));
+
+        exprDialog.exec();
     }
 }
 
