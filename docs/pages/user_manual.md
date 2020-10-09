@@ -2,17 +2,15 @@
 
 This user manual describes how to get started with *ModbusScope*. *ModbusScope* is a program which can sample Modbus registers and plot the value in a graph to visualize and investigate the dynamic behavior of a system.
 
-## Overview
-
-The main screen of ModbusScope can contain multiple docked windows. Most are visible at the initial start of the application, except the marker window. This docked windows only appears when a marker has been enabled.
-
-![image](../_static/user_manual/overview.png)
-
-The most important part of the window is the plot view. The data of the active registers that are polled is shown here as plots. The settings in the axis scale windows can be used to visualize a very specific part of the data or auto scale to show all information. The legend shows an overview of the active register. You can hide a specific register plot by double clicking it in the legend. The same action can be used to show the plot again. When a plot is hidden it is still polled, it is only temporary hidden in the plot view. Markers can be used examine the data in a specific time frame. 
+[TOC]
 
 ## Installing
 
-*ModbusScope* can be installed with the provided *.msi* installer. Double-click it and follow the instructions. The installer will install the required files on your computer. At the end of the install process, you can also select to open *.mbs* files with *ModbusScope* by default.
+*ModbusScope* can be installed with the provided *.msi* installer. Double-click it and follow the instructions. The installer will install the required files on your computer. At the end of the install process, you can also select to open *.MBS* files with *ModbusScope* by default.
+
+## Adding Modbus registers
+
+When opening *ModbusScope*, no Modbus registers are added. First click on *Register Settings* in the tool bar of  the interface. This will open a window where registers can be added and adjusted.
 
 ## Register settings
 
@@ -20,25 +18,17 @@ When opening *ModbusScope*, no Modbus registers are added. First click on *Regis
 
 ![image](../_static/user_manual/register_settings.png)
 
-### Configure Modbus registers
+In the below dialog Modbus registers can be added either manually or by importing from a *.MBC* file.
 
-In the below dialog Modbus registers can be added either manually or by importing from a *.mbc* file. When a *.mbs* file is loaded, registers will already be present in the dialog.
-
-When the registers are added, they can be adjusted. Such as updating the name and changing to a specific color. An expression can be used to update the value before the data is added to the graph (and log). This calculations can be used to transform the values from a device to a format that is more clear for the user. It is also possible to select a specific connection on which the value is polled. 
-
-> **NOTE**: The number of registers that are polled significantly impacts the sample rate. For higher resolution in time, reduce the number of registers that are actively polled or make sure the register are in subsequent addresses so they can be polled in one packet.
+When the registers are added, they can be adjusted. Such as updating the name, adding a specific color or adjusting for multiplication factors etc. If all is set, press *OK*. 
 
 ![image](../_static/user_manual/register_settings_dialog_with_registers.png)
 
-### Compose expression window
 
-As mentioned before, an expression can be used to transform the raw value from the device to something more understandable by the user. This expression can be tested in the *compose expression* window. This windows can be opened by double clicking the expression cell.
 
-The expression can be freely updated and up to 3 input values can be evaluated.
+> **NOTE**: The number of registers that are polled significantly impacts the refresh rate. For higher resolution in time, reduce the number of registers that are actively polled.
 
-![image](../_static/user_manual/expression_dialog.png)
-
-#### Expressions
+The added registers are now shown in the *Legend* (right hand side of screen). 
 
 The value read via Modbus is represented as `VAL`. The most common binary operators are supported (`!`, `|`, `&`, `<<`, `>>`). The basic arithmetic operators are also supported (`+`,` -`, `*`, `/`, `%` and `^`). Hexadecimal numbers can be represented with the `0x` prefix. Binary are represented with `0b` prefix. Floating point numbers are also supported. Both a decimal point as comma can be used. The first encountered characters per expression is used as floating point separator.
 
@@ -113,7 +103,7 @@ On the right hand side the *Markers* panel will show information about the marke
 
 ## Import register definitions from mbc file
 
-The *.mbc* file is provided and used for the registers in *ModbusControl*.  Since this is the easiest way, click on *Import from .mbc file*. You can also open this window by dragging and dropping the *.mbc* file in the main screen of *ModbusScope*.
+The *.MBC* file is provided and used for the registers in *ModbusControl*.  Since this is the easiest way, click on *Import from MBC file*. You can also open this window by dragging and dropping the MBC file in the main screen of *ModbusScope*.
 
 ![image](../_static/user_manual/register_settings_dialog.png)
 
