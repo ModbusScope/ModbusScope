@@ -8,38 +8,48 @@ This user manual describes how to get started with *ModbusScope*. *ModbusScope* 
 
 *ModbusScope* can be installed with the provided *.msi* installer. Double-click it and follow the instructions. The installer will install the required files on your computer. At the end of the install process, you can also select to open *.mbs* files with *ModbusScope* by default.
 
-## Adding Modbus registers
+## Register settings
 
 When opening *ModbusScope*, no Modbus registers are added. First click on *Register Settings* in the tool bar of  the interface. This will open a window where registers can be added and adjusted.
 
 ![image](../_static/user_manual/register_settings.png)
 
-In the below dialog Modbus registers can be added either manually or by importing from a *.mbc* file.
+### Configure Modbus registers
 
-When the registers are added, they can be adjusted. Such as updating the name, adding a specific color or adjusting for multiplication factors etc. If all is set, press *OK*. 
+In the below dialog Modbus registers can be added either manually or by importing from a *.mbc* file. When a *.mbs* file is loaded, registers will already be present in the dialog.
+
+When the registers are added, they can be adjusted. Such as updating the name and changing to a specific color. An expression can be used to update the value before the data is added to the graph (and log). This calculations can be used to transform the values from a device to a format that is more clear for the user. It is also possible to select a specific connection on which the value is polled. 
+
+> **NOTE**: The number of registers that are polled significantly impacts the sample rate. For higher resolution in time, reduce the number of registers that are actively polled or make sure the register are in subsequent addresses so they can be polled in one packet.
 
 ![image](../_static/user_manual/register_settings_dialog_with_registers.png)
 
+### Compose expression window
 
+As mentioned before, an expression can be used to transform the raw value from the device to something more understandable by the user. This expression can be tested in the *compose expression* window. This windows can be opened by double clicking the expression cell.
 
-> **NOTE**: The number of registers that are polled significantly impacts the refresh rate. For higher resolution in time, reduce the number of registers that are actively polled.
+The expression can be freely updated and up to 3 input values can be evaluated.
 
-The added registers are now shown in the *Legend* (right hand side of screen). 
+![image](../_static/user_manual/expression_dialog.png)
 
-### Register calculations
+#### Expressions
 
-Some calculations can be performed before the data is added to the graph (and log). This calculations can be used to transform the values from a device to a format that is more clear for the user.
+The value read via Modbus is represented as `VAL`. The most common binary operators are supported (`!`, `|`, `&`, `<<`, `>>`). The basic arithmetic operators are also supported (`+`,` -`, `*`, `/`, `%`, `^`). Hexadecimal numbers can be represented with the `0x` prefix. Binary are represented with `0b` prefix. Floating point number are also supported. Both a decimal point as comma can be used. The first encountered characters per expression is used as floating point separator.
 
-##### Order
+Some examples:
 
-The calculations are done in a specific order.
+* `(VAL + 10 / 2) / 10`
 
-* Combine 2 registers to one (32 bit registers)
-* Signed/unsigned
-* Bitmask (is ignored for signed values)
-* Shift
-* Multiplication
-* Division
+* `(VAL & 0xFF) | 1`
+* `0xFF & 0b1111`
+
+* `VAL * 0.001`
+
+#### Expression error
+
+When the expression contains an error or when the combination of the expression with a specific input value generates an error, no output value is shown and a specific error message can be visualized by hovering over the output field.
+
+![image](../_static/user_manual/expression_dialog_error.png)
 
 ## Storing and reusing configuration
 
@@ -49,7 +59,7 @@ Typically the same set of registers are needed. The configuration of registers a
 
 Once some registers are added, the actual logging can be done. *ModbusScope* tries to communicate through the active *ModbusControl* instance. Make sure *ModbusControl* is set-up and working correctly.
 
-Then press the *Start Logging* button. *ModbusScope* will start logging and  automatically add the values to the graph.
+Then press the *Start Logging* button. *ModbusScope* will start logging and automatically add the values to the graph.
 
 > **NOTE**: When restarting the logging using the *Start Logging* button any data already present in the graph will be cleared.
 
