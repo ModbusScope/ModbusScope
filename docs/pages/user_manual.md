@@ -6,7 +6,7 @@ This user manual describes how to get started with *ModbusScope*. *ModbusScope* 
 
 ## Installing
 
-*ModbusScope* can be installed with the provided *.msi* installer. Double-click it and follow the instructions. The installer will install the required files on your computer. At the end of the install process, you can also select to open *.MBS* files with *ModbusScope* by default.
+*ModbusScope* can be installed with the provided *.msi* installer. Double-click it and follow the instructions. The installer will install the required files on your computer. At the end of the install process, you can also select to open *.mbs* files with *ModbusScope* by default.
 
 ## Adding Modbus registers
 
@@ -14,7 +14,7 @@ When opening *ModbusScope*, no Modbus registers are added. First click on *Regis
 
 ![image](../_static/user_manual/register_settings.png)
 
-In the below dialog Modbus registers can be added either manually or by importing from a *.MBC* file.
+In the below dialog Modbus registers can be added either manually or by importing from a *.mbc* file.
 
 When the registers are added, they can be adjusted. Such as updating the name, adding a specific color or adjusting for multiplication factors etc. If all is set, press *OK*. 
 
@@ -49,7 +49,7 @@ Typically the same set of registers are needed. The configuration of registers a
 
 Once some registers are added, the actual logging can be done. *ModbusScope* tries to communicate through the active *ModbusControl* instance. Make sure *ModbusControl* is set-up and working correctly.
 
-Then press the  *Start Logging* button. *ModbusScope* will start logging and  automatically add the values to the graph.
+Then press the *Start Logging* button. *ModbusScope* will start logging and  automatically add the values to the graph.
 
 > **NOTE**: When restarting the logging using the *Start Logging* button any data already present in the graph will be cleared.
 
@@ -77,7 +77,7 @@ On the right hand side the *Markers* panel will show information about the marke
 
 ## Import register definitions from mbc file
 
-The *.MBC* file is provided and used for the registers in *ModbusControl*.  Since this is the easiest way, click on *Import from MBC file*. You can also open this window by dragging and dropping the MBC file in the main screen of *ModbusScope*.
+The *.mbc* file is provided and used for the registers in *ModbusControl*.  Since this is the easiest way, click on *Import from .mbc file*. You can also open this window by dragging and dropping the *.mbc* file in the main screen of *ModbusScope*.
 
 ![image](../_static/user_manual/register_settings_dialog.png)
 
