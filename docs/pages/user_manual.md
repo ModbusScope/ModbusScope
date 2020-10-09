@@ -1,38 +1,28 @@
 # ModbusScope - User Manual
 
-This user manual describes how to get started with *ModbusScope*.
+This user manual describes how to get started with *ModbusScope*. *ModbusScope* is a program which can sample Modbus registers and plot the value in a graph to visualize and investigate the dynamic behavior of a system.
+
+[TOC]
 
 ## Installing
 
-*ModbusScope* can be installed with the provided *.msi* installer. Double-click it and follow the instructions. 
-
-## Using
-
-*ModbusScope* is a program which can sample Modbus registers and plot the value in a graph to visualize and investigate the dynamic behavior of a system.
+*ModbusScope* can be installed with the provided *.msi* installer. Double-click it and follow the instructions. The installer will install the required files on your computer. At the end of the install process, you can also select to open *.MBS* files with *ModbusScope* by default.
 
 ## Adding Modbus registers
 
-When opening *ModbusScope*, no Modbus registers are added. First click on *Register Settings* in the toolbar of interface. This will open a menu where registers can be added.
+When opening *ModbusScope*, no Modbus registers are added. First click on *Register Settings* in the tool bar of  the interface. This will open a window where registers can be added and adjusted.
 
 ![image](../_static/user_manual/register_settings.png)
 
-In the below dialog Modbus registers can be added either manually or imported from *.MBC* file.
+In the below dialog Modbus registers can be added either manually or by importing from a *.MBC* file.
 
-### Import mbc file
-
-The *.MBC* file is provided and used for the registers in *ModbusControl*.  Since this is the easiest way, click on *Import from MBC file*. You can also open this window by dragging and dropping the MBC file in the main screen of *ModbusScope*.
-
-![image](../_static/user_manual/register_settings_dialog.png)
-
-By pressing the *...* button in the top right corner the path to an *.mbc* can be given. By using either the *Text filter* or scrolling through the list, find and mark each register for which the value must be added to the graph. If all registers that you want to inspect are selected, press *OK*.
-
-> **NOTE**: The number of registers that are polled significantly impacts the refresh rate. For higher resolution in time, reduce the number of registers added.
-
-![image](../_static/user_manual/import_from_mbc_dialog.png)
-
-Now the registers are added they can be adjusted. Such as updating the name, adding a specific color or adjusting for multiplication factors etc. If all is set press *OK*. 
+When the registers are added, they can be adjusted. Such as updating the name, adding a specific color or adjusting for multiplication factors etc. If all is set, press *OK*. 
 
 ![image](../_static/user_manual/register_settings_dialog_with_registers.png)
+
+
+
+> **NOTE**: The number of registers that are polled significantly impacts the refresh rate. For higher resolution in time, reduce the number of registers that are actively polled.
 
 The added registers are now shown in the *Legend* (right hand side of screen). 
 
@@ -84,3 +74,13 @@ Add the left marker (green vertical line) by pressing *<Ctrl>* and *<Left mouse 
 On the right hand side the *Markers* panel will show information about the markers. Such as the value of the registers at *Time 1* (left hand marker) and *Time 2* (right hand marker). Also the time difference between the two markers or value difference between the two marked times.
 
 ![image](../_static/user_manual/markers.png)
+
+## Import register definitions from mbc file
+
+The *.MBC* file is provided and used for the registers in *ModbusControl*.  Since this is the easiest way, click on *Import from MBC file*. You can also open this window by dragging and dropping the MBC file in the main screen of *ModbusScope*.
+
+![image](../_static/user_manual/register_settings_dialog.png)
+
+By pressing the *...* button in the top right corner the path to an *.mbc* can be given. By using either the *Text filter* or scrolling through the list, find and mark each register for which the value must be added to the graph. If all registers that you want to inspect are selected, press *OK*.
+
+![image](../_static/user_manual/import_from_mbc_dialog.png)
