@@ -21,6 +21,7 @@
 #include "projectfilehandler.h"
 #include "scopelogging.h"
 #include "util.h"
+#include "formatdatetime.h"
 
 #include <QDateTime>
 
@@ -1037,8 +1038,7 @@ void MainWindow::handleCommandLineArguments(QStringList cmdArguments)
 
 void MainWindow::logInitialInfo()
 {
-    QString timeString = QDateTime::currentDateTime().toString("dd/MM/yyyy " + Util::timeStringFormat());
-    qCInfo(scopeGeneralInfo) << QString("App start %1").arg(timeString);
+    qCInfo(scopeGeneralInfo) << QString("App start %1").arg(FormatDateTime::currentDateTime());
 
     qCInfo(scopeGeneralInfo) << QString("ModbusScope v%1").arg(Util::currentVersion());
 #ifdef DEBUG

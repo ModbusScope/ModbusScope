@@ -7,6 +7,7 @@
 #include <QColor>
 #include <QDateTime>
 #include "version.h"
+#include "formatdatetime.h"
 
 class Util : public QObject
 {
@@ -105,7 +106,9 @@ public:
                 /* Absolute date */
                 QDateTime dateTime;
                 dateTime.setMSecsSinceEpoch(tickKey); /* Converts from ms since epoch in UTC to local timezone */
-                tickLabel = dateTime.toString("dd/MM/yyyy \n" + Util::timeStringFormat());
+
+                QString timeStringFormat = QString("%1 \n%2").arg(FormatDateTime::dateStringFormat()).arg(FormatDateTime::timeStringFormat());
+                tickLabel = dateTime.toString(timeStringFormat);
             }
             else
             {

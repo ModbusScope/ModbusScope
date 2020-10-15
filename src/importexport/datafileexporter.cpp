@@ -1,5 +1,6 @@
 
 #include "util.h"
+#include "formatdatetime.h"
 
 #include "qcustomplot.h"
 #include "guimodel.h"
@@ -444,8 +445,7 @@ QString DataFileExporter::formatData(double timeData, QList<double> dataValues)
         QString timeString;
         QDateTime dateTime;
         dateTime.setMSecsSinceEpoch(timeData);
-        timeString = dateTime.toString("dd/MM/yyyy " + Util::timeStringFormat());
-        line.append(timeString);
+        line.append(FormatDateTime::formatDateTime(dateTime));
     }
     else
     {
