@@ -17,7 +17,7 @@ QString MyQCPAxisTickerTime::getTickLabel(double tick, const QLocale & locale, Q
 
     if (
             (_pPlot->xAxis->range().size() <= _cSmallScaleDiff)
-            && (_pPlot->xAxis->range().upper < QDateTime::fromString("2000-01-01", Qt::ISODate).toMSecsSinceEpoch())
+            && (FormatRelativeTime::IsDateRelative(_pPlot->xAxis->range().upper))
         )
     {
         tickLabel = FormatRelativeTime::formatTime(tick, true);

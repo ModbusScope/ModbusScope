@@ -32,16 +32,7 @@ QString FormatRelativeTime::formatTime(qint64 tickKey, bool bSmallScale)
             absoluteTime = tickKey;
         }
 
-        if (tickKey > QDateTime::fromString("2000-01-01", Qt::ISODate).toMSecsSinceEpoch())
-        {
-            /* Absolute date */
-            QDateTime dateTime;
-            dateTime.setMSecsSinceEpoch(tickKey); /* Converts from ms since epoch in UTC to local timezone */
-
-            QString timeStringFormat = QString("%1 \n%2").arg(FormatDateTime::dateStringFormat()).arg(FormatDateTime::timeStringFormat());
-            tickLabel = dateTime.toString(timeStringFormat);
-        }
-        else
+        if (FormatRelativeTime::IsDateRelative(tickKey))
         {
             /* Round number to a day */
             absoluteTime %= cSecondsInADay;
@@ -49,6 +40,15 @@ QString FormatRelativeTime::formatTime(qint64 tickKey, bool bSmallScale)
             QTime time = QTime::fromMSecsSinceStartOfDay(absoluteTime);
 
             tickLabel = time.toString(timeStringFormat());
+        }
+        else
+        {
+            /* Absolute date */
+            QDateTime dateTime;
+            dateTime.setMSecsSinceEpoch(tickKey); /* Converts from ms since epoch in UTC to local timezone */
+
+            QString timeStringFormat = QString("%1 \n%2").arg(FormatDateTime::dateStringFormat()).arg(FormatDateTime::timeStringFormat());
+            tickLabel = dateTime.toString(timeStringFormat);
         }
 
         // Make sure minus sign is shown when tick number is negative
@@ -105,4 +105,16 @@ QString FormatRelativeTime::formatTimeDiff(qint64 tickKeyDiff)
     }
 
     return tickLabel;
+}
+
+bool FormatRelativeTime::IsDateRelative(qint64 ticks)
+{
+    bool bRet = false;
+
+    if (ticks < QDateTime::fromString("2000-01-01", Qt::ISODate).toMSecsSinceEpoch())
+    {
+        bRet = true;
+    }
+
+    return bRet;
 }
