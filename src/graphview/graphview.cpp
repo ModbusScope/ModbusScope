@@ -7,7 +7,7 @@
 #include <algorithm> // std::upperbound, std::lowerbound
 
 #include "guimodel.h"
-#include "util.h"
+#include "formatrelativetime.h"
 #include "graphdatamodel.h"
 #include "settingsmodel.h"
 #include "notemodel.h"
@@ -692,7 +692,7 @@ void GraphView::paintTimeStampToolTip(QPoint pos)
         if (bValid && keyRange.contains(xPos))
         {
             // Add tick key string
-            QString toolText = Util::formatTime(tooltipPos, false);
+            QString toolText = FormatRelativeTime::formatTime(tooltipPos, false);
             QPoint location= _pPlot->mapToGlobal(pos);
 
             if (location != _tooltipLocation)
