@@ -41,7 +41,7 @@ QString FormatRelativeTime::formatTime(qint64 tickKey)
         QDateTime dateTime;
         dateTime.setMSecsSinceEpoch(tickKey); /* Converts from ms since epoch in UTC to local timezone */
 
-        QString timeStringFormat = QString("%1 \n%2").arg(FormatDateTime::dateStringFormat()).arg(FormatDateTime::timeStringFormat());
+        QString timeStringFormat = QString("%1\n%2").arg(FormatDateTime::dateStringFormat()).arg(FormatDateTime::timeStringFormat());
         tickLabel = dateTime.toString(timeStringFormat);
     }
 
@@ -56,8 +56,7 @@ QString FormatRelativeTime::formatTime(qint64 tickKey)
 
 QString FormatRelativeTime::formatTimeSmallScale(qint64 tickKey)
 {
-    const QString tickLabel = QString("%1").arg(tickKey);
-    return tickLabel;
+    return QString("%1").arg(tickKey);
 }
 
 QString FormatRelativeTime::formatTimeDiff(qint64 tickKeyDiff)
