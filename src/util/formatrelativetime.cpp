@@ -9,55 +9,54 @@ QString FormatRelativeTime::timeStringFormat()
     return QString("HH:mm:ss%1zzz").arg(QLocale::system().decimalPoint());
 }
 
-QString FormatRelativeTime::formatTime(qint64 tickKey, bool bSmallScale)
+QString FormatRelativeTime::formatTime(qint64 tickKey)
 {
     QString tickLabel;
     bool bNegative;
     quint64 absoluteTime;
 
-    if (bSmallScale)
+    if (tickKey < 0)
     {
-        tickLabel = QString("%1").arg(tickKey);
+        bNegative = true;
+        absoluteTime = -1 * tickKey;
     }
     else
     {
-        if (tickKey < 0)
-        {
-            bNegative = true;
-            absoluteTime = -1 * tickKey;
-        }
-        else
-        {
-            bNegative = false;
-            absoluteTime = tickKey;
-        }
-
-        if (FormatRelativeTime::IsDateRelative(tickKey))
-        {
-            /* Round number to a day */
-            absoluteTime %= cSecondsInADay;
-
-            QTime time = QTime::fromMSecsSinceStartOfDay(absoluteTime);
-
-            tickLabel = time.toString(timeStringFormat());
-        }
-        else
-        {
-            /* Absolute date */
-            QDateTime dateTime;
-            dateTime.setMSecsSinceEpoch(tickKey); /* Converts from ms since epoch in UTC to local timezone */
-
-            QString timeStringFormat = QString("%1 \n%2").arg(FormatDateTime::dateStringFormat()).arg(FormatDateTime::timeStringFormat());
-            tickLabel = dateTime.toString(timeStringFormat);
-        }
-
-        // Make sure minus sign is shown when tick number is negative
-        if (bNegative)
-        {
-            tickLabel = "-" + tickLabel;
-        }
+        bNegative = false;
+        absoluteTime = tickKey;
     }
 
+    if (FormatRelativeTime::IsDateRelative(tickKey))
+    {
+        /* Round number to a day */
+        absoluteTime %= cSecondsInADay;
+
+        QTime time = QTime::fromMSecsSinceStartOfDay(absoluteTime);
+
+        tickLabel = time.toString(timeStringFormat());
+    }
+    else
+    {
+        /* Absolute date */
+        QDateTime dateTime;
+        dateTime.setMSecsSinceEpoch(tickKey); /* Converts from ms since epoch in UTC to local timezone */
+
+        QString timeStringFormat = QString("%1 \n%2").arg(FormatDateTime::dateStringFormat()).arg(FormatDateTime::timeStringFormat());
+        tickLabel = dateTime.toString(timeStringFormat);
+    }
+
+    // Make sure minus sign is shown when tick number is negative
+    if (bNegative)
+    {
+        tickLabel = "-" + tickLabel;
+    }
+
+    return tickLabel;
+}
+
+QString FormatRelativeTime::formatTimeSmallScale(qint64 tickKey)
+{
+    const QString tickLabel = QString("%1").arg(tickKey);
     return tickLabel;
 }
 

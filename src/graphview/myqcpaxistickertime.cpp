@@ -20,11 +20,11 @@ QString MyQCPAxisTickerTime::getTickLabel(double tick, const QLocale & locale, Q
             && (FormatRelativeTime::IsDateRelative(_pPlot->xAxis->range().upper))
         )
     {
-        tickLabel = FormatRelativeTime::formatTime(tick, true);
+        tickLabel = FormatRelativeTime::formatTimeSmallScale(tick);
     }
     else
     {
-        tickLabel = FormatRelativeTime::formatTime(tick, false);
+        tickLabel = FormatRelativeTime::formatTime(tick);
     }
 
     return tickLabel;

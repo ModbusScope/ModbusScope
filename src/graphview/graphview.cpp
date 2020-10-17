@@ -692,7 +692,7 @@ void GraphView::paintTimeStampToolTip(QPoint pos)
         if (bValid && keyRange.contains(xPos))
         {
             // Add tick key string
-            QString toolText = FormatRelativeTime::formatTime(tooltipPos, false);
+            QString toolText = FormatRelativeTime::formatTime(tooltipPos);
             QPoint location= _pPlot->mapToGlobal(pos);
 
             if (location != _tooltipLocation)

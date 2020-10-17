@@ -88,7 +88,7 @@ QVariant NoteModel::data(const QModelIndex &index, int role) const
     case column::KEY_DATA:
         if (role == Qt::DisplayRole)
         {
-            return FormatRelativeTime::formatTime(_noteList[index.row()].notePosition().x(), false);
+            return FormatRelativeTime::formatTime(_noteList[index.row()].notePosition().x());
         }
         break;
     case column::VALUE_DATA:
