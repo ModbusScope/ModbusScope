@@ -20,5 +20,4 @@ private slots:
 
 private:
 
-    void syncDecimalPoint(QString &timeStr);
 };
