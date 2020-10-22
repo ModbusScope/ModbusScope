@@ -104,8 +104,18 @@ void TestFormatRelativeTime::formatTime_Absolute_data()
     QTest::addColumn<qint64>("ticks");
     QTest::addColumn<QString>("result");
 
-    ADD_TEST(1602935825011,      "17/10/2020\n13:57:05,011");
-    ADD_TEST(1602899825011,      "17/10/2020\n03:57:05,011");
+    /* Workaround to get around different time zones */
+    Qt::TimeSpec spec = QDateTime().timeSpec();
+    if (spec == Qt::LocalTime)
+    {
+        ADD_TEST(1602935825011,      "17/10/2020\n13:57:05,011");
+        ADD_TEST(1602899825011,      "17/10/2020\n03:57:05,011");
+    }
+    else
+    {
+        ADD_TEST(1602935825011,      "17/10/2020\n11:57:05,011");
+        ADD_TEST(1602899825011,      "17/10/2020\n01:57:05,011");
+    }
 }
 
 void TestFormatRelativeTime::formatTime_Absolute()
