@@ -69,7 +69,11 @@ void TestFormatRelativeTime::formatTime_data()
              + 10*60*60*1000,  "10:50:05,505");
 
     /* Very large time periods */
-    ADD_TEST(30*60*60*1000,  "30:00:00,000");
+    ADD_TEST(5
+             + 500
+             + 5000
+             + 50*60*1000
+             + 111*60*60*1000,  "111:50:05,505");
 
     /* Negative numbers */
     ADD_TEST(-5,             "-00:00:00,005");
@@ -85,8 +89,12 @@ void TestFormatRelativeTime::formatTime_data()
              - 50*60*1000
              - 10*60*60*1000,  "-10:50:05,505");
 
-    /* Very large negative periods */
-    ADD_TEST(-30*60*60*1000,  "-30:00:00,000");
+    /* Very large time periods */
+    ADD_TEST(-5
+             - 500
+             - 5000
+             - 50*60*1000
+             - 111*60*60*1000,  "-111:50:05,505");
 }
 
 void TestFormatRelativeTime::formatTime()

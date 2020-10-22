@@ -2,7 +2,18 @@
 #include "formatrelativetime.h"
 #include "formatdatetime.h"
 
-static const quint32 cSecondsInADay = 24 * 60 * 60 * 1000;
+#include <QtMath>
+
+namespace FormatRelativeTime
+{
+    const quint32 cSecondsInADay = 24 * 60 * 60 * 1000;
+
+    enum {
+        MSECS_PER_SECS = 1000,
+        SECS_PER_MINUTE = 60,
+        MINS_PER_HOUR = 60,
+    };
+}
 
 QString FormatRelativeTime::timeStringFormat()
 {
@@ -13,33 +24,51 @@ QString FormatRelativeTime::formatTime(qint64 tickKey)
 {
     QString tickLabel;
     bool bNegative;
-    quint64 absoluteTime;
+    quint64 absoluteTick;
 
     if (tickKey < 0)
     {
         bNegative = true;
-        absoluteTime = -1 * tickKey;
     }
     else
     {
         bNegative = false;
-        absoluteTime = tickKey;
+
     }
+    absoluteTick = qFabs(tickKey);
 
-    if (FormatRelativeTime::IsDateRelative(tickKey))
+    if (FormatRelativeTime::IsDateRelative(absoluteTick))
     {
-        /* Round number to a day */
-        absoluteTime %= cSecondsInADay;
+        quint32 msecs;
+        quint32 secs;
+        quint32 mins;
+        quint32 hours;
 
-        QTime time = QTime::fromMSecsSinceStartOfDay(absoluteTime);
+        quint64 ticks = absoluteTick;
 
-        tickLabel = time.toString(timeStringFormat());
+        msecs = ticks % MSECS_PER_SECS;
+        ticks /= MSECS_PER_SECS;
+
+        secs = ticks % SECS_PER_MINUTE;
+        ticks /= SECS_PER_MINUTE;
+
+        mins = ticks % MINS_PER_HOUR;
+        ticks /= MINS_PER_HOUR;
+
+        hours = ticks;
+
+        tickLabel = QString(QStringLiteral("%1:%2:%3%4%5"))
+                        .arg(hours, 2, 10, QLatin1Char('0'))
+                        .arg(mins, 2, 10, QLatin1Char('0'))
+                        .arg(secs, 2, 10, QLatin1Char('0'))
+                        .arg(QLocale::system().decimalPoint()) /* Decimal point */
+                        .arg(msecs, 3, 10, QLatin1Char('0'));
     }
     else
     {
         /* Absolute date */
         QDateTime dateTime;
-        dateTime.setMSecsSinceEpoch(tickKey); /* Converts from ms since epoch in UTC to local timezone */
+        dateTime.setMSecsSinceEpoch(absoluteTick); /* Converts from ms since epoch in UTC to local timezone */
 
         QString timeStringFormat = QString("%1\n%2").arg(FormatDateTime::dateStringFormat()).arg(FormatDateTime::timeStringFormat());
         tickLabel = dateTime.toString(timeStringFormat);
