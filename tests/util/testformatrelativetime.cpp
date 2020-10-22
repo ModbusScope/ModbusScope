@@ -8,9 +8,14 @@
 #define ADD_TEST(ticks, result)      QTest::newRow(result) << static_cast<qint64>(ticks) << result
 
 
-void TestFormatRelativeTime::init()
+void TestFormatRelativeTime::initTestCase()
 {
     QLocale::setDefault(QLocale(QLocale::Dutch, QLocale::Belgium));
+}
+
+void TestFormatRelativeTime::init()
+{
+
 }
 
 void TestFormatRelativeTime::cleanup()
