@@ -2,7 +2,7 @@
 #include "guimodel.h"
 #include "graphdatamodel.h"
 
-#include "util.h"
+#include "formatrelativetime.h"
 #include "markerinfoitem.h"
 #include "markerinfo.h"
 #include "markerinfodialog.h"
@@ -64,9 +64,9 @@ void MarkerInfo::updateMarkerData()
                 "<b>Time 2</b>: %1<br />"
                 "<b>Time Diff</b>: %2<br />"
                 )
-                .arg(Util::formatTime(_pGuiModel->startMarkerPos(), false))
-                .arg(Util::formatTime(_pGuiModel->endMarkerPos(), false))
-                .arg(Util::formatTimeDiff(_pGuiModel->endMarkerPos() - _pGuiModel->startMarkerPos()));
+                .arg(FormatRelativeTime::formatTime(_pGuiModel->startMarkerPos()))
+                .arg(FormatRelativeTime::formatTime(_pGuiModel->endMarkerPos()))
+                .arg(FormatRelativeTime::formatTimeDiff(_pGuiModel->endMarkerPos() - _pGuiModel->startMarkerPos()));
 
     _pTimeDataLabel->setText(timeData);
 }

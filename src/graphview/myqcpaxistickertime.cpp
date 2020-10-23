@@ -1,4 +1,4 @@
-#include "util.h"
+#include "formatrelativetime.h"
 
 #include "myqcpaxistickertime.h"
 
@@ -17,14 +17,14 @@ QString MyQCPAxisTickerTime::getTickLabel(double tick, const QLocale & locale, Q
 
     if (
             (_pPlot->xAxis->range().size() <= _cSmallScaleDiff)
-            && (_pPlot->xAxis->range().upper < QDateTime::fromString("2000-01-01", Qt::ISODate).toMSecsSinceEpoch())
+            && (FormatRelativeTime::IsDateRelative(_pPlot->xAxis->range().upper))
         )
     {
-        tickLabel = Util::formatTime(tick, true);
+        tickLabel = FormatRelativeTime::formatTimeSmallScale(tick);
     }
     else
     {
-        tickLabel = Util::formatTime(tick, false);
+        tickLabel = FormatRelativeTime::formatTime(tick);
     }
 
     return tickLabel;

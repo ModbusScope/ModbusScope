@@ -15,7 +15,7 @@ DataParserModel::~DataParserModel()
 void DataParserModel::resetSettings()
 {
     /*-- Set default item --*/
-    const QChar decimalPoint = QLocale::system().decimalPoint();
+    const QChar decimalPoint = QLocale().decimalPoint();
 
     // DecimalSeparator
     if (decimalPoint == '.')
@@ -37,7 +37,7 @@ void DataParserModel::resetSettings()
         _fieldSeparator = ',';
     }
 
-    _groupSeparator = QLocale::system().groupSeparator();
+    _groupSeparator = QLocale().groupSeparator();
     _commentSequence = "";
     _dataRow = 1;
     _column = 0;

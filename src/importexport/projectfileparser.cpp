@@ -453,22 +453,22 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
         else if (child.tagName() == ProjectFileDefinitions::cDivideTag)
         {
             // use settings from system locale
-            pRegisterSettings->divideFactor = QLocale::system().toDouble(child.text(), &bRet);
+            pRegisterSettings->divideFactor = QLocale().toDouble(child.text(), &bRet);
 
             if (!bRet)
             {
-                Util::showError(QString("Divide factor (%1) is not a valid double. Expected decimal separator is \"%2\".").arg(child.text()).arg(QLocale::system().decimalPoint()));
+                Util::showError(QString("Divide factor (%1) is not a valid double. Expected decimal separator is \"%2\".").arg(child.text()).arg(QLocale().decimalPoint()));
                 break;
             }
         }
         else if (child.tagName() == ProjectFileDefinitions::cMultiplyTag)
         {
             // use settings from system locale
-            pRegisterSettings->multiplyFactor = QLocale::system().toDouble(child.text(), &bRet);
+            pRegisterSettings->multiplyFactor = QLocale().toDouble(child.text(), &bRet);
 
             if (!bRet)
             {
-                Util::showError(QString("Multiply factor (%1) is not a valid double. Expected decimal separator is \"%2\".").arg(child.text()).arg(QLocale::system().decimalPoint()));
+                Util::showError(QString("Multiply factor (%1) is not a valid double. Expected decimal separator is \"%2\".").arg(child.text()).arg(QLocale().decimalPoint()));
                 break;
             }
         }
