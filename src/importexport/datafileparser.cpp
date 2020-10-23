@@ -434,9 +434,9 @@ double DataFileParser::parseDouble(QString strNumber, bool* bOk)
     QString tmpData = strNumber.simplified().replace(_pDataParserModel->groupSeparator(), "");
 
     // Replace decimal point if needed
-    if (QLocale::system().decimalPoint() != _pDataParserModel->decimalSeparator())
+    if (QLocale().decimalPoint() != _pDataParserModel->decimalSeparator())
     {
-        tmpData = tmpData.replace(_pDataParserModel->decimalSeparator(), QLocale::system().decimalPoint());
+        tmpData = tmpData.replace(_pDataParserModel->decimalSeparator(), QLocale().decimalPoint());
     }
 
     if (tmpData.simplified().isEmpty())
@@ -446,7 +446,7 @@ double DataFileParser::parseDouble(QString strNumber, bool* bOk)
     }
     else
     {
-        number = QLocale::system().toDouble(tmpData, bOk);
+        number = QLocale().toDouble(tmpData, bOk);
     }
 
     return number;

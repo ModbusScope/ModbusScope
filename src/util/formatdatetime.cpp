@@ -3,7 +3,7 @@
 
 QString FormatDateTime::timeStringFormat()
 {
-    return QString("HH:mm:ss%1zzz").arg(QLocale::system().decimalPoint());
+    return QString("HH:mm:ss%1zzz").arg(QLocale().decimalPoint());
 }
 
 QString FormatDateTime::dateStringFormat()

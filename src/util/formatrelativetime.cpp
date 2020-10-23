@@ -17,7 +17,7 @@ namespace FormatRelativeTime
 
 QString FormatRelativeTime::timeStringFormat()
 {
-    return QString("HH:mm:ss%1zzz").arg(QLocale::system().decimalPoint());
+    return QString("HH:mm:ss%1zzz").arg(QLocale().decimalPoint());
 }
 
 QString FormatRelativeTime::formatTime(qint64 tickKey)
@@ -61,7 +61,7 @@ QString FormatRelativeTime::formatTime(qint64 tickKey)
                         .arg(hours, 2, 10, QLatin1Char('0'))
                         .arg(mins, 2, 10, QLatin1Char('0'))
                         .arg(secs, 2, 10, QLatin1Char('0'))
-                        .arg(QLocale::system().decimalPoint()) /* Decimal point */
+                        .arg(QLocale().decimalPoint()) /* Decimal point */
                         .arg(msecs, 3, 10, QLatin1Char('0'));
     }
     else
@@ -111,7 +111,7 @@ QString FormatRelativeTime::formatTimeDiff(qint64 tickKeyDiff)
         if (absoluteDiff < 60000) /* Under a minute */
         {
             /* Use short time diff notation: seconds and milliseconds */
-            QString secondStringFormat = QString("ss%1zzz").arg(QLocale::system().decimalPoint());
+            QString secondStringFormat = QString("ss%1zzz").arg(QLocale().decimalPoint());
             tickLabel = timeDiff.toString(secondStringFormat);
         }
         else

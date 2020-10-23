@@ -14,7 +14,7 @@ public:
 
     static QChar separatorCharacter()
     {
-        if (QLocale::system().decimalPoint() == ',')
+        if (QLocale().decimalPoint() == ',')
         {
             return ';';
         }
@@ -47,24 +47,24 @@ public:
         /* TODO: Can't this be done without converting to string and back and back again? */
 
         // Round number to 3 decimals
-        tmp = QLocale::system().toString(number, 'f', 3);
+        tmp = QLocale().toString(number, 'f', 3);
 
         // Remove group separator
-        if (QLocale::system().groupSeparator() != QLocale::system().decimalPoint())
+        if (QLocale().groupSeparator() != QLocale().decimalPoint())
         {
-            tmp = tmp.replace(QLocale::system().groupSeparator(), "");
+            tmp = tmp.replace(QLocale().groupSeparator(), "");
         }
 
         // convert back to double
-        double doubleTmp = QLocale::system().toDouble(tmp);
+        double doubleTmp = QLocale().toDouble(tmp);
 
         // Make sure trailing zeros are removed
-        tmp = QLocale::system().toString(doubleTmp, 'g', 9);
+        tmp = QLocale().toString(doubleTmp, 'g', 9);
 
         // Remove group separator
-        if (QLocale::system().groupSeparator() != QLocale::system().decimalPoint())
+        if (QLocale().groupSeparator() != QLocale().decimalPoint())
         {
-            tmp = tmp.replace(QLocale::system().groupSeparator(), "");
+            tmp = tmp.replace(QLocale().groupSeparator(), "");
         }
 
         return tmp;
