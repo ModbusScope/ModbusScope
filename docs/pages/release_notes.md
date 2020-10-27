@@ -1,4 +1,19 @@
 # Release notes
+## v2.2.0 (xx/xx/2020)
+
+### Improvements
+
+* Replace fixed operations (multiply, divide, shift, ...) with custom user-defined expressions
+  * Fixed operations will be automatically converted to custom expression on project load
+* Rework and move the user manual to readthedocs
+  * https://modbusscope.readthedocs.io/en/stable/
+* Expanded information in logs
+
+### Defects
+
+* Improve handling of large time periods ([Github #139](https://github.com/jgeudens/ModbusScope/issues/139))
+* Don't wrap around when period is larger than one day
+
 ## v2.1.1 (03/07/2020)
 
 ### Defects
