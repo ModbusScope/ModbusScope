@@ -5,7 +5,7 @@ platform:
   - x64
 
 install:
-  - cmd: set PATH=C:\Qt\5.15.0\mingw81_64\bin;%PATH%
+  - cmd: set PATH=C:\Qt\5.15\mingw81_64\bin;%PATH%
 #  - cmd: windeployqt.exe (return code isn't correct)
   
   - cmd: set PATH=C:\Qt\Tools\mingw810_64\bin;%PATH%
