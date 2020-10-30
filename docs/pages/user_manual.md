@@ -109,9 +109,19 @@ On the right hand side the *Markers* panel will show information about the marke
 
 ![image](../_static/user_manual/markers.png)
 
+## Configuration
+
+### Connection settings
+
+![image](../_static/user_manual/connection_settings.png)
+
+### Log settings
+
+![image](../_static/user_manual/log_settings.png)
+
 ## Exporting data/image
 
-To store any results these can be exported either as image or as data (*.csv* ) file. This can be selected with either *File > Export Data...* or  *File > Export Image...* .
+To store any results these can be exported either as image or as data (*.csv* ) file. This can be selected with either *File > Export Data...* or  *File > Export Image...* . Exporting data/image or settings is only possible when logging isn't active.
 
 ![image](../_static/user_manual/export_data.png)
 
