@@ -11,11 +11,9 @@ ModbusScope is an application that can be used to log data using the Modbus prot
 .. image:: _static/user_manual/modbusscope.png
 
 .. toctree::
-   :hidden:
+   :maxdepth: 3
+   :caption: Contents:
 
    User Manual <pages/user_manual>
    Release Notes <pages/release_notes>
-   
-   
-
 
