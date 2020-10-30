@@ -2,9 +2,7 @@
 
 This user manual describes how to get started with *ModbusScope*. *ModbusScope* is a program which can sample Modbus registers and plot the value in a graph to visualize and investigate the dynamic behavior of a system.
 
-[TOC]
-
-# Overview
+## Overview
 
 The main screen of ModbusScope can contain multiple docked windows. Most are visible at the initial start of the application, except the marker window. This docked windows only appears when a marker has been enabled.
 
@@ -42,7 +40,7 @@ The expression can be freely updated and up to 3 input values can be evaluated.
 
 #### Expressions
 
-The value read via Modbus is represented as `VAL`. The most common binary operators are supported (`!`, `|`, `&`, `<<`, `>>`). The basic arithmetic operators are also supported (`+`,` -`, `*`, `/`, `%`, `^`). Hexadecimal numbers can be represented with the `0x` prefix. Binary are represented with `0b` prefix. Floating point number are also supported. Both a decimal point as comma can be used. The first encountered characters per expression is used as floating point separator.
+The value read via Modbus is represented as `VAL`. The most common binary operators are supported (`!`, `|`, `&`, `<<`, `>>`). The basic arithmetic operators are also supported (`+`,` -`, `*`, `/`, `%` and `^`). Hexadecimal numbers can be represented with the `0x` prefix. Binary are represented with `0b` prefix. Floating point numbers are also supported. Both a decimal point as comma can be used. The first encountered characters per expression is used as floating point separator.
 
 Some examples:
 
@@ -63,7 +61,9 @@ When the expression contains an error or when the combination of the expression 
 
 Typically the same set of registers are needed. The configuration of registers as described in the previous section can be stored and reloaded through an *.mbs* file. Storing the settings as *.mbs* file can be done through the *File > Export Settings...* and reloading them from the *.mbs* file can be done through *File > Load Project File...* 
 
-## Logging values
+## Graph view
+
+#### Start/stop log
 
 Once some registers are added, the actual logging can be done. *ModbusScope* tries to communicate through the active *ModbusControl* instance. Make sure *ModbusControl* is set-up and working correctly.
 
@@ -73,9 +73,27 @@ Then press the *Start Logging* button. *ModbusScope* will start logging and auto
 
 ![image](../_static/user_manual/start_logging.png)
 
-Once your test is finished the logging can be stopped by pressing the *Stop Logging* button. The logging will stop and the values can be inspected.
+Once your test is finished the logging can be stopped by pressing the *Stop Logging* button. The logging will stop and the values can be inspected further.
 
 ![image](../_static/user_manual/stop_logging.png)
+
+### Scale settings
+
+While ModbusScope is logging, the already logged values can be inspected in the graph view. With the different scale settings, the data can be examined while new values are still be being added to the log. Several scale settings are available.
+
+#### X-axis
+
+There are 3 options for the scaling of the x-axis: *full auto-scale*, *sliding window* and *manual* settings. When *full auto-scale* is selected, the x-axis will automatically scale the maximum of the x-axis to keep all time values in the graph. In the *sliding window* setting only the values of a specific last time span will be visible. This time span is configurable. *Manual* scale setting means that the scaling isn't changed automatically while logging. Even when new values are logged, the current time period stays the same.
+
+#### Y-axis
+
+Compared to the x-axis setting, the y-axis shares 2 settings: *full auto-scale* and *manual*. These settings are the same as with the x-axis. The 2 other modes are *window auto-scale* and the *limit from* setting. The *window auto-scale* automatically scales the y-axis based on the values that are currently visible. The *limit from* setting allows the user to configure the minimum and maximum values of the axis.
+
+### Zoom
+
+The graph view supports zooming to examine the log in detail. When the scroll wheel of the mouse is used, both axis switch to manual setting and the range of the axis is increased or decreased based on the scroll wheel. The current position of the mouse cursor is used as reference point for the zoom action.
+
+It is possible to select a single axis to only zoom this axis by clicking it. The range of the other axis will remain the same when zooming (mouse wheel scroll). An axis can be unselected by clicking somewhere in the graph view. An axis can be reset to full auto-scale setting by double clicking it.
 
 ## Exporting data/image
 
