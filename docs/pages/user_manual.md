@@ -99,13 +99,7 @@ The graph view supports zooming to examine the log in detail. When the scroll wh
 
 It is possible to select a single axis to only zoom this axis by clicking it. The range of the other axis will remain the same when zooming (mouse wheel scroll). An axis can be unselected by clicking somewhere in the graph view. An axis can be reset to full auto-scale setting by double clicking it.
 
-## Exporting data/image
-
-To store any results these can be exported either as image or as data (*.csv* ) file. This can be selected with either *File > Export Data...* or  *File > Export Image...* .
-
-![image](../_static/user_manual/export_data.png)
-
-## Using markers
+### Markers
 
 *ModbusScope* can help in investigating dynamic behavior of a system by measuring times and value differences between two points in the graph. First two vertical markers have to be added.
 
@@ -114,6 +108,12 @@ Add the left marker (green vertical line) by pressing *<Ctrl>* and *<Left mouse 
 On the right hand side the *Markers* panel will show information about the markers. Such as the value of the registers at *Time 1* (left hand marker) and *Time 2* (right hand marker). Also the time difference between the two markers or value difference between the two marked times.
 
 ![image](../_static/user_manual/markers.png)
+
+## Exporting data/image
+
+To store any results these can be exported either as image or as data (*.csv* ) file. This can be selected with either *File > Export Data...* or  *File > Export Image...* .
+
+![image](../_static/user_manual/export_data.png)
 
 ## Import register definitions from mbc file
 
