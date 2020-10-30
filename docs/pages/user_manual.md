@@ -2,9 +2,7 @@
 
 This user manual describes how to get started with *ModbusScope*. *ModbusScope* is a program which can sample Modbus registers and plot the value in a graph to visualize and investigate the dynamic behavior of a system.
 
-[TOC]
-
-# Overview
+## Overview
 
 The main screen of ModbusScope can contain multiple docked windows. Most are visible at the initial start of the application, except the marker window. This docked windows only appears when a marker has been enabled.
 
@@ -46,7 +44,7 @@ The expression can be freely updated and up to 3 input values can be evaluated.
 
 #### Expressions
 
-The value read via Modbus is represented as `VAL`. The most common binary operators are supported (`!`, `|`, `&`, `<<`, `>>`). The basic arithmetic operators are also supported (`+`,` -`, `*`, `/`, `%`, `^`). Hexadecimal numbers can be represented with the `0x` prefix. Binary are represented with `0b` prefix. Floating point number are also supported. Both a decimal point as comma can be used. The first encountered characters per expression is used as floating point separator.
+The value read via Modbus is represented as `VAL`. The most common binary operators are supported (`!`, `|`, `&`, `<<`, `>>`). The basic arithmetic operators are also supported (`+`,` -`, `*`, `/`, `%` and `^`). Hexadecimal numbers can be represented with the `0x` prefix. Binary are represented with `0b` prefix. Floating point numbers are also supported. Both a decimal point as comma can be used. The first encountered characters per expression is used as floating point separator.
 
 Some examples:
 
