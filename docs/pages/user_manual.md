@@ -113,11 +113,23 @@ On the right hand side the *Markers* panel will show information about the marke
 
 ### Connection settings
 
+A modbus TCP connection needs to configured correctly before any data can be read. In the *connection setting* window, up to 2 connections can be configured. A register can be coupled to a specific connection in the *register settings* window.
+
 ![image](../_static/user_manual/connection_settings.png)
+
+Most settings (*IP*, *port*, *slave ID* and *timeout*) are general modbus protocol settings. The other settings (*max consecutive register* and *32-bit little endian*) are specific to the modbus protocol implementation in the device. The *persistent connection* option is specific to *ModbusScope*. When enabled, *ModbusScope* will keep the connection open between polling data points. The connection will only be reinitialized when a connection error occurs.
 
 ### Log settings
 
+*ModbusScope* will create a data file in the OS temporary folder when a logging session is started by default. *ModbusScope* will append data points during the logging to this file. When the user forgets to save the data before quitting or when an unforeseen crash occurs, the data can be recovered. The temporary file is cleared every time a polling session is started. In the *log settings* window, this behavior can be disabled or the temporary data file can be changed.
+
 ![image](../_static/user_manual/log_settings.png)
+
+By default, *ModbusScope* will log data points every 250 milliseconds. This can be adjusted in this *log settings* windows. *ModbusScope* will log timestamps relative to the start of the log session by default. By enabling the *use absolute times* option, absolute timestamps are logged instead.
+
+#### Optimize logging interval
+
+The minimum logging interval is determined by several factors. The Modbus protocol has an inherent slowdown when register addresses aren't in successive order. When the register addresses aren't successive, *ModbusScope* will split the read request in several packets. But this will negatively impact the minimum logging interval because of the modbus end of frame timeout. When a fast logging interval is required then limit the number of registers and make sure all register are in order.
 
 ## Exporting data/image
 
