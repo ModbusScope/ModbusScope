@@ -20,6 +20,7 @@ public:
     static QString cDatasetAbsoluteDate;
 
     static QString cDatasetTimeInSecond;
+    static QString cDatasetEmptyLastColumn;
 
 private:
 

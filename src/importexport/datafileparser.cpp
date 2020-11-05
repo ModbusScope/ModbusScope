@@ -246,8 +246,16 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
             {
                 bool bOk = true;
                 QString strNumber = paramList[i].simplified();
+                double number;
 
-                double number = parseDouble(strNumber, &bOk);
+                if (strNumber.isEmpty())
+                {
+                    number = 0;
+                }
+                else
+                {
+                    number = parseDouble(strNumber, &bOk);
+                }
 
                 if (
                     (bOk == false)
