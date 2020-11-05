@@ -1,6 +1,6 @@
 # ModbusScope - User Manual
 
-This user manual describes how to get started with *ModbusScope*. *ModbusScope* is a program which can sample Modbus registers and plot the value in a graph to visualize and investigate the dynamic behavior of a system.
+This user manual describes how to get started with *ModbusScope*. *ModbusScope* is an application which can sample Modbus registers and plot the value in a graph to visualize and investigate the dynamic behavior of a system.
 
 ## Overview
 
@@ -63,15 +63,15 @@ When the expression contains an error or when the combination of the expression 
 
 ## Storing and reusing configuration
 
-Typically the same set of registers are needed. The configuration of registers as described in the previous section can be stored and reloaded through an *.mbs* file. Storing the settings as *.mbs* file can be done through the *File > Export Settings...* and reloading them from the *.mbs* file can be done through *File > Load Project File...* 
+Typically the same set of registers is needed. The configuration of registers as described in the previous section can be stored and reloaded through an *.mbs* file. Storing the settings as *.mbs* file can be done through the *File > Export Settings...* and reloading them from the *.mbs* file can be done through *File > Load Project File...* or by dragging an *.mbs* file into the application.
 
 ## Graph view
 
 #### Start/stop log
 
-Once some registers are added, the actual logging can be done. *ModbusScope* tries to communicate through the active *ModbusControl* instance. Make sure *ModbusControl* is set-up and working correctly.
+Once some registers are added, the actual logging can be started. *ModbusScope* will communicate with the Modbus TCP slave defined in the connection settings. This slave can also be a Modbus TCP to Modbus RTU bridge like *ModbusControl*. Make sure Modbuscontrol is active and communication to the Modbus RTU slave is working correctly.
 
-Then press the *Start Logging* button. *ModbusScope* will start logging and automatically add the values to the graph.
+Then press the *Start Logging* button. *ModbusScope* will start logging and will automatically add the values to the graph.
 
 > **NOTE**: When restarting the logging using the *Start Logging* button any data already present in the graph will be cleared.
 
@@ -113,11 +113,11 @@ On the right hand side the *Markers* panel will show information about the marke
 
 ### Connection settings
 
-A modbus TCP connection needs to configured correctly before any data can be read. In the *connection setting* window, up to 2 connections can be configured. A register can be coupled to a specific connection in the *register settings* window.
+A Modbus TCP connection needs to configured correctly before any data can be read. In the *connection setting* window, up to 2 connections can be configured. A register can be coupled to a specific connection in the *register settings* window.
 
 ![image](../_static/user_manual/connection_settings.png)
 
-Most settings (*IP*, *port*, *slave ID* and *timeout*) are general modbus protocol settings. The other settings (*max consecutive register* and *32-bit little endian*) are specific to the modbus protocol implementation in the device. The *persistent connection* option is specific to *ModbusScope*. When enabled, *ModbusScope* will keep the connection open between polling data points. The connection will only be reinitialized when a connection error occurs.
+Most settings (*IP*, *port*, *slave ID* and *timeout*) are general Modbus protocol settings. The other settings (*max consecutive register* and *32-bit little endian*) are specific to the Modbus protocol implementation in the device. The *persistent connection* option is specific to *ModbusScope*. When enabled, *ModbusScope* will keep the connection open between polling data points. The connection will only be reinitialized when a connection error occurs.
 
 ### Log settings
 
@@ -129,7 +129,7 @@ By default, *ModbusScope* will log data points every 250 milliseconds. This can 
 
 #### Optimize logging interval
 
-The minimum logging interval is determined by several factors. The Modbus protocol has an inherent slowdown when register addresses aren't in successive order. When the register addresses aren't successive, *ModbusScope* will split the read request in several packets. But this will negatively impact the minimum logging interval because of the modbus end of frame timeout. When a fast logging interval is required then limit the number of registers and make sure all register are in order.
+The minimum logging interval is determined by several factors. The Modbus protocol has an inherent slowdown when register addresses aren't in successive order. When the register addresses aren't successive, *ModbusScope* will split the read request in several packets. But this will negatively impact the minimum logging interval because of the Modbus end of frame timeout. When a fast logging interval is required then limit the number of registers and make sure all register are in order.
 
 ## Exporting data/image
 

@@ -5,14 +5,14 @@
 
 * Replace fixed operations (multiply, divide, shift, ...) with custom user-defined expressions
   * Fixed operations will be automatically converted to custom expression on project load
-* Rework and move the user manual to readthedocs
+* Rework and move the user manual to ReadTheDocs
   * https://modbusscope.readthedocs.io/en/stable/
 * Expanded information in logs
 
 ### Defects
 
 * Improve handling of large time periods ([Github #139](https://github.com/jgeudens/ModbusScope/issues/139))
-* Don't wrap around when period is larger than one day
+  * Don't wrap around when period is larger than one day
 
 ## v2.1.1 (03/07/2020)
 
@@ -71,7 +71,7 @@
 * When importing a mbc file already selected registers are now disabled dynamically.
 
 ## v1.6.0 (25/01/2019)
-Most of the work in this release isn't visible for the user. A complete rework of the communication module has been done. Libmodbus was dropped in favor of Qt Modbus. The communication module has also been completely reworked to be able to implement integration and unit testing.
+Most of the work in this release isn't visible for the user. A complete rework of the communication module has been done. libmodbus was dropped in favor of Qt Modbus. The communication module has also been completely reworked to be able to implement integration and unit testing.
 
 ## v1.5.0 (02/10/2018)
 ### Features
@@ -92,7 +92,7 @@ Most of the work in this release isn't visible for the user. A complete rework o
 
 ## v1.4.0 (17/02/2018)
 ### Features
-* Rework modbus communication code
+* Rework Modbus communication code
 * Update libraries
   * QCustomPlot v2.0.0 (final)
   * libmodbus to v3.14
@@ -111,7 +111,7 @@ Most of the work in this release isn't visible for the user. A complete rework o
 - Add meta data when exporting data (keep color when importing) (##63)
 - Added extra marker calculations (minimum, maximum, average, median, slope, ...) (##79)
 - Use delete button to remove registers (##34)
-- Improve communication (only split modbus read on specific modbus exception)
+- Improve communication (only split Modbus read on specific Modbus exception)
 - Update QModbusPlot to v2.0.0 (beta)
 - Add command line argument to enable OpenGL (--opengl)
 

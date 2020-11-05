@@ -6,7 +6,7 @@
 Welcome to ModbusScope's documentation!
 =======================================
 
-ModbusScope is an application that can be used to log data using the Modbus protocol and put the data into a nice graph. It is also possible to export the data or an image of the graph.
+ModbusScope is a GUI tool to log data using the Modbus protocol and put the data into a graph. Data can be examined while the logging continues. It is also possible to export the data to a csv file for analyzing the data afterwards.
 
 .. image:: _static/user_manual/modbusscope.png
 
