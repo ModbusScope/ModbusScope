@@ -147,6 +147,11 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
         for(qint32 i = 0; i < pData->dataLabel.size(); i++)
         {
             pData->dataLabel[i] = pData->dataLabel[i].trimmed();
+
+            if (pData->dataLabel[i].isEmpty())
+            {
+                pData->dataLabel[i] = QString("Unknown column %1").arg(i);
+            }
         }
 
         // Remove earlier columns

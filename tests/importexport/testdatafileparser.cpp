@@ -473,7 +473,7 @@ void TestDataFileParser::parseDatasetEmptyLastColumn()
     QCOMPARE(fileData.timeRow.last(),  56);
 
     QCOMPARE(fileData.timeRow.size(), 7);
-    QCOMPARE(fileData.dataLabel, QStringList() << "Register 40001" << "");
+    QCOMPARE(fileData.dataLabel, QStringList() << "Register 40001" << "Unknown column 2");
 
     QCOMPARE(fileData.dataRows[0].first(), 6.0);
     QCOMPARE(fileData.dataRows[1].first(), 0);
