@@ -14,6 +14,16 @@ The most important part of the window is the plot view. The data of the active r
 
 *ModbusScope* can be installed with the provided *.msi* installer. Double-click it and follow the instructions. The installer will install the required files on your computer. At the end of the install process, you can also select to open *.mbs* files with *ModbusScope* by default.
 
+## Quick start
+
+A quick start to use *ModbusScope*:
+
+* Add a register using the register settings window
+* Configure connection settings to match your Modbus TCP slave
+* Press the *Start Logging* button (play) to start logging
+* Press the *Stop Logging* button to stop logging
+* Examine logged data
+
 ## Register settings
 
 When opening *ModbusScope*, no Modbus registers are added. First click on *Register Settings* in the tool bar of  the interface. This will open a window where registers can be added and adjusted.
