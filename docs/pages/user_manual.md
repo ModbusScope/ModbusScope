@@ -8,7 +8,7 @@ The main screen of ModbusScope can contain multiple docked windows. Most are vis
 
 ![image](../_static/user_manual/overview.png)
 
-The most important part of the window is the plot view. The data of the active registers that are polled is shown here as plots. The settings in the axis scale windows can be used to visualize a very specific part of the data or auto scale to show all information. The legend shows an overview of the active register. You can hide a specific register plot by double clicking it in the legend. The same action can be used to show the plot again. When a plot is hidden it is still polled, it is only temporary hidden in the plot view. Markers can be used examine the data in a specific time frame. 
+The most important part of the window is the plot view. The data of the active registers that are polled is shown here as plots. The settings in the axis scale windows can be used to visualize a very specific part of the data or auto scale to show all information. The legend shows an overview of the active registers. You can hide a specific register plot by double clicking it in the legend. The same action can be used to show the plot again. When a plot is hidden the register is still polled, it is only temporary hidden in the plot view. Markers can be used examine the data in a specific time frame. 
 
 ## Installing
 
