@@ -56,3 +56,5 @@ compile_commands.json
 src/util/version.h
 
 _build
+
+venv
