@@ -14,7 +14,7 @@ Once your test is finished the logging can be stopped by pressing the *Stop Logg
 
 ![image](../_static/user_manual/stop_logging.png)
 
-## Scale settings
+## Adjust scale settings
 
 While ModbusScope is logging, the already logged values can be inspected in the graph view. With the different scale settings, the data can be examined while new values are still be being added to the log. Several scale settings are available.
 
@@ -26,13 +26,13 @@ There are 3 options for the scaling of the x-axis: *full auto-scale*, *sliding w
 
 Compared to the x-axis setting, the y-axis shares 2 settings: *full auto-scale* and *manual*. These settings are the same as with the x-axis. The 2 other modes are *window auto-scale* and the *limit from* setting. The *window auto-scale* automatically scales the y-axis based on the values that are currently visible. The *limit from* setting allows the user to configure the minimum and maximum values of the axis.
 
-## Zoom
+## Zoom graph
 
 The graph view supports zooming to examine the log in detail. When the scroll wheel of the mouse is used, both axis switch to manual setting and the range of the axis is increased or decreased based on the scroll wheel. The current position of the mouse cursor is used as reference point for the zoom action.
 
 It is possible to select a single axis to only zoom this axis by clicking it. The range of the other axis will remain the same when zooming (mouse wheel scroll). An axis can be unselected by clicking somewhere in the graph view. An axis can be reset to full auto-scale setting by double clicking it.
 
-## Markers
+## Enable/Disable markers
 
 *ModbusScope* can help in investigating dynamic behavior of a system by measuring times and value differences between two points in the graph. First two vertical markers have to be added.
 
