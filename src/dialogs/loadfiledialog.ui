@@ -106,7 +106,7 @@
        <item row="9" column="0">
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Column</string>
+          <string>Timestamp column</string>
          </property>
         </widget>
        </item>
@@ -213,6 +213,8 @@
      <property name="font">
       <font>
        <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
       </font>
      </property>
      <property name="text">

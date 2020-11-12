@@ -21,6 +21,7 @@ private slots:
 
     void parseDatasetAbsoluteDate();
     void parseDatasetTimeInSecond();
+    void parseDatasetEmptyLastColumn();
 
     void checkProgressSignal();
 

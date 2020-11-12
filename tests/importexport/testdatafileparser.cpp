@@ -441,6 +441,52 @@ void TestDataFileParser::parseDatasetTimeInSecond()
     QCOMPARE(spyParseError.count(), 0);
 }
 
+void TestDataFileParser::parseDatasetEmptyLastColumn()
+{
+    DataParserModel dataParserModel;
+    QTextStream dataStream(&TestData::cDatasetEmptyLastColumn);
+    DataFileParser::FileData fileData;
+    DataFileParser dataFileParser(&dataParserModel);
+
+    QSignalSpy spyParseError(&dataFileParser, &DataFileParser::parseErrorOccurred);
+
+    /* Prepare parsermodel */
+    dataParserModel.setFieldSeparator(QChar(';'));
+    dataParserModel.setGroupSeparator(QChar(' '));
+    dataParserModel.setDecimalSeparator(QChar(','));
+    dataParserModel.setCommentSequence(QString(""));
+    dataParserModel.setLabelRow(static_cast<quint32>(0));
+    dataParserModel.setDataRow(static_cast<quint32>(1));
+    dataParserModel.setColumn(static_cast<quint32>(0));
+    dataParserModel.setTimeInMilliSeconds(true);
+    dataParserModel.setStmStudioCorrection(false);
+
+    /* Process data */
+    QVERIFY(dataFileParser.processDataFile(&dataStream, &fileData));
+
+    /* Check results */
+    QCOMPARE(fileData.axisLabel, QString("Time (ms)"));
+
+    /* Simplified check */
+
+    QCOMPARE(fileData.timeRow.first(), 10);
+    QCOMPARE(fileData.timeRow.last(),  56);
+
+    QCOMPARE(fileData.timeRow.size(), 7);
+    QCOMPARE(fileData.dataLabel, QStringList() << "Register 40001" << "Unknown column 2");
+
+    QCOMPARE(fileData.dataRows[0].first(), 6.0);
+    QCOMPARE(fileData.dataRows[1].first(), 0);
+
+    QCOMPARE(fileData.dataRows[0].last(), 0.0);
+    QCOMPARE(fileData.dataRows[1].last(), 0);
+
+    QVERIFY(fileData.colors.isEmpty());
+    QVERIFY(fileData.notes.isEmpty());
+
+    QCOMPARE(spyParseError.count(), 0);
+}
+
 void TestDataFileParser::checkProgressSignal()
 {
     DataParserModel dataParserModel;

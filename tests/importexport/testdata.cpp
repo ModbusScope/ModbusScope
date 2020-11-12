@@ -170,6 +170,15 @@ QString TestData::cDatasetTimeInSecond = QString(
     "0,5;6;0"
 );
 
-
+QString TestData::cDatasetEmptyLastColumn = QString(
+    "Time (ms);Register 40001;"                                    "\n"\
+    "10;6;"                                                        "\n"\
+    "11;5;"                                                      "\n"\
+    "22;4;"                                                      "\n"\
+    "33;3;"                                                      "\n"\
+    "44;2;"                                                      "\n"\
+    "55;1;"                                                      "\n"\
+    "56;0;"
+);
 
 
