@@ -4,8 +4,6 @@
 
 When opening *ModbusScope*, no Modbus registers are added. First click on *Register Settings* in the tool bar of  the interface. This will open a window where registers can be added and adjusted.
 
-![image](../_static/user_manual/register_settings.png)
-
 ### Add Modbus registers
 
 In the below dialog Modbus registers can be added either manually or by importing from a *.mbc* file. When a *.mbs* file is loaded, registers will already be present in the dialog.
