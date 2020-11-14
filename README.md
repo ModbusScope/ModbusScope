@@ -1,20 +1,32 @@
-# Build status
+# ModbusScope
 [![Build status](https://ci.appveyor.com/api/projects/status/v7ysjn9c2koy1tb8?svg=true)](https://ci.appveyor.com/project/jgeudens/modbusscope)
 [![Build Status](https://travis-ci.org/jgeudens/ModbusScope.svg?branch=master)](https://travis-ci.org/jgeudens/ModbusScope)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/19701/badge.svg)](https://scan.coverity.com/projects/jgeudens-modbusscope)
 
-# What is ModbusScope
-ModbusScope is an application that can be used to log data using the [Modbus](https://en.wikipedia.org/wiki/Modbus) protocol and put the data into a nice graph. It is also possible to export the data or an image of the graph.
+[![Documentation Status](https://readthedocs.org/projects/modbusscope/badge/?version=latest)](https://modbusscope.readthedocs.io/en/latest/?badge=latest)
+
+ModbusScope is a GUI tool to log data using the [Modbus](https://en.wikipedia.org/wiki/Modbus) protocol and put the data into a graph. Data can be examined while the logging continues. It is also possible to export the data to a *.csv* file for analyzing the data afterwards.
 
 ![ModbusScope demo](modbusscope_demo.gif)
 
-# Project 
+## Dependencies
 
-## Libraries
-ModbusScope is written using Qt. The Qt implementation of Modbus is used to communicate with a slave. The other main library that is used is [QCustomPlot](http://www.qcustomplot.com/). This widget provides the possibility to display the data in a new way. 
+ModbusScope depends on the following packages to build.
 
-## Testing
-Automated testing is added to the project recently. Both unit testing and integration are being added.
+| Package          | Link                                 |
+| :--------------- | :----------------------------------- |
+| Qt               | https://www.qt.io/                   |
+| QCustomPlot      | https://www.qcustomplot.com/         |
+| muParser         | http://muparser.beltoforion.de/      |
+| Google Test/Mock | https://github.com/google/googletest |
 
-## Cross-platform
-ModbusScope aims to be cross platform. Main development is currently done in linux. But the release are done for Windows. Releases are statically linked with the Qt library. This ensures that the ModbusScope runs smoothly on windows without installing any libraries.
+Qt isn't included in the repository, this should be installed on the build system. Other dependencies are included in the source or added via git submodules.
+
+## Docs
+
+Docs are available at [https://modbusscope.readthedocs.io](https://modbusscope.readthedocs.io).
+
+
+## Contributing
+
+Please [open a new issue](https://github.com/jgeudens/ModbusScope/issues) to report bugs or [create a pull request](https://github.com/jgeudens/ModbusScope/pulls) to send patches.

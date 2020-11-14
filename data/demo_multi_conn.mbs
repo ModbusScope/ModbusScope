@@ -32,7 +32,7 @@
 		<register active="true">
     		<connectionid>0</connectionid>
 			<address>40001</address>
-			<text>Very interesting register</text>
+			<text>Data point</text>
 			<unsigned>true</unsigned>
 			<multiply>1</multiply>
 			<divide>2</divide>
@@ -42,13 +42,13 @@
 		    <connectionid>1</connectionid>
 			<active>true</active>
 			<address>40002</address>
-			<text>Very interesting register 2</text>
+			<text>Data point 2</text>
 			<unsigned>false</unsigned>
 			<shift>0</shift>
 		</register>
 		<register active="false">
 			<address>40003</address>
-			<text>Very interesting register 3</text>
+			<text>Data point 3</text>
 			<multiply>10</multiply>
 		</register>
 	</scope>
