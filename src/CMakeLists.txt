@@ -1,10 +1,10 @@
 project(ModbusScope
     LANGUAGES CXX
     DESCRIPTION "Create logs from value read via Modbus"
-    VERSION 2.2.0
+    VERSION 3.0.0
     )
 
-add_definitions("-DDEBUG")
+add_definitions("-DNDEBUG")
 
 # Get the current working branch
 execute_process(

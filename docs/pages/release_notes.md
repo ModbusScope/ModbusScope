@@ -1,18 +1,22 @@
 # Release notes
-## v2.2.0 (xx/xx/2020)
+## v3.0.0 (14/11/2020)
 
 ### Improvements
 
-* Replace fixed operations (multiply, divide, shift, ...) with custom user-defined expressions
+* Replace fixed operations (multiply, divide, shift, ...) with custom user-defined expression
+  * [Link to doc](https://modbusscope.readthedocs.io/en/latest/pages/configuration.html#expressions)
   * Fixed operations will be automatically converted to custom expression on project load
-* Rework and move the user manual to ReadTheDocs
-  * https://modbusscope.readthedocs.io/en/stable/
-* Expanded information in logs
-
-### Defects
+* Rework and move the user manual to [ReadTheDocs](https://modbusscope.readthedocs.io/en/stable/)
+* Expand information in logs
 
 * Improve handling of large time periods ([Github #139](https://github.com/jgeudens/ModbusScope/issues/139))
   * Don't wrap around when period is larger than one day
+
+### Backward compatibility
+
+When loading old ModbusScope files  (pre v3.x.x), the existing operations (multiply, divide, shift, bitmask, ...) will be converted to a single expression that is used in the new ModbusScope. This conversion makes sure that users won't notice any differences in functionality.
+
+When exporting the settings (project file), the new expression will be saved. Older ModbusScope versions won't be able to parse this expressions. The operations will be reset to the defaults, but other register info will be loaded correctly.
 
 ## v2.1.1 (03/07/2020)
 
