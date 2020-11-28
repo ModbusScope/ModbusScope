@@ -51,6 +51,6 @@ script:
   - git submodule update --init --recursive
 
   - cmake .
-  - make -j4
+  - make -j$(nproc)
 
   - python3 ./tests/run_tests.py
