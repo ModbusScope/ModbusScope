@@ -33,6 +33,7 @@ public:
     QString severityString() const;
 
     QString toString() const;
+    QString toExportString() const;
 
 private:
 

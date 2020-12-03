@@ -114,6 +114,16 @@ void DiagnosticModel::clear()
     endRemoveRows();
 }
 
+QString DiagnosticModel::toString(quint32 idx) const
+{
+    return _logList[idx].toString();
+}
+
+QString DiagnosticModel::toExportString(quint32 idx) const
+{
+    return _logList[idx].toExportString();
+}
+
 /*!
  * \brief Add item to model
  * \param log

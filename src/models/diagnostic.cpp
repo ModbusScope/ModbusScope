@@ -120,6 +120,20 @@ QString Diagnostic::toString() const
 }
 
 /*!
+ * \brief Diagnostic::toString
+ * \return Printable summary of log
+ */
+QString Diagnostic::toExportString() const
+{
+
+    return QString("%1:%2;%3;%4")
+                          .arg(timeOffset(), 8, 10, QChar('0'))
+                          .arg(severityString())
+                          .arg(category())
+                          .arg(message());
+}
+
+/*!
  * \brief Operator overload to print log in debug window
  */
 QDebug operator<<(QDebug debug, const Diagnostic &log)
