@@ -12,13 +12,14 @@ class DiagnosticDialog;
 // Forward declaration
 class DiagnosticFilter;
 class DiagnosticModel;
+class GuiModel;
 
 class DiagnosticDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit DiagnosticDialog(DiagnosticModel *pDiagnosticModel, QWidget *parent = nullptr);
+    explicit DiagnosticDialog(GuiModel* pGuiModel, DiagnosticModel *pDiagnosticModel, QWidget *parent = nullptr);
     ~DiagnosticDialog();
 
 private slots:
@@ -29,6 +30,7 @@ private slots:
     void handleClearButton();
     void handleFilterChange(int id);
     void handleEnableDebugLog(int state);
+    void handleExportLog();
 
 private:
     void setAutoScroll(bool bAutoScroll);
@@ -37,6 +39,8 @@ private:
 
     Ui::DiagnosticDialog *_pUi;
     bool _bAutoScroll;
+
+    GuiModel* _pGuiModel;
 
     DiagnosticModel * _pDiagnosticModel;
     DiagnosticFilter* _pSeverityProxyFilter;

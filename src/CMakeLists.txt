@@ -58,6 +58,7 @@ SET(SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/importexport/datafileexporter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/importexport/datafilehandler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/importexport/datafileparser.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/importexport/diagnosticexporter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/importexport/mbcfileimporter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/importexport/mbcregisterdata.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/importexport/presetparser.cpp

@@ -1,18 +1,23 @@
 #include "diagnosticdialog.h"
 #include <QScrollBar>
+#include <QFileDialog>
 #include "ui_diagnosticdialog.h"
 
+#include "guimodel.h"
+#include "util.h"
 #include "diagnosticmodel.h"
 #include "diagnosticfilter.h"
+#include "diagnosticexporter.h"
 #include "scopelogging.h"
 
-DiagnosticDialog::DiagnosticDialog(DiagnosticModel * pDiagnosticModel, QWidget *parent) :
+DiagnosticDialog::DiagnosticDialog(GuiModel* pGuiModel, DiagnosticModel * pDiagnosticModel, QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::DiagnosticDialog)
 {
     _pUi->setupUi(this);
 
     _pDiagnosticModel = pDiagnosticModel;
+    _pGuiModel = pGuiModel;
 
     _pSeverityProxyFilter = new DiagnosticFilter();
     _pSeverityProxyFilter->setSourceModel(_pDiagnosticModel);
@@ -44,6 +49,7 @@ DiagnosticDialog::DiagnosticDialog(DiagnosticModel * pDiagnosticModel, QWidget *
     connect(_pUi->checkAutoScroll, &QCheckBox::stateChanged, this, &DiagnosticDialog::handleCheckAutoScrollChanged);
 
     connect(_pUi->pushClear, &QPushButton::clicked, this, &DiagnosticDialog::handleClearButton);
+    connect(_pUi->pushExport, &QPushButton::clicked, this, &DiagnosticDialog::handleExportLog);
 
     // default to autoscroll
     setAutoScroll(true);
@@ -138,6 +144,38 @@ void DiagnosticDialog::handleEnableDebugLog(int state)
     {
         _pUi->checkDebug->setEnabled(false);
         ScopeLogging::Logger().setMinimumSeverityLevel(Diagnostic::LOG_INFO);
+    }
+}
+
+void DiagnosticDialog::handleExportLog()
+{
+    QString filePath;
+    QFileDialog dialog;
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
+    dialog.setDefaultSuffix("log");
+    dialog.setWindowTitle(tr("Select log file"));
+    dialog.setNameFilter(tr("LOG files (*.log)"));
+    dialog.setDirectory(_pGuiModel->lastDir());
+
+    if (dialog.exec())
+    {
+        filePath = dialog.selectedFiles().first();
+        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
+
+        QFile file(filePath);
+        if (file.open(QIODevice::Append | QIODevice::Text))
+        {
+            QTextStream stream(&file);
+            DiagnosticExporter diagExporter(_pDiagnosticModel);
+
+            diagExporter.exportDiagnosticsFile(stream);
+        }
+        else
+        {
+            Util::showError(tr("Save to log file (%1) failed").arg(filePath));
+        }
     }
 }
 
