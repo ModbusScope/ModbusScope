@@ -28,7 +28,7 @@ DiagnosticDialog::DiagnosticDialog(GuiModel* pGuiModel, DiagnosticModel * pDiagn
     _categoryFilterGroup.addButton(_pUi->checkWarning);
     _categoryFilterGroup.addButton(_pUi->checkDebug);
 
-    connect(&_categoryFilterGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &DiagnosticDialog::handleFilterChange);
+    connect(&_categoryFilterGroup, QOverload<int>::of(&QButtonGroup::idClicked), this, &DiagnosticDialog::handleFilterChange);
     this->handleFilterChange(0); // Update filter
 
     _pUi->listError->setModel(_pSeverityProxyFilter);
