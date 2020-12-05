@@ -120,13 +120,13 @@ QString Diagnostic::toString() const
 }
 
 /*!
- * \brief Diagnostic::toString
- * \return Printable summary of log
+ * \brief Diagnostic::toExportString
+ * \return Exportable summary of log
  */
 QString Diagnostic::toExportString() const
 {
 
-    return QString("%1:%2;%3;%4")
+    return QString("%1\t%2\t%3\t%4")
                           .arg(timeOffset(), 8, 10, QChar('0'))
                           .arg(severityString())
                           .arg(category())
