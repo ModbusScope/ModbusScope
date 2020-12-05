@@ -1,6 +1,10 @@
 #include "diagnosticdialog.h"
 #include <QScrollBar>
 #include <QFileDialog>
+#include <QModelIndex>
+#include <QClipboard>
+#include <algorithm>
+
 #include "ui_diagnosticdialog.h"
 
 #include "guimodel.h"
@@ -33,7 +37,7 @@ DiagnosticDialog::DiagnosticDialog(GuiModel* pGuiModel, DiagnosticModel * pDiagn
 
     _pUi->listError->setModel(_pSeverityProxyFilter);
     _pUi->listError->setUniformItemSizes(true); // For performance
-    _pUi->listError->setSelectionMode(QAbstractItemView::SingleSelection);
+    _pUi->listError->setSelectionMode(QAbstractItemView::MultiSelection);
 
     connect(_pUi->checkDebugLogs, &QCheckBox::stateChanged, this, &DiagnosticDialog::handleEnableDebugLog);
 
@@ -53,6 +57,14 @@ DiagnosticDialog::DiagnosticDialog(GuiModel* pGuiModel, DiagnosticModel * pDiagn
 
     // default to autoscroll
     setAutoScroll(true);
+
+    // For rightclick menu
+    _pDiagnosticMenu = new QMenu(parent);
+    _pCopyDiagnosticAction = _pDiagnosticMenu->addAction("Copy");
+    connect(_pCopyDiagnosticAction, &QAction::triggered, this, &DiagnosticDialog::handleCopyDiagnostics);
+
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, &DiagnosticDialog::customContextMenuRequested, this, &DiagnosticDialog::showContextMenu);
 }
 
 DiagnosticDialog::~DiagnosticDialog()
@@ -177,6 +189,26 @@ void DiagnosticDialog::handleExportLog()
             Util::showError(tr("Save to log file (%1) failed").arg(filePath));
         }
     }
+}
+
+void DiagnosticDialog::showContextMenu(const QPoint& pos)
+{
+    _pDiagnosticMenu->popup(mapToGlobal(pos));
+}
+
+void DiagnosticDialog::handleCopyDiagnostics()
+{
+    QModelIndexList indexlist =_pUi->listError->selectionModel()->selectedRows();
+    std::sort(indexlist.begin(), indexlist.end(), std::less<QModelIndex>());
+
+    QString clipboardText;
+    foreach (QModelIndex index, indexlist)
+    {
+        clipboardText.append(QString("%1\n").arg(_pDiagnosticModel->toString(index.row())));
+    }
+
+    QClipboard* pClipboard = QGuiApplication::clipboard();
+    pClipboard->setText(clipboardText);
 }
 
 void DiagnosticDialog::setAutoScroll(bool bAutoScroll)

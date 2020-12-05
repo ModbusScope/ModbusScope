@@ -2,6 +2,7 @@
 #define DIAGNOSTICDIALOG_H
 
 #include <QDialog>
+#include <QMenu>
 #include <QButtonGroup>
 #include <QItemSelection>
 
@@ -19,7 +20,7 @@ class DiagnosticDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit DiagnosticDialog(GuiModel* pGuiModel, DiagnosticModel *pDiagnosticModel, QWidget *parent = nullptr);
+    explicit DiagnosticDialog(GuiModel* pGuiModel, DiagnosticModel* pDiagnosticModel, QWidget* parent = nullptr);
     ~DiagnosticDialog();
 
 private slots:
@@ -31,20 +32,26 @@ private slots:
     void handleFilterChange(int id);
     void handleEnableDebugLog(int state);
     void handleExportLog();
+    void showContextMenu(const QPoint& pos);
+    void handleCopyDiagnostics();
 
 private:
     void setAutoScroll(bool bAutoScroll);
     void updateScroll();
     void updateLogCount();
 
-    Ui::DiagnosticDialog *_pUi;
+    Ui::DiagnosticDialog*_pUi;
     bool _bAutoScroll;
 
     GuiModel* _pGuiModel;
 
-    DiagnosticModel * _pDiagnosticModel;
+    DiagnosticModel* _pDiagnosticModel;
     DiagnosticFilter* _pSeverityProxyFilter;
+
     QButtonGroup _categoryFilterGroup;
+
+    QMenu * _pDiagnosticMenu;
+    QAction * _pCopyDiagnosticAction;
 };
 
 #endif // DIAGNOSTICDIALOG_H
