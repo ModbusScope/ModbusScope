@@ -165,7 +165,7 @@ void DiagnosticDialog::handleExportLog()
         _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
 
         QFile file(filePath);
-        if (file.open(QIODevice::Append | QIODevice::Text))
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text))
         {
             QTextStream stream(&file);
             DiagnosticExporter diagExporter(_pDiagnosticModel);
