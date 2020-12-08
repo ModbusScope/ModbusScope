@@ -50,6 +50,7 @@ SET(SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/dialogs/registerdialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/graphview/graphview.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/graphview/graphviewzoom.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/graphview/graphviewmarkers.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/graphview/myqcpaxis.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/graphview/myqcpaxistickertime.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/graphview/myqcustomplot.cpp

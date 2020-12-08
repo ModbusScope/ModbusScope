@@ -12,6 +12,7 @@ class NoteModel;
 class SettingsModel;
 
 class GraphViewZoom;
+class GraphViewMarkers;
 class NoteHandling;
 
 class GraphView : public QObject
@@ -40,9 +41,6 @@ public slots:
     void changeGraphColor(const quint32 graphIdx);
     void changeGraphLabel(const quint32 graphIdx);
     void bringToFront();
-    void updateMarkersVisibility();
-    void setStartMarker();
-    void setEndMarker();
 
     void addData(QList<double> timeData, QList<QList<double> > data);
     void showGraph(quint32 graphIdx);
@@ -83,10 +81,8 @@ private:
     bool _bEnableSampleHighlight;
 
     GraphViewZoom* _pGraphViewZoom;
+    GraphViewMarkers* _pGraphViewMarkers;
     NoteHandling* _pNoteHandling;
-
-    QCPItemStraightLine * _pStartMarker;
-    QCPItemStraightLine * _pEndMarker;
 
     QPoint _tooltipLocation;
 
