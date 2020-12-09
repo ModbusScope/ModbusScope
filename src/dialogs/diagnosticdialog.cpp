@@ -1,18 +1,27 @@
 #include "diagnosticdialog.h"
 #include <QScrollBar>
+#include <QFileDialog>
+#include <QModelIndex>
+#include <QClipboard>
+#include <algorithm>
+
 #include "ui_diagnosticdialog.h"
 
+#include "guimodel.h"
+#include "util.h"
 #include "diagnosticmodel.h"
 #include "diagnosticfilter.h"
+#include "diagnosticexporter.h"
 #include "scopelogging.h"
 
-DiagnosticDialog::DiagnosticDialog(DiagnosticModel * pDiagnosticModel, QWidget *parent) :
+DiagnosticDialog::DiagnosticDialog(GuiModel* pGuiModel, DiagnosticModel * pDiagnosticModel, QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::DiagnosticDialog)
 {
     _pUi->setupUi(this);
 
     _pDiagnosticModel = pDiagnosticModel;
+    _pGuiModel = pGuiModel;
 
     _pSeverityProxyFilter = new DiagnosticFilter();
     _pSeverityProxyFilter->setSourceModel(_pDiagnosticModel);
@@ -23,12 +32,12 @@ DiagnosticDialog::DiagnosticDialog(DiagnosticModel * pDiagnosticModel, QWidget *
     _categoryFilterGroup.addButton(_pUi->checkWarning);
     _categoryFilterGroup.addButton(_pUi->checkDebug);
 
-    connect(&_categoryFilterGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &DiagnosticDialog::handleFilterChange);
+    connect(&_categoryFilterGroup, QOverload<int>::of(&QButtonGroup::idClicked), this, &DiagnosticDialog::handleFilterChange);
     this->handleFilterChange(0); // Update filter
 
     _pUi->listError->setModel(_pSeverityProxyFilter);
     _pUi->listError->setUniformItemSizes(true); // For performance
-    _pUi->listError->setSelectionMode(QAbstractItemView::SingleSelection);
+    _pUi->listError->setSelectionMode(QAbstractItemView::MultiSelection);
 
     connect(_pUi->checkDebugLogs, &QCheckBox::stateChanged, this, &DiagnosticDialog::handleEnableDebugLog);
 
@@ -44,9 +53,18 @@ DiagnosticDialog::DiagnosticDialog(DiagnosticModel * pDiagnosticModel, QWidget *
     connect(_pUi->checkAutoScroll, &QCheckBox::stateChanged, this, &DiagnosticDialog::handleCheckAutoScrollChanged);
 
     connect(_pUi->pushClear, &QPushButton::clicked, this, &DiagnosticDialog::handleClearButton);
+    connect(_pUi->pushExport, &QPushButton::clicked, this, &DiagnosticDialog::handleExportLog);
 
     // default to autoscroll
     setAutoScroll(true);
+
+    // For rightclick menu
+    _pDiagnosticMenu = new QMenu(parent);
+    _pCopyDiagnosticAction = _pDiagnosticMenu->addAction("Copy");
+    connect(_pCopyDiagnosticAction, &QAction::triggered, this, &DiagnosticDialog::handleCopyDiagnostics);
+
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, &DiagnosticDialog::customContextMenuRequested, this, &DiagnosticDialog::showContextMenu);
 }
 
 DiagnosticDialog::~DiagnosticDialog()
@@ -139,6 +157,58 @@ void DiagnosticDialog::handleEnableDebugLog(int state)
         _pUi->checkDebug->setEnabled(false);
         ScopeLogging::Logger().setMinimumSeverityLevel(Diagnostic::LOG_INFO);
     }
+}
+
+void DiagnosticDialog::handleExportLog()
+{
+    QString filePath;
+    QFileDialog dialog;
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
+    dialog.setDefaultSuffix("log");
+    dialog.setWindowTitle(tr("Select log file"));
+    dialog.setNameFilter(tr("LOG files (*.log)"));
+    dialog.setDirectory(_pGuiModel->lastDir());
+
+    if (dialog.exec())
+    {
+        filePath = dialog.selectedFiles().first();
+        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
+
+        QFile file(filePath);
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            QTextStream stream(&file);
+            DiagnosticExporter diagExporter(_pDiagnosticModel);
+
+            diagExporter.exportDiagnosticsFile(stream);
+        }
+        else
+        {
+            Util::showError(tr("Save to log file (%1) failed").arg(filePath));
+        }
+    }
+}
+
+void DiagnosticDialog::showContextMenu(const QPoint& pos)
+{
+    _pDiagnosticMenu->popup(mapToGlobal(pos));
+}
+
+void DiagnosticDialog::handleCopyDiagnostics()
+{
+    QModelIndexList indexlist =_pUi->listError->selectionModel()->selectedRows();
+    std::sort(indexlist.begin(), indexlist.end(), std::less<QModelIndex>());
+
+    QString clipboardText;
+    foreach (QModelIndex index, indexlist)
+    {
+        clipboardText.append(QString("%1\n").arg(_pDiagnosticModel->toString(index.row())));
+    }
+
+    QClipboard* pClipboard = QGuiApplication::clipboard();
+    pClipboard->setText(clipboardText);
 }
 
 void DiagnosticDialog::setAutoScroll(bool bAutoScroll)

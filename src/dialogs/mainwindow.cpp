@@ -51,7 +51,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     _pConnectionDialog = new ConnectionDialog(_pSettingsModel, this);
     _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
-    _pDiagnosticDialog = new DiagnosticDialog(_pDiagnosticModel, this);
+    _pDiagnosticDialog = new DiagnosticDialog(_pGuiModel, _pDiagnosticModel, this);
 
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
 
