@@ -3,9 +3,9 @@
 
 #include <QObject>
 #include "myqcustomplot.h"
-#include "guimodel.h"
 
 // Forward declaration
+class GuiModel;
 class GraphView;
 
 class GraphViewMarkers : public QObject
@@ -15,15 +15,26 @@ public:
     explicit GraphViewMarkers(GuiModel* pGuiModel, MyQCustomPlot* pPlot, QObject *parent = nullptr);
     virtual ~GraphViewMarkers();
 
+    void clearTracers();
+    void addTracer(QCPGraph* pGraph);
+
 private slots:
     void updateMarkersVisibility();
     void setStartMarker();
     void setEndMarker();
 
 private:
+
+    void setTracerVisibility(QList<QCPItemTracer *> &tracerList, bool bVisible);
+    void setTracerPosition(QList<QCPItemTracer *> &tracerList, double pos);
+    QCPItemTracer* createTracer(QCPGraph* pGraph);
+
     GuiModel* _pGuiModel;
     MyQCustomPlot* _pPlot;
     GraphView* _pGraphview;
+
+    QList<QCPItemTracer *> _startTracerList;
+    QList<QCPItemTracer *> _endTracerList;
 
     QCPItemStraightLine* _pStartMarker;
     QCPItemStraightLine* _pEndMarker;

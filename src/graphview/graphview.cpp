@@ -208,6 +208,9 @@ void GraphView::clearGraph(const quint32 graphIdx)
 
 void GraphView::updateGraphs()
 {
+    /* First remove tracers */
+    _pGraphViewMarkers->clearTracers();
+
     /* Clear graphs and add current active graphs */
     _pPlot->clearGraphs();
 
@@ -270,6 +273,8 @@ void GraphView::updateGraphs()
 
             // Set graph datamap
             pGraph->setData(pMap);
+
+            _pGraphViewMarkers->addTracer(pGraph);
         }
     }
 
@@ -798,7 +803,7 @@ void GraphView::highlightSamples(bool bState)
     {
         if (bState)
         {
-            _pPlot->graph(graphIndex)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 4));
+            _pPlot->graph(graphIndex)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 3));
         }
         else
         {
