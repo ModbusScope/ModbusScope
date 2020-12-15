@@ -15,6 +15,7 @@
 #include "myqcpaxis.h"
 #include "graphview.h"
 #include "graphviewzoom.h"
+#include "graphviewmarkers.h"
 #include "notehandling.h"
 
 GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel *pNoteModel, MyQCustomPlot * pPlot, QObject *parent) :
@@ -25,9 +26,6 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
     _pSettingsModel = pSettingsModel;
 
    _pPlot = pPlot;
-
-   _pGraphViewZoom = new GraphViewZoom(_pGuiModel, _pPlot, this);
-   _pNoteHandling = new NoteHandling(pNoteModel, _pPlot, this);
 
    /* Range drag is also enabled/disabled on mousePress and mouseRelease event */
    _pPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes);
@@ -82,18 +80,9 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
    connect(_pPlot, &MyQCustomPlot::mouseMove, this, &GraphView::mouseMove);
    connect(_pPlot, &MyQCustomPlot::beforeReplot, this, &GraphView::handleSamplePoints);
 
-   QPen markerPen;
-   markerPen.setWidth(2);
-
-   markerPen.setColor(QColor(Qt::green));
-   _pStartMarker = new QCPItemStraightLine(_pPlot);
-   _pStartMarker->setVisible(false);
-   _pStartMarker->setPen(markerPen);
-
-   markerPen.setColor(QColor(Qt::red));
-   _pEndMarker = new QCPItemStraightLine(_pPlot);
-   _pEndMarker->setVisible(false);
-   _pEndMarker->setPen(markerPen);
+   _pGraphViewZoom = new GraphViewZoom(_pGuiModel, _pPlot, this);
+   _pGraphViewMarkers = new GraphViewMarkers(_pGuiModel, _pPlot, this);
+   _pNoteHandling = new NoteHandling(pNoteModel, _pPlot, this);
 
    _pPlot->replot();
 
@@ -102,6 +91,8 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
 GraphView::~GraphView()
 {
     delete _pGraphViewZoom;
+    delete _pGraphViewMarkers;
+    delete _pNoteHandling;
 }
 
 qint32 GraphView::graphDataSize()
@@ -217,6 +208,9 @@ void GraphView::clearGraph(const quint32 graphIdx)
 
 void GraphView::updateGraphs()
 {
+    /* First remove tracers */
+    _pGraphViewMarkers->clearTracers();
+
     /* Clear graphs and add current active graphs */
     _pPlot->clearGraphs();
 
@@ -279,6 +273,8 @@ void GraphView::updateGraphs()
 
             // Set graph datamap
             pGraph->setData(pMap);
+
+            _pGraphViewMarkers->addTracer(pGraph);
         }
     }
 
@@ -321,35 +317,6 @@ void GraphView::bringToFront()
         _pPlot->graph(_pGuiModel->frontGraph())->setLayer("topMain");
         _pPlot->replot();
     }
-}
-
-void GraphView::updateMarkersVisibility()
-{
-    if (_pGuiModel->markerState() == false)
-    {
-        _pStartMarker->setVisible(false);
-        _pEndMarker->setVisible(false);
-
-        _pPlot->replot();
-    }
-}
-
-void GraphView::setStartMarker()
-{
-    _pStartMarker->setVisible(true);
-    _pStartMarker->point1->setCoords(_pGuiModel->startMarkerPos(), 0);
-    _pStartMarker->point2->setCoords(_pGuiModel->startMarkerPos(), 1);
-
-    _pPlot->replot();
-}
-
-void GraphView::setEndMarker()
-{
-    _pEndMarker->setVisible(true);
-    _pEndMarker->point1->setCoords(_pGuiModel->endMarkerPos(), 0);
-    _pEndMarker->point2->setCoords(_pGuiModel->endMarkerPos(), 1);
-
-    _pPlot->replot();
 }
 
 void GraphView::addData(QList<double> timeData, QList<QList<double> > data)
@@ -836,7 +803,7 @@ void GraphView::highlightSamples(bool bState)
     {
         if (bState)
         {
-            _pPlot->graph(graphIndex)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 4));
+            _pPlot->graph(graphIndex)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 3));
         }
         else
         {
