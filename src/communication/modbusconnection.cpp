@@ -48,12 +48,11 @@ void ModbusConnection::openConnection(QString ip, qint32 port, quint32 timeout)
         _connectionList.append(QPointer<ConnectionData>(connectionData));
 
         qCDebug(scopeCommConnection) << "Connection start: " << _connectionList.last();
-        if (_connectionList.last()->pModbusClient->connectDevice())
-        {
-            _bWaitingForConnection = true;
-            _connectionList.last()->connectionTimeoutTimer.start(static_cast<int>(timeout));
-        }
-        else
+
+        _connectionList.last()->connectionTimeoutTimer.start(static_cast<int>(timeout));
+        _bWaitingForConnection = true;
+
+        if (!_connectionList.last()->pModbusClient->connectDevice())
         {
             auto pClient = _connectionList.last()->pModbusClient;
             handleConnectionError(_connectionList.last(), QString("Connect failed: %0").arg(pClient->error()));
@@ -66,10 +65,7 @@ void ModbusConnection::openConnection(QString ip, qint32 port, quint32 timeout)
  */
 void ModbusConnection::closeConnection(void)
 {
-    if (
-            !_connectionList.isEmpty()
-            && _connectionList.last()->pModbusClient->state() != QModbusDevice::UnconnectedState
-        )
+    if (!_connectionList.isEmpty())
     {
         qCDebug(scopeCommConnection) << "Connection close: " << _connectionList.last();
         _connectionList.last()->connectionTimeoutTimer.stop();
@@ -154,10 +150,10 @@ void ModbusConnection::handleConnectionStateChanged(QModbusDevice::State state)
 
         if (senderIdx == _connectionList.size() - 1)
         {
+            _bWaitingForConnection = false;
+
             // Most recent connection is opened
             emit connectionSuccess();
-
-            _bWaitingForConnection = false;
         }
         else if (senderIdx != -1)
         {
