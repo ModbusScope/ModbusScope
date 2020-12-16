@@ -73,7 +73,24 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
         _pReadRegisters->resetRead(registerList, _pSettingsModel->consecutiveMax(_connectionId));
 
         /* Open connection */
-        _pModbusConnection->openConnection(_pSettingsModel->ipAddress(_connectionId), _pSettingsModel->port(_connectionId), _pSettingsModel->timeout(_connectionId));
+#if 1
+        struct ModbusConnection::TcpSettings tcpSettings =
+        {
+            .ip = _pSettingsModel->ipAddress(_connectionId),
+            .port = _pSettingsModel->port(_connectionId),
+        };
+        _pModbusConnection->openTcpConnection(tcpSettings, _pSettingsModel->timeout(_connectionId));
+#else
+        struct ModbusConnection::SerialSettings serialSettings =
+        {
+            .portName = QStringLiteral("/dev/ttyUSB0"),
+            .parity = QSerialPort::NoParity,
+            .baudrate = QSerialPort::Baud115200,
+            .databits = QSerialPort::Data8,
+            .stopbits = QSerialPort::OneStop,
+        };
+        _pModbusConnection->openSerialConnection(serialSettings, _pSettingsModel->timeout(_connectionId));
+#endif
     }
     else
     {
