@@ -18,6 +18,7 @@ find_package(Qt5 COMPONENTS
     Xml
     Network
     SerialBus
+    SerialPort
 
     REQUIRED
 )
@@ -27,6 +28,7 @@ set(QT_INCLUDES
     ${Qt5Xml_INCLUDE_DIRS}
     ${Qt5Network_INCLUDE_DIRS}
     ${Qt5SerialBus_INCLUDE_DIRS}
+    ${Qt5SerialPort_INCLUDE_DIRS}
 )
 
 set(QT_LIB
@@ -34,6 +36,7 @@ set(QT_LIB
     Qt5::Xml
     Qt5::Network
     Qt5::SerialBus
+    Qt5::SerialPort
 )
 
 
