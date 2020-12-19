@@ -73,24 +73,27 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
         _pReadRegisters->resetRead(registerList, _pSettingsModel->consecutiveMax(_connectionId));
 
         /* Open connection */
-#if 1
-        struct ModbusConnection::TcpSettings tcpSettings =
+        if (_pSettingsModel->connectionType(_connectionId) == SettingsModel::CONNECTION_TYPE_SERIAL)
         {
-            .ip = _pSettingsModel->ipAddress(_connectionId),
-            .port = _pSettingsModel->port(_connectionId),
-        };
-        _pModbusConnection->openTcpConnection(tcpSettings, _pSettingsModel->timeout(_connectionId));
-#else
-        struct ModbusConnection::SerialSettings serialSettings =
+            struct ModbusConnection::SerialSettings serialSettings =
+            {
+                .portName = _pSettingsModel->portName(_connectionId),
+                .parity = _pSettingsModel->parity(_connectionId),
+                .baudrate = _pSettingsModel->baudrate(_connectionId),
+                .databits = _pSettingsModel->databits(_connectionId),
+                .stopbits = _pSettingsModel->stopbits(_connectionId),
+            };
+            _pModbusConnection->openSerialConnection(serialSettings, _pSettingsModel->timeout(_connectionId));
+        }
+        else
         {
-            .portName = QStringLiteral("/dev/ttyUSB0"),
-            .parity = QSerialPort::NoParity,
-            .baudrate = QSerialPort::Baud115200,
-            .databits = QSerialPort::Data8,
-            .stopbits = QSerialPort::OneStop,
-        };
-        _pModbusConnection->openSerialConnection(serialSettings, _pSettingsModel->timeout(_connectionId));
-#endif
+            struct ModbusConnection::TcpSettings tcpSettings =
+            {
+                .ip = _pSettingsModel->ipAddress(_connectionId),
+                .port = _pSettingsModel->port(_connectionId),
+            };
+            _pModbusConnection->openTcpConnection(tcpSettings, _pSettingsModel->timeout(_connectionId));
+        }
     }
     else
     {

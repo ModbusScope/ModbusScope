@@ -9,8 +9,17 @@ SettingsModel::SettingsModel(QObject *parent) :
     {
         ConnectionSettings connectionSettings;
 
+        connectionSettings.connectionType = CONNECTION_TYPE_TCP;
+
         connectionSettings.ipAddress = "127.0.0.1";
         connectionSettings.port = 502;
+
+        connectionSettings.portName = QStringLiteral("/dev/ttyUSB0");
+        connectionSettings.parity = QSerialPort::NoParity;
+        connectionSettings.baudrate = QSerialPort::Baud115200;
+        connectionSettings.databits = QSerialPort::Data8;
+        connectionSettings.stopbits = QSerialPort::OneStop;
+
         connectionSettings.slaveId = 1;
         connectionSettings.timeout = 1000;
         connectionSettings.consecutiveMax = 125;
@@ -217,6 +226,152 @@ void SettingsModel::setWriteDuringLogFileToDefault(void)
 QString SettingsModel::writeDuringLogFile()
 {
     return _writeDuringLogFile;
+}
+
+void SettingsModel::setConnectionType(quint8 connectionId, quint8 connectionType)
+{
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    if (_connectionSettings[connectionId].connectionType != connectionType)
+    {
+        _connectionSettings[connectionId].connectionType = connectionType;
+        emit connectionTypeChanged(connectionId);
+    }
+}
+
+quint8 SettingsModel::connectionType(quint8 connectionId)
+{
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    return _connectionSettings[connectionId].connectionType;
+}
+
+void SettingsModel::setPortName(quint8 connectionId, QString portName)
+{
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    if (_connectionSettings[connectionId].portName != portName)
+    {
+        _connectionSettings[connectionId].portName = portName;
+        emit portNameChanged(connectionId);
+    }
+}
+
+QString SettingsModel::portName(quint8 connectionId)
+{
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    return _connectionSettings[connectionId].portName;
+}
+
+void SettingsModel::setParity(quint8 connectionId, QSerialPort::Parity parity)
+{
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    if (_connectionSettings[connectionId].parity != parity)
+    {
+        _connectionSettings[connectionId].parity = parity;
+        emit parityChanged(connectionId);
+    }
+}
+
+QSerialPort::Parity SettingsModel::parity(quint8 connectionId)
+{
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    return _connectionSettings[connectionId].parity;
+}
+
+
+
+void SettingsModel::setBaudrate(quint8 connectionId, QSerialPort::BaudRate baudrate)
+{
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    if (_connectionSettings[connectionId].baudrate != baudrate)
+    {
+        _connectionSettings[connectionId].baudrate = baudrate;
+        emit parityChanged(connectionId);
+    }
+}
+
+QSerialPort::BaudRate SettingsModel::baudrate(quint8 connectionId)
+{
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    return _connectionSettings[connectionId].baudrate;
+}
+
+void SettingsModel::setDatabits(quint8 connectionId, QSerialPort::DataBits databits)
+{
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    if (_connectionSettings[connectionId].databits != databits)
+    {
+        _connectionSettings[connectionId].databits = databits;
+        emit databitsChanged(connectionId);
+    }
+}
+
+QSerialPort::DataBits SettingsModel::databits(quint8 connectionId)
+{
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    return _connectionSettings[connectionId].databits;
+}
+
+void SettingsModel::setStopbits(quint8 connectionId, QSerialPort::StopBits stopbits)
+{
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    if (_connectionSettings[connectionId].stopbits != stopbits)
+    {
+        _connectionSettings[connectionId].stopbits = stopbits;
+        emit connectionTypeChanged(connectionId);
+    }
+}
+
+QSerialPort::StopBits SettingsModel::stopbits(quint8 connectionId)
+{
+    if (connectionId >= CONNECTION_ID_CNT)
+    {
+        connectionId = CONNECTION_ID_0;
+    }
+
+    return _connectionSettings[connectionId].stopbits;
 }
 
 void SettingsModel::setIpAddress(quint8 connectionId, QString ip)
