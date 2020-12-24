@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>355</width>
-    <height>372</height>
+    <width>467</width>
+    <height>464</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
    <item>
     <widget class="QTabWidget" name="tabConnection">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="conn">
       <attribute name="title">
@@ -186,9 +186,9 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <widget class="QCheckBox" name="checkSecondConn">
+        <widget class="QCheckBox" name="checkConn_2">
          <property name="text">
-          <string>Enable second connection</string>
+          <string>Enable connection 2</string>
          </property>
         </widget>
        </item>
@@ -352,6 +352,23 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="conn3">
+      <attribute name="title">
+       <string>Connection 3 (serial beta)</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QCheckBox" name="checkConn_3">
+         <property name="text">
+          <string>Enable connection 3</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="ConnectionForm" name="connectionForm_3" native="true"/>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>
@@ -366,6 +383,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ConnectionForm</class>
+   <extends>QWidget</extends>
+   <header>connectionform.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

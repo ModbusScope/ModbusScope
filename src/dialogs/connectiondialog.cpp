@@ -23,7 +23,10 @@ ConnectionDialog::ConnectionDialog(SettingsModel * pSettingsModel, QWidget *pare
     connect(_pSettingsModel, &SettingsModel::int32LittleEndianChanged, this, &ConnectionDialog::updateInt32LittleEndian);
     connect(_pSettingsModel, &SettingsModel::persistentConnectionChanged, this, &ConnectionDialog::updatePersistentConnection);
 
-    connect(_pUi->checkSecondConn, &QCheckBox::stateChanged, this, &ConnectionDialog::secondConnectionStateChanged);
+    connect(_pUi->checkConn_2, &QCheckBox::stateChanged, this, &ConnectionDialog::secondConnectionStateChanged);
+
+    _pUi->connectionForm_3->setState(false);
+    connect(_pUi->checkConn_3, &QCheckBox::stateChanged, _pUi->connectionForm_3, &ConnectionForm::setState);
 }
 
 ConnectionDialog::~ConnectionDialog()
@@ -110,7 +113,7 @@ void ConnectionDialog::updateConnectionState(quint8 connectionId)
     /* TODO: change for more than 2 connections */
     if (connectionId == SettingsModel::CONNECTION_ID_1)
     {
-        _pUi->checkSecondConn->setChecked(_pSettingsModel->connectionState(connectionId));
+        _pUi->checkConn_2->setChecked(_pSettingsModel->connectionState(connectionId));
     }
 }
 
@@ -157,9 +160,11 @@ void ConnectionDialog::done(int r)
         _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_1, _pUi->spinSlaveId_2->text().toUInt());
         _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_1, _pUi->spinTimeout_2->text().toUInt());
         _pSettingsModel->setConsecutiveMax(SettingsModel::CONNECTION_ID_1, _pUi->spinConsecutiveMax_2->text().toUInt());
-        _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_1, _pUi->checkSecondConn->checkState() == Qt::Checked);
+        _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_1, _pUi->checkConn_2->checkState() == Qt::Checked);
         _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_1, _pUi->checkInt32LittleEndian_2->checkState() == Qt::Checked);
         _pSettingsModel->setPersistentConnection(SettingsModel::CONNECTION_ID_1, _pUi->checkPersistentConn_2->checkState() == Qt::Checked);
+
+        _pUi->connectionForm_3->fillSettingsModel(_pSettingsModel, SettingsModel::CONNECTION_ID_2);
 
         // Validate the data
         //bValid = validateSettingsData();
