@@ -24,7 +24,7 @@ QWidget *RegisterConnDelegate::createEditor(QWidget *parent, const QStyleOptionV
     {
         if (_pSettingsModel->connectionState(i))
         {
-            cb->addItem(QString(tr("Connection %1").arg(i + 1)));
+            cb->addItem(QString(tr("Connection %1").arg(i + 1)), i);
         }
     }
 
@@ -48,7 +48,8 @@ void RegisterConnDelegate::setModelData(QWidget *editor, QAbstractItemModel *mod
 {
     QComboBox *cb = qobject_cast<QComboBox *>(editor);
     Q_ASSERT(cb);
-    model->setData(index, cb->currentIndex(), Qt::EditRole);
+
+    model->setData(index, cb->currentData().toUInt(), Qt::EditRole);
 }
 
 void RegisterConnDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &/* index */) const

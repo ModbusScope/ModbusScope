@@ -164,6 +164,7 @@ void ConnectionDialog::done(int r)
         _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_1, _pUi->checkInt32LittleEndian_2->checkState() == Qt::Checked);
         _pSettingsModel->setPersistentConnection(SettingsModel::CONNECTION_ID_1, _pUi->checkPersistentConn_2->checkState() == Qt::Checked);
 
+        _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_2, _pUi->checkConn_3->checkState() == Qt::Checked);
         _pUi->connectionForm_3->fillSettingsModel(_pSettingsModel, SettingsModel::CONNECTION_ID_2);
 
         // Validate the data
