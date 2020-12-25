@@ -55,6 +55,13 @@ void SettingsModel::triggerUpdate(void)
     {
         emit ipChanged(i);
         emit portChanged(i);
+
+        emit portNameChanged(i);
+        emit parityChanged(i);
+        emit baudrateChanged(i);
+        emit databitsChanged(i);
+        emit stopbitsChanged(i);
+
         emit slaveIdChanged(i);
         emit timeoutChanged(i);
         emit consecutiveMaxChanged(i);
@@ -228,7 +235,7 @@ QString SettingsModel::writeDuringLogFile()
     return _writeDuringLogFile;
 }
 
-void SettingsModel::setConnectionType(quint8 connectionId, quint8 connectionType)
+void SettingsModel::setConnectionType(quint8 connectionId, ConnectionType_t connectionType)
 {
     if (connectionId >= CONNECTION_ID_CNT)
     {
@@ -242,7 +249,7 @@ void SettingsModel::setConnectionType(quint8 connectionId, quint8 connectionType
     }
 }
 
-quint8 SettingsModel::connectionType(quint8 connectionId)
+SettingsModel::ConnectionType_t SettingsModel::connectionType(quint8 connectionId)
 {
     if (connectionId >= CONNECTION_ID_CNT)
     {

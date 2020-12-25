@@ -9,6 +9,23 @@ class SettingsModel : public QObject
 {
     Q_OBJECT
 public:
+
+    enum
+    {
+        CONNECTION_ID_0 = 0,
+        CONNECTION_ID_1,
+        CONNECTION_ID_2,
+        CONNECTION_ID_CNT
+    };
+
+    typedef enum
+    {
+        CONNECTION_TYPE_TCP = 0,
+        CONNECTION_TYPE_SERIAL,
+        CONNECTION_TYPE_CNT
+
+    } ConnectionType_t;
+
     explicit SettingsModel(QObject *parent = nullptr);
     ~SettingsModel();
 
@@ -18,7 +35,7 @@ public:
     void setWriteDuringLogFile(QString filename);
     void setWriteDuringLogFileToDefault(void);
 
-    void setConnectionType(quint8 connectionId, quint8 connectionType);
+    void setConnectionType(quint8 connectionId, ConnectionType_t connectionType);
 
     void setPortName(quint8 connectionId, QString portName);
     void setParity(quint8 connectionId, QSerialPort::Parity parity);
@@ -38,7 +55,7 @@ public:
 
     QString writeDuringLogFile();
     bool writeDuringLog();
-    quint8 connectionType(quint8 connectionId);
+    ConnectionType_t connectionType(quint8 connectionId);
 
     QString portName(quint8 connectionId);
     QSerialPort::Parity parity(quint8 connectionId);
@@ -70,20 +87,6 @@ public:
 
         return tempDir.append(cDefaultLogFileName);
     }
-
-    enum
-    {
-        CONNECTION_ID_0 = 0,
-        CONNECTION_ID_1,
-        CONNECTION_ID_CNT
-    };
-
-    enum
-    {
-        CONNECTION_TYPE_TCP = 0,
-        CONNECTION_TYPE_SERIAL,
-        CONNECTION_TYPE_CNT
-    };
 
 public slots:
     void setWriteDuringLog(bool bState);
@@ -117,7 +120,7 @@ private:
 
     typedef struct
     {
-        quint8 connectionType;
+        ConnectionType_t connectionType;
 
         QString ipAddress;
         quint16 port;
