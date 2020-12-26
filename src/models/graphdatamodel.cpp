@@ -300,15 +300,6 @@ Qt::ItemFlags GraphDataModel::flags(const QModelIndex & index) const
     /* default is enabled */
     itemFlags |= Qt::ItemIsEnabled;
 
-    /* Disable when connection is disabled */
-    if (
-        (connectionId(index.row()) == SettingsModel::CONNECTION_ID_1)
-        && (!_pSettingsModel->connectionState(connectionId(index.row())))
-    )
-    {
-        itemFlags &= ~(Qt::ItemIsEnabled);
-    }
-
     if (
             (index.column() == column::ACTIVE)
             || (index.column() == column::UNSIGNED)
