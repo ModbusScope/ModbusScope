@@ -27,6 +27,7 @@ private slots:
     void multiSlaveSuccess_3();
     void multiSlaveSingleFail();
     void multiSlaveAllFail();
+    void multiSlaveDisabledConnection();
 
 private:
 

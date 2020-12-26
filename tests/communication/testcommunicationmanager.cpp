@@ -18,6 +18,7 @@ void TestCommunicationManager::init()
     _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_0, 500);
     _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_0, 1);
 
+    _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_1, true);
     _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_1, "127.0.0.1");
     _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_1, 5021);
     _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_1, 500);
@@ -343,6 +344,46 @@ void TestCommunicationManager::multiSlaveAllFail()
 
     QList<bool> resultList({false, false});
     QList<double> valueList({0, 0});
+
+    /* Verify arguments of signal */
+    verifyReceivedDataSignal(arguments, resultList, valueList);
+}
+
+void TestCommunicationManager::multiSlaveDisabledConnection()
+{
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(0, true);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(0, 5020);
+
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(0, true);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(0, 5021);
+
+    /* Disable connection */
+    _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_1, false);
+
+    GraphDataModel graphDataModel(_pSettingsModel);
+    graphDataModel.add();
+    graphDataModel.setConnectionId(0, SettingsModel::CONNECTION_ID_0);
+    graphDataModel.setRegisterAddress(0, 40001);
+
+    graphDataModel.add();
+    graphDataModel.setConnectionId(1, SettingsModel::CONNECTION_ID_1);
+    graphDataModel.setRegisterAddress(1, 40001);
+
+    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel);
+
+    QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
+
+    /*-- Start communication --*/
+    QVERIFY(conMan.startCommunication());
+
+    QVERIFY(spyReceivedData.wait(50));
+    QCOMPARE(spyReceivedData.count(), 1);
+
+    QList<QVariant> arguments = spyReceivedData.takeFirst(); // take the first signal
+
+    /* Disabled connections return error and zero */
+    QList<bool> resultList({true, false});
+    QList<double> valueList({5020, 0});
 
     /* Verify arguments of signal */
     verifyReceivedDataSignal(arguments, resultList, valueList);
