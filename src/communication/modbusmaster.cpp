@@ -49,7 +49,20 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
     _success = 0;
     _error = 0;
 
-    if (registerList.count() > 0)
+    if (_pSettingsModel->connectionState(_connectionId) == false)
+    {
+        QMap<quint16, ModbusResult> errMap;
+
+        for (int i = 0; i < registerList.size(); i++)
+        {
+            const ModbusResult result = ModbusResult(0, false);
+            errMap.insert(registerList.at(i), result);
+        }
+
+        logError(QStringLiteral("Read failed because connection is disabled"));
+        logResults(errMap);
+    }
+    else if (registerList.size() > 0)
     {
         logInfo("Register list read: " + dumpToString(registerList));
 
@@ -175,9 +188,7 @@ void ModbusMaster::finishRead(bool bError)
 {
     QMap<quint16, ModbusResult> results = _pReadRegisters->resultMap();
 
-    logInfo("Result map: " + dumpToString(results));
-    emit modbusAddToStats(_success, _error);
-    emit modbusPollDone(results, _connectionId);
+    logResults(results);
 
     bool bcloseConnection;
 
@@ -215,6 +226,13 @@ QString ModbusMaster::dumpToString(QList<quint16> list)
     dStream << list;
 
     return str;
+}
+
+void ModbusMaster::logResults(QMap<quint16, ModbusResult> &results)
+{
+    logInfo("Result map: " + dumpToString(results));
+    emit modbusAddToStats(_success, _error);
+    emit modbusPollDone(results, _connectionId);
 }
 
 void ModbusMaster::logInfo(QString msg)
