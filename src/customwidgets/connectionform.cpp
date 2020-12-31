@@ -9,7 +9,7 @@ ConnectionForm::ConnectionForm(QWidget *parent) :
 {
     _pUi->setupUi(this);
 
-    _pUi->linePort->setText(QStringLiteral("/dev/ttyUSB0"));
+    _pUi->linePortName->setText(QStringLiteral("/dev/ttyUSB0"));
 
     _pUi->comboType->addItem("TCP", QVariant(SettingsModel::CONNECTION_TYPE_TCP));
     _pUi->comboType->addItem("Serial", QVariant(SettingsModel::CONNECTION_TYPE_SERIAL));
@@ -67,7 +67,7 @@ void ConnectionForm::setState(bool bEnabled)
     {
         _pUi->lineIP->setEnabled(false);
         _pUi->spinPort->setEnabled(false);
-        _pUi->linePort->setEnabled(false);
+        _pUi->linePortName->setEnabled(false);
         _pUi->comboBaud->setEnabled(false);
         _pUi->comboParity->setEnabled(false);
         _pUi->comboDataBits->setEnabled(false);
@@ -88,7 +88,7 @@ void ConnectionForm::fillSettingsModel(SettingsModel* pSettingsModel, quint8 con
     pSettingsModel->setIpAddress(connectionId, _pUi->lineIP->text());
     pSettingsModel->setPort(connectionId, _pUi->spinPort->value());
 
-    pSettingsModel->setPortName(connectionId, _pUi->linePort->text());
+    pSettingsModel->setPortName(connectionId, _pUi->linePortName->text());
     pSettingsModel->setBaudrate(connectionId, static_cast<QSerialPort::BaudRate>(_pUi->comboBaud->currentData().toUInt()));
     pSettingsModel->setParity(connectionId, static_cast<QSerialPort::Parity>(_pUi->comboParity->currentData().toUInt()));
     pSettingsModel->setDatabits(connectionId, static_cast<QSerialPort::DataBits>(_pUi->comboDataBits->currentData().toUInt()));
@@ -108,7 +108,7 @@ void ConnectionForm::enableSpecificSettings()
 
     _pUi->lineIP->setEnabled(bTcp);
     _pUi->spinPort->setEnabled(bTcp);
-    _pUi->linePort->setEnabled(!bTcp);
+    _pUi->linePortName->setEnabled(!bTcp);
     _pUi->comboBaud->setEnabled(!bTcp);
     _pUi->comboParity->setEnabled(!bTcp);
     _pUi->comboDataBits->setEnabled(!bTcp);

@@ -74,7 +74,7 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QLineEdit" name="linePort">
+       <widget class="QLineEdit" name="linePortName">
         <property name="enabled">
          <bool>false</bool>
         </property>
