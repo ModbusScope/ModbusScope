@@ -75,6 +75,8 @@ public:
     quint32 pollTime();
     bool absoluteTimes();
 
+    QString connectionSettingsString(quint8 connectionId);
+
     static const QString defaultLogPath()
     {
         const QString cDefaultLogFileName = "ModbusScope-autolog.csv";

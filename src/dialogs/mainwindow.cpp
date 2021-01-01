@@ -221,24 +221,13 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     handleCommandLineArguments(cmdArguments);
 
-#if 0
+#if 1
     //Debugging
     _pGraphDataModel->add();
-    _pGraphDataModel->add();
-    _pGraphDataModel->add();
-    _pGraphDataModel->add();
+    _pGraphDataModel->setRegisterAddress(0, 49001);
 
     //_pGraphDataModel->setActive(2, false);
 
-    _pSettingsModel->setPollTime(1000);
-
-    _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_0, "192.168.0.142");
-    _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_1, "192.168.0.142");
-
-    //_pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_0, "127.0.0.1");
-
-    _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_0, 5020);
-    _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_1, 5020);
 #endif
 
 }
