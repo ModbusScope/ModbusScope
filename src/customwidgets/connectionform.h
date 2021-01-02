@@ -2,9 +2,7 @@
 #define CONNECTIONFORM_H
 
 #include <QWidget>
-
-/* Forward declaration */
-class SettingsModel;
+#include "settingsmodel.h"
 
 namespace Ui {
 class ConnectionForm;
@@ -19,6 +17,23 @@ public:
     ~ConnectionForm();
 
     void fillSettingsModel(SettingsModel* pSettingsModel, quint8 connectionId);
+
+    void setConnectionType(SettingsModel::ConnectionType_t connectionType);
+
+    void setPortName(QString portName);
+    void setParity(QSerialPort::Parity parity);
+    void setBaudrate(QSerialPort::BaudRate baudrate);
+    void setDatabits(QSerialPort::DataBits databits);
+    void setStopbits(QSerialPort::StopBits stopbits);
+
+    void setIpAddress(QString ip);
+    void setPort(quint16 port);
+
+    void setSlaveId(quint8 id);
+    void setTimeout(quint32 timeout);
+    void setConsecutiveMax(quint8 max);
+    void setInt32LittleEndian(bool int32LittleEndian);
+    void setPersistentConnection(bool persistentConnection);
 
 public slots:
     void setState(bool bEnabled);

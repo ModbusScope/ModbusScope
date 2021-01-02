@@ -113,6 +113,9 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
                 _pSettingsModel->setIpAddress(connectionId, pProjectSettings->general.connectionSettings[idx].ip);
             }
 
+            /* TODO for now: default to TCP */
+            _pSettingsModel->setConnectionType(connectionId, SettingsModel::CONNECTION_TYPE_TCP);
+
             if (pProjectSettings->general.connectionSettings[idx].bPort)
             {
                  _pSettingsModel->setPort(connectionId, pProjectSettings->general.connectionSettings[idx].port);

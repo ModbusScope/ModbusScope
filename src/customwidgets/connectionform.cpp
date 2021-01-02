@@ -9,8 +9,6 @@ ConnectionForm::ConnectionForm(QWidget *parent) :
 {
     _pUi->setupUi(this);
 
-    _pUi->linePortName->setText(QStringLiteral("/dev/ttyUSB0"));
-
     _pUi->comboType->addItem("TCP", QVariant(SettingsModel::CONNECTION_TYPE_TCP));
     _pUi->comboType->addItem("Serial", QVariant(SettingsModel::CONNECTION_TYPE_SERIAL));
     _pUi->comboType->setCurrentIndex(0);
@@ -93,6 +91,91 @@ void ConnectionForm::fillSettingsModel(SettingsModel* pSettingsModel, quint8 con
     pSettingsModel->setParity(connectionId, static_cast<QSerialPort::Parity>(_pUi->comboParity->currentData().toUInt()));
     pSettingsModel->setDatabits(connectionId, static_cast<QSerialPort::DataBits>(_pUi->comboDataBits->currentData().toUInt()));
     pSettingsModel->setStopbits(connectionId, static_cast<QSerialPort::StopBits>(_pUi->comboStopBits->currentData().toUInt()));
+}
+
+void ConnectionForm::setConnectionType(SettingsModel::ConnectionType_t connectionType)
+{
+    int index = _pUi->comboType->findData(QVariant(connectionType));
+    if (index != -1)
+    {
+       _pUi->comboType->setCurrentIndex(index);
+    }
+}
+
+void ConnectionForm::setPortName(QString portName)
+{
+    _pUi->linePortName->setText(portName);
+}
+
+void ConnectionForm::setParity(QSerialPort::Parity parity)
+{
+    int index = _pUi->comboParity->findData(QVariant(parity));
+    if (index != -1)
+    {
+       _pUi->comboParity->setCurrentIndex(index);
+    }
+}
+
+void ConnectionForm::setBaudrate(QSerialPort::BaudRate baudrate)
+{
+    int index = _pUi->comboBaud->findData(QVariant(baudrate));
+    if (index != -1)
+    {
+       _pUi->comboBaud->setCurrentIndex(index);
+    }
+}
+
+void ConnectionForm::setDatabits(QSerialPort::DataBits databits)
+{
+    int index = _pUi->comboDataBits->findData(QVariant(databits));
+    if (index != -1)
+    {
+       _pUi->comboDataBits->setCurrentIndex(index);
+    }
+}
+
+void ConnectionForm::setStopbits(QSerialPort::StopBits stopbits)
+{
+    int index = _pUi->comboStopBits->findData(QVariant(stopbits));
+    if (index != -1)
+    {
+       _pUi->comboStopBits->setCurrentIndex(index);
+    }
+}
+
+void ConnectionForm::setIpAddress(QString ip)
+{
+    _pUi->lineIP->setText(ip);
+}
+
+void ConnectionForm::setPort(quint16 port)
+{
+    _pUi->spinPort->setValue(port);
+}
+
+void ConnectionForm::setSlaveId(quint8 id)
+{
+    _pUi->spinSlaveId->setValue(id);
+}
+
+void ConnectionForm::setTimeout(quint32 timeout)
+{
+    _pUi->spinTimeout->setValue(timeout);
+}
+
+void ConnectionForm::setConsecutiveMax(quint8 max)
+{
+    _pUi->spinConsecutiveMax->setValue(max);
+}
+
+void ConnectionForm::setInt32LittleEndian(bool int32LittleEndian)
+{
+    _pUi->checkInt32LittleEndian->setChecked(int32LittleEndian);
+}
+
+void ConnectionForm::setPersistentConnection(bool persistentConnection)
+{
+    _pUi->checkPersistentConn->setChecked(persistentConnection);
 }
 
 void ConnectionForm::connTypeSelected(qint32 index)
