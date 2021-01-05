@@ -16,6 +16,8 @@ install:
   # Remove git sh.exe from PATH (required for CMAKE)
   - cmd: set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
   - cmd: cmake --version
+
+  - cmd: ninja --version
   
   - cmd: echo %PATH%
 
@@ -25,8 +27,8 @@ build_script:
   - cmd: mkdir build
   - cmd: cd build
   
-  - cmd: cmake .. -G "MinGW Makefiles"
-  - cmd: mingw32-make -j2
+  - cmd: cmake .. -G "Ninja"
+  - cmd: ninja
 
   - cmd: mkdir deploy
   - cmd: copy src\ModbusScope.exe deploy
