@@ -21,7 +21,11 @@ install:
   # install CMake
   - sudo apt install -qq cmake
   - cmake -version
-  
+
+  # install Ninja
+  - sudo apt install -qq ninja-build
+  - ninja --version
+
   # Dependency for Qt
   - sudo apt install -qq mesa-common-dev libglu1-mesa-dev
   
@@ -37,8 +41,8 @@ addons:
       name: "jgeudens/ModbusScope"
       description: "ModbusScope"
     notification_email: jensgeudens@hotmail.com
-    build_command_prepend: "cmake ."
-    build_command: "make -j4"
+    build_command_prepend: "cmake . -GNinja"
+    build_command: "ninja"
     branch_pattern: coverity_scan
 
 script:
@@ -50,7 +54,7 @@ script:
 
   - git submodule update --init --recursive
 
-  - cmake .
-  - make -j$(nproc)
+  - cmake . -GNinja
+  - ninja
 
   - python3 ./tests/run_tests.py
