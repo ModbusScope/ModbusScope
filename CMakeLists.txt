@@ -52,6 +52,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/libraries/muparser/include
 )
 
+enable_testing()
 
 add_subdirectory(libraries)
 add_subdirectory(src)

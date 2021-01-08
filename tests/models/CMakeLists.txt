@@ -18,10 +18,10 @@ add_executable(tst_diagnosticmodel ${CMAKE_CURRENT_SOURCE_DIR}/testdiagnosticmod
 add_executable(tst_graphdata ${CMAKE_CURRENT_SOURCE_DIR}/testgraphdata.cpp ${TEST_SRCS})
 add_executable(tst_mbcregistermodel ${CMAKE_CURRENT_SOURCE_DIR}/testmbcregistermodel.cpp ${TEST_SRCS} ${GOOGLE_TEST_SOURCE})
 
-add_test(tst_diagnostic COMMAND tst_diagnostic)
-add_test(tst_diagnosticmodel COMMAND tst_diagnosticmodel)
-add_test(tst_graphdata COMMAND tst_graphdata)
-add_test(tst_mbcregistermodel COMMAND tst_mbcregistermodel)
+add_test(NAME tst_diagnostic COMMAND tst_diagnostic)
+add_test(NAME tst_diagnosticmodel COMMAND tst_diagnosticmodel)
+add_test(NAME tst_graphdata COMMAND tst_graphdata)
+add_test(NAME tst_mbcregistermodel COMMAND tst_mbcregistermodel)
 
 target_link_libraries(tst_diagnostic  PRIVATE
     ${SCOPESOURCE}

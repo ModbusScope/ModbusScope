@@ -26,11 +26,11 @@ add_executable(tst_settingsauto ${CMAKE_CURRENT_SOURCE_DIR}/testsettingsauto.cpp
 add_executable(tst_updateregisteroperations ${CMAKE_CURRENT_SOURCE_DIR}/testupdateregisteroperations.cpp)
 
 
-add_test(tst_datafileparser COMMAND tst_datafileparser)
-add_test(tst_mbcfileimporter COMMAND tst_mbcfileimporter)
-add_test(tst_projectfileparser COMMAND tst_projectfileparser)
-add_test(tst_settingsauto COMMAND tst_settingsauto)
-add_test(tst_updateregisteroperations COMMAND tst_updateregisteroperations)
+add_test(NAME tst_datafileparser COMMAND tst_datafileparser)
+add_test(NAME tst_mbcfileimporter COMMAND tst_mbcfileimporter)
+add_test(NAME tst_projectfileparser COMMAND tst_projectfileparser)
+add_test(NAME tst_settingsauto COMMAND tst_settingsauto)
+add_test(NAME tst_updateregisteroperations COMMAND tst_updateregisteroperations)
 
 
 target_link_libraries(tst_datafileparser PRIVATE
