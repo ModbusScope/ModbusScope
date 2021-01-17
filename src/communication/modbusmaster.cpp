@@ -42,6 +42,8 @@ ModbusMaster::~ModbusMaster()
 {
     _pModbusConnection->disconnect();
 
+    _pModbusConnection->closeConnection();
+
     delete _pModbusConnection;
     delete _pReadRegisters;
 }
