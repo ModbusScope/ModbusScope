@@ -17,9 +17,9 @@ add_executable(tst_updatenotify ${CMAKE_CURRENT_SOURCE_DIR}/testupdatenotify.cpp
 add_executable(tst_qmuparser ${CMAKE_CURRENT_SOURCE_DIR}/testqmuparser.cpp ${TEST_DATA_SRCS})
 add_executable(tst_formatrelativetime ${CMAKE_CURRENT_SOURCE_DIR}/testformatrelativetime.cpp ${TEST_DATA_SRCS})
 
-add_test(tst_updatenotify COMMAND tst_updatenotify)
-add_test(tst_qmuparser COMMAND tst_qmuparser)
-add_test(tst_formatrelativetime COMMAND tst_formatrelativetime)
+add_test(NAME tst_updatenotify COMMAND tst_updatenotify)
+add_test(NAME tst_qmuparser COMMAND tst_qmuparser)
+add_test(NAME tst_formatrelativetime COMMAND tst_formatrelativetime)
 
 target_link_libraries(tst_updatenotify  PRIVATE
     ${SCOPESOURCE}

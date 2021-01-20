@@ -25,11 +25,11 @@ add_executable(tst_modbusmaster ${CMAKE_CURRENT_SOURCE_DIR}/testmodbusmaster.cpp
 add_executable(tst_registervaluehandler ${CMAKE_CURRENT_SOURCE_DIR}/testregistervaluehandler.cpp ${TEST_SRCS})
 add_executable(tst_readregisters ${CMAKE_CURRENT_SOURCE_DIR}/testreadregisters.cpp ${TEST_SRCS})
 
-add_test(tst_communicationmanager COMMAND tst_communicationmanager)
-add_test(tst_modbusconnection COMMAND tst_modbusconnection)
-add_test(tst_modbusmaster COMMAND tst_modbusmaster)
-add_test(tst_registervaluehandler COMMAND tst_registervaluehandler)
-add_test(tst_readregisters COMMAND tst_readregisters)
+add_test(NAME tst_communicationmanager COMMAND tst_communicationmanager)
+add_test(NAME tst_modbusconnection COMMAND tst_modbusconnection)
+add_test(NAME tst_modbusmaster COMMAND tst_modbusmaster)
+add_test(NAME tst_registervaluehandler COMMAND tst_registervaluehandler)
+add_test(NAME tst_readregisters COMMAND tst_readregisters)
 
 target_link_libraries(tst_communicationmanager  PRIVATE
     ${SCOPESOURCE}

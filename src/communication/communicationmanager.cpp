@@ -41,6 +41,14 @@ CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiMo
 
 CommunicationManager::~CommunicationManager()
 {
+    for (quint8 i = 0u; i < _modbusMasters.size(); i++)
+    {
+        _modbusMasters[i]->pModbusMaster->disconnect();
+
+        delete _modbusMasters[i]->pModbusMaster;
+        delete _modbusMasters[i];
+    }
+
     delete _pPollTimer;
 }
 

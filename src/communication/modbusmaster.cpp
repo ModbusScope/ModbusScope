@@ -40,6 +40,10 @@ ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, quint8 connectionId) 
 
 ModbusMaster::~ModbusMaster()
 {
+    _pModbusConnection->disconnect();
+
+    _pModbusConnection->closeConnection();
+
     delete _pModbusConnection;
     delete _pReadRegisters;
 }
