@@ -30,6 +30,8 @@ build_script:
   - cmd: cmake .. -G "Ninja"
   - cmd: ninja
 
+  - cmd: ctest
+
   - cmd: mkdir deploy
   - cmd: copy src\ModbusScope.exe deploy
   - cmd: cd deploy
