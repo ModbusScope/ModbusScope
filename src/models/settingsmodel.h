@@ -75,7 +75,7 @@ public:
     quint32 pollTime();
     bool absoluteTimes();
 
-    QString connectionSettingsString(quint8 connectionId);
+    void serialConnectionStrings(quint8 connectionId, QString &strParity, QString &strDataBits, QString &strStopBits);
 
     static const QString defaultLogPath()
     {

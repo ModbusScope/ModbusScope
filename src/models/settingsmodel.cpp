@@ -477,62 +477,35 @@ void SettingsModel::setTimeout(quint8 connectionId, quint32 timeout)
     }
 }
 
-QString SettingsModel::connectionSettingsString(quint8 connectionId)
+void SettingsModel::serialConnectionStrings(quint8 connectionId, QString &strParity, QString &strDataBits, QString &strStopBits)
 {
-    QString str;
-
-    if (connectionType(connectionId) == SettingsModel::CONNECTION_TYPE_TCP)
+    switch(parity(connectionId))
     {
-        str = QString("[Conn %0] %1:%2 - slave id %3")
-                        .arg(connectionId + 1)
-                        .arg(ipAddress(connectionId))
-                        .arg(port(connectionId))
-                        .arg(slaveId(connectionId))
-                        ;
-    }
-    else
-    {
-        QString strParity;
-        switch(parity(connectionId))
-        {
-            case QSerialPort::NoParity: strParity = QStringLiteral("no parity");   break;
-            case QSerialPort::EvenParity: strParity = QStringLiteral("even parity");   break;
-            case QSerialPort::OddParity: strParity = QStringLiteral("odd  parity");   break;
+        case QSerialPort::NoParity: strParity = QStringLiteral("no parity");   break;
+        case QSerialPort::EvenParity: strParity = QStringLiteral("even parity");   break;
+        case QSerialPort::OddParity: strParity = QStringLiteral("odd  parity");   break;
 
-            default: strParity = QStringLiteral("unknown parity");   break;
-        }
-
-        QString strDataBits;
-        switch(databits(connectionId))
-        {
-            case QSerialPort::Data5: strDataBits = QStringLiteral("5 data bits");   break;
-            case QSerialPort::Data6: strDataBits = QStringLiteral("6 data bits");   break;
-            case QSerialPort::Data7: strDataBits = QStringLiteral("7 data bits");   break;
-            case QSerialPort::Data8: strDataBits = QStringLiteral("8 data bits");   break;
-
-            default: strDataBits = QStringLiteral("unknown data bits");   break;
-        }
-
-        QString strStopBits;
-        switch(stopbits(connectionId))
-        {
-            case QSerialPort::OneStop: strStopBits = QStringLiteral("1 stop bit");   break;
-            case QSerialPort::OneAndHalfStop: strStopBits = QStringLiteral("1,5 stop bits");   break;
-            case QSerialPort::TwoStop: strStopBits = QStringLiteral("2 stop bits");   break;
-
-            default: strStopBits = QStringLiteral("unknown stop bits");   break;
-        }
-
-        str = QString("[Conn %0] %1, %2, %3, %4, %5 - slave id %6")
-                        .arg(connectionId + 1)
-                        .arg(portName(connectionId))
-                        .arg(baudrate(connectionId))
-                        .arg(strParity, strDataBits, strStopBits)
-                        .arg(slaveId(connectionId))
-                        ;
+        default: strParity = QStringLiteral("unknown parity");   break;
     }
 
-    return str;
+    switch(databits(connectionId))
+    {
+        case QSerialPort::Data5: strDataBits = QStringLiteral("5 data bits");   break;
+        case QSerialPort::Data6: strDataBits = QStringLiteral("6 data bits");   break;
+        case QSerialPort::Data7: strDataBits = QStringLiteral("7 data bits");   break;
+        case QSerialPort::Data8: strDataBits = QStringLiteral("8 data bits");   break;
+
+        default: strDataBits = QStringLiteral("unknown data bits");   break;
+    }
+
+    switch(stopbits(connectionId))
+    {
+        case QSerialPort::OneStop: strStopBits = QStringLiteral("1 stop bit");   break;
+        case QSerialPort::OneAndHalfStop: strStopBits = QStringLiteral("1,5 stop bits");   break;
+        case QSerialPort::TwoStop: strStopBits = QStringLiteral("2 stop bits");   break;
+
+        default: strStopBits = QStringLiteral("unknown stop bits");   break;
+    }
 }
 
 

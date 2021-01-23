@@ -73,7 +73,33 @@ bool CommunicationManager::startCommunication()
         {
             if (_pSettingsModel->connectionState(i))
             {
-                qCInfo(scopeCommConnection) << _pSettingsModel->connectionSettingsString(i);
+                QString str;
+                if (_pSettingsModel->connectionType(i) == SettingsModel::CONNECTION_TYPE_TCP)
+                {
+                    str = QString("[Conn %0] %1:%2 - slave id %3")
+                                    .arg(i + 1)
+                                    .arg(_pSettingsModel->ipAddress(i))
+                                    .arg(_pSettingsModel->port(i))
+                                    .arg(_pSettingsModel->slaveId(i))
+                                    ;
+                }
+                else
+                {
+                    QString strParity;
+                    QString strDataBits;
+                    QString strStopBits;
+                    _pSettingsModel->serialConnectionStrings(i, strParity, strDataBits, strStopBits);
+
+                    str = QString("[Conn %0] %1, %2, %3, %4, %5 - slave id %6")
+                                    .arg(i + 1)
+                                    .arg(_pSettingsModel->portName(i))
+                                    .arg(_pSettingsModel->baudrate(i))
+                                    .arg(strParity, strDataBits, strStopBits)
+                                    .arg(_pSettingsModel->slaveId(i))
+                                    ;
+                }
+
+                qCInfo(scopeCommConnection) << str;
             }
         }
 
