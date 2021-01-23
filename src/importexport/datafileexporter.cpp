@@ -302,10 +302,10 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
         {
             if (_pSettingsModel->connectionState(i))
             {
-                header.append(comment + "Slave IP (Connection ID " + QString::number(i) + ")" + Util::separatorCharacter() + _pSettingsModel->ipAddress(i) + ":" + QString::number(_pSettingsModel->port(i)));
-                header.append(comment + "Slave ID (Connection ID " + QString::number(i) + ")" + Util::separatorCharacter() + QString::number(_pSettingsModel->slaveId(i)));
-                header.append(comment + "Time-out (Connection ID " + QString::number(i) + ")" + Util::separatorCharacter() + QString::number(_pSettingsModel->timeout(i)));
-                header.append(comment + "Consecutive max (Connection ID " + QString::number(i) + ")" + Util::separatorCharacter() + QString::number(_pSettingsModel->consecutiveMax(i)));
+                header.append(comment + constructConnSettings(i));
+                header.append(comment + "Slave ID (Connection ID " + QString::number(i + 1) + ")" + Util::separatorCharacter() + QString::number(_pSettingsModel->slaveId(i)));
+                header.append(comment + "Time-out (Connection ID " + QString::number(i + 1) + ")" + Util::separatorCharacter() + QString::number(_pSettingsModel->timeout(i)));
+                header.append(comment + "Consecutive max (Connection ID " + QString::number(i + 1) + ")" + Util::separatorCharacter() + QString::number(_pSettingsModel->consecutiveMax(i)));
             }
         }
 
@@ -332,6 +332,40 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
     }
 
     return header;
+}
+
+QString DataFileExporter::constructConnSettings(quint8 connectionId)
+{
+    QString strSettings;
+
+    if (_pSettingsModel->connectionType(connectionId) == SettingsModel::CONNECTION_TYPE_TCP)
+    {
+        strSettings = _pSettingsModel->ipAddress(connectionId) + ":" + QString::number(_pSettingsModel->port(connectionId));
+    }
+    else
+    {
+        QString strParity;
+        QString strDataBits;
+        QString strStopBits;
+        _pSettingsModel->serialConnectionStrings(connectionId, strParity, strDataBits, strStopBits);
+
+        strSettings = QString("%0%1%2%3%4%5%6%7%8")
+                             .arg(_pSettingsModel->portName(connectionId))
+                             .arg(Util::separatorCharacter())
+                             .arg(_pSettingsModel->baudrate(connectionId))
+                             .arg(Util::separatorCharacter())
+                             .arg(strParity)
+                             .arg(Util::separatorCharacter())
+                             .arg(strDataBits)
+                             .arg(Util::separatorCharacter())
+                             .arg(strStopBits);
+
+    }
+
+    return QString("Settings (Connection ID %0)%1%2")
+                          .arg(connectionId + 1)
+                          .arg(Util::separatorCharacter())
+                          .arg(strSettings);
 }
 
 QString DataFileExporter::createNoteRows(void)
