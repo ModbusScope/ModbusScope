@@ -17,6 +17,13 @@ namespace ProjectFileDefinitions
     const QString cConnectionIdTag = QString("connectionid");
     const QString cSlaveIdTag = QString("slaveid");
     const QString cPortTag = QString("port");
+    const QString cConnectionEnabledTag = QString("enabled");
+    const QString cConnectionTypeTag = QString("type");
+    const QString cPortNameTag = QString("portname");
+    const QString cParityTag = QString("parity");
+    const QString cBaudrateTag = QString("baudrate");
+    const QString cDataBitsTag = QString("databits");
+    const QString cStopBitsTag = QString("stopbits");
     const QString cTimeoutTag = QString("timeout");
     const QString cConsecutiveMaxTag = QString("consecutivemax");
     const QString cInt32LittleEndianTag = QString("int32littleendian");
