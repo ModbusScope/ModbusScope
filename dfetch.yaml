@@ -1,0 +1,23 @@
+manifest:
+  version: '0.0'
+  remotes:
+
+  - name: github-com-beltoforion
+    url-base: https://github.com/beltoforion
+
+  - name: github-com-google
+    url-base: https://github.com/google
+  projects:
+
+  - name: libraries/muparser
+    revision: 207d5b77c05c9111ff51ab91082701221220c477
+    remote: github-com-beltoforion
+    dst: libraries/muparser
+    branch: v2.3.2
+    repo-path: muparser.git
+
+  - name: tests/googletest
+    revision: dcc92d0ab6c4ce022162a23566d44f673251eee4
+    remote: github-com-google
+    dst: tests/googletest
+    repo-path: googletest.git
