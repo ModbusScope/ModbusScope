@@ -1,0 +1,5 @@
+dfetch:
+  branch: v2.3.2
+  last_fetch: 29/01/2021, 17:28:38
+  remote_url: https://github.com/beltoforion/muparser.git
+  revision: 207d5b77c05c9111ff51ab91082701221220c477
