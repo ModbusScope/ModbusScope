@@ -7,10 +7,10 @@ class ProjectFileTestData: public QObject
 
 public:
     static QString cLegacyRegExpressions;
-
     static QString cBothLegacyAndNewRegExpressions;
-
     static QString cNewRegExpressions;
+
+    static QString cConnLegacySingle;
 
 private:
 

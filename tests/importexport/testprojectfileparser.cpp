@@ -69,4 +69,31 @@ void TestProjectFileParser::bothLegacyNewRegExpressions()
 
 }
 
+void TestProjectFileParser::connLegacySingles()
+{
+    ProjectFileParser projectParser;
+    ProjectFileData::ProjectSettings settings;
+
+    QVERIFY(projectParser.parseFile(ProjectFileTestData::cConnLegacySingle, &settings));
+
+    QVERIFY(settings.general.connectionSettings[0].bIp);
+    QCOMPARE(settings.general.connectionSettings[0].ip, "127.0.0.2");
+
+    QVERIFY(settings.general.connectionSettings[0].bConnectionId == false);
+
+    QVERIFY(settings.general.connectionSettings[0].bPort);
+    QCOMPARE(settings.general.connectionSettings[0].port, 5020);
+
+    QVERIFY(settings.general.connectionSettings[0].bSlaveId);
+    QCOMPARE(settings.general.connectionSettings[0].slaveId, 2);
+
+    QVERIFY(settings.general.connectionSettings[0].bTimeout);
+    QCOMPARE(settings.general.connectionSettings[0].timeout, 10000);
+
+    QVERIFY(settings.general.connectionSettings[0].bConsecutiveMax);
+    QCOMPARE(settings.general.connectionSettings[0].consecutiveMax, 200);
+}
+
+
+
 QTEST_GUILESS_MAIN(TestProjectFileParser)

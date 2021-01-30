@@ -13,6 +13,9 @@ private slots:
     void newRegExpressions();
     void bothLegacyNewRegExpressions();
 
+
+    void connLegacySingles();
+
 private:
 
 };

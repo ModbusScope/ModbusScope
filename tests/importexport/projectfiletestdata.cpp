@@ -58,3 +58,17 @@ QString ProjectFileTestData::cNewRegExpressions = QString(
     "  </scope>                                                     \n"\
     "</modbusscope>                                                 \n"
 );
+
+QString ProjectFileTestData::cConnLegacySingle = QString(
+    "<modbusscope datalevel=\"2\">                                   \n"\
+    "	<modbus>                                                     \n"\
+    "		<connection>                                             \n"\
+    "			<ip>127.0.0.2</ip>                                   \n"\
+    "			<port>5020</port>                                    \n"\
+    "			<slaveid>2</slaveid>                                 \n"\
+    "			<timeout>10000</timeout>                             \n"\
+    "			<consecutivemax>200</consecutivemax>                 \n"\
+    "		</connection>                                            \n"\
+    "	</modbus>                                                    \n"\
+    "</modbusscope>                                                  \n"
+);
