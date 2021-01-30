@@ -17,7 +17,8 @@ manifest:
     repo-path: muparser.git
 
   - name: tests/googletest
-    revision: dcc92d0ab6c4ce022162a23566d44f673251eee4
+    revision: 273f8cb059a4e7b089731036392422b5ef489791
     remote: github-com-google
     dst: tests/googletest
+    branch: master
     repo-path: googletest.git

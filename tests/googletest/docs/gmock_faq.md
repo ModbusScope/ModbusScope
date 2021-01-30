@@ -1,11 +1,9 @@
 ## Legacy gMock FAQ {#GMockFaq}
 
-<!-- GOOGLETEST_CM0021 DO NOT DELETE -->
-
 ### When I call a method on my mock object, the method for the real object is invoked instead. What's the problem?
 
 In order for a method to be mocked, it must be *virtual*, unless you use the
-[high-perf dependency injection technique](#MockingNonVirtualMethods).
+[high-perf dependency injection technique](gmock_cook_book.md#MockingNonVirtualMethods).
 
 ### Can I mock a variadic function?
 
@@ -81,8 +79,6 @@ void Bar(int* p);         // Neither p nor *p is const.
 void Bar(const int* p);  // p is not const, but *p is.
 ```
 
-<!-- GOOGLETEST_CM0030 DO NOT DELETE -->
-
 ### I can't figure out why gMock thinks my expectations are not satisfied. What should I do?
 
 You might want to run your test with `--gmock_verbose=info`. This flag lets
@@ -91,9 +87,9 @@ trace, you'll gain insights on why the expectations you set are not met.
 
 If you see the message "The mock function has no default action set, and its
 return type has no default value set.", then try
-[adding a default action](for_dummies.md#DefaultValue). Due to a known issue,
-unexpected calls on mocks without default actions don't print out a detailed
-comparison between the actual arguments and the expected arguments.
+[adding a default action](gmock_for_dummies.md#DefaultValue). Due to a known
+issue, unexpected calls on mocks without default actions don't print out a
+detailed comparison between the actual arguments and the expected arguments.
 
 ### My program crashed and `ScopedMockLog` spit out tons of messages. Is it a gMock bug?
 
@@ -125,8 +121,6 @@ using ::testing::_;
   EXPECT_CALL(foo, Bar(_))
       .Times(0);
 ```
-
-<!-- GOOGLETEST_CM0031 DO NOT DELETE -->
 
 ### I have a failed test where gMock tells me TWICE that a particular expectation is not satisfied. Isn't this redundant?
 
@@ -386,8 +380,8 @@ doesn't say what the return value should be. You need `DoAll()` to chain a
 `SetArgPointee()` with a `Return()` that provides a value appropriate to the API
 being mocked.
 
-See this [recipe](cook_book.md#mocking-side-effects) for more details and an
-example.
+See this [recipe](gmock_cook_book.md#mocking-side-effects) for more details and
+an example.
 
 ### I have a huge mock class, and Microsoft Visual C++ runs out of memory when compiling it. What can I do?
 

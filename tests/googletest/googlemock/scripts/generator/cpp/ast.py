@@ -36,6 +36,7 @@ except ImportError:
   # Python 2.x
   import __builtin__ as builtins
 
+import collections
 import sys
 import traceback
 
@@ -1433,7 +1434,7 @@ class AstBuilder(object):
     pass  # Not needed yet.
 
   def _GetTemplatedTypes(self):
-    result = {}
+    result = collections.OrderedDict()
     tokens = list(self._GetMatchingChar('<', '>'))
     len_tokens = len(tokens) - 1    # Ignore trailing '>'.
     i = 0
@@ -1599,12 +1600,11 @@ class AstBuilder(object):
                       bases, templated_types, body, self.namespace_stack)
 
   def handle_namespace(self):
-    token = self._GetNextToken()
     # Support anonymous namespaces.
     name = None
-    if token.token_type == tokenize.NAME:
-      name = token.name
-      token = self._GetNextToken()
+    name_tokens, token = self.GetName()
+    if name_tokens:
+      name = ''.join([t.name for t in name_tokens])
     self.namespace_stack.append(name)
     assert token.token_type == tokenize.SYNTAX, token
     # Create an internal token that denotes when the namespace is complete.
