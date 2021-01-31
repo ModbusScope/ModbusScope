@@ -85,7 +85,7 @@ QString ProjectFileTestData::cConnLegacyDual = QString(
     "   <timeout>1001</timeout>                                     \n"\
     "   <consecutivemax>250</consecutivemax>                        \n"\
     "   <int32littleendian>true</int32littleendian>                 \n"\
-    "   <persistentconnection>true</persistentconnection>           \n"\
+    "   <persistentconnection>false</persistentconnection>           \n"\
     "  </connection>                                                \n"\
     "  <connection>                                                 \n"\
     "   <connectionid>1</connectionid>                              \n"\
@@ -94,7 +94,7 @@ QString ProjectFileTestData::cConnLegacyDual = QString(
     "   <slaveid>3</slaveid>                                        \n"\
     "   <timeout>1002</timeout>                                     \n"\
     "   <consecutivemax>251</consecutivemax>                        \n"\
-    "   <int32littleendian>true</int32littleendian>                 \n"\
+    "   <int32littleendian>false</int32littleendian>                 \n"\
     "   <persistentconnection>true</persistentconnection>           \n"\
     "  </connection>                                                \n"\
     " </modbus>                                                     \n"\

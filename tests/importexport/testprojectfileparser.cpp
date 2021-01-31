@@ -125,7 +125,7 @@ void TestProjectFileParser::connLegacyDual()
     QCOMPARE(settings.general.connectionSettings[0].consecutiveMax, 250);
 
     QVERIFY(settings.general.connectionSettings[0].bInt32LittleEndian);
-    QVERIFY(settings.general.connectionSettings[0].bPersistentConnection);
+    QVERIFY(settings.general.connectionSettings[0].bPersistentConnection == false);
 
     /* Connection id 1 */
     QVERIFY(settings.general.connectionSettings[1].bIp);
@@ -146,7 +146,7 @@ void TestProjectFileParser::connLegacyDual()
     QVERIFY(settings.general.connectionSettings[1].bConsecutiveMax);
     QCOMPARE(settings.general.connectionSettings[1].consecutiveMax, 251);
 
-    QVERIFY(settings.general.connectionSettings[1].bInt32LittleEndian);
+    QVERIFY(settings.general.connectionSettings[1].bInt32LittleEndian == false);
     QVERIFY(settings.general.connectionSettings[1].bPersistentConnection);
 
 }
