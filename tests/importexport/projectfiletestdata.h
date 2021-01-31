@@ -11,6 +11,7 @@ public:
     static QString cNewRegExpressions;
 
     static QString cConnLegacySingle;
+    static QString cConnLegacyDual;
 
 private:
 

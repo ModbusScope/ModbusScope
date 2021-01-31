@@ -72,3 +72,31 @@ QString ProjectFileTestData::cConnLegacySingle = QString(
     "	</modbus>                                                    \n"\
     "</modbusscope>                                                  \n"
 );
+
+QString ProjectFileTestData::cConnLegacyDual = QString(
+    "<?xml version=\"1.0\"?>                                          \n"\
+    "<modbusscope datalevel=\"2\">                                    \n"\
+    " <modbus>                                                      \n"\
+    "  <connection>                                                 \n"\
+    "   <connectionid>0</connectionid>                              \n"\
+    "   <ip>127.0.0.2</ip>                                          \n"\
+    "   <port>5020</port>                                            \n"\
+    "   <slaveid>2</slaveid>                                        \n"\
+    "   <timeout>1001</timeout>                                     \n"\
+    "   <consecutivemax>250</consecutivemax>                        \n"\
+    "   <int32littleendian>true</int32littleendian>                 \n"\
+    "   <persistentconnection>true</persistentconnection>           \n"\
+    "  </connection>                                                \n"\
+    "  <connection>                                                 \n"\
+    "   <connectionid>1</connectionid>                              \n"\
+    "   <ip>127.0.0.3</ip>                                          \n"\
+    "   <port>5021</port>                                            \n"\
+    "   <slaveid>3</slaveid>                                        \n"\
+    "   <timeout>1002</timeout>                                     \n"\
+    "   <consecutivemax>251</consecutivemax>                        \n"\
+    "   <int32littleendian>true</int32littleendian>                 \n"\
+    "   <persistentconnection>true</persistentconnection>           \n"\
+    "  </connection>                                                \n"\
+    " </modbus>                                                     \n"\
+    "</modbusscope>                                                 \n"
+);
