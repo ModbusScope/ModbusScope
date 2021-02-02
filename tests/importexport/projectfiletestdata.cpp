@@ -100,3 +100,97 @@ QString ProjectFileTestData::cConnLegacyDual = QString(
     " </modbus>                                                     \n"\
     "</modbusscope>                                                 \n"
 );
+
+QString ProjectFileTestData::cConnSerial = QString(
+            "<?xml version=\"1.0\"?>                                           \n"\
+            "<modbusscope datalevel=\"2\">                                     \n"\
+            " <modbus>                                                         \n"\
+            "  <connection>                                                    \n"\
+            "   <enabled>true</enabled>                                        \n"\
+            "   <connectionid>0</connectionid>                                 \n"\
+            "   <type>serial</type>                                            \n"\
+            "   <ip>127.0.0.1</ip>                                             \n"\
+            "   <port>502</port>                                               \n"\
+            "   <portname>/dev/ttyUSB2</portname>                              \n"\
+            "   <baudrate>9600</baudrate>                                      \n"\
+            "   <parity>0</parity>                                             \n"\
+            "   <stopbits>3</stopbits>                                         \n"\
+            "   <databits>7</databits>                                         \n"\
+            "   <slaveid>3</slaveid>                                           \n"\
+            "   <timeout>1003</timeout>                                        \n"\
+            "   <consecutivemax>12</consecutivemax>                            \n"\
+            "   <int32littleendian>true</int32littleendian>                    \n"\
+            "   <persistentconnection>true</persistentconnection>              \n"\
+            "  </connection>                                                   \n"\
+            " </modbus>                                                        \n"\
+            "</modbusscope>                                                    \n"
+        );
+
+QString ProjectFileTestData::cConnMixedMulti = QString(
+    "<?xml version=\"1.0\"?>                                           \n"\
+    "<modbusscope datalevel=\"2\">                                     \n"\
+    " <modbus>                                                         \n"\
+    "  <connection>                                                    \n"\
+    "   <enabled>true</enabled>                                        \n"\
+    "   <connectionid>0</connectionid>                                 \n"\
+    "   <type>tcp</type>                                               \n"\
+    "   <ip>127.0.0.2</ip>                                             \n"\
+    "   <port>5020</port>                                              \n"\
+    "   <portname>/dev/ttyUSB0</portname>                              \n"\
+    "   <baudrate>115200</baudrate>                                    \n"\
+    "   <parity>0</parity>                                             \n"\
+    "   <stopbits>1</stopbits>                                         \n"\
+    "   <databits>8</databits>                                         \n"\
+    "   <slaveid>2</slaveid>                                           \n"\
+    "   <timeout>1002</timeout>                                        \n"\
+    "   <consecutivemax>12</consecutivemax>                            \n"\
+    "   <int32littleendian>true</int32littleendian>                    \n"\
+    "   <persistentconnection>true</persistentconnection>              \n"\
+    "  </connection>                                                   \n"\
+    "  <connection>                                                    \n"\
+    "   <enabled>false</enabled>                                       \n"\
+    "   <connectionid>1</connectionid>                                 \n"\
+    "   <type>tcp</type>                                               \n"\
+    "   <ip>127.0.0.1</ip>                                             \n"\
+    "   <port>502</port>                                               \n"\
+    "   <portname>/dev/ttyUSB0</portname>                              \n"\
+    "   <baudrate>115200</baudrate>                                    \n"\
+    "   <parity>0</parity>                                             \n"\
+    "   <stopbits>1</stopbits>                                         \n"\
+    "   <databits>8</databits>                                         \n"\
+    "   <slaveid>1</slaveid>                                           \n"\
+    "   <timeout>1000</timeout>                                        \n"\
+    "   <consecutivemax>125</consecutivemax>                           \n"\
+    "   <int32littleendian>true</int32littleendian>                    \n"\
+    "   <persistentconnection>true</persistentconnection>              \n"\
+    "  </connection>                                                   \n"\
+    "  <connection>                                                    \n"\
+    "   <enabled>true</enabled>                                        \n"\
+    "   <connectionid>2</connectionid>                                 \n"\
+    "   <type>serial</type>                                            \n"\
+    "   <ip>127.0.0.1</ip>                                             \n"\
+    "   <port>502</port>                                               \n"\
+    "   <portname>/dev/ttyUSB2</portname>                              \n"\
+    "   <baudrate>9600</baudrate>                                      \n"\
+    "   <parity>0</parity>                                             \n"\
+    "   <stopbits>3</stopbits>                                         \n"\
+    "   <databits>7</databits>                                         \n"\
+    "   <slaveid>3</slaveid>                                           \n"\
+    "   <timeout>1003</timeout>                                        \n"\
+    "   <consecutivemax>12</consecutivemax>                            \n"\
+    "   <int32littleendian>true</int32littleendian>                    \n"\
+    "   <persistentconnection>true</persistentconnection>              \n"\
+    "  </connection>                                                   \n"\
+    " </modbus>                                                        \n"\
+    "</modbusscope>                                                    \n"
+);
+
+QString ProjectFileTestData::cConnEmpty = QString(
+        "<?xml version=\"1.0\"?>                                           \n"\
+        "<modbusscope datalevel=\"2\">                                     \n"\
+        " <modbus>                                                         \n"\
+        "  <connection>                                                    \n"\
+        "  </connection>                                                   \n"\
+        " </modbus>                                                        \n"\
+        "</modbusscope>                                                    \n"
+    );

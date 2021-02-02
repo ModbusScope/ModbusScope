@@ -75,17 +75,41 @@ namespace ProjectFileData
 
     typedef struct _ConnectionSettings
     {
-        _ConnectionSettings() : bIp(false), bConnectionId(false), bPort(false), bSlaveId(false), bTimeout(false),
+        _ConnectionSettings() : bConnectionId(false),
+                                bConnectionState(true), bConnectionType(false),
+                                bIp(false), bPort(false),
+                                bPortName(false), bBaudrate(false), bParity(false), stopbits(false), bDatabits(false),
+                                bSlaveId(false), bTimeout(false),
                                 bConsecutiveMax(false), bInt32LittleEndian(true), bPersistentConnection(true) {}
-
-        bool bIp;
-        QString ip;
 
         bool bConnectionId;
         quint8 connectionId;
 
+        bool bConnectionState;
+
+        bool bConnectionType;
+        QString connectionType;
+
+        bool bIp;
+        QString ip;
+
         bool bPort;
         quint16 port;
+
+        bool bPortName;
+        QString portName;
+
+        bool bBaudrate;
+        quint32 baudrate;
+
+        bool bParity;
+        quint32 parity;
+
+        bool bStopbits;
+        quint32 stopbits;
+
+        bool bDatabits;
+        quint32 databits;
 
         bool bSlaveId;
         quint8 slaveId;

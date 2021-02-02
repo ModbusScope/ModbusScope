@@ -13,6 +13,10 @@ public:
     static QString cConnLegacySingle;
     static QString cConnLegacyDual;
 
+    static QString cConnSerial;
+    static QString cConnMixedMulti;
+    static QString cConnEmpty;
+
 private:
 
 };

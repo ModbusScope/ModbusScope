@@ -16,6 +16,9 @@ private slots:
 
     void connLegacySingle();
     void connLegacyDual();
+    void connSerial();
+    void connMixedMulti();
+    void connEmpty();
 
 private:
 
