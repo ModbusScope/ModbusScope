@@ -3,7 +3,7 @@
 
 #include "testsettingsauto.h"
 
-#include "testdata.h"
+#include "csvdata.h"
 
 void TestSettingsAuto::init()
 {
@@ -18,12 +18,12 @@ void TestSettingsAuto::cleanup()
 void TestSettingsAuto::loadDataFullSample()
 {
     QStringList list;
-    QTextStream dataStream(&TestData::cModbusScopeOldFormat);
+    QTextStream dataStream(&CsvData::cModbusScopeOldFormat);
 
     SettingsAuto::loadDataFileSample(&dataStream, &list, 100);
 
     QStringList refList;
-    prepareReference(&TestData::cModbusScopeOldFormat, refList);
+    prepareReference(&CsvData::cModbusScopeOldFormat, refList);
 
     QCOMPARE(refList.size(), 16);
     QCOMPARE(refList, list);
@@ -32,14 +32,14 @@ void TestSettingsAuto::loadDataFullSample()
 void TestSettingsAuto::loadDataFullSampleLimited()
 {
     QStringList list;
-    QTextStream dataStream(&TestData::cModbusScopeOldFormat);
+    QTextStream dataStream(&CsvData::cModbusScopeOldFormat);
 
     const qint32 maxLine = 14;
 
     SettingsAuto::loadDataFileSample(&dataStream, &list, maxLine);
 
     QStringList refList;
-    prepareReference(&TestData::cModbusScopeOldFormat, refList);
+    prepareReference(&CsvData::cModbusScopeOldFormat, refList);
 
     QCOMPARE(list.size(), maxLine);
     for (int i = 0; i < maxLine; i++)
@@ -52,7 +52,7 @@ void TestSettingsAuto::processOldModbusScope()
 {
     SettingsAuto::settingsData_t settingsData;
 
-    QVERIFY(processFile(&TestData::cModbusScopeOldFormat, &settingsData));
+    QVERIFY(processFile(&CsvData::cModbusScopeOldFormat, &settingsData));
 
     QCOMPARE(settingsData.bModbusScopeDataFile, true);
     QCOMPARE(settingsData.fieldSeparator, QChar(';'));
@@ -70,7 +70,7 @@ void TestSettingsAuto::processNewModbusScope()
 {
     SettingsAuto::settingsData_t settingsData;
 
-    QVERIFY(processFile(&TestData::cModbusScopeNewFormat, &settingsData));
+    QVERIFY(processFile(&CsvData::cModbusScopeNewFormat, &settingsData));
 
     QCOMPARE(settingsData.bModbusScopeDataFile, true);
     QCOMPARE(settingsData.fieldSeparator, QChar(','));
@@ -87,7 +87,7 @@ void TestSettingsAuto::processDatasetBe()
 {
     SettingsAuto::settingsData_t settingsData;
 
-    QVERIFY(processFile(&TestData::cDatasetBe, &settingsData));
+    QVERIFY(processFile(&CsvData::cDatasetBe, &settingsData));
 
     QCOMPARE(settingsData.bModbusScopeDataFile, false);
     QCOMPARE(settingsData.fieldSeparator, QChar(';'));
@@ -104,7 +104,7 @@ void TestSettingsAuto::processDatasetUs()
 {
     SettingsAuto::settingsData_t settingsData;
 
-    QVERIFY(processFile(&TestData::cDatasetUs, &settingsData));
+    QVERIFY(processFile(&CsvData::cDatasetUs, &settingsData));
 
     QCOMPARE(settingsData.bModbusScopeDataFile, false);
     QCOMPARE(settingsData.fieldSeparator, QChar(','));
@@ -121,7 +121,7 @@ void TestSettingsAuto::processDatasetColumn2()
 {
     SettingsAuto::settingsData_t settingsData;
 
-    QVERIFY(processFile(&TestData::cDatasetColumn2, &settingsData));
+    QVERIFY(processFile(&CsvData::cDatasetColumn2, &settingsData));
 
     /* SettingsAuto isn't capable of detecting column */
     /* So we expect the wrong value of 0 */
@@ -142,7 +142,7 @@ void TestSettingsAuto::processDatasetComment()
 {
     SettingsAuto::settingsData_t settingsData;
 
-    QVERIFY(processFile(&TestData::cDatasetComment, &settingsData));
+    QVERIFY(processFile(&CsvData::cDatasetComment, &settingsData));
 
     QCOMPARE(settingsData.bModbusScopeDataFile, false);
     QCOMPARE(settingsData.fieldSeparator, QChar(';'));
@@ -160,7 +160,7 @@ void TestSettingsAuto::processDatasetSigned()
 {
     SettingsAuto::settingsData_t settingsData;
 
-    QVERIFY(processFile(&TestData::cDatasetSigned, &settingsData));
+    QVERIFY(processFile(&CsvData::cDatasetSigned, &settingsData));
 
     QCOMPARE(settingsData.bModbusScopeDataFile, false);
     QCOMPARE(settingsData.fieldSeparator, QChar(';'));
@@ -177,7 +177,7 @@ void TestSettingsAuto::processDatasetAbsoluteDate()
 {
     SettingsAuto::settingsData_t settingsData;
 
-    QVERIFY(processFile(&TestData::cDatasetAbsoluteDate, &settingsData));
+    QVERIFY(processFile(&CsvData::cDatasetAbsoluteDate, &settingsData));
 
     QCOMPARE(settingsData.bModbusScopeDataFile, false);
     QCOMPARE(settingsData.fieldSeparator, QChar(';'));
@@ -194,7 +194,7 @@ void TestSettingsAuto::processDatasetTimeInSeconds()
 {
     SettingsAuto::settingsData_t settingsData;
 
-    QVERIFY(processFile(&TestData::cDatasetTimeInSecond, &settingsData));
+    QVERIFY(processFile(&CsvData::cDatasetTimeInSecond, &settingsData));
 
     QCOMPARE(settingsData.bModbusScopeDataFile, false);
     QCOMPARE(settingsData.fieldSeparator, QChar(';'));

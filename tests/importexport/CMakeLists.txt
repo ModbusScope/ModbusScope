@@ -9,7 +9,7 @@ include_directories(${Qt5test_INCLUDE_DIRS})
 
 SET(TEST_DATA_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/mbctestdata.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/testdata.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/csvdata.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/projectfiletestdata.cpp
 )
 
