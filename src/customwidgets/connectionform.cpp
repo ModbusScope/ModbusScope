@@ -65,7 +65,7 @@ void ConnectionForm::setState(bool bEnabled)
     {
         _pUi->lineIP->setEnabled(false);
         _pUi->spinPort->setEnabled(false);
-        _pUi->linePortName->setEnabled(false);
+        _pUi->comboPortName->setEnabled(false);
         _pUi->comboBaud->setEnabled(false);
         _pUi->comboParity->setEnabled(false);
         _pUi->comboDataBits->setEnabled(false);
@@ -86,7 +86,7 @@ void ConnectionForm::fillSettingsModel(SettingsModel* pSettingsModel, quint8 con
     pSettingsModel->setIpAddress(connectionId, _pUi->lineIP->text());
     pSettingsModel->setPort(connectionId, _pUi->spinPort->value());
 
-    pSettingsModel->setPortName(connectionId, _pUi->linePortName->text());
+    pSettingsModel->setPortName(connectionId, _pUi->comboPortName->currentText());
     pSettingsModel->setBaudrate(connectionId, static_cast<QSerialPort::BaudRate>(_pUi->comboBaud->currentData().toUInt()));
     pSettingsModel->setParity(connectionId, static_cast<QSerialPort::Parity>(_pUi->comboParity->currentData().toUInt()));
     pSettingsModel->setDatabits(connectionId, static_cast<QSerialPort::DataBits>(_pUi->comboDataBits->currentData().toUInt()));
@@ -104,7 +104,7 @@ void ConnectionForm::setConnectionType(SettingsModel::ConnectionType_t connectio
 
 void ConnectionForm::setPortName(QString portName)
 {
-    _pUi->linePortName->setText(portName);
+    _pUi->comboPortName->setCurrentText(portName);
 }
 
 void ConnectionForm::setParity(QSerialPort::Parity parity)
@@ -191,7 +191,7 @@ void ConnectionForm::enableSpecificSettings()
 
     _pUi->lineIP->setEnabled(bTcp);
     _pUi->spinPort->setEnabled(bTcp);
-    _pUi->linePortName->setEnabled(!bTcp);
+    _pUi->comboPortName->setEnabled(!bTcp);
     _pUi->comboBaud->setEnabled(!bTcp);
     _pUi->comboParity->setEnabled(!bTcp);
     _pUi->comboDataBits->setEnabled(!bTcp);
