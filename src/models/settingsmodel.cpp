@@ -307,8 +307,6 @@ QSerialPort::Parity SettingsModel::parity(quint8 connectionId)
     return _connectionSettings[connectionId].parity;
 }
 
-
-
 void SettingsModel::setBaudrate(quint8 connectionId, QSerialPort::BaudRate baudrate)
 {
     if (connectionId >= CONNECTION_ID_CNT)
@@ -319,7 +317,7 @@ void SettingsModel::setBaudrate(quint8 connectionId, QSerialPort::BaudRate baudr
     if (_connectionSettings[connectionId].baudrate != baudrate)
     {
         _connectionSettings[connectionId].baudrate = baudrate;
-        emit parityChanged(connectionId);
+        emit baudrateChanged(connectionId);
     }
 }
 
@@ -367,7 +365,7 @@ void SettingsModel::setStopbits(quint8 connectionId, QSerialPort::StopBits stopb
     if (_connectionSettings[connectionId].stopbits != stopbits)
     {
         _connectionSettings[connectionId].stopbits = stopbits;
-        emit connectionTypeChanged(connectionId);
+        emit stopbitsChanged(connectionId);
     }
 }
 
