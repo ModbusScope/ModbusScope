@@ -56,9 +56,13 @@ void ProjectFileHandler::selectSettingsExportFile()
 
     if (dialog.exec())
     {
-        filePath = dialog.selectedFiles().first();
-        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-        projectFileExporter.exportProjectFile(filePath);
+        auto fileList = dialog.selectedFiles();
+        if (!fileList.isEmpty())
+        {
+            filePath = fileList.at(0);
+            _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
+            projectFileExporter.exportProjectFile(filePath);
+        }
     }
 }
 
@@ -75,9 +79,13 @@ void ProjectFileHandler::selectProjectSettingFile()
 
     if (dialog.exec())
     {
-        filePath = dialog.selectedFiles().first();
-        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-        this->loadProjectFile(filePath);
+        auto fileList = dialog.selectedFiles();
+        if (!fileList.isEmpty())
+        {
+            filePath = fileList.at(0);
+            _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
+            this->loadProjectFile(filePath);
+        }
     }
 }
 
