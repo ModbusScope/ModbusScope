@@ -106,19 +106,90 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
 
         if (connectionId < SettingsModel::CONNECTION_ID_CNT)
         {
-            _pSettingsModel->setConnectionState(connectionId, true);
+            _pSettingsModel->setConnectionState(connectionId, pProjectSettings->general.connectionSettings[idx].bConnectionState);
+
+            if (pProjectSettings->general.connectionSettings[idx].bConnectionType
+                && pProjectSettings->general.connectionSettings[idx].connectionType.toLower() == "serial"
+                )
+            {
+                _pSettingsModel->setConnectionType(connectionId, SettingsModel::CONNECTION_TYPE_SERIAL);
+            }
+            else
+            {
+                _pSettingsModel->setConnectionType(connectionId, SettingsModel::CONNECTION_TYPE_TCP);
+            }
 
             if (pProjectSettings->general.connectionSettings[idx].bIp)
             {
                 _pSettingsModel->setIpAddress(connectionId, pProjectSettings->general.connectionSettings[idx].ip);
             }
 
-            /* TODO for now: default to TCP */
-            _pSettingsModel->setConnectionType(connectionId, SettingsModel::CONNECTION_TYPE_TCP);
-
             if (pProjectSettings->general.connectionSettings[idx].bPort)
             {
                  _pSettingsModel->setPort(connectionId, pProjectSettings->general.connectionSettings[idx].port);
+            }
+
+            if (pProjectSettings->general.connectionSettings[idx].bPortName)
+            {
+                _pSettingsModel->setPortName(connectionId, pProjectSettings->general.connectionSettings[idx].portName);
+            }
+
+            const quint32 detectedBaud = pProjectSettings->general.connectionSettings[idx].baudrate;
+            if (pProjectSettings->general.connectionSettings[idx].bBaudrate)
+            {
+                if (
+                    detectedBaud == QSerialPort::Baud1200
+                    || detectedBaud == QSerialPort::Baud2400
+                    || detectedBaud == QSerialPort::Baud4800
+                    || detectedBaud == QSerialPort::Baud9600
+                    || detectedBaud == QSerialPort::Baud19200
+                    || detectedBaud == QSerialPort::Baud38400
+                    || detectedBaud == QSerialPort::Baud57600
+                    || detectedBaud == QSerialPort::Baud115200
+                )
+                {
+                    _pSettingsModel->setBaudrate(idx, static_cast<QSerialPort::BaudRate>(detectedBaud));
+                }
+            }
+
+            const quint32 detectedParity = pProjectSettings->general.connectionSettings[idx].parity;
+            if (pProjectSettings->general.connectionSettings[idx].bParity)
+            {
+                if (
+                    detectedParity == QSerialPort::NoParity
+                    || detectedParity == QSerialPort::EvenParity
+                    || detectedParity == QSerialPort::OddParity
+                )
+                {
+                    _pSettingsModel->setParity(idx, static_cast<QSerialPort::Parity>(detectedParity));
+                }
+            }
+
+            const quint32 detectedStopBits = pProjectSettings->general.connectionSettings[idx].stopbits;
+            if (pProjectSettings->general.connectionSettings[idx].bStopbits)
+            {
+                if (
+                    detectedStopBits == QSerialPort::OneStop
+                    || detectedStopBits == QSerialPort::OneAndHalfStop
+                    || detectedStopBits == QSerialPort::TwoStop
+                )
+                {
+                    _pSettingsModel->setStopbits(idx, static_cast<QSerialPort::StopBits>(detectedStopBits));
+                }
+            }
+
+            const quint32 detectedDataBits = pProjectSettings->general.connectionSettings[idx].databits;
+            if (pProjectSettings->general.connectionSettings[idx].bDatabits)
+            {
+                if (
+                    detectedDataBits == QSerialPort::Data5
+                    || detectedDataBits == QSerialPort::Data6
+                    || detectedDataBits == QSerialPort::Data7
+                    || detectedDataBits == QSerialPort::Data8
+                )
+                {
+                    _pSettingsModel->setDatabits(idx, static_cast<QSerialPort::DataBits>(detectedDataBits));
+                }
             }
 
             if (pProjectSettings->general.connectionSettings[idx].bSlaveId)
