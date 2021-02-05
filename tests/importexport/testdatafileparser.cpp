@@ -2,7 +2,7 @@
 #include <QtTest/QtTest>
 
 #include "testdatafileparser.h"
-#include "testdata.h"
+#include "csvdata.h"
 
 #include "datafileparser.h"
 
@@ -19,7 +19,7 @@ void TestDataFileParser::cleanup()
 void TestDataFileParser::parseModbusScopeOldFormat()
 {
     DataParserModel dataParserModel;
-    QTextStream dataStream(&TestData::cModbusScopeOldFormat);
+    QTextStream dataStream(&CsvData::cModbusScopeOldFormat);
     DataFileParser::FileData fileData;
     DataFileParser dataFileParser(&dataParserModel);
 
@@ -59,7 +59,7 @@ void TestDataFileParser::parseModbusScopeOldFormat()
 void TestDataFileParser::parseModbusScopeNewFormat()
 {
     DataParserModel dataParserModel;
-    QTextStream dataStream(&TestData::cModbusScopeNewFormat);
+    QTextStream dataStream(&CsvData::cModbusScopeNewFormat);
     DataFileParser::FileData fileData;
     DataFileParser dataFileParser(&dataParserModel);
 
@@ -104,7 +104,7 @@ void TestDataFileParser::parseModbusScopeNewFormat()
 void TestDataFileParser::parseDatasetBe()
 {
     DataParserModel dataParserModel;
-    QTextStream dataStream(&TestData::cDatasetBe);
+    QTextStream dataStream(&CsvData::cDatasetBe);
     DataFileParser::FileData fileData;
     DataFileParser dataFileParser(&dataParserModel);
 
@@ -153,7 +153,7 @@ void TestDataFileParser::parseDatasetBe()
 void TestDataFileParser::parseDatasetUs()
 {
     DataParserModel dataParserModel;
-    QTextStream dataStream(&TestData::cDatasetUs);
+    QTextStream dataStream(&CsvData::cDatasetUs);
     DataFileParser::FileData fileData;
     DataFileParser dataFileParser(&dataParserModel);
 
@@ -202,7 +202,7 @@ void TestDataFileParser::parseDatasetUs()
 void TestDataFileParser::parseDatasetColumn2()
 {
     DataParserModel dataParserModel;
-    QTextStream dataStream(&TestData::cDatasetColumn2);
+    QTextStream dataStream(&CsvData::cDatasetColumn2);
     DataFileParser::FileData fileData;
     DataFileParser dataFileParser(&dataParserModel);
 
@@ -251,7 +251,7 @@ void TestDataFileParser::parseDatasetColumn2()
 void TestDataFileParser::parseDatasetComment()
 {
     DataParserModel dataParserModel;
-    QTextStream dataStream(&TestData::cDatasetComment);
+    QTextStream dataStream(&CsvData::cDatasetComment);
     DataFileParser::FileData fileData;
     DataFileParser dataFileParser(&dataParserModel);
 
@@ -300,7 +300,7 @@ void TestDataFileParser::parseDatasetComment()
 void TestDataFileParser::parseDatasetSigned()
 {
     DataParserModel dataParserModel;
-    QTextStream dataStream(&TestData::cDatasetSigned);
+    QTextStream dataStream(&CsvData::cDatasetSigned);
     DataFileParser::FileData fileData;
     DataFileParser dataFileParser(&dataParserModel);
 
@@ -344,7 +344,7 @@ void TestDataFileParser::parseDatasetSigned()
 void TestDataFileParser::parseDatasetAbsoluteDate()
 {
     DataParserModel dataParserModel;
-    QTextStream dataStream(&TestData::cDatasetAbsoluteDate);
+    QTextStream dataStream(&CsvData::cDatasetAbsoluteDate);
     DataFileParser::FileData fileData;
     DataFileParser dataFileParser(&dataParserModel);
 
@@ -398,7 +398,7 @@ void TestDataFileParser::parseDatasetAbsoluteDate()
 void TestDataFileParser::parseDatasetTimeInSecond()
 {
     DataParserModel dataParserModel;
-    QTextStream dataStream(&TestData::cDatasetTimeInSecond);
+    QTextStream dataStream(&CsvData::cDatasetTimeInSecond);
     DataFileParser::FileData fileData;
     DataFileParser dataFileParser(&dataParserModel);
 
@@ -444,7 +444,7 @@ void TestDataFileParser::parseDatasetTimeInSecond()
 void TestDataFileParser::parseDatasetEmptyLastColumn()
 {
     DataParserModel dataParserModel;
-    QTextStream dataStream(&TestData::cDatasetEmptyLastColumn);
+    QTextStream dataStream(&CsvData::cDatasetEmptyLastColumn);
     DataFileParser::FileData fileData;
     DataFileParser dataFileParser(&dataParserModel);
 
@@ -490,7 +490,7 @@ void TestDataFileParser::parseDatasetEmptyLastColumn()
 void TestDataFileParser::checkProgressSignal()
 {
     DataParserModel dataParserModel;
-    QTextStream dataStream(&TestData::cDatasetBe);
+    QTextStream dataStream(&CsvData::cDatasetBe);
     DataFileParser::FileData fileData;
     DataFileParser dataFileParser(&dataParserModel);
 

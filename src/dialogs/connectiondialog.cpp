@@ -16,6 +16,15 @@ ConnectionDialog::ConnectionDialog(SettingsModel * pSettingsModel, QWidget *pare
 
     connect(_pSettingsModel, &SettingsModel::ipChanged, this, &ConnectionDialog::updateIp);
     connect(_pSettingsModel, &SettingsModel::portChanged, this, &ConnectionDialog::updatePort);
+
+    connect(_pSettingsModel, &SettingsModel::connectionTypeChanged, this, &ConnectionDialog::updateConnectionType);
+
+    connect(_pSettingsModel, &SettingsModel::portNameChanged, this, &ConnectionDialog::updatePortName);
+    connect(_pSettingsModel, &SettingsModel::parityChanged  , this, &ConnectionDialog::updateParity);
+    connect(_pSettingsModel, &SettingsModel::baudrateChanged, this, &ConnectionDialog::updateBaudrate);
+    connect(_pSettingsModel, &SettingsModel::databitsChanged, this, &ConnectionDialog::updateDatabits);
+    connect(_pSettingsModel, &SettingsModel::stopbitsChanged, this, &ConnectionDialog::updateStopbits);
+
     connect(_pSettingsModel, &SettingsModel::slaveIdChanged, this, &ConnectionDialog::updateSlaveId);
     connect(_pSettingsModel, &SettingsModel::timeoutChanged, this, &ConnectionDialog::updateTimeout);
     connect(_pSettingsModel, &SettingsModel::consecutiveMaxChanged, this, &ConnectionDialog::updateConsecutiveMax);
@@ -23,7 +32,11 @@ ConnectionDialog::ConnectionDialog(SettingsModel * pSettingsModel, QWidget *pare
     connect(_pSettingsModel, &SettingsModel::int32LittleEndianChanged, this, &ConnectionDialog::updateInt32LittleEndian);
     connect(_pSettingsModel, &SettingsModel::persistentConnectionChanged, this, &ConnectionDialog::updatePersistentConnection);
 
-    connect(_pUi->checkSecondConn, &QCheckBox::stateChanged, this, &ConnectionDialog::secondConnectionStateChanged);
+    _pUi->connectionForm_2->setState(false);
+    connect(_pUi->checkConn_2, &QCheckBox::stateChanged, _pUi->connectionForm_2, &ConnectionForm::setState);
+
+    _pUi->connectionForm_3->setState(false);
+    connect(_pUi->checkConn_3, &QCheckBox::stateChanged, _pUi->connectionForm_3, &ConnectionForm::setState);
 }
 
 ConnectionDialog::~ConnectionDialog()
@@ -31,148 +44,148 @@ ConnectionDialog::~ConnectionDialog()
     delete _pUi;
 }
 
-void ConnectionDialog::secondConnectionStateChanged(int state)
+void ConnectionDialog::done(int r)
 {
-    bool bState = (state == Qt::Checked);
+    Q_UNUSED(r);
 
-    _pUi->lineIP_2->setEnabled(bState);
-    _pUi->spinPort_2->setEnabled(bState);
-    _pUi->spinSlaveId_2->setEnabled(bState);
-    _pUi->spinTimeout_2->setEnabled(bState);
-    _pUi->spinConsecutiveMax_2->setEnabled(bState);
-    _pUi->checkInt32LittleEndian_2->setEnabled(bState);
-    _pUi->checkPersistentConn_2->setEnabled(bState);
-}
+    _pUi->connectionForm_1->fillSettingsModel(_pSettingsModel, SettingsModel::CONNECTION_ID_0);
 
-void ConnectionDialog::updateIp(quint8 connectionId)
-{
-    if (connectionId == SettingsModel::CONNECTION_ID_0)
-    {
-        _pUi->lineIP->setText(_pSettingsModel->ipAddress(connectionId));
-    }
-    else
-    {
-        _pUi->lineIP_2->setText(_pSettingsModel->ipAddress(connectionId));
-    }
-}
+    _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_1, _pUi->checkConn_2->checkState() == Qt::Checked);
+    _pUi->connectionForm_2->fillSettingsModel(_pSettingsModel, SettingsModel::CONNECTION_ID_1);
 
-void ConnectionDialog::updatePort(quint8 connectionId)
-{
-    if (connectionId == SettingsModel::CONNECTION_ID_0)
-    {
-        _pUi->spinPort->setValue(_pSettingsModel->port(connectionId));
-    }
-    else
-    {
-        _pUi->spinPort_2->setValue(_pSettingsModel->port(connectionId));
-    }
-}
+    _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_2, _pUi->checkConn_3->checkState() == Qt::Checked);
+    _pUi->connectionForm_3->fillSettingsModel(_pSettingsModel, SettingsModel::CONNECTION_ID_2);
 
-void ConnectionDialog::updateSlaveId(quint8 connectionId)
-{
-    if (connectionId == SettingsModel::CONNECTION_ID_0)
-    {
-        _pUi->spinSlaveId->setValue(_pSettingsModel->slaveId(connectionId));
-    }
-    else
-    {
-        _pUi->spinSlaveId_2->setValue(_pSettingsModel->slaveId(connectionId));
-    }
-}
-
-void ConnectionDialog::updateTimeout(quint8 connectionId)
-{
-    if (connectionId == SettingsModel::CONNECTION_ID_0)
-    {
-        _pUi->spinTimeout->setValue(static_cast<int>(_pSettingsModel->timeout(connectionId)));
-    }
-    else
-    {
-        _pUi->spinTimeout_2->setValue(static_cast<int>(_pSettingsModel->timeout(connectionId)));
-    }
-
-}
-
-void ConnectionDialog::updateConsecutiveMax(quint8 connectionId)
-{
-    if (connectionId == SettingsModel::CONNECTION_ID_0)
-    {
-        _pUi->spinConsecutiveMax->setValue(_pSettingsModel->consecutiveMax(connectionId));
-    }
-    else
-    {
-        _pUi->spinConsecutiveMax_2->setValue(_pSettingsModel->consecutiveMax(connectionId));
-    }
+    QDialog::done(r);
 }
 
 void ConnectionDialog::updateConnectionState(quint8 connectionId)
 {
-    /* TODO: change for more than 2 connections */
-    if (connectionId == SettingsModel::CONNECTION_ID_1)
+    switch(connectionId)
     {
-        _pUi->checkSecondConn->setChecked(_pSettingsModel->connectionState(connectionId));
+    case SettingsModel::CONNECTION_ID_0:
+        break;
+    case SettingsModel::CONNECTION_ID_1:
+        _pUi->checkConn_2->setChecked(_pSettingsModel->connectionState(connectionId));
+        break;
+    case SettingsModel::CONNECTION_ID_2:
+        _pUi->checkConn_3->setChecked(_pSettingsModel->connectionState(connectionId));
+        break;
+    default:
+
+        break;
     }
+}
+
+void ConnectionDialog::updateIp(quint8 connectionId)
+{
+    auto pConnectionSettings = connectionSettingsWidget(connectionId);
+
+    pConnectionSettings->setIpAddress(_pSettingsModel->ipAddress(connectionId));
+}
+
+void ConnectionDialog::updatePort(quint8 connectionId)
+{
+    auto pConnectionSettings = connectionSettingsWidget(connectionId);
+
+    pConnectionSettings->setPort(_pSettingsModel->port(connectionId));
+}
+
+void ConnectionDialog::updateConnectionType(quint8 connectionId)
+{
+    auto pConnectionSettings = connectionSettingsWidget(connectionId);
+
+    pConnectionSettings->setConnectionType(_pSettingsModel->connectionType(connectionId));
+}
+
+void ConnectionDialog::updatePortName(quint8 connectionId)
+{
+    auto pConnectionSettings = connectionSettingsWidget(connectionId);
+
+    pConnectionSettings->setPortName(_pSettingsModel->portName(connectionId));
+}
+
+void ConnectionDialog::updateParity(quint8 connectionId)
+{
+    auto pConnectionSettings = connectionSettingsWidget(connectionId);
+
+    pConnectionSettings->setParity(_pSettingsModel->parity(connectionId));
+}
+
+void ConnectionDialog::updateBaudrate(quint8 connectionId)
+{
+    auto pConnectionSettings = connectionSettingsWidget(connectionId);
+
+    pConnectionSettings->setBaudrate(_pSettingsModel->baudrate(connectionId));
+}
+
+void ConnectionDialog::updateDatabits(quint8 connectionId)
+{
+    auto pConnectionSettings = connectionSettingsWidget(connectionId);
+
+    pConnectionSettings->setDatabits(_pSettingsModel->databits(connectionId));
+}
+
+void ConnectionDialog::updateStopbits(quint8 connectionId)
+{
+    auto pConnectionSettings = connectionSettingsWidget(connectionId);
+
+    pConnectionSettings->setStopbits(_pSettingsModel->stopbits(connectionId));
+}
+
+void ConnectionDialog::updateSlaveId(quint8 connectionId)
+{
+    auto pConnectionSettings = connectionSettingsWidget(connectionId);
+
+    pConnectionSettings->setSlaveId(_pSettingsModel->slaveId(connectionId));
+}
+
+void ConnectionDialog::updateTimeout(quint8 connectionId)
+{
+    auto pConnectionSettings = connectionSettingsWidget(connectionId);
+
+    pConnectionSettings->setTimeout(_pSettingsModel->timeout(connectionId));
+}
+
+void ConnectionDialog::updateConsecutiveMax(quint8 connectionId)
+{
+    auto pConnectionSettings = connectionSettingsWidget(connectionId);
+
+    pConnectionSettings->setConsecutiveMax(_pSettingsModel->consecutiveMax(connectionId));
 }
 
 void ConnectionDialog::updateInt32LittleEndian(quint8 connectionId)
 {
-    if (connectionId == SettingsModel::CONNECTION_ID_0)
-    {
-        _pUi->checkInt32LittleEndian->setChecked(_pSettingsModel->int32LittleEndian(connectionId));
-    }
-    else
-    {
-        _pUi->checkInt32LittleEndian_2->setChecked(_pSettingsModel->int32LittleEndian(connectionId));
-    }
+    auto pConnectionSettings = connectionSettingsWidget(connectionId);
+
+    pConnectionSettings->setInt32LittleEndian(_pSettingsModel->int32LittleEndian(connectionId));
 }
 
 void ConnectionDialog::updatePersistentConnection(quint8 connectionId)
 {
-    if (connectionId == SettingsModel::CONNECTION_ID_0)
-    {
-        _pUi->checkPersistentConn->setChecked(_pSettingsModel->persistentConnection(connectionId));
-    }
-    else
-    {
-        _pUi->checkPersistentConn_2->setChecked(_pSettingsModel->persistentConnection(connectionId));
-    }
+    auto pConnectionSettings = connectionSettingsWidget(connectionId);
+
+    pConnectionSettings->setPersistentConnection(_pSettingsModel->persistentConnection(connectionId));
 }
 
-void ConnectionDialog::done(int r)
+ConnectionForm* ConnectionDialog::connectionSettingsWidget(quint8 connectionId)
 {
-    bool bValid = true;
-
-    if(QDialog::Accepted == r)  // ok was pressed
+    ConnectionForm* retRef;
+    switch(connectionId)
     {
-        _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_0, _pUi->lineIP->text());
-        _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_0, _pUi->spinPort->text().toUInt());
-        _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_0, _pUi->spinSlaveId->text().toInt());
-        _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_0, _pUi->spinTimeout->text().toUInt());
-        _pSettingsModel->setConsecutiveMax(SettingsModel::CONNECTION_ID_0, _pUi->spinConsecutiveMax->text().toUInt());
-        _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_0, _pUi->checkInt32LittleEndian->checkState() == Qt::Checked);
-        _pSettingsModel->setPersistentConnection(SettingsModel::CONNECTION_ID_0, _pUi->checkPersistentConn->checkState() == Qt::Checked);
-
-        _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_1, _pUi->lineIP_2->text());
-        _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_1, _pUi->spinPort_2->text().toUInt());
-        _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_1, _pUi->spinSlaveId_2->text().toUInt());
-        _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_1, _pUi->spinTimeout_2->text().toUInt());
-        _pSettingsModel->setConsecutiveMax(SettingsModel::CONNECTION_ID_1, _pUi->spinConsecutiveMax_2->text().toUInt());
-        _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_1, _pUi->checkSecondConn->checkState() == Qt::Checked);
-        _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_1, _pUi->checkInt32LittleEndian_2->checkState() == Qt::Checked);
-        _pSettingsModel->setPersistentConnection(SettingsModel::CONNECTION_ID_1, _pUi->checkPersistentConn_2->checkState() == Qt::Checked);
-
-        // Validate the data
-        //bValid = validateSettingsData();
-        bValid = true;
-    }
-    else
-    {
-        // cancel, close or exc was pressed
-        bValid = true;
+    case SettingsModel::CONNECTION_ID_0:
+        retRef = _pUi->connectionForm_1;
+        break;
+    case SettingsModel::CONNECTION_ID_1:
+        retRef = _pUi->connectionForm_2;
+        break;
+    case SettingsModel::CONNECTION_ID_2:
+        retRef = _pUi->connectionForm_3;
+        break;
+    default:
+        retRef = _pUi->connectionForm_1;
+        break;
     }
 
-    if (bValid)
-    {
-        QDialog::done(r);
-    }
+    return retRef;
 }

@@ -70,9 +70,29 @@ void ProjectFileExporter::createConnectionTags(QDomElement * pParentElement)
     {
         QDomElement connectionElement = _domDocument.createElement(ProjectFileDefinitions::cConnectionTag);
 
+        addTextNode(ProjectFileDefinitions::cConnectionEnabledTag, convertBoolToText(_pSettingsModel->connectionState(i)), &connectionElement);
+
         addTextNode(ProjectFileDefinitions::cConnectionIdTag, QString("%1").arg(i), &connectionElement);
+
+        if (_pSettingsModel->connectionType(i) == SettingsModel::CONNECTION_TYPE_TCP)
+        {
+            addTextNode(ProjectFileDefinitions::cConnectionTypeTag, QString("tcp"), &connectionElement);
+        }
+        else
+        {
+            addTextNode(ProjectFileDefinitions::cConnectionTypeTag, QString("serial"), &connectionElement);
+        }
+
         addTextNode(ProjectFileDefinitions::cIpTag, _pSettingsModel->ipAddress(i), &connectionElement);
         addTextNode(ProjectFileDefinitions::cPortTag, QString("%1").arg(_pSettingsModel->port(i)), &connectionElement);
+
+        addTextNode(ProjectFileDefinitions::cPortNameTag, QString("%1").arg(_pSettingsModel->portName(i)), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cBaudrateTag, QString("%1").arg(_pSettingsModel->baudrate(i)), &connectionElement);
+
+        addTextNode(ProjectFileDefinitions::cParityTag, QString("%1").arg(_pSettingsModel->parity(i)), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cStopBitsTag, QString("%1").arg(_pSettingsModel->stopbits(i)), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cDataBitsTag, QString("%1").arg(_pSettingsModel->databits(i)), &connectionElement);
+
         addTextNode(ProjectFileDefinitions::cSlaveIdTag, QString("%1").arg(_pSettingsModel->slaveId(i)), &connectionElement);
         addTextNode(ProjectFileDefinitions::cTimeoutTag, QString("%1").arg(_pSettingsModel->timeout(i)), &connectionElement);
         addTextNode(ProjectFileDefinitions::cConsecutiveMaxTag, QString("%1").arg(_pSettingsModel->consecutiveMax(i)), &connectionElement);

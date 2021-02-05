@@ -1,7 +1,7 @@
 
 #include <QObject>
 
-class TestData: public QObject
+class CsvData: public QObject
 {
     Q_OBJECT
 

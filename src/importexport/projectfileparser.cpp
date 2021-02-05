@@ -142,12 +142,7 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
-        if (child.tagName() == ProjectFileDefinitions::cIpTag)
-        {
-            pConnectionSettings->bIp = true;
-            pConnectionSettings->ip = child.text();
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cConnectionIdTag)
+        if (child.tagName() == ProjectFileDefinitions::cConnectionIdTag)
         {
             pConnectionSettings->bConnectionId = true;
             pConnectionSettings->connectionId = static_cast<quint8>(child.text().toUInt(&bRet));
@@ -157,6 +152,27 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
                 break;
             }
         }
+        else if (child.tagName() == ProjectFileDefinitions::cConnectionEnabledTag)
+        {
+            if (!child.text().toLower().compare(ProjectFileDefinitions::cTrueValue))
+            {
+                pConnectionSettings->bConnectionState = true;
+            }
+            else
+            {
+                pConnectionSettings->bConnectionState = false;
+            }
+        }
+        else if (child.tagName() == ProjectFileDefinitions::cConnectionTypeTag)
+        {
+            pConnectionSettings->bConnectionType = true;
+            pConnectionSettings->connectionType = child.text();
+        }
+        else if (child.tagName() == ProjectFileDefinitions::cIpTag)
+        {
+            pConnectionSettings->bIp = true;
+            pConnectionSettings->ip = child.text();
+        }
         else if (child.tagName() == ProjectFileDefinitions::cPortTag)
         {
             pConnectionSettings->bPort = true;
@@ -164,6 +180,51 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
             if (!bRet)
             {
                 Util::showError(tr("Port ( %1 ) is not a valid number").arg(child.text()));
+                break;
+            }
+        }
+        else if (child.tagName() == ProjectFileDefinitions::cPortNameTag)
+        {
+            pConnectionSettings->bPortName = true;
+            pConnectionSettings->portName = child.text();
+        }
+        else if (child.tagName() == ProjectFileDefinitions::cBaudrateTag)
+        {
+            pConnectionSettings->bBaudrate = true;
+            pConnectionSettings->baudrate = child.text().toUInt(&bRet);
+            if (!bRet)
+            {
+                Util::showError(tr("Baud rate ( %1 ) is not a valid number").arg(child.text()));
+                break;
+            }
+        }
+        else if (child.tagName() == ProjectFileDefinitions::cParityTag)
+        {
+            pConnectionSettings->bParity = true;
+            pConnectionSettings->parity = child.text().toUInt(&bRet);
+            if (!bRet)
+            {
+                Util::showError(tr("Parity ( %1 ) is not a valid number").arg(child.text()));
+                break;
+            }
+        }
+        else if (child.tagName() == ProjectFileDefinitions::cStopBitsTag)
+        {
+            pConnectionSettings->bStopbits = true;
+            pConnectionSettings->stopbits = child.text().toUInt(&bRet);
+            if (!bRet)
+            {
+                Util::showError(tr("Stop bits ( %1 ) is not a valid number").arg(child.text()));
+                break;
+            }
+        }
+        else if (child.tagName() == ProjectFileDefinitions::cDataBitsTag)
+        {
+            pConnectionSettings->bDatabits = true;
+            pConnectionSettings->databits = child.text().toUInt(&bRet);
+            if (!bRet)
+            {
+                Util::showError(tr("Data bits ( %1 ) is not a valid number").arg(child.text()));
                 break;
             }
         }

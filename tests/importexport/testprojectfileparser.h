@@ -13,6 +13,13 @@ private slots:
     void newRegExpressions();
     void bothLegacyNewRegExpressions();
 
+
+    void connLegacySingle();
+    void connLegacyDual();
+    void connSerial();
+    void connMixedMulti();
+    void connEmpty();
+
 private:
 
 };

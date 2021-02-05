@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QTimer>
-
+#include <QSerialPort>
 #include <QModbusDevice>
 #include <QModbusReply>
 #include <QModbusClient>
@@ -39,7 +39,23 @@ class ModbusConnection : public QObject
 public:
     explicit ModbusConnection(QObject *parent = nullptr);
 
-    void openConnection(QString ip, qint32 port, quint32 timeout);
+    struct TcpSettings
+    {
+        QString ip;
+        qint32 port;
+    };
+
+    struct SerialSettings
+    {
+        QString portName;
+        QSerialPort::Parity parity;
+        QSerialPort::BaudRate baudrate;
+        QSerialPort::DataBits databits;
+        QSerialPort::StopBits stopbits;
+    };
+
+    void openTcpConnection(struct TcpSettings tcpSettings, quint32 timeout);
+    void openSerialConnection(struct SerialSettings serialSettings, quint32 timeout);
     void closeConnection(void);
 
     void sendReadRequest(quint32 regAddress, quint16 size, int serverAddress);
@@ -62,6 +78,9 @@ private slots:
     void connectionDestroyed();
 
     void handleRequestFinished();
+
+    bool prepareConnectionOpen();
+    void openConnection(QPointer<ConnectionData> connectionData, quint32 timeout);
 
 private:
 

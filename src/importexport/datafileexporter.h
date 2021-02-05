@@ -45,6 +45,7 @@ private:
     void flushExportBuffer();
     void exportDataHeader();
     QStringList constructDataHeader(bool bDuringLog);
+    QString constructConnSettings(quint8 connectionId);
     QString createNoteRows();
     QString createPropertyRow(registerProperty prop);
     QString formatData(double timeData, QList<double> dataValues);

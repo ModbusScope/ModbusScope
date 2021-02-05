@@ -2,6 +2,7 @@
 #include <QVariant>
 #include <QtSerialPort/QSerialPort>
 #include <QModbusTcpClient>
+#include <QModbusRtuSerialMaster>
 
 #include "scopelogging.h"
 #include "modbusconnection.h"
@@ -15,61 +16,56 @@ ModbusConnection::ModbusConnection(QObject *parent) : QObject(parent)
 }
 
 /*!
- * Start opening of connection
+ * Start opening of TCP connection
  * Emits signals (\ref connectionSuccess, \ref errorOccurred) when connection is ready or failed
  *
- * \param[in]   ip          IP address of server
- * \param[in]   port        Port on the server
- * \param[in]   timeout     Timeout of connection (in seconds)
+ * \param[in]   tcpSettings     TCP setting for server
+ * \param[in]   timeout         Timeout of connection (in seconds)
  */
-void ModbusConnection::openConnection(QString ip, qint32 port, quint32 timeout)
+void ModbusConnection::openTcpConnection(struct TcpSettings tcpSettings, quint32 timeout)
 {
-    if (isConnected())
-    {
-        qCDebug(scopeCommConnection) << "Connection already open";
-
-        // Already connected and ready
-        emit connectionSuccess();
-    }
-    else
+    if (prepareConnectionOpen())
     {
         auto connectionData = QPointer<ConnectionData>(new ConnectionData(new QModbusTcpClient()));
 
-        connect(&connectionData->connectionTimeoutTimer, &QTimer::timeout, this, &ModbusConnection::connectionTimeOut);
-        connect(connectionData->pModbusClient, &QModbusClient::stateChanged, this, &ModbusConnection::handleConnectionStateChanged);
-        connect(connectionData->pModbusClient, &QModbusClient::errorOccurred, this, &ModbusConnection::handleConnectionErrorOccurred);
+        connectionData->pModbusClient->setConnectionParameter(QModbusDevice::NetworkAddressParameter, QVariant(tcpSettings.ip));
+        connectionData->pModbusClient->setConnectionParameter(QModbusDevice::NetworkPortParameter, QVariant(tcpSettings.port));
 
-        connectionData->pModbusClient->setNumberOfRetries(0);
-        connectionData->pModbusClient->setTimeout(static_cast<int>(timeout));
-
-        connectionData->pModbusClient->setConnectionParameter(QModbusDevice::NetworkAddressParameter, QVariant(ip));
-        connectionData->pModbusClient->setConnectionParameter(QModbusDevice::NetworkPortParameter, QVariant(port));
-
-        _connectionList.append(QPointer<ConnectionData>(connectionData));
-
-        qCDebug(scopeCommConnection) << "Connection start: " << _connectionList.last();
-        if (_connectionList.last()->pModbusClient->connectDevice())
-        {
-            _bWaitingForConnection = true;
-            _connectionList.last()->connectionTimeoutTimer.start(static_cast<int>(timeout));
-        }
-        else
-        {
-            auto pClient = _connectionList.last()->pModbusClient;
-            handleConnectionError(_connectionList.last(), QString("Connect failed: %0").arg(pClient->error()));
-        }
+        openConnection(connectionData, timeout);
     }
 }
+
+/*!
+ * Start opening of serial connection
+ * Emits signals (\ref connectionSuccess, \ref errorOccurred) when connection is ready or failed
+ *
+ * \param[in]   tcpSettings     Serial setting for server
+ * \param[in]   timeout         Timeout of connection (in seconds)
+ */
+void ModbusConnection::openSerialConnection(struct SerialSettings serialSettings, quint32 timeout)
+{
+    if (prepareConnectionOpen())
+    {
+        auto connectionData = QPointer<ConnectionData>(new ConnectionData(new QModbusRtuSerialMaster()));
+
+        connectionData->pModbusClient->setConnectionParameter(QModbusDevice::SerialPortNameParameter, QVariant(serialSettings.portName));
+        connectionData->pModbusClient->setConnectionParameter(QModbusDevice::SerialParityParameter, QVariant(serialSettings.parity));
+        connectionData->pModbusClient->setConnectionParameter(QModbusDevice::SerialBaudRateParameter, QVariant(serialSettings.baudrate));
+        connectionData->pModbusClient->setConnectionParameter(QModbusDevice::SerialDataBitsParameter, QVariant(serialSettings.databits));
+        connectionData->pModbusClient->setConnectionParameter(QModbusDevice::SerialStopBitsParameter, QVariant(serialSettings.stopbits));
+
+        openConnection(connectionData, timeout);
+    }
+}
+
+
 
 /*!
  *  Close connection
  */
 void ModbusConnection::closeConnection(void)
 {
-    if (
-            !_connectionList.isEmpty()
-            && _connectionList.last()->pModbusClient->state() != QModbusDevice::UnconnectedState
-        )
+    if (!_connectionList.isEmpty())
     {
         qCDebug(scopeCommConnection) << "Connection close: " << _connectionList.last();
         _connectionList.last()->connectionTimeoutTimer.stop();
@@ -154,10 +150,10 @@ void ModbusConnection::handleConnectionStateChanged(QModbusDevice::State state)
 
         if (senderIdx == _connectionList.size() - 1)
         {
+            _bWaitingForConnection = false;
+
             // Most recent connection is opened
             emit connectionSuccess();
-
-            _bWaitingForConnection = false;
         }
         else if (senderIdx != -1)
         {
@@ -282,6 +278,32 @@ void ModbusConnection::handleRequestFinished()
 }
 
 /*!
+ * \brief Prepare for opening a connection
+ * \retval  true        when connection needs to be opened
+ * \retval  false       when connection already opened
+ */
+bool ModbusConnection::prepareConnectionOpen()
+{
+    bool bRet;
+
+    if (isConnected())
+    {
+        bRet = false;
+
+        qCDebug(scopeCommConnection) << "Connection already open";
+
+        // Already connected and ready
+        emit connectionSuccess();
+    }
+    else
+    {
+        bRet = true;
+    }
+
+    return bRet;
+}
+
+/*!
  * General internal error handler
  * Should only be called for last connection in the list, the rest is stale
  * \param errMsg    Error message
@@ -332,5 +354,28 @@ qint32 ModbusConnection::findConnectionData(QTimer * pTimer, QModbusClient * pCl
     }
 
     return -1;
+}
+
+void ModbusConnection::openConnection(QPointer<ConnectionData> connectionData, quint32 timeout)
+{
+    connectionData->pModbusClient->setNumberOfRetries(0);
+    connectionData->pModbusClient->setTimeout(static_cast<int>(timeout));
+
+    connect(&connectionData->connectionTimeoutTimer, &QTimer::timeout, this, &ModbusConnection::connectionTimeOut);
+    connect(connectionData->pModbusClient, &QModbusClient::stateChanged, this, &ModbusConnection::handleConnectionStateChanged);
+    connect(connectionData->pModbusClient, &QModbusClient::errorOccurred, this, &ModbusConnection::handleConnectionErrorOccurred);
+
+    _connectionList.append(connectionData);
+
+    qCDebug(scopeCommConnection) << "Connection start: " << _connectionList.last();
+
+    _connectionList.last()->connectionTimeoutTimer.start(static_cast<int>(timeout));
+    _bWaitingForConnection = true;
+
+    if (!_connectionList.last()->pModbusClient->connectDevice())
+    {
+        auto pClient = _connectionList.last()->pModbusClient;
+        handleConnectionError(_connectionList.last(), QString("Connect failed: %0").arg(pClient->error()));
+    }
 }
 

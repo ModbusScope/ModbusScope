@@ -1,10 +1,6 @@
 
 #include <QtTest/QtTest>
 
-#include "modbusconnection.h"
-#include "testslavedata.h"
-#include "testslavemodbus.h"
-
 #include "testmodbusconnection.h"
 
 void TestModbusConnection::init()
@@ -48,7 +44,7 @@ void TestModbusConnection::connectionSuccess()
     QSignalSpy spySuccess(pConnection, &ModbusConnection::connectionSuccess);
     QSignalSpy spyError(pConnection, &ModbusConnection::connectionError);
 
-    pConnection->openConnection(_serverConnectionData.host(), _serverConnectionData.port(), 1000);
+    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
 
     QVERIFY(spySuccess.wait(100));
 
@@ -70,7 +66,7 @@ void TestModbusConnection::connectionFail()
     QSignalSpy spySuccess(pConnection, &ModbusConnection::connectionSuccess);
     QSignalSpy spyError(pConnection, &ModbusConnection::connectionError);
 
-    pConnection->openConnection(_serverConnectionData.host(), _serverConnectionData.port(), 1000);
+    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
 
     QVERIFY(spyError.wait(1500));
 
@@ -89,7 +85,7 @@ void TestModbusConnection::connectionSuccesAfterFail()
     QSignalSpy spySuccess(pConnection, &ModbusConnection::connectionSuccess);
     QSignalSpy spyError(pConnection, &ModbusConnection::connectionError);
 
-    pConnection->openConnection(_serverConnectionData.host(), _serverConnectionData.port(), 1000);
+    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
 
     QVERIFY(spyError.wait(1500));
 
@@ -101,7 +97,7 @@ void TestModbusConnection::connectionSuccesAfterFail()
     // Start server
     QVERIFY(_pTestSlaveModbus->connect(_serverConnectionData, _slaveId));
 
-    pConnection->openConnection(_serverConnectionData.host(), _serverConnectionData.port(), 1000);
+    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
 
     QVERIFY(spySuccess.wait(500));
 
@@ -125,9 +121,9 @@ void TestModbusConnection::readRequestSuccess()
     /* Open connection */
     ModbusConnection * pConnection = new ModbusConnection(this);
     QSignalSpy spySuccess(pConnection, &ModbusConnection::connectionSuccess);
-    pConnection->openConnection(_serverConnectionData.host(), _serverConnectionData.port(), 1000);
+    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
 
-    pConnection->openConnection(_serverConnectionData.host(), _serverConnectionData.port(), 1000);
+    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
 
     QVERIFY(spySuccess.wait(100));
 
@@ -174,9 +170,9 @@ void TestModbusConnection::readRequestProtocolError()
     /* Open connection */
     ModbusConnection * pConnection = new ModbusConnection(this);
     QSignalSpy spySuccess(pConnection, &ModbusConnection::connectionSuccess);
-    pConnection->openConnection(_serverConnectionData.host(), _serverConnectionData.port(), 1000);
+    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
 
-    pConnection->openConnection(_serverConnectionData.host(), _serverConnectionData.port(), 1000);
+    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
 
     QVERIFY(spySuccess.wait(100));
 
@@ -207,6 +203,17 @@ void TestModbusConnection::readRequestError()
      * Add test for this case.
      * Is this case possible?
     */
+}
+
+ModbusConnection::TcpSettings TestModbusConnection::constructTcpSettings(QString ip, qint32 port)
+{
+    struct ModbusConnection::TcpSettings tcpSettings =
+    {
+        .ip = ip,
+        .port = port,
+    };
+
+    return tcpSettings;
 }
 
 QTEST_GUILESS_MAIN(TestModbusConnection)

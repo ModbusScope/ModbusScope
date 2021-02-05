@@ -3,9 +3,10 @@
 #include <QPointer>
 #include <QUrl>
 
+#include "modbusconnection.h"
+
 #include "testslavedata.h"
 #include "testslavemodbus.h"
-
 
 class TestModbusConnection: public QObject
 {
@@ -23,6 +24,8 @@ private slots:
     void readRequestError();
 
 private:
+
+    ModbusConnection::TcpSettings constructTcpSettings(QString ip, qint32 port);
 
     QPointer<TestSlaveData> _pTestSlaveData;
     QPointer<TestSlaveModbus> _pTestSlaveModbus;

@@ -1,7 +1,7 @@
 
-#include "testdata.h"
+#include "csvdata.h"
 
-QString TestData::cModbusScopeOldFormat = QString(
+QString CsvData::cModbusScopeOldFormat = QString(
     "//ModbusScope version;0.7.4"                                   "\n"\
     "//Start time;24-06-2015 22:24:38"                              "\n"\
     "//End time;24-06-2015 22:24:43"                                "\n"\
@@ -22,7 +22,7 @@ QString TestData::cModbusScopeOldFormat = QString(
     "4024;2;4;6"
 );
 
-QString TestData::cModbusScopeNewFormat = QString(
+QString CsvData::cModbusScopeNewFormat = QString(
     "//ModbusScope version,1.6.1"                                   "\n"\
     "//Start time,13-07-2019 21:57:47"                              "\n"\
     "//End time,13-07-2019 21:57:49"                                "\n"\
@@ -58,7 +58,7 @@ QString TestData::cModbusScopeNewFormat = QString(
     "2017,0,0"                                                      "\n"\
 );
 
-QString TestData::cDatasetBe = QString(
+QString CsvData::cDatasetBe = QString(
     "Time (ms);Register 40001;Register 40002"                       "\n"\
     "48;0;0,5"                                                      "\n"\
     "1049;2;4,5"                                                      "\n"\
@@ -75,7 +75,7 @@ QString TestData::cDatasetBe = QString(
     "12059;0;0,5"                                                      "\n"\
 );
 
-QString TestData::cDatasetUs = QString(
+QString CsvData::cDatasetUs = QString(
     "Time (ms),Register 40001,Register 40002"                        "\n"\
     "48,0,0.5"                                                       "\n"\
     "1049,2,4.5"                                                      "\n"\
@@ -93,7 +93,7 @@ QString TestData::cDatasetUs = QString(
 );
 
 
-QString TestData::cDatasetColumn2 = QString(
+QString CsvData::cDatasetColumn2 = QString(
     "0;Time (ms);Register 40001;Register 40002"                        "\n"\
     "0;48;0;0"                                                      "\n"\
     "0;1049;2;4"                                                      "\n"\
@@ -110,7 +110,7 @@ QString TestData::cDatasetColumn2 = QString(
     "0;12059;0;0"                                                      "\n"\
 );
 
-QString TestData::cDatasetComment = QString(
+QString CsvData::cDatasetComment = QString(
     "Time (ms);Register 40001;Register 40002"                        "\n"\
     "48;0;0,5"                                                      "\n"\
     "1049;2;4,5"                                                      "\n"\
@@ -131,7 +131,7 @@ QString TestData::cDatasetComment = QString(
 );
 
 
-QString TestData::cDatasetSigned = QString(
+QString CsvData::cDatasetSigned = QString(
     "Time (ms);Register 40001;Register 40002"                      "\n"\
     "48;-2;-2,6"                                                      "\n"\
     "1049;2;-4"                                                      "\n"\
@@ -148,7 +148,7 @@ QString TestData::cDatasetSigned = QString(
     "12059;-0,0;-1,5"                                                      "\n"\
 );
 
-QString TestData::cDatasetAbsoluteDate = QString(
+QString CsvData::cDatasetAbsoluteDate = QString(
     "Time;Register 40001;Register 40002"                               "\n"\
     "24/07/2019 18:19:31,898;0;6"                                      "\n"\
     "24/07/2019 18:19:32,929;1;5"                                      "\n"\
@@ -159,7 +159,7 @@ QString TestData::cDatasetAbsoluteDate = QString(
     "24/07/2019 18:19:38,035;6;0"                                      "\n"\
 );
 
-QString TestData::cDatasetTimeInSecond = QString(
+QString CsvData::cDatasetTimeInSecond = QString(
     "Time (s);Register 40001;Register 40002"                         "\n"\
     "0;0;6"                                                        "\n"\
     "0,1;1;5"                                                      "\n"\
@@ -170,7 +170,7 @@ QString TestData::cDatasetTimeInSecond = QString(
     "0,5;6;0"
 );
 
-QString TestData::cDatasetEmptyLastColumn = QString(
+QString CsvData::cDatasetEmptyLastColumn = QString(
     "Time (ms);Register 40001;"                                    "\n"\
     "10;6;"                                                        "\n"\
     "11;5;"                                                      "\n"\
