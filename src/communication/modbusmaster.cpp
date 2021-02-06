@@ -261,10 +261,10 @@ void ModbusMaster::logResults(QMap<quint16, ModbusResult> &results)
 
 void ModbusMaster::logInfo(QString msg)
 {
-    emit modbusLogInfo(QString("[Conn %0] %1").arg(_connectionId).arg(msg));
+    emit modbusLogInfo(QString("[Conn %0] %1").arg(_connectionId + 1).arg(msg));
 }
 
 void ModbusMaster::logError(QString msg)
 {
-    emit modbusLogError(QString("[Conn %0] %1").arg(_connectionId).arg(msg));
+    emit modbusLogError(QString("[Conn %0] %1").arg(_connectionId + 1).arg(msg));
 }
