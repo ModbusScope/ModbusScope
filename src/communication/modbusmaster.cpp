@@ -180,7 +180,7 @@ void ModbusMaster::handleRequestProtocolError(QModbusPdu::ExceptionCode exceptio
 
 void ModbusMaster::handleRequestError(QString errorString, QModbusDevice::Error error)
 {
-    emit modbusLogError(QString("Request Failed:  %0 (%1)").arg(errorString).arg(error));
+    logError(QString("Request Failed:  %0 (%1)").arg(errorString).arg(error));
 
     // When we don't receive an exception, abort read and close connection
     _pReadRegisters->addAllErrors();
@@ -261,10 +261,10 @@ void ModbusMaster::logResults(QMap<quint16, ModbusResult> &results)
 
 void ModbusMaster::logInfo(QString msg)
 {
-    emit modbusLogInfo(QString("[Conn %0] %1").arg(_connectionId).arg(msg));
+    emit modbusLogInfo(QString("[Conn %0] %1").arg(_connectionId + 1).arg(msg));
 }
 
 void ModbusMaster::logError(QString msg)
 {
-    emit modbusLogError(QString("[Conn %0] %1").arg(_connectionId).arg(msg));
+    emit modbusLogError(QString("[Conn %0] %1").arg(_connectionId + 1).arg(msg));
 }

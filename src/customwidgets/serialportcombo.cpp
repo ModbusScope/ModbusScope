@@ -19,7 +19,11 @@ void SerialPortCombo::showPopup()
 
     for(qint32 i = 0; i < list.size(); i++)
     {
+#ifdef Q_OS_WIN
+        QComboBox::addItem(list.at(i).portName());
+#else
         QComboBox::addItem(list.at(i).systemLocation());
+#endif
     }
 
     QComboBox::setEditText(currentTxt);
