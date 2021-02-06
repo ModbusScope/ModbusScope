@@ -180,7 +180,7 @@ void ModbusMaster::handleRequestProtocolError(QModbusPdu::ExceptionCode exceptio
 
 void ModbusMaster::handleRequestError(QString errorString, QModbusDevice::Error error)
 {
-    emit modbusLogError(QString("Request Failed:  %0 (%1)").arg(errorString).arg(error));
+    logError(QString("Request Failed:  %0 (%1)").arg(errorString).arg(error));
 
     // When we don't receive an exception, abort read and close connection
     _pReadRegisters->addAllErrors();
