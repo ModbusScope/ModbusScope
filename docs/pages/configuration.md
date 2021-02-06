@@ -43,11 +43,13 @@ When the expression contains an error or when the combination of the expression 
 
 ## Configure connection settings
 
-A Modbus TCP connection needs to configured correctly before any data can be read. In the *connection setting* window, up to 2 connections can be configured. A register can be coupled to a specific connection in the *register settings* window.
+A Modbus connection needs to configured correctly before any data can be read. In the *connection setting* window, up to 3 connections can be configured. Multiple connections means that several Modbus slaves can be polled in a single log session. A register can be coupled to a specific connection in the *register settings* window. ModbusScope supports 2 types of Modbus communication: TCP and RTU. Modbus ASCII isn't supported. A connection type can be selected per connection.
 
 ![image](../_static/user_manual/connection_settings.png)
 
-Most settings (*IP*, *port*, *slave ID* and *timeout*) are general Modbus protocol settings. The other settings (*max consecutive register* and *32-bit little endian*) are specific to the Modbus protocol implementation in the device. The *persistent connection* option is specific to *ModbusScope*. When enabled, *ModbusScope* will keep the connection open between polling data points. The connection will only be reinitialized when a connection error occurs.
+There are two types of connection settings. Some connection settings (*IP*, *port*, *port name*, *baud rate*, *parity*, ... ) are specific to the type of connection. The other settings (*slave ID*, *timeout*, *max consecutive register* and *32-bit little endian*) are specific to the Modbus protocol implementation in the device. The *persistent connection* option is specific to *ModbusScope*. When enabled, *ModbusScope* will keep the connection open between polling data points. The connection will only be reinitialized when a connection error occurs.
+
+For the TCP connection, you need to specify the correct IP address and port of the connection to the slave. For the serial connection, you will need to select the name of the serial port in the drop down list. Next you will need to specify some more settings like baud rate, parity, number of stop bits and number of data bits.
 
 ## Configure log settings
 

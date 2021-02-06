@@ -1,5 +1,8 @@
 # Release notes
-## v3.0.0 (14/11/2020)
+
+The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/jgeudens/ModbusScope/releases).  
+
+## [v3.0.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.0.0) (14/11/2020)
 
 ### Improvements
 
@@ -18,12 +21,12 @@ When loading old ModbusScope files  (pre v3.x.x), the existing operations (multi
 
 When exporting the settings (project file), the new expression will be saved. Older ModbusScope versions won't be able to parse this expressions. The operations will be reset to the defaults, but other register info will be loaded correctly.
 
-## v2.1.1 (03/07/2020)
+## [v2.1.1](https://github.com/jgeudens/ModbusScope/releases/tag/2.1.1) (03/07/2020)
 
 ### Defects
 * Fix update check (add OpenSSL dll to install) (##136)
 
-## v2.1.0 (15/06/2020)
+## [v2.1.0](https://github.com/jgeudens/ModbusScope/releases/tag/2.1.0) (15/06/2020)
 
 ### Defects
 * Fix tooltip
@@ -35,7 +38,7 @@ When exporting the settings (project file), the new expression will be saved. Ol
 * Disable bit mask for signed numbers
 * Rework logging to be able improve logging in the future
 
-## v2.0.0 (03/03/2020)
+## [v2.0.0](https://github.com/jgeudens/ModbusScope/releases/tag/2.0.0) (03/03/2020)
 
 ### Internal (code changes)
 
