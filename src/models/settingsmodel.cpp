@@ -14,7 +14,7 @@ SettingsModel::SettingsModel(QObject *parent) :
         connectionSettings.ipAddress = "127.0.0.1";
         connectionSettings.port = 502;
 
-        connectionSettings.portName = QStringLiteral("/dev/ttyUSB0");
+        connectionSettings.portName = QStringLiteral("COM1");
         connectionSettings.parity = QSerialPort::NoParity;
         connectionSettings.baudrate = QSerialPort::Baud115200;
         connectionSettings.databits = QSerialPort::Data8;
