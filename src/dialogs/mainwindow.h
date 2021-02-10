@@ -44,13 +44,6 @@ protected:
     void keyReleaseEvent(QKeyEvent* event);
     void closeEvent(QCloseEvent* event);
 
-signals:
-
-    void stopThread();
-    void startModbus();
-    void stopModbus();
-    void registerStateChange(quint16 registerAddress);
-
 private slots:
 
     /* Menu handlers */
