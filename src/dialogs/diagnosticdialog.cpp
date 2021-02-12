@@ -33,7 +33,8 @@ DiagnosticDialog::DiagnosticDialog(GuiModel* pGuiModel, DiagnosticModel * pDiagn
     _categoryFilterGroup.addButton(_pUi->checkDebug);
 
     connect(&_categoryFilterGroup, QOverload<int>::of(&QButtonGroup::idClicked), this, &DiagnosticDialog::handleFilterChange);
-    this->handleFilterChange(0); // Update filter
+
+    this->handleFilterChange(); // Update filter
 
     _pUi->listError->setModel(_pSeverityProxyFilter);
     _pUi->listError->setUniformItemSizes(true); // For performance
@@ -119,10 +120,8 @@ void DiagnosticDialog::handleClearButton()
     _pDiagnosticModel->clear();
 }
 
-void DiagnosticDialog::handleFilterChange(int id)
+void DiagnosticDialog::handleFilterChange()
 {
-    Q_UNUSED(id);
-
     quint32 bitmask = 0;
 
     if (_pUi->checkInfo->checkState())
@@ -154,6 +153,9 @@ void DiagnosticDialog::handleEnableDebugLog(int state)
     }
     else
     {
+        _pUi->checkDebug->setChecked(false);
+        handleFilterChange(); // update log filter
+
         _pUi->checkDebug->setEnabled(false);
         ScopeLogging::Logger().setMinimumSeverityLevel(Diagnostic::LOG_INFO);
     }
