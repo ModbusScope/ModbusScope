@@ -73,7 +73,11 @@ void LogDialog::selectLogFile()
 
     if (dialog.exec() == QDialog::Accepted)
     {
-        _pUi->lineWriteDuringLogFile->setText(dialog.selectedFiles().first());
+        auto fileList = dialog.selectedFiles();
+        if (!fileList.isEmpty())
+        {
+            _pUi->lineWriteDuringLogFile->setText(fileList.at(0));
+        }
     }
 }
 

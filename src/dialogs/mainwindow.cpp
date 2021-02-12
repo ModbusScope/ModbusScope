@@ -346,11 +346,15 @@ void MainWindow::selectImageExportFile()
     {
         if (dialog.exec())
         {
-            filePath = dialog.selectedFiles().first();
-            _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
+            auto fileList = dialog.selectedFiles();
+            if (!fileList.isEmpty())
+            {
+                filePath = fileList.at(0);
+                _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
 
-            QPixmap pixMap = this->window()->grab();
-            pixMap.save(filePath);
+                QPixmap pixMap = this->window()->grab();
+                pixMap.save(filePath);
+            }
         }
     }
 }

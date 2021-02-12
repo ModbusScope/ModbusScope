@@ -137,8 +137,12 @@ void DataFileHandler::selectDataImportFile()
 
     if (dialog.exec())
     {
-        filePath = dialog.selectedFiles().first();
-        this->loadDataFile(filePath);
+        auto fileList = dialog.selectedFiles();
+        if (!fileList.isEmpty())
+        {
+            filePath = fileList.at(0);
+            this->loadDataFile(filePath);
+        }
     }
 }
 
@@ -156,9 +160,13 @@ void DataFileHandler::selectDataExportFile()
 
     if (dialog.exec())
     {
-        filePath = dialog.selectedFiles().first();
-        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-        _pDataFileExporter->exportDataFile(filePath);
+        auto fileList = dialog.selectedFiles();
+        if (!fileList.isEmpty())
+        {
+            filePath = fileList.at(0);
+            _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
+            _pDataFileExporter->exportDataFile(filePath);
+        }
     }
 }
 
