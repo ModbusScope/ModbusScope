@@ -46,9 +46,9 @@ DiagnosticDialog::DiagnosticDialog(GuiModel* pGuiModel, DiagnosticModel * pDiagn
     // Disable auto scroll when selecting an item
     connect(_pUi->listError->selectionModel(), &QItemSelectionModel::selectionChanged, this, &DiagnosticDialog::handleErrorSelectionChanged);
 
-    // Handle inserted row
-    connect(_pUi->listError->model(), &QAbstractItemModel::rowsInserted, this, &DiagnosticDialog::handleLogsChanged);
-    connect(_pUi->listError->model(), &QAbstractItemModel::rowsRemoved, this, &DiagnosticDialog::handleLogsChanged);
+    // Handle layout change (filter change, add, clear, ...)
+    connect(_pDiagnosticModel, &QAbstractItemModel::rowsInserted, this, &DiagnosticDialog::handleLogsChanged);
+    connect(_pDiagnosticModel, &QAbstractItemModel::rowsRemoved, this, &DiagnosticDialog::handleLogsChanged);
 
     connect(_pUi->checkAutoScroll, &QCheckBox::stateChanged, this, &DiagnosticDialog::handleCheckAutoScrollChanged);
 
@@ -142,7 +142,7 @@ void DiagnosticDialog::handleFilterChange(int id)
 
     _pSeverityProxyFilter->setFilterBitmask(bitmask);
 
-    updateLogCount();
+    handleLogsChanged();
 }
 
 void DiagnosticDialog::handleEnableDebugLog(int state)
@@ -237,7 +237,7 @@ void DiagnosticDialog::updateScroll()
 
 void DiagnosticDialog::updateLogCount()
 {
-    if (_pUi->checkInfo->checkState() == Qt::Checked || _pUi->checkWarning->checkState() == Qt::Checked)
+    if (_pSeverityProxyFilter->rowCount())
     {
         _pUi->grpBoxLogs->setTitle(QString("Logs (%1/%2)").arg(_pSeverityProxyFilter->rowCount()).arg(_pDiagnosticModel->size()));
     }
