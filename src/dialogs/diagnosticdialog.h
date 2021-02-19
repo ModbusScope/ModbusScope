@@ -29,7 +29,7 @@ private slots:
     void handleCheckAutoScrollChanged(int newState);
     void handleScrollbarChange();
     void handleClearButton();
-    void handleFilterChange(int id);
+    void handleFilterChange();
     void handleEnableDebugLog(int state);
     void handleExportLog();
     void showContextMenu(const QPoint& pos);

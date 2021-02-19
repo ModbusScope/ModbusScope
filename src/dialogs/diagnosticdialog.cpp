@@ -33,7 +33,8 @@ DiagnosticDialog::DiagnosticDialog(GuiModel* pGuiModel, DiagnosticModel * pDiagn
     _categoryFilterGroup.addButton(_pUi->checkDebug);
 
     connect(&_categoryFilterGroup, QOverload<int>::of(&QButtonGroup::idClicked), this, &DiagnosticDialog::handleFilterChange);
-    this->handleFilterChange(0); // Update filter
+
+    this->handleFilterChange(); // Update filter
 
     _pUi->listError->setModel(_pSeverityProxyFilter);
     _pUi->listError->setUniformItemSizes(true); // For performance
@@ -46,9 +47,9 @@ DiagnosticDialog::DiagnosticDialog(GuiModel* pGuiModel, DiagnosticModel * pDiagn
     // Disable auto scroll when selecting an item
     connect(_pUi->listError->selectionModel(), &QItemSelectionModel::selectionChanged, this, &DiagnosticDialog::handleErrorSelectionChanged);
 
-    // Handle inserted row
-    connect(_pUi->listError->model(), &QAbstractItemModel::rowsInserted, this, &DiagnosticDialog::handleLogsChanged);
-    connect(_pUi->listError->model(), &QAbstractItemModel::rowsRemoved, this, &DiagnosticDialog::handleLogsChanged);
+    // Handle layout change (filter change, add, clear, ...)
+    connect(_pDiagnosticModel, &QAbstractItemModel::rowsInserted, this, &DiagnosticDialog::handleLogsChanged);
+    connect(_pDiagnosticModel, &QAbstractItemModel::rowsRemoved, this, &DiagnosticDialog::handleLogsChanged);
 
     connect(_pUi->checkAutoScroll, &QCheckBox::stateChanged, this, &DiagnosticDialog::handleCheckAutoScrollChanged);
 
@@ -119,10 +120,8 @@ void DiagnosticDialog::handleClearButton()
     _pDiagnosticModel->clear();
 }
 
-void DiagnosticDialog::handleFilterChange(int id)
+void DiagnosticDialog::handleFilterChange()
 {
-    Q_UNUSED(id);
-
     quint32 bitmask = 0;
 
     if (_pUi->checkInfo->checkState())
@@ -142,7 +141,7 @@ void DiagnosticDialog::handleFilterChange(int id)
 
     _pSeverityProxyFilter->setFilterBitmask(bitmask);
 
-    updateLogCount();
+    handleLogsChanged();
 }
 
 void DiagnosticDialog::handleEnableDebugLog(int state)
@@ -154,6 +153,9 @@ void DiagnosticDialog::handleEnableDebugLog(int state)
     }
     else
     {
+        _pUi->checkDebug->setChecked(false);
+        handleFilterChange(); // update log filter
+
         _pUi->checkDebug->setEnabled(false);
         ScopeLogging::Logger().setMinimumSeverityLevel(Diagnostic::LOG_INFO);
     }
@@ -237,7 +239,7 @@ void DiagnosticDialog::updateScroll()
 
 void DiagnosticDialog::updateLogCount()
 {
-    if (_pUi->checkInfo->checkState() == Qt::Checked || _pUi->checkWarning->checkState() == Qt::Checked)
+    if (_pSeverityProxyFilter->rowCount())
     {
         _pUi->grpBoxLogs->setTitle(QString("Logs (%1/%2)").arg(_pSeverityProxyFilter->rowCount()).arg(_pDiagnosticModel->size()));
     }
