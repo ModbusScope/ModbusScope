@@ -32,7 +32,6 @@ DataFileHandler::~DataFileHandler()
 {
     delete _pLoadFileDialog;
     delete _pDataFileExporter;
-    delete _pDataParserModel;
 
     cleanUpFileHandler();
 }
