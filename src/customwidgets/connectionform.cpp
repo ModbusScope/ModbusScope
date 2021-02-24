@@ -178,10 +178,8 @@ void ConnectionForm::setPersistentConnection(bool persistentConnection)
     _pUi->checkPersistentConn->setChecked(persistentConnection);
 }
 
-void ConnectionForm::connTypeSelected(qint32 index)
+void ConnectionForm::connTypeSelected()
 {
-    Q_UNUSED(index);
-
     enableSpecificSettings();
 }
 

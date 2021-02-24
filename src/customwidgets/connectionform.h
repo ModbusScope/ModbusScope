@@ -39,7 +39,7 @@ public slots:
     void setState(bool bEnabled);
 
 private slots:
-    void connTypeSelected(qint32 index);
+    void connTypeSelected();
 
 private:
 
