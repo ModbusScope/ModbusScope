@@ -221,7 +221,7 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
 
     handleCommandLineArguments(cmdArguments);
 
-#if 1
+#if 0
     //Debugging
     _pGraphDataModel->add();
     _pGraphDataModel->setRegisterAddress(0, 49001);
