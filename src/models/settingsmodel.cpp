@@ -56,6 +56,8 @@ void SettingsModel::triggerUpdate(void)
         emit ipChanged(i);
         emit portChanged(i);
 
+        emit connectionTypeChanged(i);
+
         emit portNameChanged(i);
         emit parityChanged(i);
         emit baudrateChanged(i);
