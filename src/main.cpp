@@ -1,15 +1,13 @@
-#include "mainwindow.h"
-
 #include <QApplication>
+
+#include "mainapp.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     QCoreApplication::setApplicationName("ModbusScope");
 
-    MainWindow w(a.arguments());
-
-    w.show();
+    MainApp app(a.arguments());
 
     return a.exec();
 }
