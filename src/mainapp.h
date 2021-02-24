@@ -4,6 +4,12 @@
 #include <QObject>
 
 class MainWindow;
+class GraphDataModel;
+class NoteModel;
+class DiagnosticModel;
+class SettingsModel;
+class DataParserModel;
+class GuiModel;
 
 class MainApp : public QObject
 {
@@ -15,6 +21,14 @@ public:
 signals:
 
 private:
+
+    SettingsModel * _pSettingsModel;
+    GraphDataModel * _pGraphDataModel;
+    NoteModel * _pNoteModel;
+    DiagnosticModel * _pDiagnosticModel;
+    GuiModel * _pGuiModel;
+    DataParserModel * _pDataParserModel;
+
     MainWindow* _pMainWin;
 
 };

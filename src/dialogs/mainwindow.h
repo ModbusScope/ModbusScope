@@ -36,7 +36,10 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QStringList cmdArguments, QWidget *parent = nullptr);
+    explicit MainWindow(QStringList cmdArguments, GuiModel *pGuiModel, SettingsModel *pSettingsModel,
+                        GraphDataModel *pGraphDataModel, NoteModel *pNoteModel,
+                        DiagnosticModel *pDiagnosticModel,
+                        DataParserModel *pDataParserModel, QWidget *parent = nullptr);
     ~MainWindow();
 
 protected:
@@ -105,11 +108,11 @@ private:
     CommunicationManager * _pConnMan;
     GraphView * _pGraphView;
 
+    GuiModel * _pGuiModel;
     SettingsModel * _pSettingsModel;
     GraphDataModel * _pGraphDataModel;
     NoteModel * _pNoteModel;
     DiagnosticModel * _pDiagnosticModel;
-    GuiModel * _pGuiModel;
     DataParserModel * _pDataParserModel;
 
     ConnectionDialog * _pConnectionDialog;

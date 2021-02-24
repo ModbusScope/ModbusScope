@@ -31,19 +31,20 @@ const QString MainWindow::_cStateDataLoaded = QString("Data File loaded");
 const QString MainWindow::_cStatsTemplate = QString("Success: %1\tErrors: %2");
 const QString MainWindow::_cRuntime = QString("Runtime: %1");
 
-MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
+MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
+                       SettingsModel* pSettingsModel, GraphDataModel* pGraphDataModel,
+                       NoteModel* pNoteModel, DiagnosticModel* pDiagnosticModel,
+                       DataParserModel* pDataParserModel, QWidget *parent) :
     QMainWindow(parent),
-    _pUi(new Ui::MainWindow)
+    _pUi(new Ui::MainWindow),
+    _pGuiModel(pGuiModel),
+    _pSettingsModel(pSettingsModel),
+    _pGraphDataModel(pGraphDataModel),
+    _pNoteModel(pNoteModel),
+    _pDiagnosticModel(pDiagnosticModel),
+    _pDataParserModel(pDataParserModel)
 {
     _pUi->setupUi(this);
-
-    _pGuiModel = new GuiModel();
-
-    _pSettingsModel = new SettingsModel();
-    _pGraphDataModel = new GraphDataModel(_pSettingsModel);
-    _pNoteModel = new NoteModel();
-    _pDiagnosticModel = new DiagnosticModel();
-    _pDataParserModel = new DataParserModel();
 
     ScopeLogging::Logger().initLogging(_pDiagnosticModel);
 
@@ -215,10 +216,6 @@ MainWindow::MainWindow(QStringList cmdArguments, QWidget *parent) :
     connect(_pConnMan, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pGraphView, SLOT(plotResults(QList<bool>, QList<double>)));
     connect(_pConnMan, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pLegend, SLOT(addLastReceivedDataToLegend(QList<bool>, QList<double>)));
 
-    /* Update interface via model */
-    _pGuiModel->triggerUpdate();
-    _pSettingsModel->triggerUpdate();
-
     handleCommandLineArguments(cmdArguments);
 
 #if 0
@@ -237,11 +234,8 @@ MainWindow::~MainWindow()
     delete _pGraphView;
     delete _pConnectionDialog;
     delete _pConnMan;
-    delete _pSettingsModel;
-    delete _pGuiModel;
     delete _pGraphShowHide;
     delete _pGraphBringToFront;
-    delete _pDiagnosticModel;
     delete _pDataFileHandler;
     delete _pProjectFileHandler;
 
