@@ -39,6 +39,8 @@ ConnectionForm::ConnectionForm(QWidget *parent) :
     _pUi->comboStopBits->addItem("One and half bits", QVariant(QSerialPort::OneAndHalfStop));
     _pUi->comboStopBits->addItem("Two bits", QVariant(QSerialPort::TwoStop));
     _pUi->comboStopBits->setCurrentIndex(0);
+
+    connTypeSelected();
 }
 
 ConnectionForm::~ConnectionForm()
