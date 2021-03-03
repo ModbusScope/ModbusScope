@@ -19,9 +19,7 @@
 #include "graphview.h"
 #include "datafilehandler.h"
 #include "projectfilehandler.h"
-#include "scopelogging.h"
 #include "util.h"
-#include "formatdatetime.h"
 
 #include <QDateTime>
 
@@ -45,10 +43,6 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _pDataParserModel(pDataParserModel)
 {
     _pUi->setupUi(this);
-
-    ScopeLogging::Logger().initLogging(_pDiagnosticModel);
-
-    logInitialInfo();
 
     _pConnectionDialog = new ConnectionDialog(_pSettingsModel, this);
     _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
@@ -1019,16 +1013,3 @@ void MainWindow::handleCommandLineArguments(QStringList cmdArguments)
     }
 }
 
-void MainWindow::logInitialInfo()
-{
-    qCInfo(scopeGeneralInfo) << QString("App start %1").arg(FormatDateTime::currentDateTime());
-
-    qCInfo(scopeGeneralInfo) << QString("ModbusScope v%1").arg(Util::currentVersion());
-#ifdef DEBUG
-    qCInfo(scopeGeneralInfo) << QString("DEV git: %1:%2").arg(GIT_BRANCH).arg(GIT_COMMIT_HASH);
-#endif
-
-    qCInfo(scopeGeneralInfo) << QString("Qt library v%1").arg(QLibraryInfo::version().toString());
-
-    qCInfo(scopeGeneralInfo) << QString("OS: %1").arg(QSysInfo::prettyProductName());
-}

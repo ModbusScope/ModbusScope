@@ -22,6 +22,8 @@ signals:
 
 private:
 
+    void logInitialInfo();
+
     SettingsModel * _pSettingsModel;
     GraphDataModel * _pGraphDataModel;
     NoteModel * _pNoteModel;

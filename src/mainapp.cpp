@@ -9,6 +9,10 @@
 #include "dataparsermodel.h"
 #include "guimodel.h"
 
+#include "scopelogging.h"
+#include "util.h"
+#include "formatdatetime.h"
+
 MainApp::MainApp(QStringList cmdArguments, QObject *parent) : QObject(parent)
 {
 
@@ -26,6 +30,10 @@ MainApp::MainApp(QStringList cmdArguments, QObject *parent) : QObject(parent)
                                _pNoteModel,
                                _pDiagnosticModel,
                                _pDataParserModel);
+
+    ScopeLogging::Logger().initLogging(_pDiagnosticModel);
+
+    logInitialInfo();
 
     _pMainWin->show();
 
@@ -45,4 +53,18 @@ MainApp::~MainApp()
     delete _pGraphDataModel;
     delete _pSettingsModel;
     delete _pGuiModel;
+}
+
+void MainApp::logInitialInfo()
+{
+    qCInfo(scopeGeneralInfo) << QString("App start %1").arg(FormatDateTime::currentDateTime());
+
+    qCInfo(scopeGeneralInfo) << QString("ModbusScope v%1").arg(Util::currentVersion());
+#ifdef DEBUG
+    qCInfo(scopeGeneralInfo) << QString("DEV git: %1:%2").arg(GIT_BRANCH).arg(GIT_COMMIT_HASH);
+#endif
+
+    qCInfo(scopeGeneralInfo) << QString("Qt library v%1").arg(QLibraryInfo::version().toString());
+
+    qCInfo(scopeGeneralInfo) << QString("OS: %1").arg(QSysInfo::prettyProductName());
 }
