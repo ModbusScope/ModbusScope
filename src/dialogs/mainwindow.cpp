@@ -1006,7 +1006,7 @@ void MainWindow::handleCommandLineArguments(QStringList cmdArguments)
 
     if (!argumentParser.positionalArguments().isEmpty())
     {
-        QString filename = argumentParser.positionalArguments().first();
+        QString filename = argumentParser.positionalArguments().at(0);
         QFileInfo fileInfo(filename);
         _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
         _pProjectFileHandler->loadProjectFile(filename);
