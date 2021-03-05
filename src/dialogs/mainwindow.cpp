@@ -76,6 +76,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pUi->actionExportImage, SIGNAL(triggered()), this, SLOT(selectImageExportFile()));
     connect(_pUi->actionExportSettings, SIGNAL(triggered()), _pProjectFileHandler, SLOT(selectSettingsExportFile()));
     connect(_pUi->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
+    connect(_pUi->actionUpdateAvailable, SIGNAL(triggered()), this, SLOT(openUpdateUrl()));
     connect(_pUi->actionHighlightSamplePoints, SIGNAL(toggled(bool)), _pGuiModel, SLOT(setHighlightSamples(bool)));
     connect(_pUi->actionClearData, SIGNAL(triggered()), this, SLOT(clearData()));
     connect(_pUi->actionToggleMarkers, SIGNAL(triggered()), this, SLOT(toggleMarkersState()));
@@ -205,6 +206,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pNoteModel, SIGNAL(dataFileUpdateRequested()), this, SLOT(updateDataFileNotes()));
 
     /* Trigger update check */
+    _pUi->actionUpdateAvailable->setVisible(false);
     _pUpdateNotify = new UpdateNotify(new VersionDownloader(), Util::currentVersion());
     connect(_pUpdateNotify, &UpdateNotify::updateCheckResult, this, &MainWindow::showVersionUpdate);
     _pUpdateNotify->checkForUpdate();
@@ -360,6 +362,14 @@ void MainWindow::showAbout()
     AboutDialog aboutDialog(_pUpdateNotify, this);
 
     aboutDialog.exec();
+}
+
+void MainWindow::openUpdateUrl()
+{
+    if (_pUpdateNotify->link().isValid())
+    {
+        QDesktopServices::openUrl(_pUpdateNotify->link());
+    }
 }
 
 void MainWindow::menuBringToFrontGraphClicked(bool bState)
@@ -1003,21 +1013,15 @@ void MainWindow::showVersionUpdate(UpdateNotify::UpdateState result)
 {
     if (result == UpdateNotify::VERSION_LATEST)
     {
-        //_pUi->lblUpdate->setText("No update available");
+        _pUi->actionUpdateAvailable->setVisible(false);
     }
     else
     {
-        /*
-        QString updateTxt;
+        QString strUpdate = QString("%1 available").arg(_pUpdateNotify->version());
 
-        updateTxt.append(QString("Update available: <a href=\'%1\'>v%2</a>").arg(updateNotify->link().toString(), updateNotify->version()));
-
-        updateTxt.append("<br/>");
-        _pUi->lblUpdate->setText(updateTxt);
-        */
+        _pUi->actionUpdateAvailable->setText(strUpdate);
+        _pUi->actionUpdateAvailable->setVisible(true);
     }
-
-    //_pUi->lblUpdate->setVisible(true);
 }
 
 void MainWindow::handleCommandLineArguments(QStringList cmdArguments)

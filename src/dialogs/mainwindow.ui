@@ -46,7 +46,7 @@
      <x>0</x>
      <y>0</y>
      <width>839</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -80,6 +80,7 @@
     <property name="title">
      <string>?</string>
     </property>
+    <addaction name="actionUpdateAvailable"/>
     <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -154,7 +155,7 @@
    <property name="minimumSize">
     <size>
      <width>758</width>
-     <height>126</height>
+     <height>161</height>
     </size>
    </property>
    <property name="maximumSize">
@@ -743,6 +744,14 @@
    </property>
    <property name="toolTip">
     <string>Draw zoom rectangle</string>
+   </property>
+  </action>
+  <action name="actionUpdateAvailable">
+   <property name="text">
+    <string>Update</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
    </property>
   </action>
  </widget>
