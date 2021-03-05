@@ -20,6 +20,7 @@
 #include "datafilehandler.h"
 #include "projectfilehandler.h"
 #include "util.h"
+#include "versiondownloader.h"
 
 #include <QDateTime>
 
@@ -203,6 +204,11 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     /* Update notes in data file when requested by notes model */
     connect(_pNoteModel, SIGNAL(dataFileUpdateRequested()), this, SLOT(updateDataFileNotes()));
 
+    /* Trigger update check */
+    _pUpdateNotify = new UpdateNotify(new VersionDownloader(), Util::currentVersion());
+    connect(_pUpdateNotify, &UpdateNotify::updateCheckResult, this, &MainWindow::showVersionUpdate);
+    _pUpdateNotify->checkForUpdate();
+
     // Default to full auto scaling
     _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
     _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
@@ -232,6 +238,8 @@ MainWindow::~MainWindow()
     delete _pGraphBringToFront;
     delete _pDataFileHandler;
     delete _pProjectFileHandler;
+
+    delete _pUpdateNotify;
 
     delete _pUi;
 }
@@ -349,7 +357,7 @@ void MainWindow::selectImageExportFile()
 
 void MainWindow::showAbout()
 {
-    AboutDialog aboutDialog(this);
+    AboutDialog aboutDialog(_pUpdateNotify, this);
 
     aboutDialog.exec();
 }
@@ -990,6 +998,26 @@ void MainWindow::updateDataFileNotes()
             _pDataFileHandler->updateNoteLines();
         }
     }
+}
+void MainWindow::showVersionUpdate(UpdateNotify::UpdateState result)
+{
+    if (result == UpdateNotify::VERSION_LATEST)
+    {
+        //_pUi->lblUpdate->setText("No update available");
+    }
+    else
+    {
+        /*
+        QString updateTxt;
+
+        updateTxt.append(QString("Update available: <a href=\'%1\'>v%2</a>").arg(updateNotify->link().toString(), updateNotify->version()));
+
+        updateTxt.append("<br/>");
+        _pUi->lblUpdate->setText(updateTxt);
+        */
+    }
+
+    //_pUi->lblUpdate->setVisible(true);
 }
 
 void MainWindow::handleCommandLineArguments(QStringList cmdArguments)

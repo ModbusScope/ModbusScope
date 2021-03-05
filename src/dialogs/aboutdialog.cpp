@@ -11,10 +11,9 @@
 #include "version.h"
 #include "versiondownloader.h"
 
-AboutDialog::AboutDialog(QWidget *parent) :
+AboutDialog::AboutDialog(UpdateNotify *pUpdateNotify, QWidget *parent) :
     QDialog(parent),
-    _pUi(new Ui::AboutDialog),
-    _updateNotify(new VersionDownloader(), Util::currentVersion())
+    _pUi(new Ui::AboutDialog)
 {
     _pUi->setupUi(this);
 
@@ -27,10 +26,9 @@ AboutDialog::AboutDialog(QWidget *parent) :
     setVersionInfo();
     setLibraryVersionInfo();
 
-    connect(&_updateNotify, &UpdateNotify::updateCheckResult, this, &AboutDialog::showVersionUpdate);
-    _updateNotify.checkForUpdate();
+    showVersionUpdate(pUpdateNotify);
 
-    _pUi->lblUpdate->setVisible(false);
+
 }
 
 AboutDialog::~AboutDialog()
@@ -48,9 +46,9 @@ void AboutDialog::openLicense(void)
     QDesktopServices::openUrl(QUrl("http://www.gnu.org/licenses/gpl-3.0-standalone.html"));
 }
 
-void AboutDialog::showVersionUpdate(UpdateNotify::UpdateState state)
+void AboutDialog::showVersionUpdate(UpdateNotify* updateNotify)
 {
-    if (state == UpdateNotify::VERSION_LATEST)
+    if (updateNotify->versionState() == UpdateNotify::VERSION_LATEST)
     {
         _pUi->lblUpdate->setText("No update available");
     }
@@ -58,7 +56,7 @@ void AboutDialog::showVersionUpdate(UpdateNotify::UpdateState state)
     {
         QString updateTxt;
 
-        updateTxt.append(QString("Update available: <a href=\'%1\'>v%2</a>").arg(_updateNotify.link().toString()).arg(_updateNotify.version()));
+        updateTxt.append(QString("Update available: <a href=\'%1\'>v%2</a>").arg(updateNotify->link().toString(), updateNotify->version()));
 
         updateTxt.append("<br/>");
         _pUi->lblUpdate->setText(updateTxt);

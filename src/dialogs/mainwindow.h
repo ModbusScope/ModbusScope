@@ -8,6 +8,8 @@
 #include <QLabel>
 #include <QMenu>
 
+#include "updatenotify.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -99,6 +101,8 @@ private slots:
     void updateRuntime();
     void updateDataFileNotes();
 
+    void showVersionUpdate(UpdateNotify::UpdateState result);
+
 private:
 
     void handleCommandLineArguments(QStringList cmdArguments);
@@ -113,6 +117,8 @@ private:
     NoteModel * _pNoteModel;
     DiagnosticModel * _pDiagnosticModel;
     DataParserModel * _pDataParserModel;
+
+    UpdateNotify* _pUpdateNotify;
 
     ConnectionDialog * _pConnectionDialog;
     LogDialog * _pLogDialog;
