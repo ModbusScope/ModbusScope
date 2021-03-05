@@ -11,6 +11,13 @@ class UpdateNotify : public QObject
 {
     Q_OBJECT
 public:
+
+    typedef enum
+    {
+        VERSION_LATEST = 0,             /* Latest version */
+        VERSION_UPDATE_AVAILABLE,       /* Update available */
+    } UpdateState;
+
     explicit UpdateNotify(VersionDownloader* pVersionDownloader, QString currentVersion, QObject *parent = 0);
 
     void checkForUpdate();
@@ -19,11 +26,7 @@ public:
     QUrl link() const;
     bool bValidData() const;
 
-    typedef enum
-    {
-        VERSION_LATEST = 0,             /* Latest version */
-        VERSION_UPDATE_AVAILABLE,       /* Update available */
-    } UpdateState;
+    UpdateNotify::UpdateState versionState() const;
 
 signals:
     void updateCheckResult(UpdateNotify::UpdateState result);
@@ -42,6 +45,8 @@ private:
     QString _version;
     QUrl _link;
     bool _bValidData;
+
+    UpdateNotify::UpdateState _versionState;
 
 };
 

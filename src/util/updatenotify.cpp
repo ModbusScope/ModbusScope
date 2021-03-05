@@ -10,6 +10,7 @@ UpdateNotify::UpdateNotify(VersionDownloader* pVersionDownloader, QString curren
 {
     _currentVersion = currentVersion;
     _bValidData = false;
+    _versionState = VERSION_LATEST;
     _pVersionDownloader = pVersionDownloader;
 
     connect(_pVersionDownloader, SIGNAL(versionDownloaded()), this, SLOT (handleVersionData()));
@@ -34,9 +35,9 @@ void UpdateNotify::handleVersionData()
     {
         _bValidData = true;
 
-        const UpdateState versionState = checkVersions(_currentVersion, _version);
+        _versionState = checkVersions(_currentVersion, _version);
 
-        emit updateCheckResult(versionState);
+        emit updateCheckResult(_versionState);
     }
     else
     {
@@ -93,4 +94,9 @@ QString UpdateNotify::version() const
 QUrl UpdateNotify::link() const
 {
     return _link;
+}
+
+UpdateNotify::UpdateState UpdateNotify::versionState() const
+{
+    return _versionState;
 }
