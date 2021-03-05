@@ -31,7 +31,7 @@ private slots:
 
 private:
 
-    bool updateMbcRegisters();
+    void updateMbcRegisters();
 
     Ui::ImportMbcDialog *_pUi;
 

@@ -46,7 +46,7 @@ ImportMbcDialog::ImportMbcDialog(GuiModel * pGuiModel, GraphDataModel * pGraphDa
     connect(_pUi->btnSelectMbcFile, &QToolButton::clicked, this, &ImportMbcDialog::selectMbcFile);
     connect(_pMbcRegisterModel, &QAbstractItemModel::dataChanged, this, &ImportMbcDialog::registerDataChanged);
 
-    connect(_pUi->cmbTabFilter, QOverload<const QString &>::of(&QComboBox::currentIndexChanged), _pTabProxyFilter, &MbcRegisterFilter::setTab);
+    connect(_pUi->cmbTabFilter, &QComboBox::currentTextChanged, _pTabProxyFilter, &MbcRegisterFilter::setTab);
     connect(_pUi->lineTextFilter, &QLineEdit::textChanged, _pTabProxyFilter, &MbcRegisterFilter::setTextFilter);
 }
 
@@ -91,25 +91,23 @@ void ImportMbcDialog::selectMbcFile()
 
     if (dialog.exec() == QDialog::Accepted)
     {
-        _mbcFilePath = dialog.selectedFiles().first();
-        _pUi->lineMbcfile->setText(_mbcFilePath);
-
-        _pGuiModel->setLastDir(QFileInfo(_mbcFilePath).dir().absolutePath());
-
-        if (QFile(_mbcFilePath).exists())
+        auto fileList = dialog.selectedFiles();
+        if (!fileList.isEmpty())
         {
-            if (updateMbcRegisters())
+            _mbcFilePath = fileList.at(0);
+
+            _pUi->lineMbcfile->setText(_mbcFilePath);
+
+            _pGuiModel->setLastDir(QFileInfo(_mbcFilePath).dir().absolutePath());
+
+            if (QFile(_mbcFilePath).exists())
             {
-                /* TODO: handle correctly */
+                updateMbcRegisters();
             }
             else
             {
-
+                Util::showError("No valid MBC file selected.");
             }
-        }
-        else
-        {
-            Util::showError("No valid MBC file selected.");
         }
     }
 }
@@ -127,10 +125,8 @@ void ImportMbcDialog::registerDataChanged()
     }
 }
 
-bool ImportMbcDialog::updateMbcRegisters()
+void ImportMbcDialog::updateMbcRegisters()
 {
-    bool bSuccess = false;
-
     QFile file(_mbcFilePath);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
@@ -155,15 +151,11 @@ bool ImportMbcDialog::updateMbcRegisters()
 
             /* Resize dialog window to fix table widget */
             // TODO
-
-            bSuccess = true;
         }
     }
     else
     {
         Util::showError(tr("The file can't be read."));
     }
-
-    return bSuccess;
 }
 

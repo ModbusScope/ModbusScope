@@ -175,20 +175,25 @@ void DiagnosticDialog::handleExportLog()
 
     if (dialog.exec())
     {
-        filePath = dialog.selectedFiles().first();
-        _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-
-        QFile file(filePath);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+        auto fileList = dialog.selectedFiles();
+        if (!fileList.isEmpty())
         {
-            QTextStream stream(&file);
-            DiagnosticExporter diagExporter(_pDiagnosticModel);
+            filePath = fileList.at(0);
 
-            diagExporter.exportDiagnosticsFile(stream);
-        }
-        else
-        {
-            Util::showError(tr("Save to log file (%1) failed").arg(filePath));
+            _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
+
+            QFile file(filePath);
+            if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+            {
+                QTextStream stream(&file);
+                DiagnosticExporter diagExporter(_pDiagnosticModel);
+
+                diagExporter.exportDiagnosticsFile(stream);
+            }
+            else
+            {
+                Util::showError(tr("Save to log file (%1) failed").arg(filePath));
+            }
         }
     }
 }

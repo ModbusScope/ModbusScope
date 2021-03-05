@@ -36,20 +36,16 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QStringList cmdArguments, QWidget *parent = nullptr);
+    explicit MainWindow(QStringList cmdArguments, GuiModel *pGuiModel, SettingsModel *pSettingsModel,
+                        GraphDataModel *pGraphDataModel, NoteModel *pNoteModel,
+                        DiagnosticModel *pDiagnosticModel,
+                        DataParserModel *pDataParserModel, QWidget *parent = nullptr);
     ~MainWindow();
 
 protected:
     void keyPressEvent(QKeyEvent* event);
     void keyReleaseEvent(QKeyEvent* event);
     void closeEvent(QCloseEvent* event);
-
-signals:
-
-    void stopThread();
-    void startModbus();
-    void stopModbus();
-    void registerStateChange(quint16 registerAddress);
 
 private slots:
 
@@ -106,17 +102,16 @@ private slots:
 private:
 
     void handleCommandLineArguments(QStringList cmdArguments);
-    void logInitialInfo();
 
     Ui::MainWindow * _pUi;
     CommunicationManager * _pConnMan;
     GraphView * _pGraphView;
 
+    GuiModel * _pGuiModel;
     SettingsModel * _pSettingsModel;
     GraphDataModel * _pGraphDataModel;
     NoteModel * _pNoteModel;
     DiagnosticModel * _pDiagnosticModel;
-    GuiModel * _pGuiModel;
     DataParserModel * _pDataParserModel;
 
     ConnectionDialog * _pConnectionDialog;
