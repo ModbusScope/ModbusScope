@@ -96,7 +96,7 @@ public slots:
     void clearMarkersState(void);
     void setStartMarkerPos(double pos);
     void setEndMarkerPos(double pos);
-    void setZoomState(ZoomState zoomState);
+    void setZoomState(GuiModel::ZoomState zoomState);
 
 signals:
 
