@@ -2,6 +2,7 @@
     <qresource prefix="/menu_icon">
         <file>menu_icon/icons/control_play_blue.png</file>
         <file>menu_icon/icons/control_stop_blue.png</file>
+        <file>menu_icon/icons/exclamation.png</file>
         <file>menu_icon/icons/folder.png</file>
         <file>menu_icon/icons/folder_go.png</file>
         <file>menu_icon/icons/folder_page.png</file>

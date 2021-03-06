@@ -1017,7 +1017,9 @@ void MainWindow::showVersionUpdate(UpdateNotify::UpdateState result)
     }
     else
     {
-        QString strUpdate = QString("%1 available").arg(_pUpdateNotify->version());
+        QString strUpdate = QString("v%1 available...").arg(_pUpdateNotify->version());
+
+        _pUi->menuHelp->setIcon(_pUi->actionUpdateAvailable->icon());
 
         _pUi->actionUpdateAvailable->setText(strUpdate);
         _pUi->actionUpdateAvailable->setVisible(true);
