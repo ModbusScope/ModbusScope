@@ -20,6 +20,7 @@
 #include "datafilehandler.h"
 #include "projectfilehandler.h"
 #include "util.h"
+#include "versiondownloader.h"
 
 #include <QDateTime>
 
@@ -75,6 +76,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pUi->actionExportImage, SIGNAL(triggered()), this, SLOT(selectImageExportFile()));
     connect(_pUi->actionExportSettings, SIGNAL(triggered()), _pProjectFileHandler, SLOT(selectSettingsExportFile()));
     connect(_pUi->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
+    connect(_pUi->actionUpdateAvailable, SIGNAL(triggered()), this, SLOT(openUpdateUrl()));
     connect(_pUi->actionHighlightSamplePoints, SIGNAL(toggled(bool)), _pGuiModel, SLOT(setHighlightSamples(bool)));
     connect(_pUi->actionClearData, SIGNAL(triggered()), this, SLOT(clearData()));
     connect(_pUi->actionToggleMarkers, SIGNAL(triggered()), this, SLOT(toggleMarkersState()));
@@ -203,6 +205,12 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     /* Update notes in data file when requested by notes model */
     connect(_pNoteModel, SIGNAL(dataFileUpdateRequested()), this, SLOT(updateDataFileNotes()));
 
+    /* Trigger update check */
+    _pUi->actionUpdateAvailable->setVisible(false);
+    _pUpdateNotify = new UpdateNotify(new VersionDownloader(), Util::currentVersion());
+    connect(_pUpdateNotify, &UpdateNotify::updateCheckResult, this, &MainWindow::showVersionUpdate);
+    _pUpdateNotify->checkForUpdate();
+
     // Default to full auto scaling
     _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
     _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
@@ -232,6 +240,8 @@ MainWindow::~MainWindow()
     delete _pGraphBringToFront;
     delete _pDataFileHandler;
     delete _pProjectFileHandler;
+
+    delete _pUpdateNotify;
 
     delete _pUi;
 }
@@ -349,9 +359,17 @@ void MainWindow::selectImageExportFile()
 
 void MainWindow::showAbout()
 {
-    AboutDialog aboutDialog(this);
+    AboutDialog aboutDialog(_pUpdateNotify, this);
 
     aboutDialog.exec();
+}
+
+void MainWindow::openUpdateUrl()
+{
+    if (_pUpdateNotify->link().isValid())
+    {
+        QDesktopServices::openUrl(_pUpdateNotify->link());
+    }
 }
 
 void MainWindow::menuBringToFrontGraphClicked(bool bState)
@@ -989,6 +1007,22 @@ void MainWindow::updateDataFileNotes()
         {
             _pDataFileHandler->updateNoteLines();
         }
+    }
+}
+void MainWindow::showVersionUpdate(UpdateNotify::UpdateState result)
+{
+    if (result == UpdateNotify::VERSION_LATEST)
+    {
+        _pUi->actionUpdateAvailable->setVisible(false);
+    }
+    else
+    {
+        QString strUpdate = QString("v%1 available...").arg(_pUpdateNotify->version());
+
+        _pUi->menuHelp->setIcon(_pUi->actionUpdateAvailable->icon());
+
+        _pUi->actionUpdateAvailable->setText(strUpdate);
+        _pUi->actionUpdateAvailable->setVisible(true);
     }
 }
 

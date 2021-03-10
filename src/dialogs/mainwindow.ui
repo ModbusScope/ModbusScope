@@ -46,7 +46,7 @@
      <x>0</x>
      <y>0</y>
      <width>839</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -76,10 +76,11 @@
     <addaction name="separator"/>
     <addaction name="actionDiagnostic"/>
    </widget>
-   <widget class="QMenu" name="menu">
+   <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>?</string>
     </property>
+    <addaction name="actionUpdateAvailable"/>
     <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -115,7 +116,7 @@
    <addaction name="menuFile"/>
    <addaction name="menuCommunication"/>
    <addaction name="menuView"/>
-   <addaction name="menu"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
@@ -154,7 +155,7 @@
    <property name="minimumSize">
     <size>
      <width>758</width>
-     <height>126</height>
+     <height>161</height>
     </size>
    </property>
    <property name="maximumSize">
@@ -743,6 +744,21 @@
    </property>
    <property name="toolTip">
     <string>Draw zoom rectangle</string>
+   </property>
+  </action>
+  <action name="actionUpdateAvailable">
+   <property name="icon">
+    <iconset resource="../../resources/resource.qrc">
+     <normaloff>:/menu_icon/menu_icon/icons/exclamation.png</normaloff>:/menu_icon/menu_icon/icons/exclamation.png</iconset>
+   </property>
+   <property name="text">
+    <string>Update</string>
+   </property>
+   <property name="iconText">
+    <string>Update</string>
+   </property>
+   <property name="visible">
+    <bool>true</bool>
    </property>
   </action>
  </widget>

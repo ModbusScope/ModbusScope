@@ -13,22 +13,20 @@ class AboutDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AboutDialog(QWidget *parent = nullptr);
+    explicit AboutDialog(UpdateNotify* pUpdateNotify, QWidget *parent = nullptr);
     ~AboutDialog();
 
 private slots:
     void openHomePage(void);
     void openLicense(void);
-    void showVersionUpdate(UpdateNotify::UpdateState state);
 
 private:
-
+    void showVersionUpdate(UpdateNotify* updateNotify);
     void setVersionInfo();
     void setLibraryVersionInfo();
 
     Ui::AboutDialog * _pUi;
 
-    UpdateNotify _updateNotify;
 };
 
 #endif // ABOUTDIALOG_H
