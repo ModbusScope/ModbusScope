@@ -4,7 +4,13 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ## v3.2.0
 
-* TBD
+### Improvements
+
+* Add more visible update notification ([Github #125](https://github.com/jgeudens/ModbusScope/issues/125))
+
+### Fixes
+
+* When data file is loaded, reset value in legend after inspection with `Control` key
 
 ## [v3.1.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.1.0) (23/02/2021)
 

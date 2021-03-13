@@ -191,6 +191,7 @@ void Legend::updateDataInLegend()
 
 void Legend::updateLegend()
 {
+    _lastReceivedValueList.clear();
 
     if (_pGraphDataModel->activeCount() != 0)
     {
@@ -202,6 +203,7 @@ void Legend::updateLegend()
         for (qint32 idx = 0; idx < activeList.size(); idx++)
         {
             addItem(activeList[idx]);
+            _lastReceivedValueList.append("-");
         }
 
         _pNoGraphs->hide();
