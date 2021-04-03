@@ -55,6 +55,7 @@ private slots:
     void exitApplication();
     void selectImageExportFile();
     void showAbout();
+    void openOnlineDoc();
     void openUpdateUrl();
     void menuBringToFrontGraphClicked(bool bState);
     void menuShowHideGraphClicked(bool bState);

@@ -76,6 +76,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pUi->actionExportImage, SIGNAL(triggered()), this, SLOT(selectImageExportFile()));
     connect(_pUi->actionExportSettings, SIGNAL(triggered()), _pProjectFileHandler, SLOT(selectSettingsExportFile()));
     connect(_pUi->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
+    connect(_pUi->actionOnlineDocumentation, SIGNAL(triggered()), this, SLOT(openOnlineDoc()));
     connect(_pUi->actionUpdateAvailable, SIGNAL(triggered()), this, SLOT(openUpdateUrl()));
     connect(_pUi->actionHighlightSamplePoints, SIGNAL(toggled(bool)), _pGuiModel, SLOT(setHighlightSamples(bool)));
     connect(_pUi->actionClearData, SIGNAL(triggered()), this, SLOT(clearData()));
@@ -362,6 +363,11 @@ void MainWindow::showAbout()
     AboutDialog aboutDialog(_pUpdateNotify, this);
 
     aboutDialog.exec();
+}
+
+void MainWindow::openOnlineDoc()
+{
+    QDesktopServices::openUrl(QUrl("https://modbusscope.readthedocs.io/en/stable"));
 }
 
 void MainWindow::openUpdateUrl()

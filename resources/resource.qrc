@@ -10,7 +10,8 @@
         <file>menu_icon/icons/picture_go.png</file>
         <file>menu_icon/icons/table_edit.png</file>
         <file>menu_icon/icons/table_go.png</file>
-        <file>menu_icon/icons/book_open.png</file>
+        <file>menu_icon/icons/help.png</file>
+        <file>menu_icon/icons/information.png</file>
         <file>menu_icon/icons/database_edit.png</file>
         <file>menu_icon/icons/magnifier.png</file>
     </qresource>
