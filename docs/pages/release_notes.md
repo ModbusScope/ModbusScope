@@ -7,6 +7,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 ### Improvements
 
 * Add more visible update notification ([Github #125](https://github.com/jgeudens/ModbusScope/issues/125))
+* Make documentation and project page (with issue) more visible ([Github #152](https://github.com/jgeudens/ModbusScope/issues/152))
 
 ### Fixes
 
