@@ -41,7 +41,7 @@ void AboutDialog::openHomePage(void)
 
 void AboutDialog::openLicense(void)
 {
-    QDesktopServices::openUrl(QUrl("http://www.gnu.org/licenses/gpl-3.0-standalone.html"));
+    QDesktopServices::openUrl(QUrl("https://github.com/jgeudens/ModbusScope/issues"));
 }
 
 void AboutDialog::showVersionUpdate(UpdateNotify* updateNotify)
