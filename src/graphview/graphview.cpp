@@ -463,6 +463,9 @@ void GraphView::clearResults()
         _pPlot->graph(i)->setName(QString("(-) %1").arg(_pGraphDataModel->label(i)));
     }
 
+    _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
+    _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
+
    rescalePlot();
 }
 
