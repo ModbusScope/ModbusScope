@@ -27,8 +27,6 @@ AboutDialog::AboutDialog(UpdateNotify *pUpdateNotify, QWidget *parent) :
     setLibraryVersionInfo();
 
     showVersionUpdate(pUpdateNotify);
-
-
 }
 
 AboutDialog::~AboutDialog()
@@ -38,12 +36,12 @@ AboutDialog::~AboutDialog()
 
 void AboutDialog::openHomePage(void)
 {
-    QDesktopServices::openUrl(QUrl("https://modbusscope.readthedocs.io/en/stable"));
+    QDesktopServices::openUrl(QUrl("https://github.com/jgeudens/ModbusScope"));
 }
 
 void AboutDialog::openLicense(void)
 {
-    QDesktopServices::openUrl(QUrl("http://www.gnu.org/licenses/gpl-3.0-standalone.html"));
+    QDesktopServices::openUrl(QUrl("https://github.com/jgeudens/ModbusScope/issues"));
 }
 
 void AboutDialog::showVersionUpdate(UpdateNotify* updateNotify)
