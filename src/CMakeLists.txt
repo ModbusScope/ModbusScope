@@ -1,7 +1,7 @@
 project(ModbusScope
     LANGUAGES CXX
     DESCRIPTION "Create logs from value read via Modbus"
-    VERSION 3.2.0
+    VERSION 3.2.1
     )
 
 add_definitions("-DnDEBUG")
