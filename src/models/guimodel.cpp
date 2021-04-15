@@ -79,7 +79,10 @@ GuiModel::~GuiModel()
 
 void GuiModel::triggerUpdate(void)
 {
-    emit frontGraphChanged();
+    if (_frontGraph != -1)
+    {
+        emit frontGraphChanged();
+    }
     emit highlightSamplesChanged();
     emit cursorValuesChanged();
     emit windowTitleChanged();

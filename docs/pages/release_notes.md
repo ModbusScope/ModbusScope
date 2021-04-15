@@ -1,12 +1,20 @@
 # Release notes
 
-The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/jgeudens/ModbusScope/releases).  
+The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page]
+
+(https://github.com/jgeudens/ModbusScope/releases).  
+
+## [v3.2.1](https://github.com/jgeudens/ModbusScope/releases/tag/3.2.1) (15/04/2021)
+
+### Fixes
+
+* Fix crash when starting ModbusScope with project file  ([Github #155](https://github.com/jgeudens/ModbusScope/issues/155))
 
 ## [v3.2.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.2.0) (03/04/2021)
 
 ### Improvements
 
-* Add more visible update notification ([Github #125](https://github.com/jgeudens/ModbusScope/issues/125))
+* Add more visible update notification
 * Make documentation and project page (with issue) more visible ([Github #152](https://github.com/jgeudens/ModbusScope/issues/152))
 
 ### Fixes
