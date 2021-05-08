@@ -833,7 +833,7 @@ qint32 GraphView::graphIndex(QCPGraph * pGraph)
 
 double GraphView::getClosestPoint(double coordinate)
 {
-    QCPGraphDataContainer::const_iterator closestIt = _pPlot->graph(0)->data()->constBegin();
+    QCPGraphDataContainer::const_iterator closestIt;
     QCPGraphDataContainer::const_iterator leftIt = _pPlot->graph(0)->data()->findBegin(coordinate);
 
     auto rightIt = leftIt + 1;
