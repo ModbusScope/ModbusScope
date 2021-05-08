@@ -21,7 +21,12 @@ void PresetParser::loadPresetsFromFile()
     *   <document_folder>\ModbusScope\
     *   directory of executable
     */
-    QString documentsfolder = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first();
+    QString documentsfolder;
+    QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+    if (docPath.size() > 0)
+    {
+        documentsfolder = docPath[0];
+    }
 
     presetFile = documentsfolder + "/ModbusScope/" + _presetFilename;
     if (!QFileInfo(presetFile).exists())
