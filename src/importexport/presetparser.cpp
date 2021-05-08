@@ -29,11 +29,11 @@ void PresetParser::loadPresetsFromFile()
     }
 
     presetFile = documentsfolder + "/ModbusScope/" + _presetFilename;
-    if (!QFileInfo(presetFile).exists())
+    if (!QFileInfo::exists(presetFile))
     {
         // xml in documents folder doesn't exist, check directory of executable
         presetFile = _presetFilename;
-        if (!QFileInfo(presetFile).exists())
+        if (!QFileInfo::exists(presetFile))
         {
             presetFile = "";
             _lastModified = QDateTime();
