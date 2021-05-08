@@ -78,7 +78,7 @@ namespace ProjectFileData
         _ConnectionSettings() : bConnectionId(false),
                                 bConnectionState(true), bConnectionType(false),
                                 bIp(false), bPort(false),
-                                bPortName(false), bBaudrate(false), bParity(false), stopbits(false), bDatabits(false),
+                                bPortName(false), bBaudrate(false), bParity(false), bStopbits(false), bDatabits(false),
                                 bSlaveId(false), bTimeout(false),
                                 bConsecutiveMax(false), bInt32LittleEndian(true), bPersistentConnection(true) {}
 
