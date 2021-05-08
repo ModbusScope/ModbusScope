@@ -160,7 +160,7 @@ void GuiModel::setWindowTitleDetail(QString detail)
     }
     else
     {
-        tmpTitle = QString(tr("%1 - %2")).arg(_cWindowTitle).arg(detail);
+        tmpTitle = QString(tr("%1 - %2")).arg(_cWindowTitle, detail);
     }
 
     if (tmpTitle != _windowTitle)

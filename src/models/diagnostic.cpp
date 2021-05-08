@@ -114,9 +114,7 @@ QString Diagnostic::toString() const
 
     return QString("%1 - %2 [%3]: %4")
                           .arg(timeOffset(), 8, 10, QChar('0'))
-                          .arg(severityString())
-                          .arg(category())
-                          .arg(message());
+                          .arg(severityString(), category(), message());
 }
 
 /*!
@@ -128,9 +126,7 @@ QString Diagnostic::toExportString() const
 
     return QString("%1\t%2\t%3\t%4")
                           .arg(timeOffset(), 8, 10, QChar('0'))
-                          .arg(severityString())
-                          .arg(category())
-                          .arg(message());
+                          .arg(severityString(), category(), message());
 }
 
 /*!
