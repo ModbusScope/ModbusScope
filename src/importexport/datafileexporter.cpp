@@ -150,7 +150,7 @@ bool DataFileExporter::updateNoteLines(QString dataFile)
     bool bSuccess = true;
 
     QFileInfo fileInfo(dataFile);
-    QString tmpFileName = QString("%1/tmp_%2").arg(fileInfo.path()).arg(fileInfo.fileName());
+    QString tmpFileName = QString("%1/tmp_%2").arg(fileInfo.path(), fileInfo.fileName());
 
     QFile srcFile(dataFile);
     QFile tmpFile(tmpFileName);
@@ -476,7 +476,6 @@ QString DataFileExporter::formatData(double timeData, QList<double> dataValues)
 
     if (_pSettingsModel->absoluteTimes())
     {
-        QString timeString;
         QDateTime dateTime;
         dateTime.setMSecsSinceEpoch(timeData);
         line.append(FormatDateTime::formatDateTime(dateTime));

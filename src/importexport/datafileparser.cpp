@@ -276,7 +276,7 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
                                                    "Line number: %1\n"
                                                    "Line: \"%2\"\n"
                                                    "\n\nExpected date format: \'%3\'"
-                                                   ).arg(_lineNumber).arg(strippedLine).arg("dd-MM-yyyy hh:mm:ss.zzz"));
+                                                   ).arg(_lineNumber).arg(strippedLine, "dd-MM-yyyy hh:mm:ss.zzz"));
                         emit parseErrorOccurred(error);
                         bRet = false;
                         break;

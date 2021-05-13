@@ -81,7 +81,6 @@ bool MbcFileImporter::parseTabTag(const QDomElement &element)
 {
     bool bRet = true;
     bool bFoundName = false;
-    QString tabName;
     QDomElement child = element.firstChildElement();
 
     _nextRegisterAddr = -1;
@@ -267,10 +266,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
         else
         {
             Util::showError(tr("A tag is not present or value is not valid.\n\nName: %1\nRegister address: %2\nType: %3\nDecimals: %4")
-                                .arg(name)
-                                .arg(addr)
-                                .arg(type)
-                                .arg(decimals)
+                                .arg(name, addr, type, decimals)
                             );
         }
 

@@ -342,7 +342,7 @@ bool ProjectFileParser::parseLogToFile(const QDomElement &element, LogSettings *
     // Check attribute
     QString enabled = element.attribute(ProjectFileDefinitions::cEnabledAttribute, ProjectFileDefinitions::cTrueValue);
 
-    if (!enabled.toLower().compare(ProjectFileDefinitions::cTrueValue))
+    if (!enabled.compare(ProjectFileDefinitions::cTrueValue, Qt::CaseInsensitive))
     {
         pLogSettings->bLogToFile = true;
     }
@@ -463,7 +463,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
     // Check attribute
     QString active = element.attribute(ProjectFileDefinitions::cActiveAttribute, ProjectFileDefinitions::cTrueValue);
 
-    if (!active.toLower().compare(ProjectFileDefinitions::cTrueValue))
+    if (!active.compare(ProjectFileDefinitions::cTrueValue, Qt::CaseInsensitive))
     {
         pRegisterSettings->bActive = true;
     }
@@ -666,7 +666,7 @@ bool ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleSettings 
             // Check attribute
             QString active = child.attribute(ProjectFileDefinitions::cModeAttribute);
 
-            if (!active.toLower().compare(ProjectFileDefinitions::cSlidingValue))
+            if (!active.compare(ProjectFileDefinitions::cSlidingValue, Qt::CaseInsensitive))
             {
                 // Sliding interval mode
                 pScaleSettings->bSliding = true;
@@ -677,7 +677,7 @@ bool ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleSettings 
                     break;
                 }
             }
-            else if (!active.toLower().compare(ProjectFileDefinitions::cAutoValue))
+            else if (!active.compare(ProjectFileDefinitions::cAutoValue, Qt::CaseInsensitive))
             {
                 // auto interval mode
                 pScaleSettings->bSliding = false;
@@ -688,11 +688,11 @@ bool ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleSettings 
             // Check attribute
             QString active = child.attribute(ProjectFileDefinitions::cModeAttribute);
 
-            if (!active.toLower().compare(ProjectFileDefinitions::cWindowAutoValue))
+            if (!active.compare(ProjectFileDefinitions::cWindowAutoValue, Qt::CaseInsensitive))
             {
                 pScaleSettings->bWindowScale = true;
             }
-            else if (!active.toLower().compare(ProjectFileDefinitions::cMinmaxValue))
+            else if (!active.compare(ProjectFileDefinitions::cMinmaxValue, Qt::CaseInsensitive))
             {
                 // min max mode
                 pScaleSettings->bMinMax = true;
@@ -703,7 +703,7 @@ bool ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleSettings 
                     break;
                 }
             }
-            else if (!active.toLower().compare(ProjectFileDefinitions::cAutoValue))
+            else if (!active.compare(ProjectFileDefinitions::cAutoValue, Qt::CaseInsensitive))
             {
                 // auto interval mode
             }

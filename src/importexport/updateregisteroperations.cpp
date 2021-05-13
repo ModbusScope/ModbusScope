@@ -63,7 +63,7 @@ namespace UpdateRegisterOperations
         {
             QString strBitmask = QString("0x%1").arg(QString::number(regSettings.bitmask, 16).toUpper());
 
-            operation = QString("%1&%2").arg(operation).arg(strBitmask);
+            operation = QString("%1&%2").arg(operation, strBitmask);
 
             /* Add parenthesis when other operations */
             if (defShift | defMultiply | defDivide)

@@ -7,63 +7,63 @@ namespace ProjectFileDefinitions
 {
 
     /* Tag strings */
-    const QString cModbusScopeTag = QString("modbusscope");
-    const QString cModbusTag = QString("modbus");
-    const QString cScopeTag = QString("scope");
-    const QString cViewTag = QString("view");
-    const QString cConnectionTag = QString("connection");
-    const QString cLogTag = QString("log");
-    const QString cIpTag = QString("ip");
-    const QString cConnectionIdTag = QString("connectionid");
-    const QString cSlaveIdTag = QString("slaveid");
-    const QString cPortTag = QString("port");
-    const QString cConnectionEnabledTag = QString("enabled");
-    const QString cConnectionTypeTag = QString("type");
-    const QString cPortNameTag = QString("portname");
-    const QString cParityTag = QString("parity");
-    const QString cBaudrateTag = QString("baudrate");
-    const QString cDataBitsTag = QString("databits");
-    const QString cStopBitsTag = QString("stopbits");
-    const QString cTimeoutTag = QString("timeout");
-    const QString cConsecutiveMaxTag = QString("consecutivemax");
-    const QString cInt32LittleEndianTag = QString("int32littleendian");
-    const QString cPersistentConnectionTag = QString("persistentconnection");
-    const QString cPollTimeTag = QString("polltime");
-    const QString cAbsoluteTimesTag = QString("absolutetimes");
-    const QString cLogToFileTag = QString("logtofile");
-    const QString cFilenameTag = QString("filename");
-    const QString cRegisterTag = QString("register");
-    const QString cAddressTag = QString("address");
-    const QString cTextTag = QString("text");
-    const QString cUnsignedTag = QString("unsigned");
-    const QString cDivideTag = QString("divide");
-    const QString cBit32Tag = QString("bit32");
-    const QString cMultiplyTag = QString("multiply");
-    const QString cExpressionTag = QString("expression");
-    const QString cColorTag = QString("color");
-    const QString cBitmaskTag = QString("bitmask");
-    const QString cShiftTag = QString("shift");
+    const char cModbusScopeTag[] = "modbusscope";
+    const char cModbusTag[] = "modbus";
+    const char cScopeTag[] = "scope";
+    const char cViewTag[] = "view";
+    const char cConnectionTag[] = "connection";
+    const char cLogTag[] = "log";
+    const char cIpTag[] = "ip";
+    const char cConnectionIdTag[] = "connectionid";
+    const char cSlaveIdTag[] = "slaveid";
+    const char cPortTag[] = "port";
+    const char cConnectionEnabledTag[] = "enabled";
+    const char cConnectionTypeTag[] = "type";
+    const char cPortNameTag[] = "portname";
+    const char cParityTag[] = "parity";
+    const char cBaudrateTag[] = "baudrate";
+    const char cDataBitsTag[] = "databits";
+    const char cStopBitsTag[] = "stopbits";
+    const char cTimeoutTag[] = "timeout";
+    const char cConsecutiveMaxTag[] = "consecutivemax";
+    const char cInt32LittleEndianTag[] = "int32littleendian";
+    const char cPersistentConnectionTag[] = "persistentconnection";
+    const char cPollTimeTag[] = "polltime";
+    const char cAbsoluteTimesTag[] = "absolutetimes";
+    const char cLogToFileTag[] = "logtofile";
+    const char cFilenameTag[] = "filename";
+    const char cRegisterTag[] = "register";
+    const char cAddressTag[] = "address";
+    const char cTextTag[] = "text";
+    const char cUnsignedTag[] = "unsigned";
+    const char cDivideTag[] = "divide";
+    const char cBit32Tag[] = "bit32";
+    const char cMultiplyTag[] = "multiply";
+    const char cExpressionTag[] = "expression";
+    const char cColorTag[] = "color";
+    const char cBitmaskTag[] = "bitmask";
+    const char cShiftTag[] = "shift";
 
-    const QString cScaleTag = QString("scale");
-    const QString cXaxisTag = QString("xaxis");
-    const QString cYaxisTag = QString("yaxis");
-    const QString cMinTag = QString("min");
-    const QString cMaxTag = QString("max");
-    const QString cSlidingintervalTag = QString("slidinginterval");
+    const char cScaleTag[] = "scale";
+    const char cXaxisTag[] = "xaxis";
+    const char cYaxisTag[] = "yaxis";
+    const char cMinTag[] = "min";
+    const char cMaxTag[] = "max";
+    const char cSlidingintervalTag[] = "slidinginterval";
 
     /* Attribute string */
-    const QString cDatalevelAttribute = QString("datalevel");
-    const QString cEnabledAttribute = QString("enabled");
-    const QString cActiveAttribute = QString("active");
-    const QString cModeAttribute = QString("mode");
+    const char cDatalevelAttribute[] = "datalevel";
+    const char cEnabledAttribute[] = "enabled";
+    const char cActiveAttribute[] = "active";
+    const char cModeAttribute[] = "mode";
 
     /* Value strings */
-    const QString cSlidingValue = QString("sliding");
-    const QString cAutoValue = QString("auto");
-    const QString cMinmaxValue = QString("minmax");
-    const QString cWindowAutoValue = QString("windowauto");
-    const QString cTrueValue = QString("true");
-    const QString cFalseValue = QString("false");
+    const char cSlidingValue[] = "sliding";
+    const char cAutoValue[] = "auto";
+    const char cMinmaxValue[] = "minmax";
+    const char cWindowAutoValue[] = "windowauto";
+    const char cTrueValue[] = "true";
+    const char cFalseValue[] = "false";
 
     /* Constant values */
     const quint32 cCurrentDataLevel = 2;

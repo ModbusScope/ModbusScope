@@ -10,17 +10,17 @@ namespace MbcFileDefinitions
 {
 
     /* Tag strings */
-    const QString cModbusControlTag = QString("modbuscontrol");
-    const QString cTabTag = QString("tab");
+    const char cModbusControlTag[] = "modbuscontrol";
+    const char cTabTag[] = "tab";
 
-    const QString cTabNameTag = QString("name");
-    const QString cVarTag = QString("var");
+    const char cTabNameTag[] = "name";
+    const char cVarTag[] = "var";
 
-    const QString cRegisterTag = QString("reg");
-    const QString cTextTag = QString("text");
-    const QString cTypeTag = QString("type");
-    const QString cReadWrite = QString("rw");
-    const QString cDecimals = QString("decimals");
+    const char cRegisterTag[] = "reg";
+    const char cTextTag[] = "text";
+    const char cTypeTag[] = "type";
+    const char cReadWrite[] = "rw";
+    const char cDecimals[] = "decimals";
 }
 
 class MbcFileImporter : public QObject

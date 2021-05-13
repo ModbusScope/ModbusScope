@@ -73,7 +73,7 @@ private slots:
     void toggleMarkersState();
 
     /* Model change handlers */
-    void handleGraphVisibilityChange(const quint32 graphIdx);
+    void handleGraphVisibilityChange(quint32 graphIdx);
     void handleGraphColorChange(const quint32 graphIdx);
     void handleGraphLabelChange(const quint32 graphIdx);
 

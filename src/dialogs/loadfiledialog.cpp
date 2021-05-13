@@ -338,7 +338,7 @@ bool LoadFileDialog::validateSettingsData()
 
     if (bOk)
     {
-        if (!QFileInfo(_pParserModel->dataFilePath()).exists())
+        if (!QFileInfo::exists(_pParserModel->dataFilePath()))
         {
             bOk = false;
             Util::showError(tr("Data file doesn't exist"));

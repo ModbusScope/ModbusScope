@@ -68,7 +68,7 @@ void AboutDialog::setVersionInfo()
     QString debugTxt;
     QString betaTxt;
 #ifdef DEBUG
-    debugTxt = QString(tr("(git: %1:%2)")).arg(GIT_BRANCH).arg(GIT_COMMIT_HASH);
+    debugTxt = QString(tr("(git: %1:%2)")).arg(GIT_BRANCH, GIT_COMMIT_HASH);
     betaTxt = QString(tr(" beta"));
 #endif
 

@@ -29,7 +29,7 @@ CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiMo
         connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusLogError, this, &CommunicationManager::handleModbusError);
         connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusLogInfo, this, &CommunicationManager::handleModbusInfo);
 
-        connect(_modbusMasters.last()->pModbusMaster, QOverload<quint32, quint32>::of(&ModbusMaster::modbusAddToStats),
+        connect(_modbusMasters.last()->pModbusMaster, QOverload<quint32, quint32>::of(&ModbusMaster::modbusAddToStats), this,
             [=](quint32 successes, quint32 errors){
                 _pGuiModel->setCommunicationStats(_pGuiModel->communicationSuccessCount() + successes, _pGuiModel->communicationErrorCount() + errors);
             });

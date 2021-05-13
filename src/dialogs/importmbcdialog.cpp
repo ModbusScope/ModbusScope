@@ -100,7 +100,7 @@ void ImportMbcDialog::selectMbcFile()
 
             _pGuiModel->setLastDir(QFileInfo(_mbcFilePath).dir().absolutePath());
 
-            if (QFile(_mbcFilePath).exists())
+            if (QFile::exists(_mbcFilePath))
             {
                 updateMbcRegisters();
             }
