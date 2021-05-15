@@ -28,7 +28,7 @@ public:
 
     bool updateSettings(QTextStream* pDataFileStream, settingsData_t* pSettingsData, qint32 sampleLength);
 
-    static void loadDataFileSample(QTextStream* pDataStream, QStringList* pDataFileSample, qint32 sampleLength);
+    static void loadDataFileSample(QTextStream* pDataStream, QStringList &dataFileSample, qint32 sampleLength);
 
 signals:
 

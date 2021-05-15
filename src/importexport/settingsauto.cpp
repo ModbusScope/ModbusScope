@@ -270,7 +270,7 @@ quint32 SettingsAuto::nextDataLine(quint32 startIdx, QStringList previewData, bo
 }
 
 
-void SettingsAuto::loadDataFileSample(QTextStream* pDataStream, QStringList * pDataFileSample, qint32 sampleLength)
+void SettingsAuto::loadDataFileSample(QTextStream* pDataStream, QStringList& dataFileSample, qint32 sampleLength)
 {
     QString lineData;
 
@@ -278,7 +278,7 @@ void SettingsAuto::loadDataFileSample(QTextStream* pDataStream, QStringList * pD
     pDataStream->seek(0);
 
     /* Clear result buffer */
-    pDataFileSample->clear();
+    dataFileSample.clear();
 
     bool bRet = true;
     do
@@ -295,17 +295,17 @@ void SettingsAuto::loadDataFileSample(QTextStream* pDataStream, QStringList * pD
         {
             if (!lineData.trimmed().isEmpty())
             {
-                pDataFileSample->append(lineData);
+                dataFileSample.append(lineData);
             }
 
         }
         else
         {
-            pDataFileSample->clear();
+            dataFileSample.clear();
             break;
         }
 
-    } while(bRet && (pDataFileSample->size() < sampleLength));
+    } while(bRet && (dataFileSample.size() < sampleLength));
 
     /* Set cursor back to beginning */
     pDataStream->seek(0);

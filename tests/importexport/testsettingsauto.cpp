@@ -20,7 +20,7 @@ void TestSettingsAuto::loadDataFullSample()
     QStringList list;
     QTextStream dataStream(&CsvData::cModbusScopeOldFormat);
 
-    SettingsAuto::loadDataFileSample(&dataStream, &list, 100);
+    SettingsAuto::loadDataFileSample(&dataStream, list, 100);
 
     QStringList refList;
     prepareReference(&CsvData::cModbusScopeOldFormat, refList);
@@ -36,7 +36,7 @@ void TestSettingsAuto::loadDataFullSampleLimited()
 
     const qint32 maxLine = 14;
 
-    SettingsAuto::loadDataFileSample(&dataStream, &list, maxLine);
+    SettingsAuto::loadDataFileSample(&dataStream, list, maxLine);
 
     QStringList refList;
     prepareReference(&CsvData::cModbusScopeOldFormat, refList);
