@@ -30,7 +30,7 @@ const QColor LoadFileDialog::_cColorData = QColor(200, 255, 200); // lighter gre
 const QColor LoadFileDialog::_cColorIgnored = QColor(175, 175, 175); // grey
 
 
-LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserModel, QWidget *parent) :
+LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserModel, QStringList dataFileSample, QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::LoadFileDialog)
 {
@@ -38,6 +38,7 @@ LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserMod
 
     _pParserModel = pParserModel;
     _pGuiModel = pGuiModel;
+    _dataFileSample = dataFileSample;
 
     // load presets
     loadPreset();
@@ -108,30 +109,15 @@ LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserMod
     _pUi->lblImportStatus->setPalette(palette);
 
     _pParserModel->triggerUpdate();
+
+    setPresetAccordingKeyword(_pParserModel->dataFilePath());
+
+    updatePreview();
 }
 
 LoadFileDialog::~LoadFileDialog()
 {
     delete _pUi;
-}
-
-void LoadFileDialog::open()
-{
-    /* Shouldn't be used */
-    _dataFileSample.clear();
-
-    QDialog::open();
-}
-
-void LoadFileDialog::open(QTextStream* pDataStream, qint32 sampleLineLength)
-{
-    SettingsAuto::loadDataFileSample(pDataStream, &_dataFileSample, sampleLineLength);
-
-    setPresetAccordingKeyword(_pParserModel->dataFilePath());
-
-    updatePreview();
-
-    QDialog::open();
 }
 
 void LoadFileDialog::updatePath()

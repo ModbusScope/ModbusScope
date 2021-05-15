@@ -18,7 +18,7 @@ bool SettingsAuto::updateSettings(QTextStream* pDataFileStream, settingsData_t *
 
     QStringList previewData;
 
-    loadDataFileSample(pDataFileStream, &previewData, sampleLength);
+    loadDataFileSample(pDataFileStream, previewData, sampleLength);
 
     // Reset settings
     _column = 0;

@@ -18,11 +18,8 @@ class LoadFileDialog : public QDialog
 
 public:
 
-    explicit LoadFileDialog(GuiModel * pGuiModel, DataParserModel * pParserModel, QWidget *parent = nullptr);
+    explicit LoadFileDialog(GuiModel * pGuiModel, DataParserModel * pParserModel, QStringList dataFileSample, QWidget *parent = nullptr);
     ~LoadFileDialog();
-
-    void open();
-    void open(QTextStream *pDataStream, qint32 sampleLineLength);
 
 private slots:
 
