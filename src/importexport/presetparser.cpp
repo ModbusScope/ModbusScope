@@ -9,9 +9,21 @@ PresetParser::PresetParser()
 {
 }
 
-QList<PresetParser::Preset> PresetParser::presetList()
+PresetParser::Preset PresetParser::preset(quint32 index)
 {
-    return _presetList;
+    return _presetList.at(index);
+}
+
+quint32 PresetParser::presetCount()
+{
+    int size = _presetList.size();
+
+    if (size < 0)
+    {
+        size = 0;
+    }
+
+    return static_cast<quint32>(size);
 }
 
 void PresetParser::loadPresetsFromFile()

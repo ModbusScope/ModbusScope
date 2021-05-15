@@ -292,17 +292,18 @@ void LoadFileDialog::presetSelected(int index)
 {
     const qint32 presetIndex = index - _cPresetListOffset;
 
-    if ((presetIndex >= 0) && (presetIndex < _presetParser.presetList().size()))
+    if ((presetIndex >= 0) && (static_cast<quint32>(presetIndex) < _presetParser.presetCount()))
     {
-        _pParserModel->setColumn(_presetParser.presetList()[presetIndex].column -1);
-        _pParserModel->setDataRow(_presetParser.presetList()[presetIndex].dataRow - 1);
-        _pParserModel->setLabelRow(_presetParser.presetList()[presetIndex].labelRow - 1);
-        _pParserModel->setDecimalSeparator(_presetParser.presetList()[presetIndex].decimalSeparator);
-        _pParserModel->setFieldSeparator(_presetParser.presetList()[presetIndex].fieldSeparator);
-        _pParserModel->setGroupSeparator(_presetParser.presetList()[presetIndex].thousandSeparator);
-        _pParserModel->setCommentSequence(_presetParser.presetList()[presetIndex].commentSequence);
-        _pParserModel->setTimeInMilliSeconds(_presetParser.presetList()[presetIndex].bTimeInMilliSeconds);
-        _pParserModel->setStmStudioCorrection(_presetParser.presetList()[presetIndex].bStmStudioCorrection);
+        auto preset = _presetParser.preset(presetIndex);
+        _pParserModel->setColumn(preset.column -1);
+        _pParserModel->setDataRow(preset.dataRow - 1);
+        _pParserModel->setLabelRow(preset.labelRow - 1);
+        _pParserModel->setDecimalSeparator(preset.decimalSeparator);
+        _pParserModel->setFieldSeparator(preset.fieldSeparator);
+        _pParserModel->setGroupSeparator(preset.thousandSeparator);
+        _pParserModel->setCommentSequence(preset.commentSequence);
+        _pParserModel->setTimeInMilliSeconds(preset.bTimeInMilliSeconds);
+        _pParserModel->setStmStudioCorrection(preset.bStmStudioCorrection);
     }
 }
 
@@ -380,9 +381,9 @@ void LoadFileDialog::loadPreset(void)
     _pUi->comboPreset->clear();
     _pUi->comboPreset->addItem("Manual");
 
-    foreach(PresetParser::Preset preset, _presetParser.presetList())
+    for (quint32 index = 0; index < _presetParser.presetCount(); index ++)
     {
-        _pUi->comboPreset->addItem(preset.name);
+        _pUi->comboPreset->addItem(_presetParser.preset(index).name);
     }
 }
 
@@ -391,11 +392,11 @@ void LoadFileDialog::setPresetAccordingKeyword(QString filename)
     qint32 presetComboIndex = -1;
 
     // Loop through presets and set preset if keyword is in filename
-    for (qint32 index = 0; index < _presetParser.presetList().size(); index ++)
+    for (quint32 index = 0; index < _presetParser.presetCount(); index ++)
     {
-        if (!_presetParser.presetList()[index].keyword.isEmpty())
+        if (!_presetParser.preset(index).keyword.isEmpty())
         {
-            if (QFileInfo(filename).fileName().contains(_presetParser.presetList()[index].keyword, Qt::CaseInsensitive))
+            if (QFileInfo(filename).fileName().contains(_presetParser.preset(index).keyword, Qt::CaseInsensitive))
             {
                 presetComboIndex = index + _cPresetListOffset;
                 break;

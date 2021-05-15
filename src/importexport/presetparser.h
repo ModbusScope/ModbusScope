@@ -37,7 +37,9 @@ public:
     explicit PresetParser();
 
     void loadPresetsFromFile();
-    QList<PresetParser::Preset> presetList();
+
+    PresetParser::Preset preset(quint32 index);
+    quint32 presetCount();
 
 signals:
 
