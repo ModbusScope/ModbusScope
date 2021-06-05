@@ -1,7 +1,9 @@
 
+#include <QtWidgets>
 #include <QFileDialog>
 #include <QPushButton>
 #include <QColor>
+
 
 #include "settingsauto.h"
 #include "util.h"
@@ -29,6 +31,7 @@ const QColor LoadFileDialog::_cColorLabel = QColor(150, 255, 150); // darker scr
 const QColor LoadFileDialog::_cColorData = QColor(200, 255, 200); // lighter green
 const QColor LoadFileDialog::_cColorIgnored = QColor(175, 175, 175); // grey
 
+const QString LoadFileDialog::_presetFilename = QString("presets.xml");
 
 LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserModel, QStringList dataFileSample, QWidget *parent) :
     QDialog(parent),
@@ -319,6 +322,40 @@ void LoadFileDialog::setPresetToManual()
     _pUi->comboPreset->setCurrentIndex(_cPresetManualIndex);
 }
 
+void LoadFileDialog::determinePresetFile(QString &presetFile)
+{
+    QString path;
+    /* Check if preset file exists (2 locations)
+    *   <document_folder>\ModbusScope\
+    *   directory of executable
+    */
+
+    presetFile = "";
+
+    QString documentsfolder;
+    QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+    if (docPath.size() > 0)
+    {
+        documentsfolder = docPath[0];
+
+        path = documentsfolder + "/ModbusScope/" + _presetFilename;
+        if (QFileInfo::exists(path))
+        {
+            // xml in documents folder found
+            presetFile = path;
+        }
+        else
+        {
+            // xml in documents folder doesn't exist, check directory of executable
+            path = _presetFilename;
+            if (QFileInfo::exists(path))
+            {
+                presetFile = path;
+            }
+        }
+    }
+}
+
 bool LoadFileDialog::validateSettingsData()
 {
     bool bOk = true;
@@ -362,7 +399,26 @@ qint32 LoadFileDialog::findIndexInCombo(QList<ComboListItem> comboItemList, QStr
 
 void LoadFileDialog::loadPreset(void)
 {
-    _presetParser.loadPresetsFromFile();
+    QString presetFile;
+    determinePresetFile(presetFile);
+
+    if (!presetFile.isEmpty())
+    {
+        QFile file(presetFile);
+
+        /* If we can't open it, let's show an error message. */
+        if (file.open(QFile::ReadOnly | QFile::Text))
+        {
+            QTextStream in(&file);
+            QString presetFileContent = in.readAll();
+
+            _presetParser.parsePresets(presetFileContent);
+        }
+        else
+        {
+            Util::showError(tr("Couldn't open preset file: %1").arg(presetFile));
+        }
+    }
 
     _pUi->comboPreset->clear();
     _pUi->comboPreset->addItem("Manual");

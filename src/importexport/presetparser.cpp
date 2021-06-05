@@ -1,12 +1,10 @@
 
-#include <QtWidgets>
 #include "util.h"
 #include "presetparser.h"
 
-const QString PresetParser::_presetFilename = QString("presets.xml");
-
 PresetParser::PresetParser()
 {
+    _presetList.clear();
 }
 
 PresetParser::Preset PresetParser::preset(quint32 index)
@@ -26,95 +24,36 @@ quint32 PresetParser::presetCount()
     return static_cast<quint32>(size);
 }
 
-void PresetParser::loadPresetsFromFile()
+void PresetParser::parsePresets(QString fileContent)
 {
-    QString presetFile;
-    /* Check if preset file exists (2 locations)
-    *   <document_folder>\ModbusScope\
-    *   directory of executable
-    */
-    QString documentsfolder;
-    QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
-    if (docPath.size() > 0)
-    {
-        documentsfolder = docPath[0];
-    }
-
-    presetFile = documentsfolder + "/ModbusScope/" + _presetFilename;
-    if (!QFileInfo::exists(presetFile))
-    {
-        // xml in documents folder doesn't exist, check directory of executable
-        presetFile = _presetFilename;
-        if (!QFileInfo::exists(presetFile))
-        {
-            presetFile = "";
-        }
-    }
-
-    if (presetFile != "")
-    {
-        _presetList.clear();
-
-        QFile file(presetFile);
-
-        /* If we can't open it, let's show an error message. */
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-        {
-            PresetParser presetParser;
-            if (presetParser.parseFile(&file, &_presetList))
-            {
-                // Parsing failed
-            }
-
-            file.close();
-        }
-        else
-        {
-            Util::showError(tr("Couldn't open preset file: %1").arg(presetFile));
-        }
-    }
-    else
-    {
-        _presetList.clear();
-    }
-}
-
-bool PresetParser::parseFile(QIODevice *device, QList<Preset> *pPresetList)
-{
-    bool bRet = true;
     QString errorStr;
     qint32 errorLine;
     qint32 errorColumn;
     QDomDocument domDocument;
 
-    if (!domDocument.setContent(device, true, &errorStr, &errorLine, &errorColumn))
+    _presetList.clear();
+
+    if (!domDocument.setContent(fileContent, true, &errorStr, &errorLine, &errorColumn))
     {
         Util::showError(tr("Parse error at line %1, column %2:\n%3")
                 .arg(errorLine)
                 .arg(errorColumn)
                 .arg(errorStr));
-
-        bRet = false;
     }
     else
     {
         QDomElement root = domDocument.documentElement();
-        if (root.tagName() != "modbusscope")
-        {
-            bRet = false;
-        }
-        else
+        if (root.tagName() == "modbusscope")
         {
             QDomElement tag = root.firstChildElement();
             while (!tag.isNull())
             {
                 if (tag.tagName() == "parsepreset")
                 {
-		                Preset preset;
-                    bRet = parsePresetTag(tag, &preset);
-                    if (bRet)
+                    Preset preset;
+                    if (parsePresetTag(tag, &preset))
                     {
-                        pPresetList->append(preset);
+                        _presetList.append(preset);
                     }
                     else
                     {
@@ -129,8 +68,6 @@ bool PresetParser::parseFile(QIODevice *device, QList<Preset> *pPresetList)
             }
         }
     }
-
-    return bRet;
 }
 
 

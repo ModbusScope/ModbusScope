@@ -72,6 +72,7 @@ private:
 
     QStringList _dataFileSample;
 
+    void determinePresetFile(QString &presetFile);
     bool validateSettingsData();
     qint32 findIndexInCombo(QList<ComboListItem> comboItemList, QString userDataKey);
     void loadPreset(void);
@@ -88,6 +89,7 @@ private:
     static const QColor _cColorIgnored;
     static const quint32 _cPresetManualIndex = 0;
     static const quint32 _cPresetListOffset = 1;
+    static const QString _presetFilename;
 };
 
 #endif // LoadFileDialog_H

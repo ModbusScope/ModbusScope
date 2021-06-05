@@ -36,7 +36,7 @@ public:
 
     explicit PresetParser();
 
-    void loadPresetsFromFile();
+    void parsePresets(QString fileContent);
 
     PresetParser::Preset preset(quint32 index);
     quint32 presetCount();
@@ -47,12 +47,10 @@ public slots:
 
 private:
 
-    bool parseFile(QIODevice *device, QList<Preset> *pPresetList);
     bool parsePresetTag(const QDomElement &element, Preset *pPreset);
 
     QList<PresetParser::Preset> _presetList;
 
-    static const QString _presetFilename;
 };
 
 #endif // PRESETPARSER_H
