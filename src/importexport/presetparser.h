@@ -50,8 +50,6 @@ private:
     bool parseFile(QIODevice *device, QList<Preset> *pPresetList);
     bool parsePresetTag(const QDomElement &element, Preset *pPreset);
 
-    QDomDocument _domDocument;
-    QDateTime _lastModified;
     QList<PresetParser::Preset> _presetList;
 
     static const QString _presetFilename;

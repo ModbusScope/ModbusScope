@@ -48,37 +48,30 @@ void PresetParser::loadPresetsFromFile()
         if (!QFileInfo::exists(presetFile))
         {
             presetFile = "";
-            _lastModified = QDateTime();
         }
     }
 
     if (presetFile != "")
     {
-        if (_lastModified != QFileInfo(presetFile).lastModified())
+        _presetList.clear();
+
+        QFile file(presetFile);
+
+        /* If we can't open it, let's show an error message. */
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text))
         {
-            _lastModified = QFileInfo(presetFile).lastModified();
-
-            _presetList.clear();
-
-            QFile file(presetFile);
-
-            /* If we can't open it, let's show an error message. */
-            if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+            PresetParser presetParser;
+            if (presetParser.parseFile(&file, &_presetList))
             {
-                PresetParser presetParser;
-                if (presetParser.parseFile(&file, &_presetList))
-                {
-                    // Parsing failed
-                }
+                // Parsing failed
+            }
 
-                file.close();
-            }
-            else
-            {
-                Util::showError(tr("Couldn't open preset file: %1").arg(presetFile));
-            }
+            file.close();
         }
-
+        else
+        {
+            Util::showError(tr("Couldn't open preset file: %1").arg(presetFile));
+        }
     }
     else
     {
@@ -92,8 +85,9 @@ bool PresetParser::parseFile(QIODevice *device, QList<Preset> *pPresetList)
     QString errorStr;
     qint32 errorLine;
     qint32 errorColumn;
+    QDomDocument domDocument;
 
-    if (!_domDocument.setContent(device, true, &errorStr, &errorLine, &errorColumn))
+    if (!domDocument.setContent(device, true, &errorStr, &errorLine, &errorColumn))
     {
         Util::showError(tr("Parse error at line %1, column %2:\n%3")
                 .arg(errorLine)
@@ -104,7 +98,7 @@ bool PresetParser::parseFile(QIODevice *device, QList<Preset> *pPresetList)
     }
     else
     {
-        QDomElement root = _domDocument.documentElement();
+        QDomElement root = domDocument.documentElement();
         if (root.tagName() != "modbusscope")
         {
             bRet = false;
