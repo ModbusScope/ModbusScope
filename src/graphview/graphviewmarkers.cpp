@@ -23,9 +23,9 @@ GraphViewMarkers::GraphViewMarkers(GuiModel* pGuiModel, MyQCustomPlot* pPlot, QO
     _pEndMarker->setVisible(false);
     _pEndMarker->setPen(markerPen);
 
-    connect(_pGuiModel, SIGNAL(markerStateChanged()), this, SLOT(updateMarkersVisibility()));
-    connect(_pGuiModel, SIGNAL(startMarkerPosChanged()), this, SLOT(setStartMarker()));
-    connect(_pGuiModel, SIGNAL(endMarkerPosChanged()), this, SLOT(setEndMarker()));
+    connect(_pGuiModel, &GuiModel::markerStateChanged, this, &GraphViewMarkers::updateMarkersVisibility);
+    connect(_pGuiModel, &GuiModel::startMarkerPosChanged, this, &GraphViewMarkers::setStartMarker);
+    connect(_pGuiModel, &GuiModel::endMarkerPosChanged, this, &GraphViewMarkers::setEndMarker);
 }
 
 GraphViewMarkers::~GraphViewMarkers()
