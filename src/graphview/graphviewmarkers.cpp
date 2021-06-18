@@ -94,11 +94,12 @@ void GraphViewMarkers::setEndMarker()
     _pPlot->replot();
 }
 
-void GraphViewMarkers::setTracerVisibility(QList<QCPItemTracer *> &tracerList, bool bVisible)
+void GraphViewMarkers::setTracerVisibility(QList<QCPItemTracer *> &tracerList, bool bMarkerVisibility)
 {
     for (auto tracer : tracerList)
     {
-        tracer->setVisible(bVisible);
+        const bool bVisility = bMarkerVisibility && tracer->graph()->visible();
+        tracer->setVisible(bVisility);
     }
 }
 
