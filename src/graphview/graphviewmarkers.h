@@ -17,6 +17,7 @@ public:
 
     void clearTracers();
     void addTracer(QCPGraph* pGraph);
+    void updateTracersVisibility();
 
 private slots:
     void updateMarkersVisibility();

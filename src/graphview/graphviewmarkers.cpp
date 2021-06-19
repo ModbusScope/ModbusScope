@@ -53,6 +53,12 @@ void GraphViewMarkers::addTracer(QCPGraph* pGraph)
     _endTracerList.append(tracer);
 }
 
+void GraphViewMarkers::updateTracersVisibility()
+{
+    setTracerVisibility(_startTracerList, _pStartMarker->visible());
+    setTracerVisibility(_endTracerList, _pEndMarker->visible());
+}
+
 void GraphViewMarkers::updateMarkersVisibility()
 {
     if (_pGuiModel->markerState() == false)
