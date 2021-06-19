@@ -114,7 +114,7 @@ void GraphViewMarkers::setTracerPosition(QList<QCPItemTracer *> &tracerList, dou
 QCPItemTracer* GraphViewMarkers::createTracer(QCPGraph* pGraph)
 {
     auto tracer = new QCPItemTracer(_pPlot);
-    tracer->setVisible(_pGuiModel->markerState());
+    tracer->setVisible(_pGuiModel->markerState() && pGraph->visible());
     tracer->setStyle(QCPItemTracer::tsSquare);
     tracer->setSize(8);
     tracer->setInterpolating(true);
