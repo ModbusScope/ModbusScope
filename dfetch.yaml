@@ -7,11 +7,16 @@ manifest:
 
   projects:
 
-    - name: libraries/muparser
+    - name: muparser
       repo-path: beltoforion/muparser
       revision: 207d5b77c05c9111ff51ab91082701221220c477
       branch: v2.3.2
       dst: libraries/muparser
+
+    - name: qcustomplot
+      repo-path: jgeudens/qcustomplot-release
+      branch: master
+      dst: libraries/qcustomplot
 
     - name: tests/googletest
       repo-path: google/googletest
