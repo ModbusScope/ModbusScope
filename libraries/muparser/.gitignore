@@ -1,0 +1,11 @@
+
+.vs/muparser/v16/.suo
+*.db
+*.db-shm
+*.opendb
+*.db-wal
+*.ipch
+.vs/*
+build/*
+out/*
+CMakeSettings.json

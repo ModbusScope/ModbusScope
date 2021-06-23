@@ -644,10 +644,6 @@ protected:
 /* including file 'src/layer.h'            */
 /* modified 2021-03-29T02:30:44, size 7038 */
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-  Q_MOC_INCLUDE("core.h") // Qt6 needs this if using forward declared types in Q_PROPERTY
-#endif
-
 class QCP_LIB_DECL QCPLayer : public QObject
 {
   Q_OBJECT
@@ -2034,10 +2030,6 @@ protected:
 
 /* including file 'src/axis/axis.h'         */
 /* modified 2021-03-29T02:30:44, size 20913 */
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-  Q_MOC_INCLUDE("layoutelements/layoutelement-axisrect.h") // Qt6 needs this if using forward declared types in Q_PROPERTY; path is relative to .pro
-#endif
 
 class QCP_LIB_DECL QCPGrid :public QCPLayerable
 {

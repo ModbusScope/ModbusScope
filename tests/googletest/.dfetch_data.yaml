@@ -1,0 +1,7 @@
+dfetch:
+  branch: master
+  hash: 79a8ce5bb44b087e12cc5263d9043490
+  last_fetch: 23/06/2021, 18:51:20
+  remote_url: https://github.com/google/googletest
+  revision: 355d57d90d9744c41ac7c99f1e960778f1c63040
+  tag: ''
