@@ -17,6 +17,7 @@ public:
 
     void clearTracers();
     void addTracer(QCPGraph* pGraph);
+    void updateTracersVisibility();
 
 private slots:
     void updateMarkersVisibility();
@@ -25,7 +26,7 @@ private slots:
 
 private:
 
-    void setTracerVisibility(QList<QCPItemTracer *> &tracerList, bool bVisible);
+    void setTracerVisibility(QList<QCPItemTracer *> &tracerList, bool bMarkerVisibility);
     void setTracerPosition(QList<QCPItemTracer *> &tracerList, double pos);
     QCPItemTracer* createTracer(QCPGraph* pGraph);
 

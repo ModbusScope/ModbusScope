@@ -23,9 +23,9 @@ GraphViewMarkers::GraphViewMarkers(GuiModel* pGuiModel, MyQCustomPlot* pPlot, QO
     _pEndMarker->setVisible(false);
     _pEndMarker->setPen(markerPen);
 
-    connect(_pGuiModel, SIGNAL(markerStateChanged()), this, SLOT(updateMarkersVisibility()));
-    connect(_pGuiModel, SIGNAL(startMarkerPosChanged()), this, SLOT(setStartMarker()));
-    connect(_pGuiModel, SIGNAL(endMarkerPosChanged()), this, SLOT(setEndMarker()));
+    connect(_pGuiModel, &GuiModel::markerStateChanged, this, &GraphViewMarkers::updateMarkersVisibility);
+    connect(_pGuiModel, &GuiModel::startMarkerPosChanged, this, &GraphViewMarkers::setStartMarker);
+    connect(_pGuiModel, &GuiModel::endMarkerPosChanged, this, &GraphViewMarkers::setEndMarker);
 }
 
 GraphViewMarkers::~GraphViewMarkers()
@@ -51,6 +51,12 @@ void GraphViewMarkers::addTracer(QCPGraph* pGraph)
     tracer = createTracer(pGraph);
     tracer->setGraphKey(_pGuiModel->endMarkerPos());
     _endTracerList.append(tracer);
+}
+
+void GraphViewMarkers::updateTracersVisibility()
+{
+    setTracerVisibility(_startTracerList, _pStartMarker->visible());
+    setTracerVisibility(_endTracerList, _pEndMarker->visible());
 }
 
 void GraphViewMarkers::updateMarkersVisibility()
@@ -94,11 +100,12 @@ void GraphViewMarkers::setEndMarker()
     _pPlot->replot();
 }
 
-void GraphViewMarkers::setTracerVisibility(QList<QCPItemTracer *> &tracerList, bool bVisible)
+void GraphViewMarkers::setTracerVisibility(QList<QCPItemTracer *> &tracerList, bool bMarkerVisibility)
 {
     for (auto tracer : tracerList)
     {
-        tracer->setVisible(bVisible);
+        const bool bVisility = bMarkerVisibility && tracer->graph()->visible();
+        tracer->setVisible(bVisility);
     }
 }
 
@@ -113,7 +120,7 @@ void GraphViewMarkers::setTracerPosition(QList<QCPItemTracer *> &tracerList, dou
 QCPItemTracer* GraphViewMarkers::createTracer(QCPGraph* pGraph)
 {
     auto tracer = new QCPItemTracer(_pPlot);
-    tracer->setVisible(_pGuiModel->markerState());
+    tracer->setVisible(_pGuiModel->markerState() && pGraph->visible());
     tracer->setStyle(QCPItemTracer::tsSquare);
     tracer->setSize(8);
     tracer->setInterpolating(true);

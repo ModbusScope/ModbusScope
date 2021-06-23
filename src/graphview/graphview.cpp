@@ -336,6 +336,7 @@ void GraphView::showGraph(quint32 graphIdx)
         const quint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
         _pPlot->graph(activeIdx)->setVisible(bShow);
+        _pGraphViewMarkers->updateTracersVisibility();
 
         rescalePlot();
     }
