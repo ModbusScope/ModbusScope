@@ -646,47 +646,82 @@ std::string UnitTestOptions::GetAbsolutePathToOutputFile() {
   return result.string();
 }
 
-// Returns true if and only if the wildcard pattern matches the string.
-// The first ':' or '\0' character in pattern marks the end of it.
+// Returns true if and only if the wildcard pattern matches the string. Each
+// pattern consists of regular characters, single-character wildcards (?), and
+// multi-character wildcards (*).
 //
-// This recursive algorithm isn't very efficient, but is clear and
-// works well enough for matching test names, which are short.
-bool UnitTestOptions::PatternMatchesString(const char *pattern,
-                                           const char *str) {
-  switch (*pattern) {
-    case '\0':
-    case ':':  // Either ':' or '\0' marks the end of the pattern.
-      return *str == '\0';
-    case '?':  // Matches any single character.
-      return *str != '\0' && PatternMatchesString(pattern + 1, str + 1);
-    case '*':  // Matches any string (possibly empty) of characters.
-      return (*str != '\0' && PatternMatchesString(pattern, str + 1)) ||
-          PatternMatchesString(pattern + 1, str);
-    default:  // Non-special character.  Matches itself.
-      return *pattern == *str &&
-          PatternMatchesString(pattern + 1, str + 1);
+// This function implements a linear-time string globbing algorithm based on
+// https://research.swtch.com/glob.
+static bool PatternMatchesString(const std::string& name_str,
+                                 const char* pattern, const char* pattern_end) {
+  const char* name = name_str.c_str();
+  const char* const name_begin = name;
+  const char* const name_end = name + name_str.size();
+
+  const char* pattern_next = pattern;
+  const char* name_next = name;
+
+  while (pattern < pattern_end || name < name_end) {
+    if (pattern < pattern_end) {
+      switch (*pattern) {
+        default:  // Match an ordinary character.
+          if (name < name_end && *name == *pattern) {
+            ++pattern;
+            ++name;
+            continue;
+          }
+          break;
+        case '?':  // Match any single character.
+          if (name < name_end) {
+            ++pattern;
+            ++name;
+            continue;
+          }
+          break;
+        case '*':
+          // Match zero or more characters. Start by skipping over the wildcard
+          // and matching zero characters from name. If that fails, restart and
+          // match one more character than the last attempt.
+          pattern_next = pattern;
+          name_next = name + 1;
+          ++pattern;
+          continue;
+      }
+    }
+    // Failed to match a character. Restart if possible.
+    if (name_begin < name_next && name_next <= name_end) {
+      pattern = pattern_next;
+      name = name_next;
+      continue;
+    }
+    return false;
   }
+  return true;
 }
 
-bool UnitTestOptions::MatchesFilter(
-    const std::string& name, const char* filter) {
-  const char *cur_pattern = filter;
-  for (;;) {
-    if (PatternMatchesString(cur_pattern, name.c_str())) {
+bool UnitTestOptions::MatchesFilter(const std::string& name_str,
+                                    const char* filter) {
+  // The filter is a list of patterns separated by colons (:).
+  const char* pattern = filter;
+  while (true) {
+    // Find the bounds of this pattern.
+    const char* const next_sep = strchr(pattern, ':');
+    const char* const pattern_end =
+        next_sep != nullptr ? next_sep : pattern + strlen(pattern);
+
+    // Check if this pattern matches name_str.
+    if (PatternMatchesString(name_str, pattern, pattern_end)) {
       return true;
     }
 
-    // Finds the next pattern in the filter.
-    cur_pattern = strchr(cur_pattern, ':');
-
-    // Returns if no more pattern can be found.
-    if (cur_pattern == nullptr) {
+    // Give up on this pattern. However, if we found a pattern separator (:),
+    // advance to the next pattern (skipping over the separator) and restart.
+    if (next_sep == nullptr) {
       return false;
     }
-
-    // Skips the pattern separater (the ':' character).
-    cur_pattern++;
+    pattern = next_sep + 1;
   }
+  return true;
 }
 
 // Returns true if and only if the user-specified filter matches the test
@@ -996,7 +1031,25 @@ std::string UnitTestImpl::CurrentOsStackTraceExceptTop(int skip_count) {
       );  // NOLINT
 }
 
-// Returns the current time in milliseconds.
+// A helper class for measuring elapsed times.
+class Timer {
+ public:
+  Timer() : start_(std::chrono::steady_clock::now()) {}
+
+  // Return time elapsed in milliseconds since the timer was created.
+  TimeInMillis Elapsed() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+               std::chrono::steady_clock::now() - start_)
+        .count();
+  }
+
+ private:
+  std::chrono::steady_clock::time_point start_;
+};
+
+// Returns a timestamp as milliseconds since the epoch. Note this time may jump
+// around subject to adjustments by the system, to measure elapsed time use
+// Timer instead.
 TimeInMillis GetTimeInMillis() {
   return std::chrono::duration_cast<std::chrono::milliseconds>(
              std::chrono::system_clock::now() -
@@ -2188,7 +2241,7 @@ void TestResult::RecordProperty(const std::string& xml_element,
   if (!ValidateTestProperty(xml_element, test_property)) {
     return;
   }
-  internal::MutexLock lock(&test_properites_mutex_);
+  internal::MutexLock lock(&test_properties_mutex_);
   const std::vector<TestProperty>::iterator property_with_matching_key =
       std::find_if(test_properties_.begin(), test_properties_.end(),
                    internal::TestPropertyKeyIs(test_property.key()));
@@ -2789,7 +2842,8 @@ void TestInfo::Run() {
   // Notifies the unit test event listeners that a test is about to start.
   repeater->OnTestStart(*this);
 
-  const TimeInMillis start = internal::GetTimeInMillis();
+  result_.set_start_timestamp(internal::GetTimeInMillis());
+  internal::Timer timer;
 
   impl->os_stack_trace_getter()->UponLeavingGTest();
 
@@ -2814,8 +2868,7 @@ void TestInfo::Run() {
         test, &Test::DeleteSelf_, "the test fixture's destructor");
   }
 
-  result_.set_start_timestamp(start);
-  result_.set_elapsed_time(internal::GetTimeInMillis() - start);
+  result_.set_elapsed_time(timer.Elapsed());
 
   // Notifies the unit test event listener that a test has just finished.
   repeater->OnTestEnd(*this);
@@ -2957,6 +3010,7 @@ void TestSuite::Run() {
       this, &TestSuite::RunSetUpTestSuite, "SetUpTestSuite()");
 
   start_timestamp_ = internal::GetTimeInMillis();
+  internal::Timer timer;
   for (int i = 0; i < total_test_count(); i++) {
     GetMutableTestInfo(i)->Run();
     if (GTEST_FLAG(fail_fast) && GetMutableTestInfo(i)->result()->Failed()) {
@@ -2966,7 +3020,7 @@ void TestSuite::Run() {
       break;
     }
   }
-  elapsed_time_ = internal::GetTimeInMillis() - start_timestamp_;
+  elapsed_time_ = timer.Elapsed();
 
   impl->os_stack_trace_getter()->UponLeavingGTest();
   internal::HandleExceptionsInMethodIfSupported(
@@ -3874,6 +3928,16 @@ class XmlUnitTestResultPrinter : public EmptyTestEventListener {
   // Streams an XML CDATA section, escaping invalid CDATA sequences as needed.
   static void OutputXmlCDataSection(::std::ostream* stream, const char* data);
 
+  // Streams a test suite XML stanza containing the given test result.
+  //
+  // Requires: result.Failed()
+  static void OutputXmlTestSuiteForTestResult(::std::ostream* stream,
+                                              const TestResult& result);
+
+  // Streams an XML representation of a TestResult object.
+  static void OutputXmlTestResult(::std::ostream* stream,
+                                  const TestResult& result);
+
   // Streams an XML representation of a TestInfo object.
   static void OutputXmlTestInfo(::std::ostream* stream,
                                 const char* test_suite_name,
@@ -4032,6 +4096,10 @@ static bool PortableLocaltime(time_t seconds, struct tm* out) {
   if (tm_ptr == nullptr) return false;
   *out = *tm_ptr;
   return true;
+#elif defined(__STDC_LIB_EXT1__)
+  // Uses localtime_s when available as localtime_r is only available from
+  // C23 standard.
+  return localtime_s(&seconds, out) != nullptr;
 #else
   return localtime_r(&seconds, out) != nullptr;
 #endif
@@ -4089,6 +4157,43 @@ void XmlUnitTestResultPrinter::OutputXmlAttribute(
   *stream << " " << name << "=\"" << EscapeXmlAttribute(value) << "\"";
 }
 
+// Streams a test suite XML stanza containing the given test result.
+void XmlUnitTestResultPrinter::OutputXmlTestSuiteForTestResult(
+    ::std::ostream* stream, const TestResult& result) {
+  // Output the boilerplate for a minimal test suite with one test.
+  *stream << "  <testsuite";
+  OutputXmlAttribute(stream, "testsuite", "name", "NonTestSuiteFailure");
+  OutputXmlAttribute(stream, "testsuite", "tests", "1");
+  OutputXmlAttribute(stream, "testsuite", "failures", "1");
+  OutputXmlAttribute(stream, "testsuite", "disabled", "0");
+  OutputXmlAttribute(stream, "testsuite", "skipped", "0");
+  OutputXmlAttribute(stream, "testsuite", "errors", "0");
+  OutputXmlAttribute(stream, "testsuite", "time",
+                     FormatTimeInMillisAsSeconds(result.elapsed_time()));
+  OutputXmlAttribute(
+      stream, "testsuite", "timestamp",
+      FormatEpochTimeInMillisAsIso8601(result.start_timestamp()));
+  *stream << ">";
+
+  // Output the boilerplate for a minimal test case with a single test.
+  *stream << "    <testcase";
+  OutputXmlAttribute(stream, "testcase", "name", "");
+  OutputXmlAttribute(stream, "testcase", "status", "run");
+  OutputXmlAttribute(stream, "testcase", "result", "completed");
+  OutputXmlAttribute(stream, "testcase", "classname", "");
+  OutputXmlAttribute(stream, "testcase", "time",
+                     FormatTimeInMillisAsSeconds(result.elapsed_time()));
+  OutputXmlAttribute(
+      stream, "testcase", "timestamp",
+      FormatEpochTimeInMillisAsIso8601(result.start_timestamp()));
+
+  // Output the actual test result.
+  OutputXmlTestResult(stream, result);
+
+  // Complete the test suite.
+  *stream << "  </testsuite>\n";
+}
+
 // Prints an XML representation of a TestInfo object.
 void XmlUnitTestResultPrinter::OutputXmlTestInfo(::std::ostream* stream,
                                                  const char* test_suite_name,
@@ -4132,6 +4237,11 @@ void XmlUnitTestResultPrinter::OutputXmlTestInfo(::std::ostream* stream,
       FormatEpochTimeInMillisAsIso8601(result.start_timestamp()));
   OutputXmlAttribute(stream, kTestsuite, "classname", test_suite_name);
 
+  OutputXmlTestResult(stream, result);
+}
+
+void XmlUnitTestResultPrinter::OutputXmlTestResult(::std::ostream* stream,
+                                                   const TestResult& result) {
   int failures = 0;
   int skips = 0;
   for (int i = 0; i < result.total_part_count(); ++i) {
@@ -4246,6 +4356,13 @@ void XmlUnitTestResultPrinter::PrintXmlUnitTest(std::ostream* stream,
     if (unit_test.GetTestSuite(i)->reportable_test_count() > 0)
       PrintXmlTestSuite(stream, *unit_test.GetTestSuite(i));
   }
+
+  // If there was a test failure outside of one of the test suites (like in a
+  // test environment) include that in the output.
+  if (unit_test.ad_hoc_test_result().Failed()) {
+    OutputXmlTestSuiteForTestResult(stream, unit_test.ad_hoc_test_result());
+  }
+
   *stream << "</" << kTestsuites << ">\n";
 }
 
@@ -4335,6 +4452,16 @@ class JsonUnitTestResultPrinter : public EmptyTestEventListener {
                             int value,
                             const std::string& indent,
                             bool comma = true);
+
+  // Streams a test suite JSON stanza containing the given test result.
+  //
+  // Requires: result.Failed()
+  static void OutputJsonTestSuiteForTestResult(::std::ostream* stream,
+                                               const TestResult& result);
+
+  // Streams a JSON representation of a TestResult object.
+  static void OutputJsonTestResult(::std::ostream* stream,
+                                   const TestResult& result);
 
   // Streams a JSON representation of a TestInfo object.
   static void OutputJsonTestInfo(::std::ostream* stream,
@@ -4486,6 +4613,48 @@ void JsonUnitTestResultPrinter::OutputJsonKey(
     *stream << ",\n";
 }
 
+// Streams a test suite JSON stanza containing the given test result.
+void JsonUnitTestResultPrinter::OutputJsonTestSuiteForTestResult(
+    ::std::ostream* stream, const TestResult& result) {
+  // Output the boilerplate for a new test suite.
+  *stream << Indent(4) << "{\n";
+  OutputJsonKey(stream, "testsuite", "name", "NonTestSuiteFailure", Indent(6));
+  OutputJsonKey(stream, "testsuite", "tests", 1, Indent(6));
+  if (!GTEST_FLAG(list_tests)) {
+    OutputJsonKey(stream, "testsuite", "failures", 1, Indent(6));
+    OutputJsonKey(stream, "testsuite", "disabled", 0, Indent(6));
+    OutputJsonKey(stream, "testsuite", "skipped", 0, Indent(6));
+    OutputJsonKey(stream, "testsuite", "errors", 0, Indent(6));
+    OutputJsonKey(stream, "testsuite", "time",
+                  FormatTimeInMillisAsDuration(result.elapsed_time()),
+                  Indent(6));
+    OutputJsonKey(stream, "testsuite", "timestamp",
+                  FormatEpochTimeInMillisAsRFC3339(result.start_timestamp()),
+                  Indent(6));
+  }
+  *stream << Indent(6) << "\"testsuite\": [\n";
+
+  // Output the boilerplate for a new test case.
+  *stream << Indent(8) << "{\n";
+  OutputJsonKey(stream, "testcase", "name", "", Indent(10));
+  OutputJsonKey(stream, "testcase", "status", "RUN", Indent(10));
+  OutputJsonKey(stream, "testcase", "result", "COMPLETED", Indent(10));
+  OutputJsonKey(stream, "testcase", "timestamp",
+                FormatEpochTimeInMillisAsRFC3339(result.start_timestamp()),
+                Indent(10));
+  OutputJsonKey(stream, "testcase", "time",
+                FormatTimeInMillisAsDuration(result.elapsed_time()),
+                Indent(10));
+  OutputJsonKey(stream, "testcase", "classname", "", Indent(10), false);
+  *stream << TestPropertiesAsJson(result, Indent(10));
+
+  // Output the actual test result.
+  OutputJsonTestResult(stream, result);
+
+  // Finish the test suite.
+  *stream << "\n" << Indent(6) << "]\n" << Indent(4) << "}";
+}
+
 // Prints a JSON representation of a TestInfo object.
 void JsonUnitTestResultPrinter::OutputJsonTestInfo(::std::ostream* stream,
                                                    const char* test_suite_name,
@@ -4527,6 +4696,13 @@ void JsonUnitTestResultPrinter::OutputJsonTestInfo(::std::ostream* stream,
   OutputJsonKey(stream, kTestsuite, "classname", test_suite_name, kIndent,
                 false);
   *stream << TestPropertiesAsJson(result, kIndent);
+
+  OutputJsonTestResult(stream, result);
+}
+
+void JsonUnitTestResultPrinter::OutputJsonTestResult(::std::ostream* stream,
+                                                     const TestResult& result) {
+  const std::string kIndent = Indent(10);
 
   int failures = 0;
   for (int i = 0; i < result.total_part_count(); ++i) {
@@ -4636,6 +4812,12 @@ void JsonUnitTestResultPrinter::PrintJsonUnitTest(std::ostream* stream,
       }
       PrintJsonTestSuite(stream, *unit_test.GetTestSuite(i));
     }
+  }
+
+  // If there was a test failure outside of one of the test suites (like in a
+  // test environment) include that in the output.
+  if (unit_test.ad_hoc_test_result().Failed()) {
+    OutputJsonTestSuiteForTestResult(stream, unit_test.ad_hoc_test_result());
   }
 
   *stream << "\n" << kIndent << "]\n" << "}\n";
@@ -5630,7 +5812,7 @@ bool UnitTestImpl::RunAllTests() {
     // assertions executed before RUN_ALL_TESTS().
     ClearNonAdHocTestResult();
 
-    const TimeInMillis start = GetTimeInMillis();
+    Timer timer;
 
     // Shuffles test suites and tests if requested.
     if (has_tests_to_run && GTEST_FLAG(shuffle)) {
@@ -5679,6 +5861,14 @@ bool UnitTestImpl::RunAllTests() {
             break;
           }
         }
+      } else if (Test::HasFatalFailure()) {
+        // If there was a fatal failure during the global setup then we know we
+        // aren't going to run any tests. Explicitly mark all of the tests as
+        // skipped to make this obvious in the output.
+        for (int test_index = 0; test_index < total_test_suite_count();
+             test_index++) {
+          GetMutableSuiteCase(test_index)->Skip();
+        }
       }
 
       // Tears down all environments in reverse order afterwards.
@@ -5688,7 +5878,7 @@ bool UnitTestImpl::RunAllTests() {
       repeater->OnEnvironmentsTearDownEnd(*parent_);
     }
 
-    elapsed_time_ = GetTimeInMillis() - start;
+    elapsed_time_ = timer.Elapsed();
 
     // Tells the unit test event listener that the tests have just finished.
     repeater->OnTestIterationEnd(*parent_, i);

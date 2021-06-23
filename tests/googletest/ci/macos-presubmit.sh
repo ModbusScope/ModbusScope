@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
-# Copyright 2017 Google Inc.
-# All Rights Reserved.
+#!/bin/bash
 #
+# Copyright 2020, Google Inc.
+# All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -29,13 +29,45 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#
-# This file should be sourced, and not executed as a standalone script.
-#
+set -euox pipefail
 
-# TODO() - we can check if this is being sourced using $BASH_VERSION and $BASH_SOURCE[0] != ${0}.
-
-if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-    if [ "$CXX" = "g++" ]; then export CXX="g++" CC="gcc"; fi
-    if [ "$CXX" = "clang++" ]; then export CXX="clang++" CC="clang"; fi
+if [[ -z ${GTEST_ROOT:-} ]]; then
+  GTEST_ROOT="$(realpath $(dirname ${0})/..)"
 fi
+
+# Test the CMake build
+for cmake_off_on in OFF ON; do
+  BUILD_DIR=$(mktemp -d build_dir.XXXXXXXX)
+  cd ${BUILD_DIR}
+  time cmake ${GTEST_ROOT} \
+    -DCMAKE_CXX_STANDARD=11 \
+    -Dgtest_build_samples=ON \
+    -Dgtest_build_tests=ON \
+    -Dgmock_build_tests=ON \
+    -Dcxx_no_exception=${cmake_off_on} \
+    -Dcxx_no_rtti=${cmake_off_on}
+  time make
+  time ctest -j$(nproc) --output-on-failure
+done
+
+# Test the Bazel build
+
+# If we are running on Kokoro, check for a versioned Bazel binary.
+KOKORO_GFILE_BAZEL_BIN="bazel-3.7.0-darwin-x86_64"
+if [[ ${KOKORO_GFILE_DIR:-} ]] && [[ -f ${KOKORO_GFILE_DIR}/${KOKORO_GFILE_BAZEL_BIN} ]]; then
+  BAZEL_BIN="${KOKORO_GFILE_DIR}/${KOKORO_GFILE_BAZEL_BIN}"
+  chmod +x ${BAZEL_BIN}
+else
+  BAZEL_BIN="bazel"
+fi
+
+cd ${GTEST_ROOT}
+for absl in 0 1; do
+  ${BAZEL_BIN} test ... \
+    --copt="-Wall" \
+    --copt="-Werror" \
+    --define="absl=${absl}" \
+    --keep_going \
+    --show_timestamps \
+    --test_output=errors
+done

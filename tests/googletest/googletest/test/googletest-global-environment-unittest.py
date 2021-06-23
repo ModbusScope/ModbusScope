@@ -1,7 +1,4 @@
-#!/usr/bin/env bash
-# Copyright 2017 Google Inc.
-# All Rights Reserved.
-#
+# Copyright 2021 Google Inc. All Rights Reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -28,21 +25,48 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""Unit test for Google Test's global test environment behavior.
 
-# This file is typically sourced by another script.
-# if possible, ask for the precise number of processors,
-# otherwise take 2 processors as reasonable default; see
-# https://docs.travis-ci.com/user/speeding-up-the-build/#Makefile-optimization
-if [ -x /usr/bin/getconf ]; then
-    NPROCESSORS=$(/usr/bin/getconf _NPROCESSORS_ONLN)
-else
-    NPROCESSORS=2
-fi
+A user can specify a global test environment via
+testing::AddGlobalTestEnvironment. Failures in the global environment should
+result in all unit tests being skipped.
 
-# as of 2017-09-04 Travis CI reports 32 processors, but GCC build
-# crashes if parallelized too much (maybe memory consumption problem),
-# so limit to 4 processors for the time being.
-if [ $NPROCESSORS -gt 4 ] ; then
-	echo "$0:Note: Limiting processors to use by make from $NPROCESSORS to 4."
-	NPROCESSORS=4
-fi
+This script tests such functionality by invoking
+googletest-global-environment-unittest_ (a program written with Google Test).
+"""
+
+import gtest_test_utils
+
+
+def RunAndReturnOutput():
+  """Runs the test program and returns its output."""
+
+  return gtest_test_utils.Subprocess([
+      gtest_test_utils.GetTestExecutablePath(
+          'googletest-global-environment-unittest_')
+  ]).output
+
+
+class GTestGlobalEnvironmentUnitTest(gtest_test_utils.TestCase):
+  """Tests global test environment failures."""
+
+  def testEnvironmentSetUpFails(self):
+    """Tests the behavior of not specifying the fail_fast."""
+
+    # Run the test.
+    txt = RunAndReturnOutput()
+
+    # We should see the text of the global environment setup error.
+    self.assertIn('Canned environment setup error', txt)
+
+    # Our test should have been skipped due to the error, and not treated as a
+    # pass.
+    self.assertIn('[  SKIPPED ] 1 test', txt)
+    self.assertIn('[  PASSED  ] 0 tests', txt)
+
+    # The test case shouldn't have been run.
+    self.assertNotIn('Unexpected call', txt)
+
+
+if __name__ == '__main__':
+  gtest_test_utils.Main()

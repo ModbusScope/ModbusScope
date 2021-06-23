@@ -15,7 +15,6 @@ manifest:
 
     - name: tests/googletest
       repo-path: google/googletest
-      revision: 273f8cb059a4e7b089731036392422b5ef489791
       branch: master
       dst: tests/googletest
       

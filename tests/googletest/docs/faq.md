@@ -2,6 +2,7 @@
 
 ## Why should test suite names and test names not contain underscore?
 
+{: .callout .note}
 Note: Googletest reserves underscore (`_`) for special purpose keywords, such as
 [the `DISABLED_` prefix](advanced.md#temporarily-disabling-tests), in addition
 to the following rationale.
@@ -59,9 +60,10 @@ the rule.
 
 ## Why does googletest support `EXPECT_EQ(NULL, ptr)` and `ASSERT_EQ(NULL, ptr)` but not `EXPECT_NE(NULL, ptr)` and `ASSERT_NE(NULL, ptr)`?
 
-First of all you can use `EXPECT_NE(nullptr, ptr)` and `ASSERT_NE(nullptr,
-ptr)`. This is the preferred syntax in the style guide because nullptr does not
-have the type problems that NULL does. Which is why NULL does not work.
+First of all, you can use `nullptr` with each of these macros, e.g.
+`EXPECT_EQ(ptr, nullptr)`, `EXPECT_NE(ptr, nullptr)`, `ASSERT_EQ(ptr, nullptr)`,
+`ASSERT_NE(ptr, nullptr)`. This is the preferred syntax in the style guide
+because `nullptr` does not have the type problems that `NULL` does.
 
 Due to some peculiarity of C++, it requires some non-trivial template meta
 programming tricks to support using `NULL` as an argument of the `EXPECT_XX()`
@@ -69,22 +71,21 @@ and `ASSERT_XX()` macros. Therefore we only do it where it's most needed
 (otherwise we make the implementation of googletest harder to maintain and more
 error-prone than necessary).
 
-The `EXPECT_EQ()` macro takes the *expected* value as its first argument and the
-*actual* value as the second. It's reasonable that someone wants to write
-`EXPECT_EQ(NULL, some_expression)`, and this indeed was requested several times.
-Therefore we implemented it.
+Historically, the `EXPECT_EQ()` macro took the *expected* value as its first
+argument and the *actual* value as the second, though this argument order is now
+discouraged. It was reasonable that someone wanted
+to write `EXPECT_EQ(NULL, some_expression)`, and this indeed was requested
+several times. Therefore we implemented it.
 
-The need for `EXPECT_NE(NULL, ptr)` isn't nearly as strong. When the assertion
+The need for `EXPECT_NE(NULL, ptr)` wasn't nearly as strong. When the assertion
 fails, you already know that `ptr` must be `NULL`, so it doesn't add any
 information to print `ptr` in this case. That means `EXPECT_TRUE(ptr != NULL)`
 works just as well.
 
-If we were to support `EXPECT_NE(NULL, ptr)`, for consistency we'll have to
-support `EXPECT_NE(ptr, NULL)` as well, as unlike `EXPECT_EQ`, we don't have a
-convention on the order of the two arguments for `EXPECT_NE`. This means using
-the template meta programming tricks twice in the implementation, making it even
-harder to understand and maintain. We believe the benefit doesn't justify the
-cost.
+If we were to support `EXPECT_NE(NULL, ptr)`, for consistency we'd have to
+support `EXPECT_NE(ptr, NULL)` as well. This means using the template meta
+programming tricks twice in the implementation, making it even harder to
+understand and maintain. We believe the benefit doesn't justify the cost.
 
 Finally, with the growth of the gMock matcher library, we are encouraging people
 to use the unified `EXPECT_THAT(value, matcher)` syntax more often in tests. One
@@ -129,6 +130,7 @@ can much more easily decide which one to use the next time.
 
 ## I got some run-time errors about invalid proto descriptors when using `ProtocolMessageEquals`. Help!
 
+{: .callout .note}
 **Note:** `ProtocolMessageEquals` and `ProtocolMessageEquiv` are *deprecated*
 now. Please use `EqualsProto`, etc instead.
 
@@ -177,18 +179,6 @@ The implementation of `EXPECT_EQ(a, b)` uses `sizeof(... a ...)` inside a
 template argument, and thus doesn't compile in opt mode when `a` contains a call
 to `htonl()`. It is difficult to make `EXPECT_EQ` bypass the `htonl()` bug, as
 the solution must work with different compilers on various platforms.
-
-`htonl()` has some other problems as described in `//util/endian/endian.h`,
-which defines `ghtonl()` to replace it. `ghtonl()` does the same thing `htonl()`
-does, only without its problems. We suggest you to use `ghtonl()` instead of
-`htonl()`, both in your tests and production code.
-
-`//util/endian/endian.h` also defines `ghtons()`, which solves similar problems
-in `htons()`.
-
-Don't forget to add `//util/endian` to the list of dependencies in the `BUILD`
-file wherever `ghtonl()` and `ghtons()` are used. The library consists of a
-single header file and will not bloat your binary.
 
 ## The compiler complains about "undefined references" to some static const member variables, but I did define them in the class body. What's wrong?
 
@@ -277,7 +267,7 @@ If necessary, you can continue to derive test fixtures from a derived fixture.
 googletest has no limit on how deep the hierarchy can be.
 
 For a complete example using derived test fixtures, see
-[sample5_unittest.cc](../googletest/samples/sample5_unittest.cc).
+[sample5_unittest.cc](https://github.com/google/googletest/blob/master/googletest/samples/sample5_unittest.cc).
 
 ## My compiler complains "void value not ignored as it ought to be." What does this mean?
 
@@ -289,8 +279,9 @@ disabled by our build system. Please see more details
 ## My death test hangs (or seg-faults). How do I fix it?
 
 In googletest, death tests are run in a child process and the way they work is
-delicate. To write death tests you really need to understand how they work.
-Please make sure you have read [this](advanced.md#how-it-works).
+delicate. To write death tests you really need to understand how they work—see
+the details at [Death Assertions](reference/assertions.md#death) in the
+Assertions Reference.
 
 In particular, death tests don't like having multiple threads in the parent
 process. So the first thing you can try is to eliminate creating threads outside
@@ -363,72 +354,8 @@ You may still want to use `SetUp()/TearDown()` in the following cases:
 
 ## The compiler complains "no matching function to call" when I use ASSERT_PRED*. How do I fix it?
 
-If the predicate function you use in `ASSERT_PRED*` or `EXPECT_PRED*` is
-overloaded or a template, the compiler will have trouble figuring out which
-overloaded version it should use. `ASSERT_PRED_FORMAT*` and
-`EXPECT_PRED_FORMAT*` don't have this problem.
-
-If you see this error, you might want to switch to
-`(ASSERT|EXPECT)_PRED_FORMAT*`, which will also give you a better failure
-message. If, however, that is not an option, you can resolve the problem by
-explicitly telling the compiler which version to pick.
-
-For example, suppose you have
-
-```c++
-bool IsPositive(int n) {
-  return n > 0;
-}
-
-bool IsPositive(double x) {
-  return x > 0;
-}
-```
-
-you will get a compiler error if you write
-
-```c++
-EXPECT_PRED1(IsPositive, 5);
-```
-
-However, this will work:
-
-```c++
-EXPECT_PRED1(static_cast<bool (*)(int)>(IsPositive), 5);
-```
-
-(The stuff inside the angled brackets for the `static_cast` operator is the type
-of the function pointer for the `int`-version of `IsPositive()`.)
-
-As another example, when you have a template function
-
-```c++
-template <typename T>
-bool IsNegative(T x) {
-  return x < 0;
-}
-```
-
-you can use it in a predicate assertion like this:
-
-```c++
-ASSERT_PRED1(IsNegative<int>, -5);
-```
-
-Things are more interesting if your template has more than one parameter. The
-following won't compile:
-
-```c++
-ASSERT_PRED2(GreaterThan<int, int>, 5, 0);
-```
-
-as the C++ pre-processor thinks you are giving `ASSERT_PRED2` 4 arguments, which
-is one more than expected. The workaround is to wrap the predicate function in
-parentheses:
-
-```c++
-ASSERT_PRED2((GreaterThan<int, int>), 5, 0);
-```
+See details for [`EXPECT_PRED*`](reference/assertions.md#EXPECT_PRED) in the
+Assertions Reference.
 
 ## My compiler complains about "ignoring return value" when I call RUN_ALL_TESTS(). Why?
 
@@ -592,8 +519,6 @@ TEST(MyDeathTest, CompoundStatement) {
 }
 ```
 
-gtest-death-test_test.cc contains more examples if you are interested.
-
 ## I have a fixture class `FooTest`, but `TEST_F(FooTest, Bar)` gives me error ``"no matching function for call to `FooTest::FooTest()'"``. Why?
 
 Googletest needs to be able to create objects of your test fixture class, so it
@@ -675,14 +600,15 @@ break the death test (e.g. by changing the regex pattern it is expected to
 match). Admittedly, this is a hack. We'll consider a more permanent solution
 after the fork-and-exec-style death tests are implemented.
 
-## The compiler complains about "no match for 'operator<<'" when I use an assertion. What gives?
+## The compiler complains about `no match for 'operator<<'` when I use an assertion. What gives?
 
 If you use a user-defined type `FooType` in an assertion, you must make sure
 there is an `std::ostream& operator<<(std::ostream&, const FooType&)` function
 defined such that we can print a value of `FooType`.
 
 In addition, if `FooType` is declared in a name space, the `<<` operator also
-needs to be defined in the *same* name space. See https://abseil.io/tips/49 for details.
+needs to be defined in the *same* name space. See
+[Tip of the Week #49](http://abseil.io/tips/49) for details.
 
 ## How do I suppress the memory leak messages on Windows?
 
@@ -703,10 +629,10 @@ mistake in production. Such cleverness also leads to
 advise against the practice, and googletest doesn't provide a way to do it.
 
 In general, the recommended way to cause the code to behave differently under
-test is [Dependency Injection](https://en.wikipedia.org/wiki/Dependency_injection). You can inject
+test is [Dependency Injection](http://en.wikipedia.org/wiki/Dependency_injection). You can inject
 different functionality from the test and from the production code. Since your
 production code doesn't link in the for-test logic at all (the
-[`testonly`](https://docs.bazel.build/versions/master/be/common-definitions.html#common.testonly) attribute for BUILD targets helps to ensure
+[`testonly`](http://docs.bazel.build/versions/master/be/common-definitions.html#common.testonly) attribute for BUILD targets helps to ensure
 that), there is no danger in accidentally running it.
 
 However, if you *really*, *really*, *really* have no choice, and if you follow
@@ -717,12 +643,12 @@ whether the code is under test.
 ## How do I temporarily disable a test?
 
 If you have a broken test that you cannot fix right away, you can add the
-DISABLED_ prefix to its name. This will exclude it from execution. This is
-better than commenting out the code or using #if 0, as disabled tests are still
-compiled (and thus won't rot).
+`DISABLED_` prefix to its name. This will exclude it from execution. This is
+better than commenting out the code or using `#if 0`, as disabled tests are
+still compiled (and thus won't rot).
 
 To include disabled tests in test execution, just invoke the test program with
-the --gtest_also_run_disabled_tests flag.
+the `--gtest_also_run_disabled_tests` flag.
 
 ## Is it OK if I have two separate `TEST(Foo, Bar)` test methods defined in different namespaces?
 

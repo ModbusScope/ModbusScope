@@ -105,7 +105,7 @@ includedir=/usr/include
 
 Name: gtest
 Description: GoogleTest (without main() function)
-Version: 1.10.0
+Version: 1.11.0
 URL: https://github.com/google/googletest
 Libs: -L${libdir} -lgtest -lpthread
 Cflags: -I${includedir} -DGTEST_HAS_PTHREAD=1 -lpthread
@@ -145,4 +145,4 @@ $ pkg-config --libs gtest
 
 which contains the correct sysroot now. For a more comprehensive guide to also
 including `${CHOST}` in build system calls, see the excellent tutorial by Diego
-Elio Pettenò: https://autotools.io/pkgconfig/cross-compiling.html
+Elio Pettenò: <https://autotools.io/pkgconfig/cross-compiling.html>

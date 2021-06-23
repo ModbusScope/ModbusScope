@@ -34,8 +34,8 @@
 
 // GOOGLETEST_CM0001 DO NOT DELETE
 
-#ifndef GTEST_INCLUDE_GTEST_INTERNAL_GTEST_INTERNAL_H_
-#define GTEST_INCLUDE_GTEST_INTERNAL_GTEST_INTERNAL_H_
+#ifndef GOOGLETEST_INCLUDE_GTEST_INTERNAL_GTEST_INTERNAL_H_
+#define GOOGLETEST_INCLUDE_GTEST_INTERNAL_GTEST_INTERNAL_H_
 
 #include "gtest/internal/gtest-port.h"
 
@@ -590,8 +590,6 @@ GTEST_API_ TestInfo* MakeAndRegisterTestInfo(
 // and returns false.  None of pstr, *pstr, and prefix can be NULL.
 GTEST_API_ bool SkipPrefix(const char* prefix, const char** pstr);
 
-#if GTEST_HAS_TYPED_TEST || GTEST_HAS_TYPED_TEST_P
-
 GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
 /* class A needs to have dll-interface to be used by clients of class B */)
 
@@ -823,8 +821,6 @@ class TypeParameterizedTestSuite<Fixture, internal::None, Types> {
   }
 };
 
-#endif  // GTEST_HAS_TYPED_TEST || GTEST_HAS_TYPED_TEST_P
-
 // Returns the current OS stack trace as an std::string.
 //
 // The maximum number of stack frames to be included is specified by
@@ -899,16 +895,16 @@ template <typename T>
 class HasDebugStringAndShortDebugString {
  private:
   template <typename C>
-  static constexpr auto CheckDebugString(C*) -> typename std::is_same<
+  static auto CheckDebugString(C*) -> typename std::is_same<
       std::string, decltype(std::declval<const C>().DebugString())>::type;
   template <typename>
-  static constexpr std::false_type CheckDebugString(...);
+  static std::false_type CheckDebugString(...);
 
   template <typename C>
-  static constexpr auto CheckShortDebugString(C*) -> typename std::is_same<
+  static auto CheckShortDebugString(C*) -> typename std::is_same<
       std::string, decltype(std::declval<const C>().ShortDebugString())>::type;
   template <typename>
-  static constexpr std::false_type CheckShortDebugString(...);
+  static std::false_type CheckShortDebugString(...);
 
   using HasDebugStringType = decltype(CheckDebugString<T>(nullptr));
   using HasShortDebugStringType = decltype(CheckShortDebugString<T>(nullptr));
@@ -1499,7 +1495,7 @@ class NeverThrown {
 
 // Implements Boolean test assertions such as EXPECT_TRUE. expression can be
 // either a boolean expression or an AssertionResult. text is a textual
-// represenation of expression as it was passed into the EXPECT_TRUE.
+// representation of expression as it was passed into the EXPECT_TRUE.
 #define GTEST_TEST_BOOLEAN_(expression, text, actual, expected, fail) \
   GTEST_AMBIGUOUS_ELSE_BLOCKER_ \
   if (const ::testing::AssertionResult gtest_ar_ = \
@@ -1561,4 +1557,4 @@ class NeverThrown {
               test_suite_name, test_name)>);                                  \
   void GTEST_TEST_CLASS_NAME_(test_suite_name, test_name)::TestBody()
 
-#endif  // GTEST_INCLUDE_GTEST_INTERNAL_GTEST_INTERNAL_H_
+#endif  // GOOGLETEST_INCLUDE_GTEST_INTERNAL_GTEST_INTERNAL_H_

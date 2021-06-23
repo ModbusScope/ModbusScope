@@ -280,7 +280,7 @@ TEST(FormatCompilerIndependentFileLocationTest, FormatsUknownFileAndLine) {
 
 #if GTEST_OS_LINUX || GTEST_OS_MAC || GTEST_OS_QNX || GTEST_OS_FUCHSIA || \
     GTEST_OS_DRAGONFLY || GTEST_OS_FREEBSD || GTEST_OS_GNU_KFREEBSD || \
-    GTEST_OS_NETBSD || GTEST_OS_OPENBSD
+    GTEST_OS_NETBSD || GTEST_OS_OPENBSD || GTEST_OS_GNU_HURD
 void* ThreadFunc(void* data) {
   internal::Mutex* mutex = static_cast<internal::Mutex*>(data);
   mutex->Lock();
@@ -373,8 +373,6 @@ TEST(RegexEngineSelectionTest, SelectsCorrectRegexEngine) {
 
 #if GTEST_USES_POSIX_RE
 
-# if GTEST_HAS_TYPED_TEST
-
 template <typename Str>
 class RETest : public ::testing::Test {};
 
@@ -429,8 +427,6 @@ TYPED_TEST(RETest, PartialMatchWorks) {
   EXPECT_TRUE(RE::PartialMatch(TypeParam("azy"), re));
   EXPECT_FALSE(RE::PartialMatch(TypeParam("zza"), re));
 }
-
-# endif  // GTEST_HAS_TYPED_TEST
 
 #elif GTEST_USES_SIMPLE_RE
 

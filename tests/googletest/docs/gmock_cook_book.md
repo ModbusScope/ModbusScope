@@ -4,6 +4,7 @@ You can find recipes for using gMock here. If you haven't yet, please read
 [the dummy guide](gmock_for_dummies.md) first to make sure you understand the
 basics.
 
+{: .callout .note}
 **Note:** gMock lives in the `testing` name space. For readability, it is
 recommended to write `using ::testing::Foo;` once in your file before using the
 name `Foo` defined by gMock. We omit such `using` statements in this section for
@@ -43,7 +44,8 @@ generated method:
 Unprotected commas, i.e. commas which are not surrounded by parentheses, prevent
 `MOCK_METHOD` from parsing its arguments correctly:
 
-```cpp {.bad}
+{: .bad}
+```cpp
 class MockFoo {
  public:
   MOCK_METHOD(std::pair<bool, int>, GetPair, ());  // Won't compile!
@@ -53,7 +55,8 @@ class MockFoo {
 
 Solution 1 - wrap with parentheses:
 
-```cpp {.good}
+{: .good}
+```cpp
 class MockFoo {
  public:
   MOCK_METHOD((std::pair<bool, int>), GetPair, ());
@@ -66,7 +69,8 @@ invalid C++. `MOCK_METHOD` removes the parentheses.
 
 Solution 2 - define an alias:
 
-```cpp {.good}
+{: .good}
+```cpp
 class MockFoo {
  public:
   using BoolAndInt = std::pair<bool, int>;
@@ -140,6 +144,7 @@ class MockFoo : public Foo {
 };
 ```
 
+{: .callout .note}
 **Note:** if you don't mock all versions of the overloaded method, the compiler
 will give you a warning about some methods in the base class being hidden. To
 fix that, use `using` to bring them in scope:
@@ -246,9 +251,9 @@ tests.
 
 ### Mocking Free Functions
 
-It's possible to use gMock to mock a free function (i.e. a C-style function or a
-static method). You just need to rewrite your code to use an interface (abstract
-class).
+It is not possible to directly mock a free function (i.e. a C-style function or
+a static method). If you need to, you can rewrite your code to use an interface
+(abstract class).
 
 Instead of calling a free function (say, `OpenFile`) directly, introduce an
 interface for it and have a concrete subclass that calls the free function:
@@ -263,7 +268,7 @@ class FileInterface {
 class File : public FileInterface {
  public:
   ...
-  virtual bool Open(const char* path, const char* mode) {
+  bool Open(const char* path, const char* mode) override {
      return OpenFile(path, mode);
   }
 };
@@ -300,44 +305,86 @@ The macros in the `MOCK_METHODn` family differ from `MOCK_METHOD`:
 
 Old macros and their new equivalents:
 
-<a name="table99"></a>
-<table border="1" cellspacing="0" cellpadding="1">
-<tr> <th colspan=2> Simple </th></tr>
-<tr> <td> Old </td> <td> `MOCK_METHOD1(Foo, bool(int))` </td> </tr>
-<tr> <td> New </td> <td> `MOCK_METHOD(bool, Foo, (int))` </td> </tr>
+<table>
+  <tr><th colspan=2>Simple</th></tr>
+  <tr>
+    <td>Old</td>
+    <td><code>MOCK_METHOD1(Foo, bool(int))</code></td>
+  </tr>
+  <tr>
+    <td>New</td>
+    <td><code>MOCK_METHOD(bool, Foo, (int))</code></td>
+  </tr>
 
-<tr> <th colspan=2> Const Method </th></tr> <tr> <td> Old </td> <td>
-`MOCK_CONST_METHOD1(Foo, bool(int))` </td> </tr> <tr> <td> New </td> <td>
-`MOCK_METHOD(bool, Foo, (int), (const))` </td> </tr>
+  <tr><th colspan=2>Const Method</th></tr>
+  <tr>
+    <td>Old</td>
+    <td><code>MOCK_CONST_METHOD1(Foo, bool(int))</code></td>
+  </tr>
+  <tr>
+    <td>New</td>
+    <td><code>MOCK_METHOD(bool, Foo, (int), (const))</code></td>
+  </tr>
 
-<tr> <th colspan=2> Method in a Class Template </th></tr> <tr> <td> Old </td>
-<td> `MOCK_METHOD1_T(Foo, bool(int))` </td> </tr> <tr> <td> New </td> <td>
-`MOCK_METHOD(bool, Foo, (int))` </td> </tr>
+  <tr><th colspan=2>Method in a Class Template</th></tr>
+  <tr>
+    <td>Old</td>
+    <td><code>MOCK_METHOD1_T(Foo, bool(int))</code></td>
+  </tr>
+  <tr>
+    <td>New</td>
+    <td><code>MOCK_METHOD(bool, Foo, (int))</code></td>
+  </tr>
 
-<tr> <th colspan=2> Const Method in a Class Template </th></tr> <tr> <td> Old
-</td> <td> `MOCK_CONST_METHOD1_T(Foo, bool(int))` </td> </tr> <tr> <td> New
-</td> <td> `MOCK_METHOD(bool, Foo, (int), (const))` </td> </tr>
+  <tr><th colspan=2>Const Method in a Class Template</th></tr>
+  <tr>
+    <td>Old</td>
+    <td><code>MOCK_CONST_METHOD1_T(Foo, bool(int))</code></td>
+  </tr>
+  <tr>
+    <td>New</td>
+    <td><code>MOCK_METHOD(bool, Foo, (int), (const))</code></td>
+  </tr>
 
-<tr> <th colspan=2> Method with Call Type </th></tr> <tr> <td> Old </td> <td>
-`MOCK_METHOD1_WITH_CALLTYPE(STDMETHODCALLTYPE, Foo, bool(int))` </td> </tr> <tr>
-<td> New </td> <td> `MOCK_METHOD(bool, Foo, (int),
-(Calltype(STDMETHODCALLTYPE)))` </td> </tr>
+  <tr><th colspan=2>Method with Call Type</th></tr>
+  <tr>
+    <td>Old</td>
+    <td><code>MOCK_METHOD1_WITH_CALLTYPE(STDMETHODCALLTYPE, Foo, bool(int))</code></td>
+  </tr>
+  <tr>
+    <td>New</td>
+    <td><code>MOCK_METHOD(bool, Foo, (int), (Calltype(STDMETHODCALLTYPE)))</code></td>
+  </tr>
 
-<tr> <th colspan=2> Const Method with Call Type </th></tr> <tr> <td> Old</td>
-<td> `MOCK_CONST_METHOD1_WITH_CALLTYPE(STDMETHODCALLTYPE, Foo, bool(int))` </td>
-</tr> <tr> <td> New </td> <td> `MOCK_METHOD(bool, Foo, (int), (const,
-Calltype(STDMETHODCALLTYPE)))` </td> </tr>
+  <tr><th colspan=2>Const Method with Call Type</th></tr>
+  <tr>
+    <td>Old</td>
+    <td><code>MOCK_CONST_METHOD1_WITH_CALLTYPE(STDMETHODCALLTYPE, Foo, bool(int))</code></td>
+  </tr>
+  <tr>
+    <td>New</td>
+    <td><code>MOCK_METHOD(bool, Foo, (int), (const, Calltype(STDMETHODCALLTYPE)))</code></td>
+  </tr>
 
-<tr> <th colspan=2> Method with Call Type in a Class Template </th></tr> <tr>
-<td> Old </td> <td> `MOCK_METHOD1_T_WITH_CALLTYPE(STDMETHODCALLTYPE, Foo,
-bool(int))` </td> </tr> <tr> <td> New </td> <td> `MOCK_METHOD(bool, Foo, (int),
-(Calltype(STDMETHODCALLTYPE)))` </td> </tr>
+  <tr><th colspan=2>Method with Call Type in a Class Template</th></tr>
+  <tr>
+    <td>Old</td>
+    <td><code>MOCK_METHOD1_T_WITH_CALLTYPE(STDMETHODCALLTYPE, Foo, bool(int))</code></td>
+  </tr>
+  <tr>
+    <td>New</td>
+    <td><code>MOCK_METHOD(bool, Foo, (int), (Calltype(STDMETHODCALLTYPE)))</code></td>
+  </tr>
 
-<tr> <th colspan=2> Const Method with Call Type in a Class Template </th></tr>
-<tr> <td> Old </td> <td> `MOCK_CONST_METHOD1_T_WITH_CALLTYPE(STDMETHODCALLTYPE,
-Foo, bool(int))` </td> </tr> <tr> <td> New </td> <td> `MOCK_METHOD(bool, Foo,
-(int), (const, Calltype(STDMETHODCALLTYPE)))` </td> </tr>
-
+  <tr><th colspan=2>Const Method with Call Type in a Class Template</th></tr>
+  <tr>
+    <td>Old</td>
+    <td><code>MOCK_CONST_METHOD1_T_WITH_CALLTYPE(STDMETHODCALLTYPE, Foo, bool(int))</code></td>
+  </tr>
+  <tr>
+    <td>New</td>
+    <td><code>MOCK_METHOD(bool, Foo, (int), (const, Calltype(STDMETHODCALLTYPE)))</code></td>
+  </tr>
 </table>
 
 ### The Nice, the Strict, and the Naggy {#NiceStrictNaggy}
@@ -408,6 +455,7 @@ TEST(...) {
 }
 ```
 
+{: .callout .note}
 NOTE: `NiceMock` and `StrictMock` only affects *uninteresting* calls (calls of
 *methods* with no expectations); they do not affect *unexpected* calls (calls of
 methods with expectations, but they don't match). See
@@ -464,9 +512,9 @@ The trick is to redispatch the method in the mock class:
 class ScopedMockLog : public LogSink {
  public:
   ...
-  virtual void send(LogSeverity severity, const char* full_filename,
+  void send(LogSeverity severity, const char* full_filename,
                     const char* base_filename, int line, const tm* tm_time,
-                    const char* message, size_t message_len) {
+                    const char* message, size_t message_len) override {
     // We are only interested in the log severity, full file name, and
     // log message.
     Log(severity, full_filename, std::string(message, message_len));
@@ -1040,7 +1088,8 @@ z`. Note that in this example, it wasn't necessary specify the positional
 matchers.
 
 As a convenience and example, gMock provides some matchers for 2-tuples,
-including the `Lt()` matcher above. See [here](#MultiArgMatchers) for the
+including the `Lt()` matcher above. See
+[Multi-argument Matchers](reference/matchers.md#MultiArgMatchers) for the
 complete list.
 
 Note that if you want to pass the arguments to a predicate of your own (e.g.
@@ -1088,59 +1137,17 @@ Matches(AllOf(Ge(0), Le(100), Ne(50)))
 
 ### Using Matchers in googletest Assertions
 
-Since matchers are basically predicates that also know how to describe
-themselves, there is a way to take advantage of them in googletest assertions.
-It's called `ASSERT_THAT` and `EXPECT_THAT`:
-
-```cpp
-  ASSERT_THAT(value, matcher);  // Asserts that value matches matcher.
-  EXPECT_THAT(value, matcher);  // The non-fatal version.
-```
-
-For example, in a googletest test you can write:
-
-```cpp
-#include "gmock/gmock.h"
-
-using ::testing::AllOf;
-using ::testing::Ge;
-using ::testing::Le;
-using ::testing::MatchesRegex;
-using ::testing::StartsWith;
-
-...
-  EXPECT_THAT(Foo(), StartsWith("Hello"));
-  EXPECT_THAT(Bar(), MatchesRegex("Line \\d+"));
-  ASSERT_THAT(Baz(), AllOf(Ge(5), Le(10)));
-```
-
-which (as you can probably guess) executes `Foo()`, `Bar()`, and `Baz()`, and
-verifies that:
-
-*   `Foo()` returns a string that starts with `"Hello"`.
-*   `Bar()` returns a string that matches regular expression `"Line \\d+"`.
-*   `Baz()` returns a number in the range [5, 10].
-
-The nice thing about these macros is that *they read like English*. They
-generate informative messages too. For example, if the first `EXPECT_THAT()`
-above fails, the message will be something like:
-
-```cpp
-Value of: Foo()
-  Actual: "Hi, world!"
-Expected: starts with "Hello"
-```
-
-**Credit:** The idea of `(ASSERT|EXPECT)_THAT` was borrowed from Joe Walnes'
-Hamcrest project, which adds `assertThat()` to JUnit.
+See [`EXPECT_THAT`](reference/assertions.md#EXPECT_THAT) in the Assertions
+Reference.
 
 ### Using Predicates as Matchers
 
-gMock provides a [built-in set](gmock_cheat_sheet.md#MatcherList) of matchers.
-In case you find them lacking, you can use an arbitrary unary predicate function
-or functor as a matcher - as long as the predicate accepts a value of the type
-you want. You do this by wrapping the predicate inside the `Truly()` function,
-for example:
+gMock provides a set of built-in matchers for matching arguments with expected
+values—see the [Matchers Reference](reference/matchers.md) for more information.
+In case you find the built-in set lacking, you can use an arbitrary unary
+predicate function or functor as a matcher - as long as the predicate accepts a
+value of the type you want. You do this by wrapping the predicate inside the
+`Truly()` function, for example:
 
 ```cpp
 using ::testing::Truly;
@@ -1208,17 +1215,17 @@ that satisfies matcher `m`.
 
 For example:
 
-<!-- mdformat off(github rendering does not support multiline tables) -->
 | Expression                   | Description                              |
 | :--------------------------- | :--------------------------------------- |
 | `Field(&Foo::number, Ge(3))` | Matches `x` where `x.number >= 3`.       |
 | `Property(&Foo::name,  StartsWith("John "))` | Matches `x` where `x.name()` starts with  `"John "`. |
-<!-- mdformat on -->
 
 Note that in `Property(&Foo::baz, ...)`, method `baz()` must take no argument
-and be declared as `const`.
+and be declared as `const`. Don't use `Property()` against member functions that
+you do not own, because taking addresses of functions is fragile and generally
+not part of the contract of the function.
 
-BTW, `Field()` and `Property()` can also match plain pointers to objects. For
+`Field()` and `Property()` can also match plain pointers to objects. For
 instance,
 
 ```cpp
@@ -1410,6 +1417,8 @@ using ::testing::ElementsAreArray;
 
 Use `Pair` when comparing maps or other associative containers.
 
+{% raw %}
+
 ```cpp
 using testing::ElementsAre;
 using testing::Pair;
@@ -1417,6 +1426,8 @@ using testing::Pair;
   std::map<string, int> m = {{"a", 1}, {"b", 2}, {"c", 3}};
   EXPECT_THAT(m, ElementsAre(Pair("a", 1), Pair("b", 2), Pair("c", 3)));
 ```
+
+{% endraw %}
 
 **Tips:**
 
@@ -1456,6 +1467,7 @@ using ::testing::Matcher;
 
 ### Matchers must have no side-effects {#PureMatchers}
 
+{: .callout .warning}
 WARNING: gMock does not guarantee when or how many times a matcher will be
 invoked. Therefore, all matchers must be *purely functional*: they cannot have
 any side effects, and the match result must not depend on anything other than
@@ -1699,7 +1711,7 @@ the test should reflect our real intent, instead of being overly constraining.
 
 gMock allows you to impose an arbitrary DAG (directed acyclic graph) on the
 calls. One way to express the DAG is to use the
-[After](gmock_cheat_sheet.md#AfterClause) clause of `EXPECT_CALL`.
+[`After` clause](reference/mocking.md#EXPECT_CALL.After) of `EXPECT_CALL`.
 
 Another way is via the `InSequence()` clause (not the same as the `InSequence`
 class), which we borrowed from jMock 2. It's less flexible than `After()`, but
@@ -2202,7 +2214,7 @@ former, and the former's return type can be implicitly converted to that of the
 latter. So, you can invoke something whose type is *not* exactly the same as the
 mock function, as long as it's safe to do so - nice, huh?
 
-**`Note:`{.escaped}**
+Note that:
 
 *   The action takes ownership of the callback and will delete it when the
     action itself is destructed.
@@ -2288,7 +2300,7 @@ bool Job2(int n, char c) { ... }
   foo.ComplexJob(20);  // Invokes Job2(5, 'a').
 ```
 
-**`Note:`{.escaped}**
+Note that:
 
 *   The action takes ownership of the callback and will delete it when the
     action itself is destructed.
@@ -2331,6 +2343,7 @@ using ::testing::_;
       // second argument DoThis() receives.
 ```
 
+{: .callout .note}
 NOTE: The section below is legacy documentation from before C++ had lambdas:
 
 Arghh, you need to refer to a mock function argument but C++ has no lambda
@@ -2651,17 +2664,9 @@ behavior nondeterministic. A better way is to use gMock actions and
 `Notification` objects to force your asynchronous test to behave synchronously.
 
 ```cpp
-using ::testing::DoAll;
-using ::testing::InvokeWithoutArgs;
-using ::testing::Return;
-
 class MockEventDispatcher : public EventDispatcher {
   MOCK_METHOD(bool, DispatchEvent, (int32), (override));
 };
-
-ACTION_P(Notify, notification) {
-  notification->Notify();
-}
 
 TEST(EventQueueTest, EnqueueEventTest) {
   MockEventDispatcher mock_event_dispatcher;
@@ -2670,7 +2675,7 @@ TEST(EventQueueTest, EnqueueEventTest) {
   const int32 kEventId = 321;
   absl::Notification done;
   EXPECT_CALL(mock_event_dispatcher, DispatchEvent(kEventId))
-      .WillOnce(Notify(&done));
+      .WillOnce([&done] { done.Notify(); });
 
   event_queue.EnqueueEvent(kEventId);
   done.WaitForNotification();
@@ -2683,6 +2688,7 @@ additional action to notify the `Notification` object. Now we can just call
 asynchronous call to finish. After that, our test suite is complete and we can
 safely exit.
 
+{: .callout .note}
 Note: this example has a downside: namely, if the expectation is not satisfied,
 our test will run forever. It will eventually time-out and fail, but it will
 take longer and be slightly harder to debug. To alleviate this problem, you can
@@ -2833,8 +2839,8 @@ work with non-copyable objects; you'll have to use functors instead.
 #### Legacy workarounds for move-only types {#LegacyMoveOnly}
 
 Support for move-only function arguments was only introduced to gMock in April
-2017. In older code, you may encounter the following workaround for the lack of
-this feature (it is no longer necessary - we're including it just for
+of 2017. In older code, you may encounter the following workaround for the lack
+of this feature (it is no longer necessary - we're including it just for
 reference):
 
 ```cpp
@@ -2962,36 +2968,27 @@ TEST(MyServerTest, ProcessesRequest) {
 }  // server is destroyed when it goes out of scope here.
 ```
 
+{: .callout .tip}
 **Tip:** The `Mock::VerifyAndClearExpectations()` function returns a `bool` to
 indicate whether the verification was successful (`true` for yes), so you can
 wrap that function call inside a `ASSERT_TRUE()` if there is no point going
 further when the verification has failed.
 
-### Using Check Points {#UsingCheckPoints}
+Do not set new expectations after verifying and clearing a mock after its use.
+Setting expectations after code that exercises the mock has undefined behavior.
+See [Using Mocks in Tests](gmock_for_dummies.md#using-mocks-in-tests) for more
+information.
 
-Sometimes you may want to "reset" a mock object at various check points in your
-test: at each check point, you verify that all existing expectations on the mock
-object have been satisfied, and then you set some new expectations on it as if
-it's newly created. This allows you to work with a mock object in "phases" whose
-sizes are each manageable.
+### Using Checkpoints {#UsingCheckPoints}
 
-One such scenario is that in your test's `SetUp()` function, you may want to put
-the object you are testing into a certain state, with the help from a mock
-object. Once in the desired state, you want to clear all expectations on the
-mock, such that in the `TEST_F` body you can set fresh expectations on it.
+Sometimes you might want to test a mock object's behavior in phases whose sizes
+are each manageable, or you might want to set more detailed expectations about
+which API calls invoke which mock functions.
 
-As you may have figured out, the `Mock::VerifyAndClearExpectations()` function
-we saw in the previous recipe can help you here. Or, if you are using
-`ON_CALL()` to set default actions on the mock object and want to clear the
-default actions as well, use `Mock::VerifyAndClear(&mock_object)` instead. This
-function does what `Mock::VerifyAndClearExpectations(&mock_object)` does and
-returns the same `bool`, **plus** it clears the `ON_CALL()` statements on
-`mock_object` too.
-
-Another trick you can use to achieve the same effect is to put the expectations
-in sequences and insert calls to a dummy "check-point" function at specific
-places. Then you can verify that the mock function calls do happen at the right
-time. For example, if you are exercising code:
+A technique you can use is to put the expectations in a sequence and insert
+calls to a dummy "checkpoint" function at specific places. Then you can verify
+that the mock function calls do happen at the right time. For example, if you
+are exercising the code:
 
 ```cpp
   Foo(1);
@@ -3000,7 +2997,7 @@ time. For example, if you are exercising code:
 ```
 
 and want to verify that `Foo(1)` and `Foo(3)` both invoke `mock.Bar("a")`, but
-`Foo(2)` doesn't invoke anything. You can write:
+`Foo(2)` doesn't invoke anything, you can write:
 
 ```cpp
 using ::testing::MockFunction;
@@ -3026,10 +3023,10 @@ TEST(FooTest, InvokesBarCorrectly) {
 }
 ```
 
-The expectation spec says that the first `Bar("a")` must happen before check
-point "1", the second `Bar("a")` must happen after check point "2", and nothing
-should happen between the two check points. The explicit check points make it
-easy to tell which `Bar("a")` is called by which call to `Foo()`.
+The expectation spec says that the first `Bar("a")` call must happen before
+checkpoint "1", the second `Bar("a")` call must happen after checkpoint "2", and
+nothing should happen between the two checkpoints. The explicit checkpoints make
+it clear which `Bar("a")` is called by which call to `Foo()`.
 
 ### Mocking Destructors
 
@@ -3278,6 +3275,7 @@ after typing `M-m`), or `M-up`/`M-down` to move back and forth between errors.
 
 ### Writing New Matchers Quickly {#NewMatchers}
 
+{: .callout .warning}
 WARNING: gMock does not guarantee when or how many times a matcher will be
 invoked. Therefore, all matchers must be functionally pure. See
 [this section](#PureMatchers) for more details.
@@ -3322,7 +3320,7 @@ or,
 ```cpp
   using ::testing::Not;
   ...
-  // Verifies that two values are divisible by 7.
+  // Verifies that a value is divisible by 7 and the other is not.
   EXPECT_THAT(some_expression, IsDivisibleBy7());
   EXPECT_THAT(some_other_expression, Not(IsDivisibleBy7()));
 ```
@@ -3381,6 +3379,7 @@ match succeeds in case of a success (unless it's obvious) - this is useful when
 the matcher is used inside `Not()`. There is no need to print the argument value
 itself, as gMock already prints it for you.
 
+{: .callout .note}
 NOTE: The type of the value being matched (`arg_type`) is determined by the
 context in which you use the matcher and is supplied to you by the compiler, so
 you don't need to worry about declaring it (nor can you). This allows the
@@ -3618,6 +3617,10 @@ Expected: is divisible by 7
   Actual: 23 (the remainder is 2)
 ```
 
+{: .callout .tip}
+Tip: for convenience, `MatchAndExplain()` can take a `MatchResultListener*`
+instead of `std::ostream*`.
+
 ### Writing New Polymorphic Matchers
 
 Expanding what we learned above to *polymorphic* matchers is now just as simple
@@ -3642,7 +3645,7 @@ class NotNullMatcher {
   }
 
   // Describes the property of a value matching this matcher.
-  void DescribeTo(std::ostream& os) const { *os << "is not NULL"; }
+  void DescribeTo(std::ostream* os) const { *os << "is not NULL"; }
 
   // Describes the property of a value NOT matching this matcher.
   void DescribeNegationTo(std::ostream* os) const { *os << "is NULL"; }
@@ -3739,6 +3742,7 @@ PolymorphicMatcher<NotNullMatcher> NotNull() {
   EXPECT_CALL(foo, Bar(NotNull()));  // The argument must be a non-NULL pointer.
 ```
 
+{: .callout .note}
 **Note:** Your polymorphic matcher class does **not** need to inherit from
 `MatcherInterface` or any other class, and its methods do **not** need to be
 virtual.
@@ -4076,22 +4080,17 @@ If you are writing a function that returns an `ACTION` object, you'll need to
 know its type. The type depends on the macro used to define the action and the
 parameter types. The rule is relatively simple:
 
+
 | Given Definition              | Expression          | Has Type              |
 | ----------------------------- | ------------------- | --------------------- |
 | `ACTION(Foo)`                 | `Foo()`             | `FooAction`           |
-| `ACTION_TEMPLATE(Foo,`        | `Foo<t1, ...,       | `FooAction<t1, ...,   |
-: `HAS_m_TEMPLATE_PARAMS(...),` : t_m>()`             : t_m>`                 :
-: `AND_0_VALUE_PARAMS())`       :                     :                       :
+| `ACTION_TEMPLATE(Foo, HAS_m_TEMPLATE_PARAMS(...), AND_0_VALUE_PARAMS())` | `Foo<t1, ..., t_m>()` | `FooAction<t1, ..., t_m>` |
 | `ACTION_P(Bar, param)`        | `Bar(int_value)`    | `BarActionP<int>`     |
-| `ACTION_TEMPLATE(Bar,`        | `Bar<t1, ..., t_m>` | `FooActionP<t1, ...,  |
-: `HAS_m_TEMPLATE_PARAMS(...),` : `(int_value)`       : t_m, int>`            :
-: `AND_1_VALUE_PARAMS(p1))`     :                     :                       :
-| `ACTION_P2(Baz, p1, p2)`      | `Baz(bool_value,`   | `BazActionP2<bool,    |
-:                               : `int_value)`        : int>`                 :
-| `ACTION_TEMPLATE(Baz,`        | `Baz<t1, ..., t_m>` | `FooActionP2<t1, ..., |
-: `HAS_m_TEMPLATE_PARAMS(...),` : `(bool_value,`      : t_m,` `bool, int>`    :
-: `AND_2_VALUE_PARAMS(p1, p2))` : `int_value)`        :                       :
+| `ACTION_TEMPLATE(Bar, HAS_m_TEMPLATE_PARAMS(...), AND_1_VALUE_PARAMS(p1))` | `Bar<t1, ..., t_m>(int_value)` | `BarActionP<t1, ..., t_m, int>` |
+| `ACTION_P2(Baz, p1, p2)`      | `Baz(bool_value, int_value)` | `BazActionP2<bool, int>` |
+| `ACTION_TEMPLATE(Baz, HAS_m_TEMPLATE_PARAMS(...), AND_2_VALUE_PARAMS(p1, p2))` | `Baz<t1, ..., t_m>(bool_value, int_value)` | `BazActionP2<t1, ..., t_m, bool, int>` |
 | ...                           | ...                 | ...                   |
+
 
 Note that we have to pick different suffixes (`Action`, `ActionP`, `ActionP2`,
 and etc) for actions with different numbers of value parameters, or the action

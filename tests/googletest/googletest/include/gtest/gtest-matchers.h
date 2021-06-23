@@ -32,12 +32,8 @@
 // This file implements just enough of the matcher interface to allow
 // EXPECT_DEATH and friends to accept a matcher argument.
 
-// IWYU pragma: private, include "testing/base/public/gunit.h"
-// IWYU pragma: friend third_party/googletest/googlemock/.*
-// IWYU pragma: friend third_party/googletest/googletest/.*
-
-#ifndef GTEST_INCLUDE_GTEST_GTEST_MATCHERS_H_
-#define GTEST_INCLUDE_GTEST_GTEST_MATCHERS_H_
+#ifndef GOOGLETEST_INCLUDE_GTEST_GTEST_MATCHERS_H_
+#define GOOGLETEST_INCLUDE_GTEST_GTEST_MATCHERS_H_
 
 #include <atomic>
 #include <memory>
@@ -67,6 +63,7 @@ namespace testing {
 //   1. a class FooMatcherMatcher that implements the matcher interface:
 //     using is_gtest_matcher = void;
 //     bool MatchAndExplain(const T&, std::ostream*);
+//       (MatchResultListener* can also be used instead of std::ostream*)
 //     void DescribeTo(std::ostream*);
 //     void DescribeNegationTo(std::ostream*);
 //
@@ -109,7 +106,7 @@ inline MatchResultListener::~MatchResultListener() {
 
 // An instance of a subclass of this knows how to describe itself as a
 // matcher.
-class MatcherDescriberInterface {
+class GTEST_API_ MatcherDescriberInterface {
  public:
   virtual ~MatcherDescriberInterface() {}
 
@@ -930,4 +927,4 @@ inline internal::NeMatcher<Rhs> Ne(Rhs x) {
 
 GTEST_DISABLE_MSC_WARNINGS_POP_()  //  4251 5046
 
-#endif  // GTEST_INCLUDE_GTEST_GTEST_MATCHERS_H_
+#endif  // GOOGLETEST_INCLUDE_GTEST_GTEST_MATCHERS_H_
