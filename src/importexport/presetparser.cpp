@@ -1,5 +1,5 @@
 
-#include "util.h"
+#include "scopelogging.h"
 #include "presetparser.h"
 
 PresetParser::PresetParser()
@@ -35,10 +35,11 @@ void PresetParser::parsePresets(QString fileContent)
 
     if (!domDocument.setContent(fileContent, true, &errorStr, &errorLine, &errorColumn))
     {
-        Util::showError(tr("Parse error at line %1, column %2:\n%3")
+        auto msg = QString(tr("Parse error at line %1, column %2:\n%3")
                 .arg(errorLine)
                 .arg(errorColumn)
                 .arg(errorStr));
+        qCWarning(scopePreset) << msg;
     }
     else
     {
@@ -101,7 +102,7 @@ bool PresetParser::parsePresetTag(const QDomElement &element, Preset *pPreset)
             {
                 // No data
                 bRet = false;
-                Util::showError(tr("Field separator is empty."));
+                qCWarning(scopePreset) << tr("Field separator is empty");
                 break;
             }
         }
@@ -115,7 +116,7 @@ bool PresetParser::parsePresetTag(const QDomElement &element, Preset *pPreset)
             else
             {
                 bRet = false;
-                Util::showError(tr("Decimal separator is empty."));
+                qCWarning(scopePreset) << tr("Decimal separator is empty");
                 break;
             }
         }
@@ -139,7 +140,7 @@ bool PresetParser::parsePresetTag(const QDomElement &element, Preset *pPreset)
             pPreset->column = child.text().toUInt(&bRet);
             if (!bRet)
             {
-                Util::showError(tr("Column ( %1 ) is not a valid number.").arg(child.text()));
+                qCWarning(scopePreset) << tr("Column ( %1 ) is not a valid number.").arg(child.text());
                 break;
             }
         }
@@ -151,7 +152,7 @@ bool PresetParser::parsePresetTag(const QDomElement &element, Preset *pPreset)
                 || (pPreset->labelRow < -1)
                )
             {
-                Util::showError(tr("Label row ( %1 ) is not a valid number. Specify -1 to indicate the absence of label row").arg(child.text()));
+                qCWarning(scopePreset) << tr("Label row ( %1 ) is not a valid number. Specify -1 to indicate the absence of label row").arg(child.text());
                 break;
             }
         }
@@ -160,7 +161,7 @@ bool PresetParser::parsePresetTag(const QDomElement &element, Preset *pPreset)
             pPreset->dataRow = child.text().toUInt(&bRet);
             if (!bRet)
             {
-                Util::showError(tr("Data row ( %1 ) is not a valid number.").arg(child.text()));
+                qCWarning(scopePreset) << tr("Data row ( %1 ) is not a valid number.").arg(child.text());
                 break;
             }
         }
@@ -210,17 +211,17 @@ bool PresetParser::parsePresetTag(const QDomElement &element, Preset *pPreset)
 
     if (!bName)
     {
-        Util::showError(tr("Name is not specified."));
+        qCWarning(scopePreset) << tr("Name is not specified.");
         bRet = false;
     }
     else if (!bFieldseparator)
     {
-        Util::showError(tr("Field separator is not specified (%1).").arg(pPreset->name));
+        qCWarning(scopePreset) << tr("Field separator is not specified (%1).").arg(pPreset->name);
         bRet = false;
     }
     else if (!bDecimalSeparator)
     {
-        Util::showError(tr("Decimal separator is not specified (%1).").arg(pPreset->name));
+        qCWarning(scopePreset) << tr("Decimal separator is not specified (%1).").arg(pPreset->name);
         bRet = false;
     }
 

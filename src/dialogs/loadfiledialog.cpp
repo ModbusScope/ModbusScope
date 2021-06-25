@@ -7,6 +7,7 @@
 
 #include "settingsauto.h"
 #include "util.h"
+#include "scopelogging.h"
 
 #include "loadfiledialog.h"
 #include "ui_loadfiledialog.h"
@@ -413,10 +414,12 @@ void LoadFileDialog::loadPreset(void)
             QString presetFileContent = in.readAll();
 
             _presetParser.parsePresets(presetFileContent);
+
+            qCInfo(scopePreset) << QString("Preset file (%1) loaded: %2 preset(s) found").arg(presetFile).arg(_presetParser.presetCount());
         }
         else
         {
-            Util::showError(tr("Couldn't open preset file: %1").arg(presetFile));
+            qCWarning(scopePreset) << tr("Couldn't open preset file: %1").arg(presetFile);
         }
     }
 
