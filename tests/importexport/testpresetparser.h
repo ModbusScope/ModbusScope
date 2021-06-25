@@ -10,6 +10,7 @@ private slots:
     void cleanup();
 
     void singlePreset();
+    void invalidFile();
 
 private:
 

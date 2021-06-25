@@ -7,6 +7,7 @@ class PresetFileTestData: public QObject
 
 public:
     static QString cSinglePreset;
+    static QString cInvalidFile;
 
 private:
 

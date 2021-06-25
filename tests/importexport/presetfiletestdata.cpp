@@ -18,3 +18,12 @@ QString PresetFileTestData::cSinglePreset = QString(
     "    </parsepreset>                                             \n"\
     "</modbusscope>                                                 \n"\
 );
+
+
+QString PresetFileTestData::cInvalidFile = QString(
+
+    "<modbusscope>                                                  \n"\
+    "    <parsepreset>                                              \n"\
+    "    </parsepreset>                                             \n"\
+    "</modbusscope>                                                 \n"\
+);

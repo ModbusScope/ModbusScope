@@ -38,4 +38,15 @@ void TestPresetFileParser::singlePreset()
     QCOMPARE(presetParser.preset(0).bStmStudioCorrection, false);
 }
 
+void TestPresetFileParser::invalidFile()
+{
+    PresetParser presetParser;
+
+    presetParser.parsePresets(PresetFileTestData::cInvalidFile);
+
+    QCOMPARE(presetParser.presetCount(), 0);
+}
+
+
+
 QTEST_GUILESS_MAIN(TestPresetFileParser)
