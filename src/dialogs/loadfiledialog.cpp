@@ -4,7 +4,6 @@
 #include <QPushButton>
 #include <QColor>
 
-
 #include "settingsauto.h"
 #include "util.h"
 #include "scopelogging.h"
@@ -43,6 +42,8 @@ LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserMod
     _pParserModel = pParserModel;
     _pGuiModel = pGuiModel;
     _dataFileSample = dataFileSample;
+
+    _pPresetHandler = new PresetHandler(new PresetParser());
 
     // load presets
     loadPreset();
@@ -121,6 +122,7 @@ LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserMod
 
 LoadFileDialog::~LoadFileDialog()
 {
+    delete _pPresetHandler;
     delete _pUi;
 }
 
@@ -280,20 +282,11 @@ void LoadFileDialog::stmStudioCorrectionUpdated(bool bCorrectData)
 
 void LoadFileDialog::presetSelected(int index)
 {
-    const qint32 presetIndex = index - _cPresetListOffset;
-
-    if ((presetIndex >= 0) && (static_cast<quint32>(presetIndex) < _presetParser.presetCount()))
+    if (index > static_cast<qint32>(_cPresetListOffset))
     {
-        auto preset = _presetParser.preset(presetIndex);
-        _pParserModel->setColumn(preset.column -1);
-        _pParserModel->setDataRow(preset.dataRow - 1);
-        _pParserModel->setLabelRow(preset.labelRow - 1);
-        _pParserModel->setDecimalSeparator(preset.decimalSeparator);
-        _pParserModel->setFieldSeparator(preset.fieldSeparator);
-        _pParserModel->setGroupSeparator(preset.thousandSeparator);
-        _pParserModel->setCommentSequence(preset.commentSequence);
-        _pParserModel->setTimeInMilliSeconds(preset.bTimeInMilliSeconds);
-        _pParserModel->setStmStudioCorrection(preset.bStmStudioCorrection);
+        const qint32 presetIndex = index - _cPresetListOffset;
+
+        _pPresetHandler->fillWithPresetData(presetIndex, _pParserModel);
     }
 }
 
@@ -321,40 +314,6 @@ void LoadFileDialog::done(int r)
 void LoadFileDialog::setPresetToManual()
 {
     _pUi->comboPreset->setCurrentIndex(_cPresetManualIndex);
-}
-
-void LoadFileDialog::determinePresetFile(QString &presetFile)
-{
-    QString path;
-    /* Check if preset file exists (2 locations)
-    *   <document_folder>\ModbusScope\
-    *   directory of executable
-    */
-
-    presetFile = "";
-
-    QString documentsfolder;
-    QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
-    if (docPath.size() > 0)
-    {
-        documentsfolder = docPath[0];
-
-        path = documentsfolder + "/ModbusScope/" + _presetFilename;
-        if (QFileInfo::exists(path))
-        {
-            // xml in documents folder found
-            presetFile = path;
-        }
-        else
-        {
-            // xml in documents folder doesn't exist, check directory of executable
-            path = _presetFilename;
-            if (QFileInfo::exists(path))
-            {
-                presetFile = path;
-            }
-        }
-    }
 }
 
 bool LoadFileDialog::validateSettingsData()
@@ -401,59 +360,32 @@ qint32 LoadFileDialog::findIndexInCombo(QList<ComboListItem> comboItemList, QStr
 void LoadFileDialog::loadPreset(void)
 {
     QString presetFile;
-    determinePresetFile(presetFile);
+    PresetHandler::determinePresetFile(presetFile);
 
-    if (!presetFile.isEmpty())
-    {
-        QFile file(presetFile);
-
-        /* If we can't open it, let's show an error message. */
-        if (file.open(QFile::ReadOnly | QFile::Text))
-        {
-            QTextStream in(&file);
-            QString presetFileContent = in.readAll();
-
-            _presetParser.parsePresets(presetFileContent);
-
-            qCInfo(scopePreset) << QString("Preset file (%1) loaded: %2 preset(s) found").arg(presetFile).arg(_presetParser.presetCount());
-        }
-        else
-        {
-            qCWarning(scopePreset) << tr("Couldn't open preset file: %1").arg(presetFile);
-        }
-    }
+    _pPresetHandler->loadPresetsFromFile(presetFile);
 
     _pUi->comboPreset->clear();
     _pUi->comboPreset->addItem("Manual");
 
-    for (quint32 index = 0; index < _presetParser.presetCount(); index ++)
+    foreach(auto name, _pPresetHandler->nameList())
     {
-        _pUi->comboPreset->addItem(_presetParser.preset(index).name);
+        _pUi->comboPreset->addItem(name);
     }
 }
 
 void LoadFileDialog::setPresetAccordingKeyword(QString filename)
 {
-    qint32 presetComboIndex = -1;
+    qint32 presetComboIndex;
+    const qint32 presetIdx = _pPresetHandler->determinePreset(filename);
 
-    // Loop through presets and set preset if keyword is in filename
-    for (quint32 index = 0; index < _presetParser.presetCount(); index ++)
+    if (presetIdx == -1)
     {
-        if (!_presetParser.preset(index).keyword.isEmpty())
-        {
-            if (QFileInfo(filename).fileName().contains(_presetParser.preset(index).keyword, Qt::CaseInsensitive))
-            {
-                presetComboIndex = index + _cPresetListOffset;
-                break;
-            }
-        }
-    }
-
-    // No preset found
-    if (presetComboIndex == -1)
-    {
-        // set to manual
+        // No matching preset found
         presetComboIndex = _cPresetManualIndex;
+    }
+    else
+    {
+         presetComboIndex = presetIdx + _cPresetListOffset;
     }
 
     _pUi->comboPreset->setCurrentIndex(-1);

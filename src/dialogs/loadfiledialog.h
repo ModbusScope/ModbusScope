@@ -5,8 +5,9 @@
 #include <QStringList>
 
 #include "dataparsermodel.h"
+#include "presethandler.h"
 #include "guimodel.h"
-#include "presetparser.h"
+
 
 namespace Ui {
 class LoadFileDialog;
@@ -68,11 +69,11 @@ private:
 
     DataParserModel * _pParserModel;
     GuiModel *_pGuiModel;
-    PresetParser _presetParser;
+
+    PresetHandler* _pPresetHandler;
 
     QStringList _dataFileSample;
 
-    void determinePresetFile(QString &presetFile);
     bool validateSettingsData();
     qint32 findIndexInCombo(QList<ComboListItem> comboItemList, QString userDataKey);
     void loadPreset(void);
