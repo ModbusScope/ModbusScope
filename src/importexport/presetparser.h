@@ -36,10 +36,10 @@ public:
 
     explicit PresetParser();
 
-    void parsePresets(QString fileContent);
+    virtual void parsePresets(QString fileContent);
 
-    PresetParser::Preset preset(quint32 index);
-    quint32 presetCount();
+    virtual PresetParser::Preset preset(quint32 index);
+    virtual quint32 presetCount();
 
 signals:
 
