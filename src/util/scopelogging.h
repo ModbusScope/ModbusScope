@@ -7,6 +7,7 @@
 Q_DECLARE_LOGGING_CATEGORY(scopeCommConnection)
 Q_DECLARE_LOGGING_CATEGORY(scopeComm)
 Q_DECLARE_LOGGING_CATEGORY(scopeGeneralInfo)
+Q_DECLARE_LOGGING_CATEGORY(scopePreset)
 
 class ScopeLogging
 {

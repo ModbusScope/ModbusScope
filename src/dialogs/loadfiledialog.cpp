@@ -1,10 +1,12 @@
 
+#include <QtWidgets>
 #include <QFileDialog>
 #include <QPushButton>
 #include <QColor>
 
 #include "settingsauto.h"
 #include "util.h"
+#include "scopelogging.h"
 
 #include "loadfiledialog.h"
 #include "ui_loadfiledialog.h"
@@ -29,8 +31,9 @@ const QColor LoadFileDialog::_cColorLabel = QColor(150, 255, 150); // darker scr
 const QColor LoadFileDialog::_cColorData = QColor(200, 255, 200); // lighter green
 const QColor LoadFileDialog::_cColorIgnored = QColor(175, 175, 175); // grey
 
+const QString LoadFileDialog::_presetFilename = QString("presets.xml");
 
-LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserModel, QWidget *parent) :
+LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserModel, QStringList dataFileSample, QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::LoadFileDialog)
 {
@@ -38,6 +41,9 @@ LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserMod
 
     _pParserModel = pParserModel;
     _pGuiModel = pGuiModel;
+    _dataFileSample = dataFileSample;
+
+    _pPresetHandler = new PresetHandler(new PresetParser());
 
     // load presets
     loadPreset();
@@ -108,30 +114,16 @@ LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserMod
     _pUi->lblImportStatus->setPalette(palette);
 
     _pParserModel->triggerUpdate();
-}
-
-LoadFileDialog::~LoadFileDialog()
-{
-    delete _pUi;
-}
-
-void LoadFileDialog::open()
-{
-    /* Shouldn't be used */
-    _dataFileSample.clear();
-
-    QDialog::open();
-}
-
-void LoadFileDialog::open(QTextStream* pDataStream, qint32 sampleLineLength)
-{
-    SettingsAuto::loadDataFileSample(pDataStream, &_dataFileSample, sampleLineLength);
 
     setPresetAccordingKeyword(_pParserModel->dataFilePath());
 
     updatePreview();
+}
 
-    QDialog::open();
+LoadFileDialog::~LoadFileDialog()
+{
+    delete _pPresetHandler;
+    delete _pUi;
 }
 
 void LoadFileDialog::updatePath()
@@ -290,19 +282,11 @@ void LoadFileDialog::stmStudioCorrectionUpdated(bool bCorrectData)
 
 void LoadFileDialog::presetSelected(int index)
 {
-    const qint32 presetIndex = index - _cPresetListOffset;
-
-    if ((presetIndex >= 0) && (presetIndex < _presetParser.presetList().size()))
+    if (index > static_cast<qint32>(_cPresetListOffset))
     {
-        _pParserModel->setColumn(_presetParser.presetList()[presetIndex].column -1);
-        _pParserModel->setDataRow(_presetParser.presetList()[presetIndex].dataRow - 1);
-        _pParserModel->setLabelRow(_presetParser.presetList()[presetIndex].labelRow - 1);
-        _pParserModel->setDecimalSeparator(_presetParser.presetList()[presetIndex].decimalSeparator);
-        _pParserModel->setFieldSeparator(_presetParser.presetList()[presetIndex].fieldSeparator);
-        _pParserModel->setGroupSeparator(_presetParser.presetList()[presetIndex].thousandSeparator);
-        _pParserModel->setCommentSequence(_presetParser.presetList()[presetIndex].commentSequence);
-        _pParserModel->setTimeInMilliSeconds(_presetParser.presetList()[presetIndex].bTimeInMilliSeconds);
-        _pParserModel->setStmStudioCorrection(_presetParser.presetList()[presetIndex].bStmStudioCorrection);
+        const qint32 presetIndex = index - _cPresetListOffset;
+
+        _pPresetHandler->fillWithPresetData(presetIndex, _pParserModel);
     }
 }
 
@@ -375,39 +359,33 @@ qint32 LoadFileDialog::findIndexInCombo(QList<ComboListItem> comboItemList, QStr
 
 void LoadFileDialog::loadPreset(void)
 {
-    _presetParser.loadPresetsFromFile();
+    QString presetFile;
+    PresetHandler::determinePresetFile(presetFile);
+
+    _pPresetHandler->loadPresetsFromFile(presetFile);
 
     _pUi->comboPreset->clear();
     _pUi->comboPreset->addItem("Manual");
 
-    foreach(PresetParser::Preset preset, _presetParser.presetList())
+    foreach(auto name, _pPresetHandler->nameList())
     {
-        _pUi->comboPreset->addItem(preset.name);
+        _pUi->comboPreset->addItem(name);
     }
 }
 
 void LoadFileDialog::setPresetAccordingKeyword(QString filename)
 {
-    qint32 presetComboIndex = -1;
+    qint32 presetComboIndex;
+    const qint32 presetIdx = _pPresetHandler->determinePreset(filename);
 
-    // Loop through presets and set preset if keyword is in filename
-    for (qint32 index = 0; index < _presetParser.presetList().size(); index ++)
+    if (presetIdx == -1)
     {
-        if (!_presetParser.presetList()[index].keyword.isEmpty())
-        {
-            if (QFileInfo(filename).fileName().contains(_presetParser.presetList()[index].keyword, Qt::CaseInsensitive))
-            {
-                presetComboIndex = index + _cPresetListOffset;
-                break;
-            }
-        }
-    }
-
-    // No preset found
-    if (presetComboIndex == -1)
-    {
-        // set to manual
+        // No matching preset found
         presetComboIndex = _cPresetManualIndex;
+    }
+    else
+    {
+         presetComboIndex = presetIdx + _cPresetListOffset;
     }
 
     _pUi->comboPreset->setCurrentIndex(-1);

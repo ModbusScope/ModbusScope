@@ -5,8 +5,9 @@
 #include <QStringList>
 
 #include "dataparsermodel.h"
+#include "presethandler.h"
 #include "guimodel.h"
-#include "presetparser.h"
+
 
 namespace Ui {
 class LoadFileDialog;
@@ -18,11 +19,8 @@ class LoadFileDialog : public QDialog
 
 public:
 
-    explicit LoadFileDialog(GuiModel * pGuiModel, DataParserModel * pParserModel, QWidget *parent = nullptr);
+    explicit LoadFileDialog(GuiModel * pGuiModel, DataParserModel * pParserModel, QStringList dataFileSample, QWidget *parent = nullptr);
     ~LoadFileDialog();
-
-    void open();
-    void open(QTextStream *pDataStream, qint32 sampleLineLength);
 
 private slots:
 
@@ -71,7 +69,8 @@ private:
 
     DataParserModel * _pParserModel;
     GuiModel *_pGuiModel;
-    PresetParser _presetParser;
+
+    PresetHandler* _pPresetHandler;
 
     QStringList _dataFileSample;
 
@@ -91,6 +90,7 @@ private:
     static const QColor _cColorIgnored;
     static const quint32 _cPresetManualIndex = 0;
     static const quint32 _cPresetListOffset = 1;
+    static const QString _presetFilename;
 };
 
 #endif // LoadFileDialog_H

@@ -1,114 +1,60 @@
 
-#include <QtWidgets>
-#include "util.h"
+#include "scopelogging.h"
 #include "presetparser.h"
-
-const QString PresetParser::_presetFilename = QString("presets.xml");
 
 PresetParser::PresetParser()
 {
+    _presetList.clear();
 }
 
-QList<PresetParser::Preset> PresetParser::presetList()
+PresetParser::Preset PresetParser::preset(quint32 index)
 {
-    return _presetList;
+    return _presetList.at(index);
 }
 
-void PresetParser::loadPresetsFromFile()
+quint32 PresetParser::presetCount()
 {
-    QString presetFile;
-    /* Check if preset file exists (2 locations)
-    *   <document_folder>\ModbusScope\
-    *   directory of executable
-    */
-    QString documentsfolder;
-    QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
-    if (docPath.size() > 0)
+    int size = _presetList.size();
+
+    if (size < 0)
     {
-        documentsfolder = docPath[0];
+        size = 0;
     }
 
-    presetFile = documentsfolder + "/ModbusScope/" + _presetFilename;
-    if (!QFileInfo::exists(presetFile))
-    {
-        // xml in documents folder doesn't exist, check directory of executable
-        presetFile = _presetFilename;
-        if (!QFileInfo::exists(presetFile))
-        {
-            presetFile = "";
-            _lastModified = QDateTime();
-        }
-    }
-
-    if (presetFile != "")
-    {
-        if (_lastModified != QFileInfo(presetFile).lastModified())
-        {
-            _lastModified = QFileInfo(presetFile).lastModified();
-
-            _presetList.clear();
-
-            QFile file(presetFile);
-
-            /* If we can't open it, let's show an error message. */
-            if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-            {
-                PresetParser presetParser;
-                if (presetParser.parseFile(&file, &_presetList))
-                {
-                    // Parsing failed
-                }
-
-                file.close();
-            }
-            else
-            {
-                Util::showError(tr("Couldn't open preset file: %1").arg(presetFile));
-            }
-        }
-
-    }
-    else
-    {
-        _presetList.clear();
-    }
+    return static_cast<quint32>(size);
 }
 
-bool PresetParser::parseFile(QIODevice *device, QList<Preset> *pPresetList)
+void PresetParser::parsePresets(QString fileContent)
 {
-    bool bRet = true;
     QString errorStr;
     qint32 errorLine;
     qint32 errorColumn;
+    QDomDocument domDocument;
 
-    if (!_domDocument.setContent(device, true, &errorStr, &errorLine, &errorColumn))
+    _presetList.clear();
+
+    if (!domDocument.setContent(fileContent, true, &errorStr, &errorLine, &errorColumn))
     {
-        Util::showError(tr("Parse error at line %1, column %2:\n%3")
+        auto msg = QString(tr("Parse error at line %1, column %2:\n%3")
                 .arg(errorLine)
                 .arg(errorColumn)
                 .arg(errorStr));
-
-        bRet = false;
+        qCWarning(scopePreset) << msg;
     }
     else
     {
-        QDomElement root = _domDocument.documentElement();
-        if (root.tagName() != "modbusscope")
-        {
-            bRet = false;
-        }
-        else
+        QDomElement root = domDocument.documentElement();
+        if (root.tagName() == "modbusscope")
         {
             QDomElement tag = root.firstChildElement();
             while (!tag.isNull())
             {
                 if (tag.tagName() == "parsepreset")
                 {
-		                Preset preset;
-                    bRet = parsePresetTag(tag, &preset);
-                    if (bRet)
+                    Preset preset;
+                    if (parsePresetTag(tag, &preset))
                     {
-                        pPresetList->append(preset);
+                        _presetList.append(preset);
                     }
                     else
                     {
@@ -123,8 +69,6 @@ bool PresetParser::parseFile(QIODevice *device, QList<Preset> *pPresetList)
             }
         }
     }
-
-    return bRet;
 }
 
 
@@ -158,7 +102,7 @@ bool PresetParser::parsePresetTag(const QDomElement &element, Preset *pPreset)
             {
                 // No data
                 bRet = false;
-                Util::showError(tr("Field separator is empty."));
+                qCWarning(scopePreset) << tr("Field separator is empty");
                 break;
             }
         }
@@ -172,7 +116,7 @@ bool PresetParser::parsePresetTag(const QDomElement &element, Preset *pPreset)
             else
             {
                 bRet = false;
-                Util::showError(tr("Decimal separator is empty."));
+                qCWarning(scopePreset) << tr("Decimal separator is empty");
                 break;
             }
         }
@@ -196,7 +140,7 @@ bool PresetParser::parsePresetTag(const QDomElement &element, Preset *pPreset)
             pPreset->column = child.text().toUInt(&bRet);
             if (!bRet)
             {
-                Util::showError(tr("Column ( %1 ) is not a valid number.").arg(child.text()));
+                qCWarning(scopePreset) << tr("Column ( %1 ) is not a valid number.").arg(child.text());
                 break;
             }
         }
@@ -208,7 +152,7 @@ bool PresetParser::parsePresetTag(const QDomElement &element, Preset *pPreset)
                 || (pPreset->labelRow < -1)
                )
             {
-                Util::showError(tr("Label row ( %1 ) is not a valid number. Specify -1 to indicate the absence of label row").arg(child.text()));
+                qCWarning(scopePreset) << tr("Label row ( %1 ) is not a valid number. Specify -1 to indicate the absence of label row").arg(child.text());
                 break;
             }
         }
@@ -217,7 +161,7 @@ bool PresetParser::parsePresetTag(const QDomElement &element, Preset *pPreset)
             pPreset->dataRow = child.text().toUInt(&bRet);
             if (!bRet)
             {
-                Util::showError(tr("Data row ( %1 ) is not a valid number.").arg(child.text()));
+                qCWarning(scopePreset) << tr("Data row ( %1 ) is not a valid number.").arg(child.text());
                 break;
             }
         }
@@ -267,17 +211,17 @@ bool PresetParser::parsePresetTag(const QDomElement &element, Preset *pPreset)
 
     if (!bName)
     {
-        Util::showError(tr("Name is not specified."));
+        qCWarning(scopePreset) << tr("Name is not specified.");
         bRet = false;
     }
     else if (!bFieldseparator)
     {
-        Util::showError(tr("Field separator is not specified (%1).").arg(pPreset->name));
+        qCWarning(scopePreset) << tr("Field separator is not specified (%1).").arg(pPreset->name);
         bRet = false;
     }
     else if (!bDecimalSeparator)
     {
-        Util::showError(tr("Decimal separator is not specified (%1).").arg(pPreset->name));
+        qCWarning(scopePreset) << tr("Decimal separator is not specified (%1).").arg(pPreset->name);
         bRet = false;
     }
 

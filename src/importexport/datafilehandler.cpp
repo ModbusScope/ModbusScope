@@ -3,6 +3,7 @@
 #include "util.h"
 
 #include "datafilehandler.h"
+#include "loadfiledialog.h"
 
 #include <QWidget>
 #include <QProgressDialog>
@@ -21,16 +22,10 @@ DataFileHandler::DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphData
     _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel);
 
     connect(this, &DataFileHandler::startDataParsing, this, &DataFileHandler::parseDataFile);
-
-    _pLoadFileDialog = new LoadFileDialog(pGuiModel, pDataParserModel);
-
-    connect(_pLoadFileDialog, &LoadFileDialog::accepted, this, &DataFileHandler::parseDataFile);
-    connect(_pLoadFileDialog, &LoadFileDialog::rejected, this, &DataFileHandler::cleanUpFileHandler);
 }
 
 DataFileHandler::~DataFileHandler()
 {
-    delete _pLoadFileDialog;
     delete _pDataFileExporter;
 
     cleanUpFileHandler();
@@ -95,8 +90,19 @@ void DataFileHandler::loadDataFile(QString dataFilePath)
     }
     else
     {
-        /* Open load file dialog */
-        _pLoadFileDialog->open(_pDataFileStream, _cSampleLineLength);
+        QStringList dataFileSample;
+        SettingsAuto::loadDataFileSample(_pDataFileStream, dataFileSample, _cSampleLineLength);
+
+        LoadFileDialog loadFileDialog(_pGuiModel, _pDataParserModel, dataFileSample);
+
+        if (loadFileDialog.exec() == QDialog::Accepted)
+        {
+            parseDataFile();
+        }
+        else
+        {
+            cleanUpFileHandler();
+        }
     }
 }
 

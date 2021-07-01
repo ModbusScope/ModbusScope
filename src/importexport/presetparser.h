@@ -36,8 +36,10 @@ public:
 
     explicit PresetParser();
 
-    void loadPresetsFromFile();
-    QList<PresetParser::Preset> presetList();
+    virtual void parsePresets(QString fileContent);
+
+    virtual PresetParser::Preset preset(quint32 index);
+    virtual quint32 presetCount();
 
 signals:
 
@@ -45,14 +47,10 @@ public slots:
 
 private:
 
-    bool parseFile(QIODevice *device, QList<Preset> *pPresetList);
     bool parsePresetTag(const QDomElement &element, Preset *pPreset);
 
-    QDomDocument _domDocument;
-    QDateTime _lastModified;
     QList<PresetParser::Preset> _presetList;
 
-    static const QString _presetFilename;
 };
 
 #endif // PRESETPARSER_H

@@ -7,7 +7,6 @@
 #include "graphdatamodel.h"
 #include "notemodel.h"
 #include "settingsmodel.h"
-#include "loadfiledialog.h"
 
 #include "datafileexporter.h"
 #include "dataparsermodel.h"
@@ -55,8 +54,6 @@ private:
 
     QTextStream* _pDataFileStream;
     QFile* _pDataFile;
-
-    LoadFileDialog* _pLoadFileDialog;
 
     static const qint32 _cSampleLineLength = 50;
 };
