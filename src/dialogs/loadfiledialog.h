@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QStringList>
+#include <QButtonGroup>
 
 #include "dataparsermodel.h"
 #include "presethandler.h"
@@ -32,7 +33,7 @@ private slots:
     void updateDataRow();
     void updateColumn();
     void updateLabelRow();
-    void updateTimeInMilliSeconds();
+    void updateTimeFormat();
     void updateStmStudioCorrection();
 
     void fieldSeparatorSelected(int index);
@@ -43,7 +44,7 @@ private slots:
     void dataRowUpdated();
     void columnUpdated();
     void labelRowUpdated();
-    void timeInMilliSecondsUpdated(bool bTimeInMilliSeconds);
+    void timeFormatUpdated(int id);
     void stmStudioCorrectionUpdated(bool bCorrectData);
 
     void presetSelected(int index);
@@ -71,6 +72,7 @@ private:
     GuiModel *_pGuiModel;
 
     PresetHandler* _pPresetHandler;
+    QButtonGroup* _pTimeFormatGroup;
 
     QStringList _dataFileSample;
 

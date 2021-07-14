@@ -69,6 +69,12 @@ LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserMod
         _pUi->comboGroupSeparator->addItem(listItem.name, listItem.userData);
     }
 
+    _pTimeFormatGroup = new QButtonGroup();
+    _pTimeFormatGroup->setExclusive(true);
+    _pTimeFormatGroup->addButton(_pUi->radioSeconds, 0);
+    _pTimeFormatGroup->addButton(_pUi->radioMilliSeconds, 1);
+    connect(_pTimeFormatGroup, &QButtonGroup::idClicked, this, &LoadFileDialog::timeFormatUpdated);
+
     // Handle signals from model
     connect(_pParserModel, &DataParserModel::dataFilePathChanged, this, &LoadFileDialog::updatePath);
     connect(_pParserModel, &DataParserModel::fieldSeparatorChanged, this, &LoadFileDialog::updateFieldSeparator);
@@ -78,7 +84,7 @@ LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserMod
     connect(_pParserModel, &DataParserModel::dataRowChanged, this, &LoadFileDialog::updateDataRow);
     connect(_pParserModel, &DataParserModel::columnChanged, this, &LoadFileDialog::updateColumn);
     connect(_pParserModel, &DataParserModel::labelRowChanged, this, &LoadFileDialog::updateLabelRow);
-    connect(_pParserModel, &DataParserModel::timeInMilliSecondsChanged, this, &LoadFileDialog::updateTimeInMilliSeconds);
+    connect(_pParserModel, &DataParserModel::timeInMilliSecondsChanged, this, &LoadFileDialog::updateTimeFormat);
     connect(_pParserModel, &DataParserModel::stmStudioCorrectionChanged, this, &LoadFileDialog::updateStmStudioCorrection);
 
     // Handle signal from controls
@@ -91,7 +97,6 @@ LoadFileDialog::LoadFileDialog(GuiModel *pGuiModel, DataParserModel * pParserMod
     connect(_pUi->spinColumn, QOverload<int>::of(&QSpinBox::valueChanged), this, &LoadFileDialog::columnUpdated);
     connect(_pUi->spinLabelRow, QOverload<int>::of(&QSpinBox::valueChanged), this, &LoadFileDialog::labelRowUpdated);
     connect(_pUi->comboPreset, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &LoadFileDialog::presetSelected);
-    connect(_pUi->checkTimeInMilliSeconds, &QCheckBox::toggled, this, &LoadFileDialog::timeInMilliSecondsUpdated);
     connect(_pUi->checkStmStudioCorrection, &QCheckBox::toggled, this, &LoadFileDialog::stmStudioCorrectionUpdated);
 
     // Signal to change preset to manual
@@ -197,9 +202,16 @@ void LoadFileDialog::updateLabelRow()
     updatePreview();
 }
 
-void LoadFileDialog::updateTimeInMilliSeconds()
+void LoadFileDialog::updateTimeFormat()
 {
-    _pUi->checkTimeInMilliSeconds->setChecked(_pParserModel->timeInMilliSeconds());
+    if (_pParserModel->timeInMilliSeconds())
+    {
+        _pUi->radioMilliSeconds->setChecked(true);
+    }
+    else
+    {
+        _pUi->radioSeconds->setChecked(true);
+    }
 }
 
 void LoadFileDialog::updateStmStudioCorrection()
@@ -270,9 +282,9 @@ void LoadFileDialog::labelRowUpdated()
     _pParserModel->setLabelRow(_pUi->spinLabelRow->value() - 1);   // - 1 based because 0 based internally
 }
 
-void LoadFileDialog::timeInMilliSecondsUpdated(bool bTimeInMilliSeconds)
+void LoadFileDialog::timeFormatUpdated(int id)
 {
-    _pParserModel->setTimeInMilliSeconds(bTimeInMilliSeconds);
+    _pParserModel->setTimeInMilliSeconds(id ? true: false);
 }
 
 void LoadFileDialog::stmStudioCorrectionUpdated(bool bCorrectData)
