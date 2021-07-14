@@ -282,7 +282,7 @@ void LoadFileDialog::stmStudioCorrectionUpdated(bool bCorrectData)
 
 void LoadFileDialog::presetSelected(int index)
 {
-    if (index > static_cast<qint32>(_cPresetListOffset))
+    if (index >= static_cast<qint32>(_cPresetListOffset))
     {
         const qint32 presetIndex = index - _cPresetListOffset;
 
