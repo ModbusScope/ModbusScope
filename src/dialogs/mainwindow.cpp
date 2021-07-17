@@ -72,7 +72,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pUi->actionExportDataCsv, SIGNAL(triggered()), _pDataFileHandler, SLOT(selectDataExportFile()));
     connect(_pUi->actionLoadProjectFile, SIGNAL(triggered()), _pProjectFileHandler, SLOT(selectProjectSettingFile()));
     connect(_pUi->actionReloadProjectFile, SIGNAL(triggered()), _pProjectFileHandler, SLOT(reloadProjectFile()));
-    connect(_pUi->actionImportDataFile, SIGNAL(triggered()), _pDataFileHandler, SLOT(selectDataImportFile()));
+    connect(_pUi->actionOpenDataFile, SIGNAL(triggered()), _pDataFileHandler, SLOT(selectDataImportFile()));
     connect(_pUi->actionExportImage, SIGNAL(triggered()), this, SLOT(selectImageExportFile()));
     connect(_pUi->actionExportSettings, SIGNAL(triggered()), _pProjectFileHandler, SLOT(selectSettingsExportFile()));
     connect(_pUi->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
@@ -767,7 +767,7 @@ void MainWindow::updateGuiState()
         _pUi->actionLogSettings->setEnabled(true);
         _pUi->actionRegisterSettings->setEnabled(true);
         _pUi->actionStart->setEnabled(true);
-        _pUi->actionImportDataFile->setEnabled(true);
+        _pUi->actionOpenDataFile->setEnabled(true);
         _pUi->actionLoadProjectFile->setEnabled(true);
         _pUi->actionExportDataCsv->setEnabled(false);
         _pUi->actionExportImage->setEnabled(false);
@@ -795,7 +795,7 @@ void MainWindow::updateGuiState()
         _pUi->actionLogSettings->setEnabled(false);
         _pUi->actionRegisterSettings->setEnabled(false);
         _pUi->actionStart->setEnabled(false);
-        _pUi->actionImportDataFile->setEnabled(false);
+        _pUi->actionOpenDataFile->setEnabled(false);
         _pUi->actionLoadProjectFile->setEnabled(false);
         _pUi->actionExportDataCsv->setEnabled(false);
         _pUi->actionExportSettings->setEnabled(false);
@@ -819,7 +819,7 @@ void MainWindow::updateGuiState()
         _pUi->actionLogSettings->setEnabled(true);
         _pUi->actionRegisterSettings->setEnabled(true);
         _pUi->actionStart->setEnabled(true);
-        _pUi->actionImportDataFile->setEnabled(true);
+        _pUi->actionOpenDataFile->setEnabled(true);
         _pUi->actionLoadProjectFile->setEnabled(true);
         _pUi->actionExportDataCsv->setEnabled(true);
         _pUi->actionExportSettings->setEnabled(true);
@@ -848,7 +848,7 @@ void MainWindow::updateGuiState()
         _pUi->actionLogSettings->setEnabled(true);
         _pUi->actionRegisterSettings->setEnabled(true);
         _pUi->actionStart->setEnabled(true);
-        _pUi->actionImportDataFile->setEnabled(true);
+        _pUi->actionOpenDataFile->setEnabled(true);
         _pUi->actionLoadProjectFile->setEnabled(true);
         _pUi->actionExportDataCsv->setEnabled(false); // Can't export data when viewing data
         _pUi->actionExportSettings->setEnabled(false); // Can't export data when viewing data
@@ -946,7 +946,7 @@ void MainWindow::dropEvent(QDropEvent *e)
         }
         else if (fileInfo.completeSuffix().toLower() == QString("csv"))
         {
-            _pDataFileHandler->loadDataFile(filename);
+            _pDataFileHandler->openDataFile(filename);
         }
         else if (fileInfo.completeSuffix().toLower() == QString("mbc"))
         {
@@ -955,7 +955,7 @@ void MainWindow::dropEvent(QDropEvent *e)
         else
         {
             /* Assume data file import */
-            _pDataFileHandler->loadDataFile(filename);
+            _pDataFileHandler->openDataFile(filename);
         }
     }
 }

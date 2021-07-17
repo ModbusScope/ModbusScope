@@ -55,7 +55,7 @@
     </property>
     <addaction name="actionLoadProjectFile"/>
     <addaction name="actionReloadProjectFile"/>
-    <addaction name="actionImportDataFile"/>
+    <addaction name="actionOpenDataFile"/>
     <addaction name="separator"/>
     <addaction name="actionExportDataCsv"/>
     <addaction name="actionExportImage"/>
@@ -635,14 +635,20 @@
     <string>&amp;Reload Project File</string>
    </property>
   </action>
-  <action name="actionImportDataFile">
+  <action name="actionOpenDataFile">
    <property name="icon">
     <iconset>
      <normalon>:/menu_icon/menu_icon/icons/folder_page.png</normalon>
     </iconset>
    </property>
    <property name="text">
-    <string>&amp;Import Data File...</string>
+    <string>Open &amp;Data File...</string>
+   </property>
+   <property name="iconText">
+    <string>Open Data File</string>
+   </property>
+   <property name="toolTip">
+    <string>Open Data File</string>
    </property>
   </action>
   <action name="actionHighlightSamplePoints">
@@ -794,6 +800,7 @@
   </customwidget>
  </customwidgets>
  <resources>
+  <include location="../../resources/resource.qrc"/>
   <include location="../../resources/resource.qrc"/>
  </resources>
  <connections/>

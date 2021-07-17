@@ -31,7 +31,7 @@ DataFileHandler::~DataFileHandler()
     cleanUpFileHandler();
 }
 
-void DataFileHandler::loadDataFile(QString dataFilePath)
+void DataFileHandler::openDataFile(QString dataFilePath)
 {
     // Set last used path
     _pGuiModel->setLastDir(QFileInfo(dataFilePath).dir().absolutePath());
@@ -146,7 +146,7 @@ void DataFileHandler::selectDataImportFile()
         if (!fileList.isEmpty())
         {
             filePath = fileList.at(0);
-            this->loadDataFile(filePath);
+            this->openDataFile(filePath);
         }
     }
 }
