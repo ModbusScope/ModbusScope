@@ -136,6 +136,10 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionOpenProjectFile"/>
+   <addaction name="actionOpenDataFile"/>
+   <addaction name="separator"/>
+   <addaction name="actionSaveDataFile"/>
+   <addaction name="actionExportImage"/>
    <addaction name="separator"/>
    <addaction name="actionConnectionSettings"/>
    <addaction name="actionLogSettings"/>
@@ -638,7 +642,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>&amp;Reload Project File</string>
+    <string>&amp;Reload Project</string>
    </property>
   </action>
   <action name="actionOpenDataFile">
@@ -726,7 +730,7 @@
      <normaloff>:/menu_icon/menu_icon/icons/folder_go.png</normaloff>:/menu_icon/menu_icon/icons/folder_go.png</iconset>
    </property>
    <property name="text">
-    <string>Save Project File...</string>
+    <string>Save Project...</string>
    </property>
   </action>
   <action name="actionDiagnostic">
