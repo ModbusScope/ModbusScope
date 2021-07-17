@@ -53,7 +53,7 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionLoadProjectFile"/>
+    <addaction name="actionOpenProjectFile"/>
     <addaction name="actionReloadProjectFile"/>
     <addaction name="actionOpenDataFile"/>
     <addaction name="separator"/>
@@ -135,7 +135,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionLoadProjectFile"/>
+   <addaction name="actionOpenProjectFile"/>
    <addaction name="separator"/>
    <addaction name="actionConnectionSettings"/>
    <addaction name="actionLogSettings"/>
@@ -594,14 +594,17 @@
     <string>&amp;Export Data...</string>
    </property>
   </action>
-  <action name="actionLoadProjectFile">
+  <action name="actionOpenProjectFile">
    <property name="icon">
     <iconset>
      <normalon>:/menu_icon/menu_icon/icons/folder.png</normalon>
     </iconset>
    </property>
    <property name="text">
-    <string>&amp;Load Project File...</string>
+    <string>&amp;Open Project File...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open Project File</string>
    </property>
   </action>
   <action name="actionExportImage">

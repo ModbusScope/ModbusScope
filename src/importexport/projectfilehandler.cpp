@@ -15,7 +15,7 @@ ProjectFileHandler::ProjectFileHandler(GuiModel* pGuiModel, SettingsModel* pSett
     _pGraphDataModel = pGraphDataModel;
 }
 
-void ProjectFileHandler::loadProjectFile(QString projectFilePath)
+void ProjectFileHandler::openProjectFile(QString projectFilePath)
 {
     ProjectFileParser fileParser;
     ProjectFileData::ProjectSettings loadedSettings;
@@ -84,14 +84,14 @@ void ProjectFileHandler::selectProjectSettingFile()
         {
             filePath = fileList.at(0);
             _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-            this->loadProjectFile(filePath);
+            this->openProjectFile(filePath);
         }
     }
 }
 
 void ProjectFileHandler::reloadProjectFile()
 {
-    this->loadProjectFile(_pGuiModel->projectFilePath());
+    this->openProjectFile(_pGuiModel->projectFilePath());
 }
 
 void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings * pProjectSettings)
