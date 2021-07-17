@@ -20,8 +20,8 @@ public:
 signals:
 
 public slots:
-    void selectSettingsExportFile();
-    void selectProjectSettingFile();
+    void selectProjectSaveFile();
+    void selectProjectOpenFile();
 
     void reloadProjectFile();
 

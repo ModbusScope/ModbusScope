@@ -57,9 +57,9 @@
     <addaction name="actionReloadProjectFile"/>
     <addaction name="actionOpenDataFile"/>
     <addaction name="separator"/>
+    <addaction name="actionSaveProjectFile"/>
     <addaction name="actionExportDataCsv"/>
     <addaction name="actionExportImage"/>
-    <addaction name="actionExportSettings"/>
     <addaction name="separator"/>
     <addaction name="actionConnectionSettings"/>
     <addaction name="actionLogSettings"/>
@@ -714,7 +714,7 @@
     <string>Toggle Markers</string>
    </property>
   </action>
-  <action name="actionExportSettings">
+  <action name="actionSaveProjectFile">
    <property name="enabled">
     <bool>false</bool>
    </property>
@@ -723,7 +723,7 @@
      <normaloff>:/menu_icon/menu_icon/icons/folder_go.png</normaloff>:/menu_icon/menu_icon/icons/folder_go.png</iconset>
    </property>
    <property name="text">
-    <string>Ex&amp;port Settings...</string>
+    <string>Save Project File...</string>
    </property>
   </action>
   <action name="actionDiagnostic">

@@ -41,7 +41,7 @@ void ProjectFileHandler::openProjectFile(QString projectFilePath)
     }
 }
 
-void ProjectFileHandler::selectSettingsExportFile()
+void ProjectFileHandler::selectProjectSaveFile()
 {
     ProjectFileExporter projectFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel);
     QString filePath;
@@ -66,7 +66,7 @@ void ProjectFileHandler::selectSettingsExportFile()
     }
 }
 
-void ProjectFileHandler::selectProjectSettingFile()
+void ProjectFileHandler::selectProjectOpenFile()
 {
     QString filePath;
     QFileDialog dialog;
