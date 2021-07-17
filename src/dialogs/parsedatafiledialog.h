@@ -1,5 +1,5 @@
-#ifndef LoadFileDialog_H
-#define LoadFileDialog_H
+#ifndef ParseDataFileDialog_H
+#define ParseDataFileDialog_H
 
 #include <QDialog>
 #include <QStringList>
@@ -11,17 +11,17 @@
 
 
 namespace Ui {
-class LoadFileDialog;
+class ParseDataFileDialog;
 }
 
-class LoadFileDialog : public QDialog
+class ParseDataFileDialog : public QDialog
 {
     Q_OBJECT
 
 public:
 
-    explicit LoadFileDialog(GuiModel * pGuiModel, DataParserModel * pParserModel, QStringList dataFileSample, QWidget *parent = nullptr);
-    ~LoadFileDialog();
+    explicit ParseDataFileDialog(GuiModel * pGuiModel, DataParserModel * pParserModel, QStringList dataFileSample, QWidget *parent = nullptr);
+    ~ParseDataFileDialog();
 
 private slots:
 
@@ -66,7 +66,7 @@ private:
         QString userData;
     } ComboListItem;
 
-    Ui::LoadFileDialog * _pUi;
+    Ui::ParseDataFileDialog * _pUi;
 
     DataParserModel * _pParserModel;
     GuiModel *_pGuiModel;
@@ -95,4 +95,4 @@ private:
     static const QString _presetFilename;
 };
 
-#endif // LoadFileDialog_H
+#endif // ParseDataFileDialog_H

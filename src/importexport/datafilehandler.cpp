@@ -3,7 +3,7 @@
 #include "util.h"
 
 #include "datafilehandler.h"
-#include "loadfiledialog.h"
+#include "parsedatafiledialog.h"
 
 #include <QWidget>
 #include <QProgressDialog>
@@ -93,9 +93,9 @@ void DataFileHandler::loadDataFile(QString dataFilePath)
         QStringList dataFileSample;
         SettingsAuto::loadDataFileSample(_pDataFileStream, dataFileSample, _cSampleLineLength);
 
-        LoadFileDialog loadFileDialog(_pGuiModel, _pDataParserModel, dataFileSample);
+        ParseDataFileDialog parseDataFileDialog(_pGuiModel, _pDataParserModel, dataFileSample);
 
-        if (loadFileDialog.exec() == QDialog::Accepted)
+        if (parseDataFileDialog.exec() == QDialog::Accepted)
         {
             parseDataFile();
         }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>LoadFileDialog</class>
- <widget class="QDialog" name="LoadFileDialog">
+ <class>ParseDataFileDialog</class>
+ <widget class="QDialog" name="ParseDataFileDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -269,7 +269,7 @@
   <connection>
    <sender>btnBox</sender>
    <signal>accepted()</signal>
-   <receiver>LoadFileDialog</receiver>
+   <receiver>ParseDataFileDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -285,7 +285,7 @@
   <connection>
    <sender>btnBox</sender>
    <signal>rejected()</signal>
-   <receiver>LoadFileDialog</receiver>
+   <receiver>ParseDataFileDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
