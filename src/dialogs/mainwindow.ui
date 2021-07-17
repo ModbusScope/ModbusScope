@@ -58,7 +58,7 @@
     <addaction name="actionOpenDataFile"/>
     <addaction name="separator"/>
     <addaction name="actionSaveProjectFile"/>
-    <addaction name="actionExportDataCsv"/>
+    <addaction name="actionSaveDataFile"/>
     <addaction name="actionExportImage"/>
     <addaction name="separator"/>
     <addaction name="actionConnectionSettings"/>
@@ -581,7 +581,7 @@
     <string>Stop &amp;logging</string>
    </property>
   </action>
-  <action name="actionExportDataCsv">
+  <action name="actionSaveDataFile">
    <property name="enabled">
     <bool>false</bool>
    </property>
@@ -591,7 +591,10 @@
     </iconset>
    </property>
    <property name="text">
-    <string>&amp;Export Data...</string>
+    <string>Save Data File...</string>
+   </property>
+   <property name="toolTip">
+    <string>Save Data File</string>
    </property>
   </action>
   <action name="actionOpenProjectFile">
@@ -601,7 +604,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>&amp;Open Project File...</string>
+    <string>&amp;Open Project...</string>
    </property>
    <property name="toolTip">
     <string>Open Project File</string>
