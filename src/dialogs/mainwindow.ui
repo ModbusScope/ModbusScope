@@ -559,7 +559,7 @@
   </widget>
   <action name="actionExit">
    <property name="text">
-    <string>Exit</string>
+    <string>&amp;Exit</string>
    </property>
   </action>
   <action name="actionStart">
@@ -595,7 +595,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Save Data File...</string>
+    <string>Save Data &amp;File As...</string>
    </property>
    <property name="toolTip">
     <string>Save Data File</string>
@@ -624,7 +624,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>E&amp;xport Image...</string>
+    <string>E&amp;xport Image As...</string>
    </property>
   </action>
   <action name="actionAbout">
@@ -710,7 +710,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Log &amp;Settings...</string>
+    <string>&amp;Log Settings...</string>
    </property>
   </action>
   <action name="actionToggleMarkers">
@@ -730,7 +730,7 @@
      <normaloff>:/menu_icon/menu_icon/icons/folder_go.png</normaloff>:/menu_icon/menu_icon/icons/folder_go.png</iconset>
    </property>
    <property name="text">
-    <string>Save Project...</string>
+    <string>&amp;Save Project As...</string>
    </property>
   </action>
   <action name="actionDiagnostic">
@@ -810,7 +810,6 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../resources/resource.qrc"/>
   <include location="../../resources/resource.qrc"/>
  </resources>
  <connections/>
