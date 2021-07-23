@@ -2,7 +2,7 @@
 
 ## Storing and reusing configuration
 
-Typically the same set of registers is needed. The configuration of registers as described in the previous section can be stored and reloaded through an *.mbs* file. Storing the settings as *.mbs* file can be done through the *File > Export Settings...* and reloading them from the *.mbs* file can be done through *File > Load Project File...* or by dragging an *.mbs* file into the application.
+Typically the same set of registers is needed. The configuration of registers as described in the previous section can be stored and reloaded through an *.mbs* file. Storing the settings as *.mbs* file can be done through the *File > Export Settings...* and reloading them from the *.mbs* file can be done through *File > Open Project File...* or by dragging an *.mbs* file into the application.
 
 ## Exporting data/image
 
@@ -26,6 +26,6 @@ One other functionality of *ModbusScope* is parsing *.csv* files which are in a 
 
 Opening a data file can be done through *File > Open Data File...* or by dragging an *.csv* file into the application. ModbusScope will load an excerpt of the data file to try to automatically determine the configuration required for parsing. The most important settings are the used field and decimal separators. When the auto parsing of settings is done, the settings can be manually changed if required. The result of the parsing of immediately visualized in the table view.
 
-When all settings are configured and accepted, *ModbusScope* will load the rest of the file with the configured settings. When the loading has finished successfully, the graph can be examined in the same way as normal *ModbusScope* logs.
+When all settings are configured and accepted, *ModbusScope* will parse the rest of the file with the configured settings. When the parsing has finished successfully, the graph can be examined in the same way as normal *ModbusScope* logs.
 
 ![image](../_static/user_manual/import_csv.png)

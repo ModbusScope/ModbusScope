@@ -6,7 +6,7 @@ When opening *ModbusScope*, no Modbus registers are added. First click on *Regis
 
 ### Add Modbus registers
 
-In the below dialog Modbus registers can be added either manually or by importing from a *.mbc* file. When a *.mbs* file is loaded, registers will already be present in the dialog.
+In the below dialog Modbus registers can be added either manually or by importing from a *.mbc* file. When a *.mbs* file is opened, registers will already be present in the dialog.
 
 When the registers are added, they can be adjusted. Such as updating the name and changing to a specific color. An expression can be used to update the value before the data is added to the graph (and log). This calculations can be used to transform the values from a device to a format that is more clear for the user. It is also possible to select a specific connection on which the value is polled. 
 
