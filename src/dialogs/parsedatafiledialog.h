@@ -92,7 +92,6 @@ private:
     static const QColor _cColorIgnored;
     static const quint32 _cPresetManualIndex = 0;
     static const quint32 _cPresetListOffset = 1;
-    static const QString _presetFilename;
 };
 
 #endif // ParseDataFileDialog_H

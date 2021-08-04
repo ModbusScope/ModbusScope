@@ -31,8 +31,6 @@ const QColor ParseDataFileDialog::_cColorLabel = QColor(150, 255, 150); // darke
 const QColor ParseDataFileDialog::_cColorData = QColor(200, 255, 200); // lighter green
 const QColor ParseDataFileDialog::_cColorIgnored = QColor(175, 175, 175); // grey
 
-const QString ParseDataFileDialog::_presetFilename = QString("presets.xml");
-
 ParseDataFileDialog::ParseDataFileDialog(GuiModel *pGuiModel, DataParserModel * pParserModel, QStringList dataFileSample, QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::ParseDataFileDialog)
