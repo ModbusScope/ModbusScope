@@ -6,7 +6,7 @@ The configuration of registers as described in the previous section can be store
 
 ## Exporting data/image
 
-Current log results can be exported either as image or as data (*.csv*) file. This can be selected with either *File > Save Data As...* or  *File > Export Image As...* . Saving a project/data file or exporting an image is only possible when logging isn't active.
+Current log results can be exported either as image or as data (*.csv*) file. This can be selected with either *File > Save Data File As...* or  *File > Export Image As...* . Saving a project/data file or exporting an image is only possible when logging isn't active.
 
 ## Open data file
 
