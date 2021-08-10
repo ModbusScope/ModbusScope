@@ -65,8 +65,52 @@ Since there is no standard for the contents of *.csv* file, some settings needs 
 
 #### Correct STMStudio bad read
 
-This functionality is only used for a very specific use case when loading a data file created with STMStudio. The STMStudio tool reads data directly from the RAM memory of a embedded devices. The main drawback is that reading a 16 bit variable can sometimes return a corrupt value on a 8 bit microcontroller. A single byte (most or least significant) of the 16 bit value will be reset to zero's or set to one's.
+This feature is only used for a very specific use case when loading a data file created with STMStudio. The STMStudio tool reads data directly from the RAM memory of a embedded devices. The main drawback is that reading a 16 bit variable can sometimes return a corrupt value on a 8 bit microcontroller. A single byte (most or least significant) of the 16 bit value will be reset to zero's or set to one's.
 
 *ModbusScope* is able to detect most of these corrupt values and correct them based on previous and next value in the graph.
 
-**This functionality will probably be deprecated and removed in a future release of *ModbusScope*.**
+**This feature will probably be deprecated and removed in a future release of *ModbusScope*.**
+
+## Presets
+
+When analyzing several data files of which the settings can't be auto-detected, it is handy to save the settings as a preset. *ModbusScope* allows to create a configuration file with custom presets. This configuration file will be loaded when opening a datafile and the correct preset can be selected. It is also possible to configure a keyword per preset. When a data file name contains the keyword, the preset will be automatically selected.
+
+### Locations
+
+*ModbusScope* searches for the `presets.xml` configuration file in 2 specific locations. The first location is the documents folder of the current Windows user: `C:/Users/<USER>/Documents/`. The preset configuration file should be in a subfolder named `ModbusScope`. When the preset configuration file isn't found, *ModbusScope* will try to find the file in the same location as the main executable of *ModbusScope*. When the file isn't found in both location, *ModbusScope* will use the built-in presets. When a valid preset configuration file has been found, the built-in presets will be replaced will the preset mentioned in this file.
+
+### Keyword
+
+As mentioned before, a preset can be automatically selected based on the presence of a keyword in the name of the data file.
+
+### Example preset configuration file
+
+```xml
+<modbusscope>
+	<parsepreset>
+		<name>Default (be)</name>
+		<keyword>-be</keyword>
+		<fieldseparator><![CDATA[;]]></fieldseparator>
+		<decimalseparator><![CDATA[,]]></decimalseparator>
+		<thousandseparator><![CDATA[ ]]></thousandseparator>
+		<commentSequence><![CDATA[//]]></commentSequence>
+		<column>1</column>
+		<labelrow>1</labelrow>
+		<datarow>2</datarow>
+	</parsepreset>
+	
+	<parsepreset>
+		<name>be-seconds</name>
+		<fieldseparator><![CDATA[;]]></fieldseparator>
+		<decimalseparator><![CDATA[,]]></decimalseparator>
+		<thousandseparator><![CDATA[ ]]></thousandseparator>
+		<commentSequence><![CDATA[//]]></commentSequence>
+		<column>1</column>
+		<labelrow>1</labelrow>
+		<datarow>2</datarow>
+		<timeinmilliseconds>false</timeinmilliseconds>
+	</parsepreset>
+
+</modbusscope>
+```
+
