@@ -29,7 +29,7 @@ author = 'Jens Geudens'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ["sphinx_rtd_theme",
-              "recommonmark",
+              "myst_parser",
               "sphinx.ext.imgconverter",
               ]
 
