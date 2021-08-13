@@ -56,34 +56,6 @@ RegisterDialog::~RegisterDialog()
     delete _pUi;
 }
 
-void RegisterDialog::done(int r)
-{
-    bool bValid = true;
-
-    if(QDialog::Accepted == r)  // ok was pressed
-    {
-        quint16 duplicateReg = 0;
-        QString duplicateExpression;
-        quint8 duplicateConnectionId = 0;
-        if (!_pGraphDataModel->getDuplicate(&duplicateReg, &duplicateExpression, &duplicateConnectionId))
-        {
-            bValid = false;
-
-            Util::showError(tr("Register %1 with expression \"%2\" of connection %3 is defined twice in the list.").arg(duplicateReg).arg(duplicateExpression).arg(duplicateConnectionId + 1));
-        }
-    }
-    else
-    {
-        // cancel, close or exc was pressed
-        bValid = true;
-    }
-
-    if (bValid)
-    {
-        QDialog::done(r);
-    }
-}
-
 int RegisterDialog::execWithMbcImport()
 {
     showImportDialog();

@@ -36,6 +36,7 @@ private slots:
     void graphList_2();
     void graphList_3();
     void graphList_4();
+    void graphList_5();
 
     void bigEndian_32_1();
     void bigEndian_s32_2();
