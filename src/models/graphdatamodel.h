@@ -75,7 +75,6 @@ public:
 
     void activeGraphIndexList(QList<quint16> * pList);
 
-    bool getDuplicate(quint16 * pRegister, QString* pExpression, quint8 * pConnectionId);
     virtual bool isPresent(quint16 addr, QString* pExpression);
 
     qint32 convertToActiveGraphIndex(quint32 graphIdx);

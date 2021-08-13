@@ -583,29 +583,6 @@ void GraphDataModel::activeGraphIndexList(QList<quint16> * pList)
     std::sort(pList->begin(), pList->end(), std::less<int>());
 }
 
-bool GraphDataModel::getDuplicate(quint16 * pRegister, QString* pExpression, quint8 * pConnectionId)
-{
-    for (qint32 idx = 0; idx < (_graphData.size() - 1); idx++) // Don't need to check last entry
-    {
-        for (int checkIdx = (idx + 1); checkIdx < _graphData.size(); checkIdx++)
-        {
-            if (
-                (_graphData[idx].registerAddress() == _graphData[checkIdx].registerAddress())
-                && (_graphData[idx].expression() == _graphData[checkIdx].expression())
-                && (_graphData[idx].connectionId() == _graphData[checkIdx].connectionId())
-            )
-            {
-                *pRegister = _graphData[idx].registerAddress();
-                *pExpression = _graphData[idx].expression();
-                *pConnectionId = _graphData[idx].connectionId();
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-
 bool GraphDataModel::isPresent(quint16 addr, QString* pExpression)
 {
     for (qint32 idx = 0; idx < _graphData.size(); idx++)

@@ -23,7 +23,6 @@ public slots:
     int execWithMbcImport();
 
 private slots:
-    void done(int r);
     void showImportDialog();
     void addRegisterRow();
     void removeRegisterRow();

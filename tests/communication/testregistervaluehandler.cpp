@@ -396,6 +396,28 @@ void TestRegisterValueHandler::graphList_4()
     QCOMPARE(registerList[1], 6);
 }
 
+void TestRegisterValueHandler::graphList_5()
+{
+    /* Read duplicate register only once */
+    addRegisterToModel();
+    addRegisterToModel();
+    addRegisterToModel();
+
+    _pGraphDataModel->setRegisterAddress(0, 5);
+    _pGraphDataModel->setRegisterAddress(1, 5);
+    _pGraphDataModel->setRegisterAddress(2, 6);
+
+    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
+    regHandler.prepareForData();
+    regHandler.startRead();
+
+    QList<quint16> registerList;
+    regHandler.activeGraphAddresList(&registerList, SettingsModel::CONNECTION_ID_0);
+    QCOMPARE(registerList.size(), 2);
+    QCOMPARE(registerList[0], 5);
+    QCOMPARE(registerList[1], 6);
+}
+
 void TestRegisterValueHandler::bigEndian_32_1()
 {
     addRegisterToModel();
