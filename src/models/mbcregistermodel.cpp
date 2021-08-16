@@ -208,14 +208,9 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
 
         _mbcRegisterMetaDataList.append( {false, QString(""), false, false} );
 
-        /* Disable all duplicates */
         if (!_mbcRegisterList.last().isReadable())
         {
             _mbcRegisterMetaDataList.last().tooltip = tr("Not readable");
-        }
-        else if (_pGraphDataModel->isPresent(mbcRegisterList[idx].registerAddress(), &expr))
-        {
-            _mbcRegisterMetaDataList.last().tooltip = tr("Already added address");
         }
         else
         {

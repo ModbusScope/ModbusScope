@@ -75,8 +75,6 @@ public:
 
     void activeGraphIndexList(QList<quint16> * pList);
 
-    virtual bool isPresent(quint16 addr, QString* pExpression);
-
     qint32 convertToActiveGraphIndex(quint32 graphIdx);
     qint32 convertToGraphIndex(quint32 activeIdx);
 

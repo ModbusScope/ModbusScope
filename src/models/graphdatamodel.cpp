@@ -583,22 +583,6 @@ void GraphDataModel::activeGraphIndexList(QList<quint16> * pList)
     std::sort(pList->begin(), pList->end(), std::less<int>());
 }
 
-bool GraphDataModel::isPresent(quint16 addr, QString* pExpression)
-{
-    for (qint32 idx = 0; idx < _graphData.size(); idx++)
-    {
-        if (
-            (_graphData[idx].registerAddress() == addr)
-            && (_graphData[idx].expression() == pExpression)
-        )
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 qint32 GraphDataModel::convertToActiveGraphIndex(quint32 graphIdx)
 {
     qint16 result = -1;

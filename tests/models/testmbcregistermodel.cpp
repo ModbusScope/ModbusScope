@@ -41,7 +41,7 @@ void TestMbcRegisterModel::rowCount()
 
     QCOMPARE(pMbcRegisterModel->rowCount(), 0);
 
-    fillModel(&graphDataModel, pMbcRegisterModel, false);
+    fillModel(pMbcRegisterModel);
 
     QVERIFY(pMbcRegisterModel->rowCount() != 0);
 
@@ -77,7 +77,7 @@ void TestMbcRegisterModel::flagsEnabled()
     MockGraphDataModel graphDataModel;
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
 
-    fillModel(&graphDataModel, pMbcRegisterModel, false);
+    fillModel(pMbcRegisterModel);
 
     QModelIndex modelIdx = pMbcRegisterModel->index(0,0);
     Qt::ItemFlags enabledFlags = Qt::ItemIsSelectable |  Qt::ItemIsEnabled;
@@ -97,8 +97,14 @@ void TestMbcRegisterModel::flagsDisabled()
 {
     MockGraphDataModel graphDataModel;
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
-    fillModel(&graphDataModel, pMbcRegisterModel, true);
 
+
+    QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
+            << MbcRegisterData(40001, true, "Test1", 0, false, false, 0) /* Not readable */
+            << MbcRegisterData(40002, true, "Test2", 0, false, true, 0);
+    QStringList tabList = QStringList() << QString("Tab0");
+
+    pMbcRegisterModel->fill(mbcRegisterList, tabList);
 
     QModelIndex modelIdx = pMbcRegisterModel->index(0,0);
     Qt::ItemFlags disabledFlags = Qt::NoItemFlags;
@@ -118,7 +124,7 @@ void TestMbcRegisterModel::setData()
 {
     MockGraphDataModel graphDataModel;
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
-    fillModel(&graphDataModel, pMbcRegisterModel, false);
+    fillModel(pMbcRegisterModel);
 
     QSignalSpy spy(pMbcRegisterModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
     QModelIndex modelIdx = pMbcRegisterModel->index(0, cColumnSelected);
@@ -160,9 +166,6 @@ void TestMbcRegisterModel::disableAlreadyStagedRegisterAddress()
             << MbcRegisterData(40002, false, "Test2", 1, true, true, 0)
             << MbcRegisterData(40011, false, "Test11", 2, false, false, 0); // Disabled: not readable
     QStringList tabList = QStringList() << QString("Tab0");
-
-    EXPECT_CALL(graphDataModel, isPresent(_, _))
-        .WillRepeatedly(Return(false));
 
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
 
@@ -243,27 +246,23 @@ void TestMbcRegisterModel::fillData()
 
     QCOMPARE(pMbcRegisterModel->rowCount(), 0);
 
-    fillModel(&graphDataModel, pMbcRegisterModel, false);
+    fillModel(pMbcRegisterModel);
 
     QVERIFY(pMbcRegisterModel->rowCount() != 0);
     QCOMPARE(resetSignalSpy.count(), 0);
 
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
-            << MbcRegisterData(40001, true, "Test1", 0, false, true, 0) // Disabled: Will be already present
+            << MbcRegisterData(40001, true, "Test1", 0, false, true, 0)
             << MbcRegisterData(40002, false, "Test2", 1, true, true, 0)
             << MbcRegisterData(40004, true, "Test4", 1, false, true, 0)
             << MbcRegisterData(40005, false, "Test5", 0, false, true, 2)
             << MbcRegisterData(40010, true, "Test10", 2, false, true, 3)
             << MbcRegisterData(40011, false, "Test11", 2, false, false, 0) // Disabled: not readable
             << MbcRegisterData(40002, false, "Test6", 0, false, true, 0)
-            << MbcRegisterData(40004, false, "Test13", 0, false, true, 0); // Enabled: Is duplicate, but will only be disabled when same reg address is selected
+            << MbcRegisterData(40004, false, "Test13", 0, false, true, 0);
 
     QStringList tabList = QStringList() << QString("Tab0") << QString("Tab1") << QString("Tab2");
     QSignalSpy rowsInsertedSpy(pMbcRegisterModel, SIGNAL(rowsInserted(const QModelIndex, int, int)));
-
-    EXPECT_CALL(graphDataModel, isPresent(_, _))
-        .WillOnce(Return(true))
-        .WillRepeatedly(Return(false));
 
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
 
@@ -285,8 +284,8 @@ void TestMbcRegisterModel::fillData()
     int row = 0;
 
     row = 0;
-    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "Already added address");
-    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), disabledFlags); // flags
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "");
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), enabledFlags); // flags
 
     row = 1;
     QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "");
@@ -337,7 +336,7 @@ void TestMbcRegisterModel::reset()
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
     QSignalSpy resetSignalSpy(pMbcRegisterModel, SIGNAL(modelReset()));
 
-    fillModel(&graphDataModel, pMbcRegisterModel, false);
+    fillModel(pMbcRegisterModel);
     QVERIFY(pMbcRegisterModel->rowCount() != 0);
 
     pMbcRegisterModel->reset();
@@ -356,11 +355,7 @@ void TestMbcRegisterModel::selectedRegisterListAndCount()
             << MbcRegisterData(40002, true, "Test2", 0, false, true, 0);
     QStringList tabList = QStringList() << QString("Tab0");
 
-    EXPECT_CALL(graphDataModel, isPresent(_, _))
-        .WillRepeatedly(Return(false));
-
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
-
 
     // At least 2 rows required for this test
     QVERIFY(pMbcRegisterModel->rowCount() >= 2);
@@ -460,9 +455,6 @@ void TestMbcRegisterModel::selectedRegisterListAndCount32()
             << MbcRegisterData(40001, true, "Test1", 0, true, true, 0);
     QStringList tabList = QStringList() << QString("Tab0");
 
-    EXPECT_CALL(graphDataModel, isPresent(_, _))
-        .WillRepeatedly(Return(false));
-
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
 
     QVERIFY(pMbcRegisterModel->rowCount() >= 1);
@@ -495,9 +487,6 @@ void TestMbcRegisterModel::selectedRegisterListDecimals()
             << MbcRegisterData(40002, true, "Test2", 0, false, true, 1)
             << MbcRegisterData(40003, true, "Test3", 0, false, true, 2);
     QStringList tabList = QStringList() << QString("Tab0");
-
-    EXPECT_CALL(graphDataModel, isPresent(_, _))
-        .WillRepeatedly(Return(false));
 
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
 
@@ -534,15 +523,12 @@ void TestMbcRegisterModel::selectedRegisterListDecimals()
     QCOMPARE(graphList[2].expression(), "VAL/100");
 }
 
-void TestMbcRegisterModel::fillModel(MockGraphDataModel * pGraphDataModel, MbcRegisterModel * pMbcRegisterModel, bool bAlreadyPresent)
+void TestMbcRegisterModel::fillModel(MbcRegisterModel * pMbcRegisterModel)
 {
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
             << MbcRegisterData(40001, true, "Test1", 0, false, true, 0)
             << MbcRegisterData(40002, true, "Test2", 0, false, true, 0);
     QStringList tabList = QStringList() << QString("Tab0");
-
-    EXPECT_CALL(*pGraphDataModel, isPresent(_, _))
-        .WillRepeatedly(Return(bAlreadyPresent));
 
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
 }
