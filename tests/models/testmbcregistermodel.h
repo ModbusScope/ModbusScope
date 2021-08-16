@@ -4,8 +4,6 @@
 
 #include <QObject>
 
-#include "../mocks/mockgraphdatamodel.h"
-
 /* Forward declaration */
 class MbcRegisterModel;
 
@@ -32,7 +30,7 @@ private slots:
 
 private:
 
-    void fillModel(MockGraphDataModel * pGraphDataModel, MbcRegisterModel * pMbcRegisterModel, bool bAlreadyPresent);
+    void fillModel(MbcRegisterModel * pMbcRegisterModel);
 
 };
 
