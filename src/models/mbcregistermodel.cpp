@@ -201,8 +201,6 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
 
     for(qint32 idx = 0; idx < mbcRegisterList.size(); idx++)
     {
-        QString expr = QStringLiteral("VAL");
-
         // Get result before adding to list
         _mbcRegisterList.append(mbcRegisterList[idx]);
 
