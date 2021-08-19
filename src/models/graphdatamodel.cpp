@@ -247,18 +247,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
     case column::EXPRESSION:
         if (role == Qt::EditRole)
         {
-            QString newExpr = value.toString();
-
-            if (newExpr.contains(QStringLiteral("val"), Qt::CaseInsensitive))
-            {
-                setExpression(index.row(), newExpr);
-            }
-            else
-            {
-                bRet = false;
-                Util::showError(tr("Every expression should contain the \"VAL\" variable"));
-                break;
-            }
+            setExpression(index.row(), value.toString());
         }
         break;
     case column::CONNECTION_ID:
