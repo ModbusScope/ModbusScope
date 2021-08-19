@@ -16,7 +16,6 @@ GraphDataModel::GraphDataModel(SettingsModel * pSettingsModel, QObject *parent) 
     connect(this, &GraphDataModel::unsignedChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::bit32Changed, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::expressionChanged, this, &GraphDataModel::modelDataChanged);
-    connect(this, &GraphDataModel::registerAddressChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::connectionIdChanged, this, &GraphDataModel::modelDataChanged);
 
     /* When adding or removing graphs, the complete view should be refreshed to make sure all indexes are updated */
@@ -68,12 +67,6 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
             {
                 return Qt::Unchecked;
             }
-        }
-        break;
-    case column::REGISTER:
-        if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
-        {
-            return registerAddress(index.row());
         }
         break;
     case column::BIT32:
@@ -130,8 +123,6 @@ QVariant GraphDataModel::headerData(int section, Qt::Orientation orientation, in
                 return QString("Active");
             case column::UNSIGNED:
                 return QString("Unsigned");
-            case column::REGISTER:
-                return QString("Address");
             case column::BIT32:
                 return QString("32 bit");
             case column::TEXT:
@@ -197,31 +188,6 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             else
             {
                 setUnsigned(index.row(), false);
-            }
-        }
-        break;
-    case column::REGISTER:
-        if (role == Qt::EditRole)
-        {
-            bool bOk = false;
-
-            if (value.canConvert(QMetaType::UInt))
-            {
-                 const quint32 newAddr = value.toUInt();
-                 if (
-                         (newAddr >= 40001)
-                         && (newAddr <= 49999)
-                    )
-                 {
-                     bOk = true;
-                     setRegisterAddress(index.row(), (quint16)newAddr);
-                 }
-            }
-
-            if (!bOk)
-            {
-                Util::showError(tr("Register address is not a valid address between 40001 and 49999."));
-                bRet = false;
             }
         }
         break;

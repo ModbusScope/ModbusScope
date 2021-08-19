@@ -32,6 +32,7 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
 
     /* Except following columns */
     _pUi->registerView->horizontalHeader()->setSectionResizeMode(GraphDataModel::column::TEXT, QHeaderView::Stretch);
+    _pUi->registerView->horizontalHeader()->setSectionResizeMode(GraphDataModel::column::EXPRESSION, QHeaderView::Stretch);
 
     // Select using click, shift and control
     _pUi->registerView->setSelectionBehavior(QAbstractItemView::SelectRows);

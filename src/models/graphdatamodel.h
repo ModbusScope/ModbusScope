@@ -18,7 +18,6 @@ public:
         COLOR = 0,
         ACTIVE,
         UNSIGNED,
-        REGISTER,
         BIT32,
         TEXT,
         EXPRESSION,
