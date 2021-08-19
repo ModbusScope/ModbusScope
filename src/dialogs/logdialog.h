@@ -2,6 +2,7 @@
 #define LOGDIALOG_H
 
 #include <QDialog>
+#include <QButtonGroup>
 
 /* Foward declaration */
 class SettingsModel;
@@ -26,7 +27,9 @@ private slots:
     void updatePollTime();
     void updateWriteDuringLog();
     void updateWriteDuringLogFile();
-    void updateAbsoluteTime();
+
+    void timeReferenceUpdated();
+    void updateReferenceTime(int id);
 
 private:
 
@@ -34,6 +37,8 @@ private:
 
     SettingsModel * _pSettingsModel;
     GuiModel * _pGuiModel;
+
+    QButtonGroup* _pTimeReferenceGroup;
 };
 
 #endif // LOGDIALOG_H

@@ -69,12 +69,12 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pUi->actionDiagnostic, SIGNAL(triggered()), this, SLOT(showDiagnostic()));
     connect(_pUi->actionManageNotes, SIGNAL(triggered()), this, SLOT(showNotesDialog()));
     connect(_pUi->actionExit, SIGNAL(triggered()), this, SLOT(exitApplication()));
-    connect(_pUi->actionExportDataCsv, SIGNAL(triggered()), _pDataFileHandler, SLOT(selectDataExportFile()));
-    connect(_pUi->actionLoadProjectFile, SIGNAL(triggered()), _pProjectFileHandler, SLOT(selectProjectSettingFile()));
+    connect(_pUi->actionSaveDataFile, SIGNAL(triggered()), _pDataFileHandler, SLOT(selectDataExportFile()));
+    connect(_pUi->actionOpenProjectFile, SIGNAL(triggered()), _pProjectFileHandler, SLOT(selectProjectOpenFile()));
     connect(_pUi->actionReloadProjectFile, SIGNAL(triggered()), _pProjectFileHandler, SLOT(reloadProjectFile()));
-    connect(_pUi->actionImportDataFile, SIGNAL(triggered()), _pDataFileHandler, SLOT(selectDataImportFile()));
+    connect(_pUi->actionOpenDataFile, SIGNAL(triggered()), _pDataFileHandler, SLOT(selectDataImportFile()));
     connect(_pUi->actionExportImage, SIGNAL(triggered()), this, SLOT(selectImageExportFile()));
-    connect(_pUi->actionExportSettings, SIGNAL(triggered()), _pProjectFileHandler, SLOT(selectSettingsExportFile()));
+    connect(_pUi->actionSaveProjectFile, SIGNAL(triggered()), _pProjectFileHandler, SLOT(selectProjectSaveFile()));
     connect(_pUi->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
     connect(_pUi->actionOnlineDocumentation, SIGNAL(triggered()), this, SLOT(openOnlineDoc()));
     connect(_pUi->actionUpdateAvailable, SIGNAL(triggered()), this, SLOT(openUpdateUrl()));
@@ -767,11 +767,11 @@ void MainWindow::updateGuiState()
         _pUi->actionLogSettings->setEnabled(true);
         _pUi->actionRegisterSettings->setEnabled(true);
         _pUi->actionStart->setEnabled(true);
-        _pUi->actionImportDataFile->setEnabled(true);
-        _pUi->actionLoadProjectFile->setEnabled(true);
-        _pUi->actionExportDataCsv->setEnabled(false);
+        _pUi->actionOpenDataFile->setEnabled(true);
+        _pUi->actionOpenProjectFile->setEnabled(true);
+        _pUi->actionSaveDataFile->setEnabled(false);
         _pUi->actionExportImage->setEnabled(false);
-        _pUi->actionExportSettings->setEnabled(true);
+        _pUi->actionSaveProjectFile->setEnabled(true);
         _pUi->actionClearData->setEnabled(true);
 
         _pStatusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
@@ -795,10 +795,10 @@ void MainWindow::updateGuiState()
         _pUi->actionLogSettings->setEnabled(false);
         _pUi->actionRegisterSettings->setEnabled(false);
         _pUi->actionStart->setEnabled(false);
-        _pUi->actionImportDataFile->setEnabled(false);
-        _pUi->actionLoadProjectFile->setEnabled(false);
-        _pUi->actionExportDataCsv->setEnabled(false);
-        _pUi->actionExportSettings->setEnabled(false);
+        _pUi->actionOpenDataFile->setEnabled(false);
+        _pUi->actionOpenProjectFile->setEnabled(false);
+        _pUi->actionSaveDataFile->setEnabled(false);
+        _pUi->actionSaveProjectFile->setEnabled(false);
         _pUi->actionExportImage->setEnabled(false);
         _pUi->actionReloadProjectFile->setEnabled(false);
         _pUi->actionClearData->setEnabled(true);
@@ -819,10 +819,10 @@ void MainWindow::updateGuiState()
         _pUi->actionLogSettings->setEnabled(true);
         _pUi->actionRegisterSettings->setEnabled(true);
         _pUi->actionStart->setEnabled(true);
-        _pUi->actionImportDataFile->setEnabled(true);
-        _pUi->actionLoadProjectFile->setEnabled(true);
-        _pUi->actionExportDataCsv->setEnabled(true);
-        _pUi->actionExportSettings->setEnabled(true);
+        _pUi->actionOpenDataFile->setEnabled(true);
+        _pUi->actionOpenProjectFile->setEnabled(true);
+        _pUi->actionSaveDataFile->setEnabled(true);
+        _pUi->actionSaveProjectFile->setEnabled(true);
         _pUi->actionExportImage->setEnabled(true);
         _pUi->actionClearData->setEnabled(true);
 
@@ -848,10 +848,10 @@ void MainWindow::updateGuiState()
         _pUi->actionLogSettings->setEnabled(true);
         _pUi->actionRegisterSettings->setEnabled(true);
         _pUi->actionStart->setEnabled(true);
-        _pUi->actionImportDataFile->setEnabled(true);
-        _pUi->actionLoadProjectFile->setEnabled(true);
-        _pUi->actionExportDataCsv->setEnabled(false); // Can't export data when viewing data
-        _pUi->actionExportSettings->setEnabled(false); // Can't export data when viewing data
+        _pUi->actionOpenDataFile->setEnabled(true);
+        _pUi->actionOpenProjectFile->setEnabled(true);
+        _pUi->actionSaveDataFile->setEnabled(false); // Can't export data when viewing data
+        _pUi->actionSaveProjectFile->setEnabled(false); // Can't export data when viewing data
         _pUi->actionExportImage->setEnabled(true);
         _pUi->actionClearData->setEnabled(false);
 
@@ -942,11 +942,11 @@ void MainWindow::dropEvent(QDropEvent *e)
         _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
         if (fileInfo.completeSuffix().toLower() == QString("mbs"))
         {
-            _pProjectFileHandler->loadProjectFile(filename);
+            _pProjectFileHandler->openProjectFile(filename);
         }
         else if (fileInfo.completeSuffix().toLower() == QString("csv"))
         {
-            _pDataFileHandler->loadDataFile(filename);
+            _pDataFileHandler->openDataFile(filename);
         }
         else if (fileInfo.completeSuffix().toLower() == QString("mbc"))
         {
@@ -955,7 +955,7 @@ void MainWindow::dropEvent(QDropEvent *e)
         else
         {
             /* Assume data file import */
-            _pDataFileHandler->loadDataFile(filename);
+            _pDataFileHandler->openDataFile(filename);
         }
     }
 }
@@ -1049,7 +1049,7 @@ void MainWindow::handleCommandLineArguments(QStringList cmdArguments)
         QString filename = argumentParser.positionalArguments().at(0);
         QFileInfo fileInfo(filename);
         _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
-        _pProjectFileHandler->loadProjectFile(filename);
+        _pProjectFileHandler->openProjectFile(filename);
     }
 }
 

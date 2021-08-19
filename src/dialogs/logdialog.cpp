@@ -18,20 +18,26 @@ LogDialog::LogDialog(SettingsModel * pSettingsModel, GuiModel * pGuiModel, QWidg
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
+    _pTimeReferenceGroup = new QButtonGroup();
+    _pTimeReferenceGroup->setExclusive(true);
+    _pTimeReferenceGroup->addButton(_pUi->radioAbsolute, 0);
+    _pTimeReferenceGroup->addButton(_pUi->radioRelative, 1);
+    connect(_pTimeReferenceGroup, &QButtonGroup::idClicked, this, &LogDialog::updateReferenceTime);
+
     /*-- View connections --*/
     connect(_pUi->checkWriteDuringLog, &QCheckBox::toggled, _pSettingsModel, &SettingsModel::setWriteDuringLog);
     connect(_pUi->buttonWriteDuringLogFile, &QToolButton::clicked, this, &LogDialog::selectLogFile);
-    connect(_pUi->checkAbsoluteTimes, &QCheckBox::toggled, _pSettingsModel, &SettingsModel::setAbsoluteTimes);
 
     /*-- connect model to view --*/
     connect(_pSettingsModel, &SettingsModel::pollTimeChanged, this, &LogDialog::updatePollTime);
     connect(_pSettingsModel, &SettingsModel::writeDuringLogChanged, this, &LogDialog::updateWriteDuringLog);
     connect(_pSettingsModel, &SettingsModel::writeDuringLogFileChanged, this, &LogDialog::updateWriteDuringLogFile);
-    connect(_pSettingsModel, &SettingsModel::absoluteTimesChanged, this, &LogDialog::updateAbsoluteTime);
+    connect(_pSettingsModel, &SettingsModel::absoluteTimesChanged, this, &LogDialog::timeReferenceUpdated);
 }
 
 LogDialog::~LogDialog()
 {
+    delete _pTimeReferenceGroup;
     delete _pUi;
 }
 
@@ -107,9 +113,21 @@ void LogDialog::updateWriteDuringLogFile()
     _pUi->lineWriteDuringLogFile->setText(_pSettingsModel->writeDuringLogFile());
 }
 
-void LogDialog::updateAbsoluteTime()
+void LogDialog::timeReferenceUpdated()
 {
-    _pUi->checkAbsoluteTimes->setChecked(_pSettingsModel->absoluteTimes());
+    if (_pSettingsModel->absoluteTimes())
+    {
+        _pUi->radioAbsolute->setChecked(true);
+    }
+    else
+    {
+        _pUi->radioRelative->setChecked(true);
+    }
+}
+
+void LogDialog::updateReferenceTime(int id)
+{
+    _pSettingsModel->setAbsoluteTimes(id == 0 ? true: false);
 }
 
 

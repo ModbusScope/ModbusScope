@@ -9,7 +9,6 @@
 		<column>1</column>
 		<labelrow>1</labelrow>
 		<datarow>2</datarow>
-		<dynamicsession>false</dynamicsession>
 	</parsepreset>
 	
 	<parsepreset>
@@ -21,7 +20,6 @@
 		<column>1</column>
 		<labelrow>1</labelrow>
 		<datarow>2</datarow>
-		<dynamicsession>false</dynamicsession>
 	</parsepreset>
 	
 	<parsepreset>
@@ -33,7 +31,6 @@
 		<column>2</column>
 		<labelrow>7</labelrow>
 		<datarow>9</datarow>
-		<dynamicsession>false</dynamicsession>
 		<stmstudiocorrection>true</stmstudiocorrection>
 	</parsepreset>
 	
@@ -46,7 +43,6 @@
 		<column>1</column>
 		<labelrow>1</labelrow>
 		<datarow>2</datarow>
-		<dynamicsession>false</dynamicsession>
 		<timeinmilliseconds>false</timeinmilliseconds>
 	</parsepreset>
 

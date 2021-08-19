@@ -32,7 +32,6 @@ void TestPresetFileParser::singlePreset()
     QCOMPARE(presetParser.preset(0).column, 1);
     QCOMPARE(presetParser.preset(0).labelRow, 1);
     QCOMPARE(presetParser.preset(0).dataRow, 2);
-    QCOMPARE(presetParser.preset(0).bDynamicSession, false);
     QCOMPARE(presetParser.preset(0).bTimeInMilliSeconds, false);
     QCOMPARE(presetParser.preset(0).keyword, "");
     QCOMPARE(presetParser.preset(0).bStmStudioCorrection, false);

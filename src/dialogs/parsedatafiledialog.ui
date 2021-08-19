@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>LoadFileDialog</class>
- <widget class="QDialog" name="LoadFileDialog">
+ <class>ParseDataFileDialog</class>
+ <widget class="QDialog" name="ParseDataFileDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>988</width>
-    <height>480</height>
+    <height>499</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Load Data File</string>
+   <string>Open Data File</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -48,7 +48,7 @@
        <item row="4" column="0">
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>Field Separator</string>
+          <string>Field separator</string>
          </property>
         </widget>
        </item>
@@ -146,7 +146,7 @@
        <item row="13" column="0">
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>Data Row</string>
+          <string>First data row</string>
          </property>
         </widget>
        </item>
@@ -163,36 +163,47 @@
          </property>
         </widget>
        </item>
-       <item row="14" column="0">
+       <item row="15" column="0">
         <widget class="QLabel" name="label_13">
          <property name="text">
-          <string>Time data in milliseconds</string>
+          <string>Timestamp unit</string>
          </property>
         </widget>
        </item>
-       <item row="14" column="1">
-        <widget class="QCheckBox" name="checkTimeInMilliSeconds">
-         <property name="text">
-          <string/>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="15" column="0">
+       <item row="16" column="0">
         <widget class="QLabel" name="label_14">
          <property name="text">
           <string>Correct STMStudio bad reads</string>
          </property>
         </widget>
        </item>
-       <item row="15" column="1">
+       <item row="16" column="1">
         <widget class="QCheckBox" name="checkStmStudioCorrection">
          <property name="text">
           <string/>
          </property>
         </widget>
+       </item>
+       <item row="15" column="1">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QRadioButton" name="radioMilliSeconds">
+           <property name="text">
+            <string>Milliseconds</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioSeconds">
+           <property name="text">
+            <string>Seconds</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </item>
@@ -251,14 +262,17 @@
   <tabstop>spinColumn</tabstop>
   <tabstop>spinLabelRow</tabstop>
   <tabstop>spinDataRow</tabstop>
-  <tabstop>btnBox</tabstop>
+  <tabstop>radioMilliSeconds</tabstop>
+  <tabstop>radioSeconds</tabstop>
+  <tabstop>checkStmStudioCorrection</tabstop>
+  <tabstop>tablePreview</tabstop>
  </tabstops>
  <resources/>
  <connections>
   <connection>
    <sender>btnBox</sender>
    <signal>accepted()</signal>
-   <receiver>LoadFileDialog</receiver>
+   <receiver>ParseDataFileDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -274,7 +288,7 @@
   <connection>
    <sender>btnBox</sender>
    <signal>rejected()</signal>
-   <receiver>LoadFileDialog</receiver>
+   <receiver>ParseDataFileDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

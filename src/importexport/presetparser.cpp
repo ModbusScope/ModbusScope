@@ -165,17 +165,6 @@ bool PresetParser::parsePresetTag(const QDomElement &element, Preset *pPreset)
                 break;
             }
         }
-        else if (child.tagName() == "dynamicsession")
-        {
-            if (!child.text().toLower().compare("true"))
-            {
-                pPreset->bDynamicSession = true;
-            }
-            else
-            {
-                pPreset->bDynamicSession = false;
-            }
-        }
         else if (child.tagName() == "timeinmilliseconds")
         {
             if (!child.text().toLower().compare("true"))

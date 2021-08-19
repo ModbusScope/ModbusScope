@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>385</width>
-    <height>272</height>
+    <width>589</width>
+    <height>285</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,7 +28,7 @@
       <item>
        <widget class="QCheckBox" name="checkWriteDuringLog">
         <property name="text">
-         <string>Save data to file while logging</string>
+         <string>Save data to temporary file while logging</string>
         </property>
        </widget>
       </item>
@@ -65,17 +65,14 @@
       <string>Time data</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
-      <property name="fieldGrowthPolicy">
-       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-      </property>
-      <item row="1" column="0">
+      <item row="0" column="0">
        <widget class="QLabel" name="label_5">
         <property name="text">
          <string>Poll time (ms)</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="0" column="1">
        <widget class="QSpinBox" name="spinPollTime">
         <property name="enabled">
          <bool>true</bool>
@@ -91,12 +88,33 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkAbsoluteTimes">
+      <item row="1" column="0">
+       <widget class="QLabel" name="label">
         <property name="text">
-         <string>Use absolute times</string>
+         <string>Time reference</string>
         </property>
        </widget>
+      </item>
+      <item row="1" column="1">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QRadioButton" name="radioRelative">
+          <property name="text">
+           <string>Relative (use start of log as time reference)</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioAbsolute">
+          <property name="text">
+           <string>Absolute (use current time/date as time reference)</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -118,7 +136,6 @@
   <tabstop>lineWriteDuringLogFile</tabstop>
   <tabstop>buttonWriteDuringLogFile</tabstop>
   <tabstop>spinPollTime</tabstop>
-  <tabstop>checkAbsoluteTimes</tabstop>
  </tabstops>
  <resources/>
  <connections>

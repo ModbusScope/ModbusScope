@@ -1,8 +1,9 @@
-#ifndef LoadFileDialog_H
-#define LoadFileDialog_H
+#ifndef ParseDataFileDialog_H
+#define ParseDataFileDialog_H
 
 #include <QDialog>
 #include <QStringList>
+#include <QButtonGroup>
 
 #include "dataparsermodel.h"
 #include "presethandler.h"
@@ -10,17 +11,17 @@
 
 
 namespace Ui {
-class LoadFileDialog;
+class ParseDataFileDialog;
 }
 
-class LoadFileDialog : public QDialog
+class ParseDataFileDialog : public QDialog
 {
     Q_OBJECT
 
 public:
 
-    explicit LoadFileDialog(GuiModel * pGuiModel, DataParserModel * pParserModel, QStringList dataFileSample, QWidget *parent = nullptr);
-    ~LoadFileDialog();
+    explicit ParseDataFileDialog(GuiModel * pGuiModel, DataParserModel * pParserModel, QStringList dataFileSample, QWidget *parent = nullptr);
+    ~ParseDataFileDialog();
 
 private slots:
 
@@ -32,7 +33,7 @@ private slots:
     void updateDataRow();
     void updateColumn();
     void updateLabelRow();
-    void updateTimeInMilliSeconds();
+    void updateTimeFormat();
     void updateStmStudioCorrection();
 
     void fieldSeparatorSelected(int index);
@@ -43,7 +44,7 @@ private slots:
     void dataRowUpdated();
     void columnUpdated();
     void labelRowUpdated();
-    void timeInMilliSecondsUpdated(bool bTimeInMilliSeconds);
+    void timeFormatUpdated(int id);
     void stmStudioCorrectionUpdated(bool bCorrectData);
 
     void presetSelected(int index);
@@ -65,12 +66,13 @@ private:
         QString userData;
     } ComboListItem;
 
-    Ui::LoadFileDialog * _pUi;
+    Ui::ParseDataFileDialog * _pUi;
 
     DataParserModel * _pParserModel;
     GuiModel *_pGuiModel;
 
     PresetHandler* _pPresetHandler;
+    QButtonGroup* _pTimeFormatGroup;
 
     QStringList _dataFileSample;
 
@@ -90,7 +92,6 @@ private:
     static const QColor _cColorIgnored;
     static const quint32 _cPresetManualIndex = 0;
     static const quint32 _cPresetListOffset = 1;
-    static const QString _presetFilename;
 };
 
-#endif // LoadFileDialog_H
+#endif // ParseDataFileDialog_H

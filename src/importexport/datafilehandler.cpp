@@ -3,7 +3,7 @@
 #include "util.h"
 
 #include "datafilehandler.h"
-#include "loadfiledialog.h"
+#include "parsedatafiledialog.h"
 
 #include <QWidget>
 #include <QProgressDialog>
@@ -31,7 +31,7 @@ DataFileHandler::~DataFileHandler()
     cleanUpFileHandler();
 }
 
-void DataFileHandler::loadDataFile(QString dataFilePath)
+void DataFileHandler::openDataFile(QString dataFilePath)
 {
     // Set last used path
     _pGuiModel->setLastDir(QFileInfo(dataFilePath).dir().absolutePath());
@@ -93,9 +93,9 @@ void DataFileHandler::loadDataFile(QString dataFilePath)
         QStringList dataFileSample;
         SettingsAuto::loadDataFileSample(_pDataFileStream, dataFileSample, _cSampleLineLength);
 
-        LoadFileDialog loadFileDialog(_pGuiModel, _pDataParserModel, dataFileSample);
+        ParseDataFileDialog parseDataFileDialog(_pGuiModel, _pDataParserModel, dataFileSample);
 
-        if (loadFileDialog.exec() == QDialog::Accepted)
+        if (parseDataFileDialog.exec() == QDialog::Accepted)
         {
             parseDataFile();
         }
@@ -146,7 +146,7 @@ void DataFileHandler::selectDataImportFile()
         if (!fileList.isEmpty())
         {
             filePath = fileList.at(0);
-            this->loadDataFile(filePath);
+            this->openDataFile(filePath);
         }
     }
 }

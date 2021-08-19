@@ -15,13 +15,13 @@ class ProjectFileHandler : public QObject
 public:
     explicit ProjectFileHandler(GuiModel* pGuiModel, SettingsModel* pSettingsModel, GraphDataModel* pGraphDataModel);
 
-    void loadProjectFile(QString projectFilePath);
+    void openProjectFile(QString projectFilePath);
 
 signals:
 
 public slots:
-    void selectSettingsExportFile();
-    void selectProjectSettingFile();
+    void selectProjectSaveFile();
+    void selectProjectOpenFile();
 
     void reloadProjectFile();
 

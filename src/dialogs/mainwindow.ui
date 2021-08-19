@@ -53,13 +53,13 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionLoadProjectFile"/>
+    <addaction name="actionOpenProjectFile"/>
     <addaction name="actionReloadProjectFile"/>
-    <addaction name="actionImportDataFile"/>
+    <addaction name="actionOpenDataFile"/>
     <addaction name="separator"/>
-    <addaction name="actionExportDataCsv"/>
+    <addaction name="actionSaveProjectFile"/>
+    <addaction name="actionSaveDataFile"/>
     <addaction name="actionExportImage"/>
-    <addaction name="actionExportSettings"/>
     <addaction name="separator"/>
     <addaction name="actionConnectionSettings"/>
     <addaction name="actionLogSettings"/>
@@ -135,7 +135,11 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionLoadProjectFile"/>
+   <addaction name="actionOpenProjectFile"/>
+   <addaction name="actionOpenDataFile"/>
+   <addaction name="separator"/>
+   <addaction name="actionSaveDataFile"/>
+   <addaction name="actionExportImage"/>
    <addaction name="separator"/>
    <addaction name="actionConnectionSettings"/>
    <addaction name="actionLogSettings"/>
@@ -555,7 +559,7 @@
   </widget>
   <action name="actionExit">
    <property name="text">
-    <string>Exit</string>
+    <string>&amp;Exit</string>
    </property>
   </action>
   <action name="actionStart">
@@ -581,7 +585,7 @@
     <string>Stop &amp;logging</string>
    </property>
   </action>
-  <action name="actionExportDataCsv">
+  <action name="actionSaveDataFile">
    <property name="enabled">
     <bool>false</bool>
    </property>
@@ -591,17 +595,23 @@
     </iconset>
    </property>
    <property name="text">
-    <string>&amp;Export Data...</string>
+    <string>Save Data &amp;File As...</string>
+   </property>
+   <property name="toolTip">
+    <string>Save Data File</string>
    </property>
   </action>
-  <action name="actionLoadProjectFile">
+  <action name="actionOpenProjectFile">
    <property name="icon">
     <iconset>
      <normalon>:/menu_icon/menu_icon/icons/folder.png</normalon>
     </iconset>
    </property>
    <property name="text">
-    <string>&amp;Load Project File...</string>
+    <string>&amp;Open Project...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open Project File</string>
    </property>
   </action>
   <action name="actionExportImage">
@@ -614,7 +624,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>E&amp;xport Image...</string>
+    <string>E&amp;xport Image As...</string>
    </property>
   </action>
   <action name="actionAbout">
@@ -632,17 +642,23 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>&amp;Reload Project File</string>
+    <string>&amp;Reload Project</string>
    </property>
   </action>
-  <action name="actionImportDataFile">
+  <action name="actionOpenDataFile">
    <property name="icon">
     <iconset>
      <normalon>:/menu_icon/menu_icon/icons/folder_page.png</normalon>
     </iconset>
    </property>
    <property name="text">
-    <string>&amp;Import Data File...</string>
+    <string>Open &amp;Data File...</string>
+   </property>
+   <property name="iconText">
+    <string>Open Data File</string>
+   </property>
+   <property name="toolTip">
+    <string>Open Data File</string>
    </property>
   </action>
   <action name="actionHighlightSamplePoints">
@@ -694,7 +710,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Log &amp;Settings...</string>
+    <string>&amp;Log Settings...</string>
    </property>
   </action>
   <action name="actionToggleMarkers">
@@ -705,7 +721,7 @@
     <string>Toggle Markers</string>
    </property>
   </action>
-  <action name="actionExportSettings">
+  <action name="actionSaveProjectFile">
    <property name="enabled">
     <bool>false</bool>
    </property>
@@ -714,7 +730,7 @@
      <normaloff>:/menu_icon/menu_icon/icons/folder_go.png</normaloff>:/menu_icon/menu_icon/icons/folder_go.png</iconset>
    </property>
    <property name="text">
-    <string>Ex&amp;port Settings...</string>
+    <string>&amp;Save Project As...</string>
    </property>
   </action>
   <action name="actionDiagnostic">
