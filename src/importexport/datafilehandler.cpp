@@ -33,9 +33,6 @@ DataFileHandler::~DataFileHandler()
 
 void DataFileHandler::openDataFile(QString dataFilePath)
 {
-    // Set last used path
-    _pGuiModel->setLastDir(QFileInfo(dataFilePath).dir().absolutePath());
-
     SettingsAuto * _pAutoSettingsParser;
 
     _pDataFile = new QFile(dataFilePath);
@@ -147,6 +144,7 @@ void DataFileHandler::selectDataImportFile()
         {
             filePath = fileList.at(0);
             this->openDataFile(filePath);
+            _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
         }
     }
 }
