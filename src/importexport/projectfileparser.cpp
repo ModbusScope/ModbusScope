@@ -1,5 +1,6 @@
 
-#include <QtWidgets>
+#include <QFileInfo>
+#include <QDir>
 #include "util.h"
 #include "projectfileparser.h"
 #include "projectfiledefinitions.h"

@@ -1,5 +1,4 @@
 #include <QFileInfo>
-#include <QFileDialog>
 
 #include "util.h"
 #include "markerinfodialog.h"
