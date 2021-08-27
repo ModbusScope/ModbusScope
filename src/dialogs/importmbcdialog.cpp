@@ -77,7 +77,7 @@ int ImportMbcDialog::exec()
 void ImportMbcDialog::selectMbcFile()
 {
     QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setFileMode(QFileDialog::ExistingFile);
     dialog.setAcceptMode(QFileDialog::AcceptOpen);
     dialog.setOption(QFileDialog::HideNameFilterDetails, false);
     dialog.setDefaultSuffix("mbc");
