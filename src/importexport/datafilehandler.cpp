@@ -4,6 +4,7 @@
 
 #include "datafilehandler.h"
 #include "parsedatafiledialog.h"
+#include "fileselectionhelper.h"
 
 #include <QWidget>
 #include <QProgressDialog>
@@ -125,24 +126,22 @@ bool DataFileHandler::updateNoteLines()
 
 void DataFileHandler::selectDataImportFile()
 {
-    QString filePath;
     QFileDialog dialog;
-    dialog.setFileMode(QFileDialog::ExistingFile);
-    dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
+    FileSelectionHelper::configureFileDialog(&dialog, _pGuiModel,
+                                             FileSelectionHelper::DIALOG_TYPE_OPEN,
+                                             FileSelectionHelper::FILE_TYPE_NONE);
+    dialog.setDefaultSuffix("csv");
     dialog.setWindowTitle(tr("Select data file"));
 
     QStringList extensionFilter = QStringList() << tr("csv file (*.csv)") << tr("any file (*)");
     dialog.setNameFilters(extensionFilter);
-
-    dialog.setDirectory(_pGuiModel->lastDir());
 
     if (dialog.exec())
     {
         auto fileList = dialog.selectedFiles();
         if (!fileList.isEmpty())
         {
-            filePath = fileList.at(0);
+            QString filePath = fileList.at(0);
             this->openDataFile(filePath);
             _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
         }
@@ -151,22 +150,17 @@ void DataFileHandler::selectDataImportFile()
 
 void DataFileHandler::selectDataExportFile()
 {
-    QString filePath;
     QFileDialog dialog;
-    dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
-    dialog.setDefaultSuffix("csv");
-    dialog.setWindowTitle(tr("Select csv file"));
-    dialog.setNameFilter(tr("CSV files (*.csv)"));
-    dialog.setDirectory(_pGuiModel->lastDir());
+    FileSelectionHelper::configureFileDialog(&dialog, _pGuiModel,
+                                             FileSelectionHelper::DIALOG_TYPE_SAVE,
+                                             FileSelectionHelper::FILE_TYPE_CSV);
 
     if (dialog.exec())
     {
         auto fileList = dialog.selectedFiles();
         if (!fileList.isEmpty())
         {
-            filePath = fileList.at(0);
+            QString filePath = fileList.at(0);
             _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
             _pDataFileExporter->exportDataFile(filePath);
         }

@@ -8,6 +8,7 @@
 #include "ui_diagnosticdialog.h"
 
 #include "guimodel.h"
+#include "fileselectionhelper.h"
 #include "util.h"
 #include "diagnosticmodel.h"
 #include "diagnosticfilter.h"
@@ -163,22 +164,17 @@ void DiagnosticDialog::handleEnableDebugLog(int state)
 
 void DiagnosticDialog::handleExportLog()
 {
-    QString filePath;
-    QFileDialog dialog;
-    dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
-    dialog.setDefaultSuffix("log");
-    dialog.setWindowTitle(tr("Select log file"));
-    dialog.setNameFilter(tr("LOG files (*.log)"));
-    dialog.setDirectory(_pGuiModel->lastDir());
+    QFileDialog dialog(this);
+    FileSelectionHelper::configureFileDialog(&dialog, _pGuiModel,
+                                             FileSelectionHelper::DIALOG_TYPE_SAVE,
+                                             FileSelectionHelper::FILE_TYPE_LOG);
 
     if (dialog.exec())
     {
         auto fileList = dialog.selectedFiles();
         if (!fileList.isEmpty())
         {
-            filePath = fileList.at(0);
+            QString filePath = fileList.at(0);
 
             _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
 

@@ -7,6 +7,7 @@
 #include "mbcregistermodel.h"
 #include "graphdata.h"
 #include "graphdatamodel.h"
+#include "fileselectionhelper.h"
 
 #include <QFileDialog>
 #include <QFile>
@@ -77,13 +78,9 @@ int ImportMbcDialog::exec()
 void ImportMbcDialog::selectMbcFile()
 {
     QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::ExistingFile);
-    dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
-    dialog.setDefaultSuffix("mbc");
-    dialog.setWindowTitle(tr("Select mbc file"));
-    dialog.setNameFilter(tr("MBC files (*.mbc)"));
-    dialog.setDirectory(_pGuiModel->lastDir());
+    FileSelectionHelper::configureFileDialog(&dialog, _pGuiModel,
+                                             FileSelectionHelper::DIALOG_TYPE_OPEN,
+                                             FileSelectionHelper::FILE_TYPE_MBC);
 
     if (dialog.exec() == QDialog::Accepted)
     {
