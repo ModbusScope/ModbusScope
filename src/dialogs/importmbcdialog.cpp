@@ -145,7 +145,7 @@ void ImportMbcDialog::updateMbcRegisters(QString filePath)
     }
     else
     {
-        Util::showError(tr("The file can't be read."));
+        Util::showError(tr("The file (\"%1\") can't be read.").arg(filePath));
     }
 }
 
