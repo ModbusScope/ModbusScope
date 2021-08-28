@@ -45,7 +45,7 @@ void ProjectFileHandler::openProjectFile(QString projectFilePath)
 void ProjectFileHandler::selectProjectSaveFile()
 {
     QFileDialog dialog;
-    FileSelectionHelper::configureFileDialog(&dialog, _pGuiModel,
+    FileSelectionHelper::configureFileDialog(&dialog,
                                              FileSelectionHelper::DIALOG_TYPE_SAVE,
                                              FileSelectionHelper::FILE_TYPE_MBS);
 
@@ -67,7 +67,7 @@ void ProjectFileHandler::selectProjectOpenFile()
 {
     QString filePath;
     QFileDialog dialog;
-    FileSelectionHelper::configureFileDialog(&dialog, _pGuiModel,
+    FileSelectionHelper::configureFileDialog(&dialog,
                                              FileSelectionHelper::DIALOG_TYPE_OPEN,
                                              FileSelectionHelper::FILE_TYPE_MBS);
 

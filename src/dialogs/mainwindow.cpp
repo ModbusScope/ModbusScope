@@ -335,7 +335,7 @@ void MainWindow::selectImageExportFile()
     if (bProceed)
     {
         QFileDialog dialog(this);
-        FileSelectionHelper::configureFileDialog(&dialog, _pGuiModel,
+        FileSelectionHelper::configureFileDialog(&dialog,
                                                  FileSelectionHelper::DIALOG_TYPE_SAVE,
                                                  FileSelectionHelper::FILE_TYPE_PNG);
 

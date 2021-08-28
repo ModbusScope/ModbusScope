@@ -3,17 +3,27 @@
 #include "guimodel.h"
 #include <QFileDialog>
 
+GuiModel* FileSelectionHelper::_pGuiModel;
+
 FileSelectionHelper::FileSelectionHelper(QObject *parent) : QObject(parent)
 {
 
 }
 
-void FileSelectionHelper::configureFileDialog(QFileDialog* pDialog, GuiModel* pGuiModel, DialogType dialogType, FileType fileType)
+void FileSelectionHelper::configureFileDialog(QFileDialog* pDialog, DialogType dialogType, FileType fileType)
 {
     configureDialogType(pDialog, dialogType);
     configureFileType(pDialog, fileType);
 
-    pDialog->setDirectory(pGuiModel->lastDir());
+    if (_pGuiModel)
+    {
+        pDialog->setDirectory(_pGuiModel->lastDir());
+    }
+}
+
+void FileSelectionHelper::setGuiModel(GuiModel* pGuiModel)
+{
+    _pGuiModel = pGuiModel;
 }
 
 void FileSelectionHelper::configureDialogType(QFileDialog* pDialog, DialogType dialogType)

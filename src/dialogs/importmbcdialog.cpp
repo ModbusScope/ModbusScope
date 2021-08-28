@@ -78,7 +78,7 @@ int ImportMbcDialog::exec()
 void ImportMbcDialog::selectMbcFile()
 {
     QFileDialog dialog(this);
-    FileSelectionHelper::configureFileDialog(&dialog, _pGuiModel,
+    FileSelectionHelper::configureFileDialog(&dialog,
                                              FileSelectionHelper::DIALOG_TYPE_OPEN,
                                              FileSelectionHelper::FILE_TYPE_MBC);
 

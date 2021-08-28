@@ -29,13 +29,17 @@ public:
 
     explicit FileSelectionHelper(QObject *parent = nullptr);
 
-    static void configureFileDialog(QFileDialog* pDialog, GuiModel* pGuiModel, DialogType dialogType, FileType fileType);
+    static void configureFileDialog(QFileDialog* pDialog, DialogType dialogType, FileType fileType);
+
+    static void setGuiModel(GuiModel* pGuiModel);
 
 signals:
 
 private:
     static void configureDialogType(QFileDialog* pDialog, DialogType dialogType);
     static void configureFileType(QFileDialog* pDialog, FileType fileType);
+
+    static GuiModel* _pGuiModel;
 
 };
 

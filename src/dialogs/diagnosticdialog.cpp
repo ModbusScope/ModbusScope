@@ -165,7 +165,7 @@ void DiagnosticDialog::handleEnableDebugLog(int state)
 void DiagnosticDialog::handleExportLog()
 {
     QFileDialog dialog(this);
-    FileSelectionHelper::configureFileDialog(&dialog, _pGuiModel,
+    FileSelectionHelper::configureFileDialog(&dialog,
                                              FileSelectionHelper::DIALOG_TYPE_SAVE,
                                              FileSelectionHelper::FILE_TYPE_LOG);
 

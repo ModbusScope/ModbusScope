@@ -70,7 +70,7 @@ void LogDialog::done(int r)
 void LogDialog::selectLogFile()
 {
     QFileDialog dialog(this);
-    FileSelectionHelper::configureFileDialog(&dialog, _pGuiModel,
+    FileSelectionHelper::configureFileDialog(&dialog,
                                              FileSelectionHelper::DIALOG_TYPE_SAVE,
                                              FileSelectionHelper::FILE_TYPE_CSV);
 

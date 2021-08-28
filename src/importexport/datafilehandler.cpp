@@ -127,7 +127,7 @@ bool DataFileHandler::updateNoteLines()
 void DataFileHandler::selectDataImportFile()
 {
     QFileDialog dialog;
-    FileSelectionHelper::configureFileDialog(&dialog, _pGuiModel,
+    FileSelectionHelper::configureFileDialog(&dialog,
                                              FileSelectionHelper::DIALOG_TYPE_OPEN,
                                              FileSelectionHelper::FILE_TYPE_NONE);
     dialog.setDefaultSuffix("csv");
@@ -151,7 +151,7 @@ void DataFileHandler::selectDataImportFile()
 void DataFileHandler::selectDataExportFile()
 {
     QFileDialog dialog;
-    FileSelectionHelper::configureFileDialog(&dialog, _pGuiModel,
+    FileSelectionHelper::configureFileDialog(&dialog,
                                              FileSelectionHelper::DIALOG_TYPE_SAVE,
                                              FileSelectionHelper::FILE_TYPE_CSV);
 
