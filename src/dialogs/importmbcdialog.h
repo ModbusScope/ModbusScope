@@ -23,7 +23,6 @@ public:
 
 public slots:
     int exec(void);
-    int exec(QString mbcPath);
 
 private slots:
     void selectMbcFile();
@@ -31,7 +30,7 @@ private slots:
 
 private:
 
-    void updateMbcRegisters();
+    void updateMbcRegisters(QString filePath);
 
     Ui::ImportMbcDialog *_pUi;
 
@@ -40,8 +39,6 @@ private:
     MbcRegisterModel * _pMbcRegisterModel;
 
     MbcRegisterFilter * _pTabProxyFilter;
-
-    QString _mbcFilePath;
 };
 
 #endif // IMPORTMBCDIALOG_H

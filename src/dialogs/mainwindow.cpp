@@ -436,7 +436,8 @@ void MainWindow::showRegisterDialog(QString mbcFile)
     }
     else
     {
-        registerDialog.exec(mbcFile);
+        _pGuiModel->setLastMbcImportedFile(mbcFile);
+        registerDialog.execWithMbcImport();
     }
 }
 

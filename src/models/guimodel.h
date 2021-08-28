@@ -58,6 +58,7 @@ public:
     QString windowTitle();
     QString projectFilePath();
     QString lastDir();
+    QString lastMbcImportedFile();
     AxisMode::AxisScaleOptions xAxisScalingMode();
     quint32 xAxisSlidingSec();
     AxisMode::AxisScaleOptions  yAxisScalingMode();
@@ -76,6 +77,7 @@ public:
 
     void setProjectFilePath(QString path);
     void setLastDir(QString dir);
+    void setLastMbcImportedFile(QString file);
     void setMarkerExpressionMask(quint32 mask);
 
 public slots:
@@ -147,6 +149,7 @@ private:
 
     QString _projectFilePath;
     QString _lastDir; // Last directory opened for import/export/load project
+    QString _lastMbcImportedFile;
 
     bool _bHighlightSamples;
     bool _bCursorValues;
