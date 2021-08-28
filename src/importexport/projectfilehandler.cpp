@@ -49,17 +49,11 @@ void ProjectFileHandler::selectProjectSaveFile()
                                              FileSelectionHelper::DIALOG_TYPE_SAVE,
                                              FileSelectionHelper::FILE_TYPE_MBS);
 
-    if (dialog.exec())
+    QString selectedFile = FileSelectionHelper::showDialog(&dialog);
+    if (!selectedFile.isEmpty())
     {
-        auto fileList = dialog.selectedFiles();
-        if (!fileList.isEmpty())
-        {
-            QString filePath = fileList.at(0);
-            _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-
-            ProjectFileExporter projectFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel);
-            projectFileExporter.exportProjectFile(filePath);
-        }
+        ProjectFileExporter projectFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel);
+        projectFileExporter.exportProjectFile(selectedFile);
     }
 }
 
@@ -71,15 +65,10 @@ void ProjectFileHandler::selectProjectOpenFile()
                                              FileSelectionHelper::DIALOG_TYPE_OPEN,
                                              FileSelectionHelper::FILE_TYPE_MBS);
 
-    if (dialog.exec())
+    QString selectedFile = FileSelectionHelper::showDialog(&dialog);
+    if (!selectedFile.isEmpty())
     {
-        auto fileList = dialog.selectedFiles();
-        if (!fileList.isEmpty())
-        {
-            filePath = fileList.at(0);
-            _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-            this->openProjectFile(filePath);
-        }
+        this->openProjectFile(filePath);
     }
 }
 

@@ -28,10 +28,11 @@ public:
     } FileType;
 
     explicit FileSelectionHelper(QObject *parent = nullptr);
+    static void setGuiModel(GuiModel* pGuiModel);
 
     static void configureFileDialog(QFileDialog* pDialog, DialogType dialogType, FileType fileType);
+    static QString showDialog(QFileDialog* pDialog);
 
-    static void setGuiModel(GuiModel* pGuiModel);
 
 signals:
 

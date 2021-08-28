@@ -26,6 +26,24 @@ void FileSelectionHelper::setGuiModel(GuiModel* pGuiModel)
     _pGuiModel = pGuiModel;
 }
 
+QString FileSelectionHelper::showDialog(QFileDialog* pDialog)
+{
+    QString selectedFile;
+
+    if (pDialog->exec() == QDialog::Accepted)
+    {
+        auto fileList = pDialog->selectedFiles();
+        if (!fileList.isEmpty())
+        {
+            selectedFile = fileList.at(0);
+
+            _pGuiModel->setLastDir(QFileInfo(selectedFile).dir().absolutePath());
+        }
+    }
+
+    return selectedFile;
+}
+
 void FileSelectionHelper::configureDialogType(QFileDialog* pDialog, DialogType dialogType)
 {
     switch (dialogType)

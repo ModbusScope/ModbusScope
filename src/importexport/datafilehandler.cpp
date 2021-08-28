@@ -136,15 +136,10 @@ void DataFileHandler::selectDataImportFile()
     QStringList extensionFilter = QStringList() << tr("csv file (*.csv)") << tr("any file (*)");
     dialog.setNameFilters(extensionFilter);
 
-    if (dialog.exec())
+    QString selectedFile = FileSelectionHelper::showDialog(&dialog);
+    if (!selectedFile.isEmpty())
     {
-        auto fileList = dialog.selectedFiles();
-        if (!fileList.isEmpty())
-        {
-            QString filePath = fileList.at(0);
-            this->openDataFile(filePath);
-            _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-        }
+        this->openDataFile(selectedFile);
     }
 }
 
@@ -155,15 +150,10 @@ void DataFileHandler::selectDataExportFile()
                                              FileSelectionHelper::DIALOG_TYPE_SAVE,
                                              FileSelectionHelper::FILE_TYPE_CSV);
 
-    if (dialog.exec())
+    QString selectedFile = FileSelectionHelper::showDialog(&dialog);
+    if (!selectedFile.isEmpty())
     {
-        auto fileList = dialog.selectedFiles();
-        if (!fileList.isEmpty())
-        {
-            QString filePath = fileList.at(0);
-            _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-            _pDataFileExporter->exportDataFile(filePath);
-        }
+        _pDataFileExporter->exportDataFile(selectedFile);
     }
 }
 

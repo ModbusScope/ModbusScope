@@ -339,17 +339,11 @@ void MainWindow::selectImageExportFile()
                                                  FileSelectionHelper::DIALOG_TYPE_SAVE,
                                                  FileSelectionHelper::FILE_TYPE_PNG);
 
-        if (dialog.exec())
+        QString selectedFile = FileSelectionHelper::showDialog(&dialog);
+        if (!selectedFile.isEmpty())
         {
-            auto fileList = dialog.selectedFiles();
-            if (!fileList.isEmpty())
-            {
-                QString filePath = fileList.at(0);
-                _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-
-                QPixmap pixMap = this->window()->grab();
-                pixMap.save(filePath);
-            }
+            QPixmap pixMap = this->window()->grab();
+            pixMap.save(selectedFile);
         }
     }
 }
