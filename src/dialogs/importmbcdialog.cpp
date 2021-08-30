@@ -55,27 +55,23 @@ ImportMbcDialog::~ImportMbcDialog()
     delete _pUi;
 }
 
-int ImportMbcDialog::exec(QString mbcPath)
+int ImportMbcDialog::exec()
 {
-    _mbcFilePath = mbcPath;
-    _pUi->lineMbcfile->setText(_mbcFilePath);
-
-    if (_mbcFilePath.length() > 0)
+    QString filePath = _pGuiModel->lastMbcImportedFile();
+    if (!filePath.isEmpty())
     {
         /* Auto load with supplied path */
-        updateMbcRegisters();
+        updateMbcRegisters(filePath);
+
+        _pUi->lineMbcfile->setText(filePath);
     }
     else
     {
         /* Skip auto load: no file path */
+        _pUi->lineMbcfile->setText("");
     }
 
     return QDialog::exec();
-}
-
-int ImportMbcDialog::exec(void)
-{
-    return exec(QString(""));
 }
 
 void ImportMbcDialog::selectMbcFile()
@@ -94,20 +90,14 @@ void ImportMbcDialog::selectMbcFile()
         auto fileList = dialog.selectedFiles();
         if (!fileList.isEmpty())
         {
-            _mbcFilePath = fileList.at(0);
+            QString filePath = fileList.at(0);
 
-            _pUi->lineMbcfile->setText(_mbcFilePath);
+            _pUi->lineMbcfile->setText(filePath);
 
-            _pGuiModel->setLastDir(QFileInfo(_mbcFilePath).dir().absolutePath());
+            _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
+            _pGuiModel->setLastMbcImportedFile(filePath);
 
-            if (QFile::exists(_mbcFilePath))
-            {
-                updateMbcRegisters();
-            }
-            else
-            {
-                Util::showError("No valid MBC file selected.");
-            }
+            updateMbcRegisters(filePath);
         }
     }
 }
@@ -125,9 +115,9 @@ void ImportMbcDialog::registerDataChanged()
     }
 }
 
-void ImportMbcDialog::updateMbcRegisters()
+void ImportMbcDialog::updateMbcRegisters(QString filePath)
 {
-    QFile file(_mbcFilePath);
+    QFile file(filePath);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         QTextStream in(&file);
@@ -155,7 +145,7 @@ void ImportMbcDialog::updateMbcRegisters()
     }
     else
     {
-        Util::showError(tr("The file can't be read."));
+        Util::showError(tr("The file (\"%1\") can't be read.").arg(filePath));
     }
 }
 

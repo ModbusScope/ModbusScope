@@ -2,6 +2,17 @@
 
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/jgeudens/ModbusScope/releases).  
 
+## Unreleased
+
+* Various user experience improvements
+  * Replace check boxes with radio buttons
+  * Rename menu items
+  * Add extra menu items to tool bar
+* Reload previous mbc file when import mbc dialog is opened ([Github #156](https://github.com/jgeudens/ModbusScope/issues/156))
+* Improve documentation (fixed [Github #161](https://github.com/jgeudens/ModbusScope/issues/161) and open data file chapter)
+* Fix that marker points are visible when graph isn't ([Github #157](https://github.com/jgeudens/ModbusScope/issues/157))
+* Updated used libraries and internal improvements
+
 ## [v3.2.1](https://github.com/jgeudens/ModbusScope/releases/tag/3.2.1) (15/04/2021)
 
 ### Fixes

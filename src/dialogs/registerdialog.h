@@ -19,15 +19,12 @@ public:
     explicit RegisterDialog(GuiModel * pGuiModel, GraphDataModel *pGraphDataModel, SettingsModel *pSettingsModel, QWidget *parent = nullptr);
     ~RegisterDialog();
 
-
 public slots:
-    int exec();
-    int exec(QString mbcFile);
+    int execWithMbcImport();
 
 private slots:
     void done(int r);
-    void showImportDialogDefault();
-    void showImportDialog(QString mbcPath);
+    void showImportDialog();
     void addRegisterRow();
     void removeRegisterRow();
     void activatedCell(QModelIndex modelIndex);
