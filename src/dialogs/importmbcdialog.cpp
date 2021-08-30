@@ -7,9 +7,9 @@
 #include "mbcregistermodel.h"
 #include "graphdata.h"
 #include "graphdatamodel.h"
+#include "fileselectionhelper.h"
 
 #include <QFileDialog>
-#include <QFile>
 
 ImportMbcDialog::ImportMbcDialog(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, MbcRegisterModel * pMbcRegisterModel, QWidget *parent) :
     QDialog(parent),
@@ -77,28 +77,17 @@ int ImportMbcDialog::exec()
 void ImportMbcDialog::selectMbcFile()
 {
     QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
-    dialog.setDefaultSuffix("mbc");
-    dialog.setWindowTitle(tr("Select mbc file"));
-    dialog.setNameFilter(tr("MBC files (*.mbc)"));
-    dialog.setDirectory(_pGuiModel->lastDir());
+    FileSelectionHelper::configureFileDialog(&dialog,
+                                             FileSelectionHelper::DIALOG_TYPE_OPEN,
+                                             FileSelectionHelper::FILE_TYPE_MBC);
 
-    if (dialog.exec() == QDialog::Accepted)
+    QString selectedFile = FileSelectionHelper::showDialog(&dialog);
+    if (!selectedFile.isEmpty())
     {
-        auto fileList = dialog.selectedFiles();
-        if (!fileList.isEmpty())
-        {
-            QString filePath = fileList.at(0);
+        _pUi->lineMbcfile->setText(selectedFile);
+        _pGuiModel->setLastMbcImportedFile(selectedFile);
 
-            _pUi->lineMbcfile->setText(filePath);
-
-            _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-            _pGuiModel->setLastMbcImportedFile(filePath);
-
-            updateMbcRegisters(filePath);
-        }
+        updateMbcRegisters(selectedFile);
     }
 }
 

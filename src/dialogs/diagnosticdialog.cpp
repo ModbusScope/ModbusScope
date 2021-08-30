@@ -8,6 +8,7 @@
 #include "ui_diagnosticdialog.h"
 
 #include "guimodel.h"
+#include "fileselectionhelper.h"
 #include "util.h"
 #include "diagnosticmodel.h"
 #include "diagnosticfilter.h"
@@ -163,37 +164,25 @@ void DiagnosticDialog::handleEnableDebugLog(int state)
 
 void DiagnosticDialog::handleExportLog()
 {
-    QString filePath;
-    QFileDialog dialog;
-    dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
-    dialog.setDefaultSuffix("log");
-    dialog.setWindowTitle(tr("Select log file"));
-    dialog.setNameFilter(tr("LOG files (*.log)"));
-    dialog.setDirectory(_pGuiModel->lastDir());
+    QFileDialog dialog(this);
+    FileSelectionHelper::configureFileDialog(&dialog,
+                                             FileSelectionHelper::DIALOG_TYPE_SAVE,
+                                             FileSelectionHelper::FILE_TYPE_LOG);
 
-    if (dialog.exec())
+    QString selectedFile = FileSelectionHelper::showDialog(&dialog);
+    if (!selectedFile.isEmpty())
     {
-        auto fileList = dialog.selectedFiles();
-        if (!fileList.isEmpty())
+        QFile file(selectedFile);
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text))
         {
-            filePath = fileList.at(0);
+            QTextStream stream(&file);
+            DiagnosticExporter diagExporter(_pDiagnosticModel);
 
-            _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-
-            QFile file(filePath);
-            if (file.open(QIODevice::WriteOnly | QIODevice::Text))
-            {
-                QTextStream stream(&file);
-                DiagnosticExporter diagExporter(_pDiagnosticModel);
-
-                diagExporter.exportDiagnosticsFile(stream);
-            }
-            else
-            {
-                Util::showError(tr("Save to log file (%1) failed").arg(filePath));
-            }
+            diagExporter.exportDiagnosticsFile(stream);
+        }
+        else
+        {
+            Util::showError(tr("Save to log file (%1) failed").arg(selectedFile));
         }
     }
 }

@@ -2,6 +2,7 @@
 #include <QFile>
 #include <QFileDialog>
 
+#include "fileselectionhelper.h"
 #include "util.h"
 #include "projectfileexporter.h"
 #include "updateregisteroperations.h"
@@ -43,26 +44,16 @@ void ProjectFileHandler::openProjectFile(QString projectFilePath)
 
 void ProjectFileHandler::selectProjectSaveFile()
 {
-    ProjectFileExporter projectFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel);
-    QString filePath;
     QFileDialog dialog;
-    dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
-    dialog.setDefaultSuffix("mbs");
-    dialog.setWindowTitle(tr("Select mbs file"));
-    dialog.setNameFilter(tr("MBS files (*.mbs)"));
-    dialog.setDirectory(_pGuiModel->lastDir());
+    FileSelectionHelper::configureFileDialog(&dialog,
+                                             FileSelectionHelper::DIALOG_TYPE_SAVE,
+                                             FileSelectionHelper::FILE_TYPE_MBS);
 
-    if (dialog.exec())
+    QString selectedFile = FileSelectionHelper::showDialog(&dialog);
+    if (!selectedFile.isEmpty())
     {
-        auto fileList = dialog.selectedFiles();
-        if (!fileList.isEmpty())
-        {
-            filePath = fileList.at(0);
-            _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-            projectFileExporter.exportProjectFile(filePath);
-        }
+        ProjectFileExporter projectFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel);
+        projectFileExporter.exportProjectFile(selectedFile);
     }
 }
 
@@ -70,22 +61,14 @@ void ProjectFileHandler::selectProjectOpenFile()
 {
     QString filePath;
     QFileDialog dialog;
-    dialog.setFileMode(QFileDialog::ExistingFile);
-    dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
-    dialog.setWindowTitle(tr("Select mbs file"));
-    dialog.setNameFilter(tr("mbs files (*.mbs)"));
-    dialog.setDirectory(_pGuiModel->lastDir());
+    FileSelectionHelper::configureFileDialog(&dialog,
+                                             FileSelectionHelper::DIALOG_TYPE_OPEN,
+                                             FileSelectionHelper::FILE_TYPE_MBS);
 
-    if (dialog.exec())
+    QString selectedFile = FileSelectionHelper::showDialog(&dialog);
+    if (!selectedFile.isEmpty())
     {
-        auto fileList = dialog.selectedFiles();
-        if (!fileList.isEmpty())
-        {
-            filePath = fileList.at(0);
-            _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
-            this->openProjectFile(filePath);
-        }
+        this->openProjectFile(filePath);
     }
 }
 

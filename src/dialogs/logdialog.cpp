@@ -5,6 +5,7 @@
 #include "guimodel.h"
 
 #include <QFileDialog>
+#include "fileselectionhelper.h"
 
 LogDialog::LogDialog(SettingsModel * pSettingsModel, GuiModel * pGuiModel, QWidget *parent) :
     QDialog(parent),
@@ -69,13 +70,9 @@ void LogDialog::done(int r)
 void LogDialog::selectLogFile()
 {
     QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
-    dialog.setDefaultSuffix("csv");
-    dialog.setWindowTitle(tr("Select csv file"));
-    dialog.setNameFilter(tr("CSV files (*.csv)"));
-    dialog.setDirectory(_pGuiModel->lastDir());
+    FileSelectionHelper::configureFileDialog(&dialog,
+                                             FileSelectionHelper::DIALOG_TYPE_SAVE,
+                                             FileSelectionHelper::FILE_TYPE_CSV);
 
     if (dialog.exec() == QDialog::Accepted)
     {

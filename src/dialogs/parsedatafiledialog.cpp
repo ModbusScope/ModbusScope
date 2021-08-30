@@ -1,8 +1,7 @@
 
-#include <QtWidgets>
-#include <QFileDialog>
 #include <QPushButton>
 #include <QColor>
+#include <QFileInfo>
 
 #include "settingsauto.h"
 #include "util.h"

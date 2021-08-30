@@ -21,6 +21,7 @@
 #include "projectfilehandler.h"
 #include "util.h"
 #include "versiondownloader.h"
+#include "fileselectionhelper.h"
 
 #include <QDateTime>
 
@@ -311,16 +312,6 @@ void MainWindow::exitApplication()
 
 void MainWindow::selectImageExportFile()
 {
-    QString filePath;
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setOption(QFileDialog::HideNameFilterDetails, false);
-    dialog.setDefaultSuffix("png");
-    dialog.setWindowTitle(tr("Select png file"));
-    dialog.setNameFilter(tr("PNG files (*.png)"));
-    dialog.setDirectory(_pGuiModel->lastDir());
-
     /* Add question wether to save when legend is undocked */
     bool bProceed = false;
     if (_pUi->legendDock->isFloating())
@@ -343,17 +334,16 @@ void MainWindow::selectImageExportFile()
 
     if (bProceed)
     {
-        if (dialog.exec())
-        {
-            auto fileList = dialog.selectedFiles();
-            if (!fileList.isEmpty())
-            {
-                filePath = fileList.at(0);
-                _pGuiModel->setLastDir(QFileInfo(filePath).dir().absolutePath());
+        QFileDialog dialog(this);
+        FileSelectionHelper::configureFileDialog(&dialog,
+                                                 FileSelectionHelper::DIALOG_TYPE_SAVE,
+                                                 FileSelectionHelper::FILE_TYPE_PNG);
 
-                QPixmap pixMap = this->window()->grab();
-                pixMap.save(filePath);
-            }
+        QString selectedFile = FileSelectionHelper::showDialog(&dialog);
+        if (!selectedFile.isEmpty())
+        {
+            QPixmap pixMap = this->window()->grab();
+            pixMap.save(selectedFile);
         }
     }
 }

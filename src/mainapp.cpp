@@ -9,6 +9,7 @@
 #include "dataparsermodel.h"
 #include "guimodel.h"
 
+#include "fileselectionhelper.h"
 #include "scopelogging.h"
 #include "util.h"
 #include "formatdatetime.h"
@@ -32,6 +33,7 @@ MainApp::MainApp(QStringList cmdArguments, QObject *parent) : QObject(parent)
                                _pDataParserModel);
 
     ScopeLogging::Logger().initLogging(_pDiagnosticModel);
+    FileSelectionHelper::setGuiModel(_pGuiModel);
 
     logInitialInfo();
 
