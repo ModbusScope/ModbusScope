@@ -11,6 +11,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 * Reload previous mbc file when import mbc dialog is opened ([Github #156](https://github.com/jgeudens/ModbusScope/issues/156))
 * Improve documentation (fixed [Github #161](https://github.com/jgeudens/ModbusScope/issues/161) and open data file chapter)
 * Fix that marker points are visible when graph isn't ([Github #157](https://github.com/jgeudens/ModbusScope/issues/157))
+* Include connection id in duplicate check when opening mbs file ([Github #164](https://github.com/jgeudens/ModbusScope/issues/164))
 * Updated used libraries and internal improvements
 
 ## [v3.2.1](https://github.com/jgeudens/ModbusScope/releases/tag/3.2.1) (15/04/2021)

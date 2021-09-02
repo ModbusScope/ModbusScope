@@ -428,6 +428,7 @@ bool ProjectFileParser::parseScopeTag(const QDomElement &element, ScopeSettings 
                 if (
                         (pScopeSettings->registerList[i].address == registerData.address)
                         && (pScopeSettings->registerList[i].bitmask == registerData.bitmask)
+                        && (pScopeSettings->registerList[i].connectionId == registerData.connectionId)
                     )
                 {
                     bFound = true;
