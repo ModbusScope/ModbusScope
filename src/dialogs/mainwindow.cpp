@@ -765,7 +765,7 @@ void MainWindow::updateGuiState()
         _pUi->actionSaveProjectFile->setEnabled(true);
         _pUi->actionClearData->setEnabled(true);
 
-        _pStatusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
+        _pStatusRuntime->setText(_cRuntime.arg("0:00:00"));
         _pStatusRuntime->setVisible(true);
 
         _pStatusStats->setText(_cStatsTemplate.arg(0).arg(0));
@@ -794,7 +794,7 @@ void MainWindow::updateGuiState()
         _pUi->actionReloadProjectFile->setEnabled(false);
         _pUi->actionClearData->setEnabled(true);
 
-        _pStatusRuntime->setText(_cRuntime.arg("0 hours, 0 minutes 0 seconds"));
+        _pStatusRuntime->setText(_cRuntime.arg("0:00:00"));
         _pStatusRuntime->setVisible(true);
 
         _pStatusStats->setText(_cStatsTemplate.arg(_pGuiModel->communicationSuccessCount()).arg(_pGuiModel->communicationErrorCount()));
@@ -985,7 +985,7 @@ void MainWindow::updateRuntime()
 
     const quint32 s = timePassed;
 
-    QString strTimePassed = QString("%1 hours, %2 minutes %3 seconds").arg(h).arg(m).arg(s);
+    QString strTimePassed = QString("%1:%2:%3").arg(h).arg(m, 2, 10, QChar('0')).arg(s, 2, 10, QChar('0'));
 
     _pStatusRuntime->setText(_cRuntime.arg(strTimePassed));
 
