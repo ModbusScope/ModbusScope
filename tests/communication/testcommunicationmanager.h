@@ -21,6 +21,7 @@ private slots:
     void singleSlaveSuccess();
     void singleSlaveFail();
     void singleSlaveCheckProcessing();
+    void singleSlaveParseFail();
 
     void multiSlaveSuccess();
     void multiSlaveSuccess_2();

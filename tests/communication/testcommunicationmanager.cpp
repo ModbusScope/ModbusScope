@@ -136,6 +136,35 @@ void TestCommunicationManager::singleSlaveCheckProcessing()
     verifyReceivedDataSignal(arguments, resultList, valueList);
 }
 
+void TestCommunicationManager::singleSlaveParseFail()
+{
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(0, true);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(0, 0);
+
+    GraphDataModel graphDataModel(_pSettingsModel);
+    graphDataModel.add();
+    graphDataModel.setRegisterAddress(0, 40001);
+    graphDataModel.setExpression(0, "1/VAL");
+
+    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel);
+
+    QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
+
+    /*-- Start communication --*/
+    QVERIFY(conMan.startCommunication());
+
+    QVERIFY(spyReceivedData.wait(50));
+    QCOMPARE(spyReceivedData.count(), 1);
+
+    QList<QVariant> arguments = spyReceivedData.takeFirst(); // take the first signal
+
+    QList<bool> resultList({false});
+    QList<double> valueList({0});
+
+    /* Verify arguments of signal */
+    verifyReceivedDataSignal(arguments, resultList, valueList);
+}
+
 void TestCommunicationManager::singleSlaveFail()
 {
     for (quint8 idx = 0; idx < SettingsModel::CONNECTION_ID_CNT; idx++)
