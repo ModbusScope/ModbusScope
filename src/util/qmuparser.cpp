@@ -43,8 +43,8 @@ void QMuParser::setExpression(QString expr)
         }
         else
         {
-            /* Default to comma */
-            _pExprParser->SetDecSep(',');
+            /* Keep current locale settings */
+            /* Locale settings are static (shared across all instances) */
         }
     }
 

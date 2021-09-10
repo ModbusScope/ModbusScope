@@ -198,6 +198,20 @@ void TestQMuParser::evaluateDivByZero()
     QVERIFY(!bSuccess);
 }
 
+void TestQMuParser::evaluateDecimalSeparatorCombination()
+{
+    /* Test for #165 (locale is static) */
+    /* Bug was that last expression without decimal separator would set
+     * separator to default comma and let expression with point fail */
+    QMuParser parser_1("1.5");
+    QMuParser parser_2("5");
+
+    bool bSuccess = parser_1.evaluate();
+
+    QVERIFY(bSuccess);
+    QCOMPARE(parser_1.result(), 1.5);
+}
+
 void TestQMuParser::expressionGet()
 {
     QString expr = QStringLiteral("1.1 + 1,5");

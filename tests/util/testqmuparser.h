@@ -23,6 +23,7 @@ private slots:
     void evaluateInvalidBinExpr();
     void evaluateInvalidBinExpr_2();
 
+    void evaluateDecimalSeparatorCombination();
     void expressionGet();
     void expressionUpdate();
 
