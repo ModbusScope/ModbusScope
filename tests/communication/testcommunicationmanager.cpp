@@ -402,10 +402,20 @@ void TestCommunicationManager::verifyReceivedDataSignal(QList<QVariant> argument
     QList<bool> resultList = arguments[0].value<QList<bool> >();
     QCOMPARE(resultList.count(), expResultList.size());
 
+    quint32 error = 0;
+    quint32 expError = 0;
+    quint32 succes = 0;
+    quint32 expSucces = 0;
     for(int idx = 0; idx < resultList.size(); idx++)
     {
         QCOMPARE(resultList[idx], expResultList[idx]);
+
+        resultList[idx] ? succes++ : error++;
+        expResultList[idx] ? expSucces++ : expError++;
     }
+
+    QCOMPARE(succes, expSucces);
+    QCOMPARE(error, expError);
 
     /* Verify values */
     QVERIFY((arguments[1].canConvert<QList<double> >()));

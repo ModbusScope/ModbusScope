@@ -22,8 +22,6 @@ ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, quint8 connectionId) 
     _pReadRegisters = new ReadRegisters();
 
     _connectionId = connectionId;
-    _success = 0;
-    _error = 0;
 
     // Use queued connection to make sure reply is deleted before closing connection
     connect(this, &ModbusMaster::triggerNextRequest, this, &ModbusMaster::handleTriggerNextRequest, Qt::QueuedConnection);
@@ -50,9 +48,6 @@ ModbusMaster::~ModbusMaster()
 
 void ModbusMaster::readRegisterList(QList<quint16> registerList)
 {
-    _success = 0;
-    _error = 0;
-
     if (_pSettingsModel->connectionState(_connectionId) == false)
     {
         QMap<quint16, ModbusResult> errMap;
@@ -120,8 +115,6 @@ void ModbusMaster::handlerConnectionError(QModbusDevice::Error error, QString ms
 {
     Q_UNUSED(error);
 
-    _error++;
-
     logError(QString("Connection error: ") + msg);
 
     _pReadRegisters->addAllErrors();
@@ -135,8 +128,6 @@ void ModbusMaster::handleRequestSuccess(quint16 startRegister, QList<quint16> re
 
     // Success
     _pReadRegisters->addSuccess(startRegister, registerDataList);
-
-    _success++;
 
     // Start next read
     emit triggerNextRequest();
@@ -172,8 +163,6 @@ void ModbusMaster::handleRequestProtocolError(QModbusPdu::ExceptionCode exceptio
         _pReadRegisters->addError();
     }
 
-    _error++;
-
     // Start next read
     emit triggerNextRequest();
 }
@@ -184,8 +173,6 @@ void ModbusMaster::handleRequestError(QString errorString, QModbusDevice::Error 
 
     // When we don't receive an exception, abort read and close connection
     _pReadRegisters->addAllErrors();
-
-    _error++;
 
     // Start next read
     emit triggerNextRequest();
@@ -255,7 +242,6 @@ QString ModbusMaster::dumpToString(QList<quint16> list)
 void ModbusMaster::logResults(QMap<quint16, ModbusResult> &results)
 {
     logInfo("Result map: " + dumpToString(results));
-    emit modbusAddToStats(_success, _error);
     emit modbusPollDone(results, _connectionId);
 }
 

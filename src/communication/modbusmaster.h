@@ -27,7 +27,6 @@ public:
 
 signals:
     void modbusPollDone(QMap<quint16, ModbusResult> modbusResults, quint8 connectionId);
-    void modbusAddToStats(quint32 successes, quint32 errors);
     void modbusLogError(QString msg);
     void modbusLogInfo(QString msg);
     void triggerNextRequest();
@@ -51,9 +50,6 @@ private:
 
     void logInfo(QString msg);
     void logError(QString msg);
-
-    quint32 _success;
-    quint32 _error;
 
     quint8 _connectionId;
 

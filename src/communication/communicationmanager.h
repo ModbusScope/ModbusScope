@@ -54,7 +54,7 @@ private slots:
 
 private:
 
-   double processValue(quint32 graphIndex, quint16 value);
+   void updateStats(QList<bool> successList);
 
     QList<ModbusMasterData *> _modbusMasters;
     quint32 _activeMastersCount;
