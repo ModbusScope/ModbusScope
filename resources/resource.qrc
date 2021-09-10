@@ -14,6 +14,7 @@
         <file>menu_icon/icons/information.png</file>
         <file>menu_icon/icons/database_edit.png</file>
         <file>menu_icon/icons/magnifier.png</file>
+        <file>menu_icon/icons/plugin_error.png</file>
     </qresource>
     <qresource prefix="/about_images">
         <file>about_images/icon_128x128.png</file>
