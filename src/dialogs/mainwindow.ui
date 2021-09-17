@@ -734,6 +734,10 @@
    </property>
   </action>
   <action name="actionDiagnostic">
+   <property name="icon">
+    <iconset resource="../../resources/resource.qrc">
+     <normaloff>:/menu_icon/menu_icon/icons/plugin_error.png</normaloff>:/menu_icon/menu_icon/icons/plugin_error.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Diagnostic logs</string>
    </property>

@@ -365,6 +365,11 @@ void GuiModel::setMarkerExpressionMask(quint32 mask)
     }
 }
 
+void GuiModel::incrementCommunicationStats(quint32 successes, quint32 errors)
+{
+    setCommunicationStats(communicationSuccessCount() + successes, communicationErrorCount() + errors);
+}
+
 GuiModel::ZoomState GuiModel::zoomState(void)
 {
     return _zoomState;

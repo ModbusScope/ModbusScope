@@ -80,6 +80,8 @@ public:
     void setLastMbcImportedFile(QString file);
     void setMarkerExpressionMask(quint32 mask);
 
+    void incrementCommunicationStats(quint32 successCount, quint32 errors);
+
 public slots:
     void setCursorValues(bool bCursorValues);
     void setHighlightSamples(bool bHighlightSamples);

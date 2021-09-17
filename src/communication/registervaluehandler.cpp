@@ -103,6 +103,7 @@ void RegisterValueHandler::processPartialResult(QMap<quint16, ModbusResult> part
                         else
                         {
                             processedResult = 0u;
+                            bSuccess = false;
 
                             auto msg = QString("Expression evaluation failed (%1): address %2, expression %3, value %4")
                                         .arg(_valueParsers[listIdx]->msg())

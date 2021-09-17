@@ -28,11 +28,6 @@ CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiMo
         connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusPollDone, this, &CommunicationManager::handlePollDone);
         connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusLogError, this, &CommunicationManager::handleModbusError);
         connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusLogInfo, this, &CommunicationManager::handleModbusInfo);
-
-        connect(_modbusMasters.last()->pModbusMaster, QOverload<quint32, quint32>::of(&ModbusMaster::modbusAddToStats), this,
-            [=](quint32 successes, quint32 errors){
-                _pGuiModel->setCommunicationStats(_pGuiModel->communicationSuccessCount() + successes, _pGuiModel->communicationErrorCount() + errors);
-            });
     }
 
     _activeMastersCount = 0;
@@ -145,6 +140,8 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
 
     if (lastResult)
     {
+        updateStats(_registerValueHandler.successList());
+
         // propagate processed data
         emit handleReceivedData(_registerValueHandler.successList(), _registerValueHandler.processedValues());
     }
@@ -243,6 +240,18 @@ void CommunicationManager::readData()
             }
         }
     }
+}
+
+void CommunicationManager::updateStats(QList<bool> successList)
+{
+    quint32 error = 0;
+    quint32 succes = 0;
+    for(int idx = 0; idx < successList.size(); idx++)
+    {
+        successList[idx] ? succes++ : error++;
+    }
+
+    _pGuiModel->incrementCommunicationStats(succes, error);
 }
 
 
