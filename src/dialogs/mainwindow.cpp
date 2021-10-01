@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "qcustomplot.h"
+#include "registervaluehandler.h"
 #include "communicationmanager.h"
 #include "graphdatamodel.h"
 #include "notemodel.h"
@@ -51,8 +52,8 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _pDiagnosticDialog = new DiagnosticDialog(_pGuiModel, _pDiagnosticModel, this);
 
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
-
-    _pConnMan = new CommunicationManager(_pSettingsModel, _pGuiModel, _pGraphDataModel);
+    _pRegisterValueHandler = new RegisterValueHandler(_pGraphDataModel, _pSettingsModel);
+    _pConnMan = new CommunicationManager(_pSettingsModel, _pRegisterValueHandler);
     _pGraphView = new GraphView(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
     _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel, _pSettingsModel, _pDataParserModel, this);
     _pProjectFileHandler = new ProjectFileHandler(_pGuiModel, _pSettingsModel, _pGraphDataModel);
@@ -217,8 +218,9 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
     _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
 
-    connect(_pConnMan, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pGraphView, SLOT(plotResults(QList<bool>, QList<double>)));
-    connect(_pConnMan, SIGNAL(handleReceivedData(QList<bool>, QList<double>)), _pLegend, SLOT(addLastReceivedDataToLegend(QList<bool>, QList<double>)));
+    connect(_pRegisterValueHandler, &RegisterValueHandler::registerDataReady, _pGraphView, &GraphView::plotResults);
+    connect(_pRegisterValueHandler, &RegisterValueHandler::registerDataReady, _pLegend, &Legend::addLastReceivedDataToLegend);
+    connect(_pRegisterValueHandler, &RegisterValueHandler::registerDataReady, this, &MainWindow::updateCommunicationStats);
 
     handleCommandLineArguments(cmdArguments);
 
@@ -472,6 +474,9 @@ void MainWindow::toggleZoom(bool checked)
 
 void MainWindow::clearData()
 {
+    _pGuiModel->setCommunicationStats(0, 0);
+    _pGuiModel->setCommunicationStartTime(QDateTime::currentMSecsSinceEpoch());
+
     _pConnMan->resetCommunicationStats();
     _pGraphView->clearResults();
     _pGuiModel->clearMarkersState();
@@ -497,10 +502,11 @@ void MainWindow::startScope()
 
         _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
 
-        if (_pConnMan->startCommunication())
-        {
-            clearData();
-        }
+        _pRegisterValueHandler->prepareForData();
+
+        _pConnMan->startCommunication();
+
+        clearData();
 
         if (_pSettingsModel->writeDuringLog())
         {
@@ -527,6 +533,8 @@ void MainWindow::startScope()
 void MainWindow::stopScope()
 {
     _pConnMan->stopCommunication();
+
+    _pGuiModel->setCommunicationEndTime(QDateTime::currentMSecsSinceEpoch());
 
     if (_pSettingsModel->writeDuringLog())
     {
@@ -994,6 +1002,18 @@ void MainWindow::updateRuntime()
     {
         _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
     }
+}
+
+void MainWindow::updateCommunicationStats(QList<bool> successList)
+{
+    quint32 error = 0;
+    quint32 succes = 0;
+    for(int idx = 0; idx < successList.size(); idx++)
+    {
+        successList[idx] ? succes++ : error++;
+    }
+
+    _pGuiModel->incrementCommunicationStats(succes, error);
 }
 
 void MainWindow::updateDataFileNotes()

@@ -6,7 +6,7 @@
 
 #include "scopelogging.h"
 
-RegisterValueHandler::RegisterValueHandler(GraphDataModel *pGraphDataModel, SettingsModel* pSettingsModel)
+RegisterValueHandler::RegisterValueHandler(GraphDataModel *pGraphDataModel, SettingsModel* pSettingsModel) : QObject(nullptr)
 {
     _pGraphDataModel = pGraphDataModel;
     _pSettingsModel = pSettingsModel;
@@ -23,6 +23,12 @@ void RegisterValueHandler::startRead()
         _processedValues.append(0);
         _successList.append(false);
     }
+}
+
+void RegisterValueHandler::finishRead()
+{
+    // propagate processed data
+    emit registerDataReady(_successList, _processedValues);
 }
 
 void RegisterValueHandler::processPartialResult(QMap<quint16, ModbusResult> partialResultMap, quint8 connectionId)

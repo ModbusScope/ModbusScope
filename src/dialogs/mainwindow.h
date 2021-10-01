@@ -16,6 +16,7 @@ class MainWindow;
 
 // Forward declaration
 class CommunicationManager;
+class RegisterValueHandler;
 class QCustomPlot;
 class GraphDataModel;
 class NoteModel;
@@ -101,6 +102,7 @@ private slots:
     void xAxisScaleGroupClicked(int id);
     void yAxisScaleGroupClicked(int id);
     void updateRuntime();
+    void updateCommunicationStats(QList<bool> successList);
     void updateDataFileNotes();
 
     void showVersionUpdate(UpdateNotify::UpdateState result);
@@ -121,6 +123,7 @@ private:
     DataParserModel * _pDataParserModel;
 
     UpdateNotify* _pUpdateNotify;
+    RegisterValueHandler* _pRegisterValueHandler;
 
     ConnectionDialog * _pConnectionDialog;
     LogDialog * _pLogDialog;
