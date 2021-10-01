@@ -8,15 +8,15 @@
 #include "diagnosticmodel.h"
 #include "scopelogging.h"
 #include "formatdatetime.h"
+#include "registervaluehandler.h"
 
 #include "communicationmanager.h"
 
-CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, GuiModel *pGuiModel, GraphDataModel *pGraphDataModel, QObject *parent) :
-    QObject(parent), _bPollActive(false), _registerValueHandler(pGraphDataModel, pSettingsModel)
+CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, RegisterValueHandler* pRegisterValueHandler, QObject *parent) :
+    QObject(parent), _bPollActive(false), _pRegisterValueHandler(pRegisterValueHandler)
 {
 
     _pPollTimer = new QTimer();
-    _pGuiModel = pGuiModel;
     _pSettingsModel = pSettingsModel;
 
     /* Setup modbus master */
@@ -47,72 +47,55 @@ CommunicationManager::~CommunicationManager()
     delete _pPollTimer;
 }
 
-bool CommunicationManager::startCommunication()
+void CommunicationManager::startCommunication()
 {
-    bool bResetted = false;
+    // Trigger read immediatly
+    _pPollTimer->singleShot(1, this, &CommunicationManager::triggerRegisterRead);
 
-    if (!_bPollActive)
+    _bPollActive = true;
+
+    qCInfo(scopeCommConnection) << QString("Start logging: %1").arg(FormatDateTime::currentDateTime());
+
+    for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++)
     {
-        /* Initialize _registerValueHandler with correct expressions */
-        _registerValueHandler.prepareForData();
-
-        // Trigger read immediatly
-        _pPollTimer->singleShot(1, this, &CommunicationManager::readData);
-
-        _bPollActive = true;
-        bResetted = true;
-
-        qCInfo(scopeCommConnection) << QString("Start logging: %1").arg(FormatDateTime::currentDateTime());
-
-        for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++)
+        if (_pSettingsModel->connectionState(i))
         {
-            if (_pSettingsModel->connectionState(i))
+            QString str;
+            if (_pSettingsModel->connectionType(i) == SettingsModel::CONNECTION_TYPE_TCP)
             {
-                QString str;
-                if (_pSettingsModel->connectionType(i) == SettingsModel::CONNECTION_TYPE_TCP)
-                {
-                    str = QString("[Conn %0] %1:%2 - slave id %3")
-                                    .arg(i + 1)
-                                    .arg(_pSettingsModel->ipAddress(i))
-                                    .arg(_pSettingsModel->port(i))
-                                    .arg(_pSettingsModel->slaveId(i))
-                                    ;
-                }
-                else
-                {
-                    QString strParity;
-                    QString strDataBits;
-                    QString strStopBits;
-                    _pSettingsModel->serialConnectionStrings(i, strParity, strDataBits, strStopBits);
-
-                    str = QString("[Conn %0] %1, %2, %3, %4, %5 - slave id %6")
-                                    .arg(i + 1)
-                                    .arg(_pSettingsModel->portName(i))
-                                    .arg(_pSettingsModel->baudrate(i))
-                                    .arg(strParity, strDataBits, strStopBits)
-                                    .arg(_pSettingsModel->slaveId(i))
-                                    ;
-                }
-
-                qCInfo(scopeCommConnection) << str;
+                str = QString("[Conn %0] %1:%2 - slave id %3")
+                                .arg(i + 1)
+                                .arg(_pSettingsModel->ipAddress(i))
+                                .arg(_pSettingsModel->port(i))
+                                .arg(_pSettingsModel->slaveId(i))
+                                ;
             }
-        }
+            else
+            {
+                QString strParity;
+                QString strDataBits;
+                QString strStopBits;
+                _pSettingsModel->serialConnectionStrings(i, strParity, strDataBits, strStopBits);
 
-        resetCommunicationStats();
+                str = QString("[Conn %0] %1, %2, %3, %4, %5 - slave id %6")
+                                .arg(i + 1)
+                                .arg(_pSettingsModel->portName(i))
+                                .arg(_pSettingsModel->baudrate(i))
+                                .arg(strParity, strDataBits, strStopBits)
+                                .arg(_pSettingsModel->slaveId(i))
+                                ;
+            }
+
+            qCInfo(scopeCommConnection) << str;
+        }
     }
 
-    return bResetted;
+    resetCommunicationStats();
 }
 
 void CommunicationManager::resetCommunicationStats()
 {
-    if (_bPollActive)
-    {
-        _pGuiModel->setCommunicationStats(0, 0);
-
-        _lastPollStart = QDateTime::currentMSecsSinceEpoch();
-        _pGuiModel->setCommunicationStartTime(QDateTime::currentMSecsSinceEpoch());
-    }
+    _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 }
 
 void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialResultMap, quint8 connectionId)
@@ -136,21 +119,15 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
     }
 
     // Always add data to result map
-    _registerValueHandler.processPartialResult(partialResultMap, connectionId);
-
-    if (lastResult)
-    {
-        updateStats(_registerValueHandler.successList());
-
-        // propagate processed data
-        emit handleReceivedData(_registerValueHandler.successList(), _registerValueHandler.processedValues());
-    }
+    _pRegisterValueHandler->processPartialResult(partialResultMap, connectionId);
 
     // Set master as inactive
     _modbusMasters[connectionId]->bActive = false;
 
     if (lastResult)
     {
+        _pRegisterValueHandler->finishRead();
+
         // Restart timer when previous request has been handled
         uint waitInterval;
         const quint32 passedInterval = static_cast<quint32>(QDateTime::currentMSecsSinceEpoch() - _lastPollStart);
@@ -166,7 +143,7 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
             waitInterval = _pSettingsModel->pollTime() - passedInterval;
         }
 
-        _pPollTimer->singleShot(static_cast<int>(waitInterval), this, &CommunicationManager::readData);
+        _pPollTimer->singleShot(static_cast<int>(waitInterval), this, &CommunicationManager::triggerRegisterRead);
     }
 }
 
@@ -184,7 +161,6 @@ void CommunicationManager::stopCommunication()
 {
     _bPollActive = false;
     _pPollTimer->stop();
-    _pGuiModel->setCommunicationEndTime(QDateTime::currentMSecsSinceEpoch());
 
     qCInfo(scopeCommConnection) << QString("Stop logging: %1").arg(FormatDateTime::currentDateTime());
 
@@ -199,13 +175,13 @@ bool CommunicationManager::isActive()
     return _bPollActive;
 }
 
-void CommunicationManager::readData()
+void CommunicationManager::triggerRegisterRead()
 {
     if(_bPollActive)
     {
         _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 
-        _registerValueHandler.startRead();
+        _pRegisterValueHandler->startRead();
 
         /* Strange construction is required to avoid race condition:
          *
@@ -223,7 +199,7 @@ void CommunicationManager::readData()
         {
             regAddrList.append(QList<quint16>());
 
-            _registerValueHandler.activeGraphAddresList(&regAddrList.last(), i);
+            _pRegisterValueHandler->activeGraphAddresList(&regAddrList.last(), i);
 
             if (regAddrList.last().count() > 0)
             {
@@ -241,17 +217,4 @@ void CommunicationManager::readData()
         }
     }
 }
-
-void CommunicationManager::updateStats(QList<bool> successList)
-{
-    quint32 error = 0;
-    quint32 succes = 0;
-    for(int idx = 0; idx < successList.size(); idx++)
-    {
-        successList[idx] ? succes++ : error++;
-    }
-
-    _pGuiModel->incrementCommunicationStats(succes, error);
-}
-
 

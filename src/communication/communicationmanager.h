@@ -7,12 +7,10 @@
 #include <QTimer>
 
 #include "modbusmaster.h"
-#include "registervaluehandler.h"
 
 //Forward declaration
-class GuiModel;
 class SettingsModel;
-class GraphDataModel;
+class RegisterValueHandler;
 
 class ModbusMasterData : public QObject
 {
@@ -34,27 +32,22 @@ class CommunicationManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit CommunicationManager(SettingsModel * pSettingsModel, GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, QObject *parent = nullptr);
+    explicit CommunicationManager(SettingsModel * pSettingsModel, RegisterValueHandler* pRegisterValueHandler, QObject *parent = nullptr);
     ~CommunicationManager();
 
-    bool startCommunication();
+    void startCommunication();
     void stopCommunication();
 
     bool isActive();
     void resetCommunicationStats();
 
-signals:
-    void handleReceivedData(QList<bool> successList, QList<double> values);
-
 private slots:
     void handlePollDone(QMap<quint16, ModbusResult> resultMap, quint8 connectionId);
     void handleModbusError(QString msg);
     void handleModbusInfo(QString msg);
-    void readData();
+    void triggerRegisterRead();
 
 private:
-
-   void updateStats(QList<bool> successList);
 
     QList<ModbusMasterData *> _modbusMasters;
     quint32 _activeMastersCount;
@@ -63,9 +56,8 @@ private:
     QTimer * _pPollTimer;
     qint64 _lastPollStart;
 
-    RegisterValueHandler _registerValueHandler;
+    RegisterValueHandler* _pRegisterValueHandler;
 
-    GuiModel * _pGuiModel;
     SettingsModel * _pSettingsModel;
 };
 
