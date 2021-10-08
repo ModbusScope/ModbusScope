@@ -1,8 +1,8 @@
 dfetch:
-  branch: master
-  hash: e6a13587a1a50a35035d8d34a72d017e
-  last_fetch: 10/01/2022, 19:37:54
+  branch: qt62_fix
+  hash: 010f76eba28a5fb0ac2109ca97c1fda7
+  last_fetch: 21/01/2022, 21:57:36
   patch: ''
   remote_url: https://github.com/jgeudens/qcustomplot-release
-  revision: ''
-  tag: v2.1.0
+  revision: 3a0f90995d2baaaf005f4a17256a4829f39e60aa
+  tag: ''
