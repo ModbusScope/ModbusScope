@@ -220,7 +220,7 @@ bool SettingsAuto::testLocale(QStringList previewData, QLocale locale, QChar fie
     }
 
     _fieldSeparator = fieldSeparator;
-    _decimalSeparator = locale.decimalPoint();
+    _decimalSeparator = locale.decimalPoint().at(0);
 
     // In US locale field separator is the same as group (thousands) point
     if (fieldSeparator == locale.groupSeparator())
@@ -228,15 +228,15 @@ bool SettingsAuto::testLocale(QStringList previewData, QLocale locale, QChar fie
         _groupSeparator = ' ';
     }
     else if (
-             (locale.groupSeparator() == 0xA0) // no-break space
-             || (locale.groupSeparator() == 0x202F) //narrow no-break space
+             (locale.groupSeparator().at(0) == QChar(0xA0)) // no-break space
+             || (locale.groupSeparator().at(0) == QChar(0x202F)) //narrow no-break space
         )
     {
         _groupSeparator = ' ';
     }
     else
     {
-       _groupSeparator = locale.groupSeparator();
+       _groupSeparator = locale.groupSeparator().at(0);
     }
 
     return true;
