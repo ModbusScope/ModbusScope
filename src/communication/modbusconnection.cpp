@@ -2,7 +2,7 @@
 #include <QVariant>
 #include <QtSerialPort/QSerialPort>
 #include <QModbusTcpClient>
-#include <QModbusRtuSerialMaster>
+#include <QModbusRtuSerialClient>
 
 #include "scopelogging.h"
 #include "modbusconnection.h"
@@ -46,7 +46,7 @@ void ModbusConnection::openSerialConnection(struct SerialSettings serialSettings
 {
     if (prepareConnectionOpen())
     {
-        auto connectionData = QPointer<ConnectionData>(new ConnectionData(new QModbusRtuSerialMaster()));
+        auto connectionData = QPointer<ConnectionData>(new ConnectionData(new QModbusRtuSerialClient()));
 
         connectionData->pModbusClient->setConnectionParameter(QModbusDevice::SerialPortNameParameter, QVariant(serialSettings.portName));
         connectionData->pModbusClient->setConnectionParameter(QModbusDevice::SerialParityParameter, QVariant(serialSettings.parity));
