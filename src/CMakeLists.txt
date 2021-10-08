@@ -4,7 +4,7 @@ project(ModbusScope
     VERSION 3.3.0
     )
 
-add_definitions("-DDEBUG")
+add_definitions("-DnDEBUG")
 
 # Get the current working branch
 execute_process(
