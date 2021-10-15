@@ -1,15 +1,9 @@
 #include "registervaluehandler.h"
-
-#include "qmuparser.h"
-#include "graphdatamodel.h"
 #include "settingsmodel.h"
 
-#include "scopelogging.h"
-
-RegisterValueHandler::RegisterValueHandler(GraphDataModel *pGraphDataModel, SettingsModel* pSettingsModel) : QObject(nullptr)
+RegisterValueHandler::RegisterValueHandler(SettingsModel *pSettingsModel) :
+    _pSettingsModel(pSettingsModel)
 {
-    _pGraphDataModel = pGraphDataModel;
-    _pSettingsModel = pSettingsModel;
 }
 
 void RegisterValueHandler::startRead()
@@ -18,7 +12,7 @@ void RegisterValueHandler::startRead()
     _processedValues.clear();
     _successList.clear();
 
-    for(int idx = 0; idx < _activeIndexList.size(); idx++)
+    for(int idx = 0; idx < _registerList.size(); idx++)
     {
         _processedValues.append(0);
         _successList.append(false);
@@ -38,90 +32,69 @@ void RegisterValueHandler::processPartialResult(QMap<quint16, ModbusResult> part
     {
         i.next();
 
-        for(quint16 listIdx = 0; listIdx < _activeIndexList.size(); listIdx++)
+        for(quint16 listIdx = 0; listIdx < _registerList.size(); listIdx++)
         {
-            const quint16 activeIndex = _activeIndexList[listIdx];
-            if (_pGraphDataModel->connectionId(activeIndex) == connectionId)
+            const ModbusRegister mbReg = _registerList[listIdx];
+
+            if (mbReg.connectionId() == connectionId)
             {
-                if (_pGraphDataModel->registerAddress(activeIndex) == i.key())
+                if (mbReg.address() == i.key())
                 {
                     bool bSuccess = i.value().isSuccess();
                     uint16_t value = static_cast<uint16_t>(i.value().value());
 
-                    qint64 combinedValueToProcess = 0;
+                    qint64 processedResult = 0;
                     if (bSuccess)
                     {
-                        if (_pGraphDataModel->isBit32(activeIndex))
+                        if (mbReg.is32Bit())
                         {
                             ModbusResult nextResult = i.peekNext().value();
 
-                            uint32_t combinedValue;
-                            if (_pSettingsModel->int32LittleEndian(connectionId))
-                            {
-                                combinedValue = (static_cast<uint32_t>(nextResult.value()) << 16) | value;
-                            }
-                            else
-                            {
-                                combinedValue = (static_cast<uint32_t>(value) << 16) | nextResult.value();
-                            }
-
                             if (nextResult.isSuccess())
                             {
-                                if (_pGraphDataModel->isUnsigned(activeIndex))
+                                uint32_t combinedValue;
+                                if (_pSettingsModel->int32LittleEndian(connectionId))
                                 {
-                                    combinedValueToProcess = static_cast<qint64>(static_cast<quint32>(combinedValue));
+                                    combinedValue = (static_cast<uint32_t>(nextResult.value()) << 16) | value;
                                 }
                                 else
                                 {
-                                    combinedValueToProcess = static_cast<qint64>(static_cast<qint32>(combinedValue));
+                                    combinedValue = (static_cast<uint32_t>(value) << 16) | nextResult.value();
+                                }
+
+                                if (mbReg.isUnsigned())
+                                {
+                                    processedResult = static_cast<qint64>(static_cast<quint32>(combinedValue));
+                                }
+                                else
+                                {
+                                    processedResult = static_cast<qint64>(static_cast<qint32>(combinedValue));
                                 }
                             }
                             else
                             {
                                 bSuccess = false;
-                                combinedValueToProcess = 0;
+                                processedResult = 0;
                             }
                         }
                         else
                         {
-                            if (_pGraphDataModel->isUnsigned(activeIndex))
+                            if (mbReg.isUnsigned())
                             {
-                                combinedValueToProcess = static_cast<qint64>(static_cast<quint16>(value));
+                                processedResult = static_cast<qint64>(static_cast<quint16>(value));
                             }
                             else
                             {
-                                combinedValueToProcess = static_cast<qint64>(static_cast<qint16>(value));
+                                processedResult = static_cast<qint64>(static_cast<qint16>(value));
                             }
                         }
                     }
                     else
                     {
-                        combinedValueToProcess = 0;
+                        processedResult = 0;
                     }
 
-                    double processedResult = 0;
-                    if (bSuccess)
-                    {
-                        if (_valueParsers[listIdx]->evaluate(combinedValueToProcess))
-                        {
-                            processedResult = _valueParsers[listIdx]->result();
-                        }
-                        else
-                        {
-                            processedResult = 0u;
-                            bSuccess = false;
-
-                            auto msg = QString("Expression evaluation failed (%1): address %2, expression %3, value %4")
-                                        .arg(_valueParsers[listIdx]->msg())
-                                        .arg(_pGraphDataModel->registerAddress(activeIndex))
-                                        .arg(_pGraphDataModel->expression(activeIndex))
-                                        .arg(combinedValueToProcess);
-
-                            qCWarning(scopeComm) << msg;
-                        }
-                    }
-
-                    _processedValues[listIdx] = processedResult;
+                    _processedValues[listIdx] = static_cast<double>(processedResult);
                     _successList[listIdx] = bSuccess;
                 }
             }
@@ -129,58 +102,39 @@ void RegisterValueHandler::processPartialResult(QMap<quint16, ModbusResult> part
     }
 }
 
-QList<double> RegisterValueHandler::processedValues()
-{
-    return _processedValues;
-}
-
-QList<bool> RegisterValueHandler::successList()
-{
-    return _successList;
-}
-
 // Get sorted list of active (unique) register addresses for a specific connection id
-void RegisterValueHandler::activeGraphAddresList(QList<quint16> * pRegisterList, quint8 connectionId)
+void RegisterValueHandler::registerAddresList(QList<quint16>& registerList, quint8 connectionId)
 {
-    // Clear list
-    pRegisterList->clear();
+    QList<quint16> connRegisterList;
 
-    foreach(quint32 idx, _activeIndexList)
+    foreach(ModbusRegister mbReg, _registerList)
     {
-        if (_pGraphDataModel->connectionId(idx) == connectionId)
+        if (mbReg.connectionId() == connectionId)
         {
-            if (!pRegisterList->contains(_pGraphDataModel->registerAddress(idx)))
+            if (!connRegisterList.contains(mbReg.address()))
             {
-                pRegisterList->append(_pGraphDataModel->registerAddress(idx));
+                connRegisterList.append(mbReg.address());
             }
 
             /* When reading 32 bit value, also read next address */
-            if (_pGraphDataModel->isBit32(idx))
+            if (mbReg.is32Bit())
             {
-                const uint16_t reg = _pGraphDataModel->registerAddress(idx) + 1;
-                if (!pRegisterList->contains(reg))
+                const uint16_t reg = mbReg.address() + 1;
+                if (!connRegisterList.contains(reg))
                 {
-                    pRegisterList->append(reg);
+                    connRegisterList.append(reg);
                 }
             }
         }
     }
 
     // sort qList
-    std::sort(pRegisterList->begin(), pRegisterList->end(), std::less<int>());
+    std::sort(connRegisterList.begin(), connRegisterList.end(), std::less<int>());
+
+    registerList = connRegisterList;
 }
 
-void RegisterValueHandler::prepareForData()
+void RegisterValueHandler::prepareForData(QList<ModbusRegister>& registerList)
 {
-    _pGraphDataModel->activeGraphIndexList(&_activeIndexList);
-
-    qDeleteAll(_valueParsers);
-    _valueParsers.clear();
-
-    for(int idx = 0; idx < _activeIndexList.size(); idx++)
-    {
-        /* Use pointer because our class otherwise needs copy/assignment constructor and such */
-        /* Remember to delete before removal */
-        _valueParsers.append(new QMuParser(_pGraphDataModel->expression(_activeIndexList[idx])));
-    }
+    _registerList = registerList;
 }

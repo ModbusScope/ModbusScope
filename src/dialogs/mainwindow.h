@@ -17,6 +17,7 @@ class MainWindow;
 // Forward declaration
 class CommunicationManager;
 class RegisterValueHandler;
+class GraphDataHandler;
 class QCustomPlot;
 class GraphDataModel;
 class NoteModel;
@@ -124,6 +125,7 @@ private:
 
     UpdateNotify* _pUpdateNotify;
     RegisterValueHandler* _pRegisterValueHandler;
+    GraphDataHandler* _pGraphDataHandler;
 
     ConnectionDialog * _pConnectionDialog;
     LogDialog * _pLogDialog;
