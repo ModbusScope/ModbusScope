@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "qcustomplot.h"
 #include "registervaluehandler.h"
+#include "graphdatahandler.h"
 #include "communicationmanager.h"
 #include "graphdatamodel.h"
 #include "notemodel.h"
@@ -52,8 +53,12 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _pDiagnosticDialog = new DiagnosticDialog(_pGuiModel, _pDiagnosticModel, this);
 
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
-    _pRegisterValueHandler = new RegisterValueHandler(_pGraphDataModel, _pSettingsModel);
+
+    _pRegisterValueHandler = new RegisterValueHandler(_pSettingsModel);
+    _pGraphDataHandler = new GraphDataHandler(_pGraphDataModel, _pSettingsModel);
     _pConnMan = new CommunicationManager(_pSettingsModel, _pRegisterValueHandler);
+    connect(_pRegisterValueHandler, &RegisterValueHandler::registerDataReady, _pGraphDataHandler, &GraphDataHandler::handleRegisterData);
+
     _pGraphView = new GraphView(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
     _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel, _pSettingsModel, _pDataParserModel, this);
     _pProjectFileHandler = new ProjectFileHandler(_pGuiModel, _pSettingsModel, _pGraphDataModel);
@@ -218,9 +223,9 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
     _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
 
-    connect(_pRegisterValueHandler, &RegisterValueHandler::registerDataReady, _pGraphView, &GraphView::plotResults);
-    connect(_pRegisterValueHandler, &RegisterValueHandler::registerDataReady, _pLegend, &Legend::addLastReceivedDataToLegend);
-    connect(_pRegisterValueHandler, &RegisterValueHandler::registerDataReady, this, &MainWindow::updateCommunicationStats);
+    connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pGraphView, &GraphView::plotResults);
+    connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pLegend, &Legend::addLastReceivedDataToLegend);
+    connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, this, &MainWindow::updateCommunicationStats);
 
     handleCommandLineArguments(cmdArguments);
 
@@ -502,7 +507,12 @@ void MainWindow::startScope()
 
         _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
 
-        _pRegisterValueHandler->prepareForData();
+
+        _pGraphDataHandler->prepareForData();
+
+        QList<ModbusRegister> registerList;
+        _pGraphDataHandler->modbusRegisterList(registerList);
+        _pRegisterValueHandler->prepareForData(registerList);
 
         _pConnMan->startCommunication();
 

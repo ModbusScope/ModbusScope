@@ -199,7 +199,7 @@ void CommunicationManager::triggerRegisterRead()
         {
             regAddrList.append(QList<quint16>());
 
-            _pRegisterValueHandler->activeGraphAddresList(&regAddrList.last(), i);
+            _pRegisterValueHandler->registerAddresList(regAddrList.last(), i);
 
             if (regAddrList.last().count() > 0)
             {
