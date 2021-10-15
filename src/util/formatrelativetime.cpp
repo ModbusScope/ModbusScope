@@ -111,7 +111,7 @@ QString FormatRelativeTime::formatTimeDiff(qint64 tickKeyDiff)
         if (absoluteDiff < 60000) /* Under a minute */
         {
             /* Use short time diff notation: seconds and milliseconds */
-            QString secondStringFormat = QString("ss%1zzz").arg(QLocale().decimalPoint());
+            QString secondStringFormat = QString("s%1zzz").arg(QLocale().decimalPoint());
             tickLabel = timeDiff.toString(secondStringFormat);
         }
         else
