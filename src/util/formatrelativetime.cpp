@@ -70,7 +70,7 @@ QString FormatRelativeTime::formatTime(qint64 tickKey)
         QDateTime dateTime;
         dateTime.setMSecsSinceEpoch(absoluteTick); /* Converts from ms since epoch in UTC to local timezone */
 
-        QString timeStringFormat = QString("%1\n%2").arg(FormatDateTime::dateStringFormat()).arg(FormatDateTime::timeStringFormat());
+        QString timeStringFormat = QString("%1\n%2").arg(FormatDateTime::dateStringFormat(), FormatDateTime::timeStringFormat());
         tickLabel = dateTime.toString(timeStringFormat);
     }
 

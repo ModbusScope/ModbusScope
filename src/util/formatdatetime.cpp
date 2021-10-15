@@ -13,7 +13,7 @@ QString FormatDateTime::dateStringFormat()
 
 QString FormatDateTime::dateTimeStringFormat()
 {
-    return QString("%1 %2").arg(dateStringFormat()).arg(timeStringFormat());
+    return QString("%1 %2").arg(dateStringFormat(), timeStringFormat());
 }
 
 QString FormatDateTime::formatDateTime(QDateTime dateTime)

@@ -67,7 +67,10 @@ void ScopeLogging::handleLog(QtMsgType type, const QMessageLogContext &context, 
 
     if (logSeverity <= _minSeverityLevel)
     {
-        _pDiagnosticModel->addLog(context.category, logSeverity, offset, msg);
+        if (_pDiagnosticModel != nullptr)
+        {
+            _pDiagnosticModel->addLog(context.category, logSeverity, offset, msg);
+        }
     }
 
 #if 0
