@@ -163,6 +163,31 @@ void RegisterDialog::removeRegisterRow()
     {
         _pGraphDataModel->removeRow(rowIndex.row());
     }
+
+    if (rowList.size() > 0)
+    {
+        _pUi->registerView->selectRow(selectedRowAfterDelete(rowList.first().row(), _pGraphDataModel->size()));
+    }
+}
+
+int RegisterDialog::selectedRowAfterDelete(int deletedStartIndex, int rowCnt)
+{
+    int nextSelectedRow = -1;
+
+    if (rowCnt > 0)
+    {
+        if (deletedStartIndex < rowCnt)
+        {
+            nextSelectedRow = deletedStartIndex;
+        }
+        else
+        {
+
+            nextSelectedRow = rowCnt - 1;
+        }
+    }
+
+    return nextSelectedRow;
 }
 
 bool RegisterDialog::sortRegistersLastFirst(const QModelIndex &s1, const QModelIndex &s2)

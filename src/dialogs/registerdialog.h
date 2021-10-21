@@ -31,7 +31,7 @@ private slots:
     void onRegisterInserted(const QModelIndex &parent, int first, int last);
 
 private:
-
+    int selectedRowAfterDelete(int deletedStartIndex, int rowCnt);
     static bool sortRegistersLastFirst(const QModelIndex &s1, const QModelIndex &s2);
 
     Ui::RegisterDialog * _pUi;
