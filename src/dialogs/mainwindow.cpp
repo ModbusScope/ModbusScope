@@ -439,7 +439,7 @@ void MainWindow::addNoteToGraph()
                                          "", &ok);
     if (ok)
     {
-        Note newNote(text, _pGraphView->pixelToPointF(_lastRightClickPos));
+        Note newNote(text, _lastRightClickPos);
         _pNoteModel->add(newNote);
     }
 }
@@ -911,7 +911,7 @@ void MainWindow::showContextMenu(const QPoint& pos)
     /* Don't show context menu when control key is pressed */
     if (!(QApplication::keyboardModifiers() & Qt::ControlModifier))
     {
-        _lastRightClickPos = pos;
+        _lastRightClickPos = _pGraphView->pixelToPointF(pos);
         _menuRightClick.popup(_pUi->customPlot->mapToGlobal(pos));
     }
 }

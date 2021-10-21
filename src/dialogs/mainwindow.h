@@ -147,7 +147,7 @@ private:
     QMenu * _pGraphShowHide;
     QActionGroup * _pBringToFrontGroup;
 
-    QPoint _lastRightClickPos;
+    QPointF _lastRightClickPos;
 
     static const QString _cStateRunning;
     static const QString _cStateStopped;
