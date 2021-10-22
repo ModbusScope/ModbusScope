@@ -1,11 +1,9 @@
 #include "modbusregister.h"
 
 ModbusRegister::ModbusRegister()
+    : _address(0), _connectionId(0), _b32Bit(false), _bUnsigned(false)
 {
-    _address = 0;
-    _connectionId = 0;
-    _b32Bit = false;
-    _bUnsigned = false;
+
 }
 
 quint16 ModbusRegister::address() const
