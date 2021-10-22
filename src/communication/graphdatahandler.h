@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "modbusregister.h"
+#include "modbusresult.h"
 
 //Forward declaration
 class GraphDataModel;
@@ -20,7 +21,7 @@ public:
     void modbusRegisterList(QList<ModbusRegister>& registerList);
 
 public slots:
-    void handleRegisterData(QList<bool> successList, QList<double> values);
+    void handleRegisterData(QList<ModbusResult> results);
 
 signals:
     void graphDataReady(QList<bool> successList, QList<double> values);
