@@ -8,21 +8,13 @@ RegisterValueHandler::RegisterValueHandler(SettingsModel *pSettingsModel) :
 
 void RegisterValueHandler::startRead()
 {
-    /* Prepare result lists */
-    _processedValues.clear();
-    _successList.clear();
-
-    for(int idx = 0; idx < _registerList.size(); idx++)
-    {
-        _processedValues.append(0);
-        _successList.append(false);
-    }
+    _resultList.clear();
 }
 
 void RegisterValueHandler::finishRead()
 {
     // propagate processed data
-    emit registerDataReady(_successList, _processedValues);
+    emit registerDataReady(_resultList);
 }
 
 void RegisterValueHandler::processPartialResult(QMap<quint16, ModbusResult> partialResultMap, quint8 connectionId)
@@ -94,8 +86,7 @@ void RegisterValueHandler::processPartialResult(QMap<quint16, ModbusResult> part
                         processedResult = 0;
                     }
 
-                    _processedValues[listIdx] = static_cast<double>(processedResult);
-                    _successList[listIdx] = bSuccess;
+                    _resultList.append(ModbusResult(bSuccess, static_cast<double>(processedResult)));
                 }
             }
         }

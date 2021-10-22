@@ -43,16 +43,16 @@ void GraphDataHandler::modbusRegisterList(QList<ModbusRegister>& registerList)
     }
 }
 
-void GraphDataHandler::handleRegisterData(QList<bool> successList, QList<double> values)
+void GraphDataHandler::handleRegisterData(QList<ModbusResult> results)
 {
     QList<bool> graphSuccess;
     QList<double> graphData;
 
-    for(qint32 listIdx = 0; listIdx < values.size(); listIdx++)
+    for(qint32 listIdx = 0; listIdx < results.size(); listIdx++)
     {
         double processedResult = 0;
-        bool bSuccess = successList[listIdx];
-        const double registerValue = values[listIdx];
+        bool bSuccess = results[listIdx].isSuccess();
+        const double registerValue = results[listIdx].value();
         if (bSuccess)
         {
             if (_valueParsers[listIdx]->evaluate(registerValue))

@@ -24,16 +24,14 @@ public:
     void registerAddresList(QList<quint16>& registerList, quint8 connectionId);
 
 signals:
-    void registerDataReady(QList<bool> successList, QList<double> values);
+    void registerDataReady(QList<ModbusResult> registers);
 
 private:
 
     SettingsModel* _pSettingsModel;
 
-    QList<double> _processedValues;
-    QList<bool> _successList;
-
     QList<ModbusRegister> _registerList;
+    QList<ModbusResult> _resultList;
 };
 
 #endif // REGISTERVALUEHANDLER_H
