@@ -16,6 +16,15 @@ public:
     bool isSuccess() const;
     void setSuccess(bool bSuccess);
 
+    // Copy constructor
+    ModbusResult(const ModbusResult& copy)
+        : _value { copy.value() }, _bResult { copy._bResult }
+    {
+
+    }
+
+    ModbusResult& operator= (const ModbusResult& modbusResult);
+
 private:
 
     quint16 _value;
