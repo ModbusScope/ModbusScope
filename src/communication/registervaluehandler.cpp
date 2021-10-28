@@ -9,6 +9,11 @@ RegisterValueHandler::RegisterValueHandler(SettingsModel *pSettingsModel) :
 void RegisterValueHandler::startRead()
 {
     _resultList.clear();
+
+    for(quint16 listIdx = 0; listIdx < _registerList.size(); listIdx++)
+    {
+        _resultList.append(ModbusResult());
+    }
 }
 
 void RegisterValueHandler::finishRead()
@@ -86,7 +91,7 @@ void RegisterValueHandler::processPartialResult(QMap<quint16, ModbusResult> part
                         processedResult = 0;
                     }
 
-                    _resultList.append(ModbusResult(bSuccess, static_cast<double>(processedResult)));
+                    _resultList[listIdx] = ModbusResult(bSuccess, static_cast<double>(processedResult));
                 }
             }
         }
