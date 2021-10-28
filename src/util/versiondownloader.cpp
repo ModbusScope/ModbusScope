@@ -8,7 +8,7 @@
 VersionDownloader::VersionDownloader(QObject *parent) :
     QObject(parent)
 {
-    connect(&_webCtrl, SIGNAL (finished(QNetworkReply*)), this, SLOT (updateManifestDownloaded(QNetworkReply*)));
+    connect(&_webCtrl, &QNetworkAccessManager::finished, this, &VersionDownloader::updateManifestDownloaded);
 }
 
 VersionDownloader::~VersionDownloader()

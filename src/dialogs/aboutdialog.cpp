@@ -87,7 +87,7 @@ void AboutDialog::setVersionInfo()
     }
 
     _pUi->lblDebug->setText(debugTxt);
-    _pUi->lblVersion->setText(QString(tr("v%1%2 (%3)")).arg(Util::currentVersion()).arg(betaTxt).arg(arch));
+    _pUi->lblVersion->setText(QString(tr("v%1%2 (%3)")).arg(Util::currentVersion(), betaTxt, arch));
 }
 
 void AboutDialog::setLibraryVersionInfo()

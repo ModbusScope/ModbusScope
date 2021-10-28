@@ -13,7 +13,7 @@ UpdateNotify::UpdateNotify(VersionDownloader* pVersionDownloader, QString curren
     _versionState = VERSION_LATEST;
     _pVersionDownloader = pVersionDownloader;
 
-    connect(_pVersionDownloader, SIGNAL(versionDownloaded()), this, SLOT (handleVersionData()));
+    connect(_pVersionDownloader, &VersionDownloader::versionDownloaded, this, &UpdateNotify::handleVersionData);
 }
 
 void UpdateNotify::checkForUpdate()

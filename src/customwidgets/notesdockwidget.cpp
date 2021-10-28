@@ -62,14 +62,14 @@ void NotesDockWidget::removeNoteRow()
 {
     QList <int> rows;
     QModelIndexList list = _pUi->noteView->selectionModel()->selectedRows();
-    for (const QModelIndex &idx: list)
+    for (const QModelIndex &idx: qAsConst(list))
     {
         rows << idx.row();
     }
 
     std::sort(rows.begin(), rows.end(), std::greater<int>());
 
-    for (int i: rows)
+    for (int i: qAsConst(rows))
     {
         _pNoteModel->removeRow(i);
     }

@@ -70,7 +70,7 @@ QString FormatRelativeTime::formatTime(qint64 tickKey)
         QDateTime dateTime;
         dateTime.setMSecsSinceEpoch(absoluteTick); /* Converts from ms since epoch in UTC to local timezone */
 
-        QString timeStringFormat = QString("%1\n%2").arg(FormatDateTime::dateStringFormat()).arg(FormatDateTime::timeStringFormat());
+        QString timeStringFormat = QString("%1\n%2").arg(FormatDateTime::dateStringFormat(), FormatDateTime::timeStringFormat());
         tickLabel = dateTime.toString(timeStringFormat);
     }
 
@@ -111,7 +111,7 @@ QString FormatRelativeTime::formatTimeDiff(qint64 tickKeyDiff)
         if (absoluteDiff < 60000) /* Under a minute */
         {
             /* Use short time diff notation: seconds and milliseconds */
-            QString secondStringFormat = QString("ss%1zzz").arg(QLocale().decimalPoint());
+            QString secondStringFormat = QString("s%1zzz").arg(QLocale().decimalPoint());
             tickLabel = timeDiff.toString(secondStringFormat);
         }
         else

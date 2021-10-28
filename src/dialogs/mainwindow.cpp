@@ -65,28 +65,28 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _pMarkerInfo->setModel(_pGuiModel, _pGraphDataModel);
 
     /*-- Connect menu actions --*/
-    connect(_pUi->actionStart, SIGNAL(triggered()), this, SLOT(startScope()));
-    connect(_pUi->actionStop, SIGNAL(triggered()), this, SLOT(stopScope()));
-    connect(_pUi->actionDiagnostic, SIGNAL(triggered()), this, SLOT(showDiagnostic()));
-    connect(_pUi->actionManageNotes, SIGNAL(triggered()), this, SLOT(showNotesDialog()));
-    connect(_pUi->actionExit, SIGNAL(triggered()), this, SLOT(exitApplication()));
-    connect(_pUi->actionSaveDataFile, SIGNAL(triggered()), _pDataFileHandler, SLOT(selectDataExportFile()));
-    connect(_pUi->actionOpenProjectFile, SIGNAL(triggered()), _pProjectFileHandler, SLOT(selectProjectOpenFile()));
-    connect(_pUi->actionReloadProjectFile, SIGNAL(triggered()), _pProjectFileHandler, SLOT(reloadProjectFile()));
-    connect(_pUi->actionOpenDataFile, SIGNAL(triggered()), _pDataFileHandler, SLOT(selectDataImportFile()));
-    connect(_pUi->actionExportImage, SIGNAL(triggered()), this, SLOT(selectImageExportFile()));
-    connect(_pUi->actionSaveProjectFile, SIGNAL(triggered()), _pProjectFileHandler, SLOT(selectProjectSaveFile()));
-    connect(_pUi->actionAbout, SIGNAL(triggered()), this, SLOT(showAbout()));
-    connect(_pUi->actionOnlineDocumentation, SIGNAL(triggered()), this, SLOT(openOnlineDoc()));
-    connect(_pUi->actionUpdateAvailable, SIGNAL(triggered()), this, SLOT(openUpdateUrl()));
-    connect(_pUi->actionHighlightSamplePoints, SIGNAL(toggled(bool)), _pGuiModel, SLOT(setHighlightSamples(bool)));
-    connect(_pUi->actionClearData, SIGNAL(triggered()), this, SLOT(clearData()));
-    connect(_pUi->actionToggleMarkers, SIGNAL(triggered()), this, SLOT(toggleMarkersState()));
-    connect(_pUi->actionConnectionSettings, SIGNAL(triggered()), this, SLOT(showConnectionDialog()));
-    connect(_pUi->actionLogSettings, SIGNAL(triggered()), this, SLOT(showLogSettingsDialog()));
+    connect(_pUi->actionStart, &QAction::triggered, this, &MainWindow::startScope);
+    connect(_pUi->actionStop, &QAction::triggered, this, &MainWindow::stopScope);
+    connect(_pUi->actionDiagnostic, &QAction::triggered, this, &MainWindow::showDiagnostic);
+    connect(_pUi->actionManageNotes, &QAction::triggered, this, &MainWindow::showNotesDialog);
+    connect(_pUi->actionExit, &QAction::triggered, this, &MainWindow::exitApplication);
+    connect(_pUi->actionSaveDataFile, &QAction::triggered, _pDataFileHandler, &DataFileHandler::selectDataExportFile);
+    connect(_pUi->actionOpenProjectFile, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::selectProjectOpenFile);
+    connect(_pUi->actionReloadProjectFile, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::reloadProjectFile);
+    connect(_pUi->actionOpenDataFile, &QAction::triggered, _pDataFileHandler, &DataFileHandler::selectDataImportFile);
+    connect(_pUi->actionExportImage, &QAction::triggered, this, &MainWindow::selectImageExportFile);
+    connect(_pUi->actionSaveProjectFile, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::selectProjectSaveFile);
+    connect(_pUi->actionAbout, &QAction::triggered, this, &MainWindow::showAbout);
+    connect(_pUi->actionOnlineDocumentation, &QAction::triggered, this, &MainWindow::openOnlineDoc);
+    connect(_pUi->actionUpdateAvailable, &QAction::triggered, this, &MainWindow::openUpdateUrl);
+    connect(_pUi->actionHighlightSamplePoints, &QAction::toggled, _pGuiModel, &GuiModel::setHighlightSamples);
+    connect(_pUi->actionClearData, &QAction::triggered, this, &MainWindow::clearData);
+    connect(_pUi->actionToggleMarkers, &QAction::triggered, this, &MainWindow::toggleMarkersState);
+    connect(_pUi->actionConnectionSettings, &QAction::triggered, this, &MainWindow::showConnectionDialog);
+    connect(_pUi->actionLogSettings, &QAction::triggered, this, &MainWindow::showLogSettingsDialog);
     connect(_pUi->actionRegisterSettings, SIGNAL(triggered()), this, SLOT(showRegisterDialog()));
-    connect(_pUi->actionAddNote, SIGNAL(triggered()), this, SLOT(addNoteToGraph()));
-    connect(_pUi->actionZoom, SIGNAL(triggered(bool)), this, SLOT(toggleZoom(bool))); /* Only called on GUI click, not on setChecked */
+    connect(_pUi->actionAddNote, &QAction::triggered, this, &MainWindow::addNoteToGraph);
+    connect(_pUi->actionZoom, &QAction::triggered, this, &MainWindow::toggleZoom); /* Only called on GUI click, not on setChecked */
 
     /*-- connect model to view --*/
     connect(_pGuiModel, SIGNAL(frontGraphChanged()), this, SLOT(updateBringToFrontGrapMenu()));
