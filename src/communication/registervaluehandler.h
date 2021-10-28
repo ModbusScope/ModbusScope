@@ -28,6 +28,8 @@ signals:
 
 private:
 
+    uint32_t convertEndianness(bool bLittleEndian, uint16_t value, uint16_t nextValue);
+
     SettingsModel* _pSettingsModel;
 
     QList<ModbusRegister> _registerList;

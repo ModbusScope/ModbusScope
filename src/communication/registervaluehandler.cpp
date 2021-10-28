@@ -49,15 +49,7 @@ void RegisterValueHandler::processPartialResult(QMap<quint16, ModbusResult> part
 
                             if (nextResult.isSuccess())
                             {
-                                uint32_t combinedValue;
-                                if (_pSettingsModel->int32LittleEndian(connectionId))
-                                {
-                                    combinedValue = (static_cast<uint32_t>(nextResult.value()) << 16) | value;
-                                }
-                                else
-                                {
-                                    combinedValue = (static_cast<uint32_t>(value) << 16) | nextResult.value();
-                                }
+                                uint32_t combinedValue = convertEndianness(_pSettingsModel->int32LittleEndian(connectionId), value, nextResult.value());
 
                                 if (mbReg.isUnsigned())
                                 {
@@ -133,4 +125,19 @@ void RegisterValueHandler::registerAddresList(QList<quint16>& registerList, quin
 void RegisterValueHandler::prepareForData(QList<ModbusRegister>& registerList)
 {
     _registerList = registerList;
+}
+
+uint32_t RegisterValueHandler::convertEndianness(bool bLittleEndian, uint16_t value, uint16_t nextValue)
+{
+    uint32_t combinedValue;
+    if (bLittleEndian)
+    {
+        combinedValue = (static_cast<uint32_t>(nextValue) << 16) | value;
+    }
+    else
+    {
+        combinedValue = (static_cast<uint32_t>(value) << 16) | nextValue;
+    }
+
+    return combinedValue;
 }
