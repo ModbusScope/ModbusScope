@@ -18,4 +18,4 @@ Opening a data file is described in detail in a separate chapter of the user man
 
 ![image](../_static/user_manual/import_from_mbc_dialog.png)
 
-By pressing the *...* button in the top right corner the path to an *.mbc* can be given. By using either the *Text filter* or scrolling through the list, find and mark each register for which the value must be added to the graph.
+By pressing the *...* button in the top right corner the path to an *.mbc* can be given. By using either the *Text filter* or scrolling through the list, find and mark each register for which the value must be added to the graph. It is also possible to type (part of) the register address in the *text filter* field.
