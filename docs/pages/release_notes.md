@@ -5,6 +5,8 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 ## Unreleased
 * Select next register row after deletion in register dialog
 * Improve note positioning when sliding window ([Github #168](https://github.com/jgeudens/ModbusScope/issues/168))
+* Hide markers on data load ([Github #171](https://github.com/jgeudens/ModbusScope/issues/171))
+* Fix opening project file via menu ([Github #173](https://github.com/jgeudens/ModbusScope/issues/173))
 
 ## [v3.3.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.3.0) (08/10/2021)
 
