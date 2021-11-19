@@ -11,39 +11,7 @@ MbcRegisterFilter::MbcRegisterFilter(QObject* parent) : QSortFilterProxyModel(pa
 
 bool MbcRegisterFilter::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
-    QModelIndex tabIdx = sourceModel()->index(source_row, MbcRegisterModel::cColumnTab, source_parent);
-    QModelIndex descriptionIdx = sourceModel()->index(source_row, MbcRegisterModel::cColumnText, source_parent);
-
-    QString tabName = tabIdx.data().toString();
-    QString description = descriptionIdx.data().toString();
-
-    bool bAllowed = true;
-
-    /* Filter on tab */
-    if (_tab == cTabNoFilter)
-    {
-        bAllowed = true;
-    }
-    else if (tabName == _tab)
-    {
-        bAllowed = true;
-    }
-    else
-    {
-        bAllowed = false;
-    }
-
-    /* Filter on text */
-    if (
-        bAllowed
-        && (!_textFilter.isEmpty())
-        && (!description.contains(_textFilter, Qt::CaseInsensitive))
-    )
-    {
-        bAllowed = false;
-    }
-
-    return bAllowed;
+    return performTabFilter(source_row, source_parent) && performTextFilter(source_row, source_parent);;
 }
 
 void MbcRegisterFilter::setTab(QString tab)
@@ -64,4 +32,51 @@ void MbcRegisterFilter::setTextFilter(QString filterText)
     }
 
     invalidateFilter();
+}
+
+bool MbcRegisterFilter::performTabFilter(int source_row, const QModelIndex &source_parent) const
+{
+    QModelIndex tabIdx = sourceModel()->index(source_row, MbcRegisterModel::cColumnTab, source_parent);
+    QString tabName = tabIdx.data().toString();
+
+    bool bAllowed = true;
+
+    /* Filter on tab */
+    if (_tab == cTabNoFilter)
+    {
+        bAllowed = true;
+    }
+    else if (tabName == _tab)
+    {
+        bAllowed = true;
+    }
+    else
+    {
+        bAllowed = false;
+    }
+
+    return bAllowed;
+}
+
+bool MbcRegisterFilter::performTextFilter(int source_row, const QModelIndex &source_parent) const
+{
+    bool bAllowed = true;
+
+    QModelIndex descriptionIdx = sourceModel()->index(source_row, MbcRegisterModel::cColumnText, source_parent);
+    QString description = descriptionIdx.data().toString();
+
+    QModelIndex addressIdx = sourceModel()->index(source_row, MbcRegisterModel::cColumnAddress, source_parent);
+    QString strAddress = addressIdx.data().toString();
+
+    /* Filter on text */
+    if (
+        (!_textFilter.isEmpty())
+        && (!description.contains(_textFilter, Qt::CaseInsensitive))
+        && (!strAddress.contains(_textFilter, Qt::CaseInsensitive))
+    )
+    {
+        bAllowed = false;
+    }
+
+    return bAllowed;
 }
