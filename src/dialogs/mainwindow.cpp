@@ -507,9 +507,6 @@ void MainWindow::startScope()
 
         _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
 
-
-        _pGraphDataHandler->prepareForData();
-
         QList<ModbusRegister> registerList;
         _pGraphDataHandler->modbusRegisterList(registerList);
         _pRegisterValueHandler->prepareForData(registerList);

@@ -1,7 +1,7 @@
 #ifndef GRAPHDATAHANDLER_H
 #define GRAPHDATAHANDLER_H
 
-#include <QObject>
+#include <QRegularExpression>
 #include "modbusregister.h"
 #include "modbusresult.h"
 
@@ -15,8 +15,6 @@ class GraphDataHandler : public QObject
     Q_OBJECT
 public:
     GraphDataHandler(GraphDataModel *pGraphDataModel, SettingsModel *pSettingsModel);
-
-    void prepareForData();
 
     void modbusRegisterList(QList<ModbusRegister>& registerList);
 
