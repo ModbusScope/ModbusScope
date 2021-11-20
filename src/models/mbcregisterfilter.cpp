@@ -11,7 +11,14 @@ MbcRegisterFilter::MbcRegisterFilter(QObject* parent) : QSortFilterProxyModel(pa
 
 bool MbcRegisterFilter::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
-    return performTabFilter(source_row, source_parent) && performTextFilter(source_row, source_parent);;
+    if (source_row < sourceModel()->rowCount())
+    {
+        return performTabFilter(source_row, source_parent) && performTextFilter(source_row, source_parent);
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void MbcRegisterFilter::setTab(QString tab)
