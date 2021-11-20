@@ -3,6 +3,7 @@
 #include "qmuparser.h"
 #include "graphdatamodel.h"
 #include "settingsmodel.h"
+#include "expressionparser.h"
 
 #include "scopelogging.h"
 
@@ -12,34 +13,23 @@ GraphDataHandler::GraphDataHandler(GraphDataModel* pGraphDataModel, SettingsMode
 
 }
 
-void GraphDataHandler::prepareForData()
+void GraphDataHandler::modbusRegisterList(QList<ModbusRegister>& registerList)
 {
     qDeleteAll(_valueParsers);
     _valueParsers.clear();
 
     _pGraphDataModel->activeGraphIndexList(&_activeIndexList);
-    for(int idx = 0; idx < _activeIndexList.size(); idx++)
+    for(quint16 graphIdx: qAsConst(_activeIndexList))
     {
+        QString expr = _pGraphDataModel->expression(graphIdx);
+
+        registerList.clear();
+
+        //QString processedExpr = processExpression(registerList, expr);
+
         /* Use pointer because our class otherwise needs copy/assignment constructor and such */
         /* Remember to delete before removal */
-        _valueParsers.append(new QMuParser(_pGraphDataModel->expression(_activeIndexList[idx])));
-    }
-}
-
-void GraphDataHandler::modbusRegisterList(QList<ModbusRegister>& registerList)
-{
-    registerList.clear();
-
-    for(quint16 index: _activeIndexList)
-    {
-        ModbusRegister reg;
-
-        reg.setAddress(_pGraphDataModel->registerAddress(index));
-        reg.set32Bit(_pGraphDataModel->isBit32(index));
-        reg.setConnectionId(_pGraphDataModel->connectionId(index));
-        reg.setUnsigned(_pGraphDataModel->isUnsigned(index));
-
-        registerList.append(reg);
+        //_valueParsers.append(new QMuParser(processedExpr));
     }
 }
 
@@ -81,8 +71,6 @@ void GraphDataHandler::handleRegisterData(QList<ModbusResult> results)
 
     emit graphDataReady(graphSuccess, graphData);
 }
-
-
 
 
 
