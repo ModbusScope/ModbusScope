@@ -1,7 +1,7 @@
 #include "modbusregister.h"
 
 ModbusRegister::ModbusRegister()
-    : ModbusRegister(0, 0, false, false)
+    : ModbusRegister(0, 0, false, true)
 {
 
 }
