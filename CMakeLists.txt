@@ -59,4 +59,4 @@ enable_testing()
 
 add_subdirectory(libraries)
 add_subdirectory(src)
-#add_subdirectory(tests) TODO
+add_subdirectory(tests)
