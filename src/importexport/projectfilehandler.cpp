@@ -59,7 +59,6 @@ void ProjectFileHandler::selectProjectSaveFile()
 
 void ProjectFileHandler::selectProjectOpenFile()
 {
-    QString filePath;
     QFileDialog dialog;
     FileSelectionHelper::configureFileDialog(&dialog,
                                              FileSelectionHelper::DIALOG_TYPE_OPEN,
@@ -68,7 +67,7 @@ void ProjectFileHandler::selectProjectOpenFile()
     QString selectedFile = FileSelectionHelper::showDialog(&dialog);
     if (!selectedFile.isEmpty())
     {
-        this->openProjectFile(filePath);
+        this->openProjectFile(selectedFile);
     }
 }
 
