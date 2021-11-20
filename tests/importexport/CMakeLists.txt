@@ -22,6 +22,7 @@ enable_testing()
 
 add_executable(tst_datafileparser ${CMAKE_CURRENT_SOURCE_DIR}/testdatafileparser.cpp ${TEST_DATA_SRCS})
 add_executable(tst_mbcfileimporter ${CMAKE_CURRENT_SOURCE_DIR}/testmbcfileimporter.cpp ${TEST_DATA_SRCS})
+add_executable(tst_mbcregisterfilter ${CMAKE_CURRENT_SOURCE_DIR}/testmbcregisterfilter.cpp ${TEST_DATA_SRCS})
 add_executable(tst_presethandler ${CMAKE_CURRENT_SOURCE_DIR}/testpresethandler.cpp ${TEST_DATA_SRCS} ${GOOGLE_TEST_SOURCE})
 add_executable(tst_presetparser ${CMAKE_CURRENT_SOURCE_DIR}/testpresetparser.cpp ${TEST_DATA_SRCS})
 add_executable(tst_projectfileparser ${CMAKE_CURRENT_SOURCE_DIR}/testprojectfileparser.cpp ${TEST_DATA_SRCS})
@@ -31,6 +32,7 @@ add_executable(tst_updateregisteroperations ${CMAKE_CURRENT_SOURCE_DIR}/testupda
 
 add_test(NAME tst_datafileparser COMMAND tst_datafileparser)
 add_test(NAME tst_mbcfileimporter COMMAND tst_mbcfileimporter)
+add_test(NAME tst_mbcregisterfilter COMMAND tst_mbcregisterfilter)
 add_test(NAME tst_presethandler COMMAND tst_presethandler)
 add_test(NAME tst_presetparser COMMAND tst_presetparser)
 add_test(NAME tst_projectfileparser COMMAND tst_projectfileparser)
@@ -45,6 +47,12 @@ target_link_libraries(tst_datafileparser PRIVATE
 )
 
 target_link_libraries(tst_mbcfileimporter PRIVATE
+    ${SCOPESOURCE}
+    ${QT_LIB}
+    Qt5::Test
+)
+
+target_link_libraries(tst_mbcregisterfilter PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
     Qt5::Test
