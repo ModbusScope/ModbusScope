@@ -2,12 +2,9 @@
 
 #include <QtMath>
 
-MbcRegisterModel::MbcRegisterModel(GraphDataModel *pGraphDataModel, QObject *parent)
+MbcRegisterModel::MbcRegisterModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
-
-    _pGraphDataModel = pGraphDataModel;
-
     _mbcRegisterList.clear();
     _mbcRegisterMetaDataList.clear();
     _tabList.clear();
