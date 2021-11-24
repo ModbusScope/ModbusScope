@@ -14,6 +14,8 @@ private slots:
     void singleRegisterSigned();
     void singleRegisterSigned32();
     void singleRegisterConnType();
+    void multiRegisters();
+    void multiRegistersDuplicate();
     void combinations();
     void spaces();
 

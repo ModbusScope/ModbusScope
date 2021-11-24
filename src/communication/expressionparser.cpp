@@ -56,23 +56,12 @@ QString ExpressionParser::processExpression(QString& graphExpr)
         {
             QString regDef = match.captured(0);
 
-            // TODO: handle duplicates correctly
-            // don't add when already present
-
             ModbusRegister modbusReg;
             if (processRegisterExpression(regDef, modbusReg))
             {
-#if 0
-                if (_modbusRegisters.contains(modbusReg))
-                {
-                    resultExpr.replace
-                }
-                else
-#endif
+                if (!_modbusRegisters.contains(modbusReg))
                 {
                     _modbusRegisters.append(modbusReg);
-
-                    //resultExpr.replace
                 }
             }
         }

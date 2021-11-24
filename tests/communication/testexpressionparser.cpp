@@ -55,6 +55,25 @@ void TestExpressionParser::singleRegisterConnType()
     verifyParsing(input, expModbusRegisters);
 }
 
+void TestExpressionParser::multiRegisters()
+{
+    auto input = QStringList() << "${45332} + ${45333}" << "${45334}";
+    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(45332, SettingsModel::CONNECTION_ID_0, false, true)
+                                                      << ModbusRegister(45333, SettingsModel::CONNECTION_ID_0, false, true)
+                                                      << ModbusRegister(45334, SettingsModel::CONNECTION_ID_0, false, true);
+
+    verifyParsing(input, expModbusRegisters);
+}
+
+void TestExpressionParser::multiRegistersDuplicate()
+{
+    auto input = QStringList() << "${45332} + ${45333}" << "${45332}";
+    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(45332, SettingsModel::CONNECTION_ID_0, false, true)
+                                                      << ModbusRegister(45333, SettingsModel::CONNECTION_ID_0, false, true);
+
+    verifyParsing(input, expModbusRegisters);
+}
+
 void TestExpressionParser::combinations()
 {
     auto input = QStringList() << "${45332@2: s32b} + ${45330} + 2";
