@@ -18,6 +18,10 @@ private:
 
     void parseExpressions(QStringList& expressions);
 
+    bool parseAddress(QString strAddr, ModbusRegister& modbusReg);
+    bool parseConnectionId(QString strConnectionId, ModbusRegister& modbusReg);
+    bool parseType(QString strType, ModbusRegister& modbusReg);
+
     QString processExpression(QString& expr);
     bool processRegisterExpression(QString regExpr, ModbusRegister &modbusReg);
 
