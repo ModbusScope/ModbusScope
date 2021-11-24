@@ -86,59 +86,10 @@ bool ExpressionParser::processRegisterExpression(QString regExpr, ModbusRegister
         strConnectionId = match.captured(2);
         strType = match.captured(3);
 
-        if (!strAddress.isEmpty())
-        {
-            bool bRet;
-            quint16 addr = static_cast<quint16>(strAddress.toUInt(&bRet));
-            if (bRet)
-            {
-                modbusReg.setAddress(addr);
-            }
-            else
-            {
-                qCWarning(scopeComm) << QString("Parsing address \"%1\" failed").arg(strAddress);
-            }
-        }
-
-        if (!strConnectionId.isEmpty())
-        {
-            bool bRet;
-            quint8 connectionId = static_cast<quint8>(strConnectionId.toUInt(&bRet));
-            if (bRet)
-            {
-                if (connectionId > 1)
-                {
-                    connectionId -= 1;
-                }
-                modbusReg.setConnectionId(connectionId);
-            }
-            else
-            {
-                qCWarning(scopeComm) << QString("Parsing connection \"%1\" failed").arg(strConnectionId);
-            }
-        }
-
-        if (!strType.isEmpty())
-        {
-            /* TODO: change to switch of all supported types */
-            if (
-                (strType == "s32b")
-                || (strType == "s16b")
-            )
-            {
-                modbusReg.setUnsigned(false);
-            }
-
-            if (
-                (strType == "32b")
-                || (strType == "s32b")
-            )
-            {
-                modbusReg.set32Bit(true);
-            }
-        }
-
         bRet = true;
+        bRet = bRet && parseAddress(strAddress, modbusReg);
+        bRet = bRet && parseConnectionId(strConnectionId, modbusReg);
+        bRet = bRet && parseType(strType, modbusReg);
     }
     else
     {
@@ -149,3 +100,96 @@ bool ExpressionParser::processRegisterExpression(QString regExpr, ModbusRegister
 
     return bRet;
 }
+
+bool ExpressionParser::parseAddress(QString strAddr, ModbusRegister& modbusReg)
+{
+    bool bRet = false;
+
+    if (strAddr.isEmpty())
+    {
+        /* Required field */
+        bRet = false;
+        qCWarning(scopeComm) << QString("No address specified");
+    }
+    else
+    {
+        quint16 addr = static_cast<quint16>(strAddr.toUInt(&bRet));
+        if (bRet)
+        {
+            modbusReg.setAddress(addr);
+        }
+        else
+        {
+            qCWarning(scopeComm) << QString("Parsing address \"%1\" failed").arg(strAddr);
+        }
+    }
+
+    return bRet;
+}
+
+bool ExpressionParser::parseConnectionId(QString strConnectionId, ModbusRegister& modbusReg)
+{
+    bool bRet = false;
+
+    if (strConnectionId.isEmpty())
+    {
+        /* Keep default */
+        bRet = true;
+    }
+    else
+    {
+        quint8 connectionId = static_cast<quint8>(strConnectionId.toUInt(&bRet));
+        if (bRet)
+        {
+            if (connectionId > 1)
+            {
+                connectionId -= 1;
+            }
+            modbusReg.setConnectionId(connectionId);
+        }
+        else
+        {
+            qCWarning(scopeComm) << QString("Parsing connection \"%1\" failed").arg(strConnectionId);
+        }
+    }
+
+    return bRet;
+}
+
+bool ExpressionParser::parseType(QString strType, ModbusRegister& modbusReg)
+{
+    bool bRet = true; /* Default to true */
+
+    if (strType == "")
+    {
+        /* Keep defaults */
+    }
+    else if (strType == "16b")
+    {
+        modbusReg.set32Bit(false);
+        modbusReg.setUnsigned(true);
+    }
+    else if (strType == "s16b")
+    {
+        modbusReg.set32Bit(false);
+        modbusReg.setUnsigned(false);
+    }
+    else if (strType == "32b")
+    {
+        modbusReg.set32Bit(true);
+        modbusReg.setUnsigned(true);
+    }
+    else if (strType == "s32b")
+    {
+        modbusReg.set32Bit(true);
+        modbusReg.setUnsigned(false);
+    }
+    else
+    {
+        qCWarning(scopeComm) << QString("Unknown type \"%1\"").arg(strType);
+        bRet = false;
+    }
+
+    return bRet;
+}
+
