@@ -5,7 +5,6 @@
 #include <QAbstractTableModel>
 #include <QList>
 
-#include "settingsmodel.h"
 #include "graphdata.h"
 
 
@@ -26,7 +25,7 @@ public:
         COUNT
     };
 
-    explicit GraphDataModel(SettingsModel * pSettingsModel, QObject *parent = nullptr);
+    explicit GraphDataModel(QObject *parent = nullptr);
 
     /* Functions for QTableView (model) */
     int rowCount(const QModelIndex &parent = QModelIndex()) const ;
@@ -108,8 +107,6 @@ private:
 
     QList<GraphData> _graphData;
     QList<quint32> _activeGraphList;
-
-    SettingsModel * _pSettingsModel;
 };
 
 #endif // GRAPHDATAMODEL_H

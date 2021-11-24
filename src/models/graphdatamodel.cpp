@@ -3,10 +3,10 @@
 #include "util.h"
 
 #include "graphdatamodel.h"
+#include "settingsmodel.h"
 
-GraphDataModel::GraphDataModel(SettingsModel * pSettingsModel, QObject *parent) : QAbstractTableModel(parent)
+GraphDataModel::GraphDataModel(QObject *parent) : QAbstractTableModel(parent)
 {
-    _pSettingsModel = pSettingsModel;
     _graphData.clear();
 
     connect(this, &GraphDataModel::visibilityChanged, this, &GraphDataModel::modelDataChanged);
