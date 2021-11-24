@@ -6,7 +6,6 @@
 #include <gmock/gmock-matchers.h>
 
 #include "../mocks/gmockutils.h"
-#include "../mocks/mockgraphdatamodel.h"
 
 #include "testmbcregistermodel.h"
 
@@ -36,8 +35,7 @@ void TestMbcRegisterModel::cleanup()
 
 void TestMbcRegisterModel::rowCount()
 {
-    MockGraphDataModel graphDataModel;
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
+    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
 
     QCOMPARE(pMbcRegisterModel->rowCount(), 0);
 
@@ -51,16 +49,14 @@ void TestMbcRegisterModel::rowCount()
 
 void TestMbcRegisterModel::columnCount()
 {
-    MockGraphDataModel graphDataModel;
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
+    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
 
     QCOMPARE(pMbcRegisterModel->columnCount(QModelIndex()), cColumnCnt);
 }
 
 void TestMbcRegisterModel::headerData()
 {
-    MockGraphDataModel graphDataModel;
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
+    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
 
     QCOMPARE(pMbcRegisterModel->headerData(cColumnSelected, Qt::Horizontal, Qt::DisplayRole).toString(), QString(""));
     QCOMPARE(pMbcRegisterModel->headerData(cColumnAddress, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Address"));
@@ -74,8 +70,7 @@ void TestMbcRegisterModel::headerData()
 
 void TestMbcRegisterModel::flagsEnabled()
 {
-    MockGraphDataModel graphDataModel;
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
+    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
 
     fillModel(pMbcRegisterModel);
 
@@ -95,9 +90,7 @@ void TestMbcRegisterModel::flagsEnabled()
 
 void TestMbcRegisterModel::flagsDisabled()
 {
-    MockGraphDataModel graphDataModel;
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
-
+    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
 
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
             << MbcRegisterData(40001, true, "Test1", 0, false, false, 0) /* Not readable */
@@ -122,8 +115,7 @@ void TestMbcRegisterModel::flagsDisabled()
 
 void TestMbcRegisterModel::setData()
 {
-    MockGraphDataModel graphDataModel;
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
+    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
     fillModel(pMbcRegisterModel);
 
     QSignalSpy spy(pMbcRegisterModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
@@ -157,8 +149,7 @@ void TestMbcRegisterModel::setData()
 
 void TestMbcRegisterModel::disableAlreadyStagedRegisterAddress()
 {
-    MockGraphDataModel graphDataModel;
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
+    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
 
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
             << MbcRegisterData(40001, true, "Test1", 0, false, true, 0)
@@ -238,8 +229,7 @@ void TestMbcRegisterModel::disableAlreadyStagedRegisterAddress()
 
 void TestMbcRegisterModel::fillData()
 {
-    MockGraphDataModel graphDataModel;
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
+    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
     QSignalSpy resetSignalSpy(pMbcRegisterModel, SIGNAL(modelReset()));
 
     /*-- Test fill and expected signals --*/
@@ -332,8 +322,7 @@ void TestMbcRegisterModel::fillData()
 
 void TestMbcRegisterModel::reset()
 {
-    MockGraphDataModel graphDataModel;
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
+    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
     QSignalSpy resetSignalSpy(pMbcRegisterModel, SIGNAL(modelReset()));
 
     fillModel(pMbcRegisterModel);
@@ -347,8 +336,7 @@ void TestMbcRegisterModel::reset()
 
 void TestMbcRegisterModel::selectedRegisterListAndCount()
 {
-    MockGraphDataModel graphDataModel;
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
+    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
 
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
             << MbcRegisterData(40001, true, "Test1", 0, false, true, 0)
@@ -448,8 +436,7 @@ void TestMbcRegisterModel::selectedRegisterListAndCount()
 
 void TestMbcRegisterModel::selectedRegisterListAndCount32()
 {
-    MockGraphDataModel graphDataModel;
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
+    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
 
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
             << MbcRegisterData(40001, true, "Test1", 0, true, true, 0);
@@ -479,8 +466,7 @@ void TestMbcRegisterModel::selectedRegisterListAndCount32()
 
 void TestMbcRegisterModel::selectedRegisterListDecimals()
 {
-    MockGraphDataModel graphDataModel;
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel(&graphDataModel);
+    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
 
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
             << MbcRegisterData(40001, true, "Test1", 0, false, true, 0)
