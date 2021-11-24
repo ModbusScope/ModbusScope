@@ -74,6 +74,22 @@ void TestExpressionParser::multiRegistersDuplicate()
     verifyParsing(input, expModbusRegisters);
 }
 
+void TestExpressionParser::failure()
+{
+    auto input = QStringList() << "${}";
+    auto expModbusRegisters = QList<ModbusRegister>();
+
+    verifyParsing(input, expModbusRegisters);
+}
+
+void TestExpressionParser::failureMulti()
+{
+    auto input = QStringList() << "${}" << "${45331}";
+    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(45331, SettingsModel::CONNECTION_ID_0, false, true);
+
+    verifyParsing(input, expModbusRegisters);
+}
+
 void TestExpressionParser::combinations()
 {
     auto input = QStringList() << "${45332@2: s32b} + ${45330} + 2";
@@ -100,7 +116,6 @@ void TestExpressionParser::verifyParsing(QStringList exprList, QList<ModbusRegis
     parser.modbusRegisters(actualModbusRegisters);
 
     QVERIFY(actualModbusRegisters == expectedRegisters);
-
 }
 
 QTEST_GUILESS_MAIN(TestExpressionParser)
