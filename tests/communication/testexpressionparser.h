@@ -21,7 +21,7 @@ private slots:
     void combinations();
     void spaces();
 
-    void verifyParsing(QStringList exprList, QList<ModbusRegister> &expectedRegisters);
+    void verifyParsing(QStringList exprList, QList<ModbusRegister> &expectedRegisters, QStringList &expectedExpression);
 
 private:
 

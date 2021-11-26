@@ -33,6 +33,7 @@ private:
 
     static const QString _cRegisterPattern;
     static const QString _cParseRegPattern;
+    static const QString _cRegisterFunctionTemplate;
 
 };
 
