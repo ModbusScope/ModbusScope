@@ -14,8 +14,9 @@ public:
     void setExpression(QString expr);
     QString expression();
 
+    void setRegisterValues(QList<double>& regValues);
+
     bool evaluate();
-    bool evaluate(double regValue);
 
     bool isSuccess();
     QString msg();
@@ -25,9 +26,11 @@ private:
 
     void reset();
 
-    mu::ParserBase* _pExprParser;
+    static int registerValue(int index);
 
-    double _registerValue;
+    static QList<double> _registerValues;
+
+    mu::ParserBase* _pExprParser;
 
     bool _bInvalidExpression;
 

@@ -4,10 +4,12 @@
 
 #include "muParser.h"
 
+QList<double> QMuParser::_registerValues;
+
 QMuParser::QMuParser(QString strExpression)
 {
-    _registerValue = 0;
-    _pExprParser = new mu::ParserRegister(&_registerValue);
+    mu::ParserRegister::setRegisterCallback(&QMuParser::registerValue);
+    _pExprParser = new mu::ParserRegister();
 
     setExpression(strExpression);
 }
@@ -60,17 +62,17 @@ void QMuParser::setExpression(QString expr)
     reset();
 }
 
+void QMuParser::setRegisterValues(QList<double>& regValues)
+{
+    _registerValues = regValues;
+}
+
 QString QMuParser::expression()
 {
     return QString::fromStdString(_pExprParser->GetExpr()).trimmed();
 }
 
 bool QMuParser::evaluate()
-{
-    return evaluate(0);
-}
-
-bool QMuParser::evaluate(double regValue)
 {
     reset();
 
@@ -82,10 +84,6 @@ bool QMuParser::evaluate(double regValue)
     }
     else
     {
-
-        /* Set value to be used for VAL variable */
-        _registerValue = regValue;
-
         try
         {
             _result = _pExprParser->Eval();
@@ -130,4 +128,16 @@ void QMuParser::reset()
     _bSuccess = false;
     _result = 0;
     _msg = QStringLiteral("No result yet");
+}
+
+int QMuParser::registerValue(int index)
+{
+    if (index < _registerValues.size())
+    {
+        return _registerValues[index];
+    }
+    else
+    {
+        return 0;
+    }
 }

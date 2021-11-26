@@ -78,12 +78,16 @@ void ExpressionsDialog::evaluateValue(QString strInput, QString &numOutput, QStr
         int value = strInput.toInt(&bOk);
         if (bOk)
         {
+#if 0
+
+            TODO
             if (_expressionParser.evaluate(value))
             {
                 numOutput = QString("%0").arg(_expressionParser.result());
                 strTooltip = QString();
             }
             else
+#endif
             {
                 numOutput = QStringLiteral("-");
                 strTooltip = _expressionParser.msg();
