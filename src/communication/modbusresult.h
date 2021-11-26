@@ -8,10 +8,10 @@ class ModbusResult
 {
 public:
     ModbusResult();
-    ModbusResult(quint16 value, bool bResult);
+    ModbusResult(quint32 value, bool bResult);
 
-    quint16 value() const;
-    void setValue(quint16 value);
+    quint32 value() const;
+    void setValue(quint32 value);
 
     bool isSuccess() const;
     void setSuccess(bool bSuccess);
@@ -27,7 +27,7 @@ public:
 
 private:
 
-    quint16 _value;
+    quint32 _value;
     bool _bResult;
 };
 

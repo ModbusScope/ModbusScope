@@ -83,7 +83,7 @@ void RegisterValueHandler::processPartialResult(QMap<quint16, ModbusResult> part
                         processedResult = 0;
                     }
 
-                    _resultList[listIdx] = ModbusResult(bSuccess, static_cast<double>(processedResult));
+                    _resultList[listIdx] = ModbusResult(static_cast<double>(processedResult), bSuccess);
                 }
             }
         }
