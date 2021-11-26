@@ -5,18 +5,18 @@ ModbusResult::ModbusResult()
     ModbusResult(0, false);
 }
 
-ModbusResult::ModbusResult(quint16 value, bool bResult)
+ModbusResult::ModbusResult(quint32 value, bool bResult)
     : _value(value), _bResult(bResult)
 {
 
 }
 
-quint16 ModbusResult::value() const
+quint32 ModbusResult::value() const
 {
     return _value;
 }
 
-void ModbusResult::setValue(quint16 value)
+void ModbusResult::setValue(quint32 value)
 {
     _value = value;
 }
