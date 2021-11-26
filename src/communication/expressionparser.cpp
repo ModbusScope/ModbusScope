@@ -5,6 +5,8 @@
 const QString ExpressionParser::_cRegisterPattern = "\\${(\\d?.*?)}";
 const QString ExpressionParser::_cParseRegPattern = "(\\d+)(?:@(\\d+))?(?:\\:(\\w+))?";
 
+const QString ExpressionParser::_cRegisterFunctionTemplate = "regval(%1)";
+
 ExpressionParser::ExpressionParser(QStringList& expressions)
 {
     _findRegRegex.setPattern(_cRegisterPattern);
@@ -59,10 +61,23 @@ QString ExpressionParser::processExpression(QString& graphExpr)
             ModbusRegister modbusReg;
             if (processRegisterExpression(regDef, modbusReg))
             {
-                if (!_modbusRegisters.contains(modbusReg))
+                quint8 idx;
+                if (_modbusRegisters.contains(modbusReg))
+                {
+                    idx = _modbusRegisters.indexOf(modbusReg);
+                }
+                else
                 {
                     _modbusRegisters.append(modbusReg);
+                    idx = _modbusRegisters.size() - 1;
                 }
+
+                QString regFunc = QString(_cRegisterFunctionTemplate).arg(idx);
+                resultExpr.replace(regDef, regFunc);
+            }
+            else
+            {
+                resultExpr.replace(regDef, QString());
             }
         }
     }
