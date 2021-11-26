@@ -45,11 +45,14 @@ void GraphDataHandler::handleRegisterData(QList<ModbusResult> results)
         const double registerValue = results[listIdx].value();
         if (bSuccess)
         {
+#if 0
+            TODO
             if (_valueParsers[listIdx]->evaluate(registerValue))
             {
                 processedResult = _valueParsers[listIdx]->result();
             }
             else
+#endif
             {
                 processedResult = 0u;
                 bSuccess = false;
