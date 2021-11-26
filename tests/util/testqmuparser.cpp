@@ -172,6 +172,17 @@ void TestQMuParser::evaluateInvalidExpr()
     QVERIFY(!bSuccess);
 }
 
+void TestQMuParser::evaluateEmpty()
+{
+    QMuParser parser("");
+
+    bool bSuccess = parser.evaluate();
+
+    QCOMPARE(parser.result(), 0);
+    QVERIFY(!parser.isSuccess());
+    QVERIFY(!bSuccess);
+}
+
 void TestQMuParser::evaluateInvalidHexExpr()
 {
     QMuParser parser("0x");
