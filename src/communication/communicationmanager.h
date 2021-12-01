@@ -1,16 +1,15 @@
 #ifndef COMMUNICATION_MANAGER_H
 #define COMMUNICATION_MANAGER_H
 
-#include <QObject>
-#include <QList>
 #include <QStringListModel>
 #include <QTimer>
-
-#include "modbusmaster.h"
+#include "modbusresult.h"
+#include "modbusregister.h"
 
 //Forward declaration
 class SettingsModel;
 class RegisterValueHandler;
+class ModbusMaster;
 
 class ModbusMasterData : public QObject
 {
@@ -32,14 +31,17 @@ class CommunicationManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit CommunicationManager(SettingsModel * pSettingsModel, RegisterValueHandler* pRegisterValueHandler, QObject *parent = nullptr);
+    explicit CommunicationManager(SettingsModel * pSettingsModel, QObject *parent = nullptr);
     ~CommunicationManager();
 
-    void startCommunication();
+    void startCommunication(QList<ModbusRegister>& registerList);
     void stopCommunication();
 
     bool isActive();
     void resetCommunicationStats();
+
+signals:
+    void registerDataReady(QList<ModbusResult> registers);
 
 private slots:
     void handlePollDone(QMap<quint16, ModbusResult> resultMap, quint8 connectionId);
