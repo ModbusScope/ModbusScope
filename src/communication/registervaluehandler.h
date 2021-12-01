@@ -15,7 +15,7 @@ public:
 
     RegisterValueHandler(SettingsModel *pSettingsModel);
 
-    void prepareForData(QList<ModbusRegister> &registerList);
+    void setRegisters(QList<ModbusRegister> &registerList);
 
     void startRead();
     void processPartialResult(QMap<quint16, ModbusResult> partialResultMap, quint8 connectionId);

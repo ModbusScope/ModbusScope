@@ -52,7 +52,7 @@ CommunicationManager::~CommunicationManager()
 
 void CommunicationManager::startCommunication(QList<ModbusRegister>& registerList)
 {
-    _pRegisterValueHandler->prepareForData(registerList);
+    _pRegisterValueHandler->setRegisters(registerList);
 
     // Trigger read immediately
     _pPollTimer->singleShot(1, this, &CommunicationManager::triggerRegisterRead);

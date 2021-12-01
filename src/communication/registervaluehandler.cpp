@@ -122,7 +122,7 @@ void RegisterValueHandler::registerAddresList(QList<quint16>& registerList, quin
     registerList = connRegisterList;
 }
 
-void RegisterValueHandler::prepareForData(QList<ModbusRegister>& registerList)
+void RegisterValueHandler::setRegisters(QList<ModbusRegister>& registerList)
 {
     _registerList = registerList;
 }
