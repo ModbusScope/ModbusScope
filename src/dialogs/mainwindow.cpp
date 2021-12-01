@@ -54,10 +54,9 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
 
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
 
-    _pRegisterValueHandler = new RegisterValueHandler(_pSettingsModel);
     _pGraphDataHandler = new GraphDataHandler(_pGraphDataModel, _pSettingsModel);
-    _pConnMan = new CommunicationManager(_pSettingsModel, _pRegisterValueHandler);
-    connect(_pRegisterValueHandler, &RegisterValueHandler::registerDataReady, _pGraphDataHandler, &GraphDataHandler::handleRegisterData);
+    _pConnMan = new CommunicationManager(_pSettingsModel);
+    connect(_pConnMan, &CommunicationManager::registerDataReady, _pGraphDataHandler, &GraphDataHandler::handleRegisterData);
 
     _pGraphView = new GraphView(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
     _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel, _pSettingsModel, _pDataParserModel, this);
@@ -509,9 +508,8 @@ void MainWindow::startScope()
 
         QList<ModbusRegister> registerList;
         _pGraphDataHandler->modbusRegisterList(registerList);
-        _pRegisterValueHandler->prepareForData(registerList);
 
-        _pConnMan->startCommunication();
+        _pConnMan->startCommunication(registerList);
 
         clearData();
 

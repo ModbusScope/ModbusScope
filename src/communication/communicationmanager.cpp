@@ -12,12 +12,15 @@
 
 #include "communicationmanager.h"
 
-CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, RegisterValueHandler* pRegisterValueHandler, QObject *parent) :
-    QObject(parent), _bPollActive(false), _pRegisterValueHandler(pRegisterValueHandler)
+CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, QObject *parent) :
+    QObject(parent), _bPollActive(false)
 {
 
     _pPollTimer = new QTimer();
     _pSettingsModel = pSettingsModel;
+
+    _pRegisterValueHandler = new RegisterValueHandler(_pSettingsModel);
+    connect(_pRegisterValueHandler, &RegisterValueHandler::registerDataReady, this, &CommunicationManager::registerDataReady);
 
     /* Setup modbus master */
     for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++)
@@ -47,9 +50,11 @@ CommunicationManager::~CommunicationManager()
     delete _pPollTimer;
 }
 
-void CommunicationManager::startCommunication()
+void CommunicationManager::startCommunication(QList<ModbusRegister>& registerList)
 {
-    // Trigger read immediatly
+    _pRegisterValueHandler->prepareForData(registerList);
+
+    // Trigger read immediately
     _pPollTimer->singleShot(1, this, &CommunicationManager::triggerRegisterRead);
 
     _bPollActive = true;
@@ -134,7 +139,7 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
 
         if (passedInterval > _pSettingsModel->pollTime())
         {
-            // Poll again immediatly
+            // Poll again immediately
             waitInterval = 1;
         }
         else
@@ -188,7 +193,7 @@ void CommunicationManager::triggerRegisterRead()
          * First set _activeMastersCount to correct value
          * And only then activate masters (readRegisterList)
          *
-         * readRegisterList can return immediatly and this will give race condition otherwise
+         * readRegisterList can return immediately and this will give race condition otherwise
          */
 
         _activeMastersCount = 0;
