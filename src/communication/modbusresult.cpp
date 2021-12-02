@@ -47,6 +47,21 @@ ModbusResult& ModbusResult::operator= (const ModbusResult& modbusResult)
     return *this;
 }
 
+bool operator== (const ModbusResult& res1, const ModbusResult& res2)
+{
+    if (
+        (res1._value == res2._value)
+        && (res1._bResult == res2._bResult)
+    )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 QDebug operator<<(QDebug debug, const ModbusResult &result)
 {
     QDebugStateSaver saver(debug);
