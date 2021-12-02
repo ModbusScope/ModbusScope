@@ -25,6 +25,8 @@ public:
 
     ModbusResult& operator= (const ModbusResult& modbusResult);
 
+    friend bool operator== (const ModbusResult& res1, const ModbusResult& res2);
+
 private:
 
     quint32 _value;
