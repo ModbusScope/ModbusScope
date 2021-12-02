@@ -1,8 +1,9 @@
 #include "modbusresult.h"
 
 ModbusResult::ModbusResult()
+    : ModbusResult(0, false)
 {
-    ModbusResult(0, false);
+
 }
 
 ModbusResult::ModbusResult(quint32 value, bool bResult)
