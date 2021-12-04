@@ -7,14 +7,13 @@
 
 //Forward declaration
 class GraphDataModel;
-class SettingsModel;
 class QMuParser;
 
 class GraphDataHandler : public QObject
 {
     Q_OBJECT
 public:
-    GraphDataHandler(GraphDataModel *pGraphDataModel, SettingsModel *pSettingsModel);
+    GraphDataHandler(GraphDataModel *pGraphDataModel);
 
     void modbusRegisterList(QList<ModbusRegister>& registerList);
 
@@ -27,7 +26,6 @@ signals:
 private:
 
     GraphDataModel* _pGraphDataModel;
-    SettingsModel* _pSettingsModel;
 
     QList<quint16> _activeIndexList;
     QList<QMuParser*> _valueParsers;

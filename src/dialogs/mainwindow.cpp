@@ -54,7 +54,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
 
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
 
-    _pGraphDataHandler = new GraphDataHandler(_pGraphDataModel, _pSettingsModel);
+    _pGraphDataHandler = new GraphDataHandler(_pGraphDataModel);
     _pConnMan = new CommunicationManager(_pSettingsModel);
     connect(_pConnMan, &CommunicationManager::registerDataReady, _pGraphDataHandler, &GraphDataHandler::handleRegisterData);
 
