@@ -14,21 +14,28 @@ GraphDataHandler::GraphDataHandler(GraphDataModel* pGraphDataModel) :
 
 void GraphDataHandler::modbusRegisterList(QList<ModbusRegister>& registerList)
 {
-    qDeleteAll(_valueParsers);
-    _valueParsers.clear();
+    QStringList exprList;
 
     _pGraphDataModel->activeGraphIndexList(&_activeIndexList);
     for(quint16 graphIdx: qAsConst(_activeIndexList))
     {
-        QString expr = _pGraphDataModel->expression(graphIdx);
+        exprList.append(_pGraphDataModel->expression(graphIdx));
+    }
 
-        registerList.clear();
+    ExpressionParser exprParser(exprList);
+    exprParser.modbusRegisters(registerList);
 
-        //QString processedExpr = processExpression(registerList, expr);
+    QStringList processedExpList;
+    exprParser.processedExpressions(processedExpList);
 
+    qDeleteAll(_valueParsers);
+    _valueParsers.clear();
+
+    for(const QString &expr: qAsConst(processedExpList))
+    {
         /* Use pointer because our class otherwise needs copy/assignment constructor and such */
         /* Remember to delete before removal */
-        //_valueParsers.append(new QMuParser(processedExpr));
+        _valueParsers.append(new QMuParser(expr));
     }
 }
 
@@ -37,6 +44,15 @@ void GraphDataHandler::handleRegisterData(QList<ModbusResult> results)
     QList<bool> graphSuccess;
     QList<double> graphData;
 
+    QList<double> registerResults;
+    for(const ModbusResult &result: qAsConst(results))
+    {
+        double data = result.isSuccess() ? result.value(): 0;
+        registerResults.append(data);
+    }
+
+    QMuParser::setRegisterValues(registerResults);
+
     for(qint32 listIdx = 0; listIdx < results.size(); listIdx++)
     {
         double processedResult = 0;
@@ -44,14 +60,11 @@ void GraphDataHandler::handleRegisterData(QList<ModbusResult> results)
         const double registerValue = results[listIdx].value();
         if (bSuccess)
         {
-#if 0
-            TODO
-            if (_valueParsers[listIdx]->evaluate(registerValue))
+            if (_valueParsers[listIdx]->evaluate())
             {
                 processedResult = _valueParsers[listIdx]->result();
             }
             else
-#endif
             {
                 processedResult = 0u;
                 bSuccess = false;

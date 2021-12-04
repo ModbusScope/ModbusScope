@@ -14,7 +14,7 @@ public:
     void setExpression(QString expr);
     QString expression();
 
-    void setRegisterValues(QList<double>& regValues);
+    static void setRegisterValues(QList<double>& regValues);
 
     bool evaluate();
 
