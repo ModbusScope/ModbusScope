@@ -2,13 +2,12 @@
 
 #include "qmuparser.h"
 #include "graphdatamodel.h"
-#include "settingsmodel.h"
 #include "expressionparser.h"
 
 #include "scopelogging.h"
 
-GraphDataHandler::GraphDataHandler(GraphDataModel* pGraphDataModel, SettingsModel *pSettingsModel) :
-  _pGraphDataModel(pGraphDataModel), _pSettingsModel(pSettingsModel)
+GraphDataHandler::GraphDataHandler(GraphDataModel* pGraphDataModel) :
+  _pGraphDataModel(pGraphDataModel)
 {
 
 }
