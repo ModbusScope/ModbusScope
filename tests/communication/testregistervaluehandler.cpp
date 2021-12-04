@@ -11,7 +11,7 @@ Q_DECLARE_METATYPE(ModbusResult);
 void TestRegisterValueHandler::init()
 {
     qRegisterMetaType<ModbusResult>("ModbusResult");
-    qRegisterMetaType<QMap<quint16, ModbusResult> >("QList<ModbusResult>");
+    qRegisterMetaType<QList<ModbusResult> >("QList<ModbusResult>");
 
     _pSettingsModel = new SettingsModel();
 
