@@ -1,12 +1,10 @@
 
 #include <QObject>
 #include <QUrl>
-#include "communicationmanager.h"
 
+#include "communicationmanager.h"
 #include "settingsmodel.h"
-#include "guimodel.h"
-#include "graphdatamodel.h"
-#include "diagnosticmodel.h"
+#include "modbusregister.h"
 
 #include "testslavedata.h"
 #include "testslavemodbus.h"
@@ -20,8 +18,6 @@ private slots:
 
     void singleSlaveSuccess();
     void singleSlaveFail();
-    void singleSlaveCheckProcessing();
-    void singleSlaveParseFail();
 
     void multiSlaveSuccess();
     void multiSlaveSuccess_2();
@@ -32,10 +28,9 @@ private slots:
 
 private:
 
-    void verifyReceivedDataSignal(QList<QVariant> arguments, QList<bool> expResultList, QList<double> expValueList);
+    void verifyReceivedDataSignal(QList<QVariant> arguments, QList<ModbusResult> expResultList);
 
     SettingsModel * _pSettingsModel;
-    GuiModel * _pGuiModel;
 
     QList<QUrl> _serverConnectionDataList;
     QList<TestSlaveData *> _testSlaveDataList;

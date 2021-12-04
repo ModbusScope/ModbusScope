@@ -8,10 +8,14 @@
 
 #include "testcommunicationmanager.h"
 
+Q_DECLARE_METATYPE(ModbusResult);
+
 void TestCommunicationManager::init()
 {
+    qRegisterMetaType<ModbusResult>("ModbusResult");
+    qRegisterMetaType<QList<ModbusResult> >("QList<ModbusResult>");
+
     _pSettingsModel = new SettingsModel;
-    _pGuiModel = new GuiModel;
 
     _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_0, "127.0.0.1");
     _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_0, 5020);
@@ -48,7 +52,6 @@ void TestCommunicationManager::init()
 void TestCommunicationManager::cleanup()
 {
     delete _pSettingsModel;
-    delete _pGuiModel;
 
     for (int idx = 0; idx < SettingsModel::CONNECTION_ID_CNT; idx++)
     {
@@ -71,98 +74,24 @@ void TestCommunicationManager::singleSlaveSuccess()
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(1, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(1, 65000);
 
-    GraphDataModel graphDataModel(_pSettingsModel);
-    graphDataModel.add();
-    graphDataModel.setRegisterAddress(0, 40001);
+    CommunicationManager conMan(_pSettingsModel);
+    QSignalSpy spyDataReady(&conMan, &CommunicationManager::registerDataReady);
 
-    graphDataModel.add();
-    graphDataModel.setRegisterAddress(1, 40002);
-
-    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel);
-
-    QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
+                                                   << ModbusRegister(40002, SettingsModel::CONNECTION_ID_0, false, true);
 
     /*-- Start communication --*/
-    QVERIFY(conMan.startCommunication());
+    conMan.startCommunication(modbusRegisters);
 
-    QVERIFY(spyReceivedData.wait(50));
-    QCOMPARE(spyReceivedData.count(), 1);
+    QVERIFY(spyDataReady.wait(50));
+    QCOMPARE(spyDataReady.count(), 1);
 
-    QList<QVariant> arguments = spyReceivedData.takeFirst(); // take the first signal
-
-    QList<bool> resultList({true, true});
-    QList<double> valueList({5, 65000});
-
-    /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, resultList, valueList);
-}
-
-void TestCommunicationManager::singleSlaveCheckProcessing()
-{
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(0, true);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(0, 5);
-
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(1, true);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(1, 65535);
-
-    GraphDataModel graphDataModel(_pSettingsModel);
-    graphDataModel.add();
-    graphDataModel.setRegisterAddress(0, 40001);
-
-    /* Set processing parameters */
-    graphDataModel.setExpression(0, QStringLiteral("VAL*2/5"));
-
-    /* Set processing parameters */
-    graphDataModel.add();
-    graphDataModel.setRegisterAddress(1, 40002);
-    graphDataModel.setUnsigned(1, false);
-
-    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel);
-
-    QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
-
-    /*-- Start communication --*/
-    QVERIFY(conMan.startCommunication());
-
-    QVERIFY(spyReceivedData.wait(20));
-    QCOMPARE(spyReceivedData.count(), 1);
-
-    QList<QVariant> arguments = spyReceivedData.takeFirst(); // take the first signal
-
-    QList<bool> resultList({true, true});
-    QList<double> valueList({2, -1});
+    QList<QVariant> arguments = spyDataReady.takeFirst();
+    auto expResults = QList<ModbusResult>() << ModbusResult(5, true)
+                                            << ModbusResult(65000, true);
 
     /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, resultList, valueList);
-}
-
-void TestCommunicationManager::singleSlaveParseFail()
-{
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(0, true);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(0, 0);
-
-    GraphDataModel graphDataModel(_pSettingsModel);
-    graphDataModel.add();
-    graphDataModel.setRegisterAddress(0, 40001);
-    graphDataModel.setExpression(0, "1/VAL");
-
-    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel);
-
-    QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
-
-    /*-- Start communication --*/
-    QVERIFY(conMan.startCommunication());
-
-    QVERIFY(spyReceivedData.wait(50));
-    QCOMPARE(spyReceivedData.count(), 1);
-
-    QList<QVariant> arguments = spyReceivedData.takeFirst(); // take the first signal
-
-    QList<bool> resultList({false});
-    QList<double> valueList({0});
-
-    /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, resultList, valueList);
+    verifyReceivedDataSignal(arguments, expResults);
 }
 
 void TestCommunicationManager::singleSlaveFail()
@@ -172,30 +101,25 @@ void TestCommunicationManager::singleSlaveFail()
         _testSlaveModbusList[idx]->disconnectDevice();
     }
 
-    GraphDataModel graphDataModel(_pSettingsModel);
-    graphDataModel.add();
-    graphDataModel.setRegisterAddress(0, 40001);
+    CommunicationManager conMan(_pSettingsModel);
+    QSignalSpy spyDataReady(&conMan, &CommunicationManager::registerDataReady);
 
-    graphDataModel.add();
-    graphDataModel.setRegisterAddress(1, 40002);
-
-    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel);
-
-    QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
+                                                   << ModbusRegister(40002, SettingsModel::CONNECTION_ID_0, false, true);
 
     /*-- Start communication --*/
-    QVERIFY(conMan.startCommunication());
+    conMan.startCommunication(modbusRegisters);
 
-    QVERIFY(spyReceivedData.wait(static_cast<int>(_pSettingsModel->timeout(SettingsModel::CONNECTION_ID_0)) + 100));
-    QCOMPARE(spyReceivedData.count(), 1);
+    QVERIFY(spyDataReady.wait(static_cast<int>(_pSettingsModel->timeout(SettingsModel::CONNECTION_ID_0)) + 100));
+    QCOMPARE(spyDataReady.count(), 1);
 
-    QList<QVariant> arguments = spyReceivedData.takeFirst(); // take the first signal
+    QList<QVariant> arguments = spyDataReady.takeFirst();
 
-    QList<bool> resultList({false, false});
-    QList<double> valueList({0, 0});
+    auto expResults = QList<ModbusResult>() << ModbusResult(0, false)
+                                            << ModbusResult(0, false);
 
     /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, resultList, valueList);
+    verifyReceivedDataSignal(arguments, expResults);
 }
 
 void TestCommunicationManager::multiSlaveSuccess()
@@ -206,32 +130,24 @@ void TestCommunicationManager::multiSlaveSuccess()
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(0, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(0, 5021);
 
-    GraphDataModel graphDataModel(_pSettingsModel);
-    graphDataModel.add();
-    graphDataModel.setConnectionId(0, SettingsModel::CONNECTION_ID_0);
-    graphDataModel.setRegisterAddress(0, 40001);
+    CommunicationManager conMan(_pSettingsModel);
+    QSignalSpy spyDataReady(&conMan, &CommunicationManager::registerDataReady);
 
-    graphDataModel.add();
-    graphDataModel.setConnectionId(1, SettingsModel::CONNECTION_ID_1);
-    graphDataModel.setRegisterAddress(1, 40001);
-
-    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel);
-
-    QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
+                                                   << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true);
 
     /*-- Start communication --*/
-    QVERIFY(conMan.startCommunication());
+    conMan.startCommunication(modbusRegisters);
 
-    QVERIFY(spyReceivedData.wait(50));
-    QCOMPARE(spyReceivedData.count(), 1);
+    QVERIFY(spyDataReady.wait(50));
+    QCOMPARE(spyDataReady.count(), 1);
 
-    QList<QVariant> arguments = spyReceivedData.takeFirst(); // take the first signal
-
-    QList<bool> resultList({true, true});
-    QList<double> valueList({5020, 5021});
+    QList<QVariant> arguments = spyDataReady.takeFirst();
+    auto expResults = QList<ModbusResult>() << ModbusResult(5020, true)
+                                            << ModbusResult(5021, true);
 
     /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, resultList, valueList);
+    verifyReceivedDataSignal(arguments, expResults);
 }
 
 void TestCommunicationManager::multiSlaveSuccess_2()
@@ -242,32 +158,24 @@ void TestCommunicationManager::multiSlaveSuccess_2()
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(1, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(1, 5021);
 
-    GraphDataModel graphDataModel(_pSettingsModel);
-    graphDataModel.add();
-    graphDataModel.setConnectionId(0, SettingsModel::CONNECTION_ID_0);
-    graphDataModel.setRegisterAddress(0, 40001);
+    CommunicationManager conMan(_pSettingsModel);
+    QSignalSpy spyDataReady(&conMan, &CommunicationManager::registerDataReady);
 
-    graphDataModel.add();
-    graphDataModel.setConnectionId(1, SettingsModel::CONNECTION_ID_1);
-    graphDataModel.setRegisterAddress(1, 40002);
-
-    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel);
-
-    QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
+                                                   << ModbusRegister(40002, SettingsModel::CONNECTION_ID_1, false, true);
 
     /*-- Start communication --*/
-    QVERIFY(conMan.startCommunication());
+    conMan.startCommunication(modbusRegisters);
 
-    QVERIFY(spyReceivedData.wait(50));
-    QCOMPARE(spyReceivedData.count(), 1);
+    QVERIFY(spyDataReady.wait(50));
+    QCOMPARE(spyDataReady.count(), 1);
 
-    QList<QVariant> arguments = spyReceivedData.takeFirst(); // take the first signal
-
-    QList<bool> resultList({true, true});
-    QList<double> valueList({5020, 5021});
+    QList<QVariant> arguments = spyDataReady.takeFirst();
+    auto expResults = QList<ModbusResult>() << ModbusResult(5020, true)
+                                            << ModbusResult(5021, true);
 
     /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, resultList, valueList);
+    verifyReceivedDataSignal(arguments, expResults);
 }
 
 void TestCommunicationManager::multiSlaveSuccess_3()
@@ -281,38 +189,27 @@ void TestCommunicationManager::multiSlaveSuccess_3()
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(1, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(1, 5022);
 
-    GraphDataModel graphDataModel(_pSettingsModel);
-    graphDataModel.add();
-    graphDataModel.setConnectionId(0, SettingsModel::CONNECTION_ID_0);
-    graphDataModel.setRegisterAddress(0, 40001);
+    CommunicationManager conMan(_pSettingsModel);
+    QSignalSpy spyDataReady(&conMan, &CommunicationManager::registerDataReady);
 
-    graphDataModel.add();
-    graphDataModel.setConnectionId(1, SettingsModel::CONNECTION_ID_1);
-    graphDataModel.setRegisterAddress(1, 40002);
-
-    graphDataModel.add();
-    graphDataModel.setConnectionId(2, SettingsModel::CONNECTION_ID_0);
-    graphDataModel.setRegisterAddress(2, 40002);
-
-    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel);
-
-    QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
+                                                   << ModbusRegister(40002, SettingsModel::CONNECTION_ID_1, false, true)
+                                                   << ModbusRegister(40002, SettingsModel::CONNECTION_ID_0, false, true);
 
     /*-- Start communication --*/
-    QVERIFY(conMan.startCommunication());
+    conMan.startCommunication(modbusRegisters);
 
-    QVERIFY(spyReceivedData.wait(50));
-    QCOMPARE(spyReceivedData.count(), 1);
+    QVERIFY(spyDataReady.wait(50));
+    QCOMPARE(spyDataReady.count(), 1);
 
-    QList<QVariant> arguments = spyReceivedData.takeFirst(); // take the first signal
-
-    QList<bool> resultList({true, true, true});
-    QList<double> valueList({5020, 5022, 5021});
+    QList<QVariant> arguments = spyDataReady.takeFirst();
+    auto expResults = QList<ModbusResult>() << ModbusResult(5020, true)
+                                            << ModbusResult(5022, true)
+                                            << ModbusResult(5021, true);
 
     /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, resultList, valueList);
+    verifyReceivedDataSignal(arguments, expResults);
 }
-
 
 void TestCommunicationManager::multiSlaveSingleFail()
 {
@@ -321,32 +218,24 @@ void TestCommunicationManager::multiSlaveSingleFail()
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(0, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(0, 5021);
 
-    GraphDataModel graphDataModel(_pSettingsModel);
-    graphDataModel.add();
-    graphDataModel.setConnectionId(0, SettingsModel::CONNECTION_ID_0);
-    graphDataModel.setRegisterAddress(0, 40001);
+    CommunicationManager conMan(_pSettingsModel);
+    QSignalSpy spyDataReady(&conMan, &CommunicationManager::registerDataReady);
 
-    graphDataModel.add();
-    graphDataModel.setConnectionId(1, SettingsModel::CONNECTION_ID_1);
-    graphDataModel.setRegisterAddress(1, 40001);
-
-    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel);
-
-    QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
+                                                   << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true);
 
     /*-- Start communication --*/
-    QVERIFY(conMan.startCommunication());
+    conMan.startCommunication(modbusRegisters);
 
-    QVERIFY(spyReceivedData.wait(static_cast<int>(_pSettingsModel->timeout(SettingsModel::CONNECTION_ID_0)) + 100));
-    QCOMPARE(spyReceivedData.count(), 1);
+    QVERIFY(spyDataReady.wait(static_cast<int>(_pSettingsModel->timeout(SettingsModel::CONNECTION_ID_0)) + 100));
+    QCOMPARE(spyDataReady.count(), 1);
 
-    QList<QVariant> arguments = spyReceivedData.takeFirst(); // take the first signal
-
-    QList<bool> resultList({false, true});
-    QList<double> valueList({0, 5021});
+    QList<QVariant> arguments = spyDataReady.takeFirst();
+    auto expResults = QList<ModbusResult>() << ModbusResult(0, false)
+                                            << ModbusResult(5021, true);
 
     /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, resultList, valueList);
+    verifyReceivedDataSignal(arguments, expResults);
 }
 
 void TestCommunicationManager::multiSlaveAllFail()
@@ -356,32 +245,24 @@ void TestCommunicationManager::multiSlaveAllFail()
         _testSlaveModbusList[idx]->disconnectDevice();
     }
 
-    GraphDataModel graphDataModel(_pSettingsModel);
-    graphDataModel.add();
-    graphDataModel.setConnectionId(0, SettingsModel::CONNECTION_ID_0);
-    graphDataModel.setRegisterAddress(0, 40001);
+    CommunicationManager conMan(_pSettingsModel);
+    QSignalSpy spyDataReady(&conMan, &CommunicationManager::registerDataReady);
 
-    graphDataModel.add();
-    graphDataModel.setConnectionId(1, SettingsModel::CONNECTION_ID_1);
-    graphDataModel.setRegisterAddress(1, 40001);
-
-    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel);
-
-    QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
+                                                   << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true);
 
     /*-- Start communication --*/
-    QVERIFY(conMan.startCommunication());
+    conMan.startCommunication(modbusRegisters);
 
-    QVERIFY(spyReceivedData.wait(static_cast<int>(_pSettingsModel->timeout(SettingsModel::CONNECTION_ID_0)) + 100));
-    QCOMPARE(spyReceivedData.count(), 1);
+    QVERIFY(spyDataReady.wait(static_cast<int>(_pSettingsModel->timeout(SettingsModel::CONNECTION_ID_0)) + 100));
+    QCOMPARE(spyDataReady.count(), 1);
 
-    QList<QVariant> arguments = spyReceivedData.takeFirst(); // take the first signal
-
-    QList<bool> resultList({false, false});
-    QList<double> valueList({0, 0});
+    QList<QVariant> arguments = spyDataReady.takeFirst();
+    auto expResults = QList<ModbusResult>() << ModbusResult(0, false)
+                                            << ModbusResult(0, false);
 
     /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, resultList, valueList);
+    verifyReceivedDataSignal(arguments, expResults);
 }
 
 void TestCommunicationManager::multiSlaveDisabledConnection()
@@ -395,66 +276,37 @@ void TestCommunicationManager::multiSlaveDisabledConnection()
     /* Disable connection */
     _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_1, false);
 
-    GraphDataModel graphDataModel(_pSettingsModel);
-    graphDataModel.add();
-    graphDataModel.setConnectionId(0, SettingsModel::CONNECTION_ID_0);
-    graphDataModel.setRegisterAddress(0, 40001);
+    CommunicationManager conMan(_pSettingsModel);
+    QSignalSpy spyDataReady(&conMan, &CommunicationManager::registerDataReady);
 
-    graphDataModel.add();
-    graphDataModel.setConnectionId(1, SettingsModel::CONNECTION_ID_1);
-    graphDataModel.setRegisterAddress(1, 40001);
-
-    CommunicationManager conMan(_pSettingsModel, _pGuiModel, &graphDataModel);
-
-    QSignalSpy spyReceivedData(&conMan, &CommunicationManager::handleReceivedData);
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
+                                                   << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true);
 
     /*-- Start communication --*/
-    QVERIFY(conMan.startCommunication());
+    conMan.startCommunication(modbusRegisters);
 
-    QVERIFY(spyReceivedData.wait(50));
-    QCOMPARE(spyReceivedData.count(), 1);
+    QVERIFY(spyDataReady.wait(50));
+    QCOMPARE(spyDataReady.count(), 1);
 
-    QList<QVariant> arguments = spyReceivedData.takeFirst(); // take the first signal
+    QList<QVariant> arguments = spyDataReady.takeFirst();
 
     /* Disabled connections return error and zero */
-    QList<bool> resultList({true, false});
-    QList<double> valueList({5020, 0});
+    auto expResults = QList<ModbusResult>() << ModbusResult(5020, true)
+                                            << ModbusResult(0, false);
 
     /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, resultList, valueList);
+    verifyReceivedDataSignal(arguments, expResults);
 }
 
-void TestCommunicationManager::verifyReceivedDataSignal(QList<QVariant> arguments, QList<bool> expResultList, QList<double> expValueList)
+void TestCommunicationManager::verifyReceivedDataSignal(QList<QVariant> arguments, QList<ModbusResult> expResultList)
 {
-    /* Verify result */
-    QVERIFY((arguments[0].canConvert<QList<bool> >()));
-    QList<bool> resultList = arguments[0].value<QList<bool> >();
-    QCOMPARE(resultList.count(), expResultList.size());
+    QVERIFY(arguments.count() > 0);
 
-    quint32 error = 0;
-    quint32 expError = 0;
-    quint32 succes = 0;
-    quint32 expSucces = 0;
-    for(int idx = 0; idx < resultList.size(); idx++)
-    {
-        QCOMPARE(resultList[idx], expResultList[idx]);
+    QVariant varResultList = arguments.first();
+    QVERIFY((varResultList.canConvert<QList<ModbusResult> >()));
+    QList<ModbusResult> result = varResultList.value<QList<ModbusResult> >();
 
-        resultList[idx] ? succes++ : error++;
-        expResultList[idx] ? expSucces++ : expError++;
-    }
-
-    QCOMPARE(succes, expSucces);
-    QCOMPARE(error, expError);
-
-    /* Verify values */
-    QVERIFY((arguments[1].canConvert<QList<double> >()));
-    QList<double> valueList = arguments[1].value<QList<double> >();
-    QCOMPARE(valueList.count(), expValueList.size());
-
-    for(int idx = 0; idx < resultList.size(); idx++)
-    {
-        QCOMPARE(valueList[idx], expValueList[idx]);
-    }
+    QCOMPARE(result, expResultList);
 }
 
 QTEST_GUILESS_MAIN(TestCommunicationManager)
