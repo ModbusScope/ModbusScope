@@ -49,7 +49,7 @@ namespace mu
 	public:
         ParserRegister();
 
-        typedef int (*registerCb_t)(int);
+        typedef void (*registerCb_t)(int, int*, bool*);
 
         static void setRegisterCallback(registerCb_t registerCb);
 

@@ -60,7 +60,18 @@ namespace mu
         double intpart;
         if (modf(v1, &intpart) == 0.0)
         {
-            return (*_registerCb)(static_cast<int>(v1));
+            int value;
+            bool success;
+            (*_registerCb)(v1, &value, &success);
+
+            if (success)
+            {
+                return value;
+            }
+            else
+            {
+                throw exception_type(_T("Communication error"));
+            }
         }
         else
         {

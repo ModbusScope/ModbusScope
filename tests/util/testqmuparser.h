@@ -22,6 +22,7 @@ private slots:
     void evaluateDivByZero();
 
     void evaluateEmpty();
+    void evaluateFail();
     void evaluateInvalidHexExpr();
     void evaluateInvalidBinExpr();
     void evaluateInvalidBinExpr_2();
