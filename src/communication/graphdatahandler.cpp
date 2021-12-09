@@ -53,7 +53,7 @@ void GraphDataHandler::handleRegisterData(QList<ModbusResult> results)
 
         if (_valueParsers[listIdx]->evaluate())
         {
-            processedResult = _valueParsers[listIdx]->result();
+            processedResult = _valueParsers[listIdx]->value();
         }
         else
         {

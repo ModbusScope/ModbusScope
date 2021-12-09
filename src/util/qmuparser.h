@@ -21,7 +21,7 @@ public:
 
     bool isSuccess();
     QString msg();
-    double result();
+    double value();
 
 private:
 
@@ -36,7 +36,7 @@ private:
     bool _bInvalidExpression;
 
     bool _bSuccess;
-    double _result;
+    double _value;
     QString _msg;
 
 };

@@ -79,16 +79,16 @@ bool QMuParser::evaluate()
     if (_bInvalidExpression)
     {
         _bSuccess = false;
-        _result = 0;
+        _value = 0;
         _msg = QStringLiteral("Invalid expression");
     }
     else
     {
         try
         {
-            _result = _pExprParser->Eval();
+            _value = _pExprParser->Eval();
 
-            if (qIsInf(_result) || qIsNaN(_result))
+            if (qIsInf(_value) || qIsNaN(_value))
             {
                 throw mu::ParserError("result is an undefined number");
             }
@@ -98,7 +98,7 @@ bool QMuParser::evaluate()
         }
         catch (mu::Parser::exception_type &e)
         {
-            _result = 0;
+            _value = 0;
 
             _msg = QString::fromStdString(e.GetMsg());
             _bSuccess = false;
@@ -113,9 +113,9 @@ QString QMuParser::msg()
     return _msg;
 }
 
-double QMuParser::result()
+double QMuParser::value()
 {
-    return _result;
+    return _value;
 }
 
 bool QMuParser::isSuccess()
@@ -126,7 +126,7 @@ bool QMuParser::isSuccess()
 void QMuParser::reset()
 {
     _bSuccess = false;
-    _result = 0;
+    _value = 0;
     _msg = QStringLiteral("No result yet");
 }
 
