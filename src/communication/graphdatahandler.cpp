@@ -44,40 +44,29 @@ void GraphDataHandler::handleRegisterData(QList<ModbusResult> results)
     QList<bool> graphSuccess;
     QList<double> graphData;
 
-    QList<double> registerResults;
-    for(const ModbusResult &result: qAsConst(results))
-    {
-        double data = result.isSuccess() ? result.value(): 0;
-        registerResults.append(data);
-    }
+    QMuParser::setRegistersData(results);
 
-    QMuParser::setRegisterValues(registerResults);
-
-    for(qint32 listIdx = 0; listIdx < results.size(); listIdx++)
+    for(qint32 listIdx = 0; listIdx < _valueParsers.size(); listIdx++)
     {
         double processedResult = 0;
-        bool bSuccess = results[listIdx].isSuccess();
-        const double registerValue = results[listIdx].value();
-        if (bSuccess)
+        bool bSuccess = true;
+
+        if (_valueParsers[listIdx]->evaluate())
         {
-            if (_valueParsers[listIdx]->evaluate())
-            {
-                processedResult = _valueParsers[listIdx]->result();
-            }
-            else
-            {
-                processedResult = 0u;
-                bSuccess = false;
+            processedResult = _valueParsers[listIdx]->result();
+        }
+        else
+        {
+            processedResult = 0u;
+            bSuccess = false;
 
-                const quint16 activeIndex = _activeIndexList[listIdx];
-                auto msg = QString("Expression evaluation failed (%1): address %2, expression %3, value %4")
-                            .arg(_valueParsers[listIdx]->msg())
-                            .arg(_pGraphDataModel->registerAddress(activeIndex))
-                            .arg(_pGraphDataModel->expression(activeIndex))
-                            .arg(registerValue);
+            const quint16 activeIndex = _activeIndexList[listIdx];
+            auto msg = QString("Expression evaluation failed (%1): address %2, expression %3")
+                        .arg(_valueParsers[listIdx]->msg())
+                        .arg(_pGraphDataModel->registerAddress(activeIndex))
+                        .arg(_pGraphDataModel->expression(activeIndex));
 
-                qCWarning(scopeComm) << msg;
-            }
+            qCWarning(scopeComm) << msg;
         }
 
         graphSuccess.append(bSuccess);

@@ -4,7 +4,7 @@
 
 #include "muParser.h"
 
-QList<double> QMuParser::_registerValues;
+QList<ModbusResult> QMuParser::_registerValues;
 
 QMuParser::QMuParser(QString strExpression)
 {
@@ -62,7 +62,7 @@ void QMuParser::setExpression(QString expr)
     reset();
 }
 
-void QMuParser::setRegisterValues(QList<double>& regValues)
+void QMuParser::setRegistersData(QList<ModbusResult>& regValues)
 {
     _registerValues = regValues;
 }
@@ -130,14 +130,16 @@ void QMuParser::reset()
     _msg = QStringLiteral("No result yet");
 }
 
-int QMuParser::registerValue(int index)
+void QMuParser::registerValue(int index, int* value, bool* success)
 {
     if (index < _registerValues.size())
     {
-        return _registerValues[index];
+        *value = _registerValues[index].value();
+        *success = _registerValues[index].isSuccess();
     }
     else
     {
-        return 0;
+        *value = 0;
+        *success = false;
     }
 }

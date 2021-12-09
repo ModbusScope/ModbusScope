@@ -124,7 +124,7 @@ void TestQMuParser::evaluateSingleRegister()
 
     QMuParser parser(expression);
 
-    parser.setRegisterValues(QList<double>() << registerValue);
+    parser.setRegistersData(QList<ModbusResult>() << ModbusResult(registerValue, true));
 
     bool bSuccess = parser.evaluate();
 
@@ -135,10 +135,10 @@ void TestQMuParser::evaluateSingleRegister()
 
 void TestQMuParser::evaluateMultipleRegisters()
 {
-    auto input = QList<double>() << 1 << 2 << 3;
+    auto input = QList<ModbusResult>() << ModbusResult(1, true) << ModbusResult(2, true) << ModbusResult(3, true);
 
     QMuParser parser("regval(0)");
-    parser.setRegisterValues(input);
+    parser.setRegistersData(input);
 
     bool bSuccess = parser.evaluate();
 
@@ -175,6 +175,22 @@ void TestQMuParser::evaluateInvalidExpr()
 void TestQMuParser::evaluateEmpty()
 {
     QMuParser parser("");
+
+    bool bSuccess = parser.evaluate();
+
+    QCOMPARE(parser.result(), 0);
+    QVERIFY(!parser.isSuccess());
+    QVERIFY(!bSuccess);
+}
+
+void TestQMuParser::evaluateFail()
+{
+    QString expression = "regval(0)";
+    auto resultList = QList<ModbusResult>() << ModbusResult(5, false);
+
+    QMuParser parser(expression);
+
+    parser.setRegistersData(resultList);
 
     bool bSuccess = parser.evaluate();
 
@@ -266,8 +282,8 @@ void TestQMuParser::expressionUpdate()
 {
     QMuParser parser("regval(0) + 1");
 
-    auto input_1 = QList<double>() << 5;
-    parser.setRegisterValues(input_1);
+    auto input_1 = QList<ModbusResult>() << ModbusResult(5, true);
+    parser.setRegistersData(input_1);
 
     bool bSuccess = parser.evaluate();
 
@@ -277,8 +293,8 @@ void TestQMuParser::expressionUpdate()
 
     parser.setExpression("regval(0) + regval(1) + 2");
 
-    auto input_2 = QList<double>() << 1 << 2;
-    parser.setRegisterValues(input_2);
+    auto input_2 = QList<ModbusResult>() << ModbusResult(1, true) << ModbusResult(2, true);
+    parser.setRegistersData(input_2);
     bSuccess = parser.evaluate();
 
     QCOMPARE(parser.result(), 5);
