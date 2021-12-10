@@ -23,7 +23,7 @@ public:
 
     }
 
-    Result& operator= (const Result& modbusResult);
+    Result& operator= (const Result& result);
 
     friend bool operator== (const Result& res1, const Result& res2);
 

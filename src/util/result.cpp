@@ -32,16 +32,16 @@ void Result::setSuccess(bool bSuccess)
     _bResult = bSuccess;
 }
 
-Result& Result::operator= (const Result& modbusResult)
+Result& Result::operator= (const Result& result)
 {
     // self-assignment guard
-    if (this == &modbusResult)
+    if (this == &result)
     {
         return *this;
     }
 
-    _value = modbusResult.value();
-    _bResult = modbusResult.isSuccess();
+    _value = result.value();
+    _bResult = result.isSuccess();
 
     // return the existing object so we can chain this operator
     return *this;
