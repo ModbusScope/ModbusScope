@@ -4,7 +4,7 @@
 #include <QObject>
 
 #include "muParser.h"
-#include "modbusresult.h"
+#include "result.h"
 
 class QMuParser
 {
@@ -15,7 +15,7 @@ public:
     void setExpression(QString expr);
     QString expression();
 
-    static void setRegistersData(QList<ModbusResult>& regValues);
+    static void setRegistersData(QList<Result>& regValues);
 
     bool evaluate();
 
@@ -29,7 +29,7 @@ private:
 
     static void registerValue(int index, int* value, bool* success);
 
-    static QList<ModbusResult> _registerValues;
+    static QList<Result> _registerValues;
 
     mu::ParserBase* _pExprParser;
 

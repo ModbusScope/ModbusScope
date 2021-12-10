@@ -28,7 +28,7 @@ private slots:
 
 private:
 
-    void verifyReceivedDataSignal(QList<QVariant> arguments, QList<ModbusResult> expResultList);
+    void verifyReceivedDataSignal(QList<QVariant> arguments, QList<Result> expResultList);
 
     SettingsModel * _pSettingsModel;
 

@@ -103,7 +103,7 @@ void ModbusPoll::resetCommunicationStats()
     _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 }
 
-void ModbusPoll::handlePollDone(QMap<quint16, ModbusResult> partialResultMap, quint8 connectionId)
+void ModbusPoll::handlePollDone(QMap<quint16, Result> partialResultMap, quint8 connectionId)
 {
     bool lastResult = false;
 

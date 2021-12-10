@@ -5,7 +5,7 @@
 #include <QObject>
 
 #include "settingsmodel.h"
-#include "modbusresult.h"
+#include "result.h"
 
 /* Forward declaration */
 class GraphDataModel;
@@ -25,7 +25,7 @@ private slots:
 
 private:
 
-    void doHandleRegisterData(QList<ModbusResult>& modbusResults, QList<QVariant> &actRawData);
+    void doHandleRegisterData(QList<Result>& modbusResults, QList<QVariant> &actRawData);
     void addExpressionsToModel(GraphDataModel* pModel, QStringList &exprList);
     void verifyReceivedDataSignal(QList<QVariant> arguments, QList<bool> expResultList, QList<double> expValueList);
 

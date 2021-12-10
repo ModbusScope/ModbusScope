@@ -6,7 +6,7 @@
 #include <QModbusDevice>
 #include <QModbusReply>
 
-#include "modbusresult.h"
+#include "result.h"
 
 /* Forward declaration */
 class SettingsModel;
@@ -26,7 +26,7 @@ public:
     void cleanUp();
 
 signals:
-    void modbusPollDone(QMap<quint16, ModbusResult> modbusResults, quint8 connectionId);
+    void modbusPollDone(QMap<quint16, Result> modbusResults, quint8 connectionId);
     void modbusLogError(QString msg);
     void modbusLogInfo(QString msg);
     void triggerNextRequest();
@@ -43,10 +43,10 @@ private slots:
 
 private:
     void finishRead(bool bError);
-    QString dumpToString(QMap<quint16, ModbusResult> map);
+    QString dumpToString(QMap<quint16, Result> map);
     QString dumpToString(QList<quint16> list);
 
-    void logResults(QMap<quint16, ModbusResult> &results);
+    void logResults(QMap<quint16, Result> &results);
 
     void logInfo(QString msg);
     void logError(QString msg);

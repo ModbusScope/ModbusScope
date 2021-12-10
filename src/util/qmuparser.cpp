@@ -4,7 +4,7 @@
 
 #include "muParser.h"
 
-QList<ModbusResult> QMuParser::_registerValues;
+QList<Result> QMuParser::_registerValues;
 
 QMuParser::QMuParser(QString strExpression)
 {
@@ -62,7 +62,7 @@ void QMuParser::setExpression(QString expr)
     reset();
 }
 
-void QMuParser::setRegistersData(QList<ModbusResult>& regValues)
+void QMuParser::setRegistersData(QList<Result>& regValues)
 {
     _registerValues = regValues;
 }

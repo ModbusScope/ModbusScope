@@ -39,7 +39,7 @@ void GraphDataHandler::modbusRegisterList(QList<ModbusRegister>& registerList)
     }
 }
 
-void GraphDataHandler::handleRegisterData(QList<ModbusResult> results)
+void GraphDataHandler::handleRegisterData(QList<Result> results)
 {
     QList<bool> graphSuccess;
     QList<double> graphData;
