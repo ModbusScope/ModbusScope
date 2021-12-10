@@ -3,7 +3,7 @@
 
 #include <QStringListModel>
 #include <QTimer>
-#include "modbusresult.h"
+#include "result.h"
 #include "modbusregister.h"
 
 //Forward declaration
@@ -41,10 +41,10 @@ public:
     void resetCommunicationStats();
 
 signals:
-    void registerDataReady(QList<ModbusResult> registers);
+    void registerDataReady(QList<Result> registers);
 
 private slots:
-    void handlePollDone(QMap<quint16, ModbusResult> resultMap, quint8 connectionId);
+    void handlePollDone(QMap<quint16, Result> resultMap, quint8 connectionId);
     void handleModbusError(QString msg);
     void handleModbusInfo(QString msg);
     void triggerRegisterRead();

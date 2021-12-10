@@ -8,12 +8,12 @@
 
 #include "testmodbuspoll.h"
 
-Q_DECLARE_METATYPE(ModbusResult);
+Q_DECLARE_METATYPE(Result);
 
 void TestModbusPoll::init()
 {
-    qRegisterMetaType<ModbusResult>("ModbusResult");
-    qRegisterMetaType<QList<ModbusResult> >("QList<ModbusResult>");
+    qRegisterMetaType<Result>("Result");
+    qRegisterMetaType<QList<Result> >("QList<Result>");
 
     _pSettingsModel = new SettingsModel;
 
@@ -87,8 +87,8 @@ void TestModbusPoll::singleSlaveSuccess()
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
-    auto expResults = QList<ModbusResult>() << ModbusResult(5, true)
-                                            << ModbusResult(65000, true);
+    auto expResults = QList<Result>() << Result(5, true)
+                                            << Result(65000, true);
 
     /* Verify arguments of signal */
     verifyReceivedDataSignal(arguments, expResults);
@@ -115,8 +115,8 @@ void TestModbusPoll::singleSlaveFail()
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
 
-    auto expResults = QList<ModbusResult>() << ModbusResult(0, false)
-                                            << ModbusResult(0, false);
+    auto expResults = QList<Result>() << Result(0, false)
+                                            << Result(0, false);
 
     /* Verify arguments of signal */
     verifyReceivedDataSignal(arguments, expResults);
@@ -143,8 +143,8 @@ void TestModbusPoll::multiSlaveSuccess()
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
-    auto expResults = QList<ModbusResult>() << ModbusResult(5020, true)
-                                            << ModbusResult(5021, true);
+    auto expResults = QList<Result>() << Result(5020, true)
+                                            << Result(5021, true);
 
     /* Verify arguments of signal */
     verifyReceivedDataSignal(arguments, expResults);
@@ -171,8 +171,8 @@ void TestModbusPoll::multiSlaveSuccess_2()
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
-    auto expResults = QList<ModbusResult>() << ModbusResult(5020, true)
-                                            << ModbusResult(5021, true);
+    auto expResults = QList<Result>() << Result(5020, true)
+                                            << Result(5021, true);
 
     /* Verify arguments of signal */
     verifyReceivedDataSignal(arguments, expResults);
@@ -203,9 +203,9 @@ void TestModbusPoll::multiSlaveSuccess_3()
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
-    auto expResults = QList<ModbusResult>() << ModbusResult(5020, true)
-                                            << ModbusResult(5022, true)
-                                            << ModbusResult(5021, true);
+    auto expResults = QList<Result>() << Result(5020, true)
+                                            << Result(5022, true)
+                                            << Result(5021, true);
 
     /* Verify arguments of signal */
     verifyReceivedDataSignal(arguments, expResults);
@@ -231,8 +231,8 @@ void TestModbusPoll::multiSlaveSingleFail()
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
-    auto expResults = QList<ModbusResult>() << ModbusResult(0, false)
-                                            << ModbusResult(5021, true);
+    auto expResults = QList<Result>() << Result(0, false)
+                                            << Result(5021, true);
 
     /* Verify arguments of signal */
     verifyReceivedDataSignal(arguments, expResults);
@@ -258,8 +258,8 @@ void TestModbusPoll::multiSlaveAllFail()
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
-    auto expResults = QList<ModbusResult>() << ModbusResult(0, false)
-                                            << ModbusResult(0, false);
+    auto expResults = QList<Result>() << Result(0, false)
+                                            << Result(0, false);
 
     /* Verify arguments of signal */
     verifyReceivedDataSignal(arguments, expResults);
@@ -291,20 +291,20 @@ void TestModbusPoll::multiSlaveDisabledConnection()
     QList<QVariant> arguments = spyDataReady.takeFirst();
 
     /* Disabled connections return error and zero */
-    auto expResults = QList<ModbusResult>() << ModbusResult(5020, true)
-                                            << ModbusResult(0, false);
+    auto expResults = QList<Result>() << Result(5020, true)
+                                            << Result(0, false);
 
     /* Verify arguments of signal */
     verifyReceivedDataSignal(arguments, expResults);
 }
 
-void TestModbusPoll::verifyReceivedDataSignal(QList<QVariant> arguments, QList<ModbusResult> expResultList)
+void TestModbusPoll::verifyReceivedDataSignal(QList<QVariant> arguments, QList<Result> expResultList)
 {
     QVERIFY(arguments.count() > 0);
 
     QVariant varResultList = arguments.first();
-    QVERIFY((varResultList.canConvert<QList<ModbusResult> >()));
-    QList<ModbusResult> result = varResultList.value<QList<ModbusResult> >();
+    QVERIFY((varResultList.canConvert<QList<Result> >()));
+    QList<Result> result = varResultList.value<QList<Result> >();
 
     QCOMPARE(result, expResultList);
 }

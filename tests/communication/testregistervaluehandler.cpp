@@ -5,13 +5,13 @@
 
 #include "settingsmodel.h"
 
-Q_DECLARE_METATYPE(ModbusResult);
+Q_DECLARE_METATYPE(Result);
 
 
 void TestRegisterValueHandler::init()
 {
-    qRegisterMetaType<ModbusResult>("ModbusResult");
-    qRegisterMetaType<QList<ModbusResult> >("QList<ModbusResult>");
+    qRegisterMetaType<Result>("Result");
+    qRegisterMetaType<QList<Result> >("QList<Result>");
 
     _pSettingsModel = new SettingsModel();
 
@@ -123,12 +123,12 @@ void TestRegisterValueHandler::read_16()
 {
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
                                                    << ModbusRegister(40002, SettingsModel::CONNECTION_ID_0, false, false);
-    QMap<quint16, ModbusResult> partialResultMap;
+    QMap<quint16, Result> partialResultMap;
     addToResultMap(partialResultMap, 40001, false, 256, true);
     addToResultMap(partialResultMap, 40002, false, -100, true);
 
-    auto expResults = QList<ModbusResult>() << ModbusResult(256, true)
-                                            << ModbusResult(-100, true);
+    auto expResults = QList<Result>() << Result(256, true)
+                                            << Result(-100, true);
 
     verifyRegisterResult(modbusRegisters, partialResultMap, expResults);
 }
@@ -137,12 +137,12 @@ void TestRegisterValueHandler::read_32()
 {
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, true, true)
                                                    << ModbusRegister(40005, SettingsModel::CONNECTION_ID_0, true, false);
-    QMap<quint16, ModbusResult> partialResultMap;
+    QMap<quint16, Result> partialResultMap;
     addToResultMap(partialResultMap, 40001, true, 1000000, true);
     addToResultMap(partialResultMap, 40005, true, -100000, true);
 
-    auto expResults = QList<ModbusResult>() << ModbusResult(1000000, true)
-                                            << ModbusResult(-100000, true);
+    auto expResults = QList<Result>() << Result(1000000, true)
+                                            << Result(-100000, true);
 
     verifyRegisterResult(modbusRegisters, partialResultMap, expResults);
 }
@@ -152,13 +152,13 @@ void TestRegisterValueHandler::readBigEndian_32()
     _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_0, false);
 
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, true, true);
-    QMap<quint16, ModbusResult> partialResultMap;
+    QMap<quint16, Result> partialResultMap;
     quint32 value = 1000000;
 
-    partialResultMap.insert(40001, ModbusResult(static_cast<quint32>(value) >> 16, true));
-    partialResultMap.insert(40001 + 1, ModbusResult(static_cast<quint16>(value), true));
+    partialResultMap.insert(40001, Result(static_cast<quint32>(value) >> 16, true));
+    partialResultMap.insert(40001 + 1, Result(static_cast<quint16>(value), true));
 
-    auto expResults = QList<ModbusResult>() << ModbusResult(1000000, true);
+    auto expResults = QList<Result>() << Result(1000000, true);
 
     verifyRegisterResult(modbusRegisters, partialResultMap, expResults);
 }
@@ -168,13 +168,13 @@ void TestRegisterValueHandler::readBigEndian_s32()
     _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_0, false);
 
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, true, true);
-    QMap<quint16, ModbusResult> partialResultMap;
+    QMap<quint16, Result> partialResultMap;
     quint32 value = -1000000;
 
-    partialResultMap.insert(40001, ModbusResult(static_cast<quint32>(value) >> 16, true));
-    partialResultMap.insert(40001 + 1, ModbusResult(static_cast<quint16>(value), true));
+    partialResultMap.insert(40001, Result(static_cast<quint32>(value) >> 16, true));
+    partialResultMap.insert(40001 + 1, Result(static_cast<quint16>(value), true));
 
-    auto expResults = QList<ModbusResult>() << ModbusResult(-1000000, true);
+    auto expResults = QList<Result>() << Result(-1000000, true);
 
     verifyRegisterResult(modbusRegisters, partialResultMap, expResults);
 }
@@ -183,14 +183,14 @@ void TestRegisterValueHandler::readConnections()
 {
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
                                                    << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, false);
-    QMap<quint16, ModbusResult> partialResultMap1;
+    QMap<quint16, Result> partialResultMap1;
     addToResultMap(partialResultMap1, 40001, false, 256, true);
 
-    QMap<quint16, ModbusResult> partialResultMap2;
+    QMap<quint16, Result> partialResultMap2;
     addToResultMap(partialResultMap2, 40001, false, 100, true);
 
-    auto expResults = QList<ModbusResult>() << ModbusResult(256, true)
-                                            << ModbusResult(100, true);
+    auto expResults = QList<Result>() << Result(256, true)
+                                            << Result(100, true);
 
 
     RegisterValueHandler regHandler(_pSettingsModel);
@@ -209,8 +209,8 @@ void TestRegisterValueHandler::readConnections()
     QVERIFY(arguments.count() > 0);
 
     QVariant varResultList = arguments.first();
-    QVERIFY((varResultList.canConvert<QList<ModbusResult> >()));
-    QList<ModbusResult> result = varResultList.value<QList<ModbusResult> >();
+    QVERIFY((varResultList.canConvert<QList<Result> >()));
+    QList<Result> result = varResultList.value<QList<Result> >();
 
     QCOMPARE(result, expResults);
 }
@@ -220,11 +220,11 @@ void TestRegisterValueHandler::readFail()
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
                                                    << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, false);
 
-    QMap<quint16, ModbusResult> partialResultMap2;
+    QMap<quint16, Result> partialResultMap2;
     addToResultMap(partialResultMap2, 40001, false, 100, true);
 
-    auto expResults = QList<ModbusResult>() << ModbusResult(0, false)
-                                            << ModbusResult(100, true);
+    auto expResults = QList<Result>() << Result(0, false)
+                                            << Result(100, true);
 
 
     RegisterValueHandler regHandler(_pSettingsModel);
@@ -242,15 +242,15 @@ void TestRegisterValueHandler::readFail()
     QVERIFY(arguments.count() > 0);
 
     QVariant varResultList = arguments.first();
-    QVERIFY((varResultList.canConvert<QList<ModbusResult> >()));
-    QList<ModbusResult> result = varResultList.value<QList<ModbusResult> >();
+    QVERIFY((varResultList.canConvert<QList<Result> >()));
+    QList<Result> result = varResultList.value<QList<Result> >();
 
     QCOMPARE(result, expResults);
 }
 
 void TestRegisterValueHandler::verifyRegisterResult(QList<ModbusRegister>& regList,
-                                                    QMap<quint16, ModbusResult> &regData,
-                                                    QList<ModbusResult> expResults)
+                                                    QMap<quint16, Result> &regData,
+                                                    QList<Result> expResults)
 {
     RegisterValueHandler regHandler(_pSettingsModel);
     regHandler.setRegisters(regList);
@@ -267,24 +267,24 @@ void TestRegisterValueHandler::verifyRegisterResult(QList<ModbusRegister>& regLi
     QVERIFY(arguments.count() > 0);
 
     QVariant varResultList = arguments.first();
-    QVERIFY((varResultList.canConvert<QList<ModbusResult> >()));
-    QList<ModbusResult> result = varResultList.value<QList<ModbusResult> >();
+    QVERIFY((varResultList.canConvert<QList<Result> >()));
+    QList<Result> result = varResultList.value<QList<Result> >();
 
     QCOMPARE(result, expResults);
 }
 
-void TestRegisterValueHandler::addToResultMap(QMap<quint16, ModbusResult> &resultMap,
+void TestRegisterValueHandler::addToResultMap(QMap<quint16, Result> &resultMap,
         quint16 addr,
         bool b32bit,
         qint64 value,
         bool result
         )
 {
-    resultMap.insert(addr, ModbusResult(static_cast<quint16>(value), result));
+    resultMap.insert(addr, Result(static_cast<quint16>(value), result));
 
     if (b32bit)
     {
-        resultMap.insert(addr + 1, ModbusResult(static_cast<quint32>(value) >> 16, result));
+        resultMap.insert(addr + 1, Result(static_cast<quint32>(value) >> 16, result));
     }
 }
 

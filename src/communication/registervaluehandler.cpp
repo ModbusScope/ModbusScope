@@ -12,7 +12,7 @@ void RegisterValueHandler::startRead()
 
     for(quint16 listIdx = 0; listIdx < _registerList.size(); listIdx++)
     {
-        _resultList.append(ModbusResult());
+        _resultList.append(Result());
     }
 }
 
@@ -22,9 +22,9 @@ void RegisterValueHandler::finishRead()
     emit registerDataReady(_resultList);
 }
 
-void RegisterValueHandler::processPartialResult(QMap<quint16, ModbusResult> partialResultMap, quint8 connectionId)
+void RegisterValueHandler::processPartialResult(QMap<quint16, Result> partialResultMap, quint8 connectionId)
 {
-    QMapIterator<quint16, ModbusResult> i(partialResultMap);
+    QMapIterator<quint16, Result> i(partialResultMap);
     while (i.hasNext())
     {
         i.next();
@@ -45,7 +45,7 @@ void RegisterValueHandler::processPartialResult(QMap<quint16, ModbusResult> part
                     {
                         if (mbReg.is32Bit())
                         {
-                            ModbusResult nextResult = i.peekNext().value();
+                            Result nextResult = i.peekNext().value();
 
                             if (nextResult.isSuccess())
                             {
@@ -83,7 +83,7 @@ void RegisterValueHandler::processPartialResult(QMap<quint16, ModbusResult> part
                         processedResult = 0;
                     }
 
-                    _resultList[listIdx] = ModbusResult(static_cast<double>(processedResult), bSuccess);
+                    _resultList[listIdx] = Result(static_cast<double>(processedResult), bSuccess);
                 }
             }
         }

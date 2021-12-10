@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "modbusresult.h"
+#include "result.h"
 #include "modbusregister.h"
 
 class SettingsModel;
@@ -18,13 +18,13 @@ public:
     void setRegisters(QList<ModbusRegister> &registerList);
 
     void startRead();
-    void processPartialResult(QMap<quint16, ModbusResult> partialResultMap, quint8 connectionId);
+    void processPartialResult(QMap<quint16, Result> partialResultMap, quint8 connectionId);
     void finishRead();
 
     void registerAddresList(QList<quint16>& registerList, quint8 connectionId);
 
 signals:
-    void registerDataReady(QList<ModbusResult> registers);
+    void registerDataReady(QList<Result> registers);
 
 private:
 
@@ -33,7 +33,7 @@ private:
     SettingsModel* _pSettingsModel;
 
     QList<ModbusRegister> _registerList;
-    QList<ModbusResult> _resultList;
+    QList<Result> _resultList;
 };
 
 #endif // REGISTERVALUEHANDLER_H

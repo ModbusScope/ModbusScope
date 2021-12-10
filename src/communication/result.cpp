@@ -1,38 +1,38 @@
-#include "modbusresult.h"
+#include "result.h"
 
-ModbusResult::ModbusResult()
-    : ModbusResult(0, false)
+Result::Result()
+    : Result(0, false)
 {
 
 }
 
-ModbusResult::ModbusResult(quint32 value, bool bResult)
+Result::Result(quint32 value, bool bResult)
     : _value(value), _bResult(bResult)
 {
 
 }
 
-quint32 ModbusResult::value() const
+quint32 Result::value() const
 {
     return _value;
 }
 
-void ModbusResult::setValue(quint32 value)
+void Result::setValue(quint32 value)
 {
     _value = value;
 }
 
-bool ModbusResult::isSuccess() const
+bool Result::isSuccess() const
 {
     return _bResult;
 }
 
-void ModbusResult::setSuccess(bool bSuccess)
+void Result::setSuccess(bool bSuccess)
 {
     _bResult = bSuccess;
 }
 
-ModbusResult& ModbusResult::operator= (const ModbusResult& modbusResult)
+Result& Result::operator= (const Result& modbusResult)
 {
     // self-assignment guard
     if (this == &modbusResult)
@@ -47,7 +47,7 @@ ModbusResult& ModbusResult::operator= (const ModbusResult& modbusResult)
     return *this;
 }
 
-bool operator== (const ModbusResult& res1, const ModbusResult& res2)
+bool operator== (const Result& res1, const Result& res2)
 {
     if (
         (res1._value == res2._value)
@@ -62,7 +62,7 @@ bool operator== (const ModbusResult& res1, const ModbusResult& res2)
     }
 }
 
-QDebug operator<<(QDebug debug, const ModbusResult &result)
+QDebug operator<<(QDebug debug, const Result &result)
 {
     QDebugStateSaver saver(debug);
     QString resultString = result.isSuccess() ? "Success" : "Fail" ;

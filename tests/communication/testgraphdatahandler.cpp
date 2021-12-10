@@ -7,12 +7,12 @@
 #include "graphdatahandler.h"
 #include "settingsmodel.h"
 
-Q_DECLARE_METATYPE(ModbusResult);
+Q_DECLARE_METATYPE(Result);
 
 void TestGraphDataHandler::init()
 {
-    qRegisterMetaType<ModbusResult>("ModbusResult");
-    qRegisterMetaType<QList<ModbusResult> >("QList<ModbusResult>");
+    qRegisterMetaType<Result>("Result");
+    qRegisterMetaType<QList<Result> >("QList<Result>");
 
     _pSettingsModel = new SettingsModel;
     _pGraphDataModel = new GraphDataModel(_pSettingsModel);
@@ -81,8 +81,8 @@ void TestGraphDataHandler::graphData()
 
     addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto regResults = QList<ModbusResult>() << ModbusResult(1, true)
-                                            << ModbusResult(2, true);
+    auto regResults = QList<Result>() << Result(1, true)
+                                            << Result(2, true);
 
     auto resultList = QList<bool>() << true;
     auto valueList = QList<double>() << 3;
@@ -99,8 +99,8 @@ void TestGraphDataHandler::graphData_fail()
 
     addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto regResults = QList<ModbusResult>() << ModbusResult(1, true)
-                                            << ModbusResult(0, false);
+    auto regResults = QList<Result>() << Result(1, true)
+                                            << Result(0, false);
 
     auto resultList = QList<bool>() << false << true;
     auto valueList = QList<double>() << 0 << 1;
@@ -110,7 +110,7 @@ void TestGraphDataHandler::graphData_fail()
     verifyReceivedDataSignal(rawRegData, resultList, valueList);
 }
 
-void TestGraphDataHandler::doHandleRegisterData(QList<ModbusResult>& modbusResults, QList<QVariant>& actRawData)
+void TestGraphDataHandler::doHandleRegisterData(QList<Result>& modbusResults, QList<QVariant>& actRawData)
 {
     GraphDataHandler dataHandler(_pGraphDataModel);
     QList<ModbusRegister> registerList;
