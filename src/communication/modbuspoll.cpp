@@ -10,9 +10,9 @@
 #include "formatdatetime.h"
 #include "registervaluehandler.h"
 
-#include "communicationmanager.h"
+#include "modbuspoll.h"
 
-CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, QObject *parent) :
+ModbusPoll::ModbusPoll(SettingsModel * pSettingsModel, QObject *parent) :
     QObject(parent), _bPollActive(false)
 {
 
@@ -20,7 +20,7 @@ CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, QObje
     _pSettingsModel = pSettingsModel;
 
     _pRegisterValueHandler = new RegisterValueHandler(_pSettingsModel);
-    connect(_pRegisterValueHandler, &RegisterValueHandler::registerDataReady, this, &CommunicationManager::registerDataReady);
+    connect(_pRegisterValueHandler, &RegisterValueHandler::registerDataReady, this, &ModbusPoll::registerDataReady);
 
     /* Setup modbus master */
     for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++)
@@ -28,16 +28,16 @@ CommunicationManager::CommunicationManager(SettingsModel * pSettingsModel, QObje
         auto modbusData = new ModbusMasterData(new ModbusMaster(_pSettingsModel, i));
         _modbusMasters.append(modbusData);
 
-        connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusPollDone, this, &CommunicationManager::handlePollDone);
-        connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusLogError, this, &CommunicationManager::handleModbusError);
-        connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusLogInfo, this, &CommunicationManager::handleModbusInfo);
+        connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusPollDone, this, &ModbusPoll::handlePollDone);
+        connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusLogError, this, &ModbusPoll::handleModbusError);
+        connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusLogInfo, this, &ModbusPoll::handleModbusInfo);
     }
 
     _activeMastersCount = 0;
     _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 }
 
-CommunicationManager::~CommunicationManager()
+ModbusPoll::~ModbusPoll()
 {
     for (quint8 i = 0u; i < _modbusMasters.size(); i++)
     {
@@ -50,12 +50,12 @@ CommunicationManager::~CommunicationManager()
     delete _pPollTimer;
 }
 
-void CommunicationManager::startCommunication(QList<ModbusRegister>& registerList)
+void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
 {
     _pRegisterValueHandler->setRegisters(registerList);
 
     // Trigger read immediately
-    _pPollTimer->singleShot(1, this, &CommunicationManager::triggerRegisterRead);
+    _pPollTimer->singleShot(1, this, &ModbusPoll::triggerRegisterRead);
 
     _bPollActive = true;
 
@@ -98,12 +98,12 @@ void CommunicationManager::startCommunication(QList<ModbusRegister>& registerLis
     resetCommunicationStats();
 }
 
-void CommunicationManager::resetCommunicationStats()
+void ModbusPoll::resetCommunicationStats()
 {
     _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 }
 
-void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialResultMap, quint8 connectionId)
+void ModbusPoll::handlePollDone(QMap<quint16, ModbusResult> partialResultMap, quint8 connectionId)
 {
     bool lastResult = false;
 
@@ -148,21 +148,21 @@ void CommunicationManager::handlePollDone(QMap<quint16, ModbusResult> partialRes
             waitInterval = _pSettingsModel->pollTime() - passedInterval;
         }
 
-        _pPollTimer->singleShot(static_cast<int>(waitInterval), this, &CommunicationManager::triggerRegisterRead);
+        _pPollTimer->singleShot(static_cast<int>(waitInterval), this, &ModbusPoll::triggerRegisterRead);
     }
 }
 
-void CommunicationManager::handleModbusError(QString msg)
+void ModbusPoll::handleModbusError(QString msg)
 {
     qCWarning(scopeCommConnection) << msg;
 }
 
-void CommunicationManager::handleModbusInfo(QString msg)
+void ModbusPoll::handleModbusInfo(QString msg)
 {
     qCDebug(scopeCommConnection) << msg;
 }
 
-void CommunicationManager::stopCommunication()
+void ModbusPoll::stopCommunication()
 {
     _bPollActive = false;
     _pPollTimer->stop();
@@ -175,12 +175,12 @@ void CommunicationManager::stopCommunication()
     }
 }
 
-bool CommunicationManager::isActive()
+bool ModbusPoll::isActive()
 {
     return _bPollActive;
 }
 
-void CommunicationManager::triggerRegisterRead()
+void ModbusPoll::triggerRegisterRead()
 {
     if(_bPollActive)
     {

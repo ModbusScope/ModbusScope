@@ -2,14 +2,14 @@
 #include <QObject>
 #include <QUrl>
 
-#include "communicationmanager.h"
+#include "modbuspoll.h"
 #include "settingsmodel.h"
 #include "modbusregister.h"
 
 #include "testslavedata.h"
 #include "testslavemodbus.h"
 
-class TestCommunicationManager: public QObject
+class TestModbusPoll: public QObject
 {
     Q_OBJECT
 private slots:

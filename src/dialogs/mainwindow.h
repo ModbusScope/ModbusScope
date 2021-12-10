@@ -15,7 +15,7 @@ class MainWindow;
 }
 
 // Forward declaration
-class CommunicationManager;
+class ModbusPoll;
 class GraphDataHandler;
 class QCustomPlot;
 class GraphDataModel;
@@ -112,7 +112,7 @@ private:
     void handleCommandLineArguments(QStringList cmdArguments);
 
     Ui::MainWindow * _pUi;
-    CommunicationManager * _pConnMan;
+    ModbusPoll * _pModbusPoll;
     GraphView * _pGraphView;
 
     GuiModel * _pGuiModel;

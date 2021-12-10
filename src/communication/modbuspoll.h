@@ -27,12 +27,12 @@ public:
     bool bActive;
 };
 
-class CommunicationManager : public QObject
+class ModbusPoll : public QObject
 {
     Q_OBJECT
 public:
-    explicit CommunicationManager(SettingsModel * pSettingsModel, QObject *parent = nullptr);
-    ~CommunicationManager();
+    explicit ModbusPoll(SettingsModel * pSettingsModel, QObject *parent = nullptr);
+    ~ModbusPoll();
 
     void startCommunication(QList<ModbusRegister>& registerList);
     void stopCommunication();
