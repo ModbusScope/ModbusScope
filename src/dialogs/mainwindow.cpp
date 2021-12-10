@@ -3,7 +3,7 @@
 #include "qcustomplot.h"
 #include "registervaluehandler.h"
 #include "graphdatahandler.h"
-#include "communicationmanager.h"
+#include "modbuspoll.h"
 #include "graphdatamodel.h"
 #include "notemodel.h"
 #include "diagnosticmodel.h"
@@ -55,8 +55,8 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
 
     _pGraphDataHandler = new GraphDataHandler(_pGraphDataModel);
-    _pConnMan = new CommunicationManager(_pSettingsModel);
-    connect(_pConnMan, &CommunicationManager::registerDataReady, _pGraphDataHandler, &GraphDataHandler::handleRegisterData);
+    _pModbusPoll = new ModbusPoll(_pSettingsModel);
+    connect(_pModbusPoll, &ModbusPoll::registerDataReady, _pGraphDataHandler, &GraphDataHandler::handleRegisterData);
 
     _pGraphView = new GraphView(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
     _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel, _pSettingsModel, _pDataParserModel, this);
@@ -243,7 +243,7 @@ MainWindow::~MainWindow()
 {
     delete _pGraphView;
     delete _pConnectionDialog;
-    delete _pConnMan;
+    delete _pModbusPoll;
     delete _pGraphShowHide;
     delete _pGraphBringToFront;
     delete _pDataFileHandler;
@@ -481,7 +481,7 @@ void MainWindow::clearData()
     _pGuiModel->setCommunicationStats(0, 0);
     _pGuiModel->setCommunicationStartTime(QDateTime::currentMSecsSinceEpoch());
 
-    _pConnMan->resetCommunicationStats();
+    _pModbusPoll->resetCommunicationStats();
     _pGraphView->clearResults();
     _pGuiModel->clearMarkersState();
     _pDataFileHandler->rewriteDataFile();
@@ -509,7 +509,7 @@ void MainWindow::startScope()
         QList<ModbusRegister> registerList;
         _pGraphDataHandler->modbusRegisterList(registerList);
 
-        _pConnMan->startCommunication(registerList);
+        _pModbusPoll->startCommunication(registerList);
 
         clearData();
 
@@ -537,7 +537,7 @@ void MainWindow::startScope()
 
 void MainWindow::stopScope()
 {
-    _pConnMan->stopCommunication();
+    _pModbusPoll->stopCommunication();
 
     _pGuiModel->setCommunicationEndTime(QDateTime::currentMSecsSinceEpoch());
 
@@ -939,7 +939,7 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *e)
 
 void MainWindow::dropEvent(QDropEvent *e)
 {
-    if (!_pConnMan->isActive())
+    if (!_pModbusPoll->isActive())
     {
         const QString filename(e->mimeData()->urls().last().toLocalFile());
         QFileInfo fileInfo(filename);
@@ -1003,7 +1003,7 @@ void MainWindow::updateRuntime()
     _pStatusRuntime->setText(_cRuntime.arg(strTimePassed));
 
     // restart timer
-    if (_pConnMan->isActive())
+    if (_pModbusPoll->isActive())
     {
         _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
     }

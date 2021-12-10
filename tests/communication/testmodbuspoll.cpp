@@ -6,11 +6,11 @@
 #include "testslavedata.h"
 #include "testslavemodbus.h"
 
-#include "testcommunicationmanager.h"
+#include "testmodbuspoll.h"
 
 Q_DECLARE_METATYPE(ModbusResult);
 
-void TestCommunicationManager::init()
+void TestModbusPoll::init()
 {
     qRegisterMetaType<ModbusResult>("ModbusResult");
     qRegisterMetaType<QList<ModbusResult> >("QList<ModbusResult>");
@@ -49,7 +49,7 @@ void TestCommunicationManager::init()
     }
 }
 
-void TestCommunicationManager::cleanup()
+void TestModbusPoll::cleanup()
 {
     delete _pSettingsModel;
 
@@ -66,7 +66,7 @@ void TestCommunicationManager::cleanup()
     _testSlaveModbusList.clear();
 }
 
-void TestCommunicationManager::singleSlaveSuccess()
+void TestModbusPoll::singleSlaveSuccess()
 {
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(0, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(0, 5);
@@ -74,14 +74,14 @@ void TestCommunicationManager::singleSlaveSuccess()
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(1, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(1, 65000);
 
-    CommunicationManager conMan(_pSettingsModel);
-    QSignalSpy spyDataReady(&conMan, &CommunicationManager::registerDataReady);
+    ModbusPoll modbusPoll(_pSettingsModel);
+    QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
                                                    << ModbusRegister(40002, SettingsModel::CONNECTION_ID_0, false, true);
 
     /*-- Start communication --*/
-    conMan.startCommunication(modbusRegisters);
+    modbusPoll.startCommunication(modbusRegisters);
 
     QVERIFY(spyDataReady.wait(50));
     QCOMPARE(spyDataReady.count(), 1);
@@ -94,21 +94,21 @@ void TestCommunicationManager::singleSlaveSuccess()
     verifyReceivedDataSignal(arguments, expResults);
 }
 
-void TestCommunicationManager::singleSlaveFail()
+void TestModbusPoll::singleSlaveFail()
 {
     for (quint8 idx = 0; idx < SettingsModel::CONNECTION_ID_CNT; idx++)
     {
         _testSlaveModbusList[idx]->disconnectDevice();
     }
 
-    CommunicationManager conMan(_pSettingsModel);
-    QSignalSpy spyDataReady(&conMan, &CommunicationManager::registerDataReady);
+    ModbusPoll modbusPoll(_pSettingsModel);
+    QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
                                                    << ModbusRegister(40002, SettingsModel::CONNECTION_ID_0, false, true);
 
     /*-- Start communication --*/
-    conMan.startCommunication(modbusRegisters);
+    modbusPoll.startCommunication(modbusRegisters);
 
     QVERIFY(spyDataReady.wait(static_cast<int>(_pSettingsModel->timeout(SettingsModel::CONNECTION_ID_0)) + 100));
     QCOMPARE(spyDataReady.count(), 1);
@@ -122,7 +122,7 @@ void TestCommunicationManager::singleSlaveFail()
     verifyReceivedDataSignal(arguments, expResults);
 }
 
-void TestCommunicationManager::multiSlaveSuccess()
+void TestModbusPoll::multiSlaveSuccess()
 {
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(0, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(0, 5020);
@@ -130,14 +130,14 @@ void TestCommunicationManager::multiSlaveSuccess()
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(0, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(0, 5021);
 
-    CommunicationManager conMan(_pSettingsModel);
-    QSignalSpy spyDataReady(&conMan, &CommunicationManager::registerDataReady);
+    ModbusPoll modbusPoll(_pSettingsModel);
+    QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
                                                    << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true);
 
     /*-- Start communication --*/
-    conMan.startCommunication(modbusRegisters);
+    modbusPoll.startCommunication(modbusRegisters);
 
     QVERIFY(spyDataReady.wait(50));
     QCOMPARE(spyDataReady.count(), 1);
@@ -150,7 +150,7 @@ void TestCommunicationManager::multiSlaveSuccess()
     verifyReceivedDataSignal(arguments, expResults);
 }
 
-void TestCommunicationManager::multiSlaveSuccess_2()
+void TestModbusPoll::multiSlaveSuccess_2()
 {
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(0, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(0, 5020);
@@ -158,14 +158,14 @@ void TestCommunicationManager::multiSlaveSuccess_2()
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(1, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(1, 5021);
 
-    CommunicationManager conMan(_pSettingsModel);
-    QSignalSpy spyDataReady(&conMan, &CommunicationManager::registerDataReady);
+    ModbusPoll modbusPoll(_pSettingsModel);
+    QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
                                                    << ModbusRegister(40002, SettingsModel::CONNECTION_ID_1, false, true);
 
     /*-- Start communication --*/
-    conMan.startCommunication(modbusRegisters);
+    modbusPoll.startCommunication(modbusRegisters);
 
     QVERIFY(spyDataReady.wait(50));
     QCOMPARE(spyDataReady.count(), 1);
@@ -178,7 +178,7 @@ void TestCommunicationManager::multiSlaveSuccess_2()
     verifyReceivedDataSignal(arguments, expResults);
 }
 
-void TestCommunicationManager::multiSlaveSuccess_3()
+void TestModbusPoll::multiSlaveSuccess_3()
 {
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(0, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(0, 5020);
@@ -189,15 +189,15 @@ void TestCommunicationManager::multiSlaveSuccess_3()
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(1, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(1, 5022);
 
-    CommunicationManager conMan(_pSettingsModel);
-    QSignalSpy spyDataReady(&conMan, &CommunicationManager::registerDataReady);
+    ModbusPoll modbusPoll(_pSettingsModel);
+    QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
                                                    << ModbusRegister(40002, SettingsModel::CONNECTION_ID_1, false, true)
                                                    << ModbusRegister(40002, SettingsModel::CONNECTION_ID_0, false, true);
 
     /*-- Start communication --*/
-    conMan.startCommunication(modbusRegisters);
+    modbusPoll.startCommunication(modbusRegisters);
 
     QVERIFY(spyDataReady.wait(50));
     QCOMPARE(spyDataReady.count(), 1);
@@ -211,21 +211,21 @@ void TestCommunicationManager::multiSlaveSuccess_3()
     verifyReceivedDataSignal(arguments, expResults);
 }
 
-void TestCommunicationManager::multiSlaveSingleFail()
+void TestModbusPoll::multiSlaveSingleFail()
 {
     _testSlaveModbusList[SettingsModel::CONNECTION_ID_0]->disconnectDevice();
 
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(0, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(0, 5021);
 
-    CommunicationManager conMan(_pSettingsModel);
-    QSignalSpy spyDataReady(&conMan, &CommunicationManager::registerDataReady);
+    ModbusPoll modbusPoll(_pSettingsModel);
+    QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
                                                    << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true);
 
     /*-- Start communication --*/
-    conMan.startCommunication(modbusRegisters);
+    modbusPoll.startCommunication(modbusRegisters);
 
     QVERIFY(spyDataReady.wait(static_cast<int>(_pSettingsModel->timeout(SettingsModel::CONNECTION_ID_0)) + 100));
     QCOMPARE(spyDataReady.count(), 1);
@@ -238,21 +238,21 @@ void TestCommunicationManager::multiSlaveSingleFail()
     verifyReceivedDataSignal(arguments, expResults);
 }
 
-void TestCommunicationManager::multiSlaveAllFail()
+void TestModbusPoll::multiSlaveAllFail()
 {
     for (quint8 idx = 0; idx < SettingsModel::CONNECTION_ID_CNT; idx++)
     {
         _testSlaveModbusList[idx]->disconnectDevice();
     }
 
-    CommunicationManager conMan(_pSettingsModel);
-    QSignalSpy spyDataReady(&conMan, &CommunicationManager::registerDataReady);
+    ModbusPoll modbusPoll(_pSettingsModel);
+    QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
                                                    << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true);
 
     /*-- Start communication --*/
-    conMan.startCommunication(modbusRegisters);
+    modbusPoll.startCommunication(modbusRegisters);
 
     QVERIFY(spyDataReady.wait(static_cast<int>(_pSettingsModel->timeout(SettingsModel::CONNECTION_ID_0)) + 100));
     QCOMPARE(spyDataReady.count(), 1);
@@ -265,7 +265,7 @@ void TestCommunicationManager::multiSlaveAllFail()
     verifyReceivedDataSignal(arguments, expResults);
 }
 
-void TestCommunicationManager::multiSlaveDisabledConnection()
+void TestModbusPoll::multiSlaveDisabledConnection()
 {
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(0, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(0, 5020);
@@ -276,14 +276,14 @@ void TestCommunicationManager::multiSlaveDisabledConnection()
     /* Disable connection */
     _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_1, false);
 
-    CommunicationManager conMan(_pSettingsModel);
-    QSignalSpy spyDataReady(&conMan, &CommunicationManager::registerDataReady);
+    ModbusPoll modbusPoll(_pSettingsModel);
+    QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
                                                    << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true);
 
     /*-- Start communication --*/
-    conMan.startCommunication(modbusRegisters);
+    modbusPoll.startCommunication(modbusRegisters);
 
     QVERIFY(spyDataReady.wait(50));
     QCOMPARE(spyDataReady.count(), 1);
@@ -298,7 +298,7 @@ void TestCommunicationManager::multiSlaveDisabledConnection()
     verifyReceivedDataSignal(arguments, expResults);
 }
 
-void TestCommunicationManager::verifyReceivedDataSignal(QList<QVariant> arguments, QList<ModbusResult> expResultList)
+void TestModbusPoll::verifyReceivedDataSignal(QList<QVariant> arguments, QList<ModbusResult> expResultList)
 {
     QVERIFY(arguments.count() > 0);
 
@@ -309,4 +309,4 @@ void TestCommunicationManager::verifyReceivedDataSignal(QList<QVariant> argument
     QCOMPARE(result, expResultList);
 }
 
-QTEST_GUILESS_MAIN(TestCommunicationManager)
+QTEST_GUILESS_MAIN(TestModbusPoll)
