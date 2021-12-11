@@ -351,21 +351,14 @@ void TestMbcRegisterModel::selectedRegisterListAndCount()
     QList<GraphData> graphListRef;
     GraphData graphData;
     graphData.setActive(true);
-    graphData.setRegisterAddress(40001);
     graphData.setLabel("Test1");
-    graphData.setUnsigned(true);
-    graphData.setBit32(false);
-    graphData.setExpression(QStringLiteral("VAL"));
+    graphData.setExpression(QStringLiteral("${40001}"));
     graphListRef.append(graphData);
 
     graphData.setActive(true);
-    graphData.setRegisterAddress(40002);
     graphData.setLabel("Test2");
-    graphData.setUnsigned(true);
-    graphData.setBit32(false);
-    graphData.setExpression(QStringLiteral("VAL"));
+    graphData.setExpression(QStringLiteral("${40002}"));
     graphListRef.append(graphData);
-
 
     QList<GraphData> graphList;
     QModelIndex modelIdx;
@@ -382,10 +375,7 @@ void TestMbcRegisterModel::selectedRegisterListAndCount()
 
     graphList = pMbcRegisterModel->selectedRegisterList();
     QCOMPARE(graphList[0].isActive(), graphListRef[0].isActive());
-    QCOMPARE(graphList[0].registerAddress(), graphListRef[0].registerAddress());
     QCOMPARE(graphList[0].label(), graphListRef[0].label());
-    QCOMPARE(graphList[0].isUnsigned(), graphListRef[0].isUnsigned());
-    QCOMPARE(graphList[0].isBit32(), graphListRef[0].isBit32());
     QCOMPARE(graphList[0].expression(), graphListRef[0].expression());
 
     // Check second
@@ -397,17 +387,11 @@ void TestMbcRegisterModel::selectedRegisterListAndCount()
 
     graphList = pMbcRegisterModel->selectedRegisterList();
     QCOMPARE(graphList[0].isActive(), graphListRef[0].isActive());
-    QCOMPARE(graphList[0].registerAddress(), graphListRef[0].registerAddress());
     QCOMPARE(graphList[0].label(), graphListRef[0].label());
-    QCOMPARE(graphList[0].isUnsigned(), graphListRef[0].isUnsigned());
-    QCOMPARE(graphList[0].isBit32(), graphListRef[0].isBit32());
     QCOMPARE(graphList[0].expression(), graphListRef[0].expression());
 
     QCOMPARE(graphList[1].isActive(), graphListRef[1].isActive());
-    QCOMPARE(graphList[1].registerAddress(), graphListRef[1].registerAddress());
     QCOMPARE(graphList[1].label(), graphListRef[1].label());
-    QCOMPARE(graphList[1].isUnsigned(), graphListRef[1].isUnsigned());
-    QCOMPARE(graphList[1].isBit32(), graphListRef[1].isBit32());
     QCOMPARE(graphList[1].expression(), graphListRef[1].expression());
 
     // Uncheck first
@@ -419,12 +403,8 @@ void TestMbcRegisterModel::selectedRegisterListAndCount()
 
     graphList = pMbcRegisterModel->selectedRegisterList();
     QCOMPARE(graphList[0].isActive(), graphListRef[1].isActive());
-    QCOMPARE(graphList[0].registerAddress(), graphListRef[1].registerAddress());
     QCOMPARE(graphList[0].label(), graphListRef[1].label());
-    QCOMPARE(graphList[0].isUnsigned(), graphListRef[1].isUnsigned());
-    QCOMPARE(graphList[0].isBit32(), graphListRef[1].isBit32());
-    QCOMPARE(graphList[0].expression(), graphListRef[0].expression());
-
+    QCOMPARE(graphList[0].expression(), graphListRef[1].expression());
 
     // Uncheck second
     modelIdx = pMbcRegisterModel->index(1, cColumnSelected);
@@ -457,11 +437,8 @@ void TestMbcRegisterModel::selectedRegisterListAndCount32()
 
     graphList = pMbcRegisterModel->selectedRegisterList();
     QCOMPARE(graphList[0].isActive(), true);
-    QCOMPARE(graphList[0].registerAddress(), 40001);
     QCOMPARE(graphList[0].label(), "Test1");
-    QCOMPARE(graphList[0].isUnsigned(), true);
-    QCOMPARE(graphList[0].isBit32(), true);
-    QCOMPARE(graphList[0].expression(), "VAL");
+    QCOMPARE(graphList[0].expression(), "${40001:32b}");
 }
 
 void TestMbcRegisterModel::selectedRegisterListDecimals()
@@ -495,18 +472,15 @@ void TestMbcRegisterModel::selectedRegisterListDecimals()
 
     graphList = pMbcRegisterModel->selectedRegisterList();
     QCOMPARE(graphList[0].isActive(), true);
-    QCOMPARE(graphList[0].registerAddress(), 40001);
-    QCOMPARE(graphList[0].expression(), "VAL");
+    QCOMPARE(graphList[0].expression(), "${40001}");
 
     graphList = pMbcRegisterModel->selectedRegisterList();
     QCOMPARE(graphList[1].isActive(), true);
-    QCOMPARE(graphList[1].registerAddress(), 40002);
-    QCOMPARE(graphList[1].expression(), "VAL/10");
+    QCOMPARE(graphList[1].expression(), "${40002}/10");
 
     graphList = pMbcRegisterModel->selectedRegisterList();
     QCOMPARE(graphList[2].isActive(), true);
-    QCOMPARE(graphList[2].registerAddress(), 40003);
-    QCOMPARE(graphList[2].expression(), "VAL/100");
+    QCOMPARE(graphList[2].expression(), "${40003}/100");
 }
 
 void TestMbcRegisterModel::fillModel(MbcRegisterModel * pMbcRegisterModel)

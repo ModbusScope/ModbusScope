@@ -1,7 +1,5 @@
 #include "mbcregistermodel.h"
 
-#include <QtMath>
-
 MbcRegisterModel::MbcRegisterModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
@@ -260,18 +258,8 @@ QList<GraphData> MbcRegisterModel::selectedRegisterList()
             _mbcRegisterList[row];
 
             graphData.setActive(true);
-            graphData.setRegisterAddress(_mbcRegisterList[row].registerAddress());
             graphData.setLabel(_mbcRegisterList[row].name());
-            graphData.setUnsigned(_mbcRegisterList[row].isUnsigned());
-            if (_mbcRegisterList[row].decimals() != 0)
-            {
-                graphData.setExpression(QString("VAL/%1").arg(static_cast<double>(qPow(10, _mbcRegisterList[row].decimals()))));
-            }
-            else
-            {
-                graphData.setExpression(QStringLiteral("VAL"));
-            }
-            graphData.setBit32(_mbcRegisterList[row].is32Bit());
+            graphData.setExpression(_mbcRegisterList[row].toExpression());
 
             _selectedRegisterList.append(graphData);
         }
