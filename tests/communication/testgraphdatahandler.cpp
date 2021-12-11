@@ -23,6 +23,7 @@ void TestGraphDataHandler::init()
 
 void TestGraphDataHandler::cleanup()
 {
+    delete _pGraphDataModel;
     delete _pSettingsModel;
 }
 
