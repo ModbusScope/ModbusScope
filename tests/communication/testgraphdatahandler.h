@@ -13,6 +13,7 @@ class GraphDataModel;
 class TestGraphDataHandler: public QObject
 {
     Q_OBJECT
+
 private slots:
     void init();
     void cleanup();
@@ -26,8 +27,6 @@ private slots:
 private:
 
     void doHandleRegisterData(QList<Result>& modbusResults, QList<QVariant> &actRawData);
-    void addExpressionsToModel(GraphDataModel* pModel, QStringList &exprList);
-    void verifyReceivedDataSignal(QList<QVariant> arguments, QList<bool> expResultList, QList<double> expValueList);
 
     SettingsModel* _pSettingsModel;
     GraphDataModel* _pGraphDataModel;
