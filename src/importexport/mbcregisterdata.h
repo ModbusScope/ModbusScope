@@ -34,7 +34,11 @@ public:
     quint8 decimals() const;
     void setDecimals(const quint8 &decimals);
 
+    QString toExpression();
+
 private:
+
+    QString typeSuffix(bool is32bit, bool bUnsigned);
 
     quint16 _registerAddress;
     bool _bUnsigned;
