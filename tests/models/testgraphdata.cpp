@@ -45,28 +45,6 @@ void TestGraphData::setLabel()
     QCOMPARE(graphData.label(), baseString + baseString);
 }
 
-void TestGraphData::setExpression_data()
-{
-
-    QTest::addColumn<QString>("valString");
-
-    QTest::newRow("val") << "val";
-    QTest::newRow("VaL") << "VaL";
-    QTest::newRow("VAL") << "VAL";
-    QTest::newRow("Val") << "Val";
-}
-
-void TestGraphData::setExpression()
-{
-    QFETCH(QString, valString);
-
-    GraphData graphData;
-
-    graphData.setExpression(valString);
-
-    QCOMPARE(graphData.expression(), QStringLiteral("VAL"));
-}
-
 /* TODO: Add extra test for other functions */
 
 QTEST_GUILESS_MAIN(TestGraphData)

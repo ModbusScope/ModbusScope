@@ -11,7 +11,7 @@ GraphData::GraphData()
     _bUnsigned = true;
     _bit32 = false;
     _registerAddress = 0;
-    _expression = QStringLiteral("VAL");
+    _expression = QStringLiteral("0");
     _connectionId = 0;
 
     _pDataMap = QSharedPointer<QCPGraphDataContainer>(new QCPGraphDataContainer);
@@ -92,9 +92,6 @@ QString GraphData::expression() const
 
 void GraphData::setExpression(QString expression)
 {
-    /* Change "val" in all cases to "VAL" */
-    expression.replace(QStringLiteral("val"), QStringLiteral("VAL"), Qt::CaseInsensitive);
-
     _expression = expression;
 }
 
