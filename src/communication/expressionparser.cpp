@@ -45,7 +45,7 @@ QString ExpressionParser::processExpression(QString& graphExpr)
     resultExpr = resultExpr.remove(' ');
     QRegularExpressionMatchIterator i = _findRegRegex.globalMatch(resultExpr);
 
-    if (!i.hasNext())
+    if (!i.hasNext() && resultExpr.contains("$"))
     {
         auto msg = QString("Expression evaluation parsing failed (\"%1\")").arg(resultExpr);
         qCWarning(scopeComm) << msg;
