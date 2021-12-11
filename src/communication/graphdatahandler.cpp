@@ -61,10 +61,8 @@ void GraphDataHandler::handleRegisterData(QList<Result> results)
             bSuccess = false;
 
             const quint16 activeIndex = _activeIndexList[listIdx];
-            auto msg = QString("Expression evaluation failed (%1): address %2, expression %3")
-                        .arg(_valueParsers[listIdx]->msg())
-                        .arg(_pGraphDataModel->registerAddress(activeIndex))
-                        .arg(_pGraphDataModel->expression(activeIndex));
+            auto msg = QString("Expression evaluation failed (%1): expression %2")
+                        .arg(_valueParsers[listIdx]->msg(), _pGraphDataModel->expression(activeIndex));
 
             qCWarning(scopeComm) << msg;
         }
