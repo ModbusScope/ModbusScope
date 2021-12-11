@@ -119,6 +119,15 @@ void TestExpressionParser::spaces()
     verifyParsing(input, expModbusRegisters, expExpressions);
 }
 
+void TestExpressionParser::constant()
+{
+    auto input = QStringList() << "2";
+    auto expModbusRegisters = QList<ModbusRegister>();
+    auto expExpressions = QStringList() << "2";
+
+    verifyParsing(input, expModbusRegisters, expExpressions);
+}
+
 void TestExpressionParser::verifyParsing(QStringList exprList, QList<ModbusRegister> &expectedRegisters, QStringList &expectedExpression)
 {
     QList<ModbusRegister> actualModbusRegisters;
