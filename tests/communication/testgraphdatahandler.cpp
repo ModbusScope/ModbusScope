@@ -3,6 +3,7 @@
 
 #include "testgraphdatahandler.h"
 
+#include "communicationhelpers.h"
 #include "graphdatamodel.h"
 #include "graphdatahandler.h"
 #include "settingsmodel.h"
@@ -32,7 +33,7 @@ void TestGraphDataHandler::registerList()
     auto exprList = QStringList() << "${40001@2} + ${40001}"
                                   << "${40002:s32b}";
 
-    addExpressionsToModel(_pGraphDataModel, exprList);
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
     auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true)
                                                       << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
@@ -80,7 +81,7 @@ void TestGraphDataHandler::graphData()
 {
     auto exprList = QStringList() << "${40001} + ${40002}";
 
-    addExpressionsToModel(_pGraphDataModel, exprList);
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
     auto regResults = QList<Result>() << Result(1, true)
                                             << Result(2, true);
@@ -90,7 +91,7 @@ void TestGraphDataHandler::graphData()
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(regResults, rawRegData);
-    verifyReceivedDataSignal(rawRegData, resultList, valueList);
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
 }
 
 void TestGraphDataHandler::graphData_fail()
@@ -98,7 +99,7 @@ void TestGraphDataHandler::graphData_fail()
     auto exprList = QStringList() << "${40001} + ${40002}"
                                   << "${40001}";
 
-    addExpressionsToModel(_pGraphDataModel, exprList);
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
     auto regResults = QList<Result>() << Result(1, true)
                                             << Result(0, false);
@@ -108,7 +109,7 @@ void TestGraphDataHandler::graphData_fail()
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(regResults, rawRegData);
-    verifyReceivedDataSignal(rawRegData, resultList, valueList);
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
 }
 
 void TestGraphDataHandler::doHandleRegisterData(QList<Result>& modbusResults, QList<QVariant>& actRawData)
@@ -122,28 +123,6 @@ void TestGraphDataHandler::doHandleRegisterData(QList<Result>& modbusResults, QL
 
     QCOMPARE(spyDataReady.count(), 1);
     actRawData = spyDataReady.takeFirst();
-}
-
-void TestGraphDataHandler::addExpressionsToModel(GraphDataModel* pModel, QStringList& exprList)
-{
-    for(const QString &expr: qAsConst(exprList))
-    {
-        pModel->add();
-        pModel->setExpression(pModel->size() - 1, expr);
-    }
-}
-
-void TestGraphDataHandler::verifyReceivedDataSignal(QList<QVariant> arguments, QList<bool> expResultList, QList<double> expValueList)
-{
-    /* Verify success */
-    QVERIFY((arguments[0].canConvert<QList<bool> >()));
-    QList<bool> resultList = arguments[0].value<QList<bool> >();
-    QCOMPARE(resultList, expResultList);
-
-    /* Verify values */
-    QVERIFY((arguments[1].canConvert<QList<double> >()));
-    QList<double> valueList = arguments[1].value<QList<double> >();
-    QCOMPARE(valueList, expValueList);
 }
 
 QTEST_GUILESS_MAIN(TestGraphDataHandler)
