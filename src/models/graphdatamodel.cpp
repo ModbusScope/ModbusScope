@@ -56,32 +56,6 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
             }
         }
         break;
-    case column::UNSIGNED:
-        if (role == Qt::CheckStateRole)
-        {
-            if (isUnsigned(index.row()))
-            {
-                return Qt::Checked;
-            }
-            else
-            {
-                return Qt::Unchecked;
-            }
-        }
-        break;
-    case column::BIT32:
-        if (role == Qt::CheckStateRole)
-        {
-            if (isBit32(index.row()))
-            {
-                return Qt::Checked;
-            }
-            else
-            {
-                return Qt::Unchecked;
-            }
-        }
-        break;
     case column::TEXT:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
@@ -92,12 +66,6 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return expression(index.row());
-        }
-        break;
-    case column::CONNECTION_ID:
-        if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
-        {
-            return QString("Connection %1").arg(connectionId(index.row()) + 1);
         }
         break;
     default:
@@ -121,16 +89,10 @@ QVariant GraphDataModel::headerData(int section, Qt::Orientation orientation, in
                 return QString("Color");
             case column::ACTIVE:
                 return QString("Active");
-            case column::UNSIGNED:
-                return QString("Unsigned");
-            case column::BIT32:
-                return QString("32 bit");
             case column::TEXT:
                 return QString("Text");
             case column::EXPRESSION:
                 return QString("Expression");
-            case column::CONNECTION_ID:
-                return QString("Connection");
             default:
                 return QVariant();
             }
@@ -178,32 +140,6 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             }
         }
         break;
-    case column::UNSIGNED:
-        if (role == Qt::CheckStateRole)
-        {
-            if (value == Qt::Checked)
-            {
-                setUnsigned(index.row(), true);
-            }
-            else
-            {
-                setUnsigned(index.row(), false);
-            }
-        }
-        break;
-    case column::BIT32:
-        if (role == Qt::CheckStateRole)
-        {
-            if (value == Qt::Checked)
-            {
-                setBit32(index.row(), true);
-            }
-            else
-            {
-                setBit32(index.row(), false);
-            }
-        }
-        break;
     case column::TEXT:
         if (role == Qt::EditRole)
         {
@@ -214,27 +150,6 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
         if (role == Qt::EditRole)
         {
             setExpression(index.row(), value.toString());
-        }
-        break;
-    case column::CONNECTION_ID:
-        if (role == Qt::EditRole)
-        {
-            bool bSuccess = false;
-            const quint8 newConnectionId = static_cast<quint8>(value.toUInt(&bSuccess));
-
-            if (
-                    (bSuccess)
-                    && (newConnectionId < SettingsModel::CONNECTION_ID_CNT)
-                )
-            {
-                setConnectionId(index.row(), newConnectionId);
-            }
-            else
-            {
-                bRet = false;
-                Util::showError(tr("Connection ID is not valid"));
-                break;
-            }
         }
         break;
     default:
@@ -255,18 +170,14 @@ Qt::ItemFlags GraphDataModel::flags(const QModelIndex & index) const
     /* default is enabled */
     itemFlags |= Qt::ItemIsEnabled;
 
-    if (
-            (index.column() == column::ACTIVE)
-            || (index.column() == column::UNSIGNED)
-            || (index.column() == column::BIT32)
-        )
+    if (index.column() == column::ACTIVE)
     {
         // checkable
         itemFlags |= Qt::ItemIsSelectable |  Qt::ItemIsUserCheckable;
     }
     else if (
              (index.column() == column::COLOR)
-             || (index.column() == column::EXPRESSION)
+             // TODO || (index.column() == column::EXPRESSION)
              )
     {
         itemFlags |= Qt::ItemIsSelectable;
@@ -484,6 +395,7 @@ void GraphDataModel::add()
 
     data.setRegisterAddress(nextFreeAddress());
     data.setLabel(QString("Register %1").arg(data.registerAddress()));
+    data.setExpression(QString("${%1}").arg(data.registerAddress()));
 
     add(data);
 }

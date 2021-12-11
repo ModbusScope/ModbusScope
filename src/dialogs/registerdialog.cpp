@@ -103,9 +103,12 @@ void RegisterDialog::activatedCell(QModelIndex modelIndex)
     }
     else if (modelIndex.column() == GraphDataModel::column::EXPRESSION)
     {
+#if 0
+        TODO
         ExpressionsDialog exprDialog(_pGraphDataModel, modelIndex.row(), qobject_cast<QWidget *>(parent()));
 
         exprDialog.exec();
+#endif
     }
 }
 

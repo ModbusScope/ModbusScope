@@ -16,11 +16,8 @@ public:
     enum column {
         COLOR = 0,
         ACTIVE,
-        UNSIGNED,
-        BIT32,
         TEXT,
         EXPRESSION,
-        CONNECTION_ID,
 
         COUNT
     };
