@@ -2,6 +2,7 @@
 #define MODBUSREGISTER_H
 
 #include <QObject>
+#include <QDebug>
 
 class ModbusRegister
 {
@@ -33,6 +34,16 @@ public:
 
     friend bool operator== (const ModbusRegister& reg1, const ModbusRegister& reg2);
 
+    static QString dumpListToString(QList<ModbusRegister> list)
+    {
+        QString str;
+        QDebug dStream(&str);
+
+        dStream << list;
+
+        return str;
+    }
+
 private:
 
     quint16 _address;
@@ -40,5 +51,7 @@ private:
     bool _b32Bit;
     bool _bUnsigned;
 };
+
+QDebug operator<<(QDebug debug, const ModbusRegister &reg);
 
 #endif // MODBUSREGISTER_H
