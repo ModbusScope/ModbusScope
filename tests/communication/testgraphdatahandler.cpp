@@ -41,7 +41,7 @@ void TestGraphDataHandler::registerList()
 
     GraphDataHandler dataHandler(_pGraphDataModel);
     QList<ModbusRegister> registerList;
-
+    dataHandler.processActiveRegisters();
     dataHandler.modbusRegisterList(registerList);
 
     QCOMPARE(expModbusRegisters, registerList);
@@ -71,7 +71,7 @@ void TestGraphDataHandler::manyInactiveRegisters()
 
     GraphDataHandler dataHandler(_pGraphDataModel);
     QList<ModbusRegister> registerList;
-
+    dataHandler.processActiveRegisters();
     dataHandler.modbusRegisterList(registerList);
 
     QCOMPARE(expModbusRegisters, registerList);
@@ -116,6 +116,7 @@ void TestGraphDataHandler::doHandleRegisterData(QList<Result>& modbusResults, QL
 {
     GraphDataHandler dataHandler(_pGraphDataModel);
     QList<ModbusRegister> registerList;
+    dataHandler.processActiveRegisters();
     dataHandler.modbusRegisterList(registerList);
 
     QSignalSpy spyDataReady(&dataHandler, &GraphDataHandler::graphDataReady);

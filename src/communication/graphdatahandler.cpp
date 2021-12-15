@@ -12,7 +12,7 @@ GraphDataHandler::GraphDataHandler(GraphDataModel* pGraphDataModel) :
 
 }
 
-void GraphDataHandler::modbusRegisterList(QList<ModbusRegister>& registerList)
+void GraphDataHandler::processActiveRegisters()
 {
     QStringList exprList;
 
@@ -23,7 +23,7 @@ void GraphDataHandler::modbusRegisterList(QList<ModbusRegister>& registerList)
     }
 
     ExpressionParser exprParser(exprList);
-    exprParser.modbusRegisters(registerList);
+    exprParser.modbusRegisters(_registerList);
 
     QStringList processedExpList;
     exprParser.processedExpressions(processedExpList);
@@ -37,6 +37,11 @@ void GraphDataHandler::modbusRegisterList(QList<ModbusRegister>& registerList)
         /* Remember to delete before removal */
         _valueParsers.append(new QMuParser(expr));
     }
+}
+
+void GraphDataHandler::modbusRegisterList(QList<ModbusRegister>& registerList)
+{
+    registerList = _registerList;
 }
 
 void GraphDataHandler::handleRegisterData(QList<Result> results)
