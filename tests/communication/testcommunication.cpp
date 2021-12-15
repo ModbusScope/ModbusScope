@@ -160,6 +160,7 @@ void TestCommunication::doHandleRegisterData(QList<QVariant>& actRawData)
     connect(&modbusPoll, &ModbusPoll::registerDataReady, &dataHandler, &GraphDataHandler::handleRegisterData);
 
     QList<ModbusRegister> registerList;
+    dataHandler.processActiveRegisters();
     dataHandler.modbusRegisterList(registerList);
 
     QSignalSpy spyDataReady(&dataHandler, &GraphDataHandler::graphDataReady);
