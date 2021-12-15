@@ -66,7 +66,7 @@ QDebug operator<<(QDebug debug, const Result &result)
 {
     QDebugStateSaver saver(debug);
     QString resultString = result.isSuccess() ? "Success" : "Fail" ;
-    debug.nospace() << '(' << resultString << ", " << result.value() << ')';
+    debug.nospace().noquote() << '(' << resultString << ", " << result.value() << ')';
 
     return debug;
 }
