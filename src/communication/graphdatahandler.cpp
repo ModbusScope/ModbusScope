@@ -1,5 +1,6 @@
 #include "graphdatahandler.h"
 
+#include "scopelogging.h"
 #include "qmuparser.h"
 #include "graphdatamodel.h"
 #include "expressionparser.h"
@@ -24,6 +25,8 @@ void GraphDataHandler::processActiveRegisters()
 
     ExpressionParser exprParser(exprList);
     exprParser.modbusRegisters(_registerList);
+
+    qCInfo(scopeComm) << "Active registers: " << ModbusRegister::dumpListToString(_registerList);
 
     QStringList processedExpList;
     exprParser.processedExpressions(processedExpList);

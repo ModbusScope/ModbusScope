@@ -85,3 +85,22 @@ bool operator== (const ModbusRegister& reg1, const ModbusRegister& reg2)
         return false;
     }
 }
+
+QDebug operator<<(QDebug debug, const ModbusRegister &reg)
+{
+    QDebugStateSaver saver(debug);
+    QString unsignedString = reg.isUnsigned() ? "unsigned" : "signed" ;
+    QString typeString = reg.is32Bit() ? "32 bit" : "16 bit" ;
+    QString connString = QString("conn %1").arg(reg.connectionId() + 1);
+    debug.nospace().noquote() << '['
+                    << reg.address()
+                    << ", "
+                    << unsignedString
+                    << ", "
+                    << typeString
+                    << ", "
+                    << connString
+                    << ']';
+
+    return debug;
+}
