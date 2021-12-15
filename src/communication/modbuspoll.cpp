@@ -59,7 +59,7 @@ void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
 
     _bPollActive = true;
 
-    qCInfo(scopeCommConnection) << QString("Start logging: %1").arg(FormatDateTime::currentDateTime());
+    qCInfo(scopeComm) << QString("Start logging: %1").arg(FormatDateTime::currentDateTime());
 
     for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++)
     {
@@ -167,7 +167,7 @@ void ModbusPoll::stopCommunication()
     _bPollActive = false;
     _pPollTimer->stop();
 
-    qCInfo(scopeCommConnection) << QString("Stop logging: %1").arg(FormatDateTime::currentDateTime());
+    qCInfo(scopeComm) << QString("Stop logging: %1").arg(FormatDateTime::currentDateTime());
 
     for(quint8 i = 0; i < SettingsModel::CONNECTION_ID_CNT; i++)
     {

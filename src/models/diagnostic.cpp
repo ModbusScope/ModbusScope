@@ -136,7 +136,7 @@ QDebug operator<<(QDebug debug, const Diagnostic &log)
 {
     QDebugStateSaver saver(debug);
 
-    debug.nospace() << log.toString();
+    debug.nospace().noquote() << log.toString();
 
     return debug;
 }
