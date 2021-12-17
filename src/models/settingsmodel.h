@@ -12,7 +12,7 @@ public:
 
     enum
     {
-        CONNECTION_ID_0 = 0,
+        CONNECTION_ID_1 = 0,
         CONNECTION_ID_2,
         CONNECTION_ID_3,
         CONNECTION_ID_CNT
