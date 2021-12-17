@@ -18,8 +18,8 @@ void TestGraphDataHandler::init()
     _pSettingsModel = new SettingsModel;
     _pGraphDataModel = new GraphDataModel(_pSettingsModel);
 
-    _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_0, true);
     _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_1, true);
+    _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_2, true);
 }
 
 void TestGraphDataHandler::cleanup()
@@ -35,13 +35,13 @@ void TestGraphDataHandler::registerList()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true)
-                                                      << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
-                                                      << ModbusRegister(40002, SettingsModel::CONNECTION_ID_0, true, false);
+    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_2, false, true)
+                                                      << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true)
+                                                      << ModbusRegister(40002, SettingsModel::CONNECTION_ID_1, true, false);
 
-    GraphDataHandler dataHandler(_pGraphDataModel);
+    GraphDataHandler dataHandler;
     QList<ModbusRegister> registerList;
-    dataHandler.processActiveRegisters();
+    dataHandler.processActiveRegisters(_pGraphDataModel);
     dataHandler.modbusRegisterList(registerList);
 
     QCOMPARE(expModbusRegisters, registerList);
@@ -67,11 +67,11 @@ void TestGraphDataHandler::manyInactiveRegisters()
     _pGraphDataModel->setExpression(9, "${40003}");
     _pGraphDataModel->setActive(9, false);
 
-    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(40002, SettingsModel::CONNECTION_ID_0, false, true);
+    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(40002, SettingsModel::CONNECTION_ID_1, false, true);
 
-    GraphDataHandler dataHandler(_pGraphDataModel);
+    GraphDataHandler dataHandler;
     QList<ModbusRegister> registerList;
-    dataHandler.processActiveRegisters();
+    dataHandler.processActiveRegisters(_pGraphDataModel);
     dataHandler.modbusRegisterList(registerList);
 
     QCOMPARE(expModbusRegisters, registerList);
@@ -114,9 +114,9 @@ void TestGraphDataHandler::graphData_fail()
 
 void TestGraphDataHandler::doHandleRegisterData(QList<Result>& modbusResults, QList<QVariant>& actRawData)
 {
-    GraphDataHandler dataHandler(_pGraphDataModel);
+    GraphDataHandler dataHandler;
     QList<ModbusRegister> registerList;
-    dataHandler.processActiveRegisters();
+    dataHandler.processActiveRegisters(_pGraphDataModel);
     dataHandler.modbusRegisterList(registerList);
 
     QSignalSpy spyDataReady(&dataHandler, &GraphDataHandler::graphDataReady);

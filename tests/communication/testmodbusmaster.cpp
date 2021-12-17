@@ -19,13 +19,13 @@ void TestModbusMaster::init()
     qRegisterMetaType<Result>("Result");
     qRegisterMetaType<QMap<quint16, Result> >("QMap<quint16, Result>");
 
-    _settingsModel.setIpAddress(SettingsModel::CONNECTION_ID_0, "127.0.0.1");
-    _settingsModel.setPort(SettingsModel::CONNECTION_ID_0, 5020);
-    _settingsModel.setTimeout(SettingsModel::CONNECTION_ID_0, 500);
-    _settingsModel.setSlaveId(SettingsModel::CONNECTION_ID_0, 1);
+    _settingsModel.setIpAddress(SettingsModel::CONNECTION_ID_1, "127.0.0.1");
+    _settingsModel.setPort(SettingsModel::CONNECTION_ID_1, 5020);
+    _settingsModel.setTimeout(SettingsModel::CONNECTION_ID_1, 500);
+    _settingsModel.setSlaveId(SettingsModel::CONNECTION_ID_1, 1);
 
-    _serverConnectionData.setPort(_settingsModel.port(SettingsModel::CONNECTION_ID_0));
-    _serverConnectionData.setHost(_settingsModel.ipAddress(SettingsModel::CONNECTION_ID_0));
+    _serverConnectionData.setPort(_settingsModel.port(SettingsModel::CONNECTION_ID_1));
+    _serverConnectionData.setHost(_settingsModel.ipAddress(SettingsModel::CONNECTION_ID_1));
 
     if (!_pTestSlaveData.isNull())
     {
@@ -39,7 +39,7 @@ void TestModbusMaster::init()
     _pTestSlaveData = new TestSlaveData();
     _pTestSlaveModbus= new TestSlaveModbus(_pTestSlaveData);
 
-    QVERIFY(_pTestSlaveModbus->connect(_serverConnectionData, _settingsModel.slaveId(SettingsModel::CONNECTION_ID_0)));
+    QVERIFY(_pTestSlaveModbus->connect(_serverConnectionData, _settingsModel.slaveId(SettingsModel::CONNECTION_ID_1)));
 
 }
 
@@ -55,7 +55,7 @@ void TestModbusMaster::singleRequestSuccess()
 {
     _pTestSlaveData->setRegisterState(0, true);
 
-    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_0);
+    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_1);
 
     QList<quint16> registerList = QList<quint16>() << 40001;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -84,7 +84,7 @@ void TestModbusMaster::singleRequestGatewayNotAvailable()
 {
     _pTestSlaveModbus->setException(QModbusPdu::GatewayTargetDeviceFailedToRespond, true);
 
-    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_0);
+    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_1);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
     QList<quint16> registerList = QList<quint16>() << 40001;
 
@@ -111,7 +111,7 @@ void TestModbusMaster::singleRequestNoResponse()
 {
     _pTestSlaveModbus->disconnectDevice();
 
-    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_0);
+    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_1);
 
     QList<quint16> registerList = QList<quint16>() << 40001;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -120,7 +120,7 @@ void TestModbusMaster::singleRequestNoResponse()
     {
         modbusMaster.readRegisterList(registerList);
 
-        spyModbusPollDone.wait(static_cast<int>(_settingsModel.timeout(SettingsModel::CONNECTION_ID_0)) + 100);
+        spyModbusPollDone.wait(static_cast<int>(_settingsModel.timeout(SettingsModel::CONNECTION_ID_1)) + 100);
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
@@ -137,7 +137,7 @@ void TestModbusMaster::singleRequestNoResponse()
 
 void TestModbusMaster::singleRequestInvalidAddressOnce()
 {
-    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_0);
+    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_1);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     QList<quint16> registerList = QList<quint16>() << 40001 << 40002 << 40003;
@@ -179,7 +179,7 @@ void TestModbusMaster::singleRequestInvalidAddressPersistent()
 {
     _pTestSlaveModbus->setException(QModbusPdu::IllegalDataAddress, true);
 
-    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_0);
+    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_1);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     QList<quint16> registerList = QList<quint16>() << 40001;
@@ -215,7 +215,7 @@ void TestModbusMaster::multiRequestSuccess()
     _pTestSlaveData->setRegisterValue(1, 1);
     _pTestSlaveData->setRegisterValue(3, 3);
 
-    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_0);
+    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_1);
 
     QList<quint16> registerList = QList<quint16>() << 40001 << 40002 << 40004;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -224,7 +224,7 @@ void TestModbusMaster::multiRequestSuccess()
     {
         modbusMaster.readRegisterList(registerList);
 
-        QVERIFY(spyModbusPollDone.wait(static_cast<int>(_settingsModel.timeout(SettingsModel::CONNECTION_ID_0))));
+        QVERIFY(spyModbusPollDone.wait(static_cast<int>(_settingsModel.timeout(SettingsModel::CONNECTION_ID_1))));
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
@@ -258,7 +258,7 @@ void TestModbusMaster::multiRequestGatewayNotAvailable()
     _pTestSlaveData->setRegisterValue(1, 1);
     _pTestSlaveData->setRegisterValue(3, 3);
 
-    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_0);
+    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_1);
 
     QList<quint16> registerList = QList<quint16>() << 40001 << 40002 << 40004;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -297,7 +297,7 @@ void TestModbusMaster::multiRequestNoResponse()
     _pTestSlaveData->setRegisterValue(1, 1);
     _pTestSlaveData->setRegisterValue(3, 3);
 
-    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_0);
+    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_1);
 
     QList<quint16> registerList = QList<quint16>() << 40001 << 40002 << 40004;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -306,7 +306,7 @@ void TestModbusMaster::multiRequestNoResponse()
     {
         modbusMaster.readRegisterList(registerList);
 
-        spyModbusPollDone.wait(static_cast<int>(_settingsModel.timeout(SettingsModel::CONNECTION_ID_0)) + 100);
+        spyModbusPollDone.wait(static_cast<int>(_settingsModel.timeout(SettingsModel::CONNECTION_ID_1)) + 100);
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal
@@ -335,7 +335,7 @@ void TestModbusMaster::multiRequestInvalidAddress()
     _pTestSlaveData->setRegisterValue(1, 1);
     _pTestSlaveData->setRegisterValue(3, 3);
 
-    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_0);
+    ModbusMaster modbusMaster(&_settingsModel, SettingsModel::CONNECTION_ID_1);
 
     QList<quint16> registerList = QList<quint16>() << 40001 << 40002 << 40004;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -344,7 +344,7 @@ void TestModbusMaster::multiRequestInvalidAddress()
     {
         modbusMaster.readRegisterList(registerList);
 
-        QVERIFY(spyModbusPollDone.wait(static_cast<int>(_settingsModel.timeout(SettingsModel::CONNECTION_ID_0)) + 100));
+        QVERIFY(spyModbusPollDone.wait(static_cast<int>(_settingsModel.timeout(SettingsModel::CONNECTION_ID_1)) + 100));
         QCOMPARE(spyModbusPollDone.count(), 1);
 
         QList<QVariant> arguments = spyModbusPollDone.takeFirst(); // take the first signal

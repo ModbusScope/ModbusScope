@@ -54,7 +54,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
 
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
 
-    _pGraphDataHandler = new GraphDataHandler(_pGraphDataModel);
+    _pGraphDataHandler = new GraphDataHandler();
     _pModbusPoll = new ModbusPoll(_pSettingsModel);
     connect(_pModbusPoll, &ModbusPoll::registerDataReady, _pGraphDataHandler, &GraphDataHandler::handleRegisterData);
 
@@ -507,7 +507,7 @@ void MainWindow::startScope()
         _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
 
         QList<ModbusRegister> registerList;
-        _pGraphDataHandler->processActiveRegisters();
+        _pGraphDataHandler->processActiveRegisters(_pGraphDataModel);
         _pGraphDataHandler->modbusRegisterList(registerList);
 
         _pModbusPoll->startCommunication(registerList);

@@ -13,9 +13,9 @@ class GraphDataHandler : public QObject
 {
     Q_OBJECT
 public:
-    GraphDataHandler(GraphDataModel *pGraphDataModel);
+    GraphDataHandler();
 
-    void processActiveRegisters();
+    void processActiveRegisters(GraphDataModel *pGraphDataModel);
     void modbusRegisterList(QList<ModbusRegister>& registerList);
 
 public slots:
