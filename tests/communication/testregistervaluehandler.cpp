@@ -15,7 +15,7 @@ void TestRegisterValueHandler::init()
 
     _pSettingsModel = new SettingsModel();
 
-    _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_0, true);
+    _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_1, true);
     _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_2, true);
 }
 
@@ -26,84 +26,84 @@ void TestRegisterValueHandler::cleanup()
 
 void TestRegisterValueHandler::addressList_16()
 {
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true);
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true);
     auto expRegisterList = QList<uint16_t>() << 40001;
 
     RegisterValueHandler regHandler(_pSettingsModel);
     regHandler.setRegisters(modbusRegisters);
 
     QList<quint16> actualRegisterList;
-    regHandler.registerAddresList(actualRegisterList, SettingsModel::CONNECTION_ID_0);
+    regHandler.registerAddresList(actualRegisterList, SettingsModel::CONNECTION_ID_1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
 
 void TestRegisterValueHandler::addressList_16_multiple()
 {
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
-                                                   << ModbusRegister(40002, SettingsModel::CONNECTION_ID_0, false, true);
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true)
+                                                   << ModbusRegister(40002, SettingsModel::CONNECTION_ID_1, false, true);
     auto expRegisterList = QList<uint16_t>() << 40001 << 40002;
 
     RegisterValueHandler regHandler(_pSettingsModel);
     regHandler.setRegisters(modbusRegisters);
 
     QList<quint16> actualRegisterList;
-    regHandler.registerAddresList(actualRegisterList, SettingsModel::CONNECTION_ID_0);
+    regHandler.registerAddresList(actualRegisterList, SettingsModel::CONNECTION_ID_1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
 
 void TestRegisterValueHandler::addressList_32()
 {
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, true, true);
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, true, true);
     auto expRegisterList = QList<uint16_t>() << 40001 << 40002;
 
     RegisterValueHandler regHandler(_pSettingsModel);
     regHandler.setRegisters(modbusRegisters);
 
     QList<quint16> actualRegisterList;
-    regHandler.registerAddresList(actualRegisterList, SettingsModel::CONNECTION_ID_0);
+    regHandler.registerAddresList(actualRegisterList, SettingsModel::CONNECTION_ID_1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
 
 void TestRegisterValueHandler::addressList_32_multiple()
 {
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, true, true)
-                                                   << ModbusRegister(40005, SettingsModel::CONNECTION_ID_0, true, true);
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, true, true)
+                                                   << ModbusRegister(40005, SettingsModel::CONNECTION_ID_1, true, true);
     auto expRegisterList = QList<uint16_t>() << 40001 << 40002 << 40005 << 40006;
 
     RegisterValueHandler regHandler(_pSettingsModel);
     regHandler.setRegisters(modbusRegisters);
 
     QList<quint16> actualRegisterList;
-    regHandler.registerAddresList(actualRegisterList, SettingsModel::CONNECTION_ID_0);
+    regHandler.registerAddresList(actualRegisterList, SettingsModel::CONNECTION_ID_1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
 
 void TestRegisterValueHandler::addressListCombinations()
 {
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
-                                                   << ModbusRegister(40005, SettingsModel::CONNECTION_ID_0, false, true)
-                                                   << ModbusRegister(40005, SettingsModel::CONNECTION_ID_0, true, true)
-                                                   << ModbusRegister(40008, SettingsModel::CONNECTION_ID_0, true, true);
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true)
+                                                   << ModbusRegister(40005, SettingsModel::CONNECTION_ID_1, false, true)
+                                                   << ModbusRegister(40005, SettingsModel::CONNECTION_ID_1, true, true)
+                                                   << ModbusRegister(40008, SettingsModel::CONNECTION_ID_1, true, true);
     auto expRegisterList = QList<uint16_t>() << 40001 << 40005 << 40006 << 40008 << 40009;
 
     RegisterValueHandler regHandler(_pSettingsModel);
     regHandler.setRegisters(modbusRegisters);
 
     QList<quint16> actualRegisterList;
-    regHandler.registerAddresList(actualRegisterList, SettingsModel::CONNECTION_ID_0);
+    regHandler.registerAddresList(actualRegisterList, SettingsModel::CONNECTION_ID_1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
 
 void TestRegisterValueHandler::addressListMultipleConnections()
 {
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, true, true)
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, true, true)
                                                    << ModbusRegister(40005, SettingsModel::CONNECTION_ID_2, true, true)
-                                                   << ModbusRegister(40010, SettingsModel::CONNECTION_ID_0, true, true);
+                                                   << ModbusRegister(40010, SettingsModel::CONNECTION_ID_1, true, true);
     auto expRegisterList0 = QList<uint16_t>() << 40001 << 40002 << 40010 << 40011;
     auto expRegisterList1 = QList<uint16_t>() << 40005 << 40006;
 
@@ -112,7 +112,7 @@ void TestRegisterValueHandler::addressListMultipleConnections()
 
     QList<quint16> actualRegisterList0;
     QList<quint16> actualRegisterList1;
-    regHandler.registerAddresList(actualRegisterList0, SettingsModel::CONNECTION_ID_0);
+    regHandler.registerAddresList(actualRegisterList0, SettingsModel::CONNECTION_ID_1);
     regHandler.registerAddresList(actualRegisterList1, SettingsModel::CONNECTION_ID_2);
 
     QVERIFY(actualRegisterList0 == expRegisterList0);
@@ -121,8 +121,8 @@ void TestRegisterValueHandler::addressListMultipleConnections()
 
 void TestRegisterValueHandler::read_16()
 {
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
-                                                   << ModbusRegister(40002, SettingsModel::CONNECTION_ID_0, false, false);
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true)
+                                                   << ModbusRegister(40002, SettingsModel::CONNECTION_ID_1, false, false);
     QMap<quint16, Result> partialResultMap;
     addToResultMap(partialResultMap, 40001, false, 256, true);
     addToResultMap(partialResultMap, 40002, false, -100, true);
@@ -135,8 +135,8 @@ void TestRegisterValueHandler::read_16()
 
 void TestRegisterValueHandler::read_32()
 {
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, true, true)
-                                                   << ModbusRegister(40005, SettingsModel::CONNECTION_ID_0, true, false);
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, true, true)
+                                                   << ModbusRegister(40005, SettingsModel::CONNECTION_ID_1, true, false);
     QMap<quint16, Result> partialResultMap;
     addToResultMap(partialResultMap, 40001, true, 1000000, true);
     addToResultMap(partialResultMap, 40005, true, -100000, true);
@@ -149,9 +149,9 @@ void TestRegisterValueHandler::read_32()
 
 void TestRegisterValueHandler::readBigEndian_32()
 {
-    _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_0, false);
+    _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_1, false);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, true, true);
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, true, true);
     QMap<quint16, Result> partialResultMap;
     quint32 value = 1000000;
 
@@ -165,9 +165,9 @@ void TestRegisterValueHandler::readBigEndian_32()
 
 void TestRegisterValueHandler::readBigEndian_s32()
 {
-    _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_0, false);
+    _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_1, false);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, true, true);
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, true, true);
     QMap<quint16, Result> partialResultMap;
     quint32 value = -1000000;
 
@@ -181,7 +181,7 @@ void TestRegisterValueHandler::readBigEndian_s32()
 
 void TestRegisterValueHandler::readConnections()
 {
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true)
                                                    << ModbusRegister(40001, SettingsModel::CONNECTION_ID_2, false, false);
     QMap<quint16, Result> partialResultMap1;
     addToResultMap(partialResultMap1, 40001, false, 256, true);
@@ -199,7 +199,7 @@ void TestRegisterValueHandler::readConnections()
     QSignalSpy spyDataReady(&regHandler, &RegisterValueHandler::registerDataReady);
 
     regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap1, SettingsModel::CONNECTION_ID_0);
+    regHandler.processPartialResult(partialResultMap1, SettingsModel::CONNECTION_ID_1);
     regHandler.processPartialResult(partialResultMap2, SettingsModel::CONNECTION_ID_2);
     regHandler.finishRead();
 
@@ -217,7 +217,7 @@ void TestRegisterValueHandler::readConnections()
 
 void TestRegisterValueHandler::readFail()
 {
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true)
                                                    << ModbusRegister(40001, SettingsModel::CONNECTION_ID_2, false, false);
 
     QMap<quint16, Result> partialResultMap2;
@@ -258,7 +258,7 @@ void TestRegisterValueHandler::verifyRegisterResult(QList<ModbusRegister>& regLi
     QSignalSpy spyDataReady(&regHandler, &RegisterValueHandler::registerDataReady);
 
     regHandler.startRead();
-    regHandler.processPartialResult(regData, SettingsModel::CONNECTION_ID_0);
+    regHandler.processPartialResult(regData, SettingsModel::CONNECTION_ID_1);
     regHandler.finishRead();
 
     QCOMPARE(spyDataReady.count(), 1);
