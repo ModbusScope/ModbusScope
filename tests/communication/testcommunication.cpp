@@ -29,11 +29,11 @@ void TestCommunication::init()
     _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_0, 500);
     _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_0, 1);
 
-    _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_1, true);
-    _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_1, "127.0.0.1");
-    _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_1, 5021);
-    _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_1, 500);
-    _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_1, 2);
+    _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_2, true);
+    _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_2, "127.0.0.1");
+    _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_2, 5021);
+    _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_2, 500);
+    _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_2, 2);
 
     _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_3, true);
     _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_3, "127.0.0.1");
@@ -103,8 +103,8 @@ void TestCommunication::mixed_1()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(1, true);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(1, 1);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_2]->setRegisterState(1, true);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_2]->setRegisterValue(1, 1);
 
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(2, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(2, 5);

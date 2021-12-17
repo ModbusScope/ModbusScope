@@ -22,11 +22,11 @@ void TestModbusPoll::init()
     _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_0, 500);
     _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_0, 1);
 
-    _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_1, true);
-    _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_1, "127.0.0.1");
-    _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_1, 5021);
-    _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_1, 500);
-    _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_1, 2);
+    _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_2, true);
+    _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_2, "127.0.0.1");
+    _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_2, 5021);
+    _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_2, 500);
+    _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_2, 2);
 
     _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_3, true);
     _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_3, "127.0.0.1");
@@ -127,14 +127,14 @@ void TestModbusPoll::multiSlaveSuccess()
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(0, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(0, 5020);
 
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(0, true);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(0, 5021);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_2]->setRegisterState(0, true);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_2]->setRegisterValue(0, 5021);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
-                                                   << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true);
+                                                   << ModbusRegister(40001, SettingsModel::CONNECTION_ID_2, false, true);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
@@ -155,14 +155,14 @@ void TestModbusPoll::multiSlaveSuccess_2()
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(0, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(0, 5020);
 
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(1, true);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(1, 5021);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_2]->setRegisterState(1, true);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_2]->setRegisterValue(1, 5021);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
-                                                   << ModbusRegister(40002, SettingsModel::CONNECTION_ID_1, false, true);
+                                                   << ModbusRegister(40002, SettingsModel::CONNECTION_ID_2, false, true);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
@@ -186,14 +186,14 @@ void TestModbusPoll::multiSlaveSuccess_3()
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(1, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(1, 5021);
 
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(1, true);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(1, 5022);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_2]->setRegisterState(1, true);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_2]->setRegisterValue(1, 5022);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
-                                                   << ModbusRegister(40002, SettingsModel::CONNECTION_ID_1, false, true)
+                                                   << ModbusRegister(40002, SettingsModel::CONNECTION_ID_2, false, true)
                                                    << ModbusRegister(40002, SettingsModel::CONNECTION_ID_0, false, true);
 
     /*-- Start communication --*/
@@ -215,14 +215,14 @@ void TestModbusPoll::multiSlaveSingleFail()
 {
     _testSlaveModbusList[SettingsModel::CONNECTION_ID_0]->disconnectDevice();
 
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(0, true);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(0, 5021);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_2]->setRegisterState(0, true);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_2]->setRegisterValue(0, 5021);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
-                                                   << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true);
+                                                   << ModbusRegister(40001, SettingsModel::CONNECTION_ID_2, false, true);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
@@ -249,7 +249,7 @@ void TestModbusPoll::multiSlaveAllFail()
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
-                                                   << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true);
+                                                   << ModbusRegister(40001, SettingsModel::CONNECTION_ID_2, false, true);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
@@ -270,17 +270,17 @@ void TestModbusPoll::multiSlaveDisabledConnection()
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterState(0, true);
     _testSlaveDataList[SettingsModel::CONNECTION_ID_0]->setRegisterValue(0, 5020);
 
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(0, true);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(0, 5021);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_2]->setRegisterState(0, true);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_2]->setRegisterValue(0, 5021);
 
     /* Disable connection */
-    _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_1, false);
+    _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_2, false);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
-                                                   << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true);
+                                                   << ModbusRegister(40001, SettingsModel::CONNECTION_ID_2, false, true);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);

@@ -50,8 +50,8 @@ void ConnectionDialog::done(int r)
 
     _pUi->connectionForm_1->fillSettingsModel(_pSettingsModel, SettingsModel::CONNECTION_ID_0);
 
-    _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_1, _pUi->checkConn_2->checkState() == Qt::Checked);
-    _pUi->connectionForm_2->fillSettingsModel(_pSettingsModel, SettingsModel::CONNECTION_ID_1);
+    _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_2, _pUi->checkConn_2->checkState() == Qt::Checked);
+    _pUi->connectionForm_2->fillSettingsModel(_pSettingsModel, SettingsModel::CONNECTION_ID_2);
 
     _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_3, _pUi->checkConn_3->checkState() == Qt::Checked);
     _pUi->connectionForm_3->fillSettingsModel(_pSettingsModel, SettingsModel::CONNECTION_ID_3);
@@ -65,7 +65,7 @@ void ConnectionDialog::updateConnectionState(quint8 connectionId)
     {
     case SettingsModel::CONNECTION_ID_0:
         break;
-    case SettingsModel::CONNECTION_ID_1:
+    case SettingsModel::CONNECTION_ID_2:
         _pUi->checkConn_2->setChecked(_pSettingsModel->connectionState(connectionId));
         break;
     case SettingsModel::CONNECTION_ID_3:
@@ -176,7 +176,7 @@ ConnectionForm* ConnectionDialog::connectionSettingsWidget(quint8 connectionId)
     case SettingsModel::CONNECTION_ID_0:
         retRef = _pUi->connectionForm_1;
         break;
-    case SettingsModel::CONNECTION_ID_1:
+    case SettingsModel::CONNECTION_ID_2:
         retRef = _pUi->connectionForm_2;
         break;
     case SettingsModel::CONNECTION_ID_3:
