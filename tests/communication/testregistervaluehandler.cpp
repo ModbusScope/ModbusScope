@@ -16,7 +16,7 @@ void TestRegisterValueHandler::init()
     _pSettingsModel = new SettingsModel();
 
     _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_0, true);
-    _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_1, true);
+    _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_2, true);
 }
 
 void TestRegisterValueHandler::cleanup()
@@ -102,7 +102,7 @@ void TestRegisterValueHandler::addressListCombinations()
 void TestRegisterValueHandler::addressListMultipleConnections()
 {
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, true, true)
-                                                   << ModbusRegister(40005, SettingsModel::CONNECTION_ID_1, true, true)
+                                                   << ModbusRegister(40005, SettingsModel::CONNECTION_ID_2, true, true)
                                                    << ModbusRegister(40010, SettingsModel::CONNECTION_ID_0, true, true);
     auto expRegisterList0 = QList<uint16_t>() << 40001 << 40002 << 40010 << 40011;
     auto expRegisterList1 = QList<uint16_t>() << 40005 << 40006;
@@ -113,7 +113,7 @@ void TestRegisterValueHandler::addressListMultipleConnections()
     QList<quint16> actualRegisterList0;
     QList<quint16> actualRegisterList1;
     regHandler.registerAddresList(actualRegisterList0, SettingsModel::CONNECTION_ID_0);
-    regHandler.registerAddresList(actualRegisterList1, SettingsModel::CONNECTION_ID_1);
+    regHandler.registerAddresList(actualRegisterList1, SettingsModel::CONNECTION_ID_2);
 
     QVERIFY(actualRegisterList0 == expRegisterList0);
     QVERIFY(actualRegisterList1 == expRegisterList1);
@@ -182,7 +182,7 @@ void TestRegisterValueHandler::readBigEndian_s32()
 void TestRegisterValueHandler::readConnections()
 {
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
-                                                   << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, false);
+                                                   << ModbusRegister(40001, SettingsModel::CONNECTION_ID_2, false, false);
     QMap<quint16, Result> partialResultMap1;
     addToResultMap(partialResultMap1, 40001, false, 256, true);
 
@@ -200,7 +200,7 @@ void TestRegisterValueHandler::readConnections()
 
     regHandler.startRead();
     regHandler.processPartialResult(partialResultMap1, SettingsModel::CONNECTION_ID_0);
-    regHandler.processPartialResult(partialResultMap2, SettingsModel::CONNECTION_ID_1);
+    regHandler.processPartialResult(partialResultMap2, SettingsModel::CONNECTION_ID_2);
     regHandler.finishRead();
 
     QCOMPARE(spyDataReady.count(), 1);
@@ -218,7 +218,7 @@ void TestRegisterValueHandler::readConnections()
 void TestRegisterValueHandler::readFail()
 {
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_0, false, true)
-                                                   << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, false);
+                                                   << ModbusRegister(40001, SettingsModel::CONNECTION_ID_2, false, false);
 
     QMap<quint16, Result> partialResultMap2;
     addToResultMap(partialResultMap2, 40001, false, 100, true);
@@ -233,7 +233,7 @@ void TestRegisterValueHandler::readFail()
     QSignalSpy spyDataReady(&regHandler, &RegisterValueHandler::registerDataReady);
 
     regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap2, SettingsModel::CONNECTION_ID_1);
+    regHandler.processPartialResult(partialResultMap2, SettingsModel::CONNECTION_ID_2);
     regHandler.finishRead();
 
     QCOMPARE(spyDataReady.count(), 1);

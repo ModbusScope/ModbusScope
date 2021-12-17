@@ -27,7 +27,7 @@ void TestExpressionParser::singleRegister()
 void TestExpressionParser::singleRegisterConn()
 {
     auto input = QStringList() << "${45332@2}";
-    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(45332, SettingsModel::CONNECTION_ID_1, false, true);
+    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(45332, SettingsModel::CONNECTION_ID_2, false, true);
     auto expExpressions = QStringList() << "regval(0)";
 
     verifyParsing(input, expModbusRegisters, expExpressions);
@@ -54,7 +54,7 @@ void TestExpressionParser::singleRegisterSigned32()
 void TestExpressionParser::singleRegisterConnType()
 {
     auto input = QStringList() << "${45332@2: s32b}";
-    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(45332, SettingsModel::CONNECTION_ID_1, true, false);
+    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(45332, SettingsModel::CONNECTION_ID_2, true, false);
     auto expExpressions = QStringList() << "regval(0)";
 
     verifyParsing(input, expModbusRegisters, expExpressions);
@@ -102,7 +102,7 @@ void TestExpressionParser::failureMulti()
 void TestExpressionParser::combinations()
 {
     auto input = QStringList() << "${45332@2: s32b} + ${45330} + 2";
-    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(45332, SettingsModel::CONNECTION_ID_1, true, false)
+    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(45332, SettingsModel::CONNECTION_ID_2, true, false)
                                                       << ModbusRegister(45330, SettingsModel::CONNECTION_ID_0, false, true);
     auto expExpressions = QStringList() << "regval(0)+regval(1)+2";
 
@@ -112,7 +112,7 @@ void TestExpressionParser::combinations()
 void TestExpressionParser::spaces()
 {
     auto input = QStringList() << "${45332   @2: 32b   } + ${  45330  }";
-    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(45332, SettingsModel::CONNECTION_ID_1, true, true)
+    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(45332, SettingsModel::CONNECTION_ID_2, true, true)
                                                       << ModbusRegister(45330, SettingsModel::CONNECTION_ID_0, false, true);
     auto expExpressions = QStringList() << "regval(0)+regval(1)";
 
