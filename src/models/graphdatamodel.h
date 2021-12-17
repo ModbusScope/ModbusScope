@@ -5,7 +5,6 @@
 #include <QAbstractTableModel>
 #include <QList>
 
-#include "settingsmodel.h"
 #include "graphdata.h"
 
 
@@ -17,17 +16,13 @@ public:
     enum column {
         COLOR = 0,
         ACTIVE,
-        UNSIGNED,
-        REGISTER,
-        BIT32,
         TEXT,
         EXPRESSION,
-        CONNECTION_ID,
 
         COUNT
     };
 
-    explicit GraphDataModel(SettingsModel * pSettingsModel, QObject *parent = nullptr);
+    explicit GraphDataModel(QObject *parent = nullptr);
 
     /* Functions for QTableView (model) */
     int rowCount(const QModelIndex &parent = QModelIndex()) const ;
@@ -75,9 +70,6 @@ public:
 
     void activeGraphIndexList(QList<quint16> * pList);
 
-    bool getDuplicate(quint16 * pRegister, QString* pExpression, quint8 * pConnectionId);
-    virtual bool isPresent(quint16 addr, QString* pExpression);
-
     qint32 convertToActiveGraphIndex(quint32 graphIdx);
     qint32 convertToGraphIndex(quint32 activeIdx);
 
@@ -112,8 +104,6 @@ private:
 
     QList<GraphData> _graphData;
     QList<quint32> _activeGraphList;
-
-    SettingsModel * _pSettingsModel;
 };
 
 #endif // GRAPHDATAMODEL_H

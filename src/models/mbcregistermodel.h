@@ -3,7 +3,6 @@
 
 #include <QAbstractTableModel>
 #include <mbcregisterdata.h>
-#include "graphdatamodel.h"
 #include <graphdata.h>
 
 class MbcRegisterModel : public QAbstractTableModel
@@ -11,7 +10,7 @@ class MbcRegisterModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    explicit MbcRegisterModel(GraphDataModel * pGraphDataModel, QObject *parent = nullptr);
+    explicit MbcRegisterModel(QObject *parent = nullptr);
 
     // Header:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
@@ -57,9 +56,6 @@ private:
         QList<struct MbcMetaData> _mbcRegisterMetaDataList;
 
         QStringList _tabList;
-
-        GraphDataModel * _pGraphDataModel;
-
 };
 
 #endif // MBCREGISTERMODEL_H

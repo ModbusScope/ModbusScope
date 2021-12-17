@@ -1,18 +1,15 @@
 #ifndef COMMUNICATION_MANAGER_H
 #define COMMUNICATION_MANAGER_H
 
-#include <QObject>
-#include <QList>
 #include <QStringListModel>
 #include <QTimer>
-
-#include "modbusmaster.h"
-#include "registervaluehandler.h"
+#include "result.h"
+#include "modbusregister.h"
 
 //Forward declaration
-class GuiModel;
 class SettingsModel;
-class GraphDataModel;
+class RegisterValueHandler;
+class ModbusMaster;
 
 class ModbusMasterData : public QObject
 {
@@ -30,31 +27,29 @@ public:
     bool bActive;
 };
 
-class CommunicationManager : public QObject
+class ModbusPoll : public QObject
 {
     Q_OBJECT
 public:
-    explicit CommunicationManager(SettingsModel * pSettingsModel, GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, QObject *parent = nullptr);
-    ~CommunicationManager();
+    explicit ModbusPoll(SettingsModel * pSettingsModel, QObject *parent = nullptr);
+    ~ModbusPoll();
 
-    bool startCommunication();
+    void startCommunication(QList<ModbusRegister>& registerList);
     void stopCommunication();
 
     bool isActive();
     void resetCommunicationStats();
 
 signals:
-    void handleReceivedData(QList<bool> successList, QList<double> values);
+    void registerDataReady(QList<Result> registers);
 
 private slots:
-    void handlePollDone(QMap<quint16, ModbusResult> resultMap, quint8 connectionId);
+    void handlePollDone(QMap<quint16, Result> resultMap, quint8 connectionId);
     void handleModbusError(QString msg);
     void handleModbusInfo(QString msg);
-    void readData();
+    void triggerRegisterRead();
 
 private:
-
-   void updateStats(QList<bool> successList);
 
     QList<ModbusMasterData *> _modbusMasters;
     quint32 _activeMastersCount;
@@ -63,9 +58,8 @@ private:
     QTimer * _pPollTimer;
     qint64 _lastPollStart;
 
-    RegisterValueHandler _registerValueHandler;
+    RegisterValueHandler* _pRegisterValueHandler;
 
-    GuiModel * _pGuiModel;
     SettingsModel * _pSettingsModel;
 };
 

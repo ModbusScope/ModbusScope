@@ -96,27 +96,27 @@ void TestQMuParser::evaluate()
 
     bool bSuccess = parser.evaluate();
 
-    QCOMPARE(parser.result(), result);
+    QCOMPARE(parser.value(), result);
     QVERIFY(parser.isSuccess());
     QVERIFY(bSuccess);
 }
 
-void TestQMuParser::evaluateRegister_data()
+void TestQMuParser::evaluateSingleRegister_data()
 {
     QTest::addColumn<QString>("expression");
     QTest::addColumn<quint32>("registerValue");
     QTest::addColumn<double>("result");
 
 
-    ADD_REG_TEST("VAL",           2,        2    );
-    ADD_REG_TEST("VAL + 2",       3,        5    );
-    ADD_REG_TEST("VAL * 2",       4,        8    );
-    ADD_REG_TEST("VAL / 1000",    5,        0.005);
-    ADD_REG_TEST("VAL & 0xFF",    257,      1);
+    ADD_REG_TEST("regval(0)",           2,        2    );
+    ADD_REG_TEST("regval(0) + 2",       3,        5    );
+    ADD_REG_TEST("regval(0) * 2",       4,        8    );
+    ADD_REG_TEST("regval(0) / 1000",    5,        0.005);
+    ADD_REG_TEST("regval(0) & 0xFF",    257,      1);
 
 }
 
-void TestQMuParser::evaluateRegister()
+void TestQMuParser::evaluateSingleRegister()
 {
     QFETCH(QString, expression);
     QFETCH(quint32, registerValue);
@@ -124,9 +124,39 @@ void TestQMuParser::evaluateRegister()
 
     QMuParser parser(expression);
 
-    bool bSuccess = parser.evaluate(registerValue);
+    parser.setRegistersData(QList<Result>() << Result(registerValue, true));
 
-    QCOMPARE(parser.result(), result);
+    bool bSuccess = parser.evaluate();
+
+    QCOMPARE(parser.value(), result);
+    QVERIFY(parser.isSuccess());
+    QVERIFY(bSuccess);
+}
+
+void TestQMuParser::evaluateMultipleRegisters()
+{
+    auto input = QList<Result>() << Result(1, true) << Result(2, true) << Result(3, true);
+
+    QMuParser parser("regval(0)");
+    parser.setRegistersData(input);
+
+    bool bSuccess = parser.evaluate();
+
+    QCOMPARE(parser.value(), 1);
+    QVERIFY(parser.isSuccess());
+    QVERIFY(bSuccess);
+
+    parser.setExpression("regval(1)");
+    bSuccess = parser.evaluate();
+
+    QCOMPARE(parser.value(), 2);
+    QVERIFY(parser.isSuccess());
+    QVERIFY(bSuccess);
+
+    parser.setExpression("regval(2)");
+    bSuccess = parser.evaluate();
+
+    QCOMPARE(parser.value(), 3);
     QVERIFY(parser.isSuccess());
     QVERIFY(bSuccess);
 }
@@ -137,7 +167,34 @@ void TestQMuParser::evaluateInvalidExpr()
 
     bool bSuccess = parser.evaluate();
 
-    QCOMPARE(parser.result(), 0);
+    QCOMPARE(parser.value(), 0);
+    QVERIFY(!parser.isSuccess());
+    QVERIFY(!bSuccess);
+}
+
+void TestQMuParser::evaluateEmpty()
+{
+    QMuParser parser("");
+
+    bool bSuccess = parser.evaluate();
+
+    QCOMPARE(parser.value(), 0);
+    QVERIFY(!parser.isSuccess());
+    QVERIFY(!bSuccess);
+}
+
+void TestQMuParser::evaluateFail()
+{
+    QString expression = "regval(0)";
+    auto resultList = QList<Result>() << Result(5, false);
+
+    QMuParser parser(expression);
+
+    parser.setRegistersData(resultList);
+
+    bool bSuccess = parser.evaluate();
+
+    QCOMPARE(parser.value(), 0);
     QVERIFY(!parser.isSuccess());
     QVERIFY(!bSuccess);
 }
@@ -148,7 +205,7 @@ void TestQMuParser::evaluateInvalidHexExpr()
 
     bool bSuccess = parser.evaluate();
 
-    QCOMPARE(parser.result(), 0);
+    QCOMPARE(parser.value(), 0);
     QVERIFY(!parser.isSuccess());
     QVERIFY(!bSuccess);
 }
@@ -159,7 +216,7 @@ void TestQMuParser::evaluateInvalidBinExpr()
 
     bool bSuccess = parser.evaluate();
 
-    QCOMPARE(parser.result(), 0);
+    QCOMPARE(parser.value(), 0);
     QVERIFY(!parser.isSuccess());
     QVERIFY(!bSuccess);
 }
@@ -171,7 +228,7 @@ void TestQMuParser::evaluateInvalidBinExpr_2()
 
     bool bSuccess = parser.evaluate();
 
-    QCOMPARE(parser.result(), 0);
+    QCOMPARE(parser.value(), 0);
     QVERIFY(!parser.isSuccess());
     QVERIFY(!bSuccess);
 }
@@ -182,7 +239,7 @@ void TestQMuParser::evaluateInvalidDecimal()
 
     bool bSuccess = parser.evaluate();
 
-    QCOMPARE(parser.result(), 0);
+    QCOMPARE(parser.value(), 0);
     QVERIFY(!parser.isSuccess());
     QVERIFY(!bSuccess);
 }
@@ -193,7 +250,7 @@ void TestQMuParser::evaluateDivByZero()
 
     bool bSuccess = parser.evaluate();
 
-    QCOMPARE(parser.result(), 0);
+    QCOMPARE(parser.value(), 0);
     QVERIFY(!parser.isSuccess());
     QVERIFY(!bSuccess);
 }
@@ -209,7 +266,7 @@ void TestQMuParser::evaluateDecimalSeparatorCombination()
     bool bSuccess = parser_1.evaluate();
 
     QVERIFY(bSuccess);
-    QCOMPARE(parser_1.result(), 1.5);
+    QCOMPARE(parser_1.value(), 1.5);
 }
 
 void TestQMuParser::expressionGet()
@@ -223,19 +280,24 @@ void TestQMuParser::expressionGet()
 
 void TestQMuParser::expressionUpdate()
 {
-    QMuParser parser("VAL + 1");
+    QMuParser parser("regval(0) + 1");
 
-    bool bSuccess = parser.evaluate(5);
+    auto input_1 = QList<Result>() << Result(5, true);
+    parser.setRegistersData(input_1);
 
-    QCOMPARE(parser.result(), 6);
+    bool bSuccess = parser.evaluate();
+
+    QCOMPARE(parser.value(), 6);
     QVERIFY(parser.isSuccess());
     QVERIFY(bSuccess);
 
-    parser.setExpression("VAL + 2");
+    parser.setExpression("regval(0) + regval(1) + 2");
 
-    bSuccess = parser.evaluate(5);
+    auto input_2 = QList<Result>() << Result(1, true) << Result(2, true);
+    parser.setRegistersData(input_2);
+    bSuccess = parser.evaluate();
 
-    QCOMPARE(parser.result(), 7);
+    QCOMPARE(parser.value(), 5);
     QVERIFY(parser.isSuccess());
     QVERIFY(bSuccess);
 }

@@ -1,4 +1,5 @@
 #include "mbcregisterdata.h"
+#include <QtMath>
 
 MbcRegisterData::MbcRegisterData()
 {
@@ -138,3 +139,52 @@ void MbcRegisterData::setDecimals(const quint8 &decimals)
 {
     _decimals = decimals;
 }
+
+QString MbcRegisterData::toExpression()
+{
+    QString expression;
+
+    QString suffix = typeSuffix(_bUint32, _bUnsigned);
+    QString registerStr = QString("${%1%2}").arg(_registerAddress).arg(suffix);
+
+    if (_decimals != 0)
+    {
+        expression = QString("%1/%2").arg(registerStr)
+                                     .arg(static_cast<double>(qPow(10, _decimals)));
+    }
+    else
+    {
+        expression = registerStr;
+    }
+
+    return expression;
+}
+
+QString MbcRegisterData::typeSuffix(bool is32bit, bool bUnsigned)
+{
+    QString suffix;
+
+    if (is32bit)
+    {
+        if (bUnsigned)
+        {
+            suffix = QStringLiteral(":32b");
+        }
+        else
+        {
+            suffix = QStringLiteral(":s32b");
+        }
+    }
+    else if (!bUnsigned)
+    {
+        suffix = QStringLiteral(":s16b");
+    }
+    else
+    {
+        suffix = QStringLiteral("");
+    }
+
+    return suffix;
+}
+
+

@@ -2,8 +2,8 @@
 #include <QObject>
 #include "registervaluehandler.h"
 
-#include "settingsmodel.h"
-#include "graphdatamodel.h"
+/* Forward declaration */
+class SettingsModel;
 
 class TestRegisterValueHandler: public QObject
 {
@@ -12,56 +12,35 @@ private slots:
     void init();
     void cleanup();
 
-    void read_16_default();
-    void read_16_operation();
+    void addressList_16();
+    void addressList_16_multiple();
+    void addressList_32();
+    void addressList_32_multiple();
+    void addressListCombinations();
+    void addressListMultipleConnections();
 
-    void read_s16_default();
-    void read_s16_operation();
+    void read_16();
+    void read_32();
 
-    void read_32_default();
-    void read_32_operation();
+    void readBigEndian_32();
+    void readBigEndian_s32();
 
-    void read_s32_default();
-    void read_s32_operation();
-
-    void read_32BitMixed_1();
-    void read_32BitMixed_2();
-
-    void multiRead();
-
-    void connectionCheck();
-    void twoConnectionsCheck();
-
-    void graphList_1();
-    void graphList_2();
-    void graphList_3();
-    void graphList_4();
-
-    void bigEndian_32_1();
-    void bigEndian_s32_2();
-
-    void manyInactiveRegisters();
-
+    void readConnections();
+    void readFail();
 
 private:
 
-    QMap<quint16, ModbusResult> createResultMap(
+    void verifyRegisterResult(QList<ModbusRegister>& regList,
+                            QMap<quint16, Result> &regData,
+                            QList<Result> expResults);
+
+    void addToResultMap(QMap<quint16, Result> &resultMap,
             quint16 addr,
             bool b32bit,
             qint64 value,
             bool result
             );
-
-    void addToResultMap(QMap<quint16, ModbusResult> &resultMap,
-            quint16 addr,
-            bool b32bit,
-            qint64 value,
-            bool result
-            );
-
-    void addRegisterToModel();
 
     SettingsModel* _pSettingsModel;
-    GraphDataModel* _pGraphDataModel;
 
 };

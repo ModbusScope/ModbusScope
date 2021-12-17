@@ -19,7 +19,7 @@ MainApp::MainApp(QStringList cmdArguments, QObject *parent) : QObject(parent)
 
     _pGuiModel = new GuiModel();
     _pSettingsModel = new SettingsModel();
-    _pGraphDataModel = new GraphDataModel(_pSettingsModel);
+    _pGraphDataModel = new GraphDataModel();
     _pNoteModel = new NoteModel();
     _pDiagnosticModel = new DiagnosticModel();
     _pDataParserModel = new DataParserModel();
