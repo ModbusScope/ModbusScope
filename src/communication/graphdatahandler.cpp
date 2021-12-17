@@ -7,15 +7,17 @@
 
 #include "scopelogging.h"
 
-GraphDataHandler::GraphDataHandler(GraphDataModel* pGraphDataModel) :
-  _pGraphDataModel(pGraphDataModel)
+GraphDataHandler::GraphDataHandler() :
+  _pGraphDataModel(nullptr)
 {
 
 }
 
-void GraphDataHandler::processActiveRegisters()
+void GraphDataHandler::processActiveRegisters(GraphDataModel* pGraphDataModel)
 {
     QStringList exprList;
+
+    _pGraphDataModel = pGraphDataModel;
 
     _pGraphDataModel->activeGraphIndexList(&_activeIndexList);
     for(quint16 graphIdx: qAsConst(_activeIndexList))

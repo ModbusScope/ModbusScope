@@ -155,12 +155,12 @@ void TestCommunication::mixed_fail()
 
 void TestCommunication::doHandleRegisterData(QList<QVariant>& actRawData)
 {
-    GraphDataHandler dataHandler(_pGraphDataModel);
+    GraphDataHandler dataHandler;
     ModbusPoll modbusPoll(_pSettingsModel);
     connect(&modbusPoll, &ModbusPoll::registerDataReady, &dataHandler, &GraphDataHandler::handleRegisterData);
 
     QList<ModbusRegister> registerList;
-    dataHandler.processActiveRegisters();
+    dataHandler.processActiveRegisters(_pGraphDataModel);
     dataHandler.modbusRegisterList(registerList);
 
     QSignalSpy spyDataReady(&dataHandler, &GraphDataHandler::graphDataReady);
