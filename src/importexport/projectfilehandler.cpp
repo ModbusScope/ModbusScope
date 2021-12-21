@@ -6,6 +6,7 @@
 #include "util.h"
 #include "projectfileexporter.h"
 #include "updateregisteroperations.h"
+#include "updateregisternewexpression.h"
 
 #include "projectfilehandler.h"
 
@@ -252,24 +253,32 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
         ProjectFileData::RegisterSettings* const pSettingData = &pProjectSettings->scope.registerList[i];
 
         rowData.setActive(pSettingData->bActive);
-        rowData.setUnsigned(pSettingData->bUnsigned);
-        rowData.setBit32(pSettingData->b32Bit);
-        rowData.setRegisterAddress(pSettingData->address);
         rowData.setLabel(pSettingData->text);
         rowData.setColor(pSettingData->color);
-        rowData.setConnectionId(pSettingData->connectionId);
 
-        if (pSettingData->bExpression)
+        if (pProjectSettings->dataLevel <= 2)
         {
-            rowData.setExpression(pSettingData->expression);
-        }
-        else
-        {
-            QString convertedExpression;
-            UpdateRegisterOperations::convert(*pSettingData, convertedExpression);
+            if (!pSettingData->bExpression)
+            {
+                QString convertedExpression;
+                UpdateRegisterOperations::convert(*pSettingData, convertedExpression);
 
-            rowData.setExpression(convertedExpression);
+                pSettingData->bExpression = true;
+                pSettingData->expression = convertedExpression;
+            }
+
+            /* Convert to data required for datalevel 3 */
+            if (pSettingData->address != 65535)
+            {
+                /* address tag was present */
+                QString convertedExpression;
+                UpdateRegisterNewExpression::convert(*pSettingData, convertedExpression);
+
+                pSettingData->expression = convertedExpression;
+            }
         }
+
+        rowData.setExpression(pSettingData->expression);
 
         _pGraphDataModel->add(rowData);
     }

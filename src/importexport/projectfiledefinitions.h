@@ -66,7 +66,7 @@ namespace ProjectFileDefinitions
     const char cFalseValue[] = "false";
 
     /* Constant values */
-    const quint32 cCurrentDataLevel = 2;
+    const quint32 cCurrentDataLevel = 3;
 
 }
 
