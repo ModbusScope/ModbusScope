@@ -144,15 +144,9 @@ void ProjectFileExporter::createRegisterTag(QDomElement * pParentElement, qint32
 
     registerElement.setAttribute(ProjectFileDefinitions::cActiveAttribute, convertBoolToText(_pGraphDataModel->isActive(idx)));
 
-    addTextNode(ProjectFileDefinitions::cAddressTag, QString("%1").arg(_pGraphDataModel->registerAddress(idx)), &registerElement);
     addTextNode(ProjectFileDefinitions::cTextTag, _pGraphDataModel->label(idx).toHtmlEscaped(), &registerElement);
-    addTextNode(ProjectFileDefinitions::cUnsignedTag, convertBoolToText(_pGraphDataModel->isUnsigned(idx)), &registerElement);
-    addTextNode(ProjectFileDefinitions::cBit32Tag, convertBoolToText(_pGraphDataModel->isBit32(idx)), &registerElement);
-
     addCDataNode(ProjectFileDefinitions::cExpressionTag, _pGraphDataModel->expression(idx), &registerElement);
-
     addTextNode(ProjectFileDefinitions::cColorTag, _pGraphDataModel->color(idx).name(), &registerElement);
-    addTextNode(ProjectFileDefinitions::cConnectionIdTag, QString("%1").arg(_pGraphDataModel->connectionId(idx)), &registerElement);
 
     pParentElement->appendChild(registerElement);
 }
