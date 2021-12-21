@@ -24,20 +24,8 @@ public:
     bool isActive() const;
     void setActive(bool bActive);
 
-    bool isUnsigned() const;
-    void setUnsigned(bool bUnsigned);
-
-    bool isBit32() const;
-    void setBit32(bool isBit32);
-
     QString expression() const;
     void setExpression(QString expression);
-
-    quint16 registerAddress() const;
-    void setRegisterAddress(const quint16 &registerAddress);
-
-    quint8 connectionId() const;
-    void setConnectionId(const quint8 &connectionId);
 
     QSharedPointer<QCPGraphDataContainer> dataMap();
 
@@ -48,11 +36,6 @@ private:
     QColor _color;
 
     bool _bActive;
-    bool _bUnsigned;
-    bool _bit32;
-    quint16 _registerAddress;
-    quint8 _connectionId;
-
     QString _expression;
 
     QSharedPointer<QCPGraphDataContainer> _pDataMap;

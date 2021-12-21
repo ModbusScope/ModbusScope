@@ -37,8 +37,6 @@ private:
         E_PROPERTY,
         E_COLOR,
         E_EXPRESSION,
-        E_REGISTER_ADDRESS,
-        E_CONNECTION_ID,
 
     } registerProperty;
 
