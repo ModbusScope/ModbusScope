@@ -28,6 +28,7 @@ add_executable(tst_presetparser ${CMAKE_CURRENT_SOURCE_DIR}/testpresetparser.cpp
 add_executable(tst_projectfileparser ${CMAKE_CURRENT_SOURCE_DIR}/testprojectfileparser.cpp ${TEST_DATA_SRCS})
 add_executable(tst_settingsauto ${CMAKE_CURRENT_SOURCE_DIR}/testsettingsauto.cpp ${TEST_DATA_SRCS})
 add_executable(tst_updateregisteroperations ${CMAKE_CURRENT_SOURCE_DIR}/testupdateregisteroperations.cpp)
+add_executable(tst_updateregisternewexpression ${CMAKE_CURRENT_SOURCE_DIR}/testupdateregisternewexpression.cpp)
 
 
 add_test(NAME tst_datafileparser COMMAND tst_datafileparser)
@@ -38,6 +39,7 @@ add_test(NAME tst_presetparser COMMAND tst_presetparser)
 add_test(NAME tst_projectfileparser COMMAND tst_projectfileparser)
 add_test(NAME tst_settingsauto COMMAND tst_settingsauto)
 add_test(NAME tst_updateregisteroperations COMMAND tst_updateregisteroperations)
+add_test(NAME tst_updateregisternewexpression COMMAND tst_updateregisternewexpression)
 
 
 target_link_libraries(tst_datafileparser PRIVATE
@@ -89,4 +91,8 @@ target_link_libraries(tst_updateregisteroperations PRIVATE
     Qt5::Test
 )
 
-
+target_link_libraries(tst_updateregisternewexpression PRIVATE
+    ${SCOPESOURCE}
+    ${QT_LIB}
+    Qt5::Test
+)

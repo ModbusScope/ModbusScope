@@ -1,4 +1,5 @@
 #include "mbcregisterdata.h"
+#include "updateregisternewexpression.h"
 #include <QtMath>
 
 MbcRegisterData::MbcRegisterData()
@@ -144,9 +145,7 @@ QString MbcRegisterData::toExpression()
 {
     QString expression;
 
-    QString suffix = typeSuffix(_bUint32, _bUnsigned);
-    QString registerStr = QString("${%1%2}").arg(_registerAddress).arg(suffix);
-
+    QString registerStr = UpdateRegisterNewExpression::constructRegisterString(_registerAddress, _bUint32, _bUnsigned, 0);
     if (_decimals != 0)
     {
         expression = QString("%1/%2").arg(registerStr)
@@ -160,31 +159,6 @@ QString MbcRegisterData::toExpression()
     return expression;
 }
 
-QString MbcRegisterData::typeSuffix(bool is32bit, bool bUnsigned)
-{
-    QString suffix;
 
-    if (is32bit)
-    {
-        if (bUnsigned)
-        {
-            suffix = QStringLiteral(":32b");
-        }
-        else
-        {
-            suffix = QStringLiteral(":s32b");
-        }
-    }
-    else if (!bUnsigned)
-    {
-        suffix = QStringLiteral(":s16b");
-    }
-    else
-    {
-        suffix = QStringLiteral("");
-    }
-
-    return suffix;
-}
 
 
