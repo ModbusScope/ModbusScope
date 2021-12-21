@@ -13,10 +13,7 @@ GraphDataModel::GraphDataModel(QObject *parent) : QAbstractTableModel(parent)
     connect(this, &GraphDataModel::labelChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::colorChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::activeChanged, this, &GraphDataModel::modelDataChanged);
-    connect(this, &GraphDataModel::unsignedChanged, this, &GraphDataModel::modelDataChanged);
-    connect(this, &GraphDataModel::bit32Changed, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::expressionChanged, this, &GraphDataModel::modelDataChanged);
-    connect(this, &GraphDataModel::connectionIdChanged, this, &GraphDataModel::modelDataChanged);
 
     /* When adding or removing graphs, the complete view should be refreshed to make sure all indexes are updated */
     connect(this, &GraphDataModel::added, this, &GraphDataModel::modelCompleteDataChanged);
@@ -250,29 +247,9 @@ bool GraphDataModel::isActive(quint32 index) const
     return _graphData[index].isActive();
 }
 
-bool GraphDataModel::isUnsigned(quint32 index) const
-{
-    return _graphData[index].isUnsigned();
-}
-
-bool GraphDataModel::isBit32(quint32 index) const
-{
-    return _graphData[index].isBit32();
-}
-
 QString GraphDataModel::expression(quint32 index) const
 {
     return _graphData[index].expression();
-}
-
-quint16 GraphDataModel::registerAddress(quint32 index) const
-{
-    return _graphData[index].registerAddress();
-}
-
-quint8 GraphDataModel::connectionId(quint8 index) const
-{
-    return _graphData[index].connectionId();
 }
 
 QSharedPointer<QCPGraphDataContainer> GraphDataModel::dataMap(quint32 index)
@@ -331,48 +308,12 @@ void GraphDataModel::setActive(quint32 index, bool bActive)
     }
 }
 
-void GraphDataModel::setUnsigned(quint32 index, bool bUnsigned)
-{
-    if (_graphData[index].isUnsigned() != bUnsigned)
-    {
-         _graphData[index].setUnsigned(bUnsigned);
-         emit unsignedChanged(index);
-    }
-}
-
-void GraphDataModel::setBit32(quint32 index, bool b32Bit)
-{
-    if (_graphData[index].isBit32() != b32Bit)
-    {
-         _graphData[index].setBit32(b32Bit);
-         emit bit32Changed(index);
-    }
-}
-
 void GraphDataModel::setExpression(quint32 index, QString expression)
 {
     if (_graphData[index].expression() != expression)
     {
          _graphData[index].setExpression(expression);
          emit expressionChanged(index);
-    }
-}
-
-void GraphDataModel::setRegisterAddress(quint32 index, const quint16 &registerAddress)
-{
-    if (_graphData[index].registerAddress() != registerAddress)
-    {
-         _graphData[index].setRegisterAddress(registerAddress);
-         emit registerAddressChanged(index);
-    }
-}
-
-void GraphDataModel::setConnectionId(quint32 index, const quint8 &connectionId)
-{
-    if (_graphData[index].connectionId() != connectionId)
-    {
-         _graphData[index].setConnectionId(connectionId);
-         emit connectionIdChanged(index);
     }
 }
 
@@ -393,9 +334,9 @@ void GraphDataModel::add()
 {
     GraphData data;
 
-    data.setRegisterAddress(nextFreeAddress());
-    data.setLabel(QString("Register %1").arg(data.registerAddress()));
-    data.setExpression(QString("${%1}").arg(data.registerAddress()));
+    quint16 registerAddr = 40001;
+    data.setLabel(QString("Register %1").arg(registerAddr));
+    data.setExpression(QString("${%1}").arg(registerAddr));
 
     add(data);
 }
@@ -467,25 +408,6 @@ qint32 GraphDataModel::convertToActiveGraphIndex(quint32 graphIdx)
 qint32 GraphDataModel::convertToGraphIndex(quint32 activeIdx)
 {
     return _activeGraphList[activeIdx];
-}
-
-quint16 GraphDataModel::nextFreeAddress()
-{
-    quint16 nextAddress = 40000;
-
-    /* Find highest address of existing addresses */
-    for (qint32 idx = 0; idx < _graphData.size(); idx++)
-    {
-        if (_graphData[idx].registerAddress() > nextAddress)
-        {
-            nextAddress = _graphData[idx].registerAddress();
-        }
-    }
-
-    /* Set to next address */
-    nextAddress++;
-
-    return nextAddress;
 }
 
 void GraphDataModel::updateActiveGraphList(void)
