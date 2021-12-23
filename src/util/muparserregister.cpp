@@ -60,8 +60,8 @@ namespace mu
         double intpart;
         if (modf(v1, &intpart) == 0.0)
         {
-            int value;
-            bool success;
+            int value = 0;
+            bool success = false;
             (*_registerCb)(v1, &value, &success);
 
             if (success)
