@@ -3,39 +3,37 @@
 
 #include <QObject>
 
-#include "modbusresult.h"
+#include "result.h"
+#include "modbusregister.h"
 
-//Forward declaration
-class GraphDataModel;
 class SettingsModel;
-class QMuParser;
 
-class RegisterValueHandler
+class RegisterValueHandler : public QObject
 {
+    Q_OBJECT
 public:
-    RegisterValueHandler(GraphDataModel *pGraphDataModel, SettingsModel *pSettingsModel);
+
+    RegisterValueHandler(SettingsModel *pSettingsModel);
+
+    void setRegisters(QList<ModbusRegister> &registerList);
 
     void startRead();
+    void processPartialResult(QMap<quint16, Result> partialResultMap, quint8 connectionId);
+    void finishRead();
 
-    void processPartialResult(QMap<quint16, ModbusResult> partialResultMap, quint8 connectionId);
+    void registerAddresList(QList<quint16>& registerList, quint8 connectionId);
 
-    QList<double> processedValues();
-    QList<bool> successList();
-
-    void activeGraphAddresList(QList<quint16> * pRegisterList, quint8 connectionId);
-
-    void prepareForData();
+signals:
+    void registerDataReady(QList<Result> registers);
 
 private:
 
-    GraphDataModel * _pGraphDataModel;
-    SettingsModel * _pSettingsModel;
+    uint32_t convertEndianness(bool bLittleEndian, uint16_t value, uint16_t nextValue);
 
-    QList<double> _processedValues;
-    QList<bool> _successList;
+    SettingsModel* _pSettingsModel;
 
-    QList<quint16> _activeIndexList;
-    QList<QMuParser*> _valueParsers;
+    QList<ModbusRegister> _registerList;
+    QList<Result> _resultList;
 };
 
 #endif // REGISTERVALUEHANDLER_H

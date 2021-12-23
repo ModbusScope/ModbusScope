@@ -46,12 +46,38 @@ using namespace std;
 namespace mu
 {
 
+    ParserRegister::registerCb_t ParserRegister::_registerCb;
+
     value_type ParserRegister::Shr(value_type v1, value_type v2) { return ConvertToInteger(v1) >> ConvertToInteger(v2); }
     value_type ParserRegister::Shl(value_type v1, value_type v2) { return ConvertToInteger(v1) << ConvertToInteger(v2); }
     value_type ParserRegister::LogAnd(value_type v1, value_type v2) { return ConvertToInteger(v1) & ConvertToInteger(v2); }
     value_type ParserRegister::LogOr(value_type v1, value_type v2) { return ConvertToInteger(v1) | ConvertToInteger(v2); }
     value_type ParserRegister::Not(value_type v) { return !ConvertToInteger(v); }
     value_type ParserRegister::Mod(value_type v1, value_type v2) { return ConvertToInteger(v1) % ConvertToInteger(v2); }
+
+    value_type ParserRegister::RegVal(value_type v1)
+    {
+        double intpart;
+        if (modf(v1, &intpart) == 0.0)
+        {
+            int value;
+            bool success;
+            (*_registerCb)(v1, &value, &success);
+
+            if (success)
+            {
+                return value;
+            }
+            else
+            {
+                throw exception_type(_T("Communication error"));
+            }
+        }
+        else
+        {
+            throw exception_type(_T("Internal error (invalid index in register list)"));
+        }
+    }
 
     //---------------------------------------------------------------------------
     /** \brief Default value recognition callback.
@@ -138,7 +164,7 @@ namespace mu
 
 	  Call ParserBase class constructor and trigger Function, Operator and Constant initialization.
 	*/
-    ParserRegister::ParserRegister(double * pRegisterValue)
+    ParserRegister::ParserRegister()
 		:ParserBase()
 	{
         AddValIdent(IsVal);    // lowest priority
@@ -149,13 +175,12 @@ namespace mu
 		InitFun();
 		InitConst();
 		InitOprt();
-
-        /* Register variable */
-        if (pRegisterValue != nullptr)
-        {
-            DefineVar("VAL", pRegisterValue);
-        }
 	}
+
+    void ParserRegister::setRegisterCallback(registerCb_t registerCb)
+    {
+        _registerCb = registerCb;
+    }
 
 	//---------------------------------------------------------------------------
 	/** \brief Define the character sets.
@@ -175,18 +200,7 @@ namespace mu
 	/** \brief Initialize the default functions. */
 	void ParserRegister::InitFun()
 	{
-		if (mu::TypeInfo<mu::value_type>::IsInteger())
-		{
-			// When setting MUP_BASETYPE to an integer type
-			// Place functions for dealing with integer values here
-			// ...
-			// ...
-			// ...
-		}
-		else
-		{
-
-		}
+        DefineFun(_T("regval"), RegVal);
 	}
 
 	//---------------------------------------------------------------------------

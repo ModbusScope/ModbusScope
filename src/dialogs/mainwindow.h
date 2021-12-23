@@ -15,7 +15,8 @@ class MainWindow;
 }
 
 // Forward declaration
-class CommunicationManager;
+class ModbusPoll;
+class GraphDataHandler;
 class QCustomPlot;
 class GraphDataModel;
 class NoteModel;
@@ -101,6 +102,7 @@ private slots:
     void xAxisScaleGroupClicked(int id);
     void yAxisScaleGroupClicked(int id);
     void updateRuntime();
+    void updateCommunicationStats(QList<bool> successList);
     void updateDataFileNotes();
 
     void showVersionUpdate(UpdateNotify::UpdateState result);
@@ -110,7 +112,7 @@ private:
     void handleCommandLineArguments(QStringList cmdArguments);
 
     Ui::MainWindow * _pUi;
-    CommunicationManager * _pConnMan;
+    ModbusPoll * _pModbusPoll;
     GraphView * _pGraphView;
 
     GuiModel * _pGuiModel;
@@ -121,6 +123,7 @@ private:
     DataParserModel * _pDataParserModel;
 
     UpdateNotify* _pUpdateNotify;
+    GraphDataHandler* _pGraphDataHandler;
 
     ConnectionDialog * _pConnectionDialog;
     LogDialog * _pLogDialog;

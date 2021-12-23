@@ -3,512 +3,289 @@
 
 #include "testregistervaluehandler.h"
 
-#include "graphdatamodel.h"
 #include "settingsmodel.h"
+
+Q_DECLARE_METATYPE(Result);
+
 
 void TestRegisterValueHandler::init()
 {
+    qRegisterMetaType<Result>("Result");
+    qRegisterMetaType<QList<Result> >("QList<Result>");
+
     _pSettingsModel = new SettingsModel();
 
-    _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_0, true);
     _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_1, true);
-
-    _pGraphDataModel = new GraphDataModel(_pSettingsModel);
+    _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_2, true);
 }
 
 void TestRegisterValueHandler::cleanup()
 {
-    delete _pGraphDataModel;
     delete _pSettingsModel;
 }
 
-void TestRegisterValueHandler::read_16_default()
+void TestRegisterValueHandler::addressList_16()
 {
-    addRegisterToModel();
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true);
+    auto expRegisterList = QList<uint16_t>() << 40001;
 
-    auto partialResultMap = createResultMap(0, false, 100, true);
+    RegisterValueHandler regHandler(_pSettingsModel);
+    regHandler.setRegisters(modbusRegisters);
 
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.prepareForData();
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
+    QList<quint16> actualRegisterList;
+    regHandler.registerAddresList(actualRegisterList, SettingsModel::CONNECTION_ID_1);
 
-    QCOMPARE(regHandler.processedValues()[0], 100);
-    QCOMPARE(regHandler.successList()[0], true);
-
+    QVERIFY(actualRegisterList == expRegisterList);
 }
 
-void TestRegisterValueHandler::read_16_operation()
+void TestRegisterValueHandler::addressList_16_multiple()
 {
-    addRegisterToModel();
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true)
+                                                   << ModbusRegister(40002, SettingsModel::CONNECTION_ID_1, false, true);
+    auto expRegisterList = QList<uint16_t>() << 40001 << 40002;
 
-    _pGraphDataModel->setExpression(0, QStringLiteral("(VAL<<2)*2/4"));
+    RegisterValueHandler regHandler(_pSettingsModel);
+    regHandler.setRegisters(modbusRegisters);
 
-    auto partialResultMap = createResultMap(0, false, 256, true);
+    QList<quint16> actualRegisterList;
+    regHandler.registerAddresList(actualRegisterList, SettingsModel::CONNECTION_ID_1);
 
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.prepareForData();
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], 512);
-    QCOMPARE(regHandler.successList()[0], true);
+    QVERIFY(actualRegisterList == expRegisterList);
 }
 
-void TestRegisterValueHandler::read_s16_default()
+void TestRegisterValueHandler::addressList_32()
 {
-    addRegisterToModel();
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, true, true);
+    auto expRegisterList = QList<uint16_t>() << 40001 << 40002;
 
-    _pGraphDataModel->setUnsigned(0, false);
+    RegisterValueHandler regHandler(_pSettingsModel);
+    regHandler.setRegisters(modbusRegisters);
 
-    auto partialResultMap = createResultMap(0, false, -100, true);
+    QList<quint16> actualRegisterList;
+    regHandler.registerAddresList(actualRegisterList, SettingsModel::CONNECTION_ID_1);
 
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.prepareForData();
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], -100);
-    QCOMPARE(regHandler.successList()[0], true);
-
+    QVERIFY(actualRegisterList == expRegisterList);
 }
 
-void TestRegisterValueHandler::read_s16_operation()
+void TestRegisterValueHandler::addressList_32_multiple()
 {
-    addRegisterToModel();
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, true, true)
+                                                   << ModbusRegister(40005, SettingsModel::CONNECTION_ID_1, true, true);
+    auto expRegisterList = QList<uint16_t>() << 40001 << 40002 << 40005 << 40006;
 
-    _pGraphDataModel->setUnsigned(0, false);
+    RegisterValueHandler regHandler(_pSettingsModel);
+    regHandler.setRegisters(modbusRegisters);
 
-    _pGraphDataModel->setExpression(0, QStringLiteral("(VAL<<2)*2/4"));
+    QList<quint16> actualRegisterList;
+    regHandler.registerAddresList(actualRegisterList, SettingsModel::CONNECTION_ID_1);
 
-    auto partialResultMap = createResultMap(0, false, -256, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.prepareForData();
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], -512);
-    QCOMPARE(regHandler.successList()[0], true);
+    QVERIFY(actualRegisterList == expRegisterList);
 }
 
-void TestRegisterValueHandler::read_32_default()
+void TestRegisterValueHandler::addressListCombinations()
 {
-    addRegisterToModel();
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true)
+                                                   << ModbusRegister(40005, SettingsModel::CONNECTION_ID_1, false, true)
+                                                   << ModbusRegister(40005, SettingsModel::CONNECTION_ID_1, true, true)
+                                                   << ModbusRegister(40008, SettingsModel::CONNECTION_ID_1, true, true);
+    auto expRegisterList = QList<uint16_t>() << 40001 << 40005 << 40006 << 40008 << 40009;
 
-    _pGraphDataModel->setBit32(0, true);
+    RegisterValueHandler regHandler(_pSettingsModel);
+    regHandler.setRegisters(modbusRegisters);
 
-    auto partialResultMap = createResultMap(0, true, 100000, true);
+    QList<quint16> actualRegisterList;
+    regHandler.registerAddresList(actualRegisterList, SettingsModel::CONNECTION_ID_1);
 
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.prepareForData();
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], 100000);
-    QCOMPARE(regHandler.successList()[0], true);
-
+    QVERIFY(actualRegisterList == expRegisterList);
 }
 
-void TestRegisterValueHandler::read_32_operation()
+void TestRegisterValueHandler::addressListMultipleConnections()
 {
-    addRegisterToModel();
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, true, true)
+                                                   << ModbusRegister(40005, SettingsModel::CONNECTION_ID_2, true, true)
+                                                   << ModbusRegister(40010, SettingsModel::CONNECTION_ID_1, true, true);
+    auto expRegisterList0 = QList<uint16_t>() << 40001 << 40002 << 40010 << 40011;
+    auto expRegisterList1 = QList<uint16_t>() << 40005 << 40006;
 
-    _pGraphDataModel->setBit32(0, true);
-    _pGraphDataModel->setExpression(0, QStringLiteral("(VAL<<2)*2/4"));
+    RegisterValueHandler regHandler(_pSettingsModel);
+    regHandler.setRegisters(modbusRegisters);
 
-    auto partialResultMap = createResultMap(0, true, 11141120, true);
+    QList<quint16> actualRegisterList0;
+    QList<quint16> actualRegisterList1;
+    regHandler.registerAddresList(actualRegisterList0, SettingsModel::CONNECTION_ID_1);
+    regHandler.registerAddresList(actualRegisterList1, SettingsModel::CONNECTION_ID_2);
 
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.prepareForData();
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], 22282240);
-    QCOMPARE(regHandler.successList()[0], true);
+    QVERIFY(actualRegisterList0 == expRegisterList0);
+    QVERIFY(actualRegisterList1 == expRegisterList1);
 }
 
-void TestRegisterValueHandler::read_s32_default()
+void TestRegisterValueHandler::read_16()
 {
-    addRegisterToModel();
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true)
+                                                   << ModbusRegister(40002, SettingsModel::CONNECTION_ID_1, false, false);
+    QMap<quint16, Result> partialResultMap;
+    addToResultMap(partialResultMap, 40001, false, 256, true);
+    addToResultMap(partialResultMap, 40002, false, -100, true);
 
-    _pGraphDataModel->setBit32(0, true);
-    _pGraphDataModel->setUnsigned(0, false);
+    auto expResults = QList<Result>() << Result(256, true)
+                                            << Result(-100, true);
 
-    auto partialResultMap = createResultMap(0, true, -100000, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.prepareForData();
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], -100000);
-    QCOMPARE(regHandler.successList()[0], true);
-
+    verifyRegisterResult(modbusRegisters, partialResultMap, expResults);
 }
 
-void TestRegisterValueHandler::read_s32_operation()
+void TestRegisterValueHandler::read_32()
 {
-    addRegisterToModel();
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, true, true)
+                                                   << ModbusRegister(40005, SettingsModel::CONNECTION_ID_1, true, false);
+    QMap<quint16, Result> partialResultMap;
+    addToResultMap(partialResultMap, 40001, true, 1000000, true);
+    addToResultMap(partialResultMap, 40005, true, -100000, true);
 
-    _pGraphDataModel->setBit32(0, true);
-    _pGraphDataModel->setUnsigned(0, false);
-    _pGraphDataModel->setExpression(0, QStringLiteral("(VAL<<2)*2/4"));
+    auto expResults = QList<Result>() << Result(1000000, true)
+                                            << Result(-100000, true);
 
-    auto partialResultMap = createResultMap(0, true, -11141120, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.prepareForData();
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], -22282240);
-    QCOMPARE(regHandler.successList()[0], true);
+    verifyRegisterResult(modbusRegisters, partialResultMap, expResults);
 }
 
-void TestRegisterValueHandler::read_32BitMixed_1()
+void TestRegisterValueHandler::readBigEndian_32()
 {
-    /* Read 32 bit register (40001) and 16 bit 40002 separately */
+    _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_1, false);
 
-    addRegisterToModel();
-    addRegisterToModel();
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, true, true);
+    QMap<quint16, Result> partialResultMap;
+    quint32 value = 1000000;
 
-    _pGraphDataModel->setBit32(0, true);
-    _pGraphDataModel->setRegisterAddress(0, 0);
+    partialResultMap.insert(40001, Result(static_cast<quint32>(value) >> 16, true));
+    partialResultMap.insert(40001 + 1, Result(static_cast<quint16>(value), true));
 
-    _pGraphDataModel->setBit32(1, false);
-    _pGraphDataModel->setRegisterAddress(1, 1);
+    auto expResults = QList<Result>() << Result(1000000, true);
 
-    auto partialResultMap = createResultMap(0, true, 0xAA55FF00, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.prepareForData();
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], 0xAA55FF00);
-    QCOMPARE(regHandler.successList()[0], true);
-
-    QCOMPARE(regHandler.processedValues()[1], 0xAA55);
-    QCOMPARE(regHandler.successList()[1], true);
+    verifyRegisterResult(modbusRegisters, partialResultMap, expResults);
 }
 
-void TestRegisterValueHandler::read_32BitMixed_2()
+void TestRegisterValueHandler::readBigEndian_s32()
 {
-    /* Read 32 bit register (40001) and 40001 separately */
+    _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_1, false);
 
-    addRegisterToModel();
-    addRegisterToModel();
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, true, true);
+    QMap<quint16, Result> partialResultMap;
+    quint32 value = -1000000;
 
-    _pGraphDataModel->setBit32(0, true);
-    _pGraphDataModel->setRegisterAddress(0, 0);
+    partialResultMap.insert(40001, Result(static_cast<quint32>(value) >> 16, true));
+    partialResultMap.insert(40001 + 1, Result(static_cast<quint16>(value), true));
 
-    _pGraphDataModel->setBit32(1, false);
-    _pGraphDataModel->setRegisterAddress(1, 0);
+    auto expResults = QList<Result>() << Result(-1000000, true);
 
-    auto partialResultMap = createResultMap(0, true, 0xAA55FF00, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.prepareForData();
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], 0xAA55FF00);
-    QCOMPARE(regHandler.successList()[0], true);
-
-    QCOMPARE(regHandler.processedValues()[1], 0xFF00);
-    QCOMPARE(regHandler.successList()[1], true);
+    verifyRegisterResult(modbusRegisters, partialResultMap, expResults);
 }
 
-void TestRegisterValueHandler::multiRead()
+void TestRegisterValueHandler::readConnections()
 {
-    /*
-     * This test is added to test to make sure the correct options are used on the right indexes.
-     */
-    addRegisterToModel();
-    addRegisterToModel();
-    addRegisterToModel();
-    addRegisterToModel();
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true)
+                                                   << ModbusRegister(40001, SettingsModel::CONNECTION_ID_2, false, false);
+    QMap<quint16, Result> partialResultMap1;
+    addToResultMap(partialResultMap1, 40001, false, 256, true);
 
-    _pGraphDataModel->setExpression(0, QStringLiteral("VAL*2"));
-    _pGraphDataModel->setRegisterAddress(0, 0);
+    QMap<quint16, Result> partialResultMap2;
+    addToResultMap(partialResultMap2, 40001, false, 100, true);
 
-    _pGraphDataModel->setExpression(1, QStringLiteral("VAL/3"));
-    _pGraphDataModel->setRegisterAddress(1, 3);
+    auto expResults = QList<Result>() << Result(256, true)
+                                            << Result(100, true);
 
-    _pGraphDataModel->setBit32(2, true);
-    _pGraphDataModel->setExpression(2, QStringLiteral("VAL<<2"));
-    _pGraphDataModel->setRegisterAddress(2, 5);
 
-    _pGraphDataModel->setExpression(3, QStringLiteral("VAL&0x1F00"));
-    _pGraphDataModel->setRegisterAddress(3, 7);
+    RegisterValueHandler regHandler(_pSettingsModel);
+    regHandler.setRegisters(modbusRegisters);
 
-    auto partialResultMap = createResultMap(0, false, 100, true);
-    addToResultMap(partialResultMap, 3, false, 300, true);
-    addToResultMap(partialResultMap, 5, true, 0x1F550, true);
-    addToResultMap(partialResultMap, 7, true, 0x3A01, true);
+    QSignalSpy spyDataReady(&regHandler, &RegisterValueHandler::registerDataReady);
 
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.prepareForData();
     regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
+    regHandler.processPartialResult(partialResultMap1, SettingsModel::CONNECTION_ID_1);
+    regHandler.processPartialResult(partialResultMap2, SettingsModel::CONNECTION_ID_2);
+    regHandler.finishRead();
 
-    QCOMPARE(regHandler.processedValues()[0], 200);
-    QCOMPARE(regHandler.successList()[0], true);
+    QCOMPARE(spyDataReady.count(), 1);
 
-    QCOMPARE(regHandler.processedValues()[1], 100);
-    QCOMPARE(regHandler.successList()[1], true);
+    QList<QVariant> arguments = spyDataReady.takeFirst();
+    QVERIFY(arguments.count() > 0);
 
-    QCOMPARE(regHandler.processedValues()[2], 0x7D540);
-    QCOMPARE(regHandler.successList()[2], true);
+    QVariant varResultList = arguments.first();
+    QVERIFY((varResultList.canConvert<QList<Result> >()));
+    QList<Result> result = varResultList.value<QList<Result> >();
 
-    QCOMPARE(regHandler.processedValues()[3], 0x1A00);
-    QCOMPARE(regHandler.successList()[3], true);
-
+    QCOMPARE(result, expResults);
 }
 
-void TestRegisterValueHandler::connectionCheck()
+void TestRegisterValueHandler::readFail()
 {
-    addRegisterToModel();
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true)
+                                                   << ModbusRegister(40001, SettingsModel::CONNECTION_ID_2, false, false);
 
-    auto partialResultMap = createResultMap(0, false, 100, true);
+    QMap<quint16, Result> partialResultMap2;
+    addToResultMap(partialResultMap2, 40001, false, 100, true);
 
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.prepareForData();
+    auto expResults = QList<Result>() << Result(0, false)
+                                            << Result(100, true);
+
+
+    RegisterValueHandler regHandler(_pSettingsModel);
+    regHandler.setRegisters(modbusRegisters);
+
+    QSignalSpy spyDataReady(&regHandler, &RegisterValueHandler::registerDataReady);
+
     regHandler.startRead();
+    regHandler.processPartialResult(partialResultMap2, SettingsModel::CONNECTION_ID_2);
+    regHandler.finishRead();
 
-    /* Wrong connection */
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_1);
-    QCOMPARE(regHandler.processedValues()[0], 0);
-    QCOMPARE(regHandler.successList()[0], false);
+    QCOMPARE(spyDataReady.count(), 1);
 
-    /* Correct connection */
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-    QCOMPARE(regHandler.processedValues()[0], 100);
-    QCOMPARE(regHandler.successList()[0], true);
+    QList<QVariant> arguments = spyDataReady.takeFirst();
+    QVERIFY(arguments.count() > 0);
+
+    QVariant varResultList = arguments.first();
+    QVERIFY((varResultList.canConvert<QList<Result> >()));
+    QList<Result> result = varResultList.value<QList<Result> >();
+
+    QCOMPARE(result, expResults);
 }
 
-void TestRegisterValueHandler::twoConnectionsCheck()
+void TestRegisterValueHandler::verifyRegisterResult(QList<ModbusRegister>& regList,
+                                                    QMap<quint16, Result> &regData,
+                                                    QList<Result> expResults)
 {
-    addRegisterToModel();
-    addRegisterToModel();
+    RegisterValueHandler regHandler(_pSettingsModel);
+    regHandler.setRegisters(regList);
 
-    _pGraphDataModel->setConnectionId(1, SettingsModel::CONNECTION_ID_1);
+    QSignalSpy spyDataReady(&regHandler, &RegisterValueHandler::registerDataReady);
 
-    auto partialResultMap = createResultMap(0, false, 100, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.prepareForData();
     regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
+    regHandler.processPartialResult(regData, SettingsModel::CONNECTION_ID_1);
+    regHandler.finishRead();
 
-    partialResultMap.first().setValue(101);
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_1);
+    QCOMPARE(spyDataReady.count(), 1);
 
-    QCOMPARE(regHandler.processedValues()[0], 100);
-    QCOMPARE(regHandler.successList()[0], true);
-    QCOMPARE(regHandler.processedValues()[1], 101);
-    QCOMPARE(regHandler.successList()[1], true);
+    QList<QVariant> arguments = spyDataReady.takeFirst();
+    QVERIFY(arguments.count() > 0);
+
+    QVariant varResultList = arguments.first();
+    QVERIFY((varResultList.canConvert<QList<Result> >()));
+    QList<Result> result = varResultList.value<QList<Result> >();
+
+    QCOMPARE(result, expResults);
 }
 
-void TestRegisterValueHandler::graphList_1()
-{
-    addRegisterToModel();
-    addRegisterToModel();
-
-    _pGraphDataModel->setRegisterAddress(0, 2);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.prepareForData();
-    regHandler.startRead();
-
-    QList<quint16> registerList;
-
-    regHandler.activeGraphAddresList(&registerList, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(registerList[0], 0);
-    QCOMPARE(registerList[1], 2);
-}
-
-void TestRegisterValueHandler::graphList_2()
-{
-    addRegisterToModel();
-    addRegisterToModel();
-
-    _pGraphDataModel->setRegisterAddress(1, 2);
-    _pGraphDataModel->setBit32(1, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.prepareForData();
-    regHandler.startRead();
-
-    QList<quint16> registerList;
-
-    regHandler.activeGraphAddresList(&registerList, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(registerList[0], 0);
-    QCOMPARE(registerList[1], 2);
-    QCOMPARE(registerList[2], 3);
-}
-
-void TestRegisterValueHandler::graphList_3()
-{
-    addRegisterToModel();
-    addRegisterToModel();
-
-    _pGraphDataModel->setRegisterAddress(1, 0);
-    _pGraphDataModel->setBit32(1, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.prepareForData();
-    regHandler.startRead();
-
-    QList<quint16> registerList;
-
-    regHandler.activeGraphAddresList(&registerList, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(registerList[0], 0);
-    QCOMPARE(registerList[1], 1);
-}
-
-
-void TestRegisterValueHandler::graphList_4()
-{
-    addRegisterToModel();
-    addRegisterToModel();
-
-    _pGraphDataModel->setConnectionId(0, SettingsModel::CONNECTION_ID_0);
-
-    _pGraphDataModel->setConnectionId(1, SettingsModel::CONNECTION_ID_1);
-    _pGraphDataModel->setRegisterAddress(1, 5);
-    _pGraphDataModel->setBit32(1, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.prepareForData();
-    regHandler.startRead();
-
-    QList<quint16> registerList;
-    regHandler.activeGraphAddresList(&registerList, SettingsModel::CONNECTION_ID_0);
-    QCOMPARE(registerList[0], 0);
-
-    regHandler.activeGraphAddresList(&registerList, SettingsModel::CONNECTION_ID_1);
-    QCOMPARE(registerList[0], 5);
-    QCOMPARE(registerList[1], 6);
-}
-
-void TestRegisterValueHandler::bigEndian_32_1()
-{
-    addRegisterToModel();
-
-   _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_0, false);
-
-    _pGraphDataModel->setBit32(0, true);
-
-    QMap<quint16, ModbusResult> partialResultMap;
-    quint32 value = 100000;
-
-    partialResultMap.insert(0, ModbusResult(static_cast<quint32>(value) >> 16, true));
-    partialResultMap.insert(0 + 1, ModbusResult(static_cast<quint16>(value), true));
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.prepareForData();
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], 100000);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::bigEndian_s32_2()
-{
-    addRegisterToModel();
-
-   _pSettingsModel->setInt32LittleEndian(SettingsModel::CONNECTION_ID_0, false);
-
-    _pGraphDataModel->setBit32(0, true);
-    _pGraphDataModel->setUnsigned(0, false);
-
-    QMap<quint16, ModbusResult> partialResultMap;
-    qint32 value = -100000;
-
-    partialResultMap.insert(0, ModbusResult(static_cast<quint32>(value) >> 16, true));
-    partialResultMap.insert(0 + 1, ModbusResult(static_cast<quint16>(value), true));
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.prepareForData();
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], -100000);
-    QCOMPARE(regHandler.successList()[0], true);
-}
-
-void TestRegisterValueHandler::manyInactiveRegisters()
-{
-    /*
-     * This test is added to make sure inactive registers are handled correctly
-     */
-
-    for (uint32_t idx = 0; idx < 8; idx++)
-    {
-        addRegisterToModel();
-        _pGraphDataModel->setActive(idx, false);
-        _pGraphDataModel->setExpression(idx, QString("VAL + %1").arg(idx));
-        _pGraphDataModel->setRegisterAddress(idx, idx);
-    }
-
-    _pGraphDataModel->setActive(6, true);
-    _pGraphDataModel->setActive(7, true);
-
-
-    auto partialResultMap = createResultMap(6, false, 100, true);
-    addToResultMap(partialResultMap, 7, false, 100, true);
-
-    RegisterValueHandler regHandler(_pGraphDataModel, _pSettingsModel);
-    regHandler.prepareForData();
-    regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap, SettingsModel::CONNECTION_ID_0);
-
-    QCOMPARE(regHandler.processedValues()[0], 106);
-    QCOMPARE(regHandler.successList()[0], true);
-
-    QCOMPARE(regHandler.processedValues()[1], 107);
-    QCOMPARE(regHandler.successList()[1], true);
-}
-
-QMap<quint16, ModbusResult> TestRegisterValueHandler::createResultMap(
+void TestRegisterValueHandler::addToResultMap(QMap<quint16, Result> &resultMap,
         quint16 addr,
         bool b32bit,
         qint64 value,
         bool result
         )
 {
-    QMap<quint16, ModbusResult> partialResultMap;
-
-    addToResultMap(partialResultMap, addr, b32bit, value, result);
-
-    return partialResultMap;
-}
-
-void TestRegisterValueHandler::addToResultMap(QMap<quint16, ModbusResult> &resultMap,
-        quint16 addr,
-        bool b32bit,
-        qint64 value,
-        bool result
-        )
-{
-    resultMap.insert(addr, ModbusResult(static_cast<quint16>(value), result));
+    resultMap.insert(addr, Result(static_cast<quint16>(value), result));
 
     if (b32bit)
     {
-        resultMap.insert(addr + 1, ModbusResult(static_cast<quint32>(value) >> 16, result));
+        resultMap.insert(addr + 1, Result(static_cast<quint32>(value) >> 16, result));
     }
-}
-
-void TestRegisterValueHandler::addRegisterToModel()
-{
-    GraphData graphData;
-    _pGraphDataModel->add(graphData);
 }
 
 QTEST_GUILESS_MAIN(TestRegisterValueHandler)

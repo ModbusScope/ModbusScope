@@ -120,7 +120,7 @@ void ReadRegisters::addSuccess(quint16 startRegister, QList<quint16> registerDat
         for (qint32 i = 0; i < registerDataList.size(); i++)
         {
             const quint16 registerAddr = startRegister + static_cast<quint16>(i);
-            const ModbusResult result = ModbusResult(registerDataList[i], true);
+            const Result result = Result(registerDataList[i], true);
 
             _resultMap.insert(registerAddr, result);
         }
@@ -140,7 +140,7 @@ void ReadRegisters::addError()
         for (quint32 i = 0; i < nextRequestData.count(); i++)
         {
             const quint16 registerAddr = nextRequestData.address() + static_cast<quint16>(i);
-            const ModbusResult result = ModbusResult(0, false);
+            const Result result = Result(0, false);
 
             _resultMap.insert(registerAddr, result);
         }
@@ -182,7 +182,7 @@ void ReadRegisters::splitNextToSingleReads()
  * Return result map
  * \return Result map
  */
-QMap<quint16, ModbusResult> ReadRegisters::resultMap()
+QMap<quint16, Result> ReadRegisters::resultMap()
 {
     return _resultMap;
 }

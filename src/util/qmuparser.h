@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "muParser.h"
+#include "result.h"
 
 class QMuParser
 {
@@ -14,25 +15,28 @@ public:
     void setExpression(QString expr);
     QString expression();
 
+    static void setRegistersData(QList<Result>& regValues);
+
     bool evaluate();
-    bool evaluate(double regValue);
 
     bool isSuccess();
     QString msg();
-    double result();
+    double value();
 
 private:
 
     void reset();
 
-    mu::ParserBase* _pExprParser;
+    static void registerValue(int index, int* value, bool* success);
 
-    double _registerValue;
+    static QList<Result> _registerValues;
+
+    mu::ParserBase* _pExprParser;
 
     bool _bInvalidExpression;
 
     bool _bSuccess;
-    double _result;
+    double _value;
     QString _msg;
 
 };

@@ -22,13 +22,9 @@ DataFileExporter::DataFileExporter(GuiModel *pGuiModel, SettingsModel * pSetting
 
     connect(_pGraphDataModel, &GraphDataModel::colorChanged, this, &DataFileExporter::rewriteDataFile);
     connect(_pGraphDataModel, &GraphDataModel::activeChanged, this, &DataFileExporter::rewriteDataFile);
-    connect(_pGraphDataModel, &GraphDataModel::unsignedChanged, this, &DataFileExporter::rewriteDataFile);
     connect(_pGraphDataModel, &GraphDataModel::expressionChanged, this, &DataFileExporter::rewriteDataFile);
-    connect(_pGraphDataModel, &GraphDataModel::registerAddressChanged, this, &DataFileExporter::rewriteDataFile);
-    connect(_pGraphDataModel, &GraphDataModel::connectionIdChanged, this, &DataFileExporter::rewriteDataFile);
     connect(_pGraphDataModel, &GraphDataModel::added, this, &DataFileExporter::rewriteDataFile);
     connect(_pGraphDataModel, &GraphDataModel::removed, this, &DataFileExporter::rewriteDataFile);
-
 }
 
 DataFileExporter::~DataFileExporter()
@@ -319,10 +315,8 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
         header.append("//");
 
         header.append("//" + createPropertyRow(E_PROPERTY));
-        header.append("//" + createPropertyRow(E_REGISTER_ADDRESS));
         header.append("//" + createPropertyRow(E_COLOR));
         header.append("//" + createPropertyRow(E_EXPRESSION));
-        header.append("//" + createPropertyRow(E_CONNECTION_ID));
 
         header.append("//");
 
@@ -419,14 +413,6 @@ QString DataFileExporter::createPropertyRow(registerProperty prop)
         line.append("Expression");
         break;
 
-    case E_REGISTER_ADDRESS:
-        line.append("Register Address");
-        break;
-
-    case E_CONNECTION_ID:
-        line.append("ConnectionId");
-        break;
-
     default:
         break;
     }
@@ -448,14 +434,6 @@ QString DataFileExporter::createPropertyRow(registerProperty prop)
 
         case E_EXPRESSION:
             propertyString = QString("\"%1\"").arg(_pGraphDataModel->expression(graphIdx));
-            break;
-
-        case E_REGISTER_ADDRESS:
-            propertyString = QString("%1").arg(_pGraphDataModel->registerAddress(graphIdx));
-            break;
-
-        case E_CONNECTION_ID:
-            propertyString = QString("%1").arg(_pGraphDataModel->connectionId(graphIdx));
             break;
 
         default:

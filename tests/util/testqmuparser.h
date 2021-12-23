@@ -12,13 +12,17 @@ private slots:
     void evaluate_data();
     void evaluate();
 
-    void evaluateRegister_data();
-    void evaluateRegister();
+    void evaluateSingleRegister_data();
+    void evaluateSingleRegister();
+
+    void evaluateMultipleRegisters();
 
     void evaluateInvalidExpr();
     void evaluateInvalidDecimal();
     void evaluateDivByZero();
 
+    void evaluateEmpty();
+    void evaluateFail();
     void evaluateInvalidHexExpr();
     void evaluateInvalidBinExpr();
     void evaluateInvalidBinExpr_2();

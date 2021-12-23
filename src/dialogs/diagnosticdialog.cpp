@@ -151,11 +151,14 @@ void DiagnosticDialog::handleEnableDebugLog(int state)
     {
         _pUi->checkDebug->setEnabled(true);
         ScopeLogging::Logger().setMinimumSeverityLevel(Diagnostic::LOG_DEBUG);
+
+        _pUi->checkDebug->setChecked(true);
+        handleFilterChange();
     }
     else
     {
         _pUi->checkDebug->setChecked(false);
-        handleFilterChange(); // update log filter
+        handleFilterChange();
 
         _pUi->checkDebug->setEnabled(false);
         ScopeLogging::Logger().setMinimumSeverityLevel(Diagnostic::LOG_INFO);

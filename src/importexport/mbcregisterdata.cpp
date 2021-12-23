@@ -1,4 +1,6 @@
 #include "mbcregisterdata.h"
+#include "updateregisternewexpression.h"
+#include <QtMath>
 
 MbcRegisterData::MbcRegisterData()
 {
@@ -138,3 +140,25 @@ void MbcRegisterData::setDecimals(const quint8 &decimals)
 {
     _decimals = decimals;
 }
+
+QString MbcRegisterData::toExpression()
+{
+    QString expression;
+
+    QString registerStr = UpdateRegisterNewExpression::constructRegisterString(_registerAddress, _bUint32, _bUnsigned, 0);
+    if (_decimals != 0)
+    {
+        expression = QString("%1/%2").arg(registerStr)
+                                     .arg(static_cast<double>(qPow(10, _decimals)));
+    }
+    else
+    {
+        expression = registerStr;
+    }
+
+    return expression;
+}
+
+
+
+

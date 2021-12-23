@@ -3,15 +3,12 @@
 
 #include "testmbcregisterfilter.h"
 
-#include "graphdatamodel.h"
 #include "mbcregisterfilter.h"
 #include "mbcregistermodel.h"
 
 void TestMbcRegisterFilter::init()
 {
-    _pSettingsModel = new SettingsModel();
-    _pGraphDataModel = new GraphDataModel(_pSettingsModel);
-    _pMbcRegisterModel = new MbcRegisterModel(_pGraphDataModel);
+    _pMbcRegisterModel = new MbcRegisterModel();
 
     _pFilterProxy = new MbcRegisterFilter();
     _pFilterProxy->setSourceModel(_pMbcRegisterModel);
@@ -31,8 +28,6 @@ void TestMbcRegisterFilter::cleanup()
 {
     delete _pFilterProxy;
     delete _pMbcRegisterModel;
-    delete _pGraphDataModel;
-    delete _pSettingsModel;
 }
 
 void TestMbcRegisterFilter::noFilter()

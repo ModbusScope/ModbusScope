@@ -1,13 +1,8 @@
 #include "mbcregistermodel.h"
 
-#include <QtMath>
-
-MbcRegisterModel::MbcRegisterModel(GraphDataModel *pGraphDataModel, QObject *parent)
+MbcRegisterModel::MbcRegisterModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
-
-    _pGraphDataModel = pGraphDataModel;
-
     _mbcRegisterList.clear();
     _mbcRegisterMetaDataList.clear();
     _tabList.clear();
@@ -201,21 +196,14 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
 
     for(qint32 idx = 0; idx < mbcRegisterList.size(); idx++)
     {
-        QString expr = QStringLiteral("VAL");
-
         // Get result before adding to list
         _mbcRegisterList.append(mbcRegisterList[idx]);
 
         _mbcRegisterMetaDataList.append( {false, QString(""), false, false} );
 
-        /* Disable all duplicates */
         if (!_mbcRegisterList.last().isReadable())
         {
             _mbcRegisterMetaDataList.last().tooltip = tr("Not readable");
-        }
-        else if (_pGraphDataModel->isPresent(mbcRegisterList[idx].registerAddress(), &expr))
-        {
-            _mbcRegisterMetaDataList.last().tooltip = tr("Already added address");
         }
         else
         {
@@ -270,18 +258,8 @@ QList<GraphData> MbcRegisterModel::selectedRegisterList()
             _mbcRegisterList[row];
 
             graphData.setActive(true);
-            graphData.setRegisterAddress(_mbcRegisterList[row].registerAddress());
             graphData.setLabel(_mbcRegisterList[row].name());
-            graphData.setUnsigned(_mbcRegisterList[row].isUnsigned());
-            if (_mbcRegisterList[row].decimals() != 0)
-            {
-                graphData.setExpression(QString("VAL/%1").arg(static_cast<double>(qPow(10, _mbcRegisterList[row].decimals()))));
-            }
-            else
-            {
-                graphData.setExpression(QStringLiteral("VAL"));
-            }
-            graphData.setBit32(_mbcRegisterList[row].is32Bit());
+            graphData.setExpression(_mbcRegisterList[row].toExpression());
 
             _selectedRegisterList.append(graphData);
         }

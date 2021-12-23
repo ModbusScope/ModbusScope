@@ -186,7 +186,7 @@ void TestReadRegisters::addAllErrors()
 
     QVERIFY(!readRegister.hasNext());
 
-    QMap<quint16, ModbusResult> resultMap = readRegister.resultMap();
+    QMap<quint16, Result> resultMap = readRegister.resultMap();
 
     QCOMPARE(resultMap.size(), registerList.size());
 
@@ -224,7 +224,7 @@ void TestReadRegisters::addSuccess()
 
     QVERIFY(!readRegister.hasNext());
 
-    QMap<quint16, ModbusResult> resultMap = readRegister.resultMap();
+    QMap<quint16, Result> resultMap = readRegister.resultMap();
 
     QCOMPARE(resultMap.size(), registerList.size());
 
@@ -263,7 +263,7 @@ void TestReadRegisters::addSuccessAndErrors()
 
     QVERIFY(!readRegister.hasNext());
 
-    QMap<quint16, ModbusResult> resultMap = readRegister.resultMap();
+    QMap<quint16, Result> resultMap = readRegister.resultMap();
 
     QCOMPARE(resultMap.size(), registerList.size());
 

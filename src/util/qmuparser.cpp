@@ -4,10 +4,12 @@
 
 #include "muParser.h"
 
+QList<Result> QMuParser::_registerValues;
+
 QMuParser::QMuParser(QString strExpression)
 {
-    _registerValue = 0;
-    _pExprParser = new mu::ParserRegister(&_registerValue);
+    mu::ParserRegister::setRegisterCallback(&QMuParser::registerValue);
+    _pExprParser = new mu::ParserRegister();
 
     setExpression(strExpression);
 }
@@ -60,6 +62,11 @@ void QMuParser::setExpression(QString expr)
     reset();
 }
 
+void QMuParser::setRegistersData(QList<Result>& regValues)
+{
+    _registerValues = regValues;
+}
+
 QString QMuParser::expression()
 {
     return QString::fromStdString(_pExprParser->GetExpr()).trimmed();
@@ -67,30 +74,21 @@ QString QMuParser::expression()
 
 bool QMuParser::evaluate()
 {
-    return evaluate(0);
-}
-
-bool QMuParser::evaluate(double regValue)
-{
     reset();
 
     if (_bInvalidExpression)
     {
         _bSuccess = false;
-        _result = 0;
+        _value = 0;
         _msg = QStringLiteral("Invalid expression");
     }
     else
     {
-
-        /* Set value to be used for VAL variable */
-        _registerValue = regValue;
-
         try
         {
-            _result = _pExprParser->Eval();
+            _value = _pExprParser->Eval();
 
-            if (qIsInf(_result) || qIsNaN(_result))
+            if (qIsInf(_value) || qIsNaN(_value))
             {
                 throw mu::ParserError("result is an undefined number");
             }
@@ -100,7 +98,7 @@ bool QMuParser::evaluate(double regValue)
         }
         catch (mu::Parser::exception_type &e)
         {
-            _result = 0;
+            _value = 0;
 
             _msg = QString::fromStdString(e.GetMsg());
             _bSuccess = false;
@@ -115,9 +113,9 @@ QString QMuParser::msg()
     return _msg;
 }
 
-double QMuParser::result()
+double QMuParser::value()
 {
-    return _result;
+    return _value;
 }
 
 bool QMuParser::isSuccess()
@@ -128,6 +126,20 @@ bool QMuParser::isSuccess()
 void QMuParser::reset()
 {
     _bSuccess = false;
-    _result = 0;
+    _value = 0;
     _msg = QStringLiteral("No result yet");
+}
+
+void QMuParser::registerValue(int index, int* value, bool* success)
+{
+    if (index < _registerValues.size())
+    {
+        *value = _registerValues[index].value();
+        *success = _registerValues[index].isSuccess();
+    }
+    else
+    {
+        *value = 0;
+        *success = false;
+    }
 }

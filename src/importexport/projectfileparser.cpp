@@ -52,9 +52,11 @@ bool ProjectFileParser::parseFile(QString& fileContent, ProjectSettings *pSettin
 
             if (bRet)
             {
-                if (datalevel != ProjectFileDefinitions::cCurrentDataLevel)
+                pSettings->dataLevel = datalevel;
+                if (datalevel > ProjectFileDefinitions::cCurrentDataLevel)
                 {
-                    Util::showError(tr("Data level (%1) is not supported. Only datalevel 2 is allowed. Project file loading is aborted.").arg(datalevel));
+                    Util::showError(tr("Data level (%1) is not supported. Only datalevel %2 or lower is supported.\nProject file loading is aborted.")
+                                       .arg(datalevel,ProjectFileDefinitions::cCurrentDataLevel));
                     bRet = false;
                 }
             }
@@ -420,32 +422,7 @@ bool ProjectFileParser::parseScopeTag(const QDomElement &element, ScopeSettings 
                 break;
             }
 
-            // check for duplicate registers
-            bool bFound = false;
-
-            for (int i = 0; i < pScopeSettings->registerList.size(); i++)
-            {
-                if (
-                        (pScopeSettings->registerList[i].address == registerData.address)
-                        && (pScopeSettings->registerList[i].bitmask == registerData.bitmask)
-                        && (pScopeSettings->registerList[i].connectionId == registerData.connectionId)
-                    )
-                {
-                    bFound = true;
-                    break;
-                }
-            }
-
-            if (bFound)
-            {
-                Util::showError(tr("Register %1 with bitmask 0x%2 is defined twice in the list.").arg(registerData.address).arg(registerData.bitmask, 0, 16));
-                bRet = false;
-                break;
-            }
-            else
-            {
-                pScopeSettings->registerList.append(registerData);
-            }
+            pScopeSettings->registerList.append(registerData);
         }
         else
         {

@@ -47,8 +47,11 @@ namespace mu
 	class API_EXPORT_CXX ParserRegister final : public ParserBase
 	{
 	public:
+        ParserRegister();
 
-        ParserRegister(double *pRegisterValue);
+        typedef void (*registerCb_t)(int, int*, bool*);
+
+        static void setRegisterCallback(registerCb_t registerCb);
 
         virtual void InitCharSets();
         virtual void InitFun();
@@ -64,11 +67,14 @@ namespace mu
         static value_type LogAnd(value_type v1, value_type v2);
         static value_type LogOr(value_type v1, value_type v2);
         static value_type Not(value_type v1);
-        static value_type  Mod(value_type v1, value_type v2);
+        static value_type Mod(value_type v1, value_type v2);
+        static value_type RegVal(value_type v1);
 
         static int IsVal(const char_type* a_szExpr, int* a_iPos, value_type* a_fVal);
         static int IsHexVal(const char_type* a_szExpr, int* a_iPos, value_type* a_iVal);
         static int IsBinVal(const char_type* a_szExpr, int* a_iPos, value_type* a_fVal);
+
+        static registerCb_t _registerCb;
 
 	};
 } // namespace mu
