@@ -16,6 +16,23 @@ cd %DEPLOY_DIR%
 windeployqt.exe modbusscope.exe --compiler-runtime -verbose 2
 IF ERRORLEVEL 1 GOTO errorHandling
 
+REM Add OpenSSL dll's
+echo "IQTA_TOOLS: %IQTA_TOOLS%"
+
+IF DEFINED IQTA_TOOLS (
+    set "OPENSSL_DIR=%IQTA_TOOLS%\OpenSSL\Win_x64\bin"
+) ELSE (
+    set "OPENSSL_DIR=C:\Qt\Tools\OpenSSL\Win_x64\bin"
+)
+
+echo "OPENSSL_DIR: %OPENSSL_DIR%"
+
+xcopy "%OPENSSL_DIR%\libcrypto-1_1-x64.dll" .
+IF ERRORLEVEL 1 GOTO errorHandling
+
+xcopy "%OPENSSL_DIR%\libssl-1_1-x64.dll" .
+IF ERRORLEVEL 1 GOTO errorHandling
+
 cd ..
 7z a ModbusScope.zip ".\%DEPLOY_DIR%\*"
 IF ERRORLEVEL 1 GOTO errorHandling
