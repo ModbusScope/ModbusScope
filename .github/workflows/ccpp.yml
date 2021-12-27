@@ -47,6 +47,7 @@ jobs:
           host: 'windows'
           target: 'desktop'
           arch: win64_mingw81
+          tools: 'tools_openssl_x64,1.1.1,qt.tools.openssl.win_x64'
 
       - name: Install toolchain dependencies
         run: choco install ninja
