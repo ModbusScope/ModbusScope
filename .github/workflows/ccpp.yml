@@ -1,0 +1,65 @@
+name: Build
+
+# Triggered when code is pushed to any branch in a repository
+on: push
+
+jobs:
+
+  linux:
+    runs-on: ubuntu-20.04
+    
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: 5.15.2
+
+      - name: Install toolchain dependencies
+        run: sudo apt-get install ninja-build
+
+      - name: Update Modules and Build
+        run: sh scripts/build_linux.sh
+
+      - name: Deploy
+        run: sh scripts/deploy_linux.sh
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: modbusscope-linux
+          path: release/src/bin/linux/ModbusScope*.AppImage
+
+  windows:
+    runs-on: windows-2019
+    
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: 5.15.2
+          host: 'windows'
+          target: 'desktop'
+          arch: win64_mingw81
+
+      - name: Install toolchain dependencies
+        run: choco install ninja
+
+      - name: Update Modules and Build
+        run: scripts/build_windows.bat
+
+      - name: Deploy
+        run: scripts/deploy_windows.bat
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: modbusscope-windows
+          path: |
+            release\src\bin\win\ModbusScope.zip
+            installer\Output\ModbusScope_setup.exe

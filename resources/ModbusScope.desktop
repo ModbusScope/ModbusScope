@@ -1,0 +1,11 @@
+#!/usr/bin/xdg-open
+[Desktop Entry]
+Comment=ModbusScope - Visual Modbus data logging
+Exec=modbusscope
+GenericName=ModbusScope
+Icon=ModbusScope
+MimeType=
+Name=ModbusScope
+Terminal=false
+Type=Application
+Categories=Utility

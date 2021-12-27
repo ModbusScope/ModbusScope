@@ -1,4 +1,4 @@
-project(ModbusScope
+project(modbusscope
     LANGUAGES CXX
     DESCRIPTION "Create logs from value read via Modbus"
     VERSION 3.4.0
@@ -37,11 +37,18 @@ set(GUI_TYPE "")
 
 if(WIN32)
     set(GUI_TYPE WIN32)
-endif()
-
-target_link_libraries(${SCOPESOURCE} qcustomplot muparser ${QT_LIB})
+    set(target_dir "bin/win")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set(target_dir "bin/linux")
+else()
+    message(SEND_ERROR "You are on an unsupported platform! (Not Win or Unix)")
+endif(WIN32)
 
 add_executable(${PROJECT_NAME} ${GUI_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../resources/resource.qrc ${CMAKE_CURRENT_SOURCE_DIR}/../resources/app_icon.rc)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${target_dir} )
+
+target_link_libraries(${SCOPESOURCE} qcustomplot muparser ${QT_LIB})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     ${SCOPESOURCE}
@@ -50,3 +57,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 # Reset GUI type to blank
 set(GUI_TYPE "")
+
+# Do platform specific post target stuff
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
+    install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
+
+elseif(WIN32)
+    # not required
+endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
