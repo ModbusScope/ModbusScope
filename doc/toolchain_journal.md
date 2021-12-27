@@ -47,5 +47,26 @@ sudo apt install latexmk
 sudo apt install texlive-latex-recommended
 sudo apt install texlive-latex-extra
 
-
 make latexpdf
+
+## Build/deploy on Windows
+
+* Add tool directories to `PATH`
+  * Build
+
+```
+set PATH=C:\Qt\Tools\mingw810_64\bin;%PATH%
+set PATH=C:\Qt\Tools\Ninja;%PATH%
+set PATH=C:\Qt\Tools\CMake_64\bin;%PATH%
+```
+
+* Deploy
+
+  ```
+  set PATH=C:\Qt\5.15.2\mingw81_64\bin;%PATH%
+  set PATH=C:\Program Files\7-Zip;%PATH%
+  ```
+
+* Run `scripts/build_windows.h` to build
+
+* Run `scripts/deploy_windows.h` to create deploy files

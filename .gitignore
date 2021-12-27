@@ -30,6 +30,7 @@ qrc_*.cpp
 ui_*.h
 *.qmlc
 *.jsc
+Makefile*
 *build-*
 *.qm
 *.prl
@@ -56,5 +57,5 @@ compile_commands.json
 src/util/version.h
 
 _build
-
+build/
 venv
