@@ -36,8 +36,8 @@ signals:
     void updateProgress(int percentage);
 
 private:
-    bool parseDataLines(QList<QList<double> > &dataRows);
-    bool readLineFromFile(QString *pLine);
+    bool parseDataLines(QTextStream *pDataStream, QList<QList<double> > &dataRows);
+    bool readLineFromFile(QTextStream *pDataStream, QString *pLine);
     qint64 parseDateTime(QString rawData, bool *bOk);
     bool parseNoteField(QStringList noteFieldList, Note * pNote);
     double parseDouble(QString strNumber, bool* bOk);
@@ -47,7 +47,6 @@ private:
     void correctStmStudioData(QList<QList<double> > &dataLists);
     bool isNibbleCorrupt(quint16 ref, quint16 compare);
 
-    QTextStream* _pDataStream;
     quint32 _lineNumber;
 
     quint64 _totalCharSize;
