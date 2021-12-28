@@ -14,6 +14,16 @@ QMuParser::QMuParser(QString strExpression)
     setExpression(strExpression);
 }
 
+QMuParser::QMuParser(const QMuParser &source)
+    : _pExprParser(new mu::ParserRegister(*source._pExprParser)),
+    _bInvalidExpression(source._bInvalidExpression),
+    _bSuccess(source._bSuccess),
+    _value(source._value),
+    _msg(source._msg)
+{
+
+}
+
 QMuParser::~QMuParser()
 {
     delete _pExprParser;

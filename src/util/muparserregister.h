@@ -48,6 +48,7 @@ namespace mu
 	{
 	public:
         ParserRegister();
+        ParserRegister(const ParserRegister& a_Parser);
 
         typedef void (*registerCb_t)(int, int*, bool*);
 

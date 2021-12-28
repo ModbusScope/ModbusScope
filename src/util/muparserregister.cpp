@@ -177,6 +177,12 @@ namespace mu
 		InitOprt();
 	}
 
+    ParserRegister::ParserRegister(const ParserRegister& a_Parser)
+        :ParserBase(a_Parser)
+    {
+
+    }
+
     void ParserRegister::setRegisterCallback(registerCb_t registerCb)
     {
         _registerCb = registerCb;

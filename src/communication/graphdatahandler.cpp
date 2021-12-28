@@ -33,14 +33,13 @@ void GraphDataHandler::processActiveRegisters(GraphDataModel* pGraphDataModel)
     QStringList processedExpList;
     exprParser.processedExpressions(processedExpList);
 
-    qDeleteAll(_valueParsers);
     _valueParsers.clear();
 
     for(const QString &expr: qAsConst(processedExpList))
     {
         /* Use pointer because our class otherwise needs copy/assignment constructor and such */
         /* Remember to delete before removal */
-        _valueParsers.append(new QMuParser(expr));
+        _valueParsers.append(QMuParser(expr));
     }
 }
 
@@ -61,9 +60,9 @@ void GraphDataHandler::handleRegisterData(QList<Result> results)
         double processedResult = 0;
         bool bSuccess = true;
 
-        if (_valueParsers[listIdx]->evaluate())
+        if (_valueParsers[listIdx].evaluate())
         {
-            processedResult = _valueParsers[listIdx]->value();
+            processedResult = _valueParsers[listIdx].value();
         }
         else
         {
@@ -72,7 +71,7 @@ void GraphDataHandler::handleRegisterData(QList<Result> results)
 
             const quint16 activeIndex = _activeIndexList[listIdx];
             auto msg = QString("Expression evaluation failed (%1): expression %2")
-                        .arg(_valueParsers[listIdx]->msg(), _pGraphDataModel->expression(activeIndex));
+                        .arg(_valueParsers[listIdx].msg(), _pGraphDataModel->expression(activeIndex));
 
             qCWarning(scopeComm) << msg;
         }
