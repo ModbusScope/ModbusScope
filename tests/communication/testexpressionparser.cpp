@@ -109,6 +109,16 @@ void TestExpressionParser::combinations()
     verifyParsing(input, expModbusRegisters, expExpressions);
 }
 
+void TestExpressionParser::explicitDefaults()
+{
+    auto input = QStringList() << "${40001@1} + ${40002:16b}";
+    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, SettingsModel::CONNECTION_ID_1, false, true)
+                                                      << ModbusRegister(40002, SettingsModel::CONNECTION_ID_1, false, true);
+    auto expExpressions = QStringList() << "regval(0)+regval(1)";
+
+    verifyParsing(input, expModbusRegisters, expExpressions);
+}
+
 void TestExpressionParser::spaces()
 {
     auto input = QStringList() << "${45332   @2: 32b   } + ${  45330  }";
