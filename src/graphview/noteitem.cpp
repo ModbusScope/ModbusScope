@@ -20,6 +20,13 @@ NoteItem::NoteItem(MyQCustomPlot* pPlot,
     _note->position->setCoords(rPosition); // place position at left/top of axis rect
 }
 
+NoteItem::NoteItem(const NoteItem &source)
+    : _note(source._note),
+      _plot(source._plot)
+{
+    /* intended shallow copy: plot takes ownership of QCPItemText (_note) */
+}
+
 NoteItem::~NoteItem()
 {
     _plot->removeItem(_note);

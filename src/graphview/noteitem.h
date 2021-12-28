@@ -14,6 +14,7 @@ public:
     NoteItem(MyQCustomPlot* pPlot,
              const QString& rText,
              const QPointF& rPosition);
+    NoteItem(const NoteItem &source);
     virtual ~NoteItem();
 
     void setNotePosition(const QPointF& rPosition);
