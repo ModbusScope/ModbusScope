@@ -91,7 +91,7 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
         }
         else
         {
-            /* Default to connection 0 */
+            /* Default to connection 1 */
             connectionId = SettingsModel::CONNECTION_ID_1;
         }
 

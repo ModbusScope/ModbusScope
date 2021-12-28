@@ -30,7 +30,7 @@ SettingsModel::SettingsModel(QObject *parent) :
         _connectionSettings.append(connectionSettings);
     }
 
-    /* Connection 0 is always enabled */
+    /* Connection 1 is always enabled */
     _connectionSettings[CONNECTION_ID_1].bConnectionState = true;
 
     _pollTime = 250;
@@ -132,7 +132,7 @@ void SettingsModel::setConnectionState(quint8 connectionId, bool bState)
         connectionId = CONNECTION_ID_1;
     }
 
-    /* Connection 0 can't be disabled */
+    /* Connection 1 can't be disabled */
     if (connectionId == CONNECTION_ID_1)
     {
         bState = true;
