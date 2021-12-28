@@ -3,13 +3,14 @@
 
 #include <QObject>
 
-#include "muParser.h"
+#include "muparserregister.h"
 #include "result.h"
 
 class QMuParser
 {
 public:
     QMuParser(QString strExpression);
+    QMuParser(const QMuParser &source);
     ~QMuParser();
 
     void setExpression(QString expr);
@@ -31,7 +32,7 @@ private:
 
     static QList<Result> _registerValues;
 
-    mu::ParserBase* _pExprParser;
+    mu::ParserRegister* _pExprParser;
 
     bool _bInvalidExpression;
 

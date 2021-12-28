@@ -153,6 +153,46 @@ void TestCommunication::mixed_fail()
     CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
 }
 
+void TestCommunication::unknownConnection()
+{
+    auto exprList = QStringList() << "${40001@255}"
+                                  << "${40001}";
+
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(0, true);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(0, 2);
+
+    auto resultList = QList<bool>() << false << true;
+    auto valueList = QList<double>() << 0 << 2;
+
+    QList<QVariant> rawRegData;
+    doHandleRegisterData(rawRegData);
+
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
+}
+
+void TestCommunication::disabledConnection()
+{
+    auto exprList = QStringList() << "${40001@1}"
+                                  << "${40001@2}";
+
+    _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_2, false);
+
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(0, true);
+    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(0, 5);
+
+    auto resultList = QList<bool>() << true << false;
+    auto valueList = QList<double>() << 5 << 0;
+
+    QList<QVariant> rawRegData;
+    doHandleRegisterData(rawRegData);
+
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
+}
+
 void TestCommunication::doHandleRegisterData(QList<QVariant>& actRawData)
 {
     GraphDataHandler dataHandler;
@@ -172,6 +212,5 @@ void TestCommunication::doHandleRegisterData(QList<QVariant>& actRawData)
 
     actRawData = spyDataReady.takeFirst();
 }
-
 
 QTEST_GUILESS_MAIN(TestCommunication)

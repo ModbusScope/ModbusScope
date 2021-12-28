@@ -25,16 +25,14 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
     QString line;
     qint32 lineIdx = 0;
 
-    _pDataStream = pDataStream;
-
     qint64 bytesAvailable = 0;
-    if (_pDataStream->device() != nullptr)
+    if (pDataStream->device() != nullptr)
     {
-        bytesAvailable = _pDataStream->device()->bytesAvailable();
+        bytesAvailable = pDataStream->device()->bytesAvailable();
     }
-    else if (_pDataStream->string() != nullptr)
+    else if (pDataStream->string() != nullptr)
     {
-        bytesAvailable = _pDataStream->string()->size();
+        bytesAvailable = pDataStream->string()->size();
     }
     else
     {
@@ -53,7 +51,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
     _charCount = 0;
     _lastPercentageUpdate = 0;
 
-    _pDataStream->seek(0);
+    pDataStream->seek(0);
     _lineNumber = 0u;
 
     /* Read complete file */
@@ -61,7 +59,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
     {
         do
         {
-            bRet = readLineFromFile(&line);
+            bRet = readLineFromFile(pDataStream, &line);
 
             if (bRet)
             {
@@ -172,7 +170,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
         // Read till data
         while(lineIdx < static_cast<qint32>(_pDataParserModel->dataRow()))
         {
-            bRet = readLineFromFile(&line);
+            bRet = readLineFromFile(pDataStream, &line);
 
             if (!bRet)
             {
@@ -187,7 +185,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
     // read data
     if (bRet)
     {
-        bRet = parseDataLines(pData->dataRows);
+        bRet = parseDataLines(pDataStream, pData->dataRows);
 
         // Time data is put on first row, rest is filtered out
 
@@ -209,14 +207,14 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
     return bRet;
 }
 
-bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
+bool DataFileParser::parseDataLines(QTextStream* pDataStream, QList<QList<double> > &dataRows)
 {
     QString line;
     bool bRet = true;
     bool bResult = true;
 
     // Read next line
-    bResult = readLineFromFile(&line);
+    bResult = readLineFromFile(pDataStream, &line);
 
     // Init data row QLists to empty list
     QList<double> t;
@@ -311,13 +309,13 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
         }
 
         // Check end of file
-        if (_pDataStream->atEnd())
+        if (pDataStream->atEnd())
         {
             break;
         }
 
         // Read next line
-        bResult = readLineFromFile(&line);
+        bResult = readLineFromFile(pDataStream, &line);
 
     }
 
@@ -325,14 +323,14 @@ bool DataFileParser::parseDataLines(QList<QList<double> > &dataRows)
 }
 
 // Return false on error
-bool DataFileParser::readLineFromFile(QString *pLine)
+bool DataFileParser::readLineFromFile(QTextStream* pDataStream, QString *pLine)
 {
     bool bRet = false;
 
     // Read line of data (skip empty line)
     do
     {
-        bRet = _pDataStream->readLineInto(pLine, 0);
+        bRet = pDataStream->readLineInto(pLine, 0);
         _lineNumber++;
 
     } while (bRet && pLine->trimmed().isEmpty());

@@ -60,8 +60,8 @@ namespace mu
         double intpart;
         if (modf(v1, &intpart) == 0.0)
         {
-            int value;
-            bool success;
+            int value = 0;
+            bool success = false;
             (*_registerCb)(v1, &value, &success);
 
             if (success)
@@ -176,6 +176,12 @@ namespace mu
 		InitConst();
 		InitOprt();
 	}
+
+    ParserRegister::ParserRegister(const ParserRegister& a_Parser)
+        :ParserBase(a_Parser)
+    {
+
+    }
 
     void ParserRegister::setRegisterCallback(registerCb_t registerCb)
     {

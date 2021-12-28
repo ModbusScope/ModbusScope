@@ -19,6 +19,7 @@ private slots:
     void failure();
     void failureMulti();
     void combinations();
+    void explicitDefaults();
     void spaces();
     void constant();
 
