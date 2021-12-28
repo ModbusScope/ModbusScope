@@ -22,6 +22,9 @@ private slots:
     void mixed_1();
     void mixed_fail();
 
+    void unknownConnection();
+    void disabledConnection();
+
 private:
 
     void doHandleRegisterData(QList<QVariant>& actRawData);
