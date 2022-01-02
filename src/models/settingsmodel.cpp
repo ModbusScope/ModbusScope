@@ -103,10 +103,7 @@ bool SettingsModel::absoluteTimes()
 
 void SettingsModel::setConsecutiveMax(quint8 connectionId, quint8 max)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     if (_connectionSettings[connectionId].consecutiveMax != max)
     {
@@ -117,20 +114,14 @@ void SettingsModel::setConsecutiveMax(quint8 connectionId, quint8 max)
 
 quint8 SettingsModel::consecutiveMax(quint8 connectionId)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     return _connectionSettings[connectionId].consecutiveMax;
 }
 
 void SettingsModel::setConnectionState(quint8 connectionId, bool bState)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     /* Connection 1 can't be disabled */
     if (connectionId == Connection::ID_1)
@@ -148,20 +139,14 @@ void SettingsModel::setConnectionState(quint8 connectionId, bool bState)
 
 bool SettingsModel::connectionState(quint8 connectionId)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     return _connectionSettings[connectionId].bConnectionState;
 }
 
 void SettingsModel::setInt32LittleEndian(quint8 connectionId, bool int32LittleEndian)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     if (_connectionSettings[connectionId].bInt32LittleEndian != int32LittleEndian)
     {
@@ -172,20 +157,14 @@ void SettingsModel::setInt32LittleEndian(quint8 connectionId, bool int32LittleEn
 
 bool SettingsModel::int32LittleEndian(quint8 connectionId)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     return _connectionSettings[connectionId].bInt32LittleEndian;
 }
 
 void SettingsModel::setPersistentConnection(quint8 connectionId, bool persistentConnection)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     if (_connectionSettings[connectionId].bPersistentConnection != persistentConnection)
     {
@@ -196,10 +175,7 @@ void SettingsModel::setPersistentConnection(quint8 connectionId, bool persistent
 
 bool SettingsModel::persistentConnection(quint8 connectionId)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     return _connectionSettings[connectionId].bPersistentConnection;
 }
@@ -239,10 +215,7 @@ QString SettingsModel::writeDuringLogFile()
 
 void SettingsModel::setConnectionType(quint8 connectionId, Connection::type_t connectionType)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     if (_connectionSettings[connectionId].connectionType != connectionType)
     {
@@ -253,20 +226,14 @@ void SettingsModel::setConnectionType(quint8 connectionId, Connection::type_t co
 
 Connection::type_t SettingsModel::connectionType(quint8 connectionId)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     return _connectionSettings[connectionId].connectionType;
 }
 
 void SettingsModel::setPortName(quint8 connectionId, QString portName)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     if (_connectionSettings[connectionId].portName != portName)
     {
@@ -277,20 +244,14 @@ void SettingsModel::setPortName(quint8 connectionId, QString portName)
 
 QString SettingsModel::portName(quint8 connectionId)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     return _connectionSettings[connectionId].portName;
 }
 
 void SettingsModel::setParity(quint8 connectionId, QSerialPort::Parity parity)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     if (_connectionSettings[connectionId].parity != parity)
     {
@@ -301,20 +262,14 @@ void SettingsModel::setParity(quint8 connectionId, QSerialPort::Parity parity)
 
 QSerialPort::Parity SettingsModel::parity(quint8 connectionId)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     return _connectionSettings[connectionId].parity;
 }
 
 void SettingsModel::setBaudrate(quint8 connectionId, QSerialPort::BaudRate baudrate)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     if (_connectionSettings[connectionId].baudrate != baudrate)
     {
@@ -325,20 +280,14 @@ void SettingsModel::setBaudrate(quint8 connectionId, QSerialPort::BaudRate baudr
 
 QSerialPort::BaudRate SettingsModel::baudrate(quint8 connectionId)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     return _connectionSettings[connectionId].baudrate;
 }
 
 void SettingsModel::setDatabits(quint8 connectionId, QSerialPort::DataBits databits)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     if (_connectionSettings[connectionId].databits != databits)
     {
@@ -349,20 +298,14 @@ void SettingsModel::setDatabits(quint8 connectionId, QSerialPort::DataBits datab
 
 QSerialPort::DataBits SettingsModel::databits(quint8 connectionId)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     return _connectionSettings[connectionId].databits;
 }
 
 void SettingsModel::setStopbits(quint8 connectionId, QSerialPort::StopBits stopbits)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     if (_connectionSettings[connectionId].stopbits != stopbits)
     {
@@ -373,20 +316,14 @@ void SettingsModel::setStopbits(quint8 connectionId, QSerialPort::StopBits stopb
 
 QSerialPort::StopBits SettingsModel::stopbits(quint8 connectionId)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     return _connectionSettings[connectionId].stopbits;
 }
 
 void SettingsModel::setIpAddress(quint8 connectionId, QString ip)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     if (_connectionSettings[connectionId].ipAddress != ip)
     {
@@ -397,20 +334,14 @@ void SettingsModel::setIpAddress(quint8 connectionId, QString ip)
 
 QString SettingsModel::ipAddress(quint8 connectionId)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     return _connectionSettings[connectionId].ipAddress;
 }
 
 void SettingsModel::setPort(quint8 connectionId, quint16 port)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     if (_connectionSettings[connectionId].port != port)
     {
@@ -421,30 +352,21 @@ void SettingsModel::setPort(quint8 connectionId, quint16 port)
 
 quint16 SettingsModel::port(quint8 connectionId)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     return _connectionSettings[connectionId].port;
 }
 
 quint8 SettingsModel::slaveId(quint8 connectionId)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     return _connectionSettings[connectionId].slaveId;
 }
 
 void SettingsModel::setSlaveId(quint8 connectionId, quint8 id)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     if (_connectionSettings[connectionId].slaveId != id)
     {
@@ -455,20 +377,14 @@ void SettingsModel::setSlaveId(quint8 connectionId, quint8 id)
 
 quint32 SettingsModel::timeout(quint8 connectionId)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     return _connectionSettings[connectionId].timeout;
 }
 
 void SettingsModel::setTimeout(quint8 connectionId, quint32 timeout)
 {
-    if (connectionId >= Connection::ID_CNT)
-    {
-        connectionId = Connection::ID_1;
-    }
+    clipConnectionId(connectionId);
 
     if (_connectionSettings[connectionId].timeout != timeout)
     {
@@ -508,4 +424,8 @@ void SettingsModel::serialConnectionStrings(quint8 connectionId, QString &strPar
     }
 }
 
-
+quint8 SettingsModel::clipConnectionId(quint8 connectionId)
+{
+    /* Default to first connection on id is not supported */
+    return connectionId < Connection::ID_CNT ? connectionId : Connection::ID_1;
+}

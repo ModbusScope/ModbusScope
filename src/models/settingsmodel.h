@@ -106,6 +106,8 @@ signals:
 
 private:
 
+    quint8 clipConnectionId(quint8 connectionId);
+
     typedef struct
     {
         Connection::type_t connectionType;
