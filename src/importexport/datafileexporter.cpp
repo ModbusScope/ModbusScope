@@ -294,7 +294,7 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
         }
 
         // Export communication settings
-        for (quint8 i = 0u; i < SettingsModel::CONNECTION_ID_CNT; i++)
+        for (quint8 i = 0u; i < Connection::ID_CNT; i++)
         {
             if (_pSettingsModel->connectionState(i))
             {
@@ -332,7 +332,7 @@ QString DataFileExporter::constructConnSettings(quint8 connectionId)
 {
     QString strSettings;
 
-    if (_pSettingsModel->connectionType(connectionId) == SettingsModel::CONNECTION_TYPE_TCP)
+    if (_pSettingsModel->connectionType(connectionId) == Connection::TYPE_TCP)
     {
         strSettings = _pSettingsModel->ipAddress(connectionId) + ":" + QString::number(_pSettingsModel->port(connectionId));
     }

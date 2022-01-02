@@ -5,26 +5,12 @@
 #include <QDir>
 #include <QSerialPort>
 
+#include "connectiontypes.h"
+
 class SettingsModel : public QObject
 {
     Q_OBJECT
 public:
-
-    enum
-    {
-        CONNECTION_ID_1 = 0,
-        CONNECTION_ID_2,
-        CONNECTION_ID_3,
-        CONNECTION_ID_CNT
-    };
-
-    typedef enum
-    {
-        CONNECTION_TYPE_TCP = 0,
-        CONNECTION_TYPE_SERIAL,
-        CONNECTION_TYPE_CNT
-
-    } ConnectionType_t;
 
     explicit SettingsModel(QObject *parent = nullptr);
     ~SettingsModel();
@@ -35,7 +21,7 @@ public:
     void setWriteDuringLogFile(QString filename);
     void setWriteDuringLogFileToDefault(void);
 
-    void setConnectionType(quint8 connectionId, ConnectionType_t connectionType);
+    void setConnectionType(quint8 connectionId, Connection::type_t connectionType);
 
     void setPortName(quint8 connectionId, QString portName);
     void setParity(quint8 connectionId, QSerialPort::Parity parity);
@@ -55,7 +41,7 @@ public:
 
     QString writeDuringLogFile();
     bool writeDuringLog();
-    ConnectionType_t connectionType(quint8 connectionId);
+    Connection::type_t connectionType(quint8 connectionId);
 
     QString portName(quint8 connectionId);
     QSerialPort::Parity parity(quint8 connectionId);
@@ -122,7 +108,7 @@ private:
 
     typedef struct
     {
-        ConnectionType_t connectionType;
+        Connection::type_t connectionType;
 
         QString ipAddress;
         quint16 port;
