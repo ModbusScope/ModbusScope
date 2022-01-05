@@ -20,9 +20,9 @@ public:
 
     bool evaluate();
 
-    bool isSuccess();
-    QString msg();
-    double value();
+    bool isSuccess() const;
+    QString msg() const;
+    double value() const;
 
 private:
 

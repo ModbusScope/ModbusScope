@@ -18,6 +18,8 @@ public:
     void processActiveRegisters(GraphDataModel *pGraphDataModel);
     void modbusRegisterList(QList<ModbusRegister>& registerList);
 
+    QString expressionParseMsg(qint32 exprIdx) const;
+
 public slots:
     void handleRegisterData(QList<Result> results);
 
