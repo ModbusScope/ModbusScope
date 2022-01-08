@@ -62,7 +62,10 @@ namespace mu
         {
             int value = 0;
             bool success = false;
-            (*_registerCb)(v1, &value, &success);
+            if (_registerCb)
+            {
+                (*_registerCb)(v1, &value, &success);
+            }
 
             if (success)
             {
