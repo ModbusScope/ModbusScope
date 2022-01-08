@@ -34,7 +34,7 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     _pUi->registerView->setSelectionBehavior(QAbstractItemView::SelectRows);
     _pUi->registerView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-    // Handle color cell active signal
+    // Handle cell active signal
     connect(_pUi->registerView, &QTableView::activated, this, &RegisterDialog::activatedCell);
 
     // Handle delete
@@ -103,12 +103,9 @@ void RegisterDialog::activatedCell(QModelIndex modelIndex)
     }
     else if (modelIndex.column() == GraphDataModel::column::EXPRESSION)
     {
-#if 0
-        TODO
         ExpressionsDialog exprDialog(_pGraphDataModel, modelIndex.row(), qobject_cast<QWidget *>(parent()));
 
         exprDialog.exec();
-#endif
     }
 }
 

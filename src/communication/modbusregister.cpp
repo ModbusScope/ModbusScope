@@ -52,6 +52,16 @@ void ModbusRegister::setUnsigned(bool bUnsigned)
     _bUnsigned = bUnsigned;
 }
 
+QString ModbusRegister::description() const
+{
+    QString unsignedStr = isUnsigned() ? "unsigned" : "signed" ;
+    QString typeStr = is32Bit() ? "32 bit" : "16 bit" ;
+    QString connStr = QString("conn %1").arg(connectionId() + 1);
+
+    return QString("%1, %2, %3, %4").arg(address())
+                                    .arg(unsignedStr, typeStr, connStr);
+}
+
 ModbusRegister& ModbusRegister::operator= (const ModbusRegister& modbusRegister)
 {
     // self-assignment guard
@@ -89,17 +99,9 @@ bool operator== (const ModbusRegister& reg1, const ModbusRegister& reg2)
 QDebug operator<<(QDebug debug, const ModbusRegister &reg)
 {
     QDebugStateSaver saver(debug);
-    QString unsignedString = reg.isUnsigned() ? "unsigned" : "signed" ;
-    QString typeString = reg.is32Bit() ? "32 bit" : "16 bit" ;
-    QString connString = QString("conn %1").arg(reg.connectionId() + 1);
+
     debug.nospace().noquote() << '['
-                    << reg.address()
-                    << ", "
-                    << unsignedString
-                    << ", "
-                    << typeString
-                    << ", "
-                    << connString
+                    << reg.description()
                     << ']';
 
     return debug;
