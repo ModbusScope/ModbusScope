@@ -84,7 +84,7 @@ void TestGraphDataHandler::graphData()
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
     auto regResults = QList<Result>() << Result(1, true)
-                                            << Result(2, true);
+                                      << Result(2, true);
 
     auto resultList = QList<bool>() << true;
     auto valueList = QList<double>() << 3;
@@ -92,6 +92,39 @@ void TestGraphDataHandler::graphData()
     QList<QVariant> rawRegData;
     doHandleRegisterData(regResults, rawRegData);
     CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
+}
+
+void TestGraphDataHandler::graphDataTwice()
+{
+    auto exprList = QStringList() << "${40001} + ${40002}";
+
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    auto regResults_1 = QList<Result>() << Result(1, true)
+                                        << Result(2, true);
+
+    auto regResults_2 = QList<Result>() << Result(3, true)
+                                        << Result(4, true);
+
+    QList<QVariant> rawRegData;
+    GraphDataHandler dataHandler;
+
+    QList<ModbusRegister> registerList;
+    dataHandler.processActiveRegisters(_pGraphDataModel);
+    dataHandler.modbusRegisterList(registerList);
+
+    QSignalSpy spyDataReady(&dataHandler, &GraphDataHandler::graphDataReady);
+
+    dataHandler.handleRegisterData(regResults_1);
+    dataHandler.handleRegisterData(regResults_2);
+
+    QCOMPARE(spyDataReady.count(), 2);
+
+    rawRegData = spyDataReady.takeFirst();
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, QList<bool>() << true, QList<double>() << 3);
+
+    rawRegData = spyDataReady.takeFirst();
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, QList<bool>() << true, QList<double>() << 7);
 }
 
 void TestGraphDataHandler::graphData_fail()
