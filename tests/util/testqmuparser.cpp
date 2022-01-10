@@ -163,26 +163,25 @@ void TestQMuParser::evaluateMultipleRegisters()
 
 void TestQMuParser::evaluateSubsequentRegister()
 {
-    auto input_1 = QList<Result>() << Result(1, true);
-    auto input_2 = QList<Result>() << Result(2, true);
+    const int count = 10;
+    QList<quint32> data;
+    for (int idx = 0; idx < count; idx++)
+    {
+        data.append(idx);
+    }
 
     QMuParser parser("regval(0)");
 
-    parser.setRegistersData(input_1);
+    for (int idx = 0; idx < count; idx++)
+    {
+        auto input = QList<Result>() << Result(data[idx], true);
+        parser.setRegistersData(input);
 
-    bool bSuccess = parser.evaluate();
-    QCOMPARE(parser.value(), 1);
-    QVERIFY(parser.isSuccess());
-    QVERIFY(bSuccess);
-
-    qDebug() << "espr1: " << parser.expression();
-    parser.setRegistersData(input_2);
-    qDebug() << "espr1: " << parser.expression();
-    bSuccess = parser.evaluate();
-    qDebug() << "espr1: " << parser.expression();
-    QCOMPARE(parser.value(), 2);
-    QVERIFY(parser.isSuccess());
-    QVERIFY(bSuccess);
+        bool bSuccess = parser.evaluate();
+        QCOMPARE(parser.value(), data[idx]);
+        QVERIFY(parser.isSuccess());
+        QVERIFY(bSuccess);
+    }
 }
 
 void TestQMuParser::evaluateInvalidExpr()
