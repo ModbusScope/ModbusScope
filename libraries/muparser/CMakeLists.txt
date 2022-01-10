@@ -10,8 +10,6 @@ endif ()
 
 project(muParserProject)
 
-
-
 # Bump versions on release
 set(MUPARSER_VERSION_MAJOR 2)
 set(MUPARSER_VERSION_MINOR 3)
@@ -21,6 +19,7 @@ set(MUPARSER_VERSION ${MUPARSER_VERSION_MAJOR}.${MUPARSER_VERSION_MINOR}.${MUPAR
 # Build options
 option(ENABLE_SAMPLES "Build the samples" ON)
 option(ENABLE_OPENMP "Enable OpenMP for multithreading" ON)
+option(ENABLE_WIDE_CHAR "Enable wide character support" OFF)
 option(BUILD_SHARED_LIBS "Build shared/static libs" ON)
 
 if(ENABLE_OPENMP)
@@ -28,7 +27,6 @@ if(ENABLE_OPENMP)
     set(CMAKE_CXX_FLAGS "${OpenMP_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
     set(CMAKE_SHARED_LIBRARY_CXX_FLAGS "${OpenMP_CXX_FLAGS} ${CMAKE_SHARED_LIBRARY_CXX_FLAGS}")
 endif()
-
 
 # Credit: https://stackoverflow.com/questions/2368811/how-to-set-warning-level-in-cmake/3818084
 if(MSVC)
@@ -43,26 +41,24 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
 endif()
 
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
-add_library(muparser
-    src/muParserBase.cpp
-    src/muParserBytecode.cpp
-    src/muParserCallback.cpp
-    src/muParser.cpp
-    src/muParserDLL.cpp
-    src/muParserError.cpp
-    src/muParserInt.cpp
-    src/muParserTest.cpp
-    src/muParserTokenReader.cpp
+FILE(GLOB_RECURSE MUPARSER_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp") #all .cpp
+add_library(muparser ${MUPARSER_SOURCES})
+
+# Use the headers in the build-tree or the installed ones
+target_include_directories(muparser PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
 )
 
-# this compiles the "DLL" interface (C API)
+# This compiles the "DLL" interface (C API)
 target_compile_definitions(muparser PRIVATE MUPARSER_DLL)
 
 if (BUILD_SHARED_LIBS)
   target_compile_definitions(muparser PRIVATE MUPARSERLIB_EXPORTS)
+  add_definitions( -DMUPARSERLIB_EXPORTS )
 else ()
   target_compile_definitions(muparser PUBLIC MUPARSER_STATIC)
+  add_definitions( -DMUPARSER_STATIC )
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
@@ -72,13 +68,15 @@ endif ()
 if(ENABLE_OPENMP)
   target_compile_definitions(muparser PRIVATE MUP_USE_OPENMP)
 endif()
+
+if(ENABLE_WIDE_CHAR)
+  target_compile_definitions(muparser PUBLIC _UNICODE)
+endif()
+
 set_target_properties(muparser PROPERTIES
     VERSION ${MUPARSER_VERSION}
     SOVERSION ${MUPARSER_VERSION_MAJOR}
 )
-
-# Install the export set for use with the install-tree
-export(TARGETS muparser FILE "${CMAKE_BINARY_DIR}/muparser-targets.cmake")
 
 if(ENABLE_SAMPLES)
   add_executable(example1 samples/example1/example1.cpp)
@@ -91,28 +89,48 @@ endif()
 # The GNUInstallDirs defines ${CMAKE_INSTALL_DATAROOTDIR}
 # See https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html
 include (GNUInstallDirs)
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/muparser)
 
 install(TARGETS muparser
+    EXPORT muparser-export
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT RuntimeLibraries
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT Development
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT RuntimeLibraries
 )
 
+FILE(GLOB_RECURSE MUPARSER_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h") #all .h
 install(FILES
-    include/muParserBase.h
-    include/muParserBytecode.h
-    include/muParserCallback.h
-    include/muParserDef.h
-    include/muParserDLL.h
-    include/muParserError.h
-    include/muParserFixes.h
-    include/muParser.h
-    include/muParserInt.h
-    include/muParserTemplateMagic.h
-    include/muParserTest.h
-    include/muParserToken.h
-    include/muParserTokenReader.h
+    ${MUPARSER_HEADERS}
     DESTINATION include
+    COMPONENT Development
+)
+
+# Export the target under the build-tree (no need to install)
+export(EXPORT muparser-export
+    FILE "${CMAKE_BINARY_DIR}/muparser-targets.cmake"
+    NAMESPACE muparser::
+)
+
+# Export the installed target (typically for packaging)
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/muparserConfigVersion.cmake"
+    VERSION ${MUPARSER_VERSION}
+    COMPATIBILITY AnyNewerVersion
+)
+configure_file(muparserConfig.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/muparserConfig.cmake"
+    COPYONLY
+)
+install(EXPORT muparser-export
+    FILE muparser-targets.cmake
+    NAMESPACE muparser::
+    DESTINATION ${INSTALL_CONFIGDIR}
+)
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/muparserConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/muparserConfigVersion.cmake
+    DESTINATION ${INSTALL_CONFIGDIR}
     COMPONENT Development
 )
 
@@ -129,9 +147,9 @@ install(
 )
 
 include(CTest)
-enable_testing()
 
-add_executable (t_ParserTest test/t_ParserTest.cpp)
-target_link_libraries(t_ParserTest muparser)
-add_test (NAME ParserTest COMMAND t_ParserTest)
-
+if (BUILD_TESTING)
+    add_executable (t_ParserTest test/t_ParserTest.cpp)
+    target_link_libraries(t_ParserTest muparser)
+    add_test (NAME ParserTest COMMAND t_ParserTest)
+endif()

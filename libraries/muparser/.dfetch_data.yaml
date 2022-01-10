@@ -1,5 +1,8 @@
 dfetch:
-  branch: v2.3.2
-  last_fetch: 29/01/2021, 17:28:38
-  remote_url: https://github.com/beltoforion/muparser.git
-  revision: 207d5b77c05c9111ff51ab91082701221220c477
+  branch: master
+  hash: e6a75aee954db0d94efe4a97947f0160
+  last_fetch: 10/01/2022, 19:17:56
+  patch: ''
+  remote_url: https://github.com/beltoforion/muparser
+  revision: 52ad02fe1f958fde041c246d24aaee3f40ae3fff
+  tag: ''
