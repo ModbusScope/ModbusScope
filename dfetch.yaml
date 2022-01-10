@@ -13,9 +13,8 @@ manifest:
     repo-path: beltoforion/muparser
 
   - name: qcustomplot
-    revision: bbf0e2f2d76f8e0bc5966e4b3b8c2700cb4ed2f9
     dst: libraries/qcustomplot
-    branch: master
+    tag: v2.1.0
     repo-path: jgeudens/qcustomplot-release
 
   - name: tests/googletest
