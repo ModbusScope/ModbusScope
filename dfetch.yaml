@@ -2,24 +2,22 @@ manifest:
   version: '0.0'
 
   remotes:
-    - name: github
-      url-base: https://github.com
+  - name: github
+    url-base: https://github.com
 
   projects:
+  - name: muparser
+    revision: 52ad02fe1f958fde041c246d24aaee3f40ae3fff
+    dst: libraries/muparser
+    branch: master
+    repo-path: beltoforion/muparser
 
-    - name: muparser
-      repo-path: beltoforion/muparser
-      revision: 207d5b77c05c9111ff51ab91082701221220c477
-      branch: v2.3.2
-      dst: libraries/muparser
+  - name: qcustomplot
+    dst: libraries/qcustomplot
+    tag: v2.1.0
+    repo-path: jgeudens/qcustomplot-release
 
-    - name: qcustomplot
-      repo-path: jgeudens/qcustomplot-release
-      branch: master
-      dst: libraries/qcustomplot
-
-    - name: tests/googletest
-      repo-path: google/googletest
-      branch: master
-      dst: tests/googletest
-      
+  - name: tests/googletest
+    revision: 355d57d90d9744c41ac7c99f1e960778f1c63040
+    branch: master
+    repo-path: google/googletest

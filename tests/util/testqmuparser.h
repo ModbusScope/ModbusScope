@@ -16,6 +16,7 @@ private slots:
     void evaluateSingleRegister();
 
     void evaluateMultipleRegisters();
+    void evaluateSubsequentRegister();
 
     void evaluateInvalidExpr();
     void evaluateInvalidDecimal();

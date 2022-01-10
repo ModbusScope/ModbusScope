@@ -62,7 +62,10 @@ namespace mu
         {
             int value = 0;
             bool success = false;
-            (*_registerCb)(v1, &value, &success);
+            if (_registerCb)
+            {
+                (*_registerCb)(v1, &value, &success);
+            }
 
             if (success)
             {
@@ -206,7 +209,7 @@ namespace mu
 	/** \brief Initialize the default functions. */
 	void ParserRegister::InitFun()
 	{
-        DefineFun(_T("regval"), RegVal);
+        DefineFun(_T("regval"), RegVal, false);
 	}
 
 	//---------------------------------------------------------------------------

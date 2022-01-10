@@ -22,6 +22,7 @@ private slots:
     void manyInactiveRegisters();
 
     void graphData();
+    void graphDataTwice();
     void graphData_fail();
 
 private:
