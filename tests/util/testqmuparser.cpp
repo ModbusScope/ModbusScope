@@ -161,6 +161,30 @@ void TestQMuParser::evaluateMultipleRegisters()
     QVERIFY(bSuccess);
 }
 
+void TestQMuParser::evaluateSubsequentRegister()
+{
+    auto input_1 = QList<Result>() << Result(1, true);
+    auto input_2 = QList<Result>() << Result(2, true);
+
+    QMuParser parser("regval(0)");
+
+    parser.setRegistersData(input_1);
+
+    bool bSuccess = parser.evaluate();
+    QCOMPARE(parser.value(), 1);
+    QVERIFY(parser.isSuccess());
+    QVERIFY(bSuccess);
+
+    qDebug() << "espr1: " << parser.expression();
+    parser.setRegistersData(input_2);
+    qDebug() << "espr1: " << parser.expression();
+    bSuccess = parser.evaluate();
+    qDebug() << "espr1: " << parser.expression();
+    QCOMPARE(parser.value(), 2);
+    QVERIFY(parser.isSuccess());
+    QVERIFY(bSuccess);
+}
+
 void TestQMuParser::evaluateInvalidExpr()
 {
     QMuParser parser("x11");
