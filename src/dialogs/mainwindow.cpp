@@ -204,7 +204,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pYAxisScaleGroup, &QButtonGroup::idClicked, this, &MainWindow::yAxisScaleGroupClicked);
 
     /* handle focus change */
-    connect(QApplication::instance(), SIGNAL(focusChanged(QWidget *, QWidget *)), this, SLOT(appFocusChanged(QWidget *, QWidget *)));
+    connect(dynamic_cast<QApplication*>(QApplication::instance()), &QApplication::focusChanged, this, &MainWindow::appFocusChanged);
 
     /* Update notes in data file when requested by notes model */
     connect(_pNoteModel, &NoteModel::dataFileUpdateRequested, this, &MainWindow::updateDataFileNotes);
@@ -963,7 +963,7 @@ void MainWindow::dropEvent(QDropEvent *e)
     }
 }
 
-void MainWindow::appFocusChanged(QWidget * old, QWidget * now)
+void MainWindow::appFocusChanged(QWidget *old, QWidget *now)
 {
     Q_UNUSED(now);
     if (old != NULL)
