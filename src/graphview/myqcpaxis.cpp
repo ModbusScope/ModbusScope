@@ -75,9 +75,10 @@ void MyQCPAxis::setRange(double lower, double upper)
 
 void MyQCPAxis::addMargin(double * pLower, double * pUpper)
 {
-    if (graphs().size() > 0)
+    QList<QCPGraph*> const graphList = graphs();
+    if (graphList.size() > 0)
     {
-        const double diff = pixelToCoord(0) - pixelToCoord(graphs()[0]->scatterStyle().size());
+        const double diff = pixelToCoord(0) - pixelToCoord(graphList[0]->scatterStyle().size());
 
         *pLower += diff;
         *pUpper += diff;
