@@ -174,7 +174,7 @@ Qt::ItemFlags GraphDataModel::flags(const QModelIndex & index) const
     }
     else if (
              (index.column() == column::COLOR)
-             // TODO || (index.column() == column::EXPRESSION)
+             || (index.column() == column::EXPRESSION)
              )
     {
         itemFlags |= Qt::ItemIsSelectable;

@@ -118,17 +118,17 @@ bool QMuParser::evaluate()
     return _bSuccess;
 }
 
-QString QMuParser::msg()
+QString QMuParser::msg() const
 {
     return _msg;
 }
 
-double QMuParser::value()
+double QMuParser::value() const
 {
     return _value;
 }
 
-bool QMuParser::isSuccess()
+bool QMuParser::isSuccess() const
 {
     return _bSuccess;
 }

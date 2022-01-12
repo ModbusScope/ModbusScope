@@ -2,11 +2,8 @@
 #define EXPRESSIONSDIALOG_H
 
 #include <QDialog>
-#include "qmuparser.h"
-
-/* Forward declaration */
-class GraphDataModel;
-
+#include "graphdatahandler.h"
+#include "graphdatamodel.h"
 
 namespace Ui {
 class ExpressionsDialog;
@@ -25,18 +22,20 @@ private slots:
     void handleInputChange();
     void handleCancel();
     void handleAccept();
+    void handleDataReady(QList<bool> successList, QList<double> values);
 
 private:
 
-    void evaluateValue(QString strInput, QString &numOutput, QString &strTooltip);
-
-    Ui::ExpressionsDialog *_pUi;
+    Ui::ExpressionsDialog*_pUi;
 
     qint32 _graphIdx;
 
-    QMuParser _expressionParser;
+    GraphDataModel* _pGraphDataModel;
 
-    GraphDataModel * _pGraphDataModel;
+    GraphDataModel _localGraphDataModel;
+    GraphDataHandler _graphDataHandler;
+
+    bool _bUpdating;
 };
 
 #endif // EXPRESSIONSDIALOG_H

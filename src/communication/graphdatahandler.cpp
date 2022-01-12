@@ -48,6 +48,16 @@ void GraphDataHandler::modbusRegisterList(QList<ModbusRegister>& registerList)
     registerList = _registerList;
 }
 
+QString GraphDataHandler::expressionParseMsg(qint32 exprIdx) const
+{
+    if (exprIdx >= _valueParsers.size())
+    {
+        return QString();
+    }
+
+    return _valueParsers[exprIdx].msg();
+}
+
 void GraphDataHandler::handleRegisterData(QList<Result> results)
 {
     QList<bool> graphSuccess;

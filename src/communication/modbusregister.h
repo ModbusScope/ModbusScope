@@ -22,7 +22,8 @@ public:
     bool isUnsigned() const;
     void setUnsigned(bool bUnsigned);
 
-    // Copy constructor
+    QString description() const;
+
     ModbusRegister(const ModbusRegister& copy)
         : _address { copy.address() }, _connectionId { copy.connectionId() },
           _b32Bit { copy.is32Bit() }, _bUnsigned { copy.isUnsigned() }

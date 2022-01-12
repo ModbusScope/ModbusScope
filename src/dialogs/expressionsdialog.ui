@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>630</width>
-    <height>479</height>
+    <width>823</width>
+    <height>651</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,1">
    <property name="sizeConstraint">
-    <enum>QLayout::SetFixedSize</enum>
+    <enum>QLayout::SetNoConstraint</enum>
    </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -38,95 +38,41 @@
          <property name="title">
           <string>Compose Expression</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout" columnstretch="1,1,2">
-          <item row="4" column="1">
-           <widget class="QLabel" name="lblOut2">
-            <property name="frameShape">
-             <enum>QFrame::StyledPanel</enum>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
+         <layout class="QGridLayout" name="gridLayout" columnstretch="1,0">
+          <item row="5" column="1">
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <item>
+             <widget class="QLabel" name="lblOut">
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
           </item>
-          <item row="2" column="1">
-           <widget class="QLabel" name="lblOut0">
-            <property name="frameShape">
-             <enum>QFrame::StyledPanel</enum>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Example Input</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Processed Output</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLineEdit" name="lineIn1">
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLabel" name="lblOut1">
-            <property name="frameShape">
-             <enum>QFrame::StyledPanel</enum>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLineEdit" name="lineIn2">
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
+          <item row="5" column="0">
+           <widget class="QTableWidget" name="tblExpressionInput"/>
           </item>
           <item row="2" column="0">
-           <widget class="QLineEdit" name="lineIn0">
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1" colspan="2">
            <widget class="QLineEdit" name="lineExpression">
             <property name="font">
              <font>
@@ -138,16 +84,30 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
+          <item row="1" column="0">
            <widget class="QLabel" name="label">
             <property name="text">
              <string>Expression</string>
             </property>
             <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
             <property name="buddy">
              <cstring>lineExpression</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Processed Output</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Example Input</string>
             </property>
            </widget>
           </item>
@@ -226,7 +186,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Expression Information&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The value read via modbus is represented as &amp;quot;VAL&amp;quot;. The most common binary operators are supported (!, |, &amp;amp;, &amp;lt;&amp;lt;, &amp;gt;&amp;gt;). The basic arithmetic operators are also supported (+, -, *, /, %, ^). Hexadecimal numbers can be represented with the &amp;quot;0x&amp;quot; prefix. Binary are represented with &amp;quot;0b&amp;quot; prefix. Floating point number are also supported. Both a decimal point as comma can be used. The first encountered characters per expression is used as floating point separator.&lt;/p&gt;&lt;p&gt;Some examples:&lt;/p&gt;&lt;p&gt;(VAL + 10 / 2) / 10&lt;/p&gt;&lt;p&gt;(VAL &amp;amp; 0xFF) | 1&lt;/p&gt;&lt;p&gt;VAL * 0.001&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Expression Information&lt;/span&gt;&lt;/p&gt;&lt;p&gt;A modbus register read is represented as &amp;quot;${REG[@CONN][:TYPE]}&amp;quot;. Multiple registers read can be combined in one expression.&lt;/p&gt;&lt;p&gt;${45332} =&amp;gt; 16-bit unsigned using connection 1&lt;br/&gt;${45332: s16b} =&amp;gt; 16-bit signed using connection 1&lt;br/&gt;${45332@2: 32b} =&amp;gt; 32-bit unsigned using connection 2&lt;br/&gt;${45332@2} =&amp;gt; 16-bit unsigned using connection 2&lt;/p&gt;&lt;p&gt;The most common binary operators are supported (!, |, &amp;amp;, &amp;lt;&amp;lt;, &amp;gt;&amp;gt;). The basic arithmetic operators are also supported (+, -, *, /, %, ^). Hexadecimal numbers can be represented with the &amp;quot;0x&amp;quot; prefix. Binary are represented with &amp;quot;0b&amp;quot; prefix. Floating point number are also supported. Both a decimal point as comma can be used. The first encountered character is used as floating point separator.&lt;/p&gt;&lt;p&gt;An example: &amp;quot;${45332: s16b} + ${40001@2} * 2&amp;quot;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -239,10 +199,6 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>lineExpression</tabstop>
-  <tabstop>lineIn0</tabstop>
-  <tabstop>lineIn1</tabstop>
-  <tabstop>lineIn2</tabstop>
   <tabstop>btnAccept</tabstop>
   <tabstop>btnCancel</tabstop>
   <tabstop>btnInfo</tabstop>
