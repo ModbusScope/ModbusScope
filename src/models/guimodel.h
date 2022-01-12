@@ -89,10 +89,10 @@ public slots:
 
     void setWindowTitleDetail(QString detail);
     void setxAxisScale(AxisMode::AxisScaleOptions scaleMode);
-    void setxAxisSlidingInterval(qint32 slidingSec);
+    void setxAxisSlidingInterval(int slidingSec);
     void setyAxisScale(AxisMode::AxisScaleOptions scaleMode);
-    void setyAxisMin(qint32 newMin);
-    void setyAxisMax(qint32 newMax);
+    void setyAxisMin(int newMin);
+    void setyAxisMax(int newMax);
     void setGuiState(quint32 state);
     void setCommunicationStartTime(qint64 startTime);
     void setCommunicationEndTime(qint64 endTime);

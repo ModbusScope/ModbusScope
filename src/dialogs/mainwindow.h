@@ -62,8 +62,7 @@ private slots:
     void menuShowHideGraphClicked(bool bState);
     void showConnectionDialog();
     void showLogSettingsDialog();
-    void showRegisterDialog();
-    void showRegisterDialog(QString mbcFile);
+    void handleShowRegisterDialog(bool checked);
     void addNoteToGraph();
     void toggleZoom(bool checked);
     void clearData();
@@ -98,7 +97,7 @@ private slots:
     void showContextMenu(const QPoint& pos);
     void dragEnterEvent(QDragEnterEvent *e);
     void dropEvent(QDropEvent *e);
-    void appFocusChanged(QWidget * old, QWidget * now);
+    void appFocusChanged(QWidget *old, QWidget *now);
     void xAxisScaleGroupClicked(int id);
     void yAxisScaleGroupClicked(int id);
     void updateRuntime();
@@ -109,6 +108,7 @@ private slots:
 
 private:
 
+    void showRegisterDialog(QString mbcFile);
     void handleCommandLineArguments(QStringList cmdArguments);
 
     Ui::MainWindow * _pUi;

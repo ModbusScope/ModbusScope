@@ -219,7 +219,7 @@ AxisMode::AxisScaleOptions GuiModel::xAxisScalingMode()
     return _guiSettings.xScaleMode;
 }
 
-void GuiModel::setxAxisSlidingInterval(qint32 slidingSec)
+void GuiModel::setxAxisSlidingInterval(int slidingSec)
 {
     if (_guiSettings.xslidingInterval != (quint32)slidingSec)
     {
@@ -248,7 +248,7 @@ void GuiModel::setyAxisScale(AxisMode::AxisScaleOptions scaleMode)
     }
 }
 
-void GuiModel::setyAxisMin(qint32 newMin)
+void GuiModel::setyAxisMin(int newMin)
 {
     const qint32 diff = _guiSettings.yMax - _guiSettings.yMin;
     qint32 newMax = _guiSettings.yMax;
@@ -266,7 +266,7 @@ void GuiModel::setyAxisMin(qint32 newMin)
     }
 }
 
-void GuiModel::setyAxisMax(qint32 newMax)
+void GuiModel::setyAxisMax(int newMax)
 {
     const qint32 diff = _guiSettings.yMax - _guiSettings.yMin;
 
