@@ -6,6 +6,11 @@ const QString DataFileParser::_cPattern = QString("\\s*(\\d{1,2})[\\-\\/\\s](\\d
 
 
 DataFileParser::DataFileParser(DataParserModel *pDataParserModel)
+    : _lineNumber(0),
+     _totalCharSize(0),
+     _charCount(0),
+     _lastPercentageUpdate(0),
+     _expectedFields(1)
 {
     _pDataParserModel = pDataParserModel;
 
