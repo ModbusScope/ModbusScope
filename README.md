@@ -8,9 +8,11 @@ Build status: [![Build status](https://ci.appveyor.com/api/projects/status/v7ysj
 
 Status: [![Coverity Scan Build Status](https://scan.coverity.com/projects/19701/badge.svg)](https://scan.coverity.com/projects/jgeudens-modbusscope)[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8f51aaa42a3743598f8f61fc0bb17aaf)](https://www.codacy.com/gh/jgeudens/ModbusScope/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=jgeudens/ModbusScope&amp;utm_campaign=Badge_Grade)[![CodeScene general](https://codescene.io/images/analyzed-by-codescene-badge.svg)](https://codescene.io/projects/15487)
 
+---
 
+ModbusScope is a GUI tool to log data using the [Modbus](https://en.wikipedia.org/wiki/Modbus) protocol into graph.
 
-**ModbusScope is a GUI tool to log data using the [Modbus](https://en.wikipedia.org/wiki/Modbus) protocol into graph.**
+---
 
 ![ModbusScope demo](modbusscope_demo.gif)
 
