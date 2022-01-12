@@ -72,7 +72,6 @@ void ExpressionsDialog::handleExpressionChange()
 
 void ExpressionsDialog::handleInputChange()
 {
-#if 0
     if (!_bUpdating)
     {
         const auto lightRed = QColor(255, 0, 0, 127);
@@ -98,7 +97,6 @@ void ExpressionsDialog::handleInputChange()
 
         _graphDataHandler.handleRegisterData(results);
     }
-#endif
 }
 
 void ExpressionsDialog::handleCancel()
