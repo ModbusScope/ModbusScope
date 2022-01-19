@@ -14,6 +14,7 @@ public:
     ~TestSlaveModbus();
 
     bool connect(QUrl host, int slaveId);
+    void disconnect();
 
     void setException(QModbusPdu::ExceptionCode exception, bool bPersistent);
 

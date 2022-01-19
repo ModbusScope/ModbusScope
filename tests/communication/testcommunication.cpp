@@ -153,6 +153,35 @@ void TestCommunication::mixed_fail()
     CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
 }
 
+void TestCommunication::readLargeRegisterAddress()
+{
+    /* Disable already initialized test slave on connection 1 */
+    _testSlaveModbusList[Connection::ID_1]->disconnect();
+
+    TestSlaveData testSlaveData(71001 - 40001, 50);
+    TestSlaveModbus testSlaveModbus(&testSlaveData);
+
+    QVERIFY(testSlaveModbus.connect(_serverConnectionDataList[Connection::ID_1], _pSettingsModel->slaveId(Connection::ID_1)));
+
+    auto exprList = QStringList() << "${71001}"
+                                  << "${71049}";
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    testSlaveData.setRegisterState(71001 - 40001, true);
+    testSlaveData.setRegisterValue(71001 - 40001, 1);
+
+    testSlaveData.setRegisterState(71049 - 40001, true);
+    testSlaveData.setRegisterValue(71049 - 40001, 2);
+
+    auto resultList = QList<bool>() << true << true;
+    auto valueList = QList<double>() << 1 << 2;
+
+    QList<QVariant> rawRegData;
+    doHandleRegisterData(rawRegData);
+
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
+}
+
 void TestCommunication::unknownConnection()
 {
     auto exprList = QStringList() << "${40001@255}"

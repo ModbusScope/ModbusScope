@@ -22,6 +22,8 @@ private slots:
     void mixed_1();
     void mixed_fail();
 
+    void readLargeRegisterAddress();
+
     void unknownConnection();
     void disabledConnection();
 
