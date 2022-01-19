@@ -11,7 +11,11 @@
 #include "legend.h"
 #include "graphview.h"
 
-Legend::Legend(QWidget *parent) : QFrame(parent)
+Legend::Legend(QWidget *parent) : QFrame(parent),
+    _popupMenuItem(0),
+    _pGuiModel(nullptr),
+    _pGraphDataModel(nullptr),
+    _pGraphView(nullptr)
 {
     _pLayout = new QVBoxLayout();
 

@@ -18,7 +18,7 @@ public:
 
     void fillSettingsModel(SettingsModel* pSettingsModel, quint8 connectionId);
 
-    void setConnectionType(SettingsModel::ConnectionType_t connectionType);
+    void setConnectionType(Connection::type_t connectionType);
 
     void setPortName(QString portName);
     void setParity(QSerialPort::Parity parity);

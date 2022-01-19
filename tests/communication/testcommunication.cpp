@@ -24,26 +24,26 @@ void TestCommunication::init()
     _pSettingsModel = new SettingsModel;
     _pGraphDataModel = new GraphDataModel(_pSettingsModel);
 
-    _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_1, "127.0.0.1");
-    _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_1, 5020);
-    _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_1, 500);
-    _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_1, 1);
+    _pSettingsModel->setIpAddress(Connection::ID_1, "127.0.0.1");
+    _pSettingsModel->setPort(Connection::ID_1, 5020);
+    _pSettingsModel->setTimeout(Connection::ID_1, 500);
+    _pSettingsModel->setSlaveId(Connection::ID_1, 1);
 
-    _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_2, true);
-    _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_2, "127.0.0.1");
-    _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_2, 5021);
-    _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_2, 500);
-    _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_2, 2);
+    _pSettingsModel->setConnectionState(Connection::ID_2, true);
+    _pSettingsModel->setIpAddress(Connection::ID_2, "127.0.0.1");
+    _pSettingsModel->setPort(Connection::ID_2, 5021);
+    _pSettingsModel->setTimeout(Connection::ID_2, 500);
+    _pSettingsModel->setSlaveId(Connection::ID_2, 2);
 
-    _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_3, true);
-    _pSettingsModel->setIpAddress(SettingsModel::CONNECTION_ID_3, "127.0.0.1");
-    _pSettingsModel->setPort(SettingsModel::CONNECTION_ID_3, 5022);
-    _pSettingsModel->setTimeout(SettingsModel::CONNECTION_ID_3, 500);
-    _pSettingsModel->setSlaveId(SettingsModel::CONNECTION_ID_3, 3);
+    _pSettingsModel->setConnectionState(Connection::ID_3, true);
+    _pSettingsModel->setIpAddress(Connection::ID_3, "127.0.0.1");
+    _pSettingsModel->setPort(Connection::ID_3, 5022);
+    _pSettingsModel->setTimeout(Connection::ID_3, 500);
+    _pSettingsModel->setSlaveId(Connection::ID_3, 3);
 
     _pSettingsModel->setPollTime(100);
 
-    for (quint8 idx = 0; idx < SettingsModel::CONNECTION_ID_CNT; idx++)
+    for (quint8 idx = 0; idx < Connection::ID_CNT; idx++)
     {
         _serverConnectionDataList.append(QUrl());
         _serverConnectionDataList.last().setPort(_pSettingsModel->port(idx));
@@ -61,7 +61,7 @@ void TestCommunication::cleanup()
     delete _pGraphDataModel;
     delete _pSettingsModel;
 
-    for (int idx = 0; idx < SettingsModel::CONNECTION_ID_CNT; idx++)
+    for (int idx = 0; idx < Connection::ID_CNT; idx++)
     {
         _testSlaveModbusList[idx]->disconnectDevice();
     }
@@ -80,11 +80,11 @@ void TestCommunication::singleSlaveSuccess()
                                   << "${40001}";
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(0, true);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(0, 1);
+    _testSlaveDataList[Connection::ID_1]->setRegisterState(0, true);
+    _testSlaveDataList[Connection::ID_1]->setRegisterValue(0, 1);
 
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(1, true);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(1, 2);
+    _testSlaveDataList[Connection::ID_1]->setRegisterState(1, true);
+    _testSlaveDataList[Connection::ID_1]->setRegisterValue(1, 2);
 
     auto resultList = QList<bool>() << true << true;
     auto valueList = QList<double>() << 2 << 1;
@@ -103,17 +103,17 @@ void TestCommunication::mixed_1()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_2]->setRegisterState(1, true);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_2]->setRegisterValue(1, 1);
+    _testSlaveDataList[Connection::ID_2]->setRegisterState(1, true);
+    _testSlaveDataList[Connection::ID_2]->setRegisterValue(1, 1);
 
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(2, true);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(2, 5);
+    _testSlaveDataList[Connection::ID_1]->setRegisterState(2, true);
+    _testSlaveDataList[Connection::ID_1]->setRegisterValue(2, 5);
 
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(3, true);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(3, 2);
+    _testSlaveDataList[Connection::ID_1]->setRegisterState(3, true);
+    _testSlaveDataList[Connection::ID_1]->setRegisterValue(3, 2);
 
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(4, true);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(4, 1);
+    _testSlaveDataList[Connection::ID_1]->setRegisterState(4, true);
+    _testSlaveDataList[Connection::ID_1]->setRegisterValue(4, 1);
 
     auto resultList = QList<bool>() << true << true << true;
     auto valueList = QList<double>() << 6 << 2 << 65538;
@@ -132,17 +132,17 @@ void TestCommunication::mixed_fail()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(0, false);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(0, 0);
+    _testSlaveDataList[Connection::ID_1]->setRegisterState(0, false);
+    _testSlaveDataList[Connection::ID_1]->setRegisterValue(0, 0);
 
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(1, true);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(1, 1);
+    _testSlaveDataList[Connection::ID_1]->setRegisterState(1, true);
+    _testSlaveDataList[Connection::ID_1]->setRegisterValue(1, 1);
 
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(2, false);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(2, 2);
+    _testSlaveDataList[Connection::ID_1]->setRegisterState(2, false);
+    _testSlaveDataList[Connection::ID_1]->setRegisterValue(2, 2);
 
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(3, true);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(3, 3);
+    _testSlaveDataList[Connection::ID_1]->setRegisterState(3, true);
+    _testSlaveDataList[Connection::ID_1]->setRegisterValue(3, 3);
 
     auto resultList = QList<bool>() << false << false << true;
     auto valueList = QList<double>() << 0 << 0 << 3;
@@ -160,8 +160,8 @@ void TestCommunication::unknownConnection()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(0, true);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(0, 2);
+    _testSlaveDataList[Connection::ID_1]->setRegisterState(0, true);
+    _testSlaveDataList[Connection::ID_1]->setRegisterValue(0, 2);
 
     auto resultList = QList<bool>() << false << true;
     auto valueList = QList<double>() << 0 << 2;
@@ -177,12 +177,12 @@ void TestCommunication::disabledConnection()
     auto exprList = QStringList() << "${40001@1}"
                                   << "${40001@2}";
 
-    _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_2, false);
+    _pSettingsModel->setConnectionState(Connection::ID_2, false);
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterState(0, true);
-    _testSlaveDataList[SettingsModel::CONNECTION_ID_1]->setRegisterValue(0, 5);
+    _testSlaveDataList[Connection::ID_1]->setRegisterState(0, true);
+    _testSlaveDataList[Connection::ID_1]->setRegisterValue(0, 5);
 
     auto resultList = QList<bool>() << true << false;
     auto valueList = QList<double>() << 5 << 0;
@@ -207,7 +207,7 @@ void TestCommunication::doHandleRegisterData(QList<QVariant>& actRawData)
 
     modbusPoll.startCommunication(registerList);
 
-    QVERIFY(spyDataReady.wait(static_cast<int>(_pSettingsModel->timeout(SettingsModel::CONNECTION_ID_1)) + 100));
+    QVERIFY(spyDataReady.wait(static_cast<int>(_pSettingsModel->timeout(Connection::ID_1)) + 100));
     QCOMPARE(spyDataReady.count(), 1);
 
     actRawData = spyDataReady.takeFirst();

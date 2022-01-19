@@ -68,7 +68,7 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
         _pReadRegisters->resetRead(registerList, _pSettingsModel->consecutiveMax(_connectionId));
 
         /* Open connection */
-        if (_pSettingsModel->connectionType(_connectionId) == SettingsModel::CONNECTION_TYPE_SERIAL)
+        if (_pSettingsModel->connectionType(_connectionId) == Connection::TYPE_SERIAL)
         {
             struct ModbusConnection::SerialSettings serialSettings =
             {

@@ -75,7 +75,7 @@ void TestUpdateNotify::versionEqual()
 
     QSignalSpy spyUpdateResult(&updateNotify, &UpdateNotify::updateCheckResult);
 
-    _pVersionDownloader->versionDownloaded();
+    emit _pVersionDownloader->versionDownloaded();
 
     QCOMPARE(spyUpdateResult.count(), 1);
 
@@ -109,7 +109,7 @@ void TestUpdateNotify::incorrectVersion()
 
     QSignalSpy spyUpdateResult(&updateNotify, &UpdateNotify::updateCheckResult);
 
-    _pVersionDownloader->versionDownloaded();
+    emit _pVersionDownloader->versionDownloaded();
 
     QCOMPARE(spyUpdateResult.count(), 0);
 }
@@ -122,7 +122,7 @@ void TestUpdateNotify::incorrectUrl()
 
     QSignalSpy spyUpdateResult(&updateNotify, &UpdateNotify::updateCheckResult);
 
-    _pVersionDownloader->versionDownloaded();
+    emit _pVersionDownloader->versionDownloaded();
 
     QCOMPARE(spyUpdateResult.count(), 0);
 }
@@ -148,7 +148,7 @@ void TestUpdateNotify::checkServerCheck(QString version, UpdateNotify::UpdateSta
 
     QSignalSpy spyUpdateResult(&updateNotify, &UpdateNotify::updateCheckResult);
 
-    _pVersionDownloader->versionDownloaded();
+    emit _pVersionDownloader->versionDownloaded();
 
     QCOMPARE(spyUpdateResult.count(), 1);
 

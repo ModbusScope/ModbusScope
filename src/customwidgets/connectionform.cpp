@@ -9,8 +9,8 @@ ConnectionForm::ConnectionForm(QWidget *parent) :
 {
     _pUi->setupUi(this);
 
-    _pUi->comboType->addItem("TCP", QVariant(SettingsModel::CONNECTION_TYPE_TCP));
-    _pUi->comboType->addItem("Serial", QVariant(SettingsModel::CONNECTION_TYPE_SERIAL));
+    _pUi->comboType->addItem("TCP", QVariant(Connection::TYPE_TCP));
+    _pUi->comboType->addItem("Serial", QVariant(Connection::TYPE_SERIAL));
     _pUi->comboType->setCurrentIndex(0);
     connect(_pUi->comboType, QOverload<const int>::of(&QComboBox::currentIndexChanged), this, &ConnectionForm::connTypeSelected);
 
@@ -83,7 +83,7 @@ void ConnectionForm::fillSettingsModel(SettingsModel* pSettingsModel, quint8 con
     pSettingsModel->setInt32LittleEndian(connectionId, _pUi->checkInt32LittleEndian->checkState() == Qt::Checked);
     pSettingsModel->setPersistentConnection(connectionId, _pUi->checkPersistentConn->checkState() == Qt::Checked);
 
-    pSettingsModel->setConnectionType(connectionId, static_cast<SettingsModel::ConnectionType_t>(_pUi->comboType->currentData().toUInt()));
+    pSettingsModel->setConnectionType(connectionId, static_cast<Connection::type_t>(_pUi->comboType->currentData().toUInt()));
 
     pSettingsModel->setIpAddress(connectionId, _pUi->lineIP->text());
     pSettingsModel->setPort(connectionId, _pUi->spinPort->value());
@@ -95,7 +95,7 @@ void ConnectionForm::fillSettingsModel(SettingsModel* pSettingsModel, quint8 con
     pSettingsModel->setStopbits(connectionId, static_cast<QSerialPort::StopBits>(_pUi->comboStopBits->currentData().toUInt()));
 }
 
-void ConnectionForm::setConnectionType(SettingsModel::ConnectionType_t connectionType)
+void ConnectionForm::setConnectionType(Connection::type_t connectionType)
 {
     int index = _pUi->comboType->findData(QVariant(connectionType));
     if (index != -1)
@@ -187,7 +187,7 @@ void ConnectionForm::connTypeSelected()
 
 void ConnectionForm::enableSpecificSettings()
 {
-    bool bTcp = static_cast<SettingsModel::ConnectionType_t>(_pUi->comboType->currentData().toUInt()) == SettingsModel::CONNECTION_TYPE_TCP;
+    bool bTcp = static_cast<Connection::type_t>(_pUi->comboType->currentData().toUInt()) == Connection::TYPE_TCP;
 
     _pUi->lineIP->setEnabled(bTcp);
     _pUi->spinPort->setEnabled(bTcp);

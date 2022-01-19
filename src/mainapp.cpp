@@ -63,7 +63,7 @@ void MainApp::logInitialInfo()
 
     qCInfo(scopeGeneralInfo) << QString("ModbusScope v%1").arg(Util::currentVersion());
 #ifdef DEBUG
-    qCInfo(scopeGeneralInfo) << QString("DEV git: %1:%2").arg(GIT_BRANCH).arg(GIT_COMMIT_HASH);
+    qCInfo(scopeGeneralInfo) << QString("DEV git: %1:%2").arg(GIT_BRANCH, GIT_COMMIT_HASH);
 #endif
 
     qCInfo(scopeGeneralInfo) << QString("Qt library v%1").arg(QLibraryInfo::version().toString());

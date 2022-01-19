@@ -13,6 +13,7 @@ ScopeLogging::ScopeLogging()
 {
     _minSeverityLevel = Diagnostic::LOG_INFO;
     _pDiagnosticModel = nullptr;
+    _logStartTime = 0;
 }
 
 void ScopeLogging::initLogging(DiagnosticModel* pDiagnosticModel)

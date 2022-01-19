@@ -89,57 +89,56 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pUi->actionToggleMarkers, &QAction::triggered, this, &MainWindow::toggleMarkersState);
     connect(_pUi->actionConnectionSettings, &QAction::triggered, this, &MainWindow::showConnectionDialog);
     connect(_pUi->actionLogSettings, &QAction::triggered, this, &MainWindow::showLogSettingsDialog);
-    connect(_pUi->actionRegisterSettings, SIGNAL(triggered()), this, SLOT(showRegisterDialog()));
+    connect(_pUi->actionRegisterSettings, &QAction::triggered, this, &MainWindow::handleShowRegisterDialog);
     connect(_pUi->actionAddNote, &QAction::triggered, this, &MainWindow::addNoteToGraph);
     connect(_pUi->actionZoom, &QAction::triggered, this, &MainWindow::toggleZoom); /* Only called on GUI click, not on setChecked */
 
     /*-- connect model to view --*/
-    connect(_pGuiModel, SIGNAL(frontGraphChanged()), this, SLOT(updateBringToFrontGrapMenu()));
-    connect(_pGuiModel, SIGNAL(frontGraphChanged()), _pGraphView, SLOT(bringToFront()));
-    connect(_pGuiModel, SIGNAL(highlightSamplesChanged()), this, SLOT(updateHighlightSampleMenu()));
-    connect(_pGuiModel, SIGNAL(highlightSamplesChanged()), _pGraphView, SLOT(enableSamplePoints()));
-    connect(_pGuiModel, SIGNAL(cursorValuesChanged()), _pGraphView, SLOT(updateTooltip()));
-    connect(_pGuiModel, SIGNAL(cursorValuesChanged()), _pLegend, SLOT(updateDataInLegend()));
+    connect(_pGuiModel, &GuiModel::frontGraphChanged, this, &MainWindow::updateBringToFrontGrapMenu);
+    connect(_pGuiModel, &GuiModel::frontGraphChanged, _pGraphView, &GraphView::bringToFront);
+    connect(_pGuiModel, &GuiModel::highlightSamplesChanged, this, &MainWindow::updateHighlightSampleMenu);
+    connect(_pGuiModel, &GuiModel::highlightSamplesChanged, _pGraphView, &GraphView::enableSamplePoints);
+    connect(_pGuiModel, &GuiModel::cursorValuesChanged, _pGraphView, &GraphView::updateTooltip);
+    connect(_pGuiModel, &GuiModel::cursorValuesChanged, _pLegend, &Legend::updateDataInLegend);
 
-    connect(_pGuiModel, SIGNAL(windowTitleChanged()), this, SLOT(updateWindowTitle()));
-    connect(_pGuiModel, SIGNAL(projectFilePathChanged()), this, SLOT(projectFileLoaded()));
-    connect(_pGuiModel, SIGNAL(guiStateChanged()), this, SLOT(updateGuiState()));
+    connect(_pGuiModel, &GuiModel::windowTitleChanged, this, &MainWindow::updateWindowTitle);
+    connect(_pGuiModel, &GuiModel::projectFilePathChanged, this, &MainWindow::projectFileLoaded);
+    connect(_pGuiModel, &GuiModel::guiStateChanged, this, &MainWindow::updateGuiState);
 
-    connect(_pGuiModel, SIGNAL(xAxisScalingChanged()), this, SLOT(updatexAxisSlidingMode()));
-    connect(_pGuiModel, SIGNAL(xAxisScalingChanged()), _pGraphView, SLOT(rescalePlot()));
-    connect(_pGuiModel, SIGNAL(xAxisSlidingIntervalChanged()), this, SLOT(updatexAxisSlidingInterval()));
-    connect(_pGuiModel, SIGNAL(xAxisSlidingIntervalChanged()), _pGraphView, SLOT(rescalePlot()));
+    connect(_pGuiModel, &GuiModel::xAxisScalingChanged, this, &MainWindow::updatexAxisSlidingMode);
+    connect(_pGuiModel, &GuiModel::xAxisScalingChanged, _pGraphView, &GraphView::rescalePlot);
+    connect(_pGuiModel, &GuiModel::xAxisSlidingIntervalChanged, this, &MainWindow::updatexAxisSlidingInterval);
+    connect(_pGuiModel, &GuiModel::xAxisSlidingIntervalChanged, _pGraphView, &GraphView::rescalePlot);
 
-    connect(_pGuiModel, SIGNAL(yAxisScalingChanged()), this, SLOT(updateyAxisSlidingMode()));
-    connect(_pGuiModel, SIGNAL(yAxisScalingChanged()), _pGraphView, SLOT(rescalePlot()));
-    connect(_pGuiModel, SIGNAL(yAxisMinMaxchanged()), this, SLOT(updateyAxisMinMax()));
-    connect(_pGuiModel, SIGNAL(yAxisMinMaxchanged()), _pGraphView, SLOT(rescalePlot()));
-    connect(_pGuiModel, SIGNAL(communicationStatsChanged()), this, SLOT(updateStats()));
-    connect(_pGuiModel, SIGNAL(markerStateChanged()), this, SLOT(updateMarkerDockVisibility()));
-    connect(_pGuiModel, SIGNAL(zoomStateChanged()), this, SLOT(handleZoomStateChanged()));
+    connect(_pGuiModel, &GuiModel::yAxisScalingChanged, this, &MainWindow::updateyAxisSlidingMode);
+    connect(_pGuiModel, &GuiModel::yAxisScalingChanged, _pGraphView, &GraphView::rescalePlot);
+    connect(_pGuiModel, &GuiModel::yAxisMinMaxchanged, this, &MainWindow::updateyAxisMinMax);
+    connect(_pGuiModel, &GuiModel::yAxisMinMaxchanged, _pGraphView, &GraphView::rescalePlot);
+    connect(_pGuiModel, &GuiModel::communicationStatsChanged, this, &MainWindow::updateStats);
+    connect(_pGuiModel, &GuiModel::markerStateChanged, this, &MainWindow::updateMarkerDockVisibility);
+    connect(_pGuiModel, &GuiModel::zoomStateChanged, this, &MainWindow::handleZoomStateChanged);
 
-    connect(_pGraphDataModel, SIGNAL(visibilityChanged(quint32)), this, SLOT(handleGraphVisibilityChange(quint32)));
-    connect(_pGraphDataModel, SIGNAL(visibilityChanged(quint32)), _pGraphView, SLOT(showGraph(quint32)));
-    connect(_pGraphDataModel, SIGNAL(graphsAddData(QList<double>, QList<QList<double> >)), _pGraphView, SLOT(addData(QList<double>, QList<QList<double> >)));
-    connect(_pGraphDataModel, SIGNAL(activeChanged(quint32)), this, SLOT(rebuildGraphMenu()));
-    connect(_pGraphDataModel, SIGNAL(activeChanged(quint32)), _pGraphView, SLOT(updateGraphs()));
-    connect(_pGraphDataModel, SIGNAL(colorChanged(quint32)), this, SLOT(handleGraphColorChange(quint32)));
-    connect(_pGraphDataModel, SIGNAL(colorChanged(quint32)), _pGraphView, SLOT(changeGraphColor(quint32)));
-    connect(_pGraphDataModel, SIGNAL(labelChanged(quint32)), this, SLOT(handleGraphLabelChange(quint32)));
-    connect(_pGraphDataModel, SIGNAL(labelChanged(quint32)), _pGraphView, SLOT(changeGraphLabel(quint32)));
+    connect(_pGraphDataModel, &GraphDataModel::visibilityChanged, this, &MainWindow::handleGraphVisibilityChange);
+    connect(_pGraphDataModel, &GraphDataModel::visibilityChanged, _pGraphView, &GraphView::showGraph);
+    connect(_pGraphDataModel, &GraphDataModel::graphsAddData, _pGraphView, &GraphView::addData);
+    connect(_pGraphDataModel, &GraphDataModel::activeChanged, this, &MainWindow::rebuildGraphMenu);
+    connect(_pGraphDataModel, &GraphDataModel::activeChanged, _pGraphView, &GraphView::updateGraphs);
+    connect(_pGraphDataModel, &GraphDataModel::colorChanged, this, &MainWindow::handleGraphColorChange);
+    connect(_pGraphDataModel, &GraphDataModel::colorChanged, _pGraphView, &GraphView::changeGraphColor);
+    connect(_pGraphDataModel, &GraphDataModel::labelChanged, this, &MainWindow::handleGraphLabelChange);
+    connect(_pGraphDataModel, &GraphDataModel::labelChanged, _pGraphView, &GraphView::changeGraphLabel);
 
-    connect(_pGraphDataModel, SIGNAL(added(quint32)), this, SLOT(rebuildGraphMenu()));
-    connect(_pGraphDataModel, SIGNAL(added(quint32)), _pGraphView, SLOT(updateGraphs()));
+    connect(_pGraphDataModel, &GraphDataModel::added, this, &MainWindow::rebuildGraphMenu);
+    connect(_pGraphDataModel, &GraphDataModel::added, _pGraphView, &GraphView::updateGraphs);
 
-    connect(_pGraphDataModel, SIGNAL(removed(quint32)), this, SLOT(rebuildGraphMenu()));
-    connect(_pGraphDataModel, SIGNAL(removed(quint32)), _pGraphView, SLOT(updateGraphs()));
+    connect(_pGraphDataModel, &GraphDataModel::removed, this, &MainWindow::rebuildGraphMenu);
+    connect(_pGraphDataModel, &GraphDataModel::removed, _pGraphView, &GraphView::updateGraphs);
 
-    connect(_pGraphDataModel, SIGNAL(expressionChanged(quint32)), _pGraphView, SLOT(clearGraph(quint32)));
+    connect(_pGraphDataModel, &GraphDataModel::expressionChanged, _pGraphView, &GraphView::clearGraph);
 
     // Update cursor values in legend
-    connect(_pGraphView, SIGNAL(cursorValueUpdate()), _pLegend, SLOT(updateDataInLegend()));
-
-    connect(_pGraphView, SIGNAL(dataAddedToPlot(double, QList<double>)), _pDataFileHandler, SLOT(exportDataLine(double, QList <double>)));
+    connect(_pGraphView, &GraphView::cursorValueUpdate, _pLegend, &Legend::updateDataInLegend);
+    connect(_pGraphView, &GraphView::dataAddedToPlot, _pDataFileHandler, &DataFileHandler::exportDataLine);
 
     _pGraphShowHide = _pUi->menuShowHide;
     _pGraphBringToFront = _pUi->menuBringToFront;
@@ -171,16 +170,16 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     this->setAcceptDrops(true);
 
     // For dock undock
-    connect(_pUi->scaleOptionsDock, SIGNAL(topLevelChanged(bool)), this, SLOT(scaleWidgetUndocked(bool)));
-    connect(_pUi->legendDock, SIGNAL(topLevelChanged(bool)), this, SLOT(legendWidgetUndocked(bool)));
+    connect(_pUi->scaleOptionsDock, &QDockWidget::topLevelChanged, this, &MainWindow::scaleWidgetUndocked);
+    connect(_pUi->legendDock, &QDockWidget::topLevelChanged, this, &MainWindow::legendWidgetUndocked);
 
     // For rightclick menu
     _pUi->customPlot->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(_pUi->customPlot, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
+    connect(_pUi->customPlot, &QCustomPlot::customContextMenuRequested, this, &MainWindow::showContextMenu);
 
-    connect(_pUi->spinSlidingXInterval, SIGNAL(valueChanged(int)), _pGuiModel, SLOT(setxAxisSlidingInterval(qint32)));
-    connect(_pUi->spinYMin, SIGNAL(valueChanged(int)), _pGuiModel, SLOT(setyAxisMin(qint32)));
-    connect(_pUi->spinYMax, SIGNAL(valueChanged(int)), _pGuiModel, SLOT(setyAxisMax(qint32)));
+    connect(_pUi->spinSlidingXInterval, QOverload<int>::of(&QSpinBox::valueChanged), _pGuiModel, &GuiModel::setxAxisSlidingInterval);
+    connect(_pUi->spinYMin, QOverload<int>::of(&QSpinBox::valueChanged), _pGuiModel, &GuiModel::setyAxisMin);
+    connect(_pUi->spinYMax, QOverload<int>::of(&QSpinBox::valueChanged), _pGuiModel, &GuiModel::setyAxisMax);
 
     //valueChanged is only send when done editing...
     _pUi->spinSlidingXInterval->setKeyboardTracking(false);
@@ -193,7 +192,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _pXAxisScaleGroup->addButton(_pUi->radioXFullScale, AxisMode::SCALE_AUTO);
     _pXAxisScaleGroup->addButton(_pUi->radioXSliding, AxisMode::SCALE_SLIDING);
     _pXAxisScaleGroup->addButton(_pUi->radioXManual, AxisMode::SCALE_MANUAL);
-    connect(_pXAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(xAxisScaleGroupClicked(int)));
+    connect(_pXAxisScaleGroup, &QButtonGroup::idClicked, this, &MainWindow::xAxisScaleGroupClicked);
 
     // Create button group for Y axis scaling options
     _pYAxisScaleGroup = new QButtonGroup();
@@ -202,13 +201,13 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _pYAxisScaleGroup->addButton(_pUi->radioYWindowScale, AxisMode::SCALE_WINDOW_AUTO);
     _pYAxisScaleGroup->addButton(_pUi->radioYMinMax, AxisMode::SCALE_MINMAX);
     _pYAxisScaleGroup->addButton(_pUi->radioYManual, AxisMode::SCALE_MANUAL);
-    connect(_pYAxisScaleGroup, SIGNAL(buttonClicked(int)), this, SLOT(yAxisScaleGroupClicked(int)));
+    connect(_pYAxisScaleGroup, &QButtonGroup::idClicked, this, &MainWindow::yAxisScaleGroupClicked);
 
     /* handle focus change */
-    connect(QApplication::instance(), SIGNAL(focusChanged(QWidget *, QWidget *)), this, SLOT(appFocusChanged(QWidget *, QWidget *)));
+    connect(dynamic_cast<QApplication*>(QApplication::instance()), &QApplication::focusChanged, this, &MainWindow::appFocusChanged);
 
     /* Update notes in data file when requested by notes model */
-    connect(_pNoteModel, SIGNAL(dataFileUpdateRequested()), this, SLOT(updateDataFileNotes()));
+    connect(_pNoteModel, &NoteModel::dataFileUpdateRequested, this, &MainWindow::updateDataFileNotes);
 
     /* Trigger update check */
     _pUi->actionUpdateAvailable->setVisible(false);
@@ -400,8 +399,9 @@ void MainWindow::showLogSettingsDialog()
     _pLogDialog->exec();
 }
 
-void MainWindow::showRegisterDialog()
+void MainWindow::handleShowRegisterDialog(bool checked)
 {
+    Q_UNUSED(checked);
     showRegisterDialog(QString(""));
 }
 
@@ -502,7 +502,7 @@ void MainWindow::startScope()
 
         _pGuiModel->setGuiState(GuiModel::STARTED);
 
-        _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
+        _runtimeTimer.singleShot(250, this, &MainWindow::updateRuntime);
 
         QList<ModbusRegister> registerList;
         _pGraphDataHandler->processActiveRegisters(_pGraphDataModel);
@@ -683,8 +683,8 @@ void MainWindow::rebuildGraphMenu()
         pBringToFront->setCheckable(true);
         pBringToFront->setActionGroup(_pBringToFrontGroup);
 
-        QObject::connect(pShowHideAction, SIGNAL(toggled(bool)), this, SLOT(menuShowHideGraphClicked(bool)));
-        QObject::connect(pBringToFront, SIGNAL(toggled(bool)), this, SLOT(menuBringToFrontGraphClicked(bool)));
+        QObject::connect(pShowHideAction, &QAction::toggled, this, &MainWindow::menuShowHideGraphClicked);
+        QObject::connect(pBringToFront, &QAction::toggled, this, &MainWindow::menuBringToFrontGraphClicked);
     }
 
     if (activeGraphList.size() > 0)
@@ -963,7 +963,7 @@ void MainWindow::dropEvent(QDropEvent *e)
     }
 }
 
-void MainWindow::appFocusChanged(QWidget * old, QWidget * now)
+void MainWindow::appFocusChanged(QWidget *old, QWidget *now)
 {
     Q_UNUSED(now);
     if (old != NULL)
@@ -1004,7 +1004,7 @@ void MainWindow::updateRuntime()
     // restart timer
     if (_pModbusPoll->isActive())
     {
-        _runtimeTimer.singleShot(250, this, SLOT(updateRuntime()));
+        _runtimeTimer.singleShot(250, this, &MainWindow::updateRuntime);
     }
 }
 

@@ -48,13 +48,13 @@ void ConnectionDialog::done(int r)
 {
     Q_UNUSED(r);
 
-    _pUi->connectionForm_1->fillSettingsModel(_pSettingsModel, SettingsModel::CONNECTION_ID_1);
+    _pUi->connectionForm_1->fillSettingsModel(_pSettingsModel, Connection::ID_1);
 
-    _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_2, _pUi->checkConn_2->checkState() == Qt::Checked);
-    _pUi->connectionForm_2->fillSettingsModel(_pSettingsModel, SettingsModel::CONNECTION_ID_2);
+    _pSettingsModel->setConnectionState(Connection::ID_2, _pUi->checkConn_2->checkState() == Qt::Checked);
+    _pUi->connectionForm_2->fillSettingsModel(_pSettingsModel, Connection::ID_2);
 
-    _pSettingsModel->setConnectionState(SettingsModel::CONNECTION_ID_3, _pUi->checkConn_3->checkState() == Qt::Checked);
-    _pUi->connectionForm_3->fillSettingsModel(_pSettingsModel, SettingsModel::CONNECTION_ID_3);
+    _pSettingsModel->setConnectionState(Connection::ID_3, _pUi->checkConn_3->checkState() == Qt::Checked);
+    _pUi->connectionForm_3->fillSettingsModel(_pSettingsModel, Connection::ID_3);
 
     QDialog::done(r);
 }
@@ -63,12 +63,12 @@ void ConnectionDialog::updateConnectionState(quint8 connectionId)
 {
     switch(connectionId)
     {
-    case SettingsModel::CONNECTION_ID_1:
+    case Connection::ID_1:
         break;
-    case SettingsModel::CONNECTION_ID_2:
+    case Connection::ID_2:
         _pUi->checkConn_2->setChecked(_pSettingsModel->connectionState(connectionId));
         break;
-    case SettingsModel::CONNECTION_ID_3:
+    case Connection::ID_3:
         _pUi->checkConn_3->setChecked(_pSettingsModel->connectionState(connectionId));
         break;
     default:
@@ -173,13 +173,13 @@ ConnectionForm* ConnectionDialog::connectionSettingsWidget(quint8 connectionId)
     ConnectionForm* retRef;
     switch(connectionId)
     {
-    case SettingsModel::CONNECTION_ID_1:
+    case Connection::ID_1:
         retRef = _pUi->connectionForm_1;
         break;
-    case SettingsModel::CONNECTION_ID_2:
+    case Connection::ID_2:
         retRef = _pUi->connectionForm_2;
         break;
-    case SettingsModel::CONNECTION_ID_3:
+    case Connection::ID_3:
         retRef = _pUi->connectionForm_3;
         break;
     default:

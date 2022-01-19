@@ -92,10 +92,10 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
         else
         {
             /* Default to connection 1 */
-            connectionId = SettingsModel::CONNECTION_ID_1;
+            connectionId = Connection::ID_1;
         }
 
-        if (connectionId < SettingsModel::CONNECTION_ID_CNT)
+        if (connectionId < Connection::ID_CNT)
         {
             _pSettingsModel->setConnectionState(connectionId, pProjectSettings->general.connectionSettings[idx].bConnectionState);
 
@@ -103,11 +103,11 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
                 && pProjectSettings->general.connectionSettings[idx].connectionType.toLower() == "serial"
                 )
             {
-                _pSettingsModel->setConnectionType(connectionId, SettingsModel::CONNECTION_TYPE_SERIAL);
+                _pSettingsModel->setConnectionType(connectionId, Connection::TYPE_SERIAL);
             }
             else
             {
-                _pSettingsModel->setConnectionType(connectionId, SettingsModel::CONNECTION_TYPE_TCP);
+                _pSettingsModel->setConnectionType(connectionId, Connection::TYPE_TCP);
             }
 
             if (pProjectSettings->general.connectionSettings[idx].bIp)
