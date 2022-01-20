@@ -31,11 +31,11 @@ private slots:
 private:
 
     void verifyRegisterResult(QList<ModbusRegister>& regList,
-                            QMap<quint16, Result> &regData,
+                            QMap<quint32, Result> &regData,
                             QList<Result> expResults);
 
-    void addToResultMap(QMap<quint16, Result> &resultMap,
-            quint16 addr,
+    void addToResultMap(QMap<quint32, Result> &resultMap,
+            quint32 addr,
             bool b32bit,
             qint64 value,
             bool result

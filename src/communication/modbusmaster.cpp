@@ -6,7 +6,7 @@
 
 #include <util.h>
 
-typedef QMap<quint16,Result> ModbusResultMap;
+typedef QMap<quint32,Result> ModbusResultMap;
 Q_DECLARE_METATYPE(ModbusResultMap);
 Q_DECLARE_METATYPE(Result);
 
@@ -15,7 +15,7 @@ ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, quint8 connectionId) 
 {
 
     qMetaTypeId<Result>();
-    qMetaTypeId<QMap<quint16, Result> >();
+    qMetaTypeId<QMap<quint32, Result> >();
 
     _pSettingsModel = pSettingsModel;
     _pModbusConnection = new ModbusConnection();
@@ -46,11 +46,11 @@ ModbusMaster::~ModbusMaster()
     delete _pReadRegisters;
 }
 
-void ModbusMaster::readRegisterList(QList<quint16> registerList)
+void ModbusMaster::readRegisterList(QList<quint32> registerList)
 {
     if (_pSettingsModel->connectionState(_connectionId) == false)
     {
-        QMap<quint16, Result> errMap;
+        QMap<quint32, Result> errMap;
 
         for (int i = 0; i < registerList.size(); i++)
         {
@@ -92,7 +92,7 @@ void ModbusMaster::readRegisterList(QList<quint16> registerList)
     }
     else
     {
-        QMap<quint16, Result> emptyResults;
+        QMap<quint32, Result> emptyResults;
         emit modbusPollDone(emptyResults, _connectionId);
     }
 }
@@ -122,7 +122,7 @@ void ModbusMaster::handlerConnectionError(QModbusDevice::Error error, QString ms
     finishRead(true);
 }
 
-void ModbusMaster::handleRequestSuccess(quint16 startRegister, QList<quint16> registerDataList)
+void ModbusMaster::handleRequestSuccess(quint32 startRegister, QList<quint16> registerDataList)
 {
     logInfo(QString("Read success"));
 
@@ -197,7 +197,7 @@ void ModbusMaster::handleTriggerNextRequest(void)
 
 void ModbusMaster::finishRead(bool bError)
 {
-    QMap<quint16, Result> results = _pReadRegisters->resultMap();
+    QMap<quint32, Result> results = _pReadRegisters->resultMap();
 
     logResults(results);
 
@@ -219,7 +219,7 @@ void ModbusMaster::finishRead(bool bError)
     }
 }
 
-QString ModbusMaster::dumpToString(QMap<quint16, Result> map)
+QString ModbusMaster::dumpToString(QMap<quint32, Result> map)
 {
     QString str;
     QDebug dStream(&str);
@@ -229,7 +229,7 @@ QString ModbusMaster::dumpToString(QMap<quint16, Result> map)
     return str;
 }
 
-QString ModbusMaster::dumpToString(QList<quint16> list)
+QString ModbusMaster::dumpToString(QList<quint32> list)
 {
     QString str;
     QDebug dStream(&str);
@@ -239,7 +239,7 @@ QString ModbusMaster::dumpToString(QList<quint16> list)
     return str;
 }
 
-void ModbusMaster::logResults(QMap<quint16, Result> &results)
+void ModbusMaster::logResults(QMap<quint32, Result> &results)
 {
     logInfo("Result map: " + dumpToString(results));
     emit modbusPollDone(results, _connectionId);

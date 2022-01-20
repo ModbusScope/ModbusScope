@@ -268,7 +268,7 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
             }
 
             /* Convert to data required for datalevel 3 */
-            if (pSettingData->address != 65535)
+            if (pSettingData->address != 0xFFFFFFFF)
             {
                 /* address tag was present */
                 QString convertedExpression;

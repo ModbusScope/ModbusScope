@@ -10,7 +10,7 @@ class MockGraphDataModel : public GraphDataModel {
     public:
         MockGraphDataModel() : GraphDataModel(new SettingsModel()) {}
 
-        MOCK_METHOD2(isPresent, bool(quint16 addr, QString* pExpression));
+        MOCK_METHOD2(isPresent, bool(quint32 addr, QString* pExpression));
 };
 
 #endif /* MOCKGRAPHDATAMODEL_H__ */

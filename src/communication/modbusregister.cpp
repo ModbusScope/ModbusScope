@@ -6,18 +6,18 @@ ModbusRegister::ModbusRegister()
 
 }
 
-ModbusRegister::ModbusRegister(quint16 address, quint8 connectionId, bool is32Bit, bool isUnsigned)
+ModbusRegister::ModbusRegister(quint32 address, quint8 connectionId, bool is32Bit, bool isUnsigned)
     : _address(address), _connectionId(connectionId), _b32Bit(is32Bit), _bUnsigned(isUnsigned)
 {
 
 }
 
-quint16 ModbusRegister::address() const
+quint32 ModbusRegister::address() const
 {
     return _address;
 }
 
-void ModbusRegister::setAddress(quint16 address)
+void ModbusRegister::setAddress(quint32 address)
 {
     _address = address;
 }

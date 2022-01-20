@@ -33,7 +33,7 @@ namespace UpdateRegisterNewExpression
         return suffix;
     }
 
-    QString constructRegisterString(quint16 registerAddress, bool is32bit, bool bUnsigned, quint8 connectionId)
+    QString constructRegisterString(quint32 registerAddress, bool is32bit, bool bUnsigned, quint8 connectionId)
     {
         QString suffix = UpdateRegisterNewExpression::typeSuffix(is32bit, bUnsigned);
         QString connStr = connectionId != 0 ? QString("@%1").arg(connectionId + 1) : QString();

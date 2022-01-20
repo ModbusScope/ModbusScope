@@ -103,7 +103,7 @@ void ModbusPoll::resetCommunicationStats()
     _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 }
 
-void ModbusPoll::handlePollDone(QMap<quint16, Result> partialResultMap, quint8 connectionId)
+void ModbusPoll::handlePollDone(QMap<quint32, Result> partialResultMap, quint8 connectionId)
 {
     bool lastResult = false;
 
@@ -198,11 +198,11 @@ void ModbusPoll::triggerRegisterRead()
 
         _activeMastersCount = 0;
 
-        QList<QList<quint16> > regAddrList;
+        QList<QList<quint32> > regAddrList;
 
         for (quint8 i = 0u; i < Connection::ID_CNT; i++)
         {
-            regAddrList.append(QList<quint16>());
+            regAddrList.append(QList<quint32>());
 
             _pRegisterValueHandler->registerAddresList(regAddrList.last(), i);
 

@@ -66,7 +66,7 @@ signals:
     void connectionSuccess(void);
     void connectionError(QModbusDevice::Error error, QString msg);
 
-    void readRequestSuccess(quint16 startRegister, QList<quint16> registerDataList);
+    void readRequestSuccess(quint32 startRegister, QList<quint16> registerDataList);
     void readRequestProtocolError(QModbusPdu::ExceptionCode exceptionCode);
     void readRequestError(QString errorString, QModbusDevice::Error error);
 

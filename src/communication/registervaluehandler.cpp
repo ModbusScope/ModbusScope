@@ -22,14 +22,14 @@ void RegisterValueHandler::finishRead()
     emit registerDataReady(_resultList);
 }
 
-void RegisterValueHandler::processPartialResult(QMap<quint16, Result> partialResultMap, quint8 connectionId)
+void RegisterValueHandler::processPartialResult(QMap<quint32, Result> partialResultMap, quint8 connectionId)
 {
-    QMapIterator<quint16, Result> i(partialResultMap);
+    QMapIterator<quint32, Result> i(partialResultMap);
     while (i.hasNext())
     {
         i.next();
 
-        for(quint16 listIdx = 0; listIdx < _registerList.size(); listIdx++)
+        for(qint32 listIdx = 0; listIdx < _registerList.size(); listIdx++)
         {
             const ModbusRegister mbReg = _registerList[listIdx];
 
@@ -38,7 +38,7 @@ void RegisterValueHandler::processPartialResult(QMap<quint16, Result> partialRes
                 if (mbReg.address() == i.key())
                 {
                     bool bSuccess = i.value().isSuccess();
-                    uint16_t value = static_cast<uint16_t>(i.value().value());
+                    quint16 value = static_cast<quint16>(i.value().value());
 
                     qint64 processedResult = 0;
                     if (bSuccess)
@@ -91,9 +91,9 @@ void RegisterValueHandler::processPartialResult(QMap<quint16, Result> partialRes
 }
 
 // Get sorted list of active (unique) register addresses for a specific connection id
-void RegisterValueHandler::registerAddresList(QList<quint16>& registerList, quint8 connectionId)
+void RegisterValueHandler::registerAddresList(QList<quint32>& registerList, quint8 connectionId)
 {
-    QList<quint16> connRegisterList;
+    QList<quint32> connRegisterList;
 
     foreach(ModbusRegister mbReg, _registerList)
     {
@@ -107,7 +107,7 @@ void RegisterValueHandler::registerAddresList(QList<quint16>& registerList, quin
             /* When reading 32 bit value, also read next address */
             if (mbReg.is32Bit())
             {
-                const uint16_t reg = mbReg.address() + 1;
+                const quint32 reg = mbReg.address() + 1;
                 if (!connRegisterList.contains(reg))
                 {
                     connRegisterList.append(reg);
@@ -127,7 +127,7 @@ void RegisterValueHandler::setRegisters(QList<ModbusRegister>& registerList)
     _registerList = registerList;
 }
 
-uint32_t RegisterValueHandler::convertEndianness(bool bLittleEndian, uint16_t value, uint16_t nextValue)
+uint32_t RegisterValueHandler::convertEndianness(bool bLittleEndian, quint16 value, quint16 nextValue)
 {
     uint32_t combinedValue;
     if (bLittleEndian)

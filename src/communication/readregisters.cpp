@@ -10,7 +10,7 @@ ReadRegisters::ReadRegisters()
  * \param registerList  Register read list
  * \param consecutiveMax Number of consecutive registers that is allowed to read at once
  */
-void ReadRegisters::resetRead(QList<quint16> registerList, quint16 consecutiveMax)
+void ReadRegisters::resetRead(QList<quint32> registerList, quint16 consecutiveMax)
 {
     _resultMap.clear();
 
@@ -109,7 +109,7 @@ ModbusReadItem ReadRegisters::next()
  * \param startRegister     Start register address
  * \param registerDataList  List with result data
  */
-void ReadRegisters::addSuccess(quint16 startRegister, QList<quint16> registerDataList)
+void ReadRegisters::addSuccess(quint32 startRegister, QList<quint16> registerDataList)
 {
     if (
         hasNext()
@@ -119,7 +119,7 @@ void ReadRegisters::addSuccess(quint16 startRegister, QList<quint16> registerDat
     {
         for (qint32 i = 0; i < registerDataList.size(); i++)
         {
-            const quint16 registerAddr = startRegister + static_cast<quint16>(i);
+            const quint32 registerAddr = startRegister + static_cast<quint32>(i);
             const Result result = Result(registerDataList[i], true);
 
             _resultMap.insert(registerAddr, result);
@@ -139,7 +139,7 @@ void ReadRegisters::addError()
         auto nextRequestData = next();
         for (quint32 i = 0; i < nextRequestData.count(); i++)
         {
-            const quint16 registerAddr = nextRequestData.address() + static_cast<quint16>(i);
+            const quint32 registerAddr = nextRequestData.address() + static_cast<quint32>(i);
             const Result result = Result(0, false);
 
             _resultMap.insert(registerAddr, result);
@@ -173,7 +173,7 @@ void ReadRegisters::splitNextToSingleReads()
 
         for(int idx = firstItem.count(); idx > 0; idx--)
         {
-            _readItemList.prepend(ModbusReadItem(static_cast<quint16>(firstItem.address()) + static_cast<quint16>(idx - 1), 1));
+            _readItemList.prepend(ModbusReadItem(firstItem.address() + static_cast<quint32>(idx - 1), 1));
         }
     }
 }
@@ -182,7 +182,7 @@ void ReadRegisters::splitNextToSingleReads()
  * Return result map
  * \return Result map
  */
-QMap<quint16, Result> ReadRegisters::resultMap()
+QMap<quint32, Result> ReadRegisters::resultMap()
 {
     return _resultMap;
 }

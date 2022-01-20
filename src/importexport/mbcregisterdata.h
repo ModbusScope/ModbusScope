@@ -8,13 +8,13 @@ class MbcRegisterData
 {
 public:
     explicit MbcRegisterData();
-    MbcRegisterData(quint16 registerAddress, bool bUnsigned, QString name, qint32 tabIdx, bool bUint32, bool bReadable, quint8 decimals);
+    MbcRegisterData(quint32 registerAddress, bool bUnsigned, QString name, qint32 tabIdx, bool bUint32, bool bReadable, quint8 decimals);
     ~MbcRegisterData();
 
     bool compare(MbcRegisterData* pMbcRegdata);
 
-    quint16 registerAddress() const;
-    void setRegisterAddress(const quint16 &registerAddress);
+    quint32 registerAddress() const;
+    void setRegisterAddress(const quint32 &registerAddress);
 
     bool isUnsigned() const;
     void setUnsigned(bool isUnsigned);
@@ -40,7 +40,7 @@ private:
 
     QString typeSuffix(bool is32bit, bool bUnsigned);
 
-    quint16 _registerAddress;
+    quint32 _registerAddress;
     bool _bUnsigned;
     QString _name;
     qint32 _tabIdx;

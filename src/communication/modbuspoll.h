@@ -44,7 +44,7 @@ signals:
     void registerDataReady(QList<Result> registers);
 
 private slots:
-    void handlePollDone(QMap<quint16, Result> resultMap, quint8 connectionId);
+    void handlePollDone(QMap<quint32, Result> resultMap, quint8 connectionId);
     void handleModbusError(QString msg);
     void handleModbusInfo(QString msg);
     void triggerRegisterRead();

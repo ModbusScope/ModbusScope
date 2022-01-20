@@ -128,7 +128,7 @@ bool ExpressionParser::parseAddress(QString strAddr, ModbusRegister& modbusReg)
     }
     else
     {
-        quint16 addr = static_cast<quint16>(strAddr.toUInt(&bRet));
+        quint32 addr = static_cast<quint32>(strAddr.toUInt(&bRet));
         if (bRet)
         {
             modbusReg.setAddress(addr);

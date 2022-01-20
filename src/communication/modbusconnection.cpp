@@ -258,7 +258,7 @@ void ModbusConnection::handleRequestFinished()
          {
              // Success
              QModbusDataUnit dataUnit = pReply->result();
-             emit readRequestSuccess(static_cast<quint16>(dataUnit.startAddress()) + 40001, dataUnit.values().toList());
+             emit readRequestSuccess(static_cast<quint32>(dataUnit.startAddress()) + 40001, dataUnit.values().toList());
          }
          else if (err == QModbusDevice::ProtocolError)
          {
