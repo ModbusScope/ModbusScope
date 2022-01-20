@@ -1,8 +1,9 @@
 #include "testslavedata.h"
 
-TestSlaveData::TestSlaveData(quint32 offset, quint32 registerCount) : QObject(nullptr)
+TestSlaveData::TestSlaveData(quint32 offset, quint32 registerCount)
+    : QObject(nullptr),
+      _offset(offset)
 {
-    _offset = offset;
     _registerList.clear();
     for(quint32 idx = 0u; idx < registerCount; idx++)
     {
