@@ -334,7 +334,7 @@ void GraphDataModel::add()
 {
     GraphData data;
 
-    quint16 registerAddr = 40001;
+    quint32 registerAddr = 40001;
     data.setLabel(QString("Register %1").arg(registerAddr));
     data.setExpression(QString("${%1}").arg(registerAddr));
 

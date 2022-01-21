@@ -21,6 +21,11 @@ bool TestSlaveModbus::connect(QUrl host, int slaveId)
     return connectDevice();
 }
 
+void TestSlaveModbus::disconnect()
+{
+    return disconnectDevice();
+}
+
 void TestSlaveModbus::setException(QModbusPdu::ExceptionCode exception, bool bPersistent)
 {
     _exceptionCode = exception;
@@ -122,7 +127,7 @@ bool TestSlaveModbus::verifyValidHoldingRegister(QModbusDataUnit const * dataUni
     if (
         dataUnit->isValid()
         && dataUnit->registerType() == QModbusDataUnit::HoldingRegisters
-        && ((dataUnit->valueCount() + static_cast<uint>(dataUnit->startAddress())) <= _pTestSlaveData->size())
+        && _pTestSlaveData->IsValidAddress(static_cast<quint32>(dataUnit->startAddress()), static_cast<quint32>(dataUnit->valueCount()))
         )
     {
         return true;

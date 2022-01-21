@@ -34,7 +34,7 @@ private slots:
 
 private:
 
-    void verifyAndAddErrorResult(ReadRegisters * pReadRegister, quint16 addr, quint16 cnt);
+    void verifyAndAddErrorResult(ReadRegisters * pReadRegister, quint32 addr, quint16 cnt);
 
 };
 

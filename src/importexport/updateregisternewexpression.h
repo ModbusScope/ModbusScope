@@ -8,7 +8,7 @@
 namespace UpdateRegisterNewExpression
 {
     QString typeSuffix(bool is32bit, bool bUnsigned);
-    QString constructRegisterString(quint16 registerAddress, bool is32bit, bool bUnsigned, quint8 connectionId);
+    QString constructRegisterString(quint32 registerAddress, bool is32bit, bool bUnsigned, quint8 connectionId);
     void convert(ProjectFileData::RegisterSettings& regSettings, QString& resultExpr);
 }
 

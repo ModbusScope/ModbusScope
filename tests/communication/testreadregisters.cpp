@@ -15,7 +15,7 @@ void TestReadRegisters::cleanup()
 
 }
 
-void TestReadRegisters::verifyAndAddErrorResult(ReadRegisters * pReadRegister, quint16 addr, quint16 cnt)
+void TestReadRegisters::verifyAndAddErrorResult(ReadRegisters * pReadRegister, quint32 addr, quint16 cnt)
 {
     QVERIFY(pReadRegister->hasNext());
     QCOMPARE(pReadRegister->next().address(), addr);
@@ -27,7 +27,7 @@ void TestReadRegisters::verifyAndAddErrorResult(ReadRegisters * pReadRegister, q
 void TestReadRegisters::resetRead_1()
 {
     ReadRegisters readRegister;
-    QList<quint16> registerList = QList<quint16>() << 0;
+    QList<quint32> registerList = QList<quint32>() << 0;
 
     readRegister.resetRead(registerList, 255);
 
@@ -39,7 +39,7 @@ void TestReadRegisters::resetRead_1()
 void TestReadRegisters::resetRead_2()
 {
     ReadRegisters readRegister;
-    QList<quint16> registerList = QList<quint16>() << 0 << 1 << 2 << 3;
+    QList<quint32> registerList = QList<quint32>() << 0 << 1 << 2 << 3;
 
     readRegister.resetRead(registerList, 255);
 
@@ -51,7 +51,7 @@ void TestReadRegisters::resetRead_2()
 void TestReadRegisters::resetReadSplit_1()
 {
     ReadRegisters readRegister;
-    QList<quint16> registerList = QList<quint16>() << 0 << 1 << 3 << 5 << 6 << 8;
+    QList<quint32> registerList = QList<quint32>() << 0 << 1 << 3 << 5 << 6 << 8;
 
     readRegister.resetRead(registerList, 255);
 
@@ -66,7 +66,7 @@ void TestReadRegisters::resetReadSplit_1()
 void TestReadRegisters::resetReadSplit_2()
 {
     ReadRegisters readRegister;
-    QList<quint16> registerList = QList<quint16>() << 0 << 3;
+    QList<quint32> registerList = QList<quint32>() << 0 << 3;
 
     readRegister.resetRead(registerList, 255);
 
@@ -80,7 +80,7 @@ void TestReadRegisters::resetReadSplit_2()
 void TestReadRegisters::consecutive_1()
 {
     ReadRegisters readRegister;
-    QList<quint16> registerList = QList<quint16>() << 0 << 1 << 2 << 3 << 4 << 5;
+    QList<quint32> registerList = QList<quint32>() << 0 << 1 << 2 << 3 << 4 << 5;
 
     readRegister.resetRead(registerList, 3);
 
@@ -93,7 +93,7 @@ void TestReadRegisters::consecutive_1()
 void TestReadRegisters::consecutive_2()
 {
     ReadRegisters readRegister;
-    QList<quint16> registerList = QList<quint16>() << 0 << 1;
+    QList<quint32> registerList = QList<quint32>() << 0 << 1;
 
     readRegister.resetRead(registerList, 5);
 
@@ -105,7 +105,7 @@ void TestReadRegisters::consecutive_2()
 void TestReadRegisters::consecutive_3()
 {
     ReadRegisters readRegister;
-    QList<quint16> registerList = QList<quint16>() << 0 << 1 << 2;
+    QList<quint32> registerList = QList<quint32>() << 0 << 1 << 2;
 
     readRegister.resetRead(registerList, 2);
 
@@ -118,7 +118,7 @@ void TestReadRegisters::consecutive_3()
 void TestReadRegisters::splitNextToSingleReads_1()
 {
     ReadRegisters readRegister;
-    QList<quint16> registerList = QList<quint16>() << 0;
+    QList<quint32> registerList = QList<quint32>() << 0;
 
     readRegister.resetRead(registerList, 2);
 
@@ -136,7 +136,7 @@ void TestReadRegisters::splitNextToSingleReads_1()
 void TestReadRegisters::splitNextToSingleReads_2()
 {
     ReadRegisters readRegister;
-    QList<quint16> registerList = QList<quint16>() << 0 << 1 << 2;
+    QList<quint32> registerList = QList<quint32>() << 0 << 1 << 2;
 
     readRegister.resetRead(registerList, 100);
 
@@ -156,7 +156,7 @@ void TestReadRegisters::splitNextToSingleReads_2()
 void TestReadRegisters::splitNextToSingleReads_3()
 {
     ReadRegisters readRegister;
-    QList<quint16> registerList = QList<quint16>() << 0 << 1 << 2 << 5 << 6;
+    QList<quint32> registerList = QList<quint32>() << 0 << 1 << 2 << 5 << 6;
 
     readRegister.resetRead(registerList, 100);
 
@@ -178,7 +178,7 @@ void TestReadRegisters::splitNextToSingleReads_3()
 void TestReadRegisters::addAllErrors()
 {
     ReadRegisters readRegister;
-    QList<quint16> registerList = QList<quint16>() << 0 << 1 << 2 << 5 << 6 << 7;
+    QList<quint32> registerList = QList<quint32>() << 0 << 1 << 2 << 5 << 6 << 7;
 
     readRegister.resetRead(registerList, 100);
 
@@ -186,7 +186,7 @@ void TestReadRegisters::addAllErrors()
 
     QVERIFY(!readRegister.hasNext());
 
-    QMap<quint16, Result> resultMap = readRegister.resultMap();
+    QMap<quint32, Result> resultMap = readRegister.resultMap();
 
     QCOMPARE(resultMap.size(), registerList.size());
 
@@ -200,7 +200,7 @@ void TestReadRegisters::addAllErrors()
 void TestReadRegisters::addSuccess()
 {
     ReadRegisters readRegister;
-    QList<quint16> registerList = QList<quint16>() << 0 << 1 << 2 << 5 << 6 << 8;
+    QList<quint32> registerList = QList<quint32>() << 0 << 1 << 2 << 5 << 6 << 8;
 
     readRegister.resetRead(registerList, 100);
 
@@ -224,7 +224,7 @@ void TestReadRegisters::addSuccess()
 
     QVERIFY(!readRegister.hasNext());
 
-    QMap<quint16, Result> resultMap = readRegister.resultMap();
+    QMap<quint32, Result> resultMap = readRegister.resultMap();
 
     QCOMPARE(resultMap.size(), registerList.size());
 
@@ -239,7 +239,7 @@ void TestReadRegisters::addSuccess()
 void TestReadRegisters::addSuccessAndErrors()
 {
     ReadRegisters readRegister;
-    QList<quint16> registerList = QList<quint16>() << 0 << 1 << 5 << 8;
+    QList<quint32> registerList = QList<quint32>() << 0 << 1 << 5 << 8;
 
     readRegister.resetRead(registerList, 100);
 
@@ -263,7 +263,7 @@ void TestReadRegisters::addSuccessAndErrors()
 
     QVERIFY(!readRegister.hasNext());
 
-    QMap<quint16, Result> resultMap = readRegister.resultMap();
+    QMap<quint32, Result> resultMap = readRegister.resultMap();
 
     QCOMPARE(resultMap.size(), registerList.size());
 

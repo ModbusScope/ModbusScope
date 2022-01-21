@@ -457,7 +457,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
     {
         if (child.tagName() == ProjectFileDefinitions::cAddressTag)
         {
-            pRegisterSettings->address = static_cast<quint16>(child.text().toUInt(&bRet));
+            pRegisterSettings->address = static_cast<quint32>(child.text().toUInt(&bRet));
             if (!bRet)
             {
                 Util::showError(tr("Address ( %1 ) is not a valid number").arg(child.text()));

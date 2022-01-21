@@ -10,6 +10,8 @@ In the below dialog Modbus registers can be added either manually or by importin
 
 When the registers are added, they can be adjusted. Such as updating the name and changing to a specific color. An expression can be used to update the value before the data is added to the graph (and log). This calculations can be used to transform the values from a device to a format that is more clear for the user. It is also possible to select a specific connection on which the value is polled. 
 
+The Modbus standard defines the range for the holding register as 40001 to 49999. But the offset 40001 is removed in the data that will be send in the packet. Since the field for the address is 16-bit, the actual possible range is 40001 to 105536. ModbusScope supports the full range to support as many devices as possible.
+
 > **NOTE**: The number of registers that are polled significantly impacts the sample rate. For higher resolution in time, reduce the number of registers that are actively polled or make sure the register are in subsequent addresses so they can be polled in one packet.
 
 ![image](../_static/user_manual/register_settings_dialog_with_registers.png)

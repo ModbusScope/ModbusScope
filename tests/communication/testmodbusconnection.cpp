@@ -145,7 +145,7 @@ void TestModbusConnection::readRequestSuccess()
 
 
     /* Check start address */
-    QCOMPARE(arguments.first().toInt(), 40001);
+    QCOMPARE(arguments.first().toUInt(), 40001);
 
     /* Check result */
     QVERIFY((arguments[1].canConvert<QList<quint16> >()));

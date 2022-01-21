@@ -18,7 +18,7 @@ MbcRegisterData::~MbcRegisterData()
 
 }
 
-MbcRegisterData::MbcRegisterData(quint16 registerAddress, bool bUnsigned, QString name, qint32 tabIdx, bool bUint32, bool bReadable, quint8 decimals)
+MbcRegisterData::MbcRegisterData(quint32 registerAddress, bool bUnsigned, QString name, qint32 tabIdx, bool bUint32, bool bReadable, quint8 decimals)
 {
     _registerAddress = registerAddress;
     _bUnsigned = bUnsigned;
@@ -71,12 +71,12 @@ bool MbcRegisterData::compare(MbcRegisterData* pMbcRegdata)
     return bRet;
 }
 
-quint16 MbcRegisterData::registerAddress() const
+quint32 MbcRegisterData::registerAddress() const
 {
     return _registerAddress;
 }
 
-void MbcRegisterData::setRegisterAddress(const quint16 &registerAddress)
+void MbcRegisterData::setRegisterAddress(const quint32 &registerAddress)
 {
     _registerAddress = registerAddress;
 }

@@ -198,7 +198,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
             {
                 if (_nextRegisterAddr > 0)
                 {
-                    modbusRegister.setRegisterAddress(static_cast<quint16>(_nextRegisterAddr));
+                    modbusRegister.setRegisterAddress(_nextRegisterAddr);
                 }
                 else
                 {
@@ -207,7 +207,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
             }
             else
             {
-                modbusRegister.setRegisterAddress(static_cast<quint16>(addr.toUInt(&bRet)));
+                modbusRegister.setRegisterAddress(static_cast<quint32>(addr.toUInt(&bRet)));
             }
         }
 

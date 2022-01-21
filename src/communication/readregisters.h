@@ -8,17 +8,17 @@
 class ModbusReadItem
 {
 public:
-    ModbusReadItem(quint16 address, quint8 count)
+    ModbusReadItem(quint32 address, quint8 count)
     {
         _address = address;
         _count = count;
     }
 
-    quint16 address(void) { return _address; }
-    quint16 count(void) { return _count; }
+    quint32 address(void) { return _address; }
+    quint8 count(void) { return _count; }
 
 private:
-   quint16 _address;
+   quint32 _address;
    quint8 _count;
 
 };
@@ -29,24 +29,24 @@ class ReadRegisters
 public:
     ReadRegisters();
 
-    void resetRead(QList<quint16> registerList, quint16 consecutiveMax);
+    void resetRead(QList<quint32> registerList, quint16 consecutiveMax);
 
     bool hasNext();
     ModbusReadItem next();
 
-    void addSuccess(quint16 startRegister, QList<quint16> registerDataList);
+    void addSuccess(quint32 startRegister, QList<quint16> registerDataList);
     void addError();
     void addAllErrors();
     void splitNextToSingleReads();
 
-    QMap<quint16, Result> resultMap();
+    QMap<quint32, Result> resultMap();
 
 private:
 
 
     QList<ModbusReadItem> _readItemList;
 
-    QMap<quint16, Result> _resultMap;
+    QMap<quint32, Result> _resultMap;
 
 };
 

@@ -9,10 +9,10 @@ class TestSlaveData : public QObject
 {
     Q_OBJECT
 public:
-    explicit TestSlaveData(quint32 registerCount = 50);
+    explicit TestSlaveData(quint32 offset = 0, quint32 registerCount = 50);
     ~TestSlaveData();
 
-    uint size();
+    bool IsValidAddress(quint32 startAddress, quint32 valueCount);
 
     void setRegisterState(uint registerAddress, bool bState);
     void setRegisterState(QList<uint> registerAddressList, bool bState);
@@ -36,6 +36,8 @@ private:
     } registerData_t;
 
     QList<registerData_t> _registerList;
+
+    quint32 _offset;
 
 };
 
