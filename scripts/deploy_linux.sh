@@ -15,6 +15,7 @@ wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/cont
 chmod +x linuxdeploy*.AppImage
 
 # Generate AppImage
+export APPIMAGE_EXTRACT_AND_RUN=1 # Workaround because FUSE isn't available in Docker
 ./linuxdeploy-x86_64.AppImage --appdir AppDir -e modbusscope -i ModbusScope.png -d ModbusScope.desktop --plugin qt --output appimage
 
 ls

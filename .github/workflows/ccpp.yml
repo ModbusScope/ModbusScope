@@ -7,19 +7,11 @@ jobs:
 
   linux:
     runs-on: ubuntu-20.04
-    
+    container: docker://jgeudens/qt-linux
     steps:
       - uses: actions/checkout@v1
         with:
           submodules: true
-
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v2
-        with:
-          version: 5.15.2
-
-      - name: Install toolchain dependencies
-        run: sudo apt-get install ninja-build
 
       - name: Update Modules and Build
         run: sh scripts/build_linux.sh
