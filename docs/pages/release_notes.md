@@ -2,6 +2,10 @@
 
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/jgeudens/ModbusScope/releases).
 
+## v3.4.0 (unreleased)
+
+* Allow full 16-bit addressing of holding registers ([Github #181](https://github.com/jgeudens/ModbusScope/issues/181))
+
 ## [v3.3.1](https://github.com/jgeudens/ModbusScope/releases/tag/3.3.1) (23/12/2021)
 
 * Select next register row after deletion in register dialog
