@@ -24,9 +24,11 @@ ninja
 ## Build doc
 
 ### System wide install
+```bash
 sudo apt install python3-sphinx
 sudo apt install python3-recommonmark
 sudo apt install python3-sphinx-rtd-theme
+```
 
 ### in repo: using venv and requirements file
 
@@ -49,24 +51,36 @@ sudo apt install texlive-latex-extra
 
 make latexpdf
 
-## Build/deploy on Windows
+## Github Actions
+
+Github action to install Qt (https://github.com/marketplace/actions/install-qt). It uses https://github.com/miurahr/aqtinstall underneath.
+
+Install extra tools (OpenSSL, MinGW):
+ * Install aqtinstall and use list options
+ * Retrieve info from Qt download server: https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/tools_mingw/qt.tools.win64_mingw810/8.1.0-1-202004170606x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z
+
+Action adds environment variable with path to Tools folder (`IQTA_TOOLS`)
+Caution: Uses slash for directory separator, so use quotes `"` in CMD
+
+
+## Build/deploy on Windows (local)
 
 * Add tool directories to `PATH`
   * Build
+      ```
+      set PATH=C:\Qt\Tools\mingw810_64\bin;%PATH%
+      set PATH=C:\Qt\Tools\Ninja;%PATH%
+      set PATH=C:\Qt\Tools\CMake_64\bin;%PATH%
+      ```
 
-```
-set PATH=C:\Qt\Tools\mingw810_64\bin;%PATH%
-set PATH=C:\Qt\Tools\Ninja;%PATH%
-set PATH=C:\Qt\Tools\CMake_64\bin;%PATH%
-```
+  * Deploy
 
-* Deploy
+    ```
+    set PATH=C:\Qt\Tools\mingw810_64\bin;%PATH%
+    set PATH=C:\Qt\5.15.2\mingw81_64\bin;%PATH%
+    set PATH=C:\Program Files\7-Zip;%PATH%
+    ```
 
-  ```
-  set PATH=C:\Qt\5.15.2\mingw81_64\bin;%PATH%
-  set PATH=C:\Program Files\7-Zip;%PATH%
-  ```
+* Run `scripts/build_windows.bat` to build
 
-* Run `scripts/build_windows.h` to build
-
-* Run `scripts/deploy_windows.h` to create deploy files
+* Run `scripts/deploy_windows.bat` to create deploy files
