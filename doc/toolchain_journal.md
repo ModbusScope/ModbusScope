@@ -30,57 +30,76 @@ sudo apt install python3-recommonmark
 sudo apt install python3-sphinx-rtd-theme
 ```
 
-### in repo: using venv and requirements file
+### In repo: using venv and requirements file
 
 #### Create/start venv
 
+```
 python3 create_venv.py
 
 [Windows] venv/bin/activate
 [Linux]   source venv/bin/activate
+```
 
 #### html
 
+```
 make html
+```
 
 #### pdf
 
+```
 sudo apt install latexmk
 sudo apt install texlive-latex-recommended
 sudo apt install texlive-latex-extra
 
 make latexpdf
+```
 
-## Github Actions
+## Build/deploy scripts
 
-Github action to install Qt (https://github.com/marketplace/actions/install-qt). It uses https://github.com/miurahr/aqtinstall underneath.
+### aqtinstall
 
-Install extra tools (OpenSSL, MinGW):
- * Install aqtinstall and use list options
- * Retrieve info from Qt download server: https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/tools_mingw/qt.tools.win64_mingw810/8.1.0-1-202004170606x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z
+* Sources:
+  * https://github.com/miurahr/aqtinstall
+  * https://aqtinstall.readthedocs.io/en/stable/
 
-Action adds environment variable with path to Tools folder (`IQTA_TOOLS`)
-Caution: Uses slash for directory separator, so use quotes `"` in CMD
+* List Qt versions (mingw)
 
-
-## Build/deploy on Windows (local)
-
-* Add tool directories to `PATH`
-  * Build
-      ```
-      set PATH=C:\Qt\Tools\mingw810_64\bin;%PATH%
-      set PATH=C:\Qt\Tools\Ninja;%PATH%
-      set PATH=C:\Qt\Tools\CMake_64\bin;%PATH%
-      ```
-
-  * Deploy
-
-    ```
-    set PATH=C:\Qt\Tools\mingw810_64\bin;%PATH%
-    set PATH=C:\Qt\5.15.2\mingw81_64\bin;%PATH%
-    set PATH=C:\Program Files\7-Zip;%PATH%
+  * ```
+    aqt list-qt windows desktop
     ```
 
-* Run `scripts/build_windows.bat` to build
+* List Qt arch for specific Qt versions
 
-* Run `scripts/deploy_windows.bat` to create deploy files
+  * ```
+    aqt list-qt windows desktop --arch 6.2.0
+    ```
+
+* List tools
+
+  * ```
+    aqt list-tool windows desktop
+    ```
+
+* List compilers
+
+  * ```
+    aqt list-tool windows desktop tools_mingw
+    ```
+
+### Linux (Docker env)
+
+Track down missing dependencies when error shows libqxcb.so
+
+```
+ldd /opt/qt/5.15.2/gcc_64/plugins/platforms/libqxcb.so  | grep "not found"
+```
+
+### Windows
+
+* Dependencies for aqtinstall
+  * Visual Studio C++ 14: Download from https://visualstudio.microsoft.com/visual-cpp-build-tools/
+  * pip needs to be upgraded to latest version
+* Install aqtinstall: `pip3 install aqtinstall`
