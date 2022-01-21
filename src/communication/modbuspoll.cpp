@@ -226,7 +226,7 @@ void ModbusPoll::triggerRegisterRead()
 
         if (_activeMastersCount == 0)
         {
-            QMap<quint16, Result> emptyResultMap;
+            QMap<quint32, Result> emptyResultMap;
             handlePollDone(emptyResultMap, Connection::ID_1);
         }
     }
