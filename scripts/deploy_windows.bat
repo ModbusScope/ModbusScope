@@ -2,6 +2,8 @@ echo on
 
 echo "Deploy ModbusScope ..."
 
+g++ -v
+
 cd release\src\bin\win
 IF ERRORLEVEL 1 GOTO errorHandling
 
