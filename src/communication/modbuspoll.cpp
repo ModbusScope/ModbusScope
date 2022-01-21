@@ -117,7 +117,7 @@ void ModbusPoll::handlePollDone(QMap<quint16, Result> partialResultMap, quint8 c
     }
 
     /* Last active modbus master has returned its result */
-    if (activeCnt == 1)
+    if (activeCnt == 1 || activeCnt == 0)
     {
         /* Last result */
         lastResult = true;
@@ -127,7 +127,10 @@ void ModbusPoll::handlePollDone(QMap<quint16, Result> partialResultMap, quint8 c
     _pRegisterValueHandler->processPartialResult(partialResultMap, connectionId);
 
     // Set master as inactive
-    _modbusMasters[connectionId]->bActive = false;
+    if (connectionId < Connection::ID_CNT)
+    {
+        _modbusMasters[connectionId]->bActive = false;
+    }
 
     if (lastResult)
     {
@@ -219,6 +222,12 @@ void ModbusPoll::triggerRegisterRead()
                 _modbusMasters[i]->bActive = true;
                 _modbusMasters[i]->pModbusMaster->readRegisterList(regAddrList.at(i));
             }
+        }
+
+        if (_activeMastersCount == 0)
+        {
+            QMap<quint16, Result> emptyResultMap;
+            handlePollDone(emptyResultMap, Connection::ID_1);
         }
     }
 }

@@ -122,6 +122,26 @@ void TestModbusPoll::singleSlaveFail()
     verifyReceivedDataSignal(arguments, expResults);
 }
 
+void TestModbusPoll::singleOnlyConstantDataPoll()
+{
+    ModbusPoll modbusPoll(_pSettingsModel);
+    QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
+
+    auto modbusRegisters = QList<ModbusRegister>(); /* No registers to poll */
+
+    /*-- Start communication --*/
+    modbusPoll.startCommunication(modbusRegisters);
+
+    QVERIFY(spyDataReady.wait(50));
+    QCOMPARE(spyDataReady.count(), 1);
+
+    QList<QVariant> arguments = spyDataReady.takeFirst();
+    auto expResults = QList<Result>();
+
+    /* Verify arguments of signal */
+    verifyReceivedDataSignal(arguments, expResults);
+}
+
 void TestModbusPoll::multiSlaveSuccess()
 {
     _testSlaveDataList[Connection::ID_1]->setRegisterState(0, true);

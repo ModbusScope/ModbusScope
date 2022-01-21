@@ -95,6 +95,20 @@ void TestCommunication::singleSlaveSuccess()
     CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
 }
 
+void TestCommunication::constantExpression()
+{
+    auto exprList = QStringList() << "3";
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    auto resultList = QList<bool>() << true;
+    auto valueList = QList<double>() << 3;
+
+    QList<QVariant> rawRegData;
+    doHandleRegisterData(rawRegData);
+
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
+}
+
 void TestCommunication::mixed_1()
 {
     auto exprList = QStringList() << "${40002@2} + ${40003}"
