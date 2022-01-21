@@ -18,6 +18,7 @@ private slots:
 
     void singleSlaveSuccess();
     void singleSlaveFail();
+    void singleOnlyConstantDataPoll();
 
     void multiSlaveSuccess();
     void multiSlaveSuccess_2();

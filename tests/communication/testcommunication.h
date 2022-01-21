@@ -18,6 +18,7 @@ private slots:
     void cleanup();
 
     void singleSlaveSuccess();
+    void constantExpression();
 
     void mixed_1();
     void mixed_fail();
