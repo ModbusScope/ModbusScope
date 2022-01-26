@@ -1,18 +1,10 @@
 
-find_package(Qt5 COMPONENTS
-    Test
-
-    REQUIRED
-)
-
 SET(TEST_DATA_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/mbctestdata.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/csvdata.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/presetfiletestdata.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/projectfiletestdata.cpp
 )
-
-enable_testing()
 
 add_executable(tst_datafileparser ${CMAKE_CURRENT_SOURCE_DIR}/testdatafileparser.cpp ${TEST_DATA_SRCS})
 add_executable(tst_mbcfileimporter ${CMAKE_CURRENT_SOURCE_DIR}/testmbcfileimporter.cpp ${TEST_DATA_SRCS})
@@ -39,54 +31,54 @@ add_test(NAME tst_updateregisternewexpression COMMAND tst_updateregisternewexpre
 target_link_libraries(tst_datafileparser PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
 )
 
 target_link_libraries(tst_mbcfileimporter PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
 )
 
 target_link_libraries(tst_mbcregisterfilter PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
 )
 
 target_link_libraries(tst_presethandler PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
     Threads::Threads
 )
 
 target_link_libraries(tst_presetparser PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
 )
 
 target_link_libraries(tst_projectfileparser PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
 )
 
 target_link_libraries(tst_settingsauto PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
 )
 
 target_link_libraries(tst_updateregisteroperations PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
 )
 
 target_link_libraries(tst_updateregisternewexpression PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
 )

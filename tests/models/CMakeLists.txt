@@ -1,11 +1,4 @@
 
-find_package(Qt5 COMPONENTS
-    Test
-
-    REQUIRED
-)
-
-enable_testing()
 
 add_executable(tst_diagnostic ${CMAKE_CURRENT_SOURCE_DIR}/testdiagnostic.cpp ${TEST_SRCS})
 add_executable(tst_diagnosticmodel ${CMAKE_CURRENT_SOURCE_DIR}/testdiagnosticmodel.cpp ${TEST_SRCS})
@@ -20,24 +13,24 @@ add_test(NAME tst_mbcregistermodel COMMAND tst_mbcregistermodel)
 target_link_libraries(tst_diagnostic  PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
 )
 
 target_link_libraries(tst_diagnosticmodel  PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
 )
 
 target_link_libraries(tst_graphdata  PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
 )
 
 target_link_libraries(tst_mbcregistermodel  PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
     Threads::Threads
 )

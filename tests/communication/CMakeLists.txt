@@ -1,10 +1,4 @@
 
-find_package(Qt5 COMPONENTS
-    Test
-
-    REQUIRED
-)
-
 SET(TEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/../testslave/testslavedata.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../testslave/testslavemodbus.cpp
@@ -13,8 +7,6 @@ SET(TEST_SRCS
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../testslave
 )
-
-enable_testing()
 
 add_executable(tst_modbuspoll ${CMAKE_CURRENT_SOURCE_DIR}/testmodbuspoll.cpp ${TEST_SRCS})
 add_executable(tst_communication ${CMAKE_CURRENT_SOURCE_DIR}/testcommunication.cpp ${TEST_SRCS})
@@ -37,47 +29,47 @@ add_test(NAME tst_expressionparser COMMAND tst_expressionparser)
 target_link_libraries(tst_modbuspoll PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
 )
 
 target_link_libraries(tst_communication PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
 )
 
 target_link_libraries(tst_graphdatahandler PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
 )
 
 target_link_libraries(tst_modbusconnection PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
 )
 
 target_link_libraries(tst_modbusmaster PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
 )
 
 target_link_libraries(tst_registervaluehandler PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
 )
 
 target_link_libraries(tst_readregisters PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
 )
 
 target_link_libraries(tst_expressionparser PRIVATE
     ${SCOPESOURCE}
     ${QT_LIB}
-    Qt5::Test
+    Qt::Test
 )

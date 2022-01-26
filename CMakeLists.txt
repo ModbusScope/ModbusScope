@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
 
 project(ModbusScopeProject)
 
@@ -6,7 +6,7 @@ set(SCOPESOURCE ScopeSource)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_AUTOUIC ON)
@@ -24,11 +24,11 @@ find_package(Qt5 COMPONENTS
 )
 
 set(QT_LIB
-    Qt5::Widgets
-    Qt5::Xml
-    Qt5::Network
-    Qt5::SerialBus
-    Qt5::SerialPort
+    Qt::Widgets
+    Qt::Xml
+    Qt::Network
+    Qt::SerialBus
+    Qt::SerialPort
 )
 
 
