@@ -5,17 +5,11 @@ find_package(Qt5 COMPONENTS
     REQUIRED
 )
 
-include_directories(${Qt5test_INCLUDE_DIRS})
-
 SET(TEST_DATA_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/mbctestdata.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/csvdata.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/presetfiletestdata.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/projectfiletestdata.cpp
-)
-
-include_directories(
-    ${QT_INCLUDES}
 )
 
 enable_testing()

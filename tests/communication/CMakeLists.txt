@@ -5,8 +5,6 @@ find_package(Qt5 COMPONENTS
     REQUIRED
 )
 
-include_directories(${Qt5test_INCLUDE_DIRS})
-
 SET(TEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/../testslave/testslavedata.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../testslave/testslavemodbus.cpp
@@ -14,7 +12,6 @@ SET(TEST_SRCS
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../testslave
-    ${QT_INCLUDES}
 )
 
 enable_testing()

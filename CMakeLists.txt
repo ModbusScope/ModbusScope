@@ -23,14 +23,6 @@ find_package(Qt5 COMPONENTS
     REQUIRED
 )
 
-set(QT_INCLUDES
-    ${Qt5Widgets_INCLUDE_DIRS}
-    ${Qt5Xml_INCLUDE_DIRS}
-    ${Qt5Network_INCLUDE_DIRS}
-    ${Qt5SerialBus_INCLUDE_DIRS}
-    ${Qt5SerialPort_INCLUDE_DIRS}
-)
-
 set(QT_LIB
     Qt5::Widgets
     Qt5::Xml
@@ -41,8 +33,6 @@ set(QT_LIB
 
 
 include_directories(
-    ${QT_INCLUDES}
-
     ${CMAKE_CURRENT_SOURCE_DIR}/src/communication
     ${CMAKE_CURRENT_SOURCE_DIR}/src/customwidgets
     ${CMAKE_CURRENT_SOURCE_DIR}/src/dialogs
