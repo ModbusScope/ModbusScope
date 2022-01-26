@@ -1,4 +1,5 @@
 #include <QColor>
+#include <QIODevice>
 #include <QDateTime>
 #include "datafileparser.h"
 

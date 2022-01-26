@@ -11,7 +11,7 @@ public:
     MyQCustomPlot(QWidget *parent);
     ~MyQCustomPlot();
 
-    virtual void enterEvent(QEvent * event);
+    virtual void enterEvent(QEnterEvent * event);
 
 };
 

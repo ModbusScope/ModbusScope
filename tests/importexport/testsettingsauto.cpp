@@ -1,5 +1,6 @@
 
 #include <QtTest/QtTest>
+#include <QRegularExpression>
 
 #include "testsettingsauto.h"
 
@@ -210,7 +211,7 @@ void TestSettingsAuto::processDatasetTimeInSeconds()
 
 void TestSettingsAuto::prepareReference(QString* pRefData, QStringList& refList)
 {
-    refList = pRefData->split(QRegExp("\n|\r\n|\r"));
+    refList = pRefData->split(QRegularExpression("\n|\r\n|\r"));
 
     for (int i = refList.size() - 1; i > 0; i--)
     {

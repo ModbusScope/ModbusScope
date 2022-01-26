@@ -1,4 +1,4 @@
-#include "QWidget"
+#include <QWidget>
 
 #include "myqcustomplot.h"
 
@@ -18,7 +18,7 @@ MyQCustomPlot::~MyQCustomPlot()
 
 }
 
-void MyQCustomPlot::enterEvent(QEvent * event)
+void MyQCustomPlot::enterEvent(QEnterEvent *event)
 {
     if (
         (cursor().shape() == Qt::SizeVerCursor)
