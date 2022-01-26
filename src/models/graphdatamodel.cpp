@@ -35,7 +35,7 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
     switch (index.column())
     {
     case column::COLOR:
-        if (role == Qt::BackgroundColorRole)
+        if (role == Qt::BackgroundRole)
         {
             return color(index.row());
         }

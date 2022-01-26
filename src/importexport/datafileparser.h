@@ -1,7 +1,6 @@
 #ifndef DATAFILEPARSER_H
 #define DATAFILEPARSER_H
 
-#include <QObject>
 #include <QTextStream>
 #include <QRegularExpression>
 
