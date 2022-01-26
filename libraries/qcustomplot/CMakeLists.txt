@@ -15,8 +15,8 @@ find_package(Qt5 COMPONENTS
 )
 
 set(QT_PLOT_LIB
-    Qt5::Widgets
-    Qt5::PrintSupport
+    Qt::Widgets
+    Qt::PrintSupport
 )
 
 include_directories(

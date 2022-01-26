@@ -25,6 +25,11 @@ set(
     ${CMAKE_CURRENT_SOURCE_DIR}/mocks/gmockutils.cpp
 )
 
+find_package(Qt5 COMPONENTS
+    Test
+    REQUIRED
+)
+
 add_subdirectory(communication)
 add_subdirectory(importexport)
 add_subdirectory(models)
