@@ -37,8 +37,6 @@ void GraphDataHandler::processActiveRegisters(GraphDataModel* pGraphDataModel)
 
     for(const QString &expr: qAsConst(processedExpList))
     {
-        /* Use pointer because our class otherwise needs copy/assignment constructor and such */
-        /* Remember to delete before removal */
         _valueParsers.append(QMuParser(expr));
     }
 }
