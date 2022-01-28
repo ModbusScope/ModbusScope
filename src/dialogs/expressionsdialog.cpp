@@ -117,19 +117,36 @@ void ExpressionsDialog::handleAccept()
 void ExpressionsDialog::handleDataReady(QList<bool> successList, QList<double> values)
 {
     QString numOutput;
-    QString strTooltip;
+    QString strError;
 
-    if (successList.first())
+    bool const bOk = successList.first();
+
+    if (bOk)
     {
         numOutput = QString("%0").arg(values.first());
-        strTooltip = QString();
+        strError = QString();
     }
     else
     {
         numOutput = QStringLiteral("-");
-        strTooltip = _graphDataHandler.expressionParseMsg(0);
+        strError = _graphDataHandler.expressionParseMsg(0);
     }
 
     _pUi->lblOut->setText(numOutput);
-    _pUi->lblOut->setToolTip(strTooltip);
+    _pUi->lblOut->setToolTip(strError);
+
+    _pUi->lblError->setText(strError);
+    QString backgroundStyle;
+    if (bOk)
+    {
+        backgroundStyle = "background-color: rgba(0,0,0,0%);";
+    }
+    else
+    {
+        backgroundStyle = "background-color: rgba(255,0,0,50%);";
+    }
+
+    _pUi->lblOut->setStyleSheet(QString("border-style: outset;border-width: 1px; border-color: black; %1").arg(backgroundStyle));
+
+    _pUi->lblError->setStyleSheet(backgroundStyle);
 }

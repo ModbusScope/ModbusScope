@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>823</width>
-    <height>628</height>
+    <height>819</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,10 +39,7 @@
           <string>Compose Expression</string>
          </property>
          <layout class="QGridLayout" name="gridLayout" columnstretch="1,0">
-          <item row="5" column="0">
-           <widget class="QTableWidget" name="tblExpressionInput"/>
-          </item>
-          <item row="5" column="1">
+          <item row="6" column="1">
            <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
              <widget class="QLabel" name="lblOut">
@@ -54,6 +51,9 @@
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
+              </property>
+              <property name="margin">
+               <number>5</number>
               </property>
              </widget>
             </item>
@@ -72,17 +72,35 @@
             </item>
            </layout>
           </item>
-          <item row="3" column="1">
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Processed Output</string>
+          <item row="2" column="0" colspan="2">
+           <widget class="QPlainTextEdit" name="lineExpression">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="inputMethodHints">
+             <set>Qt::ImhNone</set>
+            </property>
+            <property name="verticalScrollBarPolicy">
+             <enum>Qt::ScrollBarAlwaysOff</enum>
+            </property>
+            <property name="horizontalScrollBarPolicy">
+             <enum>Qt::ScrollBarAlwaysOff</enum>
+            </property>
+            <property name="tabChangesFocus">
+             <bool>true</bool>
+            </property>
+            <property name="lineWrapMode">
+             <enum>QPlainTextEdit::NoWrap</enum>
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Example Input</string>
+          <item row="6" column="0">
+           <widget class="QTableWidget" name="tblExpressionInput">
+            <property name="selectionMode">
+             <enum>QAbstractItemView::NoSelection</enum>
             </property>
            </widget>
           </item>
@@ -96,8 +114,29 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0" colspan="2">
-           <widget class="QPlainTextEdit" name="lineExpression"/>
+          <item row="4" column="1">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Processed Output</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Example Input</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QLabel" name="lblError">
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+            <property name="margin">
+             <number>5</number>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
