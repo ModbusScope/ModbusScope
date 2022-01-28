@@ -2,6 +2,7 @@
 #include "ui_expressionsdialog.h"
 
 #include "graphdatamodel.h"
+#include "expressionhighlighting.h"
 
 ExpressionsDialog::ExpressionsDialog(GraphDataModel *pGraphDataModel, qint32 idx, QWidget *parent) :
     QDialog(parent),
@@ -28,8 +29,10 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel *pGraphDataModel, qint32 idx
     connect(_pUi->btnCancel, &QPushButton::clicked, this, &ExpressionsDialog::handleCancel);
     connect(_pUi->btnAccept, &QPushButton::clicked, this, &ExpressionsDialog::handleAccept);
 
-    _pUi->lineExpression->setText(_pGraphDataModel->expression(_graphIdx));
-    connect(_pUi->lineExpression, &QLineEdit::textChanged, this, &ExpressionsDialog::handleExpressionChange);
+    _pHighlighter = new ExpressionHighlighting(_pUi->lineExpression->document());
+
+    _pUi->lineExpression->setPlainText(_pGraphDataModel->expression(_graphIdx));
+    connect(_pUi->lineExpression, &QPlainTextEdit::textChanged, this, &ExpressionsDialog::handleExpressionChange);
 
     handleExpressionChange();
 }
@@ -43,7 +46,7 @@ void ExpressionsDialog::handleExpressionChange()
 {
     _localGraphDataModel.clear();
     _localGraphDataModel.add();
-    _localGraphDataModel.setExpression(0, _pUi->lineExpression->text());
+    _localGraphDataModel.setExpression(0, _pUi->lineExpression->toPlainText());
 
     _graphDataHandler.processActiveRegisters(&_localGraphDataModel);
 
@@ -106,7 +109,7 @@ void ExpressionsDialog::handleCancel()
 
 void ExpressionsDialog::handleAccept()
 {
-    _pGraphDataModel->setExpression(_graphIdx, _pUi->lineExpression->text());
+    _pGraphDataModel->setExpression(_graphIdx, _pUi->lineExpression->toPlainText());
 
     done(QDialog::Accepted);
 }

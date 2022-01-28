@@ -31,8 +31,6 @@ private:
     QRegularExpression _findRegRegex;
     QRegularExpression _regParseRegex;
 
-    static const QString _cRegisterPattern;
-    static const QString _cParseRegPattern;
     static const QString _cRegisterFunctionTemplate;
 
 };
