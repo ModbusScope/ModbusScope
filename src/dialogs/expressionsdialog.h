@@ -5,6 +5,9 @@
 #include "graphdatahandler.h"
 #include "graphdatamodel.h"
 
+/* Forward declaration */
+class ExpressionHighlighting;
+
 namespace Ui {
 class ExpressionsDialog;
 }
@@ -31,9 +34,10 @@ private:
     qint32 _graphIdx;
 
     GraphDataModel* _pGraphDataModel;
-
     GraphDataModel _localGraphDataModel;
     GraphDataHandler _graphDataHandler;
+
+    ExpressionHighlighting *_pHighlighter;
 
     bool _bUpdating;
 };

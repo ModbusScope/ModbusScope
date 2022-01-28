@@ -1,18 +1,16 @@
 #include "expressionparser.h"
 
 #include "scopelogging.h"
-
-const QString ExpressionParser::_cRegisterPattern = "\\${(\\d?.*?)}";
-const QString ExpressionParser::_cParseRegPattern = "(\\d+)(?:@(\\d+))?(?:\\:(\\w+))?";
+#include "expressionregex.h"
 
 const QString ExpressionParser::_cRegisterFunctionTemplate = "regval(%1)";
 
 ExpressionParser::ExpressionParser(QStringList& expressions)
 {
-    _findRegRegex.setPattern(_cRegisterPattern);
+    _findRegRegex.setPattern(ExpressionRegex::cMatchRegister);
     _findRegRegex.optimize();
 
-    _regParseRegex.setPattern(_cParseRegPattern);
+    _regParseRegex.setPattern(ExpressionRegex::cParseReg);
     _regParseRegex.optimize();
 
     parseExpressions(expressions);
