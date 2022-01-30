@@ -9,9 +9,7 @@ jobs:
     runs-on: ubuntu-20.04
     container: docker://jgeudens/qt-linux:5.15.2_build_1
     steps:
-      - uses: actions/checkout@v1
-        with:
-          submodules: true
+      - uses: actions/checkout@v2
 
       - name: Update Modules and Build
         run: sh scripts/build_linux.sh
@@ -28,9 +26,7 @@ jobs:
     runs-on: windows-2019
     
     steps:
-      - uses: actions/checkout@v1
-        with:
-          submodules: true
+      - uses: actions/checkout@v2
 
       - name: Install Qt installer
         run: pip3 install aqtinstall
