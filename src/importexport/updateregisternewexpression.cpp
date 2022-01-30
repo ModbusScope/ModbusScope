@@ -2,7 +2,6 @@
 #include "updateregisternewexpression.h"
 
 #include <QStringLiteral>
-#include <stdlib.h>
 
 namespace UpdateRegisterNewExpression
 {
