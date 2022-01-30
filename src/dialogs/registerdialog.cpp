@@ -4,10 +4,15 @@
 #include "registerdialog.h"
 #include "importmbcdialog.h"
 #include "expressionsdialog.h"
+#include "addregisterdialog.h"
+
+#include "graphdatamodel.h"
+#include "guimodel.h"
+#include "settingsmodel.h"
 
 #include "ui_registerdialog.h"
 
-RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel, QWidget *parent) :
+RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel, SettingsModel *pSettingsModel, QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::RegisterDialog)
 {
@@ -18,6 +23,7 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
 
     _pGraphDataModel = pGraphDataModel;
     _pGuiModel = pGuiModel;
+    _pSettingsModel = pSettingsModel;
 
     // Setup registerView
     _pUi->registerView->setModel(_pGraphDataModel);
@@ -62,7 +68,12 @@ int RegisterDialog::execWithMbcImport()
 
 void RegisterDialog::addRegisterRow()
 {
-    _pGraphDataModel->insertRow(_pGraphDataModel->size());
+    AddRegisterDialog addRegisterDialog(_pSettingsModel);
+
+    if (addRegisterDialog.exec() == QDialog::Accepted)
+    {
+        _pGraphDataModel->add(addRegisterDialog.graphData());
+    }
 }
 
 void RegisterDialog::showImportDialog()
