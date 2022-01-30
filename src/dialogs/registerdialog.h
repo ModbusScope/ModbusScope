@@ -3,8 +3,10 @@
 
 #include <QDialog>
 
-#include "graphdatamodel.h"
-#include "guimodel.h"
+/* Forward declaration */
+class GraphDataModel;
+class GuiModel;
+class SettingsModel;
 
 namespace Ui {
 class RegisterDialog;
@@ -15,7 +17,7 @@ class RegisterDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit RegisterDialog(GuiModel * pGuiModel, GraphDataModel *pGraphDataModel, QWidget *parent = nullptr);
+    explicit RegisterDialog(GuiModel * pGuiModel, GraphDataModel *pGraphDataModel, SettingsModel* pSettingsModel, QWidget *parent = nullptr);
     ~RegisterDialog();
 
 public slots:
@@ -32,10 +34,12 @@ private:
     int selectedRowAfterDelete(int deletedStartIndex, int rowCnt);
     static bool sortRegistersLastFirst(const QModelIndex &s1, const QModelIndex &s2);
 
-    Ui::RegisterDialog * _pUi;
+    Ui::RegisterDialog* _pUi;
 
-    GraphDataModel * _pGraphDataModel;
-    GuiModel * _pGuiModel;
+    GraphDataModel* _pGraphDataModel;
+    GuiModel* _pGuiModel;
+    SettingsModel* _pSettingsModel;
+
 };
 
 #endif // REGISTERDIALOG_H

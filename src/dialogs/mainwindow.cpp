@@ -422,7 +422,7 @@ void MainWindow::showRegisterDialog(QString mbcFile)
         _pGuiModel->setGuiState(GuiModel::INIT);
     }
 
-    RegisterDialog registerDialog(_pGuiModel, _pGraphDataModel, this);
+    RegisterDialog registerDialog(_pGuiModel, _pGraphDataModel, _pSettingsModel, this);
 
     if (mbcFile.isEmpty())
     {
