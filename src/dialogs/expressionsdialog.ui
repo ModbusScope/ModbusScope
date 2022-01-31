@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>823</width>
-    <height>819</height>
+    <height>829</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -38,7 +38,7 @@
          <property name="title">
           <string>Compose Expression</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout" columnstretch="1,0">
+         <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,1,0,0,0,1" columnstretch="1,0">
           <item row="6" column="1">
            <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
@@ -104,6 +104,13 @@
             </property>
            </widget>
           </item>
+          <item row="4" column="1">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Processed Output</string>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label">
             <property name="text">
@@ -114,10 +121,10 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
-           <widget class="QLabel" name="label_6">
+          <item row="3" column="0" colspan="2">
+           <widget class="QLabel" name="lblError">
             <property name="text">
-             <string>Processed Output</string>
+             <string>TextLabel</string>
             </property>
            </widget>
           </item>
@@ -125,16 +132,6 @@
            <widget class="QLabel" name="label_5">
             <property name="text">
              <string>Example Input</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0" colspan="2">
-           <widget class="QLabel" name="lblError">
-            <property name="text">
-             <string>TextLabel</string>
-            </property>
-            <property name="margin">
-             <number>5</number>
             </property>
            </widget>
           </item>
