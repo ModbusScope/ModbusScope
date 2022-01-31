@@ -30,7 +30,7 @@
    <item row="1" column="0">
     <widget class="QLineEdit" name="lineName">
      <property name="text">
-      <string>Name of graph</string>
+      <string>Name of curve</string>
      </property>
     </widget>
    </item>
