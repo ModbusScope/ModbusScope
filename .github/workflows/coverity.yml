@@ -9,7 +9,7 @@ on:
 jobs:
   coverity:
     runs-on: ubuntu-20.04
-    container: docker://jgeudens/qt-linux:5.15.2_build_1
+    container: docker://jgeudens/qt-linux:5.15.2_build_2
     steps:
     - uses: actions/checkout@v2
 
