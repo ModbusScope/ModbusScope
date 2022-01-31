@@ -16,6 +16,7 @@ jobs:
     - uses: jgeudens/coverity-scan-action@command_prepend
       with:
         project: jgeudens%2FModbusScope
+        email: ${{ secrets.MAIL_ADDRESS }}
         token: ${{ secrets.COVERITY_SCAN_TOKEN }}
         command_prepend: cmake . -GNinja
         command: ninja
