@@ -35,15 +35,7 @@ public:
 
     friend bool operator== (const ModbusRegister& reg1, const ModbusRegister& reg2);
 
-    static QString dumpListToString(QList<ModbusRegister> list)
-    {
-        QString str;
-        QDebug dStream(&str);
-
-        dStream << list;
-
-        return str;
-    }
+    static QString dumpListToString(QList<ModbusRegister> list);
 
 private:
 
