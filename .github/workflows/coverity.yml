@@ -11,12 +11,16 @@ jobs:
     runs-on: ubuntu-20.04
     container: docker://jgeudens/qt-linux:5.15.2_build_2
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
 
-    - uses: jgeudens/coverity-scan-action@command_prepend
+    - name: Prepare environment for Ninja build
+      run: cmake . -GNinja
+
+    - name: Analyse
+      uses: jgeudens/coverity-scan-action@v0
       with:
         project: jgeudens%2FModbusScope
         email: ${{ secrets.MAIL_ADDRESS }}
         token: ${{ secrets.COVERITY_SCAN_TOKEN }}
-        command_prepend: cmake . -GNinja
         command: ninja
