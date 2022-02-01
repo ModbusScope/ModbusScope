@@ -4,8 +4,8 @@ if "%~1"=="" (set "QT_INSTALL_DIR=D:\aqt_Qt\Qt") else (set "QT_INSTALL_DIR=%~1\Q
 echo QT_INSTALL_DIR: %QT_INSTALL_DIR%
 
 REM Set configuration
-set QT=5.15.2
-set QT_MODULES=
+set QT=6.2.2
+set QT_MODULES=qtserialbus qtserialport
 set QT_HOST=windows
 set QT_TARGET=desktop
 set QT_ARCH=win64_mingw81
