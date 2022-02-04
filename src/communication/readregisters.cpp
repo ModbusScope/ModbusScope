@@ -120,7 +120,7 @@ void ReadRegisters::addSuccess(quint32 startRegister, QList<quint16> registerDat
         for (qint32 i = 0; i < registerDataList.size(); i++)
         {
             const quint32 registerAddr = startRegister + static_cast<quint32>(i);
-            const Result result = Result(registerDataList[i], true);
+            const Result<quint16> result = Result<quint16>(registerDataList[i], true);
 
             _resultMap.insert(registerAddr, result);
         }
@@ -140,7 +140,7 @@ void ReadRegisters::addError()
         for (quint32 i = 0; i < nextRequestData.count(); i++)
         {
             const quint32 registerAddr = nextRequestData.address() + static_cast<quint32>(i);
-            const Result result = Result(0, false);
+            const Result<quint16> result = Result<quint16>(0, false);
 
             _resultMap.insert(registerAddr, result);
         }
@@ -182,7 +182,7 @@ void ReadRegisters::splitNextToSingleReads()
  * Return result map
  * \return Result map
  */
-QMap<quint32, Result> ReadRegisters::resultMap()
+QMap<quint32, Result<quint16> > ReadRegisters::resultMap()
 {
     return _resultMap;
 }

@@ -124,7 +124,7 @@ void TestQMuParser::evaluateSingleRegister()
 
     QMuParser parser(expression);
 
-    parser.setRegistersData(QList<Result>() << Result(registerValue, true));
+    parser.setRegistersData(QList<Result<qint64> >() << Result<qint64>(registerValue, true));
 
     bool bSuccess = parser.evaluate();
 
@@ -135,7 +135,7 @@ void TestQMuParser::evaluateSingleRegister()
 
 void TestQMuParser::evaluateMultipleRegisters()
 {
-    auto input = QList<Result>() << Result(1, true) << Result(2, true) << Result(3, true);
+    auto input = QList<Result<qint64> >() << Result<qint64>(1, true) << Result<qint64>(2, true) << Result<qint64>(3, true);
 
     QMuParser parser("regval(0)");
     parser.setRegistersData(input);
@@ -174,7 +174,7 @@ void TestQMuParser::evaluateSubsequentRegister()
 
     for (int idx = 0; idx < count; idx++)
     {
-        auto input = QList<Result>() << Result(data[idx], true);
+        auto input = QList<Result<qint64> >() << Result<qint64>(data[idx], true);
         parser.setRegistersData(input);
 
         bool bSuccess = parser.evaluate();
@@ -209,7 +209,7 @@ void TestQMuParser::evaluateEmpty()
 void TestQMuParser::evaluateFail()
 {
     QString expression = "regval(0)";
-    auto resultList = QList<Result>() << Result(5, false);
+    auto resultList = QList<Result<qint64> >() << Result<qint64>(5, false);
 
     QMuParser parser(expression);
 
@@ -305,7 +305,7 @@ void TestQMuParser::expressionUpdate()
 {
     QMuParser parser("regval(0) + 1");
 
-    auto input_1 = QList<Result>() << Result(5, true);
+    auto input_1 = QList<Result<qint64> >() << Result<qint64>(5, true);
     parser.setRegistersData(input_1);
 
     bool bSuccess = parser.evaluate();
@@ -316,7 +316,7 @@ void TestQMuParser::expressionUpdate()
 
     parser.setExpression("regval(0) + regval(1) + 2");
 
-    auto input_2 = QList<Result>() << Result(1, true) << Result(2, true);
+    auto input_2 = QList<Result<qint64> >() << Result<qint64>(1, true) << Result<qint64>(2, true);
     parser.setRegistersData(input_2);
     bSuccess = parser.evaluate();
 

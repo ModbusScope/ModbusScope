@@ -29,7 +29,7 @@ private slots:
 
 private:
 
-    void verifyReceivedDataSignal(QList<QVariant> arguments, QList<Result> expResultList);
+    void verifyReceivedDataSignal(QList<QVariant> arguments, QList<Result<qint64>> expResultList);
 
     SettingsModel * _pSettingsModel;
 

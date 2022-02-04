@@ -12,7 +12,7 @@ void RegisterValueHandler::startRead()
 
     for(quint16 listIdx = 0; listIdx < _registerList.size(); listIdx++)
     {
-        _resultList.append(Result());
+        _resultList.append(Result<qint64>());
     }
 }
 
@@ -22,9 +22,9 @@ void RegisterValueHandler::finishRead()
     emit registerDataReady(_resultList);
 }
 
-void RegisterValueHandler::processPartialResult(QMap<quint32, Result> partialResultMap, quint8 connectionId)
+void RegisterValueHandler::processPartialResult(QMap<quint32, Result<quint16> > partialResultMap, quint8 connectionId)
 {
-    QMapIterator<quint32, Result> i(partialResultMap);
+    QMapIterator<quint32, Result<quint16> > i(partialResultMap);
     while (i.hasNext())
     {
         i.next();
@@ -45,7 +45,7 @@ void RegisterValueHandler::processPartialResult(QMap<quint32, Result> partialRes
                     {
                         if (mbReg.is32Bit())
                         {
-                            Result nextResult = i.peekNext().value();
+                            Result<quint16> nextResult = i.peekNext().value();
 
                             if (nextResult.isSuccess())
                             {
@@ -83,7 +83,7 @@ void RegisterValueHandler::processPartialResult(QMap<quint32, Result> partialRes
                         processedResult = 0;
                     }
 
-                    _resultList[listIdx] = Result(static_cast<double>(processedResult), bSuccess);
+                    _resultList[listIdx] = Result<qint64>(static_cast<qint64>(processedResult), bSuccess);
                 }
             }
         }

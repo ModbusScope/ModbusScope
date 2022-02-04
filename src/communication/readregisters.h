@@ -39,14 +39,14 @@ public:
     void addAllErrors();
     void splitNextToSingleReads();
 
-    QMap<quint32, Result> resultMap();
+    QMap<quint32, Result<quint16> > resultMap();
 
 private:
 
 
     QList<ModbusReadItem> _readItemList;
 
-    QMap<quint32, Result> _resultMap;
+    QMap<quint32, Result<quint16> > _resultMap;
 
 };
 

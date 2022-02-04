@@ -8,12 +8,12 @@
 #include "graphdatahandler.h"
 #include "settingsmodel.h"
 
-Q_DECLARE_METATYPE(Result);
+Q_DECLARE_METATYPE(Result<quint16>);
 
 void TestGraphDataHandler::init()
 {
-    qRegisterMetaType<Result>("Result");
-    qRegisterMetaType<QList<Result> >("QList<Result>");
+    qRegisterMetaType<Result<quint16>>("Result<quint16>");
+    qRegisterMetaType<QList<Result<quint16>> >("QList<Result<quint16>>");
 
     _pSettingsModel = new SettingsModel;
     _pGraphDataModel = new GraphDataModel(_pSettingsModel);
@@ -83,8 +83,8 @@ void TestGraphDataHandler::graphData()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto regResults = QList<Result>() << Result(1, true)
-                                      << Result(2, true);
+    auto regResults = QList<Result<qint64>>() << Result<qint64>(1, true)
+                                      << Result<qint64>(2, true);
 
     auto resultList = QList<bool>() << true;
     auto valueList = QList<double>() << 3;
@@ -100,11 +100,11 @@ void TestGraphDataHandler::graphDataTwice()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto regResults_1 = QList<Result>() << Result(1, true)
-                                        << Result(2, true);
+    auto regResults_1 = QList<Result<qint64>>() << Result<qint64>(1, true)
+                                                << Result<qint64>(2, true);
 
-    auto regResults_2 = QList<Result>() << Result(3, true)
-                                        << Result(4, true);
+    auto regResults_2 = QList<Result<qint64>>() << Result<qint64>(3, true)
+                                                << Result<qint64>(4, true);
 
     QList<QVariant> rawRegData;
     GraphDataHandler dataHandler;
@@ -134,8 +134,8 @@ void TestGraphDataHandler::graphData_fail()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto regResults = QList<Result>() << Result(1, true)
-                                            << Result(0, false);
+    auto regResults = QList<Result<qint64>>() << Result<qint64>(1, true)
+                                                << Result<qint64>(0, false);
 
     auto resultList = QList<bool>() << false << true;
     auto valueList = QList<double>() << 0 << 1;
@@ -145,7 +145,7 @@ void TestGraphDataHandler::graphData_fail()
     CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
 }
 
-void TestGraphDataHandler::doHandleRegisterData(QList<Result>& modbusResults, QList<QVariant>& actRawData)
+void TestGraphDataHandler::doHandleRegisterData(QList<Result<qint64>>& modbusResults, QList<QVariant>& actRawData)
 {
     GraphDataHandler dataHandler;
     QList<ModbusRegister> registerList;
