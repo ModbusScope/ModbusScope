@@ -113,7 +113,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
     case column::COLOR:
         if (role == Qt::EditRole)
         {
-            if (value.canConvert(QMetaType::QColor))
+            if (value.canConvert<QColor>())
             {
                 QColor color = value.value<QColor>();
                 setColor(index.row(), color);
