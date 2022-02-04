@@ -16,7 +16,7 @@ public:
     void setExpression(QString expr);
     QString expression();
 
-    static void setRegistersData(QList<Result>& regValues);
+    static void setRegistersData(QList<Result<qint64> >& regValues);
 
     bool evaluate();
 
@@ -30,7 +30,7 @@ private:
 
     static void registerValue(int index, int* value, bool* success);
 
-    static QList<Result> _registerValues;
+    static QList<Result<qint64> > _registerValues;
 
     mu::ParserRegister* _pExprParser;
 

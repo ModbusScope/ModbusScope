@@ -21,7 +21,7 @@ public:
     QString expressionParseMsg(qint32 exprIdx) const;
 
 public slots:
-    void handleRegisterData(QList<Result> results);
+    void handleRegisterData(QList<Result<qint64> > results);
 
 signals:
     void graphDataReady(QList<bool> successList, QList<double> values);

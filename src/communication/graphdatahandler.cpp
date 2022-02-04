@@ -58,7 +58,7 @@ QString GraphDataHandler::expressionParseMsg(qint32 exprIdx) const
     return _valueParsers[exprIdx].msg();
 }
 
-void GraphDataHandler::handleRegisterData(QList<Result> results)
+void GraphDataHandler::handleRegisterData(QList<Result<qint64> > results)
 {
     QList<bool> graphSuccess;
     QList<double> graphData;

@@ -4,7 +4,7 @@
 
 #include "muParser.h"
 
-QList<Result> QMuParser::_registerValues;
+QList<Result<qint64> > QMuParser::_registerValues;
 
 QMuParser::QMuParser(QString strExpression)
 {
@@ -72,7 +72,7 @@ void QMuParser::setExpression(QString expr)
     reset();
 }
 
-void QMuParser::setRegistersData(QList<Result>& regValues)
+void QMuParser::setRegistersData(QList<Result<qint64> >& regValues)
 {
     _registerValues = regValues;
 }

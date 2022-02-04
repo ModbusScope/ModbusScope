@@ -14,13 +14,9 @@
 #include "testgraphdatahandler.h"
 #include "testcommunication.h"
 
-Q_DECLARE_METATYPE(Result);
 
 void TestCommunication::init()
 {
-    qRegisterMetaType<Result>("Result");
-    qRegisterMetaType<QList<Result> >("QList<Result>");
-
     _pSettingsModel = new SettingsModel;
     _pGraphDataModel = new GraphDataModel(_pSettingsModel);
 
