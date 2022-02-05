@@ -73,7 +73,7 @@ namespace mu
             }
             else
             {
-                throw exception_type(_T("Communication error"));
+                throw exception_type(_T("Invalid data error"));
             }
         }
         else
