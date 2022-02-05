@@ -53,18 +53,29 @@ void ExpressionsDialog::handleExpressionChange()
     QList<ModbusRegister> registerList;
     _graphDataHandler.modbusRegisterList(registerList);
 
+    /* Save current test values */
+    QMap<QString, QString> _testValueMap;
+    for(qint32 idx = 0; idx < _pUi->tblExpressionInput->rowCount(); idx++)
+    {
+        QString descr = _pUi->tblExpressionInput->item(idx, 0)->text();
+        QString value = _pUi->tblExpressionInput->item(idx, 1)->text();
+
+        _testValueMap.insert(descr, value);
+    }
+
     _bUpdating = true;
     _pUi->tblExpressionInput->setRowCount(registerList.size());
 
     for(qint32 idx = 0; idx < registerList.size(); idx++)
     {
         ModbusRegister reg = registerList[idx];
-
-        QTableWidgetItem *newRegisterDescr = new QTableWidgetItem(reg.description());
+        QString regDescr = reg.description();
+        QTableWidgetItem *newRegisterDescr = new QTableWidgetItem(regDescr);
         newRegisterDescr->setFlags(newRegisterDescr->flags() & ~Qt::ItemIsEditable);
         _pUi->tblExpressionInput->setItem(idx, 0, newRegisterDescr);
 
-        QTableWidgetItem *newRegisterValue = new QTableWidgetItem("0");
+        QString testVal = _testValueMap.contains(regDescr) ? _testValueMap[regDescr]: "0";
+        QTableWidgetItem *newRegisterValue = new QTableWidgetItem(testVal);
         _pUi->tblExpressionInput->setItem(idx, 1, newRegisterValue);
     }
 
