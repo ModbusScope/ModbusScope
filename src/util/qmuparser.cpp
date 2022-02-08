@@ -65,7 +65,7 @@ void QMuParser::setExpression(QString expr)
 
     try
     {
-        _pExprParser->SetExpr(expr.toStdString());
+        _pExprParser->SetExpr(expr.toStdWString());
         _errorPos = -1;
     }
     catch (mu::Parser::exception_type &e)
@@ -84,7 +84,7 @@ void QMuParser::setRegistersData(QList<Result<qint64> >& regValues)
 
 QString QMuParser::expression()
 {
-    return QString::fromStdString(_pExprParser->GetExpr()).trimmed();
+    return QString::fromStdWString(_pExprParser->GetExpr()).trimmed();
 }
 
 bool QMuParser::evaluate()
@@ -106,7 +106,7 @@ bool QMuParser::evaluate()
 
             if (qIsInf(_value) || qIsNaN(_value))
             {
-                throw mu::ParserError("result is an undefined number");
+                throw mu::ParserError(L"result is an undefined number");
             }
 
             _msg = QStringLiteral("Success");
@@ -132,7 +132,7 @@ bool QMuParser::evaluate()
             }
             else
             {
-                _msg = QString::fromStdString(e.GetMsg());
+                _msg = QString::fromStdWString(e.GetMsg());
             }
 
             _bSuccess = false;
