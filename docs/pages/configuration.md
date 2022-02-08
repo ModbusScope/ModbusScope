@@ -2,13 +2,13 @@
 
 ## Configure register settings
 
-When opening *ModbusScope*, no Modbus registers are added. First click on *Register Settings* in the tool bar of  the interface. This will open a window where registers can be added and adjusted.
+When opening *ModbusScope*, no Modbus registers are added . First click on *Register Settings* in the toolbar of the interface. This will open a window where registers can be added and edited.
 
 ### Add Modbus registers
 
-In the below dialog Modbus registers can be added either manually or by importing from a *.mbc* file. When a *.mbs* file is opened, registers will already be present in the dialog.
+In the *Register settings* dialog, Modbus registers can be added either manually or by importing from a *.mbc* file. When a *.mbs* file is opened, some registers will already be present in the dialog.
 
-When the registers are added, they can be adjusted. Such as updating the name and changing to a specific color. An expression can be used to update the value before the data is added to the graph (and log). This calculations can be used to transform the values from a device to a format that is more clear for the user. It is also possible to select a specific connection on which the value is polled. 
+When the registers are added, they can be adjusted afterwards. Such as updating the name and changing to a specific color. An expression is used to define which data is added to the graph (and log). These expressions consist of a calculation which can contains several Modbus register for multiple connections. The user is free to combine calculations and registers in one valid expression. This allows the user to log the data in a format that is clear for the user.
 
 The Modbus standard defines the range for the holding register as 40001 to 49999. But the offset 40001 is removed in the data that will be send in the packet. Since the field for the address is 16-bit, the actual possible range is 40001 to 105536. ModbusScope supports the full range to support as many devices as possible.
 
@@ -16,30 +16,38 @@ The Modbus standard defines the range for the holding register as 40001 to 49999
 
 ![image](../_static/user_manual/register_settings_dialog_with_registers.png)
 
+![image](../_static/user_manual/add_register_dialog.png)
+
 ### Compose expression window
 
-As mentioned before, an expression can be used to transform the raw value from the device to something more understandable by the user. This expression can be tested in the *compose expression* window. This windows can be opened by double clicking the expression cell.
+As mentioned before, an expression can be used to transform the raw value from the device to something more understandable to the user. This expression can be tested in the *compose expression* window. This windows can be opened by double clicking the expression cell.
 
-The expression can be freely updated and up to 3 input values can be evaluated.
+The expression can be freely updated. The register definition will be validated while entering. When the register definition is green, the register definition is valid. The example input table can be used to enter values to test and verify the expression with actual values.
 
 ![image](../_static/user_manual/expression_dialog.png)
 
 #### Expressions
 
-The value read via Modbus is represented as `VAL`. The most common binary operators are supported (`!`, `|`, `&`, `<<`, `>>`). The basic arithmetic operators are also supported (`+`,` -`, `*`, `/`, `%` and `^`). Hexadecimal numbers can be represented with the `0x` prefix. Binary are represented with `0b` prefix. Floating point numbers are also supported. Both a decimal point as comma can be used. The first encountered characters per expression is used as floating point separator.
+A Modbus register read is represented as `${REG\[@CONN]\[:TYPE]}`. Multiple registers read can be combined in one expression.
+
+* `${45332}` => 16-bit unsigned using connection 1
+* `${45332: s16b}` => 16-bit signed using connection 1
+* `${45332@2: 32b}` => 32-bit unsigned using connection 2
+* `${45332@2}` => 16-bit unsigned using connection 2
+
+The most common binary operators are supported (`!`, `|`, `&`, `<<`, `>>`). The basic arithmetic operators are also supported (`+`, `-`, `*`, `/`, `%`, `^`). Hexadecimal numbers can be represented with the `0x`. Binary are represented with `0b` prefix. Floating point number are also supported. Both a decimal point as comma can be used. The first encountered character is used as floating point separator.
 
 Some examples:
 
-* `(VAL + 10 / 2) / 10`
-
-* `(VAL & 0xFF) | 1`
-* `0xFF & 0b1111`
-
-* `VAL * 0.001`
+* `${40001: s16b} + ${40002@2} * 2`
+* `${40001: s32b} * 1.1`
+* `${40001} + 0x1000`
+* `${40001} & 0b11111000`
+* `()${40001} >> 8) & 0xFF`
 
 #### Expression error
 
-When the expression contains an error or when the combination of the expression with a specific input value generates an error, no output value is shown and a specific error message can be visualized by hovering over the output field.
+When the expression contains an error or when the combination of the expression with a specific input value generates an error, no output value is shown. A specific error message will be shown and the register definition will be indicated in red.
 
 ![image](../_static/user_manual/expression_dialog_error.png)
 
