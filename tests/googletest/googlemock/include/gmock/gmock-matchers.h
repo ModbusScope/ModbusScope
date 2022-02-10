@@ -3981,26 +3981,26 @@ ElementsAreArray(Iter first, Iter last) {
 }
 
 template <typename T>
-inline auto ElementsAreArray(const T* pointer, size_t count)
-    -> decltype(ElementsAreArray(pointer, pointer + count)) {
+inline internal::ElementsAreArrayMatcher<T> ElementsAreArray(
+    const T* pointer, size_t count) {
   return ElementsAreArray(pointer, pointer + count);
 }
 
 template <typename T, size_t N>
-inline auto ElementsAreArray(const T (&array)[N])
-    -> decltype(ElementsAreArray(array, N)) {
+inline internal::ElementsAreArrayMatcher<T> ElementsAreArray(
+    const T (&array)[N]) {
   return ElementsAreArray(array, N);
 }
 
 template <typename Container>
-inline auto ElementsAreArray(const Container& container)
-    -> decltype(ElementsAreArray(container.begin(), container.end())) {
+inline internal::ElementsAreArrayMatcher<typename Container::value_type>
+ElementsAreArray(const Container& container) {
   return ElementsAreArray(container.begin(), container.end());
 }
 
 template <typename T>
-inline auto ElementsAreArray(::std::initializer_list<T> xs)
-    -> decltype(ElementsAreArray(xs.begin(), xs.end())) {
+inline internal::ElementsAreArrayMatcher<T>
+ElementsAreArray(::std::initializer_list<T> xs) {
   return ElementsAreArray(xs.begin(), xs.end());
 }
 

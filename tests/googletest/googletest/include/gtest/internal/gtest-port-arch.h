@@ -78,8 +78,6 @@
 # define GTEST_OS_FREEBSD 1
 #elif defined __Fuchsia__
 # define GTEST_OS_FUCHSIA 1
-#elif defined(__GNU__)
-# define GTEST_OS_GNU_HURD 1
 #elif defined(__GLIBC__) && defined(__FreeBSD_kernel__)
 # define GTEST_OS_GNU_KFREEBSD 1
 #elif defined __linux__

@@ -1,7 +1,8 @@
 dfetch:
   branch: master
-  hash: 79a8ce5bb44b087e12cc5263d9043490
-  last_fetch: 23/06/2021, 18:51:20
+  hash: 93c11bbab09a621733fe2f8fd59b3de7
+  last_fetch: 10/02/2022, 20:31:59
+  patch: ''
   remote_url: https://github.com/google/googletest
-  revision: 355d57d90d9744c41ac7c99f1e960778f1c63040
-  tag: ''
+  revision: ''
+  tag: release-1.11.0

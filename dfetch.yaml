@@ -16,7 +16,7 @@ manifest:
     tag: v2.1.0
     repo-path: jgeudens/qcustomplot-release
 
-  - name: tests/googletest
-    revision: 355d57d90d9744c41ac7c99f1e960778f1c63040
-    branch: master
+  - name: googletest
+    dst: tests/googletest
+    tag: release-1.11.0
     repo-path: google/googletest

@@ -98,7 +98,7 @@ const int kStdOutFileno = STDOUT_FILENO;
 const int kStdErrFileno = STDERR_FILENO;
 #endif  // _MSC_VER
 
-#if GTEST_OS_LINUX || GTEST_OS_GNU_HURD
+#if GTEST_OS_LINUX
 
 namespace {
 template <typename T>
