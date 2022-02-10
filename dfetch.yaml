@@ -7,9 +7,8 @@ manifest:
 
   projects:
   - name: muparser
-    revision: 52ad02fe1f958fde041c246d24aaee3f40ae3fff
     dst: libraries/muparser
-    branch: master
+    tag: v2.3.3-1
     repo-path: beltoforion/muparser
 
   - name: qcustomplot
