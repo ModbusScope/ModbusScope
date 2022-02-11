@@ -433,7 +433,7 @@ QString DataFileExporter::createPropertyRow(registerProperty prop)
             break;
 
         case E_EXPRESSION:
-            propertyString = QString("\"%1\"").arg(_pGraphDataModel->expression(graphIdx).simplified());
+            propertyString = QString("\"%1\"").arg(_pGraphDataModel->simplifiedExpression(graphIdx));
             break;
 
         default:

@@ -44,6 +44,7 @@ public:
     QColor color(quint32 index) const;
     bool isActive(quint32 index) const;
     QString expression(quint32 index) const;
+    QString simplifiedExpression(quint32 index) const;
     QSharedPointer<QCPGraphDataContainer> dataMap(quint32 index);
 
     void setVisible(quint32 index, bool bVisible);
