@@ -21,7 +21,7 @@ namespace UpdateRegisterOperations
 
         /*
          * Workaround because older versions always export bitmask even when set to default.
-         * This wil cause issues with signed values. The workaround is to ignore the bitmask when
+         * This will cause issues with signed values. The workaround is to ignore the bitmask when
          * the default 16-bit bitmask is used in combination with a 16 bit register
         */
         if (

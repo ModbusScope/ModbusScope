@@ -131,7 +131,7 @@ bool ProjectFileParser::parseModbusTag(const QDomElement &element, GeneralSettin
         }
         else
         {
-            // unkown tag: ignore
+            // unknown tag: ignore
         }
         child = child.nextSiblingElement();
     }
@@ -285,7 +285,7 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
         }
         else
         {
-            // unkown tag: ignore
+            // unknown tag: ignore
         }
         child = child.nextSiblingElement();
     }
@@ -330,7 +330,7 @@ bool ProjectFileParser::parseLogTag(const QDomElement &element, LogSettings * pL
         }
         else
         {
-            // unkown tag: ignore
+            // unknown tag: ignore
         }
         child = child.nextSiblingElement();
     }
@@ -399,7 +399,7 @@ bool ProjectFileParser::parseLogToFile(const QDomElement &element, LogSettings *
         }
         else
         {
-            // unkown tag: ignore
+            // unknown tag: ignore
         }
         child = child.nextSiblingElement();
     }
@@ -426,7 +426,7 @@ bool ProjectFileParser::parseScopeTag(const QDomElement &element, ScopeSettings 
         }
         else
         {
-            // unkown tag: ignore
+            // unknown tag: ignore
         }
         child = child.nextSiblingElement();
     }
@@ -601,7 +601,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
         }
         else
         {
-            // unkown tag: ignore
+            // unknown tag: ignore
         }
 
         child = child.nextSiblingElement();
@@ -626,7 +626,7 @@ bool ProjectFileParser::parseViewTag(const QDomElement &element, ViewSettings *p
         }
         else
         {
-            // unkown tag: ignore
+            // unknown tag: ignore
         }
         child = child.nextSiblingElement();
     }
@@ -689,7 +689,7 @@ bool ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleSettings 
         }
         else
         {
-            // unkown tag: ignore
+            // unknown tag: ignore
         }
         child = child.nextSiblingElement();
     }
@@ -721,7 +721,7 @@ bool ProjectFileParser::parseScaleXAxis(const QDomElement &element, ScaleSetting
         }
         else
         {
-            // unkown tag: ignore
+            // unknown tag: ignore
         }
         child = child.nextSiblingElement();
     }
@@ -773,7 +773,7 @@ bool ProjectFileParser::parseScaleYAxis(const QDomElement &element, ScaleSetting
         }
         else
         {
-            // unkown tag: ignore
+            // unknown tag: ignore
         }
         child = child.nextSiblingElement();
     }

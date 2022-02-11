@@ -71,7 +71,7 @@ signals:
     void visibilityChanged(const quint32 graphIdx);
     void labelChanged(const quint32 graphIdx);
     void colorChanged(const quint32 graphIdx);
-    void activeChanged(const quint32 graphIdx); // when graph is actived / deactivated
+    void activeChanged(const quint32 graphIdx); // when graph is activated / deactivated
     void expressionChanged(const quint32 graphIdx);
     void graphsAddData(QList<double>, QList<QList<double> > data);
 

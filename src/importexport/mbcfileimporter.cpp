@@ -111,7 +111,7 @@ bool MbcFileImporter::parseTabTag(const QDomElement &element)
         }
         else
         {
-            // unkown tag: ignore
+            // unknown tag: ignore
         }
         child = child.nextSiblingElement();
     }
