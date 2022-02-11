@@ -117,7 +117,7 @@ bool ModbusConnection::isConnected(void)
 }
 
 /*!
- * Hande change of internal connection object
+ * Handle change of internal connection object
  *
  * \param state New state of connection
  */
@@ -206,7 +206,7 @@ void ModbusConnection::handleConnectionErrorOccurred(QModbusDevice::Error error)
     QModbusClient * pClient = qobject_cast<QModbusClient *>(QObject::sender());
     const qint32 senderIdx = findConnectionData(nullptr, pClient);
 
-    // Only handle error is latest connection, the rest is automaticaly closed on state change
+    // Only handle error is latest connection, the rest is automatically closed on state change
     if (senderIdx == _connectionList.size() - 1)
     {
         handleConnectionError(_connectionList.last(), QString("Error: %0").arg(error));
@@ -224,7 +224,7 @@ void ModbusConnection::connectionTimeOut()
     /* Stop timer */
     pTimeoutTimer->stop();
 
-    // Only handle error is latest connection, the rest is automaticaly closed on state change
+    // Only handle error is latest connection, the rest is automatically closed on state change
     if (senderIdx == _connectionList.size() - 1)
     {
         handleConnectionError(_connectionList.last(), QString("Connection timeout"));
@@ -325,7 +325,7 @@ void ModbusConnection::handleConnectionError(QPointer<ConnectionData> connection
 /*!
  * Find specific ConnectionData instance in list based on QTimer or QModbusClient pointer
  * \param pTimer Pointer to QTimer object to find (nullptr when ignored)
- * \param pClient Pointer to QModbusClient oject to find (nullptr when ignored)
+ * \param pClient Pointer to QModbusClient object to find (nullptr when ignored)
  * \retval -1       Not found
  * \retval != -1    Index in list
  */

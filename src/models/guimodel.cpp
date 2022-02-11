@@ -287,7 +287,7 @@ void GuiModel::setyAxisMax(int newMax)
 
 void GuiModel::setGuiState(quint32 state)
 {
-    // GUI State is an exception, alway send signal to make sure GUI is updated
+    // GUI State is an exception, always send signal to make sure GUI is updated
     _guiState = state;
     emit guiStateChanged();
 }

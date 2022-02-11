@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <QButtonGroup>
 
-/* Foward declaration */
+/* Forward declaration */
 class SettingsModel;
 class GuiModel;
 

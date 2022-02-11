@@ -193,7 +193,7 @@ bool PresetParser::parsePresetTag(const QDomElement &element, Preset *pPreset)
         }
         else
         {
-            // unkown tag: ignore
+            // unknown tag: ignore
         }
         child = child.nextSiblingElement();
     }

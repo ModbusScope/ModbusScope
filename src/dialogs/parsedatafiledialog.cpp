@@ -140,7 +140,7 @@ void ParseDataFileDialog::updateFieldSeparator()
 
     if (comboIndex == -1)
     {
-        // Custom field seperator
+        // Custom field separator
         if (_pUi->comboFieldSeparator->currentIndex() != customIndex)
         {
             _pUi->comboFieldSeparator->setCurrentIndex(customIndex);

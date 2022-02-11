@@ -315,7 +315,7 @@ void MainWindow::exitApplication()
 
 void MainWindow::selectImageExportFile()
 {
-    /* Add question wether to save when legend is undocked */
+    /* Add question whether to save when legend is undocked */
     bool bProceed = false;
     if (_pUi->legendDock->isFloating())
     {
@@ -1011,13 +1011,13 @@ void MainWindow::updateRuntime()
 void MainWindow::updateCommunicationStats(QList<bool> successList)
 {
     quint32 error = 0;
-    quint32 succes = 0;
+    quint32 success = 0;
     for(int idx = 0; idx < successList.size(); idx++)
     {
-        successList[idx] ? succes++ : error++;
+        successList[idx] ? success++ : error++;
     }
 
-    _pGuiModel->incrementCommunicationStats(succes, error);
+    _pGuiModel->incrementCommunicationStats(success, error);
 }
 
 void MainWindow::updateDataFileNotes()

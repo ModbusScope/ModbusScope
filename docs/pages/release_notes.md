@@ -124,7 +124,7 @@ When exporting the settings (project file), the new expression will be saved. Ol
 
 ### Bugfixes
 * Fix error when writing notes to imported data file (##109)
-* Automatically remove field seperator from register names (##106)
+* Automatically remove field separator from register names (##106)
 
 ### Improvements
 * When importing a mbc file already selected registers are now disabled dynamically.

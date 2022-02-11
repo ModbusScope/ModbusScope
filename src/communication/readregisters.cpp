@@ -79,7 +79,7 @@ void ReadRegisters::resetRead(QList<quint32> registerList, quint16 consecutiveMa
 }
 
 /*!
- * Return whether there is stil a ModbusReadItem left
+ * Return whether there is still a ModbusReadItem left
  * \retval true     Still ModbusReadItemLeft
  * \retval false    None left
  */

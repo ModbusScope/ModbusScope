@@ -196,7 +196,7 @@ namespace mu
 		\sa DefineNameChars, DefineOprtChars, DefineInfixOprtChars
 
 	  This function is used for initializing the default character sets that define
-	  the characters to be useable in function and variable names and operators.
+	  the characters to be usable in function and variable names and operators.
 	*/
 	void ParserRegister::InitCharSets()
 	{
