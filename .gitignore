@@ -59,3 +59,5 @@ src/util/version.h
 _build
 build/
 venv
+
+.vscode/
