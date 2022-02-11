@@ -5,6 +5,8 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 ## v3.4.0 (unreleased)
 
 * Allow full 16-bit addressing of holding registers ([Github #181](https://github.com/jgeudens/ModbusScope/issues/181))
+* Expand expressions with register definition to provide more flexibility for user  ([Github project #6](https://github.com/jgeudens/ModbusScope/projects/6))
+  * This changes adds the ability to combine multiple registers from potential multiple connections in one curve.
 
 ## [v3.3.1](https://github.com/jgeudens/ModbusScope/releases/tag/3.3.1) (23/12/2021)
 
