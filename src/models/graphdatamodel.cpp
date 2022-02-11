@@ -62,7 +62,7 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
     case column::EXPRESSION:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return expression(index.row());
+            return simplifiedExpression(index.row());
         }
         break;
     default:
@@ -250,6 +250,11 @@ bool GraphDataModel::isActive(quint32 index) const
 QString GraphDataModel::expression(quint32 index) const
 {
     return _graphData[index].expression();
+}
+
+QString GraphDataModel::simplifiedExpression(quint32 index) const
+{
+    return _graphData[index].expression().simplified();
 }
 
 QSharedPointer<QCPGraphDataContainer> GraphDataModel::dataMap(quint32 index)

@@ -120,7 +120,7 @@ void ExpressionsDialog::handleCancel()
 
 void ExpressionsDialog::handleAccept()
 {
-    _pGraphDataModel->setExpression(_graphIdx, _pUi->lineExpression->toPlainText());
+    _pGraphDataModel->setExpression(_graphIdx, _pUi->lineExpression->toPlainText().trimmed());
 
     done(QDialog::Accepted);
 }
