@@ -4,12 +4,17 @@
 #include <QDebug>
 
 ExpressionHighlighting::ExpressionHighlighting(QTextDocument *parent)
-        : QSyntaxHighlighter(parent)
+        : QSyntaxHighlighter(parent), _errorPosition(-1)
 {
 
     configureConstantNumberRules();
     configureOperatorRules();
     configureRegisterRules();
+}
+
+void ExpressionHighlighting::setExpressionErrorPosition(qint32 pos)
+{
+    _errorPosition = pos;
 }
 
 void ExpressionHighlighting::highlightBlock(const QString &text)
@@ -25,6 +30,7 @@ void ExpressionHighlighting::highlightBlock(const QString &text)
     }
 
     handleRegisterRules(text);
+    handleErrorPosition(text);
 }
 
 void ExpressionHighlighting::configureConstantNumberRules()
@@ -66,8 +72,8 @@ void ExpressionHighlighting::configureRegisterRules()
     _validRegFormat.setFontWeight(QFont::Bold);
     _registerExpression = QRegularExpression(ExpressionRegex::cMatchRegister);
 
-    _invalidRegFormat.setForeground(Qt::darkRed);
-    _invalidRegFormat.setFontWeight(QFont::Bold);
+    _errorFormat.setForeground(Qt::darkRed);
+    _errorFormat.setFontWeight(QFont::Bold);
     _validRegisterExpression = QRegularExpression(ExpressionRegex::cParseReg);
 }
 
@@ -88,8 +94,33 @@ void ExpressionHighlighting::handleRegisterRules(const QString &text)
         }
         else
         {
-            format =  _invalidRegFormat;
+            format =  _errorFormat;
         }
         setFormat(regMatch.capturedStart(), regMatch.capturedLength(), format);
+    }
+}
+
+void ExpressionHighlighting::handleErrorPosition(const QString &text)
+{
+    int correctedErrorPos;
+    if (_errorPosition < 0)
+    {
+        correctedErrorPos = _errorPosition;
+    }
+    else if (_errorPosition < 2)
+    {
+        correctedErrorPos = 0;
+    }
+    else
+    {
+        correctedErrorPos = _errorPosition - 2; /* Counting from zero + error pos is position of unexpected character */
+    }
+
+    if (
+        (correctedErrorPos >= 0)
+        && (correctedErrorPos < text.size())
+    )
+    {
+        setFormat(correctedErrorPos, text.size() - correctedErrorPos, _errorFormat);
     }
 }

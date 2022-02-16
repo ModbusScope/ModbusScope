@@ -11,6 +11,8 @@ class ExpressionHighlighting : public QSyntaxHighlighter
 public:
     explicit ExpressionHighlighting(QTextDocument *parent = nullptr);
 
+    void setExpressionErrorPosition(qint32 pos);
+
 protected:
     void highlightBlock(const QString &text) override;
 
@@ -26,6 +28,9 @@ private:
     void configureRegisterRules();
 
     void handleRegisterRules(const QString &text);
+    void handleErrorPosition(const QString &text);
+
+    qint32 _errorPosition;
 
     QVector<HighlightingRule> _highlightingRules;
 
@@ -33,7 +38,7 @@ private:
     QTextCharFormat _validRegFormat;
 
     QRegularExpression _validRegisterExpression;
-    QTextCharFormat _invalidRegFormat;
+    QTextCharFormat _errorFormat;
 
 };
 

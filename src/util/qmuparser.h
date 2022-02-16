@@ -22,6 +22,7 @@ public:
 
     bool isSuccess() const;
     QString msg() const;
+    qint32 errorPos() const;
     double value() const;
 
 private:
@@ -39,6 +40,7 @@ private:
     bool _bSuccess;
     double _value;
     QString _msg;
+    qint32 _errorPos;
 
 };
 

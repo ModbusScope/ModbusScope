@@ -19,6 +19,7 @@ public:
     void modbusRegisterList(QList<ModbusRegister>& registerList);
 
     QString expressionParseMsg(qint32 exprIdx) const;
+    qint32 expressionErrorPos(qint32 exprIdx) const;
 
 public slots:
     void handleRegisterData(QList<Result<qint64> > results);
