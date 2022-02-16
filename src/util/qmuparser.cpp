@@ -11,6 +11,8 @@ QMuParser::QMuParser(QString strExpression)
     mu::ParserRegister::setRegisterCallback(&QMuParser::registerValue);
     _pExprParser = new mu::ParserRegister();
 
+    _errorPos = -1;
+
     setExpression(strExpression);
 }
 
@@ -19,7 +21,8 @@ QMuParser::QMuParser(const QMuParser &source)
     _bInvalidExpression(source._bInvalidExpression),
     _bSuccess(source._bSuccess),
     _value(source._value),
-    _msg(source._msg)
+    _msg(source._msg),
+    _errorPos(source._errorPos)
 {
 
 }
@@ -63,10 +66,12 @@ void QMuParser::setExpression(QString expr)
     try
     {
         _pExprParser->SetExpr(expr.toStdString());
+        _errorPos = -1;
     }
     catch (mu::Parser::exception_type &e)
     {
         _bInvalidExpression = false;
+        _errorPos = e.GetPos();
     }
 
     reset();
@@ -91,6 +96,7 @@ bool QMuParser::evaluate()
         _bSuccess = false;
         _value = 0;
         _msg = QStringLiteral("Invalid expression");
+        /* Error position already set */
     }
     else
     {
@@ -104,6 +110,7 @@ bool QMuParser::evaluate()
             }
 
             _msg = QStringLiteral("Success");
+            _errorPos = -1;
             _bSuccess = true;
         }
         catch (mu::Parser::exception_type &e)
@@ -111,6 +118,7 @@ bool QMuParser::evaluate()
             _value = 0;
 
             _msg = QString::fromStdString(e.GetMsg());
+            _errorPos = e.GetPos();
             _bSuccess = false;
         }
     }
@@ -121,6 +129,11 @@ bool QMuParser::evaluate()
 QString QMuParser::msg() const
 {
     return _msg;
+}
+
+qint32 QMuParser::errorPos() const
+{
+    return _errorPos;
 }
 
 double QMuParser::value() const

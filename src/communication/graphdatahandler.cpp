@@ -56,6 +56,16 @@ QString GraphDataHandler::expressionParseMsg(qint32 exprIdx) const
     return _valueParsers[exprIdx].msg();
 }
 
+qint32 GraphDataHandler::expressionErrorPos(qint32 exprIdx) const
+{
+    if (exprIdx >= _valueParsers.size())
+    {
+        return -1;
+    }
+
+    return _valueParsers[exprIdx].errorPos();
+}
+
 void GraphDataHandler::handleRegisterData(QList<Result<qint64> > results)
 {
     QList<bool> graphSuccess;
