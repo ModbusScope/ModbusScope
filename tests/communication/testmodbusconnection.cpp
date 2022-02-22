@@ -207,11 +207,11 @@ void TestModbusConnection::readRequestError()
 
 ModbusConnection::TcpSettings TestModbusConnection::constructTcpSettings(QString ip, qint32 port)
 {
-    struct ModbusConnection::TcpSettings tcpSettings =
-    {
-        .ip = ip,
-        .port = port,
-    };
+   ModbusConnection::TcpSettings tcpSettings;
+
+        tcpSettings.ip = ip;
+        tcpSettings.port = port;
+
 
     return tcpSettings;
 }

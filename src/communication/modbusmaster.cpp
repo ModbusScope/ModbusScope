@@ -70,23 +70,23 @@ void ModbusMaster::readRegisterList(QList<quint32> registerList)
         /* Open connection */
         if (_pSettingsModel->connectionType(_connectionId) == Connection::TYPE_SERIAL)
         {
-            struct ModbusConnection::SerialSettings serialSettings =
-            {
-                .portName = _pSettingsModel->portName(_connectionId),
-                .parity = _pSettingsModel->parity(_connectionId),
-                .baudrate = _pSettingsModel->baudrate(_connectionId),
-                .databits = _pSettingsModel->databits(_connectionId),
-                .stopbits = _pSettingsModel->stopbits(_connectionId),
-            };
+            ModbusConnection::SerialSettings serialSettings;
+
+                serialSettings.portName = _pSettingsModel->portName(_connectionId);
+                serialSettings.parity = _pSettingsModel->parity(_connectionId);
+                serialSettings.baudrate = _pSettingsModel->baudrate(_connectionId);
+                serialSettings.databits = _pSettingsModel->databits(_connectionId);
+                serialSettings.stopbits = _pSettingsModel->stopbits(_connectionId);
+
             _pModbusConnection->openSerialConnection(serialSettings, _pSettingsModel->timeout(_connectionId));
         }
         else
         {
-            struct ModbusConnection::TcpSettings tcpSettings =
-            {
-                .ip = _pSettingsModel->ipAddress(_connectionId),
-                .port = _pSettingsModel->port(_connectionId),
-            };
+           ModbusConnection::TcpSettings tcpSettings;
+
+                tcpSettings.ip = _pSettingsModel->ipAddress(_connectionId);
+                tcpSettings.port = _pSettingsModel->port(_connectionId);
+
             _pModbusConnection->openTcpConnection(tcpSettings, _pSettingsModel->timeout(_connectionId));
         }
     }
