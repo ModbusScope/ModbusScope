@@ -95,7 +95,7 @@ bool QMuParser::evaluate()
     {
         _bSuccess = false;
         _value = 0;
-        _msg = QStringLiteral("Invalid expression");
+        _msg = QStringLiteral("Invalid expression (unexpected decimal separator)");
         /* Error position already set */
     }
     else
@@ -116,9 +116,25 @@ bool QMuParser::evaluate()
         catch (mu::Parser::exception_type &e)
         {
             _value = 0;
-
-            _msg = QString::fromStdString(e.GetMsg());
             _errorPos = e.GetPos();
+
+            if (e.GetCode() == mu::ecINTERNAL_ERROR)
+            {
+                if (_errorPos >= 0 || _errorPos <= e.GetMsg().length())
+                {
+                    _msg = QString("Invalid expression (error at position %1)").arg(_errorPos);
+                }
+                else
+                {
+                    _msg = QString("Invalid expression");
+                    _errorPos = -1;
+                }
+            }
+            else
+            {
+                _msg = QString::fromStdString(e.GetMsg());
+            }
+
             _bSuccess = false;
         }
     }
