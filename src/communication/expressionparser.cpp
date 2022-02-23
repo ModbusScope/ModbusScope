@@ -3,7 +3,7 @@
 #include "scopelogging.h"
 #include "expressionregex.h"
 
-const QString ExpressionParser::_cRegisterFunctionTemplate = "regval(%1)";
+const QString ExpressionParser::_cRegisterFunctionTemplate = "r(%1)";
 
 ExpressionParser::ExpressionParser(QStringList& expressions)
 {
