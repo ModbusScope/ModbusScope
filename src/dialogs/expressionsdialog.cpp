@@ -14,6 +14,8 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel *pGraphDataModel, qint32 idx
 
     _graphIdx = idx;
 
+    _pHighlighter = new ExpressionHighlighting(_pUi->lineExpression->document());
+
     connect(&_graphDataHandler, &GraphDataHandler::graphDataReady, this, &ExpressionsDialog::handleDataReady);
 
     _pUi->tblExpressionInput->setRowCount(0);
@@ -29,12 +31,8 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel *pGraphDataModel, qint32 idx
     connect(_pUi->btnCancel, &QPushButton::clicked, this, &ExpressionsDialog::handleCancel);
     connect(_pUi->btnAccept, &QPushButton::clicked, this, &ExpressionsDialog::handleAccept);
 
-    _pHighlighter = new ExpressionHighlighting(_pUi->lineExpression->document());
-
-    _pUi->lineExpression->setPlainText(_pGraphDataModel->expression(_graphIdx));
     connect(_pUi->lineExpression, &QPlainTextEdit::textChanged, this, &ExpressionsDialog::handleExpressionChange);
-
-    handleExpressionChange();
+    _pUi->lineExpression->setPlainText(_pGraphDataModel->expression(_graphIdx));
 }
 
 ExpressionsDialog::~ExpressionsDialog()
@@ -44,44 +42,51 @@ ExpressionsDialog::~ExpressionsDialog()
 
 void ExpressionsDialog::handleExpressionChange()
 {
-    _localGraphDataModel.clear();
-    _localGraphDataModel.add();
-    _localGraphDataModel.setExpression(0, _pUi->lineExpression->toPlainText());
-
-    _graphDataHandler.processActiveRegisters(&_localGraphDataModel);
-
-    QList<ModbusRegister> registerList;
-    _graphDataHandler.modbusRegisterList(registerList);
-
-    /* Save current test values */
-    QMap<QString, QString> _testValueMap;
-    for(qint32 idx = 0; idx < _pUi->tblExpressionInput->rowCount(); idx++)
+    /* Avoid endless signal loop, because formatting also emit textChanged */
+    if (
+            (_localGraphDataModel.size() == 0)
+            || (_localGraphDataModel.expression(0) != _pUi->lineExpression->toPlainText()))
     {
-        QString descr = _pUi->tblExpressionInput->item(idx, 0)->text();
-        QString value = _pUi->tblExpressionInput->item(idx, 1)->text();
+        _localGraphDataModel.clear();
+        _localGraphDataModel.add();
+        _localGraphDataModel.setExpression(0, _pUi->lineExpression->toPlainText());
 
-        _testValueMap.insert(descr, value);
+        _graphDataHandler.processActiveRegisters(&_localGraphDataModel);
+
+        QList<ModbusRegister> registerList;
+        _graphDataHandler.modbusRegisterList(registerList);
+
+        /* Save current test values */
+        QMap<QString, QString> _testValueMap;
+        for(qint32 idx = 0; idx < _pUi->tblExpressionInput->rowCount(); idx++)
+        {
+            QString descr = _pUi->tblExpressionInput->item(idx, 0)->text();
+            QString value = _pUi->tblExpressionInput->item(idx, 1)->text();
+
+            _testValueMap.insert(descr, value);
+        }
+
+        _bUpdating = true;
+        _pUi->tblExpressionInput->setRowCount(registerList.size());
+        _pHighlighter->setExpressionErrorPosition(-1);
+
+        for(qint32 idx = 0; idx < registerList.size(); idx++)
+        {
+            ModbusRegister reg = registerList[idx];
+            QString regDescr = reg.description();
+            QTableWidgetItem *newRegisterDescr = new QTableWidgetItem(regDescr);
+            newRegisterDescr->setFlags(newRegisterDescr->flags() & ~Qt::ItemIsEditable);
+            _pUi->tblExpressionInput->setItem(idx, 0, newRegisterDescr);
+
+            QString testVal = _testValueMap.contains(regDescr) ? _testValueMap[regDescr]: "0";
+            QTableWidgetItem *newRegisterValue = new QTableWidgetItem(testVal);
+            _pUi->tblExpressionInput->setItem(idx, 1, newRegisterValue);
+        }
+
+        _bUpdating = false;
+
+        handleInputChange();
     }
-
-    _bUpdating = true;
-    _pUi->tblExpressionInput->setRowCount(registerList.size());
-
-    for(qint32 idx = 0; idx < registerList.size(); idx++)
-    {
-        ModbusRegister reg = registerList[idx];
-        QString regDescr = reg.description();
-        QTableWidgetItem *newRegisterDescr = new QTableWidgetItem(regDescr);
-        newRegisterDescr->setFlags(newRegisterDescr->flags() & ~Qt::ItemIsEditable);
-        _pUi->tblExpressionInput->setItem(idx, 0, newRegisterDescr);
-
-        QString testVal = _testValueMap.contains(regDescr) ? _testValueMap[regDescr]: "0";
-        QTableWidgetItem *newRegisterValue = new QTableWidgetItem(testVal);
-        _pUi->tblExpressionInput->setItem(idx, 1, newRegisterValue);
-    }
-
-    _bUpdating = false;
-
-    handleInputChange();
 }
 
 void ExpressionsDialog::handleInputChange()
@@ -142,6 +147,8 @@ void ExpressionsDialog::handleDataReady(QList<bool> successList, QList<double> v
         numOutput = QStringLiteral("-");
         strError = _graphDataHandler.expressionParseMsg(0);
     }
+    _pHighlighter->setExpressionErrorPosition(_graphDataHandler.expressionErrorPos(0));
+    _pHighlighter->rehighlight();
 
     _pUi->lblOut->setText(numOutput);
     _pUi->lblOut->setToolTip(strError);

@@ -107,12 +107,11 @@ void TestQMuParser::evaluateSingleRegister_data()
     QTest::addColumn<quint32>("registerValue");
     QTest::addColumn<double>("result");
 
-
-    ADD_REG_TEST("regval(0)",           2,        2    );
-    ADD_REG_TEST("regval(0) + 2",       3,        5    );
-    ADD_REG_TEST("regval(0) * 2",       4,        8    );
-    ADD_REG_TEST("regval(0) / 1000",    5,        0.005);
-    ADD_REG_TEST("regval(0) & 0xFF",    257,      1);
+    ADD_REG_TEST("r(0)",           2,        2    );
+    ADD_REG_TEST("r(0) + 2",       3,        5    );
+    ADD_REG_TEST("r(0) * 2",       4,        8    );
+    ADD_REG_TEST("r(0) / 1000",    5,        0.005);
+    ADD_REG_TEST("r(0) & 0xFF",    257,      1);
 
 }
 
@@ -137,7 +136,7 @@ void TestQMuParser::evaluateMultipleRegisters()
 {
     auto input = QList<Result<qint64> >() << Result<qint64>(1, true) << Result<qint64>(2, true) << Result<qint64>(3, true);
 
-    QMuParser parser("regval(0)");
+    QMuParser parser("r(0)");
     parser.setRegistersData(input);
 
     bool bSuccess = parser.evaluate();
@@ -146,14 +145,14 @@ void TestQMuParser::evaluateMultipleRegisters()
     QVERIFY(parser.isSuccess());
     QVERIFY(bSuccess);
 
-    parser.setExpression("regval(1)");
+    parser.setExpression("r(1)");
     bSuccess = parser.evaluate();
 
     QCOMPARE(parser.value(), 2);
     QVERIFY(parser.isSuccess());
     QVERIFY(bSuccess);
 
-    parser.setExpression("regval(2)");
+    parser.setExpression("r(2)");
     bSuccess = parser.evaluate();
 
     QCOMPARE(parser.value(), 3);
@@ -170,7 +169,7 @@ void TestQMuParser::evaluateSubsequentRegister()
         data.append(idx);
     }
 
-    QMuParser parser("regval(0)");
+    QMuParser parser("r(0)");
 
     for (int idx = 0; idx < count; idx++)
     {
@@ -208,7 +207,7 @@ void TestQMuParser::evaluateEmpty()
 
 void TestQMuParser::evaluateFail()
 {
-    QString expression = "regval(0)";
+    QString expression = "r(0)";
     auto resultList = QList<Result<qint64> >() << Result<qint64>(5, false);
 
     QMuParser parser(expression);
@@ -303,7 +302,7 @@ void TestQMuParser::expressionGet()
 
 void TestQMuParser::expressionUpdate()
 {
-    QMuParser parser("regval(0) + 1");
+    QMuParser parser("r(0) + 1");
 
     auto input_1 = QList<Result<qint64> >() << Result<qint64>(5, true);
     parser.setRegistersData(input_1);
@@ -314,7 +313,7 @@ void TestQMuParser::expressionUpdate()
     QVERIFY(parser.isSuccess());
     QVERIFY(bSuccess);
 
-    parser.setExpression("regval(0) + regval(1) + 2");
+    parser.setExpression("r(0) + r(1) + 2");
 
     auto input_2 = QList<Result<qint64> >() << Result<qint64>(1, true) << Result<qint64>(2, true);
     parser.setRegistersData(input_2);

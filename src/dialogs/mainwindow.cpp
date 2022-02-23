@@ -228,7 +228,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
 #if 0
     //Debugging
     _pGraphDataModel->add();
-    _pGraphDataModel->setRegisterAddress(0, 49001);
+    _pGraphDataModel->setExpression(0, "${40001}");
 
     //_pGraphDataModel->setActive(2, false);
 

@@ -18,6 +18,9 @@ private slots:
     void init();
     void cleanup();
 
+    void errorPosition_data();
+    void errorPosition();
+
     void registerList();
     void manyInactiveRegisters();
 

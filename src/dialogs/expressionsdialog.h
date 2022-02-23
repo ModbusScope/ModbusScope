@@ -40,6 +40,7 @@ private:
     ExpressionHighlighting *_pHighlighter;
 
     bool _bUpdating;
+    
 };
 
 #endif // EXPRESSIONSDIALOG_H
