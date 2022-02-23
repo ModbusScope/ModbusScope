@@ -66,6 +66,8 @@ void TestGraphDataHandler::errorPosition_data()
     ADD_TEST("${40001@1:s16b}+${40001@1}--", 29);
     ADD_TEST("${40001@1:s16b} + ${40001 @ 1 }--", 34);
 
+    ADD_TEST("${40001}\n+1\n+${40001}", -1);
+
 }
 
 void TestGraphDataHandler::errorPosition()

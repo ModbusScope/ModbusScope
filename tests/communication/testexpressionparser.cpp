@@ -131,6 +131,16 @@ void TestExpressionParser::spaces()
     verifyParsing(input, expModbusRegisters, expExpressions);
 }
 
+void TestExpressionParser::newlines()
+{
+    auto input = QStringList() <<           "${45332@2:32b} \n + 1 + \n + ${45330}";
+    auto expExpressions = QStringList() <<  "r(0          ) \n + 1 + \n + r(1    )";
+    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(45332, Connection::ID_2, true, true)
+                                                      << ModbusRegister(45330, Connection::ID_1, false, true);
+
+    verifyParsing(input, expModbusRegisters, expExpressions);
+}
+
 void TestExpressionParser::constant()
 {
     auto input = QStringList() << "2";
