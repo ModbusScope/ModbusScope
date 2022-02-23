@@ -113,6 +113,7 @@ void TestQMuParser::evaluateSingleRegister_data()
     ADD_REG_TEST("r(0) / 1000",    5,        0.005);
     ADD_REG_TEST("r(0) & 0xFF",    257,      1);
 
+    ADD_REG_TEST("r(0)\n+r(0)",    2,        4    );
 }
 
 void TestQMuParser::evaluateSingleRegister()

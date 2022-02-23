@@ -21,6 +21,7 @@ private slots:
     void combinations();
     void explicitDefaults();
     void spaces();
+    void newlines();
     void constant();
     void manyRegisters();
 
