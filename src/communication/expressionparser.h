@@ -24,6 +24,7 @@ private:
 
     QString processExpression(QString& expr);
     bool processRegisterExpression(QString regExpr, ModbusRegister &modbusReg);
+    QString constructInternalRegisterFunction(ModbusRegister& modbusReg, int size);
 
     QStringList _processedExpressions;
     QList<ModbusRegister> _modbusRegisters;
