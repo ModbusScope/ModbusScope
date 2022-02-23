@@ -209,7 +209,7 @@ namespace mu
 	/** \brief Initialize the default functions. */
 	void ParserRegister::InitFun()
 	{
-        DefineFun(_T("regval"), RegVal, false);
+        DefineFun(_T("r"), RegVal, false);
 	}
 
 	//---------------------------------------------------------------------------
