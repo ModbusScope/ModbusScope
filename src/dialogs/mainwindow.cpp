@@ -225,7 +225,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
 
     handleCommandLineArguments(cmdArguments);
 
-#if 1
+#if 0
     //Debugging
     _pGraphDataModel->add();
     _pGraphDataModel->setExpression(0, "${40001}");
