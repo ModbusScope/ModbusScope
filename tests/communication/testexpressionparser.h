@@ -22,6 +22,7 @@ private slots:
     void explicitDefaults();
     void spaces();
     void constant();
+    void manyRegisters();
 
     void verifyParsing(QStringList exprList, QList<ModbusRegister> &expectedRegisters, QStringList &expectedExpression);
 

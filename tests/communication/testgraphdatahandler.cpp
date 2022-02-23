@@ -10,6 +10,8 @@
 
 Q_DECLARE_METATYPE(Result<quint16>);
 
+#define ADD_TEST(expr, errorPos)      QTest::newRow(expr) << QString(expr) << static_cast<int>(errorPos)
+
 void TestGraphDataHandler::init()
 {
     qRegisterMetaType<Result<quint16>>("Result<quint16>");
@@ -45,6 +47,45 @@ void TestGraphDataHandler::registerList()
     dataHandler.modbusRegisterList(registerList);
 
     QCOMPARE(expModbusRegisters, registerList);
+}
+
+void TestGraphDataHandler::errorPosition_data()
+{
+    QTest::addColumn<QString>("expression");
+    QTest::addColumn<int>("errorPos");
+
+    ADD_TEST("${40001}", -1);
+    ADD_TEST("10 + 5", -1);
+    ADD_TEST("++", 2);
+    ADD_TEST("--1", 2);
+    ADD_TEST("-1-+-1", 5);
+    ADD_TEST("${40001}++", 11);
+    ADD_TEST("${40001@1:s16b}++", 18);
+    ADD_TEST("${40001@1:s16b}  ++", 20);
+    ADD_TEST("${40001@1:s16b}+${40001@1}", -1);
+    ADD_TEST("${40001@1:s16b}+${40001@1}--", 29);
+    ADD_TEST("${40001@1:s16b} + ${40001 @ 1 }--", 34);
+
+}
+
+void TestGraphDataHandler::errorPosition()
+{
+    QFETCH(QString, expression);
+    QFETCH(int, errorPos);
+
+    auto exprList = QStringList() << expression;
+
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    GraphDataHandler dataHandler;
+    QList<ModbusRegister> registerList;
+    dataHandler.processActiveRegisters(_pGraphDataModel);
+    dataHandler.modbusRegisterList(registerList);
+
+    auto regResults = QList<Result<qint64>>() << Result<qint64>(1, true);
+    dataHandler.handleRegisterData(regResults);
+
+    QCOMPARE(dataHandler.expressionErrorPos(0), errorPos);
 }
 
 void TestGraphDataHandler::manyInactiveRegisters()

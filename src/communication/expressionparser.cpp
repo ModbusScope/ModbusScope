@@ -3,7 +3,7 @@
 #include "scopelogging.h"
 #include "expressionregex.h"
 
-const QString ExpressionParser::_cRegisterFunctionTemplate = "r(%1)";
+const QString ExpressionParser::_cRegisterFunctionTemplate = "r(%1%2)";
 
 ExpressionParser::ExpressionParser(QStringList& expressions)
 {
@@ -40,7 +40,6 @@ void ExpressionParser::parseExpressions(QStringList& expressions)
 QString ExpressionParser::processExpression(QString& graphExpr)
 {
     QString resultExpr = graphExpr;
-    resultExpr = resultExpr.remove(' ');
     QRegularExpressionMatchIterator i = _findRegRegex.globalMatch(resultExpr);
 
     if (!i.hasNext() && resultExpr.contains("$"))
@@ -59,23 +58,8 @@ QString ExpressionParser::processExpression(QString& graphExpr)
             ModbusRegister modbusReg;
             if (processRegisterExpression(regDef, modbusReg))
             {
-                quint8 idx;
-                if (_modbusRegisters.contains(modbusReg))
-                {
-                    idx = _modbusRegisters.indexOf(modbusReg);
-                }
-                else
-                {
-                    _modbusRegisters.append(modbusReg);
-                    idx = _modbusRegisters.size() - 1;
-                }
-
-                QString regFunc = QString(_cRegisterFunctionTemplate).arg(idx);
+                QString regFunc = constructInternalRegisterFunction(modbusReg, regDef.size());
                 resultExpr.replace(regDef, regFunc);
-            }
-            else
-            {
-                resultExpr.replace(regDef, QString());
             }
         }
     }
@@ -112,6 +96,27 @@ bool ExpressionParser::processRegisterExpression(QString regExpr, ModbusRegister
     }
 
     return bRet;
+}
+
+QString ExpressionParser::constructInternalRegisterFunction(ModbusRegister &modbusReg, int size)
+{
+    quint8 idx;
+    if (_modbusRegisters.contains(modbusReg))
+    {
+        idx = _modbusRegisters.indexOf(modbusReg);
+    }
+    else
+    {
+        _modbusRegisters.append(modbusReg);
+        idx = _modbusRegisters.size() - 1;
+    }
+
+    /* Add dummy whitespaces to make sure positions in internal representations match visible expressions */
+    QString regIdx = QString("%1").arg(idx);
+    const int spacesCount = size - 3 - regIdx.size(); /* ignore ${} and idx string length */
+    QString spaces = QString(" ").repeated(spacesCount);
+
+    return QString(_cRegisterFunctionTemplate).arg(idx).arg(spaces);
 }
 
 bool ExpressionParser::parseAddress(QString strAddr, ModbusRegister& modbusReg)
