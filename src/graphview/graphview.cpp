@@ -240,8 +240,6 @@ void GraphView::updateGraphs()
             // Add graph
             QCPGraph * pGraph = _pPlot->addGraph();
 
-            pGraph->setName(_pGraphDataModel->label(graphIdx));
-
             QPen pen;
             pen.setColor(_pGraphDataModel->color(graphIdx));
             pen.setWidth(2);
@@ -293,18 +291,6 @@ void GraphView::changeGraphColor(const quint32 graphIdx)
         pen.setCosmetic(true);
 
         _pPlot->graph(activeIdx)->setPen(pen);
-
-        _pPlot->replot();
-    }
-}
-
-void GraphView::changeGraphLabel(const quint32 graphIdx)
-{
-    if (_pGraphDataModel->isActive(graphIdx))
-    {
-        const quint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
-
-        _pPlot->graph(activeIdx)->setName(_pGraphDataModel->label(graphIdx));
 
         _pPlot->replot();
     }
@@ -461,7 +447,6 @@ void GraphView::clearResults()
     for (qint32 i = 0; i < _pPlot->graphCount(); i++)
     {
         _pPlot->graph(i)->data()->clear();
-        _pPlot->graph(i)->setName(QString("(-) %1").arg(_pGraphDataModel->label(i)));
     }
 
     _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
