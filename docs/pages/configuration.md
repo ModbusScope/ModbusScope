@@ -28,16 +28,16 @@ The expression can be freely updated. The register definition will be validated 
 
 #### Expressions
 
-A Modbus register read is represented as `${REG\[@CONN]\[:TYPE]}`. Multiple registers read can be combined in one expression.
+A Modbus register read is represented as `${REG[@CONN][:TYPE]}`. Multiple registers read can be combined in one expression.
 
 * `${45332}` => 16-bit unsigned using connection 1
 * `${45332: s16b}` => 16-bit signed using connection 1
 * `${45332@2: 32b}` => 32-bit unsigned using connection 2
 * `${45332@2}` => 16-bit unsigned using connection 2
 
-The most common binary operators are supported (`!`, `|`, `&`, `<<`, `>>`). The basic arithmetic operators are also supported (`+`, `-`, `*`, `/`, `%`, `^`). Hexadecimal numbers can be represented with the `0x`. Binary are represented with `0b` prefix. Floating point number are also supported. Both a decimal point as comma can be used. The first encountered character is used as floating point separator.
+The most common binary operators are supported (`!`, `|`, `&`, `<<`, `>>`). The basic arithmetic operators are also supported (`+`, `-`, `*`, `/`, `%`, `^`). Hexadecimal numbers can be represented with the `0x` prefix. Binary are represented with `0b` prefix. Floating point numbers are also supported. Both a decimal point as comma can be used. The first encountered character is used as floating point separator.
 
-Some examples:
+Some examples of valid expressions are
 
 * `${40001: s16b} + ${40002@2} * 2`
 * `${40001: s32b} * 1.1`
@@ -59,11 +59,11 @@ A Modbus connection needs to configured correctly before any data can be read. I
 
 There are two types of connection settings. Some connection settings (*IP*, *port*, *port name*, *baud rate*, *parity*, ... ) are specific to the type of connection. The other settings (*slave ID*, *timeout*, *max consecutive register* and *32-bit little endian*) are specific to the Modbus protocol implementation in the device. The *persistent connection* option is specific to *ModbusScope*. When enabled, *ModbusScope* will keep the connection open between polling data points. The connection will only be reinitialized when a connection error occurs.
 
-For the TCP connection, you need to specify the correct IP address and port of the connection to the slave. For the serial connection, you will need to select the name of the serial port in the drop down list. Next you will need to specify some more settings like baud rate, parity, number of stop bits and number of data bits.
+For the TCP connection, you need to specify the correct IP address and port of the connection to the slave. For the serial connection, you will need to select the name of the serial port in the drop-down list. Next you will need to specify some more settings like baud rate, parity, number of stop bits and number of data bits.
 
 ## Configure log settings
 
-*ModbusScope* will create a data file in the OS temporary folder when a logging session is started by default. *ModbusScope* will append data points during the logging to this file. When the user forgets to save the data before quitting or when an unforeseen crash occurs, the data can be recovered. The temporary file is cleared every time a polling session is started. In the *log settings* window, this behavior can be disabled or the temporary data file can be changed.
+*ModbusScope* will create a data file in the general temporary folder when a logging session is started by default. *ModbusScope* will append data points during the logging to this file. When the user forgets to save the data before quitting or when an unforeseen crash occurs, the data can be recovered. The temporary file is cleared every time a polling session is started. In the *log settings* window, this behavior can be disabled or the temporary data file can be changed.
 
 ![image](../_static/user_manual/log_settings.png)
 
