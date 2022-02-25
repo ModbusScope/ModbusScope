@@ -39,7 +39,6 @@ public slots:
     void clearGraph(const quint32 graphIdx);
     void updateGraphs();
     void changeGraphColor(const quint32 graphIdx);
-    void changeGraphLabel(const quint32 graphIdx);
     void bringToFront();
 
     void addData(QList<double> timeData, QList<QList<double> > data);
