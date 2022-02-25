@@ -239,18 +239,9 @@ void GraphView::updateGraphs()
         {
             // Add graph
             QCPGraph * pGraph = _pPlot->addGraph();
+            setGraphColor(pGraph, _pGraphDataModel->color(graphIdx));
 
-            QPen pen;
-            pen.setColor(_pGraphDataModel->color(graphIdx));
-            pen.setWidth(2);
-            pen.setCosmetic(true);
-
-            pGraph->setPen(pen);
-
-            /* Keep visibility state */
-            /* TODO: partial duplicate of showGraph in ExtendedGraph */
-            const bool bShow = _pGraphDataModel->isVisible(graphIdx);
-            pGraph->setVisible(bShow);
+            pGraph->setVisible(_pGraphDataModel->isVisible(graphIdx));
 
             QSharedPointer<QCPGraphDataContainer> pMap = _pGraphDataModel->dataMap(graphIdx);
 
@@ -284,13 +275,7 @@ void GraphView::changeGraphColor(const quint32 graphIdx)
     if (_pGraphDataModel->isActive(graphIdx))
     {
         const quint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
-
-        QPen pen;
-        pen.setColor(_pGraphDataModel->color(graphIdx));
-        pen.setWidth(2);
-        pen.setCosmetic(true);
-
-        _pPlot->graph(activeIdx)->setPen(pen);
+        setGraphColor(_pPlot->graph(activeIdx), _pGraphDataModel->color(graphIdx));
 
         _pPlot->replot();
     }
@@ -806,6 +791,16 @@ void GraphView::highlightSamples(bool bState)
             _pPlot->graph(graphIndex)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
         }
     }
+}
+
+void GraphView::setGraphColor(QCPGraph* _pGraph, const QColor &color)
+{
+    QPen pen;
+    pen.setColor(color);
+    pen.setWidth(2);
+    pen.setCosmetic(true);
+
+    _pGraph->setPen(pen);
 }
 
 qint32 GraphView::graphIndex(QCPGraph * pGraph)
