@@ -106,3 +106,13 @@ QDebug operator<<(QDebug debug, const ModbusRegister &reg)
 
     return debug;
 }
+
+QString ModbusRegister::dumpListToString(QList<ModbusRegister> list)
+{
+    QString str;
+    QDebug dStream(&str);
+
+    dStream << list;
+
+    return str;
+}

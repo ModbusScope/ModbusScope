@@ -13,7 +13,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt5 COMPONENTS
+find_package(Qt6 COMPONENTS
     Widgets
     Xml
     Network
@@ -31,6 +31,10 @@ set(QT_LIB
     Qt::SerialPort
 )
 
+# Enable _UNICODE build of MuParser on Linux
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    add_definitions(-D_UNICODE)
+endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/communication
