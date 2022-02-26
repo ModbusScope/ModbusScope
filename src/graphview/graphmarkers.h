@@ -1,5 +1,5 @@
-#ifndef GRAPHVIEWMARKERS_H
-#define GRAPHVIEWMARKERS_H
+#ifndef GRAPHMARKERS_H
+#define GRAPHMARKERS_H
 
 #include <QObject>
 #include "myqcustomplot.h"
@@ -8,12 +8,12 @@
 class GuiModel;
 class GraphView;
 
-class GraphViewMarkers : public QObject
+class GraphMarkers : public QObject
 {
     Q_OBJECT
 public:
-    explicit GraphViewMarkers(GuiModel* pGuiModel, MyQCustomPlot* pPlot, QObject *parent = nullptr);
-    virtual ~GraphViewMarkers();
+    explicit GraphMarkers(GuiModel* pGuiModel, MyQCustomPlot* pPlot, QObject *parent = nullptr);
+    virtual ~GraphMarkers();
 
     void clearTracers();
     void addTracer(QCPGraph* pGraph);
@@ -42,4 +42,4 @@ private:
 
 };
 
-#endif // GRAPHVIEWMARKERS_H
+#endif // GRAPHMARKERS_H

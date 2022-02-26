@@ -15,7 +15,7 @@
 #include "myqcpaxis.h"
 #include "graphview.h"
 #include "graphviewzoom.h"
-#include "graphviewmarkers.h"
+#include "graphmarkers.h"
 #include "notehandling.h"
 
 GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel *pNoteModel, MyQCustomPlot * pPlot, QObject *parent) :
@@ -81,7 +81,7 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
    connect(_pPlot, &MyQCustomPlot::beforeReplot, this, &GraphView::handleSamplePoints);
 
    _pGraphViewZoom = new GraphViewZoom(_pGuiModel, _pPlot, this);
-   _pGraphViewMarkers = new GraphViewMarkers(_pGuiModel, _pPlot, this);
+   _pGraphMarkers = new GraphMarkers(_pGuiModel, _pPlot, this);
    _pNoteHandling = new NoteHandling(pNoteModel, _pPlot, this);
 
    _pPlot->replot();
@@ -91,7 +91,7 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
 GraphView::~GraphView()
 {
     delete _pGraphViewZoom;
-    delete _pGraphViewMarkers;
+    delete _pGraphMarkers;
     delete _pNoteHandling;
 }
 
@@ -209,7 +209,7 @@ void GraphView::clearGraph(const quint32 graphIdx)
 void GraphView::updateGraphs()
 {
     /* First remove tracers */
-    _pGraphViewMarkers->clearTracers();
+    _pGraphMarkers->clearTracers();
 
     /* Clear graphs and add current active graphs */
     _pPlot->clearGraphs();
@@ -263,7 +263,7 @@ void GraphView::updateGraphs()
             // Set graph datamap
             pGraph->setData(pMap);
 
-            _pGraphViewMarkers->addTracer(pGraph);
+            _pGraphMarkers->addTracer(pGraph);
         }
     }
 
@@ -307,7 +307,7 @@ void GraphView::showGraph(quint32 graphIdx)
         const quint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
         _pPlot->graph(activeIdx)->setVisible(bShow);
-        _pGraphViewMarkers->updateTracersVisibility();
+        _pGraphMarkers->updateTracersVisibility();
 
         rescalePlot();
     }
