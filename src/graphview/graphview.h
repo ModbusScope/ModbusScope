@@ -12,7 +12,7 @@ class NoteModel;
 class SettingsModel;
 
 class GraphViewZoom;
-class GraphViewMarkers;
+class GraphMarkers;
 class NoteHandling;
 
 class GraphView : public QObject
@@ -81,7 +81,7 @@ private:
     bool _bEnableSampleHighlight;
 
     GraphViewZoom* _pGraphViewZoom;
-    GraphViewMarkers* _pGraphViewMarkers;
+    GraphMarkers* _pGraphMarkers;
     NoteHandling* _pNoteHandling;
 
     QPoint _tooltipLocation;
