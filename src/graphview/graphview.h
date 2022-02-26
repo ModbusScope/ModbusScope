@@ -69,7 +69,6 @@ private:
     void paintTimeStampToolTip(QPoint pos);
     void highlightSamples(bool bState);
     void setGraphColor(QCPGraph* _pGraph, const QColor &color);
-    qint32 graphIndex(QCPGraph * pGraph);
     double getClosestPoint(double coordinate);
 
     QVector<QString> _tickLabels;

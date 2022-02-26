@@ -803,22 +803,6 @@ void GraphView::setGraphColor(QCPGraph* _pGraph, const QColor &color)
     _pGraph->setPen(pen);
 }
 
-qint32 GraphView::graphIndex(QCPGraph * pGraph)
-{
-    qint32 ret = -1;
-
-    for (qint32 graphIndex = 0; graphIndex < _pPlot->graphCount(); graphIndex++)
-    {
-        if (pGraph == _pPlot->graph(graphIndex))
-        {
-            ret = graphIndex;
-            break;
-        }
-    }
-
-    return ret;
-}
-
 double GraphView::getClosestPoint(double coordinate)
 {
     QCPGraphDataContainer::const_iterator closestIt;
