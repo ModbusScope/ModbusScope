@@ -785,18 +785,25 @@ void GraphView::xAxisRangeChanged(const QCPRange &newRange, const QCPRange &oldR
 {
     QCPRange range = newRange;
 
-    if (newRange.upper <= 0)
+    const double beginKey = _pGraphDataModel->dataMap(0)->constBegin()->key;
+    if (range.lower < 0)
     {
-        range.upper = oldRange.upper;
+        if (beginKey > 0)
+        {
+            range.lower = 0;
+        }
+        else
+        {
+            range.lower = range.lower < beginKey ? beginKey: range.lower;
+        }
     }
 
-    if (newRange.lower <= 0)
+    if (range.upper < range.lower)
     {
-        range.lower = 0;
+        range.upper = range.lower;
     }
 
     _pPlot->xAxis->setRange(range);
-
 
     updateTooltip();
 }
