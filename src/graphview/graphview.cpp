@@ -11,7 +11,7 @@
 #include "graphdatamodel.h"
 #include "settingsmodel.h"
 #include "notemodel.h"
-#include "myqcpaxistickertime.h"
+#include "axistickertime.h"
 #include "myqcpaxis.h"
 #include "graphview.h"
 #include "graphviewzoom.h"
@@ -54,7 +54,7 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
     _pPlot->axisRect()->setRangeZoomAxes(pXAxis, pYAxis);
 
     // Add custom axis ticker
-   QSharedPointer<QCPAxisTickerTime> timeTicker(new MyQCPAxisTickerTime(_pPlot));
+   QSharedPointer<QCPAxisTickerTime> timeTicker(new AxisTickerTime(_pPlot));
    _pPlot->xAxis->setTicker(timeTicker);
    _pPlot->xAxis->setLabel("Time");
    _pPlot->xAxis->setRange(0, 10000);

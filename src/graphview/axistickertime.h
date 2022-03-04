@@ -1,13 +1,13 @@
-#ifndef MYQCPAXISTICKERTIME_H
-#define MYQCPAXISTICKERTIME_H
+#ifndef AXISTICKERTIME_H
+#define AXISTICKERTIME_H
 
 #include <QObject>
 #include "qcustomplot.h"
 
-class MyQCPAxisTickerTime : public QCPAxisTickerTime
+class AxisTickerTime : public QCPAxisTickerTime
 {
 public:
-    MyQCPAxisTickerTime(QCustomPlot *pPlot);
+    AxisTickerTime(QCustomPlot *pPlot);
 
     QString getTickLabel(double tick, const QLocale & locale, QChar formatChar, int precision );
 
@@ -17,4 +17,4 @@ private:
     static const quint32 _cSmallScaleDiff = 2000;
 };
 
-#endif // MYQCPAXISTICKERTIME_H
+#endif // AXISTICKERTIME_H
