@@ -1,13 +1,13 @@
-#ifndef MYQCPAXIS_H
-#define MYQCPAXIS_H
+#ifndef VALUEAXIS_H
+#define VALUEAXIS_H
 
 #include <QObject>
 #include "qcustomplot.h"
 
-class MyQCPAxis : public QCPAxis
+class ValueAxis : public QCPAxis
 {
 public:
-    MyQCPAxis(QCPAxisRect *parent, AxisType type);
+    ValueAxis(QCPAxisRect *parent, AxisType type);
     void rescaleValue(QCPRange keyAxisRange);
 
     void setRange(double lower, double upper);
@@ -20,4 +20,4 @@ private:
 
 };
 
-#endif // MYQCPAXIS_H
+#endif // VALUEAXIS_H

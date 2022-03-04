@@ -1,7 +1,7 @@
-#include "myqcpaxis.h"
+#include "valueaxis.h"
 
 
-MyQCPAxis::MyQCPAxis(QCPAxisRect *parent, AxisType type):
+ValueAxis::ValueAxis(QCPAxisRect *parent, AxisType type):
     QCPAxis(parent, type)
 {
 
@@ -10,7 +10,7 @@ MyQCPAxis::MyQCPAxis(QCPAxisRect *parent, AxisType type):
 /*!
   Rescales the value axis of all the plottables so all whole plottables are visible.
 */
-void MyQCPAxis::rescaleValue(QCPRange keyAxisRange)
+void ValueAxis::rescaleValue(QCPRange keyAxisRange)
 {
     QList<QCPAbstractPlottable*> p = plottables();
     QCPRange newRange;
@@ -53,7 +53,7 @@ void MyQCPAxis::rescaleValue(QCPRange keyAxisRange)
     }
 }
 
-void MyQCPAxis::setRange(const QCPRange &range)
+void ValueAxis::setRange(const QCPRange &range)
 {
     double newLower = range.lower;
     double newUpper = range.upper;
@@ -63,7 +63,7 @@ void MyQCPAxis::setRange(const QCPRange &range)
     QCPAxis::setRange(QCPRange(newLower, newUpper));
 }
 
-void MyQCPAxis::setRange(double lower, double upper)
+void ValueAxis::setRange(double lower, double upper)
 {
     double newLower = lower;
     double newUpper = upper;
@@ -73,7 +73,7 @@ void MyQCPAxis::setRange(double lower, double upper)
     QCPAxis::setRange(newLower, newUpper);
 }
 
-void MyQCPAxis::addMargin(double * pLower, double * pUpper)
+void ValueAxis::addMargin(double * pLower, double * pUpper)
 {
     QList<QCPGraph*> const graphList = graphs();
     if (graphList.size() > 0)
