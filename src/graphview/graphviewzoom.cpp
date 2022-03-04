@@ -39,10 +39,6 @@ bool GraphViewZoom::handleMousePress(QMouseEvent *event)
 {
     if (_pGuiModel->zoomState() == GuiModel::ZOOM_TRIGGERED)
     {
-        /* Disable range drag when zooming is active */
-        _pPlot->setInteraction(QCP::iRangeDrag, false);
-        _pPlot->setInteraction(QCP::iRangeZoom, false);
-
         _pGuiModel->setZoomState(GuiModel::ZOOM_SELECTING);
 
         _selectionOrigin = event->pos();
