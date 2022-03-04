@@ -10,7 +10,7 @@ class GuiModel;
 class GraphDataModel;
 class NoteModel;
 class SettingsModel;
-
+class GraphScale;
 class GraphViewZoom;
 class GraphMarkers;
 class NoteHandling;
@@ -52,15 +52,12 @@ signals:
     void dataAddedToPlot(double timeData, QList<double> dataList);
 
 private slots:
-    void selectionChanged();
-
     void mousePress(QMouseEvent *event);
     void mouseRelease(QMouseEvent *event);
     void mouseWheel();
     void mouseMove(QMouseEvent *event);
 
     void handleSamplePoints();
-    void axisDoubleClicked(QCPAxis * axis);
 
     void updateData(QList<double> *pTimeData, QList<QList<double> > * pDataLists);
     void xAxisRangeChanged(const QCPRange &newRange, const QCPRange &oldRange);
@@ -79,6 +76,7 @@ private:
     ScopePlot * _pPlot;
     bool _bEnableSampleHighlight;
 
+    GraphScale* _pGraphScale;
     GraphViewZoom* _pGraphViewZoom;
     GraphMarkers* _pGraphMarkers;
     NoteHandling* _pNoteHandling;
