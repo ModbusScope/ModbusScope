@@ -12,7 +12,7 @@
 #include "settingsmodel.h"
 #include "notemodel.h"
 #include "axistickertime.h"
-#include "myqcpaxis.h"
+#include "valueaxis.h"
 #include "graphview.h"
 #include "graphviewzoom.h"
 #include "graphmarkers.h"
@@ -44,7 +44,7 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
 
     // Replace y-axis with custom axis
    _pPlot->axisRect()->removeAxis(_pPlot->axisRect()->axes(QCPAxis::atLeft)[0]);
-   _pPlot->axisRect()->addAxis(QCPAxis::atLeft, new MyQCPAxis(_pPlot->axisRect(), QCPAxis::atLeft));
+   _pPlot->axisRect()->addAxis(QCPAxis::atLeft, new ValueAxis(_pPlot->axisRect(), QCPAxis::atLeft));
 
     // Fix axis settings
     QCPAxis * pXAxis = _pPlot->axisRect()->axes(QCPAxis::atBottom)[0];
@@ -376,7 +376,7 @@ void GraphView::rescalePlot()
     }
     else if (_pGuiModel->yAxisScalingMode() == AxisMode::SCALE_WINDOW_AUTO)
     {
-        auto pAxis = dynamic_cast<MyQCPAxis *>(_pPlot->yAxis);
+        auto pAxis = dynamic_cast<ValueAxis *>(_pPlot->yAxis);
         if (pAxis != nullptr)
         {
             pAxis->rescaleValue(_pPlot->xAxis->range());
