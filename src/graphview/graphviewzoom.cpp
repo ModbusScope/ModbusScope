@@ -1,5 +1,7 @@
 
 #include "graphviewzoom.h"
+#include "scopeplot.h"
+#include "guimodel.h"
 #include "graphview.h"
 
 GraphViewZoom::GraphViewZoom(GuiModel* pGuiModel, ScopePlot* pPlot, QObject *parent) :
