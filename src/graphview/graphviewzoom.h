@@ -3,11 +3,11 @@
 
 #include <QObject>
 #include <QRubberBand>
-#include "scopeplot.h"
-#include "guimodel.h"
 
 // Forward declaration
 class GraphView;
+class GuiModel;
+class ScopePlot;
 
 class GraphViewZoom : public QObject
 {
