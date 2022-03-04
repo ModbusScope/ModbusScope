@@ -6,12 +6,12 @@
 // Forward declaration
 class QCPAbstractItem;
 class QCPItemText;
-class MyQCustomPlot;
+class ScopePlot;
 
 class NoteItem
 {
 public:
-    NoteItem(MyQCustomPlot* pPlot,
+    NoteItem(ScopePlot* pPlot,
              const QString& rText,
              const QPointF& rPosition);
     NoteItem(const NoteItem &source);
@@ -25,7 +25,7 @@ public:
 
 private:
     QCPItemText* _note;
-    MyQCustomPlot* _plot;
+    ScopePlot* _plot;
 };
 
 #endif // NOTEITEM_H

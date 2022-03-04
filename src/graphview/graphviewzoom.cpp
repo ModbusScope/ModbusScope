@@ -2,7 +2,7 @@
 #include "graphviewzoom.h"
 #include "graphview.h"
 
-GraphViewZoom::GraphViewZoom(GuiModel* pGuiModel, MyQCustomPlot* pPlot, QObject *parent) :
+GraphViewZoom::GraphViewZoom(GuiModel* pGuiModel, ScopePlot* pPlot, QObject *parent) :
     QObject(parent)
 {
     _pRubberBand = nullptr;

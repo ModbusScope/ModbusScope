@@ -5,7 +5,7 @@
 
 const static quint32 NO_DRAGGED_NOTE = 0xFFFFFFFF;
 
-NoteHandling::NoteHandling(NoteModel* pNoteModel, MyQCustomPlot* pPlot, QObject *parent):
+NoteHandling::NoteHandling(NoteModel* pNoteModel, ScopePlot* pPlot, QObject *parent):
     QObject(parent),
     _pNoteModel(pNoteModel),
     _pPlot(pPlot),

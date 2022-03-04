@@ -18,7 +18,7 @@
 #include "graphmarkers.h"
 #include "notehandling.h"
 
-GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel *pNoteModel, MyQCustomPlot * pPlot, QObject *parent) :
+GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel *pNoteModel, ScopePlot * pPlot, QObject *parent) :
     QObject(parent)
 {
     _pGuiModel = pGuiModel;
@@ -70,15 +70,15 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
    _pPlot->addLayer("topMain", _pPlot->layer("main"), QCustomPlot::limAbove);
 
    // connect slot that ties some axis selections together (especially opposite axes):
-   connect(_pPlot, &MyQCustomPlot::selectionChangedByUser, this, &GraphView::selectionChanged);
+   connect(_pPlot, &ScopePlot::selectionChangedByUser, this, &GraphView::selectionChanged);
 
    // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
-   connect(_pPlot, &MyQCustomPlot::mousePress, this, &GraphView::mousePress);
-   connect(_pPlot, &MyQCustomPlot::mouseRelease, this, &GraphView::mouseRelease);
-   connect(_pPlot, &MyQCustomPlot::mouseWheel, this, &GraphView::mouseWheel);
-   connect(_pPlot, &MyQCustomPlot::axisDoubleClick, this, &GraphView::axisDoubleClicked);
-   connect(_pPlot, &MyQCustomPlot::mouseMove, this, &GraphView::mouseMove);
-   connect(_pPlot, &MyQCustomPlot::beforeReplot, this, &GraphView::handleSamplePoints);
+   connect(_pPlot, &ScopePlot::mousePress, this, &GraphView::mousePress);
+   connect(_pPlot, &ScopePlot::mouseRelease, this, &GraphView::mouseRelease);
+   connect(_pPlot, &ScopePlot::mouseWheel, this, &GraphView::mouseWheel);
+   connect(_pPlot, &ScopePlot::axisDoubleClick, this, &GraphView::axisDoubleClicked);
+   connect(_pPlot, &ScopePlot::mouseMove, this, &GraphView::mouseMove);
+   connect(_pPlot, &ScopePlot::beforeReplot, this, &GraphView::handleSamplePoints);
 
    _pGraphViewZoom = new GraphViewZoom(_pGuiModel, _pPlot, this);
    _pGraphMarkers = new GraphMarkers(_pGuiModel, _pPlot, this);
