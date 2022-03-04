@@ -1,13 +1,13 @@
 #include "formatrelativetime.h"
 
-#include "myqcpaxistickertime.h"
+#include "axistickertime.h"
 
-MyQCPAxisTickerTime::MyQCPAxisTickerTime(QCustomPlot * pPlot)
+AxisTickerTime::AxisTickerTime(QCustomPlot * pPlot)
 {
     _pPlot = pPlot;
 }
 
-QString MyQCPAxisTickerTime::getTickLabel(double tick, const QLocale & locale, QChar formatChar, int precision )
+QString AxisTickerTime::getTickLabel(double tick, const QLocale & locale, QChar formatChar, int precision )
 {
     Q_UNUSED(locale);
     Q_UNUSED(formatChar);
