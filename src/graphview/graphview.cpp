@@ -475,6 +475,10 @@ void GraphView::mousePress(QMouseEvent *event)
     if (_pGraphViewZoom->handleMousePress(event))
     {
         /* Already handled by zoom */
+
+        /* Disable range drag when zooming is active */
+        _pPlot->setInteraction(QCP::iRangeDrag, false);
+        _pPlot->setInteraction(QCP::iRangeZoom, false);
     }
     else if (event->modifiers() & Qt::ControlModifier)
     {
