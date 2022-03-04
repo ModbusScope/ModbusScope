@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QRubberBand>
-#include "myqcustomplot.h"
+#include "scopeplot.h"
 #include "guimodel.h"
 
 // Forward declaration
@@ -13,7 +13,7 @@ class GraphViewZoom : public QObject
 {
     Q_OBJECT
 public:
-    explicit GraphViewZoom(GuiModel* pGuiModel, MyQCustomPlot* pPlot, QObject *parent = nullptr);
+    explicit GraphViewZoom(GuiModel* pGuiModel, ScopePlot* pPlot, QObject *parent = nullptr);
     virtual ~GraphViewZoom();
 
     bool handleMousePress(QMouseEvent *event);
@@ -29,7 +29,7 @@ private:
     void performZoom(void);
 
     GuiModel* _pGuiModel;
-    MyQCustomPlot* _pPlot;
+    ScopePlot* _pPlot;
     GraphView* _pGraphview;
 
     QPoint _selectionOrigin;

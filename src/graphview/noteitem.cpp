@@ -1,10 +1,10 @@
 
 #include "qcustomplot.h"
-#include "myqcustomplot.h"
+#include "scopeplot.h"
 
 #include "noteitem.h"
 
-NoteItem::NoteItem(MyQCustomPlot* pPlot,
+NoteItem::NoteItem(ScopePlot* pPlot,
                    const QString& rText,
                    const QPointF& rPosition)
     : _note(nullptr),

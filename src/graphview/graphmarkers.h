@@ -2,7 +2,7 @@
 #define GRAPHMARKERS_H
 
 #include <QObject>
-#include "myqcustomplot.h"
+#include "scopeplot.h"
 
 // Forward declaration
 class GuiModel;
@@ -12,7 +12,7 @@ class GraphMarkers : public QObject
 {
     Q_OBJECT
 public:
-    explicit GraphMarkers(GuiModel* pGuiModel, MyQCustomPlot* pPlot, QObject *parent = nullptr);
+    explicit GraphMarkers(GuiModel* pGuiModel, ScopePlot* pPlot, QObject *parent = nullptr);
     virtual ~GraphMarkers();
 
     void clearTracers();
@@ -31,7 +31,7 @@ private:
     QCPItemTracer* createTracer(QCPGraph* pGraph);
 
     GuiModel* _pGuiModel;
-    MyQCustomPlot* _pPlot;
+    ScopePlot* _pPlot;
     GraphView* _pGraphview;
 
     QList<QCPItemTracer *> _startTracerList;
