@@ -1,24 +1,24 @@
 #include <QWidget>
 
-#include "myqcustomplot.h"
+#include "scopeplot.h"
 
-MyQCustomPlot::MyQCustomPlot()
+ScopePlot::ScopePlot()
 {
 
 }
 
-MyQCustomPlot::MyQCustomPlot(QWidget *parent):
+ScopePlot::ScopePlot(QWidget *parent):
     QCustomPlot(parent)
 {
 
 }
 
-MyQCustomPlot::~MyQCustomPlot()
+ScopePlot::~ScopePlot()
 {
 
 }
 
-void MyQCustomPlot::enterEvent(QEnterEvent *event)
+void ScopePlot::enterEvent(QEnterEvent *event)
 {
     if (
         (cursor().shape() == Qt::SizeVerCursor)

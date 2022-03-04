@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "myqcustomplot.h"
+#include "scopeplot.h"
 
 /* forward declaration */
 class GuiModel;
@@ -20,7 +20,7 @@ class GraphView : public QObject
     Q_OBJECT
 public:
 
-    explicit GraphView(GuiModel *pGuiModel, SettingsModel * pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel * pNoteModel, MyQCustomPlot *pPlot, QObject *parent = nullptr);
+    explicit GraphView(GuiModel *pGuiModel, SettingsModel * pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel * pNoteModel, ScopePlot *pPlot, QObject *parent = nullptr);
     virtual ~GraphView();
 
     qint32 graphDataSize();
@@ -76,7 +76,7 @@ private:
     GuiModel * _pGuiModel;
     SettingsModel * _pSettingsModel;
     GraphDataModel * _pGraphDataModel;
-    MyQCustomPlot * _pPlot;
+    ScopePlot * _pPlot;
     bool _bEnableSampleHighlight;
 
     GraphViewZoom* _pGraphViewZoom;

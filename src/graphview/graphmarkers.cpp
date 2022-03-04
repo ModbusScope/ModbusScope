@@ -4,7 +4,7 @@
 #include "guimodel.h"
 #include "graphview.h"
 
-GraphMarkers::GraphMarkers(GuiModel* pGuiModel, MyQCustomPlot* pPlot, QObject *parent) :
+GraphMarkers::GraphMarkers(GuiModel* pGuiModel, ScopePlot* pPlot, QObject *parent) :
     QObject(parent),
     _pGuiModel(pGuiModel),
     _pPlot(pPlot),

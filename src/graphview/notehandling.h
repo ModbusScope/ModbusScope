@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QMouseEvent>
 
-#include "myqcustomplot.h"
+#include "scopeplot.h"
 #include "guimodel.h"
 #include "notemodel.h"
 #include "noteitem.h"
@@ -17,7 +17,7 @@ class NoteHandling : public QObject
     Q_OBJECT
 public:
 
-    explicit NoteHandling(NoteModel* pNoteModel, MyQCustomPlot* pPlot, QObject *parent = nullptr);
+    explicit NoteHandling(NoteModel* pNoteModel, ScopePlot* pPlot, QObject *parent = nullptr);
     virtual ~NoteHandling();
 
     bool handleMousePress(QMouseEvent *event);
@@ -34,7 +34,7 @@ public slots:
 private:
 
     NoteModel* _pNoteModel;
-    MyQCustomPlot* _pPlot;
+    ScopePlot* _pPlot;
     GraphView* _pGraphview;
 
     QList< QSharedPointer<NoteItem> > _notesItems;
