@@ -11,9 +11,8 @@
 #include "graphdatamodel.h"
 #include "settingsmodel.h"
 #include "notemodel.h"
-#include "axistickertime.h"
-#include "valueaxis.h"
 #include "graphview.h"
+#include "graphscaling.h"
 #include "graphviewzoom.h"
 #include "graphmarkers.h"
 #include "notehandling.h"
@@ -25,71 +24,43 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
     _pGraphDataModel = pGraphDataModel;
     _pSettingsModel = pSettingsModel;
 
-   _pPlot = pPlot;
+    _pPlot = pPlot;
 
-   /* Range drag is also enabled/disabled on mousePress and mouseRelease event */
-   _pPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes);
-
-   // disable anti aliasing while dragging
-   _pPlot->setNoAntialiasingOnDrag(true);
-
-   /*
+    /*
     * Greatly improves performance
     *
     * phFastPolylines	Graph/Curve lines are drawn with a faster method. This reduces the quality especially
     *                   of the line segment joins. (Only relevant for solid line pens.)
     * phCacheLabels		axis (tick) labels will be cached as pixmaps, increasing replot performance.
     * */
-   _pPlot->setPlottingHints(QCP::phCacheLabels | QCP::phFastPolylines);
+    _pPlot->setPlottingHints(QCP::phCacheLabels | QCP::phFastPolylines);
 
-    // Replace y-axis with custom axis
-   _pPlot->axisRect()->removeAxis(_pPlot->axisRect()->axes(QCPAxis::atLeft)[0]);
-   _pPlot->axisRect()->addAxis(QCPAxis::atLeft, new ValueAxis(_pPlot->axisRect(), QCPAxis::atLeft));
+    connect(_pPlot->xAxis, QOverload<const QCPRange &, const QCPRange &>::of(&QCPAxis::rangeChanged), this, &GraphView::xAxisRangeChanged);
 
-    // Fix axis settings
-    QCPAxis * pXAxis = _pPlot->axisRect()->axes(QCPAxis::atBottom)[0];
-    QCPAxis * pYAxis = _pPlot->axisRect()->axes(QCPAxis::atLeft)[0];
-    pYAxis->grid()->setVisible(true);
-    _pPlot->axisRect()->setRangeDragAxes(pXAxis, pYAxis);
-    _pPlot->axisRect()->setRangeZoomAxes(pXAxis, pYAxis);
+    // Samples are enabled
+    _bEnableSampleHighlight = true;
 
-    // Add custom axis ticker
-   QSharedPointer<QCPAxisTickerTime> timeTicker(new AxisTickerTime(_pPlot));
-   _pPlot->xAxis->setTicker(timeTicker);
-   _pPlot->xAxis->setLabel("Time");
-   _pPlot->xAxis->setRange(0, 10000);
+    // Add layer to move graph on front
+    _pPlot->addLayer("topMain", _pPlot->layer("main"), QCustomPlot::limAbove);
 
-   _pPlot->yAxis->setRange(0, 65535);
+    // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
+    connect(_pPlot, &ScopePlot::mousePress, this, &GraphView::mousePress);
+    connect(_pPlot, &ScopePlot::mouseRelease, this, &GraphView::mouseRelease);
+    connect(_pPlot, &ScopePlot::mouseWheel, this, &GraphView::mouseWheel);
+    connect(_pPlot, &ScopePlot::mouseMove, this, &GraphView::mouseMove);
+    connect(_pPlot, &ScopePlot::beforeReplot, this, &GraphView::handleSamplePoints);
 
-   connect(_pPlot->xAxis, QOverload<const QCPRange &, const QCPRange &>::of(&QCPAxis::rangeChanged), this, &GraphView::xAxisRangeChanged);
+    _pGraphScale = new GraphScale(_pGuiModel, _pPlot, this);
+    _pGraphViewZoom = new GraphViewZoom(_pGuiModel, _pPlot, this);
+    _pGraphMarkers = new GraphMarkers(_pGuiModel, _pPlot, this);
+    _pNoteHandling = new NoteHandling(pNoteModel, _pPlot, this);
 
-   // Samples are enabled
-   _bEnableSampleHighlight = true;
-
-   // Add layer to move graph on front
-   _pPlot->addLayer("topMain", _pPlot->layer("main"), QCustomPlot::limAbove);
-
-   // connect slot that ties some axis selections together (especially opposite axes):
-   connect(_pPlot, &ScopePlot::selectionChangedByUser, this, &GraphView::selectionChanged);
-
-   // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
-   connect(_pPlot, &ScopePlot::mousePress, this, &GraphView::mousePress);
-   connect(_pPlot, &ScopePlot::mouseRelease, this, &GraphView::mouseRelease);
-   connect(_pPlot, &ScopePlot::mouseWheel, this, &GraphView::mouseWheel);
-   connect(_pPlot, &ScopePlot::axisDoubleClick, this, &GraphView::axisDoubleClicked);
-   connect(_pPlot, &ScopePlot::mouseMove, this, &GraphView::mouseMove);
-   connect(_pPlot, &ScopePlot::beforeReplot, this, &GraphView::handleSamplePoints);
-
-   _pGraphViewZoom = new GraphViewZoom(_pGuiModel, _pPlot, this);
-   _pGraphMarkers = new GraphMarkers(_pGuiModel, _pPlot, this);
-   _pNoteHandling = new NoteHandling(pNoteModel, _pPlot, this);
-
-   _pPlot->replot();
-
+    _pPlot->replot();
 }
 
 GraphView::~GraphView()
 {
+    delete _pGraphScale;
     delete _pGraphViewZoom;
     delete _pGraphMarkers;
     delete _pNoteHandling;
@@ -315,77 +286,7 @@ void GraphView::showGraph(quint32 graphIdx)
 
 void GraphView::rescalePlot()
 {
-
-    // scale x-axis
-    if (_pGuiModel->xAxisScalingMode() == AxisMode::SCALE_AUTO)
-    {
-        if ((_pPlot->graphCount() != 0) && (graphDataSize() != 0))
-        {
-            _pPlot->xAxis->rescale(true);
-        }
-        else
-        {
-            _pPlot->xAxis->setRange(0, 10000);
-        }
-    }
-    else if (_pGuiModel->xAxisScalingMode() == AxisMode::SCALE_SLIDING)
-    {
-        // sliding window scale routine
-        const quint64 slidingInterval = static_cast<quint64>(_pGuiModel->xAxisSlidingSec()) * 1000;
-        if ((_pPlot->graphCount() != 0) && (graphDataSize() != 0))
-        {
-            auto lastDataIt = _pPlot->graph(0)->data()->constEnd();
-            lastDataIt--; /* Point to last existing item */
-
-            const quint64 lastTime = (quint64)lastDataIt->key;
-            if (lastTime > slidingInterval)
-            {
-                _pPlot->xAxis->setRange(lastTime - slidingInterval, lastTime);
-            }
-            else
-            {
-                _pPlot->xAxis->setRange(0, slidingInterval);
-            }
-        }
-        else
-        {
-            _pPlot->xAxis->setRange(0, slidingInterval);
-        }
-    }
-    else // Manual
-    {
-
-    }
-
-    // scale y-axis
-    if (_pGuiModel->yAxisScalingMode() == AxisMode::SCALE_AUTO)
-    {
-        if ((_pPlot->graphCount() != 0) && (graphDataSize()))
-        {
-            _pPlot->yAxis->rescale(true);
-        }
-        else
-        {
-            _pPlot->yAxis->setRange(0, 10);
-        }
-    }
-    else if (_pGuiModel->yAxisScalingMode() == AxisMode::SCALE_MINMAX)
-    {
-        // min max scale routine
-        _pPlot->yAxis->setRange(_pGuiModel->yAxisMin(), _pGuiModel->yAxisMax());
-    }
-    else if (_pGuiModel->yAxisScalingMode() == AxisMode::SCALE_WINDOW_AUTO)
-    {
-        auto pAxis = dynamic_cast<ValueAxis *>(_pPlot->yAxis);
-        if (pAxis != nullptr)
-        {
-            pAxis->rescaleValue(_pPlot->xAxis->range());
-        }
-    }
-    else // Manual
-    {
-
-    }
+    _pGraphScale->rescale();
 
     _pPlot->replot();
 }
@@ -440,27 +341,6 @@ void GraphView::clearResults()
    rescalePlot();
 }
 
-void GraphView::selectionChanged()
-{
-   /*
-   normally, axis base line, axis tick labels and axis labels are selectable separately, but we want
-   the user only to be able to select the axis as a whole, so we tie the selected states of the tick labels
-   and the axis base line together. However, the axis label shall be selectable individually.
-   */
-
-   // handle axis and tick labels as one selectable object:
-   if (_pPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis) || _pPlot->xAxis->selectedParts().testFlag(QCPAxis::spTickLabels) || _pPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxisLabel))
-   {
-       _pPlot->xAxis->setSelectedParts(QCPAxis::spAxis|QCPAxis::spAxisLabel|QCPAxis::spTickLabels);
-   }
-   // handle axis and tick labels as one selectable object:
-   if (_pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis) || _pPlot->yAxis->selectedParts().testFlag(QCPAxis::spTickLabels) || _pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxisLabel))
-   {
-       _pPlot->yAxis->setSelectedParts(QCPAxis::spAxis|QCPAxis::spAxisLabel|QCPAxis::spTickLabels);
-   }
-
-}
-
 void GraphView::showMarkers()
 {
     double startPos = (_pPlot->xAxis->range().size() * 1 / 3) + _pPlot->xAxis->range().lower;
@@ -477,14 +357,12 @@ void GraphView::mousePress(QMouseEvent *event)
         /* Already handled by zoom */
 
         /* Disable range drag when zooming is active */
-        _pPlot->setInteraction(QCP::iRangeDrag, false);
-        _pPlot->setInteraction(QCP::iRangeZoom, false);
+        _pGraphScale->disableRangeZoom();
     }
     else if (event->modifiers() & Qt::ControlModifier)
     {
         /* Disable range drag when control key is pressed */
-        _pPlot->setInteraction(QCP::iRangeDrag, false);
-        _pPlot->setInteraction(QCP::iRangeZoom, false);
+        _pGraphScale->disableRangeZoom();
 
         if (_pPlot->graphCount() > 0)
         {
@@ -512,25 +390,11 @@ void GraphView::mousePress(QMouseEvent *event)
         {
             /* Ignore global drag */
             /* Disable range drag when note item is selected */
-            _pPlot->setInteraction(QCP::iRangeDrag, false);
-            _pPlot->setInteraction(QCP::iRangeZoom, false);
+            _pGraphScale->disableRangeZoom();
         }
         else
         {
-            // if an axis is selected, only allow the direction of that axis to be dragged
-            // if no axis is selected, both directions may be dragged
-            if (_pPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
-            {
-                _pPlot->axisRect()->setRangeDrag(_pPlot->xAxis->orientation());
-            }
-            else if (_pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
-            {
-                _pPlot->axisRect()->setRangeDrag(_pPlot->yAxis->orientation());
-            }
-            else
-            {
-                _pPlot->axisRect()->setRangeDrag(Qt::Horizontal|Qt::Vertical);
-            }
+            _pGraphScale->configureDragDirection();
         }
     }
 }
@@ -543,8 +407,7 @@ void GraphView::mouseRelease(QMouseEvent *event)
     (void)_pNoteHandling->handleMouseRelease();
 
     /* Always re-enable range drag */
-    _pPlot->setInteraction(QCP::iRangeDrag, true);
-    _pPlot->setInteraction(QCP::iRangeZoom, true);
+    _pGraphScale->enableRangeZoom();
 }
 
 void GraphView::mouseWheel()
@@ -555,25 +418,7 @@ void GraphView::mouseWheel()
     }
     else
     {
-        // if an axis is selected, only allow the direction of that axis to be zoomed
-        // if no axis is selected, both directions may be zoomed
-
-        if (_pPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
-        {
-           _pPlot->axisRect()->setRangeZoom(_pPlot->xAxis->orientation());
-           _pGuiModel->setxAxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
-        }
-        else if (_pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
-        {
-           _pPlot->axisRect()->setRangeZoom(_pPlot->yAxis->orientation());
-           _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
-        }
-        else
-        {
-           _pPlot->axisRect()->setRangeZoom(Qt::Horizontal|Qt::Vertical);
-           _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
-           _pGuiModel->setxAxisScale(AxisMode::SCALE_MANUAL);
-        }
+        _pGraphScale->zoomGraph();
     }
 }
 
@@ -594,20 +439,7 @@ void GraphView::mouseMove(QMouseEvent *event)
             }
             else
             {
-                if (_pPlot->axisRect()->rangeDrag() == Qt::Horizontal)
-                {
-                    _pGuiModel->setxAxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
-                }
-                else if (_pPlot->axisRect()->rangeDrag() == Qt::Vertical)
-                {
-                    _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
-                }
-                else
-                {
-                    // Both change to manual scaling
-                    _pGuiModel->setxAxisScale(AxisMode::SCALE_MANUAL);
-                    _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL);
-                }
+                _pGraphScale->handleDrag();
             }
         }
     }
@@ -706,22 +538,6 @@ void GraphView::handleSamplePoints()
     highlightSamples(bHighlight);
 }
 
-void GraphView::axisDoubleClicked(QCPAxis * axis)
-{
-    if (axis == _pPlot->xAxis)
-    {
-        _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
-    }
-    else if (axis == _pPlot->yAxis)
-    {
-        _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
-    }
-    else
-    {
-        // do nothing
-    }
-}
-
 void GraphView::updateData(QList<double> *pTimeData, QList<QList<double> > * pDataLists)
 {
     quint64 totalPoints = 0;
@@ -759,22 +575,25 @@ void GraphView::xAxisRangeChanged(const QCPRange &newRange, const QCPRange &oldR
 {
     QCPRange range = newRange;
 
-    const double beginKey = _pGraphDataModel->dataMap(0)->constBegin()->key;
-    if (range.lower < 0)
+    if (_pGraphDataModel->size() > 0)
     {
-        if (beginKey > 0)
+        const double beginKey = _pGraphDataModel->dataMap(0)->constBegin()->key;
+        if (range.lower < 0)
         {
-            range.lower = 0;
+            if (beginKey > 0)
+            {
+                range.lower = 0;
+            }
+            else
+            {
+                range.lower = range.lower < beginKey ? beginKey: range.lower;
+            }
         }
-        else
-        {
-            range.lower = range.lower < beginKey ? beginKey: range.lower;
-        }
-    }
 
-    if (range.upper < range.lower)
-    {
-        range.upper = range.lower;
+        if (range.upper < range.lower)
+        {
+            range.upper = range.lower;
+        }
     }
 
     _pPlot->xAxis->setRange(range);
