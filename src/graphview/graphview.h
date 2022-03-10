@@ -60,7 +60,6 @@ private slots:
     void handleSamplePoints();
 
     void updateData(QList<double> *pTimeData, QList<QList<double> > * pDataLists);
-    void xAxisRangeChanged(const QCPRange &newRange, const QCPRange &oldRange);
 
 private:
     void paintTimeStampToolTip(QPoint pos);
