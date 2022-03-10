@@ -35,8 +35,6 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
     * */
     _pPlot->setPlottingHints(QCP::phCacheLabels | QCP::phFastPolylines);
 
-    connect(_pPlot->xAxis, QOverload<const QCPRange &, const QCPRange &>::of(&QCPAxis::rangeChanged), this, &GraphView::xAxisRangeChanged);
-
     // Samples are enabled
     _bEnableSampleHighlight = true;
 
@@ -569,36 +567,6 @@ void GraphView::updateData(QList<double> *pTimeData, QList<QList<double> > * pDa
 
     _pPlot->rescaleAxes(true);
     _pPlot->replot();
-}
-
-void GraphView::xAxisRangeChanged(const QCPRange &newRange, const QCPRange &oldRange)
-{
-    QCPRange range = newRange;
-
-    if (_pGraphDataModel->size() > 0)
-    {
-        const double beginKey = _pGraphDataModel->dataMap(0)->constBegin()->key;
-        if (range.lower < 0)
-        {
-            if (beginKey > 0)
-            {
-                range.lower = 0;
-            }
-            else
-            {
-                range.lower = range.lower < beginKey ? beginKey: range.lower;
-            }
-        }
-
-        if (range.upper < range.lower)
-        {
-            range.upper = range.lower;
-        }
-    }
-
-    _pPlot->xAxis->setRange(range);
-
-    updateTooltip();
 }
 
 void GraphView::highlightSamples(bool bState)

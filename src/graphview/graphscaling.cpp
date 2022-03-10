@@ -19,10 +19,12 @@ GraphScale::GraphScale(GuiModel* pGuiModel, ScopePlot* pPlot, QObject *parent) :
     // disable anti aliasing while dragging
     _pPlot->setNoAntialiasingOnDrag(true);
 
-    // Replace y-axis with custom axis
+    // Replace y-axis with custom value axis
     _pPlot->axisRect()->removeAxis(_pPlot->axisRect()->axes(QCPAxis::atLeft)[0]);
     _pPlot->axisRect()->addAxis(QCPAxis::atLeft, new ValueAxis(_pPlot->axisRect(), QCPAxis::atLeft));
 
+    connect(_pPlot->xAxis, QOverload<const QCPRange &>::of(&QCPAxis::rangeChanged), this, &GraphScale::timeAxisRangeChanged);
+    
     // Fix axis settings
     QCPAxis * pXAxis = _pPlot->axisRect()->axes(QCPAxis::atBottom)[0];
     QCPAxis * pYAxis = _pPlot->axisRect()->axes(QCPAxis::atLeft)[0];
@@ -156,6 +158,37 @@ void GraphScale::axisDoubleClicked(QCPAxis* axis)
     {
         // do nothing
     }
+}
+
+void GraphScale::timeAxisRangeChanged(const QCPRange &newRange)
+{
+    double newLower = newRange.lower;
+    double newUpper = newRange.upper;
+
+    QList<QCPGraph*> const graphList = _pPlot->xAxis->graphs();
+
+    if (graphList.size() > 0)
+    {
+        const double beginKey = graphList[0]->data()->constBegin()->key;
+        if (newLower < 0)
+        {
+            if (beginKey > 0)
+            {
+                newLower = 0;
+            }
+            else
+            {
+                newLower = newLower < beginKey ? beginKey: newLower;
+            }
+        }
+
+        if (newUpper < newLower)
+        {
+            newUpper = newLower;
+        }
+    }
+
+    _pPlot->xAxis->setRange(newLower, newUpper);
 }
 
 void GraphScale::disableRangeZoom()
