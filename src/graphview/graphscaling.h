@@ -27,6 +27,7 @@ public:
 private slots:
     void selectionChanged();
     void axisDoubleClicked(QCPAxis* axis);
+    void timeAxisRangeChanged(const QCPRange &newRange);
 
 private:
 
