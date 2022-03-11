@@ -72,7 +72,9 @@ private slots:
     void showNotesDialog();
     void toggleMarkersState();
     void handleYMinChange();
+    void handleY2MinChange();
     void handleYMaxChange();
+    void handleY2MaxChange();
 
     /* Model change handlers */
     void handleGraphVisibilityChange(quint32 graphIdx);
@@ -87,7 +89,9 @@ private slots:
     void updatexAxisSlidingMode();
     void updatexAxisSlidingInterval();
     void updateyAxisSlidingMode();
+    void updatey2AxisSlidingMode();
     void updateyAxisMinMax();
+    void updatey2AxisMinMax();
     void projectFileLoaded();
     void updateGuiState();
     void updateStats();
@@ -102,6 +106,7 @@ private slots:
     void appFocusChanged(QWidget *old, QWidget *now);
     void xAxisScaleGroupClicked(int id);
     void yAxisScaleGroupClicked(int id);
+    void y2AxisScaleGroupClicked(int id);
     void updateRuntime();
     void updateCommunicationStats(QList<bool> successList);
     void updateDataFileNotes();
@@ -143,6 +148,7 @@ private:
     QLabel * _pStatusRuntime;
     QButtonGroup * _pXAxisScaleGroup;
     QButtonGroup * _pYAxisScaleGroup;
+    QButtonGroup * _pY2AxisScaleGroup;
 
     QTimer _runtimeTimer;
 
