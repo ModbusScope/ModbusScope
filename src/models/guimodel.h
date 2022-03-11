@@ -61,9 +61,12 @@ public:
     QString lastMbcImportedFile();
     AxisMode::AxisScaleOptions xAxisScalingMode();
     quint32 xAxisSlidingSec();
-    AxisMode::AxisScaleOptions  yAxisScalingMode();
+    AxisMode::AxisScaleOptions yAxisScalingMode();
+    AxisMode::AxisScaleOptions y2AxisScalingMode();
     double yAxisMin();
+    double y2AxisMin();
     double yAxisMax();
+    double y2AxisMax();
     quint32 guiState();
     qint64 communicationStartTime();
     qint64 communicationEndTime();
@@ -91,8 +94,11 @@ public slots:
     void setxAxisScale(AxisMode::AxisScaleOptions scaleMode);
     void setxAxisSlidingInterval(int slidingSec);
     void setyAxisScale(AxisMode::AxisScaleOptions scaleMode);
+    void sety2AxisScale(AxisMode::AxisScaleOptions scaleMode);
     void setyAxisMin(double newMin);
+    void sety2AxisMin(double newMin);
     void setyAxisMax(double newMax);
+    void sety2AxisMax(double newMax);
     void setGuiState(quint32 state);
     void setCommunicationStartTime(qint64 startTime);
     void setCommunicationEndTime(qint64 endTime);
@@ -111,7 +117,9 @@ signals:
     void xAxisScalingChanged();
     void xAxisSlidingIntervalChanged();
     void yAxisScalingChanged();
+    void y2AxisScalingChanged();
     void yAxisMinMaxchanged();
+    void y2AxisMinMaxchanged();
     void guiStateChanged();
     void projectFilePathChanged();
     void communicationStatsChanged();
@@ -137,6 +145,10 @@ private:
         AxisMode::AxisScaleOptions yScaleMode;
         double yMin;
         double yMax;
+
+        AxisMode::AxisScaleOptions y2ScaleMode;
+        qint32 y2Min;
+        qint32 y2Max;
 
     } GuiSettings;
 

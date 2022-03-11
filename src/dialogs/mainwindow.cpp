@@ -112,9 +112,13 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pGuiModel, &GuiModel::xAxisSlidingIntervalChanged, _pGraphView, &GraphView::rescalePlot);
 
     connect(_pGuiModel, &GuiModel::yAxisScalingChanged, this, &MainWindow::updateyAxisSlidingMode);
+    connect(_pGuiModel, &GuiModel::y2AxisScalingChanged, this, &MainWindow::updatey2AxisSlidingMode);
     connect(_pGuiModel, &GuiModel::yAxisScalingChanged, _pGraphView, &GraphView::rescalePlot);
+    connect(_pGuiModel, &GuiModel::y2AxisScalingChanged, _pGraphView, &GraphView::rescalePlot);
     connect(_pGuiModel, &GuiModel::yAxisMinMaxchanged, this, &MainWindow::updateyAxisMinMax);
+    connect(_pGuiModel, &GuiModel::y2AxisMinMaxchanged, this, &MainWindow::updatey2AxisMinMax);
     connect(_pGuiModel, &GuiModel::yAxisMinMaxchanged, _pGraphView, &GraphView::rescalePlot);
+    connect(_pGuiModel, &GuiModel::y2AxisMinMaxchanged, _pGraphView, &GraphView::rescalePlot);
     connect(_pGuiModel, &GuiModel::communicationStatsChanged, this, &MainWindow::updateStats);
     connect(_pGuiModel, &GuiModel::markerStateChanged, this, &MainWindow::updateMarkerDockVisibility);
     connect(_pGuiModel, &GuiModel::zoomStateChanged, this, &MainWindow::handleZoomStateChanged);
@@ -187,9 +191,13 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
 
     QDoubleValidator* pValidator = new QDoubleValidator(-1000000, 1000000, 3); /* Util:formatdouble is also 3 decimals */
     _pUi->lineYMin->setValidator(pValidator);
+    _pUi->lineY2Min->setValidator(pValidator);
     _pUi->lineYMax->setValidator(pValidator);
+    _pUi->lineY2Max->setValidator(pValidator);
     connect(_pUi->lineYMin, &QLineEdit::editingFinished, this, &MainWindow::handleYMinChange);
+    connect(_pUi->lineY2Min, &QLineEdit::editingFinished, this, &MainWindow::handleY2MinChange);
     connect(_pUi->lineYMax, &QLineEdit::editingFinished, this, &MainWindow::handleYMaxChange);
+    connect(_pUi->lineY2Max, &QLineEdit::editingFinished, this, &MainWindow::handleY2MaxChange);
 
     //valueChanged is only send when done editing...
     _pUi->spinSlidingXInterval->setKeyboardTracking(false);
@@ -211,6 +219,15 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _pYAxisScaleGroup->addButton(_pUi->radioYManual, AxisMode::SCALE_MANUAL);
     connect(_pYAxisScaleGroup, &QButtonGroup::idClicked, this, &MainWindow::yAxisScaleGroupClicked);
 
+    // Create button group for Y2 axis scaling options
+    _pY2AxisScaleGroup = new QButtonGroup();
+    _pY2AxisScaleGroup->setExclusive(true);
+    _pY2AxisScaleGroup->addButton(_pUi->radioYFullScale_2, AxisMode::SCALE_AUTO);
+    _pY2AxisScaleGroup->addButton(_pUi->radioYWindowScale_2, AxisMode::SCALE_WINDOW_AUTO);
+    _pY2AxisScaleGroup->addButton(_pUi->radioYMinMax_2, AxisMode::SCALE_MINMAX);
+    _pY2AxisScaleGroup->addButton(_pUi->radioYManual_2, AxisMode::SCALE_MANUAL);
+    connect(_pY2AxisScaleGroup, &QButtonGroup::idClicked, this, &MainWindow::y2AxisScaleGroupClicked);
+
     /* handle focus change */
     connect(dynamic_cast<QApplication*>(QApplication::instance()), &QApplication::focusChanged, this, &MainWindow::appFocusChanged);
 
@@ -226,6 +243,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     // Default to full auto scaling
     _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
     _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
+    _pGuiModel->sety2AxisScale(AxisMode::SCALE_AUTO);
 
     connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pGraphView, &GraphView::plotResults);
     connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pLegend, &Legend::addLastReceivedDataToLegend);
@@ -535,6 +553,11 @@ void MainWindow::startScope()
             _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
         }
 
+        if (_pGuiModel->y2AxisScalingMode() == AxisMode::SCALE_MANUAL)
+        {
+            _pGuiModel->sety2AxisScale(AxisMode::SCALE_AUTO);
+        }
+
     }
     else
     {
@@ -595,6 +618,18 @@ void MainWindow::handleYMinChange()
     }
 }
 
+void MainWindow::handleY2MinChange()
+{
+    bool bOk = false;
+    double val = QLocale().toDouble(_pUi->lineY2Min->text(), &bOk);
+
+    if (bOk)
+    {
+        _pGuiModel->sety2AxisMin(val);
+        _pGuiModel->sety2AxisScale(AxisMode::SCALE_MINMAX);
+    }
+}
+
 void MainWindow::handleYMaxChange()
 {
     bool bOk = false;
@@ -604,6 +639,18 @@ void MainWindow::handleYMaxChange()
     {
         _pGuiModel->setyAxisMax(val);
         _pGuiModel->setyAxisScale(AxisMode::SCALE_MINMAX);
+    }
+}
+
+void MainWindow::handleY2MaxChange()
+{
+    bool bOk = false;
+    double val = QLocale().toDouble(_pUi->lineY2Max->text(), &bOk);
+
+    if (bOk)
+    {
+        _pGuiModel->sety2AxisMax(val);
+        _pGuiModel->sety2AxisScale(AxisMode::SCALE_MINMAX);
     }
 }
 
@@ -784,10 +831,40 @@ void MainWindow::updateyAxisSlidingMode()
     }
 }
 
+void MainWindow::updatey2AxisSlidingMode()
+{
+    if (_pGuiModel->y2AxisScalingMode() == AxisMode::SCALE_AUTO)
+    {
+        // Full auto scaling
+        _pUi->radioYFullScale_2->setChecked(true);
+    }
+    else if (_pGuiModel->y2AxisScalingMode() == AxisMode::SCALE_MINMAX)
+    {
+        // Min and max selected
+        _pUi->radioYMinMax_2->setChecked(true);
+    }
+    else if (_pGuiModel->y2AxisScalingMode() == AxisMode::SCALE_WINDOW_AUTO)
+    {
+        // Window auto scale selected
+        _pUi->radioYWindowScale_2->setChecked(true);
+    }
+    else
+    {
+        // manual
+        _pUi->radioYManual_2->setChecked(true);
+    }
+}
+
 void MainWindow::updateyAxisMinMax()
 {
     _pUi->lineYMin->setText(Util::formatDoubleForExport(_pGuiModel->yAxisMin()));
     _pUi->lineYMax->setText(Util::formatDoubleForExport(_pGuiModel->yAxisMax()));
+}
+
+void MainWindow::updatey2AxisMinMax()
+{
+    _pUi->lineY2Min->setText(Util::formatDoubleForExport(_pGuiModel->y2AxisMin()));
+    _pUi->lineY2Max->setText(Util::formatDoubleForExport(_pGuiModel->y2AxisMax()));
 }
 
 void MainWindow::updateGuiState()
@@ -1019,6 +1096,11 @@ void MainWindow::xAxisScaleGroupClicked(int id)
 void MainWindow::yAxisScaleGroupClicked(int id)
 {
     _pGuiModel->setyAxisScale((AxisMode::AxisScaleOptions)id) ;
+}
+
+void MainWindow::y2AxisScaleGroupClicked(int id)
+{
+    _pGuiModel->sety2AxisScale((AxisMode::AxisScaleOptions)id) ;
 }
 
 void MainWindow::updateRuntime()

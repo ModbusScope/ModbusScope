@@ -58,8 +58,11 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
 
     _guiSettings.xScaleMode = AxisMode::SCALE_AUTO;
     _guiSettings.yScaleMode = AxisMode::SCALE_AUTO;
+    _guiSettings.y2ScaleMode = AxisMode::SCALE_AUTO;
     _guiSettings.yMax = 10;
+    _guiSettings.y2Max = 10;
     _guiSettings.yMin = 0;
+    _guiSettings.y2Min = 0;
     _guiSettings.xslidingInterval = 30;
 
     _bStartMarkerState = false;
@@ -89,9 +92,11 @@ void GuiModel::triggerUpdate(void)
     emit windowTitleChanged();
     emit communicationStatsChanged();
     emit yAxisMinMaxchanged();
+    emit y2AxisMinMaxchanged();
     emit xAxisSlidingIntervalChanged();
     emit xAxisScalingChanged();
     emit yAxisScalingChanged();
+    emit y2AxisScalingChanged();
     emit guiStateChanged();
     emit projectFilePathChanged();
 
@@ -239,12 +244,26 @@ AxisMode::AxisScaleOptions GuiModel::yAxisScalingMode()
     return _guiSettings.yScaleMode;
 }
 
+AxisMode::AxisScaleOptions GuiModel::y2AxisScalingMode()
+{
+    return _guiSettings.y2ScaleMode;
+}
+
 void GuiModel::setyAxisScale(AxisMode::AxisScaleOptions scaleMode)
 {
     if (_guiSettings.yScaleMode != scaleMode)
     {
         _guiSettings.yScaleMode = scaleMode;
         emit yAxisScalingChanged();
+    }
+}
+
+void GuiModel::sety2AxisScale(AxisMode::AxisScaleOptions scaleMode)
+{
+    if (_guiSettings.y2ScaleMode != scaleMode)
+    {
+        _guiSettings.y2ScaleMode = scaleMode;
+        emit y2AxisScalingChanged();
     }
 }
 
@@ -266,6 +285,24 @@ void GuiModel::setyAxisMin(double newMin)
     }
 }
 
+void GuiModel::sety2AxisMin(double newMin)
+{
+    const double diff = _guiSettings.y2Max - _guiSettings.y2Min;
+    double newMax = _guiSettings.y2Max;
+
+    if (newMin >= _guiSettings.y2Max)
+    {
+        newMax = newMin + diff;
+    }
+
+    if (_guiSettings.y2Min != newMin)
+    {
+        _guiSettings.y2Min = newMin;
+        sety2AxisMax(newMax);
+        emit y2AxisMinMaxchanged();
+    }
+}
+
 void GuiModel::setyAxisMax(double newMax)
 {
     const double diff = _guiSettings.yMax - _guiSettings.yMin;
@@ -282,6 +319,25 @@ void GuiModel::setyAxisMax(double newMax)
         _guiSettings.yMax = newMax;
         setyAxisMin(newMin);
         emit yAxisMinMaxchanged();
+    }
+}
+
+void GuiModel::sety2AxisMax(double newMax)
+{
+    const double diff = _guiSettings.y2Max - _guiSettings.y2Min;
+
+    double newMin = _guiSettings.y2Min;
+
+    if (newMax <= _guiSettings.y2Min)
+    {
+        newMin = newMax - diff;
+    }
+
+    if (_guiSettings.y2Max != newMax)
+    {
+        _guiSettings.y2Max = newMax;
+        sety2AxisMin(newMin);
+        emit y2AxisMinMaxchanged();
     }
 }
 
@@ -494,7 +550,17 @@ double GuiModel::yAxisMin()
     return _guiSettings.yMin;
 }
 
+double GuiModel::y2AxisMin()
+{
+    return _guiSettings.y2Min;
+}
+
 double GuiModel::yAxisMax()
 {
     return _guiSettings.yMax;
+}
+
+double GuiModel::y2AxisMax()
+{
+    return _guiSettings.y2Max;
 }
