@@ -52,35 +52,3 @@ void ValueAxis::rescaleValue(QCPRange keyAxisRange)
         setRange(newRange);
     }
 }
-
-void ValueAxis::setRange(const QCPRange &range)
-{
-    double newLower = range.lower;
-    double newUpper = range.upper;
-
-    addMargin(&newLower, &newUpper);
-
-    QCPAxis::setRange(QCPRange(newLower, newUpper));
-}
-
-void ValueAxis::setRange(double lower, double upper)
-{
-    double newLower = lower;
-    double newUpper = upper;
-
-    addMargin(&newLower, &newUpper);
-
-    QCPAxis::setRange(newLower, newUpper);
-}
-
-void ValueAxis::addMargin(double * pLower, double * pUpper)
-{
-    QList<QCPGraph*> const graphList = graphs();
-    if (graphList.size() > 0)
-    {
-        const double diff = pixelToCoord(0) - pixelToCoord(graphList[0]->scatterStyle().size());
-
-        *pLower += diff;
-        *pUpper += diff;
-    }
-}
