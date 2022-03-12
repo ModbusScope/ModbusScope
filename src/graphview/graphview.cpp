@@ -123,11 +123,6 @@ double GraphView::pixelToClosestKey(double pixel)
     return getClosestPoint(_pPlot->xAxis->pixelToCoord(pixel));
 }
 
-double GraphView::pixelToClosestValue(double pixel)
-{
-    return getClosestPoint(_pPlot->yAxis->pixelToCoord(pixel));
-}
-
 void GraphView::updateTooltip()
 {
     paintTimeStampToolTip(_pPlot->mapFromGlobal(QCursor::pos()));

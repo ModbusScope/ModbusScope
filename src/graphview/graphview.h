@@ -28,7 +28,6 @@ public:
 
     QPointF pixelToPointF(const QPoint &pixel) const;
     double pixelToClosestKey(double pixel);
-    double pixelToClosestValue(double pixel);
 
     void showMarkers();
 

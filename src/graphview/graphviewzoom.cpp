@@ -107,10 +107,10 @@ bool GraphViewZoom::handleMouseMove(QMouseEvent *event)
 void GraphViewZoom::performZoom(void)
 {
     const double correctTopLeftX = _pGraphview->pixelToClosestKey(_pRubberBand->geometry().topLeft().x());
-    const double correctTopLeftY = _pGraphview->pixelToClosestValue(_pRubberBand->geometry().topLeft().y());
+    const double correctTopLeftY = _pPlot->yAxis->pixelToCoord(_pRubberBand->geometry().topLeft().y());
 
     const double correctBottomRightX = _pGraphview->pixelToClosestKey(_pRubberBand->geometry().bottomRight().x());
-    const double correctBottomRightY = _pGraphview->pixelToClosestValue(_pRubberBand->geometry().bottomRight().y());
+    const double correctBottomRightY = _pPlot->yAxis->pixelToCoord(_pRubberBand->geometry().bottomRight().y());
 
     _pPlot->xAxis->setRange(correctTopLeftX, correctBottomRightX);
     _pPlot->yAxis->setRange(correctBottomRightY, correctTopLeftY);
