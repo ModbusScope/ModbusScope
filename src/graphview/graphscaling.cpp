@@ -23,14 +23,23 @@ GraphScale::GraphScale(GuiModel* pGuiModel, ScopePlot* pPlot, QObject *parent) :
     _pPlot->axisRect()->removeAxis(_pPlot->axisRect()->axes(QCPAxis::atLeft)[0]);
     _pPlot->axisRect()->addAxis(QCPAxis::atLeft, new ValueAxis(_pPlot->axisRect(), QCPAxis::atLeft));
 
+    // Replace y2-axis with custom value axis
+    _pPlot->axisRect()->removeAxis(_pPlot->axisRect()->axes(QCPAxis::atRight)[0]);
+    _pPlot->axisRect()->addAxis(QCPAxis::atRight, new ValueAxis(_pPlot->axisRect(), QCPAxis::atRight));
+
     connect(_pPlot->xAxis, QOverload<const QCPRange &>::of(&QCPAxis::rangeChanged), this, &GraphScale::timeAxisRangeChanged);
     
     // Fix axis settings
     QCPAxis * pXAxis = _pPlot->axisRect()->axes(QCPAxis::atBottom)[0];
     QCPAxis * pYAxis = _pPlot->axisRect()->axes(QCPAxis::atLeft)[0];
+    QCPAxis * pY2Axis = _pPlot->axisRect()->axes(QCPAxis::atRight)[0];
     pYAxis->grid()->setVisible(true);
-    _pPlot->axisRect()->setRangeDragAxes(pXAxis, pYAxis);
-    _pPlot->axisRect()->setRangeZoomAxes(pXAxis, pYAxis);
+    pY2Axis->grid()->setVisible(true);
+
+    auto xAxisList = QList<QCPAxis*>() << pXAxis;
+    auto yAxisList = QList<QCPAxis*>() << pYAxis << pY2Axis;
+    _pPlot->axisRect()->setRangeDragAxes(xAxisList, yAxisList);
+    _pPlot->axisRect()->setRangeZoomAxes(xAxisList, yAxisList);
 
     // Add custom axis ticker
     QSharedPointer<QCPAxisTickerTime> timeTicker(new AxisTickerTime(_pPlot));
@@ -39,6 +48,7 @@ GraphScale::GraphScale(GuiModel* pGuiModel, ScopePlot* pPlot, QObject *parent) :
     _pPlot->xAxis->setRange(0, 10000);
 
     _pPlot->yAxis->setRange(0, 65535);
+    _pPlot->yAxis2->setRange(0, 65535);
 
     // connect slot that ties some axis selections together (especially opposite axes):
     connect(_pPlot, &ScopePlot::selectionChangedByUser, this, &GraphScale::selectionChanged);
@@ -122,6 +132,36 @@ void GraphScale::rescale()
     {
 
     }
+
+    // scale y2-axis
+    if (_pGuiModel->y2AxisScalingMode() == AxisMode::SCALE_AUTO)
+    {
+        if ((_pPlot->graphCount() != 0) && (_pGraphview->graphDataSize()))
+        {
+            _pPlot->yAxis2->rescale(true);
+        }
+        else
+        {
+            _pPlot->yAxis2->setRange(0, 10);
+        }
+    }
+    else if (_pGuiModel->y2AxisScalingMode() == AxisMode::SCALE_MINMAX)
+    {
+        // min max scale routine
+        _pPlot->yAxis2->setRange(_pGuiModel->y2AxisMin(), _pGuiModel->y2AxisMax());
+    }
+    else if (_pGuiModel->y2AxisScalingMode() == AxisMode::SCALE_WINDOW_AUTO)
+    {
+        auto pAxis = dynamic_cast<ValueAxis *>(_pPlot->yAxis2);
+        if (pAxis != nullptr)
+        {
+            pAxis->rescaleValue(_pPlot->xAxis->range());
+        }
+    }
+    else // Manual
+    {
+
+    }
 }
 
 void GraphScale::selectionChanged()
@@ -142,6 +182,11 @@ void GraphScale::selectionChanged()
    {
        _pPlot->yAxis->setSelectedParts(QCPAxis::spAxis|QCPAxis::spAxisLabel|QCPAxis::spTickLabels);
    }
+   // handle axis and tick labels as one selectable object:
+   if (_pPlot->yAxis2->selectedParts().testFlag(QCPAxis::spAxis) || _pPlot->yAxis2->selectedParts().testFlag(QCPAxis::spTickLabels) || _pPlot->yAxis2->selectedParts().testFlag(QCPAxis::spAxisLabel))
+   {
+       _pPlot->yAxis2->setSelectedParts(QCPAxis::spAxis|QCPAxis::spAxisLabel|QCPAxis::spTickLabels);
+   }
 }
 
 void GraphScale::axisDoubleClicked(QCPAxis* axis)
@@ -153,6 +198,10 @@ void GraphScale::axisDoubleClicked(QCPAxis* axis)
     else if (axis == _pPlot->yAxis)
     {
         _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
+    }
+    else if (axis == _pPlot->yAxis2)
+    {
+        _pGuiModel->sety2AxisScale(AxisMode::SCALE_AUTO);
     }
     else
     {
@@ -215,6 +264,10 @@ void GraphScale::configureDragDirection()
     {
         _pPlot->axisRect()->setRangeDrag(_pPlot->yAxis->orientation());
     }
+    else if (_pPlot->yAxis2->selectedParts().testFlag(QCPAxis::spAxis))
+    {
+        _pPlot->axisRect()->setRangeDrag(_pPlot->yAxis2->orientation());
+    }
     else
     {
         _pPlot->axisRect()->setRangeDrag(Qt::Horizontal|Qt::Vertical);
@@ -229,18 +282,24 @@ void GraphScale::zoomGraph()
     if (_pPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
     {
         _pPlot->axisRect()->setRangeZoom(_pPlot->xAxis->orientation());
-        _pGuiModel->setxAxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
+        _pGuiModel->setxAxisScale(AxisMode::SCALE_MANUAL);
     }
     else if (_pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
     {
-        _pPlot->axisRect()->setRangeZoom(_pPlot->yAxis->orientation());
-        _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
+        _pPlot->axisRect()->setRangeZoomAxes(nullptr, _pPlot->yAxis);
+        _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL);
+    }
+    else if (_pPlot->yAxis2->selectedParts().testFlag(QCPAxis::spAxis))
+    {
+        _pPlot->axisRect()->setRangeZoomAxes(nullptr, _pPlot->yAxis2);
+        _pGuiModel->sety2AxisScale(AxisMode::SCALE_MANUAL);
     }
     else
     {
         _pPlot->axisRect()->setRangeZoom(Qt::Horizontal|Qt::Vertical);
-        _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
         _pGuiModel->setxAxisScale(AxisMode::SCALE_MANUAL);
+        _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL);
+        _pGuiModel->sety2AxisScale(AxisMode::SCALE_MANUAL);
     }
 }
 
@@ -253,11 +312,13 @@ void GraphScale::handleDrag()
     else if (_pPlot->axisRect()->rangeDrag() == Qt::Vertical)
     {
         _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
+        _pGuiModel->sety2AxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
     }
     else
     {
         // Both change to manual scaling
         _pGuiModel->setxAxisScale(AxisMode::SCALE_MANUAL);
         _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL);
+        _pGuiModel->sety2AxisScale(AxisMode::SCALE_MANUAL);
     }
 }
