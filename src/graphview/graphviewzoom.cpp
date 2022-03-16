@@ -76,6 +76,7 @@ bool GraphViewZoom::handleMouseRelease()
         _pRubberBand->hide();
 
         _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
+        _pGuiModel->sety2AxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
         _pGuiModel->setxAxisScale(AxisMode::SCALE_MANUAL);
 
         /* Perform zoom based on selected rubberband */
@@ -108,11 +109,14 @@ void GraphViewZoom::performZoom(void)
 {
     const double correctTopLeftX = _pGraphview->pixelToClosestKey(_pRubberBand->geometry().topLeft().x());
     const double correctTopLeftY = _pPlot->yAxis->pixelToCoord(_pRubberBand->geometry().topLeft().y());
+    const double correctTopLeftY2 = _pPlot->yAxis2->pixelToCoord(_pRubberBand->geometry().topLeft().y());
 
     const double correctBottomRightX = _pGraphview->pixelToClosestKey(_pRubberBand->geometry().bottomRight().x());
     const double correctBottomRightY = _pPlot->yAxis->pixelToCoord(_pRubberBand->geometry().bottomRight().y());
+    const double correctBottomRightY2 = _pPlot->yAxis2->pixelToCoord(_pRubberBand->geometry().bottomRight().y());
 
     _pPlot->xAxis->setRange(correctTopLeftX, correctBottomRightX);
     _pPlot->yAxis->setRange(correctBottomRightY, correctTopLeftY);
+    _pPlot->yAxis2->setRange(correctBottomRightY2, correctTopLeftY2);
 }
 

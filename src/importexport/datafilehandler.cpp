@@ -187,9 +187,8 @@ void DataFileHandler::parseDataFile()
 
             // Set to full auto scaling
             _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
-
-            // Set to full auto scaling
             _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
+            _pGuiModel->sety2AxisScale(AxisMode::SCALE_AUTO);
 
             _pGraphDataModel->clear();
             _pGuiModel->setFrontGraph(-1);
