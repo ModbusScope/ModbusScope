@@ -584,22 +584,25 @@ void MainWindow::handleGraphVisibilityChange(quint32 graphIdx)
     {
         const quint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
-        _pGraphShowHide->actions().at(activeIdx)->setChecked(_pGraphDataModel->isVisible(graphIdx));
-
-        // Show/Hide corresponding "BringToFront" action
-        _pGraphBringToFront->actions().at(activeIdx)->setVisible(_pGraphDataModel->isVisible((graphIdx)));
-
-        // Enable/Disable global BringToFront menu
-        bool bVisible = false;
-        foreach(QAction * pAction, _pGraphBringToFront->actions())
+        if (activeIdx >= 0)
         {
-            if (pAction->isVisible())
+            _pGraphShowHide->actions().at(activeIdx)->setChecked(_pGraphDataModel->isVisible(graphIdx));
+
+            // Show/Hide corresponding "BringToFront" action
+            _pGraphBringToFront->actions().at(activeIdx)->setVisible(_pGraphDataModel->isVisible((graphIdx)));
+
+            // Enable/Disable global BringToFront menu
+            bool bVisible = false;
+            foreach(QAction * pAction, _pGraphBringToFront->actions())
             {
-                bVisible = true;
-                break;
+                if (pAction->isVisible())
+                {
+                    bVisible = true;
+                    break;
+                }
             }
+            _pGraphBringToFront->setEnabled(bVisible);
         }
-        _pGraphBringToFront->setEnabled(bVisible);
     }
 }
 
@@ -609,13 +612,16 @@ void MainWindow::handleGraphColorChange(const quint32 graphIdx)
     {
         const quint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
-        QPixmap pixmap(20,5);
-        pixmap.fill(_pGraphDataModel->color(graphIdx));
+        if (activeIdx >= 0)
+        {
+            QPixmap pixmap(20,5);
+            pixmap.fill(_pGraphDataModel->color(graphIdx));
 
-        QIcon showHideIcon = QIcon(pixmap);
+            QIcon showHideIcon = QIcon(pixmap);
 
-        _pGraphShowHide->actions().at(activeIdx)->setIcon(showHideIcon);
-        _pGraphBringToFront->actions().at(activeIdx)->setIcon(showHideIcon);
+            _pGraphShowHide->actions().at(activeIdx)->setIcon(showHideIcon);
+            _pGraphBringToFront->actions().at(activeIdx)->setIcon(showHideIcon);
+        }
     }
 }
 
@@ -625,8 +631,11 @@ void MainWindow::handleGraphLabelChange(const quint32 graphIdx)
     {
         const quint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
-        _pGraphShowHide->actions().at(activeIdx)->setText(_pGraphDataModel->label(graphIdx));
-        _pGraphBringToFront->actions().at(activeIdx)->setText(_pGraphDataModel->label(graphIdx));
+        if (activeIdx >= 0)
+        {
+            _pGraphShowHide->actions().at(activeIdx)->setText(_pGraphDataModel->label(graphIdx));
+            _pGraphBringToFront->actions().at(activeIdx)->setText(_pGraphDataModel->label(graphIdx));
+        }
     }
 }
 
