@@ -31,9 +31,13 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     bool setData(const QModelIndex & index, const QVariant & value, int role);
     Qt::ItemFlags flags(const QModelIndex & index) const;
+    Qt::DropActions supportedDropActions() const;
 
     bool removeRows(int row, int count, const QModelIndex &parent);
     bool insertRows(int row, int count, const QModelIndex &parent);
+
+    QMimeData* mimeData(const QModelIndexList &indexes) const;
+    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
 
     /* Functions for other classes */
     qint32 size() const;
@@ -71,12 +75,13 @@ signals:
     void visibilityChanged(const quint32 graphIdx);
     void labelChanged(const quint32 graphIdx);
     void colorChanged(const quint32 graphIdx);
-    void activeChanged(const quint32 graphIdx); // when graph is activated / deactivated
+    void activeChanged(const quint32 graphIdx);
     void expressionChanged(const quint32 graphIdx);
     void graphsAddData(QList<double>, QList<QList<double> > data);
 
-    void added(const quint32 idx); // When graph definition is added
-    void removed(const quint32 idx); // When graph definition is removed
+    void moved();
+    void added(const quint32 idx);
+    void removed(const quint32 idx);
 
 private slots:
 
@@ -87,6 +92,7 @@ private:
     void updateActiveGraphList(void);
     void addToModel(GraphData * pGraphData);
     void removeFromModel(qint32 row);
+    void moveRow(int sourceRow, int destRow);
 
     QList<GraphData> _graphData;
     QList<quint32> _activeGraphList;

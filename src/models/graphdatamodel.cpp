@@ -164,6 +164,14 @@ Qt::ItemFlags GraphDataModel::flags(const QModelIndex & index) const
 {
     Qt::ItemFlags itemFlags = Qt::NoItemFlags;
 
+    itemFlags |= Qt::ItemIsDragEnabled;
+
+    /* Only allow drop on not existing items (eg between items) */
+    if (!index.isValid())
+    {
+        itemFlags |= Qt::ItemIsDropEnabled;
+    }
+
     /* default is enabled */
     itemFlags |= Qt::ItemIsEnabled;
 
@@ -187,6 +195,10 @@ Qt::ItemFlags GraphDataModel::flags(const QModelIndex & index) const
     return itemFlags;
 }
 
+Qt::DropActions GraphDataModel::supportedDropActions() const
+{
+    return Qt::MoveAction;
+}
 
 bool GraphDataModel::removeRows(int row, int count, const QModelIndex & parent)
 {
@@ -215,6 +227,40 @@ bool GraphDataModel::insertRows(int row, int count, const QModelIndex &parent)
     add();
 
     return true;
+}
+
+QMimeData *GraphDataModel::mimeData(const QModelIndexList &indexes) const
+{
+    QMimeData *data = QAbstractTableModel::mimeData(indexes);
+
+    if (data)
+    {
+        data->setData("row", QByteArray::number(indexes.at(0).row()));
+    }
+
+    return data;
+}
+
+bool GraphDataModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+    Q_UNUSED(parent);
+    Q_UNUSED(column);
+
+    if (!data || action != Qt::MoveAction)
+    {
+        return false;
+    }
+
+    bool bOk = false;
+    const int old_row = data->data("row").toInt(&bOk);
+    if (!bOk)
+    {
+        return false;
+    }
+
+    moveRow(old_row, row);
+
+    return false;
 }
 
 qint32 GraphDataModel::size() const
@@ -472,4 +518,26 @@ void GraphDataModel::removeFromModel(qint32 row)
     endRemoveRows();
 
     emit removed(row);
+}
+
+void GraphDataModel::moveRow(int sourceRow, int destRow)
+{
+    int newRow = destRow;
+    if(newRow == -1 || newRow >= rowCount())
+    {
+        newRow = rowCount() - 1;
+    }
+    else if (newRow > sourceRow)
+    {
+        newRow--;
+    }
+
+    if (sourceRow != newRow)
+    {
+        _graphData.move(sourceRow, newRow);
+    }
+
+    modelCompleteDataChanged();
+
+    emit moved();
 }
