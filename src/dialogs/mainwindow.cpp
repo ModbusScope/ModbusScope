@@ -130,6 +130,9 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pGraphDataModel, &GraphDataModel::added, this, &MainWindow::rebuildGraphMenu);
     connect(_pGraphDataModel, &GraphDataModel::added, _pGraphView, &GraphView::updateGraphs);
 
+    connect(_pGraphDataModel, &GraphDataModel::moved, this, &MainWindow::rebuildGraphMenu);
+    connect(_pGraphDataModel, &GraphDataModel::moved, _pGraphView, &GraphView::updateGraphs);
+
     connect(_pGraphDataModel, &GraphDataModel::removed, this, &MainWindow::rebuildGraphMenu);
     connect(_pGraphDataModel, &GraphDataModel::removed, _pGraphView, &GraphView::updateGraphs);
 

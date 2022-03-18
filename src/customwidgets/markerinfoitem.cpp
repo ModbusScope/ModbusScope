@@ -46,6 +46,7 @@ void MarkerInfoItem::setModel(GuiModel * pGuiModel, GraphDataModel * pGraphDataM
 
     connect(_pGraphDataModel, &GraphDataModel::activeChanged, this, &MarkerInfoItem::updateGraphList);
     connect(_pGraphDataModel, &GraphDataModel::added, this, &MarkerInfoItem::updateGraphList);
+    connect(_pGraphDataModel, &GraphDataModel::moved, this, &MarkerInfoItem::updateGraphList);
     connect(_pGraphDataModel, &GraphDataModel::removed, this, &MarkerInfoItem::removeFromGraphList);
     connect(_pGraphDataModel, &GraphDataModel::colorChanged, this, &MarkerInfoItem::updateColor);
     connect(_pGraphDataModel, &GraphDataModel::labelChanged, this, &MarkerInfoItem::updateLabel);

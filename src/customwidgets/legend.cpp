@@ -95,6 +95,7 @@ void Legend::setModels(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel)
 
     connect(_pGraphDataModel, &GraphDataModel::activeChanged, this, &Legend::updateLegend);
     connect(_pGraphDataModel, &GraphDataModel::added, this, &Legend::updateLegend);
+    connect(_pGraphDataModel, &GraphDataModel::moved, this, &Legend::updateLegend);
     connect(_pGraphDataModel, &GraphDataModel::removed, this, &Legend::updateLegend);
     connect(_pGraphDataModel, &GraphDataModel::visibilityChanged, this, &Legend::showGraph);
     connect(_pGraphDataModel, &GraphDataModel::colorChanged, this, &Legend::changeGraphColor);
