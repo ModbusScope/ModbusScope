@@ -2,6 +2,12 @@
 
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/jgeudens/ModbusScope/releases).
 
+## Unreleased
+
+* Implement changing order of registers by drag and drop ([Github #78](https://github.com/jgeudens/ModbusScope/issues/78))
+* Allow scrolling to negative times when there is negative time data ([Github #198](https://github.com/jgeudens/ModbusScope/issues/198))
+* Update to Qt6
+
 ## [v3.4.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.4.0) (02/03/2022)
 
 * Allow full 16-bit addressing of holding registers ([Github #181](https://github.com/jgeudens/ModbusScope/issues/181))
