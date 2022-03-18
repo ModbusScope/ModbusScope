@@ -38,7 +38,13 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
 
     // Select using click, shift and control
     _pUi->registerView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    _pUi->registerView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    _pUi->registerView->setSelectionMode(QAbstractItemView::SingleSelection);
+    _pUi->registerView->setDragEnabled(true);
+    _pUi->registerView->setAcceptDrops(false);
+    _pUi->registerView->setDropIndicatorShown(true);
+    _pUi->registerView->setDefaultDropAction(Qt::MoveAction);
+    _pUi->registerView->setDragDropMode(QTableView::InternalMove);
+    _pUi->registerView->setDragDropOverwriteMode(false);
 
     // Handle cell active signal
     connect(_pUi->registerView, &QTableView::activated, this, &RegisterDialog::activatedCell);
