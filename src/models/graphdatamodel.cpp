@@ -188,7 +188,7 @@ Qt::ItemFlags GraphDataModel::flags(const QModelIndex & index) const
 }
 
 
-bool GraphDataModel::removeRows (int row, int count, const QModelIndex & parent)
+bool GraphDataModel::removeRows(int row, int count, const QModelIndex & parent)
 {
     Q_UNUSED(parent);
     Q_UNUSED(count);
@@ -198,7 +198,7 @@ bool GraphDataModel::removeRows (int row, int count, const QModelIndex & parent)
     return true;
 }
 
-bool GraphDataModel::insertRows (int row, int count, const QModelIndex &parent)
+bool GraphDataModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     if (
         (count != 1)
