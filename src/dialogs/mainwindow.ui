@@ -57,6 +57,7 @@
     <addaction name="actionReloadProjectFile"/>
     <addaction name="actionOpenDataFile"/>
     <addaction name="separator"/>
+    <addaction name="actionSaveProjectFile"/>
     <addaction name="actionSaveProjectFileAs"/>
     <addaction name="actionSaveDataFile"/>
     <addaction name="actionExportImage"/>
@@ -789,6 +790,14 @@
    </property>
    <property name="text">
     <string>Online documentation...</string>
+   </property>
+  </action>
+  <action name="actionSaveProjectFile">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Save &amp;Project</string>
    </property>
   </action>
  </widget>
