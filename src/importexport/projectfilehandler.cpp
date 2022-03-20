@@ -53,8 +53,19 @@ void ProjectFileHandler::selectProjectSaveFile()
     QString selectedFile = FileSelectionHelper::showDialog(&dialog);
     if (!selectedFile.isEmpty())
     {
+        _pGuiModel->setProjectFilePath(selectedFile);
+
+        saveProjectFile();
+    }
+}
+
+void ProjectFileHandler::saveProjectFile()
+{
+    QString projectFile = _pGuiModel->projectFilePath();
+    if (!projectFile.isEmpty())
+    {
         ProjectFileExporter projectFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel);
-        projectFileExporter.exportProjectFile(selectedFile);
+        projectFileExporter.exportProjectFile(projectFile);
     }
 }
 

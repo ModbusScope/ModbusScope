@@ -81,6 +81,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pUi->actionOpenDataFile, &QAction::triggered, _pDataFileHandler, &DataFileHandler::selectDataImportFile);
     connect(_pUi->actionExportImage, &QAction::triggered, this, &MainWindow::selectImageExportFile);
     connect(_pUi->actionSaveProjectFileAs, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::selectProjectSaveFile);
+    connect(_pUi->actionSaveProjectFile, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::saveProjectFile);
     connect(_pUi->actionAbout, &QAction::triggered, this, &MainWindow::showAbout);
     connect(_pUi->actionOnlineDocumentation, &QAction::triggered, this, &MainWindow::openOnlineDoc);
     connect(_pUi->actionUpdateAvailable, &QAction::triggered, this, &MainWindow::openUpdateUrl);
@@ -804,6 +805,7 @@ void MainWindow::updateGuiState()
         _pUi->actionOpenProjectFile->setEnabled(false);
         _pUi->actionSaveDataFile->setEnabled(false);
         _pUi->actionSaveProjectFileAs->setEnabled(false);
+        _pUi->actionSaveProjectFile->setEnabled(false);
         _pUi->actionExportImage->setEnabled(false);
         _pUi->actionReloadProjectFile->setEnabled(false);
         _pUi->actionClearData->setEnabled(true);
@@ -836,10 +838,12 @@ void MainWindow::updateGuiState()
         if (_pGuiModel->projectFilePath().isEmpty())
         {
             _pUi->actionReloadProjectFile->setEnabled(false);
+            _pUi->actionSaveProjectFile->setEnabled(false);
         }
         else
         {
             _pUi->actionReloadProjectFile->setEnabled(true);
+            _pUi->actionSaveProjectFile->setEnabled(true);
         }
     }
     else if (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
@@ -855,8 +859,10 @@ void MainWindow::updateGuiState()
         _pUi->actionStart->setEnabled(true);
         _pUi->actionOpenDataFile->setEnabled(true);
         _pUi->actionOpenProjectFile->setEnabled(true);
-        _pUi->actionSaveDataFile->setEnabled(false); // Can't export data when viewing data
-        _pUi->actionSaveProjectFileAs->setEnabled(false); // Can't export data when viewing data
+
+        _pUi->actionSaveDataFile->setEnabled(false);
+        _pUi->actionSaveProjectFileAs->setEnabled(false);
+        _pUi->actionSaveProjectFile->setEnabled(false);
         _pUi->actionExportImage->setEnabled(true);
         _pUi->actionClearData->setEnabled(false);
 
@@ -879,11 +885,13 @@ void MainWindow::projectFileLoaded()
     {
         _pGuiModel->setWindowTitleDetail("");
         _pUi->actionReloadProjectFile->setEnabled(false);
+        _pUi->actionSaveProjectFile->setEnabled(false);
     }
     else
     {
         _pGuiModel->setWindowTitleDetail(QFileInfo(_pGuiModel->projectFilePath()).fileName());
         _pUi->actionReloadProjectFile->setEnabled(true);
+        _pUi->actionSaveProjectFile->setEnabled(true);
     }
 }
 

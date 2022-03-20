@@ -21,6 +21,7 @@ signals:
 
 public slots:
     void selectProjectSaveFile();
+    void saveProjectFile();
     void selectProjectOpenFile();
 
     void reloadProjectFile();
