@@ -80,7 +80,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pUi->actionReloadProjectFile, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::reloadProjectFile);
     connect(_pUi->actionOpenDataFile, &QAction::triggered, _pDataFileHandler, &DataFileHandler::selectDataImportFile);
     connect(_pUi->actionExportImage, &QAction::triggered, this, &MainWindow::selectImageExportFile);
-    connect(_pUi->actionSaveProjectFile, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::selectProjectSaveFile);
+    connect(_pUi->actionSaveProjectFileAs, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::selectProjectSaveFile);
     connect(_pUi->actionAbout, &QAction::triggered, this, &MainWindow::showAbout);
     connect(_pUi->actionOnlineDocumentation, &QAction::triggered, this, &MainWindow::openOnlineDoc);
     connect(_pUi->actionUpdateAvailable, &QAction::triggered, this, &MainWindow::openUpdateUrl);
@@ -776,7 +776,7 @@ void MainWindow::updateGuiState()
         _pUi->actionOpenProjectFile->setEnabled(true);
         _pUi->actionSaveDataFile->setEnabled(false);
         _pUi->actionExportImage->setEnabled(false);
-        _pUi->actionSaveProjectFile->setEnabled(true);
+        _pUi->actionSaveProjectFileAs->setEnabled(true);
         _pUi->actionClearData->setEnabled(true);
 
         _pStatusRuntime->setText(_cRuntime.arg("0:00:00"));
@@ -803,7 +803,7 @@ void MainWindow::updateGuiState()
         _pUi->actionOpenDataFile->setEnabled(false);
         _pUi->actionOpenProjectFile->setEnabled(false);
         _pUi->actionSaveDataFile->setEnabled(false);
-        _pUi->actionSaveProjectFile->setEnabled(false);
+        _pUi->actionSaveProjectFileAs->setEnabled(false);
         _pUi->actionExportImage->setEnabled(false);
         _pUi->actionReloadProjectFile->setEnabled(false);
         _pUi->actionClearData->setEnabled(true);
@@ -827,7 +827,7 @@ void MainWindow::updateGuiState()
         _pUi->actionOpenDataFile->setEnabled(true);
         _pUi->actionOpenProjectFile->setEnabled(true);
         _pUi->actionSaveDataFile->setEnabled(true);
-        _pUi->actionSaveProjectFile->setEnabled(true);
+        _pUi->actionSaveProjectFileAs->setEnabled(true);
         _pUi->actionExportImage->setEnabled(true);
         _pUi->actionClearData->setEnabled(true);
 
@@ -856,7 +856,7 @@ void MainWindow::updateGuiState()
         _pUi->actionOpenDataFile->setEnabled(true);
         _pUi->actionOpenProjectFile->setEnabled(true);
         _pUi->actionSaveDataFile->setEnabled(false); // Can't export data when viewing data
-        _pUi->actionSaveProjectFile->setEnabled(false); // Can't export data when viewing data
+        _pUi->actionSaveProjectFileAs->setEnabled(false); // Can't export data when viewing data
         _pUi->actionExportImage->setEnabled(true);
         _pUi->actionClearData->setEnabled(false);
 
