@@ -57,7 +57,7 @@
     <addaction name="actionReloadProjectFile"/>
     <addaction name="actionOpenDataFile"/>
     <addaction name="separator"/>
-    <addaction name="actionSaveProjectFile"/>
+    <addaction name="actionSaveProjectFileAs"/>
     <addaction name="actionSaveDataFile"/>
     <addaction name="actionExportImage"/>
     <addaction name="separator"/>
@@ -721,7 +721,7 @@
     <string>Toggle Markers</string>
    </property>
   </action>
-  <action name="actionSaveProjectFile">
+  <action name="actionSaveProjectFileAs">
    <property name="enabled">
     <bool>false</bool>
    </property>
