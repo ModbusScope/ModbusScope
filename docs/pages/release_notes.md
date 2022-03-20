@@ -4,6 +4,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ## Unreleased
 
+* Add "Save Project" menu item
 * Implement changing order of registers by drag and drop ([Github #78](https://github.com/jgeudens/ModbusScope/issues/78))
 * Allow scrolling to negative times when there is negative time data ([Github #198](https://github.com/jgeudens/ModbusScope/issues/198))
 * Update to Qt6
