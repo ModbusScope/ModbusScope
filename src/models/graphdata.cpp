@@ -4,6 +4,7 @@
 
 GraphData::GraphData()
 {
+    _valueAxis = VALUE_AXIS_PRIMARY;
     _bVisible = true;
     _label = QString("Unknown register");
     _color = "-1"; // Invalid color
@@ -16,6 +17,19 @@ GraphData::GraphData()
 GraphData::~GraphData()
 {
     _pDataMap.clear();
+}
+
+GraphData::valueAxis_t GraphData::valueAxis() const
+{
+    return _valueAxis;
+}
+
+void GraphData::setValueAxis(valueAxis_t axis)
+{
+    if (axis < VALUE_AXIS_CNT)
+    {
+        _valueAxis = axis;
+    }
 }
 
 bool GraphData::isVisible() const

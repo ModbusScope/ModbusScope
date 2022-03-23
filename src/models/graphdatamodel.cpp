@@ -65,6 +65,13 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
             return simplifiedExpression(index.row());
         }
         break;
+    case column::VALUE_AXIS:
+        if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
+        {
+            QString axis = valueAxis(index.row()) == GraphData::VALUE_AXIS_PRIMARY ? "Primary" : "Secondary";
+            return axis;
+        }
+        break;
     default:
         return QVariant();
         break;
@@ -90,6 +97,8 @@ QVariant GraphDataModel::headerData(int section, Qt::Orientation orientation, in
                 return QString("Text");
             case column::EXPRESSION:
                 return QString("Expression");
+            case column::VALUE_AXIS:
+                return QString("Value Axis");
             default:
                 return QVariant();
             }
@@ -147,6 +156,27 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
         if (role == Qt::EditRole)
         {
             setExpression(index.row(), value.toString());
+        }
+        break;
+    case column::VALUE_AXIS:
+        if (role == Qt::EditRole)
+        {
+            bool bSuccess = false;
+            const quint8 newValueAxis = static_cast<quint8>(value.toUInt(&bSuccess));
+
+            if (
+                    (bSuccess)
+                    && (newValueAxis < GraphData::VALUE_AXIS_CNT)
+                )
+            {
+                setValueAxis(index.row(), static_cast<GraphData::valueAxis_t>(newValueAxis));
+            }
+            else
+            {
+                bRet = false;
+                Util::showError(tr("Value axis setting is not valid"));
+                break;
+            }
         }
         break;
     default:
@@ -273,6 +303,11 @@ qint32 GraphDataModel::activeCount() const
     return _activeGraphList.size();
 }
 
+GraphData::valueAxis_t GraphDataModel::valueAxis(quint32 index) const
+{
+    return _graphData[index].valueAxis();
+}
+
 bool GraphDataModel::isVisible(quint32 index) const
 {
     return _graphData[index].isVisible();
@@ -306,6 +341,15 @@ QString GraphDataModel::simplifiedExpression(quint32 index) const
 QSharedPointer<QCPGraphDataContainer> GraphDataModel::dataMap(quint32 index)
 {
     return _graphData[index].dataMap();
+}
+
+void GraphDataModel::setValueAxis(quint32 index, GraphData::valueAxis_t axis)
+{
+    if (_graphData[index].valueAxis() != axis)
+    {
+         _graphData[index].setValueAxis(axis);
+         emit valueAxisChanged(index);
+    }
 }
 
 void GraphDataModel::setVisible(quint32 index, bool bVisible)

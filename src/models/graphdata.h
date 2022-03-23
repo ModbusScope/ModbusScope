@@ -12,6 +12,16 @@ public:
     explicit GraphData();
     ~GraphData();
 
+    typedef enum
+    {
+        VALUE_AXIS_PRIMARY = 0,
+        VALUE_AXIS_SECONDARY,
+        VALUE_AXIS_CNT
+    } valueAxis_t;
+
+    valueAxis_t valueAxis() const;
+    void setValueAxis(valueAxis_t axis);
+
     bool isVisible() const;
     void setVisible(bool bVisible);
 
@@ -31,6 +41,7 @@ public:
 
 private:
 
+    valueAxis_t _valueAxis;
     bool _bVisible;
     QString _label;
     QColor _color;

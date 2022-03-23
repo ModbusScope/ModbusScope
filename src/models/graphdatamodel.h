@@ -18,6 +18,7 @@ public:
         ACTIVE,
         TEXT,
         EXPRESSION,
+        VALUE_AXIS,
 
         COUNT
     };
@@ -43,6 +44,7 @@ public:
     qint32 size() const;
     qint32 activeCount() const;
 
+    GraphData::valueAxis_t valueAxis(quint32 index) const;
     bool isVisible(quint32 index) const;
     QString label(quint32 index) const;
     QColor color(quint32 index) const;
@@ -51,6 +53,7 @@ public:
     QString simplifiedExpression(quint32 index) const;
     QSharedPointer<QCPGraphDataContainer> dataMap(quint32 index);
 
+    void setValueAxis(quint32 index, GraphData::valueAxis_t axis);
     void setVisible(quint32 index, bool bVisible);
     void setLabel(quint32 index, const QString &label);
     void setColor(quint32 index, const QColor &color);
@@ -72,6 +75,7 @@ public:
 
 signals:
 
+    void valueAxisChanged(const quint32 graphIdx);
     void visibilityChanged(const quint32 graphIdx);
     void labelChanged(const quint32 graphIdx);
     void colorChanged(const quint32 graphIdx);

@@ -9,6 +9,7 @@
 #include "graphdatamodel.h"
 #include "guimodel.h"
 #include "settingsmodel.h"
+#include "registervalueaxisdelegate.h"
 
 #include "ui_registerdialog.h"
 
@@ -28,6 +29,9 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     // Setup registerView
     _pUi->registerView->setModel(_pGraphDataModel);
     _pUi->registerView->verticalHeader()->hide();
+
+    auto cbValueAxis = new RegisterValueAxisDelegate(_pGraphDataModel, _pUi->registerView);
+    _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::VALUE_AXIS, cbValueAxis);
 
     /* Don't stretch columns */
     _pUi->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
