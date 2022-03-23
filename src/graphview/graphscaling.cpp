@@ -167,7 +167,7 @@ void GraphScale::timeAxisRangeChanged(const QCPRange &newRange)
 
     QList<QCPGraph*> const graphList = _pPlot->xAxis->graphs();
 
-    if (graphList.size() > 0)
+    if (graphList.size() > 0 && !graphList[0]->data()->isEmpty())
     {
         const double beginKey = graphList[0]->data()->constBegin()->key;
         if (newLower < 0)
