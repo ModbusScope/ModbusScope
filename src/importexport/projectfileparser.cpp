@@ -747,27 +747,27 @@ bool ProjectFileParser::parseScaleYAxis(const QDomElement &element, ScaleSetting
     {
         if (child.tagName() == ProjectFileDefinitions::cMinTag)
         {
-            pScaleSettings->scaleMin = child.text().toInt(&bRet);
+            pScaleSettings->scaleMin = QLocale().toDouble(child.text(), &bRet);
             if (bRet)
             {
                 bMin = true;
             }
             else
             {
-                Util::showError(tr("Scale (y-axis) has an incorrect minimum. \"%1\" is not a valid number").arg(child.text()));
+                Util::showError(tr("Scale (y-axis) has an incorrect minimum. \"%1\" is not a valid double").arg(child.text()));
                 break;
             }
         }
         else if (child.tagName() == ProjectFileDefinitions::cMaxTag)
         {
-            pScaleSettings->scaleMax = child.text().toInt(&bRet);
+            pScaleSettings->scaleMax = QLocale().toDouble(child.text(), &bRet);
             if (bRet)
             {
                 bMax = true;
             }
             else
             {
-                Util::showError(tr("Scale (y-axis) has an incorrect maximum. \"%1\" is not a valid number").arg(child.text()));
+                Util::showError(tr("Scale (y-axis) has an incorrect maximum. \"%1\" is not a valid double").arg(child.text()));
                 break;
             }
         }

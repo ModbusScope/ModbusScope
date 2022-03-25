@@ -82,7 +82,7 @@
    </xaxis>
    <yaxis mode="minmax">
     <min>0</min>
-    <max>25</max>
+    <max>25.5</max>
    </yaxis>
   </scale>
  </view>
