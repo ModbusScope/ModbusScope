@@ -205,6 +205,7 @@ void GraphView::updateGraphs()
         {
             // Add graph
             QCPGraph * pGraph = _pPlot->addGraph();
+            setGraphAxis(pGraph, _pGraphDataModel->valueAxis(graphIdx));
             setGraphColor(pGraph, _pGraphDataModel->color(graphIdx));
 
             pGraph->setVisible(_pGraphDataModel->isVisible(graphIdx));
@@ -243,6 +244,17 @@ void GraphView::changeGraphColor(const quint32 graphIdx)
         const quint32 activeIdx = static_cast<quint32>(_pGraphDataModel->convertToActiveGraphIndex(graphIdx));
 
         setGraphColor(_pPlot->graph(activeIdx), _pGraphDataModel->color(graphIdx));
+
+        _pPlot->replot();
+    }
+}
+
+void GraphView::changeGraphAxis(const quint32 graphIdx)
+{
+    if (_pGraphDataModel->isActive(graphIdx))
+    {
+        const quint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+        setGraphAxis(_pPlot->graph(activeIdx), _pGraphDataModel->valueAxis(graphIdx));
 
         _pPlot->replot();
     }
@@ -598,6 +610,18 @@ void GraphView::setGraphColor(QCPGraph* _pGraph, const QColor &color)
     pen.setCosmetic(true);
 
     _pGraph->setPen(pen);
+}
+
+void GraphView::setGraphAxis(QCPGraph* _pGraph, const GraphData::valueAxis_t &axis)
+{
+    if (axis == GraphData::VALUE_AXIS_SECONDARY)
+    {
+        _pGraph->setValueAxis(_pPlot->yAxis2);
+    }
+    else
+    {
+        _pGraph->setValueAxis(_pPlot->yAxis);
+    }
 }
 
 double GraphView::getClosestPoint(double coordinate)

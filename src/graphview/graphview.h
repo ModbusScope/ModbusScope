@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "scopeplot.h"
+#include "graphdata.h"
 
 /* forward declaration */
 class GuiModel;
@@ -38,6 +39,7 @@ public slots:
     void clearGraph(const quint32 graphIdx);
     void updateGraphs();
     void changeGraphColor(const quint32 graphIdx);
+    void changeGraphAxis(const quint32 graphIdx);
     void bringToFront();
 
     void addData(QList<double> timeData, QList<QList<double> > data);
@@ -65,6 +67,7 @@ private:
     void paintTimeStampToolTip(QPoint pos);
     void highlightSamples(bool bState);
     void setGraphColor(QCPGraph* _pGraph, const QColor &color);
+    void setGraphAxis(QCPGraph* _pGraph, const GraphData::valueAxis_t &axis);
     double getClosestPoint(double coordinate);
 
     QVector<QString> _tickLabels;
