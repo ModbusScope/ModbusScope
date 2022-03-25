@@ -184,8 +184,8 @@ void ProjectFileExporter::createViewTag(QDomElement * pParentElement)
     {
         yAxisElement.setAttribute(ProjectFileDefinitions::cModeAttribute, ProjectFileDefinitions::cMinmaxValue);
 
-        addTextNode(ProjectFileDefinitions::cMinTag, QString("%1").arg(_pGuiModel->yAxisMin()), &yAxisElement);
-        addTextNode(ProjectFileDefinitions::cMaxTag, QString("%1").arg(_pGuiModel->yAxisMax()), &yAxisElement);
+        addTextNode(ProjectFileDefinitions::cMinTag, QString("%1").arg(Util::formatDoubleForExport(_pGuiModel->yAxisMin())), &yAxisElement);
+        addTextNode(ProjectFileDefinitions::cMaxTag, QString("%1").arg(Util::formatDoubleForExport(_pGuiModel->yAxisMax())), &yAxisElement);
     }
     else
     {

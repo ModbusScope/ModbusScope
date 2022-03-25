@@ -48,8 +48,8 @@ namespace ProjectFileData
         bool bWindowScale;
 
         bool bMinMax;
-        qint32 scaleMin;
-        qint32 scaleMax;
+        double scaleMin;
+        double scaleMax;
     } ScaleSettings;
 
     typedef struct
