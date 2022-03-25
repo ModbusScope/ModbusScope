@@ -181,13 +181,15 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pUi->customPlot, &QCustomPlot::customContextMenuRequested, this, &MainWindow::showContextMenu);
 
     connect(_pUi->spinSlidingXInterval, QOverload<int>::of(&QSpinBox::valueChanged), _pGuiModel, &GuiModel::setxAxisSlidingInterval);
-    connect(_pUi->spinYMin, QOverload<int>::of(&QSpinBox::valueChanged), _pGuiModel, &GuiModel::setyAxisMin);
-    connect(_pUi->spinYMax, QOverload<int>::of(&QSpinBox::valueChanged), _pGuiModel, &GuiModel::setyAxisMax);
+
+    QDoubleValidator* pValidator = new QDoubleValidator(-1000000, 1000000, 3); /* Util:formatdouble is also 3 decimals */
+    _pUi->lineYMin->setValidator(pValidator);
+    _pUi->lineYMax->setValidator(pValidator);
+    connect(_pUi->lineYMin, &QLineEdit::editingFinished, this, &MainWindow::handleYMinChange);
+    connect(_pUi->lineYMax, &QLineEdit::editingFinished, this, &MainWindow::handleYMaxChange);
 
     //valueChanged is only send when done editing...
     _pUi->spinSlidingXInterval->setKeyboardTracking(false);
-    _pUi->spinYMin->setKeyboardTracking(false);
-    _pUi->spinYMax->setKeyboardTracking(false);
 
     // Create button group for X axis scaling options
     _pXAxisScaleGroup = new QButtonGroup();
@@ -578,6 +580,28 @@ void MainWindow::toggleMarkersState()
     }
 }
 
+void MainWindow::handleYMinChange()
+{
+    bool bOk = false;
+    double val = QLocale().toDouble(_pUi->lineYMin->text(), &bOk);
+
+    if (bOk)
+    {
+        _pGuiModel->setyAxisMin(val);
+    }
+}
+
+void MainWindow::handleYMaxChange()
+{
+    bool bOk = false;
+    double val = QLocale().toDouble(_pUi->lineYMax->text(), &bOk);
+
+    if (bOk)
+    {
+        _pGuiModel->setyAxisMax(val);
+    }
+}
+
 void MainWindow::handleGraphVisibilityChange(quint32 graphIdx)
 {
     if (_pGraphDataModel->isActive(graphIdx))
@@ -757,8 +781,8 @@ void MainWindow::updateyAxisSlidingMode()
 
 void MainWindow::updateyAxisMinMax()
 {
-    _pUi->spinYMin->setValue(_pGuiModel->yAxisMin());
-    _pUi->spinYMax->setValue(_pGuiModel->yAxisMax());
+    _pUi->lineYMin->setText(Util::formatDoubleForExport(_pGuiModel->yAxisMin()));
+    _pUi->lineYMax->setText(Util::formatDoubleForExport(_pGuiModel->yAxisMax()));
 }
 
 void MainWindow::updateGuiState()

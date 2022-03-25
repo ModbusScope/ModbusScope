@@ -62,8 +62,8 @@ public:
     AxisMode::AxisScaleOptions xAxisScalingMode();
     quint32 xAxisSlidingSec();
     AxisMode::AxisScaleOptions  yAxisScalingMode();
-    qint32 yAxisMin();
-    qint32 yAxisMax();
+    double yAxisMin();
+    double yAxisMax();
     quint32 guiState();
     qint64 communicationStartTime();
     qint64 communicationEndTime();
@@ -91,8 +91,8 @@ public slots:
     void setxAxisScale(AxisMode::AxisScaleOptions scaleMode);
     void setxAxisSlidingInterval(int slidingSec);
     void setyAxisScale(AxisMode::AxisScaleOptions scaleMode);
-    void setyAxisMin(int newMin);
-    void setyAxisMax(int newMax);
+    void setyAxisMin(double newMin);
+    void setyAxisMax(double newMax);
     void setGuiState(quint32 state);
     void setCommunicationStartTime(qint64 startTime);
     void setCommunicationEndTime(qint64 endTime);
@@ -135,8 +135,8 @@ private:
         quint32 xslidingInterval;
 
         AxisMode::AxisScaleOptions yScaleMode;
-        qint32 yMin;
-        qint32 yMax;
+        double yMin;
+        double yMax;
 
     } GuiSettings;
 
