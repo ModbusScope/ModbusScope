@@ -248,10 +248,10 @@ void GuiModel::setyAxisScale(AxisMode::AxisScaleOptions scaleMode)
     }
 }
 
-void GuiModel::setyAxisMin(int newMin)
+void GuiModel::setyAxisMin(double newMin)
 {
-    const qint32 diff = _guiSettings.yMax - _guiSettings.yMin;
-    qint32 newMax = _guiSettings.yMax;
+    const double diff = _guiSettings.yMax - _guiSettings.yMin;
+    double newMax = _guiSettings.yMax;
 
     if (newMin >= _guiSettings.yMax)
     {
@@ -266,11 +266,11 @@ void GuiModel::setyAxisMin(int newMin)
     }
 }
 
-void GuiModel::setyAxisMax(int newMax)
+void GuiModel::setyAxisMax(double newMax)
 {
-    const qint32 diff = _guiSettings.yMax - _guiSettings.yMin;
+    const double diff = _guiSettings.yMax - _guiSettings.yMin;
 
-    qint32 newMin = _guiSettings.yMin;
+    double newMin = _guiSettings.yMin;
 
     if (newMax <= _guiSettings.yMin)
     {
@@ -489,12 +489,12 @@ void GuiModel::setMarkerState(bool bState)
     emit markerStateChanged();
 }
 
-qint32 GuiModel::yAxisMin()
+double GuiModel::yAxisMin()
 {
     return _guiSettings.yMin;
 }
 
-qint32 GuiModel::yAxisMax()
+double GuiModel::yAxisMax()
 {
     return _guiSettings.yMax;
 }

@@ -71,6 +71,8 @@ private slots:
     void showDiagnostic();
     void showNotesDialog();
     void toggleMarkersState();
+    void handleYMinChange();
+    void handleYMaxChange();
 
     /* Model change handlers */
     void handleGraphVisibilityChange(quint32 graphIdx);
