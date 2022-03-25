@@ -130,6 +130,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pGraphDataModel, &GraphDataModel::activeChanged, _pGraphView, &GraphView::updateGraphs);
     connect(_pGraphDataModel, &GraphDataModel::colorChanged, this, &MainWindow::handleGraphColorChange);
     connect(_pGraphDataModel, &GraphDataModel::colorChanged, _pGraphView, &GraphView::changeGraphColor);
+    connect(_pGraphDataModel, &GraphDataModel::valueAxisChanged, _pGraphView, &GraphView::changeGraphAxis);
     connect(_pGraphDataModel, &GraphDataModel::labelChanged, this, &MainWindow::handleGraphLabelChange);
 
     connect(_pGraphDataModel, &GraphDataModel::added, this, &MainWindow::rebuildGraphMenu);
