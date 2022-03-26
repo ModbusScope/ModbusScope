@@ -21,9 +21,13 @@ aqt install-tool --outputdir %QT_INSTALL_DIR% %QT_HOST% %QT_TARGET% tools_cmake
 aqt install-tool --outputdir %QT_INSTALL_DIR% %QT_HOST% %QT_TARGET% tools_ninja
 aqt install-tool --outputdir %QT_INSTALL_DIR% %QT_HOST% %QT_TARGET% tools_openssl_x64
 
+REM Debug info
+echo Debug info
+dir %QT_INSTALL_DIR%\Tools
+
 REM Set env variables with path
 set "PATH=%QT_INSTALL_DIR%\%QT%\%QT_ARCH_PATH%\bin;%PATH%"
-set "PATH=%QT_INSTALL_DIR%\Tools\mingw900_64\bin;%PATH%"
+set "PATH=%QT_INSTALL_DIR%\Tools\mingw1120_64\bin;%PATH%"
 set "PATH=%QT_INSTALL_DIR%\Tools\CMake_64\bin;%PATH%"
 set "PATH=%QT_INSTALL_DIR%\Tools\Ninja;%PATH%"
 
