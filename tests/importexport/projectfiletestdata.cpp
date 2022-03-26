@@ -59,6 +59,28 @@ QString ProjectFileTestData::cNewRegExpressions = QString(
     "</modbusscope>                                                 \n"
 );
 
+QString ProjectFileTestData::cDataLevel3Expressions = QString(
+    "<?xml version=\"1.0\"?>                                                    \n"\
+    "<modbusscope datalevel=\"3\">                                              \n"\
+    "    <scope>                                                                \n"\
+    "        <register active=\"true\">                                         \n"\
+    "            <text>Data point</text>                                        \n"\
+    "            <expression><![CDATA[${40001}/2]]></expression>                \n"\
+    "            <color>#ff0000</color>                                         \n"\
+    "        </register>                                                        \n"\
+    "        <register active=\"true\">                                         \n"\
+    "            <text>Data point 2</text>                                      \n"\
+    "            <expression><![CDATA[${40002:s16b}]]></expression>             \n"\
+    "            <color>#0000ff</color>                                         \n"\
+    "        </register>                                                        \n"\
+    "        <register active=\"false\">                                        \n"\
+    "            <text>Data point 3</text>                                      \n"\
+    "            <expression><![CDATA[${40003@2:s16b}*10]]></expression>        \n"\
+    "        </register>                                                        \n"\
+    "    </scope>                                                               \n"\
+    "</modbusscope>                                                             \n"\
+);
+
 QString ProjectFileTestData::cConnLegacySingle = QString(
     "<modbusscope datalevel=\"2\">                                   \n"\
     "	<modbus>                                                     \n"\
@@ -102,29 +124,29 @@ QString ProjectFileTestData::cConnLegacyDual = QString(
 );
 
 QString ProjectFileTestData::cConnSerial = QString(
-            "<?xml version=\"1.0\"?>                                           \n"\
-            "<modbusscope datalevel=\"2\">                                     \n"\
-            " <modbus>                                                         \n"\
-            "  <connection>                                                    \n"\
-            "   <enabled>true</enabled>                                        \n"\
-            "   <connectionid>0</connectionid>                                 \n"\
-            "   <type>serial</type>                                            \n"\
-            "   <ip>127.0.0.1</ip>                                             \n"\
-            "   <port>502</port>                                               \n"\
-            "   <portname>/dev/ttyUSB2</portname>                              \n"\
-            "   <baudrate>9600</baudrate>                                      \n"\
-            "   <parity>0</parity>                                             \n"\
-            "   <stopbits>3</stopbits>                                         \n"\
-            "   <databits>7</databits>                                         \n"\
-            "   <slaveid>3</slaveid>                                           \n"\
-            "   <timeout>1003</timeout>                                        \n"\
-            "   <consecutivemax>12</consecutivemax>                            \n"\
-            "   <int32littleendian>true</int32littleendian>                    \n"\
-            "   <persistentconnection>true</persistentconnection>              \n"\
-            "  </connection>                                                   \n"\
-            " </modbus>                                                        \n"\
-            "</modbusscope>                                                    \n"
-        );
+    "<?xml version=\"1.0\"?>                                           \n"\
+    "<modbusscope datalevel=\"2\">                                     \n"\
+    " <modbus>                                                         \n"\
+    "  <connection>                                                    \n"\
+    "   <enabled>true</enabled>                                        \n"\
+    "   <connectionid>0</connectionid>                                 \n"\
+    "   <type>serial</type>                                            \n"\
+    "   <ip>127.0.0.1</ip>                                             \n"\
+    "   <port>502</port>                                               \n"\
+    "   <portname>/dev/ttyUSB2</portname>                              \n"\
+    "   <baudrate>9600</baudrate>                                      \n"\
+    "   <parity>0</parity>                                             \n"\
+    "   <stopbits>3</stopbits>                                         \n"\
+    "   <databits>7</databits>                                         \n"\
+    "   <slaveid>3</slaveid>                                           \n"\
+    "   <timeout>1003</timeout>                                        \n"\
+    "   <consecutivemax>12</consecutivemax>                            \n"\
+    "   <int32littleendian>true</int32littleendian>                    \n"\
+    "   <persistentconnection>true</persistentconnection>              \n"\
+    "  </connection>                                                   \n"\
+    " </modbus>                                                        \n"\
+    "</modbusscope>                                                    \n"
+);
 
 QString ProjectFileTestData::cConnMixedMulti = QString(
     "<?xml version=\"1.0\"?>                                           \n"\
@@ -186,11 +208,11 @@ QString ProjectFileTestData::cConnMixedMulti = QString(
 );
 
 QString ProjectFileTestData::cConnEmpty = QString(
-        "<?xml version=\"1.0\"?>                                           \n"\
-        "<modbusscope datalevel=\"2\">                                     \n"\
-        " <modbus>                                                         \n"\
-        "  <connection>                                                    \n"\
-        "  </connection>                                                   \n"\
-        " </modbus>                                                        \n"\
-        "</modbusscope>                                                    \n"
-    );
+    "<?xml version=\"1.0\"?>                                           \n"\
+    "<modbusscope datalevel=\"2\">                                     \n"\
+    " <modbus>                                                         \n"\
+    "  <connection>                                                    \n"\
+    "  </connection>                                                   \n"\
+    " </modbus>                                                        \n"\
+    "</modbusscope>                                                    \n"
+);

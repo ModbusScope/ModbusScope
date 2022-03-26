@@ -9,6 +9,7 @@ public:
     static QString cLegacyRegExpressions;
     static QString cBothLegacyAndNewRegExpressions;
     static QString cNewRegExpressions;
+    static QString cDataLevel3Expressions;
 
     static QString cConnLegacySingle;
     static QString cConnLegacyDual;
