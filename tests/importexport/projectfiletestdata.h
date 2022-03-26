@@ -18,6 +18,8 @@ public:
     static QString cConnMixedMulti;
     static QString cConnEmpty;
 
+    static QString cScaleDouble;
+
 private:
 
 };

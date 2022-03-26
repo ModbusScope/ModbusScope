@@ -13,6 +13,11 @@ void TestProjectFileParser::init()
 
 }
 
+void TestProjectFileParser::initTestCase()
+{
+    QLocale::setDefault(QLocale(QLocale::Dutch, QLocale::Belgium));
+}
+
 void TestProjectFileParser::cleanup()
 {
 
@@ -234,7 +239,6 @@ void TestProjectFileParser::connSerial()
 
     QVERIFY(settings.general.connectionSettings[0].bInt32LittleEndian);
     QVERIFY(settings.general.connectionSettings[0].bPersistentConnection);
-
 }
 
 void TestProjectFileParser::connMixedMulti()
@@ -376,7 +380,6 @@ void TestProjectFileParser::connMixedMulti()
 
 }
 
-
 void TestProjectFileParser::connEmpty()
 {
     ProjectFileParser projectParser;
@@ -386,34 +389,39 @@ void TestProjectFileParser::connEmpty()
 
     /* Connection id 0 */
     QVERIFY(settings.general.connectionSettings[0].bConnectionId == false);
-
     QVERIFY(settings.general.connectionSettings[0].bConnectionState);
-
     QVERIFY(settings.general.connectionSettings[0].bConnectionType == false);
 
     QVERIFY(settings.general.connectionSettings[0].bIp == false);
-
     QVERIFY(settings.general.connectionSettings[0].bPort == false);
-
     QVERIFY(settings.general.connectionSettings[0].bPortName == false);
-
     QVERIFY(settings.general.connectionSettings[0].bBaudrate == false);
-
     QVERIFY(settings.general.connectionSettings[0].bParity == false);
-
     QVERIFY(settings.general.connectionSettings[0].bStopbits == false);
-
     QVERIFY(settings.general.connectionSettings[0].bDatabits == false);
 
     QVERIFY(settings.general.connectionSettings[0].bSlaveId == false);
-
     QVERIFY(settings.general.connectionSettings[0].bTimeout == false);
-
     QVERIFY(settings.general.connectionSettings[0].bConsecutiveMax == false);
 
     QVERIFY(settings.general.connectionSettings[0].bInt32LittleEndian);
     QVERIFY(settings.general.connectionSettings[0].bPersistentConnection);
+}
 
+void TestProjectFileParser::scaleDouble()
+{
+    ProjectFileParser projectParser;
+    ProjectFileData::ProjectSettings settings;
+
+    QVERIFY(projectParser.parseFile(ProjectFileTestData::cScaleDouble, &settings));
+
+    /* Connection id 0 */
+    QVERIFY(settings.view.scaleSettings.bSliding);
+    QCOMPARE(settings.view.scaleSettings.slidingInterval, 20);
+
+    QVERIFY(settings.view.scaleSettings.bMinMax);
+    QCOMPARE(settings.view.scaleSettings.scaleMin, 0);
+    QCOMPARE(settings.view.scaleSettings.scaleMax, 25.5);
 }
 
 

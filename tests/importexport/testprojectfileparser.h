@@ -7,6 +7,7 @@ class TestProjectFileParser: public QObject
     Q_OBJECT
 private slots:
     void init();
+    void initTestCase();
     void cleanup();
 
     void legacyRegExpressions();
@@ -19,6 +20,8 @@ private slots:
     void connSerial();
     void connMixedMulti();
     void connEmpty();
+
+    void scaleDouble();
 
 private:
 
