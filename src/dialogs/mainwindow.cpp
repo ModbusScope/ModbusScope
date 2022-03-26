@@ -588,6 +588,7 @@ void MainWindow::handleYMinChange()
     if (bOk)
     {
         _pGuiModel->setyAxisMin(val);
+        _pGuiModel->setyAxisScale(AxisMode::SCALE_MINMAX);
     }
 }
 
@@ -599,6 +600,7 @@ void MainWindow::handleYMaxChange()
     if (bOk)
     {
         _pGuiModel->setyAxisMax(val);
+        _pGuiModel->setyAxisScale(AxisMode::SCALE_MINMAX);
     }
 }
 
