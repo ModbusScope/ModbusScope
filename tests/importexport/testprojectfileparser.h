@@ -12,7 +12,7 @@ private slots:
     void legacyRegExpressions();
     void newRegExpressions();
     void bothLegacyNewRegExpressions();
-
+    void dataLevel3Expressions();
 
     void connLegacySingle();
     void connLegacyDual();

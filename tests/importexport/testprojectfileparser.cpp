@@ -30,6 +30,12 @@ void TestProjectFileParser::legacyRegExpressions()
     QCOMPARE(settings.scope.registerList[0].divideFactor, 2);
     QCOMPARE(settings.scope.registerList[0].shift, 1);
     QCOMPARE(settings.scope.registerList[0].bitmask, 0xFF00);
+    QCOMPARE(settings.scope.registerList[0].text, "Register 40002");
+    QCOMPARE(settings.scope.registerList[0].bUnsigned, true);
+    QCOMPARE(settings.scope.registerList[0].b32Bit, false);
+
+    QCOMPARE(settings.scope.registerList[0].bColor, true);
+    QCOMPARE(settings.scope.registerList[0].color, QColor(0x00, 0x00, 0xff));
 
     QVERIFY(!settings.scope.registerList[0].bExpression);
 }
@@ -66,7 +72,31 @@ void TestProjectFileParser::bothLegacyNewRegExpressions()
 
     QVERIFY(settings.scope.registerList[0].bExpression);
     QCOMPARE(settings.scope.registerList[0].expression, QString("(VAL+6/2)+5+5+5"));
+}
 
+void TestProjectFileParser::dataLevel3Expressions()
+{
+    ProjectFileParser projectParser;
+    ProjectFileData::ProjectSettings settings;
+
+    QVERIFY(projectParser.parseFile(ProjectFileTestData::cDataLevel3Expressions, &settings));
+
+    QVERIFY(settings.scope.registerList[0].bActive);
+    QVERIFY(settings.scope.registerList[0].bExpression);
+    QCOMPARE(settings.scope.registerList[0].expression, QString("${40001}/2"));
+    QCOMPARE(settings.scope.registerList[0].bColor, true);
+    QCOMPARE(settings.scope.registerList[0].color, QColor(0xff, 0x00, 0x00));
+
+    QVERIFY(settings.scope.registerList[1].bActive);
+    QVERIFY(settings.scope.registerList[1].bExpression);
+    QCOMPARE(settings.scope.registerList[1].expression, QString("${40002:s16b}"));
+    QCOMPARE(settings.scope.registerList[1].bColor, true);
+    QCOMPARE(settings.scope.registerList[1].color, QColor(0x00, 0x00, 0xff));
+
+    QVERIFY(!settings.scope.registerList[2].bActive);
+    QVERIFY(settings.scope.registerList[2].bExpression);
+    QCOMPARE(settings.scope.registerList[2].expression, QString("${40003@2:s16b}*10"));
+    QCOMPARE(settings.scope.registerList[2].bColor, false);
 }
 
 void TestProjectFileParser::connLegacySingle()
