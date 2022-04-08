@@ -20,6 +20,7 @@ DiagnosticDialog::DiagnosticDialog(GuiModel* pGuiModel, DiagnosticModel * pDiagn
     _pUi(new Ui::DiagnosticDialog)
 {
     _pUi->setupUi(this);
+    _bAutoScroll = false;
 
     _pDiagnosticModel = pDiagnosticModel;
     _pGuiModel = pGuiModel;

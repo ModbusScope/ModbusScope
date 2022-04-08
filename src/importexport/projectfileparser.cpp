@@ -497,7 +497,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
 
             if (!bRet)
             {
-                Util::showError(QString("Divide factor (%1) is not a valid double. Expected decimal separator is \"%2\".").arg(child.text()).arg(QLocale().decimalPoint()));
+                Util::showError(QString("Divide factor (%1) is not a valid double. Expected decimal separator is \"%2\".").arg(child.text(), QLocale().decimalPoint()));
                 break;
             }
         }
@@ -508,7 +508,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
 
             if (!bRet)
             {
-                Util::showError(QString("Multiply factor (%1) is not a valid double. Expected decimal separator is \"%2\".").arg(child.text()).arg(QLocale().decimalPoint()));
+                Util::showError(QString("Multiply factor (%1) is not a valid double. Expected decimal separator is \"%2\".").arg(child.text(), QLocale().decimalPoint()));
                 break;
             }
         }

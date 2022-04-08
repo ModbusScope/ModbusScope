@@ -75,11 +75,13 @@ namespace ProjectFileData
 
     typedef struct _ConnectionSettings
     {
-        _ConnectionSettings() : bConnectionId(false),
+        _ConnectionSettings() : bConnectionId(false), connectionId(0),
                                 bConnectionState(true), bConnectionType(false),
-                                bIp(false), bPort(false),
-                                bPortName(false), bBaudrate(false), bParity(false), bStopbits(false), bDatabits(false),
-                                bSlaveId(false), bTimeout(false),
+                                bIp(false), bPort(false), port(0),
+                                bPortName(false), bBaudrate(false), baudrate(0),
+                                bParity(false), parity(0), bStopbits(false), stopbits(0),
+                                bDatabits(false), databits(0),
+                                bSlaveId(false), slaveId(0), bTimeout(false), timeout(0), consecutiveMax(0),
                                 bConsecutiveMax(false), bInt32LittleEndian(true), bPersistentConnection(true) {}
 
         bool bConnectionId;
