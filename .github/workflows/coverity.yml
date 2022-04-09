@@ -1,10 +1,11 @@
 # Your .github/workflows/coverity.yml file.
 name: Coverity Scan
 
-# We only want to test official release code, not every pull request.
 on:
-  push:
-    branches: [master]
+  pull_request:
+    # Sequence of patterns matched against refs/heads
+    branches:    
+      - master
 
 jobs:
   coverity:
