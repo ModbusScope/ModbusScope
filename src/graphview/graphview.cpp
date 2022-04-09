@@ -238,7 +238,8 @@ void GraphView::changeGraphColor(const quint32 graphIdx)
 {
     if (_pGraphDataModel->isActive(graphIdx))
     {
-        const quint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+        const quint32 activeIdx = static_cast<quint32>(_pGraphDataModel->convertToActiveGraphIndex(graphIdx));
+
         setGraphColor(_pPlot->graph(activeIdx), _pGraphDataModel->color(graphIdx));
 
         _pPlot->replot();
@@ -268,7 +269,7 @@ void GraphView::showGraph(quint32 graphIdx)
     {
         const bool bShow = _pGraphDataModel->isVisible(graphIdx);
 
-        const quint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+        const quint32 activeIdx = static_cast<quint32>(_pGraphDataModel->convertToActiveGraphIndex(graphIdx));
 
         _pPlot->graph(activeIdx)->setVisible(bShow);
         _pGraphMarkers->updateTracersVisibility();
