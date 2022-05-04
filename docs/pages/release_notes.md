@@ -2,7 +2,7 @@
 
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/jgeudens/ModbusScope/releases).
 
-## Unreleased
+## [v3.5.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.5.0) (04/05/2022)
 
 * Convert min/max settings of Y axis to floating point ([Github #183](https://github.com/jgeudens/ModbusScope/issues/183))
 * Add "Save Project" menu item
