@@ -592,29 +592,36 @@ void GraphView::setGraphColor(QCPGraph* _pGraph, const QColor &color)
 
 double GraphView::getClosestPoint(double coordinate)
 {
-    QCPGraphDataContainer::const_iterator closestIt;
-    QCPGraphDataContainer::const_iterator leftIt = _pPlot->graph(0)->data()->findBegin(coordinate);
-
-    auto rightIt = leftIt + 1;
-    if (rightIt !=  _pPlot->graph(0)->data()->constEnd())
+    if ((_pPlot->graphCount() > 0) && (graphDataSize() != 0))
     {
+        QCPGraphDataContainer::const_iterator closestIt;
+        QCPGraphDataContainer::const_iterator leftIt = _pPlot->graph(0)->data()->findBegin(coordinate);
 
-        const double diffReference = rightIt->key - leftIt->key;
-        const double diffPos = coordinate - leftIt->key;
-
-        if (diffPos > (diffReference / 2))
+        auto rightIt = leftIt + 1;
+        if (rightIt !=  _pPlot->graph(0)->data()->constEnd())
         {
-            closestIt = rightIt;
+
+            const double diffReference = rightIt->key - leftIt->key;
+            const double diffPos = coordinate - leftIt->key;
+
+            if (diffPos > (diffReference / 2))
+            {
+                closestIt = rightIt;
+            }
+            else
+            {
+                closestIt = leftIt;
+            }
         }
         else
         {
             closestIt = leftIt;
         }
+
+        return closestIt->key;
     }
     else
     {
-        closestIt = leftIt;
+        return coordinate;
     }
-
-    return closestIt->key;
 }
