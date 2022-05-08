@@ -307,16 +307,21 @@ void GraphScale::handleDrag()
 {
     if (_pPlot->axisRect()->rangeDrag() == Qt::Horizontal)
     {
-        _pGuiModel->setxAxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
+        _pGuiModel->setxAxisScale(AxisMode::SCALE_MANUAL);
     }
     else if (_pPlot->axisRect()->rangeDrag() == Qt::Vertical)
     {
-        _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
-        _pGuiModel->sety2AxisScale(AxisMode::SCALE_MANUAL); // change to manual scaling
+        if (_pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
+        {
+            _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL);
+        }
+        if (_pPlot->yAxis2->selectedParts().testFlag(QCPAxis::spAxis))
+        {
+            _pGuiModel->sety2AxisScale(AxisMode::SCALE_MANUAL);
+        }
     }
     else
     {
-        // Both change to manual scaling
         _pGuiModel->setxAxisScale(AxisMode::SCALE_MANUAL);
         _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL);
         _pGuiModel->sety2AxisScale(AxisMode::SCALE_MANUAL);
