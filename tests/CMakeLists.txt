@@ -25,7 +25,7 @@ set(
     ${CMAKE_CURRENT_SOURCE_DIR}/mocks/gmockutils.cpp
 )
 
-find_package(Qt6 COMPONENTS
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS
     Test
     REQUIRED
 )
