@@ -15,7 +15,7 @@ DataParserModel::~DataParserModel()
 void DataParserModel::resetSettings()
 {
     /*-- Set default item --*/
-    const QChar decimalPoint = QLocale().decimalPoint().at(0);
+    const QString decimalPoint = QString(QLocale().decimalPoint());
 
     // DecimalSeparator
     if (decimalPoint == '.')
@@ -37,7 +37,7 @@ void DataParserModel::resetSettings()
         _fieldSeparator = ',';
     }
 
-    _groupSeparator = QLocale().groupSeparator().at(0);
+    _groupSeparator = QLocale().groupSeparator();
     _commentSequence = "";
     _dataRow = 1;
     _column = 0;
@@ -61,7 +61,7 @@ void DataParserModel::triggerUpdate(void)
     emit dataFilePathChanged();
 }
 
-void DataParserModel::setFieldSeparator(QChar fieldSeparator)
+void DataParserModel::setFieldSeparator(QString fieldSeparator)
 {
     // Exception to the rule, always generate event when field separator is changed
     // This is needed for these custom field separator
@@ -72,7 +72,7 @@ void DataParserModel::setFieldSeparator(QChar fieldSeparator)
     }
 }
 
-void DataParserModel::setGroupSeparator(QChar groupSeparator)
+void DataParserModel::setGroupSeparator(QString groupSeparator)
 {
     if (_groupSeparator != groupSeparator)
     {
@@ -81,7 +81,7 @@ void DataParserModel::setGroupSeparator(QChar groupSeparator)
     }
 }
 
-void DataParserModel::setDecimalSeparator(QChar decimalSeparator)
+void DataParserModel::setDecimalSeparator(QString decimalSeparator)
 {
     if (_decimalSeparator != decimalSeparator)
     {
@@ -153,17 +153,17 @@ void DataParserModel::setDataFilePath(QString path)
     }
 }
 
-QChar DataParserModel::fieldSeparator() const
+QString DataParserModel::fieldSeparator() const
 {
     return _fieldSeparator;
 }
 
-QChar DataParserModel::groupSeparator() const
+QString DataParserModel::groupSeparator() const
 {
     return _groupSeparator;
 }
 
-QChar DataParserModel::decimalSeparator() const
+QString DataParserModel::decimalSeparator() const
 {
     return _decimalSeparator;
 }

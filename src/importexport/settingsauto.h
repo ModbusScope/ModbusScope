@@ -16,9 +16,9 @@ public:
     typedef struct
     {
         bool bModbusScopeDataFile;
-        QChar fieldSeparator;
-        QChar groupSeparator;
-        QChar decimalSeparator;
+        QString fieldSeparator;
+        QString groupSeparator;
+        QString decimalSeparator;
         QString commentSequence;
         quint32 dataRow;
         quint32 column;
@@ -39,13 +39,13 @@ private:
     bool isAbsoluteDate(QString rawData);
     bool isModbusScopeDataFile(QString firstLine);
     bool isComment(QString line);
-    bool testLocale(QStringList previewData, QLocale locale, QChar fieldSeparator);
+    bool testLocale(QStringList previewData, QLocale locale, QString fieldSeparator);
     quint32 nextDataLine(quint32 startIdx, QStringList previewData, bool *bOk);
 
     bool _bModbusScopeDataFile;
-    QChar _fieldSeparator;
-    QChar _groupSeparator;
-    QChar _decimalSeparator;
+    QString _fieldSeparator;
+    QString _groupSeparator;
+    QString _decimalSeparator;
     QString _commentSequence;
     quint32 _dataRow;
     quint32 _column;
