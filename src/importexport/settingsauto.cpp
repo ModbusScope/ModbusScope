@@ -57,17 +57,17 @@ bool SettingsAuto::updateSettings(QTextStream* pDataFileStream, settingsData_t *
 
         // First try French locale
         bool bParse;
-        bParse = testLocale(previewData, frLocale, ';');
+        bParse = testLocale(previewData, frLocale, QString(';'));
 
         if (!bParse)
         {
             // Else try Italian locale
-            bParse = testLocale(previewData, itLocale, ';');
+            bParse = testLocale(previewData, itLocale, QString(';'));
 
             if (!bParse)
             {
                 // Else try US English locale
-                bRet = testLocale(previewData, enLocale, ',');
+                bRet = testLocale(previewData, enLocale, QString(','));
             }
         }
     }
@@ -160,7 +160,7 @@ bool SettingsAuto::isComment(QString line)
     return bRet;
 }
 
-bool SettingsAuto::testLocale(QStringList previewData, QLocale locale, QChar fieldSeparator)
+bool SettingsAuto::testLocale(QStringList previewData, QLocale locale, QString fieldSeparator)
 {
     quint32 aSeparatorCount[2];
     aSeparatorCount[0] = previewData[_labelRow].count(fieldSeparator);
@@ -220,23 +220,23 @@ bool SettingsAuto::testLocale(QStringList previewData, QLocale locale, QChar fie
     }
 
     _fieldSeparator = fieldSeparator;
-    _decimalSeparator = locale.decimalPoint().at(0);
+    _decimalSeparator = QString(locale.decimalPoint());
 
     // In US locale field separator is the same as group (thousands) point
-    if (fieldSeparator == locale.groupSeparator())
+    if (fieldSeparator == QString(locale.groupSeparator()))
     {
         _groupSeparator = ' ';
     }
     else if (
-             (locale.groupSeparator().at(0) == QChar(0xA0)) // no-break space
-             || (locale.groupSeparator().at(0) == QChar(0x202F)) //narrow no-break space
+             (QString(locale.groupSeparator()) == QString(QChar(0xA0))) // no-break space
+             || (QString(locale.groupSeparator()) == QString(QChar(0x202F))) //narrow no-break space
         )
     {
         _groupSeparator = ' ';
     }
     else
     {
-       _groupSeparator = locale.groupSeparator().at(0);
+        _groupSeparator = QString(locale.groupSeparator());
     }
 
     return true;

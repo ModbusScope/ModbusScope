@@ -13,9 +13,9 @@ public:
     void triggerUpdate(void);
     void resetSettings();
 
-    QChar fieldSeparator() const;
-    QChar groupSeparator() const;
-    QChar decimalSeparator() const;
+    QString fieldSeparator() const;
+    QString groupSeparator() const;
+    QString decimalSeparator() const;
     QString commentSequence() const;
     quint32 dataRow() const;
     quint32 column() const;
@@ -24,9 +24,9 @@ public:
     bool stmStudioCorrection() const;
     QString dataFilePath();
     
-    void setFieldSeparator(QChar fieldSeparator);
-    void setGroupSeparator(QChar groupSeparator);
-    void setDecimalSeparator(QChar decimalSeparator);
+    void setFieldSeparator(QString fieldSeparator);
+    void setGroupSeparator(QString groupSeparator);
+    void setDecimalSeparator(QString decimalSeparator);
     void setCommentSequence(QString commentSequence);
     void setDataRow(quint32 dataRow);
     void setColumn(quint32 column);
@@ -49,9 +49,9 @@ signals:
 
 private:
 
-    QChar _fieldSeparator;
-    QChar _groupSeparator;
-    QChar _decimalSeparator;
+    QString _fieldSeparator;
+    QString _groupSeparator;
+    QString _decimalSeparator;
     QString _commentSequence;
     quint32 _dataRow;
     quint32 _column;
