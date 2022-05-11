@@ -2,9 +2,11 @@
 
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/jgeudens/ModbusScope/releases).
 
-## Unreleased
+## [v3.5.1](https://github.com/jgeudens/ModbusScope/releases/tag/3.5.1) (11/05/2022)
 
-* ...
+* Crash on showing tooltip with empty graphs ([Github #208](https://github.com/jgeudens/ModbusScope/issues/208))
+* Incorrect tab stop order when adding new registers ([Github #209](https://github.com/jgeudens/ModbusScope/issues/209))
+* Revert Windows build back to Qt5.15.2 to fix blurry tick labels
 
 ## [v3.5.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.5.0) (04/05/2022)
 
