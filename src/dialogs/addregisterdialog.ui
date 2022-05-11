@@ -125,6 +125,8 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>lineName</tabstop>
+  <tabstop>spinAddress</tabstop>
   <tabstop>radio16Bit</tabstop>
   <tabstop>radio32Bit</tabstop>
   <tabstop>radioUnsigned</tabstop>
