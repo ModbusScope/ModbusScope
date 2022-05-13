@@ -6,7 +6,7 @@
 #include "testslavedata.h"
 #include "testslavemodbus.h"
 
-#include "testmodbusmaster.h"
+#include "tst_modbusmaster.h"
 
 #include <QMetaType>
 

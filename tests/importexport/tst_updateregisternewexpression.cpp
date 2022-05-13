@@ -3,7 +3,7 @@
 
 #include "updateregisternewexpression.h"
 
-#include "testupdateregisternewexpression.h"
+#include "tst_updateregisternewexpression.h"
 
 
 void TestUpdateRegisterNewExpression::init()

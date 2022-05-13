@@ -1,9 +1,9 @@
 
 
-add_executable(tst_diagnostic ${CMAKE_CURRENT_SOURCE_DIR}/testdiagnostic.cpp ${TEST_SRCS})
-add_executable(tst_diagnosticmodel ${CMAKE_CURRENT_SOURCE_DIR}/testdiagnosticmodel.cpp ${TEST_SRCS})
-add_executable(tst_graphdata ${CMAKE_CURRENT_SOURCE_DIR}/testgraphdata.cpp ${TEST_SRCS})
-add_executable(tst_mbcregistermodel ${CMAKE_CURRENT_SOURCE_DIR}/testmbcregistermodel.cpp ${TEST_SRCS} ${GOOGLE_TEST_SOURCE})
+add_executable(tst_diagnostic ${CMAKE_CURRENT_SOURCE_DIR}/tst_diagnostic.cpp ${TEST_SRCS})
+add_executable(tst_diagnosticmodel ${CMAKE_CURRENT_SOURCE_DIR}/tst_diagnosticmodel.cpp ${TEST_SRCS})
+add_executable(tst_graphdata ${CMAKE_CURRENT_SOURCE_DIR}/tst_graphdata.cpp ${TEST_SRCS})
+add_executable(tst_mbcregistermodel ${CMAKE_CURRENT_SOURCE_DIR}/tst_mbcregistermodel.cpp ${TEST_SRCS} ${GOOGLE_TEST_SOURCE})
 
 add_test(NAME tst_diagnostic COMMAND tst_diagnostic)
 add_test(NAME tst_diagnosticmodel COMMAND tst_diagnosticmodel)

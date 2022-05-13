@@ -1,7 +1,7 @@
 
 #include <QtTest/QtTest>
 
-#include "testmodbusconnection.h"
+#include "tst_modbusconnection.h"
 
 void TestModbusConnection::init()
 {

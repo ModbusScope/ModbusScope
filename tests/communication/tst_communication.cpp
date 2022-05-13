@@ -11,8 +11,8 @@
 #include "testslavedata.h"
 #include "testslavemodbus.h"
 
-#include "testgraphdatahandler.h"
-#include "testcommunication.h"
+#include "tst_graphdatahandler.h"
+#include "tst_communication.h"
 
 
 void TestCommunication::init()

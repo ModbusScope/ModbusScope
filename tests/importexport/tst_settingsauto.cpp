@@ -2,7 +2,7 @@
 #include <QtTest/QtTest>
 #include <QRegularExpression>
 
-#include "testsettingsauto.h"
+#include "tst_settingsauto.h"
 
 #include "csvdata.h"
 

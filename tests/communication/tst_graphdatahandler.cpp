@@ -1,7 +1,7 @@
 
 #include <QtTest/QtTest>
 
-#include "testgraphdatahandler.h"
+#include "tst_graphdatahandler.h"
 
 #include "communicationhelpers.h"
 #include "graphdatamodel.h"

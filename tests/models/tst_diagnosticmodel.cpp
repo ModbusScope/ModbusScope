@@ -1,7 +1,7 @@
 
 #include <QtTest/QtTest>
 
-#include "testdiagnosticmodel.h"
+#include "tst_diagnosticmodel.h"
 
 #include "diagnosticmodel.h"
 

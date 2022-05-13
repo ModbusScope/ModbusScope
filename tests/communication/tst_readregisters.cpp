@@ -1,7 +1,7 @@
 
 #include <QtTest/QtTest>
 
-#include "testreadregisters.h"
+#include "tst_readregisters.h"
 
 #include "readregisters.h"
 

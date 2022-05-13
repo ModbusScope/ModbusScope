@@ -1,7 +1,7 @@
 
 #include <QtTest/QtTest>
 
-#include "testprojectfileparser.h"
+#include "tst_projectfileparser.h"
 
 #include "projectfileparser.h"
 #include "projectfiletestdata.h"

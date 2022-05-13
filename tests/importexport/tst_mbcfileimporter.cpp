@@ -1,7 +1,7 @@
 
 #include <QtTest/QtTest>
 
-#include "testmbcfileimporter.h"
+#include "tst_mbcfileimporter.h"
 #include "mbctestdata.h"
 
 void TestMbcFileImporter::init()

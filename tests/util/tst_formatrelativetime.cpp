@@ -3,7 +3,7 @@
 
 #include "formatrelativetime.h"
 
-#include "testformatrelativetime.h"
+#include "tst_formatrelativetime.h"
 
 #define ADD_TEST(ticks, result)      QTest::newRow(result) << static_cast<qint64>(ticks) << result
 

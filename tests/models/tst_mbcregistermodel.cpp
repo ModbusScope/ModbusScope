@@ -7,7 +7,7 @@
 
 #include "../mocks/gmockutils.h"
 
-#include "testmbcregistermodel.h"
+#include "tst_mbcregistermodel.h"
 
 #include "mbcregistermodel.h"
 

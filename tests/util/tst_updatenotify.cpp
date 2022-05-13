@@ -4,7 +4,7 @@
 
 #include <QtTest/QtTest>
 
-#include "testupdatenotify.h"
+#include "tst_updatenotify.h"
 
 #include "../mocks/gmockutils.h"
 

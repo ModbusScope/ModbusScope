@@ -3,7 +3,7 @@
 
 #include "updateregisteroperations.h"
 
-#include "testupdateregisteroperations.h"
+#include "tst_updateregisteroperations.h"
 
 
 void TestUpdateRegisterOperations::init()
