@@ -10,9 +10,9 @@ include_directories(
 
 add_xtest(tst_modbuspoll ${TEST_SRCS})
 add_xtest(tst_communication ${TEST_SRCS})
-add_xtest(tst_graphdatahandler ${TEST_SRCS})
+add_xtest(tst_graphdatahandler)
 add_xtest(tst_modbusconnection ${TEST_SRCS})
 add_xtest(tst_modbusmaster ${TEST_SRCS})
-add_xtest(tst_registervaluehandler ${TEST_SRCS})
-add_xtest(tst_readregisters ${TEST_SRCS})
-add_xtest(tst_expressionparser ${TEST_SRCS})
+add_xtest(tst_registervaluehandler)
+add_xtest(tst_readregisters)
+add_xtest(tst_expressionparser)
