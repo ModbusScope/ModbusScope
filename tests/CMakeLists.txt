@@ -30,6 +30,15 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS
     REQUIRED
 )
 
+function(add_xtest SOURCE_NAME)
+	add_executable(${SOURCE_NAME}
+        ${SOURCE_NAME}.cpp
+		${ARGV1}
+		${ARGV2})
+	target_link_libraries(${SOURCE_NAME} Qt::Test ${QT_LIB} ${SCOPESOURCE})
+	add_test(NAME ${SOURCE_NAME} COMMAND ${SOURCE_NAME})
+endfunction()
+
 add_subdirectory(communication)
 add_subdirectory(importexport)
 add_subdirectory(models)
