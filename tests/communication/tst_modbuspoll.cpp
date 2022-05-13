@@ -6,7 +6,7 @@
 #include "testslavedata.h"
 #include "testslavemodbus.h"
 
-#include "testmodbuspoll.h"
+#include "tst_modbuspoll.h"
 
 Q_DECLARE_METATYPE(Result<qint64>);
 

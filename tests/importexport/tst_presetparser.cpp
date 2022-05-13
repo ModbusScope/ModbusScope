@@ -1,7 +1,7 @@
 
 #include <QtTest/QtTest>
 
-#include "testpresetparser.h"
+#include "tst_presetparser.h"
 
 #include "presetparser.h"
 #include "presetfiletestdata.h"

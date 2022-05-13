@@ -1,7 +1,7 @@
 
 #include <QtTest/QtTest>
 
-#include "testgraphdata.h"
+#include "tst_graphdata.h"
 
 #include "graphdata.h"
 #include "util.h"

@@ -1,7 +1,7 @@
 
 #include <QtTest/QtTest>
 
-#include "testdatafileparser.h"
+#include "tst_datafileparser.h"
 #include "csvdata.h"
 
 #include "datafileparser.h"

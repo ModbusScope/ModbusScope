@@ -1,7 +1,7 @@
 
 #include <QtTest/QtTest>
 
-#include "testregistervaluehandler.h"
+#include "tst_registervaluehandler.h"
 
 #include "settingsmodel.h"
 

@@ -3,7 +3,7 @@
 
 #include "expressionparser.h"
 #include "settingsmodel.h"
-#include "testexpressionparser.h"
+#include "tst_expressionparser.h"
 
 
 void TestExpressionParser::init()

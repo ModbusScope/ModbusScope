@@ -6,15 +6,15 @@ SET(TEST_DATA_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/projectfiletestdata.cpp
 )
 
-add_executable(tst_datafileparser ${CMAKE_CURRENT_SOURCE_DIR}/testdatafileparser.cpp ${TEST_DATA_SRCS})
-add_executable(tst_mbcfileimporter ${CMAKE_CURRENT_SOURCE_DIR}/testmbcfileimporter.cpp ${TEST_DATA_SRCS})
-add_executable(tst_mbcregisterfilter ${CMAKE_CURRENT_SOURCE_DIR}/testmbcregisterfilter.cpp ${TEST_DATA_SRCS})
-add_executable(tst_presethandler ${CMAKE_CURRENT_SOURCE_DIR}/testpresethandler.cpp ${TEST_DATA_SRCS} ${GOOGLE_TEST_SOURCE})
-add_executable(tst_presetparser ${CMAKE_CURRENT_SOURCE_DIR}/testpresetparser.cpp ${TEST_DATA_SRCS})
-add_executable(tst_projectfileparser ${CMAKE_CURRENT_SOURCE_DIR}/testprojectfileparser.cpp ${TEST_DATA_SRCS})
-add_executable(tst_settingsauto ${CMAKE_CURRENT_SOURCE_DIR}/testsettingsauto.cpp ${TEST_DATA_SRCS})
-add_executable(tst_updateregisteroperations ${CMAKE_CURRENT_SOURCE_DIR}/testupdateregisteroperations.cpp)
-add_executable(tst_updateregisternewexpression ${CMAKE_CURRENT_SOURCE_DIR}/testupdateregisternewexpression.cpp)
+add_executable(tst_datafileparser ${CMAKE_CURRENT_SOURCE_DIR}/tst_datafileparser.cpp ${TEST_DATA_SRCS})
+add_executable(tst_mbcfileimporter ${CMAKE_CURRENT_SOURCE_DIR}/tst_mbcfileimporter.cpp ${TEST_DATA_SRCS})
+add_executable(tst_mbcregisterfilter ${CMAKE_CURRENT_SOURCE_DIR}/tst_mbcregisterfilter.cpp ${TEST_DATA_SRCS})
+add_executable(tst_presethandler ${CMAKE_CURRENT_SOURCE_DIR}/tst_presethandler.cpp ${TEST_DATA_SRCS} ${GOOGLE_TEST_SOURCE})
+add_executable(tst_presetparser ${CMAKE_CURRENT_SOURCE_DIR}/tst_presetparser.cpp ${TEST_DATA_SRCS})
+add_executable(tst_projectfileparser ${CMAKE_CURRENT_SOURCE_DIR}/tst_projectfileparser.cpp ${TEST_DATA_SRCS})
+add_executable(tst_settingsauto ${CMAKE_CURRENT_SOURCE_DIR}/tst_settingsauto.cpp ${TEST_DATA_SRCS})
+add_executable(tst_updateregisteroperations ${CMAKE_CURRENT_SOURCE_DIR}/tst_updateregisteroperations.cpp)
+add_executable(tst_updateregisternewexpression ${CMAKE_CURRENT_SOURCE_DIR}/tst_updateregisternewexpression.cpp)
 
 
 add_test(NAME tst_datafileparser COMMAND tst_datafileparser)

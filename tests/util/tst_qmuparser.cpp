@@ -3,7 +3,7 @@
 
 #include "qmuparser.h"
 
-#include "testqmuparser.h"
+#include "tst_qmuparser.h"
 
 #define ADD_TEST(expr, result)      QTest::newRow(expr) << QString(expr) << static_cast<double>(result)
 

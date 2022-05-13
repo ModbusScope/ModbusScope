@@ -4,7 +4,7 @@
 
 #include <QtTest/QtTest>
 
-#include "testpresethandler.h"
+#include "tst_presethandler.h"
 #include "presethandler.h"
 
 #include "../mocks/gmockutils.h"

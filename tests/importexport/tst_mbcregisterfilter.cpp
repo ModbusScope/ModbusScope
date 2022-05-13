@@ -1,7 +1,7 @@
 
 #include <QtTest/QtTest>
 
-#include "testmbcregisterfilter.h"
+#include "tst_mbcregisterfilter.h"
 
 #include "mbcregisterfilter.h"
 #include "mbcregistermodel.h"
