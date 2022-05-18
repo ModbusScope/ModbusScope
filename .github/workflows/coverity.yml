@@ -1,5 +1,4 @@
-# Your .github/workflows/coverity.yml file.
-name: Coverity Scan
+name: Code quality analysis
 
 on:
   pull_request:
@@ -10,17 +9,29 @@ on:
 jobs:
   coverity:
     runs-on: ubuntu-20.04
-    container: docker://jgeudens/qt-linux:6.2.2_build_1
+    container: docker://jgeudens/qt-linux:6.2.2_build_2
     steps:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Prepare environment for Ninja build
-      run: cmake . -GNinja
+    - name: Prepare environment for Ninja build with coverage
+      run: cmake . -GNinja -DUSE_GCOV=ON
 
-    - name: Analyse
+    - name: Analyse (Coverity)
       uses: jgeudens/coverity-scan-action@v1.2.0
       with:
         email: ${{ secrets.MAIL_ADDRESS }}
         token: ${{ secrets.COVERITY_SCAN_TOKEN }}
         command: ninja
+
+    - name: Generate gcovr coverage report
+      run: |
+        ctest
+        gcovr -x > cobertura.xml
+
+    - name: Run codacy-coverage-reporter
+      uses: codacy/codacy-coverage-reporter-action@v1
+      with:
+        project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        language: 'CPP'
+        coverage-reports: cobertura.xml
