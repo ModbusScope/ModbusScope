@@ -61,3 +61,5 @@ build/
 venv
 
 .vscode/
+
+coverage/
