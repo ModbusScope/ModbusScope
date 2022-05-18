@@ -103,3 +103,14 @@ ldd /opt/qt/5.15.2/gcc_64/plugins/platforms/libqxcb.so  | grep "not found"
   * Visual Studio C++ 14: Download from https://visualstudio.microsoft.com/visual-cpp-build-tools/
   * pip needs to be upgraded to latest version
 * Install aqtinstall: `pip3 install aqtinstall`
+
+## Coverage
+
+* gcovr
+  * *.gcda and *.gcno files
+  * -x: generate cobertura xml
+* lcov
+  * ```lcov --capture --directory . --output-file main_coverage.info```
+    * // --coverage is deprecated
+  * ```genhtml main_coverage.info --output-directory out```
+* Script: https://kelvinsp.medium.com/generating-code-coverage-with-qt-5-and-gcov-on-mac-os-4999857f4676

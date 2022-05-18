@@ -13,6 +13,8 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
+option(USE_GCOV "Enable gcov support" OFF)
+
 # Find the QtCore library
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
@@ -54,6 +56,16 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/libraries/qcustomplot
     ${CMAKE_CURRENT_SOURCE_DIR}/libraries/muparser/include
 )
+
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    # Code Coverage Report
+    if(USE_GCOV)
+            message(STATUS "Enabling coverage")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
+            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+            set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --coverage")
+    endif()
+endif()
 
 enable_testing()
 
