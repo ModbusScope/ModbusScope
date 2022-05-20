@@ -193,6 +193,7 @@ void TestQMuParser::evaluateInvalidExpr()
     QCOMPARE(parser.value(), 0);
     QVERIFY(!parser.isSuccess());
     QVERIFY(!bSuccess);
+    QCOMPARE(parser.errorPos(), 0);
 }
 
 void TestQMuParser::evaluateEmpty()
@@ -204,6 +205,7 @@ void TestQMuParser::evaluateEmpty()
     QCOMPARE(parser.value(), 0);
     QVERIFY(!parser.isSuccess());
     QVERIFY(!bSuccess);
+    QCOMPARE(parser.errorPos(), -1);
 }
 
 void TestQMuParser::evaluateFail()
@@ -220,6 +222,18 @@ void TestQMuParser::evaluateFail()
     QCOMPARE(parser.value(), 0);
     QVERIFY(!parser.isSuccess());
     QVERIFY(!bSuccess);
+    QCOMPARE(parser.errorPos(), -1);
+}
+
+void TestQMuParser::evaluateMuParserException()
+{
+    QMuParser parser("-");
+    bool bSuccess = parser.evaluate();
+
+    QCOMPARE(parser.value(), 0);
+    QVERIFY(!parser.isSuccess());
+    QVERIFY(!bSuccess);
+    QCOMPARE(parser.errorPos(), 2);
 }
 
 void TestQMuParser::evaluateInvalidHexExpr()
@@ -231,6 +245,7 @@ void TestQMuParser::evaluateInvalidHexExpr()
     QCOMPARE(parser.value(), 0);
     QVERIFY(!parser.isSuccess());
     QVERIFY(!bSuccess);
+    QCOMPARE(parser.errorPos(), 1);
 }
 
 void TestQMuParser::evaluateInvalidBinExpr()
@@ -242,6 +257,7 @@ void TestQMuParser::evaluateInvalidBinExpr()
     QCOMPARE(parser.value(), 0);
     QVERIFY(!parser.isSuccess());
     QVERIFY(!bSuccess);
+    QCOMPARE(parser.errorPos(), 1);
 }
 
 void TestQMuParser::evaluateInvalidBinExpr_2()
@@ -254,6 +270,7 @@ void TestQMuParser::evaluateInvalidBinExpr_2()
     QCOMPARE(parser.value(), 0);
     QVERIFY(!parser.isSuccess());
     QVERIFY(!bSuccess);
+    QCOMPARE(parser.errorPos(), 34);
 }
 
 void TestQMuParser::evaluateInvalidDecimal()
@@ -265,6 +282,7 @@ void TestQMuParser::evaluateInvalidDecimal()
     QCOMPARE(parser.value(), 0);
     QVERIFY(!parser.isSuccess());
     QVERIFY(!bSuccess);
+    QCOMPARE(parser.errorPos(), -1);
 }
 
 void TestQMuParser::evaluateDivByZero()
@@ -276,6 +294,7 @@ void TestQMuParser::evaluateDivByZero()
     QCOMPARE(parser.value(), 0);
     QVERIFY(!parser.isSuccess());
     QVERIFY(!bSuccess);
+    QCOMPARE(parser.errorPos(), -1);
 }
 
 void TestQMuParser::evaluateDecimalSeparatorCombination()
