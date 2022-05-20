@@ -6,7 +6,6 @@
 class ExpressionRegex
 {
 public:
-    ExpressionRegex();
 
     static const QString cOperatorcharacters;
     static const QString cNumberDec;

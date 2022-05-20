@@ -9,8 +9,3 @@ const QString ExpressionRegex::cNumberBin = "0[b]\\d+";
 
 const QString ExpressionRegex::cMatchRegister = "\\$\\{(\\d?.*?)\\}";
 const QString ExpressionRegex::cParseReg = "\\$\\{\\s*(\\d+)(?:\\s*@\\s*(\\d+))?(?:\\s*\\:\\s*(\\w+))?\\s*\\}";
-
-ExpressionRegex::ExpressionRegex()
-{
-
-}
