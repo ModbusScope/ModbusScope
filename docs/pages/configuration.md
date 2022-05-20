@@ -35,7 +35,7 @@ A Modbus register read is represented as `${REG[@CONN][:TYPE]}`. Multiple regist
 * `${45332@2: 32b}` => 32-bit unsigned using connection 2
 * `${45332@2}` => 16-bit unsigned using connection 2
 
-The most common binary operators are supported (`!`, `|`, `&`, `<<`, `>>`). The basic arithmetic operators are also supported (`+`, `-`, `*`, `/`, `%`, `^`). Hexadecimal numbers can be represented with the `0x` prefix. Binary are represented with `0b` prefix. Floating point numbers are also supported. Both a decimal point as comma can be used. The first encountered character is used as floating point separator.
+The most common binary operators are supported (`|`, `&`, `<<`, `>>`). The basic arithmetic operators are also supported (`+`, `-`, `*`, `/`, `%`, `^`). Hexadecimal numbers can be represented with the `0x` prefix. Binary are represented with `0b` prefix. Floating point numbers are also supported. Both a decimal point as comma can be used. The first encountered character is used as floating point separator.
 
 Some examples of valid expressions are
 
