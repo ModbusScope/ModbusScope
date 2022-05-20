@@ -7,10 +7,10 @@ class TestFormatRelativeTime: public QObject
 
 private slots:
 
-    void initTestCase();
     void init();
     void cleanup();
 
+    void timeStringFormat();
     void formatTimeSmallScale_data();
     void formatTimeSmallScale();
 

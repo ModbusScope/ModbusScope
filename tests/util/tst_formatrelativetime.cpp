@@ -7,20 +7,22 @@
 
 #define ADD_TEST(ticks, result)      QTest::newRow(result) << static_cast<qint64>(ticks) << result
 
-
-void TestFormatRelativeTime::initTestCase()
-{
-    QLocale::setDefault(QLocale(QLocale::Dutch, QLocale::Belgium));
-}
-
 void TestFormatRelativeTime::init()
 {
-
+    QLocale::setDefault(QLocale(QLocale::Dutch, QLocale::Belgium));
 }
 
 void TestFormatRelativeTime::cleanup()
 {
 
+}
+
+void TestFormatRelativeTime::timeStringFormat()
+{
+    QCOMPARE(FormatRelativeTime::timeStringFormat(), "HH:mm:ss,zzz");
+
+    QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
+    QCOMPARE(FormatRelativeTime::timeStringFormat(), "HH:mm:ss.zzz");
 }
 
 void TestFormatRelativeTime::formatTimeSmallScale_data()
