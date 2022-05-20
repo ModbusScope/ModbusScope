@@ -142,6 +142,53 @@ void TestModbusPoll::singleOnlyConstantDataPoll()
     verifyReceivedDataSignal(arguments, expResults);
 }
 
+void TestModbusPoll::verifyRestartAfterStop()
+{
+    _testSlaveDataList[Connection::ID_1]->setRegisterState(0, true);
+    _testSlaveDataList[Connection::ID_1]->setRegisterValue(0, 5);
+
+    _testSlaveDataList[Connection::ID_1]->setRegisterState(1, true);
+    _testSlaveDataList[Connection::ID_1]->setRegisterValue(1, 65000);
+
+    ModbusPoll modbusPoll(_pSettingsModel);
+    QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
+
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, false, true)
+                                                   << ModbusRegister(40002, Connection::ID_1, false, true);
+
+    /*-- Start communication --*/
+    modbusPoll.startCommunication(modbusRegisters);
+
+    QVERIFY(modbusPoll.isActive());
+
+    QVERIFY(spyDataReady.wait(50));
+    QCOMPARE(spyDataReady.count(), 1);
+
+    QList<QVariant> arguments = spyDataReady.takeFirst();
+    auto expResults = QList<Result<qint64>>() << Result<qint64>(5, true)
+                                            << Result<qint64>(65000, true);
+
+    /* Verify arguments of signal */
+    verifyReceivedDataSignal(arguments, expResults);
+
+    /*-- Stop communication --*/
+    modbusPoll.stopCommunication();
+
+    QVERIFY(!modbusPoll.isActive());
+
+
+    /*-- Restart communication --*/
+    modbusPoll.startCommunication(modbusRegisters);
+
+    QVERIFY(spyDataReady.wait(50));
+    QCOMPARE(spyDataReady.count(), 1);
+
+    arguments = spyDataReady.takeFirst();
+
+    /* Verify arguments of signal */
+    verifyReceivedDataSignal(arguments, expResults);
+}
+
 void TestModbusPoll::multiSlaveSuccess()
 {
     _testSlaveDataList[Connection::ID_1]->setRegisterState(0, true);
