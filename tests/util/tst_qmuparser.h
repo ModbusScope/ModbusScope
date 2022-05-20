@@ -24,6 +24,7 @@ private slots:
 
     void evaluateEmpty();
     void evaluateFail();
+    void evaluateMuParserException();
     void evaluateInvalidHexExpr();
     void evaluateInvalidBinExpr();
     void evaluateInvalidBinExpr_2();
