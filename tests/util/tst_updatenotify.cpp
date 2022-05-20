@@ -84,6 +84,8 @@ void TestUpdateNotify::versionEqual()
     QCOMPARE(arguments.first().toUInt(), UpdateNotify::VERSION_LATEST);
 
     QCOMPARE(updateNotify.version(), QString("1.2.3"));
+    QCOMPARE(updateNotify.link(), QString("http://google.be"));
+    QCOMPARE(updateNotify.versionState(), UpdateNotify::VERSION_LATEST);
 }
 
 void TestUpdateNotify::versionHigherRevision()
@@ -155,6 +157,9 @@ void TestUpdateNotify::checkServerCheck(QString version, UpdateNotify::UpdateSta
     QList<QVariant> arguments = spyUpdateResult.takeFirst(); // take the first signal
     QCOMPARE(arguments.count(), 1);
     QCOMPARE(arguments.first().toUInt(), updateState);
+
+    QCOMPARE(updateNotify.version(), version);
+    QCOMPARE(updateNotify.versionState(), updateState);
 }
 
 QTEST_GUILESS_MAIN(TestUpdateNotify)
