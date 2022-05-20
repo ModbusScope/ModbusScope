@@ -52,7 +52,6 @@ namespace mu
     value_type ParserRegister::Shl(value_type v1, value_type v2) { return ConvertToInteger(v1) << ConvertToInteger(v2); }
     value_type ParserRegister::LogAnd(value_type v1, value_type v2) { return ConvertToInteger(v1) & ConvertToInteger(v2); }
     value_type ParserRegister::LogOr(value_type v1, value_type v2) { return ConvertToInteger(v1) | ConvertToInteger(v2); }
-    value_type ParserRegister::Not(value_type v) { return !ConvertToInteger(v); }
     value_type ParserRegister::Mod(value_type v1, value_type v2) { return ConvertToInteger(v1) % ConvertToInteger(v2); }
 
     value_type ParserRegister::RegVal(value_type v1)
@@ -201,7 +200,7 @@ namespace mu
 	void ParserRegister::InitCharSets()
 	{
         DefineNameChars(_T("0123456789_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"));
-        DefineOprtChars(_T("+-*^/?<>=!%&|~'_"));
+        DefineOprtChars(_T("+-*^/?<>=%&|~'_"));
         DefineInfixOprtChars(_T("/+-*^?<>=!%&|~'_"));
     }
 
@@ -229,8 +228,6 @@ namespace mu
 	{
         DefineInfixOprt(_T("-"), MathImpl<value_type>::UnaryMinus);
         DefineInfixOprt(_T("+"), MathImpl<value_type>::UnaryPlus);
-
-        DefineInfixOprt(_T("!"), Not);
 
         DefineOprt(_T("&"), LogAnd, prLOGIC);
         DefineOprt(_T("|"), LogOr, prLOGIC);
