@@ -23,6 +23,9 @@ private slots:
     void toString_1();
     void toString_2();
 
+    void toExportString_1();
+    void toExportString_2();
+
 private:
 
 };

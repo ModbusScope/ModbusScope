@@ -110,5 +110,23 @@ void TestDiagnostic::toString_2()
     QCOMPARE(log.toString(), result);
 }
 
+void TestDiagnostic::toExportString_1()
+{
+    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, 100, QString("Test"));
+
+    QString result = QStringLiteral("00000100\tINFO\tscope.comm\tTest");
+
+    QCOMPARE(log.toExportString(), result);
+}
+
+void TestDiagnostic::toExportString_2()
+{
+    Diagnostic log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_INFO, 99999999, QString("Test"));
+
+    QString result = QStringLiteral("99999999\tINFO\tscope.comm\tTest");
+
+    QCOMPARE(log.toExportString(), result);
+}
+
 
 QTEST_GUILESS_MAIN(TestDiagnostic)
