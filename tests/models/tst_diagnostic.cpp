@@ -23,7 +23,6 @@ void TestDiagnostic::fullConstructor()
     QCOMPARE(log.message(), QString("Test"));
     QCOMPARE(log.timeOffset(), 10);
 
-    QDateTime now = QDateTime::currentDateTime();
     log = Diagnostic(QStringLiteral("scope.comm"), Diagnostic::LOG_WARNING, 100, QString(""));
     QCOMPARE(log.category(), QStringLiteral("scope.comm"));
     QCOMPARE(log.severity(), Diagnostic::LOG_WARNING);

@@ -102,7 +102,6 @@ void TestDiagnosticModel::addLog()
 
     QSignalSpy spy(&diagModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
 
-    QDateTime now = QDateTime::currentDateTime();
     Diagnostic logErr(_category, Diagnostic::LOG_WARNING, 10, QString("Error"));
     diagModel.addLog(logErr.category(), logErr.severity(), logErr.timeOffset(), logErr.message());
 
