@@ -15,6 +15,7 @@ private slots:
     void cleanup();
 
     void singleRequestSuccess();
+    void singleRequestEmpty();
     void singleRequestGatewayNotAvailable();
     void singleRequestNoResponse();
     void singleRequestInvalidAddressOnce();
