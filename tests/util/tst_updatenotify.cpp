@@ -79,7 +79,7 @@ void TestUpdateNotify::versionEqual()
 
     QCOMPARE(spyUpdateResult.count(), 1);
 
-    QList<QVariant> arguments = spyUpdateResult.takeFirst(); // take the first signal
+    QList<QVariant> arguments = spyUpdateResult.takeFirst();
     QCOMPARE(arguments.count(), 1);
     QCOMPARE(arguments.first().toUInt(), UpdateNotify::VERSION_LATEST);
 
@@ -154,7 +154,7 @@ void TestUpdateNotify::checkServerCheck(QString version, UpdateNotify::UpdateSta
 
     QCOMPARE(spyUpdateResult.count(), 1);
 
-    QList<QVariant> arguments = spyUpdateResult.takeFirst(); // take the first signal
+    QList<QVariant> arguments = spyUpdateResult.takeFirst();
     QCOMPARE(arguments.count(), 1);
     QCOMPARE(arguments.first().toUInt(), updateState);
 

@@ -110,10 +110,10 @@ void TestDiagnosticModel::addLog()
 
     QModelIndex changedIndex = diagModel.index(diagModel.size()-1);
 
-    QList<QVariant> arguments = spy.takeFirst(); // take the first signal
+    QList<QVariant> arguments = spy.takeFirst();
 
-    QCOMPARE(qvariant_cast<QModelIndex>(arguments.at(0)).row(), changedIndex.row()); // verify the first argument
-    QCOMPARE(qvariant_cast<QModelIndex>(arguments.at(1)).row(), changedIndex.row()); // verify the second argument
+    QCOMPARE(qvariant_cast<QModelIndex>(arguments.at(0)).row(), changedIndex.row());
+    QCOMPARE(qvariant_cast<QModelIndex>(arguments.at(1)).row(), changedIndex.row());
 }
 
 QTEST_GUILESS_MAIN(TestDiagnosticModel)

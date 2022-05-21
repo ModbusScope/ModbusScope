@@ -139,7 +139,7 @@ void TestMbcRegisterModel::setData()
 
     QCOMPARE(pMbcRegisterModel->setData(modelIdxFirstRow, QVariant(Qt::Checked), Qt::CheckStateRole), true);
     QCOMPARE(spy.count(), 1);
-    QList<QVariant> arguments = spy.takeFirst(); // take the first signal
+    QList<QVariant> arguments = spy.takeFirst();
     QCOMPARE(qvariant_cast<QModelIndex>(arguments.at(0)).row(), 0); /* First argument (start index) */
     QCOMPARE(qvariant_cast<QModelIndex>(arguments.at(1)).row(), 1); /* Second argument (end index) */
 
@@ -260,7 +260,7 @@ void TestMbcRegisterModel::fillData()
     QCOMPARE(resetSignalSpy.count(), 1);
     QCOMPARE(rowsInsertedSpy.count(), 1);
 
-    QList<QVariant> arguments = rowsInsertedSpy.takeFirst(); // take the first signal
+    QList<QVariant> arguments = rowsInsertedSpy.takeFirst();
     QCOMPARE(arguments.at(1), 0);
     QCOMPARE(arguments.at(2), mbcRegisterList.size() - 1);
 

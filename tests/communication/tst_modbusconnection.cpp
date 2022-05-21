@@ -140,7 +140,7 @@ void TestModbusConnection::readRequestSuccess()
     QCOMPARE(spyResultProtocolError.count(), 0);
     QCOMPARE(spyResultError.count(), 0);
 
-    QList<QVariant> arguments = spyResultSuccess.takeFirst(); // take the first signal
+    QList<QVariant> arguments = spyResultSuccess.takeFirst();
     QCOMPARE(arguments.count(), 2);
 
 
@@ -189,7 +189,7 @@ void TestModbusConnection::readRequestProtocolError()
     QCOMPARE(spyResultProtocolError.count(), 1);
     QCOMPARE(spyResultError.count(), 0);
 
-    QList<QVariant> arguments = spyResultProtocolError.takeFirst(); // take the first signal
+    QList<QVariant> arguments = spyResultProtocolError.takeFirst();
     QCOMPARE(arguments.count(), 1);
 
     /* Check modbus exception */
