@@ -80,6 +80,28 @@ void TestModbusMaster::singleRequestSuccess()
     }
 }
 
+void TestModbusMaster::singleRequestEmpty()
+{
+    _pTestSlaveData->setRegisterState(0, true);
+
+    ModbusMaster modbusMaster(&_settingsModel, Connection::ID_1);
+
+    QList<quint32> registerList;
+    QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
+
+    modbusMaster.readRegisterList(registerList);
+
+    QCOMPARE(spyModbusPollDone.count(), 1);
+
+    QList<QVariant> arguments = spyModbusPollDone.takeFirst();
+    QVERIFY(arguments.count() > 0);
+
+    QVariant varResultList = arguments.first();
+    QVERIFY((varResultList.canConvert<QMap<quint32, Result<quint16>> >()));
+    QMap<quint32, Result<quint16>> result = varResultList.value<QMap<quint32, Result<quint16>> >();
+    QCOMPARE(result.keys().count(), 0);
+}
+
 void TestModbusMaster::singleRequestGatewayNotAvailable()
 {
     _pTestSlaveModbus->setException(QModbusPdu::GatewayTargetDeviceFailedToRespond, true);
