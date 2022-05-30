@@ -15,6 +15,8 @@ class AddRegisterDialog : public QDialog
 {
     Q_OBJECT
 
+    friend class TestAddRegisterDialog;
+
 public:
     explicit AddRegisterDialog(SettingsModel* pSettingsModel, QWidget *parent = nullptr);
     ~AddRegisterDialog();

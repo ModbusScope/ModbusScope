@@ -33,6 +33,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS
 function(add_xtest SOURCE_NAME)
 	add_executable(${SOURCE_NAME}
         ${SOURCE_NAME}.cpp
+        ${SOURCE_NAME}.h
 		${ARGV1}
 		${ARGV2})
 	target_link_libraries(${SOURCE_NAME} Qt::Test ${QT_LIB} ${SCOPESOURCE})
@@ -49,7 +50,10 @@ function(add_xtest_mock SOURCE_NAME)
 	add_test(NAME ${SOURCE_NAME} COMMAND ${SOURCE_NAME})
 endfunction()
 
+set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../src/dialogs)
+
 add_subdirectory(communication)
+add_subdirectory(dialogs)
 add_subdirectory(importexport)
 add_subdirectory(models)
 add_subdirectory(util)
