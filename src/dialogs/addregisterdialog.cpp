@@ -13,6 +13,7 @@ AddRegisterDialog::AddRegisterDialog(SettingsModel* pSettingsModel, QWidget *par
     _pUi->setupUi(this);
 
     _pUi->lineName->setFocus();
+    _pUi->lineName->selectAll();
 
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -24,7 +25,6 @@ AddRegisterDialog::AddRegisterDialog(SettingsModel* pSettingsModel, QWidget *par
             _pUi->cmbConnection->addItem(QString(tr("Connection %1").arg(i + 1)), i);
         }
     }
-
 
     _bitGroup.setExclusive(true);
     _bitGroup.addButton(_pUi->radio16Bit);

@@ -14,12 +14,63 @@ void TestAddRegisterDialog::init()
 
 void TestAddRegisterDialog::cleanup()
 {
-
+    delete _pRegDialog;
 }
 
-void TestAddRegisterDialog::test()
+void TestAddRegisterDialog::registerDefault()
 {
-    QCOMPARE(_pRegDialog->_pUi->lineName->text(), "Name of curve");
+    _pRegDialog->_pUi->lineName->selectAll();
+    QTest::keyClicks(_pRegDialog->_pUi->lineName, "Register 1");
+
+    _pRegDialog->_pUi->spinAddress->selectAll();
+    QTest::keyClicks(_pRegDialog->_pUi->spinAddress, "41000");
+
+    pushOk();
+
+    auto graphData = _pRegDialog->graphData();
+    QCOMPARE(graphData.label(), "Register 1");
+    QCOMPARE(graphData.expression(), "${41000}");
+    QVERIFY(graphData.isActive());
+}
+
+void TestAddRegisterDialog::register32Bit()
+{
+    QTest::mouseClick(_pRegDialog->_pUi->radio32Bit, Qt::LeftButton);
+    pushOk();
+
+    auto graphData = _pRegDialog->graphData();
+    QCOMPARE(graphData.expression(), "${40001:32b}");
+}
+
+void TestAddRegisterDialog::registerSignedRegister()
+{
+    QTest::mouseClick(_pRegDialog->_pUi->radioSigned, Qt::LeftButton);
+    QTest::keyClicks(_pRegDialog->_pUi->lineName, "Register 1");
+    pushOk();
+
+    auto graphData = _pRegDialog->graphData();
+    QCOMPARE(graphData.expression(), "${40001:s16b}");
+}
+
+void TestAddRegisterDialog::registerConnection()
+{
+    delete _pRegDialog;
+
+    _settingsModel.setConnectionState(Connection::ID_2, true);
+
+    _pRegDialog = new AddRegisterDialog(&_settingsModel);
+
+    QTest::keyClick(_pRegDialog->_pUi->cmbConnection, Qt::Key_Down);
+
+    pushOk();
+
+    auto graphData = _pRegDialog->graphData();
+    QCOMPARE(graphData.expression(), "${40001@2}");
+}
+
+void TestAddRegisterDialog::pushOk()
+{
+    QTest::mouseClick(_pRegDialog->_pUi->buttonBox->button(QDialogButtonBox::Ok), Qt::LeftButton);
 }
 
 QTEST_MAIN(TestAddRegisterDialog)
