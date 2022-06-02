@@ -13,9 +13,14 @@ private slots:
     void init();
     void cleanup();
 
-    void test();
+    void registerDefault();
+    void register32Bit();
+    void registerSignedRegister();
+    void registerConnection();
 
 private:
+
+    void pushOk();
 
     SettingsModel _settingsModel;
     AddRegisterDialog* _pRegDialog;
