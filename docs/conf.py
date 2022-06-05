@@ -19,7 +19,7 @@ import sphinx_rtd_theme
 # -- Project information -----------------------------------------------------
 
 project = 'ModbusScope'
-copyright = '2021, Jens Geudens'
+copyright = '2022, Jens Geudens'
 author = 'Jens Geudens'
 
 
