@@ -233,3 +233,25 @@ QString ProjectFileTestData::cScaleDouble = QString(
     "    </view>                                                \n"\
     "</modbusscope>                                             \n"
 );
+
+QString ProjectFileTestData::cValueAxis = QString(
+    "<?xml version=\"1.0\"?>                                                    \n"\
+    "<modbusscope datalevel=\"3\">                                              \n"\
+    "    <scope>                                                                \n"\
+    "        <register active=\"true\">                                         \n"\
+    "            <text>Data point</text>                                        \n"\
+    "            <expression><![CDATA[${40001}/2]]></expression>                \n"\
+    "            <valueaxis>0</valueaxis>                                       \n"\
+    "        </register>                                                        \n"\
+    "        <register active=\"true\">                                         \n"\
+    "            <text>Data point 2</text>                                      \n"\
+    "            <expression><![CDATA[${40002:s16b}]]></expression>             \n"\
+    "            <valueaxis>1</valueaxis>                                       \n"\
+    "        </register>                                                        \n"\
+    "        <register active=\"false\">                                        \n"\
+    "            <text>Data point 3</text>                                      \n"\
+    "            <expression><![CDATA[${40003@2:s16b}*10]]></expression>        \n"\
+    "        </register>                                                        \n"\
+    "    </scope>                                                               \n"\
+    "</modbusscope>                                                             \n"\
+);

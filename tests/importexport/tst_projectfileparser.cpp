@@ -424,5 +424,17 @@ void TestProjectFileParser::scaleDouble()
     QCOMPARE(settings.view.scaleSettings.scaleMax, 25.5);
 }
 
+void TestProjectFileParser::valueAxis()
+{
+    ProjectFileParser projectParser;
+    ProjectFileData::ProjectSettings settings;
+
+    QVERIFY(projectParser.parseFile(ProjectFileTestData::cValueAxis, &settings));
+
+    QCOMPARE(settings.scope.registerList[0].valueAxis, 0);
+    QCOMPARE(settings.scope.registerList[1].valueAxis, 1);
+    QCOMPARE(settings.scope.registerList[2].valueAxis, 0);
+}
+
 
 QTEST_GUILESS_MAIN(TestProjectFileParser)

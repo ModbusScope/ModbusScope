@@ -266,6 +266,7 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
         rowData.setActive(pSettingData->bActive);
         rowData.setLabel(pSettingData->text);
         rowData.setColor(pSettingData->color);
+        rowData.setValueAxis(pSettingData->valueAxis == 1 ? GraphData::VALUE_AXIS_SECONDARY : GraphData::VALUE_AXIS_PRIMARY);
 
         if (pProjectSettings->dataLevel <= 2)
         {

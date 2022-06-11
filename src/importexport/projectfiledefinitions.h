@@ -41,6 +41,7 @@ namespace ProjectFileDefinitions
     const char cMultiplyTag[] = "multiply";
     const char cExpressionTag[] = "expression";
     const char cColorTag[] = "color";
+    const char cValueAxisTag[] = "valueaxis";
     const char cBitmaskTag[] = "bitmask";
     const char cShiftTag[] = "shift";
 

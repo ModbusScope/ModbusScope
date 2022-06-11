@@ -63,16 +63,19 @@
    <text>Data point</text>
    <expression><![CDATA[${40001}/2]]></expression>
    <color>#ff0000</color>
+   <valueaxis>0</valueaxis>
   </register>
   <register active="true">
    <text>Data point 2</text>
    <expression><![CDATA[${40002:s16b}]]></expression>
    <color>#0000ff</color>
+   <valueaxis>1</valueaxis>
   </register>
   <register active="false">
    <text>Data point 3</text>
    <expression><![CDATA[${40003@2:s16b}*10]]></expression>
    <color>#00ffff</color>
+   <valueaxis>0</valueaxis>
   </register>
  </scope>
  <view>

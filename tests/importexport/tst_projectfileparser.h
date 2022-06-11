@@ -22,6 +22,7 @@ private slots:
     void connEmpty();
 
     void scaleDouble();
+    void valueAxis();
 
 private:
 
