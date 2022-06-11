@@ -242,9 +242,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _pUpdateNotify->checkForUpdate();
 
     // Default to full auto scaling
-    _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
-    _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
-    _pGuiModel->sety2AxisScale(AxisMode::SCALE_AUTO);
+    _pGraphView->setAxisToAuto();
 
     connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pGraphView, &GraphView::plotResults);
     connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pLegend, &Legend::addLastReceivedDataToLegend);
