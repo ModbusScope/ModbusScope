@@ -271,8 +271,7 @@ void GraphView::bringToFront()
 
 void GraphView::addData(QList<double> timeData, QList<QList<double> > data)
 {
-    _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
-    _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
+    setAxisToAuto();
 
     updateData(&timeData, &data);
 }
@@ -343,10 +342,9 @@ void GraphView::clearResults()
         _pPlot->graph(i)->data()->clear();
     }
 
-    _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
-    _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
+    setAxisToAuto();
 
-   rescalePlot();
+    rescalePlot();
 }
 
 void GraphView::screenChanged(QScreen *screen)
@@ -364,6 +362,13 @@ void GraphView::showMarkers()
 
     _pGuiModel->setStartMarkerPos(getClosestPoint(startPos));
     _pGuiModel->setEndMarkerPos(getClosestPoint(endPos));
+}
+
+void GraphView::setAxisToAuto()
+{
+    _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
+    _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
+    _pGuiModel->sety2AxisScale(AxisMode::SCALE_AUTO);
 }
 
 void GraphView::mousePress(QMouseEvent *event)

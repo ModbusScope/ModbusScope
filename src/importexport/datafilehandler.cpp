@@ -185,11 +185,6 @@ void DataFileHandler::parseDataFile()
         {
             progressDialog.setValue(progressDialog.maximum());
 
-            // Set to full auto scaling
-            _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
-            _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
-            _pGuiModel->sety2AxisScale(AxisMode::SCALE_AUTO);
-
             _pGraphDataModel->clear();
             _pGuiModel->setFrontGraph(-1);
 
