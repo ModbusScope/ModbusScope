@@ -318,6 +318,7 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
         header.append("//" + createPropertyRow(E_PROPERTY));
         header.append("//" + createPropertyRow(E_COLOR));
         header.append("//" + createPropertyRow(E_EXPRESSION));
+        header.append("//" + createPropertyRow(E_VALUE_AXIS));
 
         header.append("//");
 
@@ -414,6 +415,9 @@ QString DataFileExporter::createPropertyRow(registerProperty prop)
         line.append("Expression");
         break;
 
+    case E_VALUE_AXIS:
+        line.append("Axis");
+
     default:
         break;
     }
@@ -429,12 +433,20 @@ QString DataFileExporter::createPropertyRow(registerProperty prop)
         case E_PROPERTY:
             propertyString = _pGraphDataModel->label(graphIdx);
             break;
+
         case E_COLOR:
             propertyString = _pGraphDataModel->color(graphIdx).name();
             break;
 
         case E_EXPRESSION:
             propertyString = QString("\"%1\"").arg(_pGraphDataModel->simplifiedExpression(graphIdx));
+            break;
+
+        case E_VALUE_AXIS:
+            {
+                qint32 axis = _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_PRIMARY ? 0 : 1;
+                propertyString = QString("%1").arg(axis);
+            }
             break;
 
         default:

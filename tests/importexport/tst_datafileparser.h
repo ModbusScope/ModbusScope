@@ -23,6 +23,8 @@ private slots:
     void parseDatasetTimeInSecond();
     void parseDatasetEmptyLastColumn();
 
+    void parseDatasetMultiAxis();
+
     void checkProgressSignal();
 
 private:
