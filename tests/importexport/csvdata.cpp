@@ -181,4 +181,12 @@ QString CsvData::cDatasetEmptyLastColumn = QString(
     "56;0;"
 );
 
+QString CsvData::cDatasetMultiAxis = QString(
+    "//ModbusScope version,3.5.1"                                   "\n"\
+    "//Property,Register 40001,Register 40002"                      "\n"\
+    "//Axis,0,1,0"                                                  "\n"\
+    "Time (ms),Register 40001,Register 40002,Register 40003"        "\n"\
+    "5,0,51000,0"
+);
+
 

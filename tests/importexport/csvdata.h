@@ -22,6 +22,8 @@ public:
     static QString cDatasetTimeInSecond;
     static QString cDatasetEmptyLastColumn;
 
+    static QString cDatasetMultiAxis;
+
 private:
 
 };

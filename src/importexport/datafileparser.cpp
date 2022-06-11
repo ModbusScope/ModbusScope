@@ -76,7 +76,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
                 {
                     bool bValidColor;
 
-                    // Remove color property name
+                    // Remove property name
                     idList.removeFirst();
 
                     foreach(QString strColor, idList)
@@ -90,6 +90,28 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
                         {
                             // If not valid color, then clear color list and break loop
                             pData->colors.clear();
+                            break;
+                        }
+                    }
+                }
+                else if (static_cast<QString>(idList.first()).toLower() == "//axis")
+                {
+                    // Remove property name
+                    idList.removeFirst();
+
+                    foreach(QString strAxis, idList)
+                    {
+                        bool bOk = false;
+                        quint32 axis = strAxis.toUInt(&bOk);
+
+                        if (bOk)
+                        {
+                            pData->axis.append(axis);
+                        }
+                        else
+                        {
+                            // If not valid axis, then clear axis list and break loop
+                            pData->axis.clear();
                             break;
                         }
                     }

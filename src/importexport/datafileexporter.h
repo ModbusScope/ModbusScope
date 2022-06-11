@@ -37,6 +37,7 @@ private:
         E_PROPERTY,
         E_COLOR,
         E_EXPRESSION,
+        E_VALUE_AXIS,
 
     } registerProperty;
 

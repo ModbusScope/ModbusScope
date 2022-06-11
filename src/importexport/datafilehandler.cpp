@@ -195,11 +195,20 @@ void DataFileHandler::parseDataFile()
 
             _pGraphDataModel->add(data.dataLabel, data.timeRow, data.dataRows);
 
-            if (!data.colors.isEmpty())
+            if (!data.colors.isEmpty() && data.colors.count() == data.dataLabel.size())
             {
                 for (int idx = 0; idx < data.dataLabel.size(); idx++)
                 {
                     _pGraphDataModel->setColor(static_cast<quint32>(idx), data.colors[idx]);
+                }
+            }
+
+            if (!data.axis.isEmpty() && data.axis.count() == data.dataLabel.size())
+            {
+                for (int idx = 0; idx < data.dataLabel.size(); idx++)
+                {
+                    auto valueAxis = data.axis[idx] == 1 ? GraphData::VALUE_AXIS_SECONDARY : GraphData::VALUE_AXIS_PRIMARY;
+                    _pGraphDataModel->setValueAxis(static_cast<quint32>(idx), valueAxis);
                 }
             }
 

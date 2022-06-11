@@ -487,6 +487,32 @@ void TestDataFileParser::parseDatasetEmptyLastColumn()
     QCOMPARE(spyParseError.count(), 0);
 }
 
+void TestDataFileParser::parseDatasetMultiAxis()
+{
+    DataParserModel dataParserModel;
+    QTextStream dataStream(&CsvData::cDatasetMultiAxis);
+    DataFileParser::FileData fileData;
+    DataFileParser dataFileParser(&dataParserModel);
+
+    QSignalSpy spyParseError(&dataFileParser, &DataFileParser::parseErrorOccurred);
+
+    /* Prepare parsermodel */
+    dataParserModel.setFieldSeparator(QChar(','));
+    dataParserModel.setGroupSeparator(QChar(' '));
+    dataParserModel.setDecimalSeparator(QChar('.'));
+    dataParserModel.setCommentSequence(QString("//"));
+    dataParserModel.setLabelRow(static_cast<quint32>(3));
+    dataParserModel.setDataRow(static_cast<quint32>(4));
+    dataParserModel.setColumn(static_cast<quint32>(0));
+    dataParserModel.setTimeInMilliSeconds(true);
+    dataParserModel.setStmStudioCorrection(false);
+
+    /* Process data */
+    QVERIFY(dataFileParser.processDataFile(&dataStream, &fileData));
+
+    QCOMPARE(fileData.axis, QList<quint32>() << 0 << 1 << 0);
+}
+
 void TestDataFileParser::checkProgressSignal()
 {
     DataParserModel dataParserModel;

@@ -21,6 +21,7 @@ public:
         QStringList dataLabel;
         QList<QList<double> > dataRows;
         QList<QColor> colors;
+        QList<quint32> axis;
         QList<Note> notes;
 
     } FileData;
