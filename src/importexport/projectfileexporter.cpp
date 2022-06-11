@@ -147,6 +147,7 @@ void ProjectFileExporter::createRegisterTag(QDomElement * pParentElement, qint32
     addTextNode(ProjectFileDefinitions::cTextTag, _pGraphDataModel->label(idx).toHtmlEscaped(), &registerElement);
     addCDataNode(ProjectFileDefinitions::cExpressionTag, _pGraphDataModel->expression(idx), &registerElement);
     addTextNode(ProjectFileDefinitions::cColorTag, _pGraphDataModel->color(idx).name(), &registerElement);
+    addTextNode(ProjectFileDefinitions::cValueAxisTag, QString("%1").arg(_pGraphDataModel->valueAxis(idx)), &registerElement);
 
     pParentElement->appendChild(registerElement);
 }

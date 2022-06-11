@@ -526,6 +526,16 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
                 break;
             }
         }
+        else if (child.tagName() == ProjectFileDefinitions::cValueAxisTag)
+        {
+            bool bOk = false;
+            quint32 axis = child.text().toUInt(&bOk);
+
+            if (bOk)
+            {
+                pRegisterSettings->valueAxis = axis;
+            }
+        }
         else if (child.tagName() == ProjectFileDefinitions::cBitmaskTag)
         {
             const quint32 newBitMask = static_cast<quint32>(child.text().toUInt(&bRet, 0));

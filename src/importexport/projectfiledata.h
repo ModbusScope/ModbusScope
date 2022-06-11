@@ -10,7 +10,7 @@ namespace ProjectFileData
     {
         _RegisterSettings() : address(0xFFFFFFFF), text(""), bActive(true), bUnsigned(false), b32Bit(false), divideFactor(1),
                               multiplyFactor(1), bitmask(0xFFFFFFFF), shift(0), connectionId(0), bExpression(false),
-                              bColor(false) {}
+                              bColor(false), valueAxis(0) {}
 
         quint32 address;
         QString text;
@@ -28,6 +28,8 @@ namespace ProjectFileData
 
         bool bColor;
         QColor color;
+
+        quint32 valueAxis;
 
     } RegisterSettings;
 
