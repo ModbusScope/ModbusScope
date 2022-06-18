@@ -17,6 +17,9 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - name: Start display server
+      run: bash /start.sh &
+
     - name: Prepare environment for Ninja build with coverage
       run: cmake . -GNinja -DUSE_GCOV=ON
 
