@@ -39,6 +39,9 @@ IF ERRORLEVEL 1 GOTO errorHandling
 compil32 /cc "installer\modbusscope_installer.iss"
 IF ERRORLEVEL 1 GOTO errorHandling
 
+move release\src\bin\win\ModbusScope.zip ModbusScope.zip
+move installer\Output\ModbusScope_setup.exe ModbusScope_setup.exe
+
 EXIT
 
 :errorHandling
