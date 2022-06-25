@@ -53,6 +53,8 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
     _pGraphMarkers = new GraphMarkers(_pGuiModel, _pPlot, this);
     _pNoteHandling = new NoteHandling(pNoteModel, _pPlot, this);
 
+    screenChanged(_pPlot->screen());
+
     _pPlot->replot();
 }
 
@@ -333,6 +335,14 @@ void GraphView::clearResults()
     _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
 
    rescalePlot();
+}
+
+void GraphView::screenChanged(QScreen *screen)
+{
+    /* https://phabricator.kde.org/D20171 */
+    _pPlot->setBufferDevicePixelRatio(screen->devicePixelRatio());
+
+    _pPlot->replot();
 }
 
 void GraphView::showMarkers()
