@@ -62,8 +62,6 @@ private slots:
 
     void handleSamplePoints();
 
-    void updateData(QList<double> *pTimeData, QList<QList<double> > * pDataLists);
-
 private:
     void paintTimeStampToolTip(QPoint pos);
     void highlightSamples(bool bState);

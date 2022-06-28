@@ -273,7 +273,35 @@ void GraphView::addData(QList<double> timeData, QList<QList<double> > data)
 {
     setAxisToAuto();
 
-    updateData(&timeData, &data);
+    quint64 totalPoints = 0;
+    const QVector<double> timeDataVector = timeData.toVector();
+
+    for (qint32 i = 0; i < data.size(); i++)
+    {
+        //Add data to graphs
+        QVector<double> graphData = data.at(i).toVector();
+        _pPlot->graph(i)->setData(timeDataVector, graphData, true);
+
+        totalPoints += graphData.size();
+    }
+
+    // Check if optimizations are needed
+    if (totalPoints > _cOptimizeThreshold)
+    {
+        _pGuiModel->setHighlightSamples(false);
+
+        // Set width to 1
+        for (qint32 i = 0; i <  _pPlot->graphCount(); i++)
+        {
+             _pPlot->graph(i)->pen().setWidth(1);
+        }
+
+        // Disable anti aliasing
+        _pPlot->setNotAntialiasedElements(QCP::aeAll);
+    }
+
+    _pPlot->rescaleAxes(true);
+    _pPlot->replot();
 }
 
 void GraphView::showGraph(quint32 graphIdx)
@@ -557,39 +585,6 @@ void GraphView::handleSamplePoints()
 
     /* TODO: add hysteresis to highlight sample points */
     highlightSamples(bHighlight);
-}
-
-void GraphView::updateData(QList<double> *pTimeData, QList<QList<double> > * pDataLists)
-{
-    quint64 totalPoints = 0;
-    const QVector<double> timeData = pTimeData->toVector();
-
-    for (qint32 i = 0; i < pDataLists->size(); i++)
-    {
-        //Add data to graphs
-        QVector<double> graphData = pDataLists->at(i).toVector();
-        _pPlot->graph(i)->setData(timeData, graphData, true);
-
-        totalPoints += graphData.size();
-    }
-
-    // Check if optimizations are needed
-    if (totalPoints > _cOptimizeThreshold)
-    {
-        _pGuiModel->setHighlightSamples(false);
-
-        // Set width to 1
-        for (qint32 i = 0; i <  _pPlot->graphCount(); i++)
-        {
-             _pPlot->graph(i)->pen().setWidth(1);
-        }
-
-        // Disable anti aliasing
-        _pPlot->setNotAntialiasedElements(QCP::aeAll);
-    }
-
-    _pPlot->rescaleAxes(true);
-    _pPlot->replot();
 }
 
 void GraphView::highlightSamples(bool bState)
