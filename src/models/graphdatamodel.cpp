@@ -436,15 +436,21 @@ void GraphDataModel::add()
     add(data);
 }
 
-void GraphDataModel::add(QList<QString> labelList, QList<double> timeData, QList<QList<double> > data)
+void GraphDataModel::add(QList<QString> labelList)
 {
     foreach(QString label, labelList)
     {
         add();
         setLabel(_graphData.size() - 1, label);
     }
+}
 
-    emit graphsAddData(timeData, data);
+void GraphDataModel::setAllData(QList<double> timeData, QList<QList<double> > data)
+{
+    if (data.size() == size())
+    {
+        emit graphsAddData(timeData, data);
+    }
 }
 
 void GraphDataModel::removeRegister(qint32 idx)
