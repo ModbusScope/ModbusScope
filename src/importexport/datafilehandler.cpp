@@ -188,7 +188,7 @@ void DataFileHandler::parseDataFile()
             _pGraphDataModel->clear();
             _pGuiModel->setFrontGraph(-1);
 
-            _pGraphDataModel->add(data.dataLabel, data.timeRow, data.dataRows);
+            _pGraphDataModel->add(data.dataLabel);
 
             if (!data.colors.isEmpty() && data.colors.count() == data.dataLabel.size())
             {
@@ -206,6 +206,8 @@ void DataFileHandler::parseDataFile()
                     _pGraphDataModel->setValueAxis(static_cast<quint32>(idx), valueAxis);
                 }
             }
+
+            _pGraphDataModel->setAllData(data.timeRow, data.dataRows);
 
             _pNoteModel->clear();
             if (!data.notes.isEmpty())

@@ -63,7 +63,8 @@ public:
     void add(GraphData rowData);
     void add(QList<GraphData> graphDataList);
     void add();
-    void add(QList<QString> labelList, QList<double> timeData, QList<QList<double> > data);
+    void add(QList<QString> labelList);
+    void setAllData(QList<double> timeData, QList<QList<double> > data);
 
     void removeRegister(qint32 idx);
     void clear();
