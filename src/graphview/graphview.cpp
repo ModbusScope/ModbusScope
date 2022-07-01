@@ -678,4 +678,6 @@ void GraphView::updateSecondaryAxisVisibility()
     }
 
     _pPlot->yAxis2->setVisible(bSecondaryVisibility);
+
+    rescalePlot();
 }
