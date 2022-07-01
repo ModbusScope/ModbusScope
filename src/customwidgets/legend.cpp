@@ -22,7 +22,7 @@ Legend::Legend(QWidget *parent) : QFrame(parent),
     _pNoGraphs = new QLabel("No active graphs");
     _pLegendTable = new QTableWidget(this);
     _pLegendTable->setRowCount(0);
-    _pLegendTable->setColumnCount(3);
+    _pLegendTable->setColumnCount(cColummnCount);
 
     _pLegendTable->verticalHeader()->setDefaultSectionSize(_pLegendTable->verticalHeader()->fontMetrics().height()+2);
     _pLegendTable->verticalHeader()->hide();
@@ -32,7 +32,7 @@ Legend::Legend(QWidget *parent) : QFrame(parent),
     _pLegendTable->setFocusPolicy(Qt::NoFocus);
     _pLegendTable->setSelectionMode(QAbstractItemView::NoSelection);
     _pLegendTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    _pLegendTable->setHorizontalHeaderLabels(QStringList()<<" "<<"Value"<<"Register");
+    _pLegendTable->setHorizontalHeaderLabels(QStringList()<<" " << " " << "Value" << "Register");
     _pLegendTable->hide();
 
     QHeaderView * horizontalHeader = _pLegendTable->horizontalHeader();
@@ -43,6 +43,7 @@ Legend::Legend(QWidget *parent) : QFrame(parent),
 
     /* Set default size of columns */
     horizontalHeader->resizeSection(cColummnColor, fontMetric.boundingRect("X").width());
+    horizontalHeader->resizeSection(cColummnAxis, fontMetric.boundingRect("X").width());
     horizontalHeader->resizeSection(cColummnValue, fontMetric.boundingRect("[-0000000]").width());
 
     /* stretch text column */
@@ -99,6 +100,7 @@ void Legend::setModels(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel)
     connect(_pGraphDataModel, &GraphDataModel::removed, this, &Legend::updateLegend);
     connect(_pGraphDataModel, &GraphDataModel::visibilityChanged, this, &Legend::showGraph);
     connect(_pGraphDataModel, &GraphDataModel::colorChanged, this, &Legend::changeGraphColor);
+    connect(_pGraphDataModel, &GraphDataModel::valueAxisChanged, this, &Legend::changeGraphAxis);
     connect(_pGraphDataModel, &GraphDataModel::labelChanged, this, &Legend::changeGraphLabel);
 }
 
@@ -254,10 +256,12 @@ void Legend::showGraph(quint32 graphIdx)
             graphColor = Qt::white;
         }
 
+        _pLegendTable->item((int)activeGraphIdx, cColummnAxis)->setFont(itemFont);
         _pLegendTable->item((int)activeGraphIdx, cColummnValue)->setFont(itemFont);
         _pLegendTable->item((int)activeGraphIdx, cColummnText)->setFont(itemFont);
 
         _pLegendTable->item((int)activeGraphIdx, cColummnColor)->setBackground(graphColor);
+        _pLegendTable->item((int)activeGraphIdx, cColummnAxis)->setForeground(foreGroundColor);
         _pLegendTable->item((int)activeGraphIdx, cColummnValue)->setForeground(foreGroundColor);
         _pLegendTable->item((int)activeGraphIdx, cColummnText)->setForeground(foreGroundColor);
     }
@@ -270,6 +274,16 @@ void Legend::changeGraphColor(const quint32 graphIdx)
     if (activeGraphIdx != -1)
     {
         _pLegendTable->item((int)activeGraphIdx, cColummnColor)->setBackground(_pGraphDataModel->color(graphIdx));
+    }
+}
+
+void Legend::changeGraphAxis(const quint32 graphIdx)
+{
+    const qint32 activeGraphIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+
+    if (activeGraphIdx != -1)
+    {
+        _pLegendTable->item((int)activeGraphIdx, cColummnAxis)->setText(valueAxisText(graphIdx));
     }
 }
 
@@ -313,7 +327,10 @@ void Legend::addItem(quint32 graphIdx)
     _pLegendTable->setItem(row, cColummnColor, new QTableWidgetItem(""));
     _pLegendTable->item(row, cColummnColor)->setBackground(_pGraphDataModel->color(graphIdx));
 
-    _pLegendTable->setItem(row, cColummnValue, new QTableWidgetItem("-") );
+    _pLegendTable->setItem(row, cColummnAxis, new QTableWidgetItem(valueAxisText(graphIdx)));
+    _pLegendTable->item(row,cColummnAxis)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+
+    _pLegendTable->setItem(row, cColummnValue, new QTableWidgetItem("-"));
     _pLegendTable->item(row,cColummnValue)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 
     _pLegendTable->setItem(row, cColummnText, new QTableWidgetItem(_pGraphDataModel->label(graphIdx)));
@@ -329,6 +346,11 @@ void Legend::toggleItemVisibility(qint32 activeGraphIdx)
 
         _pGraphDataModel->setVisible(graphIdx, !_pGraphDataModel->isVisible(graphIdx));
     }
+}
+
+QString Legend::valueAxisText(quint32 graphIdx)
+{
+    return _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_SECONDARY ? "S": "P";
 }
 
 void Legend::showContextMenu(const QPoint& pos)
