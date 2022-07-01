@@ -68,6 +68,7 @@ private:
     void setGraphColor(QCPGraph* _pGraph, const QColor &color);
     void setGraphAxis(QCPGraph* _pGraph, const GraphData::valueAxis_t &axis);
     double getClosestPoint(double coordinate);
+    void updateSecondaryAxisVisibility();
 
     QVector<QString> _tickLabels;
 

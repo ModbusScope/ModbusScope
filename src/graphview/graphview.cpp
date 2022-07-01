@@ -53,6 +53,8 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
     _pGraphMarkers = new GraphMarkers(_pGuiModel, _pPlot, this);
     _pNoteHandling = new NoteHandling(pNoteModel, _pPlot, this);
 
+    updateSecondaryAxisVisibility();
+
     screenChanged(_pPlot->screen());
 
     _pPlot->replot();
@@ -234,6 +236,8 @@ void GraphView::updateGraphs()
         }
     }
 
+    updateSecondaryAxisVisibility();
+
     _pPlot->replot();
 }
 
@@ -250,11 +254,13 @@ void GraphView::changeGraphColor(const quint32 graphIdx)
 }
 
 void GraphView::changeGraphAxis(const quint32 graphIdx)
-{
+{   
     if (_pGraphDataModel->isActive(graphIdx))
     {
         const quint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
         setGraphAxis(_pPlot->graph(activeIdx), _pGraphDataModel->valueAxis(graphIdx));
+
+        updateSecondaryAxisVisibility();
 
         _pPlot->replot();
     }
@@ -656,4 +662,20 @@ double GraphView::getClosestPoint(double coordinate)
     {
         return coordinate;
     }
+}
+
+void GraphView::updateSecondaryAxisVisibility()
+{
+    bool bSecondaryVisibility = false;
+    for (qint32 activeGraphIndex = 0; activeGraphIndex < _pPlot->graphCount(); activeGraphIndex++)
+    {
+        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeGraphIndex);
+        if (_pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_SECONDARY)
+        {
+            bSecondaryVisibility = true;
+            break;
+        }
+    }
+
+    _pPlot->yAxis2->setVisible(bSecondaryVisibility);
 }
