@@ -43,7 +43,7 @@ Legend::Legend(QWidget *parent) : QFrame(parent),
 
     /* Set default size of columns */
     horizontalHeader->resizeSection(cColummnColor, fontMetric.boundingRect("X").width());
-    horizontalHeader->resizeSection(cColummnAxis, fontMetric.boundingRect("X").width());
+    horizontalHeader->resizeSection(cColummnAxis, fontMetric.boundingRect("XX").width());
     horizontalHeader->resizeSection(cColummnValue, fontMetric.boundingRect("[-0000000]").width());
 
     /* stretch text column */
