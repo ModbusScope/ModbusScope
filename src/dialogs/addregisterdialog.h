@@ -33,6 +33,7 @@ private:
 
     QButtonGroup _bitGroup;
     QButtonGroup _signedGroup;
+    QButtonGroup _axisGroup;
 
     GraphData _graphData;
 };
