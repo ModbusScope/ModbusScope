@@ -19,7 +19,7 @@ IF ERRORLEVEL 1 GOTO errorHandling
 
 cd ..
 
-EXIT
+EXIT /B 0
 
 :errorHandling
 EXIT /B 1
