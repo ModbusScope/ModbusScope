@@ -505,10 +505,8 @@ void GraphView::mouseMove(QMouseEvent *event)
 
 void GraphView::paintTimeStampToolTip(QPoint pos)
 {
-
     if  (_pGuiModel->cursorValues() && (_pPlot->graphCount() > 0))
     {
-
         const double xPos = _pPlot->xAxis->pixelToCoord(pos.x());
         double tooltipPos = getClosestPoint(xPos);
 
