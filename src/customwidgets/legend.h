@@ -35,6 +35,7 @@ private slots:
     void updateLegend();
     void showGraph(quint32 graphIdx);
     void changeGraphColor(const quint32 graphIdx);
+    void changeGraphAxis(const quint32 graphIdx);
     void changeGraphLabel(const quint32 graphIdx);
     void showContextMenu(const QPoint& pos);
     void legendCellDoubleClicked(int row, int column);
@@ -46,6 +47,7 @@ private:
     void updateCursorDataInLegend(QStringList &cursorValueList);
     void addItem(quint32 graphIdx);
     void toggleItemVisibility(qint32 activeGraphIdx);
+    QString valueAxisText(quint32 graphIdx);
 
     // Last data
     QStringList _lastReceivedValueList;
@@ -68,8 +70,10 @@ private:
     QAction * _pShowAllAction;
 
     static const quint32 cColummnColor = 0;
-    static const quint32 cColummnValue = 1;
-    static const quint32 cColummnText = 2;
+    static const quint32 cColummnAxis = 1;
+    static const quint32 cColummnValue = 2;
+    static const quint32 cColummnText = 3;
+    static const quint32 cColummnCount = 4;
 };
 
 #endif // LEGEND_H
