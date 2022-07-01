@@ -33,6 +33,11 @@ AddRegisterDialog::AddRegisterDialog(SettingsModel* pSettingsModel, QWidget *par
     _signedGroup.setExclusive(true);
     _signedGroup.addButton(_pUi->radioSigned);
     _signedGroup.addButton(_pUi->radioUnsigned);
+
+    _axisGroup.setExclusive(true);
+    _axisGroup.addButton(_pUi->radioPrimary);
+    _axisGroup.addButton(_pUi->radioSecondary);
+
 }
 
 AddRegisterDialog::~AddRegisterDialog()
@@ -54,6 +59,16 @@ void AddRegisterDialog::done(int r)
         QString expression = generateExpression();
 
         _graphData.setLabel(_pUi->lineName->text());
+
+        if (_pUi->radioSecondary->isChecked())
+        {
+            _graphData.setValueAxis(GraphData::VALUE_AXIS_SECONDARY);
+        }
+        else
+        {
+            _graphData.setValueAxis(GraphData::VALUE_AXIS_PRIMARY);
+        }
+
         _graphData.setExpression(expression);
 
         bValid = true;
