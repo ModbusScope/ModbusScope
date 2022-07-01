@@ -121,15 +121,13 @@ void Legend::graphToForeground(int row)
 
 void Legend::legendCellDoubleClicked(int row, int column)
 {
-    if (column == 0)
+    if (column == cColummnColor)
     {
         if (row != -1)
         {
             const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(static_cast<quint32>(row));
-
             if (_pGraphDataModel->isVisible(graphIdx))
             {
-                /* Color column */
                 QColor color = QColorDialog::getColor(_pGraphDataModel->color(graphIdx));
 
                 if (color.isValid())
@@ -137,10 +135,20 @@ void Legend::legendCellDoubleClicked(int row, int column)
                     // Set color in model
                     _pGraphDataModel->setColor(graphIdx, color);
                 }
-                else
-                {
-                    // user aborted
-                }
+            }
+        }
+    }
+    else if (column == cColummnAxis)
+    {
+        if (row != -1)
+        {
+            const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(static_cast<quint32>(row));
+            if (_pGraphDataModel->isVisible(graphIdx))
+            {
+                auto valueAxis = _pGraphDataModel->valueAxis(graphIdx);
+
+                valueAxis = valueAxis == GraphData::VALUE_AXIS_PRIMARY ? GraphData::VALUE_AXIS_SECONDARY: GraphData::VALUE_AXIS_PRIMARY;
+                _pGraphDataModel->setValueAxis(graphIdx, valueAxis);
             }
         }
     }
