@@ -211,6 +211,8 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _pXAxisScaleGroup->addButton(_pUi->radioXManual, AxisMode::SCALE_MANUAL);
     connect(_pXAxisScaleGroup, &QButtonGroup::idClicked, this, &MainWindow::xAxisScaleGroupClicked);
 
+    _pUi->scaleTab->setCurrentIndex(0);
+
     // Create button group for Y axis scaling options
     _pYAxisScaleGroup = new QButtonGroup();
     _pYAxisScaleGroup->setExclusive(true);
