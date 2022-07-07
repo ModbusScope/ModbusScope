@@ -23,7 +23,7 @@ QWidget *RegisterValueAxisDelegate::createEditor(QWidget *parent, const QStyleOp
 
     for (quint8 i = 0u; i < GraphData::VALUE_AXIS_CNT; i++)
     {
-        QString axis = i == GraphData::VALUE_AXIS_PRIMARY ? "Primary" : "Secondary";
+        QString axis = i == GraphData::VALUE_AXIS_PRIMARY ? "Y1" : "Y2";
         cb->addItem(axis, i);
     }
 
