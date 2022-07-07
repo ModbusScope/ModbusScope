@@ -68,7 +68,7 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
     case column::VALUE_AXIS:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            QString axis = valueAxis(index.row()) == GraphData::VALUE_AXIS_PRIMARY ? "Primary" : "Secondary";
+            QString axis = valueAxis(index.row()) == GraphData::VALUE_AXIS_PRIMARY ? "Y1" : "Y2";
             return axis;
         }
         break;
@@ -98,7 +98,7 @@ QVariant GraphDataModel::headerData(int section, Qt::Orientation orientation, in
             case column::EXPRESSION:
                 return QString("Expression");
             case column::VALUE_AXIS:
-                return QString("Value Axis");
+                return QString("Y-Axis");
             default:
                 return QVariant();
             }
@@ -174,7 +174,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             else
             {
                 bRet = false;
-                Util::showError(tr("Value axis setting is not valid"));
+                Util::showError(tr("Y axis setting is not valid"));
                 break;
             }
         }

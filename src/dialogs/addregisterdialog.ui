@@ -125,7 +125,7 @@
    <item row="6" column="0">
     <widget class="QRadioButton" name="radioPrimary">
      <property name="text">
-      <string>Primary axis</string>
+      <string>Y1 axis</string>
      </property>
      <property name="checked">
       <bool>true</bool>
@@ -135,7 +135,7 @@
    <item row="6" column="1">
     <widget class="QRadioButton" name="radioSecondary">
      <property name="text">
-      <string>Secondary axis</string>
+      <string>Y2 axis</string>
      </property>
     </widget>
    </item>

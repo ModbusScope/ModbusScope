@@ -353,7 +353,7 @@
         </sizepolicy>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tab">
         <property name="sizePolicy">
@@ -363,7 +363,7 @@
          </sizepolicy>
         </property>
         <attribute name="title">
-         <string>Primary Y-axis</string>
+         <string>Y1 axis</string>
         </attribute>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
@@ -485,7 +485,7 @@
          </sizepolicy>
         </property>
         <attribute name="title">
-         <string>Secondary Y-axis</string>
+         <string>Y2 axis</string>
         </attribute>
         <layout class="QHBoxLayout" name="horizontalLayout_5">
          <item>
