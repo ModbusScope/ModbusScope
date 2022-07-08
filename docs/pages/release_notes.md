@@ -4,6 +4,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ## [Unreleased]
 
+* Second Y-axis on right-side ([Github #188](https://github.com/jgeudens/ModbusScope/issues/188))
 * Fix blurry tick labels in Qt6 build
 
 ## [v3.5.1](https://github.com/jgeudens/ModbusScope/releases/tag/3.5.1) (11/05/2022)
