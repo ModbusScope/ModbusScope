@@ -2,6 +2,10 @@
 
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/jgeudens/ModbusScope/releases).
 
+## [Unreleased]
+
+* Fix blurry tick labels in Qt6 build
+
 ## [v3.5.1](https://github.com/jgeudens/ModbusScope/releases/tag/3.5.1) (11/05/2022)
 
 * Crash on showing tooltip with empty graphs ([Github #208](https://github.com/jgeudens/ModbusScope/issues/208))
