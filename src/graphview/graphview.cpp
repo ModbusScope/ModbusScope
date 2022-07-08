@@ -176,10 +176,8 @@ void GraphView::clearGraph(const quint32 graphIdx)
 
 void GraphView::updateGraphs()
 {
-    /* First remove tracers */
     _pGraphMarkers->clearTracers();
 
-    /* Clear graphs and add current active graphs */
     _pPlot->clearGraphs();
 
     QList<quint16> activeGraphList;
@@ -205,7 +203,6 @@ void GraphView::updateGraphs()
         // Graph that have less points will be zeroed with that amount of points
         foreach(quint16 graphIdx, activeGraphList)
         {
-            // Add graph
             QCPGraph * pGraph = _pPlot->addGraph();
             setGraphAxis(pGraph, _pGraphDataModel->valueAxis(graphIdx));
             setGraphColor(pGraph, _pGraphDataModel->color(graphIdx));
@@ -229,7 +226,6 @@ void GraphView::updateGraphs()
                 }
             }
 
-            // Set graph datamap
             pGraph->setData(pMap);
 
             _pGraphMarkers->addTracer(pGraph);
@@ -284,7 +280,6 @@ void GraphView::addData(QList<double> timeData, QList<QList<double> > data)
 
     for (qint32 i = 0; i < data.size(); i++)
     {
-        //Add data to graphs
         QVector<double> graphData = data.at(i).toVector();
         _pPlot->graph(i)->setData(timeDataVector, graphData, true);
 
@@ -296,13 +291,11 @@ void GraphView::addData(QList<double> timeData, QList<QList<double> > data)
     {
         _pGuiModel->setHighlightSamples(false);
 
-        // Set width to 1
         for (qint32 i = 0; i <  _pPlot->graphCount(); i++)
         {
              _pPlot->graph(i)->pen().setWidth(1);
         }
 
-        // Disable anti aliasing
         _pPlot->setNotAntialiasedElements(QCP::aeAll);
     }
 
@@ -521,7 +514,6 @@ void GraphView::paintTimeStampToolTip(QPoint pos)
 
         if (bValid && keyRange.contains(xPos))
         {
-            // Add tick key string
             QString toolText = FormatRelativeTime::formatTime(tooltipPos);
             QPoint location= _pPlot->mapToGlobal(pos);
 
@@ -534,7 +526,6 @@ void GraphView::paintTimeStampToolTip(QPoint pos)
         }
         else
         {
-            // Hide tooltip
             QToolTip::hideText();
             _tooltipLocation = QPoint(-1 ,-1);
         }
