@@ -126,6 +126,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pGraphDataModel, &GraphDataModel::visibilityChanged, this, &MainWindow::handleGraphVisibilityChange);
     connect(_pGraphDataModel, &GraphDataModel::visibilityChanged, _pGraphView, &GraphView::showGraph);
     connect(_pGraphDataModel, &GraphDataModel::graphsAddData, _pGraphView, &GraphView::addData);
+    connect(_pGraphDataModel, &GraphDataModel::graphsAddData, this, &MainWindow::setAxisToAuto);
     connect(_pGraphDataModel, &GraphDataModel::activeChanged, this, &MainWindow::rebuildGraphMenu);
     connect(_pGraphDataModel, &GraphDataModel::activeChanged, _pGraphView, &GraphView::updateGraphs);
     connect(_pGraphDataModel, &GraphDataModel::colorChanged, this, &MainWindow::handleGraphColorChange);
@@ -244,7 +245,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _pUpdateNotify->checkForUpdate();
 
     // Default to full auto scaling
-    _pGraphView->setAxisToAuto();
+    setAxisToAuto();
 
     connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pGraphView, &GraphView::plotResults);
     connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pLegend, &Legend::addLastReceivedDataToLegend);
@@ -430,6 +431,13 @@ void MainWindow::handleShowRegisterDialog(bool checked)
 {
     Q_UNUSED(checked);
     showRegisterDialog(QString(""));
+}
+
+void MainWindow::setAxisToAuto()
+{
+    _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
+    _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
+    _pGuiModel->sety2AxisScale(AxisMode::SCALE_AUTO);
 }
 
 void MainWindow::showRegisterDialog(QString mbcFile)

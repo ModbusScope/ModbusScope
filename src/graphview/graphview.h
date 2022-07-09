@@ -31,7 +31,6 @@ public:
     double pixelToClosestKey(double pixel);
 
     void showMarkers();
-    void setAxisToAuto();
 
 public slots:
 

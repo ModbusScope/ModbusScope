@@ -114,7 +114,7 @@ private slots:
     void showVersionUpdate(UpdateNotify::UpdateState result);
 
 private:
-
+    void setAxisToAuto();
     void showRegisterDialog(QString mbcFile);
     void handleCommandLineArguments(QStringList cmdArguments);
 
