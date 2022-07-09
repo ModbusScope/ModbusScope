@@ -273,8 +273,6 @@ void GraphView::bringToFront()
 
 void GraphView::addData(QList<double> timeData, QList<QList<double> > data)
 {
-    setAxisToAuto();
-
     quint64 totalPoints = 0;
     const QVector<double> timeDataVector = timeData.toVector();
 
@@ -387,13 +385,6 @@ void GraphView::showMarkers()
 
     _pGuiModel->setStartMarkerPos(getClosestPoint(startPos));
     _pGuiModel->setEndMarkerPos(getClosestPoint(endPos));
-}
-
-void GraphView::setAxisToAuto()
-{
-    _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
-    _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
-    _pGuiModel->sety2AxisScale(AxisMode::SCALE_AUTO);
 }
 
 void GraphView::mousePress(QMouseEvent *event)
