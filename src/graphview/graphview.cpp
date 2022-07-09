@@ -369,8 +369,6 @@ void GraphView::clearResults()
         _pPlot->graph(i)->data()->clear();
     }
 
-    setAxisToAuto();
-
     rescalePlot();
 }
 

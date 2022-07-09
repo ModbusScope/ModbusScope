@@ -512,6 +512,21 @@ void MainWindow::clearData()
     _pDataFileHandler->rewriteDataFile();
     _pNoteModel->clear();
     _pLegend->clearLegendData();
+
+    if (_pGuiModel->xAxisScalingMode() == AxisMode::SCALE_MANUAL)
+    {
+        _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
+    }
+
+    if (_pGuiModel->yAxisScalingMode() == AxisMode::SCALE_MANUAL)
+    {
+        _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
+    }
+
+    if (_pGuiModel->y2AxisScalingMode() == AxisMode::SCALE_MANUAL)
+    {
+        _pGuiModel->sety2AxisScale(AxisMode::SCALE_AUTO);
+    }
 }
 
 void MainWindow::startScope()
@@ -543,22 +558,6 @@ void MainWindow::startScope()
         {
             _pDataFileHandler->enableExporterDuringLog();
         }
-
-        if (_pGuiModel->xAxisScalingMode() == AxisMode::SCALE_MANUAL)
-        {
-            _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
-        }
-
-        if (_pGuiModel->yAxisScalingMode() == AxisMode::SCALE_MANUAL)
-        {
-            _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
-        }
-
-        if (_pGuiModel->y2AxisScalingMode() == AxisMode::SCALE_MANUAL)
-        {
-            _pGuiModel->sety2AxisScale(AxisMode::SCALE_AUTO);
-        }
-
     }
     else
     {
