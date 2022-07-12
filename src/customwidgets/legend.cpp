@@ -358,7 +358,7 @@ void Legend::toggleItemVisibility(qint32 activeGraphIdx)
 
 QString Legend::valueAxisText(quint32 graphIdx)
 {
-    return _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_SECONDARY ? "Y1": "Y2";
+    return _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_SECONDARY ? "Y2": "Y1";
 }
 
 void Legend::showContextMenu(const QPoint& pos)
