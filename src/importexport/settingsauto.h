@@ -38,6 +38,7 @@ private:
 
     bool isAbsoluteDate(QString rawData);
     bool isModbusScopeDataFile(QString firstLine);
+    bool isEmptyLine(QString line);
     bool determineComment(QString line);
     bool testLocale(QStringList previewData, QLocale locale, QString fieldSeparator);
     quint32 nextDataLine(quint32 startIdx, QStringList previewData, bool *bOk);
