@@ -208,6 +208,23 @@ void TestSettingsAuto::processDatasetTimeInSeconds()
     QCOMPARE(settingsData.bTimeInMilliSeconds, false);
 }
 
+void TestSettingsAuto::processDatasetExcelChanged()
+{
+    SettingsAuto::settingsData_t settingsData;
+
+    QVERIFY(processFile(&CsvData::cDatasetExcelChanged, &settingsData));
+
+    QCOMPARE(settingsData.bModbusScopeDataFile, true);
+    QCOMPARE(settingsData.fieldSeparator, QChar(';'));
+    QCOMPARE(settingsData.groupSeparator, QChar(' '));
+    QCOMPARE(settingsData.decimalSeparator, QChar(','));
+    QCOMPARE(settingsData.commentSequence, QString("//"));
+    QCOMPARE(settingsData.labelRow, static_cast<quint32>(18));
+    QCOMPARE(settingsData.dataRow, static_cast<quint32>(19));
+    QCOMPARE(settingsData.column, static_cast<quint32>(0));
+    QCOMPARE(settingsData.bTimeInMilliSeconds, true);
+}
+
 
 void TestSettingsAuto::prepareReference(QString* pRefData, QStringList& refList)
 {

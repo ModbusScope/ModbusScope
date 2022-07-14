@@ -26,6 +26,7 @@ private slots:
 
     void processDatasetAbsoluteDate();
     void processDatasetTimeInSeconds();
+    void processDatasetExcelChanged();
 
 private:
 
