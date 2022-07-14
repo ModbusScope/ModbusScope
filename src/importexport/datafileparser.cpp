@@ -255,10 +255,7 @@ bool DataFileParser::parseDataLines(QTextStream* pDataStream, QList<QList<double
     {
         QString strippedLine = line.trimmed();
 
-        if (
-            (!strippedLine.isEmpty())
-            && (!isCommentLine(strippedLine))
-        )
+        if (!strippedLine.isEmpty() && !isCommentLine(strippedLine))
         {
             QStringList paramList = strippedLine.split(_pDataParserModel->fieldSeparator());
             const quint32 lineDataCount = static_cast<quint32>(paramList.size() - static_cast<qint32>(_pDataParserModel->column()));
