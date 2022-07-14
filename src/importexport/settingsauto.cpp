@@ -113,7 +113,7 @@ bool SettingsAuto::isAbsoluteDate(QString rawData)
     return match.hasMatch();
 }
 
-bool SettingsAuto::isComment(QString line)
+bool SettingsAuto::determineComment(QString line)
 {
     bool bRet = false;
     if (_commentSequence.isEmpty())
@@ -174,7 +174,7 @@ bool SettingsAuto::testLocale(QStringList previewData, QLocale locale, QString f
         qint32 parseIdx;
         for (parseIdx = _dataRow; parseIdx < previewData.size(); parseIdx++)
         {
-            if (!isComment(previewData[parseIdx]))
+            if (!determineComment(previewData[parseIdx]))
             {
                 QStringList fields = previewData[parseIdx].split(fieldSeparator);
 
@@ -248,12 +248,9 @@ quint32 SettingsAuto::nextDataLine(quint32 startIdx, QStringList previewData, bo
     for (lineIdx = startIdx; lineIdx < previewData.size(); lineIdx++)
     {
         QString line = previewData[lineIdx].trimmed();
-        if (!line.isEmpty())
+        if (!line.isEmpty() && !determineComment(line))
         {
-            if (!isComment(line))
-            {
-                break;
-            }
+            break;
         }
     }
 
