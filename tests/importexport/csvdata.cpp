@@ -189,4 +189,29 @@ QString CsvData::cDatasetMultiAxis = QString(
     "5,0,51000,0"
 );
 
+QString CsvData::cDatasetExcelChanged = QString(
+    "//ModbusScope version;3.5.1;;;;"                                                           "\n"\
+    "//Start time;13-07-2022 12:04:07;;;;"                                                      "\n"\
+    "//End time;13-07-2022 12:04:17;;;;"                                                        "\n"\
+    "//Settings (Connection ID 1);127.0.0.1:502;;;;"                                            "\n"\
+    "//Slave ID (Connection ID 1);1;;;;"                                                        "\n"\
+    "//Time-out (Connection ID 1);1000;;;;"                                                     "\n"\
+    "//Consecutive max (Connection ID 1);125;;;;"                                               "\n"\
+    "//Poll interval;250;;;;"                                                                   "\n"\
+    "//Communication success;28;;;;"                                                            "\n"\
+    "//Communication errors;42;;;;"                                                             "\n"\
+    "//;;;;;"                                                                                   "\n"\
+    "//Property;Register 1;Register 2;Register 3;Register 4;Register 5"                         "\n"\
+    "//Color;#000000;#0000ff;#00ffff;#00ff00;#dcdc00"                                           "\n"\
+    "//Expression;${40001};${40002};${40003};${40004};${40005}"                                 "\n"\
+    "//Axis;0;0;0;0;0"                                                                          "\n"\
+    "//;;;;;"                                                                                   "\n"\
+    ";;;;;"                                                                                     "\n"\
+    "//;;;;;"                                                                                   "\n"\
+    "Time (ms);Register 1;Register 2;Register 3;Register 4;Register 5"                          "\n"\
+    "0;0;4;0;0;0"                                                                             "\n"\
+    "1;0;4;0;0;0"                                                                            "\n"\
+    "2;0;4;0;0;0"                                                                            "\n"\
+);
+
 

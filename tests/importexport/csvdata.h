@@ -23,6 +23,7 @@ public:
     static QString cDatasetEmptyLastColumn;
 
     static QString cDatasetMultiAxis;
+    static QString cDatasetExcelChanged;
 
 private:
 
