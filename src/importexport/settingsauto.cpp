@@ -113,9 +113,28 @@ bool SettingsAuto::isAbsoluteDate(QString rawData)
     return match.hasMatch();
 }
 
+bool SettingsAuto::isEmptyLine(QString line)
+{
+    if (line.isEmpty())
+    {
+        return true;
+    }
+    if (line.replace(";", "").isEmpty())
+    {
+        return true;
+    }
+    if (line.replace(",", "").isEmpty())
+    {
+        return true;
+    }
+
+    return false;
+}
+
 bool SettingsAuto::determineComment(QString line)
 {
     bool bRet = false;
+
     if (_commentSequence.isEmpty())
     {
         // Check first character for comment char
@@ -248,7 +267,7 @@ quint32 SettingsAuto::nextDataLine(quint32 startIdx, QStringList previewData, bo
     for (lineIdx = startIdx; lineIdx < previewData.size(); lineIdx++)
     {
         QString line = previewData[lineIdx].trimmed();
-        if (!line.isEmpty() && !determineComment(line))
+        if (!isEmptyLine(line) && !determineComment(line))
         {
             break;
         }
