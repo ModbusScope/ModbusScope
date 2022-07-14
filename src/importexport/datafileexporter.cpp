@@ -196,8 +196,17 @@ bool DataFileExporter::updateNoteLines(QString dataFile)
             }
 
             // Add notes
-            tmpStream << createNoteRows();
-            tmpStream << "//\n";
+            QStringList noteRows;
+            createNoteRows(noteRows);
+            if (!noteRows.isEmpty())
+            {
+                for(const QString &noteRow: qAsConst(noteRows))
+                {
+                    tmpStream << noteRow << "\n";
+                }
+
+                tmpStream << "//\n";
+            }
 
             // Copy last line
             tmpStream << line << "\n";
@@ -322,9 +331,13 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
 
         header.append("//");
 
-        header.append(createNoteRows());
-
-        header.append("//");
+        QStringList noteRows;
+        createNoteRows(noteRows);
+        if (!noteRows.isEmpty())
+        {
+            header.append(noteRows);
+            header.append("//");
+        }
     }
 
     return header;
@@ -364,10 +377,8 @@ QString DataFileExporter::constructConnSettings(quint8 connectionId)
                           .arg(strSettings);
 }
 
-QString DataFileExporter::createNoteRows(void)
+void DataFileExporter::createNoteRows(QStringList& noteRows)
 {
-    QString noteRows;
-
     for (qint32 idx = 0; idx < _pNoteModel->size(); idx++)
     {
         QString noteline;
@@ -385,12 +396,8 @@ QString DataFileExporter::createNoteRows(void)
 
         noteline.append(Util::separatorCharacter() + '"' + _pNoteModel->textData(idx) + '"');
 
-        noteline.append("\n");
-
         noteRows.append(noteline);
     }
-
-    return noteRows;
 }
 
 QString DataFileExporter::createPropertyRow(registerProperty prop)

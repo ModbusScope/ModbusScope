@@ -45,7 +45,7 @@ private:
     void exportDataHeader();
     QStringList constructDataHeader(bool bDuringLog);
     QString constructConnSettings(quint8 connectionId);
-    QString createNoteRows();
+    void createNoteRows(QStringList& noteRows);
     QString createPropertyRow(registerProperty prop);
     QString formatData(double timeData, QList<double> dataValues);
     bool writeToFile(QString filePath, QStringList logData);
