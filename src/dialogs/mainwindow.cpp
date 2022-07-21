@@ -166,11 +166,11 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
 
     // Add multipart status bar
     _pStatusState = new QLabel(_cStateStopped, this);
-    _pStatusState->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    _pStatusState->setFrameStyle((int)QFrame::Panel | (int)QFrame::Sunken);
     _pStatusStats = new QLabel("", this);
-    _pStatusStats->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    _pStatusStats->setFrameStyle((int)QFrame::Panel | (int)QFrame::Sunken);
     _pStatusRuntime = new QLabel("", this);
-    _pStatusRuntime->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    _pStatusRuntime->setFrameStyle((int)QFrame::Panel | (int)QFrame::Sunken);
 
     _pUi->statusBar->addPermanentWidget(_pStatusState, 1);
     _pUi->statusBar->addPermanentWidget(_pStatusRuntime, 2);
