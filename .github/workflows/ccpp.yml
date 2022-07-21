@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        container: ["5.15.2_build_3", "6.2.2_build_4"]
+        container: ["5.15.2_build_3", "6.2.4_build_1"]
 
     container:
       image: docker://jgeudens/qt-linux:${{ matrix.container }}
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     container:
-      image: docker://jgeudens/qt-linux:6.2.2_build_4
+      image: docker://jgeudens/qt-linux:6.2.4_build_1
     steps:
       - uses: actions/checkout@v2
 
