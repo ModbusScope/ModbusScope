@@ -63,11 +63,20 @@ void MarkerInfoItem::updateData()
 {
     const qint32 graphIdx = _pGraphCombo->currentData().toInt();
 
-    if (graphIdx >= 0)
+    if (graphIdx < 0)
     {
-        QSharedPointer<QCPGraphDataContainer> dataMap = _pGraphDataModel->dataMap(graphIdx);
-        QStringList expressionList;
-        const quint32 mask = _pGuiModel->markerExpressionMask();
+        return;
+    }
+
+    QSharedPointer<QCPGraphDataContainer> dataMap = _pGraphDataModel->dataMap(graphIdx);
+
+    if (dataMap->isEmpty())
+    {
+        return;
+    }
+
+    QStringList expressionList;
+    const quint32 mask = _pGuiModel->markerExpressionMask();
 
         for(qint32 idx = 0; idx < GuiModel::cMarkerExpressionBits.size(); idx++)
         {
@@ -98,16 +107,10 @@ void MarkerInfoItem::updateData()
             {
                 graphDataRight.append(expressionList[idx]);
             }
-        }
-
-        _pGraphDataLabelLeft->setText(graphDataLeft);
-        _pGraphDataLabelRight->setText(graphDataRight);
-
     }
-    else
-    {
-        /* No graph selected */
-    }
+
+    _pGraphDataLabelLeft->setText(graphDataLeft);
+    _pGraphDataLabelRight->setText(graphDataRight);
 }
 
 void MarkerInfoItem::updateGraphList(void)
