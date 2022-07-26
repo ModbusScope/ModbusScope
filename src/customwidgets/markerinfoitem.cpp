@@ -78,35 +78,35 @@ void MarkerInfoItem::updateData()
     QStringList expressionList;
     const quint32 mask = _pGuiModel->markerExpressionMask();
 
-        for(qint32 idx = 0; idx < GuiModel::cMarkerExpressionBits.size(); idx++)
+    for(qint32 idx = 0; idx < GuiModel::cMarkerExpressionBits.size(); idx++)
+    {
+        if (mask & GuiModel::cMarkerExpressionBits[idx])
         {
-            if (mask & GuiModel::cMarkerExpressionBits[idx])
-            {
-                QString expression = GuiModel::cMarkerExpressionStrings[idx];
-                const double expressionValue = calculateMarkerExpressionValue(GuiModel::cMarkerExpressionBits[idx]);
+            QString expression = GuiModel::cMarkerExpressionStrings[idx];
+            const double expressionValue = calculateMarkerExpressionValue(GuiModel::cMarkerExpressionBits[idx]);
 
-                expressionList.append(expression.arg(Util::formatDoubleForExport(expressionValue)));
-            }
+            expressionList.append(expression.arg(Util::formatDoubleForExport(expressionValue)));
         }
+    }
 
-        /* Add permanent items (y1, y2) */
-        expressionList.prepend(GuiModel::cMarkerExpressionEnd.arg(Util::formatDoubleForExport(dataMap->findBegin(_pGuiModel->endMarkerPos(), false)->value)));
-        expressionList.prepend(GuiModel::cMarkerExpressionStart.arg(Util::formatDoubleForExport(dataMap->findBegin(_pGuiModel->startMarkerPos(), false)->value)));
+    /* Add permanent items (y1, y2) */
+    expressionList.prepend(GuiModel::cMarkerExpressionEnd.arg(Util::formatDoubleForExport(dataMap->findBegin(_pGuiModel->endMarkerPos(), false)->value)));
+    expressionList.prepend(GuiModel::cMarkerExpressionStart.arg(Util::formatDoubleForExport(dataMap->findBegin(_pGuiModel->startMarkerPos(), false)->value)));
 
-        /* Construct labels data */
-        const qint32 leftRowCount = expressionList.size() - expressionList.size() / 2;
-        QString graphDataLeft;
-        QString graphDataRight;
-        for(qint32 idx = 0; idx < expressionList.size(); idx++)
+    /* Construct labels data */
+    const qint32 leftRowCount = expressionList.size() - expressionList.size() / 2;
+    QString graphDataLeft;
+    QString graphDataRight;
+    for(qint32 idx = 0; idx < expressionList.size(); idx++)
+    {
+        if (idx < leftRowCount)
         {
-            if (idx < leftRowCount)
-            {
-                graphDataLeft.append(expressionList[idx]);
-            }
-            else
-            {
-                graphDataRight.append(expressionList[idx]);
-            }
+            graphDataLeft.append(expressionList[idx]);
+        }
+        else
+        {
+            graphDataRight.append(expressionList[idx]);
+        }
     }
 
     _pGraphDataLabelLeft->setText(graphDataLeft);
@@ -216,92 +216,98 @@ double MarkerInfoItem::calculateMarkerExpressionValue(quint32 expressionMask)
     double result = 0;
     const qint32 graphIdx = _pGraphCombo->currentData().toInt();
 
-    if (graphIdx >= 0)
+    if (graphIdx < 0)
     {
+        return 0;
+    }
 
-        QSharedPointer<QCPGraphDataContainer> pDataMap = _pGraphDataModel->dataMap(graphIdx);
+    QSharedPointer<QCPGraphDataContainer> pDataMap = _pGraphDataModel->dataMap(graphIdx);
 
-        const double valueDiff = pDataMap->findBegin(_pGuiModel->endMarkerPos(), false)->value - pDataMap->findBegin(_pGuiModel->startMarkerPos(), false)->value;
-        const double timeDiff = _pGuiModel->endMarkerPos() - _pGuiModel->startMarkerPos();
+    if (!pDataMap->isEmpty())
+    {
+        return 0;
+    }
 
-        QCPGraphDataContainer::const_iterator dataPoint;
-        QCPGraphDataContainer::const_iterator start;
-        QCPGraphDataContainer::const_iterator end;
+    const double valueDiff = pDataMap->findBegin(_pGuiModel->endMarkerPos(), false)->value - pDataMap->findBegin(_pGuiModel->startMarkerPos(), false)->value;
+    const double timeDiff = _pGuiModel->endMarkerPos() - _pGuiModel->startMarkerPos();
 
-        /* make sure we go in ascending order */
-        if (_pGuiModel->endMarkerPos() > _pGuiModel->startMarkerPos())
+    QCPGraphDataContainer::const_iterator dataPoint;
+    QCPGraphDataContainer::const_iterator start;
+    QCPGraphDataContainer::const_iterator end;
+
+    /* make sure we go in ascending order */
+    if (_pGuiModel->endMarkerPos() > _pGuiModel->startMarkerPos())
+    {
+        start = pDataMap->findBegin(_pGuiModel->startMarkerPos(), false);
+        end = pDataMap->findEnd(_pGuiModel->endMarkerPos(), false);
+    }
+    else
+    {
+        /* Change order */
+        start = pDataMap->findBegin(_pGuiModel->endMarkerPos());
+        end = pDataMap->findEnd(_pGuiModel->startMarkerPos());
+    }
+
+    if (expressionMask == GuiModel::cDifferenceMask)
+    {
+        result = valueDiff;
+    }
+    else if (expressionMask == GuiModel::cSlopeMask)
+    {
+        result = valueDiff / (timeDiff / 1000); // per second, TODO: round?
+    }
+    else if (expressionMask == GuiModel::cAverageMask)
+    {
+        double avg = 0;
+        quint32 count = 0;
+        for (dataPoint = start; dataPoint != end; dataPoint++)
         {
-            start = pDataMap->findBegin(_pGuiModel->startMarkerPos(), false);
-            end = pDataMap->findEnd(_pGuiModel->endMarkerPos(), false);
-        }
-        else
-        {
-            /* Change order */
-            start = pDataMap->findBegin(_pGuiModel->endMarkerPos());
-            end = pDataMap->findEnd(_pGuiModel->startMarkerPos());
+            count++;
+            avg += dataPoint->value;
         }
 
-
-        if (expressionMask == GuiModel::cDifferenceMask)
-        {
-            result = valueDiff;
-        }
-        else if (expressionMask == GuiModel::cSlopeMask)
-        {
-            result = valueDiff / (timeDiff / 1000); // per second, TODO: round?
-        }
-        else if (expressionMask == GuiModel::cAverageMask)
-        {
-            double avg = 0;
-            quint32 count = 0;
-            for (dataPoint = start; dataPoint != end; dataPoint++)
-            {
-                count++;
-                avg += dataPoint->value;
-            }
-
-            if (count == 0)
-            {
-                result = 0;
-            }
-            else
-            {
-                result = avg / count;
-            }
-        }
-        else if (expressionMask == GuiModel::cMinimumMask)
-        {
-            double min = std::numeric_limits<double>::max();
-
-            for (dataPoint = start; dataPoint != end; dataPoint++)
-            {
-                if (dataPoint->value < min)
-                {
-                    min = dataPoint->value;
-                }
-            }
-
-            result = min;
-        }
-        else if (expressionMask == GuiModel::cMaximumMask)
-        {
-            double max = std::numeric_limits<double>::lowest();
-
-            for (dataPoint = start; dataPoint != end; dataPoint++)
-            {
-                if (dataPoint->value > max)
-                {
-                    max = dataPoint->value;
-                }
-            }
-
-            result = max;
-        }
-        else
+        if (count == 0)
         {
             result = 0;
         }
+        else
+        {
+            result = avg / count;
+        }
     }
+    else if (expressionMask == GuiModel::cMinimumMask)
+    {
+        double min = std::numeric_limits<double>::max();
+
+        for (dataPoint = start; dataPoint != end; dataPoint++)
+        {
+            if (dataPoint->value < min)
+            {
+                min = dataPoint->value;
+            }
+        }
+
+        result = min;
+    }
+    else if (expressionMask == GuiModel::cMaximumMask)
+    {
+        double max = std::numeric_limits<double>::lowest();
+
+        for (dataPoint = start; dataPoint != end; dataPoint++)
+        {
+            if (dataPoint->value > max)
+            {
+                max = dataPoint->value;
+            }
+        }
+
+        result = max;
+    }
+    else
+    {
+        result = 0;
+    }
+
 
     return result;
 }
