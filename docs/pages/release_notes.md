@@ -16,6 +16,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 #### Fixed
 
 * Fix blurry tick labels in Qt6 build
+* Fix crash when there is no data and marker is active ([Github #223](https://github.com/jgeudens/ModbusScope/issues/223))
 
 ## [v3.5.1](https://github.com/jgeudens/ModbusScope/releases/tag/3.5.1) (11/05/2022)
 
