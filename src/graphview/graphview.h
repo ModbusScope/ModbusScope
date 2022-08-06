@@ -14,6 +14,7 @@ class SettingsModel;
 class GraphScale;
 class GraphViewZoom;
 class GraphMarkers;
+class GraphIndicators;
 class NoteHandling;
 
 class GraphView : public QObject
@@ -81,6 +82,7 @@ private:
     GraphScale* _pGraphScale;
     GraphViewZoom* _pGraphViewZoom;
     GraphMarkers* _pGraphMarkers;
+    GraphIndicators* _pGraphIndicators;
     NoteHandling* _pNoteHandling;
 
     QPoint _tooltipLocation;

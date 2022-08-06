@@ -15,6 +15,7 @@
 #include "graphscaling.h"
 #include "graphviewzoom.h"
 #include "graphmarkers.h"
+#include "graphindicators.h"
 #include "notehandling.h"
 
 GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel *pNoteModel, ScopePlot * pPlot, QObject *parent) :
@@ -51,6 +52,7 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
     _pGraphScale = new GraphScale(_pGuiModel, _pPlot, this);
     _pGraphViewZoom = new GraphViewZoom(_pGuiModel, _pPlot, this);
     _pGraphMarkers = new GraphMarkers(_pGuiModel, _pPlot, this);
+    _pGraphIndicators = new GraphIndicators(_pGraphDataModel, _pPlot, this);
     _pNoteHandling = new NoteHandling(pNoteModel, _pPlot, this);
 
     updateSecondaryAxisVisibility();
@@ -65,6 +67,7 @@ GraphView::~GraphView()
     delete _pGraphScale;
     delete _pGraphViewZoom;
     delete _pGraphMarkers;
+    delete _pGraphIndicators;
     delete _pNoteHandling;
 }
 
@@ -177,6 +180,7 @@ void GraphView::clearGraph(const quint32 graphIdx)
 void GraphView::updateGraphs()
 {
     _pGraphMarkers->clearTracers();
+    _pGraphIndicators->clear();
 
     _pPlot->clearGraphs();
 
@@ -229,6 +233,7 @@ void GraphView::updateGraphs()
             pGraph->setData(pMap);
 
             _pGraphMarkers->addTracer(pGraph);
+            _pGraphIndicators->add(pGraph);
         }
     }
 
@@ -313,6 +318,7 @@ void GraphView::showGraph(quint32 graphIdx)
 
         _pPlot->graph(activeIdx)->setVisible(bShow);
         _pGraphMarkers->updateTracersVisibility();
+//        _pGraphIndicators->updateTracersVisibility(); TODO
 
         rescalePlot();
     }
