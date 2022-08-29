@@ -60,6 +60,7 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     // Setup handler for buttons
     connect(_pUi->btnImportFromMbc, &QPushButton::released, this, &RegisterDialog::showImportDialog);
     connect(_pUi->btnAddWizard, &QPushButton::released, this, &RegisterDialog::showAddRegisterDialog);
+    connect(_pUi->btnAdd, &QPushButton::released, this, &RegisterDialog::addRegister);
     connect(_pUi->btnRemove, &QPushButton::released, this, &RegisterDialog::removeRegisterRow);
     connect(_pGraphDataModel, &GraphDataModel::rowsInserted, this, &RegisterDialog::onRegisterInserted);
 }
@@ -84,6 +85,11 @@ void RegisterDialog::showAddRegisterDialog()
     {
         _pGraphDataModel->add(addRegisterDialog.graphData());
     }
+}
+
+void RegisterDialog::addRegister()
+{
+    _pGraphDataModel->add();
 }
 
 void RegisterDialog::showImportDialog()
