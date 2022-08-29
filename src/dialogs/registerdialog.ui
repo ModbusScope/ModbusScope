@@ -42,6 +42,13 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="btnAdd">
+       <property name="text">
+        <string>Add</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="btnAddWizard">
        <property name="text">
         <string>Add register (wizard)</string>
