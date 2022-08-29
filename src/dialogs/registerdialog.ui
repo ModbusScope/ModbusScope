@@ -51,14 +51,14 @@
      <item>
       <widget class="QPushButton" name="btnAddWizard">
        <property name="text">
-        <string>Add register (wizard)</string>
+        <string>Add (wizard)</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="btnRemove">
        <property name="text">
-        <string>Remove selected register</string>
+        <string>Remove selected</string>
        </property>
       </widget>
      </item>
@@ -91,6 +91,7 @@
  </widget>
  <tabstops>
   <tabstop>btnImportFromMbc</tabstop>
+  <tabstop>btnAdd</tabstop>
   <tabstop>btnAddWizard</tabstop>
   <tabstop>btnRemove</tabstop>
   <tabstop>registerView</tabstop>

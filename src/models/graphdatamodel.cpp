@@ -430,7 +430,7 @@ void GraphDataModel::add()
     GraphData data;
 
     quint32 registerAddr = 40001;
-    data.setLabel(QString("Register %1").arg(registerAddr));
+    data.setLabel("New curve");
     data.setExpression(QString("${%1}").arg(registerAddr));
 
     add(data);
