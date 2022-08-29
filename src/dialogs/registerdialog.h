@@ -25,7 +25,7 @@ public slots:
 
 private slots:
     void showImportDialog();
-    void addRegisterRow();
+    void showAddRegisterDialog();
     void removeRegisterRow();
     void activatedCell(QModelIndex modelIndex);
     void onRegisterInserted(const QModelIndex &parent, int first, int last);
