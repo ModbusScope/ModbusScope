@@ -12,6 +12,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 ### Added
 
 * Second Y-axis on right-side ([Github #188](https://github.com/jgeudens/ModbusScope/issues/188))
+* Add option to quickly add a register
 
 #### Fixed
 
