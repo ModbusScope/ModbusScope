@@ -69,16 +69,19 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 ## [v3.2.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.2.0) (03/04/2021)
 
 **Improvements**
+
 * Add more visible update notification
 * Make documentation and project page (with issue) more visible ([Github #152](https://github.com/jgeudens/ModbusScope/issues/152))
 
 **Fixes**
+
 * When data file is loaded, reset value in legend after inspection with `Control` key
 * Reset scaling to auto when clearing data
 
 ## [v3.1.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.1.0) (23/02/2021)
 
 **Improvements**
+
 * Add support for modbus RTU (serial port)
 * Add options to export diagnostic log
   * Copy specific logs to clipboard
@@ -88,6 +91,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 ## [v3.0.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.0.0) (14/11/2020)
 
 **Improvements**
+
 * Replace fixed operations (multiply, divide, shift, ...) with custom user-defined expression
   * [Link to doc](https://modbusscope.readthedocs.io/en/latest/pages/configuration.html#expressions)
   * Fixed operations will be automatically converted to custom expression on project load
@@ -113,6 +117,7 @@ When exporting the settings (project file), the new expression will be saved. Ol
 * Fix tooltip
 
 **Improvements**
+
 * Add support for 32 bit registers ([Github #129](https://github.com/jgeudens/ModbusScope/issues/129))
 * Add support for persistent connection (default on) ([Github #18](https://github.com/jgeudens/ModbusScope/issues/18))
 * Minimize scale dock
@@ -122,12 +127,14 @@ When exporting the settings (project file), the new expression will be saved. Ol
 ## [v2.0.0](https://github.com/jgeudens/ModbusScope/releases/tag/2.0.0) (03/03/2020)
 
 **Internal (code changes)**
-- Add more tests
-- Fix most issues reported by static code analysis (Coverity)
-- Change linking from static to dynamic
-  - Application changes from one large executable to a smaller executable with extra dll's
+
+* Add more tests
+* Fix most issues reported by static code analysis (Coverity)
+* Change linking from static to dynamic
+  * Application changes from one large executable to a smaller executable with extra dll's
 
 **Features**
+
 * Added possibility to poll 2 different slaves in the same log
 * Added possibility to change graph color from legend
 * Added filter (error/info) in diagnostics window
@@ -144,22 +151,28 @@ When exporting the settings (project file), the new expression will be saved. Ol
   * Add progress bar on file load ([Github #122](https://github.com/jgeudens/ModbusScope/issues/122))
 
 **Bugs**
+
 * Small bug fixes ([Github #111](https://github.com/jgeudens/ModbusScope/issues/111))
 
 ## v1.6.1 (06/04/2019)
 
 **Bugfixes**
+
 * Fix error when writing notes to imported data file ([Github #109](https://github.com/jgeudens/ModbusScope/issues/109))
 * Automatically remove field separator from register names ([Github #106](https://github.com/jgeudens/ModbusScope/issues/106))
 
 **Improvements**
+
 * When importing a mbc file already selected registers are now disabled dynamically.
 
 ## v1.6.0 (25/01/2019)
+
 Most of the work in this release isn't visible for the user. A complete rework of the communication module has been done. libmodbus was dropped in favor of Qt Modbus. The communication module has also been completely reworked to be able to implement integration and unit testing.
 
 ## v1.5.0 (02/10/2018)
+
 **Features**
+
 * Add support for notes (small texts in graph)
   * Editable (even after data load)
   * Saved with data in csv
@@ -167,16 +180,20 @@ Most of the work in this release isn't visible for the user. A complete rework o
 * Add tab filter when importing mbc files (implements [Github #96](https://github.com/jgeudens/ModbusScope/issues/96))
 
 **Bug fixes**
+
 * Fix slow drag issue ([Github #104](https://github.com/jgeudens/ModbusScope/issues/104))
 * Keep visibility state when adding/removing graphs ([Github #102](https://github.com/jgeudens/ModbusScope/issues/102))
 * Absolute time is off by 2 hours ([Github #103](https://github.com/jgeudens/ModbusScope/issues/103))
 
 **Under the hood**
+
 * Add initial unit tests for some modules
 * Add Travis build
 
 ## v1.4.0 (17/02/2018)
+
 **Features**
+
 * Rework Modbus communication code
 * Update libraries
   * QCustomPlot v2.0.0 (final)
@@ -186,27 +203,28 @@ Most of the work in this release isn't visible for the user. A complete rework o
 * Add logging ([Github #71](https://github.com/jgeudens/ModbusScope/issues/71))
 
 **Bugfixes**
+
 * Fix some minor bugs  ([Github #95](https://github.com/jgeudens/ModbusScope/issues/95)) (thanks to @pluyckx),  ([Github #89](https://github.com/jgeudens/ModbusScope/issues/89))
 
 ## v1.3.0 (01/04/2017)
+
 **Features**
-- Rework tooltip (show value under cursor in legend when control key is pressed) ([Github #90](https://github.com/jgeudens/ModbusScope/issues/90))
-- Import registers from mbc file (drag and drop or button in register dialog) ([Github #91](https://github.com/jgeudens/ModbusScope/issues/91))
-- Add window auto scale on y-axis ([Github #36](https://github.com/jgeudens/ModbusScope/issues/36))
-- Add meta data when exporting data (keep color when importing) ([Github #63](https://github.com/jgeudens/ModbusScope/issues/63))
-- Added extra marker calculations (minimum, maximum, average, median, slope, ...) ([Github #79](https://github.com/jgeudens/ModbusScope/issues/79))
-- Use delete button to remove registers ([Github #34](https://github.com/jgeudens/ModbusScope/issues/34))
-- Improve communication (only split Modbus read on specific Modbus exception)
-- Update QModbusPlot to v2.0.0 (beta)
-- Add command line argument to enable OpenGL (--opengl)
+
+* Rework tooltip (show value under cursor in legend when control key is pressed) ([Github #90](https://github.com/jgeudens/ModbusScope/issues/90))
+* Import registers from mbc file (drag and drop or button in register dialog) ([Github #91](https://github.com/jgeudens/ModbusScope/issues/91))
+* Add window auto scale on y-axis ([Github #36](https://github.com/jgeudens/ModbusScope/issues/36))
+* Add meta data when exporting data (keep color when importing) ([Github #63](https://github.com/jgeudens/ModbusScope/issues/63))
+* Added extra marker calculations (minimum, maximum, average, median, slope, ...) ([Github #79](https://github.com/jgeudens/ModbusScope/issues/79))
+* Use delete button to remove registers ([Github #34](https://github.com/jgeudens/ModbusScope/issues/34))
+* Improve communication (only split Modbus read on specific Modbus exception)
+* Update QModbusPlot to v2.0.0 (beta)
+* Add command line argument to enable OpenGL (--opengl)
 
 **Bugs**
-- Make sure legend window (when docked) is present on screenshot ([Github #80](https://github.com/jgeudens/ModbusScope/issues/80))
-- Small fixes ([Github #82](https://github.com/jgeudens/ModbusScope/issues/82),  [Github #83](https://github.com/jgeudens/ModbusScope/issues/83),  [Github #85](https://github.com/jgeudens/ModbusScope/issues/85), [Github #88](https://github.com/jgeudens/ModbusScope/issues/88))
+
+* Make sure legend window (when docked) is present on screenshot ([Github #80](https://github.com/jgeudens/ModbusScope/issues/80))
+* Small fixes ([Github #82](https://github.com/jgeudens/ModbusScope/issues/82),  [Github #83](https://github.com/jgeudens/ModbusScope/issues/83),  [Github #85](https://github.com/jgeudens/ModbusScope/issues/85), [Github #88](https://github.com/jgeudens/ModbusScope/issues/88))
 
 ## Older releases
 
-Older releases can be found on
-
-[Github]: https://github.com/jgeudens/ModbusScope/releases
-
+Older releases can be found on [Github](https://github.com/jgeudens/ModbusScope/releases)

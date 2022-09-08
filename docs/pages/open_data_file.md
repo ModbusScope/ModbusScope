@@ -31,7 +31,7 @@ Depending on the configured region, the format of the data will will be differen
 
 #### Supported data file format
 
-```
+```csv
 Time (ms);Datapoint 1;Datapoint 2;Datapoint 3
 2;0,02;0,2;2
 12;0,12;1,2;12
@@ -87,30 +87,29 @@ As mentioned before, a preset can be automatically selected based on the presenc
 
 ```xml
 <modbusscope>
-	<parsepreset>
-		<name>Default (be)</name>
-		<keyword>-be</keyword>
-		<fieldseparator><![CDATA[;]]></fieldseparator>
-		<decimalseparator><![CDATA[,]]></decimalseparator>
-		<thousandseparator><![CDATA[ ]]></thousandseparator>
-		<commentSequence><![CDATA[//]]></commentSequence>
-		<column>1</column>
-		<labelrow>1</labelrow>
-		<datarow>2</datarow>
-	</parsepreset>
-	
-	<parsepreset>
-		<name>be-seconds</name>
-		<fieldseparator><![CDATA[;]]></fieldseparator>
-		<decimalseparator><![CDATA[,]]></decimalseparator>
-		<thousandseparator><![CDATA[ ]]></thousandseparator>
-		<commentSequence><![CDATA[//]]></commentSequence>
-		<column>1</column>
-		<labelrow>1</labelrow>
-		<datarow>2</datarow>
-		<timeinmilliseconds>false</timeinmilliseconds>
-	</parsepreset>
+ <parsepreset>
+  <name>Default (be)</name>
+  <keyword>-be</keyword>
+  <fieldseparator><![CDATA[;]]></fieldseparator>
+  <decimalseparator><![CDATA[,]]></decimalseparator>
+  <thousandseparator><![CDATA[ ]]></thousandseparator>
+  <commentSequence><![CDATA[//]]></commentSequence>
+  <column>1</column>
+  <labelrow>1</labelrow>
+  <datarow>2</datarow>
+ </parsepreset>
+ 
+ <parsepreset>
+  <name>be-seconds</name>
+  <fieldseparator><![CDATA[;]]></fieldseparator>
+  <decimalseparator><![CDATA[,]]></decimalseparator>
+  <thousandseparator><![CDATA[ ]]></thousandseparator>
+  <commentSequence><![CDATA[//]]></commentSequence>
+  <column>1</column>
+  <labelrow>1</labelrow>
+  <datarow>2</datarow>
+  <timeinmilliseconds>false</timeinmilliseconds>
+ </parsepreset>
 
 </modbusscope>
 ```
-

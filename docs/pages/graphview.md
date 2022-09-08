@@ -36,7 +36,7 @@ It is possible to select a single axis to only zoom this axis by clicking it. Th
 
 *ModbusScope* can help in investigating dynamic behavior of a system by measuring times and value differences between two points in the graph. First two vertical markers have to be added.
 
-Add the left marker (green vertical line) by pressing *\<Ctrl>* and *\<Left mouse click>* on the place of interest. The position must coincide with a sample in the graph. Add the right marker (red vertical line) by pressing *\<Ctrl>* and *\<Right mouse click>* on the place of interest. 
+Add the left marker (green vertical line) by pressing *\<Ctrl>* and *\<Left mouse click>* on the place of interest. The position must coincide with a sample in the graph. Add the right marker (red vertical line) by pressing *\<Ctrl>* and *\<Right mouse click>* on the place of interest.
 
 On the right hand side the *Markers* panel will show information about the markers. Such as the value of the registers at *Time 1* (left hand marker) and *Time 2* (right hand marker). Also the time difference between the two markers or value difference between the two marked times.
 
