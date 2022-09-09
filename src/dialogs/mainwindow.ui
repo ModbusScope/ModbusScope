@@ -222,7 +222,7 @@
        <property name="flat">
         <bool>false</bool>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1">
+       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,2">
         <property name="sizeConstraint">
          <enum>QLayout::SetMinimumSize</enum>
         </property>
@@ -340,6 +340,19 @@
            </spacer>
           </item>
          </layout>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>
