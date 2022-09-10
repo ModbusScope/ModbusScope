@@ -158,18 +158,6 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <property name="minimumSize">
-    <size>
-     <width>1006</width>
-     <height>175</height>
-    </size>
-   </property>
-   <property name="maximumSize">
-    <size>
-     <width>524287</width>
-     <height>175</height>
-    </size>
-   </property>
    <property name="acceptDrops">
     <bool>false</bool>
    </property>
