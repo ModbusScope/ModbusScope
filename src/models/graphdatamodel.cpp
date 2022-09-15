@@ -414,7 +414,7 @@ void GraphDataModel::setExpression(quint32 index, QString expression)
 
 void GraphDataModel::add(GraphData rowData)
 {
-    addToModel(&rowData);
+    addToModel(rowData);
 }
 
 void GraphDataModel::add(QList<GraphData> graphDataList)
@@ -535,19 +535,19 @@ void GraphDataModel::modelCompleteDataChanged()
     emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
-void GraphDataModel::addToModel(GraphData * pGraphData)
+void GraphDataModel::addToModel(GraphData graphData)
 {
     /* Call function to prepare view */
     beginInsertRows(QModelIndex(), size(), size());
 
     /* Select color */
-    if (!pGraphData->color().isValid())
+    if (!graphData.color().isValid())
     {
         quint32 colorIndex = _graphData.size() % Util::cColorlist.size();
-        pGraphData->setColor(Util::cColorlist[colorIndex]);
+        graphData.setColor(Util::cColorlist[colorIndex]);
     }
 
-    _graphData.append(*pGraphData);
+    _graphData.append(graphData);
 
     updateActiveGraphList();
 
