@@ -95,7 +95,7 @@ private slots:
 
 private:
     void updateActiveGraphList(void);
-    void addToModel(GraphData * pGraphData);
+    void addToModel(GraphData graphData);
     void removeFromModel(qint32 row);
     void moveRow(int sourceRow, int destRow);
 
