@@ -44,7 +44,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: modbusscope
+          name: modbusscope-user-manual
           path: modbusscope-user-manual.pdf
 
   windows:
@@ -62,7 +62,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: modbusscope
+          name: modbusscope-windows
           path: |
             ModbusScope.zip
             ModbusScope_setup.exe
