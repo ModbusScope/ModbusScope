@@ -19,3 +19,5 @@ export APPIMAGE_EXTRACT_AND_RUN=1 # Workaround because FUSE isn't available in D
 ./linuxdeploy-x86_64.AppImage --appdir AppDir -e modbusscope -i ModbusScope.png -d ModbusScope.desktop --plugin qt --output appimage
 
 ls
+
+cp ModbusScope*.AppImage ../../../..

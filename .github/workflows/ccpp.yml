@@ -24,7 +24,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: modbusscope-linux
-          path: release/src/bin/linux/ModbusScope*.AppImage
+          path: ModbusScope*.AppImage
 
   docs:
     runs-on: ubuntu-20.04
