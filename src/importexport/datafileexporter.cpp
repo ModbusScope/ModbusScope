@@ -77,7 +77,6 @@ void DataFileExporter::exportDataFile(QString dataFile)
 {
     if (_pGraphDataModel->activeCount() != 0)
     {
-        const qint32 dataCount = _pGraphDataModel->dataMap(0)->size();
         QStringList logData;
 
         // Create header
@@ -107,6 +106,7 @@ void DataFileExporter::exportDataFile(QString dataFile)
             }
 
             // Add data lines
+            const qint32 dataCount = _pGraphDataModel->dataMap(activeGraphIndexes[0])->size();
             for(qint32 i = 0; i < dataCount; i++)
             {
                 QList<double> dataRowValues;
