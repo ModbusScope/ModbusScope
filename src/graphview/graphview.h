@@ -52,6 +52,7 @@ public slots:
 signals:
     void cursorValueUpdate();
     void dataAddedToPlot(double timeData, QList<double> dataList);
+    void afterGraphUpdate();
 
 private slots:
     void mousePress(QMouseEvent *event);
