@@ -19,13 +19,6 @@ DataFileExporter::DataFileExporter(GuiModel *pGuiModel, SettingsModel * pSetting
     _pNoteModel = pNoteModel;
 
     lastLogTime = QDateTime::currentMSecsSinceEpoch();
-
-    connect(_pGraphDataModel, &GraphDataModel::colorChanged, this, &DataFileExporter::rewriteDataFile);
-    connect(_pGraphDataModel, &GraphDataModel::activeChanged, this, &DataFileExporter::rewriteDataFile);
-    connect(_pGraphDataModel, &GraphDataModel::expressionChanged, this, &DataFileExporter::rewriteDataFile);
-    connect(_pGraphDataModel, &GraphDataModel::added, this, &DataFileExporter::rewriteDataFile);
-    connect(_pGraphDataModel, &GraphDataModel::moved, this, &DataFileExporter::rewriteDataFile);
-    connect(_pGraphDataModel, &GraphDataModel::removed, this, &DataFileExporter::rewriteDataFile);
 }
 
 DataFileExporter::~DataFileExporter()

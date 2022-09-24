@@ -235,6 +235,8 @@ void GraphView::updateGraphs()
     updateSecondaryAxisVisibility();
 
     _pPlot->replot();
+
+    emit afterGraphUpdate();
 }
 
 void GraphView::changeGraphColor(const quint32 graphIdx)

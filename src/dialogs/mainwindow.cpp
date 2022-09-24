@@ -125,13 +125,18 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
 
     connect(_pGraphDataModel, &GraphDataModel::visibilityChanged, this, &MainWindow::handleGraphVisibilityChange);
     connect(_pGraphDataModel, &GraphDataModel::visibilityChanged, _pGraphView, &GraphView::showGraph);
+
     connect(_pGraphDataModel, &GraphDataModel::graphsAddData, _pGraphView, &GraphView::addData);
     connect(_pGraphDataModel, &GraphDataModel::graphsAddData, this, &MainWindow::setAxisToAuto);
+
     connect(_pGraphDataModel, &GraphDataModel::activeChanged, this, &MainWindow::rebuildGraphMenu);
     connect(_pGraphDataModel, &GraphDataModel::activeChanged, _pGraphView, &GraphView::updateGraphs);
+
     connect(_pGraphDataModel, &GraphDataModel::colorChanged, this, &MainWindow::handleGraphColorChange);
     connect(_pGraphDataModel, &GraphDataModel::colorChanged, _pGraphView, &GraphView::changeGraphColor);
+
     connect(_pGraphDataModel, &GraphDataModel::valueAxisChanged, _pGraphView, &GraphView::changeGraphAxis);
+
     connect(_pGraphDataModel, &GraphDataModel::labelChanged, this, &MainWindow::handleGraphLabelChange);
 
     connect(_pGraphDataModel, &GraphDataModel::added, this, &MainWindow::rebuildGraphMenu);
@@ -144,6 +149,9 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pGraphDataModel, &GraphDataModel::removed, _pGraphView, &GraphView::updateGraphs);
 
     connect(_pGraphDataModel, &GraphDataModel::expressionChanged, _pGraphView, &GraphView::clearGraph);
+
+    connect(_pGraphDataModel, &GraphDataModel::colorChanged, _pDataFileHandler, &DataFileHandler::rewriteDataFile);
+    connect(_pGraphView, &GraphView::afterGraphUpdate, _pDataFileHandler, &DataFileHandler::rewriteDataFile);
 
     // Update cursor values in legend
     connect(_pGraphView, &GraphView::cursorValueUpdate, _pLegend, &Legend::updateDataInLegend);
