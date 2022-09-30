@@ -15,6 +15,7 @@ AppPublisher="jgeudens"
 AppPublisherURL=https://modbusscope.readthedocs.io
 AppSupportURL=https://github.com/jgeudens/ModbusScope
 AppUpdatesURL=https://modbusscope.readthedocs.io
+AppMutex=ModbusScope,Global\ModbusScope
 DefaultDirName={commonpf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
