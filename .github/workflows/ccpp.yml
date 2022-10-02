@@ -6,12 +6,9 @@ on: push
 jobs:
   linux:
     runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        container: ["5.15.2_build_3", "6.2.4_build_1"]
 
     container:
-      image: docker://jgeudens/qt-linux:${{ matrix.container }}
+      image: docker://jgeudens/qt-linux:6.2.4_build_1
     steps:
       - uses: actions/checkout@v2
 
@@ -27,7 +24,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: modbusscope-linux
-          path: release/src/bin/linux/ModbusScope*.AppImage
+          path: ModbusScope*.AppImage
 
   docs:
     runs-on: ubuntu-20.04
@@ -44,7 +41,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: modbusscope
+          name: modbusscope-user-manual
           path: modbusscope-user-manual.pdf
 
   windows:
@@ -62,7 +59,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: modbusscope
+          name: modbusscope-windows
           path: |
             ModbusScope.zip
             ModbusScope_setup.exe
