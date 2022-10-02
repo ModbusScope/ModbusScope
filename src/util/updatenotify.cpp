@@ -1,7 +1,6 @@
 
 #include <QRegularExpression>
 
-#include "util.h"
 #include "updatenotify.h"
 #include "versiondownloader.h"
 
@@ -31,11 +30,18 @@ void UpdateNotify::handleVersionData()
     _version = match.captured(1);
     _link = QUrl(_pVersionDownloader->url(), QUrl::StrictMode);
 
-    if (!_version.isEmpty() && _link.isValid())
+    QDate publishDate = QDate::fromString(_pVersionDownloader->publishDate(), Qt::ISODate);
+
+    if (!_version.isEmpty() && _link.isValid() && publishDate.isValid())
     {
         _bValidData = true;
 
         _versionState = checkVersions(_currentVersion, _version);
+
+        if (_versionState == VERSION_UPDATE_AVAILABLE)
+        {
+            _versionState = checkDate(publishDate);
+        }
 
         emit updateCheckResult(_versionState);
     }
@@ -79,6 +85,18 @@ UpdateNotify::UpdateState UpdateNotify::checkVersions(QString current, QString l
         {
             return VERSION_LATEST;
         }
+    }
+    else
+    {
+        return VERSION_LATEST;
+    }
+}
+
+UpdateNotify::UpdateState UpdateNotify::checkDate(QDate publishDate)
+{
+    if (publishDate.addDays(_cdaysDelay) < QDate::currentDate())
+    {
+        return VERSION_UPDATE_AVAILABLE;
     }
     else
     {

@@ -11,6 +11,7 @@ class MockVersionDownloader : public VersionDownloader {
         MOCK_METHOD(void, performCheck, ());
         MOCK_METHOD(QString, version, ());
         MOCK_METHOD(QString, url, ());
+        MOCK_METHOD(QString, publishDate, ());
 
 };
 

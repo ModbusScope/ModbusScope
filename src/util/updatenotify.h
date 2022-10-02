@@ -1,6 +1,7 @@
 #ifndef UPDATENOTIFY_H
 #define UPDATENOTIFY_H
 
+#include "qdatetime.h"
 #include <QObject>
 #include <QUrl>
 
@@ -37,6 +38,7 @@ private slots:
 private:
 
     UpdateState checkVersions(QString current, QString latest);
+    UpdateState checkDate(QDate publishDate);
 
     VersionDownloader* _pVersionDownloader;
 
@@ -44,9 +46,12 @@ private:
 
     QString _version;
     QUrl _link;
+    QDate _publishDate;
     bool _bValidData;
 
     UpdateNotify::UpdateState _versionState;
+
+    static const int32_t _cdaysDelay = 14;
 
 };
 
