@@ -8,8 +8,6 @@ Then press the *Start Logging* button. *ModbusScope* will start logging and will
 
 > **NOTE**: When restarting the logging using the *Start Logging* button any data already present in the graph will be cleared.
 
-![image](../_static/user_manual/start_logging.png)
-
 Once your test is finished the logging can be stopped by pressing the *Stop Logging* button. The logging will stop and the values can be inspected further.
 
 ![image](../_static/user_manual/stop_logging.png)
