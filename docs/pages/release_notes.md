@@ -2,6 +2,20 @@
 
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/jgeudens/ModbusScope/releases).
 
+## [Unreleased]
+
+### Changed
+
+*  x
+
+### Added
+
+* x
+
+### Fixed
+
+* x
+
 ## [v3.6.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.6.0) (02/10/2022)
 
 ### Changed
@@ -15,7 +29,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 * Second Y-axis on right-side ([Github #188](https://github.com/jgeudens/ModbusScope/issues/188))
 * Add option to quickly add a register
 
-#### Fixed
+### Fixed
 
 * Fix blurry tick labels in Qt6 build
 * Fix crash when there is no data and marker is active ([Github #223](https://github.com/jgeudens/ModbusScope/issues/223))
