@@ -30,10 +30,14 @@ private slots:
 
 private:
 
-    void configureServerData(QString version, QString url);
+    void configureServerData(QString version, QString url, QString publishDate);
     void checkServerCheck(QString version, UpdateNotify::UpdateState updateState);
 
     MockVersionDownloader* _pVersionDownloader;
+
+    QString _invalidPublishData;
+    QString _tooRecentPublishData;
+    QString _notRecentPublishData;
 
     static const QString _cVersion;
 

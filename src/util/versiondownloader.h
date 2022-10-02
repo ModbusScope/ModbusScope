@@ -17,6 +17,7 @@ public:
 
     virtual QString version();
     virtual QString url();
+    virtual QString publishDate();
 
 signals:
     void versionDownloaded();
@@ -29,6 +30,7 @@ private:
     QNetworkAccessManager _webCtrl;
     QString _version;
     QString _url;
+    QString _publishDate;
 
 };
 

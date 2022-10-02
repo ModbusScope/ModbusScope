@@ -30,6 +30,7 @@ void VersionDownloader::updateManifestDownloaded(QNetworkReply* pReply)
         QJsonDocument document = QJsonDocument::fromJson(pReply->readAll());
         QJsonObject rootObj = document.object();
 
+        _publishDate = rootObj["published_at"].toString();
         _version = rootObj["tag_name"].toString();
         _url = rootObj["html_url"].toString();
 
@@ -48,4 +49,9 @@ QString VersionDownloader::version()
 QString VersionDownloader::url()
 {
     return _url;
+}
+
+QString VersionDownloader::publishDate()
+{
+    return _publishDate;
 }

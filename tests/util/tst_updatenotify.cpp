@@ -31,6 +31,10 @@ void TestUpdateNotify::init()
     // IMPORTANT: This must be called before any mock object constructors
     GMockUtils::InitGoogleMock();
 
+    _invalidPublishData = "";
+    _tooRecentPublishData = QDate().currentDate().addDays(-13).toString(Qt::ISODate);
+    _notRecentPublishData = QDate().currentDate().addDays(-15).toString(Qt::ISODate);
+
     qRegisterMetaType<UpdateNotify::UpdateState>("UpdateNotify::UpdateState");
 
     _pVersionDownloader = new MockVersionDownloader();
@@ -69,7 +73,7 @@ void TestUpdateNotify::versionLowerMajor()
 
 void TestUpdateNotify::versionEqual()
 {
-    configureServerData(QString("v1.2.3"), QString("http://google.be"));
+    configureServerData(QString("v1.2.3"), QString("http://google.be"), _notRecentPublishData);
 
     UpdateNotify updateNotify(_pVersionDownloader, _cVersion);
 
@@ -105,7 +109,7 @@ void TestUpdateNotify::versionHigherMajor()
 
 void TestUpdateNotify::incorrectVersion()
 {
-    configureServerData(QString("v1.2"), QString("http://google.be"));
+    configureServerData(QString("v1.2"), QString("http://google.be"), _notRecentPublishData);
 
     UpdateNotify updateNotify(_pVersionDownloader, _cVersion);
 
@@ -118,7 +122,7 @@ void TestUpdateNotify::incorrectVersion()
 
 void TestUpdateNotify::incorrectUrl()
 {
-    configureServerData(QString("v1.2.3"), QString(" "));
+    configureServerData(QString("v1.2.3"), QString(" "), _notRecentPublishData);
 
     UpdateNotify updateNotify(_pVersionDownloader, _cVersion);
 
@@ -129,22 +133,24 @@ void TestUpdateNotify::incorrectUrl()
     QCOMPARE(spyUpdateResult.count(), 0);
 }
 
-void TestUpdateNotify::configureServerData(QString version, QString url)
+void TestUpdateNotify::configureServerData(QString version, QString url, QString publishDate)
 {
     EXPECT_CALL(*_pVersionDownloader, version())
-        .Times(1)
-        .WillOnce(Return(version))
+        .WillRepeatedly(Return(version))
         ;
 
     EXPECT_CALL(*_pVersionDownloader, url())
-        .Times(1)
-        .WillOnce(Return(url))
+        .WillRepeatedly(Return(url))
+        ;
+
+    EXPECT_CALL(*_pVersionDownloader, publishDate())
+        .WillRepeatedly(Return(publishDate))
         ;
 }
 
 void TestUpdateNotify::checkServerCheck(QString version, UpdateNotify::UpdateState updateState)
 {
-    configureServerData(version, QString("http://google.be"));
+    configureServerData(version, QString("http://google.be"), _notRecentPublishData);
 
     UpdateNotify updateNotify(_pVersionDownloader, _cVersion);
 
