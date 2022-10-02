@@ -3,6 +3,8 @@
 #define MyAppName "ModbusScope"
 #define MyAppExtension "mbs"
 #define MyAppExeName "ModbusScope.exe"
+#define MyAppLocation "deploy"
+#define MyAppVersion GetFileVersion(MyAppLocation + '\' + MyAppExeName)
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -10,7 +12,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{B5B201A8-51DE-418F-8BCF-F46686ED638C}
 AppName={#MyAppName}
-AppVersion=4.0.0 Beta
+AppVersion={#MyAppVersion}
 AppPublisher="jgeudens"
 AppPublisherURL=https://modbusscope.readthedocs.io
 AppSupportURL=https://github.com/ModbusScope/ModbusScope
@@ -34,7 +36,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "mbsfileextension"; Description: "Associate ""mbs"" extension"; GroupDescription: "File extensions:"; Flags: unchecked
 
 [Files]
-Source: "deploy\*"; DestDir: "{app}\"; Flags: ignoreversion recursesubdirs
+Source: "{#MyAppLocation}\*"; DestDir: "{app}\"; Flags: ignoreversion recursesubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
