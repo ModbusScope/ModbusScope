@@ -281,22 +281,27 @@ void GraphScale::zoomGraph()
 
     if (_pPlot->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
     {
-        _pPlot->axisRect()->setRangeZoom(_pPlot->xAxis->orientation());
+        _pPlot->axisRect()->setRangeZoom(Qt::Horizontal);
+        _pPlot->axisRect()->setRangeZoomAxes(_pPlot->xAxis, nullptr);
         _pGuiModel->setxAxisScale(AxisMode::SCALE_MANUAL);
     }
     else if (_pPlot->yAxis->selectedParts().testFlag(QCPAxis::spAxis))
     {
+        _pPlot->axisRect()->setRangeZoom(Qt::Vertical);
         _pPlot->axisRect()->setRangeZoomAxes(nullptr, _pPlot->yAxis);
         _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL);
     }
     else if (_pPlot->yAxis2->selectedParts().testFlag(QCPAxis::spAxis))
     {
+        _pPlot->axisRect()->setRangeZoom(Qt::Vertical);
         _pPlot->axisRect()->setRangeZoomAxes(nullptr, _pPlot->yAxis2);
         _pGuiModel->sety2AxisScale(AxisMode::SCALE_MANUAL);
     }
     else
     {
         _pPlot->axisRect()->setRangeZoom(Qt::Horizontal|Qt::Vertical);
+        auto yAxisList = QList<QCPAxis*>() << _pPlot->xAxis << _pPlot->yAxis << _pPlot->yAxis2;
+        _pPlot->axisRect()->setRangeZoomAxes(yAxisList);
         _pGuiModel->setxAxisScale(AxisMode::SCALE_MANUAL);
         _pGuiModel->setyAxisScale(AxisMode::SCALE_MANUAL);
         _pGuiModel->sety2AxisScale(AxisMode::SCALE_MANUAL);
