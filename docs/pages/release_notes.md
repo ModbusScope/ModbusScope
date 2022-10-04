@@ -2,19 +2,11 @@
 
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/jgeudens/ModbusScope/releases).
 
-## [Unreleased]
-
-### Changed
-
-*  x
-
-### Added
-
-* x
+## [v3.6.1](https://github.com/jgeudens/ModbusScope/releases/tag/3.6.1) (04/10/2022)
 
 ### Fixed
 
-* x
+* Fix zooming of axis with mouse wheel ([Github #234](https://github.com/jgeudens/ModbusScope/issues/234))
 
 ## [v3.6.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.6.0) (02/10/2022)
 
