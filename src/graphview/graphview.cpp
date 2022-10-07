@@ -233,7 +233,7 @@ void GraphView::updateGraphs()
             pGraph->setData(pMap);
 
             _pGraphMarkers->addTracer(pGraph);
-            _pGraphIndicators->add(pGraph);
+            _pGraphIndicators->add(graphIdx, pGraph);
         }
     }
 

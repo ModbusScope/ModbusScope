@@ -15,19 +15,19 @@ public:
     virtual ~GraphIndicators();
 
     void clear();
-    void add(QCPGraph* pGraph);
+    void add(quint32 graphIdx, QCPGraph* pGraph);
     void updateVisibility();
 
 private slots:
-    void axisRangeChanged(const QCPRange &newRange);
-    void setTracerPosition(double key);
+    void setTracerPosition(const QCPRange &newRange);
     void updateColor(quint32 graphIdx);
+    void updateValueAxis(quint32 graphIdx);
 
 private:
+    void configureValueAxis(quint32 graphIdx);
 
     GraphDataModel* _pGraphDataModel;
     ScopePlot* _pPlot;
-    QCPGraph* _pGraph;
 
     QList<QCPItemTracer *> _valueTracers;
     QList<QCPItemTracer *> _axisValueTracers;
