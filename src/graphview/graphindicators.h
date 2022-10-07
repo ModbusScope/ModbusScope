@@ -27,7 +27,8 @@ private:
     ScopePlot* _pPlot;
     QCPGraph* _pGraph;
 
-    QList<QCPItemTracer *> _axisTracerList;
+    QList<QCPItemTracer *> _valueTracers;
+    QList<QCPItemTracer *> _axisValueTracers;
 
 };
 

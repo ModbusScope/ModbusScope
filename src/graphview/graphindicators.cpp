@@ -28,26 +28,51 @@ GraphIndicators::~GraphIndicators()
 
 void GraphIndicators::clear()
 {
-    while(!_axisTracerList.isEmpty())
+    while(!_valueTracers.isEmpty())
     {
-        _pPlot->removeItem(_axisTracerList.last());
-        _axisTracerList.removeLast();
+        _pPlot->removeItem(_valueTracers.last());
+        _valueTracers.removeLast();
+
+        _pPlot->removeItem(_axisValueTracers.last());
+        _axisValueTracers.removeLast();
     }
 }
 
 void GraphIndicators::add(QCPGraph* pGraph)
-{    
-    auto tracer = new QCPItemTracer(_pPlot);
-    tracer->setStyle(QCPItemTracer::tsCircle);
-    tracer->setSize(8);
-    tracer->setInterpolating(true);
-    tracer->setLayer(QLatin1String("axes"));
-    tracer->setClipToAxisRect(false);
+{
+    /* Hidden tracer to get correct interpolated value */
+    auto valueTracer = new QCPItemTracer(_pPlot);
+    valueTracer->setVisible(false);
+    valueTracer->setInterpolating(true);
+    valueTracer->setGraph(pGraph);
+    valueTracer->setGraphKey(_pPlot->xAxis->range().lower);
 
-    tracer->setGraph(pGraph);
-    tracer->setGraphKey(_pPlot->xAxis->range().lower);
+    _valueTracers.append(valueTracer);
 
-    _axisTracerList.append(tracer);
+    /*
+     * Actual tracer: required because the hidden tracer is connected to graph
+     * When connected to a graph, the key will be limited to a valid range,
+     * which might not the correct position.
+     */
+    auto axisValueTracer = new QCPItemTracer(_pPlot);
+    axisValueTracer->setStyle(QCPItemTracer::tsCircle);
+    axisValueTracer->setSize(4u);
+
+    auto pen = axisValueTracer->pen();
+    pen.setWidth(axisValueTracer->size());
+    axisValueTracer->setPen(pen);
+
+    axisValueTracer->setVisible(true);
+    axisValueTracer->position->setTypeX(QCPItemPosition::ptAxisRectRatio);
+    axisValueTracer->position->setTypeY(QCPItemPosition::ptPlotCoords);
+    axisValueTracer->position->setAxisRect(_pPlot->yAxis->axisRect());
+    axisValueTracer->position->setAxes(nullptr, _pPlot->yAxis);
+    axisValueTracer->position->setCoords(0, 0);
+
+    axisValueTracer->setLayer(QLatin1String("axes"));
+    axisValueTracer->setClipToAxisRect(false);
+
+    _axisValueTracers.append(axisValueTracer);
 }
 
 void GraphIndicators::axisRangeChanged(const QCPRange &newRange)
@@ -65,8 +90,13 @@ void GraphIndicators::axisRangeChanged(const QCPRange &newRange)
 
 void GraphIndicators::setTracerPosition(double key)
 {
-    for (uint32_t idx = 0; idx < _axisTracerList.size(); idx++)
+    for (uint32_t idx = 0; idx < _valueTracers.size(); idx++)
     {
-        _axisTracerList[idx]->setGraphKey(key);
+        /* Use hidden tracer to get correct value */
+        _valueTracers[idx]->setGraphKey(key);
+        _valueTracers[idx]->updatePosition();
+
+        /* Set key to Y-axis intersection and value to interpolated value */
+        _axisValueTracers[idx]->position->setCoords(0, _valueTracers[idx]->position->value());
     }
 }
