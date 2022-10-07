@@ -16,10 +16,12 @@ public:
 
     void clear();
     void add(QCPGraph* pGraph);
+    void updateVisibility();
 
 private slots:
     void axisRangeChanged(const QCPRange &newRange);
     void setTracerPosition(double key);
+    void updateColor(quint32 graphIdx);
 
 private:
 
