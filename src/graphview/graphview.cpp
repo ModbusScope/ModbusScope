@@ -318,8 +318,7 @@ void GraphView::showGraph(quint32 graphIdx)
 
         _pPlot->graph(activeIdx)->setVisible(bShow);
         _pGraphMarkers->updateTracersVisibility();
-//        _pGraphIndicators->updateTracersVisibility(); TODO
-
+        _pGraphIndicators->updateVisibility();
         rescalePlot();
     }
 }

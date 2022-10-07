@@ -11,14 +11,10 @@ GraphIndicators::GraphIndicators(GraphDataModel * pGraphDataModel, ScopePlot* pP
     _pGraph(nullptr)
 {
 
-    /* TODO: Add visibility */
-
-
-    /* Handle color change */
     /* Handle axis changed */
 
-    /* rangeChanged */
     connect(_pPlot->xAxis, QOverload<const QCPRange &>::of(&QCPAxis::rangeChanged), this, &GraphIndicators::axisRangeChanged);
+    connect(_pGraphDataModel, &GraphDataModel::colorChanged, this, &GraphIndicators::updateColor);
 }
 
 GraphIndicators::~GraphIndicators()
@@ -40,6 +36,8 @@ void GraphIndicators::clear()
 
 void GraphIndicators::add(QCPGraph* pGraph)
 {
+    _pGraph = pGraph;
+
     /* Hidden tracer to get correct interpolated value */
     auto valueTracer = new QCPItemTracer(_pPlot);
     valueTracer->setVisible(false);
@@ -60,6 +58,7 @@ void GraphIndicators::add(QCPGraph* pGraph)
 
     auto pen = axisValueTracer->pen();
     pen.setWidth(axisValueTracer->size());
+    pen.setColor(_pGraph->pen().color());
     axisValueTracer->setPen(pen);
 
     axisValueTracer->setVisible(true);
@@ -73,6 +72,15 @@ void GraphIndicators::add(QCPGraph* pGraph)
     axisValueTracer->setClipToAxisRect(false);
 
     _axisValueTracers.append(axisValueTracer);
+}
+
+void GraphIndicators::updateVisibility()
+{
+    for (uint32_t idx = 0; idx < _valueTracers.size(); idx++)
+    {
+        const bool bVisibility = _pGraphDataModel->isVisible(idx);
+        _axisValueTracers[idx]->setVisible(bVisibility);
+    }
 }
 
 void GraphIndicators::axisRangeChanged(const QCPRange &newRange)
@@ -98,5 +106,16 @@ void GraphIndicators::setTracerPosition(double key)
 
         /* Set key to Y-axis intersection and value to interpolated value */
         _axisValueTracers[idx]->position->setCoords(0, _valueTracers[idx]->position->value());
+    }
+}
+
+void GraphIndicators::updateColor(quint32 graphIdx)
+{
+    Q_UNUSED(graphIdx);
+    if (graphIdx < _axisValueTracers.size())
+    {
+        auto pen = _axisValueTracers[graphIdx]->pen();
+        pen.setColor(_pGraphDataModel->color(graphIdx));
+        _axisValueTracers[graphIdx]->setPen(pen);
     }
 }
