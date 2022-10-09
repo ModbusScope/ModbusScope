@@ -81,6 +81,12 @@ void GraphIndicators::updateVisibility()
     }
 }
 
+void GraphIndicators::setFrontGraph(quint32 graphIdx)
+{
+    const qint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+    _axisValueTracers[activeIdx]->setLayer("topAxes");
+}
+
 void GraphIndicators::setTracerPosition(const QCPRange &newRange)
 {
     for (uint32_t idx = 0; idx < _valueTracers.size(); idx++)

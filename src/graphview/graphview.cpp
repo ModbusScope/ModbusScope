@@ -39,8 +39,11 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
     // Samples are enabled
     _bEnableSampleHighlight = true;
 
-    // Add layer to move graph on front
+    // Add layer to move graph in front
     _pPlot->addLayer("topMain", _pPlot->layer("main"), QCustomPlot::limAbove);
+
+    // Add layer to move graph indicator in front (axes)
+    _pPlot->addLayer("topAxes", _pPlot->layer("axes"), QCustomPlot::limAbove);
 
     // connect slots that takes care that when an axis is selected, only that direction can be dragged and zoomed:
     connect(_pPlot, &ScopePlot::mousePress, this, &GraphView::mousePress);
@@ -274,6 +277,7 @@ void GraphView::bringToFront()
     if (_pPlot->graphCount() > 0)
     {
         _pPlot->graph(_pGuiModel->frontGraph())->setLayer("topMain");
+        _pGraphIndicators->setFrontGraph(_pGuiModel->frontGraph());
         _pPlot->replot();
     }
 }
