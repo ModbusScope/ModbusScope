@@ -16,6 +16,7 @@ public:
 
     void clear();
     void add(quint32 graphIdx, QCPGraph* pGraph);
+    void setFrontGraph(quint32 graphIdx);
     void updateVisibility();
 
 private slots:
