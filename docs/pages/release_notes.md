@@ -6,7 +6,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Changed
 
-* x
+* Update notification is now only visible after 14 days since release
 
 ### Added
 
