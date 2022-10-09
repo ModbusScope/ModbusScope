@@ -75,7 +75,8 @@ void GraphIndicators::updateVisibility()
 {
     for (uint32_t idx = 0; idx < _valueTracers.size(); idx++)
     {
-        const bool bVisibility = _pGraphDataModel->isVisible(idx);
+        qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(idx);
+        const bool bVisibility = _pGraphDataModel->isVisible(graphIdx);
         _axisValueTracers[idx]->setVisible(bVisibility);
     }
 }
@@ -84,8 +85,9 @@ void GraphIndicators::setTracerPosition(const QCPRange &newRange)
 {
     for (uint32_t idx = 0; idx < _valueTracers.size(); idx++)
     {
-        const double key = _pGraphDataModel->valueAxis(idx) == GraphData::VALUE_AXIS_PRIMARY ? newRange.lower: newRange.upper;
-        const double axisRectCoord = _pGraphDataModel->valueAxis(idx) == GraphData::VALUE_AXIS_PRIMARY ? 0: 1;
+        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(idx);
+        const double key = _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_PRIMARY ? newRange.lower: newRange.upper;
+        const double axisRectCoord = _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_PRIMARY ? 0: 1;
 
         /* Use hidden tracer to get correct value */
         _valueTracers[idx]->setGraphKey(key);
@@ -98,13 +100,10 @@ void GraphIndicators::setTracerPosition(const QCPRange &newRange)
 
 void GraphIndicators::updateColor(quint32 graphIdx)
 {
-    Q_UNUSED(graphIdx);
-    if (graphIdx < _axisValueTracers.size())
-    {
-        auto pen = _axisValueTracers[graphIdx]->pen();
-        pen.setColor(_pGraphDataModel->color(graphIdx));
-        _axisValueTracers[graphIdx]->setPen(pen);
-    }
+    const qint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+    auto pen = _axisValueTracers[activeIdx]->pen();
+    pen.setColor(_pGraphDataModel->color(graphIdx));
+    _axisValueTracers[activeIdx]->setPen(pen);
 }
 
 void GraphIndicators::updateValueAxis(quint32 graphIdx)
@@ -116,7 +115,8 @@ void GraphIndicators::updateValueAxis(quint32 graphIdx)
 
 void GraphIndicators::configureValueAxis(quint32 graphIdx)
 {
+    const qint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
     auto valueAxis = _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_PRIMARY ? _pPlot->yAxis: _pPlot->yAxis2;
-    _axisValueTracers[graphIdx]->position->setAxisRect(valueAxis->axisRect());
-    _axisValueTracers[graphIdx]->position->setAxes(nullptr, valueAxis);
+    _axisValueTracers[activeIdx]->position->setAxisRect(valueAxis->axisRect());
+    _axisValueTracers[activeIdx]->position->setAxes(nullptr, valueAxis);
 }
