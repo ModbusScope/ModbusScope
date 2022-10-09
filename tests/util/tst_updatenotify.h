@@ -24,14 +24,17 @@ private slots:
     void versionHigherRevision();
     void versionHigherMinor();
     void versionHigherMajor();
+    void tooRecentDate();
+    void tooRecentNoUpdate();
 
     void incorrectVersion();
     void incorrectUrl();
+    void incorrectDate();
 
 private:
 
     void configureServerData(QString version, QString url, QString publishDate);
-    void checkServerCheck(QString version, UpdateNotify::UpdateState updateState);
+    void checkServerCheck(QString version, QString publishDate, UpdateNotify::UpdateState updateState);
 
     MockVersionDownloader* _pVersionDownloader;
 

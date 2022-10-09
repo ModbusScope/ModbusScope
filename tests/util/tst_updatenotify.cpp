@@ -58,17 +58,17 @@ void TestUpdateNotify::triggerDownloader()
 
 void TestUpdateNotify::versionLowerRevision()
 {
-    checkServerCheck(_cVersionLowerRevision, UpdateNotify::VERSION_LATEST);
+    checkServerCheck(_cVersionLowerRevision, _notRecentPublishData, UpdateNotify::VERSION_LATEST);
 }
 
 void TestUpdateNotify::versionLowerMinor()
 {
-    checkServerCheck(_cVersionLowerMinor, UpdateNotify::VERSION_LATEST);
+    checkServerCheck(_cVersionLowerMinor, _notRecentPublishData, UpdateNotify::VERSION_LATEST);
 }
 
 void TestUpdateNotify::versionLowerMajor()
 {
-    checkServerCheck(_cVersionLowerMajor, UpdateNotify::VERSION_LATEST);
+    checkServerCheck(_cVersionLowerMajor, _notRecentPublishData, UpdateNotify::VERSION_LATEST);
 }
 
 void TestUpdateNotify::versionEqual()
@@ -94,17 +94,28 @@ void TestUpdateNotify::versionEqual()
 
 void TestUpdateNotify::versionHigherRevision()
 {
-    checkServerCheck(_cVersionHigherRevision, UpdateNotify::VERSION_UPDATE_AVAILABLE);
+    checkServerCheck(_cVersionHigherRevision, _notRecentPublishData, UpdateNotify::VERSION_UPDATE_AVAILABLE);
 }
 
 void TestUpdateNotify::versionHigherMinor()
 {
-    checkServerCheck(_cVersionHigherMinor, UpdateNotify::VERSION_UPDATE_AVAILABLE);
+    checkServerCheck(_cVersionHigherMinor, _notRecentPublishData, UpdateNotify::VERSION_UPDATE_AVAILABLE);
 }
 
 void TestUpdateNotify::versionHigherMajor()
 {
-    checkServerCheck(_cVersionHigherMajor, UpdateNotify::VERSION_UPDATE_AVAILABLE);
+    checkServerCheck(_cVersionHigherMajor, _notRecentPublishData, UpdateNotify::VERSION_UPDATE_AVAILABLE);
+}
+
+void TestUpdateNotify::tooRecentDate()
+{
+    checkServerCheck(_cVersionHigherMajor, _tooRecentPublishData, UpdateNotify::VERSION_LATEST);
+}
+
+void TestUpdateNotify::tooRecentNoUpdate()
+{
+    /* No newer version + too recent */
+    checkServerCheck(_cVersionLowerMajor, _tooRecentPublishData, UpdateNotify::VERSION_LATEST);
 }
 
 void TestUpdateNotify::incorrectVersion()
@@ -133,6 +144,19 @@ void TestUpdateNotify::incorrectUrl()
     QCOMPARE(spyUpdateResult.count(), 0);
 }
 
+void TestUpdateNotify::incorrectDate()
+{
+    configureServerData(QString("v1.2.3"), QString("http://google.be"), _invalidPublishData);
+
+    UpdateNotify updateNotify(_pVersionDownloader, _cVersion);
+
+    QSignalSpy spyUpdateResult(&updateNotify, &UpdateNotify::updateCheckResult);
+
+    emit _pVersionDownloader->versionDownloaded();
+
+    QCOMPARE(spyUpdateResult.count(), 0);
+}
+
 void TestUpdateNotify::configureServerData(QString version, QString url, QString publishDate)
 {
     EXPECT_CALL(*_pVersionDownloader, version())
@@ -148,9 +172,9 @@ void TestUpdateNotify::configureServerData(QString version, QString url, QString
         ;
 }
 
-void TestUpdateNotify::checkServerCheck(QString version, UpdateNotify::UpdateState updateState)
+void TestUpdateNotify::checkServerCheck(QString version, QString publishDate, UpdateNotify::UpdateState updateState)
 {
-    configureServerData(version, QString("http://google.be"), _notRecentPublishData);
+    configureServerData(version, QString("http://google.be"), publishDate);
 
     UpdateNotify updateNotify(_pVersionDownloader, _cVersion);
 
