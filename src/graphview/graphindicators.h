@@ -17,7 +17,7 @@ public:
     void clear();
     void add(quint32 graphIdx, QCPGraph* pGraph);
     void setFrontGraph(quint32 graphIdx);
-    void updateVisibility();
+    void updateIndicatorVisibility();
 
 private slots:
     void setTracerPosition(const QCPRange &newRange);
@@ -25,7 +25,10 @@ private slots:
     void updateValueAxis(quint32 graphIdx);
 
 private:
+    void setTracerPosition();
     void configureValueAxis(quint32 graphIdx);
+    void updateVisibility();
+    bool determineVisibility(uint32_t activeIdx);
 
     GraphDataModel* _pGraphDataModel;
     ScopePlot* _pPlot;
