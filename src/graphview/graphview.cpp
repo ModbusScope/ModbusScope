@@ -312,7 +312,7 @@ void GraphView::addData(QList<double> timeData, QList<QList<double> > data)
     _pPlot->replot();
 }
 
-void GraphView::showGraph(quint32 graphIdx)
+void GraphView::handleGraphVisibilityChange(quint32 graphIdx)
 {
     if (_pGraphDataModel->isActive(graphIdx))
     {

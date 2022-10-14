@@ -118,7 +118,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pGuiModel, &GuiModel::zoomStateChanged, this, &MainWindow::handleZoomStateChanged);
 
     connect(_pGraphDataModel, &GraphDataModel::visibilityChanged, this, &MainWindow::handleGraphVisibilityChange);
-    connect(_pGraphDataModel, &GraphDataModel::visibilityChanged, _pGraphView, &GraphView::showGraph);
+    connect(_pGraphDataModel, &GraphDataModel::visibilityChanged, _pGraphView, &GraphView::handleGraphVisibilityChange);
 
     connect(_pGraphDataModel, &GraphDataModel::graphsAddData, _pGraphView, &GraphView::addData);
     connect(_pGraphDataModel, &GraphDataModel::graphsAddData, this, &MainWindow::setAxisToAuto);

@@ -98,7 +98,7 @@ void Legend::setModels(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel)
     connect(_pGraphDataModel, &GraphDataModel::added, this, &Legend::updateLegend);
     connect(_pGraphDataModel, &GraphDataModel::moved, this, &Legend::updateLegend);
     connect(_pGraphDataModel, &GraphDataModel::removed, this, &Legend::updateLegend);
-    connect(_pGraphDataModel, &GraphDataModel::visibilityChanged, this, &Legend::showGraph);
+    connect(_pGraphDataModel, &GraphDataModel::visibilityChanged, this, &Legend::changeGraphVisibility);
     connect(_pGraphDataModel, &GraphDataModel::colorChanged, this, &Legend::changeGraphColor);
     connect(_pGraphDataModel, &GraphDataModel::valueAxisChanged, this, &Legend::changeGraphAxis);
     connect(_pGraphDataModel, &GraphDataModel::labelChanged, this, &Legend::changeGraphLabel);
@@ -239,7 +239,7 @@ void Legend::updateLegend()
     }
 }
 
-void Legend::showGraph(quint32 graphIdx)
+void Legend::changeGraphVisibility(quint32 graphIdx)
 {
     const qint32 activeGraphIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
@@ -343,7 +343,7 @@ void Legend::addItem(quint32 graphIdx)
 
     _pLegendTable->setItem(row, cColummnText, new QTableWidgetItem(_pGraphDataModel->label(graphIdx)));
 
-    showGraph(graphIdx);
+    changeGraphVisibility(graphIdx);
 }
 
 void Legend::toggleItemVisibility(qint32 activeGraphIdx)
