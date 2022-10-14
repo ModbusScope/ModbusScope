@@ -5,7 +5,8 @@
 
 ScaleDock::ScaleDock(QWidget *parent) :
     QWidget(parent),
-    _pUi(new Ui::ScaleDock)
+    _pUi(new Ui::ScaleDock),
+    _pGuiModel(nullptr)
 {
     _pUi->setupUi(this);
 
