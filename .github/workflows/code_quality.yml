@@ -11,7 +11,7 @@ on:
 
 jobs:
   coverity:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     container: docker://jgeudens/qt-linux:6.2.4_build_1
     steps:
     - name: Checkout
