@@ -15,7 +15,7 @@ jobs:
     container: docker://jgeudens/qt-linux:6.2.4_build_1
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Start display server
       run: bash /start.sh &
@@ -24,7 +24,7 @@ jobs:
       run: cmake . -GNinja -DUSE_GCOV=ON
 
     - name: Analyse (Coverity)
-      uses: jgeudens/coverity-scan-action@v1.2.0
+      uses: vapier/coverity-scan-action@v1
       with:
         email: ${{ secrets.MAIL_ADDRESS }}
         token: ${{ secrets.COVERITY_SCAN_TOKEN }}

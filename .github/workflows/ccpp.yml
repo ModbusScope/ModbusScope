@@ -10,7 +10,7 @@ jobs:
     container:
       image: docker://jgeudens/qt-linux:6.2.4_build_1
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Start display server
         run: bash /start.sh &
@@ -32,7 +32,7 @@ jobs:
     container:
       image: docker://jgeudens/qt-linux:6.2.4_build_1
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Build doc
         run: |
@@ -48,7 +48,7 @@ jobs:
     runs-on: windows-2019
     
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install Qt installer
         run: pip3 install aqtinstall
