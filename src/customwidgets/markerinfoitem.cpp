@@ -223,7 +223,7 @@ double MarkerInfoItem::calculateMarkerExpressionValue(quint32 expressionMask)
 
     QSharedPointer<QCPGraphDataContainer> pDataMap = _pGraphDataModel->dataMap(graphIdx);
 
-    if (!pDataMap->isEmpty())
+    if (pDataMap->isEmpty())
     {
         return 0;
     }
