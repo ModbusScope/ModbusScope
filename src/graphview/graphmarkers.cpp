@@ -149,6 +149,7 @@ QCPItemTracer* GraphMarkers::createTracer(QCPGraph* pGraph)
     tracer->setStyle(QCPItemTracer::tsSquare);
     tracer->setSize(8);
     tracer->setInterpolating(true);
+    tracer->setLayer("topAxes");
     tracer->setGraph(pGraph);
 
     return tracer;
