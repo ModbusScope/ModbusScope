@@ -1,12 +1,13 @@
 
 #include "graphmarkers.h"
-
+#include "graphdatamodel.h"
 #include "guimodel.h"
 #include "graphview.h"
 
-GraphMarkers::GraphMarkers(GuiModel* pGuiModel, ScopePlot* pPlot, QObject *parent) :
+GraphMarkers::GraphMarkers(GraphDataModel * pGraphDataModel, GuiModel* pGuiModel, ScopePlot* pPlot, QObject *parent) :
     QObject(parent),
     _pGuiModel(pGuiModel),
+    _pGraphDataModel(pGraphDataModel),
     _pPlot(pPlot),
     _pGraphview(dynamic_cast<GraphView*>(parent))
 {
@@ -26,6 +27,8 @@ GraphMarkers::GraphMarkers(GuiModel* pGuiModel, ScopePlot* pPlot, QObject *paren
     connect(_pGuiModel, &GuiModel::markerStateChanged, this, &GraphMarkers::updateMarkersVisibility);
     connect(_pGuiModel, &GuiModel::startMarkerPosChanged, this, &GraphMarkers::setStartMarker);
     connect(_pGuiModel, &GuiModel::endMarkerPosChanged, this, &GraphMarkers::setEndMarker);
+
+    connect(_pGraphDataModel, &GraphDataModel::valueAxisChanged, this, &GraphMarkers::updateValueAxis);
 }
 
 GraphMarkers::~GraphMarkers()
@@ -40,17 +43,25 @@ void GraphMarkers::clearTracers()
         _pPlot->removeItem(_startTracerList.last());
         _startTracerList.removeLast();
     }
+
+    while(!_endTracerList.isEmpty())
+    {
+        _pPlot->removeItem(_endTracerList.last());
+        _endTracerList.removeLast();
+    }
 }
 
 void GraphMarkers::addTracer(QCPGraph* pGraph)
 {
-    auto tracer = createTracer(pGraph);
-    tracer->setGraphKey(_pGuiModel->startMarkerPos());
-    _startTracerList.append(tracer);
+    auto startTracer = createTracer(pGraph);
+    startTracer->setGraphKey(_pGuiModel->startMarkerPos());
+    _startTracerList.append(startTracer);
 
-    tracer = createTracer(pGraph);
-    tracer->setGraphKey(_pGuiModel->endMarkerPos());
-    _endTracerList.append(tracer);
+    auto endTracer = createTracer(pGraph);
+    endTracer->setGraphKey(_pGuiModel->endMarkerPos());
+    _endTracerList.append(endTracer);
+
+    updateTracersVisibility();
 }
 
 void GraphMarkers::updateTracersVisibility()
@@ -100,12 +111,26 @@ void GraphMarkers::setEndMarker()
     _pPlot->replot();
 }
 
+void GraphMarkers::updateValueAxis(quint32 graphIdx)
+{
+    const qint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+
+    if (activeIdx != -1)
+    {
+        auto valueAxis = _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_PRIMARY ? _pPlot->yAxis: _pPlot->yAxis2;
+        _startTracerList[activeIdx]->position->setAxes(_pPlot->xAxis, valueAxis);
+        _endTracerList[activeIdx]->position->setAxes(_pPlot->xAxis, valueAxis);
+    }
+}
+
 void GraphMarkers::setTracerVisibility(QList<QCPItemTracer *> &tracerList, bool bMarkerVisibility)
 {
-    for (auto tracer : tracerList)
+    for (uint32_t activeIdx = 0; activeIdx < tracerList.size(); activeIdx++)
     {
-        const bool bVisility = bMarkerVisibility && tracer->graph()->visible();
-        tracer->setVisible(bVisility);
+        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeIdx);
+
+        const bool bVisility = bMarkerVisibility && _pGraphDataModel->isVisible(graphIdx);
+        tracerList[activeIdx]->setVisible(bVisility);
     }
 }
 
@@ -120,7 +145,7 @@ void GraphMarkers::setTracerPosition(QList<QCPItemTracer *> &tracerList, double 
 QCPItemTracer* GraphMarkers::createTracer(QCPGraph* pGraph)
 {
     auto tracer = new QCPItemTracer(_pPlot);
-    tracer->setVisible(_pGuiModel->markerState() && pGraph->visible());
+    tracer->setVisible(false);
     tracer->setStyle(QCPItemTracer::tsSquare);
     tracer->setSize(8);
     tracer->setInterpolating(true);

@@ -54,7 +54,7 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
 
     _pGraphScale = new GraphScale(_pGuiModel, _pPlot, this);
     _pGraphViewZoom = new GraphViewZoom(_pGuiModel, _pPlot, this);
-    _pGraphMarkers = new GraphMarkers(_pGuiModel, _pPlot, this);
+    _pGraphMarkers = new GraphMarkers(pGraphDataModel, _pGuiModel, _pPlot, this);
     _pGraphIndicators = new GraphIndicators(_pGraphDataModel, _pPlot, this);
     _pNoteHandling = new NoteHandling(pNoteModel, _pPlot, this);
 
