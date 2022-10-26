@@ -14,7 +14,8 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Fixed
 
-* x
+* Fix marker data calculations ([Github #240](https://github.com/jgeudens/ModbusScope/issues/240))
+* Fix markers in combination with value axis ([Github #240](https://github.com/jgeudens/ModbusScope/issues/240))
 
 ## [v3.6.1](https://github.com/jgeudens/ModbusScope/releases/tag/3.6.1) (04/10/2022)
 
