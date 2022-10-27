@@ -1,0 +1,49 @@
+{
+  "name": "lucide-vue-next",
+  "version": "0.93.0",
+  "author": "Eric Fennis",
+  "description": "A Lucide icon library package for Vue 3 applications",
+  "license": "ISC",
+  "homepage": "https://lucide.dev",
+  "bugs": "https://github.com/lucide-icons/lucide/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lucide-icons/lucide.git",
+    "directory": "packages/lucide-vue-next"
+  },
+  "amdName": "lucide-vue-next",
+  "source": "build/lucide-vue-next.js",
+  "main": "dist/cjs/lucide-vue-next.js",
+  "main:umd": "dist/umd/lucide-vue-next.js",
+  "module": "dist/esm/lucide-vue-next.js",
+  "unpkg": "dist/umd/lucide-vue-next.min.js",
+  "typings": "dist/lucide-vue-next.d.ts",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "nuxt.js"
+  ],
+  "scripts": {
+    "build": "pnpm clean && pnpm copy:license && pnpm build:icons && pnpm build:es && pnpm build:types && pnpm build:bundles",
+    "copy:license": "cp ../../LICENSE ./LICENSE",
+    "clean": "rm -rf dist && rm -rf ./src/icons/*.js",
+    "build:icons": "node ../../scripts/buildIcons.mjs --output=./src --templateSrc=./scripts/exportTemplate.mjs  --renderUniqueKey",
+    "build:es": "babel src -d dist/esm",
+    "build:types": "node ./scripts/buildTypes.mjs",
+    "build:bundles": "rollup -c ./rollup.config.js",
+    "test": "jest",
+    "test:watch": "jest --watchAll",
+    "version": "pnpm version --git-tag-version=false"
+  },
+  "devDependencies": {
+    "@testing-library/vue": "^6.4.2",
+    "@vue/compiler-sfc": "3.0.6",
+    "@vue/test-utils": "2.0.0-rc.18",
+    "jest-serializer-vue": "^2.0.2",
+    "vue": "3.0.6",
+    "vue-jest": "^5.0.0-alpha.10"
+  },
+  "peerDependencies": {
+    "vue": ">=3.0.1"
+  }
+}
