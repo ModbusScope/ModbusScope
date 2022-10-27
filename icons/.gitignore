@@ -1,0 +1,17 @@
+.DS_Store
+.idea
+.next
+.obsidian
+.now
+.idea
+node_modules
+dist
+build
+sandbox
+stash
+coverage
+stats
+*.log
+packages/**/src/icons/*.js
+packages/**/src/icons/*.ts
+packages/**/LICENSE

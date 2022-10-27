@@ -20,3 +20,8 @@ manifest:
     dst: tests/googletest
     tag: release-1.11.0
     repo-path: google/googletest
+
+  - name: lucide-icons
+    dst: icons
+    tag: v0.95.0
+    repo-path: lucide-icons/lucide.git
