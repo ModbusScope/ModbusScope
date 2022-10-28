@@ -482,6 +482,10 @@
    </property>
   </action>
   <action name="actionUpdateAvailable">
+   <property name="icon">
+    <iconset resource="../../resources.qrc">
+     <normaloff>:/menu_icon/icons/icons/bell-ring.svg</normaloff>:/menu_icon/icons/icons/bell-ring.svg</iconset>
+   </property>
    <property name="text">
     <string>Update</string>
    </property>
