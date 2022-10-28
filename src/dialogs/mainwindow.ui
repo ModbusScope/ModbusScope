@@ -111,7 +111,6 @@
     <addaction name="actionHighlightSamplePoints"/>
     <addaction name="separator"/>
     <addaction name="actionClearData"/>
-    <addaction name="actionToggleMarkers"/>
     <addaction name="separator"/>
     <addaction name="actionManageNotes"/>
    </widget>
@@ -126,9 +125,12 @@
    </property>
    <property name="iconSize">
     <size>
-     <width>16</width>
-     <height>16</height>
+     <width>24</width>
+     <height>24</height>
     </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -136,20 +138,13 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionOpenProjectFile"/>
-   <addaction name="actionOpenDataFile"/>
-   <addaction name="separator"/>
-   <addaction name="actionSaveDataFile"/>
-   <addaction name="actionExportImage"/>
-   <addaction name="separator"/>
-   <addaction name="actionConnectionSettings"/>
-   <addaction name="actionLogSettings"/>
    <addaction name="actionRegisterSettings"/>
    <addaction name="separator"/>
    <addaction name="actionStart"/>
    <addaction name="actionStop"/>
    <addaction name="separator"/>
    <addaction name="actionZoom"/>
+   <addaction name="actionToggleMarkers"/>
   </widget>
   <widget class="QDockWidget" name="scaleOptionsDock">
    <property name="sizePolicy">
@@ -308,12 +303,14 @@
   </action>
   <action name="actionStart">
    <property name="icon">
-    <iconset>
-     <normalon>:/menu_icon/menu_icon/icons/control_play_blue.png</normalon>
-    </iconset>
+    <iconset resource="../../resources.qrc">
+     <normaloff>:/menu_icon/icons/icons/play-circle.svg</normaloff>:/menu_icon/icons/icons/play-circle.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Start logging</string>
+   </property>
+   <property name="iconText">
+    <string>Start</string>
    </property>
   </action>
   <action name="actionStop">
@@ -321,36 +318,28 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normalon>:/menu_icon/menu_icon/icons/control_stop_blue.png</normalon>
-    </iconset>
+    <iconset resource="../../resources.qrc">
+     <normaloff>:/menu_icon/icons/icons/stop-circle.svg</normaloff>:/menu_icon/icons/icons/stop-circle.svg</iconset>
    </property>
    <property name="text">
     <string>Stop &amp;logging</string>
+   </property>
+   <property name="iconText">
+    <string>Stop</string>
+   </property>
+   <property name="toolTip">
+    <string>Stop logging</string>
    </property>
   </action>
   <action name="actionSaveDataFile">
    <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="icon">
-    <iconset>
-     <normalon>:/menu_icon/menu_icon/icons/table_go.png</normalon>
-    </iconset>
-   </property>
    <property name="text">
     <string>Save Data &amp;File As...</string>
    </property>
-   <property name="toolTip">
-    <string>Save Data File</string>
-   </property>
   </action>
   <action name="actionOpenProjectFile">
-   <property name="icon">
-    <iconset>
-     <normalon>:/menu_icon/menu_icon/icons/folder.png</normalon>
-    </iconset>
-   </property>
    <property name="text">
     <string>&amp;Open Project...</string>
    </property>
@@ -362,21 +351,11 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="icon">
-    <iconset>
-     <normalon>:/menu_icon/menu_icon/icons/picture_go.png</normalon>
-    </iconset>
-   </property>
    <property name="text">
     <string>E&amp;xport Image As...</string>
    </property>
   </action>
   <action name="actionAbout">
-   <property name="icon">
-    <iconset>
-     <normalon>:/menu_icon/menu_icon/icons/information.png</normalon>
-    </iconset>
-   </property>
    <property name="text">
     <string>&amp;About...</string>
    </property>
@@ -390,11 +369,6 @@
    </property>
   </action>
   <action name="actionOpenDataFile">
-   <property name="icon">
-    <iconset>
-     <normalon>:/menu_icon/menu_icon/icons/folder_page.png</normalon>
-    </iconset>
-   </property>
    <property name="text">
     <string>Open &amp;Data File...</string>
    </property>
@@ -429,9 +403,8 @@
   </action>
   <action name="actionConnectionSettings">
    <property name="icon">
-    <iconset>
-     <normalon>:/menu_icon/menu_icon/icons/link_edit.png</normalon>
-    </iconset>
+    <iconset resource="../../resources.qrc">
+     <normaloff>:/menu_icon/icons/icons/network.svg</normaloff>:/menu_icon/icons/icons/network.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Connection Settings...</string>
@@ -439,9 +412,8 @@
   </action>
   <action name="actionRegisterSettings">
    <property name="icon">
-    <iconset>
-     <normalon>:/menu_icon/menu_icon/icons/table_edit.png</normalon>
-    </iconset>
+    <iconset resource="../../resources.qrc">
+     <normaloff>:/menu_icon/icons/icons/list.svg</normaloff>:/menu_icon/icons/icons/list.svg</iconset>
    </property>
    <property name="text">
     <string>Re&amp;gister settings...</string>
@@ -449,17 +421,23 @@
   </action>
   <action name="actionLogSettings">
    <property name="icon">
-    <iconset>
-     <normalon>:/menu_icon/menu_icon/icons/database_edit.png</normalon>
-    </iconset>
+    <iconset resource="../../resources.qrc">
+     <normaloff>:/menu_icon/icons/icons/settings-2.svg</normaloff>:/menu_icon/icons/icons/settings-2.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Log Settings...</string>
    </property>
   </action>
   <action name="actionToggleMarkers">
+   <property name="icon">
+    <iconset resource="../../resources.qrc">
+     <normaloff>:/menu_icon/icons/icons/align-horizontal-space-around.svg</normaloff>:/menu_icon/icons/icons/align-horizontal-space-around.svg</iconset>
+   </property>
    <property name="text">
     <string>Toggle &amp;Markers</string>
+   </property>
+   <property name="iconText">
+    <string>Markers</string>
    </property>
    <property name="toolTip">
     <string>Toggle Markers</string>
@@ -469,19 +447,11 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="icon">
-    <iconset resource="../../resources/resource.qrc">
-     <normaloff>:/menu_icon/menu_icon/icons/folder_go.png</normaloff>:/menu_icon/menu_icon/icons/folder_go.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Save Project As...</string>
    </property>
   </action>
   <action name="actionDiagnostic">
-   <property name="icon">
-    <iconset resource="../../resources/resource.qrc">
-     <normaloff>:/menu_icon/menu_icon/icons/plugin_error.png</normaloff>:/menu_icon/menu_icon/icons/plugin_error.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Diagnostic logs</string>
    </property>
@@ -501,8 +471,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../../resources/resource.qrc">
-     <normaloff>:/menu_icon/menu_icon/icons/magnifier.png</normaloff>:/menu_icon/menu_icon/icons/magnifier.png</iconset>
+    <iconset resource="../../resources.qrc">
+     <normaloff>:/menu_icon/icons/icons/zoom-in.svg</normaloff>:/menu_icon/icons/icons/zoom-in.svg</iconset>
    </property>
    <property name="text">
     <string>Zoom</string>
@@ -512,10 +482,6 @@
    </property>
   </action>
   <action name="actionUpdateAvailable">
-   <property name="icon">
-    <iconset resource="../../resources/resource.qrc">
-     <normaloff>:/menu_icon/menu_icon/icons/exclamation.png</normaloff>:/menu_icon/menu_icon/icons/exclamation.png</iconset>
-   </property>
    <property name="text">
     <string>Update</string>
    </property>
@@ -527,10 +493,6 @@
    </property>
   </action>
   <action name="actionOnlineDocumentation">
-   <property name="icon">
-    <iconset resource="../../resources/resource.qrc">
-     <normaloff>:/menu_icon/menu_icon/icons/help.png</normaloff>:/menu_icon/menu_icon/icons/help.png</iconset>
-   </property>
    <property name="text">
     <string>Online documentation...</string>
    </property>
@@ -572,7 +534,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../resources/resource.qrc"/>
+  <include location="../../resources.qrc"/>
  </resources>
  <connections/>
 </ui>
