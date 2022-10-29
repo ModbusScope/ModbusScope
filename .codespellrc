@@ -1,2 +1,2 @@
 [codespell]
-skip = ./libraries,./tests/googletest,./resources
+skip = ./libraries,./tests/googletest,./resources,./icons
