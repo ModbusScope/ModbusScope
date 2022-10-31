@@ -69,4 +69,9 @@ void MainApp::logInitialInfo()
     qCInfo(scopeGeneralInfo) << QString("Qt library v%1").arg(QLibraryInfo::version().toString());
 
     qCInfo(scopeGeneralInfo) << QString("OS: %1").arg(QSysInfo::prettyProductName());
+
+    qCInfo(scopeGeneralInfo) << QString("Locale language code: %1").arg(QLocale().bcp47Name());
+    qCInfo(scopeGeneralInfo) << QString("Locale decimal separator: %1").arg(QLocale().decimalPoint());
+    qCInfo(scopeGeneralInfo) << QString("Locale group separator: %1").arg(QLocale().groupSeparator());
+
 }
