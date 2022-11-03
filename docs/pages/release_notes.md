@@ -2,6 +2,13 @@
 
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/jgeudens/ModbusScope/releases).
 
+## [Unreleased]
+
+### Fixed
+
+* Fix marker data calculations ([Github #240](https://github.com/jgeudens/ModbusScope/issues/240))
+* Fix markers in combination with value axis ([Github #240](https://github.com/jgeudens/ModbusScope/issues/240))
+
 ## [v3.6.1](https://github.com/jgeudens/ModbusScope/releases/tag/3.6.1) (04/10/2022)
 
 ### Fixed
@@ -12,9 +19,9 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Changed
 
-*  When starting only set scaling to auto when it is set to manual ([Github #210](https://github.com/jgeudens/ModbusScope/issues/210))
-*  Improve import/export of csv data (especially when modifying file in Excel) ([Github #220](https://github.com/jgeudens/ModbusScope/issues/220))
-*  Remove unused space in scale dock
+* When starting only set scaling to auto when it is set to manual ([Github #210](https://github.com/jgeudens/ModbusScope/issues/210))
+* Improve import/export of csv data (especially when modifying file in Excel) ([Github #220](https://github.com/jgeudens/ModbusScope/issues/220))
+* Remove unused space in scale dock
 
 ### Added
 
