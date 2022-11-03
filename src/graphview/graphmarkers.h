@@ -7,12 +7,13 @@
 // Forward declaration
 class GuiModel;
 class GraphView;
+class GraphDataModel;
 
 class GraphMarkers : public QObject
 {
     Q_OBJECT
 public:
-    explicit GraphMarkers(GuiModel* pGuiModel, ScopePlot* pPlot, QObject *parent = nullptr);
+    explicit GraphMarkers(GraphDataModel *pGraphDataModel, GuiModel* pGuiModel, ScopePlot* pPlot, QObject *parent = nullptr);
     virtual ~GraphMarkers();
 
     void clearTracers();
@@ -23,6 +24,7 @@ private slots:
     void updateMarkersVisibility();
     void setStartMarker();
     void setEndMarker();
+    void updateValueAxis(quint32 graphIdx);
 
 private:
 
@@ -31,6 +33,7 @@ private:
     QCPItemTracer* createTracer(QCPGraph* pGraph);
 
     GuiModel* _pGuiModel;
+    GraphDataModel * _pGraphDataModel;
     ScopePlot* _pPlot;
     GraphView* _pGraphview;
 
