@@ -7,10 +7,17 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 ### Changed
 
 * Update notification is now only visible after 14 days since release
+* Improve marker indicators (Z-order)
 
 ### Added
 
 * x
+
+### Fixed
+
+* x
+
+## [v3.6.2](https://github.com/jgeudens/ModbusScope/releases/tag/3.6.2) (06/11/2022)
 
 ### Fixed
 
@@ -27,9 +34,9 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Changed
 
-*  When starting only set scaling to auto when it is set to manual ([Github #210](https://github.com/jgeudens/ModbusScope/issues/210))
-*  Improve import/export of csv data (especially when modifying file in Excel) ([Github #220](https://github.com/jgeudens/ModbusScope/issues/220))
-*  Remove unused space in scale dock
+* When starting only set scaling to auto when it is set to manual ([Github #210](https://github.com/jgeudens/ModbusScope/issues/210))
+* Improve import/export of csv data (especially when modifying file in Excel) ([Github #220](https://github.com/jgeudens/ModbusScope/issues/220))
+* Remove unused space in scale dock
 
 ### Added
 
