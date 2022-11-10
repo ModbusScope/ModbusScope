@@ -1,8 +1,10 @@
+# This is a generated file by dfetch. Don't edit this, but edit the manifest.
+# For more info see https://dfetch.rtfd.io/en/latest/getting_started.html
 dfetch:
-  branch: qt62_fix
-  hash: 010f76eba28a5fb0ac2109ca97c1fda7
-  last_fetch: 21/01/2022, 21:57:36
+  branch: v2.1.1
+  hash: d3eb46e886543ee270971502ab26f23f
+  last_fetch: 10/11/2022, 21:28:01
   patch: ''
   remote_url: https://github.com/jgeudens/qcustomplot-release
-  revision: 3a0f90995d2baaaf005f4a17256a4829f39e60aa
+  revision: d8cca69ccd94e6bce6e9047105a9e452ff0a6cc5
   tag: ''

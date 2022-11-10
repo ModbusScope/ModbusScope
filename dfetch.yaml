@@ -13,7 +13,7 @@ manifest:
 
   - name: qcustomplot
     dst: libraries/qcustomplot
-    branch: qt62_fix
+    branch: v2.1.1
     repo-path: jgeudens/qcustomplot-release
 
   - name: googletest
