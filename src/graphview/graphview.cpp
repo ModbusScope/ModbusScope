@@ -60,8 +60,6 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
 
     updateSecondaryAxisVisibility();
 
-    screenChanged(_pPlot->screen());
-
     _pPlot->replot();
 }
 
@@ -379,14 +377,6 @@ void GraphView::clearResults()
     }
 
     rescalePlot();
-}
-
-void GraphView::screenChanged(QScreen *screen)
-{
-    /* https://phabricator.kde.org/D20171 */
-    _pPlot->setBufferDevicePixelRatio(screen->devicePixelRatio());
-
-    _pPlot->replot();
 }
 
 void GraphView::showMarkers()
