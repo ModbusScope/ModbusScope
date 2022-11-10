@@ -180,9 +180,6 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
 
     this->setAcceptDrops(true);
 
-    this->winId(); // Ensures the native window has been created.
-    connect(this->windowHandle(), &QWindow::screenChanged, _pGraphView, &GraphView::screenChanged);
-
     // For dock undock
     connect(_pUi->scaleOptionsDock, &QDockWidget::topLevelChanged, this, &MainWindow::scaleWidgetUndocked);
     connect(_pUi->legendDock, &QDockWidget::topLevelChanged, this, &MainWindow::legendWidgetUndocked);

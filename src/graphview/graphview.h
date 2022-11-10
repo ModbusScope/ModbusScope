@@ -48,7 +48,6 @@ public slots:
     void rescalePlot();
     void plotResults(QList<bool> successList, QList<double> valueList);
     void clearResults();
-    void screenChanged(QScreen *screen);
 
 signals:
     void cursorValueUpdate();
