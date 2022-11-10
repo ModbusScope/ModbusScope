@@ -7,7 +7,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS
+find_package(Qt6 COMPONENTS
     Widgets
     PrintSupport
 
@@ -15,8 +15,8 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS
 )
 
 set(QT_PLOT_LIB
-    Qt::Widgets
-    Qt::PrintSupport
+    Qt6::Widgets
+    Qt6::PrintSupport
 )
 
 include_directories(
