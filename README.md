@@ -1,4 +1,4 @@
-<img src="./resources/icon/icon-256x256.png" alt="modbusscope logo" title="ModbusScope" align="right" height="100" />
+<img src="./resources/icon/icon-256x256.png" alt="modbusscope logo" title="ModbusScope" align="right" height="150" />
 
 Docs: [![Documentation Status](https://readthedocs.org/projects/modbusscope/badge/?version=latest)](https://modbusscope.readthedocs.io/en/latest/?badge=latest)
 
@@ -21,3 +21,9 @@ Docs are available at [https://modbusscope.readthedocs.io](https://modbusscope.r
 ## Contributing
 
 Please [open a new issue](https://github.com/jgeudens/ModbusScope/issues) to report bugs or [create a pull request](https://github.com/jgeudens/ModbusScope/pulls) to send patches.
+
+## Credits
+
+* [QCustomPlot](https://www.qcustomplot.com/)
+* [muparser](https://beltoforion.de/en/muparser/)
+* [Lucide icons](https://lucide.dev/)
