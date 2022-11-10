@@ -2,6 +2,7 @@
 #include "ui_aboutdialog.h"
 
 #include "qcustomplot.h"
+#include "muParserDef.h"
 
 #include <QDesktopServices>
 #include <QUrl>
@@ -94,11 +95,13 @@ void AboutDialog::setLibraryVersionInfo()
 {
     QString qtVersion(QLibraryInfo::version().toString());
     QString plotVersion(QCUSTOMPLOT_VERSION_STR);
+    QString parserVersion = QString::fromStdWString(mu::ParserVersion);
 
     QString aboutText = _pUi->textAbout->toHtml();
 
     aboutText.replace("QT_VERSION", qtVersion);
     aboutText.replace("QCUSTOM_PLOT_VERSION", plotVersion);
+    aboutText.replace("MUPARSER_VERSION", parserVersion);
 
     _pUi->textAbout->setHtml(aboutText);
 }
