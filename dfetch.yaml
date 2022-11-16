@@ -8,7 +8,7 @@ manifest:
   projects:
   - name: muparser
     dst: libraries/muparser
-    tag: v2.3.3-1
+    tag: v2.3.4
     repo-path: beltoforion/muparser
 
   - name: qcustomplot
