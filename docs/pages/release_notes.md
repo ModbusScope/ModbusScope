@@ -8,10 +8,11 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 * Update notification is now only visible after 14 days since release
 * Improve marker indicators (Z-order)
+* Update dependencies
 
 ### Added
 
-* x
+* Add indicator on axis to indicate value axis configuration of curve
 
 ### Fixed
 
