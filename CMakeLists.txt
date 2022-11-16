@@ -39,11 +39,6 @@ set(QT_LIB
     Qt::SerialPort
 )
 
-# Enable _UNICODE build of MuParser on Linux
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    add_definitions(-D_UNICODE)
-endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/communication
     ${CMAKE_CURRENT_SOURCE_DIR}/src/customwidgets
