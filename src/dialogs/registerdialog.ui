@@ -13,11 +13,6 @@
   <property name="windowTitle">
    <string>Register settings</string>
   </property>
-  <property name="windowIcon">
-   <iconset>
-    <normalon>:/menu_icon/menu_icon/icons/table_edit.png</normalon>
-   </iconset>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
