@@ -13,11 +13,6 @@
   <property name="windowTitle">
    <string>Connection settings</string>
   </property>
-  <property name="windowIcon">
-   <iconset>
-    <normalon>:/menu_icon/menu_icon/icons/link_edit.png</normalon>
-   </iconset>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QTabWidget" name="tabConnection">
