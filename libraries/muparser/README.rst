@@ -13,18 +13,30 @@
 .. image:: https://repology.org/badge/tiny-repos/muparser.svg
     :target: https://repology.org/project/muparser/versions
 
+muparser - fast math parser library
+===================================
 
-muparser - Fast Math Parser 2.3.3 
+.. image:: http://beltoforion.de/en/muparser/images/title.webp 
+
+Change Notes for Revision 2.3.4  
 ===========================
-.. image:: http://beltoforion.de/en/muparser/images/title.jpg
- 
 
+Maintainance Release with updates of the cmake build system.
+
+Build System:  
+------------
+- cmake is using OpenMP target and setting _UNICODE preprocessor definition
+
+Fixed Compiler Warnings:
+-----------
+- fix for https://github.com/beltoforion/muparser/issues/117 (sprintf deprecated)
+
+Change Notes for Revision 2.3.3  
+===========================
 To read the full documentation please go to: http://beltoforion.de/en/muparser.
 
 See Install.txt for installation
 
-Change Notes for Revision 2.3.3  
-===========================
 Security Fixes:  
 ------------
 The following new issues, discovered by oss-fuzz are fixed: 
@@ -36,9 +48,9 @@ The following new issues, discovered by oss-fuzz are fixed:
 Bugfixes:
 -----------
 * Fixed a couple of issues for building the C-Interface (muParserDLL.cpp/.h) with wide character support.
-* fix for #93 (https://github.com/beltoforion/muparser/issues/93)
-* fix for #94 (https://github.com/beltoforion/muparser/issues/94)
-* fix for #110 (https://github.com/beltoforion/muparser/issues/110); new expression size limit is 20000
+* fix for https://github.com/beltoforion/muparser/issues/93
+* fix for https://github.com/beltoforion/muparser/issues/94
+* fix for https://github.com/beltoforion/muparser/issues/110; new expression size limit is 20000
 
 Fixed Compiler Warnings:
 -----------

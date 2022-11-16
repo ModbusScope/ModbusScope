@@ -1,8 +1,10 @@
+# This is a generated file by dfetch. Don't edit this, but edit the manifest.
+# For more info see https://dfetch.rtfd.io/en/latest/getting_started.html
 dfetch:
   branch: master
-  hash: 1af88e7d9e88c47be18ad2de04c22ad4
-  last_fetch: 10/02/2022, 20:26:17
+  hash: 3cbb573cc8d9333b8cb896f68d4eb2ac
+  last_fetch: 16/11/2022, 19:14:19
   patch: ''
   remote_url: https://github.com/beltoforion/muparser
   revision: ''
-  tag: v2.3.3-1
+  tag: v2.3.4
