@@ -12,7 +12,7 @@ on:
 jobs:
   coverity:
     runs-on: ubuntu-20.04
-    container: docker://jgeudens/qt-linux:6.2.4_build_1
+    container: docker://jgeudens/qt-linux:6.2.2_build_4
     steps:
     - name: Checkout
       uses: actions/checkout@v2
