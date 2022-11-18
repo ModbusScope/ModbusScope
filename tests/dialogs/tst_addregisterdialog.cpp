@@ -35,14 +35,11 @@ void TestAddRegisterDialog::registerDefault()
 
 void TestAddRegisterDialog::register32Bit()
 {
-#if QT_VERSION > QT_VERSION_CHECK(6, 3, 0) // Check fails inexplicably in Qt 5.15.2, Maybe related to https://bugreports.qt.io/browse/QTBUG-88143
-    auto widget = _pRegDialog->_pUi->radio32Bit;
-    QTest::mouseClick(widget, Qt::LeftButton, Qt::NoModifier, QPoint(widget->size().width()*3/4, widget->size().height()/2));
+    QTest::mouseClick(_pRegDialog->_pUi->radio32Bit, Qt::LeftButton);
     pushOk();
 
     auto graphData = _pRegDialog->graphData();
     QCOMPARE(graphData.expression(), "${40001:32b}");
-#endif
 }
 
 void TestAddRegisterDialog::registerSignedRegister()
