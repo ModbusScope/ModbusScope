@@ -6,7 +6,7 @@
 
 namespace FormatRelativeTime
 {
-    const quint32 cSecondsInADay = 24 * 60 * 60 * 1000;
+    const quint32 cmilliSecondsInADay = 24 * 60 * 60 * 1000;
 
     enum {
         MSECS_PER_SECS = 1000,
@@ -105,7 +105,7 @@ QString FormatRelativeTime::formatTimeDiff(qint64 tickKeyDiff)
         absoluteDiff = tickKeyDiff;
     }
 
-    if (tickKeyDiff < cSecondsInADay)
+    if (absoluteDiff < cmilliSecondsInADay)
     {
         QTime timeDiff = QTime::fromMSecsSinceStartOfDay(absoluteDiff);
         if (absoluteDiff < 60000) /* Under a minute */
