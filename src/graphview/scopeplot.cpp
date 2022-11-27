@@ -22,7 +22,6 @@ void ScopePlot::enterEvent(QEnterEvent *event)
 {
     if (
         (cursor().shape() == Qt::SizeVerCursor)
-        || (cursor().shape() == Qt::SizeHorCursor)
         || (cursor().shape() == Qt::SizeBDiagCursor)
         || (cursor().shape() == Qt::SizeFDiagCursor)
         || (cursor().shape() == Qt::SizeHorCursor)
