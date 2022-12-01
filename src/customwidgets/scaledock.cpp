@@ -69,6 +69,9 @@ void ScaleDock::setModels(GuiModel * pGuiModel)
     connect(_pGuiModel, &GuiModel::y2AxisScalingChanged, this, &ScaleDock::updatey2AxisSlidingMode);
     connect(_pGuiModel, &GuiModel::yAxisMinMaxchanged, this, &ScaleDock::updateyAxisMinMax);
     connect(_pGuiModel, &GuiModel::y2AxisMinMaxchanged, this, &ScaleDock::updatey2AxisMinMax);
+
+    connect(_pGuiModel, &GuiModel::yAxisSelected, this, &ScaleDock::selectPrimaryValueAxisTab);
+    connect(_pGuiModel, &GuiModel::y2AxisSelected, this, &ScaleDock::selectSecondairyValueAxisTab);
 }
 
 void ScaleDock::handleYMinChange()
@@ -216,4 +219,14 @@ void ScaleDock::yAxisScaleGroupClicked(int id)
 void ScaleDock::y2AxisScaleGroupClicked(int id)
 {
     _pGuiModel->sety2AxisScale((AxisMode::AxisScaleOptions)id) ;
+}
+
+void ScaleDock::selectPrimaryValueAxisTab()
+{
+    _pUi->scaleTab->setCurrentIndex(0);
+}
+
+void ScaleDock::selectSecondairyValueAxisTab()
+{
+    _pUi->scaleTab->setCurrentIndex(1);
 }
