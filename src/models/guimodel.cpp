@@ -3,9 +3,7 @@
 #include <QList>
 #include <QStandardPaths>
 
-#include "util.h"
 #include "guimodel.h"
-
 
 const QString GuiModel::_cWindowTitle = QString("ModbusScope");
 
