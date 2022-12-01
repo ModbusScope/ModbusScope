@@ -38,6 +38,9 @@ private slots:
     void yAxisScaleGroupClicked(int id);
     void y2AxisScaleGroupClicked(int id);
 
+    void selectPrimaryValueAxisTab();
+    void selectSecondairyValueAxisTab();
+
 private:
 
     Ui::ScaleDock *_pUi;

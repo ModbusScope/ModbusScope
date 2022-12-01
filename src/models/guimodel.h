@@ -129,6 +129,9 @@ signals:
     void markerExpressionMaskChanged();
     void zoomStateChanged();
 
+    void yAxisSelected();
+    void y2AxisSelected();
+
 private slots:
 
 private:

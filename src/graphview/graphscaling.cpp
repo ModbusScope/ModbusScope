@@ -47,8 +47,14 @@ GraphScale::GraphScale(GuiModel* pGuiModel, ScopePlot* pPlot, QObject *parent) :
     _pPlot->xAxis->setLabel("Time");
     _pPlot->xAxis->setRange(0, 10000);
 
-    _pPlot->yAxis->setRange(0, 65535);
-    _pPlot->yAxis2->setRange(0, 65535);
+    pYAxis->setRange(0, 65535);
+    pY2Axis->setRange(0, 65535);
+
+    connect(pYAxis, &QCPAxis::selectionChanged, this, &GraphScale::yAxisSelectionChanged);
+    connect(pY2Axis, &QCPAxis::selectionChanged, this, &GraphScale::y2AxisSelectionChanged);
+
+    connect(this, &GraphScale::yAxisSelected, _pGuiModel, &GuiModel::yAxisSelected);
+    connect(this, &GraphScale::y2AxisSelected, _pGuiModel, &GuiModel::y2AxisSelected);
 
     // connect slot that ties some axis selections together (especially opposite axes):
     connect(_pPlot, &ScopePlot::selectionChangedByUser, this, &GraphScale::selectionChanged);
@@ -238,6 +244,22 @@ void GraphScale::timeAxisRangeChanged(const QCPRange &newRange)
     }
 
     _pPlot->xAxis->setRange(newLower, newUpper);
+}
+
+void GraphScale::yAxisSelectionChanged(const QCPAxis::SelectableParts &parts)
+{
+    if (parts != QCPAxis::spNone)
+    {
+        emit yAxisSelected();
+    }
+}
+
+void GraphScale::y2AxisSelectionChanged(const QCPAxis::SelectableParts &parts)
+{
+    if (parts != QCPAxis::spNone)
+    {
+        emit y2AxisSelected();
+    }
 }
 
 void GraphScale::disableRangeZoom()
