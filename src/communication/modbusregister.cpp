@@ -1,15 +1,15 @@
 #include "modbusregister.h"
 
 ModbusRegister::ModbusRegister()
-    : ModbusRegister(0, 0, false, true)
+    : ModbusRegister(0, 0, "16b")
 {
 
 }
 
-ModbusRegister::ModbusRegister(quint32 address, quint8 connectionId, bool is32Bit, bool isUnsigned)
-    : _address(address), _connectionId(connectionId), _b32Bit(is32Bit), _bUnsigned(isUnsigned)
+ModbusRegister::ModbusRegister(quint32 address, quint8 connectionId, QString type)
+    : _address(address), _connectionId(connectionId)
 {
-
+    (void) setType(type);
 }
 
 quint32 ModbusRegister::address() const
@@ -32,24 +32,51 @@ void ModbusRegister::setConnectionId(quint8 connectionId)
     _connectionId = connectionId;
 }
 
+bool ModbusRegister::setType(QString type)
+{
+    bool bRet = true; /* Default to true */
+
+    if (type == "")
+    {
+        /* Keep defaults */
+    }
+    else if (type == "16b")
+    {
+        _b32Bit = false;
+        _bUnsigned = true;
+    }
+    else if (type == "s16b")
+    {
+        _b32Bit = false;
+        _bUnsigned =false;
+    }
+    else if (type == "32b")
+    {
+        _b32Bit = true;
+        _bUnsigned = true;
+    }
+    else if (type == "s32b")
+    {
+        _b32Bit = true;
+        _bUnsigned = false;
+    }
+    else
+    {
+        /* Keep defaults */
+        bRet = false;
+    }
+
+    return bRet;
+}
+
 bool ModbusRegister::is32Bit() const
 {
     return _b32Bit;
 }
 
-void ModbusRegister::set32Bit(bool b32Bit)
-{
-    _b32Bit = b32Bit;
-}
-
 bool ModbusRegister::isUnsigned() const
 {
     return _bUnsigned;
-}
-
-void ModbusRegister::setUnsigned(bool bUnsigned)
-{
-    _bUnsigned = bUnsigned;
 }
 
 QString ModbusRegister::description() const

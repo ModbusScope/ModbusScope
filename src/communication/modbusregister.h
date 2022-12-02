@@ -8,7 +8,7 @@ class ModbusRegister
 {
 public:
     ModbusRegister();
-    ModbusRegister(quint32 address, quint8 connectionId, bool is32Bit, bool isUnsigned);
+    ModbusRegister(quint32 address, quint8 connectionId, QString type);
 
     quint32 address() const;
     void setAddress(quint32 address);
@@ -16,11 +16,10 @@ public:
     quint8 connectionId() const;
     void setConnectionId(quint8 connectionId);
 
-    bool is32Bit() const;
-    void set32Bit(bool b32Bit);
+    bool setType(QString type);
 
+    bool is32Bit() const;
     bool isUnsigned() const;
-    void setUnsigned(bool bUnsigned);
 
     QString description() const;
 
