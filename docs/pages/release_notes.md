@@ -9,6 +9,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 * Rework toolbar (new icons and remove some actions)
 * Update notification is now only visible after 14 days since release
 * Improve marker indicators (Z-order)
+* Select value axis scale options tab on axis selection ([Github #253](https://github.com/jgeudens/ModbusScope/issues/253))
 * Update dependencies
 
 ### Added
