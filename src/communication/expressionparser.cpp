@@ -176,36 +176,11 @@ bool ExpressionParser::parseConnectionId(QString strConnectionId, ModbusRegister
 
 bool ExpressionParser::parseType(QString strType, ModbusRegister& modbusReg)
 {
-    bool bRet = true; /* Default to true */
+    bool bRet = modbusReg.setType(strType);
 
-    if (strType == "")
-    {
-        /* Keep defaults */
-    }
-    else if (strType == "16b")
-    {
-        modbusReg.set32Bit(false);
-        modbusReg.setUnsigned(true);
-    }
-    else if (strType == "s16b")
-    {
-        modbusReg.set32Bit(false);
-        modbusReg.setUnsigned(false);
-    }
-    else if (strType == "32b")
-    {
-        modbusReg.set32Bit(true);
-        modbusReg.setUnsigned(true);
-    }
-    else if (strType == "s32b")
-    {
-        modbusReg.set32Bit(true);
-        modbusReg.setUnsigned(false);
-    }
-    else
+    if (!bRet)
     {
         qCWarning(scopeComm) << QString("Unknown type \"%1\"").arg(strType);
-        bRet = false;
     }
 
     return bRet;

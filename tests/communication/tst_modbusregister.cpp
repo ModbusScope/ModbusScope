@@ -17,7 +17,7 @@ void TestModbusRegister::cleanup()
 
 void TestModbusRegister::constructor()
 {
-    ModbusRegister reg(40001, Connection::ID_1, false, true);
+    ModbusRegister reg(40001, Connection::ID_1, "16b");
 
     QCOMPARE(reg.address(), 40001);
     QCOMPARE(reg.connectionId(), Connection::ID_1);
@@ -27,8 +27,8 @@ void TestModbusRegister::constructor()
 
 void TestModbusRegister::comparison()
 {
-    ModbusRegister reg_1(40001, Connection::ID_1, false, true);
-    ModbusRegister reg_2(40001, Connection::ID_1, false, true);
+    ModbusRegister reg_1(40001, Connection::ID_1, "16b");
+    ModbusRegister reg_2(40001, Connection::ID_1, "16b");
 
     QVERIFY(reg_1 == reg_2);
 
@@ -39,7 +39,7 @@ void TestModbusRegister::comparison()
 
 void TestModbusRegister::copy()
 {
-    ModbusRegister reg_1(40001, Connection::ID_2, true, false);
+    ModbusRegister reg_1(40001, Connection::ID_2, "s32b");
     ModbusRegister reg_2;
 
     QVERIFY(!(reg_1 == reg_2));
@@ -56,8 +56,8 @@ void TestModbusRegister::copy()
 
 void TestModbusRegister::description()
 {
-    ModbusRegister reg_1(40001, Connection::ID_1, false, true);
-    ModbusRegister reg_2(40002, Connection::ID_2, true, false);
+    ModbusRegister reg_1(40001, Connection::ID_1, "16b");
+    ModbusRegister reg_2(40002, Connection::ID_2, "s32b");
 
     QCOMPARE(reg_1.description(), "40001, unsigned, 16 bit, conn 1");
     QCOMPARE(reg_2.description(), "40002, signed, 32 bit, conn 2");

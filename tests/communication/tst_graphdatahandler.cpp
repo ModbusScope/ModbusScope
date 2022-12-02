@@ -37,9 +37,9 @@ void TestGraphDataHandler::registerList()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_2, false, true)
-                                                      << ModbusRegister(40001, Connection::ID_1, false, true)
-                                                      << ModbusRegister(40002, Connection::ID_1, true, false);
+    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_2, "16b")
+                                                      << ModbusRegister(40001, Connection::ID_1, "16b")
+                                                      << ModbusRegister(40002, Connection::ID_1, "s32b");
 
     GraphDataHandler dataHandler;
     QList<ModbusRegister> registerList;
@@ -110,7 +110,7 @@ void TestGraphDataHandler::manyInactiveRegisters()
     _pGraphDataModel->setExpression(9, "${40003}");
     _pGraphDataModel->setActive(9, false);
 
-    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(40002, Connection::ID_1, false, true);
+    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(40002, Connection::ID_1, "16b");
 
     GraphDataHandler dataHandler;
     QList<ModbusRegister> registerList;
