@@ -1,6 +1,7 @@
 
 #include <QtTest/QtTest>
 
+#include "registervaluehandler.h"
 #include "tst_registervaluehandler.h"
 
 #include "settingsmodel.h"
@@ -71,6 +72,35 @@ void TestRegisterValueHandler::addressList_32_multiple()
 {
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, "32b")
                                                    << ModbusRegister(40005, Connection::ID_1, "32b");
+    auto expRegisterList = QList<quint32>() << 40001 << 40002 << 40005 << 40006;
+
+    RegisterValueHandler regHandler(_pSettingsModel);
+    regHandler.setRegisters(modbusRegisters);
+
+    QList<quint32> actualRegisterList;
+    regHandler.registerAddresList(actualRegisterList, Connection::ID_1);
+
+    QVERIFY(actualRegisterList == expRegisterList);
+}
+
+void TestRegisterValueHandler::addressList_float32()
+{
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, "float32");
+    auto expRegisterList = QList<quint32>() << 40001 << 40002;
+
+    RegisterValueHandler regHandler(_pSettingsModel);
+    regHandler.setRegisters(modbusRegisters);
+
+    QList<quint32> actualRegisterList;
+    regHandler.registerAddresList(actualRegisterList, Connection::ID_1);
+
+    QVERIFY(actualRegisterList == expRegisterList);
+}
+
+void TestRegisterValueHandler::addressList_float32_multiple()
+{
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, "float32")
+                                                   << ModbusRegister(40005, Connection::ID_1, "float32");
     auto expRegisterList = QList<quint32>() << 40001 << 40002 << 40005 << 40006;
 
     RegisterValueHandler regHandler(_pSettingsModel);

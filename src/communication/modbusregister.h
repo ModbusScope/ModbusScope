@@ -20,12 +20,13 @@ public:
 
     bool is32Bit() const;
     bool isUnsigned() const;
+    bool isFloat() const;
 
     QString description() const;
 
     ModbusRegister(const ModbusRegister& copy)
         : _address { copy.address() }, _connectionId { copy.connectionId() },
-          _b32Bit { copy.is32Bit() }, _bUnsigned { copy.isUnsigned() }
+          _b32Bit { copy.is32Bit() }, _bUnsigned { copy.isUnsigned()}, _bFloat { copy.isFloat() }
     {
 
     }
@@ -42,6 +43,7 @@ private:
     quint8 _connectionId;
     bool _b32Bit;
     bool _bUnsigned;
+    bool _bFloat;
 };
 
 QDebug operator<<(QDebug debug, const ModbusRegister &reg);
