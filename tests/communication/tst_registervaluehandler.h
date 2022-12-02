@@ -1,6 +1,7 @@
 
 #include <QObject>
-#include "registervaluehandler.h"
+#include "modbusregister.h"
+#include "result.h"
 
 /* Forward declaration */
 class SettingsModel;
@@ -16,6 +17,8 @@ private slots:
     void addressList_16_multiple();
     void addressList_32();
     void addressList_32_multiple();
+    void addressList_float32();
+    void addressList_float32_multiple();
     void addressListCombinations();
     void addressListMultipleConnections();
 

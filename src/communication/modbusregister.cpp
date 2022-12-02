@@ -44,21 +44,31 @@ bool ModbusRegister::setType(QString type)
     {
         _b32Bit = false;
         _bUnsigned = true;
+        _bFloat = false;
     }
     else if (type == "s16b")
     {
         _b32Bit = false;
         _bUnsigned =false;
+        _bFloat = false;
     }
     else if (type == "32b")
     {
         _b32Bit = true;
         _bUnsigned = true;
+        _bFloat = false;
     }
     else if (type == "s32b")
     {
         _b32Bit = true;
         _bUnsigned = false;
+        _bFloat = false;
+    }
+    else if (type == "float32")
+    {
+        _b32Bit = true;
+        _bUnsigned = false;
+        _bFloat = true;
     }
     else
     {
@@ -79,14 +89,28 @@ bool ModbusRegister::isUnsigned() const
     return _bUnsigned;
 }
 
+bool ModbusRegister::isFloat() const
+{
+    return _bFloat;
+}
+
 QString ModbusRegister::description() const
 {
-    QString unsignedStr = isUnsigned() ? "unsigned" : "signed" ;
-    QString typeStr = is32Bit() ? "32 bit" : "16 bit" ;
     QString connStr = QString("conn %1").arg(connectionId() + 1);
 
-    return QString("%1, %2, %3, %4").arg(address())
-                                    .arg(unsignedStr, typeStr, connStr);
+    if (isFloat())
+    {
+        return QString("%1, float32, %2").arg(address())
+                                        .arg(connStr);
+    }
+    else
+    {
+        QString unsignedStr = isUnsigned() ? "unsigned" : "signed" ;
+        QString typeStr = is32Bit() ? "32 bit" : "16 bit" ;
+
+        return QString("%1, %2, %3, %4").arg(address())
+                                        .arg(unsignedStr, typeStr, connStr);
+    }
 }
 
 ModbusRegister& ModbusRegister::operator= (const ModbusRegister& modbusRegister)
@@ -101,6 +125,7 @@ ModbusRegister& ModbusRegister::operator= (const ModbusRegister& modbusRegister)
     _connectionId = modbusRegister.connectionId();
     _b32Bit = modbusRegister.is32Bit();
     _bUnsigned = modbusRegister.isUnsigned();
+    _bFloat = modbusRegister.isFloat();
 
     // return the existing object so we can chain this operator
     return *this;
@@ -113,6 +138,7 @@ bool operator== (const ModbusRegister& reg1, const ModbusRegister& reg2)
         && (reg1._connectionId == reg2._connectionId)
         && (reg1._b32Bit == reg2._b32Bit)
         && (reg1._bUnsigned == reg2._bUnsigned)
+        && (reg1._bFloat == reg2._bFloat)
     )
     {
         return true;
