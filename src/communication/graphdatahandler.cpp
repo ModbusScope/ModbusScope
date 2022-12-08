@@ -66,7 +66,7 @@ qint32 GraphDataHandler::expressionErrorPos(qint32 exprIdx) const
     return _valueParsers[exprIdx].errorPos();
 }
 
-void GraphDataHandler::handleRegisterData(QList<Result<qint64> > results)
+void GraphDataHandler::handleRegisterData(QList<Result<double> > results)
 {
     QList<bool> graphSuccess;
     QList<double> graphData;

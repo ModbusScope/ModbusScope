@@ -59,7 +59,7 @@ namespace mu
         double intpart;
         if (modf(v1, &intpart) == 0.0)
         {
-            int value = 0;
+            double value = 0;
             bool success = false;
             if (_registerCb)
             {

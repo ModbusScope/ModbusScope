@@ -41,7 +41,7 @@ public:
     void resetCommunicationStats();
 
 signals:
-    void registerDataReady(QList<Result<qint64> > registers);
+    void registerDataReady(QList<Result<double> > registers);
 
 private slots:
     void handlePollDone(QMap<quint32, Result<quint16> > resultMap, quint8 connectionId);

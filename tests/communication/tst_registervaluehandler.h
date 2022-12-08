@@ -35,7 +35,7 @@ private:
 
     void verifyRegisterResult(QList<ModbusRegister>& regList,
                             QMap<quint32, Result<quint16> > &regData,
-                            QList<Result<qint64> > expResults);
+                            QList<Result<double> > expResults);
 
     void addToResultMap(QMap<quint32, Result<quint16>> &resultMap,
             quint32 addr,
