@@ -96,14 +96,14 @@ void ExpressionsDialog::handleInputChange()
         const auto lightRed = QColor(255, 0, 0, 127);
         const auto white = QColorConstants::White;
 
-        QList<Result<qint64> > results;
+        QList<Result<double> > results;
         for(qint32 idx = 0; idx < _pUi->tblExpressionInput->rowCount(); idx++)
         {
             QTableWidgetItem* pValueItem = _pUi->tblExpressionInput->item(idx, 1);
             QString valueStr = pValueItem->text();
             bool bOk = false;
-            qint64 value = valueStr.toInt(&bOk);
-            results.append(Result<qint64>(value, bOk));
+            double value = valueStr.toDouble(&bOk);
+            results.append(Result<double>(value, bOk));
 
             /* Avoid recursive signal/slots calling */
             _pUi->tblExpressionInput->blockSignals(true);

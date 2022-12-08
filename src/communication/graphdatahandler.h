@@ -22,7 +22,7 @@ public:
     qint32 expressionErrorPos(qint32 exprIdx) const;
 
 public slots:
-    void handleRegisterData(QList<Result<qint64> > results);
+    void handleRegisterData(QList<Result<double> > results);
 
 signals:
     void graphDataReady(QList<bool> successList, QList<double> values);

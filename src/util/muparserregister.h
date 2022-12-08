@@ -50,7 +50,7 @@ namespace mu
         ParserRegister();
         ParserRegister(const ParserRegister& a_Parser);
 
-        typedef void (*registerCb_t)(int, int*, bool*);
+        typedef void (*registerCb_t)(int, double*, bool*);
 
         static void setRegisterCallback(registerCb_t registerCb);
 

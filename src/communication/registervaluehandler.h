@@ -24,7 +24,7 @@ public:
     void registerAddresList(QList<quint32>& registerList, quint8 connectionId);
 
 signals:
-    void registerDataReady(QList<Result<qint64> > registers);
+    void registerDataReady(QList<Result<double> > registers);
 
 private:
 
@@ -33,7 +33,7 @@ private:
     SettingsModel* _pSettingsModel;
 
     QList<ModbusRegister> _registerList;
-    QList<Result<qint64> > _resultList;
+    QList<Result<double> > _resultList;
 };
 
 #endif // REGISTERVALUEHANDLER_H

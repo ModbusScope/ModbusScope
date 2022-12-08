@@ -7,7 +7,7 @@
 
 #define ADD_TEST(expr, result)      QTest::newRow(expr) << QString(expr) << static_cast<double>(result)
 
-#define ADD_REG_TEST(expr, registerValue, result)      QTest::newRow(expr) << QString(expr) << static_cast<quint32>(registerValue) << static_cast<double>(result)
+#define ADD_REG_TEST(expr, registerValue, result)      QTest::newRow(expr) << QString(expr) << static_cast<double>(registerValue) << static_cast<double>(result)
 
 void TestQMuParser::init()
 {
@@ -104,12 +104,13 @@ void TestQMuParser::evaluate()
 void TestQMuParser::evaluateSingleRegister_data()
 {
     QTest::addColumn<QString>("expression");
-    QTest::addColumn<quint32>("registerValue");
+    QTest::addColumn<double>("registerValue");
     QTest::addColumn<double>("result");
 
     ADD_REG_TEST("r(0)",           2,        2    );
     ADD_REG_TEST("r(0) + 2",       3,        5    );
     ADD_REG_TEST("r(0) * 2",       4,        8    );
+    ADD_REG_TEST("r(0) * 2",       4.5,      9    );
     ADD_REG_TEST("r(0) / 1000",    5,        0.005);
     ADD_REG_TEST("r(0) & 0xFF",    257,      1);
 
@@ -119,12 +120,12 @@ void TestQMuParser::evaluateSingleRegister_data()
 void TestQMuParser::evaluateSingleRegister()
 {
     QFETCH(QString, expression);
-    QFETCH(quint32, registerValue);
+    QFETCH(double, registerValue);
     QFETCH(double, result);
 
     QMuParser parser(expression);
 
-    parser.setRegistersData(QList<Result<qint64> >() << Result<qint64>(registerValue, true));
+    parser.setRegistersData(QList<Result<double> >() << Result<double>(registerValue, true));
 
     bool bSuccess = parser.evaluate();
 
@@ -135,7 +136,7 @@ void TestQMuParser::evaluateSingleRegister()
 
 void TestQMuParser::evaluateMultipleRegisters()
 {
-    auto input = QList<Result<qint64> >() << Result<qint64>(1, true) << Result<qint64>(2, true) << Result<qint64>(3, true);
+    auto input = QList<Result<double> >() << Result<double>(1, true) << Result<double>(2, true) << Result<double>(3, true);
 
     QMuParser parser("r(0)");
     parser.setRegistersData(input);
@@ -164,7 +165,7 @@ void TestQMuParser::evaluateMultipleRegisters()
 void TestQMuParser::evaluateSubsequentRegister()
 {
     const int count = 10;
-    QList<quint32> data;
+    QList<double> data;
     for (int idx = 0; idx < count; idx++)
     {
         data.append(idx);
@@ -174,7 +175,7 @@ void TestQMuParser::evaluateSubsequentRegister()
 
     for (int idx = 0; idx < count; idx++)
     {
-        auto input = QList<Result<qint64> >() << Result<qint64>(data[idx], true);
+        auto input = QList<Result<double> >() << Result<double>(data[idx], true);
         parser.setRegistersData(input);
 
         bool bSuccess = parser.evaluate();
@@ -211,7 +212,7 @@ void TestQMuParser::evaluateEmpty()
 void TestQMuParser::evaluateFail()
 {
     QString expression = "r(0)";
-    auto resultList = QList<Result<qint64> >() << Result<qint64>(5, false);
+    auto resultList = QList<Result<double> >() << Result<double>(5, false);
 
     QMuParser parser(expression);
 
@@ -324,7 +325,7 @@ void TestQMuParser::expressionUpdate()
 {
     QMuParser parser("r(0) + 1");
 
-    auto input_1 = QList<Result<qint64> >() << Result<qint64>(5, true);
+    auto input_1 = QList<Result<double> >() << Result<double>(5, true);
     parser.setRegistersData(input_1);
 
     bool bSuccess = parser.evaluate();
@@ -335,7 +336,7 @@ void TestQMuParser::expressionUpdate()
 
     parser.setExpression("r(0) + r(1) + 2");
 
-    auto input_2 = QList<Result<qint64> >() << Result<qint64>(1, true) << Result<qint64>(2, true);
+    auto input_2 = QList<Result<double> >() << Result<double>(1, true) << Result<double>(2, true);
     parser.setRegistersData(input_2);
     bSuccess = parser.evaluate();
 

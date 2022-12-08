@@ -4,7 +4,7 @@
 
 #include "muParser.h"
 
-QList<Result<qint64> > QMuParser::_registerValues;
+QList<Result<double> > QMuParser::_registerValues;
 
 QMuParser::QMuParser(QString strExpression)
 {
@@ -77,7 +77,7 @@ void QMuParser::setExpression(QString expr)
     reset();
 }
 
-void QMuParser::setRegistersData(QList<Result<qint64> >& regValues)
+void QMuParser::setRegistersData(QList<Result<double> >& regValues)
 {
     _registerValues = regValues;
 }
@@ -169,7 +169,7 @@ void QMuParser::reset()
     _msg = QStringLiteral("No result yet");
 }
 
-void QMuParser::registerValue(int index, int* value, bool* success)
+void QMuParser::registerValue(int index, double* value, bool* success)
 {
     if (index < _registerValues.size())
     {
