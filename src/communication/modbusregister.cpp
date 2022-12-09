@@ -113,6 +113,38 @@ QString ModbusRegister::description() const
     }
 }
 
+double ModbusRegister::processValue(uint16_t lowerRegister, uint16_t upperRegister, bool int32LittleEndian) const
+{
+    double processedResult = 0u;
+
+    if (is32Bit())
+    {
+        uint32_t combinedValue = convertEndianness(int32LittleEndian, lowerRegister, upperRegister);
+
+        if (isUnsigned())
+        {
+            processedResult = static_cast<double>(static_cast<quint32>(combinedValue));
+        }
+        else
+        {
+            processedResult = static_cast<double>(static_cast<qint32>(combinedValue));
+        }
+    }
+    else
+    {
+        if (isUnsigned())
+        {
+            processedResult = static_cast<double>(static_cast<quint16>(lowerRegister));
+        }
+        else
+        {
+            processedResult = static_cast<double>(static_cast<qint16>(lowerRegister));
+        }
+    }
+
+    return processedResult;
+}
+
 ModbusRegister& ModbusRegister::operator= (const ModbusRegister& modbusRegister)
 {
     // self-assignment guard
@@ -168,4 +200,19 @@ QString ModbusRegister::dumpListToString(QList<ModbusRegister> list)
     dStream << list;
 
     return str;
+}
+
+uint32_t ModbusRegister::convertEndianness(bool bLittleEndian, quint16 value, quint16 nextValue) const
+{
+    uint32_t combinedValue;
+    if (bLittleEndian)
+    {
+        combinedValue = (static_cast<uint32_t>(nextValue) << 16) | value;
+    }
+    else
+    {
+        combinedValue = (static_cast<uint32_t>(value) << 16) | nextValue;
+    }
+
+    return combinedValue;
 }

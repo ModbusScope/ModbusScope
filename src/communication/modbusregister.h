@@ -24,6 +24,8 @@ public:
 
     QString description() const;
 
+    double processValue(uint16_t lowerRegister, uint16_t upperRegister, bool int32LittleEndian) const;
+
     ModbusRegister(const ModbusRegister& copy)
         : _address { copy.address() }, _connectionId { copy.connectionId() },
           _b32Bit { copy.is32Bit() }, _bUnsigned { copy.isUnsigned()}, _bFloat { copy.isFloat() }
@@ -38,6 +40,7 @@ public:
     static QString dumpListToString(QList<ModbusRegister> list);
 
 private:
+    uint32_t convertEndianness(bool bLittleEndian, quint16 value, quint16 nextValue) const;
 
     quint32 _address;
     quint8 _connectionId;
