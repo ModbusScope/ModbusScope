@@ -27,9 +27,6 @@ signals:
     void registerDataReady(QList<Result<double> > registers);
 
 private:
-
-    uint32_t convertEndianness(bool bLittleEndian, quint16 value, quint16 nextValue);
-
     SettingsModel* _pSettingsModel;
 
     QList<ModbusRegister> _registerList;
