@@ -76,8 +76,8 @@ void TestModbusPoll::singleSlaveSuccess()
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, "16b")
-                                                   << ModbusRegister(40002, Connection::ID_1, "16b");
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, ModbusDataType::UNSIGNED_16)
+                                                   << ModbusRegister(40002, Connection::ID_1, ModbusDataType::UNSIGNED_16);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
@@ -103,8 +103,8 @@ void TestModbusPoll::singleSlaveFail()
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, "16b")
-                                                   << ModbusRegister(40002, Connection::ID_1, "16b");
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, ModbusDataType::UNSIGNED_16)
+                                                   << ModbusRegister(40002, Connection::ID_1, ModbusDataType::UNSIGNED_16);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
@@ -152,8 +152,8 @@ void TestModbusPoll::verifyRestartAfterStop()
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, "16b")
-                                                   << ModbusRegister(40002, Connection::ID_1, "16b");
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, ModbusDataType::UNSIGNED_16)
+                                                   << ModbusRegister(40002, Connection::ID_1, ModbusDataType::UNSIGNED_16);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
@@ -199,8 +199,8 @@ void TestModbusPoll::multiSlaveSuccess()
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, "16b")
-                                                   << ModbusRegister(40001, Connection::ID_2, "16b");
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, ModbusDataType::UNSIGNED_16)
+                                                   << ModbusRegister(40001, Connection::ID_2, ModbusDataType::UNSIGNED_16);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
@@ -227,8 +227,8 @@ void TestModbusPoll::multiSlaveSuccess_2()
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, "16b")
-                                                   << ModbusRegister(40002, Connection::ID_2, "16b");
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, ModbusDataType::UNSIGNED_16)
+                                                   << ModbusRegister(40002, Connection::ID_2, ModbusDataType::UNSIGNED_16);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
@@ -258,9 +258,9 @@ void TestModbusPoll::multiSlaveSuccess_3()
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, "16b")
-                                                   << ModbusRegister(40002, Connection::ID_2, "16b")
-                                                   << ModbusRegister(40002, Connection::ID_1, "16b");
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, ModbusDataType::UNSIGNED_16)
+                                                   << ModbusRegister(40002, Connection::ID_2, ModbusDataType::UNSIGNED_16)
+                                                   << ModbusRegister(40002, Connection::ID_1, ModbusDataType::UNSIGNED_16);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
@@ -287,8 +287,8 @@ void TestModbusPoll::multiSlaveSingleFail()
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, "16b")
-                                                   << ModbusRegister(40001, Connection::ID_2, "16b");
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, ModbusDataType::UNSIGNED_16)
+                                                   << ModbusRegister(40001, Connection::ID_2, ModbusDataType::UNSIGNED_16);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
@@ -314,8 +314,8 @@ void TestModbusPoll::multiSlaveAllFail()
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, "16b")
-                                                   << ModbusRegister(40001, Connection::ID_2, "16b");
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, ModbusDataType::UNSIGNED_16)
+                                                   << ModbusRegister(40001, Connection::ID_2, ModbusDataType::UNSIGNED_16);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
@@ -345,8 +345,8 @@ void TestModbusPoll::multiSlaveDisabledConnection()
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, "16b")
-                                                   << ModbusRegister(40001, Connection::ID_2, "16b");
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, ModbusDataType::UNSIGNED_16)
+                                                   << ModbusRegister(40001, Connection::ID_2, ModbusDataType::UNSIGNED_16);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);

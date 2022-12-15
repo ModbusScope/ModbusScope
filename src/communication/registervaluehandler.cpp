@@ -1,5 +1,6 @@
 #include "registervaluehandler.h"
 #include "settingsmodel.h"
+#include "modbusdatatype.h"
 
 RegisterValueHandler::RegisterValueHandler(SettingsModel *pSettingsModel) :
     _pSettingsModel(pSettingsModel)
@@ -38,7 +39,7 @@ void RegisterValueHandler::processPartialResult(QMap<quint32, Result<quint16> > 
 
                 lowerRegister = partialResultMap[mbReg.address()];
 
-                if (mbReg.is32Bit())
+                if (ModbusDataType::is32Bit(mbReg.type()))
                 {
                     const quint32 addr = mbReg.address() + 1u;
                     if (partialResultMap.contains(addr))
@@ -83,7 +84,7 @@ void RegisterValueHandler::registerAddresList(QList<quint32>& registerList, quin
             }
 
             /* When reading 32 bit value, also read next address */
-            if (mbReg.is32Bit())
+            if (ModbusDataType::is32Bit(mbReg.type()))
             {
                 const quint32 reg = mbReg.address() + 1;
                 if (!connRegisterList.contains(reg))
