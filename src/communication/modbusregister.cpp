@@ -1,15 +1,16 @@
 #include "modbusregister.h"
 
+
 ModbusRegister::ModbusRegister()
-    : ModbusRegister(0, 0, "16b")
+    : ModbusRegister(0, 0, ModbusDataType::UNSIGNED_16)
 {
 
 }
 
-ModbusRegister::ModbusRegister(quint32 address, quint8 connectionId, QString type)
-    : _address(address), _connectionId(connectionId)
+ModbusRegister::ModbusRegister(quint32 address, quint8 connectionId, ModbusDataType::Type type)
+    : _address(address), _connectionId(connectionId), _type(type)
 {
-    (void) setType(type);
+
 }
 
 quint32 ModbusRegister::address() const
@@ -32,81 +33,29 @@ void ModbusRegister::setConnectionId(quint8 connectionId)
     _connectionId = connectionId;
 }
 
-bool ModbusRegister::setType(QString type)
+void ModbusRegister::setType(ModbusDataType::Type type)
 {
-    bool bRet = true; /* Default to true */
-
-    if (type == "")
-    {
-        /* Keep defaults */
-    }
-    else if (type == "16b")
-    {
-        _b32Bit = false;
-        _bUnsigned = true;
-        _bFloat = false;
-    }
-    else if (type == "s16b")
-    {
-        _b32Bit = false;
-        _bUnsigned =false;
-        _bFloat = false;
-    }
-    else if (type == "32b")
-    {
-        _b32Bit = true;
-        _bUnsigned = true;
-        _bFloat = false;
-    }
-    else if (type == "s32b")
-    {
-        _b32Bit = true;
-        _bUnsigned = false;
-        _bFloat = false;
-    }
-    else if (type == "float32")
-    {
-        _b32Bit = true;
-        _bUnsigned = false;
-        _bFloat = true;
-    }
-    else
-    {
-        /* Keep defaults */
-        bRet = false;
-    }
-
-    return bRet;
+    _type = type;
 }
 
-bool ModbusRegister::is32Bit() const
+ModbusDataType::Type ModbusRegister::type() const
 {
-    return _b32Bit;
-}
-
-bool ModbusRegister::isUnsigned() const
-{
-    return _bUnsigned;
-}
-
-bool ModbusRegister::isFloat() const
-{
-    return _bFloat;
+    return _type;
 }
 
 QString ModbusRegister::description() const
 {
     QString connStr = QString("conn %1").arg(connectionId() + 1);
 
-    if (isFloat())
+    if (ModbusDataType::isFloat(_type))
     {
         return QString("%1, float32, %2").arg(address())
                                         .arg(connStr);
     }
     else
     {
-        QString unsignedStr = isUnsigned() ? "unsigned" : "signed" ;
-        QString typeStr = is32Bit() ? "32 bit" : "16 bit" ;
+        QString unsignedStr = ModbusDataType::isUnsigned(_type) ? "unsigned" : "signed" ;
+        QString typeStr = ModbusDataType::is32Bit(_type) ? "32 bit" : "16 bit" ;
 
         return QString("%1, %2, %3, %4").arg(address())
                                         .arg(unsignedStr, typeStr, connStr);
@@ -117,11 +66,11 @@ double ModbusRegister::processValue(uint16_t lowerRegister, uint16_t upperRegist
 {
     double processedResult = 0u;
 
-    if (is32Bit())
+    if (ModbusDataType::is32Bit(_type))
     {
         uint32_t combinedValue = convertEndianness(int32LittleEndian, lowerRegister, upperRegister);
 
-        if (isUnsigned())
+        if (ModbusDataType::isUnsigned(_type))
         {
             processedResult = static_cast<double>(static_cast<quint32>(combinedValue));
         }
@@ -132,7 +81,7 @@ double ModbusRegister::processValue(uint16_t lowerRegister, uint16_t upperRegist
     }
     else
     {
-        if (isUnsigned())
+        if (ModbusDataType::isUnsigned(_type))
         {
             processedResult = static_cast<double>(static_cast<quint16>(lowerRegister));
         }
@@ -155,9 +104,7 @@ ModbusRegister& ModbusRegister::operator= (const ModbusRegister& modbusRegister)
 
     _address = modbusRegister.address();
     _connectionId = modbusRegister.connectionId();
-    _b32Bit = modbusRegister.is32Bit();
-    _bUnsigned = modbusRegister.isUnsigned();
-    _bFloat = modbusRegister.isFloat();
+    _type = modbusRegister.type();
 
     // return the existing object so we can chain this operator
     return *this;
@@ -168,9 +115,7 @@ bool operator== (const ModbusRegister& reg1, const ModbusRegister& reg2)
     if (
         (reg1._address == reg2._address)
         && (reg1._connectionId == reg2._connectionId)
-        && (reg1._b32Bit == reg2._b32Bit)
-        && (reg1._bUnsigned == reg2._bUnsigned)
-        && (reg1._bFloat == reg2._bFloat)
+        && (reg1._type == reg2._type)
     )
     {
         return true;

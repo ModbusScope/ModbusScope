@@ -2,6 +2,7 @@
 
 #include "scopelogging.h"
 #include "expressionregex.h"
+#include "modbusdatatype.h"
 
 const QString ExpressionParser::_cRegisterFunctionTemplate = "r(%1%2)";
 
@@ -176,10 +177,18 @@ bool ExpressionParser::parseConnectionId(QString strConnectionId, ModbusRegister
 
 bool ExpressionParser::parseType(QString strType, ModbusRegister& modbusReg)
 {
-    bool bRet = modbusReg.setType(strType);
+    bool bRet;
+    bool bOk;
+    ModbusDataType::Type type = ModbusDataType::convertString(strType, bOk);
 
-    if (!bRet)
+    if (bOk)
     {
+        modbusReg.setType(type);
+        bRet = true;
+    }
+    else
+    {
+        bRet = false;
         qCWarning(scopeComm) << QString("Unknown type \"%1\"").arg(strType);
     }
 
