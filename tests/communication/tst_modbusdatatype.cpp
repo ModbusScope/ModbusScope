@@ -52,7 +52,7 @@ void TestModbusDataType::convertString_data()
     ADD_TEST("s16b", ModbusDataType::SIGNED_16);
     ADD_TEST("32b", ModbusDataType::UNSIGNED_32);
     ADD_TEST("s32b", ModbusDataType::SIGNED_32);
-    ADD_TEST("float32", ModbusDataType::FLOAT_32);
+    ADD_TEST("f32b", ModbusDataType::FLOAT_32);
 }
 
 void TestModbusDataType::convertString()

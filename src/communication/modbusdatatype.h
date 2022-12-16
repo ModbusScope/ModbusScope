@@ -51,7 +51,7 @@ public:
         {
             return SIGNED_32;
         }
-        else if (strType == "float32")
+        else if (strType == "f32b")
         {
             return FLOAT_32;
         }

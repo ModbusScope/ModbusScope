@@ -54,8 +54,8 @@ void TestExpressionParser::singleRegisterSigned32()
 
 void TestExpressionParser::singleRegisterFloat32()
 {
-    auto input = QStringList() <<           "${45332: float32}";
-    auto expExpressions = QStringList() <<  "r(0             )";
+    auto input = QStringList() <<           "${45332: f32b}";
+    auto expExpressions = QStringList() <<  "r(0          )";
 
     auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(45332, Connection::ID_1, ModbusDataType::FLOAT_32);
 
