@@ -29,42 +29,42 @@ void RegisterValueHandler::processPartialResult(QMap<quint32, Result<quint16> > 
     {
         const ModbusRegister mbReg = _registerList[listIdx];
 
-        if (mbReg.connectionId() == connectionId)
+        if (
+            (mbReg.connectionId() == connectionId)
+            && (partialResultMap.contains(mbReg.address()))
+            )
         {
-            if (partialResultMap.contains(mbReg.address()))
+            Result<quint16> upperRegister;
+            Result<quint16> lowerRegister;
+            double processedResult = 0;
+
+            lowerRegister = partialResultMap[mbReg.address()];
+
+            if (ModbusDataType::is32Bit(mbReg.type()))
             {
-                Result<quint16> upperRegister;
-                Result<quint16> lowerRegister;
-                double processedResult = 0;
-
-                lowerRegister = partialResultMap[mbReg.address()];
-
-                if (ModbusDataType::is32Bit(mbReg.type()))
+                const quint32 addr = mbReg.address() + 1u;
+                if (partialResultMap.contains(addr))
                 {
-                    const quint32 addr = mbReg.address() + 1u;
-                    if (partialResultMap.contains(addr))
-                    {
-                        upperRegister = partialResultMap[addr];
-                    }
+                    upperRegister = partialResultMap[addr];
                 }
-                else
-                {
-                    /* Dummy valid value */
-                    upperRegister = Result<quint16>(0, true);
-                }
-
-                bool bSuccess = lowerRegister.isSuccess() && upperRegister.isSuccess();
-                if (bSuccess)
-                {
-                    processedResult = mbReg.processValue(lowerRegister.value(), upperRegister.value(), _pSettingsModel->int32LittleEndian(connectionId));
-                }
-                else
-                {
-                    processedResult = 0;
-                }
-
-                _resultList[listIdx] = Result<double>(static_cast<qint64>(processedResult), bSuccess);
             }
+            else
+            {
+                /* Dummy valid value */
+                upperRegister = Result<quint16>(0, true);
+            }
+
+            bool bSuccess = lowerRegister.isSuccess() && upperRegister.isSuccess();
+            if (bSuccess)
+            {
+                processedResult = mbReg.processValue(lowerRegister.value(), upperRegister.value(), _pSettingsModel->int32LittleEndian(connectionId));
+            }
+            else
+            {
+                processedResult = 0;
+            }
+
+            _resultList[listIdx] = Result<double>(static_cast<qint64>(processedResult), bSuccess);
         }
     }
 }
