@@ -64,7 +64,7 @@ void RegisterValueHandler::processPartialResult(QMap<quint32, Result<quint16> > 
                 processedResult = 0;
             }
 
-            _resultList[listIdx] = Result<double>(static_cast<qint64>(processedResult), bSuccess);
+            _resultList[listIdx] = Result<double>(processedResult, bSuccess);
         }
     }
 }
