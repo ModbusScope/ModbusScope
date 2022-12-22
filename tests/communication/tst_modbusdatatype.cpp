@@ -4,6 +4,8 @@
 #include "modbusdatatype.h"
 #include "tst_modbusdatatype.h"
 
+using Type = ModbusDataType::Type;
+
 void TestModbusDataType::init()
 {
 
@@ -16,29 +18,29 @@ void TestModbusDataType::cleanup()
 
 void TestModbusDataType::is32bit()
 {
-    QCOMPARE(ModbusDataType::is32Bit(ModbusDataType::UNSIGNED_16), false);
-    QCOMPARE(ModbusDataType::is32Bit(ModbusDataType::SIGNED_16), false);
-    QCOMPARE(ModbusDataType::is32Bit(ModbusDataType::UNSIGNED_32), true);
-    QCOMPARE(ModbusDataType::is32Bit(ModbusDataType::SIGNED_32), true);
-    QCOMPARE(ModbusDataType::is32Bit(ModbusDataType::FLOAT_32), true);
+    QCOMPARE(ModbusDataType::is32Bit(Type::UNSIGNED_16), false);
+    QCOMPARE(ModbusDataType::is32Bit(Type::SIGNED_16), false);
+    QCOMPARE(ModbusDataType::is32Bit(Type::UNSIGNED_32), true);
+    QCOMPARE(ModbusDataType::is32Bit(Type::SIGNED_32), true);
+    QCOMPARE(ModbusDataType::is32Bit(Type::FLOAT_32), true);
 }
 
 void TestModbusDataType::isUnsigned()
 {
-    QCOMPARE(ModbusDataType::isUnsigned(ModbusDataType::UNSIGNED_16), true);
-    QCOMPARE(ModbusDataType::isUnsigned(ModbusDataType::SIGNED_16), false);
-    QCOMPARE(ModbusDataType::isUnsigned(ModbusDataType::UNSIGNED_32), true);
-    QCOMPARE(ModbusDataType::isUnsigned(ModbusDataType::SIGNED_32), false);
-    QCOMPARE(ModbusDataType::isUnsigned(ModbusDataType::FLOAT_32), false);
+    QCOMPARE(ModbusDataType::isUnsigned(Type::UNSIGNED_16), true);
+    QCOMPARE(ModbusDataType::isUnsigned(Type::SIGNED_16), false);
+    QCOMPARE(ModbusDataType::isUnsigned(Type::UNSIGNED_32), true);
+    QCOMPARE(ModbusDataType::isUnsigned(Type::SIGNED_32), false);
+    QCOMPARE(ModbusDataType::isUnsigned(Type::FLOAT_32), false);
 }
 
 void TestModbusDataType::isFloat()
 {
-    QCOMPARE(ModbusDataType::isFloat(ModbusDataType::UNSIGNED_16), false);
-    QCOMPARE(ModbusDataType::isFloat(ModbusDataType::SIGNED_16), false);
-    QCOMPARE(ModbusDataType::isFloat(ModbusDataType::UNSIGNED_32), false);
-    QCOMPARE(ModbusDataType::isFloat(ModbusDataType::SIGNED_32), false);
-    QCOMPARE(ModbusDataType::isFloat(ModbusDataType::FLOAT_32), true);
+    QCOMPARE(ModbusDataType::isFloat(Type::UNSIGNED_16), false);
+    QCOMPARE(ModbusDataType::isFloat(Type::SIGNED_16), false);
+    QCOMPARE(ModbusDataType::isFloat(Type::UNSIGNED_32), false);
+    QCOMPARE(ModbusDataType::isFloat(Type::SIGNED_32), false);
+    QCOMPARE(ModbusDataType::isFloat(Type::FLOAT_32), true);
 }
 
 void TestModbusDataType::convertString_data()
@@ -48,11 +50,11 @@ void TestModbusDataType::convertString_data()
     QTest::addColumn<QString>("strType");
     QTest::addColumn<ModbusDataType::Type>("type");
 
-    ADD_TEST("16b", ModbusDataType::UNSIGNED_16);
-    ADD_TEST("s16b", ModbusDataType::SIGNED_16);
-    ADD_TEST("32b", ModbusDataType::UNSIGNED_32);
-    ADD_TEST("s32b", ModbusDataType::SIGNED_32);
-    ADD_TEST("f32b", ModbusDataType::FLOAT_32);
+    ADD_TEST("16b", Type::UNSIGNED_16);
+    ADD_TEST("s16b", Type::SIGNED_16);
+    ADD_TEST("32b", Type::UNSIGNED_32);
+    ADD_TEST("s32b", Type::SIGNED_32);
+    ADD_TEST("f32b", Type::FLOAT_32);
 }
 
 void TestModbusDataType::convertString()
@@ -73,7 +75,7 @@ void TestModbusDataType::convertStringUnknown()
     ModbusDataType::Type actType = ModbusDataType::convertString("noType", bOk);
 
     QVERIFY(!bOk);
-    QCOMPARE(actType, ModbusDataType::UNSIGNED_16);
+    QCOMPARE(actType, Type::UNSIGNED_16);
 }
 
 //convertString

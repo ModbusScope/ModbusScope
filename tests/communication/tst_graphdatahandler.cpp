@@ -10,6 +10,8 @@
 
 Q_DECLARE_METATYPE(Result<quint16>);
 
+using Type = ModbusDataType::Type;
+
 #define ADD_TEST(expr, errorPos)      QTest::newRow(expr) << QString(expr) << static_cast<int>(errorPos)
 
 void TestGraphDataHandler::init()
@@ -37,9 +39,9 @@ void TestGraphDataHandler::registerList()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_2, ModbusDataType::UNSIGNED_16)
-                                                      << ModbusRegister(40001, Connection::ID_1, ModbusDataType::UNSIGNED_16)
-                                                      << ModbusRegister(40002, Connection::ID_1, ModbusDataType::SIGNED_32);
+    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_2, Type::UNSIGNED_16)
+                                                      << ModbusRegister(40001, Connection::ID_1, Type::UNSIGNED_16)
+                                                      << ModbusRegister(40002, Connection::ID_1, Type::SIGNED_32);
 
     GraphDataHandler dataHandler;
     QList<ModbusRegister> registerList;
@@ -110,7 +112,7 @@ void TestGraphDataHandler::manyInactiveRegisters()
     _pGraphDataModel->setExpression(9, "${40003}");
     _pGraphDataModel->setActive(9, false);
 
-    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(40002, Connection::ID_1, ModbusDataType::UNSIGNED_16);
+    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(40002, Connection::ID_1, Type::UNSIGNED_16);
 
     GraphDataHandler dataHandler;
     QList<ModbusRegister> registerList;

@@ -2,7 +2,7 @@
 
 
 ModbusRegister::ModbusRegister()
-    : ModbusRegister(0, 0, ModbusDataType::UNSIGNED_16)
+    : ModbusRegister(0, 0, ModbusDataType::Type::UNSIGNED_16)
 {
 
 }
