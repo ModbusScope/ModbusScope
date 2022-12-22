@@ -13,6 +13,16 @@ private slots:
     void copy();
     void description();
 
+    void processValue_16b_data();
+    void processValue_16b();
+    void processValue_s16b_data();
+    void processValue_s16b();
+
+    void processValue_32b_data();
+    void processValue_32b();
+    void processValue_s32b_data();
+    void processValue_s32b();
+
 
 private:
 
