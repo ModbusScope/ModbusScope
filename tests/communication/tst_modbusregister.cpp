@@ -10,8 +10,8 @@ using Type = ModbusDataType::Type;
 #define ADD_TEST_16(name, registerValue, value)      QTest::newRow(name) << static_cast<uint16_t>(registerValue)       \
                                                                         << static_cast<double>(value)
 
-#define ADD_TEST_32(name, lowerRegister, upperRegister, value)      QTest::newRow(name) << static_cast<uint16_t>(lowerRegister)       \
-                                                                                     << static_cast<uint16_t>(upperRegister)       \
+#define ADD_TEST_32(name, upperRegister, lowerRegister, value)      QTest::newRow(name) << static_cast<uint16_t>(upperRegister)       \
+                                                                                     << static_cast<uint16_t>(lowerRegister)       \
                                                                                      << static_cast<double>(value)
 
 void TestModbusRegister::init()
@@ -114,51 +114,57 @@ void TestModbusRegister::processValue_s16b()
 
 void TestModbusRegister::processValue_32b_data()
 {
-    QTest::addColumn<uint16_t>("lowerRegister");
     QTest::addColumn<uint16_t>("upperRegister");
+    QTest::addColumn<uint16_t>("lowerRegister");
     QTest::addColumn<double>("expValue");
 
     ADD_TEST_32("32b_1", 0, 0, 0);
-    ADD_TEST_32("32b_2", 0xFFFF, 0xFFFF, UINT32_MAX);
+    ADD_TEST_32("32b_2", 0, 1, 1);
+    ADD_TEST_32("32b_3", 1, 0, 65536);
+    ADD_TEST_32("32b_4", 0xFFFF, 0xFFFF, UINT32_MAX);
 }
 
 void TestModbusRegister::processValue_32b()
 {
-    QFETCH(uint16_t, lowerRegister);
     QFETCH(uint16_t, upperRegister);
+    QFETCH(uint16_t, lowerRegister);
+
     QFETCH(double, expValue);
 
     ModbusRegister reg(40001, Connection::ID_1, Type::UNSIGNED_32);
 
-    double actValue = reg.processValue(lowerRegister, upperRegister, false);
+    double actValue = reg.processValue(upperRegister, lowerRegister, false);
     QCOMPARE(actValue, expValue);
 
-    double actValue2 = reg.processValue(upperRegister, lowerRegister, true);
+    double actValue2 = reg.processValue(lowerRegister, upperRegister, true);
     QCOMPARE(actValue2, expValue);
 }
 
 void TestModbusRegister::processValue_s32b_data()
 {
-    QTest::addColumn<uint16_t>("lowerRegister");
     QTest::addColumn<uint16_t>("upperRegister");
+    QTest::addColumn<uint16_t>("lowerRegister");
     QTest::addColumn<double>("expValue");
 
     ADD_TEST_32("s32b_1", 0, 0, 0);
-    ADD_TEST_32("s32b_2", 0xFFFF, 0xFFFF, -1);
+    ADD_TEST_32("s32b_2", 0, 1, 1);
+    ADD_TEST_32("s32b_3", 1, 0, 65536);
+    ADD_TEST_32("s32b_4", 0xFFFF, 0xFFFF, -1);
 }
 
 void TestModbusRegister::processValue_s32b()
 {
+    QFETCH(uint16_t, upperRegister);
     QFETCH(uint16_t, lowerRegister);
     QFETCH(uint16_t, upperRegister);
     QFETCH(double, expValue);
 
     ModbusRegister reg(40001, Connection::ID_1, Type::SIGNED_32);
 
-    double actValue = reg.processValue(lowerRegister, upperRegister, false);
+    double actValue = reg.processValue(upperRegister, lowerRegister, false);
     QCOMPARE(actValue, expValue);
 
-    double actValue2 = reg.processValue(upperRegister, lowerRegister, true);
+    double actValue2 = reg.processValue(lowerRegister, upperRegister, true);
     QCOMPARE(actValue2, expValue);
 }
 
