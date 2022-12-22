@@ -7,28 +7,29 @@ class ModbusDataType
 {
 
 public:
-    enum Type
+
+    enum class Type
     {
-        UNSIGNED_16,
-        SIGNED_16,
-        UNSIGNED_32,
-        SIGNED_32,
-        FLOAT_32,
+        UNSIGNED_16 = 0,
+        SIGNED_16 = 1,
+        UNSIGNED_32 = 2,
+        SIGNED_32 = 3,
+        FLOAT_32 = 4,
     };
 
     static bool is32Bit(ModbusDataType::Type type)
     {
-        return cDataTypes[type].b32Bit;
+        return cDataTypes[static_cast<int>(type)].b32Bit;
     }
 
     static bool isUnsigned(ModbusDataType::Type type)
     {
-        return cDataTypes[type].bUnsigned;
+        return cDataTypes[static_cast<int>(type)].bUnsigned;
     }
 
     static bool isFloat(ModbusDataType::Type type)
     {
-        return cDataTypes[type].bFloat;
+        return cDataTypes[static_cast<int>(type)].bFloat;
     }
 
     static Type convertString(QString strType, bool &bOk)
@@ -37,28 +38,28 @@ public:
 
         if (strType == "16b" || strType.isEmpty())
         {
-            return UNSIGNED_16;
+            return Type::UNSIGNED_16;
         }
         else if (strType == "s16b")
         {
-            return SIGNED_16;
+            return Type::SIGNED_16;
         }
         else if (strType == "32b")
         {
-            return UNSIGNED_32;
+            return Type::UNSIGNED_32;
         }
         else if (strType == "s32b")
         {
-            return SIGNED_32;
+            return Type::SIGNED_32;
         }
         else if (strType == "f32b")
         {
-            return FLOAT_32;
+            return Type::FLOAT_32;
         }
         else
         {
             bOk = false;
-            return UNSIGNED_16;
+            return Type::UNSIGNED_16;
         }
     }
 
