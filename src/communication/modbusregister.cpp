@@ -66,7 +66,13 @@ double ModbusRegister::processValue(uint16_t lowerRegister, uint16_t upperRegist
 {
     double processedResult = 0u;
 
-    if (ModbusDataType::is32Bit(_type))
+    if (ModbusDataType::isFloat(_type))
+    {
+        uint32_t combinedValue = convertEndianness(int32LittleEndian, lowerRegister, upperRegister);
+
+        processedResult = convertUint32ToFloat(combinedValue);
+    }
+    else if (ModbusDataType::is32Bit(_type))
     {
         uint32_t combinedValue = convertEndianness(int32LittleEndian, lowerRegister, upperRegister);
 
@@ -161,3 +167,19 @@ uint32_t ModbusRegister::convertEndianness(bool bLittleEndian, quint16 value, qu
 
     return combinedValue;
 }
+
+double ModbusRegister::convertUint32ToFloat(quint32 value) const
+{
+    const double doubleValue = std::bit_cast<float>(value);
+
+    switch(std::fpclassify(doubleValue))
+    {
+        case FP_INFINITE:  return 0.0f;
+        case FP_NAN:       return 0.0f;
+        case FP_NORMAL:    return doubleValue;
+        case FP_SUBNORMAL: return doubleValue;
+        case FP_ZERO:      return 0.0f;
+        default:           return doubleValue;
+    }
+}
+

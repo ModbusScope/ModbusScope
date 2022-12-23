@@ -38,6 +38,7 @@ public:
 
 private:
     uint32_t convertEndianness(bool bLittleEndian, quint16 value, quint16 nextValue) const;
+    double convertUint32ToFloat(quint32 value) const;
 
     quint32 _address;
     quint8 _connectionId;
