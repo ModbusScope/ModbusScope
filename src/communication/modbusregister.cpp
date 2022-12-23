@@ -170,7 +170,7 @@ uint32_t ModbusRegister::convertEndianness(bool bLittleEndian, quint16 value, qu
 
 double ModbusRegister::convertUint32ToFloat(quint32 value) const
 {
-    const double doubleValue = std::bit_cast<float>(value);
+    const double doubleValue = *(reinterpret_cast<float*>(&value));
 
     switch(std::fpclassify(doubleValue))
     {
