@@ -23,6 +23,8 @@ private slots:
     void processValue_s32b_data();
     void processValue_s32b();
 
+    void processValue_f32b_data();
+    void processValue_f32b();
 
 private:
 

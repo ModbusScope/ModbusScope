@@ -156,10 +156,48 @@ void TestModbusRegister::processValue_s32b()
 {
     QFETCH(uint16_t, upperRegister);
     QFETCH(uint16_t, lowerRegister);
-    QFETCH(uint16_t, upperRegister);
     QFETCH(double, expValue);
 
     ModbusRegister reg(40001, Connection::ID_1, Type::SIGNED_32);
+
+    double actValue = reg.processValue(upperRegister, lowerRegister, false);
+    QCOMPARE(actValue, expValue);
+
+    double actValue2 = reg.processValue(lowerRegister, upperRegister, true);
+    QCOMPARE(actValue2, expValue);
+}
+
+void TestModbusRegister::processValue_f32b_data()
+{
+    QTest::addColumn<uint16_t>("upperRegister");
+    QTest::addColumn<uint16_t>("lowerRegister");
+    QTest::addColumn<double>("expValue");
+
+    ADD_TEST_32("f32b_1", 0x0000, 0x0001, 1.4012984643e-45);        // smallest positive subnormal number
+    ADD_TEST_32("f32b_2", 0x007f, 0xffff, 1.1754942107e-38);        // largest subnormal number
+    ADD_TEST_32("f32b_3", 0x0080, 0x0000, 1.1754943508e-38);        // smallest positive normal number
+    ADD_TEST_32("f32b_4", 0x7f7f, 0xffff, 3.40282346639e38);        // largest normal number
+    ADD_TEST_32("f32b_5", 0x3f7f, 0xffff, 0.999999940395355225);    // largest number less than one
+    ADD_TEST_32("f32b_6", 0x3f80, 0x0000, 1);
+    ADD_TEST_32("f32b_7", 0x3f80, 0x0001, 1.00000011920928955);     // smallest number larger than one
+    ADD_TEST_32("f32b_8", 0xc000, 0x0000, -2);
+    ADD_TEST_32("f32b_9", 0x0000, 0x0000, 0);
+    ADD_TEST_32("f32b_10", 0x8000, 0x0000, 0);                      // -0
+    ADD_TEST_32("f32b_11", 0x7f80, 0x0000, 0);                      // infinity
+    ADD_TEST_32("f32b_12", 0xff80, 0x0000, 0);                      // −infinity
+    ADD_TEST_32("f32b_13", 0x4049, 0x0fdb, 3.14159274101257324);    // pi
+    ADD_TEST_32("f32b_14", 0x3eaa, 0xaaab, 0.333333343267440796);   // 1/3
+    ADD_TEST_32("f32b_15", 0xffc0, 0x0001, 0);                      // qNaN (on x86 and ARM processors)
+    ADD_TEST_32("f32b_16", 0xff80, 0x0001, 0);                      // sNaN (on x86 and ARM processors)
+}
+
+void TestModbusRegister::processValue_f32b()
+{
+    QFETCH(uint16_t, upperRegister);
+    QFETCH(uint16_t, lowerRegister);
+    QFETCH(double, expValue);
+
+    ModbusRegister reg(40001, Connection::ID_1, ModbusDataType::Type::FLOAT_32);
 
     double actValue = reg.processValue(upperRegister, lowerRegister, false);
     QCOMPARE(actValue, expValue);
