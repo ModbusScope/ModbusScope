@@ -7,4 +7,4 @@ cd release
 cmake -GNinja .. 
 ninja
 
-ctest
+ctest --output-on-failure
