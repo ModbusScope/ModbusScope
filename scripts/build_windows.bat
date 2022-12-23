@@ -14,7 +14,7 @@ IF ERRORLEVEL 1 GOTO errorHandling
 ninja
 IF ERRORLEVEL 1 GOTO errorHandling
 
-ctest
+ctest --output-on-failure
 IF ERRORLEVEL 1 GOTO errorHandling
 
 cd ..
