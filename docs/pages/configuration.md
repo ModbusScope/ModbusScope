@@ -59,7 +59,7 @@ Following register types are currently supported by ModbusScope:
 
 * `f32b`: 32-bit float (IEEE 754)
 
-The endiannes of 32-bit registers can be configured with the `32-bit little endian` setting in the connection settings dialog.
+The endianness of 32-bit registers can be configured with the `32-bit little endian` setting in the connection settings dialog.
 
 #### Expression error
 
