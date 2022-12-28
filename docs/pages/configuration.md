@@ -45,6 +45,22 @@ Some examples of valid expressions are
 * `${40001} & 0b11111000`
 * `()${40001} >> 8) & 0xFF`
 
+##### Available register types
+
+Following register types are currently supported by ModbusScope:
+
+* `16b`: Unsigned 16-bit value
+
+* `s16b`: Signed 16-bit
+
+* `32b`: Unsigned 32-bit value
+
+* `s32b`: Signed 32-bit value
+
+* `f32b`: 32-bit float (IEEE 754)
+
+The endiannes of 32-bit registers can be configured with the `32-bit little endian` setting in the connection settings dialog.
+
 #### Expression error
 
 When the expression contains an error or when the combination of the expression with a specific input value generates an error, no output value is shown. A specific error message will be shown and the register definition will be indicated in red.
