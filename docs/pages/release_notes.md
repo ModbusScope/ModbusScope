@@ -14,6 +14,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Added
 
+* Add support for 32-bit floating point type ([Github #250](https://github.com/jgeudens/ModbusScope/issues/250))
 * Add indicator on axis to indicate value axis configuration of curve
 
 ### Fixed
