@@ -91,6 +91,26 @@ void TestCommunication::singleSlaveSuccess()
     CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
 }
 
+void TestCommunication::typeFloat32()
+{
+    auto exprList = QStringList() << "${40001: f32b}";
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    _testSlaveDataList[Connection::ID_1]->setRegisterState(0, true);
+    _testSlaveDataList[Connection::ID_1]->setRegisterValue(0, 0xffff);
+
+    _testSlaveDataList[Connection::ID_1]->setRegisterState(1, true);
+    _testSlaveDataList[Connection::ID_1]->setRegisterValue(1, 0x3f7f);
+
+    auto resultList = QList<bool>() << true;
+    auto valueList = QList<double>() << 0.999999940395355225f;
+
+    QList<QVariant> rawRegData;
+    doHandleRegisterData(rawRegData);
+
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
+}
+
 void TestCommunication::constantExpression()
 {
     auto exprList = QStringList() << "3";
