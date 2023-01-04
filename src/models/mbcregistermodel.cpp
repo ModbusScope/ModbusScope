@@ -120,7 +120,7 @@ QVariant MbcRegisterModel::data(const QModelIndex &index, int role) const
     case cColumnUnsigned:
         if (role == Qt::CheckStateRole)
         {
-            if (_mbcRegisterList[index.row()].isUnsigned())
+            if (ModbusDataType::isUnsigned(_mbcRegisterList[index.row()].type()))
             {
                 return Qt::Checked;
             }
@@ -223,6 +223,8 @@ Qt::ItemFlags MbcRegisterModel::flags(const QModelIndex & index) const
     {
         return Qt::NoItemFlags;
     }
+
+    // ADD float
 
     Qt::ItemFlags flags = Qt::NoItemFlags;
 

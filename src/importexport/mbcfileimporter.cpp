@@ -125,17 +125,12 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
 
     QString name;
     QString addr;
-    QString type;
+    QString strType;
     QString rw;
     QString decimals;
     MbcRegisterData modbusRegister;
 
     modbusRegister.setTabIdx(tabIdx);
-    modbusRegister.setRegisterAddress(0);
-    modbusRegister.setUnsigned(false);
-    modbusRegister.setName(QString());
-    modbusRegister.set32Bit(false);
-    modbusRegister.setDecimals(0);
 
     QDomElement child = element.firstChildElement();
 
@@ -151,7 +146,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
         }
         else if (child.tagName().toLower().trimmed() == MbcFileDefinitions::cTypeTag)
         {
-            type = child.text().toLower().trimmed();
+            strType = child.text().toLower().trimmed();
         }
         else if (child.tagName().toLower().trimmed() == MbcFileDefinitions::cReadWrite)
         {
@@ -172,7 +167,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
     if (
             !name.isEmpty()
             || !addr.isEmpty()
-            || !type.isEmpty()
+            || !strType.isEmpty()
             || !rw.isEmpty()
             || !decimals.isEmpty()
     )
@@ -231,11 +226,17 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
         /* Optional */
         if (bRet)
         {
-            if (type.right(2) == "32")
+            bool bOk;
+            ModbusDataType::Type type = ModbusDataType::convertMbcString(strType, bOk);
+
+            if (bOk)
             {
-                modbusRegister.set32Bit(true);
+                modbusRegister.setType(type);
             }
-            modbusRegister.setUnsigned(isUnsigned(type));
+            else
+            {
+                bRet = false;
+            }
         }
 
         /* optional */
@@ -252,7 +253,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
             /* Save register in list */
             _registerList.append(modbusRegister);
 
-            if (modbusRegister.is32Bit())
+            if (ModbusDataType::is32Bit(modbusRegister.type()))
             {               
                 /* Increment address with 2 */
                 _nextRegisterAddr = static_cast<qint32>(modbusRegister.registerAddress()) + 2;
@@ -266,7 +267,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
         else
         {
             Util::showError(tr("A tag is not present or value is not valid.\n\nName: %1\nRegister address: %2\nType: %3\nDecimals: %4")
-                                .arg(name, addr, type, decimals)
+                                .arg(name, addr, strType, decimals)
                             );
         }
 

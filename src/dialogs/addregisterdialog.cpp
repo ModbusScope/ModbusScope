@@ -114,5 +114,8 @@ QString AddRegisterDialog::generateExpression()
         connectionId = 0;
     }
 
-    return UpdateRegisterNewExpression::constructRegisterString(registerAddress, is32bit, bUnsigned, connectionId);
+    bool bFloat = false;
+    auto type = ModbusDataType::convertSettings(is32bit, bUnsigned, bFloat);
+
+    return UpdateRegisterNewExpression::constructRegisterString(registerAddress, type, connectionId);
 }

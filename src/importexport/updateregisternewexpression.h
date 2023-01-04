@@ -3,12 +3,13 @@
 
 #include <QString>
 
+#include "modbusdatatype.h"
 #include "projectfiledata.h"
 
 namespace UpdateRegisterNewExpression
 {
-    QString typeSuffix(bool is32bit, bool bUnsigned);
-    QString constructRegisterString(quint32 registerAddress, bool is32bit, bool bUnsigned, quint8 connectionId);
+    QString typeSuffix(ModbusDataType::Type type);
+    QString constructRegisterString(quint32 registerAddress, ModbusDataType::Type type, quint8 connectionId);
     void convert(ProjectFileData::RegisterSettings& regSettings, QString& resultExpr);
 }
 

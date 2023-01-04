@@ -14,6 +14,10 @@ private slots:
 
     void convertString_data();
     void convertString();
+
+    void convertMbcString_data();
+    void convertMbcString();
+
     void convertStringUnknown();
 
 private:

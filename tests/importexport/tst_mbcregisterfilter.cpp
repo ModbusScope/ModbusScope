@@ -16,10 +16,10 @@ void TestMbcRegisterFilter::init()
     QList<MbcRegisterData> mbcRegisterList;
     QStringList tabList = QStringList() << QStringLiteral("tab1") << QStringLiteral("tab2");
 
-    mbcRegisterList.append(MbcRegisterData(40001, true, "Test1", 0, false, true, 0));
-    mbcRegisterList.append(MbcRegisterData(40002, true, "Test2", 0, false, true, 0));
-    mbcRegisterList.append(MbcRegisterData(41002, true, "Test3", 1, false, true, 0));
-    mbcRegisterList.append(MbcRegisterData(41003, true, "Test4", 1, false, true, 0));
+    mbcRegisterList.append(MbcRegisterData(40001, ModbusDataType::Type::UNSIGNED_16, "Test1", 0, true, 0));
+    mbcRegisterList.append(MbcRegisterData(40002, ModbusDataType::Type::UNSIGNED_16, "Test2", 0, true, 0));
+    mbcRegisterList.append(MbcRegisterData(41002, ModbusDataType::Type::UNSIGNED_16, "Test3", 1, true, 0));
+    mbcRegisterList.append(MbcRegisterData(41003, ModbusDataType::Type::UNSIGNED_16, "Test4", 1, true, 0));
 
     _pMbcRegisterModel->fill(mbcRegisterList, tabList);
 }

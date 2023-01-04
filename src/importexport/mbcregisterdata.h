@@ -3,12 +3,13 @@
 
 #include <QtGlobal>
 #include <QString>
+#include "modbusdatatype.h"
 
 class MbcRegisterData
 {
 public:
     explicit MbcRegisterData();
-    MbcRegisterData(quint32 registerAddress, bool bUnsigned, QString name, qint32 tabIdx, bool bUint32, bool bReadable, quint8 decimals);
+    MbcRegisterData(quint32 registerAddress, ModbusDataType::Type type, QString name, qint32 tabIdx, bool bReadable, quint8 decimals);
     ~MbcRegisterData();
 
     bool compare(MbcRegisterData* pMbcRegdata);
@@ -16,17 +17,15 @@ public:
     quint32 registerAddress() const;
     void setRegisterAddress(const quint32 &registerAddress);
 
-    bool isUnsigned() const;
-    void setUnsigned(bool isUnsigned);
+    void setType(ModbusDataType::Type type);
+
+    ModbusDataType::Type type() const;
 
     QString name() const;
     void setName(const QString &name);
 
     qint32 tabIdx() const;
     void setTabIdx(const qint32 &tabIdx);
-
-    bool is32Bit() const;
-    void set32Bit(bool is32Bit);
 
     bool isReadable() const;
     void setReadable(bool isReadable);
@@ -38,13 +37,10 @@ public:
 
 private:
 
-    QString typeSuffix(bool is32bit, bool bUnsigned);
-
     quint32 _registerAddress;
-    bool _bUnsigned;
     QString _name;
     qint32 _tabIdx;
-    bool _bUint32;
+    ModbusDataType::Type _type;
     bool _bReadable;
     quint8 _decimals;
 };

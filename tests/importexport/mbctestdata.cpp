@@ -16,8 +16,8 @@ QStringList MbcTestData::cSingleTab_TabList =
                     QStringList() << "Tab1";
 
 QList <MbcRegisterData> MbcTestData::cSingleTab_RegList =
-                    QList <MbcRegisterData>() << MbcRegisterData(40001, true, "Reg1", 0, false, true, 0)
-                                              << MbcRegisterData(40002, true, "Reg2", 0, false, true, 0);
+                    QList <MbcRegisterData>() << MbcRegisterData(40001, ModbusDataType::Type::UNSIGNED_16, "Reg1", 0, true, 0)
+                                              << MbcRegisterData(40002, ModbusDataType::Type::UNSIGNED_16, "Reg2", 0, true, 0);
 
 
 QString MbcTestData::cMultiTab = QString(
@@ -44,9 +44,9 @@ QStringList MbcTestData::cMultiTab_TabList =
                                   << "Tab3";
 
 QList <MbcRegisterData> MbcTestData::cMultiTab_RegList =
-                    QList <MbcRegisterData>() << MbcRegisterData(40001, true, "Reg1", 0, false, true, 0)
-                                              << MbcRegisterData(40002, true, "Reg2", 1, false, true, 0)
-                                              << MbcRegisterData(40003, true, "Reg3", 2, false, true, 0);
+                    QList <MbcRegisterData>() << MbcRegisterData(40001, ModbusDataType::Type::UNSIGNED_16, "Reg1", 0, true, 0)
+                                              << MbcRegisterData(40002, ModbusDataType::Type::UNSIGNED_16, "Reg2", 1, true, 0)
+                                              << MbcRegisterData(40003, ModbusDataType::Type::UNSIGNED_16, "Reg3", 2, true, 0);
 
 QString MbcTestData::cRegisterOptions = QString(
     "﻿<?xml version=\"1.0\" encoding=\"utf-8\"?>"                                        "\n"\
@@ -67,14 +67,14 @@ QString MbcTestData::cRegisterOptions = QString(
 QStringList MbcTestData::cRegisterOptions_TabList = QStringList() << "Tab1";
 
 QList <MbcRegisterData> MbcTestData::cRegisterOptions_RegList =
-                    QList <MbcRegisterData>() << MbcRegisterData(40001, true, "Reg1", 0, false, true, 0)
-                                              << MbcRegisterData(40002, false, "Reg2", 0, false, true, 0)
-                                              << MbcRegisterData(40003, true, "Reg3", 0, false, false, 0)
-                                              << MbcRegisterData(40004, true, "Reg4", 0, true, true, 0)
-                                              << MbcRegisterData(40006, true, "Reg5", 0, false, true, 0)
+                    QList <MbcRegisterData>() << MbcRegisterData(40001, ModbusDataType::Type::UNSIGNED_16, "Reg1", 0, true, 0)
+                                              << MbcRegisterData(40002, ModbusDataType::Type::SIGNED_16, "Reg2", 0, true, 0)
+                                              << MbcRegisterData(40003, ModbusDataType::Type::UNSIGNED_16, "Reg3", 0, false, 0)
+                                              << MbcRegisterData(40004, ModbusDataType::Type::UNSIGNED_32, "Reg4", 0, true, 0)
+                                              << MbcRegisterData(40006, ModbusDataType::Type::UNSIGNED_16, "Reg5", 0, true, 0)
 
-                                              << MbcRegisterData(40007, true, "Reg6", 0, false, true, 0)
-                                              << MbcRegisterData(40008, true, "Reg7", 0, false, true, 5)
+                                              << MbcRegisterData(40007, ModbusDataType::Type::UNSIGNED_16, "Reg6", 0, true, 0)
+                                              << MbcRegisterData(40008, ModbusDataType::Type::UNSIGNED_16, "Reg7", 0, true, 5)
                                                 ;
 
 
@@ -97,9 +97,9 @@ QStringList MbcTestData::cAutoincrement_TabList =
                     QStringList() << "Tab1";
 
 QList <MbcRegisterData> MbcTestData::cAutoincrement_RegList =
-                    QList <MbcRegisterData>() << MbcRegisterData(40001, true, "Reg1", 0, false, true, 0)
-                                              << MbcRegisterData(40002, true, "Reg2", 0, false, true, 0)
-                                              << MbcRegisterData(40003, true, "Reg3", 0, false, true, 0)
-                                              << MbcRegisterData(40010, true, "Reg10", 0, false, true, 0)
-                                              << MbcRegisterData(40011, true, "Reg11", 0, false, true, 0)
+                    QList <MbcRegisterData>() << MbcRegisterData(40001, ModbusDataType::Type::UNSIGNED_16, "Reg1", 0, true, 0)
+                                              << MbcRegisterData(40002, ModbusDataType::Type::UNSIGNED_16, "Reg2", 0, true, 0)
+                                              << MbcRegisterData(40003, ModbusDataType::Type::UNSIGNED_16, "Reg3", 0, true, 0)
+                                              << MbcRegisterData(40010, ModbusDataType::Type::UNSIGNED_16, "Reg10", 0, true, 0)
+                                              << MbcRegisterData(40011, ModbusDataType::Type::UNSIGNED_16, "Reg11", 0, true, 0)
                                                  ;
