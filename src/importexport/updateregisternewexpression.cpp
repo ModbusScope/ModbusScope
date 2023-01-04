@@ -5,36 +5,24 @@
 
 namespace UpdateRegisterNewExpression
 {
-    QString typeSuffix(bool is32bit, bool bUnsigned)
+    QString typeSuffix(ModbusDataType::Type type)
     {
         QString suffix;
-
-        if (is32bit)
+        if (type == ModbusDataType::Type::UNSIGNED_16)
         {
-            if (bUnsigned)
-            {
-                suffix = QStringLiteral(":32b");
-            }
-            else
-            {
-                suffix = QStringLiteral(":s32b");
-            }
-        }
-        else if (!bUnsigned)
-        {
-            suffix = QStringLiteral(":s16b");
+            suffix = QString();
         }
         else
         {
-            suffix = QString();
+            suffix = QString(":%1").arg(ModbusDataType::typeString(type));
         }
 
         return suffix;
     }
 
-    QString constructRegisterString(quint32 registerAddress, bool is32bit, bool bUnsigned, quint8 connectionId)
+    QString constructRegisterString(quint32 registerAddress, ModbusDataType::Type type, quint8 connectionId)
     {
-        QString suffix = UpdateRegisterNewExpression::typeSuffix(is32bit, bUnsigned);
+        QString suffix = UpdateRegisterNewExpression::typeSuffix(type);
         QString connStr = connectionId != 0 ? QString("@%1").arg(connectionId + 1) : QString();
 
         return QString("${%1%2%3}").arg(registerAddress).arg(connStr, suffix);
@@ -42,7 +30,10 @@ namespace UpdateRegisterNewExpression
 
     void convert(ProjectFileData::RegisterSettings& regSettings, QString& resultExpr)
     {
-        QString regStr = constructRegisterString(regSettings.address, regSettings.b32Bit, regSettings.bUnsigned, regSettings.connectionId);
+        bool bFloat = false;
+        auto type = ModbusDataType::convertSettings(regSettings.b32Bit, regSettings.bUnsigned, bFloat);
+
+        QString regStr = constructRegisterString(regSettings.address, type, regSettings.connectionId);
         QString valStr = QStringLiteral("VAL");
 
         if (regSettings.bExpression && regSettings.expression.contains(valStr))

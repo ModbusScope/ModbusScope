@@ -5,10 +5,9 @@
 MbcRegisterData::MbcRegisterData()
 {
     _registerAddress = 0;
-    _bUnsigned = true;
+    _type = ModbusDataType::Type::UNSIGNED_16;
     _name = QString();
     _tabIdx = 0;
-    _bUint32 = false;
     _bReadable = true;
     _decimals = 0;
 }
@@ -18,13 +17,12 @@ MbcRegisterData::~MbcRegisterData()
 
 }
 
-MbcRegisterData::MbcRegisterData(quint32 registerAddress, bool bUnsigned, QString name, qint32 tabIdx, bool bUint32, bool bReadable, quint8 decimals)
+MbcRegisterData::MbcRegisterData(quint32 registerAddress, ModbusDataType::Type type, QString name, qint32 tabIdx, bool bReadable, quint8 decimals)
 {
     _registerAddress = registerAddress;
-    _bUnsigned = bUnsigned;
+    _type = type;
     _name = name;
     _tabIdx = tabIdx;
-    _bUint32 = bUint32;
     _bReadable = bReadable;
     _decimals = decimals;
 }
@@ -38,7 +36,7 @@ bool MbcRegisterData::compare(MbcRegisterData* pMbcRegdata)
         bRet = false;
     }
 
-    if (_bUnsigned != pMbcRegdata->isUnsigned())
+    if (_type != pMbcRegdata->type())
     {
         bRet = false;
     }
@@ -49,11 +47,6 @@ bool MbcRegisterData::compare(MbcRegisterData* pMbcRegdata)
     }
 
     if (_name != pMbcRegdata->name())
-    {
-        bRet = false;
-    }
-
-    if (_bUint32 != pMbcRegdata->is32Bit())
     {
         bRet = false;
     }
@@ -81,14 +74,14 @@ void MbcRegisterData::setRegisterAddress(const quint32 &registerAddress)
     _registerAddress = registerAddress;
 }
 
-bool MbcRegisterData::isUnsigned() const
+void MbcRegisterData::setType(ModbusDataType::Type type)
 {
-    return _bUnsigned;
+    _type = type;
 }
 
-void MbcRegisterData::setUnsigned(bool bUnsigned)
+ModbusDataType::Type MbcRegisterData::type() const
 {
-    _bUnsigned = bUnsigned;
+    return _type;
 }
 
 QString MbcRegisterData::name() const
@@ -109,16 +102,6 @@ qint32 MbcRegisterData::tabIdx() const
 void MbcRegisterData::setTabIdx(const qint32 &tabIdx)
 {
     _tabIdx = tabIdx;
-}
-
-bool MbcRegisterData::is32Bit() const
-{
-    return _bUint32;
-}
-
-void MbcRegisterData::set32Bit(bool bUint32)
-{
-    _bUint32 = bUint32;
 }
 
 bool MbcRegisterData::isReadable() const
@@ -144,8 +127,7 @@ void MbcRegisterData::setDecimals(const quint8 &decimals)
 QString MbcRegisterData::toExpression()
 {
     QString expression;
-
-    QString registerStr = UpdateRegisterNewExpression::constructRegisterString(_registerAddress, _bUint32, _bUnsigned, 0);
+    QString registerStr = UpdateRegisterNewExpression::constructRegisterString(_registerAddress, _type, 0);
     if (_decimals != 0)
     {
         expression = QString("%1/%2").arg(registerStr)

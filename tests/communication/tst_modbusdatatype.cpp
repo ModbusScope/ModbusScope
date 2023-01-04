@@ -69,6 +69,32 @@ void TestModbusDataType::convertString()
     QVERIFY(bOk);
 }
 
+void TestModbusDataType::convertMbcString_data()
+{
+    #define ADD_TEST(strType, type)      QTest::newRow(strType) << QString(strType) << static_cast<ModbusDataType::Type>(type)
+
+    QTest::addColumn<QString>("strType");
+    QTest::addColumn<ModbusDataType::Type>("type");
+
+    ADD_TEST("uint16", Type::UNSIGNED_16);
+    ADD_TEST("int16", Type::SIGNED_16);
+    ADD_TEST("uint32", Type::UNSIGNED_32);
+    ADD_TEST("int32", Type::SIGNED_32);
+    ADD_TEST("float32", Type::FLOAT_32);
+}
+
+void TestModbusDataType::convertMbcString()
+{
+    QFETCH(QString, strType);
+    QFETCH(ModbusDataType::Type, type);
+
+    bool bOk;
+    ModbusDataType::Type actType = ModbusDataType::convertMbcString(strType, bOk);
+
+    QCOMPARE(type, actType);
+    QVERIFY(bOk);
+}
+
 void TestModbusDataType::convertStringUnknown()
 {
     bool bOk;
