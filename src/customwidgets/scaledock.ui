@@ -235,7 +235,7 @@
             </widget>
            </item>
            <item>
-            <layout class="QGridLayout" name="gridLayout_5" columnstretch="1,1,1,1">
+            <layout class="QGridLayout" name="gridLayout_5">
              <item row="0" column="0">
               <widget class="QLabel" name="label_17">
                <property name="text">
@@ -246,7 +246,7 @@
              <item row="0" column="1">
               <widget class="QLineEdit" name="lineYMin">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -263,7 +263,7 @@
              <item row="0" column="3">
               <widget class="QLineEdit" name="lineYMax">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
