@@ -20,8 +20,8 @@ QVariant MbcRegisterModel::headerData(int section, Qt::Orientation orientation, 
                 return QString("Address");
             case cColumnText:
                 return QString("Text");
-            case cColumnUnsigned:
-                return QString("Unsigned");
+            case cColumnType:
+                return QString("Type");
             case cColumnTab:
                 return QString("Tab");
             case cColumnDecimals:
@@ -117,17 +117,10 @@ QVariant MbcRegisterModel::data(const QModelIndex &index, int role) const
         }
         break;
 
-    case cColumnUnsigned:
-        if (role == Qt::CheckStateRole)
+    case cColumnType:
+        if (role == Qt::DisplayRole)
         {
-            if (ModbusDataType::isUnsigned(_mbcRegisterList[index.row()].type()))
-            {
-                return Qt::Checked;
-            }
-            else
-            {
-                return Qt::Unchecked;
-            }
+            return ModbusDataType::typeString(_mbcRegisterList[index.row()].type());
         }
         break;
     default:
@@ -224,16 +217,9 @@ Qt::ItemFlags MbcRegisterModel::flags(const QModelIndex & index) const
         return Qt::NoItemFlags;
     }
 
-    // ADD float
-
     Qt::ItemFlags flags = Qt::NoItemFlags;
 
     if (index.column() == cColumnSelected)
-    {
-        // checkable
-        flags = Qt::ItemIsUserCheckable;
-    }
-    else if (index.column() == cColumnUnsigned)
     {
         // checkable
         flags = Qt::ItemIsUserCheckable;
