@@ -76,8 +76,14 @@ void TestModbusDataType::convertMbcString_data()
     QTest::addColumn<ModbusDataType::Type>("type");
 
     ADD_TYPE_TEST("uint16", Type::UNSIGNED_16);
+    ADD_TYPE_TEST("bin16", Type::UNSIGNED_16);
+    ADD_TYPE_TEST("hex16", Type::UNSIGNED_16);
+    ADD_TYPE_TEST("ascii16", Type::UNSIGNED_16);
     ADD_TYPE_TEST("int16", Type::SIGNED_16);
     ADD_TYPE_TEST("uint32", Type::UNSIGNED_32);
+    ADD_TYPE_TEST("bin32", Type::UNSIGNED_32);
+    ADD_TYPE_TEST("hex32", Type::UNSIGNED_32);
+    ADD_TYPE_TEST("ascii32", Type::UNSIGNED_32);
     ADD_TYPE_TEST("int32", Type::SIGNED_32);
     ADD_TYPE_TEST("float32", Type::FLOAT_32);
 }
