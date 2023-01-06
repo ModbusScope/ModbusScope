@@ -2,14 +2,14 @@
 #include "updateregisternewexpression.h"
 #include <QtMath>
 
-MbcRegisterData::MbcRegisterData()
+MbcRegisterData::MbcRegisterData() :
+    _registerAddress(0),
+    _name(QString()),
+    _tabIdx(0),
+    _type(ModbusDataType::Type::UNSIGNED_16),
+    _bReadable(true),
+    _decimals(0)
 {
-    _registerAddress = 0;
-    _type = ModbusDataType::Type::UNSIGNED_16;
-    _name = QString();
-    _tabIdx = 0;
-    _bReadable = true;
-    _decimals = 0;
 }
 
 MbcRegisterData::~MbcRegisterData()
@@ -17,14 +17,14 @@ MbcRegisterData::~MbcRegisterData()
 
 }
 
-MbcRegisterData::MbcRegisterData(quint32 registerAddress, ModbusDataType::Type type, QString name, qint32 tabIdx, bool bReadable, quint8 decimals)
+MbcRegisterData::MbcRegisterData(quint32 registerAddress, ModbusDataType::Type type, QString name, qint32 tabIdx, bool bReadable, quint8 decimals) :
+    _registerAddress(registerAddress),
+    _name(name),
+    _tabIdx(tabIdx),
+    _type(type),
+    _bReadable(bReadable),
+    _decimals(decimals)
 {
-    _registerAddress = registerAddress;
-    _type = type;
-    _name = name;
-    _tabIdx = tabIdx;
-    _bReadable = bReadable;
-    _decimals = decimals;
 }
 
 bool MbcRegisterData::compare(MbcRegisterData* pMbcRegdata)
