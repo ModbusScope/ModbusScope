@@ -60,6 +60,7 @@ QString MbcTestData::cRegisterOptions = QString(
     "	<var><reg>40006</reg><text>Reg5</text><type>uint16</type><rw>r</rw></var>"      "\n"\
     "	<var><reg>40007</reg><text>Reg6</text><type>uint16</type><decimals>0</decimals><rw>r</rw></var>"      "\n"\
     "	<var><reg>40008</reg><text>Reg7</text><type>uint16</type><decimals>5</decimals><rw>r</rw></var>"      "\n"\
+    "	<var><reg>40009</reg><text>Reg8</text><type>float32</type><rw>r</rw></var>"     "\n"\
     "</tab>"                                                                            "\n"\
     "</modbuscontrol>"                                                                  "\n"\
 );
@@ -67,14 +68,14 @@ QString MbcTestData::cRegisterOptions = QString(
 QStringList MbcTestData::cRegisterOptions_TabList = QStringList() << "Tab1";
 
 QList <MbcRegisterData> MbcTestData::cRegisterOptions_RegList =
-                    QList <MbcRegisterData>() << MbcRegisterData(40001, ModbusDataType::Type::UNSIGNED_16, "Reg1", 0, true, 0)
-                                              << MbcRegisterData(40002, ModbusDataType::Type::SIGNED_16, "Reg2", 0, true, 0)
+                    QList <MbcRegisterData>() << MbcRegisterData(40001, ModbusDataType::Type::UNSIGNED_16, "Reg1", 0, true,  0)
+                                              << MbcRegisterData(40002, ModbusDataType::Type::SIGNED_16,   "Reg2", 0, true,  0)
                                               << MbcRegisterData(40003, ModbusDataType::Type::UNSIGNED_16, "Reg3", 0, false, 0)
-                                              << MbcRegisterData(40004, ModbusDataType::Type::UNSIGNED_32, "Reg4", 0, true, 0)
-                                              << MbcRegisterData(40006, ModbusDataType::Type::UNSIGNED_16, "Reg5", 0, true, 0)
-
-                                              << MbcRegisterData(40007, ModbusDataType::Type::UNSIGNED_16, "Reg6", 0, true, 0)
-                                              << MbcRegisterData(40008, ModbusDataType::Type::UNSIGNED_16, "Reg7", 0, true, 5)
+                                              << MbcRegisterData(40004, ModbusDataType::Type::UNSIGNED_32, "Reg4", 0, true,  0)
+                                              << MbcRegisterData(40006, ModbusDataType::Type::UNSIGNED_16, "Reg5", 0, true,  0)
+                                              << MbcRegisterData(40007, ModbusDataType::Type::UNSIGNED_16, "Reg6", 0, true,  0)
+                                              << MbcRegisterData(40008, ModbusDataType::Type::UNSIGNED_16, "Reg7", 0, true,  5)
+                                              << MbcRegisterData(40009, ModbusDataType::Type::FLOAT_32,    "Reg8", 0, true,  0)
                                                 ;
 
 
