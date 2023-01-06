@@ -106,7 +106,13 @@ public:
     {
         bOk = true;
 
-        if (strType == "uint16" || strType.isEmpty())
+        if (
+            (strType == "uint16")
+            || (strType == "hex16")
+            || (strType == "bin16")
+            || (strType == "ascii16")
+            || strType.isEmpty()
+        )
         {
             return Type::UNSIGNED_16;
         }
@@ -114,7 +120,12 @@ public:
         {
             return Type::SIGNED_16;
         }
-        else if (strType == "uint32")
+        else if (
+            (strType == "uint32")
+            || (strType == "hex32")
+            || (strType == "bin32")
+            || (strType == "ascii32")
+        )
         {
             return Type::UNSIGNED_32;
         }
