@@ -428,7 +428,7 @@ void MainWindow::addNoteToGraph()
 {
     bool ok;
     QString text = QInputDialog::getText(this, tr("Add note"),
-                                         tr("Note Text:"), QLineEdit::Normal,
+                                         tr("Note text:"), QLineEdit::Normal,
                                          "", &ok);
     if (ok)
     {
