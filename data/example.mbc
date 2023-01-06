@@ -39,6 +39,7 @@
         <var><reg>40007</reg><text>Bandwidth</text><type>uint16</type><decimals>2</decimals><rw>rw</rw><bcol>255,225,225</bcol></var>
 
         <var><reg>40008</reg><text>Data large</text><type>uint32</type><rw>r</rw></var>
+		<var><reg>40009</reg><text>Float32</text><type>float32</type><rw>r</rw></var>
     </tab>
 	
 </modbuscontrol>
