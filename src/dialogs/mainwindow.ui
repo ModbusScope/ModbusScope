@@ -51,7 +51,7 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>&amp;File</string>
     </property>
     <addaction name="actionOpenProjectFile"/>
     <addaction name="actionReloadProjectFile"/>
@@ -62,28 +62,28 @@
     <addaction name="actionSaveDataFile"/>
     <addaction name="actionExportImage"/>
     <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuProject">
+    <property name="title">
+     <string>&amp;Project</string>
+    </property>
+    <addaction name="separator"/>
     <addaction name="actionConnectionSettings"/>
     <addaction name="actionLogSettings"/>
     <addaction name="actionRegisterSettings"/>
     <addaction name="separator"/>
-    <addaction name="actionExit"/>
-   </widget>
-   <widget class="QMenu" name="menuCommunication">
-    <property name="title">
-     <string>&amp;Communication</string>
-    </property>
-    <addaction name="actionStart"/>
-    <addaction name="actionStop"/>
-    <addaction name="separator"/>
-    <addaction name="actionDiagnostic"/>
+    <addaction name="actionClearData"/>
+    <addaction name="actionManageNotes"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
-     <string>?</string>
+     <string>&amp;Help</string>
     </property>
     <addaction name="actionUpdateAvailable"/>
-    <addaction name="actionOnlineDocumentation"/>
     <addaction name="actionAbout"/>
+    <addaction name="actionOnlineDocumentation"/>
+    <addaction name="actionDiagnostic"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -110,12 +110,10 @@
     <addaction name="separator"/>
     <addaction name="actionHighlightSamplePoints"/>
     <addaction name="separator"/>
-    <addaction name="actionClearData"/>
     <addaction name="separator"/>
-    <addaction name="actionManageNotes"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuCommunication"/>
+   <addaction name="menuProject"/>
    <addaction name="menuView"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -416,7 +414,7 @@
      <normaloff>:/menu_icon/icons/icons/list.svg</normaloff>:/menu_icon/icons/icons/list.svg</iconset>
    </property>
    <property name="text">
-    <string>Re&amp;gister settings...</string>
+    <string>&amp;Register settings...</string>
    </property>
   </action>
   <action name="actionLogSettings">
@@ -453,17 +451,17 @@
   </action>
   <action name="actionDiagnostic">
    <property name="text">
-    <string>&amp;Diagnostic logs</string>
+    <string>&amp;Diagnostic logs...</string>
    </property>
   </action>
   <action name="actionAddNote">
    <property name="text">
-    <string>Add Note</string>
+    <string>Add Note...</string>
    </property>
   </action>
   <action name="actionManageNotes">
    <property name="text">
-    <string>Manage Notes</string>
+    <string>&amp;Edit Notes...</string>
    </property>
   </action>
   <action name="actionZoom">
@@ -487,7 +485,7 @@
      <normaloff>:/menu_icon/icons/icons/bell-ring.svg</normaloff>:/menu_icon/icons/icons/bell-ring.svg</iconset>
    </property>
    <property name="text">
-    <string>Update</string>
+    <string>&amp;Update</string>
    </property>
    <property name="iconText">
     <string>Update</string>
@@ -498,7 +496,7 @@
   </action>
   <action name="actionOnlineDocumentation">
    <property name="text">
-    <string>Online documentation...</string>
+    <string>&amp;Online documentation...</string>
    </property>
   </action>
   <action name="actionSaveProjectFile">
