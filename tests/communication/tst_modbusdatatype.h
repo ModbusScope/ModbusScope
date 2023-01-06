@@ -20,6 +20,12 @@ private slots:
 
     void convertStringUnknown();
 
+    void typeString_data();
+    void typeString();
+
+    void convertSettings_data();
+    void convertSettings();
+
 private:
 
 };
