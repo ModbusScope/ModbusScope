@@ -35,7 +35,7 @@ public:
     static const quint32 cColumnSelected = 0;
     static const quint32 cColumnAddress = 1;
     static const quint32 cColumnText = 2;
-    static const quint32 cColumnUnsigned = 3;
+    static const quint32 cColumnType = 3;
     static const quint32 cColumnTab = 4;
     static const quint32 cColumnDecimals = 5;
     static const quint32 cColumnCnt = 6;

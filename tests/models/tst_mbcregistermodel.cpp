@@ -17,7 +17,7 @@ using namespace testing;
 static const quint32 cColumnSelected = 0;
 static const quint32 cColumnAddress = 1;
 static const quint32 cColumnText = 2;
-static const quint32 cColumnUnsigned = 3;
+static const quint32 cColumnType = 3;
 static const quint32 cColumnTab = 4;
 static const quint32 cColumnDecimals = 5;
 static const quint32 cColumnCnt = 6;
@@ -61,7 +61,7 @@ void TestMbcRegisterModel::headerData()
     QCOMPARE(pMbcRegisterModel->headerData(cColumnSelected, Qt::Horizontal, Qt::DisplayRole).toString(), QString(""));
     QCOMPARE(pMbcRegisterModel->headerData(cColumnAddress, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Address"));
     QCOMPARE(pMbcRegisterModel->headerData(cColumnText, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Text"));
-    QCOMPARE(pMbcRegisterModel->headerData(cColumnUnsigned, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Unsigned"));
+    QCOMPARE(pMbcRegisterModel->headerData(cColumnType, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Type"));
     QCOMPARE(pMbcRegisterModel->headerData(cColumnTab, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Tab"));
     QCOMPARE(pMbcRegisterModel->headerData(cColumnDecimals, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Decimals"));
 
@@ -79,8 +79,7 @@ void TestMbcRegisterModel::flagsEnabled()
 
     QCOMPARE(pMbcRegisterModel->flags(QModelIndex()), Qt::NoItemFlags);
     QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnSelected)), Qt::ItemIsUserCheckable | enabledFlags);
-    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnUnsigned)), Qt::ItemIsUserCheckable | enabledFlags);
-
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnType)), enabledFlags);
     QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), enabledFlags);
     QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnText)), enabledFlags);
     QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnTab)), enabledFlags);
@@ -104,8 +103,7 @@ void TestMbcRegisterModel::flagsDisabled()
 
     QCOMPARE(pMbcRegisterModel->flags(QModelIndex()), Qt::NoItemFlags);
     QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnSelected)), Qt::ItemIsUserCheckable | disabledFlags);
-    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnUnsigned)), Qt::ItemIsUserCheckable | disabledFlags);
-
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnType)), disabledFlags);
     QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), disabledFlags);
     QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnText)), disabledFlags);
     QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnTab)), disabledFlags);
@@ -123,9 +121,6 @@ void TestMbcRegisterModel::setData()
 
     /* Check failures */
     QCOMPARE(pMbcRegisterModel->setData(QModelIndex(), QVariant(), Qt::CheckStateRole), false);
-    QCOMPARE(spy.count(), 0);
-
-    QCOMPARE(pMbcRegisterModel->setData(modelIdx.sibling(0, cColumnUnsigned), QVariant(), Qt::CheckStateRole), false);
     QCOMPARE(spy.count(), 0);
 
     // At least 2 rows required for this test
@@ -315,9 +310,8 @@ void TestMbcRegisterModel::fillData()
         QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnTab), Qt::DisplayRole), tabList[mbcRegisterList[rowIdx].tabIdx()]);
         QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnDecimals), Qt::DisplayRole), mbcRegisterList[rowIdx].decimals());
 
-        bool bUnsigned = ModbusDataType::isUnsigned(mbcRegisterList[rowIdx].type());
-        Qt::CheckState state = bUnsigned ? Qt::Checked : Qt::Unchecked;
-        QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnUnsigned), Qt::CheckStateRole), state);
+        auto type = ModbusDataType::typeString(mbcRegisterList[rowIdx].type());
+        QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnType), Qt::DisplayRole), type);
     }
 }
 
