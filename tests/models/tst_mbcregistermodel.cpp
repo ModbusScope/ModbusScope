@@ -117,7 +117,6 @@ void TestMbcRegisterModel::setData()
     fillModel(pMbcRegisterModel);
 
     QSignalSpy spy(pMbcRegisterModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
-    QModelIndex modelIdx = pMbcRegisterModel->index(0, cColumnSelected);
 
     /* Check failures */
     QCOMPARE(pMbcRegisterModel->setData(QModelIndex(), QVariant(), Qt::CheckStateRole), false);
