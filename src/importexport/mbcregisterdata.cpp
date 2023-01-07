@@ -4,7 +4,6 @@
 
 MbcRegisterData::MbcRegisterData() :
     _registerAddress(0),
-    _name(QString()),
     _tabIdx(0),
     _type(ModbusDataType::Type::UNSIGNED_16),
     _bReadable(true),
