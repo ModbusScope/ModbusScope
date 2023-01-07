@@ -4,4 +4,4 @@ exclude_paths:
   - "libraries/**"
   - "icons/**"
   - "installer/**"
-  - "test/googletest/**"
+  - "tests/googletest/**"
