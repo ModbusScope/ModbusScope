@@ -104,23 +104,10 @@ void MarkerInfoDialog::checkBoxStatechanged(int state)
 
 void MarkerInfoDialog::done(int r)
 {
-    bool bValid = true;
-
     if(QDialog::Accepted == r)  // ok was pressed
     {
-        if (bValid)
-        {
-            _pGuiModel->setMarkerExpressionMask(_expressionMask);
-        }
-    }
-    else
-    {
-        // cancel, close or exc was pressed
-        bValid = true;
+        _pGuiModel->setMarkerExpressionMask(_expressionMask);
     }
 
-    if (bValid)
-    {
-        QDialog::done(r);
-    }
+    QDialog::done(r);
 }
