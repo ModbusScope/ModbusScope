@@ -33,22 +33,14 @@ void TestAddRegisterDialog::registerDefault()
     QVERIFY(graphData.isActive());
 }
 
-void TestAddRegisterDialog::register32Bit()
+void TestAddRegisterDialog::registerType()
 {
-    QTest::mouseClick(_pRegDialog->_pUi->radio32Bit, Qt::LeftButton);
+    QTest::keyClick(_pRegDialog->_pUi->cmbType, Qt::Key_Down);
+
     pushOk();
 
     auto graphData = _pRegDialog->graphData();
     QCOMPARE(graphData.expression(), "${40001:32b}");
-}
-
-void TestAddRegisterDialog::registerSignedRegister()
-{
-    QTest::mouseClick(_pRegDialog->_pUi->radioSigned, Qt::LeftButton);
-    pushOk();
-
-    auto graphData = _pRegDialog->graphData();
-    QCOMPARE(graphData.expression(), "${40001:s16b}");
 }
 
 void TestAddRegisterDialog::registerConnection()
