@@ -131,13 +131,13 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
 
     connect(_pGraphDataModel, &GraphDataModel::labelChanged, this, &MainWindow::handleGraphLabelChange);
 
-    connect(_pGraphDataModel, &GraphDataModel::added, this, &MainWindow::rebuildGraphMenu);
+    connect(_pGraphDataModel, &GraphDataModel::added, this, &MainWindow::handleGraphsCountChanged);
     connect(_pGraphDataModel, &GraphDataModel::added, _pGraphView, &GraphView::updateGraphs);
 
     connect(_pGraphDataModel, &GraphDataModel::moved, this, &MainWindow::rebuildGraphMenu);
     connect(_pGraphDataModel, &GraphDataModel::moved, _pGraphView, &GraphView::updateGraphs);
 
-    connect(_pGraphDataModel, &GraphDataModel::removed, this, &MainWindow::rebuildGraphMenu);
+    connect(_pGraphDataModel, &GraphDataModel::removed, this, &MainWindow::handleGraphsCountChanged);
     connect(_pGraphDataModel, &GraphDataModel::removed, _pGraphView, &GraphView::updateGraphs);
 
     connect(_pGraphDataModel, &GraphDataModel::expressionChanged, _pGraphView, &GraphView::clearGraph);
@@ -200,6 +200,8 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
 
     // Default to full auto scaling
     setAxisToAuto();
+
+    handleGraphsCountChanged();
 
     connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pGraphView, &GraphView::plotResults);
     connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pLegend, &Legend::addLastReceivedDataToLegend);
@@ -644,6 +646,18 @@ void MainWindow::handleZoomStateChanged()
     {
         _pUi->actionZoom->setChecked(true);
     }
+}
+
+void MainWindow::handleGraphsCountChanged()
+{
+    rebuildGraphMenu();
+
+    QList<quint16> activeGraphList;
+    _pGraphDataModel->activeGraphIndexList(&activeGraphList);
+
+    const bool bEnabled = activeGraphList.size() > 0;
+    _pUi->actionZoom->setEnabled(bEnabled);
+    _pUi->actionToggleMarkers->setEnabled(bEnabled);
 }
 
 void MainWindow::rebuildGraphMenu()

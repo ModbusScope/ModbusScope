@@ -81,6 +81,7 @@ private slots:
     void updateHighlightSampleMenu();
     void handleZoomStateChanged();
     void rebuildGraphMenu();
+    void handleGraphsCountChanged();
     void updateWindowTitle();
     void projectFileLoaded();
     void updateGuiState();
