@@ -14,8 +14,7 @@ private slots:
     void cleanup();
 
     void registerDefault();
-    void register32Bit();
-    void registerSignedRegister();
+    void registerType();
     void registerConnection();
 
 private:

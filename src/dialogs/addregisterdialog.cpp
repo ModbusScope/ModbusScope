@@ -1,8 +1,13 @@
 #include "addregisterdialog.h"
 #include "settingsmodel.h"
 #include "updateregisternewexpression.h"
+#include "modbusdatatype.h"
 
 #include "ui_addregisterdialog.h"
+
+using Type = ModbusDataType::Type;
+
+Q_DECLARE_METATYPE(ModbusDataType::Type)
 
 AddRegisterDialog::AddRegisterDialog(SettingsModel* pSettingsModel, QWidget *parent) :
     QDialog(parent),
@@ -26,18 +31,15 @@ AddRegisterDialog::AddRegisterDialog(SettingsModel* pSettingsModel, QWidget *par
         }
     }
 
-    _bitGroup.setExclusive(true);
-    _bitGroup.addButton(_pUi->radio16Bit);
-    _bitGroup.addButton(_pUi->radio32Bit);
-
-    _signedGroup.setExclusive(true);
-    _signedGroup.addButton(_pUi->radioSigned);
-    _signedGroup.addButton(_pUi->radioUnsigned);
+    _pUi->cmbType->addItem(ModbusDataType::description(Type::UNSIGNED_16), QVariant::fromValue(Type::UNSIGNED_16));
+    _pUi->cmbType->addItem(ModbusDataType::description(Type::UNSIGNED_32), QVariant::fromValue(Type::UNSIGNED_32));
+    _pUi->cmbType->addItem(ModbusDataType::description(Type::SIGNED_16), QVariant::fromValue(Type::SIGNED_16));
+    _pUi->cmbType->addItem(ModbusDataType::description(Type::SIGNED_32), QVariant::fromValue(Type::SIGNED_32));
+    _pUi->cmbType->addItem(ModbusDataType::description(Type::FLOAT_32), QVariant::fromValue(Type::FLOAT_32));
 
     _axisGroup.setExclusive(true);
     _axisGroup.addButton(_pUi->radioPrimary);
     _axisGroup.addButton(_pUi->radioSecondary);
-
 }
 
 AddRegisterDialog::~AddRegisterDialog()
@@ -88,34 +90,30 @@ void AddRegisterDialog::done(int r)
 QString AddRegisterDialog::generateExpression()
 {
     quint32 registerAddress;
-    bool is32bit = false;
-    bool bUnsigned = true;
     quint8 connectionId;
+    Type type;
 
     registerAddress = static_cast<quint32>(_pUi->spinAddress->value());
 
-    if (_pUi->radioSigned->isChecked())
+    QVariant typeData = _pUi->cmbType->currentData();
+    if (typeData.canConvert<Type>())
     {
-        bUnsigned = false;
+        type = typeData.value<Type>();
+    }
+    else
+    {
+        type = Type::UNSIGNED_16;
     }
 
-    if (_pUi->radio32Bit->isChecked())
+    QVariant connData = _pUi->cmbConnection->currentData();
+    if (connData.canConvert<quint8>())
     {
-        is32bit = true;
-    }
-
-    QVariant data = _pUi->cmbConnection->currentData();
-    if (data.canConvert<quint8>())
-    {
-        connectionId = data.value<quint8>();
+        connectionId = connData.value<quint8>();
     }
     else
     {
         connectionId = 0;
     }
-
-    bool bFloat = false;
-    auto type = ModbusDataType::convertSettings(is32bit, bUnsigned, bFloat);
 
     return UpdateRegisterNewExpression::constructRegisterString(registerAddress, type, connectionId);
 }

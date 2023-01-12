@@ -31,8 +31,6 @@ private:
 
     SettingsModel* _pSettingsModel;
 
-    QButtonGroup _bitGroup;
-    QButtonGroup _signedGroup;
     QButtonGroup _axisGroup;
 
     GraphData _graphData;

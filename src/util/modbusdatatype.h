@@ -55,6 +55,29 @@ public:
         }
     }
 
+    static QString description(ModbusDataType::Type type)
+    {
+        switch (type)
+        {
+        case Type::SIGNED_16:
+            return "Signed 16-bit";
+            break;
+        case Type::UNSIGNED_32:
+            return "Unsigned 32-bit";
+            break;
+        case Type::SIGNED_32:
+            return "Signed 32-bit";
+            break;
+        case Type::FLOAT_32:
+            return "32-bit float";
+            break;
+        case Type::UNSIGNED_16:
+        default:
+            return "Unsigned 16-bit";
+            break;
+        }
+    }
+
     static Type convertSettings(bool is32bit, bool bUnsigned, bool bFloat)
     {
         if (bFloat)
