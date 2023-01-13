@@ -655,7 +655,7 @@ void MainWindow::handleGraphsCountChanged()
     QList<quint16> activeGraphList;
     _pGraphDataModel->activeGraphIndexList(&activeGraphList);
 
-    const bool bEnabled = activeGraphList.size() > 0;
+    const bool bEnabled = !activeGraphList.isEmpty();
     _pUi->actionZoom->setEnabled(bEnabled);
     _pUi->actionToggleMarkers->setEnabled(bEnabled);
 }
@@ -694,7 +694,7 @@ void MainWindow::rebuildGraphMenu()
         QObject::connect(pBringToFront, &QAction::toggled, this, &MainWindow::menuBringToFrontGraphClicked);
     }
 
-    if (activeGraphList.size() > 0)
+    if (!activeGraphList.isEmpty())
     {
         _pGraphShowHide->setEnabled(true);
         _pGraphBringToFront->setEnabled(true);
