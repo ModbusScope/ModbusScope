@@ -29,9 +29,9 @@
    <parity>0</parity>
    <stopbits>1</stopbits>
    <databits>8</databits>
-   <slaveid>1</slaveid>
-   <timeout>1000</timeout>
-   <consecutivemax>125</consecutivemax>
+   <slaveid>2</slaveid>
+   <timeout>2000</timeout>
+   <consecutivemax>100</consecutivemax>
    <int32littleendian>true</int32littleendian>
    <persistentconnection>true</persistentconnection>
   </connection>
@@ -67,15 +67,21 @@
   </register>
   <register active="true">
    <text>Data point 2</text>
-   <expression><![CDATA[${40002:s16b}]]></expression>
+   <expression><![CDATA[${40002@2:s16b}]]></expression>
    <color>#0000ff</color>
    <valueaxis>1</valueaxis>
   </register>
   <register active="false">
    <text>Data point 3</text>
-   <expression><![CDATA[${40003@2:s16b}*10]]></expression>
+   <expression><![CDATA[${40003:s16b}*10]]></expression>
    <color>#00ffff</color>
    <valueaxis>0</valueaxis>
+  </register>
+  <register active="false">
+   <text>Data point 4</text>
+   <expression><![CDATA[${40002:s16b} + ${40001@2:f32b} / 10]]></expression>
+   <color>#00ff00</color>
+   <valueaxis>1</valueaxis>
   </register>
  </scope>
  <view>
@@ -85,7 +91,7 @@
    </xaxis>
    <yaxis mode="minmax">
     <min>0</min>
-    <max>25.5</max>
+    <max>25</max>
    </yaxis>
   </scale>
  </view>
