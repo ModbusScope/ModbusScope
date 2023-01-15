@@ -10,8 +10,6 @@ Then press the *Start Logging* button. *ModbusScope* will start logging and will
 
 Once your test is finished the logging can be stopped by pressing the *Stop Logging* button. The logging will stop and the values can be inspected further.
 
-![image](../_static/user_manual/stop_logging.png)
-
 ## Adjust scale settings
 
 While ModbusScope is logging, the already logged values can be inspected in the graph view. With the different scale settings, the data can be examined while new values are still be being added to the log. Several scale settings are available.
