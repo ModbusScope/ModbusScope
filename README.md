@@ -8,7 +8,7 @@ Quality: [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=jgeud
 
 # ModbusScope
 
-ModbusScope is a multi-platform application which can sample Modbus registers and plot the values in a graph to visualize and investigate the dynamic data of a system.
+ModbusScope is a software tool that allows for the monitoring and visualization of data from Modbus registers across multiple platforms by collecting samples and displaying them in a graphical format. This makes it useful for analyzing the dynamic behavior of systems.
 
 [**Getting started**](https://modbusscope.readthedocs.io/en/stable/pages/overview.html) | [**Download**](https://github.com/jgeudens/ModbusScope/releases/latest) | [**Release notes**](https://modbusscope.readthedocs.io/en/stable/pages/release_notes.html)
 

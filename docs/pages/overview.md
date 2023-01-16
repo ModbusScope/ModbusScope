@@ -1,27 +1,27 @@
 # Overview
 
-This user manual describes how to get started with *ModbusScope*. *ModbusScope* is an application which can sample Modbus registers and plot the value in a graph to visualize and investigate the dynamic behavior of a system.
+This guide explains the basics of using ModbusScope. The software is designed to collect and display data from Modbus registers in a graphical format, making it easy to monitor and analyze the dynamic behavior of a system.
 
 ## Installing
 
 The *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/jgeudens/ModbusScope/releases).  
 
-*ModbusScope* can be installed with the provided *.msi* installer. Double-click it and follow the instructions. The installer will install the required files on your computer. At the end of the install process, you can also select to open *.mbs* files with *ModbusScope* by default.
+ModbusScope can be easily installed by double-clicking on the provided .msi installer file and following the on-screen instructions. The installer will handle the installation of all necessary files on your computer. Ath the endof the install process, you will have the option to set ModbusScope as the default program for opening .mbs files.
 
 ## Main screen
 
-The main screen of ModbusScope can contain multiple docked windows. Most are visible at the initial start of the application, except the marker window. This docked windows only appears when a marker has been enabled.
+When you first open ModbusScope, you'll see several windows displayed on the main screen. Some of them, like marker window, may not be visible immediately. This window will only appear when a marker has been enabled within the application.
 
 ![image](../_static/user_manual/modbusscope.png)
 
-The most important part of the window is the plot view. The data of the active registers that are polled is shown here as plots. The settings in the axis scale windows can be used to visualize a very specific part of the data or auto scale to show all information. The legend shows an overview of the active registers. You can hide a specific register plot by double clicking it in the legend. The same action can be used to show the plot again. When a plot is hidden the register is still polled, it is only temporary hidden in the plot view. Markers can be used examine the data in a specific time frame.
+The plot view is the central part of the *ModbusScope* window. It displays the data of the active registers that are being polled, represented as plots. The axis scale windows allow you to zoom in on specific parts of the data or automatically scale the view to show all of the information. The legend provides an overview of the active registers and you can hide or show a specific register plot by double-clicking it in the legend. Note that when a plot is hidden, the register is still being polled, it is only temporarily hidden in the plot view. Additionally, markers can be used to examine the data within a specific time frame, which allows for more detailed analysis.
 
 ## Quick start
 
-A quick start to use *ModbusScope*:
+To get started with *ModbusScope*:
 
-* Add a register using the register settings window
-* Configure connection settings to match your Modbus TCP slave
-* Press the *Start Logging* button (play) to start logging
-* Press the *Stop Logging* button to stop logging
-* Examine logged data
+- Use the register settings window to add the desired Modbus registers
+- Adjust the connection settings according to your connection the Modbus slave.
+- Press the "Start Logging" button (play icon) to begin collecting data.
+- Press the "Stop Logging" button to stop logging.
+- Examine the logged data using the various windows and tools provided by the application.
