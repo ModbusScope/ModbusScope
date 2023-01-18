@@ -10,7 +10,7 @@ on:
       - master
 
 jobs:
-  coverity:
+  coverage:
     runs-on: ubuntu-latest
     container: docker://jgeudens/qt-linux:6.4.1_build_1
     steps:
@@ -21,14 +21,9 @@ jobs:
       run: bash /start.sh &
 
     - name: Prepare environment for Ninja build with coverage
-      run: cmake . -GNinja -DUSE_GCOV=ON
-
-    - name: Analyse (Coverity)
-      uses: vapier/coverity-scan-action@v1
-      with:
-        email: ${{ secrets.MAIL_ADDRESS }}
-        token: ${{ secrets.COVERITY_SCAN_TOKEN }}
-        command: ninja
+      run: |
+        cmake . -GNinja -DUSE_GCOV=ON
+        ninja
 
     - name: Generate gcovr coverage report
       run: |
