@@ -4,7 +4,7 @@ Docs: [![Documentation Status](https://readthedocs.org/projects/modbusscope/badg
 
 Build status: [![Build](https://github.com/jgeudens/ModbusScope/actions/workflows/ccpp.yml/badge.svg?branch=master)](https://github.com/jgeudens/ModbusScope/actions/workflows/ccpp.yml)
 
-Quality: [![Coverity Scan Build Status](https://scan.coverity.com/projects/19701/badge.svg)](https://scan.coverity.com/projects/jgeudens-modbusscope)[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8f51aaa42a3743598f8f61fc0bb17aaf)](https://www.codacy.com/gh/jgeudens/ModbusScope/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=jgeudens/ModbusScope&amp;utm_campaign=Badge_Grade)[![CodeScene general](https://codescene.io/images/analyzed-by-codescene-badge.svg)](https://codescene.io/projects/15487)
+Quality: [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=jgeudens_ModbusScope&metric=bugs)](https://sonarcloud.io/summary/new_code?id=jgeudens_ModbusScope)[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8f51aaa42a3743598f8f61fc0bb17aaf)](https://www.codacy.com/gh/jgeudens/ModbusScope/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=jgeudens/ModbusScope&amp;utm_campaign=Badge_Grade)[![CodeScene general](https://codescene.io/images/analyzed-by-codescene-badge.svg)](https://codescene.io/projects/15487)
 
 # ModbusScope
 
