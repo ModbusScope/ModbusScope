@@ -68,6 +68,19 @@ void DataFileExporter::rewriteDataFile(void)
 
 void DataFileExporter::exportDataFile(QString dataFile)
 {
+    if ((_pGraphDataModel->activeCount() > 0) && (_pGraphDataModel->dataMap(0)->size() > 0))
+    {
+        bool bFoundRange = false;
+        auto range = _pGraphDataModel->dataMap(0)->keyRange(bFoundRange, QCP::sdBoth);
+        if (bFoundRange)
+        {
+            exportDataFile(dataFile, range.lower, range.upper);
+        }
+    }
+}
+
+void DataFileExporter::exportDataFile(QString dataFile, double startTime, double endTime)
+{
     if (_pGraphDataModel->activeCount() != 0)
     {
         QStringList logData;
@@ -104,26 +117,31 @@ void DataFileExporter::exportDataFile(QString dataFile)
             {
                 QList<double> dataRowValues;
                 double key = dataListIterators[0]->key;
-                for(qint32 d = 0; d < dataListIterators.size(); d++)
+                if ((key >= startTime) && (key <= endTime))
                 {
-                    dataRowValues.append(dataListIterators[d]->value);
+                    for (qint32 d = 0; d < dataListIterators.size(); d++)
+                    {
+                        dataRowValues.append(dataListIterators[d]->value);
+                    }
 
-                    dataListIterators[d]++;
+                    logData.append(formatData(key, dataRowValues));
+
+                    if (i % _cLogChunkLineCount == 0)
+                    {
+                        bRet = writeToFile(dataFile, logData);
+
+                        logData.clear();
+
+                        if (!bRet)
+                        {
+                            break;
+                        }
+                    }
                 }
 
-                logData.append(formatData(key, dataRowValues));
-
-
-                if ( i % _cLogChunkLineCount == 0)
+                for (qint32 d = 0; d < dataListIterators.size(); d++)
                 {
-                    bRet = writeToFile(dataFile, logData);
-
-                    logData.clear();
-
-                    if (!bRet)
-                    {
-                        break;
-                    }
+                    dataListIterators[d]++;
                 }
             }
 

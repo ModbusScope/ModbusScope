@@ -76,6 +76,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pUi->actionManageNotes, &QAction::triggered, this, &MainWindow::showNotesDialog);
     connect(_pUi->actionExit, &QAction::triggered, this, &MainWindow::exitApplication);
     connect(_pUi->actionSaveDataFile, &QAction::triggered, _pDataFileHandler, &DataFileHandler::selectDataExportFile);
+    connect(_pUi->actionSaveDataMarkers, &QAction::triggered, _pDataFileHandler, &DataFileHandler::selectDataMarkerExportFile);
     connect(_pUi->actionOpenProjectFile, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::selectProjectOpenFile);
     connect(_pUi->actionReloadProjectFile, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::reloadProjectFile);
     connect(_pUi->actionOpenDataFile, &QAction::triggered, _pDataFileHandler, &DataFileHandler::selectDataImportFile);
@@ -112,7 +113,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pGuiModel, &GuiModel::yAxisMinMaxchanged, _pGraphView, &GraphView::rescalePlot);
     connect(_pGuiModel, &GuiModel::y2AxisMinMaxchanged, _pGraphView, &GraphView::rescalePlot);
     connect(_pGuiModel, &GuiModel::communicationStatsChanged, this, &MainWindow::updateStats);
-    connect(_pGuiModel, &GuiModel::markerStateChanged, this, &MainWindow::updateMarkerDockVisibility);
+    connect(_pGuiModel, &GuiModel::markerStateChanged, this, &MainWindow::handleMarkerVisibilityChanged);
     connect(_pGuiModel, &GuiModel::zoomStateChanged, this, &MainWindow::handleZoomStateChanged);
 
     connect(_pGraphDataModel, &GraphDataModel::visibilityChanged, this, &MainWindow::handleGraphVisibilityChange);
@@ -726,6 +727,7 @@ void MainWindow::updateGuiState()
         _pUi->actionOpenDataFile->setEnabled(true);
         _pUi->actionOpenProjectFile->setEnabled(true);
         _pUi->actionSaveDataFile->setEnabled(false);
+        _pUi->actionSaveDataMarkers->setEnabled(false);
         _pUi->actionExportImage->setEnabled(false);
         _pUi->actionSaveProjectFileAs->setEnabled(true);
         _pUi->actionClearData->setEnabled(true);
@@ -754,6 +756,7 @@ void MainWindow::updateGuiState()
         _pUi->actionOpenDataFile->setEnabled(false);
         _pUi->actionOpenProjectFile->setEnabled(false);
         _pUi->actionSaveDataFile->setEnabled(false);
+        _pUi->actionSaveDataMarkers->setEnabled(false);
         _pUi->actionSaveProjectFileAs->setEnabled(false);
         _pUi->actionSaveProjectFile->setEnabled(false);
         _pUi->actionExportImage->setEnabled(false);
@@ -779,6 +782,7 @@ void MainWindow::updateGuiState()
         _pUi->actionOpenDataFile->setEnabled(true);
         _pUi->actionOpenProjectFile->setEnabled(true);
         _pUi->actionSaveDataFile->setEnabled(true);
+        _pUi->actionSaveDataMarkers->setEnabled(true);
         _pUi->actionSaveProjectFileAs->setEnabled(true);
         _pUi->actionExportImage->setEnabled(true);
         _pUi->actionClearData->setEnabled(true);
@@ -811,6 +815,7 @@ void MainWindow::updateGuiState()
         _pUi->actionOpenProjectFile->setEnabled(true);
 
         _pUi->actionSaveDataFile->setEnabled(false);
+        _pUi->actionSaveDataMarkers->setEnabled(false);
         _pUi->actionSaveProjectFileAs->setEnabled(false);
         _pUi->actionSaveProjectFile->setEnabled(false);
         _pUi->actionExportImage->setEnabled(true);
@@ -850,7 +855,7 @@ void MainWindow::updateStats()
     _pStatusStats->setText(_cStatsTemplate.arg(_pGuiModel->communicationSuccessCount()).arg(_pGuiModel->communicationErrorCount()));
 }
 
-void MainWindow::updateMarkerDockVisibility()
+void MainWindow::handleMarkerVisibilityChanged()
 {
     if (_pGuiModel->markerState())
     {

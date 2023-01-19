@@ -87,7 +87,7 @@ private slots:
     void projectFileLoaded();
     void updateGuiState();
     void updateStats();
-    void updateMarkerDockVisibility();
+    void handleMarkerVisibilityChanged();
 
     /* Misc */
     void scaleWidgetUndocked(bool bFloat);

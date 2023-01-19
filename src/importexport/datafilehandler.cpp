@@ -151,6 +151,28 @@ void DataFileHandler::selectDataExportFile()
     }
 }
 
+void DataFileHandler::selectDataMarkerExportFile()
+{
+    QFileDialog dialog;
+    FileSelectionHelper::configureFileDialog(&dialog,
+                                             FileSelectionHelper::DIALOG_TYPE_SAVE,
+                                             FileSelectionHelper::FILE_TYPE_CSV);
+
+    QString selectedFile = FileSelectionHelper::showDialog(&dialog);
+    if (!selectedFile.isEmpty())
+    {
+        if (_pGuiModel->markerState())
+        {
+            _pDataFileExporter->exportDataFile(selectedFile, _pGuiModel->startMarkerPos(), _pGuiModel->endMarkerPos());
+        }
+        else
+        {
+            _pDataFileExporter->exportDataFile(selectedFile);
+        }
+
+    }
+}
+
 void DataFileHandler::exportDataLine(double timeData, QList <double> dataValues)
 {
     _pDataFileExporter->exportDataLine(timeData, dataValues);

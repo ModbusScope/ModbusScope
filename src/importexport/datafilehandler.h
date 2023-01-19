@@ -32,6 +32,7 @@ signals:
 public slots:
     void selectDataImportFile();
     void selectDataExportFile();
+    void selectDataMarkerExportFile();
 
     void exportDataLine(double timeData, QList <double> dataValues);
     void rewriteDataFile(void);

@@ -21,6 +21,7 @@ public:
     void disableExporterDuringLog();
 
     void exportDataFile(QString dataFile);
+    void exportDataFile(QString dataFile, double startTime, double endTime);
     bool updateNoteLines(QString dataFile);
 
 signals:
