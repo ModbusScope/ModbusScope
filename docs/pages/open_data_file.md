@@ -1,20 +1,16 @@
 # Open data file
 
-When a data file, saved by *ModbusScope*, is opened by selecting *File > Open Data File...*, the data file will be automatically parsed and all data will be loaded. Opening a data file can be done through *File > Open Data File...* or by dragging an *.csv* file into the application.
-
-When the file format isn't compatible with a *ModbusScope* export, it will load an excerpt of the data file to try to automatically determine the configuration required for parsing the files. The most important settings are the field and decimal separators. When the auto parsing of settings is done, the settings can be manually changed if required. The result of the parsing is immediately visualized in the table view.
-
-When all settings are configured and accepted, *ModbusScope* will load the rest of the file with the configured settings. When the loading has finished successfully, the graph can be examined in the same way as normal *ModbusScope* logs.
+When a data file that was created by *ModbusScope* is opened, the file will be parsed and the data will be loaded automatically. This can be done by selecting "File > Open Data File..." or by dragging the  file into the application. If the file format is not compatible with *ModbusScope*, the program will try to automatically determine the necessary settings  for parsing the file. This includes the field and decimal separators.  These settings can be adjusted manually if needed. Once the settings are configured, the rest of the file will be loaded and the data can be  viewed in the graph as with a normal *ModbusScope* log.
 
 ![image](../_static/user_manual/import_csv.png)
 
 ## Parse settings
 
-There isn't a standard for the format of a *.csv* file. Parsing a data file is only possible when all settings are correct for that specific data file. There are several categories of settings. The settings can be changed and the grid will be updated with the parsing results.
+The format of a *.csv* file can vary, so correct settings must be in place for parsing the file. These settings can be adjusted and the  results of the parsing will be reflected in the grid display.
 
 ### Locale related
 
-Depending on the configured region, the format of the data will will be different. To provide maximum flexibility when opening a data file, *ModbusScope* allows to freely select these settings.
+Depending on the configured region, the format of the data will be different. To provide maximum flexibility when opening a data file, *ModbusScope* allows to freely select these settings.
 
 * Field separator
   * A symbol used to separate data fields from each other.
@@ -27,7 +23,7 @@ Depending on the configured region, the format of the data will will be differen
 
 ### File structure related
 
-*ModbusScope* can only parse *.csv* files which are in a similar format of the *ModbusScope* export files. This means a timestamps column followed by one or more data columns.
+*ModbusScope* is able to process and read data from a *.csv* file if it's formatted in a similar way to the files exported by *ModbusScope*. This includes having a column for timestamps and one or more columns for data.
 
 #### Supported data file format
 
