@@ -1,12 +1,12 @@
 # Open data file
 
-When a data file that was created by *ModbusScope* is opened, the file will be parsed and the data will be loaded automatically. This can be done by selecting "File > Open Data File..." or by dragging the  file into the application. If the file format is not compatible with *ModbusScope*, the program will try to automatically determine the necessary settings  for parsing the file. This includes the field and decimal separators.  These settings can be adjusted manually if needed. Once the settings are configured, the rest of the file will be loaded and the data can be  viewed in the graph as with a normal *ModbusScope* log.
+When a data file that was created by *ModbusScope* is opened, the data will be loaded automatically. This can be done by selecting *File* > *Open Data File...* or by dragging the file into the application. If the file format is not compatible with *ModbusScope*, the program will try to automatically determine the necessary settings for parsing the file. This includes the field and decimal separators. These settings can be adjusted manually if needed. Once the settings are configured, the rest of the file will be loaded and the data can be viewed in the graph as with a normal *ModbusScope* log.
 
 ![image](../_static/user_manual/import_csv.png)
 
 ## Parse settings
 
-The format of a *.csv* file can vary, so correct settings must be in place for parsing the file. These settings can be adjusted and the  results of the parsing will be reflected in the grid display.
+The format of a *.csv* file can vary, so correct settings must be in place for parsing the file. These settings can be adjusted and the results of the parsing will be reflected in the grid display.
 
 ### Locale related
 
@@ -61,7 +61,7 @@ Since there is no standard for the contents of *.csv* file, some settings needs 
 
 #### Correct STMStudio bad read
 
-This feature is only used for a very specific use case when loading a data file created with STMStudio. The STMStudio tool reads data directly from the RAM memory of a embedded devices. The main drawback is that reading a 16 bit variable can sometimes return a corrupt value on a 8 bit microcontroller. A single byte (most or least significant) of the 16 bit value will be reset to zero's or set to one's.
+This feature is only used for a very specific use case when loading a data file created with STMStudio. The STMStudio tool reads data directly from the RAM memory of a embedded devices. The main drawback is that reading a 16 bit variable can sometimes return a corrupt value on a 8 bit micro-controller. A single byte (most or least significant) of the 16 bit value will be reset to zero's or set to one's.
 
 *ModbusScope* is able to detect most of these corrupt values and correct them based on previous and next value in the graph.
 

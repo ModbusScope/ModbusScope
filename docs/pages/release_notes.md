@@ -17,10 +17,6 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 * Add support for 32-bit floating point type ([Github #250](https://github.com/jgeudens/ModbusScope/issues/250))
 * Add indicator on axis to indicate value axis configuration of curve
 
-### Fixed
-
-* x
-
 ## [v3.6.3](https://github.com/jgeudens/ModbusScope/releases/tag/3.6.3) (21/11/2022)
 
 ### Fixed
@@ -68,7 +64,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 ## [v3.5.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.5.0) (04/05/2022)
 
 * Convert min/max settings of Y axis to floating point ([Github #183](https://github.com/jgeudens/ModbusScope/issues/183))
-* Add "Save Project" menu item
+* Add *Save Project* menu item
 * Implement changing order of registers by drag and drop ([Github #78](https://github.com/jgeudens/ModbusScope/issues/78))
 * Allow scrolling to negative times when there is negative time data ([Github #198](https://github.com/jgeudens/ModbusScope/issues/198))
 * Update to Qt6
@@ -76,7 +72,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 ## [v3.4.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.4.0) (02/03/2022)
 
 * Allow full 16-bit addressing of holding registers ([Github #181](https://github.com/jgeudens/ModbusScope/issues/181))
-* Expand expressions with register definition to provide more flexibility for user  ([Github project #6](https://github.com/jgeudens/ModbusScope/projects/6))
+* Expand expressions with register definition to provide more flexibility for user ([Github project #6](https://github.com/jgeudens/ModbusScope/projects/6))
   * This changes adds the ability to combine multiple registers from potential multiple connections in one curve.
 * Add syntax highlighting to expressions, including invalid token ([Github #142](https://github.com/jgeudens/ModbusScope/issues/142))
 
@@ -140,7 +136,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
   * Don't wrap around when period is larger than one day
 
 **Backward compatibility**
-When loading old ModbusScope files  (pre v3.x.x), the existing operations (multiply, divide, shift, bitmask, ...) will be converted to a single expression that is used in the new ModbusScope. This conversion makes sure that users won't notice any differences in functionality.
+When loading old ModbusScope files (pre v3.x.x), the existing operations (multiply, divide, shift, bitmask, ...) will be converted to a single expression that is used in the new ModbusScope. This conversion makes sure that users won't notice any differences in functionality.
 
 When exporting the settings (project file), the new expression will be saved. Older ModbusScope versions won't be able to parse this expressions. The operations will be reset to the defaults, but other register info will be loaded correctly.
 
@@ -242,7 +238,7 @@ Most of the work in this release isn't visible for the user. A complete rework o
 
 **Bugfixes**
 
-* Fix some minor bugs  ([Github #95](https://github.com/jgeudens/ModbusScope/issues/95)) (thanks to @pluyckx),  ([Github #89](https://github.com/jgeudens/ModbusScope/issues/89))
+* Fix some minor bugs ([Github #95](https://github.com/jgeudens/ModbusScope/issues/95)) (thanks to @pluyckx), ([Github #89](https://github.com/jgeudens/ModbusScope/issues/89))
 
 ## v1.3.0 (01/04/2017)
 
@@ -261,7 +257,7 @@ Most of the work in this release isn't visible for the user. A complete rework o
 **Bugs**
 
 * Make sure legend window (when docked) is present on screenshot ([Github #80](https://github.com/jgeudens/ModbusScope/issues/80))
-* Small fixes ([Github #82](https://github.com/jgeudens/ModbusScope/issues/82),  [Github #83](https://github.com/jgeudens/ModbusScope/issues/83),  [Github #85](https://github.com/jgeudens/ModbusScope/issues/85), [Github #88](https://github.com/jgeudens/ModbusScope/issues/88))
+* Small fixes ([Github #82](https://github.com/jgeudens/ModbusScope/issues/82), [Github #83](https://github.com/jgeudens/ModbusScope/issues/83), [Github #85](https://github.com/jgeudens/ModbusScope/issues/85), [Github #88](https://github.com/jgeudens/ModbusScope/issues/88))
 
 ## Older releases
 

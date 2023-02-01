@@ -2,11 +2,11 @@
 
 ## Configure register settings
 
-When you first open *ModbusScope*, no Modbus registers are added. To add registers, click on "Register Settings" in the toolbar on the interface. This will open a window where you can add and edit the registers that you want to monitor.
+When you first open *ModbusScope*, no Modbus registers are added. To add registers, click on *Register Settings* in the tool-bar on the interface. This will open a window where you can add and edit the registers that you want to monitor.
 
 ### Add Modbus registers
 
-In the "Register settings" dialog, you can add Modbus registers either manually or by importing them from a *.mbc* file. When you open a *.mbs* file in *ModbusScope*, some registers may already be present in the dialog, which allows you to continue working with the previously used registers.
+In the *Register settings* dialog, you can add Modbus registers either manually or by importing them from a *.mbc* file. When you open a *.mbs* file in *ModbusScope*, some registers may already be present in the dialog, which allows you to continue working with the previously used registers.
 
 Once the registers have been added, you can adjust them as needed. This includes updating the name and changing the color. Expressions are used to define which data is added to the graph (and log).
 
@@ -61,35 +61,31 @@ Some examples of valid expressions are
 
 The compose expression window is a feature in *ModbusScope* that allows the user to create custom calculations using registers and other mathematical operations. Expressions allow for more flexibility in defining the data that is logged and displayed on the graph, and it can be used to create expressions that are specific to the user's needs. The compose expression window can be accessed from the register settings dialog, and it provides a user-friendly interface for creating and editing expressions.
 
-This window can be opened by double-clicking the expression cell in the register settings dialog. This allows you to easily test and verify that the expression is functioning correctly before applying it to the logged data. The expression can be updated freely, and the register definition will be validated while you are entering it. When the register definition is green, it means that it is valid. The "example input" table can be used to enter values to test and verify the expression with actual values. This allows you to ensure that the expression is working as intended and to make any necessary adjustments before using it to log data. It is possible to combine multiple register reads in one expression by using mathematical operators and functions.
+This window can be opened by double-clicking the expression cell in the register settings dialog. This allows you to easily test and verify that the expression is functioning correctly before applying it to the logged data. The expression can be updated freely, and the register definition will be validated while you are entering it. When the register definition is green, it means that it is valid. The *example input* table can be used to enter values to test and verify the expression with actual values. This allows you to ensure that the expression is working as intended and to make any necessary adjustments before using it to log data. It is possible to combine multiple register reads in one expression by using mathematical operators and functions.
 
 ![image](../_static/user_manual/expression_dialog.png)
 
 #### Expression error
 
-When an error is detected in the expression or when the combination of the expression with a specific input value generates an error, no output value will be shown in the "compose expression" window. A specific error message will be displayed to indicate the issue, and the register definition will be highlighted in red, this allows the user to easily identify and correct any errors in the expression. It's important to test the expression before using it log data, to ensure that it is working correctly and producing the desired results.
+When an error is detected in the expression or when the combination of the expression with a specific input value generates an error, no output value will be shown in the *compose expression* window. A specific error message will be displayed to indicate the issue, and the register definition will be highlighted in red, this allows the user to easily identify and correct any errors in the expression. It's important to test the expression before using it log data, to ensure that it is working correctly and producing the desired results.
 
 ## Configure connection settings
 
-The "connection settings" window allows you to configure up to three connections, which means that several Modbus slaves can be polled in a single log session. Each connection can be configured with the Modbus protocol of the slave. ModbusScope support Modbus TCP and RTU. Modbus ASCII isn't supported.
+The *connection settings* window allows you to configure up to three connections, which means that several Modbus slaves can be polled in a single log session. Each connection can be configured with the Modbus protocol of the slave. ModbusScope support Modbus TCP and RTU. Modbus ASCII isn't supported.
 
-Some settings such as IP, port, port name, baud rate, parity and number of data and stop bits are specific to the type of connection (TCP or RTU) and are used to establish a connection to the slave device. The other settings such as slave ID, timeout, max consecutive register, and 32-bit little endian, are specific to the Modbus protocol implementation in the device and are used to configure how the application communicates with the slave device.
+Some settings such as ip, port, port name, baud rate, parity and number of data and stop bits are specific to the type of connection (TCP or RTU) and are used to establish a connection to the slave device. The other settings such as slave ID, timeout, max consecutive register, and 32-bit little endian, are specific to the Modbus protocol implementation in the device and are used to configure how the application communicates with the slave device.
 
-The timeout settings determine how long the application will wait for a response from the slave before timing out. It is possible to read multiple consecutive registers in a single request in Modbus. However, most devices have a limit on the number of consecutive registers that can be read in a single request. This limit is referred to as the "maximum consecutive registers". In Modbus, 32-bit values are stored in two consecutive 16-bit registers, in either big-endian or little-endian format. In some devices, 32-bit values are stored in big-endian format by default, while in others they are stored in little-endian format. The 32-bit endianness setting in *ModbusScope* allows you to configure the endianness of the 32-bit values read from the registers, so that the application can correctly interpret the data. The persistent connection option is specific to *ModbusScope*. When enabled, it allows the application to keep the connection open between polling data points, which can increase the polling rate and reduce the time required to establish new connections. The connection will only be reinitialized when a connection error occurs. It's important to ensure that the connection settings are correct and that the correct protocol is selected before starting a log session. With correct configuration, the application will be able to communicate with the slave device and retrieve data from the registers.
+The timeout settings determine how long the application will wait for a response from the slave before timing out. It is possible to read multiple consecutive registers in a single request in Modbus. However, most devices have a limit on the number of consecutive registers that can be read in a single request. This limit is referred to as the *maximum consecutive registers*. In Modbus, 32-bit values are stored in two consecutive 16-bit registers, in either big-endian or little-endian format. In some devices, 32-bit values are stored in big-endian format by default, while in others they are stored in little-endian format. The 32-bit endianness setting in *ModbusScope* allows you to configure the endianness of the 32-bit values read from the registers, so that the application can correctly interpret the data. The persistent connection option is specific to *ModbusScope*. When enabled, it allows the application to keep the connection open between polling data points, which can increase the polling rate and reduce the time required to establish new connections. The connection will only be reinitialized when a connection error occurs. It's important to ensure that the connection settings are correct and that the correct protocol is selected before starting a log session. With correct configuration, the application will be able to communicate with the slave device and retrieve data from the registers.
 
-In the "register settings" window, you can link each register to a specific connection. This allows you to poll multiple slaves simultaneously and display the data in a single graph for easy comparison.
+In the *register settings* window, you can link each register to a specific connection. This allows you to poll multiple slaves simultaneously and display the data in a single graph for easy comparison.
 
 ![image](../_static/user_manual/connection_settings.png)
 
 ## Configure log settings
 
-*ModbusScope* creates a data file in the general temporary folder by default when a logging session is started. The data points are appended to the file during the logging session, so that the data can be recovered in case of an unforeseen crash or if the user forgets to save the data before quitting the application. The temporary file is cleared every time a polling session is started, so that new data can be logged.
+*ModbusScope* creates a data file in the general temporary folder by default when a logging session is started. The data points are appended to the file during the logging session, so that the data can be recovered in case of an unforeseen crash or if the user forgets to save the data before quitting the application. The temporary file is cleared every time a polling session is started, so that new data can be logged. Some of this behavior can be customized in the *log settings* window. The user can choose to disable the feature or change the location of the temporary data file. This allows the user to ensure that the data is saved in a location that is convenient for them.
 
-Some of the behavior can be customized in the *log settings* window. The user can choose to disable the feature or change the location of the temporary data file. This allows the user to ensure that the data is saved in a location that is convenient for them.
-
-
-
-*ModbusScope* will create a data file in the general temporary folder when a logging session is started by default. *ModbusScope* will append data points during the logging to this file. When the user forgets to save the data before quitting or when an unforeseen crash occurs, the data can be recovered. The temporary file is cleared every time a polling session is started. In the *log settings* window, this behavior can be disabled or the temporary data file can be changed.
+In the *log settings* window, this behavior can be disabled or the temporary data file can be changed.
 
 ![image](../_static/user_manual/log_settings.png)
 
