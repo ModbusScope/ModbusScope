@@ -57,9 +57,11 @@ private:
 
     quint32 _expectedFields;
 
+    QRegularExpression _trimStringRegex;
     QRegularExpression _dateParseRegex;
 
-    static const QString _cPattern;
+    static const QString _cTrimStrimPattern;
+    static const QString _cDatePattern;
 
 };
 

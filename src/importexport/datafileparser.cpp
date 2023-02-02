@@ -3,8 +3,8 @@
 #include <QDateTime>
 #include "datafileparser.h"
 
-const QString DataFileParser::_cPattern = QString("\\s*(\\d{1,2})[\\-\\/\\s](\\d{1,2})[\\-\\/\\s](\\d{4})\\s*([0-2][0-9]):([0-5][0-9]):([0-5][0-9])[.,]?(\\d{0,3})");
-
+const QString DataFileParser::_cDatePattern = QString("\\s*(\\d{1,2})[\\-\\/\\s](\\d{1,2})[\\-\\/\\s](\\d{4})\\s*([0-2][0-9]):([0-5][0-9]):([0-5][0-9])[.,]?(\\d{0,3})");
+const QString DataFileParser::_cTrimStrimPattern = QString("\"?(.[^\"]*)\"?");
 
 DataFileParser::DataFileParser(DataParserModel *pDataParserModel)
     : _lineNumber(0),
@@ -15,8 +15,11 @@ DataFileParser::DataFileParser(DataParserModel *pDataParserModel)
 {
     _pDataParserModel = pDataParserModel;
 
-    _dateParseRegex.setPattern(_cPattern);
+    _dateParseRegex.setPattern(_cDatePattern);
     _dateParseRegex.optimize();
+
+    _trimStringRegex.setPattern(_cTrimStrimPattern);
+    _trimStringRegex.optimize();
 }
 
 DataFileParser::~DataFileParser()
@@ -452,8 +455,7 @@ bool DataFileParser::parseNoteField(QStringList noteFieldList, Note * pNote)
             bSucces = false;
         }
 
-        QRegularExpression trimStringRegex("\"?(.[^\"]*)\"?");
-        pNote->setText(trimStringRegex.match(noteFieldList[3]).captured(1));
+        pNote->setText(_trimStringRegex.match(noteFieldList[3]).captured(1));
     }
 
     return bSucces;
