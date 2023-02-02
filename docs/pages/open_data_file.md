@@ -6,7 +6,7 @@ When a data file that was created by *ModbusScope* is opened, the data will be l
 
 ## Parse settings
 
-The format of a *.csv* file can vary, so correct settings must be in place for parsing the file. These settings can be adjusted and the results of the parsing will be reflected in the grid display.
+The format of a `.csv` file can vary, so correct settings must be in place for parsing the file. These settings can be adjusted and the results of the parsing will be reflected in the grid display.
 
 ### Locale related
 
@@ -23,7 +23,7 @@ Depending on the configured region, the format of the data will be different. To
 
 ### File structure related
 
-*ModbusScope* is able to process and read data from a *.csv* file if it's formatted in a similar way to the files exported by *ModbusScope*. This includes having a column for timestamps and one or more columns for data.
+*ModbusScope* is able to process and read data from a `.csv` file if it's formatted in a similar way to the files exported by *ModbusScope*. This includes having a column for timestamps and one or more columns for data.
 
 #### Supported data file format
 
