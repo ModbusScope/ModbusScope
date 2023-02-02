@@ -328,7 +328,7 @@ bool DataFileParser::parseDataLines(QTextStream* pDataStream, QList<QList<double
                                                "Line number: %1\n"
                                                "Line: \"%2\"\n"
                                                "\n\nExpected decimal separator character: \'%3\'"
-                                               ).arg(_lineNumber).arg(strippedLine).arg(_pDataParserModel->decimalSeparator()));
+                                               ).arg(_lineNumber).arg(strippedLine, _pDataParserModel->decimalSeparator()));
                     emit parseErrorOccurred(error);
                     bRet = false;
                     break;
