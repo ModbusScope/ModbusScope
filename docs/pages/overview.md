@@ -6,7 +6,7 @@ This guide explains the basics of using ModbusScope. The software is designed to
 
 The *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/jgeudens/ModbusScope/releases).
 
-ModbusScope can be easily installed by double-clicking on the provided .msi installer file and following the on-screen instructions. The installer will handle the installation of all necessary files on your computer. At the end of the install process, you have the option to set ModbusScope as the default application for opening .mbs files.
+ModbusScope can be easily installed by double-clicking on the provided `.msi` installer file and following the on-screen instructions. The installer will handle the installation of all necessary files on your computer. At the end of the install process, you have the option to set ModbusScope as the default application for opening `.mbs` files.
 
 ## Main screen
 
