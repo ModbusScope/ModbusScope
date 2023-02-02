@@ -925,7 +925,7 @@ void MainWindow::dropEvent(QDropEvent *e)
 void MainWindow::appFocusChanged(QWidget *old, QWidget *now)
 {
     Q_UNUSED(now);
-    if (old != NULL)
+    if (old != nullptr)
     {
         _pGuiModel->setCursorValues(false);
     }
