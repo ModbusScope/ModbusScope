@@ -1,7 +1,8 @@
 #include <QLocale>
-#include <QRegularExpression>
 
 #include "settingsauto.h"
+
+const QString SettingsAuto::_cAbsoluteDatePattern = QString("\\d{2,4}.*\\d{2}.*\\d{2,4}\\s*\\d{1,2}:\\d{1,2}:\\d{1,2}.*");
 
 SettingsAuto::SettingsAuto()
 {
@@ -10,6 +11,9 @@ SettingsAuto::SettingsAuto()
     _column = 0;
     _labelRow = 1;
     _bTimeInMilliSeconds = false;
+
+    _absoluteDateRegex.setPattern(_cAbsoluteDatePattern);
+    _absoluteDateRegex.optimize();
 }
 
 bool SettingsAuto::updateSettings(QTextStream* pDataFileStream, settingsData_t *pSettingsData, qint32 sampleLength)
@@ -107,8 +111,7 @@ bool SettingsAuto::isModbusScopeDataFile(QString firstLine)
 
 bool SettingsAuto::isAbsoluteDate(QString rawData)
 {
-    QRegularExpression re("\\d{2,4}.*\\d{2}.*\\d{2,4}\\s*\\d{1,2}:\\d{1,2}:\\d{1,2}.*");
-    QRegularExpressionMatch match = re.match(rawData);
+    QRegularExpressionMatch match = _absoluteDateRegex.match(rawData);
 
     return match.hasMatch();
 }
