@@ -2,7 +2,7 @@
 
 #include "settingsauto.h"
 
-const QString SettingsAuto::_cAbsoluteDatePattern = QString("\\d{2,4}.*\\d{2}.*\\d{2,4}\\s*\\d{1,2}:\\d{1,2}:\\d{1,2}.*");
+const QString SettingsAuto::_cAbsoluteDatePattern = QString(R"(\d{2,4}.*\d{2}.*\d{2,4}\s*\d{1,2}:\d{1,2}:\d{1,2}.*)");
 
 SettingsAuto::SettingsAuto()
 {

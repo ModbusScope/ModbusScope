@@ -23,7 +23,7 @@ void UpdateNotify::checkForUpdate()
 void UpdateNotify::handleVersionData()
 {
     QRegularExpression dateParseRegex;
-    dateParseRegex.setPattern("(\\d+\\.\\d+\\.\\d+)");
+    dateParseRegex.setPattern(R"((\d+\.\d+\.\d+))");
 
     QRegularExpressionMatch match = dateParseRegex.match(_pVersionDownloader->version());
 
