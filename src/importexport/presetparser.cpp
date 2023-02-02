@@ -90,7 +90,7 @@ bool PresetParser::parsePresetTag(const QDomElement &element, Preset *pPreset)
         else if (child.tagName() == "fieldseparator")
         {
             bFieldseparator = true;
-            if (child.text().trimmed().compare(QString("\\t"), Qt::CaseInsensitive) == 0)
+            if (child.text().trimmed().compare(QString(R"(\t)"), Qt::CaseInsensitive) == 0)
             {
                 pPreset->fieldSeparator = '\t';
             }

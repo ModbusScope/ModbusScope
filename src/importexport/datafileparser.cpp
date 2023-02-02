@@ -3,8 +3,8 @@
 #include <QDateTime>
 #include "datafileparser.h"
 
-const QString DataFileParser::_cDatePattern = QString("\\s*(\\d{1,2})[\\-\\/\\s](\\d{1,2})[\\-\\/\\s](\\d{4})\\s*([0-2][0-9]):([0-5][0-9]):([0-5][0-9])[.,]?(\\d{0,3})");
-const QString DataFileParser::_cTrimStrimPattern = QString("\"?(.[^\"]*)\"?");
+const QString DataFileParser::_cDatePattern = QString(R"(\s*(\d{1,2})[\-\/\s](\d{1,2})[\-\/\s](\d{4})\s*([0-2][0-9]):([0-5][0-9]):([0-5][0-9])[.,]?(\d{0,3}))");
+const QString DataFileParser::_cTrimStrimPattern = QString(R"(\"?(.[^\"]*)\"?)");
 
 DataFileParser::DataFileParser(DataParserModel *pDataParserModel)
     : _lineNumber(0),
