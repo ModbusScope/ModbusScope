@@ -3,8 +3,7 @@
 
 #include <QLocale>
 #include <QTextStream>
-
-#include "dataparsermodel.h"
+#include <QRegularExpression>
 
 class SettingsAuto : public QObject
 {
@@ -52,6 +51,9 @@ private:
     quint32 _column;
     quint32 _labelRow;
     bool _bTimeInMilliSeconds;
+
+    QRegularExpression _absoluteDateRegex;
+    static const QString _cAbsoluteDatePattern;
 };
 
 #endif // SETTINGSAUTO_H
