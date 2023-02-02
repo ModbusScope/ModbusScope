@@ -27,7 +27,7 @@ Compared to the x-axis, the y-axis has two similar settings: *full auto-scale* a
 * *Window auto-scale* automatically adjusts the range of the y-axis based on the values currently visible in the graph.
 * *Limit from* setting allows the user to set the minimum and maximum values for the y-axis.
 
-There are 2 Y-axis available, one for each graph, and the user can select which Y-axis to use per graph.
+There are 2 Y-axis available, one for each graph, and the user can select which Y-axis to use per graph. This can be done in the *register* dialog or by double clicking the Y-axis indicator in the legend.
 
 ## Zoom graph
 
