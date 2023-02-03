@@ -120,7 +120,7 @@ bool QMuParser::evaluate()
 
             if (e.GetCode() == mu::ecINTERNAL_ERROR)
             {
-                if (_errorPos >= 0 || _errorPos <= e.GetMsg().length())
+                if (_errorPos >= 0 || static_cast<quint64>(_errorPos) <= e.GetMsg().length())
                 {
                     _msg = QString("Invalid expression (error at position %1)").arg(_errorPos);
                 }

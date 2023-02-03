@@ -83,8 +83,8 @@ namespace ProjectFileData
                                 bPortName(false), bBaudrate(false), baudrate(0),
                                 bParity(false), parity(0), bStopbits(false), stopbits(0),
                                 bDatabits(false), databits(0),
-                                bSlaveId(false), slaveId(0), bTimeout(false), timeout(0), consecutiveMax(0),
-                                bConsecutiveMax(false), bInt32LittleEndian(true), bPersistentConnection(true) {}
+                                bSlaveId(false), slaveId(0), bTimeout(false), timeout(0), bConsecutiveMax(false),
+                                consecutiveMax(0), bInt32LittleEndian(true), bPersistentConnection(true) {}
 
         bool bConnectionId;
         quint8 connectionId;
