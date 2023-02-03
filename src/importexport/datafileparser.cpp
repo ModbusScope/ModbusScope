@@ -32,7 +32,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
 {
     bool bRet = true;
     QString line;
-    qint32 lineIdx = 0;
+    quint32 lineIdx = 0;
 
     qint64 bytesAvailable = 0;
     if (pDataStream->device() != nullptr)
@@ -199,7 +199,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
     if (bRet)
     {
         // Read till data
-        while(lineIdx < static_cast<qint32>(_pDataParserModel->dataRow()))
+        while(lineIdx < _pDataParserModel->dataRow())
         {
             bRet = readLineFromFile(pDataStream, &line);
 

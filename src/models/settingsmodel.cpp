@@ -427,5 +427,5 @@ void SettingsModel::serialConnectionStrings(quint8 connectionId, QString &strPar
 quint8 SettingsModel::clipConnectionId(quint8 connectionId)
 {
     /* Default to first connection on id is not supported */
-    return connectionId < Connection::ID_CNT ? connectionId : Connection::ID_1;
+    return connectionId < static_cast<quint8>(Connection::ID_CNT) ? connectionId : static_cast<quint8>(Connection::ID_1);
 }
