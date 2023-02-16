@@ -30,7 +30,7 @@ private slots:
 
 private:
 
-    void doHandleRegisterData(QList<Result<double> >& modbusResults, QList<QVariant> &actRawData);
+    void doHandleRegisterData(ResultDoubleList& modbusResults, QList<QVariant> &actRawData);
 
     SettingsModel* _pSettingsModel;
     GraphDataModel* _pGraphDataModel;

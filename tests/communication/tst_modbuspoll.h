@@ -31,7 +31,7 @@ private slots:
 
 private:
 
-    void verifyReceivedDataSignal(QList<QVariant> arguments, QList<Result<double>> expResultList);
+    void verifyReceivedDataSignal(QList<QVariant> arguments, ResultDoubleList expResultList);
 
     SettingsModel * _pSettingsModel;
 

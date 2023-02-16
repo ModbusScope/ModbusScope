@@ -6,14 +6,14 @@
 
 #include "settingsmodel.h"
 
-Q_DECLARE_METATYPE(Result<double>);
+Q_DECLARE_METATYPE(ResultDouble);
 
 using Type = ModbusDataType::Type;
 
 void TestRegisterValueHandler::init()
 {
-    qRegisterMetaType<Result<double>>("Result<double>");
-    qRegisterMetaType<QList<Result<double>> >("QList<Result<double>>");
+    qRegisterMetaType<ResultDouble>("ResultDouble");
+    qRegisterMetaType<ResultDoubleList >("ResultDoubleList");
 
     _pSettingsModel = new SettingsModel();
 
@@ -158,8 +158,8 @@ void TestRegisterValueHandler::read_16()
     addToResultMap(partialResultMap, 40001, false, 256, true);
     addToResultMap(partialResultMap, 40002, false, -100, true);
 
-    auto expResults = QList<Result<double>>() << Result<double>(256, true)
-                                            << Result<double>(-100, true);
+    auto expResults = ResultDoubleList() << ResultDouble(256, true)
+                                            << ResultDouble(-100, true);
 
     verifyRegisterResult(modbusRegisters, partialResultMap, expResults);
 }
@@ -172,8 +172,8 @@ void TestRegisterValueHandler::read_32()
     addToResultMap(partialResultMap, 40001, true, 1000000, true);
     addToResultMap(partialResultMap, 40005, true, -100000, true);
 
-    auto expResults = QList<Result<double>>() << Result<double>(1000000, true)
-                                            << Result<double>(-100000, true);
+    auto expResults = ResultDoubleList() << ResultDouble(1000000, true)
+                                            << ResultDouble(-100000, true);
 
     verifyRegisterResult(modbusRegisters, partialResultMap, expResults);
 }
@@ -189,7 +189,7 @@ void TestRegisterValueHandler::readBigEndian_32()
     partialResultMap.insert(40001, Result<quint16>(static_cast<quint32>(value) >> 16, true));
     partialResultMap.insert(40001 + 1, Result<quint16>(static_cast<quint16>(value), true));
 
-    auto expResults = QList<Result<double>>() << Result<double>(1000000, true);
+    auto expResults = ResultDoubleList() << ResultDouble(1000000, true);
 
     verifyRegisterResult(modbusRegisters, partialResultMap, expResults);
 }
@@ -205,7 +205,7 @@ void TestRegisterValueHandler::readBigEndian_s32()
     partialResultMap.insert(40001, Result<quint16>(static_cast<quint32>(value) >> 16, true));
     partialResultMap.insert(40001 + 1, Result<quint16>(static_cast<quint16>(value), true));
 
-    auto expResults = QList<Result<double>>() << Result<double>(-1000000, true);
+    auto expResults = ResultDoubleList() << ResultDouble(-1000000, true);
 
     verifyRegisterResult(modbusRegisters, partialResultMap, expResults);
 }
@@ -220,8 +220,8 @@ void TestRegisterValueHandler::readConnections()
     QMap<quint32, Result<quint16>> partialResultMap2;
     addToResultMap(partialResultMap2, 40001, false, 100, true);
 
-    auto expResults = QList<Result<double>>() << Result<double>(256, true)
-                                            << Result<double>(100, true);
+    auto expResults = ResultDoubleList() << ResultDouble(256, true)
+                                            << ResultDouble(100, true);
 
 
     RegisterValueHandler regHandler(_pSettingsModel);
@@ -240,8 +240,8 @@ void TestRegisterValueHandler::readConnections()
     QVERIFY(arguments.count() > 0);
 
     QVariant varResultList = arguments.first();
-    QVERIFY((varResultList.canConvert<QList<Result<double>> >()));
-    QList<Result<double>> result = varResultList.value<QList<Result<double>> >();
+    QVERIFY((varResultList.canConvert<ResultDoubleList >()));
+    ResultDoubleList result = varResultList.value<ResultDoubleList >();
 
     QCOMPARE(result, expResults);
 }
@@ -254,8 +254,8 @@ void TestRegisterValueHandler::readFail()
     QMap<quint32, Result<quint16>> partialResultMap2;
     addToResultMap(partialResultMap2, 40001, false, 100, true);
 
-    auto expResults = QList<Result<double>>() << Result<double>(0, false)
-                                            << Result<double>(100, true);
+    auto expResults = ResultDoubleList() << ResultDouble(0, false)
+                                            << ResultDouble(100, true);
 
 
     RegisterValueHandler regHandler(_pSettingsModel);
@@ -273,15 +273,15 @@ void TestRegisterValueHandler::readFail()
     QVERIFY(arguments.count() > 0);
 
     QVariant varResultList = arguments.first();
-    QVERIFY((varResultList.canConvert<QList<Result<double>> >()));
-    QList<Result<double>> result = varResultList.value<QList<Result<double>> >();
+    QVERIFY((varResultList.canConvert<ResultDoubleList >()));
+    ResultDoubleList result = varResultList.value<ResultDoubleList >();
 
     QCOMPARE(result, expResults);
 }
 
 void TestRegisterValueHandler::verifyRegisterResult(QList<ModbusRegister>& regList,
                                                     QMap<quint32, Result<quint16>> &regData,
-                                                    QList<Result<double>> expResults)
+                                                    ResultDoubleList expResults)
 {
     RegisterValueHandler regHandler(_pSettingsModel);
     regHandler.setRegisters(regList);
@@ -298,8 +298,8 @@ void TestRegisterValueHandler::verifyRegisterResult(QList<ModbusRegister>& regLi
     QVERIFY(arguments.count() > 0);
 
     QVariant varResultList = arguments.first();
-    QVERIFY((varResultList.canConvert<QList<Result<double>> >()));
-    QList<Result<double>> result = varResultList.value<QList<Result<double>> >();
+    QVERIFY((varResultList.canConvert<ResultDoubleList >()));
+    ResultDoubleList result = varResultList.value<ResultDoubleList >();
 
     QCOMPARE(result, expResults);
 }

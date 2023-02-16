@@ -13,7 +13,7 @@ void RegisterValueHandler::startRead()
 
     for(quint16 listIdx = 0; listIdx < _registerList.size(); listIdx++)
     {
-        _resultList.append(Result<double>(0, false));
+        _resultList.append(ResultDouble(0, false));
     }
 }
 
@@ -64,7 +64,7 @@ void RegisterValueHandler::processPartialResult(QMap<quint32, Result<quint16> > 
                 processedResult = 0;
             }
 
-            _resultList[listIdx] = Result<double>(processedResult, bSuccess);
+            _resultList[listIdx] = ResultDouble(processedResult, bSuccess);
         }
     }
 }
