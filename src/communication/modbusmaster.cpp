@@ -1,6 +1,5 @@
 #include "modbusmaster.h"
 #include "settingsmodel.h"
-#include "diagnosticmodel.h"
 #include "modbusconnection.h"
 #include "readregisters.h"
 
