@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+#include "result.h"
 #include "scopeplot.h"
 #include "graphdata.h"
 
@@ -46,7 +47,7 @@ public slots:
     void addData(QList<double> timeData, QList<QList<double> > data);
     void handleGraphVisibilityChange(quint32 graphIdx);
     void rescalePlot();
-    void plotResults(QList<bool> successList, QList<double> valueList);
+    void plotResults(ResultDoubleList resultList);
     void clearResults();
 
 signals:

@@ -9,6 +9,7 @@
 #include "guimodel.h"
 #include "formatrelativetime.h"
 #include "graphdatamodel.h"
+#include "result.h"
 #include "settingsmodel.h"
 #include "notemodel.h"
 #include "graphview.h"
@@ -332,7 +333,7 @@ void GraphView::rescalePlot()
     _pPlot->replot();
 }
 
-void GraphView::plotResults(QList<bool> successList, QList<double> valueList)
+void GraphView::plotResults(ResultDoubleList resultList)
 {
     /* QList correspond with activeGraphList */
 
@@ -349,19 +350,21 @@ void GraphView::plotResults(QList<bool> successList, QList<double> valueList)
 
     QList<double> dataList;
 
-    for (qint32 i = 0; i < valueList.size(); i++)
+    uint32_t i = 0;
+    for (auto result: resultList)
     {
-        if (successList[i])
+        if (result.isSuccess())
         {
             // No error, add points
-            _pPlot->graph(i)->addData(timeData, valueList[i]);
-            dataList.append(valueList[i]);
+            _pPlot->graph(i)->addData(timeData, result.value());
+            dataList.append(result.value());
         }
         else
         {
             _pPlot->graph(i)->addData(timeData, 0);
             dataList.append(0);
         }
+        i++;
     }
 
     emit dataAddedToPlot(timeData, dataList);

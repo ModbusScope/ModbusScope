@@ -25,7 +25,7 @@ private slots:
     void handleInputChange();
     void handleCancel();
     void handleAccept();
-    void handleDataReady(QList<bool> successList, QList<double> values);
+    void handleDataReady(ResultDoubleList resultList);
 
 private:
 

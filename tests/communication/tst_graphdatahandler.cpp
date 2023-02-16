@@ -131,12 +131,11 @@ void TestGraphDataHandler::graphData()
     auto regResults = ResultDoubleList() << ResultDouble(1, true)
                                       << ResultDouble(2, true);
 
-    auto resultList = QList<bool>() << true;
-    auto valueList = QList<double>() << 3;
+    auto resultList = ResultDoubleList() << ResultDouble(true, 3);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(regResults, rawRegData);
-    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
 }
 
 void TestGraphDataHandler::graphDataTwice()
@@ -165,11 +164,13 @@ void TestGraphDataHandler::graphDataTwice()
 
     QCOMPARE(spyDataReady.count(), 2);
 
+    auto resultList = ResultDoubleList() << ResultDouble(true, 3);
     rawRegData = spyDataReady.takeFirst();
-    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, QList<bool>() << true, QList<double>() << 3);
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
 
+    resultList = ResultDoubleList() << ResultDouble(true, 7);
     rawRegData = spyDataReady.takeFirst();
-    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, QList<bool>() << true, QList<double>() << 7);
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
 }
 
 void TestGraphDataHandler::graphData_fail()
@@ -182,12 +183,12 @@ void TestGraphDataHandler::graphData_fail()
     auto regResults = ResultDoubleList() << ResultDouble(1, true)
                                                 << ResultDouble(0, false);
 
-    auto resultList = QList<bool>() << false << true;
-    auto valueList = QList<double>() << 0 << 1;
+    auto resultList = ResultDoubleList() << ResultDouble(false, 0)
+                                         << ResultDouble(true, 1);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(regResults, rawRegData);
-    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
 }
 
 void TestGraphDataHandler::doHandleRegisterData(ResultDoubleList& modbusResults, QList<QVariant>& actRawData)

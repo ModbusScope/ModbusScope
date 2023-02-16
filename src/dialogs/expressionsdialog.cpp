@@ -130,16 +130,16 @@ void ExpressionsDialog::handleAccept()
     done(QDialog::Accepted);
 }
 
-void ExpressionsDialog::handleDataReady(QList<bool> successList, QList<double> values)
+void ExpressionsDialog::handleDataReady(ResultDoubleList resultList)
 {
     QString numOutput;
     QString strError;
 
-    bool const bOk = successList.first();
+    const bool bOk = !resultList.isEmpty() && resultList.first().isSuccess();
 
     if (bOk)
     {
-        numOutput = QString("%0").arg(values.first());
+        numOutput = QString("%0").arg(resultList.first().value());
         strError = QString();
     }
     else

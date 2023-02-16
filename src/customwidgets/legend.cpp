@@ -7,6 +7,7 @@
 
 #include "guimodel.h"
 #include "graphdatamodel.h"
+#include "result.h"
 #include "util.h"
 #include "legend.h"
 #include "graphview.h"
@@ -159,16 +160,16 @@ void Legend::legendCellDoubleClicked(int row, int column)
     }
 }
 
-void Legend::addLastReceivedDataToLegend(QList<bool> successList, QList<double> valueList)
+void Legend::addLastReceivedDataToLegend(ResultDoubleList resultList)
 {
     _lastReceivedValueList.clear();
 
-    for (qint32 i = 0; i < valueList.size(); i++)
+    for (auto result: resultList)
     {
-        if (successList[i])
+        if (result.isSuccess())
         {
             // No error
-            _lastReceivedValueList.append(QString("%1").arg(Util::formatDoubleForExport(valueList[i])));
+            _lastReceivedValueList.append(QString("%1").arg(Util::formatDoubleForExport(result.value())));
         }
         else
         {

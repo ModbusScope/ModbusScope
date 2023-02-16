@@ -68,8 +68,7 @@ qint32 GraphDataHandler::expressionErrorPos(qint32 exprIdx) const
 
 void GraphDataHandler::handleRegisterData(ResultDoubleList results)
 {
-    QList<bool> graphSuccess;
-    QList<double> graphData;
+    ResultDoubleList registerList;
 
     QMuParser::setRegistersData(results);
 
@@ -94,11 +93,10 @@ void GraphDataHandler::handleRegisterData(ResultDoubleList results)
             qCWarning(scopeComm) << msg;
         }
 
-        graphSuccess.append(bSuccess);
-        graphData.append(processedResult);
+        registerList.append(ResultDouble(bSuccess, processedResult));
     }
 
-    emit graphDataReady(graphSuccess, graphData);
+    emit graphDataReady(registerList);
 }
 
 
