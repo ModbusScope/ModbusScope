@@ -11,7 +11,6 @@
 #include "testslavedata.h"
 #include "testslavemodbus.h"
 
-#include "tst_graphdatahandler.h"
 #include "tst_communication.h"
 
 
@@ -82,13 +81,12 @@ void TestCommunication::singleSlaveSuccess()
     _testSlaveDataList[Connection::ID_1]->setRegisterState(1, true);
     _testSlaveDataList[Connection::ID_1]->setRegisterValue(1, 2);
 
-    auto resultList = QList<bool>() << true << true;
-    auto valueList = QList<double>() << 2 << 1;
+    auto resultList = ResultDoubleList() << ResultDouble(true, 2) << ResultDouble(true, 1);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(rawRegData);
 
-    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
 }
 
 void TestCommunication::typeFloat32()
@@ -102,13 +100,12 @@ void TestCommunication::typeFloat32()
     _testSlaveDataList[Connection::ID_1]->setRegisterState(1, true);
     _testSlaveDataList[Connection::ID_1]->setRegisterValue(1, 0x3f7f);
 
-    auto resultList = QList<bool>() << true;
-    auto valueList = QList<double>() << 0.999999940395355225f;
+    auto resultList = ResultDoubleList() << ResultDouble(true, static_cast<double>(0.999999940395355225f));
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(rawRegData);
 
-    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
 }
 
 void TestCommunication::constantExpression()
@@ -116,13 +113,12 @@ void TestCommunication::constantExpression()
     auto exprList = QStringList() << "3";
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto resultList = QList<bool>() << true;
-    auto valueList = QList<double>() << 3;
+    auto resultList = ResultDoubleList() << ResultDouble(true, 3);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(rawRegData);
 
-    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
 }
 
 void TestCommunication::mixed_1()
@@ -145,13 +141,14 @@ void TestCommunication::mixed_1()
     _testSlaveDataList[Connection::ID_1]->setRegisterState(4, true);
     _testSlaveDataList[Connection::ID_1]->setRegisterValue(4, 1);
 
-    auto resultList = QList<bool>() << true << true << true;
-    auto valueList = QList<double>() << 6 << 2 << 65538;
+    auto resultList = ResultDoubleList() << ResultDouble(true, 6)
+                                         << ResultDouble(true, 2)
+                                         << ResultDouble(true, 65538);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(rawRegData);
 
-    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
 }
 
 void TestCommunication::mixed_fail()
@@ -174,13 +171,14 @@ void TestCommunication::mixed_fail()
     _testSlaveDataList[Connection::ID_1]->setRegisterState(3, true);
     _testSlaveDataList[Connection::ID_1]->setRegisterValue(3, 3);
 
-    auto resultList = QList<bool>() << false << false << true;
-    auto valueList = QList<double>() << 0 << 0 << 3;
+    auto resultList = ResultDoubleList() << ResultDouble(false, 0)
+                                         << ResultDouble(false, 0)
+                                         << ResultDouble(true, 3);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(rawRegData);
 
-    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
 }
 
 void TestCommunication::readLargeRegisterAddress()
@@ -203,13 +201,13 @@ void TestCommunication::readLargeRegisterAddress()
     testSlaveData.setRegisterState(71049 - 40001, true);
     testSlaveData.setRegisterValue(71049 - 40001, 2);
 
-    auto resultList = QList<bool>() << true << true;
-    auto valueList = QList<double>() << 1 << 2;
+    auto resultList = ResultDoubleList() << ResultDouble(true, 1)
+                                         << ResultDouble(true, 2);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(rawRegData);
 
-    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
 }
 
 void TestCommunication::readVeryLargeRegisterAddress()
@@ -228,13 +226,12 @@ void TestCommunication::readVeryLargeRegisterAddress()
     testSlaveData.setRegisterState(105536 - 40001, true);
     testSlaveData.setRegisterValue(105536 - 40001, 1);
 
-    auto resultList = QList<bool>() << true;
-    auto valueList = QList<double>() << 1;
+    auto resultList = ResultDoubleList() << ResultDouble(true, 1);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(rawRegData);
 
-    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
 }
 
 void TestCommunication::unknownConnection()
@@ -247,13 +244,13 @@ void TestCommunication::unknownConnection()
     _testSlaveDataList[Connection::ID_1]->setRegisterState(0, true);
     _testSlaveDataList[Connection::ID_1]->setRegisterValue(0, 2);
 
-    auto resultList = QList<bool>() << false << true;
-    auto valueList = QList<double>() << 0 << 2;
+    auto resultList = ResultDoubleList() << ResultDouble(false, 0)
+                                         << ResultDouble(true, 2);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(rawRegData);
 
-    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
 }
 
 void TestCommunication::disabledConnection()
@@ -268,13 +265,13 @@ void TestCommunication::disabledConnection()
     _testSlaveDataList[Connection::ID_1]->setRegisterState(0, true);
     _testSlaveDataList[Connection::ID_1]->setRegisterValue(0, 5);
 
-    auto resultList = QList<bool>() << true << false;
-    auto valueList = QList<double>() << 5 << 0;
+    auto resultList = ResultDoubleList() << ResultDouble(true, 5)
+                                         << ResultDouble(false, 0);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(rawRegData);
 
-    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList, valueList);
+    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
 }
 
 void TestCommunication::doHandleRegisterData(QList<QVariant>& actRawData)

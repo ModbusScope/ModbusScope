@@ -25,7 +25,7 @@ public slots:
     void handleRegisterData(ResultDoubleList results);
 
 signals:
-    void graphDataReady(QList<bool> successList, QList<double> values);
+    void graphDataReady(ResultDoubleList resultList);
 
 private:
 

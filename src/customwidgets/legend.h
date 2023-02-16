@@ -9,6 +9,8 @@
 #include <QColor>
 #include <QMenu>
 
+#include "result.h"
+
 /* Forward declaration */
 class GuiModel;
 class GraphDataModel;
@@ -27,7 +29,7 @@ public:
     void clearLegendData();
 
 public slots:
-    void addLastReceivedDataToLegend(QList<bool> successList, QList<double> valueList);
+    void addLastReceivedDataToLegend(ResultDoubleList resultList);
     void graphToForeground(int row);
     void updateDataInLegend();
 

@@ -957,13 +957,13 @@ void MainWindow::updateRuntime()
     }
 }
 
-void MainWindow::updateCommunicationStats(QList<bool> successList)
+void MainWindow::updateCommunicationStats(ResultDoubleList resultList)
 {
     quint32 error = 0;
     quint32 success = 0;
-    for(int idx = 0; idx < successList.size(); idx++)
+    for(auto result: resultList)
     {
-        successList[idx] ? success++ : error++;
+        result.isSuccess() ? success++ : error++;
     }
 
     _pGuiModel->incrementCommunicationStats(success, error);

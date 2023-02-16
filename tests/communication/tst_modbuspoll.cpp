@@ -4,6 +4,7 @@
 
 #include "testslavedata.h"
 #include "testslavemodbus.h"
+#include "communicationhelpers.h"
 
 #include "tst_modbuspoll.h"
 
@@ -92,7 +93,7 @@ void TestModbusPoll::singleSlaveSuccess()
                                             << ResultDouble(65000, true);
 
     /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, expResults);
+    CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
 }
 
 void TestModbusPoll::singleSlaveFail()
@@ -120,7 +121,7 @@ void TestModbusPoll::singleSlaveFail()
                                             << ResultDouble(0, false);
 
     /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, expResults);
+    CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
 }
 
 void TestModbusPoll::singleOnlyConstantDataPoll()
@@ -140,7 +141,7 @@ void TestModbusPoll::singleOnlyConstantDataPoll()
     auto expResults = ResultDoubleList();
 
     /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, expResults);
+    CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
 }
 
 void TestModbusPoll::verifyRestartAfterStop()
@@ -170,7 +171,7 @@ void TestModbusPoll::verifyRestartAfterStop()
                                             << ResultDouble(65000, true);
 
     /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, expResults);
+    CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
 
     /*-- Stop communication --*/
     modbusPoll.stopCommunication();
@@ -187,7 +188,7 @@ void TestModbusPoll::verifyRestartAfterStop()
     arguments = spyDataReady.takeFirst();
 
     /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, expResults);
+    CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
 }
 
 void TestModbusPoll::multiSlaveSuccess()
@@ -215,7 +216,7 @@ void TestModbusPoll::multiSlaveSuccess()
                                             << ResultDouble(5021, true);
 
     /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, expResults);
+    CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
 }
 
 void TestModbusPoll::multiSlaveSuccess_2()
@@ -243,7 +244,7 @@ void TestModbusPoll::multiSlaveSuccess_2()
                                             << ResultDouble(5021, true);
 
     /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, expResults);
+    CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
 }
 
 void TestModbusPoll::multiSlaveSuccess_3()
@@ -276,7 +277,7 @@ void TestModbusPoll::multiSlaveSuccess_3()
                                             << ResultDouble(5021, true);
 
     /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, expResults);
+    CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
 }
 
 void TestModbusPoll::multiSlaveSingleFail()
@@ -303,7 +304,7 @@ void TestModbusPoll::multiSlaveSingleFail()
                                             << ResultDouble(5021, true);
 
     /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, expResults);
+    CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
 }
 
 void TestModbusPoll::multiSlaveAllFail()
@@ -330,7 +331,7 @@ void TestModbusPoll::multiSlaveAllFail()
                                             << ResultDouble(0, false);
 
     /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, expResults);
+    CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
 }
 
 void TestModbusPoll::multiSlaveDisabledConnection()
@@ -363,18 +364,7 @@ void TestModbusPoll::multiSlaveDisabledConnection()
                                             << ResultDouble(0, false);
 
     /* Verify arguments of signal */
-    verifyReceivedDataSignal(arguments, expResults);
-}
-
-void TestModbusPoll::verifyReceivedDataSignal(QList<QVariant> arguments, ResultDoubleList expResultList)
-{
-    QVERIFY(arguments.count() > 0);
-
-    QVariant varResultList = arguments.first();
-    QVERIFY((varResultList.canConvert<ResultDoubleList >()));
-    ResultDoubleList result = varResultList.value<ResultDoubleList >();
-
-    QCOMPARE(result, expResultList);
+    CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
 }
 
 QTEST_GUILESS_MAIN(TestModbusPoll)

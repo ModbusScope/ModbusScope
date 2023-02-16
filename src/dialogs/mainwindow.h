@@ -8,6 +8,7 @@
 #include <QLabel>
 #include <QMenu>
 
+#include "result.h"
 #include "updatenotify.h"
 
 namespace Ui {
@@ -96,7 +97,7 @@ private slots:
     void dropEvent(QDropEvent *e);
     void appFocusChanged(QWidget *old, QWidget *now);
     void updateRuntime();
-    void updateCommunicationStats(QList<bool> successList);
+    void updateCommunicationStats(ResultDoubleList resultList);
     void updateDataFileNotes();
 
     void showVersionUpdate(UpdateNotify::UpdateState result);

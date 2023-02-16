@@ -240,7 +240,7 @@ void TestRegisterValueHandler::readConnections()
     QVERIFY(arguments.count() > 0);
 
     QVariant varResultList = arguments.first();
-    QVERIFY((varResultList.canConvert<ResultDoubleList >()));
+    QVERIFY(varResultList.canConvert<ResultDoubleList >());
     ResultDoubleList result = varResultList.value<ResultDoubleList >();
 
     QCOMPARE(result, expResults);
@@ -273,7 +273,7 @@ void TestRegisterValueHandler::readFail()
     QVERIFY(arguments.count() > 0);
 
     QVariant varResultList = arguments.first();
-    QVERIFY((varResultList.canConvert<ResultDoubleList >()));
+    QVERIFY(varResultList.canConvert<ResultDoubleList >());
     ResultDoubleList result = varResultList.value<ResultDoubleList >();
 
     QCOMPARE(result, expResults);
@@ -298,7 +298,7 @@ void TestRegisterValueHandler::verifyRegisterResult(QList<ModbusRegister>& regLi
     QVERIFY(arguments.count() > 0);
 
     QVariant varResultList = arguments.first();
-    QVERIFY((varResultList.canConvert<ResultDoubleList >()));
+    QVERIFY(varResultList.canConvert<ResultDoubleList >());
     ResultDoubleList result = varResultList.value<ResultDoubleList >();
 
     QCOMPARE(result, expResults);
