@@ -1,7 +1,7 @@
 #ifndef RESULT_H
 #define RESULT_H
 
-#include <QObject>
+#include <QList>
 #include <QDebug>
 
 template <typename T>
@@ -40,7 +40,6 @@ private:
     T _value;
     bool _bResult;
 };
-
 
 /* Implementations need to be in header */
 
@@ -114,5 +113,8 @@ QDebug operator<<(QDebug debug, const Result<T> &result)
 
     return debug;
 }
+
+typedef Result<double> ResultDouble;
+typedef QList<Result<double>> ResultDoubleList;
 
 #endif // RESULT_H

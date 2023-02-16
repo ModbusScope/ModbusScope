@@ -16,7 +16,7 @@ public:
     void setExpression(QString expr);
     QString expression();
 
-    static void setRegistersData(QList<Result<double> > &regValues);
+    static void setRegistersData(ResultDoubleList &regValues);
 
     bool evaluate();
 
@@ -31,7 +31,7 @@ private:
 
     static void registerValue(int index, double *value, bool* success);
 
-    static QList<Result<double> > _registerValues;
+    static ResultDoubleList _registerValues;
 
     mu::ParserRegister* _pExprParser;
 
