@@ -55,7 +55,7 @@ void ModbusMaster::readRegisterList(QList<quint32> registerList)
 
         for (int i = 0; i < registerList.size(); i++)
         {
-            const Result<quint16> result = Result<quint16>(0, State::ERROR);
+            const auto result = Result<quint16>(0, State::ERROR);
             errMap.insert(registerList.at(i), result);
         }
 
