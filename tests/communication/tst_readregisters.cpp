@@ -193,7 +193,7 @@ void TestReadRegisters::addAllErrors()
     for(quint16 idx = 0; idx < static_cast<quint16>(registerList.size()); idx++)
     {
         QCOMPARE(resultMap.value(registerList[idx]).value(), 0);
-        QVERIFY(!resultMap.value(registerList[idx]).isSuccess());
+        QVERIFY(!resultMap.value(registerList[idx]).isValid());
     }
 }
 
@@ -231,7 +231,7 @@ void TestReadRegisters::addSuccess()
     for(quint16 idx = 0; idx < static_cast<quint16>(registerList.size()); idx++)
     {
         QCOMPARE(resultMap.value(registerList[idx]).value(), registerList[idx] + 1000);
-        QVERIFY(resultMap.value(registerList[idx]).isSuccess());
+        QVERIFY(resultMap.value(registerList[idx]).isValid());
     }
 }
 
@@ -269,16 +269,16 @@ void TestReadRegisters::addSuccessAndErrors()
 
 
     QCOMPARE(resultMap.value(0).value(), 1000);
-    QVERIFY(resultMap.value(0).isSuccess());
+    QVERIFY(resultMap.value(0).isValid());
 
     QCOMPARE(resultMap.value(1).value(), 1001);
-    QVERIFY(resultMap.value(1).isSuccess());
+    QVERIFY(resultMap.value(1).isValid());
 
     QCOMPARE(resultMap.value(5).value(), 0);
-    QVERIFY(!resultMap.value(5).isSuccess());
+    QVERIFY(!resultMap.value(5).isValid());
 
     QCOMPARE(resultMap.value(8).value(), 1008);
-    QVERIFY(resultMap.value(8).isSuccess());
+    QVERIFY(resultMap.value(8).isValid());
 }
 
 QTEST_GUILESS_MAIN(TestReadRegisters)

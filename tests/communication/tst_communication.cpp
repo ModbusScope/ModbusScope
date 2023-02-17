@@ -13,6 +13,7 @@
 
 #include "tst_communication.h"
 
+using State = ResultState::State;
 
 void TestCommunication::init()
 {
@@ -81,7 +82,7 @@ void TestCommunication::singleSlaveSuccess()
     _testSlaveDataList[Connection::ID_1]->setRegisterState(1, true);
     _testSlaveDataList[Connection::ID_1]->setRegisterValue(1, 2);
 
-    auto resultList = ResultDoubleList() << ResultDouble(true, 2) << ResultDouble(true, 1);
+    auto resultList = ResultDoubleList() << ResultDouble(2, State::SUCCESS) << ResultDouble(1, State::SUCCESS);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(rawRegData);
@@ -100,7 +101,7 @@ void TestCommunication::typeFloat32()
     _testSlaveDataList[Connection::ID_1]->setRegisterState(1, true);
     _testSlaveDataList[Connection::ID_1]->setRegisterValue(1, 0x3f7f);
 
-    auto resultList = ResultDoubleList() << ResultDouble(true, static_cast<double>(0.999999940395355225f));
+    auto resultList = ResultDoubleList() << ResultDouble(static_cast<double>(0.999999940395355225f), State::SUCCESS);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(rawRegData);
@@ -113,7 +114,7 @@ void TestCommunication::constantExpression()
     auto exprList = QStringList() << "3";
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto resultList = ResultDoubleList() << ResultDouble(true, 3);
+    auto resultList = ResultDoubleList() << ResultDouble(3, State::SUCCESS);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(rawRegData);
@@ -141,9 +142,9 @@ void TestCommunication::mixed_1()
     _testSlaveDataList[Connection::ID_1]->setRegisterState(4, true);
     _testSlaveDataList[Connection::ID_1]->setRegisterValue(4, 1);
 
-    auto resultList = ResultDoubleList() << ResultDouble(true, 6)
-                                         << ResultDouble(true, 2)
-                                         << ResultDouble(true, 65538);
+    auto resultList = ResultDoubleList() << ResultDouble(6, State::SUCCESS)
+                                         << ResultDouble(2, State::SUCCESS)
+                                         << ResultDouble(65538, State::SUCCESS);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(rawRegData);
@@ -171,9 +172,9 @@ void TestCommunication::mixed_fail()
     _testSlaveDataList[Connection::ID_1]->setRegisterState(3, true);
     _testSlaveDataList[Connection::ID_1]->setRegisterValue(3, 3);
 
-    auto resultList = ResultDoubleList() << ResultDouble(false, 0)
-                                         << ResultDouble(false, 0)
-                                         << ResultDouble(true, 3);
+    auto resultList = ResultDoubleList() << ResultDouble(0, State::ERROR)
+                                         << ResultDouble(0, State::ERROR)
+                                         << ResultDouble(3, State::SUCCESS);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(rawRegData);
@@ -201,8 +202,8 @@ void TestCommunication::readLargeRegisterAddress()
     testSlaveData.setRegisterState(71049 - 40001, true);
     testSlaveData.setRegisterValue(71049 - 40001, 2);
 
-    auto resultList = ResultDoubleList() << ResultDouble(true, 1)
-                                         << ResultDouble(true, 2);
+    auto resultList = ResultDoubleList() << ResultDouble(1, State::SUCCESS)
+                                         << ResultDouble(2, State::SUCCESS);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(rawRegData);
@@ -226,7 +227,7 @@ void TestCommunication::readVeryLargeRegisterAddress()
     testSlaveData.setRegisterState(105536 - 40001, true);
     testSlaveData.setRegisterValue(105536 - 40001, 1);
 
-    auto resultList = ResultDoubleList() << ResultDouble(true, 1);
+    auto resultList = ResultDoubleList() << ResultDouble(1, State::SUCCESS);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(rawRegData);
@@ -244,8 +245,8 @@ void TestCommunication::unknownConnection()
     _testSlaveDataList[Connection::ID_1]->setRegisterState(0, true);
     _testSlaveDataList[Connection::ID_1]->setRegisterValue(0, 2);
 
-    auto resultList = ResultDoubleList() << ResultDouble(false, 0)
-                                         << ResultDouble(true, 2);
+    auto resultList = ResultDoubleList() << ResultDouble(0, State::ERROR)
+                                         << ResultDouble(2, State::SUCCESS);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(rawRegData);
@@ -265,8 +266,8 @@ void TestCommunication::disabledConnection()
     _testSlaveDataList[Connection::ID_1]->setRegisterState(0, true);
     _testSlaveDataList[Connection::ID_1]->setRegisterValue(0, 5);
 
-    auto resultList = ResultDoubleList() << ResultDouble(true, 5)
-                                         << ResultDouble(false, 0);
+    auto resultList = ResultDoubleList() << ResultDouble(5, State::SUCCESS)
+                                         << ResultDouble(0, State::ERROR);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(rawRegData);

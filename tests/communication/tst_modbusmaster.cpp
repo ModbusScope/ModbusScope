@@ -75,7 +75,7 @@ void TestModbusMaster::singleRequestSuccess()
         QMap<quint32, Result<quint16>> result = varResultList.value<QMap<quint32, Result<quint16>> >();
         QCOMPARE(result.count(), 1);
 
-        QVERIFY(result[40001].isSuccess());
+        QVERIFY(result[40001].isValid());
         QCOMPARE(result[40001].value(), static_cast<quint32>(0));
     }
 }
@@ -125,7 +125,7 @@ void TestModbusMaster::singleRequestGatewayNotAvailable()
         QMap<quint32, Result<quint16>> result = varResultList.value<QMap<quint32, Result<quint16>> >();
         QCOMPARE(result.count(), 1);
 
-        QVERIFY(result[40001].isSuccess() == false);
+        QVERIFY(result[40001].isValid() == false);
     }
 }
 
@@ -153,7 +153,7 @@ void TestModbusMaster::singleRequestNoResponse()
         QMap<quint32, Result<quint16>> result = varResultList.value<QMap<quint32, Result<quint16>> >();
         QCOMPARE(result.count(), 1);
 
-        QVERIFY(result[40001].isSuccess() == false);
+        QVERIFY(result[40001].isValid() == false);
     }
 }
 
@@ -186,12 +186,12 @@ void TestModbusMaster::singleRequestInvalidAddressOnce()
         QMap<quint32, Result<quint16>> result = varResultList.value<QMap<quint32, Result<quint16>> >();
         QCOMPARE(result.count(), 3);
 
-        QVERIFY(result[40001].isSuccess() == false);
+        QVERIFY(result[40001].isValid() == false);
 
-        QVERIFY(result[40002].isSuccess());
+        QVERIFY(result[40002].isValid());
         QCOMPARE(result[40002].value(), static_cast<quint16>(1));
 
-        QVERIFY(result[40003].isSuccess());
+        QVERIFY(result[40003].isValid());
         QCOMPARE(result[40003].value(), static_cast<quint16>(2));
 
     }
@@ -221,7 +221,7 @@ void TestModbusMaster::singleRequestInvalidAddressPersistent()
         QMap<quint32, Result<quint16>> result = varResultList.value<QMap<quint32, Result<quint16>> >();
         QCOMPARE(result.count(), 1);
 
-        QVERIFY(result[40001].isSuccess() == false);
+        QVERIFY(result[40001].isValid() == false);
 
 
     }
@@ -257,13 +257,13 @@ void TestModbusMaster::multiRequestSuccess()
         QMap<quint32, Result<quint16>> result = varResultList.value<QMap<quint32, Result<quint16>> >();
         QCOMPARE(result.count(), 3);
 
-        QVERIFY(result[40001].isSuccess());
+        QVERIFY(result[40001].isValid());
         QCOMPARE(result[40001].value(), static_cast<quint16>(0));
 
-        QVERIFY(result[40002].isSuccess());
+        QVERIFY(result[40002].isValid());
         QCOMPARE(result[40002].value(), static_cast<quint16>(1));
 
-        QVERIFY(result[40004].isSuccess());
+        QVERIFY(result[40004].isValid());
         QCOMPARE(result[40004].value(), static_cast<quint16>(3));
     }
 }
@@ -300,9 +300,9 @@ void TestModbusMaster::multiRequestGatewayNotAvailable()
         QMap<quint32, Result<quint16>> result = varResultList.value<QMap<quint32, Result<quint16>> >();
         QCOMPARE(result.count(), 3);
 
-        QVERIFY(result[40001].isSuccess() == false);
-        QVERIFY(result[40002].isSuccess() == false);
-        QVERIFY(result[40004].isSuccess() == false);
+        QVERIFY(result[40001].isValid() == false);
+        QVERIFY(result[40002].isValid() == false);
+        QVERIFY(result[40004].isValid() == false);
     }
 }
 
@@ -339,9 +339,9 @@ void TestModbusMaster::multiRequestNoResponse()
         QMap<quint32, Result<quint16>> result = varResultList.value<QMap<quint32, Result<quint16>> >();
         QCOMPARE(result.count(), 3);
 
-        QVERIFY(result[40001].isSuccess() == false);
-        QVERIFY(result[40002].isSuccess() == false);
-        QVERIFY(result[40004].isSuccess() == false);
+        QVERIFY(result[40001].isValid() == false);
+        QVERIFY(result[40002].isValid() == false);
+        QVERIFY(result[40004].isValid() == false);
     }
 }
 
@@ -377,9 +377,9 @@ void TestModbusMaster::multiRequestInvalidAddress()
         QMap<quint32, Result<quint16>> result = varResultList.value<QMap<quint32, Result<quint16>> >();
         QCOMPARE(result.count(), 3);
 
-        QVERIFY(result[40001].isSuccess() == false);
-        QVERIFY(result[40002].isSuccess() == false);
-        QVERIFY(result[40004].isSuccess() == false);
+        QVERIFY(result[40001].isValid() == false);
+        QVERIFY(result[40002].isValid() == false);
+        QVERIFY(result[40004].isValid() == false);
     }
 }
 

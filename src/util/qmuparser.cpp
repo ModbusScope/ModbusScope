@@ -174,7 +174,7 @@ void QMuParser::registerValue(int index, double* value, bool* success)
     if (index < _registerValues.size())
     {
         *value = _registerValues[index].value();
-        *success = _registerValues[index].isSuccess();
+        *success = _registerValues[index].isValid();
     }
     else
     {

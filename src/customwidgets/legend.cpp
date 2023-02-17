@@ -164,9 +164,9 @@ void Legend::addLastReceivedDataToLegend(ResultDoubleList resultList)
 {
     _lastReceivedValueList.clear();
 
-    for (auto result: resultList)
+    for (const auto &result: resultList)
     {
-        if (result.isSuccess())
+        if (result.isValid())
         {
             // No error
             _lastReceivedValueList.append(QString("%1").arg(Util::formatDoubleForExport(result.value())));

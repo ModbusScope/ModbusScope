@@ -74,17 +74,15 @@ void GraphDataHandler::handleRegisterData(ResultDoubleList results)
 
     for(qint32 listIdx = 0; listIdx < _valueParsers.size(); listIdx++)
     {
-        double processedResult = 0;
-        bool bSuccess = true;
+        ResultDouble result;
 
         if (_valueParsers[listIdx].evaluate())
         {
-            processedResult = _valueParsers[listIdx].value();
+            result.setValue(_valueParsers[listIdx].value());
         }
         else
         {
-            processedResult = 0u;
-            bSuccess = false;
+            result.setError();
 
             const quint16 activeIndex = _activeIndexList[listIdx];
             auto msg = QString("Expression evaluation failed (%1): expression %2")
@@ -93,7 +91,7 @@ void GraphDataHandler::handleRegisterData(ResultDoubleList results)
             qCWarning(scopeComm) << msg;
         }
 
-        registerList.append(ResultDouble(bSuccess, processedResult));
+        registerList.append(result);
     }
 
     emit graphDataReady(registerList);

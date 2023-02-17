@@ -4,19 +4,34 @@
 #include <QList>
 #include <QDebug>
 
+
+namespace ResultState
+{
+    enum class State
+    {
+        ERROR = 0,
+        SUCCESS,
+        NO_VALUE
+    };
+}
+
 template <typename T>
 class Result
 {
 public:
     Result();
-    Result(T value, bool bResult);
+    Result(T value, ResultState::State bResult);
     Result(const Result<T>& copy);
 
     T value() const;
     void setValue(T value);
 
-    bool isSuccess() const;
-    void setSuccess(bool bSuccess);
+    void setError();
+
+    bool isValid() const;
+
+    ResultState::State state();
+    void setState(ResultState::State state);
 
     Result<T>& operator= (Result<T> const & result);
 
@@ -24,7 +39,7 @@ public:
     {
         if (
             (res1._value == res2._value)
-            && (res1._bResult == res2._bResult)
+            && (res1._state == res2._state)
         )
         {
             return true;
@@ -38,21 +53,21 @@ public:
 private:
 
     T _value;
-    bool _bResult;
+    ResultState::State _state;
 };
 
 /* Implementations need to be in header */
 
 template <class T>
 Result<T>::Result()
-    : Result(0, false)
+    : Result(0, ResultState::State::NO_VALUE)
 {
 
 }
 
 template <class T>
-Result<T>::Result(T value, bool bResult)
-    : _value(value), _bResult(bResult)
+Result<T>::Result(T value, ResultState::State bResult)
+    : _value(value), _state(bResult)
 {
 
 }
@@ -60,8 +75,8 @@ Result<T>::Result(T value, bool bResult)
 template<class T>
 Result<T>::Result(const Result<T>& copy)
 {
-    _value = copy.value();
-    _bResult = copy.isSuccess();
+    _value = copy._value;
+    _state = copy._state;
 }
 
 template <class T>
@@ -74,18 +89,32 @@ template <class T>
 void Result<T>::setValue(T value)
 {
     _value = value;
+    _state = ResultState::State::SUCCESS;
 }
 
 template <class T>
-bool Result<T>::isSuccess() const
+void Result<T>::setError()
 {
-    return _bResult;
+    _value = 0;
+    _state = ResultState::State::ERROR;
 }
 
 template <class T>
-void Result<T>::setSuccess(bool bSuccess)
+bool Result<T>::isValid() const
 {
-    _bResult = bSuccess;
+    return _state == ResultState::State::SUCCESS;
+}
+
+template <class T>
+typename ResultState::State Result<T>::state()
+{
+    return _state;
+}
+
+template <class T>
+void Result<T>::setState(ResultState::State state)
+{
+    _state = state;
 }
 
 template <class T>
@@ -97,8 +126,8 @@ Result<T>& Result<T>::operator= (Result<T> const & result)
         return *this;
     }
 
-    _value = result.value();
-    _bResult = result.isSuccess();
+    _value = result._value;
+    _state = result._state;
 
     // return the existing object so we can chain this operator
     return *this;
@@ -108,7 +137,7 @@ template <class T>
 QDebug operator<<(QDebug debug, const Result<T> &result)
 {
     QDebugStateSaver saver(debug);
-    QString resultString = result.isSuccess() ? "Success" : "Fail" ;
+    QString resultString = result.isValid() ? "Success" : "Fail" ;
     debug.nospace().noquote() << '(' << resultString << ", " << result.value() << ')';
 
     return debug;

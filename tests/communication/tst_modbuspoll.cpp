@@ -11,6 +11,7 @@
 Q_DECLARE_METATYPE(ResultDouble);
 
 using Type = ModbusDataType::Type;
+using State = ResultState::State;
 
 void TestModbusPoll::init()
 {
@@ -89,8 +90,8 @@ void TestModbusPoll::singleSlaveSuccess()
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
-    auto expResults = ResultDoubleList() << ResultDouble(5, true)
-                                            << ResultDouble(65000, true);
+    auto expResults = ResultDoubleList() << ResultDouble(5, State::SUCCESS)
+                                            << ResultDouble(65000, State::SUCCESS);
 
     /* Verify arguments of signal */
     CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
@@ -117,8 +118,8 @@ void TestModbusPoll::singleSlaveFail()
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
 
-    auto expResults = ResultDoubleList() << ResultDouble(0, false)
-                                            << ResultDouble(0, false);
+    auto expResults = ResultDoubleList() << ResultDouble(0, State::ERROR)
+                                            << ResultDouble(0, State::ERROR);
 
     /* Verify arguments of signal */
     CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
@@ -167,8 +168,8 @@ void TestModbusPoll::verifyRestartAfterStop()
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
-    auto expResults = ResultDoubleList() << ResultDouble(5, true)
-                                            << ResultDouble(65000, true);
+    auto expResults = ResultDoubleList() << ResultDouble(5, State::SUCCESS)
+                                            << ResultDouble(65000, State::SUCCESS);
 
     /* Verify arguments of signal */
     CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
@@ -212,8 +213,8 @@ void TestModbusPoll::multiSlaveSuccess()
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
-    auto expResults = ResultDoubleList() << ResultDouble(5020, true)
-                                            << ResultDouble(5021, true);
+    auto expResults = ResultDoubleList() << ResultDouble(5020, State::SUCCESS)
+                                            << ResultDouble(5021, State::SUCCESS);
 
     /* Verify arguments of signal */
     CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
@@ -240,8 +241,8 @@ void TestModbusPoll::multiSlaveSuccess_2()
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
-    auto expResults = ResultDoubleList() << ResultDouble(5020, true)
-                                            << ResultDouble(5021, true);
+    auto expResults = ResultDoubleList() << ResultDouble(5020, State::SUCCESS)
+                                            << ResultDouble(5021, State::SUCCESS);
 
     /* Verify arguments of signal */
     CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
@@ -272,9 +273,9 @@ void TestModbusPoll::multiSlaveSuccess_3()
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
-    auto expResults = ResultDoubleList() << ResultDouble(5020, true)
-                                            << ResultDouble(5022, true)
-                                            << ResultDouble(5021, true);
+    auto expResults = ResultDoubleList() << ResultDouble(5020, State::SUCCESS)
+                                            << ResultDouble(5022, State::SUCCESS)
+                                            << ResultDouble(5021, State::SUCCESS);
 
     /* Verify arguments of signal */
     CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
@@ -300,8 +301,8 @@ void TestModbusPoll::multiSlaveSingleFail()
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
-    auto expResults = ResultDoubleList() << ResultDouble(0, false)
-                                            << ResultDouble(5021, true);
+    auto expResults = ResultDoubleList() << ResultDouble(0, State::ERROR)
+                                            << ResultDouble(5021, State::SUCCESS);
 
     /* Verify arguments of signal */
     CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
@@ -327,8 +328,8 @@ void TestModbusPoll::multiSlaveAllFail()
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
-    auto expResults = ResultDoubleList() << ResultDouble(0, false)
-                                            << ResultDouble(0, false);
+    auto expResults = ResultDoubleList() << ResultDouble(0, State::ERROR)
+                                            << ResultDouble(0, State::ERROR);
 
     /* Verify arguments of signal */
     CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
@@ -360,8 +361,8 @@ void TestModbusPoll::multiSlaveDisabledConnection()
     QList<QVariant> arguments = spyDataReady.takeFirst();
 
     /* Disabled connections return error and zero */
-    auto expResults = ResultDoubleList() << ResultDouble(5020, true)
-                                            << ResultDouble(0, false);
+    auto expResults = ResultDoubleList() << ResultDouble(5020, State::SUCCESS)
+                                            << ResultDouble(0, State::ERROR);
 
     /* Verify arguments of signal */
     CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);

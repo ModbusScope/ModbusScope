@@ -4,6 +4,8 @@
 #include "graphdatamodel.h"
 #include "expressionhighlighting.h"
 
+using State = ResultState::State;
+
 ExpressionsDialog::ExpressionsDialog(GraphDataModel *pGraphDataModel, qint32 idx, QWidget *parent) :
     QDialog(parent),
     _pUi(new Ui::ExpressionsDialog),
@@ -103,7 +105,7 @@ void ExpressionsDialog::handleInputChange()
             QString valueStr = pValueItem->text();
             bool bOk = false;
             double value = valueStr.toDouble(&bOk);
-            results.append(ResultDouble(value, bOk));
+            results.append(ResultDouble(value, bOk ? State::SUCCESS: State::ERROR));
 
             /* Avoid recursive signal/slots calling */
             _pUi->tblExpressionInput->blockSignals(true);
@@ -135,7 +137,7 @@ void ExpressionsDialog::handleDataReady(ResultDoubleList resultList)
     QString numOutput;
     QString strError;
 
-    const bool bOk = !resultList.isEmpty() && resultList.first().isSuccess();
+    const bool bOk = !resultList.isEmpty() && resultList.first().isValid();
 
     if (bOk)
     {
