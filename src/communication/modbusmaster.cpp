@@ -9,6 +9,8 @@ typedef QMap<quint32,Result<quint16> > ModbusResultMap;
 Q_DECLARE_METATYPE(ModbusResultMap);
 Q_DECLARE_METATYPE(Result<quint16>);
 
+using State = ResultState::State;
+
 ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, quint8 connectionId) :
     QObject(nullptr)
 {
@@ -53,7 +55,7 @@ void ModbusMaster::readRegisterList(QList<quint32> registerList)
 
         for (int i = 0; i < registerList.size(); i++)
         {
-            const Result<quint16> result = Result<quint16>(0, false);
+            const Result<quint16> result = Result<quint16>(0, State::ERROR);
             errMap.insert(registerList.at(i), result);
         }
 

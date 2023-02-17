@@ -41,7 +41,7 @@ private:
             quint32 addr,
             bool b32bit,
             qint64 value,
-            bool result
+            ResultState::State resultState
             );
 
     SettingsModel* _pSettingsModel;

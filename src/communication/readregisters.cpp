@@ -1,5 +1,7 @@
 #include "readregisters.h"
 
+using State = ResultState::State;
+
 ReadRegisters::ReadRegisters()
 {
 
@@ -120,7 +122,7 @@ void ReadRegisters::addSuccess(quint32 startRegister, QList<quint16> registerDat
         for (qint32 i = 0; i < registerDataList.size(); i++)
         {
             const quint32 registerAddr = startRegister + static_cast<quint32>(i);
-            const Result<quint16> result = Result<quint16>(registerDataList[i], true);
+            const Result<quint16> result = Result<quint16>(registerDataList[i], State::SUCCESS);
 
             _resultMap.insert(registerAddr, result);
         }
@@ -140,7 +142,7 @@ void ReadRegisters::addError()
         for (quint32 i = 0; i < nextRequestData.count(); i++)
         {
             const quint32 registerAddr = nextRequestData.address() + static_cast<quint32>(i);
-            const Result<quint16> result = Result<quint16>(0, false);
+            const Result<quint16> result = Result<quint16>(0, State::ERROR);
 
             _resultMap.insert(registerAddr, result);
         }

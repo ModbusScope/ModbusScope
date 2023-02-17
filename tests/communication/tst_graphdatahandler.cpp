@@ -11,6 +11,7 @@
 Q_DECLARE_METATYPE(Result<quint16>);
 
 using Type = ModbusDataType::Type;
+using State = ResultState::State;
 
 #define ADD_TEST(expr, errorPos)      QTest::newRow(expr) << QString(expr) << static_cast<int>(errorPos)
 
@@ -86,7 +87,7 @@ void TestGraphDataHandler::errorPosition()
     dataHandler.processActiveRegisters(_pGraphDataModel);
     dataHandler.modbusRegisterList(registerList);
 
-    auto regResults = ResultDoubleList() << ResultDouble(1, true);
+    auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS);
     dataHandler.handleRegisterData(regResults);
 
     QCOMPARE(dataHandler.expressionErrorPos(0), errorPos);
@@ -128,10 +129,10 @@ void TestGraphDataHandler::graphData()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto regResults = ResultDoubleList() << ResultDouble(1, true)
-                                      << ResultDouble(2, true);
+    auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS)
+                                      << ResultDouble(2, State::SUCCESS);
 
-    auto resultList = ResultDoubleList() << ResultDouble(true, 3);
+    auto resultList = ResultDoubleList() << ResultDouble(3, State::SUCCESS);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(regResults, rawRegData);
@@ -144,11 +145,11 @@ void TestGraphDataHandler::graphDataTwice()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto regResults_1 = ResultDoubleList() << ResultDouble(1, true)
-                                                << ResultDouble(2, true);
+    auto regResults_1 = ResultDoubleList() << ResultDouble(1, State::SUCCESS)
+                                                << ResultDouble(2, State::SUCCESS);
 
-    auto regResults_2 = ResultDoubleList() << ResultDouble(3, true)
-                                                << ResultDouble(4, true);
+    auto regResults_2 = ResultDoubleList() << ResultDouble(3, State::SUCCESS)
+                                                << ResultDouble(4, State::SUCCESS);
 
     QList<QVariant> rawRegData;
     GraphDataHandler dataHandler;
@@ -164,11 +165,11 @@ void TestGraphDataHandler::graphDataTwice()
 
     QCOMPARE(spyDataReady.count(), 2);
 
-    auto resultList = ResultDoubleList() << ResultDouble(true, 3);
+    auto resultList = ResultDoubleList() << ResultDouble(3, State::SUCCESS);
     rawRegData = spyDataReady.takeFirst();
     CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
 
-    resultList = ResultDoubleList() << ResultDouble(true, 7);
+    resultList = ResultDoubleList() << ResultDouble(7, State::SUCCESS);
     rawRegData = spyDataReady.takeFirst();
     CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
 }
@@ -180,11 +181,11 @@ void TestGraphDataHandler::graphData_fail()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto regResults = ResultDoubleList() << ResultDouble(1, true)
-                                                << ResultDouble(0, false);
+    auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS)
+                                                << ResultDouble(0, State::ERROR);
 
-    auto resultList = ResultDoubleList() << ResultDouble(false, 0)
-                                         << ResultDouble(true, 1);
+    auto resultList = ResultDoubleList() << ResultDouble(0, State::ERROR)
+                                         << ResultDouble(1, State::SUCCESS);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(regResults, rawRegData);

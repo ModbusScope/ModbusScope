@@ -2,6 +2,8 @@
 #include "settingsmodel.h"
 #include "modbusdatatype.h"
 
+using State = ResultState::State;
+
 RegisterValueHandler::RegisterValueHandler(SettingsModel *pSettingsModel) :
     _pSettingsModel(pSettingsModel)
 {
@@ -13,7 +15,7 @@ void RegisterValueHandler::startRead()
 
     for(quint16 listIdx = 0; listIdx < _registerList.size(); listIdx++)
     {
-        _resultList.append(ResultDouble(0, false));
+        _resultList.append(ResultDouble(0, State::ERROR));
     }
 }
 
@@ -36,7 +38,6 @@ void RegisterValueHandler::processPartialResult(QMap<quint32, Result<quint16> > 
         {
             Result<quint16> upperRegister;
             Result<quint16> lowerRegister;
-            double processedResult = 0;
 
             lowerRegister = partialResultMap[mbReg.address()];
 
@@ -51,20 +52,22 @@ void RegisterValueHandler::processPartialResult(QMap<quint32, Result<quint16> > 
             else
             {
                 /* Dummy valid value */
-                upperRegister = Result<quint16>(0, true);
+                upperRegister = Result<quint16>(0, State::SUCCESS);
             }
 
-            bool bSuccess = lowerRegister.isSuccess() && upperRegister.isSuccess();
+            bool bSuccess = lowerRegister.isValid() && upperRegister.isValid();
+            ResultDouble result;
             if (bSuccess)
             {
-                processedResult = mbReg.processValue(lowerRegister.value(), upperRegister.value(), _pSettingsModel->int32LittleEndian(connectionId));
+                double processedResult = mbReg.processValue(lowerRegister.value(), upperRegister.value(), _pSettingsModel->int32LittleEndian(connectionId));
+                result.setValue(processedResult);
             }
             else
             {
-                processedResult = 0;
+                result.setError();
             }
 
-            _resultList[listIdx] = ResultDouble(processedResult, bSuccess);
+            _resultList[listIdx] = result;
         }
     }
 }

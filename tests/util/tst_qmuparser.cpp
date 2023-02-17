@@ -5,6 +5,8 @@
 
 #include "tst_qmuparser.h"
 
+using State = ResultState::State;
+
 #define ADD_TEST(expr, result)      QTest::newRow(expr) << QString(expr) << static_cast<double>(result)
 
 #define ADD_REG_TEST(expr, registerValue, result)      QTest::newRow(expr) << QString(expr) << static_cast<double>(registerValue) << static_cast<double>(result)
@@ -125,7 +127,7 @@ void TestQMuParser::evaluateSingleRegister()
 
     QMuParser parser(expression);
 
-    parser.setRegistersData(ResultDoubleList() << ResultDouble(registerValue, true));
+    parser.setRegistersData(ResultDoubleList() << ResultDouble(registerValue, State::SUCCESS));
 
     bool bSuccess = parser.evaluate();
 
@@ -136,7 +138,7 @@ void TestQMuParser::evaluateSingleRegister()
 
 void TestQMuParser::evaluateMultipleRegisters()
 {
-    auto input = ResultDoubleList() << ResultDouble(1, true) << ResultDouble(2, true) << ResultDouble(3, true);
+    auto input = ResultDoubleList() << ResultDouble(1, State::SUCCESS) << ResultDouble(2, State::SUCCESS) << ResultDouble(3, State::SUCCESS);
 
     QMuParser parser("r(0)");
     parser.setRegistersData(input);
@@ -175,7 +177,7 @@ void TestQMuParser::evaluateSubsequentRegister()
 
     for (int idx = 0; idx < count; idx++)
     {
-        auto input = ResultDoubleList() << ResultDouble(data[idx], true);
+        auto input = ResultDoubleList() << ResultDouble(data[idx], State::SUCCESS);
         parser.setRegistersData(input);
 
         bool bSuccess = parser.evaluate();
@@ -212,7 +214,7 @@ void TestQMuParser::evaluateEmpty()
 void TestQMuParser::evaluateFail()
 {
     QString expression = "r(0)";
-    auto resultList = ResultDoubleList() << ResultDouble(5, false);
+    auto resultList = ResultDoubleList() << ResultDouble(5, State::ERROR);
 
     QMuParser parser(expression);
 
@@ -325,7 +327,7 @@ void TestQMuParser::expressionUpdate()
 {
     QMuParser parser("r(0) + 1");
 
-    auto input_1 = ResultDoubleList() << ResultDouble(5, true);
+    auto input_1 = ResultDoubleList() << ResultDouble(5, State::SUCCESS);
     parser.setRegistersData(input_1);
 
     bool bSuccess = parser.evaluate();
@@ -336,7 +338,7 @@ void TestQMuParser::expressionUpdate()
 
     parser.setExpression("r(0) + r(1) + 2");
 
-    auto input_2 = ResultDoubleList() << ResultDouble(1, true) << ResultDouble(2, true);
+    auto input_2 = ResultDoubleList() << ResultDouble(1, State::SUCCESS) << ResultDouble(2, State::SUCCESS);
     parser.setRegistersData(input_2);
     bSuccess = parser.evaluate();
 

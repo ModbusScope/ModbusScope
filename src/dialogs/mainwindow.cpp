@@ -963,7 +963,7 @@ void MainWindow::updateCommunicationStats(ResultDoubleList resultList)
     quint32 success = 0;
     for(auto result: resultList)
     {
-        result.isSuccess() ? success++ : error++;
+        result.isValid() ? success++ : error++;
     }
 
     _pGuiModel->incrementCommunicationStats(success, error);

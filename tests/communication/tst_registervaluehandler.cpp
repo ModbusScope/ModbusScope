@@ -9,6 +9,7 @@
 Q_DECLARE_METATYPE(ResultDouble);
 
 using Type = ModbusDataType::Type;
+using State = ResultState::State;
 
 void TestRegisterValueHandler::init()
 {
@@ -155,11 +156,11 @@ void TestRegisterValueHandler::read_16()
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, Type::UNSIGNED_16)
                                                    << ModbusRegister(40002, Connection::ID_1, Type::SIGNED_16);
     QMap<quint32, Result<quint16>> partialResultMap;
-    addToResultMap(partialResultMap, 40001, false, 256, true);
-    addToResultMap(partialResultMap, 40002, false, -100, true);
+    addToResultMap(partialResultMap, 40001, false, 256, State::SUCCESS);
+    addToResultMap(partialResultMap, 40002, false, -100, State::SUCCESS);
 
-    auto expResults = ResultDoubleList() << ResultDouble(256, true)
-                                            << ResultDouble(-100, true);
+    auto expResults = ResultDoubleList() << ResultDouble(256, State::SUCCESS)
+                                            << ResultDouble(-100, State::SUCCESS);
 
     verifyRegisterResult(modbusRegisters, partialResultMap, expResults);
 }
@@ -169,11 +170,11 @@ void TestRegisterValueHandler::read_32()
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, Type::UNSIGNED_32)
                                                    << ModbusRegister(40005, Connection::ID_1, Type::SIGNED_32);
     QMap<quint32, Result<quint16>> partialResultMap;
-    addToResultMap(partialResultMap, 40001, true, 1000000, true);
-    addToResultMap(partialResultMap, 40005, true, -100000, true);
+    addToResultMap(partialResultMap, 40001, true, 1000000, State::SUCCESS);
+    addToResultMap(partialResultMap, 40005, true, -100000, State::SUCCESS);
 
-    auto expResults = ResultDoubleList() << ResultDouble(1000000, true)
-                                            << ResultDouble(-100000, true);
+    auto expResults = ResultDoubleList() << ResultDouble(1000000, State::SUCCESS)
+                                            << ResultDouble(-100000, State::SUCCESS);
 
     verifyRegisterResult(modbusRegisters, partialResultMap, expResults);
 }
@@ -186,10 +187,10 @@ void TestRegisterValueHandler::readBigEndian_32()
     QMap<quint32, Result<quint16>> partialResultMap;
     quint32 value = 1000000;
 
-    partialResultMap.insert(40001, Result<quint16>(static_cast<quint32>(value) >> 16, true));
-    partialResultMap.insert(40001 + 1, Result<quint16>(static_cast<quint16>(value), true));
+    partialResultMap.insert(40001, Result<quint16>(static_cast<quint32>(value) >> 16, State::SUCCESS));
+    partialResultMap.insert(40001 + 1, Result<quint16>(static_cast<quint16>(value), State::SUCCESS));
 
-    auto expResults = ResultDoubleList() << ResultDouble(1000000, true);
+    auto expResults = ResultDoubleList() << ResultDouble(1000000, State::SUCCESS);
 
     verifyRegisterResult(modbusRegisters, partialResultMap, expResults);
 }
@@ -202,10 +203,10 @@ void TestRegisterValueHandler::readBigEndian_s32()
     QMap<quint32, Result<quint16>> partialResultMap;
     quint32 value = -1000000;
 
-    partialResultMap.insert(40001, Result<quint16>(static_cast<quint32>(value) >> 16, true));
-    partialResultMap.insert(40001 + 1, Result<quint16>(static_cast<quint16>(value), true));
+    partialResultMap.insert(40001, Result<quint16>(static_cast<quint32>(value) >> 16, State::SUCCESS));
+    partialResultMap.insert(40001 + 1, Result<quint16>(static_cast<quint16>(value), State::SUCCESS));
 
-    auto expResults = ResultDoubleList() << ResultDouble(-1000000, true);
+    auto expResults = ResultDoubleList() << ResultDouble(-1000000, State::SUCCESS);
 
     verifyRegisterResult(modbusRegisters, partialResultMap, expResults);
 }
@@ -215,13 +216,13 @@ void TestRegisterValueHandler::readConnections()
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, Type::UNSIGNED_16)
                                                    << ModbusRegister(40001, Connection::ID_2, Type::SIGNED_16);
     QMap<quint32, Result<quint16>> partialResultMap1;
-    addToResultMap(partialResultMap1, 40001, false, 256, true);
+    addToResultMap(partialResultMap1, 40001, false, 256, State::SUCCESS);
 
     QMap<quint32, Result<quint16>> partialResultMap2;
-    addToResultMap(partialResultMap2, 40001, false, 100, true);
+    addToResultMap(partialResultMap2, 40001, false, 100, State::SUCCESS);
 
-    auto expResults = ResultDoubleList() << ResultDouble(256, true)
-                                            << ResultDouble(100, true);
+    auto expResults = ResultDoubleList() << ResultDouble(256, State::SUCCESS)
+                                            << ResultDouble(100, State::SUCCESS);
 
 
     RegisterValueHandler regHandler(_pSettingsModel);
@@ -252,10 +253,10 @@ void TestRegisterValueHandler::readFail()
                                                    << ModbusRegister(40001, Connection::ID_2, Type::SIGNED_16);
 
     QMap<quint32, Result<quint16>> partialResultMap2;
-    addToResultMap(partialResultMap2, 40001, false, 100, true);
+    addToResultMap(partialResultMap2, 40001, false, 100, State::SUCCESS);
 
-    auto expResults = ResultDoubleList() << ResultDouble(0, false)
-                                            << ResultDouble(100, true);
+    auto expResults = ResultDoubleList() << ResultDouble(0, State::ERROR)
+                                            << ResultDouble(100, State::SUCCESS);
 
 
     RegisterValueHandler regHandler(_pSettingsModel);
@@ -308,14 +309,14 @@ void TestRegisterValueHandler::addToResultMap(QMap<quint32, Result<quint16>> &re
         quint32 addr,
         bool b32bit,
         qint64 value,
-        bool result
+        State resultState
         )
 {
-    resultMap.insert(addr, Result<quint16>(static_cast<quint16>(value), result));
+    resultMap.insert(addr, Result<quint16>(static_cast<quint16>(value), resultState));
 
     if (b32bit)
     {
-        resultMap.insert(addr + 1, Result<quint16>(static_cast<quint32>(value) >> 16, result));
+        resultMap.insert(addr + 1, Result<quint16>(static_cast<quint32>(value) >> 16, resultState));
     }
 }
 

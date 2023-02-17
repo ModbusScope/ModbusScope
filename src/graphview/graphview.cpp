@@ -353,7 +353,7 @@ void GraphView::plotResults(ResultDoubleList resultList)
     uint32_t i = 0;
     for (auto result: resultList)
     {
-        if (result.isSuccess())
+        if (result.isValid())
         {
             // No error, add points
             _pPlot->graph(i)->addData(timeData, result.value());
