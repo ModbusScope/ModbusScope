@@ -30,7 +30,7 @@ public:
 
     bool isValid() const;
 
-    ResultState::State state();
+    ResultState::State state() const;
     void setState(ResultState::State state);
 
     Result<T>& operator= (Result<T> const & result);
@@ -106,7 +106,7 @@ bool Result<T>::isValid() const
 }
 
 template <class T>
-typename ResultState::State Result<T>::state()
+typename ResultState::State Result<T>::state() const
 {
     return _state;
 }
