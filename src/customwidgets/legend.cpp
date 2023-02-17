@@ -12,6 +12,8 @@
 #include "legend.h"
 #include "graphview.h"
 
+using State = ResultState::State;
+
 Legend::Legend(QWidget *parent) : QFrame(parent),
     _popupMenuItem(0),
     _pGuiModel(nullptr),
@@ -107,9 +109,9 @@ void Legend::setModels(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel)
 
 void Legend::clearLegendData()
 {
-    for (qint32 i = 0; i < _lastReceivedValueList.size(); i++)
+    for(auto &result: _lastReceivedList)
     {
-        _lastReceivedValueList[i] = "-";
+        result.setState(State::NO_VALUE);
     }
 
     updateDataInLegend();
@@ -162,52 +164,27 @@ void Legend::legendCellDoubleClicked(int row, int column)
 
 void Legend::addLastReceivedDataToLegend(ResultDoubleList resultList)
 {
-    _lastReceivedValueList.clear();
-
-    for (const auto &result: resultList)
-    {
-        if (result.isValid())
-        {
-            // No error
-            _lastReceivedValueList.append(QString("%1").arg(Util::formatDoubleForExport(result.value())));
-        }
-        else
-        {
-            /* Show error */
-            _lastReceivedValueList.append("-");
-        }
-    }
+    _lastReceivedList = resultList;
 
     updateDataInLegend();
 }
 
 void Legend::updateDataInLegend()
 {
-    QStringList legendDataValues;
-
     /* Select correct values to show */
     if (_pGuiModel->cursorValues())
     {
-        updateCursorDataInLegend(legendDataValues);
+        updateCursorDataInLegend();
     }
     else
     {
-        legendDataValues = _lastReceivedValueList;
-    }
-
-
-    if (_pLegendTable->rowCount() == legendDataValues.size())
-    {
-        for (qint32 i = 0; i < legendDataValues.size(); i++)
-        {
-            _pLegendTable->item(i,cColummnValue)->setText(legendDataValues[i]);
-        }
+        updateValueDataInLegend();
     }
 }
 
 void Legend::updateLegend()
 {
-    _lastReceivedValueList.clear();
+    _lastReceivedList.clear();
 
     if (_pGraphDataModel->activeCount() != 0)
     {
@@ -219,7 +196,7 @@ void Legend::updateLegend()
         for (qint32 idx = 0; idx < activeList.size(); idx++)
         {
             addItem(activeList[idx]);
-            _lastReceivedValueList.append("-");
+            _lastReceivedList.append(ResultDouble(0, State::NO_VALUE));
         }
 
         _pNoGraphs->hide();
@@ -306,24 +283,60 @@ void Legend::changeGraphLabel(const quint32 graphIdx)
     }
 }
 
-void Legend::updateCursorDataInLegend(QStringList &cursorValueList)
+void Legend::updateCursorDataInLegend()
 {
     QList<double> valueList;
     const bool bInRange = _pGraphView->valuesUnderCursor(valueList);
 
-    cursorValueList.clear();
-
-    for (qint32 i = 0; i < valueList.size(); i++)
+    if (_pLegendTable->rowCount() == valueList.size())
     {
-        if (bInRange)
+        uint i = 0;
+        for (auto value: valueList)
         {
-            // No error
-            cursorValueList.append(QString("[%1]").arg(Util::formatDoubleForExport(valueList[i])));
+            QString cursorValue;
+            if (bInRange)
+            {
+                // No error
+                cursorValue = QString("[%1]").arg(Util::formatDoubleForExport(value));
+            }
+            else
+            {
+                /* Show error */
+                cursorValue = "?";
+            }
+
+            _pLegendTable->item(i, cColummnValue)->setText(cursorValue);
+
+            i++;
         }
-        else
+    }
+}
+
+void Legend::updateValueDataInLegend()
+{
+    if (_pLegendTable->rowCount() == _lastReceivedList.size())
+    {
+        uint i = 0;
+        for (const auto &result: _lastReceivedList)
         {
-            /* Show error */
-            cursorValueList.append("?");
+            QString dataValue;
+            if (result.isValid())
+            {
+                dataValue = QString("%1").arg(Util::formatDoubleForExport(result.value()));
+            }
+            else
+            {
+                dataValue = "-";
+            }
+
+            _pLegendTable->item(i, cColummnValue)->setText(dataValue);
+
+            const QColor background = result.state() == State::ERROR ? QColor("#FFCCCB"): QColorConstants::White;
+            _pLegendTable->item(i, cColummnAxis)->setBackground(background);
+            _pLegendTable->item(i, cColummnValue)->setBackground(background);
+            _pLegendTable->item(i, cColummnText)->setBackground(background);
+
+            i++;
         }
     }
 }

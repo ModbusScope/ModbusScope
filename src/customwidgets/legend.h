@@ -46,13 +46,14 @@ private slots:
     void showAll();
 
 private:
-    void updateCursorDataInLegend(QStringList &cursorValueList);
+    void updateCursorDataInLegend();
+    void updateValueDataInLegend();
     void addItem(quint32 graphIdx);
     void toggleItemVisibility(qint32 activeGraphIdx);
     QString valueAxisText(quint32 graphIdx);
 
     // Last data
-    QStringList _lastReceivedValueList;
+    ResultDoubleList _lastReceivedList;
     qint32 _popupMenuItem;
 
     // Models
