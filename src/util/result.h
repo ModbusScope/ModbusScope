@@ -20,7 +20,7 @@ class Result
 {
 public:
     Result();
-    Result(T value, ResultState::State bResult);
+    Result(T value, ResultState::State state);
     Result(const Result<T>& copy);
 
     T value() const;
@@ -66,17 +66,17 @@ Result<T>::Result()
 }
 
 template <class T>
-Result<T>::Result(T value, ResultState::State bResult)
-    : _value(value), _state(bResult)
+Result<T>::Result(T value, ResultState::State state)
+    : _value(value), _state(state)
 {
 
 }
 
 template<class T>
 Result<T>::Result(const Result<T>& copy)
+    : _value(copy._value), _state(copy._state)
 {
-    _value = copy._value;
-    _state = copy._state;
+
 }
 
 template <class T>
@@ -143,7 +143,7 @@ QDebug operator<<(QDebug debug, const Result<T> &result)
     return debug;
 }
 
-typedef Result<double> ResultDouble;
-typedef QList<Result<double>> ResultDoubleList;
+using ResultDouble = Result<double>;
+using ResultDoubleList = QList<Result<double>>;
 
 #endif // RESULT_H
