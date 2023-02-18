@@ -255,7 +255,7 @@ void TestRegisterValueHandler::readFail()
     QMap<quint32, Result<quint16>> partialResultMap2;
     addToResultMap(partialResultMap2, 40001, false, 100, State::SUCCESS);
 
-    auto expResults = ResultDoubleList() << ResultDouble(0, State::ERROR)
+    auto expResults = ResultDoubleList() << ResultDouble(0, State::INVALID)
                                             << ResultDouble(100, State::SUCCESS);
 
 

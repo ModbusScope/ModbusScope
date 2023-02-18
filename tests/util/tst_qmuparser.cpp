@@ -214,7 +214,7 @@ void TestQMuParser::evaluateEmpty()
 void TestQMuParser::evaluateFail()
 {
     QString expression = "r(0)";
-    auto resultList = ResultDoubleList() << ResultDouble(5, State::ERROR);
+    auto resultList = ResultDoubleList() << ResultDouble(5, State::INVALID);
 
     QMuParser parser(expression);
 

@@ -118,8 +118,8 @@ void TestModbusPoll::singleSlaveFail()
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
 
-    auto expResults = ResultDoubleList() << ResultDouble(0, State::ERROR)
-                                            << ResultDouble(0, State::ERROR);
+    auto expResults = ResultDoubleList() << ResultDouble(0, State::INVALID)
+                                            << ResultDouble(0, State::INVALID);
 
     /* Verify arguments of signal */
     CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
@@ -301,7 +301,7 @@ void TestModbusPoll::multiSlaveSingleFail()
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
-    auto expResults = ResultDoubleList() << ResultDouble(0, State::ERROR)
+    auto expResults = ResultDoubleList() << ResultDouble(0, State::INVALID)
                                             << ResultDouble(5021, State::SUCCESS);
 
     /* Verify arguments of signal */
@@ -328,8 +328,8 @@ void TestModbusPoll::multiSlaveAllFail()
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
-    auto expResults = ResultDoubleList() << ResultDouble(0, State::ERROR)
-                                            << ResultDouble(0, State::ERROR);
+    auto expResults = ResultDoubleList() << ResultDouble(0, State::INVALID)
+                                            << ResultDouble(0, State::INVALID);
 
     /* Verify arguments of signal */
     CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
@@ -362,7 +362,7 @@ void TestModbusPoll::multiSlaveDisabledConnection()
 
     /* Disabled connections return error and zero */
     auto expResults = ResultDoubleList() << ResultDouble(5020, State::SUCCESS)
-                                            << ResultDouble(0, State::ERROR);
+                                            << ResultDouble(0, State::INVALID);
 
     /* Verify arguments of signal */
     CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);

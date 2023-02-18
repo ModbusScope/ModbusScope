@@ -105,7 +105,7 @@ void ExpressionsDialog::handleInputChange()
             QString valueStr = pValueItem->text();
             bool bOk = false;
             double value = valueStr.toDouble(&bOk);
-            results.append(ResultDouble(value, bOk ? State::SUCCESS: State::ERROR));
+            results.append(ResultDouble(value, bOk ? State::SUCCESS: State::INVALID));
 
             /* Avoid recursive signal/slots calling */
             _pUi->tblExpressionInput->blockSignals(true);
