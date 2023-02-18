@@ -4,9 +4,9 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ## [Unreleased]
 
-### Added 
+### Added
 
-- xx
+- Improve visibility of errors (highlight curve in legend)
 
 ### Fixed
 
