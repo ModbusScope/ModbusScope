@@ -331,7 +331,7 @@ void Legend::updateValueDataInLegend()
 
             _pLegendTable->item(i, cColummnValue)->setText(dataValue);
 
-            const QColor background = result.state() == State::ERROR ? QColor("#FFCCCB"): QColorConstants::White;
+            const QColor background = result.state() == State::INVALID ? QColor("#FFCCCB"): QColorConstants::White;
             _pLegendTable->item(i, cColummnAxis)->setBackground(background);
             _pLegendTable->item(i, cColummnValue)->setBackground(background);
             _pLegendTable->item(i, cColummnText)->setBackground(background);

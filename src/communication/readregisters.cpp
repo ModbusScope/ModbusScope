@@ -142,7 +142,7 @@ void ReadRegisters::addError()
         for (quint32 i = 0; i < nextRequestData.count(); i++)
         {
             const quint32 registerAddr = nextRequestData.address() + static_cast<quint32>(i);
-            const auto result = Result<quint16>(0, State::ERROR);
+            const auto result = Result<quint16>(0, State::INVALID);
 
             _resultMap.insert(registerAddr, result);
         }

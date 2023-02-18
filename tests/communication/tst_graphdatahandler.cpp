@@ -182,9 +182,9 @@ void TestGraphDataHandler::graphData_fail()
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
     auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS)
-                                                << ResultDouble(0, State::ERROR);
+                                                << ResultDouble(0, State::INVALID);
 
-    auto resultList = ResultDoubleList() << ResultDouble(0, State::ERROR)
+    auto resultList = ResultDoubleList() << ResultDouble(0, State::INVALID)
                                          << ResultDouble(1, State::SUCCESS);
 
     QList<QVariant> rawRegData;

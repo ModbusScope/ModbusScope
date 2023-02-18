@@ -15,7 +15,7 @@ void RegisterValueHandler::startRead()
 
     for(quint16 listIdx = 0; listIdx < _registerList.size(); listIdx++)
     {
-        _resultList.append(ResultDouble(0, State::ERROR));
+        _resultList.append(ResultDouble(0, State::INVALID));
     }
 }
 

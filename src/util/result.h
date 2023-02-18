@@ -9,7 +9,7 @@ namespace ResultState
 {
     enum class State
     {
-        ERROR = 0,
+        INVALID,
         SUCCESS,
         NO_VALUE
     };
@@ -96,7 +96,7 @@ template <class T>
 void Result<T>::setError()
 {
     _value = 0;
-    _state = ResultState::State::ERROR;
+    _state = ResultState::State::INVALID;
 }
 
 template <class T>
