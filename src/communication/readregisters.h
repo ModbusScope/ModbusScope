@@ -8,18 +8,17 @@
 class ModbusReadItem
 {
 public:
-    ModbusReadItem(quint32 address, quint8 count)
+    ModbusReadItem(quint32 address, quint8 count) :
+        _address(address), _count(count)
     {
-        _address = address;
-        _count = count;
     }
 
     quint32 address(void) { return _address; }
     quint8 count(void) { return _count; }
 
 private:
-   quint32 _address;
-   quint8 _count;
+   quint32 _address{};
+   quint8 _count{};
 
 };
 
