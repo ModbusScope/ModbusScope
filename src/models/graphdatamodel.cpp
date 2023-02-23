@@ -3,7 +3,6 @@
 #include "util.h"
 
 #include "graphdatamodel.h"
-#include "settingsmodel.h"
 
 GraphDataModel::GraphDataModel(QObject *parent) : QAbstractTableModel(parent)
 {
