@@ -11,40 +11,29 @@ Q_DECLARE_METATYPE(Result<quint16>);
 
 using State = ResultState::State;
 
-ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, quint8 connectionId) :
-    QObject(nullptr)
+ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, quint8 connectionId) : QObject(nullptr), _connectionId(connectionId), _pSettingsModel(pSettingsModel)
 {
 
     qMetaTypeId<Result<quint16> >();
     qMetaTypeId<QMap<quint32, Result<quint16> > >();
 
-    _pSettingsModel = pSettingsModel;
-    _pModbusConnection = new ModbusConnection();
-    _pReadRegisters = new ReadRegisters();
-
-    _connectionId = connectionId;
-
     // Use queued connection to make sure reply is deleted before closing connection
     connect(this, &ModbusMaster::triggerNextRequest, this, &ModbusMaster::handleTriggerNextRequest, Qt::QueuedConnection);
 
     // Connection signals/slots
-    connect(_pModbusConnection, &ModbusConnection::connectionSuccess, this, &ModbusMaster::handleConnectionOpened);
-    connect(_pModbusConnection, &ModbusConnection::connectionError, this, &ModbusMaster::handlerConnectionError);
+    connect(&_modbusConnection, &ModbusConnection::connectionSuccess, this, &ModbusMaster::handleConnectionOpened);
+    connect(&_modbusConnection, &ModbusConnection::connectionError, this, &ModbusMaster::handlerConnectionError);
 
     // Read request signals/slots
-    connect(_pModbusConnection, &ModbusConnection::readRequestSuccess, this, &ModbusMaster::handleRequestSuccess);
-    connect(_pModbusConnection, &ModbusConnection::readRequestProtocolError, this, &ModbusMaster::handleRequestProtocolError);
-    connect(_pModbusConnection, &ModbusConnection::readRequestError, this, &ModbusMaster::handleRequestError);
+    connect(&_modbusConnection, &ModbusConnection::readRequestSuccess, this, &ModbusMaster::handleRequestSuccess);
+    connect(&_modbusConnection, &ModbusConnection::readRequestProtocolError, this, &ModbusMaster::handleRequestProtocolError);
+    connect(&_modbusConnection, &ModbusConnection::readRequestError, this, &ModbusMaster::handleRequestError);
 }
 
 ModbusMaster::~ModbusMaster()
 {
-    _pModbusConnection->disconnect();
-
-    _pModbusConnection->closeConnection();
-
-    delete _pModbusConnection;
-    delete _pReadRegisters;
+    _modbusConnection.disconnect();
+    _modbusConnection.closeConnection();
 }
 
 void ModbusMaster::readRegisterList(QList<quint32> registerList)
@@ -66,7 +55,7 @@ void ModbusMaster::readRegisterList(QList<quint32> registerList)
     {
         logInfo("Register list read: " + dumpToString(registerList));
 
-        _pReadRegisters->resetRead(registerList, _pSettingsModel->consecutiveMax(_connectionId));
+        _readRegisters.resetRead(registerList, _pSettingsModel->consecutiveMax(_connectionId));
 
         /* Open connection */
         if (_pSettingsModel->connectionType(_connectionId) == Connection::TYPE_SERIAL)
@@ -79,7 +68,7 @@ void ModbusMaster::readRegisterList(QList<quint32> registerList)
                 .databits = _pSettingsModel->databits(_connectionId),
                 .stopbits = _pSettingsModel->stopbits(_connectionId),
             };
-            _pModbusConnection->openSerialConnection(serialSettings, _pSettingsModel->timeout(_connectionId));
+            _modbusConnection.openSerialConnection(serialSettings, _pSettingsModel->timeout(_connectionId));
         }
         else
         {
@@ -88,7 +77,7 @@ void ModbusMaster::readRegisterList(QList<quint32> registerList)
                 .ip = _pSettingsModel->ipAddress(_connectionId),
                 .port = _pSettingsModel->port(_connectionId),
             };
-            _pModbusConnection->openTcpConnection(tcpSettings, _pSettingsModel->timeout(_connectionId));
+            _modbusConnection.openTcpConnection(tcpSettings, _pSettingsModel->timeout(_connectionId));
         }
     }
     else
@@ -103,7 +92,7 @@ void ModbusMaster::cleanUp()
     /* Close connection when not closing automatically */
     if (_pSettingsModel->persistentConnection(_connectionId))
     {
-        _pModbusConnection->closeConnection();
+        _modbusConnection.closeConnection();
     }
 }
 
@@ -118,7 +107,7 @@ void ModbusMaster::handlerConnectionError(QModbusDevice::Error error, QString ms
 
     logError(QString("Connection error: ") + msg);
 
-    _pReadRegisters->addAllErrors();
+    _readRegisters.addAllErrors();
 
     finishRead(true);
 }
@@ -128,7 +117,7 @@ void ModbusMaster::handleRequestSuccess(quint32 startRegister, QList<quint16> re
     logInfo(QString("Read success"));
 
     // Success
-    _pReadRegisters->addSuccess(startRegister, registerDataList);
+    _readRegisters.addSuccess(startRegister, registerDataList);
 
     // Start next read
     emit triggerNextRequest();
@@ -143,25 +132,25 @@ void ModbusMaster::handleRequestProtocolError(QModbusPdu::ExceptionCode exceptio
         || (exceptionCode == QModbusPdu::IllegalDataValue)
         )
     {
-        if (_pReadRegisters->next().count() > 1)
+        if (_readRegisters.next().count() > 1)
         {
             // Split read into separate reads on specific exception code and count is more than 1
-            _pReadRegisters->splitNextToSingleReads();
+            _readRegisters.splitNextToSingleReads();
         }
         else
         {
             // Add error to results
-            _pReadRegisters->addError();
+            _readRegisters.addError();
         }
     }
     else if (exceptionCode == QModbusPdu::IllegalFunction)
     {
         // No need to continue this read
-        _pReadRegisters->addAllErrors();
+        _readRegisters.addAllErrors();
     }
     else
     {
-        _pReadRegisters->addError();
+        _readRegisters.addError();
     }
 
     // Start next read
@@ -173,7 +162,7 @@ void ModbusMaster::handleRequestError(QString errorString, QModbusDevice::Error 
     logError(QString("Request Failed:  %0 (%1)").arg(errorString).arg(error));
 
     // When we don't receive an exception, abort read and close connection
-    _pReadRegisters->addAllErrors();
+    _readRegisters.addAllErrors();
 
     // Start next read
     emit triggerNextRequest();
@@ -181,13 +170,13 @@ void ModbusMaster::handleRequestError(QString errorString, QModbusDevice::Error 
 
 void ModbusMaster::handleTriggerNextRequest(void)
 {
-    if (_pReadRegisters->hasNext())
+    if (_readRegisters.hasNext())
     {
-        ModbusReadItem readItem = _pReadRegisters->next();
+        ModbusReadItem readItem = _readRegisters.next();
 
         logInfo("Partial list read: " + QString("Start address (%0) and count (%1)").arg(readItem.address()).arg(readItem.count()));
 
-        _pModbusConnection->sendReadRequest(readItem.address(), readItem.count(), _pSettingsModel->slaveId(_connectionId));
+        _modbusConnection.sendReadRequest(readItem.address(), readItem.count(), _pSettingsModel->slaveId(_connectionId));
     }
     else
     {
@@ -198,7 +187,7 @@ void ModbusMaster::handleTriggerNextRequest(void)
 
 void ModbusMaster::finishRead(bool bError)
 {
-    QMap<quint32, Result<quint16> > results = _pReadRegisters->resultMap();
+    QMap<quint32, Result<quint16> > results = _readRegisters.resultMap();
 
     logResults(results);
 
@@ -216,7 +205,7 @@ void ModbusMaster::finishRead(bool bError)
 
     if (bcloseConnection)
     {
-        _pModbusConnection->closeConnection();
+        _modbusConnection.closeConnection();
     }
 }
 
