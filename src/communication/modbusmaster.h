@@ -7,12 +7,11 @@
 #include <QModbusReply>
 
 #include "result.h"
+#include "modbusconnection.h"
+#include "readregisters.h"
 
 /* Forward declaration */
 class SettingsModel;
-class ReadRegisters;
-class ModbusConnection;
-
 
 class ModbusMaster : public QObject
 {
@@ -51,12 +50,11 @@ private:
     void logInfo(QString msg);
     void logError(QString msg);
 
-    quint8 _connectionId;
+    quint8 _connectionId{};
 
-    SettingsModel * _pSettingsModel;
-    ModbusConnection * _pModbusConnection;
-    ReadRegisters * _pReadRegisters;
-
+    SettingsModel * _pSettingsModel{};
+    ModbusConnection _modbusConnection{};
+    ReadRegisters _readRegisters{};
 };
 
 #endif // MODBUSMASTER_H
