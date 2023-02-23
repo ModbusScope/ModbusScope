@@ -13,7 +13,7 @@ class RegisterValueHandler : public QObject
     Q_OBJECT
 public:
 
-    RegisterValueHandler(SettingsModel *pSettingsModel);
+    explicit RegisterValueHandler(SettingsModel *pSettingsModel);
 
     void setRegisters(QList<ModbusRegister> &registerList);
 
