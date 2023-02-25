@@ -26,7 +26,7 @@ public:
 
     } FileData;
 
-    DataFileParser(DataParserModel * pDataParserModel);
+    explicit DataFileParser(DataParserModel * pDataParserModel);
     ~DataFileParser();
 
     bool processDataFile(QTextStream * pDataStream, FileData * pData);
