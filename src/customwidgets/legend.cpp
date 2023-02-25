@@ -224,7 +224,7 @@ void Legend::changeGraphVisibility(quint32 graphIdx)
     if (activeGraphIdx != -1)
     {
         QFont itemFont = _pLegendTable->item((int)activeGraphIdx, cColummnValue)->font();
-        QColor foreGroundColor = Qt::black;
+        QColor foreGroundColor;
         QColor graphColor;
 
         if (_pGraphDataModel->isVisible(graphIdx))
