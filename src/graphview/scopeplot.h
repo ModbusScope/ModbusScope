@@ -8,7 +8,7 @@ class ScopePlot : public QCustomPlot
 {
 public:
     ScopePlot();
-    ScopePlot(QWidget *parent);
+    explicit ScopePlot(QWidget *parent);
     ~ScopePlot();
 
     virtual void enterEvent(QEnterEvent * event);
