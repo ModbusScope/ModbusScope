@@ -44,27 +44,13 @@ LogDialog::~LogDialog()
 
 void LogDialog::done(int r)
 {
-    bool bValid = true;
-
     if(QDialog::Accepted == r)  // ok was pressed
     {
         _pSettingsModel->setPollTime(_pUi->spinPollTime->text().toUInt());
         _pSettingsModel->setWriteDuringLogFile(_pUi->lineWriteDuringLogFile->text());
-
-        // Validate the data
-        //bValid = validateSettingsData();
-        bValid = true;
-    }
-    else
-    {
-        // cancel, close or exc was pressed
-        bValid = true;
     }
 
-    if (bValid)
-    {
-        QDialog::done(r);
-    }
+    QDialog::done(r);
 }
 
 void LogDialog::selectLogFile()
