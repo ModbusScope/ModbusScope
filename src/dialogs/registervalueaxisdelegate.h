@@ -11,7 +11,7 @@ class RegisterValueAxisDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    RegisterValueAxisDelegate(GraphDataModel* pGraphDataModel, QObject *parent = nullptr);
+    explicit RegisterValueAxisDelegate(GraphDataModel* pGraphDataModel, QObject *parent = nullptr);
     ~RegisterValueAxisDelegate() override;
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
