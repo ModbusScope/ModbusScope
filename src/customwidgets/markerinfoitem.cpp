@@ -260,7 +260,7 @@ double MarkerInfoItem::calculateMarkerExpressionValue(quint32 expressionMask)
     {
         double avg = 0;
         quint32 count = 0;
-        for (dataPoint = start; dataPoint != end; dataPoint++)
+        for (dataPoint = start; dataPoint != end; ++dataPoint)
         {
             count++;
             avg += dataPoint->value;
@@ -279,7 +279,7 @@ double MarkerInfoItem::calculateMarkerExpressionValue(quint32 expressionMask)
     {
         double min = std::numeric_limits<double>::max();
 
-        for (dataPoint = start; dataPoint != end; dataPoint++)
+        for (dataPoint = start; dataPoint != end; ++dataPoint)
         {
             if (dataPoint->value < min)
             {
@@ -293,7 +293,7 @@ double MarkerInfoItem::calculateMarkerExpressionValue(quint32 expressionMask)
     {
         double max = std::numeric_limits<double>::lowest();
 
-        for (dataPoint = start; dataPoint != end; dataPoint++)
+        for (dataPoint = start; dataPoint != end; ++dataPoint)
         {
             if (dataPoint->value > max)
             {
