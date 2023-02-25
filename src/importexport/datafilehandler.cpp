@@ -34,8 +34,6 @@ DataFileHandler::~DataFileHandler()
 
 void DataFileHandler::openDataFile(QString dataFilePath)
 {
-    SettingsAuto * _pAutoSettingsParser;
-
     _pDataFile = new QFile(dataFilePath);
 
     bool bModbusScopeDataFile = false;
@@ -57,28 +55,25 @@ void DataFileHandler::openDataFile(QString dataFilePath)
     }
 
     /* Try to determine settings */
+    SettingsAuto autoSettingsParser;
+    SettingsAuto::settingsData_t settingsData;
+
+    /* Always set data file name */
+    _pDataParserModel->setDataFilePath(dataFilePath);
+
+    bRet = autoSettingsParser.updateSettings(_pDataFileStream, &settingsData, _cSampleLineLength);
     if (bRet)
     {
-        _pAutoSettingsParser = new SettingsAuto();
-        SettingsAuto::settingsData_t settingsData;
+        _pDataParserModel->setFieldSeparator(settingsData.fieldSeparator);
+        _pDataParserModel->setGroupSeparator(settingsData.groupSeparator);
+        _pDataParserModel->setDecimalSeparator(settingsData.decimalSeparator);
+        _pDataParserModel->setCommentSequence(settingsData.commentSequence);
+        _pDataParserModel->setDataRow(settingsData.dataRow);
+        _pDataParserModel->setColumn(settingsData.column);
+        _pDataParserModel->setLabelRow(settingsData.labelRow);
+        _pDataParserModel->setTimeInMilliSeconds(settingsData.bTimeInMilliSeconds);
 
-        /* Always set data file name */
-        _pDataParserModel->setDataFilePath(dataFilePath);
-
-        bRet = _pAutoSettingsParser->updateSettings(_pDataFileStream, &settingsData, _cSampleLineLength);
-        if (bRet)
-        {
-            _pDataParserModel->setFieldSeparator(settingsData.fieldSeparator);
-            _pDataParserModel->setGroupSeparator(settingsData.groupSeparator);
-            _pDataParserModel->setDecimalSeparator(settingsData.decimalSeparator);
-            _pDataParserModel->setCommentSequence(settingsData.commentSequence);
-            _pDataParserModel->setDataRow(settingsData.dataRow);
-            _pDataParserModel->setColumn(settingsData.column);
-            _pDataParserModel->setLabelRow(settingsData.labelRow);
-            _pDataParserModel->setTimeInMilliSeconds(settingsData.bTimeInMilliSeconds);
-
-            bModbusScopeDataFile = settingsData.bModbusScopeDataFile;
-        }
+        bModbusScopeDataFile = settingsData.bModbusScopeDataFile;
     }
 
     if (bRet && bModbusScopeDataFile)
