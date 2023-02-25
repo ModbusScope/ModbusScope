@@ -29,10 +29,6 @@ public:
 
     static void loadDataFileSample(QTextStream* pDataStream, QStringList &dataFileSample, qint32 sampleLength);
 
-signals:
-
-public slots:
-
 private:
 
     bool isAbsoluteDate(QString rawData);
@@ -42,17 +38,17 @@ private:
     bool testLocale(QStringList previewData, QLocale locale, QString fieldSeparator);
     quint32 nextDataLine(quint32 startIdx, QStringList previewData, bool *bOk);
 
-    bool _bModbusScopeDataFile;
-    QString _fieldSeparator;
-    QString _groupSeparator;
-    QString _decimalSeparator;
-    QString _commentSequence;
-    quint32 _dataRow;
-    quint32 _column;
-    quint32 _labelRow;
-    bool _bTimeInMilliSeconds;
+    bool _bModbusScopeDataFile{};
+    QString _fieldSeparator{};
+    QString _groupSeparator{};
+    QString _decimalSeparator{};
+    QString _commentSequence{};
+    quint32 _dataRow{};
+    quint32 _column{};
+    quint32 _labelRow{};
+    bool _bTimeInMilliSeconds{};
 
-    QRegularExpression _absoluteDateRegex;
+    QRegularExpression _absoluteDateRegex{};
     static const QString _cAbsoluteDatePattern;
 };
 

@@ -24,10 +24,7 @@ bool SettingsAuto::updateSettings(QTextStream* pDataFileStream, settingsData_t *
 
     loadDataFileSample(pDataFileStream, previewData, sampleLength);
 
-    // Reset settings
     _column = 0;
-
-    // Check whether data file is a ModbusScope file
     _bModbusScopeDataFile = isModbusScopeDataFile(previewData.first());
 
     // Find first non-comment line
@@ -38,7 +35,6 @@ bool SettingsAuto::updateSettings(QTextStream* pDataFileStream, settingsData_t *
     {
         _labelRow = lineIdx;
 
-        // find next dataline
         lineIdx++;
         lineIdx = nextDataLine(lineIdx, previewData, &bRet);
     }
