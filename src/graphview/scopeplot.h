@@ -7,7 +7,6 @@
 class ScopePlot : public QCustomPlot
 {
 public:
-    ScopePlot();
     explicit ScopePlot(QWidget *parent);
     ~ScopePlot();
 
