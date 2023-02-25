@@ -56,10 +56,8 @@ private:
 
     typedef struct _ComboListItem
     {
-        _ComboListItem(QString _name, QString _userData)
+        _ComboListItem(QString _name, QString _userData): name(_name), userData(_userData)
         {
-            name = _name;
-            userData = _userData;
         }
 
         QString name;
