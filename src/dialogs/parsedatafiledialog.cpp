@@ -329,13 +329,10 @@ bool ParseDataFileDialog::validateSettingsData()
 {
     bool bOk = true;
 
-    if (bOk)
+    if (!QFileInfo::exists(_pParserModel->dataFilePath()))
     {
-        if (!QFileInfo::exists(_pParserModel->dataFilePath()))
-        {
-            bOk = false;
-            Util::showError(tr("Data file doesn't exist"));
-        }
+        bOk = false;
+        Util::showError(tr("Data file doesn't exist"));
     }
 
     if (bOk)
