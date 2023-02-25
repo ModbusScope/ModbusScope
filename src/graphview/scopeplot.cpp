@@ -2,11 +2,6 @@
 
 #include "scopeplot.h"
 
-ScopePlot::ScopePlot()
-{
-
-}
-
 ScopePlot::ScopePlot(QWidget *parent):
     QCustomPlot(parent)
 {
