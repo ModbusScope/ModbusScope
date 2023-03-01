@@ -27,6 +27,7 @@
 */
 
 #include "muparserregister.h"
+#include "muParserTemplateMagic.h"
 
 //--- Standard includes ------------------------------------------------------------------------
 #include <cmath>
