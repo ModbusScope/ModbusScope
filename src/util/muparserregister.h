@@ -34,7 +34,6 @@
 
 //--- Parser includes --------------------------------------------------------------------------
 #include "muParserBase.h"
-#include "muParserTemplateMagic.h"
 
 /** \file
 	\brief Definition of a modbus register expression parser.
