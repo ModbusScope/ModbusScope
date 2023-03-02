@@ -39,8 +39,7 @@ void DataFileHandler::openDataFile(QString dataFilePath)
     bool bModbusScopeDataFile = false;
 
     /* Read sample of file */
-    bool bRet = _pDataFile->open(QIODevice::ReadOnly | QIODevice::Text);
-    if (bRet)
+    if (_pDataFile->open(QIODevice::ReadOnly | QIODevice::Text))
     {
         _pDataFileStream = new QTextStream(_pDataFile);
     }
@@ -61,7 +60,7 @@ void DataFileHandler::openDataFile(QString dataFilePath)
     /* Always set data file name */
     _pDataParserModel->setDataFilePath(dataFilePath);
 
-    bRet = autoSettingsParser.updateSettings(_pDataFileStream, &settingsData, _cSampleLineLength);
+    bool bRet = autoSettingsParser.updateSettings(_pDataFileStream, &settingsData, _cSampleLineLength);
     if (bRet)
     {
         _pDataParserModel->setFieldSeparator(settingsData.fieldSeparator);
