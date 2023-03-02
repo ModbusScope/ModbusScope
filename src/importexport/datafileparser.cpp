@@ -77,15 +77,12 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
 
                 if (static_cast<QString>(idList.first()).toLower() == "//color")
                 {
-                    bool bValidColor;
-
                     // Remove property name
                     idList.removeFirst();
 
                     foreach(QString strColor, idList)
                     {
-                        bValidColor = QColor::isValidColor(strColor);
-                        if (bValidColor)
+                        if (QColor::isValidColor(strColor))
                         {
                             pData->colors.append(QColor(strColor));
                         }
