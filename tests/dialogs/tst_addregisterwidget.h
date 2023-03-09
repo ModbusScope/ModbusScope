@@ -3,9 +3,9 @@
 
 #include "settingsmodel.h"
 
-class AddRegisterDialog;
+class AddRegisterWidget;
 
-class TestAddRegisterDialog: public QObject
+class TestAddRegisterWidget: public QObject
 {
     Q_OBJECT
 
@@ -22,6 +22,6 @@ private:
     void pushOk();
 
     SettingsModel _settingsModel;
-    AddRegisterDialog* _pRegDialog;
+    AddRegisterWidget* _pRegWidget;
 
 };

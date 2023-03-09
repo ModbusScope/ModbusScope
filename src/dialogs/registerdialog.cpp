@@ -1,10 +1,9 @@
 
 #include <QColorDialog>
-#include "util.h"
 #include "registerdialog.h"
 #include "importmbcdialog.h"
 #include "expressionsdialog.h"
-#include "addregisterdialog.h"
+#include "addregisterwidget.h"
 
 #include "graphdatamodel.h"
 #include "guimodel.h"
@@ -59,10 +58,15 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
 
     // Setup handler for buttons
     connect(_pUi->btnImportFromMbc, &QPushButton::released, this, &RegisterDialog::showImportDialog);
-    connect(_pUi->btnAddWizard, &QPushButton::released, this, &RegisterDialog::showAddRegisterDialog);
-    connect(_pUi->btnAdd, &QPushButton::released, this, &RegisterDialog::addRegister);
+    connect(_pUi->btnAdd, &QPushButton::released, this, &RegisterDialog::addDefaultRegister);
     connect(_pUi->btnRemove, &QPushButton::released, this, &RegisterDialog::removeRegisterRow);
     connect(_pGraphDataModel, &GraphDataModel::rowsInserted, this, &RegisterDialog::onRegisterInserted);
+
+    auto registerPopup = new AddRegisterWidget(_pSettingsModel, this);
+    connect(registerPopup, &AddRegisterWidget::graphDataConfigured, this, &RegisterDialog::addRegister);
+    auto popupAction = new QWidgetAction(this);
+    popupAction->setDefaultWidget(registerPopup);
+    _pUi->btnAdd->addAction(popupAction);
 }
 
 RegisterDialog::~RegisterDialog()
@@ -77,17 +81,12 @@ int RegisterDialog::execWithMbcImport()
     return exec();
 }
 
-void RegisterDialog::showAddRegisterDialog()
+void RegisterDialog::addRegister(GraphData graphData)
 {
-    AddRegisterDialog addRegisterDialog(_pSettingsModel);
-
-    if (addRegisterDialog.exec() == QDialog::Accepted)
-    {
-        _pGraphDataModel->add(addRegisterDialog.graphData());
-    }
+    _pGraphDataModel->add(graphData);
 }
 
-void RegisterDialog::addRegister()
+void RegisterDialog::addDefaultRegister()
 {
     _pGraphDataModel->add();
 }
