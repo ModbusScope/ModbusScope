@@ -1,19 +1,18 @@
-#include "addregisterdialog.h"
+#include "addregisterwidget.h"
 #include "settingsmodel.h"
 #include "updateregisternewexpression.h"
 #include "modbusdatatype.h"
 
-#include "ui_addregisterdialog.h"
+#include "ui_addregisterwidget.h"
 
 using Type = ModbusDataType::Type;
 
 Q_DECLARE_METATYPE(ModbusDataType::Type)
 
-AddRegisterDialog::AddRegisterDialog(SettingsModel* pSettingsModel, QWidget *parent) :
-    QDialog(parent),
-    _pUi(new Ui::AddRegisterDialog),
-    _pSettingsModel(pSettingsModel),
-    _graphData()
+AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel, QWidget *parent) :
+    QWidget(parent),
+    _pUi(new Ui::AddRegisterWidget),
+    _pSettingsModel(pSettingsModel)
 {
     _pUi->setupUi(this);
 
@@ -37,57 +36,53 @@ AddRegisterDialog::AddRegisterDialog(SettingsModel* pSettingsModel, QWidget *par
     _pUi->cmbType->addItem(ModbusDataType::description(Type::SIGNED_32), QVariant::fromValue(Type::SIGNED_32));
     _pUi->cmbType->addItem(ModbusDataType::description(Type::FLOAT_32), QVariant::fromValue(Type::FLOAT_32));
 
+    connect(_pUi->btnAdd, &QPushButton::clicked, this, &AddRegisterWidget::handleResultAccept);
+
     _axisGroup.setExclusive(true);
     _axisGroup.addButton(_pUi->radioPrimary);
     _axisGroup.addButton(_pUi->radioSecondary);
+
+    resetFields();
 }
 
-AddRegisterDialog::~AddRegisterDialog()
+AddRegisterWidget::~AddRegisterWidget()
 {
     delete _pUi;
 }
 
-GraphData AddRegisterDialog::graphData()
+void AddRegisterWidget::handleResultAccept()
 {
-    return _graphData;
-}
+    QString expression = generateExpression();
+    GraphData graphData;
 
-void AddRegisterDialog::done(int r)
-{
-    bool bValid = true;
+    graphData.setLabel(_pUi->lineName->text());
 
-    if(QDialog::Accepted == r)  // ok was pressed
+    if (_pUi->radioSecondary->isChecked())
     {
-        QString expression = generateExpression();
-
-        _graphData.setLabel(_pUi->lineName->text());
-
-        if (_pUi->radioSecondary->isChecked())
-        {
-            _graphData.setValueAxis(GraphData::VALUE_AXIS_SECONDARY);
-        }
-        else
-        {
-            _graphData.setValueAxis(GraphData::VALUE_AXIS_PRIMARY);
-        }
-
-        _graphData.setExpression(expression);
-
-        bValid = true;
+        graphData.setValueAxis(GraphData::VALUE_AXIS_SECONDARY);
     }
     else
     {
-        // cancel, close or exc was pressed
-        bValid = true;
+        graphData.setValueAxis(GraphData::VALUE_AXIS_PRIMARY);
     }
 
-    if (bValid)
-    {
-        QDialog::done(r);
-    }
+    graphData.setExpression(expression);
+
+    emit graphDataConfigured(graphData);
+
+    resetFields();
 }
 
-QString AddRegisterDialog::generateExpression()
+void AddRegisterWidget::resetFields()
+{
+    _pUi->lineName->setText("Name of curve");
+    _pUi->spinAddress->setValue(40001);
+    _pUi->cmbType->setCurrentIndex(0);
+    _pUi->cmbConnection->setCurrentIndex(0);
+    _pUi->radioPrimary->setChecked(true);
+}
+
+QString AddRegisterWidget::generateExpression()
 {
     quint32 registerAddress;
     quint8 connectionId;

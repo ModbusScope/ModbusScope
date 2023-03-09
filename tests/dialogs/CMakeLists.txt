@@ -1,3 +1,3 @@
 
 
-add_xtest(tst_addregisterdialog)
+add_xtest(tst_addregisterwidget)

@@ -37,16 +37,18 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="btnAdd">
+      <widget class="QToolButton" name="btnAdd">
        <property name="text">
         <string>Add</string>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnAddWizard">
-       <property name="text">
-        <string>Add (wizard)</string>
+       <property name="popupMode">
+        <enum>QToolButton::MenuButtonPopup</enum>
+       </property>
+       <property name="autoRaise">
+        <bool>false</bool>
+       </property>
+       <property name="arrowType">
+        <enum>Qt::NoArrow</enum>
        </property>
       </widget>
      </item>
@@ -87,7 +89,6 @@
  <tabstops>
   <tabstop>btnImportFromMbc</tabstop>
   <tabstop>btnAdd</tabstop>
-  <tabstop>btnAddWizard</tabstop>
   <tabstop>btnRemove</tabstop>
   <tabstop>registerView</tabstop>
  </tabstops>

@@ -1,6 +1,7 @@
 #ifndef REGISTERDIALOG_H
 #define REGISTERDIALOG_H
 
+#include "graphdata.h"
 #include <QDialog>
 
 /* Forward declaration */
@@ -25,8 +26,8 @@ public slots:
 
 private slots:
     void showImportDialog();
-    void showAddRegisterDialog();
-    void addRegister();
+    void addRegister(GraphData graphData);
+    void addDefaultRegister();
     void removeRegisterRow();
     void activatedCell(QModelIndex modelIndex);
     void onRegisterInserted(const QModelIndex &parent, int first, int last);
