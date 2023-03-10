@@ -26,7 +26,7 @@ public slots:
 
 private slots:
     void showImportDialog();
-    void addRegister(GraphData graphData);
+    void addRegister(const GraphData &graphData);
     void addDefaultRegister();
     void removeRegisterRow();
     void activatedCell(QModelIndex modelIndex);
