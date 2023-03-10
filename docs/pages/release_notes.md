@@ -14,7 +14,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Changed
 
-- xx
+- Change add register dialog (wizard) to drop-down frame
 
 ### Removed
 
