@@ -25,24 +25,22 @@ void TestAddRegisterWidget::registerDefault()
     _pRegWidget->_pUi->spinAddress->selectAll();
     QTest::keyClicks(_pRegWidget->_pUi->spinAddress, "41000");
 
-    pushOk();
-#if 0
-    auto graphData = _pRegWidget->graphData();
+    GraphData graphData;
+    addRegister(graphData);
+
     QCOMPARE(graphData.label(), "Register 1");
     QCOMPARE(graphData.expression(), "${41000}");
     QVERIFY(graphData.isActive());
-#endif
 }
 
 void TestAddRegisterWidget::registerType()
 {
     QTest::keyClick(_pRegWidget->_pUi->cmbType, Qt::Key_Down);
 
-    pushOk();
-#if 0
-    auto graphData = _pRegWidget->graphData();
+    GraphData graphData;
+    addRegister(graphData);
+
     QCOMPARE(graphData.expression(), "${40001:32b}");
-#endif
 }
 
 void TestAddRegisterWidget::registerConnection()
@@ -55,16 +53,31 @@ void TestAddRegisterWidget::registerConnection()
 
     QTest::keyClick(_pRegWidget->_pUi->cmbConnection, Qt::Key_Down);
 
-    pushOk();
-#if 0
-    auto graphData = _pRegWidget->graphData();
+    GraphData graphData;
+    addRegister(graphData);
+
     QCOMPARE(graphData.expression(), "${40001@2}");
-#endif
 }
 
 void TestAddRegisterWidget::pushOk()
 {
-    //QTest::mouseClick(_pRegWidget->_pUi->buttonBox->button(QDialogButtonBox::Ok), Qt::LeftButton);
+    QTest::mouseClick(_pRegWidget->_pUi->btnAdd, Qt::LeftButton);
+}
+
+void TestAddRegisterWidget::addRegister(GraphData &graphData)
+{
+    QSignalSpy spyGraphDataConfigured(_pRegWidget, &AddRegisterWidget::graphDataConfigured);
+
+    pushOk();
+
+    QCOMPARE(spyGraphDataConfigured.count(), 1);
+
+    QList<QVariant> arguments = spyGraphDataConfigured.takeFirst();
+    QCOMPARE(arguments.count(), 1);
+
+    QVERIFY(arguments.first().canConvert<GraphData>());
+
+    graphData = arguments.first().value<GraphData>();
 }
 
 QTEST_MAIN(TestAddRegisterWidget)
