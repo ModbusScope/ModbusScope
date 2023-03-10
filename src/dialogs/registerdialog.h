@@ -42,6 +42,8 @@ private:
     GuiModel* _pGuiModel;
     SettingsModel* _pSettingsModel;
 
+    std::unique_ptr<QWidgetAction> _registerPopupAction;
+
 };
 
 #endif // REGISTERDIALOG_H
