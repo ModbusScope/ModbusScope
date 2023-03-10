@@ -1,6 +1,7 @@
 
 #include <QObject>
 
+#include "graphdata.h"
 #include "settingsmodel.h"
 
 class AddRegisterWidget;
@@ -20,6 +21,7 @@ private slots:
 private:
 
     void pushOk();
+    void addRegister(GraphData &graphData);
 
     SettingsModel _settingsModel;
     AddRegisterWidget* _pRegWidget;
