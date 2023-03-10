@@ -81,7 +81,7 @@ int RegisterDialog::execWithMbcImport()
     return exec();
 }
 
-void RegisterDialog::addRegister(GraphData graphData)
+void RegisterDialog::addRegister(const GraphData &graphData)
 {
     _pGraphDataModel->add(graphData);
 }
