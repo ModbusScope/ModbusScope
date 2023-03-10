@@ -62,11 +62,12 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     connect(_pUi->btnRemove, &QPushButton::released, this, &RegisterDialog::removeRegisterRow);
     connect(_pGraphDataModel, &GraphDataModel::rowsInserted, this, &RegisterDialog::onRegisterInserted);
 
-    auto registerPopup = new AddRegisterWidget(_pSettingsModel, this);
-    connect(registerPopup, &AddRegisterWidget::graphDataConfigured, this, &RegisterDialog::addRegister);
-    auto popupAction = new QWidgetAction(this);
-    popupAction->setDefaultWidget(registerPopup);
-    _pUi->btnAdd->addAction(popupAction);
+    auto registerPopupMenu = new AddRegisterWidget(_pSettingsModel, this);
+    connect(registerPopupMenu, &AddRegisterWidget::graphDataConfigured, this, &RegisterDialog::addRegister);
+
+    _registerPopupAction = std::make_unique<QWidgetAction>(this);
+    _registerPopupAction->setDefaultWidget(registerPopupMenu);
+    _pUi->btnAdd->addAction(_registerPopupAction.get());
 }
 
 RegisterDialog::~RegisterDialog()
