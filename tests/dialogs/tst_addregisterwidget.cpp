@@ -59,6 +59,16 @@ void TestAddRegisterWidget::registerConnection()
     QCOMPARE(graphData.expression(), "${40001@2}");
 }
 
+void TestAddRegisterWidget::registerValueAxis()
+{
+    QTest::mouseClick(_pRegWidget->_pUi->radioSecondary, Qt::LeftButton);
+
+    GraphData graphData;
+    addRegister(graphData);
+
+    QCOMPARE(graphData.valueAxis(), GraphData::VALUE_AXIS_SECONDARY);
+}
+
 void TestAddRegisterWidget::pushOk()
 {
     QTest::mouseClick(_pRegWidget->_pUi->btnAdd, Qt::LeftButton);
