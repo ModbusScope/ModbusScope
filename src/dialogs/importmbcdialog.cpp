@@ -5,7 +5,6 @@
 #include "guimodel.h"
 #include "mbcfileimporter.h"
 #include "mbcregistermodel.h"
-#include "graphdata.h"
 #include "graphdatamodel.h"
 #include "fileselectionhelper.h"
 
