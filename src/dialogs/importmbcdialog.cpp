@@ -46,7 +46,7 @@ ImportMbcDialog::ImportMbcDialog(GuiModel * pGuiModel, GraphDataModel * pGraphDa
     connect(_pMbcRegisterModel, &QAbstractItemModel::dataChanged, this, &ImportMbcDialog::registerDataChanged);
 
     connect(_pUi->cmbTabFilter, &QComboBox::currentTextChanged, _pTabProxyFilter, &MbcRegisterFilter::setTab);
-    connect(_pUi->lineTextFilter, &QLineEdit::textChanged, _pTabProxyFilter, &MbcRegisterFilter::setTextFilter);
+    connect(_pUi->lineTextFilter, &QLineEdit::textChanged, this, &ImportMbcDialog::updateTextFilter);
 }
 
 ImportMbcDialog::~ImportMbcDialog()
@@ -71,6 +71,22 @@ int ImportMbcDialog::exec()
     }
 
     return QDialog::exec();
+}
+
+void ImportMbcDialog::updateTextFilter()
+{
+    auto checkHeight = _pUi->tblMbcRegisters->rowHeight(0) / 2;
+    QModelIndex topRow = _pUi->tblMbcRegisters->indexAt(QPoint(checkHeight, checkHeight));
+
+    auto currentTopModelIndex = _pTabProxyFilter->mapToSource(topRow);
+    qDebug() << "Current: " << currentTopModelIndex.row();
+
+    _pTabProxyFilter->setTextFilter(_pUi->lineTextFilter->text());
+
+    auto newTopModelIndex = _pTabProxyFilter->mapFromSource(currentTopModelIndex);
+    qDebug() << "New: " << newTopModelIndex.row();
+
+    _pUi->tblMbcRegisters->scrollTo(newTopModelIndex, QAbstractItemView::PositionAtTop);
 }
 
 void ImportMbcDialog::selectMbcFile()
