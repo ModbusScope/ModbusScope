@@ -25,6 +25,7 @@ public slots:
     int exec(void);
 
 private slots:
+    void updateTextFilter();
     void selectMbcFile();
     void registerDataChanged();
 
