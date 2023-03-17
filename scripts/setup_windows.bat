@@ -9,7 +9,7 @@ echo QT_INSTALL_DIR: %QT_INSTALL_DIR%
 echo CACHE_HIT: %CACHE_HIT%
 
 REM Set configuration
-set QT=6.4.1
+set QT=6.4.3
 set QT_MODULES=qtserialbus qtserialport
 set QT_HOST=windows
 set QT_TARGET=desktop
