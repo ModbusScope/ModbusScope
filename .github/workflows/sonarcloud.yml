@@ -10,7 +10,7 @@ name: Main Workflow
 jobs:
   sonarcloud:
     runs-on: ubuntu-latest
-    container: docker://jgeudens/qt-linux:6.4.1_build_1
+    container: docker://jgeudens/qt-linux:6.4.3_build_1
     env:
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
     steps:
