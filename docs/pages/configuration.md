@@ -55,7 +55,7 @@ Some examples of valid expressions are
 * `${40001: s32b} * 1.1`
 * `${40001} + 0x1000`
 * `${40001} & 0b11111000`
-* `()${40001} >> 8) & 0xFF`
+* `(${40001} >> 8) & 0xFF`
 
 ### Compose expression window
 
