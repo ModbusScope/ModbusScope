@@ -209,10 +209,7 @@ Qt::ItemFlags GraphDataModel::flags(const QModelIndex & index) const
         // checkable
         itemFlags |= Qt::ItemIsSelectable |  Qt::ItemIsUserCheckable;
     }
-    else if (
-             (index.column() == column::COLOR)
-             || (index.column() == column::EXPRESSION)
-             )
+    else if (index.column() == column::COLOR)
     {
         itemFlags |= Qt::ItemIsSelectable;
     }

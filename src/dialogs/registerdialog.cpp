@@ -1,5 +1,6 @@
 
 #include <QColorDialog>
+#include "expressiondelegate.h"
 #include "registerdialog.h"
 #include "importmbcdialog.h"
 #include "expressionsdialog.h"
@@ -42,6 +43,7 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     // Select using click, shift and control
     _pUi->registerView->setSelectionBehavior(QAbstractItemView::SelectRows);
     _pUi->registerView->setSelectionMode(QAbstractItemView::SingleSelection);
+    _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::EXPRESSION, new ExpressionDelegate(_pUi->registerView));
     _pUi->registerView->setDragEnabled(true);
     _pUi->registerView->setAcceptDrops(false);
     _pUi->registerView->setDropIndicatorShown(true);
