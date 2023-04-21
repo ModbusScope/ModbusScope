@@ -29,8 +29,8 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     _pUi->registerView->setModel(_pGraphDataModel);
     _pUi->registerView->verticalHeader()->hide();
 
-    auto cbValueAxis = new RegisterValueAxisDelegate(_pGraphDataModel, _pUi->registerView);
-    _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::VALUE_AXIS, cbValueAxis);
+    _valueAxisDelegate = new RegisterValueAxisDelegate(_pGraphDataModel, _pUi->registerView);
+    _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::VALUE_AXIS, _valueAxisDelegate);
 
     /* Don't stretch columns */
     _pUi->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -72,6 +72,8 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
 
 RegisterDialog::~RegisterDialog()
 {
+    delete _valueAxisDelegate;
+
     delete _pUi;
 }
 

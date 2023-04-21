@@ -8,6 +8,7 @@
 class GraphDataModel;
 class GuiModel;
 class SettingsModel;
+class RegisterValueAxisDelegate;
 
 namespace Ui {
 class RegisterDialog;
@@ -41,6 +42,8 @@ private:
     GraphDataModel* _pGraphDataModel;
     GuiModel* _pGuiModel;
     SettingsModel* _pSettingsModel;
+
+    RegisterValueAxisDelegate* _valueAxisDelegate;
 
     std::unique_ptr<QWidgetAction> _registerPopupAction;
 
