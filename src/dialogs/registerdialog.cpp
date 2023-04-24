@@ -33,6 +33,10 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     _valueAxisDelegate = new RegisterValueAxisDelegate(_pGraphDataModel, _pUi->registerView);
     _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::VALUE_AXIS, _valueAxisDelegate);
 
+    _expressionDelegate = new ExpressionDelegate(_pGraphDataModel, _pUi->registerView);
+    connect(_expressionDelegate, &ExpressionDelegate::clicked, this, &RegisterDialog::handleExpressionEdit);
+    _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::EXPRESSION, _expressionDelegate);
+
     /* Don't stretch columns */
     _pUi->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
@@ -43,7 +47,6 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     // Select using click, shift and control
     _pUi->registerView->setSelectionBehavior(QAbstractItemView::SelectRows);
     _pUi->registerView->setSelectionMode(QAbstractItemView::SingleSelection);
-    _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::EXPRESSION, new ExpressionDelegate(_pUi->registerView));
     _pUi->registerView->setDragEnabled(true);
     _pUi->registerView->setAcceptDrops(false);
     _pUi->registerView->setDropIndicatorShown(true);
@@ -75,6 +78,7 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
 RegisterDialog::~RegisterDialog()
 {
     delete _valueAxisDelegate;
+    delete _expressionDelegate;
 
     delete _pUi;
 }
@@ -126,12 +130,6 @@ void RegisterDialog::activatedCell(QModelIndex modelIndex)
             }
         }
     }
-    else if (modelIndex.column() == GraphDataModel::column::EXPRESSION)
-    {
-        ExpressionsDialog exprDialog(_pGraphDataModel, modelIndex.row(), qobject_cast<QWidget *>(parent()));
-
-        exprDialog.exec();
-    }
 }
 
 void RegisterDialog::onRegisterInserted(const QModelIndex &parent, int first, int last)
@@ -162,6 +160,13 @@ void RegisterDialog::removeRegisterRow()
     {
         _pUi->registerView->selectRow(selectedRowAfterDelete(rowList.first().row(), _pGraphDataModel->size()));
     }
+}
+
+void RegisterDialog::handleExpressionEdit(int row)
+{
+    ExpressionsDialog exprDialog(_pGraphDataModel, row, this);
+
+    exprDialog.exec();
 }
 
 int RegisterDialog::selectedRowAfterDelete(int deletedStartIndex, int rowCnt)

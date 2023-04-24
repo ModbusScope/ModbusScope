@@ -9,6 +9,7 @@ class GraphDataModel;
 class GuiModel;
 class SettingsModel;
 class RegisterValueAxisDelegate;
+class ExpressionDelegate;
 
 namespace Ui {
 class RegisterDialog;
@@ -32,6 +33,7 @@ private slots:
     void removeRegisterRow();
     void activatedCell(QModelIndex modelIndex);
     void onRegisterInserted(const QModelIndex &parent, int first, int last);
+    void handleExpressionEdit(int row);
 
 private:
     int selectedRowAfterDelete(int deletedStartIndex, int rowCnt);
@@ -44,6 +46,7 @@ private:
     SettingsModel* _pSettingsModel;
 
     RegisterValueAxisDelegate* _valueAxisDelegate;
+    ExpressionDelegate* _expressionDelegate;
 
     std::unique_ptr<QWidgetAction> _registerPopupAction;
 

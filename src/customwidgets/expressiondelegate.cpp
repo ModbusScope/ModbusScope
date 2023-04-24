@@ -1,48 +1,17 @@
 #include <QApplication>
 #include <QPushButton>
+#include <QLineEdit>
 
 #include "expressiondelegate.h"
 
 // Based on example (2018) from https://forum.qt.io/post/475871
 // Current limitation is that width of the button is limited to the height of the tableview row
 
-ExpressionDelegate::ExpressionDelegate(QObject *parent)
+ExpressionDelegate::ExpressionDelegate(GraphDataModel *pGraphDataModel, QObject *parent)
     : QStyledItemDelegate{parent}
 {
-
+    _pGraphDataModel = pGraphDataModel;
 }
-#if 0
-void ExpressionDelegate::paint(QPainter *painter,
-                               const QStyleOptionViewItem &option,
-                               const QModelIndex &index) const
-{
-    Q_ASSERT(index.isValid());
-    QStyleOptionViewItem opt = option;
-    initStyleOption(&opt, index);
-    const QWidget *widget = option.widget;
-    QStyle *style = widget ? widget->style() : QApplication::style();
-    style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, widget);
-
-    if (!(option.state & QStyle::State_Selected)){
-        return;
-    }
-
-    QStyleOptionButton removeButtonOption;
-    removeButtonOption.text = QString(
-        QChar(0x270D)); //use emoji for text, optionally you can use icon + iconSize
-    removeButtonOption.rect = QRect(option.rect.left() + option.rect.width() - option.rect.height(),
-                                    option.rect.top(),
-                                    option.rect.height(),
-                                    option.rect.height());
-    removeButtonOption.features = QStyleOptionButton::None;
-    removeButtonOption.direction = option.direction;
-    removeButtonOption.fontMetrics = option.fontMetrics;
-    removeButtonOption.palette = option.palette;
-    removeButtonOption.styleObject = option.styleObject;
-
-    style->drawControl(QStyle::CE_PushButton, &removeButtonOption, painter, widget);
-}
-#endif
 
 QSize ExpressionDelegate::sizeHint(const QStyleOptionViewItem &option,
                                    const QModelIndex &index) const
@@ -60,13 +29,15 @@ QWidget *ExpressionDelegate::createEditor(QWidget *parent,
     QWidget *baseEditor = QStyledItemDelegate::createEditor(result, option, index);
     baseEditor->setObjectName("baseEditor");
     baseEditor->setGeometry(0, 0, option.rect.width() - option.rect.height(), option.rect.height());
-    QPushButton *removeButton = new QPushButton(QChar(0x274C), result);
-    removeButton->setObjectName("removeButton");
-    removeButton->setGeometry(option.rect.width() - option.rect.height(),
+    QPushButton *editButton = new QPushButton(QChar(0x274C), result);
+    editButton->setObjectName("editButton");
+    editButton->setGeometry(option.rect.width() - option.rect.height(),
                               0,
                               option.rect.height(),
                               option.rect.height());
-    connect(removeButton, &QPushButton::clicked, []() { qDebug("Remove"); });
+    editButton->setProperty("RowIndex", index.row());
+    connect(editButton, &QPushButton::clicked, this, &ExpressionDelegate::handleClicked);
+
     return result;
 }
 
@@ -83,7 +54,10 @@ void ExpressionDelegate::setModelData(QWidget *editor,
 {
     QWidget *baseEditor = editor->findChild<QWidget *>("baseEditor");
     Q_ASSERT(baseEditor);
-    QStyledItemDelegate::setModelData(baseEditor, model, index);
+
+    QLineEdit *editLine = static_cast<QLineEdit*>(baseEditor);
+
+    model->setData(index, editLine->text(), Qt::EditRole);
 }
 
 void ExpressionDelegate::updateEditorGeometry(QWidget *editor,
@@ -95,11 +69,23 @@ void ExpressionDelegate::updateEditorGeometry(QWidget *editor,
     QWidget *baseEditor = editor->findChild<QWidget *>("baseEditor");
     Q_ASSERT(baseEditor);
     baseEditor->setGeometry(0, 0, option.rect.width() - option.rect.height(), option.rect.height());
-    QWidget *removeButton = editor->findChild<QWidget *>("removeButton");
-    Q_ASSERT(removeButton);
-    removeButton->setGeometry(option.rect.width() - option.rect.height(),
+    QWidget *editButton = editor->findChild<QWidget *>("editButton");
+    Q_ASSERT(editButton);
+    editButton->setGeometry(option.rect.width() - option.rect.height(),
                               0,
                               option.rect.height(),
                               option.rect.height());
     editor->setGeometry(option.rect);
+}
+
+void ExpressionDelegate::handleClicked()
+{
+    QObject* pObj = sender();
+    auto btn = static_cast<QWidget*>(pObj);
+
+    //NEED to accept current value before opening dialog
+
+    int row = btn->property("RowIndex").value<int>();
+
+    emit clicked(row);
 }
