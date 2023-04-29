@@ -8,7 +8,7 @@
  */
 DiagnosticModel::DiagnosticModel(QObject *parent) : QAbstractListModel(parent)
 {
-
+    _minSeverityLevel = Diagnostic::LOG_INFO;
 }
 
 /*!
@@ -54,7 +54,7 @@ Diagnostic::LogSeverity DiagnosticModel::dataSeverity(quint32 index) const
 {
     if (index < static_cast<quint32>(size()))
     {
-        return _logList[static_cast<qint32>(index)].severity();
+        return _logList[index].severity();
     }
 
     return static_cast<Diagnostic::LogSeverity>(-1);
@@ -124,23 +124,31 @@ QString DiagnosticModel::toExportString(quint32 idx) const
     return _logList[idx].toExportString();
 }
 
+void DiagnosticModel::setMinimumSeverityLevel(Diagnostic::LogSeverity minSeverity)
+{
+    _minSeverityLevel = minSeverity;
+}
+
 /*!
  * \brief Add item to model
  * \param log
  */
 void DiagnosticModel::addLog(QString category, Diagnostic::LogSeverity severity, qint32 timeOffset, QString message)
 {
-    /* Call function to prepare view */
-    beginInsertRows(QModelIndex(), size(), size());
+    if (severity <= _minSeverityLevel)
+    {
+        /* Call function to prepare view */
+        beginInsertRows(QModelIndex(), size(), size());
 
-    Diagnostic log(category, severity, timeOffset, message);
+        Diagnostic log(category, severity, timeOffset, message);
 
-    _logList.append(log);
+        _logList.append(log);
 
-    /* Call functions to trigger view update */
-    endInsertRows();
+        /* Call functions to trigger view update */
+        endInsertRows();
 
-    QModelIndex nIndex = index(size() - 1, 0);
+        QModelIndex nIndex = index(size() - 1, 0);
 
-    emit dataChanged(nIndex, nIndex);
+        emit dataChanged(nIndex, nIndex);
+    }
 }
