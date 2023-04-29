@@ -17,13 +17,12 @@ public:
     static ScopeLogging& Logger();
 
     void initLogging(DiagnosticModel* pDiagnosticModel);
-    void setMinimumSeverityLevel(Diagnostic::LogSeverity maxSeverity);
+    void setMinimumSeverityLevel(Diagnostic::LogSeverity minSeverity);
 
     void handleLog(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
 private:
     qint64 _logStartTime;
-    Diagnostic::LogSeverity _minSeverityLevel;
 
     DiagnosticModel* _pDiagnosticModel;
 };

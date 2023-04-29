@@ -28,10 +28,12 @@ public:
     QString toString(quint32 idx) const;
     QString toExportString(quint32 idx) const;
 
+    void setMinimumSeverityLevel(Diagnostic::LogSeverity maxSeverity);
     void addLog(QString category, Diagnostic::LogSeverity severity, qint32 timeOffset, QString message);
 
 private:
 
+    Diagnostic::LogSeverity _minSeverityLevel;
     QList<Diagnostic> _logList;
 };
 

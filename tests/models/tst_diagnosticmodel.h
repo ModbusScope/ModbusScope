@@ -18,6 +18,8 @@ private slots:
     void flags();
 
     void addLog();
+    void addLogLowerSeverity();
+    void addLogSameSeverity();
 
 private:
 

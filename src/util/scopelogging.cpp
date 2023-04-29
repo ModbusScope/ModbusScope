@@ -11,7 +11,6 @@ Q_LOGGING_CATEGORY(scopePreset, "scope.preset")
 
 ScopeLogging::ScopeLogging()
 {
-    _minSeverityLevel = Diagnostic::LOG_INFO;
     _pDiagnosticModel = nullptr;
     _logStartTime = 0;
 }
@@ -42,7 +41,7 @@ void ScopeLogging::initLogging(DiagnosticModel* pDiagnosticModel)
  */
 void ScopeLogging::setMinimumSeverityLevel(Diagnostic::LogSeverity minSeverity)
 {
-    _minSeverityLevel = minSeverity;
+    _pDiagnosticModel->setMinimumSeverityLevel(minSeverity);
 }
 
 void ScopeLogging::handleLog(QtMsgType type, const QMessageLogContext &context, const QString &msg)
@@ -66,12 +65,9 @@ void ScopeLogging::handleLog(QtMsgType type, const QMessageLogContext &context, 
         break;
     }
 
-    if (logSeverity <= _minSeverityLevel)
+    if (_pDiagnosticModel != nullptr)
     {
-        if (_pDiagnosticModel != nullptr)
-        {
-            _pDiagnosticModel->addLog(context.category, logSeverity, offset, msg);
-        }
+        _pDiagnosticModel->addLog(context.category, logSeverity, offset, msg);
     }
 
 #if 0
