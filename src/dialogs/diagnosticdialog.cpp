@@ -150,7 +150,6 @@ void DiagnosticDialog::handleEnableDebugLog(int state)
 {
     if (state == Qt::Checked)
     {
-        _pUi->checkDebug->setEnabled(true);
         ScopeLogging::Logger().setMinimumSeverityLevel(Diagnostic::LOG_DEBUG);
 
         _pUi->checkDebug->setChecked(true);
@@ -158,10 +157,8 @@ void DiagnosticDialog::handleEnableDebugLog(int state)
     }
     else
     {
-        _pUi->checkDebug->setChecked(false);
         handleFilterChange();
 
-        _pUi->checkDebug->setEnabled(false);
         ScopeLogging::Logger().setMinimumSeverityLevel(Diagnostic::LOG_INFO);
     }
 }
