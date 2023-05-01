@@ -10,7 +10,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Fixed
 
-- xx
+- Fixed diagnostic log cleared when "extensive logging" is disabled ([Github #265](https://github.com/jgeudens/ModbusScope/issues/265))
 
 ### Changed
 
