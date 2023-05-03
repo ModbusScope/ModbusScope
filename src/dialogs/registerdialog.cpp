@@ -116,17 +116,11 @@ void RegisterDialog::activatedCell(QModelIndex modelIndex)
     {
         if (modelIndex.row() < _pGraphDataModel->size())
         {
-            // Let user pick color
             QColor color = QColorDialog::getColor(_pGraphDataModel->color(modelIndex.row()));
 
             if (color.isValid())
             {
-                // Set color in model
                 _pGraphDataModel->setData(modelIndex, color, Qt::EditRole);
-            }
-            else
-            {
-                // user aborted
             }
         }
     }
