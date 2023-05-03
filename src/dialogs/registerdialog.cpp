@@ -44,7 +44,8 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     _pUi->registerView->horizontalHeader()->setSectionResizeMode(GraphDataModel::column::TEXT, QHeaderView::Stretch);
     _pUi->registerView->horizontalHeader()->setSectionResizeMode(GraphDataModel::column::EXPRESSION, QHeaderView::Stretch);
 
-    // Select using click, shift and control
+    auto triggers = QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed;
+    _pUi->registerView->setEditTriggers(triggers);
     _pUi->registerView->setSelectionBehavior(QAbstractItemView::SelectRows);
     _pUi->registerView->setSelectionMode(QAbstractItemView::SingleSelection);
     _pUi->registerView->setDragEnabled(true);
