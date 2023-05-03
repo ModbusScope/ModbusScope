@@ -31,7 +31,6 @@ void DataFileExporter::enableExporterDuringLog()
     _dataExportBuffer.clear();
     lastLogTime = QDateTime::currentMSecsSinceEpoch();
 
-    // Clean file
     clearFile(_pSettingsModel->writeDuringLogFile());
 
     exportDataHeader();
@@ -85,13 +84,10 @@ void DataFileExporter::exportDataFile(QString dataFile, double startTime, double
     {
         QStringList logData;
 
-        // Create header
         logData.append(constructDataHeader(false));
 
-        // Create label row
         logData.append(createPropertyRow(E_LABEL));
 
-        // Clean file
         clearFile(dataFile);
 
         // Export header data
@@ -107,7 +103,6 @@ void DataFileExporter::exportDataFile(QString dataFile, double startTime, double
 
             for(qint32 idx = 0; idx < activeGraphIndexes.size(); idx++)
             {
-                // Save iterators to data lists
                 dataListIterators.append(_pGraphDataModel->dataMap(activeGraphIndexes[idx])->constBegin());
             }
 
@@ -266,7 +261,6 @@ bool DataFileExporter::updateNoteLines(QString dataFile)
 
 void DataFileExporter::flushExportBuffer()
 {
-    // Write to file
     writeToFile(_pSettingsModel->writeDuringLogFile(), _dataExportBuffer);
 
     _dataExportBuffer.clear();
@@ -277,13 +271,10 @@ void DataFileExporter::exportDataHeader()
 {
     QStringList logData;
 
-    // create header
     logData.append(constructDataHeader(true));
 
-    // Create label row
     logData.append(createPropertyRow(E_LABEL));
 
-    // Write to file
     writeToFile(_pSettingsModel->writeDuringLogFile(), logData);
 }
 
@@ -299,11 +290,9 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
 
         header.append(comment + "ModbusScope version" + Util::separatorCharacter() + Util::currentVersion());
 
-        // Save start time
         dt = QDateTime::fromMSecsSinceEpoch(_pGuiModel->communicationStartTime());
         header.append(comment + "Start time" + Util::separatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss"));
 
-        // Save end time
         if (bDuringLog)
         {
             header.append(comment + "End time" + Util::separatorCharacter() + "data written during logging");
