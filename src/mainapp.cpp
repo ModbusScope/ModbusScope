@@ -24,6 +24,8 @@ MainApp::MainApp(QStringList cmdArguments, QObject *parent) : QObject(parent)
     _pDiagnosticModel = new DiagnosticModel();
     _pDataParserModel = new DataParserModel();
 
+    ScopeLogging::Logger().initLogging(_pDiagnosticModel);
+
     _pMainWin = new MainWindow(cmdArguments,
                                _pGuiModel,
                                _pSettingsModel,
@@ -32,7 +34,6 @@ MainApp::MainApp(QStringList cmdArguments, QObject *parent) : QObject(parent)
                                _pDiagnosticModel,
                                _pDataParserModel);
 
-    ScopeLogging::Logger().initLogging(_pDiagnosticModel);
     FileSelectionHelper::setGuiModel(_pGuiModel);
 
     logInitialInfo();
