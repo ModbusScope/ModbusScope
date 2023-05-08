@@ -15,10 +15,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 ### Changed
 
 - Change add register dialog (wizard) to drop-down frame
-
-### Removed
-
-- xx
+- Keep focus of selected register when filtering during mbc import ([Github #169](https://github.com/jgeudens/ModbusScope/issues/169))
 
 ## [v3.7.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.7.0) (03/02/2023)
 
