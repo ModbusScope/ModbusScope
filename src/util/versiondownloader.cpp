@@ -17,7 +17,7 @@ VersionDownloader::~VersionDownloader()
 
 void VersionDownloader::performCheck()
 {
-    QUrl versionManifest = QUrl("https://api.github.com/repos/jgeudens/ModbusScope/releases/latest");
+    QUrl versionManifest = QUrl("https://api.github.com/repos/ModbusScope/ModbusScope/releases/latest");
 
     // Start request
     _webCtrl.get(QNetworkRequest(versionManifest));
