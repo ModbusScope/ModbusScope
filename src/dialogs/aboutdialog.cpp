@@ -37,12 +37,12 @@ AboutDialog::~AboutDialog()
 
 void AboutDialog::openHomePage(void)
 {
-    QDesktopServices::openUrl(QUrl("https://github.com/jgeudens/ModbusScope"));
+    QDesktopServices::openUrl(QUrl("https://github.com/ModbusScope/ModbusScope"));
 }
 
 void AboutDialog::openLicense(void)
 {
-    QDesktopServices::openUrl(QUrl("https://github.com/jgeudens/ModbusScope/issues"));
+    QDesktopServices::openUrl(QUrl("https://github.com/ModbusScope/ModbusScope/issues"));
 }
 
 void AboutDialog::showVersionUpdate(UpdateNotify* updateNotify)
