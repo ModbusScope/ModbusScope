@@ -180,7 +180,6 @@ void ModbusMaster::handleTriggerNextRequest(void)
     }
     else
     {
-        // Done reading
         finishRead(false);
     }
 }
