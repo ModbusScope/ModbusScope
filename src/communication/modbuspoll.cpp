@@ -2,10 +2,7 @@
 #include <QDateTime>
 
 #include "modbusmaster.h"
-#include "guimodel.h"
 #include "settingsmodel.h"
-#include "graphdatamodel.h"
-#include "diagnosticmodel.h"
 #include "scopelogging.h"
 #include "formatdatetime.h"
 #include "registervaluehandler.h"
