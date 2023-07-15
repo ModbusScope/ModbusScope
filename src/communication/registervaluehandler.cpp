@@ -21,11 +21,10 @@ void RegisterValueHandler::startRead()
 
 void RegisterValueHandler::finishRead()
 {
-    // propagate processed data
     emit registerDataReady(_resultList);
 }
 
-void RegisterValueHandler::processPartialResult(QMap<quint32, Result<quint16> > partialResultMap, quint8 connectionId)
+void RegisterValueHandler::processPartialResult(ModbusResultMap partialResultMap, quint8 connectionId)
 {
     for(qint32 listIdx = 0; listIdx < _registerList.size(); listIdx++)
     {

@@ -6,7 +6,7 @@
 #include <QModbusDevice>
 #include <QModbusReply>
 
-#include "result.h"
+#include "modbusresultmap.h"
 #include "modbusconnection.h"
 #include "readregisters.h"
 
@@ -25,7 +25,7 @@ public:
     void cleanUp();
 
 signals:
-    void modbusPollDone(QMap<quint32, Result<quint16> > modbusResults, quint8 connectionId);
+    void modbusPollDone(ModbusResultMap modbusResults, quint8 connectionId);
     void modbusLogError(QString msg);
     void modbusLogInfo(QString msg);
     void triggerNextRequest();
@@ -42,10 +42,10 @@ private slots:
 
 private:
     void finishRead(bool bError);
-    QString dumpToString(QMap<quint32, Result<quint16> > map);
+    QString dumpToString(ModbusResultMap map);
     QString dumpToString(QList<quint32> list);
 
-    void logResults(QMap<quint32, Result<quint16> > &results);
+    void logResults(ModbusResultMap &results);
 
     void logInfo(QString msg);
     void logError(QString msg);

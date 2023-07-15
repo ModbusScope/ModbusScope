@@ -184,7 +184,7 @@ void ReadRegisters::splitNextToSingleReads()
  * Return result map
  * \return Result map
  */
-QMap<quint32, Result<quint16> > ReadRegisters::resultMap()
+ModbusResultMap ReadRegisters::resultMap()
 {
     return _resultMap;
 }

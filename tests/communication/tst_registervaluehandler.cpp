@@ -155,7 +155,7 @@ void TestRegisterValueHandler::read_16()
 {
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, Type::UNSIGNED_16)
                                                    << ModbusRegister(40002, Connection::ID_1, Type::SIGNED_16);
-    QMap<quint32, Result<quint16>> partialResultMap;
+    ModbusResultMap partialResultMap;
     addToResultMap(partialResultMap, 40001, false, 256, State::SUCCESS);
     addToResultMap(partialResultMap, 40002, false, -100, State::SUCCESS);
 
@@ -169,7 +169,7 @@ void TestRegisterValueHandler::read_32()
 {
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, Type::UNSIGNED_32)
                                                    << ModbusRegister(40005, Connection::ID_1, Type::SIGNED_32);
-    QMap<quint32, Result<quint16>> partialResultMap;
+    ModbusResultMap partialResultMap;
     addToResultMap(partialResultMap, 40001, true, 1000000, State::SUCCESS);
     addToResultMap(partialResultMap, 40005, true, -100000, State::SUCCESS);
 
@@ -184,7 +184,7 @@ void TestRegisterValueHandler::readBigEndian_32()
     _pSettingsModel->setInt32LittleEndian(Connection::ID_1, false);
 
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, Type::UNSIGNED_32);
-    QMap<quint32, Result<quint16>> partialResultMap;
+    ModbusResultMap partialResultMap;
     quint32 value = 1000000;
 
     partialResultMap.insert(40001, Result<quint16>(static_cast<quint32>(value) >> 16, State::SUCCESS));
@@ -200,7 +200,7 @@ void TestRegisterValueHandler::readBigEndian_s32()
     _pSettingsModel->setInt32LittleEndian(Connection::ID_1, false);
 
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, Type::SIGNED_32);
-    QMap<quint32, Result<quint16>> partialResultMap;
+    ModbusResultMap partialResultMap;
     quint32 value = -1000000;
 
     partialResultMap.insert(40001, Result<quint16>(static_cast<quint32>(value) >> 16, State::SUCCESS));
@@ -215,10 +215,10 @@ void TestRegisterValueHandler::readConnections()
 {
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, Type::UNSIGNED_16)
                                                    << ModbusRegister(40001, Connection::ID_2, Type::SIGNED_16);
-    QMap<quint32, Result<quint16>> partialResultMap1;
+    ModbusResultMap partialResultMap1;
     addToResultMap(partialResultMap1, 40001, false, 256, State::SUCCESS);
 
-    QMap<quint32, Result<quint16>> partialResultMap2;
+    ModbusResultMap partialResultMap2;
     addToResultMap(partialResultMap2, 40001, false, 100, State::SUCCESS);
 
     auto expResults = ResultDoubleList() << ResultDouble(256, State::SUCCESS)
@@ -252,7 +252,7 @@ void TestRegisterValueHandler::readFail()
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, Type::UNSIGNED_16)
                                                    << ModbusRegister(40001, Connection::ID_2, Type::SIGNED_16);
 
-    QMap<quint32, Result<quint16>> partialResultMap2;
+    ModbusResultMap partialResultMap2;
     addToResultMap(partialResultMap2, 40001, false, 100, State::SUCCESS);
 
     auto expResults = ResultDoubleList() << ResultDouble(0, State::INVALID)
@@ -281,7 +281,7 @@ void TestRegisterValueHandler::readFail()
 }
 
 void TestRegisterValueHandler::verifyRegisterResult(QList<ModbusRegister>& regList,
-                                                    QMap<quint32, Result<quint16>> &regData,
+                                                    ModbusResultMap &regData,
                                                     ResultDoubleList expResults)
 {
     RegisterValueHandler regHandler(_pSettingsModel);
@@ -305,7 +305,7 @@ void TestRegisterValueHandler::verifyRegisterResult(QList<ModbusRegister>& regLi
     QCOMPARE(result, expResults);
 }
 
-void TestRegisterValueHandler::addToResultMap(QMap<quint32, Result<quint16>> &resultMap,
+void TestRegisterValueHandler::addToResultMap(ModbusResultMap &resultMap,
         quint32 addr,
         bool b32bit,
         qint64 value,

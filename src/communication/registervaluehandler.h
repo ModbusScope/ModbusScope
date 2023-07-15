@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+#include "modbusresultmap.h"
 #include "result.h"
 #include "modbusregister.h"
 
@@ -18,7 +19,7 @@ public:
     void setRegisters(QList<ModbusRegister> &registerList);
 
     void startRead();
-    void processPartialResult(QMap<quint32, Result<quint16> > partialResultMap, quint8 connectionId);
+    void processPartialResult(ModbusResultMap partialResultMap, quint8 connectionId);
     void finishRead();
 
     void registerAddresList(QList<quint32>& registerList, quint8 connectionId);

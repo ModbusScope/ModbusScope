@@ -186,7 +186,7 @@ void TestReadRegisters::addAllErrors()
 
     QVERIFY(!readRegister.hasNext());
 
-    QMap<quint32, Result<quint16>> resultMap = readRegister.resultMap();
+    auto resultMap = readRegister.resultMap();
 
     QCOMPARE(resultMap.size(), registerList.size());
 
@@ -224,7 +224,7 @@ void TestReadRegisters::addSuccess()
 
     QVERIFY(!readRegister.hasNext());
 
-    QMap<quint32, Result<quint16>> resultMap = readRegister.resultMap();
+    auto resultMap = readRegister.resultMap();
 
     QCOMPARE(resultMap.size(), registerList.size());
 
@@ -263,7 +263,7 @@ void TestReadRegisters::addSuccessAndErrors()
 
     QVERIFY(!readRegister.hasNext());
 
-    QMap<quint32, Result<quint16>> resultMap = readRegister.resultMap();
+    auto resultMap = readRegister.resultMap();
 
     QCOMPARE(resultMap.size(), registerList.size());
 
