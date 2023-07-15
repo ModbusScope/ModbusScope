@@ -3,6 +3,7 @@
 
 #include <QStringListModel>
 #include <QTimer>
+#include "modbusresultmap.h"
 #include "result.h"
 #include "modbusregister.h"
 
@@ -44,7 +45,7 @@ signals:
     void registerDataReady(ResultDoubleList registers);
 
 private slots:
-    void handlePollDone(QMap<quint32, Result<quint16> > resultMap, quint8 connectionId);
+    void handlePollDone(ModbusResultMap partialResultMap, quint8 connectionId);
     void handleModbusError(QString msg);
     void handleModbusInfo(QString msg);
     void triggerRegisterRead();

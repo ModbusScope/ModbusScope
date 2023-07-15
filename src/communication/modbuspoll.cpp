@@ -100,7 +100,7 @@ void ModbusPoll::resetCommunicationStats()
     _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 }
 
-void ModbusPoll::handlePollDone(QMap<quint32, Result<quint16> > partialResultMap, quint8 connectionId)
+void ModbusPoll::handlePollDone(ModbusResultMap partialResultMap, quint8 connectionId)
 {
     bool lastResult = false;
 
@@ -223,7 +223,7 @@ void ModbusPoll::triggerRegisterRead()
 
         if (_activeMastersCount == 0)
         {
-            QMap<quint32, Result<quint16> > emptyResultMap;
+            ModbusResultMap emptyResultMap;
             handlePollDone(emptyResultMap, Connection::ID_1);
         }
     }

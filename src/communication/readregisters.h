@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "result.h"
+#include "modbusresultmap.h"
 
 class ModbusReadItem
 {
@@ -38,14 +38,14 @@ public:
     void addAllErrors();
     void splitNextToSingleReads();
 
-    QMap<quint32, Result<quint16> > resultMap();
+    ModbusResultMap resultMap();
 
 private:
 
 
     QList<ModbusReadItem> _readItemList;
 
-    QMap<quint32, Result<quint16> > _resultMap;
+    ModbusResultMap _resultMap;
 
 };
 

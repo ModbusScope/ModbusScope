@@ -1,6 +1,7 @@
 
 #include <QObject>
 #include "modbusregister.h"
+#include "modbusresultmap.h"
 #include "result.h"
 
 /* Forward declaration */
@@ -34,10 +35,10 @@ private slots:
 private:
 
     void verifyRegisterResult(QList<ModbusRegister>& regList,
-                            QMap<quint32, Result<quint16> > &regData,
+                            ModbusResultMap &regData,
                             ResultDoubleList expResults);
 
-    void addToResultMap(QMap<quint32, Result<quint16>> &resultMap,
+    void addToResultMap(ModbusResultMap &resultMap,
             quint32 addr,
             bool b32bit,
             qint64 value,
