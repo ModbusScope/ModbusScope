@@ -10,7 +10,7 @@ class ModbusResultMap
 
 public:
 
-    ModbusResultMap();
+    ModbusResultMap() = default;
 
     void insert(quint32, Result<quint16>);
     void clear();

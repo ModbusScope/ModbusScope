@@ -42,8 +42,8 @@ private slots:
 
 private:
     void finishRead(bool bError);
-    QString dumpToString(ModbusResultMap map);
-    QString dumpToString(QList<quint32> list);
+    QString dumpToString(ModbusResultMap map) const;
+    QString dumpToString(QList<quint32> list) const;
 
     void logResults(ModbusResultMap &results);
 

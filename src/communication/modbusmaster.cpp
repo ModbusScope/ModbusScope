@@ -203,7 +203,7 @@ void ModbusMaster::finishRead(bool bError)
     }
 }
 
-QString ModbusMaster::dumpToString(ModbusResultMap map)
+QString ModbusMaster::dumpToString(ModbusResultMap map) const
 {
     QString str;
     QDebug dStream(&str);
@@ -213,7 +213,7 @@ QString ModbusMaster::dumpToString(ModbusResultMap map)
     return str;
 }
 
-QString ModbusMaster::dumpToString(QList<quint32> list)
+QString ModbusMaster::dumpToString(QList<quint32> list) const
 {
     QString str;
     QDebug dStream(&str);
