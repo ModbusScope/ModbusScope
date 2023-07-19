@@ -1,13 +1,6 @@
 
 #include "modbusresultmap.h"
 
-ModbusResultMap::ModbusResultMap()
-{
-
-    //QMap<ModbusAddress, Result<quint16> >
-}
-
-
 void ModbusResultMap::insert(quint32 key, Result<quint16> result)
 {
     _resultMap.insert(key, result);
