@@ -22,6 +22,7 @@
 #include "util.h"
 #include "versiondownloader.h"
 #include "fileselectionhelper.h"
+#include "scopelogging.h"
 
 #include <QDateTime>
 
@@ -299,38 +300,20 @@ void MainWindow::exitApplication()
 
 void MainWindow::selectImageExportFile()
 {
-    /* Add question whether to save when legend is undocked */
-    bool bProceed = false;
-    if (_pUi->legendDock->isFloating())
-    {
-        QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(this, "Save screenshot?", "The legend dock is floating, it won't be included in the screenshot. \n\nAre you sure want to proceed?", QMessageBox::Yes|QMessageBox::No);
-        if (reply == QMessageBox::Yes)
-        {
-            bProceed = true;
-        }
-        else
-        {
-            bProceed = false;
-        }
-    }
-    else
-    {
-        bProceed = true;
-    }
+    QFileDialog dialog(this);
+    FileSelectionHelper::configureFileDialog(&dialog,
+                                             FileSelectionHelper::DIALOG_TYPE_SAVE,
+                                             FileSelectionHelper::FILE_TYPE_PNG);
 
-    if (bProceed)
+    QString selectedFile = FileSelectionHelper::showDialog(&dialog);
+    if (!selectedFile.isEmpty())
     {
-        QFileDialog dialog(this);
-        FileSelectionHelper::configureFileDialog(&dialog,
-                                                 FileSelectionHelper::DIALOG_TYPE_SAVE,
-                                                 FileSelectionHelper::FILE_TYPE_PNG);
+        QPixmap pixMap = this->window()->grab();
+        pixMap.save(selectedFile);
 
-        QString selectedFile = FileSelectionHelper::showDialog(&dialog);
-        if (!selectedFile.isEmpty())
+        if (_pUi->legendDock->isFloating())
         {
-            QPixmap pixMap = this->window()->grab();
-            pixMap.save(selectedFile);
+            qCWarning(scopeUi) << "Undocked legend not included in screenshot";
         }
     }
 }
