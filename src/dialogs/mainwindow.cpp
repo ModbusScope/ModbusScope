@@ -300,6 +300,9 @@ void MainWindow::exitApplication()
 
 void MainWindow::selectImageExportFile()
 {
+    // Grab image before showing file dialog
+    const QPixmap pixMap = this->window()->grab();
+
     QFileDialog dialog(this);
     FileSelectionHelper::configureFileDialog(&dialog,
                                              FileSelectionHelper::DIALOG_TYPE_SAVE,
@@ -308,7 +311,6 @@ void MainWindow::selectImageExportFile()
     QString selectedFile = FileSelectionHelper::showDialog(&dialog);
     if (!selectedFile.isEmpty())
     {
-        QPixmap pixMap = this->window()->grab();
         pixMap.save(selectedFile);
 
         if (_pUi->legendDock->isFloating())
