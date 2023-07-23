@@ -143,6 +143,7 @@
    <addaction name="separator"/>
    <addaction name="actionZoom"/>
    <addaction name="actionToggleMarkers"/>
+   <addaction name="actionExportImage"/>
   </widget>
   <widget class="QDockWidget" name="scaleOptionsDock">
    <property name="sizePolicy">
@@ -349,8 +350,15 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset resource="../../resources.qrc">
+     <normaloff>:/menu_icon/icons/icons/camera.svg</normaloff>:/menu_icon/icons/icons/camera.svg</iconset>
+   </property>
    <property name="text">
     <string>E&amp;xport Image As...</string>
+   </property>
+   <property name="iconText">
+    <string>Screenshot</string>
    </property>
   </action>
   <action name="actionAbout">
