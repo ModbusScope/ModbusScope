@@ -1,0 +1,27 @@
+{
+  "$schema": "../icon.schema.json",
+  "contributors": [
+    "danielbayley",
+    "jguddas"
+  ],
+  "tags": [
+    "clone",
+    "duplicate",
+    "cancel",
+    "ban",
+    "no",
+    "stop",
+    "forbidden",
+    "prohibited",
+    "error",
+    "multiple",
+    "divide",
+    "division",
+    "split",
+    "/"
+  ],
+  "categories": [
+    "text",
+    "maths"
+  ]
+}

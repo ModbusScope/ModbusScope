@@ -1,0 +1,16 @@
+{
+  "$schema": "../icon.schema.json",
+  "contributors": [
+    "lscheibel",
+    "ericfennis",
+    "jguddas"
+  ],
+  "tags": [
+    "gizmo",
+    "transform",
+    "size"
+  ],
+  "categories": [
+    "design"
+  ]
+}

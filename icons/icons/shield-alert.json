@@ -1,0 +1,20 @@
+{
+  "$schema": "../icon.schema.json",
+  "contributors": [
+    "mittalyashu",
+    "ericfennis"
+  ],
+  "tags": [
+    "security",
+    "secure",
+    "virus",
+    "admin",
+    "safety",
+    "savety"
+  ],
+  "categories": [
+    "account",
+    "security",
+    "notifications"
+  ]
+}
