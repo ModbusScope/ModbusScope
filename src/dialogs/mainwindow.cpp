@@ -741,8 +741,8 @@ void MainWindow::updateGuiState()
         _pUi->actionSaveDataFile->setEnabled(false);
         _pUi->actionSaveProjectFileAs->setEnabled(false);
         _pUi->actionSaveProjectFile->setEnabled(false);
-        _pUi->actionExportImage->setEnabled(false);
         _pUi->actionReloadProjectFile->setEnabled(false);
+        _pUi->actionExportImage->setEnabled(true);
         _pUi->actionClearData->setEnabled(true);
 
         _pStatusRuntime->setText(_cRuntime.arg("0:00:00"));
