@@ -8,6 +8,7 @@
         <file>icons/icons/network.svg</file>
         <file>icons/icons/settings-2.svg</file>
         <file>icons/icons/bell-ring.svg</file>
+        <file>icons/icons/camera.svg</file>
     </qresource>
     <qresource prefix="/about_images">
         <file>resources/icon/icon-128x128.png</file>
