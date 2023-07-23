@@ -2,9 +2,9 @@
 # For more info see https://dfetch.rtfd.io/en/latest/getting_started.html
 dfetch:
   branch: master
-  hash: 5c7656dcabdff92a814d6260e9d4de72
-  last_fetch: 27/10/2022, 18:10:37
+  hash: 2b6186f209cd594ecec4bca175ab4a04
+  last_fetch: 23/07/2023, 20:30:08
   patch: ''
   remote_url: https://github.com/lucide-icons/lucide.git
   revision: ''
-  tag: v0.95.0
+  tag: v0.263.0

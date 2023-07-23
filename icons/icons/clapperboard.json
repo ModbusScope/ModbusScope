@@ -1,0 +1,18 @@
+{
+  "$schema": "../icon.schema.json",
+  "contributors": [
+    "it-is-not",
+    "ericfennis"
+  ],
+  "tags": [
+    "movie",
+    "film",
+    "video",
+    "camera",
+    "tv",
+    "television"
+  ],
+  "categories": [
+    "multimedia"
+  ]
+}

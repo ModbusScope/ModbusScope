@@ -23,8 +23,10 @@ export const fetchIcons = async (cachedIcons? : LucideIcons): Promise<LucideIcon
     return cachedIcons
   }
 
-  const iconNodesResponse = await fetch(`https://unpkg.com/lucide-static@${packageJson.version}/icon-nodes.json`)
-  const tagsResponse = await fetch('https://unpkg.com/lucide-static@latest/tags.json')
+  const [iconNodesResponse, tagsResponse] = await Promise.all([
+    fetch('https://lucide.dev/api/icon-nodes'),
+    fetch('https://lucide.dev/api/tags')
+  ])
 
   const iconNodes = await iconNodesResponse.json();
   const tags = await tagsResponse.json();
@@ -66,3 +68,24 @@ export const getIcons = () => new Promise<LucideIcons>(async (resolve, reject)=>
     }
   }
 });
+
+type EventCallback = (lucideIcons: LucideIcons) => void
+
+export const iconFetchListener = (callback: EventCallback) => {
+  fetchIcons()
+
+  const handleEvent = (event: MessageEvent) => {
+    if (event.type === 'message' && event?.data?.pluginMessage.type === 'cachedIcons') {
+
+      const lucideIcons = event?.data?.pluginMessage?.cachedIcons
+      callback(lucideIcons)
+    }
+  }
+
+  window.addEventListener('message', handleEvent)
+
+  const removeListener = () => {
+    window.removeEventListener('message', handleEvent)
+  }
+  return removeListener
+}

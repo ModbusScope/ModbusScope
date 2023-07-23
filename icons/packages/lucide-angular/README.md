@@ -6,158 +6,106 @@ Implementation of the lucide icon library for angular applications.
 
 ## Installation
 
-``` sh
+```bash
 yarn add lucide-angular
+```
 
-# or
+or
 
+```bash
 npm install lucide-angular
 ```
 
 ## How to use
 
-There are three ways for use this library.
+### Step 1: Import `LucideAngularModule`
 
-### Method 1: createElement
+In any Angular module you wish to use Lucide icons in, you have to import `LucideAngularModule`, and pick any icons you wish to use:
 
-After install `lucide-angular` change content of file `app.component.html` and `app.component.ts`.
-
-``` html
-<!-- app.component.html -->
-<div id="lucide-icon"></div>
-```
-
-``` js
-// app.component.ts
-
-import { Component, OnInit } from '@angular/core';
-import { createElement } from 'lucide-angular';
-import { Activity } from 'lucide-angular/icons';
-
-@Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
-})
-
-export class AppComponent implements OnInit {
-  ngOnInit(): void {
-    const div = document.getElementById('lucide-icon');
-    const elm = createElement(Activity);
-    elm.setAttribute('color', 'red'); // or set `width`, `height`, `fill`, `stroke-width`, ...
-
-    if (div) {
-      div.appendChild(elm);
-    }
-  }
-}
-```
-
-### Method 2: User __Tag__ with __name__ property
-
-After install `lucide-angular` change content of file `app.component.html`, `app.component.ts`, `app.component.css` and `app.module.ts`.
-
-``` js
-// app.module.ts
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { LucideAngularModule, AlarmCheck, Edit } from 'lucide-angular';
+```js
+import { LucideAngularModule, File, Home, Menu, UserCheck } from 'lucide-angular';
 
 @NgModule({
-  declarations: [
-    AppComponent
-  ],
   imports: [
-    BrowserModule,
-    AppRoutingModule,
-    LucideAngularModule.pick({ AlarmCheck, Edit })  // add all of icons that is imported.
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
+    LucideAngularModule.pick({File, Home, Menu, UserCheck})
+  ]
 })
 export class AppModule { }
 ```
 
-``` html
-<!-- app.component.html -->
-<lucide-icon name="alarm-check" class="myicon"></lucide-icon>
-<lucide-icon name="edit" class="myicon"></lucide-icon>
+### Step 2: Use the icons in templates
+
+Within your templates you may now use one of the following component tags to insert an icon:
+
+```html
+<lucide-angular name="file" class="my-icon"></lucide-angular>
+<lucide-icon name="home" class="my-icon"></lucide-icon>
+<i-lucide name="menu" class="my-icon"></i-lucide>
+<span-lucide name="user-check" class="my-icon"></span-lucide>
 ```
 
-### Method 3: User __Tag__ with __img__ property
+### Props
 
-After install `lucide-angular` change content of file `app.component.html`, `app.component.ts`, `app.component.css` and `app.module.ts`.
+You can pass additional props to adjust the icon appearance.
 
-``` js
-// app.module.ts
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+| name               | type      | default      |
+| ------------------ | --------- | ------------ |
+| `size`             | _number_  | 24           |
+| `color`            | _string_  | currentColor |
+| `strokeWidth`      | _number_  | 2            |
+| `absoluteStrokeWidth` | _boolean_ | true         |
 
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { LucideAngularModule } from 'lucide-angular';
+```html
+<i-lucide name="home" [size]="48" color="red" [strokeWidth]="1"></i-lucide>
+```
+
+### Global configuration
+
+You can inject the `LucideIconConfig` service in your root component to globally configure the default property values as defined above.
+
+### Styling using a custom CSS class
+
+Any extra HTML attribute is ignored, but the `class` attribute
+is passed onto the internal SVG image element and it can be used to style it:
+
+```css
+svg.my-icon {
+    width: 12px;
+    height: 12px;
+    stroke-width: 3;
+}
+```
+
+## Injecting multiple icon providers
+
+You may provide additional icons using the `LUCIDE_ICONS` injection token,
+which accepts multiple providers of the interface `LucideIconsProviderInterface`
+with the utility class `LucideIconsProvider` available for easier usage:
+
+```js
+import { LUCIDE_ICONS, LucideIconProvider } from 'lucide-angular';
+import { MyIcon } from './icons/my-icon';
+
+const myIcons = {MyIcon};
 
 @NgModule({
-  declarations: [
-    AppComponent
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    LucideAngularModule.pick({ })
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
+  providers: [
+    {provide: LUCIDE_ICONS, multi: true, useValue: new LucideIconProvider(myIcons)},
+  ]
 })
 export class AppModule { }
 ```
 
-``` xml
-<!-- app.component.html -->
-<lucide-icon [img]="ico1" class="myicon"></lucide-icon>
-<lucide-icon [img]="ico2" class="myicon"></lucide-icon>
-```
+To add custom icons, you will first need to convert them to an [svgson format](https://github.com/elrumordelaluz/svgson).
 
-``` js
-// app.component.ts
-import { Component } from '@angular/core';
-import { Airplay, Circle } from 'lucide-angular';
+## Loading all icons
 
-@Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
-})
+> :warning: You may also opt to import all icons if necessary using the following format but be aware that this will significantly increase your application build size.
 
-export class AppComponent {
-  ico1 = Airplay;
-  ico2 = Circle;
-}
-```
+```js
+import { icons } from 'lucide-angular';
 
-## Notes
-
-### Import all icons
-
-In `Method 2`: import all icons in `app.module.ts` by:
-
-``` js
 ...
-import { icons } from 'lucide-angular/icons';
-....
+
 LucideAngularModule.pick(icons)
-....
 ```
-
-### Tags
-
-You can use the following tags instead of `lucide-icon`:
-
-- lucide-angular
-- i-lucide
-- span-lucide
-
-All of the above are the same

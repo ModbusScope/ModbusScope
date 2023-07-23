@@ -1,0 +1,17 @@
+{
+  "$schema": "../icon.schema.json",
+  "contributors": [
+    "mittalyashu",
+    "ericfennis"
+  ],
+  "tags": [
+    "security",
+    "secure",
+    "wrong",
+    "unsave",
+    "virus"
+  ],
+  "categories": [
+    "security"
+  ]
+}

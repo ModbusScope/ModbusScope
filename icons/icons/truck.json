@@ -1,0 +1,21 @@
+{
+  "$schema": "../icon.schema.json",
+  "contributors": [
+    "colebemis",
+    "ahtohbi4",
+    "ericfennis",
+    "Andreto",
+    "csandman",
+    "karsa-mistmere"
+  ],
+  "tags": [
+    "delivery",
+    "van",
+    "shipping",
+    "transport",
+    "lorry"
+  ],
+  "categories": [
+    "transportation"
+  ]
+}
