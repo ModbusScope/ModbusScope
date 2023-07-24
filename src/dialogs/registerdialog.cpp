@@ -30,12 +30,12 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     _pUi->registerView->setModel(_pGraphDataModel);
     _pUi->registerView->verticalHeader()->hide();
 
-    _valueAxisDelegate = new RegisterValueAxisDelegate(_pGraphDataModel, _pUi->registerView);
-    _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::VALUE_AXIS, _valueAxisDelegate);
+    _valueAxisDelegate = std::make_unique<RegisterValueAxisDelegate>(_pGraphDataModel, _pUi->registerView);
+    _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::VALUE_AXIS, _valueAxisDelegate.get());
 
-    _expressionDelegate = new ExpressionDelegate(_pGraphDataModel, _pUi->registerView);
-    connect(_expressionDelegate, &ExpressionDelegate::clicked, this, &RegisterDialog::handleExpressionEdit);
-    _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::EXPRESSION, _expressionDelegate);
+    _expressionDelegate = std::make_unique<ExpressionDelegate>(_pGraphDataModel, _pUi->registerView);
+    connect(_expressionDelegate.get(), &ExpressionDelegate::clicked, this, &RegisterDialog::handleExpressionEdit);
+    _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::EXPRESSION, _expressionDelegate.get());
 
     /* Don't stretch columns */
     _pUi->registerView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -78,9 +78,6 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
 
 RegisterDialog::~RegisterDialog()
 {
-    delete _valueAxisDelegate;
-    delete _expressionDelegate;
-
     delete _pUi;
 }
 

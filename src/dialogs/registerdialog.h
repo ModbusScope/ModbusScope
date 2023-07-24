@@ -45,9 +45,8 @@ private:
     GuiModel* _pGuiModel;
     SettingsModel* _pSettingsModel;
 
-    RegisterValueAxisDelegate* _valueAxisDelegate;
-    ExpressionDelegate* _expressionDelegate;
-
+    std::unique_ptr<RegisterValueAxisDelegate> _valueAxisDelegate;
+    std::unique_ptr<ExpressionDelegate> _expressionDelegate;
     std::unique_ptr<QWidgetAction> _registerPopupAction;
 
 };
