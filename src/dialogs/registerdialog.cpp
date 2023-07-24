@@ -116,16 +116,16 @@ void RegisterDialog::showImportDialog()
 
 void RegisterDialog::activatedCell(QModelIndex modelIndex)
 {
-    if (modelIndex.column() == GraphDataModel::column::COLOR)
+    if (
+        (modelIndex.column() == GraphDataModel::column::COLOR)
+        && (modelIndex.row() < _pGraphDataModel->size())
+        )
     {
-        if (modelIndex.row() < _pGraphDataModel->size())
-        {
-            QColor color = QColorDialog::getColor(_pGraphDataModel->color(modelIndex.row()));
+        QColor color = QColorDialog::getColor(_pGraphDataModel->color(modelIndex.row()));
 
-            if (color.isValid())
-            {
-                _pGraphDataModel->setData(modelIndex, color, Qt::EditRole);
-            }
+        if (color.isValid())
+        {
+            _pGraphDataModel->setData(modelIndex, color, Qt::EditRole);
         }
     }
 }
