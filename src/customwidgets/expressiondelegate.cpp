@@ -26,10 +26,11 @@ QWidget *ExpressionDelegate::createEditor(QWidget *parent,
 {
     QWidget *result = new QWidget(parent);
     result->setGeometry(option.rect);
+    result->setFocusPolicy(Qt::StrongFocus);
     QWidget *baseEditor = QStyledItemDelegate::createEditor(result, option, index);
     baseEditor->setObjectName("baseEditor");
     baseEditor->setGeometry(0, 0, option.rect.width() - option.rect.height(), option.rect.height());
-    QPushButton *editButton = new QPushButton(QChar(0x274C), result);
+    QPushButton *editButton = new QPushButton(QChar(0x2026), result);
     editButton->setObjectName("editButton");
     editButton->setGeometry(option.rect.width() - option.rect.height(),
                               0,
