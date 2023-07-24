@@ -8,9 +8,9 @@
 // Current limitation is that width of the button is limited to the height of the tableview row
 
 ExpressionDelegate::ExpressionDelegate(GraphDataModel *pGraphDataModel, QObject *parent)
-    : QStyledItemDelegate{parent}
+    : QStyledItemDelegate(parent), _pGraphDataModel(pGraphDataModel)
 {
-    _pGraphDataModel = pGraphDataModel;
+
 }
 
 QSize ExpressionDelegate::sizeHint(const QStyleOptionViewItem &option,
@@ -24,13 +24,13 @@ QWidget *ExpressionDelegate::createEditor(QWidget *parent,
                                           const QStyleOptionViewItem &option,
                                           const QModelIndex &index) const
 {
-    QWidget *result = new QWidget(parent);
+    auto result = new QWidget(parent);
     result->setGeometry(option.rect);
     result->setFocusPolicy(Qt::StrongFocus);
     QWidget *baseEditor = QStyledItemDelegate::createEditor(result, option, index);
     baseEditor->setObjectName("baseEditor");
     baseEditor->setGeometry(0, 0, option.rect.width() - option.rect.height(), option.rect.height());
-    QPushButton *editButton = new QPushButton(QChar(0x2026), result);
+    auto editButton = new QPushButton(QChar(0x2026), result);
     editButton->setObjectName("editButton");
     editButton->setGeometry(option.rect.width() - option.rect.height(),
                               0,
@@ -56,7 +56,7 @@ void ExpressionDelegate::setModelData(QWidget *editor,
     QWidget *baseEditor = editor->findChild<QWidget *>("baseEditor");
     Q_ASSERT(baseEditor);
 
-    QLineEdit *editLine = static_cast<QLineEdit*>(baseEditor);
+    auto editLine = static_cast<QLineEdit*>(baseEditor);
 
     model->setData(index, editLine->text(), Qt::EditRole);
 }
