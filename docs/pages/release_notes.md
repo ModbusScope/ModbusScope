@@ -4,36 +4,36 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ## [Unreleased]
 
-### Added 
+### Added
 
-- xx
+* xx
 
 ### Fixed
 
-- xx
+* xx
 
 ### Changed
 
-- xx
+* Allow screenshot during logging ([Github #280](https://github.com/jgeudens/ModbusScope/issues/280))
 
 ### Removed
 
-- xx
+* xx
 
 ## [v3.8.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.8.0) (xx/06/2023)
 
 ### Added
 
-- Improve visibility of errors (highlight curve in legend)
+* Improve visibility of errors (highlight curve in legend)
 
 ### Fixed
 
-- Fixed diagnostic log cleared when "extensive logging" is disabled ([Github #265](https://github.com/jgeudens/ModbusScope/issues/265))
+* Fixed diagnostic log cleared when "extensive logging" is disabled ([Github #265](https://github.com/jgeudens/ModbusScope/issues/265))
 
 ### Changed
 
-- Change add register dialog (wizard) to drop-down frame
-- Keep focus of selected register when filtering during mbc import ([Github #169](https://github.com/jgeudens/ModbusScope/issues/169))
+* Change add register dialog (wizard) to drop-down frame
+* Keep focus of selected register when filtering during mbc import ([Github #169](https://github.com/jgeudens/ModbusScope/issues/169))
 
 ## [v3.7.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.7.0) (03/02/2023)
 
