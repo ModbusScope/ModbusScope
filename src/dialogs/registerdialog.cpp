@@ -162,6 +162,9 @@ void RegisterDialog::removeRegisterRow()
 
 void RegisterDialog::handleExpressionEdit(int row)
 {
+    QModelIndex idx = _pGraphDataModel->index(row, GraphDataModel::column::EXPRESSION, QModelIndex());
+    _pUi->registerView->closePersistentEditor(idx);
+
     ExpressionsDialog exprDialog(_pGraphDataModel, row, this);
 
     exprDialog.exec();
