@@ -3,16 +3,17 @@
 
 #include <QObject>
 #include <QDebug>
+#include "modbusaddress.h"
 #include "modbusdatatype.h"
 
 class ModbusRegister
 {
 public:
     ModbusRegister();
-    ModbusRegister(quint32 address, quint8 connectionId, ModbusDataType::Type type);
+    ModbusRegister(ModbusAddress address, quint8 connectionId, ModbusDataType::Type type);
 
-    quint32 address() const;
-    void setAddress(quint32 address);
+    ModbusAddress address() const;
+    void setAddress(ModbusAddress address);
     
     quint8 connectionId() const;
     void setConnectionId(quint8 connectionId);
@@ -40,7 +41,7 @@ private:
     uint32_t convertEndianness(bool bLittleEndian, quint16 value, quint16 nextValue) const;
     double convertUint32ToFloat(quint32 value) const;
 
-    quint32 _address;
+    ModbusAddress _address;
     quint8 _connectionId;
     ModbusDataType::Type _type;
 };

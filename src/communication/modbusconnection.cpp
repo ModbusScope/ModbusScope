@@ -4,6 +4,7 @@
 #include <QModbusTcpClient>
 #include <QModbusRtuSerialClient>
 
+#include "modbusaddress.h"
 #include "scopelogging.h"
 #include "modbusconnection.h"
 
@@ -81,7 +82,7 @@ void ModbusConnection::closeConnection(void)
  * \param size          number of registers
  * \param serverAddress     slave address
  */
-void ModbusConnection::sendReadRequest(quint32 regAddress, quint16 size, int serverAddress)
+void ModbusConnection::sendReadRequest(ModbusAddress regAddress, quint16 size, int serverAddress)
 {
     if (isConnected())
     {

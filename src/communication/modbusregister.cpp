@@ -7,18 +7,18 @@ ModbusRegister::ModbusRegister()
 
 }
 
-ModbusRegister::ModbusRegister(quint32 address, quint8 connectionId, ModbusDataType::Type type)
+ModbusRegister::ModbusRegister(ModbusAddress address, quint8 connectionId, ModbusDataType::Type type)
     : _address(address), _connectionId(connectionId), _type(type)
 {
 
 }
 
-quint32 ModbusRegister::address() const
+ModbusAddress ModbusRegister::address() const
 {
     return _address;
 }
 
-void ModbusRegister::setAddress(quint32 address)
+void ModbusRegister::setAddress(ModbusAddress address)
 {
     _address = address;
 }
