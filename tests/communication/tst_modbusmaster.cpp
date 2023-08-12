@@ -54,7 +54,7 @@ void TestModbusMaster::singleRequestSuccess()
 
     ModbusMaster modbusMaster(&_settingsModel, Connection::ID_1);
 
-    QList<quint32> registerList = QList<quint32>() << 40001;
+    auto registerList = QList<ModbusAddress>() << 40001;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     for (uint i = 0; i < _cReadCount; i++)
@@ -83,7 +83,7 @@ void TestModbusMaster::singleRequestEmpty()
 
     ModbusMaster modbusMaster(&_settingsModel, Connection::ID_1);
 
-    QList<quint32> registerList;
+    QList<ModbusAddress> registerList;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     modbusMaster.readRegisterList(registerList);
@@ -105,7 +105,7 @@ void TestModbusMaster::singleRequestGatewayNotAvailable()
 
     ModbusMaster modbusMaster(&_settingsModel, Connection::ID_1);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
-    QList<quint32> registerList = QList<quint32>() << 40001;
+    auto registerList = QList<ModbusAddress>() << 40001;
 
     for (uint i = 0; i < _cReadCount; i++)
     {
@@ -132,7 +132,7 @@ void TestModbusMaster::singleRequestNoResponse()
 
     ModbusMaster modbusMaster(&_settingsModel, Connection::ID_1);
 
-    QList<quint32> registerList = QList<quint32>() << 40001;
+    auto registerList = QList<ModbusAddress>() << 40001;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     for (uint i = 0; i < _cReadCount; i++)
@@ -159,7 +159,7 @@ void TestModbusMaster::singleRequestInvalidAddressOnce()
     ModbusMaster modbusMaster(&_settingsModel, Connection::ID_1);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
-    QList<quint32> registerList = QList<quint32>() << 40001 << 40002 << 40003;
+    auto registerList = QList<ModbusAddress>() << 40001 << 40002 << 40003;
 
     _pTestSlaveData->setRegisterState(0, false);
     _pTestSlaveData->setRegisterState(1, true);
@@ -201,7 +201,7 @@ void TestModbusMaster::singleRequestInvalidAddressPersistent()
     ModbusMaster modbusMaster(&_settingsModel, Connection::ID_1);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
-    QList<quint32> registerList = QList<quint32>() << 40001;
+    auto registerList = QList<ModbusAddress>() << 40001;
 
     for (uint i = 0; i < _cReadCount; i++)
     {
@@ -236,7 +236,7 @@ void TestModbusMaster::multiRequestSuccess()
 
     ModbusMaster modbusMaster(&_settingsModel, Connection::ID_1);
 
-    QList<quint32> registerList = QList<quint32>() << 40001 << 40002 << 40004;
+    auto registerList = QList<ModbusAddress>() << 40001 << 40002 << 40004;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     for (uint i = 0; i < _cReadCount; i++)
@@ -279,7 +279,7 @@ void TestModbusMaster::multiRequestGatewayNotAvailable()
 
     ModbusMaster modbusMaster(&_settingsModel, Connection::ID_1);
 
-    QList<quint32> registerList = QList<quint32>() << 40001 << 40002 << 40004;
+    auto registerList = QList<ModbusAddress>() << 40001 << 40002 << 40004;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     for (uint i = 0; i < _cReadCount; i++)
@@ -318,7 +318,7 @@ void TestModbusMaster::multiRequestNoResponse()
 
     ModbusMaster modbusMaster(&_settingsModel, Connection::ID_1);
 
-    QList<quint32> registerList = QList<quint32>() << 40001 << 40002 << 40004;
+    auto registerList = QList<ModbusAddress>() << 40001 << 40002 << 40004;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     for (uint i = 0; i < _cReadCount; i++)
@@ -356,7 +356,7 @@ void TestModbusMaster::multiRequestInvalidAddress()
 
     ModbusMaster modbusMaster(&_settingsModel, Connection::ID_1);
 
-    QList<quint32> registerList = QList<quint32>() << 40001 << 40002 << 40004;
+    auto registerList = QList<ModbusAddress>() << 40001 << 40002 << 40004;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     for (uint i = 0; i < _cReadCount; i++)

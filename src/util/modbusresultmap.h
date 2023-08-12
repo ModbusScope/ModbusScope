@@ -2,6 +2,7 @@
 #define MODBUSRESULTMAP_H
 
 #include "result.h"
+#include "modbusaddress.h"
 #include <QObject>
 #include <QMap>
 
@@ -12,18 +13,18 @@ public:
 
     ModbusResultMap() = default;
 
-    void insert(quint32, Result<quint16>);
+    void insert(ModbusAddress key, Result<quint16>);
     void clear();
-    bool contains(const quint32 &key) const;
+    bool contains(const ModbusAddress &key) const;
 
     qsizetype size() const;
 
-    Result<quint16> value(const quint32 &key) const;
+    Result<quint16> value(const ModbusAddress &key) const;
 
     Result<quint16>& operator[](quint32);
 
 private:
-    QMap<quint32, Result<quint16>> _resultMap;
+    QMap<ModbusAddress, Result<quint16>> _resultMap;
 
 };
 

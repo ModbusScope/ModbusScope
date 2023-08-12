@@ -1,4 +1,5 @@
 #include "registervaluehandler.h"
+#include "modbusaddress.h"
 #include "settingsmodel.h"
 #include "modbusdatatype.h"
 
@@ -72,9 +73,9 @@ void RegisterValueHandler::processPartialResult(ModbusResultMap partialResultMap
 }
 
 // Get sorted list of active (unique) register addresses for a specific connection id
-void RegisterValueHandler::registerAddresList(QList<quint32>& registerList, quint8 connectionId)
+void RegisterValueHandler::registerAddresList(QList<ModbusAddress>& registerList, quint8 connectionId)
 {
-    QList<quint32> connRegisterList;
+    QList<ModbusAddress> connRegisterList;
 
     foreach(ModbusRegister mbReg, _registerList)
     {

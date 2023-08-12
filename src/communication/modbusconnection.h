@@ -1,6 +1,7 @@
 #ifndef MODBUSCONNECTION_H
 #define MODBUSCONNECTION_H
 
+#include "modbusaddress.h"
 #include <QObject>
 #include <QTimer>
 #include <QSerialPort>
@@ -58,7 +59,7 @@ public:
     void openSerialConnection(struct SerialSettings serialSettings, quint32 timeout);
     void closeConnection(void);
 
-    void sendReadRequest(quint32 regAddress, quint16 size, int serverAddress);
+    void sendReadRequest(ModbusAddress regAddress, quint16 size, int serverAddress);
 
     bool isConnected(void);
 
@@ -66,7 +67,7 @@ signals:
     void connectionSuccess(void);
     void connectionError(QModbusDevice::Error error, QString msg);
 
-    void readRequestSuccess(quint32 startRegister, QList<quint16> registerDataList);
+    void readRequestSuccess(ModbusAddress startRegister, QList<quint16> registerDataList);
     void readRequestProtocolError(QModbusPdu::ExceptionCode exceptionCode);
     void readRequestError(QString errorString, QModbusDevice::Error error);
 

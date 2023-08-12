@@ -1,12 +1,13 @@
 
 #include "modbusresultmap.h"
+#include "modbusaddress.h"
 
-void ModbusResultMap::insert(quint32 key, Result<quint16> result)
+void ModbusResultMap::insert(ModbusAddress key, Result<quint16> result)
 {
     _resultMap.insert(key, result);
 }
 
-bool ModbusResultMap::contains(const quint32 &key) const
+bool ModbusResultMap::contains(const ModbusAddress &key) const
 {
     return _resultMap.contains(key);
 }
@@ -16,7 +17,7 @@ qsizetype ModbusResultMap::size() const
     return _resultMap.size();
 }
 
-Result<quint16> ModbusResultMap::value(const quint32 &key) const
+Result<quint16> ModbusResultMap::value(const ModbusAddress &key) const
 {
     return _resultMap.value(key);
 }

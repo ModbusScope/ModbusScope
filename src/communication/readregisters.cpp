@@ -12,7 +12,7 @@ ReadRegisters::ReadRegisters()
  * \param registerList  Register read list
  * \param consecutiveMax Number of consecutive registers that is allowed to read at once
  */
-void ReadRegisters::resetRead(QList<quint32> registerList, quint16 consecutiveMax)
+void ReadRegisters::resetRead(QList<ModbusAddress> registerList, quint16 consecutiveMax)
 {
     _resultMap.clear();
 
@@ -111,7 +111,7 @@ ModbusReadItem ReadRegisters::next()
  * \param startRegister     Start register address
  * \param registerDataList  List with result data
  */
-void ReadRegisters::addSuccess(quint32 startRegister, QList<quint16> registerDataList)
+void ReadRegisters::addSuccess(ModbusAddress startRegister, QList<quint16> registerDataList)
 {
     if (
         hasNext()

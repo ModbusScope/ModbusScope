@@ -20,7 +20,7 @@ public:
     explicit ModbusMaster(SettingsModel * pSettingsModel, quint8 connectionId);
     virtual ~ModbusMaster();
 
-    void readRegisterList(QList<quint32> registerList);
+    void readRegisterList(QList<ModbusAddress> registerList);
 
     void cleanUp();
 
@@ -34,7 +34,7 @@ private slots:
     void handleConnectionOpened();
     void handlerConnectionError(QModbusDevice::Error error, QString msg);
 
-    void handleRequestSuccess(quint32 startRegister, QList<quint16> registerDataList);
+    void handleRequestSuccess(ModbusAddress startRegister, QList<quint16> registerDataList);
     void handleRequestProtocolError(QModbusPdu::ExceptionCode exceptionCode);
     void handleRequestError(QString errorString, QModbusDevice::Error error);
 
@@ -43,7 +43,7 @@ private slots:
 private:
     void finishRead(bool bError);
     QString dumpToString(ModbusResultMap map) const;
-    QString dumpToString(QList<quint32> list) const;
+    QString dumpToString(QList<ModbusAddress> list) const;
 
     void logResults(ModbusResultMap &results);
 

@@ -1,6 +1,5 @@
 #include "modbusmaster.h"
 #include "modbusresultmap.h"
-#include "result.h"
 #include "settingsmodel.h"
 #include "modbusconnection.h"
 #include "readregisters.h"
@@ -31,7 +30,7 @@ ModbusMaster::~ModbusMaster()
     _modbusConnection.closeConnection();
 }
 
-void ModbusMaster::readRegisterList(QList<quint32> registerList)
+void ModbusMaster::readRegisterList(QList<ModbusAddress> registerList)
 {
     if (_pSettingsModel->connectionState(_connectionId) == false)
     {
@@ -107,7 +106,7 @@ void ModbusMaster::handlerConnectionError(QModbusDevice::Error error, QString ms
     finishRead(true);
 }
 
-void ModbusMaster::handleRequestSuccess(quint32 startRegister, QList<quint16> registerDataList)
+void ModbusMaster::handleRequestSuccess(ModbusAddress startRegister, QList<quint16> registerDataList)
 {
     logInfo(QString("Read success"));
 
@@ -213,7 +212,7 @@ QString ModbusMaster::dumpToString(ModbusResultMap map) const
     return str;
 }
 
-QString ModbusMaster::dumpToString(QList<quint32> list) const
+QString ModbusMaster::dumpToString(QList<ModbusAddress> list) const
 {
     QString str;
     QDebug dStream(&str);
