@@ -60,20 +60,20 @@ public:
         switch (type)
         {
         case Type::SIGNED_16:
-            return "Signed 16-bit";
+            return "signed 16-bit";
             break;
         case Type::UNSIGNED_32:
-            return "Unsigned 32-bit";
+            return "unsigned 32-bit";
             break;
         case Type::SIGNED_32:
-            return "Signed 32-bit";
+            return "signed 32-bit";
             break;
         case Type::FLOAT_32:
             return "32-bit float";
             break;
         case Type::UNSIGNED_16:
         default:
-            return "Unsigned 16-bit";
+            return "unsigned 16-bit";
             break;
         }
     }
