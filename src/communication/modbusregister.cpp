@@ -47,19 +47,8 @@ QString ModbusRegister::description() const
 {
     QString connStr = QString("conn %1").arg(connectionId() + 1);
 
-    if (ModbusDataType::isFloat(_type))
-    {
-        return QString("%1, float32, %2").arg(address())
-                                        .arg(connStr);
-    }
-    else
-    {
-        QString unsignedStr = ModbusDataType::isUnsigned(_type) ? "unsigned" : "signed" ;
-        QString typeStr = ModbusDataType::is32Bit(_type) ? "32 bit" : "16 bit" ;
-
-        return QString("%1, %2, %3, %4").arg(address())
-                                        .arg(unsignedStr, typeStr, connStr);
-    }
+    return QString("%1, %2, %3").arg(address())
+                                .arg(ModbusDataType::description(_type), connStr);
 }
 
 double ModbusRegister::processValue(uint16_t lowerRegister, uint16_t upperRegister, bool int32LittleEndian) const

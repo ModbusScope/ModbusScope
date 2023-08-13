@@ -67,9 +67,9 @@ void TestModbusRegister::description()
     ModbusRegister reg_2(40002, Connection::ID_2, Type::SIGNED_32);
     ModbusRegister reg_3(40003, Connection::ID_2, Type::FLOAT_32);
 
-    QCOMPARE(reg_1.description(), "40001, unsigned, 16 bit, conn 1");
-    QCOMPARE(reg_2.description(), "40002, signed, 32 bit, conn 2");
-    QCOMPARE(reg_3.description(), "40003, float32, conn 2");
+    QCOMPARE(reg_1.description(), "40001, unsigned 16-bit, conn 1");
+    QCOMPARE(reg_2.description(), "40002, signed 32-bit, conn 2");
+    QCOMPARE(reg_3.description(), "40003, 32-bit float, conn 2");
 }
 
 void TestModbusRegister::processValue_16b_data()
