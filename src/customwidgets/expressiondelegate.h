@@ -12,30 +12,21 @@ class ExpressionDelegate : public QStyledItemDelegate
 public:
     explicit ExpressionDelegate(GraphDataModel* pGraphDataModel, QObject *parent = nullptr);
 
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+
     QSize sizeHint(const QStyleOptionViewItem &option,
                    const QModelIndex &index) const override;
 
-    QWidget *createEditor(QWidget *parent,
-                          const QStyleOptionViewItem &option,
-                          const QModelIndex &index) const override;
-
-    void setEditorData(QWidget *editor, const QModelIndex &index) const override;
-
-    void setModelData(QWidget *editor,
-                      QAbstractItemModel *model,
-                      const QModelIndex &index) const override;
-
-    void updateEditorGeometry(QWidget *editor,
-                              const QStyleOptionViewItem &option,
-                              const QModelIndex &index) const override;
+    bool editorEvent(QEvent *event, QAbstractItemModel *model,
+                     const QStyleOptionViewItem &option,
+                     const QModelIndex &index) override;
 
 signals:
     void clicked(int row);
 
-private slots:
-    void handleClicked();
-
 private:
+    QRect buttonRect(const QStyleOptionViewItem &option) const;
+
     GraphDataModel* _pGraphDataModel;
 
 };
