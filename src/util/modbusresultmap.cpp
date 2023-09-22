@@ -39,6 +39,8 @@ QDebug operator<<(QDebug debug, const ModbusResultMap &map)
     Q_UNUSED(debug);
     Q_UNUSED(map);
 
+    // TODO
+
     return debug;
     /*
     QDebugStateSaver saver(debug);

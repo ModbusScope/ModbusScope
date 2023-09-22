@@ -27,7 +27,7 @@ void TestReadRegisters::verifyAndAddErrorResult(ReadRegisters * pReadRegister, q
 void TestReadRegisters::resetRead_1()
 {
     ReadRegisters readRegister;
-    QList<quint32> registerList = QList<quint32>() << 0;
+    auto registerList = QList<ModbusAddress>() << 0;
 
     readRegister.resetRead(registerList, 255);
 
@@ -39,7 +39,7 @@ void TestReadRegisters::resetRead_1()
 void TestReadRegisters::resetRead_2()
 {
     ReadRegisters readRegister;
-    QList<quint32> registerList = QList<quint32>() << 0 << 1 << 2 << 3;
+    auto registerList = QList<ModbusAddress>() << 0 << 1 << 2 << 3;
 
     readRegister.resetRead(registerList, 255);
 
@@ -51,7 +51,7 @@ void TestReadRegisters::resetRead_2()
 void TestReadRegisters::resetReadSplit_1()
 {
     ReadRegisters readRegister;
-    QList<quint32> registerList = QList<quint32>() << 0 << 1 << 3 << 5 << 6 << 8;
+    auto registerList = QList<ModbusAddress>() << 0 << 1 << 3 << 5 << 6 << 8;
 
     readRegister.resetRead(registerList, 255);
 
@@ -66,7 +66,7 @@ void TestReadRegisters::resetReadSplit_1()
 void TestReadRegisters::resetReadSplit_2()
 {
     ReadRegisters readRegister;
-    QList<quint32> registerList = QList<quint32>() << 0 << 3;
+    auto registerList = QList<ModbusAddress>() << 0 << 3;
 
     readRegister.resetRead(registerList, 255);
 
@@ -80,7 +80,7 @@ void TestReadRegisters::resetReadSplit_2()
 void TestReadRegisters::consecutive_1()
 {
     ReadRegisters readRegister;
-    QList<quint32> registerList = QList<quint32>() << 0 << 1 << 2 << 3 << 4 << 5;
+    auto registerList = QList<ModbusAddress>() << 0 << 1 << 2 << 3 << 4 << 5;
 
     readRegister.resetRead(registerList, 3);
 
@@ -93,7 +93,7 @@ void TestReadRegisters::consecutive_1()
 void TestReadRegisters::consecutive_2()
 {
     ReadRegisters readRegister;
-    QList<quint32> registerList = QList<quint32>() << 0 << 1;
+    auto registerList = QList<ModbusAddress>() << 0 << 1;
 
     readRegister.resetRead(registerList, 5);
 
@@ -105,7 +105,7 @@ void TestReadRegisters::consecutive_2()
 void TestReadRegisters::consecutive_3()
 {
     ReadRegisters readRegister;
-    QList<quint32> registerList = QList<quint32>() << 0 << 1 << 2;
+    auto registerList = QList<ModbusAddress>() << 0 << 1 << 2;
 
     readRegister.resetRead(registerList, 2);
 
@@ -118,7 +118,7 @@ void TestReadRegisters::consecutive_3()
 void TestReadRegisters::splitNextToSingleReads_1()
 {
     ReadRegisters readRegister;
-    QList<quint32> registerList = QList<quint32>() << 0;
+    auto registerList = QList<ModbusAddress>() << 0;
 
     readRegister.resetRead(registerList, 2);
 
@@ -136,7 +136,7 @@ void TestReadRegisters::splitNextToSingleReads_1()
 void TestReadRegisters::splitNextToSingleReads_2()
 {
     ReadRegisters readRegister;
-    QList<quint32> registerList = QList<quint32>() << 0 << 1 << 2;
+    auto registerList = QList<ModbusAddress>() << 0 << 1 << 2;
 
     readRegister.resetRead(registerList, 100);
 
@@ -156,7 +156,7 @@ void TestReadRegisters::splitNextToSingleReads_2()
 void TestReadRegisters::splitNextToSingleReads_3()
 {
     ReadRegisters readRegister;
-    QList<quint32> registerList = QList<quint32>() << 0 << 1 << 2 << 5 << 6;
+    auto registerList = QList<ModbusAddress>() << 0 << 1 << 2 << 5 << 6;
 
     readRegister.resetRead(registerList, 100);
 
@@ -178,7 +178,7 @@ void TestReadRegisters::splitNextToSingleReads_3()
 void TestReadRegisters::addAllErrors()
 {
     ReadRegisters readRegister;
-    QList<quint32> registerList = QList<quint32>() << 0 << 1 << 2 << 5 << 6 << 7;
+    auto registerList = QList<ModbusAddress>() << 0 << 1 << 2 << 5 << 6 << 7;
 
     readRegister.resetRead(registerList, 100);
 
@@ -200,7 +200,7 @@ void TestReadRegisters::addAllErrors()
 void TestReadRegisters::addSuccess()
 {
     ReadRegisters readRegister;
-    QList<quint32> registerList = QList<quint32>() << 0 << 1 << 2 << 5 << 6 << 8;
+    auto registerList = QList<ModbusAddress>() << 0 << 1 << 2 << 5 << 6 << 8;
 
     readRegister.resetRead(registerList, 100);
 
@@ -230,7 +230,7 @@ void TestReadRegisters::addSuccess()
 
     for(quint16 idx = 0; idx < static_cast<quint16>(registerList.size()); idx++)
     {
-        QCOMPARE(resultMap.value(registerList[idx]).value(), registerList[idx] + 1000);
+        QCOMPARE(resultMap.value(registerList[idx]).value(), registerList[idx].next(1000));
         QVERIFY(resultMap.value(registerList[idx]).isValid());
     }
 }
@@ -239,7 +239,7 @@ void TestReadRegisters::addSuccess()
 void TestReadRegisters::addSuccessAndErrors()
 {
     ReadRegisters readRegister;
-    QList<quint32> registerList = QList<quint32>() << 0 << 1 << 5 << 8;
+    auto registerList = QList<ModbusAddress>() << 0 << 1 << 5 << 8;
 
     readRegister.resetRead(registerList, 100);
 

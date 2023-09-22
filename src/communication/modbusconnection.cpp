@@ -8,6 +8,9 @@
 #include "scopelogging.h"
 #include "modbusconnection.h"
 
+using RegisterType = QModbusDataUnit::RegisterType;
+using ObjectType = ModbusAddress::ObjectType;
+
 /*!
  * Constructor for ModbusConnection module
  */
@@ -86,7 +89,8 @@ void ModbusConnection::sendReadRequest(ModbusAddress regAddress, quint16 size, i
 {
     if (isConnected())
     {
-        QModbusDataUnit _dataUnit(QModbusDataUnit::HoldingRegisters, static_cast<int>(regAddress - 40001), size);
+        auto type = registerType(regAddress.objectType());
+        QModbusDataUnit _dataUnit(type, static_cast<int>(regAddress.address(ModbusAddress::Offset::WITHOUT_OFFSET)), size);
         _connectionList.last()->pReply = _connectionList.last()->pModbusClient->sendReadRequest(_dataUnit, serverAddress);
 
         connect(_connectionList.last()->pReply, &QModbusReply::finished, this, &ModbusConnection::handleRequestFinished);
@@ -260,7 +264,9 @@ void ModbusConnection::handleRequestFinished()
          {
              // Success
              QModbusDataUnit dataUnit = pReply->result();
-             emit readRequestSuccess(static_cast<quint32>(dataUnit.startAddress()) + 40001, dataUnit.values().toList());
+            /* TODO: depends on type */
+             auto addr = ModbusAddress(static_cast<quint32>(dataUnit.startAddress()), ModbusAddress::ObjectType::HOLDING_REGISTER);
+             emit readRequestSuccess(addr, dataUnit.values().toList());
          }
          else if (err == QModbusDevice::ProtocolError)
          {
@@ -303,6 +309,19 @@ bool ModbusConnection::prepareConnectionOpen()
     }
 
     return bRet;
+}
+
+RegisterType ModbusConnection::registerType(ObjectType type)
+{
+    switch (type)
+    {
+    case ObjectType::COIL: return RegisterType::Coils;
+    case ObjectType::DISCRETE_INPUT: return RegisterType::DiscreteInputs;
+    case ObjectType::INPUT_REGISTER: return RegisterType::InputRegisters;
+    case ObjectType::HOLDING_REGISTER: return RegisterType::HoldingRegisters;
+    case ObjectType::UNKNOWN: return RegisterType::HoldingRegisters;
+    default: return RegisterType::HoldingRegisters;
+    }
 }
 
 /*!

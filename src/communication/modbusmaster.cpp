@@ -168,7 +168,7 @@ void ModbusMaster::handleTriggerNextRequest(void)
     {
         ModbusReadItem readItem = _readRegisters.next();
 
-        logInfo("Partial list read: " + QString("Start address (%0) and count (%1)").arg(readItem.address()).arg(readItem.count()));
+        logInfo("Partial list read: " + QString("Start address (%0) and count (%1)").arg(readItem.address().toString()).arg(readItem.count()));
 
         _modbusConnection.sendReadRequest(readItem.address(), readItem.count(), _pSettingsModel->slaveId(_connectionId));
     }
@@ -217,7 +217,7 @@ QString ModbusMaster::dumpToString(QList<ModbusAddress> list) const
     QString str;
     QDebug dStream(&str);
 
-    dStream << list;
+    dStream << &list;
 
     return str;
 }

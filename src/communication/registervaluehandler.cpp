@@ -39,14 +39,14 @@ void RegisterValueHandler::processPartialResult(ModbusResultMap partialResultMap
             Result<quint16> upperRegister;
             Result<quint16> lowerRegister;
 
-            lowerRegister = partialResultMap[mbReg.address()];
+            lowerRegister = partialResultMap.value(mbReg.address());
 
             if (ModbusDataType::is32Bit(mbReg.type()))
             {
-                const quint32 addr = mbReg.address() + 1u;
+                const auto addr = mbReg.address().next();
                 if (partialResultMap.contains(addr))
                 {
-                    upperRegister = partialResultMap[addr];
+                    upperRegister = partialResultMap.value(addr);
                 }
             }
             else
@@ -89,7 +89,7 @@ void RegisterValueHandler::registerAddresList(QList<ModbusAddress>& registerList
             /* When reading 32 bit value, also read next address */
             if (ModbusDataType::is32Bit(mbReg.type()))
             {
-                const quint32 reg = mbReg.address() + 1;
+                const auto reg = mbReg.address().next();
                 if (!connRegisterList.contains(reg))
                 {
                     connRegisterList.append(reg);
@@ -99,7 +99,7 @@ void RegisterValueHandler::registerAddresList(QList<ModbusAddress>& registerList
     }
 
     // sort qList
-    std::sort(connRegisterList.begin(), connRegisterList.end(), std::less<int>());
+    std::sort(connRegisterList.begin(), connRegisterList.end(), std::less<ModbusAddress>());
 
     registerList = connRegisterList;
 }

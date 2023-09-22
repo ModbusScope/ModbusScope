@@ -3,6 +3,8 @@
 
 #include "tst_modbusconnection.h"
 
+Q_DECLARE_METATYPE(ModbusAddress);
+
 void TestModbusConnection::init()
 {
     qRegisterMetaType<QModbusDevice::Error>("QModbusDevice::Error");
@@ -145,7 +147,9 @@ void TestModbusConnection::readRequestSuccess()
 
 
     /* Check start address */
-    QCOMPARE(arguments.first().toUInt(), 40001);
+    QVERIFY((arguments[0].canConvert<ModbusAddress>()));
+    auto resultAddr = arguments[0].value<ModbusAddress>();
+    QCOMPARE(resultAddr.address(ModbusAddress::Offset::WITH_OFFSET), 40001);
 
     /* Check result */
     QVERIFY((arguments[1].canConvert<QList<quint16> >()));
