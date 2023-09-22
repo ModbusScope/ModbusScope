@@ -41,19 +41,6 @@ ModbusAddress::ModbusAddress(quint16 address)
 
 }
 
-ModbusAddress::ModbusAddress(const ModbusAddress& t)
-    : _address(t._address), _type(t._type)
-{
-
-}
-
-ModbusAddress& ModbusAddress::operator=(const ModbusAddress& other)
-{
-    this->_address = other._address;
-    this->_type = other._type;
-    return *this;
-}
-
 ModbusAddress::ObjectType ModbusAddress::objectType() const
 {
     return _type;

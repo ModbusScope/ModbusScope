@@ -26,9 +26,11 @@ public:
     ModbusAddress();
     ModbusAddress(quint16 address, ModbusAddress::ObjectType type);
     ModbusAddress(quint16 address);
-    ModbusAddress(const ModbusAddress& t);
+    ModbusAddress(const ModbusAddress& t) = default;
 
-    ModbusAddress& operator=(const ModbusAddress& other);
+    ~ModbusAddress() = default;
+
+    ModbusAddress& operator=(const ModbusAddress& other) = default;
 
     ModbusAddress::ObjectType objectType() const;
     quint16 address(Offset offset) const;
