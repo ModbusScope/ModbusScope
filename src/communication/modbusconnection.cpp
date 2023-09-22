@@ -262,10 +262,8 @@ void ModbusConnection::handleRequestFinished()
      {
          if (err == QModbusDevice::NoError)
          {
-             // Success
              QModbusDataUnit dataUnit = pReply->result();
-            /* TODO: depends on type */
-             auto addr = ModbusAddress(static_cast<quint32>(dataUnit.startAddress()), ModbusAddress::ObjectType::HOLDING_REGISTER);
+             auto addr = ModbusAddress(static_cast<quint32>(dataUnit.startAddress()), objectType(dataUnit.registerType()));
              emit readRequestSuccess(addr, dataUnit.values().toList());
          }
          else if (err == QModbusDevice::ProtocolError)
@@ -321,6 +319,18 @@ RegisterType ModbusConnection::registerType(ObjectType type)
     case ObjectType::HOLDING_REGISTER: return RegisterType::HoldingRegisters;
     case ObjectType::UNKNOWN: return RegisterType::HoldingRegisters;
     default: return RegisterType::HoldingRegisters;
+    }
+}
+
+ObjectType ModbusConnection::objectType(RegisterType type)
+{
+    switch (type)
+    {
+    case RegisterType::Coils: return ObjectType::COIL;
+    case RegisterType::DiscreteInputs: return ObjectType::DISCRETE_INPUT;
+    case RegisterType::InputRegisters: return ObjectType::INPUT_REGISTER;
+    case RegisterType::HoldingRegisters: return ObjectType::HOLDING_REGISTER;
+    default: return ObjectType::UNKNOWN;
     }
 }
 
