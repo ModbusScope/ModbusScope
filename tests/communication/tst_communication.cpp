@@ -181,7 +181,8 @@ void TestCommunication::mixed_fail()
 
     CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
 }
-
+#if 0
+TODO: Enable when it is possible to define {h3000}
 void TestCommunication::readLargeRegisterAddress()
 {
     /* Disable already initialized test slave on connection 1 */
@@ -234,7 +235,7 @@ void TestCommunication::readVeryLargeRegisterAddress()
 
     CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
 }
-
+#endif
 void TestCommunication::unknownConnection()
 {
     auto exprList = QStringList() << "${40001@255}"

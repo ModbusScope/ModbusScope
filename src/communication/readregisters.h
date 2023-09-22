@@ -17,7 +17,7 @@ public:
     quint8 count(void) { return _count; }
 
 private:
-    ModbusAddress _address{0};
+    ModbusAddress _address{0, ModbusAddress::ObjectType::UNKNOWN};
     quint8 _count{};
 
 };

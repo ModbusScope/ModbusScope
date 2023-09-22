@@ -11,7 +11,7 @@ class ModbusResultMap
 
 public:
 
-    ModbusResultMap() = default;
+    ModbusResultMap() noexcept = default;
 
     void insert(ModbusAddress key, Result<quint16>);
     void clear();

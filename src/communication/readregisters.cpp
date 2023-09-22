@@ -21,9 +21,12 @@ void ReadRegisters::resetRead(QList<ModbusAddress> registerList, quint16 consecu
         _readItemList.clear();
     }
 
+    // TODO: split list in coil and holding register?
+
     while(registerList.size() > 0)
     {
         if (
+            // TODO: Change check to verify one of a type
             (registerList.size() == 1)
             || (consecutiveMax == 1)
         )
@@ -42,7 +45,7 @@ void ReadRegisters::resetRead(QList<ModbusAddress> registerList, quint16 consecu
             {
 
                 // if next is current + 1, dan subsequent = true
-                if (registerList.at(currentIdx) + 1 == registerList.at(currentIdx + 1))
+                if (registerList.at(currentIdx).next() == registerList.at(currentIdx + 1))
                 {
                     bSubsequent = true;
                     currentIdx++;
@@ -121,7 +124,7 @@ void ReadRegisters::addSuccess(ModbusAddress startRegister, QList<quint16> regis
     {
         for (qint32 i = 0; i < registerDataList.size(); i++)
         {
-            const quint32 registerAddr = startRegister + static_cast<quint32>(i);
+            const auto registerAddr = startRegister.next(i);
             const auto result = Result<quint16>(registerDataList[i], State::SUCCESS);
 
             _resultMap.insert(registerAddr, result);
@@ -141,7 +144,7 @@ void ReadRegisters::addError()
         auto nextRequestData = next();
         for (quint32 i = 0; i < nextRequestData.count(); i++)
         {
-            const quint32 registerAddr = nextRequestData.address() + static_cast<quint32>(i);
+            const auto registerAddr = nextRequestData.address().next(i);
             const auto result = Result<quint16>(0, State::INVALID);
 
             _resultMap.insert(registerAddr, result);
@@ -175,7 +178,7 @@ void ReadRegisters::splitNextToSingleReads()
 
         for(int idx = firstItem.count(); idx > 0; idx--)
         {
-            _readItemList.prepend(ModbusReadItem(firstItem.address() + static_cast<quint32>(idx - 1), 1));
+            _readItemList.prepend(ModbusReadItem(firstItem.address().next(idx - 1), 1));
         }
     }
 }
