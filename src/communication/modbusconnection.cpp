@@ -263,7 +263,7 @@ void ModbusConnection::handleRequestFinished()
          if (err == QModbusDevice::NoError)
          {
              QModbusDataUnit dataUnit = pReply->result();
-             auto addr = ModbusAddress(static_cast<quint32>(dataUnit.startAddress()), objectType(dataUnit.registerType()));
+             auto addr = ModbusAddress(static_cast<quint16>(dataUnit.startAddress()), objectType(dataUnit.registerType()));
              emit readRequestSuccess(addr, dataUnit.values().toList());
          }
          else if (err == QModbusDevice::ProtocolError)
