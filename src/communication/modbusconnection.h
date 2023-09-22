@@ -86,6 +86,7 @@ private slots:
 private:
 
     QModbusDataUnit::RegisterType registerType(ModbusAddress::ObjectType type);
+    ModbusAddress::ObjectType objectType(QModbusDataUnit::RegisterType type);
     void handleConnectionError(QPointer<ConnectionData> connectionData, QString errMsg);
     qint32 findConnectionData(QTimer * pTimer, QModbusClient * pClient);
 
