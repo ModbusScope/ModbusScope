@@ -2,7 +2,7 @@
 #define EXPRESSIONSDIALOG_H
 
 #include <QDialog>
-#include "graphdatahandler.h"
+#include "expressionchecker.h"
 #include "graphdatamodel.h"
 
 /* Forward declaration */
@@ -25,7 +25,7 @@ private slots:
     void handleInputChange();
     void handleCancel();
     void handleAccept();
-    void handleDataReady(ResultDoubleList resultList);
+    void handleResultReady();
 
 private:
 
@@ -34,9 +34,8 @@ private:
     qint32 _graphIdx;
 
     GraphDataModel* _pGraphDataModel;
-    GraphDataModel _localGraphDataModel;
-    GraphDataHandler _graphDataHandler;
 
+    ExpressionChecker _expressionChecker;
     ExpressionHighlighting *_pHighlighter;
 
     bool _bUpdating;
