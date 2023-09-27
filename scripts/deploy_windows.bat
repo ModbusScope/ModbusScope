@@ -21,10 +21,10 @@ IF ERRORLEVEL 1 GOTO errorHandling
 REM Add OpenSSL dll's
 echo "OPENSSL_DIR: %OPENSSL_DIR%"
 
-xcopy "%OPENSSL_DIR%\libcrypto-1_1-x64.dll" .
+xcopy "%OPENSSL_DIR%\libcrypto-3-x64.dll" .
 IF ERRORLEVEL 1 GOTO errorHandling
 
-xcopy "%OPENSSL_DIR%\libssl-1_1-x64.dll" .
+xcopy "%OPENSSL_DIR%\libssl-3-x64.dll" .
 IF ERRORLEVEL 1 GOTO errorHandling
 
 cd ..
