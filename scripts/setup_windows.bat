@@ -31,7 +31,7 @@ REM Install Tools
 aqt install-tool --outputdir %QT_INSTALL_DIR% %QT_HOST% %QT_TARGET% tools_mingw90
 aqt install-tool --outputdir %QT_INSTALL_DIR% %QT_HOST% %QT_TARGET% tools_cmake
 aqt install-tool --outputdir %QT_INSTALL_DIR% %QT_HOST% %QT_TARGET% tools_ninja
-aqt install-tool --outputdir %QT_INSTALL_DIR% %QT_HOST% %QT_TARGET% tools_openssl_x64
+aqt install-tool --outputdir %QT_INSTALL_DIR% %QT_HOST% %QT_TARGET% tools_opensslv3_x64
 
 :cache_hit
 
@@ -50,4 +50,4 @@ set "QML_IMPORT_PATH=%QT_INSTALL_DIR%\%QT%\%QT_ARCH_PATH%\qml\"
 set "QML2_IMPORT_PATH=%QT_INSTALL_DIR%\%QT%\%QT_ARCH_PATH%\qml\"
 set "CMAKE_PREFIX_PATH=%QT_INSTALL_DIR%\%QT%\%QT_ARCH_PATH%\lib\cmake\Qt6"
 
-set "OPENSSL_DIR=%QT_INSTALL_DIR%\Tools\OpenSSL\Win_x64\bin"
+set "OPENSSL_DIR=%QT_INSTALL_DIR%\Tools\OpenSSLv3\Win_x64\bin"
