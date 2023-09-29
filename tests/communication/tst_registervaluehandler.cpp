@@ -151,6 +151,22 @@ void TestRegisterValueHandler::addressListMultipleConnections()
     QVERIFY(actualRegisterList1 == expRegisterList1);
 }
 
+void TestRegisterValueHandler::addressListMixedObjects()
+{
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(0, Connection::ID_1, Type::UNSIGNED_16)
+                                                   << ModbusRegister(30002, Connection::ID_1, Type::UNSIGNED_16)
+                                                   << ModbusRegister(40002, Connection::ID_1, Type::UNSIGNED_16)   ;
+    auto expRegisterList = QList<ModbusAddress>() << 0 << 30002 << 40002;
+
+    RegisterValueHandler regHandler(_pSettingsModel);
+    regHandler.setRegisters(modbusRegisters);
+
+    QList<ModbusAddress> actualRegisterList;
+    regHandler.registerAddresList(actualRegisterList, Connection::ID_1);
+
+    QVERIFY(actualRegisterList == expRegisterList);
+}
+
 void TestRegisterValueHandler::read_16()
 {
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(40001, Connection::ID_1, Type::UNSIGNED_16)

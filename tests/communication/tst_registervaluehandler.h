@@ -22,6 +22,7 @@ private slots:
     void addressList_float32_multiple();
     void addressListCombinations();
     void addressListMultipleConnections();
+    void addressListMixedObjects();
 
     void read_16();
     void read_32();
