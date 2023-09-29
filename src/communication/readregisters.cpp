@@ -21,12 +21,9 @@ void ReadRegisters::resetRead(QList<ModbusAddress> registerList, quint16 consecu
         _readItemList.clear();
     }
 
-    // TODO: split list in coil and holding register?
-
     while(registerList.size() > 0)
     {
         if (
-            // TODO: Change check to verify one of a type
             (registerList.size() == 1)
             || (consecutiveMax == 1)
         )

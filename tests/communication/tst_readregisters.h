@@ -7,6 +7,8 @@
 /* Forward declaration */
 class ReadRegisters;
 
+#include "modbusaddress.h"
+
 class TestReadRegisters: public QObject
 {
     Q_OBJECT
@@ -18,6 +20,9 @@ private slots:
     void resetRead_2();
     void resetReadSplit_1();
     void resetReadSplit_2();
+
+    void resetReadDifferentObjectTypes_1();
+    void resetReadDifferentObjectTypes_2();
 
     void consecutive_1();
     void consecutive_2();
@@ -31,10 +36,9 @@ private slots:
     void addSuccess();
     void addSuccessAndErrors();
 
-
 private:
 
-    void verifyAndAddErrorResult(ReadRegisters * pReadRegister, quint32 addr, quint16 cnt);
+    void verifyAndAddErrorResult(ReadRegisters& readRegister, ModbusAddress addr, quint16 cnt);
 
 };
 

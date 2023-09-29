@@ -5,6 +5,8 @@
 
 #include "readregisters.h"
 
+using ObjectType = ModbusAddress::ObjectType;
+
 void TestReadRegisters::init()
 {
 
@@ -15,13 +17,15 @@ void TestReadRegisters::cleanup()
 
 }
 
-void TestReadRegisters::verifyAndAddErrorResult(ReadRegisters * pReadRegister, quint32 addr, quint16 cnt)
+void TestReadRegisters::verifyAndAddErrorResult(ReadRegisters& readRegister, ModbusAddress addr, quint16 cnt)
 {
-    QVERIFY(pReadRegister->hasNext());
-    QCOMPARE(pReadRegister->next().address(), addr);
-    QCOMPARE(pReadRegister->next().count(), cnt);
+    QVERIFY(readRegister.hasNext());
 
-    pReadRegister->addError();
+    auto object = readRegister.next();
+    QCOMPARE(object.address(), addr);
+    QCOMPARE(object.count(), cnt);
+
+    readRegister.addError();
 }
 
 void TestReadRegisters::resetRead_1()
@@ -31,7 +35,7 @@ void TestReadRegisters::resetRead_1()
 
     readRegister.resetRead(registerList, 255);
 
-    verifyAndAddErrorResult(&readRegister, 0, 1);
+    verifyAndAddErrorResult(readRegister, 0, 1);
 
     QVERIFY(!readRegister.hasNext());
 }
@@ -43,7 +47,7 @@ void TestReadRegisters::resetRead_2()
 
     readRegister.resetRead(registerList, 255);
 
-    verifyAndAddErrorResult(&readRegister, 0, 4);
+    verifyAndAddErrorResult(readRegister, 0, 4);
 
     QVERIFY(!readRegister.hasNext());
 }
@@ -55,10 +59,10 @@ void TestReadRegisters::resetReadSplit_1()
 
     readRegister.resetRead(registerList, 255);
 
-    verifyAndAddErrorResult(&readRegister, 0, 2);
-    verifyAndAddErrorResult(&readRegister, 3, 1);
-    verifyAndAddErrorResult(&readRegister, 5, 2);
-    verifyAndAddErrorResult(&readRegister, 8, 1);
+    verifyAndAddErrorResult(readRegister, 0, 2);
+    verifyAndAddErrorResult(readRegister, 3, 1);
+    verifyAndAddErrorResult(readRegister, 5, 2);
+    verifyAndAddErrorResult(readRegister, 8, 1);
 
     QVERIFY(!readRegister.hasNext());
 }
@@ -70,12 +74,49 @@ void TestReadRegisters::resetReadSplit_2()
 
     readRegister.resetRead(registerList, 255);
 
-    verifyAndAddErrorResult(&readRegister, 0, 1);
-    verifyAndAddErrorResult(&readRegister, 3, 1);
+    verifyAndAddErrorResult(readRegister, 0, 1);
+    verifyAndAddErrorResult(readRegister, 3, 1);
 
     QVERIFY(!readRegister.hasNext());
 }
 
+void TestReadRegisters::resetReadDifferentObjectTypes_1()
+{
+    ReadRegisters readRegister;
+    auto registerList = QList<ModbusAddress>() << ModbusAddress(0, ObjectType::COIL)
+                                               << ModbusAddress(1, ObjectType::COIL)
+                                               << ModbusAddress(0, ObjectType::HOLDING_REGISTER)
+                                               << ModbusAddress(2, ObjectType::HOLDING_REGISTER);
+
+    readRegister.resetRead(registerList, 255);
+
+    verifyAndAddErrorResult(readRegister, ModbusAddress(0, ObjectType::COIL), 2);
+    verifyAndAddErrorResult(readRegister, ModbusAddress(0, ObjectType::HOLDING_REGISTER), 1);
+    verifyAndAddErrorResult(readRegister, ModbusAddress(2, ObjectType::HOLDING_REGISTER), 1);
+
+    QVERIFY(!readRegister.hasNext());
+}
+
+void TestReadRegisters::resetReadDifferentObjectTypes_2()
+{
+    ReadRegisters readRegister;
+    auto registerList = QList<ModbusAddress>() << ModbusAddress(10000)
+                                               << ModbusAddress(10001)
+                                               << ModbusAddress(10002)
+                                               << ModbusAddress(40000)
+                                               << ModbusAddress(40001)
+                                               << ModbusAddress(40002)
+                                               ;
+
+    readRegister.resetRead(registerList, 255);
+
+    verifyAndAddErrorResult(readRegister, ModbusAddress(10000), 1);
+    verifyAndAddErrorResult(readRegister, ModbusAddress(10001), 2);
+    verifyAndAddErrorResult(readRegister, ModbusAddress(40000), 1);
+    verifyAndAddErrorResult(readRegister, ModbusAddress(40001), 2);
+
+    QVERIFY(!readRegister.hasNext());
+}
 
 void TestReadRegisters::consecutive_1()
 {
@@ -84,8 +125,8 @@ void TestReadRegisters::consecutive_1()
 
     readRegister.resetRead(registerList, 3);
 
-    verifyAndAddErrorResult(&readRegister, 0, 3);
-    verifyAndAddErrorResult(&readRegister, 3, 3);
+    verifyAndAddErrorResult(readRegister, 0, 3);
+    verifyAndAddErrorResult(readRegister, 3, 3);
 
     QVERIFY(!readRegister.hasNext());
 }
@@ -97,7 +138,7 @@ void TestReadRegisters::consecutive_2()
 
     readRegister.resetRead(registerList, 5);
 
-    verifyAndAddErrorResult(&readRegister, 0, 2);
+    verifyAndAddErrorResult(readRegister, 0, 2);
 
     QVERIFY(!readRegister.hasNext());
 }
@@ -109,8 +150,8 @@ void TestReadRegisters::consecutive_3()
 
     readRegister.resetRead(registerList, 2);
 
-    verifyAndAddErrorResult(&readRegister, 0, 2);
-    verifyAndAddErrorResult(&readRegister, 2, 1);
+    verifyAndAddErrorResult(readRegister, 0, 2);
+    verifyAndAddErrorResult(readRegister, 2, 1);
 
     QVERIFY(!readRegister.hasNext());
 }
@@ -128,7 +169,7 @@ void TestReadRegisters::splitNextToSingleReads_1()
 
     readRegister.splitNextToSingleReads();
 
-    verifyAndAddErrorResult(&readRegister, 0, 1);
+    verifyAndAddErrorResult(readRegister, 0, 1);
 
     QVERIFY(!readRegister.hasNext());
 }
@@ -146,9 +187,9 @@ void TestReadRegisters::splitNextToSingleReads_2()
 
     readRegister.splitNextToSingleReads();
 
-    verifyAndAddErrorResult(&readRegister, 0, 1);
-    verifyAndAddErrorResult(&readRegister, 1, 1);
-    verifyAndAddErrorResult(&readRegister, 2, 1);
+    verifyAndAddErrorResult(readRegister, 0, 1);
+    verifyAndAddErrorResult(readRegister, 1, 1);
+    verifyAndAddErrorResult(readRegister, 2, 1);
 
     QVERIFY(!readRegister.hasNext());
 }
@@ -166,11 +207,11 @@ void TestReadRegisters::splitNextToSingleReads_3()
 
     readRegister.splitNextToSingleReads();
 
-    verifyAndAddErrorResult(&readRegister, 0, 1);
-    verifyAndAddErrorResult(&readRegister, 1, 1);
-    verifyAndAddErrorResult(&readRegister, 2, 1);
+    verifyAndAddErrorResult(readRegister, 0, 1);
+    verifyAndAddErrorResult(readRegister, 1, 1);
+    verifyAndAddErrorResult(readRegister, 2, 1);
 
-    verifyAndAddErrorResult(&readRegister, 5, 2);
+    verifyAndAddErrorResult(readRegister, 5, 2);
 
     QVERIFY(!readRegister.hasNext());
 }
@@ -234,7 +275,6 @@ void TestReadRegisters::addSuccess()
         QVERIFY(resultMap.value(registerList[idx]).isValid());
     }
 }
-
 
 void TestReadRegisters::addSuccessAndErrors()
 {
