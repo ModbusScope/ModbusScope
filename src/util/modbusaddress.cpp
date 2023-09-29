@@ -123,11 +123,47 @@ bool operator== (const ModbusAddress& addr1, const ModbusAddress& addr2)
 
 bool operator< (const ModbusAddress& reg1, const ModbusAddress& reg2)
 {
-    return reg1.address(ModbusAddress::Offset::WITH_OFFSET) < reg2.address(ModbusAddress::Offset::WITH_OFFSET);
+    if (reg1._type < reg2._type)
+    {
+        return true;
+    }
+    else if (reg1._type == reg2._type)
+    {
+        if (reg1._address < reg2._address)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+    {
+        return false;
+    }
 }
 
 bool operator> (const ModbusAddress& reg1, const ModbusAddress& reg2)
 {
-    return reg1.address(ModbusAddress::Offset::WITH_OFFSET) > reg2.address(ModbusAddress::Offset::WITH_OFFSET);
+    if (reg1._type > reg2._type)
+    {
+        return true;
+    }
+    else if (reg1._type == reg2._type)
+    {
+        if (reg1._address > reg2._address)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+    {
+        return false;
+    }
 }
 

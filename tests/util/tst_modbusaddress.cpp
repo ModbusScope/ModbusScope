@@ -130,4 +130,19 @@ void TestModbusAddress::smaller()
     QVERIFY(!(addr_4 < addr_3));
 }
 
+void TestModbusAddress::sort_large_object_address()
+{
+    auto act_addrList = QList<ModbusAddress>() << ModbusAddress(0, ObjectType::HOLDING_REGISTER)
+                                               << ModbusAddress(40200, ObjectType::COIL); // Large coil address
+
+
+    auto exp_addrList = QList<ModbusAddress>() << ModbusAddress(40200, ObjectType::COIL) // Coils always come first
+                                               << ModbusAddress(0, ObjectType::HOLDING_REGISTER);
+
+
+    std::sort(act_addrList.begin(), act_addrList.end(), std::less<ModbusAddress>());
+
+    QCOMPARE(act_addrList, exp_addrList);
+}
+
 QTEST_GUILESS_MAIN(TestModbusAddress)

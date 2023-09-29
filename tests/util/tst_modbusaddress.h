@@ -23,6 +23,8 @@ private slots:
     void greater();
     void smaller();
 
+    void sort_large_object_address();
+
 private:
 
 
