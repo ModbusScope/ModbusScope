@@ -1,8 +1,8 @@
 #include "testslavemodbus.h"
 
-TestSlaveModbus::TestSlaveModbus(TestSlaveData *pTestSlaveData, QObject *parent) : QModbusTcpServer(parent)
+TestSlaveModbus::TestSlaveModbus(ModbusDataMap &testSlaveData, QObject *parent)
+    : QModbusTcpServer(parent), _testSlaveData(testSlaveData)
 {
-    _pTestSlaveData = pTestSlaveData;
     _exceptionCode = static_cast<QModbusPdu::ExceptionCode>(0);
     _bExceptionPersistent = false;
 }
@@ -34,7 +34,7 @@ void TestSlaveModbus::setException(QModbusPdu::ExceptionCode exception, bool bPe
 
 bool TestSlaveModbus::readData(QModbusDataUnit *newData) const
 {
-    if (!verifyValidHoldingRegister(newData))
+    if (!verifyValidObject(newData))
     {
         return false;
     }
@@ -43,12 +43,12 @@ bool TestSlaveModbus::readData(QModbusDataUnit *newData) const
     {
         const uint regAddress = static_cast<uint>(newData->startAddress()) + idx;
 
-        if (!_pTestSlaveData->registerState(regAddress))
+        if (!_testSlaveData[newData->registerType()]->registerState(regAddress))
         {
             return false;
         }
 
-        newData->setValue(idx, _pTestSlaveData->registerValue(regAddress));
+        newData->setValue(idx, _testSlaveData[newData->registerType()]->registerValue(regAddress));
     }
 
     return true;
@@ -56,33 +56,13 @@ bool TestSlaveModbus::readData(QModbusDataUnit *newData) const
 
 bool TestSlaveModbus::setMap(const QModbusDataUnitMap &map)
 {
-    if (!map.keys().contains(QModbusDataUnit::HoldingRegisters))
-    {
-        return false;
-    }
-
-    QModbusDataUnit holdingReg = map.value(QModbusDataUnit::HoldingRegisters);
-
-    if (!verifyValidHoldingRegister(&holdingReg))
-    {
-        return false;
-    }
-
-    for(uint idx = 0; idx < static_cast<uint>(holdingReg.valueCount()); idx++)
-    {
-        const uint regAddress = static_cast<uint>(holdingReg.startAddress()) + idx;
-        _pTestSlaveData->setRegisterState(regAddress, true);
-        _pTestSlaveData->setRegisterValue(regAddress, holdingReg.value(regAddress));
-    }
-
-    emit dataWritten(holdingReg.registerType(), holdingReg.startAddress(), holdingReg.valueCount());
-
-    return true;
+    Q_UNUSED(map);
+    return false; /* Not implemented */
 }
 
 bool TestSlaveModbus::writeData(const QModbusDataUnit &newData)
 {
-    if (!verifyValidHoldingRegister(&newData))
+    if (!verifyValidObject(&newData))
     {
         return false;
     }
@@ -90,8 +70,8 @@ bool TestSlaveModbus::writeData(const QModbusDataUnit &newData)
     for(uint idx = 0; idx < static_cast<uint>(newData.valueCount()); idx++)
     {
         const uint regAddress = static_cast<uint>(newData.startAddress()) + idx;
-        _pTestSlaveData->setRegisterState(regAddress, true);
-        _pTestSlaveData->setRegisterValue(regAddress, newData.value(regAddress));
+        _testSlaveData[newData.registerType()]->setRegisterState(regAddress, true);
+        _testSlaveData[newData.registerType()]->setRegisterValue(regAddress, newData.value(regAddress));
     }
 
     emit dataWritten(newData.registerType(), newData.startAddress(), newData.valueCount());
@@ -122,12 +102,12 @@ QModbusResponse TestSlaveModbus::processRequest(const QModbusPdu &request)
     return response;
 }
 
-bool TestSlaveModbus::verifyValidHoldingRegister(QModbusDataUnit const * dataUnit) const
+bool TestSlaveModbus::verifyValidObject(QModbusDataUnit const * dataUnit) const
 {
     if (
         dataUnit->isValid()
-        && dataUnit->registerType() == QModbusDataUnit::HoldingRegisters
-        && _pTestSlaveData->IsValidAddress(static_cast<quint32>(dataUnit->startAddress()), static_cast<quint32>(dataUnit->valueCount()))
+        && _testSlaveData.contains(dataUnit->registerType())
+        && _testSlaveData[dataUnit->registerType()]->IsValidAddress(static_cast<quint32>(dataUnit->startAddress()), static_cast<quint32>(dataUnit->valueCount()))
         )
     {
         return true;

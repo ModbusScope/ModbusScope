@@ -27,7 +27,7 @@ private:
 
     ModbusConnection::TcpSettings constructTcpSettings(QString ip, qint32 port);
 
-    QPointer<TestSlaveData> _pTestSlaveData;
+    TestSlaveModbus::ModbusDataMap _testSlaveData;
     QPointer<TestSlaveModbus> _pTestSlaveModbus;
 
     quint8 _slaveId;

@@ -28,7 +28,7 @@ private slots:
 
 private:
 
-    QPointer<TestSlaveData> _pTestSlaveData;
+    TestSlaveModbus::ModbusDataMap _testSlaveData;
     QPointer<TestSlaveModbus> _pTestSlaveModbus;
 
     SettingsModel _settingsModel;

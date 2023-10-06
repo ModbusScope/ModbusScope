@@ -13,17 +13,18 @@ void TestModbusConnection::init()
     _serverConnectionData.setPort(5020);
     _serverConnectionData.setHost("127.0.0.1");
 
-    if (!_pTestSlaveData.isNull())
+    if (!_testSlaveData.isEmpty())
     {
-        delete _pTestSlaveData;
+        qDeleteAll(_testSlaveData);
+        _testSlaveData.clear();
     }
     if (!_pTestSlaveModbus.isNull())
     {
         delete _pTestSlaveModbus;
     }
 
-    _pTestSlaveData = new TestSlaveData();
-    _pTestSlaveModbus= new TestSlaveModbus(_pTestSlaveData);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters] = new TestSlaveData();
+    _pTestSlaveModbus = new TestSlaveModbus(_testSlaveData);
 
     /* Server not started */
 }
@@ -32,7 +33,11 @@ void TestModbusConnection::cleanup()
 {
     _pTestSlaveModbus->disconnectDevice();
 
-    delete _pTestSlaveData;
+    if (!_testSlaveData.isEmpty())
+    {
+        qDeleteAll(_testSlaveData);
+        _testSlaveData.clear();
+    }
     delete _pTestSlaveModbus;
 }
 
@@ -114,11 +119,11 @@ void TestModbusConnection::readRequestSuccess()
     /* Start server */
     QVERIFY(_pTestSlaveModbus->connect(_serverConnectionData, _slaveId));
 
-    _pTestSlaveData->setRegisterState(0, true);
-    _pTestSlaveData->setRegisterState(1, true);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(0, true);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(1, true);
 
-    _pTestSlaveData->setRegisterValue(0, 0);
-    _pTestSlaveData->setRegisterValue(1, 1);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(0, 0);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(1, 1);
 
     /* Open connection */
     ModbusConnection * pConnection = new ModbusConnection(this);
@@ -165,11 +170,11 @@ void TestModbusConnection::readRequestProtocolError()
     /* Start server */
     QVERIFY(_pTestSlaveModbus->connect(_serverConnectionData, _slaveId));
 
-    _pTestSlaveData->setRegisterState(0, false);
-    _pTestSlaveData->setRegisterState(1, true);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(0, false);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(1, true);
 
-    _pTestSlaveData->setRegisterValue(0, 0);
-    _pTestSlaveData->setRegisterValue(1, 1);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(0, 0);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(1, 1);
 
     /* Open connection */
     ModbusConnection * pConnection = new ModbusConnection(this);
