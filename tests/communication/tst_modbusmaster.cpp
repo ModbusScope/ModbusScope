@@ -24,33 +24,38 @@ void TestModbusMaster::init()
     _serverConnectionData.setPort(_settingsModel.port(Connection::ID_1));
     _serverConnectionData.setHost(_settingsModel.ipAddress(Connection::ID_1));
 
-    if (!_pTestSlaveData.isNull())
+    if (!_testSlaveData.isEmpty())
     {
-        delete _pTestSlaveData;
+        qDeleteAll(_testSlaveData);
+        _testSlaveData.clear();
     }
+
     if (!_pTestSlaveModbus.isNull())
     {
         delete _pTestSlaveModbus;
     }
 
-    _pTestSlaveData = new TestSlaveData();
-    _pTestSlaveModbus= new TestSlaveModbus(_pTestSlaveData);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters] = new TestSlaveData();
+    _pTestSlaveModbus = new TestSlaveModbus(_testSlaveData);
 
     QVERIFY(_pTestSlaveModbus->connect(_serverConnectionData, _settingsModel.slaveId(Connection::ID_1)));
-
 }
 
 void TestModbusMaster::cleanup()
 {
     _pTestSlaveModbus->disconnectDevice();
 
-    delete _pTestSlaveData;
+    if (!_testSlaveData.isEmpty())
+    {
+        qDeleteAll(_testSlaveData);
+        _testSlaveData.clear();
+    }
     delete _pTestSlaveModbus;
 }
 
 void TestModbusMaster::singleRequestSuccess()
 {
-    _pTestSlaveData->setRegisterState(0, true);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(0, true);
 
     ModbusMaster modbusMaster(&_settingsModel, Connection::ID_1);
 
@@ -79,7 +84,7 @@ void TestModbusMaster::singleRequestSuccess()
 
 void TestModbusMaster::singleRequestEmpty()
 {
-    _pTestSlaveData->setRegisterState(0, true);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(0, true);
 
     ModbusMaster modbusMaster(&_settingsModel, Connection::ID_1);
 
@@ -161,12 +166,12 @@ void TestModbusMaster::singleRequestInvalidAddressOnce()
 
     auto registerList = QList<ModbusAddress>() << 40001 << 40002 << 40003;
 
-    _pTestSlaveData->setRegisterState(0, false);
-    _pTestSlaveData->setRegisterState(1, true);
-    _pTestSlaveData->setRegisterState(2, true);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(0, false);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(1, true);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(2, true);
 
-    _pTestSlaveData->setRegisterValue(1, 1);
-    _pTestSlaveData->setRegisterValue(2, 2);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(1, 1);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(2, 2);
 
     for (uint i = 0; i < _cReadCount; i++)
     {
@@ -226,13 +231,13 @@ void TestModbusMaster::singleRequestInvalidAddressPersistent()
 
 void TestModbusMaster::multiRequestSuccess()
 {
-    _pTestSlaveData->setRegisterState(0, true);
-    _pTestSlaveData->setRegisterState(1, true);
-    _pTestSlaveData->setRegisterState(3, true);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(0, true);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(1, true);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(3, true);
 
-    _pTestSlaveData->setRegisterValue(0, 0);
-    _pTestSlaveData->setRegisterValue(1, 1);
-    _pTestSlaveData->setRegisterValue(3, 3);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(0, 0);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(1, 1);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(3, 3);
 
     ModbusMaster modbusMaster(&_settingsModel, Connection::ID_1);
 
@@ -269,13 +274,13 @@ void TestModbusMaster::multiRequestGatewayNotAvailable()
 {
     _pTestSlaveModbus->setException(QModbusPdu::IllegalDataAddress, true);
 
-    _pTestSlaveData->setRegisterState(0, true);
-    _pTestSlaveData->setRegisterState(1, true);
-    _pTestSlaveData->setRegisterState(3, true);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(0, true);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(1, true);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(3, true);
 
-    _pTestSlaveData->setRegisterValue(0, 0);
-    _pTestSlaveData->setRegisterValue(1, 1);
-    _pTestSlaveData->setRegisterValue(3, 3);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(0, 0);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(1, 1);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(3, 3);
 
     ModbusMaster modbusMaster(&_settingsModel, Connection::ID_1);
 
@@ -308,13 +313,13 @@ void TestModbusMaster::multiRequestNoResponse()
 
     _pTestSlaveModbus->disconnectDevice();
 
-    _pTestSlaveData->setRegisterState(0, true);
-    _pTestSlaveData->setRegisterState(1, true);
-    _pTestSlaveData->setRegisterState(3, true);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(0, true);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(1, true);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(3, true);
 
-    _pTestSlaveData->setRegisterValue(0, 0);
-    _pTestSlaveData->setRegisterValue(1, 1);
-    _pTestSlaveData->setRegisterValue(3, 3);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(0, 0);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(1, 1);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(3, 3);
 
     ModbusMaster modbusMaster(&_settingsModel, Connection::ID_1);
 
@@ -346,13 +351,13 @@ void TestModbusMaster::multiRequestInvalidAddress()
 {
     _pTestSlaveModbus->setException(QModbusPdu::IllegalDataAddress, true);
 
-    _pTestSlaveData->setRegisterState(0, true);
-    _pTestSlaveData->setRegisterState(1, true);
-    _pTestSlaveData->setRegisterState(3, true);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(0, true);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(1, true);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(3, true);
 
-    _pTestSlaveData->setRegisterValue(0, 0);
-    _pTestSlaveData->setRegisterValue(1, 1);
-    _pTestSlaveData->setRegisterValue(3, 3);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(0, 0);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(1, 1);
+    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(3, 3);
 
     ModbusMaster modbusMaster(&_settingsModel, Connection::ID_1);
 

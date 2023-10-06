@@ -10,7 +10,10 @@ class TestSlaveModbus : public QModbusTcpServer
 {
     Q_OBJECT
 public:
-    explicit TestSlaveModbus(TestSlaveData *pTestSlaveData, QObject *parent = nullptr);
+
+    typedef QMap<QModbusDataUnit::RegisterType, TestSlaveData*> ModbusDataMap;
+
+    explicit TestSlaveModbus(ModbusDataMap &testSlaveData, QObject *parent = nullptr);
     ~TestSlaveModbus();
 
     bool connect(QUrl host, int slaveId);
@@ -30,9 +33,9 @@ protected:
 
 private:
 
-    bool verifyValidHoldingRegister(const QModbusDataUnit *dataUnit) const;
+    bool verifyValidObject(const QModbusDataUnit *dataUnit) const;
 
-    TestSlaveData *_pTestSlaveData;
+    QMap<QModbusDataUnit::RegisterType, TestSlaveData*> &_testSlaveData;
 
     QModbusPdu::ExceptionCode _exceptionCode;
     bool _bExceptionPersistent;

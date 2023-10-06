@@ -2,7 +2,6 @@
 #include <QObject>
 #include <QUrl>
 
-#include "testslavedata.h"
 #include "testslavemodbus.h"
 
 /* Forward declaration */
@@ -35,11 +34,12 @@ private slots:
 private:
 
     void doHandleRegisterData(QList<QVariant>& actRawData);
+    TestSlaveData* dataMap(uint32_t connId, QModbusDataUnit::RegisterType type);
 
     SettingsModel * _pSettingsModel;
     GraphDataModel* _pGraphDataModel;
 
     QList<QUrl> _serverConnectionDataList;
-    QList<TestSlaveData *> _testSlaveDataList;
+    QList<TestSlaveModbus::ModbusDataMap *> _testSlaveDataList;
     QList<TestSlaveModbus *> _testSlaveModbusList;
 };

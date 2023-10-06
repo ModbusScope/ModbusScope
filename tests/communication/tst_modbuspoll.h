@@ -2,9 +2,7 @@
 #include <QObject>
 #include <QUrl>
 
-#include "modbuspoll.h"
 #include "settingsmodel.h"
-#include "modbusregister.h"
 
 #include "testslavedata.h"
 #include "testslavemodbus.h"
@@ -31,9 +29,13 @@ private slots:
 
 private:
 
+    TestSlaveData* dataMap(uint32_t connId, QModbusDataUnit::RegisterType type);
+
     SettingsModel * _pSettingsModel;
 
     QList<QUrl> _serverConnectionDataList;
-    QList<TestSlaveData *> _testSlaveDataList;
+    TestSlaveModbus::ModbusDataMap _testSlaveData;
+
+    QList<TestSlaveModbus::ModbusDataMap *> _testSlaveDataList;
     QList<TestSlaveModbus *> _testSlaveModbusList;
 };
