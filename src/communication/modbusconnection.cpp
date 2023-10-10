@@ -90,8 +90,8 @@ void ModbusConnection::sendReadRequest(ModbusAddress regAddress, quint16 size, i
     if (isConnected())
     {
         auto type = registerType(regAddress.objectType());
-        QModbusDataUnit _dataUnit(type, static_cast<int>(regAddress.address(ModbusAddress::Offset::WITHOUT_OFFSET)), size);
-        _connectionList.last()->pReply = _connectionList.last()->pModbusClient->sendReadRequest(_dataUnit, serverAddress);
+        QModbusDataUnit dataUnit(type, static_cast<int>(regAddress.address(ModbusAddress::Offset::WITHOUT_OFFSET)), size);
+        _connectionList.last()->pReply = _connectionList.last()->pModbusClient->sendReadRequest(dataUnit, serverAddress);
 
         connect(_connectionList.last()->pReply, &QModbusReply::finished, this, &ModbusConnection::handleRequestFinished);
     }
