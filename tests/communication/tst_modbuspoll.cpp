@@ -49,6 +49,7 @@ void TestModbusPoll::init()
 
         auto modbusDataMap = new TestSlaveModbus::ModbusDataMap();
         (*modbusDataMap)[QModbusDataUnit::HoldingRegisters] = new TestSlaveData();
+        (*modbusDataMap)[QModbusDataUnit::Coils] = new TestSlaveData();
         _testSlaveDataList.append(modbusDataMap);
         _testSlaveModbusList.append(new TestSlaveModbus(*_testSlaveDataList.last()));
 
@@ -153,6 +154,34 @@ void TestModbusPoll::singleOnlyConstantDataPoll()
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
     auto expResults = ResultDoubleList();
+
+    /* Verify arguments of signal */
+    CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
+}
+
+void TestModbusPoll::singleSlaveCoil()
+{
+    dataMap(Connection::ID_1, QModbusDataUnit::Coils)->setRegisterState(0, true);
+    dataMap(Connection::ID_1, QModbusDataUnit::Coils)->setRegisterValue(0, 0);
+
+    dataMap(Connection::ID_1, QModbusDataUnit::Coils)->setRegisterState(2, true);
+    dataMap(Connection::ID_1, QModbusDataUnit::Coils)->setRegisterValue(2, 1);
+
+    ModbusPoll modbusPoll(_pSettingsModel);
+    QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
+
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(0, Connection::ID_1, Type::UNSIGNED_16)
+                                                   << ModbusRegister(2, Connection::ID_1, Type::UNSIGNED_16);
+
+    /*-- Start communication --*/
+    modbusPoll.startCommunication(modbusRegisters);
+
+    QVERIFY(spyDataReady.wait(50));
+    QCOMPARE(spyDataReady.count(), 1);
+
+    QList<QVariant> arguments = spyDataReady.takeFirst();
+    auto expResults = ResultDoubleList() << ResultDouble(0, State::SUCCESS)
+                                         << ResultDouble(1, State::SUCCESS);
 
     /* Verify arguments of signal */
     CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
