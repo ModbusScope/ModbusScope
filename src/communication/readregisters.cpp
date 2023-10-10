@@ -116,10 +116,10 @@ void ReadRegisters::addSuccess(ModbusAddress startRegister, QList<quint16> regis
     if (
         hasNext()
         && (next().address() == startRegister)
-        && (next().count() == registerDataList.size())
+        && (registerDataList.size() >= next().count())
     )
     {
-        for (qint32 i = 0; i < registerDataList.size(); i++)
+        for (qint32 i = 0; i < next().count(); i++)
         {
             const auto registerAddr = startRegister.next(i);
             const auto result = Result<quint16>(registerDataList[i], State::SUCCESS);
