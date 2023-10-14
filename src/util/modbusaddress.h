@@ -1,6 +1,7 @@
 #ifndef MODBUSADDRESS_H
 #define MODBUSADDRESS_H
 
+#include "qdebug.h"
 #include <QObject>
 
 class ModbusAddress
@@ -54,6 +55,13 @@ private:
 
 };
 
+inline QDebug operator<<(QDebug debug, const ModbusAddress &addr)
+{
+    QDebugStateSaver saver(debug);
 
+    debug.nospace().noquote() << '(' << addr.toString() << ')';
+
+    return debug;
+}
 
 #endif // MODBUSADDRESS_H

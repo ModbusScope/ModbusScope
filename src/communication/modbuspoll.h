@@ -4,7 +4,6 @@
 #include <QStringListModel>
 #include <QTimer>
 #include "modbusresultmap.h"
-#include "result.h"
 #include "modbusregister.h"
 
 //Forward declaration
