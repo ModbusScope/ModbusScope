@@ -4,7 +4,6 @@
 #include <QObject>
 
 #include "modbusresultmap.h"
-#include "result.h"
 #include "modbusregister.h"
 
 class SettingsModel;

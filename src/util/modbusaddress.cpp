@@ -60,6 +60,7 @@ quint16 ModbusAddress::address(Offset offset) const
 
 QString ModbusAddress::toString() const
 {
+    /* TODO: show type and address */
     return QString("%1").arg(address(Offset::WITH_OFFSET));
 }
 
