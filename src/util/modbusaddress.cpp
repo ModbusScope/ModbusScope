@@ -60,8 +60,18 @@ quint16 ModbusAddress::address(Offset offset) const
 
 QString ModbusAddress::toString() const
 {
-    /* TODO: show type and address */
-    return QString("%1").arg(address(Offset::WITH_OFFSET));
+    QString typeStr;
+
+    switch (_type)
+    {
+    case ObjectType::COIL: typeStr = QString("coil"); break;
+    case ObjectType::DISCRETE_INPUT: typeStr = QString("discrete input"); break;
+    case ObjectType::INPUT_REGISTER: typeStr = QString("input register"); break;
+    case ObjectType::HOLDING_REGISTER: typeStr = QString("holding register"); break;
+    case ObjectType::UNKNOWN: typeStr = QString("unknown"); break;
+    }
+
+    return QString("%1, %2").arg(typeStr).arg(address(Offset::WITHOUT_OFFSET));
 }
 
 ModbusAddress ModbusAddress::next() const

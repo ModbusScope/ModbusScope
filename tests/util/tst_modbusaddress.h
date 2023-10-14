@@ -18,6 +18,7 @@ private slots:
     void get_address();
 
     void to_string();
+    void to_string_coil();
     void next_and_compare();
 
     void greater();
