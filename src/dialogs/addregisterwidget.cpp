@@ -2,10 +2,12 @@
 #include "settingsmodel.h"
 #include "updateregisternewexpression.h"
 #include "modbusdatatype.h"
+#include "modbusaddress.h"
 
 #include "ui_addregisterwidget.h"
 
 using Type = ModbusDataType::Type;
+using ObjectType = ModbusAddress::ObjectType;
 
 Q_DECLARE_METATYPE(ModbusDataType::Type)
 
@@ -29,6 +31,11 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel, QWidget *par
             _pUi->cmbConnection->addItem(QString(tr("Connection %1").arg(i + 1)), i);
         }
     }
+
+    _pUi->cmbObjectType->addItem("Coil", QVariant::fromValue(ObjectType::COIL));
+    _pUi->cmbObjectType->addItem("Discrete input", QVariant::fromValue(ObjectType::DISCRETE_INPUT));
+    _pUi->cmbObjectType->addItem("Input register", QVariant::fromValue(ObjectType::INPUT_REGISTER));
+    _pUi->cmbObjectType->addItem("Holding register", QVariant::fromValue(ObjectType::HOLDING_REGISTER));
 
     _pUi->cmbType->addItem(ModbusDataType::description(Type::UNSIGNED_16), QVariant::fromValue(Type::UNSIGNED_16));
     _pUi->cmbType->addItem(ModbusDataType::description(Type::UNSIGNED_32), QVariant::fromValue(Type::UNSIGNED_32));
@@ -76,19 +83,18 @@ void AddRegisterWidget::handleResultAccept()
 void AddRegisterWidget::resetFields()
 {
     _pUi->lineName->setText("Name of curve");
-    _pUi->spinAddress->setValue(40001);
+    _pUi->spinAddress->setValue(0);
     _pUi->cmbType->setCurrentIndex(0);
+    _pUi->cmbObjectType->setCurrentIndex(3);
     _pUi->cmbConnection->setCurrentIndex(0);
     _pUi->radioPrimary->setChecked(true);
 }
 
 QString AddRegisterWidget::generateExpression()
 {
-    quint32 registerAddress;
     quint8 connectionId;
     Type type;
-
-    registerAddress = static_cast<quint32>(_pUi->spinAddress->value());
+    ObjectType objectType;
 
     QVariant typeData = _pUi->cmbType->currentData();
     if (typeData.canConvert<Type>())
@@ -100,6 +106,18 @@ QString AddRegisterWidget::generateExpression()
         type = Type::UNSIGNED_16;
     }
 
+    QVariant objectTypeData = _pUi->cmbObjectType->currentData();
+    if (objectTypeData.canConvert<ObjectType>())
+    {
+        objectType = objectTypeData.value<ObjectType>();
+    }
+    else
+    {
+        objectType = ObjectType::UNKNOWN;
+    }
+
+    auto registerAddr = ModbusAddress(static_cast<quint32>(_pUi->spinAddress->value()), objectType);
+
     QVariant connData = _pUi->cmbConnection->currentData();
     if (connData.canConvert<quint8>())
     {
@@ -110,5 +128,5 @@ QString AddRegisterWidget::generateExpression()
         connectionId = 0;
     }
 
-    return UpdateRegisterNewExpression::constructRegisterString(registerAddress, type, connectionId);
+    return UpdateRegisterNewExpression::constructRegisterString(registerAddr.address(ModbusAddress::Offset::WITH_OFFSET), type, connectionId);
 }
