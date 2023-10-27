@@ -23,13 +23,13 @@ void TestAddRegisterWidget::registerDefault()
     QTest::keyClicks(_pRegWidget->_pUi->lineName, "Register 1");
 
     _pRegWidget->_pUi->spinAddress->selectAll();
-    QTest::keyClicks(_pRegWidget->_pUi->spinAddress, "41000");
+    QTest::keyClicks(_pRegWidget->_pUi->spinAddress, "100");
 
     GraphData graphData;
     addRegister(graphData);
 
     QCOMPARE(graphData.label(), "Register 1");
-    QCOMPARE(graphData.expression(), "${41000}");
+    QCOMPARE(graphData.expression(), "${40101}");
     QVERIFY(graphData.isActive());
 }
 
@@ -41,6 +41,16 @@ void TestAddRegisterWidget::registerType()
     addRegister(graphData);
 
     QCOMPARE(graphData.expression(), "${40001:32b}");
+}
+
+void TestAddRegisterWidget::registerObjectType()
+{
+    QTest::keyClick(_pRegWidget->_pUi->cmbObjectType, Qt::Key_Up);
+
+    GraphData graphData;
+    addRegister(graphData);
+
+    QCOMPARE(graphData.expression(), "${30001}");
 }
 
 void TestAddRegisterWidget::registerConnection()
