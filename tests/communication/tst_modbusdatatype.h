@@ -23,6 +23,9 @@ private slots:
     void typeString_data();
     void typeString();
 
+    void description_data();
+    void description();
+
     void convertSettings_data();
     void convertSettings();
 

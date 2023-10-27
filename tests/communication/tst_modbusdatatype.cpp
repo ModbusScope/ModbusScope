@@ -132,6 +132,29 @@ void TestModbusDataType::typeString()
     QCOMPARE(strType, actTypeString);
 }
 
+void TestModbusDataType::description_data()
+{
+    QTest::addColumn<ModbusDataType::Type>("type");
+    QTest::addColumn<QString>("strType");
+
+    ADD_STRING_TEST(Type::UNSIGNED_16, "unsigned 16-bit");
+    ADD_STRING_TEST(Type::SIGNED_16, "signed 16-bit");
+    ADD_STRING_TEST(Type::UNSIGNED_32, "unsigned 32-bit");
+    ADD_STRING_TEST(Type::SIGNED_32, "signed 32-bit");
+    ADD_STRING_TEST(Type::FLOAT_32, "32-bit float");
+    ADD_STRING_TEST(static_cast<ModbusDataType::Type>(255), "unsigned 16-bit");
+}
+
+void TestModbusDataType::description()
+{
+    QFETCH(ModbusDataType::Type, type);
+    QFETCH(QString, strType);
+
+    QString actDescriptionString = ModbusDataType::description(type);
+
+    QCOMPARE(strType, actDescriptionString);
+}
+
 void TestModbusDataType::convertSettings_data()
 {
     QTest::addColumn<bool>("is32bit");

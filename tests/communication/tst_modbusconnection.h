@@ -5,7 +5,6 @@
 
 #include "modbusconnection.h"
 
-#include "testslavedata.h"
 #include "testslavemodbus.h"
 
 class TestModbusConnection: public QObject
