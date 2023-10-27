@@ -351,7 +351,7 @@ void GraphView::plotResults(ResultDoubleList resultList)
     QList<double> dataList;
 
     uint32_t i = 0;
-    for (auto result: resultList)
+    for (const auto &result: resultList)
     {
         if (result.isValid())
         {
