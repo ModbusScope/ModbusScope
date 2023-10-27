@@ -19,6 +19,7 @@ private slots:
     void singleOnlyConstantDataPoll();
 
     void singleSlaveCoil();
+    void singleSlaveMixedObjects();
 
     void verifyRestartAfterStop();
 
