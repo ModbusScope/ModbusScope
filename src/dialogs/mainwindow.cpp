@@ -946,7 +946,7 @@ void MainWindow::updateCommunicationStats(ResultDoubleList resultList)
 {
     quint32 error = 0;
     quint32 success = 0;
-    for(auto result: resultList)
+    for(const auto &result: resultList)
     {
         result.isValid() ? success++ : error++;
     }
