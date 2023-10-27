@@ -222,7 +222,7 @@ QString ModbusMaster::dumpToString(QList<ModbusAddress> list) const
     return str;
 }
 
-void ModbusMaster::logResults(ModbusResultMap &results)
+void ModbusMaster::logResults(ModbusResultMap const &results)
 {
     logInfo("Result map: " + dumpToString(results));
     emit modbusPollDone(results, _connectionId);

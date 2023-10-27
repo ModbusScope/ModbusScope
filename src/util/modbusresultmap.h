@@ -5,6 +5,6 @@
 #include "modbusaddress.h"
 #include <QMap>
 
-typedef QMap<ModbusAddress, Result<quint16>> ModbusResultMap;
+using ModbusResultMap = QMap<ModbusAddress, Result<quint16>>;
 
 #endif // MODBUSRESULTMAP_H
