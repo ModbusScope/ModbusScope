@@ -45,7 +45,7 @@ private:
     QString dumpToString(ModbusResultMap map) const;
     QString dumpToString(QList<ModbusAddress> list) const;
 
-    void logResults(ModbusResultMap &results);
+    void logResults(const ModbusResultMap &results);
 
     void logInfo(QString msg);
     void logError(QString msg);
