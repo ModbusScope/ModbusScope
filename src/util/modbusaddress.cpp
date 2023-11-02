@@ -11,7 +11,7 @@ ModbusAddress::ModbusAddress()
 
 }
 
-ModbusAddress::ModbusAddress(quint16 address, ObjectType type)
+ModbusAddress::ModbusAddress(quint32 address, ObjectType type)
 {
     if (type == ObjectType::UNKNOWN)
     {
@@ -35,7 +35,7 @@ ModbusAddress::ModbusAddress(quint16 address, ObjectType type)
     }
 }
 
-ModbusAddress::ModbusAddress(quint16 address)
+ModbusAddress::ModbusAddress(quint32 address)
     : ModbusAddress(address, ObjectType::UNKNOWN)
 {
 
@@ -46,7 +46,7 @@ ModbusAddress::ObjectType ModbusAddress::objectType() const
     return _type;
 }
 
-quint16 ModbusAddress::address(Offset offset) const
+quint32 ModbusAddress::address(Offset offset) const
 {
     if (offset == Offset::WITHOUT_OFFSET)
     {
@@ -89,7 +89,7 @@ ModbusAddress ModbusAddress::next(int i) const
 }
 
 
-ModbusAddress::ObjectType ModbusAddress::convertFromOffset(quint16 address)
+ModbusAddress::ObjectType ModbusAddress::convertFromOffset(quint32 address)
 {
     ModbusAddress::ObjectType type = ObjectType::UNKNOWN;
 

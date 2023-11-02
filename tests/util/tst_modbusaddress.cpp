@@ -82,6 +82,14 @@ void TestModbusAddress::get_address()
     QCOMPARE(addr_4.address(Offset::WITHOUT_OFFSET), 0);
 }
 
+void TestModbusAddress::large_address()
+{
+    ModbusAddress addr(40001 + 30000);
+
+    QCOMPARE(addr.address(Offset::WITH_OFFSET), 70001);
+    QCOMPARE(addr.address(Offset::WITHOUT_OFFSET), 30000);
+}
+
 void TestModbusAddress::to_string()
 {
     ModbusAddress addr(40011);

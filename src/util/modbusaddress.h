@@ -25,8 +25,8 @@ public:
     };
 
     ModbusAddress();
-    ModbusAddress(quint16 address, ModbusAddress::ObjectType type);
-    ModbusAddress(quint16 address);
+    ModbusAddress(quint32 address, ModbusAddress::ObjectType type);
+    ModbusAddress(quint32 address);
     ModbusAddress(const ModbusAddress& t) = default;
 
     ~ModbusAddress() = default;
@@ -34,7 +34,7 @@ public:
     ModbusAddress& operator=(const ModbusAddress& other) = default;
 
     ModbusAddress::ObjectType objectType() const;
-    quint16 address(Offset offset) const;
+    quint32 address(Offset offset) const;
 
     QString toString() const;
 
@@ -46,7 +46,7 @@ public:
     friend bool operator> (const ModbusAddress& reg1, const ModbusAddress& reg2);
 
 private:
-    ModbusAddress::ObjectType convertFromOffset(quint16 address);
+    ModbusAddress::ObjectType convertFromOffset(quint32 address);
 
     quint16 _address{0};
     ObjectType _type{ObjectType::UNKNOWN};
