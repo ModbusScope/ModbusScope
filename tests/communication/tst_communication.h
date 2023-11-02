@@ -24,10 +24,10 @@ private slots:
 
     void mixed_1();
     void mixed_fail();
-#if 0
+
     void readLargeRegisterAddress();
     void readVeryLargeRegisterAddress();
-#endif
+
     void unknownConnection();
     void disabledConnection();
 

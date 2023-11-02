@@ -193,15 +193,16 @@ void TestCommunication::mixed_fail()
 
     CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
 }
-#if 0
-TODO: Enable when it is possible to define {h3000}
+
 void TestCommunication::readLargeRegisterAddress()
 {
     /* Disable already initialized test slave on connection 1 */
     _testSlaveModbusList[Connection::ID_1]->disconnect();
 
     TestSlaveData testSlaveData(71001 - 40001, 50);
-    TestSlaveModbus testSlaveModbus(&testSlaveData);
+    TestSlaveModbus::ModbusDataMap modbusDataMap;
+    modbusDataMap[QModbusDataUnit::HoldingRegisters] = &testSlaveData;
+    TestSlaveModbus testSlaveModbus(modbusDataMap);
 
     QVERIFY(testSlaveModbus.connect(_serverConnectionDataList[Connection::ID_1], _pSettingsModel->slaveId(Connection::ID_1)));
 
@@ -226,11 +227,12 @@ void TestCommunication::readLargeRegisterAddress()
 
 void TestCommunication::readVeryLargeRegisterAddress()
 {
+#if 0
     /* Disable already initialized test slave on connection 1 */
     _testSlaveModbusList[Connection::ID_1]->disconnect();
 
     TestSlaveData testSlaveData(105536 - 40001, 1); /* Last possible holding register (65353+40001) */
-    TestSlaveModbus testSlaveModbus(&testSlaveData);
+    //TestSlaveModbus testSlaveModbus(&testSlaveData);
 
     QVERIFY(testSlaveModbus.connect(_serverConnectionDataList[Connection::ID_1], _pSettingsModel->slaveId(Connection::ID_1)));
 
@@ -246,8 +248,9 @@ void TestCommunication::readVeryLargeRegisterAddress()
     doHandleRegisterData(rawRegData);
 
     CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
-}
 #endif
+}
+
 void TestCommunication::unknownConnection()
 {
     auto exprList = QStringList() << "${40001@255}"
