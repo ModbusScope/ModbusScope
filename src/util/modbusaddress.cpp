@@ -20,7 +20,7 @@ ModbusAddress::ModbusAddress(quint32 address, ObjectType type)
         quint16 offset = cObjectTypeOffsets[static_cast<int>(_type)];
         if (address >= offset)
         {
-            _address = address - offset;
+            _address = static_cast<quint16>(address - offset);
         }
         else
         {
@@ -30,7 +30,7 @@ ModbusAddress::ModbusAddress(quint32 address, ObjectType type)
     }
     else
     {
-        _address = address;
+        _address = static_cast<quint16>(address);
         _type = type;
     }
 }
