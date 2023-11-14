@@ -1,8 +1,10 @@
+# This is a generated file by dfetch. Don't edit this, but edit the manifest.
+# For more info see https://dfetch.rtfd.io/en/latest/getting_started.html
 dfetch:
   branch: master
-  hash: 93c11bbab09a621733fe2f8fd59b3de7
-  last_fetch: 10/02/2022, 20:31:59
+  hash: 0e017f4fe60894ffcd05fb2f6cc568b4
+  last_fetch: 14/11/2023, 20:12:37
   patch: ''
   remote_url: https://github.com/google/googletest
   revision: ''
-  tag: release-1.11.0
+  tag: v1.14.0
