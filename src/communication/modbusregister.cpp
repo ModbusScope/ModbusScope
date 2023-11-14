@@ -158,7 +158,10 @@ uint32_t ModbusRegister::convertEndianness(bool bLittleEndian, quint16 value, qu
 
 double ModbusRegister::convertUint32ToFloat(quint32 value) const
 {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
     const double doubleValue = *(reinterpret_cast<float*>(&value));
+#pragma GCC diagnostic pop
 
     switch(std::fpclassify(doubleValue))
     {
