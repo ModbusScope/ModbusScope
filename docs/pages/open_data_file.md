@@ -27,7 +27,7 @@ Depending on the configured region, the format of the data will be different. To
 
 #### Supported data file format
 
-```csv
+```
 Time (ms);Datapoint 1;Datapoint 2;Datapoint 3
 2;0,02;0,2;2
 12;0,12;1,2;12
