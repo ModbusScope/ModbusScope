@@ -2,23 +2,11 @@
 
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/jgeudens/ModbusScope/releases).
 
-## [Unreleased]
+## [v3.9.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.9.0) (xx/12/2023)
 
 ### Added 
 
-- xx
-
-### Fixed
-
-- xx
-
-### Changed
-
-- xx
-
-### Removed
-
-- xx
+- Add support for other object types (discrete output coils, discrete input contacts, input registers, holding registers)
 
 ## [v3.8.1](https://github.com/jgeudens/ModbusScope/releases/tag/3.8.1) (12/08/2023)
 
