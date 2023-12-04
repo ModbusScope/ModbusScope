@@ -14,7 +14,7 @@ Once the registers have been added, you can adjust them as needed. This includes
 
 ![image](../_static/user_manual/add_register_dialog.png)
 
-#### Registers
+#### Object types
 
 In *ModbusScope*, a Modbus register is represented as `${REG[@CONN][:TYPE]}` where `REG` is the register address, `CONN` is the connection number, and `TYPE` is the type of the register.
 
@@ -25,11 +25,20 @@ In *ModbusScope*, a Modbus register is represented as `${REG[@CONN][:TYPE]}` whe
 
 ##### Register address
 
-The Modbus standard defines the range for the holding register as 40001 to 49999. However, in the data packets that are sent, the offset of 40001 is removed. As the address field is 16-bit, the actual possible range is 40001 to 105536. To support as many devices as possible, *ModbusScope* supports the full range of addresses.
+*ModbusScope* supports coils, discrete inputs, input registers and holding registers. The object type is derived from the offset of the register address.
+
+| Range         | Object type       | Modbus function code |
+| ------------- | ----------------- | -------------------- |
+| 1 - 9999      | Coil              | 1                    |
+| 10001 - 19999 | Discrete inputs   | 2                    |
+| 30001 - 39999 | Inputs registers  | 4                    |
+| > 40001       | Holding registers | 3                    |
+
+The Modbus standard defines the range for the holding register as 40001 to 49999. However, in the data packets that are sent, the offset of 40001 is removed. As the address field is 16-bit, the actual possible range is 40001 to 105536. To support as many devices as possible, *ModbusScope* supports the full range of addresses. At the moment, it isn't possible to access the full range of the other object types, the allowed range is limited to an address space of the first 10.000 registers.
 
 ##### Supported register types
 
-Following register types are currently supported by ModbusScope:
+Following types for holding and input registers are currently supported by ModbusScope:
 
 * `16b`: Unsigned 16-bit value
 
@@ -41,7 +50,7 @@ Following register types are currently supported by ModbusScope:
 
 * `f32b`: 32-bit float (IEEE 754)
 
-The endianness of 32-bit registers can be configured per connection with the `32-bit little endian` setting in the connection settings dialog.
+The endianness of 32-bit registers can be configured per connection with the `32-bit little endian` setting in the connection settings dialog. The register type is ignored for coils and discrete inputs.
 
 ### Expressions
 
@@ -53,9 +62,9 @@ Some examples of valid expressions are
 
 * `${40001: s16b} + ${40002@2} * 2`
 * `${40001: s32b} * 1.1`
-* `${40001} + 0x1000`
+* `${30001} + 0x1000`
 * `${40001} & 0b11111000`
-* `(${40001} >> 8) & 0xFF`
+* `(${30001} >> 8) & 0xFF`
 
 ### Compose expression window
 
