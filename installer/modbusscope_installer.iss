@@ -10,7 +10,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{B5B201A8-51DE-418F-8BCF-F46686ED638C}
 AppName={#MyAppName}
-AppVersion=3.9.0 Beta
+AppVersion=3.9.0
 AppPublisher="jgeudens"
 AppPublisherURL=https://modbusscope.readthedocs.io
 AppSupportURL=https://github.com/ModbusScope/ModbusScope
