@@ -9,7 +9,7 @@
 * Update RELEASE_NOTES.md with changes and release date
 * Github
   * Close all implemented issues
-  * Close milestone on 
+  * Close milestone on
 
 ## After release
 
@@ -40,4 +40,3 @@
 
 - xx
 ```
-
