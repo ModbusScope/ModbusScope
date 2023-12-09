@@ -4,13 +4,13 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ## [Unreleased]
 
-### Added 
+### Added
 
 - xx
 
 ### Fixed
 
-- xx
+- Fixed warning when loading mbs file with unsupported datalevel
 
 ### Changed
 

@@ -56,7 +56,7 @@ bool ProjectFileParser::parseFile(QString& fileContent, ProjectSettings *pSettin
                 if (datalevel > ProjectFileDefinitions::cCurrentDataLevel)
                 {
                     Util::showError(tr("Data level (%1) is not supported. Only datalevel %2 or lower is supported.\nProject file loading is aborted.")
-                                       .arg(datalevel,ProjectFileDefinitions::cCurrentDataLevel));
+                                        .arg(datalevel).arg(ProjectFileDefinitions::cCurrentDataLevel));
                     bRet = false;
                 }
             }
