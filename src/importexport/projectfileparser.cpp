@@ -53,11 +53,28 @@ bool ProjectFileParser::parseFile(QString& fileContent, ProjectSettings *pSettin
             if (bRet)
             {
                 pSettings->dataLevel = datalevel;
-                if (datalevel > ProjectFileDefinitions::cCurrentDataLevel)
+                if (datalevel < ProjectFileDefinitions::cMinimumDataLevel)
                 {
-                    Util::showError(tr("Data level (%1) is not supported. Only datalevel %2 or lower is supported.\nProject file loading is aborted.")
-                                        .arg(datalevel).arg(ProjectFileDefinitions::cCurrentDataLevel));
+                    Util::showError(tr("Data level %1 is not supported. Minimum datalevel is %2.\n\n"
+                                       "Try saving the project file with a previous version of ModbusScope.\n\n"
+                                       "Project file loading is aborted.")
+                                        .arg(datalevel)
+                                        .arg(ProjectFileDefinitions::cMinimumDataLevel)
+                                    );
                     bRet = false;
+                }
+                else if (datalevel > ProjectFileDefinitions::cCurrentDataLevel)
+                {
+                    Util::showError(tr("Data level %1 is not supported. Only datalevel %2 or lower is supported.\n\n"
+                                       "Try upgrading ModbusScope to the latest version.\n\n"
+                                       "Project file loading is aborted.")
+                                        .arg(datalevel)
+                                        .arg(ProjectFileDefinitions::cCurrentDataLevel));
+                    bRet = false;
+                }
+                else
+                {
+                    /* Supported datalevel */
                 }
             }
             else
