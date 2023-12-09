@@ -1,67 +1,92 @@
-<modbusscope datalevel="2">
-	<modbus>
-		<connection>
-			<ip>127.0.0.1</ip>
-			<connectionid>0</connectionid>
-			<port>502</port>
-			<slaveid>1</slaveid>
-			<timeout>1000</timeout>
-			<consecutivemax>100</consecutivemax>
-		</connection>
-		
-		<connection>
-			<ip>127.0.0.1</ip>
-			<connectionid>1</connectionid>
-			<port>503</port>
-			<slaveid>2</slaveid>
-			<timeout>2000</timeout>
-			<consecutivemax>100</consecutivemax>
-			<int32littleendian>true</int32littleendian>
-		</connection>
-
-		<log>
-			<polltime>1000</polltime>
-			<absolutetimes>false</absolutetimes>
-			<logtofile enabled="true">
-<!--				<filename>C:\...</filename> -->
-			</logtofile>
-		</log>
-	</modbus>
-	
-	<scope>
-		<register active="true">
-    		<connectionid>0</connectionid>
-			<address>40001</address>
-			<text>Data point</text>
-			<unsigned>true</unsigned>
-			<multiply>1</multiply>
-			<divide>2</divide>
-			<color>#FF0000</color>
-		</register>
-		<register>
-		    <connectionid>1</connectionid>
-			<active>true</active>
-			<address>40002</address>
-			<text>Data point 2</text>
-			<unsigned>false</unsigned>
-			<shift>0</shift>
-		</register>
-		<register active="false">
-			<address>40003</address>
-			<text>Data point 3</text>
-			<multiply>10</multiply>
-		</register>
-	</scope>
-	
-	<view>
-		<scale>
-			<xaxis mode="sliding">
-				<slidinginterval>20</slidinginterval>
-			</xaxis>
-			<yaxis mode="minmax">
-				<min>0</min>
-				<max>25</max>
-			</yaxis>
-		</scale>
-	</view>
+<?xml version="1.0"?>
+<modbusscope datalevel="3">
+ <modbus>
+  <connection>
+   <enabled>true</enabled>
+   <connectionid>0</connectionid>
+   <type>tcp</type>
+   <ip>127.0.0.1</ip>
+   <port>502</port>
+   <portname>COM1</portname>
+   <baudrate>115200</baudrate>
+   <parity>0</parity>
+   <stopbits>1</stopbits>
+   <databits>8</databits>
+   <slaveid>1</slaveid>
+   <timeout>1000</timeout>
+   <consecutivemax>100</consecutivemax>
+   <int32littleendian>true</int32littleendian>
+   <persistentconnection>true</persistentconnection>
+  </connection>
+  <connection>
+   <enabled>true</enabled>
+   <connectionid>1</connectionid>
+   <type>tcp</type>
+   <ip>127.0.0.1</ip>
+   <port>503</port>
+   <portname>COM1</portname>
+   <baudrate>115200</baudrate>
+   <parity>0</parity>
+   <stopbits>1</stopbits>
+   <databits>8</databits>
+   <slaveid>2</slaveid>
+   <timeout>2000</timeout>
+   <consecutivemax>100</consecutivemax>
+   <int32littleendian>true</int32littleendian>
+   <persistentconnection>true</persistentconnection>
+  </connection>
+  <connection>
+   <enabled>false</enabled>
+   <connectionid>2</connectionid>
+   <type>tcp</type>
+   <ip>127.0.0.1</ip>
+   <port>502</port>
+   <portname>COM1</portname>
+   <baudrate>115200</baudrate>
+   <parity>0</parity>
+   <stopbits>1</stopbits>
+   <databits>8</databits>
+   <slaveid>1</slaveid>
+   <timeout>1000</timeout>
+   <consecutivemax>125</consecutivemax>
+   <int32littleendian>true</int32littleendian>
+   <persistentconnection>true</persistentconnection>
+  </connection>
+  <log>
+   <polltime>1000</polltime>
+   <absolutetimes>false</absolutetimes>
+   <logtofile enabled="true"/>
+  </log>
+ </modbus>
+ <scope>
+  <register active="true">
+   <text>Data point</text>
+   <expression><![CDATA[${40001}/2]]></expression>
+   <color>#ff0000</color>
+   <valueaxis>0</valueaxis>
+  </register>
+  <register active="true">
+   <text>Data point 2</text>
+   <expression><![CDATA[${40002@2:s16b}]]></expression>
+   <color>#0000ff</color>
+   <valueaxis>0</valueaxis>
+  </register>
+  <register active="false">
+   <text>Data point 3</text>
+   <expression><![CDATA[${40003:s16b}*10]]></expression>
+   <color>#00ffff</color>
+   <valueaxis>0</valueaxis>
+  </register>
+ </scope>
+ <view>
+  <scale>
+   <xaxis mode="sliding">
+    <slidinginterval>20</slidinginterval>
+   </xaxis>
+   <yaxis mode="minmax">
+    <min>0</min>
+    <max>25</max>
+   </yaxis>
+  </scale>
+ </view>
 </modbusscope>
