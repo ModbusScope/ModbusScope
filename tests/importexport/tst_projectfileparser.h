@@ -10,13 +10,9 @@ private slots:
     void initTestCase();
     void cleanup();
 
-    void legacyRegExpressions();
-    void newRegExpressions();
-    void bothLegacyNewRegExpressions();
+    void tooLowDataLevel();
     void dataLevel3Expressions();
 
-    void connLegacySingle();
-    void connLegacyDual();
     void connSerial();
     void connMixedMulti();
     void connEmpty();

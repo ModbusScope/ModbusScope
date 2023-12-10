@@ -27,22 +27,4 @@ namespace UpdateRegisterNewExpression
 
         return QString("${%1%2%3}").arg(registerAddress).arg(connStr, suffix);
     }
-
-    void convert(ProjectFileData::RegisterSettings& regSettings, QString& resultExpr)
-    {
-        bool bFloat = false;
-        auto type = ModbusDataType::convertSettings(regSettings.b32Bit, regSettings.bUnsigned, bFloat);
-
-        QString regStr = constructRegisterString(regSettings.address, type, regSettings.connectionId);
-        QString valStr = QStringLiteral("VAL");
-
-        if (regSettings.bExpression && regSettings.expression.contains(valStr))
-        {
-            resultExpr = regSettings.expression.replace(valStr, regStr);
-        }
-        else
-        {
-            resultExpr = regStr;
-        }
-    }
 }

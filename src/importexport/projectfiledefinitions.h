@@ -33,17 +33,10 @@ namespace ProjectFileDefinitions
     const char cLogToFileTag[] = "logtofile";
     const char cFilenameTag[] = "filename";
     const char cRegisterTag[] = "register";
-    const char cAddressTag[] = "address";
     const char cTextTag[] = "text";
-    const char cUnsignedTag[] = "unsigned";
-    const char cDivideTag[] = "divide";
-    const char cBit32Tag[] = "bit32";
-    const char cMultiplyTag[] = "multiply";
     const char cExpressionTag[] = "expression";
     const char cColorTag[] = "color";
     const char cValueAxisTag[] = "valueaxis";
-    const char cBitmaskTag[] = "bitmask";
-    const char cShiftTag[] = "shift";
 
     const char cScaleTag[] = "scale";
     const char cXaxisTag[] = "xaxis";

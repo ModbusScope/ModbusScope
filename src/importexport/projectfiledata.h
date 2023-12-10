@@ -8,22 +8,12 @@ namespace ProjectFileData
 {
     typedef struct _RegisterSettings
     {
-        _RegisterSettings() : address(0xFFFFFFFF), text(""), bActive(true), bUnsigned(false), b32Bit(false), divideFactor(1),
-                              multiplyFactor(1), bitmask(0xFFFFFFFF), shift(0), connectionId(0), bExpression(false),
-                              bColor(false), valueAxis(0) {}
+        _RegisterSettings() : text(""), bActive(true), connectionId(0), expression("0"), bColor(false), valueAxis(0) {}
 
-        quint32 address;
         QString text;
         bool bActive;
-        bool bUnsigned;
-        bool b32Bit;
-        double divideFactor;
-        double multiplyFactor;
-        quint32 bitmask;
-        qint32 shift;
         quint8 connectionId;
 
-        bool bExpression;
         QString expression;
 
         bool bColor;

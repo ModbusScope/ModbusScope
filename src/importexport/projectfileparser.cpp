@@ -472,62 +472,9 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
-        if (child.tagName() == ProjectFileDefinitions::cAddressTag)
-        {
-            pRegisterSettings->address = static_cast<quint32>(child.text().toUInt(&bRet));
-            if (!bRet)
-            {
-                Util::showError(tr("Address ( %1 ) is not a valid number").arg(child.text()));
-                break;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cTextTag)
+        if (child.tagName() == ProjectFileDefinitions::cTextTag)
         {
             pRegisterSettings->text = child.text();
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cUnsignedTag)
-        {
-            if (!child.text().toLower().compare(ProjectFileDefinitions::cTrueValue))
-            {
-                pRegisterSettings->bUnsigned = true;
-            }
-            else
-            {
-                pRegisterSettings->bUnsigned = false;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cBit32Tag)
-        {
-            if (!child.text().toLower().compare(ProjectFileDefinitions::cTrueValue))
-            {
-                pRegisterSettings->b32Bit = true;
-            }
-            else
-            {
-                pRegisterSettings->b32Bit = false;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cDivideTag)
-        {
-            // use settings from system locale
-            pRegisterSettings->divideFactor = QLocale().toDouble(child.text(), &bRet);
-
-            if (!bRet)
-            {
-                Util::showError(QString("Divide factor (%1) is not a valid double. Expected decimal separator is \"%2\".").arg(child.text(), QLocale().decimalPoint()));
-                break;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cMultiplyTag)
-        {
-            // use settings from system locale
-            pRegisterSettings->multiplyFactor = QLocale().toDouble(child.text(), &bRet);
-
-            if (!bRet)
-            {
-                Util::showError(QString("Multiply factor (%1) is not a valid double. Expected decimal separator is \"%2\".").arg(child.text(), QLocale().decimalPoint()));
-                break;
-            }
         }
         else if (child.tagName() == ProjectFileDefinitions::cColorTag)
         {
@@ -551,47 +498,6 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
             if (bOk)
             {
                 pRegisterSettings->valueAxis = axis;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cBitmaskTag)
-        {
-            const quint32 newBitMask = static_cast<quint32>(child.text().toUInt(&bRet, 0));
-
-            if (bRet)
-            {
-                pRegisterSettings->bitmask = newBitMask;
-            }
-            else
-            {
-                Util::showError(tr("Bitmask (\"%1\") is not a valid integer.").arg(child.text()));
-                break;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cShiftTag)
-        {
-            const qint32 newShift = child.text().toInt(&bRet);
-
-            if (
-                    (bRet)
-                    &&
-                    (
-                        (newShift < -15)
-                        ||
-                        (newShift > 15)
-                    )
-                )
-            {
-                bRet = false;
-            }
-
-            if (bRet)
-            {
-                pRegisterSettings->shift = newShift;
-            }
-            else
-            {
-                Util::showError(tr("Shift factor (%1) is not a valid integer between -16 and 16.").arg(child.text()));
-                break;
             }
         }
         else if (child.tagName() == ProjectFileDefinitions::cConnectionIdTag)
@@ -623,7 +529,6 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
         }
         else if (child.tagName() == ProjectFileDefinitions::cExpressionTag)
         {
-            pRegisterSettings->bExpression = true;
             pRegisterSettings->expression = child.text();
         }
         else

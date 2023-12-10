@@ -23,60 +23,12 @@ void TestProjectFileParser::cleanup()
 
 }
 
-void TestProjectFileParser::legacyRegExpressions()
+void TestProjectFileParser::tooLowDataLevel()
 {
     ProjectFileParser projectParser;
     ProjectFileData::ProjectSettings settings;
-
-    QVERIFY(projectParser.parseFile(ProjectFileTestData::cLegacyRegExpressions, &settings));
-
-    QCOMPARE(settings.scope.registerList[0].address, 40002);
-    QCOMPARE(settings.scope.registerList[0].multiplyFactor, 3);
-    QCOMPARE(settings.scope.registerList[0].divideFactor, 2);
-    QCOMPARE(settings.scope.registerList[0].shift, 1);
-    QCOMPARE(settings.scope.registerList[0].bitmask, 0xFF00);
-    QCOMPARE(settings.scope.registerList[0].text, "Register 40002");
-    QCOMPARE(settings.scope.registerList[0].bUnsigned, true);
-    QCOMPARE(settings.scope.registerList[0].b32Bit, false);
-
-    QCOMPARE(settings.scope.registerList[0].bColor, true);
-    QCOMPARE(settings.scope.registerList[0].color, QColor(0x00, 0x00, 0xff));
-
-    QVERIFY(!settings.scope.registerList[0].bExpression);
-}
-
-void TestProjectFileParser::newRegExpressions()
-{
-    ProjectFileParser projectParser;
-    ProjectFileData::ProjectSettings settings;
-
-    QVERIFY(projectParser.parseFile(ProjectFileTestData::cNewRegExpressions, &settings));
-
-    QCOMPARE(settings.scope.registerList[0].address, 40002);
-    QCOMPARE(settings.scope.registerList[0].multiplyFactor, 1);
-    QCOMPARE(settings.scope.registerList[0].divideFactor, 1);
-    QCOMPARE(settings.scope.registerList[0].shift, 0);
-    QCOMPARE(settings.scope.registerList[0].bitmask, 0xFFFFFFFF);
-
-    QVERIFY(settings.scope.registerList[0].bExpression);
-    QCOMPARE(settings.scope.registerList[0].expression, QString("(VAL+6/2)+5+5+5"));
-}
-
-void TestProjectFileParser::bothLegacyNewRegExpressions()
-{
-    ProjectFileParser projectParser;
-    ProjectFileData::ProjectSettings settings;
-
-    QVERIFY(projectParser.parseFile(ProjectFileTestData::cBothLegacyAndNewRegExpressions, &settings));
-
-    QCOMPARE(settings.scope.registerList[0].address, 40002);
-    QCOMPARE(settings.scope.registerList[0].multiplyFactor, 3);
-    QCOMPARE(settings.scope.registerList[0].divideFactor, 2);
-    QCOMPARE(settings.scope.registerList[0].shift, 1);
-    QCOMPARE(settings.scope.registerList[0].bitmask, 0xFF00);
-
-    QVERIFY(settings.scope.registerList[0].bExpression);
-    QCOMPARE(settings.scope.registerList[0].expression, QString("(VAL+6/2)+5+5+5"));
+    // TODO
+    //QVERIFY(projectParser.parseFile(ProjectFileTestData::cTooLowDataLevel, &settings) == false);
 }
 
 void TestProjectFileParser::dataLevel3Expressions()
@@ -87,108 +39,18 @@ void TestProjectFileParser::dataLevel3Expressions()
     QVERIFY(projectParser.parseFile(ProjectFileTestData::cDataLevel3Expressions, &settings));
 
     QVERIFY(settings.scope.registerList[0].bActive);
-    QVERIFY(settings.scope.registerList[0].bExpression);
     QCOMPARE(settings.scope.registerList[0].expression, QString("${40001}/2"));
     QCOMPARE(settings.scope.registerList[0].bColor, true);
     QCOMPARE(settings.scope.registerList[0].color, QColor(0xff, 0x00, 0x00));
 
     QVERIFY(settings.scope.registerList[1].bActive);
-    QVERIFY(settings.scope.registerList[1].bExpression);
     QCOMPARE(settings.scope.registerList[1].expression, QString("${40002:s16b}"));
     QCOMPARE(settings.scope.registerList[1].bColor, true);
     QCOMPARE(settings.scope.registerList[1].color, QColor(0x00, 0x00, 0xff));
 
     QVERIFY(!settings.scope.registerList[2].bActive);
-    QVERIFY(settings.scope.registerList[2].bExpression);
     QCOMPARE(settings.scope.registerList[2].expression, QString("${40003@2:s16b}*10"));
     QCOMPARE(settings.scope.registerList[2].bColor, false);
-}
-
-void TestProjectFileParser::connLegacySingle()
-{
-    ProjectFileParser projectParser;
-    ProjectFileData::ProjectSettings settings;
-
-    QVERIFY(projectParser.parseFile(ProjectFileTestData::cConnLegacySingle, &settings));
-
-    QVERIFY(settings.general.connectionSettings[0].bConnectionId == false);
-    QVERIFY(settings.general.connectionSettings[0].bConnectionState);
-
-    QVERIFY(settings.general.connectionSettings[0].bIp);
-    QCOMPARE(settings.general.connectionSettings[0].ip, "127.0.0.2");
-
-    QVERIFY(settings.general.connectionSettings[0].bPort);
-    QCOMPARE(settings.general.connectionSettings[0].port, 5020);
-
-    QVERIFY(settings.general.connectionSettings[0].bSlaveId);
-    QCOMPARE(settings.general.connectionSettings[0].slaveId, 2);
-
-    QVERIFY(settings.general.connectionSettings[0].bTimeout);
-    QCOMPARE(settings.general.connectionSettings[0].timeout, 10000);
-
-    QVERIFY(settings.general.connectionSettings[0].bConsecutiveMax);
-    QCOMPARE(settings.general.connectionSettings[0].consecutiveMax, 200);
-
-    QVERIFY(settings.general.connectionSettings[0].bInt32LittleEndian);
-    QVERIFY(settings.general.connectionSettings[0].bPersistentConnection);
-}
-
-
-void TestProjectFileParser::connLegacyDual()
-{
-    ProjectFileParser projectParser;
-    ProjectFileData::ProjectSettings settings;
-
-    QVERIFY(projectParser.parseFile(ProjectFileTestData::cConnLegacyDual, &settings));
-
-    /* Connection id 0 */
-    QVERIFY(settings.general.connectionSettings[0].bConnectionId);
-    QCOMPARE(settings.general.connectionSettings[0].connectionId, 0);
-
-    QVERIFY(settings.general.connectionSettings[0].bConnectionState);
-
-    QVERIFY(settings.general.connectionSettings[0].bIp);
-    QCOMPARE(settings.general.connectionSettings[0].ip, "127.0.0.2");
-
-    QVERIFY(settings.general.connectionSettings[0].bPort);
-    QCOMPARE(settings.general.connectionSettings[0].port, 5020);
-
-    QVERIFY(settings.general.connectionSettings[0].bSlaveId);
-    QCOMPARE(settings.general.connectionSettings[0].slaveId, 2);
-
-    QVERIFY(settings.general.connectionSettings[0].bTimeout);
-    QCOMPARE(settings.general.connectionSettings[0].timeout, 1001);
-
-    QVERIFY(settings.general.connectionSettings[0].bConsecutiveMax);
-    QCOMPARE(settings.general.connectionSettings[0].consecutiveMax, 250);
-
-    QVERIFY(settings.general.connectionSettings[0].bInt32LittleEndian);
-    QVERIFY(settings.general.connectionSettings[0].bPersistentConnection == false);
-
-    /* Connection id 1 */
-    QVERIFY(settings.general.connectionSettings[1].bConnectionId);
-    QCOMPARE(settings.general.connectionSettings[1].connectionId, 1);
-
-    QVERIFY(settings.general.connectionSettings[1].bConnectionState);
-
-    QVERIFY(settings.general.connectionSettings[1].bIp);
-    QCOMPARE(settings.general.connectionSettings[1].ip, "127.0.0.3");
-
-    QVERIFY(settings.general.connectionSettings[1].bPort);
-    QCOMPARE(settings.general.connectionSettings[1].port, 5021);
-
-    QVERIFY(settings.general.connectionSettings[1].bSlaveId);
-    QCOMPARE(settings.general.connectionSettings[1].slaveId, 3);
-
-    QVERIFY(settings.general.connectionSettings[1].bTimeout);
-    QCOMPARE(settings.general.connectionSettings[1].timeout, 1002);
-
-    QVERIFY(settings.general.connectionSettings[1].bConsecutiveMax);
-    QCOMPARE(settings.general.connectionSettings[1].consecutiveMax, 251);
-
-    QVERIFY(settings.general.connectionSettings[1].bInt32LittleEndian == false);
-    QVERIFY(settings.general.connectionSettings[1].bPersistentConnection);
-
 }
 
 void TestProjectFileParser::connSerial()
