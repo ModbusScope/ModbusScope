@@ -5,6 +5,7 @@
 #include <QColor>
 #include <QDomDocument>
 
+#include "generalerror.h"
 #include "projectfiledata.h"
 
 class ProjectFileParser : public QObject
@@ -12,26 +13,25 @@ class ProjectFileParser : public QObject
     Q_OBJECT
 public:
 
-
     explicit ProjectFileParser();
 
-    bool parseFile(QString &fileContent, ProjectFileData::ProjectSettings * pSettings);
+    GeneralError parseFile(QString &fileContent, ProjectFileData::ProjectSettings * pSettings);
 
 private:
 
-    bool parseModbusTag(const QDomElement &element, ProjectFileData::GeneralSettings *pGeneralSettings);
+    GeneralError parseModbusTag(const QDomElement &element, ProjectFileData::GeneralSettings *pGeneralSettings);
 
-    bool parseConnectionTag(const QDomElement &element, ProjectFileData::ConnectionSettings *pConnectionSettings);
-    bool parseLogTag(const QDomElement &element, ProjectFileData::LogSettings *pLogSettings);
-    bool parseLogToFile(const QDomElement &element, ProjectFileData::LogSettings *pLogSettings);
+    GeneralError parseConnectionTag(const QDomElement &element, ProjectFileData::ConnectionSettings *pConnectionSettings);
+    GeneralError parseLogTag(const QDomElement &element, ProjectFileData::LogSettings *pLogSettings);
+    GeneralError parseLogToFile(const QDomElement &element, ProjectFileData::LogSettings *pLogSettings);
 
-    bool parseScopeTag(const QDomElement &element, ProjectFileData::ScopeSettings *pScopeSettings);
-    bool parseRegisterTag(const QDomElement &element, ProjectFileData::RegisterSettings *pRegisterSettings);
+    GeneralError parseScopeTag(const QDomElement &element, ProjectFileData::ScopeSettings *pScopeSettings);
+    GeneralError parseRegisterTag(const QDomElement &element, ProjectFileData::RegisterSettings *pRegisterSettings);
 
-    bool parseViewTag(const QDomElement &element, ProjectFileData::ViewSettings *pViewSettings);
-    bool parseScaleTag(const QDomElement &element, ProjectFileData::ScaleSettings *pScaleSettings);
-    bool parseScaleXAxis(const QDomElement &element, ProjectFileData::ScaleSettings *pScaleSettings);
-    bool parseScaleYAxis(const QDomElement &element, ProjectFileData::ScaleSettings *pScaleSettings);
+    GeneralError parseViewTag(const QDomElement &element, ProjectFileData::ViewSettings *pViewSettings);
+    GeneralError parseScaleTag(const QDomElement &element, ProjectFileData::ScaleSettings *pScaleSettings);
+    GeneralError parseScaleXAxis(const QDomElement &element, ProjectFileData::ScaleSettings *pScaleSettings);
+    GeneralError parseScaleYAxis(const QDomElement &element, ProjectFileData::ScaleSettings *pScaleSettings);
 
     QDomDocument _domDocument;
 

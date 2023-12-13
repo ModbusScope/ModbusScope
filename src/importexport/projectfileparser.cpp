@@ -1,7 +1,6 @@
 
 #include <QFileInfo>
 #include <QDir>
-#include "util.h"
 #include "projectfileparser.h"
 #include "projectfiledefinitions.h"
 
@@ -14,38 +13,36 @@ using ProjectFileData::ViewSettings;
 using ProjectFileData::ScaleSettings;
 using ProjectFileData::GeneralSettings;
 
-
 ProjectFileParser::ProjectFileParser()
 {
 
 }
 
 
-bool ProjectFileParser::parseFile(QString& fileContent, ProjectSettings *pSettings)
+GeneralError ProjectFileParser::parseFile(QString& fileContent, ProjectSettings *pSettings)
 {
-    bool bRet = true;
+    GeneralError parseErr;
     QString errorStr;
     qint32 errorLine;
     qint32 errorColumn;
 
     if (!_domDocument.setContent(fileContent, true, &errorStr, &errorLine, &errorColumn))
     {
-       Util::showError(tr("Parse error at line %1, column %2:\n%3")
-                .arg(errorLine)
-                .arg(errorColumn)
-                .arg(errorStr));
-        bRet = false;
+        parseErr.reportError(QString("Parse error at line %1, column %2:\n%3")
+                            .arg(errorLine)
+                            .arg(errorColumn)
+                            .arg(errorStr));
     }
     else
     {
         QDomElement root = _domDocument.documentElement();
         if (root.tagName() != ProjectFileDefinitions::cModbusScopeTag)
         {
-            Util::showError(tr("The file is not a valid ModbusScope project file."));
-            bRet = false;
+            parseErr.reportError(QString("The file is not a valid ModbusScope project file."));
         }
         else
         {
+            bool bRet;
             // Check data level attribute
             QString strDataLevel = root.attribute(ProjectFileDefinitions::cDatalevelAttribute, "1");
             quint32 datalevel = strDataLevel.toUInt(&bRet);
@@ -55,22 +52,19 @@ bool ProjectFileParser::parseFile(QString& fileContent, ProjectSettings *pSettin
                 pSettings->dataLevel = datalevel;
                 if (datalevel < ProjectFileDefinitions::cMinimumDataLevel)
                 {
-                    Util::showError(tr("Data level %1 is not supported. Minimum datalevel is %2.\n\n"
+                    parseErr.reportError(QString("Data level %1 is not supported. Minimum datalevel is %2.\n\n"
                                        "Try saving the project file with a previous version of ModbusScope.\n\n"
                                        "Project file loading is aborted.")
                                         .arg(datalevel)
-                                        .arg(ProjectFileDefinitions::cMinimumDataLevel)
-                                    );
-                    bRet = false;
+                                        .arg(ProjectFileDefinitions::cMinimumDataLevel));
                 }
                 else if (datalevel > ProjectFileDefinitions::cCurrentDataLevel)
                 {
-                    Util::showError(tr("Data level %1 is not supported. Only datalevel %2 or lower is supported.\n\n"
+                    parseErr.reportError(QString("Data level %1 is not supported. Only datalevel %2 or lower is supported.\n\n"
                                        "Try upgrading ModbusScope to the latest version.\n\n"
                                        "Project file loading is aborted.")
                                         .arg(datalevel)
                                         .arg(ProjectFileDefinitions::cCurrentDataLevel));
-                    bRet = false;
                 }
                 else
                 {
@@ -79,34 +73,34 @@ bool ProjectFileParser::parseFile(QString& fileContent, ProjectSettings *pSettin
             }
             else
             {
-                Util::showError(tr("Data level (%1) is not a valid number").arg(strDataLevel));
+                parseErr.reportError(QString("Data level (%1) is not a valid number").arg(strDataLevel));
             }
 
-            if (bRet)
+            if (parseErr.result())
             {
                 QDomElement tag = root.firstChildElement();
                 while (!tag.isNull())
                 {
                     if (tag.tagName() == ProjectFileDefinitions::cModbusTag)
                     {
-                        bRet = parseModbusTag(tag, &pSettings->general);
-                        if (!bRet)
+                        parseErr = parseModbusTag(tag, &pSettings->general);
+                        if (!parseErr.result())
                         {
                             break;
                         }
                     }
                     else if (tag.tagName() == ProjectFileDefinitions::cScopeTag)
                     {
-                        bRet = parseScopeTag(tag, &pSettings->scope);
-                        if (!bRet)
+                        parseErr = parseScopeTag(tag, &pSettings->scope);
+                        if (!parseErr.result())
                         {
                             break;
                         }
                     }
                     else if (tag.tagName() == ProjectFileDefinitions::cViewTag)
                     {
-                        bRet = parseViewTag(tag, &pSettings->view);
-                        if (!bRet)
+                        parseErr = parseViewTag(tag, &pSettings->view);
+                        if (!parseErr.result())
                         {
                             break;
                         }
@@ -118,13 +112,13 @@ bool ProjectFileParser::parseFile(QString& fileContent, ProjectSettings *pSettin
         }
     }
 
-    return bRet;
+    return parseErr;
 }
 
 
-bool ProjectFileParser::parseModbusTag(const QDomElement &element, GeneralSettings * pGeneralSettings)
+GeneralError ProjectFileParser::parseModbusTag(const QDomElement &element, GeneralSettings * pGeneralSettings)
 {
-    bool bRet = true;
+    GeneralError parseErr;
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
@@ -132,16 +126,16 @@ bool ProjectFileParser::parseModbusTag(const QDomElement &element, GeneralSettin
         {
             pGeneralSettings->connectionSettings.append(ConnectionSettings());
 
-            bRet = parseConnectionTag(child, &pGeneralSettings->connectionSettings.last());
-            if (!bRet)
+            parseErr = parseConnectionTag(child, &pGeneralSettings->connectionSettings.last());
+            if (!parseErr.result())
             {
                 break;
             }
         }
         else if (child.tagName() == ProjectFileDefinitions::cLogTag)
         {
-            bRet = parseLogTag(child, &pGeneralSettings->logSettings);
-            if (!bRet)
+            parseErr = parseLogTag(child, &pGeneralSettings->logSettings);
+            if (!parseErr.result())
             {
                 break;
             }
@@ -153,22 +147,23 @@ bool ProjectFileParser::parseModbusTag(const QDomElement &element, GeneralSettin
         child = child.nextSiblingElement();
     }
 
-    return bRet;
+    return parseErr;
 }
 
-bool ProjectFileParser::parseConnectionTag(const QDomElement &element, ConnectionSettings * pConnectionSettings)
+GeneralError ProjectFileParser::parseConnectionTag(const QDomElement &element, ConnectionSettings * pConnectionSettings)
 {
-    bool bRet = true;
+    GeneralError parseErr;
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
+        bool bRet;
         if (child.tagName() == ProjectFileDefinitions::cConnectionIdTag)
         {
             pConnectionSettings->bConnectionId = true;
             pConnectionSettings->connectionId = static_cast<quint8>(child.text().toUInt(&bRet));
             if (!bRet)
             {
-                Util::showError(tr("Connection Id (%1) is not a valid number").arg(child.text()));
+                parseErr.reportError(QString("Connection Id (%1) is not a valid number").arg(child.text()));
                 break;
             }
         }
@@ -199,7 +194,7 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
             pConnectionSettings->port = static_cast<quint16>(child.text().toUInt(&bRet));
             if (!bRet)
             {
-                Util::showError(tr("Port ( %1 ) is not a valid number").arg(child.text()));
+                parseErr.reportError(QString("Port ( %1 ) is not a valid number").arg(child.text()));
                 break;
             }
         }
@@ -214,7 +209,7 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
             pConnectionSettings->baudrate = child.text().toUInt(&bRet);
             if (!bRet)
             {
-                Util::showError(tr("Baud rate ( %1 ) is not a valid number").arg(child.text()));
+                parseErr.reportError(QString("Baud rate ( %1 ) is not a valid number").arg(child.text()));
                 break;
             }
         }
@@ -224,7 +219,7 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
             pConnectionSettings->parity = child.text().toUInt(&bRet);
             if (!bRet)
             {
-                Util::showError(tr("Parity ( %1 ) is not a valid number").arg(child.text()));
+                parseErr.reportError(QString("Parity ( %1 ) is not a valid number").arg(child.text()));
                 break;
             }
         }
@@ -234,7 +229,7 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
             pConnectionSettings->stopbits = child.text().toUInt(&bRet);
             if (!bRet)
             {
-                Util::showError(tr("Stop bits ( %1 ) is not a valid number").arg(child.text()));
+                parseErr.reportError(QString("Stop bits ( %1 ) is not a valid number").arg(child.text()));
                 break;
             }
         }
@@ -244,7 +239,7 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
             pConnectionSettings->databits = child.text().toUInt(&bRet);
             if (!bRet)
             {
-                Util::showError(tr("Data bits ( %1 ) is not a valid number").arg(child.text()));
+                parseErr.reportError(QString("Data bits ( %1 ) is not a valid number").arg(child.text()));
                 break;
             }
         }
@@ -254,7 +249,7 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
             pConnectionSettings->slaveId = static_cast<quint8>(child.text().toUInt(&bRet));
             if (!bRet)
             {
-                Util::showError(tr("Slave id ( %1 ) is not a valid number").arg(child.text()));
+                parseErr.reportError(QString("Slave id ( %1 ) is not a valid number").arg(child.text()));
                 break;
             }
         }
@@ -264,7 +259,7 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
             pConnectionSettings->timeout = child.text().toUInt(&bRet);
             if (!bRet)
             {
-                Util::showError(tr("Timeout ( %1 ) is not a valid number").arg(child.text()));
+                parseErr.reportError(QString("Timeout ( %1 ) is not a valid number").arg(child.text()));
                 break;
             }
         }
@@ -274,7 +269,7 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
             pConnectionSettings->consecutiveMax = static_cast<quint8>(child.text().toUInt(&bRet));
             if (!bRet)
             {
-                Util::showError(tr("Consecutive register maximum ( %1 ) is not a valid number").arg(child.text()));
+                parseErr.reportError(QString("Consecutive register maximum ( %1 ) is not a valid number").arg(child.text()));
                 break;
             }
         }
@@ -307,25 +302,26 @@ bool ProjectFileParser::parseConnectionTag(const QDomElement &element, Connectio
         child = child.nextSiblingElement();
     }
 
-    return bRet;
+    return parseErr;
 }
 
-bool ProjectFileParser::parseLogTag(const QDomElement &element, LogSettings * pLogSettings)
+GeneralError ProjectFileParser::parseLogTag(const QDomElement &element, LogSettings * pLogSettings)
 {
-    bool bRet = true;
+    GeneralError parseErr;
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
         if (child.tagName() == ProjectFileDefinitions::cPollTimeTag)
         {
+            bool bRet;
             pLogSettings->bPollTime = true;
             pLogSettings->pollTime = child.text().toUInt(&bRet);
             if (!bRet)
             {
-                Util::showError(tr("Poll time ( %1 ) is not a valid number").arg(child.text()));
+                parseErr.reportError(QString("Poll time ( %1 ) is not a valid number").arg(child.text()));
                 break;
             }
-        } 
+        }
         else if (child.tagName() == ProjectFileDefinitions::cAbsoluteTimesTag)
         {
             if (!child.text().toLower().compare(ProjectFileDefinitions::cTrueValue))
@@ -339,8 +335,8 @@ bool ProjectFileParser::parseLogTag(const QDomElement &element, LogSettings * pL
         }
         else if (child.tagName() == ProjectFileDefinitions::cLogToFileTag)
         {
-            bRet = parseLogToFile(child, pLogSettings);
-            if (!bRet)
+            parseErr = parseLogToFile(child, pLogSettings);
+            if (!parseErr.result())
             {
                 break;
             }
@@ -352,12 +348,12 @@ bool ProjectFileParser::parseLogTag(const QDomElement &element, LogSettings * pL
         child = child.nextSiblingElement();
     }
 
-    return bRet;
+    return parseErr;
 }
 
-bool ProjectFileParser::parseLogToFile(const QDomElement &element, LogSettings *pLogSettings)
+GeneralError ProjectFileParser::parseLogToFile(const QDomElement &element, LogSettings *pLogSettings)
 {
-    bool bRet = true;
+    GeneralError parseErr;
 
     // Check attribute
     QString enabled = element.attribute(ProjectFileDefinitions::cEnabledAttribute, ProjectFileDefinitions::cTrueValue);
@@ -389,7 +385,7 @@ bool ProjectFileParser::parseLogToFile(const QDomElement &element, LogSettings *
                 {
                     /* path exist, but it is not a file */
                     bValid = false;
-                    Util::showError(tr("Log file path (%1) already exists, but it is not a file. Log file is set to default.").arg(fileInfo.filePath()));
+                    parseErr.reportError(QString("Log file path (%1) already exists, but it is not a file. Log file is set to default.").arg(fileInfo.filePath()));
                 }
                 else
                 {
@@ -399,7 +395,7 @@ bool ProjectFileParser::parseLogToFile(const QDomElement &element, LogSettings *
                     if (!fileInfo.dir().exists())
                     {
                         bValid = false;
-                        Util::showError(tr("Log file path (parent directory) does not exists (%1). Log file is set to default.").arg(fileInfo.filePath()));
+                        parseErr.reportError(QString("Log file path (parent directory) does not exists (%1). Log file is set to default.").arg(fileInfo.filePath()));
                     }
                 }
             }
@@ -421,20 +417,20 @@ bool ProjectFileParser::parseLogToFile(const QDomElement &element, LogSettings *
         child = child.nextSiblingElement();
     }
 
-    return bRet;
+    return parseErr;
 }
 
-bool ProjectFileParser::parseScopeTag(const QDomElement &element, ScopeSettings *pScopeSettings)
+GeneralError ProjectFileParser::parseScopeTag(const QDomElement &element, ScopeSettings *pScopeSettings)
 {
-    bool bRet = true;
+    GeneralError parseErr;
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
         if (child.tagName() == ProjectFileDefinitions::cRegisterTag)
         {
             RegisterSettings registerData;
-            bRet = parseRegisterTag(child, &registerData);
-            if (!bRet)
+            parseErr = parseRegisterTag(child, &registerData);
+            if (!parseErr.result())
             {
                 break;
             }
@@ -448,13 +444,13 @@ bool ProjectFileParser::parseScopeTag(const QDomElement &element, ScopeSettings 
         child = child.nextSiblingElement();
     }
 
-    return bRet;
+    return parseErr;
 }
 
 
-bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSettings *pRegisterSettings)
+GeneralError ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSettings *pRegisterSettings)
 {
-    bool bRet = true;
+    GeneralError parseErr;
 
     // Check attribute
     QString active = element.attribute(ProjectFileDefinitions::cActiveAttribute, ProjectFileDefinitions::cTrueValue);
@@ -472,6 +468,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
+        bool bRet;
         if (child.tagName() == ProjectFileDefinitions::cTextTag)
         {
             pRegisterSettings->text = child.text();
@@ -486,7 +483,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
             }
             else
             {
-                Util::showError(tr("Color is not a valid color. Did you use correct color format? Expecting #FF0000 (red)"));
+                parseErr.reportError(QString("Color is not a valid color. Did you use correct color format? Expecting #FF0000 (red)"));
                 break;
             }
         }
@@ -505,14 +502,14 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
             const qint32 newConnectionId = child.text().toInt(&bRet);
 
             if (
-                    (bRet)
+                (bRet)
+                &&
+                (
+                    (newConnectionId != 0)
                     &&
-                    (
-                        (newConnectionId != 0)
-                        &&
-                        (newConnectionId != 1)
-                    )
+                    (newConnectionId != 1)
                 )
+            )
             {
                 bRet = false;
             }
@@ -523,7 +520,7 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
             }
             else
             {
-                Util::showError(tr("Connection id (%1) is not a valid integer between 0 and 1.").arg(child.text()));
+                parseErr.reportError(QString("Connection id (%1) is not a valid integer between 0 and 1.").arg(child.text()));
                 break;
             }
         }
@@ -539,19 +536,19 @@ bool ProjectFileParser::parseRegisterTag(const QDomElement &element, RegisterSet
         child = child.nextSiblingElement();
     }
 
-    return bRet;
+    return parseErr;
 }
 
-bool ProjectFileParser::parseViewTag(const QDomElement &element, ViewSettings *pViewSettings)
+GeneralError ProjectFileParser::parseViewTag(const QDomElement &element, ViewSettings *pViewSettings)
 {
-    bool bRet = true;
+    GeneralError parseErr;
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
         if (child.tagName() == ProjectFileDefinitions::cScaleTag)
         {
-            bRet = parseScaleTag(child, &pViewSettings->scaleSettings);
-            if (!bRet)
+            parseErr = parseScaleTag(child, &pViewSettings->scaleSettings);
+            if (!parseErr.result())
             {
                 break;
             }
@@ -563,12 +560,12 @@ bool ProjectFileParser::parseViewTag(const QDomElement &element, ViewSettings *p
         child = child.nextSiblingElement();
     }
 
-    return bRet;
+    return parseErr;
 }
 
-bool ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleSettings *pScaleSettings)
+GeneralError ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleSettings *pScaleSettings)
 {
-    bool bRet = true;
+    GeneralError parseErr;
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
@@ -582,8 +579,8 @@ bool ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleSettings 
                 // Sliding interval mode
                 pScaleSettings->bSliding = true;
 
-                bRet = parseScaleXAxis(child, pScaleSettings);
-                if (!bRet)
+                parseErr = parseScaleXAxis(child, pScaleSettings);
+                if (!parseErr.result())
                 {
                     break;
                 }
@@ -608,8 +605,8 @@ bool ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleSettings 
                 // min max mode
                 pScaleSettings->bMinMax = true;
 
-                bRet = parseScaleYAxis(child, pScaleSettings);
-                if (!bRet)
+                parseErr = parseScaleYAxis(child, pScaleSettings);
+                if (!parseErr.result())
                 {
                     break;
                 }
@@ -626,18 +623,19 @@ bool ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleSettings 
         child = child.nextSiblingElement();
     }
 
-    return bRet;
+    return parseErr;
 }
 
-bool ProjectFileParser::parseScaleXAxis(const QDomElement &element, ScaleSettings *pScaleSettings)
+GeneralError ProjectFileParser::parseScaleXAxis(const QDomElement &element, ScaleSettings *pScaleSettings)
 {
-    bool bRet = true;
+    GeneralError parseErr;
     bool bSlidingInterval = false;
 
     // Check nodes
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
+        bool bRet;
         if (child.tagName() == ProjectFileDefinitions::cSlidingintervalTag)
         {
             pScaleSettings->slidingInterval = child.text().toUInt(&bRet);
@@ -647,7 +645,7 @@ bool ProjectFileParser::parseScaleXAxis(const QDomElement &element, ScaleSetting
             }
             else
             {
-                Util::showError(tr("Scale (x-axis) has an incorrect sliding interval. \"%1\" is not a valid number").arg(child.text()));
+                parseErr.reportError(QString("Scale (x-axis) has an incorrect sliding interval. \"%1\" is not a valid number").arg(child.text()));
                 break;
             }
         }
@@ -658,18 +656,17 @@ bool ProjectFileParser::parseScaleXAxis(const QDomElement &element, ScaleSetting
         child = child.nextSiblingElement();
     }
 
-    if (!bSlidingInterval)
+    if (parseErr.result() && !bSlidingInterval)
     {
-        Util::showError(tr("If x-axis has sliding window scaling then slidinginterval variable should be defined."));
-        bRet = false;
+        parseErr.reportError(QString("If x-axis has sliding window scaling then slidinginterval variable should be defined."));
     }
 
-    return bRet;
+    return parseErr;
 }
 
-bool ProjectFileParser::parseScaleYAxis(const QDomElement &element, ScaleSettings *pScaleSettings)
+GeneralError ProjectFileParser::parseScaleYAxis(const QDomElement &element, ScaleSettings *pScaleSettings)
 {
-    bool bRet = true;
+    GeneralError parseErr;
     bool bMin = false;
     bool bMax = false;
 
@@ -677,6 +674,7 @@ bool ProjectFileParser::parseScaleYAxis(const QDomElement &element, ScaleSetting
     QDomElement child = element.firstChildElement();
     while (!child.isNull())
     {
+        bool bRet;
         if (child.tagName() == ProjectFileDefinitions::cMinTag)
         {
             pScaleSettings->scaleMin = QLocale().toDouble(child.text(), &bRet);
@@ -686,8 +684,7 @@ bool ProjectFileParser::parseScaleYAxis(const QDomElement &element, ScaleSetting
             }
             else
             {
-                Util::showError(tr("Scale (y-axis) has an incorrect minimum. \"%1\" is not a valid double").arg(child.text()));
-                break;
+                parseErr.reportError(QString("Scale (y-axis) has an incorrect minimum. \"%1\" is not a valid double").arg(child.text()));
             }
         }
         else if (child.tagName() == ProjectFileDefinitions::cMaxTag)
@@ -699,7 +696,7 @@ bool ProjectFileParser::parseScaleYAxis(const QDomElement &element, ScaleSetting
             }
             else
             {
-                Util::showError(tr("Scale (y-axis) has an incorrect maximum. \"%1\" is not a valid double").arg(child.text()));
+                parseErr.reportError(QString("Scale (y-axis) has an incorrect maximum. \"%1\" is not a valid double").arg(child.text()));
                 break;
             }
         }
@@ -710,16 +707,21 @@ bool ProjectFileParser::parseScaleYAxis(const QDomElement &element, ScaleSetting
         child = child.nextSiblingElement();
     }
 
-    if (!bMin)
+    if (parseErr.result())
     {
-        Util::showError(tr("If y-axis has min max scaling then min variable should be defined."));
-        bRet = false;
-    }
-    else if (!bMax)
-    {
-        Util::showError(tr("If y-axis has min max scaling then max variable should be defined."));
-        bRet = false;
+        if (!bMin)
+        {
+            parseErr.reportError(QString("If y-axis has min max scaling then min variable should be defined."));
+        }
+        else if (!bMax)
+        {
+            parseErr.reportError(QString("If y-axis has min max scaling then max variable should be defined."));
+        }
+        else
+        {
+            /* No error */
+        }
     }
 
-    return bRet;
+    return parseErr;
 }
