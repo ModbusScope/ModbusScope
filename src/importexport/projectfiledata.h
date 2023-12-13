@@ -8,18 +8,16 @@ namespace ProjectFileData
 {
     typedef struct _RegisterSettings
     {
-        _RegisterSettings() : text(""), bActive(true), connectionId(0), expression("0"), bColor(false), valueAxis(0) {}
+        QString text = QString("");
+        bool bActive = false;
+        quint8 connectionId = 0;
 
-        QString text;
-        bool bActive;
-        quint8 connectionId;
+        QString expression = QString("0");
 
-        QString expression;
-
-        bool bColor;
+        bool bColor = false;
         QColor color;
 
-        quint32 valueAxis;
+        quint32 valueAxis = 0;
 
     } RegisterSettings;
 
@@ -30,18 +28,14 @@ namespace ProjectFileData
 
     typedef struct _ScaleSettings
     {
-        _ScaleSettings() : bSliding(false), slidingInterval(60),
-                           bWindowScale(false), bMinMax(false),
-                           scaleMin(0), scaleMax(10){}
+        bool bSliding = false;
+        quint32 slidingInterval = 60;
 
-        bool bSliding;
-        quint32 slidingInterval;
+        bool bWindowScale = false;
 
-        bool bWindowScale;
-
-        bool bMinMax;
-        double scaleMin;
-        double scaleMax;
+        bool bMinMax = false;
+        double scaleMin = 0;
+        double scaleMax = 10;
     } ScaleSettings;
 
     typedef struct
@@ -52,71 +46,60 @@ namespace ProjectFileData
 
     typedef struct _LogSettings
     {
-        _LogSettings() : bPollTime(false), pollTime (), bAbsoluteTimes(false), bLogToFile(true), bLogToFileFile(false) {}
-
-        bool bPollTime;
+        bool bPollTime = false;
         quint32 pollTime;
 
-        bool bAbsoluteTimes;
+        bool bAbsoluteTimes = false;
 
-        bool bLogToFile;
-        bool bLogToFileFile;
+        bool bLogToFile = true;
+        bool bLogToFileFile = false;
         QString logFile;
 
     } LogSettings;
 
     typedef struct _ConnectionSettings
     {
-        _ConnectionSettings() : bConnectionId(false), connectionId(0),
-                                bConnectionState(true), bConnectionType(false),
-                                bIp(false), bPort(false), port(0),
-                                bPortName(false), bBaudrate(false), baudrate(0),
-                                bParity(false), parity(0), bStopbits(false), stopbits(0),
-                                bDatabits(false), databits(0),
-                                bSlaveId(false), slaveId(0), bTimeout(false), timeout(0), bConsecutiveMax(false),
-                                consecutiveMax(0), bInt32LittleEndian(true), bPersistentConnection(true) {}
+        bool bConnectionId = false;
+        quint8 connectionId = 0;
 
-        bool bConnectionId;
-        quint8 connectionId;
+        bool bConnectionState = true;
 
-        bool bConnectionState;
-
-        bool bConnectionType;
+        bool bConnectionType = false;
         QString connectionType;
 
-        bool bIp;
+        bool bIp = false;
         QString ip;
 
-        bool bPort;
+        bool bPort = false;
         quint16 port;
 
-        bool bPortName;
+        bool bPortName = false;
         QString portName;
 
-        bool bBaudrate;
+        bool bBaudrate = false;
         quint32 baudrate;
 
-        bool bParity;
-        quint32 parity;
+        bool bParity = false;
+        quint32 parity = 0;
 
-        bool bStopbits;
+        bool bStopbits = false;
         quint32 stopbits;
 
-        bool bDatabits;
+        bool bDatabits = false;
         quint32 databits;
 
-        bool bSlaveId;
+        bool bSlaveId = false;
         quint8 slaveId;
 
-        bool bTimeout;
+        bool bTimeout = false;
         quint32 timeout;
 
-        bool bConsecutiveMax;
+        bool bConsecutiveMax = false;
         quint8 consecutiveMax;
 
-        bool bInt32LittleEndian;
+        bool bInt32LittleEndian = true;
 
-        bool bPersistentConnection;
+        bool bPersistentConnection = true;
 
     } ConnectionSettings;
 
