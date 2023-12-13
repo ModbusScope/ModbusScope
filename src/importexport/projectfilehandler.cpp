@@ -3,10 +3,11 @@
 #include <QFileDialog>
 
 #include "fileselectionhelper.h"
-#include "util.h"
+#include "projectfiledata.h"
+#include "projectfileparser.h"
 #include "projectfileexporter.h"
-
 #include "projectfilehandler.h"
+#include "util.h"
 
 ProjectFileHandler::ProjectFileHandler(GuiModel* pGuiModel, SettingsModel* pSettingsModel, GraphDataModel* pGraphDataModel) : QObject(nullptr)
 {
@@ -27,12 +28,17 @@ void ProjectFileHandler::openProjectFile(QString projectFilePath)
         QTextStream in(&file);
         QString projectFileContents = in.readAll();
 
-        if (fileParser.parseFile(projectFileContents, &loadedSettings))
+        GeneralError parseErr = fileParser.parseFile(projectFileContents, &loadedSettings);
+        if (parseErr.result())
         {
             this->updateProjectSetting(&loadedSettings);
 
             _pGuiModel->setProjectFilePath(projectFilePath);
             _pGuiModel->setGuiState(GuiModel::STOPPED);
+        }
+        else
+        {
+            Util::showError(parseErr.msg());
         }
     }
     else
@@ -259,7 +265,7 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
     for (qint32 i = 0; i < pProjectSettings->scope.registerList.size(); i++)
     {
         GraphData rowData;
-        ProjectFileData::RegisterSettings* const pSettingData = &pProjectSettings->scope.registerList[i];
+        ProjectFileData::RegisterSettings const* const pSettingData = &pProjectSettings->scope.registerList[i];
 
         rowData.setActive(pSettingData->bActive);
         rowData.setLabel(pSettingData->text);
