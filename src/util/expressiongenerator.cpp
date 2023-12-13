@@ -1,9 +1,9 @@
 
-#include "updateregisternewexpression.h"
+#include "expressiongenerator.h"
 
 #include <QStringLiteral>
 
-namespace UpdateRegisterNewExpression
+namespace ExpressionGenerator
 {
     QString typeSuffix(ModbusDataType::Type type)
     {
@@ -22,7 +22,7 @@ namespace UpdateRegisterNewExpression
 
     QString constructRegisterString(quint32 registerAddress, ModbusDataType::Type type, quint8 connectionId)
     {
-        QString suffix = UpdateRegisterNewExpression::typeSuffix(type);
+        QString suffix = ExpressionGenerator::typeSuffix(type);
         QString connStr = connectionId != 0 ? QString("@%1").arg(connectionId + 1) : QString();
 
         return QString("${%1%2%3}").arg(registerAddress).arg(connStr, suffix);

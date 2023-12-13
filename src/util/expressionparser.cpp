@@ -1,8 +1,7 @@
 #include "expressionparser.h"
-
-#include "scopelogging.h"
 #include "expressionregex.h"
 #include "modbusdatatype.h"
+#include "scopelogging.h"
 
 const QString ExpressionParser::_cRegisterFunctionTemplate = "r(%1%2)";
 
