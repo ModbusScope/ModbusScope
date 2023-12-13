@@ -11,6 +11,7 @@ private slots:
     void cleanup();
 
     void tooLowDataLevel();
+    void tooHighDataLevel();
     void dataLevel3Expressions();
 
     void connSerial();
