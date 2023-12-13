@@ -32,6 +32,15 @@ void TestProjectFileParser::tooLowDataLevel()
     QVERIFY(parseError.result() == false);
 }
 
+void TestProjectFileParser::tooHighDataLevel()
+{
+    ProjectFileParser projectParser;
+    ProjectFileData::ProjectSettings settings;
+
+    GeneralError parseError = projectParser.parseFile(ProjectFileTestData::cTooHighDataLevel, &settings);
+    QVERIFY(parseError.result() == false);
+}
+
 void TestProjectFileParser::dataLevel3Expressions()
 {
     ProjectFileParser projectParser;
