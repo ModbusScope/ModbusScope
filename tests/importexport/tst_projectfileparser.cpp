@@ -27,8 +27,9 @@ void TestProjectFileParser::tooLowDataLevel()
 {
     ProjectFileParser projectParser;
     ProjectFileData::ProjectSettings settings;
-    // TODO
-    //QVERIFY(projectParser.parseFile(ProjectFileTestData::cTooLowDataLevel, &settings) == false);
+
+    GeneralError parseError = projectParser.parseFile(ProjectFileTestData::cTooLowDataLevel, &settings);
+    QVERIFY(parseError.result() == false);
 }
 
 void TestProjectFileParser::dataLevel3Expressions()
@@ -36,7 +37,8 @@ void TestProjectFileParser::dataLevel3Expressions()
     ProjectFileParser projectParser;
     ProjectFileData::ProjectSettings settings;
 
-    QVERIFY(projectParser.parseFile(ProjectFileTestData::cDataLevel3Expressions, &settings));
+    GeneralError parseError = projectParser.parseFile(ProjectFileTestData::cDataLevel3Expressions, &settings);
+    QVERIFY(parseError.result());
 
     QVERIFY(settings.scope.registerList[0].bActive);
     QCOMPARE(settings.scope.registerList[0].expression, QString("${40001}/2"));
@@ -58,7 +60,8 @@ void TestProjectFileParser::connSerial()
     ProjectFileParser projectParser;
     ProjectFileData::ProjectSettings settings;
 
-    QVERIFY(projectParser.parseFile(ProjectFileTestData::cConnSerial, &settings));
+    GeneralError parseError = projectParser.parseFile(ProjectFileTestData::cConnSerial, &settings);
+    QVERIFY(parseError.result());
 
     /* Connection id 0 */
     QVERIFY(settings.general.connectionSettings[0].bConnectionId);
@@ -108,7 +111,8 @@ void TestProjectFileParser::connMixedMulti()
     ProjectFileParser projectParser;
     ProjectFileData::ProjectSettings settings;
 
-    QVERIFY(projectParser.parseFile(ProjectFileTestData::cConnMixedMulti, &settings));
+    GeneralError parseError = projectParser.parseFile(ProjectFileTestData::cConnMixedMulti, &settings);
+    QVERIFY(parseError.result());
 
     QCOMPARE(settings.general.connectionSettings.size(), 3);
 
@@ -247,7 +251,8 @@ void TestProjectFileParser::connEmpty()
     ProjectFileParser projectParser;
     ProjectFileData::ProjectSettings settings;
 
-    QVERIFY(projectParser.parseFile(ProjectFileTestData::cConnEmpty, &settings));
+    GeneralError parseError = projectParser.parseFile(ProjectFileTestData::cConnEmpty, &settings);
+    QVERIFY(parseError.result());
 
     /* Connection id 0 */
     QVERIFY(settings.general.connectionSettings[0].bConnectionId == false);
@@ -275,7 +280,8 @@ void TestProjectFileParser::scaleDouble()
     ProjectFileParser projectParser;
     ProjectFileData::ProjectSettings settings;
 
-    QVERIFY(projectParser.parseFile(ProjectFileTestData::cScaleDouble, &settings));
+    GeneralError parseError = projectParser.parseFile(ProjectFileTestData::cScaleDouble, &settings);
+    QVERIFY(parseError.result());
 
     /* Connection id 0 */
     QVERIFY(settings.view.scaleSettings.bSliding);
@@ -291,7 +297,8 @@ void TestProjectFileParser::valueAxis()
     ProjectFileParser projectParser;
     ProjectFileData::ProjectSettings settings;
 
-    QVERIFY(projectParser.parseFile(ProjectFileTestData::cValueAxis, &settings));
+    GeneralError parseError = projectParser.parseFile(ProjectFileTestData::cValueAxis, &settings);
+    QVERIFY(parseError.result());
 
     QCOMPARE(settings.scope.registerList[0].valueAxis, 0);
     QCOMPARE(settings.scope.registerList[1].valueAxis, 1);

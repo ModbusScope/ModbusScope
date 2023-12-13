@@ -27,12 +27,17 @@ void ProjectFileHandler::openProjectFile(QString projectFilePath)
         QTextStream in(&file);
         QString projectFileContents = in.readAll();
 
-        if (fileParser.parseFile(projectFileContents, &loadedSettings))
+        GeneralError parseErr = fileParser.parseFile(projectFileContents, &loadedSettings);
+        if (parseErr.result())
         {
             this->updateProjectSetting(&loadedSettings);
 
             _pGuiModel->setProjectFilePath(projectFilePath);
             _pGuiModel->setGuiState(GuiModel::STOPPED);
+        }
+        else
+        {
+            Util::showError(parseErr.msg());
         }
     }
     else
