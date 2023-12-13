@@ -4,10 +4,9 @@
 #include <QObject>
 
 #include "guimodel.h"
+#include "projectfiledata.h"
 #include "settingsmodel.h"
 #include "graphdatamodel.h"
-
-#include "projectfileparser.h"
 
 class ProjectFileHandler : public QObject
 {
