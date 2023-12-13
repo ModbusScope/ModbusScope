@@ -1,15 +1,15 @@
-#ifndef UPDATE_REGISTER_NEW_EXPRESSION_H__
-#define UPDATE_REGISTER_NEW_EXPRESSION_H__
+#ifndef EXPRESSION_GENERATOR_H__
+#define EXPRESSION_GENERATOR_H__
 
 #include <QString>
 
 #include "modbusdatatype.h"
 
-namespace UpdateRegisterNewExpression
+namespace ExpressionGenerator
 {
     QString typeSuffix(ModbusDataType::Type type);
     QString constructRegisterString(quint32 registerAddress, ModbusDataType::Type type, quint8 connectionId);
 }
 
-#endif // UPDATE_REGISTER_NEW_EXPRESSION_H__
+#endif // EXPRESSION_GENERATOR_H__
 

@@ -1,6 +1,6 @@
 #include "addregisterwidget.h"
 #include "settingsmodel.h"
-#include "updateregisternewexpression.h"
+#include "expressiongenerator.h"
 #include "modbusdatatype.h"
 #include "modbusaddress.h"
 
@@ -128,5 +128,5 @@ QString AddRegisterWidget::generateExpression()
         connectionId = 0;
     }
 
-    return UpdateRegisterNewExpression::constructRegisterString(registerAddr.address(ModbusAddress::Offset::WITH_OFFSET), type, connectionId);
+    return ExpressionGenerator::constructRegisterString(registerAddr.address(ModbusAddress::Offset::WITH_OFFSET), type, connectionId);
 }

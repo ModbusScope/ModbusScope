@@ -1,7 +1,7 @@
 
 #include <QObject>
 
-class TestUpdateRegisterNewExpression: public QObject
+class TestExpressionGenerator: public QObject
 {
     Q_OBJECT
 
