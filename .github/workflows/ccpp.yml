@@ -21,7 +21,7 @@ jobs:
       - name: Deploy
         run: bash scripts/deploy_linux.sh
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: modbusscope-linux
           path: ModbusScope*.AppImage
@@ -39,7 +39,7 @@ jobs:
           sh create_doc.sh
           mv docs/_build/latex/modbusscope.pdf modbusscope-user-manual.pdf
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: modbusscope-user-manual
           path: modbusscope-user-manual.pdf
@@ -65,7 +65,7 @@ jobs:
         shell: cmd
         run: scripts\full_build_and_deploy_windows.bat '${{ steps.cache.outputs.cache-hit }}' ${{ github.workspace }}\Qt
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: modbusscope-windows
           path: |
