@@ -37,7 +37,7 @@ void ExpressionParser::parseExpressions(QStringList& expressions)
     }
 }
 
-QString ExpressionParser::processExpression(QString& graphExpr)
+QString ExpressionParser::processExpression(QString const & graphExpr)
 {
     QString resultExpr = graphExpr;
     QRegularExpressionMatchIterator i = _findRegRegex.globalMatch(resultExpr);
@@ -98,9 +98,9 @@ bool ExpressionParser::processRegisterExpression(QString regExpr, ModbusRegister
     return bRet;
 }
 
-QString ExpressionParser::constructInternalRegisterFunction(ModbusRegister &modbusReg, int size)
+QString ExpressionParser::constructInternalRegisterFunction(ModbusRegister const & modbusReg, int size)
 {
-    quint8 idx;
+    quint32 idx;
     if (_modbusRegisters.contains(modbusReg))
     {
         idx = _modbusRegisters.indexOf(modbusReg);
@@ -131,7 +131,7 @@ bool ExpressionParser::parseAddress(QString strAddr, ModbusRegister& modbusReg)
     }
     else
     {
-        quint32 addr = static_cast<quint32>(strAddr.toUInt(&bRet));
+        quint32 addr = strAddr.toUInt(&bRet);
         if (bRet)
         {
             modbusReg.setAddress(addr);
