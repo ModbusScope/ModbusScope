@@ -9,7 +9,7 @@ class ExpressionParser : public QObject
 {
     Q_OBJECT
 public:
-    ExpressionParser(QStringList& expressions);
+    explicit ExpressionParser(QStringList& expressions);
 
     void modbusRegisters(QList<ModbusRegister>& registerList);
     void processedExpressions(QStringList& expressionList);
@@ -22,9 +22,9 @@ private:
     bool parseConnectionId(QString strConnectionId, ModbusRegister& modbusReg);
     bool parseType(QString strType, ModbusRegister& modbusReg);
 
-    QString processExpression(QString& expr);
+    QString processExpression(QString const & expr);
     bool processRegisterExpression(QString regExpr, ModbusRegister &modbusReg);
-    QString constructInternalRegisterFunction(ModbusRegister& modbusReg, int size);
+    QString constructInternalRegisterFunction(ModbusRegister const & modbusReg, int size);
 
     QStringList _processedExpressions;
     QList<ModbusRegister> _modbusRegisters;
