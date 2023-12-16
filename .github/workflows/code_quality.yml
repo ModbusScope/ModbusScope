@@ -31,8 +31,11 @@ jobs:
         gcovr -x > cobertura.xml
 
     - name: Run codacy-coverage-reporter
-      uses: codacy/codacy-coverage-reporter-action@v1
+      uses: codacy/codacy-coverage-reporter-action@master
       with:
-        api-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
         language: 'CPP'
         coverage-reports: cobertura.xml
+      env:
+        secrets.CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+      if: "${{ (!!env.CODACY_PROJECT_TOKEN) }}"
