@@ -36,3 +36,6 @@ jobs:
         api-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
         language: 'CPP'
         coverage-reports: cobertura.xml
+      env:
+        secrets.CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+      if: "${{ (!!env.CODACY_PROJECT_TOKEN) }}"
