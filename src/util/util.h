@@ -42,32 +42,19 @@ public:
 
     static QString formatDoubleForExport(double number)
     {
-        QString tmp;
-        
-        /* TODO: Can't this be done without converting to string and back and back again? */
+        QLocale locale = QLocale();
+        locale.setNumberOptions(QLocale::OmitGroupSeparator);
 
-        // Round number to 3 decimals
-        tmp = QLocale().toString(number, 'f', 3);
-
-        // Remove group separator
-        if (QLocale().groupSeparator() != QLocale().decimalPoint())
+        QString str;
+        if (number < 0.0001)
         {
-            tmp = tmp.replace(QLocale().groupSeparator(), "");
+            str = locale.toString(number, 'g', QLocale::FloatingPointShortest);
         }
-
-        // convert back to double
-        double doubleTmp = QLocale().toDouble(tmp);
-
-        // Make sure trailing zeros are removed
-        tmp = QLocale().toString(doubleTmp, 'g', 9);
-
-        // Remove group separator
-        if (QLocale().groupSeparator() != QLocale().decimalPoint())
+        else
         {
-            tmp = tmp.replace(QLocale().groupSeparator(), "");
+            str = locale.toString(number, 'F', QLocale::FloatingPointShortest);
         }
-
-        return tmp;
+        return str;
     }
     
     static const QList<QColor> cColorlist;
