@@ -24,13 +24,10 @@ execute_process(
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/util/version.h.in ${CMAKE_CURRENT_SOURCE_DIR}/util/version.h)
 
-
-FILE(GLOB_RECURSE SRCS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp") #all .cpp in current "src" folder and sub folders
+FILE(GLOB_RECURSE SRCS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/*.h") #all .cpp/.h in current "src" folder and sub folders
 FILE(GLOB_RECURSE UIS "${CMAKE_CURRENT_SOURCE_DIR}/*.ui") #all .ui in current "src" folder and sub folders
 
-
 add_library (${SCOPESOURCE} ${SRCS} ${UIS})
-
 
 # Default GUI type is blank
 set(GUI_TYPE "")
