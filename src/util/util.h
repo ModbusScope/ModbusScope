@@ -42,7 +42,7 @@ public:
 
     static QString formatDoubleForExport(double number)
     {
-        QLocale locale = QLocale();
+        auto locale = QLocale();
         locale.setNumberOptions(QLocale::OmitGroupSeparator);
 
         QString str;
