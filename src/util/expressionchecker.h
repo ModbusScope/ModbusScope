@@ -23,7 +23,7 @@ public:
     qint32 errorPos();
 
 signals:
-    void resultsReady();
+    void resultsReady(bool valid);
 
 private slots:
     void handleDataReady(ResultDoubleList resultList);

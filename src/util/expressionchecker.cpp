@@ -84,7 +84,7 @@ void ExpressionChecker::handleDataReady(ResultDoubleList resultList)
 
     _errorPos = _graphDataHandler.expressionErrorPos(0);
 
-    emit resultsReady();
+    emit resultsReady(_bValid);
 }
 
 

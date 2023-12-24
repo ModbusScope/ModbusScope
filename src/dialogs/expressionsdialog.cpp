@@ -123,14 +123,14 @@ void ExpressionsDialog::handleAccept()
     done(QDialog::Accepted);
 }
 
-void ExpressionsDialog::handleResultReady()
+void ExpressionsDialog::handleResultReady(bool valid)
 {
     _pHighlighter->setExpressionErrorPosition(_expressionChecker.errorPos());
     _pHighlighter->rehighlight();
 
     QString numOutput;
     QString backgroundStyle;
-    if (_expressionChecker.isValid())
+    if (valid)
     {
         numOutput = QString("%0").arg(_expressionChecker.result());
         backgroundStyle = "background-color: rgba(0,0,0,0%);";
