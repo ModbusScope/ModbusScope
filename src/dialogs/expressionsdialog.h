@@ -25,7 +25,7 @@ private slots:
     void handleInputChange();
     void handleCancel();
     void handleAccept();
-    void handleResultReady();
+    void handleResultReady(bool valid);
 
 private:
 
