@@ -19,7 +19,7 @@ void ExpressionDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
     const QWidget *widget = option.widget;
-    QStyle *style = widget ? widget->style(): QApplication::style();
+    const QStyle *style = widget ? widget->style(): QApplication::style();
     style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, widget);
 
     QStyleOptionButton editButtonOption;
@@ -44,13 +44,13 @@ bool ExpressionDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
                                      const QStyleOptionViewItem &option,
                                      const QModelIndex &index)
 {
-    Q_UNUSED(model);
+    Q_UNUSED(model)
 
     if (event->type() == QEvent::MouseButtonRelease)
     {
-        QMouseEvent *mouse_event = static_cast<QMouseEvent*>(event);
-        if (mouse_event->button() == Qt::LeftButton
-            && this->buttonRect(option).contains(mouse_event->pos()))
+        auto mouseEvent = static_cast<QMouseEvent const*>(event);
+        if (mouseEvent->button() == Qt::LeftButton
+            && this->buttonRect(option).contains(mouseEvent->pos()))
         {
             emit clicked(index.row());
             return true;
