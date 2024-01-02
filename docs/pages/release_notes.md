@@ -15,6 +15,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 ### Changed
 
 - Improve formatting of large and small values ([Github #287](https://github.com/jgeudens/ModbusScope/issues/287))
+- Implement easier editing of expression
 
 ### Removed
 
