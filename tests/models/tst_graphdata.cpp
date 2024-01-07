@@ -45,6 +45,17 @@ void TestGraphData::setLabel()
     QCOMPARE(graphData.label(), baseString + baseString);
 }
 
+void TestGraphData::setExpressionResetsStatus()
+{
+    GraphData graphData;
+
+    graphData.setExpression("${40001}}");
+    graphData.setExpressionStatus(GraphData::ExpressionStatus::SYNTAX_ERROR);
+
+    graphData.setExpression("${40001}");
+    QCOMPARE(GraphData::ExpressionStatus::UNKNOWN, graphData.expressionStatus());
+}
+
 /* TODO: Add extra test for other functions */
 
 QTEST_GUILESS_MAIN(TestGraphData)
