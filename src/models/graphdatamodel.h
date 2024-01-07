@@ -50,6 +50,7 @@ public:
     QColor color(quint32 index) const;
     bool isActive(quint32 index) const;
     QString expression(quint32 index) const;
+    GraphData::ExpressionStatus expressionStatus(quint32 index) const;
     QString simplifiedExpression(quint32 index) const;
     QSharedPointer<QCPGraphDataContainer> dataMap(quint32 index);
 
@@ -59,6 +60,7 @@ public:
     void setColor(quint32 index, const QColor &color);
     void setActive(quint32 index, bool bActive);
     void setExpression(quint32 index, QString expression);
+    void setExpressionStatus(quint32 index, GraphData::ExpressionStatus status);
 
     void add(GraphData rowData);
     void add(QList<GraphData> graphDataList);
@@ -82,6 +84,7 @@ signals:
     void colorChanged(const quint32 graphIdx);
     void activeChanged(const quint32 graphIdx);
     void expressionChanged(const quint32 graphIdx);
+    void expressionStatusChanged(const quint32 graphIdx);
     void graphsAddData(QList<double>, QList<QList<double> > data);
 
     void moved();
@@ -101,6 +104,8 @@ private:
 
     QList<GraphData> _graphData;
     QList<quint32> _activeGraphList;
+
+    static const QColor lightRed;
 };
 
 #endif // GRAPHDATAMODEL_H

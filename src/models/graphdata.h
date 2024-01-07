@@ -12,6 +12,13 @@ public:
     explicit GraphData();
     ~GraphData();
 
+    enum class ExpressionStatus
+    {
+        UNKNOWN = 0,
+        VALID,
+        SYNTAX_ERROR,
+    };
+
     typedef enum
     {
         VALUE_AXIS_PRIMARY = 0,
@@ -37,6 +44,9 @@ public:
     QString expression() const;
     void setExpression(QString expression);
 
+    ExpressionStatus expressionStatus() const;
+    void setExpressionStatus(ExpressionStatus status);
+
     QSharedPointer<QCPGraphDataContainer> dataMap();
 
 private:
@@ -48,6 +58,7 @@ private:
 
     bool _bActive;
     QString _expression;
+    ExpressionStatus _expressionStatus;
 
     QSharedPointer<QCPGraphDataContainer> _pDataMap;
 

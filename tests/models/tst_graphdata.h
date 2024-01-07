@@ -12,6 +12,7 @@ private slots:
     void cleanup();
 
     void setLabel();
+    void setExpressionResetsStatus();
 
 private:
 

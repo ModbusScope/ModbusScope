@@ -4,6 +4,8 @@
 
 #include "graphdatamodel.h"
 
+const QColor GraphDataModel::lightRed = QColor(255, 0, 0, 127);
+
 GraphDataModel::GraphDataModel(QObject *parent) : QAbstractTableModel(parent)
 {
     _graphData.clear();
@@ -13,6 +15,7 @@ GraphDataModel::GraphDataModel(QObject *parent) : QAbstractTableModel(parent)
     connect(this, &GraphDataModel::colorChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::activeChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::expressionChanged, this, &GraphDataModel::modelDataChanged);
+    connect(this, &GraphDataModel::expressionStatusChanged, this, &GraphDataModel::modelDataChanged);
 
     /* When adding or removing graphs, the complete view should be refreshed to make sure all indexes are updated */
     connect(this, &GraphDataModel::added, this, &GraphDataModel::modelCompleteDataChanged);
@@ -62,6 +65,10 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return simplifiedExpression(index.row());
+        }
+        else if ((role == Qt::BackgroundRole) && (expressionStatus(index.row()) == GraphData::ExpressionStatus::SYNTAX_ERROR))
+        {
+            return lightRed;
         }
         break;
     case column::VALUE_AXIS:
@@ -329,6 +336,11 @@ QString GraphDataModel::expression(quint32 index) const
     return _graphData[index].expression();
 }
 
+GraphData::ExpressionStatus GraphDataModel::expressionStatus(quint32 index) const
+{
+    return _graphData[index].expressionStatus();
+}
+
 QString GraphDataModel::simplifiedExpression(quint32 index) const
 {
     return _graphData[index].expression().simplified();
@@ -381,7 +393,6 @@ void GraphDataModel::setActive(quint32 index, bool bActive)
     {
         _graphData[index].setActive(bActive);
 
-        // Update activeGraphList
         updateActiveGraphList();
 
         // When deactivated, clear data
@@ -405,6 +416,15 @@ void GraphDataModel::setExpression(quint32 index, QString expression)
     {
          _graphData[index].setExpression(expression);
          emit expressionChanged(index);
+    }
+}
+
+void GraphDataModel::setExpressionStatus(quint32 index, GraphData::ExpressionStatus status)
+{
+    if (_graphData[index].expressionStatus() != status)
+    {
+        _graphData[index].setExpressionStatus(status);
+        emit expressionStatusChanged(index);
     }
 }
 
