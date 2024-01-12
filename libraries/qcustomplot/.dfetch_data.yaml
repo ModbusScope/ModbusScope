@@ -2,9 +2,9 @@
 # For more info see https://dfetch.rtfd.io/en/latest/getting_started.html
 dfetch:
   branch: v2.1.1
-  hash: d3eb46e886543ee270971502ab26f23f
-  last_fetch: 10/11/2022, 21:28:01
-  patch: ''
+  hash: 6ab47fb31d9b5225d77d202a0abfb71a
+  last_fetch: 12/01/2024, 17:22:40
+  patch: libraries/patches/axis_deselect_modifier.patch
   remote_url: https://github.com/jgeudens/qcustomplot-release
   revision: d8cca69ccd94e6bce6e9047105a9e452ff0a6cc5
   tag: ''

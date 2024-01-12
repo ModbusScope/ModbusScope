@@ -15,6 +15,7 @@ manifest:
     dst: libraries/qcustomplot
     branch: v2.1.1
     repo-path: jgeudens/qcustomplot-release
+    patch: libraries/patches/axis_deselect_modifier.patch
 
   - name: googletest
     dst: tests/googletest
