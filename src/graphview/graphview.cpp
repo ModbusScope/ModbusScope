@@ -37,6 +37,13 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
     * */
     _pPlot->setPlottingHints(QCP::phCacheLabels | QCP::phFastPolylines);
 
+    /*
+    * Use other modifier key than Ctrl for multi select.
+    * ModbusScope uses Ctrl for adding/moving marker.
+    * Note: Multi select is disabled, but modifier needs to be changed from default.
+    * */
+    _pPlot->setMultiSelectModifier(Qt::ShiftModifier);
+
     // Samples are enabled
     _bEnableSampleHighlight = true;
 
