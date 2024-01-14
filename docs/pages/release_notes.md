@@ -11,6 +11,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 ### Fixed
 
 - Fixed warning when loading mbs file with unsupported datalevel
+- Don't deselect axis when Ctrl key is pressed ([Github #304](https://github.com/jgeudens/ModbusScope/issues/304))
 
 ### Changed
 
