@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "expressionstatus.h"
 #include "ui_mainwindow.h"
 #include "qcustomplot.h"
 #include "graphdatahandler.h"
@@ -60,6 +61,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _pGraphView = new GraphView(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
     _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel, _pSettingsModel, _pDataParserModel, this);
     _pProjectFileHandler = new ProjectFileHandler(_pGuiModel, _pSettingsModel, _pGraphDataModel);
+    _pExpressionStatus = new ExpressionStatus(_pGraphDataModel);
 
     _pLegend = _pUi->legend;
     _pLegend->setModels(_pGuiModel, _pGraphDataModel);
@@ -235,6 +237,7 @@ MainWindow::~MainWindow()
     delete _pGraphBringToFront;
     delete _pDataFileHandler;
     delete _pProjectFileHandler;
+    delete _pExpressionStatus;
 
     delete _pUpdateNotify;
 

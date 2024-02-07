@@ -7,7 +7,6 @@
 
 #include "graphdata.h"
 
-
 class GraphDataModel : public QAbstractTableModel
 {
     Q_OBJECT

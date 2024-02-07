@@ -34,6 +34,7 @@ class MarkerInfo;
 class DataFileHandler;
 class ProjectFileHandler;
 class Legend;
+class ExpressionStatus;
 
 class MainWindow : public QMainWindow
 {
@@ -120,6 +121,7 @@ private:
 
     UpdateNotify* _pUpdateNotify;
     GraphDataHandler* _pGraphDataHandler;
+    ExpressionStatus* _pExpressionStatus;
 
     ConnectionDialog * _pConnectionDialog;
     LogDialog * _pLogDialog;
