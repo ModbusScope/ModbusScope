@@ -12,9 +12,11 @@ public:
 
     explicit ExpressionChecker(QObject *parent = nullptr);
 
-    bool parseExpression(QString expr);
+    void checkExpression(QString expr);
+    QString expression(void);
     void descriptions(QStringList& descr);
 
+    quint32 requiredValueCount();
     void setValues(ResultDoubleList results);
 
     bool isValid();
@@ -32,6 +34,8 @@ private:
 
     GraphDataModel _localGraphDataModel;
     GraphDataHandler _graphDataHandler;
+
+    QStringList _descriptions;
 
     bool _bValid;
     double _result;
