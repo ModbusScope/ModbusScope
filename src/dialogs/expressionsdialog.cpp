@@ -45,8 +45,11 @@ ExpressionsDialog::~ExpressionsDialog()
 void ExpressionsDialog::handleExpressionChange()
 {
     /* Avoid endless signal loop, because formatting also emit textChanged */
-    if (_expressionChecker.parseExpression(_pUi->lineExpression->toPlainText()) != false)
+    QString expression = _pUi->lineExpression->toPlainText();
+    if (_expressionChecker.expression() != expression)
     {
+        _expressionChecker.checkExpression(expression);
+
         /* Save current test values */
         QMap<QString, QString> testValueMap;
         for(qint32 idx = 0; idx < _pUi->tblExpressionInput->rowCount(); idx++)

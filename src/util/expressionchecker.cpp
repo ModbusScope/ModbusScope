@@ -6,40 +6,44 @@ ExpressionChecker::ExpressionChecker(QObject *parent) : QObject(parent)
     connect(&_graphDataHandler, &GraphDataHandler::graphDataReady, this, &ExpressionChecker::handleDataReady);
 }
 
-bool ExpressionChecker::parseExpression(QString expr)
+void ExpressionChecker::checkExpression(QString expr)
 {
-    if (
-        (_localGraphDataModel.size() == 0)
-        || (_localGraphDataModel.expression(0) != expr)
-    )
+    _localGraphDataModel.clear();
+    _localGraphDataModel.add();
+    _localGraphDataModel.setExpression(0, expr);
+
+    _graphDataHandler.processActiveRegisters(&_localGraphDataModel);
+
+    QList<ModbusRegister> registerList;
+    _graphDataHandler.modbusRegisterList(registerList);
+
+    _descriptions.clear();
+    for(ModbusRegister& reg : registerList)
     {
-        _localGraphDataModel.clear();
-        _localGraphDataModel.add();
-        _localGraphDataModel.setExpression(0, expr);
+        _descriptions.append(reg.description());
+    }
+}
 
-        _graphDataHandler.processActiveRegisters(&_localGraphDataModel);
-
-        QList<ModbusRegister> registerList;
-        _graphDataHandler.modbusRegisterList(registerList);
-
-        return true;
+QString ExpressionChecker::expression(void)
+{
+    if (_localGraphDataModel.size() > 0)
+    {
+        return _localGraphDataModel.expression(0);
     }
     else
     {
-        return false;
+        return QString();
     }
 }
 
 void ExpressionChecker::descriptions(QStringList& descr)
 {
-    QList<ModbusRegister> registerList;
-    _graphDataHandler.modbusRegisterList(registerList);
+    descr = _descriptions;
+}
 
-    descr.clear();
-    for(ModbusRegister& reg : registerList)
-    {
-        descr.append(reg.description());
-    }
+quint32 ExpressionChecker::requiredValueCount()
+{
+    return _descriptions.size();
 }
 
 void ExpressionChecker::setValues(ResultDoubleList results)
