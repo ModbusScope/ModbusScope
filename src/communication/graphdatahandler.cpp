@@ -66,6 +66,16 @@ qint32 GraphDataHandler::expressionErrorPos(qint32 exprIdx) const
     return _valueParsers[exprIdx].errorPos();
 }
 
+QMuParser::ErrorType GraphDataHandler::expressionErrorType(qint32 exprIdx) const
+{
+    if (exprIdx >= _valueParsers.size())
+    {
+        return QMuParser::ErrorType::SYNTAX_ERROR;
+    }
+
+    return _valueParsers[exprIdx].errorType();
+}
+
 void GraphDataHandler::handleRegisterData(ResultDoubleList results)
 {
     ResultDoubleList registerList;

@@ -19,13 +19,20 @@ void ExpressionStatus::handleResultReady(bool valid)
 {
     QString verifiedExpression = _expressionQueue.dequeue();
 
-    // find graphindex of expression and update status
     const qint32 size = _pGraphDataModel->size();
     for (qint32 idx = 0; idx < size; idx++)
     {
         if (_pGraphDataModel->expression(idx) == verifiedExpression)
         {
-            _pGraphDataModel->setExpressionStatus(idx, valid ? ExpressionState::VALID : ExpressionState::SYNTAX_ERROR);
+            bool bStatus = valid;
+
+            if (!bStatus && !_checker.syntaxError())
+            {
+                /* Ignore value errors (for example divide by 0) */
+                bStatus = true;
+            }
+
+            _pGraphDataModel->setExpressionStatus(idx, bStatus ? ExpressionState::VALID : ExpressionState::SYNTAX_ERROR);
             break;
         }
     }

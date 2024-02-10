@@ -71,6 +71,11 @@ qint32 ExpressionChecker::errorPos()
     return _errorPos;
 }
 
+bool ExpressionChecker::syntaxError()
+{
+    return _bSyntaxError;
+}
+
 void ExpressionChecker::handleDataReady(ResultDoubleList resultList)
 {
     _bValid = !resultList.isEmpty() && resultList.first().isValid();
@@ -87,6 +92,7 @@ void ExpressionChecker::handleDataReady(ResultDoubleList resultList)
     }
 
     _errorPos = _graphDataHandler.expressionErrorPos(0);
+    _bSyntaxError = _graphDataHandler.expressionErrorType(0) == QMuParser::ErrorType::SYNTAX_ERROR;
 
     emit resultsReady(_bValid);
 }

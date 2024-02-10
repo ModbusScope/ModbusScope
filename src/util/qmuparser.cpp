@@ -12,6 +12,7 @@ QMuParser::QMuParser(QString strExpression)
     _pExprParser = new mu::ParserRegister();
 
     _errorPos = -1;
+    _errorType = ErrorType::NO_ERROR;
 
     setExpression(strExpression);
 }
@@ -22,7 +23,8 @@ QMuParser::QMuParser(const QMuParser &source)
     _bSuccess(source._bSuccess),
     _value(source._value),
     _msg(source._msg),
-    _errorPos(source._errorPos)
+    _errorPos(source._errorPos),
+    _errorType(source._errorType)
 {
 
 }
@@ -67,11 +69,13 @@ void QMuParser::setExpression(QString expr)
     {
         _pExprParser->SetExpr(expr.toStdWString());
         _errorPos = -1;
+        _errorType = ErrorType::NO_ERROR;
     }
     catch (mu::Parser::exception_type &e)
     {
         _bInvalidExpression = false;
         _errorPos = e.GetPos();
+        _errorType = ErrorType::SYNTAX_ERROR;
     }
 
     reset();
@@ -111,6 +115,7 @@ bool QMuParser::evaluate()
 
             _msg = QStringLiteral("Success");
             _errorPos = -1;
+            _errorType = ErrorType::NO_ERROR;
             _bSuccess = true;
         }
         catch (mu::Parser::exception_type &e)
@@ -118,7 +123,8 @@ bool QMuParser::evaluate()
             _value = 0;
             _errorPos = e.GetPos();
 
-            if (e.GetCode() == mu::ecINTERNAL_ERROR)
+            const mu::EErrorCodes errCode = e.GetCode();
+            if (errCode == mu::ecINTERNAL_ERROR)
             {
                 if (_errorPos >= 0 || static_cast<quint64>(_errorPos) <= e.GetMsg().length())
                 {
@@ -135,6 +141,8 @@ bool QMuParser::evaluate()
                 _msg = QString::fromStdWString(e.GetMsg());
             }
 
+            _errorType = errCode != mu::ecGENERIC ? ErrorType::SYNTAX_ERROR : ErrorType::OTHER_ERROR;
+
             _bSuccess = false;
         }
     }
@@ -150,6 +158,11 @@ QString QMuParser::msg() const
 qint32 QMuParser::errorPos() const
 {
     return _errorPos;
+}
+
+QMuParser::ErrorType QMuParser::errorType() const
+{
+    return _errorType;
 }
 
 double QMuParser::value() const
