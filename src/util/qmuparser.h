@@ -8,7 +8,16 @@
 
 class QMuParser
 {
+
 public:
+
+    enum class ErrorType
+    {
+        NO_ERROR = 0,
+        SYNTAX_ERROR,
+        OTHER_ERROR,
+    };
+
     QMuParser(QString strExpression);
     QMuParser(const QMuParser &source);
     ~QMuParser();
@@ -23,6 +32,7 @@ public:
     bool isSuccess() const;
     QString msg() const;
     qint32 errorPos() const;
+    ErrorType errorType() const;
     double value() const;
 
 private:
@@ -41,6 +51,7 @@ private:
     double _value;
     QString _msg;
     qint32 _errorPos;
+    ErrorType _errorType;
 
 };
 

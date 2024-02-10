@@ -23,6 +23,7 @@ public:
     double result();
     QString strError();
     qint32 errorPos();
+    bool syntaxError();
 
 signals:
     void resultsReady(bool valid);
@@ -41,7 +42,7 @@ private:
     double _result;
     QString _strError;
     qint32 _errorPos;
-
+    bool _bSyntaxError;
 };
 
 #endif // EXPRESSION_CHECKER_H

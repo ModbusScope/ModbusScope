@@ -20,6 +20,7 @@ public:
 
     QString expressionParseMsg(qint32 exprIdx) const;
     qint32 expressionErrorPos(qint32 exprIdx) const;
+    QMuParser::ErrorType expressionErrorType(qint32 exprIdx) const;
 
 public slots:
     void handleRegisterData(ResultDoubleList results);
