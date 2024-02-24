@@ -60,7 +60,7 @@ void ExpressionStatus::handlExpressionsChanged(const quint32 graphIdx)
     }
 }
 
-void ExpressionStatus::verifyExpression(QString& expression)
+void ExpressionStatus::verifyExpression(QString const& expression)
 {
     _checker.checkExpression(expression);
 

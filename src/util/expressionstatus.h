@@ -19,7 +19,7 @@ private slots:
 
 private:
 
-    void verifyExpression(QString &expression);
+    void verifyExpression(const QString &expression);
 
     ExpressionChecker _checker;
 

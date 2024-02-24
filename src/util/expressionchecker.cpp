@@ -18,7 +18,7 @@ void ExpressionChecker::checkExpression(QString expr)
     _graphDataHandler.modbusRegisterList(registerList);
 
     _descriptions.clear();
-    for(ModbusRegister& reg : registerList)
+    for(ModbusRegister const& reg : registerList)
     {
         _descriptions.append(reg.description());
     }
@@ -41,7 +41,7 @@ void ExpressionChecker::descriptions(QStringList& descr)
     descr = _descriptions;
 }
 
-quint32 ExpressionChecker::requiredValueCount()
+qsizetype ExpressionChecker::requiredValueCount()
 {
     return _descriptions.size();
 }

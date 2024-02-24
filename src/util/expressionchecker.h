@@ -16,7 +16,7 @@ public:
     QString expression(void);
     void descriptions(QStringList& descr);
 
-    quint32 requiredValueCount();
+    qsizetype requiredValueCount();
     void setValues(ResultDoubleList results);
 
     bool isValid();
