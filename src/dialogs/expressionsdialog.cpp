@@ -133,20 +133,21 @@ void ExpressionsDialog::handleResultReady(bool valid)
 
     QString numOutput;
     QString backgroundStyle;
+    QString strError;
     if (valid)
     {
+        strError = "";
         numOutput = QString("%0").arg(_expressionChecker.result());
         backgroundStyle = "background-color: rgba(0,0,0,0%);";
     }
     else
     {
+        strError = _expressionChecker.strError();
         numOutput = QStringLiteral("-");
         backgroundStyle = "background-color: rgba(255,0,0,50%);";
     }
-    _pUi->lblOut->setToolTip(_expressionChecker.strError());
     _pUi->lblOut->setText(numOutput);
-    _pUi->lblOut->setStyleSheet(QString("border-style: outset;border-width: 1px; border-color: black; %1").arg(backgroundStyle));
 
-    _pUi->lblError->setText(_expressionChecker.strError());
+    _pUi->lblError->setText(strError);
     _pUi->lblError->setStyleSheet(backgroundStyle);
 }
