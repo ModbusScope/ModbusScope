@@ -110,7 +110,7 @@ bool QMuParser::evaluate()
 
             if (qIsInf(_value) || qIsNaN(_value))
             {
-                throw mu::ParserError(L"result is an undefined number");
+                throw mu::ParserError(L"Result value is an undefined number. Check input validity.");
             }
 
             _msg = QStringLiteral("Success");
