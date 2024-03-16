@@ -35,6 +35,28 @@ QString ProjectFileTestData::cDataLevel3Expressions = QString(
     "</modbusscope>                                                             \n"\
 );
 
+QString ProjectFileTestData::cDataLevel4Expressions = QString(
+    "<?xml version=\"1.0\"?>                                                    \n"\
+    "<modbusscope datalevel=\"4\">                                              \n"\
+    "    <scope>                                                                \n"\
+    "        <register active=\"true\">                                         \n"\
+    "            <text>Data point</text>                                        \n"\
+    "            <expression><![CDATA[${40001}/2]]></expression>                \n"\
+    "            <color>#ff0000</color>                                         \n"\
+    "        </register>                                                        \n"\
+    "        <register active=\"true\">                                         \n"\
+    "            <text>Data point 2</text>                                      \n"\
+    "            <expression><![CDATA[${h10000:s16b}]]></expression>            \n"\
+    "            <color>#0000ff</color>                                         \n"\
+    "        </register>                                                        \n"\
+    "        <register active=\"false\">                                        \n"\
+    "            <text>Data point 3</text>                                      \n"\
+    "            <expression><![CDATA[${i10000@2}*10]]></expression>            \n"\
+    "        </register>                                                        \n"\
+    "    </scope>                                                               \n"\
+    "</modbusscope>                                                             \n"\
+    );
+
 QString ProjectFileTestData::cConnSerial = QString(
     "<?xml version=\"1.0\"?>                                           \n"\
     "<modbusscope datalevel=\"3\">                                     \n"\

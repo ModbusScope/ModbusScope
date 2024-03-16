@@ -13,6 +13,7 @@ private slots:
     void tooLowDataLevel();
     void tooHighDataLevel();
     void dataLevel3Expressions();
+    void dataLevel4Expressions();
 
     void connSerial();
     void connMixedMulti();
