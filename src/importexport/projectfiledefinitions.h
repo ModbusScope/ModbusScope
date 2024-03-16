@@ -61,7 +61,7 @@ namespace ProjectFileDefinitions
 
     /* Constant values */
     const quint32 cMinimumDataLevel = 3;
-    const quint32 cCurrentDataLevel = 3;
+    const quint32 cCurrentDataLevel = 4;
 
 }
 

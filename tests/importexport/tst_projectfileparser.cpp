@@ -64,6 +64,29 @@ void TestProjectFileParser::dataLevel3Expressions()
     QCOMPARE(settings.scope.registerList[2].bColor, false);
 }
 
+void TestProjectFileParser::dataLevel4Expressions()
+{
+    ProjectFileParser projectParser;
+    ProjectFileData::ProjectSettings settings;
+
+    GeneralError parseError = projectParser.parseFile(ProjectFileTestData::cDataLevel4Expressions, &settings);
+    QVERIFY(parseError.result());
+
+    QVERIFY(settings.scope.registerList[0].bActive);
+    QCOMPARE(settings.scope.registerList[0].expression, QString("${40001}/2"));
+    QCOMPARE(settings.scope.registerList[0].bColor, true);
+    QCOMPARE(settings.scope.registerList[0].color, QColor(0xff, 0x00, 0x00));
+
+    QVERIFY(settings.scope.registerList[1].bActive);
+    QCOMPARE(settings.scope.registerList[1].expression, QString("${h10000:s16b}"));
+    QCOMPARE(settings.scope.registerList[1].bColor, true);
+    QCOMPARE(settings.scope.registerList[1].color, QColor(0x00, 0x00, 0xff));
+
+    QVERIFY(!settings.scope.registerList[2].bActive);
+    QCOMPARE(settings.scope.registerList[2].expression, QString("${i10000@2}*10"));
+    QCOMPARE(settings.scope.registerList[2].bColor, false);
+}
+
 void TestProjectFileParser::connSerial()
 {
     ProjectFileParser projectParser;

@@ -9,6 +9,7 @@ public:
     static QString cTooLowDataLevel;
     static QString cTooHighDataLevel;
     static QString cDataLevel3Expressions;
+    static QString cDataLevel4Expressions;
 
     static QString cConnSerial;
     static QString cConnMixedMulti;
