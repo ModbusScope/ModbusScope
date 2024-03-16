@@ -6,7 +6,6 @@
 #include "tst_modbusaddress.h"
 
 using ObjectType = ModbusAddress::ObjectType;
-using Offset = ModbusAddress::Offset;
 
 void TestModbusAddress::init()
 {
@@ -22,7 +21,7 @@ void TestModbusAddress::constructor_default()
 {
     ModbusAddress addr;
 
-    QCOMPARE(addr.address(Offset::WITH_OFFSET), 40001);
+    QCOMPARE(addr.address(), 40001);
     QCOMPARE(addr.objectType(), ObjectType::HOLDING_REGISTER);
 }
 
@@ -30,7 +29,7 @@ void TestModbusAddress::constructor_address()
 {
     ModbusAddress addr(40001);
 
-    QCOMPARE(addr.address(Offset::WITH_OFFSET), 40001);
+    QCOMPARE(addr.address(), 40001);
     QCOMPARE(addr.objectType(), ObjectType::HOLDING_REGISTER);
 }
 
@@ -38,7 +37,7 @@ void TestModbusAddress::constructor_type()
 {
     ModbusAddress addr(1);
 
-    QCOMPARE(addr.address(Offset::WITHOUT_OFFSET), 1);
+    QCOMPARE(addr.protocolAddress(), 1);
     QCOMPARE(addr.objectType(), ObjectType::COIL);
 }
 
@@ -49,7 +48,7 @@ void TestModbusAddress::constructor_assignment()
 
     addr = addrOriginal;
 
-    QCOMPARE(addr.address(Offset::WITH_OFFSET), 40001);
+    QCOMPARE(addr.address(), 40001);
     QCOMPARE(addr.objectType(), ObjectType::HOLDING_REGISTER);
 }
 
@@ -58,7 +57,7 @@ void TestModbusAddress::constructor_copy()
     ModbusAddress addrOriginal(40001);
     ModbusAddress addr(addrOriginal);
 
-    QCOMPARE(addr.address(Offset::WITH_OFFSET), 40001);
+    QCOMPARE(addr.address(), 40001);
     QCOMPARE(addr.objectType(), ObjectType::HOLDING_REGISTER);
 }
 
@@ -69,25 +68,25 @@ void TestModbusAddress::get_address()
     ModbusAddress addr_3(0, ObjectType::INPUT_REGISTER);
     ModbusAddress addr_4(0, ObjectType::HOLDING_REGISTER);
 
-    QCOMPARE(addr_1.address(Offset::WITH_OFFSET), 0);
-    QCOMPARE(addr_1.address(Offset::WITHOUT_OFFSET), 0);
+    QCOMPARE(addr_1.address(), 0);
+    QCOMPARE(addr_1.protocolAddress(), 0);
 
-    QCOMPARE(addr_2.address(Offset::WITH_OFFSET), 10001);
-    QCOMPARE(addr_2.address(Offset::WITHOUT_OFFSET), 0);
+    QCOMPARE(addr_2.address(), 10001);
+    QCOMPARE(addr_2.protocolAddress(), 0);
 
-    QCOMPARE(addr_3.address(Offset::WITH_OFFSET), 30001);
-    QCOMPARE(addr_3.address(Offset::WITHOUT_OFFSET), 0);
+    QCOMPARE(addr_3.address(), 30001);
+    QCOMPARE(addr_3.protocolAddress(), 0);
 
-    QCOMPARE(addr_4.address(Offset::WITH_OFFSET), 40001);
-    QCOMPARE(addr_4.address(Offset::WITHOUT_OFFSET), 0);
+    QCOMPARE(addr_4.address(), 40001);
+    QCOMPARE(addr_4.protocolAddress(), 0);
 }
 
 void TestModbusAddress::large_address()
 {
     ModbusAddress addr(40001 + 30000);
 
-    QCOMPARE(addr.address(Offset::WITH_OFFSET), 70001);
-    QCOMPARE(addr.address(Offset::WITHOUT_OFFSET), 30000);
+    QCOMPARE(addr.address(), 70001);
+    QCOMPARE(addr.protocolAddress(), 30000);
 }
 
 void TestModbusAddress::to_string()

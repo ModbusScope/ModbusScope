@@ -6,7 +6,7 @@ const quint16 ModbusAddress::cObjectTypeOffsets[] = { 0, 10001, 30001, 40001, 0 
 using ObjectType = ModbusAddress::ObjectType;
 
 ModbusAddress::ModbusAddress()
-    : _address(0), _type(ModbusAddress::ObjectType::HOLDING_REGISTER)
+    : _protocolAddress(0), _type(ModbusAddress::ObjectType::HOLDING_REGISTER)
 {
 
 }
@@ -20,17 +20,17 @@ ModbusAddress::ModbusAddress(quint32 address, ObjectType type)
         quint16 offset = cObjectTypeOffsets[static_cast<int>(_type)];
         if (address >= offset)
         {
-            _address = static_cast<quint16>(address - offset);
+            _protocolAddress = static_cast<quint16>(address - offset);
         }
         else
         {
-            _address = 0;
+            _protocolAddress = 0;
             _type = ObjectType::UNKNOWN;
         }
     }
     else
     {
-        _address = static_cast<quint16>(address);
+        _protocolAddress = static_cast<quint16>(address);
         _type = type;
     }
 }
@@ -46,16 +46,14 @@ ModbusAddress::ObjectType ModbusAddress::objectType() const
     return _type;
 }
 
-quint32 ModbusAddress::address(Offset offset) const
+quint32 ModbusAddress::address() const
 {
-    if (offset == Offset::WITHOUT_OFFSET)
-    {
-        return _address;
-    }
-    else
-    {
-        return _address + cObjectTypeOffsets[static_cast<int>(_type)];
-    }
+    return _protocolAddress + cObjectTypeOffsets[static_cast<int>(_type)];
+}
+
+quint16 ModbusAddress::protocolAddress() const
+{
+    return _protocolAddress;
 }
 
 QString ModbusAddress::toString() const
@@ -71,7 +69,7 @@ QString ModbusAddress::toString() const
     case ObjectType::UNKNOWN: typeStr = QString("unknown"); break;
     }
 
-    return QString("%1, %2").arg(typeStr).arg(address(Offset::WITHOUT_OFFSET));
+    return QString("%1, %2").arg(typeStr).arg(protocolAddress());
 }
 
 ModbusAddress ModbusAddress::next() const
@@ -83,7 +81,7 @@ ModbusAddress ModbusAddress::next(int i) const
 {
     ModbusAddress nextAddres(*this);
 
-    nextAddres._address += i;
+    nextAddres._protocolAddress += i;
 
     return nextAddres;
 }
@@ -120,7 +118,7 @@ ModbusAddress::ObjectType ModbusAddress::convertFromOffset(quint32 address)
 bool operator== (const ModbusAddress& addr1, const ModbusAddress& addr2)
 {
     if (
-        (addr1._address == addr2._address)
+        (addr1._protocolAddress == addr2._protocolAddress)
         && (addr1._type == addr2._type)
         )
     {
@@ -140,7 +138,7 @@ bool operator< (const ModbusAddress& reg1, const ModbusAddress& reg2)
     }
     else if (reg1._type == reg2._type)
     {
-        if (reg1._address < reg2._address)
+        if (reg1._protocolAddress < reg2._protocolAddress)
         {
             return true;
         }
@@ -163,7 +161,7 @@ bool operator> (const ModbusAddress& reg1, const ModbusAddress& reg2)
     }
     else if (reg1._type == reg2._type)
     {
-        if (reg1._address > reg2._address)
+        if (reg1._protocolAddress > reg2._protocolAddress)
         {
             return true;
         }

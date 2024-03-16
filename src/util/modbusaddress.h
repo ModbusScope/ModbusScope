@@ -18,12 +18,6 @@ public:
         UNKNOWN = 4
     };
 
-    enum class Offset
-    {
-        WITH_OFFSET = 0,
-        WITHOUT_OFFSET = 1,
-    };
-
     ModbusAddress();
     ModbusAddress(quint32 address, ModbusAddress::ObjectType type);
     ModbusAddress(quint32 address);
@@ -34,7 +28,8 @@ public:
     ModbusAddress& operator=(const ModbusAddress& other) = default;
 
     ModbusAddress::ObjectType objectType() const;
-    quint32 address(Offset offset) const;
+    quint32 address() const;
+    quint16 protocolAddress() const;
 
     QString toString() const;
 
@@ -48,7 +43,7 @@ public:
 private:
     ModbusAddress::ObjectType convertFromOffset(quint32 address);
 
-    quint16 _address{0};
+    quint16 _protocolAddress{0};
     ObjectType _type{ObjectType::UNKNOWN};
     
     static const quint16 cObjectTypeOffsets[];
