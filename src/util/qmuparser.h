@@ -13,9 +13,9 @@ public:
 
     enum class ErrorType
     {
-        NO_ERROR = 0,
-        SYNTAX_ERROR,
-        OTHER_ERROR,
+        NONE = 0,
+        SYNTAX,
+        OTHER,
     };
 
     QMuParser(QString strExpression);
