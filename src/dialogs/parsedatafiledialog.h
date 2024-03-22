@@ -34,7 +34,6 @@ private slots:
     void updateColumn();
     void updateLabelRow();
     void updateTimeFormat();
-    void updateStmStudioCorrection();
 
     void fieldSeparatorSelected(int index);
     void customFieldSeparatorUpdated();
@@ -45,7 +44,6 @@ private slots:
     void columnUpdated();
     void labelRowUpdated();
     void timeFormatUpdated(int id);
-    void stmStudioCorrectionUpdated(bool bCorrectData);
 
     void presetSelected(int index);
 

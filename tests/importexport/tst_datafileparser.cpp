@@ -34,7 +34,6 @@ void TestDataFileParser::parseModbusScopeOldFormat()
     dataParserModel.setDataRow(static_cast<quint32>(11));
     dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(true);
-    dataParserModel.setStmStudioCorrection(false);
 
     /* Process data */
     QVERIFY(dataFileParser.processDataFile(&dataStream, &fileData));
@@ -74,7 +73,6 @@ void TestDataFileParser::parseModbusScopeNewFormat()
     dataParserModel.setDataRow(static_cast<quint32>(23));
     dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(true);
-    dataParserModel.setStmStudioCorrection(false);
 
     /* Process data */
     QVERIFY(dataFileParser.processDataFile(&dataStream, &fileData));
@@ -119,7 +117,6 @@ void TestDataFileParser::parseDatasetBe()
     dataParserModel.setDataRow(static_cast<quint32>(1));
     dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(true);
-    dataParserModel.setStmStudioCorrection(false);
 
     /* Process data */
     QVERIFY(dataFileParser.processDataFile(&dataStream, &fileData));
@@ -168,7 +165,6 @@ void TestDataFileParser::parseDatasetUs()
     dataParserModel.setDataRow(static_cast<quint32>(1));
     dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(true);
-    dataParserModel.setStmStudioCorrection(false);
 
     /* Process data */
     QVERIFY(dataFileParser.processDataFile(&dataStream, &fileData));
@@ -217,7 +213,6 @@ void TestDataFileParser::parseDatasetColumn2()
     dataParserModel.setDataRow(static_cast<quint32>(1));
     dataParserModel.setColumn(static_cast<quint32>(1));
     dataParserModel.setTimeInMilliSeconds(true);
-    dataParserModel.setStmStudioCorrection(false);
 
     /* Process data */
     QVERIFY(dataFileParser.processDataFile(&dataStream, &fileData));
@@ -266,7 +261,6 @@ void TestDataFileParser::parseDatasetComment()
     dataParserModel.setDataRow(static_cast<quint32>(1));
     dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(true);
-    dataParserModel.setStmStudioCorrection(false);
 
     /* Process data */
     QVERIFY(dataFileParser.processDataFile(&dataStream, &fileData));
@@ -315,7 +309,6 @@ void TestDataFileParser::parseDatasetSigned()
     dataParserModel.setDataRow(static_cast<quint32>(1));
     dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(true);
-    dataParserModel.setStmStudioCorrection(false);
 
     /* Process data */
     QVERIFY(dataFileParser.processDataFile(&dataStream, &fileData));
@@ -359,7 +352,6 @@ void TestDataFileParser::parseDatasetAbsoluteDate()
     dataParserModel.setDataRow(static_cast<quint32>(1));
     dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(true);
-    dataParserModel.setStmStudioCorrection(false);
 
     /* Process data */
     QVERIFY(dataFileParser.processDataFile(&dataStream, &fileData));
@@ -413,7 +405,6 @@ void TestDataFileParser::parseDatasetTimeInSecond()
     dataParserModel.setDataRow(static_cast<quint32>(1));
     dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(false);
-    dataParserModel.setStmStudioCorrection(false);
 
     /* Process data */
     QVERIFY(dataFileParser.processDataFile(&dataStream, &fileData));
@@ -459,7 +450,6 @@ void TestDataFileParser::parseDatasetEmptyLastColumn()
     dataParserModel.setDataRow(static_cast<quint32>(1));
     dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(true);
-    dataParserModel.setStmStudioCorrection(false);
 
     /* Process data */
     QVERIFY(dataFileParser.processDataFile(&dataStream, &fileData));
@@ -505,7 +495,6 @@ void TestDataFileParser::parseDatasetMultiAxis()
     dataParserModel.setDataRow(static_cast<quint32>(4));
     dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(true);
-    dataParserModel.setStmStudioCorrection(false);
 
     /* Process data */
     QVERIFY(dataFileParser.processDataFile(&dataStream, &fileData));
@@ -532,7 +521,6 @@ void TestDataFileParser::checkProgressSignal()
     dataParserModel.setDataRow(static_cast<quint32>(1));
     dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(true);
-    dataParserModel.setStmStudioCorrection(false);
 
     /* Process data */
     QVERIFY(dataFileParser.processDataFile(&dataStream, &fileData));

@@ -34,7 +34,6 @@ void TestPresetFileParser::singlePreset()
     QCOMPARE(presetParser.preset(0).dataRow, 2);
     QCOMPARE(presetParser.preset(0).bTimeInMilliSeconds, false);
     QCOMPARE(presetParser.preset(0).keyword, "");
-    QCOMPARE(presetParser.preset(0).bStmStudioCorrection, false);
 }
 
 void TestPresetFileParser::invalidFile()

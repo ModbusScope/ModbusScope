@@ -59,14 +59,6 @@ Since there is no standard for the contents of *.csv* file, some settings needs 
 
 *ModbusScope* adds some extra functionality when opening a data file. The *time-stamp unit* can be selected between milliseconds and seconds. When seconds is selected, the time-stamp will be converted to milliseconds during the load process.
 
-#### Correct STMStudio bad read
-
-This feature is only used for a very specific use case when loading a data file created with STMStudio. The STMStudio tool reads data directly from the RAM memory of a embedded devices. The main drawback is that reading a 16 bit variable can sometimes return a corrupt value on a 8 bit micro-controller. A single byte (most or least significant) of the 16 bit value will be reset to zero's or set to one's.
-
-*ModbusScope* is able to detect most of these corrupt values and correct them based on previous and next value in the graph.
-
-**This feature will probably be deprecated and removed in a future release of *ModbusScope*.**
-
 ## Presets
 
 When analyzing several data files of which the settings can't be auto-detected, it is handy to save the settings as a preset. *ModbusScope* allows to create a configuration file with custom presets. This configuration file will be loaded when opening a datafile and the correct preset can be selected. It is also possible to configure a keyword per preset. When a data file name contains the keyword, the preset will be automatically selected.

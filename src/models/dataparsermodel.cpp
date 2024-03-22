@@ -43,7 +43,6 @@ void DataParserModel::resetSettings()
     _column = 0;
     _labelRow = 0;
     _bTimeInMilliSeconds = true;
-    _bStmStudioCorrection = false;
     _dataFilePath = "";    
 }
 
@@ -57,7 +56,6 @@ void DataParserModel::triggerUpdate(void)
     emit columnChanged();
     emit labelRowChanged();
     emit timeInMilliSecondsChanged();
-    emit stmStudioCorrectionChanged();
     emit dataFilePathChanged();
 }
 
@@ -135,15 +133,6 @@ void DataParserModel::setTimeInMilliSeconds(bool timeInMilliSeconds)
     }
 }
 
-void DataParserModel::setStmStudioCorrection(bool stmStudioCorrection)
-{
-    if (_bStmStudioCorrection != stmStudioCorrection)
-    {
-        _bStmStudioCorrection = stmStudioCorrection;
-        emit stmStudioCorrectionChanged();
-    }
-}
-
 void DataParserModel::setDataFilePath(QString path)
 {
     if (_dataFilePath != path)
@@ -191,11 +180,6 @@ quint32 DataParserModel::labelRow() const
 bool DataParserModel::timeInMilliSeconds() const
 {
     return _bTimeInMilliSeconds;
-}
-
-bool DataParserModel::stmStudioCorrection() const
-{
-    return _bStmStudioCorrection;
 }
 
 QString DataParserModel::dataFilePath()

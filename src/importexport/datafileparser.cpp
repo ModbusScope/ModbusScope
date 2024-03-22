@@ -224,14 +224,6 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
         pData->dataRows.removeFirst();
     }
 
-    if (bRet)
-    {
-        if (_pDataParserModel->stmStudioCorrection())
-        {
-            correctStmStudioData(pData->dataRows);
-        }
-    }
-
     return bRet;
 }
 
@@ -524,73 +516,4 @@ void DataFileParser::checkProgressUpdate(quint32 charRead)
 
         emit updateProgress(static_cast<int>(_lastPercentageUpdate));
     }
-}
-
-void DataFileParser::correctStmStudioData(QList<QList<double> > &dataLists)
-{
-    for (qint32 idx = 0; idx < dataLists.size(); idx++)
-    {
-        /* We need at least 3 points */
-        if (dataLists[idx].size() > 3)
-        {
-            /* Skip first and last point */
-            for (int32_t pointIdx = 1; pointIdx < dataLists[idx].size() - 1; pointIdx++)
-            {
-                const int32_t leftPoint = dataLists[idx][pointIdx - 1];
-                const int32_t refPoint = dataLists[idx][pointIdx];
-                const int32_t rightPoint = dataLists[idx][pointIdx + 1];
-
-                /* Only correct 16 bit variables */
-                if (
-                    (refPoint < 65535)
-                    && (refPoint > 0)
-                    )
-                {
-                    const uint32_t leftDiff = qAbs(leftPoint - refPoint);
-                    const uint32_t rightDiff = qAbs(refPoint - rightPoint);
-                    const uint32_t outerDiff = qAbs(leftPoint - rightPoint);
-
-                    /* difference between samples should be large enough */
-                    if (
-                        (leftDiff > (2 * outerDiff))
-                        && (rightDiff > (2 * outerDiff))
-                    )
-                    {
-                        if (isNibbleCorrupt(static_cast<quint16>(refPoint), leftPoint))
-                        {
-                            dataLists[idx][pointIdx] = leftPoint;
-                        }
-                        else if (isNibbleCorrupt(static_cast<quint16>(refPoint), rightPoint))
-                        {
-                            dataLists[idx][pointIdx] = rightPoint;
-                        }
-                        else
-                        {
-                            /* No change needed */
-                        }
-
-                    }
-
-                }
-            }
-
-        }
-    }
-}
-
-bool DataFileParser::isNibbleCorrupt(quint16 ref, quint16 compare)
-{
-    if (
-            /* Zeroed nibbles */
-            (ref == (compare & 0xFF00))
-            || (ref == (compare & 0x00FF))
-            /* Nibbles set to ones */
-            || (ref == (compare | 0xFF00))
-            || (ref == (compare | 0x00FF))
-            || (ref == 0)
-        )
-    {
-        return true;
-    }
-    return false;
 }

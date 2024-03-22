@@ -82,7 +82,6 @@ ParseDataFileDialog::ParseDataFileDialog(GuiModel *pGuiModel, DataParserModel * 
     connect(_pParserModel, &DataParserModel::columnChanged, this, &ParseDataFileDialog::updateColumn);
     connect(_pParserModel, &DataParserModel::labelRowChanged, this, &ParseDataFileDialog::updateLabelRow);
     connect(_pParserModel, &DataParserModel::timeInMilliSecondsChanged, this, &ParseDataFileDialog::updateTimeFormat);
-    connect(_pParserModel, &DataParserModel::stmStudioCorrectionChanged, this, &ParseDataFileDialog::updateStmStudioCorrection);
 
     // Handle signal from controls
     connect(_pUi->comboFieldSeparator, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ParseDataFileDialog::fieldSeparatorSelected);
@@ -94,7 +93,6 @@ ParseDataFileDialog::ParseDataFileDialog(GuiModel *pGuiModel, DataParserModel * 
     connect(_pUi->spinColumn, QOverload<int>::of(&QSpinBox::valueChanged), this, &ParseDataFileDialog::columnUpdated);
     connect(_pUi->spinLabelRow, QOverload<int>::of(&QSpinBox::valueChanged), this, &ParseDataFileDialog::labelRowUpdated);
     connect(_pUi->comboPreset, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ParseDataFileDialog::presetSelected);
-    connect(_pUi->checkStmStudioCorrection, &QCheckBox::toggled, this, &ParseDataFileDialog::stmStudioCorrectionUpdated);
 
     // Signal to change preset to manual
     connect(_pUi->comboFieldSeparator, QOverload<int>::of(&QComboBox::activated), this, &ParseDataFileDialog::setPresetToManual);
@@ -211,11 +209,6 @@ void ParseDataFileDialog::updateTimeFormat()
     }
 }
 
-void ParseDataFileDialog::updateStmStudioCorrection()
-{
-    _pUi->checkStmStudioCorrection->setChecked(_pParserModel->stmStudioCorrection());
-}
-
 void ParseDataFileDialog::fieldSeparatorSelected(int index)
 {
     if (index > -1)
@@ -282,11 +275,6 @@ void ParseDataFileDialog::labelRowUpdated()
 void ParseDataFileDialog::timeFormatUpdated(int id)
 {
     _pParserModel->setTimeInMilliSeconds(id ? true: false);
-}
-
-void ParseDataFileDialog::stmStudioCorrectionUpdated(bool bCorrectData)
-{
-    _pParserModel->setStmStudioCorrection(bCorrectData);
 }
 
 void ParseDataFileDialog::presetSelected(int index)
