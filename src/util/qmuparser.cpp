@@ -12,7 +12,7 @@ QMuParser::QMuParser(QString strExpression)
     _pExprParser = new mu::ParserRegister();
 
     _errorPos = -1;
-    _errorType = ErrorType::NO_ERROR;
+    _errorType = ErrorType::NONE;
 
     setExpression(strExpression);
 }
@@ -69,13 +69,13 @@ void QMuParser::setExpression(QString expr)
     {
         _pExprParser->SetExpr(expr.toStdWString());
         _errorPos = -1;
-        _errorType = ErrorType::NO_ERROR;
+        _errorType = ErrorType::NONE;
     }
     catch (mu::Parser::exception_type &e)
     {
         _bInvalidExpression = false;
         _errorPos = e.GetPos();
-        _errorType = ErrorType::SYNTAX_ERROR;
+        _errorType = ErrorType::SYNTAX;
     }
 
     reset();
@@ -115,7 +115,7 @@ bool QMuParser::evaluate()
 
             _msg = QStringLiteral("Success");
             _errorPos = -1;
-            _errorType = ErrorType::NO_ERROR;
+            _errorType = ErrorType::NONE;
             _bSuccess = true;
         }
         catch (mu::Parser::exception_type &e)
@@ -141,7 +141,7 @@ bool QMuParser::evaluate()
                 _msg = QString::fromStdWString(e.GetMsg());
             }
 
-            _errorType = errCode != mu::ecGENERIC ? ErrorType::SYNTAX_ERROR : ErrorType::OTHER_ERROR;
+            _errorType = errCode != mu::ecGENERIC ? ErrorType::SYNTAX : ErrorType::OTHER;
 
             _bSuccess = false;
         }

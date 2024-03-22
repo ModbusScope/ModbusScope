@@ -70,7 +70,7 @@ QMuParser::ErrorType GraphDataHandler::expressionErrorType(qint32 exprIdx) const
 {
     if (exprIdx >= _valueParsers.size())
     {
-        return QMuParser::ErrorType::SYNTAX_ERROR;
+        return QMuParser::ErrorType::SYNTAX;
     }
 
     return _valueParsers[exprIdx].errorType();

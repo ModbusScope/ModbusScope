@@ -92,7 +92,7 @@ void ExpressionChecker::handleDataReady(ResultDoubleList resultList)
     }
 
     _errorPos = _graphDataHandler.expressionErrorPos(0);
-    _bSyntaxError = _graphDataHandler.expressionErrorType(0) == QMuParser::ErrorType::SYNTAX_ERROR;
+    _bSyntaxError = _graphDataHandler.expressionErrorType(0) == QMuParser::ErrorType::SYNTAX;
 
     emit resultsReady(_bValid);
 }
