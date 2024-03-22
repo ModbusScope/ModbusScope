@@ -23,18 +23,6 @@
 	</parsepreset>
 	
 	<parsepreset>
-		<name>STMStudio</name>
-		<keyword>-stmstudio</keyword>
-		<fieldseparator><![CDATA[\t]]></fieldseparator>
-		<decimalseparator><![CDATA[.]]></decimalseparator>
-		<thousandseparator><![CDATA[]]></thousandseparator>
-		<column>2</column>
-		<labelrow>7</labelrow>
-		<datarow>9</datarow>
-		<stmstudiocorrection>true</stmstudiocorrection>
-	</parsepreset>
-	
-	<parsepreset>
 		<name>be-seconds</name>
 		<fieldseparator><![CDATA[;]]></fieldseparator>
 		<decimalseparator><![CDATA[,]]></decimalseparator>

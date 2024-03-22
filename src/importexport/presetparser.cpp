@@ -176,17 +176,6 @@ bool PresetParser::parsePresetTag(const QDomElement &element, Preset *pPreset)
                 pPreset->bTimeInMilliSeconds = false;
             }
         }
-        else if (child.tagName() == "stmstudiocorrection")
-        {
-            if (!child.text().toLower().compare("true"))
-            {
-                pPreset->bStmStudioCorrection = true;
-            }
-            else
-            {
-                pPreset->bStmStudioCorrection = false;
-            }
-        }
         else if (child.tagName() == "keyword")
         {
             pPreset->keyword = child.text();

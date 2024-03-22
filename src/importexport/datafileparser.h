@@ -44,9 +44,6 @@ private:
     bool isCommentLine(QString line);
     void checkProgressUpdate(quint32 charRead);
 
-    void correctStmStudioData(QList<QList<double> > &dataLists);
-    bool isNibbleCorrupt(quint16 ref, quint16 compare);
-
     quint32 _lineNumber;
 
     quint64 _totalCharSize;

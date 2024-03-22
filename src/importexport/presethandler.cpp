@@ -67,7 +67,6 @@ void PresetHandler::fillWithPresetData(qint32 presetIndex, DataParserModel* pPar
         pParserModel->setGroupSeparator(preset.thousandSeparator);
         pParserModel->setCommentSequence(preset.commentSequence);
         pParserModel->setTimeInMilliSeconds(preset.bTimeInMilliSeconds);
-        pParserModel->setStmStudioCorrection(preset.bStmStudioCorrection);
     }
 }
 
