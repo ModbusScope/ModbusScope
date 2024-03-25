@@ -6,7 +6,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Added
 
-- xx
+- Highlight expression syntax error in register dialog
 
 ### Fixed
 
