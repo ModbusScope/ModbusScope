@@ -1,7 +1,6 @@
 
 #include <QColorDialog>
 #include "expressiondelegate.h"
-#include "registerdialog.h"
 #include "importmbcdialog.h"
 #include "expressionsdialog.h"
 #include "addregisterwidget.h"
@@ -11,6 +10,7 @@
 #include "settingsmodel.h"
 #include "registervalueaxisdelegate.h"
 
+#include "registerdialog.h"
 #include "ui_registerdialog.h"
 
 RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel, SettingsModel *pSettingsModel, QWidget *parent) :
