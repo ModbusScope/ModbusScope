@@ -21,6 +21,7 @@ public:
     ModbusAddress();
     ModbusAddress(quint32 address, ModbusAddress::ObjectType type);
     ModbusAddress(quint32 address);
+    ModbusAddress(QString address);
     ModbusAddress(const ModbusAddress& t) = default;
 
     ~ModbusAddress() = default;
@@ -41,12 +42,15 @@ public:
     friend bool operator> (const ModbusAddress& reg1, const ModbusAddress& reg2);
 
 private:
+    void constructAddressFromNumber(quint32 address);
+    void constructAddressFromStringWithType(QString addressWithtype);
     ModbusAddress::ObjectType convertFromOffset(quint32 address);
 
     quint16 _protocolAddress{0};
     ObjectType _type{ObjectType::UNKNOWN};
     
     static const quint16 cObjectTypeOffsets[];
+    static const QMap<QChar, ModbusAddress::ObjectType> cObjectTypePrefix;
 
 };
 

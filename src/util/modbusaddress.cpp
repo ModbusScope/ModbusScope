@@ -2,8 +2,13 @@
 #include "modbusaddress.h"
 
 const quint16 ModbusAddress::cObjectTypeOffsets[] = { 0, 10001, 30001, 40001, 0 };
-
 using ObjectType = ModbusAddress::ObjectType;
+
+const QMap<QChar, ObjectType> ModbusAddress::cObjectTypePrefix { {'c', ObjectType::COIL},
+                                                                 {'d', ObjectType::DISCRETE_INPUT},
+                                                                 {'i', ObjectType::INPUT_REGISTER},
+                                                                 {'h', ObjectType::HOLDING_REGISTER}};
+
 
 ModbusAddress::ModbusAddress()
     : _protocolAddress(0), _type(ModbusAddress::ObjectType::HOLDING_REGISTER)
@@ -15,18 +20,7 @@ ModbusAddress::ModbusAddress(quint32 address, ObjectType type)
 {
     if (type == ObjectType::UNKNOWN)
     {
-        _type = convertFromOffset(address);
-
-        quint16 offset = cObjectTypeOffsets[static_cast<int>(_type)];
-        if (address >= offset)
-        {
-            _protocolAddress = static_cast<quint16>(address - offset);
-        }
-        else
-        {
-            _protocolAddress = 0;
-            _type = ObjectType::UNKNOWN;
-        }
+        constructAddressFromNumber(address);
     }
     else
     {
@@ -39,6 +33,21 @@ ModbusAddress::ModbusAddress(quint32 address)
     : ModbusAddress(address, ObjectType::UNKNOWN)
 {
 
+}
+
+ModbusAddress::ModbusAddress(QString address)
+{
+    bool bOk = false;
+    quint32 addressNumber = address.toUInt(&bOk);
+
+    if (bOk)
+    {
+        constructAddressFromNumber(addressNumber);
+    }
+    else
+    {
+        constructAddressFromStringWithType(address);
+    }
 }
 
 ModbusAddress::ObjectType ModbusAddress::objectType() const
@@ -86,6 +95,41 @@ ModbusAddress ModbusAddress::next(int i) const
     return nextAddres;
 }
 
+void ModbusAddress::constructAddressFromNumber(quint32 address)
+{
+    _type = convertFromOffset(address);
+
+    quint16 offset = cObjectTypeOffsets[static_cast<int>(_type)];
+    if (address >= offset)
+    {
+        _protocolAddress = static_cast<quint16>(address - offset);
+    }
+    else
+    {
+        _protocolAddress = 0;
+        _type = ObjectType::UNKNOWN;
+    }
+}
+
+void ModbusAddress::constructAddressFromStringWithType(QString addressWithtype)
+{
+    QChar prefix = addressWithtype.at(0);
+    QString address = addressWithtype.mid(1);
+
+    bool bOk = false;
+    quint32 addressNumber = address.toUInt(&bOk);
+
+    if (cObjectTypePrefix.contains(prefix) && bOk)
+    {
+        _protocolAddress = static_cast<quint16>(addressNumber);
+        _type = cObjectTypePrefix[prefix];
+    }
+    else
+    {
+        _protocolAddress = 0;
+        _type = ObjectType::UNKNOWN;
+    }
+}
 
 ModbusAddress::ObjectType ModbusAddress::convertFromOffset(quint32 address)
 {

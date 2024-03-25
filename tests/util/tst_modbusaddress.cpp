@@ -33,6 +33,29 @@ void TestModbusAddress::constructor_address()
     QCOMPARE(addr.objectType(), ObjectType::HOLDING_REGISTER);
 }
 
+void TestModbusAddress::constructor_string_address()
+{
+    ModbusAddress addr_1("h20000");
+    QCOMPARE(addr_1.protocolAddress(), 20000);
+    QCOMPARE(addr_1.objectType(), ObjectType::HOLDING_REGISTER);
+
+    ModbusAddress addr_2("d20000");
+    QCOMPARE(addr_2.protocolAddress(), 20000);
+    QCOMPARE(addr_2.objectType(), ObjectType::DISCRETE_INPUT);
+
+    ModbusAddress addr_3("c20000");
+    QCOMPARE(addr_3.protocolAddress(), 20000);
+    QCOMPARE(addr_3.objectType(), ObjectType::COIL);
+
+    ModbusAddress addr_4("i20000");
+    QCOMPARE(addr_4.protocolAddress(), 20000);
+    QCOMPARE(addr_4.objectType(), ObjectType::INPUT_REGISTER);
+
+    ModbusAddress addr_5("40001");
+    QCOMPARE(addr_5.protocolAddress(), 0);
+    QCOMPARE(addr_5.objectType(), ObjectType::HOLDING_REGISTER);
+}
+
 void TestModbusAddress::constructor_type()
 {
     ModbusAddress addr(1);

@@ -11,6 +11,7 @@ private slots:
 
     void constructor_default();
     void constructor_address();
+    void constructor_string_address();
     void constructor_type();
     void constructor_assignment();
     void constructor_copy();
