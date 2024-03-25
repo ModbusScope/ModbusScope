@@ -7,6 +7,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 ### Added
 
 - Highlight expression syntax error in register dialog
+- Implement easier editing of expression in register dialog
 
 ### Fixed
 
@@ -16,11 +17,11 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 ### Changed
 
 - Improve formatting of large and small values ([Github #287](https://github.com/jgeudens/ModbusScope/issues/287))
-- Implement easier editing of expression
 
 ### Removed
 
-- xx
+- Removed correction of corrupt values (STMStudio)
+- Removed support for opening very old mbs files (ModbusScope v2.x.x or earlier)
 
 ## [v3.9.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.9.0) (04/12/2023)
 
