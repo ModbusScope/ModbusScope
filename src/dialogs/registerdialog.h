@@ -1,8 +1,8 @@
 #ifndef REGISTERDIALOG_H
 #define REGISTERDIALOG_H
 
-#include "graphdata.h"
 #include <QDialog>
+#include <QWidgetAction>
 
 /* Forward declaration */
 class GraphDataModel;
@@ -10,6 +10,7 @@ class GuiModel;
 class SettingsModel;
 class RegisterValueAxisDelegate;
 class ExpressionDelegate;
+class GraphData;
 
 namespace Ui {
 class RegisterDialog;
