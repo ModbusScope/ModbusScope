@@ -2,8 +2,8 @@
 
 ## Release
 
-* Change *DEBUG* to *nDEBUG* (`src/CMakeLists.txt`)
-* Check version (`src/CMakeLists.txt`)
+* Change *DEBUG* to *nDEBUG* (`CMakeLists.txt`)
+* Check version (`CMakeLists.txt`)
 * Update version in installer (`installer/modbusscope_installer.iss`)
   * Remove Beta suffix
 * Update RELEASE_NOTES.md with changes and release date
@@ -13,9 +13,9 @@
 
 ## After release
 
-* Change *nDEBUG* to *DEBUG* (`src/CMakeLists.txt`)
+* Change *nDEBUG* to *DEBUG* (`CMakeLists.txt`)
 * Determine next version number
-* Update version number of application (`src/CMakeLists.txt`)
+* Update version number of application (`CMakeLists.txt`)
 * Set version in installer (`installer/modbusscope_installer.iss`) to `[new version] Beta`
 * Prepare release notes for new dev cycle
 
