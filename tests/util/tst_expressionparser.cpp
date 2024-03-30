@@ -2,7 +2,7 @@
 #include <QtTest/QtTest>
 
 #include "expressionparser.h"
-#include "settingsmodel.h"
+#include "connectiontypes.h"
 #include "tst_expressionparser.h"
 
 using Type = ModbusDataType::Type;
@@ -59,6 +59,50 @@ void TestExpressionParser::singleRegisterFloat32()
     auto expExpressions = QStringList() <<  "r(0          )";
 
     auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(45332, Connection::ID_1, Type::FLOAT_32);
+
+    verifyParsing(input, expModbusRegisters, expExpressions);
+}
+
+void TestExpressionParser::singleRegisterExplicitCoil()
+{
+    auto input = QStringList() <<           "${c50000} + ${c100@2}";
+    auto expExpressions = QStringList() <<  "r(0     ) + r(1     )";
+
+    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress("c50000"), Connection::ID_1, Type::UNSIGNED_16)
+                                                      << ModbusRegister(ModbusAddress("c100"), Connection::ID_2, Type::UNSIGNED_16);
+
+    verifyParsing(input, expModbusRegisters, expExpressions);
+}
+
+void TestExpressionParser::singleRegisterExplicitDiscreteInput()
+{
+    auto input = QStringList() <<           "${d50000@2} + ${d100}";
+    auto expExpressions = QStringList() <<  "r(0       ) + r(1   )";
+
+    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress("d50000"), Connection::ID_2, Type::UNSIGNED_16)
+                                                      << ModbusRegister(ModbusAddress("d100"), Connection::ID_1, Type::UNSIGNED_16);
+
+    verifyParsing(input, expModbusRegisters, expExpressions);
+}
+
+void TestExpressionParser::singleRegisterExplicitHolding()
+{
+    auto input = QStringList() <<           "${h50000: f32b} + ${h100@2}";
+    auto expExpressions = QStringList() <<  "r(0           ) + r(1     )";
+
+    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress("h50000"), Connection::ID_1, Type::FLOAT_32)
+                                                      << ModbusRegister(ModbusAddress("h100"), Connection::ID_2, Type::UNSIGNED_16);
+
+    verifyParsing(input, expModbusRegisters, expExpressions);
+}
+
+void TestExpressionParser::singleRegisterExplicitInput()
+{
+    auto input = QStringList() <<           "${i50000@2} + ${i100}";
+    auto expExpressions = QStringList() <<  "r(0       ) + r(1   )";
+
+    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress("i50000"), Connection::ID_2, Type::UNSIGNED_16)
+                                                      << ModbusRegister(ModbusAddress("i100"), Connection::ID_1, Type::UNSIGNED_16);
 
     verifyParsing(input, expModbusRegisters, expExpressions);
 }

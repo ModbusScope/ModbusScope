@@ -31,7 +31,7 @@ void ExpressionParser::parseExpressions(QStringList& expressions)
     _processedExpressions.clear();
     _modbusRegisters.clear();
 
-    for(QString expression: qAsConst(expressions))
+    for(const QString &expression: qAsConst(expressions))
     {
         _processedExpressions.append(processExpression(expression));
     }
@@ -131,15 +131,8 @@ bool ExpressionParser::parseAddress(QString strAddr, ModbusRegister& modbusReg)
     }
     else
     {
-        quint32 addr = strAddr.toUInt(&bRet);
-        if (bRet)
-        {
-            modbusReg.setAddress(addr);
-        }
-        else
-        {
-            qCWarning(scopeComm) << QString("Parsing address \"%1\" failed").arg(strAddr);
-        }
+        bRet = true;
+        modbusReg.setAddress(ModbusAddress(strAddr));
     }
 
     return bRet;

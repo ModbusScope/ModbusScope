@@ -14,6 +14,10 @@ private slots:
     void singleRegisterSigned();
     void singleRegisterSigned32();
     void singleRegisterFloat32();
+    void singleRegisterExplicitCoil();
+    void singleRegisterExplicitDiscreteInput();
+    void singleRegisterExplicitHolding();
+    void singleRegisterExplicitInput();
     void singleRegisterConnType();
     void multiRegisters();
     void multiRegistersDuplicate();
