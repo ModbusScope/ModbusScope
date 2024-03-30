@@ -20,8 +20,8 @@ public:
 
     ModbusAddress();
     ModbusAddress(quint32 address, ModbusAddress::ObjectType type);
-    ModbusAddress(quint32 address);
-    ModbusAddress(QString address);
+    explicit ModbusAddress(quint32 address);
+    explicit ModbusAddress(QString address);
     ModbusAddress(const ModbusAddress& t) = default;
 
     ~ModbusAddress() = default;

@@ -26,35 +26,35 @@ void TestModbusRegister::cleanup()
 
 void TestModbusRegister::constructor()
 {
-    ModbusRegister reg(40001, Connection::ID_2, Type::SIGNED_16);
+    ModbusRegister reg(ModbusAddress(40001), Connection::ID_2, Type::SIGNED_16);
 
-    QCOMPARE(reg.address(), 40001);
+    QCOMPARE(reg.address(), ModbusAddress(40001));
     QCOMPARE(reg.connectionId(), Connection::ID_2);
     QCOMPARE(reg.type(), Type::SIGNED_16);
 }
 
 void TestModbusRegister::comparison()
 {
-    ModbusRegister reg_1(40001, Connection::ID_1, Type::SIGNED_16);
-    ModbusRegister reg_2(40001, Connection::ID_1, Type::SIGNED_16);
+    ModbusRegister reg_1(ModbusAddress(40001), Connection::ID_1, Type::SIGNED_16);
+    ModbusRegister reg_2(ModbusAddress(40001), Connection::ID_1, Type::SIGNED_16);
 
     QVERIFY(reg_1 == reg_2);
 
-    reg_1.setAddress(40002);
+    reg_1.setAddress(ModbusAddress(40002));
 
     QVERIFY(!(reg_1 == reg_2));
 }
 
 void TestModbusRegister::copy()
 {
-    ModbusRegister reg_1(40001, Connection::ID_2, Type::SIGNED_32);
+    ModbusRegister reg_1(ModbusAddress(40001), Connection::ID_2, Type::SIGNED_32);
     ModbusRegister reg_2;
 
     QVERIFY(!(reg_1 == reg_2));
 
     reg_2 = reg_1;
 
-    QCOMPARE(reg_1.address(), 40001);
+    QCOMPARE(reg_1.address(), ModbusAddress(40001));
     QCOMPARE(reg_1.connectionId(), Connection::ID_2);
     QCOMPARE(reg_1.type(), Type::SIGNED_32);
 
@@ -63,9 +63,9 @@ void TestModbusRegister::copy()
 
 void TestModbusRegister::description()
 {
-    ModbusRegister reg_1(40001, Connection::ID_1, Type::UNSIGNED_16);
-    ModbusRegister reg_2(40002, Connection::ID_2, Type::SIGNED_32);
-    ModbusRegister reg_3(40003, Connection::ID_2, Type::FLOAT_32);
+    ModbusRegister reg_1(ModbusAddress(40001), Connection::ID_1, Type::UNSIGNED_16);
+    ModbusRegister reg_2(ModbusAddress(40002), Connection::ID_2, Type::SIGNED_32);
+    ModbusRegister reg_3(ModbusAddress(40003), Connection::ID_2, Type::FLOAT_32);
 
     QCOMPARE(reg_1.description(), "holding register, 0, unsigned 16-bit, conn 1");
     QCOMPARE(reg_2.description(), "holding register, 1, signed 32-bit, conn 2");
@@ -86,7 +86,7 @@ void TestModbusRegister::processValue_16b()
     QFETCH(uint16_t, registerValue);
     QFETCH(double, expValue);
 
-    ModbusRegister reg(40001, Connection::ID_1, Type::UNSIGNED_16);
+    ModbusRegister reg(ModbusAddress(40001), Connection::ID_1, Type::UNSIGNED_16);
 
     double actValue = reg.processValue(registerValue, 0, false);
     QCOMPARE(actValue, expValue);
@@ -106,7 +106,7 @@ void TestModbusRegister::processValue_s16b()
     QFETCH(uint16_t, registerValue);
     QFETCH(double, expValue);
 
-    ModbusRegister reg(40001, Connection::ID_1, Type::SIGNED_16);
+    ModbusRegister reg(ModbusAddress(40001), Connection::ID_1, Type::SIGNED_16);
 
     double actValue = reg.processValue(registerValue, 0, false);
     QCOMPARE(actValue, expValue);
@@ -131,7 +131,7 @@ void TestModbusRegister::processValue_32b()
 
     QFETCH(double, expValue);
 
-    ModbusRegister reg(40001, Connection::ID_1, Type::UNSIGNED_32);
+    ModbusRegister reg(ModbusAddress(40001), Connection::ID_1, Type::UNSIGNED_32);
 
     double actValue = reg.processValue(upperRegister, lowerRegister, false);
     QCOMPARE(actValue, expValue);
@@ -158,7 +158,7 @@ void TestModbusRegister::processValue_s32b()
     QFETCH(uint16_t, lowerRegister);
     QFETCH(double, expValue);
 
-    ModbusRegister reg(40001, Connection::ID_1, Type::SIGNED_32);
+    ModbusRegister reg(ModbusAddress(40001), Connection::ID_1, Type::SIGNED_32);
 
     double actValue = reg.processValue(upperRegister, lowerRegister, false);
     QCOMPARE(actValue, expValue);
@@ -197,7 +197,7 @@ void TestModbusRegister::processValue_f32b()
     QFETCH(uint16_t, lowerRegister);
     QFETCH(double, expValue);
 
-    ModbusRegister reg(40001, Connection::ID_1, ModbusDataType::Type::FLOAT_32);
+    ModbusRegister reg(ModbusAddress(40001), Connection::ID_1, ModbusDataType::Type::FLOAT_32);
 
     double actValue = reg.processValue(upperRegister, lowerRegister, false);
     QCOMPARE(actValue, expValue);
