@@ -102,7 +102,7 @@ ModbusReadItem ReadRegisters::next()
     }
     else
     {
-        return ModbusReadItem(0,0);
+        return ModbusReadItem(ModbusAddress(0), 0);
     }
 }
 

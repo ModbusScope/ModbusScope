@@ -11,7 +11,7 @@ const QMap<QChar, ObjectType> ModbusAddress::cObjectTypePrefix { {'c', ObjectTyp
 
 
 ModbusAddress::ModbusAddress()
-    : _protocolAddress(0), _type(ModbusAddress::ObjectType::HOLDING_REGISTER)
+    : _type(ModbusAddress::ObjectType::HOLDING_REGISTER)
 {
 
 }
