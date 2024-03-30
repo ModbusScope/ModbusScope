@@ -21,7 +21,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../resources/modbusscope.rc.in ${CMAK
 FILE(GLOB_RECURSE SRCS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/*.h") #all .cpp/.h in current "src" folder and sub folders
 FILE(GLOB_RECURSE UIS "${CMAKE_CURRENT_SOURCE_DIR}/*.ui") #all .ui in current "src" folder and sub folders
 
-add_library (${SCOPESOURCE} ${SRCS} ${UIS})
+qt_add_library (${SCOPESOURCE} STATIC ${SRCS} ${UIS})
 
 # Default GUI type is blank
 set(GUI_TYPE "")
@@ -35,14 +35,14 @@ else()
     message(SEND_ERROR "You are on an unsupported platform! (Not Win or Unix)")
 endif(WIN32)
 
-add_executable(${PROJECT_NAME} ${GUI_TYPE}
+qt_add_executable(${PROJECT_NAME} ${GUI_TYPE}
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../resources.qrc
     ${CMAKE_CURRENT_SOURCE_DIR}/../resources/modbusscope.rc)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${target_dir} )
 
-target_link_libraries(${SCOPESOURCE} qcustomplot muparser ${QT_LIB})
+target_link_libraries(${SCOPESOURCE} PRIVATE qcustomplot muparser ${QT_LIB})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     ${SCOPESOURCE}
