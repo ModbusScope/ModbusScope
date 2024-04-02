@@ -154,7 +154,7 @@ void TestModbusConnection::readRequestSuccess()
     /* Check start address */
     QVERIFY((arguments[0].canConvert<ModbusAddress>()));
     auto resultAddr = arguments[0].value<ModbusAddress>();
-    QCOMPARE(resultAddr.address(), 40001);
+    QCOMPARE(resultAddr.fullAddress(), "40001");
 
     /* Check result */
     QVERIFY((arguments[1].canConvert<QList<quint16> >()));

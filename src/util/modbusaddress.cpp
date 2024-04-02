@@ -55,9 +55,9 @@ ModbusAddress::ObjectType ModbusAddress::objectType() const
     return _type;
 }
 
-quint32 ModbusAddress::address() const
+QString ModbusAddress::fullAddress() const
 {
-    return _protocolAddress + cObjectTypeOffsets[static_cast<int>(_type)];
+    return QString("%1").arg(_protocolAddress + cObjectTypeOffsets[static_cast<int>(_type)]);
 }
 
 quint16 ModbusAddress::protocolAddress() const

@@ -29,7 +29,7 @@ public:
     ModbusAddress& operator=(const ModbusAddress& other) = default;
 
     ModbusAddress::ObjectType objectType() const;
-    quint32 address() const;
+    QString fullAddress() const;
     quint16 protocolAddress() const;
 
     QString toString() const;
