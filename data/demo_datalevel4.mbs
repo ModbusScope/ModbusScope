@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<modbusscope datalevel="2">
+<modbusscope datalevel="4">
  <modbus>
   <connection>
    <enabled>true</enabled>
@@ -29,9 +29,9 @@
    <parity>0</parity>
    <stopbits>1</stopbits>
    <databits>8</databits>
-   <slaveid>1</slaveid>
-   <timeout>1000</timeout>
-   <consecutivemax>125</consecutivemax>
+   <slaveid>2</slaveid>
+   <timeout>2000</timeout>
+   <consecutivemax>100</consecutivemax>
    <int32littleendian>true</int32littleendian>
    <persistentconnection>true</persistentconnection>
   </connection>
@@ -60,31 +60,28 @@
  </modbus>
  <scope>
   <register active="true">
-   <address>40001</address>
    <text>Data point</text>
-   <unsigned>true</unsigned>
-   <bit32>false</bit32>
-   <expression><![CDATA[VAL/2]]></expression>
+   <expression><![CDATA[${h0}/2]]></expression>
    <color>#ff0000</color>
-   <connectionid>0</connectionid>
+   <valueaxis>0</valueaxis>
   </register>
   <register active="true">
-   <address>40002</address>
    <text>Data point 2</text>
-   <unsigned>false</unsigned>
-   <bit32>false</bit32>
-   <expression><![CDATA[VAL]]></expression>
+   <expression><![CDATA[${h1@2:s16b}]]></expression>
    <color>#0000ff</color>
-   <connectionid>0</connectionid>
+   <valueaxis>1</valueaxis>
   </register>
-  <register active="false">
-   <address>40003</address>
+  <register active="true">
    <text>Data point 3</text>
-   <unsigned>false</unsigned>
-   <bit32>false</bit32>
-   <expression><![CDATA[VAL*10]]></expression>
+   <expression><![CDATA[${i50000}*10]]></expression>
    <color>#00ffff</color>
-   <connectionid>1</connectionid>
+   <valueaxis>0</valueaxis>
+  </register>
+  <register active="true">
+   <text>Data point 4</text>
+   <expression><![CDATA[${h40000:s16b} + ${c0} / 10]]></expression>
+   <color>#00ff00</color>
+   <valueaxis>1</valueaxis>
   </register>
  </scope>
  <view>
