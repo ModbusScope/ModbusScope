@@ -21,7 +21,7 @@ void TestModbusAddress::constructor_default()
 {
     ModbusAddress addr;
 
-    QCOMPARE(addr.address(), 40001);
+    QCOMPARE(addr.fullAddress(), "40001");
     QCOMPARE(addr.objectType(), ObjectType::HOLDING_REGISTER);
 }
 
@@ -29,7 +29,7 @@ void TestModbusAddress::constructor_address()
 {
     ModbusAddress addr(40001);
 
-    QCOMPARE(addr.address(), 40001);
+    QCOMPARE(addr.fullAddress(), "40001");
     QCOMPARE(addr.objectType(), ObjectType::HOLDING_REGISTER);
 }
 
@@ -71,7 +71,7 @@ void TestModbusAddress::constructor_assignment()
 
     addr = addrOriginal;
 
-    QCOMPARE(addr.address(), 40001);
+    QCOMPARE(addr.fullAddress(), "40001");
     QCOMPARE(addr.objectType(), ObjectType::HOLDING_REGISTER);
 }
 
@@ -80,7 +80,7 @@ void TestModbusAddress::constructor_copy()
     ModbusAddress addrOriginal(40001);
     ModbusAddress addr(addrOriginal);
 
-    QCOMPARE(addr.address(), 40001);
+    QCOMPARE(addr.fullAddress(), "40001");
     QCOMPARE(addr.objectType(), ObjectType::HOLDING_REGISTER);
 }
 
@@ -91,16 +91,16 @@ void TestModbusAddress::get_address()
     ModbusAddress addr_3(0, ObjectType::INPUT_REGISTER);
     ModbusAddress addr_4(0, ObjectType::HOLDING_REGISTER);
 
-    QCOMPARE(addr_1.address(), 0);
+    QCOMPARE(addr_1.fullAddress(), "0");
     QCOMPARE(addr_1.protocolAddress(), 0);
 
-    QCOMPARE(addr_2.address(), 10001);
+    QCOMPARE(addr_2.fullAddress(), "10001");
     QCOMPARE(addr_2.protocolAddress(), 0);
 
-    QCOMPARE(addr_3.address(), 30001);
+    QCOMPARE(addr_3.fullAddress(), "30001");
     QCOMPARE(addr_3.protocolAddress(), 0);
 
-    QCOMPARE(addr_4.address(), 40001);
+    QCOMPARE(addr_4.fullAddress(), "40001");
     QCOMPARE(addr_4.protocolAddress(), 0);
 }
 
@@ -108,7 +108,7 @@ void TestModbusAddress::large_address()
 {
     ModbusAddress addr(40001 + 30000);
 
-    QCOMPARE(addr.address(), 70001);
+    QCOMPARE(addr.fullAddress(), "70001");
     QCOMPARE(addr.protocolAddress(), 30000);
 }
 

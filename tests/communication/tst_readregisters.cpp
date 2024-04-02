@@ -271,7 +271,7 @@ void TestReadRegisters::addSuccess()
 
     for(quint16 idx = 0; idx < static_cast<quint16>(registerList.size()); idx++)
     {
-        QCOMPARE(resultMap.value(registerList[idx]).value(), registerList[idx].address() + 1000);
+        QCOMPARE(resultMap.value(registerList[idx]).value(), registerList[idx].protocolAddress() + 1000);
         QVERIFY(resultMap.value(registerList[idx]).isValid());
     }
 }

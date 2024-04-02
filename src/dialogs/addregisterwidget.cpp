@@ -128,5 +128,5 @@ QString AddRegisterWidget::generateExpression()
         connectionId = 0;
     }
 
-    return ExpressionGenerator::constructRegisterString(registerAddr.address(), type, connectionId);
+    return ExpressionGenerator::constructRegisterString(registerAddr.fullAddress(), type, connectionId);
 }
