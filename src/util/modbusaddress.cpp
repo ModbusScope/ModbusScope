@@ -54,7 +54,18 @@ ModbusAddress::ObjectType ModbusAddress::objectType() const
 
 QString ModbusAddress::fullAddress() const
 {
-    return QString("%1").arg(_protocolAddress + cObjectTypeOffsets[static_cast<int>(_type)]);
+    QString fullAddress;
+    if (_protocolAddress <= 9999)
+    {
+        /* Normal 5-digit notation */
+        fullAddress = QString("%1").arg(_protocolAddress + cObjectTypeOffsets[static_cast<int>(_type)]);
+    }
+    else
+    {
+        /* 5-digit notation doesn't suffice for this address, use prefix */
+        fullAddress = QString("%1%2").arg(cObjectTypePrefix[static_cast<int>(_type)]).arg(_protocolAddress);
+    }
+    return fullAddress;
 }
 
 quint16 ModbusAddress::protocolAddress() const

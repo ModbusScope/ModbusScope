@@ -16,9 +16,8 @@ private slots:
     void constructor_assignment();
     void constructor_copy();
 
-    void get_address();
-
-    void large_address();
+    void addressFunctions_data();
+    void addressFunctions();
 
     void to_string();
     void to_string_coil();
