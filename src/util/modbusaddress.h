@@ -49,8 +49,8 @@ private:
     quint16 _protocolAddress{0};
     ObjectType _type{ObjectType::UNKNOWN};
     
-    static const quint16 cObjectTypeOffsets[];
-    static const QMap<QChar, ModbusAddress::ObjectType> cObjectTypePrefix;
+    static const QList<quint16> cObjectTypeOffsets;
+    static const QList<QChar> cObjectTypePrefix;
 
 };
 
