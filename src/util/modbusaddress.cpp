@@ -1,14 +1,11 @@
 
 #include "modbusaddress.h"
 
-const quint16 ModbusAddress::cObjectTypeOffsets[] = { 0, 10001, 30001, 40001, 0 };
+/* Also add value for UNKOWN */
+const QList<quint16> ModbusAddress::cObjectTypeOffsets = QList<quint16>() << 0 << 10001 << 30001 << 40001 << 0;
+const QList<QChar> ModbusAddress::cObjectTypePrefix = QList<QChar>() << 'c' << 'd' << 'i' << 'h' << 'h';
+
 using ObjectType = ModbusAddress::ObjectType;
-
-const QMap<QChar, ObjectType> ModbusAddress::cObjectTypePrefix { {'c', ObjectType::COIL},
-                                                                 {'d', ObjectType::DISCRETE_INPUT},
-                                                                 {'i', ObjectType::INPUT_REGISTER},
-                                                                 {'h', ObjectType::HOLDING_REGISTER}};
-
 
 ModbusAddress::ModbusAddress()
     : _type(ModbusAddress::ObjectType::HOLDING_REGISTER)
@@ -122,7 +119,7 @@ void ModbusAddress::constructAddressFromStringWithType(QString addressWithtype)
     if (cObjectTypePrefix.contains(prefix) && bOk)
     {
         _protocolAddress = static_cast<quint16>(addressNumber);
-        _type = cObjectTypePrefix[prefix];
+        _type = static_cast<ObjectType>( cObjectTypePrefix.indexOf(prefix));
     }
     else
     {
