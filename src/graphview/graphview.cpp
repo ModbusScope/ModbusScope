@@ -4,8 +4,6 @@
 #include <QLocale>
 #include <QInputDialog>
 
-#include <algorithm> // std::upperbound, std::lowerbound
-
 #include "guimodel.h"
 #include "formatrelativetime.h"
 #include "graphdatamodel.h"
