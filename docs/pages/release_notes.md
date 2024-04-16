@@ -6,6 +6,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Added
 
+- Add extended register syntax to handle full address range (e.g `${h65535}`)
 - Highlight expression syntax error in register dialog
 - Implement easier editing of expression in register dialog
 
