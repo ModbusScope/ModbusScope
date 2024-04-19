@@ -23,6 +23,7 @@ execute_process(
 )
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/util/version.h.in ${CMAKE_CURRENT_SOURCE_DIR}/util/version.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../resources/modbusscope.rc.in ${CMAKE_CURRENT_SOURCE_DIR}/../resources/modbusscope.rc)
 
 FILE(GLOB_RECURSE SRCS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/*.h") #all .cpp/.h in current "src" folder and sub folders
 FILE(GLOB_RECURSE UIS "${CMAKE_CURRENT_SOURCE_DIR}/*.ui") #all .ui in current "src" folder and sub folders
