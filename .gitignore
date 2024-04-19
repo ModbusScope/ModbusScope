@@ -55,6 +55,7 @@ compile_commands.json
 *creator.user*
 
 src/util/version.h
+resources/modbusscope.rc
 
 _build
 build/
