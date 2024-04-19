@@ -41,7 +41,10 @@ else()
     message(SEND_ERROR "You are on an unsupported platform! (Not Win or Unix)")
 endif(WIN32)
 
-add_executable(${PROJECT_NAME} ${GUI_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../resources.qrc ${CMAKE_CURRENT_SOURCE_DIR}/../resources/app_icon.rc)
+add_executable(${PROJECT_NAME} ${GUI_TYPE}
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../resources.qrc
+    ${CMAKE_CURRENT_SOURCE_DIR}/../resources/modbusscope.rc)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${target_dir} )
 
