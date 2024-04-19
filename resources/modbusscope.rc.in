@@ -4,6 +4,7 @@ IDI_ICON1               ICON    "icon/application.ico"
 
 #define VER_FILEVERSION             @PROJECT_VERSION_MAJOR@,@PROJECT_VERSION_MINOR@,@PROJECT_VERSION_PATCH@,0
 #define VER_FILEVERSION_STR         "@PROJECT_VERSION@.0\0"
+#define PRODUCTNAME_STR             "@PROJECT_NAME@\0"
 
 VS_VERSION_INFO       VERSIONINFO
 FILEVERSION           VER_FILEVERSION
@@ -14,8 +15,9 @@ BEGIN
   BEGIN
     BLOCK "040904E4"
     BEGIN
-      VALUE "FileVersion", VER_FILEVERSION_STR
-      VALUE "ProductVersion", VER_FILEVERSION_STR
+      VALUE "FileVersion",      VER_FILEVERSION_STR
+      VALUE "ProductVersion",   VER_FILEVERSION_STR
+      VALUE "ProductName",      PRODUCTNAME_STR
     END
   END
   BLOCK "VarFileInfo"
