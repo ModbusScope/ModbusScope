@@ -40,7 +40,6 @@ private:
     void parseRegisters(QString* mbcFileContent);
     bool parseTabTag(const QDomElement &element);
     bool parseVarTag(const QDomElement &element, qint32 tabIdx);
-    bool isUnsigned(QString type);
 
     qint32 _nextRegisterAddr;
 
