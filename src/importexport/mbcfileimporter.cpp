@@ -279,16 +279,3 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
 
     return bRet;
 }
-
-
-bool MbcFileImporter::isUnsigned(QString type)
-{
-    bool bRet = true;
-
-    if (type == "int16")
-    {
-        bRet = false;
-    }
-
-    return bRet;
-}
