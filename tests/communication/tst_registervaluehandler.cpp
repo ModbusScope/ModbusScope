@@ -167,6 +167,21 @@ void TestRegisterValueHandler::addressListMixedObjects()
     QVERIFY(actualRegisterList == expRegisterList);
 }
 
+void TestRegisterValueHandler::addressListSameRegisterDifferentType()
+{
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress(0), Connection::ID_1, Type::UNSIGNED_16)
+                                                   << ModbusRegister(ModbusAddress(0), Connection::ID_1, Type::SIGNED_16);
+    auto expRegisterList = QList<ModbusAddress>() << ModbusAddress(0);
+
+    RegisterValueHandler regHandler(_pSettingsModel);
+    regHandler.setRegisters(modbusRegisters);
+
+    QList<ModbusAddress> actualRegisterList;
+    regHandler.registerAddresList(actualRegisterList, Connection::ID_1);
+
+    QVERIFY(actualRegisterList == expRegisterList);
+}
+
 void TestRegisterValueHandler::read_16()
 {
     auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress(40001), Connection::ID_1, Type::UNSIGNED_16)
@@ -223,6 +238,20 @@ void TestRegisterValueHandler::readBigEndian_s32()
     partialResultMap.insert(ModbusAddress(40001 + 1), Result<quint16>(static_cast<quint16>(value), State::SUCCESS));
 
     auto expResults = ResultDoubleList() << ResultDouble(-1000000, State::SUCCESS);
+
+    verifyRegisterResult(modbusRegisters, partialResultMap, expResults);
+}
+
+void TestRegisterValueHandler::readSameRegisterDifferentType()
+{
+    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress(40001), Connection::ID_1, Type::UNSIGNED_32)
+                                                   << ModbusRegister(ModbusAddress(40001), Connection::ID_1, Type::SIGNED_32);
+
+    ModbusResultMap partialResultMap;
+    addToResultMap(partialResultMap, 40001, true, 255, State::SUCCESS);
+
+    auto expResults = ResultDoubleList() << ResultDouble(255, State::SUCCESS)
+                                         << ResultDouble(255, State::SUCCESS);
 
     verifyRegisterResult(modbusRegisters, partialResultMap, expResults);
 }

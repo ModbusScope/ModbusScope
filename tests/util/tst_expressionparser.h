@@ -25,6 +25,7 @@ private slots:
     void failureMulti();
     void combinations();
     void explicitDefaults();
+    void sameRegisterDifferentType();
     void spaces();
     void newlines();
     void constant();
