@@ -175,6 +175,16 @@ void TestExpressionParser::explicitDefaults()
     verifyParsing(input, expModbusRegisters, expExpressions);
 }
 
+void TestExpressionParser::sameRegisterDifferentType()
+{
+    auto input = QStringList() <<           "${40001@1} + ${40001:s16b}";
+    auto expExpressions = QStringList() <<  "r(0      ) + r(1         )";
+    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress(40001), Connection::ID_1, Type::UNSIGNED_16)
+                                                      << ModbusRegister(ModbusAddress(40001), Connection::ID_1, Type::SIGNED_16);
+
+    verifyParsing(input, expModbusRegisters, expExpressions);
+}
+
 void TestExpressionParser::spaces()
 {
     auto input = QStringList() <<           "${45332   @2: 32b   } + ${  45330  }";

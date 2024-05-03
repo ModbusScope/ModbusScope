@@ -13,8 +13,6 @@ Q_DECLARE_METATYPE(Result<quint16>);
 using Type = ModbusDataType::Type;
 using State = ResultState::State;
 
-#define ADD_TEST(expr, errorPos)      QTest::newRow(expr) << QString(expr) << static_cast<int>(errorPos)
-
 void TestGraphDataHandler::init()
 {
     qRegisterMetaType<Result<quint16>>("Result<quint16>");
@@ -52,31 +50,29 @@ void TestGraphDataHandler::registerList()
     QCOMPARE(expModbusRegisters, registerList);
 }
 
-void TestGraphDataHandler::errorPosition_data()
+void TestGraphDataHandler::error_data()
 {
     QTest::addColumn<QString>("expression");
     QTest::addColumn<int>("errorPos");
+    QTest::addColumn<QMuParser::ErrorType>("errorType");
 
-    ADD_TEST("${40001}", -1);
-    ADD_TEST("10 + 5", -1);
-    ADD_TEST("++", 2);
-    ADD_TEST("--1", 2);
-    ADD_TEST("-1-+-1", 5);
-    ADD_TEST("${40001}++", 11);
-    ADD_TEST("${40001@1:s16b}++", 18);
-    ADD_TEST("${40001@1:s16b}  ++", 20);
-    ADD_TEST("${40001@1:s16b}+${40001@1}", -1);
-    ADD_TEST("${40001@1:s16b}+${40001@1}--", 29);
-    ADD_TEST("${40001@1:s16b} + ${40001 @ 1 }--", 34);
-
-    ADD_TEST("${40001}\n+1\n+${40001}", -1);
-
+    QTest::newRow("Test 01") << QString("${40001}")                             << static_cast<int>(-1)     << QMuParser::ErrorType::NONE;
+    QTest::newRow("Test 02") << QString("10 + 5")                               << static_cast<int>(-1)     << QMuParser::ErrorType::NONE;
+    QTest::newRow("Test 03") << QString("++")                                   << static_cast<int>(2)      << QMuParser::ErrorType::SYNTAX;
+    QTest::newRow("Test 04") << QString("--1")                                  << static_cast<int>(2)      << QMuParser::ErrorType::SYNTAX;
+    QTest::newRow("Test 05") << QString("-1-+-1")                               << static_cast<int>(5)      << QMuParser::ErrorType::SYNTAX;
+    QTest::newRow("Test 06") << QString("${40001}++")                           << static_cast<int>(11)     << QMuParser::ErrorType::SYNTAX;
+    QTest::newRow("Test 07") << QString("${40001@1:s16b}++")                    << static_cast<int>(18)     << QMuParser::ErrorType::SYNTAX;
+    QTest::newRow("Test 08") << QString("${40001@1:s16b}  ++")                  << static_cast<int>(20)     << QMuParser::ErrorType::SYNTAX;
+    QTest::newRow("Test 09") << QString("${40001 @ 1 }--")                      << static_cast<int>(16)     << QMuParser::ErrorType::SYNTAX;
+    QTest::newRow("Test 10") << QString("${40001}\n+1\n+${40001}")              << static_cast<int>(-1)     << QMuParser::ErrorType::NONE;
 }
 
-void TestGraphDataHandler::errorPosition()
+void TestGraphDataHandler::error()
 {
     QFETCH(QString, expression);
     QFETCH(int, errorPos);
+    QFETCH(QMuParser::ErrorType, errorType);
 
     auto exprList = QStringList() << expression;
 
@@ -91,6 +87,27 @@ void TestGraphDataHandler::errorPosition()
     dataHandler.handleRegisterData(regResults);
 
     QCOMPARE(dataHandler.expressionErrorPos(0), errorPos);
+    QCOMPARE(dataHandler.expressionErrorType(0), errorType);
+}
+
+void TestGraphDataHandler::sameRegisterDifferentType()
+{
+    QString expression = QString("${40001@1:s16b}+${40001@1}");
+
+    auto exprList = QStringList() << expression;
+
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    GraphDataHandler dataHandler;
+    QList<ModbusRegister> registerList;
+    dataHandler.processActiveRegisters(_pGraphDataModel);
+    dataHandler.modbusRegisterList(registerList);
+
+    auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS) << ResultDouble(1, State::SUCCESS);
+    dataHandler.handleRegisterData(regResults);
+
+    QCOMPARE(dataHandler.expressionErrorPos(0), -1);
+    QCOMPARE(dataHandler.expressionErrorType(0), QMuParser::ErrorType::NONE);
 }
 
 void TestGraphDataHandler::manyInactiveRegisters()

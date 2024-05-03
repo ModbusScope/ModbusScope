@@ -22,6 +22,7 @@ private slots:
     void addressListCombinations();
     void addressListMultipleConnections();
     void addressListMixedObjects();
+    void addressListSameRegisterDifferentType();
 
     void read_16();
     void read_32();
@@ -29,6 +30,7 @@ private slots:
     void readBigEndian_32();
     void readBigEndian_s32();
 
+    void readSameRegisterDifferentType();
     void readConnections();
     void readFail();
 
