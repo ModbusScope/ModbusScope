@@ -1,4 +1,4 @@
-
+add_xtest(tst_expressionchecker)
 add_xtest(tst_expressionparser)
 add_xtest(tst_formatrelativetime)
 add_xtest(tst_modbusaddress)
