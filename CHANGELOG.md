@@ -1,28 +1,26 @@
-# Release notes
-
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/jgeudens/ModbusScope/releases).
 
 ## [Unreleased]
 
 ### Added
 
-- Add extended register syntax to handle full address range (e.g `${h65535}`)
-- Highlight expression syntax error in register dialog
-- Implement easier editing of expression in register dialog
+* Add extended register syntax to handle full address range (e.g `${h65535}`)
+* Highlight expression syntax error in register dialog
+* Implement easier editing of expression in register dialog
 
 ### Fixed
 
-- Fixed warning when loading mbs file with unsupported datalevel
-- Don't deselect axis when Ctrl key is pressed ([Github #304](https://github.com/jgeudens/ModbusScope/issues/304))
+* Fixed warning when loading mbs file with unsupported datalevel
+* Don't deselect axis when Ctrl key is pressed ([Github #304](https://github.com/jgeudens/ModbusScope/issues/304))
 
 ### Changed
 
-- Improve formatting of large and small values ([Github #287](https://github.com/jgeudens/ModbusScope/issues/287))
+* Improve formatting of large and small values ([Github #287](https://github.com/jgeudens/ModbusScope/issues/287))
 
 ### Removed
 
-- Removed correction of corrupt values (STMStudio)
-- Removed support for opening very old mbs files (ModbusScope v2.x.x or earlier)
+* Removed correction of corrupt values (STMStudio)
+* Removed support for opening very old mbs files (ModbusScope v2.x.x or earlier)
 
 ## [v3.9.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.9.0) (04/12/2023)
 
