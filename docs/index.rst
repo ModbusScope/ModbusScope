@@ -21,5 +21,4 @@ ModbusScope is a GUI tool to log data using the Modbus protocol and put the data
    Diagnostics <pages/diagnostics>
    Importing and Exporting <pages/importing_and_exporting>
    Open data file <pages/open_data_file>
-   Release Notes <pages/release_notes>
-
+   Release notes <pages/changelog_link>
