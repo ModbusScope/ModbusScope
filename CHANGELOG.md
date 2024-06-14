@@ -1,6 +1,6 @@
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/jgeudens/ModbusScope/releases).
 
-## [Unreleased]
+## [v4.0.0](https://github.com/jgeudens/ModbusScope/releases/tag/4.0.0) (xx/06/2024)
 
 ### Added
 
@@ -21,6 +21,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 * Removed correction of corrupt values (STMStudio)
 * Removed support for opening very old mbs files (ModbusScope v2.x.x or earlier)
+  * Old mbs files can be updated by opening and saving using ModbusScope v3.x.x.
 
 ## [v3.9.0](https://github.com/jgeudens/ModbusScope/releases/tag/3.9.0) (04/12/2023)
 
