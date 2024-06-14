@@ -25,16 +25,20 @@ In *ModbusScope*, a Modbus register is represented as `${REG[@CONN][:TYPE]}` whe
 
 ##### Register address
 
-*ModbusScope* supports coils, discrete inputs, input registers and holding registers. The object type is derived from the offset of the register address.
+*ModbusScope* supports different function codes of the Modbus standard. It is possible to read coils, discrete inputs, input registers and holding registers. The function code is derived from the register address field in the expression. Two notations are supported in ModbusScope.
 
-| Range         | Object type       | Modbus function code |
-| ------------- | ----------------- | -------------------- |
-| 1 - 9999      | Coil              | 1                    |
-| 10001 - 19999 | Discrete inputs   | 2                    |
-| 30001 - 39999 | Inputs registers  | 4                    |
-| > 40001       | Holding registers | 3                    |
+The primary notation used in ModbusScope is the old Modicon standard. For example, `${10002}` means reading a discrete input with address 1. This notation has the advantage that two pieces of information are included in a single number: the object type (which function code to use) and the actual address. The maximum range however is limited to address 9999.
 
-The Modbus standard defines the range for the holding register as 40001 to 49999. However, in the data packets that are sent, the offset of 40001 is removed. As the address field is 16-bit, the actual possible range is 40001 to 105536. To support as many devices as possible, *ModbusScope* supports the full range of addresses. At the moment, it isn't possible to access the full range of the other object types, the allowed range is limited to an address space of the first 10.000 registers.
+The second notation is specific to ModbusScope, but allows to use the full 16-bit address range. The register address field consists of a prefix and a number. The prefix will specify the object type and the number can be the full 16-bit address range.
+
+ModbusScope will use the 5-digit Modicon notation, unless the register address can't be represented because the address is too high, then the prefix notation will be automatically used.
+
+| Modicon 5-digit notation | Full range using prefix | Object type       | Modbus function code |
+| ------------------------ | ----------------------- | ----------------- | -------------------- |
+| `1` - `9999`             | `c0` - `c65535`         | Coil              | 1                    |
+| `10001` - `19999`        | `d0` - `d65535`         | Discrete inputs   | 2                    |
+| `30001` - `39999`        | `i0` - `i65535`         | Inputs registers  | 4                    |
+| > `40001`                | `h0` - `h65535`         | Holding registers | 3                    |
 
 ##### Supported register types
 
@@ -50,7 +54,7 @@ Following types for holding and input registers are currently supported by Modbu
 
 * `f32b`: 32-bit float (IEEE 754)
 
-The endianness of 32-bit registers can be configured per connection with the `32-bit little endian` setting in the connection settings dialog. The register type is ignored for coils and discrete inputs.
+For coils and discrete inputs, the register type is ignored. The endianness of 32-bit registers can be configured per connection with the `32-bit little endian` setting in the connection settings dialog. The register type is ignored for coils and discrete inputs.
 
 ### Expressions
 
