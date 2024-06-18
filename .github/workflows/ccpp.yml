@@ -51,7 +51,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Qt installer
-        run: pip3 install aqtinstall
+        run: pip3 install aqtinstall==3.1.15
 
       # Cache go build cache, used to speedup go test
       - name: Qt Build Cache
