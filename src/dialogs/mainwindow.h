@@ -5,7 +5,6 @@
 #include <QListWidgetItem>
 #include <QButtonGroup>
 #include <QTimer>
-#include <QLabel>
 #include <QMenu>
 
 #include "result.h"
@@ -34,6 +33,7 @@ class MarkerInfo;
 class DataFileHandler;
 class ProjectFileHandler;
 class Legend;
+class StatusBar;
 class ExpressionStatus;
 
 class MainWindow : public QMainWindow
@@ -87,7 +87,6 @@ private slots:
     void updateWindowTitle();
     void projectFileLoaded();
     void updateGuiState();
-    void updateStats();
     void updateMarkerDockVisibility();
 
     /* Misc */
@@ -133,10 +132,7 @@ private:
     NotesDock * _pNotesDock;
     MarkerInfo * _pMarkerInfo;
     Legend * _pLegend;
-
-    QLabel * _pStatusStats;
-    QLabel * _pStatusState;
-    QLabel * _pStatusRuntime;
+    StatusBar * _pStatusBar;
 
     QTimer _runtimeTimer;
 
@@ -147,12 +143,6 @@ private:
     QActionGroup * _pBringToFrontGroup;
 
     QPointF _lastRightClickPos;
-
-    static const QString _cStateRunning;
-    static const QString _cStateStopped;
-    static const QString _cStatsTemplate;
-    static const QString _cStateDataLoaded;
-    static const QString _cRuntime;
 };
 
 #endif // MAINWINDOW_H
