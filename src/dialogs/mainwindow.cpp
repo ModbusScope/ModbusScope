@@ -24,14 +24,11 @@
 #include "versiondownloader.h"
 #include "fileselectionhelper.h"
 #include "scopelogging.h"
+#include "statusbar.h"
 
 #include <QDateTime>
 
-const QString MainWindow::_cStateRunning = QString("Running");
-const QString MainWindow::_cStateStopped = QString("Stopped");
-const QString MainWindow::_cStateDataLoaded = QString("Data File loaded");
-const QString MainWindow::_cStatsTemplate = QString("Success: %1\tErrors: %2");
-const QString MainWindow::_cRuntime = QString("Runtime: %1");
+using GuiState = GuiModel::GuiState;
 
 MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
                        SettingsModel* pSettingsModel, GraphDataModel* pGraphDataModel,
@@ -66,6 +63,9 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _pLegend = _pUi->legend;
     _pLegend->setModels(_pGuiModel, _pGraphDataModel);
     _pLegend->setGraphview(_pGraphView);
+
+    _pStatusBar = new StatusBar(_pGuiModel, this);
+    setStatusBar(_pStatusBar);
 
     _pMarkerInfo = _pUi->markerInfo;
     _pMarkerInfo->setModel(_pGuiModel, _pGraphDataModel);
@@ -114,7 +114,6 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pGuiModel, &GuiModel::y2AxisScalingChanged, _pGraphView, &GraphView::rescalePlot);
     connect(_pGuiModel, &GuiModel::yAxisMinMaxchanged, _pGraphView, &GraphView::rescalePlot);
     connect(_pGuiModel, &GuiModel::y2AxisMinMaxchanged, _pGraphView, &GraphView::rescalePlot);
-    connect(_pGuiModel, &GuiModel::communicationStatsChanged, this, &MainWindow::updateStats);
     connect(_pGuiModel, &GuiModel::markerStateChanged, this, &MainWindow::updateMarkerDockVisibility);
     connect(_pGuiModel, &GuiModel::zoomStateChanged, this, &MainWindow::handleZoomStateChanged);
 
@@ -166,18 +165,6 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _menuRightClick.addSeparator();
     _menuRightClick.addAction(_pUi->actionAddNote);
     _menuRightClick.addAction(_pUi->actionManageNotes);
-
-    // Add multipart status bar
-    _pStatusState = new QLabel(_cStateStopped, this);
-    _pStatusState->setFrameStyle((int)QFrame::Panel | (int)QFrame::Sunken);
-    _pStatusStats = new QLabel("", this);
-    _pStatusStats->setFrameStyle((int)QFrame::Panel | (int)QFrame::Sunken);
-    _pStatusRuntime = new QLabel("", this);
-    _pStatusRuntime->setFrameStyle((int)QFrame::Panel | (int)QFrame::Sunken);
-
-    _pUi->statusBar->addPermanentWidget(_pStatusState, 1);
-    _pUi->statusBar->addPermanentWidget(_pStatusRuntime, 2);
-    _pUi->statusBar->addPermanentWidget(_pStatusStats, 3);
 
     this->setAcceptDrops(true);
 
@@ -267,7 +254,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent* event)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (
-            (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
+            (_pGuiModel->guiState() == GuiState::DATA_LOADED)
             && (_pNoteModel->isNotesDataUpdated())
         )
     {
@@ -391,7 +378,7 @@ void MainWindow::setAxisToAuto()
 
 void MainWindow::showRegisterDialog(QString mbcFile)
 {
-    if (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
+    if (_pGuiModel->guiState() == GuiState::DATA_LOADED)
     {
         QMessageBox::StandardButton reply;
         reply = QMessageBox::question(this, "Clear data?", "An imported data file is loaded. Do you want to clear the data and start adding registers for a new log?", QMessageBox::Yes|QMessageBox::No);
@@ -403,7 +390,7 @@ void MainWindow::showRegisterDialog(QString mbcFile)
         _pGraphDataModel->clear();
         _pNoteModel->clear();
 
-        _pGuiModel->setGuiState(GuiModel::INIT);
+        _pGuiModel->setGuiState(GuiState::INIT);
     }
 
     RegisterDialog registerDialog(_pGuiModel, _pGraphDataModel, _pSettingsModel, this);
@@ -488,18 +475,18 @@ void MainWindow::clearData()
 
 void MainWindow::startScope()
 {
-    if (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
+    if (_pGuiModel->guiState() == GuiState::DATA_LOADED)
     {
         _pGraphDataModel->clear();
         _pNoteModel->clear();
 
-        _pGuiModel->setGuiState(GuiModel::INIT);
+        _pGuiModel->setGuiState(GuiState::INIT);
     }
 
     if (_pGraphDataModel->activeCount() != 0)
     {
 
-        _pGuiModel->setGuiState(GuiModel::STARTED);
+        _pGuiModel->setGuiState(GuiState::STARTED);
 
         _runtimeTimer.singleShot(250, this, &MainWindow::updateRuntime);
 
@@ -533,7 +520,7 @@ void MainWindow::stopScope()
         _pDataFileHandler->disableExporterDuringLog();
     }
 
-    _pGuiModel->setGuiState(GuiModel::STOPPED);
+    _pGuiModel->setGuiState(GuiState::STOPPED);
 }
 
 void MainWindow::showDiagnostic()
@@ -706,11 +693,8 @@ void MainWindow::updateWindowTitle()
 
 void MainWindow::updateGuiState()
 {
-
-    if (_pGuiModel->guiState() == GuiModel::INIT)
+    if (_pGuiModel->guiState() == GuiState::INIT)
     {
-        _pStatusState->setText(_cStateStopped);
-
         _pUi->actionStop->setEnabled(false);
         _pUi->actionConnectionSettings->setEnabled(true);
         _pUi->actionLogSettings->setEnabled(true);
@@ -723,22 +707,14 @@ void MainWindow::updateGuiState()
         _pUi->actionSaveProjectFileAs->setEnabled(true);
         _pUi->actionClearData->setEnabled(true);
 
-        _pStatusRuntime->setText(_cRuntime.arg("0:00:00"));
-        _pStatusRuntime->setVisible(true);
-
-        _pStatusStats->setText(_cStatsTemplate.arg(0).arg(0));
-        _pStatusRuntime->setVisible(true);
-
         _pDataParserModel->resetSettings();
         _pGuiModel->setProjectFilePath(QString(""));
 
         _pGuiModel->setWindowTitleDetail(QString(""));
     }
-    else if (_pGuiModel->guiState() == GuiModel::STARTED)
+    else if (_pGuiModel->guiState() == GuiState::STARTED)
     {
         // Communication active
-        _pStatusState->setText(_cStateRunning);
-
         _pUi->actionStop->setEnabled(true);
         _pUi->actionConnectionSettings->setEnabled(false);
         _pUi->actionLogSettings->setEnabled(false);
@@ -752,17 +728,9 @@ void MainWindow::updateGuiState()
         _pUi->actionReloadProjectFile->setEnabled(false);
         _pUi->actionExportImage->setEnabled(true);
         _pUi->actionClearData->setEnabled(true);
-
-        _pStatusRuntime->setText(_cRuntime.arg("0:00:00"));
-        _pStatusRuntime->setVisible(true);
-
-        _pStatusStats->setText(_cStatsTemplate.arg(_pGuiModel->communicationSuccessCount()).arg(_pGuiModel->communicationErrorCount()));
-        _pStatusRuntime->setVisible(true);
     }
-    else if (_pGuiModel->guiState() == GuiModel::STOPPED)
+    else if (_pGuiModel->guiState() == GuiState::STOPPED)
     {
-        _pStatusState->setText(_cStateStopped);
-
         // Communication not active
         _pUi->actionStop->setEnabled(false);
         _pUi->actionConnectionSettings->setEnabled(true);
@@ -789,11 +757,8 @@ void MainWindow::updateGuiState()
             _pUi->actionSaveProjectFile->setEnabled(true);
         }
     }
-    else if (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
+    else if (_pGuiModel->guiState() == GuiState::DATA_LOADED)
     {
-
-        _pStatusState->setText(_cStateDataLoaded);
-
         // Communication not active
         _pUi->actionStop->setEnabled(false);
         _pUi->actionConnectionSettings->setEnabled(true);
@@ -807,14 +772,7 @@ void MainWindow::updateGuiState()
         _pUi->actionSaveProjectFileAs->setEnabled(false);
         _pUi->actionSaveProjectFile->setEnabled(false);
         _pUi->actionExportImage->setEnabled(true);
-        _pUi->actionClearData->setEnabled(false);
-
-        _pStatusRuntime->setText(QString(""));
-        _pStatusRuntime->setVisible(false);
-
-        _pStatusStats->setText(QString(""));
-        _pStatusStats->setVisible(false);
-
+        _pUi->actionClearData->setEnabled(false);        
         _pUi->actionReloadProjectFile->setEnabled(false);
 
         _pGuiModel->setWindowTitleDetail(QFileInfo(_pDataParserModel->dataFilePath()).fileName());
@@ -836,11 +794,6 @@ void MainWindow::projectFileLoaded()
         _pUi->actionReloadProjectFile->setEnabled(true);
         _pUi->actionSaveProjectFile->setEnabled(true);
     }
-}
-
-void MainWindow::updateStats()
-{
-    _pStatusStats->setText(_cStatsTemplate.arg(_pGuiModel->communicationSuccessCount()).arg(_pGuiModel->communicationErrorCount()));
 }
 
 void MainWindow::updateMarkerDockVisibility()
@@ -926,22 +879,7 @@ void MainWindow::appFocusChanged(QWidget *old, QWidget *now)
 
 void MainWindow::updateRuntime()
 {
-    qint64 timePassed = QDateTime::currentMSecsSinceEpoch() - _pGuiModel->communicationStartTime();
-
-    // Convert to s
-    timePassed /= 1000;
-
-    const quint32 h = (timePassed / 3600);
-    timePassed = timePassed % 3600;
-
-    const quint32 m = (timePassed / 60);
-    timePassed = timePassed % 60;
-
-    const quint32 s = timePassed;
-
-    QString strTimePassed = QString("%1:%2:%3").arg(h).arg(m, 2, 10, QChar('0')).arg(s, 2, 10, QChar('0'));
-
-    _pStatusRuntime->setText(_cRuntime.arg(strTimePassed));
+    _pStatusBar->updateRuntime();
 
     // restart timer
     if (_pModbusPoll->isActive())
@@ -964,7 +902,7 @@ void MainWindow::updateCommunicationStats(ResultDoubleList resultList)
 
 void MainWindow::updateDataFileNotes()
 {
-    if (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
+    if (_pGuiModel->guiState() == GuiState::DATA_LOADED)
     {
         if (_pNoteModel->isNotesDataUpdated())
         {
