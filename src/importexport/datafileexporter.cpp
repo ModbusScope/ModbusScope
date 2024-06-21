@@ -193,7 +193,7 @@ bool DataFileExporter::updateNoteLines(QString dataFile)
             createNoteRows(noteRows);
             if (!noteRows.isEmpty())
             {
-                for(const QString &noteRow: qAsConst(noteRows))
+                for(const QString &noteRow: std::as_const(noteRows))
                 {
                     tmpStream << noteRow << "\n";
                 }

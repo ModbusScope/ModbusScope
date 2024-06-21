@@ -82,7 +82,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
 
                     foreach(QString strColor, idList)
                     {
-                        if (QColor::isValidColor(strColor))
+                        if (QColor::isValidColorName(strColor))
                         {
                             pData->colors.append(QColor(strColor));
                         }

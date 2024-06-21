@@ -475,7 +475,7 @@ GeneralError ProjectFileParser::parseRegisterTag(const QDomElement &element, Reg
         }
         else if (child.tagName() == ProjectFileDefinitions::cColorTag)
         {
-            bRet = QColor::isValidColor(child.text());
+            bRet = QColor::isValidColorName(child.text());
             pRegisterSettings->bColor = bRet;
             if (bRet)
             {

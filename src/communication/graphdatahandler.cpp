@@ -20,7 +20,7 @@ void GraphDataHandler::processActiveRegisters(GraphDataModel* pGraphDataModel)
     _pGraphDataModel = pGraphDataModel;
 
     _pGraphDataModel->activeGraphIndexList(&_activeIndexList);
-    for(quint16 graphIdx: qAsConst(_activeIndexList))
+    for(quint16 graphIdx: std::as_const(_activeIndexList))
     {
         exprList.append(_pGraphDataModel->expression(graphIdx));
     }
@@ -35,7 +35,7 @@ void GraphDataHandler::processActiveRegisters(GraphDataModel* pGraphDataModel)
 
     _valueParsers.clear();
 
-    for(const QString &expr: qAsConst(processedExpList))
+    for(const QString &expr: std::as_const(processedExpList))
     {
         _valueParsers.append(QMuParser(expr));
     }

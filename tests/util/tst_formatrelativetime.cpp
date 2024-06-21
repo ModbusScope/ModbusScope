@@ -115,7 +115,7 @@ void TestFormatRelativeTime::formatTime_Absolute_data()
     QTest::addColumn<QString>("result");
 
     /* Workaround to get around different time zones */
-    if (QDateTime().timeZone().country() == QLocale::Belgium)
+    if (QDateTime().timeZone().territory() == QLocale::Belgium)
     {
         ADD_TEST(1602935825011,      "17/10/2020\n13:57:05,011");
         ADD_TEST(1602899825011,      "17/10/2020\n03:57:05,011");
