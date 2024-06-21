@@ -34,7 +34,7 @@ void ProjectFileHandler::openProjectFile(QString projectFilePath)
             this->updateProjectSetting(&loadedSettings);
 
             _pGuiModel->setProjectFilePath(projectFilePath);
-            _pGuiModel->setGuiState(GuiModel::STOPPED);
+            _pGuiModel->setGuiState(GuiModel::GuiState::STOPPED);
         }
         else
         {
