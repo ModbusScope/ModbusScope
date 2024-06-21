@@ -14,7 +14,7 @@ public:
 
     static void addExpressionsToModel(GraphDataModel* pModel, QStringList &exprList)
     {
-        for(const QString &expr: qAsConst(exprList))
+        for(const QString &expr: std::as_const(exprList))
         {
             pModel->add();
             pModel->setExpression(pModel->size() - 1, expr);

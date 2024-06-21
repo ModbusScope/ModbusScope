@@ -19,7 +19,7 @@ void ExpressionHighlighting::setExpressionErrorPosition(qint32 pos)
 
 void ExpressionHighlighting::highlightBlock(const QString &text)
 {
-    for (const HighlightingRule &rule : qAsConst(_highlightingRules))
+    for (const HighlightingRule &rule : std::as_const(_highlightingRules))
     {
         QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
         while (matchIterator.hasNext())

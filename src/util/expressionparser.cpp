@@ -31,7 +31,7 @@ void ExpressionParser::parseExpressions(QStringList& expressions)
     _processedExpressions.clear();
     _modbusRegisters.clear();
 
-    for(const QString &expression: qAsConst(expressions))
+    for(const QString &expression: std::as_const(expressions))
     {
         _processedExpressions.append(processExpression(expression));
     }
