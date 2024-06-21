@@ -37,7 +37,7 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
     _projectFilePath = "";
     _bHighlightSamples = true;
     _bCursorValues = false;
-    _guiState = INIT;
+    _guiState = GuiState::INIT;
     _windowTitle = _cWindowTitle;
 
     _startTime = 0;
@@ -339,14 +339,14 @@ void GuiModel::sety2AxisMax(double newMax)
     }
 }
 
-void GuiModel::setGuiState(quint32 state)
+void GuiModel::setGuiState(GuiState state)
 {
     // GUI State is an exception, always send signal to make sure GUI is updated
     _guiState = state;
     emit guiStateChanged();
 }
 
-quint32 GuiModel::guiState()
+GuiModel::GuiState GuiModel::guiState()
 {
     return _guiState;
 }

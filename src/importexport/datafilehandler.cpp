@@ -216,8 +216,7 @@ void DataFileHandler::parseDataFile()
             _pGuiModel->setFrontGraph(0);
             _pGuiModel->setProjectFilePath("");
             _pGuiModel->clearMarkersState();
-            _pGuiModel->setGuiState(GuiModel::DATA_LOADED);
-
+            _pGuiModel->setGuiState(GuiModel::GuiState::DATA_LOADED);
         }
         else
         {

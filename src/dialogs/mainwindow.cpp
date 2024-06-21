@@ -27,6 +27,8 @@
 
 #include <QDateTime>
 
+using GuiState = GuiModel::GuiState;
+
 const QString MainWindow::_cStateRunning = QString("Running");
 const QString MainWindow::_cStateStopped = QString("Stopped");
 const QString MainWindow::_cStateDataLoaded = QString("Data File loaded");
@@ -267,7 +269,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent* event)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (
-            (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
+            (_pGuiModel->guiState() == GuiState::DATA_LOADED)
             && (_pNoteModel->isNotesDataUpdated())
         )
     {
@@ -391,7 +393,7 @@ void MainWindow::setAxisToAuto()
 
 void MainWindow::showRegisterDialog(QString mbcFile)
 {
-    if (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
+    if (_pGuiModel->guiState() == GuiState::DATA_LOADED)
     {
         QMessageBox::StandardButton reply;
         reply = QMessageBox::question(this, "Clear data?", "An imported data file is loaded. Do you want to clear the data and start adding registers for a new log?", QMessageBox::Yes|QMessageBox::No);
@@ -403,7 +405,7 @@ void MainWindow::showRegisterDialog(QString mbcFile)
         _pGraphDataModel->clear();
         _pNoteModel->clear();
 
-        _pGuiModel->setGuiState(GuiModel::INIT);
+        _pGuiModel->setGuiState(GuiState::INIT);
     }
 
     RegisterDialog registerDialog(_pGuiModel, _pGraphDataModel, _pSettingsModel, this);
@@ -488,18 +490,18 @@ void MainWindow::clearData()
 
 void MainWindow::startScope()
 {
-    if (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
+    if (_pGuiModel->guiState() == GuiState::DATA_LOADED)
     {
         _pGraphDataModel->clear();
         _pNoteModel->clear();
 
-        _pGuiModel->setGuiState(GuiModel::INIT);
+        _pGuiModel->setGuiState(GuiState::INIT);
     }
 
     if (_pGraphDataModel->activeCount() != 0)
     {
 
-        _pGuiModel->setGuiState(GuiModel::STARTED);
+        _pGuiModel->setGuiState(GuiState::STARTED);
 
         _runtimeTimer.singleShot(250, this, &MainWindow::updateRuntime);
 
@@ -533,7 +535,7 @@ void MainWindow::stopScope()
         _pDataFileHandler->disableExporterDuringLog();
     }
 
-    _pGuiModel->setGuiState(GuiModel::STOPPED);
+    _pGuiModel->setGuiState(GuiState::STOPPED);
 }
 
 void MainWindow::showDiagnostic()
@@ -707,7 +709,7 @@ void MainWindow::updateWindowTitle()
 void MainWindow::updateGuiState()
 {
 
-    if (_pGuiModel->guiState() == GuiModel::INIT)
+    if (_pGuiModel->guiState() == GuiState::INIT)
     {
         _pStatusState->setText(_cStateStopped);
 
@@ -734,7 +736,7 @@ void MainWindow::updateGuiState()
 
         _pGuiModel->setWindowTitleDetail(QString(""));
     }
-    else if (_pGuiModel->guiState() == GuiModel::STARTED)
+    else if (_pGuiModel->guiState() == GuiState::STARTED)
     {
         // Communication active
         _pStatusState->setText(_cStateRunning);
@@ -759,7 +761,7 @@ void MainWindow::updateGuiState()
         _pStatusStats->setText(_cStatsTemplate.arg(_pGuiModel->communicationSuccessCount()).arg(_pGuiModel->communicationErrorCount()));
         _pStatusRuntime->setVisible(true);
     }
-    else if (_pGuiModel->guiState() == GuiModel::STOPPED)
+    else if (_pGuiModel->guiState() == GuiState::STOPPED)
     {
         _pStatusState->setText(_cStateStopped);
 
@@ -789,7 +791,7 @@ void MainWindow::updateGuiState()
             _pUi->actionSaveProjectFile->setEnabled(true);
         }
     }
-    else if (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
+    else if (_pGuiModel->guiState() == GuiState::DATA_LOADED)
     {
 
         _pStatusState->setText(_cStateDataLoaded);
@@ -964,7 +966,7 @@ void MainWindow::updateCommunicationStats(ResultDoubleList resultList)
 
 void MainWindow::updateDataFileNotes()
 {
-    if (_pGuiModel->guiState() == GuiModel::DATA_LOADED)
+    if (_pGuiModel->guiState() == GuiState::DATA_LOADED)
     {
         if (_pNoteModel->isNotesDataUpdated())
         {

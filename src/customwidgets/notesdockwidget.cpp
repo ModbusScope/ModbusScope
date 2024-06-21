@@ -82,7 +82,7 @@ void NotesDockWidget::updateDataFileClicked()
 
 void NotesDockWidget::notesDataUpdatedChanged()
 {
-    _pUi->btnUpdateDataFile->setVisible(_pGuiModel->guiState() == GuiModel::DATA_LOADED);
+    _pUi->btnUpdateDataFile->setVisible(_pGuiModel->guiState() == GuiModel::GuiState::DATA_LOADED);
     _pUi->btnUpdateDataFile->setEnabled(_pNoteModel->isNotesDataUpdated());
 }
 

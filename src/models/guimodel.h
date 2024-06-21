@@ -35,9 +35,9 @@ public:
     static const QString cMarkerExpressionStart;
     static const QString cMarkerExpressionEnd;
 
-    enum
+    enum class GuiState
     {
-        INIT,
+        INIT = 0,
         STARTED,
         STOPPED,
         DATA_LOADED,
@@ -67,7 +67,7 @@ public:
     double y2AxisMin();
     double yAxisMax();
     double y2AxisMax();
-    quint32 guiState();
+    GuiState guiState();
     qint64 communicationStartTime();
     qint64 communicationEndTime();
     quint32 communicationErrorCount();
@@ -99,7 +99,7 @@ public slots:
     void sety2AxisMin(double newMin);
     void setyAxisMax(double newMax);
     void sety2AxisMax(double newMax);
-    void setGuiState(quint32 state);
+    void setGuiState(GuiState state);
     void setCommunicationStartTime(qint64 startTime);
     void setCommunicationEndTime(qint64 endTime);
     void setCommunicationStats(quint32 successCount, quint32 errorCount);
@@ -170,7 +170,7 @@ private:
 
     bool _bHighlightSamples;
     bool _bCursorValues;
-    quint32 _guiState;
+    GuiState _guiState;
 
     bool _bMarkerState;
     bool _bStartMarkerState;
