@@ -20,6 +20,9 @@ jobs:
     - name: Start display server
       run: bash /start.sh &
 
+    - name: configure safe directory for git
+      run: git config --global --add safe.directory ${GITHUB_WORKSPACE}
+      
     - name: Prepare environment for Ninja build with coverage
       run: |
         cmake . -GNinja -DUSE_GCOV=ON
