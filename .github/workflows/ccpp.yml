@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: docker://jgeudens/qt-linux:6.5.3_build_1
+      image: docker://jgeudens/qt-linux:6.6.3_build_1
     steps:
       - uses: actions/checkout@v4
 
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: docker://jgeudens/qt-linux:6.5.3_build_1
+      image: docker://jgeudens/qt-linux:6.6.3_build_1
     steps:
       - uses: actions/checkout@v4
 

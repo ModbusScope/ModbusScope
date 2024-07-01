@@ -12,7 +12,7 @@ on:
 jobs:
   coverage:
     runs-on: ubuntu-latest
-    container: docker://jgeudens/qt-linux:6.5.3_build_1
+    container: docker://jgeudens/qt-linux:6.6.3_build_1
     steps:
     - name: Checkout
       uses: actions/checkout@v4
