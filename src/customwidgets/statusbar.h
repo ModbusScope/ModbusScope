@@ -5,25 +5,29 @@
 #include <QLabel>
 
 class GuiModel;
+class ClickableLabel;
 
 class StatusBar : public QStatusBar
 {
     Q_OBJECT
 public:
     explicit StatusBar(GuiModel* pGuiModel, QWidget *parent = nullptr);
-    ~StatusBar();
 
     void updateRuntime();
 
 private slots:
+    void statsClicked();
     void updateGuiState();
     void updateStats();
+
+signals:
+    void openDiagnostics();
 
 private:
 
     GuiModel* _pGuiModel;
 
-    QLabel * _pStatusStats;
+    ClickableLabel * _pStatusStats;
     QLabel * _pStatusState;
     QLabel * _pStatusRuntime;
 
