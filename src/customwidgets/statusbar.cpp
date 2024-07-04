@@ -2,6 +2,7 @@
 
 #include <QDateTime>
 
+#include "clickablelabel.h"
 #include "guimodel.h"
 
 using GuiState = GuiModel::GuiState;
@@ -15,10 +16,9 @@ const QString StatusBar::_cRuntime = QString("Runtime: %1");
 StatusBar::StatusBar(GuiModel* pGuiModel, QWidget *parent) :
     QStatusBar(parent), _pGuiModel(pGuiModel)
 {
-    // Add multipart status bar
     _pStatusState = new QLabel(_cStateStopped, this);
     _pStatusState->setFrameStyle((int)QFrame::Panel | (int)QFrame::Sunken);
-    _pStatusStats = new QLabel("", this);
+    _pStatusStats = new ClickableLabel("", this);
     _pStatusStats->setFrameStyle((int)QFrame::Panel | (int)QFrame::Sunken);
     _pStatusRuntime = new QLabel("", this);
     _pStatusRuntime->setFrameStyle((int)QFrame::Panel | (int)QFrame::Sunken);
@@ -29,11 +29,13 @@ StatusBar::StatusBar(GuiModel* pGuiModel, QWidget *parent) :
 
     connect(_pGuiModel, &GuiModel::guiStateChanged, this, &StatusBar::updateGuiState);
     connect(_pGuiModel, &GuiModel::communicationStatsChanged, this, &StatusBar::updateStats);
+
+    connect(_pStatusStats, &ClickableLabel::clicked, this, &StatusBar::statsClicked);
 }
 
-StatusBar::~StatusBar()
+void StatusBar::statsClicked()
 {
-
+    emit openDiagnostics();
 }
 
 void StatusBar::updateGuiState()

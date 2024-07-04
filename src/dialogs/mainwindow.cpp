@@ -151,6 +151,8 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pGraphView, &GraphView::cursorValueUpdate, _pLegend, &Legend::updateDataInLegend);
     connect(_pGraphView, &GraphView::dataAddedToPlot, _pDataFileHandler, &DataFileHandler::exportDataLine);
 
+    connect(_pStatusBar, &StatusBar::openDiagnostics, this, &MainWindow::showDiagnostic);
+
     _pGraphShowHide = _pUi->menuShowHide;
     _pGraphBringToFront = _pUi->menuBringToFront;
     _pBringToFrontGroup = new QActionGroup(this);
