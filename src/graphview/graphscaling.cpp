@@ -14,7 +14,9 @@ GraphScale::GraphScale(GuiModel* pGuiModel, ScopePlot* pPlot, QObject *parent) :
     _pGraphview = dynamic_cast<GraphView*>(parent);
 
     /* Range drag is also enabled/disabled on mousePress and mouseRelease event */
-    _pPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes);
+    _pPlot->setInteraction(QCP::iRangeDrag, true);
+    _pPlot->setInteraction(QCP::iRangeZoom, true);
+    _pPlot->setInteraction(QCP::iSelectAxes, true);
 
     // disable anti aliasing while dragging
     _pPlot->setNoAntialiasingOnDrag(true);
