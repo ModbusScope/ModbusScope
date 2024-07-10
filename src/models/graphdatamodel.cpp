@@ -10,6 +10,8 @@ GraphDataModel::GraphDataModel(QObject *parent) : QAbstractTableModel(parent)
 {
     _graphData.clear();
 
+    _selectedGraphIdx = -1;
+
     connect(this, &GraphDataModel::visibilityChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::labelChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::colorChanged, this, &GraphDataModel::modelDataChanged);
@@ -425,6 +427,15 @@ void GraphDataModel::setExpressionStatus(quint32 index, GraphData::ExpressionSta
     {
         _graphData[index].setExpressionStatus(status);
         emit expressionStatusChanged(index);
+    }
+}
+
+void GraphDataModel::setSelectedGraph(qint32 activeIdx)
+{
+    if (activeIdx != _selectedGraphIdx)
+    {
+        _selectedGraphIdx = activeIdx;
+        emit selectedGraphChanged(_selectedGraphIdx);
     }
 }
 

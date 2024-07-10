@@ -44,6 +44,7 @@ private slots:
     void toggleVisibilityClicked();
     void hideAll();
     void showAll();
+    void handleSelectedGraphChanged(const qint32 activeGraphIdx);
 
 private:
     void updateCursorDataInLegend();

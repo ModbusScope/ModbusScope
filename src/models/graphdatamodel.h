@@ -60,6 +60,7 @@ public:
     void setActive(quint32 index, bool bActive);
     void setExpression(quint32 index, QString expression);
     void setExpressionStatus(quint32 index, GraphData::ExpressionStatus status);
+    void setSelectedGraph(qint32 activeIdx);
 
     void add(GraphData rowData);
     void add(QList<GraphData> graphDataList);
@@ -84,6 +85,7 @@ signals:
     void activeChanged(const quint32 graphIdx);
     void expressionChanged(const quint32 graphIdx);
     void expressionStatusChanged(const quint32 graphIdx);
+    void selectedGraphChanged(const qint32 activeGraphIdx);
     void graphsAddData(QList<double>, QList<QList<double> > data);
 
     void moved();
@@ -103,6 +105,8 @@ private:
 
     QList<GraphData> _graphData;
     QList<quint32> _activeGraphList;
+
+    qint32 _selectedGraphIdx;
 
     static const QColor lightRed;
 };
