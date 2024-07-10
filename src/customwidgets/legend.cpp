@@ -105,6 +105,7 @@ void Legend::setModels(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel)
     connect(_pGraphDataModel, &GraphDataModel::colorChanged, this, &Legend::changeGraphColor);
     connect(_pGraphDataModel, &GraphDataModel::valueAxisChanged, this, &Legend::changeGraphAxis);
     connect(_pGraphDataModel, &GraphDataModel::labelChanged, this, &Legend::changeGraphLabel);
+    connect(_pGraphDataModel, &GraphDataModel::selectedGraphChanged, this, &Legend::handleSelectedGraphChanged);
 }
 
 void Legend::clearLegendData()
@@ -412,5 +413,26 @@ void Legend::showAll()
     for(qint32 idx = 0; idx < _pGraphDataModel->size(); idx++)
     {
         _pGraphDataModel->setVisible(idx, true);
+    }
+}
+
+void Legend::handleSelectedGraphChanged(const qint32 activeGraphIdx)
+{
+    for (int idx = 0; idx < _pLegendTable->rowCount(); idx++)
+    {
+        QFont itemFont = _pLegendTable->item((int) idx, cColummnValue)->font();
+
+        if (idx == activeGraphIdx)
+        {
+            itemFont.setBold(true);
+        }
+        else
+        {
+            itemFont.setBold(false);
+        }
+
+        _pLegendTable->item((int) idx, cColummnAxis)->setFont(itemFont);
+        _pLegendTable->item((int) idx, cColummnValue)->setFont(itemFont);
+        _pLegendTable->item((int) idx, cColummnText)->setFont(itemFont);
     }
 }
