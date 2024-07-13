@@ -41,6 +41,7 @@ private slots:
     void showContextMenu(const QPoint& pos);
     void legendCellDoubleClicked(int row, int column);
     void toggleVisibilityClicked();
+    void highlightItemClicked(int row);
     void hideAll();
     void showAll();
     void handleSelectedGraphChanged(const qint32 activeGraphIdx);
