@@ -90,13 +90,13 @@ void StatusBar::updateRuntime()
     // Convert to s
     timePassed /= 1000;
 
-    const quint32 h = (timePassed / 3600);
+    const quint32 h = static_cast<quint32>(timePassed / 3600);
     timePassed = timePassed % 3600;
 
-    const quint32 m = (timePassed / 60);
+    const quint32 m = static_cast<quint32>(timePassed / 60);
     timePassed = timePassed % 60;
 
-    const quint32 s = timePassed;
+    const quint32 s = static_cast<quint32>(timePassed);
 
     QString strTimePassed = QString("%1:%2:%3").arg(h).arg(m, 2, 10, QChar('0')).arg(s, 2, 10, QChar('0'));
 
