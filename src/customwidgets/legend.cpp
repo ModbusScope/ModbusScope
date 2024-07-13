@@ -75,6 +75,7 @@ Legend::Legend(QWidget *parent) : QFrame(parent),
     connect(_pToggleVisibilityAction, &QAction::triggered, this, &Legend::toggleVisibilityClicked);
     connect(_pHideAllAction, &QAction::triggered, this, &Legend::hideAll);
     connect(_pShowAllAction, &QAction::triggered, this, &Legend::showAll);
+    connect(_pLegendTable, &QTableWidget::cellClicked, this, &Legend::highlightItemClicked);
     connect(_pLegendTable, &QTableWidget::cellDoubleClicked, this, &Legend::legendCellDoubleClicked);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -392,6 +393,16 @@ void Legend::showContextMenu(const QPoint& pos)
 void Legend::toggleVisibilityClicked()
 {
     toggleItemVisibility(_popupMenuItem);
+}
+
+void Legend::highlightItemClicked(int row)
+{
+    if ((row != -1) && (row < _pGraphDataModel->size()))
+    {
+        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(row);
+
+        _pGraphDataModel->setSelectedGraph(graphIdx);
+    }
 }
 
 void Legend::hideAll()
