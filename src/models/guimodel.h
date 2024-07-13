@@ -52,7 +52,6 @@ public:
 
     void triggerUpdate(void);
 
-    qint32 frontGraph() const;
     bool highlightSamples() const;
     bool cursorValues() const;
     QString windowTitle();
@@ -88,7 +87,6 @@ public:
 public slots:
     void setCursorValues(bool bCursorValues);
     void setHighlightSamples(bool bHighlightSamples);
-    void setFrontGraph(const qint32 &frontGraph);
 
     void setWindowTitleDetail(QString detail);
     void setxAxisScale(AxisMode::AxisScaleOptions scaleMode);
@@ -110,7 +108,6 @@ public slots:
 
 signals:
 
-    void frontGraphChanged();
     void highlightSamplesChanged();
     void cursorValuesChanged();
     void windowTitleChanged();
@@ -155,7 +152,6 @@ private:
 
     } GuiSettings;
 
-    qint32 _frontGraph; /* active graph index */
     GuiSettings _guiSettings;
     QString _windowTitle;
 
