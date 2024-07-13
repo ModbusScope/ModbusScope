@@ -4,7 +4,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Added 
 
-- xx
+- Diagnostic dialog is opened when stats section in status bar is clicked
 
 ### Fixed
 
