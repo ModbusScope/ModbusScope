@@ -542,6 +542,25 @@ void GraphView::handleSelectionChanged(bool selected)
     {
         _pGraphDataModel->setSelectedGraph(-1);
     }
+
+    for (qint32 idx = 0; idx < _pPlot->graphCount(); idx++)
+    {
+        QPen graphPen = _pPlot->graph(idx)->pen();
+        QColor baseColor = graphPen.color();
+        QColor normalPen = QColor(baseColor.red(), baseColor.green(), baseColor.blue(), 255);
+        QColor transparentPen = QColor(baseColor.red(), baseColor.green(), baseColor.blue(), 63);
+
+        if ((_pGraphDataModel->selectedGraph() == -1) || (idx == _pGraphDataModel->selectedGraph()))
+        {
+            graphPen.setColor(normalPen);
+        }
+        else
+        {
+            graphPen.setColor(transparentPen);
+        }
+
+        _pPlot->graph(idx)->setPen(graphPen);
+    }
 }
 
 void GraphView::paintTimeStampToolTip(QPoint pos)
@@ -646,8 +665,6 @@ void GraphView::setGraphColor(QCPGraph* _pGraph, const QColor &color)
     pen.setWidth(2);
     pen.setCosmetic(true);
     _pGraph->setPen(pen);
-
-    pen.setStyle(Qt::DashLine);
     _pGraph->selectionDecorator()->setPen(pen);
 }
 

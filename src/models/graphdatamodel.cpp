@@ -348,6 +348,11 @@ GraphData::ExpressionStatus GraphDataModel::expressionStatus(quint32 index) cons
     return _graphData[index].expressionStatus();
 }
 
+qint32 GraphDataModel::selectedGraph() const
+{
+    return _selectedGraphIdx;
+}
+
 QString GraphDataModel::simplifiedExpression(quint32 index) const
 {
     return _graphData[index].expression().simplified();
