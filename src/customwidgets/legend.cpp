@@ -75,7 +75,7 @@ Legend::Legend(QWidget *parent) : QFrame(parent),
     connect(_pToggleVisibilityAction, &QAction::triggered, this, &Legend::toggleVisibilityClicked);
     connect(_pHideAllAction, &QAction::triggered, this, &Legend::hideAll);
     connect(_pShowAllAction, &QAction::triggered, this, &Legend::showAll);
-    connect(_pLegendTable, &QTableWidget::cellClicked, this, &Legend::graphToForeground);
+    connect(_pLegendTable, &QTableWidget::cellClicked, this, &Legend::highlightItemClicked);
     connect(_pLegendTable, &QTableWidget::cellDoubleClicked, this, &Legend::legendCellDoubleClicked);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -105,6 +105,7 @@ void Legend::setModels(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel)
     connect(_pGraphDataModel, &GraphDataModel::colorChanged, this, &Legend::changeGraphColor);
     connect(_pGraphDataModel, &GraphDataModel::valueAxisChanged, this, &Legend::changeGraphAxis);
     connect(_pGraphDataModel, &GraphDataModel::labelChanged, this, &Legend::changeGraphLabel);
+    connect(_pGraphDataModel, &GraphDataModel::selectedGraphChanged, this, &Legend::handleSelectedGraphChanged);
 }
 
 void Legend::clearLegendData()
@@ -115,11 +116,6 @@ void Legend::clearLegendData()
     }
 
     updateDataInLegend();
-}
-
-void Legend::graphToForeground(int row)
-{
-    _pGuiModel->setFrontGraph(row);
 }
 
 void Legend::legendCellDoubleClicked(int row, int column)
@@ -399,6 +395,16 @@ void Legend::toggleVisibilityClicked()
     toggleItemVisibility(_popupMenuItem);
 }
 
+void Legend::highlightItemClicked(int row)
+{
+    if ((row != -1) && (row < _pGraphDataModel->size()))
+    {
+        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(row);
+
+        _pGraphDataModel->setSelectedGraph(graphIdx);
+    }
+}
+
 void Legend::hideAll()
 {
     for(qint32 idx = 0; idx < _pGraphDataModel->size(); idx++)
@@ -412,5 +418,26 @@ void Legend::showAll()
     for(qint32 idx = 0; idx < _pGraphDataModel->size(); idx++)
     {
         _pGraphDataModel->setVisible(idx, true);
+    }
+}
+
+void Legend::handleSelectedGraphChanged(const qint32 activeGraphIdx)
+{
+    for (int idx = 0; idx < _pLegendTable->rowCount(); idx++)
+    {
+        QFont itemFont = _pLegendTable->item(idx, cColummnValue)->font();
+
+        if (idx == activeGraphIdx)
+        {
+            itemFont.setBold(true);
+        }
+        else
+        {
+            itemFont.setBold(false);
+        }
+
+        _pLegendTable->item(idx, cColummnAxis)->setFont(itemFont);
+        _pLegendTable->item(idx, cColummnValue)->setFont(itemFont);
+        _pLegendTable->item(idx, cColummnText)->setFont(itemFont);
     }
 }
