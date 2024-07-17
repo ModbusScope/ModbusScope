@@ -6,7 +6,8 @@
 
 const QColor GraphDataModel::lightRed = QColor(255, 0, 0, 127);
 
-GraphDataModel::GraphDataModel(QObject *parent) : QAbstractTableModel(parent)
+GraphDataModel::GraphDataModel(QObject *parent)
+    : QAbstractTableModel(parent), _selectedGraphIdx(-1)
 {
     _graphData.clear();
     _startTime = 0;
@@ -14,7 +15,7 @@ GraphDataModel::GraphDataModel(QObject *parent) : QAbstractTableModel(parent)
     _successCount = 0;
     _errorCount = 0;
 
-    _selectedGraphIdx = -1;
+
 
     connect(this, &GraphDataModel::visibilityChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::labelChanged, this, &GraphDataModel::modelDataChanged);

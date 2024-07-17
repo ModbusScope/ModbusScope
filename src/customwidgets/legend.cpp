@@ -425,7 +425,7 @@ void Legend::handleSelectedGraphChanged(const qint32 activeGraphIdx)
 {
     for (int idx = 0; idx < _pLegendTable->rowCount(); idx++)
     {
-        QFont itemFont = _pLegendTable->item((int) idx, cColummnValue)->font();
+        QFont itemFont = _pLegendTable->item(idx, cColummnValue)->font();
 
         if (idx == activeGraphIdx)
         {
@@ -436,8 +436,8 @@ void Legend::handleSelectedGraphChanged(const qint32 activeGraphIdx)
             itemFont.setBold(false);
         }
 
-        _pLegendTable->item((int) idx, cColummnAxis)->setFont(itemFont);
-        _pLegendTable->item((int) idx, cColummnValue)->setFont(itemFont);
-        _pLegendTable->item((int) idx, cColummnText)->setFont(itemFont);
+        _pLegendTable->item(idx, cColummnAxis)->setFont(itemFont);
+        _pLegendTable->item(idx, cColummnValue)->setFont(itemFont);
+        _pLegendTable->item(idx, cColummnText)->setFont(itemFont);
     }
 }

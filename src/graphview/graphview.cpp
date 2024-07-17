@@ -717,7 +717,7 @@ void GraphView::updateSecondaryAxisVisibility()
     rescalePlot();
 }
 
-qint32 GraphView::getActiveGraphIndex(QCPGraph* pGraph)
+qint32 GraphView::getActiveGraphIndex(QCPGraph const * const pGraph)
 {
     qint32 idx = -1;
     for (int i = 0; i < _pPlot->graphCount(); ++i)
