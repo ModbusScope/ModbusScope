@@ -72,7 +72,7 @@ private:
     void setGraphAxis(QCPGraph* _pGraph, const GraphData::valueAxis_t &axis);
     double getClosestPoint(double coordinate);
     void updateSecondaryAxisVisibility();
-    qint32 getActiveGraphIndex(QCPGraph *pGraph);
+    qint32 getActiveGraphIndex(const QCPGraph * const pGraph);
 
     QVector<QString> _tickLabels;
 
