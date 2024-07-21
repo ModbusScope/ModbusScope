@@ -548,7 +548,7 @@ void GraphView::handleSelectionChanged(bool selected)
         QPen graphPen = _pPlot->graph(idx)->pen();
         QColor baseColor = graphPen.color();
         QColor normalPen = QColor(baseColor.red(), baseColor.green(), baseColor.blue(), 255);
-        QColor transparentPen = QColor(baseColor.red(), baseColor.green(), baseColor.blue(), 63);
+        QColor transparentPen = QColor(baseColor.red(), baseColor.green(), baseColor.blue(), 16);
 
         if ((_pGraphDataModel->selectedGraph() == -1) || (idx == _pGraphDataModel->selectedGraph()))
         {
