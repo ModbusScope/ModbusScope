@@ -57,7 +57,8 @@ public:
     qint64 communicationEndTime();
     quint32 communicationErrorCount();
     quint32 communicationSuccessCount();
-    void incrementCommunicationStats(quint32 successCount, quint32 errors);
+    qint64 communicationRunTime();
+
 
     void setValueAxis(quint32 index, GraphData::valueAxis_t axis);
     void setVisible(quint32 index, bool bVisible);
@@ -97,6 +98,7 @@ signals:
     void graphsAddData(QList<double>, QList<QList<double> > data);
 
     void communicationStatsChanged();
+    void communicationTimeStatsChanged();
 
     void moved();
     void added(const quint32 idx);

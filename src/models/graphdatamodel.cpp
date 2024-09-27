@@ -409,9 +409,9 @@ quint32 GraphDataModel::communicationSuccessCount()
     return _successCount;
 }
 
-void GraphDataModel::incrementCommunicationStats(quint32 successes, quint32 errors)
+qint64 GraphDataModel::communicationRunTime()
 {
-    setCommunicationStats(communicationSuccessCount() + successes, communicationErrorCount() + errors);
+    return QDateTime::currentMSecsSinceEpoch() - communicationStartTime();
 }
 
 void GraphDataModel::setValueAxis(quint32 index, GraphData::valueAxis_t axis)

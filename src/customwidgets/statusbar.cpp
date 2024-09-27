@@ -30,6 +30,7 @@ StatusBar::StatusBar(GuiModel* pGuiModel, GraphDataModel* pGraphDataModel, QWidg
 
     connect(_pGuiModel, &GuiModel::guiStateChanged, this, &StatusBar::updateGuiState);
     connect(_pGraphDataModel, &GraphDataModel::communicationStatsChanged, this, &StatusBar::updateStats);
+    connect(_pGraphDataModel, &GraphDataModel::communicationTimeStatsChanged, this, &StatusBar::updateTimeStats);
 
     connect(_pStatusStats, &ClickableLabel::clicked, this, &StatusBar::statsClicked);
 }
@@ -84,9 +85,9 @@ void StatusBar::updateStats()
     _pStatusStats->setText(_cStatsTemplate.arg(_pGraphDataModel->communicationSuccessCount()).arg(_pGraphDataModel->communicationErrorCount()));
 }
 
-void StatusBar::updateRuntime()
+void StatusBar::updateTimeStats()
 {
-    qint64 timePassed = QDateTime::currentMSecsSinceEpoch() - _pGraphDataModel->communicationStartTime();
+    qint64 timePassed = _pGraphDataModel->communicationRunTime();
 
     // Convert to s
     timePassed /= 1000;
