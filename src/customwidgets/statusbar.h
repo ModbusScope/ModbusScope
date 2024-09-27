@@ -14,12 +14,11 @@ class StatusBar : public QStatusBar
 public:
     explicit StatusBar(GuiModel* pGuiModel, GraphDataModel* pGraphDataModel, QWidget *parent = nullptr);
 
-    void updateRuntime();
-
 private slots:
     void statsClicked();
     void updateGuiState();
     void updateStats();
+    void updateTimeStats();
 
 signals:
     void openDiagnostics();
