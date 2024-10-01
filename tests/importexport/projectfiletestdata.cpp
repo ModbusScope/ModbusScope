@@ -168,6 +168,24 @@ QString ProjectFileTestData::cScaleDouble = QString(
     "</modbusscope>                                             \n"
 );
 
+QString ProjectFileTestData::cValueAxis2Scaling = QString(
+    "<?xml version=\"1.0\"?>                                    \n"\
+    "<modbusscope datalevel=\"3\">                              \n"\
+    "    <view>                                                 \n"\
+    "        <scale>                                            \n"\
+    "            <xaxis mode=\"sliding\">                       \n"\
+    "                <slidinginterval>20</slidinginterval>      \n"\
+    "            </xaxis>                                       \n"\
+    "            <yaxis axis=\"0\" mode=\"windowauto\"/>        \n"\
+    "            <yaxis axis=\"1\" mode=\"minmax\">             \n"\
+    "                <min>0</min>                               \n"\
+    "                <max>25,5</max>                            \n"\
+    "            </yaxis>                                       \n"\
+    "        </scale>                                           \n"\
+    "    </view>                                                \n"\
+    "</modbusscope>                                             \n"
+    );
+
 QString ProjectFileTestData::cValueAxis = QString(
     "<?xml version=\"1.0\"?>                                                    \n"\
     "<modbusscope datalevel=\"3\">                                              \n"\

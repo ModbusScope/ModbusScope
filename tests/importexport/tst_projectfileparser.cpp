@@ -316,12 +316,37 @@ void TestProjectFileParser::scaleDouble()
     QVERIFY(parseError.result());
 
     /* Connection id 0 */
-    QVERIFY(settings.view.scaleSettings.bSliding);
-    QCOMPARE(settings.view.scaleSettings.slidingInterval, 20);
+    QVERIFY(settings.view.scaleSettings.xAxis.bSliding);
+    QCOMPARE(settings.view.scaleSettings.xAxis.slidingInterval, 20);
 
-    QVERIFY(settings.view.scaleSettings.bMinMax);
-    QCOMPARE(settings.view.scaleSettings.scaleMin, 0);
-    QCOMPARE(settings.view.scaleSettings.scaleMax, 25.5);
+    QVERIFY(settings.view.scaleSettings.yAxis.bWindowScale == false);
+    QVERIFY(settings.view.scaleSettings.yAxis.bMinMax);
+    QCOMPARE(settings.view.scaleSettings.yAxis.scaleMin, 0);
+    QCOMPARE(settings.view.scaleSettings.yAxis.scaleMax, 25.5);
+
+    QVERIFY(settings.view.scaleSettings.y2Axis.bMinMax == false);
+    QVERIFY(settings.view.scaleSettings.y2Axis.bWindowScale == false);
+}
+
+void TestProjectFileParser::valueAxis2Scaling()
+{
+    ProjectFileParser projectParser;
+    ProjectFileData::ProjectSettings settings;
+
+    GeneralError parseError = projectParser.parseFile(ProjectFileTestData::cValueAxis2Scaling, &settings);
+    QVERIFY(parseError.result());
+
+    /* Connection id 0 */
+    QVERIFY(settings.view.scaleSettings.xAxis.bSliding);
+    QCOMPARE(settings.view.scaleSettings.xAxis.slidingInterval, 20);
+
+    QVERIFY(settings.view.scaleSettings.yAxis.bWindowScale);
+    QVERIFY(settings.view.scaleSettings.yAxis.bMinMax == false);
+
+    QVERIFY(settings.view.scaleSettings.y2Axis.bWindowScale == false);
+    QVERIFY(settings.view.scaleSettings.y2Axis.bMinMax);
+    QCOMPARE(settings.view.scaleSettings.y2Axis.scaleMin, 0);
+    QCOMPARE(settings.view.scaleSettings.y2Axis.scaleMax, 25.5);
 }
 
 void TestProjectFileParser::valueAxis()
