@@ -172,10 +172,10 @@ void ProjectFileExporter::createViewTag(QDomElement * pParentElement)
     }
     scaleElement.appendChild(xAxisElement);
 
-
     /* Create yAxisElement tag */
     QDomElement yAxisElement = _domDocument.createElement(ProjectFileDefinitions::cYaxisTag);
 
+    yAxisElement.setAttribute(ProjectFileDefinitions::cAxisAttribute, 0);
 
     if (_pGuiModel->yAxisScalingMode() == AxisMode::SCALE_WINDOW_AUTO)
     {
@@ -193,6 +193,28 @@ void ProjectFileExporter::createViewTag(QDomElement * pParentElement)
         yAxisElement.setAttribute(ProjectFileDefinitions::cModeAttribute, ProjectFileDefinitions::cAutoValue);
     }
     scaleElement.appendChild(yAxisElement);
+
+    /* Create yAxisElement tag */
+    QDomElement y2AxisElement = _domDocument.createElement(ProjectFileDefinitions::cYaxisTag);
+
+    y2AxisElement.setAttribute(ProjectFileDefinitions::cAxisAttribute, 1);
+
+    if (_pGuiModel->y2AxisScalingMode() == AxisMode::SCALE_WINDOW_AUTO)
+    {
+        y2AxisElement.setAttribute(ProjectFileDefinitions::cModeAttribute, ProjectFileDefinitions::cWindowAutoValue);
+    }
+    else if (_pGuiModel->y2AxisScalingMode() == AxisMode::SCALE_MINMAX)
+    {
+        y2AxisElement.setAttribute(ProjectFileDefinitions::cModeAttribute, ProjectFileDefinitions::cMinmaxValue);
+
+        addTextNode(ProjectFileDefinitions::cMinTag, QString("%1").arg(Util::formatDoubleForExport(_pGuiModel->y2AxisMin())), &y2AxisElement);
+        addTextNode(ProjectFileDefinitions::cMaxTag, QString("%1").arg(Util::formatDoubleForExport(_pGuiModel->y2AxisMax())), &y2AxisElement);
+    }
+    else
+    {
+        y2AxisElement.setAttribute(ProjectFileDefinitions::cModeAttribute, ProjectFileDefinitions::cAutoValue);
+    }
+    scaleElement.appendChild(y2AxisElement);
 
     viewElement.appendChild(scaleElement);
     pParentElement->appendChild(viewElement);
