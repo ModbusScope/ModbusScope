@@ -12,7 +12,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Changed
 
-- xx
+- Scaling settings of secondary value axis is now saved in project file
 
 ### Removed
 
