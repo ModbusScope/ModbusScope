@@ -26,16 +26,27 @@ namespace ProjectFileData
         QList<RegisterSettings> registerList;
     } ScopeSettings;
 
-    typedef struct _ScaleSettings
+    typedef struct _XAxisSettings
     {
         bool bSliding = false;
         quint32 slidingInterval = 60;
 
+    } XAxisSettings;
+
+    typedef struct _YAxisSettings
+    {
         bool bWindowScale = false;
 
         bool bMinMax = false;
         double scaleMin = 0;
         double scaleMax = 10;
+    } YAxisSettings;
+
+    typedef struct _ScaleSettings
+    {
+        XAxisSettings xAxis;
+        YAxisSettings yAxis;
+        YAxisSettings y2Axis;
     } ScaleSettings;
 
     typedef struct

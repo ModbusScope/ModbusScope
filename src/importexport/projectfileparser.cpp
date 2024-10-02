@@ -11,6 +11,7 @@ using ProjectFileData::ScopeSettings;
 using ProjectFileData::RegisterSettings;
 using ProjectFileData::ViewSettings;
 using ProjectFileData::ScaleSettings;
+using ProjectFileData::YAxisSettings;
 using ProjectFileData::GeneralSettings;
 
 ProjectFileParser::ProjectFileParser()
@@ -577,7 +578,7 @@ GeneralError ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleS
             if (!active.compare(ProjectFileDefinitions::cSlidingValue, Qt::CaseInsensitive))
             {
                 // Sliding interval mode
-                pScaleSettings->bSliding = true;
+                pScaleSettings->xAxis.bSliding = true;
 
                 parseErr = parseScaleXAxis(child, pScaleSettings);
                 if (!parseErr.result())
@@ -588,24 +589,32 @@ GeneralError ProjectFileParser::parseScaleTag(const QDomElement &element, ScaleS
             else if (!active.compare(ProjectFileDefinitions::cAutoValue, Qt::CaseInsensitive))
             {
                 // auto interval mode
-                pScaleSettings->bSliding = false;
+                pScaleSettings->xAxis.bSliding = false;
             }
         }
         else if (child.tagName() == ProjectFileDefinitions::cYaxisTag)
         {
-            // Check attribute
+            QString axisString = child.attribute(ProjectFileDefinitions::cAxisAttribute);
+            bool bRet = false;
+            int axisId = axisString.toInt(&bRet);
+            if (bRet == false)
+            {
+                axisId = UINT32_MAX;
+            }
+            YAxisSettings* yAxisSettings = (axisId == 1) ? &pScaleSettings->y2Axis: &pScaleSettings->yAxis;
+
             QString active = child.attribute(ProjectFileDefinitions::cModeAttribute);
 
             if (!active.compare(ProjectFileDefinitions::cWindowAutoValue, Qt::CaseInsensitive))
             {
-                pScaleSettings->bWindowScale = true;
+                yAxisSettings->bWindowScale = true;
             }
             else if (!active.compare(ProjectFileDefinitions::cMinmaxValue, Qt::CaseInsensitive))
             {
                 // min max mode
-                pScaleSettings->bMinMax = true;
+                yAxisSettings->bMinMax = true;
 
-                parseErr = parseScaleYAxis(child, pScaleSettings);
+                parseErr = parseScaleYAxis(child, yAxisSettings);
                 if (!parseErr.result())
                 {
                     break;
@@ -638,7 +647,7 @@ GeneralError ProjectFileParser::parseScaleXAxis(const QDomElement &element, Scal
         bool bRet;
         if (child.tagName() == ProjectFileDefinitions::cSlidingintervalTag)
         {
-            pScaleSettings->slidingInterval = child.text().toUInt(&bRet);
+            pScaleSettings->xAxis.slidingInterval = child.text().toUInt(&bRet);
             if (bRet)
             {
                 bSlidingInterval = true;
@@ -664,7 +673,7 @@ GeneralError ProjectFileParser::parseScaleXAxis(const QDomElement &element, Scal
     return parseErr;
 }
 
-GeneralError ProjectFileParser::parseScaleYAxis(const QDomElement &element, ScaleSettings *pScaleSettings)
+GeneralError ProjectFileParser::parseScaleYAxis(const QDomElement &element, YAxisSettings *pYAxisSettings)
 {
     GeneralError parseErr;
     bool bMin = false;
@@ -677,7 +686,7 @@ GeneralError ProjectFileParser::parseScaleYAxis(const QDomElement &element, Scal
         bool bRet;
         if (child.tagName() == ProjectFileDefinitions::cMinTag)
         {
-            pScaleSettings->scaleMin = QLocale().toDouble(child.text(), &bRet);
+            pYAxisSettings->scaleMin = QLocale().toDouble(child.text(), &bRet);
             if (bRet)
             {
                 bMin = true;
@@ -689,7 +698,7 @@ GeneralError ProjectFileParser::parseScaleYAxis(const QDomElement &element, Scal
         }
         else if (child.tagName() == ProjectFileDefinitions::cMaxTag)
         {
-            pScaleSettings->scaleMax = QLocale().toDouble(child.text(), &bRet);
+            pYAxisSettings->scaleMax = QLocale().toDouble(child.text(), &bRet);
             if (bRet)
             {
                 bMax = true;

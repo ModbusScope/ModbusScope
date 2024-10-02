@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<modbusscope datalevel="3">
+<modbusscope datalevel="4">
  <modbus>
   <connection>
    <enabled>true</enabled>
@@ -83,10 +83,11 @@
    <xaxis mode="sliding">
     <slidinginterval>20</slidinginterval>
    </xaxis>
-   <yaxis mode="minmax">
+   <yaxis axis="0" mode="minmax">
     <min>0</min>
     <max>25</max>
    </yaxis>
+   <yaxis axis="1" mode="windowauto"/>
   </scale>
  </view>
 </modbusscope>

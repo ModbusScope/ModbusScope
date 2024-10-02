@@ -236,9 +236,9 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
          _pSettingsModel->setWriteDuringLogFileToDefault();
     }
 
-    if (pProjectSettings->view.scaleSettings.bSliding)
+    if (pProjectSettings->view.scaleSettings.xAxis.bSliding)
     {
-        _pGuiModel->setxAxisSlidingInterval(static_cast<qint32>(pProjectSettings->view.scaleSettings.slidingInterval));
+        _pGuiModel->setxAxisSlidingInterval(static_cast<qint32>(pProjectSettings->view.scaleSettings.xAxis.slidingInterval));
         _pGuiModel->setxAxisScale(AxisMode::SCALE_SLIDING);
     }
     else
@@ -246,19 +246,34 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
         _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
     }
 
-    if (pProjectSettings->view.scaleSettings.bMinMax)
+    if (pProjectSettings->view.scaleSettings.yAxis.bMinMax)
     {
-        _pGuiModel->setyAxisMin(pProjectSettings->view.scaleSettings.scaleMin);
-        _pGuiModel->setyAxisMax(pProjectSettings->view.scaleSettings.scaleMax);
+        _pGuiModel->setyAxisMin(pProjectSettings->view.scaleSettings.yAxis.scaleMin);
+        _pGuiModel->setyAxisMax(pProjectSettings->view.scaleSettings.yAxis.scaleMax);
         _pGuiModel->setyAxisScale(AxisMode::SCALE_MINMAX);
     }
-    else if (pProjectSettings->view.scaleSettings.bWindowScale)
+    else if (pProjectSettings->view.scaleSettings.yAxis.bWindowScale)
     {
         _pGuiModel->setyAxisScale(AxisMode::SCALE_WINDOW_AUTO);
     }
     else
     {
         _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
+    }
+
+    if (pProjectSettings->view.scaleSettings.y2Axis.bMinMax)
+    {
+        _pGuiModel->sety2AxisMin(pProjectSettings->view.scaleSettings.y2Axis.scaleMin);
+        _pGuiModel->sety2AxisMax(pProjectSettings->view.scaleSettings.y2Axis.scaleMax);
+        _pGuiModel->sety2AxisScale(AxisMode::SCALE_MINMAX);
+    }
+    else if (pProjectSettings->view.scaleSettings.y2Axis.bWindowScale)
+    {
+        _pGuiModel->sety2AxisScale(AxisMode::SCALE_WINDOW_AUTO);
+    }
+    else
+    {
+        _pGuiModel->sety2AxisScale(AxisMode::SCALE_AUTO);
     }
 
     _pGraphDataModel->clear();

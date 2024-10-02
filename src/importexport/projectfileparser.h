@@ -31,7 +31,7 @@ private:
     GeneralError parseViewTag(const QDomElement &element, ProjectFileData::ViewSettings *pViewSettings);
     GeneralError parseScaleTag(const QDomElement &element, ProjectFileData::ScaleSettings *pScaleSettings);
     GeneralError parseScaleXAxis(const QDomElement &element, ProjectFileData::ScaleSettings *pScaleSettings);
-    GeneralError parseScaleYAxis(const QDomElement &element, ProjectFileData::ScaleSettings *pScaleSettings);
+    GeneralError parseScaleYAxis(const QDomElement &element, ProjectFileData::YAxisSettings *pYAxisSettings);
 
     QDomDocument _domDocument;
 

@@ -16,6 +16,7 @@ public:
     static QString cConnEmpty;
 
     static QString cScaleDouble;
+    static QString cValueAxis2Scaling;
     static QString cValueAxis;
 
 private:

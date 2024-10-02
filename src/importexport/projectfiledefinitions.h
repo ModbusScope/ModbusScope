@@ -50,6 +50,7 @@ namespace ProjectFileDefinitions
     const char cEnabledAttribute[] = "enabled";
     const char cActiveAttribute[] = "active";
     const char cModeAttribute[] = "mode";
+    const char cAxisAttribute[] = "axis";
 
     /* Value strings */
     const char cSlidingValue[] = "sliding";
