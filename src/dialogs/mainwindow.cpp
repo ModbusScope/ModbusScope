@@ -65,7 +65,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _pLegend->setModels(_pGuiModel, _pGraphDataModel);
     _pLegend->setGraphview(_pGraphView);
 
-    _pStatusBar = new StatusBar(_pGuiModel, this);
+    _pStatusBar = new StatusBar(_pGuiModel, _pGraphDataModel, this);
     setStatusBar(_pStatusBar);
 
     _pMarkerInfo = _pUi->markerInfo;
@@ -455,8 +455,8 @@ void MainWindow::toggleZoom(bool checked)
 
 void MainWindow::clearData()
 {
-    _pGuiModel->setCommunicationStats(0, 0);
-    _pGuiModel->setCommunicationStartTime(QDateTime::currentMSecsSinceEpoch());
+    _pGraphDataModel->setCommunicationStats(0, 0);
+    _pGraphDataModel->setCommunicationStartTime(QDateTime::currentMSecsSinceEpoch());
 
     _pModbusPoll->resetCommunicationStats();
     _pGraphView->clearResults();
@@ -521,7 +521,7 @@ void MainWindow::stopScope()
 {
     _pModbusPoll->stopCommunication();
 
-    _pGuiModel->setCommunicationEndTime(QDateTime::currentMSecsSinceEpoch());
+    _pGraphDataModel->setCommunicationEndTime(QDateTime::currentMSecsSinceEpoch());
 
     if (_pSettingsModel->writeDuringLog())
     {
@@ -910,7 +910,7 @@ void MainWindow::updateCommunicationStats(ResultDoubleList resultList)
         result.isValid() ? success++ : error++;
     }
 
-    _pGuiModel->incrementCommunicationStats(success, error);
+    _pGraphDataModel->incrementCommunicationStats(success, error);
 }
 
 void MainWindow::updateDataFileNotes()

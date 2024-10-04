@@ -68,10 +68,7 @@ public:
     double yAxisMax();
     double y2AxisMax();
     GuiState guiState();
-    qint64 communicationStartTime();
-    qint64 communicationEndTime();
-    quint32 communicationErrorCount();
-    quint32 communicationSuccessCount();
+
     double startMarkerPos();
     double endMarkerPos();
     bool markerState();
@@ -82,8 +79,6 @@ public:
     void setLastDir(QString dir);
     void setLastMbcImportedFile(QString file);
     void setMarkerExpressionMask(quint32 mask);
-
-    void incrementCommunicationStats(quint32 successCount, quint32 errors);
 
 public slots:
     void setCursorValues(bool bCursorValues);
@@ -100,9 +95,6 @@ public slots:
     void setyAxisMax(double newMax);
     void sety2AxisMax(double newMax);
     void setGuiState(GuiState state);
-    void setCommunicationStartTime(qint64 startTime);
-    void setCommunicationEndTime(qint64 endTime);
-    void setCommunicationStats(quint32 successCount, quint32 errorCount);
     void clearMarkersState(void);
     void setStartMarkerPos(double pos);
     void setEndMarkerPos(double pos);
@@ -122,7 +114,6 @@ signals:
     void y2AxisMinMaxchanged();
     void guiStateChanged();
     void projectFilePathChanged();
-    void communicationStatsChanged();
     void markerStateChanged();
     void startMarkerPosChanged();
     void endMarkerPosChanged();
@@ -158,11 +149,6 @@ private:
     qint32 _frontGraph; /* active graph index */
     GuiSettings _guiSettings;
     QString _windowTitle;
-
-    qint64 _startTime;
-    qint64 _endTime;
-    quint32 _successCount;
-    quint32 _errorCount;
 
     QString _projectFilePath;
     QString _lastDir; // Last directory opened for import/export/load project

@@ -350,7 +350,7 @@ void GraphView::plotResults(ResultDoubleList resultList)
     }
     else
     {
-        timeData = QDateTime::currentMSecsSinceEpoch() - _pGuiModel->communicationStartTime();
+        timeData = QDateTime::currentMSecsSinceEpoch() - _pGraphDataModel->communicationStartTime();
     }
 
     QList<double> dataList;

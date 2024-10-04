@@ -20,7 +20,7 @@ DataFileHandler::DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphData
     _pDataFileStream = nullptr;
     _pDataFile = nullptr;
 
-    _pDataFileExporter = new DataFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel);
+    _pDataFileExporter = new DataFileExporter(_pSettingsModel, _pGraphDataModel, _pNoteModel);
 
     connect(this, &DataFileHandler::startDataParsing, this, &DataFileHandler::parseDataFile);
 }

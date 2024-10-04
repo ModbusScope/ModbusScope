@@ -5,13 +5,14 @@
 #include <QLabel>
 
 class GuiModel;
+class GraphDataModel;
 class ClickableLabel;
 
 class StatusBar : public QStatusBar
 {
     Q_OBJECT
 public:
-    explicit StatusBar(GuiModel* pGuiModel, QWidget *parent = nullptr);
+    explicit StatusBar(GuiModel* pGuiModel, GraphDataModel* pGraphDataModel, QWidget *parent = nullptr);
 
     void updateRuntime();
 
@@ -26,6 +27,7 @@ signals:
 private:
 
     GuiModel* _pGuiModel;
+    GraphDataModel* _pGraphDataModel;
 
     ClickableLabel * _pStatusStats;
     QLabel * _pStatusState;
