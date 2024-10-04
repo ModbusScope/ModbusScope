@@ -9,6 +9,10 @@ const QColor GraphDataModel::lightRed = QColor(255, 0, 0, 127);
 GraphDataModel::GraphDataModel(QObject *parent) : QAbstractTableModel(parent)
 {
     _graphData.clear();
+    _startTime = 0;
+    _endTime = 0;
+    _successCount = 0;
+    _errorCount = 0;
 
     connect(this, &GraphDataModel::visibilityChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::labelChanged, this, &GraphDataModel::modelDataChanged);
@@ -20,6 +24,8 @@ GraphDataModel::GraphDataModel(QObject *parent) : QAbstractTableModel(parent)
     /* When adding or removing graphs, the complete view should be refreshed to make sure all indexes are updated */
     connect(this, &GraphDataModel::added, this, &GraphDataModel::modelCompleteDataChanged);
     connect(this, &GraphDataModel::removed, this, &GraphDataModel::modelCompleteDataChanged);
+
+    emit communicationStatsChanged();
 }
 
 int GraphDataModel::rowCount(const QModelIndex & /*parent*/) const
@@ -349,6 +355,63 @@ QString GraphDataModel::simplifiedExpression(quint32 index) const
 QSharedPointer<QCPGraphDataContainer> GraphDataModel::dataMap(quint32 index)
 {
     return _graphData[index].dataMap();
+}
+
+
+qint64 GraphDataModel::communicationStartTime()
+{
+    return _startTime;
+}
+
+void GraphDataModel::setCommunicationStartTime(qint64 startTime)
+{
+    if (_startTime != startTime)
+    {
+        _startTime = startTime;
+        // No signal yet
+    }
+}
+
+qint64 GraphDataModel::communicationEndTime()
+{
+    return _endTime;
+}
+
+void GraphDataModel::setCommunicationEndTime(qint64 endTime)
+{
+    if (_endTime != endTime)
+    {
+        _endTime = endTime;
+        // No signal yet
+    }
+}
+
+void GraphDataModel::setCommunicationStats(quint32 successCount, quint32 errorCount)
+{
+    if (
+        (_successCount != successCount)
+        || (_errorCount != errorCount)
+        )
+    {
+        _successCount = successCount;
+        _errorCount = errorCount;
+        emit communicationStatsChanged();
+    }
+}
+
+quint32 GraphDataModel::communicationErrorCount()
+{
+    return _errorCount;
+}
+
+quint32 GraphDataModel::communicationSuccessCount()
+{
+    return _successCount;
+}
+
+void GraphDataModel::incrementCommunicationStats(quint32 successes, quint32 errors)
+{
+    setCommunicationStats(communicationSuccessCount() + successes, communicationErrorCount() + errors);
 }
 
 void GraphDataModel::setValueAxis(quint32 index, GraphData::valueAxis_t axis)

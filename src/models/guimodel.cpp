@@ -40,11 +40,6 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
     _guiState = GuiState::INIT;
     _windowTitle = _cWindowTitle;
 
-    _startTime = 0;
-    _endTime = 0;
-    _successCount = 0;
-    _errorCount = 0;
-
     _zoomState = ZOOM_IDLE;
 
     QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
@@ -88,7 +83,6 @@ void GuiModel::triggerUpdate(void)
     emit highlightSamplesChanged();
     emit cursorValuesChanged();
     emit windowTitleChanged();
-    emit communicationStatsChanged();
     emit yAxisMinMaxchanged();
     emit y2AxisMinMaxchanged();
     emit xAxisSlidingIntervalChanged();
@@ -351,44 +345,6 @@ GuiModel::GuiState GuiModel::guiState()
     return _guiState;
 }
 
-qint64 GuiModel::communicationStartTime()
-{
-    return _startTime;
-}
-
-void GuiModel::setCommunicationStartTime(qint64 startTime)
-{
-    if (_startTime != startTime)
-    {
-        _startTime = startTime;
-        // No signal yet
-    }
-}
-
-qint64 GuiModel::communicationEndTime()
-{
-    return _endTime;
-}
-
-void GuiModel::setCommunicationEndTime(qint64 endTime)
-{
-    if (_endTime != endTime)
-    {
-        _endTime = endTime;
-        // No signal yet
-    }
-}
-
-quint32 GuiModel::communicationErrorCount()
-{
-    return _errorCount;
-}
-
-quint32 GuiModel::communicationSuccessCount()
-{
-    return _successCount;
-}
-
 double GuiModel::startMarkerPos()
 {
     return _startMarkerPos;
@@ -419,11 +375,6 @@ void GuiModel::setMarkerExpressionMask(quint32 mask)
     }
 }
 
-void GuiModel::incrementCommunicationStats(quint32 successes, quint32 errors)
-{
-    setCommunicationStats(communicationSuccessCount() + successes, communicationErrorCount() + errors);
-}
-
 GuiModel::ZoomState GuiModel::zoomState(void)
 {
     return _zoomState;
@@ -436,19 +387,6 @@ void GuiModel::setZoomState(ZoomState zoomState)
         _zoomState = zoomState;
 
         emit zoomStateChanged();
-    }
-}
-
-void GuiModel::setCommunicationStats(quint32 successCount, quint32 errorCount)
-{
-    if (
-        (_successCount != successCount)
-        || (_errorCount != errorCount)
-        )
-    {
-        _successCount = successCount;
-        _errorCount = errorCount;
-        emit communicationStatsChanged();
     }
 }
 
