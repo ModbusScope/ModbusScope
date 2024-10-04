@@ -8,6 +8,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../testslave
 )
 
+add_xtest(tst_communicationstats)
 add_xtest(tst_modbuspoll ${TEST_SRCS})
 add_xtest(tst_modbusregister)
 add_xtest(tst_modbusdatatype)

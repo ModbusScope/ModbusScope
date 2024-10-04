@@ -6,7 +6,6 @@
 
 /* Forward declaration */
 class SettingsModel;
-class GuiModel;
 class GraphDataModel;
 class NoteModel;
 
@@ -14,7 +13,7 @@ class DataFileExporter : public QObject
 {
     Q_OBJECT
 public:
-    explicit DataFileExporter(GuiModel *pGuiModel, SettingsModel *pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel * pNoteModel, QObject *parent = 0);
+    explicit DataFileExporter(SettingsModel *pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel * pNoteModel, QObject *parent = 0);
     ~DataFileExporter();
 
     void enableExporterDuringLog();
@@ -51,7 +50,6 @@ private:
     bool writeToFile(QString filePath, QStringList logData);
     void clearFile(QString filePath);
 
-    GuiModel * _pGuiModel;
     SettingsModel * _pSettingsModel;
     GraphDataModel * _pGraphDataModel;
     NoteModel * _pNoteModel;
