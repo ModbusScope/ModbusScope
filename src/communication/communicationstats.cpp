@@ -8,7 +8,6 @@ const uint32_t CommunicationStats::_cUpdateTime = 500;
 CommunicationStats::CommunicationStats(GraphDataModel* pGraphDataModel, quint32 sampleCalculationSize, QObject *parent)
     : QObject{parent}, _pGraphDataModel (pGraphDataModel), _sampleCalculationSize(sampleCalculationSize)
 {
-
     connect(this, &CommunicationStats::triggerRunTimeUpdate, _pGraphDataModel, &GraphDataModel::communicationTimeStatsChanged);
 }
 
@@ -43,6 +42,8 @@ void CommunicationStats::updateTimingInfo()
     std::sort(diffList.begin(), diffList.end(), std::less<double>());
 
     _timeMedian = diffList[(elementCnt - 1) / 2];
+
+    _pGraphDataModel->setMedianPollTime(_timeMedian);
 }
 
 quint32 CommunicationStats::pollTimeMedian()
