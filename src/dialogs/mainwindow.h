@@ -4,10 +4,8 @@
 #include <QMainWindow>
 #include <QListWidgetItem>
 #include <QButtonGroup>
-#include <QTimer>
 #include <QMenu>
 
-#include "result.h"
 #include "updatenotify.h"
 
 namespace Ui {
@@ -35,6 +33,7 @@ class ProjectFileHandler;
 class Legend;
 class StatusBar;
 class ExpressionStatus;
+class CommunicationStats;
 
 class MainWindow : public QMainWindow
 {
@@ -96,8 +95,6 @@ private slots:
     void dragEnterEvent(QDragEnterEvent *e);
     void dropEvent(QDropEvent *e);
     void appFocusChanged(QWidget *old, QWidget *now);
-    void updateRuntime();
-    void updateCommunicationStats(ResultDoubleList resultList);
     void updateDataFileNotes();
 
     void showVersionUpdate(UpdateNotify::UpdateState result);
@@ -121,6 +118,7 @@ private:
     UpdateNotify* _pUpdateNotify;
     GraphDataHandler* _pGraphDataHandler;
     ExpressionStatus* _pExpressionStatus;
+    CommunicationStats* _pCommunicationStats;
 
     ConnectionDialog * _pConnectionDialog;
     LogDialog * _pLogDialog;
@@ -133,8 +131,6 @@ private:
     MarkerInfo * _pMarkerInfo;
     Legend * _pLegend;
     StatusBar * _pStatusBar;
-
-    QTimer _runtimeTimer;
 
     QMenu _menuRightClick;
 

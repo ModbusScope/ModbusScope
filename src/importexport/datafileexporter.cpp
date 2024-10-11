@@ -3,17 +3,15 @@
 #include "formatdatetime.h"
 
 #include "qcustomplot.h"
-#include "guimodel.h"
 #include "settingsmodel.h"
 #include "graphdatamodel.h"
 
 #include "datafileexporter.h"
 #include "notemodel.h"
 
-DataFileExporter::DataFileExporter(GuiModel *pGuiModel, SettingsModel * pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel *pNoteModel, QObject *parent) :
+DataFileExporter::DataFileExporter(SettingsModel * pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel *pNoteModel, QObject *parent) :
     QObject(parent)
 {
-    _pGuiModel = pGuiModel;
     _pSettingsModel = pSettingsModel;
     _pGraphDataModel = pGraphDataModel;
     _pNoteModel = pNoteModel;
@@ -282,7 +280,7 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
         header.append(comment + "ModbusScope version" + Util::separatorCharacter() + Util::currentVersion());
 
         // Save start time
-        dt = QDateTime::fromMSecsSinceEpoch(_pGuiModel->communicationStartTime());
+        dt = QDateTime::fromMSecsSinceEpoch(_pGraphDataModel->communicationStartTime());
         header.append(comment + "Start time" + Util::separatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss"));
 
         // Save end time
@@ -292,7 +290,7 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
         }
         else
         {
-            dt = QDateTime::fromMSecsSinceEpoch(_pGuiModel->communicationEndTime());
+            dt = QDateTime::fromMSecsSinceEpoch(_pGraphDataModel->communicationEndTime());
             header.append(comment + "End time" + Util::separatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss"));
         }
 
@@ -310,8 +308,8 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
 
         header.append(comment + "Poll interval" + Util::separatorCharacter() + QString::number(_pSettingsModel->pollTime()));
 
-        quint32 success = _pGuiModel->communicationSuccessCount();
-        quint32 error = _pGuiModel->communicationErrorCount();
+        quint32 success = _pGraphDataModel->communicationSuccessCount();
+        quint32 error = _pGraphDataModel->communicationErrorCount();
         header.append(comment + "Communication success" + Util::separatorCharacter() + QString::number(success));
         header.append(comment + "Communication errors" + Util::separatorCharacter() + QString::number(error));
 

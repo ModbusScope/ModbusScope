@@ -53,6 +53,13 @@ public:
     QString simplifiedExpression(quint32 index) const;
     QSharedPointer<QCPGraphDataContainer> dataMap(quint32 index);
 
+    qint64 communicationStartTime();
+    qint64 communicationEndTime();
+    quint32 communicationErrorCount();
+    quint32 communicationSuccessCount();
+    qint64 communicationRunTime();
+    quint32 medianPollTime();
+
     void setValueAxis(quint32 index, GraphData::valueAxis_t axis);
     void setVisible(quint32 index, bool bVisible);
     void setLabel(quint32 index, const QString &label);
@@ -60,6 +67,11 @@ public:
     void setActive(quint32 index, bool bActive);
     void setExpression(quint32 index, QString expression);
     void setExpressionStatus(quint32 index, GraphData::ExpressionStatus status);
+
+    void setCommunicationStartTime(qint64 startTime);
+    void setCommunicationEndTime(qint64 endTime);
+    void setCommunicationStats(quint32 successCount, quint32 errorCount);
+    void setMedianPollTime(quint32 pollTime);
 
     void add(GraphData rowData);
     void add(QList<GraphData> graphDataList);
@@ -86,6 +98,9 @@ signals:
     void expressionStatusChanged(const quint32 graphIdx);
     void graphsAddData(QList<double>, QList<QList<double> > data);
 
+    void communicationStatsChanged();
+    void communicationTimeStatsChanged();
+
     void moved();
     void added(const quint32 idx);
     void removed(const quint32 idx);
@@ -100,6 +115,12 @@ private:
     void addToModel(GraphData graphData);
     void removeFromModel(qint32 row);
     void moveRow(int sourceRow, int destRow);
+
+    qint64 _startTime;
+    qint64 _endTime;
+    quint32 _successCount;
+    quint32 _errorCount;
+    quint32 _medianPollTime;
 
     QList<GraphData> _graphData;
     QList<quint32> _activeGraphList;

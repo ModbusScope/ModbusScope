@@ -9,6 +9,10 @@ const QColor GraphDataModel::lightRed = QColor(255, 0, 0, 127);
 GraphDataModel::GraphDataModel(QObject *parent) : QAbstractTableModel(parent)
 {
     _graphData.clear();
+    _startTime = 0;
+    _endTime = 0;
+    _successCount = 0;
+    _errorCount = 0;
 
     connect(this, &GraphDataModel::visibilityChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::labelChanged, this, &GraphDataModel::modelDataChanged);
@@ -349,6 +353,73 @@ QString GraphDataModel::simplifiedExpression(quint32 index) const
 QSharedPointer<QCPGraphDataContainer> GraphDataModel::dataMap(quint32 index)
 {
     return _graphData[index].dataMap();
+}
+
+
+qint64 GraphDataModel::communicationStartTime()
+{
+    return _startTime;
+}
+
+void GraphDataModel::setCommunicationStartTime(qint64 startTime)
+{
+    if (_startTime != startTime)
+    {
+        _startTime = startTime;
+        // No signal yet
+    }
+}
+
+qint64 GraphDataModel::communicationEndTime()
+{
+    return _endTime;
+}
+
+void GraphDataModel::setCommunicationEndTime(qint64 endTime)
+{
+    if (_endTime != endTime)
+    {
+        _endTime = endTime;
+        // No signal yet
+    }
+}
+
+void GraphDataModel::setCommunicationStats(quint32 successCount, quint32 errorCount)
+{
+    if (
+        (_successCount != successCount)
+        || (_errorCount != errorCount)
+        )
+    {
+        _successCount = successCount;
+        _errorCount = errorCount;
+        emit communicationStatsChanged();
+    }
+}
+
+void GraphDataModel::setMedianPollTime(quint32 pollTime)
+{
+    _medianPollTime = pollTime;
+}
+
+quint32 GraphDataModel::communicationErrorCount()
+{
+    return _errorCount;
+}
+
+quint32 GraphDataModel::communicationSuccessCount()
+{
+    return _successCount;
+}
+
+qint64 GraphDataModel::communicationRunTime()
+{
+    return QDateTime::currentMSecsSinceEpoch() - communicationStartTime();
+}
+
+quint32 GraphDataModel::medianPollTime()
+{
+    return _medianPollTime;
 }
 
 void GraphDataModel::setValueAxis(quint32 index, GraphData::valueAxis_t axis)
