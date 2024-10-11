@@ -24,8 +24,6 @@ GraphDataModel::GraphDataModel(QObject *parent) : QAbstractTableModel(parent)
     /* When adding or removing graphs, the complete view should be refreshed to make sure all indexes are updated */
     connect(this, &GraphDataModel::added, this, &GraphDataModel::modelCompleteDataChanged);
     connect(this, &GraphDataModel::removed, this, &GraphDataModel::modelCompleteDataChanged);
-
-    emit communicationStatsChanged();
 }
 
 int GraphDataModel::rowCount(const QModelIndex & /*parent*/) const
@@ -399,6 +397,11 @@ void GraphDataModel::setCommunicationStats(quint32 successCount, quint32 errorCo
     }
 }
 
+void GraphDataModel::setMedianPollTime(quint32 pollTime)
+{
+    _medianPollTime = pollTime;
+}
+
 quint32 GraphDataModel::communicationErrorCount()
 {
     return _errorCount;
@@ -412,6 +415,11 @@ quint32 GraphDataModel::communicationSuccessCount()
 qint64 GraphDataModel::communicationRunTime()
 {
     return QDateTime::currentMSecsSinceEpoch() - communicationStartTime();
+}
+
+quint32 GraphDataModel::medianPollTime()
+{
+    return _medianPollTime;
 }
 
 void GraphDataModel::setValueAxis(quint32 index, GraphData::valueAxis_t axis)

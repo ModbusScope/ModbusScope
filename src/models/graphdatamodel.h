@@ -58,7 +58,7 @@ public:
     quint32 communicationErrorCount();
     quint32 communicationSuccessCount();
     qint64 communicationRunTime();
-
+    quint32 medianPollTime();
 
     void setValueAxis(quint32 index, GraphData::valueAxis_t axis);
     void setVisible(quint32 index, bool bVisible);
@@ -71,6 +71,7 @@ public:
     void setCommunicationStartTime(qint64 startTime);
     void setCommunicationEndTime(qint64 endTime);
     void setCommunicationStats(quint32 successCount, quint32 errorCount);
+    void setMedianPollTime(quint32 pollTime);
 
     void add(GraphData rowData);
     void add(QList<GraphData> graphDataList);
@@ -119,6 +120,7 @@ private:
     qint64 _endTime;
     quint32 _successCount;
     quint32 _errorCount;
+    quint32 _medianPollTime;
 
     QList<GraphData> _graphData;
     QList<quint32> _activeGraphList;
