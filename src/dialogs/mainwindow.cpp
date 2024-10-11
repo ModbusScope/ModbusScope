@@ -98,8 +98,6 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pUi->actionZoom, &QAction::triggered, this, &MainWindow::toggleZoom); /* Only called on GUI click, not on setChecked */
 
     /*-- connect model to view --*/
-    connect(_pGuiModel, &GuiModel::frontGraphChanged, this, &MainWindow::updateBringToFrontGrapMenu);
-    connect(_pGuiModel, &GuiModel::frontGraphChanged, _pGraphView, &GraphView::bringToFront);
     connect(_pGuiModel, &GuiModel::highlightSamplesChanged, this, &MainWindow::updateHighlightSampleMenu);
     connect(_pGuiModel, &GuiModel::highlightSamplesChanged, _pGraphView, &GraphView::enableSamplePoints);
     connect(_pGuiModel, &GuiModel::cursorValuesChanged, _pGraphView, &GraphView::updateTooltip);
@@ -130,6 +128,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pGraphDataModel, &GraphDataModel::colorChanged, _pGraphView, &GraphView::changeGraphColor);
 
     connect(_pGraphDataModel, &GraphDataModel::valueAxisChanged, _pGraphView, &GraphView::changeGraphAxis);
+    connect(_pGraphDataModel, &GraphDataModel::selectedGraphChanged, _pGraphView, &GraphView::changeSelectedGraph);
 
     connect(_pGraphDataModel, &GraphDataModel::labelChanged, this, &MainWindow::handleGraphLabelChange);
 
@@ -154,11 +153,8 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pStatusBar, &StatusBar::openDiagnostics, this, &MainWindow::showDiagnostic);
 
     _pGraphShowHide = _pUi->menuShowHide;
-    _pGraphBringToFront = _pUi->menuBringToFront;
-    _pBringToFrontGroup = new QActionGroup(this);
 
     // Compose rightclick menu
-    _menuRightClick.addMenu(_pUi->menuBringToFront);
     _menuRightClick.addMenu(_pUi->menuShowHide);
     _menuRightClick.addSeparator();
     _menuRightClick.addAction(_pUi->actionHighlightSamplePoints);
@@ -223,7 +219,6 @@ MainWindow::~MainWindow()
     delete _pConnectionDialog;
     delete _pModbusPoll;
     delete _pGraphShowHide;
-    delete _pGraphBringToFront;
     delete _pDataFileHandler;
     delete _pProjectFileHandler;
     delete _pExpressionStatus;
@@ -335,16 +330,6 @@ void MainWindow::openUpdateUrl()
     if (_pUpdateNotify->link().isValid())
     {
         QDesktopServices::openUrl(_pUpdateNotify->link());
-    }
-}
-
-void MainWindow::menuBringToFrontGraphClicked(bool bState)
-{
-    QAction * pAction = qobject_cast<QAction *>(QObject::sender());
-
-    if (bState)
-    {
-        _pGuiModel->setFrontGraph(pAction->data().toInt());
     }
 }
 
@@ -560,22 +545,6 @@ void MainWindow::handleGraphVisibilityChange(quint32 graphIdx)
         const quint32 activeIdx = static_cast<quint32>(_pGraphDataModel->convertToActiveGraphIndex(graphIdx));
 
         _pGraphShowHide->actions().at(activeIdx)->setChecked(_pGraphDataModel->isVisible(graphIdx));
-
-        // Show/Hide corresponding "BringToFront" action
-        _pGraphBringToFront->actions().at(activeIdx)->setVisible(_pGraphDataModel->isVisible((graphIdx)));
-
-        // Enable/Disable global BringToFront menu
-        bool bVisible = false;
-        foreach(QAction * pAction, _pGraphBringToFront->actions())
-        {
-            if (pAction->isVisible())
-            {
-                bVisible = true;
-                break;
-            }
-        }
-        _pGraphBringToFront->setEnabled(bVisible);
-
     }
 }
 
@@ -591,7 +560,6 @@ void MainWindow::handleGraphColorChange(const quint32 graphIdx)
         QIcon showHideIcon = QIcon(pixmap);
 
         _pGraphShowHide->actions().at(activeIdx)->setIcon(showHideIcon);
-        _pGraphBringToFront->actions().at(activeIdx)->setIcon(showHideIcon);
     }
 }
 
@@ -601,15 +569,6 @@ void MainWindow::handleGraphLabelChange(const quint32 graphIdx)
     {
         const quint32 activeIdx = static_cast<quint32>(_pGraphDataModel->convertToActiveGraphIndex(graphIdx));
         _pGraphShowHide->actions().at(activeIdx)->setText(_pGraphDataModel->label(graphIdx));
-        _pGraphBringToFront->actions().at(activeIdx)->setText(_pGraphDataModel->label(graphIdx));
-    }
-}
-
-void MainWindow::updateBringToFrontGrapMenu()
-{
-    if (_pBringToFrontGroup->actions().size() > 0)
-    {
-        _pBringToFrontGroup->actions().at(_pGuiModel->frontGraph())->setChecked(true);
     }
 }
 
@@ -647,7 +606,6 @@ void MainWindow::rebuildGraphMenu()
 {
     // Regenerate graph menu
     _pGraphShowHide->clear();
-    _pGraphBringToFront->clear();
 
     QList<quint16> activeGraphList;
     _pGraphDataModel->activeGraphIndexList(&activeGraphList);
@@ -657,7 +615,6 @@ void MainWindow::rebuildGraphMenu()
 
         QString label = _pGraphDataModel->label(activeGraphList[activeIdx]);
         QAction * pShowHideAction = _pGraphShowHide->addAction(label);
-        QAction * pBringToFront = _pGraphBringToFront->addAction(label);
 
         QPixmap pixmap(20,5);
         pixmap.fill(_pGraphDataModel->color(activeGraphList[activeIdx]));
@@ -668,24 +625,16 @@ void MainWindow::rebuildGraphMenu()
         pShowHideAction->setCheckable(true);
         pShowHideAction->setChecked(_pGraphDataModel->isVisible(activeGraphList[activeIdx]));
 
-        pBringToFront->setData(activeIdx);
-        pBringToFront->setIcon(icon);
-        pBringToFront->setCheckable(true);
-        pBringToFront->setActionGroup(_pBringToFrontGroup);
-
         QObject::connect(pShowHideAction, &QAction::toggled, this, &MainWindow::menuShowHideGraphClicked);
-        QObject::connect(pBringToFront, &QAction::toggled, this, &MainWindow::menuBringToFrontGraphClicked);
     }
 
     if (!activeGraphList.isEmpty())
     {
         _pGraphShowHide->setEnabled(true);
-        _pGraphBringToFront->setEnabled(true);
     }
     else
     {
         _pGraphShowHide->setEnabled(false);
-        _pGraphBringToFront->setEnabled(false);
     }
 }
 
