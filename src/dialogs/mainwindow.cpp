@@ -25,6 +25,7 @@
 #include "fileselectionhelper.h"
 #include "scopelogging.h"
 #include "statusbar.h"
+#include "mostrecentmenu.h"
 
 #include <QDateTime>
 
@@ -168,6 +169,9 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _menuRightClick.addAction(_pUi->actionAddNote);
     _menuRightClick.addAction(_pUi->actionManageNotes);
 
+    _pMostRecentMenu = new MostRecentMenu(_pUi->menuMostRecentProject, &_recentFileModule);
+    connect(_pMostRecentMenu, &MostRecentMenu::openRecentProject, this, &MainWindow::handleOpenRecentProject);
+
     this->setAcceptDrops(true);
 
     // For dock undock
@@ -223,6 +227,7 @@ MainWindow::~MainWindow()
     delete _pConnectionDialog;
     delete _pModbusPoll;
     delete _pGraphShowHide;
+    delete _pMostRecentMenu;
     delete _pGraphBringToFront;
     delete _pDataFileHandler;
     delete _pProjectFileHandler;
@@ -553,6 +558,11 @@ void MainWindow::toggleMarkersState()
     }
 }
 
+void MainWindow::handleOpenRecentProject(QString projectFile)
+{
+    _pProjectFileHandler->openProjectFile(projectFile);
+}
+
 void MainWindow::handleGraphVisibilityChange(quint32 graphIdx)
 {
     if (_pGraphDataModel->isActive(graphIdx))
@@ -673,8 +683,8 @@ void MainWindow::rebuildGraphMenu()
         pBringToFront->setCheckable(true);
         pBringToFront->setActionGroup(_pBringToFrontGroup);
 
-        QObject::connect(pShowHideAction, &QAction::toggled, this, &MainWindow::menuShowHideGraphClicked);
-        QObject::connect(pBringToFront, &QAction::toggled, this, &MainWindow::menuBringToFrontGraphClicked);
+        connect(pShowHideAction, &QAction::toggled, this, &MainWindow::menuShowHideGraphClicked);
+        connect(pBringToFront, &QAction::toggled, this, &MainWindow::menuBringToFrontGraphClicked);
     }
 
     if (!activeGraphList.isEmpty())
@@ -796,6 +806,7 @@ void MainWindow::projectFileLoaded()
         _pGuiModel->setWindowTitleDetail(QFileInfo(_pGuiModel->projectFilePath()).fileName());
         _pUi->actionReloadProjectFile->setEnabled(true);
         _pUi->actionSaveProjectFile->setEnabled(true);
+        _recentFileModule.updateRecentProjectFiles(_pGuiModel->projectFilePath());
     }
 }
 
@@ -884,7 +895,6 @@ void MainWindow::updateRuntime()
 {
     _pStatusBar->updateRuntime();
 
-    // restart timer
     if (_pModbusPoll->isActive())
     {
         _runtimeTimer.singleShot(250, this, &MainWindow::updateRuntime);
