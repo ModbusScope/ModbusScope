@@ -8,6 +8,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    QCoreApplication::setOrganizationName("ModbusScope");
     QCoreApplication::setApplicationName("ModbusScope");
 
 #ifdef WIN32
