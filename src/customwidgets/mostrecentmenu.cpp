@@ -19,7 +19,7 @@ void MostRecentMenu::handleMostRecentProjectFileUpdate()
 
     if (_recentProjectFiles.size() <= 0)
     {
-        QAction* noRecent = new QAction("No recent project files");
+        auto noRecent = new QAction("No recent project files");
 
         noRecent->setEnabled(false);
         _mostRecentMenu->addAction(noRecent);
@@ -28,7 +28,7 @@ void MostRecentMenu::handleMostRecentProjectFileUpdate()
     {
         for (quint32 idx = 0; idx < _recentProjectFiles.size(); idx++)
         {
-            QAction* projectFileAction = new QAction(_recentProjectFiles[idx]);
+            auto projectFileAction = new QAction(_recentProjectFiles[idx]);
             projectFileAction->setData(idx);
 
             connect(projectFileAction, &QAction::triggered, this, &MostRecentMenu::handleRecentProjectFileClicked);
@@ -40,7 +40,7 @@ void MostRecentMenu::handleMostRecentProjectFileUpdate()
 
 void MostRecentMenu::handleRecentProjectFileClicked()
 {
-    QAction* pAction = qobject_cast<QAction *>(QObject::sender());
+    QAction* const pAction = qobject_cast<QAction * const>(QObject::sender());
     QString filename = _recentProjectFiles.at(pAction->data().toInt());
 
     emit openRecentProject(filename);
