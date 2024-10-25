@@ -282,26 +282,32 @@ void GraphView::changeGraphAxis(const quint32 graphIdx)
 
 void GraphView::changeSelectedGraph(const qint32 activeGraphIdx)
 {
-    if (activeGraphIdx == -1)
-    {
-        return;
-    }
-
-    auto graph = _pPlot->graph(activeGraphIdx);
     QList<QCPGraph*> selectedGraphs = _pPlot->selectedGraphs();
-    const bool bAlreadySelected = selectedGraphs.contains(graph);
 
-    if (!bAlreadySelected)
+    if (activeGraphIdx == -1)
     {
         for (QCPGraph* selectedGraph: selectedGraphs)
         {
             selectedGraph->setSelection(QCPDataSelection());
         }
-
-        graph->setSelection(QCPDataSelection(QCPDataRange(0, 1)));
     }
+    else
+    {
+        auto graph = _pPlot->graph(activeGraphIdx);
+        const bool bAlreadySelected = selectedGraphs.contains(graph);
 
-    bringToFront(activeGraphIdx);
+        if (!bAlreadySelected)
+        {
+            for (QCPGraph* selectedGraph: selectedGraphs)
+            {
+                selectedGraph->setSelection(QCPDataSelection());
+            }
+
+            graph->setSelection(QCPDataSelection(QCPDataRange(0, 1)));
+        }
+
+        bringToFront(activeGraphIdx);
+    }
 
     _pPlot->replot();
 }
