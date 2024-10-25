@@ -443,8 +443,13 @@ void GraphDataModel::setVisible(quint32 index, bool bVisible)
 {
     if (_graphData[index].isVisible() != bVisible)
     {
-         _graphData[index].setVisible(bVisible);
-         emit visibilityChanged(index);
+        _graphData[index].setVisible(bVisible);
+        emit visibilityChanged(index);
+
+        if (!bVisible && (static_cast<qint32>(index) == _selectedGraphIdx))
+        {
+            setSelectedGraph(-1);
+        }
     }
 }
 
@@ -509,6 +514,15 @@ void GraphDataModel::setExpressionStatus(quint32 index, GraphData::ExpressionSta
 
 void GraphDataModel::setSelectedGraph(qint32 activeIdx)
 {
+    if (activeIdx != -1)
+    {
+        const qint32 graphIdx = convertToGraphIndex(activeIdx);
+        if (!isVisible(graphIdx))
+        {
+            return;
+        }
+    }
+
     if (activeIdx != _selectedGraphIdx)
     {
         _selectedGraphIdx = activeIdx;
