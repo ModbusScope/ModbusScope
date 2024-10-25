@@ -9,6 +9,7 @@
 
 #include "result.h"
 #include "updatenotify.h"
+#include "recentfilemodule.h"
 
 namespace Ui {
 class MainWindow;
@@ -35,6 +36,7 @@ class ProjectFileHandler;
 class Legend;
 class StatusBar;
 class ExpressionStatus;
+class MostRecentMenu;
 
 class MainWindow : public QMainWindow
 {
@@ -73,6 +75,7 @@ private slots:
     void showDiagnostic();
     void showNotesDialog();
     void toggleMarkersState();
+    void handleOpenRecentProject(QString projectFile);
 
     /* Model change handlers */
     void handleGraphVisibilityChange(quint32 graphIdx);
@@ -141,6 +144,9 @@ private:
     QMenu * _pGraphBringToFront;
     QMenu * _pGraphShowHide;
     QActionGroup * _pBringToFrontGroup;
+
+    MostRecentMenu* _pMostRecentMenu;
+    RecentFileModule _recentFileModule;
 
     QPointF _lastRightClickPos;
 };

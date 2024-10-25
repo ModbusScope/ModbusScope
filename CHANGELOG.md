@@ -4,19 +4,20 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Added 
 
-- Diagnostic dialog is opened when stats section in status bar is clicked
+* Diagnostic dialog is opened when stats section in status bar is clicked
+* Add most recent project file menu ([Github #222](https://github.com/jgeudens/ModbusScope/issues/222))
 
 ### Fixed
 
-- xx
+* xx
 
 ### Changed
 
-- Scaling settings of secondary value axis is now saved in project file
+* Scaling settings of secondary value axis is now saved in project file
 
 ### Removed
 
-- xx
+* xx
 
 ## [v4.0.0](https://github.com/jgeudens/ModbusScope/releases/tag/4.0.0) (18/06/2024)
 
