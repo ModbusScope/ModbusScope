@@ -13,10 +13,8 @@ class CommunicationStats : public QObject
 public:
     explicit CommunicationStats(GraphDataModel* pGraphDataModel, quint32 sampleCalculationSize = 50, QObject *parent = nullptr);
 
-    quint32 pollTimeMedian();
-
     void resetTiming();
-    void start(uint32_t pollTime);
+    void start();
     void stop();
 
     void incrementCommunicationStats(quint32 successCount, quint32 errors);
@@ -38,7 +36,6 @@ private:
 
     QTimer _runtimeTimer;
 
-    quint32 _timeMedian = 0;
     quint32 _sampleCalculationSize = 50;
 
     static const uint32_t _cUpdateTime;

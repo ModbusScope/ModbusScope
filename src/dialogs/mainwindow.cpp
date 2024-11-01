@@ -502,7 +502,7 @@ void MainWindow::startScope()
         _pGraphDataHandler->modbusRegisterList(registerList);
 
         _pModbusPoll->startCommunication(registerList);
-        _pCommunicationStats->start(_pSettingsModel->pollTime());
+        _pCommunicationStats->start();
 
         if (_pSettingsModel->writeDuringLog())
         {

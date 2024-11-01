@@ -12,7 +12,8 @@ const QString StatusBar::_cStateRunning = QString("Running");
 const QString StatusBar::_cStateStopped = QString("Stopped");
 const QString StatusBar::_cStateDataLoaded = QString("Data File loaded");
 const QString StatusBar::_cStatsTemplate = QString("Success: %1\tErrors: %2");
-const QString StatusBar::_cRuntime = QString("Runtime: %1\tPoll time: %2");
+const QString StatusBar::_cRuntime = QString("Runtime: %1");
+const QString StatusBar::_cRuntimeWithPoll = QString("Runtime: %1\tPoll time: %2");
 
 StatusBar::StatusBar(GuiModel* pGuiModel, GraphDataModel* pGraphDataModel, QWidget *parent) :
     QStatusBar(parent), _pGuiModel(pGuiModel), _pGraphDataModel(pGraphDataModel)
@@ -49,7 +50,7 @@ void StatusBar::updateGuiState()
     {
         _pStatusState->setText(_cStateStopped);
 
-        _pStatusRuntime->setText(_cRuntime.arg("0:00:00").arg(_pGraphDataModel->medianPollTime()));
+        _pStatusRuntime->setText(_cRuntime.arg("0:00:00"));
         _pStatusRuntime->setVisible(true);
 
         _pStatusStats->setText(_cStatsTemplate.arg(0).arg(0));
@@ -104,6 +105,6 @@ void StatusBar::updateTimeStats()
 
     QString strTimePassed = QString("%1:%2:%3").arg(h).arg(m, 2, 10, QChar('0')).arg(s, 2, 10, QChar('0'));
 
-    _pStatusRuntime->setText(_cRuntime.arg(strTimePassed).arg(_pGraphDataModel->medianPollTime()));
+    _pStatusRuntime->setText(_cRuntimeWithPoll.arg(strTimePassed).arg(_pGraphDataModel->medianPollTime()));
 
 }

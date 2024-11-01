@@ -31,7 +31,7 @@ void TestCommunicationStats::noGraph()
 
     _pCommunicationStats->updateTimingInfo();
 
-    QCOMPARE(_pCommunicationStats->pollTimeMedian(), 0);
+    QCOMPARE(_pGraphDataModel->medianPollTime(), 0);
 }
 
 void TestCommunicationStats::notEnoughDataCount()
@@ -40,7 +40,7 @@ void TestCommunicationStats::notEnoughDataCount()
     setPollData(times);
     _pCommunicationStats->updateTimingInfo();
 
-    QCOMPARE(_pCommunicationStats->pollTimeMedian(), 0);
+    QCOMPARE(_pGraphDataModel->medianPollTime(), 0);
 }
 
 void TestCommunicationStats::justEnoughDataCount()
@@ -50,7 +50,7 @@ void TestCommunicationStats::justEnoughDataCount()
 
     _pCommunicationStats->updateTimingInfo();
 
-    QCOMPARE(_pCommunicationStats->pollTimeMedian(), 1);
+    QCOMPARE(_pGraphDataModel->medianPollTime(), 1);
 }
 
 void TestCommunicationStats::dataCountIsEven()
@@ -60,7 +60,7 @@ void TestCommunicationStats::dataCountIsEven()
 
     _pCommunicationStats->updateTimingInfo();
 
-    QCOMPARE(_pCommunicationStats->pollTimeMedian(), 1);
+    QCOMPARE(_pGraphDataModel->medianPollTime(), 1);
 }
 
 void TestCommunicationStats::dataCountIsNotEven()
@@ -70,7 +70,7 @@ void TestCommunicationStats::dataCountIsNotEven()
 
     _pCommunicationStats->updateTimingInfo();
 
-    QCOMPARE(_pCommunicationStats->pollTimeMedian(), 2);
+    QCOMPARE(_pGraphDataModel->medianPollTime(), 2);
 }
 
 void TestCommunicationStats::pollTimeDiffIsGettingSmaller()
@@ -81,7 +81,7 @@ void TestCommunicationStats::pollTimeDiffIsGettingSmaller()
 
     _pCommunicationStats->updateTimingInfo();
 
-    QCOMPARE(_pCommunicationStats->pollTimeMedian(), 105);
+    QCOMPARE(_pGraphDataModel->medianPollTime(), 105);
 }
 
 void TestCommunicationStats::onlyLastXSamples()
@@ -92,10 +92,10 @@ void TestCommunicationStats::onlyLastXSamples()
     setPollData(times);
 
     _pCommunicationStats->updateTimingInfo();
-    QCOMPARE(_pCommunicationStats->pollTimeMedian(), 2);
+    QCOMPARE(_pGraphDataModel->medianPollTime(), 2);
 
     _pCommunicationStatsLimited->updateTimingInfo();
-    QCOMPARE(_pCommunicationStatsLimited->pollTimeMedian(), 5);
+    QCOMPARE(_pGraphDataModel->medianPollTime(), 5);
 
     delete _pCommunicationStatsLimited;
 }

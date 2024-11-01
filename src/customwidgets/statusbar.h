@@ -37,6 +37,7 @@ private:
     static const QString _cStatsTemplate;
     static const QString _cStateDataLoaded;
     static const QString _cRuntime;
+    static const QString _cRuntimeWithPoll;
 };
 
 #endif // STATUSBAR_H
