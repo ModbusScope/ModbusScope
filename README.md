@@ -32,7 +32,7 @@ Docs are available at [https://modbusscope.readthedocs.io](https://modbusscope.r
 
 ## Contributing
 
-We welcome contributions to ModbusScope! Please fork the repository and submit pull requests. Before implementing changes, please open an issue to discuss what you would like to change.
+Please [open a new issue](https://github.com/ModbusScope/ModbusScope/issues) to report bugs or [create a pull request](https://github.com/ModbusScope/ModbusScope/pulls) to send patches. Before implementing changes, please open an issue to discuss what you would like to change.
 
 ## Support
 
