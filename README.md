@@ -10,22 +10,30 @@ Quality: [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Modbu
 
 # ModbusScope
 
-ModbusScope is a software tool that allows for the monitoring and visualization of data from Modbus registers across multiple platforms by collecting samples and displaying them in a graphical format. This makes it useful for analyzing the dynamic behavior of systems.
+ModbusScope is a graphical user interface tool designed for logging and visualizing data using the Modbus protocol. It supports real-time data visualization, enabling users to see graphical representations of data while logging. The tool also allows users to export logged data to CSV files for further analysis. It's highly configurable to suit various data logging needs and supports multiple Modbus devices simultaneously, making it ideal for monitoring devices in industrial automation, energy management, and environmental monitoring.
 
 [**Getting started**](https://modbusscope.readthedocs.io/en/stable/pages/overview.html) | [**Download**](https://github.com/ModbusScope/ModbusScope/releases/latest) | [**Release notes**](https://modbusscope.readthedocs.io/en/stable/pages/release_notes.html)
 
+## Features
+
+- **Real-time Data Visualization**: Provides real-time graphical representations of Modbus data.
+  - **Zooming**: Interactively zoom in and out of the graphs to focus on specific time periods or data points.
+  - **Markers**: Analyze data (min/max/average/...) within a specific time period.
+- **Data Logging**: Continuously logs data from Modbus devices for future analysis.
+- **Multiple Device Support**: Capable of handling multiple Modbus devices simultaneously.
+- **CSV Export**: Allows export of logged data to CSV files for easy analysis and sharing.
+- **Data manipulation**: Perform calculations and combine different multiple registers into one value.
+
 ![ModbusScope demo](modbusscope_demo.gif)
 
-## Docs
+## Documentation
 
 Docs are available at [https://modbusscope.readthedocs.io](https://modbusscope.readthedocs.io).
 
 ## Contributing
 
-Please [open a new issue](https://github.com/ModbusScope/ModbusScope/issues) to report bugs or [create a pull request](https://github.com/ModbusScope/ModbusScope/pulls) to send patches.
+Please [open a new issue](https://github.com/ModbusScope/ModbusScope/issues) to report bugs or [create a pull request](https://github.com/ModbusScope/ModbusScope/pulls) to send patches. Before implementing changes, please open an issue to discuss what you would like to change.
 
-## Credits
+## Support
 
-* [QCustomPlot](https://www.qcustomplot.com/)
-* [muparser](https://beltoforion.de/en/muparser/)
-* [Lucide icons](https://lucide.dev/)
+For support, please visit our [documentation](https://modbusscope.readthedocs.io/en/stable/) or create an issue on our GitHub page.
