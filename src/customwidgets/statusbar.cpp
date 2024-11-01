@@ -4,6 +4,7 @@
 
 #include "clickablelabel.h"
 #include "guimodel.h"
+#include "graphdatamodel.h"
 
 using GuiState = GuiModel::GuiState;
 
@@ -12,9 +13,10 @@ const QString StatusBar::_cStateStopped = QString("Stopped");
 const QString StatusBar::_cStateDataLoaded = QString("Data File loaded");
 const QString StatusBar::_cStatsTemplate = QString("Success: %1\tErrors: %2");
 const QString StatusBar::_cRuntime = QString("Runtime: %1");
+const QString StatusBar::_cRuntimeWithPoll = QString("Runtime: %1\tPoll time: %2");
 
-StatusBar::StatusBar(GuiModel* pGuiModel, QWidget *parent) :
-    QStatusBar(parent), _pGuiModel(pGuiModel)
+StatusBar::StatusBar(GuiModel* pGuiModel, GraphDataModel* pGraphDataModel, QWidget *parent) :
+    QStatusBar(parent), _pGuiModel(pGuiModel), _pGraphDataModel(pGraphDataModel)
 {
     _pStatusState = new QLabel(_cStateStopped, this);
     _pStatusState->setFrameStyle((int)QFrame::Panel | (int)QFrame::Sunken);
@@ -28,9 +30,12 @@ StatusBar::StatusBar(GuiModel* pGuiModel, QWidget *parent) :
     addPermanentWidget(_pStatusStats, 3);
 
     connect(_pGuiModel, &GuiModel::guiStateChanged, this, &StatusBar::updateGuiState);
-    connect(_pGuiModel, &GuiModel::communicationStatsChanged, this, &StatusBar::updateStats);
+    connect(_pGraphDataModel, &GraphDataModel::communicationStatsChanged, this, &StatusBar::updateStats);
+    connect(_pGraphDataModel, &GraphDataModel::communicationTimeStatsChanged, this, &StatusBar::updateTimeStats);
 
     connect(_pStatusStats, &ClickableLabel::clicked, this, &StatusBar::statsClicked);
+
+    updateStats();
 }
 
 void StatusBar::statsClicked()
@@ -59,7 +64,7 @@ void StatusBar::updateGuiState()
         _pStatusRuntime->setText(_cRuntime.arg("0:00:00"));
         _pStatusRuntime->setVisible(true);
 
-        _pStatusStats->setText(_cStatsTemplate.arg(_pGuiModel->communicationSuccessCount()).arg(_pGuiModel->communicationErrorCount()));
+        _pStatusStats->setText(_cStatsTemplate.arg(_pGraphDataModel->communicationSuccessCount()).arg(_pGraphDataModel->communicationErrorCount()));
         _pStatusStats->setVisible(true);
     }
     else if (_pGuiModel->guiState() == GuiState::STOPPED)
@@ -80,12 +85,12 @@ void StatusBar::updateGuiState()
 
 void StatusBar::updateStats()
 {
-    _pStatusStats->setText(_cStatsTemplate.arg(_pGuiModel->communicationSuccessCount()).arg(_pGuiModel->communicationErrorCount()));
+    _pStatusStats->setText(_cStatsTemplate.arg(_pGraphDataModel->communicationSuccessCount()).arg(_pGraphDataModel->communicationErrorCount()));
 }
 
-void StatusBar::updateRuntime()
+void StatusBar::updateTimeStats()
 {
-    qint64 timePassed = QDateTime::currentMSecsSinceEpoch() - _pGuiModel->communicationStartTime();
+    qint64 timePassed = _pGraphDataModel->communicationRunTime();
 
     // Convert to s
     timePassed /= 1000;
@@ -100,6 +105,6 @@ void StatusBar::updateRuntime()
 
     QString strTimePassed = QString("%1:%2:%3").arg(h).arg(m, 2, 10, QChar('0')).arg(s, 2, 10, QChar('0'));
 
-    _pStatusRuntime->setText(_cRuntime.arg(strTimePassed));
+    _pStatusRuntime->setText(_cRuntimeWithPoll.arg(strTimePassed).arg(_pGraphDataModel->medianPollTime()));
 
 }

@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "expressionstatus.h"
+#include "communicationstats.h"
 #include "ui_mainwindow.h"
 #include "qcustomplot.h"
 #include "graphdatahandler.h"
@@ -60,12 +61,13 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel, _pSettingsModel, _pDataParserModel, this);
     _pProjectFileHandler = new ProjectFileHandler(_pGuiModel, _pSettingsModel, _pGraphDataModel);
     _pExpressionStatus = new ExpressionStatus(_pGraphDataModel);
+    _pCommunicationStats = new CommunicationStats(_pGraphDataModel);
 
     _pLegend = _pUi->legend;
     _pLegend->setModels(_pGuiModel, _pGraphDataModel);
     _pLegend->setGraphview(_pGraphView);
 
-    _pStatusBar = new StatusBar(_pGuiModel, this);
+    _pStatusBar = new StatusBar(_pGuiModel, _pGraphDataModel, this);
     setStatusBar(_pStatusBar);
 
     _pMarkerInfo = _pUi->markerInfo;
@@ -148,9 +150,9 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pGraphDataModel, &GraphDataModel::colorChanged, _pDataFileHandler, &DataFileHandler::rewriteDataFile);
     connect(_pGraphView, &GraphView::afterGraphUpdate, _pDataFileHandler, &DataFileHandler::rewriteDataFile);
 
-    // Update cursor values in legend
     connect(_pGraphView, &GraphView::cursorValueUpdate, _pLegend, &Legend::updateDataInLegend);
     connect(_pGraphView, &GraphView::dataAddedToPlot, _pDataFileHandler, &DataFileHandler::exportDataLine);
+    connect(_pGraphView, &GraphView::dataAddedToPlot, _pCommunicationStats, &CommunicationStats::updateTimingInfo);
 
     connect(_pStatusBar, &StatusBar::openDiagnostics, this, &MainWindow::showDiagnostic);
 
@@ -201,7 +203,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
 
     connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pGraphView, &GraphView::plotResults);
     connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pLegend, &Legend::addLastReceivedDataToLegend);
-    connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, this, &MainWindow::updateCommunicationStats);
+    connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pCommunicationStats, &CommunicationStats::updateCommunicationStats);
 
     handleCommandLineArguments(cmdArguments);
 
@@ -455,9 +457,7 @@ void MainWindow::toggleZoom(bool checked)
 
 void MainWindow::clearData()
 {
-    _pGuiModel->setCommunicationStats(0, 0);
-    _pGuiModel->setCommunicationStartTime(QDateTime::currentMSecsSinceEpoch());
-
+    _pCommunicationStats->resetTiming();
     _pModbusPoll->resetCommunicationStats();
     _pGraphView->clearResults();
     _pGuiModel->clearMarkersState();
@@ -493,18 +493,16 @@ void MainWindow::startScope()
 
     if (_pGraphDataModel->activeCount() != 0)
     {
-
         _pGuiModel->setGuiState(GuiState::STARTED);
 
-        _runtimeTimer.singleShot(250, this, &MainWindow::updateRuntime);
+        clearData();
 
         QList<ModbusRegister> registerList;
         _pGraphDataHandler->processActiveRegisters(_pGraphDataModel);
         _pGraphDataHandler->modbusRegisterList(registerList);
 
         _pModbusPoll->startCommunication(registerList);
-
-        clearData();
+        _pCommunicationStats->start();
 
         if (_pSettingsModel->writeDuringLog())
         {
@@ -520,8 +518,7 @@ void MainWindow::startScope()
 void MainWindow::stopScope()
 {
     _pModbusPoll->stopCommunication();
-
-    _pGuiModel->setCommunicationEndTime(QDateTime::currentMSecsSinceEpoch());
+    _pCommunicationStats->stop();
 
     if (_pSettingsModel->writeDuringLog())
     {
@@ -889,28 +886,6 @@ void MainWindow::appFocusChanged(QWidget *old, QWidget *now)
     {
         _pGuiModel->setCursorValues(false);
     }
-}
-
-void MainWindow::updateRuntime()
-{
-    _pStatusBar->updateRuntime();
-
-    if (_pModbusPoll->isActive())
-    {
-        _runtimeTimer.singleShot(250, this, &MainWindow::updateRuntime);
-    }
-}
-
-void MainWindow::updateCommunicationStats(ResultDoubleList resultList)
-{
-    quint32 error = 0;
-    quint32 success = 0;
-    for(const auto &result: resultList)
-    {
-        result.isValid() ? success++ : error++;
-    }
-
-    _pGuiModel->incrementCommunicationStats(success, error);
 }
 
 void MainWindow::updateDataFileNotes()
