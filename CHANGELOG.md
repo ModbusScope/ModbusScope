@@ -7,6 +7,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 * Diagnostic dialog is opened when stats section in status bar is clicked
 * Add most recent project file menu ([Github #222](https://github.com/jgeudens/ModbusScope/issues/222))
 - Add median poll time of last 50 samples to status bar
+* Support other files with "open with" ([Github #329](https://github.com/ModbusScope/ModbusScope/issues/329))
 
 ### Fixed
 
