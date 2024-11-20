@@ -106,6 +106,7 @@ private:
     void setAxisToAuto();
     void showRegisterDialog(QString mbcFile);
     void handleCommandLineArguments(QStringList cmdArguments);
+    void handleFileOpen(QString filename);
 
     Ui::MainWindow * _pUi;
     ModbusPoll * _pModbusPoll;

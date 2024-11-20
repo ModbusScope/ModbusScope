@@ -857,25 +857,7 @@ void MainWindow::dropEvent(QDropEvent *e)
     if (!_pModbusPoll->isActive())
     {
         const QString filename(e->mimeData()->urls().last().toLocalFile());
-        QFileInfo fileInfo(filename);
-        _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
-        if (fileInfo.completeSuffix().toLower() == QString("mbs"))
-        {
-            _pProjectFileHandler->openProjectFile(filename);
-        }
-        else if (fileInfo.completeSuffix().toLower() == QString("csv"))
-        {
-            _pDataFileHandler->openDataFile(filename);
-        }
-        else if (fileInfo.completeSuffix().toLower() == QString("mbc"))
-        {
-            showRegisterDialog(filename);
-        }
-        else
-        {
-            /* Assume data file import */
-            _pDataFileHandler->openDataFile(filename);
-        }
+        handleFileOpen(filename);
     }
 }
 
@@ -931,9 +913,26 @@ void MainWindow::handleCommandLineArguments(QStringList cmdArguments)
     if (!argumentParser.positionalArguments().isEmpty())
     {
         QString filename = argumentParser.positionalArguments().at(0);
-        QFileInfo fileInfo(filename);
-        _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
+        handleFileOpen(filename);
+    }
+}
+
+void MainWindow::handleFileOpen(QString filename)
+{
+    QFileInfo fileInfo(filename);
+    _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
+    if (fileInfo.completeSuffix().toLower() == QString("mbs"))
+    {
         _pProjectFileHandler->openProjectFile(filename);
+    }
+    else if (fileInfo.completeSuffix().toLower() == QString("mbc"))
+    {
+        showRegisterDialog(filename);
+    }
+    else
+    {
+        /* Assume data file import */
+        _pDataFileHandler->openDataFile(filename);
     }
 }
 
