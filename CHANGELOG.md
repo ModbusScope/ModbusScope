@@ -1,6 +1,6 @@
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/ModbusScope/ModbusScope/releases).
 
-## [Unreleased]
+## [v4.0.1](https://github.com/jgeudens/ModbusScope/releases/tag/4.0.1) (23/12/2024)
 
 ### Added 
 
@@ -9,17 +9,9 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 * Add median poll time of last 50 samples to status bar
 * Support other files with "open with" ([Github #329](https://github.com/ModbusScope/ModbusScope/issues/329))
 
-### Fixed
-
-* xx
-
 ### Changed
 
 * Scaling settings of secondary value axis is now saved in project file
-
-### Removed
-
-* xx
 
 ## [v4.0.0](https://github.com/ModbusScope/ModbusScope/releases/tag/4.0.0) (18/06/2024)
 
