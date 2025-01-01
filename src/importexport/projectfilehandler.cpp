@@ -290,6 +290,4 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
 
         _pGraphDataModel->add(rowData);
     }
-
-    _pGuiModel->setFrontGraph(-1);
 }

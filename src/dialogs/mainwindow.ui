@@ -94,14 +94,6 @@
     <property name="title">
      <string>&amp;View</string>
     </property>
-    <widget class="QMenu" name="menuBringToFront">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="title">
-      <string>&amp;Bring To Front</string>
-     </property>
-    </widget>
     <widget class="QMenu" name="menuShowHide">
      <property name="enabled">
       <bool>false</bool>
@@ -110,7 +102,6 @@
       <string>&amp;Show/Hide</string>
      </property>
     </widget>
-    <addaction name="menuBringToFront"/>
     <addaction name="menuShowHide"/>
     <addaction name="separator"/>
     <addaction name="actionHighlightSamplePoints"/>

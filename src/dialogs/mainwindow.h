@@ -61,7 +61,6 @@ private slots:
     void showAbout();
     void openOnlineDoc();
     void openUpdateUrl();
-    void menuBringToFrontGraphClicked(bool bState);
     void menuShowHideGraphClicked(bool bState);
     void showConnectionDialog();
     void showLogSettingsDialog();
@@ -81,7 +80,6 @@ private slots:
     void handleGraphColorChange(const quint32 graphIdx);
     void handleGraphLabelChange(const quint32 graphIdx);
 
-    void updateBringToFrontGrapMenu();
     void updateHighlightSampleMenu();
     void handleZoomStateChanged();
     void rebuildGraphMenu();
@@ -137,10 +135,7 @@ private:
     StatusBar * _pStatusBar;
 
     QMenu _menuRightClick;
-
-    QMenu * _pGraphBringToFront;
     QMenu * _pGraphShowHide;
-    QActionGroup * _pBringToFrontGroup;
 
     MostRecentMenu* _pMostRecentMenu;
     RecentFileModule _recentFileModule;

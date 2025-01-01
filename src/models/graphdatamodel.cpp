@@ -6,13 +6,16 @@
 
 const QColor GraphDataModel::lightRed = QColor(255, 0, 0, 127);
 
-GraphDataModel::GraphDataModel(QObject *parent) : QAbstractTableModel(parent)
+GraphDataModel::GraphDataModel(QObject *parent)
+    : QAbstractTableModel(parent), _selectedGraphIdx(-1)
 {
     _graphData.clear();
     _startTime = 0;
     _endTime = 0;
     _successCount = 0;
     _errorCount = 0;
+
+
 
     connect(this, &GraphDataModel::visibilityChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::labelChanged, this, &GraphDataModel::modelDataChanged);
@@ -345,6 +348,11 @@ GraphData::ExpressionStatus GraphDataModel::expressionStatus(quint32 index) cons
     return _graphData[index].expressionStatus();
 }
 
+qint32 GraphDataModel::selectedGraph() const
+{
+    return _selectedGraphIdx;
+}
+
 QString GraphDataModel::simplifiedExpression(quint32 index) const
 {
     return _graphData[index].expression().simplified();
@@ -435,8 +443,13 @@ void GraphDataModel::setVisible(quint32 index, bool bVisible)
 {
     if (_graphData[index].isVisible() != bVisible)
     {
-         _graphData[index].setVisible(bVisible);
-         emit visibilityChanged(index);
+        _graphData[index].setVisible(bVisible);
+        emit visibilityChanged(index);
+
+        if (!bVisible && (static_cast<qint32>(index) == _selectedGraphIdx))
+        {
+            setSelectedGraph(-1);
+        }
     }
 }
 
@@ -496,6 +509,24 @@ void GraphDataModel::setExpressionStatus(quint32 index, GraphData::ExpressionSta
     {
         _graphData[index].setExpressionStatus(status);
         emit expressionStatusChanged(index);
+    }
+}
+
+void GraphDataModel::setSelectedGraph(qint32 activeIdx)
+{
+    if (activeIdx != -1)
+    {
+        const qint32 graphIdx = convertToGraphIndex(activeIdx);
+        if (!isVisible(graphIdx))
+        {
+            return;
+        }
+    }
+
+    if (activeIdx != _selectedGraphIdx)
+    {
+        _selectedGraphIdx = activeIdx;
+        emit selectedGraphChanged(_selectedGraphIdx);
     }
 }
 
