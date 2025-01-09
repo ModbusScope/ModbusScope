@@ -33,6 +33,8 @@
 #include <cmath>
 #include <algorithm>
 #include <numeric>
+#include <cstdlib>
+
 
 using namespace std;
 
@@ -54,10 +56,36 @@ namespace mu
 	*/
 	int Parser::IsVal(const char_type* a_szExpr, int* a_iPos, value_type* a_fVal)
 	{
+		// There is an issue with libc++ where it creates an error if a double value is followed by a character which
+		// is the case when using postfix operators.
+		//
+		// http://cplusplus.github.io/LWG/lwg-defects.html#2381
+		//
+		// This happens only with libc++, not with libstdc++ (Gnu C++ standard library)
+		// It seems that Macs are using libc++. This is causing #123. The fix below will fix #123
+		// but is will break localization support and cause #136.
+
+		// I'm disabling this fix. For systems using libc++ you must put a space between floating point numbers and postfix operators.
+#if defined(__APPLE__) && defined(NEVERTRUE)
+		try
+		{
+			std::size_t charsProcessed;
+			value_type fVal = static_cast<value_type>(std::stod(string_type(a_szExpr), &charsProcessed));
+			if (charsProcessed == 0)
+				return 0;
+
+			*a_iPos += (int)charsProcessed;
+			*a_fVal = fVal;
+			return 1;
+		}
+		catch (...)
+		{
+			return 0;
+		}
+#else
 		value_type fVal(0);
 
 		stringstream_type stream(a_szExpr);
-		stream.seekg(0);        // todo:  check if this really is necessary
 		stream.imbue(Parser::s_locale);
 		stream >> fVal;
 		stringstream_type::pos_type iEnd = stream.tellg(); // Position after reading
@@ -68,6 +96,7 @@ namespace mu
 		*a_iPos += (int)iEnd;
 		*a_fVal = fVal;
 		return 1;
+#endif		
 	}
 
 
@@ -148,6 +177,8 @@ namespace mu
 			DefineFun(_T("avg"), MathImpl<value_type>::Avg);
 			DefineFun(_T("min"), MathImpl<value_type>::Min);
 			DefineFun(_T("max"), MathImpl<value_type>::Max);
+			// Random number
+			DefineFun(_T("rnd"), MathImpl<value_type>::Rnd, false);
 		}
 	}
 

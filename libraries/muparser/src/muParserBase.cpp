@@ -261,19 +261,43 @@ namespace mu
 		m_pTokenReader->ReInit();
 	}
 
-	//---------------------------------------------------------------------------
+
 	void ParserBase::OnDetectVar(string_type* /*pExpr*/, int& /*nStart*/, int& /*nEnd*/)
 	{}
 
-	//---------------------------------------------------------------------------
-	/** \brief Returns the bytecode of the current expression.
+
+	/** \brief Returns a copy of the bytecode of the current expression.
 	*/
 	const ParserByteCode& ParserBase::GetByteCode() const
 	{
+		// If a variable factory is defined the bytecode may contain references to implicitely 
+		// created variables. 
+//		if (m_pTokenReader->HasVarCreator())
+//			Error(ecBYTECODE_IMPORT_EXPORT_DISABLED);
+
 		return m_vRPN;
 	}
 
-	//---------------------------------------------------------------------------
+
+	/** \brief Restore a previously saved bytecode. */
+	void ParserBase::SetByteCode(const ParserByteCode& a_ByteCode)
+	{
+		// If a variable factory is defined the bytecode may contain references to dynamically
+		// created variables. 
+//		if (m_pTokenReader->HasVarCreator())
+//			Error(ecBYTECODE_IMPORT_EXPORT_DISABLED);
+
+		m_vRPN = a_ByteCode;
+
+		// restore expression environment
+		string_type expr;
+		std::tie(expr, m_vStringBuf) = a_ByteCode.RestoreEnvironment();
+		m_pTokenReader->SetFormula(expr);
+
+		m_pParseFormula = &ParserBase::ParseCmdCode;
+	}
+
+
 	/** \brief Returns the version of muparser.
 		\param eInfo A flag indicating whether the full version info should be
 					 returned or not.
@@ -1532,12 +1556,14 @@ namespace mu
 
 			if (m_vRPN.GetSize() == 2)
 			{
+				m_vRPN.StoreEnvironment(m_pTokenReader->GetExpr(), m_vStringBuf);
 				m_pParseFormula = &ParserBase::ParseCmdCodeShort;
 				m_vStackBuffer[1] = (this->*m_pParseFormula)();
 				return m_vStackBuffer[1];
 			}
 			else
 			{
+				m_vRPN.StoreEnvironment(m_pTokenReader->GetExpr(), m_vStringBuf);
 				m_pParseFormula = &ParserBase::ParseCmdCode;
 				return (this->*m_pParseFormula)();
 			}
@@ -1877,7 +1903,8 @@ namespace mu
 #endif
 		omp_set_num_threads(nMaxThreads);
 
-#pragma omp parallel for schedule(static, std::max(nBulkSize/nMaxThreads, 1)) private(nThreadID)
+		const int chunkSize = std::max(nBulkSize/nMaxThreads, 1);
+#pragma omp parallel for schedule(static, chunkSize) private(nThreadID)
 		for (i = 0; i < nBulkSize; ++i)
 		{
 			nThreadID = omp_get_thread_num();
