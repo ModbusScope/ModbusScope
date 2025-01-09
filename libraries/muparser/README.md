@@ -1,22 +1,29 @@
-.. image:: https://travis-ci.org/beltoforion/muparser.svg?branch=master
-    :target: https://travis-ci.org/beltoforion/muparser
-
-.. image:: https://ci.appveyor.com/api/projects/status/u4882uj8btuspj9x?svg=true
-    :target: https://ci.appveyor.com/project/beltoforion/muparser
-
-.. image:: https://img.shields.io/github/issues/beltoforion/muparser.svg?maxAge=360
-    :target: https://github.com/beltoforion/muparser/issues
- 
-.. image:: https://img.shields.io/github/release/beltoforion/muparser.svg?maxAge=360
-    :target: https://github.com/beltoforion/muparser/blob/master/CHANGELOG
- 
-.. image:: https://repology.org/badge/tiny-repos/muparser.svg
-    :target: https://repology.org/project/muparser/versions
+[![GitHub issues](https://img.shields.io/github/issues/beltoforion/muparser.svg?maxAge=360)](https://github.com/beltoforion/muparser/issues)
+[![Version](https://img.shields.io/github/release/beltoforion/muparser.svg?maxAge=360)](https://github.com/beltoforion/muparser/blob/master/CHANGELOG)
+[![Packaging status](https://repology.org/badge/tiny-repos/muparser.svg)](https://repology.org/project/muparser/versions)
+[![Appveyor](https://ci.appveyor.com/api/projects/status/u4882uj8btuspj9x?svg=true)](https://ci.appveyor.com/project/beltoforion/muparser)
 
 muparser - fast math parser library
 ===================================
 
-.. image:: http://beltoforion.de/en/muparser/images/title.webp 
+![title](https://github.com/beltoforion/muparser/assets/2202567/fbeb2347-9884-4dd7-a3c9-112b605d7390)
+
+Change Notes for Revision 2.3.5
+===========================
+
+New Features:
+-----------
+- added a rnd() function
+  
+Fixed Compiler Warnings:
+-----------
+- Fix problem with IntelLLVM fast math
+
+Build System:  
+------------
+- fix for https://github.com/beltoforion/muparser/issues/127 minimum required cmake version set to 3.15
+- fix for https://github.com/beltoforion/muparser/issues/132 example1 fails to builds on Windows with mingw gcc
+- fix for https://github.com/beltoforion/muparser/issues/147 Build failed with MSVC/C++20
 
 Change Notes for Revision 2.3.4  
 ===========================
