@@ -308,7 +308,7 @@
   <action name="actionStart">
    <property name="icon">
     <iconset>
-     <normaloff>:/menu_icon/icons/icons/play-circle.svg</normaloff>:/menu_icon/icons/icons/play-circle.svg</iconset>
+     <normaloff>:/menu_icon/icons/icons/circle-play.svg</normaloff>:/menu_icon/icons/icons/circle-play.svg</iconset>
    </property>
    <property name="text">
     <string>&amp;Start logging</string>
@@ -323,7 +323,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>:/menu_icon/icons/icons/stop-circle.svg</normaloff>:/menu_icon/icons/icons/stop-circle.svg</iconset>
+     <normaloff>:/menu_icon/icons/icons/circle-stop.svg</normaloff>:/menu_icon/icons/icons/circle-stop.svg</iconset>
    </property>
    <property name="text">
     <string>Stop &amp;logging</string>

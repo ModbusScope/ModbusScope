@@ -1,8 +1,8 @@
 <RCC>
     <qresource prefix="/menu_icon">
         <file>icons/zoom-in.svg</file>
-        <file>icons/stop-circle.svg</file>
-        <file>icons/play-circle.svg</file>
+        <file>icons/circle-stop.svg</file>
+        <file>icons/circle-play.svg</file>
         <file>icons/list.svg</file>
         <file>icons/align-horizontal-space-around.svg</file>
         <file>icons/network.svg</file>
