@@ -2,9 +2,9 @@
 # For more info see https://dfetch.rtfd.io/en/latest/getting_started.html
 dfetch:
   branch: master
-  hash: 0e017f4fe60894ffcd05fb2f6cc568b4
-  last_fetch: 14/11/2023, 20:12:37
+  hash: 8805092a44b5e7ef5c66930886aeb1f8
+  last_fetch: 09/01/2025, 22:39:33
   patch: ''
   remote_url: https://github.com/google/googletest
   revision: ''
-  tag: v1.14.0
+  tag: v1.15.2
