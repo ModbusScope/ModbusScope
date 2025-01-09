@@ -10,6 +10,12 @@ manifest:
     dst: libraries/muparser
     tag: v2.3.4
     repo-path: beltoforion/muparser
+    ignore:
+    - .github
+    - .vscode
+    - samples
+    - appveyor.yml
+    - .travis.yml
 
   - name: qcustomplot
     dst: libraries/qcustomplot
