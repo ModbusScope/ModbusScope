@@ -1,5 +1,9 @@
 {
   "$schema": "../icon.schema.json",
+  "contributors": [
+    "danielbayley",
+    "jguddas"
+  ],
   "tags": [
     "find",
     "scan",
@@ -11,7 +15,6 @@
   ],
   "categories": [
     "text",
-    "account",
     "social",
     "development"
   ]

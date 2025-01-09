@@ -2,7 +2,6 @@
   "$schema": "../icon.schema.json",
   "contributors": [
     "danielbayley",
-    "karsa-mistmere",
     "ericfennis"
   ],
   "tags": [
@@ -10,7 +9,9 @@
     "="
   ],
   "categories": [
-    "maths",
-    "shapes"
+    "math"
+  ],
+  "aliases": [
+    "equal-square"
   ]
 }

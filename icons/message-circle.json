@@ -10,9 +10,12 @@
   "tags": [
     "comment",
     "chat",
-    "conversation"
+    "conversation",
+    "dialog",
+    "feedback",
+    "speech bubble"
   ],
   "categories": [
-    "account"
+    "social"
   ]
 }

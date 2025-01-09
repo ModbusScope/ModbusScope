@@ -17,8 +17,10 @@
   "categories": [
     "text",
     "security",
-    "account",
-    "maths",
+    "math",
     "development"
+  ],
+  "aliases": [
+    "asterisk-square"
   ]
 }

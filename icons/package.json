@@ -5,11 +5,21 @@
     "csandman",
     "ericfennis",
     "karsa-mistmere",
-    "danielbayley"
+    "danielbayley",
+    "jguddas"
   ],
   "tags": [
     "box",
-    "container"
+    "container",
+    "storage",
+    "sealed",
+    "delivery",
+    "undelivered",
+    "unopened",
+    "packed",
+    "archive",
+    "zip",
+    "module"
   ],
   "categories": [
     "files",

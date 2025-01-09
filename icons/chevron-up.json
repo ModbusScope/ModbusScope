@@ -14,12 +14,13 @@
     "power",
     "ahead",
     "fast",
-    "^"
+    "^",
+    "dropdown"
   ],
   "categories": [
     "arrows",
     "navigation",
-    "maths",
+    "math",
     "gaming"
   ]
 }

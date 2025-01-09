@@ -4,14 +4,14 @@
     "karsa-mistmere",
     "jguddas"
   ],
-  "aliases": ["verified"],
+  "aliases": [
+    "verified"
+  ],
   "tags": [
     "verified",
     "check"
   ],
   "categories": [
-    "account",
-    "social",
-    "shapes"
+    "social"
   ]
 }

@@ -1,5 +1,8 @@
 {
   "$schema": "../icon.schema.json",
+  "contributors": [
+    "danielbayley"
+  ],
   "tags": [
     "rectangle",
     "aspect ratio",
@@ -10,7 +13,6 @@
     "coding"
   ],
   "categories": [
-    "shapes",
     "development",
     "files"
   ]

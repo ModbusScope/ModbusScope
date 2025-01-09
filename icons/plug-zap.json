@@ -9,6 +9,7 @@
   ],
   "tags": [
     "electricity",
+    "energy",
     "electronics",
     "charge",
     "charging",
@@ -17,5 +18,8 @@
   ],
   "categories": [
     "devices"
+  ],
+  "aliases": [
+    "plug-zap-2"
   ]
 }

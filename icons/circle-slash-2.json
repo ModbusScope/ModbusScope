@@ -11,11 +11,16 @@
     "null",
     "void",
     "ban",
+    "math",
+    "divide",
+    "division",
+    "half",
+    "split",
     "/"
   ],
   "categories": [
     "shapes",
-    "maths",
+    "math",
     "development"
   ],
   "aliases": [

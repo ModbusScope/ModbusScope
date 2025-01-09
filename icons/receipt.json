@@ -10,10 +10,14 @@
     "voucher",
     "slip",
     "check",
-    "counterfoil"
+    "counterfoil",
+    "currency",
+    "dollar",
+    "usd",
+    "$"
   ],
   "categories": [
-    "money",
+    "finance",
     "travel"
   ]
 }

@@ -2,14 +2,15 @@
   "$schema": "../icon.schema.json",
   "contributors": [
     "Andreto",
-    "ericfennis"
+    "ericfennis",
+    "jguddas"
   ],
   "tags": [
     "hammer",
     "mallet"
   ],
   "categories": [
-    "maps",
+    "navigation",
     "tools"
   ]
 }

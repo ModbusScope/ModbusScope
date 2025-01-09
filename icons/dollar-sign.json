@@ -3,8 +3,7 @@
   "contributors": [
     "colebemis",
     "csandman",
-    "ericfennis",
-    "karsa-mistmere"
+    "ericfennis"
   ],
   "tags": [
     "currency",
@@ -12,7 +11,6 @@
     "payment"
   ],
   "categories": [
-    "currency",
-    "money"
+    "finance"
   ]
 }

@@ -1,5 +1,8 @@
 {
   "$schema": "../icon.schema.json",
+  "contributors": [
+    "danielbayley"
+  ],
   "tags": [
     "count",
     "score",
@@ -14,7 +17,7 @@
     "sentence"
   ],
   "categories": [
-    "maths",
+    "math",
     "gaming"
   ]
 }

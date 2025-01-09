@@ -1,9 +1,7 @@
 {
   "$schema": "../icon.schema.json",
   "contributors": [
-    "ericfennis",
-    "danielbayley",
-    "karsa-mistmere"
+    "ericfennis"
   ],
   "tags": [
     "h1",
@@ -12,7 +10,6 @@
     "markdown"
   ],
   "categories": [
-    "text",
-    "development"
+    "text"
   ]
 }
