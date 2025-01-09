@@ -2,8 +2,8 @@
 # For more info see https://dfetch.rtfd.io/en/latest/getting_started.html
 dfetch:
   branch: master
-  hash: 3cbb573cc8d9333b8cb896f68d4eb2ac
-  last_fetch: 16/11/2022, 19:14:19
+  hash: 19e64de01a9d3be9134ef9fb74e130a0
+  last_fetch: 09/01/2025, 22:07:17
   patch: ''
   remote_url: https://github.com/beltoforion/muparser
   revision: ''
