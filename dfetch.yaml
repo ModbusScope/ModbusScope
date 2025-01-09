@@ -8,14 +8,13 @@ manifest:
   projects:
   - name: muparser
     dst: libraries/muparser
-    tag: v2.3.4
+    tag: v2.3.5
     repo-path: beltoforion/muparser
     ignore:
     - .github
     - .vscode
     - samples
     - appveyor.yml
-    - .travis.yml
 
   - name: qcustomplot
     dst: libraries/qcustomplot

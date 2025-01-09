@@ -84,7 +84,7 @@ namespace mu
 		values and function pointers. Those are necessary in order to calculate the result.
 		All those data items will be casted to the underlying datatype of the bytecode.
 	*/
-	class ParserByteCode final
+	class API_EXPORT_CXX ParserByteCode final
 	{
 	private:
 
@@ -94,8 +94,17 @@ namespace mu
 		/** \brief Token vector for storing the RPN. */
 		typedef std::vector<SToken> rpn_type;
 
+		/** \brief Type for a vector of strings. */
+		typedef std::vector<string_type> stringbuf_type;
+
 		/** \brief Position in the Calculation array. */
 		unsigned m_iStackPos;
+
+		/** \brief String variable storage. */
+		stringbuf_type m_stringBuffer;
+
+		/** \brief The expression associated with this bytecode. */
+		string_type m_expr;
 
 		/** \brief Maximum size needed for the stack. */
 		std::size_t m_iMaxStackSize;
@@ -142,7 +151,18 @@ namespace mu
 				return &m_vRPN[0];
 		}
 
-		void AsciiDump();
+		void StoreEnvironment(string_type expr, stringbuf_type const& strBuf)
+		{
+			m_stringBuffer = strBuf;
+			m_expr = expr;
+		}
+
+		std::tuple<string_type, stringbuf_type> RestoreEnvironment() const
+		{
+			return std::make_tuple(m_expr, m_stringBuffer);
+		}
+
+		void AsciiDump() const;
 	};
 
 } // namespace mu
