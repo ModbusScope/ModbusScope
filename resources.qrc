@@ -1,14 +1,14 @@
 <RCC>
     <qresource prefix="/menu_icon">
-        <file>icons/icons/zoom-in.svg</file>
-        <file>icons/icons/stop-circle.svg</file>
-        <file>icons/icons/play-circle.svg</file>
-        <file>icons/icons/list.svg</file>
-        <file>icons/icons/align-horizontal-space-around.svg</file>
-        <file>icons/icons/network.svg</file>
-        <file>icons/icons/settings-2.svg</file>
-        <file>icons/icons/bell-ring.svg</file>
-        <file>icons/icons/camera.svg</file>
+        <file>icons/zoom-in.svg</file>
+        <file>icons/circle-stop.svg</file>
+        <file>icons/circle-play.svg</file>
+        <file>icons/list.svg</file>
+        <file>icons/align-horizontal-space-around.svg</file>
+        <file>icons/network.svg</file>
+        <file>icons/settings-2.svg</file>
+        <file>icons/bell-ring.svg</file>
+        <file>icons/camera.svg</file>
     </qresource>
     <qresource prefix="/about_images">
         <file>resources/icon/icon-128x128.png</file>

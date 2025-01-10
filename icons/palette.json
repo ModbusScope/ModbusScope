@@ -1,0 +1,23 @@
+{
+  "$schema": "../icon.schema.json",
+  "contributors": [
+    "ericfennis",
+    "csandman",
+    "karsa-mistmere"
+  ],
+  "tags": [
+    "colors",
+    "colours",
+    "theme",
+    "scheme",
+    "paint",
+    "watercolor",
+    "watercolour",
+    "artist"
+  ],
+  "categories": [
+    "text",
+    "design",
+    "photography"
+  ]
+}

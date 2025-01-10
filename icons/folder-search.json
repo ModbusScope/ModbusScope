@@ -1,0 +1,17 @@
+{
+  "$schema": "../icon.schema.json",
+  "contributors": [
+    "karsa-mistmere",
+    "jguddas"
+  ],
+  "tags": [
+    "directory",
+    "search",
+    "find",
+    "lost",
+    "browser"
+  ],
+  "categories": [
+    "files"
+  ]
+}

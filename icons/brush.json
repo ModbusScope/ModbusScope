@@ -1,0 +1,17 @@
+{
+  "$schema": "../icon.schema.json",
+  "contributors": [
+    "ericfennis"
+  ],
+  "tags": [
+    "draw",
+    "paint",
+    "color",
+    "artist"
+  ],
+  "categories": [
+    "text",
+    "design",
+    "tools"
+  ]
+}

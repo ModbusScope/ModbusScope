@@ -1,0 +1,21 @@
+{
+  "$schema": "../icon.schema.json",
+  "contributors": [
+    "connium",
+    "ericfennis"
+  ],
+  "tags": [
+    "bank",
+    "building",
+    "capitol",
+    "finance",
+    "money",
+    "government",
+    "institution"
+  ],
+  "categories": [
+    "finance",
+    "navigation",
+    "buildings"
+  ]
+}
