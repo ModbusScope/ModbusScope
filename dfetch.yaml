@@ -19,7 +19,7 @@ manifest:
 
   - name: googletest
     dst: tests/googletest
-    tag: v1.14.0
+    tag: v1.15.2
     repo-path: google/googletest
 
   - name: lucide-icons
