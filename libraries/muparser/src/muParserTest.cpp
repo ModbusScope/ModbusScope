@@ -5,7 +5,7 @@
    |  Y Y  \  |  /  |_> > __ \|  | \/\___ \\  ___/|  | \/
    |__|_|  /____/|   __(____  /__|  /____  >\___  >__|
 		 \/      |__|       \/           \/     \/
-   Copyright (C) 2022 Ingo Berg
+   Copyright (C) 2023 Ingo Berg
 
 	Redistribution and use in source and binary forms, with or without modification, are permitted
 	provided that the following conditions are met:
@@ -63,6 +63,7 @@ namespace mu
 			AddTest(&ParserTester::TestStrArg);
 			AddTest(&ParserTester::TestBulkMode);
 			AddTest(&ParserTester::TestOptimizer);
+			AddTest(&ParserTester::TestLocalization);
 
 			ParserTester::c_iCount = 0;
 		}
@@ -314,12 +315,17 @@ namespace mu
 			iStat += EqnTest(_T("1 && 0"), 0, true);
 			iStat += EqnTest(_T("(a<b) && (b>a)"), 1, true);
 			iStat += EqnTest(_T("(a<b) && (a>b)"), 0, true);
-			//iStat += EqnTest(_T("12 and 255"), 12, true); 
-			//iStat += EqnTest(_T("12 and 0"), 0, true); 
 			iStat += EqnTest(_T("12 & 255"), 12, true);
 			iStat += EqnTest(_T("12 & 0"), 0, true);
 			iStat += EqnTest(_T("12&255"), 12, true);
 			iStat += EqnTest(_T("12&0"), 0, true);
+			// test precedence of logic operators (should be like c++)
+			iStat += EqnTest(_T("0 && 0 || 1"), 1, true);
+			iStat += EqnTest(_T("0 && 1 || 0"), 0, true);
+			iStat += EqnTest(_T("1 && 0 || 0"), 0, true);
+			iStat += EqnTest(_T("1 && 1 || 0"), 1, true);
+			iStat += EqnTest(_T("1 && 0 + 1"), 1, true);
+			iStat += EqnTest(_T("1 && 1 - 1"), 0, true);
 
 			// Assignment operator
 			iStat += EqnTest(_T("a = b"), 2, true);
@@ -445,93 +451,93 @@ namespace mu
 
 			// constant names
 			PARSER_THROWCHECK(Const, false, _T("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"), 1)
-				PARSER_THROWCHECK(Const, false, _T("0a"), 1)
-				PARSER_THROWCHECK(Const, false, _T("9a"), 1)
-				PARSER_THROWCHECK(Const, false, _T("+a"), 1)
-				PARSER_THROWCHECK(Const, false, _T("-a"), 1)
-				PARSER_THROWCHECK(Const, false, _T("a-"), 1)
-				PARSER_THROWCHECK(Const, false, _T("a*"), 1)
-				PARSER_THROWCHECK(Const, false, _T("a?"), 1)
-				PARSER_THROWCHECK(Const, true, _T("a"), 1)
-				PARSER_THROWCHECK(Const, true, _T("a_min"), 1)
-				PARSER_THROWCHECK(Const, true, _T("a_min0"), 1)
-				PARSER_THROWCHECK(Const, true, _T("a_min9"), 1)
+			PARSER_THROWCHECK(Const, false, _T("0a"), 1)
+			PARSER_THROWCHECK(Const, false, _T("9a"), 1)
+			PARSER_THROWCHECK(Const, false, _T("+a"), 1)
+			PARSER_THROWCHECK(Const, false, _T("-a"), 1)
+			PARSER_THROWCHECK(Const, false, _T("a-"), 1)
+			PARSER_THROWCHECK(Const, false, _T("a*"), 1)
+			PARSER_THROWCHECK(Const, false, _T("a?"), 1)
+			PARSER_THROWCHECK(Const, true, _T("a"), 1)
+			PARSER_THROWCHECK(Const, true, _T("a_min"), 1)
+			PARSER_THROWCHECK(Const, true, _T("a_min0"), 1)
+			PARSER_THROWCHECK(Const, true, _T("a_min9"), 1)
 
 				// variable names
 				value_type a;
 			p.ClearConst();
 			PARSER_THROWCHECK(Var, false, _T("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"), &a);
 			PARSER_THROWCHECK(Var, false, _T("123abc"), &a)
-				PARSER_THROWCHECK(Var, false, _T("9a"), &a)
-				PARSER_THROWCHECK(Var, false, _T("0a"), &a)
-				PARSER_THROWCHECK(Var, false, _T("+a"), &a)
-				PARSER_THROWCHECK(Var, false, _T("-a"), &a)
-				PARSER_THROWCHECK(Var, false, _T("?a"), &a)
-				PARSER_THROWCHECK(Var, false, _T("!a"), &a)
-				PARSER_THROWCHECK(Var, false, _T("a+"), &a)
-				PARSER_THROWCHECK(Var, false, _T("a-"), &a)
-				PARSER_THROWCHECK(Var, false, _T("a*"), &a)
-				PARSER_THROWCHECK(Var, false, _T("a?"), &a)
-				PARSER_THROWCHECK(Var, true, _T("a"), &a)
-				PARSER_THROWCHECK(Var, true, _T("a_min"), &a)
-				PARSER_THROWCHECK(Var, true, _T("a_min0"), &a)
-				PARSER_THROWCHECK(Var, true, _T("a_min9"), &a)
-				PARSER_THROWCHECK(Var, false, _T("a_min9"), 0)
+			PARSER_THROWCHECK(Var, false, _T("9a"), &a)
+			PARSER_THROWCHECK(Var, false, _T("0a"), &a)
+			PARSER_THROWCHECK(Var, false, _T("+a"), &a)
+			PARSER_THROWCHECK(Var, false, _T("-a"), &a)
+			PARSER_THROWCHECK(Var, false, _T("?a"), &a)
+			PARSER_THROWCHECK(Var, false, _T("!a"), &a)
+			PARSER_THROWCHECK(Var, false, _T("a+"), &a)
+			PARSER_THROWCHECK(Var, false, _T("a-"), &a)
+			PARSER_THROWCHECK(Var, false, _T("a*"), &a)
+			PARSER_THROWCHECK(Var, false, _T("a?"), &a)
+			PARSER_THROWCHECK(Var, true, _T("a"), &a)
+			PARSER_THROWCHECK(Var, true, _T("a_min"), &a)
+			PARSER_THROWCHECK(Var, true, _T("a_min0"), &a)
+			PARSER_THROWCHECK(Var, true, _T("a_min9"), &a)
+			PARSER_THROWCHECK(Var, false, _T("a_min9"), 0)
 
-				// Postfix operators
-				// fail
-				PARSER_THROWCHECK(PostfixOprt, false, _T("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"), f1of1);
+			// Postfix operators
+			// fail
+			PARSER_THROWCHECK(PostfixOprt, false, _T("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"), f1of1);
 			PARSER_THROWCHECK(PostfixOprt, false, _T("(k"), f1of1)
-				PARSER_THROWCHECK(PostfixOprt, false, _T("9+"), f1of1)
-				PARSER_THROWCHECK(PostfixOprt, false, _T("+"), 0)
-				// pass
-				PARSER_THROWCHECK(PostfixOprt, true, _T("-a"), f1of1)
-				PARSER_THROWCHECK(PostfixOprt, true, _T("?a"), f1of1)
-				PARSER_THROWCHECK(PostfixOprt, true, _T("_"), f1of1)
-				PARSER_THROWCHECK(PostfixOprt, true, _T("#"), f1of1)
-				PARSER_THROWCHECK(PostfixOprt, true, _T("&&"), f1of1)
-				PARSER_THROWCHECK(PostfixOprt, true, _T("||"), f1of1)
-				PARSER_THROWCHECK(PostfixOprt, true, _T("&"), f1of1)
-				PARSER_THROWCHECK(PostfixOprt, true, _T("|"), f1of1)
-				PARSER_THROWCHECK(PostfixOprt, true, _T("++"), f1of1)
-				PARSER_THROWCHECK(PostfixOprt, true, _T("--"), f1of1)
-				PARSER_THROWCHECK(PostfixOprt, true, _T("?>"), f1of1)
-				PARSER_THROWCHECK(PostfixOprt, true, _T("?<"), f1of1)
-				PARSER_THROWCHECK(PostfixOprt, true, _T("**"), f1of1)
-				PARSER_THROWCHECK(PostfixOprt, true, _T("xor"), f1of1)
-				PARSER_THROWCHECK(PostfixOprt, true, _T("and"), f1of1)
-				PARSER_THROWCHECK(PostfixOprt, true, _T("or"), f1of1)
-				PARSER_THROWCHECK(PostfixOprt, true, _T("not"), f1of1)
-				PARSER_THROWCHECK(PostfixOprt, true, _T("!"), f1of1)
+			PARSER_THROWCHECK(PostfixOprt, false, _T("9+"), f1of1)
+			PARSER_THROWCHECK(PostfixOprt, false, _T("+"), 0)
+			// pass
+			PARSER_THROWCHECK(PostfixOprt, true, _T("-a"), f1of1)
+			PARSER_THROWCHECK(PostfixOprt, true, _T("?a"), f1of1)
+			PARSER_THROWCHECK(PostfixOprt, true, _T("_"), f1of1)
+			PARSER_THROWCHECK(PostfixOprt, true, _T("#"), f1of1)
+			PARSER_THROWCHECK(PostfixOprt, true, _T("&&"), f1of1)
+			PARSER_THROWCHECK(PostfixOprt, true, _T("||"), f1of1)
+			PARSER_THROWCHECK(PostfixOprt, true, _T("&"), f1of1)
+			PARSER_THROWCHECK(PostfixOprt, true, _T("|"), f1of1)
+			PARSER_THROWCHECK(PostfixOprt, true, _T("++"), f1of1)
+			PARSER_THROWCHECK(PostfixOprt, true, _T("--"), f1of1)
+			PARSER_THROWCHECK(PostfixOprt, true, _T("?>"), f1of1)
+			PARSER_THROWCHECK(PostfixOprt, true, _T("?<"), f1of1)
+			PARSER_THROWCHECK(PostfixOprt, true, _T("**"), f1of1)
+			PARSER_THROWCHECK(PostfixOprt, true, _T("xor"), f1of1)
+			PARSER_THROWCHECK(PostfixOprt, true, _T("and"), f1of1)
+			PARSER_THROWCHECK(PostfixOprt, true, _T("or"), f1of1)
+			PARSER_THROWCHECK(PostfixOprt, true, _T("not"), f1of1)
+			PARSER_THROWCHECK(PostfixOprt, true, _T("!"), f1of1)
 
-				// Binary operator
-				// The following must fail with builtin operators activated
-				// p.EnableBuiltInOp(true); -> this is the default
-				p.ClearPostfixOprt();
+			// Binary operator
+			// The following must fail with builtin operators activated
+			// p.EnableBuiltInOp(true); -> this is the default
+			p.ClearPostfixOprt();
 			PARSER_THROWCHECK(Oprt, false, _T("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"), f1of2);
 			PARSER_THROWCHECK(Oprt, false, _T("+"), f1of2)
-				PARSER_THROWCHECK(Oprt, false, _T("-"), f1of2)
-				PARSER_THROWCHECK(Oprt, false, _T("*"), f1of2)
-				PARSER_THROWCHECK(Oprt, false, _T("/"), f1of2)
-				PARSER_THROWCHECK(Oprt, false, _T("^"), f1of2)
-				PARSER_THROWCHECK(Oprt, false, _T("&&"), f1of2)
-				PARSER_THROWCHECK(Oprt, false, _T("||"), f1of2)
+			PARSER_THROWCHECK(Oprt, false, _T("-"), f1of2)
+			PARSER_THROWCHECK(Oprt, false, _T("*"), f1of2)
+			PARSER_THROWCHECK(Oprt, false, _T("/"), f1of2)
+			PARSER_THROWCHECK(Oprt, false, _T("^"), f1of2)
+			PARSER_THROWCHECK(Oprt, false, _T("&&"), f1of2)
+			PARSER_THROWCHECK(Oprt, false, _T("||"), f1of2)
 
-				// without activated built in operators it should work
-				p.EnableBuiltInOprt(false);
+			// without activated built in operators it should work
+			p.EnableBuiltInOprt(false);
 			PARSER_THROWCHECK(Oprt, true, _T("+"), f1of2)
-				PARSER_THROWCHECK(Oprt, true, _T("-"), f1of2)
-				PARSER_THROWCHECK(Oprt, true, _T("*"), f1of2)
-				PARSER_THROWCHECK(Oprt, true, _T("/"), f1of2)
-				PARSER_THROWCHECK(Oprt, true, _T("^"), f1of2)
-				PARSER_THROWCHECK(Oprt, true, _T("&&"), f1of2)
-				PARSER_THROWCHECK(Oprt, true, _T("||"), f1of2)
+			PARSER_THROWCHECK(Oprt, true, _T("-"), f1of2)
+			PARSER_THROWCHECK(Oprt, true, _T("*"), f1of2)
+			PARSER_THROWCHECK(Oprt, true, _T("/"), f1of2)
+			PARSER_THROWCHECK(Oprt, true, _T("^"), f1of2)
+			PARSER_THROWCHECK(Oprt, true, _T("&&"), f1of2)
+			PARSER_THROWCHECK(Oprt, true, _T("||"), f1of2)
 #undef PARSER_THROWCHECK
 
-				if (iStat == 0)
-					mu::console() << _T("passed") << endl;
-				else
-					mu::console() << _T("\n  failed with ") << iStat << _T(" errors") << endl;
+			if (iStat == 0)
+				mu::console() << _T("passed") << endl;
+			else
+				mu::console() << _T("\n  failed with ") << iStat << _T(" errors") << endl;
 
 			return iStat;
 		}
@@ -901,6 +907,10 @@ namespace mu
 			iStat += EqnTest(_T("-f1of1(-1000){m}"), 1, true);
 			iStat += EqnTest(_T("f4of4(0,0,0,1000){m}"), 1, true);
 			iStat += EqnTest(_T("2+(a*1000){m}"), 3, true);
+			
+			// I have added a space between the number and the operator so that 
+			// systems using libc++ can pass the test (see #123)
+			iStat += EqnTest(_T("1 n"), 1e-9, true);
 
 			// can postfix operators "m" und "meg" be told apart properly?
 			iStat += EqnTest(_T("2*3000meg+2"), 2 * 3e9 + 2, true);
@@ -1228,14 +1238,30 @@ namespace mu
 			return iStat;
 		}
 
+		int ParserTester::TestLocalization()
+		{
+			int  iStat = 0;
+			mu::console() << _T("testing localization...");
 
-		//---------------------------------------------------------------------------
+			iStat += EqnTestLocalized(_T("1,2"), 1.2, true);
+
+			if (iStat == 0)
+				mu::console() << _T("passed") << endl;
+			else
+				mu::console() << _T("\n  failed with ") << iStat << _T(" errors") << endl;
+
+			// Reset the locale to the "C" locale.
+			Parser().ResetLocale();
+
+			return iStat;
+		}
+
+
 		void ParserTester::AddTest(testfun_type a_pFun)
 		{
 			m_vTestFun.push_back(a_pFun);
 		}
 
-		//---------------------------------------------------------------------------
 		int ParserTester::Run()
 		{
 			int iStat = 0;
@@ -1330,7 +1356,7 @@ namespace mu
 		}
 
 		//---------------------------------------------------------------------------
-		/** \brief Evaluate a tet expression.
+		/** \brief Evaluate a test expression.
 
 			\return 1 in case of a failure, 0 otherwise.
 		*/
@@ -1364,6 +1390,53 @@ namespace mu
 
 				if (fabs(a_fRes2 - fVal[1]) > 0.0000000001)
 					throw std::runtime_error("incorrect result (second pass)");
+			}
+			catch (Parser::exception_type& e)
+			{
+				mu::console() << _T("\n  fail: ") << a_str.c_str() << _T(" (") << e.GetMsg() << _T(")");
+				return 1;
+			}
+			catch (std::exception& e)
+			{
+				mu::console() << _T("\n  fail: ") << a_str.c_str() << _T(" (") << e.what() << _T(")");
+				return 1;  // always return a failure since this exception is not expected
+			}
+			catch (...)
+			{
+				mu::console() << _T("\n  fail: ") << a_str.c_str() << _T(" (unexpected exception)");
+				return 1;  // exceptions other than ParserException are not allowed
+			}
+
+			return 0;
+		}
+
+		//---------------------------------------------------------------------------
+		/** \brief Evaluate a test expression.
+
+			\return 1 in case of a failure, 0 otherwise.
+		*/
+		int ParserTester::EqnTestLocalized(const string_type& a_str, double a_fRes, bool a_fPass)
+		{
+			ParserTester::c_iCount++;
+
+			try
+			{
+				Parser  p;
+				value_type var[2] = { 1, 2 };
+
+				// variable
+				p.SetDecSep(',');
+				p.SetArgSep(';');
+				p.SetThousandsSep('.');
+
+				p.DefineVar(_T("a"), &var[0]);
+				p.DefineVar(_T("b"), &var[1]);
+				p.SetExpr(a_str);
+
+				auto result = p.Eval();
+
+				if (fabs(result - a_fRes) > 0.0000000001)
+					throw std::runtime_error("incorrect result (first pass)");
 			}
 			catch (Parser::exception_type& e)
 			{
@@ -1486,6 +1559,7 @@ namespace mu
 				p1->DefinePostfixOprt(_T("{m}"), Milli);
 				p1->DefinePostfixOprt(_T("{M}"), Mega);
 				p1->DefinePostfixOprt(_T("m"), Milli);
+				p1->DefinePostfixOprt(_T("n"), [](double value){return value * 1E-9;});
 				p1->DefinePostfixOprt(_T("meg"), Mega);
 				p1->DefinePostfixOprt(_T("#"), times3);
 				p1->DefinePostfixOprt(_T("'"), sqr);
@@ -1544,17 +1618,7 @@ namespace mu
 					// The tests equations never result in infinity, if they do thats a bug.
 					// reference:
 					// http://sourceforge.net/projects/muparser/forums/forum/462843/topic/5037825
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4127)
-#endif
-					if (std::numeric_limits<value_type>::has_infinity)
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-					{
-						bCloseEnough &= (fabs(fVal[i]) != numeric_limits<value_type>::infinity());
-					}
+					bCloseEnough &= std::isfinite(fVal[i]);
 				}
 
 				iRet = ((bCloseEnough && a_fPass) || (!bCloseEnough && !a_fPass)) ? 0 : 1;
