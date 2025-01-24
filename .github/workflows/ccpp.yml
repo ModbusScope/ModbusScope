@@ -28,25 +28,7 @@ jobs:
         with:
           name: modbusscope-linux
           path: ModbusScope*.AppImage
-
-  docs:
-    runs-on: ubuntu-latest
-
-    container:
-      image: docker://jgeudens/qt-linux:6.6.3_build_1
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build doc
-        run: |
-          sh create_doc.sh
-          mv docs/_build/latex/modbusscope.pdf modbusscope-user-manual.pdf
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: modbusscope-user-manual
-          path: modbusscope-user-manual.pdf
-
+          
   windows:
     runs-on: windows-2022
     

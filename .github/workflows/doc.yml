@@ -1,0 +1,23 @@
+name: Build
+
+# Triggered when code is pushed to any branch in a repository
+on: push
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+
+    container:
+      image: docker://jgeudens/doc-latex:20250124_build_1
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build doc
+        run: |
+          sh create_doc.sh
+          mv docs/_build/latex/modbusscope.pdf modbusscope-user-manual.pdf
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: modbusscope-user-manual
+          path: modbusscope-user-manual.pdf
