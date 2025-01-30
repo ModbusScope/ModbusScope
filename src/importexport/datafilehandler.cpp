@@ -180,7 +180,6 @@ void DataFileHandler::parseDataFile()
             progressDialog.setValue(progressDialog.maximum());
 
             _pGraphDataModel->clear();
-            _pGuiModel->setFrontGraph(-1);
 
             _pGraphDataModel->add(data.dataLabel);
 
@@ -213,7 +212,6 @@ void DataFileHandler::parseDataFile()
             }
             _pNoteModel->setNotesDataUpdated(false);
 
-            _pGuiModel->setFrontGraph(0);
             _pGuiModel->setProjectFilePath("");
             _pGuiModel->clearMarkersState();
             _pGuiModel->setGuiState(GuiModel::GuiState::DATA_LOADED);

@@ -33,7 +33,6 @@ const QString GuiModel::cMarkerExpressionEnd = QString("y2: %0\n");
 
 GuiModel::GuiModel(QObject *parent) : QObject(parent)
 {
-    _frontGraph = 0;
     _projectFilePath = "";
     _bHighlightSamples = true;
     _bCursorValues = false;
@@ -76,10 +75,6 @@ GuiModel::~GuiModel()
 
 void GuiModel::triggerUpdate(void)
 {
-    if (_frontGraph != -1)
-    {
-        emit frontGraphChanged();
-    }
     emit highlightSamplesChanged();
     emit cursorValuesChanged();
     emit windowTitleChanged();
@@ -94,26 +89,6 @@ void GuiModel::triggerUpdate(void)
 
     emit markerStateChanged();
     emit markerExpressionMaskChanged();
-}
-
-/*
- Return index of activeGraphList */
-qint32 GuiModel::frontGraph() const
-{
-    return _frontGraph;
-}
-
-void GuiModel::setFrontGraph(const qint32 &frontGraph)
-{
-    if (_frontGraph != frontGraph)
-    {
-        _frontGraph = frontGraph;
-
-        if (frontGraph != -1)
-        {
-            emit frontGraphChanged();
-        }
-    }
 }
 
 bool GuiModel::highlightSamples() const

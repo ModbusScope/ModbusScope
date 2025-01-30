@@ -75,7 +75,6 @@ Legend::Legend(QWidget *parent) : QFrame(parent),
     connect(_pToggleVisibilityAction, &QAction::triggered, this, &Legend::toggleVisibilityClicked);
     connect(_pHideAllAction, &QAction::triggered, this, &Legend::hideAll);
     connect(_pShowAllAction, &QAction::triggered, this, &Legend::showAll);
-    connect(_pLegendTable, &QTableWidget::cellClicked, this, &Legend::graphToForeground);
     connect(_pLegendTable, &QTableWidget::cellDoubleClicked, this, &Legend::legendCellDoubleClicked);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -115,11 +114,6 @@ void Legend::clearLegendData()
     }
 
     updateDataInLegend();
-}
-
-void Legend::graphToForeground(int row)
-{
-    _pGuiModel->setFrontGraph(row);
 }
 
 void Legend::legendCellDoubleClicked(int row, int column)

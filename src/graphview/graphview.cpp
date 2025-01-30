@@ -276,14 +276,14 @@ void GraphView::changeGraphAxis(const quint32 graphIdx)
     }
 }
 
-void GraphView::bringToFront()
+void GraphView::bringToFront(const qint32 activeGraphIdx)
 {
-    if (_pPlot->graphCount() > 0)
-    {
-        _pPlot->graph(_pGuiModel->frontGraph())->setLayer("topMain");
-        _pGraphIndicators->setFrontGraph(_pGuiModel->frontGraph());
-        _pPlot->replot();
-    }
+    _pPlot->graph(activeGraphIdx)->setLayer("topMain");
+
+    const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeGraphIdx);
+
+    _pGraphIndicators->setFrontGraph(graphIdx);
+    _pPlot->replot();
 }
 
 void GraphView::addData(QList<double> timeData, QList<QList<double> > data)
