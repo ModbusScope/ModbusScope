@@ -72,11 +72,24 @@ Legend::Legend(QWidget *parent) : QFrame(parent),
     _pShowAllAction = _pLegendMenu->addAction("Show all");
     _pShowAllAction->setEnabled(false);
 
+    /*
+     * Use timer to avoid click when doubleclicked
+     * https://forum.qt.io/topic/25513/how-can-i-prevent-the-clicked-signal-when-i-want-to-grab-the-doubleclicked-signal-in-mytablewidget/9?_=1738268572974&lang=en-US
+    */
+    _clickTimer.setInterval(qApp->doubleClickInterval());
+    connect(&_clickTimer, &QTimer::timeout, this, [=, this]() {
+        this->cellClicked(this->_clickedRow, this->_clickedColumn);
+    });
+
     connect(_pToggleVisibilityAction, &QAction::triggered, this, &Legend::toggleVisibilityClicked);
     connect(_pHideAllAction, &QAction::triggered, this, &Legend::hideAll);
     connect(_pShowAllAction, &QAction::triggered, this, &Legend::showAll);
-    connect(_pLegendTable, &QTableWidget::cellClicked, this, &Legend::highlightItemClicked);
-    connect(_pLegendTable, &QTableWidget::cellDoubleClicked, this, &Legend::legendCellDoubleClicked);
+    connect(_pLegendTable, &QTableWidget::cellClicked, this, [=, this](int rows, int columns) {
+        this->processClick(false, rows, columns); 
+    });
+    connect(_pLegendTable, &QTableWidget::cellDoubleClicked, this, [=, this](int rows, int columns) {
+        this->processClick(true, rows, columns);
+    });
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &Legend::customContextMenuRequested, this, &Legend::showContextMenu);
@@ -116,46 +129,6 @@ void Legend::clearLegendData()
     }
 
     updateDataInLegend();
-}
-
-void Legend::legendCellDoubleClicked(int row, int column)
-{
-    if (column == cColummnColor)
-    {
-        if (row != -1)
-        {
-            const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(static_cast<quint32>(row));
-            if (_pGraphDataModel->isVisible(graphIdx))
-            {
-                QColor color = QColorDialog::getColor(_pGraphDataModel->color(graphIdx));
-
-                if (color.isValid())
-                {
-                    // Set color in model
-                    _pGraphDataModel->setColor(graphIdx, color);
-                }
-            }
-        }
-    }
-    else if (column == cColummnAxis)
-    {
-        if (row != -1)
-        {
-            const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(static_cast<quint32>(row));
-            if (_pGraphDataModel->isVisible(graphIdx))
-            {
-                auto valueAxis = _pGraphDataModel->valueAxis(graphIdx);
-
-                valueAxis = valueAxis == GraphData::VALUE_AXIS_PRIMARY ? GraphData::VALUE_AXIS_SECONDARY: GraphData::VALUE_AXIS_PRIMARY;
-                _pGraphDataModel->setValueAxis(graphIdx, valueAxis);
-            }
-        }
-    }
-    else
-    {
-        /* Other columns */
-        toggleItemVisibility(row);
-    }
 }
 
 void Legend::addLastReceivedDataToLegend(ResultDoubleList resultList)
@@ -395,15 +368,7 @@ void Legend::toggleVisibilityClicked()
     toggleItemVisibility(_popupMenuItem);
 }
 
-void Legend::highlightItemClicked(int row)
-{
-    if ((row != -1) && (row < _pGraphDataModel->size()))
-    {
-        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(row);
 
-        _pGraphDataModel->setSelectedGraph(graphIdx);
-    }
-}
 
 void Legend::hideAll()
 {
@@ -439,5 +404,77 @@ void Legend::handleSelectedGraphChanged(const qint32 activeGraphIdx)
         _pLegendTable->item(idx, cColummnAxis)->setFont(itemFont);
         _pLegendTable->item(idx, cColummnValue)->setFont(itemFont);
         _pLegendTable->item(idx, cColummnText)->setFont(itemFont);
+    }
+}
+
+void Legend::processClick(bool bDoubleClick, int row, int column)
+{
+    if (bDoubleClick)
+    {
+        _clickTimer.stop();
+        cellDoubleClicked(row, column);
+    }
+    else
+    {
+        if (!_clickTimer.isActive())
+        {
+            _clickTimer.start();
+            _clickedRow = row;
+            _clickedColumn = column;
+        }
+    }
+}
+
+void Legend::cellDoubleClicked(int row, int column)
+{
+    if (column == cColummnColor)
+    {
+        if (row != -1)
+        {
+            const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(static_cast<quint32>(row));
+            if (_pGraphDataModel->isVisible(graphIdx))
+            {
+                QColor color = QColorDialog::getColor(_pGraphDataModel->color(graphIdx));
+
+                if (color.isValid())
+                {
+                    // Set color in model
+                    _pGraphDataModel->setColor(graphIdx, color);
+                }
+            }
+        }
+    }
+    else if (column == cColummnAxis)
+    {
+        if (row != -1)
+        {
+            const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(static_cast<quint32>(row));
+            if (_pGraphDataModel->isVisible(graphIdx))
+            {
+                auto valueAxis = _pGraphDataModel->valueAxis(graphIdx);
+
+                valueAxis = valueAxis == GraphData::VALUE_AXIS_PRIMARY ? GraphData::VALUE_AXIS_SECONDARY: GraphData::VALUE_AXIS_PRIMARY;
+                _pGraphDataModel->setValueAxis(graphIdx, valueAxis);
+            }
+        }
+    }
+    else
+    {
+        /* Other columns */
+        toggleItemVisibility(row);
+    }
+}
+
+void Legend::cellClicked(int row, int column)
+{
+    Q_UNUSED(column);
+
+    _clickTimer.stop();
+
+    if ((row != -1) && (row < _pGraphDataModel->size()))
+    {
+        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(row);
+
+        _pGraphDataModel->setSelectedGraph(graphIdx);
     }
 }

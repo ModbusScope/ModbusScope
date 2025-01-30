@@ -8,6 +8,7 @@
 #include <QAbstractItemView>
 #include <QColor>
 #include <QMenu>
+#include <QTimer>
 
 #include "result.h"
 
@@ -39,9 +40,7 @@ private slots:
     void changeGraphAxis(const quint32 graphIdx);
     void changeGraphLabel(const quint32 graphIdx);
     void showContextMenu(const QPoint& pos);
-    void legendCellDoubleClicked(int row, int column);
     void toggleVisibilityClicked();
-    void highlightItemClicked(int row);
     void hideAll();
     void showAll();
     void handleSelectedGraphChanged(const qint32 activeGraphIdx);
@@ -53,6 +52,10 @@ private:
     void toggleItemVisibility(qint32 activeGraphIdx);
     QString valueAxisText(quint32 graphIdx);
 
+    void processClick(bool bDoubleClick, int row, int column);
+    void cellDoubleClicked(int row, int column);
+    void cellClicked(int row, int column);
+
     // Last data
     ResultDoubleList _lastReceivedList;
     qint32 _popupMenuItem;
@@ -62,6 +65,10 @@ private:
     GraphDataModel * _pGraphDataModel;
 
     GraphView * _pGraphView;
+
+    QTimer _clickTimer;
+    qint32 _clickedRow;
+    qint32 _clickedColumn;
 
     // Widgets
     QVBoxLayout * _pLayout;
