@@ -228,8 +228,8 @@ namespace mu
         DefineInfixOprt(_T("-"), MathImpl<value_type>::UnaryMinus);
         DefineInfixOprt(_T("+"), MathImpl<value_type>::UnaryPlus);
 
-        DefineOprt(_T("&"), LogAnd, prLOGIC);
-        DefineOprt(_T("|"), LogOr, prLOGIC);
+        DefineOprt(_T("&"), LogAnd, prBAND);
+        DefineOprt(_T("|"), LogOr, prBOR);
 
         DefineOprt(_T(">>"), Shr, prMUL_DIV + 1);
         DefineOprt(_T("<<"), Shl, prMUL_DIV + 1);
