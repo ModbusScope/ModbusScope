@@ -68,7 +68,7 @@ public:
     void setActive(quint32 index, bool bActive);
     void setExpression(quint32 index, QString expression);
     void setExpressionStatus(quint32 index, GraphData::ExpressionStatus status);
-    void setSelectedGraph(qint32 activeIdx);
+    void setSelectedGraph(qint32 index);
 
     void setCommunicationStartTime(qint64 startTime);
     void setCommunicationEndTime(qint64 endTime);
@@ -98,7 +98,7 @@ signals:
     void activeChanged(const quint32 graphIdx);
     void expressionChanged(const quint32 graphIdx);
     void expressionStatusChanged(const quint32 graphIdx);
-    void selectedGraphChanged(const qint32 activeGraphIdx);
+    void selectedGraphChanged(const qint32 graphIdx);
     void graphsAddData(QList<double>, QList<QList<double> > data);
 
     void communicationStatsChanged();

@@ -541,8 +541,9 @@ void GraphView::handleSelectionChanged(bool selected)
     if (selected)
     {
         QCPGraph * pGraph = qobject_cast<QCPGraph *>(QObject::sender());
-        qint32 activeIdx = getActiveGraphIndex(pGraph);
-        _pGraphDataModel->setSelectedGraph(activeIdx);
+        const qint32 activeIdx = getActiveGraphIndex(pGraph);
+        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeIdx);
+        _pGraphDataModel->setSelectedGraph(graphIdx);
     }
     else
     {

@@ -512,20 +512,19 @@ void GraphDataModel::setExpressionStatus(quint32 index, GraphData::ExpressionSta
     }
 }
 
-void GraphDataModel::setSelectedGraph(qint32 activeIdx)
+void GraphDataModel::setSelectedGraph(qint32 index)
 {
-    if (activeIdx != -1)
+    if (index >= 0)
     {
-        const qint32 graphIdx = convertToGraphIndex(activeIdx);
-        if (!isVisible(graphIdx))
+        if (!isVisible(index))
         {
             return;
         }
     }
 
-    if (activeIdx != _selectedGraphIdx)
+    if (index != _selectedGraphIdx)
     {
-        _selectedGraphIdx = activeIdx;
+        _selectedGraphIdx = index;
         emit selectedGraphChanged(_selectedGraphIdx);
     }
 }
