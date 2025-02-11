@@ -42,7 +42,7 @@ public slots:
     void updateGraphs();
     void changeGraphColor(const quint32 graphIdx);
     void changeGraphAxis(const quint32 graphIdx);
-    void bringToFront();
+    void bringToFront(const qint32 activeGraphIdx);
 
     void addData(QList<double> timeData, QList<QList<double> > data);
     void handleGraphVisibilityChange(quint32 graphIdx);

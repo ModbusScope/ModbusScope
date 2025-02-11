@@ -30,7 +30,6 @@ public:
 
 public slots:
     void addLastReceivedDataToLegend(ResultDoubleList resultList);
-    void graphToForeground(int row);
     void updateDataInLegend();
 
 private slots:
