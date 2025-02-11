@@ -474,7 +474,7 @@ void Legend::cellClicked(int row, int column)
     if ((row != -1) && (row < _pGraphDataModel->size()))
     {
         const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(row);
-
-        _pGraphDataModel->setSelectedGraph(graphIdx);
+        qint32 toSelectGraph = (_pGraphDataModel->selectedGraph() != graphIdx) ? graphIdx : -1;
+        _pGraphDataModel->setSelectedGraph(toSelectGraph);
     }
 }
