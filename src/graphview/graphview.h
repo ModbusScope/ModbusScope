@@ -42,6 +42,7 @@ public slots:
     void updateGraphs();
     void changeGraphColor(const quint32 graphIdx);
     void changeGraphAxis(const quint32 graphIdx);
+    void changeSelectedGraph(const qint32 activeGraphIdx);
     void bringToFront(const qint32 activeGraphIdx);
 
     void addData(QList<double> timeData, QList<QList<double> > data);
@@ -60,6 +61,7 @@ private slots:
     void mouseRelease(QMouseEvent *event);
     void mouseWheel();
     void mouseMove(QMouseEvent *event);
+    void handleSelectionChanged(bool selected);
 
     void handleSamplePoints();
 
@@ -70,6 +72,7 @@ private:
     void setGraphAxis(QCPGraph* _pGraph, const GraphData::valueAxis_t &axis);
     double getClosestPoint(double coordinate);
     void updateSecondaryAxisVisibility();
+    qint32 getActiveGraphIndex(const QCPGraph * const pGraph);
 
     QVector<QString> _tickLabels;
 

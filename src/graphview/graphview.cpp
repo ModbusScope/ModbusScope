@@ -35,6 +35,8 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
     * */
     _pPlot->setPlottingHints(QCP::phCacheLabels | QCP::phFastPolylines);
 
+    _pPlot->setInteraction(QCP::iSelectPlottables, true);
+
     /*
     * Use other modifier key than Ctrl for multi select.
     * ModbusScope uses Ctrl for adding/moving marker.
@@ -56,7 +58,7 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
     connect(_pPlot, &ScopePlot::mouseRelease, this, &GraphView::mouseRelease);
     connect(_pPlot, &ScopePlot::mouseWheel, this, &GraphView::mouseWheel);
     connect(_pPlot, &ScopePlot::mouseMove, this, &GraphView::mouseMove);
-    connect(_pPlot, &ScopePlot::beforeReplot, this, &GraphView::handleSamplePoints);
+    connect(_pPlot, &ScopePlot::beforeReplot, this, &GraphView::enableSamplePoints);
 
     _pGraphScale = new GraphScale(_pGuiModel, _pPlot, this);
     _pGraphViewZoom = new GraphViewZoom(_pGuiModel, _pPlot, this);
@@ -217,8 +219,10 @@ void GraphView::updateGraphs()
             QCPGraph * pGraph = _pPlot->addGraph();
             setGraphAxis(pGraph, _pGraphDataModel->valueAxis(graphIdx));
             setGraphColor(pGraph, _pGraphDataModel->color(graphIdx));
-
+            pGraph->setSelectable(QCP::stWhole);
             pGraph->setVisible(_pGraphDataModel->isVisible(graphIdx));
+
+            connect(pGraph, QOverload<bool>::of(&QCPGraph::selectionChanged), this, &GraphView::handleSelectionChanged);
 
             QSharedPointer<QCPGraphDataContainer> pMap = _pGraphDataModel->dataMap(graphIdx);
 
@@ -274,6 +278,38 @@ void GraphView::changeGraphAxis(const quint32 graphIdx)
 
         _pPlot->replot();
     }
+}
+
+void GraphView::changeSelectedGraph(const qint32 activeGraphIdx)
+{
+    QList<QCPGraph*> selectedGraphs = _pPlot->selectedGraphs();
+
+    if (activeGraphIdx == -1)
+    {
+        for (QCPGraph* selectedGraph: selectedGraphs)
+        {
+            selectedGraph->setSelection(QCPDataSelection());
+        }
+    }
+    else
+    {
+        auto graph = _pPlot->graph(activeGraphIdx);
+        const bool bAlreadySelected = selectedGraphs.contains(graph);
+
+        if (!bAlreadySelected)
+        {
+            for (QCPGraph* selectedGraph: selectedGraphs)
+            {
+                selectedGraph->setSelection(QCPDataSelection());
+            }
+
+            graph->setSelection(QCPDataSelection(QCPDataRange(0, 1)));
+        }
+
+        bringToFront(activeGraphIdx);
+    }
+
+    _pPlot->replot();
 }
 
 void GraphView::bringToFront(const qint32 activeGraphIdx)
@@ -500,6 +536,40 @@ void GraphView::mouseMove(QMouseEvent *event)
     }
 }
 
+void GraphView::handleSelectionChanged(bool selected)
+{
+    if (selected)
+    {
+        QCPGraph * pGraph = qobject_cast<QCPGraph *>(QObject::sender());
+        const qint32 activeIdx = getActiveGraphIndex(pGraph);
+        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeIdx);
+        _pGraphDataModel->setSelectedGraph(graphIdx);
+    }
+    else
+    {
+        _pGraphDataModel->setSelectedGraph(-1);
+    }
+
+    for (qint32 idx = 0; idx < _pPlot->graphCount(); idx++)
+    {
+        QPen graphPen = _pPlot->graph(idx)->pen();
+        QColor baseColor = graphPen.color();
+        QColor normalPen = QColor(baseColor.red(), baseColor.green(), baseColor.blue(), 255);
+        QColor transparentPen = QColor(baseColor.red(), baseColor.green(), baseColor.blue(), 16);
+
+        if ((_pGraphDataModel->selectedGraph() == -1) || (idx == _pGraphDataModel->selectedGraph()))
+        {
+            graphPen.setColor(normalPen);
+        }
+        else
+        {
+            graphPen.setColor(transparentPen);
+        }
+
+        _pPlot->graph(idx)->setPen(graphPen);
+    }
+}
+
 void GraphView::paintTimeStampToolTip(QPoint pos)
 {
     if  (_pGuiModel->cursorValues() && (_pPlot->graphCount() > 0))
@@ -601,8 +671,8 @@ void GraphView::setGraphColor(QCPGraph* _pGraph, const QColor &color)
     pen.setColor(color);
     pen.setWidth(2);
     pen.setCosmetic(true);
-
     _pGraph->setPen(pen);
+    _pGraph->selectionDecorator()->setPen(pen);
 }
 
 void GraphView::setGraphAxis(QCPGraph* _pGraph, const GraphData::valueAxis_t &axis)
@@ -669,4 +739,18 @@ void GraphView::updateSecondaryAxisVisibility()
     _pPlot->yAxis2->setVisible(bSecondaryVisibility);
 
     rescalePlot();
+}
+
+qint32 GraphView::getActiveGraphIndex(QCPGraph const * const pGraph)
+{
+    qint32 idx = -1;
+    for (int i = 0; i < _pPlot->graphCount(); ++i)
+    {
+        if (_pPlot->graph(i) == pGraph)
+        {
+            idx = i;
+            break;
+        }
+    }
+    return idx;
 }
