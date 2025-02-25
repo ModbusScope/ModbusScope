@@ -6,13 +6,14 @@ MbcRegisterModel::MbcRegisterModel(QObject *parent)
     _mbcRegisterList.clear();
     _mbcRegisterMetaDataList.clear();
     _tabList.clear();
+    _selectAll = Qt::Unchecked;
 }
 
 QVariant MbcRegisterModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (role == Qt::DisplayRole)
+    if (orientation == Qt::Horizontal)
     {
-        if (orientation == Qt::Horizontal)
+        if (role == Qt::DisplayRole)
         {
             switch (section)
             {
@@ -31,13 +32,55 @@ QVariant MbcRegisterModel::headerData(int section, Qt::Orientation orientation, 
                 return QVariant();
             }
         }
+        else if (role == Qt::CheckStateRole)
+        {
+            if (section == cColumnSelected)
+            {
+                return _selectAll;
+            }
+        }
         else
         {
-            //Can't happen because it is hidden
+            return QVariant();
         }
+    }
+    else
+    {
+        // Can't happen because it is hidden
     }
 
     return QVariant();
+}
+
+bool MbcRegisterModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant& value, int role)
+{
+    bool bRet = false;
+
+    switch (section)
+    {
+    case cColumnSelected:
+        if (role == Qt::CheckStateRole)
+        {
+            Qt::CheckState selectAllState = static_cast<Qt::CheckState>(value.toUInt());
+            if (_selectAll <= Qt::Checked)
+            {
+                _selectAll = selectAllState;
+                bRet = true;
+            }
+        }
+        break;
+
+    default:
+        break;
+    }
+
+    if (bRet)
+    {
+        // Notify view(s) of change
+        emit headerDataChanged(orientation, cColumnSelected, cColumnSelected);
+    }
+
+    return bRet;
 }
 
 int MbcRegisterModel::rowCount(const QModelIndex &parent) const

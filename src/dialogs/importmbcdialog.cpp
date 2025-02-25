@@ -10,9 +10,68 @@
 
 #include <QFileDialog>
 
-ImportMbcDialog::ImportMbcDialog(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel, MbcRegisterModel * pMbcRegisterModel, QWidget *parent) :
-    QDialog(parent),
-    _pUi(new Ui::ImportMbcDialog)
+class MbcHeader : public QHeaderView
+{
+public:
+    MbcHeader(Qt::Orientation orientation, QWidget* parent = nullptr) : QHeaderView(orientation, parent)
+    {
+    }
+
+protected:
+    void paintSection(QPainter* painter, const QRect& rect, int logicalIndex) const override
+    {
+        painter->save();
+        QHeaderView::paintSection(painter, rect, logicalIndex);
+        painter->restore();
+
+        if (model() && logicalIndex == 0)
+        {
+            QStyleOptionButton option;
+            option.initFrom(this);
+
+            QRect checkbox_rect = style()->subElementRect(QStyle::SubElement::SE_CheckBoxIndicator, &option, this);
+            checkbox_rect.moveCenter(rect.center());
+
+            bool checked = model()->headerData(logicalIndex, orientation(), Qt::CheckStateRole).toBool();
+
+            option.rect = checkbox_rect;
+            option.state = checked ? QStyle::State_On : QStyle::State_Off;
+
+            style()->drawPrimitive(QStyle::PE_IndicatorCheckBox, &option, painter);
+        }
+    }
+
+    void mouseReleaseEvent(QMouseEvent* event) override
+    {
+        QHeaderView::mouseReleaseEvent(event);
+        if (model())
+        {
+            int section = logicalIndexAt(event->pos());
+            if (section == 0)
+            {
+                const uint state = model()->headerData(section, orientation(), Qt::CheckStateRole).toUInt();
+                Qt::CheckState selectAllState = static_cast<Qt::CheckState>(state);
+                if ((selectAllState == Qt::Unchecked) || (selectAllState == Qt::PartiallyChecked))
+                {
+                    selectAllState = Qt::Checked;
+                }
+                else
+                {
+                    selectAllState = Qt::Unchecked;
+                }
+                model()->setHeaderData(section, orientation(), selectAllState, Qt::CheckStateRole);
+
+                viewport()->update();
+            }
+        }
+    }
+};
+
+ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel,
+                                 GraphDataModel* pGraphDataModel,
+                                 MbcRegisterModel* pMbcRegisterModel,
+                                 QWidget* parent)
+    : QDialog(parent), _pUi(new Ui::ImportMbcDialog)
 {
     _pUi->setupUi(this);
 
@@ -30,10 +89,14 @@ ImportMbcDialog::ImportMbcDialog(GuiModel * pGuiModel, GraphDataModel * pGraphDa
     _pUi->tblMbcRegisters->setModel(_pTabProxyFilter);
     _pUi->tblMbcRegisters->setSortingEnabled(false);
 
+    auto mbcHeader = new MbcHeader(Qt::Horizontal, _pUi->tblMbcRegisters);
+    _pUi->tblMbcRegisters->setHorizontalHeader(mbcHeader);
+
     /* Don't stretch columns */
     _pUi->tblMbcRegisters->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     /* Except following columns */
-    _pUi->tblMbcRegisters->horizontalHeader()->setSectionResizeMode(MbcRegisterModel::cColumnText, QHeaderView::Stretch);
+    _pUi->tblMbcRegisters->horizontalHeader()->setSectionResizeMode(MbcRegisterModel::cColumnText,
+                                                                    QHeaderView::Stretch);
     _pUi->tblMbcRegisters->horizontalHeader()->setSectionResizeMode(MbcRegisterModel::cColumnTab, QHeaderView::Stretch);
 
     // Select using click, shift and control
@@ -92,8 +155,7 @@ void ImportMbcDialog::updateTextFilter()
 void ImportMbcDialog::selectMbcFile()
 {
     QFileDialog dialog(this);
-    FileSelectionHelper::configureFileDialog(&dialog,
-                                             FileSelectionHelper::DIALOG_TYPE_OPEN,
+    FileSelectionHelper::configureFileDialog(&dialog, FileSelectionHelper::DIALOG_TYPE_OPEN,
                                              FileSelectionHelper::FILE_TYPE_MBC);
 
     QString selectedFile = FileSelectionHelper::showDialog(&dialog);
@@ -127,7 +189,7 @@ void ImportMbcDialog::updateMbcRegisters(QString filePath)
         QTextStream in(&file);
         QString mbcFileContent = in.readAll();
         MbcFileImporter fileImporter(&mbcFileContent);
-        QList <MbcRegisterData> registerList = fileImporter.registerList();
+        QList<MbcRegisterData> registerList = fileImporter.registerList();
         QStringList tabList = fileImporter.tabList();
 
         /* Clear data from table widget */
@@ -152,4 +214,3 @@ void ImportMbcDialog::updateMbcRegisters(QString filePath)
         Util::showError(tr("The file (\"%1\") can't be read.").arg(filePath));
     }
 }
-
