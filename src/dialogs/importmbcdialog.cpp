@@ -1,71 +1,15 @@
 #include "importmbcdialog.h"
 #include "ui_importmbcdialog.h"
 
-#include "util.h"
+#include "fileselectionhelper.h"
+#include "graphdatamodel.h"
 #include "guimodel.h"
 #include "mbcfileimporter.h"
+#include "mbcheader.h"
 #include "mbcregistermodel.h"
-#include "graphdatamodel.h"
-#include "fileselectionhelper.h"
+#include "util.h"
 
 #include <QFileDialog>
-
-class MbcHeader : public QHeaderView
-{
-public:
-    MbcHeader(Qt::Orientation orientation, QWidget* parent = nullptr) : QHeaderView(orientation, parent)
-    {
-    }
-
-protected:
-    void paintSection(QPainter* painter, const QRect& rect, int logicalIndex) const override
-    {
-        painter->save();
-        QHeaderView::paintSection(painter, rect, logicalIndex);
-        painter->restore();
-
-        if (model() && logicalIndex == 0)
-        {
-            QStyleOptionButton option;
-            option.initFrom(this);
-
-            QRect checkbox_rect = style()->subElementRect(QStyle::SubElement::SE_CheckBoxIndicator, &option, this);
-            checkbox_rect.moveCenter(rect.center());
-
-            bool checked = model()->headerData(logicalIndex, orientation(), Qt::CheckStateRole).toBool();
-
-            option.rect = checkbox_rect;
-            option.state = checked ? QStyle::State_On : QStyle::State_Off;
-
-            style()->drawPrimitive(QStyle::PE_IndicatorCheckBox, &option, painter);
-        }
-    }
-
-    void mouseReleaseEvent(QMouseEvent* event) override
-    {
-        QHeaderView::mouseReleaseEvent(event);
-        if (model())
-        {
-            int section = logicalIndexAt(event->pos());
-            if (section == 0)
-            {
-                const uint state = model()->headerData(section, orientation(), Qt::CheckStateRole).toUInt();
-                Qt::CheckState selectAllState = static_cast<Qt::CheckState>(state);
-                if ((selectAllState == Qt::Unchecked) || (selectAllState == Qt::PartiallyChecked))
-                {
-                    selectAllState = Qt::Checked;
-                }
-                else
-                {
-                    selectAllState = Qt::Unchecked;
-                }
-                model()->setHeaderData(section, orientation(), selectAllState, Qt::CheckStateRole);
-
-                viewport()->update();
-            }
-        }
-    }
-};
 
 ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel,
                                  GraphDataModel* pGraphDataModel,
@@ -107,6 +51,8 @@ ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel,
 
     connect(_pUi->btnSelectMbcFile, &QToolButton::clicked, this, &ImportMbcDialog::selectMbcFile);
     connect(_pMbcRegisterModel, &QAbstractItemModel::dataChanged, this, &ImportMbcDialog::registerDataChanged);
+    connect(_pTabProxyFilter, &MbcRegisterFilter::dataChanged, this, &ImportMbcDialog::visibleItemsDataChanged);
+    connect(mbcHeader, &MbcHeader::selectAllClicked, this, &ImportMbcDialog::handleSelectAllClicked);
 
     connect(_pUi->cmbTabFilter, &QComboBox::currentTextChanged, _pTabProxyFilter, &MbcRegisterFilter::setTab);
     connect(_pUi->lineTextFilter, &QLineEdit::textChanged, this, &ImportMbcDialog::updateTextFilter);
@@ -168,6 +114,45 @@ void ImportMbcDialog::selectMbcFile()
     }
 }
 
+void ImportMbcDialog::visibleItemsDataChanged()
+{
+    const int regCount = _pTabProxyFilter->rowCount();
+
+    bool checked = true;
+    bool unchecked = true;
+
+    for (int idx = 0; idx < regCount; idx++)
+    {
+        QModelIndex idxOfItem = _pTabProxyFilter->index(idx, MbcRegisterModel::cColumnSelected);
+        if (_pTabProxyFilter->data(idxOfItem, Qt::CheckStateRole) == Qt::Checked)
+        {
+            unchecked = false;
+        }
+
+        if (_pTabProxyFilter->data(idxOfItem, Qt::CheckStateRole) == Qt::Unchecked)
+        {
+            checked = false;
+        }
+    }
+
+    Qt::CheckState selectAllState;
+    if (checked)
+    {
+        selectAllState = Qt::Checked;
+    }
+    else if (unchecked)
+    {
+        selectAllState = Qt::Unchecked;
+    }
+    else
+    {
+        selectAllState = Qt::PartiallyChecked;
+    }
+
+    _pMbcRegisterModel->setHeaderData(MbcRegisterModel::cColumnSelected, Qt::Horizontal, selectAllState,
+                                      Qt::CheckStateRole);
+}
+
 void ImportMbcDialog::registerDataChanged()
 {
     const quint32 count = _pMbcRegisterModel->selectedRegisterCount();
@@ -178,6 +163,31 @@ void ImportMbcDialog::registerDataChanged()
     else
     {
         _pUi->lblSelectedCount->setText(QString("You have selected %0 registers.").arg(count));
+    }
+}
+
+void ImportMbcDialog::handleSelectAllClicked(Qt::CheckState state)
+{
+    if (state == Qt::Unchecked)
+    {
+        setSelectedSelectionstate(Qt::Unchecked);
+    }
+    else if (state == Qt::Checked)
+    {
+        setSelectedSelectionstate(Qt::Checked);
+    }
+    else
+    {
+        // No need to handle PartialChecked
+    }
+}
+
+void ImportMbcDialog::setSelectedSelectionstate(Qt::CheckState state)
+{
+    for (int idx = 0; idx < _pTabProxyFilter->rowCount(); idx++)
+    {
+        QModelIndex idxOfItem = _pTabProxyFilter->index(idx, MbcRegisterModel::cColumnSelected);
+        _pTabProxyFilter->setData(idxOfItem, state, Qt::CheckStateRole);
     }
 }
 
