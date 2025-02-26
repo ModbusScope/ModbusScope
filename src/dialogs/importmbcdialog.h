@@ -28,9 +28,10 @@ private slots:
     void updateTextFilter();
     void selectMbcFile();
     void registerDataChanged();
+    void headerDataChanged(Qt::Orientation orientation, int first, int last);
 
 private:
-
+    void setSelectedSelectionstate(Qt::CheckState state);
     void updateMbcRegisters(QString filePath);
 
     Ui::ImportMbcDialog *_pUi;
