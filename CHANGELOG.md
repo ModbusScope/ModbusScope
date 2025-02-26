@@ -4,7 +4,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Added 
 
-- xx
+- Add option to highlight graph
 
 ### Fixed
 
