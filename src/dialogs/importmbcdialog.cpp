@@ -107,6 +107,7 @@ ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel,
 
     connect(_pUi->btnSelectMbcFile, &QToolButton::clicked, this, &ImportMbcDialog::selectMbcFile);
     connect(_pMbcRegisterModel, &QAbstractItemModel::dataChanged, this, &ImportMbcDialog::registerDataChanged);
+    connect(_pMbcRegisterModel, &QAbstractItemModel::headerDataChanged, this, &ImportMbcDialog::headerDataChanged);
 
     connect(_pUi->cmbTabFilter, &QComboBox::currentTextChanged, _pTabProxyFilter, &MbcRegisterFilter::setTab);
     connect(_pUi->lineTextFilter, &QLineEdit::textChanged, this, &ImportMbcDialog::updateTextFilter);
@@ -178,6 +179,38 @@ void ImportMbcDialog::registerDataChanged()
     else
     {
         _pUi->lblSelectedCount->setText(QString("You have selected %0 registers.").arg(count));
+    }
+}
+
+void ImportMbcDialog::headerDataChanged(Qt::Orientation orientation, int first, int last)
+{
+    Q_UNUSED(last);
+    if (orientation == Qt::Horizontal)
+    {
+        if (first == MbcRegisterModel::cColumnSelected)
+        {
+            if (_pMbcRegisterModel->selection() == Qt::Unchecked)
+            {
+                setSelectedSelectionstate(Qt::Unchecked);
+            }
+            else if (_pMbcRegisterModel->selection() == Qt::Checked)
+            {
+                setSelectedSelectionstate(Qt::Checked);
+            }
+            else
+            {
+                // No need to handle PartialChecked
+            }
+        }
+    }
+}
+
+void ImportMbcDialog::setSelectedSelectionstate(Qt::CheckState state)
+{
+    for (int idx = 0; idx < _pTabProxyFilter->rowCount(); idx++)
+    {
+        QModelIndex idxOfItem = _pTabProxyFilter->index(idx, MbcRegisterModel::cColumnSelected);
+        _pTabProxyFilter->setData(idxOfItem, state, Qt::CheckStateRole);
     }
 }
 
