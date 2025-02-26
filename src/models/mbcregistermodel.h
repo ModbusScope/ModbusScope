@@ -36,6 +36,8 @@ public:
     QList<GraphData> selectedRegisterList();
     quint32 selectedRegisterCount();
 
+    Qt::CheckState selection();
+
     static const quint32 cColumnSelected = 0;
     static const quint32 cColumnAddress = 1;
     static const quint32 cColumnText = 2;
@@ -61,7 +63,7 @@ private:
 
         QStringList _tabList;
 
-        Qt::CheckState _selectAll;
+        Qt::CheckState _selection;
 };
 
 #endif // MBCREGISTERMODEL_H
