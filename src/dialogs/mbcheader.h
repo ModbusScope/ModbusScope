@@ -50,7 +50,7 @@ protected:
             if (section == 0)
             {
                 const uint state = model()->headerData(section, orientation(), Qt::CheckStateRole).toUInt();
-                Qt::CheckState selectAllState = static_cast<Qt::CheckState>(state);
+                auto selectAllState = static_cast<Qt::CheckState>(state);
                 if ((selectAllState == Qt::Checked) || (selectAllState == Qt::PartiallyChecked))
                 {
                     selectAllState = Qt::Unchecked;

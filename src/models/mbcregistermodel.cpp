@@ -56,22 +56,14 @@ bool MbcRegisterModel::setHeaderData(int section, Qt::Orientation orientation, c
 {
     bool bRet = false;
 
-    switch (section)
+    if ((section == cColumnSelected) && (role == Qt::CheckStateRole))
     {
-    case cColumnSelected:
-        if (role == Qt::CheckStateRole)
+        auto selectAllState = static_cast<Qt::CheckState>(value.toUInt());
+        if (_selection <= Qt::Checked)
         {
-            Qt::CheckState selectAllState = static_cast<Qt::CheckState>(value.toUInt());
-            if (_selection <= Qt::Checked)
-            {
-                _selection = selectAllState;
-                bRet = true;
-            }
+            _selection = selectAllState;
+            bRet = true;
         }
-        break;
-
-    default:
-        break;
     }
 
     if (bRet)
