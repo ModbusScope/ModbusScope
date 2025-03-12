@@ -161,31 +161,41 @@ bool MbcRegisterModel::setData(const QModelIndex & index, const QVariant & value
 
     bool bRet = false;
 
-    switch (index.column())
+    if ((index.column() == cColumnSelected) && (role == Qt::CheckStateRole))
     {
-    case cColumnSelected:
-        if (role == Qt::CheckStateRole)
-        {
-            _mbcRegisterMetaDataList[index.row()].bSelected = value == Qt::Checked;
+        _mbcRegisterMetaDataList[index.row()].bSelected = value == Qt::Checked;
 
-            updateAlreadySelected();
+        updateAlreadySelected();
 
-            bRet = true;
-        }
-        break;
-
-
-    default:
-        break;
+        bRet = true;
     }
 
     if (bRet)
     {
-        // Notify view(s) of change
         emit dataChanged(this->index(0, 0), this->index(rowCount() - 1, 0));
     }
 
     return bRet;
+}
+
+void MbcRegisterModel::setSelectionstate(QList<QModelIndex>& indexList, Qt::CheckState state)
+{
+    if (indexList.isEmpty())
+    {
+        return;
+    }
+
+    for (QModelIndex index : indexList)
+    {
+        if (index.isValid())
+        {
+            _mbcRegisterMetaDataList[index.row()].bSelected = state == Qt::Checked;
+        }
+    }
+
+    updateAlreadySelected();
+
+    emit dataChanged(this->index(0, 0), this->index(rowCount() - 1, 0));
 }
 
 void MbcRegisterModel::reset()

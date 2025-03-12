@@ -184,11 +184,14 @@ void ImportMbcDialog::handleSelectAllClicked(Qt::CheckState state)
 
 void ImportMbcDialog::setSelectedSelectionstate(Qt::CheckState state)
 {
+    QList<QModelIndex> indexList;
     for (int idx = 0; idx < _pTabProxyFilter->rowCount(); idx++)
     {
         QModelIndex idxOfItem = _pTabProxyFilter->index(idx, MbcRegisterModel::cColumnSelected);
-        _pTabProxyFilter->setData(idxOfItem, state, Qt::CheckStateRole);
+        indexList.append(_pTabProxyFilter->mapToSource(idxOfItem));
     }
+
+    _pMbcRegisterModel->setSelectionstate(indexList, state);
 }
 
 void ImportMbcDialog::updateMbcRegisters(QString filePath)
