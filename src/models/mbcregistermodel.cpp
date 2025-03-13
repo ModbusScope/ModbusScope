@@ -6,13 +6,14 @@ MbcRegisterModel::MbcRegisterModel(QObject *parent)
     _mbcRegisterList.clear();
     _mbcRegisterMetaDataList.clear();
     _tabList.clear();
+    _selection = Qt::Unchecked;
 }
 
 QVariant MbcRegisterModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (role == Qt::DisplayRole)
+    if (orientation == Qt::Horizontal)
     {
-        if (orientation == Qt::Horizontal)
+        if (role == Qt::DisplayRole)
         {
             switch (section)
             {
@@ -31,13 +32,47 @@ QVariant MbcRegisterModel::headerData(int section, Qt::Orientation orientation, 
                 return QVariant();
             }
         }
+        else if (role == Qt::CheckStateRole)
+        {
+            if (section == cColumnSelected)
+            {
+                return _selection;
+            }
+        }
         else
         {
-            //Can't happen because it is hidden
+            return QVariant();
         }
+    }
+    else
+    {
+        // Can't happen because it is hidden
     }
 
     return QVariant();
+}
+
+bool MbcRegisterModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant& value, int role)
+{
+    bool bRet = false;
+
+    if ((section == cColumnSelected) && (role == Qt::CheckStateRole))
+    {
+        auto selectAllState = static_cast<Qt::CheckState>(value.toUInt());
+        if (_selection <= Qt::Checked)
+        {
+            _selection = selectAllState;
+            bRet = true;
+        }
+    }
+
+    if (bRet)
+    {
+        // Notify view(s) of change
+        emit headerDataChanged(orientation, cColumnSelected, cColumnSelected);
+    }
+
+    return bRet;
 }
 
 int MbcRegisterModel::rowCount(const QModelIndex &parent) const
@@ -65,11 +100,9 @@ QVariant MbcRegisterModel::data(const QModelIndex &index, int role) const
     {
         return _mbcRegisterMetaDataList[index.row()].tooltip;
     }
-
-    switch (index.column())
+    else if (role == Qt::CheckStateRole)
     {
-    case cColumnSelected:
-        if (role == Qt::CheckStateRole)
+        if (index.column() == cColumnSelected)
         {
             if (_mbcRegisterMetaDataList[index.row()].bSelected)
             {
@@ -80,51 +113,42 @@ QVariant MbcRegisterModel::data(const QModelIndex &index, int role) const
                 return Qt::Unchecked;
             }
         }
-        break;
-
-    case cColumnAddress:
-        if (role == Qt::DisplayRole)
+    }
+    else if (role == Qt::DisplayRole)
+    {
+        switch (index.column())
         {
+
+        case cColumnAddress:
             return _mbcRegisterList[index.row()].registerAddress();
-        }
-        break;
+            break;
 
-    case cColumnDecimals:
-        if (role == Qt::DisplayRole)
-        {
+        case cColumnDecimals:
             return _mbcRegisterList[index.row()].decimals();
-        }
-        break;
+            break;
 
-    case cColumnTab:
+        case cColumnTab:
         {
             const qint32 tabIdx = _mbcRegisterList[index.row()].tabIdx();
 
             if (tabIdx < _tabList.size())
             {
-                if (role == Qt::DisplayRole)
-                {
-                    return _tabList[tabIdx];
-                }
+                return _tabList[tabIdx];
             }
         }
         break;
 
-    case cColumnText:
-        if (role == Qt::DisplayRole)
-        {
+        case cColumnText:
             return _mbcRegisterList[index.row()].name();
-        }
-        break;
+            break;
 
-    case cColumnType:
-        if (role == Qt::DisplayRole)
-        {
+        case cColumnType:
             return ModbusDataType::typeString(_mbcRegisterList[index.row()].type());
+            break;
+
+        default:
+            return QVariant();
         }
-        break;
-    default:
-        return QVariant();
     }
 
     return QVariant();
@@ -137,31 +161,41 @@ bool MbcRegisterModel::setData(const QModelIndex & index, const QVariant & value
 
     bool bRet = false;
 
-    switch (index.column())
+    if ((index.column() == cColumnSelected) && (role == Qt::CheckStateRole))
     {
-    case cColumnSelected:
-        if (role == Qt::CheckStateRole)
-        {
-            _mbcRegisterMetaDataList[index.row()].bSelected = value == Qt::Checked;
+        _mbcRegisterMetaDataList[index.row()].bSelected = value == Qt::Checked;
 
-            updateAlreadySelected();
+        updateAlreadySelected();
 
-            bRet = true;
-        }
-        break;
-
-
-    default:
-        break;
+        bRet = true;
     }
 
     if (bRet)
     {
-        // Notify view(s) of change
         emit dataChanged(this->index(0, 0), this->index(rowCount() - 1, 0));
     }
 
     return bRet;
+}
+
+void MbcRegisterModel::setSelectionstate(QList<QModelIndex>& indexList, Qt::CheckState state)
+{
+    if (indexList.isEmpty())
+    {
+        return;
+    }
+
+    for (QModelIndex index : indexList)
+    {
+        if (index.isValid())
+        {
+            _mbcRegisterMetaDataList[index.row()].bSelected = state == Qt::Checked;
+        }
+    }
+
+    updateAlreadySelected();
+
+    emit dataChanged(this->index(0, 0), this->index(rowCount() - 1, 0));
 }
 
 void MbcRegisterModel::reset()
@@ -270,6 +304,11 @@ quint32 MbcRegisterModel::selectedRegisterCount()
     }
 
     return cnt;
+}
+
+Qt::CheckState MbcRegisterModel::selection()
+{
+    return _selection;
 }
 
 void MbcRegisterModel::updateAlreadySelected()

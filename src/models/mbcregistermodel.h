@@ -14,6 +14,10 @@ public:
 
     // Header:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    bool setHeaderData(int section,
+                       Qt::Orientation orientation,
+                       const QVariant& value,
+                       int role = Qt::EditRole) override;
 
     // Basic functionality:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -24,6 +28,8 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     bool setData(const QModelIndex & index, const QVariant & value, int role) override;
 
+    void setSelectionstate(QList<QModelIndex>& indexList, Qt::CheckState state);
+
     void reset();
 
     // Add data:
@@ -31,6 +37,8 @@ public:
 
     QList<GraphData> selectedRegisterList();
     quint32 selectedRegisterCount();
+
+    Qt::CheckState selection();
 
     static const quint32 cColumnSelected = 0;
     static const quint32 cColumnAddress = 1;
@@ -56,6 +64,8 @@ private:
         QList<struct MbcMetaData> _mbcRegisterMetaDataList;
 
         QStringList _tabList;
+
+        Qt::CheckState _selection;
 };
 
 #endif // MBCREGISTERMODEL_H
