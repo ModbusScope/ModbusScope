@@ -17,13 +17,6 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="btnImportFromMbc">
-       <property name="text">
-        <string>Import from MBC file</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Orientation::Horizontal</enum>
@@ -87,7 +80,6 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>btnImportFromMbc</tabstop>
   <tabstop>btnAdd</tabstop>
   <tabstop>btnRemove</tabstop>
   <tabstop>registerView</tabstop>

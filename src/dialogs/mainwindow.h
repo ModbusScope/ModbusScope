@@ -72,6 +72,7 @@ private slots:
     void stopScope();
     void showDiagnostic();
     void showNotesDialog();
+    void showMbcImportDialog();
     void toggleMarkersState();
     void handleOpenRecentProject(QString projectFile);
 

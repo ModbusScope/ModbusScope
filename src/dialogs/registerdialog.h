@@ -24,11 +24,7 @@ public:
     explicit RegisterDialog(GuiModel * pGuiModel, GraphDataModel *pGraphDataModel, SettingsModel* pSettingsModel, QWidget *parent = nullptr);
     ~RegisterDialog();
 
-public slots:
-    int execWithMbcImport();
-
 private slots:
-    void showImportDialog();
     void addRegister(const GraphData &graphData);
     void addDefaultRegister();
     void removeRegisterRow();

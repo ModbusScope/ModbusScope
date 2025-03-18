@@ -2,7 +2,6 @@
 #include "ui_importmbcdialog.h"
 
 #include "fileselectionhelper.h"
-#include "graphdatamodel.h"
 #include "guimodel.h"
 #include "mbcfileimporter.h"
 #include "mbcheader.h"
@@ -11,16 +10,12 @@
 
 #include <QFileDialog>
 
-ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel,
-                                 GraphDataModel* pGraphDataModel,
-                                 MbcRegisterModel* pMbcRegisterModel,
-                                 QWidget* parent)
+ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel, MbcRegisterModel* pMbcRegisterModel, QWidget* parent)
     : QDialog(parent), _pUi(new Ui::ImportMbcDialog)
 {
     _pUi->setupUi(this);
 
     _pGuiModel = pGuiModel;
-    _pGraphDataModel = pGraphDataModel;
     _pMbcRegisterModel = pMbcRegisterModel;
 
     _pTabProxyFilter = new MbcRegisterFilter();
