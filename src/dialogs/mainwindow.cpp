@@ -535,7 +535,7 @@ void MainWindow::showMbcImportDialog()
     {
         QList<GraphData> regList = mbcRegisterModel.selectedRegisterList();
 
-        if (regList.size() > 0)
+        if (!regList.isEmpty())
         {
             _pGraphDataModel->add(regList);
         }
