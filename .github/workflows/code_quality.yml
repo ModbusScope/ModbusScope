@@ -31,7 +31,7 @@ jobs:
     - name: Generate gcovr coverage report
       run: |
         ctest
-        gcovr -x > cobertura.xml
+        gcovr --gcov-ignore-parse-errors --cobertura cobertura.xml
 
     - name: Run codacy-coverage-reporter
       uses: codacy/codacy-coverage-reporter-action@v1
