@@ -63,7 +63,6 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     connect(shortcut, &QShortcut::activated, this, &RegisterDialog::removeRegisterRow);
 
     // Setup handler for buttons
-    connect(_pUi->btnImportFromMbc, &QPushButton::released, this, &RegisterDialog::showImportDialog);
     connect(_pUi->btnAdd, &QPushButton::released, this, &RegisterDialog::addDefaultRegister);
     connect(_pUi->btnRemove, &QPushButton::released, this, &RegisterDialog::removeRegisterRow);
     connect(_pGraphDataModel, &GraphDataModel::rowsInserted, this, &RegisterDialog::onRegisterInserted);
@@ -81,13 +80,6 @@ RegisterDialog::~RegisterDialog()
     delete _pUi;
 }
 
-int RegisterDialog::execWithMbcImport()
-{
-    showImportDialog();
-
-    return exec();
-}
-
 void RegisterDialog::addRegister(const GraphData &graphData)
 {
     _pGraphDataModel->add(graphData);
@@ -96,22 +88,6 @@ void RegisterDialog::addRegister(const GraphData &graphData)
 void RegisterDialog::addDefaultRegister()
 {
     _pGraphDataModel->add();
-}
-
-void RegisterDialog::showImportDialog()
-{
-    MbcRegisterModel mbcRegisterModel(_pGraphDataModel);
-    ImportMbcDialog importMbcDialog(_pGuiModel, _pGraphDataModel, &mbcRegisterModel, this);
-
-    if (importMbcDialog.exec() == QDialog::Accepted)
-    {
-        QList<GraphData> regList = mbcRegisterModel.selectedRegisterList();
-
-        if (regList.size() > 0)
-        {
-            _pGraphDataModel->add(regList);
-        }
-    }
 }
 
 void RegisterDialog::activatedCell(QModelIndex modelIndex)

@@ -1,32 +1,34 @@
 #include "mainwindow.h"
-#include "expressionstatus.h"
-#include "communicationstats.h"
-#include "ui_mainwindow.h"
-#include "qcustomplot.h"
-#include "graphdatahandler.h"
-#include "modbuspoll.h"
-#include "graphdatamodel.h"
-#include "notemodel.h"
-#include "diagnosticmodel.h"
-#include "registerdialog.h"
-#include "connectiondialog.h"
-#include "notesdock.h"
-#include "settingsmodel.h"
-#include "dataparsermodel.h"
-#include "logdialog.h"
-#include "diagnosticdialog.h"
 #include "aboutdialog.h"
-#include "markerinfo.h"
-#include "guimodel.h"
-#include "graphview.h"
+#include "communicationstats.h"
+#include "connectiondialog.h"
 #include "datafilehandler.h"
+#include "dataparsermodel.h"
+#include "diagnosticdialog.h"
+#include "diagnosticmodel.h"
+#include "expressionstatus.h"
+#include "fileselectionhelper.h"
+#include "graphdatahandler.h"
+#include "graphdatamodel.h"
+#include "graphview.h"
+#include "guimodel.h"
+#include "importmbcdialog.h"
+#include "logdialog.h"
+#include "markerinfo.h"
+#include "mbcregistermodel.h"
+#include "modbuspoll.h"
+#include "mostrecentmenu.h"
+#include "notemodel.h"
+#include "notesdock.h"
 #include "projectfilehandler.h"
+#include "qcustomplot.h"
+#include "registerdialog.h"
+#include "scopelogging.h"
+#include "settingsmodel.h"
+#include "statusbar.h"
+#include "ui_mainwindow.h"
 #include "util.h"
 #include "versiondownloader.h"
-#include "fileselectionhelper.h"
-#include "scopelogging.h"
-#include "statusbar.h"
-#include "mostrecentmenu.h"
 
 #include <QDateTime>
 
@@ -85,6 +87,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pUi->actionOpenProjectFile, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::selectProjectOpenFile);
     connect(_pUi->actionReloadProjectFile, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::reloadProjectFile);
     connect(_pUi->actionOpenDataFile, &QAction::triggered, _pDataFileHandler, &DataFileHandler::selectDataImportFile);
+    connect(_pUi->actionImportFromMbcFile, &QAction::triggered, this, &MainWindow::showMbcImportDialog);
     connect(_pUi->actionExportImage, &QAction::triggered, this, &MainWindow::selectImageExportFile);
     connect(_pUi->actionSaveProjectFileAs, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::selectProjectSaveFile);
     connect(_pUi->actionSaveProjectFile, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::saveProjectFile);
@@ -397,7 +400,7 @@ void MainWindow::showRegisterDialog(QString mbcFile)
     else
     {
         _pGuiModel->setLastMbcImportedFile(mbcFile);
-        registerDialog.execWithMbcImport();
+        showMbcImportDialog();
     }
 }
 
@@ -521,6 +524,22 @@ void MainWindow::showDiagnostic()
 void MainWindow::showNotesDialog()
 {
     _pNotesDock->show();
+}
+
+void MainWindow::showMbcImportDialog()
+{
+    MbcRegisterModel mbcRegisterModel;
+    ImportMbcDialog importMbcDialog(_pGuiModel, &mbcRegisterModel, this);
+
+    if (importMbcDialog.exec() == QDialog::Accepted)
+    {
+        QList<GraphData> regList = mbcRegisterModel.selectedRegisterList();
+
+        if (!regList.isEmpty())
+        {
+            _pGraphDataModel->add(regList);
+        }
+    }
 }
 
 void MainWindow::toggleMarkersState()
@@ -660,6 +679,7 @@ void MainWindow::updateGuiState()
         _pUi->actionRegisterSettings->setEnabled(true);
         _pUi->actionStart->setEnabled(true);
         _pUi->actionOpenDataFile->setEnabled(true);
+        _pUi->actionImportFromMbcFile->setEnabled(true);
         _pUi->actionOpenProjectFile->setEnabled(true);
         _pUi->actionSaveDataFile->setEnabled(false);
         _pUi->actionExportImage->setEnabled(false);
@@ -680,6 +700,7 @@ void MainWindow::updateGuiState()
         _pUi->actionRegisterSettings->setEnabled(false);
         _pUi->actionStart->setEnabled(false);
         _pUi->actionOpenDataFile->setEnabled(false);
+        _pUi->actionImportFromMbcFile->setEnabled(false);
         _pUi->actionOpenProjectFile->setEnabled(false);
         _pUi->actionSaveDataFile->setEnabled(false);
         _pUi->actionSaveProjectFileAs->setEnabled(false);
@@ -697,6 +718,7 @@ void MainWindow::updateGuiState()
         _pUi->actionRegisterSettings->setEnabled(true);
         _pUi->actionStart->setEnabled(true);
         _pUi->actionOpenDataFile->setEnabled(true);
+        _pUi->actionImportFromMbcFile->setEnabled(true);
         _pUi->actionOpenProjectFile->setEnabled(true);
         _pUi->actionSaveDataFile->setEnabled(true);
         _pUi->actionSaveProjectFileAs->setEnabled(true);
@@ -725,6 +747,7 @@ void MainWindow::updateGuiState()
         _pUi->actionRegisterSettings->setEnabled(true);
         _pUi->actionStart->setEnabled(true);
         _pUi->actionOpenDataFile->setEnabled(true);
+        _pUi->actionImportFromMbcFile->setEnabled(true);
         _pUi->actionOpenProjectFile->setEnabled(true);
 
         _pUi->actionSaveDataFile->setEnabled(false);

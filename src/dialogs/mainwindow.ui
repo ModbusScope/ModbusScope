@@ -54,13 +54,14 @@
     </property>
     <widget class="QMenu" name="menuMostRecentProject">
      <property name="title">
-      <string>Open &amp;Recent Project</string>
+      <string>Open Recent Project</string>
      </property>
     </widget>
     <addaction name="actionOpenProjectFile"/>
     <addaction name="menuMostRecentProject"/>
     <addaction name="actionReloadProjectFile"/>
     <addaction name="actionOpenDataFile"/>
+    <addaction name="actionImportFromMbcFile"/>
     <addaction name="separator"/>
     <addaction name="actionSaveProjectFile"/>
     <addaction name="actionSaveProjectFileAs"/>
@@ -509,6 +510,11 @@
    </property>
    <property name="text">
     <string>Save &amp;Project</string>
+   </property>
+  </action>
+  <action name="actionImportFromMbcFile">
+   <property name="text">
+    <string>&amp;Import MBC File...</string>
    </property>
   </action>
  </widget>
