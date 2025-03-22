@@ -30,6 +30,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS
     Widgets
     Xml
     Network
+    PrintSupport
     SerialBus
     SerialPort
 
@@ -42,6 +43,7 @@ set(QT_LIB
     Qt::Widgets
     Qt::Xml
     Qt::Network
+    Qt::PrintSupport
     Qt::SerialBus
     Qt::SerialPort
 )

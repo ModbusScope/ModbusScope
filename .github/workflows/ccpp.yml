@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: docker://jgeudens/qt-linux:6.6.3_build_1
+      image: docker://jgeudens/qt-linux:6.7.3_build_2
     steps:
       - uses: actions/checkout@v4
 
@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Qt installer
-        run: pip3 install aqtinstall==3.1.15
+        run: pip3 install aqtinstall==3.2.0
 
       # Cache go build cache, used to speedup go test
       - name: Qt Build Cache
