@@ -44,6 +44,8 @@ ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel, MbcRegisterModel* pMbcRegi
 
     _pUi->tblMbcRegisters->setFocusPolicy(Qt::NoFocus);
 
+    _pUi->tblMbcRegisters->setStyle(&_centeredBoxStyle);
+
     connect(_pUi->btnSelectMbcFile, &QToolButton::clicked, this, &ImportMbcDialog::selectMbcFile);
     connect(_pMbcRegisterModel, &QAbstractItemModel::dataChanged, this, &ImportMbcDialog::registerDataChanged);
     connect(_pTabProxyFilter, &MbcRegisterFilter::dataChanged, this, &ImportMbcDialog::visibleItemsDataChanged);

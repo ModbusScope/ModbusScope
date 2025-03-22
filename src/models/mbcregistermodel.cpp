@@ -1,4 +1,5 @@
 #include "mbcregistermodel.h"
+#include "centeredbox.h"
 
 MbcRegisterModel::MbcRegisterModel(QObject *parent)
     : QAbstractTableModel(parent)
@@ -112,6 +113,13 @@ QVariant MbcRegisterModel::data(const QModelIndex &index, int role) const
             {
                 return Qt::Unchecked;
             }
+        }
+    }
+    else if (role == CheckAlignmentRole)
+    {
+        if (index.column() == cColumnSelected)
+        {
+            return Qt::AlignCenter;
         }
     }
     else if (role == Qt::DisplayRole)
