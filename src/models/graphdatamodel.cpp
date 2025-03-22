@@ -2,6 +2,7 @@
 #include "graphdata.h"
 #include "util.h"
 
+#include "centeredbox.h"
 #include "graphdatamodel.h"
 
 const QColor GraphDataModel::lightRed = QColor(255, 0, 0, 127);
@@ -60,6 +61,14 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
             {
                 return Qt::Unchecked;
             }
+        }
+        else if (role == CheckAlignmentRole)
+        {
+            return Qt::AlignCenter;
+        }
+        else
+        {
+            // nothing to do
         }
         break;
     case column::TEXT:
