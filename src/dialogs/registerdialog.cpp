@@ -58,6 +58,8 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     // Handle cell active signal
     connect(_pUi->registerView, &QTableView::activated, this, &RegisterDialog::activatedCell);
 
+    _pUi->registerView->setStyle(&_centeredBoxStyle);
+
     // Handle delete
     QShortcut* shortcut = new QShortcut(QKeySequence(QKeySequence::Delete), _pUi->registerView);
     connect(shortcut, &QShortcut::activated, this, &RegisterDialog::removeRegisterRow);

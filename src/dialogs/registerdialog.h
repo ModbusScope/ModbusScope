@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <QWidgetAction>
 
+#include "centeredbox.h"
+
 /* Forward declaration */
 class GraphDataModel;
 class GuiModel;
@@ -41,6 +43,8 @@ private:
     GraphDataModel* _pGraphDataModel;
     GuiModel* _pGuiModel;
     SettingsModel* _pSettingsModel;
+
+    CenteredBoxProxyStyle _centeredBoxStyle;
 
     std::unique_ptr<RegisterValueAxisDelegate> _valueAxisDelegate;
     std::unique_ptr<ExpressionDelegate> _expressionDelegate;

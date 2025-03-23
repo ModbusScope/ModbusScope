@@ -1,9 +1,10 @@
 #ifndef IMPORTMBCDIALOG_H
 #define IMPORTMBCDIALOG_H
 
-#include <QDialog>
-#include "mbcregistermodel.h"
+#include "centeredbox.h"
 #include "mbcregisterfilter.h"
+#include "mbcregistermodel.h"
+#include <QDialog>
 
 /* Forward declaration */
 class GuiModel;
@@ -35,6 +36,8 @@ private:
     void updateMbcRegisters(QString filePath);
 
     Ui::ImportMbcDialog *_pUi;
+
+    CenteredBoxProxyStyle _centeredBoxStyle;
 
     GuiModel * _pGuiModel;
     MbcRegisterModel * _pMbcRegisterModel;
