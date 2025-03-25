@@ -55,7 +55,7 @@ jobs:
         fetch-depth: 0
 
     - name: Install Build Wrapper
-      uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v5.0
+      uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v5.1
     - name: Run build-wrapper
       run: |
         #here goes your compilation wrapped with build-wrapper; See https://docs.sonarcloud.io/advanced-setup/languages/c-c-objective-c/#analysis-steps-using-build-wrapper for more information
@@ -63,7 +63,7 @@ jobs:
         build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} ninja
 
     - name: SonarQube Scan
-      uses: SonarSource/sonarqube-scan-action@v5.0
+      uses: SonarSource/sonarqube-scan-action@v5.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
