@@ -49,6 +49,8 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
 {
     _pUi->setupUi(this);
 
+    QApplication::setStyle(QStyleFactory::create("Fusion"));
+
     _pConnectionDialog = new ConnectionDialog(_pSettingsModel, this);
     _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
     _pDiagnosticDialog = new DiagnosticDialog(_pGuiModel, _pDiagnosticModel, this);
