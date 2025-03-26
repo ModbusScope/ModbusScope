@@ -12,6 +12,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Changed
 
+- Select consistent theme across platforms
 - Various improvements to importing MBC registers ([Github #344](https://github.com/ModbusScope/ModbusScope/issues/344))
 
 ### Removed
