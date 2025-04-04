@@ -50,9 +50,10 @@ function(add_xtest_mock SOURCE_NAME)
 	add_test(NAME ${SOURCE_NAME} COMMAND ${SOURCE_NAME})
 endfunction()
 
-set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../src/dialogs)
+set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../src/dialogs ${CMAKE_CURRENT_SOURCE_DIR}/../src/customwidgets)
 
 add_subdirectory(communication)
+add_subdirectory(customwidgets)
 add_subdirectory(dialogs)
 add_subdirectory(importexport)
 add_subdirectory(models)
