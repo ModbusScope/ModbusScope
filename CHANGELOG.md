@@ -13,6 +13,8 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 ### Changed
 
 - Select consistent theme across platforms
+- Various UI changes to improve consistency (scale dock, about window, ...) ([Github #349](https://github.com/ModbusScope/ModbusScope/issues/349))
+- Make sure color of register remains visible when register is selected in register window
 - Various improvements to importing MBC registers ([Github #344](https://github.com/ModbusScope/ModbusScope/issues/344))
 
 ### Removed
