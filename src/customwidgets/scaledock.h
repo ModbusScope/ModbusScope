@@ -15,6 +15,8 @@ class ScaleDock : public QWidget
 {
     Q_OBJECT
 
+    friend class TestScaleDock;
+
 public:
     explicit ScaleDock(QWidget *parent = nullptr);
     ~ScaleDock();

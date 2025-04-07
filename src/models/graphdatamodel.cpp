@@ -16,8 +16,6 @@ GraphDataModel::GraphDataModel(QObject *parent)
     _successCount = 0;
     _errorCount = 0;
 
-
-
     connect(this, &GraphDataModel::visibilityChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::labelChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::colorChanged, this, &GraphDataModel::modelDataChanged);
@@ -234,7 +232,7 @@ Qt::ItemFlags GraphDataModel::flags(const QModelIndex & index) const
     }
     else if (index.column() == column::COLOR)
     {
-        itemFlags |= Qt::ItemIsSelectable;
+        /* Don't allow selection of color column (focus hides color indication) */
     }
     else
     {
