@@ -1,11 +1,11 @@
 
+#include "models/settingsmodel.h"
+
+#include "testslavemodbus.h"
+
 #include <QObject>
 #include <QPointer>
 #include <QUrl>
-#include "settingsmodel.h"
-
-#include "testslavedata.h"
-#include "testslavemodbus.h"
 
 class TestModbusMaster: public QObject
 {

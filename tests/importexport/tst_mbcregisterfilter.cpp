@@ -1,10 +1,10 @@
 
-#include <QtTest/QtTest>
-
 #include "tst_mbcregisterfilter.h"
 
-#include "mbcregisterfilter.h"
-#include "mbcregistermodel.h"
+#include "models/mbcregisterfilter.h"
+#include "models/mbcregistermodel.h"
+
+#include <QtTest/QtTest>
 
 void TestMbcRegisterFilter::init()
 {

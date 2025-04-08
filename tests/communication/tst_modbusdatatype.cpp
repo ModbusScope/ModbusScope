@@ -1,8 +1,9 @@
 
-#include <QtTest/QtTest>
-
-#include "modbusdatatype.h"
 #include "tst_modbusdatatype.h"
+
+#include "util/modbusdatatype.h"
+
+#include <QtTest/QtTest>
 
 using Type = ModbusDataType::Type;
 

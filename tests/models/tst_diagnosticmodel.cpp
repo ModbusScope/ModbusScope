@@ -1,9 +1,9 @@
 
-#include <QtTest/QtTest>
-
 #include "tst_diagnosticmodel.h"
 
-#include "diagnosticmodel.h"
+#include "models/diagnosticmodel.h"
+
+#include <QtTest/QtTest>
 
 void TestDiagnosticModel::init()
 {

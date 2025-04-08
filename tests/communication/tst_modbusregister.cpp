@@ -1,9 +1,10 @@
 
 #include <QtTest/QtTest>
 
-#include "connectiontypes.h"
-#include "modbusregister.h"
 #include "tst_modbusregister.h"
+
+#include "communication/modbusregister.h"
+#include "models/connectiontypes.h"
 
 using Type = ModbusDataType::Type;
 

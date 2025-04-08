@@ -2,13 +2,13 @@
 #ifndef TEST_GRAPHDATAHANDLER_H__
 #define TEST_GRAPHDATAHANDLER_H__
 
-#include <QObject>
+#include "util/result.h"
 
-#include "settingsmodel.h"
-#include "result.h"
+#include <QObject>
 
 /* Forward declaration */
 class GraphDataModel;
+class SettingsModel;
 
 class TestGraphDataHandler: public QObject
 {

@@ -1,10 +1,10 @@
 
-#include <QtTest/QtTest>
-
 #include "tst_datafileparser.h"
-#include "csvdata.h"
 
-#include "datafileparser.h"
+#include "csvdata.h"
+#include "importexport/datafileparser.h"
+
+#include <QtTest/QtTest>
 
 void TestDataFileParser::init()
 {

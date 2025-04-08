@@ -1,16 +1,13 @@
 
-#include "gmock/gmock.h"
-#include <gmock/gmock-matchers.h>
-
-#include <QtTest/QtTest>
-
 #include "tst_updatenotify.h"
 
+#include "util/updatenotify.h"
+
+#include "gmock/gmock.h"
+#include <gmock/gmock-matchers.h>
+#include <QtTest/QtTest>
 #include "../mocks/gmockutils.h"
-
 #include "../mocks/mockversiondownloader.h"
-
-#include "updatenotify.h"
 
 using ::testing::Return;
 using namespace testing;

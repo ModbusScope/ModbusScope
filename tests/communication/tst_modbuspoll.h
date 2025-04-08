@@ -1,11 +1,11 @@
 
-#include <QObject>
-#include <QUrl>
-
-#include "settingsmodel.h"
+#include "models/settingsmodel.h"
 
 #include "testslavedata.h"
 #include "testslavemodbus.h"
+
+#include <QObject>
+#include <QUrl>
 
 class TestModbusPoll: public QObject
 {

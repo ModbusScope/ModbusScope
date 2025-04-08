@@ -1,7 +1,6 @@
 
 #include <QObject>
 
-
 class TestProjectFileParser: public QObject
 {
     Q_OBJECT

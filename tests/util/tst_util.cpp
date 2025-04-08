@@ -1,9 +1,9 @@
 
-#include <QtTest/QtTest>
-
 #include "tst_util.h"
 
-#include "util.h"
+#include "util/util.h"
+
+#include <QtTest/QtTest>
 
 #define ADD_TEST(value, result)      QTest::newRow(QLocale().toString(value).toLocal8Bit()) << static_cast<double>(value) << result
 

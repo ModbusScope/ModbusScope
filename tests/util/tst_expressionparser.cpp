@@ -1,9 +1,10 @@
 
-#include <QtTest/QtTest>
-
-#include "expressionparser.h"
-#include "connectiontypes.h"
 #include "tst_expressionparser.h"
+
+#include "models/connectiontypes.h"
+#include "util/expressionparser.h"
+
+#include <QtTest/QtTest>
 
 using Type = ModbusDataType::Type;
 

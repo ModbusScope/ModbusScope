@@ -1,7 +1,7 @@
 
-#include <QObject>
+#include "util/updatenotify.h"
 
-#include "updatenotify.h"
+#include <QObject>
 
 /* Forward declaration */
 class MockVersionDownloader;

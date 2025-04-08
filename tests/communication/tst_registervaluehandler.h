@@ -1,7 +1,8 @@
 
+#include "communication/modbusregister.h"
+#include "util/modbusresultmap.h"
+
 #include <QObject>
-#include "modbusregister.h"
-#include "modbusresultmap.h"
 
 /* Forward declaration */
 class SettingsModel;

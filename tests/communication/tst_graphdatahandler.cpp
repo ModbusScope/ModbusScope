@@ -1,12 +1,12 @@
 
-#include <QtTest/QtTest>
-
 #include "tst_graphdatahandler.h"
 
+#include "communication/graphdatahandler.h"
 #include "communicationhelpers.h"
-#include "graphdatamodel.h"
-#include "graphdatahandler.h"
-#include "settingsmodel.h"
+#include "models/graphdatamodel.h"
+#include "models/settingsmodel.h"
+
+#include <QtTest/QtTest>
 
 Q_DECLARE_METATYPE(Result<quint16>);
 

@@ -1,11 +1,11 @@
 
+#include "communication/modbusconnection.h"
+
+#include "testslavemodbus.h"
+
 #include <QObject>
 #include <QPointer>
 #include <QUrl>
-
-#include "modbusconnection.h"
-
-#include "testslavemodbus.h"
 
 class TestModbusConnection: public QObject
 {

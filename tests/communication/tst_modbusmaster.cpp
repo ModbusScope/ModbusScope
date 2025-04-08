@@ -1,14 +1,13 @@
 
-#include <QtTest/QtTest>
-#include <QMap>
+#include "tst_modbusmaster.h"
 
-#include "modbusmaster.h"
+#include "communication/modbusmaster.h"
 #include "testslavedata.h"
 #include "testslavemodbus.h"
 
-#include "tst_modbusmaster.h"
-
+#include <QMap>
 #include <QMetaType>
+#include <QtTest/QtTest>
 
 Q_DECLARE_METATYPE(Result<quint16>);
 

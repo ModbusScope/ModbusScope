@@ -1,17 +1,16 @@
 
-#include <QtTest/QtTest>
-#include <QMap>
+#include "tst_communication.h"
 
+#include "communication/graphdatahandler.h"
+#include "communication/modbuspoll.h"
 #include "communicationhelpers.h"
-#include "settingsmodel.h"
-#include "modbuspoll.h"
-#include "graphdatahandler.h"
-#include "graphdatamodel.h"
+#include "models/graphdatamodel.h"
+#include "models/settingsmodel.h"
 
 #include "testslavedata.h"
-#include "testslavemodbus.h"
 
-#include "tst_communication.h"
+#include <QMap>
+#include <QtTest/QtTest>
 
 using State = ResultState::State;
 

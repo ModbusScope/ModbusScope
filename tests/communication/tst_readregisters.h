@@ -2,12 +2,12 @@
 #ifndef TEST_READREGISTERS_H__
 #define TEST_READREGISTERS_H__
 
+#include "util/modbusaddress.h"
+
 #include <QObject>
 
 /* Forward declaration */
 class ReadRegisters;
-
-#include "modbusaddress.h"
 
 class TestReadRegisters: public QObject
 {

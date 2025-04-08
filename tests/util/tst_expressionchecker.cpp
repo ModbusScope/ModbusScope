@@ -1,8 +1,9 @@
 
-#include <QtTest/QtTest>
-
-#include "expressionchecker.h"
 #include "tst_expressionchecker.h"
+
+#include "util/expressionchecker.h"
+
+#include <QtTest/QtTest>
 
 using State = ResultState::State;
 

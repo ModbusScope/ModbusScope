@@ -1,10 +1,10 @@
 #ifndef MOCKGRAPHDATAMODEL_H__
 #define MOCKGRAPHDATAMODEL_H__
 
-#include "gmock/gmock.h"
+#include "models/graphdatamodel.h"
+#include "models/settingsmodel.h"
 
-#include "graphdatamodel.h"
-#include "settingsmodel.h"
+#include "gmock/gmock.h"
 
 class MockGraphDataModel : public GraphDataModel {
     public:

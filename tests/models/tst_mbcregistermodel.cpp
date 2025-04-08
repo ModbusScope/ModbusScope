@@ -1,15 +1,14 @@
 
+#include "tst_mbcregistermodel.h"
+
+#include "models/mbcregistermodel.h"
+
 #include <QtTest/QtTest>
 #include <QSignalSpy>
-
 #include "gmock/gmock.h"
 #include <gmock/gmock-matchers.h>
 
 #include "../mocks/gmockutils.h"
-
-#include "tst_mbcregistermodel.h"
-
-#include "mbcregistermodel.h"
 
 using ::testing::Return;
 using namespace testing;

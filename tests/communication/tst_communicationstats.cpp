@@ -1,11 +1,10 @@
 
 #include "tst_communicationstats.h"
 
+#include "communication/communicationstats.h"
+#include "models/graphdatamodel.h"
+
 #include <QtTest/QtTest>
-
-#include "graphdatamodel.h"
-
-#include "communicationstats.h"
 
 void TestCommunicationStats::init()
 {
