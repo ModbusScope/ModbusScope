@@ -2,17 +2,14 @@
 #include "tst_communicationstats.h"
 
 #include <QtTest/QtTest>
-#include <qforeach.h>
+
+#include "graphdatamodel.h"
 
 #include "communicationstats.h"
 
-#include "graphdatamodel.h"
-#include "settingsmodel.h"
-
 void TestCommunicationStats::init()
 {
-    _pSettingsModel = new SettingsModel;
-    _pGraphDataModel = new GraphDataModel(_pSettingsModel);
+    _pGraphDataModel = new GraphDataModel();
     _pGraphDataModel->add();
 
     _pCommunicationStats = new CommunicationStats(_pGraphDataModel);
@@ -22,7 +19,6 @@ void TestCommunicationStats::cleanup()
 {
     delete _pCommunicationStats;
     delete _pGraphDataModel;
-    delete _pSettingsModel;
 }
 
 void TestCommunicationStats::noGraph()
