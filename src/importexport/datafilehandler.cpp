@@ -85,7 +85,7 @@ void DataFileHandler::openDataFile(QString dataFilePath)
         QStringList dataFileSample;
         SettingsAuto::loadDataFileSample(_pDataFileStream, dataFileSample, _cSampleLineLength);
 
-        ParseDataFileDialog parseDataFileDialog(_pGuiModel, _pDataParserModel, dataFileSample);
+        ParseDataFileDialog parseDataFileDialog(_pDataParserModel, dataFileSample);
 
         if (parseDataFileDialog.exec() == QDialog::Accepted)
         {

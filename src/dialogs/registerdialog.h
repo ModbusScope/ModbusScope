@@ -8,7 +8,6 @@
 
 /* Forward declaration */
 class GraphDataModel;
-class GuiModel;
 class SettingsModel;
 class RegisterValueAxisDelegate;
 class ExpressionDelegate;
@@ -23,7 +22,7 @@ class RegisterDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit RegisterDialog(GuiModel * pGuiModel, GraphDataModel *pGraphDataModel, SettingsModel* pSettingsModel, QWidget *parent = nullptr);
+    explicit RegisterDialog(GraphDataModel* pGraphDataModel, SettingsModel* pSettingsModel, QWidget* parent = nullptr);
     ~RegisterDialog();
 
 private slots:
@@ -41,7 +40,6 @@ private:
     Ui::RegisterDialog* _pUi;
 
     GraphDataModel* _pGraphDataModel;
-    GuiModel* _pGuiModel;
     SettingsModel* _pSettingsModel;
 
     CenteredBoxProxyStyle _centeredBoxStyle;

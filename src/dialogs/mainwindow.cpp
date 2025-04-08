@@ -52,8 +52,8 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     QApplication::setStyle(QStyleFactory::create("Fusion"));
 
     _pConnectionDialog = new ConnectionDialog(_pSettingsModel, this);
-    _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
-    _pDiagnosticDialog = new DiagnosticDialog(_pGuiModel, _pDiagnosticModel, this);
+    _pLogDialog = new LogDialog(_pSettingsModel, this);
+    _pDiagnosticDialog = new DiagnosticDialog(_pDiagnosticModel, this);
 
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
 
@@ -393,7 +393,7 @@ void MainWindow::showRegisterDialog(QString mbcFile)
         _pGuiModel->setGuiState(GuiState::INIT);
     }
 
-    RegisterDialog registerDialog(_pGuiModel, _pGraphDataModel, _pSettingsModel, this);
+    RegisterDialog registerDialog(_pGraphDataModel, _pSettingsModel, this);
 
     if (mbcFile.isEmpty())
     {

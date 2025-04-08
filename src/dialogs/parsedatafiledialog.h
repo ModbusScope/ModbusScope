@@ -7,8 +7,6 @@
 
 #include "dataparsermodel.h"
 #include "presethandler.h"
-#include "guimodel.h"
-
 
 namespace Ui {
 class ParseDataFileDialog;
@@ -19,8 +17,7 @@ class ParseDataFileDialog : public QDialog
     Q_OBJECT
 
 public:
-
-    explicit ParseDataFileDialog(GuiModel * pGuiModel, DataParserModel * pParserModel, QStringList dataFileSample, QWidget *parent = nullptr);
+    explicit ParseDataFileDialog(DataParserModel* pParserModel, QStringList dataFileSample, QWidget* parent = nullptr);
     ~ParseDataFileDialog();
 
 private slots:
@@ -65,7 +62,6 @@ private:
     Ui::ParseDataFileDialog * _pUi;
 
     DataParserModel * _pParserModel;
-    GuiModel *_pGuiModel;
 
     PresetHandler* _pPresetHandler;
     QButtonGroup* _pTimeFormatGroup;

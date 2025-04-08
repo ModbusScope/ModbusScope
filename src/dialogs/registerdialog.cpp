@@ -6,16 +6,14 @@
 #include "addregisterwidget.h"
 
 #include "graphdatamodel.h"
-#include "guimodel.h"
 #include "settingsmodel.h"
 #include "registervalueaxisdelegate.h"
 
 #include "registerdialog.h"
 #include "ui_registerdialog.h"
 
-RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel, SettingsModel *pSettingsModel, QWidget *parent) :
-    QDialog(parent),
-    _pUi(new Ui::RegisterDialog)
+RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel, SettingsModel* pSettingsModel, QWidget* parent)
+    : QDialog(parent), _pUi(new Ui::RegisterDialog)
 {
     _pUi->setupUi(this);
 
@@ -23,7 +21,6 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     _pGraphDataModel = pGraphDataModel;
-    _pGuiModel = pGuiModel;
     _pSettingsModel = pSettingsModel;
 
     // Setup registerView

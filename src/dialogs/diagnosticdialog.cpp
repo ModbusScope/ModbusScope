@@ -7,7 +7,6 @@
 
 #include "ui_diagnosticdialog.h"
 
-#include "guimodel.h"
 #include "fileselectionhelper.h"
 #include "util.h"
 #include "diagnosticmodel.h"
@@ -15,15 +14,13 @@
 #include "diagnosticexporter.h"
 #include "scopelogging.h"
 
-DiagnosticDialog::DiagnosticDialog(GuiModel* pGuiModel, DiagnosticModel * pDiagnosticModel, QWidget *parent) :
-    QDialog(parent),
-    _pUi(new Ui::DiagnosticDialog)
+DiagnosticDialog::DiagnosticDialog(DiagnosticModel* pDiagnosticModel, QWidget* parent)
+    : QDialog(parent), _pUi(new Ui::DiagnosticDialog)
 {
     _pUi->setupUi(this);
     _bAutoScroll = false;
 
     _pDiagnosticModel = pDiagnosticModel;
-    _pGuiModel = pGuiModel;
 
     _pSeverityProxyFilter = new DiagnosticFilter();
     _pSeverityProxyFilter->setSourceModel(_pDiagnosticModel);
