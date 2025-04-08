@@ -1,18 +1,17 @@
 #include "mainapp.h"
 
-#include "mainwindow.h"
+#include "dialogs/mainwindow.h"
 
-#include "graphdatamodel.h"
-#include "notemodel.h"
-#include "diagnosticmodel.h"
-#include "settingsmodel.h"
-#include "dataparsermodel.h"
-#include "guimodel.h"
-
-#include "fileselectionhelper.h"
-#include "scopelogging.h"
-#include "util.h"
-#include "formatdatetime.h"
+#include "models/dataparsermodel.h"
+#include "models/diagnosticmodel.h"
+#include "models/graphdatamodel.h"
+#include "models/guimodel.h"
+#include "models/notemodel.h"
+#include "models/settingsmodel.h"
+#include "util/fileselectionhelper.h"
+#include "util/formatdatetime.h"
+#include "util/scopelogging.h"
+#include "util/util.h"
 
 MainApp::MainApp(QStringList cmdArguments, QObject *parent) : QObject(parent)
 {

@@ -1,6 +1,7 @@
 
 #include "formatrelativetime.h"
-#include "formatdatetime.h"
+
+#include "util/formatdatetime.h"
 
 #include <QtMath>
 

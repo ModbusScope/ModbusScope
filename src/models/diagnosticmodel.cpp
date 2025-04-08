@@ -1,6 +1,7 @@
 #include "diagnosticmodel.h"
-#include "QModelIndex"
-#include "QAbstractItemModel"
+
+#include <QAbstractItemModel>
+#include <QModelIndex>
 
 /*!
  * \brief Constructor for DiagnosticModel

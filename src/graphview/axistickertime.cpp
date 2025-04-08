@@ -1,6 +1,6 @@
-#include "formatrelativetime.h"
-
 #include "axistickertime.h"
+
+#include "util/formatrelativetime.h"
 
 AxisTickerTime::AxisTickerTime(QCustomPlot * pPlot)
 {

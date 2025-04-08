@@ -1,7 +1,7 @@
 #include "connectiondialog.h"
-#include "ui_connectiondialog.h"
+#include "dialogs/ui_connectiondialog.h"
 
-#include "settingsmodel.h"
+#include "models/settingsmodel.h"
 
 ConnectionDialog::ConnectionDialog(SettingsModel * pSettingsModel, QWidget *parent) :
     QDialog(parent),

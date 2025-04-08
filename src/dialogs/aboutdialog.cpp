@@ -4,13 +4,13 @@
 #include "qcustomplot.h"
 #include "muParserDef.h"
 
-#include <QDesktopServices>
-#include <QUrl>
-#include <QLibraryInfo>
+#include "util/updatenotify.h"
+#include "util/util.h"
+#include "util/version.h"
 
-#include "util.h"
-#include "version.h"
-#include "versiondownloader.h"
+#include <QDesktopServices>
+#include <QLibraryInfo>
+#include <QUrl>
 
 AboutDialog::AboutDialog(UpdateNotify *pUpdateNotify, QWidget *parent) :
     QDialog(parent),

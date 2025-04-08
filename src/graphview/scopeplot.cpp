@@ -1,6 +1,6 @@
-#include <QWidget>
-
 #include "scopeplot.h"
+
+#include <QWidget>
 
 ScopePlot::ScopePlot(QWidget *parent):
     QCustomPlot(parent)

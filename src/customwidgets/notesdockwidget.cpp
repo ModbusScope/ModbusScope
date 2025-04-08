@@ -1,4 +1,7 @@
-#include "notesdockwidget.h"
+#include "customwidgets/notesdockwidget.h"
+
+#include "models/guimodel.h"
+#include "models/notemodel.h"
 #include "ui_notesdockwidget.h"
 
 #include <QShortcut>

@@ -1,10 +1,11 @@
 #ifndef NOTESDOCK_H
 #define NOTESDOCK_H
 
-#include "notemodel.h"
-#include "guimodel.h"
-
 #include <QWidget>
+
+// Forward declaration
+class NoteModel;
+class GuiModel;
 
 namespace Ui {
 class NotesDockWidget;

@@ -1,6 +1,8 @@
 
 #include "fileselectionhelper.h"
-#include "guimodel.h"
+
+#include "models/guimodel.h"
+
 #include <QFileDialog>
 
 GuiModel* FileSelectionHelper::_pGuiModel;

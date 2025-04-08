@@ -1,16 +1,16 @@
 
-
-#include <QStyleOption>
-#include <QPainter>
-#include <QMouseEvent>
-#include <QColorDialog>
-
-#include "guimodel.h"
-#include "graphdatamodel.h"
-#include "result.h"
-#include "util.h"
 #include "legend.h"
-#include "graphview.h"
+
+#include "graphview/graphview.h"
+#include "models/graphdatamodel.h"
+#include "models/guimodel.h"
+#include "util/result.h"
+#include "util/util.h"
+
+#include <QColorDialog>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QStyleOption>
 
 using State = ResultState::State;
 

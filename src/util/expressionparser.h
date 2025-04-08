@@ -1,9 +1,9 @@
 #ifndef EXPRESSIONPARSER_H
 #define EXPRESSIONPARSER_H
 
+#include "communication/modbusregister.h"
 #include <QRegularExpression>
 #include <QStringList>
-#include "modbusregister.h"
 
 class ExpressionParser : public QObject
 {

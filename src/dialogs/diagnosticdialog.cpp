@@ -1,18 +1,18 @@
 #include "diagnosticdialog.h"
-#include <QScrollBar>
-#include <QFileDialog>
-#include <QModelIndex>
-#include <QClipboard>
-#include <algorithm>
-
 #include "ui_diagnosticdialog.h"
 
-#include "fileselectionhelper.h"
-#include "util.h"
-#include "diagnosticmodel.h"
-#include "diagnosticfilter.h"
-#include "diagnosticexporter.h"
-#include "scopelogging.h"
+#include "importexport/diagnosticexporter.h"
+#include "models/diagnosticfilter.h"
+#include "models/diagnosticmodel.h"
+#include "util/fileselectionhelper.h"
+#include "util/scopelogging.h"
+#include "util/util.h"
+
+#include <QClipboard>
+#include <QFileDialog>
+#include <QModelIndex>
+#include <QScrollBar>
+#include <algorithm>
 
 DiagnosticDialog::DiagnosticDialog(DiagnosticModel* pDiagnosticModel, QWidget* parent)
     : QDialog(parent), _pUi(new Ui::DiagnosticDialog)

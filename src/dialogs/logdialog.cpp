@@ -1,10 +1,10 @@
 #include "logdialog.h"
 #include "ui_logdialog.h"
 
-#include "settingsmodel.h"
+#include "models/settingsmodel.h"
+#include "util/fileselectionhelper.h"
 
 #include <QFileDialog>
-#include "fileselectionhelper.h"
 
 LogDialog::LogDialog(SettingsModel* pSettingsModel, QWidget* parent) : QDialog(parent), _pUi(new Ui::LogDialog)
 {

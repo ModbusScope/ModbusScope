@@ -1,10 +1,10 @@
 #include "addregisterwidget.h"
-#include "settingsmodel.h"
-#include "expressiongenerator.h"
-#include "modbusdatatype.h"
-#include "modbusaddress.h"
-
 #include "ui_addregisterwidget.h"
+
+#include "models/settingsmodel.h"
+#include "util/expressiongenerator.h"
+#include "util/modbusaddress.h"
+#include "util/modbusdatatype.h"
 
 using Type = ModbusDataType::Type;
 using ObjectType = ModbusAddress::ObjectType;

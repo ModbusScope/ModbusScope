@@ -1,13 +1,14 @@
 #ifndef IMPORTMBCDIALOG_H
 #define IMPORTMBCDIALOG_H
 
-#include "centeredbox.h"
-#include "mbcregisterfilter.h"
-#include "mbcregistermodel.h"
 #include <QDialog>
+
+#include "customwidgets/centeredbox.h"
 
 /* Forward declaration */
 class GuiModel;
+class MbcRegisterModel;
+class MbcRegisterFilter;
 
 namespace Ui {
 class ImportMbcDialog;

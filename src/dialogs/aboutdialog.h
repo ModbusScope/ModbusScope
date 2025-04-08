@@ -2,7 +2,9 @@
 #define ABOUTDIALOG_H
 
 #include <QDialog>
-#include "updatenotify.h"
+
+// Forward declaration
+class UpdateNotify;
 
 namespace Ui {
 class AboutDialog;

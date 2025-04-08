@@ -1,9 +1,10 @@
 #ifndef EXPRESSIONSDIALOG_H
 #define EXPRESSIONSDIALOG_H
 
+#include "models/graphdatamodel.h"
+#include "util/expressionchecker.h"
+
 #include <QDialog>
-#include "expressionchecker.h"
-#include "graphdatamodel.h"
 
 /* Forward declaration */
 class ExpressionHighlighting;

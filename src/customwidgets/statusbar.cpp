@@ -2,9 +2,9 @@
 
 #include <QDateTime>
 
-#include "clickablelabel.h"
-#include "guimodel.h"
-#include "graphdatamodel.h"
+#include "customwidgets/clickablelabel.h"
+#include "models/graphdatamodel.h"
+#include "models/guimodel.h"
 
 using GuiState = GuiModel::GuiState;
 

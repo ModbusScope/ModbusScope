@@ -6,7 +6,6 @@
 #include <QComboBox>
 #include <QVBoxLayout>
 
-
 /* Forward declarations */
 class GuiModel;
 class GraphDataModel;

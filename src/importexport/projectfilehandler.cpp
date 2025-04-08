@@ -1,13 +1,17 @@
 
+#include "projectfilehandler.h"
+
+#include "importexport/projectfiledata.h"
+#include "importexport/projectfileexporter.h"
+#include "importexport/projectfileparser.h"
+#include "models/graphdatamodel.h"
+#include "models/guimodel.h"
+#include "models/settingsmodel.h"
+#include "util/fileselectionhelper.h"
+#include "util/util.h"
+
 #include <QFile>
 #include <QFileDialog>
-
-#include "fileselectionhelper.h"
-#include "projectfiledata.h"
-#include "projectfileparser.h"
-#include "projectfileexporter.h"
-#include "projectfilehandler.h"
-#include "util.h"
 
 ProjectFileHandler::ProjectFileHandler(GuiModel* pGuiModel, SettingsModel* pSettingsModel, GraphDataModel* pGraphDataModel) : QObject(nullptr)
 {

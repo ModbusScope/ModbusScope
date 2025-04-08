@@ -1,21 +1,23 @@
 
+#include "graphview.h"
+
+#include "graphview/graphindicators.h"
+#include "graphview/graphmarkers.h"
+#include "graphview/graphscaling.h"
+#include "graphview/graphviewzoom.h"
+#include "graphview/notehandling.h"
+#include "graphview/scopeplot.h"
+#include "models/graphdatamodel.h"
+#include "models/guimodel.h"
+#include "models/notemodel.h"
+#include "models/settingsmodel.h"
+#include "util/formatrelativetime.h"
+#include "util/result.h"
+
+#include <QInputDialog>
+#include <QLocale>
 #include <QVector>
 #include <QtGlobal>
-#include <QLocale>
-#include <QInputDialog>
-
-#include "guimodel.h"
-#include "formatrelativetime.h"
-#include "graphdatamodel.h"
-#include "result.h"
-#include "settingsmodel.h"
-#include "notemodel.h"
-#include "graphview.h"
-#include "graphscaling.h"
-#include "graphviewzoom.h"
-#include "graphmarkers.h"
-#include "graphindicators.h"
-#include "notehandling.h"
 
 GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel *pNoteModel, ScopePlot * pPlot, QObject *parent) :
     QObject(parent)

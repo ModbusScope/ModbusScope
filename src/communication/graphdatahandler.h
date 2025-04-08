@@ -1,10 +1,9 @@
 #ifndef GRAPHDATAHANDLER_H
 #define GRAPHDATAHANDLER_H
 
-#include <QRegularExpression>
-#include "modbusregister.h"
-#include "result.h"
-#include "qmuparser.h"
+#include "communication/modbusregister.h"
+#include "util/qmuparser.h"
+#include "util/result.h"
 
 //Forward declaration
 class GraphDataModel;

@@ -1,10 +1,10 @@
 #ifndef REGISTERDIALOG_H
 #define REGISTERDIALOG_H
 
+#include "customwidgets/centeredbox.h"
+
 #include <QDialog>
 #include <QWidgetAction>
-
-#include "centeredbox.h"
 
 /* Forward declaration */
 class GraphDataModel;

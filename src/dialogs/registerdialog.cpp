@@ -1,16 +1,15 @@
 
-#include <QColorDialog>
-#include "expressiondelegate.h"
-#include "importmbcdialog.h"
-#include "expressionsdialog.h"
-#include "addregisterwidget.h"
+#include "registerdialog.h"
 
-#include "graphdatamodel.h"
-#include "settingsmodel.h"
+#include "customwidgets/expressiondelegate.h"
+#include "dialogs/addregisterwidget.h"
+#include "dialogs/expressionsdialog.h"
+#include "dialogs/ui_registerdialog.h"
+#include "models/graphdatamodel.h"
+#include "models/settingsmodel.h"
 #include "registervalueaxisdelegate.h"
 
-#include "registerdialog.h"
-#include "ui_registerdialog.h"
+#include <QColorDialog>
 
 RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel, SettingsModel* pSettingsModel, QWidget* parent)
     : QDialog(parent), _pUi(new Ui::RegisterDialog)

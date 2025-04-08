@@ -1,6 +1,7 @@
+#include "dataparsermodel.h"
+
 #include <QColor>
 #include <QLocale>
-#include "dataparsermodel.h"
 
 DataParserModel::DataParserModel(QObject *parent) : QObject(parent)
 {

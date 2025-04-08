@@ -1,8 +1,8 @@
 #include "expressionsdialog.h"
 #include "ui_expressionsdialog.h"
 
-#include "graphdatamodel.h"
-#include "expressionhighlighting.h"
+#include "dialogs/expressionhighlighting.h"
+#include "models/graphdatamodel.h"
 
 using State = ResultState::State;
 

@@ -1,9 +1,10 @@
 #ifndef ADDREGISTERWIDGET_H
 #define ADDREGISTERWIDGET_H
 
+#include "models/graphdata.h"
+
 #include <QWidget>
 #include <QButtonGroup>
-#include "graphdata.h"
 
 class SettingsModel;
 

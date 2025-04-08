@@ -1,12 +1,13 @@
 #ifndef NOTEMODEL_H
 #define NOTEMODEL_H
 
+#include "models/note.h"
+
+#include <QAbstractTableModel>
+#include <QList>
+#include <QModelIndex>
 #include <QObject>
 #include <QPointF>
-#include <QModelIndex>
-#include <QList>
-#include <QAbstractTableModel>
-#include "note.h"
 
 class NoteModel : public QAbstractTableModel
 {

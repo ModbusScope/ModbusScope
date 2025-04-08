@@ -1,7 +1,8 @@
 #include "scaledock.h"
-#include "guimodel.h"
-#include "util.h"
+
+#include "models/guimodel.h"
 #include "ui_scaledock.h"
+#include "util/util.h"
 
 ScaleDock::ScaleDock(QWidget *parent) :
     QWidget(parent),

@@ -4,9 +4,10 @@
 #include <QObject>
 #include <QDockWidget>
 
-#include "notemodel.h"
-#include "guimodel.h"
-#include "notesdockwidget.h"
+// Forward declaration
+class NotesDockWidget;
+class NoteModel;
+class GuiModel;
 
 class NotesDock : public QDockWidget
 {

@@ -1,7 +1,8 @@
+#include "registervalueaxisdelegate.h"
+
 #include <QComboBox>
 
-#include "graphdata.h"
-#include "registervalueaxisdelegate.h"
+#include "models/graphdata.h"
 
 RegisterValueAxisDelegate::RegisterValueAxisDelegate(QObject *parent)
     : QStyledItemDelegate(parent)

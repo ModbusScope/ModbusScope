@@ -1,12 +1,12 @@
 #ifndef ParseDataFileDialog_H
 #define ParseDataFileDialog_H
 
+#include "importexport/presethandler.h"
+#include "models/dataparsermodel.h"
+
+#include <QButtonGroup>
 #include <QDialog>
 #include <QStringList>
-#include <QButtonGroup>
-
-#include "dataparsermodel.h"
-#include "presethandler.h"
 
 namespace Ui {
 class ParseDataFileDialog;

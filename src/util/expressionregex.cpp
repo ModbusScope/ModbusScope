@@ -1,6 +1,5 @@
 #include "expressionregex.h"
 
-
 const QString ExpressionRegex::cOperatorcharacters = R"([\+\-\*\^\/\?\<\>\=\!\%\&\|\~\'\_])";
 
 const QString ExpressionRegex::cNumberDec = R"(\d+)";

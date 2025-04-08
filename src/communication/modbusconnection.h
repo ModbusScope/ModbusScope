@@ -1,14 +1,14 @@
 #ifndef MODBUSCONNECTION_H
 #define MODBUSCONNECTION_H
 
-#include "modbusaddress.h"
-#include <QObject>
-#include <QTimer>
-#include <QSerialPort>
+#include "util/modbusaddress.h"
+#include <QModbusClient>
 #include <QModbusDevice>
 #include <QModbusReply>
-#include <QModbusClient>
+#include <QObject>
 #include <QPointer>
+#include <QSerialPort>
+#include <QTimer>
 
 class ConnectionData : public QObject
 {

@@ -1,5 +1,6 @@
 #include "expressionhighlighting.h"
-#include "expressionregex.h"
+
+#include "util/expressionregex.h"
 
 #include <QDebug>
 

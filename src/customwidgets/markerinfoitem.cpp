@@ -1,11 +1,11 @@
 
+#include "markerinfoitem.h"
+
 #include <limits>
 
-#include "guimodel.h"
-#include "graphdatamodel.h"
-
-#include "util.h"
-#include "markerinfoitem.h"
+#include "models/graphdatamodel.h"
+#include "models/guimodel.h"
+#include "util/util.h"
 
 MarkerInfoItem::MarkerInfoItem(QWidget *parent) : QFrame(parent)
 {

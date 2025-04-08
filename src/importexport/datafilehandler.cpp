@@ -1,10 +1,17 @@
-#include "datafileparser.h"
-#include "settingsauto.h"
-#include "util.h"
 
 #include "datafilehandler.h"
-#include "parsedatafiledialog.h"
-#include "fileselectionhelper.h"
+
+#include "dialogs/parsedatafiledialog.h"
+#include "importexport/datafileexporter.h"
+#include "importexport/datafileparser.h"
+#include "importexport/settingsauto.h"
+#include "models/dataparsermodel.h"
+#include "models/graphdatamodel.h"
+#include "models/guimodel.h"
+#include "models/notemodel.h"
+#include "models/settingsmodel.h"
+#include "util/fileselectionhelper.h"
+#include "util/util.h"
 
 #include <QWidget>
 #include <QProgressDialog>

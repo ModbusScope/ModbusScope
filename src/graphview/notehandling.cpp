@@ -1,7 +1,10 @@
 
 
-#include "graphview.h"
 #include "notehandling.h"
+
+#include "graphview/graphview.h"
+#include "graphview/scopeplot.h"
+#include "models/notemodel.h"
 
 const static quint32 NO_DRAGGED_NOTE = 0xFFFFFFFF;
 

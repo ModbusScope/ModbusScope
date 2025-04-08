@@ -1,12 +1,13 @@
 #include "importmbcdialog.h"
-#include "ui_importmbcdialog.h"
 
-#include "fileselectionhelper.h"
-#include "guimodel.h"
-#include "mbcfileimporter.h"
-#include "mbcheader.h"
-#include "mbcregistermodel.h"
-#include "util.h"
+#include "dialogs/mbcheader.h"
+#include "dialogs/ui_importmbcdialog.h"
+#include "importexport/mbcfileimporter.h"
+#include "models/guimodel.h"
+#include "models/mbcregisterfilter.h"
+#include "models/mbcregistermodel.h"
+#include "util/fileselectionhelper.h"
+#include "util/util.h"
 
 #include <QFileDialog>
 

@@ -1,12 +1,13 @@
 #ifndef PROJECTFILEEXPORTER_H
 #define PROJECTFILEEXPORTER_H
 
-#include <QObject>
 #include <QDomDocument>
+#include <QObject>
 
-#include "guimodel.h"
-#include "settingsmodel.h"
-#include "graphdatamodel.h"
+// Forward declaration
+class GuiModel;
+class SettingsModel;
+class GraphDataModel;
 
 class ProjectFileExporter : public QObject
 {

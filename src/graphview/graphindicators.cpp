@@ -1,8 +1,8 @@
 
 #include "graphindicators.h"
 
-#include "graphdatamodel.h"
-#include "graphview.h"
+#include "graphview/graphview.h"
+#include "models/graphdatamodel.h"
 
 GraphIndicators::GraphIndicators(GraphDataModel * pGraphDataModel, ScopePlot* pPlot, QObject *parent) :
     QObject(parent),

@@ -1,7 +1,7 @@
 #include "mbcfileimporter.h"
-#include "mbcregisterdata.h"
-#include "util.h"
 
+#include "importexport/mbcregisterdata.h"
+#include "util/util.h"
 
 MbcFileImporter::MbcFileImporter(QString * pMbcFileContent) : QObject(nullptr)
 {

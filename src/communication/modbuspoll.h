@@ -1,10 +1,10 @@
 #ifndef COMMUNICATION_MANAGER_H
 #define COMMUNICATION_MANAGER_H
 
+#include "communication/modbusregister.h"
+#include "util/modbusresultmap.h"
 #include <QStringListModel>
 #include <QTimer>
-#include "modbusresultmap.h"
-#include "modbusregister.h"
 
 //Forward declaration
 class SettingsModel;

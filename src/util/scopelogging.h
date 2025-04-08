@@ -2,7 +2,8 @@
 #define SCOPELOGGING_H
 
 #include <QLoggingCategory>
-#include "diagnosticmodel.h"
+
+#include "models/diagnosticmodel.h"
 
 Q_DECLARE_LOGGING_CATEGORY(scopeCommConnection)
 Q_DECLARE_LOGGING_CATEGORY(scopeComm)

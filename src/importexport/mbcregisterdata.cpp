@@ -1,5 +1,7 @@
 #include "mbcregisterdata.h"
-#include "expressiongenerator.h"
+
+#include "util/expressiongenerator.h"
+
 #include <QtMath>
 
 MbcRegisterData::MbcRegisterData() :

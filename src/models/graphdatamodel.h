@@ -5,7 +5,7 @@
 #include <QAbstractTableModel>
 #include <QList>
 
-#include "graphdata.h"
+#include "models/graphdata.h"
 
 class GraphDataModel : public QAbstractTableModel
 {

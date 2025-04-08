@@ -7,7 +7,6 @@
 #include <QVBoxLayout>
 #include <QMenu>
 
-
 /* Forward declarations */
 class GuiModel;
 class GraphDataModel;

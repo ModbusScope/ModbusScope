@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QStyledItemDelegate>
 
-
 class RegisterValueAxisDelegate : public QStyledItemDelegate
 {
     Q_OBJECT

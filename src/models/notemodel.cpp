@@ -1,7 +1,7 @@
 #include "notemodel.h"
 
-#include "formatrelativetime.h"
-#include "util.h"
+#include "util/formatrelativetime.h"
+#include "util/util.h"
 
 namespace {
 
@@ -15,7 +15,6 @@ enum column {
 };
 
 }
-
 
 NoteModel::NoteModel(QObject *parent) : QAbstractTableModel(parent)
 {

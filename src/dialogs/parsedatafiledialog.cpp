@@ -1,21 +1,16 @@
 
-#include <QPushButton>
+#include "parsedatafiledialog.h"
+
+#include "dialogs/ui_parsedatafiledialog.h"
+#include "util/util.h"
+
 #include <QColor>
 #include <QFileInfo>
+#include <QPushButton>
 
-#include "settingsauto.h"
-#include "util.h"
-#include "scopelogging.h"
-
-#include "parsedatafiledialog.h"
-#include "ui_parsedatafiledialog.h"
-
-
-const QList<ParseDataFileDialog::ComboListItem> ParseDataFileDialog::_fieldSeparatorList
-                                    = QList<ComboListItem>() << ComboListItem(" ; (semicolon)", ";")
-                                                             << ComboListItem(" , (comma)", ",")
-                                                             << ComboListItem(" tab", QString('\t'))
-                                                             << ComboListItem(" custom", "custom");
+const QList<ParseDataFileDialog::ComboListItem> ParseDataFileDialog::_fieldSeparatorList =
+  QList<ComboListItem>() << ComboListItem(" ; (semicolon)", ";") << ComboListItem(" , (comma)", ",")
+                         << ComboListItem(" tab", QString('\t')) << ComboListItem(" custom", "custom");
 
 const QList<ParseDataFileDialog::ComboListItem> ParseDataFileDialog::_decimalSeparatorList
                                     = QList<ComboListItem>() << ComboListItem(" , (comma)", ",")

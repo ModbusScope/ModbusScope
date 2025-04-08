@@ -1,7 +1,7 @@
 
 #include "expressionstatus.h"
 
-#include "graphdatamodel.h"
+#include "models/graphdatamodel.h"
 
 using State = ResultState::State;
 using ExpressionState = GraphData::ExpressionStatus;
