@@ -30,10 +30,10 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     _pUi->registerView->setModel(_pGraphDataModel);
     _pUi->registerView->verticalHeader()->hide();
 
-    _valueAxisDelegate = std::make_unique<RegisterValueAxisDelegate>(_pGraphDataModel, _pUi->registerView);
+    _valueAxisDelegate = std::make_unique<RegisterValueAxisDelegate>(_pUi->registerView);
     _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::VALUE_AXIS, _valueAxisDelegate.get());
 
-    _expressionDelegate = std::make_unique<ExpressionDelegate>(_pGraphDataModel, _pUi->registerView);
+    _expressionDelegate = std::make_unique<ExpressionDelegate>(_pUi->registerView);
     connect(_expressionDelegate.get(), &ExpressionDelegate::clicked, this, &RegisterDialog::handleExpressionEdit);
     _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::EXPRESSION, _expressionDelegate.get());
 

@@ -3,14 +3,11 @@
 
 #include <QStyledItemDelegate>
 
-/* Forward declaration */
-class GraphDataModel;
-
 class ExpressionDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    explicit ExpressionDelegate(GraphDataModel* pGraphDataModel, QObject *parent = nullptr);
+    explicit ExpressionDelegate(QObject* parent = nullptr);
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
@@ -26,8 +23,6 @@ signals:
 
 private:
     QRect buttonRect(const QStyleOptionViewItem &option) const;
-
-    GraphDataModel* _pGraphDataModel;
 
 };
 

@@ -1,12 +1,11 @@
 #include <QComboBox>
 
-#include "graphdatamodel.h"
+#include "graphdata.h"
 #include "registervalueaxisdelegate.h"
 
-RegisterValueAxisDelegate::RegisterValueAxisDelegate(GraphDataModel* pGraphDataModel, QObject *parent)
+RegisterValueAxisDelegate::RegisterValueAxisDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
 {
-    _pGraphDataModel = pGraphDataModel;
 }
 
 RegisterValueAxisDelegate::~RegisterValueAxisDelegate()

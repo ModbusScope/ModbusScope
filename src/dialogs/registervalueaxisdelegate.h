@@ -4,14 +4,12 @@
 #include <QObject>
 #include <QStyledItemDelegate>
 
-/* Forward declaration */
-class GraphDataModel;
 
 class RegisterValueAxisDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    explicit RegisterValueAxisDelegate(GraphDataModel* pGraphDataModel, QObject *parent = nullptr);
+    explicit RegisterValueAxisDelegate(QObject *parent = nullptr);
     ~RegisterValueAxisDelegate() override;
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
@@ -20,7 +18,6 @@ public:
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &/* index */) const override;
 
 private:
-    GraphDataModel* _pGraphDataModel;
 
 };
 

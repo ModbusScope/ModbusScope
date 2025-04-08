@@ -7,8 +7,7 @@
 // Based on example (2018) from https://forum.qt.io/post/475871
 // Current limitation is that width of the button is limited to the height of the tableview row
 
-ExpressionDelegate::ExpressionDelegate(GraphDataModel *pGraphDataModel, QObject *parent)
-    : QStyledItemDelegate(parent), _pGraphDataModel(pGraphDataModel)
+ExpressionDelegate::ExpressionDelegate(QObject* parent) : QStyledItemDelegate(parent)
 {
 
 }
