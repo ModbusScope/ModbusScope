@@ -286,7 +286,7 @@ void GraphView::changeSelectedGraph(const qint32 activeGraphIdx)
 
     if (activeGraphIdx == -1)
     {
-        for (QCPGraph* selectedGraph: selectedGraphs)
+        for (QCPGraph* selectedGraph : std::as_const(selectedGraphs))
         {
             selectedGraph->setSelection(QCPDataSelection());
         }
@@ -298,7 +298,7 @@ void GraphView::changeSelectedGraph(const qint32 activeGraphIdx)
 
         if (!bAlreadySelected)
         {
-            for (QCPGraph* selectedGraph: selectedGraphs)
+            for (QCPGraph* selectedGraph : std::as_const(selectedGraphs))
             {
                 selectedGraph->setSelection(QCPDataSelection());
             }

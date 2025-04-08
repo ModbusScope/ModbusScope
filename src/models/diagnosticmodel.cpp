@@ -57,7 +57,7 @@ Diagnostic::LogSeverity DiagnosticModel::dataSeverity(quint32 index) const
         return _logList[index].severity();
     }
 
-    return static_cast<Diagnostic::LogSeverity>(-1);
+    return Diagnostic::LOG_DEBUG;
 }
 
 /*!
