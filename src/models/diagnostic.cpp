@@ -1,5 +1,4 @@
 #include "diagnostic.h"
-#include "util.h"
 
 /*!
  * \brief Creates new error log data class
