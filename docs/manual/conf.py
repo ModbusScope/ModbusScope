@@ -19,7 +19,7 @@ import sphinx_rtd_theme
 # -- Project information -----------------------------------------------------
 
 project = 'ModbusScope'
-copyright = '2024, Jens Geudens'
+copyright = '2025, Jens Geudens'
 author = 'Jens Geudens'
 
 
@@ -62,8 +62,8 @@ html_theme = 'sphinx_rtd_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-html_logo = "../resources/icon/icon_original.svg"
-html_favicon = "../resources/icon/application.ico"
+html_logo = "../../resources/icon/icon_original.svg"
+html_favicon = "../../resources/icon/application.ico"
 html_theme_options = {
     'logo_only': False,
     'display_version': True,
