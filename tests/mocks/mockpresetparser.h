@@ -1,9 +1,9 @@
 #ifndef MOCKPRESETPARSER_H__
 #define MOCKPRESETPARSER_H__
 
-#include "gmock/gmock.h"
+#include "importexport/presetparser.h"
 
-#include "presetparser.h"
+#include "gmock/gmock.h"
 
 class MockPresetParser : public PresetParser {
     public:

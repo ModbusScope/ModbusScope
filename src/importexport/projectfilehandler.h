@@ -1,12 +1,14 @@
 #ifndef PROJECTFILEHANDLER_H
 #define PROJECTFILEHANDLER_H
 
+#include "projectfiledata.h"
+
 #include <QObject>
 
-#include "guimodel.h"
-#include "projectfiledata.h"
-#include "settingsmodel.h"
-#include "graphdatamodel.h"
+// Forward declaration
+class GuiModel;
+class SettingsModel;
+class GraphDataModel;
 
 class ProjectFileHandler : public QObject
 {

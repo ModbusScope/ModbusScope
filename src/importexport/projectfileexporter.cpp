@@ -2,14 +2,12 @@
 #include <QDomElement>
 #include <QTextStream>
 
-#include "guimodel.h"
-#include "settingsmodel.h"
-#include "graphdatamodel.h"
-#include "util.h"
-
-#include "projectfiledefinitions.h"
-#include "projectfileexporter.h"
-
+#include "importexport/projectfiledefinitions.h"
+#include "importexport/projectfileexporter.h"
+#include "models/graphdatamodel.h"
+#include "models/guimodel.h"
+#include "models/settingsmodel.h"
+#include "util/util.h"
 
 ProjectFileExporter::ProjectFileExporter(GuiModel *pGuiModel, SettingsModel *pSettingsModel, GraphDataModel * pGraphDataModel, QObject *parent) : QObject(parent)
 {

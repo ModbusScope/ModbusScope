@@ -1,10 +1,11 @@
 #ifndef NOTESDOCK_H
 #define NOTESDOCK_H
 
-#include "notemodel.h"
-#include "guimodel.h"
-
 #include <QWidget>
+
+// Forward declaration
+class NoteModel;
+class GuiModel;
 
 namespace Ui {
 class NotesDockWidget;
@@ -15,7 +16,7 @@ class NotesDockWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit NotesDockWidget(NoteModel *pNoteModel, GuiModel *pGuiModel, QWidget *parent = 0);
+    explicit NotesDockWidget(NoteModel *pNoteModel, GuiModel *pGuiModel, QWidget *parent = nullptr);
     ~NotesDockWidget();
 
 private slots:

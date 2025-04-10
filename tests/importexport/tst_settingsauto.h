@@ -1,7 +1,7 @@
 
-#include <QObject>
+#include "importexport/settingsauto.h"
 
-#include "settingsauto.h"
+#include <QObject>
 
 class TestSettingsAuto: public QObject
 {

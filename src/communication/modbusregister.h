@@ -1,10 +1,10 @@
 #ifndef MODBUSREGISTER_H
 #define MODBUSREGISTER_H
 
-#include <QObject>
+#include "util/modbusaddress.h"
+#include "util/modbusdatatype.h"
 #include <QDebug>
-#include "modbusaddress.h"
-#include "modbusdatatype.h"
+#include <QObject>
 
 class ModbusRegister
 {

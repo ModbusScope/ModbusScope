@@ -1,7 +1,7 @@
 
-#include <QtTest/QtTest>
-
 #include "tst_modbusconnection.h"
+
+#include <QtTest/QtTest>
 
 Q_DECLARE_METATYPE(ModbusAddress);
 

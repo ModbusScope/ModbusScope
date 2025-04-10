@@ -1,7 +1,6 @@
 
 #include <QObject>
 
-
 class TestPresetFileParser: public QObject
 {
     Q_OBJECT

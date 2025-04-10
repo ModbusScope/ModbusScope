@@ -1,12 +1,12 @@
 #ifndef PROJECTFILEPARSER_H
 #define PROJECTFILEPARSER_H
 
-#include <QObject>
+#include "importexport/projectfiledata.h"
+#include "util/generalerror.h"
+
 #include <QColor>
 #include <QDomDocument>
-
-#include "generalerror.h"
-#include "projectfiledata.h"
+#include <QObject>
 
 class ProjectFileParser : public QObject
 {

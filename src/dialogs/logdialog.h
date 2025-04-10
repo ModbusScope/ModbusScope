@@ -6,7 +6,6 @@
 
 /* Forward declaration */
 class SettingsModel;
-class GuiModel;
 
 namespace Ui {
 class LogDialog;
@@ -17,7 +16,7 @@ class LogDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit LogDialog(SettingsModel * pSettingsModel, GuiModel * pGuiModel, QWidget *parent = 0);
+    explicit LogDialog(SettingsModel* pSettingsModel, QWidget* parent = nullptr);
     ~LogDialog();
 
 private slots:
@@ -36,7 +35,6 @@ private:
     Ui::LogDialog * _pUi;
 
     SettingsModel * _pSettingsModel;
-    GuiModel * _pGuiModel;
 
     QButtonGroup* _pTimeReferenceGroup;
 };

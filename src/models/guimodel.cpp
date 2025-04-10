@@ -1,9 +1,9 @@
+#include "guimodel.h"
+
 #include <QColor>
-#include <QStringList>
 #include <QList>
 #include <QStandardPaths>
-
-#include "guimodel.h"
+#include <QStringList>
 
 const QString GuiModel::_cWindowTitle = QString("ModbusScope");
 

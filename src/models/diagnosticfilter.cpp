@@ -1,5 +1,6 @@
 #include "diagnosticfilter.h"
-#include "diagnosticmodel.h"
+
+#include "models/diagnosticmodel.h"
 
 DiagnosticFilter::DiagnosticFilter(QObject* parent) : QSortFilterProxyModel(parent)
 {

@@ -4,13 +4,12 @@
 #include <QObject>
 #include <QMouseEvent>
 
-#include "scopeplot.h"
-#include "guimodel.h"
-#include "notemodel.h"
-#include "noteitem.h"
+#include "graphview/noteitem.h"
 
 // Forward declaration
 class GraphView;
+class NoteModel;
+class ScopePlot;
 
 class NoteHandling : public QObject
 {

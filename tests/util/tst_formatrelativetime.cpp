@@ -1,9 +1,9 @@
 
-#include <QtTest/QtTest>
-
-#include "formatrelativetime.h"
-
 #include "tst_formatrelativetime.h"
+
+#include "util/formatrelativetime.h"
+
+#include <QtTest/QtTest>
 
 #define ADD_TEST(ticks, result)      QTest::newRow(result) << static_cast<qint64>(ticks) << result
 

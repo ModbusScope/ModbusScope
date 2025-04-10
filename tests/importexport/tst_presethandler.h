@@ -1,7 +1,6 @@
 
 #include <QObject>
 
-
 class TestPresetHandler: public QObject
 {
     Q_OBJECT

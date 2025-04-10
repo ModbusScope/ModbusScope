@@ -10,7 +10,7 @@ class VersionDownloader : public QObject
 {
     Q_OBJECT
 public:
-    explicit VersionDownloader(QObject *parent = 0);
+    explicit VersionDownloader(QObject *parent = nullptr);
     virtual ~VersionDownloader();
 
     virtual void performCheck();

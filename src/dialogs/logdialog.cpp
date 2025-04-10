@@ -1,20 +1,16 @@
 #include "logdialog.h"
 #include "ui_logdialog.h"
 
-#include "settingsmodel.h"
-#include "guimodel.h"
+#include "models/settingsmodel.h"
+#include "util/fileselectionhelper.h"
 
 #include <QFileDialog>
-#include "fileselectionhelper.h"
 
-LogDialog::LogDialog(SettingsModel * pSettingsModel, GuiModel * pGuiModel, QWidget *parent) :
-    QDialog(parent),
-    _pUi(new Ui::LogDialog)
+LogDialog::LogDialog(SettingsModel* pSettingsModel, QWidget* parent) : QDialog(parent), _pUi(new Ui::LogDialog)
 {
     _pUi->setupUi(this);
 
     _pSettingsModel = pSettingsModel;
-    _pGuiModel = pGuiModel;
 
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);

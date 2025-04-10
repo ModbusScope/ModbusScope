@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "modbusresultmap.h"
+#include "util/modbusresultmap.h"
 
 class ModbusReadItem
 {

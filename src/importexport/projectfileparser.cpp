@@ -1,8 +1,10 @@
 
-#include <QFileInfo>
-#include <QDir>
 #include "projectfileparser.h"
-#include "projectfiledefinitions.h"
+
+#include "importexport/projectfiledefinitions.h"
+
+#include <QDir>
+#include <QFileInfo>
 
 using ProjectFileData::ProjectSettings;
 using ProjectFileData::ConnectionSettings;
@@ -18,7 +20,6 @@ ProjectFileParser::ProjectFileParser()
 {
 
 }
-
 
 GeneralError ProjectFileParser::parseFile(QString& fileContent, ProjectSettings *pSettings)
 {

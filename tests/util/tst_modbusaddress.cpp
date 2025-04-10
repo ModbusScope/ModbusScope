@@ -1,9 +1,9 @@
 
-#include <QtTest/QtTest>
-
-#include "modbusaddress.h"
-
 #include "tst_modbusaddress.h"
+
+#include "util/modbusaddress.h"
+
+#include <QtTest/QtTest>
 
 using ObjectType = ModbusAddress::ObjectType;
 

@@ -1,9 +1,9 @@
 #ifndef COMMUNICATIONSTATS_H
 #define COMMUNICATIONSTATS_H
 
+#include "util/result.h"
 #include <QObject>
 #include <QTimer>
-#include "result.h"
 
 class GraphDataModel;
 

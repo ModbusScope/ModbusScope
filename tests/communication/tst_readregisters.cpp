@@ -3,7 +3,7 @@
 
 #include "tst_readregisters.h"
 
-#include "readregisters.h"
+#include "communication/readregisters.h"
 
 using ObjectType = ModbusAddress::ObjectType;
 

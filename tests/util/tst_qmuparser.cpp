@@ -1,9 +1,9 @@
 
-#include <QtTest/QtTest>
-
-#include "qmuparser.h"
-
 #include "tst_qmuparser.h"
+
+#include "util/qmuparser.h"
+
+#include <QtTest/QtTest>
 
 using State = ResultState::State;
 

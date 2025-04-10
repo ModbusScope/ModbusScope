@@ -1,13 +1,12 @@
 
-#include "util.h"
-#include "formatdatetime.h"
-
-#include "qcustomplot.h"
-#include "settingsmodel.h"
-#include "graphdatamodel.h"
-
 #include "datafileexporter.h"
-#include "notemodel.h"
+
+#include "models/graphdatamodel.h"
+#include "models/notemodel.h"
+#include "models/settingsmodel.h"
+#include "qcustomplot.h"
+#include "util/formatdatetime.h"
+#include "util/util.h"
 
 DataFileExporter::DataFileExporter(SettingsModel * pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel *pNoteModel, QObject *parent) :
     QObject(parent)

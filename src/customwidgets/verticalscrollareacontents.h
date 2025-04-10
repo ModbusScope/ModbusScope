@@ -11,7 +11,7 @@ class VerticalScrollAreaContents : public QWidget
     Q_OBJECT
 
 public:
-    explicit VerticalScrollAreaContents(QScrollArea *parent = 0);
+    explicit VerticalScrollAreaContents(QScrollArea *parent = nullptr);
 
     void resizeEvent(QResizeEvent * event);
 

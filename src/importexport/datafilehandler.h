@@ -1,15 +1,16 @@
 #ifndef DATAFILEHANDLER_H
 #define DATAFILEHANDLER_H
 
+#include <QFile>
 #include <QObject>
 
-#include "guimodel.h"
-#include "graphdatamodel.h"
-#include "notemodel.h"
-#include "settingsmodel.h"
-
-#include "datafileexporter.h"
-#include "dataparsermodel.h"
+// Forward declaration
+class GuiModel;
+class GraphDataModel;
+class NoteModel;
+class SettingsModel;
+class DataParserModel;
+class DataFileExporter;
 
 class DataFileHandler : public QObject
 {

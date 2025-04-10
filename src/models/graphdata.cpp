@@ -1,6 +1,6 @@
 #include "graphdata.h"
 
-#include "util.h"
+#include "util/util.h"
 
 GraphData::GraphData()
 {

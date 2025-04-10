@@ -1,10 +1,10 @@
 
-#include <QtTest/QtTest>
-
 #include "tst_graphdata.h"
 
-#include "graphdata.h"
-#include "util.h"
+#include "models/graphdata.h"
+#include "util/util.h"
+
+#include <QtTest/QtTest>
 
 void TestGraphData::init()
 {

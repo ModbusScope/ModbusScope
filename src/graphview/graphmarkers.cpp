@@ -1,8 +1,9 @@
 
 #include "graphmarkers.h"
-#include "graphdatamodel.h"
-#include "guimodel.h"
-#include "graphview.h"
+
+#include "graphview/graphview.h"
+#include "models/graphdatamodel.h"
+#include "models/guimodel.h"
 
 GraphMarkers::GraphMarkers(GraphDataModel * pGraphDataModel, GuiModel* pGuiModel, ScopePlot* pPlot, QObject *parent) :
     QObject(parent),

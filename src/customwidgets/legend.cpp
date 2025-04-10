@@ -1,16 +1,16 @@
 
-
-#include <QStyleOption>
-#include <QPainter>
-#include <QMouseEvent>
-#include <QColorDialog>
-
-#include "guimodel.h"
-#include "graphdatamodel.h"
-#include "result.h"
-#include "util.h"
 #include "legend.h"
-#include "graphview.h"
+
+#include "graphview/graphview.h"
+#include "models/graphdatamodel.h"
+#include "models/guimodel.h"
+#include "util/result.h"
+#include "util/util.h"
+
+#include <QColorDialog>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QStyleOption>
 
 using State = ResultState::State;
 
@@ -260,7 +260,7 @@ void Legend::updateCursorDataInLegend()
     if (_pLegendTable->rowCount() == valueList.size())
     {
         uint i = 0;
-        for (auto value: valueList)
+        for (auto value : std::as_const(valueList))
         {
             QString cursorValue;
             if (bInRange)
@@ -286,7 +286,7 @@ void Legend::updateValueDataInLegend()
     if (_pLegendTable->rowCount() == _lastReceivedList.size())
     {
         uint i = 0;
-        for (const auto &result: _lastReceivedList)
+        for (const auto& result : std::as_const(_lastReceivedList))
         {
             QString dataValue;
             if (result.isValid())

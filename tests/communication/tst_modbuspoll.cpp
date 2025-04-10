@@ -1,14 +1,14 @@
 
-#include <QtTest/QtTest>
-#include <QMap>
+#include "tst_modbuspoll.h"
 
-#include "modbuspoll.h"
+#include "communication/modbuspoll.h"
+#include "communicationhelpers.h"
 #include "testslavedata.h"
 #include "testslavemodbus.h"
-#include "communicationhelpers.h"
-#include "modbusdatatype.h"
+#include "util/modbusdatatype.h"
 
-#include "tst_modbuspoll.h"
+#include <QMap>
+#include <QtTest/QtTest>
 
 Q_DECLARE_METATYPE(ResultDouble);
 

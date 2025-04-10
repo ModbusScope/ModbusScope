@@ -1,7 +1,8 @@
 #include "registervaluehandler.h"
-#include "modbusaddress.h"
-#include "settingsmodel.h"
-#include "modbusdatatype.h"
+
+#include "models/settingsmodel.h"
+#include "util/modbusaddress.h"
+#include "util/modbusdatatype.h"
 
 using State = ResultState::State;
 

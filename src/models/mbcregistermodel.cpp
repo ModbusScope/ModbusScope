@@ -1,5 +1,6 @@
 #include "mbcregistermodel.h"
-#include "centeredbox.h"
+
+#include "customwidgets/centeredbox.h"
 
 MbcRegisterModel::MbcRegisterModel(QObject *parent)
     : QAbstractTableModel(parent)

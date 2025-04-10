@@ -1,10 +1,10 @@
 
 #include <QtTest/QtTest>
 
-#include "registervaluehandler.h"
 #include "tst_registervaluehandler.h"
 
-#include "settingsmodel.h"
+#include "communication/registervaluehandler.h"
+#include "models/settingsmodel.h"
 
 Q_DECLARE_METATYPE(ResultDouble);
 

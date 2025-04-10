@@ -1,11 +1,10 @@
 
-#include <QtTest/QtTest>
-
-#include "addregisterwidget.h"
-#include "ui_addregisterwidget.h"
-
 #include "tst_addregisterwidget.h"
 
+#include "dialogs/addregisterwidget.h"
+#include "ui_addregisterwidget.h"
+
+#include <QtTest/QtTest>
 
 void TestAddRegisterWidget::init()
 {

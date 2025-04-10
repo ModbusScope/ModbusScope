@@ -4,16 +4,17 @@
 #include <QObject>
 #include <QDockWidget>
 
-#include "notemodel.h"
-#include "guimodel.h"
-#include "notesdockwidget.h"
+// Forward declaration
+class NotesDockWidget;
+class NoteModel;
+class GuiModel;
 
 class NotesDock : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit NotesDock(NoteModel * pNoteModel, GuiModel * pGuiModel, QWidget *parent = 0);
+    explicit NotesDock(NoteModel * pNoteModel, GuiModel * pGuiModel, QWidget *parent = nullptr);
     ~NotesDock();
 
     void hideEvent(QHideEvent *);

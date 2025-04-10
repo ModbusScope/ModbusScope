@@ -1,9 +1,10 @@
 #ifndef MBCREGISTERMODEL_H
 #define MBCREGISTERMODEL_H
 
+#include "importexport/mbcregisterdata.h"
+#include "models/graphdata.h"
+
 #include <QAbstractTableModel>
-#include <mbcregisterdata.h>
-#include <graphdata.h>
 
 class MbcRegisterModel : public QAbstractTableModel
 {

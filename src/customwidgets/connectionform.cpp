@@ -1,7 +1,7 @@
-#include "connectionform.h"
+#include "customwidgets/connectionform.h"
 #include "ui_connectionform.h"
 
-#include "settingsmodel.h"
+#include "models/settingsmodel.h"
 
 ConnectionForm::ConnectionForm(QWidget *parent) :
     QWidget(parent),

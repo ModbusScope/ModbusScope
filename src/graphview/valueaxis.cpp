@@ -1,6 +1,5 @@
 #include "valueaxis.h"
 
-
 ValueAxis::ValueAxis(QCPAxisRect *parent, AxisType type):
     QCPAxis(parent, type)
 {

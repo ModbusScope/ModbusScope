@@ -1,13 +1,13 @@
+
+#include "markerinfodialog.h"
+
+#include "dialogs/ui_markerinfodialog.h"
+#include "models/guimodel.h"
+
 #include <QFileInfo>
 
-#include "util.h"
-#include "markerinfodialog.h"
-#include "ui_markerinfodialog.h"
-
-
-MarkerInfoDialog::MarkerInfoDialog(GuiModel *pGuiModel, QWidget *parent) :
-    QDialog(parent),
-    _pUi(new Ui::MarkerInfoDialog)
+MarkerInfoDialog::MarkerInfoDialog(GuiModel* pGuiModel, QWidget* parent)
+    : QDialog(parent), _pUi(new Ui::MarkerInfoDialog)
 {
     _pUi->setupUi(this);
 

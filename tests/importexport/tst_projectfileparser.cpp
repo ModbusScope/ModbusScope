@@ -1,10 +1,10 @@
 
-#include <QtTest/QtTest>
-
 #include "tst_projectfileparser.h"
 
-#include "projectfileparser.h"
+#include "importexport/projectfileparser.h"
 #include "projectfiletestdata.h"
+
+#include <QtTest/QtTest>
 
 using ProjectFileData::ProjectSettings;
 

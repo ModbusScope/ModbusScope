@@ -1,10 +1,11 @@
 #ifndef COMMUNICATIONHELPERS_H
 #define COMMUNICATIONHELPERS_H
 
+#include "models/graphdatamodel.h"
+#include "util/result.h"
+
 #include <QObject>
-#include "graphdatamodel.h"
-#include "qtestcase.h"
-#include "result.h"
+#include <qtestcase.h>
 
 class CommunicationHelpers : public QObject
 {

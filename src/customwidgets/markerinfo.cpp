@@ -1,11 +1,11 @@
 
-#include "guimodel.h"
-#include "graphdatamodel.h"
-
-#include "formatrelativetime.h"
-#include "markerinfoitem.h"
 #include "markerinfo.h"
-#include "markerinfodialog.h"
+
+#include "customwidgets/markerinfoitem.h"
+#include "dialogs/markerinfodialog.h"
+#include "models/graphdatamodel.h"
+#include "models/guimodel.h"
+#include "util/formatrelativetime.h"
 
 MarkerInfo::MarkerInfo(QWidget *parent) : QFrame(parent)
 {

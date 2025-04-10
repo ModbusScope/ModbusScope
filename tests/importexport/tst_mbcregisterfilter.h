@@ -2,8 +2,6 @@
 #include <QObject>
 
 /* Forward declaration */
-class SettingsModel;
-class GraphDataModel;
 class MbcRegisterModel;
 class MbcRegisterFilter;
 
@@ -22,9 +20,6 @@ private slots:
     void tabTextFilter();
 
 private:
-
-    SettingsModel* _pSettingsModel;
-    GraphDataModel* _pGraphDataModel;
     MbcRegisterModel* _pMbcRegisterModel;
 
     MbcRegisterFilter* _pFilterProxy;

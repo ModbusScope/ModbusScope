@@ -1,10 +1,10 @@
 
-#include <QtTest/QtTest>
-
 #include "tst_presetparser.h"
 
-#include "presetparser.h"
+#include "importexport/presetparser.h"
 #include "presetfiletestdata.h"
+
+#include <QtTest/QtTest>
 
 void TestPresetFileParser::init()
 {

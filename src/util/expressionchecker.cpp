@@ -18,7 +18,7 @@ void ExpressionChecker::checkExpression(QString expr)
     _graphDataHandler.modbusRegisterList(registerList);
 
     _descriptions.clear();
-    for(ModbusRegister const& reg : registerList)
+    for (ModbusRegister const& reg : std::as_const(registerList))
     {
         _descriptions.append(reg.description());
     }

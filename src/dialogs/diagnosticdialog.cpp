@@ -1,29 +1,26 @@
 #include "diagnosticdialog.h"
-#include <QScrollBar>
-#include <QFileDialog>
-#include <QModelIndex>
-#include <QClipboard>
-#include <algorithm>
-
 #include "ui_diagnosticdialog.h"
 
-#include "guimodel.h"
-#include "fileselectionhelper.h"
-#include "util.h"
-#include "diagnosticmodel.h"
-#include "diagnosticfilter.h"
-#include "diagnosticexporter.h"
-#include "scopelogging.h"
+#include "importexport/diagnosticexporter.h"
+#include "models/diagnosticfilter.h"
+#include "models/diagnosticmodel.h"
+#include "util/fileselectionhelper.h"
+#include "util/scopelogging.h"
+#include "util/util.h"
 
-DiagnosticDialog::DiagnosticDialog(GuiModel* pGuiModel, DiagnosticModel * pDiagnosticModel, QWidget *parent) :
-    QDialog(parent),
-    _pUi(new Ui::DiagnosticDialog)
+#include <QClipboard>
+#include <QFileDialog>
+#include <QModelIndex>
+#include <QScrollBar>
+#include <algorithm>
+
+DiagnosticDialog::DiagnosticDialog(DiagnosticModel* pDiagnosticModel, QWidget* parent)
+    : QDialog(parent), _pUi(new Ui::DiagnosticDialog)
 {
     _pUi->setupUi(this);
     _bAutoScroll = false;
 
     _pDiagnosticModel = pDiagnosticModel;
-    _pGuiModel = pGuiModel;
 
     _pSeverityProxyFilter = new DiagnosticFilter();
     _pSeverityProxyFilter->setSourceModel(_pDiagnosticModel);

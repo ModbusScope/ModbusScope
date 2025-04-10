@@ -1,8 +1,8 @@
 
-#include <QObject>
+#include "models/graphdata.h"
+#include "models/settingsmodel.h"
 
-#include "graphdata.h"
-#include "settingsmodel.h"
+#include <QObject>
 
 class AddRegisterWidget;
 

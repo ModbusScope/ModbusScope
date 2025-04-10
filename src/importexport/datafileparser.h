@@ -1,11 +1,11 @@
 #ifndef DATAFILEPARSER_H
 #define DATAFILEPARSER_H
 
-#include <QTextStream>
-#include <QRegularExpression>
+#include "models/dataparsermodel.h"
+#include "models/note.h"
 
-#include "note.h"
-#include "dataparsermodel.h"
+#include <QRegularExpression>
+#include <QTextStream>
 
 class DataFileParser : public QObject
 {

@@ -3,7 +3,6 @@
 
 /* Forward declaration */
 class GraphDataModel;
-class SettingsModel;
 class CommunicationStats;
 
 class TestCommunicationStats: public QObject
@@ -25,7 +24,6 @@ private slots:
 private:
     void setPollData(QVector<double> times);
 
-    SettingsModel* _pSettingsModel;
     GraphDataModel* _pGraphDataModel;
 
     CommunicationStats* _pCommunicationStats;

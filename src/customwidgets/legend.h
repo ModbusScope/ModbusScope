@@ -10,7 +10,7 @@
 #include <QMenu>
 #include <QTimer>
 
-#include "result.h"
+#include "util/result.h"
 
 /* Forward declaration */
 class GuiModel;

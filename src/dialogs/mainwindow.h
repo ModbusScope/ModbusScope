@@ -1,13 +1,13 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include <QListWidgetItem>
-#include <QButtonGroup>
-#include <QMenu>
+#include "util/recentfilemodule.h"
+#include "util/updatenotify.h"
 
-#include "updatenotify.h"
-#include "recentfilemodule.h"
+#include <QButtonGroup>
+#include <QListWidgetItem>
+#include <QMainWindow>
+#include <QMenu>
 
 namespace Ui {
 class MainWindow;

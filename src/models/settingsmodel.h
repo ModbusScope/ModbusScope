@@ -1,11 +1,11 @@
 #ifndef SETTINGSMODEL_H
 #define SETTINGSMODEL_H
 
-#include <QObject>
-#include <QDir>
-#include <QSerialPort>
+#include "models/connectiontypes.h"
 
-#include "connectiontypes.h"
+#include <QDir>
+#include <QObject>
+#include <QSerialPort>
 
 class SettingsModel : public QObject
 {

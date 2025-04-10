@@ -1,11 +1,11 @@
 #include "graphdatahandler.h"
 
-#include "scopelogging.h"
-#include "qmuparser.h"
-#include "graphdatamodel.h"
-#include "expressionparser.h"
+#include "models/graphdatamodel.h"
+#include "util/expressionparser.h"
+#include "util/qmuparser.h"
+#include "util/scopelogging.h"
 
-#include "scopelogging.h"
+#include <QRegularExpression>
 
 GraphDataHandler::GraphDataHandler() :
   _pGraphDataModel(nullptr)

@@ -1,6 +1,7 @@
 #include "mostrecentmenu.h"
 
-#include "recentfilemodule.h"
+#include "util/recentfilemodule.h"
+
 #include <QAction>
 
 MostRecentMenu::MostRecentMenu(QMenu* mostRecentMenu, RecentFileModule *recentFileModule, QObject *parent)

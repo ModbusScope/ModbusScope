@@ -1,6 +1,6 @@
 #include "communicationstats.h"
 
-#include "graphdatamodel.h"
+#include "models/graphdatamodel.h"
 #include <algorithm>
 
 const uint32_t CommunicationStats::_cUpdateTime = 500;

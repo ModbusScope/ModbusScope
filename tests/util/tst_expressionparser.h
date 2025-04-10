@@ -1,6 +1,7 @@
 
+#include "communication/modbusregister.h"
+
 #include <QObject>
-#include "modbusregister.h"
 
 class TestExpressionParser: public QObject
 {

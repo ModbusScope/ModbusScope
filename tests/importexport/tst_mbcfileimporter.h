@@ -1,7 +1,7 @@
 
-#include <QObject>
+#include "importexport/mbcregisterdata.h"
 
-#include "mbcfileimporter.h"
+#include <QObject>
 
 class TestMbcFileImporter: public QObject
 {

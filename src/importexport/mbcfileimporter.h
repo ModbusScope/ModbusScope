@@ -1,10 +1,10 @@
 #ifndef MBCFILEIMPORTER_H
 #define MBCFILEIMPORTER_H
 
-#include <QObject>
-#include <QDomDocument>
+#include "importexport/mbcregisterdata.h"
 
-#include "mbcregisterdata.h"
+#include <QDomDocument>
+#include <QObject>
 
 namespace MbcFileDefinitions
 {

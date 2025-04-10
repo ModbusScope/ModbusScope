@@ -1,14 +1,13 @@
 
-#include "gmock/gmock.h"
-#include <gmock/gmock-matchers.h>
-
-#include <QtTest/QtTest>
-
 #include "tst_presethandler.h"
-#include "presethandler.h"
+
+#include "importexport/presethandler.h"
 
 #include "../mocks/gmockutils.h"
 #include "../mocks/mockpresetparser.h"
+#include "gmock/gmock.h"
+#include <QtTest/QtTest>
+#include <gmock/gmock-matchers.h>
 
 using ::testing::Return;
 using namespace testing;

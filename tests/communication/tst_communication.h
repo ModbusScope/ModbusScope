@@ -1,8 +1,8 @@
 
+#include "testslavemodbus.h"
+
 #include <QObject>
 #include <QUrl>
-
-#include "testslavemodbus.h"
 
 /* Forward declaration */
 class SettingsModel;

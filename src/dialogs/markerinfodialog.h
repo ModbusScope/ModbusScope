@@ -2,7 +2,9 @@
 #define MARKERINFODIALOG_H
 
 #include <QDialog>
-#include "guimodel.h"
+
+// Forward declaration
+class GuiModel;
 
 namespace Ui {
 class MarkerInfoDialog;

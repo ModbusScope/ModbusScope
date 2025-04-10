@@ -1,8 +1,9 @@
 
-#include <QRegularExpression>
-
 #include "updatenotify.h"
-#include "versiondownloader.h"
+
+#include "util/versiondownloader.h"
+
+#include <QRegularExpression>
 
 UpdateNotify::UpdateNotify(VersionDownloader* pVersionDownloader, QString currentVersion, QObject *parent) :
     QObject(parent)

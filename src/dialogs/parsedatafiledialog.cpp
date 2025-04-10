@@ -1,21 +1,16 @@
 
-#include <QPushButton>
+#include "parsedatafiledialog.h"
+
+#include "dialogs/ui_parsedatafiledialog.h"
+#include "util/util.h"
+
 #include <QColor>
 #include <QFileInfo>
+#include <QPushButton>
 
-#include "settingsauto.h"
-#include "util.h"
-#include "scopelogging.h"
-
-#include "parsedatafiledialog.h"
-#include "ui_parsedatafiledialog.h"
-
-
-const QList<ParseDataFileDialog::ComboListItem> ParseDataFileDialog::_fieldSeparatorList
-                                    = QList<ComboListItem>() << ComboListItem(" ; (semicolon)", ";")
-                                                             << ComboListItem(" , (comma)", ",")
-                                                             << ComboListItem(" tab", QString('\t'))
-                                                             << ComboListItem(" custom", "custom");
+const QList<ParseDataFileDialog::ComboListItem> ParseDataFileDialog::_fieldSeparatorList =
+  QList<ComboListItem>() << ComboListItem(" ; (semicolon)", ";") << ComboListItem(" , (comma)", ",")
+                         << ComboListItem(" tab", QString('\t')) << ComboListItem(" custom", "custom");
 
 const QList<ParseDataFileDialog::ComboListItem> ParseDataFileDialog::_decimalSeparatorList
                                     = QList<ComboListItem>() << ComboListItem(" , (comma)", ",")
@@ -30,14 +25,12 @@ const QColor ParseDataFileDialog::_cColorLabel = QColor(150, 255, 150); // darke
 const QColor ParseDataFileDialog::_cColorData = QColor(200, 255, 200); // lighter green
 const QColor ParseDataFileDialog::_cColorIgnored = QColor(175, 175, 175); // grey
 
-ParseDataFileDialog::ParseDataFileDialog(GuiModel *pGuiModel, DataParserModel * pParserModel, QStringList dataFileSample, QWidget *parent) :
-    QDialog(parent),
-    _pUi(new Ui::ParseDataFileDialog)
+ParseDataFileDialog::ParseDataFileDialog(DataParserModel* pParserModel, QStringList dataFileSample, QWidget* parent)
+    : QDialog(parent), _pUi(new Ui::ParseDataFileDialog)
 {
     _pUi->setupUi(this);
 
     _pParserModel = pParserModel;
-    _pGuiModel = pGuiModel;
     _dataFileSample = dataFileSample;
 
     _pPresetHandler = new PresetHandler(new PresetParser());

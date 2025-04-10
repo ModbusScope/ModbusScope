@@ -1,9 +1,9 @@
 
-#include "graphdata.h"
-#include "util.h"
-
-#include "centeredbox.h"
 #include "graphdatamodel.h"
+
+#include "customwidgets/centeredbox.h"
+#include "models/graphdata.h"
+#include "util/util.h"
 
 const QColor GraphDataModel::lightRed = QColor(255, 0, 0, 127);
 

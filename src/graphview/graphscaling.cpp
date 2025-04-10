@@ -1,10 +1,10 @@
 
 #include "graphscaling.h"
-#include "guimodel.h"
-#include "graphview.h"
 
-#include "axistickertime.h"
-#include "valueaxis.h"
+#include "graphview/axistickertime.h"
+#include "graphview/graphview.h"
+#include "graphview/valueaxis.h"
+#include "models/guimodel.h"
 
 GraphScale::GraphScale(GuiModel* pGuiModel, ScopePlot* pPlot, QObject *parent) :
     QObject(parent),

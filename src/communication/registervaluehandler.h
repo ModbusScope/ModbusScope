@@ -3,8 +3,8 @@
 
 #include <QObject>
 
-#include "modbusresultmap.h"
-#include "modbusregister.h"
+#include "communication/modbusregister.h"
+#include "util/modbusresultmap.h"
 
 class SettingsModel;
 

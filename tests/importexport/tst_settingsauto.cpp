@@ -1,10 +1,10 @@
 
-#include <QtTest/QtTest>
-#include <QRegularExpression>
-
 #include "tst_settingsauto.h"
 
 #include "csvdata.h"
+
+#include <QRegularExpression>
+#include <QtTest/QtTest>
 
 void TestSettingsAuto::init()
 {

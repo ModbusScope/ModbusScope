@@ -1,12 +1,13 @@
 
+#include "modbusconnection.h"
+
+#include "util/modbusaddress.h"
+#include "util/scopelogging.h"
+
 #include <QVariant>
 #include <QtSerialPort/QSerialPort>
 #include <QModbusTcpClient>
 #include <QModbusRtuSerialClient>
-
-#include "modbusaddress.h"
-#include "scopelogging.h"
-#include "modbusconnection.h"
 
 using RegisterType = QModbusDataUnit::RegisterType;
 using ObjectType = ModbusAddress::ObjectType;

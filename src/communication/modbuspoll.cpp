@@ -1,13 +1,13 @@
 
+#include "communication/modbuspoll.h"
+
 #include <QDateTime>
 
-#include "modbusmaster.h"
-#include "settingsmodel.h"
-#include "scopelogging.h"
-#include "formatdatetime.h"
-#include "registervaluehandler.h"
-
-#include "modbuspoll.h"
+#include "communication/modbusmaster.h"
+#include "communication/registervaluehandler.h"
+#include "models/settingsmodel.h"
+#include "util/formatdatetime.h"
+#include "util/scopelogging.h"
 
 ModbusPoll::ModbusPoll(SettingsModel * pSettingsModel, QObject *parent) :
     QObject(parent), _bPollActive(false)

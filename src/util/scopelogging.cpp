@@ -1,8 +1,8 @@
 
-#include <QDateTime>
+#include "util/scopelogging.h"
+#include "models/diagnosticmodel.h"
 
-#include "diagnosticmodel.h"
-#include "scopelogging.h"
+#include <QDateTime>
 
 Q_LOGGING_CATEGORY(scopeComm, "scope.comm")
 Q_LOGGING_CATEGORY(scopeCommConnection, "scope.comm.connection")

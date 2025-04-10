@@ -1,34 +1,36 @@
-#include "mainwindow.h"
-#include "aboutdialog.h"
-#include "communicationstats.h"
-#include "connectiondialog.h"
-#include "datafilehandler.h"
-#include "dataparsermodel.h"
-#include "diagnosticdialog.h"
-#include "diagnosticmodel.h"
-#include "expressionstatus.h"
-#include "fileselectionhelper.h"
-#include "graphdatahandler.h"
-#include "graphdatamodel.h"
-#include "graphview.h"
-#include "guimodel.h"
-#include "importmbcdialog.h"
-#include "logdialog.h"
-#include "markerinfo.h"
-#include "mbcregistermodel.h"
-#include "modbuspoll.h"
-#include "mostrecentmenu.h"
-#include "notemodel.h"
-#include "notesdock.h"
-#include "projectfilehandler.h"
+
+#include "dialogs/mainwindow.h"
+#include "communication/communicationstats.h"
+#include "communication/graphdatahandler.h"
+#include "communication/modbuspoll.h"
+#include "customwidgets/markerinfo.h"
+#include "customwidgets/mostrecentmenu.h"
+#include "customwidgets/notesdock.h"
+#include "customwidgets/statusbar.h"
+#include "dialogs/aboutdialog.h"
+#include "dialogs/connectiondialog.h"
+#include "dialogs/diagnosticdialog.h"
+#include "dialogs/importmbcdialog.h"
+#include "dialogs/logdialog.h"
+#include "dialogs/registerdialog.h"
+#include "dialogs/ui_mainwindow.h"
+#include "graphview/graphview.h"
+#include "importexport/datafilehandler.h"
+#include "importexport/projectfilehandler.h"
+#include "models/dataparsermodel.h"
+#include "models/diagnosticmodel.h"
+#include "models/graphdatamodel.h"
+#include "models/guimodel.h"
+#include "models/mbcregistermodel.h"
+#include "models/notemodel.h"
+#include "models/settingsmodel.h"
 #include "qcustomplot.h"
-#include "registerdialog.h"
-#include "scopelogging.h"
-#include "settingsmodel.h"
-#include "statusbar.h"
-#include "ui_mainwindow.h"
-#include "util.h"
-#include "versiondownloader.h"
+#include "util/expressionstatus.h"
+#include "util/fileselectionhelper.h"
+#include "util/scopelogging.h"
+#include "util/updatenotify.h"
+#include "util/util.h"
+#include "util/versiondownloader.h"
 
 #include <QDateTime>
 
@@ -52,8 +54,8 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     QApplication::setStyle(QStyleFactory::create("Fusion"));
 
     _pConnectionDialog = new ConnectionDialog(_pSettingsModel, this);
-    _pLogDialog = new LogDialog(_pSettingsModel, _pGuiModel, this);
-    _pDiagnosticDialog = new DiagnosticDialog(_pGuiModel, _pDiagnosticModel, this);
+    _pLogDialog = new LogDialog(_pSettingsModel, this);
+    _pDiagnosticDialog = new DiagnosticDialog(_pDiagnosticModel, this);
 
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
 
@@ -393,7 +395,7 @@ void MainWindow::showRegisterDialog(QString mbcFile)
         _pGuiModel->setGuiState(GuiState::INIT);
     }
 
-    RegisterDialog registerDialog(_pGuiModel, _pGraphDataModel, _pSettingsModel, this);
+    RegisterDialog registerDialog(_pGraphDataModel, _pSettingsModel, this);
 
     if (mbcFile.isEmpty())
     {

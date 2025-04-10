@@ -1,6 +1,6 @@
 #include "diagnosticexporter.h"
 
-#include "diagnosticmodel.h"
+#include "models/diagnosticmodel.h"
 
 DiagnosticExporter::DiagnosticExporter(DiagnosticModel * pDiagModel, QObject *parent) : QObject(parent)
 {

@@ -1,5 +1,9 @@
 #include "notesdock.h"
 
+#include "customwidgets/notesdockwidget.h"
+#include "models/guimodel.h"
+#include "models/notemodel.h"
+
 NotesDock::NotesDock(NoteModel * pNoteModel, GuiModel *pGuiModel, QWidget *parent) :
     QDockWidget(parent)
 {

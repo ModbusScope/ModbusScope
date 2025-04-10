@@ -1,6 +1,7 @@
 
 #include "qmuparser.h"
-#include "muparserregister.h"
+
+#include "util/muparserregister.h"
 
 #include "muParser.h"
 

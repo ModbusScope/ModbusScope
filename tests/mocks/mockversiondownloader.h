@@ -1,9 +1,9 @@
 #ifndef MOCKVERSIONDOWNLOADER_H__
 #define MOCKVERSIONDOWNLOADER_H__
 
-#include "gmock/gmock.h"
+#include "util/versiondownloader.h"
 
-#include "versiondownloader.h"
+#include "gmock/gmock.h"
 
 class MockVersionDownloader : public VersionDownloader {
     public:

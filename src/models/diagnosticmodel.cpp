@@ -1,6 +1,7 @@
 #include "diagnosticmodel.h"
-#include "QModelIndex"
-#include "QAbstractItemModel"
+
+#include <QAbstractItemModel>
+#include <QModelIndex>
 
 /*!
  * \brief Constructor for DiagnosticModel
@@ -57,7 +58,7 @@ Diagnostic::LogSeverity DiagnosticModel::dataSeverity(quint32 index) const
         return _logList[index].severity();
     }
 
-    return static_cast<Diagnostic::LogSeverity>(-1);
+    return Diagnostic::LOG_DEBUG;
 }
 
 /*!

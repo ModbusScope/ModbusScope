@@ -1,8 +1,9 @@
 #ifndef CONNECTIONFORM_H
 #define CONNECTIONFORM_H
 
+#include "models/settingsmodel.h"
+
 #include <QWidget>
-#include "settingsmodel.h"
 
 namespace Ui {
 class ConnectionForm;

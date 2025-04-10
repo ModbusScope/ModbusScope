@@ -1,11 +1,10 @@
 #ifndef GRAPHVIEW_H
 #define GRAPHVIEW_H
 
-#include <QObject>
+#include "models/graphdata.h"
+#include "util/result.h"
 
-#include "result.h"
-#include "scopeplot.h"
-#include "graphdata.h"
+#include <QObject>
 
 /* forward declaration */
 class GuiModel;
@@ -17,6 +16,7 @@ class GraphViewZoom;
 class GraphMarkers;
 class GraphIndicators;
 class NoteHandling;
+class ScopePlot;
 
 class GraphView : public QObject
 {

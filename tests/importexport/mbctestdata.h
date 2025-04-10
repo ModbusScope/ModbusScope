@@ -1,7 +1,7 @@
 
-#include <QObject>
-#include "mbcregisterdata.h"
+#include "importexport/mbcregisterdata.h"
 
+#include <QObject>
 
 class MbcTestData: public QObject
 {

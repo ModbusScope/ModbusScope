@@ -1,9 +1,10 @@
 #ifndef MBCREGISTERDATA_H
 #define MBCREGISTERDATA_H
 
-#include <QtGlobal>
+#include "util/modbusdatatype.h"
+
 #include <QString>
-#include "modbusdatatype.h"
+#include <QtGlobal>
 
 class MbcRegisterData
 {

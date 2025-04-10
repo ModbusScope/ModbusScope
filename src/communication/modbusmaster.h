@@ -6,9 +6,9 @@
 #include <QModbusDevice>
 #include <QModbusReply>
 
-#include "modbusresultmap.h"
-#include "modbusconnection.h"
-#include "readregisters.h"
+#include "communication/modbusconnection.h"
+#include "communication/readregisters.h"
+#include "util/modbusresultmap.h"
 
 /* Forward declaration */
 class SettingsModel;

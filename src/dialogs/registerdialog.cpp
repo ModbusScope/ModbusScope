@@ -1,21 +1,18 @@
 
-#include <QColorDialog>
-#include "expressiondelegate.h"
-#include "importmbcdialog.h"
-#include "expressionsdialog.h"
-#include "addregisterwidget.h"
+#include "registerdialog.h"
 
-#include "graphdatamodel.h"
-#include "guimodel.h"
-#include "settingsmodel.h"
+#include "customwidgets/expressiondelegate.h"
+#include "dialogs/addregisterwidget.h"
+#include "dialogs/expressionsdialog.h"
+#include "dialogs/ui_registerdialog.h"
+#include "models/graphdatamodel.h"
+#include "models/settingsmodel.h"
 #include "registervalueaxisdelegate.h"
 
-#include "registerdialog.h"
-#include "ui_registerdialog.h"
+#include <QColorDialog>
 
-RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel, SettingsModel *pSettingsModel, QWidget *parent) :
-    QDialog(parent),
-    _pUi(new Ui::RegisterDialog)
+RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel, SettingsModel* pSettingsModel, QWidget* parent)
+    : QDialog(parent), _pUi(new Ui::RegisterDialog)
 {
     _pUi->setupUi(this);
 
@@ -23,17 +20,16 @@ RegisterDialog::RegisterDialog(GuiModel *pGuiModel, GraphDataModel * pGraphDataM
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     _pGraphDataModel = pGraphDataModel;
-    _pGuiModel = pGuiModel;
     _pSettingsModel = pSettingsModel;
 
     // Setup registerView
     _pUi->registerView->setModel(_pGraphDataModel);
     _pUi->registerView->verticalHeader()->hide();
 
-    _valueAxisDelegate = std::make_unique<RegisterValueAxisDelegate>(_pGraphDataModel, _pUi->registerView);
+    _valueAxisDelegate = std::make_unique<RegisterValueAxisDelegate>(_pUi->registerView);
     _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::VALUE_AXIS, _valueAxisDelegate.get());
 
-    _expressionDelegate = std::make_unique<ExpressionDelegate>(_pGraphDataModel, _pUi->registerView);
+    _expressionDelegate = std::make_unique<ExpressionDelegate>(_pUi->registerView);
     connect(_expressionDelegate.get(), &ExpressionDelegate::clicked, this, &RegisterDialog::handleExpressionEdit);
     _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::EXPRESSION, _expressionDelegate.get());
 

@@ -1,9 +1,9 @@
 
-#include <QtTest/QtTest>
-
 #include "tst_diagnosticmodel.h"
 
-#include "diagnosticmodel.h"
+#include "models/diagnosticmodel.h"
+
+#include <QtTest/QtTest>
 
 void TestDiagnosticModel::init()
 {
@@ -84,7 +84,7 @@ void TestDiagnosticModel::dataSeverity()
     QCOMPARE(diagModel.dataSeverity(0), logErr.severity());
     QCOMPARE(diagModel.dataSeverity(1), logInfo.severity());
 
-    QCOMPARE(diagModel.dataSeverity(255), static_cast<Diagnostic::LogSeverity>(-1));
+    QCOMPARE(diagModel.dataSeverity(255), Diagnostic::LOG_DEBUG);
 }
 
 void TestDiagnosticModel::flags()

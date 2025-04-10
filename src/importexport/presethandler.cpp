@@ -1,11 +1,11 @@
 #include "presethandler.h"
 
-#include <QStandardPaths>
-#include <QFileInfo>
-#include <QTextStream>
+#include "models/dataparsermodel.h"
+#include "util/scopelogging.h"
 
-#include "dataparsermodel.h"
-#include "scopelogging.h"
+#include <QFileInfo>
+#include <QStandardPaths>
+#include <QTextStream>
 
 const QString PresetHandler::_presetFilename = QString("presets.xml");
 

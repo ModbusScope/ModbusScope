@@ -1,11 +1,10 @@
 
-#include <QtTest/QtTest>
-
-#include "scaledock.h"
-#include "ui_scaledock.h"
-
 #include "tst_scaledock.h"
 
+#include "customwidgets/scaledock.h"
+#include "ui_scaledock.h"
+
+#include <QtTest/QtTest>
 
 void TestScaleDock::init()
 {
