@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DOCS_FOLDER="docs"
+DOCS_FOLDER="docs/manual"
 
 cd $DOCS_FOLDER
 

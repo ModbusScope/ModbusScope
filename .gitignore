@@ -30,8 +30,6 @@ qrc_*.cpp
 ui_*.h
 *.qmlc
 *.jsc
-Makefile*
-*build-*
 *.qm
 *.prl
 
@@ -57,9 +55,12 @@ compile_commands.json
 src/util/version.h
 resources/modbusscope.rc
 
+# docs
 _build
 build/
 venv
+*docs/doxygen/html
+*docs/doxygen/doxygen.log
 
 .vscode/
 
