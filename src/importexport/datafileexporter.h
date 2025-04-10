@@ -13,7 +13,7 @@ class DataFileExporter : public QObject
 {
     Q_OBJECT
 public:
-    explicit DataFileExporter(SettingsModel *pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel * pNoteModel, QObject *parent = 0);
+    explicit DataFileExporter(SettingsModel *pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel * pNoteModel, QObject *parent = nullptr);
     ~DataFileExporter();
 
     void enableExporterDuringLog();

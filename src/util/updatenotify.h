@@ -19,7 +19,7 @@ public:
         VERSION_UPDATE_AVAILABLE,       /* Update available */
     } UpdateState;
 
-    explicit UpdateNotify(VersionDownloader* pVersionDownloader, QString currentVersion, QObject *parent = 0);
+    explicit UpdateNotify(VersionDownloader* pVersionDownloader, QString currentVersion, QObject *parent = nullptr);
 
     void checkForUpdate();
 

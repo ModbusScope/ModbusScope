@@ -13,7 +13,10 @@ class ProjectFileExporter : public QObject
 {
     Q_OBJECT
 public:
-    explicit ProjectFileExporter(GuiModel *pGuiModel, SettingsModel *pSettingsModel, GraphDataModel * pGraphDataModel, QObject *parent = 0);
+    explicit ProjectFileExporter(GuiModel* pGuiModel,
+                                 SettingsModel* pSettingsModel,
+                                 GraphDataModel* pGraphDataModel,
+                                 QObject* parent = nullptr);
 
     void exportProjectFile(QString projectFile);
 

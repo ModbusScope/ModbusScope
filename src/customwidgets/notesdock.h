@@ -14,7 +14,7 @@ class NotesDock : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit NotesDock(NoteModel * pNoteModel, GuiModel * pGuiModel, QWidget *parent = 0);
+    explicit NotesDock(NoteModel * pNoteModel, GuiModel * pGuiModel, QWidget *parent = nullptr);
     ~NotesDock();
 
     void hideEvent(QHideEvent *);

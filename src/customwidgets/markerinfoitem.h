@@ -15,7 +15,7 @@ class MarkerInfoItem : public QFrame
     Q_OBJECT
 
 public:
-    MarkerInfoItem(QWidget *parent = 0);
+    MarkerInfoItem(QWidget *parent = nullptr);
 
     void setModel(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel);
 

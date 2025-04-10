@@ -16,7 +16,7 @@ class NotesDockWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit NotesDockWidget(NoteModel *pNoteModel, GuiModel *pGuiModel, QWidget *parent = 0);
+    explicit NotesDockWidget(NoteModel *pNoteModel, GuiModel *pGuiModel, QWidget *parent = nullptr);
     ~NotesDockWidget();
 
 private slots:
