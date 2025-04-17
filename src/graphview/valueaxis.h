@@ -2,7 +2,7 @@
 #define VALUEAXIS_H
 
 #include <QObject>
-#include "qcustomplot.h"
+#include "qcustomplot/qcustomplot.h"
 
 class ValueAxis : public QCPAxis
 {

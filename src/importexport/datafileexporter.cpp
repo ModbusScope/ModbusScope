@@ -4,7 +4,7 @@
 #include "models/graphdatamodel.h"
 #include "models/notemodel.h"
 #include "models/settingsmodel.h"
-#include "qcustomplot.h"
+#include "qcustomplot/qcustomplot.h"
 #include "util/formatdatetime.h"
 #include "util/util.h"
 

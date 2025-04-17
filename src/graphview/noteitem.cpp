@@ -2,7 +2,7 @@
 #include "noteitem.h"
 
 #include "graphview/scopeplot.h"
-#include "qcustomplot.h"
+#include "qcustomplot/qcustomplot.h"
 
 NoteItem::NoteItem(ScopePlot* pPlot,
                    const QString& rText,

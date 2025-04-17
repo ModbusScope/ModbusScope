@@ -1,8 +1,8 @@
 #ifndef SCOPEPLOT_H
 #define SCOPEPLOT_H
 
+#include "qcustomplot/qcustomplot.h"
 #include <QObject>
-#include "qcustomplot.h"
 
 class ScopePlot : public QCustomPlot
 {
