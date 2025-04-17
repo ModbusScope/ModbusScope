@@ -33,29 +33,29 @@
 #include <vector>
 
 //--- Parser includes --------------------------------------------------------------------------
-#include "muParserBase.h"
+#include "muparser/include/muParserBase.h"
 
 /** \file
-	\brief Definition of a modbus register expression parser.
+    \brief Definition of a modbus register expression parser.
 */
 
 namespace mu
 {
 	/** \brief Mathematical expressions parser.
 	*/
-	class API_EXPORT_CXX ParserRegister final : public ParserBase
-	{
-	public:
-        ParserRegister();
-        ParserRegister(const ParserRegister& a_Parser);
+class API_EXPORT_CXX ParserRegister final : public ParserBase
+{
+public:
+    ParserRegister();
+    ParserRegister(const ParserRegister& a_Parser);
 
-        typedef void (*registerCb_t)(int, double*, bool*);
+    typedef void (*registerCb_t)(int, double*, bool*);
 
-        static void setRegisterCallback(registerCb_t registerCb);
+    static void setRegisterCallback(registerCb_t registerCb);
 
-        virtual void InitCharSets();
-        virtual void InitFun();
-        virtual void InitConst();
+    virtual void InitCharSets();
+    virtual void InitFun();
+    virtual void InitConst();
         virtual void InitOprt();
 
     private:
@@ -64,14 +64,14 @@ namespace mu
 
         static value_type Shr(value_type v1, value_type v2);
         static value_type Shl(value_type v1, value_type v2);
-        static value_type LogAnd(value_type v1, value_type v2);
-        static value_type LogOr(value_type v1, value_type v2);
-        static value_type Not(value_type v1);
-        static value_type Mod(value_type v1, value_type v2);
-        static value_type RegVal(value_type v1);
+    static value_type LogAnd(value_type v1, value_type v2);
+    static value_type LogOr(value_type v1, value_type v2);
+    static value_type Not(value_type v1);
+    static value_type Mod(value_type v1, value_type v2);
+    static value_type RegVal(value_type v1);
 
-        static int IsVal(const char_type* a_szExpr, int* a_iPos, value_type* a_fVal);
-        static int IsHexVal(const char_type* a_szExpr, int* a_iPos, value_type* a_iVal);
+    static int IsVal(const char_type* a_szExpr, int* a_iPos, value_type* a_fVal);
+    static int IsHexVal(const char_type* a_szExpr, int* a_iPos, value_type* a_iVal);
         static int IsBinVal(const char_type* a_szExpr, int* a_iPos, value_type* a_fVal);
 
         static registerCb_t _registerCb;

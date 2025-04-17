@@ -24,7 +24,7 @@
 #include "models/mbcregistermodel.h"
 #include "models/notemodel.h"
 #include "models/settingsmodel.h"
-#include "qcustomplot.h"
+#include "qcustomplot/qcustomplot.h"
 #include "util/expressionstatus.h"
 #include "util/fileselectionhelper.h"
 #include "util/scopelogging.h"

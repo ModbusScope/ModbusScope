@@ -1,8 +1,8 @@
 #include "aboutdialog.h"
 #include "ui_aboutdialog.h"
 
-#include "qcustomplot.h"
 #include "muParserDef.h"
+#include "qcustomplot/qcustomplot.h"
 
 #include "util/updatenotify.h"
 #include "util/util.h"

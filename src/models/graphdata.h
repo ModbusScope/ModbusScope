@@ -3,7 +3,7 @@
 
 #include <QtGlobal>
 #include <QColor>
-#include "qcustomplot.h"
+#include "qcustomplot/qcustomplot.h"
 
 class GraphData
 {
