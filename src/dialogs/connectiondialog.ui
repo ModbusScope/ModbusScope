@@ -81,7 +81,7 @@
   <customwidget>
    <class>ConnectionForm</class>
    <extends>QWidget</extends>
-   <header>connectionform.h</header>
+   <header>customwidgets/connectionform.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

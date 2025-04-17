@@ -523,25 +523,25 @@
   <customwidget>
    <class>ScopePlot</class>
    <extends>QWidget</extends>
-   <header>scopeplot.h</header>
+   <header>graphview/scopeplot.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Legend</class>
    <extends>QFrame</extends>
-   <header>legend.h</header>
+   <header>customwidgets/legend.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>MarkerInfo</class>
    <extends>QFrame</extends>
-   <header>markerinfo.h</header>
+   <header>customwidgets/markerinfo.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>ScaleDock</class>
    <extends>QWidget</extends>
-   <header>scaledock.h</header>
+   <header>customwidgets/scaledock.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -263,7 +263,7 @@
   <customwidget>
    <class>SerialPortCombo</class>
    <extends>QComboBox</extends>
-   <header>serialportcombo.h</header>
+   <header>customwidgets/serialportcombo.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
