@@ -84,15 +84,23 @@ When an error is detected in the expression or when the combination of the expre
 
 ## Configure connection settings
 
-The *connection settings* window allows you to configure up to three connections, which means that several Modbus slaves can be polled in a single log session. Each connection can be configured with the Modbus protocol of the slave. ModbusScope support Modbus TCP and RTU. Modbus ASCII isn't supported.
+The *connection settings* window allows you to configure up to three connections, which means that several Modbus slaves can be polled in a single log session. Each connection can be configured with the specific interface to the slave. ModbusScope support Modbus TCP and RTU. Modbus ASCII isn't supported.
 
 Some settings such as ip, port, port name, baud rate, parity and number of data and stop bits are specific to the type of connection (TCP or RTU) and are used to establish a connection to the slave device. The other settings such as slave ID, timeout, max consecutive register, and 32-bit little endian, are specific to the Modbus protocol implementation in the device and are used to configure how the application communicates with the slave device.
 
-The timeout settings determine how long the application will wait for a response from the slave before timing out. It is possible to read multiple consecutive registers in a single request in Modbus. However, most devices have a limit on the number of consecutive registers that can be read in a single request. This limit is referred to as the *maximum consecutive registers*. In Modbus, 32-bit values are stored in two consecutive 16-bit registers, in either big-endian or little-endian format. In some devices, 32-bit values are stored in big-endian format by default, while in others they are stored in little-endian format. The 32-bit endianness setting in *ModbusScope* allows you to configure the endianness of the 32-bit values read from the registers, so that the application can correctly interpret the data. The persistent connection option is specific to *ModbusScope*. When enabled, it allows the application to keep the connection open between polling data points, which can increase the polling rate and reduce the time required to establish new connections. The connection will only be reinitialized when a connection error occurs. It's important to ensure that the connection settings are correct and that the correct protocol is selected before starting a log session. With correct configuration, the application will be able to communicate with the slave device and retrieve data from the registers.
+The timeout settings determine how long the application will wait for a response from the slave before timing out. It is possible to read multiple consecutive registers in a single request in Modbus. However, most devices have a limit on the number of consecutive registers that can be read in a single request. This limit is referred to as the *maximum consecutive registers*.
+
+In Modbus, 32-bit values are stored in two consecutive 16-bit registers, in either big-endian or little-endian format. In some devices, 32-bit values are stored in big-endian format by default, while in others they are stored in little-endian format. The 32-bit endianness setting in *ModbusScope* allows you to configure the endianness of the 32-bit values read from the registers, so that the application can correctly interpret the data.
+
+The persistent connection option is specific to *ModbusScope*. When enabled, it allows the application to keep the connection open between polling data points, which can increase the polling rate and reduce the time required to establish new connections. The connection will only be reinitialized when a connection error occurs. It's important to ensure that the connection settings are correct and that the correct protocol is selected before starting a log session. With correct configuration, the application will be able to communicate with the slave device and retrieve data from the registers.
 
 In the *register settings* window, you can link each register to a specific connection. This allows you to poll multiple slaves simultaneously and display the data in a single graph for easy comparison.
 
 ![image](../_static/user_manual/connection_settings.png)
+
+### Known limitation
+
+A known limitation of ModbusScope is that a COM port can't be shared between connections. This means that it isn't possible to poll multiple modbus devices that are connected on the same serial bus.
 
 ## Configure log settings
 
