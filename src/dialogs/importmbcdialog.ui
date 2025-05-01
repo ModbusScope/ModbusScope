@@ -13,84 +13,130 @@
   <property name="windowTitle">
    <string>Import registers from mbc file</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0,0">
-   <item>
-    <layout class="QFormLayout" name="formLayout_2">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>MBC file: </string>
+  <layout class="QFormLayout" name="formLayout">
+   <item row="1" column="0" colspan="2">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tabImport">
+      <attribute name="title">
+       <string>Import</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="rightMargin">
+        <number>10</number>
        </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QLineEdit" name="lineMbcfile">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
+        <layout class="QFormLayout" name="formLayout_2">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Tab filter: </string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="cmbTabFilter"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Text/Address filter</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="lineTextFilter"/>
+         </item>
+        </layout>
        </item>
        <item>
-        <widget class="QToolButton" name="btnSelectMbcFile">
-         <property name="enabled">
-          <bool>true</bool>
+        <widget class="QTableView" name="tblMbcRegisters"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="lblSelectedCount">
+         <property name="font">
+          <font>
+           <bold>true</bold>
+          </font>
          </property>
          <property name="text">
-          <string>...</string>
+          <string/>
          </property>
         </widget>
        </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnImportRegisters">
+           <property name="text">
+            <string>Import selected registers</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
       </layout>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Tab filter: </string>
+     </widget>
+     <widget class="QWidget" name="tabUpdate">
+      <attribute name="title">
+       <string>Update</string>
+      </attribute>
+     </widget>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLineEdit" name="lineMbcfile">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
-      <widget class="QComboBox" name="cmbTabFilter"/>
-     </item>
-     <item row="4" column="1">
-      <widget class="QLineEdit" name="lineTextFilter"/>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_3">
+     <item>
+      <widget class="QToolButton" name="btnSelectMbcFile">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="text">
-        <string>Text/Address filter</string>
+        <string>...</string>
        </property>
       </widget>
      </item>
     </layout>
    </item>
-   <item>
-    <widget class="QTableView" name="tblMbcRegisters"/>
-   </item>
-   <item>
-    <widget class="QLabel" name="lblSelectedCount">
-     <property name="font">
-      <font>
-       <bold>true</bold>
-      </font>
-     </property>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
      <property name="text">
-      <string/>
+      <string>MBC file: </string>
      </property>
     </widget>
    </item>
-   <item>
+   <item row="2" column="1">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Orientation::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
+      <set>QDialogButtonBox::StandardButton::Close</set>
      </property>
     </widget>
    </item>
@@ -101,7 +147,6 @@
   <tabstop>btnSelectMbcFile</tabstop>
   <tabstop>cmbTabFilter</tabstop>
   <tabstop>lineTextFilter</tabstop>
-  <tabstop>tblMbcRegisters</tabstop>
  </tabstops>
  <resources/>
  <connections>

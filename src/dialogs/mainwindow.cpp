@@ -21,7 +21,6 @@
 #include "models/diagnosticmodel.h"
 #include "models/graphdatamodel.h"
 #include "models/guimodel.h"
-#include "models/mbcregistermodel.h"
 #include "models/notemodel.h"
 #include "models/settingsmodel.h"
 #include "qcustomplot/qcustomplot.h"
@@ -532,18 +531,9 @@ void MainWindow::showNotesDialog()
 
 void MainWindow::showMbcImportDialog()
 {
-    MbcRegisterModel mbcRegisterModel;
-    ImportMbcDialog importMbcDialog(_pGuiModel, &mbcRegisterModel, this);
+    ImportMbcDialog importMbcDialog(_pGuiModel, _pGraphDataModel, this);
 
-    if (importMbcDialog.exec() == QDialog::Accepted)
-    {
-        QList<GraphData> regList = mbcRegisterModel.selectedRegisterList();
-
-        if (!regList.isEmpty())
-        {
-            _pGraphDataModel->add(regList);
-        }
-    }
+    importMbcDialog.exec();
 }
 
 void MainWindow::toggleMarkersState()
