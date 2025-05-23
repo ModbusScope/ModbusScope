@@ -2,7 +2,7 @@
 #define AXISTICKERTIME_H
 
 #include <QObject>
-#include "qcustomplot.h"
+#include "qcustomplot/qcustomplot.h"
 
 class AxisTickerTime : public QCPAxisTickerTime
 {

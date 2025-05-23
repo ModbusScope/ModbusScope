@@ -50,10 +50,7 @@ set(QT_LIB
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/customwidgets
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/graphview
-    ${CMAKE_CURRENT_SOURCE_DIR}/libraries/qcustomplot
-    ${CMAKE_CURRENT_SOURCE_DIR}/libraries/muparser/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/libraries
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
