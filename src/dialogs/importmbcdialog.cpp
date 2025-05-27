@@ -7,6 +7,7 @@
 #include "models/guimodel.h"
 #include "models/mbcregisterfilter.h"
 #include "models/mbcregistermodel.h"
+#include "models/mbcupdatemodel.h"
 #include "util/fileselectionhelper.h"
 #include "util/util.h"
 
@@ -16,6 +17,8 @@ ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel, GraphDataModel* pGraphData
     : QDialog(parent), _pUi(new Ui::ImportMbcDialog), _pGuiModel(pGuiModel), _pGraphDataModel(pGraphDatamodel)
 {
     _pUi->setupUi(this);
+
+    _pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel);
 
     _pTabProxyFilter = new MbcRegisterFilter();
     _pTabProxyFilter->setSourceModel(&_mbcRegisterModel);
@@ -45,6 +48,16 @@ ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel, GraphDataModel* pGraphData
     _pUi->tblMbcRegisters->setFocusPolicy(Qt::NoFocus);
 
     _pUi->tblMbcRegisters->setStyle(&_centeredBoxStyle);
+
+    // setup register
+    _pUi->tblMbcUpdate->setModel(_pMbcUpdateModel);
+    _pUi->tblMbcUpdate->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+    // Select using click, shift and control
+    _pUi->tblMbcUpdate->setSelectionBehavior(QAbstractItemView::SelectItems);
+    _pUi->tblMbcUpdate->setSelectionMode(QAbstractItemView::NoSelection);
+
+    _pUi->tblMbcUpdate->setFocusPolicy(Qt::NoFocus);
 
     connect(_pUi->btnSelectMbcFile, &QToolButton::clicked, this, &ImportMbcDialog::selectMbcFile);
     connect(_pUi->btnImportRegisters, &QPushButton::clicked, this, &ImportMbcDialog::importSelectedRegisters);
@@ -219,6 +232,7 @@ void ImportMbcDialog::updateMbcRegisters(QString filePath)
         if (registerList.size() > 0)
         {
             _mbcRegisterModel.fill(registerList, tabList);
+            _pMbcUpdateModel->setMbcRegisters(registerList);
 
             /* Update combo box */
             _pUi->cmbTabFilter->clear();

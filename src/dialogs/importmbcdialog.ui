@@ -96,6 +96,11 @@
       <attribute name="title">
        <string>Update</string>
       </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QTableView" name="tblMbcUpdate"/>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>

@@ -10,6 +10,7 @@
 class GuiModel;
 class GraphDataModel;
 class MbcRegisterFilter;
+class MbcUpdateModel;
 
 namespace Ui {
 class ImportMbcDialog;
@@ -45,6 +46,7 @@ private:
     GuiModel * _pGuiModel;
     GraphDataModel* _pGraphDataModel;
     MbcRegisterModel _mbcRegisterModel;
+    MbcUpdateModel* _pMbcUpdateModel;
 
     MbcRegisterFilter * _pTabProxyFilter;
 };

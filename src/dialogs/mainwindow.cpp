@@ -209,15 +209,17 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
 
     handleCommandLineArguments(cmdArguments);
 
-#if 0
+#if 1
     //Debugging
     _pGraphDataModel->add();
-    _pGraphDataModel->setExpression(0, "${40001} + ${40001:16b}");
+    _pGraphDataModel->setExpression(0, "${40001}");
+    _pGraphDataModel->setLabel(0, "Data xx");
 
     _pGraphDataModel->add();
-    _pGraphDataModel->setExpression(1, "${40002}+2");
+    _pGraphDataModel->setExpression(1, "${40003}");
+    _pGraphDataModel->setLabel(1, "Data 02");
 
-    showRegisterDialog(QString(""));
+    showRegisterDialog(QString("../../../../../data/example.mbc"));
 
     //_pGraphDataModel->setActive(2, false);
 
