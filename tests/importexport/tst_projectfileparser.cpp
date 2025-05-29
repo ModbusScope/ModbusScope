@@ -4,7 +4,7 @@
 #include "importexport/projectfileparser.h"
 #include "projectfiletestdata.h"
 
-#include <QtTest/QtTest>
+#include <QTest>
 
 using ProjectFileData::ProjectSettings;
 

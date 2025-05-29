@@ -6,7 +6,7 @@
 #include "../mocks/gmockutils.h"
 #include "../mocks/mockpresetparser.h"
 #include "gmock/gmock.h"
-#include <QtTest/QtTest>
+#include <QTest>
 #include <gmock/gmock-matchers.h>
 
 using ::testing::Return;

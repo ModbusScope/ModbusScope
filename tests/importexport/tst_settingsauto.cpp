@@ -4,7 +4,7 @@
 #include "csvdata.h"
 
 #include <QRegularExpression>
-#include <QtTest/QtTest>
+#include <QTest>
 
 void TestSettingsAuto::init()
 {

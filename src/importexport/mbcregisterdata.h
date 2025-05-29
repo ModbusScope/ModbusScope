@@ -34,7 +34,7 @@ public:
     quint8 decimals() const;
     void setDecimals(const quint8 &decimals);
 
-    QString toExpression();
+    QString toExpression() const;
 
 private:
 
