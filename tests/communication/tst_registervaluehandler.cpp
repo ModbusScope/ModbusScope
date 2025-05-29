@@ -1,10 +1,11 @@
 
-#include <QtTest/QtTest>
-
 #include "tst_registervaluehandler.h"
 
 #include "communication/registervaluehandler.h"
 #include "models/settingsmodel.h"
+
+#include <QSignalSpy>
+#include <QTest>
 
 Q_DECLARE_METATYPE(ResultDouble);
 

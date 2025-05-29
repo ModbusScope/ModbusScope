@@ -5,7 +5,7 @@
 #include "models/mbcupdatemodel.h"
 #include "models/settingsmodel.h"
 
-#include <QtTest/QtTest>
+#include <QTest>
 
 void TestMbcUpdateModel::init()
 {

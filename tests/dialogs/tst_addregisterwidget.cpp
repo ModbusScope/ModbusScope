@@ -4,7 +4,8 @@
 #include "dialogs/addregisterwidget.h"
 #include "ui_addregisterwidget.h"
 
-#include <QtTest/QtTest>
+#include <QSignalSpy>
+#include <QTest>
 
 void TestAddRegisterWidget::init()
 {

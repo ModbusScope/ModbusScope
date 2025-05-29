@@ -3,7 +3,7 @@
 
 #include "util/qmuparser.h"
 
-#include <QtTest/QtTest>
+#include <QTest>
 
 using State = ResultState::State;
 

@@ -3,7 +3,7 @@
 
 #include "util/modbusdatatype.h"
 
-#include <QtTest/QtTest>
+#include <QTest>
 
 using Type = ModbusDataType::Type;
 
