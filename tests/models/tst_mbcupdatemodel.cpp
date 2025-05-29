@@ -52,6 +52,8 @@ void TestMbcUpdateModel::noUpdate()
     QString actText =
       pMbcUpdateModel->data(modelIdx.sibling(0, MbcUpdateModel::cColumnUpdateText), Qt::DisplayRole).toString();
     QVERIFY(actText.isEmpty());
+
+    QCOMPARE(pMbcUpdateModel->data(modelIdx.sibling(0, 0), Qt::ToolTipRole).toString(), "");
 }
 
 void TestMbcUpdateModel::tooMuchDifference()
@@ -76,6 +78,8 @@ void TestMbcUpdateModel::tooMuchDifference()
     QString actText =
       pMbcUpdateModel->data(modelIdx.sibling(0, MbcUpdateModel::cColumnUpdateText), Qt::DisplayRole).toString();
     QVERIFY(actText.isEmpty());
+
+    QCOMPARE(pMbcUpdateModel->data(modelIdx.sibling(0, 0), Qt::ToolTipRole).toString(), "");
 }
 
 void TestMbcUpdateModel::updateText()
@@ -100,6 +104,8 @@ void TestMbcUpdateModel::updateText()
     QString actText =
       pMbcUpdateModel->data(modelIdx.sibling(0, MbcUpdateModel::cColumnUpdateText), Qt::DisplayRole).toString();
     QCOMPARE(actText, mbcRegisterList[0].name());
+
+    QCOMPARE(pMbcUpdateModel->data(modelIdx.sibling(0, 0), Qt::ToolTipRole).toString(), "Update of text detected");
 }
 
 void TestMbcUpdateModel::updateExpression()
@@ -124,6 +130,9 @@ void TestMbcUpdateModel::updateExpression()
     QString actText =
       pMbcUpdateModel->data(modelIdx.sibling(0, MbcUpdateModel::cColumnUpdateText), Qt::DisplayRole).toString();
     QVERIFY(actText.isEmpty());
+
+    QCOMPARE(pMbcUpdateModel->data(modelIdx.sibling(0, 0), Qt::ToolTipRole).toString(),
+             "Update of expression detected");
 }
 
 QTEST_GUILESS_MAIN(TestMbcUpdateModel)

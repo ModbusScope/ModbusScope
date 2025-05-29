@@ -68,13 +68,27 @@ Qt::ItemFlags MbcUpdateModel::flags(const QModelIndex& index) const
 
 QVariant MbcUpdateModel::data(const QModelIndex& index, int role) const
 {
+    using UpdateField = MbcUpdateModel::UpdateInfo::UpdateField;
+
     if (!index.isValid())
         return QVariant();
 
     if (role == Qt::ToolTipRole)
     {
-        // TODO
-        return "test";
+        switch (_updateInfo[index.row()].update)
+        {
+
+        case UpdateField::Expression:
+            return "Update of expression detected";
+            break;
+
+        case UpdateField::Text:
+            return "Update of text detected";
+            break;
+
+        default:
+            return QVariant();
+        }
     }
     else if (role == Qt::DisplayRole)
     {
@@ -90,14 +104,14 @@ QVariant MbcUpdateModel::data(const QModelIndex& index, int role) const
             break;
 
         case cColumnUpdateExpression:
-            if (_updateInfo[index.row()].bUpdate)
+            if (_updateInfo[index.row()].update == UpdateField::Expression)
             {
                 return _updateInfo[index.row()].expression;
             }
             break;
 
         case cColumnUpdateText:
-            if (_updateInfo[index.row()].bUpdate)
+            if (_updateInfo[index.row()].update == UpdateField::Text)
             {
                 return _updateInfo[index.row()].text;
             }
@@ -120,6 +134,8 @@ void MbcUpdateModel::setMbcRegisters(QList<MbcRegisterData> mbcRegisterList)
 
 void MbcUpdateModel::checkUpdate()
 {
+    using UpdateField = MbcUpdateModel::UpdateInfo::UpdateField;
+
     const quint32 graphSize = std::max(_pGraphDataModel->size(), 0);
 
     _updateInfo = QList<UpdateInfo>(graphSize);
@@ -134,18 +150,18 @@ void MbcUpdateModel::checkUpdate()
             QString const label = _pGraphDataModel->label(idx);
             QString const expr = _pGraphDataModel->expression(idx);
 
-            if (!_updateInfo[idx].bUpdate)
+            if (_updateInfo[idx].update == UpdateField::None)
             {
                 if ((checkExpr == expr) && (checkName != label))
                 {
-                    _updateInfo[idx].bUpdate = true;
+                    _updateInfo[idx].update = UpdateField::Text;
                     _updateInfo[idx].expression = QString();
                     _updateInfo[idx].text = checkName;
                     break;
                 }
                 else if ((checkExpr != expr) && (checkName == label))
                 {
-                    _updateInfo[idx].bUpdate = true;
+                    _updateInfo[idx].update = UpdateField::Expression;
                     _updateInfo[idx].expression = checkExpr;
                     _updateInfo[idx].text = QString();
                     break;

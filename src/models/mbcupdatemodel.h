@@ -35,8 +35,15 @@ public:
 private:
     class UpdateInfo
     {
+
     public:
-        bool bUpdate = false;
+        enum class UpdateField
+        {
+            None,
+            Text,
+            Expression
+        };
+        UpdateField update = UpdateField::None;
         QString text;
         QString expression;
     };
