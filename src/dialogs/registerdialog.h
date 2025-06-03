@@ -10,7 +10,7 @@
 class GraphDataModel;
 class SettingsModel;
 class RegisterValueAxisDelegate;
-class ExpressionDelegate;
+class ActionButtonDelegate;
 class GraphData;
 
 namespace Ui {
@@ -45,7 +45,7 @@ private:
     CenteredBoxProxyStyle _centeredBoxStyle;
 
     std::unique_ptr<RegisterValueAxisDelegate> _valueAxisDelegate;
-    std::unique_ptr<ExpressionDelegate> _expressionDelegate;
+    std::unique_ptr<ActionButtonDelegate> _expressionDelegate;
     std::unique_ptr<QWidgetAction> _registerPopupAction;
 
 };

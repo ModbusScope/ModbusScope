@@ -1,7 +1,7 @@
 
 #include "registerdialog.h"
 
-#include "customwidgets/expressiondelegate.h"
+#include "customwidgets/actionbuttondelegate.h"
 #include "dialogs/addregisterwidget.h"
 #include "dialogs/expressionsdialog.h"
 #include "dialogs/ui_registerdialog.h"
@@ -29,8 +29,8 @@ RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel, SettingsModel* p
     _valueAxisDelegate = std::make_unique<RegisterValueAxisDelegate>(_pUi->registerView);
     _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::VALUE_AXIS, _valueAxisDelegate.get());
 
-    _expressionDelegate = std::make_unique<ExpressionDelegate>(_pUi->registerView);
-    connect(_expressionDelegate.get(), &ExpressionDelegate::clicked, this, &RegisterDialog::handleExpressionEdit);
+    _expressionDelegate = std::make_unique<ActionButtonDelegate>(_pUi->registerView);
+    connect(_expressionDelegate.get(), &ActionButtonDelegate::clicked, this, &RegisterDialog::handleExpressionEdit);
     _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::EXPRESSION, _expressionDelegate.get());
 
     /* Don't stretch columns */
