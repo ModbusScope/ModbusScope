@@ -1,5 +1,6 @@
 #include "importmbcdialog.h"
 
+#include "customwidgets/actionbuttondelegate.h"
 #include "dialogs/mbcheader.h"
 #include "dialogs/ui_importmbcdialog.h"
 #include "importexport/mbcfileimporter.h"
@@ -58,6 +59,12 @@ ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel, GraphDataModel* pGraphData
     _pUi->tblMbcUpdate->setSelectionMode(QAbstractItemView::NoSelection);
 
     _pUi->tblMbcUpdate->setFocusPolicy(Qt::NoFocus);
+
+    _pUpdateDelegate = std::make_unique<ActionButtonDelegate>(_pUi->tblMbcUpdate);
+    _pUpdateDelegate->setCharacter(QChar(0x2713));
+    connect(_pUpdateDelegate.get(), &ActionButtonDelegate::clicked, this, &ImportMbcDialog::handleAcceptUpdate);
+    _pUi->tblMbcUpdate->setItemDelegateForColumn(MbcUpdateModel::cColumnUpdateExpression, _pUpdateDelegate.get());
+    _pUi->tblMbcUpdate->setItemDelegateForColumn(MbcUpdateModel::cColumnUpdateText, _pUpdateDelegate.get());
 
     connect(_pUi->btnSelectMbcFile, &QToolButton::clicked, this, &ImportMbcDialog::selectMbcFile);
     connect(_pUi->btnImportRegisters, &QPushButton::clicked, this, &ImportMbcDialog::importSelectedRegisters);
@@ -244,4 +251,9 @@ void ImportMbcDialog::updateMbcRegisters(QString filePath)
     {
         Util::showError(tr("The file (\"%1\") can't be read.").arg(filePath));
     }
+}
+
+void ImportMbcDialog::handleAcceptUpdate(const QModelIndex& index)
+{
+    Q_UNUSED(index);
 }

@@ -121,6 +121,18 @@ QVariant MbcUpdateModel::data(const QModelIndex& index, int role) const
             return QVariant();
         }
     }
+    else if (role == Qt::UserRole)
+    {
+        const bool textColumnWithUpdate =
+          (index.column() == cColumnUpdateText) && (_updateInfo[index.row()].update == UpdateField::Text);
+        const bool expressionColumnWithUpdate =
+          (index.column() == cColumnUpdateExpression) && (_updateInfo[index.row()].update == UpdateField::Expression);
+
+        if (!textColumnWithUpdate && !expressionColumnWithUpdate)
+        {
+            return "hidden";
+        }
+    }
 
     return QVariant();
 }
