@@ -21,21 +21,34 @@ void ActionButtonDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
     const QStyle* style = widget ? widget->style() : QApplication::style();
     style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, widget);
 
-    QStyleOptionButton editButtonOption;
-    editButtonOption.text = QString(QChar(0x2026));
-    editButtonOption.rect = this->buttonRect(option);
-    editButtonOption.features = QStyleOptionButton::None;
-    editButtonOption.direction = option.direction;
-    editButtonOption.fontMetrics = option.fontMetrics;
-    editButtonOption.palette = option.palette;
-    editButtonOption.styleObject = option.styleObject;
-    style->drawControl(QStyle::CE_PushButton, &editButtonOption, painter, widget);
+    QVariant type = index.data(Qt::UserRole);
+    if (type == "hidden")
+    {
+        // Don't draw button
+    }
+    else
+    {
+        QStyleOptionButton editButtonOption;
+        editButtonOption.text = QString(_character);
+        editButtonOption.rect = this->buttonRect(option);
+        editButtonOption.features = QStyleOptionButton::None;
+        editButtonOption.direction = option.direction;
+        editButtonOption.fontMetrics = option.fontMetrics;
+        editButtonOption.palette = option.palette;
+        editButtonOption.styleObject = option.styleObject;
+        style->drawControl(QStyle::CE_PushButton, &editButtonOption, painter, widget);
+    }
 }
 
 QSize ActionButtonDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
     const QSize baseSize = QStyledItemDelegate::sizeHint(option, index);
     return QSize(baseSize.width() + baseSize.height(), baseSize.height());
+}
+
+void ActionButtonDelegate::setCharacter(QChar character)
+{
+    _character = character;
 }
 
 bool ActionButtonDelegate::editorEvent(QEvent* event,
@@ -50,7 +63,7 @@ bool ActionButtonDelegate::editorEvent(QEvent* event,
         auto mouseEvent = static_cast<QMouseEvent const*>(event);
         if (mouseEvent->button() == Qt::LeftButton && this->buttonRect(option).contains(mouseEvent->pos()))
         {
-            emit clicked(index.row());
+            emit clicked(index);
             return true;
         }
     }

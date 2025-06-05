@@ -31,7 +31,7 @@ private slots:
     void removeRegisterRow();
     void activatedCell(QModelIndex modelIndex);
     void onRegisterInserted(const QModelIndex &parent, int first, int last);
-    void handleExpressionEdit(int row);
+    void handleExpressionEdit(const QModelIndex& index);
 
 private:
     int selectedRowAfterDelete(int deletedStartIndex, int rowCnt);
