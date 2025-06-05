@@ -6,7 +6,8 @@
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
 
-#include <QtTest/QtTest>
+#include <QSignalSpy>
+#include <QTest>
 
 Q_DECLARE_METATYPE(Result<quint16>);
 

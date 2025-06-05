@@ -3,7 +3,7 @@
 
 #include "util/modbusaddress.h"
 
-#include <QtTest/QtTest>
+#include <QTest>
 
 using ObjectType = ModbusAddress::ObjectType;
 
