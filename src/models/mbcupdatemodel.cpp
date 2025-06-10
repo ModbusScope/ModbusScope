@@ -2,8 +2,6 @@
 
 #include "graphdatamodel.h"
 
-#include <algorithm>
-
 MbcUpdateModel::MbcUpdateModel(GraphDataModel* pGraphDataModel, QObject* parent)
     : QAbstractTableModel(parent), _pGraphDataModel(pGraphDataModel)
 {
@@ -142,46 +140,50 @@ void MbcUpdateModel::setMbcRegisters(QList<MbcRegisterData> mbcRegisterList)
     _mbcRegisterList = mbcRegisterList;
 
     checkUpdate();
+
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
 void MbcUpdateModel::checkUpdate()
 {
     using UpdateField = MbcUpdateModel::UpdateInfo::UpdateField;
 
-    const quint32 graphSize = std::max(_pGraphDataModel->size(), 0);
-
+    const quint32 graphSize = _pGraphDataModel->size();
     _updateInfo = QList<UpdateInfo>(graphSize);
+
+    QHash<QString, int> exprToIndex;
+    QHash<QString, int> labelToIndex;
+
+    // Preprocess graph data model into lookup tables
+    for (quint32 idx = 0; idx < graphSize; ++idx)
+    {
+        exprToIndex.insert(_pGraphDataModel->expression(idx), idx);
+        labelToIndex.insert(_pGraphDataModel->label(idx), idx);
+    }
 
     for (const auto& mbcRegister : std::as_const(_mbcRegisterList))
     {
-        auto const checkExpr = mbcRegister.toExpression();
-        auto const checkName = mbcRegister.name();
+        const QString checkExpr = mbcRegister.toExpression();
+        const QString checkName = mbcRegister.name();
 
-        for (quint32 idx = 0; idx < graphSize; idx++)
+        if (exprToIndex.contains(checkExpr))
         {
-            QString const label = _pGraphDataModel->label(idx);
-            QString const expr = _pGraphDataModel->expression(idx);
-
-            if (_updateInfo[idx].update == UpdateField::None)
+            int idx = exprToIndex[checkExpr];
+            if (_updateInfo[idx].update == UpdateField::None && _pGraphDataModel->label(idx) != checkName)
             {
-                if ((checkExpr == expr) && (checkName != label))
-                {
-                    _updateInfo[idx].update = UpdateField::Text;
-                    _updateInfo[idx].expression = QString();
-                    _updateInfo[idx].text = checkName;
-                    break;
-                }
-                else if ((checkExpr != expr) && (checkName == label))
-                {
-                    _updateInfo[idx].update = UpdateField::Expression;
-                    _updateInfo[idx].expression = checkExpr;
-                    _updateInfo[idx].text = QString();
-                    break;
-                }
-                else
-                {
-                    // no update
-                }
+                _updateInfo[idx].update = UpdateField::Text;
+                _updateInfo[idx].expression.clear();
+                _updateInfo[idx].text = checkName;
+            }
+        }
+        else if (labelToIndex.contains(checkName))
+        {
+            int idx = labelToIndex[checkName];
+            if (_updateInfo[idx].update == UpdateField::None && _pGraphDataModel->expression(idx) != checkExpr)
+            {
+                _updateInfo[idx].update = UpdateField::Expression;
+                _updateInfo[idx].expression = checkExpr;
+                _updateInfo[idx].text.clear();
             }
         }
     }
