@@ -7,6 +7,11 @@ MbcUpdateModel::MbcUpdateModel(GraphDataModel* pGraphDataModel, QObject* parent)
 {
     _mbcRegisterList.clear();
     _updateInfo = QList<UpdateInfo>(_pGraphDataModel->size());
+
+    connect(_pGraphDataModel, &GraphDataModel::expressionChanged, this, &MbcUpdateModel::checkUpdate);
+    connect(_pGraphDataModel, &GraphDataModel::labelChanged, this, &MbcUpdateModel::checkUpdate);
+    connect(_pGraphDataModel, &GraphDataModel::added, this, &MbcUpdateModel::checkUpdate);
+    connect(_pGraphDataModel, &GraphDataModel::removed, this, &MbcUpdateModel::checkUpdate);
 }
 
 QVariant MbcUpdateModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -88,6 +93,10 @@ QVariant MbcUpdateModel::data(const QModelIndex& index, int role) const
             return QVariant();
         }
     }
+    else if (role == Qt::ForegroundRole)
+    {
+        return _updateInfo[index.row()].update == UpdateField::None ? QColor(Qt::gray) : QColor(Qt::black);
+    }
     else if (role == Qt::DisplayRole)
     {
         switch (index.column())
@@ -140,13 +149,13 @@ void MbcUpdateModel::setMbcRegisters(QList<MbcRegisterData> mbcRegisterList)
     _mbcRegisterList = mbcRegisterList;
 
     checkUpdate();
-
-    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
 void MbcUpdateModel::checkUpdate()
 {
     using UpdateField = MbcUpdateModel::UpdateInfo::UpdateField;
+
+    beginResetModel();
 
     const quint32 graphSize = _pGraphDataModel->size();
     _updateInfo = QList<UpdateInfo>(graphSize);
@@ -187,4 +196,6 @@ void MbcUpdateModel::checkUpdate()
             }
         }
     }
+
+    endResetModel();
 }

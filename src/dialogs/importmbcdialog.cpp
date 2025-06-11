@@ -63,6 +63,7 @@ ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel, GraphDataModel* pGraphData
     _pUpdateDelegate = std::make_unique<ActionButtonDelegate>(_pUi->tblMbcUpdate);
     _pUpdateDelegate->setCharacter(QChar(0x2713));
     connect(_pUpdateDelegate.get(), &ActionButtonDelegate::clicked, this, &ImportMbcDialog::handleAcceptUpdate);
+
     _pUi->tblMbcUpdate->setItemDelegateForColumn(MbcUpdateModel::cColumnUpdateExpression, _pUpdateDelegate.get());
     _pUi->tblMbcUpdate->setItemDelegateForColumn(MbcUpdateModel::cColumnUpdateText, _pUpdateDelegate.get());
 
@@ -255,5 +256,21 @@ void ImportMbcDialog::updateMbcRegisters(QString filePath)
 
 void ImportMbcDialog::handleAcceptUpdate(const QModelIndex& index)
 {
-    Q_UNUSED(index);
+    if (!index.isValid())
+    {
+        return;
+    }
+
+    if (index.column() == MbcUpdateModel::cColumnUpdateExpression)
+    {
+        _pGraphDataModel->setExpression(index.row(), _pMbcUpdateModel->data(index).toString());
+    }
+    else if (index.column() == MbcUpdateModel::cColumnUpdateText)
+    {
+        _pGraphDataModel->setLabel(index.row(), _pMbcUpdateModel->data(index).toString());
+    }
+    else
+    {
+        // nothing to do
+    }
 }

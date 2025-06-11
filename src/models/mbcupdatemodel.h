@@ -32,6 +32,9 @@ public:
     static const quint32 cColumnUpdateText = 3;
     static const quint32 cColumnCnt = 4;
 
+private slots:
+    void checkUpdate();
+
 private:
     class UpdateInfo
     {
@@ -47,8 +50,6 @@ private:
         QString text;
         QString expression;
     };
-
-    void checkUpdate();
 
     GraphDataModel* _pGraphDataModel;
 
