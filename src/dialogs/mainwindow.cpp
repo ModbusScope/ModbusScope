@@ -209,7 +209,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
 
     handleCommandLineArguments(cmdArguments);
 
-#if 1
+#if 0
     //Debugging
     _pGraphDataModel->add();
     _pGraphDataModel->setExpression(0, "${40001}");
@@ -218,8 +218,6 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _pGraphDataModel->add();
     _pGraphDataModel->setExpression(1, "${40003}");
     _pGraphDataModel->setLabel(1, "Data 02");
-
-    showRegisterDialog(QString("../../../../../data/example.mbc"));
 
     //_pGraphDataModel->setActive(2, false);
 
