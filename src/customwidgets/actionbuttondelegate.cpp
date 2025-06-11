@@ -21,12 +21,7 @@ void ActionButtonDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
     const QStyle* style = widget ? widget->style() : QApplication::style();
     style->drawControl(QStyle::CE_ItemViewItem, &opt, painter, widget);
 
-    QVariant type = index.data(Qt::UserRole);
-    if (type == "hidden")
-    {
-        // Don't draw button
-    }
-    else
+    if (isButtonEnabled(index))
     {
         QStyleOptionButton editButtonOption;
         editButtonOption.text = QString(_character);
@@ -58,14 +53,21 @@ bool ActionButtonDelegate::editorEvent(QEvent* event,
 {
     Q_UNUSED(model)
 
-    if (event->type() == QEvent::MouseButtonRelease)
+    if (!isButtonEnabled(index))
     {
-        auto mouseEvent = static_cast<QMouseEvent const*>(event);
-        if (mouseEvent->button() == Qt::LeftButton && this->buttonRect(option).contains(mouseEvent->pos()))
-        {
-            emit clicked(index);
-            return true;
-        }
+        return false;
+    }
+
+    if (event->type() != QEvent::MouseButtonRelease)
+    {
+        return false;
+    }
+
+    auto mouseEvent = static_cast<QMouseEvent const*>(event);
+    if (mouseEvent->button() == Qt::LeftButton && this->buttonRect(option).contains(mouseEvent->pos()))
+    {
+        emit clicked(index);
+        return true;
     }
 
     return false;
@@ -75,4 +77,17 @@ QRect ActionButtonDelegate::buttonRect(QStyleOptionViewItem const& option) const
 {
     return QRect(option.rect.left() + option.rect.width() - option.rect.height(), option.rect.top(),
                  option.rect.height(), option.rect.height());
+}
+
+bool ActionButtonDelegate::isButtonEnabled(const QModelIndex& index) const
+{
+    QVariant type = index.data(Qt::UserRole);
+    if (type == "hidden")
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }

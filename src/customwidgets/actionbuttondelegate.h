@@ -25,6 +25,7 @@ signals:
 
 private:
     QRect buttonRect(const QStyleOptionViewItem& option) const;
+    bool isButtonEnabled(const QModelIndex& index) const;
 
     QChar _character;
 };
