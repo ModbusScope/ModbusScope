@@ -4,7 +4,7 @@
 #include "importexport/presetparser.h"
 #include "presetfiletestdata.h"
 
-#include <QtTest/QtTest>
+#include <QTest>
 
 void TestPresetFileParser::init()
 {

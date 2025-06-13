@@ -21,7 +21,6 @@
 #include "models/diagnosticmodel.h"
 #include "models/graphdatamodel.h"
 #include "models/guimodel.h"
-#include "models/mbcregistermodel.h"
 #include "models/notemodel.h"
 #include "models/settingsmodel.h"
 #include "qcustomplot/qcustomplot.h"
@@ -213,12 +212,12 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
 #if 0
     //Debugging
     _pGraphDataModel->add();
-    _pGraphDataModel->setExpression(0, "${40001} + ${40001:16b}");
+    _pGraphDataModel->setExpression(0, "${40001}");
+    _pGraphDataModel->setLabel(0, "Data xx");
 
     _pGraphDataModel->add();
-    _pGraphDataModel->setExpression(1, "${40002}+2");
-
-    showRegisterDialog(QString(""));
+    _pGraphDataModel->setExpression(1, "${40003}");
+    _pGraphDataModel->setLabel(1, "Data 02");
 
     //_pGraphDataModel->setActive(2, false);
 
@@ -532,18 +531,9 @@ void MainWindow::showNotesDialog()
 
 void MainWindow::showMbcImportDialog()
 {
-    MbcRegisterModel mbcRegisterModel;
-    ImportMbcDialog importMbcDialog(_pGuiModel, &mbcRegisterModel, this);
+    ImportMbcDialog importMbcDialog(_pGuiModel, _pGraphDataModel, this);
 
-    if (importMbcDialog.exec() == QDialog::Accepted)
-    {
-        QList<GraphData> regList = mbcRegisterModel.selectedRegisterList();
-
-        if (!regList.isEmpty())
-        {
-            _pGraphDataModel->add(regList);
-        }
-    }
+    importMbcDialog.exec();
 }
 
 void MainWindow::toggleMarkersState()

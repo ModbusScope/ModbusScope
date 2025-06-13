@@ -125,7 +125,7 @@ void MbcRegisterData::setDecimals(const quint8 &decimals)
     _decimals = decimals;
 }
 
-QString MbcRegisterData::toExpression()
+QString MbcRegisterData::toExpression() const
 {
     QString expression;
     QString registerStr = ExpressionGenerator::constructRegisterString(QString("%1").arg(_registerAddress), _type, 0);

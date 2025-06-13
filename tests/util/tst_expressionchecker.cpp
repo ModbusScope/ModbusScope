@@ -3,7 +3,8 @@
 
 #include "util/expressionchecker.h"
 
-#include <QtTest/QtTest>
+#include <QSignalSpy>
+#include <QTest>
 
 using State = ResultState::State;
 

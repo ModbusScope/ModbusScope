@@ -3,7 +3,7 @@
 
 #include "models/diagnostic.h"
 
-#include <QtTest/QtTest>
+#include <QTest>
 
 void TestDiagnostic::init()
 {

@@ -1,5 +1,5 @@
 
-#include <QtTest/QtTest>
+#include <QTest>
 
 #include "tst_modbusregister.h"
 

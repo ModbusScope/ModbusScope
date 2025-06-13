@@ -1,7 +1,7 @@
 
 #include "registerdialog.h"
 
-#include "customwidgets/expressiondelegate.h"
+#include "customwidgets/actionbuttondelegate.h"
 #include "dialogs/addregisterwidget.h"
 #include "dialogs/expressionsdialog.h"
 #include "dialogs/ui_registerdialog.h"
@@ -29,8 +29,9 @@ RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel, SettingsModel* p
     _valueAxisDelegate = std::make_unique<RegisterValueAxisDelegate>(_pUi->registerView);
     _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::VALUE_AXIS, _valueAxisDelegate.get());
 
-    _expressionDelegate = std::make_unique<ExpressionDelegate>(_pUi->registerView);
-    connect(_expressionDelegate.get(), &ExpressionDelegate::clicked, this, &RegisterDialog::handleExpressionEdit);
+    _expressionDelegate = std::make_unique<ActionButtonDelegate>(_pUi->registerView);
+    _expressionDelegate->setCharacter(QChar(0x2026));
+    connect(_expressionDelegate.get(), &ActionButtonDelegate::clicked, this, &RegisterDialog::handleExpressionEdit);
     _pUi->registerView->setItemDelegateForColumn(GraphDataModel::column::EXPRESSION, _expressionDelegate.get());
 
     /* Don't stretch columns */
@@ -134,14 +135,16 @@ void RegisterDialog::removeRegisterRow()
     }
 }
 
-void RegisterDialog::handleExpressionEdit(int row)
+void RegisterDialog::handleExpressionEdit(const QModelIndex& index)
 {
-    QModelIndex idx = _pGraphDataModel->index(row, GraphDataModel::column::EXPRESSION, QModelIndex());
-    _pUi->registerView->closePersistentEditor(idx);
+    if (index.column() == GraphDataModel::column::EXPRESSION)
+    {
+        _pUi->registerView->closePersistentEditor(index);
 
-    ExpressionsDialog exprDialog(_pGraphDataModel, row, this);
+        ExpressionsDialog exprDialog(_pGraphDataModel, index.row(), this);
 
-    exprDialog.exec();
+        exprDialog.exec();
+    }
 }
 
 int RegisterDialog::selectedRowAfterDelete(int deletedStartIndex, int rowCnt)

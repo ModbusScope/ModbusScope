@@ -3,7 +3,8 @@
 
 #include "models/diagnosticmodel.h"
 
-#include <QtTest/QtTest>
+#include <QSignalSpy>
+#include <QTest>
 
 void TestDiagnosticModel::init()
 {

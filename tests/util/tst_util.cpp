@@ -3,7 +3,7 @@
 
 #include "util/util.h"
 
-#include <QtTest/QtTest>
+#include <QTest>
 
 #define ADD_TEST(value, result)      QTest::newRow(QLocale().toString(value).toLocal8Bit()) << static_cast<double>(value) << result
 

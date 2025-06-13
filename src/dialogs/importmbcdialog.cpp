@@ -1,26 +1,28 @@
 #include "importmbcdialog.h"
 
+#include "customwidgets/actionbuttondelegate.h"
 #include "dialogs/mbcheader.h"
 #include "dialogs/ui_importmbcdialog.h"
 #include "importexport/mbcfileimporter.h"
+#include "models/graphdatamodel.h"
 #include "models/guimodel.h"
 #include "models/mbcregisterfilter.h"
 #include "models/mbcregistermodel.h"
+#include "models/mbcupdatemodel.h"
 #include "util/fileselectionhelper.h"
 #include "util/util.h"
 
 #include <QFileDialog>
 
-ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel, MbcRegisterModel* pMbcRegisterModel, QWidget* parent)
-    : QDialog(parent), _pUi(new Ui::ImportMbcDialog)
+ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel, GraphDataModel* pGraphDatamodel, QWidget* parent)
+    : QDialog(parent), _pUi(new Ui::ImportMbcDialog), _pGuiModel(pGuiModel), _pGraphDataModel(pGraphDatamodel)
 {
     _pUi->setupUi(this);
 
-    _pGuiModel = pGuiModel;
-    _pMbcRegisterModel = pMbcRegisterModel;
+    _pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel);
 
     _pTabProxyFilter = new MbcRegisterFilter();
-    _pTabProxyFilter->setSourceModel(_pMbcRegisterModel);
+    _pTabProxyFilter->setSourceModel(&_mbcRegisterModel);
 
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -34,6 +36,7 @@ ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel, MbcRegisterModel* pMbcRegi
 
     /* Don't stretch columns */
     _pUi->tblMbcRegisters->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
     /* Except following columns */
     _pUi->tblMbcRegisters->horizontalHeader()->setSectionResizeMode(MbcRegisterModel::cColumnText,
                                                                     QHeaderView::Stretch);
@@ -47,8 +50,26 @@ ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel, MbcRegisterModel* pMbcRegi
 
     _pUi->tblMbcRegisters->setStyle(&_centeredBoxStyle);
 
+    // setup register
+    _pUi->tblMbcUpdate->setModel(_pMbcUpdateModel);
+    _pUi->tblMbcUpdate->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+    // Select using click, shift and control
+    _pUi->tblMbcUpdate->setSelectionBehavior(QAbstractItemView::SelectItems);
+    _pUi->tblMbcUpdate->setSelectionMode(QAbstractItemView::NoSelection);
+
+    _pUi->tblMbcUpdate->setFocusPolicy(Qt::NoFocus);
+
+    _pUpdateDelegate = std::make_unique<ActionButtonDelegate>(_pUi->tblMbcUpdate);
+    _pUpdateDelegate->setCharacter(QChar(0x2713));
+    connect(_pUpdateDelegate.get(), &ActionButtonDelegate::clicked, this, &ImportMbcDialog::handleAcceptUpdate);
+
+    _pUi->tblMbcUpdate->setItemDelegateForColumn(MbcUpdateModel::cColumnUpdateExpression, _pUpdateDelegate.get());
+    _pUi->tblMbcUpdate->setItemDelegateForColumn(MbcUpdateModel::cColumnUpdateText, _pUpdateDelegate.get());
+
     connect(_pUi->btnSelectMbcFile, &QToolButton::clicked, this, &ImportMbcDialog::selectMbcFile);
-    connect(_pMbcRegisterModel, &QAbstractItemModel::dataChanged, this, &ImportMbcDialog::registerDataChanged);
+    connect(_pUi->btnImportRegisters, &QPushButton::clicked, this, &ImportMbcDialog::importSelectedRegisters);
+    connect(&_mbcRegisterModel, &QAbstractItemModel::dataChanged, this, &ImportMbcDialog::registerDataChanged);
     connect(_pTabProxyFilter, &MbcRegisterFilter::dataChanged, this, &ImportMbcDialog::visibleItemsDataChanged);
     connect(mbcHeader, &MbcHeader::selectAllClicked, this, &ImportMbcDialog::handleSelectAllClicked);
 
@@ -86,12 +107,9 @@ void ImportMbcDialog::updateTextFilter()
     QModelIndex topRow = _pUi->tblMbcRegisters->indexAt(QPoint(checkHeight, checkHeight));
 
     auto currentTopModelIndex = _pTabProxyFilter->mapToSource(topRow);
-    qDebug() << "Current: " << currentTopModelIndex.row();
-
     _pTabProxyFilter->setTextFilter(_pUi->lineTextFilter->text());
 
     auto newTopModelIndex = _pTabProxyFilter->mapFromSource(currentTopModelIndex);
-    qDebug() << "New: " << newTopModelIndex.row();
 
     _pUi->tblMbcRegisters->scrollTo(newTopModelIndex, QAbstractItemView::PositionAtTop);
 }
@@ -110,6 +128,18 @@ void ImportMbcDialog::selectMbcFile()
 
         updateMbcRegisters(selectedFile);
     }
+}
+
+void ImportMbcDialog::importSelectedRegisters()
+{
+    QList<GraphData> regList = _mbcRegisterModel.selectedRegisterList();
+
+    if (!regList.isEmpty())
+    {
+        _pGraphDataModel->add(regList);
+    }
+
+    setSelectedSelectionstate(Qt::Unchecked);
 }
 
 void ImportMbcDialog::visibleItemsDataChanged()
@@ -147,13 +177,13 @@ void ImportMbcDialog::visibleItemsDataChanged()
         selectAllState = Qt::PartiallyChecked;
     }
 
-    _pMbcRegisterModel->setHeaderData(MbcRegisterModel::cColumnSelected, Qt::Horizontal, selectAllState,
-                                      Qt::CheckStateRole);
+    _mbcRegisterModel.setHeaderData(MbcRegisterModel::cColumnSelected, Qt::Horizontal, selectAllState,
+                                    Qt::CheckStateRole);
 }
 
 void ImportMbcDialog::registerDataChanged()
 {
-    const quint32 count = _pMbcRegisterModel->selectedRegisterCount();
+    const quint32 count = _mbcRegisterModel.selectedRegisterCount();
     if (count == 1)
     {
         _pUi->lblSelectedCount->setText(QString("You have selected %0 register.").arg(count));
@@ -189,7 +219,7 @@ void ImportMbcDialog::setSelectedSelectionstate(Qt::CheckState state)
         indexList.append(_pTabProxyFilter->mapToSource(idxOfItem));
     }
 
-    _pMbcRegisterModel->setSelectionstate(indexList, state);
+    _mbcRegisterModel.setSelectionstate(indexList, state);
 }
 
 void ImportMbcDialog::updateMbcRegisters(QString filePath)
@@ -204,24 +234,43 @@ void ImportMbcDialog::updateMbcRegisters(QString filePath)
         QStringList tabList = fileImporter.tabList();
 
         /* Clear data from table widget */
-        _pMbcRegisterModel->reset();
+        _mbcRegisterModel.reset();
         registerDataChanged();
 
         if (registerList.size() > 0)
         {
-            _pMbcRegisterModel->fill(registerList, tabList);
+            _mbcRegisterModel.fill(registerList, tabList);
+            _pMbcUpdateModel->setMbcRegisters(registerList);
 
             /* Update combo box */
             _pUi->cmbTabFilter->clear();
             _pUi->cmbTabFilter->addItem(MbcRegisterFilter::cTabNoFilter);
             _pUi->cmbTabFilter->addItems(tabList);
-
-            /* Resize dialog window to fix table widget */
-            // TODO
         }
     }
     else
     {
         Util::showError(tr("The file (\"%1\") can't be read.").arg(filePath));
+    }
+}
+
+void ImportMbcDialog::handleAcceptUpdate(const QModelIndex& index)
+{
+    if (!index.isValid())
+    {
+        return;
+    }
+
+    if (index.column() == MbcUpdateModel::cColumnUpdateExpression)
+    {
+        _pGraphDataModel->setExpression(index.row(), _pMbcUpdateModel->data(index).toString());
+    }
+    else if (index.column() == MbcUpdateModel::cColumnUpdateText)
+    {
+        _pGraphDataModel->setLabel(index.row(), _pMbcUpdateModel->data(index).toString());
+    }
+    else
+    {
+        // nothing to do
     }
 }
