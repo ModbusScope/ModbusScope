@@ -323,11 +323,6 @@ quint32 MbcRegisterModel::selectedRegisterCount()
     return cnt;
 }
 
-Qt::CheckState MbcRegisterModel::selection()
-{
-    return _selection;
-}
-
 void MbcRegisterModel::updateAlreadySelected()
 {
     for (int32_t idx = 0; idx < _mbcRegisterMetaDataList.size(); idx++)
