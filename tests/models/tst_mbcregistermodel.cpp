@@ -476,6 +476,100 @@ void TestMbcRegisterModel::selectedRegisterListDecimals()
     QCOMPARE(graphList[2].expression(), "${40003}/100");
 }
 
+void TestMbcRegisterModel::selectAllWhenUnchecked()
+{
+    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
+    fillModel(pMbcRegisterModel);
+
+    QVERIFY(pMbcRegisterModel->rowCount() == 2);
+
+    QList<QModelIndex> indexList;
+    for (int idx = 0; idx < pMbcRegisterModel->rowCount(); idx++)
+    {
+        indexList.append(pMbcRegisterModel->index(idx, MbcRegisterModel::cColumnSelected));
+    }
+    pMbcRegisterModel->setSelectionstate(indexList, Qt::Checked);
+
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 2);
+
+    QModelIndex modelIdx = pMbcRegisterModel->index(0, 0);
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::CheckStateRole), Qt::Checked);
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::CheckStateRole), Qt::Checked);
+}
+
+void TestMbcRegisterModel::selectAllWhenChecked()
+{
+    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
+    fillModel(pMbcRegisterModel);
+    QVERIFY(pMbcRegisterModel->rowCount() == 2);
+
+    QModelIndex modelIdx = pMbcRegisterModel->index(0, 0);
+    pMbcRegisterModel->setData(modelIdx.sibling(0, cColumnSelected), QVariant(Qt::Checked), Qt::CheckStateRole);
+    pMbcRegisterModel->setData(modelIdx.sibling(1, cColumnSelected), QVariant(Qt::Checked), Qt::CheckStateRole);
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 2);
+
+    QList<QModelIndex> indexList;
+    for (int idx = 0; idx < pMbcRegisterModel->rowCount(); idx++)
+    {
+        indexList.append(pMbcRegisterModel->index(idx, MbcRegisterModel::cColumnSelected));
+    }
+    pMbcRegisterModel->setSelectionstate(indexList, Qt::Unchecked);
+
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 0);
+
+    modelIdx = pMbcRegisterModel->index(0, 0);
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::CheckStateRole), Qt::Unchecked);
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::CheckStateRole), Qt::Unchecked);
+}
+
+void TestMbcRegisterModel::selectAllWhenMixedChecked()
+{
+    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
+    fillModel(pMbcRegisterModel);
+    QVERIFY(pMbcRegisterModel->rowCount() == 2);
+
+    QModelIndex modelIdx = pMbcRegisterModel->index(0, 0);
+    pMbcRegisterModel->setData(modelIdx.sibling(0, cColumnSelected), QVariant(Qt::Unchecked), Qt::CheckStateRole);
+    pMbcRegisterModel->setData(modelIdx.sibling(1, cColumnSelected), QVariant(Qt::Checked), Qt::CheckStateRole);
+
+    QList<QModelIndex> indexList;
+    for (int idx = 0; idx < pMbcRegisterModel->rowCount(); idx++)
+    {
+        indexList.append(pMbcRegisterModel->index(idx, MbcRegisterModel::cColumnSelected));
+    }
+    pMbcRegisterModel->setSelectionstate(indexList, Qt::Checked);
+
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 2);
+
+    modelIdx = pMbcRegisterModel->index(0, 0);
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::CheckStateRole), Qt::Checked);
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::CheckStateRole), Qt::Checked);
+}
+
+void TestMbcRegisterModel::selectAllSkipNonReadable()
+{
+    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
+    QList<MbcRegisterData> mbcRegisterList =
+      QList<MbcRegisterData>() << MbcRegisterData(40001, ModbusDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
+                               << MbcRegisterData(40002, ModbusDataType::Type::UNSIGNED_16, "Test2", 0, false, 0);
+    QStringList tabList = QStringList() << QString("Tab0");
+
+    pMbcRegisterModel->fill(mbcRegisterList, tabList);
+
+    QList<QModelIndex> indexList;
+    for (int idx = 0; idx < pMbcRegisterModel->rowCount(); idx++)
+    {
+        indexList.append(pMbcRegisterModel->index(idx, MbcRegisterModel::cColumnSelected));
+    }
+    pMbcRegisterModel->setSelectionstate(indexList, Qt::Checked);
+
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 1);
+
+    QModelIndex modelIdx = pMbcRegisterModel->index(0, 0);
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::CheckStateRole), Qt::Checked);
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::CheckStateRole), Qt::Unchecked);
+}
+
 void TestMbcRegisterModel::fillModel(MbcRegisterModel * pMbcRegisterModel)
 {
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
