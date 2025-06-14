@@ -325,33 +325,26 @@ quint32 MbcRegisterModel::selectedRegisterCount()
 
 void MbcRegisterModel::updateAlreadySelected()
 {
-    for (int32_t idx = 0; idx < _mbcRegisterMetaDataList.size(); idx++)
+    // Collect all selected register addresses
+    QSet<int> selectedAddresses;
+    for (int32_t idx = 0; idx < _mbcRegisterMetaDataList.size(); ++idx)
     {
-        bool bFound = false;
-
-        for (int32_t idxSelected = 0; idxSelected < _mbcRegisterMetaDataList.size(); idxSelected++)
+        if (_mbcRegisterMetaDataList[idx].bSelected)
         {
-            if (_mbcRegisterMetaDataList[idxSelected].bSelected)
-            {
-                if (idx != idxSelected)
-                {
-                    if (_mbcRegisterList[idx].registerAddress() == _mbcRegisterList[idxSelected].registerAddress())
-                    {
-                        bFound = true;
-                        break;
-                    }
-                }
-                else
-                {
-                    /* Skip same id's */
-                }
-            }
+            selectedAddresses.insert(_mbcRegisterList[idx].registerAddress());
         }
+    }
 
+    // Update each item based on whether its address is already selected
+    for (int32_t idx = 0; idx < _mbcRegisterMetaDataList.size(); ++idx)
+    {
         if (_mbcRegisterMetaDataList[idx].bEnabled)
         {
-            /* Mark index as already selected (or not) */
-            if (bFound && !_mbcRegisterMetaDataList[idx].bSelected)
+            bool isSelected = _mbcRegisterMetaDataList[idx].bSelected;
+            bool addressAlreadySelected = selectedAddresses.contains(_mbcRegisterList[idx].registerAddress());
+
+            // Mark as already staged only if it's enabled, not selected, and the address exists elsewhere
+            if (!isSelected && addressAlreadySelected)
             {
                 _mbcRegisterMetaDataList[idx].bAlreadyStaged = true;
                 _mbcRegisterMetaDataList[idx].tooltip = tr("Already selected address");
