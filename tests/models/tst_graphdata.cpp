@@ -4,7 +4,7 @@
 #include "models/graphdata.h"
 #include "util/util.h"
 
-#include <QtTest/QtTest>
+#include <QTest>
 
 void TestGraphData::init()
 {

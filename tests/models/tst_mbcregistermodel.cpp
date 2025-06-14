@@ -3,9 +3,9 @@
 
 #include "models/mbcregistermodel.h"
 
-#include <QtTest/QtTest>
-#include <QSignalSpy>
 #include "gmock/gmock.h"
+#include <QSignalSpy>
+#include <QTest>
 #include <gmock/gmock-matchers.h>
 
 #include "../mocks/gmockutils.h"

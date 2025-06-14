@@ -8,7 +8,8 @@
 #include "util/modbusdatatype.h"
 
 #include <QMap>
-#include <QtTest/QtTest>
+#include <QSignalSpy>
+#include <QTest>
 
 Q_DECLARE_METATYPE(ResultDouble);
 

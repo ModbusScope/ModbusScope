@@ -4,7 +4,8 @@
 #include "csvdata.h"
 #include "importexport/datafileparser.h"
 
-#include <QtTest/QtTest>
+#include <QSignalSpy>
+#include <QTest>
 
 void TestDataFileParser::init()
 {

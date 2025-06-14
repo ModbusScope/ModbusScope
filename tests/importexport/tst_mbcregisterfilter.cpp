@@ -4,7 +4,7 @@
 #include "models/mbcregisterfilter.h"
 #include "models/mbcregistermodel.h"
 
-#include <QtTest/QtTest>
+#include <QTest>
 
 void TestMbcRegisterFilter::init()
 {

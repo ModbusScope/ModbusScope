@@ -10,7 +10,8 @@
 #include "testslavedata.h"
 
 #include <QMap>
-#include <QtTest/QtTest>
+#include <QSignalSpy>
+#include <QTest>
 
 using State = ResultState::State;
 

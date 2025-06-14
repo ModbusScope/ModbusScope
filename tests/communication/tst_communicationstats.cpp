@@ -4,7 +4,7 @@
 #include "communication/communicationstats.h"
 #include "models/graphdatamodel.h"
 
-#include <QtTest/QtTest>
+#include <QTest>
 
 void TestCommunicationStats::init()
 {

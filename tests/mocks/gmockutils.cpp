@@ -5,7 +5,7 @@
 
 #include "gmockutils.h"
 
-#include <QtTest/QtTest>
+#include <QTest>
 
 namespace testing {
     namespace GMockUtils {

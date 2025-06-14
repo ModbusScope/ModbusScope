@@ -5,6 +5,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 ### Added 
 
 - Add option to highlight graph
+- Add option to compare/import changes from mbc with existing mbs ([Github #342](https://github.com/ModbusScope/ModbusScope/issues/342))
 
 ### Fixed
 
