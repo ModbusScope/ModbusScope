@@ -52,7 +52,6 @@ private:
         struct MbcMetaData
         {
             bool bSelected;
-            QString tooltip;
             bool bEnabled;
             bool bAlreadyStaged;
         };

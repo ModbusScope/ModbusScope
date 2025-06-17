@@ -100,7 +100,18 @@ QVariant MbcRegisterModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::ToolTipRole)
     {
-        return _mbcRegisterMetaDataList[index.row()].tooltip;
+        if (!_mbcRegisterList[index.row()].isReadable())
+        {
+            return "Not readable";
+        }
+        else if (_mbcRegisterMetaDataList[index.row()].bAlreadyStaged)
+        {
+            return "Already selected address";
+        }
+        else
+        {
+            return "";
+        }
     }
     else if (role == Qt::CheckStateRole)
     {
@@ -242,14 +253,9 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
     {
         // Get result before adding to list
         _mbcRegisterList.append(mbcRegisterList[idx]);
+        _mbcRegisterMetaDataList.append({ false, false, false });
 
-        _mbcRegisterMetaDataList.append( {false, QString(""), false, false} );
-
-        if (!_mbcRegisterList.last().isReadable())
-        {
-            _mbcRegisterMetaDataList.last().tooltip = tr("Not readable");
-        }
-        else
+        if (_mbcRegisterList.last().isReadable())
         {
             _mbcRegisterMetaDataList.last().bEnabled = true;
         }
@@ -278,7 +284,7 @@ Qt::ItemFlags MbcRegisterModel::flags(const QModelIndex & index) const
 
     if (_mbcRegisterMetaDataList[index.row()].bEnabled  && !_mbcRegisterMetaDataList[index.row()].bAlreadyStaged)
     {
-        flags |= Qt::ItemIsSelectable |  Qt::ItemIsEnabled;
+        flags |= Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     }
 
     return flags;
@@ -347,12 +353,10 @@ void MbcRegisterModel::updateAlreadySelected()
             if (!isSelected && addressAlreadySelected)
             {
                 _mbcRegisterMetaDataList[idx].bAlreadyStaged = true;
-                _mbcRegisterMetaDataList[idx].tooltip = tr("Already selected address");
             }
             else
             {
                 _mbcRegisterMetaDataList[idx].bAlreadyStaged = false;
-                _mbcRegisterMetaDataList[idx].tooltip = tr("");
             }
         }
     }
