@@ -21,13 +21,13 @@ QVariant MbcUpdateModel::headerData(int section, Qt::Orientation orientation, in
         switch (section)
         {
         case cColumnExpression:
-            return QString("Expression");
+            return QString("Current expression");
         case cColumnText:
-            return QString("Text");
+            return QString("Current Text");
         case cColumnUpdateExpression:
-            return QString("Update Expression");
+            return QString("New Expression");
         case cColumnUpdateText:
-            return QString("Update Text");
+            return QString("New Text");
         default:
             return QVariant();
         }

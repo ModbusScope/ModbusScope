@@ -61,7 +61,7 @@ ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel, GraphDataModel* pGraphData
     _pUi->tblMbcUpdate->setFocusPolicy(Qt::NoFocus);
 
     _pUpdateDelegate = std::make_unique<ActionButtonDelegate>(_pUi->tblMbcUpdate);
-    _pUpdateDelegate->setCharacter(QChar(0x2713));
+    _pUpdateDelegate->setCharacter(QChar(0x2190));
     connect(_pUpdateDelegate.get(), &ActionButtonDelegate::clicked, this, &ImportMbcDialog::handleAcceptUpdate);
 
     _pUi->tblMbcUpdate->setItemDelegateForColumn(MbcUpdateModel::cColumnUpdateExpression, _pUpdateDelegate.get());
