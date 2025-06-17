@@ -35,6 +35,8 @@ private slots:
     void visibleItemsDataChanged();
     void registerDataChanged();
     void handleSelectAllClicked(Qt::CheckState state);
+    void dragEnterEvent(QDragEnterEvent* e);
+    void dropEvent(QDropEvent* e);
 
 private:
     void setSelectedSelectionstate(Qt::CheckState state);

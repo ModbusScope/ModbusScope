@@ -27,6 +27,9 @@ ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel, GraphDataModel* pGraphData
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
+    this->setAcceptDrops(true);
+    _pUi->lineTextFilter->setAcceptDrops(false);
+
     // Setup registerView
     _pUi->tblMbcRegisters->setModel(_pTabProxyFilter);
     _pUi->tblMbcRegisters->setSortingEnabled(false);
@@ -208,6 +211,24 @@ void ImportMbcDialog::handleSelectAllClicked(Qt::CheckState state)
     {
         // No need to handle PartialChecked
     }
+}
+
+void ImportMbcDialog::dragEnterEvent(QDragEnterEvent* e)
+{
+    if (e->mimeData()->hasUrls())
+    {
+        e->acceptProposedAction();
+    }
+}
+
+void ImportMbcDialog::dropEvent(QDropEvent* e)
+{
+    const QString filename(e->mimeData()->urls().last().toLocalFile());
+
+    _pUi->lineMbcfile->setText(filename);
+    _pGuiModel->setLastMbcImportedFile(filename);
+
+    updateMbcRegisters(filename);
 }
 
 void ImportMbcDialog::setSelectedSelectionstate(Qt::CheckState state)
