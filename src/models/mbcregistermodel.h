@@ -48,19 +48,18 @@ public:
     static const quint32 cColumnCnt = 6;
 
 private:
+    typedef struct
+    {
+        MbcRegisterData registerData;
+        bool bSelected;
+        bool bEnabled;
+    } MbcRegister;
 
-        struct MbcMetaData
-        {
-            bool bSelected;
-            bool bEnabled;
-        };
+    QList<MbcRegister> _mbcRegisterList;
 
-        QList<MbcRegisterData> _mbcRegisterList;
-        QList<struct MbcMetaData> _mbcRegisterMetaDataList;
+    QStringList _tabList;
 
-        QStringList _tabList;
-
-        Qt::CheckState _selection;
+    Qt::CheckState _selection;
 };
 
 #endif // MBCREGISTERMODEL_H

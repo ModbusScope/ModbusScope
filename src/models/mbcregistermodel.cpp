@@ -6,7 +6,6 @@ MbcRegisterModel::MbcRegisterModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
     _mbcRegisterList.clear();
-    _mbcRegisterMetaDataList.clear();
     _tabList.clear();
     _selection = Qt::Unchecked;
 }
@@ -98,9 +97,11 @@ QVariant MbcRegisterModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
+    auto const mbcRegister = _mbcRegisterList[index.row()];
+
     if (role == Qt::ToolTipRole)
     {
-        if (!_mbcRegisterList[index.row()].isReadable())
+        if (!mbcRegister.registerData.isReadable())
         {
             return "Not readable";
         }
@@ -113,7 +114,7 @@ QVariant MbcRegisterModel::data(const QModelIndex &index, int role) const
     {
         if (index.column() == cColumnSelected)
         {
-            if (_mbcRegisterMetaDataList[index.row()].bSelected)
+            if (mbcRegister.bSelected)
             {
                 return Qt::Checked;
             }
@@ -136,16 +137,16 @@ QVariant MbcRegisterModel::data(const QModelIndex &index, int role) const
         {
 
         case cColumnAddress:
-            return _mbcRegisterList[index.row()].registerAddress();
+            return mbcRegister.registerData.registerAddress();
             break;
 
         case cColumnDecimals:
-            return _mbcRegisterList[index.row()].decimals();
+            return mbcRegister.registerData.decimals();
             break;
 
         case cColumnTab:
         {
-            const qint32 tabIdx = _mbcRegisterList[index.row()].tabIdx();
+            const qint32 tabIdx = mbcRegister.registerData.tabIdx();
 
             if (tabIdx < _tabList.size())
             {
@@ -155,11 +156,11 @@ QVariant MbcRegisterModel::data(const QModelIndex &index, int role) const
         break;
 
         case cColumnText:
-            return _mbcRegisterList[index.row()].name();
+            return mbcRegister.registerData.name();
             break;
 
         case cColumnType:
-            return ModbusDataType::typeString(_mbcRegisterList[index.row()].type());
+            return ModbusDataType::typeString(mbcRegister.registerData.type());
             break;
 
         default:
@@ -177,10 +178,9 @@ bool MbcRegisterModel::setData(const QModelIndex & index, const QVariant & value
 
     bool bRet = false;
 
-    if ((index.column() == cColumnSelected) && (role == Qt::CheckStateRole) &&
-        _mbcRegisterMetaDataList[index.row()].bEnabled)
+    if ((index.column() == cColumnSelected) && (role == Qt::CheckStateRole) && _mbcRegisterList[index.row()].bEnabled)
     {
-        _mbcRegisterMetaDataList[index.row()].bSelected = value == Qt::Checked;
+        _mbcRegisterList[index.row()].bSelected = value == Qt::Checked;
 
         bRet = true;
     }
@@ -204,13 +204,13 @@ void MbcRegisterModel::setSelectionstate(QList<QModelIndex>& indexList, Qt::Chec
     {
         if (index.isValid())
         {
-            if (_mbcRegisterMetaDataList[index.row()].bEnabled)
+            if (_mbcRegisterList[index.row()].bEnabled)
             {
-                _mbcRegisterMetaDataList[index.row()].bSelected = state == Qt::Checked;
+                _mbcRegisterList[index.row()].bSelected = state == Qt::Checked;
             }
             else
             {
-                _mbcRegisterMetaDataList[index.row()].bSelected = Qt::Unchecked;
+                _mbcRegisterList[index.row()].bSelected = Qt::Unchecked;
             }
         }
     }
@@ -223,7 +223,6 @@ void MbcRegisterModel::reset()
     beginResetModel();
 
     _mbcRegisterList.clear();
-    _mbcRegisterMetaDataList.clear();
     _tabList.clear();
 
     endResetModel();
@@ -244,12 +243,11 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
     for(qint32 idx = 0; idx < mbcRegisterList.size(); idx++)
     {
         // Get result before adding to list
-        _mbcRegisterList.append(mbcRegisterList[idx]);
-        _mbcRegisterMetaDataList.append({ false, false });
+        _mbcRegisterList.append({ mbcRegisterList[idx], false, false });
 
-        if (_mbcRegisterList.last().isReadable())
+        if (_mbcRegisterList.last().registerData.isReadable())
         {
-            _mbcRegisterMetaDataList.last().bEnabled = true;
+            _mbcRegisterList.last().bEnabled = true;
         }
     }
 
@@ -272,7 +270,7 @@ Qt::ItemFlags MbcRegisterModel::flags(const QModelIndex & index) const
         flags = Qt::ItemIsUserCheckable;
     }
 
-    if (_mbcRegisterMetaDataList[index.row()].bEnabled)
+    if (_mbcRegisterList[index.row()].bEnabled)
     {
         flags |= Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     }
@@ -285,16 +283,16 @@ QList<GraphData> MbcRegisterModel::selectedRegisterList()
     QList<GraphData> _selectedRegisterList;
 
     // Get selected register from table widget */
-    for (qint32 row = 0; row < _mbcRegisterMetaDataList.size(); row++)
+    for (qint32 row = 0; row < _mbcRegisterList.size(); row++)
     {
-        if (_mbcRegisterMetaDataList[row].bSelected)
+        if (_mbcRegisterList[row].bSelected)
         {
             GraphData graphData;
             _mbcRegisterList[row];
 
             graphData.setActive(true);
-            graphData.setLabel(_mbcRegisterList[row].name());
-            graphData.setExpression(_mbcRegisterList[row].toExpression());
+            graphData.setLabel(_mbcRegisterList[row].registerData.name());
+            graphData.setExpression(_mbcRegisterList[row].registerData.toExpression());
 
             _selectedRegisterList.append(graphData);
         }
@@ -308,9 +306,9 @@ quint32 MbcRegisterModel::selectedRegisterCount()
     quint32 cnt = 0;
 
     // Get selected register from table widget */
-    for (qint32 row = 0; row < _mbcRegisterMetaDataList.size(); row++)
+    for (qint32 row = 0; row < _mbcRegisterList.size(); row++)
     {
-        if (_mbcRegisterMetaDataList[row].bSelected)
+        if (_mbcRegisterList[row].bSelected)
         {
             cnt++;
         }
