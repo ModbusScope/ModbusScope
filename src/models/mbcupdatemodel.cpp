@@ -58,13 +58,18 @@ int MbcUpdateModel::columnCount(const QModelIndex& parent) const
 
 Qt::ItemFlags MbcUpdateModel::flags(const QModelIndex& index) const
 {
+    using UpdateField = MbcUpdateModel::UpdateInfo::UpdateField;
+
     if (!index.isValid())
     {
         return Qt::NoItemFlags;
     }
 
     Qt::ItemFlags flags = Qt::NoItemFlags;
-    flags |= Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+    if (_updateInfo[index.row()].update != UpdateField::None)
+    {
+        flags |= Qt::ItemIsEnabled;
+    }
 
     return flags;
 }
@@ -92,10 +97,6 @@ QVariant MbcUpdateModel::data(const QModelIndex& index, int role) const
         default:
             return QVariant();
         }
-    }
-    else if (role == Qt::ForegroundRole)
-    {
-        return _updateInfo[index.row()].update == UpdateField::None ? QColor(Qt::gray) : QColor(Qt::black);
     }
     else if (role == Qt::DisplayRole)
     {
