@@ -20,7 +20,6 @@ private slots:
     void flagsEnabled();
     void flagsDisabled();
     void setData();
-    void disableAlreadyStagedRegisterAddress();
     void fillData();
     void reset();
     void selectedRegisterListAndCount();

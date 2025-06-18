@@ -104,10 +104,6 @@ QVariant MbcRegisterModel::data(const QModelIndex &index, int role) const
         {
             return "Not readable";
         }
-        else if (_mbcRegisterMetaDataList[index.row()].bAlreadyStaged)
-        {
-            return "Already selected address";
-        }
         else
         {
             return "";
@@ -186,8 +182,6 @@ bool MbcRegisterModel::setData(const QModelIndex & index, const QVariant & value
     {
         _mbcRegisterMetaDataList[index.row()].bSelected = value == Qt::Checked;
 
-        updateAlreadySelected();
-
         bRet = true;
     }
 
@@ -221,8 +215,6 @@ void MbcRegisterModel::setSelectionstate(QList<QModelIndex>& indexList, Qt::Chec
         }
     }
 
-    updateAlreadySelected();
-
     emit dataChanged(this->index(0, 0), this->index(rowCount() - 1, 0));
 }
 
@@ -253,15 +245,13 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
     {
         // Get result before adding to list
         _mbcRegisterList.append(mbcRegisterList[idx]);
-        _mbcRegisterMetaDataList.append({ false, false, false });
+        _mbcRegisterMetaDataList.append({ false, false });
 
         if (_mbcRegisterList.last().isReadable())
         {
             _mbcRegisterMetaDataList.last().bEnabled = true;
         }
     }
-
-    updateAlreadySelected();
 
     /* Call function to trigger view update */
     endInsertRows();
@@ -282,7 +272,7 @@ Qt::ItemFlags MbcRegisterModel::flags(const QModelIndex & index) const
         flags = Qt::ItemIsUserCheckable;
     }
 
-    if (_mbcRegisterMetaDataList[index.row()].bEnabled  && !_mbcRegisterMetaDataList[index.row()].bAlreadyStaged)
+    if (_mbcRegisterMetaDataList[index.row()].bEnabled)
     {
         flags |= Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     }
@@ -327,37 +317,4 @@ quint32 MbcRegisterModel::selectedRegisterCount()
     }
 
     return cnt;
-}
-
-void MbcRegisterModel::updateAlreadySelected()
-{
-    // Collect all selected register addresses
-    QSet<int> selectedAddresses;
-    for (int32_t idx = 0; idx < _mbcRegisterMetaDataList.size(); ++idx)
-    {
-        if (_mbcRegisterMetaDataList[idx].bSelected)
-        {
-            selectedAddresses.insert(_mbcRegisterList[idx].registerAddress());
-        }
-    }
-
-    // Update each item based on whether its address is already selected
-    for (int32_t idx = 0; idx < _mbcRegisterMetaDataList.size(); ++idx)
-    {
-        if (_mbcRegisterMetaDataList[idx].bEnabled)
-        {
-            bool isSelected = _mbcRegisterMetaDataList[idx].bSelected;
-            bool addressAlreadySelected = selectedAddresses.contains(_mbcRegisterList[idx].registerAddress());
-
-            // Mark as already staged only if it's enabled, not selected, and the address exists elsewhere
-            if (!isSelected && addressAlreadySelected)
-            {
-                _mbcRegisterMetaDataList[idx].bAlreadyStaged = true;
-            }
-            else
-            {
-                _mbcRegisterMetaDataList[idx].bAlreadyStaged = false;
-            }
-        }
-    }
 }

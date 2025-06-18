@@ -53,10 +53,7 @@ private:
         {
             bool bSelected;
             bool bEnabled;
-            bool bAlreadyStaged;
         };
-
-        void updateAlreadySelected();
 
         QList<MbcRegisterData> _mbcRegisterList;
         QList<struct MbcMetaData> _mbcRegisterMetaDataList;

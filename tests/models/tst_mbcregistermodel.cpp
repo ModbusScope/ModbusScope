@@ -85,7 +85,6 @@ void TestMbcRegisterModel::flagsEnabled()
     QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnDecimals)), enabledFlags);
 }
 
-
 void TestMbcRegisterModel::flagsDisabled()
 {
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
@@ -138,86 +137,6 @@ void TestMbcRegisterModel::setData()
 
     QCOMPARE(pMbcRegisterModel->data(modelIdxFirstRow, Qt::CheckStateRole), Qt::Checked);
     QCOMPARE(pMbcRegisterModel->data(modelIdxSecondRow, Qt::CheckStateRole), Qt::Unchecked);
-}
-
-void TestMbcRegisterModel::disableAlreadyStagedRegisterAddress()
-{
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
-
-    QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
-            << MbcRegisterData(40001, ModbusDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
-            << MbcRegisterData(40001, ModbusDataType::Type::UNSIGNED_16, "Test1_2", 2, true, 0)
-            << MbcRegisterData(40002, ModbusDataType::Type::SIGNED_32, "Test2", 1, true, 0)
-            << MbcRegisterData(40011, ModbusDataType::Type::SIGNED_16, "Test11", 2, false, 0); // Disabled: not readable
-    QStringList tabList = QStringList() << QString("Tab0");
-
-    pMbcRegisterModel->fill(mbcRegisterList, tabList);
-
-    QModelIndex modelIdx = pMbcRegisterModel->index(0, 0);
-    const Qt::ItemFlags enabledFlags = Qt::ItemIsSelectable |  Qt::ItemIsEnabled;
-    const Qt::ItemFlags disabledFlags = Qt::NoItemFlags;
-
-    // *** Start all unchecked
-    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 0);
-
-    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), enabledFlags);
-
-    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(1, cColumnAddress)), enabledFlags);
-
-
-    // *** Check first
-    modelIdx = pMbcRegisterModel->index(0, cColumnSelected);
-    QCOMPARE(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
-
-    // Check disabled second
-    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), enabledFlags);
-
-    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::ToolTipRole).toString(), "Already selected address");
-    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(1, cColumnAddress)), disabledFlags);
-
-
-    // *** Uncheck first
-    modelIdx = pMbcRegisterModel->index(0, cColumnSelected);
-    QCOMPARE(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Unchecked), Qt::CheckStateRole), true);
-
-    // Check all enabled
-    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 0);
-
-    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), enabledFlags);
-
-    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(1, cColumnAddress)), enabledFlags);
-
-
-    // *** Check second
-    modelIdx = pMbcRegisterModel->index(1, cColumnSelected);
-    QCOMPARE(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), true);
-
-    // Check disabled first
-    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(), "Already selected address");
-    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), disabledFlags);
-
-    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(1, cColumnAddress)), enabledFlags);
-
-
-    // *** Uncheck second
-    modelIdx = pMbcRegisterModel->index(1, cColumnSelected);
-    QCOMPARE(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Unchecked), Qt::CheckStateRole), true);
-
-    // Check all enabled
-    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 0);
-
-    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), enabledFlags);
-
-    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::ToolTipRole).toString(), "");
-    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(1, cColumnAddress)), enabledFlags);
-
 }
 
 void TestMbcRegisterModel::fillData()
