@@ -283,16 +283,14 @@ QList<GraphData> MbcRegisterModel::selectedRegisterList()
     QList<GraphData> _selectedRegisterList;
 
     // Get selected register from table widget */
-    for (qint32 row = 0; row < _mbcRegisterList.size(); row++)
+    for (const MbcRegister& row : std::as_const(_mbcRegisterList))
     {
-        if (_mbcRegisterList[row].bSelected)
+        if (row.bSelected)
         {
             GraphData graphData;
-            _mbcRegisterList[row];
-
             graphData.setActive(true);
-            graphData.setLabel(_mbcRegisterList[row].registerData.name());
-            graphData.setExpression(_mbcRegisterList[row].registerData.toExpression());
+            graphData.setLabel(row.registerData.name());
+            graphData.setExpression(row.registerData.toExpression());
 
             _selectedRegisterList.append(graphData);
         }
@@ -306,9 +304,9 @@ quint32 MbcRegisterModel::selectedRegisterCount()
     quint32 cnt = 0;
 
     // Get selected register from table widget */
-    for (qint32 row = 0; row < _mbcRegisterList.size(); row++)
+    for (const MbcRegister& row : std::as_const(_mbcRegisterList))
     {
-        if (_mbcRegisterList[row].bSelected)
+        if (row.bSelected)
         {
             cnt++;
         }

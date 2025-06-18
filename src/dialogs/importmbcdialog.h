@@ -26,7 +26,7 @@ public:
     ~ImportMbcDialog();
 
 public slots:
-    int exec(void);
+    int exec(void) override;
 
 private slots:
     void updateTextFilter();
@@ -35,8 +35,8 @@ private slots:
     void visibleItemsDataChanged();
     void registerDataChanged();
     void handleSelectAllClicked(Qt::CheckState state);
-    void dragEnterEvent(QDragEnterEvent* e);
-    void dropEvent(QDropEvent* e);
+    void dragEnterEvent(QDragEnterEvent* e) override;
+    void dropEvent(QDropEvent* e) override;
 
 private:
     void setSelectedSelectionstate(Qt::CheckState state);
