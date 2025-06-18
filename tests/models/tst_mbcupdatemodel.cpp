@@ -6,6 +6,7 @@
 #include "models/settingsmodel.h"
 
 #include <QTest>
+#include <qtestcase.h>
 
 void TestMbcUpdateModel::init()
 {
@@ -54,6 +55,9 @@ void TestMbcUpdateModel::noUpdate()
     QVERIFY(actText.isEmpty());
 
     QCOMPARE(pMbcUpdateModel->data(modelIdx.sibling(0, 0), Qt::ToolTipRole).toString(), "");
+
+    Qt::ItemFlags expFlags = Qt::NoItemFlags;
+    QCOMPARE(pMbcUpdateModel->flags(modelIdx.sibling(0, 0)), expFlags);
 }
 
 void TestMbcUpdateModel::tooMuchDifference()
@@ -106,6 +110,9 @@ void TestMbcUpdateModel::updateText()
     QCOMPARE(actText, mbcRegisterList[0].name());
 
     QCOMPARE(pMbcUpdateModel->data(modelIdx.sibling(0, 0), Qt::ToolTipRole).toString(), "Update of text detected");
+
+    Qt::ItemFlags expFlags = Qt::ItemIsEnabled;
+    QCOMPARE(pMbcUpdateModel->flags(modelIdx.sibling(0, 0)), expFlags);
 }
 
 void TestMbcUpdateModel::updateExpression()
@@ -133,6 +140,9 @@ void TestMbcUpdateModel::updateExpression()
 
     QCOMPARE(pMbcUpdateModel->data(modelIdx.sibling(0, 0), Qt::ToolTipRole).toString(),
              "Update of expression detected");
+
+    Qt::ItemFlags expFlags = Qt::ItemIsEnabled;
+    QCOMPARE(pMbcUpdateModel->flags(modelIdx.sibling(0, 0)), expFlags);
 }
 
 QTEST_GUILESS_MAIN(TestMbcUpdateModel)

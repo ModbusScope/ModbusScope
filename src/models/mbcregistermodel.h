@@ -39,8 +39,6 @@ public:
     QList<GraphData> selectedRegisterList();
     quint32 selectedRegisterCount();
 
-    Qt::CheckState selection();
-
     static const quint32 cColumnSelected = 0;
     static const quint32 cColumnAddress = 1;
     static const quint32 cColumnText = 2;
@@ -50,23 +48,18 @@ public:
     static const quint32 cColumnCnt = 6;
 
 private:
+    typedef struct
+    {
+        MbcRegisterData registerData;
+        bool bSelected;
+        bool bEnabled;
+    } MbcRegister;
 
-        struct MbcMetaData
-        {
-            bool bSelected;
-            QString tooltip;
-            bool bEnabled;
-            bool bAlreadyStaged;
-        };
+    QList<MbcRegister> _mbcRegisterList;
 
-        void updateAlreadySelected();
+    QStringList _tabList;
 
-        QList<MbcRegisterData> _mbcRegisterList;
-        QList<struct MbcMetaData> _mbcRegisterMetaDataList;
-
-        QStringList _tabList;
-
-        Qt::CheckState _selection;
+    Qt::CheckState _selection;
 };
 
 #endif // MBCREGISTERMODEL_H
