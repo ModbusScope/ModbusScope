@@ -20,13 +20,16 @@ private slots:
     void flagsEnabled();
     void flagsDisabled();
     void setData();
-    void disableAlreadyStagedRegisterAddress();
     void fillData();
     void reset();
     void selectedRegisterListAndCount();
     void selectedRegisterListAndCount32();
-
     void selectedRegisterListDecimals();
+
+    void selectAllWhenUnchecked();
+    void selectAllWhenChecked();
+    void selectAllWhenMixedChecked();
+    void selectAllSkipNonReadable();
 
 private:
 
