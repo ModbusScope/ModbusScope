@@ -20,10 +20,8 @@ class QCustomPlot;
 class GraphDataModel;
 class NoteModel;
 class DiagnosticModel;
-class ConnectionDialog;
 class SettingsModel;
 class DataParserModel;
-class LogDialog;
 class DiagnosticDialog;
 class NotesDock;
 class GuiModel;
@@ -62,8 +60,6 @@ private slots:
     void openOnlineDoc();
     void openUpdateUrl();
     void menuShowHideGraphClicked(bool bState);
-    void showConnectionDialog();
-    void showLogSettingsDialog();
     void handleShowRegisterDialog(bool checked);
     void addNoteToGraph();
     void toggleZoom(bool checked);
@@ -123,8 +119,6 @@ private:
     ExpressionStatus* _pExpressionStatus;
     CommunicationStats* _pCommunicationStats;
 
-    ConnectionDialog * _pConnectionDialog;
-    LogDialog * _pLogDialog;
     DiagnosticDialog * _pDiagnosticDialog;
 
     DataFileHandler* _pDataFileHandler;
