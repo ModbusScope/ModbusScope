@@ -60,6 +60,7 @@ private slots:
     void openOnlineDoc();
     void openUpdateUrl();
     void menuShowHideGraphClicked(bool bState);
+    void showSettingsDialog();
     void handleShowRegisterDialog(bool checked);
     void addNoteToGraph();
     void toggleZoom(bool checked);
