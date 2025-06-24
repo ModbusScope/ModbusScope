@@ -8,10 +8,8 @@
 #include "customwidgets/notesdock.h"
 #include "customwidgets/statusbar.h"
 #include "dialogs/aboutdialog.h"
-#include "dialogs/connectiondialog.h"
 #include "dialogs/diagnosticdialog.h"
 #include "dialogs/importmbcdialog.h"
-#include "dialogs/logdialog.h"
 #include "dialogs/registerdialog.h"
 #include "dialogs/ui_mainwindow.h"
 #include "graphview/graphview.h"
@@ -52,8 +50,6 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
 
     QApplication::setStyle(QStyleFactory::create("Fusion"));
 
-    _pConnectionDialog = new ConnectionDialog(_pSettingsModel, this);
-    _pLogDialog = new LogDialog(_pSettingsModel, this);
     _pDiagnosticDialog = new DiagnosticDialog(_pDiagnosticModel, this);
 
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
@@ -100,8 +96,6 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pUi->actionHighlightSamplePoints, &QAction::toggled, _pGuiModel, &GuiModel::setHighlightSamples);
     connect(_pUi->actionClearData, &QAction::triggered, this, &MainWindow::clearData);
     connect(_pUi->actionToggleMarkers, &QAction::triggered, this, &MainWindow::toggleMarkersState);
-    connect(_pUi->actionConnectionSettings, &QAction::triggered, this, &MainWindow::showConnectionDialog);
-    connect(_pUi->actionLogSettings, &QAction::triggered, this, &MainWindow::showLogSettingsDialog);
     connect(_pUi->actionRegisterSettings, &QAction::triggered, this, &MainWindow::handleShowRegisterDialog);
     connect(_pUi->actionAddNote, &QAction::triggered, this, &MainWindow::addNoteToGraph);
     connect(_pUi->actionZoom, &QAction::triggered, this, &MainWindow::toggleZoom); /* Only called on GUI click, not on setChecked */
@@ -228,7 +222,6 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
 MainWindow::~MainWindow()
 {
     delete _pGraphView;
-    delete _pConnectionDialog;
     delete _pModbusPoll;
     delete _pGraphShowHide;
     delete _pMostRecentMenu;
@@ -352,16 +345,6 @@ void MainWindow::menuShowHideGraphClicked(bool bState)
 
     const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(pAction->data().toInt());
     _pGraphDataModel->setVisible(graphIdx, bState);
-}
-
-void MainWindow::showConnectionDialog()
-{
-    _pConnectionDialog->exec();
-}
-
-void MainWindow::showLogSettingsDialog()
-{
-    _pLogDialog->exec();
 }
 
 void MainWindow::handleShowRegisterDialog(bool checked)
