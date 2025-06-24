@@ -11,6 +11,7 @@
 #include "dialogs/diagnosticdialog.h"
 #include "dialogs/importmbcdialog.h"
 #include "dialogs/registerdialog.h"
+#include "dialogs/settingsdialog.h"
 #include "dialogs/ui_mainwindow.h"
 #include "graphview/graphview.h"
 #include "importexport/datafilehandler.h"
@@ -96,6 +97,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pUi->actionHighlightSamplePoints, &QAction::toggled, _pGuiModel, &GuiModel::setHighlightSamples);
     connect(_pUi->actionClearData, &QAction::triggered, this, &MainWindow::clearData);
     connect(_pUi->actionToggleMarkers, &QAction::triggered, this, &MainWindow::toggleMarkersState);
+    connect(_pUi->actionSettings, &QAction::triggered, this, &MainWindow::showSettingsDialog);
     connect(_pUi->actionRegisterSettings, &QAction::triggered, this, &MainWindow::handleShowRegisterDialog);
     connect(_pUi->actionAddNote, &QAction::triggered, this, &MainWindow::addNoteToGraph);
     connect(_pUi->actionZoom, &QAction::triggered, this, &MainWindow::toggleZoom); /* Only called on GUI click, not on setChecked */
@@ -345,6 +347,12 @@ void MainWindow::menuShowHideGraphClicked(bool bState)
 
     const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(pAction->data().toInt());
     _pGraphDataModel->setVisible(graphIdx, bState);
+}
+
+void MainWindow::showSettingsDialog()
+{
+    SettingsDialog dialog(_pSettingsModel);
+    dialog.exec();
 }
 
 void MainWindow::handleShowRegisterDialog(bool checked)
@@ -651,8 +659,7 @@ void MainWindow::updateGuiState()
     if (_pGuiModel->guiState() == GuiState::INIT)
     {
         _pUi->actionStop->setEnabled(false);
-        _pUi->actionConnectionSettings->setEnabled(true);
-        _pUi->actionLogSettings->setEnabled(true);
+        _pUi->actionSettings->setEnabled(true);
         _pUi->actionRegisterSettings->setEnabled(true);
         _pUi->actionStart->setEnabled(true);
         _pUi->actionOpenDataFile->setEnabled(true);
@@ -672,8 +679,7 @@ void MainWindow::updateGuiState()
     {
         // Communication active
         _pUi->actionStop->setEnabled(true);
-        _pUi->actionConnectionSettings->setEnabled(false);
-        _pUi->actionLogSettings->setEnabled(false);
+        _pUi->actionSettings->setEnabled(false);
         _pUi->actionRegisterSettings->setEnabled(false);
         _pUi->actionStart->setEnabled(false);
         _pUi->actionOpenDataFile->setEnabled(false);
@@ -690,8 +696,7 @@ void MainWindow::updateGuiState()
     {
         // Communication not active
         _pUi->actionStop->setEnabled(false);
-        _pUi->actionConnectionSettings->setEnabled(true);
-        _pUi->actionLogSettings->setEnabled(true);
+        _pUi->actionSettings->setEnabled(true);
         _pUi->actionRegisterSettings->setEnabled(true);
         _pUi->actionStart->setEnabled(true);
         _pUi->actionOpenDataFile->setEnabled(true);
@@ -719,8 +724,7 @@ void MainWindow::updateGuiState()
     {
         // Communication not active
         _pUi->actionStop->setEnabled(false);
-        _pUi->actionConnectionSettings->setEnabled(true);
-        _pUi->actionLogSettings->setEnabled(true);
+        _pUi->actionSettings->setEnabled(true);
         _pUi->actionRegisterSettings->setEnabled(true);
         _pUi->actionStart->setEnabled(true);
         _pUi->actionOpenDataFile->setEnabled(true);

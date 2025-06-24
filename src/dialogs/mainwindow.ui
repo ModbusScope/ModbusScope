@@ -75,6 +75,7 @@
      <string>&amp;Project</string>
     </property>
     <addaction name="separator"/>
+    <addaction name="actionSettings"/>
     <addaction name="actionRegisterSettings"/>
     <addaction name="separator"/>
     <addaction name="actionClearData"/>
@@ -495,6 +496,11 @@
   <action name="actionImportFromMbcFile">
    <property name="text">
     <string>&amp;Import MBC File...</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>&amp;Settings...</string>
    </property>
   </action>
  </widget>
