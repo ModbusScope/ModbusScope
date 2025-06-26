@@ -132,6 +132,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionSettings"/>
    <addaction name="actionRegisterSettings"/>
    <addaction name="separator"/>
    <addaction name="actionStart"/>
@@ -411,6 +412,9 @@
    <property name="text">
     <string>&amp;Register settings...</string>
    </property>
+   <property name="iconText">
+    <string>Registers</string>
+   </property>
   </action>
   <action name="actionToggleMarkers">
    <property name="icon">
@@ -499,6 +503,10 @@
    </property>
   </action>
   <action name="actionSettings">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/menu_icon/icons/settings.svg</normaloff>:/menu_icon/icons/settings.svg</iconset>
+   </property>
    <property name="text">
     <string>&amp;Settings...</string>
    </property>
