@@ -10,6 +10,9 @@ SettingsDialog::SettingsDialog(SettingsModel* pSettingsModel, QWidget* parent)
 {
     _pUi->setupUi(this);
 
+    /* Disable question mark button */
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
     _pUi->settingsList->addItem("Connection");
     _pUi->settingsList->addItem("Log");
 
