@@ -45,7 +45,7 @@
      <x>0</x>
      <y>0</y>
      <width>1018</width>
-     <height>23</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -75,8 +75,7 @@
      <string>&amp;Project</string>
     </property>
     <addaction name="separator"/>
-    <addaction name="actionConnectionSettings"/>
-    <addaction name="actionLogSettings"/>
+    <addaction name="actionSettings"/>
     <addaction name="actionRegisterSettings"/>
     <addaction name="separator"/>
     <addaction name="actionClearData"/>
@@ -133,6 +132,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionSettings"/>
    <addaction name="actionRegisterSettings"/>
    <addaction name="separator"/>
    <addaction name="actionStart"/>
@@ -404,15 +404,6 @@
     <string>&amp;Clear Data</string>
    </property>
   </action>
-  <action name="actionConnectionSettings">
-   <property name="icon">
-    <iconset>
-     <normaloff>:/menu_icon/icons/network.svg</normaloff>:/menu_icon/icons/network.svg</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Connection Settings...</string>
-   </property>
-  </action>
   <action name="actionRegisterSettings">
    <property name="icon">
     <iconset>
@@ -421,14 +412,8 @@
    <property name="text">
     <string>&amp;Register settings...</string>
    </property>
-  </action>
-  <action name="actionLogSettings">
-   <property name="icon">
-    <iconset>
-     <normaloff>:/menu_icon/icons/settings-2.svg</normaloff>:/menu_icon/icons/settings-2.svg</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Log Settings...</string>
+   <property name="iconText">
+    <string>Registers</string>
    </property>
   </action>
   <action name="actionToggleMarkers">
@@ -515,6 +500,15 @@
   <action name="actionImportFromMbcFile">
    <property name="text">
     <string>&amp;Import MBC File...</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/menu_icon/icons/settings.svg</normaloff>:/menu_icon/icons/settings.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Settings...</string>
    </property>
   </action>
  </widget>
