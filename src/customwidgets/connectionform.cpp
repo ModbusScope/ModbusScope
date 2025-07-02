@@ -3,16 +3,15 @@
 
 #include "models/settingsmodel.h"
 
-ConnectionForm::ConnectionForm(QWidget *parent) :
-    QWidget(parent),
-    _pUi(new Ui::ConnectionForm)
+ConnectionForm::ConnectionForm(QWidget* parent) : QWidget(parent), _pUi(new Ui::ConnectionForm)
 {
     _pUi->setupUi(this);
 
     _pUi->comboType->addItem("TCP", QVariant(Connection::TYPE_TCP));
     _pUi->comboType->addItem("Serial", QVariant(Connection::TYPE_SERIAL));
     _pUi->comboType->setCurrentIndex(0);
-    connect(_pUi->comboType, QOverload<const int>::of(&QComboBox::currentIndexChanged), this, &ConnectionForm::connTypeSelected);
+    connect(_pUi->comboType, QOverload<const int>::of(&QComboBox::currentIndexChanged), this,
+            &ConnectionForm::connTypeSelected);
 
     _pUi->comboBaud->addItem("1200", QVariant(QSerialPort::Baud1200));
     _pUi->comboBaud->addItem("2400", QVariant(QSerialPort::Baud2400));
@@ -82,17 +81,19 @@ void ConnectionForm::fillSettingsModel(SettingsModel* pSettingsModel, quint8 con
     pSettingsModel->setConsecutiveMax(connectionId, _pUi->spinConsecutiveMax->value());
     pSettingsModel->setInt32LittleEndian(connectionId, _pUi->checkInt32LittleEndian->checkState() == Qt::Checked);
     pSettingsModel->setPersistentConnection(connectionId, _pUi->checkPersistentConn->checkState() == Qt::Checked);
-
-    pSettingsModel->setConnectionType(connectionId, static_cast<Connection::type_t>(_pUi->comboType->currentData().toUInt()));
-
+    pSettingsModel->setConnectionType(connectionId,
+                                      static_cast<Connection::type_t>(_pUi->comboType->currentData().toUInt()));
     pSettingsModel->setIpAddress(connectionId, _pUi->lineIP->text());
     pSettingsModel->setPort(connectionId, _pUi->spinPort->value());
-
     pSettingsModel->setPortName(connectionId, _pUi->comboPortName->currentText());
-    pSettingsModel->setBaudrate(connectionId, static_cast<QSerialPort::BaudRate>(_pUi->comboBaud->currentData().toUInt()));
-    pSettingsModel->setParity(connectionId, static_cast<QSerialPort::Parity>(_pUi->comboParity->currentData().toUInt()));
-    pSettingsModel->setDatabits(connectionId, static_cast<QSerialPort::DataBits>(_pUi->comboDataBits->currentData().toUInt()));
-    pSettingsModel->setStopbits(connectionId, static_cast<QSerialPort::StopBits>(_pUi->comboStopBits->currentData().toUInt()));
+    pSettingsModel->setBaudrate(connectionId,
+                                static_cast<QSerialPort::BaudRate>(_pUi->comboBaud->currentData().toUInt()));
+    pSettingsModel->setParity(connectionId,
+                              static_cast<QSerialPort::Parity>(_pUi->comboParity->currentData().toUInt()));
+    pSettingsModel->setDatabits(connectionId,
+                                static_cast<QSerialPort::DataBits>(_pUi->comboDataBits->currentData().toUInt()));
+    pSettingsModel->setStopbits(connectionId,
+                                static_cast<QSerialPort::StopBits>(_pUi->comboStopBits->currentData().toUInt()));
 }
 
 void ConnectionForm::setConnectionType(Connection::type_t connectionType)
@@ -100,7 +101,7 @@ void ConnectionForm::setConnectionType(Connection::type_t connectionType)
     int index = _pUi->comboType->findData(QVariant(connectionType));
     if (index != -1)
     {
-       _pUi->comboType->setCurrentIndex(index);
+        _pUi->comboType->setCurrentIndex(index);
     }
 }
 
@@ -114,7 +115,7 @@ void ConnectionForm::setParity(QSerialPort::Parity parity)
     int index = _pUi->comboParity->findData(QVariant(parity));
     if (index != -1)
     {
-       _pUi->comboParity->setCurrentIndex(index);
+        _pUi->comboParity->setCurrentIndex(index);
     }
 }
 
@@ -123,7 +124,7 @@ void ConnectionForm::setBaudrate(QSerialPort::BaudRate baudrate)
     int index = _pUi->comboBaud->findData(QVariant(baudrate));
     if (index != -1)
     {
-       _pUi->comboBaud->setCurrentIndex(index);
+        _pUi->comboBaud->setCurrentIndex(index);
     }
 }
 
@@ -132,7 +133,7 @@ void ConnectionForm::setDatabits(QSerialPort::DataBits databits)
     int index = _pUi->comboDataBits->findData(QVariant(databits));
     if (index != -1)
     {
-       _pUi->comboDataBits->setCurrentIndex(index);
+        _pUi->comboDataBits->setCurrentIndex(index);
     }
 }
 
@@ -141,7 +142,7 @@ void ConnectionForm::setStopbits(QSerialPort::StopBits stopbits)
     int index = _pUi->comboStopBits->findData(QVariant(stopbits));
     if (index != -1)
     {
-       _pUi->comboStopBits->setCurrentIndex(index);
+        _pUi->comboStopBits->setCurrentIndex(index);
     }
 }
 

@@ -1,7 +1,7 @@
 #include "settingsdialog.h"
 #include "ui_settingsdialog.h"
 
-#include "dialogs/connectiondialog.h"
+#include "dialogs/connectionsettings.h"
 #include "dialogs/logsettings.h"
 #include <qlabel.h>
 
@@ -16,13 +16,31 @@ SettingsDialog::SettingsDialog(SettingsModel* pSettingsModel, QWidget* parent)
     _pUi->settingsList->addItem("Connection");
     _pUi->settingsList->addItem("Log");
 
-    _pUi->settingsStack->insertWidget(0, new ConnectionDialog(pSettingsModel));
+    _pConnSettings = new ConnectionSettings(_pSettingsModel);
+
+    _pUi->settingsStack->insertWidget(0, _pConnSettings);
     _pUi->settingsStack->insertWidget(1, new LogSettings(pSettingsModel));
 
-    connect(_pUi->settingsList, &QListWidget::currentRowChanged, _pUi->settingsStack, &QStackedWidget::setCurrentIndex);
+    connect(_pUi->settingsList, &QListWidget::currentRowChanged, this, &SettingsDialog::settingsStackSwitch);
 }
 
 SettingsDialog::~SettingsDialog()
 {
     delete _pUi;
+}
+
+void SettingsDialog::done(int r)
+{
+    Q_UNUSED(r);
+
+    _pConnSettings->acceptValues();
+
+    QDialog::done(QDialog::Accepted);
+}
+
+void SettingsDialog::settingsStackSwitch(int currentRow)
+{
+    _pConnSettings->acceptValues();
+
+    _pUi->settingsStack->setCurrentIndex(currentRow);
 }
