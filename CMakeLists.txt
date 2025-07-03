@@ -6,7 +6,7 @@ project(modbusscope
     VERSION 4.1.0
 )
 
-add_definitions("-DnDEBUG")
+add_definitions("-DDEBUG")
 
 set(SCOPESOURCE ScopeSource)
 
