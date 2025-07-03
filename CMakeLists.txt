@@ -3,10 +3,10 @@ cmake_minimum_required(VERSION 3.19)
 project(modbusscope
     LANGUAGES CXX
     DESCRIPTION "Create logs from value read via Modbus"
-    VERSION 4.0.2
+    VERSION 4.1.0
 )
 
-add_definitions("-DDEBUG")
+add_definitions("-DnDEBUG")
 
 set(SCOPESOURCE ScopeSource)
 
