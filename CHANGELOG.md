@@ -1,26 +1,18 @@
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/ModbusScope/ModbusScope/releases).
 
-## [Unreleased]
+## [v4.1.0](https://github.com/jgeudens/ModbusScope/releases/tag/4.1.0) (03/07/2025)
 
 ### Added 
 
-- Add option to highlight graph
-- Add option to compare/import changes from mbc with existing mbs ([Github #342](https://github.com/ModbusScope/ModbusScope/issues/342))
-
-### Fixed
-
-- xx
+* Add option to highlight graph
+* Add option to compare/import changes from mbc with existing mbs ([Github #342](https://github.com/ModbusScope/ModbusScope/issues/342))
 
 ### Changed
 
-- Select consistent theme across platforms
-- Various UI changes to improve consistency (scale dock, about window, ...) ([Github #349](https://github.com/ModbusScope/ModbusScope/issues/349))
-- Make sure color of register remains visible when register is selected in register window
-- Various improvements to importing MBC registers ([Github #344](https://github.com/ModbusScope/ModbusScope/issues/344))
-
-### Removed
-
-- xx
+* Select consistent theme across platforms
+* Various UI changes to improve consistency (scale dock, about window, ...) ([Github #349](https://github.com/ModbusScope/ModbusScope/issues/349))
+* Make sure color of register remains visible when register is selected in register window
+* Various improvements to importing MBC registers ([Github #344](https://github.com/ModbusScope/ModbusScope/issues/344))
 
 ## [v4.0.1](https://github.com/jgeudens/ModbusScope/releases/tag/4.0.1) (23/12/2024)
 
