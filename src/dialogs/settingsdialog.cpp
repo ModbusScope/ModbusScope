@@ -13,8 +13,20 @@ SettingsDialog::SettingsDialog(SettingsModel* pSettingsModel, QWidget* parent)
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    _pUi->settingsList->addItem("Connection");
-    _pUi->settingsList->addItem("Log");
+    auto font = _pUi->settingsList->font();
+    font.setPointSize(font.pointSize() * 1.2);
+    _pUi->settingsList->setFont(font);
+    _pUi->settingsList->setStyleSheet("QListWidget {padding: 10px;} QListWidget::item { margin: 10px; }");
+
+    auto listItem = new QListWidgetItem(_pUi->settingsList);
+    listItem->setText("Connection");
+    listItem->setIcon(QIcon(":/menu_icon/icons/network.svg"));
+    _pUi->settingsList->addItem(listItem);
+
+    listItem = new QListWidgetItem(_pUi->settingsList);
+    listItem->setText("Log");
+    listItem->setIcon(QIcon(":/menu_icon/icons/clipboard-list.svg"));
+    _pUi->settingsList->addItem(listItem);
 
     _pConnSettings = new ConnectionSettings(_pSettingsModel);
 
