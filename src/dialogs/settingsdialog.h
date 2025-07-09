@@ -24,6 +24,12 @@ private slots:
     void settingsStackSwitch(int currentRow);
 
 private:
+    enum
+    {
+        PAGE_CONNECTION = 0,
+        PAGE_LOG = 1,
+    };
+
     Ui::SettingsDialog* _pUi;
 
     SettingsModel* _pSettingsModel;
