@@ -12,7 +12,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Changed
 
-* xx
+* Rework of settings dialogs
 
 ### Removed
 

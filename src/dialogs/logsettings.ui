@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>LogDialog</class>
- <widget class="QDialog" name="LogDialog">
+ <class>LogSettings</class>
+ <widget class="QWidget" name="LogSettings">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>589</width>
-    <height>293</height>
+    <width>539</width>
+    <height>466</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Log settings</string>
-  </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1">
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
@@ -115,14 +112,17 @@
     </widget>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox">
+    <spacer name="verticalSpacer">
      <property name="orientation">
-      <enum>Qt::Orientation::Horizontal</enum>
+      <enum>Qt::Orientation::Vertical</enum>
      </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::StandardButton::Ok</set>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
      </property>
-    </widget>
+    </spacer>
    </item>
   </layout>
  </widget>
@@ -133,38 +133,5 @@
   <tabstop>spinPollTime</tabstop>
  </tabstops>
  <resources/>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>LogDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>LogDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
