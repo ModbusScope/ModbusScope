@@ -64,15 +64,16 @@ void ProjectFileExporter::createModbusTag(QDomElement * pParentElement)
 
 void ProjectFileExporter::createConnectionTags(QDomElement * pParentElement)
 {
-    for (quint8 i = 0u; i < Connection::ID_CNT; i++)
+    for (quint8 i = 0u; i < ConnectionId::ID_CNT; i++)
     {
+        auto connData = _pSettingsModel->connectionSettings(i);
         QDomElement connectionElement = _domDocument.createElement(ProjectFileDefinitions::cConnectionTag);
 
         addTextNode(ProjectFileDefinitions::cConnectionEnabledTag, convertBoolToText(_pSettingsModel->connectionState(i)), &connectionElement);
 
         addTextNode(ProjectFileDefinitions::cConnectionIdTag, QString("%1").arg(i), &connectionElement);
 
-        if (_pSettingsModel->connectionType(i) == Connection::TYPE_TCP)
+        if (connData->connectionType() == Connection::TYPE_TCP)
         {
             addTextNode(ProjectFileDefinitions::cConnectionTypeTag, QString("tcp"), &connectionElement);
         }
@@ -81,21 +82,24 @@ void ProjectFileExporter::createConnectionTags(QDomElement * pParentElement)
             addTextNode(ProjectFileDefinitions::cConnectionTypeTag, QString("serial"), &connectionElement);
         }
 
-        addTextNode(ProjectFileDefinitions::cIpTag, _pSettingsModel->ipAddress(i), &connectionElement);
-        addTextNode(ProjectFileDefinitions::cPortTag, QString("%1").arg(_pSettingsModel->port(i)), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cIpTag, connData->ipAddress(), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cPortTag, QString("%1").arg(connData->port()), &connectionElement);
 
-        addTextNode(ProjectFileDefinitions::cPortNameTag, QString("%1").arg(_pSettingsModel->portName(i)), &connectionElement);
-        addTextNode(ProjectFileDefinitions::cBaudrateTag, QString("%1").arg(_pSettingsModel->baudrate(i)), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cPortNameTag, QString("%1").arg(connData->portName()), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cBaudrateTag, QString("%1").arg(connData->baudrate()), &connectionElement);
 
-        addTextNode(ProjectFileDefinitions::cParityTag, QString("%1").arg(_pSettingsModel->parity(i)), &connectionElement);
-        addTextNode(ProjectFileDefinitions::cStopBitsTag, QString("%1").arg(_pSettingsModel->stopbits(i)), &connectionElement);
-        addTextNode(ProjectFileDefinitions::cDataBitsTag, QString("%1").arg(_pSettingsModel->databits(i)), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cParityTag, QString("%1").arg(connData->parity()), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cStopBitsTag, QString("%1").arg(connData->stopbits()), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cDataBitsTag, QString("%1").arg(connData->databits()), &connectionElement);
 
-        addTextNode(ProjectFileDefinitions::cSlaveIdTag, QString("%1").arg(_pSettingsModel->slaveId(i)), &connectionElement);
-        addTextNode(ProjectFileDefinitions::cTimeoutTag, QString("%1").arg(_pSettingsModel->timeout(i)), &connectionElement);
-        addTextNode(ProjectFileDefinitions::cConsecutiveMaxTag, QString("%1").arg(_pSettingsModel->consecutiveMax(i)), &connectionElement);
-        addTextNode(ProjectFileDefinitions::cInt32LittleEndianTag, convertBoolToText(_pSettingsModel->int32LittleEndian(i)), &connectionElement);
-        addTextNode(ProjectFileDefinitions::cPersistentConnectionTag, convertBoolToText(_pSettingsModel->persistentConnection(i)), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cSlaveIdTag, QString("%1").arg(connData->slaveId()), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cTimeoutTag, QString("%1").arg(connData->timeout()), &connectionElement);
+        addTextNode(ProjectFileDefinitions::cConsecutiveMaxTag, QString("%1").arg(connData->consecutiveMax()),
+                    &connectionElement);
+        addTextNode(ProjectFileDefinitions::cInt32LittleEndianTag, convertBoolToText(connData->int32LittleEndian()),
+                    &connectionElement);
+        addTextNode(ProjectFileDefinitions::cPersistentConnectionTag,
+                    convertBoolToText(connData->persistentConnection()), &connectionElement);
 
         pParentElement->appendChild(connectionElement);
     }

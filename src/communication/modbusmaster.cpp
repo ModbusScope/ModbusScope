@@ -31,6 +31,7 @@ ModbusMaster::~ModbusMaster()
 
 void ModbusMaster::readRegisterList(QList<ModbusAddress> registerList)
 {
+    auto connData = _pSettingsModel->connectionSettings(_connectionId);
     if (_pSettingsModel->connectionState(_connectionId) == false)
     {
         ModbusResultMap errMap;
@@ -48,29 +49,27 @@ void ModbusMaster::readRegisterList(QList<ModbusAddress> registerList)
     {
         logInfo("Register list read: " + dumpToString(registerList));
 
-        _readRegisters.resetRead(registerList, _pSettingsModel->consecutiveMax(_connectionId));
+        _readRegisters.resetRead(registerList, connData->consecutiveMax());
 
         /* Open connection */
-        if (_pSettingsModel->connectionType(_connectionId) == Connection::TYPE_SERIAL)
+        if (connData->connectionType() == Connection::TYPE_SERIAL)
         {
-            struct ModbusConnection::SerialSettings serialSettings =
-            {
-                .portName = _pSettingsModel->portName(_connectionId),
-                .parity = _pSettingsModel->parity(_connectionId),
-                .baudrate = _pSettingsModel->baudrate(_connectionId),
-                .databits = _pSettingsModel->databits(_connectionId),
-                .stopbits = _pSettingsModel->stopbits(_connectionId),
+            struct ModbusConnection::SerialSettings serialSettings = {
+                .portName = connData->portName(),
+                .parity = connData->parity(),
+                .baudrate = connData->baudrate(),
+                .databits = connData->databits(),
+                .stopbits = connData->stopbits(),
             };
-            _modbusConnection.openSerialConnection(serialSettings, _pSettingsModel->timeout(_connectionId));
+            _modbusConnection.openSerialConnection(serialSettings, connData->timeout());
         }
         else
         {
-            struct ModbusConnection::TcpSettings tcpSettings =
-            {
-                .ip = _pSettingsModel->ipAddress(_connectionId),
-                .port = _pSettingsModel->port(_connectionId),
+            struct ModbusConnection::TcpSettings tcpSettings = {
+                .ip = connData->ipAddress(),
+                .port = connData->port(),
             };
-            _modbusConnection.openTcpConnection(tcpSettings, _pSettingsModel->timeout(_connectionId));
+            _modbusConnection.openTcpConnection(tcpSettings, connData->timeout());
         }
     }
     else
@@ -83,7 +82,7 @@ void ModbusMaster::readRegisterList(QList<ModbusAddress> registerList)
 void ModbusMaster::cleanUp()
 {
     /* Close connection when not closing automatically */
-    if (_pSettingsModel->persistentConnection(_connectionId))
+    if (_pSettingsModel->connectionSettings(_connectionId)->persistentConnection())
     {
         _modbusConnection.closeConnection();
     }
@@ -169,7 +168,8 @@ void ModbusMaster::handleTriggerNextRequest(void)
 
         logInfo("Partial list read: " + QString("Start address (%0) and count (%1)").arg(readItem.address().toString()).arg(readItem.count()));
 
-        _modbusConnection.sendReadRequest(readItem.address(), readItem.count(), _pSettingsModel->slaveId(_connectionId));
+        _modbusConnection.sendReadRequest(readItem.address(), readItem.count(),
+                                          _pSettingsModel->connectionSettings(_connectionId)->slaveId());
     }
     else
     {
@@ -192,7 +192,7 @@ void ModbusMaster::finishRead(bool bError)
     }
     else
     {
-        bcloseConnection = !_pSettingsModel->persistentConnection(_connectionId);
+        bcloseConnection = !_pSettingsModel->connectionSettings(_connectionId)->persistentConnection();
     }
 
     if (bcloseConnection)

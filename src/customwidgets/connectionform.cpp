@@ -1,8 +1,6 @@
 #include "customwidgets/connectionform.h"
 #include "ui_connectionform.h"
 
-#include "models/settingsmodel.h"
-
 ConnectionForm::ConnectionForm(QWidget* parent) : QWidget(parent), _pUi(new Ui::ConnectionForm)
 {
     _pUi->setupUi(this);
@@ -74,26 +72,21 @@ void ConnectionForm::setState(bool bEnabled)
     }
 }
 
-void ConnectionForm::fillSettingsModel(SettingsModel* pSettingsModel, quint8 connectionId)
+void ConnectionForm::fillSettingsModel(Connection* connData)
 {
-    pSettingsModel->setSlaveId(connectionId, _pUi->spinSlaveId->value());
-    pSettingsModel->setTimeout(connectionId, _pUi->spinTimeout->value());
-    pSettingsModel->setConsecutiveMax(connectionId, _pUi->spinConsecutiveMax->value());
-    pSettingsModel->setInt32LittleEndian(connectionId, _pUi->checkInt32LittleEndian->checkState() == Qt::Checked);
-    pSettingsModel->setPersistentConnection(connectionId, _pUi->checkPersistentConn->checkState() == Qt::Checked);
-    pSettingsModel->setConnectionType(connectionId,
-                                      static_cast<Connection::type_t>(_pUi->comboType->currentData().toUInt()));
-    pSettingsModel->setIpAddress(connectionId, _pUi->lineIP->text());
-    pSettingsModel->setPort(connectionId, _pUi->spinPort->value());
-    pSettingsModel->setPortName(connectionId, _pUi->comboPortName->currentText());
-    pSettingsModel->setBaudrate(connectionId,
-                                static_cast<QSerialPort::BaudRate>(_pUi->comboBaud->currentData().toUInt()));
-    pSettingsModel->setParity(connectionId,
-                              static_cast<QSerialPort::Parity>(_pUi->comboParity->currentData().toUInt()));
-    pSettingsModel->setDatabits(connectionId,
-                                static_cast<QSerialPort::DataBits>(_pUi->comboDataBits->currentData().toUInt()));
-    pSettingsModel->setStopbits(connectionId,
-                                static_cast<QSerialPort::StopBits>(_pUi->comboStopBits->currentData().toUInt()));
+    connData->setSlaveId(_pUi->spinSlaveId->value());
+    connData->setTimeout(_pUi->spinTimeout->value());
+    connData->setConsecutiveMax(_pUi->spinConsecutiveMax->value());
+    connData->setInt32LittleEndian(_pUi->checkInt32LittleEndian->checkState() == Qt::Checked);
+    connData->setPersistentConnection(_pUi->checkPersistentConn->checkState() == Qt::Checked);
+    connData->setConnectionType(static_cast<Connection::type_t>(_pUi->comboType->currentData().toUInt()));
+    connData->setIpAddress(_pUi->lineIP->text());
+    connData->setPort(_pUi->spinPort->value());
+    connData->setPortName(_pUi->comboPortName->currentText());
+    connData->setBaudrate(static_cast<QSerialPort::BaudRate>(_pUi->comboBaud->currentData().toUInt()));
+    connData->setParity(static_cast<QSerialPort::Parity>(_pUi->comboParity->currentData().toUInt()));
+    connData->setDatabits(static_cast<QSerialPort::DataBits>(_pUi->comboDataBits->currentData().toUInt()));
+    connData->setStopbits(static_cast<QSerialPort::StopBits>(_pUi->comboStopBits->currentData().toUInt()));
 }
 
 void ConnectionForm::setConnectionType(Connection::type_t connectionType)

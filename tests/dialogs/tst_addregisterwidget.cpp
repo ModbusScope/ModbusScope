@@ -57,7 +57,7 @@ void TestAddRegisterWidget::registerConnection()
 {
     delete _pRegWidget;
 
-    _settingsModel.setConnectionState(Connection::ID_2, true);
+    _settingsModel.setConnectionState(ConnectionId::ID_2, true);
 
     _pRegWidget = new AddRegisterWidget(&_settingsModel);
 

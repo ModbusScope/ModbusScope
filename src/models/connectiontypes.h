@@ -1,23 +1,15 @@
 #ifndef CONNECTION_TYPES_H
 #define CONNECTION_TYPES_H
 
-namespace Connection
+namespace ConnectionId {
+enum
 {
-    enum
-    {
-        ID_1 = 0,
-        ID_2,
-        ID_3,
-        ID_CNT
-    };
+    ID_1 = 0,
+    ID_2,
+    ID_3,
+    ID_CNT
+};
 
-    typedef enum
-    {
-        TYPE_TCP = 0,
-        TYPE_SERIAL,
-        TYPE_CNT
-    } type_t;
-
-}
+} // namespace ConnectionId
 
 #endif // CONNECTION_TYPES_H
