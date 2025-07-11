@@ -23,30 +23,34 @@ void TestModbusPoll::init()
 
     _pSettingsModel = new SettingsModel;
 
-    _pSettingsModel->setIpAddress(ConnectionId::ID_1, "127.0.0.1");
-    _pSettingsModel->setPort(ConnectionId::ID_1, 5020);
-    _pSettingsModel->setTimeout(ConnectionId::ID_1, 500);
-    _pSettingsModel->setSlaveId(ConnectionId::ID_1, 1);
+    auto connData = _pSettingsModel->connectionSettings(ConnectionId::ID_1);
+    connData->setIpAddress("127.0.0.1");
+    connData->setPort(5020);
+    connData->setTimeout(500);
+    connData->setSlaveId(1);
 
     _pSettingsModel->setConnectionState(ConnectionId::ID_2, true);
-    _pSettingsModel->setIpAddress(ConnectionId::ID_2, "127.0.0.1");
-    _pSettingsModel->setPort(ConnectionId::ID_2, 5021);
-    _pSettingsModel->setTimeout(ConnectionId::ID_2, 500);
-    _pSettingsModel->setSlaveId(ConnectionId::ID_2, 2);
+    connData = _pSettingsModel->connectionSettings(ConnectionId::ID_2);
+    connData->setIpAddress("127.0.0.1");
+    connData->setPort(5021);
+    connData->setTimeout(500);
+    connData->setSlaveId(2);
 
     _pSettingsModel->setConnectionState(ConnectionId::ID_3, true);
-    _pSettingsModel->setIpAddress(ConnectionId::ID_3, "127.0.0.1");
-    _pSettingsModel->setPort(ConnectionId::ID_3, 5022);
-    _pSettingsModel->setTimeout(ConnectionId::ID_3, 500);
-    _pSettingsModel->setSlaveId(ConnectionId::ID_3, 3);
+    connData = _pSettingsModel->connectionSettings(ConnectionId::ID_3);
+    connData->setIpAddress("127.0.0.1");
+    connData->setPort(5022);
+    connData->setTimeout(500);
+    connData->setSlaveId(3);
 
     _pSettingsModel->setPollTime(100);
 
     for (quint8 idx = 0; idx < ConnectionId::ID_CNT; idx++)
     {
+        connData = _pSettingsModel->connectionSettings(idx);
         _serverConnectionDataList.append(QUrl());
-        _serverConnectionDataList.last().setPort(_pSettingsModel->port(idx));
-        _serverConnectionDataList.last().setHost(_pSettingsModel->ipAddress(idx));
+        _serverConnectionDataList.last().setPort(connData->port());
+        _serverConnectionDataList.last().setHost(connData->ipAddress());
 
         auto modbusDataMap = new TestSlaveModbus::ModbusDataMap();
         (*modbusDataMap)[QModbusDataUnit::Coils] = new TestSlaveData();
@@ -56,7 +60,7 @@ void TestModbusPoll::init()
         _testSlaveDataList.append(modbusDataMap);
         _testSlaveModbusList.append(new TestSlaveModbus(*_testSlaveDataList.last()));
 
-        QVERIFY(_testSlaveModbusList.last()->connect(_serverConnectionDataList.last(), _pSettingsModel->slaveId(idx)));
+        QVERIFY(_testSlaveModbusList.last()->connect(_serverConnectionDataList.last(), connData->slaveId()));
     }
 }
 
@@ -132,7 +136,8 @@ void TestModbusPoll::singleSlaveFail()
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
 
-    QVERIFY(spyDataReady.wait(static_cast<int>(_pSettingsModel->timeout(ConnectionId::ID_1)) + 100));
+    auto timeout = _pSettingsModel->connectionSettings(ConnectionId::ID_1)->timeout();
+    QVERIFY(spyDataReady.wait(static_cast<int>(timeout) + 100));
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
@@ -389,7 +394,8 @@ void TestModbusPoll::multiSlaveSingleFail()
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
 
-    QVERIFY(spyDataReady.wait(static_cast<int>(_pSettingsModel->timeout(ConnectionId::ID_1)) + 100));
+    auto timeout = _pSettingsModel->connectionSettings(ConnectionId::ID_1)->timeout();
+    QVERIFY(spyDataReady.wait(static_cast<int>(timeout) + 100));
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
@@ -417,7 +423,8 @@ void TestModbusPoll::multiSlaveAllFail()
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
 
-    QVERIFY(spyDataReady.wait(static_cast<int>(_pSettingsModel->timeout(ConnectionId::ID_1)) + 100));
+    auto timeout = _pSettingsModel->connectionSettings(ConnectionId::ID_1)->timeout();
+    QVERIFY(spyDataReady.wait(static_cast<int>(timeout) + 100));
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();

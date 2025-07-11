@@ -19,8 +19,8 @@ void TestRegisterValueHandler::init()
 
     _pSettingsModel = new SettingsModel();
 
-    _pSettingsModel->setInt32LittleEndian(ConnectionId::ID_1, true);
-    _pSettingsModel->setInt32LittleEndian(ConnectionId::ID_2, true);
+    _pSettingsModel->connectionSettings(ConnectionId::ID_1)->setInt32LittleEndian(true);
+    _pSettingsModel->connectionSettings(ConnectionId::ID_2)->setInt32LittleEndian(true);
 }
 
 void TestRegisterValueHandler::cleanup()
@@ -225,7 +225,7 @@ void TestRegisterValueHandler::read_32()
 
 void TestRegisterValueHandler::readBigEndian_32()
 {
-    _pSettingsModel->setInt32LittleEndian(ConnectionId::ID_1, false);
+    _pSettingsModel->connectionSettings(ConnectionId::ID_1)->setInt32LittleEndian(false);
 
     auto modbusRegisters = QList<ModbusRegister>()
                            << ModbusRegister(ModbusAddress(40001), ConnectionId::ID_1, Type::UNSIGNED_32);
@@ -242,7 +242,7 @@ void TestRegisterValueHandler::readBigEndian_32()
 
 void TestRegisterValueHandler::readBigEndian_s32()
 {
-    _pSettingsModel->setInt32LittleEndian(ConnectionId::ID_1, false);
+    _pSettingsModel->connectionSettings(ConnectionId::ID_1)->setInt32LittleEndian(false);
 
     auto modbusRegisters = QList<ModbusRegister>()
                            << ModbusRegister(ModbusAddress(40001), ConnectionId::ID_1, Type::SIGNED_32);

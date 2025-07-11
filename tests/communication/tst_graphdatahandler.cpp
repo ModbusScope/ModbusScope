@@ -22,8 +22,8 @@ void TestGraphDataHandler::init()
     _pSettingsModel = new SettingsModel;
     _pGraphDataModel = new GraphDataModel(_pSettingsModel);
 
-    _pSettingsModel->setInt32LittleEndian(ConnectionId::ID_1, true);
-    _pSettingsModel->setInt32LittleEndian(ConnectionId::ID_2, true);
+    _pSettingsModel->connectionSettings(ConnectionId::ID_1)->setInt32LittleEndian(true);
+    _pSettingsModel->connectionSettings(ConnectionId::ID_2)->setInt32LittleEndian(true);
 }
 
 void TestGraphDataHandler::cleanup()

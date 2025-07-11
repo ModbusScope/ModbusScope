@@ -7,7 +7,7 @@ class Connection
 {
 
 public:
-    explicit Connection(QObject* parent = nullptr);
+    explicit Connection();
     ~Connection();
 
     typedef enum
