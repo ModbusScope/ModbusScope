@@ -1,9 +1,10 @@
 #ifndef CONNECTIONFORM_H
 #define CONNECTIONFORM_H
 
-#include "models/settingsmodel.h"
-
+#include <QSerialPort>
 #include <QWidget>
+
+#include "models/connection.h"
 
 namespace Ui {
 class ConnectionForm;
@@ -17,7 +18,7 @@ public:
     explicit ConnectionForm(QWidget *parent = nullptr);
     ~ConnectionForm();
 
-    void fillSettingsModel(SettingsModel* pSettingsModel, quint8 connectionId);
+    void fillSettingsModel(Connection* connData);
 
     void setConnectionType(Connection::type_t connectionType);
 

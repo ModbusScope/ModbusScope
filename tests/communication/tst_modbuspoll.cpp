@@ -23,26 +23,26 @@ void TestModbusPoll::init()
 
     _pSettingsModel = new SettingsModel;
 
-    _pSettingsModel->setIpAddress(Connection::ID_1, "127.0.0.1");
-    _pSettingsModel->setPort(Connection::ID_1, 5020);
-    _pSettingsModel->setTimeout(Connection::ID_1, 500);
-    _pSettingsModel->setSlaveId(Connection::ID_1, 1);
+    _pSettingsModel->setIpAddress(ConnectionId::ID_1, "127.0.0.1");
+    _pSettingsModel->setPort(ConnectionId::ID_1, 5020);
+    _pSettingsModel->setTimeout(ConnectionId::ID_1, 500);
+    _pSettingsModel->setSlaveId(ConnectionId::ID_1, 1);
 
-    _pSettingsModel->setConnectionState(Connection::ID_2, true);
-    _pSettingsModel->setIpAddress(Connection::ID_2, "127.0.0.1");
-    _pSettingsModel->setPort(Connection::ID_2, 5021);
-    _pSettingsModel->setTimeout(Connection::ID_2, 500);
-    _pSettingsModel->setSlaveId(Connection::ID_2, 2);
+    _pSettingsModel->setConnectionState(ConnectionId::ID_2, true);
+    _pSettingsModel->setIpAddress(ConnectionId::ID_2, "127.0.0.1");
+    _pSettingsModel->setPort(ConnectionId::ID_2, 5021);
+    _pSettingsModel->setTimeout(ConnectionId::ID_2, 500);
+    _pSettingsModel->setSlaveId(ConnectionId::ID_2, 2);
 
-    _pSettingsModel->setConnectionState(Connection::ID_3, true);
-    _pSettingsModel->setIpAddress(Connection::ID_3, "127.0.0.1");
-    _pSettingsModel->setPort(Connection::ID_3, 5022);
-    _pSettingsModel->setTimeout(Connection::ID_3, 500);
-    _pSettingsModel->setSlaveId(Connection::ID_3, 3);
+    _pSettingsModel->setConnectionState(ConnectionId::ID_3, true);
+    _pSettingsModel->setIpAddress(ConnectionId::ID_3, "127.0.0.1");
+    _pSettingsModel->setPort(ConnectionId::ID_3, 5022);
+    _pSettingsModel->setTimeout(ConnectionId::ID_3, 500);
+    _pSettingsModel->setSlaveId(ConnectionId::ID_3, 3);
 
     _pSettingsModel->setPollTime(100);
 
-    for (quint8 idx = 0; idx < Connection::ID_CNT; idx++)
+    for (quint8 idx = 0; idx < ConnectionId::ID_CNT; idx++)
     {
         _serverConnectionDataList.append(QUrl());
         _serverConnectionDataList.last().setPort(_pSettingsModel->port(idx));
@@ -64,7 +64,7 @@ void TestModbusPoll::cleanup()
 {
     delete _pSettingsModel;
 
-    for (int idx = 0; idx < Connection::ID_CNT; idx++)
+    for (int idx = 0; idx < ConnectionId::ID_CNT; idx++)
     {
         _testSlaveModbusList[idx]->disconnectDevice();
     }
@@ -88,17 +88,18 @@ void TestModbusPoll::cleanup()
 
 void TestModbusPoll::singleSlaveSuccess()
 {
-    dataMap(Connection::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
-    dataMap(Connection::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 5);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 5);
 
-    dataMap(Connection::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(1, true);
-    dataMap(Connection::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(1, 65000);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(1, true);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(1, 65000);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress(40001), Connection::ID_1, Type::UNSIGNED_16)
-                                                   << ModbusRegister(ModbusAddress(40002), Connection::ID_1, Type::UNSIGNED_16);
+    auto modbusRegisters = QList<ModbusRegister>()
+                           << ModbusRegister(ModbusAddress(40001), ConnectionId::ID_1, Type::UNSIGNED_16)
+                           << ModbusRegister(ModbusAddress(40002), ConnectionId::ID_1, Type::UNSIGNED_16);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
@@ -116,7 +117,7 @@ void TestModbusPoll::singleSlaveSuccess()
 
 void TestModbusPoll::singleSlaveFail()
 {
-    for (quint8 idx = 0; idx < Connection::ID_CNT; idx++)
+    for (quint8 idx = 0; idx < ConnectionId::ID_CNT; idx++)
     {
         _testSlaveModbusList[idx]->disconnectDevice();
     }
@@ -124,13 +125,14 @@ void TestModbusPoll::singleSlaveFail()
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress(40001), Connection::ID_1, Type::UNSIGNED_16)
-                                                   << ModbusRegister(ModbusAddress(40002), Connection::ID_1, Type::UNSIGNED_16);
+    auto modbusRegisters = QList<ModbusRegister>()
+                           << ModbusRegister(ModbusAddress(40001), ConnectionId::ID_1, Type::UNSIGNED_16)
+                           << ModbusRegister(ModbusAddress(40002), ConnectionId::ID_1, Type::UNSIGNED_16);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
 
-    QVERIFY(spyDataReady.wait(static_cast<int>(_pSettingsModel->timeout(Connection::ID_1)) + 100));
+    QVERIFY(spyDataReady.wait(static_cast<int>(_pSettingsModel->timeout(ConnectionId::ID_1)) + 100));
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
@@ -164,17 +166,18 @@ void TestModbusPoll::singleOnlyConstantDataPoll()
 
 void TestModbusPoll::singleSlaveCoil()
 {
-    dataMap(Connection::ID_1, QModbusDataUnit::Coils)->setRegisterState(0, true);
-    dataMap(Connection::ID_1, QModbusDataUnit::Coils)->setRegisterValue(0, 0);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::Coils)->setRegisterState(0, true);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::Coils)->setRegisterValue(0, 0);
 
-    dataMap(Connection::ID_1, QModbusDataUnit::Coils)->setRegisterState(2, true);
-    dataMap(Connection::ID_1, QModbusDataUnit::Coils)->setRegisterValue(2, 1);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::Coils)->setRegisterState(2, true);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::Coils)->setRegisterValue(2, 1);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress(0), Connection::ID_1, Type::UNSIGNED_16)
-                                                   << ModbusRegister(ModbusAddress(2), Connection::ID_1, Type::UNSIGNED_16);
+    auto modbusRegisters = QList<ModbusRegister>()
+                           << ModbusRegister(ModbusAddress(0), ConnectionId::ID_1, Type::UNSIGNED_16)
+                           << ModbusRegister(ModbusAddress(2), ConnectionId::ID_1, Type::UNSIGNED_16);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
@@ -192,25 +195,26 @@ void TestModbusPoll::singleSlaveCoil()
 
 void TestModbusPoll::singleSlaveMixedObjects()
 {
-    dataMap(Connection::ID_1, QModbusDataUnit::Coils)->setRegisterState(0, true);
-    dataMap(Connection::ID_1, QModbusDataUnit::Coils)->setRegisterValue(0, 0);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::Coils)->setRegisterState(0, true);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::Coils)->setRegisterValue(0, 0);
 
-    dataMap(Connection::ID_1, QModbusDataUnit::DiscreteInputs)->setRegisterState(0, true);
-    dataMap(Connection::ID_1, QModbusDataUnit::DiscreteInputs)->setRegisterValue(0, 1);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::DiscreteInputs)->setRegisterState(0, true);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::DiscreteInputs)->setRegisterValue(0, 1);
 
-    dataMap(Connection::ID_1, QModbusDataUnit::InputRegisters)->setRegisterState(0, true);
-    dataMap(Connection::ID_1, QModbusDataUnit::InputRegisters)->setRegisterValue(0, 100);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::InputRegisters)->setRegisterState(0, true);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::InputRegisters)->setRegisterValue(0, 100);
 
-    dataMap(Connection::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
-    dataMap(Connection::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 101);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 101);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress(0), Connection::ID_1, Type::UNSIGNED_16)
-                                                   << ModbusRegister(ModbusAddress(10001), Connection::ID_1, Type::UNSIGNED_16)
-                                                   << ModbusRegister(ModbusAddress(30001), Connection::ID_1, Type::UNSIGNED_16)
-                                                   << ModbusRegister(ModbusAddress(40001), Connection::ID_1, Type::UNSIGNED_16);
+    auto modbusRegisters = QList<ModbusRegister>()
+                           << ModbusRegister(ModbusAddress(0), ConnectionId::ID_1, Type::UNSIGNED_16)
+                           << ModbusRegister(ModbusAddress(10001), ConnectionId::ID_1, Type::UNSIGNED_16)
+                           << ModbusRegister(ModbusAddress(30001), ConnectionId::ID_1, Type::UNSIGNED_16)
+                           << ModbusRegister(ModbusAddress(40001), ConnectionId::ID_1, Type::UNSIGNED_16);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
@@ -230,17 +234,18 @@ void TestModbusPoll::singleSlaveMixedObjects()
 
 void TestModbusPoll::verifyRestartAfterStop()
 {
-    dataMap(Connection::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
-    dataMap(Connection::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 5);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 5);
 
-    dataMap(Connection::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(1, true);
-    dataMap(Connection::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(1, 65000);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(1, true);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(1, 65000);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress(40001), Connection::ID_1, Type::UNSIGNED_16)
-                                                   << ModbusRegister(ModbusAddress(40002), Connection::ID_1, Type::UNSIGNED_16);
+    auto modbusRegisters = QList<ModbusRegister>()
+                           << ModbusRegister(ModbusAddress(40001), ConnectionId::ID_1, Type::UNSIGNED_16)
+                           << ModbusRegister(ModbusAddress(40002), ConnectionId::ID_1, Type::UNSIGNED_16);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
@@ -277,17 +282,18 @@ void TestModbusPoll::verifyRestartAfterStop()
 
 void TestModbusPoll::multiSlaveSuccess()
 {
-    dataMap(Connection::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
-    dataMap(Connection::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 5020);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 5020);
 
-    dataMap(Connection::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
-    dataMap(Connection::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 5021);
+    dataMap(ConnectionId::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
+    dataMap(ConnectionId::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 5021);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress(40001), Connection::ID_1, Type::UNSIGNED_16)
-                                                   << ModbusRegister(ModbusAddress(40001), Connection::ID_2, Type::UNSIGNED_16);
+    auto modbusRegisters = QList<ModbusRegister>()
+                           << ModbusRegister(ModbusAddress(40001), ConnectionId::ID_1, Type::UNSIGNED_16)
+                           << ModbusRegister(ModbusAddress(40001), ConnectionId::ID_2, Type::UNSIGNED_16);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
@@ -305,17 +311,18 @@ void TestModbusPoll::multiSlaveSuccess()
 
 void TestModbusPoll::multiSlaveSuccess_2()
 {
-    dataMap(Connection::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
-    dataMap(Connection::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 5020);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 5020);
 
-    dataMap(Connection::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterState(1, true);
-    dataMap(Connection::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterValue(1, 5021);
+    dataMap(ConnectionId::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterState(1, true);
+    dataMap(ConnectionId::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterValue(1, 5021);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress(40001), Connection::ID_1, Type::UNSIGNED_16)
-                                                   << ModbusRegister(ModbusAddress(40002), Connection::ID_2, Type::UNSIGNED_16);
+    auto modbusRegisters = QList<ModbusRegister>()
+                           << ModbusRegister(ModbusAddress(40001), ConnectionId::ID_1, Type::UNSIGNED_16)
+                           << ModbusRegister(ModbusAddress(40002), ConnectionId::ID_2, Type::UNSIGNED_16);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
@@ -333,21 +340,22 @@ void TestModbusPoll::multiSlaveSuccess_2()
 
 void TestModbusPoll::multiSlaveSuccess_3()
 {
-    dataMap(Connection::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
-    dataMap(Connection::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 5020);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 5020);
 
-    dataMap(Connection::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(1, true);
-    dataMap(Connection::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(1, 5021);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(1, true);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(1, 5021);
 
-    dataMap(Connection::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterState(1, true);
-    dataMap(Connection::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterValue(1, 5022);
+    dataMap(ConnectionId::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterState(1, true);
+    dataMap(ConnectionId::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterValue(1, 5022);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress(40001), Connection::ID_1, Type::UNSIGNED_16)
-                                                   << ModbusRegister(ModbusAddress(40002), Connection::ID_2, Type::UNSIGNED_16)
-                                                   << ModbusRegister(ModbusAddress(40002), Connection::ID_1, Type::UNSIGNED_16);
+    auto modbusRegisters = QList<ModbusRegister>()
+                           << ModbusRegister(ModbusAddress(40001), ConnectionId::ID_1, Type::UNSIGNED_16)
+                           << ModbusRegister(ModbusAddress(40002), ConnectionId::ID_2, Type::UNSIGNED_16)
+                           << ModbusRegister(ModbusAddress(40002), ConnectionId::ID_1, Type::UNSIGNED_16);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
@@ -366,21 +374,22 @@ void TestModbusPoll::multiSlaveSuccess_3()
 
 void TestModbusPoll::multiSlaveSingleFail()
 {
-    _testSlaveModbusList[Connection::ID_1]->disconnectDevice();
+    _testSlaveModbusList[ConnectionId::ID_1]->disconnectDevice();
 
-    dataMap(Connection::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
-    dataMap(Connection::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 5021);
+    dataMap(ConnectionId::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
+    dataMap(ConnectionId::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 5021);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress(40001), Connection::ID_1, Type::UNSIGNED_16)
-                                                   << ModbusRegister(ModbusAddress(40001), Connection::ID_2, Type::UNSIGNED_16);
+    auto modbusRegisters = QList<ModbusRegister>()
+                           << ModbusRegister(ModbusAddress(40001), ConnectionId::ID_1, Type::UNSIGNED_16)
+                           << ModbusRegister(ModbusAddress(40001), ConnectionId::ID_2, Type::UNSIGNED_16);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
 
-    QVERIFY(spyDataReady.wait(static_cast<int>(_pSettingsModel->timeout(Connection::ID_1)) + 100));
+    QVERIFY(spyDataReady.wait(static_cast<int>(_pSettingsModel->timeout(ConnectionId::ID_1)) + 100));
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
@@ -393,7 +402,7 @@ void TestModbusPoll::multiSlaveSingleFail()
 
 void TestModbusPoll::multiSlaveAllFail()
 {
-    for (quint8 idx = 0; idx < Connection::ID_CNT; idx++)
+    for (quint8 idx = 0; idx < ConnectionId::ID_CNT; idx++)
     {
         _testSlaveModbusList[idx]->disconnectDevice();
     }
@@ -401,13 +410,14 @@ void TestModbusPoll::multiSlaveAllFail()
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress(40001), Connection::ID_1, Type::UNSIGNED_16)
-                                                   << ModbusRegister(ModbusAddress(40001), Connection::ID_2, Type::UNSIGNED_16);
+    auto modbusRegisters = QList<ModbusRegister>()
+                           << ModbusRegister(ModbusAddress(40001), ConnectionId::ID_1, Type::UNSIGNED_16)
+                           << ModbusRegister(ModbusAddress(40001), ConnectionId::ID_2, Type::UNSIGNED_16);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
 
-    QVERIFY(spyDataReady.wait(static_cast<int>(_pSettingsModel->timeout(Connection::ID_1)) + 100));
+    QVERIFY(spyDataReady.wait(static_cast<int>(_pSettingsModel->timeout(ConnectionId::ID_1)) + 100));
     QCOMPARE(spyDataReady.count(), 1);
 
     QList<QVariant> arguments = spyDataReady.takeFirst();
@@ -420,20 +430,21 @@ void TestModbusPoll::multiSlaveAllFail()
 
 void TestModbusPoll::multiSlaveDisabledConnection()
 {
-    dataMap(Connection::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
-    dataMap(Connection::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 5020);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
+    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 5020);
 
-    dataMap(Connection::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
-    dataMap(Connection::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 5021);
+    dataMap(ConnectionId::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
+    dataMap(ConnectionId::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 5021);
 
     /* Disable connection */
-    _pSettingsModel->setConnectionState(Connection::ID_2, false);
+    _pSettingsModel->setConnectionState(ConnectionId::ID_2, false);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
 
-    auto modbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress(40001), Connection::ID_1, Type::UNSIGNED_16)
-                                                   << ModbusRegister(ModbusAddress(40001), Connection::ID_2, Type::UNSIGNED_16);
+    auto modbusRegisters = QList<ModbusRegister>()
+                           << ModbusRegister(ModbusAddress(40001), ConnectionId::ID_1, Type::UNSIGNED_16)
+                           << ModbusRegister(ModbusAddress(40001), ConnectionId::ID_2, Type::UNSIGNED_16);
 
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);

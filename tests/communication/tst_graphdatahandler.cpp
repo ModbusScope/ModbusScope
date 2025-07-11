@@ -22,8 +22,8 @@ void TestGraphDataHandler::init()
     _pSettingsModel = new SettingsModel;
     _pGraphDataModel = new GraphDataModel(_pSettingsModel);
 
-    _pSettingsModel->setInt32LittleEndian(Connection::ID_1, true);
-    _pSettingsModel->setInt32LittleEndian(Connection::ID_2, true);
+    _pSettingsModel->setInt32LittleEndian(ConnectionId::ID_1, true);
+    _pSettingsModel->setInt32LittleEndian(ConnectionId::ID_2, true);
 }
 
 void TestGraphDataHandler::cleanup()
@@ -39,9 +39,10 @@ void TestGraphDataHandler::registerList()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress(40001), Connection::ID_2, Type::UNSIGNED_16)
-                                                      << ModbusRegister(ModbusAddress(40001), Connection::ID_1, Type::UNSIGNED_16)
-                                                      << ModbusRegister(ModbusAddress(40002), Connection::ID_1, Type::SIGNED_32);
+    auto expModbusRegisters = QList<ModbusRegister>()
+                              << ModbusRegister(ModbusAddress(40001), ConnectionId::ID_2, Type::UNSIGNED_16)
+                              << ModbusRegister(ModbusAddress(40001), ConnectionId::ID_1, Type::UNSIGNED_16)
+                              << ModbusRegister(ModbusAddress(40002), ConnectionId::ID_1, Type::SIGNED_32);
 
     GraphDataHandler dataHandler;
     QList<ModbusRegister> registerList;
@@ -131,7 +132,8 @@ void TestGraphDataHandler::manyInactiveRegisters()
     _pGraphDataModel->setExpression(9, "${40003}");
     _pGraphDataModel->setActive(9, false);
 
-    auto expModbusRegisters = QList<ModbusRegister>() << ModbusRegister(ModbusAddress(40002), Connection::ID_1, Type::UNSIGNED_16);
+    auto expModbusRegisters = QList<ModbusRegister>()
+                              << ModbusRegister(ModbusAddress(40002), ConnectionId::ID_1, Type::UNSIGNED_16);
 
     GraphDataHandler dataHandler;
     QList<ModbusRegister> registerList;

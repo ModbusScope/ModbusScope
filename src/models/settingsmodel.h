@@ -1,11 +1,11 @@
 #ifndef SETTINGSMODEL_H
 #define SETTINGSMODEL_H
 
-#include "models/connectiontypes.h"
-
 #include <QDir>
 #include <QObject>
-#include <QSerialPort>
+
+#include "models/connection.h"
+#include "models/connectiontypes.h"
 
 class SettingsModel : public QObject
 {
@@ -20,48 +20,14 @@ public:
     void setPollTime(quint32 pollTime);
     void setWriteDuringLogFile(QString filename);
     void setWriteDuringLogFileToDefault(void);
-
-    void setConnectionType(quint8 connectionId, Connection::type_t connectionType);
-
-    void setPortName(quint8 connectionId, QString portName);
-    void setParity(quint8 connectionId, QSerialPort::Parity parity);
-    void setBaudrate(quint8 connectionId, QSerialPort::BaudRate baudrate);
-    void setDatabits(quint8 connectionId, QSerialPort::DataBits databits);
-    void setStopbits(quint8 connectionId, QSerialPort::StopBits stopbits);
-
-    void setIpAddress(quint8 connectionId, QString ip);
-    void setPort(quint8 connectionId, quint16 port);
-
-    void setSlaveId(quint8 connectionId, quint8 id);
-    void setTimeout(quint8 connectionId, quint32 timeout);
-    void setConsecutiveMax(quint8 connectionId, quint8 max);
     void setConnectionState(quint8 connectionId, bool bState);
-    void setInt32LittleEndian(quint8 connectionId, bool int32LittleEndian);
-    void setPersistentConnection(quint8 connectionId, bool persistentConnection);
 
     QString writeDuringLogFile();
     bool writeDuringLog();
-    Connection::type_t connectionType(quint8 connectionId);
-
-    QString portName(quint8 connectionId);
-    QSerialPort::Parity parity(quint8 connectionId);
-    QSerialPort::BaudRate baudrate(quint8 connectionId);
-    QSerialPort::DataBits databits(quint8 connectionId);
-    QSerialPort::StopBits stopbits(quint8 connectionId);
-
-    QString ipAddress(quint8 connectionId);
-    quint16 port(quint8 connectionId);
-    quint8 slaveId(quint8 connectionId);
-    quint32 timeout(quint8 connectionId);
-    quint8 consecutiveMax(quint8 connectionId);
     bool connectionState(quint8 connectionId);
-    bool int32LittleEndian(quint8 connectionId);
-    bool persistentConnection(quint8 connectionId);
-
+    Connection* connectionSettings(quint8 connectionId);
     quint32 pollTime();
     bool absoluteTimes();
-
-    void serialConnectionStrings(quint8 connectionId, QString &strParity, QString &strDataBits, QString &strStopBits);
 
     static const QString defaultLogPath()
     {
@@ -86,48 +52,11 @@ signals:
     void writeDuringLogFileChanged();
     void absoluteTimesChanged();
 
-    void connectionTypeChanged(quint8 connectionId);
-
-    void portNameChanged(quint8 connectionId);
-    void parityChanged(quint8 connectionId);
-    void baudrateChanged(quint8 connectionId);
-    void databitsChanged(quint8 connectionId);
-    void stopbitsChanged(quint8 connectionId);
-
-    void ipChanged(quint8 connectionId);
-    void portChanged(quint8 connectionId);
-
-    void slaveIdChanged(quint8 connectionId);
-    void timeoutChanged(quint8 connectionId);
-    void consecutiveMaxChanged(quint8 connectionId);
-    void connectionStateChanged(quint8 connectionId);
-    void int32LittleEndianChanged(quint8 connectionId);
-    void persistentConnectionChanged(quint8 connectionId);
-
 private:
-
-    quint8 clipConnectionId(quint8 connectionId);
-
     typedef struct
     {
-        Connection::type_t connectionType;
-
-        QString ipAddress;
-        quint16 port;
-
-        QString portName;
-        QSerialPort::Parity parity;
-        QSerialPort::BaudRate baudrate;
-        QSerialPort::DataBits databits;
-        QSerialPort::StopBits stopbits;
-
-        quint8 slaveId;
-        quint32 timeout;
-        quint8 consecutiveMax;
+        Connection connectionData;
         bool bConnectionState;
-        bool bInt32LittleEndian;
-        bool bPersistentConnection;
-
     } ConnectionSettings;
 
     QList<ConnectionSettings> _connectionSettings;
