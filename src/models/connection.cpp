@@ -2,24 +2,21 @@
 #include "connection.h"
 
 Connection::Connection()
+    : _ipAddress("127.0.0.1"),
+      _port(502),
+      _portName(QStringLiteral("COM1")),
+      _parity(QSerialPort::NoParity),
+      _baudrate(QSerialPort::Baud115200),
+      _databits(QSerialPort::Data8),
+      _stopbits(QSerialPort::OneStop),
+      _slaveId(1),
+      _timeout(1000),
+      _consecutiveMax(125),
+      _bConnectionState(false),
+      _bInt32LittleEndian(true),
+      _bPersistentConnection(true)
 {
     _connectionType = Connection::TYPE_TCP;
-
-    _ipAddress = "127.0.0.1";
-    _port = 502;
-
-    _portName = QStringLiteral("COM1");
-    _parity = QSerialPort::NoParity;
-    _baudrate = QSerialPort::Baud115200;
-    _databits = QSerialPort::Data8;
-    _stopbits = QSerialPort::OneStop;
-
-    _slaveId = 1;
-    _timeout = 1000;
-    _consecutiveMax = 125;
-    _bConnectionState = false;
-    _bInt32LittleEndian = true;
-    _bPersistentConnection = true;
 }
 
 Connection::~Connection()
