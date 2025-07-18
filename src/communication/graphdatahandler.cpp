@@ -7,28 +7,30 @@
 
 #include <QRegularExpression>
 
-GraphDataHandler::GraphDataHandler() :
-  _pGraphDataModel(nullptr)
+GraphDataHandler::GraphDataHandler()
 {
 
 }
 
-void GraphDataHandler::processActiveRegisters(GraphDataModel* pGraphDataModel)
+/*!
+ * \param[in]     pGraphDataModel   Graph data model
+ * \param[out]    registerList      List of modbus registers
+ */
+void GraphDataHandler::setupExpressions(GraphDataModel* pGraphDataModel, QList<ModbusRegister>& registerList)
 {
     QStringList exprList;
+    QList<ModbusRegister> regList;
 
-    _pGraphDataModel = pGraphDataModel;
-
-    _pGraphDataModel->activeGraphIndexList(&_activeIndexList);
+    pGraphDataModel->activeGraphIndexList(&_activeIndexList);
     for(quint16 graphIdx: std::as_const(_activeIndexList))
     {
-        exprList.append(_pGraphDataModel->expression(graphIdx));
+        exprList.append(pGraphDataModel->expression(graphIdx));
     }
 
     ExpressionParser exprParser(exprList);
-    exprParser.modbusRegisters(_registerList);
+    exprParser.modbusRegisters(regList);
 
-    qCInfo(scopeComm) << "Active registers: " << ModbusRegister::dumpListToString(_registerList);
+    qCInfo(scopeComm) << "Active registers: " << ModbusRegister::dumpListToString(regList);
 
     QStringList processedExpList;
     exprParser.processedExpressions(processedExpList);
@@ -39,11 +41,8 @@ void GraphDataHandler::processActiveRegisters(GraphDataModel* pGraphDataModel)
     {
         _valueParsers.append(QMuParser(expr));
     }
-}
 
-void GraphDataHandler::modbusRegisterList(QList<ModbusRegister>& registerList)
-{
-    registerList = _registerList;
+    registerList = regList;
 }
 
 QString GraphDataHandler::expressionParseMsg(qint32 exprIdx) const
@@ -94,9 +93,8 @@ void GraphDataHandler::handleRegisterData(ResultDoubleList results)
         {
             result.setError();
 
-            const quint16 activeIndex = _activeIndexList[listIdx];
             auto msg = QString("Expression evaluation failed (%1): expression %2")
-                        .arg(_valueParsers[listIdx].msg(), _pGraphDataModel->expression(activeIndex));
+                         .arg(_valueParsers[listIdx].msg(), _valueParsers[listIdx].originalExpression());
 
             qCWarning(scopeComm) << msg;
         }

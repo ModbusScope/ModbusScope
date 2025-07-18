@@ -12,10 +12,8 @@ void ExpressionChecker::checkExpression(QString expr)
     _localGraphDataModel.add();
     _localGraphDataModel.setExpression(0, expr);
 
-    _graphDataHandler.processActiveRegisters(&_localGraphDataModel);
-
     QList<ModbusRegister> registerList;
-    _graphDataHandler.modbusRegisterList(registerList);
+    _graphDataHandler.setupExpressions(&_localGraphDataModel, registerList);
 
     _descriptions.clear();
     for (ModbusRegister const& reg : std::as_const(registerList))

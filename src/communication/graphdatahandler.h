@@ -14,8 +14,7 @@ class GraphDataHandler : public QObject
 public:
     GraphDataHandler();
 
-    void processActiveRegisters(GraphDataModel *pGraphDataModel);
-    void modbusRegisterList(QList<ModbusRegister>& registerList);
+    void setupExpressions(GraphDataModel* pGraphDataModel, QList<ModbusRegister>& registerList);
 
     QString expressionParseMsg(qint32 exprIdx) const;
     qint32 expressionErrorPos(qint32 exprIdx) const;
@@ -29,12 +28,8 @@ signals:
 
 private:
 
-    GraphDataModel* _pGraphDataModel;
-
-    QList<ModbusRegister> _registerList;
     QList<quint16> _activeIndexList;
     QList<QMuParser> _valueParsers;
-
 };
 
 #endif // GRAPHDATAHANDLER_H
