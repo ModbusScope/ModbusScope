@@ -111,37 +111,39 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
         else
         {
             /* Default to connection 1 */
-            connectionId = Connection::ID_1;
+            connectionId = ConnectionId::ID_1;
         }
 
-        if (connectionId < Connection::ID_CNT)
+        if (connectionId < ConnectionId::ID_CNT)
         {
+            auto connData = _pSettingsModel->connectionSettings(connectionId);
+
             _pSettingsModel->setConnectionState(connectionId, pProjectSettings->general.connectionSettings[idx].bConnectionState);
 
             if (pProjectSettings->general.connectionSettings[idx].bConnectionType
                 && pProjectSettings->general.connectionSettings[idx].connectionType.toLower() == "serial"
                 )
             {
-                _pSettingsModel->setConnectionType(connectionId, Connection::TYPE_SERIAL);
+                connData->setConnectionType(Connection::TYPE_SERIAL);
             }
             else
             {
-                _pSettingsModel->setConnectionType(connectionId, Connection::TYPE_TCP);
+                connData->setConnectionType(Connection::TYPE_TCP);
             }
 
             if (pProjectSettings->general.connectionSettings[idx].bIp)
             {
-                _pSettingsModel->setIpAddress(connectionId, pProjectSettings->general.connectionSettings[idx].ip);
+                connData->setIpAddress(pProjectSettings->general.connectionSettings[idx].ip);
             }
 
             if (pProjectSettings->general.connectionSettings[idx].bPort)
             {
-                 _pSettingsModel->setPort(connectionId, pProjectSettings->general.connectionSettings[idx].port);
+                connData->setPort(pProjectSettings->general.connectionSettings[idx].port);
             }
 
             if (pProjectSettings->general.connectionSettings[idx].bPortName)
             {
-                _pSettingsModel->setPortName(connectionId, pProjectSettings->general.connectionSettings[idx].portName);
+                connData->setPortName(pProjectSettings->general.connectionSettings[idx].portName);
             }
 
             const quint32 detectedBaud = pProjectSettings->general.connectionSettings[idx].baudrate;
@@ -158,7 +160,7 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
                     || detectedBaud == QSerialPort::Baud115200
                 )
                 {
-                    _pSettingsModel->setBaudrate(idx, static_cast<QSerialPort::BaudRate>(detectedBaud));
+                    connData->setBaudrate(static_cast<QSerialPort::BaudRate>(detectedBaud));
                 }
             }
 
@@ -171,7 +173,7 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
                     || detectedParity == QSerialPort::OddParity
                 )
                 {
-                    _pSettingsModel->setParity(idx, static_cast<QSerialPort::Parity>(detectedParity));
+                    connData->setParity(static_cast<QSerialPort::Parity>(detectedParity));
                 }
             }
 
@@ -184,7 +186,7 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
                     || detectedStopBits == QSerialPort::TwoStop
                 )
                 {
-                    _pSettingsModel->setStopbits(idx, static_cast<QSerialPort::StopBits>(detectedStopBits));
+                    connData->setStopbits(static_cast<QSerialPort::StopBits>(detectedStopBits));
                 }
             }
 
@@ -198,28 +200,28 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
                     || detectedDataBits == QSerialPort::Data8
                 )
                 {
-                    _pSettingsModel->setDatabits(idx, static_cast<QSerialPort::DataBits>(detectedDataBits));
+                    connData->setDatabits(static_cast<QSerialPort::DataBits>(detectedDataBits));
                 }
             }
 
             if (pProjectSettings->general.connectionSettings[idx].bSlaveId)
             {
-                _pSettingsModel->setSlaveId(connectionId, pProjectSettings->general.connectionSettings[idx].slaveId);
+                connData->setSlaveId(pProjectSettings->general.connectionSettings[idx].slaveId);
             }
 
             if (pProjectSettings->general.connectionSettings[idx].bTimeout)
             {
-                _pSettingsModel->setTimeout(connectionId, pProjectSettings->general.connectionSettings[idx].timeout);
+                connData->setTimeout(pProjectSettings->general.connectionSettings[idx].timeout);
             }
 
             if (pProjectSettings->general.connectionSettings[idx].bConsecutiveMax)
             {
-                _pSettingsModel->setConsecutiveMax(connectionId, pProjectSettings->general.connectionSettings[idx].consecutiveMax);
+                connData->setConsecutiveMax(pProjectSettings->general.connectionSettings[idx].consecutiveMax);
             }
 
-            _pSettingsModel->setInt32LittleEndian(connectionId, pProjectSettings->general.connectionSettings[idx].bInt32LittleEndian);
+            connData->setInt32LittleEndian(pProjectSettings->general.connectionSettings[idx].bInt32LittleEndian);
 
-            _pSettingsModel->setPersistentConnection(connectionId, pProjectSettings->general.connectionSettings[idx].bPersistentConnection);
+            connData->setPersistentConnection(pProjectSettings->general.connectionSettings[idx].bPersistentConnection);
         }
     }
 

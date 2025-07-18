@@ -60,7 +60,9 @@ void RegisterValueHandler::processPartialResult(ModbusResultMap partialResultMap
             ResultDouble result;
             if (bSuccess)
             {
-                double processedResult = mbReg.processValue(lowerRegister.value(), upperRegister.value(), _pSettingsModel->int32LittleEndian(connectionId));
+                double processedResult =
+                  mbReg.processValue(lowerRegister.value(), upperRegister.value(),
+                                     _pSettingsModel->connectionSettings(connectionId)->int32LittleEndian());
                 result.setValue(processedResult);
             }
             else

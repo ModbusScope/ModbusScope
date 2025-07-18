@@ -24,7 +24,7 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel, QWidget *par
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    for (quint8 i = 0u; i < Connection::ID_CNT; i++)
+    for (quint8 i = 0u; i < ConnectionId::ID_CNT; i++)
     {
         if (_pSettingsModel->connectionState(i))
         {
