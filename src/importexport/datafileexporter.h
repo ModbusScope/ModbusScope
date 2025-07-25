@@ -1,6 +1,7 @@
 #ifndef DATAFILEEXPORTER_H
 #define DATAFILEEXPORTER_H
 
+#include "models/connectiontypes.h"
 #include <QObject>
 #include <QStringList>
 
@@ -43,7 +44,7 @@ private:
     void flushExportBuffer();
     void exportDataHeader();
     QStringList constructDataHeader(bool bDuringLog);
-    QString constructConnSettings(quint8 connectionId);
+    QString constructConnSettings(connectionId_t connectionId);
     void createNoteRows(QStringList& noteRows);
     QString createPropertyRow(registerProperty prop);
     QString formatData(double timeData, QList<double> dataValues);

@@ -20,7 +20,7 @@ namespace ExpressionGenerator
         return suffix;
     }
 
-    QString constructRegisterString(QString registerAddress, ModbusDataType::Type type, quint8 connectionId)
+    QString constructRegisterString(QString registerAddress, ModbusDataType::Type type, connectionId_t connectionId)
     {
         QString suffix = ExpressionGenerator::typeSuffix(type);
         QString connStr = connectionId != 0 ? QString("@%1").arg(connectionId + 1) : QString();

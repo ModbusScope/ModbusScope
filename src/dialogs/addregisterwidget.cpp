@@ -92,7 +92,7 @@ void AddRegisterWidget::resetFields()
 
 QString AddRegisterWidget::generateExpression()
 {
-    quint8 connectionId;
+    connectionId_t connectionId;
     Type type;
     ObjectType objectType;
 

@@ -26,7 +26,7 @@ void RegisterValueHandler::finishRead()
     emit registerDataReady(_resultList);
 }
 
-void RegisterValueHandler::processPartialResult(ModbusResultMap partialResultMap, quint8 connectionId)
+void RegisterValueHandler::processPartialResult(ModbusResultMap partialResultMap, connectionId_t connectionId)
 {
     for(qint32 listIdx = 0; listIdx < _registerList.size(); listIdx++)
     {
@@ -76,7 +76,7 @@ void RegisterValueHandler::processPartialResult(ModbusResultMap partialResultMap
 }
 
 // Get sorted list of active (unique) register addresses for a specific connection id
-void RegisterValueHandler::registerAddresList(QList<ModbusAddress>& registerList, quint8 connectionId)
+void RegisterValueHandler::registerAddresList(QList<ModbusAddress>& registerList, connectionId_t connectionId)
 {
     QList<ModbusAddress> connRegisterList;
 

@@ -44,7 +44,7 @@ signals:
     void registerDataReady(ResultDoubleList registers);
 
 private slots:
-    void handlePollDone(ModbusResultMap partialResultMap, quint8 connectionId);
+    void handlePollDone(ModbusResultMap partialResultMap, connectionId_t connectionId);
     void handleModbusError(QString msg);
     void handleModbusInfo(QString msg);
     void triggerRegisterRead();

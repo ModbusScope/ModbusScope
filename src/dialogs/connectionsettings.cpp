@@ -36,7 +36,7 @@ void ConnectionSettings::acceptValues()
     _pUi->connectionForm_3->fillSettingsModel(_pSettingsModel->connectionSettings(ConnectionId::ID_3));
 }
 
-void ConnectionSettings::updateConnectionSettings(quint8 connectionId)
+void ConnectionSettings::updateConnectionSettings(connectionId_t connectionId)
 {
     updateConnectionState(connectionId);
     auto pConnectionSettings = connectionSettingsWidget(connectionId);
@@ -57,7 +57,7 @@ void ConnectionSettings::updateConnectionSettings(quint8 connectionId)
     pConnectionSettings->setPersistentConnection(connData->persistentConnection());
 }
 
-void ConnectionSettings::updateConnectionState(quint8 connectionId)
+void ConnectionSettings::updateConnectionState(connectionId_t connectionId)
 {
     switch (connectionId)
     {
@@ -74,7 +74,7 @@ void ConnectionSettings::updateConnectionState(quint8 connectionId)
     }
 }
 
-ConnectionForm* ConnectionSettings::connectionSettingsWidget(quint8 connectionId)
+ConnectionForm* ConnectionSettings::connectionSettingsWidget(connectionId_t connectionId)
 {
     ConnectionForm* retRef;
     switch (connectionId)

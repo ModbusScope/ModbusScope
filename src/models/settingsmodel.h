@@ -20,12 +20,12 @@ public:
     void setPollTime(quint32 pollTime);
     void setWriteDuringLogFile(QString filename);
     void setWriteDuringLogFileToDefault(void);
-    void setConnectionState(quint8 connectionId, bool bState);
+    void setConnectionState(connectionId_t connectionId, bool bState);
 
     QString writeDuringLogFile();
     bool writeDuringLog();
-    bool connectionState(quint8 connectionId);
-    Connection* connectionSettings(quint8 connectionId);
+    bool connectionState(connectionId_t connectionId);
+    Connection* connectionSettings(connectionId_t connectionId);
     quint32 pollTime();
     bool absoluteTimes();
 

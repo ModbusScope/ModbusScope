@@ -150,7 +150,7 @@ bool ExpressionParser::parseConnectionId(QString strConnectionId, ModbusRegister
     }
     else
     {
-        quint8 connectionId = static_cast<quint8>(strConnectionId.toUInt(&bRet));
+        auto connectionId = static_cast<connectionId_t>(strConnectionId.toUInt(&bRet));
         if (bRet)
         {
             if (connectionId > 0)   /* off by 1 */

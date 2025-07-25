@@ -337,7 +337,7 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
     return header;
 }
 
-QString DataFileExporter::constructConnSettings(quint8 connectionId)
+QString DataFileExporter::constructConnSettings(connectionId_t connectionId)
 {
     QString strSettings;
     auto connData = _pSettingsModel->connectionSettings(connectionId);

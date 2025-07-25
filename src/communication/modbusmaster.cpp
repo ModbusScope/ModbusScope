@@ -9,7 +9,8 @@ Q_DECLARE_METATYPE(Result<quint16>);
 
 using State = ResultState::State;
 
-ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, quint8 connectionId) : QObject(nullptr), _connectionId(connectionId), _pSettingsModel(pSettingsModel)
+ModbusMaster::ModbusMaster(SettingsModel* pSettingsModel, connectionId_t connectionId)
+    : QObject(nullptr), _connectionId(connectionId), _pSettingsModel(pSettingsModel)
 {
     qMetaTypeId<Result<quint16> >();
 

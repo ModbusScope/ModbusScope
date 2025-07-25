@@ -1,6 +1,7 @@
 #ifndef MODBUSREGISTER_H
 #define MODBUSREGISTER_H
 
+#include "models/connectiontypes.h"
 #include "util/modbusaddress.h"
 #include "util/modbusdatatype.h"
 #include <QDebug>
@@ -10,13 +11,13 @@ class ModbusRegister
 {
 public:
     ModbusRegister();
-    ModbusRegister(ModbusAddress address, quint8 connectionId, ModbusDataType::Type type);
+    ModbusRegister(ModbusAddress address, connectionId_t connectionId, ModbusDataType::Type type);
 
     ModbusAddress address() const;
     void setAddress(ModbusAddress address);
-    
-    quint8 connectionId() const;
-    void setConnectionId(quint8 connectionId);
+
+    connectionId_t connectionId() const;
+    void setConnectionId(connectionId_t connectionId);
 
     void setType(ModbusDataType::Type type);
     ModbusDataType::Type type() const;
@@ -42,7 +43,7 @@ private:
     double convertUint32ToFloat(quint32 value) const;
 
     ModbusAddress _address;
-    quint8 _connectionId;
+    connectionId_t _connectionId;
     ModbusDataType::Type _type;
 };
 
