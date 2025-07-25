@@ -94,12 +94,12 @@ QString SettingsModel::writeDuringLogFile()
     return _writeDuringLogFile;
 }
 
-Connection* SettingsModel::connectionSettings(quint8 connectionId)
+Connection* SettingsModel::connectionSettings(connectionId_t connectionId)
 {
     return &_connectionSettings[connectionId].connectionData;
 }
 
-void SettingsModel::setConnectionState(quint8 connectionId, bool bState)
+void SettingsModel::setConnectionState(connectionId_t connectionId, bool bState)
 {
     /* Connection 1 can't be disabled */
     if (connectionId == ConnectionId::ID_1)
@@ -110,7 +110,7 @@ void SettingsModel::setConnectionState(quint8 connectionId, bool bState)
     _connectionSettings[connectionId].bConnectionState = bState;
 }
 
-bool SettingsModel::connectionState(quint8 connectionId)
+bool SettingsModel::connectionState(connectionId_t connectionId)
 {
     return _connectionSettings[connectionId].bConnectionState;
 }
