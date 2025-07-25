@@ -8,6 +8,7 @@
 
 #include "communication/modbusconnection.h"
 #include "communication/readregisters.h"
+#include "models/connectiontypes.h"
 #include "util/modbusresultmap.h"
 
 /* Forward declaration */
@@ -17,7 +18,7 @@ class ModbusMaster : public QObject
 {
     Q_OBJECT
 public:
-    explicit ModbusMaster(SettingsModel * pSettingsModel, quint8 connectionId);
+    explicit ModbusMaster(SettingsModel* pSettingsModel, connectionId_t connectionId);
     virtual ~ModbusMaster();
 
     void readRegisterList(QList<ModbusAddress> registerList);
@@ -25,7 +26,7 @@ public:
     void cleanUp();
 
 signals:
-    void modbusPollDone(ModbusResultMap modbusResults, quint8 connectionId);
+    void modbusPollDone(ModbusResultMap modbusResults, connectionId_t connectionId);
     void modbusLogError(QString msg);
     void modbusLogInfo(QString msg);
     void triggerNextRequest();

@@ -102,7 +102,7 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
 
     for(int idx = 0; idx < connCnt; idx++)
     {
-        quint8 connectionId;
+        connectionId_t connectionId;
 
         if (pProjectSettings->general.connectionSettings[idx].bConnectionId)
         {

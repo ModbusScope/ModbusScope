@@ -1,6 +1,10 @@
 #ifndef CONNECTION_TYPES_H
 #define CONNECTION_TYPES_H
 
+#include <qtypes.h>
+
+using connectionId_t = quint32;
+
 namespace ConnectionId {
 enum
 {
