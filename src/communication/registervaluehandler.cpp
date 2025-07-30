@@ -62,7 +62,7 @@ void RegisterValueHandler::processPartialResult(ModbusResultMap partialResultMap
             {
                 double processedResult =
                   mbReg.processValue(lowerRegister.value(), upperRegister.value(),
-                                     _pSettingsModel->connectionSettings(connectionId)->int32LittleEndian());
+                                     _pSettingsModel->deviceSettings(deviceId)->int32LittleEndian());
                 result.setValue(processedResult);
             }
             else
@@ -80,9 +80,12 @@ void RegisterValueHandler::registerAddresList(QList<ModbusAddress>& registerList
 {
     QList<ModbusAddress> connRegisterList;
 
-    foreach(ModbusRegister mbReg, _registerList)
+    // Get list of devices for specific connection
+    auto deviceList = _pSettingsModel->deviceList(connectionId);
+
+    for (auto const& mbReg : _registerList)
     {
-        if (mbReg.connectionId() == connectionId)
+        if (deviceList.contains(mbReg.deviceId()))
         {
             if (!connRegisterList.contains(mbReg.address()))
             {

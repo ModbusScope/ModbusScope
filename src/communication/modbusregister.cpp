@@ -7,8 +7,8 @@ ModbusRegister::ModbusRegister()
 
 }
 
-ModbusRegister::ModbusRegister(ModbusAddress address, connectionId_t connectionId, ModbusDataType::Type type)
-    : _address(address), _connectionId(connectionId), _type(type)
+ModbusRegister::ModbusRegister(ModbusAddress address, deviceId_t deviceId, ModbusDataType::Type type)
+    : _address(address), _deviceId(deviceId), _type(type)
 {
 
 }
@@ -23,14 +23,14 @@ void ModbusRegister::setAddress(ModbusAddress address)
     _address = address;
 }
 
-connectionId_t ModbusRegister::connectionId() const
+deviceId_t ModbusRegister::deviceId() const
 {
-    return _connectionId;
+    return _deviceId;
 }
 
-void ModbusRegister::setConnectionId(connectionId_t connectionId)
+void ModbusRegister::setDeviceId(deviceId_t deviceId)
 {
-    _connectionId = connectionId;
+    _deviceId = deviceId;
 }
 
 void ModbusRegister::setType(ModbusDataType::Type type)
@@ -45,7 +45,7 @@ ModbusDataType::Type ModbusRegister::type() const
 
 QString ModbusRegister::description() const
 {
-    QString connStr = QString("conn %1").arg(connectionId() + 1);
+    QString connStr = QString("dev %1").arg(deviceId() + 1);
 
     return QString("%1, %2, %3").arg(address().toString(), ModbusDataType::description(_type), connStr);
 }
@@ -97,7 +97,7 @@ ModbusRegister& ModbusRegister::operator= (const ModbusRegister& modbusRegister)
     }
 
     _address = modbusRegister.address();
-    _connectionId = modbusRegister.connectionId();
+    _deviceId = modbusRegister.deviceId();
     _type = modbusRegister.type();
 
     // return the existing object so we can chain this operator
@@ -106,11 +106,7 @@ ModbusRegister& ModbusRegister::operator= (const ModbusRegister& modbusRegister)
 
 bool operator== (const ModbusRegister& reg1, const ModbusRegister& reg2)
 {
-    if (
-        (reg1._address == reg2._address)
-        && (reg1._connectionId == reg2._connectionId)
-        && (reg1._type == reg2._type)
-    )
+    if ((reg1._address == reg2._address) && (reg1._deviceId == reg2._deviceId) && (reg1._type == reg2._type))
     {
         return true;
     }

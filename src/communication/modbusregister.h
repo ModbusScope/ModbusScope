@@ -2,6 +2,7 @@
 #define MODBUSREGISTER_H
 
 #include "models/connectiontypes.h"
+#include "models/device.h"
 #include "util/modbusaddress.h"
 #include "util/modbusdatatype.h"
 #include <QDebug>
@@ -11,13 +12,13 @@ class ModbusRegister
 {
 public:
     ModbusRegister();
-    ModbusRegister(ModbusAddress address, connectionId_t connectionId, ModbusDataType::Type type);
+    ModbusRegister(ModbusAddress address, deviceId_t deviceId, ModbusDataType::Type type);
 
     ModbusAddress address() const;
     void setAddress(ModbusAddress address);
 
-    connectionId_t connectionId() const;
-    void setConnectionId(connectionId_t connectionId);
+    deviceId_t deviceId() const;
+    void setDeviceId(deviceId_t deviceId);
 
     void setType(ModbusDataType::Type type);
     ModbusDataType::Type type() const;
@@ -27,7 +28,7 @@ public:
     double processValue(uint16_t lowerRegister, uint16_t upperRegister, bool int32LittleEndian) const;
 
     ModbusRegister(const ModbusRegister& copy)
-        : _address { copy.address() }, _connectionId { copy.connectionId() }, _type {copy.type()}
+        : _address{ copy.address() }, _deviceId{ copy.deviceId() }, _type{ copy.type() }
     {
 
     }
@@ -43,7 +44,7 @@ private:
     double convertUint32ToFloat(quint32 value) const;
 
     ModbusAddress _address;
-    connectionId_t _connectionId;
+    deviceId_t _deviceId;
     ModbusDataType::Type _type;
 };
 

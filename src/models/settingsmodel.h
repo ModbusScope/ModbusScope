@@ -6,6 +6,7 @@
 
 #include "models/connection.h"
 #include "models/connectiontypes.h"
+#include "models/device.h"
 
 class SettingsModel : public QObject
 {
@@ -26,8 +27,11 @@ public:
     bool writeDuringLog();
     bool connectionState(connectionId_t connectionId);
     Connection* connectionSettings(connectionId_t connectionId);
+    Device* deviceSettings(deviceId_t devId);
     quint32 pollTime();
     bool absoluteTimes();
+
+    QList<deviceId_t> deviceList(connectionId_t connectionId);
 
     static const QString defaultLogPath()
     {
@@ -60,6 +64,7 @@ private:
     } ConnectionSettings;
 
     QList<ConnectionSettings> _connectionSettings;
+    QMap<deviceId_t, Device> _devices;
 
     quint32 _pollTime;
     bool _bAbsoluteTimes;

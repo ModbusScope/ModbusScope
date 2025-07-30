@@ -47,10 +47,7 @@ ConnectionForm::~ConnectionForm()
 
 void ConnectionForm::setState(bool bEnabled)
 {
-    _pUi->spinSlaveId->setEnabled(bEnabled);
     _pUi->spinTimeout->setEnabled(bEnabled);
-    _pUi->spinConsecutiveMax->setEnabled(bEnabled);
-    _pUi->checkInt32LittleEndian->setEnabled(bEnabled);
     _pUi->checkPersistentConn->setEnabled(bEnabled);
 
     _pUi->comboType->setEnabled(bEnabled);
@@ -74,10 +71,7 @@ void ConnectionForm::setState(bool bEnabled)
 
 void ConnectionForm::fillSettingsModel(Connection* connData)
 {
-    connData->setSlaveId(_pUi->spinSlaveId->value());
     connData->setTimeout(_pUi->spinTimeout->value());
-    connData->setConsecutiveMax(_pUi->spinConsecutiveMax->value());
-    connData->setInt32LittleEndian(_pUi->checkInt32LittleEndian->checkState() == Qt::Checked);
     connData->setPersistentConnection(_pUi->checkPersistentConn->checkState() == Qt::Checked);
     connData->setConnectionType(static_cast<Connection::type_t>(_pUi->comboType->currentData().toUInt()));
     connData->setIpAddress(_pUi->lineIP->text());
@@ -149,24 +143,9 @@ void ConnectionForm::setPort(quint16 port)
     _pUi->spinPort->setValue(port);
 }
 
-void ConnectionForm::setSlaveId(quint8 id)
-{
-    _pUi->spinSlaveId->setValue(id);
-}
-
 void ConnectionForm::setTimeout(quint32 timeout)
 {
     _pUi->spinTimeout->setValue(timeout);
-}
-
-void ConnectionForm::setConsecutiveMax(quint8 max)
-{
-    _pUi->spinConsecutiveMax->setValue(max);
-}
-
-void ConnectionForm::setInt32LittleEndian(bool int32LittleEndian)
-{
-    _pUi->checkInt32LittleEndian->setChecked(int32LittleEndian);
 }
 
 void ConnectionForm::setPersistentConnection(bool persistentConnection)

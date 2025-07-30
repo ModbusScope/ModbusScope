@@ -203,7 +203,8 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
                     connData->setDatabits(static_cast<QSerialPort::DataBits>(detectedDataBits));
                 }
             }
-
+#if 0
+TODO: dev
             if (pProjectSettings->general.connectionSettings[idx].bSlaveId)
             {
                 connData->setSlaveId(pProjectSettings->general.connectionSettings[idx].slaveId);
@@ -220,7 +221,7 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
             }
 
             connData->setInt32LittleEndian(pProjectSettings->general.connectionSettings[idx].bInt32LittleEndian);
-
+#endif
             connData->setPersistentConnection(pProjectSettings->general.connectionSettings[idx].bPersistentConnection);
         }
     }
