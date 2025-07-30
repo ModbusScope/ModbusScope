@@ -15,7 +15,7 @@ class ConnectionForm : public QWidget
     Q_OBJECT
 
 public:
-    explicit ConnectionForm(QWidget *parent = nullptr);
+    explicit ConnectionForm(QWidget* parent = nullptr);
     ~ConnectionForm();
 
     void fillSettingsModel(Connection* connData);
@@ -31,10 +31,7 @@ public:
     void setIpAddress(QString ip);
     void setPort(quint16 port);
 
-    void setSlaveId(quint8 id);
     void setTimeout(quint32 timeout);
-    void setConsecutiveMax(quint8 max);
-    void setInt32LittleEndian(bool int32LittleEndian);
     void setPersistentConnection(bool persistentConnection);
 
 public slots:
@@ -44,7 +41,6 @@ private slots:
     void connTypeSelected();
 
 private:
-
     void enableSpecificSettings();
 
     Ui::ConnectionForm* _pUi;
