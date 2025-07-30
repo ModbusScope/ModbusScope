@@ -66,11 +66,7 @@ void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
             QString str;
             if (connData->connectionType() == Connection::TYPE_TCP)
             {
-                str = QString("[Conn %0] %1:%2 - slave id %3")
-                        .arg(i + 1)
-                        .arg(connData->ipAddress())
-                        .arg(connData->port())
-                        .arg(connData->slaveId());
+                str = QString("[Conn %0] %1:%2").arg(i + 1).arg(connData->ipAddress()).arg(connData->port());
             }
             else
             {
@@ -79,14 +75,12 @@ void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
                 QString strStopBits;
                 connData->serialConnectionStrings(strParity, strDataBits, strStopBits);
 
-                str = QString("[Conn %0] %1, %2, %3, %4, %5 - slave id %6")
+                str = QString("[Conn %0] %1, %2, %3, %4, %5")
                         .arg(i + 1)
                         .arg(connData->portName())
                         .arg(connData->baudrate())
-                        .arg(strParity, strDataBits, strStopBits)
-                        .arg(connData->slaveId());
+                        .arg(strParity, strDataBits, strStopBits);
             }
-
             qCInfo(scopeCommConnection) << str;
         }
     }

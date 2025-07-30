@@ -9,11 +9,8 @@ Connection::Connection()
       _baudrate(QSerialPort::Baud115200),
       _databits(QSerialPort::Data8),
       _stopbits(QSerialPort::OneStop),
-      _slaveId(1),
       _timeout(1000),
-      _consecutiveMax(125),
       _bConnectionState(false),
-      _bInt32LittleEndian(true),
       _bPersistentConnection(true)
 {
     _connectionType = Connection::TYPE_TCP;
@@ -78,26 +75,6 @@ void Connection::serialConnectionStrings(QString& strParity, QString& strDataBit
         strStopBits = QStringLiteral("unknown stop bits");
         break;
     }
-}
-
-void Connection::setConsecutiveMax(quint8 max)
-{
-    _consecutiveMax = max;
-}
-
-quint8 Connection::consecutiveMax()
-{
-    return _consecutiveMax;
-}
-
-void Connection::setInt32LittleEndian(bool int32LittleEndian)
-{
-    _bInt32LittleEndian = int32LittleEndian;
-}
-
-bool Connection::int32LittleEndian()
-{
-    return _bInt32LittleEndian;
 }
 
 void Connection::setPersistentConnection(bool persistentConnection)
@@ -190,22 +167,7 @@ quint16 Connection::port()
     return _port;
 }
 
-quint8 Connection::slaveId()
-{
-    return _slaveId;
-}
-
-void Connection::setSlaveId(quint8 id)
-{
-    _slaveId = id;
-}
-
 quint32 Connection::timeout()
 {
     return _timeout;
-}
-
-void Connection::setTimeout(quint32 timeout)
-{
-    _timeout = timeout;
 }

@@ -50,10 +50,6 @@ void ConnectionSettings::updateConnectionSettings(connectionId_t connectionId)
     pConnectionSettings->setBaudrate(connData->baudrate());
     pConnectionSettings->setDatabits(connData->databits());
     pConnectionSettings->setStopbits(connData->stopbits());
-    pConnectionSettings->setSlaveId(connData->slaveId());
-    pConnectionSettings->setTimeout(connData->timeout());
-    pConnectionSettings->setConsecutiveMax(connData->consecutiveMax());
-    pConnectionSettings->setInt32LittleEndian(connData->int32LittleEndian());
     pConnectionSettings->setPersistentConnection(connData->persistentConnection());
 }
 
