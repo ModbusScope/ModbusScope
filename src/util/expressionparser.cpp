@@ -75,18 +75,18 @@ bool ExpressionParser::processRegisterExpression(QString regExpr, ModbusRegister
     QRegularExpressionMatch match = _regParseRegex.match(regExpr);
 
     QString strAddress;
-    QString strConnectionId;
+    QString strDeviceId;
     QString strType;
 
     if (match.hasMatch())
     {
         strAddress = match.captured(1);
-        strConnectionId = match.captured(2);
+        strDeviceId = match.captured(2);
         strType = match.captured(3);
 
         bRet = true;
         bRet = bRet && parseAddress(strAddress, modbusReg);
-        bRet = bRet && parseConnectionId(strConnectionId, modbusReg);
+        bRet = bRet && parseDeviceId(strDeviceId, modbusReg);
         bRet = bRet && parseType(strType, modbusReg);
     }
     else
@@ -139,29 +139,25 @@ bool ExpressionParser::parseAddress(QString strAddr, ModbusRegister& modbusReg)
     return bRet;
 }
 
-bool ExpressionParser::parseConnectionId(QString strConnectionId, ModbusRegister& modbusReg)
+bool ExpressionParser::parseDeviceId(QString strDeviceId, ModbusRegister& modbusReg)
 {
     bool bRet = false;
 
-    if (strConnectionId.isEmpty())
+    if (strDeviceId.isEmpty())
     {
         /* Keep default */
         bRet = true;
     }
     else
     {
-        auto connectionId = static_cast<connectionId_t>(strConnectionId.toUInt(&bRet));
+        auto deviceId = static_cast<deviceId_t>(strDeviceId.toUInt(&bRet));
         if (bRet)
         {
-            if (connectionId > 0)   /* off by 1 */
-            {
-                connectionId -= 1;
-            }
-            modbusReg.setConnectionId(connectionId);
+            modbusReg.setDeviceId(deviceId);
         }
         else
         {
-            qCWarning(scopeComm) << QString("Parsing connection \"%1\" failed").arg(strConnectionId);
+            qCWarning(scopeComm) << QString("Parsing device \"%1\" failed").arg(strDeviceId);
         }
     }
 

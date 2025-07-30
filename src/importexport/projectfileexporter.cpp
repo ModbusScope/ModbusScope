@@ -4,6 +4,7 @@
 
 #include "importexport/projectfiledefinitions.h"
 #include "importexport/projectfileexporter.h"
+#include "models/connectiontypes.h"
 #include "models/graphdatamodel.h"
 #include "models/guimodel.h"
 #include "models/settingsmodel.h"
@@ -91,13 +92,15 @@ void ProjectFileExporter::createConnectionTags(QDomElement * pParentElement)
         addTextNode(ProjectFileDefinitions::cParityTag, QString("%1").arg(connData->parity()), &connectionElement);
         addTextNode(ProjectFileDefinitions::cStopBitsTag, QString("%1").arg(connData->stopbits()), &connectionElement);
         addTextNode(ProjectFileDefinitions::cDataBitsTag, QString("%1").arg(connData->databits()), &connectionElement);
-
+#if 0
+TODO: dev
         addTextNode(ProjectFileDefinitions::cSlaveIdTag, QString("%1").arg(connData->slaveId()), &connectionElement);
         addTextNode(ProjectFileDefinitions::cTimeoutTag, QString("%1").arg(connData->timeout()), &connectionElement);
         addTextNode(ProjectFileDefinitions::cConsecutiveMaxTag, QString("%1").arg(connData->consecutiveMax()),
                     &connectionElement);
         addTextNode(ProjectFileDefinitions::cInt32LittleEndianTag, convertBoolToText(connData->int32LittleEndian()),
                     &connectionElement);
+#endif
         addTextNode(ProjectFileDefinitions::cPersistentConnectionTag,
                     convertBoolToText(connData->persistentConnection()), &connectionElement);
 

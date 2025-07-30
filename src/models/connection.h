@@ -26,11 +26,8 @@ public:
     void setIpAddress(QString ip);
     void setPort(quint16 port);
 
-    void setSlaveId(quint8 id);
     void setTimeout(quint32 timeout);
-    void setConsecutiveMax(quint8 max);
     void setConnectionState(bool bState);
-    void setInt32LittleEndian(bool int32LittleEndian);
     void setPersistentConnection(bool persistentConnection);
 
     Connection::type_t connectionType();
@@ -41,11 +38,8 @@ public:
     QSerialPort::StopBits stopbits();
     QString ipAddress();
     quint16 port();
-    quint8 slaveId();
     quint32 timeout();
-    quint8 consecutiveMax();
     bool connectionState();
-    bool int32LittleEndian();
     bool persistentConnection();
 
     void serialConnectionStrings(QString& strParity, QString& strDataBits, QString& strStopBits);
@@ -62,11 +56,8 @@ private:
     QSerialPort::DataBits _databits;
     QSerialPort::StopBits _stopbits;
 
-    quint8 _slaveId;
     quint32 _timeout;
-    quint8 _consecutiveMax;
     bool _bConnectionState;
-    bool _bInt32LittleEndian;
     bool _bPersistentConnection;
 };
 
