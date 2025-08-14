@@ -141,7 +141,7 @@ void TestModbusConnection::readRequestSuccess()
     QSignalSpy spyResultProtocolError(pConnection, &ModbusConnection::readRequestProtocolError);
     QSignalSpy spyResultError(pConnection, &ModbusConnection::readRequestError);
 
-    pConnection->sendReadRequest(ModbusAddress(40001), 2, _slaveId);
+    pConnection->sendReadRequest(ModbusAddress(40001), 2);
 
     QVERIFY(spyResultSuccess.wait(100));
     QCOMPARE(spyResultSuccess.count(), 1);
@@ -192,7 +192,7 @@ void TestModbusConnection::readRequestProtocolError()
     QSignalSpy spyResultProtocolError(pConnection, &ModbusConnection::readRequestProtocolError);
     QSignalSpy spyResultError(pConnection, &ModbusConnection::readRequestError);
 
-    pConnection->sendReadRequest(ModbusAddress(40001), 2, _slaveId);
+    pConnection->sendReadRequest(ModbusAddress(40001), 2);
 
     QVERIFY(spyResultProtocolError.wait(100));
     QCOMPARE(spyResultSuccess.count(), 0);

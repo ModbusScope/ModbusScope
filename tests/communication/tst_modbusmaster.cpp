@@ -21,7 +21,6 @@ void TestModbusMaster::init()
     connData->setIpAddress("127.0.0.1");
     connData->setPort(5020);
     connData->setTimeout(500);
-    connData->setSlaveId(1);
 
     _serverConnectionData.setPort(connData->port());
     _serverConnectionData.setHost(connData->ipAddress());
@@ -40,8 +39,7 @@ void TestModbusMaster::init()
     _testSlaveData[QModbusDataUnit::HoldingRegisters] = new TestSlaveData();
     _pTestSlaveModbus = new TestSlaveModbus(_testSlaveData);
 
-    QVERIFY(_pTestSlaveModbus->connect(_serverConnectionData,
-                                       _settingsModel.connectionSettings(ConnectionId::ID_1)->slaveId()));
+    QVERIFY(_pTestSlaveModbus->connect(_serverConnectionData, _settingsModel.deviceSettings(0)->slaveId()));
 }
 
 void TestModbusMaster::cleanup()
