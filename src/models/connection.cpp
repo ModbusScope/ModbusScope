@@ -10,7 +10,6 @@ Connection::Connection()
       _databits(QSerialPort::Data8),
       _stopbits(QSerialPort::OneStop),
       _timeout(1000),
-      _bConnectionState(false),
       _bPersistentConnection(true)
 {
     _connectionType = Connection::TYPE_TCP;
@@ -170,4 +169,9 @@ quint16 Connection::port()
 quint32 Connection::timeout()
 {
     return _timeout;
+}
+
+void Connection::setTimeout(quint32 timeout)
+{
+    _timeout = timeout;
 }

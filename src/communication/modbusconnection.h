@@ -59,7 +59,7 @@ public:
     void openSerialConnection(struct SerialSettings serialSettings, quint32 timeout);
     void closeConnection(void);
 
-    void sendReadRequest(ModbusAddress regAddress, quint16 size, int serverAddress);
+    void sendReadRequest(ModbusAddress regAddress, quint16 size);
 
     bool isConnected(void);
 
