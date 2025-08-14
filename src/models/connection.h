@@ -27,7 +27,6 @@ public:
     void setPort(quint16 port);
 
     void setTimeout(quint32 timeout);
-    void setConnectionState(bool bState);
     void setPersistentConnection(bool persistentConnection);
 
     Connection::type_t connectionType();
@@ -39,7 +38,6 @@ public:
     QString ipAddress();
     quint16 port();
     quint32 timeout();
-    bool connectionState();
     bool persistentConnection();
 
     void serialConnectionStrings(QString& strParity, QString& strDataBits, QString& strStopBits);
@@ -57,7 +55,6 @@ private:
     QSerialPort::StopBits _stopbits;
 
     quint32 _timeout;
-    bool _bConnectionState;
     bool _bPersistentConnection;
 };
 

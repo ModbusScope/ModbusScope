@@ -21,7 +21,7 @@ public:
     explicit ModbusMaster(SettingsModel* pSettingsModel, connectionId_t connectionId);
     virtual ~ModbusMaster();
 
-    void readRegisterList(QList<ModbusAddress> registerList);
+    void readRegisterList(QList<ModbusAddress> registerList, quint8 consecutiveMax);
 
     void cleanUp();
 

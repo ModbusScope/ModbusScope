@@ -67,7 +67,7 @@ void TestModbusMaster::singleRequestSuccess()
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         QVERIFY(spyModbusPollDone.wait(100));
         QCOMPARE(spyModbusPollDone.count(), 1);
@@ -94,7 +94,7 @@ void TestModbusMaster::singleRequestEmpty()
     QList<ModbusAddress> registerList;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
-    modbusMaster.readRegisterList(registerList);
+    modbusMaster.readRegisterList(registerList, 128);
 
     QCOMPARE(spyModbusPollDone.count(), 1);
 
@@ -117,7 +117,7 @@ void TestModbusMaster::singleRequestGatewayNotAvailable()
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         QVERIFY(spyModbusPollDone.wait(100));
         QCOMPARE(spyModbusPollDone.count(), 1);
@@ -145,7 +145,7 @@ void TestModbusMaster::singleRequestNoResponse()
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         auto connData = _settingsModel.connectionSettings(ConnectionId::ID_1);
         spyModbusPollDone.wait(static_cast<int>(connData->timeout()) + 100);
@@ -179,7 +179,7 @@ void TestModbusMaster::singleRequestInvalidAddressOnce()
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         QVERIFY(spyModbusPollDone.wait(100));
         QCOMPARE(spyModbusPollDone.count(), 1);
@@ -214,7 +214,7 @@ void TestModbusMaster::singleRequestInvalidAddressPersistent()
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         QVERIFY(spyModbusPollDone.wait(100));
         QCOMPARE(spyModbusPollDone.count(), 1);
@@ -248,7 +248,7 @@ void TestModbusMaster::multiRequestSuccess()
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         auto timeout = _settingsModel.connectionSettings(ConnectionId::ID_1)->timeout();
         QVERIFY(spyModbusPollDone.wait(static_cast<int>(timeout)));
@@ -292,7 +292,7 @@ void TestModbusMaster::multiRequestGatewayNotAvailable()
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         QVERIFY(spyModbusPollDone.wait(100));
         QCOMPARE(spyModbusPollDone.count(), 1);
@@ -331,7 +331,7 @@ void TestModbusMaster::multiRequestNoResponse()
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         auto timeout = _settingsModel.connectionSettings(ConnectionId::ID_1)->timeout();
         spyModbusPollDone.wait(static_cast<int>(timeout) + 100);
@@ -370,7 +370,7 @@ void TestModbusMaster::multiRequestInvalidAddress()
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         auto timeout = _settingsModel.connectionSettings(ConnectionId::ID_1)->timeout();
         QVERIFY(spyModbusPollDone.wait(static_cast<int>(timeout) + 100));
