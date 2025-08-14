@@ -22,7 +22,7 @@ public:
     void processPartialResult(ModbusResultMap partialResultMap, connectionId_t connectionId);
     void finishRead();
 
-    void registerAddresList(QList<ModbusAddress>& registerList, connectionId_t connectionId);
+    void registerAddresListForConnection(QList<ModbusAddress>& registerList, connectionId_t connectionId);
 
 signals:
     void registerDataReady(ResultDoubleList registers);

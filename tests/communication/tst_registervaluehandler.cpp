@@ -37,7 +37,7 @@ void TestRegisterValueHandler::addressList_16()
     regHandler.setRegisters(modbusRegisters);
 
     QList<ModbusAddress> actualRegisterList;
-    regHandler.registerAddresList(actualRegisterList, 1);
+    regHandler.registerAddresListForConnection(actualRegisterList, 1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
@@ -52,7 +52,7 @@ void TestRegisterValueHandler::addressList_16_multiple()
     regHandler.setRegisters(modbusRegisters);
 
     QList<ModbusAddress> actualRegisterList;
-    regHandler.registerAddresList(actualRegisterList, 1);
+    regHandler.registerAddresListForConnection(actualRegisterList, 1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
@@ -66,7 +66,7 @@ void TestRegisterValueHandler::addressList_32()
     regHandler.setRegisters(modbusRegisters);
 
     QList<ModbusAddress> actualRegisterList;
-    regHandler.registerAddresList(actualRegisterList, 1);
+    regHandler.registerAddresListForConnection(actualRegisterList, 1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
@@ -81,7 +81,7 @@ void TestRegisterValueHandler::addressList_32_multiple()
     regHandler.setRegisters(modbusRegisters);
 
     QList<ModbusAddress> actualRegisterList;
-    regHandler.registerAddresList(actualRegisterList, 1);
+    regHandler.registerAddresListForConnection(actualRegisterList, 1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
@@ -95,7 +95,7 @@ void TestRegisterValueHandler::addressList_float32()
     regHandler.setRegisters(modbusRegisters);
 
     QList<ModbusAddress> actualRegisterList;
-    regHandler.registerAddresList(actualRegisterList, 1);
+    regHandler.registerAddresListForConnection(actualRegisterList, 1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
@@ -110,7 +110,7 @@ void TestRegisterValueHandler::addressList_float32_multiple()
     regHandler.setRegisters(modbusRegisters);
 
     QList<ModbusAddress> actualRegisterList;
-    regHandler.registerAddresList(actualRegisterList, 1);
+    regHandler.registerAddresListForConnection(actualRegisterList, 1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
@@ -127,7 +127,7 @@ void TestRegisterValueHandler::addressListCombinations()
     regHandler.setRegisters(modbusRegisters);
 
     QList<ModbusAddress> actualRegisterList;
-    regHandler.registerAddresList(actualRegisterList, 1);
+    regHandler.registerAddresListForConnection(actualRegisterList, 1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
@@ -145,8 +145,8 @@ void TestRegisterValueHandler::addressListMultipleConnections()
 
     QList<ModbusAddress> actualRegisterList0;
     QList<ModbusAddress> actualRegisterList1;
-    regHandler.registerAddresList(actualRegisterList0, 1);
-    regHandler.registerAddresList(actualRegisterList1, 2);
+    regHandler.registerAddresListForConnection(actualRegisterList0, 1);
+    regHandler.registerAddresListForConnection(actualRegisterList1, 2);
 
     QVERIFY(actualRegisterList0 == expRegisterList0);
     QVERIFY(actualRegisterList1 == expRegisterList1);
@@ -163,7 +163,7 @@ void TestRegisterValueHandler::addressListMixedObjects()
     regHandler.setRegisters(modbusRegisters);
 
     QList<ModbusAddress> actualRegisterList;
-    regHandler.registerAddresList(actualRegisterList, 1);
+    regHandler.registerAddresListForConnection(actualRegisterList, 1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
@@ -178,7 +178,7 @@ void TestRegisterValueHandler::addressListSameRegisterDifferentType()
     regHandler.setRegisters(modbusRegisters);
 
     QList<ModbusAddress> actualRegisterList;
-    regHandler.registerAddresList(actualRegisterList, 1);
+    regHandler.registerAddresListForConnection(actualRegisterList, 1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }

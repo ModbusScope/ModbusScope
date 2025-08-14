@@ -193,24 +193,29 @@ void ModbusPoll::triggerRegisterRead()
 
         QList<QList<ModbusAddress> > regAddrList;
 
-        for (quint8 i = 0u; i < ConnectionId::ID_CNT; i++)
+        for (connectionId_t i = 0u; i < ConnectionId::ID_CNT; i++)
         {
+            QList<deviceId_t> devList = _pSettingsModel->deviceList(i);
+
             regAddrList.append(QList<ModbusAddress>());
 
-            _pRegisterValueHandler->registerAddresList(regAddrList.last(), i);
+                        _pRegisterValueHandler->registerAddresListForConnection(regAddrList.last(), i);
 
-            if (regAddrList.last().count() > 0)
-            {
-                _activeMastersCount++;
-            }
+                        if (regAddrList.last().count() > 0)
+                        {
+                            _activeMastersCount++;
+                        }
         }
 
-        for (quint8 i = 0u; i < ConnectionId::ID_CNT; i++)
+        // TODO: use lowest consecutiveMax from relevant devices to avoid buffer issues in device
+        quint8 consecutiveMax = 128;
+
+        for (connectionId_t i = 0u; i < ConnectionId::ID_CNT; i++)
         {
             if (regAddrList.at(i).count() > 0)
             {
                 _modbusMasters[i]->bActive = true;
-                _modbusMasters[i]->pModbusMaster->readRegisterList(regAddrList.at(i));
+                _modbusMasters[i]->pModbusMaster->readRegisterList(regAddrList.at(i), consecutiveMax);
             }
         }
 
