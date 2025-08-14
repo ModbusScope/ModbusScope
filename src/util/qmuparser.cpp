@@ -43,6 +43,8 @@ void QMuParser::setExpression(QString expr)
     const bool bContainsDecimalPoint = expr.contains('.');
     const bool bContainsComma = expr.contains(',');
 
+    _originalExpression = expr;
+
     if (bContainsDecimalPoint && bContainsComma)
     {
         _bInvalidExpression = true;
@@ -169,6 +171,11 @@ QMuParser::ErrorType QMuParser::errorType() const
 double QMuParser::value() const
 {
     return _value;
+}
+
+QString QMuParser::originalExpression() const
+{
+    return _originalExpression;
 }
 
 bool QMuParser::isSuccess() const

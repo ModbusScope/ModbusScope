@@ -13,11 +13,17 @@ public:
     {
     }
 
-    ModbusAddress address(void) { return _address; }
-    quint8 count(void) { return _count; }
+    ModbusAddress address() const
+    {
+        return _address;
+    }
+    quint8 count() const
+    {
+        return _count;
+    }
 
 private:
-    ModbusAddress _address{0, ModbusAddress::ObjectType::UNKNOWN};
+    ModbusAddress _address;
     quint8 _count{};
 
 };

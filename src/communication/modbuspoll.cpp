@@ -66,11 +66,7 @@ void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
             QString str;
             if (connData->connectionType() == Connection::TYPE_TCP)
             {
-                str = QString("[Conn %0] %1:%2 - slave id %3")
-                        .arg(i + 1)
-                        .arg(connData->ipAddress())
-                        .arg(connData->port())
-                        .arg(connData->slaveId());
+                str = QString("[Conn %0] %1:%2").arg(i + 1).arg(connData->ipAddress()).arg(connData->port());
             }
             else
             {
@@ -79,14 +75,12 @@ void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
                 QString strStopBits;
                 connData->serialConnectionStrings(strParity, strDataBits, strStopBits);
 
-                str = QString("[Conn %0] %1, %2, %3, %4, %5 - slave id %6")
+                str = QString("[Conn %0] %1, %2, %3, %4, %5")
                         .arg(i + 1)
                         .arg(connData->portName())
                         .arg(connData->baudrate())
-                        .arg(strParity, strDataBits, strStopBits)
-                        .arg(connData->slaveId());
+                        .arg(strParity, strDataBits, strStopBits);
             }
-
             qCInfo(scopeCommConnection) << str;
         }
     }
@@ -99,7 +93,7 @@ void ModbusPoll::resetCommunicationStats()
     _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 }
 
-void ModbusPoll::handlePollDone(ModbusResultMap partialResultMap, quint8 connectionId)
+void ModbusPoll::handlePollDone(ModbusResultMap partialResultMap, connectionId_t connectionId)
 {
     bool lastResult = false;
 
@@ -199,24 +193,29 @@ void ModbusPoll::triggerRegisterRead()
 
         QList<QList<ModbusAddress> > regAddrList;
 
-        for (quint8 i = 0u; i < ConnectionId::ID_CNT; i++)
+        for (connectionId_t i = 0u; i < ConnectionId::ID_CNT; i++)
         {
+            QList<deviceId_t> devList = _pSettingsModel->deviceList(i);
+
             regAddrList.append(QList<ModbusAddress>());
 
-            _pRegisterValueHandler->registerAddresList(regAddrList.last(), i);
+                        _pRegisterValueHandler->registerAddresListForConnection(regAddrList.last(), i);
 
-            if (regAddrList.last().count() > 0)
-            {
-                _activeMastersCount++;
-            }
+                        if (regAddrList.last().count() > 0)
+                        {
+                            _activeMastersCount++;
+                        }
         }
 
-        for (quint8 i = 0u; i < ConnectionId::ID_CNT; i++)
+        // TODO: use lowest consecutiveMax from relevant devices to avoid buffer issues in device
+        quint8 consecutiveMax = 128;
+
+        for (connectionId_t i = 0u; i < ConnectionId::ID_CNT; i++)
         {
             if (regAddrList.at(i).count() > 0)
             {
                 _modbusMasters[i]->bActive = true;
-                _modbusMasters[i]->pModbusMaster->readRegisterList(regAddrList.at(i));
+                _modbusMasters[i]->pModbusMaster->readRegisterList(regAddrList.at(i), consecutiveMax);
             }
         }
 
