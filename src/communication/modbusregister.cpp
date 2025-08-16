@@ -1,8 +1,7 @@
 #include "modbusregister.h"
 
-
 ModbusRegister::ModbusRegister()
-    : ModbusRegister(ModbusAddress(0), 0, ModbusDataType::Type::UNSIGNED_16)
+    : ModbusRegister(ModbusAddress(0), Device::cFirstDeviceId, ModbusDataType::Type::UNSIGNED_16)
 {
 
 }
@@ -45,7 +44,7 @@ ModbusDataType::Type ModbusRegister::type() const
 
 QString ModbusRegister::description() const
 {
-    QString connStr = QString("dev %1").arg(deviceId() + 1);
+    QString connStr = QString("device %1").arg(deviceId());
 
     return QString("%1, %2, %3").arg(address().toString(), ModbusDataType::description(_type), connStr);
 }

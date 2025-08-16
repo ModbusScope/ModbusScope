@@ -1,7 +1,6 @@
 #ifndef MODBUSREGISTER_H
 #define MODBUSREGISTER_H
 
-#include "models/connectiontypes.h"
 #include "models/device.h"
 #include "util/modbusaddress.h"
 #include "util/modbusdatatype.h"

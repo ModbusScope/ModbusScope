@@ -4,12 +4,12 @@
 #include <QString>
 
 #include "modbusdatatype.h"
-#include "models/connectiontypes.h"
+#include "models/device.h"
 
 namespace ExpressionGenerator
 {
     QString typeSuffix(ModbusDataType::Type type);
-    QString constructRegisterString(QString registerAddress, ModbusDataType::Type type, connectionId_t connectionId);
+    QString constructRegisterString(QString registerAddress, ModbusDataType::Type type, deviceId_t devId);
 }
 
 #endif // EXPRESSION_GENERATOR_H__

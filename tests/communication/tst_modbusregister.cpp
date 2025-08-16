@@ -63,13 +63,13 @@ void TestModbusRegister::copy()
 
 void TestModbusRegister::description()
 {
-    ModbusRegister reg_1(ModbusAddress(40001), 1, Type::UNSIGNED_16);
-    ModbusRegister reg_2(ModbusAddress(40002), 2, Type::SIGNED_32);
-    ModbusRegister reg_3(ModbusAddress(40003), 2, Type::FLOAT_32);
+    ModbusRegister reg_1(ModbusAddress(40001), Device::cFirstDeviceId, Type::UNSIGNED_16);
+    ModbusRegister reg_2(ModbusAddress(40002), Device::cFirstDeviceId + 1, Type::SIGNED_32);
+    ModbusRegister reg_3(ModbusAddress(40003), Device::cFirstDeviceId + 1, Type::FLOAT_32);
 
-    QCOMPARE(reg_1.description(), "holding register, 0, unsigned 16-bit, conn 1");
-    QCOMPARE(reg_2.description(), "holding register, 1, signed 32-bit, conn 2");
-    QCOMPARE(reg_3.description(), "holding register, 2, 32-bit float, conn 2");
+    QCOMPARE(reg_1.description(), "holding register, 0, unsigned 16-bit, device 1");
+    QCOMPARE(reg_2.description(), "holding register, 1, signed 32-bit, device 2");
+    QCOMPARE(reg_3.description(), "holding register, 2, 32-bit float, device 2");
 }
 
 void TestModbusRegister::processValue_16b_data()

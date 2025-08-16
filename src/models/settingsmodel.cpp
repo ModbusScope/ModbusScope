@@ -15,7 +15,7 @@ SettingsModel::SettingsModel(QObject *parent) :
     /* Connection 1 is always enabled */
     _connectionSettings[ConnectionId::ID_1].bConnectionState = true;
 
-    _devices[0] = Device();
+    _devices[Device::cFirstDeviceId] = Device();
 
     _pollTime = 250;
     _bAbsoluteTimes = false;
