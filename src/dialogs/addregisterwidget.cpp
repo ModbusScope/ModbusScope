@@ -118,6 +118,7 @@ QString AddRegisterWidget::generateExpression()
 
     auto registerAddr = ModbusAddress(static_cast<quint32>(_pUi->spinAddress->value()), objectType);
 
+    // TODO: dev
     QVariant connData = _pUi->cmbConnection->currentData();
     if (connData.canConvert<quint8>())
     {

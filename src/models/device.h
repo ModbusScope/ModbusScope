@@ -25,6 +25,8 @@ public:
     quint8 consecutiveMax();
     bool int32LittleEndian();
 
+    static deviceId_t const cFirstDeviceId;
+
 private:
     quint8 _id;
     connectionId_t _connectionId;
