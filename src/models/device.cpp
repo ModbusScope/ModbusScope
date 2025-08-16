@@ -1,6 +1,8 @@
 
 #include "device.h"
 
+deviceId_t const Device::cFirstDeviceId = 1;
+
 Device::Device() : _connectionId(0), _slaveId(1), _consecutiveMax(125), _bInt32LittleEndian(true)
 {
 }
