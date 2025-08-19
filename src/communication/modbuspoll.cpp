@@ -199,12 +199,12 @@ void ModbusPoll::triggerRegisterRead()
 
             regAddrList.append(QList<ModbusAddress>());
 
-                        _pRegisterValueHandler->registerAddresListForConnection(regAddrList.last(), i);
+            _pRegisterValueHandler->registerAddresListForConnection(regAddrList.last(), i);
 
-                        if (regAddrList.last().count() > 0)
-                        {
-                            _activeMastersCount++;
-                        }
+            if (regAddrList.last().count() > 0)
+            {
+                _activeMastersCount++;
+            }
         }
 
         // TODO: use lowest consecutiveMax from relevant devices to avoid buffer issues in device

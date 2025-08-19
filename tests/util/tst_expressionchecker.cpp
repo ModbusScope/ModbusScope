@@ -28,8 +28,8 @@ void TestExpressionChecker::dataIsPrimed()
 
     QStringList descriptions;
     checker.descriptions(descriptions);
-    auto expDescriptions = QStringList() << "holding register, 0, unsigned 16-bit, device 1"
-                                         << "holding register, 1, unsigned 16-bit, device 1";
+    auto expDescriptions = QStringList() << "holding register, 0, slave id 1, unsigned 16-bit, device 1"
+                                         << "holding register, 1, slave id 1, unsigned 16-bit, device 1";
     QCOMPARE(descriptions, expDescriptions);
 
     QCOMPARE(checker.requiredValueCount(), 2);
