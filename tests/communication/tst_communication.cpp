@@ -24,21 +24,33 @@ void TestCommunication::init()
     connData->setIpAddress("127.0.0.1");
     connData->setPort(5020);
     connData->setTimeout(500);
-    connData->setSlaveId(1);
 
     _pSettingsModel->setConnectionState(ConnectionId::ID_2, true);
     connData = _pSettingsModel->connectionSettings(ConnectionId::ID_2);
     connData->setIpAddress("127.0.0.1");
     connData->setPort(5021);
     connData->setTimeout(500);
-    connData->setSlaveId(2);
 
     _pSettingsModel->setConnectionState(ConnectionId::ID_3, true);
     connData = _pSettingsModel->connectionSettings(ConnectionId::ID_3);
     connData->setIpAddress("127.0.0.1");
     connData->setPort(5022);
     connData->setTimeout(500);
-    connData->setSlaveId(3);
+
+    deviceId_t devId = Device::cFirstDeviceId;
+    _pSettingsModel->addDevice(devId);
+    _pSettingsModel->deviceSettings(devId)->setConnectionId(ConnectionId::ID_1);
+    _pSettingsModel->deviceSettings(devId)->setSlaveId(ConnectionId::ID_1 + 1); // TODO: dev: dirty hack
+
+    devId++;
+    _pSettingsModel->addDevice(devId);
+    _pSettingsModel->deviceSettings(devId)->setConnectionId(ConnectionId::ID_2);
+    _pSettingsModel->deviceSettings(devId)->setSlaveId(ConnectionId::ID_1 + 2);
+
+    devId++;
+    _pSettingsModel->addDevice(devId);
+    _pSettingsModel->deviceSettings(devId)->setConnectionId(ConnectionId::ID_3);
+    _pSettingsModel->deviceSettings(devId)->setSlaveId(ConnectionId::ID_1 + 3);
 
     _pSettingsModel->setPollTime(100);
 
@@ -55,7 +67,7 @@ void TestCommunication::init()
         _testSlaveDataList.append(modbusDataMap);
         _testSlaveModbusList.append(new TestSlaveModbus(*_testSlaveDataList.last()));
 
-        auto slaveId = _pSettingsModel->connectionSettings(idx)->slaveId();
+        auto slaveId = ConnectionId::ID_1 + 1 + idx; // TODO: dev: dirty hack
         QVERIFY(_testSlaveModbusList.last()->connect(_serverConnectionDataList.last(), slaveId));
     }
 }
@@ -207,7 +219,7 @@ void TestCommunication::readLargeRegisterAddress()
     modbusDataMap[QModbusDataUnit::HoldingRegisters] = &testSlaveData;
     TestSlaveModbus testSlaveModbus(modbusDataMap);
 
-    auto slaveId = _pSettingsModel->connectionSettings(ConnectionId::ID_1)->slaveId();
+    auto slaveId = ConnectionId::ID_1 + 1;
     QVERIFY(testSlaveModbus.connect(_serverConnectionDataList[ConnectionId::ID_1], slaveId));
 
     auto exprList = QStringList() << "${71001}"

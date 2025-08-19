@@ -27,7 +27,7 @@ public:
         /* Verify success */
         QVERIFY(arguments[0].canConvert<ResultDoubleList>());
         auto actResultList = arguments[0].value<ResultDoubleList>();
-        QCOMPARE(resultList, actResultList);
+        QCOMPARE(actResultList, resultList);
     }
 
 

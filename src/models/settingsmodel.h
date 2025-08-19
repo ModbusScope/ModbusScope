@@ -31,6 +31,8 @@ public:
     quint32 pollTime();
     bool absoluteTimes();
 
+    void addDevice(deviceId_t devId);
+
     QList<deviceId_t> deviceList(connectionId_t connectionId);
 
     static const QString defaultLogPath()

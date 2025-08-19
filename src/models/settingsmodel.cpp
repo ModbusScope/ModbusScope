@@ -64,6 +64,14 @@ bool SettingsModel::absoluteTimes()
     return _bAbsoluteTimes;
 }
 
+void SettingsModel::addDevice(deviceId_t devId)
+{
+    if (!_devices.contains(devId))
+    {
+        _devices[devId] = Device();
+    }
+}
+
 QList<deviceId_t> SettingsModel::deviceList(connectionId_t connectionId)
 {
     QList<deviceId_t> list;
