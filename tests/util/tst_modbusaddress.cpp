@@ -130,14 +130,14 @@ void TestModbusAddress::to_string()
 {
     ModbusAddress addr(40011);
 
-    QCOMPARE(addr.toString(), "holding register, 10");
+    QCOMPARE(addr.toString(), "holding register, 10, slave id 1");
 }
 
 void TestModbusAddress::to_string_coil()
 {
     ModbusAddress addr(1);
 
-    QCOMPARE(addr.toString(), "coil, 1");
+    QCOMPARE(addr.toString(), "coil, 1, slave id 1");
 }
 
 void TestModbusAddress::next_and_compare()

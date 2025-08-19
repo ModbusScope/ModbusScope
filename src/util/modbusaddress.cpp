@@ -95,7 +95,7 @@ QString ModbusAddress::toString() const
     case ObjectType::UNKNOWN: typeStr = QString("unknown"); break;
     }
 
-    return QString("%1, %2").arg(typeStr).arg(protocolAddress());
+    return QString("%1, %2, slave id %3").arg(typeStr).arg(protocolAddress()).arg(_slaveId);
 }
 
 ModbusAddress ModbusAddress::next() const

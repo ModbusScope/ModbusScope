@@ -21,9 +21,11 @@ void TestRegisterValueHandler::init()
 
     _pSettingsModel->deviceSettings(Device::cFirstDeviceId)->setInt32LittleEndian(true);
 
-    _pSettingsModel->addDevice(Device::cFirstDeviceId + 1);
-    _pSettingsModel->deviceSettings(Device::cFirstDeviceId + 1)->setConnectionId(ConnectionId::ID_2);
-    _pSettingsModel->deviceSettings(Device::cFirstDeviceId + 1)->setInt32LittleEndian(true);
+    deviceId_t devId = Device::cFirstDeviceId + 1;
+    _pSettingsModel->addDevice(devId);
+    _pSettingsModel->deviceSettings(devId)->setConnectionId(ConnectionId::ID_2);
+    _pSettingsModel->deviceSettings(devId)->setInt32LittleEndian(true);
+    _pSettingsModel->deviceSettings(devId)->setSlaveId(2);
 }
 
 void TestRegisterValueHandler::cleanup()
@@ -144,14 +146,14 @@ void TestRegisterValueHandler::addressListCombinations()
 
 void TestRegisterValueHandler::addressListMultipleConnections()
 {
-#if 0
-TODO: dev
     auto modbusRegisters = QList<ModbusRegister>()
                            << ModbusRegister(ModbusAddress(40001), Device::cFirstDeviceId, Type::UNSIGNED_32)
                            << ModbusRegister(ModbusAddress(40005), Device::cFirstDeviceId + 1, Type::UNSIGNED_32)
                            << ModbusRegister(ModbusAddress(40010), Device::cFirstDeviceId, Type::UNSIGNED_32);
     auto expRegisterList0 = QList<ModbusAddress>() << ModbusAddress(40001) << ModbusAddress(40002) << ModbusAddress(40010) << ModbusAddress(40011);
-    auto expRegisterList1 = QList<ModbusAddress>() << ModbusAddress(40005) << ModbusAddress(40006);
+    auto expRegisterList1 = QList<ModbusAddress>()
+                            << ModbusAddress(2, 40005 - 40001, ModbusAddress::ObjectType::HOLDING_REGISTER)
+                            << ModbusAddress(2, 40006 - 40001, ModbusAddress::ObjectType::HOLDING_REGISTER);
 
     RegisterValueHandler regHandler(_pSettingsModel);
     regHandler.setRegisters(modbusRegisters);
@@ -163,7 +165,6 @@ TODO: dev
 
     QVERIFY(actualRegisterList0 == expRegisterList0);
     QVERIFY(actualRegisterList1 == expRegisterList1);
-#endif
 }
 
 void TestRegisterValueHandler::addressListMixedObjects()
