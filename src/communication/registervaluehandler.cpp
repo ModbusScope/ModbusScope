@@ -83,19 +83,25 @@ void RegisterValueHandler::registerAddresListForConnection(QList<ModbusAddress>&
     // Get list of devices for specific connection
     auto deviceList = _pSettingsModel->deviceList(connectionId);
 
-    for (auto const& mbReg : _registerList)
+    for (auto const& mbReg : std::as_const(_registerList))
     {
         if (deviceList.contains(mbReg.deviceId()))
         {
-            if (!connRegisterList.contains(mbReg.address()))
+            // TODO dev: Use different class from here on
+
+            auto slaveId = _pSettingsModel->deviceSettings(mbReg.deviceId())->slaveId();
+            ModbusAddress address =
+              ModbusAddress(slaveId, mbReg.address().protocolAddress(), mbReg.address().objectType());
+
+            if (!connRegisterList.contains(address))
             {
-                connRegisterList.append(mbReg.address());
+                connRegisterList.append(address);
             }
 
             /* When reading 32 bit value, also read next address */
             if (ModbusDataType::is32Bit(mbReg.type()))
             {
-                const auto reg = mbReg.address().next();
+                const auto reg = address.next();
                 if (!connRegisterList.contains(reg))
                 {
                     connRegisterList.append(reg);
