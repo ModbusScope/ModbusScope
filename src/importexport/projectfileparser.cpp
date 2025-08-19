@@ -162,7 +162,7 @@ GeneralError ProjectFileParser::parseConnectionTag(const QDomElement &element, C
         if (child.tagName() == ProjectFileDefinitions::cConnectionIdTag)
         {
             pConnectionSettings->bConnectionId = true;
-            pConnectionSettings->connectionId = static_cast<connectionId_t>(child.text().toUInt(&bRet));
+            pConnectionSettings->connectionId = child.text().toUInt(&bRet);
             if (!bRet)
             {
                 parseErr.reportError(QString("Connection Id (%1) is not a valid number").arg(child.text()));
