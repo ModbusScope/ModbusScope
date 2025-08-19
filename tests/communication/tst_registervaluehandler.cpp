@@ -20,6 +20,9 @@ void TestRegisterValueHandler::init()
     _pSettingsModel = new SettingsModel();
 
     _pSettingsModel->deviceSettings(Device::cFirstDeviceId)->setInt32LittleEndian(true);
+
+    _pSettingsModel->addDevice(Device::cFirstDeviceId + 1);
+    _pSettingsModel->deviceSettings(Device::cFirstDeviceId + 1)->setConnectionId(ConnectionId::ID_2);
     _pSettingsModel->deviceSettings(Device::cFirstDeviceId + 1)->setInt32LittleEndian(true);
 }
 
@@ -296,8 +299,8 @@ void TestRegisterValueHandler::readConnections()
     QSignalSpy spyDataReady(&regHandler, &RegisterValueHandler::registerDataReady);
 
     regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap1, 1);
-    regHandler.processPartialResult(partialResultMap2, 2);
+    regHandler.processPartialResult(partialResultMap1, ConnectionId::ID_1);
+    regHandler.processPartialResult(partialResultMap2, ConnectionId::ID_2);
     regHandler.finishRead();
 
     QCOMPARE(spyDataReady.count(), 1);
@@ -331,7 +334,7 @@ void TestRegisterValueHandler::readFail()
     QSignalSpy spyDataReady(&regHandler, &RegisterValueHandler::registerDataReady);
 
     regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap2, 2);
+    regHandler.processPartialResult(partialResultMap2, ConnectionId::ID_2);
     regHandler.finishRead();
 
     QCOMPARE(spyDataReady.count(), 1);
