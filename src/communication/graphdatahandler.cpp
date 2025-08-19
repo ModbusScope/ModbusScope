@@ -81,20 +81,20 @@ void GraphDataHandler::handleRegisterData(ResultDoubleList results)
 
     QMuParser::setRegistersData(results);
 
-    for(qint32 listIdx = 0; listIdx < _valueParsers.size(); listIdx++)
+    for (auto& parser : _valueParsers)
     {
         ResultDouble result;
 
-        if (_valueParsers[listIdx].evaluate())
+        if (parser.evaluate())
         {
-            result.setValue(_valueParsers[listIdx].value());
+            result.setValue(parser.value());
         }
         else
         {
             result.setError();
 
             auto msg = QString("Expression evaluation failed (%1): expression %2")
-                         .arg(_valueParsers[listIdx].msg(), _valueParsers[listIdx].originalExpression());
+                         .arg(parser.msg(), parser.originalExpression());
 
             qCWarning(scopeComm) << msg;
         }

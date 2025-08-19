@@ -150,7 +150,7 @@ bool ExpressionParser::parseDeviceId(QString strDeviceId, ModbusRegister& modbus
     }
     else
     {
-        auto deviceId = static_cast<deviceId_t>(strDeviceId.toUInt(&bRet));
+        auto deviceId = strDeviceId.toUInt(&bRet);
         if (bRet)
         {
             modbusReg.setDeviceId(deviceId);
