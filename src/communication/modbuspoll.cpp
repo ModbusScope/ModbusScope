@@ -195,8 +195,6 @@ void ModbusPoll::triggerRegisterRead()
 
         for (connectionId_t i = 0u; i < ConnectionId::ID_CNT; i++)
         {
-            QList<deviceId_t> devList = _pSettingsModel->deviceList(i);
-
             regAddrList.append(QList<ModbusAddress>());
 
             _pRegisterValueHandler->registerAddresListForConnection(regAddrList.last(), i);
@@ -207,13 +205,11 @@ void ModbusPoll::triggerRegisterRead()
             }
         }
 
-        // TODO: use lowest consecutiveMax from relevant devices to avoid buffer issues in device
-        quint8 consecutiveMax = 128;
-
         for (connectionId_t i = 0u; i < ConnectionId::ID_CNT; i++)
         {
             if (regAddrList.at(i).count() > 0)
             {
+                quint8 consecutiveMax = lowestConsecutiveMaxForConnection(i);
                 _modbusMasters[i]->bActive = true;
                 _modbusMasters[i]->pModbusMaster->readRegisterList(regAddrList.at(i), consecutiveMax);
             }
@@ -227,3 +223,18 @@ void ModbusPoll::triggerRegisterRead()
     }
 }
 
+// Add this function above triggerRegisterRead()
+quint8 ModbusPoll::lowestConsecutiveMaxForConnection(connectionId_t connId) const
+{
+    quint8 consecutiveMax = 128;
+    QList<deviceId_t> devList = _pSettingsModel->deviceList(connId);
+    for (deviceId_t devId : std::as_const(devList))
+    {
+        quint8 devConsecutiveMax = _pSettingsModel->deviceSettings(devId)->consecutiveMax();
+        if (devConsecutiveMax < consecutiveMax)
+        {
+            consecutiveMax = devConsecutiveMax;
+        }
+    }
+    return consecutiveMax;
+}
