@@ -50,8 +50,9 @@ private slots:
     void triggerRegisterRead();
 
 private:
+    quint8 lowestConsecutiveMaxForConnection(connectionId_t connId) const;
 
-    QList<ModbusMasterData *> _modbusMasters;
+    QList<ModbusMasterData*> _modbusMasters;
     quint32 _activeMastersCount;
 
     bool _bPollActive;
