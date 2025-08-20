@@ -28,7 +28,7 @@ void RegisterValueHandler::finishRead()
 
 void RegisterValueHandler::processPartialResult(ModbusResultMap partialResultMap, connectionId_t connectionId)
 {
-    auto deviceList = _pSettingsModel->deviceList(connectionId);
+    auto deviceList = _pSettingsModel->deviceListForConnection(connectionId);
 
     for(qint32 listIdx = 0; listIdx < _registerList.size(); listIdx++)
     {
@@ -81,7 +81,7 @@ void RegisterValueHandler::registerAddresListForConnection(QList<ModbusAddress>&
     QList<ModbusAddress> connRegisterList;
 
     // Get list of devices for specific connection
-    auto deviceList = _pSettingsModel->deviceList(connectionId);
+    auto deviceList = _pSettingsModel->deviceListForConnection(connectionId);
 
     for (auto const& mbReg : std::as_const(_registerList))
     {

@@ -223,11 +223,10 @@ void ModbusPoll::triggerRegisterRead()
     }
 }
 
-// Add this function above triggerRegisterRead()
 quint8 ModbusPoll::lowestConsecutiveMaxForConnection(connectionId_t connId) const
 {
     quint8 consecutiveMax = 128;
-    QList<deviceId_t> devList = _pSettingsModel->deviceList(connId);
+    QList<deviceId_t> devList = _pSettingsModel->deviceListForConnection(connId);
     for (deviceId_t devId : std::as_const(devList))
     {
         quint8 devConsecutiveMax = _pSettingsModel->deviceSettings(devId)->consecutiveMax();

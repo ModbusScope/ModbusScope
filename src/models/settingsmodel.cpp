@@ -72,7 +72,7 @@ void SettingsModel::addDevice(deviceId_t devId)
     }
 }
 
-QList<deviceId_t> SettingsModel::deviceList(connectionId_t connectionId)
+QList<deviceId_t> SettingsModel::deviceListForConnection(connectionId_t connectionId)
 {
     QList<deviceId_t> list;
 
