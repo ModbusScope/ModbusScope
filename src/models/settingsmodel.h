@@ -33,6 +33,7 @@ public:
 
     void addDevice(deviceId_t devId);
 
+    QList<deviceId_t> deviceList();
     QList<deviceId_t> deviceListForConnection(connectionId_t connectionId);
 
     static const QString defaultLogPath()
