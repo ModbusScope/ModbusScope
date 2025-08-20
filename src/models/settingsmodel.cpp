@@ -72,6 +72,18 @@ void SettingsModel::addDevice(deviceId_t devId)
     }
 }
 
+QList<deviceId_t> SettingsModel::deviceList()
+{
+    QList<deviceId_t> list;
+
+    for (auto i = _devices.cbegin(), end = _devices.cend(); i != end; ++i)
+    {
+        list.append(i.key());
+    }
+
+    return list;
+}
+
 QList<deviceId_t> SettingsModel::deviceListForConnection(connectionId_t connectionId)
 {
     QList<deviceId_t> list;
