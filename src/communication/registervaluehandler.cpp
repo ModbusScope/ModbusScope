@@ -26,16 +26,15 @@ void RegisterValueHandler::finishRead()
     emit registerDataReady(_resultList);
 }
 
-void RegisterValueHandler::processPartialResult(ModbusResultMap partialResultMap, quint8 connectionId)
+void RegisterValueHandler::processPartialResult(ModbusResultMap partialResultMap, connectionId_t connectionId)
 {
+    auto deviceList = _pSettingsModel->deviceListForConnection(connectionId);
+
     for(qint32 listIdx = 0; listIdx < _registerList.size(); listIdx++)
     {
         const ModbusRegister mbReg = _registerList[listIdx];
 
-        if (
-            (mbReg.connectionId() == connectionId)
-            && (partialResultMap.contains(mbReg.address()))
-            )
+        if ((deviceList.contains(mbReg.deviceId())) && (partialResultMap.contains(mbReg.address())))
         {
             Result<quint16> upperRegister;
             Result<quint16> lowerRegister;
@@ -62,7 +61,7 @@ void RegisterValueHandler::processPartialResult(ModbusResultMap partialResultMap
             {
                 double processedResult =
                   mbReg.processValue(lowerRegister.value(), upperRegister.value(),
-                                     _pSettingsModel->connectionSettings(connectionId)->int32LittleEndian());
+                                     _pSettingsModel->deviceSettings(mbReg.deviceId())->int32LittleEndian());
                 result.setValue(processedResult);
             }
             else
@@ -76,23 +75,33 @@ void RegisterValueHandler::processPartialResult(ModbusResultMap partialResultMap
 }
 
 // Get sorted list of active (unique) register addresses for a specific connection id
-void RegisterValueHandler::registerAddresList(QList<ModbusAddress>& registerList, quint8 connectionId)
+void RegisterValueHandler::registerAddresListForConnection(QList<ModbusAddress>& registerList,
+                                                           connectionId_t connectionId)
 {
     QList<ModbusAddress> connRegisterList;
 
-    foreach(ModbusRegister mbReg, _registerList)
+    // Get list of devices for specific connection
+    auto deviceList = _pSettingsModel->deviceListForConnection(connectionId);
+
+    for (auto const& mbReg : std::as_const(_registerList))
     {
-        if (mbReg.connectionId() == connectionId)
+        if (deviceList.contains(mbReg.deviceId()))
         {
-            if (!connRegisterList.contains(mbReg.address()))
+            // TODO dev: Use different class from here on
+
+            auto slaveId = _pSettingsModel->deviceSettings(mbReg.deviceId())->slaveId();
+            ModbusAddress address =
+              ModbusAddress(slaveId, mbReg.address().protocolAddress(), mbReg.address().objectType());
+
+            if (!connRegisterList.contains(address))
             {
-                connRegisterList.append(mbReg.address());
+                connRegisterList.append(address);
             }
 
             /* When reading 32 bit value, also read next address */
             if (ModbusDataType::is32Bit(mbReg.type()))
             {
-                const auto reg = mbReg.address().next();
+                const auto reg = address.next();
                 if (!connRegisterList.contains(reg))
                 {
                     connRegisterList.append(reg);

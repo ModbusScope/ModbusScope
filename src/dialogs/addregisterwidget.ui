@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>227</width>
-    <height>256</height>
+    <height>263</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -67,7 +67,7 @@
        </widget>
       </item>
       <item row="4" column="0" colspan="2">
-       <widget class="QComboBox" name="cmbConnection"/>
+       <widget class="QComboBox" name="cmbDevice"/>
       </item>
       <item row="2" column="0" colspan="2">
        <widget class="QComboBox" name="cmbObjectType"/>

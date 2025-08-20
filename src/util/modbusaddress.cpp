@@ -1,19 +1,21 @@
 
 #include "modbusaddress.h"
 
-/* Also add value for UNKOWN */
+/* Also add value for UNKNOWN */
 const QList<quint16> ModbusAddress::cObjectTypeOffsets = QList<quint16>() << 0 << 10001 << 30001 << 40001 << 0;
 const QList<QChar> ModbusAddress::cObjectTypePrefix = QList<QChar>() << 'c' << 'd' << 'i' << 'h' << 'h';
 
 using ObjectType = ModbusAddress::ObjectType;
 
-ModbusAddress::ModbusAddress()
-    : _type(ModbusAddress::ObjectType::HOLDING_REGISTER)
+ModbusAddress::ModbusAddress() : _type(ModbusAddress::ObjectType::HOLDING_REGISTER)
 {
-
 }
 
-ModbusAddress::ModbusAddress(quint32 address, ObjectType type)
+ModbusAddress::ModbusAddress(quint32 address, ModbusAddress::ObjectType type) : ModbusAddress(1, address, type)
+{
+}
+
+ModbusAddress::ModbusAddress(slaveId_t slaveId, quint32 address, ObjectType type)
 {
     if (type == ObjectType::UNKNOWN)
     {
@@ -24,10 +26,12 @@ ModbusAddress::ModbusAddress(quint32 address, ObjectType type)
         _protocolAddress = static_cast<quint16>(address);
         _type = type;
     }
+
+    _slaveId = slaveId;
 }
 
-ModbusAddress::ModbusAddress(quint32 address)
-    : ModbusAddress(address, ObjectType::UNKNOWN)
+// TODO: dev (slave id not known in this constructor, dup of default)
+ModbusAddress::ModbusAddress(quint32 address) : ModbusAddress(1, address, ObjectType::UNKNOWN)
 {
 
 }
@@ -73,6 +77,11 @@ quint16 ModbusAddress::protocolAddress() const
     return _protocolAddress;
 }
 
+ModbusAddress::slaveId_t ModbusAddress::slaveId() const
+{
+    return _slaveId;
+}
+
 QString ModbusAddress::toString() const
 {
     QString typeStr;
@@ -86,7 +95,7 @@ QString ModbusAddress::toString() const
     case ObjectType::UNKNOWN: typeStr = QString("unknown"); break;
     }
 
-    return QString("%1, %2").arg(typeStr).arg(protocolAddress());
+    return QString("%1, %2, slave id %3").arg(typeStr).arg(protocolAddress()).arg(_slaveId);
 }
 
 ModbusAddress ModbusAddress::next() const
@@ -169,10 +178,8 @@ ModbusAddress::ObjectType ModbusAddress::convertFromOffset(quint32 address)
 
 bool operator== (const ModbusAddress& addr1, const ModbusAddress& addr2)
 {
-    if (
-        (addr1._protocolAddress == addr2._protocolAddress)
-        && (addr1._type == addr2._type)
-        )
+    if ((addr1._protocolAddress == addr2._protocolAddress) && (addr1._type == addr2._type) &&
+        (addr1._slaveId == addr2._slaveId))
     {
         return true;
     }

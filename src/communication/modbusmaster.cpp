@@ -9,7 +9,8 @@ Q_DECLARE_METATYPE(Result<quint16>);
 
 using State = ResultState::State;
 
-ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, quint8 connectionId) : QObject(nullptr), _connectionId(connectionId), _pSettingsModel(pSettingsModel)
+ModbusMaster::ModbusMaster(SettingsModel* pSettingsModel, connectionId_t connectionId)
+    : QObject(nullptr), _connectionId(connectionId), _pSettingsModel(pSettingsModel)
 {
     qMetaTypeId<Result<quint16> >();
 
@@ -29,7 +30,7 @@ ModbusMaster::~ModbusMaster()
     _modbusConnection.closeConnection();
 }
 
-void ModbusMaster::readRegisterList(QList<ModbusAddress> registerList)
+void ModbusMaster::readRegisterList(QList<ModbusAddress> registerList, quint8 consecutiveMax)
 {
     auto connData = _pSettingsModel->connectionSettings(_connectionId);
     if (_pSettingsModel->connectionState(_connectionId) == false)
@@ -49,7 +50,7 @@ void ModbusMaster::readRegisterList(QList<ModbusAddress> registerList)
     {
         logInfo("Register list read: " + dumpToString(registerList));
 
-        _readRegisters.resetRead(registerList, connData->consecutiveMax());
+        _readRegisters.resetRead(registerList, consecutiveMax);
 
         /* Open connection */
         if (connData->connectionType() == Connection::TYPE_SERIAL)
@@ -168,8 +169,7 @@ void ModbusMaster::handleTriggerNextRequest(void)
 
         logInfo("Partial list read: " + QString("Start address (%0) and count (%1)").arg(readItem.address().toString()).arg(readItem.count()));
 
-        _modbusConnection.sendReadRequest(readItem.address(), readItem.count(),
-                                          _pSettingsModel->connectionSettings(_connectionId)->slaveId());
+        _modbusConnection.sendReadRequest(readItem.address(), readItem.count());
     }
     else
     {
