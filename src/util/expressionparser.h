@@ -19,7 +19,7 @@ private:
     void parseExpressions(QStringList& expressions);
 
     bool parseAddress(QString strAddr, ModbusRegister& modbusReg);
-    bool parseDeviceId(QString strConnectionId, ModbusRegister& modbusReg);
+    bool parseDeviceId(QString strDeviceId, ModbusRegister& modbusReg);
     bool parseType(QString strType, ModbusRegister& modbusReg);
 
     QString processExpression(QString const & expr);
