@@ -4,7 +4,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Added 
 
-* xx
+* Warn when registers are selected, but not imported yet when closing import MBC dialog
 
 ### Fixed
 
