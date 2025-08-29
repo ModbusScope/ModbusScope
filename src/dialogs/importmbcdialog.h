@@ -35,13 +35,18 @@ private slots:
     void visibleItemsDataChanged();
     void registerDataChanged();
     void handleSelectAllClicked(Qt::CheckState state);
+
+protected:
+    void closeEvent(QCloseEvent* event) override;
     void dragEnterEvent(QDragEnterEvent* e) override;
     void dropEvent(QDropEvent* e) override;
+    void reject() override;
 
 private:
     void setSelectedSelectionstate(Qt::CheckState state);
     void updateMbcRegisters(QString filePath);
     void handleAcceptUpdate(const QModelIndex& index);
+    bool confirmClose();
 
     Ui::ImportMbcDialog *_pUi;
 
