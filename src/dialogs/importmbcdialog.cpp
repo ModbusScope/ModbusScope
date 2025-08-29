@@ -231,6 +231,27 @@ void ImportMbcDialog::dropEvent(QDropEvent* e)
     updateMbcRegisters(filename);
 }
 
+void ImportMbcDialog::closeEvent(QCloseEvent* event)
+{
+    if (confirmClose())
+    {
+        event->accept(); // allow window to close
+    }
+    else
+    {
+        event->ignore(); // block window close
+    }
+}
+
+void ImportMbcDialog::reject()
+{
+    if (confirmClose())
+    {
+        QDialog::reject(); // close via reject
+    }
+    // else: do nothing, dialog stays open
+}
+
 void ImportMbcDialog::setSelectedSelectionstate(Qt::CheckState state)
 {
     QList<QModelIndex> indexList;
@@ -294,4 +315,24 @@ void ImportMbcDialog::handleAcceptUpdate(const QModelIndex& index)
     {
         // nothing to do
     }
+}
+
+bool ImportMbcDialog::confirmClose()
+{
+    bool bClose = true;
+    if (_mbcRegisterModel.selectedRegisterCount() > 0)
+    {
+        auto reply = QMessageBox::question(
+          this, tr("Unimported registers"),
+          tr("Some registers are selected, but aren't imported yet.\n\nDo you really want to close this dialog?"),
+          QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+        bClose = reply == QMessageBox::Yes;
+
+        if (!bClose)
+        {
+            /* User has selected to NOT close the dialog, so switch to first tab */
+            _pUi->tabWidget->setCurrentIndex(0);
+        }
+    }
+    return bClose;
 }
