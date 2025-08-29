@@ -8,7 +8,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Fixed
 
-* xx
+* Always use light mode even when system is configured as dark mode ([Github #372](https://github.com/ModbusScope/ModbusScope/issues/372))
 
 ### Changed
 
