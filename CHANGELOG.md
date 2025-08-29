@@ -4,11 +4,11 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Added 
 
-* xx
+* Warn when registers are selected, but not imported yet when closing import MBC dialog
 
 ### Fixed
 
-* xx
+* Always use light mode even when system is configured as dark mode ([Github #372](https://github.com/ModbusScope/ModbusScope/issues/372))
 
 ### Changed
 
