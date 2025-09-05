@@ -109,7 +109,11 @@ void ModbusAddress::constructAddressFromNumber(quint32 address)
 
 void ModbusAddress::constructAddressFromStringWithType(QString addressWithtype)
 {
-    QChar prefix = addressWithtype.at(0);
+    QChar prefix = '\0';
+    if (addressWithtype.size() > 0)
+    {
+        prefix = addressWithtype.at(0);
+    }
     QString address = addressWithtype.mid(1);
 
     bool bOk = false;

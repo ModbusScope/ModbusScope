@@ -84,6 +84,21 @@ void TestModbusAddress::constructor_copy()
     QCOMPARE(addr.objectType(), ObjectType::HOLDING_REGISTER);
 }
 
+void TestModbusAddress::constructor_invalid_string()
+{
+    ModbusAddress addr_1("x12345");
+    QCOMPARE(addr_1.objectType(), ObjectType::UNKNOWN);
+    QCOMPARE(addr_1.protocolAddress(), 0);
+
+    ModbusAddress addr_2("hnotanumber");
+    QCOMPARE(addr_2.objectType(), ObjectType::UNKNOWN);
+    QCOMPARE(addr_2.protocolAddress(), 0);
+
+    ModbusAddress addr_3("");
+    QCOMPARE(addr_3.objectType(), ObjectType::UNKNOWN);
+    QCOMPARE(addr_3.protocolAddress(), 0);
+}
+
 void TestModbusAddress::addressFunctions_data()
 {
     QTest::addColumn<ModbusAddress>("modbusAddr");
@@ -124,6 +139,20 @@ void TestModbusAddress::addressFunctions()
 
     QCOMPARE(modbusAddr.fullAddress(), fullAddress);
     QCOMPARE(modbusAddr.protocolAddress(), protocolAddress);
+}
+
+void TestModbusAddress::equality_operator()
+{
+    ModbusAddress addr_1(40001);
+    ModbusAddress addr_2("40001");
+    QVERIFY(addr_1 == addr_2);
+
+    ModbusAddress addr_3(1, ObjectType::COIL);
+    ModbusAddress addr_4("c1");
+    QVERIFY(addr_3 == addr_4);
+
+    ModbusAddress addr_5(2, ObjectType::COIL);
+    QVERIFY(!(addr_3 == addr_5));
 }
 
 void TestModbusAddress::to_string()
