@@ -67,9 +67,9 @@ void TestModbusRegister::description()
     ModbusRegister reg_2(ModbusAddress(40002), Device::cFirstDeviceId + 1, Type::SIGNED_32);
     ModbusRegister reg_3(ModbusAddress(40003), Device::cFirstDeviceId + 1, Type::FLOAT_32);
 
-    QCOMPARE(reg_1.description(), "holding register, 0, slave id 1, unsigned 16-bit, device 1");
-    QCOMPARE(reg_2.description(), "holding register, 1, slave id 1, signed 32-bit, device 2");
-    QCOMPARE(reg_3.description(), "holding register, 2, slave id 1, 32-bit float, device 2");
+    QCOMPARE(reg_1.description(), "holding register, 0, unsigned 16-bit, device 1");
+    QCOMPARE(reg_2.description(), "holding register, 1, signed 32-bit, device 2");
+    QCOMPARE(reg_3.description(), "holding register, 2, 32-bit float, device 2");
 }
 
 void TestModbusRegister::processValue_16b_data()

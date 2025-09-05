@@ -1,7 +1,7 @@
 
 #include "modbusconnection.h"
 
-#include "util/modbusaddress.h"
+#include "util/modbusdataunit.h"
 #include "util/scopelogging.h"
 
 #include <QModbusRtuSerialClient>
@@ -91,7 +91,7 @@ void ModbusConnection::closeConnection(void)
  * \param size          number of registers
  * \param serverAddress     slave address
  */
-void ModbusConnection::sendReadRequest(ModbusAddress regAddress, quint16 size)
+void ModbusConnection::sendReadRequest(ModbusDataUnit regAddress, quint16 size)
 {
     if (isConnected())
     {
@@ -274,8 +274,8 @@ void ModbusConnection::handleRequestFinished()
         {
             QModbusDataUnit dataUnit = pReply->result();
             auto addr =
-              ModbusAddress(static_cast<ModbusAddress::slaveId_t>(pReply->serverAddress()),
-                            static_cast<quint16>(dataUnit.startAddress()), objectType(dataUnit.registerType()));
+              ModbusDataUnit(static_cast<quint16>(dataUnit.startAddress()), objectType(dataUnit.registerType()),
+                             static_cast<ModbusDataUnit::slaveId_t>(pReply->serverAddress()));
             emit readRequestSuccess(addr, dataUnit.values().toList());
         }
         else if (err == QModbusDevice::ProtocolError)

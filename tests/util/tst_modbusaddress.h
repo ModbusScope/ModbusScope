@@ -21,12 +21,6 @@ private slots:
 
     void to_string();
     void to_string_coil();
-    void next_and_compare();
-
-    void greater();
-    void smaller();
-
-    void sort_large_object_address();
 
 private:
 

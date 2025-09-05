@@ -30,7 +30,7 @@ ModbusMaster::~ModbusMaster()
     _modbusConnection.closeConnection();
 }
 
-void ModbusMaster::readRegisterList(QList<ModbusAddress> registerList, quint8 consecutiveMax)
+void ModbusMaster::readRegisterList(QList<ModbusDataUnit> registerList, quint8 consecutiveMax)
 {
     auto connData = _pSettingsModel->connectionSettings(_connectionId);
     if (_pSettingsModel->connectionState(_connectionId) == false)
@@ -105,7 +105,7 @@ void ModbusMaster::handlerConnectionError(QModbusDevice::Error error, QString ms
     finishRead(true);
 }
 
-void ModbusMaster::handleRequestSuccess(ModbusAddress startRegister, QList<quint16> registerDataList)
+void ModbusMaster::handleRequestSuccess(ModbusDataUnit startRegister, QList<quint16> registerDataList)
 {
     logInfo(QString("Read success"));
 
@@ -211,7 +211,7 @@ QString ModbusMaster::dumpToString(ModbusResultMap map) const
     return str;
 }
 
-QString ModbusMaster::dumpToString(QList<ModbusAddress> list) const
+QString ModbusMaster::dumpToString(QList<ModbusDataUnit> list) const
 {
     QString str;
     QDebug dStream(&str);

@@ -8,12 +8,11 @@
 class ModbusReadItem
 {
 public:
-    ModbusReadItem(ModbusAddress address, quint8 count) :
-        _address(address), _count(count)
+    ModbusReadItem(ModbusDataUnit address, quint8 count) : _address(address), _count(count)
     {
     }
 
-    ModbusAddress address() const
+    ModbusDataUnit address() const
     {
         return _address;
     }
@@ -23,7 +22,7 @@ public:
     }
 
 private:
-    ModbusAddress _address;
+    ModbusDataUnit _address;
     quint8 _count{};
 
 };
@@ -34,12 +33,12 @@ class ReadRegisters
 public:
     ReadRegisters();
 
-    void resetRead(QList<ModbusAddress> registerList, quint16 consecutiveMax);
+    void resetRead(QList<ModbusDataUnit> registerList, quint16 consecutiveMax);
 
     bool hasNext();
     ModbusReadItem next();
 
-    void addSuccess(ModbusAddress startRegister, QList<quint16> registerDataList);
+    void addSuccess(ModbusDataUnit startRegister, QList<quint16> registerDataList);
     void addError();
     void addAllErrors();
     void splitNextToSingleReads();

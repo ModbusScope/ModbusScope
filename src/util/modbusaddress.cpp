@@ -11,11 +11,7 @@ ModbusAddress::ModbusAddress() : _type(ModbusAddress::ObjectType::HOLDING_REGIST
 {
 }
 
-ModbusAddress::ModbusAddress(quint32 address, ModbusAddress::ObjectType type) : ModbusAddress(1, address, type)
-{
-}
-
-ModbusAddress::ModbusAddress(slaveId_t slaveId, quint32 address, ObjectType type)
+ModbusAddress::ModbusAddress(quint32 address, ObjectType type)
 {
     if (type == ObjectType::UNKNOWN)
     {
@@ -26,12 +22,9 @@ ModbusAddress::ModbusAddress(slaveId_t slaveId, quint32 address, ObjectType type
         _protocolAddress = static_cast<quint16>(address);
         _type = type;
     }
-
-    _slaveId = slaveId;
 }
 
-// TODO: dev (slave id not known in this constructor, dup of default)
-ModbusAddress::ModbusAddress(quint32 address) : ModbusAddress(1, address, ObjectType::UNKNOWN)
+ModbusAddress::ModbusAddress(quint32 address) : ModbusAddress(address, ObjectType::UNKNOWN)
 {
 
 }
@@ -77,11 +70,6 @@ quint16 ModbusAddress::protocolAddress() const
     return _protocolAddress;
 }
 
-ModbusAddress::slaveId_t ModbusAddress::slaveId() const
-{
-    return _slaveId;
-}
-
 QString ModbusAddress::toString() const
 {
     QString typeStr;
@@ -95,21 +83,12 @@ QString ModbusAddress::toString() const
     case ObjectType::UNKNOWN: typeStr = QString("unknown"); break;
     }
 
-    return QString("%1, %2, slave id %3").arg(typeStr).arg(protocolAddress()).arg(_slaveId);
+    return QString("%1, %2").arg(typeStr).arg(protocolAddress());
 }
 
-ModbusAddress ModbusAddress::next() const
+bool operator==(const ModbusAddress& unit1, const ModbusAddress& unit2)
 {
-    return next(1);
-}
-
-ModbusAddress ModbusAddress::next(int i) const
-{
-    ModbusAddress nextAddres(*this);
-
-    nextAddres._protocolAddress += i;
-
-    return nextAddres;
+    return unit1._protocolAddress == unit2._protocolAddress && unit1._type == unit2._type;
 }
 
 void ModbusAddress::constructAddressFromNumber(quint32 address)
@@ -175,63 +154,3 @@ ModbusAddress::ObjectType ModbusAddress::convertFromOffset(quint32 address)
 
     return type;
 }
-
-bool operator== (const ModbusAddress& addr1, const ModbusAddress& addr2)
-{
-    if ((addr1._protocolAddress == addr2._protocolAddress) && (addr1._type == addr2._type) &&
-        (addr1._slaveId == addr2._slaveId))
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-bool operator< (const ModbusAddress& reg1, const ModbusAddress& reg2)
-{
-    if (reg1._type < reg2._type)
-    {
-        return true;
-    }
-    else if (reg1._type == reg2._type)
-    {
-        if (reg1._protocolAddress < reg2._protocolAddress)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    else
-    {
-        return false;
-    }
-}
-
-bool operator> (const ModbusAddress& reg1, const ModbusAddress& reg2)
-{
-    if (reg1._type > reg2._type)
-    {
-        return true;
-    }
-    else if (reg1._type == reg2._type)
-    {
-        if (reg1._protocolAddress > reg2._protocolAddress)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    else
-    {
-        return false;
-    }
-}
-

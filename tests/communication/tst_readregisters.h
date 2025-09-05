@@ -2,7 +2,7 @@
 #ifndef TEST_READREGISTERS_H__
 #define TEST_READREGISTERS_H__
 
-#include "util/modbusaddress.h"
+#include "util/modbusdataunit.h"
 
 #include <QObject>
 
@@ -37,9 +37,7 @@ private slots:
     void addSuccessAndErrors();
 
 private:
-
-    void verifyAndAddErrorResult(ReadRegisters& readRegister, ModbusAddress addr, quint16 cnt);
-
+    void verifyAndAddErrorResult(ReadRegisters& readRegister, ModbusDataUnit addr, quint16 cnt);
 };
 
 #endif /* TEST_READREGISTERS_H__ */
