@@ -21,35 +21,27 @@ public:
 
     ModbusAddress();
     ModbusAddress(quint32 address, ModbusAddress::ObjectType type);
-    ModbusAddress(slaveId_t slaveId, quint32 address, ModbusAddress::ObjectType type);
     explicit ModbusAddress(quint32 address);
     explicit ModbusAddress(QString address);
     ModbusAddress(const ModbusAddress& t) = default;
-
     ~ModbusAddress() = default;
 
     ModbusAddress::ObjectType objectType() const;
     QString fullAddress() const;
     quint16 protocolAddress() const;
-    slaveId_t slaveId() const;
 
     QString toString() const;
 
-    ModbusAddress next() const;
-    ModbusAddress next(int i) const;
+    friend bool operator==(const ModbusAddress& unit1, const ModbusAddress& unit2);
 
-    friend bool operator==(const ModbusAddress& reg1, const ModbusAddress& reg2);
-    friend bool operator<(const ModbusAddress& reg1, const ModbusAddress& reg2);
-    friend bool operator>(const ModbusAddress& reg1, const ModbusAddress& reg2);
+protected:
+    quint16 _protocolAddress{ 0 };
+    ObjectType _type{ ObjectType::UNKNOWN };
 
 private:
     void constructAddressFromNumber(quint32 address);
     void constructAddressFromStringWithType(QString addressWithtype);
     ModbusAddress::ObjectType convertFromOffset(quint32 address);
-
-    quint16 _protocolAddress{ 0 };
-    ObjectType _type{ ObjectType::UNKNOWN };
-    slaveId_t _slaveId{ 1 }; // TODO: Is this the correct class, split this?
 
     static const QList<quint16> cObjectTypeOffsets;
     static const QList<QChar> cObjectTypePrefix;

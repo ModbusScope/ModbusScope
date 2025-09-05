@@ -191,11 +191,11 @@ void ModbusPoll::triggerRegisterRead()
 
         _activeMastersCount = 0;
 
-        QList<QList<ModbusAddress> > regAddrList;
+        QList<QList<ModbusDataUnit> > regAddrList;
 
         for (connectionId_t i = 0u; i < ConnectionId::ID_CNT; i++)
         {
-            regAddrList.append(QList<ModbusAddress>());
+            regAddrList.append(QList<ModbusDataUnit>());
 
             _pRegisterValueHandler->registerAddresListForConnection(regAddrList.last(), i);
 

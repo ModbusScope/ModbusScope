@@ -130,70 +130,14 @@ void TestModbusAddress::to_string()
 {
     ModbusAddress addr(40011);
 
-    QCOMPARE(addr.toString(), "holding register, 10, slave id 1");
+    QCOMPARE(addr.toString(), "holding register, 10");
 }
 
 void TestModbusAddress::to_string_coil()
 {
     ModbusAddress addr(1);
 
-    QCOMPARE(addr.toString(), "coil, 1, slave id 1");
-}
-
-void TestModbusAddress::next_and_compare()
-{
-    ModbusAddress addr(40001);
-
-    QCOMPARE(addr.next(), ModbusAddress(40002));
-    QCOMPARE(addr.next(1), ModbusAddress(40002));
-    QCOMPARE(addr.next(2), ModbusAddress(40003));
-}
-
-void TestModbusAddress::greater()
-{
-    ModbusAddress addr_1(0, ObjectType::COIL);
-    ModbusAddress addr_2(1, ObjectType::COIL);
-    ModbusAddress addr_3(0, ObjectType::HOLDING_REGISTER);
-    ModbusAddress addr_4(2, ObjectType::HOLDING_REGISTER);
-
-    QVERIFY(addr_2 > addr_1);
-    QVERIFY(!(addr_1 > addr_2));
-
-    QVERIFY(addr_3 > addr_1);
-
-    QVERIFY(addr_4 > addr_3);
-    QVERIFY(!(addr_3 > addr_4));
-}
-
-void TestModbusAddress::smaller()
-{
-    ModbusAddress addr_1(0, ObjectType::COIL);
-    ModbusAddress addr_2(1, ObjectType::COIL);
-    ModbusAddress addr_3(0, ObjectType::HOLDING_REGISTER);
-    ModbusAddress addr_4(2, ObjectType::HOLDING_REGISTER);
-
-    QVERIFY(addr_1 < addr_2);
-    QVERIFY(!(addr_2 < addr_1));
-
-    QVERIFY(addr_1 < addr_3);
-
-    QVERIFY(addr_3 < addr_4);
-    QVERIFY(!(addr_4 < addr_3));
-}
-
-void TestModbusAddress::sort_large_object_address()
-{
-    auto act_addrList = QList<ModbusAddress>() << ModbusAddress(0, ObjectType::HOLDING_REGISTER)
-                                               << ModbusAddress(40200, ObjectType::COIL); // Large coil address
-
-
-    auto exp_addrList = QList<ModbusAddress>() << ModbusAddress(40200, ObjectType::COIL) // Coils always come first
-                                               << ModbusAddress(0, ObjectType::HOLDING_REGISTER);
-
-
-    std::sort(act_addrList.begin(), act_addrList.end(), std::less<ModbusAddress>());
-
-    QCOMPARE(act_addrList, exp_addrList);
+    QCOMPARE(addr.toString(), "coil, 1");
 }
 
 QTEST_GUILESS_MAIN(TestModbusAddress)

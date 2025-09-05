@@ -4,7 +4,7 @@
 #include <QSignalSpy>
 #include <QTest>
 
-Q_DECLARE_METATYPE(ModbusAddress);
+Q_DECLARE_METATYPE(ModbusDataUnit);
 
 void TestModbusConnection::init()
 {
@@ -141,7 +141,7 @@ void TestModbusConnection::readRequestSuccess()
     QSignalSpy spyResultProtocolError(pConnection, &ModbusConnection::readRequestProtocolError);
     QSignalSpy spyResultError(pConnection, &ModbusConnection::readRequestError);
 
-    pConnection->sendReadRequest(ModbusAddress(40001), 2);
+    pConnection->sendReadRequest(ModbusDataUnit(40001), 2);
 
     QVERIFY(spyResultSuccess.wait(100));
     QCOMPARE(spyResultSuccess.count(), 1);
@@ -153,8 +153,8 @@ void TestModbusConnection::readRequestSuccess()
 
 
     /* Check start address */
-    QVERIFY((arguments[0].canConvert<ModbusAddress>()));
-    auto resultAddr = arguments[0].value<ModbusAddress>();
+    QVERIFY((arguments[0].canConvert<ModbusDataUnit>()));
+    auto resultAddr = arguments[0].value<ModbusDataUnit>();
     QCOMPARE(resultAddr.fullAddress(), "40001");
 
     /* Check result */
@@ -192,7 +192,7 @@ void TestModbusConnection::readRequestProtocolError()
     QSignalSpy spyResultProtocolError(pConnection, &ModbusConnection::readRequestProtocolError);
     QSignalSpy spyResultError(pConnection, &ModbusConnection::readRequestError);
 
-    pConnection->sendReadRequest(ModbusAddress(40001), 2);
+    pConnection->sendReadRequest(ModbusDataUnit(40001), 2);
 
     QVERIFY(spyResultProtocolError.wait(100));
     QCOMPARE(spyResultSuccess.count(), 0);
