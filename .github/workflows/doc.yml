@@ -10,14 +10,14 @@ jobs:
     container:
       image: docker://jgeudens/doc-latex:20250124_build_1
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5.0
 
       - name: Build doc
         run: |
           sh create_doc.sh
           mv docs/manual/_build/latex/modbusscope.pdf modbusscope-user-manual.pdf
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4.6
         with:
           name: modbusscope-user-manual
           path: modbusscope-user-manual.pdf
