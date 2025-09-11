@@ -1,6 +1,6 @@
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/ModbusScope/ModbusScope/releases).
 
-## [Unreleased]
+## [v4.1.1](https://github.com/jgeudens/ModbusScope/releases/tag/4.1.1) (11/09/2025)
 
 ### Added 
 
@@ -9,14 +9,6 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 ### Fixed
 
 * Always use light mode even when system is configured as dark mode ([Github #372](https://github.com/ModbusScope/ModbusScope/issues/372))
-
-### Changed
-
-* xx
-
-### Removed
-
-* xx
 
 ## [v4.1.0](https://github.com/jgeudens/ModbusScope/releases/tag/4.1.0) (03/07/2025)
 
