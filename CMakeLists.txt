@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.19)
 project(modbusscope
     LANGUAGES CXX
     DESCRIPTION "Create logs from value read via Modbus"
-    VERSION 4.1.1
+    VERSION 4.2.0
 )
 
 add_definitions("-DDEBUG")
