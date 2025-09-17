@@ -18,6 +18,16 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 * xx
 
+## [v4.1.1](https://github.com/jgeudens/ModbusScope/releases/tag/4.1.1) (11/09/2025)
+
+### Added 
+
+* Warn when registers are selected, but not imported yet when closing import MBC dialog
+
+### Fixed
+
+* Always use light mode even when system is configured as dark mode ([Github #372](https://github.com/ModbusScope/ModbusScope/issues/372))
+
 ## [v4.1.0](https://github.com/jgeudens/ModbusScope/releases/tag/4.1.0) (03/07/2025)
 
 ### Added 

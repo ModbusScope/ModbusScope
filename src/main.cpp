@@ -7,6 +7,11 @@
 
 int main(int argc, char *argv[])
 {
+#ifdef WIN32
+    // TODO: When porting to Qt 6.8, replace with QStyleHints::setColorScheme(Qt::ColorScheme scheme)
+    qputenv("QT_QPA_PLATFORM", "windows:darkmode=0");
+#endif
+
     QApplication a(argc, argv);
     QCoreApplication::setOrganizationName("ModbusScope");
     QCoreApplication::setApplicationName("ModbusScope");
