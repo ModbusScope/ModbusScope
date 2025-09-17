@@ -10,7 +10,7 @@ jobs:
     container:
       image: docker://jgeudens/qt-linux:6.7.3_build_2
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5.0.0
 
       - name: Start display server
         run: bash /start.sh &
@@ -24,7 +24,7 @@ jobs:
       - name: Deploy
         run: bash scripts/deploy_linux.sh
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4.6.2
         with:
           name: modbusscope-linux
           path: ModbusScope*.AppImage
@@ -33,14 +33,14 @@ jobs:
     runs-on: windows-2022
     
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5.0.0
 
       - name: Install Qt installer
         run: pip3 install aqtinstall==3.2.0
 
       # Cache go build cache, used to speedup go test
       - name: Qt Build Cache
-        uses: actions/cache@v4
+        uses: actions/cache@v4.2.4
         id: cache
         with:
           path: ${{ github.workspace }}\Qt
@@ -50,7 +50,7 @@ jobs:
         shell: cmd
         run: scripts\full_build_and_deploy_windows.bat '${{ steps.cache.outputs.cache-hit }}' ${{ github.workspace }}\Qt
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4.6.2
         with:
           name: modbusscope-windows
           path: |

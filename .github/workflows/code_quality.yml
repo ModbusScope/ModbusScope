@@ -15,7 +15,7 @@ jobs:
     container: docker://jgeudens/qt-linux:6.7.3_build_2
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v5.0.0
 
     - name: Start display server
       run: bash /start.sh &
@@ -49,7 +49,7 @@ jobs:
     env:
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v5.0.0
       with:
         # Disabling shallow clone is recommended for improving relevancy of reporting
         fetch-depth: 0
