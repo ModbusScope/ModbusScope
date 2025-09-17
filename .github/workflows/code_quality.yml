@@ -13,6 +13,7 @@ jobs:
   coverage:
     runs-on: ubuntu-latest
     container: docker://jgeudens/qt-linux:6.7.3_build_2
+    if: github.actor!= 'dependabot-preview[bot]'
     steps:
     - name: Checkout
       uses: actions/checkout@v5
@@ -46,7 +47,7 @@ jobs:
   sonarqube:
     runs-on: ubuntu-latest
     container: docker://jgeudens/qt-linux:6.7.3_build_2
-    if: ${{ secrets.SONAR_TOKEN && secrets.GITHUB_TOKEN }}
+    if: github.actor!= 'dependabot-preview[bot]'
     env:
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
     steps:
