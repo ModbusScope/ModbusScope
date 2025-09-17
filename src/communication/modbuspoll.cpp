@@ -66,11 +66,7 @@ void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
             QString str;
             if (connData->connectionType() == Connection::TYPE_TCP)
             {
-                str = QString("[Conn %0] %1:%2 - slave id %3")
-                        .arg(i + 1)
-                        .arg(connData->ipAddress())
-                        .arg(connData->port())
-                        .arg(connData->slaveId());
+                str = QString("[Conn %0] %1:%2").arg(i + 1).arg(connData->ipAddress()).arg(connData->port());
             }
             else
             {
@@ -79,14 +75,12 @@ void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
                 QString strStopBits;
                 connData->serialConnectionStrings(strParity, strDataBits, strStopBits);
 
-                str = QString("[Conn %0] %1, %2, %3, %4, %5 - slave id %6")
+                str = QString("[Conn %0] %1, %2, %3, %4, %5")
                         .arg(i + 1)
                         .arg(connData->portName())
                         .arg(connData->baudrate())
-                        .arg(strParity, strDataBits, strStopBits)
-                        .arg(connData->slaveId());
+                        .arg(strParity, strDataBits, strStopBits);
             }
-
             qCInfo(scopeCommConnection) << str;
         }
     }
@@ -99,7 +93,7 @@ void ModbusPoll::resetCommunicationStats()
     _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 }
 
-void ModbusPoll::handlePollDone(ModbusResultMap partialResultMap, quint8 connectionId)
+void ModbusPoll::handlePollDone(ModbusResultMap partialResultMap, connectionId_t connectionId)
 {
     bool lastResult = false;
 
@@ -197,13 +191,13 @@ void ModbusPoll::triggerRegisterRead()
 
         _activeMastersCount = 0;
 
-        QList<QList<ModbusAddress> > regAddrList;
+        QList<QList<ModbusDataUnit> > regAddrList;
 
-        for (quint8 i = 0u; i < ConnectionId::ID_CNT; i++)
+        for (connectionId_t i = 0u; i < ConnectionId::ID_CNT; i++)
         {
-            regAddrList.append(QList<ModbusAddress>());
+            regAddrList.append(QList<ModbusDataUnit>());
 
-            _pRegisterValueHandler->registerAddresList(regAddrList.last(), i);
+            _pRegisterValueHandler->registerAddresListForConnection(regAddrList.last(), i);
 
             if (regAddrList.last().count() > 0)
             {
@@ -211,12 +205,13 @@ void ModbusPoll::triggerRegisterRead()
             }
         }
 
-        for (quint8 i = 0u; i < ConnectionId::ID_CNT; i++)
+        for (connectionId_t i = 0u; i < ConnectionId::ID_CNT; i++)
         {
             if (regAddrList.at(i).count() > 0)
             {
+                quint8 consecutiveMax = lowestConsecutiveMaxForConnection(i);
                 _modbusMasters[i]->bActive = true;
-                _modbusMasters[i]->pModbusMaster->readRegisterList(regAddrList.at(i));
+                _modbusMasters[i]->pModbusMaster->readRegisterList(regAddrList.at(i), consecutiveMax);
             }
         }
 
@@ -228,3 +223,17 @@ void ModbusPoll::triggerRegisterRead()
     }
 }
 
+quint8 ModbusPoll::lowestConsecutiveMaxForConnection(connectionId_t connId) const
+{
+    quint8 consecutiveMax = 128;
+    QList<deviceId_t> devList = _pSettingsModel->deviceListForConnection(connId);
+    for (deviceId_t devId : std::as_const(devList))
+    {
+        quint8 devConsecutiveMax = _pSettingsModel->deviceSettings(devId)->consecutiveMax();
+        if (devConsecutiveMax < consecutiveMax)
+        {
+            consecutiveMax = devConsecutiveMax;
+        }
+    }
+    return consecutiveMax;
+}

@@ -8,6 +8,7 @@
 
 #include "communication/modbusconnection.h"
 #include "communication/readregisters.h"
+#include "models/connectiontypes.h"
 #include "util/modbusresultmap.h"
 
 /* Forward declaration */
@@ -17,15 +18,15 @@ class ModbusMaster : public QObject
 {
     Q_OBJECT
 public:
-    explicit ModbusMaster(SettingsModel * pSettingsModel, quint8 connectionId);
+    explicit ModbusMaster(SettingsModel* pSettingsModel, connectionId_t connectionId);
     virtual ~ModbusMaster();
 
-    void readRegisterList(QList<ModbusAddress> registerList);
+    void readRegisterList(QList<ModbusDataUnit> registerList, quint8 consecutiveMax);
 
     void cleanUp();
 
 signals:
-    void modbusPollDone(ModbusResultMap modbusResults, quint8 connectionId);
+    void modbusPollDone(ModbusResultMap modbusResults, connectionId_t connectionId);
     void modbusLogError(QString msg);
     void modbusLogInfo(QString msg);
     void triggerNextRequest();
@@ -34,7 +35,7 @@ private slots:
     void handleConnectionOpened();
     void handlerConnectionError(QModbusDevice::Error error, QString msg);
 
-    void handleRequestSuccess(ModbusAddress startRegister, QList<quint16> registerDataList);
+    void handleRequestSuccess(ModbusDataUnit startRegister, QList<quint16> registerDataList);
     void handleRequestProtocolError(QModbusPdu::ExceptionCode exceptionCode);
     void handleRequestError(QString errorString, QModbusDevice::Error error);
 
@@ -43,7 +44,7 @@ private slots:
 private:
     void finishRead(bool bError);
     QString dumpToString(ModbusResultMap map) const;
-    QString dumpToString(QList<ModbusAddress> list) const;
+    QString dumpToString(QList<ModbusDataUnit> list) const;
 
     void logResults(const ModbusResultMap &results);
 

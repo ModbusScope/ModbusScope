@@ -1,16 +1,14 @@
 
 #include "modbusaddress.h"
 
-/* Also add value for UNKOWN */
+/* Also add value for UNKNOWN */
 const QList<quint16> ModbusAddress::cObjectTypeOffsets = QList<quint16>() << 0 << 10001 << 30001 << 40001 << 0;
 const QList<QChar> ModbusAddress::cObjectTypePrefix = QList<QChar>() << 'c' << 'd' << 'i' << 'h' << 'h';
 
 using ObjectType = ModbusAddress::ObjectType;
 
-ModbusAddress::ModbusAddress()
-    : _type(ModbusAddress::ObjectType::HOLDING_REGISTER)
+ModbusAddress::ModbusAddress() : _type(ModbusAddress::ObjectType::HOLDING_REGISTER)
 {
-
 }
 
 ModbusAddress::ModbusAddress(quint32 address, ObjectType type)
@@ -26,8 +24,7 @@ ModbusAddress::ModbusAddress(quint32 address, ObjectType type)
     }
 }
 
-ModbusAddress::ModbusAddress(quint32 address)
-    : ModbusAddress(address, ObjectType::UNKNOWN)
+ModbusAddress::ModbusAddress(quint32 address) : ModbusAddress(address, ObjectType::UNKNOWN)
 {
 
 }
@@ -89,18 +86,9 @@ QString ModbusAddress::toString() const
     return QString("%1, %2").arg(typeStr).arg(protocolAddress());
 }
 
-ModbusAddress ModbusAddress::next() const
+bool operator==(const ModbusAddress& unit1, const ModbusAddress& unit2)
 {
-    return next(1);
-}
-
-ModbusAddress ModbusAddress::next(int i) const
-{
-    ModbusAddress nextAddres(*this);
-
-    nextAddres._protocolAddress += i;
-
-    return nextAddres;
+    return unit1._protocolAddress == unit2._protocolAddress && unit1._type == unit2._type;
 }
 
 void ModbusAddress::constructAddressFromNumber(quint32 address)
@@ -121,7 +109,11 @@ void ModbusAddress::constructAddressFromNumber(quint32 address)
 
 void ModbusAddress::constructAddressFromStringWithType(QString addressWithtype)
 {
-    QChar prefix = addressWithtype.at(0);
+    QChar prefix = '\0';
+    if (addressWithtype.size() > 0)
+    {
+        prefix = addressWithtype.at(0);
+    }
     QString address = addressWithtype.mid(1);
 
     bool bOk = false;
@@ -166,65 +158,3 @@ ModbusAddress::ObjectType ModbusAddress::convertFromOffset(quint32 address)
 
     return type;
 }
-
-bool operator== (const ModbusAddress& addr1, const ModbusAddress& addr2)
-{
-    if (
-        (addr1._protocolAddress == addr2._protocolAddress)
-        && (addr1._type == addr2._type)
-        )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-bool operator< (const ModbusAddress& reg1, const ModbusAddress& reg2)
-{
-    if (reg1._type < reg2._type)
-    {
-        return true;
-    }
-    else if (reg1._type == reg2._type)
-    {
-        if (reg1._protocolAddress < reg2._protocolAddress)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    else
-    {
-        return false;
-    }
-}
-
-bool operator> (const ModbusAddress& reg1, const ModbusAddress& reg2)
-{
-    if (reg1._type > reg2._type)
-    {
-        return true;
-    }
-    else if (reg1._type == reg2._type)
-    {
-        if (reg1._protocolAddress > reg2._protocolAddress)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    else
-    {
-        return false;
-    }
-}
-

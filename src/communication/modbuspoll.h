@@ -44,14 +44,15 @@ signals:
     void registerDataReady(ResultDoubleList registers);
 
 private slots:
-    void handlePollDone(ModbusResultMap partialResultMap, quint8 connectionId);
+    void handlePollDone(ModbusResultMap partialResultMap, connectionId_t connectionId);
     void handleModbusError(QString msg);
     void handleModbusInfo(QString msg);
     void triggerRegisterRead();
 
 private:
+    quint8 lowestConsecutiveMaxForConnection(connectionId_t connId) const;
 
-    QList<ModbusMasterData *> _modbusMasters;
+    QList<ModbusMasterData*> _modbusMasters;
     quint32 _activeMastersCount;
 
     bool _bPollActive;

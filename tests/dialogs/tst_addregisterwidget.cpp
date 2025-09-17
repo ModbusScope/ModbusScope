@@ -53,15 +53,15 @@ void TestAddRegisterWidget::registerObjectType()
     QCOMPARE(graphData.expression(), "${30001}");
 }
 
-void TestAddRegisterWidget::registerConnection()
+void TestAddRegisterWidget::registerDevice()
 {
     delete _pRegWidget;
 
-    _settingsModel.setConnectionState(ConnectionId::ID_2, true);
+    _settingsModel.addDevice(2);
 
     _pRegWidget = new AddRegisterWidget(&_settingsModel);
 
-    QTest::keyClick(_pRegWidget->_pUi->cmbConnection, Qt::Key_Down);
+    QTest::keyClick(_pRegWidget->_pUi->cmbDevice, Qt::Key_Down);
 
     GraphData graphData;
     addRegister(graphData);

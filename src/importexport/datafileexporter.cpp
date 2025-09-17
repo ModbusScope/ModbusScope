@@ -298,14 +298,17 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
         {
             if (_pSettingsModel->connectionState(i))
             {
-                auto connData = _pSettingsModel->connectionSettings(i);
+                // auto connData = _pSettingsModel->connectionSettings(i);
                 header.append(comment + constructConnSettings(i));
+#if 0
+TODO: dev
                 header.append(comment + "Slave ID (Connection ID " + QString::number(i + 1) + ")" +
                               Util::separatorCharacter() + QString::number(connData->slaveId()));
                 header.append(comment + "Time-out (Connection ID " + QString::number(i + 1) + ")" +
                               Util::separatorCharacter() + QString::number(connData->timeout()));
                 header.append(comment + "Consecutive max (Connection ID " + QString::number(i + 1) + ")" +
                               Util::separatorCharacter() + QString::number(connData->consecutiveMax()));
+#endif
             }
         }
 
@@ -337,7 +340,7 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
     return header;
 }
 
-QString DataFileExporter::constructConnSettings(quint8 connectionId)
+QString DataFileExporter::constructConnSettings(connectionId_t connectionId)
 {
     QString strSettings;
     auto connData = _pSettingsModel->connectionSettings(connectionId);

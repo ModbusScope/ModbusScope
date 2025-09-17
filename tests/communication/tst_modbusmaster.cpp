@@ -21,7 +21,6 @@ void TestModbusMaster::init()
     connData->setIpAddress("127.0.0.1");
     connData->setPort(5020);
     connData->setTimeout(500);
-    connData->setSlaveId(1);
 
     _serverConnectionData.setPort(connData->port());
     _serverConnectionData.setHost(connData->ipAddress());
@@ -40,8 +39,7 @@ void TestModbusMaster::init()
     _testSlaveData[QModbusDataUnit::HoldingRegisters] = new TestSlaveData();
     _pTestSlaveModbus = new TestSlaveModbus(_testSlaveData);
 
-    QVERIFY(_pTestSlaveModbus->connect(_serverConnectionData,
-                                       _settingsModel.connectionSettings(ConnectionId::ID_1)->slaveId()));
+    QVERIFY(_pTestSlaveModbus->connect(_serverConnectionData, _settingsModel.deviceSettings(0)->slaveId()));
 }
 
 void TestModbusMaster::cleanup()
@@ -62,12 +60,12 @@ void TestModbusMaster::singleRequestSuccess()
 
     ModbusMaster modbusMaster(&_settingsModel, ConnectionId::ID_1);
 
-    auto registerList = QList<ModbusAddress>() << ModbusAddress(40001);
+    auto registerList = QList<ModbusDataUnit>() << ModbusDataUnit(40001);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         QVERIFY(spyModbusPollDone.wait(100));
         QCOMPARE(spyModbusPollDone.count(), 1);
@@ -80,8 +78,8 @@ void TestModbusMaster::singleRequestSuccess()
         ModbusResultMap result = varResultList.value<ModbusResultMap >();
         QCOMPARE(result.size(), 1);
 
-        QVERIFY(result[ModbusAddress(40001)].isValid());
-        QCOMPARE(result[ModbusAddress(40001)].value(), static_cast<quint32>(0));
+        QVERIFY(result[ModbusDataUnit(40001)].isValid());
+        QCOMPARE(result[ModbusDataUnit(40001)].value(), static_cast<quint32>(0));
     }
 }
 
@@ -91,10 +89,10 @@ void TestModbusMaster::singleRequestEmpty()
 
     ModbusMaster modbusMaster(&_settingsModel, ConnectionId::ID_1);
 
-    QList<ModbusAddress> registerList;
+    QList<ModbusDataUnit> registerList;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
-    modbusMaster.readRegisterList(registerList);
+    modbusMaster.readRegisterList(registerList, 128);
 
     QCOMPARE(spyModbusPollDone.count(), 1);
 
@@ -113,11 +111,11 @@ void TestModbusMaster::singleRequestGatewayNotAvailable()
 
     ModbusMaster modbusMaster(&_settingsModel, ConnectionId::ID_1);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
-    auto registerList = QList<ModbusAddress>() << ModbusAddress(40001);
+    auto registerList = QList<ModbusDataUnit>() << ModbusDataUnit(40001);
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         QVERIFY(spyModbusPollDone.wait(100));
         QCOMPARE(spyModbusPollDone.count(), 1);
@@ -130,7 +128,7 @@ void TestModbusMaster::singleRequestGatewayNotAvailable()
         ModbusResultMap result = varResultList.value<ModbusResultMap >();
         QCOMPARE(result.size(), 1);
 
-        QVERIFY(result[ModbusAddress(40001)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40001)].isValid() == false);
     }
 }
 
@@ -140,12 +138,12 @@ void TestModbusMaster::singleRequestNoResponse()
 
     ModbusMaster modbusMaster(&_settingsModel, ConnectionId::ID_1);
 
-    auto registerList = QList<ModbusAddress>() << ModbusAddress(40001);
+    auto registerList = QList<ModbusDataUnit>() << ModbusDataUnit(40001);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         auto connData = _settingsModel.connectionSettings(ConnectionId::ID_1);
         spyModbusPollDone.wait(static_cast<int>(connData->timeout()) + 100);
@@ -159,7 +157,7 @@ void TestModbusMaster::singleRequestNoResponse()
         ModbusResultMap result = varResultList.value<ModbusResultMap >();
         QCOMPARE(result.size(), 1);
 
-        QVERIFY(result[ModbusAddress(40001)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40001)].isValid() == false);
     }
 }
 
@@ -168,7 +166,8 @@ void TestModbusMaster::singleRequestInvalidAddressOnce()
     ModbusMaster modbusMaster(&_settingsModel, ConnectionId::ID_1);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
-    auto registerList = QList<ModbusAddress>() << ModbusAddress(40001) << ModbusAddress(40002) << ModbusAddress(40003);
+    auto registerList = QList<ModbusDataUnit>()
+                        << ModbusDataUnit(40001) << ModbusDataUnit(40002) << ModbusDataUnit(40003);
 
     _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(0, false);
     _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(1, true);
@@ -179,7 +178,7 @@ void TestModbusMaster::singleRequestInvalidAddressOnce()
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         QVERIFY(spyModbusPollDone.wait(100));
         QCOMPARE(spyModbusPollDone.count(), 1);
@@ -192,14 +191,13 @@ void TestModbusMaster::singleRequestInvalidAddressOnce()
         ModbusResultMap result = varResultList.value<ModbusResultMap >();
         QCOMPARE(result.size(), 3);
 
-        QVERIFY(result[ModbusAddress(40001)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40001)].isValid() == false);
 
-        QVERIFY(result[ModbusAddress(40002)].isValid());
-        QCOMPARE(result[ModbusAddress(40002)].value(), static_cast<quint16>(1));
+        QVERIFY(result[ModbusDataUnit(40002)].isValid());
+        QCOMPARE(result[ModbusDataUnit(40002)].value(), static_cast<quint16>(1));
 
-        QVERIFY(result[ModbusAddress(40003)].isValid());
-        QCOMPARE(result[ModbusAddress(40003)].value(), static_cast<quint16>(2));
-
+        QVERIFY(result[ModbusDataUnit(40003)].isValid());
+        QCOMPARE(result[ModbusDataUnit(40003)].value(), static_cast<quint16>(2));
     }
 }
 
@@ -210,11 +208,11 @@ void TestModbusMaster::singleRequestInvalidAddressPersistent()
     ModbusMaster modbusMaster(&_settingsModel, ConnectionId::ID_1);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
-    auto registerList = QList<ModbusAddress>() << ModbusAddress(40001);
+    auto registerList = QList<ModbusDataUnit>() << ModbusDataUnit(40001);
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         QVERIFY(spyModbusPollDone.wait(100));
         QCOMPARE(spyModbusPollDone.count(), 1);
@@ -227,7 +225,7 @@ void TestModbusMaster::singleRequestInvalidAddressPersistent()
         ModbusResultMap result = varResultList.value<ModbusResultMap >();
         QCOMPARE(result.size(), 1);
 
-        QVERIFY(result[ModbusAddress(40001)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40001)].isValid() == false);
     }
 }
 
@@ -243,12 +241,13 @@ void TestModbusMaster::multiRequestSuccess()
 
     ModbusMaster modbusMaster(&_settingsModel, ConnectionId::ID_1);
 
-    auto registerList = QList<ModbusAddress>() << ModbusAddress(40001) << ModbusAddress(40002) << ModbusAddress(40004);
+    auto registerList = QList<ModbusDataUnit>()
+                        << ModbusDataUnit(40001) << ModbusDataUnit(40002) << ModbusDataUnit(40004);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         auto timeout = _settingsModel.connectionSettings(ConnectionId::ID_1)->timeout();
         QVERIFY(spyModbusPollDone.wait(static_cast<int>(timeout)));
@@ -262,14 +261,14 @@ void TestModbusMaster::multiRequestSuccess()
         ModbusResultMap result = varResultList.value<ModbusResultMap >();
         QCOMPARE(result.size(), 3);
 
-        QVERIFY(result[ModbusAddress(40001)].isValid());
-        QCOMPARE(result[ModbusAddress(40001)].value(), static_cast<quint16>(0));
+        QVERIFY(result[ModbusDataUnit(40001)].isValid());
+        QCOMPARE(result[ModbusDataUnit(40001)].value(), static_cast<quint16>(0));
 
-        QVERIFY(result[ModbusAddress(40002)].isValid());
-        QCOMPARE(result[ModbusAddress(40002)].value(), static_cast<quint16>(1));
+        QVERIFY(result[ModbusDataUnit(40002)].isValid());
+        QCOMPARE(result[ModbusDataUnit(40002)].value(), static_cast<quint16>(1));
 
-        QVERIFY(result[ModbusAddress(40004)].isValid());
-        QCOMPARE(result[ModbusAddress(40004)].value(), static_cast<quint16>(3));
+        QVERIFY(result[ModbusDataUnit(40004)].isValid());
+        QCOMPARE(result[ModbusDataUnit(40004)].value(), static_cast<quint16>(3));
     }
 }
 
@@ -287,12 +286,13 @@ void TestModbusMaster::multiRequestGatewayNotAvailable()
 
     ModbusMaster modbusMaster(&_settingsModel, ConnectionId::ID_1);
 
-    auto registerList = QList<ModbusAddress>() << ModbusAddress(40001) << ModbusAddress(40002) << ModbusAddress(40004);
+    auto registerList = QList<ModbusDataUnit>()
+                        << ModbusDataUnit(40001) << ModbusDataUnit(40002) << ModbusDataUnit(40004);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         QVERIFY(spyModbusPollDone.wait(100));
         QCOMPARE(spyModbusPollDone.count(), 1);
@@ -305,9 +305,9 @@ void TestModbusMaster::multiRequestGatewayNotAvailable()
         ModbusResultMap result = varResultList.value<ModbusResultMap >();
         QCOMPARE(result.size(), 3);
 
-        QVERIFY(result[ModbusAddress(40001)].isValid() == false);
-        QVERIFY(result[ModbusAddress(40002)].isValid() == false);
-        QVERIFY(result[ModbusAddress(40004)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40001)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40002)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40004)].isValid() == false);
     }
 }
 
@@ -326,12 +326,13 @@ void TestModbusMaster::multiRequestNoResponse()
 
     ModbusMaster modbusMaster(&_settingsModel, ConnectionId::ID_1);
 
-    auto registerList = QList<ModbusAddress>() << ModbusAddress(40001) << ModbusAddress(40002) << ModbusAddress(40004);
+    auto registerList = QList<ModbusDataUnit>()
+                        << ModbusDataUnit(40001) << ModbusDataUnit(40002) << ModbusDataUnit(40004);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         auto timeout = _settingsModel.connectionSettings(ConnectionId::ID_1)->timeout();
         spyModbusPollDone.wait(static_cast<int>(timeout) + 100);
@@ -345,9 +346,9 @@ void TestModbusMaster::multiRequestNoResponse()
         ModbusResultMap result = varResultList.value<ModbusResultMap >();
         QCOMPARE(result.size(), 3);
 
-        QVERIFY(result[ModbusAddress(40001)].isValid() == false);
-        QVERIFY(result[ModbusAddress(40002)].isValid() == false);
-        QVERIFY(result[ModbusAddress(40004)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40001)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40002)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40004)].isValid() == false);
     }
 }
 
@@ -365,12 +366,13 @@ void TestModbusMaster::multiRequestInvalidAddress()
 
     ModbusMaster modbusMaster(&_settingsModel, ConnectionId::ID_1);
 
-    auto registerList = QList<ModbusAddress>() << ModbusAddress(40001) << ModbusAddress(40002) << ModbusAddress(40004);
+    auto registerList = QList<ModbusDataUnit>()
+                        << ModbusDataUnit(40001) << ModbusDataUnit(40002) << ModbusDataUnit(40004);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         auto timeout = _settingsModel.connectionSettings(ConnectionId::ID_1)->timeout();
         QVERIFY(spyModbusPollDone.wait(static_cast<int>(timeout) + 100));
@@ -384,9 +386,9 @@ void TestModbusMaster::multiRequestInvalidAddress()
         ModbusResultMap result = varResultList.value<ModbusResultMap >();
         QCOMPARE(result.size(), 3);
 
-        QVERIFY(result[ModbusAddress(40001)].isValid() == false);
-        QVERIFY(result[ModbusAddress(40002)].isValid() == false);
-        QVERIFY(result[ModbusAddress(40004)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40001)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40002)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40004)].isValid() == false);
     }
 }
 
