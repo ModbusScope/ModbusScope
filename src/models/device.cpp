@@ -11,16 +11,6 @@ Device::~Device()
 {
 }
 
-void Device::setId(quint8 id)
-{
-    _id = id;
-}
-
-quint8 Device::id()
-{
-    return _id;
-}
-
 void Device::setConnectionId(connectionId_t connectionId)
 {
     _connectionId = connectionId;

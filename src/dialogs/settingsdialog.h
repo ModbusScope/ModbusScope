@@ -27,7 +27,8 @@ private:
     enum
     {
         PAGE_CONNECTION = 0,
-        PAGE_LOG = 1,
+        PAGE_DEVICE = 1,
+        PAGE_LOG = 2,
     };
 
     Ui::SettingsDialog* _pUi;

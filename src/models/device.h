@@ -13,13 +13,11 @@ public:
     explicit Device();
     ~Device();
 
-    void setId(quint8 id);
     void setConnectionId(connectionId_t connectionId);
     void setSlaveId(quint8 id);
     void setConsecutiveMax(quint8 max);
     void setInt32LittleEndian(bool int32LittleEndian);
 
-    quint8 id();
     connectionId_t connectionId();
     quint8 slaveId();
     quint8 consecutiveMax();
@@ -28,7 +26,6 @@ public:
     static deviceId_t const cFirstDeviceId;
 
 private:
-    quint8 _id;
     connectionId_t _connectionId;
     quint8 _slaveId;
     quint8 _consecutiveMax;

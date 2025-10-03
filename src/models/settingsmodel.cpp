@@ -1,9 +1,7 @@
-
 #include "settingsmodel.h"
 #include "models/connectiontypes.h"
 
-SettingsModel::SettingsModel(QObject *parent) :
-    QObject(parent)
+SettingsModel::SettingsModel(QObject* parent) : QObject(parent)
 {
 
     for (quint8 i = 0; i < ConnectionId::ID_CNT; i++)
@@ -25,7 +23,6 @@ SettingsModel::SettingsModel(QObject *parent) :
 
 SettingsModel::~SettingsModel()
 {
-
 }
 
 void SettingsModel::triggerUpdate(void)
@@ -70,6 +67,11 @@ void SettingsModel::addDevice(deviceId_t devId)
     {
         _devices[devId] = Device();
     }
+}
+
+void SettingsModel::removeDevice(deviceId_t devId)
+{
+    _devices.remove(devId);
 }
 
 QList<deviceId_t> SettingsModel::deviceList()
@@ -160,4 +162,14 @@ void SettingsModel::setConnectionState(connectionId_t connectionId, bool bState)
 bool SettingsModel::connectionState(connectionId_t connectionId)
 {
     return _connectionSettings[connectionId].bConnectionState;
+}
+
+bool SettingsModel::updateDeviceId(deviceId_t oldId, deviceId_t newId)
+{
+    if (!_devices.contains(oldId) || _devices.contains(newId))
+        return false;
+
+    Device device = _devices.take(oldId);
+    _devices.insert(newId, device);
+    return true;
 }
