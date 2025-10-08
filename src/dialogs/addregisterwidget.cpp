@@ -17,7 +17,6 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel, QWidget *par
     _pSettingsModel(pSettingsModel)
 {
     _pUi->setupUi(this);
-    _pSettingsModel->addDevice(3);
 
     _pUi->lineName->setFocus();
     _pUi->lineName->selectAll();
