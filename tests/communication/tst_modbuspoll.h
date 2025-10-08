@@ -31,8 +31,7 @@ private slots:
     void multiSlaveDisabledConnection();
 
 private:
-
-    TestSlaveData* dataMap(uint32_t connId, QModbusDataUnit::RegisterType type);
+    TestSlaveData* dataMap(deviceId_t devId, QModbusDataUnit::RegisterType type);
 
     SettingsModel * _pSettingsModel;
 
