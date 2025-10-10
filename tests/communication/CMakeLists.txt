@@ -2,6 +2,7 @@
 SET(TEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/../testslave/testslavedata.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../testslave/testslavemodbus.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../testslave/testdevice.cpp
 )
 
 include_directories(

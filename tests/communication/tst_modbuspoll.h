@@ -1,15 +1,14 @@
 
 #include "models/settingsmodel.h"
 
-#include "testslavedata.h"
-#include "testslavemodbus.h"
+#include "testdevice.h"
 
 #include <QObject>
-#include <QUrl>
 
-class TestModbusPoll: public QObject
+class TestModbusPoll : public QObject
 {
     Q_OBJECT
+
 private slots:
     void init();
     void cleanup();
@@ -31,13 +30,7 @@ private slots:
     void multiSlaveDisabledConnection();
 
 private:
-    TestSlaveData* dataMap(deviceId_t devId, QModbusDataUnit::RegisterType type);
+    SettingsModel* _pSettingsModel;
 
-    SettingsModel * _pSettingsModel;
-
-    QList<QUrl> _serverConnectionDataList;
-    TestSlaveModbus::ModbusDataMap _testSlaveData;
-
-    QList<TestSlaveModbus::ModbusDataMap *> _testSlaveDataList;
-    QList<TestSlaveModbus *> _testSlaveModbusList;
+    QMap<deviceId_t, TestDevice*> _testDeviceMap;
 };
