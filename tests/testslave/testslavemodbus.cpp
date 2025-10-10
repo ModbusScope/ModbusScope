@@ -23,7 +23,7 @@ bool TestSlaveModbus::connect(QUrl host, int slaveId)
 
 void TestSlaveModbus::disconnect()
 {
-    return disconnectDevice();
+    disconnectDevice();
 }
 
 void TestSlaveModbus::setException(QModbusPdu::ExceptionCode exception, bool bPersistent)
@@ -104,11 +104,9 @@ QModbusResponse TestSlaveModbus::processRequest(const QModbusPdu &request)
 
 bool TestSlaveModbus::verifyValidObject(QModbusDataUnit const * dataUnit) const
 {
-    if (
-        dataUnit->isValid()
-        && _testSlaveData.contains(dataUnit->registerType())
-        && _testSlaveData[dataUnit->registerType()]->IsValidAddress(static_cast<quint32>(dataUnit->startAddress()), static_cast<quint32>(dataUnit->valueCount()))
-        )
+    if (dataUnit->isValid() && _testSlaveData.contains(dataUnit->registerType()) &&
+        _testSlaveData[dataUnit->registerType()]->isValidAddress(static_cast<quint32>(dataUnit->startAddress()),
+                                                                 static_cast<quint32>(dataUnit->valueCount())))
     {
         return true;
     }

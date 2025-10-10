@@ -12,7 +12,7 @@ public:
     explicit TestSlaveData(quint32 offset = 0, quint32 registerCount = 50);
     ~TestSlaveData();
 
-    bool IsValidAddress(quint32 startAddress, quint32 valueCount);
+    bool isValidAddress(quint32 startAddress, quint32 valueCount);
 
     void setRegisterState(uint registerAddress, bool bState);
     void setRegisterState(QList<uint> registerAddressList, bool bState);
