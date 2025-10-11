@@ -16,6 +16,8 @@ public:
 
     ModbusDataUnit next(int i = 1) const;
 
+    QString toString() const;
+
     friend bool operator==(const ModbusDataUnit& unit1, const ModbusDataUnit& unit2);
     friend bool operator<(const ModbusDataUnit& unit1, const ModbusDataUnit& unit2);
 
