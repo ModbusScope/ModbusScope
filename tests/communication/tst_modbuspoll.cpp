@@ -5,7 +5,6 @@
 #include "communicationhelpers.h"
 #include "util/modbusdatatype.h"
 
-#include <QMap>
 #include <QSignalSpy>
 #include <QTest>
 
