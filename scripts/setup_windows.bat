@@ -9,7 +9,7 @@ echo QT_INSTALL_DIR: %QT_INSTALL_DIR%
 echo CACHE_HIT: %CACHE_HIT%
 
 REM Set configuration
-set QT=6.7.3
+set QT=6.8.3
 set QT_MODULES=qtserialbus qtserialport
 set QT_HOST=windows
 set QT_TARGET=desktop
@@ -28,8 +28,8 @@ REM Install Qt
 aqt install-qt --outputdir %QT_INSTALL_DIR% %QT_HOST% %QT_TARGET% %QT% %QT_ARCH%  -m %QT_MODULES%
 
 REM Install Tools
-REM Qt 6.7.x uses mingw 11.2.0 (GCC 9.0) (https://wiki.qt.io/MinGW)
-aqt install-tool --outputdir %QT_INSTALL_DIR% %QT_HOST% %QT_TARGET% tools_mingw90
+REM Qt 6.8.x uses mingw 13.1.0 (GCC 13.1.0) (https://wiki.qt.io/MinGW)
+aqt install-tool --outputdir %QT_INSTALL_DIR% %QT_HOST% %QT_TARGET% tools_mingw1310
 aqt install-tool --outputdir %QT_INSTALL_DIR% %QT_HOST% %QT_TARGET% tools_cmake
 aqt install-tool --outputdir %QT_INSTALL_DIR% %QT_HOST% %QT_TARGET% tools_ninja
 aqt install-tool --outputdir %QT_INSTALL_DIR% %QT_HOST% %QT_TARGET% tools_opensslv3_x64
@@ -42,7 +42,7 @@ dir %QT_INSTALL_DIR%\Tools
 
 REM Set env variables with path
 set "PATH=%QT_INSTALL_DIR%\%QT%\%QT_ARCH_PATH%\bin;%PATH%"
-set "PATH=%QT_INSTALL_DIR%\Tools\mingw1120_64\bin;%PATH%"
+set "PATH=%QT_INSTALL_DIR%\Tools\mingw1310_64\bin;%PATH%"
 set "PATH=%QT_INSTALL_DIR%\Tools\CMake_64\bin;%PATH%"
 set "PATH=%QT_INSTALL_DIR%\Tools\Ninja;%PATH%"
 
