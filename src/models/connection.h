@@ -1,6 +1,7 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
+#include "connectiontypes.h"
 #include <QSerialPort>
 
 class Connection
@@ -10,14 +11,7 @@ public:
     explicit Connection();
     ~Connection();
 
-    typedef enum
-    {
-        TYPE_TCP = 0,
-        TYPE_SERIAL,
-        TYPE_CNT
-    } type_t;
-
-    void setConnectionType(Connection::type_t connectionType);
+    void setConnectionType(ConnectionTypes::type_t connectionType);
     void setPortName(QString portName);
     void setParity(QSerialPort::Parity parity);
     void setBaudrate(QSerialPort::BaudRate baudrate);
@@ -29,7 +23,7 @@ public:
     void setTimeout(quint32 timeout);
     void setPersistentConnection(bool persistentConnection);
 
-    Connection::type_t connectionType();
+    ConnectionTypes::type_t connectionType();
     QString portName();
     QSerialPort::Parity parity();
     QSerialPort::BaudRate baudrate();
@@ -43,7 +37,7 @@ public:
     void serialConnectionStrings(QString& strParity, QString& strDataBits, QString& strStopBits);
 
 private:
-    Connection::type_t _connectionType;
+    ConnectionTypes::type_t _connectionType;
 
     QString _ipAddress;
     quint16 _port;

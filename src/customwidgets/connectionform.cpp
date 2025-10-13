@@ -5,8 +5,8 @@ ConnectionForm::ConnectionForm(QWidget* parent) : QWidget(parent), _pUi(new Ui::
 {
     _pUi->setupUi(this);
 
-    _pUi->comboType->addItem("TCP", QVariant(Connection::TYPE_TCP));
-    _pUi->comboType->addItem("Serial", QVariant(Connection::TYPE_SERIAL));
+    _pUi->comboType->addItem("TCP", QVariant(ConnectionTypes::TYPE_TCP));
+    _pUi->comboType->addItem("Serial", QVariant(ConnectionTypes::TYPE_SERIAL));
     _pUi->comboType->setCurrentIndex(0);
     connect(_pUi->comboType, QOverload<const int>::of(&QComboBox::currentIndexChanged), this,
             &ConnectionForm::connTypeSelected);
@@ -73,7 +73,7 @@ void ConnectionForm::fillSettingsModel(Connection* connData)
 {
     connData->setTimeout(_pUi->spinTimeout->value());
     connData->setPersistentConnection(_pUi->checkPersistentConn->checkState() == Qt::Checked);
-    connData->setConnectionType(static_cast<Connection::type_t>(_pUi->comboType->currentData().toUInt()));
+    connData->setConnectionType(static_cast<ConnectionTypes::type_t>(_pUi->comboType->currentData().toUInt()));
     connData->setIpAddress(_pUi->lineIP->text());
     connData->setPort(_pUi->spinPort->value());
     connData->setPortName(_pUi->comboPortName->currentText());
@@ -83,7 +83,7 @@ void ConnectionForm::fillSettingsModel(Connection* connData)
     connData->setStopbits(static_cast<QSerialPort::StopBits>(_pUi->comboStopBits->currentData().toUInt()));
 }
 
-void ConnectionForm::setConnectionType(Connection::type_t connectionType)
+void ConnectionForm::setConnectionType(ConnectionTypes::type_t connectionType)
 {
     int index = _pUi->comboType->findData(QVariant(connectionType));
     if (index != -1)
@@ -160,7 +160,8 @@ void ConnectionForm::connTypeSelected()
 
 void ConnectionForm::enableSpecificSettings()
 {
-    bool bTcp = static_cast<Connection::type_t>(_pUi->comboType->currentData().toUInt()) == Connection::TYPE_TCP;
+    bool bTcp =
+      static_cast<ConnectionTypes::type_t>(_pUi->comboType->currentData().toUInt()) == ConnectionTypes::TYPE_TCP;
 
     _pUi->lineIP->setEnabled(bTcp);
     _pUi->spinPort->setEnabled(bTcp);

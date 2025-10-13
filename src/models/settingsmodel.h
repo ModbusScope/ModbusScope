@@ -21,12 +21,12 @@ public:
     void setPollTime(quint32 pollTime);
     void setWriteDuringLogFile(QString filename);
     void setWriteDuringLogFileToDefault(void);
-    void setConnectionState(connectionId_t connectionId, bool bState);
+    void setConnectionState(ConnectionTypes::connectionId_t connectionId, bool bState);
 
     QString writeDuringLogFile();
     bool writeDuringLog();
-    bool connectionState(connectionId_t connectionId);
-    Connection* connectionSettings(connectionId_t connectionId);
+    bool connectionState(ConnectionTypes::connectionId_t connectionId);
+    Connection* connectionSettings(ConnectionTypes::connectionId_t connectionId);
     Device* deviceSettings(deviceId_t devId);
     quint32 pollTime();
     bool absoluteTimes();
@@ -36,7 +36,7 @@ public:
     bool updateDeviceId(deviceId_t oldId, deviceId_t newId);
 
     QList<deviceId_t> deviceList();
-    QList<deviceId_t> deviceListForConnection(connectionId_t connectionId);
+    QList<deviceId_t> deviceListForConnection(ConnectionTypes::connectionId_t connectionId);
 
     static const QString defaultLogPath()
     {

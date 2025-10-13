@@ -44,7 +44,7 @@ private:
     void flushExportBuffer();
     void exportDataHeader();
     QStringList constructDataHeader(bool bDuringLog);
-    QString constructConnSettings(connectionId_t connectionId);
+    QString constructConnSettings(ConnectionTypes::connectionId_t connectionId);
     void createNoteRows(QStringList& noteRows);
     QString createPropertyRow(registerProperty prop);
     QString formatData(double timeData, QList<double> dataValues);

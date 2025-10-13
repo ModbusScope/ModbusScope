@@ -518,7 +518,7 @@ GeneralError ProjectFileParser::parseRegisterTag(const QDomElement &element, Reg
 
             if (bRet)
             {
-                pRegisterSettings->connectionId = static_cast<connectionId_t>(newConnectionId);
+                pRegisterSettings->connectionId = static_cast<ConnectionTypes::connectionId_t>(newConnectionId);
             }
             else
             {

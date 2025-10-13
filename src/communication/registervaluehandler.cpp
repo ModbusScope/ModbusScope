@@ -5,6 +5,7 @@
 #include "util/modbusdataunit.h"
 
 using State = ResultState::State;
+using connectionId_t = ConnectionTypes::connectionId_t;
 
 RegisterValueHandler::RegisterValueHandler(SettingsModel *pSettingsModel) :
     _pSettingsModel(pSettingsModel)

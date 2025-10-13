@@ -20,61 +20,68 @@ ModbusConnection::ModbusConnection(QObject* parent) : QObject(parent)
     _bWaitingForConnection = false;
 }
 
-/*!
- * Start opening of TCP connection
- * Emits signals (\ref connectionSuccess, \ref errorOccurred) when connection is ready or failed
- *
- * \param[in]   tcpSettings     TCP setting for server
- * \param[in]   timeout         Timeout of connection (in seconds)
- */
-void ModbusConnection::openTcpConnection(struct TcpSettings tcpSettings, quint32 timeout)
+void ModbusConnection::configureTcpConnection(tcpSettings_t tcpSettings)
 {
-    if (prepareConnectionOpen())
-    {
-        auto connectionData = QPointer<ConnectionData>(new ConnectionData(new QModbusTcpClient()));
+    _tcpSettings = tcpSettings;
+    _connectionType = ConnectionTypes::TYPE_TCP;
+}
 
-        connectionData->pModbusClient->setConnectionParameter(QModbusDevice::NetworkAddressParameter,
-                                                              QVariant(tcpSettings.ip));
-        connectionData->pModbusClient->setConnectionParameter(QModbusDevice::NetworkPortParameter,
-                                                              QVariant(tcpSettings.port));
-
-        openConnection(connectionData, timeout);
-    }
+void ModbusConnection::configureSerialConnection(serialSettings_t serialSettings)
+{
+    _serialSettings = serialSettings;
+    _connectionType = ConnectionTypes::TYPE_SERIAL;
 }
 
 /*!
- * Start opening of serial connection
+ * Start opening of connection
  * Emits signals (\ref connectionSuccess, \ref errorOccurred) when connection is ready or failed
  *
- * \param[in]   tcpSettings     Serial setting for server
  * \param[in]   timeout         Timeout of connection (in seconds)
  */
-void ModbusConnection::openSerialConnection(struct SerialSettings serialSettings, quint32 timeout)
+void ModbusConnection::open(quint32 timeout)
 {
     if (prepareConnectionOpen())
     {
-        QModbusRtuSerialClient* pClient = new QModbusRtuSerialClient();
-        auto connectionData = QPointer<ConnectionData>(new ConnectionData(pClient));
+        if (_connectionType == ConnectionTypes::TYPE_SERIAL)
+        {
+            auto connectionData = QPointer<ConnectionData>(new ConnectionData(new QModbusRtuSerialClient()));
 
-        connectionData->pModbusClient->setConnectionParameter(QModbusDevice::SerialPortNameParameter,
-                                                              QVariant(serialSettings.portName));
-        connectionData->pModbusClient->setConnectionParameter(QModbusDevice::SerialParityParameter,
-                                                              QVariant(serialSettings.parity));
-        connectionData->pModbusClient->setConnectionParameter(QModbusDevice::SerialBaudRateParameter,
-                                                              QVariant(serialSettings.baudrate));
-        connectionData->pModbusClient->setConnectionParameter(QModbusDevice::SerialDataBitsParameter,
-                                                              QVariant(serialSettings.databits));
-        connectionData->pModbusClient->setConnectionParameter(QModbusDevice::SerialStopBitsParameter,
-                                                              QVariant(serialSettings.stopbits));
+            connectionData->pModbusClient->setConnectionParameter(QModbusDevice::SerialPortNameParameter,
+                                                                  QVariant(_serialSettings.portName));
+            connectionData->pModbusClient->setConnectionParameter(QModbusDevice::SerialParityParameter,
+                                                                  QVariant::fromValue(_serialSettings.parity));
+            connectionData->pModbusClient->setConnectionParameter(QModbusDevice::SerialBaudRateParameter,
+                                                                  QVariant::fromValue(_serialSettings.baudrate));
+            connectionData->pModbusClient->setConnectionParameter(QModbusDevice::SerialDataBitsParameter,
+                                                                  QVariant::fromValue(_serialSettings.databits));
+            connectionData->pModbusClient->setConnectionParameter(QModbusDevice::SerialStopBitsParameter,
+                                                                  QVariant::fromValue(_serialSettings.stopbits));
 
-        openConnection(connectionData, timeout);
+            openConnection(connectionData, timeout);
+        }
+        else if (_connectionType == ConnectionTypes::TYPE_TCP)
+        {
+            auto connectionData = QPointer<ConnectionData>(new ConnectionData(new QModbusTcpClient()));
+
+            connectionData->pModbusClient->setConnectionParameter(QModbusDevice::NetworkAddressParameter,
+                                                                  QVariant(_tcpSettings.ip));
+            connectionData->pModbusClient->setConnectionParameter(QModbusDevice::NetworkPortParameter,
+                                                                  QVariant(_tcpSettings.port));
+
+            openConnection(connectionData, timeout);
+        }
+        else
+        {
+            qCDebug(scopeCommConnection) << "Unknown connection type";
+            emit connectionError(QModbusDevice::ConnectionError, QString("Unknown connection type"));
+        }
     }
 }
 
 /*!
  *  Close connection
  */
-void ModbusConnection::closeConnection(void)
+void ModbusConnection::close(void)
 {
     if (!_connectionList.isEmpty())
     {
@@ -370,7 +377,7 @@ void ModbusConnection::handleConnectionError(QPointer<ConnectionData> connection
     {
         connectionData->bConnectionErrorHandled = true;
 
-        closeConnection();
+        close();
 
         emit connectionError(QModbusDevice::ConnectionError, errMsg);
     }

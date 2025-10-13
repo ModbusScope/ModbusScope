@@ -12,7 +12,7 @@ Connection::Connection()
       _timeout(1000),
       _bPersistentConnection(true)
 {
-    _connectionType = Connection::TYPE_TCP;
+    _connectionType = ConnectionTypes::TYPE_TCP;
 }
 
 Connection::~Connection()
@@ -86,12 +86,12 @@ bool Connection::persistentConnection()
     return _bPersistentConnection;
 }
 
-void Connection::setConnectionType(Connection::type_t connectionType)
+void Connection::setConnectionType(ConnectionTypes::type_t connectionType)
 {
     _connectionType = connectionType;
 }
 
-Connection::type_t Connection::connectionType()
+ConnectionTypes::type_t Connection::connectionType()
 {
     return _connectionType;
 }

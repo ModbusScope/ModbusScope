@@ -25,9 +25,9 @@ public:
 private:
     Ui::ConnectionSettings* _pUi;
 
-    void updateConnectionSettings(connectionId_t connectionId);
-    void updateConnectionState(connectionId_t connectionId);
-    ConnectionForm* connectionSettingsWidget(connectionId_t connectionId);
+    void updateConnectionSettings(ConnectionTypes::connectionId_t connectionId);
+    void updateConnectionState(ConnectionTypes::connectionId_t connectionId);
+    ConnectionForm* connectionSettingsWidget(ConnectionTypes::connectionId_t connectionId);
 
     SettingsModel * _pSettingsModel;
 };

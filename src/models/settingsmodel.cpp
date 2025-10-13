@@ -1,17 +1,19 @@
 #include "settingsmodel.h"
 #include "models/connectiontypes.h"
 
+using connectionId_t = ConnectionTypes::connectionId_t;
+
 SettingsModel::SettingsModel(QObject* parent) : QObject(parent)
 {
 
-    for (quint8 i = 0; i < ConnectionId::ID_CNT; i++)
+    for (quint8 i = 0; i < ConnectionTypes::ID_CNT; i++)
     {
         ConnectionSettings connectionSettings;
         _connectionSettings.append(connectionSettings);
     }
 
     /* Connection 1 is always enabled */
-    _connectionSettings[ConnectionId::ID_1].bConnectionState = true;
+    _connectionSettings[ConnectionTypes::ID_1].bConnectionState = true;
 
     _devices[Device::cFirstDeviceId] = Device();
 
@@ -151,7 +153,7 @@ Check validity
 void SettingsModel::setConnectionState(connectionId_t connectionId, bool bState)
 {
     /* Connection 1 can't be disabled */
-    if (connectionId == ConnectionId::ID_1)
+    if (connectionId == ConnectionTypes::ID_1)
     {
         bState = true;
     }

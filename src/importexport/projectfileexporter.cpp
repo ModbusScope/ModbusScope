@@ -65,7 +65,7 @@ void ProjectFileExporter::createModbusTag(QDomElement * pParentElement)
 
 void ProjectFileExporter::createConnectionTags(QDomElement * pParentElement)
 {
-    for (quint8 i = 0u; i < ConnectionId::ID_CNT; i++)
+    for (quint8 i = 0u; i < ConnectionTypes::ID_CNT; i++)
     {
         auto connData = _pSettingsModel->connectionSettings(i);
         QDomElement connectionElement = _domDocument.createElement(ProjectFileDefinitions::cConnectionTag);
@@ -74,7 +74,7 @@ void ProjectFileExporter::createConnectionTags(QDomElement * pParentElement)
 
         addTextNode(ProjectFileDefinitions::cConnectionIdTag, QString("%1").arg(i), &connectionElement);
 
-        if (connData->connectionType() == Connection::TYPE_TCP)
+        if (connData->connectionType() == ConnectionTypes::TYPE_TCP)
         {
             addTextNode(ProjectFileDefinitions::cConnectionTypeTag, QString("tcp"), &connectionElement);
         }

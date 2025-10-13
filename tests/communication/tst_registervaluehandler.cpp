@@ -23,7 +23,7 @@ void TestRegisterValueHandler::init()
 
     deviceId_t devId = Device::cFirstDeviceId + 1;
     _pSettingsModel->addDevice(devId);
-    _pSettingsModel->deviceSettings(devId)->setConnectionId(ConnectionId::ID_2);
+    _pSettingsModel->deviceSettings(devId)->setConnectionId(ConnectionTypes::ID_2);
     _pSettingsModel->deviceSettings(devId)->setInt32LittleEndian(true);
     _pSettingsModel->deviceSettings(devId)->setSlaveId(2);
 }
@@ -43,7 +43,7 @@ void TestRegisterValueHandler::addressList_16()
     regHandler.setRegisters(modbusRegisters);
 
     QList<ModbusDataUnit> actualRegisterList;
-    regHandler.registerAddresListForConnection(actualRegisterList, ConnectionId::ID_1);
+    regHandler.registerAddresListForConnection(actualRegisterList, ConnectionTypes::ID_1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
@@ -59,7 +59,7 @@ void TestRegisterValueHandler::addressList_16_multiple()
     regHandler.setRegisters(modbusRegisters);
 
     QList<ModbusDataUnit> actualRegisterList;
-    regHandler.registerAddresListForConnection(actualRegisterList, ConnectionId::ID_1);
+    regHandler.registerAddresListForConnection(actualRegisterList, ConnectionTypes::ID_1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
@@ -74,7 +74,7 @@ void TestRegisterValueHandler::addressList_32()
     regHandler.setRegisters(modbusRegisters);
 
     QList<ModbusDataUnit> actualRegisterList;
-    regHandler.registerAddresListForConnection(actualRegisterList, ConnectionId::ID_1);
+    regHandler.registerAddresListForConnection(actualRegisterList, ConnectionTypes::ID_1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
@@ -91,7 +91,7 @@ void TestRegisterValueHandler::addressList_32_multiple()
     regHandler.setRegisters(modbusRegisters);
 
     QList<ModbusDataUnit> actualRegisterList;
-    regHandler.registerAddresListForConnection(actualRegisterList, ConnectionId::ID_1);
+    regHandler.registerAddresListForConnection(actualRegisterList, ConnectionTypes::ID_1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
@@ -106,7 +106,7 @@ void TestRegisterValueHandler::addressList_float32()
     regHandler.setRegisters(modbusRegisters);
 
     QList<ModbusDataUnit> actualRegisterList;
-    regHandler.registerAddresListForConnection(actualRegisterList, ConnectionId::ID_1);
+    regHandler.registerAddresListForConnection(actualRegisterList, ConnectionTypes::ID_1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
@@ -123,7 +123,7 @@ void TestRegisterValueHandler::addressList_float32_multiple()
     regHandler.setRegisters(modbusRegisters);
 
     QList<ModbusDataUnit> actualRegisterList;
-    regHandler.registerAddresListForConnection(actualRegisterList, ConnectionId::ID_1);
+    regHandler.registerAddresListForConnection(actualRegisterList, ConnectionTypes::ID_1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
@@ -143,7 +143,7 @@ void TestRegisterValueHandler::addressListCombinations()
     regHandler.setRegisters(modbusRegisters);
 
     QList<ModbusDataUnit> actualRegisterList;
-    regHandler.registerAddresListForConnection(actualRegisterList, ConnectionId::ID_1);
+    regHandler.registerAddresListForConnection(actualRegisterList, ConnectionTypes::ID_1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
@@ -165,8 +165,8 @@ void TestRegisterValueHandler::addressListMultipleConnections()
 
     QList<ModbusDataUnit> actualRegisterList0;
     QList<ModbusDataUnit> actualRegisterList1;
-    regHandler.registerAddresListForConnection(actualRegisterList0, ConnectionId::ID_1);
-    regHandler.registerAddresListForConnection(actualRegisterList1, ConnectionId::ID_2);
+    regHandler.registerAddresListForConnection(actualRegisterList0, ConnectionTypes::ID_1);
+    regHandler.registerAddresListForConnection(actualRegisterList1, ConnectionTypes::ID_2);
 
     QVERIFY(actualRegisterList0 == expRegisterList0);
     QVERIFY(actualRegisterList1 == expRegisterList1);
@@ -185,7 +185,7 @@ void TestRegisterValueHandler::addressListMixedObjects()
     regHandler.setRegisters(modbusRegisters);
 
     QList<ModbusDataUnit> actualRegisterList;
-    regHandler.registerAddresListForConnection(actualRegisterList, ConnectionId::ID_1);
+    regHandler.registerAddresListForConnection(actualRegisterList, ConnectionTypes::ID_1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
@@ -201,7 +201,7 @@ void TestRegisterValueHandler::addressListSameRegisterDifferentType()
     regHandler.setRegisters(modbusRegisters);
 
     QList<ModbusDataUnit> actualRegisterList;
-    regHandler.registerAddresListForConnection(actualRegisterList, ConnectionId::ID_1);
+    regHandler.registerAddresListForConnection(actualRegisterList, ConnectionTypes::ID_1);
 
     QVERIFY(actualRegisterList == expRegisterList);
 }
@@ -306,8 +306,8 @@ void TestRegisterValueHandler::readConnections()
     QSignalSpy spyDataReady(&regHandler, &RegisterValueHandler::registerDataReady);
 
     regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap1, ConnectionId::ID_1);
-    regHandler.processPartialResult(partialResultMap2, ConnectionId::ID_2);
+    regHandler.processPartialResult(partialResultMap1, ConnectionTypes::ID_1);
+    regHandler.processPartialResult(partialResultMap2, ConnectionTypes::ID_2);
     regHandler.finishRead();
 
     QCOMPARE(spyDataReady.count(), 1);
@@ -341,7 +341,7 @@ void TestRegisterValueHandler::readFail()
     QSignalSpy spyDataReady(&regHandler, &RegisterValueHandler::registerDataReady);
 
     regHandler.startRead();
-    regHandler.processPartialResult(partialResultMap2, ConnectionId::ID_2);
+    regHandler.processPartialResult(partialResultMap2, ConnectionTypes::ID_2);
     regHandler.finishRead();
 
     QCOMPARE(spyDataReady.count(), 1);
@@ -366,7 +366,7 @@ void TestRegisterValueHandler::verifyRegisterResult(QList<ModbusRegister>& regLi
     QSignalSpy spyDataReady(&regHandler, &RegisterValueHandler::registerDataReady);
 
     regHandler.startRead();
-    regHandler.processPartialResult(regData, ConnectionId::ID_1);
+    regHandler.processPartialResult(regData, ConnectionTypes::ID_1);
     regHandler.finishRead();
 
     QCOMPARE(spyDataReady.count(), 1);

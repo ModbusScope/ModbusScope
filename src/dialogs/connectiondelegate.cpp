@@ -21,7 +21,7 @@ QWidget* ConnectionDelegate::createEditor(QWidget* parent,
     // Create the combobox and populate it
     QComboBox* cb = new QComboBox(parent);
 
-    for (quint8 i = 0u; i < ConnectionId::ID_CNT; i++)
+    for (quint8 i = 0u; i < ConnectionTypes::ID_CNT; i++)
     {
         if (_pSettingsModel->connectionState(i))
         {

@@ -52,7 +52,9 @@ void TestModbusConnection::connectionSuccess()
     QSignalSpy spySuccess(pConnection, &ModbusConnection::connectionSuccess);
     QSignalSpy spyError(pConnection, &ModbusConnection::connectionError);
 
-    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
+    pConnection->configureTcpConnection(
+      constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()));
+    pConnection->open(1000);
 
     QVERIFY(spySuccess.wait(100));
 
@@ -61,7 +63,7 @@ void TestModbusConnection::connectionSuccess()
 
     QVERIFY(pConnection->isConnected());
 
-    pConnection->closeConnection();
+    pConnection->close();
 
     QVERIFY(!pConnection->isConnected());
 
@@ -74,7 +76,9 @@ void TestModbusConnection::connectionFail()
     QSignalSpy spySuccess(pConnection, &ModbusConnection::connectionSuccess);
     QSignalSpy spyError(pConnection, &ModbusConnection::connectionError);
 
-    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
+    pConnection->configureTcpConnection(
+      constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()));
+    pConnection->open(1000);
 
     QVERIFY(spyError.wait(1500));
 
@@ -93,7 +97,9 @@ void TestModbusConnection::connectionSuccesAfterFail()
     QSignalSpy spySuccess(pConnection, &ModbusConnection::connectionSuccess);
     QSignalSpy spyError(pConnection, &ModbusConnection::connectionError);
 
-    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
+    pConnection->configureTcpConnection(
+      constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()));
+    pConnection->open(1000);
 
     QVERIFY(spyError.wait(1500));
 
@@ -105,14 +111,16 @@ void TestModbusConnection::connectionSuccesAfterFail()
     // Start server
     QVERIFY(_pTestSlaveModbus->connect(_serverConnectionData, _slaveId));
 
-    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
+    pConnection->configureTcpConnection(
+      constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()));
+    pConnection->open(1000);
 
     QVERIFY(spySuccess.wait(500));
 
     QCOMPARE(spySuccess.count(), 1);
     QVERIFY(pConnection->isConnected());
 
-    pConnection->closeConnection();
+    pConnection->close();
 }
 
 void TestModbusConnection::readRequestSuccess()
@@ -129,9 +137,9 @@ void TestModbusConnection::readRequestSuccess()
     /* Open connection */
     ModbusConnection * pConnection = new ModbusConnection(this);
     QSignalSpy spySuccess(pConnection, &ModbusConnection::connectionSuccess);
-    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
-
-    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
+    pConnection->configureTcpConnection(
+      constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()));
+    pConnection->open(1000);
 
     QVERIFY(spySuccess.wait(100));
 
@@ -180,9 +188,9 @@ void TestModbusConnection::readRequestProtocolError()
     /* Open connection */
     ModbusConnection * pConnection = new ModbusConnection(this);
     QSignalSpy spySuccess(pConnection, &ModbusConnection::connectionSuccess);
-    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
-
-    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
+    pConnection->configureTcpConnection(
+      constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()));
+    pConnection->open(1000);
 
     QVERIFY(spySuccess.wait(100));
 
@@ -215,10 +223,9 @@ void TestModbusConnection::readRequestError()
     */
 }
 
-ModbusConnection::TcpSettings TestModbusConnection::constructTcpSettings(QString ip, qint32 port)
+ModbusConnection::tcpSettings_t TestModbusConnection::constructTcpSettings(QString ip, qint32 port)
 {
-    struct ModbusConnection::TcpSettings tcpSettings =
-    {
+    ModbusConnection::tcpSettings_t tcpSettings = {
         .ip = ip,
         .port = port,
     };

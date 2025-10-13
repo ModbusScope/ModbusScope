@@ -19,10 +19,11 @@ public:
     void setRegisters(QList<ModbusRegister> &registerList);
 
     void startRead();
-    void processPartialResult(ModbusResultMap partialResultMap, connectionId_t connectionId);
+    void processPartialResult(ModbusResultMap partialResultMap, ConnectionTypes::connectionId_t connectionId);
     void finishRead();
 
-    void registerAddresListForConnection(QList<ModbusDataUnit>& registerList, connectionId_t connectionId);
+    void registerAddresListForConnection(QList<ModbusDataUnit>& registerList,
+                                         ConnectionTypes::connectionId_t connectionId);
 
 signals:
     void registerDataReady(ResultDoubleList registers);

@@ -23,8 +23,7 @@ private slots:
     void readRequestError();
 
 private:
-
-    ModbusConnection::TcpSettings constructTcpSettings(QString ip, qint32 port);
+    ModbusConnection::tcpSettings_t constructTcpSettings(QString ip, qint32 port);
 
     TestSlaveModbus::ModbusDataMap _testSlaveData;
     QPointer<TestSlaveModbus> _pTestSlaveModbus;

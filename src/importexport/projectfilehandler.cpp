@@ -13,6 +13,8 @@
 #include <QFile>
 #include <QFileDialog>
 
+using connectionId_t = ConnectionTypes::connectionId_t;
+
 ProjectFileHandler::ProjectFileHandler(GuiModel* pGuiModel, SettingsModel* pSettingsModel, GraphDataModel* pGraphDataModel) : QObject(nullptr)
 {
     _pGuiModel = pGuiModel;
@@ -111,10 +113,10 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
         else
         {
             /* Default to connection 1 */
-            connectionId = ConnectionId::ID_1;
+            connectionId = ConnectionTypes::ID_1;
         }
 
-        if (connectionId < ConnectionId::ID_CNT)
+        if (connectionId < ConnectionTypes::ID_CNT)
         {
             auto connData = _pSettingsModel->connectionSettings(connectionId);
 
@@ -124,11 +126,11 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
                 && pProjectSettings->general.connectionSettings[idx].connectionType.toLower() == "serial"
                 )
             {
-                connData->setConnectionType(Connection::TYPE_SERIAL);
+                connData->setConnectionType(ConnectionTypes::TYPE_SERIAL);
             }
             else
             {
-                connData->setConnectionType(Connection::TYPE_TCP);
+                connData->setConnectionType(ConnectionTypes::TYPE_TCP);
             }
 
             if (pProjectSettings->general.connectionSettings[idx].bIp)

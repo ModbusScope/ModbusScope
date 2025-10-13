@@ -33,7 +33,6 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS
 function(add_xtest SOURCE_NAME)
 	add_executable(${SOURCE_NAME}
         ${SOURCE_NAME}.cpp
-        ${SOURCE_NAME}.h
 		${ARGV1}
 		${ARGV2}
         ${ARGV3})

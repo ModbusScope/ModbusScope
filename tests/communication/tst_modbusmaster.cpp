@@ -13,7 +13,7 @@ void TestModbusMaster::init()
 
     _pSettingsModel = new SettingsModel;
 
-    auto connData = _pSettingsModel->connectionSettings(ConnectionId::ID_1);
+    auto connData = _pSettingsModel->connectionSettings(ConnectionTypes::ID_1);
     connData->setIpAddress("127.0.0.1");
     connData->setPort(5020);
     connData->setTimeout(500);
@@ -22,7 +22,7 @@ void TestModbusMaster::init()
 
     deviceId_t devId = Device::cFirstDeviceId;
     _pSettingsModel->addDevice(devId);
-    _pSettingsModel->deviceSettings(devId)->setConnectionId(ConnectionId::ID_1);
+    _pSettingsModel->deviceSettings(devId)->setConnectionId(ConnectionTypes::ID_1);
     _pSettingsModel->deviceSettings(devId)->setSlaveId(devId);
 
     const auto deviceList = _pSettingsModel->deviceList();
@@ -54,7 +54,7 @@ void TestModbusMaster::singleRequestSuccess()
 {
     _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, true, 0);
 
-    ModbusMaster modbusMaster(_pSettingsModel, ConnectionId::ID_1);
+    ModbusMaster modbusMaster(_pSettingsModel, ConnectionTypes::ID_1);
 
     auto registerList = QList<ModbusDataUnit>() << ModbusDataUnit(40001);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -83,7 +83,7 @@ void TestModbusMaster::singleRequestEmpty()
 {
     _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, true, 0);
 
-    ModbusMaster modbusMaster(_pSettingsModel, ConnectionId::ID_1);
+    ModbusMaster modbusMaster(_pSettingsModel, ConnectionTypes::ID_1);
 
     QList<ModbusDataUnit> registerList;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -105,7 +105,7 @@ void TestModbusMaster::singleRequestGatewayNotAvailable()
 {
     _testDeviceMap[Device::cFirstDeviceId]->setException(QModbusPdu::GatewayTargetDeviceFailedToRespond, true);
 
-    ModbusMaster modbusMaster(_pSettingsModel, ConnectionId::ID_1);
+    ModbusMaster modbusMaster(_pSettingsModel, ConnectionTypes::ID_1);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
     auto registerList = QList<ModbusDataUnit>() << ModbusDataUnit(40001);
 
@@ -132,7 +132,7 @@ void TestModbusMaster::singleRequestNoResponse()
 {
     _testDeviceMap[Device::cFirstDeviceId]->disconnect();
 
-    ModbusMaster modbusMaster(_pSettingsModel, ConnectionId::ID_1);
+    ModbusMaster modbusMaster(_pSettingsModel, ConnectionTypes::ID_1);
 
     auto registerList = QList<ModbusDataUnit>() << ModbusDataUnit(40001);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
@@ -141,7 +141,7 @@ void TestModbusMaster::singleRequestNoResponse()
     {
         modbusMaster.readRegisterList(registerList, 128);
 
-        auto connData = _pSettingsModel->connectionSettings(ConnectionId::ID_1);
+        auto connData = _pSettingsModel->connectionSettings(ConnectionTypes::ID_1);
         spyModbusPollDone.wait(static_cast<int>(connData->timeout()) + 100);
         QCOMPARE(spyModbusPollDone.count(), 1);
 
@@ -159,7 +159,7 @@ void TestModbusMaster::singleRequestNoResponse()
 
 void TestModbusMaster::singleRequestInvalidAddressOnce()
 {
-    ModbusMaster modbusMaster(_pSettingsModel, ConnectionId::ID_1);
+    ModbusMaster modbusMaster(_pSettingsModel, ConnectionTypes::ID_1);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     auto registerList = QList<ModbusDataUnit>()
@@ -198,7 +198,7 @@ void TestModbusMaster::singleRequestInvalidAddressPersistent()
 {
     _testDeviceMap[Device::cFirstDeviceId]->setException(QModbusPdu::IllegalDataAddress, true);
 
-    ModbusMaster modbusMaster(_pSettingsModel, ConnectionId::ID_1);
+    ModbusMaster modbusMaster(_pSettingsModel, ConnectionTypes::ID_1);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     auto registerList = QList<ModbusDataUnit>() << ModbusDataUnit(40001);
@@ -228,7 +228,7 @@ void TestModbusMaster::multiRequestSuccess()
     _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(1, true, 1);
     _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(3, true, 3);
 
-    ModbusMaster modbusMaster(_pSettingsModel, ConnectionId::ID_1);
+    ModbusMaster modbusMaster(_pSettingsModel, ConnectionTypes::ID_1);
 
     auto registerList = QList<ModbusDataUnit>()
                         << ModbusDataUnit(40001) << ModbusDataUnit(40002) << ModbusDataUnit(40004);
@@ -238,7 +238,7 @@ void TestModbusMaster::multiRequestSuccess()
     {
         modbusMaster.readRegisterList(registerList, 128);
 
-        auto timeout = _pSettingsModel->connectionSettings(ConnectionId::ID_1)->timeout();
+        auto timeout = _pSettingsModel->connectionSettings(ConnectionTypes::ID_1)->timeout();
         QVERIFY(spyModbusPollDone.wait(static_cast<int>(timeout)));
         QCOMPARE(spyModbusPollDone.count(), 1);
 
@@ -269,7 +269,7 @@ void TestModbusMaster::multiRequestGatewayNotAvailable()
     _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(1, true, 1);
     _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(3, true, 3);
 
-    ModbusMaster modbusMaster(_pSettingsModel, ConnectionId::ID_1);
+    ModbusMaster modbusMaster(_pSettingsModel, ConnectionTypes::ID_1);
 
     auto registerList = QList<ModbusDataUnit>()
                         << ModbusDataUnit(40001) << ModbusDataUnit(40002) << ModbusDataUnit(40004);
@@ -304,7 +304,7 @@ void TestModbusMaster::multiRequestNoResponse()
     _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(1, true, 1);
     _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(3, true, 3);
 
-    ModbusMaster modbusMaster(_pSettingsModel, ConnectionId::ID_1);
+    ModbusMaster modbusMaster(_pSettingsModel, ConnectionTypes::ID_1);
 
     auto registerList = QList<ModbusDataUnit>()
                         << ModbusDataUnit(40001) << ModbusDataUnit(40002) << ModbusDataUnit(40004);
@@ -314,7 +314,7 @@ void TestModbusMaster::multiRequestNoResponse()
     {
         modbusMaster.readRegisterList(registerList, 128);
 
-        auto timeout = _pSettingsModel->connectionSettings(ConnectionId::ID_1)->timeout();
+        auto timeout = _pSettingsModel->connectionSettings(ConnectionTypes::ID_1)->timeout();
         spyModbusPollDone.wait(static_cast<int>(timeout) + 100);
         QCOMPARE(spyModbusPollDone.count(), 1);
 
@@ -340,7 +340,7 @@ void TestModbusMaster::multiRequestInvalidAddress()
     _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(1, true, 1);
     _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(3, true, 3);
 
-    ModbusMaster modbusMaster(_pSettingsModel, ConnectionId::ID_1);
+    ModbusMaster modbusMaster(_pSettingsModel, ConnectionTypes::ID_1);
 
     auto registerList = QList<ModbusDataUnit>()
                         << ModbusDataUnit(40001) << ModbusDataUnit(40002) << ModbusDataUnit(40004);
@@ -350,7 +350,7 @@ void TestModbusMaster::multiRequestInvalidAddress()
     {
         modbusMaster.readRegisterList(registerList, 128);
 
-        auto timeout = _pSettingsModel->connectionSettings(ConnectionId::ID_1)->timeout();
+        auto timeout = _pSettingsModel->connectionSettings(ConnectionTypes::ID_1)->timeout();
         QVERIFY(spyModbusPollDone.wait(static_cast<int>(timeout) + 100));
         QCOMPARE(spyModbusPollDone.count(), 1);
 

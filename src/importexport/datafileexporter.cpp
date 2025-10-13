@@ -8,6 +8,8 @@
 #include "util/formatdatetime.h"
 #include "util/util.h"
 
+using connectionId_t = ConnectionTypes::connectionId_t;
+
 DataFileExporter::DataFileExporter(SettingsModel * pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel *pNoteModel, QObject *parent) :
     QObject(parent)
 {
@@ -294,7 +296,7 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
         }
 
         // Export communication settings
-        for (quint8 i = 0u; i < ConnectionId::ID_CNT; i++)
+        for (quint8 i = 0u; i < ConnectionTypes::ID_CNT; i++)
         {
             if (_pSettingsModel->connectionState(i))
             {
@@ -345,7 +347,7 @@ QString DataFileExporter::constructConnSettings(connectionId_t connectionId)
     QString strSettings;
     auto connData = _pSettingsModel->connectionSettings(connectionId);
 
-    if (connData->connectionType() == Connection::TYPE_TCP)
+    if (connData->connectionType() == ConnectionTypes::TYPE_TCP)
     {
         strSettings = connData->ipAddress() + ":" + QString::number(connData->port());
     }

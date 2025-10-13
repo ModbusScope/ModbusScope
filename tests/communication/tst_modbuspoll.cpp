@@ -20,36 +20,36 @@ void TestModbusPoll::init()
 
     _pSettingsModel = new SettingsModel;
 
-    auto connData = _pSettingsModel->connectionSettings(ConnectionId::ID_1);
+    auto connData = _pSettingsModel->connectionSettings(ConnectionTypes::ID_1);
     connData->setIpAddress("127.0.0.1");
     connData->setPort(5020);
     connData->setTimeout(500);
 
-    _pSettingsModel->setConnectionState(ConnectionId::ID_2, true);
-    connData = _pSettingsModel->connectionSettings(ConnectionId::ID_2);
+    _pSettingsModel->setConnectionState(ConnectionTypes::ID_2, true);
+    connData = _pSettingsModel->connectionSettings(ConnectionTypes::ID_2);
     connData->setIpAddress("127.0.0.1");
     connData->setPort(5021);
     connData->setTimeout(500);
 
-    _pSettingsModel->setConnectionState(ConnectionId::ID_3, true);
-    connData = _pSettingsModel->connectionSettings(ConnectionId::ID_3);
+    _pSettingsModel->setConnectionState(ConnectionTypes::ID_3, true);
+    connData = _pSettingsModel->connectionSettings(ConnectionTypes::ID_3);
     connData->setIpAddress("127.0.0.1");
     connData->setPort(5022);
     connData->setTimeout(500);
 
     deviceId_t devId = Device::cFirstDeviceId;
     _pSettingsModel->addDevice(devId);
-    _pSettingsModel->deviceSettings(devId)->setConnectionId(ConnectionId::ID_1);
+    _pSettingsModel->deviceSettings(devId)->setConnectionId(ConnectionTypes::ID_1);
     _pSettingsModel->deviceSettings(devId)->setSlaveId(devId);
 
     devId++;
     _pSettingsModel->addDevice(devId);
-    _pSettingsModel->deviceSettings(devId)->setConnectionId(ConnectionId::ID_2);
+    _pSettingsModel->deviceSettings(devId)->setConnectionId(ConnectionTypes::ID_2);
     _pSettingsModel->deviceSettings(devId)->setSlaveId(devId);
 
     devId++;
     _pSettingsModel->addDevice(devId);
-    _pSettingsModel->deviceSettings(devId)->setConnectionId(ConnectionId::ID_3);
+    _pSettingsModel->deviceSettings(devId)->setConnectionId(ConnectionTypes::ID_3);
     _pSettingsModel->deviceSettings(devId)->setSlaveId(devId);
 
     _pSettingsModel->setPollTime(100);
@@ -121,7 +121,7 @@ void TestModbusPoll::singleSlaveFail()
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
 
-    auto timeout = _pSettingsModel->connectionSettings(ConnectionId::ID_1)->timeout();
+    auto timeout = _pSettingsModel->connectionSettings(ConnectionTypes::ID_1)->timeout();
     QVERIFY(spyDataReady.wait(static_cast<int>(timeout) + 100));
     QCOMPARE(spyDataReady.count(), 1);
 
@@ -344,7 +344,7 @@ void TestModbusPoll::multiSlaveSingleFail()
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
 
-    auto timeout = _pSettingsModel->connectionSettings(ConnectionId::ID_1)->timeout();
+    auto timeout = _pSettingsModel->connectionSettings(ConnectionTypes::ID_1)->timeout();
     QVERIFY(spyDataReady.wait(static_cast<int>(timeout) + 100));
     QCOMPARE(spyDataReady.count(), 1);
 
@@ -372,7 +372,7 @@ void TestModbusPoll::multiSlaveAllFail()
     /*-- Start communication --*/
     modbusPoll.startCommunication(modbusRegisters);
 
-    auto timeout = _pSettingsModel->connectionSettings(ConnectionId::ID_1)->timeout();
+    auto timeout = _pSettingsModel->connectionSettings(ConnectionTypes::ID_1)->timeout();
     QVERIFY(spyDataReady.wait(static_cast<int>(timeout) + 100));
     QCOMPARE(spyDataReady.count(), 1);
 
@@ -389,7 +389,7 @@ void TestModbusPoll::multiSlaveDisabledConnection()
     _testDeviceMap[Device::cFirstDeviceId + 1]->configureHoldingRegister(0, true, 5021);
 
     /* Disable connection */
-    _pSettingsModel->setConnectionState(ConnectionId::ID_2, false);
+    _pSettingsModel->setConnectionState(ConnectionTypes::ID_2, false);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);

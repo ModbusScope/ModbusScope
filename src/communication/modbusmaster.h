@@ -18,7 +18,7 @@ class ModbusMaster : public QObject
 {
     Q_OBJECT
 public:
-    explicit ModbusMaster(SettingsModel* pSettingsModel, connectionId_t connectionId);
+    explicit ModbusMaster(SettingsModel* pSettingsModel, ConnectionTypes::connectionId_t connectionId);
     virtual ~ModbusMaster();
 
     void readRegisterList(QList<ModbusDataUnit> registerList, quint8 consecutiveMax);
@@ -26,7 +26,7 @@ public:
     void cleanUp();
 
 signals:
-    void modbusPollDone(ModbusResultMap modbusResults, connectionId_t connectionId);
+    void modbusPollDone(ModbusResultMap modbusResults, ConnectionTypes::connectionId_t connectionId);
     void modbusLogError(QString msg);
     void modbusLogInfo(QString msg);
     void triggerNextRequest();
@@ -51,7 +51,7 @@ private:
     void logInfo(QString msg);
     void logError(QString msg);
 
-    quint8 _connectionId{};
+    ConnectionTypes::connectionId_t _connectionId{};
 
     SettingsModel * _pSettingsModel{};
     ModbusConnection _modbusConnection{};

@@ -9,6 +9,8 @@
 #include "util/formatdatetime.h"
 #include "util/scopelogging.h"
 
+using connectionId_t = ConnectionTypes::connectionId_t;
+
 ModbusPoll::ModbusPoll(SettingsModel * pSettingsModel, QObject *parent) :
     QObject(parent), _bPollActive(false)
 {
@@ -20,7 +22,7 @@ ModbusPoll::ModbusPoll(SettingsModel * pSettingsModel, QObject *parent) :
     connect(_pRegisterValueHandler, &RegisterValueHandler::registerDataReady, this, &ModbusPoll::registerDataReady);
 
     /* Setup modbus master */
-    for (quint8 i = 0u; i < ConnectionId::ID_CNT; i++)
+    for (quint8 i = 0u; i < ConnectionTypes::ID_CNT; i++)
     {
         auto modbusData = new ModbusMasterData(new ModbusMaster(_pSettingsModel, i));
         _modbusMasters.append(modbusData);
@@ -58,13 +60,13 @@ void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
 
     qCInfo(scopeComm) << QString("Start logging: %1").arg(FormatDateTime::currentDateTime());
 
-    for (quint8 i = 0u; i < ConnectionId::ID_CNT; i++)
+    for (quint8 i = 0u; i < ConnectionTypes::ID_CNT; i++)
     {
         auto connData = _pSettingsModel->connectionSettings(i);
         if (_pSettingsModel->connectionState(i))
         {
             QString str;
-            if (connData->connectionType() == Connection::TYPE_TCP)
+            if (connData->connectionType() == ConnectionTypes::TYPE_TCP)
             {
                 str = QString("[Conn %0] %1:%2").arg(i + 1).arg(connData->ipAddress()).arg(connData->port());
             }
@@ -98,7 +100,7 @@ void ModbusPoll::handlePollDone(ModbusResultMap partialResultMap, connectionId_t
     bool lastResult = false;
 
     quint8 activeCnt = 0;
-    for (quint8 i = 0; i < ConnectionId::ID_CNT; i++)
+    for (quint8 i = 0; i < ConnectionTypes::ID_CNT; i++)
     {
         if (_modbusMasters[i]->bActive)
         {
@@ -117,7 +119,7 @@ void ModbusPoll::handlePollDone(ModbusResultMap partialResultMap, connectionId_t
     _pRegisterValueHandler->processPartialResult(partialResultMap, connectionId);
 
     // Set master as inactive
-    if (connectionId < ConnectionId::ID_CNT)
+    if (connectionId < ConnectionTypes::ID_CNT)
     {
         _modbusMasters[connectionId]->bActive = false;
     }
@@ -162,7 +164,7 @@ void ModbusPoll::stopCommunication()
 
     qCInfo(scopeComm) << QString("Stop logging: %1").arg(FormatDateTime::currentDateTime());
 
-    for (quint8 i = 0; i < ConnectionId::ID_CNT; i++)
+    for (quint8 i = 0; i < ConnectionTypes::ID_CNT; i++)
     {
         _modbusMasters[i]->pModbusMaster->cleanUp();
     }
@@ -193,7 +195,7 @@ void ModbusPoll::triggerRegisterRead()
 
         QList<QList<ModbusDataUnit> > regAddrList;
 
-        for (connectionId_t i = 0u; i < ConnectionId::ID_CNT; i++)
+        for (connectionId_t i = 0u; i < ConnectionTypes::ID_CNT; i++)
         {
             regAddrList.append(QList<ModbusDataUnit>());
 
@@ -205,7 +207,7 @@ void ModbusPoll::triggerRegisterRead()
             }
         }
 
-        for (connectionId_t i = 0u; i < ConnectionId::ID_CNT; i++)
+        for (connectionId_t i = 0u; i < ConnectionTypes::ID_CNT; i++)
         {
             if (regAddrList.at(i).count() > 0)
             {
@@ -218,7 +220,7 @@ void ModbusPoll::triggerRegisterRead()
         if (_activeMastersCount == 0)
         {
             ModbusResultMap emptyResultMap;
-            handlePollDone(emptyResultMap, ConnectionId::ID_1);
+            handlePollDone(emptyResultMap, ConnectionTypes::ID_1);
         }
     }
 }

@@ -150,9 +150,9 @@ bool DeviceModel::setData(const QModelIndex& index, const QVariant& value, int r
         if (role == Qt::EditRole)
         {
             bool bSuccess = false;
-            const quint8 newConnId = static_cast<connectionId_t>(value.toUInt(&bSuccess));
+            const quint8 newConnId = static_cast<ConnectionTypes::connectionId_t>(value.toUInt(&bSuccess));
 
-            if ((bSuccess) && (newConnId < ConnectionId::ID_CNT))
+            if ((bSuccess) && (newConnId < ConnectionTypes::ID_CNT))
             {
                 if (device->connectionId() != newConnId)
                 {

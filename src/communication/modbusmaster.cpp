@@ -9,7 +9,7 @@ Q_DECLARE_METATYPE(Result<quint16>);
 
 using State = ResultState::State;
 
-ModbusMaster::ModbusMaster(SettingsModel* pSettingsModel, connectionId_t connectionId)
+ModbusMaster::ModbusMaster(SettingsModel* pSettingsModel, ConnectionTypes::connectionId_t connectionId)
     : QObject(nullptr), _connectionId(connectionId), _pSettingsModel(pSettingsModel)
 {
     qMetaTypeId<Result<quint16> >();
@@ -27,7 +27,7 @@ ModbusMaster::ModbusMaster(SettingsModel* pSettingsModel, connectionId_t connect
 ModbusMaster::~ModbusMaster()
 {
     _modbusConnection.disconnect();
-    _modbusConnection.closeConnection();
+    _modbusConnection.close();
 }
 
 void ModbusMaster::readRegisterList(QList<ModbusDataUnit> registerList, quint8 consecutiveMax)
@@ -53,25 +53,27 @@ void ModbusMaster::readRegisterList(QList<ModbusDataUnit> registerList, quint8 c
         _readRegisters.resetRead(registerList, consecutiveMax);
 
         /* Open connection */
-        if (connData->connectionType() == Connection::TYPE_SERIAL)
+        if (connData->connectionType() == ConnectionTypes::TYPE_SERIAL)
         {
-            struct ModbusConnection::SerialSettings serialSettings = {
+            ModbusConnection::serialSettings_t serialSettings = {
                 .portName = connData->portName(),
                 .parity = connData->parity(),
                 .baudrate = connData->baudrate(),
                 .databits = connData->databits(),
                 .stopbits = connData->stopbits(),
             };
-            _modbusConnection.openSerialConnection(serialSettings, connData->timeout());
+            _modbusConnection.configureSerialConnection(serialSettings);
         }
         else
         {
-            struct ModbusConnection::TcpSettings tcpSettings = {
+            ModbusConnection::tcpSettings_t tcpSettings = {
                 .ip = connData->ipAddress(),
                 .port = connData->port(),
             };
-            _modbusConnection.openTcpConnection(tcpSettings, connData->timeout());
+            _modbusConnection.configureTcpConnection(tcpSettings);
         }
+
+        _modbusConnection.open(connData->timeout());
     }
     else
     {
@@ -85,7 +87,7 @@ void ModbusMaster::cleanUp()
     /* Close connection when not closing automatically */
     if (_pSettingsModel->connectionSettings(_connectionId)->persistentConnection())
     {
-        _modbusConnection.closeConnection();
+        _modbusConnection.close();
     }
 }
 
@@ -197,7 +199,7 @@ void ModbusMaster::finishRead(bool bError)
 
     if (bcloseConnection)
     {
-        _modbusConnection.closeConnection();
+        _modbusConnection.close();
     }
 }
 

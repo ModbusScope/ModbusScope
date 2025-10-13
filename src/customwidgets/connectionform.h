@@ -20,7 +20,7 @@ public:
 
     void fillSettingsModel(Connection* connData);
 
-    void setConnectionType(Connection::type_t connectionType);
+    void setConnectionType(ConnectionTypes::type_t connectionType);
 
     void setPortName(QString portName);
     void setParity(QSerialPort::Parity parity);
