@@ -6,7 +6,6 @@
 #include <QModbusClient>
 #include <QModbusDevice>
 #include <QModbusReply>
-#include <QObject>
 #include <QPointer>
 #include <QSerialPort>
 #include <QTimer>
@@ -83,9 +82,8 @@ private slots:
 
     void handleRequestFinished();
 
-    bool prepareConnectionOpen();
-
 private:
+    bool prepareConnectionOpen();
     void openConnection(QPointer<ConnectionData> connectionData, quint32 timeout);
     QModbusDataUnit::RegisterType registerType(ModbusAddress::ObjectType type);
     ModbusAddress::ObjectType objectType(QModbusDataUnit::RegisterType type);

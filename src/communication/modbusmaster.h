@@ -1,7 +1,6 @@
 #ifndef MODBUSMASTER_H
 #define MODBUSMASTER_H
 
-#include <QObject>
 #include <QMap>
 #include <QModbusDevice>
 #include <QModbusReply>
