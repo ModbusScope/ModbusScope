@@ -24,7 +24,9 @@ ModbusPoll::ModbusPoll(SettingsModel * pSettingsModel, QObject *parent) :
     /* Setup modbus master */
     for (quint8 i = 0u; i < ConnectionTypes::ID_CNT; i++)
     {
-        auto modbusData = new ModbusMasterData(new ModbusMaster(_pSettingsModel, i));
+        auto conn = new ModbusConnection(); // ModbusMaster takes ownership
+        auto master = new ModbusMaster(conn, pSettingsModel, i);
+        auto modbusData = new ModbusMasterData(master);
         _modbusMasters.append(modbusData);
 
         connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusPollDone, this, &ModbusPoll::handlePollDone);

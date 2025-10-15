@@ -9,25 +9,31 @@ Q_DECLARE_METATYPE(Result<quint16>);
 
 using State = ResultState::State;
 
-ModbusMaster::ModbusMaster(SettingsModel* pSettingsModel, ConnectionTypes::connectionId_t connectionId)
+ModbusMaster::ModbusMaster(ModbusConnection* pModbusConnection,
+                           SettingsModel* pSettingsModel,
+                           ConnectionTypes::connectionId_t connectionId)
     : QObject(nullptr), _connectionId(connectionId), _pSettingsModel(pSettingsModel)
 {
     qMetaTypeId<Result<quint16> >();
 
+    _pModbusConnection = std::unique_ptr<ModbusConnection>(pModbusConnection);
+
     // Use queued connection to make sure reply is deleted before closing connection
     connect(this, &ModbusMaster::triggerNextRequest, this, &ModbusMaster::handleTriggerNextRequest, Qt::QueuedConnection);
 
-    connect(&_modbusConnection, &ModbusConnection::connectionSuccess, this, &ModbusMaster::handleConnectionOpened);
-    connect(&_modbusConnection, &ModbusConnection::connectionError, this, &ModbusMaster::handlerConnectionError);
-    connect(&_modbusConnection, &ModbusConnection::readRequestSuccess, this, &ModbusMaster::handleRequestSuccess);
-    connect(&_modbusConnection, &ModbusConnection::readRequestProtocolError, this, &ModbusMaster::handleRequestProtocolError);
-    connect(&_modbusConnection, &ModbusConnection::readRequestError, this, &ModbusMaster::handleRequestError);
+    connect(_pModbusConnection.get(), &ModbusConnection::connectionSuccess, this,
+            &ModbusMaster::handleConnectionOpened);
+    connect(_pModbusConnection.get(), &ModbusConnection::connectionError, this, &ModbusMaster::handlerConnectionError);
+    connect(_pModbusConnection.get(), &ModbusConnection::readRequestSuccess, this, &ModbusMaster::handleRequestSuccess);
+    connect(_pModbusConnection.get(), &ModbusConnection::readRequestProtocolError, this,
+            &ModbusMaster::handleRequestProtocolError);
+    connect(_pModbusConnection.get(), &ModbusConnection::readRequestError, this, &ModbusMaster::handleRequestError);
 }
 
 ModbusMaster::~ModbusMaster()
 {
-    _modbusConnection.disconnect();
-    _modbusConnection.close();
+    _pModbusConnection->disconnect();
+    _pModbusConnection->close();
 }
 
 void ModbusMaster::readRegisterList(QList<ModbusDataUnit> registerList, quint8 consecutiveMax)
@@ -62,7 +68,7 @@ void ModbusMaster::readRegisterList(QList<ModbusDataUnit> registerList, quint8 c
                 .databits = connData->databits(),
                 .stopbits = connData->stopbits(),
             };
-            _modbusConnection.configureSerialConnection(serialSettings);
+            _pModbusConnection->configureSerialConnection(serialSettings);
         }
         else
         {
@@ -70,10 +76,10 @@ void ModbusMaster::readRegisterList(QList<ModbusDataUnit> registerList, quint8 c
                 .ip = connData->ipAddress(),
                 .port = connData->port(),
             };
-            _modbusConnection.configureTcpConnection(tcpSettings);
+            _pModbusConnection->configureTcpConnection(tcpSettings);
         }
 
-        _modbusConnection.open(connData->timeout());
+        _pModbusConnection->open(connData->timeout());
     }
     else
     {
@@ -87,7 +93,7 @@ void ModbusMaster::cleanUp()
     /* Close connection when not closing automatically */
     if (_pSettingsModel->connectionSettings(_connectionId)->persistentConnection())
     {
-        _modbusConnection.close();
+        _pModbusConnection->close();
     }
 }
 
@@ -171,7 +177,7 @@ void ModbusMaster::handleTriggerNextRequest(void)
 
         logInfo("Partial list read: " + QString("Start address (%0) and count (%1)").arg(readItem.address().toString()).arg(readItem.count()));
 
-        _modbusConnection.sendReadRequest(readItem.address(), readItem.count());
+        _pModbusConnection->sendReadRequest(readItem.address(), readItem.count());
     }
     else
     {
@@ -199,7 +205,7 @@ void ModbusMaster::finishRead(bool bError)
 
     if (bcloseConnection)
     {
-        _modbusConnection.close();
+        _pModbusConnection->close();
     }
 }
 

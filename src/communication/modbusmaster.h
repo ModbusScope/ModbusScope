@@ -17,7 +17,9 @@ class ModbusMaster : public QObject
 {
     Q_OBJECT
 public:
-    explicit ModbusMaster(SettingsModel* pSettingsModel, ConnectionTypes::connectionId_t connectionId);
+    explicit ModbusMaster(ModbusConnection* pModbusConnection,
+                          SettingsModel* pSettingsModel,
+                          ConnectionTypes::connectionId_t connectionId);
     virtual ~ModbusMaster();
 
     void readRegisterList(QList<ModbusDataUnit> registerList, quint8 consecutiveMax);
@@ -52,8 +54,8 @@ private:
 
     ConnectionTypes::connectionId_t _connectionId{};
 
-    SettingsModel * _pSettingsModel{};
-    ModbusConnection _modbusConnection{};
+    std::unique_ptr<ModbusConnection> _pModbusConnection;
+    SettingsModel* _pSettingsModel{};
     ReadRegisters _readRegisters{};
 };
 
