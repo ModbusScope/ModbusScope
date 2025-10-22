@@ -17,6 +17,8 @@ public:
 
     void setException(QModbusPdu::ExceptionCode exception, bool bPersistent);
 
+    TestSlaveData* slaveData(QModbusDataUnit::RegisterType type) const;
+
     void configureHoldingRegister(uint address, bool state, quint16 value);
     void configureInputRegister(uint address, bool state, quint16 value);
     void configureCoil(uint address, bool state, bool value);

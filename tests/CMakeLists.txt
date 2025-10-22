@@ -35,7 +35,8 @@ function(add_xtest SOURCE_NAME)
         ${SOURCE_NAME}.cpp
 		${ARGV1}
 		${ARGV2}
-        ${ARGV3})
+        ${ARGV3}
+        ${ARGV4})
 	target_link_libraries(${SOURCE_NAME} Qt::Test ${QT_LIB} ${SCOPESOURCE})
 	add_test(NAME ${SOURCE_NAME} COMMAND ${SOURCE_NAME})
 endfunction()
@@ -46,7 +47,8 @@ function(add_xtest_mock SOURCE_NAME)
         ${GOOGLE_TEST_SOURCE}
 		${ARGV1}
 		${ARGV2}
-        ${ARGV3})
+        ${ARGV3}
+        ${ARGV4})
 	target_link_libraries(${SOURCE_NAME} Qt::Test Threads::Threads ${QT_LIB} ${SCOPESOURCE})
 	add_test(NAME ${SOURCE_NAME} COMMAND ${SOURCE_NAME})
 endfunction()

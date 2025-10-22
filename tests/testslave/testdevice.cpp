@@ -41,6 +41,11 @@ void TestDevice::setException(QModbusPdu::ExceptionCode exception, bool bPersist
     _pSlaveModbus->setException(exception, bPersistent);
 }
 
+TestSlaveData* TestDevice::slaveData(QModbusDataUnit::RegisterType type) const
+{
+    return _slaveDataMap.value(type, nullptr);
+}
+
 void TestDevice::configureHoldingRegister(uint address, bool state, quint16 value)
 {
     configureRegister(QModbusDataUnit::HoldingRegisters, address, state, value);

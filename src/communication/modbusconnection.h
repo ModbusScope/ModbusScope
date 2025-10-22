@@ -55,15 +55,15 @@ public:
         QSerialPort::StopBits stopbits;
     } serialSettings_t;
 
-    void configureTcpConnection(tcpSettings_t tcpSettings);
-    void configureSerialConnection(serialSettings_t serialSettings);
+    virtual void configureTcpConnection(tcpSettings_t tcpSettings);
+    virtual void configureSerialConnection(serialSettings_t serialSettings);
 
-    void open(quint32 timeout);
-    void close(void);
+    virtual void open(quint32 timeout);
+    virtual void close(void);
 
-    void sendReadRequest(ModbusDataUnit regAddress, quint16 size);
+    virtual void sendReadRequest(ModbusDataUnit regAddress, quint16 size);
 
-    bool isConnected(void);
+    virtual bool isConnected(void);
 
 signals:
     void connectionSuccess(void);
