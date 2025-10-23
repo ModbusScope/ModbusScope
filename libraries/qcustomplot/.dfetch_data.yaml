@@ -1,10 +1,10 @@
 # This is a generated file by dfetch. Don't edit this, but edit the manifest.
 # For more info see https://dfetch.rtfd.io/en/latest/getting_started.html
 dfetch:
-  branch: v2.1.1
-  hash: 6ab47fb31d9b5225d77d202a0abfb71a
-  last_fetch: 12/01/2024, 17:22:40
+  branch: v2.1.1_Qt6.8_port
+  hash: 88a5c11e83ea24c595680ad74b1ab453
+  last_fetch: 05/11/2025, 21:33:41
   patch: libraries/patches/axis_deselect_modifier.patch
   remote_url: https://github.com/jgeudens/qcustomplot-release
-  revision: d8cca69ccd94e6bce6e9047105a9e452ff0a6cc5
+  revision: 5df8b8002690d6754fa1e33a766a0f4ea16b08da
   tag: ''
