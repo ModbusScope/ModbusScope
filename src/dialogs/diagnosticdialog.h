@@ -25,11 +25,11 @@ public:
 private slots:
     void handleErrorSelectionChanged(QItemSelection selected, QItemSelection deselected);
     void handleLogsChanged();
-    void handleCheckAutoScrollChanged(int newState);
+    void handleCheckAutoScrollChanged(Qt::CheckState state);
     void handleScrollbarChange();
     void handleClearButton();
     void handleFilterChange();
-    void handleEnableDebugLog(int state);
+    void handleEnableDebugLog(Qt::CheckState state);
     void handleExportLog();
     void showContextMenu(const QPoint& pos);
     void handleCopyDiagnostics();

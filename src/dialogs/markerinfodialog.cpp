@@ -16,11 +16,11 @@ MarkerInfoDialog::MarkerInfoDialog(GuiModel* pGuiModel, QWidget* parent)
     _expressionMask = 0;
 
     /* Update mask */
-    connect(_pUi->checkAverage, &QCheckBox::stateChanged, this, &MarkerInfoDialog::checkBoxStatechanged);
-    connect(_pUi->checkSlope, &QCheckBox::stateChanged, this, &MarkerInfoDialog::checkBoxStatechanged);
-    connect(_pUi->checkMaximum, &QCheckBox::stateChanged, this, &MarkerInfoDialog::checkBoxStatechanged);
-    connect(_pUi->checkMinimum, &QCheckBox::stateChanged, this, &MarkerInfoDialog::checkBoxStatechanged);
-    connect(_pUi->checkDifference, &QCheckBox::stateChanged, this, &MarkerInfoDialog::checkBoxStatechanged);
+    connect(_pUi->checkAverage, &QCheckBox::checkStateChanged, this, &MarkerInfoDialog::checkBoxStatechanged);
+    connect(_pUi->checkSlope, &QCheckBox::checkStateChanged, this, &MarkerInfoDialog::checkBoxStatechanged);
+    connect(_pUi->checkMaximum, &QCheckBox::checkStateChanged, this, &MarkerInfoDialog::checkBoxStatechanged);
+    connect(_pUi->checkMinimum, &QCheckBox::checkStateChanged, this, &MarkerInfoDialog::checkBoxStatechanged);
+    connect(_pUi->checkDifference, &QCheckBox::checkStateChanged, this, &MarkerInfoDialog::checkBoxStatechanged);
 
     const quint32 mask = _pGuiModel->markerExpressionMask();
 
@@ -56,7 +56,7 @@ MarkerInfoDialog::~MarkerInfoDialog()
     delete _pUi;
 }
 
-void MarkerInfoDialog::checkBoxStatechanged(int state)
+void MarkerInfoDialog::checkBoxStatechanged(Qt::CheckState state)
 {
     QObject* pObj = sender();
 

@@ -34,7 +34,6 @@ public:
     void setTimeout(quint32 timeout);
     void setPersistentConnection(bool persistentConnection);
 
-public slots:
     void setState(bool bEnabled);
 
 private slots:

@@ -19,7 +19,7 @@ public:
     ~MarkerInfoDialog();
 
 private slots:
-    void checkBoxStatechanged(int state);
+    void checkBoxStatechanged(Qt::CheckState state);
 
     void done(int r);
 

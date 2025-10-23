@@ -11,10 +11,12 @@ ConnectionSettings::ConnectionSettings(SettingsModel* pSettingsModel, QWidget* p
     _pUi->setupUi(this);
 
     _pUi->connectionForm_2->setState(false);
-    connect(_pUi->checkConn_2, &QCheckBox::stateChanged, _pUi->connectionForm_2, &ConnectionForm::setState);
+    connect(_pUi->checkConn_2, &QCheckBox::checkStateChanged, this,
+            [this](Qt::CheckState state) { _pUi->connectionForm_2->setState(state == Qt::Checked); });
 
     _pUi->connectionForm_3->setState(false);
-    connect(_pUi->checkConn_3, &QCheckBox::stateChanged, _pUi->connectionForm_3, &ConnectionForm::setState);
+    connect(_pUi->checkConn_3, &QCheckBox::checkStateChanged, this,
+            [this](Qt::CheckState state) { _pUi->connectionForm_3->setState(state == Qt::Checked); });
 
     for (uint8_t idx = 0; idx < ConnectionTypes::ID_CNT; idx++)
     {
