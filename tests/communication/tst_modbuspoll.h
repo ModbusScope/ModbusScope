@@ -1,7 +1,7 @@
 
 #include "models/settingsmodel.h"
 
-#include "testdevice.h"
+#include "testslavemodbus.h"
 
 #include <QObject>
 
@@ -32,5 +32,5 @@ private slots:
 private:
     SettingsModel* _pSettingsModel;
 
-    QMap<deviceId_t, TestDevice*> _testDeviceMap;
+    QMap<deviceId_t, TestSlaveModbus*> _testSlaveMap;
 };

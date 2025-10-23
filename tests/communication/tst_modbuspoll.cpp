@@ -3,6 +3,7 @@
 
 #include "communication/modbuspoll.h"
 #include "communicationhelpers.h"
+#include "testslavemodbus.h"
 #include "util/modbusdatatype.h"
 
 #include <QSignalSpy>
@@ -61,19 +62,19 @@ void TestModbusPoll::init()
 
         connData = _pSettingsModel->connectionSettings(device->connectionId());
 
-        _testDeviceMap[devId] = new TestDevice();
-        auto& testDevice = _testDeviceMap[devId];
+        _testSlaveMap[devId] = new TestSlaveModbus();
+        auto& testSlave = _testSlaveMap[devId];
 
-        QVERIFY(testDevice->connect(connData->ipAddress(), connData->port(), device->slaveId()));
+        QVERIFY(testSlave->connect(connData->ipAddress(), connData->port(), device->slaveId()));
     }
 }
 
 void TestModbusPoll::cleanup()
 {
-    for (auto& testDevice : _testDeviceMap)
+    for (auto& testSlave : _testSlaveMap)
     {
-        testDevice->disconnect();
-        delete testDevice;
+        testSlave->disconnect();
+        delete testSlave;
     }
 
     delete _pSettingsModel;
@@ -81,8 +82,9 @@ void TestModbusPoll::cleanup()
 
 void TestModbusPoll::singleSlaveSuccess()
 {
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, true, 5);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(1, true, 65000);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 5);
+    device->configureHoldingRegister(1, true, 65000);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
@@ -106,9 +108,9 @@ void TestModbusPoll::singleSlaveSuccess()
 
 void TestModbusPoll::singleSlaveFail()
 {
-    for (auto& testDevice : _testDeviceMap)
+    for (auto& testSlaveModbus : _testSlaveMap)
     {
-        testDevice->disconnect();
+        testSlaveModbus->disconnect();
     }
 
     ModbusPoll modbusPoll(_pSettingsModel);
@@ -155,8 +157,9 @@ void TestModbusPoll::singleOnlyConstantDataPoll()
 
 void TestModbusPoll::singleSlaveCoil()
 {
-    _testDeviceMap[Device::cFirstDeviceId]->configureCoil(0, true, false);
-    _testDeviceMap[Device::cFirstDeviceId]->configureCoil(2, true, true);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureCoil(0, true, false);
+    device->configureCoil(2, true, true);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
@@ -180,10 +183,11 @@ void TestModbusPoll::singleSlaveCoil()
 
 void TestModbusPoll::singleSlaveMixedObjects()
 {
-    _testDeviceMap[Device::cFirstDeviceId]->configureCoil(0, true, false);
-    _testDeviceMap[Device::cFirstDeviceId]->configureDiscreteInput(0, true, true);
-    _testDeviceMap[Device::cFirstDeviceId]->configureInputRegister(0, true, 100);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, true, 101);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureCoil(0, true, false);
+    device->configureDiscreteInput(0, true, true);
+    device->configureInputRegister(0, true, 100);
+    device->configureHoldingRegister(0, true, 101);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
@@ -210,8 +214,9 @@ void TestModbusPoll::singleSlaveMixedObjects()
 
 void TestModbusPoll::verifyRestartAfterStop()
 {
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, true, 5);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(1, true, 65000);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 5);
+    device->configureHoldingRegister(1, true, 65000);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
@@ -253,8 +258,10 @@ void TestModbusPoll::verifyRestartAfterStop()
 
 void TestModbusPoll::multiSlaveSuccess()
 {
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, true, 5020);
-    _testDeviceMap[Device::cFirstDeviceId + 1]->configureHoldingRegister(0, true, 5021);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    auto device_1 = _testSlaveMap[Device::cFirstDeviceId + 1]->testDevice();
+    device->configureHoldingRegister(0, true, 5020);
+    device_1->configureHoldingRegister(0, true, 5021);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
@@ -278,8 +285,10 @@ void TestModbusPoll::multiSlaveSuccess()
 
 void TestModbusPoll::multiSlaveSuccess_2()
 {
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, true, 5020);
-    _testDeviceMap[Device::cFirstDeviceId + 1]->configureHoldingRegister(1, true, 5021);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    auto device_1 = _testSlaveMap[Device::cFirstDeviceId + 1]->testDevice();
+    device->configureHoldingRegister(0, true, 5020);
+    device_1->configureHoldingRegister(1, true, 5021);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
@@ -303,9 +312,11 @@ void TestModbusPoll::multiSlaveSuccess_2()
 
 void TestModbusPoll::multiSlaveSuccess_3()
 {
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, true, 5020);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(1, true, 5021);
-    _testDeviceMap[Device::cFirstDeviceId + 1]->configureHoldingRegister(1, true, 5022);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    auto device_1 = _testSlaveMap[Device::cFirstDeviceId + 1]->testDevice();
+    device->configureHoldingRegister(0, true, 5020);
+    device->configureHoldingRegister(1, true, 5021);
+    device_1->configureHoldingRegister(1, true, 5022);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
@@ -331,8 +342,9 @@ void TestModbusPoll::multiSlaveSuccess_3()
 
 void TestModbusPoll::multiSlaveSingleFail()
 {
-    _testDeviceMap[Device::cFirstDeviceId]->disconnect();
-    _testDeviceMap[Device::cFirstDeviceId + 1]->configureHoldingRegister(0, true, 5021);
+    _testSlaveMap[Device::cFirstDeviceId]->disconnect();
+    auto device_1 = _testSlaveMap[Device::cFirstDeviceId + 1]->testDevice();
+    device_1->configureHoldingRegister(0, true, 5021);
 
     ModbusPoll modbusPoll(_pSettingsModel);
     QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
@@ -357,9 +369,9 @@ void TestModbusPoll::multiSlaveSingleFail()
 
 void TestModbusPoll::multiSlaveAllFail()
 {
-    for (auto& testDevice : _testDeviceMap)
+    for (auto& testslaveModbus : _testSlaveMap)
     {
-        testDevice->disconnect();
+        testslaveModbus->disconnect();
     }
 
     ModbusPoll modbusPoll(_pSettingsModel);
@@ -385,8 +397,10 @@ void TestModbusPoll::multiSlaveAllFail()
 
 void TestModbusPoll::multiSlaveDisabledConnection()
 {
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, true, 5020);
-    _testDeviceMap[Device::cFirstDeviceId + 1]->configureHoldingRegister(0, true, 5021);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    auto device_1 = _testSlaveMap[Device::cFirstDeviceId + 1]->testDevice();
+    device->configureHoldingRegister(0, true, 5020);
+    device_1->configureHoldingRegister(0, true, 5021);
 
     /* Disable connection */
     _pSettingsModel->setConnectionState(ConnectionTypes::ID_2, false);

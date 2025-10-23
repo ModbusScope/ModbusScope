@@ -7,7 +7,6 @@
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
 
-#include "testslavedata.h"
 #include "testslavemodbus.h"
 
 #include <QSignalSpy>
@@ -61,19 +60,19 @@ void TestCommunication::init()
 
         connData = _pSettingsModel->connectionSettings(device->connectionId());
 
-        _testDeviceMap[devId] = new TestDevice();
-        auto& testDevice = _testDeviceMap[devId];
+        _testSlaveMap[devId] = new TestSlaveModbus();
+        auto& testSlave = _testSlaveMap[devId];
 
-        QVERIFY(testDevice->connect(connData->ipAddress(), connData->port(), device->slaveId()));
+        QVERIFY(testSlave->connect(connData->ipAddress(), connData->port(), device->slaveId()));
     }
 }
 
 void TestCommunication::cleanup()
 {
-    for (auto& testDevice : _testDeviceMap)
+    for (auto& testSlave : _testSlaveMap)
     {
-        testDevice->disconnect();
-        delete testDevice;
+        testSlave->disconnect();
+        delete testSlave;
     }
 
     delete _pGraphDataModel;
@@ -86,8 +85,9 @@ void TestCommunication::singleSlaveSuccess()
                                   << "${40001}";
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, true, 1);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(1, true, 2);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 1);
+    device->configureHoldingRegister(1, true, 2);
 
     auto resultList = ResultDoubleList() << ResultDouble(2, State::SUCCESS) << ResultDouble(1, State::SUCCESS);
 
@@ -102,8 +102,9 @@ void TestCommunication::typeFloat32()
     auto exprList = QStringList() << "${40001: f32b}";
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, true, 0xffff);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(1, true, 0x3f7f);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 0xffff);
+    device->configureHoldingRegister(1, true, 0x3f7f);
 
     auto resultList = ResultDoubleList() << ResultDouble(static_cast<double>(0.999999940395355225f), State::SUCCESS);
 
@@ -134,10 +135,12 @@ void TestCommunication::mixed_1()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    _testDeviceMap[Device::cFirstDeviceId + 1]->configureHoldingRegister(1, true, 1);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(2, true, 5);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(3, true, 2);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(4, true, 1);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    auto device_2 = _testSlaveMap[Device::cFirstDeviceId + 1]->testDevice();
+    device_2->configureHoldingRegister(1, true, 1);
+    device->configureHoldingRegister(2, true, 5);
+    device->configureHoldingRegister(3, true, 2);
+    device->configureHoldingRegister(4, true, 1);
 
     auto resultList = ResultDoubleList() << ResultDouble(6, State::SUCCESS) << ResultDouble(2, State::SUCCESS)
                                          << ResultDouble(65538, State::SUCCESS);
@@ -156,10 +159,11 @@ void TestCommunication::mixed_fail()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, false, 0);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(1, true, 1);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(2, false, 2);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(3, true, 3);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, false, 0);
+    device->configureHoldingRegister(1, true, 1);
+    device->configureHoldingRegister(2, false, 2);
+    device->configureHoldingRegister(3, true, 3);
 
     auto resultList = ResultDoubleList() << ResultDouble(0, State::INVALID) << ResultDouble(0, State::INVALID)
                                          << ResultDouble(3, State::SUCCESS);
@@ -172,24 +176,13 @@ void TestCommunication::mixed_fail()
 
 void TestCommunication::readLargeRegisterAddress()
 {
-    /* Disable already initialized test slave on connection 1 */
-    _testDeviceMap[Device::cFirstDeviceId]->disconnect();
+    auto testSlaveData = new TestSlaveData(71001 - 40001, 50);
 
-    TestSlaveData testSlaveData(71001 - 40001, 50);
-    TestSlaveModbus::ModbusDataMap modbusDataMap;
-    modbusDataMap[QModbusDataUnit::HoldingRegisters] = &testSlaveData;
-    TestSlaveModbus testSlaveModbus(modbusDataMap);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->setSlaveData(QModbusDataUnit::HoldingRegisters, testSlaveData);
 
-    testSlaveData.setRegisterState(71001 - 40001, true);
-    testSlaveData.setRegisterValue(71001 - 40001, 1);
-
-    auto device = _pSettingsModel->deviceSettings(Device::cFirstDeviceId);
-    auto connData = _pSettingsModel->connectionSettings(device->connectionId());
-
-    QUrl connUrl;
-    connUrl.setHost(connData->ipAddress());
-    connUrl.setPort(connData->port());
-    QVERIFY(testSlaveModbus.connect(connUrl, device->slaveId()));
+    testSlaveData->setRegisterState(71001 - 40001, true);
+    testSlaveData->setRegisterValue(71001 - 40001, 1);
 
     auto exprList = QStringList() << "${71001}";
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
@@ -209,7 +202,8 @@ void TestCommunication::unknownConnection()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, true, 2);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 2);
 
     auto resultList = ResultDoubleList() << ResultDouble(0, State::INVALID)
                                          << ResultDouble(2, State::SUCCESS);
@@ -229,7 +223,8 @@ void TestCommunication::disabledConnection()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, true, 5);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 5);
 
     auto resultList = ResultDoubleList() << ResultDouble(5, State::SUCCESS)
                                          << ResultDouble(0, State::INVALID);

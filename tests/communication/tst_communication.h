@@ -3,12 +3,12 @@
 #include "testdevice.h"
 
 #include <QObject>
-#include <QUrl>
 
 /* Forward declaration */
 class SettingsModel;
 class GraphDataModel;
 class ModbusPoll;
+class TestSlaveModbus;
 
 class TestCommunication: public QObject
 {
@@ -36,6 +36,5 @@ private:
 
     SettingsModel * _pSettingsModel;
     GraphDataModel* _pGraphDataModel;
-
-    QMap<deviceId_t, TestDevice*> _testDeviceMap;
+    QMap<deviceId_t, TestSlaveModbus*> _testSlaveMap;
 };

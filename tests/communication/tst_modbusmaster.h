@@ -4,6 +4,8 @@
 
 #include <QObject>
 
+class TestSlaveModbus;
+
 class TestModbusMaster: public QObject
 {
     Q_OBJECT
@@ -24,7 +26,7 @@ private slots:
     void multiRequestInvalidAddress();
 
 private:
-    QMap<deviceId_t, TestDevice*> _testDeviceMap;
+    QMap<deviceId_t, TestSlaveModbus*> _testSlaveMap;
 
     SettingsModel* _pSettingsModel;
 

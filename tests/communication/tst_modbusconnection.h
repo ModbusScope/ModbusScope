@@ -1,11 +1,11 @@
 
 #include "communication/modbusconnection.h"
-
+#include "models/device.h"
 #include "testslavemodbus.h"
 
 #include <QObject>
-#include <QPointer>
-#include <QUrl>
+
+class TestSlaveModbus;
 
 class TestModbusConnection: public QObject
 {
@@ -25,10 +25,9 @@ private slots:
 private:
     ModbusConnection::tcpSettings_t constructTcpSettings(QString ip, qint32 port);
 
-    TestSlaveModbus::ModbusDataMap _testSlaveData;
-    QPointer<TestSlaveModbus> _pTestSlaveModbus;
+    TestSlaveModbus _testSlaveModbus;
 
     quint8 _slaveId;
-
-    QUrl _serverConnectionData;
+    QString _ip;
+    qint32 _port;
 };

@@ -1,6 +1,7 @@
 #include "tst_modbusmaster.h"
 
 #include "communication/modbusmaster.h"
+#include "testslavemodbus.h"
 
 #include <QSignalSpy>
 #include <QTest>
@@ -32,19 +33,19 @@ void TestModbusMaster::init()
 
         connData = _pSettingsModel->connectionSettings(device->connectionId());
 
-        _testDeviceMap[devId] = new TestDevice();
-        auto& testDevice = _testDeviceMap[devId];
+        _testSlaveMap[devId] = new TestSlaveModbus();
+        auto& testSlave = _testSlaveMap[devId];
 
-        QVERIFY(testDevice->connect(connData->ipAddress(), connData->port(), device->slaveId()));
+        QVERIFY(testSlave->connect(connData->ipAddress(), connData->port(), device->slaveId()));
     }
 }
 
 void TestModbusMaster::cleanup()
 {
-    for (auto& testDevice : _testDeviceMap)
+    for (auto& testSlave : _testSlaveMap)
     {
-        testDevice->disconnect();
-        delete testDevice;
+        testSlave->disconnect();
+        delete testSlave;
     }
 
     delete _pSettingsModel;
@@ -52,7 +53,8 @@ void TestModbusMaster::cleanup()
 
 void TestModbusMaster::singleRequestSuccess()
 {
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, true, 0);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 0);
 
     auto conn = new ModbusConnection(); // ModbusMaster takes ownership
     ModbusMaster modbusMaster(conn, _pSettingsModel, ConnectionTypes::ID_1);
@@ -82,7 +84,8 @@ void TestModbusMaster::singleRequestSuccess()
 
 void TestModbusMaster::singleRequestEmpty()
 {
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, true, 0);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 0);
 
     auto conn = new ModbusConnection(); // ModbusMaster takes ownership
     ModbusMaster modbusMaster(conn, _pSettingsModel, ConnectionTypes::ID_1);
@@ -105,7 +108,7 @@ void TestModbusMaster::singleRequestEmpty()
 
 void TestModbusMaster::singleRequestGatewayNotAvailable()
 {
-    _testDeviceMap[Device::cFirstDeviceId]->setException(QModbusPdu::GatewayTargetDeviceFailedToRespond, true);
+    _testSlaveMap[Device::cFirstDeviceId]->setException(QModbusPdu::GatewayTargetDeviceFailedToRespond, true);
 
     auto conn = new ModbusConnection(); // ModbusMaster takes ownership
     ModbusMaster modbusMaster(conn, _pSettingsModel, ConnectionTypes::ID_1);
@@ -133,7 +136,7 @@ void TestModbusMaster::singleRequestGatewayNotAvailable()
 
 void TestModbusMaster::singleRequestNoResponse()
 {
-    _testDeviceMap[Device::cFirstDeviceId]->disconnect();
+    _testSlaveMap[Device::cFirstDeviceId]->disconnect();
 
     auto conn = new ModbusConnection(); // ModbusMaster takes ownership
     ModbusMaster modbusMaster(conn, _pSettingsModel, ConnectionTypes::ID_1);
@@ -170,9 +173,10 @@ void TestModbusMaster::singleRequestInvalidAddressOnce()
     auto registerList = QList<ModbusDataUnit>()
                         << ModbusDataUnit(40001) << ModbusDataUnit(40002) << ModbusDataUnit(40003);
 
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, false, 0);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(1, true, 1);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(2, true, 2);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, false, 0);
+    device->configureHoldingRegister(1, true, 1);
+    device->configureHoldingRegister(2, true, 2);
 
     for (uint i = 0; i < _cReadCount; i++)
     {
@@ -201,7 +205,7 @@ void TestModbusMaster::singleRequestInvalidAddressOnce()
 
 void TestModbusMaster::singleRequestInvalidAddressPersistent()
 {
-    _testDeviceMap[Device::cFirstDeviceId]->setException(QModbusPdu::IllegalDataAddress, true);
+    _testSlaveMap[Device::cFirstDeviceId]->setException(QModbusPdu::IllegalDataAddress, true);
 
     auto conn = new ModbusConnection(); // ModbusMaster takes ownership
     ModbusMaster modbusMaster(conn, _pSettingsModel, ConnectionTypes::ID_1);
@@ -230,9 +234,10 @@ void TestModbusMaster::singleRequestInvalidAddressPersistent()
 
 void TestModbusMaster::multiRequestSuccess()
 {
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, true, 0);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(1, true, 1);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(3, true, 3);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 0);
+    device->configureHoldingRegister(1, true, 1);
+    device->configureHoldingRegister(3, true, 3);
 
     auto conn = new ModbusConnection(); // ModbusMaster takes ownership
     ModbusMaster modbusMaster(conn, _pSettingsModel, ConnectionTypes::ID_1);
@@ -270,11 +275,12 @@ void TestModbusMaster::multiRequestSuccess()
 
 void TestModbusMaster::multiRequestGatewayNotAvailable()
 {
-    _testDeviceMap[Device::cFirstDeviceId]->setException(QModbusPdu::IllegalDataAddress, true);
+    _testSlaveMap[Device::cFirstDeviceId]->setException(QModbusPdu::IllegalDataAddress, true);
 
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, true, 0);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(1, true, 1);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(3, true, 3);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 0);
+    device->configureHoldingRegister(1, true, 1);
+    device->configureHoldingRegister(3, true, 3);
 
     auto conn = new ModbusConnection(); // ModbusMaster takes ownership
     ModbusMaster modbusMaster(conn, _pSettingsModel, ConnectionTypes::ID_1);
@@ -306,11 +312,12 @@ void TestModbusMaster::multiRequestGatewayNotAvailable()
 
 void TestModbusMaster::multiRequestNoResponse()
 {
-    _testDeviceMap[Device::cFirstDeviceId]->disconnect();
+    _testSlaveMap[Device::cFirstDeviceId]->disconnect();
 
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, true, 0);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(1, true, 1);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(3, true, 3);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 0);
+    device->configureHoldingRegister(1, true, 1);
+    device->configureHoldingRegister(3, true, 3);
 
     auto conn = new ModbusConnection(); // ModbusMaster takes ownership
     ModbusMaster modbusMaster(conn, _pSettingsModel, ConnectionTypes::ID_1);
@@ -343,11 +350,12 @@ void TestModbusMaster::multiRequestNoResponse()
 
 void TestModbusMaster::multiRequestInvalidAddress()
 {
-    _testDeviceMap[Device::cFirstDeviceId]->setException(QModbusPdu::IllegalDataAddress, true);
+    _testSlaveMap[Device::cFirstDeviceId]->setException(QModbusPdu::IllegalDataAddress, true);
 
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, true, 0);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(1, true, 1);
-    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(3, true, 3);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 0);
+    device->configureHoldingRegister(1, true, 1);
+    device->configureHoldingRegister(3, true, 3);
 
     auto conn = new ModbusConnection(); // ModbusMaster takes ownership
     ModbusMaster modbusMaster(conn, _pSettingsModel, ConnectionTypes::ID_1);
