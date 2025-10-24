@@ -44,7 +44,8 @@ void ModbusConnection::open(quint32 timeout)
     {
         if (_connectionType == ConnectionTypes::TYPE_SERIAL)
         {
-            auto connectionData = QPointer<ConnectionData>(new ConnectionData(new QModbusRtuSerialClient()));
+            auto connectionData =
+              QPointer<ConnectionData>(new ConnectionData(std::make_unique<QModbusRtuSerialClient>()));
 
             connectionData->pModbusClient->setConnectionParameter(QModbusDevice::SerialPortNameParameter,
                                                                   QVariant(_serialSettings.portName));
@@ -61,7 +62,7 @@ void ModbusConnection::open(quint32 timeout)
         }
         else if (_connectionType == ConnectionTypes::TYPE_TCP)
         {
-            auto connectionData = QPointer<ConnectionData>(new ConnectionData(new QModbusTcpClient()));
+            auto connectionData = QPointer<ConnectionData>(new ConnectionData(std::make_unique<QModbusTcpClient>()));
 
             connectionData->pModbusClient->setConnectionParameter(QModbusDevice::NetworkAddressParameter,
                                                                   QVariant(_tcpSettings.ip));
@@ -398,7 +399,7 @@ qint32 ModbusConnection::findConnectionData(QTimer* pTimer, QModbusClient* pClie
         {
             return idx;
         }
-        else if ((pClient != nullptr) && (pClient == _connectionList[idx]->pModbusClient))
+        else if ((pClient != nullptr) && (pClient == _connectionList[idx]->pModbusClient.get()))
         {
             return idx;
         }
@@ -417,9 +418,9 @@ void ModbusConnection::openConnection(QPointer<ConnectionData> connectionData, q
     connectionData->pModbusClient->setTimeout(static_cast<int>(timeout));
 
     connect(&connectionData->connectionTimeoutTimer, &QTimer::timeout, this, &ModbusConnection::connectionTimeOut);
-    connect(connectionData->pModbusClient, &QModbusClient::stateChanged, this,
+    connect(connectionData->pModbusClient.get(), &QModbusClient::stateChanged, this,
             &ModbusConnection::handleConnectionStateChanged);
-    connect(connectionData->pModbusClient, &QModbusClient::errorOccurred, this,
+    connect(connectionData->pModbusClient.get(), &QModbusClient::errorOccurred, this,
             &ModbusConnection::handleConnectionErrorOccurred);
 
     _connectionList.append(connectionData);
@@ -431,7 +432,7 @@ void ModbusConnection::openConnection(QPointer<ConnectionData> connectionData, q
 
     if (!_connectionList.last()->pModbusClient->connectDevice())
     {
-        auto pClient = _connectionList.last()->pModbusClient;
+        auto pClient = _connectionList.last()->pModbusClient.get();
         handleConnectionError(_connectionList.last(), QString("Connect failed: %0").arg(pClient->error()));
     }
 }

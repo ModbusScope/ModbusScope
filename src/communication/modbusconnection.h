@@ -14,20 +14,14 @@ class ConnectionData : public QObject
 {
     Q_OBJECT
 public:
-
-    explicit ConnectionData(QModbusClient* pModbus):
-        connectionTimeoutTimer(this), bConnectionErrorHandled(false), pReply(nullptr)
+    explicit ConnectionData(std::unique_ptr<QModbusClient> pModbus)
+        : connectionTimeoutTimer(this), bConnectionErrorHandled(false), pReply(nullptr)
     {
-        pModbusClient = pModbus;
-    }
-
-    ~ConnectionData()
-    {
-        delete pModbusClient;
+        pModbusClient = std::move(pModbus);
     }
 
     QTimer connectionTimeoutTimer;
-    QModbusClient* pModbusClient;
+    std::unique_ptr<QModbusClient> pModbusClient;
     bool bConnectionErrorHandled;
 
     QModbusReply * pReply;
