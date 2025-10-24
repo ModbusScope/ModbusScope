@@ -55,7 +55,7 @@ void ModbusConnectionFake::close(void)
  * \param size          number of registers
  * \param serverAddress     slave address
  */
-void ModbusConnectionFake::sendReadRequest(ModbusDataUnit regAddress, quint16 size)
+void ModbusConnectionFake::sendReadRequest(const ModbusDataUnit& regAddress, quint16 size)
 {
     using RegisterType = QModbusDataUnit::RegisterType;
 

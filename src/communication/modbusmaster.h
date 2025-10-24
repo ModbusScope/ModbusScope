@@ -36,7 +36,7 @@ private slots:
     void handleConnectionOpened();
     void handlerConnectionError(QModbusDevice::Error error, QString msg);
 
-    void handleRequestSuccess(ModbusDataUnit startRegister, QList<quint16> registerDataList);
+    void handleRequestSuccess(ModbusDataUnit const& startRegister, QList<quint16> registerDataList);
     void handleRequestProtocolError(QModbusPdu::ExceptionCode exceptionCode);
     void handleRequestError(QString errorString, QModbusDevice::Error error);
 

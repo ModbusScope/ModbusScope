@@ -11,10 +11,10 @@ class ModbusRegister
 {
 public:
     ModbusRegister();
-    ModbusRegister(ModbusAddress address, deviceId_t deviceId, ModbusDataType::Type type);
+    ModbusRegister(ModbusAddress const& address, deviceId_t deviceId, ModbusDataType::Type type);
 
     ModbusAddress address() const;
-    void setAddress(ModbusAddress address);
+    void setAddress(ModbusAddress const& address);
 
     deviceId_t deviceId() const;
     void setDeviceId(deviceId_t deviceId);

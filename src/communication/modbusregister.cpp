@@ -6,7 +6,7 @@ ModbusRegister::ModbusRegister()
 
 }
 
-ModbusRegister::ModbusRegister(ModbusAddress address, deviceId_t deviceId, ModbusDataType::Type type)
+ModbusRegister::ModbusRegister(ModbusAddress const& address, deviceId_t deviceId, ModbusDataType::Type type)
     : _address(address), _deviceId(deviceId), _type(type)
 {
 
@@ -17,7 +17,7 @@ ModbusAddress ModbusRegister::address() const
     return _address;
 }
 
-void ModbusRegister::setAddress(ModbusAddress address)
+void ModbusRegister::setAddress(ModbusAddress const& address)
 {
     _address = address;
 }

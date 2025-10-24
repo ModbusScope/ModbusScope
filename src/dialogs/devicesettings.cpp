@@ -51,7 +51,7 @@ void DeviceSettings::onRemoveDeviceClicked()
     // Remove from last to first to keep indices valid
     std::sort(selection.begin(), selection.end(),
               [](const QModelIndex& a, const QModelIndex& b) { return a.row() > b.row(); });
-    for (const QModelIndex& idx : selection)
+    for (const QModelIndex& idx : std::as_const(selection))
     {
         _pDeviceModel->removeRow(idx.row());
     }

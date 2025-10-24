@@ -55,7 +55,7 @@ public:
     virtual void open(quint32 timeout);
     virtual void close(void);
 
-    virtual void sendReadRequest(ModbusDataUnit regAddress, quint16 size);
+    virtual void sendReadRequest(ModbusDataUnit const& regAddress, quint16 size);
 
     virtual bool isConnected(void);
 

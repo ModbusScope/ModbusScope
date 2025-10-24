@@ -21,7 +21,7 @@ public:
     void open(quint32 timeout) override;
     void close(void) override;
 
-    void sendReadRequest(ModbusDataUnit regAddress, quint16 size) override;
+    void sendReadRequest(ModbusDataUnit const& regAddress, quint16 size) override;
 
     bool isConnected(void) override;
 

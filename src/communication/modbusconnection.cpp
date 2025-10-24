@@ -99,7 +99,7 @@ void ModbusConnection::close(void)
  * \param size          number of registers
  * \param serverAddress     slave address
  */
-void ModbusConnection::sendReadRequest(ModbusDataUnit regAddress, quint16 size)
+void ModbusConnection::sendReadRequest(ModbusDataUnit const& regAddress, quint16 size)
 {
     if (isConnected())
     {

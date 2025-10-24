@@ -111,7 +111,7 @@ ModbusReadItem ReadRegisters::next()
  * \param startRegister     Start register address
  * \param registerDataList  List with result data
  */
-void ReadRegisters::addSuccess(ModbusDataUnit startRegister, QList<quint16> registerDataList)
+void ReadRegisters::addSuccess(ModbusDataUnit const& startRegister, QList<quint16> registerDataList)
 {
     if (
         hasNext()

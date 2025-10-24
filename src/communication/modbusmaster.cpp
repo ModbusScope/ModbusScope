@@ -113,7 +113,7 @@ void ModbusMaster::handlerConnectionError(QModbusDevice::Error error, QString ms
     finishRead(true);
 }
 
-void ModbusMaster::handleRequestSuccess(ModbusDataUnit startRegister, QList<quint16> registerDataList)
+void ModbusMaster::handleRequestSuccess(ModbusDataUnit const& startRegister, QList<quint16> registerDataList)
 {
     logInfo(QString("Read success"));
 

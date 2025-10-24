@@ -8,7 +8,7 @@
 class ModbusReadItem
 {
 public:
-    ModbusReadItem(ModbusDataUnit address, quint8 count) : _address(address), _count(count)
+    ModbusReadItem(ModbusDataUnit const& address, quint8 count) : _address(address), _count(count)
     {
     }
 
@@ -38,7 +38,7 @@ public:
     bool hasNext();
     ModbusReadItem next();
 
-    void addSuccess(ModbusDataUnit startRegister, QList<quint16> registerDataList);
+    void addSuccess(ModbusDataUnit const& startRegister, QList<quint16> registerDataList);
     void addError();
     void addAllErrors();
     void splitNextToSingleReads();
