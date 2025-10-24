@@ -28,7 +28,7 @@ DeviceSettings::DeviceSettings(SettingsModel* pSettingsModel, QWidget* parent)
 
     // Handle delete
     QShortcut* shortcut = new QShortcut(QKeySequence(QKeySequence::Delete), _pUi->deviceView);
-    connect(shortcut, &QShortcut::activated, this, &DeviceSettings::onAddDeviceClicked);
+    connect(shortcut, &QShortcut::activated, this, &DeviceSettings::onRemoveDeviceClicked);
 
     connect(_pUi->btnAdd, &QPushButton::clicked, this, &DeviceSettings::onAddDeviceClicked);
     connect(_pUi->btnRemove, &QPushButton::clicked, this, &DeviceSettings::onRemoveDeviceClicked);

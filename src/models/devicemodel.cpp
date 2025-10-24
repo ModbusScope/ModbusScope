@@ -186,9 +186,9 @@ bool DeviceModel::setData(const QModelIndex& index, const QVariant& value, int r
         {
             bool bSuccess = false;
             quint8 consecutiveMax = value.toUInt(&bSuccess);
-            if (bSuccess && device->consecutiveMax() != consecutiveMax)
+            if (bSuccess && (device->consecutiveMax() != consecutiveMax))
             {
-                device->setConsecutiveMax(value.toUInt());
+                device->setConsecutiveMax(consecutiveMax);
                 changed = true;
             }
         }
