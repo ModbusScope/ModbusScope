@@ -8,8 +8,8 @@ class ConnectionDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    ConnectionDelegate(SettingsModel* pSettingsModel, QObject* parent = nullptr);
-    ~ConnectionDelegate() override;
+    explicit ConnectionDelegate(SettingsModel* pSettingsModel, QObject* parent = nullptr);
+    ~ConnectionDelegate() override = default;
 
     QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;

@@ -7,10 +7,6 @@ ConnectionDelegate::ConnectionDelegate(SettingsModel* pSettingsModel, QObject* p
     _pSettingsModel = pSettingsModel;
 }
 
-ConnectionDelegate::~ConnectionDelegate()
-{
-}
-
 QWidget* ConnectionDelegate::createEditor(QWidget* parent,
                                           const QStyleOptionViewItem& option,
                                           const QModelIndex& index) const
@@ -19,7 +15,7 @@ QWidget* ConnectionDelegate::createEditor(QWidget* parent,
     Q_UNUSED(index);
 
     // Create the combobox and populate it
-    QComboBox* cb = new QComboBox(parent);
+    auto cb = new QComboBox(parent);
 
     for (quint8 i = 0u; i < ConnectionTypes::ID_CNT; i++)
     {
@@ -47,7 +43,7 @@ void ConnectionDelegate::setEditorData(QWidget* editor, const QModelIndex& index
 
 void ConnectionDelegate::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const
 {
-    QComboBox* cb = qobject_cast<QComboBox*>(editor);
+    auto cb = qobject_cast<QComboBox*>(editor);
     Q_ASSERT(cb);
 
     model->setData(index, cb->currentData().toUInt(), Qt::EditRole);

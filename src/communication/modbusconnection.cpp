@@ -20,13 +20,13 @@ ModbusConnection::ModbusConnection(QObject* parent) : QObject(parent)
     _bWaitingForConnection = false;
 }
 
-void ModbusConnection::configureTcpConnection(tcpSettings_t tcpSettings)
+void ModbusConnection::configureTcpConnection(tcpSettings_t const& tcpSettings)
 {
     _tcpSettings = tcpSettings;
     _connectionType = ConnectionTypes::TYPE_TCP;
 }
 
-void ModbusConnection::configureSerialConnection(serialSettings_t serialSettings)
+void ModbusConnection::configureSerialConnection(serialSettings_t const& serialSettings)
 {
     _serialSettings = serialSettings;
     _connectionType = ConnectionTypes::TYPE_SERIAL;

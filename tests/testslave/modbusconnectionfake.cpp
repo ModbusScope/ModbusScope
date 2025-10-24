@@ -18,12 +18,12 @@ void ModbusConnectionFake::addSlaveDevice(ModbusAddress::slaveId_t slaveId, Test
     _deviceMap.insert(slaveId, pDevice);
 }
 
-void ModbusConnectionFake::configureTcpConnection(tcpSettings_t tcpSettings)
+void ModbusConnectionFake::configureTcpConnection(tcpSettings_t const& tcpSettings)
 {
     Q_UNUSED(tcpSettings);
 }
 
-void ModbusConnectionFake::configureSerialConnection(serialSettings_t serialSettings)
+void ModbusConnectionFake::configureSerialConnection(serialSettings_t const& serialSettings)
 {
     Q_UNUSED(serialSettings);
 }

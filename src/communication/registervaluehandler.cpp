@@ -94,7 +94,7 @@ void RegisterValueHandler::registerAddresListForConnection(QList<ModbusDataUnit>
         if (deviceList.contains(mbReg.deviceId()))
         {
             auto slaveId = _pSettingsModel->deviceSettings(mbReg.deviceId())->slaveId();
-            ModbusDataUnit address = ModbusDataUnit(mbReg.address(), slaveId);
+            auto address = ModbusDataUnit(mbReg.address(), slaveId);
 
             if (!connRegisterList.contains(address))
             {

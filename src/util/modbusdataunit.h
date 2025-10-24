@@ -8,7 +8,7 @@ class ModbusDataUnit : public ModbusAddress
 public:
     using slaveId_t = quint8;
 
-    ModbusDataUnit(quint16 protocolAddress = 0, ObjectType type = ObjectType::UNKNOWN, slaveId_t slaveId = 1);
+    explicit ModbusDataUnit(quint16 protocolAddress = 0, ObjectType type = ObjectType::UNKNOWN, slaveId_t slaveId = 1);
     ModbusDataUnit(ModbusAddress addr, slaveId_t slaveId);
 
     slaveId_t slaveId() const;
@@ -16,7 +16,7 @@ public:
 
     ModbusDataUnit next(int i = 1) const;
 
-    QString toString() const;
+    QString toString() const override;
 
     friend bool operator==(const ModbusDataUnit& unit1, const ModbusDataUnit& unit2);
     friend bool operator<(const ModbusDataUnit& unit1, const ModbusDataUnit& unit2);

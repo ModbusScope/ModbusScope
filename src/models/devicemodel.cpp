@@ -15,12 +15,16 @@ DeviceModel::DeviceModel(SettingsModel* pSettingsModel, QObject* parent)
 QVariant DeviceModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (role != Qt::DisplayRole)
+    {
         return QVariant();
+    }
 
     if (orientation == Qt::Horizontal)
     {
         if (section >= 0 && section < DeviceHeaderNames.size())
+        {
             return DeviceHeaderNames[section];
+        }
     }
     return QVariant();
 }
@@ -128,13 +132,13 @@ bool DeviceModel::setData(const QModelIndex& index, const QVariant& value, int r
         return false;
 
     bool changed = false;
-    bool bSuccess = false;
     switch (index.column())
     {
     case DeviceIdColumn:
     {
         if (role == Qt::EditRole)
         {
+            bool bSuccess = false;
             deviceId_t newId = value.toUInt(&bSuccess);
             if (bSuccess && (devId != newId) && (!_pSettingsModel->deviceList().contains(newId)))
             {
@@ -166,6 +170,7 @@ bool DeviceModel::setData(const QModelIndex& index, const QVariant& value, int r
     {
         if (role == Qt::EditRole)
         {
+            bool bSuccess = false;
             quint8 slaveId = value.toUInt(&bSuccess);
             if (bSuccess && device->slaveId() != slaveId)
             {
@@ -179,6 +184,7 @@ bool DeviceModel::setData(const QModelIndex& index, const QVariant& value, int r
     {
         if (role == Qt::EditRole)
         {
+            bool bSuccess = false;
             quint8 consecutiveMax = value.toUInt(&bSuccess);
             if (bSuccess && device->consecutiveMax() != consecutiveMax)
             {

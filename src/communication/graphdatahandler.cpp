@@ -7,11 +7,6 @@
 
 #include <QRegularExpression>
 
-GraphDataHandler::GraphDataHandler()
-{
-
-}
-
 /*!
  * \param[in]     pGraphDataModel   Graph data model
  * \param[out]    registerList      List of modbus registers

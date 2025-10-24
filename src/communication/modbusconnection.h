@@ -49,8 +49,8 @@ public:
         QSerialPort::StopBits stopbits;
     } serialSettings_t;
 
-    virtual void configureTcpConnection(tcpSettings_t tcpSettings);
-    virtual void configureSerialConnection(serialSettings_t serialSettings);
+    virtual void configureTcpConnection(tcpSettings_t const& tcpSettings);
+    virtual void configureSerialConnection(serialSettings_t const& serialSettings);
 
     virtual void open(quint32 timeout);
     virtual void close(void);

@@ -30,7 +30,7 @@ public:
     QString fullAddress() const;
     quint16 protocolAddress() const;
 
-    QString toString() const;
+    virtual QString toString() const;
 
     friend bool operator==(const ModbusAddress& unit1, const ModbusAddress& unit2);
 

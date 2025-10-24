@@ -12,7 +12,7 @@ class GraphDataHandler : public QObject
 {
     Q_OBJECT
 public:
-    GraphDataHandler();
+    GraphDataHandler() = default;
 
     void setupExpressions(GraphDataModel* pGraphDataModel, QList<ModbusRegister>& registerList);
 

@@ -15,8 +15,8 @@ public:
 
     void addSlaveDevice(ModbusAddress::slaveId_t slaveId, TestDevice* pDevice);
 
-    void configureTcpConnection(tcpSettings_t tcpSettings) override;
-    void configureSerialConnection(serialSettings_t serialSettings) override;
+    void configureTcpConnection(tcpSettings_t const& tcpSettings) override;
+    void configureSerialConnection(serialSettings_t const& serialSettings) override;
 
     void open(quint32 timeout) override;
     void close(void) override;
