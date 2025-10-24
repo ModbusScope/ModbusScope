@@ -27,19 +27,18 @@ quint32 PresetParser::presetCount()
 
 void PresetParser::parsePresets(QString fileContent)
 {
-    QString errorStr;
-    qint32 errorLine;
-    qint32 errorColumn;
     QDomDocument domDocument;
 
     _presetList.clear();
 
-    if (!domDocument.setContent(fileContent, true, &errorStr, &errorLine, &errorColumn))
+    QDomDocument::ParseResult result =
+      domDocument.setContent(fileContent, QDomDocument::ParseOption::UseNamespaceProcessing);
+    if (!result)
     {
         auto msg = QString(tr("Parse error at line %1, column %2:\n%3")
-                .arg(errorLine)
-                .arg(errorColumn)
-                .arg(errorStr));
+                             .arg(result.errorLine)
+                             .arg(result.errorColumn)
+                             .arg(result.errorMessage));
         qCWarning(scopePreset) << msg;
     }
     else
