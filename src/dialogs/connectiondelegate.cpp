@@ -34,9 +34,12 @@ void ConnectionDelegate::setEditorData(QWidget* editor, const QModelIndex& index
     Q_ASSERT(cb);
 
     // get the index of the text in the combobox that matches the current value of the item
-    const quint8 cbIndex = static_cast<quint8>(index.data(Qt::EditRole).toUInt());
-
-    cb->setCurrentIndex(cbIndex);
+    const quint8 connectionId = static_cast<quint8>(index.data(Qt::EditRole).toUInt());
+    const int cbIndex = cb->findData(connectionId);
+    if (cbIndex >= 0)
+    {
+        cb->setCurrentIndex(cbIndex);
+    }
 
     cb->showPopup();
 }
