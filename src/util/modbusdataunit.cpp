@@ -5,7 +5,7 @@ ModbusDataUnit::ModbusDataUnit(quint16 protocolAddress, ObjectType type, slaveId
 {
 }
 
-ModbusDataUnit::ModbusDataUnit(ModbusAddress addr, slaveId_t slaveId) : ModbusAddress(addr), _slaveId(slaveId)
+ModbusDataUnit::ModbusDataUnit(ModbusAddress const& addr, slaveId_t slaveId) : ModbusAddress(addr), _slaveId(slaveId)
 {
 }
 

@@ -24,7 +24,7 @@ public:
     explicit ModbusAddress(quint32 address);
     explicit ModbusAddress(QString address);
     ModbusAddress(const ModbusAddress& t) = default;
-    ~ModbusAddress() = default;
+    virtual ~ModbusAddress() = default;
 
     ModbusAddress::ObjectType objectType() const;
     QString fullAddress() const;

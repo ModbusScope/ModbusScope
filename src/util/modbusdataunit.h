@@ -9,7 +9,8 @@ public:
     using slaveId_t = quint8;
 
     explicit ModbusDataUnit(quint16 protocolAddress = 0, ObjectType type = ObjectType::UNKNOWN, slaveId_t slaveId = 1);
-    ModbusDataUnit(ModbusAddress addr, slaveId_t slaveId);
+    ModbusDataUnit(ModbusAddress const& addr, slaveId_t slaveId);
+    virtual ~ModbusDataUnit() = default;
 
     slaveId_t slaveId() const;
     void setSlaveId(slaveId_t id);
