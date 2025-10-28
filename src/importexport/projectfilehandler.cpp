@@ -13,6 +13,8 @@
 #include <QFile>
 #include <QFileDialog>
 
+using connectionId_t = ConnectionTypes::connectionId_t;
+
 ProjectFileHandler::ProjectFileHandler(GuiModel* pGuiModel, SettingsModel* pSettingsModel, GraphDataModel* pGraphDataModel) : QObject(nullptr)
 {
     _pGuiModel = pGuiModel;
@@ -102,7 +104,7 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
 
     for(int idx = 0; idx < connCnt; idx++)
     {
-        quint8 connectionId;
+        connectionId_t connectionId;
 
         if (pProjectSettings->general.connectionSettings[idx].bConnectionId)
         {
@@ -111,10 +113,10 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
         else
         {
             /* Default to connection 1 */
-            connectionId = ConnectionId::ID_1;
+            connectionId = ConnectionTypes::ID_1;
         }
 
-        if (connectionId < ConnectionId::ID_CNT)
+        if (connectionId < ConnectionTypes::ID_CNT)
         {
             auto connData = _pSettingsModel->connectionSettings(connectionId);
 
@@ -124,11 +126,11 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
                 && pProjectSettings->general.connectionSettings[idx].connectionType.toLower() == "serial"
                 )
             {
-                connData->setConnectionType(Connection::TYPE_SERIAL);
+                connData->setConnectionType(ConnectionTypes::TYPE_SERIAL);
             }
             else
             {
-                connData->setConnectionType(Connection::TYPE_TCP);
+                connData->setConnectionType(ConnectionTypes::TYPE_TCP);
             }
 
             if (pProjectSettings->general.connectionSettings[idx].bIp)
@@ -203,7 +205,8 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
                     connData->setDatabits(static_cast<QSerialPort::DataBits>(detectedDataBits));
                 }
             }
-
+#if 0
+TODO: dev
             if (pProjectSettings->general.connectionSettings[idx].bSlaveId)
             {
                 connData->setSlaveId(pProjectSettings->general.connectionSettings[idx].slaveId);
@@ -220,7 +223,7 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
             }
 
             connData->setInt32LittleEndian(pProjectSettings->general.connectionSettings[idx].bInt32LittleEndian);
-
+#endif
             connData->setPersistentConnection(pProjectSettings->general.connectionSettings[idx].bPersistentConnection);
         }
     }

@@ -22,8 +22,8 @@ void TestGraphDataHandler::init()
     _pSettingsModel = new SettingsModel;
     _pGraphDataModel = new GraphDataModel(_pSettingsModel);
 
-    _pSettingsModel->connectionSettings(ConnectionId::ID_1)->setInt32LittleEndian(true);
-    _pSettingsModel->connectionSettings(ConnectionId::ID_2)->setInt32LittleEndian(true);
+    _pSettingsModel->deviceSettings(0)->setInt32LittleEndian(true);
+    _pSettingsModel->deviceSettings(0)->setInt32LittleEndian(true);
 }
 
 void TestGraphDataHandler::cleanup()
@@ -40,14 +40,13 @@ void TestGraphDataHandler::registerList()
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
     auto expModbusRegisters = QList<ModbusRegister>()
-                              << ModbusRegister(ModbusAddress(40001), ConnectionId::ID_2, Type::UNSIGNED_16)
-                              << ModbusRegister(ModbusAddress(40001), ConnectionId::ID_1, Type::UNSIGNED_16)
-                              << ModbusRegister(ModbusAddress(40002), ConnectionId::ID_1, Type::SIGNED_32);
+                              << ModbusRegister(ModbusAddress(40001), Device::cFirstDeviceId + 1, Type::UNSIGNED_16)
+                              << ModbusRegister(ModbusAddress(40001), Device::cFirstDeviceId, Type::UNSIGNED_16)
+                              << ModbusRegister(ModbusAddress(40002), Device::cFirstDeviceId, Type::SIGNED_32);
 
     GraphDataHandler dataHandler;
     QList<ModbusRegister> registerList;
-    dataHandler.processActiveRegisters(_pGraphDataModel);
-    dataHandler.modbusRegisterList(registerList);
+    dataHandler.setupExpressions(_pGraphDataModel, registerList);
 
     QCOMPARE(expModbusRegisters, registerList);
 }
@@ -82,8 +81,7 @@ void TestGraphDataHandler::error()
 
     GraphDataHandler dataHandler;
     QList<ModbusRegister> registerList;
-    dataHandler.processActiveRegisters(_pGraphDataModel);
-    dataHandler.modbusRegisterList(registerList);
+    dataHandler.setupExpressions(_pGraphDataModel, registerList);
 
     auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS);
     dataHandler.handleRegisterData(regResults);
@@ -102,9 +100,7 @@ void TestGraphDataHandler::sameRegisterDifferentType()
 
     GraphDataHandler dataHandler;
     QList<ModbusRegister> registerList;
-    dataHandler.processActiveRegisters(_pGraphDataModel);
-    dataHandler.modbusRegisterList(registerList);
-
+    dataHandler.setupExpressions(_pGraphDataModel, registerList);
     auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS) << ResultDouble(1, State::SUCCESS);
     dataHandler.handleRegisterData(regResults);
 
@@ -133,13 +129,11 @@ void TestGraphDataHandler::manyInactiveRegisters()
     _pGraphDataModel->setActive(9, false);
 
     auto expModbusRegisters = QList<ModbusRegister>()
-                              << ModbusRegister(ModbusAddress(40002), ConnectionId::ID_1, Type::UNSIGNED_16);
+                              << ModbusRegister(ModbusAddress(40002), Device::cFirstDeviceId, Type::UNSIGNED_16);
 
     GraphDataHandler dataHandler;
     QList<ModbusRegister> registerList;
-    dataHandler.processActiveRegisters(_pGraphDataModel);
-    dataHandler.modbusRegisterList(registerList);
-
+    dataHandler.setupExpressions(_pGraphDataModel, registerList);
     QCOMPARE(expModbusRegisters, registerList);
 }
 
@@ -175,8 +169,7 @@ void TestGraphDataHandler::graphDataTwice()
     GraphDataHandler dataHandler;
 
     QList<ModbusRegister> registerList;
-    dataHandler.processActiveRegisters(_pGraphDataModel);
-    dataHandler.modbusRegisterList(registerList);
+    dataHandler.setupExpressions(_pGraphDataModel, registerList);
 
     QSignalSpy spyDataReady(&dataHandler, &GraphDataHandler::graphDataReady);
 
@@ -216,8 +209,7 @@ void TestGraphDataHandler::doHandleRegisterData(ResultDoubleList& modbusResults,
 {
     GraphDataHandler dataHandler;
     QList<ModbusRegister> registerList;
-    dataHandler.processActiveRegisters(_pGraphDataModel);
-    dataHandler.modbusRegisterList(registerList);
+    dataHandler.setupExpressions(_pGraphDataModel, registerList);
 
     QSignalSpy spyDataReady(&dataHandler, &GraphDataHandler::graphDataReady);
     dataHandler.handleRegisterData(modbusResults);

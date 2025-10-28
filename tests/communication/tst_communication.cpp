@@ -7,9 +7,8 @@
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
 
-#include "testslavedata.h"
+#include "testslavemodbus.h"
 
-#include <QMap>
 #include <QSignalSpy>
 #include <QTest>
 
@@ -20,71 +19,64 @@ void TestCommunication::init()
     _pSettingsModel = new SettingsModel;
     _pGraphDataModel = new GraphDataModel(_pSettingsModel);
 
-    auto connData = _pSettingsModel->connectionSettings(ConnectionId::ID_1);
+    auto connData = _pSettingsModel->connectionSettings(ConnectionTypes::ID_1);
     connData->setIpAddress("127.0.0.1");
     connData->setPort(5020);
     connData->setTimeout(500);
-    connData->setSlaveId(1);
 
-    _pSettingsModel->setConnectionState(ConnectionId::ID_2, true);
-    connData = _pSettingsModel->connectionSettings(ConnectionId::ID_2);
+    _pSettingsModel->setConnectionState(ConnectionTypes::ID_2, true);
+    connData = _pSettingsModel->connectionSettings(ConnectionTypes::ID_2);
     connData->setIpAddress("127.0.0.1");
     connData->setPort(5021);
     connData->setTimeout(500);
-    connData->setSlaveId(2);
 
-    _pSettingsModel->setConnectionState(ConnectionId::ID_3, true);
-    connData = _pSettingsModel->connectionSettings(ConnectionId::ID_3);
+    _pSettingsModel->setConnectionState(ConnectionTypes::ID_3, true);
+    connData = _pSettingsModel->connectionSettings(ConnectionTypes::ID_3);
     connData->setIpAddress("127.0.0.1");
     connData->setPort(5022);
     connData->setTimeout(500);
-    connData->setSlaveId(3);
+
+    deviceId_t devId = Device::cFirstDeviceId;
+    _pSettingsModel->addDevice(devId);
+    _pSettingsModel->deviceSettings(devId)->setConnectionId(ConnectionTypes::ID_1);
+    _pSettingsModel->deviceSettings(devId)->setSlaveId(ConnectionTypes::ID_1 + 1); // TODO: dev: dirty hack
+
+    devId++;
+    _pSettingsModel->addDevice(devId);
+    _pSettingsModel->deviceSettings(devId)->setConnectionId(ConnectionTypes::ID_2);
+    _pSettingsModel->deviceSettings(devId)->setSlaveId(ConnectionTypes::ID_1 + 2);
+
+    devId++;
+    _pSettingsModel->addDevice(devId);
+    _pSettingsModel->deviceSettings(devId)->setConnectionId(ConnectionTypes::ID_3);
+    _pSettingsModel->deviceSettings(devId)->setSlaveId(ConnectionTypes::ID_1 + 3);
 
     _pSettingsModel->setPollTime(100);
 
-    for (quint8 idx = 0; idx < ConnectionId::ID_CNT; idx++)
+    const auto deviceList = _pSettingsModel->deviceList();
+    for (deviceId_t devId : std::as_const(deviceList))
     {
-        connData = _pSettingsModel->connectionSettings(idx);
+        auto device = _pSettingsModel->deviceSettings(devId);
 
-        _serverConnectionDataList.append(QUrl());
-        _serverConnectionDataList.last().setPort(connData->port());
-        _serverConnectionDataList.last().setHost(connData->ipAddress());
+        connData = _pSettingsModel->connectionSettings(device->connectionId());
 
-        auto modbusDataMap = new TestSlaveModbus::ModbusDataMap();
-        (*modbusDataMap)[QModbusDataUnit::HoldingRegisters] = new TestSlaveData();
-        _testSlaveDataList.append(modbusDataMap);
-        _testSlaveModbusList.append(new TestSlaveModbus(*_testSlaveDataList.last()));
+        _testSlaveMap[devId] = new TestSlaveModbus();
+        auto& testSlave = _testSlaveMap[devId];
 
-        auto slaveId = _pSettingsModel->connectionSettings(idx)->slaveId();
-        QVERIFY(_testSlaveModbusList.last()->connect(_serverConnectionDataList.last(), slaveId));
+        QVERIFY(testSlave->connect(connData->ipAddress(), connData->port(), device->slaveId()));
     }
 }
 
 void TestCommunication::cleanup()
 {
+    for (auto& testSlave : _testSlaveMap)
+    {
+        testSlave->disconnect();
+        delete testSlave;
+    }
+
     delete _pGraphDataModel;
     delete _pSettingsModel;
-
-    for (int idx = 0; idx < ConnectionId::ID_CNT; idx++)
-    {
-        _testSlaveModbusList[idx]->disconnectDevice();
-    }
-
-    while (!_testSlaveDataList.isEmpty())
-    {
-        TestSlaveModbus::ModbusDataMap * pLastMap = _testSlaveDataList.last();
-        if (!pLastMap->isEmpty())
-        {
-            qDeleteAll(*pLastMap);
-            pLastMap->clear();
-        }
-        _testSlaveDataList.removeLast();
-    }
-    qDeleteAll(_testSlaveModbusList);
-
-    _serverConnectionDataList.clear();
-    _testSlaveDataList.clear();
-    _testSlaveModbusList.clear();
 }
 
 void TestCommunication::singleSlaveSuccess()
@@ -93,11 +85,9 @@ void TestCommunication::singleSlaveSuccess()
                                   << "${40001}";
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 1);
-
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(1, true);
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(1, 2);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 1);
+    device->configureHoldingRegister(1, true, 2);
 
     auto resultList = ResultDoubleList() << ResultDouble(2, State::SUCCESS) << ResultDouble(1, State::SUCCESS);
 
@@ -112,11 +102,9 @@ void TestCommunication::typeFloat32()
     auto exprList = QStringList() << "${40001: f32b}";
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 0xffff);
-
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(1, true);
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(1, 0x3f7f);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 0xffff);
+    device->configureHoldingRegister(1, true, 0x3f7f);
 
     auto resultList = ResultDoubleList() << ResultDouble(static_cast<double>(0.999999940395355225f), State::SUCCESS);
 
@@ -147,17 +135,12 @@ void TestCommunication::mixed_1()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    dataMap(ConnectionId::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterState(1, true);
-    dataMap(ConnectionId::ID_2, QModbusDataUnit::HoldingRegisters)->setRegisterValue(1, 1);
-
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(2, true);
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(2, 5);
-
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(3, true);
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(3, 2);
-
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(4, true);
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(4, 1);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    auto device_2 = _testSlaveMap[Device::cFirstDeviceId + 1]->testDevice();
+    device_2->configureHoldingRegister(1, true, 1);
+    device->configureHoldingRegister(2, true, 5);
+    device->configureHoldingRegister(3, true, 2);
+    device->configureHoldingRegister(4, true, 1);
 
     auto resultList = ResultDoubleList() << ResultDouble(6, State::SUCCESS) << ResultDouble(2, State::SUCCESS)
                                          << ResultDouble(65538, State::SUCCESS);
@@ -176,17 +159,11 @@ void TestCommunication::mixed_fail()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, false);
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 0);
-
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(1, true);
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(1, 1);
-
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(2, false);
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(2, 2);
-
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(3, true);
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(3, 3);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, false, 0);
+    device->configureHoldingRegister(1, true, 1);
+    device->configureHoldingRegister(2, false, 2);
+    device->configureHoldingRegister(3, true, 3);
 
     auto resultList = ResultDoubleList() << ResultDouble(0, State::INVALID) << ResultDouble(0, State::INVALID)
                                          << ResultDouble(3, State::SUCCESS);
@@ -199,52 +176,16 @@ void TestCommunication::mixed_fail()
 
 void TestCommunication::readLargeRegisterAddress()
 {
-    /* Disable already initialized test slave on connection 1 */
-    _testSlaveModbusList[ConnectionId::ID_1]->disconnect();
+    auto testSlaveData = new TestSlaveData(71001 - 40001, 50);
 
-    TestSlaveData testSlaveData(71001 - 40001, 50);
-    TestSlaveModbus::ModbusDataMap modbusDataMap;
-    modbusDataMap[QModbusDataUnit::HoldingRegisters] = &testSlaveData;
-    TestSlaveModbus testSlaveModbus(modbusDataMap);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->setSlaveData(QModbusDataUnit::HoldingRegisters, testSlaveData);
 
-    auto slaveId = _pSettingsModel->connectionSettings(ConnectionId::ID_1)->slaveId();
-    QVERIFY(testSlaveModbus.connect(_serverConnectionDataList[ConnectionId::ID_1], slaveId));
+    testSlaveData->setRegisterState(71001 - 40001, true);
+    testSlaveData->setRegisterValue(71001 - 40001, 1);
 
-    auto exprList = QStringList() << "${71001}"
-                                  << "${71049}";
+    auto exprList = QStringList() << "${71001}";
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
-
-    testSlaveData.setRegisterState(71001 - 40001, true);
-    testSlaveData.setRegisterValue(71001 - 40001, 1);
-
-    testSlaveData.setRegisterState(71049 - 40001, true);
-    testSlaveData.setRegisterValue(71049 - 40001, 2);
-
-    auto resultList = ResultDoubleList() << ResultDouble(1, State::SUCCESS)
-                                         << ResultDouble(2, State::SUCCESS);
-
-    QList<QVariant> rawRegData;
-    doHandleRegisterData(rawRegData);
-
-    CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
-}
-
-void TestCommunication::readVeryLargeRegisterAddress()
-{
-#if 0
-    /* Disable already initialized test slave on connection 1 */
-    _testSlaveModbusList[ConnectionId::ID_1]->disconnect();
-
-    TestSlaveData testSlaveData(105536 - 40001, 1); /* Last possible holding register (65353+40001) */
-    //TestSlaveModbus testSlaveModbus(&testSlaveData);
-
-    QVERIFY(testSlaveModbus.connect(_serverConnectionDataList[ConnectionId::ID_1], _pSettingsModel->slaveId(ConnectionId::ID_1)));
-
-    auto exprList = QStringList() << "${105536}";
-    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
-
-    testSlaveData.setRegisterState(105536 - 40001, true);
-    testSlaveData.setRegisterValue(105536 - 40001, 1);
 
     auto resultList = ResultDoubleList() << ResultDouble(1, State::SUCCESS);
 
@@ -252,7 +193,6 @@ void TestCommunication::readVeryLargeRegisterAddress()
     doHandleRegisterData(rawRegData);
 
     CommunicationHelpers::verifyReceivedDataSignal(rawRegData, resultList);
-#endif
 }
 
 void TestCommunication::unknownConnection()
@@ -262,8 +202,8 @@ void TestCommunication::unknownConnection()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 2);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 2);
 
     auto resultList = ResultDoubleList() << ResultDouble(0, State::INVALID)
                                          << ResultDouble(2, State::SUCCESS);
@@ -279,12 +219,12 @@ void TestCommunication::disabledConnection()
     auto exprList = QStringList() << "${40001@1}"
                                   << "${40001@2}";
 
-    _pSettingsModel->setConnectionState(ConnectionId::ID_2, false);
+    _pSettingsModel->setConnectionState(ConnectionTypes::ID_2, false);
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterState(0, true);
-    dataMap(ConnectionId::ID_1, QModbusDataUnit::HoldingRegisters)->setRegisterValue(0, 5);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 5);
 
     auto resultList = ResultDoubleList() << ResultDouble(5, State::SUCCESS)
                                          << ResultDouble(0, State::INVALID);
@@ -302,23 +242,17 @@ void TestCommunication::doHandleRegisterData(QList<QVariant>& actRawData)
     connect(&modbusPoll, &ModbusPoll::registerDataReady, &dataHandler, &GraphDataHandler::handleRegisterData);
 
     QList<ModbusRegister> registerList;
-    dataHandler.processActiveRegisters(_pGraphDataModel);
-    dataHandler.modbusRegisterList(registerList);
+    dataHandler.setupExpressions(_pGraphDataModel, registerList);
 
     QSignalSpy spyDataReady(&dataHandler, &GraphDataHandler::graphDataReady);
 
     modbusPoll.startCommunication(registerList);
 
-    auto timeout = _pSettingsModel->connectionSettings(ConnectionId::ID_1)->timeout();
+    auto timeout = _pSettingsModel->connectionSettings(ConnectionTypes::ID_1)->timeout();
     QVERIFY(spyDataReady.wait(static_cast<int>(timeout) + 100));
     QCOMPARE(spyDataReady.count(), 1);
 
     actRawData = spyDataReady.takeFirst();
-}
-
-TestSlaveData* TestCommunication::dataMap(uint32_t connId, QModbusDataUnit::RegisterType type)
-{
-    return (_testSlaveDataList[connId])->value(type);
 }
 
 QTEST_GUILESS_MAIN(TestCommunication)

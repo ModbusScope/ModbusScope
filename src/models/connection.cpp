@@ -9,14 +9,10 @@ Connection::Connection()
       _baudrate(QSerialPort::Baud115200),
       _databits(QSerialPort::Data8),
       _stopbits(QSerialPort::OneStop),
-      _slaveId(1),
       _timeout(1000),
-      _consecutiveMax(125),
-      _bConnectionState(false),
-      _bInt32LittleEndian(true),
       _bPersistentConnection(true)
 {
-    _connectionType = Connection::TYPE_TCP;
+    _connectionType = ConnectionTypes::TYPE_TCP;
 }
 
 Connection::~Connection()
@@ -80,26 +76,6 @@ void Connection::serialConnectionStrings(QString& strParity, QString& strDataBit
     }
 }
 
-void Connection::setConsecutiveMax(quint8 max)
-{
-    _consecutiveMax = max;
-}
-
-quint8 Connection::consecutiveMax()
-{
-    return _consecutiveMax;
-}
-
-void Connection::setInt32LittleEndian(bool int32LittleEndian)
-{
-    _bInt32LittleEndian = int32LittleEndian;
-}
-
-bool Connection::int32LittleEndian()
-{
-    return _bInt32LittleEndian;
-}
-
 void Connection::setPersistentConnection(bool persistentConnection)
 {
     _bPersistentConnection = persistentConnection;
@@ -110,12 +86,12 @@ bool Connection::persistentConnection()
     return _bPersistentConnection;
 }
 
-void Connection::setConnectionType(Connection::type_t connectionType)
+void Connection::setConnectionType(ConnectionTypes::type_t connectionType)
 {
     _connectionType = connectionType;
 }
 
-Connection::type_t Connection::connectionType()
+ConnectionTypes::type_t Connection::connectionType()
 {
     return _connectionType;
 }
@@ -188,16 +164,6 @@ void Connection::setPort(quint16 port)
 quint16 Connection::port()
 {
     return _port;
-}
-
-quint8 Connection::slaveId()
-{
-    return _slaveId;
-}
-
-void Connection::setSlaveId(quint8 id)
-{
-    _slaveId = id;
 }
 
 quint32 Connection::timeout()

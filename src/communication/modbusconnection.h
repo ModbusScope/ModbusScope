@@ -1,11 +1,11 @@
 #ifndef MODBUSCONNECTION_H
 #define MODBUSCONNECTION_H
 
-#include "util/modbusaddress.h"
+#include "models/connectiontypes.h"
+#include "util/modbusdataunit.h"
 #include <QModbusClient>
 #include <QModbusDevice>
 #include <QModbusReply>
-#include <QObject>
 #include <QPointer>
 #include <QSerialPort>
 #include <QTimer>
@@ -14,20 +14,14 @@ class ConnectionData : public QObject
 {
     Q_OBJECT
 public:
-
-    explicit ConnectionData(QModbusClient* pModbus):
-        connectionTimeoutTimer(this), bConnectionErrorHandled(false), pReply(nullptr)
+    explicit ConnectionData(std::unique_ptr<QModbusClient> pModbus)
+        : connectionTimeoutTimer(this), bConnectionErrorHandled(false), pReply(nullptr)
     {
-        pModbusClient = pModbus;
-    }
-
-    ~ConnectionData()
-    {
-        delete pModbusClient;
+        pModbusClient = std::move(pModbus);
     }
 
     QTimer connectionTimeoutTimer;
-    QModbusClient* pModbusClient;
+    std::unique_ptr<QModbusClient> pModbusClient;
     bool bConnectionErrorHandled;
 
     QModbusReply * pReply;
@@ -40,34 +34,36 @@ class ModbusConnection : public QObject
 public:
     explicit ModbusConnection(QObject *parent = nullptr);
 
-    struct TcpSettings
+    typedef struct
     {
         QString ip;
         qint32 port;
-    };
+    } tcpSettings_t;
 
-    struct SerialSettings
+    typedef struct
     {
         QString portName;
         QSerialPort::Parity parity;
         QSerialPort::BaudRate baudrate;
         QSerialPort::DataBits databits;
         QSerialPort::StopBits stopbits;
-    };
+    } serialSettings_t;
 
-    void openTcpConnection(struct TcpSettings tcpSettings, quint32 timeout);
-    void openSerialConnection(struct SerialSettings serialSettings, quint32 timeout);
-    void closeConnection(void);
+    virtual void configureTcpConnection(tcpSettings_t const& tcpSettings);
+    virtual void configureSerialConnection(serialSettings_t const& serialSettings);
 
-    void sendReadRequest(ModbusAddress regAddress, quint16 size, int serverAddress);
+    virtual void open(quint32 timeout);
+    virtual void close(void);
 
-    bool isConnected(void);
+    virtual void sendReadRequest(ModbusDataUnit const& regAddress, quint16 size);
+
+    virtual bool isConnected(void);
 
 signals:
     void connectionSuccess(void);
     void connectionError(QModbusDevice::Error error, QString msg);
 
-    void readRequestSuccess(ModbusAddress startRegister, QList<quint16> registerDataList);
+    void readRequestSuccess(ModbusDataUnit startRegister, QList<quint16> registerDataList);
     void readRequestProtocolError(QModbusPdu::ExceptionCode exceptionCode);
     void readRequestError(QString errorString, QModbusDevice::Error error);
 
@@ -80,15 +76,17 @@ private slots:
 
     void handleRequestFinished();
 
+private:
     bool prepareConnectionOpen();
     void openConnection(QPointer<ConnectionData> connectionData, quint32 timeout);
-
-private:
-
     QModbusDataUnit::RegisterType registerType(ModbusAddress::ObjectType type);
     ModbusAddress::ObjectType objectType(QModbusDataUnit::RegisterType type);
     void handleConnectionError(QPointer<ConnectionData> connectionData, QString errMsg);
     qint32 findConnectionData(QTimer * pTimer, QModbusClient * pClient);
+
+    ConnectionTypes::type_t _connectionType;
+    tcpSettings_t _tcpSettings;
+    serialSettings_t _serialSettings;
 
     QList<QPointer<ConnectionData>> _connectionList;
     bool _bWaitingForConnection;

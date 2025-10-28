@@ -1,18 +1,21 @@
-
 #include "settingsmodel.h"
+#include "models/connectiontypes.h"
 
-SettingsModel::SettingsModel(QObject *parent) :
-    QObject(parent)
+using connectionId_t = ConnectionTypes::connectionId_t;
+
+SettingsModel::SettingsModel(QObject* parent) : QObject(parent)
 {
 
-    for (quint8 i = 0; i < ConnectionId::ID_CNT; i++)
+    for (quint8 i = 0; i < ConnectionTypes::ID_CNT; i++)
     {
         ConnectionSettings connectionSettings;
         _connectionSettings.append(connectionSettings);
     }
 
     /* Connection 1 is always enabled */
-    _connectionSettings[ConnectionId::ID_1].bConnectionState = true;
+    _connectionSettings[ConnectionTypes::ID_1].bConnectionState = true;
+
+    _devices[Device::cFirstDeviceId] = Device();
 
     _pollTime = 250;
     _bAbsoluteTimes = false;
@@ -22,7 +25,6 @@ SettingsModel::SettingsModel(QObject *parent) :
 
 SettingsModel::~SettingsModel()
 {
-
 }
 
 void SettingsModel::triggerUpdate(void)
@@ -61,6 +63,46 @@ bool SettingsModel::absoluteTimes()
     return _bAbsoluteTimes;
 }
 
+void SettingsModel::addDevice(deviceId_t devId)
+{
+    if (!_devices.contains(devId))
+    {
+        _devices[devId] = Device();
+    }
+}
+
+void SettingsModel::removeDevice(deviceId_t devId)
+{
+    _devices.remove(devId);
+}
+
+QList<deviceId_t> SettingsModel::deviceList()
+{
+    QList<deviceId_t> list;
+
+    for (auto i = _devices.cbegin(), end = _devices.cend(); i != end; ++i)
+    {
+        list.append(i.key());
+    }
+
+    return list;
+}
+
+QList<deviceId_t> SettingsModel::deviceListForConnection(connectionId_t connectionId)
+{
+    QList<deviceId_t> list;
+
+    for (auto i = _devices.cbegin(), end = _devices.cend(); i != end; ++i)
+    {
+        if (static_cast<Device>(i.value()).connectionId() == connectionId)
+        {
+            list.append(i.key());
+        }
+    }
+
+    return list;
+}
+
 void SettingsModel::setWriteDuringLog(bool bState)
 {
     if (_bWriteDuringLog != bState)
@@ -94,15 +136,24 @@ QString SettingsModel::writeDuringLogFile()
     return _writeDuringLogFile;
 }
 
-Connection* SettingsModel::connectionSettings(quint8 connectionId)
+Connection* SettingsModel::connectionSettings(connectionId_t connectionId)
 {
     return &_connectionSettings[connectionId].connectionData;
 }
 
-void SettingsModel::setConnectionState(quint8 connectionId, bool bState)
+Device* SettingsModel::deviceSettings(deviceId_t devId)
+{
+#if 0
+TODO: dev
+Check validity
+#endif
+    return &_devices[devId];
+}
+
+void SettingsModel::setConnectionState(connectionId_t connectionId, bool bState)
 {
     /* Connection 1 can't be disabled */
-    if (connectionId == ConnectionId::ID_1)
+    if (connectionId == ConnectionTypes::ID_1)
     {
         bState = true;
     }
@@ -110,7 +161,17 @@ void SettingsModel::setConnectionState(quint8 connectionId, bool bState)
     _connectionSettings[connectionId].bConnectionState = bState;
 }
 
-bool SettingsModel::connectionState(quint8 connectionId)
+bool SettingsModel::connectionState(connectionId_t connectionId)
 {
     return _connectionSettings[connectionId].bConnectionState;
+}
+
+bool SettingsModel::updateDeviceId(deviceId_t oldId, deviceId_t newId)
+{
+    if (!_devices.contains(oldId) || _devices.contains(newId))
+        return false;
+
+    Device device = _devices.take(oldId);
+    _devices.insert(newId, device);
+    return true;
 }

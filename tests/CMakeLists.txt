@@ -33,9 +33,10 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS
 function(add_xtest SOURCE_NAME)
 	add_executable(${SOURCE_NAME}
         ${SOURCE_NAME}.cpp
-        ${SOURCE_NAME}.h
 		${ARGV1}
-		${ARGV2})
+		${ARGV2}
+        ${ARGV3}
+        ${ARGV4})
 	target_link_libraries(${SOURCE_NAME} Qt::Test ${QT_LIB} ${SCOPESOURCE})
 	add_test(NAME ${SOURCE_NAME} COMMAND ${SOURCE_NAME})
 endfunction()
@@ -45,7 +46,9 @@ function(add_xtest_mock SOURCE_NAME)
         ${SOURCE_NAME}.cpp
         ${GOOGLE_TEST_SOURCE}
 		${ARGV1}
-		${ARGV2})
+		${ARGV2}
+        ${ARGV3}
+        ${ARGV4})
 	target_link_libraries(${SOURCE_NAME} Qt::Test Threads::Threads ${QT_LIB} ${SCOPESOURCE})
 	add_test(NAME ${SOURCE_NAME} COMMAND ${SOURCE_NAME})
 endfunction()

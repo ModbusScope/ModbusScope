@@ -1,12 +1,8 @@
-
 #include "tst_modbusmaster.h"
 
 #include "communication/modbusmaster.h"
-#include "testslavedata.h"
 #include "testslavemodbus.h"
 
-#include <QMap>
-#include <QMetaType>
 #include <QSignalSpy>
 #include <QTest>
 
@@ -16,58 +12,59 @@ void TestModbusMaster::init()
 {
     qRegisterMetaType<Result<quint16>>("Result<quint16>");
 
-    auto connData = _settingsModel.connectionSettings(ConnectionId::ID_1);
+    _pSettingsModel = new SettingsModel;
 
+    auto connData = _pSettingsModel->connectionSettings(ConnectionTypes::ID_1);
     connData->setIpAddress("127.0.0.1");
     connData->setPort(5020);
     connData->setTimeout(500);
-    connData->setSlaveId(1);
 
-    _serverConnectionData.setPort(connData->port());
-    _serverConnectionData.setHost(connData->ipAddress());
+    _pSettingsModel->setPollTime(100);
 
-    if (!_testSlaveData.isEmpty())
+    deviceId_t devId = Device::cFirstDeviceId;
+    _pSettingsModel->addDevice(devId);
+    _pSettingsModel->deviceSettings(devId)->setConnectionId(ConnectionTypes::ID_1);
+    _pSettingsModel->deviceSettings(devId)->setSlaveId(devId);
+
+    const auto deviceList = _pSettingsModel->deviceList();
+    for (deviceId_t devId : std::as_const(deviceList))
     {
-        qDeleteAll(_testSlaveData);
-        _testSlaveData.clear();
+        auto device = _pSettingsModel->deviceSettings(devId);
+
+        connData = _pSettingsModel->connectionSettings(device->connectionId());
+
+        _testSlaveMap[devId] = new TestSlaveModbus();
+        auto& testSlave = _testSlaveMap[devId];
+
+        QVERIFY(testSlave->connect(connData->ipAddress(), connData->port(), device->slaveId()));
     }
-
-    if (!_pTestSlaveModbus.isNull())
-    {
-        delete _pTestSlaveModbus;
-    }
-
-    _testSlaveData[QModbusDataUnit::HoldingRegisters] = new TestSlaveData();
-    _pTestSlaveModbus = new TestSlaveModbus(_testSlaveData);
-
-    QVERIFY(_pTestSlaveModbus->connect(_serverConnectionData,
-                                       _settingsModel.connectionSettings(ConnectionId::ID_1)->slaveId()));
 }
 
 void TestModbusMaster::cleanup()
 {
-    _pTestSlaveModbus->disconnectDevice();
-
-    if (!_testSlaveData.isEmpty())
+    for (auto& testSlave : _testSlaveMap)
     {
-        qDeleteAll(_testSlaveData);
-        _testSlaveData.clear();
+        testSlave->disconnect();
+        delete testSlave;
     }
-    delete _pTestSlaveModbus;
+
+    delete _pSettingsModel;
 }
 
 void TestModbusMaster::singleRequestSuccess()
 {
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(0, true);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 0);
 
-    ModbusMaster modbusMaster(&_settingsModel, ConnectionId::ID_1);
+    auto conn = new ModbusConnection(); // ModbusMaster takes ownership
+    ModbusMaster modbusMaster(conn, _pSettingsModel, ConnectionTypes::ID_1);
 
-    auto registerList = QList<ModbusAddress>() << ModbusAddress(40001);
+    auto registerList = QList<ModbusDataUnit>() << ModbusDataUnit(40001);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         QVERIFY(spyModbusPollDone.wait(100));
         QCOMPARE(spyModbusPollDone.count(), 1);
@@ -80,21 +77,23 @@ void TestModbusMaster::singleRequestSuccess()
         ModbusResultMap result = varResultList.value<ModbusResultMap >();
         QCOMPARE(result.size(), 1);
 
-        QVERIFY(result[ModbusAddress(40001)].isValid());
-        QCOMPARE(result[ModbusAddress(40001)].value(), static_cast<quint32>(0));
+        QVERIFY(result[ModbusDataUnit(40001)].isValid());
+        QCOMPARE(result[ModbusDataUnit(40001)].value(), static_cast<quint32>(0));
     }
 }
 
 void TestModbusMaster::singleRequestEmpty()
 {
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(0, true);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 0);
 
-    ModbusMaster modbusMaster(&_settingsModel, ConnectionId::ID_1);
+    auto conn = new ModbusConnection(); // ModbusMaster takes ownership
+    ModbusMaster modbusMaster(conn, _pSettingsModel, ConnectionTypes::ID_1);
 
-    QList<ModbusAddress> registerList;
+    QList<ModbusDataUnit> registerList;
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
-    modbusMaster.readRegisterList(registerList);
+    modbusMaster.readRegisterList(registerList, 128);
 
     QCOMPARE(spyModbusPollDone.count(), 1);
 
@@ -109,15 +108,16 @@ void TestModbusMaster::singleRequestEmpty()
 
 void TestModbusMaster::singleRequestGatewayNotAvailable()
 {
-    _pTestSlaveModbus->setException(QModbusPdu::GatewayTargetDeviceFailedToRespond, true);
+    _testSlaveMap[Device::cFirstDeviceId]->setException(QModbusPdu::GatewayTargetDeviceFailedToRespond, true);
 
-    ModbusMaster modbusMaster(&_settingsModel, ConnectionId::ID_1);
+    auto conn = new ModbusConnection(); // ModbusMaster takes ownership
+    ModbusMaster modbusMaster(conn, _pSettingsModel, ConnectionTypes::ID_1);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
-    auto registerList = QList<ModbusAddress>() << ModbusAddress(40001);
+    auto registerList = QList<ModbusDataUnit>() << ModbusDataUnit(40001);
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         QVERIFY(spyModbusPollDone.wait(100));
         QCOMPARE(spyModbusPollDone.count(), 1);
@@ -130,24 +130,25 @@ void TestModbusMaster::singleRequestGatewayNotAvailable()
         ModbusResultMap result = varResultList.value<ModbusResultMap >();
         QCOMPARE(result.size(), 1);
 
-        QVERIFY(result[ModbusAddress(40001)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40001)].isValid() == false);
     }
 }
 
 void TestModbusMaster::singleRequestNoResponse()
 {
-    _pTestSlaveModbus->disconnectDevice();
+    _testSlaveMap[Device::cFirstDeviceId]->disconnect();
 
-    ModbusMaster modbusMaster(&_settingsModel, ConnectionId::ID_1);
+    auto conn = new ModbusConnection(); // ModbusMaster takes ownership
+    ModbusMaster modbusMaster(conn, _pSettingsModel, ConnectionTypes::ID_1);
 
-    auto registerList = QList<ModbusAddress>() << ModbusAddress(40001);
+    auto registerList = QList<ModbusDataUnit>() << ModbusDataUnit(40001);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
-        auto connData = _settingsModel.connectionSettings(ConnectionId::ID_1);
+        auto connData = _pSettingsModel->connectionSettings(ConnectionTypes::ID_1);
         spyModbusPollDone.wait(static_cast<int>(connData->timeout()) + 100);
         QCOMPARE(spyModbusPollDone.count(), 1);
 
@@ -159,27 +160,27 @@ void TestModbusMaster::singleRequestNoResponse()
         ModbusResultMap result = varResultList.value<ModbusResultMap >();
         QCOMPARE(result.size(), 1);
 
-        QVERIFY(result[ModbusAddress(40001)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40001)].isValid() == false);
     }
 }
 
 void TestModbusMaster::singleRequestInvalidAddressOnce()
 {
-    ModbusMaster modbusMaster(&_settingsModel, ConnectionId::ID_1);
+    auto conn = new ModbusConnection(); // ModbusMaster takes ownership
+    ModbusMaster modbusMaster(conn, _pSettingsModel, ConnectionTypes::ID_1);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
-    auto registerList = QList<ModbusAddress>() << ModbusAddress(40001) << ModbusAddress(40002) << ModbusAddress(40003);
+    auto registerList = QList<ModbusDataUnit>()
+                        << ModbusDataUnit(40001) << ModbusDataUnit(40002) << ModbusDataUnit(40003);
 
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(0, false);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(1, true);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(2, true);
-
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(1, 1);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(2, 2);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, false, 0);
+    device->configureHoldingRegister(1, true, 1);
+    device->configureHoldingRegister(2, true, 2);
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         QVERIFY(spyModbusPollDone.wait(100));
         QCOMPARE(spyModbusPollDone.count(), 1);
@@ -192,29 +193,29 @@ void TestModbusMaster::singleRequestInvalidAddressOnce()
         ModbusResultMap result = varResultList.value<ModbusResultMap >();
         QCOMPARE(result.size(), 3);
 
-        QVERIFY(result[ModbusAddress(40001)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40001)].isValid() == false);
 
-        QVERIFY(result[ModbusAddress(40002)].isValid());
-        QCOMPARE(result[ModbusAddress(40002)].value(), static_cast<quint16>(1));
+        QVERIFY(result[ModbusDataUnit(40002)].isValid());
+        QCOMPARE(result[ModbusDataUnit(40002)].value(), static_cast<quint16>(1));
 
-        QVERIFY(result[ModbusAddress(40003)].isValid());
-        QCOMPARE(result[ModbusAddress(40003)].value(), static_cast<quint16>(2));
-
+        QVERIFY(result[ModbusDataUnit(40003)].isValid());
+        QCOMPARE(result[ModbusDataUnit(40003)].value(), static_cast<quint16>(2));
     }
 }
 
 void TestModbusMaster::singleRequestInvalidAddressPersistent()
 {
-    _pTestSlaveModbus->setException(QModbusPdu::IllegalDataAddress, true);
+    _testSlaveMap[Device::cFirstDeviceId]->setException(QModbusPdu::IllegalDataAddress, true);
 
-    ModbusMaster modbusMaster(&_settingsModel, ConnectionId::ID_1);
+    auto conn = new ModbusConnection(); // ModbusMaster takes ownership
+    ModbusMaster modbusMaster(conn, _pSettingsModel, ConnectionTypes::ID_1);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
-    auto registerList = QList<ModbusAddress>() << ModbusAddress(40001);
+    auto registerList = QList<ModbusDataUnit>() << ModbusDataUnit(40001);
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         QVERIFY(spyModbusPollDone.wait(100));
         QCOMPARE(spyModbusPollDone.count(), 1);
@@ -227,30 +228,29 @@ void TestModbusMaster::singleRequestInvalidAddressPersistent()
         ModbusResultMap result = varResultList.value<ModbusResultMap >();
         QCOMPARE(result.size(), 1);
 
-        QVERIFY(result[ModbusAddress(40001)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40001)].isValid() == false);
     }
 }
 
 void TestModbusMaster::multiRequestSuccess()
 {
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(0, true);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(1, true);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(3, true);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 0);
+    device->configureHoldingRegister(1, true, 1);
+    device->configureHoldingRegister(3, true, 3);
 
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(0, 0);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(1, 1);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(3, 3);
+    auto conn = new ModbusConnection(); // ModbusMaster takes ownership
+    ModbusMaster modbusMaster(conn, _pSettingsModel, ConnectionTypes::ID_1);
 
-    ModbusMaster modbusMaster(&_settingsModel, ConnectionId::ID_1);
-
-    auto registerList = QList<ModbusAddress>() << ModbusAddress(40001) << ModbusAddress(40002) << ModbusAddress(40004);
+    auto registerList = QList<ModbusDataUnit>()
+                        << ModbusDataUnit(40001) << ModbusDataUnit(40002) << ModbusDataUnit(40004);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
-        auto timeout = _settingsModel.connectionSettings(ConnectionId::ID_1)->timeout();
+        auto timeout = _pSettingsModel->connectionSettings(ConnectionTypes::ID_1)->timeout();
         QVERIFY(spyModbusPollDone.wait(static_cast<int>(timeout)));
         QCOMPARE(spyModbusPollDone.count(), 1);
 
@@ -262,37 +262,36 @@ void TestModbusMaster::multiRequestSuccess()
         ModbusResultMap result = varResultList.value<ModbusResultMap >();
         QCOMPARE(result.size(), 3);
 
-        QVERIFY(result[ModbusAddress(40001)].isValid());
-        QCOMPARE(result[ModbusAddress(40001)].value(), static_cast<quint16>(0));
+        QVERIFY(result[ModbusDataUnit(40001)].isValid());
+        QCOMPARE(result[ModbusDataUnit(40001)].value(), static_cast<quint16>(0));
 
-        QVERIFY(result[ModbusAddress(40002)].isValid());
-        QCOMPARE(result[ModbusAddress(40002)].value(), static_cast<quint16>(1));
+        QVERIFY(result[ModbusDataUnit(40002)].isValid());
+        QCOMPARE(result[ModbusDataUnit(40002)].value(), static_cast<quint16>(1));
 
-        QVERIFY(result[ModbusAddress(40004)].isValid());
-        QCOMPARE(result[ModbusAddress(40004)].value(), static_cast<quint16>(3));
+        QVERIFY(result[ModbusDataUnit(40004)].isValid());
+        QCOMPARE(result[ModbusDataUnit(40004)].value(), static_cast<quint16>(3));
     }
 }
 
 void TestModbusMaster::multiRequestGatewayNotAvailable()
 {
-    _pTestSlaveModbus->setException(QModbusPdu::IllegalDataAddress, true);
+    _testSlaveMap[Device::cFirstDeviceId]->setException(QModbusPdu::IllegalDataAddress, true);
 
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(0, true);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(1, true);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(3, true);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 0);
+    device->configureHoldingRegister(1, true, 1);
+    device->configureHoldingRegister(3, true, 3);
 
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(0, 0);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(1, 1);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(3, 3);
+    auto conn = new ModbusConnection(); // ModbusMaster takes ownership
+    ModbusMaster modbusMaster(conn, _pSettingsModel, ConnectionTypes::ID_1);
 
-    ModbusMaster modbusMaster(&_settingsModel, ConnectionId::ID_1);
-
-    auto registerList = QList<ModbusAddress>() << ModbusAddress(40001) << ModbusAddress(40002) << ModbusAddress(40004);
+    auto registerList = QList<ModbusDataUnit>()
+                        << ModbusDataUnit(40001) << ModbusDataUnit(40002) << ModbusDataUnit(40004);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
         QVERIFY(spyModbusPollDone.wait(100));
         QCOMPARE(spyModbusPollDone.count(), 1);
@@ -305,35 +304,33 @@ void TestModbusMaster::multiRequestGatewayNotAvailable()
         ModbusResultMap result = varResultList.value<ModbusResultMap >();
         QCOMPARE(result.size(), 3);
 
-        QVERIFY(result[ModbusAddress(40001)].isValid() == false);
-        QVERIFY(result[ModbusAddress(40002)].isValid() == false);
-        QVERIFY(result[ModbusAddress(40004)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40001)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40002)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40004)].isValid() == false);
     }
 }
 
 void TestModbusMaster::multiRequestNoResponse()
 {
+    _testSlaveMap[Device::cFirstDeviceId]->disconnect();
 
-    _pTestSlaveModbus->disconnectDevice();
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 0);
+    device->configureHoldingRegister(1, true, 1);
+    device->configureHoldingRegister(3, true, 3);
 
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(0, true);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(1, true);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(3, true);
+    auto conn = new ModbusConnection(); // ModbusMaster takes ownership
+    ModbusMaster modbusMaster(conn, _pSettingsModel, ConnectionTypes::ID_1);
 
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(0, 0);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(1, 1);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(3, 3);
-
-    ModbusMaster modbusMaster(&_settingsModel, ConnectionId::ID_1);
-
-    auto registerList = QList<ModbusAddress>() << ModbusAddress(40001) << ModbusAddress(40002) << ModbusAddress(40004);
+    auto registerList = QList<ModbusDataUnit>()
+                        << ModbusDataUnit(40001) << ModbusDataUnit(40002) << ModbusDataUnit(40004);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
-        auto timeout = _settingsModel.connectionSettings(ConnectionId::ID_1)->timeout();
+        auto timeout = _pSettingsModel->connectionSettings(ConnectionTypes::ID_1)->timeout();
         spyModbusPollDone.wait(static_cast<int>(timeout) + 100);
         QCOMPARE(spyModbusPollDone.count(), 1);
 
@@ -345,34 +342,33 @@ void TestModbusMaster::multiRequestNoResponse()
         ModbusResultMap result = varResultList.value<ModbusResultMap >();
         QCOMPARE(result.size(), 3);
 
-        QVERIFY(result[ModbusAddress(40001)].isValid() == false);
-        QVERIFY(result[ModbusAddress(40002)].isValid() == false);
-        QVERIFY(result[ModbusAddress(40004)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40001)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40002)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40004)].isValid() == false);
     }
 }
 
 void TestModbusMaster::multiRequestInvalidAddress()
 {
-    _pTestSlaveModbus->setException(QModbusPdu::IllegalDataAddress, true);
+    _testSlaveMap[Device::cFirstDeviceId]->setException(QModbusPdu::IllegalDataAddress, true);
 
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(0, true);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(1, true);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(3, true);
+    auto device = _testSlaveMap[Device::cFirstDeviceId]->testDevice();
+    device->configureHoldingRegister(0, true, 0);
+    device->configureHoldingRegister(1, true, 1);
+    device->configureHoldingRegister(3, true, 3);
 
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(0, 0);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(1, 1);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(3, 3);
+    auto conn = new ModbusConnection(); // ModbusMaster takes ownership
+    ModbusMaster modbusMaster(conn, _pSettingsModel, ConnectionTypes::ID_1);
 
-    ModbusMaster modbusMaster(&_settingsModel, ConnectionId::ID_1);
-
-    auto registerList = QList<ModbusAddress>() << ModbusAddress(40001) << ModbusAddress(40002) << ModbusAddress(40004);
+    auto registerList = QList<ModbusDataUnit>()
+                        << ModbusDataUnit(40001) << ModbusDataUnit(40002) << ModbusDataUnit(40004);
     QSignalSpy spyModbusPollDone(&modbusMaster, &ModbusMaster::modbusPollDone);
 
     for (uint i = 0; i < _cReadCount; i++)
     {
-        modbusMaster.readRegisterList(registerList);
+        modbusMaster.readRegisterList(registerList, 128);
 
-        auto timeout = _settingsModel.connectionSettings(ConnectionId::ID_1)->timeout();
+        auto timeout = _pSettingsModel->connectionSettings(ConnectionTypes::ID_1)->timeout();
         QVERIFY(spyModbusPollDone.wait(static_cast<int>(timeout) + 100));
         QCOMPARE(spyModbusPollDone.count(), 1);
 
@@ -384,12 +380,11 @@ void TestModbusMaster::multiRequestInvalidAddress()
         ModbusResultMap result = varResultList.value<ModbusResultMap >();
         QCOMPARE(result.size(), 3);
 
-        QVERIFY(result[ModbusAddress(40001)].isValid() == false);
-        QVERIFY(result[ModbusAddress(40002)].isValid() == false);
-        QVERIFY(result[ModbusAddress(40004)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40001)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40002)].isValid() == false);
+        QVERIFY(result[ModbusDataUnit(40004)].isValid() == false);
     }
 }
-
 
 /* TODO:
  * Add extra test with actual timeout of no response

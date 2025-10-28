@@ -1,7 +1,6 @@
 #include "testslavemodbus.h"
 
-TestSlaveModbus::TestSlaveModbus(ModbusDataMap &testSlaveData, QObject *parent)
-    : QModbusTcpServer(parent), _testSlaveData(testSlaveData)
+TestSlaveModbus::TestSlaveModbus(QObject* parent) : QModbusTcpServer(parent)
 {
     _exceptionCode = static_cast<QModbusPdu::ExceptionCode>(0);
     _bExceptionPersistent = false;
@@ -12,10 +11,10 @@ TestSlaveModbus::~TestSlaveModbus()
 
 }
 
-bool TestSlaveModbus::connect(QUrl host, int slaveId)
+bool TestSlaveModbus::connect(QString ip, quint16 port, int slaveId)
 {
-    setConnectionParameter(QModbusDevice::NetworkPortParameter, host.port());
-    setConnectionParameter(QModbusDevice::NetworkAddressParameter, host.host());
+    setConnectionParameter(QModbusDevice::NetworkPortParameter, port);
+    setConnectionParameter(QModbusDevice::NetworkAddressParameter, ip);
     setServerAddress(slaveId);
 
     return connectDevice();
@@ -23,7 +22,7 @@ bool TestSlaveModbus::connect(QUrl host, int slaveId)
 
 void TestSlaveModbus::disconnect()
 {
-    return disconnectDevice();
+    disconnectDevice();
 }
 
 void TestSlaveModbus::setException(QModbusPdu::ExceptionCode exception, bool bPersistent)
@@ -43,12 +42,13 @@ bool TestSlaveModbus::readData(QModbusDataUnit *newData) const
     {
         const uint regAddress = static_cast<uint>(newData->startAddress()) + idx;
 
-        if (!_testSlaveData[newData->registerType()]->registerState(regAddress))
+        TestSlaveData* slaveData = _testDevice.slaveData(newData->registerType());
+        if (!slaveData->registerState(regAddress))
         {
             return false;
         }
 
-        newData->setValue(idx, _testSlaveData[newData->registerType()]->registerValue(regAddress));
+        newData->setValue(idx, slaveData->registerValue(regAddress));
     }
 
     return true;
@@ -70,8 +70,9 @@ bool TestSlaveModbus::writeData(const QModbusDataUnit &newData)
     for(uint idx = 0; idx < static_cast<uint>(newData.valueCount()); idx++)
     {
         const uint regAddress = static_cast<uint>(newData.startAddress()) + idx;
-        _testSlaveData[newData.registerType()]->setRegisterState(regAddress, true);
-        _testSlaveData[newData.registerType()]->setRegisterValue(regAddress, newData.value(regAddress));
+        TestSlaveData* slaveData = _testDevice.slaveData(newData.registerType());
+        slaveData->setRegisterState(regAddress, true);
+        slaveData->setRegisterValue(regAddress, newData.value(regAddress));
     }
 
     emit dataWritten(newData.registerType(), newData.startAddress(), newData.valueCount());
@@ -104,11 +105,8 @@ QModbusResponse TestSlaveModbus::processRequest(const QModbusPdu &request)
 
 bool TestSlaveModbus::verifyValidObject(QModbusDataUnit const * dataUnit) const
 {
-    if (
-        dataUnit->isValid()
-        && _testSlaveData.contains(dataUnit->registerType())
-        && _testSlaveData[dataUnit->registerType()]->IsValidAddress(static_cast<quint32>(dataUnit->startAddress()), static_cast<quint32>(dataUnit->valueCount()))
-        )
+    TestSlaveData* slaveData = _testDevice.slaveData(dataUnit->registerType());
+    if (dataUnit->isValid() && slaveData->isValidAddress(dataUnit->startAddress(), dataUnit->valueCount()))
     {
         return true;
     }

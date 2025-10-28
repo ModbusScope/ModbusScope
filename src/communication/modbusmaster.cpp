@@ -9,27 +9,34 @@ Q_DECLARE_METATYPE(Result<quint16>);
 
 using State = ResultState::State;
 
-ModbusMaster::ModbusMaster(SettingsModel * pSettingsModel, quint8 connectionId) : QObject(nullptr), _connectionId(connectionId), _pSettingsModel(pSettingsModel)
+ModbusMaster::ModbusMaster(ModbusConnection* pModbusConnection,
+                           SettingsModel* pSettingsModel,
+                           ConnectionTypes::connectionId_t connectionId)
+    : QObject(nullptr), _connectionId(connectionId), _pSettingsModel(pSettingsModel)
 {
     qMetaTypeId<Result<quint16> >();
+
+    _pModbusConnection = std::unique_ptr<ModbusConnection>(pModbusConnection);
 
     // Use queued connection to make sure reply is deleted before closing connection
     connect(this, &ModbusMaster::triggerNextRequest, this, &ModbusMaster::handleTriggerNextRequest, Qt::QueuedConnection);
 
-    connect(&_modbusConnection, &ModbusConnection::connectionSuccess, this, &ModbusMaster::handleConnectionOpened);
-    connect(&_modbusConnection, &ModbusConnection::connectionError, this, &ModbusMaster::handlerConnectionError);
-    connect(&_modbusConnection, &ModbusConnection::readRequestSuccess, this, &ModbusMaster::handleRequestSuccess);
-    connect(&_modbusConnection, &ModbusConnection::readRequestProtocolError, this, &ModbusMaster::handleRequestProtocolError);
-    connect(&_modbusConnection, &ModbusConnection::readRequestError, this, &ModbusMaster::handleRequestError);
+    connect(_pModbusConnection.get(), &ModbusConnection::connectionSuccess, this,
+            &ModbusMaster::handleConnectionOpened);
+    connect(_pModbusConnection.get(), &ModbusConnection::connectionError, this, &ModbusMaster::handlerConnectionError);
+    connect(_pModbusConnection.get(), &ModbusConnection::readRequestSuccess, this, &ModbusMaster::handleRequestSuccess);
+    connect(_pModbusConnection.get(), &ModbusConnection::readRequestProtocolError, this,
+            &ModbusMaster::handleRequestProtocolError);
+    connect(_pModbusConnection.get(), &ModbusConnection::readRequestError, this, &ModbusMaster::handleRequestError);
 }
 
 ModbusMaster::~ModbusMaster()
 {
-    _modbusConnection.disconnect();
-    _modbusConnection.closeConnection();
+    _pModbusConnection->disconnect();
+    _pModbusConnection->close();
 }
 
-void ModbusMaster::readRegisterList(QList<ModbusAddress> registerList)
+void ModbusMaster::readRegisterList(QList<ModbusDataUnit> registerList, quint8 consecutiveMax)
 {
     auto connData = _pSettingsModel->connectionSettings(_connectionId);
     if (_pSettingsModel->connectionState(_connectionId) == false)
@@ -49,28 +56,30 @@ void ModbusMaster::readRegisterList(QList<ModbusAddress> registerList)
     {
         logInfo("Register list read: " + dumpToString(registerList));
 
-        _readRegisters.resetRead(registerList, connData->consecutiveMax());
+        _readRegisters.resetRead(registerList, consecutiveMax);
 
         /* Open connection */
-        if (connData->connectionType() == Connection::TYPE_SERIAL)
+        if (connData->connectionType() == ConnectionTypes::TYPE_SERIAL)
         {
-            struct ModbusConnection::SerialSettings serialSettings = {
+            ModbusConnection::serialSettings_t serialSettings = {
                 .portName = connData->portName(),
                 .parity = connData->parity(),
                 .baudrate = connData->baudrate(),
                 .databits = connData->databits(),
                 .stopbits = connData->stopbits(),
             };
-            _modbusConnection.openSerialConnection(serialSettings, connData->timeout());
+            _pModbusConnection->configureSerialConnection(serialSettings);
         }
         else
         {
-            struct ModbusConnection::TcpSettings tcpSettings = {
+            ModbusConnection::tcpSettings_t tcpSettings = {
                 .ip = connData->ipAddress(),
                 .port = connData->port(),
             };
-            _modbusConnection.openTcpConnection(tcpSettings, connData->timeout());
+            _pModbusConnection->configureTcpConnection(tcpSettings);
         }
+
+        _pModbusConnection->open(connData->timeout());
     }
     else
     {
@@ -84,7 +93,7 @@ void ModbusMaster::cleanUp()
     /* Close connection when not closing automatically */
     if (_pSettingsModel->connectionSettings(_connectionId)->persistentConnection())
     {
-        _modbusConnection.closeConnection();
+        _pModbusConnection->close();
     }
 }
 
@@ -104,7 +113,7 @@ void ModbusMaster::handlerConnectionError(QModbusDevice::Error error, QString ms
     finishRead(true);
 }
 
-void ModbusMaster::handleRequestSuccess(ModbusAddress startRegister, QList<quint16> registerDataList)
+void ModbusMaster::handleRequestSuccess(ModbusDataUnit const& startRegister, QList<quint16> registerDataList)
 {
     logInfo(QString("Read success"));
 
@@ -168,8 +177,7 @@ void ModbusMaster::handleTriggerNextRequest(void)
 
         logInfo("Partial list read: " + QString("Start address (%0) and count (%1)").arg(readItem.address().toString()).arg(readItem.count()));
 
-        _modbusConnection.sendReadRequest(readItem.address(), readItem.count(),
-                                          _pSettingsModel->connectionSettings(_connectionId)->slaveId());
+        _pModbusConnection->sendReadRequest(readItem.address(), readItem.count());
     }
     else
     {
@@ -197,7 +205,7 @@ void ModbusMaster::finishRead(bool bError)
 
     if (bcloseConnection)
     {
-        _modbusConnection.closeConnection();
+        _pModbusConnection->close();
     }
 }
 
@@ -211,7 +219,7 @@ QString ModbusMaster::dumpToString(ModbusResultMap map) const
     return str;
 }
 
-QString ModbusMaster::dumpToString(QList<ModbusAddress> list) const
+QString ModbusMaster::dumpToString(QList<ModbusDataUnit> list) const
 {
     QString str;
     QDebug dStream(&str);

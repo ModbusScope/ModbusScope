@@ -4,55 +4,36 @@
 #include <QSignalSpy>
 #include <QTest>
 
-Q_DECLARE_METATYPE(ModbusAddress);
+Q_DECLARE_METATYPE(ModbusDataUnit);
 
 void TestModbusConnection::init()
 {
     qRegisterMetaType<QModbusDevice::Error>("QModbusDevice::Error");
 
     _slaveId = 1;
-    _serverConnectionData.setPort(5020);
-    _serverConnectionData.setHost("127.0.0.1");
-
-    if (!_testSlaveData.isEmpty())
-    {
-        qDeleteAll(_testSlaveData);
-        _testSlaveData.clear();
-    }
-    if (!_pTestSlaveModbus.isNull())
-    {
-        delete _pTestSlaveModbus;
-    }
-
-    _testSlaveData[QModbusDataUnit::HoldingRegisters] = new TestSlaveData();
-    _pTestSlaveModbus = new TestSlaveModbus(_testSlaveData);
+    _port = 5020;
+    _ip = "127.0.0.1";
 
     /* Server not started */
 }
 
 void TestModbusConnection::cleanup()
 {
-    _pTestSlaveModbus->disconnectDevice();
-
-    if (!_testSlaveData.isEmpty())
-    {
-        qDeleteAll(_testSlaveData);
-        _testSlaveData.clear();
-    }
-    delete _pTestSlaveModbus;
+    _testSlaveModbus.disconnectDevice();
 }
 
 void TestModbusConnection::connectionSuccess()
 {
     /* Start server */
-    QVERIFY(_pTestSlaveModbus->connect(_serverConnectionData, _slaveId));
+    QVERIFY(_testSlaveModbus.connect(_ip, _port, _slaveId));
 
-    ModbusConnection * pConnection = new ModbusConnection(this);
+    ModbusConnection* pConnection = new ModbusConnection(this);
 
     QSignalSpy spySuccess(pConnection, &ModbusConnection::connectionSuccess);
     QSignalSpy spyError(pConnection, &ModbusConnection::connectionError);
 
-    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
+    pConnection->configureTcpConnection(constructTcpSettings(_ip, _port));
+    pConnection->open(1000);
 
     QVERIFY(spySuccess.wait(100));
 
@@ -61,20 +42,20 @@ void TestModbusConnection::connectionSuccess()
 
     QVERIFY(pConnection->isConnected());
 
-    pConnection->closeConnection();
+    pConnection->close();
 
     QVERIFY(!pConnection->isConnected());
-
 }
 
 void TestModbusConnection::connectionFail()
 {
-    ModbusConnection * pConnection = new ModbusConnection(this);
+    ModbusConnection* pConnection = new ModbusConnection(this);
 
     QSignalSpy spySuccess(pConnection, &ModbusConnection::connectionSuccess);
     QSignalSpy spyError(pConnection, &ModbusConnection::connectionError);
 
-    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
+    pConnection->configureTcpConnection(constructTcpSettings(_ip, _port));
+    pConnection->open(1000);
 
     QVERIFY(spyError.wait(1500));
 
@@ -84,16 +65,15 @@ void TestModbusConnection::connectionFail()
     QVERIFY(!pConnection->isConnected());
 }
 
-
 void TestModbusConnection::connectionSuccesAfterFail()
 {
-
-    ModbusConnection * pConnection = new ModbusConnection(this);
+    ModbusConnection* pConnection = new ModbusConnection(this);
 
     QSignalSpy spySuccess(pConnection, &ModbusConnection::connectionSuccess);
     QSignalSpy spyError(pConnection, &ModbusConnection::connectionError);
 
-    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
+    pConnection->configureTcpConnection(constructTcpSettings(_ip, _port));
+    pConnection->open(1000);
 
     QVERIFY(spyError.wait(1500));
 
@@ -103,35 +83,32 @@ void TestModbusConnection::connectionSuccesAfterFail()
     QVERIFY(!pConnection->isConnected());
 
     // Start server
-    QVERIFY(_pTestSlaveModbus->connect(_serverConnectionData, _slaveId));
+    QVERIFY(_testSlaveModbus.connect(_ip, _port, _slaveId));
 
-    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
+    pConnection->configureTcpConnection(constructTcpSettings(_ip, _port));
+    pConnection->open(1000);
 
     QVERIFY(spySuccess.wait(500));
 
     QCOMPARE(spySuccess.count(), 1);
     QVERIFY(pConnection->isConnected());
 
-    pConnection->closeConnection();
+    pConnection->close();
 }
 
 void TestModbusConnection::readRequestSuccess()
 {
     /* Start server */
-    QVERIFY(_pTestSlaveModbus->connect(_serverConnectionData, _slaveId));
+    QVERIFY(_testSlaveModbus.connect(_ip, _port, _slaveId));
 
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(0, true);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(1, true);
-
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(0, 0);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(1, 1);
+    _testSlaveModbus.testDevice()->configureHoldingRegister(0, true, 0);
+    _testSlaveModbus.testDevice()->configureHoldingRegister(1, true, 1);
 
     /* Open connection */
-    ModbusConnection * pConnection = new ModbusConnection(this);
+    ModbusConnection* pConnection = new ModbusConnection(this);
     QSignalSpy spySuccess(pConnection, &ModbusConnection::connectionSuccess);
-    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
-
-    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
+    pConnection->configureTcpConnection(constructTcpSettings(_ip, _port));
+    pConnection->open(1000);
 
     QVERIFY(spySuccess.wait(100));
 
@@ -141,7 +118,7 @@ void TestModbusConnection::readRequestSuccess()
     QSignalSpy spyResultProtocolError(pConnection, &ModbusConnection::readRequestProtocolError);
     QSignalSpy spyResultError(pConnection, &ModbusConnection::readRequestError);
 
-    pConnection->sendReadRequest(ModbusAddress(40001), 2, _slaveId);
+    pConnection->sendReadRequest(ModbusDataUnit(40001), 2);
 
     QVERIFY(spyResultSuccess.wait(100));
     QCOMPARE(spyResultSuccess.count(), 1);
@@ -151,10 +128,9 @@ void TestModbusConnection::readRequestSuccess()
     QList<QVariant> arguments = spyResultSuccess.takeFirst();
     QCOMPARE(arguments.count(), 2);
 
-
     /* Check start address */
-    QVERIFY((arguments[0].canConvert<ModbusAddress>()));
-    auto resultAddr = arguments[0].value<ModbusAddress>();
+    QVERIFY((arguments[0].canConvert<ModbusDataUnit>()));
+    auto resultAddr = arguments[0].value<ModbusDataUnit>();
     QCOMPARE(resultAddr.fullAddress(), "40001");
 
     /* Check result */
@@ -163,26 +139,21 @@ void TestModbusConnection::readRequestSuccess()
     QCOMPARE(resultList.count(), 2);
     QCOMPARE(resultList[0], static_cast<quint16>(0));
     QCOMPARE(resultList[1], static_cast<quint16>(1));
-
 }
 
 void TestModbusConnection::readRequestProtocolError()
 {
     /* Start server */
-    QVERIFY(_pTestSlaveModbus->connect(_serverConnectionData, _slaveId));
+    QVERIFY(_testSlaveModbus.connect(_ip, _port, _slaveId));
 
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(0, false);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterState(1, true);
-
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(0, 0);
-    _testSlaveData[QModbusDataUnit::HoldingRegisters]->setRegisterValue(1, 1);
+    _testSlaveModbus.testDevice()->configureHoldingRegister(0, false, 0);
+    _testSlaveModbus.testDevice()->configureHoldingRegister(1, true, 1);
 
     /* Open connection */
-    ModbusConnection * pConnection = new ModbusConnection(this);
+    ModbusConnection* pConnection = new ModbusConnection(this);
     QSignalSpy spySuccess(pConnection, &ModbusConnection::connectionSuccess);
-    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
-
-    pConnection->openTcpConnection(constructTcpSettings(_serverConnectionData.host(), _serverConnectionData.port()), 1000);
+    pConnection->configureTcpConnection(constructTcpSettings(_ip, _port));
+    pConnection->open(1000);
 
     QVERIFY(spySuccess.wait(100));
 
@@ -192,7 +163,7 @@ void TestModbusConnection::readRequestProtocolError()
     QSignalSpy spyResultProtocolError(pConnection, &ModbusConnection::readRequestProtocolError);
     QSignalSpy spyResultError(pConnection, &ModbusConnection::readRequestError);
 
-    pConnection->sendReadRequest(ModbusAddress(40001), 2, _slaveId);
+    pConnection->sendReadRequest(ModbusDataUnit(40001), 2);
 
     QVERIFY(spyResultProtocolError.wait(100));
     QCOMPARE(spyResultSuccess.count(), 0);
@@ -204,7 +175,6 @@ void TestModbusConnection::readRequestProtocolError()
 
     /* Check modbus exception */
     QCOMPARE(static_cast<QModbusPdu::ExceptionCode>(arguments.first().toInt()), QModbusPdu::IllegalDataAddress);
-
 }
 
 void TestModbusConnection::readRequestError()
@@ -212,13 +182,12 @@ void TestModbusConnection::readRequestError()
     /* TODO:
      * Add test for this case.
      * Is this case possible?
-    */
+     */
 }
 
-ModbusConnection::TcpSettings TestModbusConnection::constructTcpSettings(QString ip, qint32 port)
+ModbusConnection::tcpSettings_t TestModbusConnection::constructTcpSettings(QString ip, qint32 port)
 {
-    struct ModbusConnection::TcpSettings tcpSettings =
-    {
+    ModbusConnection::tcpSettings_t tcpSettings = {
         .ip = ip,
         .port = port,
     };

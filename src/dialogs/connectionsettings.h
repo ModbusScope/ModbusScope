@@ -1,6 +1,7 @@
 #ifndef CONNECTIONDIALOG_H
 #define CONNECTIONDIALOG_H
 
+#include "models/connectiontypes.h"
 #include <QWidget>
 
 /* Forward declaration */
@@ -24,9 +25,9 @@ public:
 private:
     Ui::ConnectionSettings* _pUi;
 
-    void updateConnectionSettings(quint8 connectionId);
-    void updateConnectionState(quint8 connectionId);
-    ConnectionForm* connectionSettingsWidget(quint8 connectionId);
+    void updateConnectionSettings(ConnectionTypes::connectionId_t connectionId);
+    void updateConnectionState(ConnectionTypes::connectionId_t connectionId);
+    ConnectionForm* connectionSettingsWidget(ConnectionTypes::connectionId_t connectionId);
 
     SettingsModel * _pSettingsModel;
 };

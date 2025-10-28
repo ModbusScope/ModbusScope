@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "communication/modbusregister.h"
+#include "models/connectiontypes.h"
 #include "util/modbusresultmap.h"
 
 class SettingsModel;
@@ -18,10 +19,11 @@ public:
     void setRegisters(QList<ModbusRegister> &registerList);
 
     void startRead();
-    void processPartialResult(ModbusResultMap partialResultMap, quint8 connectionId);
+    void processPartialResult(ModbusResultMap partialResultMap, ConnectionTypes::connectionId_t connectionId);
     void finishRead();
 
-    void registerAddresList(QList<ModbusAddress>& registerList, quint8 connectionId);
+    void registerAddresListForConnection(QList<ModbusDataUnit>& registerList,
+                                         ConnectionTypes::connectionId_t connectionId);
 
 signals:
     void registerDataReady(ResultDoubleList registers);

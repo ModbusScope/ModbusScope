@@ -17,7 +17,7 @@ private slots:
     void registerDefault();
     void registerType();
     void registerObjectType();
-    void registerConnection();
+    void registerDevice();
     void registerValueAxis();
 
 private:

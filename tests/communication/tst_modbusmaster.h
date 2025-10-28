@@ -1,11 +1,10 @@
 
 #include "models/settingsmodel.h"
-
-#include "testslavemodbus.h"
+#include "testdevice.h"
 
 #include <QObject>
-#include <QPointer>
-#include <QUrl>
+
+class TestSlaveModbus;
 
 class TestModbusMaster: public QObject
 {
@@ -27,12 +26,9 @@ private slots:
     void multiRequestInvalidAddress();
 
 private:
+    QMap<deviceId_t, TestSlaveModbus*> _testSlaveMap;
 
-    TestSlaveModbus::ModbusDataMap _testSlaveData;
-    QPointer<TestSlaveModbus> _pTestSlaveModbus;
-
-    SettingsModel _settingsModel;
-    QUrl _serverConnectionData;
+    SettingsModel* _pSettingsModel;
 
     const uint _cReadCount = 3;
 };

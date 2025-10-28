@@ -1,6 +1,7 @@
 #ifndef PROJECTFILEDATA
 #define PROJECTFILEDATA
 
+#include "models/connectiontypes.h"
 #include <QColor>
 #include <QList>
 
@@ -10,7 +11,7 @@ namespace ProjectFileData
     {
         QString text = QString("");
         bool bActive = false;
-        quint8 connectionId = 0;
+        ConnectionTypes::connectionId_t connectionId = 0;
 
         QString expression = QString("0");
 
@@ -71,7 +72,7 @@ namespace ProjectFileData
     typedef struct _ConnectionSettings
     {
         bool bConnectionId = false;
-        quint8 connectionId = 0;
+        ConnectionTypes::connectionId_t connectionId = 0;
 
         bool bConnectionState = true;
 

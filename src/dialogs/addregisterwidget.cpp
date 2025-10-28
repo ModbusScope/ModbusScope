@@ -24,12 +24,11 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel, QWidget *par
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    for (quint8 i = 0u; i < ConnectionId::ID_CNT; i++)
+    _pUi->cmbDevice->clear();
+    const auto deviceList = _pSettingsModel->deviceList();
+    for (deviceId_t devId : std::as_const(deviceList))
     {
-        if (_pSettingsModel->connectionState(i))
-        {
-            _pUi->cmbConnection->addItem(QString(tr("Connection %1").arg(i + 1)), i);
-        }
+        _pUi->cmbDevice->addItem(QString(tr("Device %1").arg(devId)), devId);
     }
 
     _pUi->cmbObjectType->addItem("Coil", QVariant::fromValue(ObjectType::COIL));
@@ -86,13 +85,13 @@ void AddRegisterWidget::resetFields()
     _pUi->spinAddress->setValue(0);
     _pUi->cmbType->setCurrentIndex(0);
     _pUi->cmbObjectType->setCurrentIndex(3);
-    _pUi->cmbConnection->setCurrentIndex(0);
+    _pUi->cmbDevice->setCurrentIndex(0);
     _pUi->radioPrimary->setChecked(true);
 }
 
 QString AddRegisterWidget::generateExpression()
 {
-    quint8 connectionId;
+    deviceId_t deviceId;
     Type type;
     ObjectType objectType;
 
@@ -118,15 +117,15 @@ QString AddRegisterWidget::generateExpression()
 
     auto registerAddr = ModbusAddress(static_cast<quint32>(_pUi->spinAddress->value()), objectType);
 
-    QVariant connData = _pUi->cmbConnection->currentData();
-    if (connData.canConvert<quint8>())
+    QVariant devData = _pUi->cmbDevice->currentData();
+    if (devData.canConvert<deviceId_t>())
     {
-        connectionId = connData.value<quint8>();
+        deviceId = devData.value<deviceId_t>();
     }
     else
     {
-        connectionId = 0;
+        deviceId = 0;
     }
 
-    return ExpressionGenerator::constructRegisterString(registerAddr.fullAddress(), type, connectionId);
+    return ExpressionGenerator::constructRegisterString(registerAddr.fullAddress(), type, deviceId);
 }

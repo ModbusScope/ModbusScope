@@ -1,5 +1,6 @@
 
 #include "expressiongenerator.h"
+#include "models/device.h"
 
 #include <QStringLiteral>
 
@@ -20,10 +21,10 @@ namespace ExpressionGenerator
         return suffix;
     }
 
-    QString constructRegisterString(QString registerAddress, ModbusDataType::Type type, quint8 connectionId)
+    QString constructRegisterString(QString registerAddress, ModbusDataType::Type type, deviceId_t devId)
     {
         QString suffix = ExpressionGenerator::typeSuffix(type);
-        QString connStr = connectionId != 0 ? QString("@%1").arg(connectionId + 1) : QString();
+        QString connStr = devId != Device::cFirstDeviceId ? QString("@%1").arg(devId) : QString();
 
         return QString("${%1%2%3}").arg(registerAddress, connStr, suffix);
     }

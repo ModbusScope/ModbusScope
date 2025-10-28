@@ -1,10 +1,11 @@
 #include "registervaluehandler.h"
 
 #include "models/settingsmodel.h"
-#include "util/modbusaddress.h"
 #include "util/modbusdatatype.h"
+#include "util/modbusdataunit.h"
 
 using State = ResultState::State;
+using connectionId_t = ConnectionTypes::connectionId_t;
 
 RegisterValueHandler::RegisterValueHandler(SettingsModel *pSettingsModel) :
     _pSettingsModel(pSettingsModel)
@@ -26,73 +27,84 @@ void RegisterValueHandler::finishRead()
     emit registerDataReady(_resultList);
 }
 
-void RegisterValueHandler::processPartialResult(ModbusResultMap partialResultMap, quint8 connectionId)
+void RegisterValueHandler::processPartialResult(ModbusResultMap partialResultMap, connectionId_t connectionId)
 {
+    auto deviceList = _pSettingsModel->deviceListForConnection(connectionId);
+
     for(qint32 listIdx = 0; listIdx < _registerList.size(); listIdx++)
     {
         const ModbusRegister mbReg = _registerList[listIdx];
 
-        if (
-            (mbReg.connectionId() == connectionId)
-            && (partialResultMap.contains(mbReg.address()))
-            )
+        if (deviceList.contains(mbReg.deviceId()))
         {
-            Result<quint16> upperRegister;
-            Result<quint16> lowerRegister;
-
-            lowerRegister = partialResultMap.value(mbReg.address());
-
-            if (ModbusDataType::is32Bit(mbReg.type()))
+            auto slaveId = _pSettingsModel->deviceSettings(mbReg.deviceId())->slaveId();
+            ModbusDataUnit dataUnit(mbReg.address(), slaveId);
+            if (partialResultMap.contains(dataUnit))
             {
-                const auto addr = mbReg.address().next();
-                if (partialResultMap.contains(addr))
+                Result<quint16> upperRegister;
+                Result<quint16> lowerRegister;
+
+                lowerRegister = partialResultMap.value(dataUnit);
+
+                if (ModbusDataType::is32Bit(mbReg.type()))
                 {
-                    upperRegister = partialResultMap.value(addr);
+                    const auto addr = dataUnit.next();
+                    if (partialResultMap.contains(addr))
+                    {
+                        upperRegister = partialResultMap.value(addr);
+                    }
                 }
-            }
-            else
-            {
-                /* Dummy valid value */
-                upperRegister = Result<quint16>(0, State::SUCCESS);
-            }
+                else
+                {
+                    /* Dummy valid value */
+                    upperRegister = Result<quint16>(0, State::SUCCESS);
+                }
 
-            bool bSuccess = lowerRegister.isValid() && upperRegister.isValid();
-            ResultDouble result;
-            if (bSuccess)
-            {
-                double processedResult =
-                  mbReg.processValue(lowerRegister.value(), upperRegister.value(),
-                                     _pSettingsModel->connectionSettings(connectionId)->int32LittleEndian());
-                result.setValue(processedResult);
-            }
-            else
-            {
-                result.setError();
-            }
+                bool bSuccess = lowerRegister.isValid() && upperRegister.isValid();
+                ResultDouble result;
+                if (bSuccess)
+                {
+                    double processedResult =
+                      mbReg.processValue(lowerRegister.value(), upperRegister.value(),
+                                         _pSettingsModel->deviceSettings(mbReg.deviceId())->int32LittleEndian());
+                    result.setValue(processedResult);
+                }
+                else
+                {
+                    result.setError();
+                }
 
-            _resultList[listIdx] = result;
+                _resultList[listIdx] = result;
+            }
         }
     }
 }
 
 // Get sorted list of active (unique) register addresses for a specific connection id
-void RegisterValueHandler::registerAddresList(QList<ModbusAddress>& registerList, quint8 connectionId)
+void RegisterValueHandler::registerAddresListForConnection(QList<ModbusDataUnit>& registerList,
+                                                           connectionId_t connectionId)
 {
-    QList<ModbusAddress> connRegisterList;
+    QList<ModbusDataUnit> connRegisterList;
 
-    foreach(ModbusRegister mbReg, _registerList)
+    // Get list of devices for specific connection
+    auto deviceList = _pSettingsModel->deviceListForConnection(connectionId);
+
+    for (auto const& mbReg : std::as_const(_registerList))
     {
-        if (mbReg.connectionId() == connectionId)
+        if (deviceList.contains(mbReg.deviceId()))
         {
-            if (!connRegisterList.contains(mbReg.address()))
+            auto slaveId = _pSettingsModel->deviceSettings(mbReg.deviceId())->slaveId();
+            auto address = ModbusDataUnit(mbReg.address(), slaveId);
+
+            if (!connRegisterList.contains(address))
             {
-                connRegisterList.append(mbReg.address());
+                connRegisterList.append(address);
             }
 
             /* When reading 32 bit value, also read next address */
             if (ModbusDataType::is32Bit(mbReg.type()))
             {
-                const auto reg = mbReg.address().next();
+                const auto reg = address.next();
                 if (!connRegisterList.contains(reg))
                 {
                     connRegisterList.append(reg);
@@ -102,7 +114,7 @@ void RegisterValueHandler::registerAddresList(QList<ModbusAddress>& registerList
     }
 
     // sort qList
-    std::sort(connRegisterList.begin(), connRegisterList.end(), std::less<ModbusAddress>());
+    std::sort(connRegisterList.begin(), connRegisterList.end(), std::less<ModbusDataUnit>());
 
     registerList = connRegisterList;
 }

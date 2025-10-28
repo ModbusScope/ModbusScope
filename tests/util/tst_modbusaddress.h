@@ -15,18 +15,15 @@ private slots:
     void constructor_type();
     void constructor_assignment();
     void constructor_copy();
+    void constructor_invalid_string();
 
     void addressFunctions_data();
     void addressFunctions();
 
+    void equality_operator();
+
     void to_string();
     void to_string_coil();
-    void next_and_compare();
-
-    void greater();
-    void smaller();
-
-    void sort_large_object_address();
 
 private:
 

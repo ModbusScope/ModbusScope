@@ -16,7 +16,7 @@ TestSlaveData::~TestSlaveData()
 
 }
 
-bool TestSlaveData::IsValidAddress(quint32 startAddress, quint32 valueCount)
+bool TestSlaveData::isValidAddress(quint32 startAddress, quint32 valueCount)
 {
     bool isValid = false;
     if (startAddress >= _offset)

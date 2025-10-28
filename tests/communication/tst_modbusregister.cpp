@@ -4,7 +4,6 @@
 #include "tst_modbusregister.h"
 
 #include "communication/modbusregister.h"
-#include "models/connectiontypes.h"
 
 using Type = ModbusDataType::Type;
 
@@ -27,17 +26,17 @@ void TestModbusRegister::cleanup()
 
 void TestModbusRegister::constructor()
 {
-    ModbusRegister reg(ModbusAddress(40001), ConnectionId::ID_2, Type::SIGNED_16);
+    ModbusRegister reg(ModbusAddress(40001), 2, Type::SIGNED_16);
 
     QCOMPARE(reg.address(), ModbusAddress(40001));
-    QCOMPARE(reg.connectionId(), ConnectionId::ID_2);
+    QCOMPARE(reg.deviceId(), 2);
     QCOMPARE(reg.type(), Type::SIGNED_16);
 }
 
 void TestModbusRegister::comparison()
 {
-    ModbusRegister reg_1(ModbusAddress(40001), ConnectionId::ID_1, Type::SIGNED_16);
-    ModbusRegister reg_2(ModbusAddress(40001), ConnectionId::ID_1, Type::SIGNED_16);
+    ModbusRegister reg_1(ModbusAddress(40001), 1, Type::SIGNED_16);
+    ModbusRegister reg_2(ModbusAddress(40001), 1, Type::SIGNED_16);
 
     QVERIFY(reg_1 == reg_2);
 
@@ -48,7 +47,7 @@ void TestModbusRegister::comparison()
 
 void TestModbusRegister::copy()
 {
-    ModbusRegister reg_1(ModbusAddress(40001), ConnectionId::ID_2, Type::SIGNED_32);
+    ModbusRegister reg_1(ModbusAddress(40001), 2, Type::SIGNED_32);
     ModbusRegister reg_2;
 
     QVERIFY(!(reg_1 == reg_2));
@@ -56,7 +55,7 @@ void TestModbusRegister::copy()
     reg_2 = reg_1;
 
     QCOMPARE(reg_1.address(), ModbusAddress(40001));
-    QCOMPARE(reg_1.connectionId(), ConnectionId::ID_2);
+    QCOMPARE(reg_1.deviceId(), 2);
     QCOMPARE(reg_1.type(), Type::SIGNED_32);
 
     QVERIFY(reg_1 == reg_2);
@@ -64,13 +63,13 @@ void TestModbusRegister::copy()
 
 void TestModbusRegister::description()
 {
-    ModbusRegister reg_1(ModbusAddress(40001), ConnectionId::ID_1, Type::UNSIGNED_16);
-    ModbusRegister reg_2(ModbusAddress(40002), ConnectionId::ID_2, Type::SIGNED_32);
-    ModbusRegister reg_3(ModbusAddress(40003), ConnectionId::ID_2, Type::FLOAT_32);
+    ModbusRegister reg_1(ModbusAddress(40001), Device::cFirstDeviceId, Type::UNSIGNED_16);
+    ModbusRegister reg_2(ModbusAddress(40002), Device::cFirstDeviceId + 1, Type::SIGNED_32);
+    ModbusRegister reg_3(ModbusAddress(40003), Device::cFirstDeviceId + 1, Type::FLOAT_32);
 
-    QCOMPARE(reg_1.description(), "holding register, 0, unsigned 16-bit, conn 1");
-    QCOMPARE(reg_2.description(), "holding register, 1, signed 32-bit, conn 2");
-    QCOMPARE(reg_3.description(), "holding register, 2, 32-bit float, conn 2");
+    QCOMPARE(reg_1.description(), "holding register, 0, unsigned 16-bit, device 1");
+    QCOMPARE(reg_2.description(), "holding register, 1, signed 32-bit, device 2");
+    QCOMPARE(reg_3.description(), "holding register, 2, 32-bit float, device 2");
 }
 
 void TestModbusRegister::processValue_16b_data()
@@ -87,7 +86,7 @@ void TestModbusRegister::processValue_16b()
     QFETCH(uint16_t, registerValue);
     QFETCH(double, expValue);
 
-    ModbusRegister reg(ModbusAddress(40001), ConnectionId::ID_1, Type::UNSIGNED_16);
+    ModbusRegister reg(ModbusAddress(40001), 1, Type::UNSIGNED_16);
 
     double actValue = reg.processValue(registerValue, 0, false);
     QCOMPARE(actValue, expValue);
@@ -107,7 +106,7 @@ void TestModbusRegister::processValue_s16b()
     QFETCH(uint16_t, registerValue);
     QFETCH(double, expValue);
 
-    ModbusRegister reg(ModbusAddress(40001), ConnectionId::ID_1, Type::SIGNED_16);
+    ModbusRegister reg(ModbusAddress(40001), 1, Type::SIGNED_16);
 
     double actValue = reg.processValue(registerValue, 0, false);
     QCOMPARE(actValue, expValue);
@@ -132,7 +131,7 @@ void TestModbusRegister::processValue_32b()
 
     QFETCH(double, expValue);
 
-    ModbusRegister reg(ModbusAddress(40001), ConnectionId::ID_1, Type::UNSIGNED_32);
+    ModbusRegister reg(ModbusAddress(40001), 1, Type::UNSIGNED_32);
 
     double actValue = reg.processValue(upperRegister, lowerRegister, false);
     QCOMPARE(actValue, expValue);
@@ -159,7 +158,7 @@ void TestModbusRegister::processValue_s32b()
     QFETCH(uint16_t, lowerRegister);
     QFETCH(double, expValue);
 
-    ModbusRegister reg(ModbusAddress(40001), ConnectionId::ID_1, Type::SIGNED_32);
+    ModbusRegister reg(ModbusAddress(40001), 1, Type::SIGNED_32);
 
     double actValue = reg.processValue(upperRegister, lowerRegister, false);
     QCOMPARE(actValue, expValue);
@@ -198,7 +197,7 @@ void TestModbusRegister::processValue_f32b()
     QFETCH(uint16_t, lowerRegister);
     QFETCH(double, expValue);
 
-    ModbusRegister reg(ModbusAddress(40001), ConnectionId::ID_1, ModbusDataType::Type::FLOAT_32);
+    ModbusRegister reg(ModbusAddress(40001), 1, ModbusDataType::Type::FLOAT_32);
 
     double actValue = reg.processValue(upperRegister, lowerRegister, false);
     QCOMPARE(actValue, expValue);

@@ -2,6 +2,7 @@
 #define COMMUNICATION_MANAGER_H
 
 #include "communication/modbusregister.h"
+#include "models/connectiontypes.h"
 #include "util/modbusresultmap.h"
 #include <QStringListModel>
 #include <QTimer>
@@ -44,14 +45,15 @@ signals:
     void registerDataReady(ResultDoubleList registers);
 
 private slots:
-    void handlePollDone(ModbusResultMap partialResultMap, quint8 connectionId);
+    void handlePollDone(ModbusResultMap partialResultMap, ConnectionTypes::connectionId_t connectionId);
     void handleModbusError(QString msg);
     void handleModbusInfo(QString msg);
     void triggerRegisterRead();
 
 private:
+    quint8 lowestConsecutiveMaxForConnection(ConnectionTypes::connectionId_t connId) const;
 
-    QList<ModbusMasterData *> _modbusMasters;
+    QList<ModbusMasterData*> _modbusMasters;
     quint32 _activeMastersCount;
 
     bool _bPollActive;

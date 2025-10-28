@@ -2,6 +2,7 @@
 #include "ui_settingsdialog.h"
 
 #include "dialogs/connectionsettings.h"
+#include "dialogs/devicesettings.h"
 #include "dialogs/logsettings.h"
 #include <qlabel.h>
 
@@ -19,8 +20,13 @@ SettingsDialog::SettingsDialog(SettingsModel* pSettingsModel, QWidget* parent)
     _pUi->settingsList->setStyleSheet("QListWidget {padding: 10px;} QListWidget::item { margin: 10px; }");
 
     auto listItem = new QListWidgetItem(_pUi->settingsList);
-    listItem->setText("Connection");
+    listItem->setText("Connections");
     listItem->setIcon(QIcon(":/menu_icon/icons/network.svg"));
+    _pUi->settingsList->addItem(listItem);
+
+    listItem = new QListWidgetItem(_pUi->settingsList);
+    listItem->setText("Devices");
+    listItem->setIcon(QIcon(":/menu_icon/icons/circuit-board.svg"));
     _pUi->settingsList->addItem(listItem);
 
     listItem = new QListWidgetItem(_pUi->settingsList);
@@ -31,7 +37,8 @@ SettingsDialog::SettingsDialog(SettingsModel* pSettingsModel, QWidget* parent)
     _pConnSettings = new ConnectionSettings(_pSettingsModel);
 
     _pUi->settingsStack->insertWidget(PAGE_CONNECTION, _pConnSettings);
-    _pUi->settingsStack->insertWidget(PAGE_LOG, new LogSettings(pSettingsModel));
+    _pUi->settingsStack->insertWidget(PAGE_DEVICE, new DeviceSettings(_pSettingsModel));
+    _pUi->settingsStack->insertWidget(PAGE_LOG, new LogSettings(_pSettingsModel));
 
     connect(_pUi->settingsList, &QListWidget::currentRowChanged, this, &SettingsDialog::settingsStackSwitch);
 }

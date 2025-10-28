@@ -8,6 +8,7 @@ class ModbusAddress
 {
 
 public:
+    using slaveId_t = int;
 
     enum class ObjectType
     {
@@ -23,32 +24,25 @@ public:
     explicit ModbusAddress(quint32 address);
     explicit ModbusAddress(QString address);
     ModbusAddress(const ModbusAddress& t) = default;
-
-    ~ModbusAddress() = default;
-
-    ModbusAddress& operator=(const ModbusAddress& other) = default;
+    virtual ~ModbusAddress() = default;
 
     ModbusAddress::ObjectType objectType() const;
     QString fullAddress() const;
     quint16 protocolAddress() const;
 
-    QString toString() const;
+    virtual QString toString() const;
 
-    ModbusAddress next() const;
-    ModbusAddress next(int i) const;
+    friend bool operator==(const ModbusAddress& unit1, const ModbusAddress& unit2);
 
-    friend bool operator== (const ModbusAddress& reg1, const ModbusAddress& reg2);
-    friend bool operator< (const ModbusAddress& reg1, const ModbusAddress& reg2);
-    friend bool operator> (const ModbusAddress& reg1, const ModbusAddress& reg2);
+protected:
+    quint16 _protocolAddress{ 0 };
+    ObjectType _type{ ObjectType::UNKNOWN };
 
 private:
     void constructAddressFromNumber(quint32 address);
     void constructAddressFromStringWithType(QString addressWithtype);
     ModbusAddress::ObjectType convertFromOffset(quint32 address);
 
-    quint16 _protocolAddress{0};
-    ObjectType _type{ObjectType::UNKNOWN};
-    
     static const QList<quint16> cObjectTypeOffsets;
     static const QList<QChar> cObjectTypePrefix;
 

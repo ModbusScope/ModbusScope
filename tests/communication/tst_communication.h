@@ -1,13 +1,14 @@
 
-#include "testslavemodbus.h"
+#include "models/device.h"
+#include "testdevice.h"
 
 #include <QObject>
-#include <QUrl>
 
 /* Forward declaration */
 class SettingsModel;
 class GraphDataModel;
 class ModbusPoll;
+class TestSlaveModbus;
 
 class TestCommunication: public QObject
 {
@@ -26,20 +27,14 @@ private slots:
     void mixed_fail();
 
     void readLargeRegisterAddress();
-    void readVeryLargeRegisterAddress();
 
     void unknownConnection();
     void disabledConnection();
 
 private:
-
     void doHandleRegisterData(QList<QVariant>& actRawData);
-    TestSlaveData* dataMap(uint32_t connId, QModbusDataUnit::RegisterType type);
 
     SettingsModel * _pSettingsModel;
     GraphDataModel* _pGraphDataModel;
-
-    QList<QUrl> _serverConnectionDataList;
-    QList<TestSlaveModbus::ModbusDataMap *> _testSlaveDataList;
-    QList<TestSlaveModbus *> _testSlaveModbusList;
+    QMap<deviceId_t, TestSlaveModbus*> _testSlaveMap;
 };
