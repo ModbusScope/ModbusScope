@@ -4,8 +4,9 @@
 
 #include <QStringList>
 
-static const QStringList DeviceHeaderNames = { "Device ID", "Connection ID", "Slave ID", "Consecutive Max",
-                                               "Int32 Little Endian" };
+static const QStringList DeviceHeaderNames = { "Device ID",       "Name",
+                                               "Connection ID",   "Slave ID",
+                                               "Consecutive Max", "Int32 Little Endian" };
 
 DeviceModel::DeviceModel(SettingsModel* pSettingsModel, QObject* parent)
     : QAbstractTableModel(parent), _pSettingsModel(pSettingsModel)
@@ -68,6 +69,12 @@ QVariant DeviceModel::data(const QModelIndex& index, int role) const
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
             return devId;
+        }
+        break;
+    case NameColumn:
+        if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
+        {
+            return device->name();
         }
         break;
     case ConnectionIdColumn:
@@ -146,6 +153,19 @@ bool DeviceModel::setData(const QModelIndex& index, const QVariant& value, int r
                 {
                     changed = true;
                 }
+            }
+        }
+        break;
+    }
+    case NameColumn:
+    {
+        if (role == Qt::EditRole)
+        {
+            QString newName = value.toString();
+            if (device->name() != newName)
+            {
+                device->setName(newName);
+                changed = true;
             }
         }
         break;

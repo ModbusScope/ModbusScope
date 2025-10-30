@@ -15,7 +15,7 @@ SettingsModel::SettingsModel(QObject* parent) : QObject(parent)
     /* Connection 1 is always enabled */
     _connectionSettings[ConnectionTypes::ID_1].bConnectionState = true;
 
-    _devices[Device::cFirstDeviceId] = Device();
+    _devices[Device::cFirstDeviceId] = Device(Device::cFirstDeviceId);
 
     _pollTime = 250;
     _bAbsoluteTimes = false;
@@ -67,7 +67,7 @@ void SettingsModel::addDevice(deviceId_t devId)
 {
     if (!_devices.contains(devId))
     {
-        _devices[devId] = Device();
+        _devices[devId] = Device(devId);
     }
 }
 

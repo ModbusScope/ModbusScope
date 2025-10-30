@@ -5,17 +5,24 @@ using connectionId_t = ConnectionTypes::connectionId_t;
 
 deviceId_t const Device::cFirstDeviceId = 1;
 
-Device::Device() : _connectionId(0), _slaveId(1), _consecutiveMax(125), _bInt32LittleEndian(true)
+Device::Device(deviceId_t devdId) : _connectionId(0), _slaveId(1), _consecutiveMax(125), _bInt32LittleEndian(true)
 {
+    _name = QString("Device %0").arg(devdId);
 }
 
-Device::~Device()
+void Device::setName(QString name)
 {
+    _name = name;
 }
 
 void Device::setConnectionId(connectionId_t connectionId)
 {
     _connectionId = connectionId;
+}
+
+QString Device::name()
+{
+    return _name;
 }
 
 connectionId_t Device::connectionId()

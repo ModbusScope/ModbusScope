@@ -44,7 +44,7 @@ ModbusDataType::Type ModbusRegister::type() const
 
 QString ModbusRegister::description() const
 {
-    QString connStr = QString("device %1").arg(deviceId());
+    QString connStr = QString("device id %1").arg(deviceId());
 
     return QString("%1, %2, %3").arg(address().toString(), ModbusDataType::description(_type), connStr);
 }
