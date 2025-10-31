@@ -17,7 +17,7 @@ public:
     void setSlaveId(quint8 id);
     void setConsecutiveMax(quint8 max);
     void setInt32LittleEndian(bool int32LittleEndian);
-    void setName(QString name);
+    void setName(QString const& name);
 
     ConnectionTypes::connectionId_t connectionId();
     quint8 slaveId();
