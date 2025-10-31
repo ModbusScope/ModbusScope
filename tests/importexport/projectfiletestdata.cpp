@@ -1,6 +1,8 @@
 
 #include "projectfiletestdata.h"
 
+// clang-format off
+
 QString ProjectFileTestData::cTooLowDataLevel = QString(
     "<?xml version=\"1.0\"?>                                        \n"\
     "<modbusscope datalevel=\"2\">                                  \n"\
@@ -83,6 +85,86 @@ QString ProjectFileTestData::cConnSerial = QString(
 );
 
 QString ProjectFileTestData::cConnMixedMulti = QString(
+    "<?xml version=\"1.0\"?>                                           \n"
+    "<modbusscope datalevel=\"5\">                                     \n"
+    " <modbus>                                                         \n"
+    "  <connection>                                                    \n"
+    "   <enabled>true</enabled>                                        \n"
+    "   <connectionid>0</connectionid>                                 \n"
+    "   <type>serial</type>                                            \n"
+    "   <ip>127.0.0.1</ip>                                             \n"
+    "   <port>502</port>                                               \n"
+    "   <portname>COM10</portname>                                     \n"
+    "   <baudrate>38400</baudrate>                                     \n"
+    "   <parity>0</parity>                                             \n"
+    "   <stopbits>1</stopbits>                                         \n"
+    "   <databits>8</databits>                                         \n"
+    "   <timeout>500</timeout>                                         \n"
+    "   <persistentconnection>true</persistentconnection>              \n"
+    "  </connection>                                           \n"
+    "  <connection>                                           \n"
+    "   <enabled>true</enabled>                                         \n"
+    "   <connectionid>1</connectionid>                                  \n"
+    "   <type>tcp</type>                                           \n"
+    "   <ip>127.0.0.1</ip>                                           \n"
+    "   <port>502</port>                                           \n"
+    "   <portname>COM1</portname>                                       \n"
+    "   <baudrate>115200</baudrate>                                     \n"
+    "   <parity>0</parity>                                           \n"
+    "   <stopbits>1</stopbits>                                          \n"
+    "   <databits>8</databits>                                          \n"
+    "   <timeout>2000</timeout>                                         \n"
+    "   <persistentconnection>true</persistentconnection>               \n"
+    "  </connection>                                           \n"
+    "  <connection>                                           \n"
+    "   <enabled>false</enabled>                                        \n"
+    "   <connectionid>2</connectionid>                                  \n"
+    "   <type>tcp</type>                                                \n"
+    "   <ip>127.0.0.1</ip>                                              \n"
+    "   <port>502</port>                                                \n"
+    "   <portname>COM1</portname>                                       \n"
+    "   <baudrate>115200</baudrate>                                     \n"
+    "   <parity>0</parity>                                              \n"
+    "   <stopbits>1</stopbits>                                          \n"
+    "   <databits>8</databits>                                          \n"
+    "   <timeout>1000</timeout>                                         \n"
+    "   <persistentconnection>true</persistentconnection>               \n"
+    "  </connection>                                           \n"
+    "  <device>                                           \n"
+    "   <deviceid>1</deviceid>                                          \n"
+    "   <name>Device 1 (serial 1)</name>                                \n"
+    "   <connectionid>0</connectionid>                                  \n"
+    "   <slaveid>1</slaveid>                                            \n"
+    "   <consecutivemax>125</consecutivemax>                            \n"
+    "   <int32littleendian>true</int32littleendian>                     \n"
+    "  </device>                                           \n"
+    "  <device>                                           \n"
+    "   <deviceid>2</deviceid>                                          \n"
+    "   <name>Device 2 (serial 2)</name>                                \n"
+    "   <connectionid>0</connectionid>                                  \n"
+    "   <slaveid>2</slaveid>                                            \n"
+    "   <consecutivemax>125</consecutivemax>                            \n"
+    "   <int32littleendian>true</int32littleendian>                     \n"
+    "  </device>                                           \n"
+    "  <device>                                           \n"
+    "   <deviceid>3</deviceid>                                          \n"
+    "   <name>Device 3 (TCP)</name>                                     \n"
+    "   <connectionid>1</connectionid>                                  \n"
+    "   <slaveid>1</slaveid>                                            \n"
+    "   <consecutivemax>125</consecutivemax>                            \n"
+    "   <int32littleendian>true</int32littleendian>                     \n"
+    "  </device>                                                        \n"
+    "  <log>                                                            \n"
+    "   <polltime>250</polltime>                                        \n"
+    "   <absolutetimes>false</absolutetimes>                            \n"
+    "   <logtofile enabled=\"true\"/>                                   \n"
+    "  </log>                             \n"
+    " </modbus>                           \n"
+    "</modbusscope>                       \n"
+);
+
+#if 0
+QString ProjectFileTestData::cConnMixedMulti = QString(
     "<?xml version=\"1.0\"?>                                           \n"\
     "<modbusscope datalevel=\"3\">                                     \n"\
     " <modbus>                                                         \n"\
@@ -140,6 +222,7 @@ QString ProjectFileTestData::cConnMixedMulti = QString(
     " </modbus>                                                        \n"\
     "</modbusscope>                                                    \n"
 );
+#endif
 
 QString ProjectFileTestData::cConnEmpty = QString(
     "<?xml version=\"1.0\"?>                                           \n"\
@@ -207,3 +290,5 @@ QString ProjectFileTestData::cValueAxis = QString(
     "    </scope>                                                               \n"\
     "</modbusscope>                                                             \n"\
 );
+
+// clang-format on

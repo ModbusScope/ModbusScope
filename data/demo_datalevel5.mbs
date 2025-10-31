@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<modbusscope datalevel="3">
+<modbusscope datalevel="5">
  <modbus>
   <connection>
    <enabled>true</enabled>
@@ -12,10 +12,7 @@
    <parity>0</parity>
    <stopbits>1</stopbits>
    <databits>8</databits>
-   <slaveid>1</slaveid>
    <timeout>1000</timeout>
-   <consecutivemax>100</consecutivemax>
-   <int32littleendian>true</int32littleendian>
    <persistentconnection>true</persistentconnection>
   </connection>
   <connection>
@@ -29,10 +26,7 @@
    <parity>0</parity>
    <stopbits>1</stopbits>
    <databits>8</databits>
-   <slaveid>2</slaveid>
-   <timeout>2000</timeout>
-   <consecutivemax>100</consecutivemax>
-   <int32littleendian>true</int32littleendian>
+   <timeout>1000</timeout>
    <persistentconnection>true</persistentconnection>
   </connection>
   <connection>
@@ -46,12 +40,25 @@
    <parity>0</parity>
    <stopbits>1</stopbits>
    <databits>8</databits>
-   <slaveid>1</slaveid>
    <timeout>1000</timeout>
-   <consecutivemax>125</consecutivemax>
-   <int32littleendian>true</int32littleendian>
    <persistentconnection>true</persistentconnection>
   </connection>
+  <device>
+   <deviceid>1</deviceid>
+   <name>Device 1</name>
+   <connectionid>0</connectionid>
+   <slaveid>1</slaveid>
+   <consecutivemax>125</consecutivemax>
+   <int32littleendian>true</int32littleendian>
+  </device>
+  <device>
+   <deviceid>2</deviceid>
+   <name>Device 2</name>
+   <connectionid>1</connectionid>
+   <slaveid>1</slaveid>
+   <consecutivemax>125</consecutivemax>
+   <int32littleendian>true</int32littleendian>
+  </device>
   <log>
    <polltime>1000</polltime>
    <absolutetimes>false</absolutetimes>
@@ -61,21 +68,27 @@
  <scope>
   <register active="true">
    <text>Data point</text>
-   <expression><![CDATA[${40001}/2]]></expression>
+   <expression><![CDATA[${h0}/2]]></expression>
    <color>#ff0000</color>
    <valueaxis>0</valueaxis>
   </register>
   <register active="true">
    <text>Data point 2</text>
-   <expression><![CDATA[${40002@2:s16b}]]></expression>
+   <expression><![CDATA[${h1@2:s16b}]]></expression>
    <color>#0000ff</color>
-   <valueaxis>0</valueaxis>
+   <valueaxis>1</valueaxis>
   </register>
-  <register active="false">
+  <register active="true">
    <text>Data point 3</text>
-   <expression><![CDATA[${40003:s16b}*10]]></expression>
+   <expression><![CDATA[${i50000}*10]]></expression>
    <color>#00ffff</color>
    <valueaxis>0</valueaxis>
+  </register>
+  <register active="true">
+   <text>Data point 4</text>
+   <expression><![CDATA[${h40000:s16b} + ${c0} / 10]]></expression>
+   <color>#00ff00</color>
+   <valueaxis>1</valueaxis>
   </register>
  </scope>
  <view>
@@ -83,10 +96,11 @@
    <xaxis mode="sliding">
     <slidinginterval>20</slidinginterval>
    </xaxis>
-   <yaxis mode="minmax">
+   <yaxis axis="0" mode="minmax">
     <min>0</min>
     <max>25</max>
    </yaxis>
+   <yaxis axis="1" mode="auto"/>
   </scale>
  </view>
 </modbusscope>

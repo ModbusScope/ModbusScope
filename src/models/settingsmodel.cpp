@@ -76,6 +76,11 @@ void SettingsModel::removeDevice(deviceId_t devId)
     _devices.remove(devId);
 }
 
+void SettingsModel::removeAllDevice()
+{
+    _devices.clear();
+}
+
 QList<deviceId_t> SettingsModel::deviceList()
 {
     QList<deviceId_t> list;

@@ -52,6 +52,7 @@ void ConnectionSettings::updateConnectionSettings(connectionId_t connectionId)
     pConnectionSettings->setBaudrate(connData->baudrate());
     pConnectionSettings->setDatabits(connData->databits());
     pConnectionSettings->setStopbits(connData->stopbits());
+    pConnectionSettings->setTimeout(connData->timeout());
     pConnectionSettings->setPersistentConnection(connData->persistentConnection());
 }
 

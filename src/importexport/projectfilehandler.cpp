@@ -205,27 +205,54 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
                     connData->setDatabits(static_cast<QSerialPort::DataBits>(detectedDataBits));
                 }
             }
-#if 0
-TODO: dev
-            if (pProjectSettings->general.connectionSettings[idx].bSlaveId)
-            {
-                connData->setSlaveId(pProjectSettings->general.connectionSettings[idx].slaveId);
-            }
 
             if (pProjectSettings->general.connectionSettings[idx].bTimeout)
             {
                 connData->setTimeout(pProjectSettings->general.connectionSettings[idx].timeout);
             }
 
-            if (pProjectSettings->general.connectionSettings[idx].bConsecutiveMax)
-            {
-                connData->setConsecutiveMax(pProjectSettings->general.connectionSettings[idx].consecutiveMax);
-            }
-
-            connData->setInt32LittleEndian(pProjectSettings->general.connectionSettings[idx].bInt32LittleEndian);
-#endif
             connData->setPersistentConnection(pProjectSettings->general.connectionSettings[idx].bPersistentConnection);
         }
+    }
+
+    _pSettingsModel->removeAllDevice();
+
+    const int deviceCnt = pProjectSettings->general.deviceSettings.size();
+    for (int idx = 0; idx < deviceCnt; idx++)
+    {
+        deviceId_t deviceId = Device::cFirstDeviceId; /* Default to first device */
+
+        if (pProjectSettings->general.deviceSettings[idx].bDeviceId)
+        {
+            deviceId = pProjectSettings->general.deviceSettings[idx].deviceId;
+        }
+        _pSettingsModel->addDevice(deviceId);
+
+        auto deviceData = _pSettingsModel->deviceSettings(deviceId);
+
+        connectionId_t connectionId = ConnectionTypes::ID_1; /* Default to connection 1 */
+        if (pProjectSettings->general.deviceSettings[idx].bConnectionId)
+        {
+            connectionId = pProjectSettings->general.deviceSettings[idx].connectionId;
+        }
+        deviceData->setConnectionId(connectionId);
+
+        if (pProjectSettings->general.deviceSettings[idx].bName)
+        {
+            deviceData->setName(pProjectSettings->general.deviceSettings[idx].name);
+        }
+
+        if (pProjectSettings->general.deviceSettings[idx].bSlaveId)
+        {
+            deviceData->setSlaveId(pProjectSettings->general.deviceSettings[idx].slaveId);
+        }
+
+        if (pProjectSettings->general.deviceSettings[idx].bConsecutiveMax)
+        {
+            deviceData->setConsecutiveMax(pProjectSettings->general.deviceSettings[idx].consecutiveMax);
+        }
+
+        deviceData->setInt32LittleEndian(pProjectSettings->general.deviceSettings[idx].bInt32LittleEndian);
     }
 
     if (pProjectSettings->general.logSettings.bPollTime)
