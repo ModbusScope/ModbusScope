@@ -15,6 +15,7 @@ public:
     enum DeviceColumns
     {
         DeviceIdColumn = 0,
+        NameColumn,
         ConnectionIdColumn,
         SlaveIdColumn,
         ConsecutiveMaxColumn,
