@@ -30,6 +30,7 @@ private:
     void createModbusTag(QDomElement * pParentElement);
 
     void createConnectionTags(QDomElement * pParentElement);
+    void createDeviceTags(QDomElement* pParentElement);
     void createLogTag(QDomElement * pParentElement);
 
     void createScopeTag(QDomElement * pParentElement);

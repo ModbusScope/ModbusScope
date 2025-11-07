@@ -12,6 +12,9 @@ namespace ProjectFileDefinitions
     const char cScopeTag[] = "scope";
     const char cViewTag[] = "view";
     const char cConnectionTag[] = "connection";
+    const char cDeviceTag[] = "device";
+    const char cDeviceIdTag[] = "deviceid";
+    const char cDeviceNameTag[] = "name";
     const char cLogTag[] = "log";
     const char cIpTag[] = "ip";
     const char cConnectionIdTag[] = "connectionid";
@@ -62,8 +65,7 @@ namespace ProjectFileDefinitions
 
     /* Constant values */
     const quint32 cMinimumDataLevel = 3;
-    const quint32 cCurrentDataLevel = 4;
-
+    const quint32 cCurrentDataLevel = 5;
 }
 
 #endif // PROJECTFILEDEFINITIONS

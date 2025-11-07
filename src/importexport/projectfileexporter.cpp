@@ -34,7 +34,6 @@ void ProjectFileExporter::exportProjectFile(QString projectFile)
     }
 }
 
-
 void ProjectFileExporter::createDomDocument()
 {
     _domDocument.clear();
@@ -58,6 +57,7 @@ void ProjectFileExporter::createModbusTag(QDomElement * pParentElement)
     QDomElement modbusElement = _domDocument.createElement(ProjectFileDefinitions::cModbusTag);
 
     createConnectionTags(&modbusElement);
+    createDeviceTags(&modbusElement);
     createLogTag(&modbusElement);
 
     pParentElement->appendChild(modbusElement);
@@ -92,19 +92,34 @@ void ProjectFileExporter::createConnectionTags(QDomElement * pParentElement)
         addTextNode(ProjectFileDefinitions::cParityTag, QString("%1").arg(connData->parity()), &connectionElement);
         addTextNode(ProjectFileDefinitions::cStopBitsTag, QString("%1").arg(connData->stopbits()), &connectionElement);
         addTextNode(ProjectFileDefinitions::cDataBitsTag, QString("%1").arg(connData->databits()), &connectionElement);
-#if 0
-TODO: dev
-        addTextNode(ProjectFileDefinitions::cSlaveIdTag, QString("%1").arg(connData->slaveId()), &connectionElement);
         addTextNode(ProjectFileDefinitions::cTimeoutTag, QString("%1").arg(connData->timeout()), &connectionElement);
-        addTextNode(ProjectFileDefinitions::cConsecutiveMaxTag, QString("%1").arg(connData->consecutiveMax()),
-                    &connectionElement);
-        addTextNode(ProjectFileDefinitions::cInt32LittleEndianTag, convertBoolToText(connData->int32LittleEndian()),
-                    &connectionElement);
-#endif
         addTextNode(ProjectFileDefinitions::cPersistentConnectionTag,
                     convertBoolToText(connData->persistentConnection()), &connectionElement);
 
         pParentElement->appendChild(connectionElement);
+    }
+}
+
+void ProjectFileExporter::createDeviceTags(QDomElement* pParentElement)
+{
+    QList<deviceId_t> deviceList = _pSettingsModel->deviceList();
+
+    for (const deviceId_t& deviceId : deviceList)
+    {
+        Device* device = _pSettingsModel->deviceSettings(deviceId);
+        QDomElement deviceElement = _domDocument.createElement(ProjectFileDefinitions::cDeviceTag);
+
+        addTextNode(ProjectFileDefinitions::cDeviceIdTag, QString("%1").arg(deviceId), &deviceElement);
+        addTextNode(ProjectFileDefinitions::cDeviceNameTag, device->name(), &deviceElement);
+        addTextNode(ProjectFileDefinitions::cConnectionIdTag, QString("%1").arg(device->connectionId()),
+                    &deviceElement);
+        addTextNode(ProjectFileDefinitions::cSlaveIdTag, QString("%1").arg(device->slaveId()), &deviceElement);
+        addTextNode(ProjectFileDefinitions::cConsecutiveMaxTag, QString("%1").arg(device->consecutiveMax()),
+                    &deviceElement);
+        addTextNode(ProjectFileDefinitions::cInt32LittleEndianTag, convertBoolToText(device->int32LittleEndian()),
+                    &deviceElement);
+
+        pParentElement->appendChild(deviceElement);
     }
 }
 

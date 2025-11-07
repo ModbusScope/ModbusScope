@@ -33,6 +33,7 @@ public:
 
     void addDevice(deviceId_t devId);
     void removeDevice(deviceId_t devId);
+    void removeAllDevice();
     bool updateDeviceId(deviceId_t oldId, deviceId_t newId);
 
     QList<deviceId_t> deviceList();

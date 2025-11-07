@@ -2,6 +2,7 @@
 #define PROJECTFILEDATA
 
 #include "models/connectiontypes.h"
+#include "models/device.h"
 #include <QColor>
 #include <QList>
 
@@ -100,24 +101,38 @@ namespace ProjectFileData
         bool bDatabits = false;
         quint32 databits;
 
-        bool bSlaveId = false;
-        quint8 slaveId;
-
         bool bTimeout = false;
         quint32 timeout;
+
+        bool bPersistentConnection = true;
+
+    } ConnectionSettings;
+
+    typedef struct _DeviceSettings
+    {
+        bool bDeviceId = false;
+        deviceId_t deviceId = Device::cFirstDeviceId;
+
+        bool bName = false;
+        QString name = QString("");
+
+        bool bConnectionId = false;
+        ConnectionTypes::connectionId_t connectionId = 0;
+
+        bool bSlaveId = false;
+        quint8 slaveId;
 
         bool bConsecutiveMax = false;
         quint8 consecutiveMax;
 
         bool bInt32LittleEndian = true;
 
-        bool bPersistentConnection = true;
-
-    } ConnectionSettings;
+    } DeviceSettings;
 
     typedef struct _GeneralSettings
     {
         QList<ConnectionSettings> connectionSettings;
+        QList<DeviceSettings> deviceSettings;
         LogSettings logSettings;
 
     } GeneralSettings;

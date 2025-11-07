@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<modbusscope datalevel="4">
+<modbusscope datalevel="5">
  <modbus>
   <connection>
    <enabled>true</enabled>
@@ -12,10 +12,7 @@
    <parity>0</parity>
    <stopbits>1</stopbits>
    <databits>8</databits>
-   <slaveid>1</slaveid>
    <timeout>1000</timeout>
-   <consecutivemax>100</consecutivemax>
-   <int32littleendian>true</int32littleendian>
    <persistentconnection>true</persistentconnection>
   </connection>
   <connection>
@@ -29,10 +26,7 @@
    <parity>0</parity>
    <stopbits>1</stopbits>
    <databits>8</databits>
-   <slaveid>1</slaveid>
    <timeout>1000</timeout>
-   <consecutivemax>125</consecutivemax>
-   <int32littleendian>true</int32littleendian>
    <persistentconnection>true</persistentconnection>
   </connection>
   <connection>
@@ -46,12 +40,17 @@
    <parity>0</parity>
    <stopbits>1</stopbits>
    <databits>8</databits>
-   <slaveid>1</slaveid>
    <timeout>1000</timeout>
-   <consecutivemax>125</consecutivemax>
-   <int32littleendian>true</int32littleendian>
    <persistentconnection>true</persistentconnection>
   </connection>
+  <device>
+   <deviceid>1</deviceid>
+   <name>Device 1</name>
+   <connectionid>0</connectionid>
+   <slaveid>1</slaveid>
+   <consecutivemax>125</consecutivemax>
+   <int32littleendian>true</int32littleendian>
+  </device>
   <log>
    <polltime>1000</polltime>
    <absolutetimes>false</absolutetimes>

@@ -22,6 +22,7 @@ private:
     GeneralError parseModbusTag(const QDomElement &element, ProjectFileData::GeneralSettings *pGeneralSettings);
 
     GeneralError parseConnectionTag(const QDomElement &element, ProjectFileData::ConnectionSettings *pConnectionSettings);
+    GeneralError parseDeviceTag(const QDomElement& element, ProjectFileData::DeviceSettings* pDeviceSettings);
     GeneralError parseLogTag(const QDomElement &element, ProjectFileData::LogSettings *pLogSettings);
     GeneralError parseLogToFile(const QDomElement &element, ProjectFileData::LogSettings *pLogSettings);
 

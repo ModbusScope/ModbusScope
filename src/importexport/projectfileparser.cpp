@@ -6,15 +6,16 @@
 #include <QDir>
 #include <QFileInfo>
 
-using ProjectFileData::ProjectSettings;
 using ProjectFileData::ConnectionSettings;
-using ProjectFileData::LogSettings;
-using ProjectFileData::ScopeSettings;
-using ProjectFileData::RegisterSettings;
-using ProjectFileData::ViewSettings;
-using ProjectFileData::ScaleSettings;
-using ProjectFileData::YAxisSettings;
+using ProjectFileData::DeviceSettings;
 using ProjectFileData::GeneralSettings;
+using ProjectFileData::LogSettings;
+using ProjectFileData::ProjectSettings;
+using ProjectFileData::RegisterSettings;
+using ProjectFileData::ScaleSettings;
+using ProjectFileData::ScopeSettings;
+using ProjectFileData::ViewSettings;
+using ProjectFileData::YAxisSettings;
 
 ProjectFileParser::ProjectFileParser()
 {
@@ -134,6 +135,16 @@ GeneralError ProjectFileParser::parseModbusTag(const QDomElement &element, Gener
                 break;
             }
         }
+        else if (child.tagName() == ProjectFileDefinitions::cDeviceTag)
+        {
+            pGeneralSettings->deviceSettings.append(DeviceSettings());
+
+            parseErr = parseDeviceTag(child, &pGeneralSettings->deviceSettings.last());
+            if (!parseErr.result())
+            {
+                break;
+            }
+        }
         else if (child.tagName() == ProjectFileDefinitions::cLogTag)
         {
             parseErr = parseLogTag(child, &pGeneralSettings->logSettings);
@@ -245,16 +256,6 @@ GeneralError ProjectFileParser::parseConnectionTag(const QDomElement &element, C
                 break;
             }
         }
-        else if (child.tagName() == ProjectFileDefinitions::cSlaveIdTag)
-        {
-            pConnectionSettings->bSlaveId = true;
-            pConnectionSettings->slaveId = static_cast<quint8>(child.text().toUInt(&bRet));
-            if (!bRet)
-            {
-                parseErr.reportError(QString("Slave id ( %1 ) is not a valid number").arg(child.text()));
-                break;
-            }
-        }
         else if (child.tagName() == ProjectFileDefinitions::cTimeoutTag)
         {
             pConnectionSettings->bTimeout = true;
@@ -263,27 +264,6 @@ GeneralError ProjectFileParser::parseConnectionTag(const QDomElement &element, C
             {
                 parseErr.reportError(QString("Timeout ( %1 ) is not a valid number").arg(child.text()));
                 break;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cConsecutiveMaxTag)
-        {
-            pConnectionSettings->bConsecutiveMax = true;
-            pConnectionSettings->consecutiveMax = static_cast<quint8>(child.text().toUInt(&bRet));
-            if (!bRet)
-            {
-                parseErr.reportError(QString("Consecutive register maximum ( %1 ) is not a valid number").arg(child.text()));
-                break;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cInt32LittleEndianTag)
-        {
-            if (!child.text().toLower().compare(ProjectFileDefinitions::cTrueValue))
-            {
-                pConnectionSettings->bInt32LittleEndian = true;
-            }
-            else
-            {
-                pConnectionSettings->bInt32LittleEndian = false;
             }
         }
         else if (child.tagName() == ProjectFileDefinitions::cPersistentConnectionTag)
@@ -295,6 +275,80 @@ GeneralError ProjectFileParser::parseConnectionTag(const QDomElement &element, C
             else
             {
                 pConnectionSettings->bPersistentConnection = false;
+            }
+        }
+        else
+        {
+            // unknown tag: ignore
+        }
+        child = child.nextSiblingElement();
+    }
+
+    return parseErr;
+}
+
+GeneralError ProjectFileParser::parseDeviceTag(const QDomElement& element, DeviceSettings* pDeviceSettings)
+{
+    GeneralError parseErr;
+    QDomElement child = element.firstChildElement();
+    while (!child.isNull())
+    {
+        bool bRet;
+        if (child.tagName() == ProjectFileDefinitions::cDeviceIdTag)
+        {
+            pDeviceSettings->bDeviceId = true;
+            pDeviceSettings->deviceId = child.text().toUInt(&bRet);
+            if (!bRet)
+            {
+                parseErr.reportError(QString("Device Id (%1) is not a valid number").arg(child.text()));
+                break;
+            }
+        }
+        else if (child.tagName() == ProjectFileDefinitions::cDeviceNameTag)
+        {
+            pDeviceSettings->bName = true;
+            pDeviceSettings->name = child.text();
+        }
+        else if (child.tagName() == ProjectFileDefinitions::cConnectionIdTag)
+        {
+            pDeviceSettings->bConnectionId = true;
+            pDeviceSettings->connectionId = child.text().toUInt(&bRet);
+            if (!bRet)
+            {
+                parseErr.reportError(QString("Connection Id (%1) is not a valid number").arg(child.text()));
+                break;
+            }
+        }
+        else if (child.tagName() == ProjectFileDefinitions::cSlaveIdTag)
+        {
+            pDeviceSettings->bSlaveId = true;
+            pDeviceSettings->slaveId = static_cast<quint8>(child.text().toUInt(&bRet));
+            if (!bRet)
+            {
+                parseErr.reportError(QString("Slave id ( %1 ) is not a valid number").arg(child.text()));
+                break;
+            }
+        }
+        else if (child.tagName() == ProjectFileDefinitions::cConsecutiveMaxTag)
+        {
+            pDeviceSettings->bConsecutiveMax = true;
+            pDeviceSettings->consecutiveMax = static_cast<quint8>(child.text().toUInt(&bRet));
+            if (!bRet)
+            {
+                parseErr.reportError(
+                  QString("Consecutive register maximum ( %1 ) is not a valid number").arg(child.text()));
+                break;
+            }
+        }
+        else if (child.tagName() == ProjectFileDefinitions::cInt32LittleEndianTag)
+        {
+            if (!child.text().toLower().compare(ProjectFileDefinitions::cTrueValue))
+            {
+                pDeviceSettings->bInt32LittleEndian = true;
+            }
+            else
+            {
+                pDeviceSettings->bInt32LittleEndian = false;
             }
         }
         else
