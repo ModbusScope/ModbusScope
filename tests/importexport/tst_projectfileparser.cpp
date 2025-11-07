@@ -295,6 +295,7 @@ void TestProjectFileParser::connEmpty()
     QVERIFY(parseError.result());
 
     /* Connection id 0 */
+    QCOMPARE(settings.general.connectionSettings.size(), 1);
     QVERIFY(settings.general.connectionSettings[0].bConnectionId == false);
     QVERIFY(settings.general.connectionSettings[0].bConnectionState);
     QVERIFY(settings.general.connectionSettings[0].bConnectionType == false);
@@ -308,6 +309,9 @@ void TestProjectFileParser::connEmpty()
     QVERIFY(settings.general.connectionSettings[0].bDatabits == false);
     QVERIFY(settings.general.connectionSettings[0].bTimeout == false);
     QVERIFY(settings.general.connectionSettings[0].bPersistentConnection);
+
+    /* Devices */
+    QVERIFY(settings.general.deviceSettings.size() == 0);
 }
 
 void TestProjectFileParser::scaleDouble()

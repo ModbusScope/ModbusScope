@@ -85,38 +85,38 @@ QString ProjectFileTestData::cConnSerial = QString(
 );
 
 QString ProjectFileTestData::cConnMixedMulti = QString(
-    "<?xml version=\"1.0\"?>                                           \n"
-    "<modbusscope datalevel=\"5\">                                     \n"
-    " <modbus>                                                         \n"
-    "  <connection>                                                    \n"
-    "   <enabled>true</enabled>                                        \n"
-    "   <connectionid>0</connectionid>                                 \n"
-    "   <type>serial</type>                                            \n"
-    "   <ip>127.0.0.1</ip>                                             \n"
-    "   <port>502</port>                                               \n"
-    "   <portname>COM10</portname>                                     \n"
-    "   <baudrate>38400</baudrate>                                     \n"
-    "   <parity>0</parity>                                             \n"
-    "   <stopbits>1</stopbits>                                         \n"
-    "   <databits>8</databits>                                         \n"
-    "   <timeout>500</timeout>                                         \n"
-    "   <persistentconnection>true</persistentconnection>              \n"
-    "  </connection>                                           \n"
-    "  <connection>                                           \n"
+    "<?xml version=\"1.0\"?>                                            \n"
+    "<modbusscope datalevel=\"5\">                                      \n"
+    " <modbus>                                                          \n"
+    "  <connection>                                                     \n"
+    "   <enabled>true</enabled>                                         \n"
+    "   <connectionid>0</connectionid>                                  \n"
+    "   <type>serial</type>                                             \n"
+    "   <ip>127.0.0.1</ip>                                              \n"
+    "   <port>502</port>                                                \n"
+    "   <portname>COM10</portname>                                      \n"
+    "   <baudrate>38400</baudrate>                                      \n"
+    "   <parity>0</parity>                                              \n"
+    "   <stopbits>1</stopbits>                                          \n"
+    "   <databits>8</databits>                                          \n"
+    "   <timeout>500</timeout>                                          \n"
+    "   <persistentconnection>true</persistentconnection>               \n"
+    "  </connection>                                                    \n"
+    "  <connection>                                                     \n"
     "   <enabled>true</enabled>                                         \n"
     "   <connectionid>1</connectionid>                                  \n"
-    "   <type>tcp</type>                                           \n"
-    "   <ip>127.0.0.1</ip>                                           \n"
-    "   <port>502</port>                                           \n"
+    "   <type>tcp</type>                                                \n"
+    "   <ip>127.0.0.1</ip>                                              \n"
+    "   <port>502</port>                                                \n"
     "   <portname>COM1</portname>                                       \n"
     "   <baudrate>115200</baudrate>                                     \n"
-    "   <parity>0</parity>                                           \n"
+    "   <parity>0</parity>                                              \n"
     "   <stopbits>1</stopbits>                                          \n"
     "   <databits>8</databits>                                          \n"
     "   <timeout>2000</timeout>                                         \n"
     "   <persistentconnection>true</persistentconnection>               \n"
-    "  </connection>                                           \n"
-    "  <connection>                                           \n"
+    "  </connection>                                                    \n"
+    "  <connection>                                                     \n"
     "   <enabled>false</enabled>                                        \n"
     "   <connectionid>2</connectionid>                                  \n"
     "   <type>tcp</type>                                                \n"
@@ -129,24 +129,24 @@ QString ProjectFileTestData::cConnMixedMulti = QString(
     "   <databits>8</databits>                                          \n"
     "   <timeout>1000</timeout>                                         \n"
     "   <persistentconnection>true</persistentconnection>               \n"
-    "  </connection>                                           \n"
-    "  <device>                                           \n"
+    "  </connection>                                                    \n"
+    "  <device>                                                         \n"
     "   <deviceid>1</deviceid>                                          \n"
     "   <name>Device 1 (serial 1)</name>                                \n"
     "   <connectionid>0</connectionid>                                  \n"
     "   <slaveid>1</slaveid>                                            \n"
     "   <consecutivemax>125</consecutivemax>                            \n"
     "   <int32littleendian>true</int32littleendian>                     \n"
-    "  </device>                                           \n"
-    "  <device>                                           \n"
+    "  </device>                                                        \n"
+    "  <device>                                                         \n"
     "   <deviceid>2</deviceid>                                          \n"
     "   <name>Device 2 (serial 2)</name>                                \n"
     "   <connectionid>0</connectionid>                                  \n"
     "   <slaveid>2</slaveid>                                            \n"
     "   <consecutivemax>125</consecutivemax>                            \n"
     "   <int32littleendian>true</int32littleendian>                     \n"
-    "  </device>                                           \n"
-    "  <device>                                           \n"
+    "  </device>                                                        \n"
+    "  <device>                                                         \n"
     "   <deviceid>3</deviceid>                                          \n"
     "   <name>Device 3 (TCP)</name>                                     \n"
     "   <connectionid>1</connectionid>                                  \n"
@@ -158,71 +158,10 @@ QString ProjectFileTestData::cConnMixedMulti = QString(
     "   <polltime>250</polltime>                                        \n"
     "   <absolutetimes>false</absolutetimes>                            \n"
     "   <logtofile enabled=\"true\"/>                                   \n"
-    "  </log>                             \n"
-    " </modbus>                           \n"
-    "</modbusscope>                       \n"
+    "  </log>                                                           \n"
+    " </modbus>                                                         \n"
+    "</modbusscope>                                                     \n"
 );
-
-#if 0
-QString ProjectFileTestData::cConnMixedMulti = QString(
-    "<?xml version=\"1.0\"?>                                           \n"\
-    "<modbusscope datalevel=\"3\">                                     \n"\
-    " <modbus>                                                         \n"\
-    "  <connection>                                                    \n"\
-    "   <enabled>true</enabled>                                        \n"\
-    "   <connectionid>0</connectionid>                                 \n"\
-    "   <type>tcp</type>                                               \n"\
-    "   <ip>127.0.0.2</ip>                                             \n"\
-    "   <port>5020</port>                                              \n"\
-    "   <portname>/dev/ttyUSB0</portname>                              \n"\
-    "   <baudrate>115200</baudrate>                                    \n"\
-    "   <parity>0</parity>                                             \n"\
-    "   <stopbits>1</stopbits>                                         \n"\
-    "   <databits>8</databits>                                         \n"\
-    "   <slaveid>2</slaveid>                                           \n"\
-    "   <timeout>1002</timeout>                                        \n"\
-    "   <consecutivemax>12</consecutivemax>                            \n"\
-    "   <int32littleendian>true</int32littleendian>                    \n"\
-    "   <persistentconnection>true</persistentconnection>              \n"\
-    "  </connection>                                                   \n"\
-    "  <connection>                                                    \n"\
-    "   <enabled>false</enabled>                                       \n"\
-    "   <connectionid>1</connectionid>                                 \n"\
-    "   <type>tcp</type>                                               \n"\
-    "   <ip>127.0.0.1</ip>                                             \n"\
-    "   <port>502</port>                                               \n"\
-    "   <portname>/dev/ttyUSB0</portname>                              \n"\
-    "   <baudrate>115200</baudrate>                                    \n"\
-    "   <parity>0</parity>                                             \n"\
-    "   <stopbits>1</stopbits>                                         \n"\
-    "   <databits>8</databits>                                         \n"\
-    "   <slaveid>1</slaveid>                                           \n"\
-    "   <timeout>1000</timeout>                                        \n"\
-    "   <consecutivemax>125</consecutivemax>                           \n"\
-    "   <int32littleendian>true</int32littleendian>                    \n"\
-    "   <persistentconnection>true</persistentconnection>              \n"\
-    "  </connection>                                                   \n"\
-    "  <connection>                                                    \n"\
-    "   <enabled>true</enabled>                                        \n"\
-    "   <connectionid>2</connectionid>                                 \n"\
-    "   <type>serial</type>                                            \n"\
-    "   <ip>127.0.0.1</ip>                                             \n"\
-    "   <port>502</port>                                               \n"\
-    "   <portname>/dev/ttyUSB2</portname>                              \n"\
-    "   <baudrate>9600</baudrate>                                      \n"\
-    "   <parity>0</parity>                                             \n"\
-    "   <stopbits>3</stopbits>                                         \n"\
-    "   <databits>7</databits>                                         \n"\
-    "   <slaveid>3</slaveid>                                           \n"\
-    "   <timeout>1003</timeout>                                        \n"\
-    "   <consecutivemax>12</consecutivemax>                            \n"\
-    "   <int32littleendian>true</int32littleendian>                    \n"\
-    "   <persistentconnection>true</persistentconnection>              \n"\
-    "  </connection>                                                   \n"\
-    " </modbus>                                                        \n"\
-    "</modbusscope>                                                    \n"
-);
-#endif
 
 QString ProjectFileTestData::cConnEmpty = QString(
     "<?xml version=\"1.0\"?>                                           \n"\
