@@ -218,6 +218,12 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
     _pSettingsModel->removeAllDevice();
 
     const int deviceCnt = pProjectSettings->general.deviceSettings.size();
+    if (deviceCnt == 0)
+    {
+        deviceId_t deviceId = Device::cFirstDeviceId; /* Default to first device */
+        _pSettingsModel->addDevice(deviceId);
+    }
+
     for (int idx = 0; idx < deviceCnt; idx++)
     {
         deviceId_t deviceId = Device::cFirstDeviceId; /* Default to first device */
