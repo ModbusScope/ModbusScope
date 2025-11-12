@@ -1,37 +1,31 @@
 #include "devicesettings.h"
-#include "dialogs/connectiondelegate.h"
-#include "models/devicemodel.h"
 #include "ui_devicesettings.h"
 
-#include <QShortcut>
+#include "customwidgets/deviceform.h"
+#include "models/device.h"
 
-using DeviceColumns = DeviceModel::DeviceColumns;
+#include <QLabel>
+#include <QToolButton>
 
 DeviceSettings::DeviceSettings(SettingsModel* pSettingsModel, QWidget* parent)
     : QWidget(parent), _pUi(new Ui::DeviceSettings), _pSettingsModel(pSettingsModel)
 {
     _pUi->setupUi(this);
 
-    // Create and set up the device model
-    _pDeviceModel = new DeviceModel(_pSettingsModel, this);
-    _pUi->deviceView->setModel(_pDeviceModel);
-    _pUi->deviceView->verticalHeader()->hide();
-    _pUi->deviceView->setStyle(&_centeredBoxStyle);
-    _pUi->deviceView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    connect(_pUi->deviceTabs, &AddableTabWidget::tabClosed, this, &DeviceSettings::handleCloseTab,
+            Qt::DirectConnection);
+    connect(_pUi->deviceTabs, &AddableTabWidget::addTabRequested, this, &DeviceSettings::handleAddTab);
 
-    _pUi->deviceView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    _pUi->deviceView->setSelectionMode(QAbstractItemView::SingleSelection);
-    _pUi->deviceView->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+    QList<QWidget*> pages;
+    QStringList names;
+    for (deviceId_t const& devId : _pSettingsModel->deviceList())
+    {
+        auto devSettings = _pSettingsModel->deviceSettings(devId);
+        names.append(QString("%1 (%2)").arg(devSettings->name()).arg(devId));
+        pages.append(new DeviceForm(_pSettingsModel, devId, this));
+    }
 
-    ConnectionDelegate* cbConn = new ConnectionDelegate(pSettingsModel, _pUi->deviceView);
-    _pUi->deviceView->setItemDelegateForColumn(DeviceColumns::ConnectionIdColumn, cbConn);
-
-    // Handle delete
-    QShortcut* shortcut = new QShortcut(QKeySequence(QKeySequence::Delete), _pUi->deviceView);
-    connect(shortcut, &QShortcut::activated, this, &DeviceSettings::onRemoveDeviceClicked);
-
-    connect(_pUi->btnAdd, &QPushButton::clicked, this, &DeviceSettings::onAddDeviceClicked);
-    connect(_pUi->btnRemove, &QPushButton::clicked, this, &DeviceSettings::onRemoveDeviceClicked);
+    _pUi->deviceTabs->setTabs(pages, names);
 }
 
 DeviceSettings::~DeviceSettings()
@@ -39,20 +33,24 @@ DeviceSettings::~DeviceSettings()
     delete _pUi;
 }
 
-void DeviceSettings::onAddDeviceClicked()
+void DeviceSettings::handleAddTab()
 {
-    int row = _pDeviceModel->rowCount();
-    _pDeviceModel->insertRow(row);
+    deviceId_t devId = _pSettingsModel->addNewDevice();
+    auto devSettings = _pSettingsModel->deviceSettings(devId);
+    QString name = QString("%1 (%2)").arg(devSettings->name()).arg(devId);
+    DeviceForm* page = new DeviceForm(_pSettingsModel, devId, this);
+
+    _pUi->deviceTabs->addNewTab(name, page);
 }
 
-void DeviceSettings::onRemoveDeviceClicked()
+void DeviceSettings::handleCloseTab(int index)
 {
-    QModelIndexList selection = _pUi->deviceView->selectionModel()->selectedRows();
-    // Remove from last to first to keep indices valid
-    std::sort(selection.begin(), selection.end(),
-              [](const QModelIndex& a, const QModelIndex& b) { return a.row() > b.row(); });
-    for (const QModelIndex& idx : std::as_const(selection))
+    Q_UNUSED(index);
+
+    auto tabContent = dynamic_cast<DeviceForm*>(_pUi->deviceTabs->tabContent(index));
+    if (tabContent)
     {
-        _pDeviceModel->removeRow(idx.row());
+        deviceId_t devId = tabContent->deviceId();
+        _pSettingsModel->removeDevice(devId);
     }
 }

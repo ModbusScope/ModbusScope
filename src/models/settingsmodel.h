@@ -31,6 +31,7 @@ public:
     quint32 pollTime();
     bool absoluteTimes();
 
+    deviceId_t addNewDevice();
     void addDevice(deviceId_t devId);
     void removeDevice(deviceId_t devId);
     void removeAllDevice();

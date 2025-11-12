@@ -63,6 +63,19 @@ bool SettingsModel::absoluteTimes()
     return _bAbsoluteTimes;
 }
 
+deviceId_t SettingsModel::addNewDevice()
+{
+    deviceId_t newId = Device::cFirstDeviceId;
+
+    while (_devices.contains(newId))
+    {
+        newId++;
+    }
+
+    _devices[newId] = Device(newId);
+    return newId;
+}
+
 void SettingsModel::addDevice(deviceId_t devId)
 {
     if (!_devices.contains(devId))
