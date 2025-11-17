@@ -2,17 +2,88 @@
 #include "ui_deviceform.h"
 
 DeviceForm::DeviceForm(SettingsModel* pSettingsModel, deviceId_t _deviceId, QWidget* parent)
-    : QWidget(parent), _pU(new Ui::DeviceForm), _pSettingsModel(pSettingsModel), _deviceId(_deviceId)
+    : QWidget(parent), _pUi(new Ui::DeviceForm), _pSettingsModel(pSettingsModel), _deviceId(_deviceId)
 {
-    _pU->setupUi(this);
+    _pUi->setupUi(this);
+
+    updateConnectionList();
+
+    Device* dev = _pSettingsModel->deviceSettings(this->_deviceId);
+
+    _pUi->lineName->setText(dev->name());
+    _pUi->spinId->setValue(static_cast<int>(this->_deviceId));
+    _pUi->spinSlaveId->setValue(dev->slaveId());
+    _pUi->spinConsecutiveMax->setValue(dev->consecutiveMax());
+    _pUi->checkEndianness->setChecked(dev->int32LittleEndian());
+    _pUi->comboConnection->setCurrentIndex(_pUi->comboConnection->findData(static_cast<quint32>(dev->connectionId())));
+
+    connect(_pUi->lineName, &QLineEdit::textChanged, this, [this](const QString& newName) {
+        Device* dev = _pSettingsModel->deviceSettings(this->_deviceId);
+        dev->setName(newName);
+        emit deviceIdentifiersChanged(this->_deviceId);
+    });
+    connect(_pUi->spinId, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int newId) {
+        _pSettingsModel->updateDeviceId(this->_deviceId, static_cast<deviceId_t>(newId));
+        this->_deviceId = newId;
+        emit deviceIdentifiersChanged(newId);
+    });
+
+    connect(_pUi->spinSlaveId, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int newSlaveId) {
+        Device* dev = _pSettingsModel->deviceSettings(this->_deviceId);
+        dev->setSlaveId(static_cast<quint8>(newSlaveId));
+    });
+
+    connect(_pUi->spinConsecutiveMax, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int newConsecutiveMax) {
+        Device* dev = _pSettingsModel->deviceSettings(this->_deviceId);
+        dev->setConsecutiveMax(static_cast<quint8>(newConsecutiveMax));
+    });
+
+    connect(_pUi->checkEndianness, &QCheckBox::toggled, this, [this](bool bInt32LittleEndian) {
+        Device* dev = _pSettingsModel->deviceSettings(this->_deviceId);
+        dev->setInt32LittleEndian(bInt32LittleEndian);
+    });
+
+    connect(_pUi->comboConnection, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int index) {
+        Device* dev = _pSettingsModel->deviceSettings(this->_deviceId);
+        QVariant data = _pUi->comboConnection->itemData(index);
+        if (data.isValid())
+        {
+            dev->setConnectionId(static_cast<ConnectionTypes::connectionId_t>(data.toUInt()));
+        }
+    });
 }
 
 DeviceForm::~DeviceForm()
 {
-    delete _pU;
+    delete _pUi;
 }
 
 deviceId_t DeviceForm::deviceId()
 {
     return _deviceId;
+}
+
+void DeviceForm::handleSettingsTabSwitch()
+{
+    updateConnectionList();
+}
+
+void DeviceForm::updateConnectionList()
+{
+    _pUi->comboConnection->clear();
+    for (auto connId : _pSettingsModel->connectionList())
+    {
+        _pUi->comboConnection->addItem(QString("Connection %1").arg(connId + 1), static_cast<quint32>(connId));
+    }
+
+    for (int i = 0; i < _pUi->comboConnection->count(); i++)
+    {
+        QVariant data = _pUi->comboConnection->itemData(i);
+        if (data.isValid() && static_cast<ConnectionTypes::connectionId_t>(data.toUInt()) ==
+                                _pSettingsModel->deviceSettings(this->_deviceId)->connectionId())
+        {
+            _pUi->comboConnection->setCurrentIndex(i);
+            break;
+        }
+    }
 }

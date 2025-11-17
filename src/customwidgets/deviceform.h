@@ -19,8 +19,16 @@ public:
 
     deviceId_t deviceId();
 
+signals:
+    void deviceIdentifiersChanged(deviceId_t devId);
+
+public slots:
+    void handleSettingsTabSwitch();
+
 private:
-    Ui::DeviceForm* _pU;
+    void updateConnectionList();
+
+    Ui::DeviceForm* _pUi;
 
     SettingsModel* _pSettingsModel;
     deviceId_t _deviceId;

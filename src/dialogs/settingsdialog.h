@@ -6,6 +6,7 @@
 // Forward decleration
 class SettingsModel;
 class ConnectionSettings;
+class DeviceSettings;
 
 namespace Ui {
 class SettingsDialog;
@@ -35,6 +36,7 @@ private:
 
     SettingsModel* _pSettingsModel;
     ConnectionSettings* _pConnSettings;
+    DeviceSettings* _pDevSettings;
 };
 
 #endif // SETTINGSDIALOG_H

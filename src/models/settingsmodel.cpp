@@ -179,6 +179,18 @@ void SettingsModel::setConnectionState(connectionId_t connectionId, bool bState)
     _connectionSettings[connectionId].bConnectionState = bState;
 }
 
+QList<ConnectionTypes::connectionId_t> SettingsModel::connectionList()
+{
+    QList<connectionId_t> list;
+
+    for (quint8 i = 0; i < ConnectionTypes::ID_CNT; i++)
+    {
+        list.append(static_cast<connectionId_t>(i));
+    }
+
+    return list;
+}
+
 bool SettingsModel::connectionState(connectionId_t connectionId)
 {
     return _connectionSettings[connectionId].bConnectionState;
