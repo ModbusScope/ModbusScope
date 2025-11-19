@@ -68,6 +68,8 @@ void DeviceForm::handleSettingsTabSwitch()
 
 void DeviceForm::updateConnectionList()
 {
+    _pUi->comboConnection->blockSignals(true);
+
     _pUi->comboConnection->clear();
     for (auto connId : _pSettingsModel->connectionList())
     {
@@ -84,4 +86,6 @@ void DeviceForm::updateConnectionList()
             break;
         }
     }
+
+    _pUi->comboConnection->blockSignals(true);
 }
