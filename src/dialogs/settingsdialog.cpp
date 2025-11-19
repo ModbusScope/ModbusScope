@@ -35,9 +35,10 @@ SettingsDialog::SettingsDialog(SettingsModel* pSettingsModel, QWidget* parent)
     _pUi->settingsList->addItem(listItem);
 
     _pConnSettings = new ConnectionSettings(_pSettingsModel);
+    _pDevSettings = new DeviceSettings(_pSettingsModel);
 
     _pUi->settingsStack->insertWidget(PAGE_CONNECTION, _pConnSettings);
-    _pUi->settingsStack->insertWidget(PAGE_DEVICE, new DeviceSettings(_pSettingsModel));
+    _pUi->settingsStack->insertWidget(PAGE_DEVICE, _pDevSettings);
     _pUi->settingsStack->insertWidget(PAGE_LOG, new LogSettings(_pSettingsModel));
 
     connect(_pUi->settingsList, &QListWidget::currentRowChanged, this, &SettingsDialog::settingsStackSwitch);
@@ -62,6 +63,10 @@ void SettingsDialog::settingsStackSwitch(int currentRow)
     if (_pUi->settingsStack->currentIndex() == PAGE_CONNECTION)
     {
         _pConnSettings->acceptValues();
+    }
+    else if (_pUi->settingsStack->currentIndex() == PAGE_DEVICE)
+    {
+        _pDevSettings->settingsTabsSwitched();
     }
     _pUi->settingsStack->setCurrentIndex(currentRow);
 }

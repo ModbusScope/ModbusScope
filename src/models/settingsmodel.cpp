@@ -63,6 +63,19 @@ bool SettingsModel::absoluteTimes()
     return _bAbsoluteTimes;
 }
 
+deviceId_t SettingsModel::addNewDevice()
+{
+    deviceId_t newId = Device::cFirstDeviceId;
+
+    while (_devices.contains(newId))
+    {
+        newId++;
+    }
+
+    _devices[newId] = Device(newId);
+    return newId;
+}
+
 void SettingsModel::addDevice(deviceId_t devId)
 {
     if (!_devices.contains(devId))
@@ -164,6 +177,18 @@ void SettingsModel::setConnectionState(connectionId_t connectionId, bool bState)
     }
 
     _connectionSettings[connectionId].bConnectionState = bState;
+}
+
+QList<ConnectionTypes::connectionId_t> SettingsModel::connectionList() const
+{
+    QList<connectionId_t> list;
+
+    for (quint8 i = 0; i < ConnectionTypes::ID_CNT; i++)
+    {
+        list.append(static_cast<connectionId_t>(i));
+    }
+
+    return list;
 }
 
 bool SettingsModel::connectionState(connectionId_t connectionId)

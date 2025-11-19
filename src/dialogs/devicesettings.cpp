@@ -1,37 +1,30 @@
 #include "devicesettings.h"
-#include "dialogs/connectiondelegate.h"
-#include "models/devicemodel.h"
 #include "ui_devicesettings.h"
 
-#include <QShortcut>
+#include "customwidgets/deviceform.h"
+#include "models/device.h"
 
-using DeviceColumns = DeviceModel::DeviceColumns;
+#include <QLabel>
+#include <QToolButton>
 
 DeviceSettings::DeviceSettings(SettingsModel* pSettingsModel, QWidget* parent)
     : QWidget(parent), _pUi(new Ui::DeviceSettings), _pSettingsModel(pSettingsModel)
 {
     _pUi->setupUi(this);
 
-    // Create and set up the device model
-    _pDeviceModel = new DeviceModel(_pSettingsModel, this);
-    _pUi->deviceView->setModel(_pDeviceModel);
-    _pUi->deviceView->verticalHeader()->hide();
-    _pUi->deviceView->setStyle(&_centeredBoxStyle);
-    _pUi->deviceView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    connect(_pUi->deviceTabs, &AddableTabWidget::tabClosed, this, &DeviceSettings::handleCloseTab,
+            Qt::DirectConnection);
+    connect(_pUi->deviceTabs, &AddableTabWidget::addTabRequested, this, &DeviceSettings::handleAddTab);
 
-    _pUi->deviceView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    _pUi->deviceView->setSelectionMode(QAbstractItemView::SingleSelection);
-    _pUi->deviceView->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+    QList<QWidget*> pages;
+    QStringList names;
+    for (deviceId_t const& devId : _pSettingsModel->deviceList())
+    {
+        names.append(constructTabName(devId));
+        pages.append(createForm(devId));
+    }
 
-    ConnectionDelegate* cbConn = new ConnectionDelegate(pSettingsModel, _pUi->deviceView);
-    _pUi->deviceView->setItemDelegateForColumn(DeviceColumns::ConnectionIdColumn, cbConn);
-
-    // Handle delete
-    QShortcut* shortcut = new QShortcut(QKeySequence(QKeySequence::Delete), _pUi->deviceView);
-    connect(shortcut, &QShortcut::activated, this, &DeviceSettings::onRemoveDeviceClicked);
-
-    connect(_pUi->btnAdd, &QPushButton::clicked, this, &DeviceSettings::onAddDeviceClicked);
-    connect(_pUi->btnRemove, &QPushButton::clicked, this, &DeviceSettings::onRemoveDeviceClicked);
+    _pUi->deviceTabs->setTabs(pages, names);
 }
 
 DeviceSettings::~DeviceSettings()
@@ -39,20 +32,56 @@ DeviceSettings::~DeviceSettings()
     delete _pUi;
 }
 
-void DeviceSettings::onAddDeviceClicked()
+DeviceForm* DeviceSettings::createForm(deviceId_t devId)
 {
-    int row = _pDeviceModel->rowCount();
-    _pDeviceModel->insertRow(row);
+    DeviceForm* page = new DeviceForm(_pSettingsModel, devId, this);
+
+    connect(this, &DeviceSettings::settingsTabsSwitched, page, &DeviceForm::handleSettingsTabSwitch);
+    connect(page, &DeviceForm::deviceIdentifiersChanged, this, &DeviceSettings::updateTabName);
+
+    return page;
 }
 
-void DeviceSettings::onRemoveDeviceClicked()
+void DeviceSettings::handleAddTab()
 {
-    QModelIndexList selection = _pUi->deviceView->selectionModel()->selectedRows();
-    // Remove from last to first to keep indices valid
-    std::sort(selection.begin(), selection.end(),
-              [](const QModelIndex& a, const QModelIndex& b) { return a.row() > b.row(); });
-    for (const QModelIndex& idx : std::as_const(selection))
+    deviceId_t devId = _pSettingsModel->addNewDevice();
+    QString name = constructTabName(devId);
+
+    _pUi->deviceTabs->addNewTab(name, createForm(devId));
+}
+
+QString DeviceSettings::constructTabName(deviceId_t devId)
+{
+    auto devSettings = _pSettingsModel->deviceSettings(devId);
+    return QString("%1 (%2)").arg(devSettings->name()).arg(devId);
+}
+
+void DeviceSettings::updateTabName(deviceId_t devId)
+{
+    int index = -1;
+    for (int i = 0; i < _pUi->deviceTabs->count(); ++i)
     {
-        _pDeviceModel->removeRow(idx.row());
+        auto tabContent = dynamic_cast<DeviceForm*>(_pUi->deviceTabs->tabContent(i));
+        if (tabContent && tabContent->deviceId() == devId)
+        {
+            index = i;
+            break;
+        }
+    }
+
+    if (index != -1)
+    {
+        QString name = constructTabName(devId);
+        _pUi->deviceTabs->setTabName(index, name);
+    }
+}
+
+void DeviceSettings::handleCloseTab(int index)
+{
+    auto tabContent = dynamic_cast<DeviceForm*>(_pUi->deviceTabs->tabContent(index));
+    if (tabContent)
+    {
+        deviceId_t devId = tabContent->deviceId();
+        _pSettingsModel->removeDevice(devId);
     }
 }

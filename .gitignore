@@ -12,6 +12,7 @@
 *.so.*
 *.dll
 *.dylib
+.cache
 
 # Qt-es
 object_script.*.Release

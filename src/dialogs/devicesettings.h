@@ -1,34 +1,38 @@
 #ifndef DEVICESETTINGS_H
 #define DEVICESETTINGS_H
 
-#include "customwidgets/centeredbox.h"
 #include "models/settingsmodel.h"
 #include <QWidget>
+
+// Forward declaration
+class DeviceForm;
 
 namespace Ui {
 class DeviceSettings;
 }
 
-// forward declaration
-class DeviceModel;
-
 class DeviceSettings : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit DeviceSettings(SettingsModel* pSettingsModel, QWidget* parent = nullptr);
     ~DeviceSettings();
 
+signals:
+    void settingsTabsSwitched();
+
 private slots:
-    void onAddDeviceClicked();
-    void onRemoveDeviceClicked();
+    void handleAddTab();
+    void handleCloseTab(int index);
+    void updateTabName(deviceId_t devId);
 
 private:
+    DeviceForm* createForm(deviceId_t devId);
+    QString constructTabName(deviceId_t devId);
+
     Ui::DeviceSettings* _pUi;
     SettingsModel* _pSettingsModel;
-    DeviceModel* _pDeviceModel;
-
-    CenteredBoxProxyStyle _centeredBoxStyle;
 };
 
 #endif // DEVICESETTINGS_H
