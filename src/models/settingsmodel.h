@@ -26,7 +26,7 @@ public:
     QString writeDuringLogFile();
     bool writeDuringLog();
     bool connectionState(ConnectionTypes::connectionId_t connectionId);
-    QList<ConnectionTypes::connectionId_t> connectionList();
+    QList<ConnectionTypes::connectionId_t> connectionList() const;
     Connection* connectionSettings(ConnectionTypes::connectionId_t connectionId);
     Device* deviceSettings(deviceId_t devId);
     quint32 pollTime();

@@ -25,12 +25,15 @@ void AddableTabWidget::handleCloseTab(int index)
 
     QWidget* page = widget(index);
     removeTab(index);
-    delete page;
+    if (page)
+    {
+        page->deleteLater();
+    }
 
     setTabsClosable(count() > 1);
 }
 
-void AddableTabWidget::setTabs(QList<QWidget*> pages, const QStringList& names)
+void AddableTabWidget::setTabs(const QList<QWidget*>& pages, const QStringList& names)
 {
     if (pages.isEmpty() || names.isEmpty() || pages.size() != names.size())
     {

@@ -179,7 +179,7 @@ void SettingsModel::setConnectionState(connectionId_t connectionId, bool bState)
     _connectionSettings[connectionId].bConnectionState = bState;
 }
 
-QList<ConnectionTypes::connectionId_t> SettingsModel::connectionList()
+QList<ConnectionTypes::connectionId_t> SettingsModel::connectionList() const
 {
     QList<connectionId_t> list;
 

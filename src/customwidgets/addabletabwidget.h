@@ -1,6 +1,8 @@
 #ifndef ADDABLETABWIDGET_H
 #define ADDABLETABWIDGET_H
 
+#include <QList>
+#include <QStringList>
 #include <QTabWidget>
 #include <QToolButton>
 
@@ -14,7 +16,7 @@ public:
 
     void setTabName(int index, const QString& name);
 
-    void setTabs(QList<QWidget*> pages, const QStringList& names);
+    void setTabs(const QList<QWidget*>& pages, const QStringList& names);
     void addNewTab(const QString& name, QWidget* content);
 
     QWidget* tabContent(int index) const;

@@ -6,8 +6,6 @@ DeviceForm::DeviceForm(SettingsModel* pSettingsModel, deviceId_t _deviceId, QWid
 {
     _pUi->setupUi(this);
 
-    updateConnectionList();
-
     Device* dev = _pSettingsModel->deviceSettings(this->_deviceId);
 
     _pUi->lineName->setText(dev->name());
@@ -15,11 +13,11 @@ DeviceForm::DeviceForm(SettingsModel* pSettingsModel, deviceId_t _deviceId, QWid
     _pUi->spinSlaveId->setValue(dev->slaveId());
     _pUi->spinConsecutiveMax->setValue(dev->consecutiveMax());
     _pUi->checkEndianness->setChecked(dev->int32LittleEndian());
-    _pUi->comboConnection->setCurrentIndex(_pUi->comboConnection->findData(static_cast<quint32>(dev->connectionId())));
+    updateConnectionList();
 
     connect(_pUi->lineName, &QLineEdit::textChanged, this, [this](const QString& newName) {
-        Device* dev = _pSettingsModel->deviceSettings(this->_deviceId);
-        dev->setName(newName);
+        Device* device = _pSettingsModel->deviceSettings(this->_deviceId);
+        device->setName(newName);
         emit deviceIdentifiersChanged(this->_deviceId);
     });
     connect(_pUi->spinId, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int newId) {
@@ -29,26 +27,26 @@ DeviceForm::DeviceForm(SettingsModel* pSettingsModel, deviceId_t _deviceId, QWid
     });
 
     connect(_pUi->spinSlaveId, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int newSlaveId) {
-        Device* dev = _pSettingsModel->deviceSettings(this->_deviceId);
-        dev->setSlaveId(static_cast<quint8>(newSlaveId));
+        Device* device = _pSettingsModel->deviceSettings(this->_deviceId);
+        device->setSlaveId(static_cast<quint8>(newSlaveId));
     });
 
     connect(_pUi->spinConsecutiveMax, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int newConsecutiveMax) {
-        Device* dev = _pSettingsModel->deviceSettings(this->_deviceId);
-        dev->setConsecutiveMax(static_cast<quint8>(newConsecutiveMax));
+        Device* device = _pSettingsModel->deviceSettings(this->_deviceId);
+        device->setConsecutiveMax(static_cast<quint8>(newConsecutiveMax));
     });
 
     connect(_pUi->checkEndianness, &QCheckBox::toggled, this, [this](bool bInt32LittleEndian) {
-        Device* dev = _pSettingsModel->deviceSettings(this->_deviceId);
-        dev->setInt32LittleEndian(bInt32LittleEndian);
+        Device* device = _pSettingsModel->deviceSettings(this->_deviceId);
+        device->setInt32LittleEndian(bInt32LittleEndian);
     });
 
     connect(_pUi->comboConnection, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int index) {
-        Device* dev = _pSettingsModel->deviceSettings(this->_deviceId);
+        Device* device = _pSettingsModel->deviceSettings(this->_deviceId);
         QVariant data = _pUi->comboConnection->itemData(index);
         if (data.isValid())
         {
-            dev->setConnectionId(static_cast<ConnectionTypes::connectionId_t>(data.toUInt()));
+            device->setConnectionId(static_cast<ConnectionTypes::connectionId_t>(data.toUInt()));
         }
     });
 }

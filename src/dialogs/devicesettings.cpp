@@ -78,8 +78,6 @@ void DeviceSettings::updateTabName(deviceId_t devId)
 
 void DeviceSettings::handleCloseTab(int index)
 {
-    Q_UNUSED(index);
-
     auto tabContent = dynamic_cast<DeviceForm*>(_pUi->deviceTabs->tabContent(index));
     if (tabContent)
     {
