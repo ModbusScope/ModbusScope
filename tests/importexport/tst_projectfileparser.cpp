@@ -87,6 +87,148 @@ void TestProjectFileParser::dataLevel4Expressions()
     QCOMPARE(settings.scope.registerList[2].bColor, false);
 }
 
+void TestProjectFileParser::dataLevel4Connections()
+{
+    ProjectFileParser projectParser;
+    ProjectFileData::ProjectSettings settings;
+
+    GeneralError parseError = projectParser.parseFile(ProjectFileTestData::cDataLevel4Connection, &settings);
+    QVERIFY(parseError.result());
+
+    QCOMPARE(settings.general.connectionSettings.size(), 3);
+
+    /* Connection id 0 */
+    QVERIFY(settings.general.connectionSettings[0].bConnectionId);
+    QCOMPARE(settings.general.connectionSettings[0].connectionId, 0);
+
+    QVERIFY(settings.general.connectionSettings[0].bConnectionState);
+
+    QVERIFY(settings.general.connectionSettings[0].bConnectionType);
+    QCOMPARE(settings.general.connectionSettings[0].connectionType, "tcp");
+
+    QVERIFY(settings.general.connectionSettings[0].bIp);
+    QCOMPARE(settings.general.connectionSettings[0].ip, "127.0.0.1");
+
+    QVERIFY(settings.general.connectionSettings[0].bPort);
+    QCOMPARE(settings.general.connectionSettings[0].port, 502);
+
+    QVERIFY(settings.general.connectionSettings[0].bPortName);
+    QCOMPARE(settings.general.connectionSettings[0].portName, "COM1");
+
+    QVERIFY(settings.general.connectionSettings[0].bBaudrate);
+    QCOMPARE(settings.general.connectionSettings[0].baudrate, 115200);
+
+    QVERIFY(settings.general.connectionSettings[0].bParity);
+    QCOMPARE(settings.general.connectionSettings[0].parity, 0);
+
+    QVERIFY(settings.general.connectionSettings[0].bStopbits);
+    QCOMPARE(settings.general.connectionSettings[0].stopbits, 1);
+
+    QVERIFY(settings.general.connectionSettings[0].bDatabits);
+    QCOMPARE(settings.general.connectionSettings[0].databits, 8);
+
+    QVERIFY(settings.general.connectionSettings[0].bTimeout);
+    QCOMPARE(settings.general.connectionSettings[0].timeout, 1002);
+
+    QVERIFY(settings.general.connectionSettings[0].bPersistentConnection);
+
+    /* Connection id 1 */
+    QVERIFY(settings.general.connectionSettings[1].bConnectionId);
+    QCOMPARE(settings.general.connectionSettings[1].connectionId, 1);
+
+    QVERIFY(settings.general.connectionSettings[1].bConnectionState);
+
+    QVERIFY(settings.general.connectionSettings[1].bConnectionType);
+    QCOMPARE(settings.general.connectionSettings[1].connectionType, "serial");
+
+    QVERIFY(settings.general.connectionSettings[1].bIp);
+    QCOMPARE(settings.general.connectionSettings[1].ip, "127.0.0.1");
+
+    QVERIFY(settings.general.connectionSettings[1].bPort);
+    QCOMPARE(settings.general.connectionSettings[1].port, 502);
+
+    QVERIFY(settings.general.connectionSettings[1].bPortName);
+    QCOMPARE(settings.general.connectionSettings[1].portName, "COM10");
+
+    QVERIFY(settings.general.connectionSettings[1].bBaudrate);
+    QCOMPARE(settings.general.connectionSettings[1].baudrate, 57600);
+
+    QVERIFY(settings.general.connectionSettings[1].bParity);
+    QCOMPARE(settings.general.connectionSettings[1].parity, 2);
+
+    QVERIFY(settings.general.connectionSettings[1].bStopbits);
+    QCOMPARE(settings.general.connectionSettings[1].stopbits, 2);
+
+    QVERIFY(settings.general.connectionSettings[1].bDatabits);
+    QCOMPARE(settings.general.connectionSettings[1].databits, 7);
+
+    QVERIFY(settings.general.connectionSettings[1].bTimeout);
+    QCOMPARE(settings.general.connectionSettings[1].timeout, 1003);
+
+    QVERIFY(settings.general.connectionSettings[1].bPersistentConnection);
+
+    /* Connection id 2 */
+    QVERIFY(settings.general.connectionSettings[2].bConnectionId);
+    QCOMPARE(settings.general.connectionSettings[2].connectionId, 2);
+
+    QVERIFY(settings.general.connectionSettings[2].bConnectionState == false);
+
+    QVERIFY(settings.general.connectionSettings[2].bConnectionType);
+    QCOMPARE(settings.general.connectionSettings[2].connectionType, "tcp");
+
+    QVERIFY(settings.general.connectionSettings[2].bIp);
+    QCOMPARE(settings.general.connectionSettings[2].ip, "127.0.0.1");
+
+    QVERIFY(settings.general.connectionSettings[2].bPort);
+    QCOMPARE(settings.general.connectionSettings[2].port, 502);
+
+    QVERIFY(settings.general.connectionSettings[2].bPortName);
+    QCOMPARE(settings.general.connectionSettings[2].portName, "COM1");
+
+    QVERIFY(settings.general.connectionSettings[2].bBaudrate);
+    QCOMPARE(settings.general.connectionSettings[2].baudrate, 115200);
+
+    QVERIFY(settings.general.connectionSettings[2].bParity);
+    QCOMPARE(settings.general.connectionSettings[2].parity, 0);
+
+    QVERIFY(settings.general.connectionSettings[2].bStopbits);
+    QCOMPARE(settings.general.connectionSettings[2].stopbits, 1);
+
+    QVERIFY(settings.general.connectionSettings[2].bDatabits);
+    QCOMPARE(settings.general.connectionSettings[2].databits, 8);
+
+    QVERIFY(settings.general.connectionSettings[2].bTimeout);
+    QCOMPARE(settings.general.connectionSettings[2].timeout, 1000);
+
+    QVERIFY(settings.general.connectionSettings[2].bPersistentConnection);
+
+    /* Devices */
+    QVERIFY(settings.general.deviceSettings.size() == 2);
+    QVERIFY(settings.general.deviceSettings[0].bDeviceId);
+    QCOMPARE(settings.general.deviceSettings[0].deviceId, 1);
+    QVERIFY(settings.general.deviceSettings[0].bName);
+    QCOMPARE(settings.general.deviceSettings[0].name, QString("Device 1 (1)"));
+    QVERIFY(settings.general.deviceSettings[0].bConnectionId);
+    QCOMPARE(settings.general.deviceSettings[0].connectionId, 0);
+    QVERIFY(settings.general.deviceSettings[0].bSlaveId);
+    QCOMPARE(settings.general.deviceSettings[0].slaveId, 2);
+    QVERIFY(settings.general.deviceSettings[0].bConsecutiveMax);
+    QCOMPARE(settings.general.deviceSettings[0].consecutiveMax, 122);
+    QCOMPARE(settings.general.deviceSettings[0].bInt32LittleEndian, true);
+
+    QVERIFY(settings.general.deviceSettings[1].bDeviceId);
+    QCOMPARE(settings.general.deviceSettings[1].deviceId, 2);
+    QVERIFY(settings.general.deviceSettings[1].bName);
+    QCOMPARE(settings.general.deviceSettings[1].name, QString("Device 2 (2)"));
+    QVERIFY(settings.general.deviceSettings[1].bConnectionId);
+    QCOMPARE(settings.general.deviceSettings[1].connectionId, 1);
+    QVERIFY(settings.general.deviceSettings[1].bSlaveId);
+    QCOMPARE(settings.general.deviceSettings[1].slaveId, 3);
+    QVERIFY(settings.general.deviceSettings[1].bConsecutiveMax);
+    QCOMPARE(settings.general.deviceSettings[1].consecutiveMax, 123);
+    QCOMPARE(settings.general.deviceSettings[1].bInt32LittleEndian, false);
+}
+
 void TestProjectFileParser::connSerial()
 {
     ProjectFileParser projectParser;

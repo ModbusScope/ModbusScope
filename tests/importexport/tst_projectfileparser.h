@@ -14,6 +14,7 @@ private slots:
     void dataLevel3Expressions();
     void dataLevel4Expressions();
 
+    void dataLevel4Connections();
     void connSerial();
     void connMixedMulti();
     void connEmpty();

@@ -59,6 +59,66 @@ QString ProjectFileTestData::cDataLevel4Expressions = QString(
     "</modbusscope>                                                             \n"\
     );
 
+QString ProjectFileTestData::cDataLevel4Connection = QString(
+    "<?xml version=\"1.0\"?>                                                    \n"\
+    "<modbusscope datalevel=\"4\">                                              \n"\
+    " <modbus>                                                                  \n"\
+    "  <connection>                                                             \n"\
+    "   <enabled>true</enabled>                                                 \n"\
+    "   <connectionid>0</connectionid>                                          \n"\
+    "   <type>tcp</type>                                                        \n"\
+    "   <ip>127.0.0.1</ip>                                                      \n"\
+    "   <port>502</port>                                                        \n"\
+    "   <portname>COM1</portname>                                               \n"\
+    "   <baudrate>115200</baudrate>                                             \n"\
+    "   <parity>0</parity>                                                      \n"\
+    "   <stopbits>1</stopbits>                                                  \n"\
+    "   <databits>8</databits>                                                  \n"\
+    "   <slaveid>2</slaveid>                                                    \n"\
+    "   <timeout>1002</timeout>                                                 \n"\
+    "   <consecutivemax>122</consecutivemax>                                    \n"\
+    "   <int32littleendian>true</int32littleendian>                             \n"\
+    "   <persistentconnection>true</persistentconnection>                       \n"\
+    "  </connection>                                                            \n"\
+    "  <connection>                                                             \n"\
+    "   <enabled>true</enabled>                                                 \n"\
+    "   <connectionid>1</connectionid>                                          \n"\
+    "   <type>serial</type>                                                     \n"\
+    "   <ip>127.0.0.1</ip>                                                      \n"\
+    "   <port>502</port>                                                        \n"\
+    "   <portname>COM10</portname>                                              \n"\
+    "   <baudrate>57600</baudrate>                                              \n"\
+    "   <parity>2</parity>                                                      \n"\
+    "   <stopbits>2</stopbits>                                                  \n"\
+    "   <databits>7</databits>                                                  \n"\
+    "   <slaveid>3</slaveid>                                                    \n"\
+    "   <timeout>1003</timeout>                                                 \n"\
+    "   <consecutivemax>123</consecutivemax>                                    \n"\
+    "   <int32littleendian>false</int32littleendian>                            \n"\
+    "   <persistentconnection>true</persistentconnection>                       \n"\
+    "  </connection>                                                            \n"\
+    "  <connection>                                                             \n"\
+    "   <enabled>false</enabled>                                                \n"\
+    "   <connectionid>2</connectionid>                                          \n"\
+    "   <type>tcp</type>                                                        \n"\
+    "   <ip>127.0.0.1</ip>                                                      \n"\
+    "   <port>502</port>                                                        \n"\
+    "   <portname>COM1</portname>                                               \n"\
+    "   <baudrate>115200</baudrate>                                             \n"\
+    "   <parity>0</parity>                                                      \n"\
+    "   <stopbits>1</stopbits>                                                  \n"\
+    "   <databits>8</databits>                                                  \n"\
+    "   <slaveid>1</slaveid>                                                    \n"\
+    "   <timeout>1000</timeout>                                                 \n"\
+    "   <consecutivemax>125</consecutivemax>                                    \n"\
+    "   <int32littleendian>true</int32littleendian>                             \n"\
+    "   <persistentconnection>true</persistentconnection>                       \n"\
+    "  </connection>                                                            \n"\
+    " </modbus>                                                                 \n"\
+    " <scope/>                                                                  \n"\
+    "</modbusscope>                                                             \n"\
+);
+
 QString ProjectFileTestData::cConnSerial = QString(
     "<?xml version=\"1.0\"?>                                           \n"\
     "<modbusscope datalevel=\"3\">                                     \n"\
@@ -165,7 +225,7 @@ QString ProjectFileTestData::cConnMixedMulti = QString(
 
 QString ProjectFileTestData::cConnEmpty = QString(
     "<?xml version=\"1.0\"?>                                           \n"\
-    "<modbusscope datalevel=\"3\">                                     \n"\
+    "<modbusscope datalevel=\"5\">                                     \n"\
     " <modbus>                                                         \n"\
     "  <connection>                                                    \n"\
     "  </connection>                                                   \n"\
@@ -175,7 +235,7 @@ QString ProjectFileTestData::cConnEmpty = QString(
 
 QString ProjectFileTestData::cScaleDouble = QString(
     "<?xml version=\"1.0\"?>                                    \n"\
-    "<modbusscope datalevel=\"3\">                              \n"\
+    "<modbusscope datalevel=\"5\">                              \n"\
     "    <view>                                                 \n"\
     "        <scale>                                            \n"\
     "            <xaxis mode=\"sliding\">                       \n"\
@@ -192,7 +252,7 @@ QString ProjectFileTestData::cScaleDouble = QString(
 
 QString ProjectFileTestData::cValueAxis2Scaling = QString(
     "<?xml version=\"1.0\"?>                                    \n"\
-    "<modbusscope datalevel=\"3\">                              \n"\
+    "<modbusscope datalevel=\"5\">                              \n"\
     "    <view>                                                 \n"\
     "        <scale>                                            \n"\
     "            <xaxis mode=\"sliding\">                       \n"\
@@ -210,7 +270,7 @@ QString ProjectFileTestData::cValueAxis2Scaling = QString(
 
 QString ProjectFileTestData::cValueAxis = QString(
     "<?xml version=\"1.0\"?>                                                    \n"\
-    "<modbusscope datalevel=\"3\">                                              \n"\
+    "<modbusscope datalevel=\"5\">                                              \n"\
     "    <scope>                                                                \n"\
     "        <register active=\"true\">                                         \n"\
     "            <text>Data point</text>                                        \n"\

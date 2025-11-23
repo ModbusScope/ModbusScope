@@ -11,6 +11,7 @@ public:
     static QString cDataLevel3Expressions;
     static QString cDataLevel4Expressions;
 
+    static QString cDataLevel4Connection;
     static QString cConnSerial;
     static QString cConnMixedMulti;
     static QString cConnEmpty;
