@@ -204,10 +204,8 @@ void TestProjectFileParser::dataLevel4Connections()
 
     /* Devices */
     QVERIFY(settings.general.deviceSettings.size() == 2);
-    QVERIFY(settings.general.deviceSettings[0].bDeviceId);
-    QCOMPARE(settings.general.deviceSettings[0].deviceId, 1);
-    QVERIFY(settings.general.deviceSettings[0].bName);
-    QCOMPARE(settings.general.deviceSettings[0].name, QString("Device 1 (1)"));
+    QVERIFY(settings.general.deviceSettings[0].bDeviceId == false);
+    QVERIFY(settings.general.deviceSettings[0].bName == false);
     QVERIFY(settings.general.deviceSettings[0].bConnectionId);
     QCOMPARE(settings.general.deviceSettings[0].connectionId, 0);
     QVERIFY(settings.general.deviceSettings[0].bSlaveId);
@@ -216,10 +214,8 @@ void TestProjectFileParser::dataLevel4Connections()
     QCOMPARE(settings.general.deviceSettings[0].consecutiveMax, 122);
     QCOMPARE(settings.general.deviceSettings[0].bInt32LittleEndian, true);
 
-    QVERIFY(settings.general.deviceSettings[1].bDeviceId);
-    QCOMPARE(settings.general.deviceSettings[1].deviceId, 2);
-    QVERIFY(settings.general.deviceSettings[1].bName);
-    QCOMPARE(settings.general.deviceSettings[1].name, QString("Device 2 (2)"));
+    QVERIFY(settings.general.deviceSettings[1].bDeviceId == false);
+    QVERIFY(settings.general.deviceSettings[1].bName == false);
     QVERIFY(settings.general.deviceSettings[1].bConnectionId);
     QCOMPARE(settings.general.deviceSettings[1].connectionId, 1);
     QVERIFY(settings.general.deviceSettings[1].bSlaveId);

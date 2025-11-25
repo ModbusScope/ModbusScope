@@ -139,7 +139,6 @@ namespace ProjectFileData
 
     typedef struct
     {
-        quint32 dataLevel;
         GeneralSettings general;
         ScopeSettings scope;
         ViewSettings view;
