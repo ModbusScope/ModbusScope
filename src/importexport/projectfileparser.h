@@ -37,6 +37,9 @@ private:
     GeneralError parseScaleXAxis(const QDomElement &element, ProjectFileData::ScaleSettings *pScaleSettings);
     GeneralError parseScaleYAxis(const QDomElement &element, ProjectFileData::YAxisSettings *pYAxisSettings);
 
+    GeneralError parseConnectionFields(const QDomElement& child,
+                                       ProjectFileData::ConnectionSettings* pConnectionSettings);
+
     QDomDocument _domDocument;
     quint32 _dataLevel;
 };

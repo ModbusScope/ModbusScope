@@ -184,120 +184,10 @@ GeneralError ProjectFileParser::parseConnectionTag(const QDomElement &element, C
 {
     GeneralError parseErr;
     QDomElement child = element.firstChildElement();
-    while (!child.isNull())
+    while (!child.isNull() && parseErr.result())
     {
-        bool bRet;
-        if (child.tagName() == ProjectFileDefinitions::cConnectionIdTag)
-        {
-            pConnectionSettings->bConnectionId = true;
-            pConnectionSettings->connectionId = child.text().toUInt(&bRet);
-            if (!bRet)
-            {
-                parseErr.reportError(QString("Connection Id (%1) is not a valid number").arg(child.text()));
-                break;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cConnectionEnabledTag)
-        {
-            if (!child.text().toLower().compare(ProjectFileDefinitions::cTrueValue))
-            {
-                pConnectionSettings->bConnectionState = true;
-            }
-            else
-            {
-                pConnectionSettings->bConnectionState = false;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cConnectionTypeTag)
-        {
-            pConnectionSettings->bConnectionType = true;
-            pConnectionSettings->connectionType = child.text();
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cIpTag)
-        {
-            pConnectionSettings->bIp = true;
-            pConnectionSettings->ip = child.text();
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cPortTag)
-        {
-            pConnectionSettings->bPort = true;
-            pConnectionSettings->port = static_cast<quint16>(child.text().toUInt(&bRet));
-            if (!bRet)
-            {
-                parseErr.reportError(QString("Port ( %1 ) is not a valid number").arg(child.text()));
-                break;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cPortNameTag)
-        {
-            pConnectionSettings->bPortName = true;
-            pConnectionSettings->portName = child.text();
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cBaudrateTag)
-        {
-            pConnectionSettings->bBaudrate = true;
-            pConnectionSettings->baudrate = child.text().toUInt(&bRet);
-            if (!bRet)
-            {
-                parseErr.reportError(QString("Baud rate ( %1 ) is not a valid number").arg(child.text()));
-                break;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cParityTag)
-        {
-            pConnectionSettings->bParity = true;
-            pConnectionSettings->parity = child.text().toUInt(&bRet);
-            if (!bRet)
-            {
-                parseErr.reportError(QString("Parity ( %1 ) is not a valid number").arg(child.text()));
-                break;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cStopBitsTag)
-        {
-            pConnectionSettings->bStopbits = true;
-            pConnectionSettings->stopbits = child.text().toUInt(&bRet);
-            if (!bRet)
-            {
-                parseErr.reportError(QString("Stop bits ( %1 ) is not a valid number").arg(child.text()));
-                break;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cDataBitsTag)
-        {
-            pConnectionSettings->bDatabits = true;
-            pConnectionSettings->databits = child.text().toUInt(&bRet);
-            if (!bRet)
-            {
-                parseErr.reportError(QString("Data bits ( %1 ) is not a valid number").arg(child.text()));
-                break;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cTimeoutTag)
-        {
-            pConnectionSettings->bTimeout = true;
-            pConnectionSettings->timeout = child.text().toUInt(&bRet);
-            if (!bRet)
-            {
-                parseErr.reportError(QString("Timeout ( %1 ) is not a valid number").arg(child.text()));
-                break;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cPersistentConnectionTag)
-        {
-            if (!child.text().toLower().compare(ProjectFileDefinitions::cTrueValue))
-            {
-                pConnectionSettings->bPersistentConnection = true;
-            }
-            else
-            {
-                pConnectionSettings->bPersistentConnection = false;
-            }
-        }
-        else
-        {
-            // unknown tag: ignore
-        }
+        parseErr = parseConnectionFields(child, pConnectionSettings);
+
         child = child.nextSiblingElement();
     }
 
@@ -313,114 +203,13 @@ GeneralError ProjectFileParser::parseLegacyConnectionTag(const QDomElement& elem
     while (!child.isNull())
     {
         bool bRet;
-        if (child.tagName() == ProjectFileDefinitions::cConnectionIdTag)
-        {
-            pConnectionSettings->bConnectionId = true;
-            pConnectionSettings->connectionId = child.text().toUInt(&bRet);
-            if (!bRet)
-            {
-                parseErr.reportError(QString("Connection Id (%1) is not a valid number").arg(child.text()));
-                break;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cConnectionEnabledTag)
-        {
-            if (!child.text().toLower().compare(ProjectFileDefinitions::cTrueValue))
-            {
-                pConnectionSettings->bConnectionState = true;
-            }
-            else
-            {
-                pConnectionSettings->bConnectionState = false;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cConnectionTypeTag)
-        {
-            pConnectionSettings->bConnectionType = true;
-            pConnectionSettings->connectionType = child.text();
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cIpTag)
-        {
-            pConnectionSettings->bIp = true;
-            pConnectionSettings->ip = child.text();
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cPortTag)
-        {
-            pConnectionSettings->bPort = true;
-            pConnectionSettings->port = static_cast<quint16>(child.text().toUInt(&bRet));
-            if (!bRet)
-            {
-                parseErr.reportError(QString("Port ( %1 ) is not a valid number").arg(child.text()));
-                break;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cPortNameTag)
-        {
-            pConnectionSettings->bPortName = true;
-            pConnectionSettings->portName = child.text();
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cBaudrateTag)
-        {
-            pConnectionSettings->bBaudrate = true;
-            pConnectionSettings->baudrate = child.text().toUInt(&bRet);
-            if (!bRet)
-            {
-                parseErr.reportError(QString("Baud rate ( %1 ) is not a valid number").arg(child.text()));
-                break;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cParityTag)
-        {
-            pConnectionSettings->bParity = true;
-            pConnectionSettings->parity = child.text().toUInt(&bRet);
-            if (!bRet)
-            {
-                parseErr.reportError(QString("Parity ( %1 ) is not a valid number").arg(child.text()));
-                break;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cStopBitsTag)
-        {
-            pConnectionSettings->bStopbits = true;
-            pConnectionSettings->stopbits = child.text().toUInt(&bRet);
-            if (!bRet)
-            {
-                parseErr.reportError(QString("Stop bits ( %1 ) is not a valid number").arg(child.text()));
-                break;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cDataBitsTag)
-        {
-            pConnectionSettings->bDatabits = true;
-            pConnectionSettings->databits = child.text().toUInt(&bRet);
-            if (!bRet)
-            {
-                parseErr.reportError(QString("Data bits ( %1 ) is not a valid number").arg(child.text()));
-                break;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cTimeoutTag)
-        {
-            pConnectionSettings->bTimeout = true;
-            pConnectionSettings->timeout = child.text().toUInt(&bRet);
-            if (!bRet)
-            {
-                parseErr.reportError(QString("Timeout ( %1 ) is not a valid number").arg(child.text()));
-                break;
-            }
-        }
-        else if (child.tagName() == ProjectFileDefinitions::cPersistentConnectionTag)
-        {
-            if (!child.text().toLower().compare(ProjectFileDefinitions::cTrueValue))
-            {
-                pConnectionSettings->bPersistentConnection = true;
-            }
-            else
-            {
-                pConnectionSettings->bPersistentConnection = false;
-            }
-        }
 
+        parseErr = parseConnectionFields(child, pConnectionSettings);
+
+        if (!parseErr.result())
+        {
+            break;
+        }
         else if (child.tagName() == ProjectFileDefinitions::cSlaveIdTag)
         {
             pDeviceSettings->bSlaveId = true;
@@ -428,7 +217,6 @@ GeneralError ProjectFileParser::parseLegacyConnectionTag(const QDomElement& elem
             if (!bRet)
             {
                 parseErr.reportError(QString("Slave id ( %1 ) is not a valid number").arg(child.text()));
-                break;
             }
         }
         else if (child.tagName() == ProjectFileDefinitions::cConsecutiveMaxTag)
@@ -439,7 +227,6 @@ GeneralError ProjectFileParser::parseLegacyConnectionTag(const QDomElement& elem
             {
                 parseErr.reportError(
                   QString("Consecutive register maximum ( %1 ) is not a valid number").arg(child.text()));
-                break;
             }
         }
         else if (child.tagName() == ProjectFileDefinitions::cInt32LittleEndianTag)
@@ -961,6 +748,118 @@ GeneralError ProjectFileParser::parseScaleYAxis(const QDomElement &element, YAxi
         {
             /* No error */
         }
+    }
+
+    return parseErr;
+}
+
+GeneralError ProjectFileParser::parseConnectionFields(const QDomElement& child, ConnectionSettings* pConnectionSettings)
+{
+    bool bRet;
+    GeneralError parseErr;
+    if (child.tagName() == ProjectFileDefinitions::cConnectionIdTag)
+    {
+        pConnectionSettings->bConnectionId = true;
+        pConnectionSettings->connectionId = child.text().toUInt(&bRet);
+        if (!bRet)
+        {
+            parseErr.reportError(QString("Connection Id (%1) is not a valid number").arg(child.text()));
+        }
+    }
+    else if (child.tagName() == ProjectFileDefinitions::cConnectionEnabledTag)
+    {
+        if (!child.text().toLower().compare(ProjectFileDefinitions::cTrueValue))
+        {
+            pConnectionSettings->bConnectionState = true;
+        }
+        else
+        {
+            pConnectionSettings->bConnectionState = false;
+        }
+    }
+    else if (child.tagName() == ProjectFileDefinitions::cConnectionTypeTag)
+    {
+        pConnectionSettings->bConnectionType = true;
+        pConnectionSettings->connectionType = child.text();
+    }
+    else if (child.tagName() == ProjectFileDefinitions::cIpTag)
+    {
+        pConnectionSettings->bIp = true;
+        pConnectionSettings->ip = child.text();
+    }
+    else if (child.tagName() == ProjectFileDefinitions::cPortTag)
+    {
+        pConnectionSettings->bPort = true;
+        pConnectionSettings->port = static_cast<quint16>(child.text().toUInt(&bRet));
+        if (!bRet)
+        {
+            parseErr.reportError(QString("Port ( %1 ) is not a valid number").arg(child.text()));
+        }
+    }
+    else if (child.tagName() == ProjectFileDefinitions::cPortNameTag)
+    {
+        pConnectionSettings->bPortName = true;
+        pConnectionSettings->portName = child.text();
+    }
+    else if (child.tagName() == ProjectFileDefinitions::cBaudrateTag)
+    {
+        pConnectionSettings->bBaudrate = true;
+        pConnectionSettings->baudrate = child.text().toUInt(&bRet);
+        if (!bRet)
+        {
+            parseErr.reportError(QString("Baud rate ( %1 ) is not a valid number").arg(child.text()));
+        }
+    }
+    else if (child.tagName() == ProjectFileDefinitions::cParityTag)
+    {
+        pConnectionSettings->bParity = true;
+        pConnectionSettings->parity = child.text().toUInt(&bRet);
+        if (!bRet)
+        {
+            parseErr.reportError(QString("Parity ( %1 ) is not a valid number").arg(child.text()));
+        }
+    }
+    else if (child.tagName() == ProjectFileDefinitions::cStopBitsTag)
+    {
+        pConnectionSettings->bStopbits = true;
+        pConnectionSettings->stopbits = child.text().toUInt(&bRet);
+        if (!bRet)
+        {
+            parseErr.reportError(QString("Stop bits ( %1 ) is not a valid number").arg(child.text()));
+        }
+    }
+    else if (child.tagName() == ProjectFileDefinitions::cDataBitsTag)
+    {
+        pConnectionSettings->bDatabits = true;
+        pConnectionSettings->databits = child.text().toUInt(&bRet);
+        if (!bRet)
+        {
+            parseErr.reportError(QString("Data bits ( %1 ) is not a valid number").arg(child.text()));
+        }
+    }
+    else if (child.tagName() == ProjectFileDefinitions::cTimeoutTag)
+    {
+        pConnectionSettings->bTimeout = true;
+        pConnectionSettings->timeout = child.text().toUInt(&bRet);
+        if (!bRet)
+        {
+            parseErr.reportError(QString("Timeout ( %1 ) is not a valid number").arg(child.text()));
+        }
+    }
+    else if (child.tagName() == ProjectFileDefinitions::cPersistentConnectionTag)
+    {
+        if (!child.text().toLower().compare(ProjectFileDefinitions::cTrueValue))
+        {
+            pConnectionSettings->bPersistentConnection = true;
+        }
+        else
+        {
+            pConnectionSettings->bPersistentConnection = false;
+        }
+    }
+    else
+    {
+        // unknown tag: ignore
     }
 
     return parseErr;
