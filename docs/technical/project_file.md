@@ -14,5 +14,5 @@
   - Introduced in v4.0.0 (18/06/2024)
   - Add extended register syntax to handle full address range
 - Data level 5:
-  - Introdcued in vX.X.X (xx/xx/2025)
+  - Introduced in vX.X.X (xx/xx/2025)
   - Add concept of devices
