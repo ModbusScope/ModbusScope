@@ -1,8 +1,8 @@
 diff --git a/qcustomplot.cpp b/qcustomplot.cpp
-index 72b5bfb8..398c28df 100644
+index 9c0f6c5..2b5309c 100644
 --- a/qcustomplot.cpp
 +++ b/qcustomplot.cpp
-@@ -15660,7 +15660,13 @@ void QCustomPlot::mouseReleaseEvent(QMouseEvent *event)
+@@ -15697,7 +15697,13 @@ void QCustomPlot::mouseReleaseEvent(QMouseEvent *event)
    {
      if (mSelectionRect && mSelectionRect->isActive()) // a simple click shouldn't successfully finish a selection rect, so cancel it here
        mSelectionRect->cancel();

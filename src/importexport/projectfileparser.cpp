@@ -25,16 +25,15 @@ ProjectFileParser::ProjectFileParser()
 GeneralError ProjectFileParser::parseFile(QString& fileContent, ProjectSettings *pSettings)
 {
     GeneralError parseErr;
-    QString errorStr;
-    qint32 errorLine;
-    qint32 errorColumn;
 
-    if (!_domDocument.setContent(fileContent, true, &errorStr, &errorLine, &errorColumn))
+    QDomDocument::ParseResult result =
+      _domDocument.setContent(fileContent, QDomDocument::ParseOption::UseNamespaceProcessing);
+    if (!result)
     {
         parseErr.reportError(QString("Parse error at line %1, column %2:\n%3")
-                            .arg(errorLine)
-                            .arg(errorColumn)
-                            .arg(errorStr));
+                               .arg(result.errorLine)
+                               .arg(result.errorColumn)
+                               .arg(result.errorMessage));
     }
     else
     {
