@@ -22,6 +22,9 @@ private:
     GeneralError parseModbusTag(const QDomElement &element, ProjectFileData::GeneralSettings *pGeneralSettings);
 
     GeneralError parseConnectionTag(const QDomElement &element, ProjectFileData::ConnectionSettings *pConnectionSettings);
+    GeneralError parseLegacyConnectionTag(const QDomElement& element,
+                                          ProjectFileData::ConnectionSettings* pConnectionSettings,
+                                          ProjectFileData::DeviceSettings* pDeviceSettings);
     GeneralError parseDeviceTag(const QDomElement& element, ProjectFileData::DeviceSettings* pDeviceSettings);
     GeneralError parseLogTag(const QDomElement &element, ProjectFileData::LogSettings *pLogSettings);
     GeneralError parseLogToFile(const QDomElement &element, ProjectFileData::LogSettings *pLogSettings);
@@ -34,8 +37,11 @@ private:
     GeneralError parseScaleXAxis(const QDomElement &element, ProjectFileData::ScaleSettings *pScaleSettings);
     GeneralError parseScaleYAxis(const QDomElement &element, ProjectFileData::YAxisSettings *pYAxisSettings);
 
-    QDomDocument _domDocument;
+    GeneralError parseConnectionFields(const QDomElement& child,
+                                       ProjectFileData::ConnectionSettings* pConnectionSettings);
 
+    QDomDocument _domDocument;
+    quint32 _dataLevel;
 };
 
 #endif // PROJECTFILEPARSER_H
