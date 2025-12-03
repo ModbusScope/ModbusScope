@@ -47,6 +47,7 @@ DeviceForm::DeviceForm(SettingsModel* pSettingsModel, deviceId_t _deviceId, QWid
         if (data.isValid())
         {
             device->setConnectionId(static_cast<ConnectionTypes::connectionId_t>(data.toUInt()));
+            checkConnectionState();
         }
     });
 }
@@ -87,5 +88,27 @@ void DeviceForm::updateConnectionList()
         }
     }
 
+    checkConnectionState();
+
     _pUi->comboConnection->blockSignals(false);
+}
+
+void DeviceForm::checkConnectionState()
+{
+    // Check if current connection ID exists and is enabled
+    Device* device = _pSettingsModel->deviceSettings(_deviceId);
+    ConnectionTypes::connectionId_t connId = device->connectionId();
+    bool bConnExistsAndEnabled = false;
+    for (auto availableConnId : _pSettingsModel->connectionList())
+    {
+        if (availableConnId == connId && _pSettingsModel->connectionState(connId))
+        {
+            bConnExistsAndEnabled = true;
+            break;
+        }
+    }
+
+    _pUi->comboConnection->setStyleSheet(bConnExistsAndEnabled ? "" : "QComboBox { background-color: lightcoral; }");
+    _pUi->comboConnection->setToolTip(bConnExistsAndEnabled ? ""
+                                                            : "Selected connection is disabled or does not exist.");
 }

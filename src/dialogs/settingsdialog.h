@@ -22,7 +22,7 @@ public:
 
 private slots:
     void done(int r);
-    void settingsStackSwitch(int currentRow);
+    void settingsStackSwitch(int newRow);
 
 private:
     enum
