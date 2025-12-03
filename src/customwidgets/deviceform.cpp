@@ -87,5 +87,5 @@ void DeviceForm::updateConnectionList()
         }
     }
 
-    _pUi->comboConnection->blockSignals(true);
+    _pUi->comboConnection->blockSignals(false);
 }
