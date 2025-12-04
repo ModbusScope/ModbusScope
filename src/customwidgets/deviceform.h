@@ -27,6 +27,7 @@ public slots:
 
 private:
     void updateConnectionList();
+    void checkConnectionState();
 
     Ui::DeviceForm* _pUi;
 
