@@ -91,11 +91,11 @@ void TestDataFileParser::parseModbusScopeNewFormat()
     QCOMPARE(fileData.colors, QList<QColor>() << QColor("#000000") << QColor("#0000FF"));
 
     Note note;
-    note.setNotePosition(800.605, 1.667);
+    note.setPosition(800.605, 1.667);
     note.setText("Test");
     QCOMPARE(fileData.notes.size(), 1);
     QCOMPARE(fileData.notes[0].text(), note.text());
-    QCOMPARE(fileData.notes[0].notePosition(), note.notePosition());
+    QCOMPARE(fileData.notes[0].position(), note.position());
 
     QCOMPARE(spyParseError.count(), 0);
 }

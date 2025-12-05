@@ -87,13 +87,13 @@ QVariant NoteModel::data(const QModelIndex &index, int role) const
     case column::KEY_DATA:
         if (role == Qt::DisplayRole)
         {
-            return FormatRelativeTime::formatTime(_noteList[index.row()].notePosition().x());
+            return FormatRelativeTime::formatTime(_noteList[index.row()].position().x());
         }
         break;
     case column::VALUE_DATA:
         if (role == Qt::DisplayRole)
         {
-            return Util::formatDoubleForExport(_noteList[index.row()].notePosition().y());
+            return Util::formatDoubleForExport(_noteList[index.row()].position().y());
         }
         break;
     case column::TEXT:
@@ -218,7 +218,7 @@ void NoteModel::clear()
 
 const QPointF& NoteModel::notePosition(qint32 idx) const
 {
-    return _noteList[idx].notePosition();
+    return _noteList[idx].position();
 }
 
 QString NoteModel::textData(quint32 idx)
@@ -236,13 +236,13 @@ bool NoteModel::isNotesDataUpdated()
     return _bNotesDataUpdated;
 }
 
-void NoteModel::setNotePostion(quint32 idx, const QPointF &value)
+void NoteModel::setNotePosition(quint32 idx, const QPointF& value)
 {
-    if (_noteList[idx].notePosition() != value)
+    if (_noteList[idx].position() != value)
     {
-         _noteList[idx].setNotePosition(value);
-         setNotesDataUpdated(true);
-         emit notePositionChanged(idx);
+        _noteList[idx].setPosition(value);
+        setNotesDataUpdated(true);
+        emit notePositionChanged(idx);
     }
 }
 

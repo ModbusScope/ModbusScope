@@ -41,7 +41,7 @@ public:
     bool draggable(quint32 idx);
     bool isNotesDataUpdated();
 
-    void setNotePostion(quint32 idx, const QPointF& value);
+    void setNotePosition(quint32 idx, const QPointF& value);
     void setText(quint32 idx, QString text);
     void setDraggable(quint32 idx, bool bState);
     void setNotesDataUpdated(bool bUpdated);

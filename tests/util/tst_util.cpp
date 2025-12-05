@@ -50,4 +50,26 @@ void TestUtil::formatDouble()
     QCOMPARE(act, result);
 }
 
+void TestUtil::decimalsFromRange()
+{
+    QCOMPARE(Util::decimalsFromRange(0, 100), 0);
+    QCOMPARE(Util::decimalsFromRange(0, 0), 0);
+    QCOMPARE(Util::decimalsFromRange(0.02, 0.0399), 2);
+    QCOMPARE(Util::decimalsFromRange(0.0002, 0.000399), 4);
+    QCOMPARE(Util::decimalsFromRange(2000, 3999), 0);
+    QCOMPARE(Util::decimalsFromRange(200, 399), 0);
+    QCOMPARE(Util::decimalsFromRange(0.02, 100), 0);
+}
+
+void TestUtil::roundToDecimals()
+{
+    QCOMPARE(Util::roundToDecimals(100, 0), 100);
+    QCOMPARE(Util::roundToDecimals(100.02, 0), 100);
+    QCOMPARE(Util::roundToDecimals(100.5, 0), 101);
+
+    QCOMPARE(Util::roundToDecimals(100.05, 2), 100.05);
+    QCOMPARE(Util::roundToDecimals(100.005, 2), 100.01);
+    QCOMPARE(Util::roundToDecimals(100.004, 2), 100);
+}
+
 QTEST_GUILESS_MAIN(TestUtil)
