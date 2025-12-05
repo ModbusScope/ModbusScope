@@ -56,7 +56,34 @@ public:
         }
         return str;
     }
-    
+
+    static int decimalsFromRange(double minVal, double maxVal)
+    {
+        double range = std::fabs(maxVal - minVal);
+        if (range == 0)
+        {
+            return 0;
+        }
+
+        int decimals = static_cast<int>(std::floor(std::log10(range)));
+        if (decimals >= 0)
+        {
+            return 0;
+        }
+        else
+        {
+            decimals = std::fabs(decimals);
+        }
+
+        return decimals;
+    }
+
+    static double roundToDecimals(double value, int decimals)
+    {
+        double factor = std::pow(10.0, decimals);
+        return std::round(value * factor) / factor;
+    }
+
     static const QList<QColor> cColorlist;
 
 private:
