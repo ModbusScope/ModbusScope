@@ -18,6 +18,7 @@ NoteItem::NoteItem(ScopePlot* pPlot,
     _note->position->setType(QCPItemPosition::ptPlotCoords);
     _note->setPen(QPen(Qt::black)); // show black border around text
     _note->position->setCoords(rPosition); // place position at left/top of axis rect
+    _note->setPadding(QMargins(4, 2, 4, 2));
 }
 
 NoteItem::NoteItem(const NoteItem &source)
