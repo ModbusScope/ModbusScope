@@ -17,10 +17,10 @@ public:
     NoteItem(const NoteItem &source);
     virtual ~NoteItem();
 
-    void setNotePosition(const QPointF& rPosition);
+    void setPosition(const QPointF& rPosition);
     void setText(const QString& text);
 
-    QPoint getNotePosition() const;
+    QPoint position() const;
     bool isItem(QCPAbstractItem * pItem) const;
 
 private:

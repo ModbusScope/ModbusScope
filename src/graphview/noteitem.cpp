@@ -33,7 +33,7 @@ NoteItem::~NoteItem()
     _plot->removeItem(_note);
 }
 
-void NoteItem::setNotePosition(const QPointF& rPosition)
+void NoteItem::setPosition(const QPointF& rPosition)
 {
     _note->position->setCoords(rPosition); // place position at left/top of axis rect
 }
@@ -43,7 +43,7 @@ void NoteItem::setText(const QString& text)
     _note->setText(text);
 }
 
-QPoint NoteItem::getNotePosition() const
+QPoint NoteItem::position() const
 {
     return _note->topLeft->pixelPosition().toPoint();
 }

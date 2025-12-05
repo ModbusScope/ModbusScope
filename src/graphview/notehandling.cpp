@@ -47,7 +47,7 @@ bool NoteHandling::handleMousePress(QMouseEvent *event)
     if (_pDraggedNoteIdx != NO_DRAGGED_NOTE)
     {
         /* Save cursor offset */
-        _pixelOffset = event->pos() - _notesItems[_pDraggedNoteIdx]->getNotePosition();
+        _pixelOffset = event->pos() - _notesItems[_pDraggedNoteIdx]->position();
 
         return true;
     }
@@ -66,7 +66,7 @@ bool NoteHandling::handleMouseMove(QMouseEvent *event)
 {
     if ((_pDraggedNoteIdx != NO_DRAGGED_NOTE) && _pNoteModel->draggable(_pDraggedNoteIdx))
     {
-        _pNoteModel->setNotePostion(_pDraggedNoteIdx, _pGraphview->pixelToPointF(event->pos() - _pixelOffset));
+        _pNoteModel->setNotePosition(_pDraggedNoteIdx, _pGraphview->pixelToPointF(event->pos() - _pixelOffset));
 
         return true;
     }
@@ -76,7 +76,7 @@ bool NoteHandling::handleMouseMove(QMouseEvent *event)
 
 void NoteHandling::handleNotePositionChanged(const quint32 idx)
 {
-    _notesItems[idx]->setNotePosition(_pNoteModel->notePosition(idx)); // place position at left/top of axis rect
+    _notesItems[idx]->setPosition(_pNoteModel->notePosition(idx)); // place position at left/top of axis rect
     _pPlot->replot();
 }
 
