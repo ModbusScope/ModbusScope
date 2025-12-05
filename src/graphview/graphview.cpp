@@ -146,7 +146,7 @@ QPointF GraphView::pixelToPointF(const QPoint& pixel) const
 /*!
  * Round number with regards to axis range
  */
-double GraphView::roundToAxisRange(double value, QCPAxis* pAxis) const
+double GraphView::roundToAxisRange(double value, QCPAxis const* pAxis) const
 {
     const double axisMin = pAxis->range().lower;
     const double axisMax = pAxis->range().upper;

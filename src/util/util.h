@@ -72,7 +72,7 @@ public:
         }
         else
         {
-            decimals = std::fabs(decimals);
+            decimals = std::abs(decimals);
         }
 
         return decimals;

@@ -70,7 +70,7 @@ private:
     void highlightSamples(bool bState);
     void setGraphColor(QCPGraph* _pGraph, const QColor &color);
     void setGraphAxis(QCPGraph* _pGraph, const GraphData::valueAxis_t &axis);
-    double roundToAxisRange(double value, QCPAxis* pAxis) const;
+    double roundToAxisRange(double value, QCPAxis const* pAxis) const;
     double getClosestPoint(double coordinate);
     void updateSecondaryAxisVisibility();
     qint32 getActiveGraphIndex(const QCPGraph * const pGraph);

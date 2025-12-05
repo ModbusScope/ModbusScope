@@ -2,7 +2,7 @@
 
 ## Generate
 
-* Run `create_doc.sh` scripts
+* Run `create_doc.sh` script
 
 ## Journal
 
@@ -13,7 +13,7 @@
 * MyST-Parser (update to v4.0.1):
   * v4.0.1 contains "Fix for Sphinx v8.2 compatibility"
   * Supports sphinx >=7,<9
-* Spinx (update to v8.2.3):
+* Sphinx (update to v8.2.3):
   * Compatible with other dependencies
 
 #### Update Sphinx framework
