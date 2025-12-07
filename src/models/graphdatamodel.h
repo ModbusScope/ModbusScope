@@ -22,6 +22,8 @@ public:
         COUNT
     };
 
+    static const QColor lightRed;
+
     explicit GraphDataModel(QObject *parent = nullptr);
 
     /* Functions for QTableView (model) */
@@ -129,8 +131,6 @@ private:
     QList<quint32> _activeGraphList;
 
     qint32 _selectedGraphIdx;
-
-    static const QColor lightRed;
 };
 
 #endif // GRAPHDATAMODEL_H

@@ -5,7 +5,7 @@
 #include "models/graphdata.h"
 #include "util/util.h"
 
-const QColor GraphDataModel::lightRed = QColor(255, 0, 0, 127);
+const QColor GraphDataModel::lightRed = QColor(240, 128, 128); // #f08080
 
 GraphDataModel::GraphDataModel(QObject *parent)
     : QAbstractTableModel(parent), _selectedGraphIdx(-1)
