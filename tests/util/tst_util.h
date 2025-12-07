@@ -12,6 +12,9 @@ private slots:
     void formatDouble_data();
     void formatDouble();
 
+    void decimalsFromRange();
+    void roundToDecimals();
+
 private:
 
 

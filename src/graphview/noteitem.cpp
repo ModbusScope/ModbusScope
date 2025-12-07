@@ -18,6 +18,7 @@ NoteItem::NoteItem(ScopePlot* pPlot,
     _note->position->setType(QCPItemPosition::ptPlotCoords);
     _note->setPen(QPen(Qt::black)); // show black border around text
     _note->position->setCoords(rPosition); // place position at left/top of axis rect
+    _note->setPadding(QMargins(4, 2, 4, 2));
 }
 
 NoteItem::NoteItem(const NoteItem &source)
@@ -32,7 +33,7 @@ NoteItem::~NoteItem()
     _plot->removeItem(_note);
 }
 
-void NoteItem::setNotePosition(const QPointF& rPosition)
+void NoteItem::setPosition(const QPointF& rPosition)
 {
     _note->position->setCoords(rPosition); // place position at left/top of axis rect
 }
@@ -42,7 +43,7 @@ void NoteItem::setText(const QString& text)
     _note->setText(text);
 }
 
-QPoint NoteItem::getNotePosition() const
+QPoint NoteItem::position() const
 {
     return _note->topLeft->pixelPosition().toPoint();
 }

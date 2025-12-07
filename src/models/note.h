@@ -10,12 +10,12 @@ public:
     Note();
     Note(const QString& text, const QPointF& position);
 
-    const QPointF& notePosition() const;
+    const QPointF& position() const;
     QString text() const;
     bool draggable() const;
 
-    void setNotePosition(const QPointF& position);
-    void setNotePosition(double key, double value);
+    void setPosition(const QPointF& position);
+    void setPosition(double key, double value);
     void setText(const QString &text);
     void setDraggable(bool state);
 

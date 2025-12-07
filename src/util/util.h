@@ -56,7 +56,40 @@ public:
         }
         return str;
     }
-    
+
+    /*!
+     * Calculate the least number of decimals to represent a number between minVal and maxVal
+     */
+    static int decimalsFromRange(double minVal, double maxVal)
+    {
+        double range = std::fabs(maxVal - minVal);
+        if (range == 0)
+        {
+            return 0;
+        }
+
+        int decimals = static_cast<int>(std::floor(std::log10(range)));
+        if (decimals >= 0)
+        {
+            return 0;
+        }
+        else
+        {
+            decimals = std::abs(decimals);
+        }
+
+        return decimals;
+    }
+
+    /*!
+     * Round a double to a given number of decimals
+     */
+    static double roundToDecimals(double value, int decimals)
+    {
+        double factor = std::pow(10.0, decimals);
+        return std::round(value * factor) / factor;
+    }
+
     static const QList<QColor> cColorlist;
 
 private:

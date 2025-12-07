@@ -25,19 +25,19 @@ void Note::setText(const QString &text)
     _text = text;
 }
 
-const QPointF& Note::notePosition() const
+const QPointF& Note::position() const
 {
     return _relativeNotePosition;
 }
 
-void Note::setNotePosition(const QPointF &position)
+void Note::setPosition(const QPointF& position)
 {
     _relativeNotePosition = position;
 }
 
-void Note::setNotePosition(double key, double value)
+void Note::setPosition(double key, double value)
 {
-    setNotePosition(QPointF(key, value));
+    setPosition(QPointF(key, value));
 }
 
 bool Note::draggable() const

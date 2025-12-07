@@ -13,6 +13,7 @@
 #include "models/settingsmodel.h"
 #include "util/formatrelativetime.h"
 #include "util/result.h"
+#include "util/util.h"
 
 #include <QInputDialog>
 #include <QLocale>
@@ -132,8 +133,27 @@ bool GraphView::valuesUnderCursor(QList<double> &valueList)
 
 QPointF GraphView::pixelToPointF(const QPoint& pixel) const
 {
-    return QPointF(_pPlot->xAxis->pixelToCoord(pixel.x()),
-                   _pPlot->yAxis->pixelToCoord(pixel.y()));
+    double xCoord = _pPlot->xAxis->pixelToCoord(pixel.x());
+    double yCoord = _pPlot->yAxis->pixelToCoord(pixel.y());
+
+    // Round xCoord in relation to x axis min and max
+    xCoord = roundToAxisRange(xCoord, _pPlot->xAxis);
+    yCoord = roundToAxisRange(yCoord, _pPlot->yAxis);
+
+    return QPointF(xCoord, yCoord);
+}
+
+/*!
+ * Round number with regards to axis range
+ */
+double GraphView::roundToAxisRange(double value, QCPAxis const* pAxis) const
+{
+    const double axisMin = pAxis->range().lower;
+    const double axisMax = pAxis->range().upper;
+
+    int decimals = Util::decimalsFromRange(axisMin, axisMax) + 2; // extra precision
+
+    return Util::roundToDecimals(value, decimals);
 }
 
 double GraphView::pixelToClosestKey(double pixel)

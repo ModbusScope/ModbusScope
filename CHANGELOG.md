@@ -13,6 +13,8 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 ### Changed
 
 * Rework of settings dialogs
+* Improve note handling (more padding, round values to less decimals)
+* Update default colours of graphs
 
 ### Removed
 

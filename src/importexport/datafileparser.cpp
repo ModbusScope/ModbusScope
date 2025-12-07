@@ -439,7 +439,7 @@ bool DataFileParser::parseNoteField(QStringList noteFieldList, Note * pNote)
 
         if (bOk)
         {
-            pNote->setNotePosition(notePosition);
+            pNote->setPosition(notePosition);
         }
         else
         {
