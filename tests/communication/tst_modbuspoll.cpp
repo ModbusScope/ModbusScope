@@ -427,4 +427,23 @@ void TestModbusPoll::multiSlaveDisabledConnection()
     CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
 }
 
+void TestModbusPoll::notExistingdevice()
+{
+    /* Test fail with non existing device id */
+    ModbusPoll modbusPoll(_pSettingsModel);
+    QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
+    auto modbusRegisters = QList<ModbusRegister>()
+                           << ModbusRegister(ModbusAddress(40001), 99, Type::UNSIGNED_16); /* Non existing device id */
+
+    /*-- Start communication --*/
+    modbusPoll.startCommunication(modbusRegisters);
+    QVERIFY(spyDataReady.wait(50));
+    QCOMPARE(spyDataReady.count(), 1);
+    QList<QVariant> arguments = spyDataReady.takeFirst();
+
+    /* Verify arguments of signal */
+    auto expResults = ResultDoubleList() << ResultDouble(0, State::INVALID);
+    CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
+}
+
 QTEST_GUILESS_MAIN(TestModbusPoll)
