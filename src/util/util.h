@@ -57,6 +57,9 @@ public:
         return str;
     }
 
+    /*!
+     * Calculate the least number of decimals to represent a number between minVal and maxVal
+     */
     static int decimalsFromRange(double minVal, double maxVal)
     {
         double range = std::fabs(maxVal - minVal);
@@ -78,6 +81,9 @@ public:
         return decimals;
     }
 
+    /*!
+     * Round a double to a given number of decimals
+     */
     static double roundToDecimals(double value, int decimals)
     {
         double factor = std::pow(10.0, decimals);
