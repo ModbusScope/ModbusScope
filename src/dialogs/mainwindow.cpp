@@ -62,7 +62,7 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _pGraphView = new GraphView(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
     _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel, _pSettingsModel, _pDataParserModel, this);
     _pProjectFileHandler = new ProjectFileHandler(_pGuiModel, _pSettingsModel, _pGraphDataModel);
-    _pExpressionStatus = new ExpressionStatus(_pGraphDataModel);
+    _pExpressionStatus = new ExpressionStatus(_pGraphDataModel, pSettingsModel);
     _pCommunicationStats = new CommunicationStats(_pGraphDataModel);
 
     _pLegend = _pUi->legend;

@@ -48,7 +48,7 @@ void ExpressionsDialog::handleExpressionChange()
     QString expression = _pUi->lineExpression->toPlainText();
     if (_expressionChecker.expression() != expression)
     {
-        _expressionChecker.checkExpression(expression);
+        _expressionChecker.setExpression(expression);
 
         /* Save current test values */
         QMap<QString, QString> testValueMap;
@@ -110,7 +110,7 @@ void ExpressionsDialog::handleInputChange()
             _pUi->tblExpressionInput->blockSignals(false);
         }
 
-        _expressionChecker.setValues(results);
+        _expressionChecker.checkWithValues(results);
     }
 }
 

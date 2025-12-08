@@ -23,7 +23,7 @@ void TestExpressionChecker::dataIsPrimed()
 
     QString expr("${40001} + ${40002}");
 
-    checker.checkExpression(expr);
+    checker.setExpression(expr);
     QCOMPARE(checker.expression(), expr);
 
     QStringList descriptions;
@@ -40,12 +40,12 @@ void TestExpressionChecker::expressionIsValid()
     ExpressionChecker checker;
 
     QString expr("${40001} + ${40002}");
-    checker.checkExpression(expr);
+    checker.setExpression(expr);
 
     QSignalSpy spyResult(&checker, &ExpressionChecker::resultsReady);
 
     auto resultList = ResultDoubleList() << ResultDouble(2, State::SUCCESS) << ResultDouble(1, State::SUCCESS);
-    checker.setValues(resultList);
+    checker.checkWithValues(resultList);
 
     QCOMPARE(spyResult.count(), 1);
 
@@ -65,12 +65,12 @@ void TestExpressionChecker::expressionHasSyntaxError()
     ExpressionChecker checker;
 
     QString expr("${40001}++");
-    checker.checkExpression(expr);
+    checker.setExpression(expr);
 
     QSignalSpy spyResult(&checker, &ExpressionChecker::resultsReady);
 
     auto resultList = ResultDoubleList() << ResultDouble(2, State::SUCCESS);
-    checker.setValues(resultList);
+    checker.checkWithValues(resultList);
 
     QCOMPARE(spyResult.count(), 1);
 
@@ -90,12 +90,12 @@ void TestExpressionChecker::valuErrorIsNotSyntaxError()
     ExpressionChecker checker;
 
     QString expr("1/${40001}");
-    checker.checkExpression(expr);
+    checker.setExpression(expr);
 
     QSignalSpy spyResult(&checker, &ExpressionChecker::resultsReady);
 
     auto resultList = ResultDoubleList() << ResultDouble(0, State::SUCCESS);
-    checker.setValues(resultList);
+    checker.checkWithValues(resultList);
 
     QCOMPARE(spyResult.count(), 1);
 

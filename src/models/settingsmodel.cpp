@@ -16,6 +16,7 @@ SettingsModel::SettingsModel(QObject* parent) : QObject(parent)
     _connectionSettings[ConnectionTypes::ID_1].bConnectionState = true;
 
     _devices[Device::cFirstDeviceId] = Device(Device::cFirstDeviceId);
+    emit deviceListChanged();
 
     _pollTime = 250;
     _bAbsoluteTimes = false;
@@ -73,6 +74,8 @@ deviceId_t SettingsModel::addNewDevice()
     }
 
     _devices[newId] = Device(newId);
+
+    emit deviceListChanged();
     return newId;
 }
 
@@ -81,17 +84,20 @@ void SettingsModel::addDevice(deviceId_t devId)
     if (!_devices.contains(devId))
     {
         _devices[devId] = Device(devId);
+        emit deviceListChanged();
     }
 }
 
 void SettingsModel::removeDevice(deviceId_t devId)
 {
     _devices.remove(devId);
+    emit deviceListChanged();
 }
 
 void SettingsModel::removeAllDevice()
 {
     _devices.clear();
+    emit deviceListChanged();
 }
 
 QList<deviceId_t> SettingsModel::deviceList()
@@ -203,5 +209,6 @@ bool SettingsModel::updateDeviceId(deviceId_t oldId, deviceId_t newId)
 
     Device device = _devices.take(oldId);
     _devices.insert(newId, device);
+    emit deviceListChanged();
     return true;
 }

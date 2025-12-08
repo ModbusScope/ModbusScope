@@ -2,12 +2,13 @@
 #include "expressionstatus.h"
 
 #include "models/graphdatamodel.h"
+#include "models/settingsmodel.h"
 
 using State = ResultState::State;
 using ExpressionState = GraphData::ExpressionStatus;
 
-ExpressionStatus::ExpressionStatus(GraphDataModel *pGraphDataModel, QObject *parent)
-    : QObject(parent), _checker(parent), _pGraphDataModel(pGraphDataModel)
+ExpressionStatus::ExpressionStatus(GraphDataModel* pGraphDataModel, SettingsModel* pSettingsModel, QObject* parent)
+    : QObject(parent), _checker(parent), _pGraphDataModel(pGraphDataModel), _pSettingsModel(pSettingsModel)
 {
     connect(_pGraphDataModel, &GraphDataModel::added, this, &ExpressionStatus::handlExpressionsChanged);
     connect(_pGraphDataModel, &GraphDataModel::expressionChanged, this, &ExpressionStatus::handlExpressionsChanged);
@@ -32,14 +33,19 @@ void ExpressionStatus::handleResultReady(bool valid)
                 bStatus = true;
             }
 
-            _pGraphDataModel->setExpressionStatus(idx, bStatus ? ExpressionState::VALID : ExpressionState::SYNTAX_ERROR);
+            if (_pGraphDataModel->expressionStatus(idx) == ExpressionState::UNKNOWN ||
+                _pGraphDataModel->expressionStatus(idx) == ExpressionState::SYNTAX_ERROR)
+            {
+                _pGraphDataModel->setExpressionStatus(idx,
+                                                      bStatus ? ExpressionState::VALID : ExpressionState::SYNTAX_ERROR);
+            }
             break;
         }
     }
 
     if (!_expressionQueue.isEmpty())
     {
-        verifyExpression(_expressionQueue.head());
+        verifyExpression(_expressionQueue.head(), _pSettingsModel->deviceList());
     }
 }
 
@@ -56,13 +62,15 @@ void ExpressionStatus::handlExpressionsChanged(const quint32 graphIdx)
 
     if (bStartChecker)
     {
-        verifyExpression(expression);
+        verifyExpression(expression, _pSettingsModel->deviceList());
     }
 }
 
-void ExpressionStatus::verifyExpression(QString const& expression)
+void ExpressionStatus::verifyExpression(QString const& expression, QList<deviceId_t> const& deviceIdList)
 {
-    _checker.checkExpression(expression);
+    Q_UNUSED(deviceIdList);
+
+    _checker.setExpression(expression);
 
     const auto count = _checker.requiredValueCount();
 
@@ -72,5 +80,5 @@ void ExpressionStatus::verifyExpression(QString const& expression)
         valueList.append(ResultDouble(1, State::SUCCESS));
     }
 
-    _checker.setValues(valueList);
+    _checker.checkWithValues(valueList);
 }

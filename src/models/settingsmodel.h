@@ -63,6 +63,7 @@ signals:
     void writeDuringLogChanged();
     void writeDuringLogFileChanged();
     void absoluteTimesChanged();
+    void deviceListChanged();
 
 private:
     typedef struct
