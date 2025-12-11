@@ -427,7 +427,7 @@ void TestModbusPoll::multiSlaveDisabledConnection()
     CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
 }
 
-void TestModbusPoll::notExistingdevice()
+void TestModbusPoll::notExistingDevice()
 {
     /* Test fail with non existing device id */
     ModbusPoll modbusPoll(_pSettingsModel);

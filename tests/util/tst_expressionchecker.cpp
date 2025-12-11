@@ -85,7 +85,7 @@ void TestExpressionChecker::expressionHasSyntaxError()
     QVERIFY(checker.syntaxError());
 }
 
-void TestExpressionChecker::valuErrorIsNotSyntaxError()
+void TestExpressionChecker::valueErrorIsNotSyntaxError()
 {
     ExpressionChecker checker;
 

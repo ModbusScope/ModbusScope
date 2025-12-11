@@ -52,7 +52,7 @@ qsizetype ExpressionChecker::requiredValueCount()
 
 bool ExpressionChecker::checkForDevices(QList<deviceId_t> const& deviceIdList)
 {
-    /* Verfy if all required devices exist */
+    /* Verify if all required devices exist */
     for (deviceId_t reqDevId : std::as_const(_expectedDeviceIdList))
     {
         if (!deviceIdList.contains(reqDevId))
