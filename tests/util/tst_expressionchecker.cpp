@@ -110,4 +110,24 @@ void TestExpressionChecker::valueErrorIsNotSyntaxError()
     QVERIFY(checker.syntaxError() == false);
 }
 
+void TestExpressionChecker::checkForDevices_allPresent()
+{
+    ExpressionChecker checker;
+    checker.setExpression(QStringLiteral("${40001} + ${40002}"));
+
+    QList<deviceId_t> devices;
+    devices << static_cast<deviceId_t>(1); // device id 1 is expected by the expression
+    QVERIFY(checker.checkForDevices(devices));
+}
+
+void TestExpressionChecker::checkForDevices_missing()
+{
+    ExpressionChecker checker;
+    checker.setExpression(QStringLiteral("${40001} + ${40002@2}"));
+
+    QList<deviceId_t> devices;
+    devices << static_cast<deviceId_t>(1); // device id 1 is expected by the expression
+    QVERIFY(!checker.checkForDevices(devices));
+}
+
 QTEST_GUILESS_MAIN(TestExpressionChecker)

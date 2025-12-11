@@ -14,6 +14,9 @@ private slots:
     void expressionHasSyntaxError();
     void valueErrorIsNotSyntaxError();
 
+    void checkForDevices_allPresent();
+    void checkForDevices_missing();
+
 private:
 
 };
