@@ -25,6 +25,7 @@ private:
     void verifyExpression(QString const& expression, QList<deviceId_t> const& deviceIdList);
 
     ExpressionChecker _checker;
+    bool _deviceCheckPassed;
 
     GraphDataModel* _pGraphDataModel;
     SettingsModel* _pSettingsModel;

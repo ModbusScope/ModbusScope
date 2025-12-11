@@ -8,7 +8,11 @@ using State = ResultState::State;
 using ExpressionState = GraphData::ExpressionStatus;
 
 ExpressionStatus::ExpressionStatus(GraphDataModel* pGraphDataModel, SettingsModel* pSettingsModel, QObject* parent)
-    : QObject(parent), _checker(parent), _pGraphDataModel(pGraphDataModel), _pSettingsModel(pSettingsModel)
+    : QObject(parent),
+      _checker(parent),
+      _deviceCheckPassed(true),
+      _pGraphDataModel(pGraphDataModel),
+      _pSettingsModel(pSettingsModel)
 {
     connect(_pGraphDataModel, &GraphDataModel::added, this, &ExpressionStatus::handlExpressionsChanged);
     connect(_pGraphDataModel, &GraphDataModel::expressionChanged, this, &ExpressionStatus::handlExpressionsChanged);
@@ -18,6 +22,11 @@ ExpressionStatus::ExpressionStatus(GraphDataModel* pGraphDataModel, SettingsMode
 
 void ExpressionStatus::handleResultReady(bool valid)
 {
+    /* valid is a combination of SYNTAX and OTHER (value), but we're only interested
+        in SYNTAX here. We can use syntaxError() to determine that.
+    */
+    Q_UNUSED(valid);
+
     QString verifiedExpression = _expressionQueue.dequeue();
 
     const qint32 size = _pGraphDataModel->size();
@@ -25,19 +34,17 @@ void ExpressionStatus::handleResultReady(bool valid)
     {
         if (_pGraphDataModel->expression(idx) == verifiedExpression)
         {
-            bool bStatus = valid;
-
-            if (!bStatus && !_checker.syntaxError())
+            if (_checker.syntaxError())
             {
-                /* Ignore value errors (for example divide by 0) */
-                bStatus = true;
+                _pGraphDataModel->setExpressionStatus(idx, ExpressionState::SYNTAX_ERROR);
             }
-
-            if (_pGraphDataModel->expressionStatus(idx) == ExpressionState::UNKNOWN ||
-                _pGraphDataModel->expressionStatus(idx) == ExpressionState::SYNTAX_ERROR)
+            else if (!_deviceCheckPassed)
             {
-                _pGraphDataModel->setExpressionStatus(idx,
-                                                      bStatus ? ExpressionState::VALID : ExpressionState::SYNTAX_ERROR);
+                _pGraphDataModel->setExpressionStatus(idx, ExpressionState::UNKNOWN_DEVICE);
+            }
+            else
+            {
+                _pGraphDataModel->setExpressionStatus(idx, ExpressionState::VALID);
             }
             break;
         }
@@ -72,8 +79,9 @@ void ExpressionStatus::verifyExpression(QString const& expression, QList<deviceI
 
     _checker.setExpression(expression);
 
-    const auto count = _checker.requiredValueCount();
+    _deviceCheckPassed = _checker.checkForDevices(deviceIdList);
 
+    const auto count = _checker.requiredValueCount();
     ResultDoubleList valueList;
     while(valueList.count() < count)
     {

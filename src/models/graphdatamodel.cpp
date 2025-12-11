@@ -80,7 +80,7 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
         {
             return simplifiedExpression(index.row());
         }
-        else if ((role == Qt::BackgroundRole) && (expressionStatus(index.row()) == GraphData::ExpressionStatus::SYNTAX_ERROR))
+        else if ((role == Qt::BackgroundRole) && !isExpressionValid(index.row()))
         {
             return lightRed;
         }
@@ -95,7 +95,6 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
     default:
         return QVariant();
         break;
-
     }
 
     return QVariant();
@@ -353,6 +352,11 @@ QString GraphDataModel::expression(quint32 index) const
 GraphData::ExpressionStatus GraphDataModel::expressionStatus(quint32 index) const
 {
     return _graphData[index].expressionStatus();
+}
+
+bool GraphDataModel::isExpressionValid(quint32 index) const
+{
+    return _graphData[index].isExpressionValid();
 }
 
 qint32 GraphDataModel::selectedGraph() const

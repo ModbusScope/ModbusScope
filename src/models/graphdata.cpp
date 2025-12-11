@@ -92,6 +92,11 @@ GraphData::ExpressionStatus GraphData::expressionStatus() const
     return _expressionStatus;
 }
 
+bool GraphData::isExpressionValid() const
+{
+    return (_expressionStatus == ExpressionStatus::VALID) || (_expressionStatus == ExpressionStatus::UNKNOWN);
+}
+
 void GraphData::setExpressionStatus(GraphData::ExpressionStatus status)
 {
     _expressionStatus = status;

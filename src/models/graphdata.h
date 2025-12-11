@@ -17,6 +17,7 @@ public:
         UNKNOWN = 0,
         VALID,
         SYNTAX_ERROR,
+        UNKNOWN_DEVICE
     };
 
     typedef enum
@@ -46,6 +47,7 @@ public:
 
     ExpressionStatus expressionStatus() const;
     void setExpressionStatus(ExpressionStatus status);
+    bool isExpressionValid() const;
 
     QSharedPointer<QCPGraphDataContainer> dataMap();
 

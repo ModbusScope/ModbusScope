@@ -52,6 +52,7 @@ public:
     bool isActive(quint32 index) const;
     QString expression(quint32 index) const;
     GraphData::ExpressionStatus expressionStatus(quint32 index) const;
+    bool isExpressionValid(quint32 index) const;
     qint32 selectedGraph() const;
     QString simplifiedExpression(quint32 index) const;
     QSharedPointer<QCPGraphDataContainer> dataMap(quint32 index);
