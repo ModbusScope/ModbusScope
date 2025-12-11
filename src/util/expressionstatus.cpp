@@ -75,8 +75,6 @@ void ExpressionStatus::handlExpressionsChanged(const quint32 graphIdx)
 
 void ExpressionStatus::verifyExpression(QString const& expression, QList<deviceId_t> const& deviceIdList)
 {
-    Q_UNUSED(deviceIdList);
-
     _checker.setExpression(expression);
 
     _deviceCheckPassed = _checker.checkForDevices(deviceIdList);

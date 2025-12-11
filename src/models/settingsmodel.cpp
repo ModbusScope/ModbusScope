@@ -16,7 +16,6 @@ SettingsModel::SettingsModel(QObject* parent) : QObject(parent)
     _connectionSettings[ConnectionTypes::ID_1].bConnectionState = true;
 
     _devices[Device::cFirstDeviceId] = Device(Device::cFirstDeviceId);
-    emit deviceListChanged();
 
     _pollTime = 250;
     _bAbsoluteTimes = false;
