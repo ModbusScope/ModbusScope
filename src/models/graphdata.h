@@ -12,7 +12,7 @@ public:
     explicit GraphData();
     ~GraphData();
 
-    enum class ExpressionStatus
+    enum class ExpressionState
     {
         UNKNOWN = 0,
         VALID,
@@ -45,8 +45,8 @@ public:
     QString expression() const;
     void setExpression(QString expression);
 
-    ExpressionStatus expressionStatus() const;
-    void setExpressionStatus(ExpressionStatus status);
+    ExpressionState expressionState() const;
+    void setExpressionState(ExpressionState status);
     bool isExpressionValid() const;
 
     QSharedPointer<QCPGraphDataContainer> dataMap();
@@ -60,7 +60,7 @@ private:
 
     bool _bActive;
     QString _expression;
-    ExpressionStatus _expressionStatus;
+    ExpressionState _expressionState;
 
     QSharedPointer<QCPGraphDataContainer> _pDataMap;
 

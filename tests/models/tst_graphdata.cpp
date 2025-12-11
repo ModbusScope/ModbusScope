@@ -50,10 +50,10 @@ void TestGraphData::setExpressionResetsStatus()
     GraphData graphData;
 
     graphData.setExpression("${40001}}");
-    graphData.setExpressionStatus(GraphData::ExpressionStatus::SYNTAX_ERROR);
+    graphData.setExpressionState(GraphData::ExpressionState::SYNTAX_ERROR);
 
     graphData.setExpression("${40001}");
-    QCOMPARE(GraphData::ExpressionStatus::UNKNOWN, graphData.expressionStatus());
+    QCOMPARE(GraphData::ExpressionState::UNKNOWN, graphData.expressionState());
 }
 
 /* TODO: Add extra test for other functions */

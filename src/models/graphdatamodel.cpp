@@ -21,7 +21,7 @@ GraphDataModel::GraphDataModel(QObject *parent)
     connect(this, &GraphDataModel::colorChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::activeChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::expressionChanged, this, &GraphDataModel::modelDataChanged);
-    connect(this, &GraphDataModel::expressionStatusChanged, this, &GraphDataModel::modelDataChanged);
+    connect(this, &GraphDataModel::expressionStateChanged, this, &GraphDataModel::modelDataChanged);
 
     /* When adding or removing graphs, the complete view should be refreshed to make sure all indexes are updated */
     connect(this, &GraphDataModel::added, this, &GraphDataModel::modelCompleteDataChanged);
@@ -349,9 +349,9 @@ QString GraphDataModel::expression(quint32 index) const
     return _graphData[index].expression();
 }
 
-GraphData::ExpressionStatus GraphDataModel::expressionStatus(quint32 index) const
+GraphData::ExpressionState GraphDataModel::expressionState(quint32 index) const
 {
-    return _graphData[index].expressionStatus();
+    return _graphData[index].expressionState();
 }
 
 bool GraphDataModel::isExpressionValid(quint32 index) const
@@ -514,12 +514,12 @@ void GraphDataModel::setExpression(quint32 index, QString expression)
     }
 }
 
-void GraphDataModel::setExpressionStatus(quint32 index, GraphData::ExpressionStatus status)
+void GraphDataModel::setExpressionState(quint32 index, GraphData::ExpressionState status)
 {
-    if (_graphData[index].expressionStatus() != status)
+    if (_graphData[index].expressionState() != status)
     {
-        _graphData[index].setExpressionStatus(status);
-        emit expressionStatusChanged(index);
+        _graphData[index].setExpressionState(status);
+        emit expressionStateChanged(index);
     }
 }
 

@@ -5,7 +5,7 @@
 #include "models/settingsmodel.h"
 
 using State = ResultState::State;
-using ExpressionState = GraphData::ExpressionStatus;
+using ExpressionState = GraphData::ExpressionState;
 
 ExpressionStatus::ExpressionStatus(GraphDataModel* pGraphDataModel, SettingsModel* pSettingsModel, QObject* parent)
     : QObject(parent),
@@ -36,15 +36,15 @@ void ExpressionStatus::handleResultReady(bool valid)
         {
             if (_checker.syntaxError())
             {
-                _pGraphDataModel->setExpressionStatus(idx, ExpressionState::SYNTAX_ERROR);
+                _pGraphDataModel->setExpressionState(idx, ExpressionState::SYNTAX_ERROR);
             }
             else if (!_deviceCheckPassed)
             {
-                _pGraphDataModel->setExpressionStatus(idx, ExpressionState::UNKNOWN_DEVICE);
+                _pGraphDataModel->setExpressionState(idx, ExpressionState::UNKNOWN_DEVICE);
             }
             else
             {
-                _pGraphDataModel->setExpressionStatus(idx, ExpressionState::VALID);
+                _pGraphDataModel->setExpressionState(idx, ExpressionState::VALID);
             }
             break;
         }
