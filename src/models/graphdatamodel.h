@@ -22,6 +22,8 @@ public:
         COUNT
     };
 
+    static const QColor lightRed;
+
     explicit GraphDataModel(QObject *parent = nullptr);
 
     /* Functions for QTableView (model) */
@@ -49,7 +51,8 @@ public:
     QColor color(quint32 index) const;
     bool isActive(quint32 index) const;
     QString expression(quint32 index) const;
-    GraphData::ExpressionStatus expressionStatus(quint32 index) const;
+    GraphData::ExpressionState expressionState(quint32 index) const;
+    bool isExpressionValid(quint32 index) const;
     qint32 selectedGraph() const;
     QString simplifiedExpression(quint32 index) const;
     QSharedPointer<QCPGraphDataContainer> dataMap(quint32 index);
@@ -67,7 +70,7 @@ public:
     void setColor(quint32 index, const QColor &color);
     void setActive(quint32 index, bool bActive);
     void setExpression(quint32 index, QString expression);
-    void setExpressionStatus(quint32 index, GraphData::ExpressionStatus status);
+    void setExpressionState(quint32 index, GraphData::ExpressionState status);
     void setSelectedGraph(qint32 index);
 
     void setCommunicationStartTime(qint64 startTime);
@@ -97,7 +100,7 @@ signals:
     void colorChanged(const quint32 graphIdx);
     void activeChanged(const quint32 graphIdx);
     void expressionChanged(const quint32 graphIdx);
-    void expressionStatusChanged(const quint32 graphIdx);
+    void expressionStateChanged(const quint32 graphIdx);
     void selectedGraphChanged(const qint32 graphIdx);
     void graphsAddData(QList<double>, QList<QList<double> > data);
 
@@ -129,8 +132,6 @@ private:
     QList<quint32> _activeGraphList;
 
     qint32 _selectedGraphIdx;
-
-    static const QColor lightRed;
 };
 
 #endif // GRAPHDATAMODEL_H

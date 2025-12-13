@@ -5,7 +5,7 @@
 #include "models/graphdata.h"
 #include "util/util.h"
 
-const QColor GraphDataModel::lightRed = QColor(255, 0, 0, 127);
+const QColor GraphDataModel::lightRed = QColor(240, 128, 128); // #f08080
 
 GraphDataModel::GraphDataModel(QObject *parent)
     : QAbstractTableModel(parent), _selectedGraphIdx(-1)
@@ -21,7 +21,7 @@ GraphDataModel::GraphDataModel(QObject *parent)
     connect(this, &GraphDataModel::colorChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::activeChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::expressionChanged, this, &GraphDataModel::modelDataChanged);
-    connect(this, &GraphDataModel::expressionStatusChanged, this, &GraphDataModel::modelDataChanged);
+    connect(this, &GraphDataModel::expressionStateChanged, this, &GraphDataModel::modelDataChanged);
 
     /* When adding or removing graphs, the complete view should be refreshed to make sure all indexes are updated */
     connect(this, &GraphDataModel::added, this, &GraphDataModel::modelCompleteDataChanged);
@@ -80,9 +80,24 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
         {
             return simplifiedExpression(index.row());
         }
-        else if ((role == Qt::BackgroundRole) && (expressionStatus(index.row()) == GraphData::ExpressionStatus::SYNTAX_ERROR))
+        else if ((role == Qt::BackgroundRole) && !isExpressionValid(index.row()))
         {
             return lightRed;
+        }
+        else if (role == Qt::ToolTipRole)
+        {
+            if (expressionState(index.row()) == GraphData::ExpressionState::SYNTAX_ERROR)
+            {
+                return tr("The expression has a syntax error");
+            }
+            else if (expressionState(index.row()) == GraphData::ExpressionState::UNKNOWN_DEVICE)
+            {
+                return tr("The expression contains an unknown device");
+            }
+            else
+            {
+                return QString();
+            }
         }
         break;
     case column::VALUE_AXIS:
@@ -95,7 +110,6 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
     default:
         return QVariant();
         break;
-
     }
 
     return QVariant();
@@ -350,9 +364,14 @@ QString GraphDataModel::expression(quint32 index) const
     return _graphData[index].expression();
 }
 
-GraphData::ExpressionStatus GraphDataModel::expressionStatus(quint32 index) const
+GraphData::ExpressionState GraphDataModel::expressionState(quint32 index) const
 {
-    return _graphData[index].expressionStatus();
+    return _graphData[index].expressionState();
+}
+
+bool GraphDataModel::isExpressionValid(quint32 index) const
+{
+    return _graphData[index].isExpressionValid();
 }
 
 qint32 GraphDataModel::selectedGraph() const
@@ -510,12 +529,12 @@ void GraphDataModel::setExpression(quint32 index, QString expression)
     }
 }
 
-void GraphDataModel::setExpressionStatus(quint32 index, GraphData::ExpressionStatus status)
+void GraphDataModel::setExpressionState(quint32 index, GraphData::ExpressionState status)
 {
-    if (_graphData[index].expressionStatus() != status)
+    if (_graphData[index].expressionState() != status)
     {
-        _graphData[index].setExpressionStatus(status);
-        emit expressionStatusChanged(index);
+        _graphData[index].setExpressionState(status);
+        emit expressionStateChanged(index);
     }
 }
 

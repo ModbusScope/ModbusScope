@@ -1,12 +1,12 @@
 
 #include "expressionchecker.h"
 
-ExpressionChecker::ExpressionChecker(QObject *parent) : QObject(parent)
+ExpressionChecker::ExpressionChecker(QObject* parent) : QObject(parent)
 {
     connect(&_graphDataHandler, &GraphDataHandler::graphDataReady, this, &ExpressionChecker::handleDataReady);
 }
 
-void ExpressionChecker::checkExpression(QString expr)
+void ExpressionChecker::setExpression(QString expr)
 {
     _localGraphDataModel.clear();
     _localGraphDataModel.add();
@@ -15,10 +15,16 @@ void ExpressionChecker::checkExpression(QString expr)
     QList<ModbusRegister> registerList;
     _graphDataHandler.setupExpressions(&_localGraphDataModel, registerList);
 
+    _expectedDeviceIdList.clear();
     _descriptions.clear();
     for (ModbusRegister const& reg : std::as_const(registerList))
     {
         _descriptions.append(reg.description());
+
+        if (!_expectedDeviceIdList.contains(reg.deviceId()))
+        {
+            _expectedDeviceIdList.append(reg.deviceId());
+        }
     }
 }
 
@@ -44,7 +50,21 @@ qsizetype ExpressionChecker::requiredValueCount()
     return _descriptions.size();
 }
 
-void ExpressionChecker::setValues(ResultDoubleList results)
+bool ExpressionChecker::checkForDevices(QList<deviceId_t> const& deviceIdList)
+{
+    /* Verify if all required devices exist */
+    for (deviceId_t reqDevId : std::as_const(_expectedDeviceIdList))
+    {
+        if (!deviceIdList.contains(reqDevId))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void ExpressionChecker::checkWithValues(ResultDoubleList results)
 {
     _graphDataHandler.handleRegisterData(results);
 }
@@ -94,5 +114,3 @@ void ExpressionChecker::handleDataReady(ResultDoubleList resultList)
 
     emit resultsReady(_bValid);
 }
-
-

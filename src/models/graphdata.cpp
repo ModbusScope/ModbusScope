@@ -10,7 +10,7 @@ GraphData::GraphData()
     _color = "-1"; // Invalid color
     _bActive = true;
     _expression = QStringLiteral("0");
-    _expressionStatus = ExpressionStatus::UNKNOWN;
+    _expressionState = ExpressionState::UNKNOWN;
 
     _pDataMap = QSharedPointer<QCPGraphDataContainer>(new QCPGraphDataContainer);
 }
@@ -84,17 +84,22 @@ QString GraphData::expression() const
 void GraphData::setExpression(QString expression)
 {
     _expression = expression;
-    _expressionStatus = ExpressionStatus::UNKNOWN;
+    _expressionState = ExpressionState::UNKNOWN;
 }
 
-GraphData::ExpressionStatus GraphData::expressionStatus() const
+GraphData::ExpressionState GraphData::expressionState() const
 {
-    return _expressionStatus;
+    return _expressionState;
 }
 
-void GraphData::setExpressionStatus(GraphData::ExpressionStatus status)
+bool GraphData::isExpressionValid() const
 {
-    _expressionStatus = status;
+    return (_expressionState == ExpressionState::VALID) || (_expressionState == ExpressionState::UNKNOWN);
+}
+
+void GraphData::setExpressionState(GraphData::ExpressionState status)
+{
+    _expressionState = status;
 }
 
 QSharedPointer<QCPGraphDataContainer> GraphData::dataMap()

@@ -12,7 +12,10 @@ private slots:
     void dataIsPrimed();
     void expressionIsValid();
     void expressionHasSyntaxError();
-    void valuErrorIsNotSyntaxError();
+    void valueErrorIsNotSyntaxError();
+
+    void checkForDevices_allPresent();
+    void checkForDevices_missing();
 
 private:
 

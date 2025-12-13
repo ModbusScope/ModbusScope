@@ -23,7 +23,7 @@ void TestExpressionChecker::dataIsPrimed()
 
     QString expr("${40001} + ${40002}");
 
-    checker.checkExpression(expr);
+    checker.setExpression(expr);
     QCOMPARE(checker.expression(), expr);
 
     QStringList descriptions;
@@ -40,12 +40,12 @@ void TestExpressionChecker::expressionIsValid()
     ExpressionChecker checker;
 
     QString expr("${40001} + ${40002}");
-    checker.checkExpression(expr);
+    checker.setExpression(expr);
 
     QSignalSpy spyResult(&checker, &ExpressionChecker::resultsReady);
 
     auto resultList = ResultDoubleList() << ResultDouble(2, State::SUCCESS) << ResultDouble(1, State::SUCCESS);
-    checker.setValues(resultList);
+    checker.checkWithValues(resultList);
 
     QCOMPARE(spyResult.count(), 1);
 
@@ -65,12 +65,12 @@ void TestExpressionChecker::expressionHasSyntaxError()
     ExpressionChecker checker;
 
     QString expr("${40001}++");
-    checker.checkExpression(expr);
+    checker.setExpression(expr);
 
     QSignalSpy spyResult(&checker, &ExpressionChecker::resultsReady);
 
     auto resultList = ResultDoubleList() << ResultDouble(2, State::SUCCESS);
-    checker.setValues(resultList);
+    checker.checkWithValues(resultList);
 
     QCOMPARE(spyResult.count(), 1);
 
@@ -85,17 +85,17 @@ void TestExpressionChecker::expressionHasSyntaxError()
     QVERIFY(checker.syntaxError());
 }
 
-void TestExpressionChecker::valuErrorIsNotSyntaxError()
+void TestExpressionChecker::valueErrorIsNotSyntaxError()
 {
     ExpressionChecker checker;
 
     QString expr("1/${40001}");
-    checker.checkExpression(expr);
+    checker.setExpression(expr);
 
     QSignalSpy spyResult(&checker, &ExpressionChecker::resultsReady);
 
     auto resultList = ResultDoubleList() << ResultDouble(0, State::SUCCESS);
-    checker.setValues(resultList);
+    checker.checkWithValues(resultList);
 
     QCOMPARE(spyResult.count(), 1);
 
@@ -108,6 +108,26 @@ void TestExpressionChecker::valuErrorIsNotSyntaxError()
     QCOMPARE(checker.strError(), "Result value is an undefined number. Check input validity.");
     QCOMPARE(checker.errorPos(), -1);
     QVERIFY(checker.syntaxError() == false);
+}
+
+void TestExpressionChecker::checkForDevices_allPresent()
+{
+    ExpressionChecker checker;
+    checker.setExpression(QStringLiteral("${40001} + ${40002}"));
+
+    QList<deviceId_t> devices;
+    devices << static_cast<deviceId_t>(1); // device id 1 is expected by the expression
+    QVERIFY(checker.checkForDevices(devices));
+}
+
+void TestExpressionChecker::checkForDevices_missing()
+{
+    ExpressionChecker checker;
+    checker.setExpression(QStringLiteral("${40001} + ${40002@2}"));
+
+    QList<deviceId_t> devices;
+    devices << static_cast<deviceId_t>(1); // device id 1 is expected by the expression
+    QVERIFY(!checker.checkForDevices(devices));
 }
 
 QTEST_GUILESS_MAIN(TestExpressionChecker)

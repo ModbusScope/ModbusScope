@@ -27,7 +27,9 @@ private slots:
     void multiSlaveSuccess_3();
     void multiSlaveSingleFail();
     void multiSlaveAllFail();
+
     void multiSlaveDisabledConnection();
+    void notExistingDevice();
 
 private:
     SettingsModel* _pSettingsModel;

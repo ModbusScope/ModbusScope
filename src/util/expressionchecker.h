@@ -12,12 +12,14 @@ public:
 
     explicit ExpressionChecker(QObject *parent = nullptr);
 
-    void checkExpression(QString expr);
+    void setExpression(QString expr);
+
     QString expression(void);
     void descriptions(QStringList& descr);
-
     qsizetype requiredValueCount();
-    void setValues(ResultDoubleList results);
+
+    bool checkForDevices(QList<deviceId_t> const& deviceIdList);
+    void checkWithValues(ResultDoubleList results);
 
     bool isValid();
     double result();
@@ -35,6 +37,8 @@ private:
 
     GraphDataModel _localGraphDataModel;
     GraphDataHandler _graphDataHandler;
+
+    QList<deviceId_t> _expectedDeviceIdList;
 
     QStringList _descriptions;
 
