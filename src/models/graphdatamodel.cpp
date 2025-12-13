@@ -84,6 +84,21 @@ QVariant GraphDataModel::data(const QModelIndex &index, int role) const
         {
             return lightRed;
         }
+        else if (role == Qt::ToolTipRole)
+        {
+            if (expressionState(index.row()) == GraphData::ExpressionState::SYNTAX_ERROR)
+            {
+                return tr("The expression has a syntax error");
+            }
+            else if (expressionState(index.row()) == GraphData::ExpressionState::UNKNOWN_DEVICE)
+            {
+                return tr("The expression contains an unknown device");
+            }
+            else
+            {
+                return QString();
+            }
+        }
         break;
     case column::VALUE_AXIS:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
