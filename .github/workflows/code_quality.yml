@@ -48,6 +48,7 @@ jobs:
     container: docker://jgeudens/qt-linux:6.8.3_build_1
     env:
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
     - uses: actions/checkout@v6.0.0
       with:
@@ -71,4 +72,4 @@ jobs:
         # Consult https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/scanners/sonarscanner/ for more information and options
         args: >
           --define "sonar.cfamily.compile-commands=${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"
-
+      if: ${{ !!env.SONAR_TOKEN || !!env.GITHUB_TOKEN }}
