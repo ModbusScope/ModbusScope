@@ -41,7 +41,7 @@ jobs:
         coverage-reports: cobertura.xml
       env:
         PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-      if: "${{ (!!env.PROJECT_TOKEN) }}"
+      if: ${{ !!env.PROJECT_TOKEN }}
 
   sonarqube:
     runs-on: ubuntu-latest
