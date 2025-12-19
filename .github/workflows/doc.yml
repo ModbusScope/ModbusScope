@@ -17,7 +17,7 @@ jobs:
           sh create_doc.sh
           mv docs/manual/_build/latex/modbusscope.pdf modbusscope-user-manual.pdf
 
-      - uses: actions/upload-artifact@v5.0.0
+      - uses: actions/upload-artifact@v6.0.0
         with:
           name: modbusscope-user-manual
           path: modbusscope-user-manual.pdf
