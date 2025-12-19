@@ -1,6 +1,6 @@
 
 #include "communication/modbusregister.h"
-#include "util/modbusresultmap.h"
+#include "communication/modbusresultmap.h"
 
 #include <QObject>
 

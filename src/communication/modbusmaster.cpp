@@ -1,9 +1,9 @@
 #include "modbusmaster.h"
 
 #include "communication/modbusconnection.h"
+#include "communication/modbusresultmap.h"
 #include "communication/readregisters.h"
 #include "models/settingsmodel.h"
-#include "util/modbusresultmap.h"
 
 Q_DECLARE_METATYPE(Result<quint16>);
 

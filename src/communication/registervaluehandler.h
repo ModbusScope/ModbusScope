@@ -4,8 +4,8 @@
 #include <QObject>
 
 #include "communication/modbusregister.h"
+#include "communication/modbusresultmap.h"
 #include "models/connectiontypes.h"
-#include "util/modbusresultmap.h"
 
 class SettingsModel;
 

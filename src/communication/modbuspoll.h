@@ -2,8 +2,8 @@
 #define COMMUNICATION_MANAGER_H
 
 #include "communication/modbusregister.h"
+#include "communication/modbusresultmap.h"
 #include "models/connectiontypes.h"
-#include "util/modbusresultmap.h"
 #include <QStringListModel>
 #include <QTimer>
 
