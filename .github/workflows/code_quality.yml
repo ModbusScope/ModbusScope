@@ -64,7 +64,7 @@ jobs:
         # here goes your compilation wrapped with build-wrapper; See https://docs.sonarcloud.io/advanced-setup/languages/c-c-objective-c/#analysis-steps-using-build-wrapper for more information
         cmake . -GNinja
         build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} ninja
-      if: ${{ !!env.SONAR_TOKEN || !!env.GITHUB_TOKEN }}
+      if: ${{ !!env.SONAR_TOKEN && !!env.GITHUB_TOKEN }}
 
     - name: SonarQube Scan
       uses: SonarSource/sonarqube-scan-action@v7.0
@@ -72,4 +72,4 @@ jobs:
         # Consult https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/scanners/sonarscanner/ for more information and options
         args: >
           --define "sonar.cfamily.compile-commands=${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"
-      if: ${{ !!env.SONAR_TOKEN || !!env.GITHUB_TOKEN }}
+      if: ${{ !!env.SONAR_TOKEN && !!env.GITHUB_TOKEN }}
