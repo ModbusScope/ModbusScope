@@ -21,7 +21,8 @@ ModbusScope can be easily installed by double-clicking on the provided `.msi` in
 ### Configure Modbus registers
 
 1. Use the register settings window to add the desired Modbus registers
-   1. Change name, colors, type, ...
+   1. Change name, color, type, etc.
+
    2. Optionally perform some calculation on the register.
 
 ### Logging Data
@@ -102,42 +103,43 @@ Once the registers have been added, you can adjust them as needed. This includes
 
 #### Object types
 
-In *ModbusScope*, a Modbus register is represented as `${REG[@CONN][:TYPE]}` where `REG` is the register address, `CONN` is the connection number, and `TYPE` is the type of the register.
+In *ModbusScope*, a register expression has the form `${REG[@CONN][:TYPE]}`:
 
-* `${45332}` => 16-bit unsigned using connection 1
-* `${45332: s16b}` => 16-bit signed using connection 1
-* `${45332@2: 32b}` => 32-bit unsigned using connection 2
-* `${45332@2}` => 16-bit unsigned using connection 2
+* REG — the Modbus address (use either Modicon notation or prefix notation, see below).
+* @CONN — optional connection number (1..3) to choose which configured connection to use.
+* :TYPE — optional data type/size: 16b, s16b, 32b, s32b, f32b (see list below). For coils/discrete inputs the type is ignored.
+
+Examples:
+
+* `${45332}` → 16-bit unsigned, connection 1
+* `${45332: s16b}` → 16-bit signed, connection 1
+* `${45332@2: 32b}` → 32-bit unsigned, connection 2
+* `${45332@2}` → 16-bit unsigned, connection 2
 
 ##### Register address
 
-*ModbusScope* supports different function codes of the Modbus standard. It is possible to read coils, discrete inputs, input registers and holding registers. The function code is derived from the register address field in the expression. Two notations are supported in ModbusScope.
+Two notations are supported:
 
-The primary notation used in ModbusScope is the old Modicon standard. For example, `${10002}` means reading a discrete input with address 1. This notation has the advantage that two pieces of information are included in a single number: the object type (which function code to use) and the actual address. The maximum range however is limited to address 9999.
+* Modicon 5-digit (compact): encodes object type and address in one number (limited to 1–9999 per field).
+* Prefix notation (full range): use a letter prefix and the full 0–65535 address, e.g. `c0..c65535`, `d0..d65535`, `i0..i65535`, `h0..h65535`.
 
-The second notation is specific to ModbusScope, but allows to use the full 16-bit address range. The register address field consists of a prefix and a number. The prefix will specify the object type and the number can be the full 16-bit address range.
+ModbusScope will prefer the Modicon 5-digit form when the address fits; otherwise it will use the prefix form.
 
-ModbusScope will use the 5-digit Modicon notation, unless the register address can't be represented because the address is too high, then the prefix notation will be automatically used.
-
-| Modicon 5-digit notation | Full range using prefix | Object type       | Modbus function code |
-| ------------------------ | ----------------------- | ----------------- | -------------------- |
-| `1` - `9999`             | `c0` - `c65535`         | Coil              | 1                    |
-| `10001` - `19999`        | `d0` - `d65535`         | Discrete inputs   | 2                    |
-| `30001` - `39999`        | `i0` - `i65535`         | Inputs registers  | 4                    |
-| > `40001`                | `h0` - `h65535`         | Holding registers | 3                    |
+| Modicon 5-digit notation | Prefix example        | Object type       | Modbus function code |
+| ------------------------ | --------------------- | ----------------- | -------------------- |
+| `1` - `9999`             | `c0` - `c65535`       | Coil              | 1                    |
+| `10001` - `19999`        | `d0` - `d65535`       | Discrete inputs   | 2                    |
+| `30001` - `39999`        | `i0` - `i65535`       | Input registers   | 4                    |
+| > `40001`                | `h0` - `h65535`       | Holding registers | 3                    |
 
 ##### Supported register types
 
 Following types for holding and input registers are currently supported by ModbusScope:
 
 * `16b`: Unsigned 16-bit value
-
 * `s16b`: Signed 16-bit
-
 * `32b`: Unsigned 32-bit value
-
 * `s32b`: Signed 32-bit value
-
 * `f32b`: 32-bit float (IEEE 754)
 
 For coils and discrete inputs, the register type is ignored. The endianness of 32-bit registers can be configured per connection with the `32-bit little-endian` setting in the connection settings dialog. The register type is ignored for coils and discrete inputs.
@@ -146,7 +148,7 @@ For coils and discrete inputs, the register type is ignored. The endianness of 3
 
 Expressions are used to define calculations or transformations of data in *ModbusScope*. They can be used to convert raw data from a Modbus register into a more meaningful value, or to perform mathematical operations on multiple registers. These expressions can be defined using a variety of mathematical operators and functions, as well as references to specific registers. For example, you could use an expression to calculate the power usage of a system by multiplying the voltage and current readings from two different registers.
 
-*ModbusScope* supports a variety of binary operators that are commonly used in expressions such as `|` for bitwise OR, `&` for bitwise AND, `<<` for bitwise left shift, and `>>` for bitwise right shift. It also supports basic arithmetic operators like `+`, `-`, `*`, `/`, `%`, and `^` for addition, subtraction, multiplication, division, modulus and exponentiation respectively. In addition to the above operators, *ModbusScope* also supports hexadecimal numbers represented with the `0x` prefix and binary numbers represented with `0b` prefix. It also supports floating-point numbers, and both a decimal point and comma can be used as floating-point separator, whichever is encountered first. This allows for a greater flexibility in creating expressions that suit the user's needs.
+*ModbusScope* supports a variety of binary operators that are commonly used in expressions such as `|` for bitwise OR, `&` for bitwise AND, `<<` for bitwise left shift, and `>>` for bitwise right shift. It also supports basic arithmetic operators like `+`, `-`, `*`, `/`, `%`, and `^` for addition, subtraction, multiplication, division, modulus and exponentiation respectively. In addition to the above operators, *ModbusScope* also supports hexadecimal numbers represented with the `0x` prefix and binary numbers represented with `0b` prefix. It also supports floating-point numbers; use either a decimal point (.) or a comma (,) as the decimal separator. The parser uses the first separator encountered in a number.
 
 Some examples of valid expressions are
 
@@ -166,13 +168,15 @@ This window can be opened by double-clicking the expression cell in the register
 
 #### Expression error
 
-When an error is detected in the expression or when the combination of the expression with a specific input value generates an error, no output value will be shown in the *compose expression* window. A specific error message will be displayed to indicate the issue, and the register definition will be highlighted in red, which allows the user to easily identify and correct any errors in the expression. It's important to test the expression before using it to log data, to ensure that it is working correctly and producing the desired results.
+If an expression or a test input causes an error, no output is shown in the *compose expression* window and the error message is displayed.
 
 ## Configure connection settings
 
 The *connection settings* window allows you to configure up to three connections, which means that several Modbus slaves can be polled in a single log session. Each connection can be configured with the specific interface to the slave. ModbusScope supports Modbus TCP and RTU. Modbus ASCII isn't supported.
 
-Some settings such as ip, port, port name, baud rate, parity and number of data and stop bits are specific to the type of connection (TCP or RTU) and are used to establish a connection to the slave device. The other settings such as slave ID, timeout, max consecutive registers, and 32-bit little-endian, are specific to the Modbus protocol implementation in the device and are used to configure how the application communicates with the slave device.
+Some settings — such as IP, port, port name, baud rate, parity, and the number of data bits and stop bits — are specific to the connection type (TCP or RTU) and are used to establish the connection.
+
+The other settings such as slave ID, timeout, max consecutive registers, and 32-bit little-endian, are specific to the Modbus protocol implementation in the device and are used to configure how the application communicates with the slave device.
 
 The timeout settings determine how long the application will wait for a response from the slave before timing out. It is possible to read multiple consecutive registers in a single request in Modbus. However, most devices have a limit on the number of consecutive registers that can be read in a single request. This limit is referred to as the *maximum consecutive registers*.
 
@@ -184,10 +188,6 @@ In the *register settings* window, you can link each register to a specific conn
 
 ![image](../_static/user_manual/connection_settings.png)
 
-### Known limitation
-
-A known limitation of ModbusScope is that a COM port can't be shared between connections. This means that it isn't possible to poll multiple Modbus devices that are connected on the same serial bus.
-
 ## Configure log settings
 
 *ModbusScope* creates a data file in the general temporary folder by default when a logging session is started. The data points are appended to the file during the logging session, so that the data can be recovered in case of an unforeseen crash or if the user forgets to save the data before quitting the application. The temporary file is cleared every time a polling session is started, so that new data can be logged. Some of this behavior can be customized in the *log settings* window. The user can choose to disable the feature or change the location of the temporary data file. This allows the user to ensure that the data is saved in a location that is convenient for them.
@@ -196,7 +196,7 @@ In the *log settings* window, this behavior can be disabled or the temporary dat
 
 ![image](../_static/user_manual/log_settings.png)
 
-By default, *ModbusScope* will log data points every 250 milliseconds. This is the default sample rate and it can be adjusted in the *log settings* window. The user can increase or decrease the sample rate to suit their needs. Additionally, by default, *ModbusScope* will log timestamps relative to the start of the log session. This means that the time-stamp of each data point is recorded as the time elapsed since the start of the logging session. However, this behavior can be changed by enabling the *use absolute times* option in the *log settings* window. When this option is enabled, absolute timestamps are logged instead, meaning that the actual date and time of each data point is recorded in the log file.
+By default, *ModbusScope* will log data points every 250 milliseconds. This is the default sample rate and it can be adjusted in the *log settings* window. The user can increase or decrease the sample rate to suit their needs. Additionally, by default, *ModbusScope* will log timestamps relative to the start of the log session. This means that the timestamp of each data point is recorded as the time elapsed since the start of the logging session. However, this behavior can be changed by enabling the *use absolute times* option in the *log settings*. When this option is enabled, absolute timestamps are logged instead, meaning that the actual date and time of each data point is recorded in the log file.
 
 This feature allows the user to choose the time-stamp format that is most appropriate for their use case and to easily compare the logged data with other data that may have been collected at different times.
 
@@ -212,7 +212,7 @@ During a logging session, various errors may occur. To facilitate quick examinat
 
 ## Logs window
 
-Opening the *diagnostic logs* windows can be done with *Help > Diagnostic logs...*
+Opening the *diagnostic logs* window can be done via *Help > Diagnostic logs...*.
 
 ![image](../_static/user_manual/diagnostic_logs.png)
 
@@ -279,7 +279,7 @@ Time (ms);Datapoint 1;Datapoint 2;Datapoint 3
 
 #### Settings
 
-Since there is no standard for the contents of *.csv* file, some settings needs to filled in to be able to correctly parse time data.
+Since there is no standard for the contents of a .csv file, some settings need to be filled in to correctly parse time data.
 
 * Comment String
   * Symbol(s) in the beginning of a line that indicate(s) that a line should be ignored when parsing.
@@ -292,9 +292,9 @@ Since there is no standard for the contents of *.csv* file, some settings needs 
 * Label row
   * This setting indicates the row with the labels (names) for the graphs.
   * Can be used to skip header lines in the file.
-  * The label row should contain the same number of fields as the data rows
+  * The label row should contain the same number of fields as the data rows.
 
-  * Data row
+* Data row
   * Similar to the label row, but for the data
 
 ### Functionality
@@ -307,7 +307,7 @@ When analyzing several data files of which the settings can't be auto-detected, 
 
 ### Locations
 
-*ModbusScope* searches for the `presets.xml` configuration file in 2 specific locations. The first location is the documents folder of the current Windows user: `C:/Users/<USER>/Documents/`. The preset configuration file should be in a subfolder named `ModbusScope`. When the preset configuration file isn't found, *ModbusScope* will try to find the file in the same location as the main executable of *ModbusScope*. When the file isn't found in both location, *ModbusScope* will use the built-in presets. When a valid preset configuration file has been found, the built-in presets will be replaced will the preset mentioned in this file.
+*ModbusScope* searches for the `presets.xml` configuration file in 2 specific locations. The first location is the documents folder of the current Windows user: `C:/Users/<USER>/Documents/`. The preset configuration file should be in a subfolder named `ModbusScope`. When the preset configuration file isn't found, *ModbusScope* will try to find the file in the same location as the main executable of *ModbusScope*. When the file isn't found in both locations, *ModbusScope* will use the built-in presets. When a valid preset configuration file has been found, the built-in presets will be replaced with the preset mentioned in this file.
 
 ### Keyword
 
