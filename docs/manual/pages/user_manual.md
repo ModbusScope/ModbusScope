@@ -177,31 +177,60 @@ If an expression or a test input causes an error, no output is shown in the *com
 
 ## Configure connection settings
 
-The *connection settings* window allows you to configure up to three connections, which means that several Modbus slaves can be polled in a single log session. Each connection can be configured with the specific interface to the slave. ModbusScope supports Modbus TCP and RTU. Modbus ASCII isn't supported.
+*Open Settings > Connection to configure connection-related options.*
 
-Some settings — such as IP, port, port name, baud rate, parity, and the number of data bits and stop bits — are specific to the connection type (TCP or RTU) and are used to establish the connection.
+Each of the up to three connections can be configured independently. Common fields in the Connection section:
 
-The other settings such as slave ID, timeout, max consecutive registers, and 32-bit little-endian, are specific to the Modbus protocol implementation in the device and are used to configure how the application communicates with the slave device.
+* Enabled: Enable or disable this connection (used when starting/stopping polling).
+  * Not possible for connection 1.
+* Name: A user-friendly name to identify the connection in lists and dialogs.
+* Protocol: Select TCP for Modbus TCP/IP or RTU for Modbus RTU (serial). Modbus ASCII is not supported.
+* IP address (TCP only): The IPv4 address or hostname of the Modbus TCP slave.
+* Port (TCP only): TCP port used by the slave (default Modbus port is 502).
+* Serial port (RTU only): The local serial port name (e.g., COM1, /dev/ttyS0) used for RTU.
+* Baud rate (RTU only): Serial communication speed (e.g., 9600, 19200).
+* Parity (RTU only): Serial parity (None, Even, Odd) which must match the serial bus configuration.
+* Data bits (RTU only): Number of data bits per serial frame (commonly 7 or 8).
+* Stop bits (RTU only): Number of stop bits per serial frame (commonly 1 or 2).
+* Persistent connection: When enabled, the connection (TCP socket or serial port) stays open between poll cycles to reduce connection overhead. The connection will be reinitialized on error.
+* Poll interval / Sample rate: Controls how often the connection is polled (overall session sample rate is influenced by number of registers and connection timing).
 
-The timeout settings determine how long the application will wait for a response from the slave before timing out. It is possible to read multiple consecutive registers in a single request in Modbus. However, most devices have a limit on the number of consecutive registers that can be read in a single request. This limit is referred to as the *maximum consecutive registers*.
+Notes:
 
-In Modbus, 32-bit values are stored in two consecutive 16-bit registers, in either big-endian or little-endian format. In some devices, 32-bit values are stored in big-endian format by default, while in others they are stored in little-endian format. The 32-bit endianness setting in *ModbusScope* allows you to configure the endianness of the 32-bit values read from the registers, so that the application can correctly interpret the data.
-
-The persistent connection option is specific to *ModbusScope*. When enabled, it allows the application to keep the connection open between polling data points, which can increase the polling rate and reduce the time required to establish new connections. The connection will only be reinitialized when a connection error occurs. It's important to ensure that the connection settings are correct and that the correct protocol is selected before starting a log session. With correct configuration, the application will be able to communicate with the slave device and retrieve data from the registers.
-
-In the *register settings* window, you can link each register to a specific connection. This allows you to poll multiple slaves simultaneously and display the data in a single graph for easy comparison.
+* Device-scoped parameters (Slave ID defaults, Timeout, Max consecutive registers, 32-bit endianness) are configured in Settings > Device.
 
 ![image](../_static/user_manual/connection_settings.png)
 
+## Device settings
+
+*Open Settings > Device to configure device-specific options (slave ID defaults, timeouts, maximum consecutive registers and 32-bit endianness).*
+
+The device settings control parameters that affect Modbus protocol behavior for polled devices:
+
+* Slave ID: unit/slave address.
+* Timeout: how long the application will wait for a response from a slave before reporting a timeout.
+* Max consecutive registers: limit on how many consecutive registers to request in a single Modbus read (some devices impose a per-request limit).
+* 32-bit little-endian: controls how two consecutive 16-bit registers are combined into 32-bit values.
+
+These settings allow ModbusScope to adapt reads to device limitations and to correctly interpret multi-register values.
+
+Notes:
+
+* In Register settings you link a register to one of these devices so ModbusScope knows which configuration to use for each read.
+
+![image](../_static/user_manual/device_settings.png)
+
 ## Configure log settings
 
-*ModbusScope* creates a data file in the general temporary folder by default when a logging session is started. The data points are appended to the file during the logging session, so that the data can be recovered in case of an unforeseen crash or if the user forgets to save the data before quitting the application. The temporary file is cleared every time a polling session is started, so that new data can be logged. Some of this behavior can be customized in the *log settings* window. The user can choose to disable the feature or change the location of the temporary data file. This allows the user to ensure that the data is saved in a location that is convenient for them.
+*Open Settings > Log to configure logging options (sample rate, temporary file behavior, timestamp mode).*
 
-In the *log settings* window, this behavior can be disabled or the temporary data file can be changed.
+*ModbusScope* creates a data file in the general temporary folder by default when a logging session is started. The data points are appended to the file during the logging session, so that the data can be recovered in case of an unforeseen crash or if the user forgets to save the data before quitting the application. The temporary file is cleared every time a polling session is started, so that new data can be logged. Some of this behavior can be customized in the *log settings*. The user can choose to disable the feature or change the location of the temporary data file. This allows the user to ensure that the data is saved in a location that is convenient for them.
+
+In the *log settings*, this behavior can be disabled or the temporary data file can be changed.
 
 ![image](../_static/user_manual/log_settings.png)
 
-By default, *ModbusScope* will log data points every 250 milliseconds. This is the default sample rate and it can be adjusted in the *log settings* window. The user can increase or decrease the sample rate to suit their needs. Additionally, by default, *ModbusScope* will log timestamps relative to the start of the log session. This means that the timestamp of each data point is recorded as the time elapsed since the start of the logging session. However, this behavior can be changed by enabling the *use absolute times* option in the *log settings*. When this option is enabled, absolute timestamps are logged instead, meaning that the actual date and time of each data point is recorded in the log file.
+By default, *ModbusScope* will log data points every 250 milliseconds. This is the default sample rate and it can be adjusted in the *log settings*. The user can increase or decrease the sample rate to suit their needs. Additionally, by default, *ModbusScope* will log timestamps relative to the start of the log session. This means that the timestamp of each data point is recorded as the time elapsed since the start of the logging session. However, this behavior can be changed by enabling the *use absolute times* option in the *log settings*. When this option is enabled, absolute timestamps are logged instead, meaning that the actual date and time of each data point is recorded in the log file.
 
 This feature allows the user to choose the time-stamp format that is most appropriate for their use case and to easily compare the logged data with other data that may have been collected at different times.
 
