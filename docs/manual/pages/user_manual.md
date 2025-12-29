@@ -4,7 +4,7 @@
 
 The *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/ModbusScope/ModbusScope/releases).
 
-ModbusScope can be easily installed by double-clicking on the provided `.msi` installer file and following the on-screen instructions. The installer will handle the installation of all necessary files on your computer. At the end of the install process, you have the option to set ModbusScope as the default application for opening `.mbs` files.
+ModbusScope can be easily installed by double-clicking on the provided installer file and following the on-screen instructions. The installer will handle the installation of all necessary files on your computer. At the end of the install process, you have the option to set ModbusScope as the default application for opening `.mbs` files.
 
 ## Getting started
 
@@ -12,11 +12,16 @@ ModbusScope can be easily installed by double-clicking on the provided `.msi` in
 
 ![image](../_static/user_manual/modbusscope.png)
 
-### Configuring Modbus Connection
+### Configuring Modbus connection and device
 
-1. Open the configuration settings.
-2. Enter the details of your connection to the Modbus device, such as IP address and port.
-3. Save the configuration.
+1. Open the settings
+2. Configure connection
+   1. Enter the details of your connection to the Modbus device
+
+3. Add device
+   1. Add device and configure accordingly
+
+4. Save the configuration.
 
 ### Configure Modbus registers
 
