@@ -64,7 +64,7 @@ Compared to the x-axis, the y-axis has two similar settings: *full auto-scale* a
 * *Window auto-scale* automatically adjusts the range of the y-axis based on the values currently visible in the graph.
 * *Limit from* setting allows the user to set the minimum and maximum values for the y-axis.
 
-There are 2 Y-axis available, one for each graph, and the user can select which Y-axis to use per graph. This can be done in the *register* dialog or by double clicking the Y-axis indicator in the legend.
+There are two Y-axes available, one for each graph, and the user can select which Y-axis to use per graph. This can be done in the *register* dialog or by double-clicking the Y-axis indicator in the legend.
 
 ## Zoom graph
 
@@ -140,7 +140,7 @@ Following types for holding and input registers are currently supported by Modbu
 
 * `f32b`: 32-bit float (IEEE 754)
 
-For coils and discrete inputs, the register type is ignored. The endianness of 32-bit registers can be configured per connection with the `32-bit little endian` setting in the connection settings dialog. The register type is ignored for coils and discrete inputs.
+For coils and discrete inputs, the register type is ignored. The endianness of 32-bit registers can be configured per connection with the `32-bit little-endian` setting in the connection settings dialog. The register type is ignored for coils and discrete inputs.
 
 ### Expressions
 
@@ -166,13 +166,13 @@ This window can be opened by double-clicking the expression cell in the register
 
 #### Expression error
 
-When an error is detected in the expression or when the combination of the expression with a specific input value generates an error, no output value will be shown in the *compose expression* window. A specific error message will be displayed to indicate the issue, and the register definition will be highlighted in red, this allows the user to easily identify and correct any errors in the expression. It's important to test the expression before using it log data, to ensure that it is working correctly and producing the desired results.
+When an error is detected in the expression or when the combination of the expression with a specific input value generates an error, no output value will be shown in the *compose expression* window. A specific error message will be displayed to indicate the issue, and the register definition will be highlighted in red, which allows the user to easily identify and correct any errors in the expression. It's important to test the expression before using it to log data, to ensure that it is working correctly and producing the desired results.
 
 ## Configure connection settings
 
-The *connection settings* window allows you to configure up to three connections, which means that several Modbus slaves can be polled in a single log session. Each connection can be configured with the specific interface to the slave. ModbusScope support Modbus TCP and RTU. Modbus ASCII isn't supported.
+The *connection settings* window allows you to configure up to three connections, which means that several Modbus slaves can be polled in a single log session. Each connection can be configured with the specific interface to the slave. ModbusScope supports Modbus TCP and RTU. Modbus ASCII isn't supported.
 
-Some settings such as ip, port, port name, baud rate, parity and number of data and stop bits are specific to the type of connection (TCP or RTU) and are used to establish a connection to the slave device. The other settings such as slave ID, timeout, max consecutive register, and 32-bit little endian, are specific to the Modbus protocol implementation in the device and are used to configure how the application communicates with the slave device.
+Some settings such as ip, port, port name, baud rate, parity and number of data and stop bits are specific to the type of connection (TCP or RTU) and are used to establish a connection to the slave device. The other settings such as slave ID, timeout, max consecutive registers, and 32-bit little-endian, are specific to the Modbus protocol implementation in the device and are used to configure how the application communicates with the slave device.
 
 The timeout settings determine how long the application will wait for a response from the slave before timing out. It is possible to read multiple consecutive registers in a single request in Modbus. However, most devices have a limit on the number of consecutive registers that can be read in a single request. This limit is referred to as the *maximum consecutive registers*.
 
@@ -186,7 +186,7 @@ In the *register settings* window, you can link each register to a specific conn
 
 ### Known limitation
 
-A known limitation of ModbusScope is that a COM port can't be shared between connections. This means that it isn't possible to poll multiple modbus devices that are connected on the same serial bus.
+A known limitation of ModbusScope is that a COM port can't be shared between connections. This means that it isn't possible to poll multiple Modbus devices that are connected on the same serial bus.
 
 ## Configure log settings
 
@@ -236,7 +236,7 @@ Current log results can be exported as an image or as data (`.csv`) file. You ca
 
 ## Import register definitions from *mbc* file
 
-*ModbusControl* is a proprietary application that isn't available  for the general public. It can be used to read and write data from Modbus slaves. It is possible to import the register definitions from a *ModbusControl* project file (`.mbc`) into *ModbusScope* by clicking on *Import from .mbc file* in the register dialog or by dragging and dropping the `.mbc` file into the main screen of *ModbusScope*. This makes it easy to add register definitions to *ModbusScope* from a *ModbusControl* project file.
+*ModbusControl* is a proprietary application that isn't available for the general public. It can be used to read and write data from Modbus slaves. It is possible to import the register definitions from a *ModbusControl* project file (`.mbc`) into *ModbusScope* by clicking on *Import from .mbc file* in the register dialog or by dragging and dropping the `.mbc` file into the main screen of *ModbusScope*. This makes it easy to add register definitions to *ModbusScope* from a *ModbusControl* project file.
 
 ![image](../_static/user_manual/import_from_mbc_dialog.png)
 
@@ -286,16 +286,16 @@ Since there is no standard for the contents of *.csv* file, some settings needs 
   * Shouldn't be longer than 2 characters.
 
 * Time stamp column
-  * Sometimes the time data isn't in the first column. This setting can be used to select to correct column.
+  * Sometimes the time data isn't in the first column. This setting can be used to select the correct column.
   * All columns to the right of the time data column will be parsed for data
 
 * Label row
   * This setting indicates the row with the labels (names) for the graphs.
   * Can be used to skip header lines in the file.
-  * The label row should contains the same number of fields as the data rows
+  * The label row should contain the same number of fields as the data rows
 
-* Data row
-  * Similar to the the label row, but for the data
+  * Data row
+  * Similar to the label row, but for the data
 
 ### Functionality
 
