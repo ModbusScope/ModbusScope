@@ -1,8 +1,8 @@
 #include "registervaluehandler.h"
 
+#include "communication/modbusdataunit.h"
 #include "models/settingsmodel.h"
 #include "util/modbusdatatype.h"
-#include "util/modbusdataunit.h"
 
 using State = ResultState::State;
 using connectionId_t = ConnectionTypes::connectionId_t;

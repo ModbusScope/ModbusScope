@@ -1,6 +1,7 @@
 #include "modbusconnectionfake.h"
 
-#include "util/modbusdataunit.h"
+#include "communication/modbusdataunit.h"
+
 #include <QVariant>
 
 using RegisterType = QModbusDataUnit::RegisterType;

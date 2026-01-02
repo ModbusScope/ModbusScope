@@ -1,7 +1,7 @@
 
 #include "tst_modbusdataunit.h"
 
-#include "util/modbusdataunit.h"
+#include "communication/modbusdataunit.h"
 
 #include <QTest>
 

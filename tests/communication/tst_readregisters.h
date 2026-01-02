@@ -2,7 +2,7 @@
 #ifndef TEST_READREGISTERS_H__
 #define TEST_READREGISTERS_H__
 
-#include "util/modbusdataunit.h"
+#include "communication/modbusdataunit.h"
 
 #include <QObject>
 
