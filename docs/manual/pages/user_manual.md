@@ -12,23 +12,25 @@ ModbusScope can be easily installed by double-clicking on the provided installer
 
 ![image](../_static/user_manual/modbusscope.png)
 
-### Configuring Modbus connection and device
+### Configuring Modbus connection, devices, and registers
 
-1. Open the settings
-2. Configure connection
-   1. Enter the details of your connection to the Modbus device
+To set up ModbusScope, follow these steps in order:
 
-3. Add device
-   1. Add device and configure accordingly
+1. **Configure your connection** — Open *Settings > Connection* and enter the details of how to communicate with your Modbus device (e.g., TCP address/port or serial settings).
 
-4. Save the configuration.
+2. **Add and configure devices** — Open *Settings > Device* and add a device for each Modbus slave you want to communicate with. Configure device-specific settings like the slave ID and timeout. Link the device to the connection you created in step 1.
+
+3. **Add registers** — Open *Register Settings* and add the Modbus registers you want to monitor. Each register specifies which device to read from. You can customize the register name, color, data type, and optionally apply calculations.
+
+4. **Save the configuration** — Save your setup using *File > Save Project As...*.
 
 ### Configure Modbus registers
 
-1. Use the register settings window to add the desired Modbus registers
-   1. Change name, color, type, etc.
+Once you have set up your connections and devices, you can add Modbus registers using the register settings window. For each register you can:
 
-   2. Optionally perform some calculation on the register.
+* Change the name, color, and data type
+* Specify which device the register belongs to
+* Optionally perform calculations on the register data
 
 ### Logging Data
 
@@ -45,7 +47,7 @@ ModbusScope can be easily installed by double-clicking on the provided installer
 
 ## Start/stop log
 
-Once you have added the desired Modbus registers, you can begin logging data by pressing the *Start Logging* button. ModbusScope will communicate with the Modbus slave specified in the connection settings. The Modbus slave can be connected through a TCP or RTU (serial) connection. Once the *Start Logging* button is pressed, ModbusScope will start logging the data and will automatically display the values on the graph.
+Once you have added the desired Modbus registers, you can begin logging data by pressing the *Start Logging* button. ModbusScope will communicate with each Modbus slave specified in your registers. Each device is connected through a TCP or RTU (serial) connection as configured. Once the *Start Logging* button is pressed, ModbusScope will start logging the data and will automatically display the values on the graph.
 
 > **NOTE**: When you press the *Start Logging* button, it will clear any data that is already present in the graph and start logging new data.
 
@@ -100,26 +102,30 @@ When you first open *ModbusScope*, no Modbus registers are added. To add registe
 
 In the *Register settings* dialog, you can add Modbus registers either manually or by importing them from a *.mbc* file. When you open a *.mbs* file in *ModbusScope*, some registers may already be present in the dialog, which allows you to continue working with the previously used registers.
 
-Once the registers have been added, you can adjust them as needed. This includes updating the name and changing the color. Expressions are used to define which data is added to the graph (and log).
+Once the registers have been added, you can adjust them as needed. This includes:
 
-> **NOTE**: The number of registers that are polled can greatly impact the sample rate. To achieve a higher resolution in time, you can either reduce the number of actively polled registers or make sure that the registers are in consecutive addresses so that they can be polled in one packet. This will help to increase the sample rate and improve the resolution of the data.
+* **Name and color**: Give each register a meaningful name and choose a color for its graph line
+* **Expression**: Optionally define a calculation or transformation of the raw register data
+* **Y-axis**: Select which Y-axis is used for this register
+
+> **NOTE**: The number of registers that are actively polled can greatly impact the sample rate. To achieve a higher resolution in time, you can either reduce the number of actively polled registers or make sure that the registers are in consecutive addresses so that they can be polled in one packet. This will help to increase the sample rate and improve the resolution of the data.
 
 ![image](../_static/user_manual/add_register_dialog.png)
 
 #### Object types
 
-In *ModbusScope*, a register expression has the form `${REG[@CONN][:TYPE]}`:
+In *ModbusScope*, a register expression has the form `${REG[@DEVICE][:TYPE]}`:
 
 * REG — the Modbus address (use either Modicon notation or prefix notation, see below).
-* @CONN — optional connection number (1..3) to choose which configured connection to use.
+* @DEVICE — optional device id to specify which configured device to read from. If not specified, the first device is used.
 * :TYPE — optional data type/size: 16b, s16b, 32b, s32b, f32b (see list below). For coils/discrete inputs the type is ignored.
 
 Examples:
 
-* `${45332}` → 16-bit unsigned, connection 1
-* `${45332: s16b}` → 16-bit signed, connection 1
-* `${45332@2: 32b}` → 32-bit unsigned, connection 2
-* `${45332@2}` → 16-bit unsigned, connection 2
+* `${45332}` → 16-bit unsigned, device 1
+* `${45332: s16b}` → 16-bit signed, device 1
+* `${45332@2: 32b}` → 32-bit unsigned, device 2
+* `${45332@3}` → 16-bit unsigned, device 3
 
 ##### Register address
 
@@ -179,7 +185,9 @@ If an expression or a test input causes an error, no output is shown in the *com
 
 *Open Settings > Connection to configure connection-related options.*
 
-Each of the up to three connections can be configured independently. Common fields in the Connection section:
+Connections define **how** ModbusScope communicates with external devices. Each connection can be configured independently to use either TCP (Modbus TCP/IP) or RTU (serial) communication.
+
+Common connection settings:
 
 * Enabled: Enable or disable this connection (used when starting/stopping polling).
   * Not possible for connection 1.
@@ -195,28 +203,40 @@ Each of the up to three connections can be configured independently. Common fiel
 * Persistent connection: When enabled, the connection (TCP socket or serial port) stays open between poll cycles to reduce connection overhead. The connection will be reinitialized on error.
 * Poll interval / Sample rate: Controls how often the connection is polled (overall session sample rate is influenced by number of registers and connection timing).
 
-Notes:
-
-* Device-scoped parameters (Slave ID defaults, Timeout, Max consecutive registers, 32-bit endianness) are configured in Settings > Device.
+> **Note**: Devices are linked to connections in the Device settings. Each device specifies which connection to use for communication and configures device-specific parameters like Slave ID, Timeout, Max consecutive registers, and 32-bit endianness.
 
 ![image](../_static/user_manual/connection_settings.png)
 
 ## Device settings
 
-*Open Settings > Device to configure device-specific options (slave ID defaults, timeouts, maximum consecutive registers and 32-bit endianness).*
+*Open Settings > Device to configure device-specific options and link devices to connections.*
 
-The device settings control parameters that affect Modbus protocol behavior for polled devices:
+### Understanding Devices
 
-* Slave ID: unit/slave address.
-* Timeout: how long the application will wait for a response from a slave before reporting a timeout.
-* Max consecutive registers: limit on how many consecutive registers to request in a single Modbus read (some devices impose a per-request limit).
-* 32-bit little-endian: controls how two consecutive 16-bit registers are combined into 32-bit values.
+A device represents a single Modbus slave (external equipment like a heat pump, sensor, or controller) that you want to communicate with. Each device has its own configuration settings and is linked to a communication connection. This separation enables you to:
 
-These settings allow ModbusScope to adapt reads to device limitations and to correctly interpret multi-register values.
+* Configure multiple devices with different Modbus settings, even if they share the same connection
+* Manage Modbus protocol parameters on a per-device basis
+
+### Device Configuration Options
+
+The device settings control parameters that affect Modbus protocol behavior:
+
+* **Name**: A user-friendly identifier for the device
+* **Connection**: Which connection to use for communicating with this device
+* **Slave ID**: The Modbus unit/slave address (typically 1, but can be different for each device on the same physical connection)
+* **Timeout**: How long ModbusScope will wait for a response from the slave before reporting a timeout error
+* **Max consecutive registers**: Limit on how many consecutive registers to request in a single Modbus read (some devices limit this due to memory constraints)
+* **32-bit little-endian**: Controls whether 32-bit values are stored in little-endian or big-endian byte order (must match your device's configuration)
+
+### Working with Devices
+
+When you add a register, you specify which device it belongs to. ModbusScope will use the device's settings (slave ID, timeout, connection, etc.) when reading that register. This allows different registers to use different devices and different protocol settings as needed.
 
 Notes:
 
-* In Register settings you link a register to one of these devices so ModbusScope knows which configuration to use for each read.
+* In Register settings, you link a register to a device by using the `@DEVICE` syntax in the expression (e.g., `${40001@2}` or `${40001@3}`).
+* You must configure at least one device before adding registers.
 
 ![image](../_static/user_manual/device_settings.png)
 
