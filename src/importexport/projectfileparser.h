@@ -1,8 +1,8 @@
 #ifndef PROJECTFILEPARSER_H
 #define PROJECTFILEPARSER_H
 
+#include "importexport/generalerror.h"
 #include "importexport/projectfiledata.h"
-#include "util/generalerror.h"
 
 #include <QColor>
 #include <QDomDocument>
