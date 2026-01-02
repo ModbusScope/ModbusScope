@@ -4,7 +4,7 @@
 
 The *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/ModbusScope/ModbusScope/releases).
 
-ModbusScope can be easily installed by double-clicking on the provided installer file and following the on-screen instructions. The installer will handle the installation of all necessary files on your computer. At the end of the install process, you have the option to set ModbusScope as the default application for opening `.mbs` files.
+ModbusScope can be easily installed by double-clicking on the provided installer file and following the on-screen instructions. The installer will handle the installation of all necessary files on your computer. At the end of the installation process, you have the option to set ModbusScope as the default application for opening `.mbs` files.
 
 ## Getting started
 
@@ -96,7 +96,7 @@ Once you have added the markers by using the `Ctrl` key and left or right mouse 
 
 ## Configure register settings
 
-When you first open *ModbusScope*, no Modbus registers are added. To add registers, click on *Register Settings* in the tool-bar on the interface. This will open a window where you can add and edit the registers that you want to monitor.
+When you first open *ModbusScope*, no Modbus registers are added. To add registers, click on *Register Settings* in the toolbar on the interface. This will open a window where you can add and edit the registers that you want to monitor.
 
 ### Add Modbus registers
 
@@ -357,7 +357,7 @@ Since there is no standard for the contents of a .csv file, some settings need t
 
 ## Presets
 
-When analyzing several data files of which the settings can't be auto-detected, it is handy to save the settings as a preset. *ModbusScope* allows to create a configuration file with custom presets. This configuration file will be loaded when opening a datafile and the correct preset can be selected. It is also possible to configure a keyword per preset. When a data file name contains the keyword, the preset will be automatically selected.
+When analyzing several data files of which the settings can't be auto-detected, it is handy to save the settings as a preset. *ModbusScope* allows you to create a configuration file with custom presets. This configuration file will be loaded when opening a datafile and the correct preset can be selected. It is also possible to configure a keyword per preset. When a data file name contains the keyword, the preset will be automatically selected.
 
 ### Locations
 
