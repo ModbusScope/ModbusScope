@@ -18,15 +18,15 @@ To set up ModbusScope, follow these steps in order:
 
 1. **Configure your connection** — Open *Settings > Connection* and enter the details of how to communicate with your Modbus device (e.g., TCP address/port or serial settings).
 
-2. **Add and configure devices** — Open *Settings > Device* and add a device for each Modbus slave you want to communicate with. Configure device-specific settings like the slave ID and timeout. Link the device to the connection you created in step 1.
+2. **Add and configure devices** — Open *Settings > Device* and add a device for each Modbus slave you need to communicate with. Configure device-specific settings like the slave ID and timeout. Link the device to the connection you created in step 1.
 
-3. **Add registers** — Open *Register Settings* and add the Modbus registers you want to monitor. Each register specifies which device to read from. You can customize the register name, color, data type, and optionally apply calculations.
+3. **Add registers** — Open *Register Settings* and add the Modbus registers to monitor. Each register specifies which device to read from. You can customize the register name, color, data type, and optionally apply calculations.
 
 4. **Save the configuration** — Save your setup using *File > Save Project As...*.
 
 ### Configure Modbus registers
 
-Once you have set up your connections and devices, you can add Modbus registers using the register settings window. For each register you can:
+Once you have set up your connections and devices, you can add Modbus registers using the register settings window. For each register, you can:
 
 * Change the name, color, and data type
 * Specify which device the register belongs to
@@ -35,7 +35,7 @@ Once you have set up your connections and devices, you can add Modbus registers 
 ### Logging Data
 
 1. Click on the "Start Logging" button.
-2. Visualize the data in real-time using the provided tools
+2. View the data as it is logged in real time using the provided tools
    1. Adjust the time or value axis scale
 
 ### Exporting Data
@@ -78,7 +78,7 @@ There are two Y-axes available, one for each graph, and the user can select whic
 
 The graph-view in *ModbusScope* supports zooming to allow for a more detailed examination of the logged data. By using the scroll wheel on your mouse, both the x- and y-axis can switch to manual setting and the range of the axis will be increased or decreased based on the scroll wheel movement. The current position of the mouse cursor is used as a reference point for the zoom action, allowing you to focus on specific areas of the graph.
 
-*ModbusScope* allows you to select a single axis to zoom in and out of by clicking on it. This means that when you use the mouse wheel, only the selected axis will be zoomed while the range of the other axis will remain the same. To deselect an axis, you can click anywhere in the graph view. Double-clicking an axis will reset it to full auto-scale setting.
+*ModbusScope* allows you to select a single axis to zoom in and out of by clicking on it. This means that when you use the mouse wheel, only the selected axis will be zoomed, while the range of the other axis will remain the same. To deselect an axis, you can click anywhere in the graph view. Double-clicking an axis will reset it to full auto-scale setting.
 
 The *Zoom* button in *ModbusScope* allows the user to zoom in on a specific region of the graph by drawing a rectangle over the area of interest using the mouse. This makes it easy to focus on a specific section of the data.
 
@@ -116,9 +116,9 @@ Once the registers have been added, you can adjust them as needed. This includes
 
 In *ModbusScope*, a register expression has the form `${REG[@DEVICE][:TYPE]}`:
 
-* REG — the Modbus address (use either Modicon notation or prefix notation, see below).
-* @DEVICE — optional device id to specify which configured device to read from. If not specified, the first device is used.
-* :TYPE — optional data type/size: 16b, s16b, 32b, s32b, f32b (see list below). For coils/discrete inputs the type is ignored.
+* `REG` — the Modbus address (use either Modicon notation or prefix notation, see below).
+* `@DEVICE` — optional device id to specify which configured device to read from. If not specified, the first device is used.
+* `:TYPE` — optional data type/size: 16b, s16b, 32b, s32b, f32b (see list below). For coils/discrete inputs, the type is ignored.
 
 Examples:
 
@@ -132,7 +132,7 @@ Examples:
 Two notations are supported:
 
 * Modicon 5-digit (compact): encodes object type and address in one number (limited to 1–9999 per field).
-* Prefix notation (full range): use a letter prefix and the full 0–65535 address, e.g. `c0..c65535`, `d0..d65535`, `i0..i65535`, `h0..h65535`.
+* Prefix notation (full range): use a letter prefix and the full 0–65535 address, e.g. `c0–c65535`, `d0–d65535`, `i0–i65535`, `h0–h65535`.
 
 ModbusScope will prefer the Modicon 5-digit form when the address fits; otherwise it will use the prefix form.
 
@@ -145,7 +145,7 @@ ModbusScope will prefer the Modicon 5-digit form when the address fits; otherwis
 
 ##### Supported register types
 
-Following types for holding and input registers are currently supported by ModbusScope:
+ModbusScope currently supports the following types for holding and input registers:
 
 * `16b`: Unsigned 16-bit value
 * `s16b`: Signed 16-bit
@@ -157,9 +157,9 @@ For coils and discrete inputs, the register type is ignored. The endianness of 3
 
 ### Expressions
 
-Expressions are used to define calculations or transformations of data in *ModbusScope*. They can be used to convert raw data from a Modbus register into a more meaningful value, or to perform mathematical operations on multiple registers. These expressions can be defined using a variety of mathematical operators and functions, as well as references to specific registers. For example, you could use an expression to calculate the power usage of a system by multiplying the voltage and current readings from two different registers.
+Expressions are used to define calculations or transformations of data in *ModbusScope*. They can be used to convert raw data from a Modbus register into a more meaningful value, or to perform mathematical operations on multiple registers. These expressions can be defined using several mathematical operators and functions, as well as references to specific registers. For example, you could use an expression to calculate the power usage of a system by multiplying the voltage and current readings from two different registers.
 
-*ModbusScope* supports a variety of binary operators that are commonly used in expressions such as `|` for bitwise OR, `&` for bitwise AND, `<<` for bitwise left shift, and `>>` for bitwise right shift. It also supports basic arithmetic operators like `+`, `-`, `*`, `/`, `%`, and `^` for addition, subtraction, multiplication, division, modulus and exponentiation respectively. In addition to the above operators, *ModbusScope* also supports hexadecimal numbers represented with the `0x` prefix and binary numbers represented with `0b` prefix. It also supports floating-point numbers; use either a decimal point (.) or a comma (,) as the decimal separator. The parser uses the first separator encountered in a number.
+*ModbusScope* supports various binary operators that are commonly used in expressions such as `|` for bitwise OR, `&` for bitwise AND, `<<` for bitwise left shift, and `>>` for bitwise right shift. It also supports basic arithmetic operators like `+`, `-`, `*`, `/`, `%`, and `^` for addition, subtraction, multiplication, division, modulus and exponentiation respectively. In addition to the above operators, *ModbusScope* also supports hexadecimal numbers represented with the `0x` prefix and binary numbers represented with `0b` prefix. It also supports floating-point numbers; use either a decimal point (.) or a comma (,) as the decimal separator. The parser uses the first separator encountered in a number.
 
 Some examples of valid expressions are
 
@@ -244,15 +244,15 @@ Notes:
 
 *Open Settings > Log to configure logging options (sample rate, temporary file behavior, timestamp mode).*
 
-*ModbusScope* creates a data file in the general temporary folder by default when a logging session is started. The data points are appended to the file during the logging session, so that the data can be recovered in case of an unforeseen crash or if the user forgets to save the data before quitting the application. The temporary file is cleared every time a polling session is started, so that new data can be logged. Some of this behavior can be customized in the *log settings*. The user can choose to disable the feature or change the location of the temporary data file. This allows the user to ensure that the data is saved in a location that is convenient for them.
+*ModbusScope* creates a data file in the general temporary folder by default when a logging session is started. The data points are appended to the file during the logging session so that the data can be recovered in case of an unforeseen crash or if the user forgets to save the data before quitting the application. The temporary file is cleared every time a polling session is started so that new data can be logged. Some of this behavior can be customized in the *log settings*. The user can choose to disable the feature or change the location of the temporary data file. This allows the user to ensure that the data is saved in a location that is convenient for them.
 
 In the *log settings*, this behavior can be disabled or the temporary data file can be changed.
 
 ![image](../_static/user_manual/log_settings.png)
 
-By default, *ModbusScope* will log data points every 250 milliseconds. This is the default sample rate and it can be adjusted in the *log settings*. The user can increase or decrease the sample rate to suit their needs. Additionally, by default, *ModbusScope* will log timestamps relative to the start of the log session. This means that the timestamp of each data point is recorded as the time elapsed since the start of the logging session. However, this behavior can be changed by enabling the *use absolute times* option in the *log settings*. When this option is enabled, absolute timestamps are logged instead, meaning that the actual date and time of each data point is recorded in the log file.
+By default, *ModbusScope* will log data points every 250 milliseconds. This is the default sample rate, and it can be adjusted in the *log settings*. The user can increase or decrease the sample rate to suit their needs. Additionally, by default, *ModbusScope* will log timestamps relative to the start of the log session. This means that the timestamp of each data point is recorded as the time elapsed since the start of the logging session. However, this behavior can be changed by enabling the *use absolute times* option in the *log settings*. When this option is enabled, absolute timestamps are logged instead, meaning that the actual date and time of each data point is recorded in the log file.
 
-This feature allows the user to choose the time-stamp format that is most appropriate for their use case and to easily compare the logged data with other data that may have been collected at different times.
+This configuration allows you to choose the timestamp format (relative or absolute) that is most appropriate for your use case and to easily compare logged data collected at different times.
 
 ### Optimize logging interval
 
@@ -290,13 +290,13 @@ Current log results can be exported as an image or as data (`.csv`) file. You ca
 
 ## Import register definitions from *mbc* file
 
-*ModbusControl* is a proprietary application that isn't available for the general public. It can be used to read and write data from Modbus slaves. It is possible to import the register definitions from a *ModbusControl* project file (`.mbc`) into *ModbusScope* by clicking on *Import from .mbc file* in the register dialog or by dragging and dropping the `.mbc` file into the main screen of *ModbusScope*. This makes it easy to add register definitions to *ModbusScope* from a *ModbusControl* project file.
+*ModbusControl* is a proprietary application not available to the public. It can be used to read and write data from Modbus slaves. It is possible to import the register definitions from a *ModbusControl* project file (`.mbc`) into *ModbusScope* by clicking on *Import from .mbc file* in the register dialog or by dragging and dropping the `.mbc` file into the main screen of *ModbusScope*. This makes it easy to add register definitions to *ModbusScope* from a *ModbusControl* project file.
 
 ![image](../_static/user_manual/import_from_mbc_dialog.png)
 
 # Open data file
 
-When a data file that was created by *ModbusScope* is opened, the data will be loaded automatically. This can be done by selecting *File* > *Open Data File...* or by dragging the file into the application. If the file format is not compatible with *ModbusScope*, the program will try to automatically determine the necessary settings for parsing the file. This includes the field and decimal separators. These settings can be adjusted manually if needed. Once the settings are configured, the rest of the file will be loaded and the data can be viewed in the graph as with a normal *ModbusScope* log.
+When a data file that was created by *ModbusScope* is opened, the data will be loaded automatically. This can be done by selecting *File* > *Open Data File...* or by dragging the file into the application. If the file format is incompatible with *ModbusScope*, the program will automatically determine the necessary settings for parsing the file. This includes the field and decimal separators. These settings can be adjusted manually if needed. Once the settings are configured, the rest of the file will be loaded and the data can be viewed in the graph as with a normal *ModbusScope* log.
 
 ![image](../_static/user_manual/import_csv.png)
 
@@ -306,7 +306,7 @@ The format of a `.csv` file can vary, so correct settings must be in place for p
 
 ### Locale related
 
-Depending on the configured region, the format of the data will be different. To provide maximum flexibility when opening a data file, *ModbusScope* allows to freely select these settings.
+Depending on the configured region, the format of the data will be different. To provide maximum flexibility when opening a data file, *ModbusScope* allows you to select these settings freely.
 
 * Field separator
   * A symbol used to separate data fields from each other.
@@ -315,11 +315,11 @@ Depending on the configured region, the format of the data will be different. To
   * A symbol used to separate the integer part from the fractional part of a number written in decimal form (e.g., "." in 12.45).
 
 * Thousand separator
-  * A symbol used to create a division between groups of digits. In this case
+  * A symbol used to separate groups of digits (e.g., "." in 1.000).
 
 ### File structure related
 
-*ModbusScope* is able to process and read data from a `.csv` file if it's formatted in a similar way to the files exported by *ModbusScope*. This includes having a column for timestamps and one or more columns for data.
+*ModbusScope* can read data from a `.csv` file if it's formatted similarly to the files exported by *ModbusScope*. This includes having a column for timestamps and one or more columns for data.
 
 #### Supported data file format
 
@@ -336,7 +336,7 @@ Time (ms);Datapoint 1;Datapoint 2;Datapoint 3
 Since there is no standard for the contents of a .csv file, some settings need to be filled in to correctly parse time data.
 
 * Comment String
-  * Symbol(s) in the beginning of a line that indicate(s) that a line should be ignored when parsing.
+  * Symbol(s) at the beginning of a line that indicate(s) that a line should be ignored when parsing.
   * Shouldn't be longer than 2 characters.
 
 * Time stamp column
@@ -345,7 +345,7 @@ Since there is no standard for the contents of a .csv file, some settings need t
 
 * Label row
   * This setting indicates the row with the labels (names) for the graphs.
-  * Can be used to skip header lines in the file.
+  * It can be used to skip header lines in the file.
   * The label row should contain the same number of fields as the data rows.
 
 * Data row
@@ -357,7 +357,7 @@ Since there is no standard for the contents of a .csv file, some settings need t
 
 ## Presets
 
-When analyzing several data files of which the settings can't be auto-detected, it is handy to save the settings as a preset. *ModbusScope* allows you to create a configuration file with custom presets. This configuration file will be loaded when opening a datafile and the correct preset can be selected. It is also possible to configure a keyword per preset. When a data file name contains the keyword, the preset will be automatically selected.
+When analyzing several data files of which the settings can't be auto-detected, it's useful to save the settings as a preset. *ModbusScope* allows you to create a configuration file with custom presets. This configuration file loads when opening a datafile, and you can select the correct preset. You can also configure a keyword per preset; if a data file name contains the keyword, the preset will be automatically selected.
 
 ### Locations
 
