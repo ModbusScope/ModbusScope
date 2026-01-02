@@ -1,8 +1,8 @@
 #ifndef MODBUSCONNECTION_H
 #define MODBUSCONNECTION_H
 
+#include "communication/modbusdataunit.h"
 #include "models/connectiontypes.h"
-#include "util/modbusdataunit.h"
 #include <QModbusClient>
 #include <QModbusDevice>
 #include <QModbusReply>

@@ -1,7 +1,7 @@
 #ifndef MODBUSRESULTMAP_H
 #define MODBUSRESULTMAP_H
 
-#include "util/modbusdataunit.h"
+#include "communication/modbusdataunit.h"
 #include "util/result.h"
 #include <QMap>
 
