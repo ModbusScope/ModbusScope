@@ -361,7 +361,7 @@ When analyzing several data files of which the settings can't be auto-detected, 
 
 ### Locations
 
-*ModbusScope* searches for the `presets.xml` configuration file in 2 specific locations. The first location is the documents folder of the current Windows user: `C:/Users/<USER>/Documents/`. The preset configuration file should be in a subfolder named `ModbusScope`. When the preset configuration file isn't found, *ModbusScope* will try to find the file in the same location as the main executable of *ModbusScope*. When the file isn't found in both locations, *ModbusScope* will use the built-in presets. When a valid preset configuration file has been found, the built-in presets will be replaced with the preset mentioned in this file.
+*ModbusScope* searches for the `presets.xml` configuration file in 2 specific locations. The first location is the documents folder of the current Windows user: `C:/Users/<USER>/Documents/`. The preset configuration file should be in a subfolder named `ModbusScope*. If the preset configuration file isn't found in either location, *ModbusScope* will try to find the file in the same location as the main executable. If unsuccessful, *ModbusScope* will use the built-in presets. For valid preset configuration files found, the built-in presets will be replaced with the one specified in the file.
 
 ### Keyword
 
