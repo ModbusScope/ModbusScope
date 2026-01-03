@@ -15,9 +15,9 @@ include_directories(
 
 add_xtest(tst_communicationstats)
 add_xtest(tst_communication ${TEST_SRCS})
-add_xtest(tst_graphdatahandler)
 add_xtest(tst_modbusconnection ${TEST_SRCS})
 add_xtest(tst_modbusdatatype)
+add_xtest(tst_modbusdataunit)
 add_xtest(tst_modbusmaster ${TEST_SRCS})
 add_xtest(tst_modbusmasterfake ${TEST_SRCS} ${FAKE_SRCS})
 add_xtest(tst_modbuspoll ${TEST_SRCS})

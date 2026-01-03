@@ -1,12 +1,12 @@
 
 #include "dialogs/mainwindow.h"
 #include "communication/communicationstats.h"
-#include "communication/graphdatahandler.h"
 #include "communication/modbuspoll.h"
 #include "customwidgets/markerinfo.h"
 #include "customwidgets/mostrecentmenu.h"
 #include "customwidgets/notesdock.h"
 #include "customwidgets/statusbar.h"
+#include "datahandling/graphdatahandler.h"
 #include "dialogs/aboutdialog.h"
 #include "dialogs/diagnosticdialog.h"
 #include "dialogs/importmbcdialog.h"

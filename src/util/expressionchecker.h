@@ -1,7 +1,7 @@
 #ifndef EXPRESSION_CHECKER_H
 #define EXPRESSION_CHECKER_H
 
-#include "communication/graphdatahandler.h"
+#include "datahandling/graphdatahandler.h"
 #include "models/graphdatamodel.h"
 #include <QObject>
 

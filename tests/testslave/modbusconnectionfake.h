@@ -2,8 +2,8 @@
 #define MODBUSCONNECTIONFAKE_H
 
 #include "communication/modbusconnection.h"
+#include "communication/modbusdataunit.h"
 #include "testdevice.h"
-#include "util/modbusdataunit.h"
 
 using SlaveDeviceMap = QMap<ModbusAddress::slaveId_t, TestDevice*>;
 

@@ -1,7 +1,7 @@
 #ifndef MODBUSDATAUNIT_H
 #define MODBUSDATAUNIT_H
 
-#include "modbusaddress.h"
+#include "util/modbusaddress.h"
 
 class ModbusDataUnit : public ModbusAddress
 {

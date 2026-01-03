@@ -1,7 +1,7 @@
 
 #include "tst_expressionparser.h"
 
-#include "util/expressionparser.h"
+#include "datahandling/expressionparser.h"
 
 #include <QTest>
 

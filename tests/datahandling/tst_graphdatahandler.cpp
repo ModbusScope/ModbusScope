@@ -1,8 +1,8 @@
 
 #include "tst_graphdatahandler.h"
 
-#include "communication/graphdatahandler.h"
-#include "communicationhelpers.h"
+#include "../communication/communicationhelpers.h"
+#include "datahandling/graphdatahandler.h"
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
 
