@@ -1,8 +1,8 @@
 #include "graphdatahandler.h"
 
+#include "datahandling/expressionparser.h"
+#include "datahandling/qmuparser.h"
 #include "models/graphdatamodel.h"
-#include "util/expressionparser.h"
-#include "util/qmuparser.h"
 #include "util/scopelogging.h"
 
 #include <QRegularExpression>
