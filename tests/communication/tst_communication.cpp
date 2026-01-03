@@ -1,9 +1,9 @@
 
 #include "tst_communication.h"
 
-#include "communication/graphdatahandler.h"
 #include "communication/modbuspoll.h"
 #include "communicationhelpers.h"
+#include "datahandling/graphdatahandler.h"
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
 

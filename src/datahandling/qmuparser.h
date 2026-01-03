@@ -3,8 +3,8 @@
 
 #include <QObject>
 
-#include "muparserregister.h"
-#include "result.h"
+#include "datahandling/muparserregister.h"
+#include "util/result.h"
 
 class QMuParser
 {
