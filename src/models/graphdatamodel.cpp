@@ -128,7 +128,7 @@ QVariant GraphDataModel::headerData(int section, Qt::Orientation orientation, in
             case column::ACTIVE:
                 return QString("Active");
             case column::TEXT:
-                return QString("Text");
+                return QString("Name");
             case column::EXPRESSION:
                 return QString("Expression");
             case column::VALUE_AXIS:
