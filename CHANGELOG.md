@@ -1,24 +1,23 @@
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/ModbusScope/ModbusScope/releases).
 
-## [Unreleased]
+## [v4.2.0](https://github.com/jgeudens/ModbusScope/releases/tag/4.2.0) (09/01/2026)
 
 ### Added 
 
-* xx
-
-### Fixed
-
-* xx
+* Added concept of devices to allow polling multiple devices on a single connection
 
 ### Changed
 
-* Rework of settings dialogs
+* Major rework of settings window
+  * Combined several settings dialogs into one window
+
+* Major refactor of documentation and user manual
 * Improve note handling (more padding, round values to less decimals)
 * Update default colours of graphs
 
 ### Removed
 
-* xx
+* Replaced workaround to force light theme with standard function
 
 ## [v4.1.1](https://github.com/jgeudens/ModbusScope/releases/tag/4.1.1) (11/09/2025)
 
