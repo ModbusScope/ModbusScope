@@ -2,7 +2,7 @@
 #define GRAPHDATAHANDLER_H
 
 #include "communication/modbusregister.h"
-#include "util/qmuparser.h"
+#include "datahandling/qmuparser.h"
 #include "util/result.h"
 
 //Forward declaration

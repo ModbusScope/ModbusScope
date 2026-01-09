@@ -1,7 +1,7 @@
 
 #include "modbusconnection.h"
 
-#include "util/modbusdataunit.h"
+#include "communication/modbusdataunit.h"
 #include "util/scopelogging.h"
 
 #include <QModbusRtuSerialClient>

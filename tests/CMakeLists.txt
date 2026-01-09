@@ -57,6 +57,7 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../src/dialogs ${CMAK
 
 add_subdirectory(communication)
 add_subdirectory(customwidgets)
+add_subdirectory(datahandling)
 add_subdirectory(dialogs)
 add_subdirectory(importexport)
 add_subdirectory(models)
