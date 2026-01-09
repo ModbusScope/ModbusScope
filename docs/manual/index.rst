@@ -16,10 +16,5 @@ ModbusScope documentation
    :caption: Contents:
 
    Download <pages/download>
-   Overview <pages/overview>
-   Graphview <pages/graphview>
-   Configuration <pages/configuration>
-   Diagnostics <pages/diagnostics>
-   Importing and Exporting <pages/importing_and_exporting>
-   Open data file <pages/open_data_file>
+   User Manual <pages/user_manual>
    Release notes <pages/changelog_link>
