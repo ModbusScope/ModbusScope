@@ -62,6 +62,13 @@ DiagnosticDialog::DiagnosticDialog(DiagnosticModel* pDiagnosticModel, QWidget* p
     // For rightclick menu
     _pDiagnosticMenu = new QMenu(this);
     _pCopyDiagnosticAction = _pDiagnosticMenu->addAction("Copy");
+    _pCopyDiagnosticAction->setShortcut(QKeySequence::Copy);
+
+    // Make the shortcut active while the dialog (or its children) has focus
+    _pCopyDiagnosticAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    // Register the action with the dialog so WindowShortcut would also work
+    this->addAction(_pCopyDiagnosticAction);
+
     connect(_pCopyDiagnosticAction, &QAction::triggered, this, &DiagnosticDialog::handleCopyDiagnostics);
 
     _pUi->listError->setContextMenuPolicy(Qt::CustomContextMenu);
