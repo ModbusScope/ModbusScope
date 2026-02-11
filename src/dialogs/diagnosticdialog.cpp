@@ -60,12 +60,12 @@ DiagnosticDialog::DiagnosticDialog(DiagnosticModel* pDiagnosticModel, QWidget* p
     setAutoScroll(true);
 
     // For rightclick menu
-    _pDiagnosticMenu = new QMenu(parent);
+    _pDiagnosticMenu = new QMenu(this);
     _pCopyDiagnosticAction = _pDiagnosticMenu->addAction("Copy");
     connect(_pCopyDiagnosticAction, &QAction::triggered, this, &DiagnosticDialog::handleCopyDiagnostics);
 
-    setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, &DiagnosticDialog::customContextMenuRequested, this, &DiagnosticDialog::showContextMenu);
+    _pUi->listError->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(_pUi->listError, &QWidget::customContextMenuRequested, this, &DiagnosticDialog::showContextMenu);
 }
 
 DiagnosticDialog::~DiagnosticDialog()
@@ -188,7 +188,8 @@ void DiagnosticDialog::handleExportLog()
 
 void DiagnosticDialog::showContextMenu(const QPoint& pos)
 {
-    _pDiagnosticMenu->popup(mapToGlobal(pos));
+    QPoint globalPos = _pUi->listError->viewport()->mapToGlobal(pos);
+    _pDiagnosticMenu->popup(globalPos);
 }
 
 void DiagnosticDialog::handleCopyDiagnostics()
