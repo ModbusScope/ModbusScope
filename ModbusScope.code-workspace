@@ -1,0 +1,64 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"c-cpp-flylint.clang.enable": false,
+		"c-cpp-flylint.cppcheck.enable": true,
+		"c-cpp-flylint.flexelint.enable": false,
+		"c-cpp-flylint.flawfinder.enable": false,
+		"c-cpp-flylint.lizard.enable": false,
+		"editor.formatOnSave": false,
+		"[cpp]": {
+			"editor.formatOnSave": true
+		},
+		"files.associations": {
+			"*.h": "cpp"
+		}
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "Debug Qt Application with cppdbg",
+				"type": "cppdbg",
+				"request": "launch",
+				"program": "${command:cmake.launchTargetPath}",
+				"stopAtEntry": false,
+				"cwd": "${workspaceFolder:ModbusScope}",
+				"visualizerFile": "${command:qt-cpp.natvis}",
+				"showDisplayString": true,
+				"linux": {
+					"MIMode": "gdb",
+					"miDebuggerPath": "/usr/bin/gdb",
+				},
+				"windows": {
+					"environment": [
+						{
+							"name": "PATH",
+							"value": "${env:PATH};${command:qt-cpp.qtDir}"
+						},
+						{
+							"name": "QT_QPA_PLATFORM_PLUGIN_PATH",
+							"value": "${command:qt-cpp.QT_QPA_PLATFORM_PLUGIN_PATH}"
+						},
+						{
+							"name": "QML_IMPORT_PATH",
+							"value": "${command:qt-cpp.QML_IMPORT_PATH}"
+						}
+					],
+					"MIMode": "gdb",
+					"miDebuggerPath": "${command:qt-cpp.minGWgdb}"
+				}
+			}
+		]
+	},
+	"extensions": {
+		"recommendations": [
+			"theqtcompany.qt-cpp-pack",
+			"jbenden.c-cpp-flylint"
+		]
+	}
+}
