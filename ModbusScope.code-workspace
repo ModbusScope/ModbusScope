@@ -14,9 +14,9 @@
 		"[cpp]": {
 			"editor.formatOnSave": true
 		},
-		"[h]": {
-			"editor.formatOnSave": true
-		},
+		"files.associations": {
+			"*.h": "cpp"
+		}
 	},
 	"launch": {
 		"version": "0.2.0",
