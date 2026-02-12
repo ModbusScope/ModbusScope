@@ -31,9 +31,8 @@ void ScopeLogging::initLogging(DiagnosticModel* pDiagnosticModel)
     QLoggingCategory::setFilterRules(QStringLiteral("qt.modbus* = true"));
     QLoggingCategory::setFilterRules(QStringLiteral("scope.connection* = false"));
 #else
-    //QLoggingCategory::setFilterRules("*=false\n");
+    // QLoggingCategory::setFilterRules("*=false\n");
 #endif
-
 }
 
 /*!
@@ -45,20 +44,20 @@ void ScopeLogging::setMinimumSeverityLevel(Diagnostic::LogSeverity minSeverity)
     _pDiagnosticModel->setMinimumSeverityLevel(minSeverity);
 }
 
-void ScopeLogging::handleLog(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+void ScopeLogging::handleLog(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
     Diagnostic::LogSeverity logSeverity;
     qint32 offset = static_cast<qint32>(QDateTime::currentMSecsSinceEpoch() - _logStartTime);
 
-    switch(type)
+    switch (type)
     {
-        case QtDebugMsg:
-            logSeverity = Diagnostic::LOG_DEBUG;
-            break;
+    case QtDebugMsg:
+        logSeverity = Diagnostic::LOG_DEBUG;
+        break;
 
-        case QtInfoMsg:
-            logSeverity = Diagnostic::LOG_INFO;
-            break;
+    case QtInfoMsg:
+        logSeverity = Diagnostic::LOG_INFO;
+        break;
 
     case QtWarningMsg:
     default:
@@ -78,10 +77,9 @@ void ScopeLogging::handleLog(QtMsgType type, const QMessageLogContext &context, 
 #endif
 }
 
-namespace ModbusScopeLog
+namespace ModbusScopeLog {
+void messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
-    void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
-    {
-        ScopeLogging::Logger().handleLog(type, context, msg);
-    }
+    ScopeLogging::Logger().handleLog(type, context, msg);
 }
+} // namespace ModbusScopeLog

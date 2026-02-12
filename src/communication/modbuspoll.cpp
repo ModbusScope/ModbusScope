@@ -30,8 +30,6 @@ ModbusPoll::ModbusPoll(SettingsModel * pSettingsModel, QObject *parent) :
         _modbusMasters.append(modbusData);
 
         connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusPollDone, this, &ModbusPoll::handlePollDone);
-        connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusLogError, this, &ModbusPoll::handleModbusError);
-        connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusLogInfo, this, &ModbusPoll::handleModbusInfo);
     }
 
     _activeMastersCount = 0;
@@ -147,16 +145,6 @@ void ModbusPoll::handlePollDone(ModbusResultMap partialResultMap, connectionId_t
 
         _pPollTimer->singleShot(static_cast<int>(waitInterval), this, &ModbusPoll::triggerRegisterRead);
     }
-}
-
-void ModbusPoll::handleModbusError(QString msg)
-{
-    qCWarning(scopeCommConnection) << msg;
-}
-
-void ModbusPoll::handleModbusInfo(QString msg)
-{
-    qCDebug(scopeCommConnection) << msg;
 }
 
 void ModbusPoll::stopCommunication()
