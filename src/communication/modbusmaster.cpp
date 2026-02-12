@@ -237,12 +237,12 @@ void ModbusMaster::logResults(ModbusResultMap const &results)
     emit modbusPollDone(results, _connectionId);
 }
 
-void ModbusMaster::logDebug(QString msg)
+void ModbusMaster::logDebug(const QString& msg)
 {
     qCDebug(scopeCommConnection) << QString("[Conn %0] %1").arg(_connectionId + 1).arg(msg);
 }
 
-void ModbusMaster::logError(QString msg)
+void ModbusMaster::logError(const QString& msg)
 {
     qCWarning(scopeCommConnection) << QString("[Conn %0] %1").arg(_connectionId + 1).arg(msg);
 }

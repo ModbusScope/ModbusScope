@@ -47,8 +47,8 @@ private:
 
     void logResults(const ModbusResultMap &results);
 
-    void logDebug(QString msg);
-    void logError(QString msg);
+    void logDebug(const QString& msg);
+    void logError(const QString& msg);
 
     ConnectionTypes::connectionId_t _connectionId{};
 
