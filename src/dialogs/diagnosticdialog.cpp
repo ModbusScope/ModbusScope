@@ -207,7 +207,8 @@ void DiagnosticDialog::handleCopyDiagnostics()
     QString clipboardText;
     foreach (QModelIndex index, indexlist)
     {
-        clipboardText.append(QString("%1\n").arg(_pDiagnosticModel->toString(index.row())));
+        QModelIndex sourceIndex = _pSeverityProxyFilter->mapToSource(index);
+        clipboardText.append(QString("%1\n").arg(_pDiagnosticModel->toString(sourceIndex.row())));
     }
 
     QClipboard* pClipboard = QGuiApplication::clipboard();
