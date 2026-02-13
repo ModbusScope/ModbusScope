@@ -29,6 +29,8 @@ SolidCompression=yes
 ChangesAssociations=yes
 UninstallDisplayName={#MyAppName}
 ArchitecturesInstallIn64BitMode=x64
+PrivilegesRequired=admin
+UninstallDisplayIcon={app}\{#MyAppExeName}
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
