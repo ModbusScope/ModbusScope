@@ -130,6 +130,11 @@ void DiagnosticModel::setMinimumSeverityLevel(Diagnostic::LogSeverity minSeverit
     _minSeverityLevel = minSeverity;
 }
 
+Diagnostic::LogSeverity DiagnosticModel::minimumSeverityLevel() const
+{
+    return _minSeverityLevel;
+}
+
 /*!
  * \brief Add item to model
  * \param log

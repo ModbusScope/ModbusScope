@@ -2,7 +2,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ## [Unreleased]
 
-### Added 
+### Added
 
 * xx
 
@@ -12,7 +12,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Changed
 
-* xx
+* Improve copying diagnostic logs to the clipboard
 
 ### Removed
 
