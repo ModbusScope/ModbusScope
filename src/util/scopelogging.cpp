@@ -45,6 +45,14 @@ void ScopeLogging::setMinimumSeverityLevel(Diagnostic::LogSeverity minSeverity)
     _pDiagnosticModel->setMinimumSeverityLevel(minSeverity);
 }
 
+/*!
+ * \brief Return minimum severity level of the allowed logs.
+ */
+Diagnostic::LogSeverity ScopeLogging::minimumSeverityLevel() const
+{
+    return _pDiagnosticModel->minimumSeverityLevel();
+}
+
 void ScopeLogging::handleLog(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     Diagnostic::LogSeverity logSeverity;

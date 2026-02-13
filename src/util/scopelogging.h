@@ -20,6 +20,7 @@ public:
 
     void initLogging(DiagnosticModel* pDiagnosticModel);
     void setMinimumSeverityLevel(Diagnostic::LogSeverity minSeverity);
+    Diagnostic::LogSeverity minimumSeverityLevel() const;
 
     void handleLog(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
