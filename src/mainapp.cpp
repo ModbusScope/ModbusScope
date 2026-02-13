@@ -15,12 +15,14 @@
 
 MainApp::MainApp(QStringList cmdArguments, QObject *parent) : QObject(parent)
 {
+    /* Setup diagnostic model and logging before all the rest */
+    _pDiagnosticModel = new DiagnosticModel();
+    ScopeLogging::Logger().initLogging(_pDiagnosticModel);
 
     _pGuiModel = new GuiModel();
     _pSettingsModel = new SettingsModel();
     _pGraphDataModel = new GraphDataModel();
     _pNoteModel = new NoteModel();
-    _pDiagnosticModel = new DiagnosticModel();
     _pDataParserModel = new DataParserModel();
 
     ScopeLogging::Logger().initLogging(_pDiagnosticModel);
