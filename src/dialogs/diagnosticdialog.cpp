@@ -56,6 +56,15 @@ DiagnosticDialog::DiagnosticDialog(DiagnosticModel* pDiagnosticModel, QWidget* p
     connect(_pUi->pushClear, &QPushButton::clicked, this, &DiagnosticDialog::handleClearButton);
     connect(_pUi->pushExport, &QPushButton::clicked, this, &DiagnosticDialog::handleExportLog);
 
+    if (ScopeLogging::Logger().minimumSeverityLevel() >= Diagnostic::LOG_DEBUG)
+    {
+        _pUi->checkDebugLogs->setChecked(true);
+    }
+    else
+    {
+        _pUi->checkDebugLogs->setChecked(false);
+    }
+
     // default to autoscroll
     setAutoScroll(true);
 
@@ -158,10 +167,13 @@ void DiagnosticDialog::handleEnableDebugLog(Qt::CheckState state)
         ScopeLogging::Logger().setMinimumSeverityLevel(Diagnostic::LOG_DEBUG);
 
         _pUi->checkDebug->setChecked(true);
+        _pUi->checkDebug->setEnabled(true);
         handleFilterChange();
     }
     else
     {
+        _pUi->checkDebug->setChecked(false);
+        _pUi->checkDebug->setEnabled(false);
         handleFilterChange();
 
         ScopeLogging::Logger().setMinimumSeverityLevel(Diagnostic::LOG_INFO);
