@@ -56,7 +56,7 @@ DiagnosticDialog::DiagnosticDialog(DiagnosticModel* pDiagnosticModel, QWidget* p
     connect(_pUi->pushClear, &QPushButton::clicked, this, &DiagnosticDialog::handleClearButton);
     connect(_pUi->pushExport, &QPushButton::clicked, this, &DiagnosticDialog::handleExportLog);
 
-    if (ScopeLogging::Logger().minimumSeverityLevel() >= Diagnostic::LOG_DEBUG)
+    if (_pDiagnosticModel->minimumSeverityLevel() >= Diagnostic::LOG_DEBUG)
     {
         _pUi->checkDebugLogs->setChecked(true);
     }
@@ -164,7 +164,7 @@ void DiagnosticDialog::handleEnableDebugLog(Qt::CheckState state)
 {
     if (state == Qt::Checked)
     {
-        ScopeLogging::Logger().setMinimumSeverityLevel(Diagnostic::LOG_DEBUG);
+        _pDiagnosticModel->setMinimumSeverityLevel(Diagnostic::LOG_DEBUG);
 
         _pUi->checkDebug->setChecked(true);
         _pUi->checkDebug->setEnabled(true);
@@ -176,7 +176,7 @@ void DiagnosticDialog::handleEnableDebugLog(Qt::CheckState state)
         _pUi->checkDebug->setEnabled(false);
         handleFilterChange();
 
-        ScopeLogging::Logger().setMinimumSeverityLevel(Diagnostic::LOG_INFO);
+        _pDiagnosticModel->setMinimumSeverityLevel(Diagnostic::LOG_INFO);
     }
 }
 

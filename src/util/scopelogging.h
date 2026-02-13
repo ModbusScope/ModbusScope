@@ -3,13 +3,14 @@
 
 #include <QLoggingCategory>
 
-#include "models/diagnosticmodel.h"
-
 Q_DECLARE_LOGGING_CATEGORY(scopeCommConnection)
 Q_DECLARE_LOGGING_CATEGORY(scopeComm)
 Q_DECLARE_LOGGING_CATEGORY(scopeGeneralInfo)
 Q_DECLARE_LOGGING_CATEGORY(scopePreset)
 Q_DECLARE_LOGGING_CATEGORY(scopeUi)
+
+// forward declaration
+class DiagnosticModel;
 
 class ScopeLogging
 {
@@ -19,8 +20,6 @@ public:
     static ScopeLogging& Logger();
 
     void initLogging(DiagnosticModel* pDiagnosticModel);
-    void setMinimumSeverityLevel(Diagnostic::LogSeverity minSeverity);
-    Diagnostic::LogSeverity minimumSeverityLevel() const;
 
     void handleLog(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
