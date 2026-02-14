@@ -10,6 +10,8 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
+; AppId is syntactically not correct, but it is used in previous releases,
+; we shouldn't change/fix this.
 AppId={{B5B201A8-51DE-418F-8BCF-F46686ED638C}
 AppName={#MyAppName}
 AppVerName="{#MyAppName} {#MyAppVersion}"
@@ -29,6 +31,8 @@ SolidCompression=yes
 ChangesAssociations=yes
 UninstallDisplayName={#MyAppName}
 ArchitecturesInstallIn64BitMode=x64
+PrivilegesRequired=admin
+UninstallDisplayIcon={app}\{#MyAppExeName}
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -38,7 +42,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "mbsfileextension"; Description: "Associate ""mbs"" extension"; GroupDescription: "File extensions:"; Flags: unchecked
 
 [Files]
-Source: "{#MyAppLocation}\*"; DestDir: "{app}\"; Flags: ignoreversion recursesubdirs
+Source: "{#MyAppLocation}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
