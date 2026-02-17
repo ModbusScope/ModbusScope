@@ -88,7 +88,13 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QListView" name="listError"/>
+       <widget class="QListView" name="listError">
+        <property name="font">
+         <font>
+          <family>Adwaita Mono</family>
+         </font>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
