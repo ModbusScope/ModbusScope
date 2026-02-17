@@ -22,6 +22,9 @@
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
        <widget class="QCheckBox" name="checkDebug">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Debug</string>
         </property>
@@ -85,7 +88,13 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QListView" name="listError"/>
+       <widget class="QListView" name="listError">
+        <property name="font">
+         <font>
+          <family>Adwaita Mono</family>
+         </font>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

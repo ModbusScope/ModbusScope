@@ -56,16 +56,32 @@ DiagnosticDialog::DiagnosticDialog(DiagnosticModel* pDiagnosticModel, QWidget* p
     connect(_pUi->pushClear, &QPushButton::clicked, this, &DiagnosticDialog::handleClearButton);
     connect(_pUi->pushExport, &QPushButton::clicked, this, &DiagnosticDialog::handleExportLog);
 
+    if (_pDiagnosticModel->minimumSeverityLevel() >= Diagnostic::LOG_DEBUG)
+    {
+        _pUi->checkDebugLogs->setChecked(true);
+    }
+    else
+    {
+        _pUi->checkDebugLogs->setChecked(false);
+    }
+
     // default to autoscroll
     setAutoScroll(true);
 
     // For rightclick menu
-    _pDiagnosticMenu = new QMenu(parent);
+    _pDiagnosticMenu = new QMenu(this);
     _pCopyDiagnosticAction = _pDiagnosticMenu->addAction("Copy");
+    _pCopyDiagnosticAction->setShortcut(QKeySequence::Copy);
+
+    // Make the shortcut active while the dialog (or its children) has focus
+    _pCopyDiagnosticAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    // Register the action with the dialog so WindowShortcut would also work
+    this->addAction(_pCopyDiagnosticAction);
+
     connect(_pCopyDiagnosticAction, &QAction::triggered, this, &DiagnosticDialog::handleCopyDiagnostics);
 
-    setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, &DiagnosticDialog::customContextMenuRequested, this, &DiagnosticDialog::showContextMenu);
+    _pUi->listError->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(_pUi->listError, &QWidget::customContextMenuRequested, this, &DiagnosticDialog::showContextMenu);
 }
 
 DiagnosticDialog::~DiagnosticDialog()
@@ -148,16 +164,19 @@ void DiagnosticDialog::handleEnableDebugLog(Qt::CheckState state)
 {
     if (state == Qt::Checked)
     {
-        ScopeLogging::Logger().setMinimumSeverityLevel(Diagnostic::LOG_DEBUG);
+        _pDiagnosticModel->setMinimumSeverityLevel(Diagnostic::LOG_DEBUG);
 
         _pUi->checkDebug->setChecked(true);
+        _pUi->checkDebug->setEnabled(true);
         handleFilterChange();
     }
     else
     {
+        _pUi->checkDebug->setChecked(false);
+        _pUi->checkDebug->setEnabled(false);
         handleFilterChange();
 
-        ScopeLogging::Logger().setMinimumSeverityLevel(Diagnostic::LOG_INFO);
+        _pDiagnosticModel->setMinimumSeverityLevel(Diagnostic::LOG_INFO);
     }
 }
 
@@ -188,7 +207,8 @@ void DiagnosticDialog::handleExportLog()
 
 void DiagnosticDialog::showContextMenu(const QPoint& pos)
 {
-    _pDiagnosticMenu->popup(mapToGlobal(pos));
+    QPoint globalPos = _pUi->listError->viewport()->mapToGlobal(pos);
+    _pDiagnosticMenu->popup(globalPos);
 }
 
 void DiagnosticDialog::handleCopyDiagnostics()
@@ -199,7 +219,8 @@ void DiagnosticDialog::handleCopyDiagnostics()
     QString clipboardText;
     foreach (QModelIndex index, indexlist)
     {
-        clipboardText.append(QString("%1\n").arg(_pDiagnosticModel->toString(index.row())));
+        QModelIndex sourceIndex = _pSeverityProxyFilter->mapToSource(index);
+        clipboardText.append(QString("%1\n").arg(_pDiagnosticModel->toString(sourceIndex.row())));
     }
 
     QClipboard* pClipboard = QGuiApplication::clipboard();
