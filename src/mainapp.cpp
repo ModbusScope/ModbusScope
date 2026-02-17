@@ -25,8 +25,6 @@ MainApp::MainApp(QStringList cmdArguments, QObject *parent) : QObject(parent)
     _pNoteModel = new NoteModel();
     _pDataParserModel = new DataParserModel();
 
-    ScopeLogging::Logger().initLogging(_pDiagnosticModel);
-
     _pMainWin = new MainWindow(cmdArguments,
                                _pGuiModel,
                                _pSettingsModel,
