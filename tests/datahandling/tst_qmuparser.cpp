@@ -47,7 +47,6 @@ void TestQMuParser::evaluate_data()
     ADD_TEST("0xff", 255);
     ADD_TEST("0xffFF", 65535);
     ADD_TEST("0xFFFFffff", 4294967295);
-    ADD_TEST("0xff", 255);
     ADD_TEST("10+0xff", 265);
     ADD_TEST("0xff+10", 265);
     ADD_TEST("10*0xff", 2550);
@@ -111,7 +110,7 @@ void TestQMuParser::evaluateSingleRegister_data()
     ADD_REG_TEST("r(0)", 2, 2);
     ADD_REG_TEST("r(0) + 2", 3, 5);
     ADD_REG_TEST("r(0) * 2", 4, 8);
-    ADD_REG_TEST("r(0) * 2", 4.5, 9);
+    ADD_REG_TEST("r(0) * 4", 4.5, 18);
     ADD_REG_TEST("r(0) / 1000", 5, 0.005);
     ADD_REG_TEST("r(0) & 0xFF", 257, 1);
 
@@ -361,6 +360,25 @@ void TestQMuParser::expressionUpdate()
     QVERIFY(parser.isSuccess());
     QVERIFY(bSuccess);
     QCOMPARE(parser.errorType(), QMuParser::ErrorType::NONE);
+}
+
+void TestQMuParser::copyConstructor()
+{
+    QMuParser parser("1 + 2");
+
+    QMuParser copy(parser);
+
+    bool bSuccess = parser.evaluate();
+    QVERIFY(bSuccess);
+
+    bSuccess = copy.evaluate();
+    QVERIFY(bSuccess);
+    QCOMPARE(copy.value(), parser.value());
+    QCOMPARE(copy.isSuccess(), parser.isSuccess());
+    QCOMPARE(copy.msg(), parser.msg());
+    QCOMPARE(copy.errorPos(), parser.errorPos());
+    QCOMPARE(copy.errorType(), parser.errorType());
+    QCOMPARE(copy.errorType(), QMuParser::ErrorType::NONE);
 }
 
 QTEST_GUILESS_MAIN(TestQMuParser)

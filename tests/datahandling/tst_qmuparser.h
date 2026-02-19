@@ -33,6 +33,8 @@ private slots:
     void expressionGet();
     void expressionUpdate();
 
+    void copyConstructor();
+
 private:
 
 

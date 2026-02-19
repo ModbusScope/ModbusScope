@@ -29,7 +29,6 @@ public:
 
     bool evaluate();
 
-    QString originalExpression() const;
     bool isSuccess() const;
     QString msg() const;
     qint32 errorPos() const;
@@ -49,7 +48,6 @@ private:
     bool _bInvalidExpression;
 
     bool _bSuccess;
-    QString _originalExpression;
     double _value;
     QString _msg;
     qint32 _errorPos;

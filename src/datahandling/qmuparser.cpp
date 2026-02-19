@@ -18,14 +18,14 @@ QMuParser::QMuParser(QString strExpression)
     setExpression(strExpression);
 }
 
-QMuParser::QMuParser(const QMuParser &source)
+QMuParser::QMuParser(const QMuParser& source)
     : _pExprParser(new mu::ParserRegister(*source._pExprParser)),
-    _bInvalidExpression(source._bInvalidExpression),
-    _bSuccess(source._bSuccess),
-    _value(source._value),
-    _msg(source._msg),
-    _errorPos(source._errorPos),
-    _errorType(source._errorType)
+      _bInvalidExpression(source._bInvalidExpression),
+      _bSuccess(source._bSuccess),
+      _value(source._value),
+      _msg(source._msg),
+      _errorPos(source._errorPos),
+      _errorType(source._errorType)
 {
 
 }
@@ -42,8 +42,6 @@ void QMuParser::setExpression(QString expr)
 
     const bool bContainsDecimalPoint = expr.contains('.');
     const bool bContainsComma = expr.contains(',');
-
-    _originalExpression = expr;
 
     if (bContainsDecimalPoint && bContainsComma)
     {
@@ -171,11 +169,6 @@ QMuParser::ErrorType QMuParser::errorType() const
 double QMuParser::value() const
 {
     return _value;
-}
-
-QString QMuParser::originalExpression() const
-{
-    return _originalExpression;
 }
 
 bool QMuParser::isSuccess() const
