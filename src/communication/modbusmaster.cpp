@@ -55,7 +55,10 @@ void ModbusMaster::readRegisterList(QList<ModbusDataUnit> registerList, quint8 c
     }
     else if (registerList.size() > 0)
     {
-        logDebug("Register list read: " + dumpToString(registerList));
+        if (scopeCommConnection().isDebugEnabled())
+        {
+            logDebug("Register list read: " + dumpToString(registerList));
+        }
 
         _readRegisters.resetRead(registerList, consecutiveMax);
 
@@ -233,7 +236,11 @@ QString ModbusMaster::dumpToString(QList<ModbusDataUnit> list) const
 
 void ModbusMaster::logResults(ModbusResultMap const &results)
 {
-    logDebug("Result map: " + dumpToString(results));
+    if (scopeCommConnection().isDebugEnabled())
+    {
+        logDebug("Result map: " + dumpToString(results));
+    }
+
     emit modbusPollDone(results, _connectionId);
 }
 
