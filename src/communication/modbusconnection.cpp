@@ -316,8 +316,6 @@ bool ModbusConnection::prepareConnectionOpen()
     {
         bRet = false;
 
-        qCDebug(scopeCommConnection) << "Connection already open";
-
         // Already connected and ready
         emit connectionSuccess();
     }
