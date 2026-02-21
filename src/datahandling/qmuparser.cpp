@@ -166,7 +166,7 @@ bool QMuParser::evaluate()
             const mu::EErrorCodes errCode = e.GetCode();
             if (errCode == mu::ecINTERNAL_ERROR)
             {
-                if (_errorPos >= 0 || static_cast<quint64>(_errorPos) <= e.GetMsg().length())
+                if (_errorPos >= 0 && static_cast<quint64>(_errorPos) <= (e.GetExpr().length() + 1))
                 {
                     _msg = QString("Invalid expression (error at position %1)").arg(_errorPos);
                 }
