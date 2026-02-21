@@ -327,15 +327,6 @@ void TestQMuParser::evaluateDecimalSeparatorCombination()
     QCOMPARE(parser_1.value(), 1.5);
 }
 
-void TestQMuParser::expressionGet()
-{
-    QString expr = QStringLiteral("1.1 + 1,5");
-
-    QMuParser parser(expr);
-
-    QCOMPARE(parser.expression(), expr);
-}
-
 void TestQMuParser::expressionUpdate()
 {
     QMuParser parser("r(0) + 1");
@@ -367,6 +358,27 @@ void TestQMuParser::copyConstructor()
     QMuParser parser("1 + 2");
 
     QMuParser copy(parser);
+
+    bool bSuccess = parser.evaluate();
+    QVERIFY(bSuccess);
+
+    bSuccess = copy.evaluate();
+    QVERIFY(bSuccess);
+    QCOMPARE(copy.value(), parser.value());
+    QCOMPARE(copy.isSuccess(), parser.isSuccess());
+    QCOMPARE(copy.msg(), parser.msg());
+    QCOMPARE(copy.errorPos(), parser.errorPos());
+    QCOMPARE(copy.errorType(), parser.errorType());
+    QCOMPARE(copy.errorType(), QMuParser::ErrorType::NONE);
+}
+
+void TestQMuParser::assignmentOperator()
+{
+    QMuParser parser("1 + 2");
+
+    QMuParser copy("0");
+
+    copy = parser;
 
     bool bSuccess = parser.evaluate();
     QVERIFY(bSuccess);

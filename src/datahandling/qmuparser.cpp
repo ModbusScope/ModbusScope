@@ -7,16 +7,6 @@
 
 ResultDoubleList QMuParser::_registerValues;
 
-/*
-The QMuParser class is a wrapper around muparser that provides an interface to set the expression,
-evaluate it, and retrieve the result and error information. It also allows setting register values
-that can be used in the expression. The class handles syntax errors and other exceptions thrown by
-muparser and provides error messages and positions for easier debugging.
-
-All QMuParser instances share the same register values, which are set through the static method
-setRegistersData.
-*/
-
 QMuParser::QMuParser(QString strExpression)
 {
     mu::ParserRegister::setRegisterCallback(&QMuParser::registerValue);
@@ -37,7 +27,32 @@ QMuParser::QMuParser(const QMuParser& source)
       _errorPos(source._errorPos),
       _errorType(source._errorType)
 {
+}
 
+QMuParser& QMuParser::operator=(const QMuParser& source)
+{
+    if (this == &source)
+    {
+        return *this;
+    }
+
+    mu::ParserRegister* newParser = nullptr;
+    if (source._pExprParser)
+    {
+        newParser = new mu::ParserRegister(*source._pExprParser);
+    }
+
+    delete _pExprParser;
+    _pExprParser = newParser;
+
+    _bInvalidExpression = source._bInvalidExpression;
+    _bSuccess = source._bSuccess;
+    _value = source._value;
+    _msg = source._msg;
+    _errorPos = source._errorPos;
+    _errorType = source._errorType;
+
+    return *this;
 }
 
 QMuParser::~QMuParser()
@@ -45,6 +60,13 @@ QMuParser::~QMuParser()
     delete _pExprParser;
 }
 
+/*!
+ * Sets the expression to be evaluated. If the expression contains both '.' and ',' as decimal separators, it is
+ * considered invalid. The method also sets the appropriate decimal separator for muparser based on the content of the
+ * expression.
+ *
+ * \param expr The expression string to be set for evaluation.
+ */
 void QMuParser::setExpression(QString expr)
 {
     /* Fixed by design */
@@ -82,7 +104,7 @@ void QMuParser::setExpression(QString expr)
         _errorPos = -1;
         _errorType = ErrorType::NONE;
     }
-    catch (mu::Parser::exception_type &e)
+    catch (mu::Parser::exception_type& e)
     {
         _bInvalidExpression = false;
         _errorPos = e.GetPos();
@@ -92,16 +114,23 @@ void QMuParser::setExpression(QString expr)
     reset();
 }
 
+/*!
+ *   Sets the register values that can be used in the expressions. The register values are shared
+ *   across all instances of QMuParser.
+ *
+ *   \param regValues A list of Result<double> objects representing the register values and their validity.
+ */
 void QMuParser::setRegistersData(ResultDoubleList& regValues)
 {
     _registerValues = regValues;
 }
 
-QString QMuParser::expression()
-{
-    return QString::fromStdWString(_pExprParser->GetExpr()).trimmed();
-}
-
+/*!
+ * Evaluates the expression set in the parser. If the expression is invalid due to syntax errors or other issues,
+ * it catches the exceptions thrown by muparser and sets the appropriate error messages and types.
+ *
+ * \return true if the evaluation was successful, false otherwise.
+ */
 bool QMuParser::evaluate()
 {
     reset();
@@ -129,7 +158,7 @@ bool QMuParser::evaluate()
             _errorType = ErrorType::NONE;
             _bSuccess = true;
         }
-        catch (mu::Parser::exception_type &e)
+        catch (mu::Parser::exception_type& e)
         {
             _value = 0;
             _errorPos = e.GetPos();
