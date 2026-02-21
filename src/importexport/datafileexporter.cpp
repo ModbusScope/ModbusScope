@@ -358,7 +358,7 @@ QString DataFileExporter::constructConnSettings(connectionId_t connectionId)
         QString strStopBits;
         connData->serialConnectionStrings(strParity, strDataBits, strStopBits);
 
-        strSettings = QString("%0%1%2%3%4%5%6%7%8")
+        strSettings = QString("%1%2%3%4%5%6%7%8%9")
                         .arg(connData->portName())
                         .arg(Util::separatorCharacter())
                         .arg(connData->baudrate())
@@ -370,10 +370,10 @@ QString DataFileExporter::constructConnSettings(connectionId_t connectionId)
                         .arg(strStopBits);
     }
 
-    return QString("Settings (Connection ID %0)%1%2")
-                          .arg(connectionId + 1)
-                          .arg(Util::separatorCharacter())
-                          .arg(strSettings);
+    return QString("Settings (Connection ID %1)%2%3")
+      .arg(connectionId + 1)
+      .arg(Util::separatorCharacter())
+      .arg(strSettings);
 }
 
 void DataFileExporter::createNoteRows(QStringList& noteRows)
