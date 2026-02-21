@@ -46,8 +46,6 @@ signals:
 
 private slots:
     void handlePollDone(ModbusResultMap partialResultMap, ConnectionTypes::connectionId_t connectionId);
-    void handleModbusError(QString msg);
-    void handleModbusInfo(QString msg);
     void triggerRegisterRead();
 
 private:

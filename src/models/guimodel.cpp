@@ -14,12 +14,11 @@ const quint32 GuiModel::cAverageMask       = 1 << 2;
 const quint32 GuiModel::cMinimumMask       = 1 << 3;
 const quint32 GuiModel::cMaximumMask       = 1 << 4;
 
-const QStringList GuiModel::cMarkerExpressionStrings = QStringList()
-                                                        <<  "Diff: %0\n"
-                                                        <<  "Slope: %0\n"
-                                                        <<  "Avg: %0\n"
-                                                        <<  "Min: %0\n"
-                                                        <<  "Max: %0\n";
+const QStringList GuiModel::cMarkerExpressionStrings = QStringList() << "Diff: %1\n"
+                                                                     << "Slope: %1\n"
+                                                                     << "Avg: %1\n"
+                                                                     << "Min: %1\n"
+                                                                     << "Max: %1\n";
 
 const QList<quint32> GuiModel::cMarkerExpressionBits = QList<quint32>()
                         << GuiModel::cDifferenceMask
@@ -28,8 +27,8 @@ const QList<quint32> GuiModel::cMarkerExpressionBits = QList<quint32>()
                         << GuiModel::cMinimumMask
                         << GuiModel::cMaximumMask
                         ;
-const QString GuiModel::cMarkerExpressionStart = QString("y1: %0\n");
-const QString GuiModel::cMarkerExpressionEnd = QString("y2: %0\n");
+const QString GuiModel::cMarkerExpressionStart = QString("y1: %1\n");
+const QString GuiModel::cMarkerExpressionEnd = QString("y2: %1\n");
 
 GuiModel::GuiModel(QObject *parent) : QObject(parent)
 {

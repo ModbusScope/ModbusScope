@@ -233,7 +233,7 @@ void ModbusConnection::handleConnectionErrorOccurred(QModbusDevice::Error error)
     // Only handle error is latest connection, the rest is automatically closed on state change
     if (senderIdx == _connectionList.size() - 1)
     {
-        handleConnectionError(_connectionList.last(), QString("Error: %0").arg(error));
+        handleConnectionError(_connectionList.last(), QString("Error: %1").arg(error));
     }
 }
 
@@ -315,8 +315,6 @@ bool ModbusConnection::prepareConnectionOpen()
     if (isConnected())
     {
         bRet = false;
-
-        qCDebug(scopeCommConnection) << "Connection already open";
 
         // Already connected and ready
         emit connectionSuccess();
@@ -433,6 +431,6 @@ void ModbusConnection::openConnection(QPointer<ConnectionData> connectionData, q
     if (!_connectionList.last()->pModbusClient->connectDevice())
     {
         auto pClient = _connectionList.last()->pModbusClient.get();
-        handleConnectionError(_connectionList.last(), QString("Connect failed: %0").arg(pClient->error()));
+        handleConnectionError(_connectionList.last(), QString("Connect failed: %1").arg(pClient->error()));
     }
 }

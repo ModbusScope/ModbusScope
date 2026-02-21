@@ -26,7 +26,7 @@ ModbusDataUnit ModbusDataUnit::next(int i) const
 
 QString ModbusDataUnit::toString() const
 {
-    return QString("%0, slave id %1").arg(ModbusAddress::toString()).arg(_slaveId);
+    return QString("%1, slave id %2").arg(ModbusAddress::toString()).arg(_slaveId);
 }
 
 bool operator==(const ModbusDataUnit& unit1, const ModbusDataUnit& unit2)

@@ -4,6 +4,7 @@
 #include "communication/modbusresultmap.h"
 #include "communication/readregisters.h"
 #include "models/settingsmodel.h"
+#include "util/scopelogging.h"
 
 Q_DECLARE_METATYPE(Result<quint16>);
 
@@ -54,7 +55,10 @@ void ModbusMaster::readRegisterList(QList<ModbusDataUnit> registerList, quint8 c
     }
     else if (registerList.size() > 0)
     {
-        logInfo("Register list read: " + dumpToString(registerList));
+        if (scopeCommConnection().isDebugEnabled())
+        {
+            logDebug("Register list read: " + dumpToString(registerList));
+        }
 
         _readRegisters.resetRead(registerList, consecutiveMax);
 
@@ -115,7 +119,7 @@ void ModbusMaster::handlerConnectionError(QModbusDevice::Error error, QString ms
 
 void ModbusMaster::handleRequestSuccess(ModbusDataUnit const& startRegister, QList<quint16> registerDataList)
 {
-    logInfo(QString("Read success"));
+    logDebug(QString("Read success"));
 
     // Success
     _readRegisters.addSuccess(startRegister, registerDataList);
@@ -126,7 +130,7 @@ void ModbusMaster::handleRequestSuccess(ModbusDataUnit const& startRegister, QLi
 
 void ModbusMaster::handleRequestProtocolError(QModbusPdu::ExceptionCode exceptionCode)
 {
-    logError(QString("Modbus Exception: %0").arg(exceptionCode));
+    logError(QString("Modbus Exception: %1").arg(exceptionCode));
 
     if (
         (exceptionCode == QModbusPdu::IllegalDataAddress)
@@ -160,7 +164,7 @@ void ModbusMaster::handleRequestProtocolError(QModbusPdu::ExceptionCode exceptio
 
 void ModbusMaster::handleRequestError(QString errorString, QModbusDevice::Error error)
 {
-    logError(QString("Request Failed:  %0 (%1)").arg(errorString).arg(error));
+    logError(QString("Request Failed:  %1 (%2)").arg(errorString).arg(error));
 
     // When we don't receive an exception, abort read and close connection
     _readRegisters.addAllErrors();
@@ -175,7 +179,8 @@ void ModbusMaster::handleTriggerNextRequest(void)
     {
         ModbusReadItem readItem = _readRegisters.next();
 
-        logInfo("Partial list read: " + QString("Start address (%0) and count (%1)").arg(readItem.address().toString()).arg(readItem.count()));
+        logDebug("Partial list read: " +
+                 QString("Start address (%1) and count (%2)").arg(readItem.address().toString()).arg(readItem.count()));
 
         _pModbusConnection->sendReadRequest(readItem.address(), readItem.count());
     }
@@ -231,16 +236,20 @@ QString ModbusMaster::dumpToString(QList<ModbusDataUnit> list) const
 
 void ModbusMaster::logResults(ModbusResultMap const &results)
 {
-    logInfo("Result map: " + dumpToString(results));
+    if (scopeCommConnection().isDebugEnabled())
+    {
+        logDebug("Result map: " + dumpToString(results));
+    }
+
     emit modbusPollDone(results, _connectionId);
 }
 
-void ModbusMaster::logInfo(QString msg)
+void ModbusMaster::logDebug(const QString& msg)
 {
-    emit modbusLogInfo(QString("[Conn %0] %1").arg(_connectionId + 1).arg(msg));
+    qCDebug(scopeCommConnection) << QString("[Conn %1] %2").arg(_connectionId + 1).arg(msg);
 }
 
-void ModbusMaster::logError(QString msg)
+void ModbusMaster::logError(const QString& msg)
 {
-    emit modbusLogError(QString("[Conn %0] %1").arg(_connectionId + 1).arg(msg));
+    qCWarning(scopeCommConnection) << QString("[Conn %1] %2").arg(_connectionId + 1).arg(msg);
 }

@@ -59,14 +59,13 @@ void MarkerInfo::setModel(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel
 
 void MarkerInfo::updateMarkerData()
 {
-    QString timeData = QString(
-                "<b>Time 1</b>: %0<br />"
-                "<b>Time 2</b>: %1<br />"
-                "<b>Time Diff</b>: %2<br />"
-                )
-                .arg(FormatRelativeTime::formatTime(_pGuiModel->startMarkerPos()),
-                     FormatRelativeTime::formatTime(_pGuiModel->endMarkerPos()),
-                     FormatRelativeTime::formatTimeDiff(_pGuiModel->endMarkerPos() - _pGuiModel->startMarkerPos()));
+    QString timeData =
+      QString("<b>Time 1</b>: %1<br />"
+              "<b>Time 2</b>: %2<br />"
+              "<b>Time Diff</b>: %3<br />")
+        .arg(FormatRelativeTime::formatTime(_pGuiModel->startMarkerPos()),
+             FormatRelativeTime::formatTime(_pGuiModel->endMarkerPos()),
+             FormatRelativeTime::formatTimeDiff(_pGuiModel->endMarkerPos() - _pGuiModel->startMarkerPos()));
 
     _pTimeDataLabel->setText(timeData);
 }

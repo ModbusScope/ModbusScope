@@ -7,7 +7,7 @@ deviceId_t const Device::cFirstDeviceId = 1;
 
 Device::Device(deviceId_t devdId)
     : _connectionId(0),
-      _name(QString("Device %0").arg(devdId)),
+      _name(QString("Device %1").arg(devdId)),
       _slaveId(1),
       _consecutiveMax(125),
       _bInt32LittleEndian(true)

@@ -65,4 +65,11 @@ void TestModbusDataUnit::operator_less_than()
     QVERIFY(!(unit3 < unit1));
 }
 
+void TestModbusDataUnit::toString()
+{
+    ModbusDataUnit unit(123, ModbusAddress::ObjectType::INPUT_REGISTER, 42);
+    QString expected = "input register, 123, slave id 42";
+    QCOMPARE(unit.toString(), expected);
+}
+
 QTEST_GUILESS_MAIN(TestModbusDataUnit)
