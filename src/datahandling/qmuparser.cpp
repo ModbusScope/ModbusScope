@@ -120,7 +120,7 @@ void QMuParser::setExpression(QString expr)
  *
  *   \param regValues A list of Result<double> objects representing the register values and their validity.
  */
-void QMuParser::setRegistersData(ResultDoubleList& regValues)
+void QMuParser::setRegistersData(const ResultDoubleList& regValues)
 {
     _registerValues = regValues;
 }

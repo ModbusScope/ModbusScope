@@ -372,6 +372,25 @@ void TestQMuParser::copyConstructor()
     QCOMPARE(copy.errorType(), QMuParser::ErrorType::NONE);
 }
 
+void TestQMuParser::copyConstructorSyntaxError()
+{
+    QMuParser parser("1 +");
+
+    QMuParser copy(parser);
+
+    bool bSuccess = parser.evaluate();
+    QVERIFY(!bSuccess);
+
+    bSuccess = copy.evaluate();
+    QVERIFY(!bSuccess);
+    QCOMPARE(copy.value(), parser.value());
+    QCOMPARE(copy.isSuccess(), parser.isSuccess());
+    QCOMPARE(copy.msg(), parser.msg());
+    QCOMPARE(copy.errorPos(), parser.errorPos());
+    QCOMPARE(copy.errorType(), parser.errorType());
+    QCOMPARE(copy.errorType(), QMuParser::ErrorType::SYNTAX);
+}
+
 void TestQMuParser::assignmentOperator()
 {
     QMuParser parser("1 + 2");
@@ -391,6 +410,27 @@ void TestQMuParser::assignmentOperator()
     QCOMPARE(copy.errorPos(), parser.errorPos());
     QCOMPARE(copy.errorType(), parser.errorType());
     QCOMPARE(copy.errorType(), QMuParser::ErrorType::NONE);
+}
+
+void TestQMuParser::assignmentOperatorSyntaxError()
+{
+    QMuParser parser("1 +");
+
+    QMuParser copy("0");
+
+    copy = parser;
+
+    bool bSuccess = parser.evaluate();
+    QVERIFY(!bSuccess);
+
+    bSuccess = copy.evaluate();
+    QVERIFY(!bSuccess);
+    QCOMPARE(copy.value(), parser.value());
+    QCOMPARE(copy.isSuccess(), parser.isSuccess());
+    QCOMPARE(copy.msg(), parser.msg());
+    QCOMPARE(copy.errorPos(), parser.errorPos());
+    QCOMPARE(copy.errorType(), parser.errorType());
+    QCOMPARE(copy.errorType(), QMuParser::ErrorType::SYNTAX);
 }
 
 QTEST_GUILESS_MAIN(TestQMuParser)

@@ -33,7 +33,9 @@ private slots:
     void expressionUpdate();
 
     void copyConstructor();
+    void copyConstructorSyntaxError();
     void assignmentOperator();
+    void assignmentOperatorSyntaxError();
 
 private:
 

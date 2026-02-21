@@ -30,14 +30,14 @@ public:
     };
 
     explicit QMuParser(QString strExpression);
-    explicit QMuParser(const QMuParser& source);
+    QMuParser(const QMuParser& source);
 
     QMuParser& operator=(const QMuParser& source);
     ~QMuParser();
 
     void setExpression(QString expr);
 
-    static void setRegistersData(ResultDoubleList& regValues);
+    static void setRegistersData(const ResultDoubleList& regValues);
 
     bool evaluate();
 
