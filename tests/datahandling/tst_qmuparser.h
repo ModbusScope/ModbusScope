@@ -30,6 +30,7 @@ private slots:
     void evaluateInvalidBinExpr_2();
 
     void evaluateDecimalSeparatorCombination();
+    void evaluateNaNInf();
     void expressionUpdate();
 
     void copyConstructor();

@@ -150,7 +150,7 @@ bool QMuParser::evaluate()
 
             if (qIsInf(_value) || qIsNaN(_value))
             {
-                throw mu::ParserError(L"Result value is an undefined number. Check input validity.");
+                throw mu::ParserError(L"Result value is an undefined number. Check input validity.", -1, L"");
             }
 
             _msg = QStringLiteral("Success");
@@ -224,7 +224,7 @@ void QMuParser::reset()
 
 void QMuParser::registerValue(int index, double* value, bool* success)
 {
-    if (index < _registerValues.size())
+    if (index >= 0 && index < _registerValues.size())
     {
         *value = _registerValues[index].value();
         *success = _registerValues[index].isValid();

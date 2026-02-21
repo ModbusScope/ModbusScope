@@ -313,6 +313,20 @@ void TestQMuParser::evaluateDivByZero()
     QCOMPARE(parser.errorType(), QMuParser::ErrorType::OTHER);
 }
 
+void TestQMuParser::evaluateNaNInf()
+{
+    QMuParser parser("1e308*1e308");
+
+    bool bSuccess = parser.evaluate();
+
+    QCOMPARE(parser.value(), 0);
+    QVERIFY(!parser.isSuccess());
+    QVERIFY(!bSuccess);
+    QCOMPARE(parser.errorPos(), -1);
+    QCOMPARE(parser.errorType(), QMuParser::ErrorType::OTHER);
+    QCOMPARE(parser.msg(), QStringLiteral("Result value is an undefined number. Check input validity."));
+}
+
 void TestQMuParser::evaluateDecimalSeparatorCombination()
 {
     /* Test for #165 (locale is static) */
