@@ -47,7 +47,6 @@ void TestQMuParser::evaluate_data()
     ADD_TEST("0xff", 255);
     ADD_TEST("0xffFF", 65535);
     ADD_TEST("0xFFFFffff", 4294967295);
-    ADD_TEST("0xff", 255);
     ADD_TEST("10+0xff", 265);
     ADD_TEST("0xff+10", 265);
     ADD_TEST("10*0xff", 2550);
@@ -111,7 +110,7 @@ void TestQMuParser::evaluateSingleRegister_data()
     ADD_REG_TEST("r(0)", 2, 2);
     ADD_REG_TEST("r(0) + 2", 3, 5);
     ADD_REG_TEST("r(0) * 2", 4, 8);
-    ADD_REG_TEST("r(0) * 2", 4.5, 9);
+    ADD_REG_TEST("r(0) * 4", 4.5, 18);
     ADD_REG_TEST("r(0) / 1000", 5, 0.005);
     ADD_REG_TEST("r(0) & 0xFF", 257, 1);
 
@@ -314,6 +313,20 @@ void TestQMuParser::evaluateDivByZero()
     QCOMPARE(parser.errorType(), QMuParser::ErrorType::OTHER);
 }
 
+void TestQMuParser::evaluateNaNInf()
+{
+    QMuParser parser("1e308*1e308");
+
+    bool bSuccess = parser.evaluate();
+
+    QCOMPARE(parser.value(), 0);
+    QVERIFY(!parser.isSuccess());
+    QVERIFY(!bSuccess);
+    QCOMPARE(parser.errorPos(), -1);
+    QCOMPARE(parser.errorType(), QMuParser::ErrorType::OTHER);
+    QCOMPARE(parser.msg(), QStringLiteral("Result value is an undefined number. Check input validity."));
+}
+
 void TestQMuParser::evaluateDecimalSeparatorCombination()
 {
     /* Test for #165 (locale is static) */
@@ -326,15 +339,6 @@ void TestQMuParser::evaluateDecimalSeparatorCombination()
 
     QVERIFY(bSuccess);
     QCOMPARE(parser_1.value(), 1.5);
-}
-
-void TestQMuParser::expressionGet()
-{
-    QString expr = QStringLiteral("1.1 + 1,5");
-
-    QMuParser parser(expr);
-
-    QCOMPARE(parser.expression(), expr);
 }
 
 void TestQMuParser::expressionUpdate()
@@ -361,6 +365,86 @@ void TestQMuParser::expressionUpdate()
     QVERIFY(parser.isSuccess());
     QVERIFY(bSuccess);
     QCOMPARE(parser.errorType(), QMuParser::ErrorType::NONE);
+}
+
+void TestQMuParser::copyConstructor()
+{
+    QMuParser parser("1 + 2");
+
+    QMuParser copy(parser);
+
+    bool bSuccess = parser.evaluate();
+    QVERIFY(bSuccess);
+
+    bSuccess = copy.evaluate();
+    QVERIFY(bSuccess);
+    QCOMPARE(copy.value(), parser.value());
+    QCOMPARE(copy.isSuccess(), parser.isSuccess());
+    QCOMPARE(copy.msg(), parser.msg());
+    QCOMPARE(copy.errorPos(), parser.errorPos());
+    QCOMPARE(copy.errorType(), parser.errorType());
+    QCOMPARE(copy.errorType(), QMuParser::ErrorType::NONE);
+}
+
+void TestQMuParser::copyConstructorSyntaxError()
+{
+    QMuParser parser("1 +");
+
+    QMuParser copy(parser);
+
+    bool bSuccess = parser.evaluate();
+    QVERIFY(!bSuccess);
+
+    bSuccess = copy.evaluate();
+    QVERIFY(!bSuccess);
+    QCOMPARE(copy.value(), parser.value());
+    QCOMPARE(copy.isSuccess(), parser.isSuccess());
+    QCOMPARE(copy.msg(), parser.msg());
+    QCOMPARE(copy.errorPos(), parser.errorPos());
+    QCOMPARE(copy.errorType(), parser.errorType());
+    QCOMPARE(copy.errorType(), QMuParser::ErrorType::SYNTAX);
+}
+
+void TestQMuParser::assignmentOperator()
+{
+    QMuParser parser("1 + 2");
+
+    QMuParser copy("0");
+
+    copy = parser;
+
+    bool bSuccess = parser.evaluate();
+    QVERIFY(bSuccess);
+
+    bSuccess = copy.evaluate();
+    QVERIFY(bSuccess);
+    QCOMPARE(copy.value(), parser.value());
+    QCOMPARE(copy.isSuccess(), parser.isSuccess());
+    QCOMPARE(copy.msg(), parser.msg());
+    QCOMPARE(copy.errorPos(), parser.errorPos());
+    QCOMPARE(copy.errorType(), parser.errorType());
+    QCOMPARE(copy.errorType(), QMuParser::ErrorType::NONE);
+}
+
+void TestQMuParser::assignmentOperatorSyntaxError()
+{
+    QMuParser parser("1 +");
+
+    QMuParser copy("0");
+
+    copy = parser;
+
+    bool bSuccess = parser.evaluate();
+    QVERIFY(!bSuccess);
+
+    bSuccess = copy.evaluate();
+    QVERIFY(!bSuccess);
+    QCOMPARE(copy.value(), parser.value());
+    QCOMPARE(copy.isSuccess(), parser.isSuccess());
+    QCOMPARE(copy.msg(), parser.msg());
+    QCOMPARE(copy.errorPos(), parser.errorPos());
+    QCOMPARE(copy.errorType(), parser.errorType());
+    QCOMPARE(copy.errorType(), QMuParser::ErrorType::SYNTAX);
 }
 
 QTEST_GUILESS_MAIN(TestQMuParser)

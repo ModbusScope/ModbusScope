@@ -18,16 +18,41 @@ QMuParser::QMuParser(QString strExpression)
     setExpression(strExpression);
 }
 
-QMuParser::QMuParser(const QMuParser &source)
+QMuParser::QMuParser(const QMuParser& source)
     : _pExprParser(new mu::ParserRegister(*source._pExprParser)),
-    _bInvalidExpression(source._bInvalidExpression),
-    _bSuccess(source._bSuccess),
-    _value(source._value),
-    _msg(source._msg),
-    _errorPos(source._errorPos),
-    _errorType(source._errorType)
+      _bInvalidExpression(source._bInvalidExpression),
+      _bSuccess(source._bSuccess),
+      _value(source._value),
+      _msg(source._msg),
+      _errorPos(source._errorPos),
+      _errorType(source._errorType)
 {
+}
 
+QMuParser& QMuParser::operator=(const QMuParser& source)
+{
+    if (this == &source)
+    {
+        return *this;
+    }
+
+    mu::ParserRegister* newParser = nullptr;
+    if (source._pExprParser)
+    {
+        newParser = new mu::ParserRegister(*source._pExprParser);
+    }
+
+    delete _pExprParser;
+    _pExprParser = newParser;
+
+    _bInvalidExpression = source._bInvalidExpression;
+    _bSuccess = source._bSuccess;
+    _value = source._value;
+    _msg = source._msg;
+    _errorPos = source._errorPos;
+    _errorType = source._errorType;
+
+    return *this;
 }
 
 QMuParser::~QMuParser()
@@ -35,6 +60,13 @@ QMuParser::~QMuParser()
     delete _pExprParser;
 }
 
+/*!
+ * Sets the expression to be evaluated. If the expression contains both '.' and ',' as decimal separators, it is
+ * considered invalid. The method also sets the appropriate decimal separator for muparser based on the content of the
+ * expression.
+ *
+ * \param expr The expression string to be set for evaluation.
+ */
 void QMuParser::setExpression(QString expr)
 {
     /* Fixed by design */
@@ -42,8 +74,6 @@ void QMuParser::setExpression(QString expr)
 
     const bool bContainsDecimalPoint = expr.contains('.');
     const bool bContainsComma = expr.contains(',');
-
-    _originalExpression = expr;
 
     if (bContainsDecimalPoint && bContainsComma)
     {
@@ -74,7 +104,7 @@ void QMuParser::setExpression(QString expr)
         _errorPos = -1;
         _errorType = ErrorType::NONE;
     }
-    catch (mu::Parser::exception_type &e)
+    catch (mu::Parser::exception_type& e)
     {
         _bInvalidExpression = false;
         _errorPos = e.GetPos();
@@ -84,16 +114,23 @@ void QMuParser::setExpression(QString expr)
     reset();
 }
 
-void QMuParser::setRegistersData(ResultDoubleList& regValues)
+/*!
+ *   Sets the register values that can be used in the expressions. The register values are shared
+ *   across all instances of QMuParser.
+ *
+ *   \param regValues A list of Result<double> objects representing the register values and their validity.
+ */
+void QMuParser::setRegistersData(const ResultDoubleList& regValues)
 {
     _registerValues = regValues;
 }
 
-QString QMuParser::expression()
-{
-    return QString::fromStdWString(_pExprParser->GetExpr()).trimmed();
-}
-
+/*!
+ * Evaluates the expression set in the parser. If the expression is invalid due to syntax errors or other issues,
+ * it catches the exceptions thrown by muparser and sets the appropriate error messages and types.
+ *
+ * \return true if the evaluation was successful, false otherwise.
+ */
 bool QMuParser::evaluate()
 {
     reset();
@@ -113,7 +150,7 @@ bool QMuParser::evaluate()
 
             if (qIsInf(_value) || qIsNaN(_value))
             {
-                throw mu::ParserError(L"Result value is an undefined number. Check input validity.");
+                throw mu::ParserError(L"Result value is an undefined number. Check input validity.", -1, L"");
             }
 
             _msg = QStringLiteral("Success");
@@ -121,7 +158,7 @@ bool QMuParser::evaluate()
             _errorType = ErrorType::NONE;
             _bSuccess = true;
         }
-        catch (mu::Parser::exception_type &e)
+        catch (mu::Parser::exception_type& e)
         {
             _value = 0;
             _errorPos = e.GetPos();
@@ -129,7 +166,7 @@ bool QMuParser::evaluate()
             const mu::EErrorCodes errCode = e.GetCode();
             if (errCode == mu::ecINTERNAL_ERROR)
             {
-                if (_errorPos >= 0 || static_cast<quint64>(_errorPos) <= e.GetMsg().length())
+                if (_errorPos >= 0 && static_cast<quint64>(_errorPos) <= (e.GetExpr().length() + 1))
                 {
                     _msg = QString("Invalid expression (error at position %1)").arg(_errorPos);
                 }
@@ -173,11 +210,6 @@ double QMuParser::value() const
     return _value;
 }
 
-QString QMuParser::originalExpression() const
-{
-    return _originalExpression;
-}
-
 bool QMuParser::isSuccess() const
 {
     return _bSuccess;
@@ -192,7 +224,7 @@ void QMuParser::reset()
 
 void QMuParser::registerValue(int index, double* value, bool* success)
 {
-    if (index < _registerValues.size())
+    if (index >= 0 && index < _registerValues.size())
     {
         *value = _registerValues[index].value();
         *success = _registerValues[index].isValid();

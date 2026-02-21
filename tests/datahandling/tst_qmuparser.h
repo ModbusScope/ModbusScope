@@ -30,8 +30,13 @@ private slots:
     void evaluateInvalidBinExpr_2();
 
     void evaluateDecimalSeparatorCombination();
-    void expressionGet();
+    void evaluateNaNInf();
     void expressionUpdate();
+
+    void copyConstructor();
+    void copyConstructorSyntaxError();
+    void assignmentOperator();
+    void assignmentOperatorSyntaxError();
 
 private:
 

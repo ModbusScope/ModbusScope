@@ -88,8 +88,7 @@ void GraphDataHandler::handleRegisterData(ResultDoubleList results)
         {
             result.setError();
 
-            auto msg = QString("Expression evaluation failed (%1): expression %2")
-                         .arg(parser.msg(), parser.originalExpression());
+            auto msg = QString("Expression evaluation failed (%1)").arg(parser.msg());
 
             qCWarning(scopeComm) << msg;
         }
