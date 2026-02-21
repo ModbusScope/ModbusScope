@@ -189,11 +189,11 @@ void ImportMbcDialog::registerDataChanged()
     const quint32 count = _mbcRegisterModel.selectedRegisterCount();
     if (count == 1)
     {
-        _pUi->lblSelectedCount->setText(QString("You have selected %0 register.").arg(count));
+        _pUi->lblSelectedCount->setText(QString("You have selected %1 register.").arg(count));
     }
     else
     {
-        _pUi->lblSelectedCount->setText(QString("You have selected %0 registers.").arg(count));
+        _pUi->lblSelectedCount->setText(QString("You have selected %1 registers.").arg(count));
     }
 }
 

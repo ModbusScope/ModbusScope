@@ -130,7 +130,7 @@ void ModbusMaster::handleRequestSuccess(ModbusDataUnit const& startRegister, QLi
 
 void ModbusMaster::handleRequestProtocolError(QModbusPdu::ExceptionCode exceptionCode)
 {
-    logError(QString("Modbus Exception: %0").arg(exceptionCode));
+    logError(QString("Modbus Exception: %1").arg(exceptionCode));
 
     if (
         (exceptionCode == QModbusPdu::IllegalDataAddress)
@@ -164,7 +164,7 @@ void ModbusMaster::handleRequestProtocolError(QModbusPdu::ExceptionCode exceptio
 
 void ModbusMaster::handleRequestError(QString errorString, QModbusDevice::Error error)
 {
-    logError(QString("Request Failed:  %0 (%1)").arg(errorString).arg(error));
+    logError(QString("Request Failed:  %1 (%2)").arg(errorString).arg(error));
 
     // When we don't receive an exception, abort read and close connection
     _readRegisters.addAllErrors();
@@ -180,7 +180,7 @@ void ModbusMaster::handleTriggerNextRequest(void)
         ModbusReadItem readItem = _readRegisters.next();
 
         logDebug("Partial list read: " +
-                 QString("Start address (%0) and count (%1)").arg(readItem.address().toString()).arg(readItem.count()));
+                 QString("Start address (%1) and count (%2)").arg(readItem.address().toString()).arg(readItem.count()));
 
         _pModbusConnection->sendReadRequest(readItem.address(), readItem.count());
     }
@@ -246,10 +246,10 @@ void ModbusMaster::logResults(ModbusResultMap const &results)
 
 void ModbusMaster::logDebug(const QString& msg)
 {
-    qCDebug(scopeCommConnection) << QString("[Conn %0] %1").arg(_connectionId + 1).arg(msg);
+    qCDebug(scopeCommConnection) << QString("[Conn %1] %2").arg(_connectionId + 1).arg(msg);
 }
 
 void ModbusMaster::logError(const QString& msg)
 {
-    qCWarning(scopeCommConnection) << QString("[Conn %0] %1").arg(_connectionId + 1).arg(msg);
+    qCWarning(scopeCommConnection) << QString("[Conn %1] %2").arg(_connectionId + 1).arg(msg);
 }

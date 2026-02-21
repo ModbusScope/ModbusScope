@@ -68,7 +68,7 @@ void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
             QString str;
             if (connData->connectionType() == ConnectionTypes::TYPE_TCP)
             {
-                str = QString("[Conn %0] %1:%2").arg(i + 1).arg(connData->ipAddress()).arg(connData->port());
+                str = QString("[Conn %1] %2:%3").arg(i + 1).arg(connData->ipAddress()).arg(connData->port());
             }
             else
             {
@@ -77,7 +77,7 @@ void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
                 QString strStopBits;
                 connData->serialConnectionStrings(strParity, strDataBits, strStopBits);
 
-                str = QString("[Conn %0] %1, %2, %3, %4, %5")
+                str = QString("[Conn %1] %2, %3, %4, %5, %6")
                         .arg(i + 1)
                         .arg(connData->portName())
                         .arg(connData->baudrate())
