@@ -24,7 +24,7 @@ jobs:
       - name: Deploy
         run: bash scripts/deploy_linux.sh
 
-      - uses: actions/upload-artifact@v6.0.0
+      - uses: actions/upload-artifact@v7.0.0
         with:
           name: modbusscope-linux
           path: ModbusScope*.AppImage
@@ -50,7 +50,7 @@ jobs:
         shell: cmd
         run: scripts\full_build_and_deploy_windows.bat '${{ steps.cache.outputs.cache-hit }}' ${{ github.workspace }}\Qt
 
-      - uses: actions/upload-artifact@v6.0.0
+      - uses: actions/upload-artifact@v7.0.0
         with:
           name: modbusscope-windows
           path: |
