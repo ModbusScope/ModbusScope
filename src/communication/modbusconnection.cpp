@@ -86,7 +86,6 @@ void ModbusConnection::close(void)
 {
     if (!_connectionList.isEmpty())
     {
-        qCDebug(scopeCommConnection) << "Connection close: " << _connectionList.last();
         _connectionList.last()->connectionTimeoutTimer.stop();
         _connectionList.last()->pModbusClient->disconnectDevice();
     }
@@ -147,16 +146,6 @@ void ModbusConnection::handleConnectionStateChanged(QModbusDevice::State state)
 {
     QModbusClient* pClient = qobject_cast<QModbusClient*>(QObject::sender());
     const qint32 senderIdx = findConnectionData(nullptr, pClient);
-
-    if (senderIdx != -1)
-    {
-        qCDebug(scopeCommConnection) << "Connection state change: " << _connectionList[senderIdx]
-                                     << ", state: " << state;
-    }
-    else
-    {
-        qCDebug(scopeCommConnection) << "Connection state change: Unknown connection id" << ", state: " << state;
-    }
 
     if (state == QModbusDevice::ConnectingState)
     {
@@ -231,9 +220,9 @@ void ModbusConnection::handleConnectionErrorOccurred(QModbusDevice::Error error)
     const qint32 senderIdx = findConnectionData(nullptr, pClient);
 
     // Only handle error is latest connection, the rest is automatically closed on state change
-    if (senderIdx == _connectionList.size() - 1)
+    if (senderIdx >= 0 && senderIdx == _connectionList.size() - 1)
     {
-        handleConnectionError(_connectionList.last(), QString("Error: %0").arg(error));
+        handleConnectionError(_connectionList.last(), QString("Error: %1").arg(error));
     }
 }
 
@@ -249,7 +238,7 @@ void ModbusConnection::connectionTimeOut()
     pTimeoutTimer->stop();
 
     // Only handle error is latest connection, the rest is automatically closed on state change
-    if (senderIdx == _connectionList.size() - 1)
+    if (senderIdx >= 0 && senderIdx == _connectionList.size() - 1)
     {
         handleConnectionError(_connectionList.last(), QString("Connection timeout"));
     }
@@ -316,8 +305,6 @@ bool ModbusConnection::prepareConnectionOpen()
     {
         bRet = false;
 
-        qCDebug(scopeCommConnection) << "Connection already open";
-
         // Already connected and ready
         emit connectionSuccess();
     }
@@ -372,7 +359,7 @@ ObjectType ModbusConnection::objectType(RegisterType type)
  */
 void ModbusConnection::handleConnectionError(QPointer<ConnectionData> connectionData, QString errMsg)
 {
-    qCDebug(scopeCommConnection) << "Connection error:" << errMsg;
+    qCWarning(scopeCommConnection) << "Connection error:" << errMsg;
 
     if (!connectionData->bConnectionErrorHandled)
     {
@@ -412,6 +399,18 @@ qint32 ModbusConnection::findConnectionData(QTimer* pTimer, QModbusClient* pClie
     return -1;
 }
 
+QString ModbusConnection::connectionSummary() const
+{
+    if (_connectionType == ConnectionTypes::TYPE_TCP)
+    {
+        return QString("TCP %1:%2").arg(_tcpSettings.ip).arg(_tcpSettings.port);
+    }
+    else
+    {
+        return QString("Serial %1 at %2").arg(_serialSettings.portName).arg(_serialSettings.baudrate);
+    }
+}
+
 void ModbusConnection::openConnection(QPointer<ConnectionData> connectionData, quint32 timeout)
 {
     connectionData->pModbusClient->setNumberOfRetries(0);
@@ -425,7 +424,7 @@ void ModbusConnection::openConnection(QPointer<ConnectionData> connectionData, q
 
     _connectionList.append(connectionData);
 
-    qCDebug(scopeCommConnection) << "Connection start: " << _connectionList.last();
+    qCDebug(scopeCommConnection) << "Connection start:" << connectionSummary();
 
     _connectionList.last()->connectionTimeoutTimer.start(static_cast<int>(timeout));
     _bWaitingForConnection = true;
@@ -433,6 +432,6 @@ void ModbusConnection::openConnection(QPointer<ConnectionData> connectionData, q
     if (!_connectionList.last()->pModbusClient->connectDevice())
     {
         auto pClient = _connectionList.last()->pModbusClient.get();
-        handleConnectionError(_connectionList.last(), QString("Connect failed: %0").arg(pClient->error()));
+        handleConnectionError(_connectionList.last(), QString("Connect failed: %1").arg(pClient->error()));
     }
 }

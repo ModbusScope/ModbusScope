@@ -28,8 +28,6 @@ public:
 
 signals:
     void modbusPollDone(ModbusResultMap modbusResults, ConnectionTypes::connectionId_t connectionId);
-    void modbusLogError(QString msg);
-    void modbusLogInfo(QString msg);
     void triggerNextRequest();
 
 private slots:
@@ -49,8 +47,8 @@ private:
 
     void logResults(const ModbusResultMap &results);
 
-    void logInfo(QString msg);
-    void logError(QString msg);
+    void logDebug(const QString& msg);
+    void logError(const QString& msg);
 
     ConnectionTypes::connectionId_t _connectionId{};
 

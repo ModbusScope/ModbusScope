@@ -16,5 +16,7 @@ private slots:
     void operator_equality();
     void operator_less_than();
 
+    void toString();
+
 private:
 };

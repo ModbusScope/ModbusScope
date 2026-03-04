@@ -12,7 +12,9 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Changed
 
+* Rework diagnostic logging to generate fewer logs when extensive logging is disabled
 * Improve copying diagnostic logs to the clipboard
+* Improve enabling debug logs
 
 ### Removed
 

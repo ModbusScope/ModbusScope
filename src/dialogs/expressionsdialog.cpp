@@ -137,7 +137,7 @@ void ExpressionsDialog::handleResultReady(bool valid)
     if (valid)
     {
         strError = "";
-        numOutput = QString("%0").arg(_expressionChecker.result());
+        numOutput = QString("%1").arg(_expressionChecker.result());
         backgroundStyle = "background-color: rgba(0,0,0,0%);";
     }
     else

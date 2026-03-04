@@ -59,8 +59,6 @@ MainApp::~MainApp()
 
 void MainApp::logInitialInfo()
 {
-    qCInfo(scopeGeneralInfo) << QString("App start %1").arg(FormatDateTime::currentDateTime());
-
     qCInfo(scopeGeneralInfo) << QString("ModbusScope v%1").arg(Util::currentVersion());
 #ifdef DEBUG
     qCInfo(scopeGeneralInfo) << QString("DEV git: %1:%2").arg(GIT_BRANCH, GIT_COMMIT_HASH);
@@ -73,5 +71,4 @@ void MainApp::logInitialInfo()
     qCInfo(scopeGeneralInfo) << QString("Locale language code: %1").arg(QLocale().bcp47Name());
     qCInfo(scopeGeneralInfo) << QString("Locale decimal separator: %1").arg(QLocale().decimalPoint());
     qCInfo(scopeGeneralInfo) << QString("Locale group separator: %1").arg(QLocale().groupSeparator());
-
 }

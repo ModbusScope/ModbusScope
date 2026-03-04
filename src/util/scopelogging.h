@@ -21,7 +21,7 @@ public:
 
     void initLogging(DiagnosticModel* pDiagnosticModel);
 
-    void handleLog(QtMsgType type, const QMessageLogContext &context, const QString &msg);
+    void handleLog(QtMsgType type, const QMessageLogContext& context, const QString& msg);
 
 private:
     qint64 _logStartTime;
@@ -35,9 +35,8 @@ inline ScopeLogging& ScopeLogging::Logger()
     return scopeLogger;
 }
 
-namespace ModbusScopeLog
-{
-    void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
+namespace ModbusScopeLog {
+void messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg);
 }
 
 #endif // SCOPELOGGING_H
