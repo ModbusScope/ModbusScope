@@ -62,9 +62,12 @@ void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
 
     for (quint8 i = 0u; i < ConnectionTypes::ID_CNT; i++)
     {
-        auto connData = _pSettingsModel->connectionSettings(i);
-        if (_pSettingsModel->connectionState(i))
+        QList<ModbusDataUnit> addrList;
+        _pRegisterValueHandler->registerAddresListForConnection(addrList, i);
+
+        if (!addrList.isEmpty())
         {
+            auto connData = _pSettingsModel->connectionSettings(i);
             QString str;
             if (connData->connectionType() == ConnectionTypes::TYPE_TCP)
             {

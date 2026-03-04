@@ -83,6 +83,7 @@ private:
     ModbusAddress::ObjectType objectType(QModbusDataUnit::RegisterType type);
     void handleConnectionError(QPointer<ConnectionData> connectionData, QString errMsg);
     qint32 findConnectionData(QTimer * pTimer, QModbusClient * pClient);
+    QString connectionSummary() const;
 
     ConnectionTypes::type_t _connectionType;
     tcpSettings_t _tcpSettings;

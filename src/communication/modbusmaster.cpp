@@ -119,8 +119,6 @@ void ModbusMaster::handlerConnectionError(QModbusDevice::Error error, QString ms
 
 void ModbusMaster::handleRequestSuccess(ModbusDataUnit const& startRegister, QList<quint16> registerDataList)
 {
-    logDebug(QString("Read success"));
-
     // Success
     _readRegisters.addSuccess(startRegister, registerDataList);
 
@@ -164,7 +162,7 @@ void ModbusMaster::handleRequestProtocolError(QModbusPdu::ExceptionCode exceptio
 
 void ModbusMaster::handleRequestError(QString errorString, QModbusDevice::Error error)
 {
-    logError(QString("Request Failed:  %1 (%2)").arg(errorString).arg(error));
+    logError(QString("Request Failed: %1 (%2)").arg(errorString).arg(error));
 
     // When we don't receive an exception, abort read and close connection
     _readRegisters.addAllErrors();
@@ -179,8 +177,11 @@ void ModbusMaster::handleTriggerNextRequest(void)
     {
         ModbusReadItem readItem = _readRegisters.next();
 
-        logDebug("Partial list read: " +
-                 QString("Start address (%1) and count (%2)").arg(readItem.address().toString()).arg(readItem.count()));
+        if (scopeCommConnection().isDebugEnabled())
+        {
+            logDebug("Partial list read: " +
+                     QString("Start address (%1) and count (%2)").arg(readItem.address().toString()).arg(readItem.count()));
+        }
 
         _pModbusConnection->sendReadRequest(readItem.address(), readItem.count());
     }
