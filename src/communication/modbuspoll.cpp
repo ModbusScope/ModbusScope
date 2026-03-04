@@ -86,7 +86,18 @@ void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
                         .arg(connData->baudrate())
                         .arg(strParity, strDataBits, strStopBits);
             }
-            qCInfo(scopeCommConnection) << str;
+            qCInfo(scopeCommConnection) << qPrintable(str);
+
+            for (deviceId_t devId : _pSettingsModel->deviceListForConnection(i))
+            {
+                Device* dev = _pSettingsModel->deviceSettings(devId);
+                QString devStr = QString("[Device] %1: slave ID %2, max consecutive %3, 32-bit little endian %4")
+                                   .arg(dev->name())
+                                   .arg(dev->slaveId())
+                                   .arg(dev->consecutiveMax())
+                                   .arg(dev->int32LittleEndian() ? "true" : "false");
+                qCInfo(scopeCommConnection) << qPrintable(devStr);
+            }
         }
     }
 
