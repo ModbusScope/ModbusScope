@@ -220,7 +220,7 @@ void ModbusConnection::handleConnectionErrorOccurred(QModbusDevice::Error error)
     const qint32 senderIdx = findConnectionData(nullptr, pClient);
 
     // Only handle error is latest connection, the rest is automatically closed on state change
-    if (senderIdx == _connectionList.size() - 1)
+    if (senderIdx >= 0 && senderIdx == _connectionList.size() - 1)
     {
         handleConnectionError(_connectionList.last(), QString("Error: %1").arg(error));
     }
@@ -238,7 +238,7 @@ void ModbusConnection::connectionTimeOut()
     pTimeoutTimer->stop();
 
     // Only handle error is latest connection, the rest is automatically closed on state change
-    if (senderIdx == _connectionList.size() - 1)
+    if (senderIdx >= 0 && senderIdx == _connectionList.size() - 1)
     {
         handleConnectionError(_connectionList.last(), QString("Connection timeout"));
     }
