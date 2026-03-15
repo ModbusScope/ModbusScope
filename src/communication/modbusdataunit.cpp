@@ -44,15 +44,26 @@ bool operator==(const ModbusDataUnit& unit1, const ModbusDataUnit& unit2)
 
 bool operator<(const ModbusDataUnit& unit1, const ModbusDataUnit& unit2)
 {
-    if (unit1._type < unit2._type)
+    if (unit1._slaveId < unit2._slaveId)
     {
         return true;
     }
-    else if (unit1._type == unit2._type)
+    else if (unit1._slaveId == unit2._slaveId)
     {
-        if (unit1._protocolAddress < unit2._protocolAddress)
+        if (unit1._type < unit2._type)
         {
             return true;
+        }
+        else if (unit1._type == unit2._type)
+        {
+            if (unit1._protocolAddress < unit2._protocolAddress)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         else
         {

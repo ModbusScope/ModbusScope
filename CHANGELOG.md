@@ -8,7 +8,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Fixed
 
-* xx
+* Fix incorrect data displayed when polling multiple devices on the same connection (e.g. multiple slave IDs on a serial bus)
 
 ### Changed
 
