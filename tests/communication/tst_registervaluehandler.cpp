@@ -291,10 +291,10 @@ void TestRegisterValueHandler::readConnections()
                            << ModbusRegister(ModbusAddress(40001), Device::cFirstDeviceId, Type::UNSIGNED_16)
                            << ModbusRegister(ModbusAddress(40001), Device::cFirstDeviceId + 1, Type::SIGNED_16);
     ModbusResultMap partialResultMap1;
-    addToResultMap(partialResultMap1, 40001, false, 256, State::SUCCESS);
+    addToResultMap(partialResultMap1, 40001, false, 256, State::SUCCESS, 1);
 
     ModbusResultMap partialResultMap2;
-    addToResultMap(partialResultMap2, 40001, false, 100, State::SUCCESS);
+    addToResultMap(partialResultMap2, 40001, false, 100, State::SUCCESS, 2);
 
     auto expResults = ResultDoubleList() << ResultDouble(256, State::SUCCESS)
                                             << ResultDouble(100, State::SUCCESS);
@@ -329,7 +329,7 @@ void TestRegisterValueHandler::readFail()
                            << ModbusRegister(ModbusAddress(40001), Device::cFirstDeviceId + 1, Type::SIGNED_16);
 
     ModbusResultMap partialResultMap2;
-    addToResultMap(partialResultMap2, 40001, false, 100, State::SUCCESS);
+    addToResultMap(partialResultMap2, 40001, false, 100, State::SUCCESS, 2);
 
     auto expResults = ResultDoubleList() << ResultDouble(0, State::INVALID)
                                             << ResultDouble(100, State::SUCCESS);
@@ -385,14 +385,15 @@ void TestRegisterValueHandler::addToResultMap(ModbusResultMap &resultMap,
         quint32 addr,
         bool b32bit,
         qint64 value,
-        State resultState
+        State resultState,
+        ModbusDataUnit::slaveId_t slaveId
         )
 {
-    resultMap.insert(ModbusDataUnit(addr), Result<quint16>(static_cast<quint16>(value), resultState));
+    resultMap.insert(ModbusDataUnit(addr, ModbusAddress::ObjectType::UNKNOWN, slaveId), Result<quint16>(static_cast<quint16>(value), resultState));
 
     if (b32bit)
     {
-        resultMap.insert(ModbusDataUnit(addr + 1), Result<quint16>(static_cast<quint32>(value) >> 16, resultState));
+        resultMap.insert(ModbusDataUnit(addr + 1, ModbusAddress::ObjectType::UNKNOWN, slaveId), Result<quint16>(static_cast<quint32>(value) >> 16, resultState));
     }
 }
 

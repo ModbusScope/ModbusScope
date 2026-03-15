@@ -15,6 +15,7 @@ private slots:
 
     void operator_equality();
     void operator_less_than();
+    void qmap_different_slave_ids_are_distinct_keys();
 
     void toString();
 

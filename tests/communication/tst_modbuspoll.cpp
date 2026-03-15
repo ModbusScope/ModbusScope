@@ -4,6 +4,7 @@
 #include "communication/modbuspoll.h"
 #include "communicationhelpers.h"
 #include "testslavemodbus.h"
+#include "testslavemodbusmulti.h"
 #include "util/modbusdatatype.h"
 
 #include <QSignalSpy>
@@ -338,6 +339,53 @@ void TestModbusPoll::multiSlaveSuccess_3()
 
     /* Verify arguments of signal */
     CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
+}
+
+void TestModbusPoll::multiSlaveSameConnectionSameAddress()
+{
+    /* Reproduce the reported bug: two slaves with different IDs share the same
+     * connection (same port) and both read the same register address.
+     * Before the operator< fix, both curves showed the value from the last-polled
+     * slave because the result map treated (addr=40001, slaveId=1) and
+     * (addr=40001, slaveId=4) as the same key. */
+
+    const quint8 newSlaveId = 4;
+    const deviceId_t newDevId = Device::cFirstDeviceId + 3;
+
+    /* Replace the single-slave server at port 5020 with a multi-slave server
+     * that responds to slave ID 1 (device 1) and slave ID 4 (new device) */
+    _testSlaveMap[Device::cFirstDeviceId]->disconnect();
+
+    TestSlaveMultiModbus multiSlave;
+    QVERIFY(multiSlave.listenOnPort(5020));
+
+    multiSlave.testDevice(Device::cFirstDeviceId)->configureHoldingRegister(0, true, 1111);
+    multiSlave.testDevice(newSlaveId)->configureHoldingRegister(0, true, 4444);
+
+    /* Add a 4th device that shares connection ID_1 (port 5020) with device 1 */
+    _pSettingsModel->addDevice(newDevId);
+    _pSettingsModel->deviceSettings(newDevId)->setConnectionId(ConnectionTypes::ID_1);
+    _pSettingsModel->deviceSettings(newDevId)->setSlaveId(newSlaveId);
+
+    ModbusPoll modbusPoll(_pSettingsModel);
+    QSignalSpy spyDataReady(&modbusPoll, &ModbusPoll::registerDataReady);
+
+    auto modbusRegisters = QList<ModbusRegister>()
+                           << ModbusRegister(ModbusAddress(40001), Device::cFirstDeviceId, Type::UNSIGNED_16)
+                           << ModbusRegister(ModbusAddress(40001), newDevId, Type::UNSIGNED_16);
+
+    modbusPoll.startCommunication(modbusRegisters);
+
+    QVERIFY(spyDataReady.wait(500));
+    QCOMPARE(spyDataReady.count(), 1);
+
+    QList<QVariant> arguments = spyDataReady.takeFirst();
+    auto expResults = ResultDoubleList() << ResultDouble(1111, State::SUCCESS)
+                                         << ResultDouble(4444, State::SUCCESS);
+
+    CommunicationHelpers::verifyReceivedDataSignal(arguments, expResults);
+
+    multiSlave.stopListening();
 }
 
 void TestModbusPoll::multiSlaveSingleFail()

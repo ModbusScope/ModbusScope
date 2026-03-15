@@ -1,5 +1,7 @@
 #include "modbusdataunit.h"
 
+#include <tuple>
+
 ModbusDataUnit::ModbusDataUnit(quint16 protocolAddress, ObjectType type, slaveId_t slaveId)
     : ModbusAddress(protocolAddress, type), _slaveId(slaveId)
 {
@@ -31,36 +33,12 @@ QString ModbusDataUnit::toString() const
 
 bool operator==(const ModbusDataUnit& unit1, const ModbusDataUnit& unit2)
 {
-    if ((unit1._protocolAddress == unit2._protocolAddress) && (unit1._type == unit2._type) &&
-        (unit1._slaveId == unit2._slaveId))
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return std::tie(unit1._slaveId, unit1._type, unit1._protocolAddress)
+        == std::tie(unit2._slaveId, unit2._type, unit2._protocolAddress);
 }
 
 bool operator<(const ModbusDataUnit& unit1, const ModbusDataUnit& unit2)
 {
-    if (unit1._type < unit2._type)
-    {
-        return true;
-    }
-    else if (unit1._type == unit2._type)
-    {
-        if (unit1._protocolAddress < unit2._protocolAddress)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    else
-    {
-        return false;
-    }
+    return std::tie(unit1._slaveId, unit1._type, unit1._protocolAddress)
+         < std::tie(unit2._slaveId, unit2._type, unit2._protocolAddress);
 }

@@ -45,7 +45,8 @@ private:
             quint32 addr,
             bool b32bit,
             qint64 value,
-            ResultState::State resultState
+            ResultState::State resultState,
+            ModbusDataUnit::slaveId_t slaveId = 1
             );
 
     SettingsModel* _pSettingsModel;

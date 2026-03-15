@@ -58,11 +58,29 @@ void TestModbusDataUnit::operator_less_than()
     ModbusDataUnit unit1(10, ModbusAddress::ObjectType::COIL, 5);
     ModbusDataUnit unit2(11, ModbusAddress::ObjectType::COIL, 5);
     ModbusDataUnit unit3(10, ModbusAddress::ObjectType::DISCRETE_INPUT, 5);
+    ModbusDataUnit unit4(10, ModbusAddress::ObjectType::COIL, 6); // same addr+type, different slaveId
 
     QVERIFY(unit1 < unit2); // protocolAddress comparison
     QVERIFY(unit1 < unit3); // type comparison
     QVERIFY(!(unit2 < unit1));
     QVERIFY(!(unit3 < unit1));
+    // slaveId comparison (regression for multi-slave bug)
+    QVERIFY(unit1 < unit4); // slaveId 5 < slaveId 6, same address+type
+    QVERIFY(!(unit4 < unit1));
+}
+
+void TestModbusDataUnit::qmap_different_slave_ids_are_distinct_keys()
+{
+    ModbusDataUnit unit1(40001, ModbusAddress::ObjectType::HOLDING_REGISTER, 1);
+    ModbusDataUnit unit2(40001, ModbusAddress::ObjectType::HOLDING_REGISTER, 2);
+
+    QMap<ModbusDataUnit, int> map;
+    map.insert(unit1, 100);
+    map.insert(unit2, 200);
+
+    QCOMPARE(map.size(), 2);
+    QCOMPARE(map.value(unit1), 100);
+    QCOMPARE(map.value(unit2), 200);
 }
 
 void TestModbusDataUnit::toString()
