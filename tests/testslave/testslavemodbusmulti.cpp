@@ -96,11 +96,27 @@ void TestSlaveMultiModbus::processFrame(QTcpSocket* socket, const QByteArray& fr
     /* Only Read Holding Registers (FC 0x03) is implemented */
     if (fc != 0x03)
     {
+        /* Modbus exception response: error FC + exception code 0x01 (Illegal Function) */
+        const quint16 excLength = 3u; /* unit ID (1) + error FC (1) + exception code (1) */
+        QByteArray excResponse(MBAP_SIZE + excLength, 0x00);
+        excResponse[0] = frame[0]; excResponse[1] = frame[1]; /* Transaction ID */
+        excResponse[4] = static_cast<char>((excLength >> 8) & 0xFF);
+        excResponse[5] = static_cast<char>(excLength & 0xFF);
+        excResponse[6] = static_cast<char>(unitId);
+        excResponse[7] = static_cast<char>(fc | 0x80);
+        excResponse[8] = 0x01; /* Illegal Function */
+        socket->write(excResponse);
+        return;
+    }
+
+    static const quint16 maxQuantity = 125u; /* Modbus FC 0x03 max registers per request */
+    if (quantity > maxQuantity)
+    {
         return;
     }
 
     /* Response length field: unit ID (1) + FC (1) + byte count (1) + data (2*qty) */
-    const quint16 respLength = 3 + quantity * 2u;
+    const quint32 respLength = 3u + quantity * 2u;
 
     QByteArray response;
     response.resize(MBAP_SIZE + respLength);
