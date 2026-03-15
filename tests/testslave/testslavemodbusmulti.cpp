@@ -50,7 +50,10 @@ void TestSlaveMultiModbus::incomingConnection(qintptr socketDescriptor)
     auto* socket = new QTcpSocket(this);
     socket->setSocketDescriptor(socketDescriptor);
     connect(socket, &QTcpSocket::readyRead, this, &TestSlaveMultiModbus::handleReadyRead);
-    connect(socket, &QTcpSocket::disconnected, socket, &QTcpSocket::deleteLater);
+    connect(socket, &QTcpSocket::disconnected, this, [this, socket]() {
+        _sockets.removeOne(socket);
+        socket->deleteLater();
+    });
     _sockets.append(socket);
 }
 
@@ -72,7 +75,7 @@ void TestSlaveMultiModbus::handleReadyRead()
             break;
         }
 
-        const QByteArray frame = socket->read(MBAP_SIZE + length);
+        const QByteArray frame = socket->read(MBAP_SIZE + length); // NOLINT(clang-analyzer-security.insecureAPI*)
         processFrame(socket, frame);
     }
 }
@@ -80,7 +83,7 @@ void TestSlaveMultiModbus::handleReadyRead()
 void TestSlaveMultiModbus::processFrame(QTcpSocket* socket, const QByteArray& frame)
 {
     /* Minimum: MBAP (6) + unit ID (1) + function code (1) + 2-byte address + 2-byte quantity */
-    if (frame.size() < MBAP_SIZE + 5)
+    if (frame.size() < MBAP_SIZE + 6)
     {
         return;
     }
