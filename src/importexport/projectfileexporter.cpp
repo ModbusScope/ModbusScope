@@ -104,7 +104,7 @@ void ProjectFileExporter::createDeviceTags(QDomElement* pParentElement)
 {
     QList<deviceId_t> deviceList = _pSettingsModel->deviceList();
 
-    for (const deviceId_t& deviceId : deviceList)
+    for (const deviceId_t& deviceId : std::as_const(deviceList))
     {
         Device* device = _pSettingsModel->deviceSettings(deviceId);
         QDomElement deviceElement = _domDocument.createElement(ProjectFileDefinitions::cDeviceTag);

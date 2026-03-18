@@ -87,7 +87,7 @@ void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
             }
             qCInfo(scopeCommConnection) << qPrintable(str);
 
-            for (deviceId_t devId : _pSettingsModel->deviceListForConnection(i))
+            for (deviceId_t devId : std::as_const(_pSettingsModel->deviceListForConnection(i)))
             {
                 Device* dev = _pSettingsModel->deviceSettings(devId);
                 QString devStr = QString("[Device] %1: slave ID %2, max consecutive %3, 32-bit little endian %4")

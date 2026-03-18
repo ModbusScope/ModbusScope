@@ -72,7 +72,7 @@ void DeviceForm::updateConnectionList()
     _pUi->comboConnection->blockSignals(true);
 
     _pUi->comboConnection->clear();
-    for (auto connId : _pSettingsModel->connectionList())
+    for (auto connId : std::as_const(_pSettingsModel->connectionList()))
     {
         _pUi->comboConnection->addItem(QString("Connection %1").arg(connId + 1), static_cast<quint32>(connId));
     }
@@ -99,7 +99,7 @@ void DeviceForm::checkConnectionState()
     Device* device = _pSettingsModel->deviceSettings(_deviceId);
     ConnectionTypes::connectionId_t connId = device->connectionId();
     bool bConnExistsAndEnabled = false;
-    for (auto availableConnId : _pSettingsModel->connectionList())
+    for (auto availableConnId : std::as_const(_pSettingsModel->connectionList()))
     {
         if (availableConnId == connId && _pSettingsModel->connectionState(connId))
         {

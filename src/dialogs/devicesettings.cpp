@@ -18,7 +18,7 @@ DeviceSettings::DeviceSettings(SettingsModel* pSettingsModel, QWidget* parent)
 
     QList<QWidget*> pages;
     QStringList names;
-    for (deviceId_t const& devId : _pSettingsModel->deviceList())
+    for (deviceId_t const& devId : std::as_const(_pSettingsModel->deviceList()))
     {
         names.append(constructTabName(devId));
         pages.append(createForm(devId));
