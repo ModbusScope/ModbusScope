@@ -21,7 +21,7 @@ jobs:
       run: bash /start.sh &
 
     - name: configure safe directory for git
-      run: git config --global --add safe.directory ${GITHUB_WORKSPACE}
+      run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
       
     - name: Prepare environment for Ninja build with coverage
       run: |
@@ -73,3 +73,37 @@ jobs:
         args: >
           --define "sonar.cfamily.compile-commands=${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"
       if: ${{ !!env.SONAR_TOKEN && !!env.GITHUB_TOKEN }}
+
+  clazy:
+    runs-on: ubuntu-latest
+    container: docker://jgeudens/qt-linux:6.8.3_build_1
+    steps:
+    - uses: actions/checkout@v6.0.0
+
+    - name: Configure safe directory for git
+      run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+
+    - name: Install clazy
+      run: |
+        apt-get update
+        apt-get install -y clazy
+
+    - name: Run clazy
+      run: bash scripts/run_clazy.sh
+
+  clang-tidy:
+    runs-on: ubuntu-latest
+    container: docker://jgeudens/qt-linux:6.8.3_build_1
+    steps:
+    - uses: actions/checkout@v6.0.0
+
+    - name: Configure safe directory for git
+      run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+
+    - name: Install clang-tidy
+      run: |
+        apt-get update
+        apt-get install -y clang-tidy
+
+    - name: Run clang-tidy
+      run: bash scripts/run_clang_tidy.sh
