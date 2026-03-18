@@ -1,5 +1,7 @@
 #include "modbusregister.h"
 
+#include <bit>
+
 ModbusRegister::ModbusRegister()
     : ModbusRegister(ModbusAddress(0), Device::cFirstDeviceId, ModbusDataType::Type::UNSIGNED_16)
 {
@@ -153,19 +155,18 @@ uint32_t ModbusRegister::convertEndianness(bool bLittleEndian, quint16 value, qu
 
 double ModbusRegister::convertUint32ToFloat(quint32 value) const
 {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstrict-aliasing"
-    const double doubleValue = *(reinterpret_cast<float*>(&value));
-#pragma GCC diagnostic pop
+    const double doubleValue = std::bit_cast<float>(value);
 
     switch(std::fpclassify(doubleValue))
     {
-        case FP_INFINITE:  return 0.0f;
-        case FP_NAN:       return 0.0f;
-        case FP_NORMAL:    return doubleValue;
-        case FP_SUBNORMAL: return doubleValue;
-        case FP_ZERO:      return 0.0f;
-        default:           return doubleValue;
+        case FP_INFINITE:
+        case FP_NAN:
+        case FP_ZERO:
+            return 0.0f;
+        case FP_NORMAL:
+        case FP_SUBNORMAL:
+        default:
+            return doubleValue;
     }
 }
 

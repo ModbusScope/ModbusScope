@@ -139,7 +139,7 @@ void ReadRegisters::addError()
     if (hasNext())
     {
         auto nextRequestData = next();
-        for (quint32 i = 0; i < nextRequestData.count(); i++)
+        for (int i = 0; i < nextRequestData.count(); i++)
         {
             const auto registerAddr = nextRequestData.address().next(i);
             const auto result = Result<quint16>(0, State::INVALID);

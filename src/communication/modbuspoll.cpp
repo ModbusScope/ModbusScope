@@ -11,8 +11,7 @@
 
 using connectionId_t = ConnectionTypes::connectionId_t;
 
-ModbusPoll::ModbusPoll(SettingsModel * pSettingsModel, QObject *parent) :
-    QObject(parent), _bPollActive(false)
+ModbusPoll::ModbusPoll(SettingsModel* pSettingsModel, QObject* parent) : QObject(parent), _bPollActive(false)
 {
 
     _pPollTimer = new QTimer();
@@ -181,7 +180,7 @@ bool ModbusPoll::isActive()
 
 void ModbusPoll::triggerRegisterRead()
 {
-    if(_bPollActive)
+    if (_bPollActive)
     {
         _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 

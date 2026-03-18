@@ -123,18 +123,8 @@ void ModbusConnection::sendReadRequest(ModbusDataUnit const& regAddress, quint16
  */
 bool ModbusConnection::isConnected(void)
 {
-    if (_connectionList.isEmpty())
-    {
-        return false;
-    }
-    else if (_connectionList.last()->pModbusClient->state() != QModbusDevice::ConnectedState)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return !_connectionList.isEmpty()
+           && _connectionList.last()->pModbusClient->state() == QModbusDevice::ConnectedState;
 }
 
 /*!
@@ -147,9 +137,9 @@ void ModbusConnection::handleConnectionStateChanged(QModbusDevice::State state)
     QModbusClient* pClient = qobject_cast<QModbusClient*>(QObject::sender());
     const qint32 senderIdx = findConnectionData(nullptr, pClient);
 
-    if (state == QModbusDevice::ConnectingState)
+    if (state == QModbusDevice::ConnectingState || state == QModbusDevice::ClosingState)
     {
-        // Wait for connection or error
+        // Nothing to do, wait for next state
     }
     else if (state == QModbusDevice::ConnectedState)
     {
@@ -199,14 +189,6 @@ void ModbusConnection::handleConnectionStateChanged(QModbusDevice::State state)
             // Use deleteLater because otherwise we receive SIGSEGV error
             _connectionList[senderIdx]->deleteLater();
         }
-    }
-    else if (state == QModbusDevice::ClosingState)
-    {
-        // Wait for final state
-    }
-    else
-    {
-        // Do nothing
     }
 }
 
@@ -327,9 +309,7 @@ RegisterType ModbusConnection::registerType(ObjectType type)
     case ObjectType::INPUT_REGISTER:
         return RegisterType::InputRegisters;
     case ObjectType::HOLDING_REGISTER:
-        return RegisterType::HoldingRegisters;
     case ObjectType::UNKNOWN:
-        return RegisterType::HoldingRegisters;
     default:
         return RegisterType::HoldingRegisters;
     }
@@ -382,17 +362,10 @@ qint32 ModbusConnection::findConnectionData(QTimer* pTimer, QModbusClient* pClie
 {
     for (qint32 idx = 0; idx < _connectionList.size(); idx++)
     {
-        if ((pTimer != nullptr) && (pTimer == &_connectionList[idx]->connectionTimeoutTimer))
+        if (((pTimer != nullptr) && (pTimer == &_connectionList[idx]->connectionTimeoutTimer))
+            || ((pClient != nullptr) && (pClient == _connectionList[idx]->pModbusClient.get())))
         {
             return idx;
-        }
-        else if ((pClient != nullptr) && (pClient == _connectionList[idx]->pModbusClient.get()))
-        {
-            return idx;
-        }
-        else
-        {
-            // Check next
         }
     }
 
