@@ -71,7 +71,7 @@ void SettingsDialog::settingsStackSwitch(int newRow)
     // Validate device settings when switching to tab
     if (newRow == PAGE_DEVICE)
     {
-        _pDevSettings->settingsTabsSwitched();
+        emit _pDevSettings->settingsTabsSwitched();
     }
 
     _pUi->settingsStack->setCurrentIndex(newRow);
