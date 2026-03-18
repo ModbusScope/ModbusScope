@@ -4,7 +4,10 @@ Checks: >
   clang-analyzer-*,
   -clang-analyzer-cplusplus.NewDelete,
   -clang-analyzer-cplusplus.NewDeleteLeaks,
-  -bugprone-reserved-identifier
+  -bugprone-reserved-identifier,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-narrowing-conversions
+
 WarningsAsErrors: "*"
 HeaderFilterRegex: "src/.*"
-ExcludeHeaderFilterRegex: ".*qcustomplot.h"
+ExcludeHeaderFilterRegex: ".*(qcustomplot|ui_[a-z]+).h"

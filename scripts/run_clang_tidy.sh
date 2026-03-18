@@ -10,5 +10,8 @@ cmake -GNinja \
     -DCMAKE_PREFIX_PATH="${QT_PREFIX}" \
     -B "${BUILD_DIR}"
 
+echo "=== Generating autogen headers ==="
+ninja -C "${BUILD_DIR}" src/ScopeSource_autogen
+
 echo "=== Running clang-tidy ==="
 run-clang-tidy -quiet -p "${BUILD_DIR}" -j "$(nproc)" "$(pwd)/src/.*\.cpp\$" 2>/dev/null
