@@ -808,7 +808,7 @@ void MainWindow::dropEvent(QDropEvent *e)
 {
     if (!_pModbusPoll->isActive())
     {
-        const QString filename(e->mimeData()->urls().last().toLocalFile());
+        const QString filename(e->mimeData()->urls().constLast().toLocalFile());
         handleFileOpen(filename);
     }
 }
