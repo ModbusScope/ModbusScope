@@ -92,7 +92,7 @@ public slots:
     void sety2AxisMin(double newMin);
     void setyAxisMax(double newMax);
     void sety2AxisMax(double newMax);
-    void setGuiState(GuiState state);
+    void setGuiState(GuiModel::GuiState state);
     void clearMarkersState(void);
     void setStartMarkerPos(double pos);
     void setEndMarkerPos(double pos);
