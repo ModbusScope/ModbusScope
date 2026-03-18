@@ -12,4 +12,4 @@ cmake -GNinja \
 
 echo "=== Running clazy ==="
 find "$(pwd)/src" -name "*.cpp" -print0 | \
-    xargs -0 -P "$(nproc)" -I{} clazy-standalone --only-qt -p "${BUILD_DIR}" {}
+    xargs -0 -P "$(nproc)" -I{} clazy-standalone --only-qt --header-filter="src/.*" -p "${BUILD_DIR}" {}
