@@ -1,4 +1,3 @@
-
 #include "modbusdatatype.h"
 
 const ModbusDataType::TypeSettings ModbusDataType::cDataTypes[] =

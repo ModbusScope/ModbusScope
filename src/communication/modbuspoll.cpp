@@ -3,54 +3,25 @@
 
 #include <QDateTime>
 
-#include "communication/modbusmaster.h"
-#include "communication/registervaluehandler.h"
 #include "models/settingsmodel.h"
 #include "util/formatdatetime.h"
 #include "util/scopelogging.h"
 
-using connectionId_t = ConnectionTypes::connectionId_t;
-
 ModbusPoll::ModbusPoll(SettingsModel* pSettingsModel, QObject* parent) : QObject(parent), _bPollActive(false)
 {
-
     _pPollTimer = new QTimer();
     _pSettingsModel = pSettingsModel;
-
-    _pRegisterValueHandler = new RegisterValueHandler(_pSettingsModel);
-    connect(_pRegisterValueHandler, &RegisterValueHandler::registerDataReady, this, &ModbusPoll::registerDataReady);
-
-    /* Setup modbus master */
-    for (quint8 i = 0u; i < ConnectionTypes::ID_CNT; i++)
-    {
-        auto conn = new ModbusConnection(); // ModbusMaster takes ownership
-        auto master = new ModbusMaster(conn, pSettingsModel, i);
-        auto modbusData = new ModbusMasterData(master);
-        _modbusMasters.append(modbusData);
-
-        connect(_modbusMasters.last()->pModbusMaster, &ModbusMaster::modbusPollDone, this, &ModbusPoll::handlePollDone);
-    }
-
-    _activeMastersCount = 0;
     _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 }
 
 ModbusPoll::~ModbusPoll()
 {
-    for (qsizetype i = 0; i < _modbusMasters.size(); i++)
-    {
-        _modbusMasters[i]->pModbusMaster->disconnect();
-
-        delete _modbusMasters[i]->pModbusMaster;
-        delete _modbusMasters[i];
-    }
-
     delete _pPollTimer;
 }
 
 void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
 {
-    _pRegisterValueHandler->setRegisters(registerList);
+    _registerList = registerList;
 
     // Trigger read immediately
     _pPollTimer->singleShot(1, this, &ModbusPoll::triggerRegisterRead);
@@ -58,48 +29,6 @@ void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
     _bPollActive = true;
 
     qCInfo(scopeComm) << QString("Start logging: %1").arg(FormatDateTime::currentDateTime());
-
-    for (quint8 i = 0u; i < ConnectionTypes::ID_CNT; i++)
-    {
-        QList<ModbusDataUnit> addrList;
-        _pRegisterValueHandler->registerAddresListForConnection(addrList, i);
-
-        if (!addrList.isEmpty())
-        {
-            auto connData = _pSettingsModel->connectionSettings(i);
-            QString str;
-            if (connData->connectionType() == ConnectionTypes::TYPE_TCP)
-            {
-                str = QString("[Conn %1] %2:%3").arg(i + 1).arg(connData->ipAddress()).arg(connData->port());
-            }
-            else
-            {
-                QString strParity;
-                QString strDataBits;
-                QString strStopBits;
-                connData->serialConnectionStrings(strParity, strDataBits, strStopBits);
-
-                str = QString("[Conn %1] %2, %3, %4, %5, %6")
-                        .arg(i + 1)
-                        .arg(connData->portName())
-                        .arg(connData->baudrate())
-                        .arg(strParity, strDataBits, strStopBits);
-            }
-            qCInfo(scopeCommConnection) << qPrintable(str);
-
-            const auto devicesForConn = _pSettingsModel->deviceListForConnection(i);
-            for (deviceId_t devId : devicesForConn)
-            {
-                Device* dev = _pSettingsModel->deviceSettings(devId);
-                QString devStr = QString("[Device] %1: slave ID %2, max consecutive %3, 32-bit little endian %4")
-                                   .arg(dev->name())
-                                   .arg(dev->slaveId())
-                                   .arg(dev->consecutiveMax())
-                                   .arg(dev->int32LittleEndian() ? "true" : "false");
-                qCInfo(scopeCommConnection) << qPrintable(devStr);
-            }
-        }
-    }
 
     resetCommunicationStats();
 }
@@ -109,40 +38,33 @@ void ModbusPoll::resetCommunicationStats()
     _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 }
 
-void ModbusPoll::handlePollDone(ModbusResultMap partialResultMap, connectionId_t connectionId)
+void ModbusPoll::stopCommunication()
 {
-    bool lastResult = false;
+    _bPollActive = false;
+    _pPollTimer->stop();
 
-    quint8 activeCnt = 0;
-    for (quint8 i = 0; i < ConnectionTypes::ID_CNT; i++)
+    qCInfo(scopeComm) << QString("Stop logging: %1").arg(FormatDateTime::currentDateTime());
+}
+
+bool ModbusPoll::isActive()
+{
+    return _bPollActive;
+}
+
+void ModbusPoll::triggerRegisterRead()
+{
+    if (_bPollActive)
     {
-        if (_modbusMasters[i]->bActive)
+        _lastPollStart = QDateTime::currentMSecsSinceEpoch();
+
+        ResultDoubleList results;
+        for (qsizetype i = 0; i < _registerList.size(); i++)
         {
-            activeCnt++;
+            results.append(ResultDouble());
         }
-    }
+        emit registerDataReady(results);
 
-    /* Last active modbus master has returned its result */
-    if (activeCnt == 1 || activeCnt == 0)
-    {
-        /* Last result */
-        lastResult = true;
-    }
-
-    // Always add data to result map
-    _pRegisterValueHandler->processPartialResult(partialResultMap, connectionId);
-
-    // Set master as inactive
-    if (connectionId < ConnectionTypes::ID_CNT)
-    {
-        _modbusMasters[connectionId]->bActive = false;
-    }
-
-    if (lastResult)
-    {
-        _pRegisterValueHandler->finishRead();
-
-        // Restart timer when previous request has been handled
+        // Reschedule timer
         uint waitInterval;
         const quint32 passedInterval = static_cast<quint32>(QDateTime::currentMSecsSinceEpoch() - _lastPollStart);
 
@@ -159,87 +81,4 @@ void ModbusPoll::handlePollDone(ModbusResultMap partialResultMap, connectionId_t
 
         _pPollTimer->singleShot(static_cast<int>(waitInterval), this, &ModbusPoll::triggerRegisterRead);
     }
-}
-
-void ModbusPoll::stopCommunication()
-{
-    _bPollActive = false;
-    _pPollTimer->stop();
-
-    qCInfo(scopeComm) << QString("Stop logging: %1").arg(FormatDateTime::currentDateTime());
-
-    for (quint8 i = 0; i < ConnectionTypes::ID_CNT; i++)
-    {
-        _modbusMasters[i]->pModbusMaster->cleanUp();
-    }
-}
-
-bool ModbusPoll::isActive()
-{
-    return _bPollActive;
-}
-
-void ModbusPoll::triggerRegisterRead()
-{
-    if (_bPollActive)
-    {
-        _lastPollStart = QDateTime::currentMSecsSinceEpoch();
-
-        _pRegisterValueHandler->startRead();
-
-        /* Strange construction is required to avoid race condition:
-         *
-         * First set _activeMastersCount to correct value
-         * And only then activate masters (readRegisterList)
-         *
-         * readRegisterList can return immediately and this will give race condition otherwise
-         */
-
-        _activeMastersCount = 0;
-
-        QList<QList<ModbusDataUnit> > regAddrList;
-
-        for (connectionId_t i = 0u; i < ConnectionTypes::ID_CNT; i++)
-        {
-            regAddrList.append(QList<ModbusDataUnit>());
-
-            _pRegisterValueHandler->registerAddresListForConnection(regAddrList.last(), i);
-
-            if (regAddrList.last().count() > 0)
-            {
-                _activeMastersCount++;
-            }
-        }
-
-        for (connectionId_t i = 0u; i < ConnectionTypes::ID_CNT; i++)
-        {
-            if (regAddrList.at(i).count() > 0)
-            {
-                quint8 consecutiveMax = lowestConsecutiveMaxForConnection(i);
-                _modbusMasters[i]->bActive = true;
-                _modbusMasters[i]->pModbusMaster->readRegisterList(regAddrList.at(i), consecutiveMax);
-            }
-        }
-
-        if (_activeMastersCount == 0)
-        {
-            ModbusResultMap emptyResultMap;
-            handlePollDone(emptyResultMap, ConnectionTypes::ID_1);
-        }
-    }
-}
-
-quint8 ModbusPoll::lowestConsecutiveMaxForConnection(connectionId_t connId) const
-{
-    quint8 consecutiveMax = 128;
-    QList<deviceId_t> devList = _pSettingsModel->deviceListForConnection(connId);
-    for (deviceId_t devId : std::as_const(devList))
-    {
-        quint8 devConsecutiveMax = _pSettingsModel->deviceSettings(devId)->consecutiveMax();
-        if (devConsecutiveMax < consecutiveMax)
-        {
-            consecutiveMax = devConsecutiveMax;
-        }
-    }
-    return consecutiveMax;
 }

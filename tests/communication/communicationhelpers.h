@@ -37,4 +37,3 @@ private:
 
 
 #endif // COMMUNICATIONHELPERS_H
-

@@ -2,31 +2,11 @@
 #define COMMUNICATION_MANAGER_H
 
 #include "communication/modbusregister.h"
-#include "communication/modbusresultmap.h"
-#include "models/connectiontypes.h"
-#include <QStringListModel>
+#include "util/result.h"
 #include <QTimer>
 
 //Forward declaration
 class SettingsModel;
-class RegisterValueHandler;
-class ModbusMaster;
-
-class ModbusMasterData : public QObject
-{
-    Q_OBJECT
-public:
-
-    explicit ModbusMasterData(ModbusMaster * pArgModbusMaster, QObject *parent = nullptr):
-        QObject(parent)
-    {
-        pModbusMaster = pArgModbusMaster;
-        bActive = false;
-    }
-
-    ModbusMaster * pModbusMaster;
-    bool bActive;
-};
 
 class ModbusPoll : public QObject
 {
@@ -45,20 +25,14 @@ signals:
     void registerDataReady(ResultDoubleList registers);
 
 private slots:
-    void handlePollDone(ModbusResultMap partialResultMap, ConnectionTypes::connectionId_t connectionId);
     void triggerRegisterRead();
 
 private:
-    quint8 lowestConsecutiveMaxForConnection(ConnectionTypes::connectionId_t connId) const;
-
-    QList<ModbusMasterData*> _modbusMasters;
-    quint32 _activeMastersCount;
+    QList<ModbusRegister> _registerList;
 
     bool _bPollActive;
     QTimer * _pPollTimer;
     qint64 _lastPollStart;
-
-    RegisterValueHandler* _pRegisterValueHandler;
 
     SettingsModel * _pSettingsModel;
 };
