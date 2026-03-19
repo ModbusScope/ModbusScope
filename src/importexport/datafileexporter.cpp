@@ -420,7 +420,7 @@ QString DataFileExporter::createPropertyRow(registerProperty prop)
 
     case E_VALUE_AXIS:
         line.append("Axis");
-
+        break;
     default:
         break;
     }

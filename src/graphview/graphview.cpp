@@ -365,7 +365,9 @@ void GraphView::addData(QList<double> timeData, QList<QList<double> > data)
 
         for (qint32 i = 0; i < _pPlot->graphCount(); i++)
         {
-            _pPlot->graph(i)->pen().setWidth(1);
+            QPen pen = _pPlot->graph(i)->pen();
+            pen.setWidth(1);
+            _pPlot->graph(i)->setPen(pen);
         }
 
         _pPlot->setNotAntialiasedElements(QCP::aeAll);
