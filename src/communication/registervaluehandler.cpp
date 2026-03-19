@@ -7,8 +7,7 @@
 using State = ResultState::State;
 using connectionId_t = ConnectionTypes::connectionId_t;
 
-RegisterValueHandler::RegisterValueHandler(SettingsModel *pSettingsModel) :
-    _pSettingsModel(pSettingsModel)
+RegisterValueHandler::RegisterValueHandler(SettingsModel* pSettingsModel) : _pSettingsModel(pSettingsModel)
 {
 }
 
@@ -16,7 +15,7 @@ void RegisterValueHandler::startRead()
 {
     _resultList.clear();
 
-    for(quint16 listIdx = 0; listIdx < _registerList.size(); listIdx++)
+    for (qsizetype listIdx = 0; listIdx < _registerList.size(); listIdx++)
     {
         _resultList.append(ResultDouble(0, State::INVALID));
     }
@@ -31,7 +30,7 @@ void RegisterValueHandler::processPartialResult(ModbusResultMap partialResultMap
 {
     auto deviceList = _pSettingsModel->deviceListForConnection(connectionId);
 
-    for(qint32 listIdx = 0; listIdx < _registerList.size(); listIdx++)
+    for (qint32 listIdx = 0; listIdx < _registerList.size(); listIdx++)
     {
         const ModbusRegister mbReg = _registerList[listIdx];
 

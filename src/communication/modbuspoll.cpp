@@ -37,7 +37,7 @@ ModbusPoll::ModbusPoll(SettingsModel* pSettingsModel, QObject* parent) : QObject
 
 ModbusPoll::~ModbusPoll()
 {
-    for (quint8 i = 0u; i < _modbusMasters.size(); i++)
+    for (qsizetype i = 0; i < _modbusMasters.size(); i++)
     {
         _modbusMasters[i]->pModbusMaster->disconnect();
 
