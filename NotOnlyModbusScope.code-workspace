@@ -27,7 +27,7 @@
 				"request": "launch",
 				"program": "${command:cmake.launchTargetPath}",
 				"stopAtEntry": false,
-				"cwd": "${workspaceFolder:ModbusScope}",
+				"cwd": "${workspaceFolder:NotOnlyModbusScope}",
 				"visualizerFile": "${command:qt-cpp.natvis}",
 				"showDisplayString": true,
 				"linux": {
