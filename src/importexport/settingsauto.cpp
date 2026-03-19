@@ -17,7 +17,7 @@ SettingsAuto::SettingsAuto()
     _absoluteDateRegex.optimize();
 }
 
-bool SettingsAuto::updateSettings(QTextStream* pDataFileStream, settingsData_t *pSettingsData, qint32 sampleLength)
+bool SettingsAuto::updateSettings(QTextStream* pDataFileStream, settingsData_t* pSettingsData, qint32 sampleLength)
 {
     bool bRet = true;
 
@@ -152,10 +152,7 @@ bool SettingsAuto::determineComment(QString line)
             else
             {
                 // Check second character
-                if (
-                    (!line.at(1).isLetterOrNumber())
-                    && (!line.at(1).isSpace())
-                    )
+                if ((!line.at(1).isLetterOrNumber()) && (!line.at(1).isSpace()))
                 {
                     _commentSequence = line.left(2);
                     bRet = true;
@@ -185,10 +182,7 @@ bool SettingsAuto::testLocale(QStringList previewData, QLocale locale, QString f
     aSeparatorCount[0] = previewData[_labelRow].count(fieldSeparator);
     aSeparatorCount[1] = previewData[_dataRow].count(fieldSeparator);
 
-    if (
-            (aSeparatorCount[0] == aSeparatorCount[1])
-            && (aSeparatorCount[0] > 0)
-        )
+    if ((aSeparatorCount[0] == aSeparatorCount[1]) && (aSeparatorCount[0] > 0))
     {
         qint32 parseIdx;
         for (parseIdx = _dataRow; parseIdx < previewData.size(); parseIdx++)
@@ -226,10 +220,7 @@ bool SettingsAuto::testLocale(QStringList previewData, QLocale locale, QString f
     // If first time field is between 0 and 1, then presume in seconds
     /* Check second data row to avoid 0 */
     QString firstTimeField = previewData[_dataRow + 1].split(fieldSeparator)[0];
-    if (
-        (locale.toDouble(firstTimeField) > 0)
-        && (locale.toDouble(firstTimeField) < 1)
-        )
+    if ((locale.toDouble(firstTimeField) > 0) && (locale.toDouble(firstTimeField) < 1))
     {
         _bTimeInMilliSeconds = false;
     }
@@ -242,14 +233,11 @@ bool SettingsAuto::testLocale(QStringList previewData, QLocale locale, QString f
     _decimalSeparator = QString(locale.decimalPoint());
 
     // In US locale field separator is the same as group (thousands) point
-    if (fieldSeparator == QString(locale.groupSeparator()))
-    {
-        _groupSeparator = ' ';
-    }
-    else if (
-             (QString(locale.groupSeparator()) == QString(QChar(0xA0))) // no-break space
-             || (QString(locale.groupSeparator()) == QString(QChar(0x202F))) //narrow no-break space
-        )
+    // Also replace non-breaking spaces with regular space
+    if (fieldSeparator == QString(locale.groupSeparator()) ||
+        QString(locale.groupSeparator()) == QString(QChar(0xA0))      // no-break space
+        || QString(locale.groupSeparator()) == QString(QChar(0x202F)) // narrow no-break space
+    )
     {
         _groupSeparator = ' ';
     }
@@ -261,7 +249,7 @@ bool SettingsAuto::testLocale(QStringList previewData, QLocale locale, QString f
     return true;
 }
 
-quint32 SettingsAuto::nextDataLine(quint32 startIdx, QStringList previewData, bool *bOk)
+quint32 SettingsAuto::nextDataLine(quint32 startIdx, QStringList previewData, bool* bOk)
 {
     qint32 lineIdx;
     for (lineIdx = startIdx; lineIdx < previewData.size(); lineIdx++)
@@ -284,7 +272,6 @@ quint32 SettingsAuto::nextDataLine(quint32 startIdx, QStringList previewData, bo
 
     return lineIdx;
 }
-
 
 void SettingsAuto::loadDataFileSample(QTextStream* pDataStream, QStringList& dataFileSample, qint32 sampleLength)
 {
@@ -313,7 +300,6 @@ void SettingsAuto::loadDataFileSample(QTextStream* pDataStream, QStringList& dat
             {
                 dataFileSample.append(lineData);
             }
-
         }
         else
         {
@@ -321,7 +307,7 @@ void SettingsAuto::loadDataFileSample(QTextStream* pDataStream, QStringList& dat
             break;
         }
 
-    } while(bRet && (dataFileSample.size() < sampleLength));
+    } while (bRet && (dataFileSample.size() < sampleLength));
 
     /* Set cursor back to beginning */
     pDataStream->seek(0);

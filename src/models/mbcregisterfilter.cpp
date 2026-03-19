@@ -10,7 +10,7 @@ MbcRegisterFilter::MbcRegisterFilter(QObject* parent) : QSortFilterProxyModel(pa
     _textFilter.clear();
 }
 
-bool MbcRegisterFilter::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+bool MbcRegisterFilter::filterAcceptsRow(int source_row, const QModelIndex& source_parent) const
 {
     if (source_row < sourceModel()->rowCount())
     {
@@ -42,7 +42,7 @@ void MbcRegisterFilter::setTextFilter(QString filterText)
     invalidateFilter();
 }
 
-bool MbcRegisterFilter::performTabFilter(int source_row, const QModelIndex &source_parent) const
+bool MbcRegisterFilter::performTabFilter(int source_row, const QModelIndex& source_parent) const
 {
     QModelIndex tabIdx = sourceModel()->index(source_row, MbcRegisterModel::cColumnTab, source_parent);
     QString tabName = tabIdx.data().toString();
@@ -50,23 +50,12 @@ bool MbcRegisterFilter::performTabFilter(int source_row, const QModelIndex &sour
     bool bAllowed = true;
 
     /* Filter on tab */
-    if (_tab == cTabNoFilter)
-    {
-        bAllowed = true;
-    }
-    else if (tabName == _tab)
-    {
-        bAllowed = true;
-    }
-    else
-    {
-        bAllowed = false;
-    }
+    bAllowed = (_tab == cTabNoFilter || tabName == _tab);
 
     return bAllowed;
 }
 
-bool MbcRegisterFilter::performTextFilter(int source_row, const QModelIndex &source_parent) const
+bool MbcRegisterFilter::performTextFilter(int source_row, const QModelIndex& source_parent) const
 {
     bool bAllowed = true;
 
@@ -77,11 +66,8 @@ bool MbcRegisterFilter::performTextFilter(int source_row, const QModelIndex &sou
     QString strAddress = addressIdx.data().toString();
 
     /* Filter on text */
-    if (
-        (!_textFilter.isEmpty())
-        && (!description.contains(_textFilter, Qt::CaseInsensitive))
-        && (!strAddress.contains(_textFilter, Qt::CaseInsensitive))
-    )
+    if ((!_textFilter.isEmpty()) && (!description.contains(_textFilter, Qt::CaseInsensitive)) &&
+        (!strAddress.contains(_textFilter, Qt::CaseInsensitive)))
     {
         bAllowed = false;
     }

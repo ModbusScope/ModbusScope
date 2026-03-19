@@ -10,8 +10,11 @@
 
 using connectionId_t = ConnectionTypes::connectionId_t;
 
-DataFileExporter::DataFileExporter(SettingsModel * pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel *pNoteModel, QObject *parent) :
-    QObject(parent)
+DataFileExporter::DataFileExporter(SettingsModel* pSettingsModel,
+                                   GraphDataModel* pGraphDataModel,
+                                   NoteModel* pNoteModel,
+                                   QObject* parent)
+    : QObject(parent)
 {
     _pSettingsModel = pSettingsModel;
     _pGraphDataModel = pGraphDataModel;
@@ -22,7 +25,6 @@ DataFileExporter::DataFileExporter(SettingsModel * pSettingsModel, GraphDataMode
 
 DataFileExporter::~DataFileExporter()
 {
-
 }
 
 void DataFileExporter::enableExporterDuringLog()
@@ -41,7 +43,7 @@ void DataFileExporter::disableExporterDuringLog()
     flushExportBuffer();
 }
 
-void DataFileExporter::exportDataLine(double timeData, QList <double> dataValues)
+void DataFileExporter::exportDataLine(double timeData, QList<double> dataValues)
 {
     /* QList correspond with activeGraphList */
 
@@ -91,7 +93,7 @@ void DataFileExporter::exportDataFile(QString dataFile)
             _pGraphDataModel->activeGraphIndexList(&activeGraphIndexes);
             QList<QCPGraphDataContainer::const_iterator> dataListIterators;
 
-            for(qint32 idx = 0; idx < activeGraphIndexes.size(); idx++)
+            for (qint32 idx = 0; idx < activeGraphIndexes.size(); idx++)
             {
                 // Save iterators to data lists
                 dataListIterators.append(_pGraphDataModel->dataMap(activeGraphIndexes[idx])->constBegin());
@@ -99,11 +101,11 @@ void DataFileExporter::exportDataFile(QString dataFile)
 
             // Add data lines
             const qint32 dataCount = _pGraphDataModel->dataMap(activeGraphIndexes[0])->size();
-            for(qint32 i = 0; i < dataCount; i++)
+            for (qint32 i = 0; i < dataCount; i++)
             {
                 QList<double> dataRowValues;
                 double key = dataListIterators[0]->key;
-                for(qint32 d = 0; d < dataListIterators.size(); d++)
+                for (qint32 d = 0; d < dataListIterators.size(); d++)
                 {
                     dataRowValues.append(dataListIterators[d]->value);
 
@@ -112,8 +114,7 @@ void DataFileExporter::exportDataFile(QString dataFile)
 
                 logData.append(formatData(key, dataRowValues));
 
-
-                if ( i % _cLogChunkLineCount == 0)
+                if (i % _cLogChunkLineCount == 0)
                 {
                     bRet = writeToFile(dataFile, logData);
 
@@ -156,7 +157,7 @@ bool DataFileExporter::updateNoteLines(QString dataFile)
             QString line;
             bool bPreviousLineWasEmptyComment = false;
 
-            while(!srcStream.atEnd())
+            while (!srcStream.atEnd())
             {
                 line = srcStream.readLine().trimmed();
 
@@ -164,13 +165,9 @@ bool DataFileExporter::updateNoteLines(QString dataFile)
                 {
                     bool bEmptyCommentLine = line.length() == 2;
 
-                    if (line.left(6).toLower() == "//note")
+                    if (line.left(6).toLower() == "//note" || (bPreviousLineWasEmptyComment && bEmptyCommentLine))
                     {
-                        // Skip line
-                    }
-                    else if (bPreviousLineWasEmptyComment && bEmptyCommentLine)
-                    {
-                        // We want to avoid 2 subsequent comment lines, so skip
+                        // Skip note lines and avoid 2 subsequent empty comment lines
                     }
                     else
                     {
@@ -192,7 +189,7 @@ bool DataFileExporter::updateNoteLines(QString dataFile)
             createNoteRows(noteRows);
             if (!noteRows.isEmpty())
             {
-                for(const QString &noteRow: std::as_const(noteRows))
+                for (const QString& noteRow : std::as_const(noteRows))
                 {
                     tmpStream << noteRow << "\n";
                 }
@@ -204,7 +201,7 @@ bool DataFileExporter::updateNoteLines(QString dataFile)
             tmpStream << line << "\n";
 
             // Copy rest of the file
-            while(!srcStream.atEnd())
+            while (!srcStream.atEnd())
             {
                 tmpStream << srcStream.readLine() << "\n";
             }
@@ -213,7 +210,6 @@ bool DataFileExporter::updateNoteLines(QString dataFile)
         {
             bSuccess = false;
         }
-
     }
     else
     {
@@ -314,7 +310,8 @@ TODO: dev
             }
         }
 
-        header.append(comment + "Poll interval" + Util::separatorCharacter() + QString::number(_pSettingsModel->pollTime()));
+        header.append(comment + "Poll interval" + Util::separatorCharacter() +
+                      QString::number(_pSettingsModel->pollTime()));
 
         quint32 success = _pGraphDataModel->communicationSuccessCount();
         quint32 error = _pGraphDataModel->communicationErrorCount();
@@ -403,7 +400,7 @@ QString DataFileExporter::createPropertyRow(registerProperty prop)
 {
     QString line;
 
-    switch(prop)
+    switch (prop)
     {
     case E_LABEL:
         line.append("Time (ms)");
@@ -428,12 +425,12 @@ QString DataFileExporter::createPropertyRow(registerProperty prop)
         break;
     }
 
-    for(qint32 i = 0; i < _pGraphDataModel->activeCount(); i++)
+    for (qint32 i = 0; i < _pGraphDataModel->activeCount(); i++)
     {
         const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(i);
 
         QString propertyString;
-        switch(prop)
+        switch (prop)
         {
         case E_LABEL:
         case E_PROPERTY:
@@ -449,15 +446,14 @@ QString DataFileExporter::createPropertyRow(registerProperty prop)
             break;
 
         case E_VALUE_AXIS:
-            {
-                qint32 axis = _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_PRIMARY ? 0 : 1;
-                propertyString = QString("%1").arg(axis);
-            }
-            break;
+        {
+            qint32 axis = _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_PRIMARY ? 0 : 1;
+            propertyString = QString("%1").arg(axis);
+        }
+        break;
 
         default:
             break;
-
         }
 
         // Get headers
@@ -485,7 +481,7 @@ QString DataFileExporter::formatData(double timeData, QList<double> dataValues)
     }
 
     // Add formatted data (maximum 3 decimals, no trailing zeros)
-    for(qint32 d = 0; d < dataValues.size(); d++)
+    for (qint32 d = 0; d < dataValues.size(); d++)
     {
         line.append(Util::separatorCharacter() + Util::formatDoubleForExport(dataValues[d]));
     }
@@ -501,7 +497,7 @@ bool DataFileExporter::writeToFile(QString filePath, QStringList logData)
     {
         QTextStream stream(&file);
 
-        foreach(QString line, logData)
+        foreach (QString line, logData)
         {
             stream << line << "\n";
         }
@@ -510,10 +506,7 @@ bool DataFileExporter::writeToFile(QString filePath, QStringList logData)
     }
     else
     {
-        if (
-                (_pSettingsModel->writeDuringLogFile() == filePath)
-                && (_pSettingsModel->writeDuringLog())
-            )
+        if ((_pSettingsModel->writeDuringLogFile() == filePath) && (_pSettingsModel->writeDuringLog()))
         {
             // Disable logging to file on write error
             _pSettingsModel->setWriteDuringLog(false);
@@ -528,8 +521,5 @@ bool DataFileExporter::writeToFile(QString filePath, QStringList logData)
 void DataFileExporter::clearFile(QString filePath)
 {
     QFile file(filePath);
-    (void)file.open(QIODevice::WriteOnly | QIODevice::Text); // Remove all data from file
+    (void) file.open(QIODevice::WriteOnly | QIODevice::Text); // Remove all data from file
 }
-
-
-
