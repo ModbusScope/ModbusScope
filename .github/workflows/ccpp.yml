@@ -21,8 +21,8 @@ jobs:
       - name: Update Modules and Build
         run: bash scripts/build_linux.sh
 
-      - name: Deploy
-        run: bash scripts/deploy_linux.sh
+      # - name: Deploy
+      #  run: bash scripts/deploy_linux.sh
 
       # - uses: actions/upload-artifact@v7.0.0
       #   with:
