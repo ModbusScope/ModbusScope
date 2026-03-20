@@ -108,4 +108,23 @@ void TestModbusMasterFake::requestToDevicesOnSameConnection()
     QCOMPARE(result[dataUnit2].value(), static_cast<quint32>(5));
 }
 
+void TestModbusMasterFake::cleanUpClosesConnectionAlways()
+{
+    /* Verify that cleanUp() always closes the connection, even when persistentConnection=false.
+     * Bug: with non-persistent connections, cleanUp() did nothing, leaving the serial port
+     * open if called while a read was in-flight. */
+    auto connData = _pSettingsModel->connectionSettings(ConnectionTypes::ID_1);
+    connData->setPersistentConnection(false);
+
+    _testDeviceMap[Device::cFirstDeviceId]->configureHoldingRegister(0, true, 0);
+
+    ModbusConnectionFake* conn = new ModbusConnectionFake(); // ModbusMaster takes ownership
+    conn->addSlaveDevice(Device::cFirstDeviceId, _testDeviceMap[Device::cFirstDeviceId]);
+    ModbusMaster modbusMaster(conn, _pSettingsModel, ConnectionTypes::ID_1);
+
+    modbusMaster.cleanUp();
+
+    QVERIFY(conn->closeCallCount() >= 1);
+}
+
 QTEST_GUILESS_MAIN(TestModbusMasterFake)

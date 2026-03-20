@@ -25,8 +25,11 @@ public:
 
     bool isConnected(void) override;
 
+    quint32 closeCallCount() const;
+
 private:
     SlaveDeviceMap _deviceMap;
+    quint32 _closeCount = 0;
 };
 
 #endif // MODBUSCONNECTIONFAKE_H

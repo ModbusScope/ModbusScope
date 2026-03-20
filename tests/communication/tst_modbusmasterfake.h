@@ -14,6 +14,8 @@ private slots:
     void singleRequestSuccess();
     void requestToDevicesOnSameConnection();
 
+    void cleanUpClosesConnectionAlways();
+
 private:
     QMap<deviceId_t, TestDevice*> _testDeviceMap;
     SettingsModel* _pSettingsModel;

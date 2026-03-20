@@ -94,11 +94,7 @@ void ModbusMaster::readRegisterList(QList<ModbusDataUnit> registerList, quint8 c
 
 void ModbusMaster::cleanUp()
 {
-    /* Close connection when not closing automatically */
-    if (_pSettingsModel->connectionSettings(_connectionId)->persistentConnection())
-    {
-        _pModbusConnection->close();
-    }
+    _pModbusConnection->close();
 }
 
 void ModbusMaster::handleConnectionOpened()

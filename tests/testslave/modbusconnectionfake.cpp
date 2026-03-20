@@ -47,6 +47,12 @@ void ModbusConnectionFake::open(quint32 timeout)
  */
 void ModbusConnectionFake::close(void)
 {
+    _closeCount++;
+}
+
+quint32 ModbusConnectionFake::closeCallCount() const
+{
+    return _closeCount;
 }
 
 /*!
