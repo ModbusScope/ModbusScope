@@ -69,7 +69,6 @@ private slots:
     void stopScope();
     void showDiagnostic();
     void showNotesDialog();
-    void showMbcImportDialog();
     void toggleMarkersState();
     void handleOpenRecentProject(QString projectFile);
 
@@ -100,7 +99,7 @@ private slots:
 
 private:
     void setAxisToAuto();
-    void showRegisterDialog(QString mbcFile);
+    void showRegisterDialog();
     void handleCommandLineArguments(QStringList cmdArguments);
     void handleFileOpen(QString filename);
 

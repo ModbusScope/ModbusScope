@@ -9,7 +9,6 @@
 #include "datahandling/graphdatahandler.h"
 #include "dialogs/aboutdialog.h"
 #include "dialogs/diagnosticdialog.h"
-#include "dialogs/importmbcdialog.h"
 #include "dialogs/registerdialog.h"
 #include "dialogs/settingsdialog.h"
 #include "dialogs/ui_mainwindow.h"
@@ -87,7 +86,6 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pUi->actionOpenProjectFile, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::selectProjectOpenFile);
     connect(_pUi->actionReloadProjectFile, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::reloadProjectFile);
     connect(_pUi->actionOpenDataFile, &QAction::triggered, _pDataFileHandler, &DataFileHandler::selectDataImportFile);
-    connect(_pUi->actionImportFromMbcFile, &QAction::triggered, this, &MainWindow::showMbcImportDialog);
     connect(_pUi->actionExportImage, &QAction::triggered, this, &MainWindow::selectImageExportFile);
     connect(_pUi->actionSaveProjectFileAs, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::selectProjectSaveFile);
     connect(_pUi->actionSaveProjectFile, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::saveProjectFile);
@@ -358,7 +356,7 @@ void MainWindow::showSettingsDialog()
 void MainWindow::handleShowRegisterDialog(bool checked)
 {
     Q_UNUSED(checked);
-    showRegisterDialog(QString(""));
+    showRegisterDialog();
 }
 
 void MainWindow::setAxisToAuto()
@@ -368,7 +366,7 @@ void MainWindow::setAxisToAuto()
     _pGuiModel->sety2AxisScale(AxisMode::SCALE_AUTO);
 }
 
-void MainWindow::showRegisterDialog(QString mbcFile)
+void MainWindow::showRegisterDialog()
 {
     if (_pGuiModel->guiState() == GuiState::DATA_LOADED)
     {
@@ -386,16 +384,7 @@ void MainWindow::showRegisterDialog(QString mbcFile)
     }
 
     RegisterDialog registerDialog(_pGraphDataModel, _pSettingsModel, this);
-
-    if (mbcFile.isEmpty())
-    {
-        registerDialog.exec();
-    }
-    else
-    {
-        _pGuiModel->setLastMbcImportedFile(mbcFile);
-        showMbcImportDialog();
-    }
+    registerDialog.exec();
 }
 
 void MainWindow::addNoteToGraph()
@@ -517,13 +506,6 @@ void MainWindow::showDiagnostic()
 void MainWindow::showNotesDialog()
 {
     _pNotesDock->show();
-}
-
-void MainWindow::showMbcImportDialog()
-{
-    ImportMbcDialog importMbcDialog(_pGuiModel, _pGraphDataModel, this);
-
-    importMbcDialog.exec();
 }
 
 void MainWindow::toggleMarkersState()
@@ -662,7 +644,6 @@ void MainWindow::updateGuiState()
         _pUi->actionRegisterSettings->setEnabled(true);
         _pUi->actionStart->setEnabled(true);
         _pUi->actionOpenDataFile->setEnabled(true);
-        _pUi->actionImportFromMbcFile->setEnabled(true);
         _pUi->actionOpenProjectFile->setEnabled(true);
         _pUi->actionSaveDataFile->setEnabled(false);
         _pUi->actionExportImage->setEnabled(false);
@@ -682,7 +663,6 @@ void MainWindow::updateGuiState()
         _pUi->actionRegisterSettings->setEnabled(false);
         _pUi->actionStart->setEnabled(false);
         _pUi->actionOpenDataFile->setEnabled(false);
-        _pUi->actionImportFromMbcFile->setEnabled(false);
         _pUi->actionOpenProjectFile->setEnabled(false);
         _pUi->actionSaveDataFile->setEnabled(false);
         _pUi->actionSaveProjectFileAs->setEnabled(false);
@@ -699,7 +679,6 @@ void MainWindow::updateGuiState()
         _pUi->actionRegisterSettings->setEnabled(true);
         _pUi->actionStart->setEnabled(true);
         _pUi->actionOpenDataFile->setEnabled(true);
-        _pUi->actionImportFromMbcFile->setEnabled(true);
         _pUi->actionOpenProjectFile->setEnabled(true);
         _pUi->actionSaveDataFile->setEnabled(true);
         _pUi->actionSaveProjectFileAs->setEnabled(true);
@@ -727,7 +706,6 @@ void MainWindow::updateGuiState()
         _pUi->actionRegisterSettings->setEnabled(true);
         _pUi->actionStart->setEnabled(true);
         _pUi->actionOpenDataFile->setEnabled(true);
-        _pUi->actionImportFromMbcFile->setEnabled(true);
         _pUi->actionOpenProjectFile->setEnabled(true);
 
         _pUi->actionSaveDataFile->setEnabled(false);
@@ -876,10 +854,6 @@ void MainWindow::handleFileOpen(QString filename)
     if (fileInfo.completeSuffix().toLower() == QString("mbs"))
     {
         _pProjectFileHandler->openProjectFile(filename);
-    }
-    else if (fileInfo.completeSuffix().toLower() == QString("mbc"))
-    {
-        showRegisterDialog(filename);
     }
     else
     {

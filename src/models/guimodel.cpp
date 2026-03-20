@@ -45,7 +45,6 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
     {
         _lastDir = docPath[0];
     }
-    _lastMbcImportedFile = QString();
 
     _guiSettings.xScaleMode = AxisMode::SCALE_AUTO;
     _guiSettings.yScaleMode = AxisMode::SCALE_AUTO;
@@ -164,16 +163,6 @@ void GuiModel::setLastDir(QString dir)
 QString GuiModel::lastDir()
 {
     return _lastDir;
-}
-
-void GuiModel::setLastMbcImportedFile(QString file)
-{
-    _lastMbcImportedFile = file;
-}
-
-QString GuiModel::lastMbcImportedFile()
-{
-    return _lastMbcImportedFile;
 }
 
 void GuiModel::setxAxisScale(AxisMode::AxisScaleOptions scaleMode)
