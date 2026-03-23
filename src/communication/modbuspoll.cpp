@@ -15,7 +15,10 @@
 
 ModbusPoll::ModbusPoll(SettingsModel* pSettingsModel, QObject* parent) : QObject(parent), _bPollActive(false)
 {
-    _pPollTimer = new QTimer();
+    _pPollTimer = new QTimer(this);
+    _pPollTimer->setSingleShot(true);
+    connect(_pPollTimer, &QTimer::timeout, this, &ModbusPoll::triggerRegisterRead);
+
     _pSettingsModel = pSettingsModel;
     _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 
@@ -30,10 +33,7 @@ ModbusPoll::ModbusPoll(SettingsModel* pSettingsModel, QObject* parent) : QObject
     });
 }
 
-ModbusPoll::~ModbusPoll()
-{
-    delete _pPollTimer;
-}
+ModbusPoll::~ModbusPoll() = default;
 
 void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
 {
@@ -96,7 +96,7 @@ void ModbusPoll::onReadDataResult(ResultDoubleList results)
             waitInterval = _pSettingsModel->pollTime() - passedInterval;
         }
 
-        _pPollTimer->singleShot(static_cast<int>(waitInterval), this, &ModbusPoll::triggerRegisterRead);
+        _pPollTimer->start(static_cast<int>(waitInterval));
     }
 }
 
