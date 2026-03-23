@@ -55,13 +55,11 @@ Enforced by `.clang-format` (Mozilla-based, C++20):
 - Pointer left-aligned: `Type* ptr`
 - Private members: `_camelCase`; pointer members: `_pName`
 - Classes: `PascalCase`; methods: `camelCase`
-- Use Qt doxygen style for comments
+- Use Qt doxygen style for comments: `/*!` for multi-line blocks, `//!` for single-line; use `\brief`, `\param`, `\return` (backslash prefix, not `@`)
 
 ## Key Conventions
 
 - Prefer readability and maintainability over using the latest C++ features (avoid syntax sugar that may be less familiar to new contributors).
-- Tests use `QCOMPARE` / `QTEST_GUILESS_MAIN` (Qt Test)
-- Make sure to document public APIs with brief Doxygen comments
-- Update json-rpc schema spec when updating json-rpc related code
+- Make sure to document public functions with brief Doxygen comments in the source file
 - Only use early return for error handling, avoid deep nesting
 - When fixing a bug, add a test that reproduces the issue before implementing the fix.

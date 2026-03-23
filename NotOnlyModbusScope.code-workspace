@@ -58,7 +58,10 @@
 	"extensions": {
 		"recommendations": [
 			"theqtcompany.qt-cpp-pack",
-			"jbenden.c-cpp-flylint"
+			"jbenden.c-cpp-flylint",
+			"ms-vscode.cpptools",
+			"ms-vscode.cmake-tools",
+			"ms-vscode.cmake"
 		]
 	}
 }
