@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QObject>
 
+#include "models/adapterdata.h"
 #include "models/connection.h"
 #include "models/connectiontypes.h"
 #include "models/device.h"
@@ -41,6 +42,10 @@ public:
     QList<deviceId_t> deviceList();
     QList<deviceId_t> deviceListForConnection(ConnectionTypes::connectionId_t connectionId);
 
+    AdapterData* adapterData(const QString& adapterId);
+    QStringList adapterIds() const;
+    void removeAdapter(const QString& adapterId);
+
     static const QString defaultLogPath()
     {
         const QString cDefaultLogFileName = "ModbusScope-autolog.csv";
@@ -64,6 +69,7 @@ signals:
     void writeDuringLogFileChanged();
     void absoluteTimesChanged();
     void deviceListChanged();
+    void adapterDataChanged(const QString& adapterId);
 
 private:
     typedef struct
@@ -74,6 +80,7 @@ private:
 
     QList<ConnectionSettings> _connectionSettings;
     QMap<deviceId_t, Device> _devices;
+    QMap<QString, AdapterData> _adapters;
 
     quint32 _pollTime;
     bool _bAbsoluteTimes;

@@ -201,6 +201,25 @@ bool SettingsModel::connectionState(connectionId_t connectionId)
     return _connectionSettings[connectionId].bConnectionState;
 }
 
+AdapterData* SettingsModel::adapterData(const QString& adapterId)
+{
+    if (!_adapters.contains(adapterId))
+    {
+        _adapters[adapterId] = AdapterData();
+    }
+    return &_adapters[adapterId];
+}
+
+QStringList SettingsModel::adapterIds() const
+{
+    return _adapters.keys();
+}
+
+void SettingsModel::removeAdapter(const QString& adapterId)
+{
+    _adapters.remove(adapterId);
+}
+
 bool SettingsModel::updateDeviceId(deviceId_t oldId, deviceId_t newId)
 {
     if (!_devices.contains(oldId) || _devices.contains(newId))
