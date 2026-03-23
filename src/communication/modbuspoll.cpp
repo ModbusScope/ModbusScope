@@ -27,6 +27,7 @@ ModbusPoll::ModbusPoll(SettingsModel* pSettingsModel, QObject* parent) : QObject
 
     connect(_pAdapterClient, &AdapterClient::sessionStarted, this, &ModbusPoll::triggerRegisterRead);
     connect(_pAdapterClient, &AdapterClient::readDataResult, this, &ModbusPoll::onReadDataResult);
+    connect(_pAdapterClient, &AdapterClient::describeResult, this, &ModbusPoll::onDescribeResult);
     connect(_pAdapterClient, &AdapterClient::sessionError, this, [this](QString message) {
         qCWarning(scopeComm) << "AdapterClient error:" << message;
         _bPollActive = false;
@@ -45,9 +46,8 @@ void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
     resetCommunicationStats();
 
     static constexpr QLatin1StringView cAdapterPath{ "./modbusadapter" };
-    QJsonObject config = buildAdapterConfig();
     QStringList expressions = buildRegisterExpressions(_registerList);
-    _pAdapterClient->startSession(cAdapterPath, config, expressions);
+    _pAdapterClient->startSession(cAdapterPath, expressions);
 }
 
 void ModbusPoll::resetCommunicationStats()
@@ -98,6 +98,24 @@ void ModbusPoll::onReadDataResult(ResultDoubleList results)
 
         _pPollTimer->start(static_cast<int>(waitInterval));
     }
+}
+
+void ModbusPoll::onDescribeResult(QJsonObject description)
+{
+    _pSettingsModel->adapterData("modbus")->updateFromDescribe(description);
+
+    AdapterData* data = _pSettingsModel->adapterData("modbus");
+    QJsonObject config;
+    if (data->hasStoredConfig())
+    {
+        config = data->currentConfig();
+    }
+    else
+    {
+        config = buildAdapterConfig();
+    }
+
+    _pAdapterClient->provideConfig(config);
 }
 
 QJsonObject ModbusPoll::buildAdapterConfig()

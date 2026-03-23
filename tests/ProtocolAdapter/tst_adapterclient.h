@@ -24,6 +24,8 @@ private slots:
     void requestReadDataWhenNotActive();
     void nonObjectResultEmitsSessionError();
     void errorDuringShutdownSuppressed();
+    void awaitingConfigPausesBeforeConfigure();
+    void stopSessionDuringAwaitingConfig();
 };
 
 #endif // TST_ADAPTERCLIENT_H

@@ -29,17 +29,28 @@ public:
     ~AdapterClient();
 
     /*!
-     * \brief Launch the adapter and run the full initialization lifecycle.
+     * \brief Launch the adapter and run the initialization lifecycle up to describe.
      *
      * Starts the adapter at \a adapterPath, then sequentially sends
-     * adapter.initialize, adapter.describe, adapter.configure, and adapter.start.
-     * Emits sessionStarted() on success. Emits describeResult() during the describe step.
+     * adapter.initialize and adapter.describe. After the describe response is received
+     * and describeResult() is emitted, the client enters the AWAITING_CONFIG state.
+     * The caller must then call provideConfig() to continue the lifecycle.
      *
      * \param adapterPath Path to the adapter executable.
-     * \param config JSON object passed as the \c config param to adapter.configure.
      * \param registerExpressions Register expression strings passed to adapter.start.
      */
-    void startSession(const QString& adapterPath, QJsonObject config, QStringList registerExpressions);
+    void startSession(const QString& adapterPath, QStringList registerExpressions);
+
+    /*!
+     * \brief Provide the configuration to send to adapter.configure.
+     *
+     * Must be called after describeResult() has been emitted (i.e., in the
+     * AWAITING_CONFIG state). Sends adapter.configure with the given config,
+     * then continues to adapter.start and emits sessionStarted() on success.
+     *
+     * \param config JSON object passed as the \c config param to adapter.configure.
+     */
+    void provideConfig(QJsonObject config);
 
     /*!
      * \brief Send an adapter.readData request to the active adapter.
@@ -99,6 +110,7 @@ protected:
         IDLE,
         INITIALIZING,
         DESCRIBING,
+        AWAITING_CONFIG,
         CONFIGURING,
         STARTING,
         ACTIVE,

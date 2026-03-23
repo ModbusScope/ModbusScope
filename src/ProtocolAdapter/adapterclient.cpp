@@ -20,7 +20,7 @@ AdapterClient::AdapterClient(AdapterProcess* pProcess, QObject* parent) : QObjec
 
 AdapterClient::~AdapterClient() = default;
 
-void AdapterClient::startSession(const QString& adapterPath, QJsonObject config, QStringList registerExpressions)
+void AdapterClient::startSession(const QString& adapterPath, QStringList registerExpressions)
 {
     if (_state != State::IDLE)
     {
@@ -28,7 +28,6 @@ void AdapterClient::startSession(const QString& adapterPath, QJsonObject config,
         return;
     }
 
-    _pendingConfig = config;
     _pendingExpressions = registerExpressions;
 
     if (!_pProcess->start(adapterPath))
@@ -40,6 +39,22 @@ void AdapterClient::startSession(const QString& adapterPath, QJsonObject config,
     _state = State::INITIALIZING;
     _handshakeTimer.start(cHandshakeTimeoutMs);
     _pProcess->sendRequest("adapter.initialize", QJsonObject());
+}
+
+void AdapterClient::provideConfig(QJsonObject config)
+{
+    if (_state != State::AWAITING_CONFIG)
+    {
+        qCWarning(scopeComm) << "AdapterClient: provideConfig called in unexpected state"
+                              << static_cast<int>(_state);
+        return;
+    }
+
+    _pendingConfig = config;
+    _state = State::CONFIGURING;
+    QJsonObject params;
+    params["config"] = _pendingConfig;
+    _pProcess->sendRequest("adapter.configure", params);
 }
 
 void AdapterClient::requestReadData()
@@ -154,12 +169,9 @@ void AdapterClient::handleLifecycleResponse(const QString& method, const QJsonOb
     }
     else if (method == "adapter.describe" && _state == State::DESCRIBING)
     {
-        qCInfo(scopeComm) << "AdapterClient: described, sending configure";
+        qCInfo(scopeComm) << "AdapterClient: described, awaiting config";
+        _state = State::AWAITING_CONFIG;
         emit describeResult(result);
-        _state = State::CONFIGURING;
-        QJsonObject params;
-        params["config"] = _pendingConfig;
-        _pProcess->sendRequest("adapter.configure", params);
     }
     else if (method == "adapter.configure" && _state == State::CONFIGURING)
     {
