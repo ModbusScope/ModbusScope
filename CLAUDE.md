@@ -17,7 +17,7 @@ ctest --output-on-failure
 Run pre-commit checks:
 
 ```bash
-./scripts/pre-commit.sh
+./scripts/run_pre_commit.sh
 ```
 
 **Requirements:** Qt 6, C++20, Ninja. Compiler flags: `-Wall -Wextra -Werror`.
