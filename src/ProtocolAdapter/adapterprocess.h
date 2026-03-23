@@ -4,6 +4,7 @@
 #include "ProtocolAdapter/framingreader.h"
 
 #include <QJsonObject>
+#include <QJsonValue>
 #include <QMap>
 #include <QObject>
 #include <QProcess>
@@ -75,6 +76,13 @@ signals:
      * \param message Human-readable error description.
      */
     void processError(QString message);
+
+    /*!
+     * \brief Emitted when a server-initiated JSON-RPC notification is received.
+     * \param method The notification method name.
+     * \param params The params value from the notification (may be undefined).
+     */
+    void notificationReceived(QString method, QJsonValue params);
 
     /*!
      * \brief Emitted when the adapter process exits.

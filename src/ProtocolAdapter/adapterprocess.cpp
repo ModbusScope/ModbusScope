@@ -131,8 +131,8 @@ void AdapterProcess::onMessageReceived(QByteArray body)
 
     if (msg.contains("method"))
     {
-        /* Notification — pass through as-is; callers may handle these */
         qCDebug(scopeComm) << "AdapterProcess: notification:" << msg["method"].toString();
+        emit notificationReceived(msg["method"].toString(), msg.value("params"));
         return;
     }
 

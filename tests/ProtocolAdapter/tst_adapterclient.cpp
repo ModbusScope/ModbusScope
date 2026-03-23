@@ -63,6 +63,12 @@ public:
         emit processError(message);
     }
 
+    //! Simulate a server-initiated notification from the adapter.
+    void injectNotification(const QString& method, const QJsonValue& params)
+    {
+        emit notificationReceived(method, params);
+    }
+
 private:
     int _nextMockId{ 1 };
 };
@@ -269,8 +275,9 @@ void TestAdapterClient::notificationIgnored()
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
     QSignalSpy spyData(&client, &AdapterClient::readDataResult);
 
-    /* AdapterProcess filters notifications before emitting responseReceived,
-       so this test verifies the client stays silent when the process fires no signals */
+    /* Simulate a server-initiated notification and verify AdapterClient stays silent */
+    mock->injectNotification("adapter.progress", QJsonObject{ { "percent", 50 } });
+
     QCOMPARE(spyStarted.count(), 0);
     QCOMPARE(spyError.count(), 0);
     QCOMPARE(spyData.count(), 0);

@@ -22,7 +22,10 @@ sequenceDiagram
 
     Note over Client,ModbusPoll: Deferred Response Flow
     Client->>Reader: readData request
+    Reader->>Parser: feed(data)
+    Parser->>Parser: parse frame
     Reader->>Server: messageReceived(body)
+    Server->>Server: parseJSON & validate
     Server->>Handler: invoke ReadDataHandler
     Handler->>ModbusPoll: startCommunication
     Handler-->>Server: {"__deferred": true}
