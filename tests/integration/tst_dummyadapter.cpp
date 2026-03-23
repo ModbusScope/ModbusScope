@@ -19,6 +19,7 @@ QJsonObject minimalConfig()
 {
     QJsonObject config;
     config["version"] = 1;
+    config["general"] = QJsonObject();
     config["connections"] = QJsonArray();
     config["devices"] = QJsonArray();
     return config;
