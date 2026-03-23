@@ -119,11 +119,14 @@ Returns the adapter's static metadata, configuration schema, default values, and
 
 Applies connection and device configuration to the adapter. Must be called before `adapter.start`.
 
+The config object top-level structure will be used for the configuration GUI dialog generation. The GUI uses JSON Schema types to determine layout: `"type": "object"` renders as a single-form dialog, `"type": "array"` renders as a tabbed dialog (one tab per item).
+
 **Params:**
 ```json
 {
   "config": {
     "version": 1,
+    "general": {},
     "connections": [
       {
         "id": 0,
@@ -158,6 +161,14 @@ Applies connection and device configuration to the adapter. Must be called befor
   }
 }
 ```
+
+**General fields:**
+
+Adapter-wide settings. Currently empty; reserved for future use.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| *(none yet)* | | |
 
 **Connection fields:**
 
@@ -202,7 +213,7 @@ Serial-specific fields:
 ```
 
 **Errors:**
-- `-32602` — Missing `config` key; invalid field values; unknown type; invalid parity
+- `-32602` — Missing `config` key; missing or invalid `general`/`connections`/`devices`; invalid field values
 
 ---
 
@@ -413,9 +424,9 @@ Content-Length: 49\r\n
 Configure connection and device:
 
 ```text
-Content-Length: 242\r\n
+Content-Length: 255\r\n
 \r\n
-{"jsonrpc":"2.0","id":2,"method":"adapter.configure","params":{"config":{"version":1,"connections":[{"id":0,"type":"tcp","ip":"192.168.1.100","port":502,"timeout":1000}],"devices":[{"id":1,"connectionId":0,"slaveId":1,"consecutiveMax":64}]}}}
+{"jsonrpc":"2.0","id":2,"method":"adapter.configure","params":{"config":{"version":1,"general":{},"connections":[{"id":0,"type":"tcp","ip":"192.168.1.100","port":502,"timeout":1000}],"devices":[{"id":1,"connectionId":0,"slaveId":1,"consecutiveMax":64}]}}}
 ```
 
 Response:
