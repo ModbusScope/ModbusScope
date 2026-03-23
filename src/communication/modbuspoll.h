@@ -20,6 +20,7 @@ public:
     explicit ModbusPoll(SettingsModel* pSettingsModel, QObject* parent = nullptr);
     ~ModbusPoll();
 
+    void initAdapter();
     void startCommunication(QList<ModbusRegister>& registerList);
     void stopCommunication();
 

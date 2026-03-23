@@ -110,7 +110,7 @@ void TestAdapterClient::lifecycleInitializeToStart()
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
     QSignalSpy spyDescribe(&client, &AdapterClient::describeResult);
 
-    client.startSession(QStringLiteral("./dummy"), QStringList());
+    client.prepareAdapter(QStringLiteral("./dummy"));
 
     /* 1. initialize was sent */
     QCOMPARE(mock->sentRequests.size(), 1);
@@ -129,7 +129,7 @@ void TestAdapterClient::lifecycleInitializeToStart()
     QCOMPARE(spyStarted.count(), 0);
 
     /* 4. provide config → configure sent */
-    client.provideConfig(QJsonObject());
+    client.provideConfig(QJsonObject(), QStringList());
     QCOMPARE(mock->sentRequests.size(), 3);
     QCOMPARE(mock->sentRequests[2].method, QStringLiteral("adapter.configure"));
     QCOMPARE(spyStarted.count(), 0);
@@ -153,7 +153,7 @@ void TestAdapterClient::describeSignalEmitted()
 
     QSignalSpy spyDescribe(&client, &AdapterClient::describeResult);
 
-    client.startSession(QStringLiteral("./dummy"), QStringList());
+    client.prepareAdapter(QStringLiteral("./dummy"));
 
     mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
 
@@ -174,10 +174,10 @@ void TestAdapterClient::readDataValidResults()
     QSignalSpy spy(&client, &AdapterClient::readDataResult);
 
     /* Drive to ACTIVE state */
-    client.startSession(QStringLiteral("./dummy"), QStringList());
+    client.prepareAdapter(QStringLiteral("./dummy"));
     mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
     mock->injectResponse(2, "adapter.describe", describeResult());
-    client.provideConfig(QJsonObject());
+    client.provideConfig(QJsonObject(), QStringList());
     mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
     mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
 
@@ -203,10 +203,10 @@ void TestAdapterClient::readDataEmptyRegisters()
 
     QSignalSpy spy(&client, &AdapterClient::readDataResult);
 
-    client.startSession(QStringLiteral("./dummy"), QStringList());
+    client.prepareAdapter(QStringLiteral("./dummy"));
     mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
     mock->injectResponse(2, "adapter.describe", describeResult());
-    client.provideConfig(QJsonObject());
+    client.provideConfig(QJsonObject(), QStringList());
     mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
     mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
 
@@ -225,10 +225,10 @@ void TestAdapterClient::requestStatusEmitsSignal()
 
     QSignalSpy spy(&client, &AdapterClient::statusResult);
 
-    client.startSession(QStringLiteral("./dummy"), QStringList());
+    client.prepareAdapter(QStringLiteral("./dummy"));
     mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
     mock->injectResponse(2, "adapter.describe", describeResult());
-    client.provideConfig(QJsonObject());
+    client.provideConfig(QJsonObject(), QStringList());
     mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
     mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
 
@@ -246,7 +246,7 @@ void TestAdapterClient::errorResponseEmitsSessionError()
 
     QSignalSpy spy(&client, &AdapterClient::sessionError);
 
-    client.startSession(QStringLiteral("./dummy"), QStringList());
+    client.prepareAdapter(QStringLiteral("./dummy"));
 
     QJsonObject error;
     error["code"] = -32602;
@@ -298,7 +298,7 @@ void TestAdapterClient::processErrorEmitsSessionError()
 
     QSignalSpy spy(&client, &AdapterClient::sessionError);
 
-    client.startSession(QStringLiteral("./dummy"), QStringList());
+    client.prepareAdapter(QStringLiteral("./dummy"));
     mock->injectProcessError(QStringLiteral("Adapter process crashed"));
 
     QCOMPARE(spy.count(), 1);
@@ -312,7 +312,7 @@ void TestAdapterClient::stopSessionDuringLifecycle()
 
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
 
-    client.startSession(QStringLiteral("./dummy"), QStringList());
+    client.prepareAdapter(QStringLiteral("./dummy"));
 
     /* Drive to DESCRIBING state */
     mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
@@ -333,10 +333,10 @@ void TestAdapterClient::doubleStopSession()
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
 
     /* Drive to ACTIVE state */
-    client.startSession(QStringLiteral("./dummy"), QStringList());
+    client.prepareAdapter(QStringLiteral("./dummy"));
     mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
     mock->injectResponse(2, "adapter.describe", describeResult());
-    client.provideConfig(QJsonObject());
+    client.provideConfig(QJsonObject(), QStringList());
     mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
     mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
 
@@ -373,7 +373,7 @@ void TestAdapterClient::nonObjectResultEmitsSessionError()
 
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
 
-    client.startSession(QStringLiteral("./dummy"), QStringList());
+    client.prepareAdapter(QStringLiteral("./dummy"));
 
     /* Inject a non-object result (string instead of object) */
     mock->injectResponse(1, "adapter.initialize", QJsonValue(QString("unexpected string")));
@@ -390,10 +390,10 @@ void TestAdapterClient::errorDuringShutdownSuppressed()
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
 
     /* Drive to ACTIVE state */
-    client.startSession(QStringLiteral("./dummy"), QStringList());
+    client.prepareAdapter(QStringLiteral("./dummy"));
     mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
     mock->injectResponse(2, "adapter.describe", describeResult());
-    client.provideConfig(QJsonObject());
+    client.provideConfig(QJsonObject(), QStringList());
     mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
     mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
 
@@ -417,7 +417,7 @@ void TestAdapterClient::awaitingConfigPausesBeforeConfigure()
 
     QSignalSpy spyDescribe(&client, &AdapterClient::describeResult);
 
-    client.startSession(QStringLiteral("./dummy"), QStringList());
+    client.prepareAdapter(QStringLiteral("./dummy"));
     mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
     mock->injectResponse(2, "adapter.describe", describeResult());
 
@@ -428,7 +428,7 @@ void TestAdapterClient::awaitingConfigPausesBeforeConfigure()
     QCOMPARE(mock->sentRequests[1].method, QStringLiteral("adapter.describe"));
 
     /* Now provide config → configure is sent */
-    client.provideConfig(QJsonObject{ { "version", 1 } });
+    client.provideConfig(QJsonObject{ { "version", 1 } }, QStringList());
     QCOMPARE(mock->sentRequests.size(), 3);
     QCOMPARE(mock->sentRequests[2].method, QStringLiteral("adapter.configure"));
 }
@@ -440,7 +440,7 @@ void TestAdapterClient::stopSessionDuringAwaitingConfig()
 
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
 
-    client.startSession(QStringLiteral("./dummy"), QStringList());
+    client.prepareAdapter(QStringLiteral("./dummy"));
     mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
     mock->injectResponse(2, "adapter.describe", describeResult());
 
@@ -450,7 +450,7 @@ void TestAdapterClient::stopSessionDuringAwaitingConfig()
     QCOMPARE(spyError.count(), 0);
 
     /* provideConfig after stop should be silently ignored */
-    client.provideConfig(QJsonObject());
+    client.provideConfig(QJsonObject(), QStringList());
     QCOMPARE(mock->sentRequests.size(), 2);
 }
 

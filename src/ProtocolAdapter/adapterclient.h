@@ -13,10 +13,11 @@
  * \brief Lifecycle manager for an external adapter process communicating via JSON-RPC 2.0.
  *
  * Drives the full adapter session sequence using an AdapterProcess for transport:
- *   startSession() → initialize → describe → configure → start → sessionStarted()
+ *   prepareAdapter() → initialize → describe → describeResult()
+ *   provideConfig()  → configure  → start    → sessionStarted()
  *   requestReadData() → readData → readDataResult()
  *   requestStatus() → getStatus → statusResult()
- *   stopSession() → shutdown → process exit
+ *   stopSession() → shutdown → process exit → sessionStopped()
  *
  * Takes ownership of the AdapterProcess passed to the constructor.
  */
@@ -37,20 +38,21 @@ public:
      * The caller must then call provideConfig() to continue the lifecycle.
      *
      * \param adapterPath Path to the adapter executable.
-     * \param registerExpressions Register expression strings passed to adapter.start.
      */
-    void startSession(const QString& adapterPath, QStringList registerExpressions);
+    void prepareAdapter(const QString& adapterPath);
 
     /*!
-     * \brief Provide the configuration to send to adapter.configure.
+     * \brief Provide the configuration and register expressions to send to adapter.configure and adapter.start.
      *
      * Must be called after describeResult() has been emitted (i.e., in the
      * AWAITING_CONFIG state). Sends adapter.configure with the given config,
-     * then continues to adapter.start and emits sessionStarted() on success.
+     * then continues to adapter.start with the register expressions, and emits
+     * sessionStarted() on success.
      *
      * \param config JSON object passed as the \c config param to adapter.configure.
+     * \param registerExpressions Register expression strings passed to adapter.start.
      */
-    void provideConfig(QJsonObject config);
+    void provideConfig(QJsonObject config, QStringList registerExpressions);
 
     /*!
      * \brief Send an adapter.readData request to the active adapter.
@@ -81,7 +83,7 @@ signals:
 
     /*!
      * \brief Emitted when an adapter.readData response has been received.
-     * \param results One entry per register, in the same order as the expressions passed to startSession().
+     * \param results One entry per register, in the same order as the expressions passed to provideConfig().
      */
     void readDataResult(ResultDoubleList results);
 
@@ -92,7 +94,7 @@ signals:
     void sessionError(QString message);
 
     /*!
-     * \brief Emitted during startSession() when the adapter.describe response is received.
+     * \brief Emitted during prepareAdapter() when the adapter.describe response is received.
      * \param description The full describe result object (name, version, configVersion, schema, defaults,
      * capabilities).
      */
@@ -103,6 +105,14 @@ signals:
      * \param active true if the adapter is actively polling.
      */
     void statusResult(bool active);
+
+    /*!
+     * \brief Emitted when the adapter process has been intentionally stopped and the client is IDLE.
+     *
+     * This signal is not emitted on unexpected process exits or errors — only after
+     * a successful stopSession() call. The caller may use this to re-invoke prepareAdapter().
+     */
+    void sessionStopped();
 
 protected:
     enum class State

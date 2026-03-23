@@ -35,7 +35,7 @@ void TestDummyAdapter::describeReturnsRequiredFields()
     QSignalSpy spyDescribe(&client, &AdapterClient::describeResult);
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
 
-    client.startSession(QString::fromUtf8(DUMMY_ADAPTER_PATH), QStringList());
+    client.prepareAdapter(QString::fromUtf8(DUMMY_ADAPTER_PATH));
 
     QVERIFY2(spyDescribe.wait(cSessionTimeoutMs), "No describeResult signal received");
     QCOMPARE(spyError.count(), 0);
@@ -59,7 +59,7 @@ void TestDummyAdapter::describeNameIsModbusAdapter()
 
     QSignalSpy spyDescribe(&client, &AdapterClient::describeResult);
 
-    client.startSession(QString::fromUtf8(DUMMY_ADAPTER_PATH), QStringList());
+    client.prepareAdapter(QString::fromUtf8(DUMMY_ADAPTER_PATH));
 
     QVERIFY(spyDescribe.wait(cSessionTimeoutMs));
 
@@ -75,14 +75,13 @@ void TestDummyAdapter::fullLifecycleSessionStarts()
     AdapterClient client(process);
 
     /* Provide config when describe result arrives so the lifecycle can continue */
-    connect(&client, &AdapterClient::describeResult, &client, [&client]() {
-        client.provideConfig(minimalConfig());
-    });
+    connect(&client, &AdapterClient::describeResult, &client,
+            [&client]() { client.provideConfig(minimalConfig(), QStringList()); });
 
     QSignalSpy spyStarted(&client, &AdapterClient::sessionStarted);
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
 
-    client.startSession(QString::fromUtf8(DUMMY_ADAPTER_PATH), QStringList());
+    client.prepareAdapter(QString::fromUtf8(DUMMY_ADAPTER_PATH));
 
     QVERIFY2(spyStarted.wait(cSessionTimeoutMs), "sessionStarted not emitted");
     QCOMPARE(spyError.count(), 0);

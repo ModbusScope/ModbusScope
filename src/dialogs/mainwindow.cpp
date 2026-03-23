@@ -203,6 +203,8 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
 
     handleCommandLineArguments(cmdArguments);
 
+    _pModbusPoll->initAdapter();
+
 #if 0
     //Debugging
     _pGraphDataModel->add();

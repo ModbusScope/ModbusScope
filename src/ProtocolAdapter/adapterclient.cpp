@@ -20,15 +20,13 @@ AdapterClient::AdapterClient(AdapterProcess* pProcess, QObject* parent) : QObjec
 
 AdapterClient::~AdapterClient() = default;
 
-void AdapterClient::startSession(const QString& adapterPath, QStringList registerExpressions)
+void AdapterClient::prepareAdapter(const QString& adapterPath)
 {
     if (_state != State::IDLE)
     {
-        qCWarning(scopeComm) << "AdapterClient: startSession called in non-idle state";
+        qCWarning(scopeComm) << "AdapterClient: prepareAdapter called in non-idle state";
         return;
     }
-
-    _pendingExpressions = registerExpressions;
 
     if (!_pProcess->start(adapterPath))
     {
@@ -41,17 +39,18 @@ void AdapterClient::startSession(const QString& adapterPath, QStringList registe
     _pProcess->sendRequest("adapter.initialize", QJsonObject());
 }
 
-void AdapterClient::provideConfig(QJsonObject config)
+void AdapterClient::provideConfig(QJsonObject config, QStringList registerExpressions)
 {
     if (_state != State::AWAITING_CONFIG)
     {
-        qCWarning(scopeComm) << "AdapterClient: provideConfig called in unexpected state"
-                              << static_cast<int>(_state);
+        qCWarning(scopeComm) << "AdapterClient: provideConfig called in unexpected state" << static_cast<int>(_state);
         return;
     }
 
+    _pendingExpressions = registerExpressions;
     _pendingConfig = config;
     _state = State::CONFIGURING;
+    _handshakeTimer.start(cHandshakeTimeoutMs);
     QJsonObject params;
     params["config"] = _pendingConfig;
     _pProcess->sendRequest("adapter.configure", params);
@@ -97,6 +96,7 @@ void AdapterClient::stopSession()
     {
         _pProcess->stop();
         _state = State::IDLE;
+        emit sessionStopped();
     }
 }
 
@@ -170,6 +170,7 @@ void AdapterClient::handleLifecycleResponse(const QString& method, const QJsonOb
     else if (method == "adapter.describe" && _state == State::DESCRIBING)
     {
         qCInfo(scopeComm) << "AdapterClient: described, awaiting config";
+        _handshakeTimer.stop();
         _state = State::AWAITING_CONFIG;
         emit describeResult(result);
     }
@@ -215,6 +216,7 @@ void AdapterClient::handleLifecycleResponse(const QString& method, const QJsonOb
         qCInfo(scopeComm) << "AdapterClient: shutdown acknowledged";
         _pProcess->stop();
         _state = State::IDLE;
+        emit sessionStopped();
     }
     else
     {
