@@ -19,6 +19,11 @@ private slots:
     void unexpectedResponseEmitsNoSignals();
     void notificationIgnored();
     void processErrorEmitsSessionError();
+    void stopSessionDuringLifecycle();
+    void doubleStopSession();
+    void requestReadDataWhenNotActive();
+    void nonObjectResultEmitsSessionError();
+    void errorDuringShutdownSuppressed();
 };
 
 #endif // TST_ADAPTERCLIENT_H

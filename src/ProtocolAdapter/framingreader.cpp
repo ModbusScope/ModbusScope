@@ -22,6 +22,11 @@ void FramingReader::tryParse()
             int separatorPos = _buffer.indexOf(separator);
             if (separatorPos < 0)
             {
+                if (_buffer.size() > cMaxBufferSize)
+                {
+                    qCWarning(scopeComm) << "FramingReader: buffer exceeded max size without header, discarding";
+                    _buffer.clear();
+                }
                 return;
             }
 
@@ -36,10 +41,18 @@ void FramingReader::tryParse()
 
             bool ok = false;
             _pendingBodySize = header.mid(prefix.size()).toInt(&ok);
-            if (!ok || _pendingBodySize < 0)
+            if (!ok || _pendingBodySize <= 0)
             {
                 qCWarning(scopeComm) << "FramingReader: invalid Content-Length:" << header;
                 _buffer.clear();
+                return;
+            }
+
+            if (_pendingBodySize > cMaxBodySize)
+            {
+                qCWarning(scopeComm) << "FramingReader: Content-Length exceeds maximum:" << _pendingBodySize;
+                _buffer.clear();
+                _pendingBodySize = 0;
                 return;
             }
 

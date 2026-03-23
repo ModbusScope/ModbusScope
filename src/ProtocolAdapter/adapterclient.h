@@ -7,6 +7,7 @@
 #include <QJsonObject>
 #include <QObject>
 #include <QStringList>
+#include <QTimer>
 
 /*!
  * \brief Lifecycle manager for an external adapter process communicating via JSON-RPC 2.0.
@@ -111,11 +112,15 @@ private slots:
     void onErrorReceived(int id, const QString& method, const QJsonObject& error);
     void onProcessError(const QString& message);
     void onProcessFinished();
+    void onHandshakeTimeout();
 
 private:
     void handleLifecycleResponse(const QString& method, const QJsonObject& result);
 
+    static constexpr int cHandshakeTimeoutMs = 10000;
+
     AdapterProcess* _pProcess;
+    QTimer _handshakeTimer;
     QJsonObject _pendingConfig;
     QStringList _pendingExpressions;
 };

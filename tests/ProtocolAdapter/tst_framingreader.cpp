@@ -125,4 +125,44 @@ void TestFramingReader::incompleteHeader()
     QCOMPARE(spy.count(), 0);
 }
 
+void TestFramingReader::zeroContentLength()
+{
+    FramingReader reader;
+    QSignalSpy spy(&reader, &FramingReader::messageReceived);
+
+    reader.feed(QByteArray("Content-Length: 0\r\n\r\n"));
+
+    QCOMPARE(spy.count(), 0);
+}
+
+void TestFramingReader::oversizedContentLength()
+{
+    FramingReader reader;
+    QSignalSpy spy(&reader, &FramingReader::messageReceived);
+
+    /* Content-Length exceeds the 1 MB limit */
+    reader.feed(QByteArray("Content-Length: 2000000\r\n\r\n"));
+
+    QCOMPARE(spy.count(), 0);
+}
+
+void TestFramingReader::bufferOverflowInHeaderState()
+{
+    FramingReader reader;
+    QSignalSpy spy(&reader, &FramingReader::messageReceived);
+
+    /* Feed data without a header separator, exceeding the max buffer size */
+    QByteArray largeData(1024 * 1024 + 100, 'X');
+    reader.feed(largeData);
+
+    QCOMPARE(spy.count(), 0);
+
+    /* After overflow reset, a valid message should still be parseable */
+    const QByteArray body = R"({"id":1,"result":{}})";
+    reader.feed(makeFrame(body));
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toByteArray(), body);
+}
+
 QTEST_GUILESS_MAIN(TestFramingReader)

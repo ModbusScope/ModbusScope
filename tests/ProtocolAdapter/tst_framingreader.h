@@ -17,6 +17,9 @@ private slots:
     void multipleMessagesSplit();
     void invalidHeader();
     void incompleteHeader();
+    void zeroContentLength();
+    void oversizedContentLength();
+    void bufferOverflowInHeaderState();
 };
 
 #endif // TST_FRAMINGREADER_H

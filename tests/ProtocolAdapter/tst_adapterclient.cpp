@@ -290,4 +290,107 @@ void TestAdapterClient::processErrorEmitsSessionError()
     QVERIFY(spy.at(0).at(0).toString().contains("crashed"));
 }
 
+void TestAdapterClient::stopSessionDuringLifecycle()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+
+    client.startSession(QStringLiteral("./dummy"), QJsonObject(), QStringList());
+
+    /* Drive to DESCRIBING state */
+    mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
+    QCOMPARE(mock->sentRequests.size(), 2);
+
+    /* Stop during lifecycle — should not crash, should go to IDLE */
+    client.stopSession();
+
+    /* No sessionError should be emitted for an intentional stop */
+    QCOMPARE(spyError.count(), 0);
+}
+
+void TestAdapterClient::doubleStopSession()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+
+    /* Drive to ACTIVE state */
+    client.startSession(QStringLiteral("./dummy"), QJsonObject(), QStringList());
+    mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(2, "adapter.describe", describeResult());
+    mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
+
+    /* First stop sends shutdown */
+    client.stopSession();
+    int requestsAfterFirstStop = mock->sentRequests.size();
+
+    /* Second stop should be a no-op (state is STOPPING) */
+    client.stopSession();
+    QCOMPARE(mock->sentRequests.size(), requestsAfterFirstStop);
+    QCOMPARE(spyError.count(), 0);
+}
+
+void TestAdapterClient::requestReadDataWhenNotActive()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyData(&client, &AdapterClient::readDataResult);
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+
+    /* Call requestReadData in IDLE state — should be silently ignored */
+    client.requestReadData();
+
+    QCOMPARE(spyData.count(), 0);
+    QCOMPARE(spyError.count(), 0);
+    QCOMPARE(mock->sentRequests.size(), 0);
+}
+
+void TestAdapterClient::nonObjectResultEmitsSessionError()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+
+    client.startSession(QStringLiteral("./dummy"), QJsonObject(), QStringList());
+
+    /* Inject a non-object result (string instead of object) */
+    mock->injectResponse(1, "adapter.initialize", QJsonValue(QString("unexpected string")));
+
+    QCOMPARE(spyError.count(), 1);
+    QVERIFY(spyError.at(0).at(0).toString().contains("non-object"));
+}
+
+void TestAdapterClient::errorDuringShutdownSuppressed()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+
+    /* Drive to ACTIVE state */
+    client.startSession(QStringLiteral("./dummy"), QJsonObject(), QStringList());
+    mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(2, "adapter.describe", describeResult());
+    mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
+
+    /* Initiate shutdown */
+    client.stopSession();
+
+    /* Simulate an error response for the shutdown request */
+    QJsonObject error;
+    error["code"] = -32603;
+    error["message"] = "internal error";
+    mock->injectError(5, "adapter.shutdown", error);
+
+    /* sessionError should NOT be emitted during intentional shutdown */
+    QCOMPARE(spyError.count(), 0);
+}
+
 QTEST_GUILESS_MAIN(TestAdapterClient)

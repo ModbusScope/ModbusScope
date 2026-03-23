@@ -59,7 +59,18 @@ void AdapterProcess::stop()
 
 int AdapterProcess::sendRequest(const QString& method, const QJsonObject& params)
 {
+    if (!isRunning())
+    {
+        qCWarning(scopeComm) << "AdapterProcess: sendRequest called while process is not running";
+        emit processError(QString("Cannot send request '%1': adapter process is not running").arg(method));
+        return -1;
+    }
+
     int id = _nextRequestId++;
+    if (_nextRequestId < 0)
+    {
+        _nextRequestId = 1;
+    }
 
     QJsonObject request;
     request["jsonrpc"] = "2.0";
@@ -83,9 +94,13 @@ void AdapterProcess::writeFramed(const QByteArray& json)
 {
     QByteArray frame = "Content-Length: " + QByteArray::number(json.size()) + "\r\n\r\n" + json;
     qint64 written = _pProcess->write(frame);
-    if (written == -1)
+    if (written != frame.size())
     {
-        emit processError(QString("Failed to write to adapter process (error: %1)").arg(_pProcess->errorString()));
+        emit processError(
+            QString("Failed to write to adapter process (wrote %1 of %2 bytes, error: %3)")
+                .arg(written)
+                .arg(frame.size())
+                .arg(_pProcess->errorString()));
     }
 }
 
@@ -149,5 +164,6 @@ void AdapterProcess::onProcessError(QProcess::ProcessError error)
 void AdapterProcess::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     qCInfo(scopeComm) << "AdapterProcess: process finished, exit code:" << exitCode << "status:" << exitStatus;
+    _pendingMethods.clear();
     emit processFinished();
 }
