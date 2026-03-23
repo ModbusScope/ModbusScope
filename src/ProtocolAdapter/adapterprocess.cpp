@@ -79,7 +79,11 @@ int AdapterProcess::sendRequest(const QString& method, const QJsonObject& params
     request["params"] = params;
 
     QByteArray json = QJsonDocument(request).toJson(QJsonDocument::Compact);
-    writeFramed(json);
+    if (!writeFramed(json))
+    {
+        qCWarning(scopeComm) << "AdapterProcess: failed to write request:" << method;
+        return -1;
+    }
 
     _pendingMethods.insert(id, method);
     return id;
@@ -90,7 +94,7 @@ bool AdapterProcess::isRunning() const
     return _pProcess->state() != QProcess::NotRunning;
 }
 
-void AdapterProcess::writeFramed(const QByteArray& json)
+bool AdapterProcess::writeFramed(const QByteArray& json)
 {
     QByteArray frame = "Content-Length: " + QByteArray::number(json.size()) + "\r\n\r\n" + json;
     qint64 written = _pProcess->write(frame);
@@ -101,7 +105,9 @@ void AdapterProcess::writeFramed(const QByteArray& json)
                 .arg(written)
                 .arg(frame.size())
                 .arg(_pProcess->errorString()));
+        return false;
     }
+    return true;
 }
 
 void AdapterProcess::onReadyReadStdout()

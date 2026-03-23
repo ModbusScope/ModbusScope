@@ -97,7 +97,7 @@ private slots:
     void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
 private:
-    void writeFramed(const QByteArray& json);
+    bool writeFramed(const QByteArray& json);
 
     QProcess* _pProcess;
     FramingReader* _pFramingReader;
