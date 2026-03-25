@@ -33,12 +33,14 @@ void TestDummyAdapter::describeReturnsRequiredFields()
     AdapterClient client(process);
 
     QSignalSpy spyDescribe(&client, &AdapterClient::describeResult);
+    QSignalSpy spyStarted(&client, &AdapterClient::sessionStarted);
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
 
     client.prepareAdapter(QString::fromUtf8(DUMMY_ADAPTER_PATH));
 
     QVERIFY2(spyDescribe.wait(cSessionTimeoutMs), "No describeResult signal received");
     QCOMPARE(spyError.count(), 0);
+    QCOMPARE(spyStarted.count(), 0);
 
     QJsonObject result = spyDescribe.at(0).at(0).value<QJsonObject>();
 
@@ -58,10 +60,12 @@ void TestDummyAdapter::describeNameIsModbusAdapter()
     AdapterClient client(process);
 
     QSignalSpy spyDescribe(&client, &AdapterClient::describeResult);
+    QSignalSpy spyStarted(&client, &AdapterClient::sessionStarted);
 
     client.prepareAdapter(QString::fromUtf8(DUMMY_ADAPTER_PATH));
 
     QVERIFY(spyDescribe.wait(cSessionTimeoutMs));
+    QCOMPARE(spyStarted.count(), 0);
 
     QJsonObject result = spyDescribe.at(0).at(0).value<QJsonObject>();
     QCOMPARE(result["name"].toString(), QStringLiteral("modbusAdapter"));

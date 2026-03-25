@@ -61,18 +61,15 @@ QJsonObject makeAdapterDescribe(const QString& adapterName)
 
 } // namespace
 
-void TestAdapterDeviceSettings::setupAdapter(SettingsModel& model,
-                                             const QString& adapterId,
-                                             const QJsonArray& devices)
+void TestAdapterDeviceSettings::setupAdapter(SettingsModel& model, const QString& adapterId, const QJsonArray& devices)
 {
-    model.adapterData(adapterId)->updateFromDescribe(makeAdapterDescribe(adapterId));
+    model.updateAdapterFromDescribe(adapterId, makeAdapterDescribe(adapterId));
 
     QJsonObject config;
     config["general"] = QJsonObject();
     config["connections"] = QJsonArray();
     config["devices"] = devices;
-    model.adapterData(adapterId)->setCurrentConfig(config);
-    model.adapterData(adapterId)->setHasStoredConfig(true);
+    model.setAdapterCurrentConfig(adapterId, config);
 }
 
 void TestAdapterDeviceSettings::noAdapterShowsLabel()
@@ -155,7 +152,7 @@ void TestAdapterDeviceSettings::acceptValuesSavesToAdapterConfig()
 
     w.acceptValues();
 
-    AdapterData* adapter = model.adapterData("adapterA");
+    const AdapterData* adapter = model.adapterData("adapterA");
     QCOMPARE(adapter->hasStoredConfig(), true);
     QCOMPARE(adapter->currentConfig()["devices"].toArray().at(0).toObject()["name"].toString(),
              QStringLiteral("UpdatedName"));

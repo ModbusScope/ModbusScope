@@ -34,7 +34,13 @@ DeviceConfigTab::DeviceConfigTab(SettingsModel* pSettingsModel,
     const QStringList adapterIds = pSettingsModel->adapterIds();
     for (const auto& id : adapterIds)
     {
-        _pAdapterCombo->addItem(id, id);
+        const AdapterData* pAdapter = pSettingsModel->adapterData(id);
+        QJsonObject itemSchema =
+          pAdapter->schema().value("properties").toObject().value("devices").toObject().value("items").toObject();
+        if (!itemSchema.isEmpty())
+        {
+            _pAdapterCombo->addItem(id, id);
+        }
     }
 
     int idx = _pAdapterCombo->findData(adapterId);
@@ -68,11 +74,7 @@ void DeviceConfigTab::rebuildSchemaForm(const QString& adapterId, const QJsonObj
         _pSchemaForm = nullptr;
     }
 
-    AdapterData* pAdapter = _pSettingsModel->adapterData(adapterId);
-    if (!pAdapter)
-    {
-        return;
-    }
+    const AdapterData* pAdapter = _pSettingsModel->adapterData(adapterId);
     QJsonObject devicesSchema = pAdapter->schema().value("properties").toObject().value("devices").toObject();
     QJsonObject itemSchema = devicesSchema.value("items").toObject();
 

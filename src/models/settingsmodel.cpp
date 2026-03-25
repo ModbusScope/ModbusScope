@@ -201,7 +201,11 @@ bool SettingsModel::connectionState(connectionId_t connectionId)
     return _connectionSettings[connectionId].bConnectionState;
 }
 
-AdapterData* SettingsModel::adapterData(const QString& adapterId)
+/*! \brief Return a pointer to the AdapterData for the given adapter ID.
+ * \param adapterId  The adapter identifier string.
+ * \return Pointer to the AdapterData entry; inserts a default entry if not present.
+ */
+const AdapterData* SettingsModel::adapterData(const QString& adapterId)
 {
     if (!_adapters.contains(adapterId))
     {
@@ -210,14 +214,55 @@ AdapterData* SettingsModel::adapterData(const QString& adapterId)
     return &_adapters[adapterId];
 }
 
+/*! \brief Return the list of registered adapter IDs.
+ * \return QStringList of all adapter ID strings currently in the model.
+ */
 QStringList SettingsModel::adapterIds() const
 {
     return _adapters.keys();
 }
 
+/*! \brief Remove the adapter entry with the given ID.
+ * \param adapterId  The adapter identifier string to remove.
+ */
 void SettingsModel::removeAdapter(const QString& adapterId)
 {
     _adapters.remove(adapterId);
+}
+
+/*! \brief Persist a new configuration for an adapter and notify observers.
+ *
+ * Sets the adapter's current config and marks it as having a stored config,
+ * then emits adapterDataChanged() so listeners can react.
+ * \param adapterId  The adapter identifier string.
+ * \param config     The configuration JSON object to store.
+ */
+void SettingsModel::setAdapterCurrentConfig(const QString& adapterId, const QJsonObject& config)
+{
+    if (!_adapters.contains(adapterId))
+    {
+        _adapters[adapterId] = AdapterData();
+    }
+    _adapters[adapterId].setCurrentConfig(config);
+    _adapters[adapterId].setHasStoredConfig(true);
+    emit adapterDataChanged(adapterId);
+}
+
+/*! \brief Update adapter metadata from an adapter.describe response and notify observers.
+ *
+ * Parses name, version, schema, defaults and capabilities from \a describeResult
+ * and stores them in the adapter entry, then emits adapterDataChanged().
+ * \param adapterId      The adapter identifier string.
+ * \param describeResult The full JSON object returned by adapter.describe.
+ */
+void SettingsModel::updateAdapterFromDescribe(const QString& adapterId, const QJsonObject& describeResult)
+{
+    if (!_adapters.contains(adapterId))
+    {
+        _adapters[adapterId] = AdapterData();
+    }
+    _adapters[adapterId].updateFromDescribe(describeResult);
+    emit adapterDataChanged(adapterId);
 }
 
 bool SettingsModel::updateDeviceId(deviceId_t oldId, deviceId_t newId)

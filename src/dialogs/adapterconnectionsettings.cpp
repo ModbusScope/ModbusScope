@@ -19,8 +19,8 @@ AdapterConnectionSettings::AdapterConnectionSettings(SettingsModel* pSettingsMod
     const QStringList adapterIds = pSettingsModel->adapterIds();
     for (const auto& id : adapterIds)
     {
-        AdapterData* pAdapter = pSettingsModel->adapterData(id);
-        if (pAdapter && !pAdapter->schema().isEmpty())
+        const AdapterData* pAdapter = pSettingsModel->adapterData(id);
+        if (!pAdapter->schema().isEmpty())
         {
             _adapterId = id;
             break;
@@ -34,7 +34,7 @@ AdapterConnectionSettings::AdapterConnectionSettings(SettingsModel* pSettingsMod
         return;
     }
 
-    AdapterData* pAdapter = pSettingsModel->adapterData(_adapterId);
+    const AdapterData* pAdapter = pSettingsModel->adapterData(_adapterId);
     QJsonObject schema = pAdapter->schema();
     QJsonObject config = pAdapter->effectiveConfig();
 
@@ -112,8 +112,7 @@ void AdapterConnectionSettings::acceptValues()
         return;
     }
 
-    AdapterData* pAdapter = _pSettingsModel->adapterData(_adapterId);
-    QJsonObject config = pAdapter->effectiveConfig();
+    QJsonObject config = _pSettingsModel->adapterData(_adapterId)->effectiveConfig();
 
     if (_pGeneralForm)
     {
@@ -138,6 +137,5 @@ void AdapterConnectionSettings::acceptValues()
         config["connections"] = _pConnectionForm->values();
     }
 
-    pAdapter->setCurrentConfig(config);
-    pAdapter->setHasStoredConfig(true);
+    _pSettingsModel->setAdapterCurrentConfig(_adapterId, config);
 }

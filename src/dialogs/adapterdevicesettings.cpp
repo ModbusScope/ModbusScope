@@ -21,8 +21,8 @@ AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWid
     const QStringList allAdapterIds = pSettingsModel->adapterIds();
     for (const auto& id : allAdapterIds)
     {
-        AdapterData* pAdapter = pSettingsModel->adapterData(id);
-        if (pAdapter && !pAdapter->schema().isEmpty())
+        const AdapterData* pAdapter = pSettingsModel->adapterData(id);
+        if (!pAdapter->schema().isEmpty())
         {
             validAdapterIds.append(id);
         }
@@ -46,7 +46,7 @@ AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWid
     int tabIndex = 1;
     for (const auto& adapterId : validAdapterIds)
     {
-        AdapterData* pAdapter = pSettingsModel->adapterData(adapterId);
+        const AdapterData* pAdapter = pSettingsModel->adapterData(adapterId);
         const QJsonArray devices = pAdapter->effectiveConfig().value("devices").toArray();
 
         for (const auto& device : devices)
@@ -69,8 +69,8 @@ void AdapterDeviceSettings::handleAddTab()
     const QStringList adapterIds = _pSettingsModel->adapterIds();
     for (const auto& id : adapterIds)
     {
-        AdapterData* pAdapter = _pSettingsModel->adapterData(id);
-        if (pAdapter && !pAdapter->schema().isEmpty())
+        const AdapterData* pAdapter = _pSettingsModel->adapterData(id);
+        if (!pAdapter->schema().isEmpty())
         {
             defaultAdapterId = id;
             break;
@@ -119,14 +119,17 @@ void AdapterDeviceSettings::acceptValues()
     const QStringList adapterIds = _pSettingsModel->adapterIds();
     for (const auto& adapterId : adapterIds)
     {
-        AdapterData* pAdapter = _pSettingsModel->adapterData(adapterId);
-        if (!pAdapter || pAdapter->schema().isEmpty())
+        if (!devicesByAdapter.contains(adapterId))
+        {
+            continue;
+        }
+        const AdapterData* pAdapter = _pSettingsModel->adapterData(adapterId);
+        if (pAdapter->schema().isEmpty())
         {
             continue;
         }
         QJsonObject config = pAdapter->effectiveConfig();
         config["devices"] = devicesByAdapter.value(adapterId);
-        pAdapter->setCurrentConfig(config);
-        pAdapter->setHasStoredConfig(true);
+        _pSettingsModel->setAdapterCurrentConfig(adapterId, config);
     }
 }

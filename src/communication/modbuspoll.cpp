@@ -37,6 +37,11 @@ ModbusPoll::ModbusPoll(SettingsModel* pSettingsModel, QObject* parent) : QObject
 
 ModbusPoll::~ModbusPoll() = default;
 
+/*! \brief Prepare the protocol adapter subprocess for use.
+ *
+ * Launches the adapter at the hard-coded path and calls prepareAdapter() on
+ * the client, which triggers the adapter.describe handshake.
+ */
 void ModbusPoll::initAdapter()
 {
     static constexpr QLatin1StringView cAdapterPath{ "./adapters/dummymodbusadapter" };
@@ -54,13 +59,7 @@ void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
 
     QStringList expressions = buildRegisterExpressions(_registerList);
 
-    AdapterData* data = _pSettingsModel->adapterData("modbus");
-    if (data == nullptr)
-    {
-        qCWarning(scopeComm) << "No adapter data available for modbus";
-        _bPollActive = false;
-        return;
-    }
+    const AdapterData* data = _pSettingsModel->adapterData("modbus");
     QJsonObject config = data->hasStoredConfig() ? data->currentConfig() : buildAdapterConfig();
 
     _pAdapterClient->provideConfig(config, expressions);
@@ -116,15 +115,9 @@ void ModbusPoll::onReadDataResult(ResultDoubleList results)
     }
 }
 
-void ModbusPoll::onDescribeResult(QJsonObject description)
+void ModbusPoll::onDescribeResult(const QJsonObject& description)
 {
-    AdapterData* data = _pSettingsModel->adapterData("modbus");
-    if (data == nullptr)
-    {
-        qCWarning(scopeComm) << "No adapter data available for modbus";
-        return;
-    }
-    data->updateFromDescribe(description);
+    _pSettingsModel->updateAdapterFromDescribe("modbus", description);
 }
 
 QJsonObject ModbusPoll::buildAdapterConfig()

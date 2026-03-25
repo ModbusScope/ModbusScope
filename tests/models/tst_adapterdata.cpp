@@ -129,13 +129,21 @@ void TestAdapterData::settingsModelAdapterDataCreatesEntry()
     SettingsModel model;
 
     /* First access creates a default entry */
-    AdapterData* data = model.adapterData("modbus");
+    const AdapterData* data = model.adapterData("modbus");
     QVERIFY(data != nullptr);
     QVERIFY(data->name().isEmpty());
 
-    /* Second access returns the same entry */
-    data->setName("modbusAdapter");
-    AdapterData* data2 = model.adapterData("modbus");
+    /* updateAdapterFromDescribe updates the same entry in place */
+    QJsonObject desc;
+    desc["name"] = QStringLiteral("modbusAdapter");
+    desc["version"] = QString();
+    desc["configVersion"] = 0;
+    desc["schema"] = QJsonObject();
+    desc["defaults"] = QJsonObject();
+    desc["capabilities"] = QJsonObject();
+    model.updateAdapterFromDescribe("modbus", desc);
+
+    const AdapterData* data2 = model.adapterData("modbus");
     QCOMPARE(data2->name(), QStringLiteral("modbusAdapter"));
 }
 

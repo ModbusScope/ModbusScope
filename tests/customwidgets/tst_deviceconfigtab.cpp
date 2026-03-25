@@ -49,8 +49,8 @@ QJsonObject makeAdapterDescribe(const QString& adapterName)
 
 void TestDeviceConfigTab::setupTwoAdapters(SettingsModel& model)
 {
-    model.adapterData("adapterA")->updateFromDescribe(makeAdapterDescribe("adapterA"));
-    model.adapterData("adapterB")->updateFromDescribe(makeAdapterDescribe("adapterB"));
+    model.updateAdapterFromDescribe("adapterA", makeAdapterDescribe("adapterA"));
+    model.updateAdapterFromDescribe("adapterB", makeAdapterDescribe("adapterB"));
 }
 
 void TestDeviceConfigTab::comboContainsAllAdapterIds()

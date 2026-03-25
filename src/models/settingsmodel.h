@@ -13,8 +13,7 @@ class SettingsModel : public QObject
 {
     Q_OBJECT
 public:
-
-    explicit SettingsModel(QObject *parent = nullptr);
+    explicit SettingsModel(QObject* parent = nullptr);
     ~SettingsModel();
 
     void triggerUpdate(void);
@@ -42,9 +41,12 @@ public:
     QList<deviceId_t> deviceList();
     QList<deviceId_t> deviceListForConnection(ConnectionTypes::connectionId_t connectionId);
 
-    AdapterData* adapterData(const QString& adapterId);
+    const AdapterData* adapterData(const QString& adapterId);
     QStringList adapterIds() const;
     void removeAdapter(const QString& adapterId);
+
+    void setAdapterCurrentConfig(const QString& adapterId, const QJsonObject& config);
+    void updateAdapterFromDescribe(const QString& adapterId, const QJsonObject& describeResult);
 
     static const QString defaultLogPath()
     {
@@ -87,7 +89,6 @@ private:
 
     bool _bWriteDuringLog;
     QString _writeDuringLogFile;
-
 };
 
 #endif // SETTINGSMODEL_H

@@ -125,10 +125,7 @@ void TestSchemaFormWidget::integerEnumCreatesComboBox()
 
     QJsonValue result = w.values()["baudrate"];
     QCOMPARE(result.toInt(), 19200);
-    // Must be stored as integer, not double
-    QVERIFY(!result.isDouble() || result.toInt() == 19200);
     QVERIFY(result.type() == QJsonValue::Double); // JSON has no int/double distinction
-    QCOMPARE(result.toInt(), 19200);
 }
 
 void TestSchemaFormWidget::integerSchemaMinMaxApplied()

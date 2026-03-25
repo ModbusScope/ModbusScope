@@ -20,8 +20,6 @@ private slots:
     void settingsModelAdapterDataCreatesEntry();
     void settingsModelAdapterIds();
     void settingsModelRemoveAdapter();
-
-private:
 };
 
 #endif /* TEST_ADAPTERDATA_H__ */

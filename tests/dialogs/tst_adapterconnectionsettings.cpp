@@ -94,7 +94,7 @@ void TestAdapterConnectionSettings::arrayConnectionsCreatesTabWidget()
     QJsonObject itemProps;
     itemProps["host"] = hostProp;
 
-    model.adapterData("testAdapter")->updateFromDescribe(makeDescribeResult("array", QJsonObject(), itemProps));
+    model.updateAdapterFromDescribe("testAdapter", makeDescribeResult("array", QJsonObject(), itemProps));
 
     // Store a config with 2 connections
     QJsonObject conn0;
@@ -105,8 +105,7 @@ void TestAdapterConnectionSettings::arrayConnectionsCreatesTabWidget()
     config["connections"] = QJsonArray{ conn0, conn1 };
     config["devices"] = QJsonArray();
     config["general"] = QJsonObject();
-    model.adapterData("testAdapter")->setCurrentConfig(config);
-    model.adapterData("testAdapter")->setHasStoredConfig(true);
+    model.setAdapterCurrentConfig("testAdapter", config);
 
     AdapterConnectionSettings w(&model);
 
@@ -118,7 +117,7 @@ void TestAdapterConnectionSettings::arrayConnectionsCreatesTabWidget()
 void TestAdapterConnectionSettings::objectConnectionsCreatesSingleForm()
 {
     SettingsModel model;
-    model.adapterData("testAdapter")->updateFromDescribe(makeDescribeResult("object"));
+    model.updateAdapterFromDescribe("testAdapter", makeDescribeResult("object"));
 
     AdapterConnectionSettings w(&model);
 
@@ -130,7 +129,7 @@ void TestAdapterConnectionSettings::generalSectionHiddenWhenPropertiesEmpty()
 {
     SettingsModel model;
     // general.properties is empty by default in makeDescribeResult
-    model.adapterData("testAdapter")->updateFromDescribe(makeDescribeResult("array"));
+    model.updateAdapterFromDescribe("testAdapter", makeDescribeResult("array"));
 
     AdapterConnectionSettings w(&model);
 
@@ -153,7 +152,7 @@ void TestAdapterConnectionSettings::generalSectionShownWhenNonEmpty()
     QJsonObject generalProperties;
     generalProperties["setting"] = settingProp;
 
-    model.adapterData("testAdapter")->updateFromDescribe(makeDescribeResult("array", generalProperties));
+    model.updateAdapterFromDescribe("testAdapter", makeDescribeResult("array", generalProperties));
 
     AdapterConnectionSettings w(&model);
 
@@ -171,7 +170,7 @@ void TestAdapterConnectionSettings::acceptValuesStoresConfigInAdapterData()
     QJsonObject itemProps;
     itemProps["host"] = hostProp;
 
-    model.adapterData("testAdapter")->updateFromDescribe(makeDescribeResult("array", QJsonObject(), itemProps));
+    model.updateAdapterFromDescribe("testAdapter", makeDescribeResult("array", QJsonObject(), itemProps));
 
     QJsonObject conn0;
     conn0["host"] = "original";
@@ -179,8 +178,7 @@ void TestAdapterConnectionSettings::acceptValuesStoresConfigInAdapterData()
     config["connections"] = QJsonArray{ conn0 };
     config["devices"] = QJsonArray();
     config["general"] = QJsonObject();
-    model.adapterData("testAdapter")->setCurrentConfig(config);
-    model.adapterData("testAdapter")->setHasStoredConfig(true);
+    model.setAdapterCurrentConfig("testAdapter", config);
 
     AdapterConnectionSettings w(&model);
 
@@ -195,7 +193,7 @@ void TestAdapterConnectionSettings::acceptValuesStoresConfigInAdapterData()
 
     w.acceptValues();
 
-    AdapterData* adapter = model.adapterData("testAdapter");
+    const AdapterData* adapter = model.adapterData("testAdapter");
     QCOMPARE(adapter->hasStoredConfig(), true);
     QCOMPARE(adapter->currentConfig()["connections"].toArray().at(0).toObject()["host"].toString(),
              QStringLiteral("192.168.1.1"));

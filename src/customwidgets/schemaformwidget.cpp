@@ -26,10 +26,45 @@ void SchemaFormWidget::setSchema(const QJsonObject& schema, const QJsonObject& v
     }
 
     QJsonObject properties = schema.value("properties").toObject();
+
+    // Determine a stable key order: propertyOrder array > required array > sorted keys
+    QStringList orderedKeys;
+    const QJsonArray propertyOrder = schema.value("propertyOrder").toArray();
+    if (!propertyOrder.isEmpty())
+    {
+        for (const auto& v : propertyOrder)
+        {
+            const QString k = v.toString();
+            if (properties.contains(k))
+            {
+                orderedKeys.append(k);
+            }
+        }
+    }
+    else
+    {
+        const QJsonArray required = schema.value("required").toArray();
+        for (const auto& v : required)
+        {
+            const QString k = v.toString();
+            if (properties.contains(k))
+            {
+                orderedKeys.append(k);
+            }
+        }
+    }
+    // Append any keys not yet listed (maintains determinism via sorted QJsonObject keys)
     for (auto it = properties.constBegin(); it != properties.constEnd(); ++it)
     {
-        QString key = it.key();
-        QJsonObject propSchema = it.value().toObject();
+        if (!orderedKeys.contains(it.key()))
+        {
+            orderedKeys.append(it.key());
+        }
+    }
+
+    for (const auto& key : orderedKeys)
+    {
+        QJsonObject propSchema = properties.value(key).toObject();
         QJsonValue currentValue = values.value(key);
 
         QString label = propSchema.value("title").toString(key);
@@ -83,7 +118,7 @@ QWidget* SchemaFormWidget::createWidgetForProperty(const QJsonObject& propSchema
         auto* spin = new QSpinBox(this);
         QJsonValue minJson = propSchema.value("minimum");
         QJsonValue maxJson = propSchema.value("maximum");
-        int minVal = !minJson.isUndefined() ? minJson.toInt() : 0;
+        int minVal = !minJson.isUndefined() ? minJson.toInt() : INT_MIN;
         int maxVal = !maxJson.isUndefined() ? maxJson.toInt() : INT_MAX;
         spin->setRange(minVal, maxVal);
         spin->setValue(value.toInt(0));
