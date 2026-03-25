@@ -16,24 +16,12 @@ SchemaFormWidget::SchemaFormWidget(QWidget* parent) : QWidget(parent), _pFormLay
 
 void SchemaFormWidget::setSchema(const QJsonObject& schema, const QJsonObject& values)
 {
-    // Collect widgets to delete before modifying the layout
-    QList<QWidget*> toDelete;
-    for (const auto& [key, widget] : _fields)
-    {
-        toDelete.append(widget);
-    }
     _fields.clear();
 
-    // Clear all layout rows first (removes QLayoutItems but does not delete widgets)
+    // removeRow() deletes both the label and field widget
     while (_pFormLayout->rowCount() > 0)
     {
         _pFormLayout->removeRow(0);
-    }
-
-    // Now it is safe to delete the widgets
-    for (QWidget* widget : toDelete)
-    {
-        delete widget;
     }
 
     QJsonObject properties = schema.value("properties").toObject();

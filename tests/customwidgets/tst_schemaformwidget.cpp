@@ -171,15 +171,15 @@ void TestSchemaFormWidget::setSchemaResetsOldWidgets()
     stringProp["type"] = "string";
     w.setSchema(makeObjectSchema("host", stringProp), QJsonObject());
 
-    QVERIFY(w.findChild<QLineEdit*>() != nullptr);
-    QVERIFY(w.findChild<QSpinBox*>() == nullptr);
+    QVERIFY(w.findChild<QLineEdit*>(QString(), Qt::FindDirectChildrenOnly) != nullptr);
+    QVERIFY(w.findChild<QSpinBox*>(QString(), Qt::FindDirectChildrenOnly) == nullptr);
 
     QJsonObject intProp;
     intProp["type"] = "integer";
     w.setSchema(makeObjectSchema("port", intProp), QJsonObject());
 
-    QVERIFY(w.findChild<QLineEdit*>() == nullptr);
-    QVERIFY(w.findChild<QSpinBox*>() != nullptr);
+    QVERIFY(w.findChild<QLineEdit*>(QString(), Qt::FindDirectChildrenOnly) == nullptr);
+    QVERIFY(w.findChild<QSpinBox*>(QString(), Qt::FindDirectChildrenOnly) != nullptr);
 }
 
 QTEST_MAIN(TestSchemaFormWidget)
