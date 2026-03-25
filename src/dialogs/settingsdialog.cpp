@@ -1,8 +1,8 @@
 #include "settingsdialog.h"
 #include "ui_settingsdialog.h"
 
-#include "dialogs/connectionsettings.h"
-#include "dialogs/devicesettings.h"
+#include "dialogs/adapterconnectionsettings.h"
+#include "dialogs/adapterdevicesettings.h"
 #include "dialogs/logsettings.h"
 #include <qlabel.h>
 
@@ -34,8 +34,8 @@ SettingsDialog::SettingsDialog(SettingsModel* pSettingsModel, QWidget* parent)
     listItem->setIcon(QIcon(":/menu_icon/icons/clipboard-list.svg"));
     _pUi->settingsList->addItem(listItem);
 
-    _pConnSettings = new ConnectionSettings(_pSettingsModel);
-    _pDevSettings = new DeviceSettings(_pSettingsModel);
+    _pConnSettings = new AdapterConnectionSettings(_pSettingsModel);
+    _pDevSettings = new AdapterDeviceSettings(_pSettingsModel);
 
     _pUi->settingsStack->insertWidget(PAGE_CONNECTION, _pConnSettings);
     _pUi->settingsStack->insertWidget(PAGE_DEVICE, _pDevSettings);
@@ -54,6 +54,7 @@ void SettingsDialog::done(int r)
     Q_UNUSED(r);
 
     _pConnSettings->acceptValues();
+    _pDevSettings->acceptValues();
 
     QDialog::done(QDialog::Accepted);
 }
@@ -62,16 +63,13 @@ void SettingsDialog::settingsStackSwitch(int newRow)
 {
     auto previousTab = _pUi->settingsStack->currentIndex();
 
-    // Update connection settings when switching away from tab
     if (previousTab == PAGE_CONNECTION)
     {
         _pConnSettings->acceptValues();
     }
-
-    // Validate device settings when switching to tab
-    if (newRow == PAGE_DEVICE)
+    else if (previousTab == PAGE_DEVICE)
     {
-        emit _pDevSettings->settingsTabsSwitched();
+        _pDevSettings->acceptValues();
     }
 
     _pUi->settingsStack->setCurrentIndex(newRow);

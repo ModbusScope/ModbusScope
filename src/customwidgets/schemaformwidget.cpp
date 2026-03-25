@@ -1,0 +1,150 @@
+#include "schemaformwidget.h"
+
+#include <QCheckBox>
+#include <QComboBox>
+#include <QDoubleSpinBox>
+#include <QFormLayout>
+#include <QJsonArray>
+#include <QLineEdit>
+#include <QSpinBox>
+#include <climits>
+
+SchemaFormWidget::SchemaFormWidget(QWidget* parent) : QWidget(parent), _pFormLayout(new QFormLayout(this))
+{
+    setLayout(_pFormLayout);
+}
+
+void SchemaFormWidget::setSchema(const QJsonObject& schema, const QJsonObject& values)
+{
+    // Collect widgets to delete before modifying the layout
+    QList<QWidget*> toDelete;
+    for (const auto& [key, widget] : _fields)
+    {
+        toDelete.append(widget);
+    }
+    _fields.clear();
+
+    // Clear all layout rows first (removes QLayoutItems but does not delete widgets)
+    while (_pFormLayout->rowCount() > 0)
+    {
+        _pFormLayout->removeRow(0);
+    }
+
+    // Now it is safe to delete the widgets
+    for (QWidget* widget : toDelete)
+    {
+        delete widget;
+    }
+
+    QJsonObject properties = schema.value("properties").toObject();
+    for (auto it = properties.constBegin(); it != properties.constEnd(); ++it)
+    {
+        QString key = it.key();
+        QJsonObject propSchema = it.value().toObject();
+        QJsonValue currentValue = values.value(key);
+
+        QString label = propSchema.value("title").toString(key);
+        QWidget* widget = createWidgetForProperty(propSchema, currentValue);
+        _fields.append({ key, widget });
+        _pFormLayout->addRow(label + ":", widget);
+    }
+}
+
+QWidget* SchemaFormWidget::createWidgetForProperty(const QJsonObject& propSchema, const QJsonValue& value)
+{
+    QString type = propSchema.value("type").toString();
+    QJsonArray enumValues = propSchema.value("enum").toArray();
+
+    if (!enumValues.isEmpty())
+    {
+        auto* combo = new QComboBox(this);
+        bool isInteger = (type == "integer");
+
+        for (const auto& v : enumValues)
+        {
+            if (isInteger)
+            {
+                int intVal = v.toInt();
+                combo->addItem(QString::number(intVal), intVal);
+            }
+            else
+            {
+                QString strVal = v.toString();
+                combo->addItem(strVal, strVal);
+            }
+        }
+
+        QVariant currentVariant = isInteger ? QVariant(value.toInt()) : QVariant(value.toString());
+        int idx = combo->findData(currentVariant);
+        if (idx >= 0)
+        {
+            combo->setCurrentIndex(idx);
+        }
+
+        return combo;
+    }
+    else if (type == "boolean")
+    {
+        auto* check = new QCheckBox(this);
+        check->setChecked(value.toBool());
+        return check;
+    }
+    else if (type == "integer")
+    {
+        auto* spin = new QSpinBox(this);
+        int minVal = propSchema.contains("minimum") ? propSchema.value("minimum").toInt() : 0;
+        int maxVal = propSchema.contains("maximum") ? propSchema.value("maximum").toInt() : INT_MAX;
+        spin->setRange(minVal, maxVal);
+        spin->setValue(value.toInt(0));
+        return spin;
+    }
+    else if (type == "number")
+    {
+        auto* spin = new QDoubleSpinBox(this);
+        spin->setValue(value.toDouble(0.0));
+        return spin;
+    }
+    else // "string" or unknown
+    {
+        auto* edit = new QLineEdit(this);
+        edit->setText(value.toString());
+        return edit;
+    }
+}
+
+QJsonObject SchemaFormWidget::values() const
+{
+    QJsonObject result;
+    for (const auto& [key, widget] : _fields)
+    {
+        if (auto* spin = qobject_cast<QSpinBox*>(widget))
+        {
+            result[key] = spin->value();
+        }
+        else if (auto* dspin = qobject_cast<QDoubleSpinBox*>(widget))
+        {
+            result[key] = dspin->value();
+        }
+        else if (auto* check = qobject_cast<QCheckBox*>(widget))
+        {
+            result[key] = check->isChecked();
+        }
+        else if (auto* combo = qobject_cast<QComboBox*>(widget))
+        {
+            QVariant data = combo->currentData();
+            if (data.userType() == QMetaType::Int)
+            {
+                result[key] = data.toInt();
+            }
+            else
+            {
+                result[key] = data.toString();
+            }
+        }
+        else if (auto* edit = qobject_cast<QLineEdit*>(widget))
+        {
+            result[key] = edit->text();
+        }
+    }
+    return result;
+}

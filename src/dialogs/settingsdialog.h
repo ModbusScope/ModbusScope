@@ -3,10 +3,10 @@
 
 #include <QDialog>
 
-// Forward decleration
+// Forward declaration
 class SettingsModel;
-class ConnectionSettings;
-class DeviceSettings;
+class AdapterConnectionSettings;
+class AdapterDeviceSettings;
 
 namespace Ui {
 class SettingsDialog;
@@ -35,8 +35,8 @@ private:
     Ui::SettingsDialog* _pUi;
 
     SettingsModel* _pSettingsModel;
-    ConnectionSettings* _pConnSettings;
-    DeviceSettings* _pDevSettings;
+    AdapterConnectionSettings* _pConnSettings;
+    AdapterDeviceSettings* _pDevSettings;
 };
 
 #endif // SETTINGSDIALOG_H
