@@ -1,3 +1,6 @@
+#ifndef TST_ADAPTERCONNECTIONSETTINGS_H
+#define TST_ADAPTERCONNECTIONSETTINGS_H
+
 #include "models/settingsmodel.h"
 
 #include <QObject>
@@ -15,3 +18,5 @@ private slots:
     void generalSectionShownWhenNonEmpty();
     void acceptValuesStoresConfigInAdapterData();
 };
+
+#endif // TST_ADAPTERCONNECTIONSETTINGS_H

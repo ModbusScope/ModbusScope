@@ -8,6 +8,7 @@
 #include <QLineEdit>
 #include <QSpinBox>
 #include <climits>
+#include <limits>
 
 SchemaFormWidget::SchemaFormWidget(QWidget* parent) : QWidget(parent), _pFormLayout(new QFormLayout(this))
 {
@@ -41,7 +42,7 @@ void SchemaFormWidget::setSchema(const QJsonObject& schema, const QJsonObject& v
 QWidget* SchemaFormWidget::createWidgetForProperty(const QJsonObject& propSchema, const QJsonValue& value)
 {
     QString type = propSchema.value("type").toString();
-    QJsonArray enumValues = propSchema.value("enum").toArray();
+    const QJsonArray enumValues = propSchema.value("enum").toArray();
 
     if (!enumValues.isEmpty())
     {
@@ -80,8 +81,10 @@ QWidget* SchemaFormWidget::createWidgetForProperty(const QJsonObject& propSchema
     else if (type == "integer")
     {
         auto* spin = new QSpinBox(this);
-        int minVal = propSchema.contains("minimum") ? propSchema.value("minimum").toInt() : 0;
-        int maxVal = propSchema.contains("maximum") ? propSchema.value("maximum").toInt() : INT_MAX;
+        QJsonValue minJson = propSchema.value("minimum");
+        QJsonValue maxJson = propSchema.value("maximum");
+        int minVal = !minJson.isUndefined() ? minJson.toInt() : 0;
+        int maxVal = !maxJson.isUndefined() ? maxJson.toInt() : INT_MAX;
         spin->setRange(minVal, maxVal);
         spin->setValue(value.toInt(0));
         return spin;
@@ -89,6 +92,11 @@ QWidget* SchemaFormWidget::createWidgetForProperty(const QJsonObject& propSchema
     else if (type == "number")
     {
         auto* spin = new QDoubleSpinBox(this);
+        QJsonValue minJson = propSchema.value("minimum");
+        QJsonValue maxJson = propSchema.value("maximum");
+        double minVal = !minJson.isUndefined() ? minJson.toDouble() : std::numeric_limits<double>::lowest();
+        double maxVal = !maxJson.isUndefined() ? maxJson.toDouble() : std::numeric_limits<double>::max();
+        spin->setRange(minVal, maxVal);
         spin->setValue(value.toDouble(0.0));
         return spin;
     }

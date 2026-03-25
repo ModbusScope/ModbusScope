@@ -55,6 +55,12 @@ void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
     QStringList expressions = buildRegisterExpressions(_registerList);
 
     AdapterData* data = _pSettingsModel->adapterData("modbus");
+    if (data == nullptr)
+    {
+        qCWarning(scopeComm) << "No adapter data available for modbus";
+        _bPollActive = false;
+        return;
+    }
     QJsonObject config = data->hasStoredConfig() ? data->currentConfig() : buildAdapterConfig();
 
     _pAdapterClient->provideConfig(config, expressions);
@@ -112,7 +118,13 @@ void ModbusPoll::onReadDataResult(ResultDoubleList results)
 
 void ModbusPoll::onDescribeResult(QJsonObject description)
 {
-    _pSettingsModel->adapterData("modbus")->updateFromDescribe(description);
+    AdapterData* data = _pSettingsModel->adapterData("modbus");
+    if (data == nullptr)
+    {
+        qCWarning(scopeComm) << "No adapter data available for modbus";
+        return;
+    }
+    data->updateFromDescribe(description);
 }
 
 QJsonObject ModbusPoll::buildAdapterConfig()

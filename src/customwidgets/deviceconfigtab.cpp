@@ -13,7 +13,10 @@ DeviceConfigTab::DeviceConfigTab(SettingsModel* pSettingsModel,
                                  const QString& adapterId,
                                  const QJsonObject& deviceValues,
                                  QWidget* parent)
-    : QWidget(parent), _pLayout(nullptr), _pAdapterCombo(new QComboBox(this)), _pSchemaForm(nullptr),
+    : QWidget(parent),
+      _pLayout(nullptr),
+      _pAdapterCombo(new QComboBox(this)),
+      _pSchemaForm(nullptr),
       _pSettingsModel(pSettingsModel)
 {
     _pLayout = new QVBoxLayout(this);
@@ -43,7 +46,11 @@ DeviceConfigTab::DeviceConfigTab(SettingsModel* pSettingsModel,
     connect(_pAdapterCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
             &DeviceConfigTab::onAdapterChanged);
 
-    rebuildSchemaForm(adapterId, deviceValues);
+    QString effectiveAdapterId = _pAdapterCombo->currentData().toString();
+    if (!effectiveAdapterId.isEmpty())
+    {
+        rebuildSchemaForm(effectiveAdapterId, deviceValues);
+    }
 }
 
 void DeviceConfigTab::onAdapterChanged(int index)
@@ -62,8 +69,11 @@ void DeviceConfigTab::rebuildSchemaForm(const QString& adapterId, const QJsonObj
     }
 
     AdapterData* pAdapter = _pSettingsModel->adapterData(adapterId);
-    QJsonObject devicesSchema =
-        pAdapter->schema().value("properties").toObject().value("devices").toObject();
+    if (!pAdapter)
+    {
+        return;
+    }
+    QJsonObject devicesSchema = pAdapter->schema().value("properties").toObject().value("devices").toObject();
     QJsonObject itemSchema = devicesSchema.value("items").toObject();
 
     _pSchemaForm = new SchemaFormWidget(this);

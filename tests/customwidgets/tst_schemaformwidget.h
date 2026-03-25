@@ -1,3 +1,6 @@
+#ifndef TST_SCHEMAFORMWIDGET_H
+#define TST_SCHEMAFORMWIDGET_H
+
 #include <QObject>
 
 class TestSchemaFormWidget : public QObject
@@ -16,3 +19,5 @@ private slots:
     void valuesReflectWidgetChanges();
     void setSchemaResetsOldWidgets();
 };
+
+#endif // TST_SCHEMAFORMWIDGET_H

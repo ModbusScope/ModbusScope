@@ -16,9 +16,11 @@ AdapterConnectionSettings::AdapterConnectionSettings(SettingsModel* pSettingsMod
     setLayout(layout);
 
     // Find first adapter with a populated schema
-    for (const auto& id : pSettingsModel->adapterIds())
+    const QStringList adapterIds = pSettingsModel->adapterIds();
+    for (const auto& id : adapterIds)
     {
-        if (!pSettingsModel->adapterData(id)->schema().isEmpty())
+        AdapterData* pAdapter = pSettingsModel->adapterData(id);
+        if (pAdapter && !pAdapter->schema().isEmpty())
         {
             _adapterId = id;
             break;
@@ -61,8 +63,7 @@ void AdapterConnectionSettings::buildConnectionsSection(const QJsonObject& schem
                                                         const QJsonObject& config,
                                                         QVBoxLayout* layout)
 {
-    QJsonObject connectionsSchema =
-        schema.value("properties").toObject().value("connections").toObject();
+    QJsonObject connectionsSchema = schema.value("properties").toObject().value("connections").toObject();
     QString connectionsType = connectionsSchema.value("type").toString();
     QJsonValue connectionsValue = config.value("connections");
 
@@ -90,8 +91,7 @@ void AdapterConnectionSettings::buildConnectionsSection(const QJsonObject& schem
         connect(_pConnectionTabs, &AddableTabWidget::addTabRequested, this, [this]() {
             auto* form = new SchemaFormWidget(_pConnectionTabs);
             form->setSchema(_connectionItemSchema, QJsonObject());
-            _pConnectionTabs->addNewTab(
-                QString("Connection %1").arg(_pConnectionTabs->count() + 1), form);
+            _pConnectionTabs->addNewTab(QString("Connection %1").arg(_pConnectionTabs->count() + 1), form);
         });
 
         layout->addWidget(_pConnectionTabs, 1);

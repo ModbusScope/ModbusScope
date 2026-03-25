@@ -1,5 +1,9 @@
+#ifndef TST_ADAPTERDEVICESETTINGS_H
+#define TST_ADAPTERDEVICESETTINGS_H
+
 #include "models/settingsmodel.h"
 
+#include <QJsonArray>
 #include <QObject>
 
 class TestAdapterDeviceSettings : public QObject
@@ -18,3 +22,5 @@ private:
     //! the given \a devices array stored as current config.
     void setupAdapter(SettingsModel& model, const QString& adapterId, const QJsonArray& devices);
 };
+
+#endif // TST_ADAPTERDEVICESETTINGS_H
