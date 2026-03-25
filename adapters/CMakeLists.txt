@@ -1,6 +1,5 @@
 # Define imported executable targets for the ModbusAdapter binaries.
-# The binaries are downloaded from the jgeudens/ModbusAdapter GitHub releases
-# by CI before the build, and must be present in this directory.
+# The pre-built binaries are committed directly to this directory.
 #
 # Layout expected:
 #   adapters/modbusadapter          (Linux)
