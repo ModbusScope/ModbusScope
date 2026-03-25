@@ -38,7 +38,7 @@ void TestAdapterProcess::sendRequestEmitsResponseReceived()
     QSignalSpy spyResponse(&process, &AdapterProcess::responseReceived);
     QSignalSpy spyProcessError(&process, &AdapterProcess::processError);
 
-    bool started = process.start(QString::fromUtf8(DUMMY_ADAPTER_PATH));
+    bool started = process.start(QString::fromUtf8(DUMMY_ADAPTER_EXECUTABLE));
     QVERIFY2(started, "dummymodbusadapter failed to start");
 
     process.sendRequest(QStringLiteral("adapter.describe"), QJsonObject());
@@ -61,7 +61,7 @@ void TestAdapterProcess::processFinishedEmittedOnStop()
     AdapterProcess process;
     QSignalSpy spyFinished(&process, &AdapterProcess::processFinished);
 
-    QVERIFY(process.start(QString::fromUtf8(DUMMY_ADAPTER_PATH)));
+    QVERIFY(process.start(QString::fromUtf8(DUMMY_ADAPTER_EXECUTABLE)));
     QVERIFY(process.isRunning());
 
     process.stop();

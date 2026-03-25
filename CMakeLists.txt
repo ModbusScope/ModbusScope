@@ -76,5 +76,6 @@ endif()
 enable_testing()
 
 add_subdirectory(libraries)
+add_subdirectory(adapters)
 add_subdirectory(src)
 add_subdirectory(tests)

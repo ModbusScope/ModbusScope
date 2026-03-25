@@ -17,7 +17,15 @@ jobs:
 
       - name: Configure safe directory for git
         run: git config --global --add safe.directory ${GITHUB_WORKSPACE}
-      
+
+      - name: Download ModbusAdapter binaries (Linux)
+        run: |
+          ASSET_URL=$(curl -s https://api.github.com/repos/jgeudens/ModbusAdapter/releases/latest \
+            | python3 -c "import sys,json; data=json.load(sys.stdin); print(next(a['browser_download_url'] for a in data['assets'] if 'linux' in a['name'].lower()))")
+          curl -L "$ASSET_URL" -o /tmp/modbusadapter-linux.zip
+          unzip -o /tmp/modbusadapter-linux.zip -d adapters/
+          chmod +x adapters/modbusadapter adapters/dummymodbusadapter
+
       - name: Update Modules and Build
         run: bash scripts/build_linux.sh
 
@@ -28,10 +36,10 @@ jobs:
       #   with:
       #     name: modbusscope-linux
       #     path: ModbusScope*.AppImage
-          
+
   windows:
     runs-on: windows-2022
-    
+
     steps:
       - uses: actions/checkout@v6.0.0
 
@@ -45,6 +53,14 @@ jobs:
         with:
           path: ${{ github.workspace }}\Qt
           key: ${{ runner.os }}-qt-build-${{ hashFiles('scripts\setup_windows.bat') }}
+
+      - name: Download ModbusAdapter binaries (Windows)
+        shell: pwsh
+        run: |
+          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/jgeudens/ModbusAdapter/releases/latest"
+          $asset = $release.assets | Where-Object { $_.name -like "*windows*" } | Select-Object -First 1
+          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile "$env:TEMP\modbusadapter-windows.zip"
+          Expand-Archive -Path "$env:TEMP\modbusadapter-windows.zip" -DestinationPath adapters -Force
 
       - name: Setup, build and deploy
         shell: cmd

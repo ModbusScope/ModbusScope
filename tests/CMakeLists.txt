@@ -56,6 +56,6 @@ add_subdirectory(importexport)
 add_subdirectory(models)
 add_subdirectory(ProtocolAdapter)
 add_subdirectory(util)
-# add_subdirectory(integration)
+add_subdirectory(integration)
 
 
