@@ -1,7 +1,7 @@
 #!/usr/bin/xdg-open
 [Desktop Entry]
 Comment=ModbusScope - Visual Modbus data logging
-Exec=modbusscope
+Exec=notonlymodbusscope
 GenericName=ModbusScope
 Icon=ModbusScope
 MimeType=

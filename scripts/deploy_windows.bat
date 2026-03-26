@@ -11,7 +11,7 @@ set DEPLOY_DIR=deploy
 set PATH=C:\Program Files (x86)\Inno Setup 6;%PATH%
 
 mkdir %DEPLOY_DIR%
-copy modbusscope.exe %DEPLOY_DIR%
+copy notonlymodbusscope.exe %DEPLOY_DIR%
 IF ERRORLEVEL 1 GOTO errorHandling
 
 REM Copy adapter binaries into the flat deployment directory
@@ -25,7 +25,7 @@ cd %DEPLOY_DIR%
 
 REM Run windeployqt on all three executables. Because they share the same Qt
 REM version and output directory, DLLs are written once and cover all binaries.
-windeployqt.exe modbusscope.exe --compiler-runtime -verbose 2
+windeployqt.exe notonlymodbusscope.exe --compiler-runtime -verbose 2
 IF ERRORLEVEL 1 GOTO errorHandling
 
 windeployqt.exe modbusadapter.exe -verbose 2

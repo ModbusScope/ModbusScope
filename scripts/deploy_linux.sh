@@ -24,7 +24,7 @@ chmod +x linuxdeploy*.AppImage
 # deploys their Qt dependencies alongside the main application.
 export APPIMAGE_EXTRACT_AND_RUN=1 # Workaround because FUSE isn't available in Docker
 ./linuxdeploy-x86_64.AppImage --appdir AppDir \
-    -e modbusscope \
+    -e notonlymodbusscope \
     -e modbusadapter \
     -e dummymodbusadapter \
     -i ModbusScope.png \
