@@ -145,13 +145,12 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
                     }
                     QJsonObject connObj = connVal.toObject();
 
-                    connectionId_t connectionId = static_cast<connectionId_t>(
-                      connObj[ProjectFileDefinitions::cIdJsonKey].toInt(ConnectionTypes::ID_1));
-
-                    if (connectionId >= ConnectionTypes::ID_CNT)
+                    const int rawConnectionId = connObj[ProjectFileDefinitions::cIdJsonKey].toInt(-1);
+                    if (rawConnectionId < ConnectionTypes::ID_1 || rawConnectionId >= ConnectionTypes::ID_CNT)
                     {
                         continue;
                     }
+                    connectionId_t connectionId = static_cast<connectionId_t>(rawConnectionId);
 
                     auto connData = _pSettingsModel->connectionSettings(connectionId);
                     bool bEnabled = connObj[ProjectFileDefinitions::cConnectionEnabledTag].toBool(true);
@@ -275,8 +274,11 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
 
                 QJsonObject adapterDev = adapterDevices[idx].toObject();
 
-                connectionId_t connectionId = static_cast<connectionId_t>(
-                  adapterDev[ProjectFileDefinitions::cConnectionIdTag].toInt(ConnectionTypes::ID_1));
+                const int rawConnId = adapterDev[ProjectFileDefinitions::cConnectionIdTag].toInt(ConnectionTypes::ID_1);
+                const connectionId_t connectionId =
+                  (rawConnId >= ConnectionTypes::ID_1 && rawConnId < ConnectionTypes::ID_CNT)
+                    ? static_cast<connectionId_t>(rawConnId)
+                    : static_cast<connectionId_t>(ConnectionTypes::ID_1);
                 deviceData->setConnectionId(connectionId);
 
                 if (adapterDev.contains(ProjectFileDefinitions::cSlaveIdTag))

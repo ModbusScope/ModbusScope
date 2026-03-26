@@ -4,6 +4,7 @@
 #include "importexport/projectfilejsonparser.h"
 #include "projectfilejsontestdata.h"
 
+#include <QDir>
 #include <QTest>
 
 using ProjectFileData::ProjectSettings;
@@ -169,12 +170,15 @@ void TestProjectFileJsonParser::logToFileWithPath()
     ProjectFileJsonParser parser;
     ProjectSettings settings;
 
-    GeneralError err = parser.parseFile(ProjectFileJsonTestData::cLogToFileWithPath, &settings);
+    /* Inject the platform temp directory so the path is valid on every OS */
+    const QString expectedLogFile = QDir(QDir::tempPath()).filePath("test_mbs_log.csv");
+    const QString json = ProjectFileJsonTestData::cLogToFileWithPath.arg(expectedLogFile);
+
+    GeneralError err = parser.parseFile(json, &settings);
     QVERIFY(err.result());
     QVERIFY(settings.general.logSettings.bLogToFile);
-    /* /tmp always exists, so the log file path is valid and should be accepted */
     QVERIFY(settings.general.logSettings.bLogToFileFile);
-    QCOMPARE(settings.general.logSettings.logFile, QString("/tmp/test_mbs_log.csv"));
+    QCOMPARE(settings.general.logSettings.logFile, expectedLogFile);
 }
 
 void TestProjectFileJsonParser::scopeRegisters()

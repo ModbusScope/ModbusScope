@@ -193,10 +193,10 @@ GeneralError ProjectFileJsonParser::parseDevices(const QJsonArray& devicesArray,
         DeviceSettings deviceSettings;
         bool bRet = false;
 
-        if (deviceObj.contains(ProjectFileDefinitions::cDeviceIdTag))
+        if (deviceObj.contains(ProjectFileDefinitions::cIdJsonKey))
         {
             deviceSettings.bDeviceId = true;
-            deviceSettings.deviceId = static_cast<deviceId_t>(deviceObj[ProjectFileDefinitions::cDeviceIdTag].toInt(0));
+            deviceSettings.deviceId = static_cast<deviceId_t>(deviceObj[ProjectFileDefinitions::cIdJsonKey].toInt(0));
         }
 
         if (deviceObj.contains(ProjectFileDefinitions::cDeviceNameTag))

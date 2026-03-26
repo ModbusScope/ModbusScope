@@ -149,7 +149,8 @@ QString ProjectFileJsonTestData::cLogSettings = QString(
     "}"                                                         "\n"
 );
 
-/* Log to file with a filename — uses a path that may not exist, tested via error handling */
+/* Log to file with a filename — path is injected at test time via %1 so the
+   test data is portable across platforms (use QDir::tempPath() when parsing). */
 QString ProjectFileJsonTestData::cLogToFileWithPath = QString(
     "{"                                                         "\n"
     "  \"version\": 6,"                                         "\n"
@@ -159,7 +160,7 @@ QString ProjectFileJsonTestData::cLogToFileWithPath = QString(
     "    \"absolutetimes\": false,"                             "\n"
     "    \"logtofile\": {"                                       "\n"
     "      \"enabled\": true,"                                   "\n"
-    "      \"filename\": \"/tmp/test_mbs_log.csv\""              "\n"
+    "      \"filename\": \"%1\""                                "\n"
     "    }"                                                     "\n"
     "  },"                                                      "\n"
     "  \"scope\": [],"                                          "\n"
