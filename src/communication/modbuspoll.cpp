@@ -9,7 +9,7 @@
 #include "util/modbusdatatype.h"
 #include "util/scopelogging.h"
 
-#include <QDateTime>
+#include <QCoreApplication>
 #include <QJsonArray>
 #include <QSerialPort>
 
@@ -39,13 +39,15 @@ ModbusPoll::~ModbusPoll() = default;
 
 /*! \brief Prepare the protocol adapter subprocess for use.
  *
- * Launches the adapter at the hard-coded path and calls prepareAdapter() on
- * the client, which triggers the adapter.describe handshake.
+ * Resolves the adapter binary relative to the running executable so the path
+ * is correct in the build tree, AppImage, and installed layouts alike.
+ * Calls prepareAdapter() on the client, which triggers the adapter.describe
+ * handshake.
  */
 void ModbusPoll::initAdapter()
 {
-    static constexpr QLatin1StringView cAdapterPath{ "./adapters/dummymodbusadapter" };
-    _pAdapterClient->prepareAdapter(cAdapterPath);
+    const QString adapterPath = QCoreApplication::applicationDirPath() + "/modbusadapter";
+    _pAdapterClient->prepareAdapter(adapterPath);
 }
 
 void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
