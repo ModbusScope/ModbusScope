@@ -4,9 +4,18 @@
 #include "models/connectiontypes.h"
 #include "models/device.h"
 #include <QColor>
+#include <QJsonObject>
 #include <QList>
 
 namespace ProjectFileData {
+
+typedef struct _AdapterFileSettings
+{
+    QString type;         //!< Adapter type identifier, e.g. "modbus"
+    QJsonObject settings; //!< Opaque settings blob passed as-is to the adapter
+
+} AdapterFileSettings;
+
 typedef struct _RegisterSettings
 {
     QString text = QString("");
@@ -119,6 +128,10 @@ typedef struct _DeviceSettings
 
     bool bInt32LittleEndian = true;
 
+    /* JSON format fields */
+    quint32 adapterId = 0;  //!< Index into GeneralSettings::adapterList
+    QString adapterType;    //!< Quick-lookup copy of adapters[adapterId].type
+
 } DeviceSettings;
 
 typedef struct _GeneralSettings
@@ -126,6 +139,9 @@ typedef struct _GeneralSettings
     QList<ConnectionSettings> connectionSettings;
     QList<DeviceSettings> deviceSettings;
     LogSettings logSettings;
+
+    /* JSON format: populated by ProjectFileJsonParser, empty for XML files */
+    QList<AdapterFileSettings> adapterList;
 
 } GeneralSettings;
 

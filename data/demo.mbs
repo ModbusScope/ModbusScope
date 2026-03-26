@@ -1,92 +1,123 @@
-<?xml version="1.0"?>
-<modbusscope datalevel="5">
- <modbus>
-  <connection>
-   <enabled>true</enabled>
-   <connectionid>0</connectionid>
-   <type>tcp</type>
-   <ip>127.0.0.1</ip>
-   <port>502</port>
-   <portname>COM1</portname>
-   <baudrate>115200</baudrate>
-   <parity>0</parity>
-   <stopbits>1</stopbits>
-   <databits>8</databits>
-   <timeout>1000</timeout>
-   <persistentconnection>true</persistentconnection>
-  </connection>
-  <connection>
-   <enabled>false</enabled>
-   <connectionid>1</connectionid>
-   <type>tcp</type>
-   <ip>127.0.0.1</ip>
-   <port>502</port>
-   <portname>COM1</portname>
-   <baudrate>115200</baudrate>
-   <parity>0</parity>
-   <stopbits>1</stopbits>
-   <databits>8</databits>
-   <timeout>1000</timeout>
-   <persistentconnection>true</persistentconnection>
-  </connection>
-  <connection>
-   <enabled>false</enabled>
-   <connectionid>2</connectionid>
-   <type>tcp</type>
-   <ip>127.0.0.1</ip>
-   <port>502</port>
-   <portname>COM1</portname>
-   <baudrate>115200</baudrate>
-   <parity>0</parity>
-   <stopbits>1</stopbits>
-   <databits>8</databits>
-   <timeout>1000</timeout>
-   <persistentconnection>true</persistentconnection>
-  </connection>
-  <device>
-   <deviceid>1</deviceid>
-   <name>Device 1</name>
-   <connectionid>0</connectionid>
-   <slaveid>1</slaveid>
-   <consecutivemax>125</consecutivemax>
-   <int32littleendian>true</int32littleendian>
-  </device>
-  <log>
-   <polltime>1000</polltime>
-   <absolutetimes>false</absolutetimes>
-   <logtofile enabled="true"/>
-  </log>
- </modbus>
- <scope>
-  <register active="true">
-   <text>Data point</text>
-   <expression><![CDATA[${40001}/2]]></expression>
-   <color>#ff0000</color>
-   <valueaxis>0</valueaxis>
-  </register>
-  <register active="true">
-   <text>Data point 2</text>
-   <expression><![CDATA[${40002:s16b}]]></expression>
-   <color>#0000ff</color>
-   <valueaxis>0</valueaxis>
-  </register>
-  <register active="false">
-   <text>Data point 3</text>
-   <expression><![CDATA[${40003:s16b}*10]]></expression>
-   <color>#00ffff</color>
-   <valueaxis>0</valueaxis>
-  </register>
- </scope>
- <view>
-  <scale>
-   <xaxis mode="sliding">
-    <slidinginterval>20</slidinginterval>
-   </xaxis>
-   <yaxis axis="0" mode="minmax">
-    <min>0</min>
-    <max>25</max>
-   </yaxis>
-   <yaxis axis="1" mode="windowauto"/>
-  </scale>
- </view>
-</modbusscope>
+{
+    "version": 6,
+    "adapters": [
+        {
+            "type": "modbus",
+            "settings": {
+                "connections": [
+                    {
+                        "id": 0,
+                        "connectiontype": "tcp",
+                        "ip": "127.0.0.1",
+                        "port": 502,
+                        "portname": "COM1",
+                        "baudrate": 115200,
+                        "parity": 0,
+                        "stopbits": 1,
+                        "databits": 8,
+                        "timeout": 1000,
+                        "persistentconnection": true,
+                        "enabled": true
+                    },
+                    {
+                        "id": 1,
+                        "connectiontype": "tcp",
+                        "ip": "127.0.0.1",
+                        "port": 502,
+                        "portname": "COM1",
+                        "baudrate": 115200,
+                        "parity": 0,
+                        "stopbits": 1,
+                        "databits": 8,
+                        "timeout": 1000,
+                        "persistentconnection": true,
+                        "enabled": false
+                    },
+                    {
+                        "id": 2,
+                        "connectiontype": "tcp",
+                        "ip": "127.0.0.1",
+                        "port": 502,
+                        "portname": "COM1",
+                        "baudrate": 115200,
+                        "parity": 0,
+                        "stopbits": 1,
+                        "databits": 8,
+                        "timeout": 1000,
+                        "persistentconnection": true,
+                        "enabled": false
+                    }
+                ],
+                "devices": [
+                    {
+                        "id": 0,
+                        "connectionid": 0,
+                        "slaveid": 1,
+                        "consecutivemax": 125,
+                        "int32littleendian": true
+                    }
+                ]
+            }
+        }
+    ],
+    "devices": [
+        {
+            "id": 1,
+            "adapterId": 0,
+            "name": "Device 1",
+            "adapter": {
+                "type": "modbus"
+            }
+        }
+    ],
+    "log": {
+        "polltime": 1000,
+        "absolutetimes": false,
+        "logtofile": {
+            "enabled": true
+        }
+    },
+    "scope": [
+        {
+            "active": true,
+            "text": "Data point",
+            "expression": "${40001}/2",
+            "color": "#ff0000",
+            "valueaxis": 0
+        },
+        {
+            "active": true,
+            "text": "Data point 2",
+            "expression": "${40002:s16b}",
+            "color": "#0000ff",
+            "valueaxis": 0
+        },
+        {
+            "active": false,
+            "text": "Data point 3",
+            "expression": "${40003:s16b}*10",
+            "color": "#00ffff",
+            "valueaxis": 0
+        }
+    ],
+    "view": {
+        "scale": {
+            "xaxis": {
+                "mode": "sliding",
+                "slidinginterval": 20
+            },
+            "yaxis": [
+                {
+                    "axis": 0,
+                    "mode": "minmax",
+                    "min": 0.0,
+                    "max": 25.0
+                },
+                {
+                    "axis": 1,
+                    "mode": "windowauto"
+                }
+            ]
+        }
+    }
+}

@@ -63,9 +63,25 @@ namespace ProjectFileDefinitions
     const char cTrueValue[] = "true";
     const char cFalseValue[] = "false";
 
-    /* Constant values */
+    /* XML constant values */
     const quint32 cMinimumDataLevel = 3;
     const quint32 cCurrentDataLevel = 5;
+
+    /* JSON-specific keys */
+    const char cVersionKey[] = "version";
+    const char cAdaptersKey[] = "adapters";
+    const char cAdapterTypeKey[] = "type";
+    const char cAdapterSettingsKey[] = "settings";
+    const char cAdapterIdKey[] = "adapterId";
+    const char cAdapterKey[] = "adapter";
+    const char cIdJsonKey[] = "id";
+    const char cConnectionsJsonKey[] = "connections";
+    const char cDevicesJsonKey[] = "devices";
+    const char cConnectionTypeJsonKey[] = "connectiontype";
+
+    /* JSON constant values */
+    const quint32 cMinimumJsonVersion = 6;
+    const quint32 cCurrentJsonVersion = 6;
 }
 
 #endif // PROJECTFILEDEFINITIONS

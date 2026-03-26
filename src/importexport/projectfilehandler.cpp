@@ -3,6 +3,8 @@
 
 #include "importexport/projectfiledata.h"
 #include "importexport/projectfileexporter.h"
+#include "importexport/projectfilejsonexporter.h"
+#include "importexport/projectfilejsonparser.h"
 #include "importexport/projectfileparser.h"
 #include "models/graphdatamodel.h"
 #include "models/guimodel.h"
@@ -12,6 +14,8 @@
 
 #include <QFile>
 #include <QFileDialog>
+#include <QJsonArray>
+#include <QJsonObject>
 
 using connectionId_t = ConnectionTypes::connectionId_t;
 
@@ -34,7 +38,16 @@ void ProjectFileHandler::openProjectFile(QString projectFilePath)
         QTextStream in(&file);
         QString projectFileContents = in.readAll();
 
-        GeneralError parseErr = fileParser.parseFile(projectFileContents, &loadedSettings);
+        GeneralError parseErr;
+        if (projectFileContents.trimmed().startsWith('{'))
+        {
+            ProjectFileJsonParser jsonParser;
+            parseErr = jsonParser.parseFile(projectFileContents, &loadedSettings);
+        }
+        else
+        {
+            parseErr = fileParser.parseFile(projectFileContents, &loadedSettings);
+        }
         if (parseErr.result())
         {
             this->updateProjectSetting(&loadedSettings);
@@ -74,7 +87,7 @@ void ProjectFileHandler::saveProjectFile()
     QString projectFile = _pGuiModel->projectFilePath();
     if (!projectFile.isEmpty())
     {
-        ProjectFileExporter projectFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel);
+        ProjectFileJsonExporter projectFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel);
         projectFileExporter.exportProjectFile(projectFile);
     }
 }
@@ -100,165 +113,341 @@ void ProjectFileHandler::reloadProjectFile()
 
 void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings * pProjectSettings)
 {
-    const int connCnt = pProjectSettings->general.connectionSettings.size();
-
-    for(int idx = 0; idx < connCnt; idx++)
+    if (!pProjectSettings->general.adapterList.isEmpty())
     {
-        connectionId_t connectionId;
-
-        if (pProjectSettings->general.connectionSettings[idx].bConnectionId)
+        /* JSON format path: extract modbus-specific settings from the adapter settings blob.
+         * This is transitional code — Connection/Device in SettingsModel will be removed later. */
+        for (const ProjectFileData::AdapterFileSettings& adapter : std::as_const(pProjectSettings->general.adapterList))
         {
-            connectionId = pProjectSettings->general.connectionSettings[idx].connectionId;
-        }
-        else
-        {
-            /* Default to connection 1 */
-            connectionId = ConnectionTypes::ID_1;
-        }
-
-        if (connectionId < ConnectionTypes::ID_CNT)
-        {
-            auto connData = _pSettingsModel->connectionSettings(connectionId);
-
-            _pSettingsModel->setConnectionState(connectionId, pProjectSettings->general.connectionSettings[idx].bConnectionState);
-
-            if (pProjectSettings->general.connectionSettings[idx].bConnectionType
-                && pProjectSettings->general.connectionSettings[idx].connectionType.toLower() == "serial"
-                )
+            if (adapter.type.compare("modbus", Qt::CaseInsensitive) != 0)
             {
-                connData->setConnectionType(ConnectionTypes::TYPE_SERIAL);
+                continue;
+            }
+
+            /* Apply connection settings from adapter blob */
+            if (adapter.settings.contains(ProjectFileDefinitions::cConnectionsJsonKey))
+            {
+                QJsonArray connsArray = adapter.settings[ProjectFileDefinitions::cConnectionsJsonKey].toArray();
+                for (const QJsonValue& connVal : std::as_const(connsArray))
+                {
+                    if (!connVal.isObject())
+                    {
+                        continue;
+                    }
+                    QJsonObject connObj = connVal.toObject();
+
+                    connectionId_t connectionId = static_cast<connectionId_t>(
+                      connObj[ProjectFileDefinitions::cIdJsonKey].toInt(ConnectionTypes::ID_1));
+
+                    if (connectionId >= ConnectionTypes::ID_CNT)
+                    {
+                        continue;
+                    }
+
+                    auto connData = _pSettingsModel->connectionSettings(connectionId);
+                    bool bEnabled = connObj[ProjectFileDefinitions::cConnectionEnabledTag].toBool(true);
+                    _pSettingsModel->setConnectionState(connectionId, bEnabled);
+
+                    QString connType = connObj[ProjectFileDefinitions::cConnectionTypeJsonKey].toString().toLower();
+                    if (connType == "serial")
+                    {
+                        connData->setConnectionType(ConnectionTypes::TYPE_SERIAL);
+                    }
+                    else
+                    {
+                        connData->setConnectionType(ConnectionTypes::TYPE_TCP);
+                    }
+
+                    if (connObj.contains(ProjectFileDefinitions::cIpTag))
+                    {
+                        connData->setIpAddress(connObj[ProjectFileDefinitions::cIpTag].toString());
+                    }
+
+                    if (connObj.contains(ProjectFileDefinitions::cPortTag))
+                    {
+                        connData->setPort(static_cast<quint16>(connObj[ProjectFileDefinitions::cPortTag].toInt()));
+                    }
+
+                    if (connObj.contains(ProjectFileDefinitions::cPortNameTag))
+                    {
+                        connData->setPortName(connObj[ProjectFileDefinitions::cPortNameTag].toString());
+                    }
+
+                    const quint32 detectedBaud = static_cast<quint32>(connObj[ProjectFileDefinitions::cBaudrateTag].toInt(0));
+                    if (
+                        detectedBaud == QSerialPort::Baud1200
+                        || detectedBaud == QSerialPort::Baud2400
+                        || detectedBaud == QSerialPort::Baud4800
+                        || detectedBaud == QSerialPort::Baud9600
+                        || detectedBaud == QSerialPort::Baud19200
+                        || detectedBaud == QSerialPort::Baud38400
+                        || detectedBaud == QSerialPort::Baud57600
+                        || detectedBaud == QSerialPort::Baud115200
+                    )
+                    {
+                        connData->setBaudrate(static_cast<QSerialPort::BaudRate>(detectedBaud));
+                    }
+
+                    const quint32 detectedParity = static_cast<quint32>(connObj[ProjectFileDefinitions::cParityTag].toInt(0));
+                    if (
+                        detectedParity == QSerialPort::NoParity
+                        || detectedParity == QSerialPort::EvenParity
+                        || detectedParity == QSerialPort::OddParity
+                    )
+                    {
+                        connData->setParity(static_cast<QSerialPort::Parity>(detectedParity));
+                    }
+
+                    const quint32 detectedStopBits = static_cast<quint32>(connObj[ProjectFileDefinitions::cStopBitsTag].toInt(0));
+                    if (
+                        detectedStopBits == QSerialPort::OneStop
+                        || detectedStopBits == QSerialPort::OneAndHalfStop
+                        || detectedStopBits == QSerialPort::TwoStop
+                    )
+                    {
+                        connData->setStopbits(static_cast<QSerialPort::StopBits>(detectedStopBits));
+                    }
+
+                    const quint32 detectedDataBits = static_cast<quint32>(connObj[ProjectFileDefinitions::cDataBitsTag].toInt(0));
+                    if (
+                        detectedDataBits == QSerialPort::Data5
+                        || detectedDataBits == QSerialPort::Data6
+                        || detectedDataBits == QSerialPort::Data7
+                        || detectedDataBits == QSerialPort::Data8
+                    )
+                    {
+                        connData->setDatabits(static_cast<QSerialPort::DataBits>(detectedDataBits));
+                    }
+
+                    if (connObj.contains(ProjectFileDefinitions::cTimeoutTag))
+                    {
+                        connData->setTimeout(static_cast<quint32>(connObj[ProjectFileDefinitions::cTimeoutTag].toInt()));
+                    }
+
+                    connData->setPersistentConnection(
+                      connObj[ProjectFileDefinitions::cPersistentConnectionTag].toBool(true));
+                }
+            }
+
+            /* Apply adapter-level device settings from adapter blob, paired with generic device list */
+            _pSettingsModel->removeAllDevice();
+
+            QJsonArray adapterDevices;
+            if (adapter.settings.contains(ProjectFileDefinitions::cDevicesJsonKey))
+            {
+                adapterDevices = adapter.settings[ProjectFileDefinitions::cDevicesJsonKey].toArray();
+            }
+
+            const QList<ProjectFileData::DeviceSettings>& genericDevices = pProjectSettings->general.deviceSettings;
+
+            if (adapterDevices.isEmpty() && genericDevices.isEmpty())
+            {
+                _pSettingsModel->addDevice(Device::cFirstDeviceId);
+            }
+
+            /* Match by position: genericDevices[i] corresponds to adapterDevices[i] */
+            int matchCount = qMin(adapterDevices.size(), genericDevices.size());
+            for (int idx = 0; idx < matchCount; idx++)
+            {
+                deviceId_t deviceId = Device::cFirstDeviceId;
+                if (genericDevices[idx].bDeviceId)
+                {
+                    deviceId = genericDevices[idx].deviceId;
+                }
+                _pSettingsModel->addDevice(deviceId);
+
+                auto deviceData = _pSettingsModel->deviceSettings(deviceId);
+
+                if (genericDevices[idx].bName)
+                {
+                    deviceData->setName(genericDevices[idx].name);
+                }
+
+                QJsonObject adapterDev = adapterDevices[idx].toObject();
+
+                connectionId_t connectionId = static_cast<connectionId_t>(
+                  adapterDev[ProjectFileDefinitions::cConnectionIdTag].toInt(ConnectionTypes::ID_1));
+                deviceData->setConnectionId(connectionId);
+
+                if (adapterDev.contains(ProjectFileDefinitions::cSlaveIdTag))
+                {
+                    deviceData->setSlaveId(static_cast<quint8>(adapterDev[ProjectFileDefinitions::cSlaveIdTag].toInt()));
+                }
+
+                if (adapterDev.contains(ProjectFileDefinitions::cConsecutiveMaxTag))
+                {
+                    deviceData->setConsecutiveMax(
+                      static_cast<quint8>(adapterDev[ProjectFileDefinitions::cConsecutiveMaxTag].toInt()));
+                }
+
+                deviceData->setInt32LittleEndian(
+                  adapterDev[ProjectFileDefinitions::cInt32LittleEndianTag].toBool(true));
+            }
+        }
+    }
+    else
+    {
+        /* XML format path (legacy) */
+        const int connCnt = pProjectSettings->general.connectionSettings.size();
+
+        for (int idx = 0; idx < connCnt; idx++)
+        {
+            connectionId_t connectionId;
+
+            if (pProjectSettings->general.connectionSettings[idx].bConnectionId)
+            {
+                connectionId = pProjectSettings->general.connectionSettings[idx].connectionId;
             }
             else
             {
-                connData->setConnectionType(ConnectionTypes::TYPE_TCP);
+                /* Default to connection 1 */
+                connectionId = ConnectionTypes::ID_1;
             }
 
-            if (pProjectSettings->general.connectionSettings[idx].bIp)
+            if (connectionId < ConnectionTypes::ID_CNT)
             {
-                connData->setIpAddress(pProjectSettings->general.connectionSettings[idx].ip);
-            }
+                auto connData = _pSettingsModel->connectionSettings(connectionId);
 
-            if (pProjectSettings->general.connectionSettings[idx].bPort)
-            {
-                connData->setPort(pProjectSettings->general.connectionSettings[idx].port);
-            }
+                _pSettingsModel->setConnectionState(connectionId, pProjectSettings->general.connectionSettings[idx].bConnectionState);
 
-            if (pProjectSettings->general.connectionSettings[idx].bPortName)
-            {
-                connData->setPortName(pProjectSettings->general.connectionSettings[idx].portName);
-            }
-
-            const quint32 detectedBaud = pProjectSettings->general.connectionSettings[idx].baudrate;
-            if (pProjectSettings->general.connectionSettings[idx].bBaudrate)
-            {
-                if (
-                    detectedBaud == QSerialPort::Baud1200
-                    || detectedBaud == QSerialPort::Baud2400
-                    || detectedBaud == QSerialPort::Baud4800
-                    || detectedBaud == QSerialPort::Baud9600
-                    || detectedBaud == QSerialPort::Baud19200
-                    || detectedBaud == QSerialPort::Baud38400
-                    || detectedBaud == QSerialPort::Baud57600
-                    || detectedBaud == QSerialPort::Baud115200
-                )
+                if (pProjectSettings->general.connectionSettings[idx].bConnectionType
+                    && pProjectSettings->general.connectionSettings[idx].connectionType.toLower() == "serial"
+                    )
                 {
-                    connData->setBaudrate(static_cast<QSerialPort::BaudRate>(detectedBaud));
+                    connData->setConnectionType(ConnectionTypes::TYPE_SERIAL);
                 }
-            }
-
-            const quint32 detectedParity = pProjectSettings->general.connectionSettings[idx].parity;
-            if (pProjectSettings->general.connectionSettings[idx].bParity)
-            {
-                if (
-                    detectedParity == QSerialPort::NoParity
-                    || detectedParity == QSerialPort::EvenParity
-                    || detectedParity == QSerialPort::OddParity
-                )
+                else
                 {
-                    connData->setParity(static_cast<QSerialPort::Parity>(detectedParity));
+                    connData->setConnectionType(ConnectionTypes::TYPE_TCP);
                 }
-            }
 
-            const quint32 detectedStopBits = pProjectSettings->general.connectionSettings[idx].stopbits;
-            if (pProjectSettings->general.connectionSettings[idx].bStopbits)
-            {
-                if (
-                    detectedStopBits == QSerialPort::OneStop
-                    || detectedStopBits == QSerialPort::OneAndHalfStop
-                    || detectedStopBits == QSerialPort::TwoStop
-                )
+                if (pProjectSettings->general.connectionSettings[idx].bIp)
                 {
-                    connData->setStopbits(static_cast<QSerialPort::StopBits>(detectedStopBits));
+                    connData->setIpAddress(pProjectSettings->general.connectionSettings[idx].ip);
                 }
-            }
 
-            const quint32 detectedDataBits = pProjectSettings->general.connectionSettings[idx].databits;
-            if (pProjectSettings->general.connectionSettings[idx].bDatabits)
-            {
-                if (
-                    detectedDataBits == QSerialPort::Data5
-                    || detectedDataBits == QSerialPort::Data6
-                    || detectedDataBits == QSerialPort::Data7
-                    || detectedDataBits == QSerialPort::Data8
-                )
+                if (pProjectSettings->general.connectionSettings[idx].bPort)
                 {
-                    connData->setDatabits(static_cast<QSerialPort::DataBits>(detectedDataBits));
+                    connData->setPort(pProjectSettings->general.connectionSettings[idx].port);
                 }
-            }
 
-            if (pProjectSettings->general.connectionSettings[idx].bTimeout)
+                if (pProjectSettings->general.connectionSettings[idx].bPortName)
+                {
+                    connData->setPortName(pProjectSettings->general.connectionSettings[idx].portName);
+                }
+
+                const quint32 detectedBaud = pProjectSettings->general.connectionSettings[idx].baudrate;
+                if (pProjectSettings->general.connectionSettings[idx].bBaudrate)
+                {
+                    if (
+                        detectedBaud == QSerialPort::Baud1200
+                        || detectedBaud == QSerialPort::Baud2400
+                        || detectedBaud == QSerialPort::Baud4800
+                        || detectedBaud == QSerialPort::Baud9600
+                        || detectedBaud == QSerialPort::Baud19200
+                        || detectedBaud == QSerialPort::Baud38400
+                        || detectedBaud == QSerialPort::Baud57600
+                        || detectedBaud == QSerialPort::Baud115200
+                    )
+                    {
+                        connData->setBaudrate(static_cast<QSerialPort::BaudRate>(detectedBaud));
+                    }
+                }
+
+                const quint32 detectedParity = pProjectSettings->general.connectionSettings[idx].parity;
+                if (pProjectSettings->general.connectionSettings[idx].bParity)
+                {
+                    if (
+                        detectedParity == QSerialPort::NoParity
+                        || detectedParity == QSerialPort::EvenParity
+                        || detectedParity == QSerialPort::OddParity
+                    )
+                    {
+                        connData->setParity(static_cast<QSerialPort::Parity>(detectedParity));
+                    }
+                }
+
+                const quint32 detectedStopBits = pProjectSettings->general.connectionSettings[idx].stopbits;
+                if (pProjectSettings->general.connectionSettings[idx].bStopbits)
+                {
+                    if (
+                        detectedStopBits == QSerialPort::OneStop
+                        || detectedStopBits == QSerialPort::OneAndHalfStop
+                        || detectedStopBits == QSerialPort::TwoStop
+                    )
+                    {
+                        connData->setStopbits(static_cast<QSerialPort::StopBits>(detectedStopBits));
+                    }
+                }
+
+                const quint32 detectedDataBits = pProjectSettings->general.connectionSettings[idx].databits;
+                if (pProjectSettings->general.connectionSettings[idx].bDatabits)
+                {
+                    if (
+                        detectedDataBits == QSerialPort::Data5
+                        || detectedDataBits == QSerialPort::Data6
+                        || detectedDataBits == QSerialPort::Data7
+                        || detectedDataBits == QSerialPort::Data8
+                    )
+                    {
+                        connData->setDatabits(static_cast<QSerialPort::DataBits>(detectedDataBits));
+                    }
+                }
+
+                if (pProjectSettings->general.connectionSettings[idx].bTimeout)
+                {
+                    connData->setTimeout(pProjectSettings->general.connectionSettings[idx].timeout);
+                }
+
+                connData->setPersistentConnection(pProjectSettings->general.connectionSettings[idx].bPersistentConnection);
+            }
+        }
+
+        _pSettingsModel->removeAllDevice();
+
+        const int deviceCnt = pProjectSettings->general.deviceSettings.size();
+        if (deviceCnt == 0)
+        {
+            deviceId_t deviceId = Device::cFirstDeviceId; /* Default to first device */
+            _pSettingsModel->addDevice(deviceId);
+        }
+
+        for (int idx = 0; idx < deviceCnt; idx++)
+        {
+            deviceId_t deviceId = Device::cFirstDeviceId; /* Default to first device */
+
+            if (pProjectSettings->general.deviceSettings[idx].bDeviceId)
             {
-                connData->setTimeout(pProjectSettings->general.connectionSettings[idx].timeout);
+                deviceId = pProjectSettings->general.deviceSettings[idx].deviceId;
+            }
+            _pSettingsModel->addDevice(deviceId);
+
+            auto deviceData = _pSettingsModel->deviceSettings(deviceId);
+
+            connectionId_t connectionId = ConnectionTypes::ID_1; /* Default to connection 1 */
+            if (pProjectSettings->general.deviceSettings[idx].bConnectionId)
+            {
+                connectionId = pProjectSettings->general.deviceSettings[idx].connectionId;
+            }
+            deviceData->setConnectionId(connectionId);
+
+            if (pProjectSettings->general.deviceSettings[idx].bName)
+            {
+                deviceData->setName(pProjectSettings->general.deviceSettings[idx].name);
             }
 
-            connData->setPersistentConnection(pProjectSettings->general.connectionSettings[idx].bPersistentConnection);
+            if (pProjectSettings->general.deviceSettings[idx].bSlaveId)
+            {
+                deviceData->setSlaveId(pProjectSettings->general.deviceSettings[idx].slaveId);
+            }
+
+            if (pProjectSettings->general.deviceSettings[idx].bConsecutiveMax)
+            {
+                deviceData->setConsecutiveMax(pProjectSettings->general.deviceSettings[idx].consecutiveMax);
+            }
+
+            deviceData->setInt32LittleEndian(pProjectSettings->general.deviceSettings[idx].bInt32LittleEndian);
         }
-    }
-
-    _pSettingsModel->removeAllDevice();
-
-    const int deviceCnt = pProjectSettings->general.deviceSettings.size();
-    if (deviceCnt == 0)
-    {
-        deviceId_t deviceId = Device::cFirstDeviceId; /* Default to first device */
-        _pSettingsModel->addDevice(deviceId);
-    }
-
-    for (int idx = 0; idx < deviceCnt; idx++)
-    {
-        deviceId_t deviceId = Device::cFirstDeviceId; /* Default to first device */
-
-        if (pProjectSettings->general.deviceSettings[idx].bDeviceId)
-        {
-            deviceId = pProjectSettings->general.deviceSettings[idx].deviceId;
-        }
-        _pSettingsModel->addDevice(deviceId);
-
-        auto deviceData = _pSettingsModel->deviceSettings(deviceId);
-
-        connectionId_t connectionId = ConnectionTypes::ID_1; /* Default to connection 1 */
-        if (pProjectSettings->general.deviceSettings[idx].bConnectionId)
-        {
-            connectionId = pProjectSettings->general.deviceSettings[idx].connectionId;
-        }
-        deviceData->setConnectionId(connectionId);
-
-        if (pProjectSettings->general.deviceSettings[idx].bName)
-        {
-            deviceData->setName(pProjectSettings->general.deviceSettings[idx].name);
-        }
-
-        if (pProjectSettings->general.deviceSettings[idx].bSlaveId)
-        {
-            deviceData->setSlaveId(pProjectSettings->general.deviceSettings[idx].slaveId);
-        }
-
-        if (pProjectSettings->general.deviceSettings[idx].bConsecutiveMax)
-        {
-            deviceData->setConsecutiveMax(pProjectSettings->general.deviceSettings[idx].consecutiveMax);
-        }
-
-        deviceData->setInt32LittleEndian(pProjectSettings->general.deviceSettings[idx].bInt32LittleEndian);
     }
 
     if (pProjectSettings->general.logSettings.bPollTime)
