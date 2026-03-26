@@ -2,6 +2,7 @@
 #include "projectfilehandler.h"
 
 #include "importexport/projectfiledata.h"
+#include "importexport/projectfiledefinitions.h"
 #include "importexport/projectfileexporter.h"
 #include "importexport/projectfilejsonexporter.h"
 #include "importexport/projectfilejsonparser.h"
@@ -117,8 +118,16 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
     {
         /* JSON format path: extract modbus-specific settings from the adapter settings blob.
          * This is transitional code — Connection/Device in SettingsModel will be removed later. */
-        for (const ProjectFileData::AdapterFileSettings& adapter : std::as_const(pProjectSettings->general.adapterList))
+
+        /* Clear all devices once before processing any adapter */
+        _pSettingsModel->removeAllDevice();
+        bool bAnyDeviceAdded = false;
+
+        const QList<ProjectFileData::AdapterFileSettings>& adapterList = pProjectSettings->general.adapterList;
+        for (int adapterIdx = 0; adapterIdx < adapterList.size(); adapterIdx++)
         {
+            const ProjectFileData::AdapterFileSettings& adapter = adapterList[adapterIdx];
+
             if (adapter.type.compare("modbus", Qt::CaseInsensitive) != 0)
             {
                 continue;
@@ -229,8 +238,15 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
                 }
             }
 
-            /* Apply adapter-level device settings from adapter blob, paired with generic device list */
-            _pSettingsModel->removeAllDevice();
+            /* Collect the generic devices that belong to this adapter */
+            QList<ProjectFileData::DeviceSettings> adapterGenericDevices;
+            for (const ProjectFileData::DeviceSettings& dev : std::as_const(pProjectSettings->general.deviceSettings))
+            {
+                if (dev.adapterId == static_cast<quint32>(adapterIdx))
+                {
+                    adapterGenericDevices.append(dev);
+                }
+            }
 
             QJsonArray adapterDevices;
             if (adapter.settings.contains(ProjectFileDefinitions::cDevicesJsonKey))
@@ -238,29 +254,23 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
                 adapterDevices = adapter.settings[ProjectFileDefinitions::cDevicesJsonKey].toArray();
             }
 
-            const QList<ProjectFileData::DeviceSettings>& genericDevices = pProjectSettings->general.deviceSettings;
-
-            if (adapterDevices.isEmpty() && genericDevices.isEmpty())
-            {
-                _pSettingsModel->addDevice(Device::cFirstDeviceId);
-            }
-
-            /* Match by position: genericDevices[i] corresponds to adapterDevices[i] */
-            int matchCount = qMin(adapterDevices.size(), genericDevices.size());
+            /* Match adapter-level device entries with their generic counterparts by position */
+            int matchCount = qMin(adapterDevices.size(), adapterGenericDevices.size());
             for (int idx = 0; idx < matchCount; idx++)
             {
                 deviceId_t deviceId = Device::cFirstDeviceId;
-                if (genericDevices[idx].bDeviceId)
+                if (adapterGenericDevices[idx].bDeviceId)
                 {
-                    deviceId = genericDevices[idx].deviceId;
+                    deviceId = adapterGenericDevices[idx].deviceId;
                 }
                 _pSettingsModel->addDevice(deviceId);
+                bAnyDeviceAdded = true;
 
                 auto deviceData = _pSettingsModel->deviceSettings(deviceId);
 
-                if (genericDevices[idx].bName)
+                if (adapterGenericDevices[idx].bName)
                 {
-                    deviceData->setName(genericDevices[idx].name);
+                    deviceData->setName(adapterGenericDevices[idx].name);
                 }
 
                 QJsonObject adapterDev = adapterDevices[idx].toObject();
@@ -283,6 +293,12 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
                 deviceData->setInt32LittleEndian(
                   adapterDev[ProjectFileDefinitions::cInt32LittleEndianTag].toBool(true));
             }
+        }
+
+        /* Ensure at least one device exists when the file defines none */
+        if (!bAnyDeviceAdded)
+        {
+            _pSettingsModel->addDevice(Device::cFirstDeviceId);
         }
     }
     else

@@ -170,9 +170,11 @@ void TestProjectFileJsonParser::logToFileWithPath()
     ProjectSettings settings;
 
     GeneralError err = parser.parseFile(ProjectFileJsonTestData::cLogToFileWithPath, &settings);
-    /* Result depends on whether /tmp/test_mbs_log.csv parent dir exists; just check no crash */
-    Q_UNUSED(err)
+    QVERIFY(err.result());
     QVERIFY(settings.general.logSettings.bLogToFile);
+    /* /tmp always exists, so the log file path is valid and should be accepted */
+    QVERIFY(settings.general.logSettings.bLogToFileFile);
+    QCOMPARE(settings.general.logSettings.logFile, QString("/tmp/test_mbs_log.csv"));
 }
 
 void TestProjectFileJsonParser::scopeRegisters()

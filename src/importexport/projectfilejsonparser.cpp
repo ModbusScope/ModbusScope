@@ -276,17 +276,13 @@ GeneralError ProjectFileJsonParser::parseLog(const QJsonObject& logObject, LogSe
                 {
                     if (fileInfo.exists())
                     {
+                        /* Path exists but is not a regular file — silently ignore */
                         bValid = false;
-                        parseErr.reportError(
-                          QString("Log file path (%1) already exists, but it is not a file. Log file is set to default.")
-                            .arg(fileInfo.filePath()));
                     }
                     else if (!fileInfo.dir().exists())
                     {
+                        /* Parent directory does not exist — silently ignore */
                         bValid = false;
-                        parseErr.reportError(
-                          QString("Log file path (parent directory) does not exist (%1). Log file is set to default.")
-                            .arg(fileInfo.filePath()));
                     }
                 }
 

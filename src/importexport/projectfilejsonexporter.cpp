@@ -8,9 +8,8 @@
 #include "models/settingsmodel.h"
 #include "util/util.h"
 
-#include <QFile>
 #include <QJsonDocument>
-#include <QTextStream>
+#include <QSaveFile>
 
 ProjectFileJsonExporter::ProjectFileJsonExporter(GuiModel* pGuiModel,
                                                  SettingsModel* pSettingsModel,
@@ -39,11 +38,14 @@ void ProjectFileJsonExporter::exportProjectFile(const QString& projectFile)
 
     QJsonDocument doc(root);
 
-    QFile file(projectFile);
+    QSaveFile file(projectFile);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-        QTextStream stream(&file);
-        stream << doc.toJson(QJsonDocument::Indented);
+        file.write(doc.toJson(QJsonDocument::Indented));
+        if (!file.commit())
+        {
+            Util::showError(tr("Export settings to file (%1) failed").arg(projectFile));
+        }
     }
     else
     {
@@ -53,6 +55,11 @@ void ProjectFileJsonExporter::exportProjectFile(const QString& projectFile)
 
 /*!
  * \brief Build the top-level "adapters" array.
+ *
+ * \note This implementation only emits the modbus adapter. Non-modbus adapter
+ *       data is not preserved on save. This is a known transitional limitation
+ *       that will be resolved when adapter-specific storage is moved out of
+ *       SettingsModel in a future refactoring.
  *
  * For the modbus adapter, the settings object contains:
  *  - connections[]: one entry per enabled/disabled connection in SettingsModel
