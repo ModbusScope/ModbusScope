@@ -22,7 +22,16 @@ ctest --test-dir build --output-on-failure
 Run pre-commit checks (clang-format + clang-tidy + clazy — all must pass):
 
 ```bash
+# For all checks (takes a while):
 ./scripts/run_precommit.sh
+```
+
+To run checks on a single file (faster during development):
+
+```bash
+clang-format -i src/path/to/file.cpp
+./scripts/run_clang_tidy.sh src/path/to/file.cpp
+./scripts/run_clazy.sh src/path/to/file.cpp
 ```
 
 **Always run pre-commit after making source file changes.** All three checks must pass before the work is done.
@@ -66,6 +75,7 @@ Enforced by `.clang-format` (Mozilla-based, C++20):
 ## Key Conventions
 
 - Prefer readability and maintainability over using the latest C++ features (avoid syntax sugar that may be less familiar to new contributors).
+- Avoid lambda expressions with more than 2 captures or multiple statements; use named functions instead for clarity.
 - Make sure to document public functions with brief Doxygen comments in the source file
 - Only use early return for error handling, avoid deep nesting
 - When fixing a bug, add a test that reproduces the issue before implementing the fix.
