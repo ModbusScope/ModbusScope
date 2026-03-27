@@ -1,0 +1,39 @@
+name: Devcontainer
+
+on: push
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6.0.0
+
+      - name: Build devcontainer image
+        run: docker build -f .devcontainer/Dockerfile -t modbus-devcontainer .
+
+      - name: Configure (postCreateCommand)
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace \
+            modbus-devcontainer \
+            cmake -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+              -DCMAKE_PREFIX_PATH=/opt/Qt/6.8.3/gcc_64 -S . -B build
+
+      - name: Build
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace \
+            modbus-devcontainer \
+            ninja -C build
+
+      - name: Test
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace \
+            -e QT_QPA_PLATFORM=offscreen \
+            modbus-devcontainer \
+            ctest --test-dir build --output-on-failure
+
+      - name: Pre-commit checks
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/workspace" -w /workspace \
+            modbus-devcontainer \
+            bash scripts/run_precommit.sh

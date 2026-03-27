@@ -1,0 +1,24 @@
+{
+    "name": "ModbusAdapter Linux",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools",
+                "ms-vscode.cmake-tools"
+            ],
+            "settings": {
+                "cmake.configureSettings": {
+                    "CMAKE_PREFIX_PATH": "/opt/Qt/6.8.3/gcc_64"
+                },
+                "cmake.generator": "Ninja",
+                "cmake.buildDirectory": "${workspaceFolder}/build"
+            }
+        }
+    },
+    "postCreateCommand": "cmake -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_PREFIX_PATH=/opt/Qt/6.8.3/gcc_64 -S . -B build",
+    "remoteUser": "dev"
+}
