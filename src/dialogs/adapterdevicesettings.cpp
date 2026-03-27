@@ -89,10 +89,14 @@ void AdapterDeviceSettings::handleAddTab()
 
 QString AdapterDeviceSettings::constructTabName(const QJsonObject& deviceValues, int tabIndex) const
 {
-    QString name = deviceValues.value("name").toString();
-    if (!name.isEmpty())
+    int id = deviceValues.value("id").toInt(-1);
+    if (id >= 0)
     {
-        return name;
+        Device* pDevice = _pSettingsModel->deviceSettings(static_cast<deviceId_t>(id));
+        if (pDevice && !pDevice->name().isEmpty())
+        {
+            return pDevice->name();
+        }
     }
     return QString("Device %1").arg(tabIndex);
 }

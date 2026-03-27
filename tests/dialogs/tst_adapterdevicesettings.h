@@ -13,7 +13,7 @@ class TestAdapterDeviceSettings : public QObject
 private slots:
     void noAdapterShowsLabel();
     void devicesPopulateTabsFromConfig();
-    void deviceNameUsedAsTabTitle();
+    void deviceModelNameUsedAsTabTitle();
     void missingNameFallsBackToDeviceN();
     void acceptValuesSavesToAdapterConfig();
 

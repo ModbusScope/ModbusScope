@@ -8,21 +8,22 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLabel>
-#include <QLineEdit>
+#include <QSpinBox>
 #include <QTest>
 
 namespace {
 
 //! Build a minimal adapter describe result with a devices schema containing
-//! one string property \c "name".
+//! one integer property \c "id".
 QJsonObject makeAdapterDescribe(const QString& adapterName)
 {
-    QJsonObject nameProp;
-    nameProp["type"] = "string";
-    nameProp["title"] = "Name";
+    QJsonObject idProp;
+    idProp["type"] = "integer";
+    idProp["title"] = "Device ID";
+    idProp["minimum"] = 1;
 
     QJsonObject itemProps;
-    itemProps["name"] = nameProp;
+    itemProps["id"] = idProp;
 
     QJsonObject itemSchema;
     itemSchema["type"] = "object";
@@ -86,9 +87,9 @@ void TestAdapterDeviceSettings::devicesPopulateTabsFromConfig()
     SettingsModel model;
 
     QJsonObject dev0;
-    dev0["name"] = "Pump";
+    dev0["id"] = 1;
     QJsonObject dev1;
-    dev1["name"] = "Motor";
+    dev1["id"] = 2;
 
     setupAdapter(model, "adapterA", QJsonArray{ dev0, dev1 });
 
@@ -99,14 +100,17 @@ void TestAdapterDeviceSettings::devicesPopulateTabsFromConfig()
     QCOMPARE(tabs->count(), 2);
 }
 
-void TestAdapterDeviceSettings::deviceNameUsedAsTabTitle()
+void TestAdapterDeviceSettings::deviceModelNameUsedAsTabTitle()
 {
     SettingsModel model;
 
     QJsonObject dev;
-    dev["name"] = "Pump";
+    dev["id"] = 1;
 
     setupAdapter(model, "adapterA", QJsonArray{ dev });
+
+    model.addDevice(1);
+    model.deviceSettings(1)->setName("Pump");
 
     AdapterDeviceSettings w(&model);
 
@@ -119,7 +123,7 @@ void TestAdapterDeviceSettings::missingNameFallsBackToDeviceN()
 {
     SettingsModel model;
 
-    // Device with no "name" field
+    // Device with no "id" field — id defaults to -1, no Device lookup possible
     setupAdapter(model, "adapterA", QJsonArray{ QJsonObject() });
 
     AdapterDeviceSettings w(&model);
@@ -134,7 +138,7 @@ void TestAdapterDeviceSettings::acceptValuesSavesToAdapterConfig()
     SettingsModel model;
 
     QJsonObject dev;
-    dev["name"] = "OriginalName";
+    dev["id"] = 1;
 
     setupAdapter(model, "adapterA", QJsonArray{ dev });
 
@@ -146,16 +150,15 @@ void TestAdapterDeviceSettings::acceptValuesSavesToAdapterConfig()
     auto* tab = qobject_cast<DeviceConfigTab*>(tabs->tabContent(0));
     QVERIFY(tab != nullptr);
 
-    auto* edit = tab->findChild<QLineEdit*>();
-    QVERIFY(edit != nullptr);
-    edit->setText("UpdatedName");
+    auto* spin = tab->findChild<QSpinBox*>();
+    QVERIFY(spin != nullptr);
+    spin->setValue(2);
 
     w.acceptValues();
 
     const AdapterData* adapter = model.adapterData("adapterA");
     QCOMPARE(adapter->hasStoredConfig(), true);
-    QCOMPARE(adapter->currentConfig()["devices"].toArray().at(0).toObject()["name"].toString(),
-             QStringLiteral("UpdatedName"));
+    QCOMPARE(adapter->currentConfig()["devices"].toArray().at(0).toObject()["id"].toInt(), 2);
 }
 
 QTEST_MAIN(TestAdapterDeviceSettings)

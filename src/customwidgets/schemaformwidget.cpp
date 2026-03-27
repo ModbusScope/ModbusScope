@@ -83,18 +83,30 @@ QWidget* SchemaFormWidget::createWidgetForProperty(const QJsonObject& propSchema
     {
         auto* combo = new QComboBox(this);
         bool isInteger = (type == "integer");
+        const QJsonArray enumLabels = propSchema.value("x-enumLabels").toArray();
 
-        for (const auto& v : enumValues)
+        for (int i = 0; i < enumValues.size(); ++i)
         {
+            const QJsonValue& v = enumValues.at(i);
+            QString label = (i < enumLabels.size()) ? enumLabels.at(i).toString() : QString();
+
             if (isInteger)
             {
                 int intVal = v.toInt();
-                combo->addItem(QString::number(intVal), intVal);
+                if (label.isEmpty())
+                {
+                    label = QString::number(intVal);
+                }
+                combo->addItem(label, intVal);
             }
             else
             {
                 QString strVal = v.toString();
-                combo->addItem(strVal, strVal);
+                if (label.isEmpty())
+                {
+                    label = strVal;
+                }
+                combo->addItem(label, strVal);
             }
         }
 

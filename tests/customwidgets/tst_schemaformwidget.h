@@ -18,6 +18,8 @@ private slots:
     void integerSchemaMinMaxApplied();
     void valuesReflectWidgetChanges();
     void setSchemaResetsOldWidgets();
+    void stringEnumWithLabelsShowsLabel();
+    void integerEnumWithLabelsShowsLabel();
 };
 
 #endif // TST_SCHEMAFORMWIDGET_H

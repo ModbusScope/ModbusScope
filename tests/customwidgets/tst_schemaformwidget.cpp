@@ -179,4 +179,36 @@ void TestSchemaFormWidget::setSchemaResetsOldWidgets()
     QVERIFY(w.findChild<QSpinBox*>(QString(), Qt::FindDirectChildrenOnly) != nullptr);
 }
 
+void TestSchemaFormWidget::stringEnumWithLabelsShowsLabel()
+{
+    QJsonObject propSchema;
+    propSchema["type"] = "string";
+    propSchema["enum"] = QJsonArray{ "N", "E", "O" };
+    propSchema["x-enumLabels"] = QJsonArray{ "None", "Even", "Odd" };
+
+    SchemaFormWidget w;
+    w.setSchema(makeObjectSchema("parity", propSchema), QJsonObject{ { "parity", "E" } });
+
+    auto* combo = w.findChild<QComboBox*>();
+    QVERIFY(combo != nullptr);
+    QCOMPARE(combo->currentText(), QStringLiteral("Even"));
+    QCOMPARE(w.values()["parity"].toString(), QStringLiteral("E"));
+}
+
+void TestSchemaFormWidget::integerEnumWithLabelsShowsLabel()
+{
+    QJsonObject propSchema;
+    propSchema["type"] = "integer";
+    propSchema["enum"] = QJsonArray{ 1, 2, 3 };
+    propSchema["x-enumLabels"] = QJsonArray{ "1", "2", "1.5" };
+
+    SchemaFormWidget w;
+    w.setSchema(makeObjectSchema("stopbits", propSchema), QJsonObject{ { "stopbits", 3 } });
+
+    auto* combo = w.findChild<QComboBox*>();
+    QVERIFY(combo != nullptr);
+    QCOMPARE(combo->currentText(), QStringLiteral("1.5"));
+    QCOMPARE(w.values()["stopbits"].toInt(), 3);
+}
+
 QTEST_MAIN(TestSchemaFormWidget)
