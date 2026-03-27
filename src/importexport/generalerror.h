@@ -7,17 +7,26 @@ class GeneralError
 {
 
 public:
-    explicit GeneralError() : GeneralError(true){};
+    explicit GeneralError() : GeneralError(true) {};
     explicit GeneralError(bool result)
     {
         _result = result;
         _msg = QString();
     }
 
-    bool result() {return _result;};
-    QString msg() {return _msg;};
+    bool result() const
+    {
+        return _result;
+    };
+    QString msg() const
+    {
+        return _msg;
+    };
 
-    void setResult(bool result) {_result = result; };
+    void setResult(bool result)
+    {
+        _result = result;
+    };
 
     void reportError(QString msg)
     {
