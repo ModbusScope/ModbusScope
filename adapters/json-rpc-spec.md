@@ -113,6 +113,13 @@ Returns the adapter's static metadata, configuration schema, default values, and
 | `defaults` | Default config values |
 | `capabilities` | Feature flags |
 
+Each property in `schema` includes the following additional fields (standard JSON Schema annotations and custom extensions):
+
+| Field | Description |
+| --- | --- |
+| `title` | Standard JSON Schema annotation. UI-friendly label for the field, suitable for use in form inputs and dialog labels |
+| `x-enumLabels` | Custom extension. Present on enum properties only. A string array, parallel to `enum`, giving a UI-friendly display name for each allowed value |
+
 ---
 
 ### `adapter.configure`
@@ -154,8 +161,7 @@ The config object top-level structure will be used for the configuration GUI dia
         "connectionId": 0,
         "slaveId": 1,
         "consecutiveMax": 64,
-        "int32LittleEndian": false,
-        "name": "PLC1"
+        "int32LittleEndian": false
       }
     ]
   }
@@ -205,7 +211,6 @@ Serial-specific fields:
 | `slaveId` | integer | yes | Modbus slave ID (`1`–`247`) |
 | `consecutiveMax` | integer | no | Max registers per single read request (default: `125`) |
 | `int32LittleEndian` | boolean | no | Byte order for 32-bit values (default: `false` = big endian) |
-| `name` | string | no | Human-readable device name |
 
 **Result:**
 ```json
