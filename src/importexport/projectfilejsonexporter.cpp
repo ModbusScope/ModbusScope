@@ -37,19 +37,26 @@ void ProjectFileJsonExporter::exportProjectFile(const QString& projectFile)
     root[ProjectFileDefinitions::cViewTag] = createViewObject();
 
     QJsonDocument doc(root);
-
     QSaveFile file(projectFile);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-        file.write(doc.toJson(QJsonDocument::Indented));
-        if (!file.commit())
+        QByteArray jsonData = doc.toJson(QJsonDocument::Indented);
+        qint64 bytesWritten = file.write(jsonData);
+        if (bytesWritten == jsonData.size())
         {
-            Util::showError(tr("Export settings to file (%1) failed").arg(projectFile));
+            if (!file.commit())
+            {
+                showExportError(projectFile);
+            }
+        }
+        else
+        {
+            showExportError(projectFile);
         }
     }
     else
     {
-        Util::showError(tr("Export settings to file (%1) failed").arg(projectFile));
+        showExportError(projectFile);
     }
 }
 
@@ -242,4 +249,9 @@ QJsonObject ProjectFileJsonExporter::createViewObject()
     QJsonObject viewObj;
     viewObj[ProjectFileDefinitions::cScaleTag] = scaleObj;
     return viewObj;
+}
+
+void ProjectFileJsonExporter::showExportError(const QString& projectFile)
+{
+    Util::showError(tr("Export settings to file (%1) failed").arg(projectFile));
 }

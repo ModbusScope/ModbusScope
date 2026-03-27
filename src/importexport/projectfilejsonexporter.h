@@ -39,6 +39,8 @@ private:
     QJsonArray createScopeArray();
     QJsonObject createViewObject();
 
+    void showExportError(const QString& projectFile);
+
     GuiModel* _pGuiModel;
     SettingsModel* _pSettingsModel;
     GraphDataModel* _pGraphDataModel;
