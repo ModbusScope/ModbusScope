@@ -163,8 +163,7 @@ QJsonObject ProjectFileJsonExporter::createLogObject()
     QJsonObject logToFileObj;
     logToFileObj[ProjectFileDefinitions::cEnabledAttribute] = _pSettingsModel->writeDuringLog();
 
-    if (_pSettingsModel->writeDuringLog()
-        && (_pSettingsModel->writeDuringLogFile() != SettingsModel::defaultLogPath()))
+    if (_pSettingsModel->writeDuringLog() && (_pSettingsModel->writeDuringLogFile() != SettingsModel::defaultLogPath()))
     {
         logToFileObj[ProjectFileDefinitions::cFilenameTag] = _pSettingsModel->writeDuringLogFile();
     }
@@ -210,8 +209,7 @@ QJsonObject ProjectFileJsonExporter::createViewObject()
         xaxisObj[ProjectFileDefinitions::cModeAttribute] = QString(ProjectFileDefinitions::cAutoValue);
     }
 
-    auto buildYAxis = [this](int axisId, AxisMode::AxisScaleOptions mode, double minVal, double maxVal) -> QJsonObject
-    {
+    auto buildYAxis = [](int axisId, AxisMode::AxisScaleOptions mode, double minVal, double maxVal) -> QJsonObject {
         QJsonObject yaxisObj;
         yaxisObj[ProjectFileDefinitions::cAxisAttribute] = axisId;
 

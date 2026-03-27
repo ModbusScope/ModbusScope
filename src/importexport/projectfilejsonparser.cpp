@@ -38,9 +38,8 @@ GeneralError ProjectFileJsonParser::parseFile(const QString& fileContent, Projec
 
     if (doc.isNull())
     {
-        parseErr.reportError(QString("JSON parse error at offset %1: %2")
-                               .arg(jsonError.offset)
-                               .arg(jsonError.errorString()));
+        parseErr.reportError(
+          QString("JSON parse error at offset %1: %2").arg(jsonError.offset).arg(jsonError.errorString()));
         return parseErr;
     }
 
@@ -54,14 +53,16 @@ GeneralError ProjectFileJsonParser::parseFile(const QString& fileContent, Projec
 
     if (!root.contains(ProjectFileDefinitions::cVersionKey))
     {
-        parseErr.reportError(QString("Missing required \"%1\" key in project file.").arg(ProjectFileDefinitions::cVersionKey));
+        parseErr.reportError(
+          QString("Missing required \"%1\" key in project file.").arg(ProjectFileDefinitions::cVersionKey));
         return parseErr;
     }
 
     QJsonValue versionVal = root[ProjectFileDefinitions::cVersionKey];
     if (!versionVal.isDouble())
     {
-        parseErr.reportError(QString("The \"%1\" value is not a valid number.").arg(ProjectFileDefinitions::cVersionKey));
+        parseErr.reportError(
+          QString("The \"%1\" value is not a valid number.").arg(ProjectFileDefinitions::cVersionKey));
         return parseErr;
     }
 
@@ -94,7 +95,8 @@ GeneralError ProjectFileJsonParser::parseFile(const QString& fileContent, Projec
         }
     }
 
-    if (root.contains(ProjectFileDefinitions::cDevicesJsonKey) && root[ProjectFileDefinitions::cDevicesJsonKey].isArray())
+    if (root.contains(ProjectFileDefinitions::cDevicesJsonKey) &&
+        root[ProjectFileDefinitions::cDevicesJsonKey].isArray())
     {
         parseErr = parseDevices(root[ProjectFileDefinitions::cDevicesJsonKey].toArray(), &pSettings->general);
         if (!parseErr.result())
@@ -147,7 +149,8 @@ GeneralError ProjectFileJsonParser::parseAdapters(const QJsonArray& adaptersArra
     {
         if (!val.isObject())
         {
-            parseErr.reportError(QString("Each entry in \"%1\" must be a JSON object.").arg(ProjectFileDefinitions::cAdaptersKey));
+            parseErr.reportError(
+              QString("Each entry in \"%1\" must be a JSON object.").arg(ProjectFileDefinitions::cAdaptersKey));
             break;
         }
 
@@ -159,7 +162,8 @@ GeneralError ProjectFileJsonParser::parseAdapters(const QJsonArray& adaptersArra
             adapterSettings.type = adapterObj[ProjectFileDefinitions::cAdapterTypeKey].toString();
         }
 
-        if (adapterObj.contains(ProjectFileDefinitions::cAdapterSettingsKey) && adapterObj[ProjectFileDefinitions::cAdapterSettingsKey].isObject())
+        if (adapterObj.contains(ProjectFileDefinitions::cAdapterSettingsKey) &&
+            adapterObj[ProjectFileDefinitions::cAdapterSettingsKey].isObject())
         {
             adapterSettings.settings = adapterObj[ProjectFileDefinitions::cAdapterSettingsKey].toObject();
         }
@@ -185,7 +189,8 @@ GeneralError ProjectFileJsonParser::parseDevices(const QJsonArray& devicesArray,
     {
         if (!val.isObject())
         {
-            parseErr.reportError(QString("Each entry in \"%1\" must be a JSON object.").arg(ProjectFileDefinitions::cDevicesJsonKey));
+            parseErr.reportError(
+              QString("Each entry in \"%1\" must be a JSON object.").arg(ProjectFileDefinitions::cDevicesJsonKey));
             break;
         }
 
@@ -210,7 +215,8 @@ GeneralError ProjectFileJsonParser::parseDevices(const QJsonArray& devicesArray,
             int adapterIdVal = deviceObj[ProjectFileDefinitions::cAdapterIdKey].toInt(-1);
             if (adapterIdVal < 0)
             {
-                parseErr.reportError(QString("Device \"%1\" is not a valid non-negative integer.").arg(ProjectFileDefinitions::cAdapterIdKey));
+                parseErr.reportError(QString("Device \"%1\" is not a valid non-negative integer.")
+                                       .arg(ProjectFileDefinitions::cAdapterIdKey));
                 break;
             }
             deviceSettings.adapterId = static_cast<quint32>(adapterIdVal);
@@ -219,7 +225,8 @@ GeneralError ProjectFileJsonParser::parseDevices(const QJsonArray& devicesArray,
 
         Q_UNUSED(bRet)
 
-        if (deviceObj.contains(ProjectFileDefinitions::cAdapterKey) && deviceObj[ProjectFileDefinitions::cAdapterKey].isObject())
+        if (deviceObj.contains(ProjectFileDefinitions::cAdapterKey) &&
+            deviceObj[ProjectFileDefinitions::cAdapterKey].isObject())
         {
             QJsonObject adapterObj = deviceObj[ProjectFileDefinitions::cAdapterKey].toObject();
             if (adapterObj.contains(ProjectFileDefinitions::cAdapterTypeKey))
@@ -246,7 +253,8 @@ GeneralError ProjectFileJsonParser::parseLog(const QJsonObject& logObject, LogSe
         int pollTime = logObject[ProjectFileDefinitions::cPollTimeTag].toInt(-1);
         if (pollTime < 0)
         {
-            parseErr.reportError(QString("Poll time (%1) is not a valid number.").arg(logObject[ProjectFileDefinitions::cPollTimeTag].toString()));
+            parseErr.reportError(QString("Poll time (%1) is not a valid number.")
+                                   .arg(logObject[ProjectFileDefinitions::cPollTimeTag].toString()));
             return parseErr;
         }
         pLogSettings->bPollTime = true;
@@ -258,7 +266,8 @@ GeneralError ProjectFileJsonParser::parseLog(const QJsonObject& logObject, LogSe
         pLogSettings->bAbsoluteTimes = logObject[ProjectFileDefinitions::cAbsoluteTimesTag].toBool(false);
     }
 
-    if (logObject.contains(ProjectFileDefinitions::cLogToFileTag) && logObject[ProjectFileDefinitions::cLogToFileTag].isObject())
+    if (logObject.contains(ProjectFileDefinitions::cLogToFileTag) &&
+        logObject[ProjectFileDefinitions::cLogToFileTag].isObject())
     {
         QJsonObject logToFileObj = logObject[ProjectFileDefinitions::cLogToFileTag].toObject();
 
@@ -274,16 +283,8 @@ GeneralError ProjectFileJsonParser::parseLog(const QJsonObject& logObject, LogSe
 
                 if (!fileInfo.isFile())
                 {
-                    if (fileInfo.exists())
-                    {
-                        /* Path exists but is not a regular file — silently ignore */
-                        bValid = false;
-                    }
-                    else if (!fileInfo.dir().exists())
-                    {
-                        /* Parent directory does not exist — silently ignore */
-                        bValid = false;
-                    }
+                    /* Path exists but is not a regular file, or parent directory does not exist — silently ignore */
+                    bValid = false;
                 }
 
                 if (bValid)
@@ -329,7 +330,8 @@ GeneralError ProjectFileJsonParser::parseScope(const QJsonArray& scopeArray, Sco
             }
             else
             {
-                parseErr.reportError(QString("Color \"%1\" is not a valid color. Expecting format #FF0000 (red).").arg(colorStr));
+                parseErr.reportError(
+                  QString("Color \"%1\" is not a valid color. Expecting format #FF0000 (red).").arg(colorStr));
                 break;
             }
         }
@@ -352,7 +354,8 @@ GeneralError ProjectFileJsonParser::parseView(const QJsonObject& viewObject, Vie
 {
     GeneralError parseErr;
 
-    if (!viewObject.contains(ProjectFileDefinitions::cScaleTag) || !viewObject[ProjectFileDefinitions::cScaleTag].isObject())
+    if (!viewObject.contains(ProjectFileDefinitions::cScaleTag) ||
+        !viewObject[ProjectFileDefinitions::cScaleTag].isObject())
     {
         return parseErr;
     }
@@ -361,7 +364,8 @@ GeneralError ProjectFileJsonParser::parseView(const QJsonObject& viewObject, Vie
 
     if (scaleObj.contains(ProjectFileDefinitions::cXaxisTag) && scaleObj[ProjectFileDefinitions::cXaxisTag].isObject())
     {
-        parseErr = parseScaleXAxis(scaleObj[ProjectFileDefinitions::cXaxisTag].toObject(), &pViewSettings->scaleSettings);
+        parseErr =
+          parseScaleXAxis(scaleObj[ProjectFileDefinitions::cXaxisTag].toObject(), &pViewSettings->scaleSettings);
         if (!parseErr.result())
         {
             return parseErr;
@@ -370,7 +374,8 @@ GeneralError ProjectFileJsonParser::parseView(const QJsonObject& viewObject, Vie
 
     if (scaleObj.contains(ProjectFileDefinitions::cYaxisTag) && scaleObj[ProjectFileDefinitions::cYaxisTag].isArray())
     {
-        for (const QJsonValue& yval : scaleObj[ProjectFileDefinitions::cYaxisTag].toArray())
+        const QJsonArray yaxisArray = scaleObj[ProjectFileDefinitions::cYaxisTag].toArray();
+        for (const QJsonValue& yval : yaxisArray)
         {
             if (!yval.isObject())
             {
@@ -444,11 +449,11 @@ GeneralError ProjectFileJsonParser::parseScaleYAxis(const QJsonObject& yaxisObje
     {
         pAxis->bMinMax = true;
 
-        if (!yaxisObject.contains(ProjectFileDefinitions::cMinTag) || !yaxisObject.contains(ProjectFileDefinitions::cMaxTag))
+        if (!yaxisObject.contains(ProjectFileDefinitions::cMinTag) ||
+            !yaxisObject.contains(ProjectFileDefinitions::cMaxTag))
         {
             parseErr.reportError(QString("If y-axis has min-max scaling then both \"%1\" and \"%2\" must be defined.")
-                                   .arg(ProjectFileDefinitions::cMinTag)
-                                   .arg(ProjectFileDefinitions::cMaxTag));
+                                   .arg(ProjectFileDefinitions::cMinTag, ProjectFileDefinitions::cMaxTag));
             return parseErr;
         }
 
