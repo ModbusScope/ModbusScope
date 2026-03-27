@@ -79,3 +79,8 @@ Enforced by `.clang-format` (Mozilla-based, C++20):
 - Make sure to document public functions with brief Doxygen comments in the source file
 - Only use early return for error handling, avoid deep nesting
 - When fixing a bug, add a test that reproduces the issue before implementing the fix.
+
+## Development
+
+- Use a subagent to run the test suite and report only the failing tests with their error messages.
+- Use a subagent to run the quality checks (clang, clazy) and report only the violations with their error messages.

@@ -12,9 +12,9 @@
       "Bash(clang-tidy:*)",
       "Bash(clang-format:*)",
       "Bash(clazy:*)",
-      "Bash(/scripts/run_precommit.sh:*)",
-      "Bash(/scripts/run_clang_tidy.sh:*)",
-      "Bash(/scripts/run_clazy.sh:*)"
+      "Bash(./scripts/*:*)",
+      "Bash(./scripts/run_clang_tidy.sh:*)",
+      "Bash(./scripts/run_clazy.sh:*)"
     ],
     "deny": [
       "Read(**/.env)",
