@@ -196,7 +196,6 @@ GeneralError ProjectFileJsonParser::parseDevices(const QJsonArray& devicesArray,
 
         QJsonObject deviceObj = val.toObject();
         DeviceSettings deviceSettings;
-        bool bRet = false;
 
         if (deviceObj.contains(ProjectFileDefinitions::cIdJsonKey))
         {
@@ -220,10 +219,7 @@ GeneralError ProjectFileJsonParser::parseDevices(const QJsonArray& devicesArray,
                 break;
             }
             deviceSettings.adapterId = static_cast<quint32>(adapterIdVal);
-            bRet = true;
         }
-
-        Q_UNUSED(bRet)
 
         if (deviceObj.contains(ProjectFileDefinitions::cAdapterKey) &&
             deviceObj[ProjectFileDefinitions::cAdapterKey].isObject())
