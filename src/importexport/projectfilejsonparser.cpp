@@ -277,9 +277,9 @@ GeneralError ProjectFileJsonParser::parseLog(const QJsonObject& logObject, LogSe
                 QFileInfo fileInfo(filename);
                 bool bValid = true;
 
-                if (!fileInfo.isFile())
+                if (!fileInfo.isFile() && (fileInfo.exists() || !fileInfo.dir().exists()))
                 {
-                    /* Path exists but is not a regular file, or parent directory does not exist — silently ignore */
+                    /* Path is not a usable log file location — silently ignore */
                     bValid = false;
                 }
 

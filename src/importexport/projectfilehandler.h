@@ -28,13 +28,20 @@ public slots:
     void reloadProjectFile();
 
 private:
+    void updateProjectSetting(ProjectFileData::ProjectSettings* pProjectSettings);
 
-    void updateProjectSetting(ProjectFileData::ProjectSettings *pProjectSettings);
+    void applyJsonConnectionSettings(ProjectFileData::ProjectSettings* pProjectSettings);
+
+    /*! \brief LEGACY XML — remove when XML support is dropped */
+    void applyLegacyXmlSettings(ProjectFileData::ProjectSettings* pProjectSettings);
+
+    void applyLogSettings(const ProjectFileData::LogSettings& logSettings);
+    void applyViewSettings(const ProjectFileData::ViewSettings& viewSettings);
+    void applyGraphData(const ProjectFileData::ScopeSettings& scopeSettings);
 
     GuiModel* _pGuiModel;
     SettingsModel* _pSettingsModel;
     GraphDataModel* _pGraphDataModel;
-
 };
 
 #endif // PROJECTFILEHANDLER_H
