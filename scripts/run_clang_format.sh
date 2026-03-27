@@ -6,8 +6,16 @@ if [ "${1:-}" = "--check" ]; then
     CHECK_MODE=true
 fi
 
+MERGE_BASE=$(git merge-base HEAD master 2>/dev/null || git merge-base HEAD main 2>/dev/null || echo "")
+
 CHANGED_FILES=$(
-    { git diff --name-only --diff-filter=d HEAD; git ls-files --others --exclude-standard; } \
+    {
+        if [ -n "$MERGE_BASE" ]; then
+            git diff --name-only --diff-filter=d "$MERGE_BASE" HEAD
+        fi
+        git diff --name-only --diff-filter=d HEAD
+        git ls-files --others --exclude-standard
+    } \
     | grep -E '\.(cpp|h)$' \
     | sort -u \
     || true
