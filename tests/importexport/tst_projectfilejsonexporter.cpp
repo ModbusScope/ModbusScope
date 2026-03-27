@@ -11,7 +11,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QTemporaryFile>
+#include <QTemporaryDir>
 #include <QTest>
 
 using ProjectFileData::ProjectSettings;
@@ -19,20 +19,19 @@ using ProjectFileData::ProjectSettings;
 namespace {
 
 /*!
- * \brief Export models to a temp file and return the root JSON object.
+ * \brief Export models to the given path and return the root JSON object.
+ *
+ * The caller is responsible for providing a writable path inside a directory
+ * that will outlive this call. The file must not pre-exist so that
+ * QSaveFile::commit() can use a simple rename rather than ReplaceFile().
  */
-QJsonObject exportToJson(GuiModel& guiModel, SettingsModel& settingsModel, GraphDataModel& graphDataModel)
+QJsonObject exportToJson(const QString& path, GuiModel& guiModel, SettingsModel& settingsModel, GraphDataModel& graphDataModel)
 {
-    QTemporaryFile tmpFile;
-    QVERIFY(tmpFile.open());
-    const QString path = tmpFile.fileName();
-    tmpFile.close();
-
     ProjectFileJsonExporter exporter(&guiModel, &settingsModel, &graphDataModel);
     exporter.exportProjectFile(path);
 
     QFile file(path);
-    QVERIFY(file.open(QFile::ReadOnly | QFile::Text));
+    (void) file.open(QFile::ReadOnly | QFile::Text);
     const QByteArray content = file.readAll();
 
     return QJsonDocument::fromJson(content).object();
@@ -58,7 +57,9 @@ void TestProjectFileJsonExporter::logObject()
     settingsModel.setAbsoluteTimes(true);
     settingsModel.setWriteDuringLog(false);
 
-    const QJsonObject root = exportToJson(guiModel, settingsModel, graphDataModel);
+    QTemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const QJsonObject root = exportToJson(tmpDir.filePath("export.mbs"), guiModel, settingsModel, graphDataModel);
     const QJsonObject logObj = root["log"].toObject();
     const QJsonObject logToFileObj = logObj["logtofile"].toObject();
 
@@ -77,7 +78,9 @@ void TestProjectFileJsonExporter::logToFileWithPath()
     settingsModel.setWriteDuringLog(true);
     settingsModel.setWriteDuringLogFile(logPath);
 
-    const QJsonObject root = exportToJson(guiModel, settingsModel, graphDataModel);
+    QTemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const QJsonObject root = exportToJson(tmpDir.filePath("export.mbs"), guiModel, settingsModel, graphDataModel);
     const QJsonObject logObj = root["log"].toObject();
     const QJsonObject logToFileObj = logObj["logtofile"].toObject();
 
@@ -107,7 +110,9 @@ void TestProjectFileJsonExporter::scopeArray()
     reg2.setValueAxis(GraphData::VALUE_AXIS_SECONDARY);
     graphDataModel.add(reg2);
 
-    const QJsonObject root = exportToJson(guiModel, settingsModel, graphDataModel);
+    QTemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const QJsonObject root = exportToJson(tmpDir.filePath("export.mbs"), guiModel, settingsModel, graphDataModel);
     const QJsonArray scopeArray = root["scope"].toArray();
 
     QCOMPARE(scopeArray.size(), 2);
@@ -136,7 +141,9 @@ void TestProjectFileJsonExporter::viewScaleSliding()
     guiModel.setxAxisScale(AxisMode::SCALE_SLIDING);
     guiModel.setxAxisSlidingInterval(60);
 
-    const QJsonObject root = exportToJson(guiModel, settingsModel, graphDataModel);
+    QTemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const QJsonObject root = exportToJson(tmpDir.filePath("export.mbs"), guiModel, settingsModel, graphDataModel);
     const QJsonObject viewObj = root["view"].toObject();
     const QJsonObject scaleObj = viewObj["scale"].toObject();
     const QJsonObject xAxis = scaleObj["xaxis"].toObject();
@@ -155,7 +162,9 @@ void TestProjectFileJsonExporter::viewScaleMinMax()
     guiModel.setyAxisMin(-10.0);
     guiModel.setyAxisMax(200.5);
 
-    const QJsonObject root = exportToJson(guiModel, settingsModel, graphDataModel);
+    QTemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const QJsonObject root = exportToJson(tmpDir.filePath("export.mbs"), guiModel, settingsModel, graphDataModel);
     const QJsonObject viewObj = root["view"].toObject();
     const QJsonObject scaleObj = viewObj["scale"].toObject();
     const QJsonArray yAxes = scaleObj["yaxis"].toArray();
@@ -174,7 +183,9 @@ void TestProjectFileJsonExporter::viewScaleWindowAuto()
 
     guiModel.setyAxisScale(AxisMode::SCALE_WINDOW_AUTO);
 
-    const QJsonObject root = exportToJson(guiModel, settingsModel, graphDataModel);
+    QTemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const QJsonObject root = exportToJson(tmpDir.filePath("export.mbs"), guiModel, settingsModel, graphDataModel);
     const QJsonObject viewObj = root["view"].toObject();
     const QJsonObject scaleObj = viewObj["scale"].toObject();
     const QJsonArray yAxes = scaleObj["yaxis"].toArray();
@@ -193,7 +204,9 @@ void TestProjectFileJsonExporter::viewScaleAuto()
     guiModel.setyAxisScale(AxisMode::SCALE_AUTO);
     guiModel.sety2AxisScale(AxisMode::SCALE_AUTO);
 
-    const QJsonObject root = exportToJson(guiModel, settingsModel, graphDataModel);
+    QTemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const QJsonObject root = exportToJson(tmpDir.filePath("export.mbs"), guiModel, settingsModel, graphDataModel);
     const QJsonObject viewObj = root["view"].toObject();
     const QJsonObject scaleObj = viewObj["scale"].toObject();
     const QJsonObject xAxis = scaleObj["xaxis"].toObject();
@@ -232,10 +245,9 @@ void TestProjectFileJsonExporter::roundTrip()
     graphDataModel.add(reg);
 
     /* Export */
-    QTemporaryFile tmpFile;
-    QVERIFY(tmpFile.open());
-    const QString path = tmpFile.fileName();
-    tmpFile.close();
+    QTemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const QString path = tmpDir.filePath("export.mbs");
 
     ProjectFileJsonExporter exporter(&guiModel, &settingsModel, &graphDataModel);
     exporter.exportProjectFile(path);
