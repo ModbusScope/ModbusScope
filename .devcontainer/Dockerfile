@@ -19,14 +19,8 @@ RUN existing_user=$(getent passwd 1000 | cut -d: -f1); \
     groupadd --gid 1000 dev \
     && useradd --uid 1000 --gid 1000 --create-home --shell /bin/bash dev
 
-# Reset the base image ENTRYPOINT (start.sh runs Xvfb + `wait -n` as pid 1,
-# which is incompatible with devcontainer lifecycle management).
 # QT_QPA_PLATFORM=offscreen is already exported by the base image, so no
 # display server is needed.
-# Use a dedicated non-root user for devcontainer/CI tasks
-RUN groupadd --gid 1000 dev \
-    && useradd --uid 1000 --gid 1000 --create-home --shell /bin/bash dev
-USER dev
 
 # Reset the base image ENTRYPOINT (start.sh runs Xvfb + `wait -n` as pid 1,
 # which is incompatible with devcontainer lifecycle management).
