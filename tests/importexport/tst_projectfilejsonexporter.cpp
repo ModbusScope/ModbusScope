@@ -24,7 +24,7 @@ namespace {
 QJsonObject exportToJson(GuiModel& guiModel, SettingsModel& settingsModel, GraphDataModel& graphDataModel)
 {
     QTemporaryFile tmpFile;
-    tmpFile.open();
+    QVERIFY(tmpFile.open());
     const QString path = tmpFile.fileName();
     tmpFile.close();
 
@@ -32,7 +32,7 @@ QJsonObject exportToJson(GuiModel& guiModel, SettingsModel& settingsModel, Graph
     exporter.exportProjectFile(path);
 
     QFile file(path);
-    file.open(QFile::ReadOnly | QFile::Text);
+    QVERIFY(file.open(QFile::ReadOnly | QFile::Text));
     const QByteArray content = file.readAll();
 
     return QJsonDocument::fromJson(content).object();
@@ -233,7 +233,7 @@ void TestProjectFileJsonExporter::roundTrip()
 
     /* Export */
     QTemporaryFile tmpFile;
-    tmpFile.open();
+    QVERIFY(tmpFile.open());
     const QString path = tmpFile.fileName();
     tmpFile.close();
 
@@ -242,7 +242,7 @@ void TestProjectFileJsonExporter::roundTrip()
 
     /* Parse back */
     QFile file(path);
-    file.open(QFile::ReadOnly | QFile::Text);
+    QVERIFY(file.open(QFile::ReadOnly | QFile::Text));
     const QString json = QString::fromUtf8(file.readAll());
 
     ProjectFileJsonParser parser;

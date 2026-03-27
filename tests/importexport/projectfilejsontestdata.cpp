@@ -134,7 +134,7 @@ QString ProjectFileJsonTestData::cAdapterOnlyNoDevices = QString(
     "}"                                                         "\n"
 );
 
-/* Log settings: polltime, absolutetimes, logtofile disabled */
+/* Log settings: polltime, absolutetimes, logtofile enabled */
 QString ProjectFileJsonTestData::cLogSettings = QString(
     "{"                                                         "\n"
     "  \"version\": 6,"                                         "\n"
