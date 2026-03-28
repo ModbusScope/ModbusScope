@@ -37,6 +37,7 @@ public:
     void removeDevice(deviceId_t devId);
     void removeAllDevice();
     bool updateDeviceId(deviceId_t oldId, deviceId_t newId);
+    bool hasDevice(deviceId_t devId) const;
 
     QList<deviceId_t> deviceList();
     QList<deviceId_t> deviceListForConnection(ConnectionTypes::connectionId_t connectionId);

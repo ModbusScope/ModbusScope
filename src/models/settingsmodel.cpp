@@ -280,6 +280,11 @@ void SettingsModel::updateAdapterFromDescribe(const QString& adapterId, const QJ
     emit adapterDataChanged(adapterId);
 }
 
+bool SettingsModel::hasDevice(deviceId_t devId) const
+{
+    return _devices.contains(devId);
+}
+
 bool SettingsModel::updateDeviceId(deviceId_t oldId, deviceId_t newId)
 {
     if (!_devices.contains(oldId) || _devices.contains(newId))
