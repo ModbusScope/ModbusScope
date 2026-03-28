@@ -8,6 +8,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLabel>
+#include <QLineEdit>
 #include <QSpinBox>
 #include <QTest>
 
@@ -159,6 +160,34 @@ void TestAdapterDeviceSettings::acceptValuesSavesToAdapterConfig()
     const AdapterData* adapter = model.adapterData("adapterA");
     QCOMPARE(adapter->hasStoredConfig(), true);
     QCOMPARE(adapter->currentConfig()["devices"].toArray().at(0).toObject()["id"].toInt(), 2);
+}
+
+void TestAdapterDeviceSettings::acceptValuesSavesDeviceNameToModel()
+{
+    SettingsModel model;
+
+    QJsonObject dev;
+    dev["id"] = 1;
+    setupAdapter(model, "adapterA", QJsonArray{ dev });
+
+    model.addDevice(1);
+    model.deviceSettings(1)->setName("Old Name");
+
+    AdapterDeviceSettings w(&model);
+
+    auto* tabs = w.findChild<AddableTabWidget*>();
+    QVERIFY(tabs != nullptr);
+
+    auto* tab = qobject_cast<DeviceConfigTab*>(tabs->tabContent(0));
+    QVERIFY(tab != nullptr);
+
+    auto* nameEdit = tab->findChild<QLineEdit*>(QString(), Qt::FindDirectChildrenOnly);
+    QVERIFY(nameEdit != nullptr);
+    nameEdit->setText("New Name");
+
+    w.acceptValues();
+
+    QCOMPARE(model.deviceSettings(1)->name(), QStringLiteral("New Name"));
 }
 
 QTEST_MAIN(TestAdapterDeviceSettings)

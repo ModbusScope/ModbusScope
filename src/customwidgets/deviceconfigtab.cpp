@@ -2,11 +2,13 @@
 
 #include "customwidgets/schemaformwidget.h"
 #include "models/adapterdata.h"
+#include "models/device.h"
 #include "models/settingsmodel.h"
 
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLineEdit>
 #include <QVBoxLayout>
 
 DeviceConfigTab::DeviceConfigTab(SettingsModel* pSettingsModel,
@@ -15,12 +17,25 @@ DeviceConfigTab::DeviceConfigTab(SettingsModel* pSettingsModel,
                                  QWidget* parent)
     : QWidget(parent),
       _pLayout(nullptr),
+      _pNameEdit(new QLineEdit(this)),
       _pAdapterCombo(new QComboBox(this)),
       _pSchemaForm(nullptr),
       _pSettingsModel(pSettingsModel)
 {
     _pLayout = new QVBoxLayout(this);
     setLayout(_pLayout);
+
+    auto* nameRow = new QHBoxLayout;
+    nameRow->addWidget(new QLabel("Name:", this));
+    nameRow->addWidget(_pNameEdit);
+    nameRow->addStretch();
+    _pLayout->addLayout(nameRow);
+
+    int deviceId = deviceValues.value("id").toInt(-1);
+    if (deviceId >= 0 && pSettingsModel->deviceList().contains(static_cast<deviceId_t>(deviceId)))
+    {
+        _pNameEdit->setText(pSettingsModel->deviceSettings(static_cast<deviceId_t>(deviceId))->name());
+    }
 
     auto* adapterRow = new QHBoxLayout;
     adapterRow->addWidget(new QLabel("Protocol adapter:", this));
@@ -97,4 +112,9 @@ QJsonObject DeviceConfigTab::values() const
 QString DeviceConfigTab::adapterId() const
 {
     return _pAdapterCombo->currentData().toString();
+}
+
+QString DeviceConfigTab::deviceName() const
+{
+    return _pNameEdit->text();
 }

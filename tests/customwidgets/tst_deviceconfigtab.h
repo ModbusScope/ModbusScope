@@ -14,6 +14,8 @@ private slots:
     void constructorSelectsCorrectAdapter();
     void valuesReturnsDeviceFieldValues();
     void adapterIdMatchesComboInitially();
+    void deviceNameInitializesFromDeviceModel();
+    void deviceNameEmptyForUnregisteredDevice();
 
 private:
     //! Populate \a model with two adapters that each have a minimal device schema.

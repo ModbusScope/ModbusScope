@@ -7,6 +7,7 @@
 class SettingsModel;
 class SchemaFormWidget;
 class QComboBox;
+class QLineEdit;
 class QVBoxLayout;
 
 /*!
@@ -39,6 +40,12 @@ public:
      */
     QString adapterId() const;
 
+    /*!
+     * \brief Return the current device name from the name field.
+     * \return Device name string (may be empty).
+     */
+    QString deviceName() const;
+
 private slots:
     void onAdapterChanged(int index);
 
@@ -46,6 +53,7 @@ private:
     void rebuildSchemaForm(const QString& adapterId, const QJsonObject& deviceValues);
 
     QVBoxLayout* _pLayout;
+    QLineEdit* _pNameEdit;
     QComboBox* _pAdapterCombo;
     SchemaFormWidget* _pSchemaForm;
     SettingsModel* _pSettingsModel;

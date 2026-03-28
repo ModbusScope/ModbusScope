@@ -112,4 +112,30 @@ void TestDeviceConfigTab::adapterIdMatchesComboInitially()
     QCOMPARE(tab.adapterId(), combo->currentData().toString());
 }
 
+void TestDeviceConfigTab::deviceNameInitializesFromDeviceModel()
+{
+    SettingsModel model;
+    setupTwoAdapters(model);
+    model.addDevice(5);
+    model.deviceSettings(5)->setName("Pump Station");
+
+    QJsonObject deviceValues;
+    deviceValues["id"] = 5;
+
+    DeviceConfigTab tab(&model, "adapterA", deviceValues);
+    QCOMPARE(tab.deviceName(), QStringLiteral("Pump Station"));
+}
+
+void TestDeviceConfigTab::deviceNameEmptyForUnregisteredDevice()
+{
+    SettingsModel model;
+    setupTwoAdapters(model);
+
+    QJsonObject deviceValues;
+    deviceValues["id"] = 99;
+
+    DeviceConfigTab tab(&model, "adapterA", deviceValues);
+    QVERIFY(tab.deviceName().isEmpty());
+}
+
 QTEST_MAIN(TestDeviceConfigTab)

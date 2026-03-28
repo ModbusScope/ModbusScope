@@ -117,7 +117,14 @@ void AdapterDeviceSettings::acceptValues()
         {
             continue;
         }
-        devicesByAdapter[tab->adapterId()].append(tab->values());
+        const QJsonObject tabValues = tab->values();
+        devicesByAdapter[tab->adapterId()].append(tabValues);
+
+        int deviceId = tabValues.value("id").toInt(-1);
+        if (deviceId >= 0 && _pSettingsModel->deviceList().contains(static_cast<deviceId_t>(deviceId)))
+        {
+            _pSettingsModel->deviceSettings(static_cast<deviceId_t>(deviceId))->setName(tab->deviceName());
+        }
     }
 
     const QStringList adapterIds = _pSettingsModel->adapterIds();
