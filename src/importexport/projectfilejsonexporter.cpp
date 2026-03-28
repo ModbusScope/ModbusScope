@@ -2,7 +2,6 @@
 #include "projectfilejsonexporter.h"
 
 #include "importexport/projectfiledefinitions.h"
-#include "models/connectiontypes.h"
 #include "models/graphdatamodel.h"
 #include "models/guimodel.h"
 #include "models/settingsmodel.h"
@@ -25,13 +24,17 @@ ProjectFileJsonExporter::ProjectFileJsonExporter(GuiModel* pGuiModel,
 /*!
  * \brief Serialise current settings and write to \a projectFile.
  * \param projectFile Destination file path.
+ * \param adapters    Adapter list to round-trip as-is into the file.
+ * \param devices     Generic device list to round-trip as-is into the file.
  */
-void ProjectFileJsonExporter::exportProjectFile(const QString& projectFile)
+void ProjectFileJsonExporter::exportProjectFile(const QString& projectFile,
+                                                const QList<ProjectFileData::AdapterFileSettings>& adapters,
+                                                const QList<ProjectFileData::DeviceSettings>& devices)
 {
     QJsonObject root;
     root[ProjectFileDefinitions::cVersionKey] = static_cast<int>(ProjectFileDefinitions::cCurrentJsonVersion);
-    root[ProjectFileDefinitions::cAdaptersKey] = createAdaptersArray();
-    root[ProjectFileDefinitions::cDevicesJsonKey] = createDevicesArray();
+    root[ProjectFileDefinitions::cAdaptersKey] = createAdaptersArray(adapters);
+    root[ProjectFileDefinitions::cDevicesJsonKey] = createDevicesArray(devices);
     root[ProjectFileDefinitions::cLogTag] = createLogObject();
     root[ProjectFileDefinitions::cScopeTag] = createScopeArray();
     root[ProjectFileDefinitions::cViewTag] = createViewObject();
@@ -61,100 +64,41 @@ void ProjectFileJsonExporter::exportProjectFile(const QString& projectFile)
 }
 
 /*!
- * \brief Build the top-level "adapters" array.
- *
- * \note This implementation only emits the modbus adapter. Non-modbus adapter
- *       data is not preserved on save. This is a known transitional limitation
- *       that will be resolved when adapter-specific storage is moved out of
- *       SettingsModel in a future refactoring.
- *
- * For the modbus adapter, the settings object contains:
- *  - connections[]: one entry per enabled/disabled connection in SettingsModel
- *  - devices[]: adapter-specific device fields (slaveId, connectionId, etc.)
+ * \brief Build the top-level "adapters" array by round-tripping the loaded adapter data.
+ * \param adapters Adapter list parsed from the project file.
  */
-QJsonArray ProjectFileJsonExporter::createAdaptersArray()
+QJsonArray ProjectFileJsonExporter::createAdaptersArray(const QList<ProjectFileData::AdapterFileSettings>& adapters)
 {
-    QJsonArray connectionsArray;
-    for (quint8 i = 0u; i < ConnectionTypes::ID_CNT; i++)
-    {
-        auto* connData = _pSettingsModel->connectionSettings(i);
-        QJsonObject connObj;
-        connObj[ProjectFileDefinitions::cIdJsonKey] = static_cast<int>(i);
-
-        if (connData->connectionType() == ConnectionTypes::TYPE_TCP)
-        {
-            connObj[ProjectFileDefinitions::cConnectionTypeJsonKey] = QString("tcp");
-        }
-        else
-        {
-            connObj[ProjectFileDefinitions::cConnectionTypeJsonKey] = QString("serial");
-        }
-
-        connObj[ProjectFileDefinitions::cIpTag] = connData->ipAddress();
-        connObj[ProjectFileDefinitions::cPortTag] = static_cast<int>(connData->port());
-        connObj[ProjectFileDefinitions::cPortNameTag] = connData->portName();
-        connObj[ProjectFileDefinitions::cBaudrateTag] = static_cast<int>(connData->baudrate());
-        connObj[ProjectFileDefinitions::cParityTag] = static_cast<int>(connData->parity());
-        connObj[ProjectFileDefinitions::cStopBitsTag] = static_cast<int>(connData->stopbits());
-        connObj[ProjectFileDefinitions::cDataBitsTag] = static_cast<int>(connData->databits());
-        connObj[ProjectFileDefinitions::cTimeoutTag] = static_cast<int>(connData->timeout());
-        connObj[ProjectFileDefinitions::cPersistentConnectionTag] = connData->persistentConnection();
-        connObj[ProjectFileDefinitions::cConnectionEnabledTag] = _pSettingsModel->connectionState(i);
-
-        connectionsArray.append(connObj);
-    }
-
-    QJsonArray adapterDevicesArray;
-    QList<deviceId_t> deviceList = _pSettingsModel->deviceList();
-    int adapterDeviceIndex = 0;
-    for (const deviceId_t& deviceId : std::as_const(deviceList))
-    {
-        Device* device = _pSettingsModel->deviceSettings(deviceId);
-        QJsonObject devObj;
-        devObj[ProjectFileDefinitions::cIdJsonKey] = adapterDeviceIndex;
-        devObj[ProjectFileDefinitions::cConnectionIdTag] = static_cast<int>(device->connectionId());
-        devObj[ProjectFileDefinitions::cSlaveIdTag] = static_cast<int>(device->slaveId());
-        devObj[ProjectFileDefinitions::cConsecutiveMaxTag] = static_cast<int>(device->consecutiveMax());
-        devObj[ProjectFileDefinitions::cInt32LittleEndianTag] = device->int32LittleEndian();
-        adapterDevicesArray.append(devObj);
-        adapterDeviceIndex++;
-    }
-
-    QJsonObject modbusSettings;
-    modbusSettings[ProjectFileDefinitions::cConnectionsJsonKey] = connectionsArray;
-    modbusSettings[ProjectFileDefinitions::cDevicesJsonKey] = adapterDevicesArray;
-
-    QJsonObject modbusAdapter;
-    modbusAdapter[ProjectFileDefinitions::cAdapterTypeKey] = QString("modbus");
-    modbusAdapter[ProjectFileDefinitions::cAdapterSettingsKey] = modbusSettings;
-
     QJsonArray adaptersArray;
-    adaptersArray.append(modbusAdapter);
+    for (const ProjectFileData::AdapterFileSettings& adapter : std::as_const(adapters))
+    {
+        QJsonObject adapterObj;
+        adapterObj[ProjectFileDefinitions::cAdapterTypeKey] = adapter.type;
+        adapterObj[ProjectFileDefinitions::cAdapterSettingsKey] = adapter.settings;
+        adaptersArray.append(adapterObj);
+    }
     return adaptersArray;
 }
 
 /*!
- * \brief Build the top-level "devices" array (generic device info only).
+ * \brief Build the top-level "devices" array by round-tripping the loaded generic device data.
+ * \param devices Generic device list parsed from the project file.
  */
-QJsonArray ProjectFileJsonExporter::createDevicesArray()
+QJsonArray ProjectFileJsonExporter::createDevicesArray(const QList<ProjectFileData::DeviceSettings>& devices)
 {
     QJsonArray devicesArray;
-    QList<deviceId_t> deviceList = _pSettingsModel->deviceList();
-
-    for (const deviceId_t& deviceId : std::as_const(deviceList))
+    for (const ProjectFileData::DeviceSettings& dev : std::as_const(devices))
     {
-        Device* device = _pSettingsModel->deviceSettings(deviceId);
         QJsonObject adapterRef;
-        adapterRef[ProjectFileDefinitions::cAdapterTypeKey] = QString("modbus");
+        adapterRef[ProjectFileDefinitions::cAdapterTypeKey] = dev.adapterType;
 
         QJsonObject devObj;
-        devObj[ProjectFileDefinitions::cIdJsonKey] = static_cast<int>(deviceId);
-        devObj[ProjectFileDefinitions::cAdapterIdKey] = 0;
-        devObj[ProjectFileDefinitions::cDeviceNameTag] = device->name();
+        devObj[ProjectFileDefinitions::cIdJsonKey] = static_cast<int>(dev.deviceId);
+        devObj[ProjectFileDefinitions::cAdapterIdKey] = static_cast<int>(dev.adapterId);
+        devObj[ProjectFileDefinitions::cDeviceNameTag] = dev.name;
         devObj[ProjectFileDefinitions::cAdapterKey] = adapterRef;
         devicesArray.append(devObj);
     }
-
     return devicesArray;
 }
 

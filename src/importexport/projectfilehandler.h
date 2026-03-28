@@ -30,11 +30,6 @@ public slots:
 private:
     void updateProjectSetting(ProjectFileData::ProjectSettings* pProjectSettings);
 
-    void applyJsonConnectionSettings(ProjectFileData::ProjectSettings* pProjectSettings);
-
-    /*! \brief LEGACY XML — remove when XML support is dropped */
-    void applyLegacyXmlSettings(ProjectFileData::ProjectSettings* pProjectSettings);
-
     void applyLogSettings(const ProjectFileData::LogSettings& logSettings);
     void applyViewSettings(const ProjectFileData::ViewSettings& viewSettings);
     void applyGraphData(const ProjectFileData::ScopeSettings& scopeSettings);
@@ -42,6 +37,9 @@ private:
     GuiModel* _pGuiModel;
     SettingsModel* _pSettingsModel;
     GraphDataModel* _pGraphDataModel;
+
+    QList<ProjectFileData::AdapterFileSettings> _storedAdapters;
+    QList<ProjectFileData::DeviceSettings> _storedDevices;
 };
 
 #endif // PROJECTFILEHANDLER_H

@@ -25,10 +25,13 @@ namespace {
  * that will outlive this call. The file must not pre-exist so that
  * QSaveFile::commit() can use a simple rename rather than ReplaceFile().
  */
-QJsonObject exportToJson(const QString& path, GuiModel& guiModel, SettingsModel& settingsModel, GraphDataModel& graphDataModel)
+QJsonObject exportToJson(const QString& path,
+                         GuiModel& guiModel,
+                         SettingsModel& settingsModel,
+                         GraphDataModel& graphDataModel)
 {
     ProjectFileJsonExporter exporter(&guiModel, &settingsModel, &graphDataModel);
-    exporter.exportProjectFile(path);
+    exporter.exportProjectFile(path, {}, {});
 
     QFile file(path);
     (void) file.open(QFile::ReadOnly | QFile::Text);
@@ -250,7 +253,7 @@ void TestProjectFileJsonExporter::roundTrip()
     const QString path = tmpDir.filePath("export.mbs");
 
     ProjectFileJsonExporter exporter(&guiModel, &settingsModel, &graphDataModel);
-    exporter.exportProjectFile(path);
+    exporter.exportProjectFile(path, {}, {});
 
     /* Parse back */
     QFile file(path);

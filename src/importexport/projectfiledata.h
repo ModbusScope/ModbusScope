@@ -1,7 +1,6 @@
 #ifndef PROJECTFILEDATA
 #define PROJECTFILEDATA
 
-#include "models/connectiontypes.h"
 #include "models/device.h"
 #include <QColor>
 #include <QJsonObject>
@@ -20,7 +19,6 @@ typedef struct _RegisterSettings
 {
     QString text = QString("");
     bool bActive = false;
-    ConnectionTypes::connectionId_t connectionId = 0;
 
     QString expression = QString("0");
 
@@ -78,37 +76,6 @@ typedef struct _LogSettings
 
 } LogSettings;
 
-typedef struct _ConnectionSettings
-{
-    /* Large/aligned types first to minimize padding */
-    QString connectionType;
-    QString ip;
-    QString portName;
-
-    ConnectionTypes::connectionId_t connectionId = 0;
-    quint32 baudrate;
-    quint32 parity = 0;
-    quint32 stopbits;
-    quint32 databits;
-    quint32 timeout;
-
-    quint16 port;
-
-    bool bConnectionId = false;
-    bool bConnectionState = true;
-    bool bConnectionType = false;
-    bool bIp = false;
-    bool bPort = false;
-    bool bPortName = false;
-    bool bBaudrate = false;
-    bool bParity = false;
-    bool bStopbits = false;
-    bool bDatabits = false;
-    bool bTimeout = false;
-    bool bPersistentConnection = true;
-
-} ConnectionSettings;
-
 typedef struct _DeviceSettings
 {
     bool bDeviceId = false;
@@ -117,30 +84,18 @@ typedef struct _DeviceSettings
     bool bName = false;
     QString name = QString("");
 
-    bool bConnectionId = false;
-    ConnectionTypes::connectionId_t connectionId = 0;
-
-    bool bSlaveId = false;
-    quint8 slaveId;
-
-    bool bConsecutiveMax = false;
-    quint8 consecutiveMax;
-
-    bool bInt32LittleEndian = true;
-
     /* JSON format fields */
-    quint32 adapterId = 0;  //!< Index into GeneralSettings::adapterList
-    QString adapterType;    //!< Quick-lookup copy of adapters[adapterId].type
+    quint32 adapterId = 0; //!< Index into GeneralSettings::adapterList
+    QString adapterType;   //!< Quick-lookup copy of adapters[adapterId].type
 
 } DeviceSettings;
 
 typedef struct _GeneralSettings
 {
-    QList<ConnectionSettings> connectionSettings;
     QList<DeviceSettings> deviceSettings;
     LogSettings logSettings;
 
-    /* JSON format: populated by ProjectFileJsonParser, empty for XML files */
+    /* JSON format: populated by ProjectFileJsonParser */
     QList<AdapterFileSettings> adapterList;
 
 } GeneralSettings;
