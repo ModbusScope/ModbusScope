@@ -111,21 +111,6 @@ QList<deviceId_t> SettingsModel::deviceList()
     return list;
 }
 
-QList<deviceId_t> SettingsModel::deviceListForConnection(connectionId_t connectionId)
-{
-    QList<deviceId_t> list;
-
-    for (auto i = _devices.cbegin(), end = _devices.cend(); i != end; ++i)
-    {
-        if (static_cast<Device>(i.value()).connectionId() == connectionId)
-        {
-            list.append(i.key());
-        }
-    }
-
-    return list;
-}
-
 QList<deviceId_t> SettingsModel::deviceListForAdapter(const QString& adapterId)
 {
     QList<deviceId_t> list;

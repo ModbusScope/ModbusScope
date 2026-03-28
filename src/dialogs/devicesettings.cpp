@@ -37,7 +37,6 @@ DeviceForm* DeviceSettings::createForm(deviceId_t devId)
 {
     DeviceForm* page = new DeviceForm(_pSettingsModel, devId, this);
 
-    connect(this, &DeviceSettings::settingsTabsSwitched, page, &DeviceForm::handleSettingsTabSwitch);
     connect(page, &DeviceForm::deviceIdentifiersChanged, this, &DeviceSettings::updateTabName);
 
     return page;

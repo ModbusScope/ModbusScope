@@ -10,10 +10,6 @@ DeviceForm::DeviceForm(SettingsModel* pSettingsModel, deviceId_t _deviceId, QWid
 
     _pUi->lineName->setText(dev->name());
     _pUi->spinId->setValue(static_cast<int>(this->_deviceId));
-    _pUi->spinSlaveId->setValue(dev->slaveId());
-    _pUi->spinConsecutiveMax->setValue(dev->consecutiveMax());
-    _pUi->checkEndianness->setChecked(dev->int32LittleEndian());
-    updateConnectionList();
 
     connect(_pUi->lineName, &QLineEdit::textChanged, this, [this](const QString& newName) {
         Device* device = _pSettingsModel->deviceSettings(this->_deviceId);
@@ -25,31 +21,6 @@ DeviceForm::DeviceForm(SettingsModel* pSettingsModel, deviceId_t _deviceId, QWid
         this->_deviceId = newId;
         emit deviceIdentifiersChanged(newId);
     });
-
-    connect(_pUi->spinSlaveId, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int newSlaveId) {
-        Device* device = _pSettingsModel->deviceSettings(this->_deviceId);
-        device->setSlaveId(static_cast<quint8>(newSlaveId));
-    });
-
-    connect(_pUi->spinConsecutiveMax, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int newConsecutiveMax) {
-        Device* device = _pSettingsModel->deviceSettings(this->_deviceId);
-        device->setConsecutiveMax(static_cast<quint8>(newConsecutiveMax));
-    });
-
-    connect(_pUi->checkEndianness, &QCheckBox::toggled, this, [this](bool bInt32LittleEndian) {
-        Device* device = _pSettingsModel->deviceSettings(this->_deviceId);
-        device->setInt32LittleEndian(bInt32LittleEndian);
-    });
-
-    connect(_pUi->comboConnection, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int index) {
-        Device* device = _pSettingsModel->deviceSettings(this->_deviceId);
-        QVariant data = _pUi->comboConnection->itemData(index);
-        if (data.isValid())
-        {
-            device->setConnectionId(static_cast<ConnectionTypes::connectionId_t>(data.toUInt()));
-            checkConnectionState();
-        }
-    });
 }
 
 DeviceForm::~DeviceForm()
@@ -60,57 +31,4 @@ DeviceForm::~DeviceForm()
 deviceId_t DeviceForm::deviceId()
 {
     return _deviceId;
-}
-
-void DeviceForm::handleSettingsTabSwitch()
-{
-    updateConnectionList();
-}
-
-void DeviceForm::updateConnectionList()
-{
-    _pUi->comboConnection->blockSignals(true);
-
-    _pUi->comboConnection->clear();
-    const auto connList = _pSettingsModel->connectionList();
-    for (auto connId : connList)
-    {
-        _pUi->comboConnection->addItem(QString("Connection %1").arg(connId + 1), static_cast<quint32>(connId));
-    }
-
-    for (int i = 0; i < _pUi->comboConnection->count(); i++)
-    {
-        QVariant data = _pUi->comboConnection->itemData(i);
-        if (data.isValid() && static_cast<ConnectionTypes::connectionId_t>(data.toUInt()) ==
-                                _pSettingsModel->deviceSettings(this->_deviceId)->connectionId())
-        {
-            _pUi->comboConnection->setCurrentIndex(i);
-            break;
-        }
-    }
-
-    checkConnectionState();
-
-    _pUi->comboConnection->blockSignals(false);
-}
-
-void DeviceForm::checkConnectionState()
-{
-    // Check if current connection ID exists and is enabled
-    Device* device = _pSettingsModel->deviceSettings(_deviceId);
-    ConnectionTypes::connectionId_t connId = device->connectionId();
-    bool bConnExistsAndEnabled = false;
-    const auto availableConnList = _pSettingsModel->connectionList();
-    for (auto availableConnId : availableConnList)
-    {
-        if (availableConnId == connId && _pSettingsModel->connectionState(connId))
-        {
-            bConnExistsAndEnabled = true;
-            break;
-        }
-    }
-
-    _pUi->comboConnection->setStyleSheet(bConnExistsAndEnabled ? "" : "QComboBox { background-color: lightcoral; }");
-    _pUi->comboConnection->setToolTip(bConnExistsAndEnabled ? ""
-                                                            : "Selected connection is disabled or does not exist.");
 }

@@ -104,7 +104,7 @@ void ProjectFileHandler::reloadProjectFile()
 
 void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings* pProjectSettings)
 {
-    applyDeviceSettings(pProjectSettings->general);
+    applyDeviceSettings(pProjectSettings->general.deviceSettings);
     applyLogSettings(pProjectSettings->general.logSettings);
     applyViewSettings(pProjectSettings->view);
     applyGraphData(pProjectSettings->scope);
@@ -173,16 +173,16 @@ void ProjectFileHandler::applyViewSettings(const ProjectFileData::ViewSettings& 
     }
 }
 
-void ProjectFileHandler::applyDeviceSettings(const ProjectFileData::GeneralSettings& generalSettings)
+void ProjectFileHandler::applyDeviceSettings(const QList<ProjectFileData::DeviceSettings>& deviceSettings)
 {
-    if (generalSettings.deviceSettings.isEmpty())
+    if (deviceSettings.isEmpty())
     {
         return;
     }
 
     _pSettingsModel->removeAllDevice();
 
-    for (const ProjectFileData::DeviceSettings& devSettings : generalSettings.deviceSettings)
+    for (const ProjectFileData::DeviceSettings& devSettings : deviceSettings)
     {
         if (!devSettings.bDeviceId)
         {

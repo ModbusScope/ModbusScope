@@ -58,9 +58,9 @@ void TestAdapterData::updateFromDescribe()
     QCOMPARE(data.name(), QStringLiteral("modbusAdapter"));
     QCOMPARE(data.version(), QStringLiteral("1.0.0"));
     QCOMPARE(data.configVersion(), 2);
-    QCOMPARE(data.schema()["type"].toString(), QStringLiteral("object"));
-    QCOMPARE(data.defaults()["version"].toInt(), 1);
-    QCOMPARE(data.capabilities()["supportsHotReload"].toBool(), false);
+    QCOMPARE(data.schema().value("type").toString(), QStringLiteral("object"));
+    QCOMPARE(data.defaults().value("version").toInt(), 1);
+    QCOMPARE(data.capabilities().value("supportsHotReload").toBool(), false);
 }
 
 void TestAdapterData::updateFromDescribeMissingFields()

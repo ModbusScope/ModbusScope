@@ -21,9 +21,6 @@ void TestGraphDataHandler::init()
 
     _pSettingsModel = new SettingsModel;
     _pGraphDataModel = new GraphDataModel(_pSettingsModel);
-
-    _pSettingsModel->deviceSettings(0)->setInt32LittleEndian(true);
-    _pSettingsModel->deviceSettings(0)->setInt32LittleEndian(true);
 }
 
 void TestGraphDataHandler::cleanup()
@@ -57,16 +54,17 @@ void TestGraphDataHandler::error_data()
     QTest::addColumn<int>("errorPos");
     QTest::addColumn<QMuParser::ErrorType>("errorType");
 
-    QTest::newRow("Test 01") << QString("${40001}")                             << static_cast<int>(-1)     << QMuParser::ErrorType::NONE;
-    QTest::newRow("Test 02") << QString("10 + 5")                               << static_cast<int>(-1)     << QMuParser::ErrorType::NONE;
-    QTest::newRow("Test 03") << QString("++")                                   << static_cast<int>(2)      << QMuParser::ErrorType::SYNTAX;
-    QTest::newRow("Test 04") << QString("--1")                                  << static_cast<int>(2)      << QMuParser::ErrorType::SYNTAX;
-    QTest::newRow("Test 05") << QString("-1-+-1")                               << static_cast<int>(5)      << QMuParser::ErrorType::SYNTAX;
-    QTest::newRow("Test 06") << QString("${40001}++")                           << static_cast<int>(11)     << QMuParser::ErrorType::SYNTAX;
-    QTest::newRow("Test 07") << QString("${40001@1:s16b}++")                    << static_cast<int>(18)     << QMuParser::ErrorType::SYNTAX;
-    QTest::newRow("Test 08") << QString("${40001@1:s16b}  ++")                  << static_cast<int>(20)     << QMuParser::ErrorType::SYNTAX;
-    QTest::newRow("Test 09") << QString("${40001 @ 1 }--")                      << static_cast<int>(16)     << QMuParser::ErrorType::SYNTAX;
-    QTest::newRow("Test 10") << QString("${40001}\n+1\n+${40001}")              << static_cast<int>(-1)     << QMuParser::ErrorType::NONE;
+    QTest::newRow("Test 01") << QString("${40001}") << static_cast<int>(-1) << QMuParser::ErrorType::NONE;
+    QTest::newRow("Test 02") << QString("10 + 5") << static_cast<int>(-1) << QMuParser::ErrorType::NONE;
+    QTest::newRow("Test 03") << QString("++") << static_cast<int>(2) << QMuParser::ErrorType::SYNTAX;
+    QTest::newRow("Test 04") << QString("--1") << static_cast<int>(2) << QMuParser::ErrorType::SYNTAX;
+    QTest::newRow("Test 05") << QString("-1-+-1") << static_cast<int>(5) << QMuParser::ErrorType::SYNTAX;
+    QTest::newRow("Test 06") << QString("${40001}++") << static_cast<int>(11) << QMuParser::ErrorType::SYNTAX;
+    QTest::newRow("Test 07") << QString("${40001@1:s16b}++") << static_cast<int>(18) << QMuParser::ErrorType::SYNTAX;
+    QTest::newRow("Test 08") << QString("${40001@1:s16b}  ++") << static_cast<int>(20) << QMuParser::ErrorType::SYNTAX;
+    QTest::newRow("Test 09") << QString("${40001 @ 1 }--") << static_cast<int>(16) << QMuParser::ErrorType::SYNTAX;
+    QTest::newRow("Test 10") << QString("${40001}\n+1\n+${40001}") << static_cast<int>(-1)
+                             << QMuParser::ErrorType::NONE;
 }
 
 void TestGraphDataHandler::error()
@@ -143,8 +141,7 @@ void TestGraphDataHandler::graphData()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS)
-                                      << ResultDouble(2, State::SUCCESS);
+    auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS) << ResultDouble(2, State::SUCCESS);
 
     auto resultList = ResultDoubleList() << ResultDouble(3, State::SUCCESS);
 
@@ -159,11 +156,9 @@ void TestGraphDataHandler::graphDataTwice()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto regResults_1 = ResultDoubleList() << ResultDouble(1, State::SUCCESS)
-                                                << ResultDouble(2, State::SUCCESS);
+    auto regResults_1 = ResultDoubleList() << ResultDouble(1, State::SUCCESS) << ResultDouble(2, State::SUCCESS);
 
-    auto regResults_2 = ResultDoubleList() << ResultDouble(3, State::SUCCESS)
-                                                << ResultDouble(4, State::SUCCESS);
+    auto regResults_2 = ResultDoubleList() << ResultDouble(3, State::SUCCESS) << ResultDouble(4, State::SUCCESS);
 
     QList<QVariant> rawRegData;
     GraphDataHandler dataHandler;
@@ -194,11 +189,9 @@ void TestGraphDataHandler::graphData_fail()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS)
-                                                << ResultDouble(0, State::INVALID);
+    auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS) << ResultDouble(0, State::INVALID);
 
-    auto resultList = ResultDoubleList() << ResultDouble(0, State::INVALID)
-                                         << ResultDouble(1, State::SUCCESS);
+    auto resultList = ResultDoubleList() << ResultDouble(0, State::INVALID) << ResultDouble(1, State::SUCCESS);
 
     QList<QVariant> rawRegData;
     doHandleRegisterData(regResults, rawRegData);

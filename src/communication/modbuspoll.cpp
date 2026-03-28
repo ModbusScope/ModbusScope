@@ -11,6 +11,7 @@
 
 #include <QCoreApplication>
 #include <QJsonArray>
+#include <QMap>
 #include <QSerialPort>
 
 ModbusPoll::ModbusPoll(SettingsModel* pSettingsModel, QObject* parent) : QObject(parent), _bPollActive(false)
@@ -172,17 +173,23 @@ QJsonObject ModbusPoll::buildAdapterConfig()
         connections.append(connObj);
     }
 
+    const AdapterData* adapterData = _pSettingsModel->adapterData("modbus");
+    const QJsonArray storedDevices = adapterData->effectiveConfig().value("devices").toArray();
+
+    QMap<int, QJsonObject> storedById;
+    for (const auto& d : storedDevices)
+    {
+        const QJsonObject obj = d.toObject();
+        storedById[obj.value("id").toInt()] = obj;
+    }
+
     QJsonArray devices;
     const QList<deviceId_t> deviceList = _pSettingsModel->deviceListForAdapter("modbus");
     for (const deviceId_t devId : deviceList)
     {
         Device* pDev = _pSettingsModel->deviceSettings(devId);
-        QJsonObject devObj;
+        QJsonObject devObj = storedById.value(static_cast<int>(devId));
         devObj["id"] = static_cast<int>(devId);
-        devObj["connectionId"] = static_cast<int>(pDev->connectionId());
-        devObj["slaveId"] = static_cast<int>(pDev->slaveId());
-        devObj["consecutiveMax"] = static_cast<int>(pDev->consecutiveMax());
-        devObj["int32LittleEndian"] = pDev->int32LittleEndian();
         devObj["name"] = pDev->name();
         devices.append(devObj);
     }

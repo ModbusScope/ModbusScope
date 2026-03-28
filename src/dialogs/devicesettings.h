@@ -19,9 +19,6 @@ public:
     explicit DeviceSettings(SettingsModel* pSettingsModel, QWidget* parent = nullptr);
     ~DeviceSettings();
 
-signals:
-    void settingsTabsSwitched();
-
 private slots:
     void handleAddTab();
     void handleCloseTab(int index);
