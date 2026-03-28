@@ -8,8 +8,6 @@
 #include "util/formatdatetime.h"
 #include "util/util.h"
 
-using connectionId_t = ConnectionTypes::connectionId_t;
-
 DataFileExporter::DataFileExporter(SettingsModel* pSettingsModel,
                                    GraphDataModel* pGraphDataModel,
                                    NoteModel* pNoteModel,
@@ -291,25 +289,6 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
             header.append(comment + "End time" + Util::separatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss"));
         }
 
-        // Export communication settings
-        for (quint8 i = 0u; i < ConnectionTypes::ID_CNT; i++)
-        {
-            if (_pSettingsModel->connectionState(i))
-            {
-                // auto connData = _pSettingsModel->connectionSettings(i);
-                header.append(comment + constructConnSettings(i));
-#if 0
-TODO: dev
-                header.append(comment + "Slave ID (Connection ID " + QString::number(i + 1) + ")" +
-                              Util::separatorCharacter() + QString::number(connData->slaveId()));
-                header.append(comment + "Time-out (Connection ID " + QString::number(i + 1) + ")" +
-                              Util::separatorCharacter() + QString::number(connData->timeout()));
-                header.append(comment + "Consecutive max (Connection ID " + QString::number(i + 1) + ")" +
-                              Util::separatorCharacter() + QString::number(connData->consecutiveMax()));
-#endif
-            }
-        }
-
         header.append(comment + "Poll interval" + Util::separatorCharacter() +
                       QString::number(_pSettingsModel->pollTime()));
 
@@ -337,40 +316,6 @@ TODO: dev
     }
 
     return header;
-}
-
-QString DataFileExporter::constructConnSettings(connectionId_t connectionId)
-{
-    QString strSettings;
-    auto connData = _pSettingsModel->connectionSettings(connectionId);
-
-    if (connData->connectionType() == ConnectionTypes::TYPE_TCP)
-    {
-        strSettings = connData->ipAddress() + ":" + QString::number(connData->port());
-    }
-    else
-    {
-        QString strParity;
-        QString strDataBits;
-        QString strStopBits;
-        connData->serialConnectionStrings(strParity, strDataBits, strStopBits);
-
-        strSettings = QString("%1%2%3%4%5%6%7%8%9")
-                        .arg(connData->portName())
-                        .arg(Util::separatorCharacter())
-                        .arg(connData->baudrate())
-                        .arg(Util::separatorCharacter())
-                        .arg(strParity)
-                        .arg(Util::separatorCharacter())
-                        .arg(strDataBits)
-                        .arg(Util::separatorCharacter())
-                        .arg(strStopBits);
-    }
-
-    return QString("Settings (Connection ID %1)%2%3")
-      .arg(connectionId + 1)
-      .arg(Util::separatorCharacter())
-      .arg(strSettings);
 }
 
 void DataFileExporter::createNoteRows(QStringList& noteRows)

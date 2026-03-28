@@ -1,8 +1,6 @@
 
 #include "communication/modbuspoll.h"
 
-#include "models/connection.h"
-#include "models/connectiontypes.h"
 #include "models/device.h"
 #include "models/settingsmodel.h"
 #include "util/formatdatetime.h"
@@ -12,7 +10,6 @@
 #include <QCoreApplication>
 #include <QJsonArray>
 #include <QMap>
-#include <QSerialPort>
 
 ModbusPoll::ModbusPoll(SettingsModel* pSettingsModel, QObject* parent) : QObject(parent), _bPollActive(false)
 {
@@ -63,7 +60,7 @@ void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
     QStringList expressions = buildRegisterExpressions(_registerList);
 
     const AdapterData* data = _pSettingsModel->adapterData("modbus");
-    QJsonObject config = data->hasStoredConfig() ? data->currentConfig() : buildAdapterConfig();
+    QJsonObject config = data->effectiveConfig();
 
     _pAdapterClient->provideConfig(config, expressions);
 }
@@ -121,84 +118,6 @@ void ModbusPoll::onReadDataResult(ResultDoubleList results)
 void ModbusPoll::onDescribeResult(const QJsonObject& description)
 {
     _pSettingsModel->updateAdapterFromDescribe("modbus", description);
-}
-
-QJsonObject ModbusPoll::buildAdapterConfig()
-{
-    QJsonArray connections;
-    const QList<ConnectionTypes::connectionId_t> connectionList = _pSettingsModel->connectionList();
-    for (const ConnectionTypes::connectionId_t id : connectionList)
-    {
-        if (!_pSettingsModel->connectionState(id))
-        {
-            continue;
-        }
-
-        Connection* pConn = _pSettingsModel->connectionSettings(id);
-        QJsonObject connObj;
-        connObj["id"] = static_cast<int>(id);
-        connObj["timeout"] = static_cast<int>(pConn->timeout());
-        connObj["persistent"] = pConn->persistentConnection();
-
-        if (pConn->connectionType() == ConnectionTypes::TYPE_TCP)
-        {
-            connObj["type"] = "tcp";
-            connObj["ip"] = pConn->ipAddress();
-            connObj["port"] = pConn->port();
-        }
-        else
-        {
-            QString parityStr;
-            switch (pConn->parity())
-            {
-            case QSerialPort::EvenParity:
-                parityStr = "E";
-                break;
-            case QSerialPort::OddParity:
-                parityStr = "O";
-                break;
-            default:
-                parityStr = "N";
-                break;
-            }
-
-            connObj["type"] = "serial";
-            connObj["portName"] = pConn->portName();
-            connObj["baudrate"] = static_cast<int>(pConn->baudrate());
-            connObj["parity"] = parityStr;
-            connObj["databits"] = static_cast<int>(pConn->databits());
-            connObj["stopbits"] = static_cast<int>(pConn->stopbits());
-        }
-
-        connections.append(connObj);
-    }
-
-    const AdapterData* adapterData = _pSettingsModel->adapterData("modbus");
-    const QJsonArray storedDevices = adapterData->effectiveConfig().value("devices").toArray();
-
-    QMap<int, QJsonObject> storedById;
-    for (const auto& d : storedDevices)
-    {
-        const QJsonObject obj = d.toObject();
-        storedById[obj.value("id").toInt()] = obj;
-    }
-
-    QJsonArray devices;
-    const QList<deviceId_t> deviceList = _pSettingsModel->deviceListForAdapter("modbus");
-    for (const deviceId_t devId : deviceList)
-    {
-        Device* pDev = _pSettingsModel->deviceSettings(devId);
-        QJsonObject devObj = storedById.value(static_cast<int>(devId));
-        devObj["id"] = static_cast<int>(devId);
-        devObj["name"] = pDev->name();
-        devices.append(devObj);
-    }
-
-    QJsonObject config;
-    config["version"] = 1;
-    config["connections"] = connections;
-    config["devices"] = devices;
-    return config;
 }
 
 QStringList ModbusPoll::buildRegisterExpressions(const QList<ModbusRegister>& registerList)

@@ -3,86 +3,66 @@
 
 #include <QString>
 
-namespace ProjectFileDefinitions
-{
+namespace ProjectFileDefinitions {
 
-    /* Tag strings */
-    const char cModbusScopeTag[] = "modbusscope";
-    const char cModbusTag[] = "modbus";
-    const char cScopeTag[] = "scope";
-    const char cViewTag[] = "view";
-    const char cConnectionTag[] = "connection";
-    const char cDeviceTag[] = "device";
-    const char cDeviceIdTag[] = "deviceid";
-    const char cDeviceNameTag[] = "name";
-    const char cLogTag[] = "log";
-    const char cIpTag[] = "ip";
-    const char cConnectionIdTag[] = "connectionid";
-    const char cSlaveIdTag[] = "slaveid";
-    const char cPortTag[] = "port";
-    const char cConnectionEnabledTag[] = "enabled";
-    const char cConnectionTypeTag[] = "type";
-    const char cPortNameTag[] = "portname";
-    const char cParityTag[] = "parity";
-    const char cBaudrateTag[] = "baudrate";
-    const char cDataBitsTag[] = "databits";
-    const char cStopBitsTag[] = "stopbits";
-    const char cTimeoutTag[] = "timeout";
-    const char cConsecutiveMaxTag[] = "consecutivemax";
-    const char cInt32LittleEndianTag[] = "int32littleendian";
-    const char cPersistentConnectionTag[] = "persistentconnection";
-    const char cPollTimeTag[] = "polltime";
-    const char cAbsoluteTimesTag[] = "absolutetimes";
-    const char cLogToFileTag[] = "logtofile";
-    const char cFilenameTag[] = "filename";
-    const char cRegisterTag[] = "register";
-    const char cTextTag[] = "text";
-    const char cExpressionTag[] = "expression";
-    const char cColorTag[] = "color";
-    const char cValueAxisTag[] = "valueaxis";
+/* Tag strings */
+const char cModbusScopeTag[] = "modbusscope";
+const char cModbusTag[] = "modbus";
+const char cScopeTag[] = "scope";
+const char cViewTag[] = "view";
+const char cDeviceTag[] = "device";
+const char cDeviceIdTag[] = "deviceid";
+const char cDeviceNameTag[] = "name";
+const char cLogTag[] = "log";
+const char cPollTimeTag[] = "polltime";
+const char cAbsoluteTimesTag[] = "absolutetimes";
+const char cLogToFileTag[] = "logtofile";
+const char cFilenameTag[] = "filename";
+const char cRegisterTag[] = "register";
+const char cTextTag[] = "text";
+const char cExpressionTag[] = "expression";
+const char cColorTag[] = "color";
+const char cValueAxisTag[] = "valueaxis";
 
-    const char cScaleTag[] = "scale";
-    const char cXaxisTag[] = "xaxis";
-    const char cYaxisTag[] = "yaxis";
-    const char cMinTag[] = "min";
-    const char cMaxTag[] = "max";
-    const char cSlidingintervalTag[] = "slidinginterval";
+const char cScaleTag[] = "scale";
+const char cXaxisTag[] = "xaxis";
+const char cYaxisTag[] = "yaxis";
+const char cMinTag[] = "min";
+const char cMaxTag[] = "max";
+const char cSlidingintervalTag[] = "slidinginterval";
 
-    /* Attribute string */
-    const char cDatalevelAttribute[] = "datalevel";
-    const char cEnabledAttribute[] = "enabled";
-    const char cActiveAttribute[] = "active";
-    const char cModeAttribute[] = "mode";
-    const char cAxisAttribute[] = "axis";
+/* Attribute string */
+const char cDatalevelAttribute[] = "datalevel";
+const char cEnabledAttribute[] = "enabled";
+const char cActiveAttribute[] = "active";
+const char cModeAttribute[] = "mode";
+const char cAxisAttribute[] = "axis";
 
-    /* Value strings */
-    const char cSlidingValue[] = "sliding";
-    const char cAutoValue[] = "auto";
-    const char cMinmaxValue[] = "minmax";
-    const char cWindowAutoValue[] = "windowauto";
-    const char cTrueValue[] = "true";
-    const char cFalseValue[] = "false";
+/* Value strings */
+const char cSlidingValue[] = "sliding";
+const char cAutoValue[] = "auto";
+const char cMinmaxValue[] = "minmax";
+const char cWindowAutoValue[] = "windowauto";
+const char cTrueValue[] = "true";
+const char cFalseValue[] = "false";
 
-    /* XML constant values */
-    const quint32 cMinimumDataLevel = 3;
-    const quint32 cCurrentDataLevel = 5;
+/* XML constant values */
+const quint32 cMinimumDataLevel = 3;
+const quint32 cCurrentDataLevel = 5;
 
-    /* JSON-specific keys */
-    const char cVersionKey[] = "version";
-    const char cAdaptersKey[] = "adapters";
-    const char cAdapterTypeKey[] = "type";
-    const char cAdapterSettingsKey[] = "settings";
-    const char cAdapterIdKey[] = "adapterId";
-    const char cAdapterKey[] = "adapter";
-    const char cIdJsonKey[] = "id";
-    const char cConnectionsJsonKey[] = "connections";
-    const char cDevicesJsonKey[] = "devices";
-    const char cConnectionTypeJsonKey[] = "connectiontype";
+/* JSON-specific keys */
+const char cVersionKey[] = "version";
+const char cAdaptersKey[] = "adapters";
+const char cAdapterTypeKey[] = "type";
+const char cAdapterSettingsKey[] = "settings";
+const char cAdapterIdKey[] = "adapterId";
+const char cAdapterKey[] = "adapter";
+const char cIdJsonKey[] = "id";
+const char cDevicesJsonKey[] = "devices";
 
-    /* JSON constant values */
-    const quint32 cMinimumJsonVersion = 6;
-    const quint32 cCurrentJsonVersion = 6;
-}
+/* JSON constant values */
+const quint32 cMinimumJsonVersion = 6;
+const quint32 cCurrentJsonVersion = 6;
+} // namespace ProjectFileDefinitions
 
 #endif // PROJECTFILEDEFINITIONS
-

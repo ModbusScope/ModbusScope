@@ -1,20 +1,7 @@
 #include "settingsmodel.h"
-#include "models/connectiontypes.h"
-
-using connectionId_t = ConnectionTypes::connectionId_t;
 
 SettingsModel::SettingsModel(QObject* parent) : QObject(parent)
 {
-
-    for (quint8 i = 0; i < ConnectionTypes::ID_CNT; i++)
-    {
-        ConnectionSettings connectionSettings;
-        _connectionSettings.append(connectionSettings);
-    }
-
-    /* Connection 1 is always enabled */
-    _connectionSettings[ConnectionTypes::ID_1].bConnectionState = true;
-
     _devices[Device::cFirstDeviceId] = Device(Device::cFirstDeviceId);
 
     _pollTime = 250;
@@ -159,11 +146,6 @@ QString SettingsModel::writeDuringLogFile()
     return _writeDuringLogFile;
 }
 
-Connection* SettingsModel::connectionSettings(connectionId_t connectionId)
-{
-    return &_connectionSettings[connectionId].connectionData;
-}
-
 Device* SettingsModel::deviceSettings(deviceId_t devId)
 {
 #if 0
@@ -171,34 +153,6 @@ TODO: dev
 Check validity
 #endif
     return &_devices[devId];
-}
-
-void SettingsModel::setConnectionState(connectionId_t connectionId, bool bState)
-{
-    /* Connection 1 can't be disabled */
-    if (connectionId == ConnectionTypes::ID_1)
-    {
-        bState = true;
-    }
-
-    _connectionSettings[connectionId].bConnectionState = bState;
-}
-
-QList<ConnectionTypes::connectionId_t> SettingsModel::connectionList() const
-{
-    QList<connectionId_t> list;
-
-    for (quint8 i = 0; i < ConnectionTypes::ID_CNT; i++)
-    {
-        list.append(static_cast<connectionId_t>(i));
-    }
-
-    return list;
-}
-
-bool SettingsModel::connectionState(connectionId_t connectionId)
-{
-    return _connectionSettings[connectionId].bConnectionState;
 }
 
 /*! \brief Return a pointer to the AdapterData for the given adapter ID.

@@ -1,7 +1,6 @@
 #ifndef DATAFILEEXPORTER_H
 #define DATAFILEEXPORTER_H
 
-#include "models/connectiontypes.h"
 #include <QObject>
 #include <QStringList>
 
@@ -14,7 +13,10 @@ class DataFileExporter : public QObject
 {
     Q_OBJECT
 public:
-    explicit DataFileExporter(SettingsModel *pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel * pNoteModel, QObject *parent = nullptr);
+    explicit DataFileExporter(SettingsModel* pSettingsModel,
+                              GraphDataModel* pGraphDataModel,
+                              NoteModel* pNoteModel,
+                              QObject* parent = nullptr);
     ~DataFileExporter();
 
     void enableExporterDuringLog();
@@ -26,11 +28,10 @@ public:
 signals:
 
 public slots:
-    void exportDataLine(double timeData, QList <double> dataValues);
+    void exportDataLine(double timeData, QList<double> dataValues);
     void rewriteDataFile(void);
 
 private:
-
     typedef enum
     {
         E_LABEL = 0u,
@@ -44,23 +45,21 @@ private:
     void flushExportBuffer();
     void exportDataHeader();
     QStringList constructDataHeader(bool bDuringLog);
-    QString constructConnSettings(ConnectionTypes::connectionId_t connectionId);
     void createNoteRows(QStringList& noteRows);
     QString createPropertyRow(registerProperty prop);
     QString formatData(double timeData, QList<double> dataValues);
     bool writeToFile(QString filePath, QStringList logData);
     void clearFile(QString filePath);
 
-    SettingsModel * _pSettingsModel;
-    GraphDataModel * _pGraphDataModel;
-    NoteModel * _pNoteModel;
+    SettingsModel* _pSettingsModel;
+    GraphDataModel* _pGraphDataModel;
+    NoteModel* _pNoteModel;
 
     QStringList _dataExportBuffer;
     quint64 lastLogTime;
 
     static const quint64 _cLogBufferTimeout = 1000; /* in milliseconds */
     static const quint32 _cLogChunkLineCount = 1000;
-
 };
 
 #endif // DATAFILEEXPORTER_H

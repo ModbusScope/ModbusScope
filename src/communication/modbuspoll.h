@@ -36,7 +36,6 @@ private slots:
     void onDescribeResult(const QJsonObject& description);
 
 private:
-    QJsonObject buildAdapterConfig();
     QStringList buildRegisterExpressions(const QList<ModbusRegister>& registerList);
 
     QList<ModbusRegister> _registerList;

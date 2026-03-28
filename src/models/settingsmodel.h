@@ -5,8 +5,6 @@
 #include <QObject>
 
 #include "models/adapterdata.h"
-#include "models/connection.h"
-#include "models/connectiontypes.h"
 #include "models/device.h"
 
 class SettingsModel : public QObject
@@ -21,13 +19,9 @@ public:
     void setPollTime(quint32 pollTime);
     void setWriteDuringLogFile(QString filename);
     void setWriteDuringLogFileToDefault(void);
-    void setConnectionState(ConnectionTypes::connectionId_t connectionId, bool bState);
 
     QString writeDuringLogFile();
     bool writeDuringLog();
-    bool connectionState(ConnectionTypes::connectionId_t connectionId);
-    QList<ConnectionTypes::connectionId_t> connectionList() const;
-    Connection* connectionSettings(ConnectionTypes::connectionId_t connectionId);
     Device* deviceSettings(deviceId_t devId);
     quint32 pollTime();
     bool absoluteTimes();
@@ -75,13 +69,6 @@ signals:
     void adapterDataChanged(const QString& adapterId);
 
 private:
-    typedef struct
-    {
-        Connection connectionData;
-        bool bConnectionState;
-    } ConnectionSettings;
-
-    QList<ConnectionSettings> _connectionSettings;
     QMap<deviceId_t, Device> _devices;
     QMap<QString, AdapterData> _adapters;
 
