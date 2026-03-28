@@ -52,6 +52,15 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 # Reset GUI type to blank
 set(GUI_TYPE "")
 
+# Copy adapter binaries next to the main executable so they can be found at runtime
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:modbusadapter>
+        $<TARGET_FILE:dummymodbusadapter>
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMENT "Copying adapter binaries to output directory"
+)
+
 # Do platform specific post target stuff
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 

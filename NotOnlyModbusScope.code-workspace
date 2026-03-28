@@ -33,6 +33,12 @@
 				"linux": {
 					"MIMode": "gdb",
 					"miDebuggerPath": "/usr/bin/gdb",
+					"environment": [
+						{
+							"name": "LD_LIBRARY_PATH",
+							"value": "${command:qt-cpp.qtDir}/lib:${env:LD_LIBRARY_PATH}"
+						}
+					]
 				},
 				"windows": {
 					"environment": [
