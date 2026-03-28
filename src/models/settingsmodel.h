@@ -40,6 +40,7 @@ public:
 
     QList<deviceId_t> deviceList();
     QList<deviceId_t> deviceListForConnection(ConnectionTypes::connectionId_t connectionId);
+    QList<deviceId_t> deviceListForAdapter(const QString& adapterId);
 
     const AdapterData* adapterData(const QString& adapterId);
     QStringList adapterIds() const;

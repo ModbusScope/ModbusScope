@@ -2,7 +2,7 @@
 #define DEVICE_H
 
 #include "models/connectiontypes.h"
-#include <QObject>
+#include <QString>
 
 using deviceId_t = quint32;
 
@@ -18,18 +18,21 @@ public:
     void setConsecutiveMax(quint8 max);
     void setInt32LittleEndian(bool int32LittleEndian);
     void setName(QString const& name);
+    void setAdapterId(const QString& adapterId);
 
     ConnectionTypes::connectionId_t connectionId();
     quint8 slaveId();
     quint8 consecutiveMax();
     bool int32LittleEndian();
     QString name();
+    QString adapterId() const;
 
     static deviceId_t const cFirstDeviceId;
 
 private:
     ConnectionTypes::connectionId_t _connectionId;
     QString _name;
+    QString _adapterId;
     quint8 _slaveId;
     quint8 _consecutiveMax;
     bool _bInt32LittleEndian;

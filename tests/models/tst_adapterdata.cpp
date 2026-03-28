@@ -173,4 +173,49 @@ void TestAdapterData::settingsModelRemoveAdapter()
     QVERIFY(model.adapterIds().isEmpty());
 }
 
+void TestAdapterData::deviceAdapterIdDefaultsToModbus()
+{
+    SettingsModel model;
+
+    QCOMPARE(model.deviceSettings(Device::cFirstDeviceId)->adapterId(), QStringLiteral("modbus"));
+}
+
+void TestAdapterData::deviceSetAndGetAdapterId()
+{
+    Device device;
+    QCOMPARE(device.adapterId(), QStringLiteral("modbus"));
+
+    device.setAdapterId("custom");
+    QCOMPARE(device.adapterId(), QStringLiteral("custom"));
+}
+
+void TestAdapterData::deviceListForAdapterFiltersCorrectly()
+{
+    SettingsModel model;
+
+    /* Default device 1 is modbus; add two more */
+    const deviceId_t idTwo = model.addNewDevice();
+    const deviceId_t idThree = model.addNewDevice();
+
+    model.deviceSettings(Device::cFirstDeviceId)->setAdapterId("modbus");
+    model.deviceSettings(idTwo)->setAdapterId("custom");
+    model.deviceSettings(idThree)->setAdapterId("modbus");
+
+    const QList<deviceId_t> modbusList = model.deviceListForAdapter("modbus");
+    QCOMPARE(modbusList.size(), 2);
+    QVERIFY(modbusList.contains(Device::cFirstDeviceId));
+    QVERIFY(modbusList.contains(idThree));
+
+    const QList<deviceId_t> customList = model.deviceListForAdapter("custom");
+    QCOMPARE(customList.size(), 1);
+    QVERIFY(customList.contains(idTwo));
+}
+
+void TestAdapterData::deviceListForAdapterUnknownReturnsEmpty()
+{
+    SettingsModel model;
+
+    QVERIFY(model.deviceListForAdapter("opcua").isEmpty());
+}
+
 QTEST_GUILESS_MAIN(TestAdapterData)

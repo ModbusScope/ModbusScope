@@ -126,6 +126,21 @@ QList<deviceId_t> SettingsModel::deviceListForConnection(connectionId_t connecti
     return list;
 }
 
+QList<deviceId_t> SettingsModel::deviceListForAdapter(const QString& adapterId)
+{
+    QList<deviceId_t> list;
+
+    for (auto i = _devices.cbegin(), end = _devices.cend(); i != end; ++i)
+    {
+        if (i.value().adapterId() == adapterId)
+        {
+            list.append(i.key());
+        }
+    }
+
+    return list;
+}
+
 void SettingsModel::setWriteDuringLog(bool bState)
 {
     if (_bWriteDuringLog != bState)

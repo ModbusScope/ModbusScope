@@ -20,6 +20,11 @@ private slots:
     void settingsModelAdapterDataCreatesEntry();
     void settingsModelAdapterIds();
     void settingsModelRemoveAdapter();
+
+    void deviceAdapterIdDefaultsToModbus();
+    void deviceSetAndGetAdapterId();
+    void deviceListForAdapterFiltersCorrectly();
+    void deviceListForAdapterUnknownReturnsEmpty();
 };
 
 #endif /* TEST_ADAPTERDATA_H__ */

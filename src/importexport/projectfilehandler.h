@@ -33,6 +33,7 @@ private:
     void applyLogSettings(const ProjectFileData::LogSettings& logSettings);
     void applyViewSettings(const ProjectFileData::ViewSettings& viewSettings);
     void applyGraphData(const ProjectFileData::ScopeSettings& scopeSettings);
+    void applyDeviceSettings(const ProjectFileData::GeneralSettings& generalSettings);
 
     GuiModel* _pGuiModel;
     SettingsModel* _pSettingsModel;

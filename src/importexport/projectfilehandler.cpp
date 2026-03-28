@@ -4,6 +4,7 @@
 #include "importexport/projectfiledata.h"
 #include "importexport/projectfilejsonexporter.h"
 #include "importexport/projectfilejsonparser.h"
+#include "models/device.h"
 #include "models/graphdatamodel.h"
 #include "models/guimodel.h"
 #include "models/settingsmodel.h"
@@ -103,6 +104,7 @@ void ProjectFileHandler::reloadProjectFile()
 
 void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings* pProjectSettings)
 {
+    applyDeviceSettings(pProjectSettings->general);
     applyLogSettings(pProjectSettings->general.logSettings);
     applyViewSettings(pProjectSettings->view);
     applyGraphData(pProjectSettings->scope);
@@ -168,6 +170,34 @@ void ProjectFileHandler::applyViewSettings(const ProjectFileData::ViewSettings& 
     else
     {
         _pGuiModel->sety2AxisScale(AxisMode::SCALE_AUTO);
+    }
+}
+
+void ProjectFileHandler::applyDeviceSettings(const ProjectFileData::GeneralSettings& generalSettings)
+{
+    if (generalSettings.deviceSettings.isEmpty())
+    {
+        return;
+    }
+
+    _pSettingsModel->removeAllDevice();
+
+    for (const ProjectFileData::DeviceSettings& devSettings : generalSettings.deviceSettings)
+    {
+        if (!devSettings.bDeviceId)
+        {
+            continue;
+        }
+
+        const QString adapterId = devSettings.adapterType.isEmpty() ? QString("modbus") : devSettings.adapterType;
+
+        _pSettingsModel->addDevice(devSettings.deviceId);
+        Device* pDev = _pSettingsModel->deviceSettings(devSettings.deviceId);
+        if (devSettings.bName)
+        {
+            pDev->setName(devSettings.name);
+        }
+        pDev->setAdapterId(adapterId);
     }
 }
 

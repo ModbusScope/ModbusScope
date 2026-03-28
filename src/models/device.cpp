@@ -8,6 +8,7 @@ deviceId_t const Device::cFirstDeviceId = 1;
 Device::Device(deviceId_t devdId)
     : _connectionId(0),
       _name(QString("Device %1").arg(devdId)),
+      _adapterId("modbus"),
       _slaveId(1),
       _consecutiveMax(125),
       _bInt32LittleEndian(true)
@@ -62,4 +63,14 @@ quint8 Device::slaveId()
 void Device::setSlaveId(quint8 id)
 {
     _slaveId = id;
+}
+
+void Device::setAdapterId(const QString& adapterId)
+{
+    _adapterId = adapterId;
+}
+
+QString Device::adapterId() const
+{
+    return _adapterId;
 }

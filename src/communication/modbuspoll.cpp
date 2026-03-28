@@ -173,7 +173,7 @@ QJsonObject ModbusPoll::buildAdapterConfig()
     }
 
     QJsonArray devices;
-    const QList<deviceId_t> deviceList = _pSettingsModel->deviceList();
+    const QList<deviceId_t> deviceList = _pSettingsModel->deviceListForAdapter("modbus");
     for (const deviceId_t devId : deviceList)
     {
         Device* pDev = _pSettingsModel->deviceSettings(devId);
