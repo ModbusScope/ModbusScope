@@ -104,7 +104,7 @@ void SchemaFormWidget::setSchema(const QJsonObject& schema, const QJsonObject& v
         _pFormLayout->addRow(label + ":", widget);
     }
 
-    applyConditional(values.value(_conditionalTriggerKey).toString());
+    applyConditional(values.value(_conditionalTriggerKey).toVariant().toString());
 
     for (const auto& [key, widget] : std::as_const(_fields))
     {
@@ -232,7 +232,7 @@ bool SchemaFormWidget::parseConditional(const QJsonObject& schema)
     }
 
     _conditionalTriggerKey = triggerKey;
-    _conditionalTriggerConst = constObj.value("const").toString();
+    _conditionalTriggerConst = constObj.value("const").toVariant().toString();
 
     const QJsonObject thenProps = thenObj.value("properties").toObject();
     for (auto it = thenProps.constBegin(); it != thenProps.constEnd(); ++it)
