@@ -9,7 +9,6 @@
 
 #include <QCoreApplication>
 #include <QJsonArray>
-#include <QMap>
 
 ModbusPoll::ModbusPoll(SettingsModel* pSettingsModel, QObject* parent) : QObject(parent), _bPollActive(false)
 {

@@ -1,4 +1,3 @@
-
 #ifndef TST_PROJECTFILEHANDLER_H
 #define TST_PROJECTFILEHANDLER_H
 
@@ -14,7 +13,7 @@ private slots:
     void applyDeviceSettingsAppliesAdapterId();
     void applyDeviceSettingsAppliesName();
     void applyDeviceSettingsMultipleAdapters();
-    void applyDeviceSettingsEmptyListPreservesDefault();
+    void applyDeviceSettingsEmptyListClearsModel();
     void applyDeviceSettingsClearsPreviousDevices();
 };
 

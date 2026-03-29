@@ -1,5 +1,5 @@
-#ifndef PROJECTFILEDEFINITIONS
-#define PROJECTFILEDEFINITIONS
+#ifndef PROJECTFILEDEFINITIONS_H
+#define PROJECTFILEDEFINITIONS_H
 
 #include <QString>
 
@@ -65,4 +65,4 @@ const quint32 cMinimumJsonVersion = 6;
 const quint32 cCurrentJsonVersion = 6;
 } // namespace ProjectFileDefinitions
 
-#endif // PROJECTFILEDEFINITIONS
+#endif // PROJECTFILEDEFINITIONS_H

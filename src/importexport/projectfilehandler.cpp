@@ -175,12 +175,12 @@ void ProjectFileHandler::applyViewSettings(const ProjectFileData::ViewSettings& 
 
 void ProjectFileHandler::applyDeviceSettings(const QList<ProjectFileData::DeviceSettings>& deviceSettings)
 {
+    _pSettingsModel->removeAllDevice();
+
     if (deviceSettings.isEmpty())
     {
         return;
     }
-
-    _pSettingsModel->removeAllDevice();
 
     for (const ProjectFileData::DeviceSettings& devSettings : deviceSettings)
     {

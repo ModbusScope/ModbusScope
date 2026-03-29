@@ -178,9 +178,12 @@ void TestProjectFileHandler::applyDeviceSettingsMultipleAdapters()
 }
 
 /*!
- * \brief When the devices section is absent, the default device 1 is preserved.
+ * \brief Loading a project with an empty devices section clears all devices, including stale ones.
+ *
+ * Regression: applyDeviceSettings used to return early before calling removeAllDevice() when
+ * the list was empty, leaving previously-loaded devices in the model.
  */
-void TestProjectFileHandler::applyDeviceSettingsEmptyListPreservesDefault()
+void TestProjectFileHandler::applyDeviceSettingsEmptyListClearsModel()
 {
     const QString path = writeTempProjectFile(QJsonArray(), QJsonArray());
     QVERIFY(!path.isEmpty());
@@ -188,12 +191,15 @@ void TestProjectFileHandler::applyDeviceSettingsEmptyListPreservesDefault()
     GuiModel guiModel;
     SettingsModel settingsModel;
     GraphDataModel graphDataModel(&settingsModel);
-    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
 
+    /* Pre-populate a stale device that should be cleared */
+    settingsModel.addDevice(99);
+    QVERIFY(settingsModel.deviceList().contains(99));
+
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
     handler.openProjectFile(path);
 
-    QVERIFY(settingsModel.deviceList().contains(Device::cFirstDeviceId));
-    QCOMPARE(settingsModel.deviceSettings(Device::cFirstDeviceId)->adapterId(), QStringLiteral("modbus"));
+    QVERIFY(settingsModel.deviceList().isEmpty());
 
     QFile::remove(path);
 }
