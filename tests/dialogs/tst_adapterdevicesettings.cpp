@@ -131,6 +131,10 @@ void TestAdapterDeviceSettings::missingNameFallsBackToDeviceN()
 
     auto* tabs = w.findChild<AddableTabWidget*>();
     QVERIFY(tabs != nullptr);
+    if (tabs == nullptr)
+    {
+        return;
+    }
     QVERIFY(tabs->tabText(0).startsWith("Device "));
 }
 
@@ -159,7 +163,7 @@ void TestAdapterDeviceSettings::acceptValuesSavesToAdapterConfig()
 
     const AdapterData* adapter = model.adapterData("adapterA");
     QCOMPARE(adapter->hasStoredConfig(), true);
-    QCOMPARE(adapter->currentConfig()["devices"].toArray().at(0).toObject()["id"].toInt(), 2);
+    QCOMPARE(adapter->currentConfig().value("devices").toArray().at(0).toObject().value("id").toInt(), 2);
 }
 
 void TestAdapterDeviceSettings::acceptValuesSavesDeviceNameToModel()
@@ -188,6 +192,44 @@ void TestAdapterDeviceSettings::acceptValuesSavesDeviceNameToModel()
     w.acceptValues();
 
     QCOMPARE(model.deviceSettings(1)->name(), QStringLiteral("New Name"));
+}
+
+void TestAdapterDeviceSettings::addTabUsesDeviceDefaults()
+{
+    SettingsModel model;
+
+    QJsonObject describe = makeAdapterDescribe("adapterA");
+    QJsonObject defaultDevice;
+    defaultDevice["id"] = 5;
+    QJsonObject defaults;
+    defaults["devices"] = QJsonArray{ defaultDevice };
+    defaults["connections"] = QJsonArray();
+    defaults["general"] = QJsonObject();
+    describe["defaults"] = defaults;
+
+    model.updateAdapterFromDescribe("adapterA", describe);
+
+    QJsonObject config;
+    config["general"] = QJsonObject();
+    config["connections"] = QJsonArray();
+    config["devices"] = QJsonArray();
+    model.setAdapterCurrentConfig("adapterA", config);
+
+    AdapterDeviceSettings w(&model);
+
+    auto* tabs = w.findChild<AddableTabWidget*>();
+    QVERIFY(tabs != nullptr);
+    QCOMPARE(tabs->count(), 0);
+
+    emit tabs->addTabRequested();
+
+    QCOMPARE(tabs->count(), 1);
+    auto* tab = qobject_cast<DeviceConfigTab*>(tabs->tabContent(0));
+    QVERIFY(tab != nullptr);
+
+    auto* spin = tab->findChild<QSpinBox*>();
+    QVERIFY(spin != nullptr);
+    QCOMPARE(spin->value(), 5);
 }
 
 QTEST_MAIN(TestAdapterDeviceSettings)

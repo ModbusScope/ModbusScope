@@ -90,7 +90,14 @@ void AdapterConnectionSettings::buildConnectionsSection(const QJsonObject& schem
 
         connect(_pConnectionTabs, &AddableTabWidget::addTabRequested, this, [this]() {
             auto* form = new SchemaFormWidget(_pConnectionTabs);
-            form->setSchema(_connectionItemSchema, QJsonObject());
+            QJsonObject defaultValues;
+            const QJsonArray defaultConnections =
+              _pSettingsModel->adapterData(_adapterId)->defaults().value("connections").toArray();
+            if (!defaultConnections.isEmpty())
+            {
+                defaultValues = defaultConnections.first().toObject();
+            }
+            form->setSchema(_connectionItemSchema, defaultValues);
             _pConnectionTabs->addNewTab(QString("Connection %1").arg(_pConnectionTabs->count() + 1), form);
         });
 

@@ -7,6 +7,7 @@
 
 #include <QComboBox>
 #include <QHBoxLayout>
+#include <QJsonArray>
 #include <QLabel>
 #include <QLineEdit>
 #include <QVBoxLayout>
@@ -77,7 +78,13 @@ DeviceConfigTab::DeviceConfigTab(SettingsModel* pSettingsModel,
 void DeviceConfigTab::onAdapterChanged(int index)
 {
     QString newAdapterId = _pAdapterCombo->itemData(index).toString();
-    rebuildSchemaForm(newAdapterId, QJsonObject());
+    QJsonObject defaultValues;
+    const QJsonArray defaultDevices = _pSettingsModel->adapterData(newAdapterId)->defaults().value("devices").toArray();
+    if (!defaultDevices.isEmpty())
+    {
+        defaultValues = defaultDevices.first().toObject();
+    }
+    rebuildSchemaForm(newAdapterId, defaultValues);
 }
 
 void DeviceConfigTab::rebuildSchemaForm(const QString& adapterId, const QJsonObject& deviceValues)

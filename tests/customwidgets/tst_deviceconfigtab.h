@@ -16,6 +16,7 @@ private slots:
     void adapterIdMatchesComboInitially();
     void deviceNameInitializesFromDeviceModel();
     void deviceNameEmptyForUnregisteredDevice();
+    void adapterChangeUsesDefaults();
 
 private:
     //! Populate \a model with two adapters that each have a minimal device schema.

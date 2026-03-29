@@ -195,8 +195,50 @@ void TestAdapterConnectionSettings::acceptValuesStoresConfigInAdapterData()
 
     const AdapterData* adapter = model.adapterData("testAdapter");
     QCOMPARE(adapter->hasStoredConfig(), true);
-    QCOMPARE(adapter->currentConfig()["connections"].toArray().at(0).toObject()["host"].toString(),
+    QCOMPARE(adapter->currentConfig().value("connections").toArray().at(0).toObject().value("host").toString(),
              QStringLiteral("192.168.1.1"));
+}
+
+void TestAdapterConnectionSettings::addTabUsesConnectionDefaults()
+{
+    SettingsModel model;
+
+    QJsonObject portProp;
+    portProp["type"] = "integer";
+    portProp["title"] = "Port";
+    QJsonObject itemProps;
+    itemProps["port"] = portProp;
+
+    QJsonObject describe = makeDescribeResult("array", QJsonObject(), itemProps);
+
+    QJsonObject defaultConn;
+    defaultConn["port"] = 502;
+    QJsonObject defaults;
+    defaults["connections"] = QJsonArray{ defaultConn };
+    defaults["devices"] = QJsonArray();
+    defaults["general"] = QJsonObject();
+    describe["defaults"] = defaults;
+
+    model.updateAdapterFromDescribe("testAdapter", describe);
+
+    QJsonObject config;
+    config["connections"] = QJsonArray();
+    config["devices"] = QJsonArray();
+    config["general"] = QJsonObject();
+    model.setAdapterCurrentConfig("testAdapter", config);
+
+    AdapterConnectionSettings w(&model);
+
+    auto* tabs = w.findChild<AddableTabWidget*>();
+    QVERIFY(tabs != nullptr);
+    QCOMPARE(tabs->count(), 0);
+
+    emit tabs->addTabRequested();
+
+    QCOMPARE(tabs->count(), 1);
+    auto* form = qobject_cast<SchemaFormWidget*>(tabs->tabContent(0));
+    QVERIFY(form != nullptr);
+    QCOMPARE(form->values().value("port").toInt(), 502);
 }
 
 QTEST_MAIN(TestAdapterConnectionSettings)

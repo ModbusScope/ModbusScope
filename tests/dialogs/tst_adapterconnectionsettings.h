@@ -17,6 +17,7 @@ private slots:
     void generalSectionHiddenWhenPropertiesEmpty();
     void generalSectionShownWhenNonEmpty();
     void acceptValuesStoresConfigInAdapterData();
+    void addTabUsesConnectionDefaults();
 };
 
 #endif // TST_ADAPTERCONNECTIONSETTINGS_H

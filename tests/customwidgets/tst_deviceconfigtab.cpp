@@ -4,6 +4,7 @@
 #include "models/settingsmodel.h"
 
 #include <QComboBox>
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QTest>
 
@@ -97,7 +98,7 @@ void TestDeviceConfigTab::valuesReturnsDeviceFieldValues()
 
     DeviceConfigTab tab(&model, "adapterA", deviceValues);
 
-    QCOMPARE(tab.values()["name"].toString(), QStringLiteral("Pump"));
+    QCOMPARE(tab.values().value("name").toString(), QStringLiteral("Pump"));
 }
 
 void TestDeviceConfigTab::adapterIdMatchesComboInitially()
@@ -136,6 +137,29 @@ void TestDeviceConfigTab::deviceNameEmptyForUnregisteredDevice()
 
     DeviceConfigTab tab(&model, "adapterA", deviceValues);
     QVERIFY(tab.deviceName().isEmpty());
+}
+
+void TestDeviceConfigTab::adapterChangeUsesDefaults()
+{
+    SettingsModel model;
+    model.updateAdapterFromDescribe("adapterA", makeAdapterDescribe("adapterA"));
+
+    QJsonObject describeB = makeAdapterDescribe("adapterB");
+    QJsonObject defaultDevice;
+    defaultDevice["name"] = "defaultName";
+    QJsonObject defaults;
+    defaults["devices"] = QJsonArray{ defaultDevice };
+    describeB["defaults"] = defaults;
+    model.updateAdapterFromDescribe("adapterB", describeB);
+
+    DeviceConfigTab tab(&model, "adapterA", QJsonObject());
+
+    auto* combo = tab.findChild<QComboBox*>(QString(), Qt::FindDirectChildrenOnly);
+    QVERIFY(combo != nullptr);
+
+    combo->setCurrentIndex(combo->findData(QStringLiteral("adapterB")));
+
+    QCOMPARE(tab.values().value("name").toString(), QStringLiteral("defaultName"));
 }
 
 QTEST_MAIN(TestDeviceConfigTab)

@@ -82,9 +82,17 @@ void AdapterDeviceSettings::handleAddTab()
         return;
     }
 
+    QJsonObject defaultValues;
+    const QJsonArray defaultDevices =
+      _pSettingsModel->adapterData(defaultAdapterId)->defaults().value("devices").toArray();
+    if (!defaultDevices.isEmpty())
+    {
+        defaultValues = defaultDevices.first().toObject();
+    }
+
     int tabIndex = _pDeviceTabs->count() + 1;
-    auto* tab = new DeviceConfigTab(_pSettingsModel, defaultAdapterId, QJsonObject(), _pDeviceTabs);
-    _pDeviceTabs->addNewTab(constructTabName(QJsonObject(), tabIndex), tab);
+    auto* tab = new DeviceConfigTab(_pSettingsModel, defaultAdapterId, defaultValues, _pDeviceTabs);
+    _pDeviceTabs->addNewTab(constructTabName(defaultValues, tabIndex), tab);
 }
 
 QString AdapterDeviceSettings::constructTabName(const QJsonObject& deviceValues, int tabIndex) const
