@@ -20,6 +20,12 @@ private slots:
     void setSchemaResetsOldWidgets();
     void stringEnumWithLabelsShowsLabel();
     void integerEnumWithLabelsShowsLabel();
+    void conditionalTcpFieldsVisibleOnLoad();
+    void conditionalSerialFieldsVisibleOnLoad();
+    void conditionalSwitchShowsSerialHidesTcp();
+    void conditionalSwitchShowsTcpHidesSerial();
+    void valuesOmitsInactiveBranchFields();
+    void labelHiddenWithWidget();
 };
 
 #endif // TST_SCHEMAFORMWIDGET_H

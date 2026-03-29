@@ -9,6 +9,7 @@
 #include <QSpinBox>
 #include <climits>
 #include <limits>
+#include <utility>
 
 SchemaFormWidget::SchemaFormWidget(QWidget* parent) : QWidget(parent), _pFormLayout(new QFormLayout(this))
 {
@@ -18,6 +19,11 @@ SchemaFormWidget::SchemaFormWidget(QWidget* parent) : QWidget(parent), _pFormLay
 void SchemaFormWidget::setSchema(const QJsonObject& schema, const QJsonObject& values)
 {
     _fields.clear();
+    _conditionalTriggerKey.clear();
+    _conditionalTriggerConst.clear();
+    _thenKeys.clear();
+    _elseKeys.clear();
+    _currentTriggerValue.clear();
 
     // removeRow() deletes both the label and field widget
     while (_pFormLayout->rowCount() > 0)
@@ -71,6 +77,46 @@ void SchemaFormWidget::setSchema(const QJsonObject& schema, const QJsonObject& v
         QWidget* widget = createWidgetForProperty(propSchema, currentValue);
         _fields.append({ key, widget });
         _pFormLayout->addRow(label + ":", widget);
+    }
+
+    if (!parseConditional(schema))
+    {
+        return;
+    }
+
+    const QJsonObject thenProps = schema.value("then").toObject().value("properties").toObject();
+    for (const QString& key : std::as_const(_thenKeys))
+    {
+        QJsonObject propSchema = thenProps.value(key).toObject();
+        QString label = propSchema.value("title").toString(key);
+        QWidget* widget = createWidgetForProperty(propSchema, values.value(key));
+        _fields.append({ key, widget });
+        _pFormLayout->addRow(label + ":", widget);
+    }
+
+    const QJsonObject elseProps = schema.value("else").toObject().value("properties").toObject();
+    for (const QString& key : std::as_const(_elseKeys))
+    {
+        QJsonObject propSchema = elseProps.value(key).toObject();
+        QString label = propSchema.value("title").toString(key);
+        QWidget* widget = createWidgetForProperty(propSchema, values.value(key));
+        _fields.append({ key, widget });
+        _pFormLayout->addRow(label + ":", widget);
+    }
+
+    applyConditional(values.value(_conditionalTriggerKey).toString());
+
+    for (const auto& [key, widget] : std::as_const(_fields))
+    {
+        if (key == _conditionalTriggerKey)
+        {
+            auto* combo = qobject_cast<QComboBox*>(widget);
+            if (combo != nullptr)
+            {
+                connect(combo, &QComboBox::currentIndexChanged, this, &SchemaFormWidget::onTriggerChanged);
+            }
+            break;
+        }
     }
 }
 
@@ -155,11 +201,110 @@ QWidget* SchemaFormWidget::createWidgetForProperty(const QJsonObject& propSchema
     }
 }
 
+bool SchemaFormWidget::parseConditional(const QJsonObject& schema)
+{
+    const QJsonObject ifObj = schema.value("if").toObject();
+    const QJsonObject thenObj = schema.value("then").toObject();
+    const QJsonObject elseObj = schema.value("else").toObject();
+
+    if (ifObj.isEmpty() || thenObj.isEmpty() || elseObj.isEmpty())
+    {
+        return false;
+    }
+
+    const QJsonArray required = ifObj.value("required").toArray();
+    if (required.size() != 1)
+    {
+        return false;
+    }
+
+    const QString triggerKey = required.at(0).toString();
+    if (triggerKey.isEmpty())
+    {
+        return false;
+    }
+
+    const QJsonObject ifProperties = ifObj.value("properties").toObject();
+    const QJsonObject constObj = ifProperties.value(triggerKey).toObject();
+    if (!constObj.contains("const"))
+    {
+        return false;
+    }
+
+    _conditionalTriggerKey = triggerKey;
+    _conditionalTriggerConst = constObj.value("const").toString();
+
+    const QJsonObject thenProps = thenObj.value("properties").toObject();
+    for (auto it = thenProps.constBegin(); it != thenProps.constEnd(); ++it)
+    {
+        _thenKeys.append(it.key());
+    }
+
+    const QJsonObject elseProps = elseObj.value("properties").toObject();
+    for (auto it = elseProps.constBegin(); it != elseProps.constEnd(); ++it)
+    {
+        _elseKeys.append(it.key());
+    }
+
+    return true;
+}
+
+void SchemaFormWidget::applyConditional(const QString& triggerValue)
+{
+    _currentTriggerValue = triggerValue;
+    const bool conditionMet = (triggerValue == _conditionalTriggerConst);
+
+    for (const auto& [key, widget] : std::as_const(_fields))
+    {
+        const bool isThen = _thenKeys.contains(key);
+        const bool isElse = _elseKeys.contains(key);
+
+        if (!isThen && !isElse)
+        {
+            continue;
+        }
+
+        const bool visible = isThen ? conditionMet : !conditionMet;
+        widget->setVisible(visible);
+
+        QWidget* label = _pFormLayout->labelForField(widget);
+        if (label != nullptr)
+        {
+            label->setVisible(visible);
+        }
+    }
+}
+
+void SchemaFormWidget::onTriggerChanged(int /*index*/)
+{
+    auto* combo = qobject_cast<QComboBox*>(sender());
+    if (combo == nullptr)
+    {
+        return;
+    }
+
+    applyConditional(combo->currentData().toString());
+}
+
 QJsonObject SchemaFormWidget::values() const
 {
+    const bool conditionMet = !_conditionalTriggerKey.isEmpty() && (_currentTriggerValue == _conditionalTriggerConst);
+
     QJsonObject result;
     for (const auto& [key, widget] : _fields)
     {
+        const bool isThen = _thenKeys.contains(key);
+        const bool isElse = _elseKeys.contains(key);
+
+        if (isThen && !conditionMet)
+        {
+            continue;
+        }
+        if (isElse && conditionMet)
+        {
+            continue;
+        }
+
         if (auto* spin = qobject_cast<QSpinBox*>(widget))
         {
             result[key] = spin->value();

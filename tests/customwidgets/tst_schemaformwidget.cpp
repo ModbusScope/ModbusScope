@@ -7,6 +7,7 @@
 #include <QDoubleSpinBox>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QLabel>
 #include <QLineEdit>
 #include <QSpinBox>
 #include <QTest>
@@ -22,6 +23,76 @@ QJsonObject makeObjectSchema(const QString& key, const QJsonObject& propSchema)
     QJsonObject schema;
     schema["type"] = "object";
     schema["properties"] = props;
+    return schema;
+}
+
+/*!
+ * \brief Build a schema with base properties (\c id, \c type) and an if/then/else block.
+ *
+ * if type == "tcp": then shows \c ip (string) and \c port (integer).
+ * else:             shows \c portName (string) and \c baudrate (integer enum).
+ */
+QJsonObject makeConditionalSchema()
+{
+    QJsonObject idProp;
+    idProp["type"] = "integer";
+    idProp["title"] = "ID";
+
+    QJsonObject typeProp;
+    typeProp["type"] = "string";
+    typeProp["title"] = "Type";
+    typeProp["enum"] = QJsonArray{ "tcp", "serial" };
+
+    QJsonObject baseProps;
+    baseProps["id"] = idProp;
+    baseProps["type"] = typeProp;
+
+    QJsonObject ifConstObj;
+    ifConstObj["const"] = "tcp";
+
+    QJsonObject ifPropsInner;
+    ifPropsInner["type"] = ifConstObj;
+
+    QJsonObject ifObj;
+    ifObj["properties"] = ifPropsInner;
+    ifObj["required"] = QJsonArray{ "type" };
+
+    QJsonObject ipProp;
+    ipProp["type"] = "string";
+    ipProp["title"] = "IP Address";
+
+    QJsonObject portProp;
+    portProp["type"] = "integer";
+    portProp["title"] = "Port";
+
+    QJsonObject thenProps;
+    thenProps["ip"] = ipProp;
+    thenProps["port"] = portProp;
+
+    QJsonObject thenObj;
+    thenObj["properties"] = thenProps;
+
+    QJsonObject portNameProp;
+    portNameProp["type"] = "string";
+    portNameProp["title"] = "Port Name";
+
+    QJsonObject baudrateProp;
+    baudrateProp["type"] = "integer";
+    baudrateProp["enum"] = QJsonArray{ 9600, 115200 };
+
+    QJsonObject elseProps;
+    elseProps["portName"] = portNameProp;
+    elseProps["baudrate"] = baudrateProp;
+
+    QJsonObject elseObj;
+    elseObj["properties"] = elseProps;
+
+    QJsonObject schema;
+    schema["type"] = "object";
+    schema["properties"] = baseProps;
+    schema["if"] = ifObj;
+    schema["then"] = thenObj;
+    schema["else"] = elseObj;
     return schema;
 }
 
@@ -50,7 +121,8 @@ void TestSchemaFormWidget::stringPropertyCreatesLineEdit()
     auto* edit = w.findChild<QLineEdit*>();
     QVERIFY(edit != nullptr);
     QCOMPARE(edit->text(), QStringLiteral("localhost"));
-    QCOMPARE(w.values()["host"].toString(), QStringLiteral("localhost"));
+    const QJsonObject hostResult = w.values();
+    QCOMPARE(hostResult["host"].toString(), QStringLiteral("localhost"));
 }
 
 void TestSchemaFormWidget::integerPropertyCreatesSpinBox()
@@ -64,7 +136,8 @@ void TestSchemaFormWidget::integerPropertyCreatesSpinBox()
     auto* spin = w.findChild<QSpinBox*>();
     QVERIFY(spin != nullptr);
     QCOMPARE(spin->value(), 502);
-    QCOMPARE(w.values()["port"].toInt(), 502);
+    const QJsonObject portResult = w.values();
+    QCOMPARE(portResult["port"].toInt(), 502);
 }
 
 void TestSchemaFormWidget::numberPropertyCreatesDoubleSpinBox()
@@ -78,7 +151,8 @@ void TestSchemaFormWidget::numberPropertyCreatesDoubleSpinBox()
     auto* dspin = w.findChild<QDoubleSpinBox*>();
     QVERIFY(dspin != nullptr);
     QCOMPARE(dspin->value(), 1.5);
-    QCOMPARE(w.values()["scale"].toDouble(), 1.5);
+    const QJsonObject scaleResult = w.values();
+    QCOMPARE(scaleResult["scale"].toDouble(), 1.5);
 }
 
 void TestSchemaFormWidget::booleanPropertyCreatesCheckBox()
@@ -92,7 +166,8 @@ void TestSchemaFormWidget::booleanPropertyCreatesCheckBox()
     auto* check = w.findChild<QCheckBox*>();
     QVERIFY(check != nullptr);
     QCOMPARE(check->isChecked(), true);
-    QCOMPARE(w.values()["enabled"].toBool(), true);
+    const QJsonObject enabledResult = w.values();
+    QCOMPARE(enabledResult["enabled"].toBool(), true);
 }
 
 void TestSchemaFormWidget::stringEnumCreatesComboBox()
@@ -107,7 +182,8 @@ void TestSchemaFormWidget::stringEnumCreatesComboBox()
     auto* combo = w.findChild<QComboBox*>();
     QVERIFY(combo != nullptr);
     QCOMPARE(combo->currentText(), QStringLiteral("E"));
-    QCOMPARE(w.values()["parity"].toString(), QStringLiteral("E"));
+    const QJsonObject parityResult = w.values();
+    QCOMPARE(parityResult["parity"].toString(), QStringLiteral("E"));
 }
 
 void TestSchemaFormWidget::integerEnumCreatesComboBox()
@@ -123,7 +199,8 @@ void TestSchemaFormWidget::integerEnumCreatesComboBox()
     QVERIFY(combo != nullptr);
     QCOMPARE(combo->currentText(), QStringLiteral("19200"));
 
-    QJsonValue result = w.values()["baudrate"];
+    const QJsonObject baudrateResult = w.values();
+    const QJsonValue result = baudrateResult["baudrate"];
     QCOMPARE(result.toInt(), 19200);
     QVERIFY(result.type() == QJsonValue::Double); // JSON has no int/double distinction
 }
@@ -157,7 +234,8 @@ void TestSchemaFormWidget::valuesReflectWidgetChanges()
     QVERIFY(edit != nullptr);
     edit->setText("changed");
 
-    QCOMPARE(w.values()["name"].toString(), QStringLiteral("changed"));
+    const QJsonObject nameResult = w.values();
+    QCOMPARE(nameResult["name"].toString(), QStringLiteral("changed"));
 }
 
 void TestSchemaFormWidget::setSchemaResetsOldWidgets()
@@ -192,7 +270,8 @@ void TestSchemaFormWidget::stringEnumWithLabelsShowsLabel()
     auto* combo = w.findChild<QComboBox*>();
     QVERIFY(combo != nullptr);
     QCOMPARE(combo->currentText(), QStringLiteral("Even"));
-    QCOMPARE(w.values()["parity"].toString(), QStringLiteral("E"));
+    const QJsonObject parityLabelsResult = w.values();
+    QCOMPARE(parityLabelsResult["parity"].toString(), QStringLiteral("E"));
 }
 
 void TestSchemaFormWidget::integerEnumWithLabelsShowsLabel()
@@ -208,7 +287,137 @@ void TestSchemaFormWidget::integerEnumWithLabelsShowsLabel()
     auto* combo = w.findChild<QComboBox*>();
     QVERIFY(combo != nullptr);
     QCOMPARE(combo->currentText(), QStringLiteral("1.5"));
-    QCOMPARE(w.values()["stopbits"].toInt(), 3);
+    const QJsonObject stopbitsResult = w.values();
+    QCOMPARE(stopbitsResult["stopbits"].toInt(), 3);
+}
+
+void TestSchemaFormWidget::conditionalTcpFieldsVisibleOnLoad()
+{
+    SchemaFormWidget w;
+    QJsonObject values;
+    values["type"] = "tcp";
+    values["ip"] = "127.0.0.1";
+    values["port"] = 502;
+    w.setSchema(makeConditionalSchema(), values);
+
+    const QJsonObject result = w.values();
+    QVERIFY(result.contains("ip"));
+    QVERIFY(result.contains("port"));
+    QVERIFY(!result.contains("portName"));
+    QVERIFY(!result.contains("baudrate"));
+}
+
+void TestSchemaFormWidget::conditionalSerialFieldsVisibleOnLoad()
+{
+    SchemaFormWidget w;
+    QJsonObject values;
+    values["type"] = "serial";
+    values["portName"] = "/dev/ttyS0";
+    values["baudrate"] = 9600;
+    w.setSchema(makeConditionalSchema(), values);
+
+    const QJsonObject result = w.values();
+    QVERIFY(result.contains("portName"));
+    QVERIFY(result.contains("baudrate"));
+    QVERIFY(!result.contains("ip"));
+    QVERIFY(!result.contains("port"));
+}
+
+void TestSchemaFormWidget::conditionalSwitchShowsSerialHidesTcp()
+{
+    SchemaFormWidget w;
+    QJsonObject values;
+    values["type"] = "tcp";
+    values["ip"] = "127.0.0.1";
+    values["port"] = 502;
+    w.setSchema(makeConditionalSchema(), values);
+
+    // Find the type combo — the one that has "tcp" as a data item
+    QComboBox* typeCombo = nullptr;
+    const auto combos = w.findChildren<QComboBox*>();
+    for (QComboBox* combo : combos)
+    {
+        if (combo->findData(QStringLiteral("tcp")) >= 0)
+        {
+            typeCombo = combo;
+            break;
+        }
+    }
+    QVERIFY(typeCombo != nullptr);
+    if (typeCombo == nullptr)
+    {
+        return;
+    }
+    typeCombo->setCurrentIndex(typeCombo->findData(QStringLiteral("serial")));
+
+    const QJsonObject result = w.values();
+    QVERIFY(result.contains("portName"));
+    QVERIFY(!result.contains("ip"));
+    QVERIFY(!result.contains("port"));
+}
+
+void TestSchemaFormWidget::conditionalSwitchShowsTcpHidesSerial()
+{
+    SchemaFormWidget w;
+    QJsonObject values;
+    values["type"] = "serial";
+    w.setSchema(makeConditionalSchema(), values);
+
+    QComboBox* typeCombo = nullptr;
+    const auto combos = w.findChildren<QComboBox*>();
+    for (QComboBox* combo : combos)
+    {
+        if (combo->findData(QStringLiteral("tcp")) >= 0)
+        {
+            typeCombo = combo;
+            break;
+        }
+    }
+    QVERIFY(typeCombo != nullptr);
+    if (typeCombo == nullptr)
+    {
+        return;
+    }
+    typeCombo->setCurrentIndex(typeCombo->findData(QStringLiteral("tcp")));
+
+    const QJsonObject result = w.values();
+    QVERIFY(result.contains("ip"));
+    QVERIFY(result.contains("port"));
+    QVERIFY(!result.contains("portName"));
+    QVERIFY(!result.contains("baudrate"));
+}
+
+void TestSchemaFormWidget::valuesOmitsInactiveBranchFields()
+{
+    SchemaFormWidget w;
+    QJsonObject values;
+    values["type"] = "tcp";
+    w.setSchema(makeConditionalSchema(), values);
+
+    const QJsonObject result = w.values();
+    QVERIFY(!result.contains("portName"));
+    QVERIFY(!result.contains("baudrate"));
+}
+
+void TestSchemaFormWidget::labelHiddenWithWidget()
+{
+    SchemaFormWidget w;
+    QJsonObject values;
+    values["type"] = "tcp";
+    w.setSchema(makeConditionalSchema(), values);
+
+    // The "Port Name" label must exist and must be hidden when tcp is active
+    const auto labels = w.findChildren<QLabel*>();
+    bool portNameLabelFound = false;
+    for (QLabel* lbl : labels)
+    {
+        if (lbl->text() == QStringLiteral("Port Name:"))
+        {
+            portNameLabelFound = true;
+            QVERIFY(!lbl->isVisible());
+        }
+    }
+    QVERIFY(portNameLabelFound);
 }
 
 QTEST_MAIN(TestSchemaFormWidget)
