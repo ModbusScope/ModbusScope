@@ -36,49 +36,98 @@
         "properties": {
             "connections": {
                 "items": {
+                    "else": {
+                        "properties": {
+                            "baudrate": {
+                                "description": "Baud rate (serial only)",
+                                "enum": [
+                                    1200,
+                                    2400,
+                                    4800,
+                                    9600,
+                                    19200,
+                                    38400,
+                                    57600,
+                                    115200
+                                ],
+                                "title": "Baud Rate",
+                                "type": "integer",
+                                "x-enumLabels": [
+                                    "1200",
+                                    "2400",
+                                    "4800",
+                                    "9600",
+                                    "19200",
+                                    "38400",
+                                    "57600",
+                                    "115200"
+                                ]
+                            },
+                            "databits": {
+                                "description": "Data bits (serial only)",
+                                "enum": [
+                                    5,
+                                    6,
+                                    7,
+                                    8
+                                ],
+                                "title": "Data Bits",
+                                "type": "integer",
+                                "x-enumLabels": [
+                                    "5",
+                                    "6",
+                                    "7",
+                                    "8"
+                                ]
+                            },
+                            "parity": {
+                                "description": "Parity: N=none, E=even, O=odd (serial only)",
+                                "enum": [
+                                    "N",
+                                    "E",
+                                    "O"
+                                ],
+                                "title": "Parity",
+                                "type": "string",
+                                "x-enumLabels": [
+                                    "None",
+                                    "Even",
+                                    "Odd"
+                                ]
+                            },
+                            "portName": {
+                                "description": "Serial port name (serial only)",
+                                "title": "Serial Port Name",
+                                "type": "string"
+                            },
+                            "stopbits": {
+                                "description": "Stop bits: 1, 1.5 (=3), or 2 (serial only)",
+                                "enum": [
+                                    1,
+                                    2,
+                                    3
+                                ],
+                                "title": "Stop Bits",
+                                "type": "integer",
+                                "x-enumLabels": [
+                                    "1",
+                                    "2",
+                                    "1.5"
+                                ]
+                            }
+                        }
+                    },
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "tcp"
+                            }
+                        },
+                        "required": [
+                            "type"
+                        ]
+                    },
                     "properties": {
-                        "baudrate": {
-                            "description": "Baud rate (serial only)",
-                            "enum": [
-                                1200,
-                                2400,
-                                4800,
-                                9600,
-                                19200,
-                                38400,
-                                57600,
-                                115200
-                            ],
-                            "title": "Baud Rate",
-                            "type": "integer",
-                            "x-enumLabels": [
-                                "1200",
-                                "2400",
-                                "4800",
-                                "9600",
-                                "19200",
-                                "38400",
-                                "57600",
-                                "115200"
-                            ]
-                        },
-                        "databits": {
-                            "description": "Data bits (serial only)",
-                            "enum": [
-                                5,
-                                6,
-                                7,
-                                8
-                            ],
-                            "title": "Data Bits",
-                            "type": "integer",
-                            "x-enumLabels": [
-                                "5",
-                                "6",
-                                "7",
-                                "8"
-                            ]
-                        },
                         "id": {
                             "description": "Connection index (0, 1, or 2)",
                             "maximum": 2,
@@ -86,57 +135,10 @@
                             "title": "Connection ID",
                             "type": "integer"
                         },
-                        "ip": {
-                            "description": "IP address (TCP only)",
-                            "title": "IP Address",
-                            "type": "string"
-                        },
-                        "parity": {
-                            "description": "Parity: N=none, E=even, O=odd (serial only)",
-                            "enum": [
-                                "N",
-                                "E",
-                                "O"
-                            ],
-                            "title": "Parity",
-                            "type": "string",
-                            "x-enumLabels": [
-                                "None",
-                                "Even",
-                                "Odd"
-                            ]
-                        },
                         "persistent": {
                             "description": "Keep connection open between reads",
                             "title": "Keep Connection Persistent",
                             "type": "boolean"
-                        },
-                        "port": {
-                            "description": "TCP port (TCP only)",
-                            "maximum": 65535,
-                            "minimum": 1,
-                            "title": "TCP Port",
-                            "type": "integer"
-                        },
-                        "portName": {
-                            "description": "Serial port name (serial only)",
-                            "title": "Serial Port Name",
-                            "type": "string"
-                        },
-                        "stopbits": {
-                            "description": "Stop bits: 1, 1.5 (=3), or 2 (serial only)",
-                            "enum": [
-                                1,
-                                2,
-                                3
-                            ],
-                            "title": "Stop Bits",
-                            "type": "integer",
-                            "x-enumLabels": [
-                                "1",
-                                "2",
-                                "1.5"
-                            ]
                         },
                         "timeout": {
                             "description": "Timeout in milliseconds",
@@ -162,6 +164,22 @@
                         "id",
                         "type"
                     ],
+                    "then": {
+                        "properties": {
+                            "ip": {
+                                "description": "IP address (TCP only)",
+                                "title": "IP Address",
+                                "type": "string"
+                            },
+                            "port": {
+                                "description": "TCP port (TCP only)",
+                                "maximum": 65535,
+                                "minimum": 1,
+                                "title": "TCP Port",
+                                "type": "integer"
+                            }
+                        }
+                    },
                     "type": "object"
                 },
                 "type": "array"

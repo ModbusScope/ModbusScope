@@ -120,6 +120,8 @@ Each property in `schema` includes the following additional fields (standard JSO
 | `title` | Standard JSON Schema annotation. UI-friendly label for the field, suitable for use in form inputs and dialog labels |
 | `x-enumLabels` | Custom extension. Present on enum properties only. A string array, parallel to `enum`, giving a UI-friendly display name for each allowed value |
 
+The connection schema uses JSON Schema Draft 7 `if`/`then`/`else` to express type-dependent fields. When `type` equals `"tcp"`, the fields in `then.properties` apply (TCP-specific). Otherwise the fields in `else.properties` apply (serial-specific). A UI can use this to enable or disable the relevant fields based on the selected connection type.
+
 ---
 
 ### `adapter.configure`
