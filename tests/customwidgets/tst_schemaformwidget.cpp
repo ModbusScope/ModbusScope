@@ -414,7 +414,7 @@ void TestSchemaFormWidget::labelHiddenWithWidget()
         if (lbl->text() == QStringLiteral("Port Name:"))
         {
             portNameLabelFound = true;
-            QVERIFY(!lbl->isVisible());
+            QVERIFY(lbl->isHidden());
         }
     }
     QVERIFY(portNameLabelFound);

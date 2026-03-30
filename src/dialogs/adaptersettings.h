@@ -46,6 +46,7 @@ public:
 
 private:
     void buildSection(const QJsonObject& propSchema, const QJsonValue& configValue, QVBoxLayout* layout);
+    void addItemTab();
 
     SettingsModel* _pSettingsModel;
     QString _adapterId;
@@ -55,6 +56,7 @@ private:
     SchemaFormWidget* _pForm{ nullptr };
 
     QJsonObject _itemSchema;
+    int _nextItemTabIndex{ 1 };
 };
 
 #endif // ADAPTERSETTINGS_H

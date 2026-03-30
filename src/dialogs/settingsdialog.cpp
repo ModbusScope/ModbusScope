@@ -28,22 +28,16 @@ SettingsDialog::SettingsDialog(SettingsModel* pSettingsModel, QWidget* parent)
         _pUi->settingsStack->removeWidget(_pUi->settingsStack->widget(0));
     }
 
-    // Find first adapter with a populated schema
-    QString adapterId;
+    // Build dynamic pages from schema.properties of all adapters (all keys except "devices")
     const QStringList adapterIds = pSettingsModel->adapterIds();
     for (const auto& id : adapterIds)
     {
-        if (!pSettingsModel->adapterData(id)->schema().isEmpty())
+        if (pSettingsModel->adapterData(id)->schema().isEmpty())
         {
-            adapterId = id;
-            break;
+            continue;
         }
-    }
 
-    // Build dynamic pages from schema.properties (all keys except "devices")
-    if (!adapterId.isEmpty())
-    {
-        const QJsonObject schemaProps = pSettingsModel->adapterData(adapterId)->schema().value("properties").toObject();
+        const QJsonObject schemaProps = pSettingsModel->adapterData(id)->schema().value("properties").toObject();
 
         for (auto it = schemaProps.constBegin(); it != schemaProps.constEnd(); ++it)
         {
@@ -65,7 +59,7 @@ SettingsDialog::SettingsDialog(SettingsModel* pSettingsModel, QWidget* parent)
             listItem->setIcon(QIcon(":/menu_icon/icons/settings.svg"));
             _pUi->settingsList->addItem(listItem);
 
-            auto* page = new AdapterSettings(pSettingsModel, adapterId, key, this);
+            auto* page = new AdapterSettings(pSettingsModel, id, key, this);
             _dynamicSettings.append(page);
             _pUi->settingsStack->addWidget(page);
         }
@@ -107,15 +101,15 @@ void SettingsDialog::acceptAllValues()
 
 void SettingsDialog::done(int r)
 {
-    Q_UNUSED(r);
+    if (r == QDialog::Accepted)
+    {
+        acceptAllValues();
+    }
 
-    acceptAllValues();
-
-    QDialog::done(QDialog::Accepted);
+    QDialog::done(r);
 }
 
 void SettingsDialog::settingsStackSwitch(int newRow)
 {
-    acceptAllValues();
     _pUi->settingsStack->setCurrentIndex(newRow);
 }

@@ -104,19 +104,24 @@ void SchemaFormWidget::setSchema(const QJsonObject& schema, const QJsonObject& v
         _pFormLayout->addRow(label + ":", widget);
     }
 
-    applyConditional(values.value(_conditionalTriggerKey).toVariant().toString());
-
+    QComboBox* triggerCombo = nullptr;
     for (const auto& [key, widget] : std::as_const(_fields))
     {
         if (key == _conditionalTriggerKey)
         {
-            auto* combo = qobject_cast<QComboBox*>(widget);
-            if (combo != nullptr)
-            {
-                connect(combo, &QComboBox::currentIndexChanged, this, &SchemaFormWidget::onTriggerChanged);
-            }
+            triggerCombo = qobject_cast<QComboBox*>(widget);
             break;
         }
+    }
+
+    if (triggerCombo != nullptr)
+    {
+        applyConditional(triggerCombo->currentData().toString());
+        connect(triggerCombo, &QComboBox::currentIndexChanged, this, &SchemaFormWidget::onTriggerChanged);
+    }
+    else
+    {
+        applyConditional(values.value(_conditionalTriggerKey).toVariant().toString());
     }
 }
 

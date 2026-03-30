@@ -15,7 +15,6 @@ AdapterSettings::AdapterSettings(SettingsModel* pSettingsModel,
     : QWidget(parent), _pSettingsModel(pSettingsModel), _adapterId(adapterId), _propertyKey(propertyKey)
 {
     auto* layout = new QVBoxLayout(this);
-    setLayout(layout);
 
     const AdapterData* pAdapter = pSettingsModel->adapterData(adapterId);
     const QJsonObject propSchema = pAdapter->schema().value("properties").toObject().value(propertyKey).toObject();
@@ -63,20 +62,9 @@ void AdapterSettings::buildSection(const QJsonObject& propSchema, const QJsonVal
             _pItemTabs->setTabs(pages, names);
         }
 
-        connect(_pItemTabs, &AddableTabWidget::addTabRequested, this, [this]() {
-            auto* form = new SchemaFormWidget(_pItemTabs);
-            QJsonObject defaultValues;
-            const QJsonArray defaultItems =
-              _pSettingsModel->adapterData(_adapterId)->defaults().value(_propertyKey).toArray();
-            if (!defaultItems.isEmpty())
-            {
-                defaultValues = defaultItems.first().toObject();
-            }
-            form->setSchema(_itemSchema, defaultValues);
-            const int newIndex = _pItemTabs->count() + 1;
-            const QString name = QString("%1 %2").arg(_propertyKey[0].toUpper() + _propertyKey.mid(1)).arg(newIndex);
-            _pItemTabs->addNewTab(name, form);
-        });
+        _nextItemTabIndex = itemsArray.size() + 1;
+
+        connect(_pItemTabs, &AddableTabWidget::addTabRequested, this, &AdapterSettings::addItemTab);
 
         layout->addWidget(_pItemTabs, 1);
     }
@@ -87,6 +75,23 @@ void AdapterSettings::buildSection(const QJsonObject& propSchema, const QJsonVal
         layout->addWidget(_pForm);
         layout->addStretch();
     }
+}
+
+void AdapterSettings::addItemTab()
+{
+    auto* form = new SchemaFormWidget(_pItemTabs);
+    QJsonObject defaultValues;
+    const QJsonArray defaultItems =
+        _pSettingsModel->adapterData(_adapterId)->defaults().value(_propertyKey).toArray();
+    if (!defaultItems.isEmpty())
+    {
+        defaultValues = defaultItems.first().toObject();
+    }
+    form->setSchema(_itemSchema, defaultValues);
+    const QString name =
+        QString("%1 %2").arg(_propertyKey[0].toUpper() + _propertyKey.mid(1)).arg(_nextItemTabIndex);
+    _nextItemTabIndex++;
+    _pItemTabs->addNewTab(name, form);
 }
 
 void AdapterSettings::acceptValues()
