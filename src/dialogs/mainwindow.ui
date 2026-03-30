@@ -61,6 +61,7 @@
     <addaction name="menuMostRecentProject"/>
     <addaction name="actionReloadProjectFile"/>
     <addaction name="actionOpenDataFile"/>
+    <addaction name="actionImportFromMbcFile"/>
     <addaction name="separator"/>
     <addaction name="actionSaveProjectFile"/>
     <addaction name="actionSaveProjectFileAs"/>
@@ -379,6 +380,11 @@
    </property>
    <property name="toolTip">
     <string>Open Data File</string>
+   </property>
+  </action>
+  <action name="actionImportFromMbcFile">
+   <property name="text">
+    <string>&amp;Import MBC File...</string>
    </property>
   </action>
   <action name="actionHighlightSamplePoints">
