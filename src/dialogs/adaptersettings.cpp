@@ -54,7 +54,7 @@ void AdapterSettings::buildSection(const QJsonObject& propSchema, const QJsonVal
             auto* form = new SchemaFormWidget(_pItemTabs);
             form->setSchema(_itemSchema, itemsArray.at(i).toObject());
             pages.append(form);
-            names.append(QString("%1 %2").arg(_propertyKey[0].toUpper() + _propertyKey.mid(1)).arg(i + 1));
+            names.append(formatTabName(i + 1));
         }
 
         if (!pages.isEmpty())
@@ -77,19 +77,26 @@ void AdapterSettings::buildSection(const QJsonObject& propSchema, const QJsonVal
     }
 }
 
+QString AdapterSettings::formatTabName(int index) const
+{
+    if (_propertyKey.isEmpty())
+    {
+        return QString("Item %1").arg(index);
+    }
+    return QString("%1 %2").arg(_propertyKey[0].toUpper() + _propertyKey.mid(1)).arg(index);
+}
+
 void AdapterSettings::addItemTab()
 {
     auto* form = new SchemaFormWidget(_pItemTabs);
     QJsonObject defaultValues;
-    const QJsonArray defaultItems =
-        _pSettingsModel->adapterData(_adapterId)->defaults().value(_propertyKey).toArray();
+    const QJsonArray defaultItems = _pSettingsModel->adapterData(_adapterId)->defaults().value(_propertyKey).toArray();
     if (!defaultItems.isEmpty())
     {
         defaultValues = defaultItems.first().toObject();
     }
     form->setSchema(_itemSchema, defaultValues);
-    const QString name =
-        QString("%1 %2").arg(_propertyKey[0].toUpper() + _propertyKey.mid(1)).arg(_nextItemTabIndex);
+    const QString name = formatTabName(_nextItemTabIndex);
     _nextItemTabIndex++;
     _pItemTabs->addNewTab(name, form);
 }

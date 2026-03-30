@@ -48,6 +48,9 @@ private:
     void buildSection(const QJsonObject& propSchema, const QJsonValue& configValue, QVBoxLayout* layout);
     void addItemTab();
 
+    //! \brief Returns a display name for a tab at the given 1-based \a index.
+    QString formatTabName(int index) const;
+
     SettingsModel* _pSettingsModel;
     QString _adapterId;
     QString _propertyKey;

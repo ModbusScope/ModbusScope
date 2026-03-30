@@ -344,10 +344,6 @@ void TestSchemaFormWidget::conditionalSwitchShowsSerialHidesTcp()
         }
     }
     QVERIFY(typeCombo != nullptr);
-    if (typeCombo == nullptr)
-    {
-        return;
-    }
     typeCombo->setCurrentIndex(typeCombo->findData(QStringLiteral("serial")));
 
     const QJsonObject result = w.values();
