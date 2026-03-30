@@ -115,7 +115,12 @@
                                     "1.5"
                                 ]
                             }
-                        }
+                        },
+                        "required": [
+                            "portName",
+                            "baudrate",
+                            "stopbits"
+                        ]
                     },
                     "if": {
                         "properties": {
@@ -178,7 +183,11 @@
                                 "title": "TCP Port",
                                 "type": "integer"
                             }
-                        }
+                        },
+                        "required": [
+                            "ip",
+                            "port"
+                        ]
                     },
                     "type": "object"
                 },
