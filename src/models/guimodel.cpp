@@ -7,12 +7,11 @@
 
 const QString GuiModel::_cWindowTitle = QString("ModbusScope");
 
-
-const quint32 GuiModel::cDifferenceMask    = 1 << 0;
-const quint32 GuiModel::cSlopeMask         = 1 << 1;
-const quint32 GuiModel::cAverageMask       = 1 << 2;
-const quint32 GuiModel::cMinimumMask       = 1 << 3;
-const quint32 GuiModel::cMaximumMask       = 1 << 4;
+const quint32 GuiModel::cDifferenceMask = 1 << 0;
+const quint32 GuiModel::cSlopeMask = 1 << 1;
+const quint32 GuiModel::cAverageMask = 1 << 2;
+const quint32 GuiModel::cMinimumMask = 1 << 3;
+const quint32 GuiModel::cMaximumMask = 1 << 4;
 
 const QStringList GuiModel::cMarkerExpressionStrings = QStringList() << "Diff: %1\n"
                                                                      << "Slope: %1\n"
@@ -20,17 +19,13 @@ const QStringList GuiModel::cMarkerExpressionStrings = QStringList() << "Diff: %
                                                                      << "Min: %1\n"
                                                                      << "Max: %1\n";
 
-const QList<quint32> GuiModel::cMarkerExpressionBits = QList<quint32>()
-                        << GuiModel::cDifferenceMask
-                        << GuiModel::cSlopeMask
-                        << GuiModel::cAverageMask
-                        << GuiModel::cMinimumMask
-                        << GuiModel::cMaximumMask
-                        ;
+const QList<quint32> GuiModel::cMarkerExpressionBits =
+  QList<quint32>() << GuiModel::cDifferenceMask << GuiModel::cSlopeMask << GuiModel::cAverageMask
+                   << GuiModel::cMinimumMask << GuiModel::cMaximumMask;
 const QString GuiModel::cMarkerExpressionStart = QString("y1: %1\n");
 const QString GuiModel::cMarkerExpressionEnd = QString("y2: %1\n");
 
-GuiModel::GuiModel(QObject *parent) : QObject(parent)
+GuiModel::GuiModel(QObject* parent) : QObject(parent)
 {
     _projectFilePath = "";
     _bHighlightSamples = true;
@@ -69,7 +64,6 @@ GuiModel::GuiModel(QObject *parent) : QObject(parent)
 
 GuiModel::~GuiModel()
 {
-
 }
 
 void GuiModel::triggerUpdate(void)
@@ -100,7 +94,7 @@ void GuiModel::setHighlightSamples(bool bHighlightSamples)
     if (_bHighlightSamples != bHighlightSamples)
     {
         _bHighlightSamples = bHighlightSamples;
-         emit highlightSamplesChanged();
+        emit highlightSamplesChanged();
     }
 }
 
@@ -114,7 +108,7 @@ void GuiModel::setCursorValues(bool bCursorValues)
     if (_bCursorValues != bCursorValues)
     {
         _bCursorValues = bCursorValues;
-         emit cursorValuesChanged();
+        emit cursorValuesChanged();
     }
 }
 
@@ -199,12 +193,11 @@ AxisMode::AxisScaleOptions GuiModel::xAxisScalingMode()
 
 void GuiModel::setxAxisSlidingInterval(int slidingSec)
 {
-    if (_guiSettings.xslidingInterval != (quint32)slidingSec)
+    if (_guiSettings.xslidingInterval != (quint32) slidingSec)
     {
-        _guiSettings.xslidingInterval = (quint32)slidingSec;
+        _guiSettings.xslidingInterval = (quint32) slidingSec;
         emit xAxisSlidingIntervalChanged();
     }
-
 }
 
 quint32 GuiModel::xAxisSlidingSec()
@@ -379,15 +372,9 @@ void GuiModel::clearMarkersState(void)
 
 void GuiModel::setStartMarkerPos(double pos)
 {
-    if (
-            (_startMarkerPos != pos)
-            || (!_bStartMarkerState)
-        )
+    if ((_startMarkerPos != pos) || (!_bStartMarkerState))
     {
-        if (
-            (!_bEndMarkerState)
-            || (pos != _endMarkerPos)
-        )
+        if ((!_bEndMarkerState) || (pos != _endMarkerPos))
         {
             setStartMarkerState(true);
             _startMarkerPos = pos;
@@ -399,15 +386,9 @@ void GuiModel::setStartMarkerPos(double pos)
 
 void GuiModel::setEndMarkerPos(double pos)
 {
-    if (
-            (_endMarkerPos != pos)
-            || (!_bEndMarkerState)
-        )
+    if ((_endMarkerPos != pos) || (!_bEndMarkerState))
     {
-        if (
-            (!_bStartMarkerState)
-            || (pos != _startMarkerPos)
-        )
+        if ((!_bStartMarkerState) || (pos != _startMarkerPos))
         {
             setEndMarkerState(true);
             _endMarkerPos = pos;
@@ -416,7 +397,6 @@ void GuiModel::setEndMarkerPos(double pos)
         }
     }
 }
-
 
 void GuiModel::setStartMarkerState(bool bState)
 {
@@ -431,7 +411,7 @@ void GuiModel::setStartMarkerState(bool bState)
 
         if (!_bStartMarkerState && !_bEndMarkerState)
         {
-             setMarkerState(false);
+            setMarkerState(false);
         }
     }
 }

@@ -5,8 +5,7 @@
 /*!
  * \brief Constructs an empty MbcRegisterModel.
  */
-MbcRegisterModel::MbcRegisterModel(QObject *parent)
-    : QAbstractTableModel(parent)
+MbcRegisterModel::MbcRegisterModel(QObject* parent) : QAbstractTableModel(parent)
 {
     _mbcRegisterList.clear();
     _tabList.clear();
@@ -91,7 +90,7 @@ bool MbcRegisterModel::setHeaderData(int section, Qt::Orientation orientation, c
 /*!
  * \brief Returns the number of rows (registers) in the model.
  */
-int MbcRegisterModel::rowCount(const QModelIndex &parent) const
+int MbcRegisterModel::rowCount(const QModelIndex& parent) const
 {
     if (parent.isValid())
         return 0;
@@ -102,7 +101,7 @@ int MbcRegisterModel::rowCount(const QModelIndex &parent) const
 /*!
  * \brief Returns the number of columns.
  */
-int MbcRegisterModel::columnCount(const QModelIndex &parent) const
+int MbcRegisterModel::columnCount(const QModelIndex& parent) const
 {
     if (parent.isValid())
         return 0;
@@ -113,7 +112,7 @@ int MbcRegisterModel::columnCount(const QModelIndex &parent) const
 /*!
  * \brief Returns data for the given index and role.
  */
-QVariant MbcRegisterModel::data(const QModelIndex &index, int role) const
+QVariant MbcRegisterModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid())
         return QVariant();
@@ -196,7 +195,7 @@ QVariant MbcRegisterModel::data(const QModelIndex &index, int role) const
  * \brief Sets check state for cColumnSelected when the item is enabled.
  * \return True when the change was applied.
  */
-bool MbcRegisterModel::setData(const QModelIndex & index, const QVariant & value, int role)
+bool MbcRegisterModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
     if (!index.isValid())
         return false;
@@ -279,7 +278,7 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
 
     _tabList = tabList;
 
-    for(qint32 idx = 0; idx < mbcRegisterList.size(); idx++)
+    for (qint32 idx = 0; idx < mbcRegisterList.size(); idx++)
     {
         // Get result before adding to list
         _mbcRegisterList.append({ mbcRegisterList[idx], false, false });
@@ -299,7 +298,7 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
  *
  * Only cColumnSelected is user-checkable. Non-readable rows are disabled.
  */
-Qt::ItemFlags MbcRegisterModel::flags(const QModelIndex & index) const
+Qt::ItemFlags MbcRegisterModel::flags(const QModelIndex& index) const
 {
     if (!index.isValid())
     {

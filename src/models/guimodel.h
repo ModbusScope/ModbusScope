@@ -3,24 +3,22 @@
 
 #include <QObject>
 
-namespace AxisMode
+namespace AxisMode {
+typedef enum
 {
-    typedef enum
-    {
-        SCALE_AUTO = 0,
-        SCALE_WINDOW_AUTO,
-        SCALE_SLIDING,
-        SCALE_MINMAX,
-        SCALE_MANUAL
-    } AxisScaleOptions;
+    SCALE_AUTO = 0,
+    SCALE_WINDOW_AUTO,
+    SCALE_SLIDING,
+    SCALE_MINMAX,
+    SCALE_MANUAL
+} AxisScaleOptions;
 }
 
 class GuiModel : public QObject
 {
     Q_OBJECT
 public:
-
-    explicit GuiModel(QObject *parent = nullptr);
+    explicit GuiModel(QObject* parent = nullptr);
     ~GuiModel();
 
     static const quint32 cDifferenceMask;
@@ -123,7 +121,6 @@ signals:
 private slots:
 
 private:
-
     void setStartMarkerState(bool bState);
     void setEndMarkerState(bool bState);
     void setMarkerState(bool bState);
@@ -166,7 +163,6 @@ private:
     quint32 _markerExpressionMask;
 
     static const QString _cWindowTitle;
-
 };
 
 #endif // GUIMODEL_H

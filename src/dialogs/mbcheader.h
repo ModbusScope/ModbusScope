@@ -32,8 +32,8 @@ protected:
             QRect checkbox_rect = style()->subElementRect(QStyle::SubElement::SE_CheckBoxIndicator, &option, this);
             checkbox_rect.moveCenter(rect.center());
 
-            const auto headerState = static_cast<Qt::CheckState>(
-                model()->headerData(logicalIndex, orientation(), Qt::CheckStateRole).toInt());
+            const auto headerState =
+              static_cast<Qt::CheckState>(model()->headerData(logicalIndex, orientation(), Qt::CheckStateRole).toInt());
 
             option.rect = checkbox_rect;
             option.state &= ~(QStyle::State_On | QStyle::State_Off | QStyle::State_NoChange);

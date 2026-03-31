@@ -8,7 +8,7 @@
  * \brief Constructs the importer and immediately parses the given MBC file content.
  * \param pMbcFileContent Pointer to the XML string read from the .mbc file.
  */
-MbcFileImporter::MbcFileImporter(QString * pMbcFileContent) : QObject(nullptr)
+MbcFileImporter::MbcFileImporter(QString* pMbcFileContent) : QObject(nullptr)
 {
     parseRegisters(pMbcFileContent);
 }
@@ -16,7 +16,7 @@ MbcFileImporter::MbcFileImporter(QString * pMbcFileContent) : QObject(nullptr)
 /*!
  * \brief Returns the list of parsed register definitions.
  */
-QList <MbcRegisterData> MbcFileImporter::registerList()
+QList<MbcRegisterData> MbcFileImporter::registerList()
 {
     return _registerList;
 }
@@ -95,7 +95,7 @@ void MbcFileImporter::parseRegisters(QString* pMbcFileContent)
     }
 }
 
-bool MbcFileImporter::parseTabTag(const QDomElement &element)
+bool MbcFileImporter::parseTabTag(const QDomElement& element)
 {
     bool bRet = true;
     bool bFoundName = false;
@@ -137,7 +137,7 @@ bool MbcFileImporter::parseTabTag(const QDomElement &element)
     return bRet;
 }
 
-bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
+bool MbcFileImporter::parseVarTag(const QDomElement& element, qint32 tabIdx)
 {
     bool bRet = true;
 
@@ -168,11 +168,11 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
         }
         else if (child.tagName().toLower().trimmed() == MbcFileDefinitions::cReadWrite)
         {
-             rw = child.text().toLower().trimmed();
+            rw = child.text().toLower().trimmed();
         }
         else if (child.tagName().toLower().trimmed() == MbcFileDefinitions::cDecimals)
         {
-             decimals = child.text();
+            decimals = child.text();
         }
         else
         {
@@ -182,13 +182,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
     }
 
     /* Check for empty tag or unsupported 32 bit register */
-    if (
-            !name.isEmpty()
-            || !addr.isEmpty()
-            || !strType.isEmpty()
-            || !rw.isEmpty()
-            || !decimals.isEmpty()
-    )
+    if (!name.isEmpty() || !addr.isEmpty() || !strType.isEmpty() || !rw.isEmpty() || !decimals.isEmpty())
     {
         /* Obligated */
         if (name.isEmpty())
@@ -293,10 +287,10 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
         else
         {
             _lastErrorMessage =
-              tr("A tag is not present or value is not valid.\n\nName: %1\nRegister address: %2\nType: %3\nDecimals: %4")
+              tr(
+                "A tag is not present or value is not valid.\n\nName: %1\nRegister address: %2\nType: %3\nDecimals: %4")
                 .arg(name, addr, strType, decimals);
         }
-
     }
     else
     {

@@ -6,30 +6,29 @@
 #include <QDomDocument>
 #include <QObject>
 
-namespace MbcFileDefinitions
-{
+namespace MbcFileDefinitions {
 
-    /* Tag strings */
-    const char cModbusControlTag[] = "modbuscontrol";
-    const char cTabTag[] = "tab";
+/* Tag strings */
+const char cModbusControlTag[] = "modbuscontrol";
+const char cTabTag[] = "tab";
 
-    const char cTabNameTag[] = "name";
-    const char cVarTag[] = "var";
+const char cTabNameTag[] = "name";
+const char cVarTag[] = "var";
 
-    const char cRegisterTag[] = "reg";
-    const char cTextTag[] = "text";
-    const char cTypeTag[] = "type";
-    const char cReadWrite[] = "rw";
-    const char cDecimals[] = "decimals";
-}
+const char cRegisterTag[] = "reg";
+const char cTextTag[] = "text";
+const char cTypeTag[] = "type";
+const char cReadWrite[] = "rw";
+const char cDecimals[] = "decimals";
+} // namespace MbcFileDefinitions
 
 class MbcFileImporter : public QObject
 {
     Q_OBJECT
 public:
-    explicit MbcFileImporter(QString *mbcFileContent);
+    explicit MbcFileImporter(QString* mbcFileContent);
 
-    QList <MbcRegisterData> registerList();
+    QList<MbcRegisterData> registerList();
     QStringList tabList();
     QString lastErrorMessage();
 
@@ -39,12 +38,12 @@ public slots:
 
 private:
     void parseRegisters(QString* mbcFileContent);
-    bool parseTabTag(const QDomElement &element);
-    bool parseVarTag(const QDomElement &element, qint32 tabIdx);
+    bool parseTabTag(const QDomElement& element);
+    bool parseVarTag(const QDomElement& element, qint32 tabIdx);
 
     qint32 _nextRegisterAddr;
 
-    QList <MbcRegisterData> _registerList;
+    QList<MbcRegisterData> _registerList;
     QStringList _tabList;
     QString _lastErrorMessage;
 };

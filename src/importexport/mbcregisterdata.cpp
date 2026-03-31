@@ -7,18 +7,13 @@
 /*!
  * \brief Default constructor — initialises all fields to safe defaults.
  */
-MbcRegisterData::MbcRegisterData() :
-    _registerAddress(0),
-    _tabIdx(0),
-    _type(ModbusDataType::Type::UNSIGNED_16),
-    _bReadable(true),
-    _decimals(0)
+MbcRegisterData::MbcRegisterData()
+    : _registerAddress(0), _tabIdx(0), _type(ModbusDataType::Type::UNSIGNED_16), _bReadable(true), _decimals(0)
 {
 }
 
 MbcRegisterData::~MbcRegisterData()
 {
-
 }
 
 /*!
@@ -30,13 +25,14 @@ MbcRegisterData::~MbcRegisterData()
  * \param bReadable Whether the register is readable.
  * \param decimals Number of decimal places for display scaling.
  */
-MbcRegisterData::MbcRegisterData(quint32 registerAddress, ModbusDataType::Type type, QString name, qint32 tabIdx, bool bReadable, quint8 decimals) :
-    _registerAddress(registerAddress),
-    _name(name),
-    _tabIdx(tabIdx),
-    _type(type),
-    _bReadable(bReadable),
-    _decimals(decimals)
+MbcRegisterData::MbcRegisterData(
+  quint32 registerAddress, ModbusDataType::Type type, QString name, qint32 tabIdx, bool bReadable, quint8 decimals)
+    : _registerAddress(registerAddress),
+      _name(name),
+      _tabIdx(tabIdx),
+      _type(type),
+      _bReadable(bReadable),
+      _decimals(decimals)
 {
 }
 
@@ -93,7 +89,7 @@ quint32 MbcRegisterData::registerAddress() const
 /*!
  * \brief Sets the Modbus register address.
  */
-void MbcRegisterData::setRegisterAddress(const quint32 &registerAddress)
+void MbcRegisterData::setRegisterAddress(const quint32& registerAddress)
 {
     _registerAddress = registerAddress;
 }
@@ -125,7 +121,7 @@ QString MbcRegisterData::name() const
 /*!
  * \brief Sets the human-readable label.
  */
-void MbcRegisterData::setName(const QString &name)
+void MbcRegisterData::setName(const QString& name)
 {
     _name = name;
 }
@@ -141,7 +137,7 @@ qint32 MbcRegisterData::tabIdx() const
 /*!
  * \brief Sets the tab index this register belongs to.
  */
-void MbcRegisterData::setTabIdx(const qint32 &tabIdx)
+void MbcRegisterData::setTabIdx(const qint32& tabIdx)
 {
     _tabIdx = tabIdx;
 }
@@ -173,7 +169,7 @@ quint8 MbcRegisterData::decimals() const
 /*!
  * \brief Sets the number of decimal places used for display scaling.
  */
-void MbcRegisterData::setDecimals(const quint8 &decimals)
+void MbcRegisterData::setDecimals(const quint8& decimals)
 {
     _decimals = decimals;
 }
@@ -191,8 +187,7 @@ QString MbcRegisterData::toExpression() const
       ExpressionGenerator::constructRegisterString(QString("%1").arg(_registerAddress), _type, Device::cFirstDeviceId);
     if (_decimals != 0)
     {
-        expression = QString("%1/%2").arg(registerStr)
-                                     .arg(static_cast<double>(qPow(10, _decimals)));
+        expression = QString("%1/%2").arg(registerStr).arg(static_cast<double>(qPow(10, _decimals)));
     }
     else
     {
