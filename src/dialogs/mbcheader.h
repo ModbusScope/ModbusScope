@@ -32,10 +32,23 @@ protected:
             QRect checkbox_rect = style()->subElementRect(QStyle::SubElement::SE_CheckBoxIndicator, &option, this);
             checkbox_rect.moveCenter(rect.center());
 
-            bool checked = model()->headerData(logicalIndex, orientation(), Qt::CheckStateRole).toBool();
+            const auto headerState = static_cast<Qt::CheckState>(
+                model()->headerData(logicalIndex, orientation(), Qt::CheckStateRole).toInt());
 
             option.rect = checkbox_rect;
-            option.state = checked ? QStyle::State_On : QStyle::State_Off;
+            option.state &= ~(QStyle::State_On | QStyle::State_Off | QStyle::State_NoChange);
+            if (headerState == Qt::Checked)
+            {
+                option.state |= QStyle::State_On;
+            }
+            else if (headerState == Qt::PartiallyChecked)
+            {
+                option.state |= QStyle::State_NoChange;
+            }
+            else
+            {
+                option.state |= QStyle::State_Off;
+            }
 
             style()->drawPrimitive(QStyle::PE_IndicatorCheckBox, &option, painter);
         }
@@ -44,7 +57,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent* event) override
     {
         QHeaderView::mouseReleaseEvent(event);
-        if (model())
+        if (model() && event->button() == Qt::LeftButton)
         {
             int section = logicalIndexAt(event->pos());
             if (section == 0)

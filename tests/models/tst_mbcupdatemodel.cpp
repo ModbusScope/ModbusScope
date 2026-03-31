@@ -5,6 +5,7 @@
 #include "models/settingsmodel.h"
 
 #include <QTest>
+#include <memory>
 #include <qtestcase.h>
 
 void TestMbcUpdateModel::init()
@@ -21,7 +22,7 @@ void TestMbcUpdateModel::cleanup()
 
 void TestMbcUpdateModel::rowCount()
 {
-    MbcUpdateModel* pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel);
+    std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
     QCOMPARE(pMbcUpdateModel->rowCount(), 0);
 
@@ -36,7 +37,7 @@ void TestMbcUpdateModel::noUpdate()
     _pGraphDataModel->setExpression(0, "${40001}");
     _pGraphDataModel->setLabel(0, "Register 40001");
 
-    MbcUpdateModel* pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel);
+    std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
     QList<MbcRegisterData> mbcRegisterList(1);
     mbcRegisterList[0].setRegisterAddress(40001);
@@ -65,7 +66,7 @@ void TestMbcUpdateModel::tooMuchDifference()
     _pGraphDataModel->setExpression(0, "${40001}");
     _pGraphDataModel->setLabel(0, "Register 40001");
 
-    MbcUpdateModel* pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel);
+    std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
     QList<MbcRegisterData> mbcRegisterList(1);
     mbcRegisterList[0].setRegisterAddress(40002);
@@ -91,7 +92,7 @@ void TestMbcUpdateModel::updateText()
     _pGraphDataModel->setExpression(0, "${40001}");
     _pGraphDataModel->setLabel(0, "Register 40001");
 
-    MbcUpdateModel* pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel);
+    std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
     QList<MbcRegisterData> mbcRegisterList(1);
     mbcRegisterList[0].setRegisterAddress(40001);
@@ -120,7 +121,7 @@ void TestMbcUpdateModel::updateExpression()
     _pGraphDataModel->setExpression(0, "${40001}");
     _pGraphDataModel->setLabel(0, "Register 40001");
 
-    MbcUpdateModel* pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel);
+    std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
     QList<MbcRegisterData> mbcRegisterList(1);
     mbcRegisterList[0].setRegisterAddress(40002);
@@ -146,7 +147,7 @@ void TestMbcUpdateModel::updateExpression()
 
 void TestMbcUpdateModel::columnCount()
 {
-    MbcUpdateModel* pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel);
+    std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
     QCOMPARE(pMbcUpdateModel->columnCount(), static_cast<int>(MbcUpdateModel::cColumnCnt));
 }
@@ -158,7 +159,7 @@ void TestMbcUpdateModel::userRoleHiddenWhenNoUpdate()
     _pGraphDataModel->setExpression(0, "${40001}");
     _pGraphDataModel->setLabel(0, "Reg");
 
-    MbcUpdateModel* pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel);
+    std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
     QList<MbcRegisterData> mbcRegisterList(1);
     mbcRegisterList[0].setRegisterAddress(40001);
@@ -178,7 +179,7 @@ void TestMbcUpdateModel::userRoleVisibleWhenUpdatePresent()
     _pGraphDataModel->setExpression(0, "${40001}");
     _pGraphDataModel->setLabel(0, "Old Name");
 
-    MbcUpdateModel* pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel);
+    std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
     QList<MbcRegisterData> mbcRegisterList(1);
     mbcRegisterList[0].setRegisterAddress(40001);
@@ -202,7 +203,7 @@ void TestMbcUpdateModel::flagsNoUpdateIsDisabled()
     _pGraphDataModel->setExpression(0, "${40001}");
     _pGraphDataModel->setLabel(0, "Reg");
 
-    MbcUpdateModel* pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel);
+    std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
     // No MBC registers set — no update pending
     QModelIndex modelIdx = pMbcUpdateModel->index(0, 0);
@@ -215,7 +216,7 @@ void TestMbcUpdateModel::flagsWithUpdateIsEnabled()
     _pGraphDataModel->setExpression(0, "${40001}");
     _pGraphDataModel->setLabel(0, "Old Label");
 
-    MbcUpdateModel* pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel);
+    std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
     QList<MbcRegisterData> mbcRegisterList(1);
     mbcRegisterList[0].setRegisterAddress(40001);
@@ -228,7 +229,7 @@ void TestMbcUpdateModel::flagsWithUpdateIsEnabled()
 
 void TestMbcUpdateModel::rowCountTracksGraphModel()
 {
-    MbcUpdateModel* pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel);
+    std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
     QCOMPARE(pMbcUpdateModel->rowCount(), 0);
 
@@ -245,7 +246,7 @@ void TestMbcUpdateModel::setMbcRegistersTriggersCheck()
     _pGraphDataModel->setExpression(0, "${40001}");
     _pGraphDataModel->setLabel(0, "Old Label");
 
-    MbcUpdateModel* pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel);
+    std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
     // First: no pending update
     QModelIndex modelIdx = pMbcUpdateModel->index(0, 0);
@@ -266,7 +267,7 @@ void TestMbcUpdateModel::updateTextToolTip()
     _pGraphDataModel->setExpression(0, "${40001}");
     _pGraphDataModel->setLabel(0, "Register 40001");
 
-    MbcUpdateModel* pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel);
+    std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
     QList<MbcRegisterData> mbcRegisterList(1);
     mbcRegisterList[0].setRegisterAddress(40001);
@@ -283,7 +284,7 @@ void TestMbcUpdateModel::updateExpressionToolTip()
     _pGraphDataModel->setExpression(0, "${40001}");
     _pGraphDataModel->setLabel(0, "Register 40001");
 
-    MbcUpdateModel* pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel);
+    std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
     QList<MbcRegisterData> mbcRegisterList(1);
     mbcRegisterList[0].setRegisterAddress(40002);
@@ -301,7 +302,7 @@ void TestMbcUpdateModel::displayColumnsCurrentValues()
     _pGraphDataModel->setExpression(0, "${40001}");
     _pGraphDataModel->setLabel(0, "MyRegister");
 
-    MbcUpdateModel* pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel);
+    std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
     QModelIndex modelIdx = pMbcUpdateModel->index(0, 0);
 

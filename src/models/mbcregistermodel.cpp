@@ -257,6 +257,7 @@ void MbcRegisterModel::reset()
 
     _mbcRegisterList.clear();
     _tabList.clear();
+    _selection = Qt::Unchecked;
 
     endResetModel();
 }
@@ -362,4 +363,20 @@ quint32 MbcRegisterModel::selectedRegisterCount()
     }
 
     return cnt;
+}
+
+/*!
+ * \brief Unchecks every row in the source model regardless of current filter state.
+ */
+void MbcRegisterModel::clearAllSelections()
+{
+    for (MbcRegister& row : _mbcRegisterList)
+    {
+        row.bSelected = false;
+    }
+
+    if (!_mbcRegisterList.isEmpty())
+    {
+        emit dataChanged(this->index(0, 0), this->index(rowCount() - 1, 0));
+    }
 }

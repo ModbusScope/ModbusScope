@@ -1,5 +1,5 @@
-#ifndef TEST_MBCREGISTERMODEL_H
-#define TEST_MBCREGISTERMODEL_H
+#ifndef TST_MBCREGISTERMODEL_H
+#define TST_MBCREGISTERMODEL_H
 
 #include <QObject>
 
@@ -46,4 +46,4 @@ private:
 
 };
 
-#endif /* TEST_MBCREGISTERMODEL_H */
+#endif /* TST_MBCREGISTERMODEL_H */

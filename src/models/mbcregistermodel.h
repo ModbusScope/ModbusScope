@@ -30,6 +30,7 @@ public:
     bool setData(const QModelIndex & index, const QVariant & value, int role) override;
 
     void setSelectionstate(QList<QModelIndex>& indexList, Qt::CheckState state);
+    void clearAllSelections();
 
     void reset();
 

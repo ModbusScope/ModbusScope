@@ -31,6 +31,7 @@ public:
 
     QList <MbcRegisterData> registerList();
     QStringList tabList();
+    QString lastErrorMessage();
 
 signals:
 
@@ -45,6 +46,7 @@ private:
 
     QList <MbcRegisterData> _registerList;
     QStringList _tabList;
+    QString _lastErrorMessage;
 };
 
 #endif // MBCFILEIMPORTER_H

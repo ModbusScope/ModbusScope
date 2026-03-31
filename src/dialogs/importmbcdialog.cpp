@@ -25,9 +25,9 @@ ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel, GraphDataModel* pGraphData
 {
     _pUi->setupUi(this);
 
-    _pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel);
+    _pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel, this);
 
-    _pTabProxyFilter = new MbcRegisterFilter();
+    _pTabProxyFilter = new MbcRegisterFilter(this);
     _pTabProxyFilter->setSourceModel(&_mbcRegisterModel);
 
     /* Disable question mark button */
@@ -69,7 +69,7 @@ ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel, GraphDataModel* pGraphData
 
     _pUi->tblMbcUpdate->setFocusPolicy(Qt::NoFocus);
 
-    _pUpdateDelegate = std::make_unique<ActionButtonDelegate>(_pUi->tblMbcUpdate);
+    _pUpdateDelegate = std::make_unique<ActionButtonDelegate>();
     _pUpdateDelegate->setCharacter(QChar(0x2190));
     connect(_pUpdateDelegate.get(), &ActionButtonDelegate::clicked, this, &ImportMbcDialog::handleAcceptUpdate);
 
@@ -152,7 +152,7 @@ void ImportMbcDialog::importSelectedRegisters()
         _pGraphDataModel->add(regList);
     }
 
-    setSelectedSelectionstate(Qt::Unchecked);
+    _mbcRegisterModel.clearAllSelections();
 }
 
 void ImportMbcDialog::visibleItemsDataChanged()
@@ -287,17 +287,22 @@ void ImportMbcDialog::updateMbcRegisters(QString filePath)
 
         /* Clear data from table widget */
         _mbcRegisterModel.reset();
+        _pMbcUpdateModel->setMbcRegisters(QList<MbcRegisterData>());
+        _pUi->cmbTabFilter->clear();
+        _pUi->cmbTabFilter->addItem(MbcRegisterFilter::cTabNoFilter);
         registerDataChanged();
 
-        if (registerList.size() > 0)
+        if (!registerList.isEmpty())
         {
             _mbcRegisterModel.fill(registerList, tabList);
             _pMbcUpdateModel->setMbcRegisters(registerList);
 
             /* Update combo box */
-            _pUi->cmbTabFilter->clear();
-            _pUi->cmbTabFilter->addItem(MbcRegisterFilter::cTabNoFilter);
             _pUi->cmbTabFilter->addItems(tabList);
+        }
+        else if (!fileImporter.lastErrorMessage().isEmpty())
+        {
+            Util::showError(fileImporter.lastErrorMessage());
         }
     }
     else

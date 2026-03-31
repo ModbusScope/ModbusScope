@@ -866,11 +866,12 @@ void MainWindow::handleFileOpen(QString filename)
 {
     QFileInfo fileInfo(filename);
     _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
-    if (fileInfo.completeSuffix().toLower() == QString("mbs"))
+    const QString suffix = fileInfo.suffix().toLower();
+    if (suffix == QStringLiteral("mbs"))
     {
         _pProjectFileHandler->openProjectFile(filename);
     }
-    else if (fileInfo.completeSuffix().toLower() == QString("mbc"))
+    else if (suffix == QStringLiteral("mbc"))
     {
         _pGuiModel->setLastMbcImportedFile(filename);
         showMbcImportDialog();
