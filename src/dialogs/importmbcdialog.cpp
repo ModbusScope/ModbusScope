@@ -233,7 +233,13 @@ void ImportMbcDialog::dragEnterEvent(QDragEnterEvent* e)
 
 void ImportMbcDialog::dropEvent(QDropEvent* e)
 {
-    const QString filename(e->mimeData()->urls().constLast().toLocalFile());
+    const QList<QUrl> urls = e->mimeData()->urls();
+    if (urls.isEmpty())
+    {
+        return;
+    }
+
+    const QString filename(urls.constLast().toLocalFile());
 
     _pUi->lineMbcfile->setText(filename);
     _pGuiModel->setLastMbcImportedFile(filename);
