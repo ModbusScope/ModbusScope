@@ -1,10 +1,6 @@
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/ModbusScope/ModbusScope/releases).
 
-## [Unreleased]
-
-### Added
-
-* xx
+## [v4.2.1](https://github.com/jgeudens/ModbusScope/releases/tag/4.2.1) (31/03/2026)
 
 ### Fixed
 
@@ -16,13 +12,9 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 * Improve copying diagnostic logs to the clipboard
 * Improve enabling debug logs
 
-### Removed
-
-* xx
-
 ## [v4.2.0](https://github.com/jgeudens/ModbusScope/releases/tag/4.2.0) (09/01/2026)
 
-### Added 
+### Added
 
 * Added concept of devices to allow polling multiple devices on a single connection
 
