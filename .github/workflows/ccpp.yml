@@ -72,10 +72,7 @@ jobs:
           name: modbusscope-windows
           path: all-artifacts/windows
 
-      - name: Create combined zip
-        run: zip -r modbusscope-all-platforms.zip all-artifacts/
-
       - uses: actions/upload-artifact@v7.0.0
         with:
           name: modbusscope-all-platforms
-          path: modbusscope-all-platforms.zip
+          path: all-artifacts/
