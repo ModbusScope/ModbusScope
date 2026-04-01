@@ -62,12 +62,12 @@ jobs:
     needs: [linux, windows]
 
     steps:
-      - uses: actions/download-artifact@v4.3.0
+      - uses: actions/download-artifact@v8
         with:
           name: modbusscope-linux
           path: all-artifacts/linux
 
-      - uses: actions/download-artifact@v4.3.0
+      - uses: actions/download-artifact@v8
         with:
           name: modbusscope-windows
           path: all-artifacts/windows
