@@ -56,3 +56,26 @@ jobs:
           path: |
             ModbusScope.zip
             ModbusScope_setup.exe
+
+  package:
+    runs-on: ubuntu-latest
+    needs: [linux, windows]
+
+    steps:
+      - uses: actions/download-artifact@v4.3.0
+        with:
+          name: modbusscope-linux
+          path: all-artifacts/linux
+
+      - uses: actions/download-artifact@v4.3.0
+        with:
+          name: modbusscope-windows
+          path: all-artifacts/windows
+
+      - name: Create combined zip
+        run: zip -r modbusscope-all-platforms.zip all-artifacts/
+
+      - uses: actions/upload-artifact@v7.0.0
+        with:
+          name: modbusscope-all-platforms
+          path: modbusscope-all-platforms.zip
