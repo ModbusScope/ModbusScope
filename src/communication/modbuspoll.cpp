@@ -47,7 +47,7 @@ void ModbusPoll::initAdapter()
     _pAdapterClient->prepareAdapter(adapterPath);
 }
 
-void ModbusPoll::startCommunication(QList<ModbusRegister>& registerList)
+void ModbusPoll::startCommunication(QList<DataPoint>& registerList)
 {
     _registerList = registerList;
     _bPollActive = true;
@@ -119,15 +119,13 @@ void ModbusPoll::onDescribeResult(const QJsonObject& description)
     _pSettingsModel->updateAdapterFromDescribe("modbus", description);
 }
 
-QStringList ModbusPoll::buildRegisterExpressions(const QList<ModbusRegister>& registerList)
+QStringList ModbusPoll::buildRegisterExpressions(const QList<DataPoint>& registerList)
 {
     QStringList expressions;
-    for (const ModbusRegister& reg : registerList)
+    for (const DataPoint& reg : registerList)
     {
-        QString expr = QString("${%1 @ %2 : %3}")
-                         .arg(reg.address().fullAddress())
-                         .arg(reg.deviceId())
-                         .arg(ModbusDataType::typeString(reg.type()));
+        QString expr =
+          QString("${%1 @ %2 : %3}").arg(reg.address()).arg(reg.deviceId()).arg(ModbusDataType::typeString(reg.type()));
         expressions.append(expr);
     }
     return expressions;

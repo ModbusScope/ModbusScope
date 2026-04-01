@@ -36,16 +36,15 @@ void TestGraphDataHandler::registerList()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto expModbusRegisters = QList<ModbusRegister>()
-                              << ModbusRegister(ModbusAddress(40001), Device::cFirstDeviceId + 1, Type::UNSIGNED_16)
-                              << ModbusRegister(ModbusAddress(40001), Device::cFirstDeviceId, Type::UNSIGNED_16)
-                              << ModbusRegister(ModbusAddress(40002), Device::cFirstDeviceId, Type::SIGNED_32);
+    auto expDataPoints = QList<DataPoint>() << DataPoint("40001", Device::cFirstDeviceId + 1, Type::UNSIGNED_16)
+                                            << DataPoint("40001", Device::cFirstDeviceId, Type::UNSIGNED_16)
+                                            << DataPoint("40002", Device::cFirstDeviceId, Type::SIGNED_32);
 
     GraphDataHandler dataHandler;
-    QList<ModbusRegister> registerList;
+    QList<DataPoint> registerList;
     dataHandler.setupExpressions(_pGraphDataModel, registerList);
 
-    QCOMPARE(expModbusRegisters, registerList);
+    QCOMPARE(expDataPoints, registerList);
 }
 
 void TestGraphDataHandler::error_data()
@@ -78,7 +77,7 @@ void TestGraphDataHandler::error()
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
     GraphDataHandler dataHandler;
-    QList<ModbusRegister> registerList;
+    QList<DataPoint> registerList;
     dataHandler.setupExpressions(_pGraphDataModel, registerList);
 
     auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS);
@@ -97,7 +96,7 @@ void TestGraphDataHandler::sameRegisterDifferentType()
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
     GraphDataHandler dataHandler;
-    QList<ModbusRegister> registerList;
+    QList<DataPoint> registerList;
     dataHandler.setupExpressions(_pGraphDataModel, registerList);
     auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS) << ResultDouble(1, State::SUCCESS);
     dataHandler.handleRegisterData(regResults);
@@ -126,13 +125,12 @@ void TestGraphDataHandler::manyInactiveRegisters()
     _pGraphDataModel->setExpression(9, "${40003}");
     _pGraphDataModel->setActive(9, false);
 
-    auto expModbusRegisters = QList<ModbusRegister>()
-                              << ModbusRegister(ModbusAddress(40002), Device::cFirstDeviceId, Type::UNSIGNED_16);
+    auto expDataPoints = QList<DataPoint>() << DataPoint("40002", Device::cFirstDeviceId, Type::UNSIGNED_16);
 
     GraphDataHandler dataHandler;
-    QList<ModbusRegister> registerList;
+    QList<DataPoint> registerList;
     dataHandler.setupExpressions(_pGraphDataModel, registerList);
-    QCOMPARE(expModbusRegisters, registerList);
+    QCOMPARE(expDataPoints, registerList);
 }
 
 void TestGraphDataHandler::graphData()
@@ -163,7 +161,7 @@ void TestGraphDataHandler::graphDataTwice()
     QList<QVariant> rawRegData;
     GraphDataHandler dataHandler;
 
-    QList<ModbusRegister> registerList;
+    QList<DataPoint> registerList;
     dataHandler.setupExpressions(_pGraphDataModel, registerList);
 
     QSignalSpy spyDataReady(&dataHandler, &GraphDataHandler::graphDataReady);
@@ -201,7 +199,7 @@ void TestGraphDataHandler::graphData_fail()
 void TestGraphDataHandler::doHandleRegisterData(ResultDoubleList& modbusResults, QList<QVariant>& actRawData)
 {
     GraphDataHandler dataHandler;
-    QList<ModbusRegister> registerList;
+    QList<DataPoint> registerList;
     dataHandler.setupExpressions(_pGraphDataModel, registerList);
 
     QSignalSpy spyDataReady(&dataHandler, &GraphDataHandler::graphDataReady);

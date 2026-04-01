@@ -3,7 +3,7 @@
 
 #include "ProtocolAdapter/adapterclient.h"
 #include "ProtocolAdapter/adapterprocess.h"
-#include "communication/modbusregister.h"
+#include "communication/datapoint.h"
 #include "util/result.h"
 
 #include <QJsonObject>
@@ -21,7 +21,7 @@ public:
     ~ModbusPoll();
 
     void initAdapter();
-    void startCommunication(QList<ModbusRegister>& registerList);
+    void startCommunication(QList<DataPoint>& registerList);
     void stopCommunication();
 
     bool isActive();
@@ -36,9 +36,9 @@ private slots:
     void onDescribeResult(const QJsonObject& description);
 
 private:
-    QStringList buildRegisterExpressions(const QList<ModbusRegister>& registerList);
+    QStringList buildRegisterExpressions(const QList<DataPoint>& registerList);
 
-    QList<ModbusRegister> _registerList;
+    QList<DataPoint> _registerList;
 
     bool _bPollActive;
     QTimer* _pPollTimer;

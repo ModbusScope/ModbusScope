@@ -480,7 +480,7 @@ void MainWindow::startScope()
 
         clearData();
 
-        QList<ModbusRegister> registerList;
+        QList<DataPoint> registerList;
         _pGraphDataHandler->setupExpressions(_pGraphDataModel, registerList);
 
         _pModbusPoll->startCommunication(registerList);

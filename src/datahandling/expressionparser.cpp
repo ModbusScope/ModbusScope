@@ -17,9 +17,9 @@ ExpressionParser::ExpressionParser(QStringList& expressions)
     parseExpressions(expressions);
 }
 
-void ExpressionParser::modbusRegisters(QList<ModbusRegister>& registerList)
+void ExpressionParser::dataPoints(QList<DataPoint>& dataPointList)
 {
-    registerList = _modbusRegisters;
+    dataPointList = _dataPoints;
 }
 
 void ExpressionParser::processedExpressions(QStringList& expressionList)
@@ -30,15 +30,15 @@ void ExpressionParser::processedExpressions(QStringList& expressionList)
 void ExpressionParser::parseExpressions(QStringList& expressions)
 {
     _processedExpressions.clear();
-    _modbusRegisters.clear();
+    _dataPoints.clear();
 
-    for(const QString &expression: std::as_const(expressions))
+    for (const QString& expression : std::as_const(expressions))
     {
         _processedExpressions.append(processExpression(expression));
     }
 }
 
-QString ExpressionParser::processExpression(QString const & graphExpr)
+QString ExpressionParser::processExpression(QString const& graphExpr)
 {
     QString resultExpr = graphExpr;
     QRegularExpressionMatchIterator i = _findRegRegex.globalMatch(resultExpr);
@@ -56,10 +56,10 @@ QString ExpressionParser::processExpression(QString const & graphExpr)
         {
             QString regDef = match.captured(0);
 
-            ModbusRegister modbusReg;
-            if (processRegisterExpression(regDef, modbusReg))
+            DataPoint dataPoint;
+            if (processRegisterExpression(regDef, dataPoint))
             {
-                QString regFunc = constructInternalRegisterFunction(modbusReg, regDef.size());
+                QString regFunc = constructInternalRegisterFunction(dataPoint, regDef.size());
                 resultExpr.replace(regDef, regFunc);
             }
         }
@@ -68,7 +68,7 @@ QString ExpressionParser::processExpression(QString const & graphExpr)
     return resultExpr;
 }
 
-bool ExpressionParser::processRegisterExpression(QString regExpr, ModbusRegister& modbusReg)
+bool ExpressionParser::processRegisterExpression(QString regExpr, DataPoint& dataPoint)
 {
     bool bRet = false;
 
@@ -85,9 +85,9 @@ bool ExpressionParser::processRegisterExpression(QString regExpr, ModbusRegister
         strType = match.captured(3);
 
         bRet = true;
-        bRet = bRet && parseAddress(strAddress, modbusReg);
-        bRet = bRet && parseDeviceId(strDeviceId, modbusReg);
-        bRet = bRet && parseType(strType, modbusReg);
+        bRet = bRet && parseAddress(strAddress, dataPoint);
+        bRet = bRet && parseDeviceId(strDeviceId, dataPoint);
+        bRet = bRet && parseType(strType, dataPoint);
     }
     else
     {
@@ -99,17 +99,17 @@ bool ExpressionParser::processRegisterExpression(QString regExpr, ModbusRegister
     return bRet;
 }
 
-QString ExpressionParser::constructInternalRegisterFunction(ModbusRegister const & modbusReg, int size)
+QString ExpressionParser::constructInternalRegisterFunction(DataPoint const& dataPoint, int size)
 {
     quint32 idx;
-    if (_modbusRegisters.contains(modbusReg))
+    if (_dataPoints.contains(dataPoint))
     {
-        idx = _modbusRegisters.indexOf(modbusReg);
+        idx = _dataPoints.indexOf(dataPoint);
     }
     else
     {
-        _modbusRegisters.append(modbusReg);
-        idx = _modbusRegisters.size() - 1;
+        _dataPoints.append(dataPoint);
+        idx = _dataPoints.size() - 1;
     }
 
     /* Add dummy whitespaces to make sure positions in internal representations match visible expressions */
@@ -120,7 +120,7 @@ QString ExpressionParser::constructInternalRegisterFunction(ModbusRegister const
     return QString(_cRegisterFunctionTemplate).arg(idx).arg(spaces);
 }
 
-bool ExpressionParser::parseAddress(QString strAddr, ModbusRegister& modbusReg)
+bool ExpressionParser::parseAddress(QString strAddr, DataPoint& dataPoint)
 {
     bool bRet = false;
 
@@ -133,13 +133,13 @@ bool ExpressionParser::parseAddress(QString strAddr, ModbusRegister& modbusReg)
     else
     {
         bRet = true;
-        modbusReg.setAddress(ModbusAddress(strAddr));
+        dataPoint.setAddress(strAddr);
     }
 
     return bRet;
 }
 
-bool ExpressionParser::parseDeviceId(QString strDeviceId, ModbusRegister& modbusReg)
+bool ExpressionParser::parseDeviceId(QString strDeviceId, DataPoint& dataPoint)
 {
     bool bRet = false;
 
@@ -153,7 +153,7 @@ bool ExpressionParser::parseDeviceId(QString strDeviceId, ModbusRegister& modbus
         auto deviceId = strDeviceId.toUInt(&bRet);
         if (bRet)
         {
-            modbusReg.setDeviceId(deviceId);
+            dataPoint.setDeviceId(deviceId);
         }
         else
         {
@@ -164,7 +164,7 @@ bool ExpressionParser::parseDeviceId(QString strDeviceId, ModbusRegister& modbus
     return bRet;
 }
 
-bool ExpressionParser::parseType(QString strType, ModbusRegister& modbusReg)
+bool ExpressionParser::parseType(QString strType, DataPoint& dataPoint)
 {
     bool bRet;
     bool bOk;
@@ -172,7 +172,7 @@ bool ExpressionParser::parseType(QString strType, ModbusRegister& modbusReg)
 
     if (bOk)
     {
-        modbusReg.setType(type);
+        dataPoint.setType(type);
         bRet = true;
     }
     else
@@ -183,4 +183,3 @@ bool ExpressionParser::parseType(QString strType, ModbusRegister& modbusReg)
 
     return bRet;
 }
-

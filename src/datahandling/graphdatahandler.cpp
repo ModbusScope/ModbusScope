@@ -11,28 +11,28 @@
  * \param[in]     pGraphDataModel   Graph data model
  * \param[out]    registerList      List of modbus registers
  */
-void GraphDataHandler::setupExpressions(GraphDataModel* pGraphDataModel, QList<ModbusRegister>& registerList)
+void GraphDataHandler::setupExpressions(GraphDataModel* pGraphDataModel, QList<DataPoint>& registerList)
 {
     QStringList exprList;
-    QList<ModbusRegister> regList;
+    QList<DataPoint> regList;
 
     pGraphDataModel->activeGraphIndexList(&_activeIndexList);
-    for(quint16 graphIdx: std::as_const(_activeIndexList))
+    for (quint16 graphIdx : std::as_const(_activeIndexList))
     {
         exprList.append(pGraphDataModel->expression(graphIdx));
     }
 
     ExpressionParser exprParser(exprList);
-    exprParser.modbusRegisters(regList);
+    exprParser.dataPoints(regList);
 
-    qCInfo(scopeComm) << "Active registers: " << ModbusRegister::dumpListToString(regList);
+    qCInfo(scopeComm) << "Active registers: " << DataPoint::dumpListToString(regList);
 
     QStringList processedExpList;
     exprParser.processedExpressions(processedExpList);
 
     _valueParsers.clear();
 
-    for(const QString &expr: std::as_const(processedExpList))
+    for (const QString& expr : std::as_const(processedExpList))
     {
         _valueParsers.append(QMuParser(expr));
     }
@@ -98,6 +98,3 @@ void GraphDataHandler::handleRegisterData(ResultDoubleList results)
 
     emit graphDataReady(registerList);
 }
-
-
-

@@ -1,57 +1,54 @@
-#include "modbusregister.h"
+#include "datapoint.h"
 
 #include <bit>
 
-ModbusRegister::ModbusRegister()
-    : ModbusRegister(ModbusAddress(0), Device::cFirstDeviceId, ModbusDataType::Type::UNSIGNED_16)
+DataPoint::DataPoint() : DataPoint(QString(), Device::cFirstDeviceId, ModbusDataType::Type::UNSIGNED_16)
 {
-
 }
 
-ModbusRegister::ModbusRegister(ModbusAddress const& address, deviceId_t deviceId, ModbusDataType::Type type)
+DataPoint::DataPoint(QString const& address, deviceId_t deviceId, ModbusDataType::Type type)
     : _address(address), _deviceId(deviceId), _type(type)
 {
-
 }
 
-ModbusAddress ModbusRegister::address() const
+QString DataPoint::address() const
 {
     return _address;
 }
 
-void ModbusRegister::setAddress(ModbusAddress const& address)
+void DataPoint::setAddress(const QString& address)
 {
     _address = address;
 }
 
-deviceId_t ModbusRegister::deviceId() const
+deviceId_t DataPoint::deviceId() const
 {
     return _deviceId;
 }
 
-void ModbusRegister::setDeviceId(deviceId_t deviceId)
+void DataPoint::setDeviceId(deviceId_t deviceId)
 {
     _deviceId = deviceId;
 }
 
-void ModbusRegister::setType(ModbusDataType::Type type)
+void DataPoint::setType(ModbusDataType::Type type)
 {
     _type = type;
 }
 
-ModbusDataType::Type ModbusRegister::type() const
+ModbusDataType::Type DataPoint::type() const
 {
     return _type;
 }
 
-QString ModbusRegister::description() const
+QString DataPoint::description() const
 {
     QString connStr = QString("device id %1").arg(deviceId());
 
-    return QString("%1, %2, %3").arg(address().toString(), ModbusDataType::description(_type), connStr);
+    return QString("%1, %2, %3").arg(_address, ModbusDataType::description(_type), connStr);
 }
 
-double ModbusRegister::processValue(uint16_t lowerRegister, uint16_t upperRegister, bool int32LittleEndian) const
+double DataPoint::processValue(uint16_t lowerRegister, uint16_t upperRegister, bool int32LittleEndian) const
 {
     double processedResult = 0u;
 
@@ -89,25 +86,25 @@ double ModbusRegister::processValue(uint16_t lowerRegister, uint16_t upperRegist
     return processedResult;
 }
 
-ModbusRegister& ModbusRegister::operator= (const ModbusRegister& modbusRegister)
+DataPoint& DataPoint::operator=(const DataPoint& dataPoint)
 {
     // self-assignment guard
-    if (this == &modbusRegister)
+    if (this == &dataPoint)
     {
         return *this;
     }
 
-    _address = modbusRegister.address();
-    _deviceId = modbusRegister.deviceId();
-    _type = modbusRegister.type();
+    _address = dataPoint.address();
+    _deviceId = dataPoint.deviceId();
+    _type = dataPoint.type();
 
     // return the existing object so we can chain this operator
     return *this;
 }
 
-bool operator== (const ModbusRegister& reg1, const ModbusRegister& reg2)
+bool operator==(const DataPoint& dp1, const DataPoint& dp2)
 {
-    if ((reg1._address == reg2._address) && (reg1._deviceId == reg2._deviceId) && (reg1._type == reg2._type))
+    if ((dp1._address == dp2._address) && (dp1._deviceId == dp2._deviceId) && (dp1._type == dp2._type))
     {
         return true;
     }
@@ -117,18 +114,16 @@ bool operator== (const ModbusRegister& reg1, const ModbusRegister& reg2)
     }
 }
 
-QDebug operator<<(QDebug debug, const ModbusRegister &reg)
+QDebug operator<<(QDebug debug, const DataPoint& dp)
 {
     QDebugStateSaver saver(debug);
 
-    debug.nospace().noquote() << '['
-                    << reg.description()
-                    << ']';
+    debug.nospace().noquote() << '[' << dp.description() << ']';
 
     return debug;
 }
 
-QString ModbusRegister::dumpListToString(QList<ModbusRegister> list)
+QString DataPoint::dumpListToString(QList<DataPoint> list)
 {
     QString str;
     QDebug dStream(&str);
@@ -138,7 +133,7 @@ QString ModbusRegister::dumpListToString(QList<ModbusRegister> list)
     return str;
 }
 
-uint32_t ModbusRegister::convertEndianness(bool bLittleEndian, quint16 value, quint16 nextValue) const
+uint32_t DataPoint::convertEndianness(bool bLittleEndian, quint16 value, quint16 nextValue) const
 {
     uint32_t combinedValue;
     if (bLittleEndian)
@@ -153,20 +148,19 @@ uint32_t ModbusRegister::convertEndianness(bool bLittleEndian, quint16 value, qu
     return combinedValue;
 }
 
-double ModbusRegister::convertUint32ToFloat(quint32 value) const
+double DataPoint::convertUint32ToFloat(quint32 value) const
 {
     const double doubleValue = std::bit_cast<float>(value);
 
-    switch(std::fpclassify(doubleValue))
+    switch (std::fpclassify(doubleValue))
     {
-        case FP_INFINITE:
-        case FP_NAN:
-        case FP_ZERO:
-            return 0.0f;
-        case FP_NORMAL:
-        case FP_SUBNORMAL:
-        default:
-            return doubleValue;
+    case FP_INFINITE:
+    case FP_NAN:
+    case FP_ZERO:
+        return 0.0f;
+    case FP_NORMAL:
+    case FP_SUBNORMAL:
+    default:
+        return doubleValue;
     }
 }
-

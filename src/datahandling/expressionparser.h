@@ -1,7 +1,7 @@
 #ifndef EXPRESSIONPARSER_H
 #define EXPRESSIONPARSER_H
 
-#include "communication/modbusregister.h"
+#include "communication/datapoint.h"
 #include <QRegularExpression>
 #include <QStringList>
 
@@ -11,29 +11,27 @@ class ExpressionParser : public QObject
 public:
     explicit ExpressionParser(QStringList& expressions);
 
-    void modbusRegisters(QList<ModbusRegister>& registerList);
+    void dataPoints(QList<DataPoint>& dataPointList);
     void processedExpressions(QStringList& expressionList);
 
 private:
-
     void parseExpressions(QStringList& expressions);
 
-    bool parseAddress(QString strAddr, ModbusRegister& modbusReg);
-    bool parseDeviceId(QString strDeviceId, ModbusRegister& modbusReg);
-    bool parseType(QString strType, ModbusRegister& modbusReg);
+    bool parseAddress(QString strAddr, DataPoint& dataPoint);
+    bool parseDeviceId(QString strDeviceId, DataPoint& dataPoint);
+    bool parseType(QString strType, DataPoint& dataPoint);
 
-    QString processExpression(QString const & expr);
-    bool processRegisterExpression(QString regExpr, ModbusRegister &modbusReg);
-    QString constructInternalRegisterFunction(ModbusRegister const & modbusReg, int size);
+    QString processExpression(QString const& expr);
+    bool processRegisterExpression(QString regExpr, DataPoint& dataPoint);
+    QString constructInternalRegisterFunction(DataPoint const& dataPoint, int size);
 
     QStringList _processedExpressions;
-    QList<ModbusRegister> _modbusRegisters;
+    QList<DataPoint> _dataPoints;
 
     QRegularExpression _findRegRegex;
     QRegularExpression _regParseRegex;
 
     static const QString _cRegisterFunctionTemplate;
-
 };
 
 #endif // EXPRESSIONPARSER_H

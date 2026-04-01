@@ -12,12 +12,12 @@ void ExpressionChecker::setExpression(QString expr)
     _localGraphDataModel.add();
     _localGraphDataModel.setExpression(0, expr);
 
-    QList<ModbusRegister> registerList;
+    QList<DataPoint> registerList;
     _graphDataHandler.setupExpressions(&_localGraphDataModel, registerList);
 
     _expectedDeviceIdList.clear();
     _descriptions.clear();
-    for (ModbusRegister const& reg : std::as_const(registerList))
+    for (DataPoint const& reg : std::as_const(registerList))
     {
         _descriptions.append(reg.description());
 
