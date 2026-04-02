@@ -24,6 +24,7 @@ private slots:
     void singleRegisterConnType();
     void multiRegisters();
     void multiRegistersDuplicate();
+    void singleExpressionDuplicate();
     void failure();
     void failureMulti();
     void combinations();

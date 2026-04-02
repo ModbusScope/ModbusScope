@@ -134,6 +134,15 @@ void TestExpressionParser::multiRegistersDuplicate()
     verifyParsing(input, expDataPoints, expExpressions);
 }
 
+void TestExpressionParser::singleExpressionDuplicate()
+{
+    auto input = QStringList() << "${45332} + ${45332}";
+    auto expExpressions = QStringList() << "r(0    ) + r(0    )";
+    auto expDataPoints = QList<DataPoint>() << DataPoint("${45332}", Device::cFirstDeviceId);
+
+    verifyParsing(input, expDataPoints, expExpressions);
+}
+
 void TestExpressionParser::failure()
 {
     auto input = QStringList() << "${}";
