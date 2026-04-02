@@ -26,7 +26,7 @@ public:
 
     friend bool operator==(const DataPoint& dp1, const DataPoint& dp2);
 
-    static QString dumpListToString(QList<DataPoint> list);
+    static QString dumpListToString(const QList<DataPoint>& list);
 
 private:
     QString _address;

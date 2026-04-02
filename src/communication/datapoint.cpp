@@ -1,6 +1,6 @@
 #include "datapoint.h"
 
-#include <bit>
+#include "datapoint.h"
 
 DataPoint::DataPoint() : DataPoint(QString(), Device::cFirstDeviceId)
 {
@@ -63,7 +63,7 @@ QDebug operator<<(QDebug debug, const DataPoint& dp)
     return debug;
 }
 
-QString DataPoint::dumpListToString(QList<DataPoint> list)
+QString DataPoint::dumpListToString(QList<DataPoint> const& list)
 {
     QString str;
     QDebug dStream(&str);
