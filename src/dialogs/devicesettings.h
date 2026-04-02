@@ -1,11 +1,11 @@
 #ifndef DEVICESETTINGS_H
 #define DEVICESETTINGS_H
 
-#include "customwidgets/addabletabwidget.h"
 #include "models/settingsmodel.h"
 #include <QWidget>
 
-// Forward declaration
+// Forward declarations
+class AddableTabWidget;
 class DeviceForm;
 
 class DeviceSettings : public QWidget

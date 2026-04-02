@@ -1,5 +1,6 @@
 #include "devicesettings.h"
 
+#include "customwidgets/addabletabwidget.h"
 #include "customwidgets/deviceform.h"
 #include "models/device.h"
 
@@ -54,7 +55,7 @@ void DeviceSettings::updateTabName(deviceId_t devId)
     int index = -1;
     for (int i = 0; i < _pDeviceTabs->count(); ++i)
     {
-        auto tabContent = dynamic_cast<DeviceForm*>(_pDeviceTabs->tabContent(i));
+        auto tabContent = qobject_cast<DeviceForm*>(_pDeviceTabs->tabContent(i));
         if (tabContent && tabContent->deviceId() == devId)
         {
             index = i;
@@ -71,7 +72,7 @@ void DeviceSettings::updateTabName(deviceId_t devId)
 
 void DeviceSettings::handleCloseTab(int index)
 {
-    auto tabContent = dynamic_cast<DeviceForm*>(_pDeviceTabs->tabContent(index));
+    auto tabContent = qobject_cast<DeviceForm*>(_pDeviceTabs->tabContent(index));
     if (tabContent)
     {
         deviceId_t devId = tabContent->deviceId();
