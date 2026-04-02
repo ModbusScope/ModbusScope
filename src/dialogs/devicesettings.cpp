@@ -1,20 +1,18 @@
 #include "devicesettings.h"
-#include "ui_devicesettings.h"
 
 #include "customwidgets/deviceform.h"
 #include "models/device.h"
 
-#include <QLabel>
-#include <QToolButton>
+#include <QVBoxLayout>
 
 DeviceSettings::DeviceSettings(SettingsModel* pSettingsModel, QWidget* parent)
-    : QWidget(parent), _pUi(new Ui::DeviceSettings), _pSettingsModel(pSettingsModel)
+    : QWidget(parent), _pDeviceTabs(new AddableTabWidget(this)), _pSettingsModel(pSettingsModel)
 {
-    _pUi->setupUi(this);
+    QVBoxLayout* layout = new QVBoxLayout(this);
+    layout->addWidget(_pDeviceTabs);
 
-    connect(_pUi->deviceTabs, &AddableTabWidget::tabClosed, this, &DeviceSettings::handleCloseTab,
-            Qt::DirectConnection);
-    connect(_pUi->deviceTabs, &AddableTabWidget::addTabRequested, this, &DeviceSettings::handleAddTab);
+    connect(_pDeviceTabs, &AddableTabWidget::tabClosed, this, &DeviceSettings::handleCloseTab, Qt::DirectConnection);
+    connect(_pDeviceTabs, &AddableTabWidget::addTabRequested, this, &DeviceSettings::handleAddTab);
 
     QList<QWidget*> pages;
     QStringList names;
@@ -25,12 +23,7 @@ DeviceSettings::DeviceSettings(SettingsModel* pSettingsModel, QWidget* parent)
         pages.append(createForm(devId));
     }
 
-    _pUi->deviceTabs->setTabs(pages, names);
-}
-
-DeviceSettings::~DeviceSettings()
-{
-    delete _pUi;
+    _pDeviceTabs->setTabs(pages, names);
 }
 
 DeviceForm* DeviceSettings::createForm(deviceId_t devId)
@@ -47,7 +40,7 @@ void DeviceSettings::handleAddTab()
     deviceId_t devId = _pSettingsModel->addNewDevice();
     QString name = constructTabName(devId);
 
-    _pUi->deviceTabs->addNewTab(name, createForm(devId));
+    _pDeviceTabs->addNewTab(name, createForm(devId));
 }
 
 QString DeviceSettings::constructTabName(deviceId_t devId)
@@ -59,9 +52,9 @@ QString DeviceSettings::constructTabName(deviceId_t devId)
 void DeviceSettings::updateTabName(deviceId_t devId)
 {
     int index = -1;
-    for (int i = 0; i < _pUi->deviceTabs->count(); ++i)
+    for (int i = 0; i < _pDeviceTabs->count(); ++i)
     {
-        auto tabContent = dynamic_cast<DeviceForm*>(_pUi->deviceTabs->tabContent(i));
+        auto tabContent = dynamic_cast<DeviceForm*>(_pDeviceTabs->tabContent(i));
         if (tabContent && tabContent->deviceId() == devId)
         {
             index = i;
@@ -72,13 +65,13 @@ void DeviceSettings::updateTabName(deviceId_t devId)
     if (index != -1)
     {
         QString name = constructTabName(devId);
-        _pUi->deviceTabs->setTabName(index, name);
+        _pDeviceTabs->setTabName(index, name);
     }
 }
 
 void DeviceSettings::handleCloseTab(int index)
 {
-    auto tabContent = dynamic_cast<DeviceForm*>(_pUi->deviceTabs->tabContent(index));
+    auto tabContent = dynamic_cast<DeviceForm*>(_pDeviceTabs->tabContent(index));
     if (tabContent)
     {
         deviceId_t devId = tabContent->deviceId();
