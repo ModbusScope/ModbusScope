@@ -84,8 +84,9 @@ Enforced by `.clang-format` (Mozilla-based, C++20):
 
 Three sub-agents are defined in `.claude/agents/` to keep build/test/lint output out of the main context:
 
-- **`@agent-build`** — runs cmake + ninja; reports only errors and warnings.
-- **`@agent-test-runner`** — runs ctest; reports only failing tests with their error messages.
-- **`@agent-quality`** — runs clang-format, clang-tidy, and clazy; reports only violations.
+- **`@agent-build`** - runs cmake + ninja; reports only errors and warnings.
+- **`@agent-test-runner`** - runs ctest; reports only failing tests with their error messages.
+- **`@agent-quality`** - runs clang-format, clang-tidy, and clazy; reports only violations.
+- **`@agent-code-reviewer`** - reviews code for quality, safety, and best practices; provides specific, actionable feedback.
 
-Always use these agents rather than running the commands directly. After making source file changes: build, then run tests, then run quality checks — all must pass before the work is done.
+Always use these agents rather than running the commands directly. After making source file changes: build, then run tests, then run quality checks - all must pass before the work is done.
