@@ -40,7 +40,7 @@ clang-format -i src/path/to/file.cpp
 
 ```text
 src/
-├── communication/   Modbus protocol layer (ModbusPoll, ModbusMaster, ModbusConnection)
+├── communication/   Communication (using external adapters)
 ├── models/          Data models (SettingsModel, GraphDataModel, DiagnosticModel, Device, Connection)
 ├── datahandling/    Expression parsing, graph data processing
 ├── importexport/    CSV export, MBS project files, MBC device config import
@@ -82,5 +82,10 @@ Enforced by `.clang-format` (Mozilla-based, C++20):
 
 ## Development
 
-- Use a subagent to run the test suite and report only the failing tests with their error messages.
-- Use a subagent to run the quality checks (clang, clazy) and report only the violations with their error messages.
+Three sub-agents are defined in `.claude/agents/` to keep build/test/lint output out of the main context:
+
+- **`@agent-build`** — runs cmake + ninja; reports only errors and warnings.
+- **`@agent-test-runner`** — runs ctest; reports only failing tests with their error messages.
+- **`@agent-quality`** — runs clang-format, clang-tidy, and clazy; reports only violations.
+
+Always use these agents rather than running the commands directly. After making source file changes: build, then run tests, then run quality checks — all must pass before the work is done.
