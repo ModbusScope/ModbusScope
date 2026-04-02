@@ -1,5 +1,5 @@
-#ifndef COMMUNICATION_MANAGER_H
-#define COMMUNICATION_MANAGER_H
+#ifndef MODBUSPOLL_H
+#define MODBUSPOLL_H
 
 #include "ProtocolAdapter/adapterclient.h"
 #include "ProtocolAdapter/adapterprocess.h"
@@ -49,4 +49,4 @@ private:
     AdapterClient* _pAdapterClient;
 };
 
-#endif // COMMUNICATION_MANAGER_H
+#endif // MODBUSPOLL_H

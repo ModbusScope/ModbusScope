@@ -1,7 +1,5 @@
 #include "datapoint.h"
 
-#include "datapoint.h"
-
 DataPoint::DataPoint() : DataPoint(QString(), Device::cFirstDeviceId)
 {
 }

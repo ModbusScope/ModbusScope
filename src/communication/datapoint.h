@@ -3,7 +3,6 @@
 
 #include "models/device.h"
 #include <QDebug>
-#include <QObject>
 #include <QString>
 
 class DataPoint

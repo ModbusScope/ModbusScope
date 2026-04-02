@@ -1,3 +1,5 @@
+#ifndef TEST_EXPRESSIONPARSER_H
+#define TEST_EXPRESSIONPARSER_H
 
 #include "communication/datapoint.h"
 
@@ -36,3 +38,5 @@ private slots:
 
 private:
 };
+
+#endif // TEST_EXPRESSIONPARSER_H
