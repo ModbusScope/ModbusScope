@@ -82,7 +82,7 @@ Enforced by `.clang-format` (Mozilla-based, C++20):
 
 ## Development
 
-Three sub-agents are defined in `.claude/agents/` to keep build/test/lint output out of the main context:
+Several sub-agents are defined in `.claude/agents/` to keep build/test/lint output out of the main context:
 
 - **`@agent-build`** - runs cmake + ninja; reports only errors and warnings.
 - **`@agent-test-runner`** - runs ctest; reports only failing tests with their error messages.
