@@ -236,16 +236,34 @@ void TestExpressionParser::manyRegisters()
     verifyParsing(input, expDataPoints, expExpressions);
 }
 
-void TestExpressionParser::verifyParsing(QStringList exprList,
-                                         QList<DataPoint>& expectedDataPoints,
-                                         QStringList& expectedExpression)
+void TestExpressionParser::manyRegistersHighIndex()
 {
-    QList<DataPoint> actualDataPoints;
-    QStringList actualExpressionList;
+    /* Verify qMax(0,...) guard: ${0} is 4 chars, but assigned index 10 (after 10 prior registers).
+     * Unguarded: spacesCount = 4-3-2 = -1. Guarded: clamped to 0, producing r(10) instead of garbage. */
+    auto input = QStringList() << "${1}" << "${2}" << "${3}" << "${4}" << "${5}"
+                               << "${6}" << "${7}" << "${8}" << "${9}" << "${10}" << "${0}";
+    auto expDataPoints = QList<DataPoint>()
+                         << DataPoint("${1}", Device::cFirstDeviceId) << DataPoint("${2}", Device::cFirstDeviceId)
+                         << DataPoint("${3}", Device::cFirstDeviceId) << DataPoint("${4}", Device::cFirstDeviceId)
+                         << DataPoint("${5}", Device::cFirstDeviceId) << DataPoint("${6}", Device::cFirstDeviceId)
+                         << DataPoint("${7}", Device::cFirstDeviceId) << DataPoint("${8}", Device::cFirstDeviceId)
+                         << DataPoint("${9}", Device::cFirstDeviceId) << DataPoint("${10}", Device::cFirstDeviceId)
+                         << DataPoint("${0}", Device::cFirstDeviceId);
+    /* ${10} at idx=9: size=5, spacesCount=5-3-1=1 → r(9 )
+     * ${0}  at idx=10: size=4, spacesCount=qMax(0,4-3-2)=0 → r(10) */
+    auto expExpressions = QStringList() << "r(0)" << "r(1)" << "r(2)" << "r(3)" << "r(4)"
+                                        << "r(5)" << "r(6)" << "r(7)" << "r(8)" << "r(9 )" << "r(10)";
 
+    verifyParsing(input, expDataPoints, expExpressions);
+}
+
+void TestExpressionParser::verifyParsing(const QStringList& exprList,
+                                         const QList<DataPoint>& expectedDataPoints,
+                                         const QStringList& expectedExpression)
+{
     ExpressionParser parser(exprList);
-    parser.dataPoints(actualDataPoints);
-    parser.processedExpressions(actualExpressionList);
+    const QList<DataPoint> actualDataPoints = parser.dataPoints();
+    const QStringList actualExpressionList = parser.processedExpressions();
 
     QVERIFY(actualDataPoints == expectedDataPoints);
     QVERIFY(actualExpressionList == expectedExpression);

@@ -6,30 +6,33 @@
 
 const QString ExpressionParser::_cRegisterFunctionTemplate = "r(%1%2)";
 
-ExpressionParser::ExpressionParser(QStringList& expressions)
+ExpressionParser::ExpressionParser(const QStringList& expressions) : _findRegRegex(ExpressionRegex::cMatchRegister)
 {
-    _findRegRegex.setPattern(ExpressionRegex::cMatchRegister);
-    _findRegRegex.optimize();
-
     parseExpressions(expressions);
 }
 
-void ExpressionParser::dataPoints(QList<DataPoint>& dataPointList)
+/*!
+ * \brief Returns the deduplicated list of data points found during parsing.
+ */
+QList<DataPoint> ExpressionParser::dataPoints() const
 {
-    dataPointList = _dataPoints;
+    return _dataPoints;
 }
 
-void ExpressionParser::processedExpressions(QStringList& expressionList)
+/*!
+ * \brief Returns the list of processed expressions with register references replaced.
+ */
+QStringList ExpressionParser::processedExpressions() const
 {
-    expressionList = _processedExpressions;
+    return _processedExpressions;
 }
 
-void ExpressionParser::parseExpressions(QStringList& expressions)
+void ExpressionParser::parseExpressions(const QStringList& expressions)
 {
     _processedExpressions.clear();
     _dataPoints.clear();
 
-    for (const QString& expression : std::as_const(expressions))
+    for (const QString& expression : expressions)
     {
         _processedExpressions.append(processExpression(expression));
     }
@@ -42,8 +45,7 @@ QString ExpressionParser::processExpression(QString const& graphExpr)
 
     if (!i.hasNext() && resultExpr.contains("$"))
     {
-        auto msg = QString("Expression evaluation parsing failed (\"%1\")").arg(resultExpr);
-        qCWarning(scopeComm) << msg;
+        qCWarning(scopeComm) << QString("Expression evaluation parsing failed (\"%1\")").arg(resultExpr);
     }
 
     while (i.hasNext())
@@ -65,7 +67,7 @@ QString ExpressionParser::processExpression(QString const& graphExpr)
     return resultExpr;
 }
 
-bool ExpressionParser::processRegisterExpression(QString regExpr, DataPoint& dataPoint)
+bool ExpressionParser::processRegisterExpression(const QString& regExpr, DataPoint& dataPoint)
 {
     static const QRegularExpression regParseRegex(ExpressionRegex::cParseReg);
     QRegularExpressionMatch match = regParseRegex.match(regExpr);
@@ -96,20 +98,16 @@ bool ExpressionParser::processRegisterExpression(QString regExpr, DataPoint& dat
 
 QString ExpressionParser::constructInternalRegisterFunction(DataPoint const& dataPoint, int size)
 {
-    quint32 idx;
-    if (_dataPoints.contains(dataPoint))
-    {
-        idx = _dataPoints.indexOf(dataPoint);
-    }
-    else
+    qsizetype idx = _dataPoints.indexOf(dataPoint);
+    if (idx < 0)
     {
         _dataPoints.append(dataPoint);
         idx = _dataPoints.size() - 1;
     }
 
     /* Add dummy whitespaces to make sure positions in internal representations match visible expressions */
-    QString regIdx = QString("%1").arg(idx);
-    const int spacesCount = size - 3 - regIdx.size(); /* ignore ${} and idx string length */
+    QString regIdx = QString::number(idx);
+    const int spacesCount = qMax(0, size - 3 - regIdx.size()); /* ignore ${} and idx string length */
     QString spaces = QString(" ").repeated(spacesCount);
 
     return QString(_cRegisterFunctionTemplate).arg(idx).arg(spaces);

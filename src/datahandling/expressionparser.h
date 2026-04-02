@@ -5,26 +5,25 @@
 #include <QRegularExpression>
 #include <QStringList>
 
-class ExpressionParser : public QObject
+class ExpressionParser
 {
-    Q_OBJECT
 public:
-    explicit ExpressionParser(QStringList& expressions);
+    explicit ExpressionParser(const QStringList& expressions);
 
-    void dataPoints(QList<DataPoint>& dataPointList);
-    void processedExpressions(QStringList& expressionList);
+    QList<DataPoint> dataPoints() const;
+    QStringList processedExpressions() const;
 
 private:
-    void parseExpressions(QStringList& expressions);
+    void parseExpressions(const QStringList& expressions);
 
     QString processExpression(QString const& expr);
-    bool processRegisterExpression(QString regExpr, DataPoint& dataPoint);
+    bool processRegisterExpression(const QString& regExpr, DataPoint& dataPoint);
     QString constructInternalRegisterFunction(DataPoint const& dataPoint, int size);
 
     QStringList _processedExpressions;
     QList<DataPoint> _dataPoints;
 
-    QRegularExpression _findRegRegex;
+    const QRegularExpression _findRegRegex;
 
     static const QString _cRegisterFunctionTemplate;
 };

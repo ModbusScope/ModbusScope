@@ -14,7 +14,6 @@
 void GraphDataHandler::setupExpressions(GraphDataModel* pGraphDataModel, QList<DataPoint>& registerList)
 {
     QStringList exprList;
-    QList<DataPoint> regList;
 
     pGraphDataModel->activeGraphIndexList(&_activeIndexList);
     for (quint16 graphIdx : std::as_const(_activeIndexList))
@@ -23,12 +22,11 @@ void GraphDataHandler::setupExpressions(GraphDataModel* pGraphDataModel, QList<D
     }
 
     ExpressionParser exprParser(exprList);
-    exprParser.dataPoints(regList);
+    const QList<DataPoint> regList = exprParser.dataPoints();
 
     qCInfo(scopeComm) << "Active registers: " << DataPoint::dumpListToString(regList);
 
-    QStringList processedExpList;
-    exprParser.processedExpressions(processedExpList);
+    const QStringList processedExpList = exprParser.processedExpressions();
 
     _valueParsers.clear();
 
