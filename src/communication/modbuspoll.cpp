@@ -124,9 +124,7 @@ QStringList ModbusPoll::buildRegisterExpressions(const QList<DataPoint>& registe
     QStringList expressions;
     for (const DataPoint& reg : registerList)
     {
-        QString expr =
-          QString("${%1 @ %2 : %3}").arg(reg.address()).arg(reg.deviceId()).arg(ModbusDataType::typeString(reg.type()));
-        expressions.append(expr);
+        expressions.append(reg.address());
     }
     return expressions;
 }

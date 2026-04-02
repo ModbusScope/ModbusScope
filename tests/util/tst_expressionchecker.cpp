@@ -27,8 +27,8 @@ void TestExpressionChecker::dataIsPrimed()
 
     QStringList descriptions;
     checker.descriptions(descriptions);
-    auto expDescriptions = QStringList() << "40001, unsigned 16-bit, device id 1"
-                                         << "40002, unsigned 16-bit, device id 1";
+    auto expDescriptions = QStringList() << "${40001}, device id 1"
+                                         << "${40002}, device id 1";
     QCOMPARE(descriptions, expDescriptions);
 
     QCOMPARE(checker.requiredValueCount(), 2);

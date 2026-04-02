@@ -11,7 +11,6 @@
 
 Q_DECLARE_METATYPE(Result<quint16>);
 
-using Type = ModbusDataType::Type;
 using State = ResultState::State;
 
 void TestGraphDataHandler::init()
@@ -36,9 +35,9 @@ void TestGraphDataHandler::registerList()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto expDataPoints = QList<DataPoint>() << DataPoint("40001", Device::cFirstDeviceId + 1, Type::UNSIGNED_16)
-                                            << DataPoint("40001", Device::cFirstDeviceId, Type::UNSIGNED_16)
-                                            << DataPoint("40002", Device::cFirstDeviceId, Type::SIGNED_32);
+    auto expDataPoints = QList<DataPoint>() << DataPoint("${40001@2}", Device::cFirstDeviceId + 1)
+                                            << DataPoint("${40001}", Device::cFirstDeviceId)
+                                            << DataPoint("${40002:s32b}", Device::cFirstDeviceId);
 
     GraphDataHandler dataHandler;
     QList<DataPoint> registerList;
@@ -125,7 +124,7 @@ void TestGraphDataHandler::manyInactiveRegisters()
     _pGraphDataModel->setExpression(9, "${40003}");
     _pGraphDataModel->setActive(9, false);
 
-    auto expDataPoints = QList<DataPoint>() << DataPoint("40002", Device::cFirstDeviceId, Type::UNSIGNED_16);
+    auto expDataPoints = QList<DataPoint>() << DataPoint("${40002}", Device::cFirstDeviceId);
 
     GraphDataHandler dataHandler;
     QList<DataPoint> registerList;

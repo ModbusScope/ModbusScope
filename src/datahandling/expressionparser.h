@@ -17,10 +17,6 @@ public:
 private:
     void parseExpressions(QStringList& expressions);
 
-    bool parseAddress(QString strAddr, DataPoint& dataPoint);
-    bool parseDeviceId(QString strDeviceId, DataPoint& dataPoint);
-    bool parseType(QString strType, DataPoint& dataPoint);
-
     QString processExpression(QString const& expr);
     bool processRegisterExpression(QString regExpr, DataPoint& dataPoint);
     QString constructInternalRegisterFunction(DataPoint const& dataPoint, int size);
@@ -29,7 +25,6 @@ private:
     QList<DataPoint> _dataPoints;
 
     QRegularExpression _findRegRegex;
-    QRegularExpression _regParseRegex;
 
     static const QString _cRegisterFunctionTemplate;
 };
