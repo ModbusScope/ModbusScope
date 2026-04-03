@@ -7,7 +7,7 @@
  * \brief Constructor for DiagnosticModel
  * \param parent    parent object
  */
-DiagnosticModel::DiagnosticModel(QObject *parent) : QAbstractListModel(parent)
+DiagnosticModel::DiagnosticModel(QObject* parent) : QAbstractListModel(parent)
 {
     _minSeverityLevel = Diagnostic::LOG_INFO;
 }
@@ -16,7 +16,7 @@ DiagnosticModel::DiagnosticModel(QObject *parent) : QAbstractListModel(parent)
  * \brief Return numbers of rows in model
  * \return Numbers of rows in model
  */
-int DiagnosticModel::rowCount(const QModelIndex & /*parent*/) const
+int DiagnosticModel::rowCount(const QModelIndex& /*parent*/) const
 {
     return size();
 }
@@ -25,7 +25,7 @@ int DiagnosticModel::rowCount(const QModelIndex & /*parent*/) const
  * \brief Return numbers of columns in model
  * \return Numbers of columns in model
  */
-int DiagnosticModel::columnCount(const QModelIndex & /*parent*/) const
+int DiagnosticModel::columnCount(const QModelIndex& /*parent*/) const
 {
     return 1;
 }
@@ -36,7 +36,7 @@ int DiagnosticModel::columnCount(const QModelIndex & /*parent*/) const
  * \param role Requested data role
  * \return Requested data from model, Empty QVariant() on invalid argument
  */
-QVariant DiagnosticModel::data(const QModelIndex &index, int role) const
+QVariant DiagnosticModel::data(const QModelIndex& index, int role) const
 {
     if (index.isValid() && (role == Qt::DisplayRole))
     {
@@ -72,10 +72,7 @@ QVariant DiagnosticModel::headerData(int section, Qt::Orientation orientation, i
 {
     Q_UNUSED(orientation);
 
-    if (
-            (section == 0)
-            && (role == Qt::DisplayRole)
-        )
+    if ((section == 0) && (role == Qt::DisplayRole))
     {
         return QString("Messages");
     }
@@ -88,7 +85,7 @@ QVariant DiagnosticModel::headerData(int section, Qt::Orientation orientation, i
  * \param index modelindex referring to requested data
  * \return Flags of index
  */
-Qt::ItemFlags DiagnosticModel::flags(const QModelIndex & index) const
+Qt::ItemFlags DiagnosticModel::flags(const QModelIndex& index) const
 {
     Q_UNUSED(index);
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
@@ -108,6 +105,11 @@ qint32 DiagnosticModel::size() const
  */
 void DiagnosticModel::clear()
 {
+    if (size() == 0)
+    {
+        return;
+    }
+
     beginRemoveRows(QModelIndex(), 0, size() - 1);
 
     _logList.clear();
