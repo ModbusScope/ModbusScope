@@ -338,7 +338,7 @@ Notifications are sent by the adapter to the client without a corresponding requ
 
 ### `adapter.diagnostic`
 
-_(Reserved for future use.)_ Carries a log or diagnostic message from the adapter.
+Carries a log or diagnostic message from the adapter. Emitted for every Qt log message (`qDebug`, `qInfo`, `qWarning`, `qCritical`, `qFatal`) produced during adapter operation.
 
 ```json
 {
@@ -356,6 +356,7 @@ _(Reserved for future use.)_ Carries a log or diagnostic message from the adapte
 | `"debug"` | Verbose internal trace |
 | `"info"` | Informational |
 | `"warning"` | Non-fatal issue |
+| `"error"` | Critical or fatal error |
 
 ---
 
