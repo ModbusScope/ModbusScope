@@ -36,9 +36,10 @@ void TestModbusPoll::cleanup()
 void TestModbusPoll::diagnosticDebugLevel()
 {
     QtMessageHandler previous = qInstallMessageHandler(captureHandler);
-    QMetaObject::invokeMethod(_pModbusPoll, "onAdapterDiagnostic",
-                              Q_ARG(QString, QStringLiteral("debug")),
-                              Q_ARG(QString, QStringLiteral("polling started")));
+    bool invoked =
+      QMetaObject::invokeMethod(_pModbusPoll, "onAdapterDiagnostic", Q_ARG(QString, QStringLiteral("debug")),
+                                Q_ARG(QString, QStringLiteral("polling started")));
+    QVERIFY(invoked);
     qInstallMessageHandler(previous);
 
     QCOMPARE(g_capturedType, QtDebugMsg);
