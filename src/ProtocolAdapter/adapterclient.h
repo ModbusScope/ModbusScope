@@ -26,7 +26,9 @@ class AdapterClient : public QObject
     Q_OBJECT
 
 public:
-    explicit AdapterClient(AdapterProcess* pProcess, QObject* parent = nullptr);
+    explicit AdapterClient(AdapterProcess* pProcess,
+                           QObject* parent = nullptr,
+                           int handshakeTimeoutMs = cHandshakeTimeoutMs);
     ~AdapterClient();
 
     /*!
@@ -151,6 +153,7 @@ private:
 
     AdapterProcess* _pProcess;
     QTimer _handshakeTimer;
+    int _handshakeTimeoutMs;
     QJsonObject _pendingConfig;
     QStringList _pendingExpressions;
 };

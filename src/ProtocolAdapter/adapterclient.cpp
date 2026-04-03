@@ -4,7 +4,8 @@
 
 #include <QJsonArray>
 
-AdapterClient::AdapterClient(AdapterProcess* pProcess, QObject* parent) : QObject(parent), _pProcess(pProcess)
+AdapterClient::AdapterClient(AdapterProcess* pProcess, QObject* parent, int handshakeTimeoutMs)
+    : QObject(parent), _pProcess(pProcess), _handshakeTimeoutMs(handshakeTimeoutMs)
 {
     Q_ASSERT(pProcess);
     _pProcess->setParent(this);
@@ -36,7 +37,7 @@ void AdapterClient::prepareAdapter(const QString& adapterPath)
 
     qCInfo(scopeComm) << "AdapterClient: process started, sending initialize";
     _state = State::INITIALIZING;
-    _handshakeTimer.start(cHandshakeTimeoutMs);
+    _handshakeTimer.start(_handshakeTimeoutMs);
     _pProcess->sendRequest("adapter.initialize", QJsonObject());
 }
 
@@ -51,7 +52,7 @@ void AdapterClient::provideConfig(QJsonObject config, QStringList registerExpres
     _pendingExpressions = registerExpressions;
     _pendingConfig = config;
     _state = State::CONFIGURING;
-    _handshakeTimer.start(cHandshakeTimeoutMs);
+    _handshakeTimer.start(_handshakeTimeoutMs);
     QJsonObject params;
     params["config"] = _pendingConfig;
     _pProcess->sendRequest("adapter.configure", params);
@@ -92,6 +93,7 @@ void AdapterClient::stopSession()
     {
         _state = State::STOPPING;
         _pProcess->sendRequest("adapter.shutdown", QJsonObject());
+        _handshakeTimer.start(_handshakeTimeoutMs);
     }
     else
     {
@@ -155,9 +157,17 @@ void AdapterClient::onProcessFinished()
 void AdapterClient::onHandshakeTimeout()
 {
     qCWarning(scopeComm) << "AdapterClient: handshake timed out in state" << static_cast<int>(_state);
+    bool wasStopping = (_state == State::STOPPING);
     _state = State::IDLE;
     QTimer::singleShot(0, this, [this]() { _pProcess->stop(); });
-    emit sessionError("Adapter handshake timed out");
+    if (wasStopping)
+    {
+        emit sessionStopped();
+    }
+    else
+    {
+        emit sessionError("Adapter handshake timed out");
+    }
 }
 
 void AdapterClient::onNotificationReceived(QString method, QJsonValue params)

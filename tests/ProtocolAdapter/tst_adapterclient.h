@@ -27,6 +27,7 @@ private slots:
     void requestReadDataWhenNotActive();
     void nonObjectResultEmitsSessionError();
     void errorDuringShutdownSuppressed();
+    void shutdownNoAckTimesOutToSessionStopped();
     void awaitingConfigPausesBeforeConfigure();
     void stopSessionDuringAwaitingConfig();
 };
