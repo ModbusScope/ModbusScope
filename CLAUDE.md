@@ -36,8 +36,6 @@ clang-format -i src/path/to/file.cpp
 ./scripts/run_clazy.sh src/path/to/file.cpp
 ```
 
-Always use these agents rather than running the commands directly. After making source file changes: build, then run tests, then run quality checks, then run code review - all required steps must pass before the work is done.
-
 ## Project Structure
 
 ```text
@@ -79,7 +77,6 @@ Enforced by `.clang-format` (Mozilla-based, C++20):
 - Prefer readability and maintainability over using the latest C++ features (avoid syntax sugar that may be less familiar to new contributors).
 - Avoid lambda expressions with more than 2 captures or multiple statements; use named functions instead for clarity.
 - Make sure to document public functions with brief Doxygen comments in the source file
-- Update json-rpc schema spec when updating json-rpc related code
 - Only use early return for error handling, avoid deep nesting
 - When fixing a bug, add a test that reproduces the issue before implementing the fix.
 
@@ -92,4 +89,4 @@ Several sub-agents are defined in `.claude/agents/` to keep build/test/lint outp
 - **`@agent-quality`** - runs clang-format, clang-tidy, and clazy; reports only violations.
 - **`@agent-code-reviewer`** - reviews code for quality, safety, and best practices; provides specific, actionable feedback.
 
-Always use these agents rather than running the commands directly. After making source file changes: build, then run tests, then run quality checks - all must pass before the work is done.
+Always use these agents rather than running the commands directly. After making source file changes: build, then run tests, then run quality checks, then run code review - all required steps must pass before the work is done.
