@@ -3,6 +3,7 @@ name: quality
 description: Run pre-commit quality checks (clang-format, clang-tidy, clazy) on source files. Use after making code changes before finishing a task.
 tools: Bash
 model: Haiku
+effort: low
 ---
 
 Run quality checks from the project root.

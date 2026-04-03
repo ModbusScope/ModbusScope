@@ -2,6 +2,8 @@
 
 ## Build
 
+> **Preferred workflow:** use the sub-agents (`@agent-build`, `@agent-test-runner`, `@agent-quality`) defined in `.claude/agents/` — see the [Development](#development) section. The commands below are provided as reference and fallback only.
+
 All commands run from the **project root** unless noted.
 
 **Requirements:** Qt 6, C++20, Ninja. Compiler flags: `-Wall -Wextra -Werror`.
@@ -34,7 +36,7 @@ clang-format -i src/path/to/file.cpp
 ./scripts/run_clazy.sh src/path/to/file.cpp
 ```
 
-**Always run pre-commit after making source file changes.** All three checks must pass before the work is done.
+Always use these agents rather than running the commands directly. After making source file changes: build, then run tests, then run quality checks, then run code review - all required steps must pass before the work is done.
 
 ## Project Structure
 
@@ -77,6 +79,7 @@ Enforced by `.clang-format` (Mozilla-based, C++20):
 - Prefer readability and maintainability over using the latest C++ features (avoid syntax sugar that may be less familiar to new contributors).
 - Avoid lambda expressions with more than 2 captures or multiple statements; use named functions instead for clarity.
 - Make sure to document public functions with brief Doxygen comments in the source file
+- Update json-rpc schema spec when updating json-rpc related code
 - Only use early return for error handling, avoid deep nesting
 - When fixing a bug, add a test that reproduces the issue before implementing the fix.
 
