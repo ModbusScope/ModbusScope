@@ -3,8 +3,10 @@
 #include "util/scopelogging.h"
 
 #include <QJsonDocument>
+#include <QTimer>
 
 static constexpr int cStartTimeoutMs = 3000;
+static constexpr int cStopTimeoutMs = 3000;
 
 AdapterProcess::AdapterProcess(QObject* parent) : QObject(parent)
 {
@@ -49,11 +51,12 @@ void AdapterProcess::stop()
     if (_pProcess->state() != QProcess::NotRunning)
     {
         _pProcess->closeWriteChannel();
-        if (!_pProcess->waitForFinished(3000))
-        {
-            _pProcess->kill();
-            _pProcess->waitForFinished(1000);
-        }
+        QTimer::singleShot(cStopTimeoutMs, this, [this]() {
+            if (_pProcess->state() != QProcess::NotRunning)
+            {
+                _pProcess->kill();
+            }
+        });
     }
 }
 
@@ -100,11 +103,10 @@ bool AdapterProcess::writeFramed(const QByteArray& json)
     qint64 written = _pProcess->write(frame);
     if (written != frame.size())
     {
-        emit processError(
-            QString("Failed to write to adapter process (wrote %1 of %2 bytes, error: %3)")
-                .arg(written)
-                .arg(frame.size())
-                .arg(_pProcess->errorString()));
+        emit processError(QString("Failed to write to adapter process (wrote %1 of %2 bytes, error: %3)")
+                            .arg(written)
+                            .arg(frame.size())
+                            .arg(_pProcess->errorString()));
         return false;
     }
     return true;

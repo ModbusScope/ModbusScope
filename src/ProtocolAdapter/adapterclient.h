@@ -73,7 +73,10 @@ public:
     void requestStatus();
 
     /*!
-     * \brief Send adapter.shutdown and terminate the adapter process.
+     * \brief Send adapter.shutdown and signal the adapter process to stop.
+     *
+     * The sessionStopped() signal is emitted asynchronously once the process
+     * has fully exited.
      */
     void stopSession();
 

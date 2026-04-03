@@ -46,6 +46,9 @@ void TestAdapterProcess::sendRequestEmitsResponseReceived()
     /* Close the write channel so the adapter flushes its responses and exits */
     process.stop();
 
+    /* stop() is non-blocking; give the event loop time to receive the response */
+    QTest::qWait(500);
+
     QCOMPARE(spyProcessError.count(), 0);
     QCOMPARE(spyResponse.count(), 1);
     QList<QVariant> args = spyResponse.at(0);
@@ -65,6 +68,9 @@ void TestAdapterProcess::processFinishedEmittedOnStop()
     QVERIFY(process.isRunning());
 
     process.stop();
+
+    /* stop() is non-blocking; give the event loop time to process the exit */
+    QTest::qWait(500);
 
     QVERIFY(!process.isRunning());
     QCOMPARE(spyFinished.count(), 1);

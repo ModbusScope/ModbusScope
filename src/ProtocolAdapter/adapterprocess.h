@@ -37,7 +37,11 @@ public:
     virtual bool start(const QString& path);
 
     /*!
-     * \brief Kill the adapter process and wait for it to finish.
+     * \brief Signal the adapter process to stop and return immediately.
+     *
+     * Closes stdin so the adapter exits cleanly. If it has not exited within
+     * the stop timeout, it is killed. The \c processFinished signal is emitted
+     * asynchronously when the process actually exits.
      */
     virtual void stop();
 

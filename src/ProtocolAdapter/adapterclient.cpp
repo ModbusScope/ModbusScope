@@ -97,9 +97,9 @@ void AdapterClient::stopSession()
     }
     else
     {
+        _state = State::STOPPING;
         _pProcess->stop();
-        _state = State::IDLE;
-        emit sessionStopped();
+        /* sessionStopped is emitted from onProcessFinished once the process exits */
     }
 }
 
@@ -115,7 +115,7 @@ void AdapterClient::onResponseReceived(int id, const QString& method, const QJso
         qCWarning(scopeComm) << "AdapterClient: unexpected non-object result for" << method;
         _handshakeTimer.stop();
         _state = State::IDLE;
-        QTimer::singleShot(0, this, [this]() { _pProcess->stop(); });
+        _pProcess->stop();
         emit sessionError(QString("Unexpected non-object result for %1").arg(method));
     }
 }
@@ -129,7 +129,7 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
 
     State previousState = _state;
     _state = State::IDLE;
-    QTimer::singleShot(0, this, [this]() { _pProcess->stop(); });
+    _pProcess->stop();
 
     if (previousState != State::STOPPING)
     {
@@ -147,7 +147,12 @@ void AdapterClient::onProcessError(const QString& message)
 void AdapterClient::onProcessFinished()
 {
     _handshakeTimer.stop();
-    if (_state != State::IDLE)
+    if (_state == State::STOPPING)
+    {
+        _state = State::IDLE;
+        emit sessionStopped();
+    }
+    else if (_state != State::IDLE)
     {
         _state = State::IDLE;
         emit sessionError("Adapter process exited unexpectedly");
@@ -159,7 +164,7 @@ void AdapterClient::onHandshakeTimeout()
     qCWarning(scopeComm) << "AdapterClient: handshake timed out in state" << static_cast<int>(_state);
     bool wasStopping = (_state == State::STOPPING);
     _state = State::IDLE;
-    QTimer::singleShot(0, this, [this]() { _pProcess->stop(); });
+    _pProcess->stop();
     if (wasStopping)
     {
         emit sessionStopped();
@@ -244,8 +249,7 @@ void AdapterClient::handleLifecycleResponse(const QString& method, const QJsonOb
     {
         qCInfo(scopeComm) << "AdapterClient: shutdown acknowledged";
         _pProcess->stop();
-        _state = State::IDLE;
-        emit sessionStopped();
+        /* sessionStopped is emitted from onProcessFinished once the process exits */
     }
     else
     {

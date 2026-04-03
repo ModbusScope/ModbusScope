@@ -30,6 +30,7 @@ private slots:
     void shutdownNoAckTimesOutToSessionStopped();
     void awaitingConfigPausesBeforeConfigure();
     void stopSessionDuringAwaitingConfig();
+    void shutdownAckEmitsSessionStoppedAfterProcessExit();
 };
 
 #endif // TST_ADAPTERCLIENT_H
