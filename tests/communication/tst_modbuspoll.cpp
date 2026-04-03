@@ -6,24 +6,23 @@
 #include <QLoggingCategory>
 #include <QTest>
 
-namespace
-{
-    QtMsgType g_capturedType{};
-    QString g_capturedMessage{};
+namespace {
+QtMsgType g_capturedType{};
+QString g_capturedMessage{};
 
-    void captureHandler(QtMsgType type, const QMessageLogContext&, const QString& msg)
-    {
-        g_capturedType = type;
-        g_capturedMessage = msg;
-    }
+void captureHandler(QtMsgType type, const QMessageLogContext&, const QString& msg)
+{
+    g_capturedType = type;
+    g_capturedMessage = msg;
 }
+} // namespace
 
 void TestModbusPoll::init()
 {
     _pSettingsModel = new SettingsModel;
     _pModbusPoll = new ModbusPoll(_pSettingsModel);
-    /* Enable debug output for scope.comm so qCDebug calls reach the handler */
-    QLoggingCategory::setFilterRules(QStringLiteral("scope.comm.debug=true"));
+    /* Enable debug output for scope.comm.adapter so qCDebug calls reach the handler */
+    QLoggingCategory::setFilterRules(QStringLiteral("scope.comm.adapter.debug=true"));
 }
 
 void TestModbusPoll::cleanup()
@@ -35,6 +34,8 @@ void TestModbusPoll::cleanup()
 
 void TestModbusPoll::diagnosticDebugLevel()
 {
+    g_capturedType = QtMsgType{};
+    g_capturedMessage = QString{};
     QtMessageHandler previous = qInstallMessageHandler(captureHandler);
     bool invoked =
       QMetaObject::invokeMethod(_pModbusPoll, "onAdapterDiagnostic", Q_ARG(QString, QStringLiteral("debug")),
@@ -48,9 +49,10 @@ void TestModbusPoll::diagnosticDebugLevel()
 
 void TestModbusPoll::diagnosticInfoLevel()
 {
+    g_capturedType = QtMsgType{};
+    g_capturedMessage = QString{};
     QtMessageHandler previous = qInstallMessageHandler(captureHandler);
-    QMetaObject::invokeMethod(_pModbusPoll, "onAdapterDiagnostic",
-                              Q_ARG(QString, QStringLiteral("info")),
+    QMetaObject::invokeMethod(_pModbusPoll, "onAdapterDiagnostic", Q_ARG(QString, QStringLiteral("info")),
                               Q_ARG(QString, QStringLiteral("session active")));
     qInstallMessageHandler(previous);
 
@@ -60,9 +62,10 @@ void TestModbusPoll::diagnosticInfoLevel()
 
 void TestModbusPoll::diagnosticWarningLevel()
 {
+    g_capturedType = QtMsgType{};
+    g_capturedMessage = QString{};
     QtMessageHandler previous = qInstallMessageHandler(captureHandler);
-    QMetaObject::invokeMethod(_pModbusPoll, "onAdapterDiagnostic",
-                              Q_ARG(QString, QStringLiteral("warning")),
+    QMetaObject::invokeMethod(_pModbusPoll, "onAdapterDiagnostic", Q_ARG(QString, QStringLiteral("warning")),
                               Q_ARG(QString, QStringLiteral("register read failed")));
     qInstallMessageHandler(previous);
 
@@ -72,9 +75,10 @@ void TestModbusPoll::diagnosticWarningLevel()
 
 void TestModbusPoll::diagnosticUnknownLevel()
 {
+    g_capturedType = QtMsgType{};
+    g_capturedMessage = QString{};
     QtMessageHandler previous = qInstallMessageHandler(captureHandler);
-    QMetaObject::invokeMethod(_pModbusPoll, "onAdapterDiagnostic",
-                              Q_ARG(QString, QStringLiteral("critical")),
+    QMetaObject::invokeMethod(_pModbusPoll, "onAdapterDiagnostic", Q_ARG(QString, QStringLiteral("critical")),
                               Q_ARG(QString, QStringLiteral("unexpected error")));
     qInstallMessageHandler(previous);
 

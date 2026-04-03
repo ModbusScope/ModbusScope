@@ -125,7 +125,7 @@ void ModbusPoll::onDescribeResult(const QJsonObject& description)
  * Maps the adapter's level string to the appropriate Qt logging severity so
  * the message flows through ScopeLogging into DiagnosticModel.
  *
- * \param level Severity string from the adapter: "debug", "info", or "warning".
+ * \param level Severity string from the adapter: "debug", "info", "warning", or "error".
  * \param message The diagnostic message text.
  */
 void ModbusPoll::onAdapterDiagnostic(const QString& level, const QString& message)
@@ -141,6 +141,10 @@ void ModbusPoll::onAdapterDiagnostic(const QString& level, const QString& messag
     else if (level == QStringLiteral("warning"))
     {
         qCWarning(scopeAdapter) << message;
+    }
+    else if (level == QStringLiteral("error"))
+    {
+        qCCritical(scopeAdapter) << message;
     }
     else
     {
