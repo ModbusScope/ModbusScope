@@ -20,6 +20,7 @@ private slots:
     void notificationIgnored();
     void diagnosticNotificationForwarded();
     void diagnosticNotificationDebugLevel();
+    void diagnosticMalformedParams();
     void processErrorEmitsSessionError();
     void stopSessionDuringLifecycle();
     void doubleStopSession();

@@ -138,9 +138,13 @@ void ModbusPoll::onAdapterDiagnostic(const QString& level, const QString& messag
     {
         qCInfo(scopeComm) << message;
     }
-    else
+    else if (level == QStringLiteral("warning"))
     {
         qCWarning(scopeComm) << message;
+    }
+    else
+    {
+        qCWarning(scopeComm) << "AdapterClient: unknown diagnostic level:" << level << "-" << message;
     }
 }
 

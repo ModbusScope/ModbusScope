@@ -162,12 +162,20 @@ void AdapterClient::onHandshakeTimeout()
 
 void AdapterClient::onNotificationReceived(QString method, QJsonValue params)
 {
-    if (method == QStringLiteral("adapter.diagnostic"))
+    if (method != QStringLiteral("adapter.diagnostic"))
     {
-        QJsonObject obj = params.toObject();
-        emit diagnosticReceived(obj.value(QStringLiteral("level")).toString(),
-                                obj.value(QStringLiteral("message")).toString());
+        return;
     }
+
+    if (!params.isObject())
+    {
+        qCWarning(scopeComm) << "AdapterClient: adapter.diagnostic params is not an object";
+        return;
+    }
+
+    QJsonObject obj = params.toObject();
+    emit diagnosticReceived(obj.value(QStringLiteral("level")).toString(),
+                            obj.value(QStringLiteral("message")).toString());
 }
 
 void AdapterClient::handleLifecycleResponse(const QString& method, const QJsonObject& result)

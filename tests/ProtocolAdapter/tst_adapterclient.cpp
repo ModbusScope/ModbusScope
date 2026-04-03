@@ -321,6 +321,19 @@ void TestAdapterClient::diagnosticNotificationDebugLevel()
     QCOMPARE(spyDiagnostic.at(0).at(1).toString(), QStringLiteral("polling started"));
 }
 
+void TestAdapterClient::diagnosticMalformedParams()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyDiagnostic(&client, &AdapterClient::diagnosticReceived);
+
+    /* params is not an object — diagnosticReceived must not be emitted */
+    mock->injectNotification("adapter.diagnostic", QJsonValue(42));
+
+    QCOMPARE(spyDiagnostic.count(), 0);
+}
+
 void TestAdapterClient::processErrorEmitsSessionError()
 {
     auto* mock = new MockAdapterProcess();
