@@ -16,6 +16,7 @@ AdapterClient::AdapterClient(AdapterProcess* pProcess, QObject* parent) : QObjec
     connect(_pProcess, &AdapterProcess::errorReceived, this, &AdapterClient::onErrorReceived);
     connect(_pProcess, &AdapterProcess::processError, this, &AdapterClient::onProcessError);
     connect(_pProcess, &AdapterProcess::processFinished, this, &AdapterClient::onProcessFinished);
+    connect(_pProcess, &AdapterProcess::notificationReceived, this, &AdapterClient::onNotificationReceived);
 }
 
 AdapterClient::~AdapterClient() = default;
@@ -157,6 +158,16 @@ void AdapterClient::onHandshakeTimeout()
     _state = State::IDLE;
     QTimer::singleShot(0, this, [this]() { _pProcess->stop(); });
     emit sessionError("Adapter handshake timed out");
+}
+
+void AdapterClient::onNotificationReceived(QString method, QJsonValue params)
+{
+    if (method == QStringLiteral("adapter.diagnostic"))
+    {
+        QJsonObject obj = params.toObject();
+        emit diagnosticReceived(obj.value(QStringLiteral("level")).toString(),
+                                obj.value(QStringLiteral("message")).toString());
+    }
 }
 
 void AdapterClient::handleLifecycleResponse(const QString& method, const QJsonObject& result)

@@ -282,13 +282,43 @@ void TestAdapterClient::notificationIgnored()
     QSignalSpy spyStarted(&client, &AdapterClient::sessionStarted);
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
     QSignalSpy spyData(&client, &AdapterClient::readDataResult);
+    QSignalSpy spyDiagnostic(&client, &AdapterClient::diagnosticReceived);
 
-    /* Simulate a server-initiated notification and verify AdapterClient stays silent */
+    /* Simulate a non-diagnostic notification and verify all signals stay silent */
     mock->injectNotification("adapter.progress", QJsonObject{ { "percent", 50 } });
 
     QCOMPARE(spyStarted.count(), 0);
     QCOMPARE(spyError.count(), 0);
     QCOMPARE(spyData.count(), 0);
+    QCOMPARE(spyDiagnostic.count(), 0);
+}
+
+void TestAdapterClient::diagnosticNotificationForwarded()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyDiagnostic(&client, &AdapterClient::diagnosticReceived);
+
+    mock->injectNotification("adapter.diagnostic", QJsonObject{ { "level", "warning" }, { "message", "connection lost" } });
+
+    QCOMPARE(spyDiagnostic.count(), 1);
+    QCOMPARE(spyDiagnostic.at(0).at(0).toString(), QStringLiteral("warning"));
+    QCOMPARE(spyDiagnostic.at(0).at(1).toString(), QStringLiteral("connection lost"));
+}
+
+void TestAdapterClient::diagnosticNotificationDebugLevel()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyDiagnostic(&client, &AdapterClient::diagnosticReceived);
+
+    mock->injectNotification("adapter.diagnostic", QJsonObject{ { "level", "debug" }, { "message", "polling started" } });
+
+    QCOMPARE(spyDiagnostic.count(), 1);
+    QCOMPARE(spyDiagnostic.at(0).at(0).toString(), QStringLiteral("debug"));
+    QCOMPARE(spyDiagnostic.at(0).at(1).toString(), QStringLiteral("polling started"));
 }
 
 void TestAdapterClient::processErrorEmitsSessionError()

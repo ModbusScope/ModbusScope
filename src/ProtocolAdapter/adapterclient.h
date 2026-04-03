@@ -114,6 +114,13 @@ signals:
      */
     void sessionStopped();
 
+    /*!
+     * \brief Emitted when an adapter.diagnostic notification is received from the adapter.
+     * \param level Severity level string: "debug", "info", or "warning".
+     * \param message The diagnostic message from the adapter.
+     */
+    void diagnosticReceived(QString level, QString message);
+
 protected:
     enum class State
     {
@@ -135,6 +142,7 @@ private slots:
     void onProcessError(const QString& message);
     void onProcessFinished();
     void onHandshakeTimeout();
+    void onNotificationReceived(QString method, QJsonValue params);
 
 private:
     void handleLifecycleResponse(const QString& method, const QJsonObject& result);

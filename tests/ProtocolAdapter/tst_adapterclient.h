@@ -18,6 +18,8 @@ private slots:
     void errorResponseEmitsSessionError();
     void unexpectedResponseEmitsNoSignals();
     void notificationIgnored();
+    void diagnosticNotificationForwarded();
+    void diagnosticNotificationDebugLevel();
     void processErrorEmitsSessionError();
     void stopSessionDuringLifecycle();
     void doubleStopSession();

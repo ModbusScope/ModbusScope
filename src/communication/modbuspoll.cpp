@@ -30,6 +30,7 @@ ModbusPoll::ModbusPoll(SettingsModel* pSettingsModel, QObject* parent) : QObject
         _bPollActive = false;
     });
     connect(_pAdapterClient, &AdapterClient::sessionStopped, this, &ModbusPoll::initAdapter);
+    connect(_pAdapterClient, &AdapterClient::diagnosticReceived, this, &ModbusPoll::onAdapterDiagnostic);
 }
 
 ModbusPoll::~ModbusPoll() = default;
@@ -117,6 +118,30 @@ void ModbusPoll::onReadDataResult(ResultDoubleList results)
 void ModbusPoll::onDescribeResult(const QJsonObject& description)
 {
     _pSettingsModel->updateAdapterFromDescribe("modbus", description);
+}
+
+/*! \brief Route an adapter.diagnostic notification to the diagnostics log.
+ *
+ * Maps the adapter's level string to the appropriate Qt logging severity so
+ * the message flows through ScopeLogging into DiagnosticModel.
+ *
+ * \param level Severity string from the adapter: "debug", "info", or "warning".
+ * \param message The diagnostic message text.
+ */
+void ModbusPoll::onAdapterDiagnostic(const QString& level, const QString& message)
+{
+    if (level == QStringLiteral("debug"))
+    {
+        qCDebug(scopeComm) << message;
+    }
+    else if (level == QStringLiteral("info"))
+    {
+        qCInfo(scopeComm) << message;
+    }
+    else
+    {
+        qCWarning(scopeComm) << message;
+    }
 }
 
 QStringList ModbusPoll::buildRegisterExpressions(const QList<DataPoint>& registerList)
