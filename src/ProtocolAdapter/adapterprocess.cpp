@@ -13,6 +13,15 @@ AdapterProcess::AdapterProcess(QObject* parent) : QObject(parent)
     _pProcess = new QProcess(this);
     _pFramingReader = new FramingReader(this);
 
+    _pKillTimer = new QTimer(this);
+    _pKillTimer->setSingleShot(true);
+    connect(_pKillTimer, &QTimer::timeout, this, [this]() {
+        if (_pProcess->state() != QProcess::NotRunning)
+        {
+            _pProcess->kill();
+        }
+    });
+
     connect(_pProcess, &QProcess::readyReadStandardOutput, this, &AdapterProcess::onReadyReadStdout);
     connect(_pProcess, &QProcess::readyReadStandardError, this, &AdapterProcess::onReadyReadStderr);
     connect(_pProcess, &QProcess::finished, this, &AdapterProcess::onProcessFinished);
@@ -27,6 +36,7 @@ bool AdapterProcess::start(const QString& path)
         return true;
     }
 
+    _pKillTimer->stop();
     _pendingMethods.clear();
     _nextRequestId = 1;
 
@@ -51,12 +61,8 @@ void AdapterProcess::stop()
     if (_pProcess->state() != QProcess::NotRunning)
     {
         _pProcess->closeWriteChannel();
-        QTimer::singleShot(cStopTimeoutMs, this, [this]() {
-            if (_pProcess->state() != QProcess::NotRunning)
-            {
-                _pProcess->kill();
-            }
-        });
+        _pKillTimer->stop();
+        _pKillTimer->start(cStopTimeoutMs);
     }
 }
 
@@ -173,5 +179,6 @@ void AdapterProcess::onProcessFinished(int exitCode, QProcess::ExitStatus exitSt
 {
     qCInfo(scopeComm) << "AdapterProcess: process finished, exit code:" << exitCode << "status:" << exitStatus;
     _pendingMethods.clear();
+    _pKillTimer->stop();
     emit processFinished();
 }

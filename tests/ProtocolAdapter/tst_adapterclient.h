@@ -31,6 +31,8 @@ private slots:
     void awaitingConfigPausesBeforeConfigure();
     void stopSessionDuringAwaitingConfig();
     void shutdownAckEmitsSessionStoppedAfterProcessExit();
+    void processErrorDuringStoppingNoSessionError();
+    void processErrorDuringStoppingThenProcessFinished();
 };
 
 #endif // TST_ADAPTERCLIENT_H

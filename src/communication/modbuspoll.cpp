@@ -28,6 +28,7 @@ ModbusPoll::ModbusPoll(SettingsModel* pSettingsModel, QObject* parent) : QObject
     connect(_pAdapterClient, &AdapterClient::sessionError, this, [this](QString message) {
         qCWarning(scopeComm) << "AdapterClient error:" << message;
         _bPollActive = false;
+        disconnect(_pAdapterClient, &AdapterClient::sessionStopped, this, &ModbusPoll::initAdapter);
     });
     connect(_pAdapterClient, &AdapterClient::sessionStopped, this, &ModbusPoll::initAdapter);
     connect(_pAdapterClient, &AdapterClient::diagnosticReceived, this, &ModbusPoll::onAdapterDiagnostic);

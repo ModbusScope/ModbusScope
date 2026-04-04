@@ -140,8 +140,11 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
 void AdapterClient::onProcessError(const QString& message)
 {
     _handshakeTimer.stop();
-    _state = State::IDLE;
-    emit sessionError(message);
+    if (_state != State::STOPPING)
+    {
+        _state = State::IDLE;
+        emit sessionError(message);
+    }
 }
 
 void AdapterClient::onProcessFinished()

@@ -9,6 +9,7 @@
 #include <QObject>
 #include <QProcess>
 #include <QString>
+#include <QTimer>
 
 /*!
  * \brief Transport layer for an external adapter process communicating via JSON-RPC 2.0 over stdio.
@@ -104,6 +105,7 @@ private:
     bool writeFramed(const QByteArray& json);
 
     QProcess* _pProcess;
+    QTimer* _pKillTimer;
     FramingReader* _pFramingReader;
     QMap<int, QString> _pendingMethods;
     int _nextRequestId{ 1 };

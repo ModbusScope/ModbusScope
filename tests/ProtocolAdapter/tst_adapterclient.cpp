@@ -565,4 +565,49 @@ void TestAdapterClient::shutdownAckEmitsSessionStoppedAfterProcessExit()
     QCOMPARE(spyError.count(), 0);
 }
 
+void TestAdapterClient::processErrorDuringStoppingNoSessionError()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+    QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
+
+    client.prepareAdapter(QStringLiteral("./dummy"));
+    mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(2, "adapter.describe", describeResult());
+    client.provideConfig(QJsonObject(), QStringList());
+    mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
+
+    client.stopSession();
+    mock->injectProcessError(QStringLiteral("Adapter process crashed"));
+
+    QCOMPARE(spyError.count(), 0);
+    QCOMPARE(spyStopped.count(), 0);
+}
+
+void TestAdapterClient::processErrorDuringStoppingThenProcessFinished()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+    QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
+
+    client.prepareAdapter(QStringLiteral("./dummy"));
+    mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(2, "adapter.describe", describeResult());
+    client.provideConfig(QJsonObject(), QStringList());
+    mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
+
+    client.stopSession();
+    mock->injectProcessError(QStringLiteral("Adapter process crashed"));
+    mock->injectProcessFinished();
+
+    QCOMPARE(spyError.count(), 0);
+    QCOMPARE(spyStopped.count(), 1);
+}
+
 QTEST_GUILESS_MAIN(TestAdapterClient)
