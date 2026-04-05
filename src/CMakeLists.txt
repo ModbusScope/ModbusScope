@@ -23,7 +23,9 @@ file(GLOB_RECURSE UIS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.ui") #all
 
 qt_add_library(${SCOPESOURCE} STATIC ${SRCS} ${UIS})
 
-target_compile_definitions(${SCOPESOURCE} PRIVATE DEBUG)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_definitions(${SCOPESOURCE} PRIVATE DEBUG)
+endif()
 
 target_include_directories(${SCOPESOURCE} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}

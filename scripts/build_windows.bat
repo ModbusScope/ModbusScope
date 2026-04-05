@@ -8,7 +8,7 @@ echo %PATH%
 
 g++ -v
 
-cmake -G "Ninja" ..
+cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Release ..
 IF ERRORLEVEL 1 GOTO errorHandling
 
 ninja

@@ -7,6 +7,7 @@ SINGLE_FILE="${1:-}"
 
 echo "=== Configuring (compile_commands.json) ==="
 cmake -GNinja \
+    -DCMAKE_BUILD_TYPE=Debug \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     -DCMAKE_PREFIX_PATH="${QT_PREFIX}" \
     -B "${BUILD_DIR}"
