@@ -16,6 +16,9 @@ private slots:
     void describeReturnsRequiredFields();
     void describeNameIsModbusAdapter();
     void fullLifecycleSessionStarts();
+    void readRegistersReturnsValidData();
+    void multipleReadCyclesAllSucceed();
+    void stopSessionEmitsSessionStopped();
 };
 
 #endif // TST_DUMMYADAPTER_H
