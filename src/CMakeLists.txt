@@ -29,6 +29,9 @@ endif()
 
 target_include_directories(${SCOPESOURCE} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_include_directories(${SCOPESOURCE} SYSTEM PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/../libraries
 )
 
