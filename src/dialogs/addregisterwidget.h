@@ -37,6 +37,7 @@ private:
     Ui::AddRegisterWidget* _pUi;
     SchemaFormWidget* _pAddressForm;
     QJsonObject _addressSchema;
+    int _defaultTypeIndex{ 0 };
 
     SettingsModel* _pSettingsModel;
 

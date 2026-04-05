@@ -43,12 +43,13 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel, const QStrin
         _pUi->cmbType->addItem(typeObj["label"].toString(), typeObj["id"].toString());
     }
 
-    /* Pre-select the default data type */
-    const int defaultIndex = _pUi->cmbType->findData(defaultTypeId);
-    if (defaultIndex >= 0)
+    /* Pre-select the default data type and remember the index for resetFields() */
+    _defaultTypeIndex = _pUi->cmbType->findData(defaultTypeId);
+    if (_defaultTypeIndex < 0)
     {
-        _pUi->cmbType->setCurrentIndex(defaultIndex);
+        _defaultTypeIndex = 0;
     }
+    _pUi->cmbType->setCurrentIndex(_defaultTypeIndex);
 
     /* Populate device combo */
     _pUi->cmbDevice->clear();
@@ -98,7 +99,7 @@ void AddRegisterWidget::handleResultAccept()
 void AddRegisterWidget::resetFields()
 {
     _pUi->lineName->setText("Name of curve");
-    _pUi->cmbType->setCurrentIndex(0);
+    _pUi->cmbType->setCurrentIndex(_defaultTypeIndex);
     _pUi->cmbDevice->setCurrentIndex(0);
     _pUi->radioPrimary->setChecked(true);
     _pAddressForm->setSchema(_addressSchema, QJsonObject());
