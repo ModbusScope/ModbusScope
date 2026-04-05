@@ -1,5 +1,3 @@
-add_definitions(-DGTEST_LANGUAGE_CXX11)
-
 find_package(Threads REQUIRED)
 
 if ($ENV{GOOGLETEST_DIR})
@@ -15,8 +13,6 @@ if (EXISTS ${GOOGLETEST_DIR})
 else ()
     message( FATAL_ERROR "No googletest src dir found - set GOOGLETEST_DIR to enable!")
 endif ()
-
-include_directories(${GTestSrc} ${GTestSrc}/include ${GMockSrc} ${GMockSrc}/include)
 
 set(
     GOOGLE_TEST_SOURCE
@@ -43,6 +39,8 @@ function(add_xtest_mock SOURCE_NAME)
         ${SOURCE_NAME}.cpp
         ${GOOGLE_TEST_SOURCE}
 		${ARGN})
+	target_include_directories(${SOURCE_NAME} PRIVATE ${GTestSrc} ${GTestSrc}/include ${GMockSrc} ${GMockSrc}/include)
+	target_compile_definitions(${SOURCE_NAME} PRIVATE GTEST_LANGUAGE_CXX11)
 	target_link_libraries(${SOURCE_NAME} Qt::Test Threads::Threads ${QT_LIB} ${SCOPESOURCE})
 	add_test(NAME ${SOURCE_NAME} COMMAND ${SOURCE_NAME})
 endfunction()

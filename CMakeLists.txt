@@ -6,8 +6,6 @@ project(notonlymodbusscope
     VERSION 0.0.1
 )
 
-add_definitions("-DnDEBUG")
-
 set(SCOPESOURCE ScopeSource)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -50,26 +48,17 @@ set(QT_LIB
     Qt::SerialPort
 )
 
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/libraries
-)
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+add_compile_options(-Wall -Wextra -Werror)
 if (MINGW)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj")
+    add_compile_options(-Wa,-mbig-obj)
 endif()
 
-
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # Code Coverage Report
     if(USE_GCOV)
-            message(STATUS "Enabling coverage")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
-            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
-            set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --coverage")
+        message(STATUS "Enabling coverage")
+        add_compile_options(--coverage)
+        add_link_options(--coverage)
     endif()
 endif()
 
