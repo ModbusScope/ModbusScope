@@ -202,13 +202,6 @@ void SettingsModel::setAdapterCurrentConfig(const QString& adapterId, const QJso
     emit adapterDataChanged(adapterId);
 }
 
-/*! \brief Update adapter metadata from an adapter.describe response and notify observers.
- *
- * Parses name, version, schema, defaults and capabilities from \a describeResult
- * and stores them in the adapter entry, then emits adapterDataChanged().
- * \param adapterId      The adapter identifier string.
- * \param describeResult The full JSON object returned by adapter.describe.
- */
 /*! \brief Store the register schema from an adapter.registerSchema response and notify observers.
  * \param adapterId  The adapter identifier string.
  * \param schema     The full register schema object (addressSchema, dataTypes, defaultDataType).
