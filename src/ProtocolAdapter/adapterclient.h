@@ -26,9 +26,7 @@ class AdapterClient : public QObject
     Q_OBJECT
 
 public:
-    explicit AdapterClient(AdapterProcess* pProcess,
-                           QObject* parent = nullptr,
-                           int handshakeTimeoutMs = cHandshakeTimeoutMs);
+    explicit AdapterClient(AdapterProcess* pProcess, QObject* parent = nullptr, int handshakeTimeoutMs = 10000);
     ~AdapterClient();
 
     /*!

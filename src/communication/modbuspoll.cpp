@@ -54,6 +54,9 @@ void ModbusPoll::startCommunication(QList<DataPoint>& registerList)
     _registerList = registerList;
     _bPollActive = true;
 
+    /* Re-establish auto-restart in case it was disconnected by a prior session error */
+    connect(_pAdapterClient, &AdapterClient::sessionStopped, this, &ModbusPoll::initAdapter, Qt::UniqueConnection);
+
     qCInfo(scopeComm) << QString("Start logging: %1").arg(FormatDateTime::currentDateTime());
 
     resetCommunicationStats();

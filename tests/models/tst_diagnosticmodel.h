@@ -1,6 +1,6 @@
 
-#ifndef TEST_DIAGNOSTICMODEL_H__
-#define TEST_DIAGNOSTICMODEL_H__
+#ifndef TST_DIAGNOSTICMODEL_H
+#define TST_DIAGNOSTICMODEL_H
 
 #include <QObject>
 
@@ -26,4 +26,4 @@ private:
     QString _category;
 };
 
-#endif /* TEST_DIAGNOSTICMODEL_H__ */
+#endif // TST_DIAGNOSTICMODEL_H

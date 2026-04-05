@@ -7,13 +7,21 @@
 #include <QTest>
 
 namespace {
-QtMsgType g_capturedType{};
-QString g_capturedMessage{};
+QtMsgType& capturedType()
+{
+    static QtMsgType t{};
+    return t;
+}
+QString& capturedMessage()
+{
+    static QString m;
+    return m;
+}
 
 void captureHandler(QtMsgType type, const QMessageLogContext&, const QString& msg)
 {
-    g_capturedType = type;
-    g_capturedMessage = msg;
+    capturedType() = type;
+    capturedMessage() = msg;
 }
 } // namespace
 
@@ -34,56 +42,62 @@ void TestModbusPoll::cleanup()
 
 void TestModbusPoll::diagnosticDebugLevel()
 {
-    g_capturedType = QtMsgType{};
-    g_capturedMessage = QString{};
+    capturedType() = QtMsgType{};
+    capturedMessage() = QString{};
     QtMessageHandler previous = qInstallMessageHandler(captureHandler);
-    bool invoked =
-      QMetaObject::invokeMethod(_pModbusPoll, "onAdapterDiagnostic", Q_ARG(QString, QStringLiteral("debug")),
-                                Q_ARG(QString, QStringLiteral("polling started")));
-    QVERIFY(invoked);
+    _pModbusPoll->onAdapterDiagnostic(QStringLiteral("debug"), QStringLiteral("polling started"));
     qInstallMessageHandler(previous);
 
-    QCOMPARE(g_capturedType, QtDebugMsg);
-    QVERIFY(g_capturedMessage.contains(QStringLiteral("polling started")));
+    QCOMPARE(capturedType(), QtDebugMsg);
+    QVERIFY(capturedMessage().contains(QStringLiteral("polling started")));
 }
 
 void TestModbusPoll::diagnosticInfoLevel()
 {
-    g_capturedType = QtMsgType{};
-    g_capturedMessage = QString{};
+    capturedType() = QtMsgType{};
+    capturedMessage() = QString{};
     QtMessageHandler previous = qInstallMessageHandler(captureHandler);
-    QMetaObject::invokeMethod(_pModbusPoll, "onAdapterDiagnostic", Q_ARG(QString, QStringLiteral("info")),
-                              Q_ARG(QString, QStringLiteral("session active")));
+    _pModbusPoll->onAdapterDiagnostic(QStringLiteral("info"), QStringLiteral("session active"));
     qInstallMessageHandler(previous);
 
-    QCOMPARE(g_capturedType, QtInfoMsg);
-    QVERIFY(g_capturedMessage.contains(QStringLiteral("session active")));
+    QCOMPARE(capturedType(), QtInfoMsg);
+    QVERIFY(capturedMessage().contains(QStringLiteral("session active")));
 }
 
 void TestModbusPoll::diagnosticWarningLevel()
 {
-    g_capturedType = QtMsgType{};
-    g_capturedMessage = QString{};
+    capturedType() = QtMsgType{};
+    capturedMessage() = QString{};
     QtMessageHandler previous = qInstallMessageHandler(captureHandler);
-    QMetaObject::invokeMethod(_pModbusPoll, "onAdapterDiagnostic", Q_ARG(QString, QStringLiteral("warning")),
-                              Q_ARG(QString, QStringLiteral("register read failed")));
+    _pModbusPoll->onAdapterDiagnostic(QStringLiteral("warning"), QStringLiteral("register read failed"));
     qInstallMessageHandler(previous);
 
-    QCOMPARE(g_capturedType, QtWarningMsg);
-    QVERIFY(g_capturedMessage.contains(QStringLiteral("register read failed")));
+    QCOMPARE(capturedType(), QtWarningMsg);
+    QVERIFY(capturedMessage().contains(QStringLiteral("register read failed")));
+}
+
+void TestModbusPoll::diagnosticErrorLevel()
+{
+    capturedType() = QtMsgType{};
+    capturedMessage() = QString{};
+    QtMessageHandler previous = qInstallMessageHandler(captureHandler);
+    _pModbusPoll->onAdapterDiagnostic(QStringLiteral("error"), QStringLiteral("fatal adapter fault"));
+    qInstallMessageHandler(previous);
+
+    QCOMPARE(capturedType(), QtCriticalMsg);
+    QVERIFY(capturedMessage().contains(QStringLiteral("fatal adapter fault")));
 }
 
 void TestModbusPoll::diagnosticUnknownLevel()
 {
-    g_capturedType = QtMsgType{};
-    g_capturedMessage = QString{};
+    capturedType() = QtMsgType{};
+    capturedMessage() = QString{};
     QtMessageHandler previous = qInstallMessageHandler(captureHandler);
-    QMetaObject::invokeMethod(_pModbusPoll, "onAdapterDiagnostic", Q_ARG(QString, QStringLiteral("critical")),
-                              Q_ARG(QString, QStringLiteral("unexpected error")));
+    _pModbusPoll->onAdapterDiagnostic(QStringLiteral("critical"), QStringLiteral("unexpected error"));
     qInstallMessageHandler(previous);
 
-    QCOMPARE(g_capturedType, QtWarningMsg);
-    QVERIFY(g_capturedMessage.contains(QStringLiteral("unknown diagnostic level")));
+    QCOMPARE(capturedType(), QtWarningMsg);
+    QVERIFY(capturedMessage().contains(QStringLiteral("unknown diagnostic level")));
 }
 
 QTEST_GUILESS_MAIN(TestModbusPoll)

@@ -114,6 +114,8 @@ void AdapterClient::onResponseReceived(int id, const QString& method, const QJso
     {
         qCWarning(scopeComm) << "AdapterClient: unexpected non-object result for" << method;
         _handshakeTimer.stop();
+        /* Set IDLE before stop() so onProcessFinished's IDLE guard suppresses any
+           duplicate sessionError emission when the process exits asynchronously. */
         _state = State::IDLE;
         _pProcess->stop();
         emit sessionError(QString("Unexpected non-object result for %1").arg(method));
@@ -128,6 +130,8 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
     qCWarning(scopeComm) << "AdapterClient: error for" << method << ":" << errorMsg;
 
     State previousState = _state;
+    /* Set IDLE before stop() so onProcessFinished's IDLE guard suppresses any
+       duplicate sessionError emission when the process exits asynchronously. */
     _state = State::IDLE;
     _pProcess->stop();
 

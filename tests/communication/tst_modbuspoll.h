@@ -16,6 +16,7 @@ private slots:
     void diagnosticDebugLevel();
     void diagnosticInfoLevel();
     void diagnosticWarningLevel();
+    void diagnosticErrorLevel();
     void diagnosticUnknownLevel();
 
 private:
