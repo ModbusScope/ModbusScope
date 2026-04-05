@@ -21,6 +21,10 @@ private slots:
     void settingsModelAdapterIds();
     void settingsModelRemoveAdapter();
 
+    void registerSchemaDefaultEmpty();
+    void setAndGetRegisterSchema();
+    void settingsModelSetAdapterRegisterSchema();
+
     void deviceAdapterIdDefaultsToModbus();
     void deviceSetAndGetAdapterId();
     void deviceListForAdapterFiltersCorrectly();

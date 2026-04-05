@@ -78,6 +78,34 @@ public:
      */
     void stopSession();
 
+    /*!
+     * \brief Send an adapter.registerSchema request to discover the register UI schema.
+     *
+     * Must only be called after describeResult() has been emitted (i.e., in the
+     * AWAITING_CONFIG state). Emits registerSchemaResult() when the adapter responds.
+     */
+    void requestRegisterSchema();
+
+    /*!
+     * \brief Send an adapter.describeRegister request to parse a register expression.
+     *
+     * Can be called in AWAITING_CONFIG or ACTIVE state.
+     * Emits describeRegisterResult() when the adapter responds.
+     *
+     * \param expression The register expression string to describe.
+     */
+    void describeRegister(const QString& expression);
+
+    /*!
+     * \brief Send an adapter.validateRegister request to validate a register expression.
+     *
+     * Can be called in AWAITING_CONFIG or ACTIVE state.
+     * Emits validateRegisterResult() when the adapter responds.
+     *
+     * \param expression The register expression string to validate.
+     */
+    void validateRegister(const QString& expression);
+
 signals:
     /*!
      * \brief Emitted when the adapter has been initialized, described, configured, and started.
@@ -123,6 +151,25 @@ signals:
      * \param message The diagnostic message from the adapter.
      */
     void diagnosticReceived(QString level, QString message);
+
+    /*!
+     * \brief Emitted when an adapter.registerSchema response has been received.
+     * \param schema The full register schema object (addressSchema, dataTypes, defaultDataType).
+     */
+    void registerSchemaResult(QJsonObject schema);
+
+    /*!
+     * \brief Emitted when an adapter.describeRegister response has been received.
+     * \param result The full result object (valid, fields, description or error).
+     */
+    void describeRegisterResult(QJsonObject result);
+
+    /*!
+     * \brief Emitted when an adapter.validateRegister response has been received.
+     * \param valid Whether the expression is valid.
+     * \param error Human-readable error message when valid is false; empty otherwise.
+     */
+    void validateRegisterResult(bool valid, QString error);
 
 protected:
     enum class State

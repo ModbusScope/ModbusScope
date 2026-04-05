@@ -42,6 +42,7 @@ public:
 
     void setAdapterCurrentConfig(const QString& adapterId, const QJsonObject& config);
     void updateAdapterFromDescribe(const QString& adapterId, const QJsonObject& describeResult);
+    void setAdapterRegisterSchema(const QString& adapterId, const QJsonObject& schema);
 
     static const QString defaultLogPath()
     {

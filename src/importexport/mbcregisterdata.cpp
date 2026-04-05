@@ -183,8 +183,8 @@ void MbcRegisterData::setDecimals(const quint8& decimals)
 QString MbcRegisterData::toExpression() const
 {
     QString expression;
-    QString registerStr =
-      ExpressionGenerator::constructRegisterString(QString("%1").arg(_registerAddress), _type, Device::cFirstDeviceId);
+    QString registerStr = ExpressionGenerator::constructRegisterString(
+      QString("%1").arg(_registerAddress), ModbusDataType::typeString(_type), Device::cFirstDeviceId);
     if (_decimals != 0)
     {
         expression = QString("%1/%2").arg(registerStr).arg(static_cast<double>(qPow(10, _decimals)));

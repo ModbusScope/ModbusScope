@@ -36,6 +36,7 @@ private slots:
     void triggerRegisterRead();
     void onReadDataResult(ResultDoubleList results);
     void onDescribeResult(const QJsonObject& description);
+    void onRegisterSchemaResult(const QJsonObject& schema);
 
 private:
     QStringList buildRegisterExpressions(const QList<DataPoint>& registerList);

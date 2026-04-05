@@ -66,7 +66,9 @@ RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel, SettingsModel* p
     connect(_pUi->btnRemove, &QPushButton::released, this, &RegisterDialog::removeRegisterRow);
     connect(_pGraphDataModel, &GraphDataModel::rowsInserted, this, &RegisterDialog::onRegisterInserted);
 
-    auto registerPopupMenu = new AddRegisterWidget(_pSettingsModel, this);
+    const QStringList ids = _pSettingsModel->adapterIds();
+    const QString adapterId = ids.isEmpty() ? QString() : ids.first();
+    auto registerPopupMenu = new AddRegisterWidget(_pSettingsModel, adapterId, this);
     connect(registerPopupMenu, &AddRegisterWidget::graphDataConfigured, this, &RegisterDialog::addRegister);
 
     _registerPopupAction = std::make_unique<QWidgetAction>(this);

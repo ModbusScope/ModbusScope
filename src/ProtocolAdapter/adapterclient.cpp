@@ -80,6 +80,46 @@ void AdapterClient::requestStatus()
     _pProcess->sendRequest("adapter.getStatus", QJsonObject());
 }
 
+void AdapterClient::requestRegisterSchema()
+{
+    if (_state != State::AWAITING_CONFIG)
+    {
+        qCWarning(scopeComm) << "AdapterClient: requestRegisterSchema called in unexpected state"
+                             << static_cast<int>(_state);
+        return;
+    }
+
+    _pProcess->sendRequest("adapter.registerSchema", QJsonObject());
+}
+
+void AdapterClient::describeRegister(const QString& expression)
+{
+    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE)
+    {
+        qCWarning(scopeComm) << "AdapterClient: describeRegister called in unexpected state"
+                             << static_cast<int>(_state);
+        return;
+    }
+
+    QJsonObject params;
+    params["expression"] = expression;
+    _pProcess->sendRequest("adapter.describeRegister", params);
+}
+
+void AdapterClient::validateRegister(const QString& expression)
+{
+    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE)
+    {
+        qCWarning(scopeComm) << "AdapterClient: validateRegister called in unexpected state"
+                             << static_cast<int>(_state);
+        return;
+    }
+
+    QJsonObject params;
+    params["expression"] = expression;
+    _pProcess->sendRequest("adapter.validateRegister", params);
+}
+
 void AdapterClient::stopSession()
 {
     if (_state == State::IDLE || _state == State::STOPPING)
@@ -257,6 +297,18 @@ void AdapterClient::handleLifecycleResponse(const QString& method, const QJsonOb
         qCInfo(scopeComm) << "AdapterClient: shutdown acknowledged";
         _pProcess->stop();
         /* sessionStopped is emitted from onProcessFinished once the process exits */
+    }
+    else if (method == "adapter.registerSchema" && _state == State::AWAITING_CONFIG)
+    {
+        emit registerSchemaResult(result);
+    }
+    else if (method == "adapter.describeRegister" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
+    {
+        emit describeRegisterResult(result);
+    }
+    else if (method == "adapter.validateRegister" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
+    {
+        emit validateRegisterResult(result["valid"].toBool(), result["error"].toString());
     }
     else
     {

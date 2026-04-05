@@ -5,11 +5,12 @@
 #include <QString>
 
 /*!
- * \brief Holds adapter describe metadata and opaque configuration.
+ * \brief Holds adapter describe metadata, register schema, and opaque configuration.
  *
  * Stores the result of an adapter.describe response (name, version, schema,
- * defaults, capabilities) along with the current adapter configuration.
- * The core application treats the configuration as opaque JSON — it never
+ * defaults, capabilities), the register schema from adapter.registerSchema,
+ * and the current adapter configuration.
+ * The core application treats all adapter-specific JSON as opaque — it never
  * interprets adapter-specific fields.
  */
 class AdapterData
@@ -27,6 +28,7 @@ public:
     void setCapabilities(const QJsonObject& capabilities);
     void setCurrentConfig(const QJsonObject& config);
     void setHasStoredConfig(bool hasStoredConfig);
+    void setRegisterSchema(const QJsonObject& schema);
 
     QString name() const;
     QString version() const;
@@ -36,6 +38,7 @@ public:
     QJsonObject capabilities() const;
     QJsonObject currentConfig() const;
     bool hasStoredConfig() const;
+    QJsonObject registerSchema() const;
 
     /*!
      * \brief Populate describe metadata from an adapter.describe response.
@@ -58,6 +61,7 @@ private:
     QJsonObject _capabilities;
     QJsonObject _currentConfig;
     bool _hasStoredConfig{ false };
+    QJsonObject _registerSchema;
 };
 
 #endif // ADAPTERDATA_H

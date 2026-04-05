@@ -610,4 +610,169 @@ void TestAdapterClient::processErrorDuringStoppingThenProcessFinished()
     QCOMPARE(spyStopped.count(), 1);
 }
 
+/* ---- Helper: drive client to AWAITING_CONFIG state ---- */
+static void driveToAwaitingConfig(AdapterClient& client, MockAdapterProcess* mock)
+{
+    client.prepareAdapter(QStringLiteral("./dummy"));
+    mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(2, "adapter.describe", describeResult());
+}
+
+/* ---- Helper: drive client to ACTIVE state ---- */
+static void driveToActive(AdapterClient& client, MockAdapterProcess* mock)
+{
+    driveToAwaitingConfig(client, mock);
+    client.provideConfig(QJsonObject(), QStringList());
+    mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
+}
+
+void TestAdapterClient::requestRegisterSchemaEmitsSignal()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spySchema(&client, &AdapterClient::registerSchemaResult);
+
+    driveToAwaitingConfig(client, mock);
+
+    client.requestRegisterSchema();
+
+    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.registerSchema"));
+
+    QJsonObject schema;
+    schema["defaultDataType"] = QStringLiteral("16b");
+    mock->injectResponse(3, "adapter.registerSchema", schema);
+
+    QCOMPARE(spySchema.count(), 1);
+    QJsonObject received = spySchema.at(0).at(0).value<QJsonObject>();
+    QCOMPARE(received["defaultDataType"].toString(), QStringLiteral("16b"));
+}
+
+void TestAdapterClient::requestRegisterSchemaInWrongStateIgnored()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spySchema(&client, &AdapterClient::registerSchemaResult);
+
+    /* Call in IDLE state — should be silently ignored */
+    client.requestRegisterSchema();
+
+    QCOMPARE(spySchema.count(), 0);
+    QCOMPARE(mock->sentRequests.size(), 0);
+}
+
+void TestAdapterClient::describeRegisterInAwaitingConfig()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyDescReg(&client, &AdapterClient::describeRegisterResult);
+
+    driveToAwaitingConfig(client, mock);
+
+    client.describeRegister(QStringLiteral("${h0}"));
+
+    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.describeRegister"));
+    QCOMPARE(mock->sentRequests.last().params["expression"].toString(), QStringLiteral("${h0}"));
+
+    QJsonObject result;
+    result["valid"] = true;
+    result["description"] = QStringLiteral("Holding register 0, device 1, unsigned 16-bit");
+    mock->injectResponse(3, "adapter.describeRegister", result);
+
+    QCOMPARE(spyDescReg.count(), 1);
+    QJsonObject received = spyDescReg.at(0).at(0).value<QJsonObject>();
+    QCOMPARE(received["valid"].toBool(), true);
+    QCOMPARE(received["description"].toString(), QStringLiteral("Holding register 0, device 1, unsigned 16-bit"));
+}
+
+void TestAdapterClient::describeRegisterInActiveState()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyDescReg(&client, &AdapterClient::describeRegisterResult);
+
+    driveToActive(client, mock);
+
+    client.describeRegister(QStringLiteral("${h0}"));
+
+    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.describeRegister"));
+
+    mock->injectResponse(5, "adapter.describeRegister",
+                         QJsonObject{ { "valid", true }, { "description", QStringLiteral("Holding register 0") } });
+
+    QCOMPARE(spyDescReg.count(), 1);
+}
+
+void TestAdapterClient::describeRegisterInWrongStateIgnored()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyDescReg(&client, &AdapterClient::describeRegisterResult);
+
+    /* Call in IDLE state — should be silently ignored */
+    client.describeRegister(QStringLiteral("${h0}"));
+
+    QCOMPARE(spyDescReg.count(), 0);
+    QCOMPARE(mock->sentRequests.size(), 0);
+}
+
+void TestAdapterClient::validateRegisterValid()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyValidate(&client, &AdapterClient::validateRegisterResult);
+
+    driveToAwaitingConfig(client, mock);
+
+    client.validateRegister(QStringLiteral("${40001: 16b}"));
+
+    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.validateRegister"));
+    QCOMPARE(mock->sentRequests.last().params["expression"].toString(), QStringLiteral("${40001: 16b}"));
+
+    mock->injectResponse(3, "adapter.validateRegister", QJsonObject{ { "valid", true } });
+
+    QCOMPARE(spyValidate.count(), 1);
+    QCOMPARE(spyValidate.at(0).at(0).toBool(), true);
+    QCOMPARE(spyValidate.at(0).at(1).toString(), QString());
+}
+
+void TestAdapterClient::validateRegisterInvalid()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyValidate(&client, &AdapterClient::validateRegisterResult);
+
+    driveToAwaitingConfig(client, mock);
+
+    client.validateRegister(QStringLiteral("${bad}"));
+
+    mock->injectResponse(3, "adapter.validateRegister",
+                         QJsonObject{ { "valid", false }, { "error", QStringLiteral("Unknown type 'bad'") } });
+
+    QCOMPARE(spyValidate.count(), 1);
+    QCOMPARE(spyValidate.at(0).at(0).toBool(), false);
+    QCOMPARE(spyValidate.at(0).at(1).toString(), QStringLiteral("Unknown type 'bad'"));
+}
+
+void TestAdapterClient::validateRegisterInWrongStateIgnored()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyValidate(&client, &AdapterClient::validateRegisterResult);
+
+    /* Call in IDLE state — should be silently ignored */
+    client.validateRegister(QStringLiteral("${h0}"));
+
+    QCOMPARE(spyValidate.count(), 0);
+    QCOMPARE(mock->sentRequests.size(), 0);
+}
+
 QTEST_GUILESS_MAIN(TestAdapterClient)

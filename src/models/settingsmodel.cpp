@@ -209,6 +209,20 @@ void SettingsModel::setAdapterCurrentConfig(const QString& adapterId, const QJso
  * \param adapterId      The adapter identifier string.
  * \param describeResult The full JSON object returned by adapter.describe.
  */
+/*! \brief Store the register schema from an adapter.registerSchema response and notify observers.
+ * \param adapterId  The adapter identifier string.
+ * \param schema     The full register schema object (addressSchema, dataTypes, defaultDataType).
+ */
+void SettingsModel::setAdapterRegisterSchema(const QString& adapterId, const QJsonObject& schema)
+{
+    if (!_adapters.contains(adapterId))
+    {
+        _adapters[adapterId] = AdapterData();
+    }
+    _adapters[adapterId].setRegisterSchema(schema);
+    emit adapterDataChanged(adapterId);
+}
+
 void SettingsModel::updateAdapterFromDescribe(const QString& adapterId, const QJsonObject& describeResult)
 {
     if (!_adapters.contains(adapterId))

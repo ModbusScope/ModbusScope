@@ -3,9 +3,11 @@
 
 #include "models/graphdata.h"
 
-#include <QWidget>
 #include <QButtonGroup>
+#include <QJsonObject>
+#include <QWidget>
 
+class SchemaFormWidget;
 class SettingsModel;
 
 namespace Ui {
@@ -19,7 +21,7 @@ class AddRegisterWidget : public QWidget
     friend class TestAddRegisterWidget;
 
 public:
-    explicit AddRegisterWidget(SettingsModel* pSettingsModel, QWidget *parent = nullptr);
+    explicit AddRegisterWidget(SettingsModel* pSettingsModel, const QString& adapterId, QWidget* parent = nullptr);
     ~AddRegisterWidget();
 
 signals:
@@ -32,7 +34,9 @@ private:
     void resetFields();
     QString generateExpression();
 
-    Ui::AddRegisterWidget * _pUi;
+    Ui::AddRegisterWidget* _pUi;
+    SchemaFormWidget* _pAddressForm;
+    QJsonObject _addressSchema;
 
     SettingsModel* _pSettingsModel;
 

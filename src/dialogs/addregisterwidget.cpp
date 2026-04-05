@@ -1,20 +1,20 @@
 #include "addregisterwidget.h"
 #include "ui_addregisterwidget.h"
 
+#include "customwidgets/schemaformwidget.h"
+#include "models/adapterdata.h"
+#include "models/device.h"
 #include "models/settingsmodel.h"
 #include "util/expressiongenerator.h"
-#include "util/modbusaddress.h"
-#include "util/modbusdatatype.h"
 
-using Type = ModbusDataType::Type;
-using ObjectType = ModbusAddress::ObjectType;
+#include <QJsonArray>
+#include <QVBoxLayout>
 
-Q_DECLARE_METATYPE(ModbusDataType::Type)
-
-AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel, QWidget *parent) :
-    QWidget(parent),
-    _pUi(new Ui::AddRegisterWidget),
-    _pSettingsModel(pSettingsModel)
+AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel, const QString& adapterId, QWidget* parent)
+    : QWidget(parent),
+      _pUi(new Ui::AddRegisterWidget),
+      _pAddressForm(new SchemaFormWidget(this)),
+      _pSettingsModel(pSettingsModel)
 {
     _pUi->setupUi(this);
 
@@ -24,23 +24,39 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel, QWidget *par
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
+    /* Build the address form from the adapter's register schema */
+    const AdapterData* adapterData = _pSettingsModel->adapterData(adapterId);
+    const QJsonObject registerSchema = adapterData->registerSchema();
+    _addressSchema = registerSchema["addressSchema"].toObject();
+    _pAddressForm->setSchema(_addressSchema, QJsonObject());
+
+    auto* addressLayout = new QVBoxLayout(_pUi->addressContainer);
+    addressLayout->setContentsMargins(0, 0, 0, 0);
+    addressLayout->addWidget(_pAddressForm);
+
+    /* Populate data type combo from the adapter's dataTypes array */
+    const QJsonArray dataTypes = registerSchema["dataTypes"].toArray();
+    const QString defaultTypeId = registerSchema["defaultDataType"].toString();
+    for (const QJsonValue& entry : dataTypes)
+    {
+        const QJsonObject typeObj = entry.toObject();
+        _pUi->cmbType->addItem(typeObj["label"].toString(), typeObj["id"].toString());
+    }
+
+    /* Pre-select the default data type */
+    const int defaultIndex = _pUi->cmbType->findData(defaultTypeId);
+    if (defaultIndex >= 0)
+    {
+        _pUi->cmbType->setCurrentIndex(defaultIndex);
+    }
+
+    /* Populate device combo */
     _pUi->cmbDevice->clear();
-    const auto deviceList = _pSettingsModel->deviceList();
+    const auto deviceList = _pSettingsModel->deviceListForAdapter(adapterId);
     for (deviceId_t devId : std::as_const(deviceList))
     {
         _pUi->cmbDevice->addItem(QString(tr("Device %1").arg(devId)), devId);
     }
-
-    _pUi->cmbObjectType->addItem("Coil", QVariant::fromValue(ObjectType::COIL));
-    _pUi->cmbObjectType->addItem("Discrete input", QVariant::fromValue(ObjectType::DISCRETE_INPUT));
-    _pUi->cmbObjectType->addItem("Input register", QVariant::fromValue(ObjectType::INPUT_REGISTER));
-    _pUi->cmbObjectType->addItem("Holding register", QVariant::fromValue(ObjectType::HOLDING_REGISTER));
-
-    _pUi->cmbType->addItem(ModbusDataType::description(Type::UNSIGNED_16), QVariant::fromValue(Type::UNSIGNED_16));
-    _pUi->cmbType->addItem(ModbusDataType::description(Type::UNSIGNED_32), QVariant::fromValue(Type::UNSIGNED_32));
-    _pUi->cmbType->addItem(ModbusDataType::description(Type::SIGNED_16), QVariant::fromValue(Type::SIGNED_16));
-    _pUi->cmbType->addItem(ModbusDataType::description(Type::SIGNED_32), QVariant::fromValue(Type::SIGNED_32));
-    _pUi->cmbType->addItem(ModbusDataType::description(Type::FLOAT_32), QVariant::fromValue(Type::FLOAT_32));
 
     connect(_pUi->btnAdd, &QPushButton::clicked, this, &AddRegisterWidget::handleResultAccept);
 
@@ -82,50 +98,26 @@ void AddRegisterWidget::handleResultAccept()
 void AddRegisterWidget::resetFields()
 {
     _pUi->lineName->setText("Name of curve");
-    _pUi->spinAddress->setValue(0);
     _pUi->cmbType->setCurrentIndex(0);
-    _pUi->cmbObjectType->setCurrentIndex(3);
     _pUi->cmbDevice->setCurrentIndex(0);
     _pUi->radioPrimary->setChecked(true);
+    _pAddressForm->setSchema(_addressSchema, QJsonObject());
 }
 
 QString AddRegisterWidget::generateExpression()
 {
-    deviceId_t deviceId;
-    Type type;
-    ObjectType objectType;
+    const QJsonObject addressValues = _pAddressForm->values();
+    const QString objectType = addressValues["objectType"].toString();
+    const int address = addressValues["address"].toInt();
 
-    QVariant typeData = _pUi->cmbType->currentData();
-    if (typeData.canConvert<Type>())
-    {
-        type = typeData.value<Type>();
-    }
-    else
-    {
-        type = Type::UNSIGNED_16;
-    }
+    const QString typeId = _pUi->cmbType->currentData().toString();
 
-    QVariant objectTypeData = _pUi->cmbObjectType->currentData();
-    if (objectTypeData.canConvert<ObjectType>())
-    {
-        objectType = objectTypeData.value<ObjectType>();
-    }
-    else
-    {
-        objectType = ObjectType::UNKNOWN;
-    }
-
-    auto registerAddr = ModbusAddress(static_cast<quint32>(_pUi->spinAddress->value()), objectType);
-
-    QVariant devData = _pUi->cmbDevice->currentData();
+    deviceId_t deviceId = Device::cFirstDeviceId;
+    const QVariant devData = _pUi->cmbDevice->currentData();
     if (devData.canConvert<deviceId_t>())
     {
         deviceId = devData.value<deviceId_t>();
     }
-    else
-    {
-        deviceId = 0;
-    }
 
-    return ExpressionGenerator::constructRegisterString(registerAddr.fullAddress(), type, deviceId);
+    return ExpressionGenerator::constructRegisterString(objectType, address, typeId, deviceId);
 }

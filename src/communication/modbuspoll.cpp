@@ -1,10 +1,8 @@
 
 #include "communication/modbuspoll.h"
 
-#include "models/device.h"
 #include "models/settingsmodel.h"
 #include "util/formatdatetime.h"
-#include "util/modbusdatatype.h"
 #include "util/scopelogging.h"
 
 #include <QCoreApplication>
@@ -25,6 +23,7 @@ ModbusPoll::ModbusPoll(SettingsModel* pSettingsModel, QObject* parent) : QObject
     connect(_pAdapterClient, &AdapterClient::sessionStarted, this, &ModbusPoll::triggerRegisterRead);
     connect(_pAdapterClient, &AdapterClient::readDataResult, this, &ModbusPoll::onReadDataResult);
     connect(_pAdapterClient, &AdapterClient::describeResult, this, &ModbusPoll::onDescribeResult);
+    connect(_pAdapterClient, &AdapterClient::registerSchemaResult, this, &ModbusPoll::onRegisterSchemaResult);
     connect(_pAdapterClient, &AdapterClient::sessionError, this, [this](QString message) {
         qCWarning(scopeComm) << "AdapterClient error:" << message;
         _bPollActive = false;
@@ -123,6 +122,12 @@ void ModbusPoll::onReadDataResult(ResultDoubleList results)
 void ModbusPoll::onDescribeResult(const QJsonObject& description)
 {
     _pSettingsModel->updateAdapterFromDescribe("modbus", description);
+    _pAdapterClient->requestRegisterSchema();
+}
+
+void ModbusPoll::onRegisterSchemaResult(const QJsonObject& schema)
+{
+    _pSettingsModel->setAdapterRegisterSchema("modbus", schema);
 }
 
 /*! \brief Route an adapter.diagnostic notification to the diagnostics log.

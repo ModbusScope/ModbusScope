@@ -43,6 +43,11 @@ void AdapterData::setHasStoredConfig(bool hasStoredConfig)
     _hasStoredConfig = hasStoredConfig;
 }
 
+void AdapterData::setRegisterSchema(const QJsonObject& schema)
+{
+    _registerSchema = schema;
+}
+
 QString AdapterData::name() const
 {
     return _name;
@@ -81,6 +86,11 @@ QJsonObject AdapterData::currentConfig() const
 bool AdapterData::hasStoredConfig() const
 {
     return _hasStoredConfig;
+}
+
+QJsonObject AdapterData::registerSchema() const
+{
+    return _registerSchema;
 }
 
 void AdapterData::updateFromDescribe(const QJsonObject& describeResult)

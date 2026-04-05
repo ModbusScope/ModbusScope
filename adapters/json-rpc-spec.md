@@ -277,6 +277,133 @@ An empty `registers` array is valid and starts polling with no registers configu
 
 ---
 
+### `adapter.registerSchema`
+
+Returns the schema for register expressions — what fields make up a register address, how they should be rendered in the UI, and available data types. Call this after `adapter.describe` to discover how to build the register input UI.
+
+**Params:** `{}` (none required)
+
+**Result:**
+```json
+{
+  "addressSchema": {
+    "type": "object",
+    "properties": {
+      "objectType": {
+        "type": "string",
+        "title": "Object type",
+        "enum": ["coil", "discrete-input", "input-register", "holding-register"],
+        "x-enumLabels": ["Coil", "Discrete Input", "Input Register", "Holding Register"]
+      },
+      "address": {
+        "type": "integer",
+        "title": "Address",
+        "minimum": 0,
+        "maximum": 65535
+      }
+    },
+    "required": ["objectType", "address"]
+  },
+  "dataTypes": [
+    { "id": "16b", "label": "Unsigned 16-bit" },
+    { "id": "s16b", "label": "Signed 16-bit" },
+    { "id": "32b", "label": "Unsigned 32-bit" },
+    { "id": "s32b", "label": "Signed 32-bit" },
+    { "id": "f32b", "label": "32-bit float" }
+  ],
+  "defaultDataType": "16b"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `addressSchema` | JSON Schema describing the address input fields. The core renders this with `SchemaFormWidget` |
+| `dataTypes` | Array of available data types. Each entry has `id` (used in expression strings) and `label` (UI display) |
+| `defaultDataType` | The `id` of the type to pre-select in the UI |
+
+The `addressSchema` follows standard JSON Schema conventions. The core application uses it to dynamically generate the address input portion of the register dialog, so it must accurately describe all required fields and their constraints.
+
+---
+
+### `adapter.describeRegister`
+
+Parses a register expression into structured fields and returns a human-readable description. Used by the core to display register details in tables and tooltips without understanding protocol-specific address formats.
+
+**Params:**
+```json
+{
+  "expression": "${40001: 16b}"
+}
+```
+
+**Result (valid):**
+```json
+{
+  "valid": true,
+  "fields": {
+    "objectType": "holding-register",
+    "address": 0,
+    "deviceId": 1,
+    "dataType": "16b"
+  },
+  "description": "Holding register 0, device 1, unsigned 16-bit"
+}
+```
+
+**Result (invalid):**
+```json
+{
+  "valid": false,
+  "error": "Unknown type 'xyz'"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `valid` | Whether the expression is syntactically and semantically valid |
+| `fields` | Structured parsed fields — protocol-specific, but the core treats them as opaque display data |
+| `description` | Human-readable description for display in tables, tooltips, and logs |
+| `error` | Human-readable error message when `valid` is false |
+
+**Errors:**
+- `-32602` — Missing `expression` field
+
+---
+
+### `adapter.validateRegister`
+
+Validates a single register expression string without starting polling. Used for real-time validation feedback in the register input dialog.
+
+**Params:**
+```json
+{
+  "expression": "${40001: 16b}"
+}
+```
+
+**Result (valid):**
+```json
+{ "valid": true }
+```
+
+**Result (invalid):**
+```json
+{
+  "valid": false,
+  "error": "Unknown type 'xyz'"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `valid` | Whether the expression is valid |
+| `error` | Human-readable error message when `valid` is false |
+
+**Errors:**
+- `-32602` — Missing `expression` field
+
+---
+
 ### `adapter.getStatus`
 
 Returns the current poll activity state.

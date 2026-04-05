@@ -33,6 +33,15 @@ private slots:
     void shutdownAckEmitsSessionStoppedAfterProcessExit();
     void processErrorDuringStoppingNoSessionError();
     void processErrorDuringStoppingThenProcessFinished();
+
+    void requestRegisterSchemaEmitsSignal();
+    void requestRegisterSchemaInWrongStateIgnored();
+    void describeRegisterInAwaitingConfig();
+    void describeRegisterInActiveState();
+    void describeRegisterInWrongStateIgnored();
+    void validateRegisterValid();
+    void validateRegisterInvalid();
+    void validateRegisterInWrongStateIgnored();
 };
 
 #endif // TST_ADAPTERCLIENT_H
