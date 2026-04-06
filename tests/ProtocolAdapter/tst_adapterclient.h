@@ -41,6 +41,7 @@ private slots:
     void describeRegisterInWrongStateIgnored();
     void validateRegisterValid();
     void validateRegisterInvalid();
+    void validateRegisterInActiveState();
     void validateRegisterInWrongStateIgnored();
 };
 

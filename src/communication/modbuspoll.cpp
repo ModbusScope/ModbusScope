@@ -125,6 +125,9 @@ void ModbusPoll::onDescribeResult(const QJsonObject& description)
     _pAdapterClient->requestRegisterSchema();
 }
 
+/*! \brief Receive the adapter register schema and forward it to the settings model.
+ * \param schema The register schema JSON object returned by adapter.registerSchema.
+ */
 void ModbusPoll::onRegisterSchemaResult(const QJsonObject& schema)
 {
     _pSettingsModel->setAdapterRegisterSchema("modbus", schema);

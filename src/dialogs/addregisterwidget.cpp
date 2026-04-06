@@ -10,6 +10,12 @@
 #include <QJsonArray>
 #include <QVBoxLayout>
 
+/*!
+ * \brief Constructs the widget and populates it from the adapter's register schema.
+ * \param pSettingsModel Pointer to the application settings model.
+ * \param adapterId      Identifier of the adapter whose register schema to use.
+ * \param parent         Optional parent widget.
+ */
 AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel, const QString& adapterId, QWidget* parent)
     : QWidget(parent),
       _pUi(new Ui::AddRegisterWidget),
@@ -59,6 +65,12 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel, const QStrin
         _pUi->cmbDevice->addItem(QString(tr("Device %1").arg(devId)), devId);
     }
 
+    if (deviceList.isEmpty())
+    {
+        _pUi->btnAdd->setEnabled(false);
+        _pUi->cmbDevice->setEnabled(false);
+    }
+
     connect(_pUi->btnAdd, &QPushButton::clicked, this, &AddRegisterWidget::handleResultAccept);
 
     _axisGroup.setExclusive(true);
@@ -75,7 +87,12 @@ AddRegisterWidget::~AddRegisterWidget()
 
 void AddRegisterWidget::handleResultAccept()
 {
-    QString expression = generateExpression();
+    const QString expression = generateExpression();
+    if (expression.isEmpty())
+    {
+        return;
+    }
+
     GraphData graphData;
 
     graphData.setLabel(_pUi->lineName->text());
@@ -107,10 +124,19 @@ void AddRegisterWidget::resetFields()
 
 QString AddRegisterWidget::generateExpression()
 {
+    if (_pUi->cmbDevice->count() == 0)
+    {
+        return QString();
+    }
+
     const QJsonObject addressValues = _pAddressForm->values();
+    if (!addressValues.contains("objectType") || !addressValues.contains("address"))
+    {
+        return QString();
+    }
+
     const QString objectType = addressValues["objectType"].toString();
     const int address = addressValues["address"].toInt();
-
     const QString typeId = _pUi->cmbType->currentData().toString();
 
     deviceId_t deviceId = Device::cFirstDeviceId;

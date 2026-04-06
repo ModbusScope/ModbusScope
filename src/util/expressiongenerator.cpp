@@ -1,6 +1,7 @@
 
 #include "expressiongenerator.h"
 #include "models/device.h"
+#include "util/scopelogging.h"
 
 #include <QStringLiteral>
 
@@ -22,8 +23,8 @@ QString typeSuffix(const QString& typeId)
 /*!
  * \brief Returns the single-character address prefix for an object type string.
  * \param objectType One of "coil", "discrete-input", "input-register", "holding-register".
- * \return The corresponding prefix character ("c", "d", "i", or "h").
- *         Returns "h" for unknown values as a safe default.
+ * \return The corresponding prefix character ("c", "d", "i", or "h"),
+ *         or an empty string if \a objectType is not a recognised value.
  */
 QString objectTypeToAddressPrefix(const QString& objectType)
 {
@@ -39,7 +40,12 @@ QString objectTypeToAddressPrefix(const QString& objectType)
     {
         return QStringLiteral("i");
     }
-    return QStringLiteral("h");
+    if (objectType == QStringLiteral("holding-register"))
+    {
+        return QStringLiteral("h");
+    }
+    qCWarning(scopeGeneralInfo) << "objectTypeToAddressPrefix: unknown objectType:" << objectType;
+    return QString();
 }
 
 /*!
@@ -48,11 +54,16 @@ QString objectTypeToAddressPrefix(const QString& objectType)
  * \param address    Zero-based register address within the object type space.
  * \param typeId     Data type identifier (e.g. "16b", "f32b").
  * \param devId      Device identifier; omitted from the string when it equals the first device ID.
- * \return A register expression string such as \c ${h0}, \c ${h5@2:f32b}.
+ * \return A register expression string such as \c ${h0}, \c ${h5@2:f32b},
+ *         or an empty string if \a objectType is not recognised.
  */
 QString constructRegisterString(const QString& objectType, int address, const QString& typeId, deviceId_t devId)
 {
     const QString prefix = objectTypeToAddressPrefix(objectType);
+    if (prefix.isEmpty())
+    {
+        return QString();
+    }
     const QString suffix = typeSuffix(typeId);
     const QString connStr = devId != Device::cFirstDeviceId ? QString("@%1").arg(devId) : QString();
 

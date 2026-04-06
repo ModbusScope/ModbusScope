@@ -43,6 +43,8 @@ void AdapterData::setHasStoredConfig(bool hasStoredConfig)
     _hasStoredConfig = hasStoredConfig;
 }
 
+//! \brief Sets the register schema received from adapter.registerSchema.
+//! \param schema The full register schema JSON object.
 void AdapterData::setRegisterSchema(const QJsonObject& schema)
 {
     _registerSchema = schema;
@@ -88,6 +90,8 @@ bool AdapterData::hasStoredConfig() const
     return _hasStoredConfig;
 }
 
+//! \brief Returns the register schema set via setRegisterSchema.
+//! \return The register schema JSON object, or an empty object if not yet set.
 QJsonObject AdapterData::registerSchema() const
 {
     return _registerSchema;

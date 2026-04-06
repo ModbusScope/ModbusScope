@@ -761,6 +761,27 @@ void TestAdapterClient::validateRegisterInvalid()
     QCOMPARE(spyValidate.at(0).at(1).toString(), QStringLiteral("Unknown type 'bad'"));
 }
 
+void TestAdapterClient::validateRegisterInActiveState()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyValidate(&client, &AdapterClient::validateRegisterResult);
+
+    driveToActive(client, mock);
+
+    client.validateRegister(QStringLiteral("${h0}"));
+
+    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.validateRegister"));
+    QCOMPARE(mock->sentRequests.last().params["expression"].toString(), QStringLiteral("${h0}"));
+
+    mock->injectResponse(5, "adapter.validateRegister", QJsonObject{ { "valid", true } });
+
+    QCOMPARE(spyValidate.count(), 1);
+    QCOMPARE(spyValidate.at(0).at(0).toBool(), true);
+    QCOMPARE(spyValidate.at(0).at(1).toString(), QString());
+}
+
 void TestAdapterClient::validateRegisterInWrongStateIgnored()
 {
     auto* mock = new MockAdapterProcess();

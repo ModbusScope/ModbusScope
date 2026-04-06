@@ -62,6 +62,7 @@ QJsonObject TestAddRegisterWidget::buildTestRegisterSchema()
 
 void TestAddRegisterWidget::init()
 {
+    _settingsModel.removeAllDevice();
     _settingsModel.setAdapterRegisterSchema("modbus", buildTestRegisterSchema());
     _settingsModel.deviceSettings(Device::cFirstDeviceId)->setAdapterId("modbus");
     _pRegWidget = new AddRegisterWidget(&_settingsModel, QStringLiteral("modbus"));

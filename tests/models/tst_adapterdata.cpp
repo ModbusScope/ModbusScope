@@ -131,10 +131,7 @@ void TestAdapterData::settingsModelAdapterDataCreatesEntry()
     /* First access creates a default entry */
     const AdapterData* data = model.adapterData("modbus");
     QVERIFY(data != nullptr);
-    if (data == nullptr)
-    {
-        return;
-    }
+    // NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage) -- QVERIFY aborts if null
     QVERIFY(data->name().isEmpty());
 
     /* updateAdapterFromDescribe updates the same entry in place */
