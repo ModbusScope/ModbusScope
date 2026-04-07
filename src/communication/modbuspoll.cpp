@@ -24,6 +24,7 @@ ModbusPoll::ModbusPoll(SettingsModel* pSettingsModel, QObject* parent) : QObject
     connect(_pAdapterClient, &AdapterClient::readDataResult, this, &ModbusPoll::onReadDataResult);
     connect(_pAdapterClient, &AdapterClient::describeResult, this, &ModbusPoll::onDescribeResult);
     connect(_pAdapterClient, &AdapterClient::registerSchemaResult, this, &ModbusPoll::onRegisterSchemaResult);
+    connect(_pAdapterClient, &AdapterClient::buildExpressionResult, this, &ModbusPoll::buildExpressionResult);
     connect(_pAdapterClient, &AdapterClient::sessionError, this, [this](QString message) {
         qCWarning(scopeComm) << "AdapterClient error:" << message;
         _bPollActive = false;
@@ -163,6 +164,17 @@ void ModbusPoll::onAdapterDiagnostic(const QString& level, const QString& messag
     {
         qCWarning(scopeAdapter) << "AdapterClient: unknown diagnostic level:" << level << "-" << message;
     }
+}
+
+/*!
+ * \brief Request the adapter to construct a register expression from its component parts.
+ * \param addressFields Address field values from the register schema form.
+ * \param dataType      Data type identifier; empty string uses the adapter default.
+ * \param deviceId      Device identifier; 0 uses the adapter default.
+ */
+void ModbusPoll::buildExpression(const QJsonObject& addressFields, const QString& dataType, deviceId_t deviceId)
+{
+    _pAdapterClient->buildExpression(addressFields, dataType, deviceId);
 }
 
 QStringList ModbusPoll::buildRegisterExpressions(const QList<DataPoint>& registerList)

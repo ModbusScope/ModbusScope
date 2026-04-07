@@ -397,7 +397,7 @@ void MainWindow::showRegisterDialog()
         _pGuiModel->setGuiState(GuiState::INIT);
     }
 
-    RegisterDialog registerDialog(_pGraphDataModel, _pSettingsModel, this);
+    RegisterDialog registerDialog(_pGraphDataModel, _pSettingsModel, _pModbusPoll, this);
     registerDialog.exec();
 }
 

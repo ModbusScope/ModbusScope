@@ -65,13 +65,17 @@ void TestAddRegisterWidget::init()
     _settingsModel.removeAllDevice();
     _settingsModel.setAdapterRegisterSchema("modbus", buildTestRegisterSchema());
     _settingsModel.deviceSettings(Device::cFirstDeviceId)->setAdapterId("modbus");
-    _pRegWidget = new AddRegisterWidget(&_settingsModel, QStringLiteral("modbus"));
+
+    _pMockModbusPoll = new MockModbusPoll(&_settingsModel);
+    _pRegWidget = new AddRegisterWidget(&_settingsModel, QStringLiteral("modbus"), _pMockModbusPoll);
 }
 
 void TestAddRegisterWidget::cleanup()
 {
     delete _pRegWidget;
     _pRegWidget = nullptr;
+    delete _pMockModbusPoll;
+    _pMockModbusPoll = nullptr;
 }
 
 void TestAddRegisterWidget::registerDefault()
@@ -84,11 +88,17 @@ void TestAddRegisterWidget::registerDefault()
                                          { QStringLiteral("address"), 100 } });
 
     GraphData graphData;
-    addRegister(graphData);
+    addRegister(graphData, QStringLiteral("${h100}"));
 
     QCOMPARE(graphData.label(), QStringLiteral("Register 1"));
     QCOMPARE(graphData.expression(), QStringLiteral("${h100}"));
     QVERIFY(graphData.isActive());
+
+    QCOMPARE(_pMockModbusPoll->buildCalls.size(), 1);
+    QCOMPARE(_pMockModbusPoll->buildCalls[0].fields["objectType"].toString(), QStringLiteral("holding-register"));
+    QCOMPARE(_pMockModbusPoll->buildCalls[0].fields["address"].toInt(), 100);
+    QCOMPARE(_pMockModbusPoll->buildCalls[0].dataType, QStringLiteral("16b"));
+    QCOMPARE(_pMockModbusPoll->buildCalls[0].deviceId, Device::cFirstDeviceId);
 }
 
 void TestAddRegisterWidget::registerType()
@@ -101,9 +111,10 @@ void TestAddRegisterWidget::registerType()
     _pRegWidget->_pUi->cmbType->setCurrentIndex(2);
 
     GraphData graphData;
-    addRegister(graphData);
+    addRegister(graphData, QStringLiteral("${h0:32b}"));
 
     QCOMPARE(graphData.expression(), QStringLiteral("${h0:32b}"));
+    QCOMPARE(_pMockModbusPoll->buildCalls[0].dataType, QStringLiteral("32b"));
 }
 
 void TestAddRegisterWidget::registerObjectType()
@@ -113,9 +124,10 @@ void TestAddRegisterWidget::registerObjectType()
                                          { QStringLiteral("address"), 0 } });
 
     GraphData graphData;
-    addRegister(graphData);
+    addRegister(graphData, QStringLiteral("${i0}"));
 
     QCOMPARE(graphData.expression(), QStringLiteral("${i0}"));
+    QCOMPARE(_pMockModbusPoll->buildCalls[0].fields["objectType"].toString(), QStringLiteral("input-register"));
 }
 
 void TestAddRegisterWidget::registerDevice()
@@ -126,7 +138,7 @@ void TestAddRegisterWidget::registerDevice()
     const deviceId_t devId2 = _settingsModel.addNewDevice();
     _settingsModel.deviceSettings(devId2)->setAdapterId("modbus");
 
-    _pRegWidget = new AddRegisterWidget(&_settingsModel, QStringLiteral("modbus"));
+    _pRegWidget = new AddRegisterWidget(&_settingsModel, QStringLiteral("modbus"), _pMockModbusPoll);
 
     _pRegWidget->_pAddressForm->setSchema(
       buildAddressSchema(), QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding-register") },
@@ -136,9 +148,10 @@ void TestAddRegisterWidget::registerDevice()
     _pRegWidget->_pUi->cmbDevice->setCurrentIndex(1);
 
     GraphData graphData;
-    addRegister(graphData);
+    addRegister(graphData, QStringLiteral("${h0@2}"));
 
     QCOMPARE(graphData.expression(), QStringLiteral("${h0@2}"));
+    QCOMPARE(_pMockModbusPoll->buildCalls[0].deviceId, devId2);
 }
 
 void TestAddRegisterWidget::registerValueAxis()
@@ -146,21 +159,38 @@ void TestAddRegisterWidget::registerValueAxis()
     QTest::mouseClick(_pRegWidget->_pUi->radioSecondary, Qt::LeftButton);
 
     GraphData graphData;
-    addRegister(graphData);
+    addRegister(graphData, QStringLiteral("${h0}"));
 
     QCOMPARE(graphData.valueAxis(), GraphData::VALUE_AXIS_SECONDARY);
 }
 
-void TestAddRegisterWidget::pushOk()
+void TestAddRegisterWidget::buildExpressionEmptyResponseIgnored()
+{
+    QSignalSpy spy(_pRegWidget, &AddRegisterWidget::graphDataConfigured);
+
+    clickAdd();
+
+    /* Adapter returns empty expression — graphDataConfigured must not be emitted */
+    _pMockModbusPoll->injectBuildExpressionResult(QString());
+
+    QCOMPARE(spy.count(), 0);
+    /* Button should be re-enabled even on empty response */
+    QVERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
+}
+
+void TestAddRegisterWidget::clickAdd()
 {
     QTest::mouseClick(_pRegWidget->_pUi->btnAdd, Qt::LeftButton);
 }
 
-void TestAddRegisterWidget::addRegister(GraphData& graphData)
+void TestAddRegisterWidget::addRegister(GraphData& graphData, const QString& expression)
 {
     QSignalSpy spyGraphDataConfigured(_pRegWidget, &AddRegisterWidget::graphDataConfigured);
 
-    pushOk();
+    clickAdd();
+
+    /* Simulate the adapter returning the expression string */
+    _pMockModbusPoll->injectBuildExpressionResult(expression);
 
     QCOMPARE(spyGraphDataConfigured.count(), 1);
 

@@ -43,6 +43,12 @@ private slots:
     void validateRegisterInvalid();
     void validateRegisterInActiveState();
     void validateRegisterInWrongStateIgnored();
+
+    void buildExpressionRequestAndResponse();
+    void buildExpressionInActiveState();
+    void buildExpressionInWrongStateIgnored();
+    void buildExpressionOmitsDefaultDataType();
+    void buildExpressionOmitsDefaultDeviceId();
 };
 
 #endif // TST_ADAPTERCLIENT_H

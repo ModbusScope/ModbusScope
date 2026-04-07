@@ -1,7 +1,5 @@
 #include "mbcregisterdata.h"
 
-#include "util/expressiongenerator.h"
-
 #include <QtMath>
 
 /*!
@@ -182,17 +180,14 @@ void MbcRegisterData::setDecimals(const quint8& decimals)
  */
 QString MbcRegisterData::toExpression() const
 {
-    QString expression;
-    QString registerStr = ExpressionGenerator::constructRegisterString(
-      QString("%1").arg(_registerAddress), ModbusDataType::typeString(_type), Device::cFirstDeviceId);
+    const QString typeStr = ModbusDataType::typeString(_type);
+    const QString suffix = (typeStr == QStringLiteral("16b")) ? QString() : QString(":%1").arg(typeStr);
+    const QString registerStr = QString("${%1%2}").arg(_registerAddress).arg(suffix);
+
     if (_decimals != 0)
     {
-        expression = QString("%1/%2").arg(registerStr).arg(static_cast<double>(qPow(10, _decimals)));
-    }
-    else
-    {
-        expression = registerStr;
+        return QString("%1/%2").arg(registerStr).arg(static_cast<double>(qPow(10, _decimals)));
     }
 
-    return expression;
+    return registerStr;
 }

@@ -120,6 +120,33 @@ void AdapterClient::validateRegister(const QString& expression)
     _pProcess->sendRequest("adapter.validateRegister", params);
 }
 
+/*!
+ * \brief Send an adapter.buildExpression request to construct a register expression string.
+ * \param addressFields Address field values as returned by the register schema form.
+ * \param dataType      Data type identifier; omitted from params when empty.
+ * \param deviceId      Device identifier; omitted from params when zero.
+ */
+void AdapterClient::buildExpression(const QJsonObject& addressFields, const QString& dataType, deviceId_t deviceId)
+{
+    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE)
+    {
+        qCWarning(scopeComm) << "AdapterClient: buildExpression called in unexpected state" << static_cast<int>(_state);
+        return;
+    }
+
+    QJsonObject params;
+    params["fields"] = addressFields;
+    if (!dataType.isEmpty())
+    {
+        params["dataType"] = dataType;
+    }
+    if (deviceId != 0)
+    {
+        params["deviceId"] = static_cast<qint64>(deviceId);
+    }
+    _pProcess->sendRequest("adapter.buildExpression", params);
+}
+
 void AdapterClient::stopSession()
 {
     if (_state == State::IDLE || _state == State::STOPPING)
@@ -309,6 +336,10 @@ void AdapterClient::handleLifecycleResponse(const QString& method, const QJsonOb
     else if (method == "adapter.validateRegister" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
     {
         emit validateRegisterResult(result["valid"].toBool(), result["error"].toString());
+    }
+    else if (method == "adapter.buildExpression" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
+    {
+        emit buildExpressionResult(result["expression"].toString());
     }
     else
     {

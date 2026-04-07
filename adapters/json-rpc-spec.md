@@ -292,7 +292,7 @@ Returns the schema for register expressions — what fields make up a register a
       "objectType": {
         "type": "string",
         "title": "Object type",
-        "enum": ["coil", "discrete-input", "input-register", "holding-register"],
+        "enum": ["coil", "discrete input", "input register", "holding register"],
         "x-enumLabels": ["Coil", "Discrete Input", "Input Register", "Holding Register"]
       },
       "address": {
@@ -341,12 +341,12 @@ Parses a register expression into structured fields and returns a human-readable
 {
   "valid": true,
   "fields": {
-    "objectType": "holding-register",
+    "objectType": "holding register",
     "address": 0,
     "deviceId": 1,
     "dataType": "16b"
   },
-  "description": "Holding register 0, device 1, unsigned 16-bit"
+  "description": "holding register, 0, unsigned 16-bit, device id 1"
 }
 ```
 
@@ -402,6 +402,13 @@ Validates a single register expression string without starting polling. Used for
 **Errors:**
 - `-32602` — Missing `expression` field
 
+---
+
+### `adapter.buildExpression`
+
+Constructs a register expression string from its component parts. The core calls this after the user fills in the register address form and selects a data type and device, so expression syntax stays entirely within the adapter.
+
+**Params:**
 ---
 
 ### `adapter.getStatus`

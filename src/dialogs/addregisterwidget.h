@@ -1,12 +1,14 @@
 #ifndef ADDREGISTERWIDGET_H
 #define ADDREGISTERWIDGET_H
 
+#include "models/device.h"
 #include "models/graphdata.h"
 
 #include <QButtonGroup>
 #include <QJsonObject>
 #include <QWidget>
 
+class ModbusPoll;
 class SchemaFormWidget;
 class SettingsModel;
 
@@ -21,7 +23,10 @@ class AddRegisterWidget : public QWidget
     friend class TestAddRegisterWidget;
 
 public:
-    explicit AddRegisterWidget(SettingsModel* pSettingsModel, const QString& adapterId, QWidget* parent = nullptr);
+    explicit AddRegisterWidget(SettingsModel* pSettingsModel,
+                               const QString& adapterId,
+                               ModbusPoll* pModbusPoll,
+                               QWidget* parent = nullptr);
     ~AddRegisterWidget();
 
 signals:
@@ -29,10 +34,11 @@ signals:
 
 private slots:
     void handleResultAccept();
+    void onBuildExpressionResult(const QString& expression);
 
 private:
     void resetFields();
-    QString generateExpression();
+    void collectPendingGraphData();
 
     Ui::AddRegisterWidget* _pUi;
     SchemaFormWidget* _pAddressForm;
@@ -40,8 +46,12 @@ private:
     int _defaultTypeIndex{ 0 };
 
     SettingsModel* _pSettingsModel;
+    ModbusPoll* _pModbusPoll;
 
     QButtonGroup _axisGroup;
+
+    /* Temporary storage while waiting for buildExpression response */
+    GraphData _pendingGraphData;
 };
 
 #endif // ADDREGISTERWIDGET_H

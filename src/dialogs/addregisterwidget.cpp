@@ -1,11 +1,11 @@
 #include "addregisterwidget.h"
 #include "ui_addregisterwidget.h"
 
+#include "communication/modbuspoll.h"
 #include "customwidgets/schemaformwidget.h"
 #include "models/adapterdata.h"
 #include "models/device.h"
 #include "models/settingsmodel.h"
-#include "util/expressiongenerator.h"
 
 #include <QJsonArray>
 #include <QVBoxLayout>
@@ -14,13 +14,18 @@
  * \brief Constructs the widget and populates it from the adapter's register schema.
  * \param pSettingsModel Pointer to the application settings model.
  * \param adapterId      Identifier of the adapter whose register schema to use.
+ * \param pModbusPoll    Pointer to the Modbus poll instance used to build expression strings.
  * \param parent         Optional parent widget.
  */
-AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel, const QString& adapterId, QWidget* parent)
+AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel,
+                                     const QString& adapterId,
+                                     ModbusPoll* pModbusPoll,
+                                     QWidget* parent)
     : QWidget(parent),
       _pUi(new Ui::AddRegisterWidget),
       _pAddressForm(new SchemaFormWidget(this)),
-      _pSettingsModel(pSettingsModel)
+      _pSettingsModel(pSettingsModel),
+      _pModbusPoll(pModbusPoll)
 {
     _pUi->setupUi(this);
 
@@ -72,6 +77,7 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel, const QStrin
     }
 
     connect(_pUi->btnAdd, &QPushButton::clicked, this, &AddRegisterWidget::handleResultAccept);
+    connect(_pModbusPoll, &ModbusPoll::buildExpressionResult, this, &AddRegisterWidget::onBuildExpressionResult);
 
     _axisGroup.setExclusive(true);
     _axisGroup.addButton(_pUi->radioPrimary);
@@ -87,28 +93,38 @@ AddRegisterWidget::~AddRegisterWidget()
 
 void AddRegisterWidget::handleResultAccept()
 {
-    const QString expression = generateExpression();
+    if (_pUi->cmbDevice->count() == 0)
+    {
+        return;
+    }
+
+    collectPendingGraphData();
+
+    const QJsonObject addressValues = _pAddressForm->values();
+    const QString typeId = _pUi->cmbType->currentData().toString();
+
+    deviceId_t deviceId = Device::cFirstDeviceId;
+    const QVariant devData = _pUi->cmbDevice->currentData();
+    if (devData.canConvert<deviceId_t>())
+    {
+        deviceId = devData.value<deviceId_t>();
+    }
+
+    _pUi->btnAdd->setEnabled(false);
+    _pModbusPoll->buildExpression(addressValues, typeId, deviceId);
+}
+
+void AddRegisterWidget::onBuildExpressionResult(const QString& expression)
+{
+    _pUi->btnAdd->setEnabled(true);
+
     if (expression.isEmpty())
     {
         return;
     }
 
-    GraphData graphData;
-
-    graphData.setLabel(_pUi->lineName->text());
-
-    if (_pUi->radioSecondary->isChecked())
-    {
-        graphData.setValueAxis(GraphData::VALUE_AXIS_SECONDARY);
-    }
-    else
-    {
-        graphData.setValueAxis(GraphData::VALUE_AXIS_PRIMARY);
-    }
-
-    graphData.setExpression(expression);
-
-    emit graphDataConfigured(graphData);
+    _pendingGraphData.setExpression(expression);
+    emit graphDataConfigured(_pendingGraphData);
 
     resetFields();
 }
@@ -122,29 +138,23 @@ void AddRegisterWidget::resetFields()
     _pAddressForm->setSchema(_addressSchema, QJsonObject());
 }
 
-QString AddRegisterWidget::generateExpression()
+/*!
+ * \brief Captures the current non-expression fields into \a _pendingGraphData.
+ *
+ * Called just before the async adapter.buildExpression request is sent, so that
+ * the label and value axis are snapshotted at click time.
+ */
+void AddRegisterWidget::collectPendingGraphData()
 {
-    if (_pUi->cmbDevice->count() == 0)
+    _pendingGraphData = GraphData();
+    _pendingGraphData.setLabel(_pUi->lineName->text());
+
+    if (_pUi->radioSecondary->isChecked())
     {
-        return QString();
+        _pendingGraphData.setValueAxis(GraphData::VALUE_AXIS_SECONDARY);
     }
-
-    const QJsonObject addressValues = _pAddressForm->values();
-    if (!addressValues.contains("objectType") || !addressValues.contains("address"))
+    else
     {
-        return QString();
+        _pendingGraphData.setValueAxis(GraphData::VALUE_AXIS_PRIMARY);
     }
-
-    const QString objectType = addressValues["objectType"].toString();
-    const int address = addressValues["address"].toInt();
-    const QString typeId = _pUi->cmbType->currentData().toString();
-
-    deviceId_t deviceId = Device::cFirstDeviceId;
-    const QVariant devData = _pUi->cmbDevice->currentData();
-    if (devData.canConvert<deviceId_t>())
-    {
-        deviceId = devData.value<deviceId_t>();
-    }
-
-    return ExpressionGenerator::constructRegisterString(objectType, address, typeId, deviceId);
 }

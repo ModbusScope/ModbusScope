@@ -796,4 +796,93 @@ void TestAdapterClient::validateRegisterInWrongStateIgnored()
     QCOMPARE(mock->sentRequests.size(), 0);
 }
 
+void TestAdapterClient::buildExpressionRequestAndResponse()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyBuild(&client, &AdapterClient::buildExpressionResult);
+
+    driveToAwaitingConfig(client, mock);
+
+    QJsonObject fields;
+    fields["objectType"] = QStringLiteral("holding-register");
+    fields["address"] = 0;
+
+    client.buildExpression(fields, QStringLiteral("f32b"), 2);
+
+    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.buildExpression"));
+    QCOMPARE(mock->sentRequests.last().params["fields"].toObject(), fields);
+    QCOMPARE(mock->sentRequests.last().params["dataType"].toString(), QStringLiteral("f32b"));
+    QCOMPARE(mock->sentRequests.last().params["deviceId"].toInt(), 2);
+
+    mock->injectResponse(3, "adapter.buildExpression", QJsonObject{ { "expression", QStringLiteral("${h0@2:f32b}") } });
+
+    QCOMPARE(spyBuild.count(), 1);
+    QCOMPARE(spyBuild.at(0).at(0).toString(), QStringLiteral("${h0@2:f32b}"));
+}
+
+void TestAdapterClient::buildExpressionInActiveState()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyBuild(&client, &AdapterClient::buildExpressionResult);
+
+    driveToActive(client, mock);
+
+    QJsonObject fields;
+    fields["objectType"] = QStringLiteral("holding-register");
+    fields["address"] = 5;
+
+    client.buildExpression(fields, QStringLiteral("16b"), 1);
+
+    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.buildExpression"));
+
+    mock->injectResponse(5, "adapter.buildExpression", QJsonObject{ { "expression", QStringLiteral("${h5}") } });
+
+    QCOMPARE(spyBuild.count(), 1);
+    QCOMPARE(spyBuild.at(0).at(0).toString(), QStringLiteral("${h5}"));
+}
+
+void TestAdapterClient::buildExpressionInWrongStateIgnored()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyBuild(&client, &AdapterClient::buildExpressionResult);
+
+    /* Call in IDLE state — should be silently ignored */
+    client.buildExpression(QJsonObject(), QStringLiteral("16b"), 1);
+
+    QCOMPARE(spyBuild.count(), 0);
+    QCOMPARE(mock->sentRequests.size(), 0);
+}
+
+void TestAdapterClient::buildExpressionOmitsDefaultDataType()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    driveToAwaitingConfig(client, mock);
+
+    /* Empty dataType should not be sent in params */
+    client.buildExpression(QJsonObject(), QString(), 1);
+
+    QVERIFY(!mock->sentRequests.last().params.contains(QStringLiteral("dataType")));
+}
+
+void TestAdapterClient::buildExpressionOmitsDefaultDeviceId()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    driveToAwaitingConfig(client, mock);
+
+    /* deviceId == 0 should not be sent in params */
+    client.buildExpression(QJsonObject(), QStringLiteral("16b"), 0);
+
+    QVERIFY(!mock->sentRequests.last().params.contains(QStringLiteral("deviceId")));
+}
+
 QTEST_GUILESS_MAIN(TestAdapterClient)

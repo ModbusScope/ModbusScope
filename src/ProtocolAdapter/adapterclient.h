@@ -2,6 +2,7 @@
 #define ADAPTERCLIENT_H
 
 #include "ProtocolAdapter/adapterprocess.h"
+#include "models/device.h"
 #include "util/result.h"
 
 #include <QJsonObject>
@@ -106,6 +107,18 @@ public:
      */
     void validateRegister(const QString& expression);
 
+    /*!
+     * \brief Send an adapter.buildExpression request to construct a register expression string.
+     *
+     * Can be called in AWAITING_CONFIG or ACTIVE state.
+     * Emits buildExpressionResult() when the adapter responds.
+     *
+     * \param addressFields Address field values as returned by the register schema form (e.g. objectType, address).
+     * \param dataType      Data type identifier (e.g. "16b"). Omitted from params when empty; adapter uses its default.
+     * \param deviceId      Device identifier. Omitted from params when zero; adapter uses its default.
+     */
+    void buildExpression(const QJsonObject& addressFields, const QString& dataType, deviceId_t deviceId);
+
 signals:
     /*!
      * \brief Emitted when the adapter has been initialized, described, configured, and started.
@@ -170,6 +183,12 @@ signals:
      * \param error Human-readable error message when valid is false; empty otherwise.
      */
     void validateRegisterResult(bool valid, QString error);
+
+    /*!
+     * \brief Emitted when an adapter.buildExpression response has been received.
+     * \param expression The constructed register expression string (e.g. \c ${h0:f32b}).
+     */
+    void buildExpressionResult(QString expression);
 
 protected:
     enum class State

@@ -1,6 +1,7 @@
 
 #include "registerdialog.h"
 
+#include "communication/modbuspoll.h"
 #include "customwidgets/actionbuttondelegate.h"
 #include "dialogs/addregisterwidget.h"
 #include "dialogs/expressionsdialog.h"
@@ -11,7 +12,10 @@
 
 #include <QColorDialog>
 
-RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel, SettingsModel* pSettingsModel, QWidget* parent)
+RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel,
+                               SettingsModel* pSettingsModel,
+                               ModbusPoll* pModbusPoll,
+                               QWidget* parent)
     : QDialog(parent), _pUi(new Ui::RegisterDialog)
 {
     _pUi->setupUi(this);
@@ -21,6 +25,7 @@ RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel, SettingsModel* p
 
     _pGraphDataModel = pGraphDataModel;
     _pSettingsModel = pSettingsModel;
+    _pModbusPoll = pModbusPoll;
 
     // Setup registerView
     _pUi->registerView->setModel(_pGraphDataModel);
@@ -71,7 +76,7 @@ RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel, SettingsModel* p
     const QString adapterId = ids.isEmpty() ? QString() : ids.first();
     if (!adapterId.isEmpty())
     {
-        auto registerPopupMenu = new AddRegisterWidget(_pSettingsModel, adapterId, this);
+        auto registerPopupMenu = new AddRegisterWidget(_pSettingsModel, adapterId, _pModbusPoll, this);
         connect(registerPopupMenu, &AddRegisterWidget::graphDataConfigured, this, &RegisterDialog::addRegister);
 
         _registerPopupAction = std::make_unique<QWidgetAction>(this);
