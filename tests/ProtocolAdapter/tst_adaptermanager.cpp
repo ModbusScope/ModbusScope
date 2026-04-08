@@ -1,6 +1,6 @@
-#include "tst_modbuspoll.h"
+#include "tst_adaptermanager.h"
 
-#include "communication/modbuspoll.h"
+#include "ProtocolAdapter/adaptermanager.h"
 #include "models/settingsmodel.h"
 
 #include <QLoggingCategory>
@@ -25,79 +25,79 @@ void captureHandler(QtMsgType type, const QMessageLogContext&, const QString& ms
 }
 } // namespace
 
-void TestModbusPoll::init()
+void TestAdapterManager::init()
 {
     _pSettingsModel = new SettingsModel;
-    _pModbusPoll = new ModbusPoll(_pSettingsModel);
+    _pAdapterManager = new AdapterManager(_pSettingsModel);
     /* Enable debug output for scope.comm.adapter so qCDebug calls reach the handler */
     QLoggingCategory::setFilterRules(QStringLiteral("scope.comm.adapter.debug=true"));
 }
 
-void TestModbusPoll::cleanup()
+void TestAdapterManager::cleanup()
 {
     QLoggingCategory::setFilterRules(QString());
-    delete _pModbusPoll;
+    delete _pAdapterManager;
     delete _pSettingsModel;
 }
 
-void TestModbusPoll::diagnosticDebugLevel()
+void TestAdapterManager::diagnosticDebugLevel()
 {
     capturedType() = QtMsgType{};
     capturedMessage() = QString{};
     QtMessageHandler previous = qInstallMessageHandler(captureHandler);
-    _pModbusPoll->onAdapterDiagnostic(QStringLiteral("debug"), QStringLiteral("polling started"));
+    _pAdapterManager->onAdapterDiagnostic(QStringLiteral("debug"), QStringLiteral("polling started"));
     qInstallMessageHandler(previous);
 
     QCOMPARE(capturedType(), QtDebugMsg);
     QVERIFY(capturedMessage().contains(QStringLiteral("polling started")));
 }
 
-void TestModbusPoll::diagnosticInfoLevel()
+void TestAdapterManager::diagnosticInfoLevel()
 {
     capturedType() = QtMsgType{};
     capturedMessage() = QString{};
     QtMessageHandler previous = qInstallMessageHandler(captureHandler);
-    _pModbusPoll->onAdapterDiagnostic(QStringLiteral("info"), QStringLiteral("session active"));
+    _pAdapterManager->onAdapterDiagnostic(QStringLiteral("info"), QStringLiteral("session active"));
     qInstallMessageHandler(previous);
 
     QCOMPARE(capturedType(), QtInfoMsg);
     QVERIFY(capturedMessage().contains(QStringLiteral("session active")));
 }
 
-void TestModbusPoll::diagnosticWarningLevel()
+void TestAdapterManager::diagnosticWarningLevel()
 {
     capturedType() = QtMsgType{};
     capturedMessage() = QString{};
     QtMessageHandler previous = qInstallMessageHandler(captureHandler);
-    _pModbusPoll->onAdapterDiagnostic(QStringLiteral("warning"), QStringLiteral("register read failed"));
+    _pAdapterManager->onAdapterDiagnostic(QStringLiteral("warning"), QStringLiteral("register read failed"));
     qInstallMessageHandler(previous);
 
     QCOMPARE(capturedType(), QtWarningMsg);
     QVERIFY(capturedMessage().contains(QStringLiteral("register read failed")));
 }
 
-void TestModbusPoll::diagnosticErrorLevel()
+void TestAdapterManager::diagnosticErrorLevel()
 {
     capturedType() = QtMsgType{};
     capturedMessage() = QString{};
     QtMessageHandler previous = qInstallMessageHandler(captureHandler);
-    _pModbusPoll->onAdapterDiagnostic(QStringLiteral("error"), QStringLiteral("fatal adapter fault"));
+    _pAdapterManager->onAdapterDiagnostic(QStringLiteral("error"), QStringLiteral("fatal adapter fault"));
     qInstallMessageHandler(previous);
 
     QCOMPARE(capturedType(), QtCriticalMsg);
     QVERIFY(capturedMessage().contains(QStringLiteral("fatal adapter fault")));
 }
 
-void TestModbusPoll::diagnosticUnknownLevel()
+void TestAdapterManager::diagnosticUnknownLevel()
 {
     capturedType() = QtMsgType{};
     capturedMessage() = QString{};
     QtMessageHandler previous = qInstallMessageHandler(captureHandler);
-    _pModbusPoll->onAdapterDiagnostic(QStringLiteral("critical"), QStringLiteral("unexpected error"));
+    _pAdapterManager->onAdapterDiagnostic(QStringLiteral("critical"), QStringLiteral("unexpected error"));
     qInstallMessageHandler(previous);
 
     QCOMPARE(capturedType(), QtWarningMsg);
     QVERIFY(capturedMessage().contains(QStringLiteral("unknown diagnostic level")));
 }
 
-QTEST_GUILESS_MAIN(TestModbusPoll)
+QTEST_GUILESS_MAIN(TestAdapterManager)

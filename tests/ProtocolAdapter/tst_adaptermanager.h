@@ -1,12 +1,12 @@
-#ifndef TST_MODBUSPOLL_H
-#define TST_MODBUSPOLL_H
+#ifndef TST_ADAPTERMANAGER_H
+#define TST_ADAPTERMANAGER_H
 
 #include <QObject>
 
-class ModbusPoll;
+class AdapterManager;
 class SettingsModel;
 
-class TestModbusPoll : public QObject
+class TestAdapterManager : public QObject
 {
     Q_OBJECT
 private slots:
@@ -21,7 +21,7 @@ private slots:
 
 private:
     SettingsModel* _pSettingsModel{ nullptr };
-    ModbusPoll* _pModbusPoll{ nullptr };
+    AdapterManager* _pAdapterManager{ nullptr };
 };
 
-#endif // TST_MODBUSPOLL_H
+#endif // TST_ADAPTERMANAGER_H

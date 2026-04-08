@@ -1,6 +1,7 @@
 add_xtest(tst_framingreader)
 add_xtest(tst_adapterclient)
 add_xtest(tst_adapterprocess)
+add_xtest(tst_adaptermanager)
 
 target_compile_definitions(tst_adapterprocess PRIVATE
     DUMMY_ADAPTER_EXECUTABLE="$<TARGET_FILE:dummymodbusadapter>"
