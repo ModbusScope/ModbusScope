@@ -8,7 +8,7 @@
 #include <QJsonObject>
 #include <QWidget>
 
-class ModbusPoll;
+class AdapterManager;
 class SchemaFormWidget;
 class SettingsModel;
 
@@ -25,7 +25,7 @@ class AddRegisterWidget : public QWidget
 public:
     explicit AddRegisterWidget(SettingsModel* pSettingsModel,
                                const QString& adapterId,
-                               ModbusPoll* pModbusPoll,
+                               AdapterManager* pAdapterManager,
                                QWidget* parent = nullptr);
     ~AddRegisterWidget();
 
@@ -46,7 +46,7 @@ private:
     int _defaultTypeIndex{ 0 };
 
     SettingsModel* _pSettingsModel;
-    ModbusPoll* _pModbusPoll;
+    AdapterManager* _pAdapterManager;
 
     QButtonGroup _axisGroup;
 

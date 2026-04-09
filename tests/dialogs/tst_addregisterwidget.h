@@ -2,7 +2,7 @@
 #ifndef TST_ADDREGISTERWIDGET_H
 #define TST_ADDREGISTERWIDGET_H
 
-#include "communication/modbuspoll.h"
+#include "ProtocolAdapter/adaptermanager.h"
 #include "models/graphdata.h"
 #include "models/settingsmodel.h"
 
@@ -12,12 +12,12 @@
 class AddRegisterWidget;
 
 /*!
- * \brief Test double for ModbusPoll.
+ * \brief Test double for AdapterManager.
  *
  * Captures buildExpression() calls and provides an inject helper to simulate
  * the adapter.buildExpression response without a real adapter process.
  */
-class MockModbusPoll : public ModbusPoll
+class MockAdapterManager : public AdapterManager
 {
     Q_OBJECT
 
@@ -29,8 +29,8 @@ public:
         deviceId_t deviceId;
     };
 
-    explicit MockModbusPoll(SettingsModel* pSettingsModel, QObject* parent = nullptr)
-        : ModbusPoll(pSettingsModel, parent)
+    explicit MockAdapterManager(SettingsModel* pSettingsModel, QObject* parent = nullptr)
+        : AdapterManager(pSettingsModel, parent)
     {
     }
 
@@ -70,7 +70,7 @@ private:
     static QJsonObject buildTestRegisterSchema();
 
     SettingsModel _settingsModel;
-    MockModbusPoll* _pMockModbusPoll{ nullptr };
+    MockAdapterManager* _pMockAdapterManager{ nullptr };
     AddRegisterWidget* _pRegWidget{ nullptr };
 };
 

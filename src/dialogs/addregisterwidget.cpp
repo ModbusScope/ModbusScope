@@ -1,7 +1,7 @@
 #include "addregisterwidget.h"
 #include "ui_addregisterwidget.h"
 
-#include "communication/modbuspoll.h"
+#include "ProtocolAdapter/adaptermanager.h"
 #include "customwidgets/schemaformwidget.h"
 #include "models/adapterdata.h"
 #include "models/device.h"
@@ -14,18 +14,18 @@
  * \brief Constructs the widget and populates it from the adapter's register schema.
  * \param pSettingsModel Pointer to the application settings model.
  * \param adapterId      Identifier of the adapter whose register schema to use.
- * \param pModbusPoll    Pointer to the Modbus poll instance used to build expression strings.
+ * \param pAdapterManager Pointer to the adapter manager used to build expression strings.
  * \param parent         Optional parent widget.
  */
 AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel,
                                      const QString& adapterId,
-                                     ModbusPoll* pModbusPoll,
+                                     AdapterManager* pAdapterManager,
                                      QWidget* parent)
     : QWidget(parent),
       _pUi(new Ui::AddRegisterWidget),
       _pAddressForm(new SchemaFormWidget(this)),
       _pSettingsModel(pSettingsModel),
-      _pModbusPoll(pModbusPoll)
+      _pAdapterManager(pAdapterManager)
 {
     _pUi->setupUi(this);
 
@@ -77,7 +77,7 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel,
     }
 
     connect(_pUi->btnAdd, &QPushButton::clicked, this, &AddRegisterWidget::handleResultAccept);
-    connect(_pModbusPoll, &ModbusPoll::buildExpressionResult, this, &AddRegisterWidget::onBuildExpressionResult);
+    connect(_pAdapterManager, &AdapterManager::buildExpressionResult, this, &AddRegisterWidget::onBuildExpressionResult);
 
     _axisGroup.setExclusive(true);
     _axisGroup.addButton(_pUi->radioPrimary);
@@ -111,7 +111,7 @@ void AddRegisterWidget::handleResultAccept()
     }
 
     _pUi->btnAdd->setEnabled(false);
-    _pModbusPoll->buildExpression(addressValues, typeId, deviceId);
+    _pAdapterManager->buildExpression(addressValues, typeId, deviceId);
 }
 
 void AddRegisterWidget::onBuildExpressionResult(const QString& expression)

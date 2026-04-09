@@ -66,16 +66,16 @@ void TestAddRegisterWidget::init()
     _settingsModel.setAdapterRegisterSchema("modbus", buildTestRegisterSchema());
     _settingsModel.deviceSettings(Device::cFirstDeviceId)->setAdapterId("modbus");
 
-    _pMockModbusPoll = new MockModbusPoll(&_settingsModel);
-    _pRegWidget = new AddRegisterWidget(&_settingsModel, QStringLiteral("modbus"), _pMockModbusPoll);
+    _pMockAdapterManager = new MockAdapterManager(&_settingsModel);
+    _pRegWidget = new AddRegisterWidget(&_settingsModel, QStringLiteral("modbus"), _pMockAdapterManager);
 }
 
 void TestAddRegisterWidget::cleanup()
 {
     delete _pRegWidget;
     _pRegWidget = nullptr;
-    delete _pMockModbusPoll;
-    _pMockModbusPoll = nullptr;
+    delete _pMockAdapterManager;
+    _pMockAdapterManager = nullptr;
 }
 
 void TestAddRegisterWidget::registerDefault()
@@ -94,11 +94,11 @@ void TestAddRegisterWidget::registerDefault()
     QCOMPARE(graphData.expression(), QStringLiteral("${h100}"));
     QVERIFY(graphData.isActive());
 
-    QCOMPARE(_pMockModbusPoll->buildCalls.size(), 1);
-    QCOMPARE(_pMockModbusPoll->buildCalls[0].fields["objectType"].toString(), QStringLiteral("holding-register"));
-    QCOMPARE(_pMockModbusPoll->buildCalls[0].fields["address"].toInt(), 100);
-    QCOMPARE(_pMockModbusPoll->buildCalls[0].dataType, QStringLiteral("16b"));
-    QCOMPARE(_pMockModbusPoll->buildCalls[0].deviceId, Device::cFirstDeviceId);
+    QCOMPARE(_pMockAdapterManager->buildCalls.size(), 1);
+    QCOMPARE(_pMockAdapterManager->buildCalls[0].fields["objectType"].toString(), QStringLiteral("holding-register"));
+    QCOMPARE(_pMockAdapterManager->buildCalls[0].fields["address"].toInt(), 100);
+    QCOMPARE(_pMockAdapterManager->buildCalls[0].dataType, QStringLiteral("16b"));
+    QCOMPARE(_pMockAdapterManager->buildCalls[0].deviceId, Device::cFirstDeviceId);
 }
 
 void TestAddRegisterWidget::registerType()
@@ -114,7 +114,7 @@ void TestAddRegisterWidget::registerType()
     addRegister(graphData, QStringLiteral("${h0:32b}"));
 
     QCOMPARE(graphData.expression(), QStringLiteral("${h0:32b}"));
-    QCOMPARE(_pMockModbusPoll->buildCalls[0].dataType, QStringLiteral("32b"));
+    QCOMPARE(_pMockAdapterManager->buildCalls[0].dataType, QStringLiteral("32b"));
 }
 
 void TestAddRegisterWidget::registerObjectType()
@@ -127,7 +127,7 @@ void TestAddRegisterWidget::registerObjectType()
     addRegister(graphData, QStringLiteral("${i0}"));
 
     QCOMPARE(graphData.expression(), QStringLiteral("${i0}"));
-    QCOMPARE(_pMockModbusPoll->buildCalls[0].fields["objectType"].toString(), QStringLiteral("input-register"));
+    QCOMPARE(_pMockAdapterManager->buildCalls[0].fields["objectType"].toString(), QStringLiteral("input-register"));
 }
 
 void TestAddRegisterWidget::registerDevice()
@@ -138,7 +138,7 @@ void TestAddRegisterWidget::registerDevice()
     const deviceId_t devId2 = _settingsModel.addNewDevice();
     _settingsModel.deviceSettings(devId2)->setAdapterId("modbus");
 
-    _pRegWidget = new AddRegisterWidget(&_settingsModel, QStringLiteral("modbus"), _pMockModbusPoll);
+    _pRegWidget = new AddRegisterWidget(&_settingsModel, QStringLiteral("modbus"), _pMockAdapterManager);
 
     _pRegWidget->_pAddressForm->setSchema(
       buildAddressSchema(), QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding-register") },
@@ -151,7 +151,7 @@ void TestAddRegisterWidget::registerDevice()
     addRegister(graphData, QStringLiteral("${h0@2}"));
 
     QCOMPARE(graphData.expression(), QStringLiteral("${h0@2}"));
-    QCOMPARE(_pMockModbusPoll->buildCalls[0].deviceId, devId2);
+    QCOMPARE(_pMockAdapterManager->buildCalls[0].deviceId, devId2);
 }
 
 void TestAddRegisterWidget::registerValueAxis()
@@ -171,7 +171,7 @@ void TestAddRegisterWidget::buildExpressionEmptyResponseIgnored()
     clickAdd();
 
     /* Adapter returns empty expression — graphDataConfigured must not be emitted */
-    _pMockModbusPoll->injectBuildExpressionResult(QString());
+    _pMockAdapterManager->injectBuildExpressionResult(QString());
 
     QCOMPARE(spy.count(), 0);
     /* Button should be re-enabled even on empty response */
@@ -190,7 +190,7 @@ void TestAddRegisterWidget::addRegister(GraphData& graphData, const QString& exp
     clickAdd();
 
     /* Simulate the adapter returning the expression string */
-    _pMockModbusPoll->injectBuildExpressionResult(expression);
+    _pMockAdapterManager->injectBuildExpressionResult(expression);
 
     QCOMPARE(spyGraphDataConfigured.count(), 1);
 

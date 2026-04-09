@@ -5,7 +5,6 @@
 #include "util/formatdatetime.h"
 #include "util/scopelogging.h"
 
-#include <QJsonArray>
 
 ModbusPoll::ModbusPoll(SettingsModel* pSettingsModel, QObject* parent) : QObject(parent), _bPollActive(false)
 {
@@ -20,7 +19,6 @@ ModbusPoll::ModbusPoll(SettingsModel* pSettingsModel, QObject* parent) : QObject
 
     connect(_pAdapterManager, &AdapterManager::sessionStarted, this, &ModbusPoll::triggerRegisterRead);
     connect(_pAdapterManager, &AdapterManager::readDataResult, this, &ModbusPoll::onReadDataResult);
-    connect(_pAdapterManager, &AdapterManager::buildExpressionResult, this, &ModbusPoll::buildExpressionResult);
     connect(_pAdapterManager, &AdapterManager::sessionStopped, this, &ModbusPoll::initAdapter);
     connect(_pAdapterManager, &AdapterManager::sessionError, this, [this](QString message) {
         qCWarning(scopeComm) << "AdapterClient error:" << message;
@@ -109,15 +107,11 @@ void ModbusPoll::onReadDataResult(ResultDoubleList results)
     }
 }
 
-/*!
- * \brief Request the adapter to construct a register expression from its component parts.
- * \param addressFields Address field values from the register schema form.
- * \param dataType      Data type identifier; empty string uses the adapter default.
- * \param deviceId      Device identifier; 0 uses the adapter default.
- */
-void ModbusPoll::buildExpression(const QJsonObject& addressFields, const QString& dataType, deviceId_t deviceId)
+
+/*! \brief Returns the AdapterManager owned by this instance. */
+AdapterManager* ModbusPoll::adapterManager() const
 {
-    _pAdapterManager->buildExpression(addressFields, dataType, deviceId);
+    return _pAdapterManager;
 }
 
 QStringList ModbusPoll::buildRegisterExpressions(const QList<DataPoint>& registerList)

@@ -5,7 +5,6 @@
 #include "communication/datapoint.h"
 #include "util/result.h"
 
-#include <QJsonObject>
 #include <QStringList>
 #include <QTimer>
 
@@ -27,24 +26,15 @@ public:
     void resetCommunicationStats();
 
     /*!
-     * \brief Request the adapter to construct a register expression string from its component parts.
+     * \brief Returns the AdapterManager owned by this poll instance.
      *
-     * Delegates to AdapterManager::buildExpression(). Emits buildExpressionResult() on response.
-     *
-     * \param addressFields Address field values as returned by the register schema form.
-     * \param dataType      Data type identifier (e.g. "16b"). Pass empty string to use the adapter default.
-     * \param deviceId      Device identifier. Pass 0 to use the adapter default.
+     * Callers that need to interact with the adapter directly (e.g. to call
+     * buildExpression()) should use this accessor rather than going through ModbusPoll.
      */
-    virtual void buildExpression(const QJsonObject& addressFields, const QString& dataType, deviceId_t deviceId);
+    AdapterManager* adapterManager() const;
 
 signals:
     void registerDataReady(ResultDoubleList registers);
-
-    /*!
-     * \brief Emitted when an adapter.buildExpression response has been received.
-     * \param expression The constructed register expression string (e.g. \c ${h0:f32b}).
-     */
-    void buildExpressionResult(QString expression);
 
 private slots:
     void triggerRegisterRead();

@@ -60,7 +60,7 @@ public:
      * \param dataType      Data type identifier (e.g. "16b"). Pass empty string for the adapter default.
      * \param deviceId      Device identifier. Pass 0 for the adapter default.
      */
-    void buildExpression(const QJsonObject& addressFields, const QString& dataType, deviceId_t deviceId);
+    virtual void buildExpression(const QJsonObject& addressFields, const QString& dataType, deviceId_t deviceId);
 
     /*!
      * \brief Route an adapter.diagnostic notification to the diagnostics log.

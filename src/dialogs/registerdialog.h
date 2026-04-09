@@ -8,7 +8,7 @@
 
 /* Forward declaration */
 class GraphDataModel;
-class ModbusPoll;
+class AdapterManager;
 class SettingsModel;
 class RegisterValueAxisDelegate;
 class ActionButtonDelegate;
@@ -25,7 +25,7 @@ class RegisterDialog : public QDialog
 public:
     explicit RegisterDialog(GraphDataModel* pGraphDataModel,
                             SettingsModel* pSettingsModel,
-                            ModbusPoll* pModbusPoll,
+                            AdapterManager* pAdapterManager,
                             QWidget* parent = nullptr);
     ~RegisterDialog();
 
@@ -45,7 +45,7 @@ private:
 
     GraphDataModel* _pGraphDataModel;
     SettingsModel* _pSettingsModel;
-    ModbusPoll* _pModbusPoll;
+    AdapterManager* _pAdapterManager;
 
     CenteredBoxProxyStyle _centeredBoxStyle;
 
