@@ -202,17 +202,17 @@ void SettingsModel::setAdapterCurrentConfig(const QString& adapterId, const QJso
     emit adapterDataChanged(adapterId);
 }
 
-/*! \brief Store the register schema from an adapter.registerSchema response and notify observers.
+/*! \brief Store the data point schema from an adapter.dataPointSchema response and notify observers.
  * \param adapterId  The adapter identifier string.
- * \param schema     The full register schema object (addressSchema, dataTypes, defaultDataType).
+ * \param schema     The full data point schema object (addressSchema, dataTypes, defaultDataType).
  */
-void SettingsModel::setAdapterRegisterSchema(const QString& adapterId, const QJsonObject& schema)
+void SettingsModel::setAdapterDataPointSchema(const QString& adapterId, const QJsonObject& schema)
 {
     if (!_adapters.contains(adapterId))
     {
         _adapters[adapterId] = AdapterData();
     }
-    _adapters[adapterId].setRegisterSchema(schema);
+    _adapters[adapterId].setDataPointSchema(schema);
     emit adapterDataChanged(adapterId);
 }
 

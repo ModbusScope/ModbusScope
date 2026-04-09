@@ -80,49 +80,49 @@ void AdapterClient::requestStatus()
     _pProcess->sendRequest("adapter.getStatus", QJsonObject());
 }
 
-void AdapterClient::requestRegisterSchema()
+void AdapterClient::requestDataPointSchema()
 {
     if (_state != State::AWAITING_CONFIG)
     {
-        qCWarning(scopeComm) << "AdapterClient: requestRegisterSchema called in unexpected state"
+        qCWarning(scopeComm) << "AdapterClient: requestDataPointSchema called in unexpected state"
                              << static_cast<int>(_state);
         return;
     }
 
-    _pProcess->sendRequest("adapter.registerSchema", QJsonObject());
+    _pProcess->sendRequest("adapter.dataPointSchema", QJsonObject());
 }
 
-void AdapterClient::describeRegister(const QString& expression)
+void AdapterClient::describeDataPoint(const QString& expression)
 {
     if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE)
     {
-        qCWarning(scopeComm) << "AdapterClient: describeRegister called in unexpected state"
+        qCWarning(scopeComm) << "AdapterClient: describeDataPoint called in unexpected state"
                              << static_cast<int>(_state);
         return;
     }
 
     QJsonObject params;
     params["expression"] = expression;
-    _pProcess->sendRequest("adapter.describeRegister", params);
+    _pProcess->sendRequest("adapter.describeDataPoint", params);
 }
 
-void AdapterClient::validateRegister(const QString& expression)
+void AdapterClient::validateDataPoint(const QString& expression)
 {
     if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE)
     {
-        qCWarning(scopeComm) << "AdapterClient: validateRegister called in unexpected state"
+        qCWarning(scopeComm) << "AdapterClient: validateDataPoint called in unexpected state"
                              << static_cast<int>(_state);
         return;
     }
 
     QJsonObject params;
     params["expression"] = expression;
-    _pProcess->sendRequest("adapter.validateRegister", params);
+    _pProcess->sendRequest("adapter.validateDataPoint", params);
 }
 
 /*!
- * \brief Send an adapter.buildExpression request to construct a register expression string.
- * \param addressFields Address field values as returned by the register schema form.
+ * \brief Send an adapter.buildExpression request to construct a data point expression string.
+ * \param addressFields Address field values as returned by the data point schema form.
  * \param dataType      Data type identifier; omitted from params when empty.
  * \param deviceId      Device identifier; omitted from params when zero.
  */
@@ -325,17 +325,17 @@ void AdapterClient::handleLifecycleResponse(const QString& method, const QJsonOb
         _pProcess->stop();
         /* sessionStopped is emitted from onProcessFinished once the process exits */
     }
-    else if (method == "adapter.registerSchema" && _state == State::AWAITING_CONFIG)
+    else if (method == "adapter.dataPointSchema" && _state == State::AWAITING_CONFIG)
     {
-        emit registerSchemaResult(result);
+        emit dataPointSchemaResult(result);
     }
-    else if (method == "adapter.describeRegister" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
+    else if (method == "adapter.describeDataPoint" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
     {
-        emit describeRegisterResult(result);
+        emit describeDataPointResult(result);
     }
-    else if (method == "adapter.validateRegister" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
+    else if (method == "adapter.validateDataPoint" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
     {
-        emit validateRegisterResult(result["valid"].toBool(), result["error"].toString());
+        emit validateDataPointResult(result["valid"].toBool(), result["error"].toString());
     }
     else if (method == "adapter.buildExpression" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
     {

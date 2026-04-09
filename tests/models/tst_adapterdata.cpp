@@ -174,13 +174,13 @@ void TestAdapterData::settingsModelRemoveAdapter()
     QVERIFY(model.adapterIds().isEmpty());
 }
 
-void TestAdapterData::registerSchemaDefaultEmpty()
+void TestAdapterData::dataPointSchemaDefaultEmpty()
 {
     AdapterData data;
-    QVERIFY(data.registerSchema().isEmpty());
+    QVERIFY(data.dataPointSchema().isEmpty());
 }
 
-void TestAdapterData::setAndGetRegisterSchema()
+void TestAdapterData::setAndGetDataPointSchema()
 {
     AdapterData data;
 
@@ -198,24 +198,24 @@ void TestAdapterData::setAndGetRegisterSchema()
     schema["dataTypes"] = dataTypes;
     schema["defaultDataType"] = QStringLiteral("16b");
 
-    data.setRegisterSchema(schema);
+    data.setDataPointSchema(schema);
 
-    const QJsonObject stored = data.registerSchema();
+    const QJsonObject stored = data.dataPointSchema();
     QCOMPARE(stored["defaultDataType"].toString(), QStringLiteral("16b"));
     QCOMPARE(stored["dataTypes"].toArray().size(), 1);
 }
 
-void TestAdapterData::settingsModelSetAdapterRegisterSchema()
+void TestAdapterData::settingsModelSetAdapterDataPointSchema()
 {
     SettingsModel model;
 
     QJsonObject schema;
     schema["defaultDataType"] = QStringLiteral("16b");
 
-    model.setAdapterRegisterSchema("modbus", schema);
+    model.setAdapterDataPointSchema("modbus", schema);
 
     const AdapterData* data = model.adapterData("modbus");
-    const QJsonObject stored = data->registerSchema();
+    const QJsonObject stored = data->dataPointSchema();
     QCOMPARE(stored["defaultDataType"].toString(), QStringLiteral("16b"));
 }
 

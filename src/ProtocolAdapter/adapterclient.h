@@ -80,40 +80,40 @@ public:
     void stopSession();
 
     /*!
-     * \brief Send an adapter.registerSchema request to discover the register UI schema.
+     * \brief Send an adapter.dataPointSchema request to discover the data point UI schema.
      *
      * Must only be called after describeResult() has been emitted (i.e., in the
-     * AWAITING_CONFIG state). Emits registerSchemaResult() when the adapter responds.
+     * AWAITING_CONFIG state). Emits dataPointSchemaResult() when the adapter responds.
      */
-    void requestRegisterSchema();
+    void requestDataPointSchema();
 
     /*!
-     * \brief Send an adapter.describeRegister request to parse a register expression.
+     * \brief Send an adapter.describeDataPoint request to parse a data point expression.
      *
      * Can be called in AWAITING_CONFIG or ACTIVE state.
-     * Emits describeRegisterResult() when the adapter responds.
+     * Emits describeDataPointResult() when the adapter responds.
      *
-     * \param expression The register expression string to describe.
+     * \param expression The data point expression string to describe.
      */
-    void describeRegister(const QString& expression);
+    void describeDataPoint(const QString& expression);
 
     /*!
-     * \brief Send an adapter.validateRegister request to validate a register expression.
+     * \brief Send an adapter.validateDataPoint request to validate a data point expression.
      *
      * Can be called in AWAITING_CONFIG or ACTIVE state.
-     * Emits validateRegisterResult() when the adapter responds.
+     * Emits validateDataPointResult() when the adapter responds.
      *
-     * \param expression The register expression string to validate.
+     * \param expression The data point expression string to validate.
      */
-    void validateRegister(const QString& expression);
+    void validateDataPoint(const QString& expression);
 
     /*!
-     * \brief Send an adapter.buildExpression request to construct a register expression string.
+     * \brief Send an adapter.buildExpression request to construct a data point expression string.
      *
      * Can be called in AWAITING_CONFIG or ACTIVE state.
      * Emits buildExpressionResult() when the adapter responds.
      *
-     * \param addressFields Address field values as returned by the register schema form (e.g. objectType, address).
+     * \param addressFields Address field values as returned by the data point schema form (e.g. objectType, address).
      * \param dataType      Data type identifier (e.g. "16b"). Omitted from params when empty; adapter uses its default.
      * \param deviceId      Device identifier. Omitted from params when zero; adapter uses its default.
      */
@@ -166,27 +166,27 @@ signals:
     void diagnosticReceived(QString level, QString message);
 
     /*!
-     * \brief Emitted when an adapter.registerSchema response has been received.
-     * \param schema The full register schema object (addressSchema, dataTypes, defaultDataType).
+     * \brief Emitted when an adapter.dataPointSchema response has been received.
+     * \param schema The full data point schema object (addressSchema, dataTypes, defaultDataType).
      */
-    void registerSchemaResult(QJsonObject schema);
+    void dataPointSchemaResult(QJsonObject schema);
 
     /*!
-     * \brief Emitted when an adapter.describeRegister response has been received.
+     * \brief Emitted when an adapter.describeDataPoint response has been received.
      * \param result The full result object (valid, fields, description or error).
      */
-    void describeRegisterResult(QJsonObject result);
+    void describeDataPointResult(QJsonObject result);
 
     /*!
-     * \brief Emitted when an adapter.validateRegister response has been received.
+     * \brief Emitted when an adapter.validateDataPoint response has been received.
      * \param valid Whether the expression is valid.
      * \param error Human-readable error message when valid is false; empty otherwise.
      */
-    void validateRegisterResult(bool valid, QString error);
+    void validateDataPointResult(bool valid, QString error);
 
     /*!
      * \brief Emitted when an adapter.buildExpression response has been received.
-     * \param expression The constructed register expression string (e.g. \c ${h0:f32b}).
+     * \param expression The constructed data point expression string (e.g. \c ${h0:f32b}).
      */
     void buildExpressionResult(QString expression);
 

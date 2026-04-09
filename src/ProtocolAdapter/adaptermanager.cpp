@@ -19,7 +19,7 @@ AdapterManager::AdapterManager(SettingsModel* pSettingsModel, QObject* parent) :
     connect(_pAdapterClient, &AdapterClient::sessionStopped, this, &AdapterManager::sessionStopped);
     connect(_pAdapterClient, &AdapterClient::sessionError, this, &AdapterManager::sessionError);
     connect(_pAdapterClient, &AdapterClient::describeResult, this, &AdapterManager::onDescribeResult);
-    connect(_pAdapterClient, &AdapterClient::registerSchemaResult, this, &AdapterManager::onRegisterSchemaResult);
+    connect(_pAdapterClient, &AdapterClient::dataPointSchemaResult, this, &AdapterManager::onDataPointSchemaResult);
     connect(_pAdapterClient, &AdapterClient::diagnosticReceived, this, &AdapterManager::onAdapterDiagnostic);
 }
 
@@ -67,21 +67,21 @@ void AdapterManager::buildExpression(const QJsonObject& addressFields, const QSt
     _pAdapterClient->buildExpression(addressFields, dataType, deviceId);
 }
 
-/*! \brief Receive the adapter.describe response, update the settings model, and request the register schema.
+/*! \brief Receive the adapter.describe response, update the settings model, and request the data point schema.
  * \param description The full describe result object from the adapter.
  */
 void AdapterManager::onDescribeResult(const QJsonObject& description)
 {
     _pSettingsModel->updateAdapterFromDescribe("modbus", description);
-    _pAdapterClient->requestRegisterSchema();
+    _pAdapterClient->requestDataPointSchema();
 }
 
-/*! \brief Receive the adapter register schema and forward it to the settings model.
- * \param schema The register schema JSON object returned by adapter.registerSchema.
+/*! \brief Receive the adapter data point schema and forward it to the settings model.
+ * \param schema The data point schema JSON object returned by adapter.dataPointSchema.
  */
-void AdapterManager::onRegisterSchemaResult(const QJsonObject& schema)
+void AdapterManager::onDataPointSchemaResult(const QJsonObject& schema)
 {
-    _pSettingsModel->setAdapterRegisterSchema("modbus", schema);
+    _pSettingsModel->setAdapterDataPointSchema("modbus", schema);
 }
 
 /*!

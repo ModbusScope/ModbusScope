@@ -34,15 +34,15 @@ private slots:
     void processErrorDuringStoppingNoSessionError();
     void processErrorDuringStoppingThenProcessFinished();
 
-    void requestRegisterSchemaEmitsSignal();
-    void requestRegisterSchemaInWrongStateIgnored();
-    void describeRegisterInAwaitingConfig();
-    void describeRegisterInActiveState();
-    void describeRegisterInWrongStateIgnored();
-    void validateRegisterValid();
-    void validateRegisterInvalid();
-    void validateRegisterInActiveState();
-    void validateRegisterInWrongStateIgnored();
+    void requestDataPointSchemaEmitsSignal();
+    void requestDataPointSchemaInWrongStateIgnored();
+    void describeDataPointInAwaitingConfig();
+    void describeDataPointInActiveState();
+    void describeDataPointInWrongStateIgnored();
+    void validateDataPointValid();
+    void validateDataPointInvalid();
+    void validateDataPointInActiveState();
+    void validateDataPointInWrongStateIgnored();
 
     void buildExpressionRequestAndResponse();
     void buildExpressionInActiveState();

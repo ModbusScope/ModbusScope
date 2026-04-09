@@ -21,9 +21,9 @@ private slots:
     void settingsModelAdapterIds();
     void settingsModelRemoveAdapter();
 
-    void registerSchemaDefaultEmpty();
-    void setAndGetRegisterSchema();
-    void settingsModelSetAdapterRegisterSchema();
+    void dataPointSchemaDefaultEmpty();
+    void setAndGetDataPointSchema();
+    void settingsModelSetAdapterDataPointSchema();
 
     void deviceAdapterIdDefaultsToModbus();
     void deviceSetAndGetAdapterId();

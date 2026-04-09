@@ -35,10 +35,10 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel,
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    /* Build the address form from the adapter's register schema */
+    /* Build the address form from the adapter's data point schema */
     const AdapterData* adapterData = _pSettingsModel->adapterData(adapterId);
-    const QJsonObject registerSchema = adapterData->registerSchema();
-    _addressSchema = registerSchema["addressSchema"].toObject();
+    const QJsonObject dataPointSchema = adapterData->dataPointSchema();
+    _addressSchema = dataPointSchema["addressSchema"].toObject();
     _pAddressForm->setSchema(_addressSchema, QJsonObject());
 
     auto* addressLayout = new QVBoxLayout(_pUi->addressContainer);
@@ -46,8 +46,8 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel,
     addressLayout->addWidget(_pAddressForm);
 
     /* Populate data type combo from the adapter's dataTypes array */
-    const QJsonArray dataTypes = registerSchema["dataTypes"].toArray();
-    const QString defaultTypeId = registerSchema["defaultDataType"].toString();
+    const QJsonArray dataTypes = dataPointSchema["dataTypes"].toArray();
+    const QString defaultTypeId = dataPointSchema["defaultDataType"].toString();
     for (const QJsonValue& entry : dataTypes)
     {
         const QJsonObject typeObj = entry.toObject();

@@ -100,7 +100,7 @@ signals:
 
 private slots:
     void onDescribeResult(const QJsonObject& description);
-    void onRegisterSchemaResult(const QJsonObject& schema);
+    void onDataPointSchemaResult(const QJsonObject& schema);
 
 private:
     SettingsModel* _pSettingsModel;
