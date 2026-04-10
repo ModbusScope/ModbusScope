@@ -6,6 +6,7 @@
 #include "util/result.h"
 
 #include <QJsonObject>
+#include <QMap>
 #include <QObject>
 #include <QStringList>
 #include <QTimer>
@@ -214,7 +215,7 @@ private slots:
     void onNotificationReceived(QString method, QJsonValue params);
 
 private:
-    void handleLifecycleResponse(const QString& method, const QJsonObject& result);
+    void handleLifecycleResponse(int id, const QString& method, const QJsonObject& result);
 
     static constexpr int cHandshakeTimeoutMs = 10000;
 
@@ -223,6 +224,7 @@ private:
     int _handshakeTimeoutMs;
     QJsonObject _pendingConfig;
     QStringList _pendingExpressions;
+    QMap<QString, int> _pendingAuxRequests;
 };
 
 #endif // ADAPTERCLIENT_H

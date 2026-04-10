@@ -51,6 +51,7 @@ void AdapterClient::provideConfig(QJsonObject config, QStringList registerExpres
 
     _pendingExpressions = registerExpressions;
     _pendingConfig = config;
+    _pendingAuxRequests.clear();
     _state = State::CONFIGURING;
     _handshakeTimer.start(_handshakeTimeoutMs);
     QJsonObject params;
@@ -92,7 +93,7 @@ void AdapterClient::requestDataPointSchema()
         return;
     }
 
-    _pProcess->sendRequest("adapter.dataPointSchema", QJsonObject());
+    _pendingAuxRequests["adapter.dataPointSchema"] = _pProcess->sendRequest("adapter.dataPointSchema", QJsonObject());
 }
 
 /*!
@@ -110,7 +111,7 @@ void AdapterClient::describeDataPoint(const QString& expression)
 
     QJsonObject params;
     params["expression"] = expression;
-    _pProcess->sendRequest("adapter.describeDataPoint", params);
+    _pendingAuxRequests["adapter.describeDataPoint"] = _pProcess->sendRequest("adapter.describeDataPoint", params);
 }
 
 /*!
@@ -128,7 +129,7 @@ void AdapterClient::validateDataPoint(const QString& expression)
 
     QJsonObject params;
     params["expression"] = expression;
-    _pProcess->sendRequest("adapter.validateDataPoint", params);
+    _pendingAuxRequests["adapter.validateDataPoint"] = _pProcess->sendRequest("adapter.validateDataPoint", params);
 }
 
 /*!
@@ -156,7 +157,7 @@ void AdapterClient::buildExpression(const QJsonObject& addressFields, const QStr
     {
         params["deviceId"] = static_cast<qint64>(deviceId);
     }
-    _pProcess->sendRequest("adapter.buildExpression", params);
+    _pendingAuxRequests["adapter.buildExpression"] = _pProcess->sendRequest("adapter.buildExpression", params);
 }
 
 void AdapterClient::stopSession()
@@ -167,6 +168,7 @@ void AdapterClient::stopSession()
     }
 
     _handshakeTimer.stop();
+    _pendingAuxRequests.clear();
 
     if (_state == State::ACTIVE || _state == State::STARTING)
     {
@@ -184,10 +186,9 @@ void AdapterClient::stopSession()
 
 void AdapterClient::onResponseReceived(int id, const QString& method, const QJsonValue& result)
 {
-    Q_UNUSED(id)
     if (result.isObject())
     {
-        handleLifecycleResponse(method, result.toObject());
+        handleLifecycleResponse(id, method, result.toObject());
     }
     else
     {
@@ -195,6 +196,7 @@ void AdapterClient::onResponseReceived(int id, const QString& method, const QJso
         _handshakeTimer.stop();
         /* Set IDLE before stop() so onProcessFinished's IDLE guard suppresses any
            duplicate sessionError emission when the process exits asynchronously. */
+        _pendingAuxRequests.clear();
         _state = State::IDLE;
         _pProcess->stop();
         emit sessionError(QString("Unexpected non-object result for %1").arg(method));
@@ -211,6 +213,7 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
     State previousState = _state;
     /* Set IDLE before stop() so onProcessFinished's IDLE guard suppresses any
        duplicate sessionError emission when the process exits asynchronously. */
+    _pendingAuxRequests.clear();
     _state = State::IDLE;
     _pProcess->stop();
 
@@ -225,6 +228,7 @@ void AdapterClient::onProcessError(const QString& message)
     _handshakeTimer.stop();
     if (_state != State::STOPPING)
     {
+        _pendingAuxRequests.clear();
         _state = State::IDLE;
         emit sessionError(message);
     }
@@ -233,6 +237,7 @@ void AdapterClient::onProcessError(const QString& message)
 void AdapterClient::onProcessFinished()
 {
     _handshakeTimer.stop();
+    _pendingAuxRequests.clear();
     if (_state == State::STOPPING)
     {
         _state = State::IDLE;
@@ -249,6 +254,7 @@ void AdapterClient::onHandshakeTimeout()
 {
     qCWarning(scopeComm) << "AdapterClient: handshake timed out in state" << static_cast<int>(_state);
     bool wasStopping = (_state == State::STOPPING);
+    _pendingAuxRequests.clear();
     _state = State::IDLE;
     _pProcess->stop();
     if (wasStopping)
@@ -279,7 +285,7 @@ void AdapterClient::onNotificationReceived(QString method, QJsonValue params)
                             obj.value(QStringLiteral("message")).toString());
 }
 
-void AdapterClient::handleLifecycleResponse(const QString& method, const QJsonObject& result)
+void AdapterClient::handleLifecycleResponse(int id, const QString& method, const QJsonObject& result)
 {
     if (method == "adapter.initialize" && _state == State::INITIALIZING)
     {
@@ -339,18 +345,42 @@ void AdapterClient::handleLifecycleResponse(const QString& method, const QJsonOb
     }
     else if (method == "adapter.dataPointSchema" && _state == State::AWAITING_CONFIG)
     {
+        if (_pendingAuxRequests.value(method, -1) != id)
+        {
+            qCWarning(scopeComm) << "AdapterClient: ignoring stale response for" << method;
+            return;
+        }
+        _pendingAuxRequests.remove(method);
         emit dataPointSchemaResult(result);
     }
     else if (method == "adapter.describeDataPoint" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
     {
+        if (_pendingAuxRequests.value(method, -1) != id)
+        {
+            qCWarning(scopeComm) << "AdapterClient: ignoring stale response for" << method;
+            return;
+        }
+        _pendingAuxRequests.remove(method);
         emit describeDataPointResult(result);
     }
     else if (method == "adapter.validateDataPoint" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
     {
+        if (_pendingAuxRequests.value(method, -1) != id)
+        {
+            qCWarning(scopeComm) << "AdapterClient: ignoring stale response for" << method;
+            return;
+        }
+        _pendingAuxRequests.remove(method);
         emit validateDataPointResult(result["valid"].toBool(), result["error"].toString());
     }
     else if (method == "adapter.buildExpression" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
     {
+        if (_pendingAuxRequests.value(method, -1) != id)
+        {
+            qCWarning(scopeComm) << "AdapterClient: ignoring stale response for" << method;
+            return;
+        }
+        _pendingAuxRequests.remove(method);
         emit buildExpressionResult(result["expression"].toString());
     }
     else
