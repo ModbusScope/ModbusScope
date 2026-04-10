@@ -300,6 +300,15 @@ Returns the schema for data point expressions — what fields make up a data poi
         "title": "Address",
         "minimum": 0,
         "maximum": 65535
+      },
+      "deviceId": {
+        "type": "integer",
+        "title": "Device ID",
+        "minimum": 1
+      },
+      "dataType": {
+        "type": "string",
+        "title": "Data type"
       }
     },
     "required": ["objectType", "address"]
@@ -321,7 +330,7 @@ Returns the schema for data point expressions — what fields make up a data poi
 | `dataTypes` | Array of available data types. Each entry has `id` (used in expression strings) and `label` (UI display) |
 | `defaultDataType` | The `id` of the type to pre-select in the UI |
 
-The `addressSchema` follows standard JSON Schema conventions. The core application uses it to dynamically generate the address input portion of the data point dialog, so it must accurately describe all required fields and their constraints.
+The `addressSchema` follows standard JSON Schema conventions. The core application uses it to dynamically generate the address input portion of the data point dialog, so it must accurately describe all required fields and their constraints. The `dataType` property within `addressSchema` has no `enum` constraint; the available values are supplied by the top-level `dataTypes` array, and `defaultDataType` (`"16b"`) indicates which value to pre-select.
 
 ---
 
