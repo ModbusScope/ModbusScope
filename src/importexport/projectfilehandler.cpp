@@ -4,6 +4,7 @@
 #include "importexport/projectfiledata.h"
 #include "importexport/projectfilejsonexporter.h"
 #include "importexport/projectfilejsonparser.h"
+#include "importexport/projectfilexmlparser.h"
 #include "models/device.h"
 #include "models/graphdatamodel.h"
 #include "models/guimodel.h"
@@ -35,8 +36,22 @@ void ProjectFileHandler::openProjectFile(QString projectFilePath)
         QTextStream in(&file);
         QString projectFileContents = in.readAll();
 
-        ProjectFileJsonParser jsonParser;
-        GeneralError parseErr = jsonParser.parseFile(projectFileContents, &loadedSettings);
+        GeneralError parseErr;
+        QString trimmed = projectFileContents.trimmed();
+        if (trimmed.startsWith('{'))
+        {
+            ProjectFileJsonParser jsonParser;
+            parseErr = jsonParser.parseFile(projectFileContents, &loadedSettings);
+        }
+        else if (trimmed.startsWith('<'))
+        {
+            ProjectFileXmlParser xmlParser;
+            parseErr = xmlParser.parseFile(projectFileContents, &loadedSettings);
+        }
+        else
+        {
+            parseErr.reportError(tr("The file is not a valid MBS project file."));
+        }
 
         if (parseErr.result())
         {
