@@ -237,7 +237,7 @@ void TestProjectFileXmlParser::scaleMinMax()
     QCOMPARE(settings.view.scaleSettings.xAxis.slidingInterval, static_cast<quint32>(20));
 
     QVERIFY(settings.view.scaleSettings.yAxis.bMinMax);
-    QCOMPARE(settings.view.scaleSettings.yAxis.scaleMin, 0.0);
+    QVERIFY(qFuzzyIsNull(settings.view.scaleSettings.yAxis.scaleMin));
     QCOMPARE(settings.view.scaleSettings.yAxis.scaleMax, 25.5);
 }
 
@@ -253,7 +253,7 @@ void TestProjectFileXmlParser::scaleWindowAuto()
     QVERIFY(!settings.view.scaleSettings.yAxis.bMinMax);
 
     QVERIFY(settings.view.scaleSettings.y2Axis.bMinMax);
-    QCOMPARE(settings.view.scaleSettings.y2Axis.scaleMin, 0.0);
+    QVERIFY(qFuzzyIsNull(settings.view.scaleSettings.y2Axis.scaleMin));
     QCOMPARE(settings.view.scaleSettings.y2Axis.scaleMax, 25.5);
 }
 

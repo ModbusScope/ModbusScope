@@ -199,7 +199,7 @@ GeneralError ProjectFileXmlParser::parseConnectionTag(const QDomElement& element
     QDomElement child = element.firstChildElement();
     while (!child.isNull() && parseErr.result())
     {
-        parseConnectionFields(child, pConnectionJson);
+        parseErr = parseConnectionFields(child, pConnectionJson);
         child = child.nextSiblingElement();
     }
 
@@ -229,7 +229,11 @@ GeneralError ProjectFileXmlParser::parseLegacyConnectionTag(const QDomElement& e
     {
         bool bRet;
 
-        parseConnectionFields(child, pConnectionJson);
+        parseErr = parseConnectionFields(child, pConnectionJson);
+        if (!parseErr.result())
+        {
+            break;
+        }
 
         if (child.tagName() == ProjectFileDefinitions::cSlaveIdTag)
         {
@@ -711,14 +715,22 @@ GeneralError ProjectFileXmlParser::parseScaleYAxis(const QDomElement& element, Y
 
 /*!
  * \brief Extract connection fields from a child element into a JSON object for the adapter blob.
+ * \return GeneralError — result() is false if a numeric field contains an invalid value.
  */
-void ProjectFileXmlParser::parseConnectionFields(const QDomElement& child, QJsonObject* pConnectionJson)
+GeneralError ProjectFileXmlParser::parseConnectionFields(const QDomElement& child, QJsonObject* pConnectionJson)
 {
+    GeneralError parseErr;
     bool bRet;
 
     if (child.tagName() == ProjectFileDefinitions::cConnectionIdTag)
     {
-        (*pConnectionJson)[ProjectFileDefinitions::cIdJsonKey] = static_cast<int>(child.text().toUInt(&bRet));
+        quint32 val = child.text().toUInt(&bRet);
+        if (!bRet)
+        {
+            parseErr.reportError(QString("Connection id (%1) is not a valid number").arg(child.text()));
+            return parseErr;
+        }
+        (*pConnectionJson)[ProjectFileDefinitions::cIdJsonKey] = static_cast<int>(val);
     }
     else if (child.tagName() == ProjectFileDefinitions::cConnectionEnabledTag)
     {
@@ -735,7 +747,13 @@ void ProjectFileXmlParser::parseConnectionFields(const QDomElement& child, QJson
     }
     else if (child.tagName() == ProjectFileDefinitions::cPortTag)
     {
-        (*pConnectionJson)[ProjectFileDefinitions::cPortTag] = static_cast<int>(child.text().toUInt(&bRet));
+        quint32 val = child.text().toUInt(&bRet);
+        if (!bRet)
+        {
+            parseErr.reportError(QString("Port (%1) is not a valid number").arg(child.text()));
+            return parseErr;
+        }
+        (*pConnectionJson)[ProjectFileDefinitions::cPortTag] = static_cast<int>(val);
     }
     else if (child.tagName() == ProjectFileDefinitions::cPortNameTag)
     {
@@ -743,29 +761,61 @@ void ProjectFileXmlParser::parseConnectionFields(const QDomElement& child, QJson
     }
     else if (child.tagName() == ProjectFileDefinitions::cBaudrateTag)
     {
-        (*pConnectionJson)[ProjectFileDefinitions::cBaudrateTag] = static_cast<int>(child.text().toUInt(&bRet));
+        quint32 val = child.text().toUInt(&bRet);
+        if (!bRet)
+        {
+            parseErr.reportError(QString("Baudrate (%1) is not a valid number").arg(child.text()));
+            return parseErr;
+        }
+        (*pConnectionJson)[ProjectFileDefinitions::cBaudrateTag] = static_cast<int>(val);
     }
     else if (child.tagName() == ProjectFileDefinitions::cParityTag)
     {
-        (*pConnectionJson)[ProjectFileDefinitions::cParityTag] = static_cast<int>(child.text().toUInt(&bRet));
+        quint32 val = child.text().toUInt(&bRet);
+        if (!bRet)
+        {
+            parseErr.reportError(QString("Parity (%1) is not a valid number").arg(child.text()));
+            return parseErr;
+        }
+        (*pConnectionJson)[ProjectFileDefinitions::cParityTag] = static_cast<int>(val);
     }
     else if (child.tagName() == ProjectFileDefinitions::cStopBitsTag)
     {
-        (*pConnectionJson)[ProjectFileDefinitions::cStopBitsTag] = static_cast<int>(child.text().toUInt(&bRet));
+        quint32 val = child.text().toUInt(&bRet);
+        if (!bRet)
+        {
+            parseErr.reportError(QString("Stop bits (%1) is not a valid number").arg(child.text()));
+            return parseErr;
+        }
+        (*pConnectionJson)[ProjectFileDefinitions::cStopBitsTag] = static_cast<int>(val);
     }
     else if (child.tagName() == ProjectFileDefinitions::cDataBitsTag)
     {
-        (*pConnectionJson)[ProjectFileDefinitions::cDataBitsTag] = static_cast<int>(child.text().toUInt(&bRet));
+        quint32 val = child.text().toUInt(&bRet);
+        if (!bRet)
+        {
+            parseErr.reportError(QString("Data bits (%1) is not a valid number").arg(child.text()));
+            return parseErr;
+        }
+        (*pConnectionJson)[ProjectFileDefinitions::cDataBitsTag] = static_cast<int>(val);
     }
     else if (child.tagName() == ProjectFileDefinitions::cTimeoutTag)
     {
-        (*pConnectionJson)[ProjectFileDefinitions::cTimeoutTag] = static_cast<int>(child.text().toUInt(&bRet));
+        quint32 val = child.text().toUInt(&bRet);
+        if (!bRet)
+        {
+            parseErr.reportError(QString("Timeout (%1) is not a valid number").arg(child.text()));
+            return parseErr;
+        }
+        (*pConnectionJson)[ProjectFileDefinitions::cTimeoutTag] = static_cast<int>(val);
     }
     else if (child.tagName() == ProjectFileDefinitions::cPersistentConnectionTag)
     {
         (*pConnectionJson)[ProjectFileDefinitions::cPersistentConnectionTag] =
           (child.text().toLower().compare(ProjectFileDefinitions::cTrueValue) == 0);
     }
+
+    return parseErr;
 }
 
 /*!

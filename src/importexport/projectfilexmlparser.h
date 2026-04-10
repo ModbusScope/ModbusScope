@@ -52,7 +52,7 @@ private:
     GeneralError parseScaleXAxis(const QDomElement& element, ProjectFileData::ScaleSettings* pScaleSettings);
     GeneralError parseScaleYAxis(const QDomElement& element, ProjectFileData::YAxisSettings* pYAxisSettings);
 
-    void parseConnectionFields(const QDomElement& child, QJsonObject* pConnectionJson);
+    GeneralError parseConnectionFields(const QDomElement& child, QJsonObject* pConnectionJson);
 
     void buildAdapterSettings(const QJsonArray& connectionsArray,
                               const QJsonArray& devicesArray,
