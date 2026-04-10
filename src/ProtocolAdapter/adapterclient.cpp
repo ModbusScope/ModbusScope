@@ -80,6 +80,9 @@ void AdapterClient::requestStatus()
     _pProcess->sendRequest("adapter.getStatus", QJsonObject());
 }
 
+/*!
+ * \brief Request the adapter's data point schema while awaiting configuration.
+ */
 void AdapterClient::requestDataPointSchema()
 {
     if (_state != State::AWAITING_CONFIG)
@@ -92,6 +95,10 @@ void AdapterClient::requestDataPointSchema()
     _pProcess->sendRequest("adapter.dataPointSchema", QJsonObject());
 }
 
+/*!
+ * \brief Request a human-readable description of a data point expression.
+ * \param expression The data point expression string to describe.
+ */
 void AdapterClient::describeDataPoint(const QString& expression)
 {
     if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE)
@@ -106,6 +113,10 @@ void AdapterClient::describeDataPoint(const QString& expression)
     _pProcess->sendRequest("adapter.describeDataPoint", params);
 }
 
+/*!
+ * \brief Validate a data point expression string via the adapter.
+ * \param expression The data point expression string to validate.
+ */
 void AdapterClient::validateDataPoint(const QString& expression)
 {
     if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE)
@@ -136,9 +147,10 @@ void AdapterClient::buildExpression(const QJsonObject& addressFields, const QStr
 
     QJsonObject params;
     params["fields"] = addressFields;
-    if (!dataType.isEmpty())
+    const QString trimmedDataType = dataType.trimmed();
+    if (!trimmedDataType.isEmpty())
     {
-        params["dataType"] = dataType;
+        params["dataType"] = trimmedDataType;
     }
     if (deviceId != 0)
     {
