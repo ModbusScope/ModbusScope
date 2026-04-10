@@ -7,8 +7,11 @@
 #include "util/scopelogging.h"
 
 #include <QCoreApplication>
+#include <QDir>
+#include <QFileInfo>
 
-AdapterManager::AdapterManager(SettingsModel* pSettingsModel, QObject* parent) : QObject(parent), _pSettingsModel(pSettingsModel)
+AdapterManager::AdapterManager(SettingsModel* pSettingsModel, QObject* parent)
+    : QObject(parent), _pSettingsModel(pSettingsModel)
 {
     _pAdapterProcess = new AdapterProcess(this);
     _pAdapterClient = new AdapterClient(_pAdapterProcess, this);
@@ -30,7 +33,9 @@ AdapterManager::AdapterManager(SettingsModel* pSettingsModel, QObject* parent) :
  */
 void AdapterManager::initAdapter()
 {
-    const QString adapterPath = QCoreApplication::applicationDirPath() + "/modbusadapter";
+    const QString suffix = QFileInfo(QCoreApplication::applicationFilePath()).suffix();
+    const QString adapterName = "modbusadapter" + (suffix.isEmpty() ? QString() : "." + suffix);
+    const QString adapterPath = QDir(QCoreApplication::applicationDirPath()).filePath(adapterName);
     _pAdapterClient->prepareAdapter(adapterPath);
 }
 
