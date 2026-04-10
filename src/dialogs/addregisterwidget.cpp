@@ -77,7 +77,8 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel,
     }
 
     connect(_pUi->btnAdd, &QPushButton::clicked, this, &AddRegisterWidget::handleResultAccept);
-    connect(_pAdapterManager, &AdapterManager::buildExpressionResult, this, &AddRegisterWidget::onBuildExpressionResult);
+    connect(_pAdapterManager, &AdapterManager::buildExpressionResult, this,
+            &AddRegisterWidget::onBuildExpressionResult);
 
     _axisGroup.setExclusive(true);
     _axisGroup.addButton(_pUi->radioPrimary);

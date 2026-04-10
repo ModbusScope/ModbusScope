@@ -63,23 +63,21 @@ GeneralError ProjectFileXmlParser::parseFile(const QString& fileContent, Project
     _dataLevel = datalevel;
     if (datalevel < ProjectFileDefinitions::cMinimumDataLevel)
     {
-        parseErr.reportError(
-          QString("Data level %1 is not supported. Minimum datalevel is %2.\n\n"
-                  "Try saving the project file with a previous version of ModbusScope.\n\n"
-                  "Project file loading is aborted.")
-            .arg(datalevel)
-            .arg(ProjectFileDefinitions::cMinimumDataLevel));
+        parseErr.reportError(QString("Data level %1 is not supported. Minimum datalevel is %2.\n\n"
+                                     "Try saving the project file with a previous version of ModbusScope.\n\n"
+                                     "Project file loading is aborted.")
+                               .arg(datalevel)
+                               .arg(ProjectFileDefinitions::cMinimumDataLevel));
         return parseErr;
     }
 
     if (datalevel > ProjectFileDefinitions::cCurrentDataLevel)
     {
-        parseErr.reportError(
-          QString("Data level %1 is not supported. Only datalevel %2 or lower is supported.\n\n"
-                  "Try upgrading ModbusScope to the latest version.\n\n"
-                  "Project file loading is aborted.")
-            .arg(datalevel)
-            .arg(ProjectFileDefinitions::cCurrentDataLevel));
+        parseErr.reportError(QString("Data level %1 is not supported. Only datalevel %2 or lower is supported.\n\n"
+                                     "Try upgrading ModbusScope to the latest version.\n\n"
+                                     "Project file loading is aborted.")
+                               .arg(datalevel)
+                               .arg(ProjectFileDefinitions::cCurrentDataLevel));
         return parseErr;
     }
 
@@ -478,8 +476,7 @@ GeneralError ProjectFileXmlParser::parseScopeTag(const QDomElement& element, Sco
 /*!
  * \brief Parse a single \c \<register\> element.
  */
-GeneralError ProjectFileXmlParser::parseRegisterTag(const QDomElement& element,
-                                                    RegisterSettings* pRegisterSettings)
+GeneralError ProjectFileXmlParser::parseRegisterTag(const QDomElement& element, RegisterSettings* pRegisterSettings)
 {
     GeneralError parseErr;
 
@@ -633,10 +630,9 @@ GeneralError ProjectFileXmlParser::parseScaleXAxis(const QDomElement& element, S
             }
             else
             {
-                parseErr.reportError(
-                  QString("Scale (x-axis) has an incorrect sliding interval. "
-                          "\"%1\" is not a valid number")
-                    .arg(child.text()));
+                parseErr.reportError(QString("Scale (x-axis) has an incorrect sliding interval. "
+                                             "\"%1\" is not a valid number")
+                                       .arg(child.text()));
                 break;
             }
         }
@@ -702,13 +698,11 @@ GeneralError ProjectFileXmlParser::parseScaleYAxis(const QDomElement& element, Y
     {
         if (!bMin)
         {
-            parseErr.reportError(
-              QString("If y-axis has min max scaling then min variable should be defined."));
+            parseErr.reportError(QString("If y-axis has min max scaling then min variable should be defined."));
         }
         else if (!bMax)
         {
-            parseErr.reportError(
-              QString("If y-axis has min max scaling then max variable should be defined."));
+            parseErr.reportError(QString("If y-axis has min max scaling then max variable should be defined."));
         }
     }
 

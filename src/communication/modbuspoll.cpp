@@ -5,7 +5,6 @@
 #include "util/formatdatetime.h"
 #include "util/scopelogging.h"
 
-
 ModbusPoll::ModbusPoll(SettingsModel* pSettingsModel, QObject* parent) : QObject(parent), _bPollActive(false)
 {
     _pPollTimer = new QTimer(this);
@@ -106,7 +105,6 @@ void ModbusPoll::onReadDataResult(ResultDoubleList results)
         _pPollTimer->start(static_cast<int>(waitInterval));
     }
 }
-
 
 /*! \brief Returns the AdapterManager owned by this instance. */
 AdapterManager* ModbusPoll::adapterManager() const
