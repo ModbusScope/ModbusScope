@@ -274,4 +274,30 @@ QString ProjectFileXmlTestData::cValueAxis = QString(
     "</modbusscope>                                                             \n"
 );
 
+QString ProjectFileXmlTestData::cValueAxisInvalid = QString(
+    "<?xml version=\"1.0\"?>                                                    \n"
+    "<modbusscope datalevel=\"5\">                                              \n"
+    "    <scope>                                                                \n"
+    "        <register active=\"true\">                                         \n"
+    "            <text>Data point</text>                                        \n"
+    "            <expression><![CDATA[${40001}/2]]></expression>                \n"
+    "            <valueaxis>notanumber</valueaxis>                              \n"
+    "        </register>                                                        \n"
+    "    </scope>                                                               \n"
+    "</modbusscope>                                                             \n"
+);
+
+QString ProjectFileXmlTestData::cLogFileRelativePath = QString(
+    "<?xml version=\"1.0\"?>                                                    \n"
+    "<modbusscope datalevel=\"5\">                                              \n"
+    " <modbus>                                                                  \n"
+    "  <log>                                                                    \n"
+    "   <logtofile enabled=\"true\">                                            \n"
+    "    <filename>subdir/output.csv</filename>                                 \n"
+    "   </logtofile>                                                            \n"
+    "  </log>                                                                   \n"
+    " </modbus>                                                                 \n"
+    "</modbusscope>                                                             \n"
+);
+
 // clang-format on

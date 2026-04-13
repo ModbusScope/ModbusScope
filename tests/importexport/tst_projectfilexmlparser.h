@@ -28,6 +28,9 @@ private slots:
     void scaleWindowAuto();
 
     void valueAxis();
+    void valueAxisInvalid();
+
+    void logFileRelativePath();
 };
 
 #endif // TST_PROJECTFILEXMLPARSER_H

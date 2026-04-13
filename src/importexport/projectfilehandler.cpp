@@ -46,7 +46,8 @@ void ProjectFileHandler::openProjectFile(QString projectFilePath)
         else if (trimmed.startsWith('<'))
         {
             ProjectFileXmlParser xmlParser;
-            parseErr = xmlParser.parseFile(projectFileContents, &loadedSettings);
+            parseErr =
+              xmlParser.parseFile(projectFileContents, &loadedSettings, QFileInfo(projectFilePath).absolutePath());
         }
         else
         {

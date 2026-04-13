@@ -4,9 +4,11 @@
 #include "importexport/projectfilexmlparser.h"
 #include "projectfilexmltestdata.h"
 
+#include <QDir>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLocale>
+#include <QTemporaryDir>
 #include <QTest>
 
 using ProjectFileData::ProjectSettings;
@@ -270,6 +272,42 @@ void TestProjectFileXmlParser::valueAxis()
     QCOMPARE(settings.scope.registerList[0].valueAxis, static_cast<quint32>(0));
     QCOMPARE(settings.scope.registerList[1].valueAxis, static_cast<quint32>(1));
     QCOMPARE(settings.scope.registerList[2].valueAxis, static_cast<quint32>(0));
+}
+
+void TestProjectFileXmlParser::valueAxisInvalid()
+{
+    ProjectFileXmlParser parser;
+    ProjectSettings settings;
+
+    GeneralError err = parser.parseFile(ProjectFileXmlTestData::cValueAxisInvalid, &settings);
+    QVERIFY(!err.result());
+}
+
+void TestProjectFileXmlParser::logFileRelativePath()
+{
+    /* Create a temporary project directory that contains "subdir/" so the relative path is valid */
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+    QVERIFY(QDir(tempDir.path()).mkdir("subdir"));
+
+    ProjectFileXmlParser parserWithBase;
+    ProjectSettings settingsWithBase;
+    GeneralError errWithBase =
+      parserWithBase.parseFile(ProjectFileXmlTestData::cLogFileRelativePath, &settingsWithBase, tempDir.path());
+    QVERIFY(errWithBase.result());
+    QVERIFY(settingsWithBase.general.logSettings.bLogToFileFile);
+    QVERIFY(!settingsWithBase.general.logSettings.logFile.isEmpty());
+
+    /* A different base dir without "subdir/" must reject the relative path */
+    QTemporaryDir wrongDir;
+    QVERIFY(wrongDir.isValid());
+
+    ProjectFileXmlParser parserWrongBase;
+    ProjectSettings settingsWrongBase;
+    GeneralError errWrongBase =
+      parserWrongBase.parseFile(ProjectFileXmlTestData::cLogFileRelativePath, &settingsWrongBase, wrongDir.path());
+    QVERIFY(errWrongBase.result());
+    QVERIFY(!settingsWrongBase.general.logSettings.bLogToFileFile);
 }
 
 QTEST_MAIN(TestProjectFileXmlParser)

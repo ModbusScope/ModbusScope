@@ -24,11 +24,16 @@ public:
 
     /*!
      * \brief Parse a legacy XML MBS project file into ProjectSettings.
-     * \param fileContent Raw file contents.
-     * \param pSettings   Output settings structure.
+     * \param fileContent     Raw file contents.
+     * \param pSettings       Output settings structure.
+     * \param projectBaseDir  Absolute path of the directory containing the project file.
+     *                        Used to resolve relative log-file paths; pass an empty string
+     *                        to skip directory-existence validation for relative paths.
      * \return GeneralError — result() is true on success.
      */
-    GeneralError parseFile(const QString& fileContent, ProjectFileData::ProjectSettings* pSettings);
+    GeneralError parseFile(const QString& fileContent,
+                           ProjectFileData::ProjectSettings* pSettings,
+                           const QString& projectBaseDir = QString());
 
 private:
     GeneralError parseModbusTag(const QDomElement& element, ProjectFileData::GeneralSettings* pGeneralSettings);
@@ -60,6 +65,7 @@ private:
 
     QDomDocument _domDocument;
     quint32 _dataLevel;
+    QString _projectBaseDir;
 };
 
 #endif // PROJECTFILEXMLPARSER_H

@@ -24,13 +24,18 @@ ProjectFileXmlParser::ProjectFileXmlParser() : _dataLevel(0)
 
 /*!
  * \brief Parse a legacy XML MBS project file (data levels 3–5).
- * \param fileContent Raw file contents.
- * \param pSettings   Output settings structure.
+ * \param fileContent    Raw file contents.
+ * \param pSettings      Output settings structure.
+ * \param projectBaseDir Absolute path of the directory containing the project file,
+ *                       used to resolve relative log-file paths.
  * \return GeneralError — result() is true on success.
  */
-GeneralError ProjectFileXmlParser::parseFile(const QString& fileContent, ProjectSettings* pSettings)
+GeneralError ProjectFileXmlParser::parseFile(const QString& fileContent,
+                                             ProjectSettings* pSettings,
+                                             const QString& projectBaseDir)
 {
     GeneralError parseErr;
+    _projectBaseDir = projectBaseDir;
 
     QDomDocument::ParseResult result =
       _domDocument.setContent(fileContent, QDomDocument::ParseOption::UseNamespaceProcessing);
@@ -276,7 +281,6 @@ GeneralError ProjectFileXmlParser::parseLegacyConnectionTag(const QDomElement& e
         /* Build generic device settings for main app */
         pDeviceSettings->bDeviceId = true;
         pDeviceSettings->deviceId = connectionId + 1;
-        pDeviceSettings->adapterType = "modbus";
 
         /* Build adapter device JSON blob */
         (*pDeviceJson)[ProjectFileDefinitions::cIdJsonKey] = static_cast<int>(connectionId + 1);
@@ -360,8 +364,6 @@ GeneralError ProjectFileXmlParser::parseDeviceTag(const QDomElement& element,
 
     if (parseErr.result())
     {
-        pDeviceSettings->adapterType = "modbus";
-
         (*pDeviceJson)[ProjectFileDefinitions::cIdJsonKey] = static_cast<int>(pDeviceSettings->deviceId);
         (*pDeviceJson)[ProjectFileDefinitions::cConnectionIdTag] = static_cast<int>(connectionId);
         (*pDeviceJson)[ProjectFileDefinitions::cSlaveIdTag] = static_cast<int>(slaveId);
@@ -426,7 +428,9 @@ GeneralError ProjectFileXmlParser::parseLogToFile(const QDomElement& element, Lo
     {
         if (child.tagName() == ProjectFileDefinitions::cFilenameTag)
         {
-            QFileInfo fileInfo = QFileInfo(child.text());
+            QFileInfo fileInfo = (_projectBaseDir.isEmpty() || QFileInfo(child.text()).isAbsolute())
+                                   ? QFileInfo(child.text())
+                                   : QFileInfo(QDir(_projectBaseDir), child.text());
             bool bValid = true;
 
             if (!fileInfo.isFile())
@@ -515,6 +519,11 @@ GeneralError ProjectFileXmlParser::parseRegisterTag(const QDomElement& element, 
             if (bOk)
             {
                 pRegisterSettings->valueAxis = axis;
+            }
+            else
+            {
+                parseErr.reportError(QString("Value axis (%1) is not a valid number").arg(child.text()));
+                break;
             }
         }
         else if (child.tagName() == ProjectFileDefinitions::cExpressionTag)
@@ -834,11 +843,15 @@ void ProjectFileXmlParser::buildAdapterSettings(const QJsonArray& connectionsArr
     adapterSettings.settings = settingsObj;
 
     pGeneralSettings->adapterList.append(adapterSettings);
+    const quint32 newAdapterIndex = static_cast<quint32>(pGeneralSettings->adapterList.size() - 1);
 
-    /* Set adapterId on all devices to point to adapter index 0 */
+    /* Assign adapter index and type to devices that have not yet been linked to an adapter */
     for (int i = 0; i < pGeneralSettings->deviceSettings.size(); i++)
     {
-        pGeneralSettings->deviceSettings[i].adapterId = 0;
-        pGeneralSettings->deviceSettings[i].adapterType = "modbus";
+        if (pGeneralSettings->deviceSettings[i].adapterType.isEmpty())
+        {
+            pGeneralSettings->deviceSettings[i].adapterId = newAdapterIndex;
+            pGeneralSettings->deviceSettings[i].adapterType = "modbus";
+        }
     }
 }

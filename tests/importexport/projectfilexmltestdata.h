@@ -19,6 +19,8 @@ public:
     static QString cScaleMinMax;
     static QString cScaleWindowAuto;
     static QString cValueAxis;
+    static QString cValueAxisInvalid;
+    static QString cLogFileRelativePath;
 };
 
 #endif // PROJECTFILEXMLTESTDATA_H
