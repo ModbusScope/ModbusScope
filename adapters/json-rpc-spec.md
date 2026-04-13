@@ -89,11 +89,11 @@ Returns the adapter's static metadata, configuration schema, default values, and
 
 **Params:** `{}` (none required)
 
-**Result:**
+**Result (Release build):**
 ```json
 {
   "name": "modbusAdapter",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "configVersion": 1,
   "schema": { ... },
   "defaults": { ... },
@@ -104,10 +104,14 @@ Returns the adapter's static metadata, configuration schema, default values, and
 }
 ```
 
+**Result (Debug build):** the `version` field appends `-<git-branch>`, e.g. `"0.0.1-feature-branch"`. Consumers must not treat `version` as a fixed literal; parse or compare it accordingly.
+
+> **Note:** Update this spec whenever the JSON-RPC implementation changes.
+
 | Field | Description |
 | --- | --- |
 | `name` | Adapter identifier |
-| `version` | Adapter software version |
+| `version` | Adapter software version. Release: `"<semver>"`. Debug: `"<semver>-<git-branch>"`. |
 | `configVersion` | Current config schema version |
 | `schema` | JSON Schema–compatible object describing the `config` object accepted by `adapter.configure` |
 | `defaults` | Default config values |
