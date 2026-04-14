@@ -68,6 +68,10 @@ void PresetParser::parsePresets(QString fileContent)
     }
 }
 
+/*!
+ * \brief Parses preset entries from a JSON string and appends valid presets to the internal list.
+ * \param fileContent The full JSON file content. Expected to be a JSON object with a "presets" array.
+ */
 void PresetParser::parsePresetsFromJson(const QString& fileContent)
 {
     QJsonParseError jsonError;
@@ -87,7 +91,7 @@ void PresetParser::parsePresetsFromJson(const QString& fileContent)
 
     QJsonArray presetsArray = doc.object().value("presets").toArray();
 
-    for (const QJsonValue& value : presetsArray)
+    for (const QJsonValue& value : std::as_const(presetsArray))
     {
         if (!value.isObject())
         {
@@ -123,7 +127,7 @@ bool PresetParser::parsePresetFromJson(const QJsonObject& obj, Preset* pPreset)
     {
         pPreset->fieldSeparator = '\t';
     }
-    else if (fieldSepStr.size() > 0)
+    else if (!fieldSepStr.isEmpty())
     {
         pPreset->fieldSeparator = fieldSepStr.at(0);
     }
@@ -139,7 +143,7 @@ bool PresetParser::parsePresetFromJson(const QJsonObject& obj, Preset* pPreset)
         return false;
     }
     QString decimalSepStr = obj.value("decimalseparator").toString();
-    if (decimalSepStr.size() > 0)
+    if (!decimalSepStr.isEmpty())
     {
         pPreset->decimalSeparator = decimalSepStr.at(0);
     }
@@ -152,7 +156,7 @@ bool PresetParser::parsePresetFromJson(const QJsonObject& obj, Preset* pPreset)
     if (obj.contains("thousandseparator"))
     {
         QString thousandSepStr = obj.value("thousandseparator").toString();
-        pPreset->thousandSeparator = thousandSepStr.size() > 0 ? thousandSepStr.at(0) : QChar(' ');
+        pPreset->thousandSeparator = !thousandSepStr.isEmpty() ? thousandSepStr.at(0) : QChar(' ');
     }
 
     if (obj.contains("commentsequence"))
@@ -177,7 +181,8 @@ bool PresetParser::parsePresetFromJson(const QJsonObject& obj, Preset* pPreset)
         bool ok = obj.value("labelrow").isDouble() && (labelRow >= -1);
         if (!ok)
         {
-            qCWarning(scopePreset) << tr("Label row is not a valid number. Specify -1 to indicate the absence of label row");
+            qCWarning(scopePreset) << tr(
+              "Label row is not a valid number. Specify -1 to indicate the absence of label row");
             return false;
         }
         pPreset->labelRow = labelRow;
@@ -207,8 +212,7 @@ bool PresetParser::parsePresetFromJson(const QJsonObject& obj, Preset* pPreset)
     return true;
 }
 
-
-bool PresetParser::parsePresetTag(const QDomElement &element, Preset *pPreset)
+bool PresetParser::parsePresetTag(const QDomElement& element, Preset* pPreset)
 {
     bool bFieldseparator = false;
     bool bName = false;
@@ -283,12 +287,11 @@ bool PresetParser::parsePresetTag(const QDomElement &element, Preset *pPreset)
         else if (child.tagName() == "labelrow")
         {
             pPreset->labelRow = child.text().toInt(&bRet);
-            if (
-                (!bRet)
-                || (pPreset->labelRow < -1)
-               )
+            if ((!bRet) || (pPreset->labelRow < -1))
             {
-                qCWarning(scopePreset) << tr("Label row ( %1 ) is not a valid number. Specify -1 to indicate the absence of label row").arg(child.text());
+                qCWarning(scopePreset)
+                  << tr("Label row ( %1 ) is not a valid number. Specify -1 to indicate the absence of label row")
+                       .arg(child.text());
                 break;
             }
         }
