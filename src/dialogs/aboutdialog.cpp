@@ -4,6 +4,8 @@
 #include "muParserDef.h"
 #include "qcustomplot/qcustomplot.h"
 
+#include "models/adapterdata.h"
+#include "models/settingsmodel.h"
 #include "util/updatenotify.h"
 #include "util/util.h"
 #include "util/version.h"
@@ -12,9 +14,8 @@
 #include <QLibraryInfo>
 #include <QUrl>
 
-AboutDialog::AboutDialog(UpdateNotify *pUpdateNotify, QWidget *parent) :
-    QDialog(parent),
-    _pUi(new Ui::AboutDialog)
+AboutDialog::AboutDialog(UpdateNotify* pUpdateNotify, SettingsModel* pSettingsModel, QWidget* parent)
+    : QDialog(parent), _pUi(new Ui::AboutDialog)
 {
     _pUi->setupUi(this);
 
@@ -25,6 +26,7 @@ AboutDialog::AboutDialog(UpdateNotify *pUpdateNotify, QWidget *parent) :
     connect(_pUi->btnLicense, &QPushButton::clicked, this, &AboutDialog::openLicense);
 
     setVersionInfo();
+    setAdapterVersionInfo(pSettingsModel);
     setLibraryVersionInfo();
 
     showVersionUpdate(pUpdateNotify);
@@ -55,7 +57,8 @@ void AboutDialog::showVersionUpdate(UpdateNotify* updateNotify)
     {
         QString updateTxt;
 
-        updateTxt.append(QString("Update available: <a href=\'%1\'>v%2</a>").arg(updateNotify->link().toString(), updateNotify->version()));
+        updateTxt.append(QString("Update available: <a href=\'%1\'>v%2</a>")
+                           .arg(updateNotify->link().toString(), updateNotify->version()));
 
         updateTxt.append("<br/>");
         _pUi->lblUpdate->setText(updateTxt);
@@ -91,6 +94,24 @@ void AboutDialog::setVersionInfo()
     _pUi->lblVersion->setText(QString(tr("v%1%2 (%3)")).arg(Util::currentVersion(), betaTxt, arch));
 }
 
+void AboutDialog::setAdapterVersionInfo(SettingsModel* pSettingsModel)
+{
+    QString versionTxt;
+
+    for (const QString& id : pSettingsModel->adapterIds())
+    {
+        const QString version = pSettingsModel->adapterData(id)->version();
+        if (!version.isEmpty())
+        {
+            versionTxt = QString(tr("Adapter: v%1")).arg(version);
+            break;
+        }
+    }
+
+    _pUi->lblAdapterVersion->setVisible(!versionTxt.isEmpty());
+    _pUi->lblAdapterVersion->setText(versionTxt);
+}
+
 void AboutDialog::setLibraryVersionInfo()
 {
     QString qtVersion(QLibraryInfo::version().toString());
@@ -105,4 +126,3 @@ void AboutDialog::setLibraryVersionInfo()
 
     _pUi->textAbout->setHtml(aboutText);
 }
-

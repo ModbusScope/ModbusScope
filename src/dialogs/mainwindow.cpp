@@ -332,7 +332,7 @@ void MainWindow::selectImageExportFile()
 
 void MainWindow::showAbout()
 {
-    AboutDialog aboutDialog(_pUpdateNotify, this);
+    AboutDialog aboutDialog(_pUpdateNotify, _pSettingsModel, this);
 
     aboutDialog.exec();
 }
