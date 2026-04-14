@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+class AdapterClient;
+
 /*!
  * \brief Integration tests for the dummymodbusadapter binary.
  *
@@ -13,12 +15,20 @@ class TestDummyAdapter : public QObject
 {
     Q_OBJECT
 private slots:
-    void describeReturnsRequiredFields();
-    void describeNameIsModbusAdapter();
+    void init();
+    void cleanup();
+    void describeResultHasRequiredFields();
     void fullLifecycleSessionStarts();
     void readRegistersReturnsValidData();
     void multipleReadCyclesAllSucceed();
     void stopSessionEmitsSessionStopped();
+    void dataPointSchemaReturnsRequiredFields();
+    void describeDataPointReturnsStructuredFields();
+    void validateDataPointReturnsTrueForValidExpression();
+    void validateDataPointReturnsFalseForInvalidExpression();
+
+private:
+    AdapterClient* _pClient{ nullptr };
 };
 
 #endif // TST_DUMMYADAPTER_H
