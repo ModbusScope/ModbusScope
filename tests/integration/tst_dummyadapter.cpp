@@ -270,6 +270,15 @@ void TestDummyAdapter::validateDataPointReturnsFalseForInvalidExpression()
 
     QVERIFY2(!spyResult.at(0).at(0).toBool(), "Expected valid=false for invalid expression");
     QVERIFY2(!spyResult.at(0).at(1).toString().isEmpty(), "Expected non-empty error for invalid expression");
+
+    QCOMPARE(spyError.count(), 0);
+
+    QSignalSpy spyResult2(_pClient, &AdapterClient::validateDataPointResult);
+    _pClient->validateDataPoint(QStringLiteral("${40001}"));
+    QVERIFY2(spyResult2.wait(cSessionTimeoutMs),
+             "No validateDataPointResult signal received for valid expression after invalid validation");
+    QVERIFY2(spyResult2.at(0).at(0).toBool(),
+             "Expected valid=true — client must remain functional after invalid validation");
 }
 
 QTEST_GUILESS_MAIN(TestDummyAdapter)

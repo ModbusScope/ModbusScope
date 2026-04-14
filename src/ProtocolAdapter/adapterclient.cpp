@@ -212,10 +212,13 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
     /* For auxiliary requests, a JSON-RPC error is a non-fatal validation result rather
        than a session-level failure. Translate to the corresponding result signal. */
     if (method == QStringLiteral("adapter.validateDataPoint") &&
-        (_state == State::AWAITING_CONFIG || _state == State::ACTIVE) && _pendingAuxRequests.value(method, -1) == id)
+        (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
     {
-        _pendingAuxRequests.remove(method);
-        emit validateDataPointResult(false, errorMsg);
+        if (_pendingAuxRequests.value(method, -1) == id)
+        {
+            _pendingAuxRequests.remove(method);
+            emit validateDataPointResult(false, errorMsg);
+        }
         return;
     }
 
