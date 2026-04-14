@@ -1,6 +1,8 @@
 #ifndef PRESETHANDLER_H
 #define PRESETHANDLER_H
 
+#include <memory>
+
 #include <QObject>
 #include <QStringList>
 #include "presetparser.h"
@@ -12,8 +14,8 @@ class PresetHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit PresetHandler(PresetParser* pPresetParser, QObject *parent = nullptr);
-    ~PresetHandler();
+    explicit PresetHandler(std::unique_ptr<PresetParser> pPresetParser, QObject *parent = nullptr);
+    ~PresetHandler() = default;
 
     void loadPresetsFromFile(QString path);
 
@@ -27,7 +29,7 @@ signals:
 
 private:
 
-    PresetParser* _pPresetParser;
+    std::unique_ptr<PresetParser> _pPresetParser;
 
     static const QString _presetFilename;
     static const QString _presetFilenameJson;

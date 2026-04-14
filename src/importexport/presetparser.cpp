@@ -15,14 +15,7 @@ PresetParser::Preset PresetParser::preset(quint32 index)
 
 quint32 PresetParser::presetCount()
 {
-    int size = _presetList.size();
-
-    if (size < 0)
-    {
-        size = 0;
-    }
-
-    return static_cast<quint32>(size);
+    return static_cast<quint32>(_presetList.size());
 }
 
 void PresetParser::parsePresets(QString fileContent)
@@ -62,10 +55,7 @@ void PresetParser::parsePresets(QString fileContent)
                         {
                             _presetList.append(preset);
                         }
-                        else
-                        {
-                            break;
-                        }
+                        // else: invalid preset, skip and continue loading remaining presets
                     }
                     else
                     {
@@ -102,7 +92,7 @@ void PresetParser::parsePresetsFromJson(const QString& fileContent)
         if (!value.isObject())
         {
             qCWarning(scopePreset) << tr("Each preset entry must be a JSON object.");
-            break;
+            continue;
         }
 
         Preset preset;
@@ -110,10 +100,7 @@ void PresetParser::parsePresetsFromJson(const QString& fileContent)
         {
             _presetList.append(preset);
         }
-        else
-        {
-            break;
-        }
+        // else: invalid preset, skip and continue loading remaining presets
     }
 }
 

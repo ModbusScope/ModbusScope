@@ -3,6 +3,7 @@
 #include "models/dataparsermodel.h"
 #include "util/scopelogging.h"
 
+#include <QCoreApplication>
 #include <QFileInfo>
 #include <QStandardPaths>
 #include <QTextStream>
@@ -10,14 +11,9 @@
 const QString PresetHandler::_presetFilename = QString("presets.xml");
 const QString PresetHandler::_presetFilenameJson = QString("presets.json");
 
-PresetHandler::PresetHandler(PresetParser* pPresetParser, QObject *parent) : QObject(parent)
+PresetHandler::PresetHandler(std::unique_ptr<PresetParser> pPresetParser, QObject *parent)
+    : QObject(parent), _pPresetParser(std::move(pPresetParser))
 {
-    _pPresetParser = pPresetParser;
-}
-
-PresetHandler::~PresetHandler()
-{
-    delete _pPresetParser;
 }
 
 QStringList PresetHandler::nameList(void)
@@ -119,14 +115,16 @@ void PresetHandler::determinePresetFile(QString& presetFile)
         }
     }
 
-    if (QFileInfo::exists(_presetFilenameJson))
+    QString appDir = QCoreApplication::applicationDirPath();
+
+    if (QFileInfo::exists(appDir + "/" + _presetFilenameJson))
     {
-        presetFile = _presetFilenameJson;
+        presetFile = appDir + "/" + _presetFilenameJson;
         return;
     }
 
-    if (QFileInfo::exists(_presetFilename))
+    if (QFileInfo::exists(appDir + "/" + _presetFilename))
     {
-        presetFile = _presetFilename;
+        presetFile = appDir + "/" + _presetFilename;
     }
 }
