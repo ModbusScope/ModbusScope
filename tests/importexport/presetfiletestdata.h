@@ -1,4 +1,7 @@
 
+#ifndef PRESETFILETESTDATA_H
+#define PRESETFILETESTDATA_H
+
 #include <QObject>
 
 class PresetFileTestData: public QObject
@@ -14,3 +17,5 @@ public:
 private:
 
 };
+
+#endif // PRESETFILETESTDATA_H

@@ -2,9 +2,7 @@
 #define PRESETPARSER_H
 
 #include <QObject>
-#include <QMessageBox>
 #include <QDomDocument>
-#include <QDateTime>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
