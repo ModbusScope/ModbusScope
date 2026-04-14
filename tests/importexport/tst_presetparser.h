@@ -1,7 +1,10 @@
 
+#ifndef TST_PRESETPARSER_H
+#define TST_PRESETPARSER_H
+
 #include <QObject>
 
-class TestPresetFileParser: public QObject
+class TestPresetFileParser : public QObject
 {
     Q_OBJECT
 private slots:
@@ -12,7 +15,9 @@ private slots:
     void invalidFile();
     void singlePresetJson();
     void invalidFileJson();
+    void skipInvalidThenLoadValid();
 
 private:
-
 };
+
+#endif // TST_PRESETPARSER_H

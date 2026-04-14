@@ -8,12 +8,10 @@
 
 void TestPresetFileParser::init()
 {
-
 }
 
 void TestPresetFileParser::cleanup()
 {
-
 }
 
 void TestPresetFileParser::singlePreset()
@@ -74,5 +72,14 @@ void TestPresetFileParser::invalidFileJson()
     QCOMPARE(presetParser.presetCount(), 0);
 }
 
+void TestPresetFileParser::skipInvalidThenLoadValid()
+{
+    PresetParser presetParser;
+
+    presetParser.parsePresets(PresetFileTestData::cMixedInvalidEntries);
+
+    QCOMPARE(presetParser.presetCount(), 1u);
+    QCOMPARE(presetParser.preset(0).name, "be-seconds");
+}
 
 QTEST_GUILESS_MAIN(TestPresetFileParser)
