@@ -10,6 +10,8 @@ private slots:
 
     void singlePreset();
     void invalidFile();
+    void singlePresetJson();
+    void invalidFileJson();
 
 private:
 

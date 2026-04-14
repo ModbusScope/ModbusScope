@@ -1,0 +1,38 @@
+{
+    "presets": [
+        {
+            "name": "Default (be)",
+            "keyword": "-be",
+            "fieldseparator": ";",
+            "decimalseparator": ",",
+            "thousandseparator": " ",
+            "commentsequence": "//",
+            "column": 1,
+            "labelrow": 1,
+            "datarow": 2,
+            "timeinmilliseconds": true
+        },
+        {
+            "name": "Default (us)",
+            "keyword": "-us",
+            "fieldseparator": ",",
+            "decimalseparator": ".",
+            "thousandseparator": " ",
+            "column": 1,
+            "labelrow": 1,
+            "datarow": 2,
+            "timeinmilliseconds": true
+        },
+        {
+            "name": "be-seconds",
+            "fieldseparator": ";",
+            "decimalseparator": ",",
+            "thousandseparator": " ",
+            "commentsequence": "//",
+            "column": 1,
+            "labelrow": 1,
+            "datarow": 2,
+            "timeinmilliseconds": false
+        }
+    ]
+}

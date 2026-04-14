@@ -8,6 +8,8 @@ class PresetFileTestData: public QObject
 public:
     static QString cSinglePreset;
     static QString cInvalidFile;
+    static QString cSinglePresetJson;
+    static QString cInvalidFileJson;
 
 private:
 

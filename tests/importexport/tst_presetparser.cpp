@@ -45,6 +45,34 @@ void TestPresetFileParser::invalidFile()
     QCOMPARE(presetParser.presetCount(), 0);
 }
 
+void TestPresetFileParser::singlePresetJson()
+{
+    PresetParser presetParser;
+
+    presetParser.parsePresets(PresetFileTestData::cSinglePresetJson);
+
+    QCOMPARE(presetParser.presetCount(), 1);
+
+    QCOMPARE(presetParser.preset(0).name, "be-seconds");
+    QCOMPARE(presetParser.preset(0).fieldSeparator, QChar(';'));
+    QCOMPARE(presetParser.preset(0).decimalSeparator, QChar(','));
+    QCOMPARE(presetParser.preset(0).thousandSeparator, QChar(' '));
+    QCOMPARE(presetParser.preset(0).commentSequence, "//");
+    QCOMPARE(presetParser.preset(0).column, 1);
+    QCOMPARE(presetParser.preset(0).labelRow, 1);
+    QCOMPARE(presetParser.preset(0).dataRow, 2);
+    QCOMPARE(presetParser.preset(0).bTimeInMilliSeconds, false);
+    QCOMPARE(presetParser.preset(0).keyword, "");
+}
+
+void TestPresetFileParser::invalidFileJson()
+{
+    PresetParser presetParser;
+
+    presetParser.parsePresets(PresetFileTestData::cInvalidFileJson);
+
+    QCOMPARE(presetParser.presetCount(), 0);
+}
 
 
 QTEST_GUILESS_MAIN(TestPresetFileParser)

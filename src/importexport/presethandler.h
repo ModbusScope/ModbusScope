@@ -30,6 +30,7 @@ private:
     PresetParser* _pPresetParser;
 
     static const QString _presetFilename;
+    static const QString _presetFilenameJson;
 
 };
 

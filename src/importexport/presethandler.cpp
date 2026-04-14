@@ -8,6 +8,7 @@
 #include <QTextStream>
 
 const QString PresetHandler::_presetFilename = QString("presets.xml");
+const QString PresetHandler::_presetFilenameJson = QString("presets.json");
 
 PresetHandler::PresetHandler(PresetParser* pPresetParser, QObject *parent) : QObject(parent)
 {
@@ -90,36 +91,42 @@ qint32 PresetHandler::determinePreset(QString filename)
     return presetIdx;
 }
 
-void PresetHandler::determinePresetFile(QString &presetFile)
+void PresetHandler::determinePresetFile(QString& presetFile)
 {
-    QString path;
-    /* Check if preset file exists (2 locations)
+    /* Check if preset file exists (2 locations, JSON preferred over XML in each)
     *   <document_folder>\ModbusScope\
     *   directory of executable
     */
 
     presetFile = "";
 
-    QString documentsfolder;
     QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
     if (docPath.size() > 0)
     {
-        documentsfolder = docPath[0];
+        QString documentsfolder = docPath[0];
+        QString basePath = documentsfolder + "/ModbusScope/";
 
-        path = documentsfolder + "/ModbusScope/" + _presetFilename;
-        if (QFileInfo::exists(path))
+        if (QFileInfo::exists(basePath + _presetFilenameJson))
         {
-            // xml in documents folder found
-            presetFile = path;
+            presetFile = basePath + _presetFilenameJson;
+            return;
         }
-        else
+
+        if (QFileInfo::exists(basePath + _presetFilename))
         {
-            // xml in documents folder doesn't exist, check directory of executable
-            path = _presetFilename;
-            if (QFileInfo::exists(path))
-            {
-                presetFile = path;
-            }
+            presetFile = basePath + _presetFilename;
+            return;
         }
+    }
+
+    if (QFileInfo::exists(_presetFilenameJson))
+    {
+        presetFile = _presetFilenameJson;
+        return;
+    }
+
+    if (QFileInfo::exists(_presetFilename))
+    {
+        presetFile = _presetFilename;
     }
 }

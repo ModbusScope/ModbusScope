@@ -27,3 +27,31 @@ QString PresetFileTestData::cInvalidFile = QString(
     "    </parsepreset>                                             \n"\
     "</modbusscope>                                                 \n"\
 );
+
+QString PresetFileTestData::cSinglePresetJson = QString(
+    "{\n"
+    "    \"presets\": [\n"
+    "        {\n"
+    "            \"name\": \"be-seconds\",\n"
+    "            \"fieldseparator\": \";\",\n"
+    "            \"decimalseparator\": \",\",\n"
+    "            \"thousandseparator\": \" \",\n"
+    "            \"commentsequence\": \"//\",\n"
+    "            \"column\": 1,\n"
+    "            \"labelrow\": 1,\n"
+    "            \"datarow\": 2,\n"
+    "            \"timeinmilliseconds\": false\n"
+    "        }\n"
+    "    ]\n"
+    "}\n"
+);
+
+QString PresetFileTestData::cInvalidFileJson = QString(
+    "{\n"
+    "    \"presets\": [\n"
+    "        {\n"
+    "            \"column\": 1\n"
+    "        }\n"
+    "    ]\n"
+    "}\n"
+);
