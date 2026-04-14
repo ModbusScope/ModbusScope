@@ -89,6 +89,12 @@ void PresetParser::parsePresetsFromJson(const QString& fileContent)
         return;
     }
 
+    if (!doc.object().contains("presets") || !doc.object().value("presets").isArray())
+    {
+        qCWarning(scopePreset) << tr("JSON preset file missing 'presets' array");
+        return;
+    }
+
     QJsonArray presetsArray = doc.object().value("presets").toArray();
 
     for (const QJsonValue& value : std::as_const(presetsArray))
