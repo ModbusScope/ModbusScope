@@ -205,10 +205,19 @@ void AdapterClient::onResponseReceived(int id, const QString& method, const QJso
 
 void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonObject& error)
 {
-    Q_UNUSED(id)
     _handshakeTimer.stop();
     QString errorMsg = error.value("message").toString();
     qCWarning(scopeComm) << "AdapterClient: error for" << method << ":" << errorMsg;
+
+    /* For auxiliary requests, a JSON-RPC error is a non-fatal validation result rather
+       than a session-level failure. Translate to the corresponding result signal. */
+    if (method == QStringLiteral("adapter.validateDataPoint") &&
+        (_state == State::AWAITING_CONFIG || _state == State::ACTIVE) && _pendingAuxRequests.value(method, -1) == id)
+    {
+        _pendingAuxRequests.remove(method);
+        emit validateDataPointResult(false, errorMsg);
+        return;
+    }
 
     State previousState = _state;
     /* Set IDLE before stop() so onProcessFinished's IDLE guard suppresses any
