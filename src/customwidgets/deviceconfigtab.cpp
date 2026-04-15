@@ -84,6 +84,18 @@ void DeviceConfigTab::onAdapterChanged(int index)
     {
         defaultValues = defaultDevices.first().toObject();
     }
+
+    // Preserve the existing device id so that switching adapters does not overwrite
+    // the unique id assigned when the tab was created.
+    if (_pSchemaForm)
+    {
+        const int currentId = _pSchemaForm->values().value("id").toInt(-1);
+        if (currentId >= 0)
+        {
+            defaultValues["id"] = currentId;
+        }
+    }
+
     rebuildSchemaForm(newAdapterId, defaultValues);
 }
 

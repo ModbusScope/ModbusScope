@@ -63,6 +63,12 @@ AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWid
     }
 }
 
+/*! \brief Add a new device tab with a unique, auto-incremented device ID.
+ *
+ * Creates a SettingsModel device via addNewDevice() to obtain a unique ID,
+ * sets its adapter, then opens a new DeviceConfigTab pre-populated with
+ * the adapter's default values and the assigned ID.
+ */
 void AdapterDeviceSettings::handleAddTab()
 {
     QString defaultAdapterId;
@@ -89,6 +95,10 @@ void AdapterDeviceSettings::handleAddTab()
     {
         defaultValues = defaultDevices.first().toObject();
     }
+
+    deviceId_t newId = _pSettingsModel->addNewDevice();
+    _pSettingsModel->deviceSettings(newId)->setAdapterId(defaultAdapterId);
+    defaultValues["id"] = static_cast<int>(newId);
 
     int tabIndex = _pDeviceTabs->count() + 1;
     auto* tab = new DeviceConfigTab(_pSettingsModel, defaultAdapterId, defaultValues, _pDeviceTabs);
