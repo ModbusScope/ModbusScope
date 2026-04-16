@@ -19,6 +19,7 @@ private slots:
     void acceptValuesSavesDeviceNameToModel();
     void addTabUsesDeviceDefaults();
     void addTabIncrementsDeviceId();
+    void deviceIdPreservedWhenAdapterChanged();
 
 private:
     //! Populate \a model with an adapter that has a minimal device schema and
