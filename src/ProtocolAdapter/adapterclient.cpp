@@ -241,7 +241,10 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
     if (method == QStringLiteral("adapter.expressionHelp") &&
         (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
     {
-        _pendingAuxRequests.remove(method);
+        if (_pendingAuxRequests.value(method, -1) == id)
+        {
+            _pendingAuxRequests.remove(method);
+        }
         return;
     }
 
