@@ -21,7 +21,8 @@ DeviceConfigTab::DeviceConfigTab(SettingsModel* pSettingsModel,
       _pNameEdit(new QLineEdit(this)),
       _pAdapterCombo(new QComboBox(this)),
       _pSchemaForm(nullptr),
-      _pSettingsModel(pSettingsModel)
+      _pSettingsModel(pSettingsModel),
+      _deviceId(deviceValues.value("id").toInt(-1))
 {
     _pLayout = new QVBoxLayout(this);
     setLayout(_pLayout);
@@ -86,15 +87,14 @@ void DeviceConfigTab::onAdapterChanged(int index)
     }
 
     // Preserve the existing device id so that switching adapters does not overwrite
-    // the unique id assigned when the tab was created.
-    if (_pSchemaForm)
+    // the unique id assigned when the tab was created. Fall back to _deviceId when
+    // the id field is hidden in the schema form and not returned by values().
+    int currentId = _pSchemaForm ? _pSchemaForm->values().value("id").toInt(-1) : -1;
+    if (currentId < 0)
     {
-        const int currentId = _pSchemaForm->values().value("id").toInt(-1);
-        if (currentId >= 0)
-        {
-            defaultValues["id"] = currentId;
-        }
+        currentId = _deviceId;
     }
+    defaultValues["id"] = currentId;
 
     rebuildSchemaForm(newAdapterId, defaultValues);
 }

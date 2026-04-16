@@ -57,6 +57,7 @@ private:
     QComboBox* _pAdapterCombo;
     SchemaFormWidget* _pSchemaForm;
     SettingsModel* _pSettingsModel;
+    int _deviceId;
 };
 
 #endif // DEVICECONFIGTAB_H
