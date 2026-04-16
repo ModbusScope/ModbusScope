@@ -19,6 +19,7 @@ AdapterManager::AdapterManager(SettingsModel* pSettingsModel, QObject* parent)
     connect(_pAdapterClient, &AdapterClient::sessionStarted, this, &AdapterManager::sessionStarted);
     connect(_pAdapterClient, &AdapterClient::readDataResult, this, &AdapterManager::readDataResult);
     connect(_pAdapterClient, &AdapterClient::buildExpressionResult, this, &AdapterManager::buildExpressionResult);
+    connect(_pAdapterClient, &AdapterClient::expressionHelpResult, this, &AdapterManager::expressionHelpResult);
     connect(_pAdapterClient, &AdapterClient::sessionStopped, this, &AdapterManager::sessionStopped);
     connect(_pAdapterClient, &AdapterClient::sessionError, this, &AdapterManager::sessionError);
     connect(_pAdapterClient, &AdapterClient::describeResult, this, &AdapterManager::onDescribeResult);
@@ -47,6 +48,12 @@ void AdapterManager::startSession(const QStringList& registerExpressions)
     const AdapterData* data = _pSettingsModel->adapterData("modbus");
     QJsonObject config = data->effectiveConfig();
     _pAdapterClient->provideConfig(config, registerExpressions);
+}
+
+/*! \brief Send an adapter.expressionHelp request to retrieve expression syntax help text. */
+void AdapterManager::requestExpressionHelp()
+{
+    _pAdapterClient->requestExpressionHelp();
 }
 
 /*! \brief Send adapter.shutdown and signal the adapter process to stop. */

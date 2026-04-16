@@ -160,6 +160,22 @@ void AdapterClient::buildExpression(const QJsonObject& addressFields, const QStr
     _pendingAuxRequests["adapter.buildExpression"] = _pProcess->sendRequest("adapter.buildExpression", params);
 }
 
+/*!
+ * \brief Request expression syntax help text from the adapter.
+ */
+void AdapterClient::requestExpressionHelp()
+{
+    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE)
+    {
+        qCWarning(scopeComm) << "AdapterClient: requestExpressionHelp called in unexpected state"
+                             << static_cast<int>(_state);
+        return;
+    }
+
+    _pendingAuxRequests["adapter.expressionHelp"] =
+        _pProcess->sendRequest("adapter.expressionHelp", QJsonObject());
+}
+
 void AdapterClient::stopSession()
 {
     if (_state == State::IDLE || _state == State::STOPPING)
@@ -209,8 +225,8 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
     QString errorMsg = error.value("message").toString();
     qCWarning(scopeComm) << "AdapterClient: error for" << method << ":" << errorMsg;
 
-    /* For auxiliary requests, a JSON-RPC error is a non-fatal validation result rather
-       than a session-level failure. Translate to the corresponding result signal. */
+    /* For auxiliary requests, a JSON-RPC error is a non-fatal result rather
+       than a session-level failure. Translate to the corresponding result signal or swallow. */
     if (method == QStringLiteral("adapter.validateDataPoint") &&
         (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
     {
@@ -219,6 +235,13 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
             _pendingAuxRequests.remove(method);
             emit validateDataPointResult(false, errorMsg);
         }
+        return;
+    }
+
+    if (method == QStringLiteral("adapter.expressionHelp") &&
+        (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
+    {
+        _pendingAuxRequests.remove(method);
         return;
     }
 
@@ -394,6 +417,16 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
         }
         _pendingAuxRequests.remove(method);
         emit buildExpressionResult(result["expression"].toString());
+    }
+    else if (method == "adapter.expressionHelp" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
+    {
+        if (_pendingAuxRequests.value(method, -1) != id)
+        {
+            qCWarning(scopeComm) << "AdapterClient: ignoring stale response for" << method;
+            return;
+        }
+        _pendingAuxRequests.remove(method);
+        emit expressionHelpResult(result["helpText"].toString());
     }
     else
     {

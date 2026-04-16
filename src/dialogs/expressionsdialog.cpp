@@ -1,16 +1,21 @@
 #include "expressionsdialog.h"
 #include "ui_expressionsdialog.h"
 
+#include "ProtocolAdapter/adaptermanager.h"
 #include "dialogs/expressionhighlighting.h"
 #include "models/graphdatamodel.h"
 
 using State = ResultState::State;
 
-ExpressionsDialog::ExpressionsDialog(GraphDataModel *pGraphDataModel, qint32 idx, QWidget *parent) :
-    QDialog(parent),
-    _pUi(new Ui::ExpressionsDialog),
-    _pGraphDataModel(pGraphDataModel),
-    _bUpdating(false)
+ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
+                                     qint32 idx,
+                                     AdapterManager* pAdapterManager,
+                                     QWidget* parent)
+    : QDialog(parent),
+      _pUi(new Ui::ExpressionsDialog),
+      _pGraphDataModel(pGraphDataModel),
+      _pAdapterManager(pAdapterManager),
+      _bUpdating(false)
 {
     _pUi->setupUi(this);
 
@@ -19,6 +24,13 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel *pGraphDataModel, qint32 idx
     _pHighlighter = new ExpressionHighlighting(_pUi->lineExpression->document());
 
     connect(&_expressionChecker, &ExpressionChecker::resultsReady, this, &ExpressionsDialog::handleResultReady);
+
+    if (_pAdapterManager != nullptr)
+    {
+        connect(_pAdapterManager, &AdapterManager::expressionHelpResult,
+                this, &ExpressionsDialog::handleExpressionHelpResult);
+        _pAdapterManager->requestExpressionHelp();
+    }
 
     _pUi->tblExpressionInput->setRowCount(0);
     _pUi->tblExpressionInput->setColumnCount(2);
@@ -124,6 +136,11 @@ void ExpressionsDialog::handleAccept()
     _pGraphDataModel->setExpression(_graphIdx, _pUi->lineExpression->toPlainText().trimmed());
 
     done(QDialog::Accepted);
+}
+
+void ExpressionsDialog::handleExpressionHelpResult(const QString& helpText)
+{
+    _pUi->lblInfo->setText(helpText);
 }
 
 void ExpressionsDialog::handleResultReady(bool valid)

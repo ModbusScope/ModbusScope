@@ -885,4 +885,76 @@ void TestAdapterClient::buildExpressionOmitsDefaultDeviceId()
     QVERIFY(!mock->sentRequests.last().params.contains(QStringLiteral("deviceId")));
 }
 
+void TestAdapterClient::expressionHelpRequestAndResponse()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyHelp(&client, &AdapterClient::expressionHelpResult);
+
+    driveToAwaitingConfig(client, mock);
+
+    client.requestExpressionHelp();
+
+    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.expressionHelp"));
+    QVERIFY(mock->sentRequests.last().params.isEmpty());
+
+    mock->injectResponse(3, "adapter.expressionHelp", QJsonObject{ { "helpText", QStringLiteral("<html>help</html>") } });
+
+    QCOMPARE(spyHelp.count(), 1);
+    QCOMPARE(spyHelp.at(0).at(0).toString(), QStringLiteral("<html>help</html>"));
+}
+
+void TestAdapterClient::expressionHelpInActiveState()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyHelp(&client, &AdapterClient::expressionHelpResult);
+
+    driveToActive(client, mock);
+
+    client.requestExpressionHelp();
+
+    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.expressionHelp"));
+
+    mock->injectResponse(5, "adapter.expressionHelp", QJsonObject{ { "helpText", QStringLiteral("<html>help</html>") } });
+
+    QCOMPARE(spyHelp.count(), 1);
+}
+
+void TestAdapterClient::expressionHelpInWrongStateIgnored()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyHelp(&client, &AdapterClient::expressionHelpResult);
+
+    /* Call in IDLE state — should be silently ignored */
+    client.requestExpressionHelp();
+
+    QCOMPARE(spyHelp.count(), 0);
+    QCOMPARE(mock->sentRequests.size(), 0);
+}
+
+void TestAdapterClient::expressionHelpErrorIsNonFatal()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+
+    driveToAwaitingConfig(client, mock);
+
+    client.requestExpressionHelp();
+
+    QJsonObject error;
+    error["code"] = -32601;
+    error["message"] = QStringLiteral("Method not found");
+    mock->injectError(3, "adapter.expressionHelp", error);
+
+    /* Session should remain alive — no sessionError emitted */
+    QCOMPARE(spyError.count(), 0);
+}
+
 QTEST_GUILESS_MAIN(TestAdapterClient)

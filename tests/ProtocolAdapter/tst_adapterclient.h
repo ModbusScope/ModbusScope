@@ -49,6 +49,11 @@ private slots:
     void buildExpressionInWrongStateIgnored();
     void buildExpressionOmitsDefaultDataType();
     void buildExpressionOmitsDefaultDeviceId();
+
+    void expressionHelpRequestAndResponse();
+    void expressionHelpInActiveState();
+    void expressionHelpInWrongStateIgnored();
+    void expressionHelpErrorIsNonFatal();
 };
 
 #endif // TST_ADAPTERCLIENT_H

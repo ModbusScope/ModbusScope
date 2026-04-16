@@ -39,6 +39,10 @@ public:
         buildCalls.append({ fields, dataType, deviceId });
     }
 
+    void requestExpressionHelp() override
+    {
+    }
+
     //! Simulate the adapter returning an expression string.
     void injectBuildExpressionResult(const QString& expression)
     {

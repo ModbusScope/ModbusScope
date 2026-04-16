@@ -120,6 +120,14 @@ public:
      */
     void buildExpression(const QJsonObject& addressFields, const QString& dataType, deviceId_t deviceId);
 
+    /*!
+     * \brief Send an adapter.expressionHelp request to retrieve expression syntax help text.
+     *
+     * Can be called in AWAITING_CONFIG or ACTIVE state.
+     * Emits expressionHelpResult() when the adapter responds.
+     */
+    void requestExpressionHelp();
+
 signals:
     /*!
      * \brief Emitted when the adapter has been initialized, described, configured, and started.
@@ -190,6 +198,12 @@ signals:
      * \param expression The constructed data point expression string (e.g. \c ${h0:f32b}).
      */
     void buildExpressionResult(QString expression);
+
+    /*!
+     * \brief Emitted when an adapter.expressionHelp response has been received.
+     * \param helpText HTML string describing expression syntax.
+     */
+    void expressionHelpResult(QString helpText);
 
 protected:
     enum class State

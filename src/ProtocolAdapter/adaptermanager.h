@@ -63,6 +63,11 @@ public:
     virtual void buildExpression(const QJsonObject& addressFields, const QString& dataType, deviceId_t deviceId);
 
     /*!
+     * \brief Send an adapter.expressionHelp request to retrieve expression syntax help text.
+     */
+    virtual void requestExpressionHelp();
+
+    /*!
      * \brief Route an adapter.diagnostic notification to the diagnostics log.
      *
      * Public for testability. Maps the adapter's level string to the appropriate
@@ -97,6 +102,12 @@ signals:
      * \param expression The constructed register expression string (e.g. \c ${h0:f32b}).
      */
     void buildExpressionResult(QString expression);
+
+    /*!
+     * \brief Emitted when an adapter.expressionHelp response has been received.
+     * \param helpText HTML string describing expression syntax.
+     */
+    void expressionHelpResult(QString helpText);
 
 private slots:
     void onDescribeResult(const QJsonObject& description);

@@ -149,7 +149,7 @@ void RegisterDialog::handleExpressionEdit(const QModelIndex& index)
     {
         _pUi->registerView->closePersistentEditor(index);
 
-        ExpressionsDialog exprDialog(_pGraphDataModel, index.row(), this);
+        ExpressionsDialog exprDialog(_pGraphDataModel, index.row(), _pAdapterManager, this);
 
         exprDialog.exec();
     }

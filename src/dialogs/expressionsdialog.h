@@ -6,7 +6,8 @@
 
 #include <QDialog>
 
-/* Forward declaration */
+/* Forward declarations */
+class AdapterManager;
 class ExpressionHighlighting;
 
 namespace Ui {
@@ -18,7 +19,10 @@ class ExpressionsDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ExpressionsDialog(GraphDataModel * pGraphDataModel, qint32 idx, QWidget *parent = nullptr);
+    explicit ExpressionsDialog(GraphDataModel* pGraphDataModel,
+                               qint32 idx,
+                               AdapterManager* pAdapterManager,
+                               QWidget* parent = nullptr);
     ~ExpressionsDialog();
 
 private slots:
@@ -27,20 +31,20 @@ private slots:
     void handleCancel();
     void handleAccept();
     void handleResultReady(bool valid);
+    void handleExpressionHelpResult(const QString& helpText);
 
 private:
-
-    Ui::ExpressionsDialog*_pUi;
+    Ui::ExpressionsDialog* _pUi;
 
     qint32 _graphIdx;
 
     GraphDataModel* _pGraphDataModel;
+    AdapterManager* _pAdapterManager;
 
     ExpressionChecker _expressionChecker;
-    ExpressionHighlighting *_pHighlighter;
+    ExpressionHighlighting* _pHighlighter;
 
     bool _bUpdating;
-    
 };
 
 #endif // EXPRESSIONSDIALOG_H
