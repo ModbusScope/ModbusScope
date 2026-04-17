@@ -26,6 +26,9 @@ private slots:
     void conditionalSwitchShowsTcpHidesSerial();
     void valuesOmitsInactiveBranchFields();
     void labelHiddenWithWidget();
+    void integerEnumMissingValueUsesSchemaDefault();
+    void stringEnumMissingValueUsesSchemaDefault();
+    void integerEnumMissingValueNoSchemaDefaultUsesFirstItem();
 };
 
 #endif // TST_SCHEMAFORMWIDGET_H

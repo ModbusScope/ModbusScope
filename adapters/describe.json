@@ -39,6 +39,7 @@
                     "else": {
                         "properties": {
                             "baudrate": {
+                                "default": 19200,
                                 "description": "Baud rate (serial only)",
                                 "enum": [
                                     1200,
@@ -64,6 +65,7 @@
                                 ]
                             },
                             "databits": {
+                                "default": 8,
                                 "description": "Data bits (serial only)",
                                 "enum": [
                                     5,
@@ -81,6 +83,7 @@
                                 ]
                             },
                             "parity": {
+                                "default": "N",
                                 "description": "Parity: N=none, E=even, O=odd (serial only)",
                                 "enum": [
                                     "N",
@@ -101,6 +104,7 @@
                                 "type": "string"
                             },
                             "stopbits": {
+                                "default": 1,
                                 "description": "Stop bits: 1, 1.5 (=3), or 2 (serial only)",
                                 "enum": [
                                     1,

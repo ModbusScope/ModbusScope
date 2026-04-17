@@ -163,6 +163,12 @@ QWidget* SchemaFormWidget::createWidgetForProperty(const QJsonObject& propSchema
 
         QVariant currentVariant = isInteger ? QVariant(value.toInt()) : QVariant(value.toString());
         int idx = combo->findData(currentVariant);
+        const QJsonValue defaultJson = propSchema.value("default");
+        if (idx < 0 && !defaultJson.isUndefined() && !defaultJson.isNull())
+        {
+            QVariant defaultVariant = isInteger ? QVariant(defaultJson.toInt()) : QVariant(defaultJson.toString());
+            idx = combo->findData(defaultVariant);
+        }
         if (idx >= 0)
         {
             combo->setCurrentIndex(idx);

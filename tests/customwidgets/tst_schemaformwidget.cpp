@@ -416,4 +416,52 @@ void TestSchemaFormWidget::labelHiddenWithWidget()
     QVERIFY(portNameLabelFound);
 }
 
+void TestSchemaFormWidget::integerEnumMissingValueUsesSchemaDefault()
+{
+    QJsonObject propSchema;
+    propSchema["type"] = "integer";
+    propSchema["enum"] = QJsonArray{ 1200, 9600, 19200 };
+    propSchema["default"] = 19200;
+
+    SchemaFormWidget w;
+    w.setSchema(makeObjectSchema("baudrate", propSchema), QJsonObject{});
+
+    auto* combo = w.findChild<QComboBox*>();
+    QVERIFY(combo != nullptr);
+    QCOMPARE(combo->currentText(), QStringLiteral("19200"));
+    QCOMPARE(w.values()["baudrate"].toInt(), 19200);
+}
+
+void TestSchemaFormWidget::stringEnumMissingValueUsesSchemaDefault()
+{
+    QJsonObject propSchema;
+    propSchema["type"] = "string";
+    propSchema["enum"] = QJsonArray{ "N", "E", "O" };
+    propSchema["x-enumLabels"] = QJsonArray{ "None", "Even", "Odd" };
+    propSchema["default"] = "N";
+
+    SchemaFormWidget w;
+    w.setSchema(makeObjectSchema("parity", propSchema), QJsonObject{});
+
+    auto* combo = w.findChild<QComboBox*>();
+    QVERIFY(combo != nullptr);
+    QCOMPARE(combo->currentText(), QStringLiteral("None"));
+    QCOMPARE(w.values()["parity"].toString(), QStringLiteral("N"));
+}
+
+void TestSchemaFormWidget::integerEnumMissingValueNoSchemaDefaultUsesFirstItem()
+{
+    QJsonObject propSchema;
+    propSchema["type"] = "integer";
+    propSchema["enum"] = QJsonArray{ 1200, 9600, 19200 };
+
+    SchemaFormWidget w;
+    w.setSchema(makeObjectSchema("baudrate", propSchema), QJsonObject{});
+
+    auto* combo = w.findChild<QComboBox*>();
+    QVERIFY(combo != nullptr);
+    QCOMPARE(combo->currentIndex(), 0);
+    QCOMPARE(w.values()["baudrate"].toInt(), 1200);
+}
+
 QTEST_MAIN(TestSchemaFormWidget)
