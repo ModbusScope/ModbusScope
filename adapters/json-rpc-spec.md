@@ -452,6 +452,24 @@ Constructs a register expression string from its component parts. The core calls
 
 ---
 
+### `adapter.expressionHelp`
+
+Returns static HTML help text describing the register expression syntax. The core displays this in the expression editor info panel so the explanation stays co-located with the adapter that owns the syntax.
+
+**Params:** `{}` (none required)
+
+**Result:**
+
+```json
+{ "helpText": "<html>...</html>" }
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `helpText` | string | HTML string suitable for display in a rich-text label |
+
+---
+
 ### `adapter.getStatus`
 
 Returns the current poll activity state.

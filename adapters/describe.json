@@ -10,17 +10,28 @@
     "defaults": {
         "connections": [
             {
-                "id": 0,
+                "id": 1,
                 "ip": "127.0.0.1",
                 "persistent": true,
                 "port": 502,
                 "timeout": 1000,
                 "type": "tcp"
+            },
+            {
+                "baudrate": 115200,
+                "databits": 8,
+                "id": 2,
+                "parity": "N",
+                "persistent": true,
+                "portName": "COM1",
+                "stopbits": 1,
+                "timeout": 1000,
+                "type": "serial"
             }
         ],
         "devices": [
             {
-                "connectionId": 0,
+                "connectionId": 1,
                 "consecutiveMax": 125,
                 "id": 1,
                 "int32LittleEndian": true,
@@ -39,7 +50,6 @@
                     "else": {
                         "properties": {
                             "baudrate": {
-                                "default": 19200,
                                 "description": "Baud rate (serial only)",
                                 "enum": [
                                     1200,
@@ -65,7 +75,6 @@
                                 ]
                             },
                             "databits": {
-                                "default": 8,
                                 "description": "Data bits (serial only)",
                                 "enum": [
                                     5,
@@ -83,7 +92,6 @@
                                 ]
                             },
                             "parity": {
-                                "default": "N",
                                 "description": "Parity: N=none, E=even, O=odd (serial only)",
                                 "enum": [
                                     "N",
@@ -104,7 +112,6 @@
                                 "type": "string"
                             },
                             "stopbits": {
-                                "default": 1,
                                 "description": "Stop bits: 1, 1.5 (=3), or 2 (serial only)",
                                 "enum": [
                                     1,
@@ -131,16 +138,12 @@
                             "type": {
                                 "const": "tcp"
                             }
-                        },
-                        "required": [
-                            "type"
-                        ]
+                        }
                     },
                     "properties": {
                         "id": {
-                            "description": "Connection index (0, 1, or 2)",
-                            "maximum": 2,
-                            "minimum": 0,
+                            "description": "Connection identifier",
+                            "minimum": 1,
                             "title": "Connection ID",
                             "type": "integer"
                         },
@@ -201,9 +204,8 @@
                 "items": {
                     "properties": {
                         "connectionId": {
-                            "description": "Connection index this device uses",
-                            "maximum": 2,
-                            "minimum": 0,
+                            "description": "Connection identifier this device uses",
+                            "minimum": 1,
                             "title": "Connection",
                             "type": "integer"
                         },
@@ -256,5 +258,5 @@
         },
         "type": "object"
     },
-    "version": "0.0.1"
+    "version": "0.0.1-master"
 }
