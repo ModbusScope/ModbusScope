@@ -230,6 +230,7 @@ private slots:
 
 private:
     void handleLifecycleResponse(int id, const QString& method, const QJsonObject& result);
+    bool consumeAuxResponse(const QString& method, int id);
 
     static constexpr int cHandshakeTimeoutMs = 10000;
 

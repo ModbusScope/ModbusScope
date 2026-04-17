@@ -172,8 +172,7 @@ void AdapterClient::requestExpressionHelp()
         return;
     }
 
-    _pendingAuxRequests["adapter.expressionHelp"] =
-        _pProcess->sendRequest("adapter.expressionHelp", QJsonObject());
+    _pendingAuxRequests["adapter.expressionHelp"] = _pProcess->sendRequest("adapter.expressionHelp", QJsonObject());
 }
 
 void AdapterClient::stopSession()
@@ -323,6 +322,21 @@ void AdapterClient::onNotificationReceived(QString method, QJsonValue params)
                             obj.value(QStringLiteral("message")).toString());
 }
 
+/*!
+ * \brief Check that the pending aux response matches \a id and remove it from the map.
+ * \return true if the response is current and was removed; false if stale (caller should discard).
+ */
+bool AdapterClient::consumeAuxResponse(const QString& method, int id)
+{
+    if (_pendingAuxRequests.value(method, -1) != id)
+    {
+        qCWarning(scopeComm) << "AdapterClient: ignoring stale response for" << method;
+        return false;
+    }
+    _pendingAuxRequests.remove(method);
+    return true;
+}
+
 void AdapterClient::handleLifecycleResponse(int id, const QString& method, const QJsonObject& result)
 {
     if (method == "adapter.initialize" && _state == State::INITIALIZING)
@@ -383,52 +397,42 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
     }
     else if (method == "adapter.dataPointSchema" && _state == State::AWAITING_CONFIG)
     {
-        if (_pendingAuxRequests.value(method, -1) != id)
+        if (!consumeAuxResponse(method, id))
         {
-            qCWarning(scopeComm) << "AdapterClient: ignoring stale response for" << method;
             return;
         }
-        _pendingAuxRequests.remove(method);
         emit dataPointSchemaResult(result);
     }
     else if (method == "adapter.describeDataPoint" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
     {
-        if (_pendingAuxRequests.value(method, -1) != id)
+        if (!consumeAuxResponse(method, id))
         {
-            qCWarning(scopeComm) << "AdapterClient: ignoring stale response for" << method;
             return;
         }
-        _pendingAuxRequests.remove(method);
         emit describeDataPointResult(result);
     }
     else if (method == "adapter.validateDataPoint" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
     {
-        if (_pendingAuxRequests.value(method, -1) != id)
+        if (!consumeAuxResponse(method, id))
         {
-            qCWarning(scopeComm) << "AdapterClient: ignoring stale response for" << method;
             return;
         }
-        _pendingAuxRequests.remove(method);
         emit validateDataPointResult(result["valid"].toBool(), result["error"].toString());
     }
     else if (method == "adapter.buildExpression" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
     {
-        if (_pendingAuxRequests.value(method, -1) != id)
+        if (!consumeAuxResponse(method, id))
         {
-            qCWarning(scopeComm) << "AdapterClient: ignoring stale response for" << method;
             return;
         }
-        _pendingAuxRequests.remove(method);
         emit buildExpressionResult(result["expression"].toString());
     }
     else if (method == "adapter.expressionHelp" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
     {
-        if (_pendingAuxRequests.value(method, -1) != id)
+        if (!consumeAuxResponse(method, id))
         {
-            qCWarning(scopeComm) << "AdapterClient: ignoring stale response for" << method;
             return;
         }
-        _pendingAuxRequests.remove(method);
         emit expressionHelpResult(result["helpText"].toString());
     }
     else
