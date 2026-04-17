@@ -35,7 +35,7 @@ QJsonObject minimalConfig()
 QJsonObject realConfig()
 {
     QJsonObject connection;
-    connection[QStringLiteral("id")] = 0;
+    connection[QStringLiteral("id")] = 1;
     connection[QStringLiteral("type")] = QStringLiteral("tcp");
     connection[QStringLiteral("ip")] = DUMMY_IP;
     connection[QStringLiteral("port")] = static_cast<int>(DUMMY_PORT);
@@ -44,7 +44,7 @@ QJsonObject realConfig()
 
     QJsonObject device;
     device[QStringLiteral("id")] = 1;
-    device[QStringLiteral("connectionId")] = 0;
+    device[QStringLiteral("connectionId")] = 1;
     device[QStringLiteral("slaveId")] = static_cast<int>(DUMMY_SLAVE_ID);
 
     QJsonObject config;
