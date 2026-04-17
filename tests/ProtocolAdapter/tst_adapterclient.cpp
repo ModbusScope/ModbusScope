@@ -943,6 +943,7 @@ void TestAdapterClient::expressionHelpErrorIsNonFatal()
     AdapterClient client(mock);
 
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
+    QSignalSpy spyHelp(&client, &AdapterClient::expressionHelpResult);
 
     driveToAwaitingConfig(client, mock);
 
@@ -955,6 +956,12 @@ void TestAdapterClient::expressionHelpErrorIsNonFatal()
 
     /* Session should remain alive — no sessionError emitted */
     QCOMPARE(spyError.count(), 0);
+
+    /* Session should still be usable — verify a follow-up request succeeds */
+    client.requestExpressionHelp();
+    mock->injectResponse(4, "adapter.expressionHelp", QJsonObject{ { "helpText", QStringLiteral("<html>help</html>") } });
+    QCOMPARE(spyHelp.count(), 1);
+    QCOMPARE(spyHelp.at(0).at(0).toString(), QStringLiteral("<html>help</html>"));
 }
 
 QTEST_GUILESS_MAIN(TestAdapterClient)
