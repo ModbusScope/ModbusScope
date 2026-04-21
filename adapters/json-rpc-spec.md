@@ -187,6 +187,7 @@ Adapter-wide settings. Currently empty; reserved for future use.
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
 | `id` | integer | yes | Connection index: `0`, `1`, or `2` |
+| `name` | string | no | Human-readable label (default: `"Connection <id>"`) |
 | `type` | string | yes | `"tcp"` or `"serial"` |
 | `timeout` | integer | no | Timeout in milliseconds (default: `1000`) |
 | `persistent` | boolean | no | Keep connection open between reads (default: `false`) |

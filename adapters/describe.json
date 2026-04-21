@@ -12,6 +12,7 @@
             {
                 "id": 1,
                 "ip": "127.0.0.1",
+                "name": "Connection 1",
                 "persistent": true,
                 "port": 502,
                 "timeout": 1000,
@@ -21,6 +22,7 @@
                 "baudrate": 115200,
                 "databits": 8,
                 "id": 2,
+                "name": "Connection 2",
                 "parity": "N",
                 "persistent": true,
                 "portName": "COM1",
@@ -147,6 +149,11 @@
                             "title": "Connection ID",
                             "type": "integer"
                         },
+                        "name": {
+                            "description": "Human-readable connection name (default: \"Connection <id>\")",
+                            "title": "Connection Name",
+                            "type": "string"
+                        },
                         "persistent": {
                             "description": "Keep connection open between reads",
                             "title": "Keep Connection Persistent",
@@ -258,5 +265,5 @@
         },
         "type": "object"
     },
-    "version": "0.0.1-master"
+    "version": "0.0.1-master:ac7eec7"
 }
