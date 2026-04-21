@@ -20,6 +20,16 @@ private slots:
     void addTabUsesDeviceDefaults();
     void addTabIncrementsDeviceId();
     void deviceIdPreservedWhenAdapterChanged();
+    void deviceNamePersistedAfterAcceptAndReopen();
+    void addTabDoesNotReuseIdFromAdapterConfig();
+    void addTabWithGapAssignsNextAfterMax();
+    void closeTabRemovesDeviceFromModel();
+    void nameChangeUpdatesModelImmediately();
+    void adapterChangeUpdatesModelImmediately();
+    void multipleAdaptersWithDevices();
+    void cancelAndReopenDoesNotLeakDeviceIds();
+    void addTabAfterIdEditDoesNotDuplicate();
+    void acceptValuesClearsDevicesForEmptiedAdapter();
 
 private:
     //! Populate \a model with an adapter that has a minimal device schema and

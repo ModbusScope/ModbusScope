@@ -17,6 +17,13 @@ private slots:
     void arrayPropertyCreatesTabWidget();
     void objectPropertyCreatesSingleForm();
     void addTabUsesPropertyDefaults();
+    void addTabUsesNextIndexForId();
+    void addTabAssignsMaxIdPlusOneForNonContiguousIds();
+    void addTabNameMatchesIdForNonContiguousIds();
+    void addTabNameMatchesIdForConsecutiveAddsWithNonContiguousStart();
+    void addTabInitializesNameToConnectionId();
+    void tabNameUsesNameFieldOnLoad();
+    void tabNameUpdatesWhenNameFieldChanges();
     void acceptValuesStoresConfigInAdapterData();
 };
 

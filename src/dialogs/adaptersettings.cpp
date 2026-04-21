@@ -53,8 +53,10 @@ void AdapterSettings::buildSection(const QJsonObject& propSchema, const QJsonVal
         {
             auto* form = new SchemaFormWidget(_pItemTabs);
             form->setSchema(_itemSchema, itemsArray.at(i).toObject());
+            connectTabNameTracking(form);
             pages.append(form);
-            names.append(formatTabName(i + 1));
+            const QString itemName = itemsArray.at(i).toObject().value("name").toString();
+            names.append(itemName.isEmpty() ? formatTabName(i + 1) : itemName);
         }
 
         if (!pages.isEmpty())
@@ -83,7 +85,30 @@ QString AdapterSettings::formatTabName(int index) const
     {
         return QString("Item %1").arg(index);
     }
-    return QString("%1 %2").arg(_propertyKey[0].toUpper() + _propertyKey.mid(1)).arg(index);
+    QString label = (_propertyKey.length() > 1 && _propertyKey.endsWith('s')) ? _propertyKey.chopped(1) : _propertyKey;
+    if (label.isEmpty())
+    {
+        return QString("Item %1").arg(index);
+    }
+    return QString("%1 %2").arg(label[0].toUpper() + label.mid(1)).arg(index);
+}
+
+void AdapterSettings::onSchemaFieldNameChanged(SchemaFormWidget* form, const QString& key, const QString& value)
+{
+    if (key == "name")
+    {
+        const int tabIndex = _pItemTabs->indexOf(form);
+        if (tabIndex >= 0)
+        {
+            _pItemTabs->setTabName(tabIndex, value.isEmpty() ? formatTabName(tabIndex + 1) : value);
+        }
+    }
+}
+
+void AdapterSettings::connectTabNameTracking(SchemaFormWidget* form)
+{
+    connect(form, &SchemaFormWidget::fieldChanged, this,
+            [this, form](const QString& key, const QString& value) { onSchemaFieldNameChanged(form, key, value); });
 }
 
 void AdapterSettings::addItemTab()
@@ -95,8 +120,37 @@ void AdapterSettings::addItemTab()
     {
         defaultValues = defaultItems.first().toObject();
     }
+
+    const QJsonObject properties = _itemSchema.value("properties").toObject();
+
+    int nameIndex = _nextItemTabIndex;
+
+    const QJsonObject idProp = properties.value("id").toObject();
+    if (!idProp.isEmpty() && idProp.value("type").toString() == "integer")
+    {
+        int maxId = 0;
+        for (int i = 0; i < _pItemTabs->count(); ++i)
+        {
+            auto* existingForm = qobject_cast<SchemaFormWidget*>(_pItemTabs->tabContent(i));
+            if (existingForm)
+            {
+                maxId = qMax(maxId, existingForm->values().value("id").toInt());
+            }
+        }
+        defaultValues["id"] = maxId + 1;
+        nameIndex = maxId + 1;
+    }
+
+    const QJsonObject nameProp = properties.value("name").toObject();
+    if (!nameProp.isEmpty() && nameProp.value("type").toString() == "string")
+    {
+        defaultValues["name"] = formatTabName(nameIndex);
+    }
+
     form->setSchema(_itemSchema, defaultValues);
-    const QString name = formatTabName(_nextItemTabIndex);
+    connectTabNameTracking(form);
+    const QString tabName = defaultValues.value("name").toString();
+    const QString name = tabName.isEmpty() ? formatTabName(nameIndex) : tabName;
     _nextItemTabIndex++;
     _pItemTabs->addNewTab(name, form);
 }

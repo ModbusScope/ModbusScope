@@ -52,12 +52,7 @@ bool SettingsModel::absoluteTimes()
 
 deviceId_t SettingsModel::addNewDevice()
 {
-    deviceId_t newId = Device::cFirstDeviceId;
-
-    while (_devices.contains(newId))
-    {
-        newId++;
-    }
+    deviceId_t newId = _devices.isEmpty() ? Device::cFirstDeviceId : static_cast<deviceId_t>(_devices.lastKey() + 1);
 
     _devices[newId] = Device(newId);
 

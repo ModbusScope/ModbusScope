@@ -51,6 +51,10 @@ private:
     //! \brief Returns a display name for a tab at the given 1-based \a index.
     QString formatTabName(int index) const;
 
+    //! \brief Connects \a form's fieldChanged signal to keep the tab label in sync with the \c name field.
+    void connectTabNameTracking(SchemaFormWidget* form);
+    void onSchemaFieldNameChanged(SchemaFormWidget* form, const QString& key, const QString& value);
+
     SettingsModel* _pSettingsModel;
     QString _adapterId;
     QString _propertyKey;

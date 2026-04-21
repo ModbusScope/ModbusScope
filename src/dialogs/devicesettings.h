@@ -17,7 +17,7 @@ public:
 
 private slots:
     void handleAddTab();
-    void handleCloseTab(int index);
+    void handleCloseTab(QWidget* widget);
     void updateTabName(deviceId_t devId);
 
 private:

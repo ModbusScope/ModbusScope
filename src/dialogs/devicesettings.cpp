@@ -12,7 +12,7 @@ DeviceSettings::DeviceSettings(SettingsModel* pSettingsModel, QWidget* parent)
     QVBoxLayout* layout = new QVBoxLayout(this);
     layout->addWidget(_pDeviceTabs);
 
-    connect(_pDeviceTabs, &AddableTabWidget::tabClosed, this, &DeviceSettings::handleCloseTab, Qt::DirectConnection);
+    connect(_pDeviceTabs, &AddableTabWidget::tabClosed, this, &DeviceSettings::handleCloseTab);
     connect(_pDeviceTabs, &AddableTabWidget::addTabRequested, this, &DeviceSettings::handleAddTab);
 
     QList<QWidget*> pages;
@@ -70,12 +70,11 @@ void DeviceSettings::updateTabName(deviceId_t devId)
     }
 }
 
-void DeviceSettings::handleCloseTab(int index)
+void DeviceSettings::handleCloseTab(QWidget* widget)
 {
-    auto tabContent = qobject_cast<DeviceForm*>(_pDeviceTabs->tabContent(index));
-    if (tabContent)
+    auto* form = qobject_cast<DeviceForm*>(widget);
+    if (form)
     {
-        deviceId_t devId = tabContent->deviceId();
-        _pSettingsModel->removeDevice(devId);
+        _pSettingsModel->removeDevice(form->deviceId());
     }
 }
