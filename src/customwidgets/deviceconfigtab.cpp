@@ -17,14 +17,13 @@ DeviceConfigTab::DeviceConfigTab(SettingsModel* pSettingsModel,
                                  const QJsonObject& deviceValues,
                                  QWidget* parent)
     : QWidget(parent),
-      _pLayout(nullptr),
+      _pLayout(new QVBoxLayout(this)),
       _pNameEdit(new QLineEdit(this)),
       _pAdapterCombo(new QComboBox(this)),
       _pSchemaForm(nullptr),
       _pSettingsModel(pSettingsModel),
       _deviceId(deviceValues.value("id").toInt(-1))
 {
-    _pLayout = new QVBoxLayout(this);
     setLayout(_pLayout);
 
     auto* nameRow = new QHBoxLayout;
@@ -33,10 +32,9 @@ DeviceConfigTab::DeviceConfigTab(SettingsModel* pSettingsModel,
     nameRow->addStretch();
     _pLayout->addLayout(nameRow);
 
-    int deviceId = deviceValues.value("id").toInt(-1);
-    if (deviceId >= 0 && pSettingsModel->deviceList().contains(static_cast<deviceId_t>(deviceId)))
+    if (_deviceId >= 0 && pSettingsModel->hasDevice(static_cast<deviceId_t>(_deviceId)))
     {
-        _pNameEdit->setText(pSettingsModel->deviceSettings(static_cast<deviceId_t>(deviceId))->name());
+        _pNameEdit->setText(pSettingsModel->deviceSettings(static_cast<deviceId_t>(_deviceId))->name());
     }
 
     auto* adapterRow = new QHBoxLayout;
@@ -66,6 +64,7 @@ DeviceConfigTab::DeviceConfigTab(SettingsModel* pSettingsModel,
         _pAdapterCombo->setCurrentIndex(idx);
     }
 
+    connect(_pNameEdit, &QLineEdit::textChanged, this, &DeviceConfigTab::onNameChanged);
     connect(_pAdapterCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
             &DeviceConfigTab::onAdapterChanged);
 
@@ -96,7 +95,21 @@ void DeviceConfigTab::onAdapterChanged(int index)
     }
     defaultValues["id"] = currentId;
 
+    if (_deviceId >= 0 && _pSettingsModel->hasDevice(static_cast<deviceId_t>(_deviceId)))
+    {
+        _pSettingsModel->deviceSettings(static_cast<deviceId_t>(_deviceId))->setAdapterId(newAdapterId);
+    }
+
     rebuildSchemaForm(newAdapterId, defaultValues);
+}
+
+void DeviceConfigTab::onNameChanged(const QString& name)
+{
+    if (_deviceId >= 0 && _pSettingsModel->hasDevice(static_cast<deviceId_t>(_deviceId)))
+    {
+        _pSettingsModel->deviceSettings(static_cast<deviceId_t>(_deviceId))->setName(name);
+    }
+    emit nameChanged(name);
 }
 
 void DeviceConfigTab::rebuildSchemaForm(const QString& adapterId, const QJsonObject& deviceValues)
@@ -104,7 +117,7 @@ void DeviceConfigTab::rebuildSchemaForm(const QString& adapterId, const QJsonObj
     if (_pSchemaForm)
     {
         _pLayout->removeWidget(_pSchemaForm);
-        delete _pSchemaForm;
+        _pSchemaForm->deleteLater();
         _pSchemaForm = nullptr;
     }
 
@@ -136,4 +149,9 @@ QString DeviceConfigTab::adapterId() const
 QString DeviceConfigTab::deviceName() const
 {
     return _pNameEdit->text();
+}
+
+int DeviceConfigTab::deviceId() const
+{
+    return _deviceId;
 }

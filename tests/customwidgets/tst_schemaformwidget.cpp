@@ -9,6 +9,7 @@
 #include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
+#include <QSignalSpy>
 #include <QSpinBox>
 #include <QTest>
 
@@ -93,6 +94,23 @@ QJsonObject makeConditionalSchema()
     schema["if"] = ifObj;
     schema["then"] = thenObj;
     schema["else"] = elseObj;
+    return schema;
+}
+
+/*!
+ * \brief Same as makeConditionalSchema() but without a \c required array in the \c if block.
+ *
+ * This matches the real adapter schema format where the trigger key is inferred
+ * from the single property in \c if.properties rather than from \c if.required.
+ */
+QJsonObject makeConditionalSchemaNoIfRequired()
+{
+    QJsonObject schema = makeConditionalSchema();
+
+    QJsonObject ifObj = schema["if"].toObject();
+    ifObj.remove("required");
+    schema["if"] = ifObj;
+
     return schema;
 }
 
@@ -344,6 +362,10 @@ void TestSchemaFormWidget::conditionalSwitchShowsSerialHidesTcp()
         }
     }
     QVERIFY(typeCombo != nullptr);
+    if (typeCombo == nullptr)
+    {
+        return;
+    }
     typeCombo->setCurrentIndex(typeCombo->findData(QStringLiteral("serial")));
 
     const QJsonObject result = w.values();
@@ -429,7 +451,7 @@ void TestSchemaFormWidget::integerEnumMissingValueUsesSchemaDefault()
     auto* combo = w.findChild<QComboBox*>();
     QVERIFY(combo != nullptr);
     QCOMPARE(combo->currentText(), QStringLiteral("19200"));
-    QCOMPARE(w.values()["baudrate"].toInt(), 19200);
+    QCOMPARE(w.values().value("baudrate").toInt(), 19200);
 }
 
 void TestSchemaFormWidget::stringEnumMissingValueUsesSchemaDefault()
@@ -446,7 +468,7 @@ void TestSchemaFormWidget::stringEnumMissingValueUsesSchemaDefault()
     auto* combo = w.findChild<QComboBox*>();
     QVERIFY(combo != nullptr);
     QCOMPARE(combo->currentText(), QStringLiteral("None"));
-    QCOMPARE(w.values()["parity"].toString(), QStringLiteral("N"));
+    QCOMPARE(w.values().value("parity").toString(), QStringLiteral("N"));
 }
 
 void TestSchemaFormWidget::integerEnumMissingValueNoSchemaDefaultUsesFirstItem()
@@ -461,7 +483,43 @@ void TestSchemaFormWidget::integerEnumMissingValueNoSchemaDefaultUsesFirstItem()
     auto* combo = w.findChild<QComboBox*>();
     QVERIFY(combo != nullptr);
     QCOMPARE(combo->currentIndex(), 0);
-    QCOMPARE(w.values()["baudrate"].toInt(), 1200);
+    QCOMPARE(w.values().value("baudrate").toInt(), 1200);
+}
+
+void TestSchemaFormWidget::conditionalWithoutIfRequiredShowsCorrectFields()
+{
+    SchemaFormWidget w;
+    QJsonObject values;
+    values["type"] = "tcp";
+    values["ip"] = "192.168.1.1";
+    values["port"] = 502;
+    w.setSchema(makeConditionalSchemaNoIfRequired(), values);
+
+    const QJsonObject result = w.values();
+    QVERIFY(result.contains("ip"));
+    QVERIFY(result.contains("port"));
+    QVERIFY(!result.contains("portName"));
+    QVERIFY(!result.contains("baudrate"));
+}
+
+void TestSchemaFormWidget::fieldChangedEmittedOnStringEdit()
+{
+    QJsonObject propSchema;
+    propSchema["type"] = "string";
+
+    SchemaFormWidget w;
+    w.setSchema(makeObjectSchema("host", propSchema), QJsonObject{ { "host", "original" } });
+
+    QSignalSpy spy(&w, &SchemaFormWidget::fieldChanged);
+
+    auto* edit = w.findChild<QLineEdit*>();
+    QVERIFY(edit != nullptr);
+    edit->setText("updated");
+
+    QCOMPARE(spy.count(), 1);
+    QList<QVariant> args = spy.takeFirst();
+    QCOMPARE(args.at(0).toString(), QStringLiteral("host"));
+    QCOMPARE(args.at(1).toString(), QStringLiteral("updated"));
 }
 
 QTEST_MAIN(TestSchemaFormWidget)

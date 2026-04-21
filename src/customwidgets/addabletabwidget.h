@@ -22,7 +22,7 @@ public:
     QWidget* tabContent(int index) const;
 
 signals:
-    void tabClosed(int index);
+    void tabClosed(QWidget* widget);
     void addTabRequested(); // Emitted when user clicks the "+" button
 
 public slots:

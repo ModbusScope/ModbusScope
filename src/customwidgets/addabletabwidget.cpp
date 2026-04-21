@@ -21,9 +21,8 @@ void AddableTabWidget::handleCloseTab(int index)
         return;
     }
 
-    emit tabClosed(index);
-
     QWidget* page = widget(index);
+    emit tabClosed(page);
     removeTab(index);
     if (page)
     {

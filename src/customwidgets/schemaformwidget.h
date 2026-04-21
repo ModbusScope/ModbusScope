@@ -44,12 +44,19 @@ public:
      */
     QJsonObject values() const;
 
+signals:
+    //! Emitted when a string field's value changes; \a key is the property name.
+    void fieldChanged(const QString& key, const QString& value);
+
 private slots:
     //! Called when the trigger combo selection changes; re-evaluates conditional visibility.
     void onTriggerChanged(int index);
 
 private:
     QWidget* createWidgetForProperty(const QJsonObject& propSchema, const QJsonValue& value);
+
+    //! If \a widget is a QLineEdit, connects its textChanged to emit fieldChanged(\a key).
+    void wireFieldChanged(const QString& key, QWidget* widget);
 
     /*!
      * \brief Parse the top-level \c if/then/else block and populate conditional state.
