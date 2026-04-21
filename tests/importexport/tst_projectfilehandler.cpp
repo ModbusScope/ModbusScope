@@ -2,6 +2,7 @@
 #include "tst_projectfilehandler.h"
 
 #include "importexport/projectfilehandler.h"
+#include "models/adapterdata.h"
 #include "models/device.h"
 #include "models/graphdatamodel.h"
 #include "models/guimodel.h"
@@ -10,6 +11,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QTemporaryDir>
 #include <QTemporaryFile>
 #include <QTest>
 
@@ -253,6 +255,150 @@ void TestProjectFileHandler::applyDeviceSettingsClearsPreviousDevices()
     QVERIFY(!list.contains(3));
 
     QFile::remove(path);
+}
+
+/*!
+ * \brief Loading a project file applies adapter settings to SettingsModel.
+ */
+void TestProjectFileHandler::loadSetsAdapterConfigInSettingsModel()
+{
+    QJsonObject connections;
+    connections["ip"] = "192.168.1.1";
+    connections["port"] = 502;
+    QJsonArray connectionsArray;
+    connectionsArray.append(connections);
+
+    QJsonObject adapterSettings;
+    adapterSettings["connections"] = connectionsArray;
+
+    QJsonArray adapters;
+    QJsonObject adapter;
+    adapter["type"] = "modbus";
+    adapter["settings"] = adapterSettings;
+    adapters.append(adapter);
+
+    const QString path = writeTempProjectFile(adapters, QJsonArray());
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    handler.openProjectFile(path);
+
+    const AdapterData* pAdapter = settingsModel.adapterData("modbus");
+    QVERIFY(pAdapter->hasStoredConfig());
+    QCOMPARE(pAdapter->currentConfig()["connections"].toArray(), connectionsArray);
+
+    QFile::remove(path);
+}
+
+/*!
+ * \brief After a simulated dialog accept (setAdapterCurrentConfig), saveProjectFile writes the
+ * updated adapter config to the file.
+ */
+void TestProjectFileHandler::savePreservesAdapterConfigAfterDialogAccept()
+{
+    QTemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const QString savePath = tmpDir.filePath("test.mbs");
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    QJsonObject connection;
+    connection["id"] = 1;
+    connection["type"] = "tcp";
+    connection["ip"] = "10.0.0.1";
+    connection["port"] = 502;
+    QJsonArray connectionsArray;
+    connectionsArray.append(connection);
+
+    QJsonObject config;
+    config["connections"] = connectionsArray;
+
+    settingsModel.setAdapterCurrentConfig("modbus", config);
+    guiModel.setProjectFilePath(savePath);
+    handler.saveProjectFile();
+
+    QFile file(savePath);
+    QVERIFY(file.open(QFile::ReadOnly | QFile::Text));
+    const QJsonObject root = QJsonDocument::fromJson(file.readAll()).object();
+
+    const QJsonArray savedAdapters = root["adapters"].toArray();
+    QCOMPARE(savedAdapters.size(), 1);
+
+    const QJsonObject savedAdapter = savedAdapters.first().toObject();
+    QCOMPARE(savedAdapter["type"].toString(), QStringLiteral("modbus"));
+    QCOMPARE(savedAdapter["settings"].toObject()["connections"].toArray(), connectionsArray);
+}
+
+/*!
+ * \brief Round-trip: load a project file, save it to a new path, reload — adapter config is
+ * preserved unchanged.
+ */
+void TestProjectFileHandler::roundTripPreservesAdapterConfig()
+{
+    QJsonObject connection;
+    connection["id"] = 1;
+    connection["type"] = "tcp";
+    connection["ip"] = "172.16.0.5";
+    connection["port"] = 1502;
+    QJsonArray connectionsArray;
+    connectionsArray.append(connection);
+
+    QJsonObject adapterSettings;
+    adapterSettings["connections"] = connectionsArray;
+
+    QJsonArray adapters;
+    QJsonObject adapter;
+    adapter["type"] = "modbus";
+    adapter["settings"] = adapterSettings;
+    adapters.append(adapter);
+
+    QJsonArray devices;
+    QJsonObject dev;
+    dev["id"] = 1;
+    dev["name"] = "Sensor";
+    dev["adapterId"] = 0;
+    QJsonObject adapterRef;
+    adapterRef["type"] = "modbus";
+    dev["adapter"] = adapterRef;
+    devices.append(dev);
+
+    const QString loadPath = writeTempProjectFile(adapters, devices);
+    QVERIFY(!loadPath.isEmpty());
+
+    QTemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const QString savePath = tmpDir.filePath("roundtrip.mbs");
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    handler.openProjectFile(loadPath);
+    guiModel.setProjectFilePath(savePath);
+    handler.saveProjectFile();
+
+    QFile file(savePath);
+    QVERIFY(file.open(QFile::ReadOnly | QFile::Text));
+    const QJsonObject root = QJsonDocument::fromJson(file.readAll()).object();
+
+    const QJsonArray savedAdapters = root["adapters"].toArray();
+    QCOMPARE(savedAdapters.size(), 1);
+    QCOMPARE(savedAdapters.first().toObject()["settings"].toObject()["connections"].toArray(), connectionsArray);
+
+    const QJsonArray savedDevices = root["devices"].toArray();
+    QCOMPARE(savedDevices.size(), 1);
+    QCOMPARE(savedDevices.first().toObject()["id"].toInt(), 1);
+    QCOMPARE(savedDevices.first().toObject()["name"].toString(), QStringLiteral("Sensor"));
+
+    QFile::remove(loadPath);
 }
 
 QTEST_GUILESS_MAIN(TestProjectFileHandler)

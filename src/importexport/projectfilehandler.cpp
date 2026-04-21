@@ -5,6 +5,7 @@
 #include "importexport/projectfilejsonexporter.h"
 #include "importexport/projectfilejsonparser.h"
 #include "importexport/projectfilexmlparser.h"
+#include "models/adapterdata.h"
 #include "models/device.h"
 #include "models/graphdatamodel.h"
 #include "models/guimodel.h"
@@ -95,8 +96,10 @@ void ProjectFileHandler::saveProjectFile()
     QString projectFile = _pGuiModel->projectFilePath();
     if (!projectFile.isEmpty())
     {
+        const QList<ProjectFileData::AdapterFileSettings> adapters = buildCurrentAdapters();
+        const QList<ProjectFileData::DeviceSettings> devices = buildCurrentDevices(adapters);
         ProjectFileJsonExporter projectFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel);
-        projectFileExporter.exportProjectFile(projectFile, _storedAdapters, _storedDevices);
+        projectFileExporter.exportProjectFile(projectFile, adapters, devices);
     }
 }
 
@@ -120,10 +123,92 @@ void ProjectFileHandler::reloadProjectFile()
 
 void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings* pProjectSettings)
 {
+    applyAdapterSettings(pProjectSettings->general.adapterList);
     applyDeviceSettings(pProjectSettings->general.deviceSettings);
     applyLogSettings(pProjectSettings->general.logSettings);
     applyViewSettings(pProjectSettings->view);
     applyGraphData(pProjectSettings->scope);
+}
+
+/*!
+ * \brief Apply loaded adapter settings to SettingsModel so the dialog shows the correct values.
+ * \param adapters Adapter list parsed from the project file.
+ */
+void ProjectFileHandler::applyAdapterSettings(const QList<ProjectFileData::AdapterFileSettings>& adapters)
+{
+    for (const ProjectFileData::AdapterFileSettings& adapter : adapters)
+    {
+        _pSettingsModel->setAdapterCurrentConfig(adapter.type, adapter.settings);
+    }
+}
+
+/*!
+ * \brief Build the adapters list from live SettingsModel state, with fallback to stored data.
+ *
+ * Adapters that have a stored config in SettingsModel (set via the dialog or on load) are
+ * written from the model. Any adapter present in the original file but not in the model is
+ * preserved unchanged to avoid data loss.
+ */
+QList<ProjectFileData::AdapterFileSettings> ProjectFileHandler::buildCurrentAdapters()
+{
+    QList<ProjectFileData::AdapterFileSettings> result;
+    QStringList handledTypes;
+
+    for (const QString& adapterId : _pSettingsModel->adapterIds())
+    {
+        const AdapterData* pAdapter = _pSettingsModel->adapterData(adapterId);
+        if (pAdapter->hasStoredConfig())
+        {
+            ProjectFileData::AdapterFileSettings settings;
+            settings.type = adapterId;
+            settings.settings = pAdapter->currentConfig();
+            result.append(settings);
+            handledTypes.append(adapterId);
+        }
+    }
+
+    for (const ProjectFileData::AdapterFileSettings& stored : _storedAdapters)
+    {
+        if (!handledTypes.contains(stored.type))
+        {
+            result.append(stored);
+        }
+    }
+
+    return result;
+}
+
+/*!
+ * \brief Build the generic devices list from live SettingsModel state.
+ * \param adapters The adapters list (used to compute the numeric adapterId index).
+ */
+QList<ProjectFileData::DeviceSettings> ProjectFileHandler::buildCurrentDevices(
+  const QList<ProjectFileData::AdapterFileSettings>& adapters)
+{
+    QList<ProjectFileData::DeviceSettings> result;
+
+    for (const deviceId_t devId : _pSettingsModel->deviceList())
+    {
+        Device* pDev = _pSettingsModel->deviceSettings(devId);
+        ProjectFileData::DeviceSettings ds;
+        ds.bDeviceId = true;
+        ds.deviceId = devId;
+        ds.bName = true;
+        ds.name = pDev->name();
+        ds.adapterType = pDev->adapterId();
+        ds.adapterId = 0;
+        for (int i = 0; i < adapters.size(); ++i)
+        {
+            if (adapters[i].type == ds.adapterType)
+            {
+                ds.adapterId = static_cast<quint32>(i);
+                break;
+            }
+        }
+        result.append(ds);
+    }
+
+    return result;
 }
 
 void ProjectFileHandler::applyLogSettings(const ProjectFileData::LogSettings& logSettings)

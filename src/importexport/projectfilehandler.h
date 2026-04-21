@@ -34,6 +34,11 @@ private:
     void applyViewSettings(const ProjectFileData::ViewSettings& viewSettings);
     void applyGraphData(const ProjectFileData::ScopeSettings& scopeSettings);
     void applyDeviceSettings(const QList<ProjectFileData::DeviceSettings>& deviceSettings);
+    void applyAdapterSettings(const QList<ProjectFileData::AdapterFileSettings>& adapters);
+
+    QList<ProjectFileData::AdapterFileSettings> buildCurrentAdapters();
+    QList<ProjectFileData::DeviceSettings> buildCurrentDevices(
+      const QList<ProjectFileData::AdapterFileSettings>& adapters);
 
     GuiModel* _pGuiModel;
     SettingsModel* _pSettingsModel;

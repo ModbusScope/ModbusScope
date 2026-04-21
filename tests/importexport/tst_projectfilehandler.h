@@ -15,6 +15,10 @@ private slots:
     void applyDeviceSettingsMultipleAdapters();
     void applyDeviceSettingsEmptyListClearsModel();
     void applyDeviceSettingsClearsPreviousDevices();
+
+    void loadSetsAdapterConfigInSettingsModel();
+    void savePreservesAdapterConfigAfterDialogAccept();
+    void roundTripPreservesAdapterConfig();
 };
 
 #endif /* TST_PROJECTFILEHANDLER_H */
