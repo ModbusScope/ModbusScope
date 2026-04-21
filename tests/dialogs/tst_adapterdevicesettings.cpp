@@ -632,4 +632,40 @@ void TestAdapterDeviceSettings::cancelAndReopenDoesNotLeakDeviceIds()
     }
 }
 
+void TestAdapterDeviceSettings::editingDeviceIdInSchemaFormUpdatesCorrectModelDevice()
+{
+    SettingsModel model;
+
+    QJsonObject dev;
+    dev["id"] = 1;
+    setupAdapter(model, "adapterA", QJsonArray{ dev });
+
+    AdapterDeviceSettings w(&model);
+
+    auto* tabs = w.findChild<AddableTabWidget*>();
+    QVERIFY(tabs != nullptr);
+
+    auto* tab = qobject_cast<DeviceConfigTab*>(tabs->tabContent(0));
+    QVERIFY(tab != nullptr);
+
+    // Change the id spinbox from 1 to 5
+    auto* spin = tab->findChild<QSpinBox*>();
+    QVERIFY(spin != nullptr);
+    spin->setValue(5);
+
+    // After spinbox change, deviceId() must return the updated value
+    QCOMPARE(tab->deviceId(), 5);
+
+    // Pre-register device 5 so onNameChanged can update it
+    model.addDevice(5);
+
+    auto* nameEdit = tab->findChild<QLineEdit*>(QString(), Qt::FindDirectChildrenOnly);
+    QVERIFY(nameEdit != nullptr);
+    nameEdit->setText("Sensor");
+
+    // With the fix: deviceId() returns 5, so name update targets device 5.
+    // Without the fix, deviceId() would return stale _deviceId=1, and this compare would fail.
+    QCOMPARE(model.deviceSettings(5)->name(), QStringLiteral("Sensor"));
+}
+
 QTEST_MAIN(TestAdapterDeviceSettings)

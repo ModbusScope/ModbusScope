@@ -85,19 +85,12 @@ void DeviceConfigTab::onAdapterChanged(int index)
         defaultValues = defaultDevices.first().toObject();
     }
 
-    // Preserve the existing device id so that switching adapters does not overwrite
-    // the unique id assigned when the tab was created. Fall back to _deviceId when
-    // the id field is hidden in the schema form and not returned by values().
-    int currentId = _pSchemaForm ? _pSchemaForm->values().value("id").toInt(-1) : -1;
-    if (currentId < 0)
-    {
-        currentId = _deviceId;
-    }
+    const int currentId = deviceId();
     defaultValues["id"] = currentId;
 
-    if (_deviceId >= 0 && _pSettingsModel->hasDevice(static_cast<deviceId_t>(_deviceId)))
+    if (currentId >= 0 && _pSettingsModel->hasDevice(static_cast<deviceId_t>(currentId)))
     {
-        _pSettingsModel->deviceSettings(static_cast<deviceId_t>(_deviceId))->setAdapterId(newAdapterId);
+        _pSettingsModel->deviceSettings(static_cast<deviceId_t>(currentId))->setAdapterId(newAdapterId);
     }
 
     rebuildSchemaForm(newAdapterId, defaultValues);
@@ -105,9 +98,10 @@ void DeviceConfigTab::onAdapterChanged(int index)
 
 void DeviceConfigTab::onNameChanged(const QString& name)
 {
-    if (_deviceId >= 0 && _pSettingsModel->hasDevice(static_cast<deviceId_t>(_deviceId)))
+    const int id = deviceId();
+    if (id >= 0 && _pSettingsModel->hasDevice(static_cast<deviceId_t>(id)))
     {
-        _pSettingsModel->deviceSettings(static_cast<deviceId_t>(_deviceId))->setName(name);
+        _pSettingsModel->deviceSettings(static_cast<deviceId_t>(id))->setName(name);
     }
     emit nameChanged(name);
 }
@@ -153,5 +147,13 @@ QString DeviceConfigTab::deviceName() const
 
 int DeviceConfigTab::deviceId() const
 {
+    if (_pSchemaForm)
+    {
+        const int id = _pSchemaForm->values().value("id").toInt(-1);
+        if (id >= 0)
+        {
+            return id;
+        }
+    }
     return _deviceId;
 }

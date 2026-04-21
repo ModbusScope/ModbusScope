@@ -30,6 +30,7 @@ private slots:
     void cancelAndReopenDoesNotLeakDeviceIds();
     void addTabAfterIdEditDoesNotDuplicate();
     void acceptValuesClearsDevicesForEmptiedAdapter();
+    void editingDeviceIdInSchemaFormUpdatesCorrectModelDevice();
 
 private:
     //! Populate \a model with an adapter that has a minimal device schema and
