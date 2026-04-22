@@ -1,4 +1,5 @@
 #include "settingsmodel.h"
+#include "util/scopelogging.h"
 
 SettingsModel::SettingsModel(QObject* parent) : QObject(parent)
 {
@@ -218,6 +219,15 @@ void SettingsModel::updateAdapterFromDescribe(const QString& adapterId, const QJ
         _adapters[adapterId] = AdapterData();
     }
     _adapters[adapterId].updateFromDescribe(describeResult);
+
+    const QString version = _adapters[adapterId].version();
+    QString versionTxt("unknown version");
+    if (!version.isEmpty())
+    {
+        versionTxt = QString(tr("v%1")).arg(version);
+    }
+    qCInfo(scopeComm) << QString("Adapter %1: %2").arg(adapterId, versionTxt);
+
     emit adapterDataChanged(adapterId);
 }
 
