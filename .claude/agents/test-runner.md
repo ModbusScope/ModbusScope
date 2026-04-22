@@ -2,7 +2,7 @@
 name: test-runner
 description: Run the test suite with ctest. Use after making code changes to verify correctness. The project must be built first.
 tools: Bash
-model: Haiku
+model: haiku
 effort: low
 ---
 

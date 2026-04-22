@@ -2,7 +2,7 @@
 name: build
 description: Compile the project using cmake and ninja. Use when code changes need to be built or when checking for compilation errors.
 tools: Bash
-model: Haiku
+model: haiku
 effort: low
 ---
 
