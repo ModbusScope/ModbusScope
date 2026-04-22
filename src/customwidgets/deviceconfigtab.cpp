@@ -17,7 +17,7 @@ DeviceConfigTab::DeviceConfigTab(SettingsModel* pSettingsModel,
                                  const QJsonObject& deviceValues,
                                  QWidget* parent)
     : QWidget(parent),
-      _pLayout(new QVBoxLayout(this)),
+      _pLayout(new QVBoxLayout),
       _pNameEdit(new QLineEdit(this)),
       _pAdapterCombo(new QComboBox(this)),
       _pSchemaForm(nullptr),
