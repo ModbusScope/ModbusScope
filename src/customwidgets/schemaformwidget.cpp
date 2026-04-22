@@ -177,6 +177,11 @@ QWidget* SchemaFormWidget::createWidgetForProperty(const QJsonObject& propSchema
             combo->setCurrentIndex(idx);
         }
 
+        if (propSchema.value("readOnly").toBool())
+        {
+            combo->setEnabled(false);
+        }
+
         return combo;
     }
     else if (type == "boolean")
@@ -194,6 +199,12 @@ QWidget* SchemaFormWidget::createWidgetForProperty(const QJsonObject& propSchema
         int maxVal = !maxJson.isUndefined() ? maxJson.toInt() : INT_MAX;
         spin->setRange(minVal, maxVal);
         spin->setValue(value.toInt(0));
+
+        if (propSchema.value("readOnly").toBool())
+        {
+            spin->setEnabled(false);
+        }
+
         return spin;
     }
     else if (type == "number")
@@ -205,12 +216,25 @@ QWidget* SchemaFormWidget::createWidgetForProperty(const QJsonObject& propSchema
         double maxVal = !maxJson.isUndefined() ? maxJson.toDouble() : std::numeric_limits<double>::max();
         spin->setRange(minVal, maxVal);
         spin->setValue(value.toDouble(0.0));
+
+        if (propSchema.value("readOnly").toBool())
+        {
+            spin->setEnabled(false);
+        }
+
         return spin;
     }
     else // "string" or unknown
     {
         auto* edit = new QLineEdit(this);
         edit->setText(value.toString());
+
+        if (propSchema.value("readOnly").toBool())
+        {
+            edit->setReadOnly(true);
+            edit->setEnabled(false);
+        }
+
         return edit;
     }
 }
