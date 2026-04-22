@@ -23,9 +23,6 @@ void GraphDataHandler::setupExpressions(GraphDataModel* pGraphDataModel, QList<D
 
     ExpressionParser exprParser(exprList);
     const QList<DataPoint> regList = exprParser.dataPoints();
-
-    qCInfo(scopeComm) << "Active registers: " << DataPoint::dumpListToString(regList);
-
     const QStringList processedExpList = exprParser.processedExpressions();
 
     _valueParsers.clear();
