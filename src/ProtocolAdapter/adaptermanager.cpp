@@ -109,22 +109,23 @@ void AdapterManager::onAdapterDiagnostic(const QString& level, const QString& me
 {
     if (level == QStringLiteral("debug"))
     {
-        qCDebug(scopeAdapter) << message;
+        qCDebug(scopeAdapter) << qUtf8Printable(message);
     }
     else if (level == QStringLiteral("info"))
     {
-        qCInfo(scopeAdapter) << message;
+        qCInfo(scopeAdapter) << qUtf8Printable(message);
     }
     else if (level == QStringLiteral("warning"))
     {
-        qCWarning(scopeAdapter) << message;
+        qCWarning(scopeAdapter) << qUtf8Printable(message);
     }
     else if (level == QStringLiteral("error"))
     {
-        qCCritical(scopeAdapter) << message;
+        qCCritical(scopeAdapter) << qUtf8Printable(message);
     }
     else
     {
-        qCWarning(scopeAdapter) << "AdapterClient: unknown diagnostic level:" << level << "-" << message;
+        qCWarning(scopeAdapter) << qUtf8Printable(
+          QString("AdapterClient: unknown diagnostic level: %1 - %2").arg(level, message));
     }
 }

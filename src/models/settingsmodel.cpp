@@ -226,7 +226,7 @@ void SettingsModel::updateAdapterFromDescribe(const QString& adapterId, const QJ
     {
         versionTxt = QString(tr("v%1")).arg(version);
     }
-    qCInfo(scopeComm) << QString("Adapter %1: %2").arg(adapterId, versionTxt);
+    qCInfo(scopeComm) << qUtf8Printable(QString("Adapter %1: %2").arg(adapterId, versionTxt));
 
     emit adapterDataChanged(adapterId);
 }

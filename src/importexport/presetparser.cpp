@@ -38,7 +38,7 @@ void PresetParser::parsePresets(QString fileContent)
                                  .arg(result.errorLine)
                                  .arg(result.errorColumn)
                                  .arg(result.errorMessage));
-            qCWarning(scopePreset) << msg;
+            qCWarning(scopePreset) << qUtf8Printable(msg);
         }
         else
         {

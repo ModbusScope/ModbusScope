@@ -45,7 +45,8 @@ QString ExpressionParser::processExpression(QString const& graphExpr)
 
     if (!i.hasNext() && resultExpr.contains("$"))
     {
-        qCWarning(scopeComm) << QString("Expression evaluation parsing failed (\"%1\")").arg(resultExpr);
+        qCWarning(scopeComm) << qUtf8Printable(
+          QString("Expression evaluation parsing failed (\"%1\")").arg(resultExpr));
     }
 
     while (i.hasNext())
@@ -74,7 +75,8 @@ bool ExpressionParser::processRegisterExpression(const QString& regExpr, DataPoi
 
     if (!match.hasMatch())
     {
-        qCWarning(scopeComm) << QString("Part of expression evaluation parsing failed (\"%1\")").arg(regExpr);
+        qCWarning(scopeComm) << qUtf8Printable(
+          QString("Part of expression evaluation parsing failed (\"%1\")").arg(regExpr));
         return false;
     }
 
@@ -87,7 +89,7 @@ bool ExpressionParser::processRegisterExpression(const QString& regExpr, DataPoi
         deviceId = strDeviceId.toUInt(&ok);
         if (!ok)
         {
-            qCWarning(scopeComm) << QString("Parsing device \"%1\" failed").arg(strDeviceId);
+            qCWarning(scopeComm) << qUtf8Printable(QString("Parsing device \"%1\" failed").arg(strDeviceId));
             return false;
         }
     }
