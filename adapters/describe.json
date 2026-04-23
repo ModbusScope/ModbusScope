@@ -10,25 +10,18 @@
     "defaults": {
         "connections": [
             {
+                "baudrate": 115200,
+                "databits": 8,
                 "id": 1,
                 "ip": "127.0.0.1",
                 "name": "Connection 1",
-                "persistent": true,
-                "port": 502,
-                "timeout": 1000,
-                "type": "tcp"
-            },
-            {
-                "baudrate": 115200,
-                "databits": 8,
-                "id": 2,
-                "name": "Connection 2",
                 "parity": "N",
                 "persistent": true,
+                "port": 502,
                 "portName": "COM1",
                 "stopbits": 1,
                 "timeout": 1000,
-                "type": "serial"
+                "type": "tcp"
             }
         ],
         "devices": [
@@ -265,5 +258,5 @@
         },
         "type": "object"
     },
-    "version": "0.0.1-master:ac7eec7"
+    "version": "0.0.1-master+a972c33"
 }

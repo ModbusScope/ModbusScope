@@ -104,17 +104,17 @@ Returns the adapter's static metadata, configuration schema, default values, and
 }
 ```
 
-**Result (Debug build):** the `version` field appends `-<git-branch>`, e.g. `"0.0.1-feature-branch"`. Consumers must not treat `version` as a fixed literal; parse or compare it accordingly.
+**Result (Debug build):** the `version` field appends `-<git-branch>+<commit-hash>`, e.g. `"0.0.1-dev-diagnostics+c471210"`. Branch names with slashes are converted to hyphens (e.g. `dev/diagnostics` → `dev-diagnostics`). Consumers must not treat `version` as a fixed literal; parse or compare it accordingly.
 
 > **Note:** Update this spec whenever the JSON-RPC implementation changes.
 
 | Field | Description |
 | --- | --- |
 | `name` | Adapter identifier |
-| `version` | Adapter software version. Release: `"<semver>"`. Debug: `"<semver>-<git-branch>"`. |
+| `version` | Adapter software version. Release: `"<semver>"`. Debug: `"<semver>-<git-branch-safe>+<commit-hash>"` (slashes in branch name replaced with hyphens). |
 | `configVersion` | Current config schema version |
 | `schema` | JSON Schema–compatible object describing the `config` object accepted by `adapter.configure` |
-| `defaults` | Default config values |
+| `defaults` | Default config values. The `connections` array contains a single TCP entry that also includes serial-specific fields (`portName`, `baudrate`, `parity`, `databits`, `stopbits`) so callers can see serial defaults without needing a second example. |
 | `capabilities` | Feature flags |
 
 Each property in `schema` includes the following additional fields (standard JSON Schema annotations and custom extensions):
@@ -153,7 +153,7 @@ The config object top-level structure will be used for the configuration GUI dia
         "id": 1,
         "type": "serial",
         "portName": "/dev/ttyUSB0",
-        "baudrate": 9600,
+        "baudrate": 115200,
         "parity": "N",
         "databits": 8,
         "stopbits": 1,
