@@ -12,6 +12,8 @@ Quality: [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Modbu
 
 ModbusScope is a graphical user interface tool designed for logging and visualizing data using the Modbus protocol. It supports real-time data visualization, enabling users to see graphical representations of data while logging. The tool also allows users to export logged data to CSV files for further analysis. It's highly configurable to suit various data logging needs and supports multiple Modbus devices simultaneously, making it ideal for monitoring devices in industrial automation, energy management, and environmental monitoring.
 
+It started as a personal project and has grown into something people actually rely on. What sets it apart is long-term commitment: the goal is a stable, well-maintained application, not just rapidly shipping features and moving on. ModbusScope is actively maintained and continuously improved.
+
 [**Getting started**](https://modbusscope.readthedocs.io/en/stable/pages/overview.html) | [**Download**](https://github.com/ModbusScope/ModbusScope/releases/latest) | [**Release notes**](https://modbusscope.readthedocs.io/en/stable/pages/release_notes.html)
 
 ## Features
@@ -30,10 +32,22 @@ ModbusScope is a graphical user interface tool designed for logging and visualiz
 
 Docs are available at [https://modbusscope.readthedocs.io](https://modbusscope.readthedocs.io).
 
-## Contributing
+## Architecture and licensing
 
-Please [open a new issue](https://github.com/ModbusScope/ModbusScope/issues) to report bugs or [create a pull request](https://github.com/ModbusScope/ModbusScope/pulls) to send patches. Before implementing changes, please open an issue to discuss what you would like to change.
+The Modbus protocol support is implemented as an external adapter. This adapter is free to use and is bundled with ModbusScope for a smooth out-of-the-box experience. The main application is licensed under the GPL.
+
+Support for additional protocols beyond Modbus is being explored. The intent is to keep existing Modbus functionality free, while having flexibility in how future protocol support is offered.
+
+## Feedback and ideas
+
+Bug reports, feature ideas, and general feedback are very welcome. They directly shape where the project goes.
+
+If you are using ModbusScope, sharing how and where you use it is genuinely helpful. Knowing which features matter most, and which parts of the application feel unclear or harder to use than they should, helps guide ongoing improvements.
+
+The best place for all of this is the [issue tracker](https://github.com/ModbusScope/ModbusScope/issues).
+
+This is a solo-maintained project, so code contributions are not accepted at this time. Bug reports, feature suggestions, and feedback are always welcome and genuinely valuable.
 
 ## Support
 
-For support, please visit our [documentation](https://modbusscope.readthedocs.io/en/stable/) or create an issue on our GitHub page.
+For support, please visit the [documentation](https://modbusscope.readthedocs.io/en/stable/) or open an issue on the [GitHub page](https://github.com/ModbusScope/ModbusScope/issues).
