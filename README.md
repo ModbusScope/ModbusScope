@@ -51,3 +51,9 @@ This is a solo-maintained project, so code contributions are not accepted at thi
 ## Support
 
 For support, please visit the [documentation](https://modbusscope.readthedocs.io/en/stable/) or open an issue on the [GitHub page](https://github.com/ModbusScope/ModbusScope/issues).
+
+## Privacy
+
+### Update checks
+
+When ModbusScope checks for updates on startup, the request includes your current app version and operating system type (e.g. "windows" or "linux"). IP addresses are processed by Cloudflare for request handling but are anonymised and not retained. This information is used in aggregate to understand which versions are in use. Data is retained for 90 days.
