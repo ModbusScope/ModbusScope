@@ -899,7 +899,8 @@ void TestAdapterClient::expressionHelpRequestAndResponse()
     QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.expressionHelp"));
     QVERIFY(mock->sentRequests.last().params.isEmpty());
 
-    mock->injectResponse(3, "adapter.expressionHelp", QJsonObject{ { "helpText", QStringLiteral("<html>help</html>") } });
+    mock->injectResponse(3, "adapter.expressionHelp",
+                         QJsonObject{ { "helpText", QStringLiteral("<html>help</html>") } });
 
     QCOMPARE(spyHelp.count(), 1);
     QCOMPARE(spyHelp.at(0).at(0).toString(), QStringLiteral("<html>help</html>"));
@@ -918,7 +919,8 @@ void TestAdapterClient::expressionHelpInActiveState()
 
     QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.expressionHelp"));
 
-    mock->injectResponse(5, "adapter.expressionHelp", QJsonObject{ { "helpText", QStringLiteral("<html>help</html>") } });
+    mock->injectResponse(5, "adapter.expressionHelp",
+                         QJsonObject{ { "helpText", QStringLiteral("<html>help</html>") } });
 
     QCOMPARE(spyHelp.count(), 1);
 }
@@ -959,9 +961,67 @@ void TestAdapterClient::expressionHelpErrorIsNonFatal()
 
     /* Session should still be usable — verify a follow-up request succeeds */
     client.requestExpressionHelp();
-    mock->injectResponse(4, "adapter.expressionHelp", QJsonObject{ { "helpText", QStringLiteral("<html>help</html>") } });
+    mock->injectResponse(4, "adapter.expressionHelp",
+                         QJsonObject{ { "helpText", QStringLiteral("<html>help</html>") } });
     QCOMPARE(spyHelp.count(), 1);
     QCOMPARE(spyHelp.at(0).at(0).toString(), QStringLiteral("<html>help</html>"));
+}
+
+void TestAdapterClient::readDataErrorIsNonFatal()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+    QSignalSpy spyData(&client, &AdapterClient::readDataResult);
+
+    driveToAwaitingConfig(client, mock);
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h0}"), QStringLiteral("${h1}") });
+    mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
+
+    client.requestReadData();
+    QJsonObject error;
+    error["code"] = -32000;
+    error["message"] = QStringLiteral("Read timed out");
+    mock->injectError(5, "adapter.readData", error);
+
+    QCOMPARE(spyError.count(), 0);
+    QCOMPARE(spyData.count(), 1);
+    ResultDoubleList results = spyData.at(0).at(0).value<ResultDoubleList>();
+    QCOMPARE(results.size(), 2);
+    QVERIFY(!results[0].isValid());
+    QVERIFY(!results[1].isValid());
+
+    spyData.clear();
+    client.requestReadData();
+    QJsonArray registers;
+    registers.append(QJsonObject{ { "valid", true }, { "value", 1.0 } });
+    registers.append(QJsonObject{ { "valid", true }, { "value", 2.0 } });
+    mock->injectResponse(6, "adapter.readData", QJsonObject{ { "registers", registers } });
+
+    QCOMPARE(spyData.count(), 1);
+    QCOMPARE(spyError.count(), 0);
+}
+
+void TestAdapterClient::readDataErrorInNonActiveStateIsIgnored()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+    QSignalSpy spyData(&client, &AdapterClient::readDataResult);
+
+    driveToActive(client, mock);
+    client.stopSession();
+
+    QJsonObject error;
+    error["code"] = -32000;
+    error["message"] = QStringLiteral("Read timed out");
+    mock->injectError(5, "adapter.readData", error);
+
+    QCOMPARE(spyData.count(), 0);
+    QCOMPARE(spyError.count(), 0);
 }
 
 QTEST_GUILESS_MAIN(TestAdapterClient)

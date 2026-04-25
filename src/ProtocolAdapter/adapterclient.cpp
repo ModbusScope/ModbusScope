@@ -247,6 +247,18 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
         return;
     }
 
+    if (method == QStringLiteral("adapter.readData") && _state == State::ACTIVE)
+    {
+        ResultDoubleList invalidResults;
+        invalidResults.reserve(_pendingExpressions.size());
+        for (int i = 0; i < _pendingExpressions.size(); ++i)
+        {
+            invalidResults.append(ResultDouble(0.0, ResultState::State::INVALID));
+        }
+        emit readDataResult(invalidResults);
+        return;
+    }
+
     State previousState = _state;
     /* Set IDLE before stop() so onProcessFinished's IDLE guard suppresses any
        duplicate sessionError emission when the process exits asynchronously. */
