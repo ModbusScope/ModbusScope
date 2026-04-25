@@ -27,7 +27,7 @@ void VersionDownloader::performCheck()
 
     QUrlQuery query;
     query.addQueryItem("v", versionString);
-    query.addQueryItem("os", QSysInfo::productType());
+    query.addQueryItem("os", QSysInfo::kernelType());
 
     QUrl versionManifest("https://modbusscope.jensgeudens.workers.dev");
     versionManifest.setQuery(query);
