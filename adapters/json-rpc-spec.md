@@ -190,7 +190,7 @@ Adapter-wide settings. Currently empty; reserved for future use.
 | `name` | string | no | Human-readable label (default: `"Connection <id>"`) |
 | `type` | string | yes | `"tcp"` or `"serial"` |
 | `timeout` | integer | no | Timeout in milliseconds (default: `1000`) |
-| `persistent` | boolean | no | Keep connection open between reads (default: `false`) |
+| `persistent` | boolean | no | Keep connection open between reads (default: `true`) |
 
 TCP-specific fields:
 
@@ -217,7 +217,7 @@ Serial-specific fields:
 | `connectionId` | integer | yes | Which connection this device is on (`0`–`2`) |
 | `slaveId` | integer | yes | Modbus slave ID (`1`–`247`) |
 | `consecutiveMax` | integer | no | Max registers per single read request (default: `125`) |
-| `int32LittleEndian` | boolean | no | Byte order for 32-bit values (default: `false` = big endian) |
+| `int32LittleEndian` | boolean | no | Byte order for 32-bit values (default: `true` = little endian) |
 
 **Result:**
 ```json
@@ -507,7 +507,8 @@ Only one `readData` request can be in flight at a time. A second request while t
 A register with `"valid": false` could not be read (communication error, timeout, or no device configured). Its `"value"` is `0.0`.
 
 **Errors:**
-- `-32000` — Read already in progress
+- `-32000` — Read already in progress (a previous `readData` has not yet completed)
+- `-32000` — Read timed out (Modbus I/O did not complete within the timeout window)
 
 ---
 
@@ -563,7 +564,7 @@ Carries a log or diagnostic message from the adapter. Emitted for every Qt log m
 | `-32601` | Method not found | Unknown method name |
 | `-32602` | Invalid params | Required fields missing or out of range |
 | `-32603` | Internal error | Unexpected server-side error |
-| `-32000` | Read in progress | `adapter.readData` called while a previous read has not yet completed |
+| `-32000` | Server error | `adapter.readData` called while a previous read has not yet completed, or the read timed out |
 
 ---
 
@@ -576,6 +577,9 @@ Client                              Adapter
   |                                    |
   |-- adapter.initialize ------------> |
   |<- { "status": "ok" } ------------ |
+  |                                    |
+  |-- adapter.describe -------------> |
+  |<- { "name": ..., "schema": ... } - |
   |                                    |
   |-- adapter.configure ------------> |
   |<- { "status": "ok" } ------------ |
@@ -623,28 +627,28 @@ Content-Length: 49\r\n
 {"id":1,"jsonrpc":"2.0","result":{"status":"ok"}}
 ```
 
-Configure connection and device:
+Describe adapter:
 
 ```text
-Content-Length: 255\r\n
+Content-Length: 64\r\n
 \r\n
-{"jsonrpc":"2.0","id":2,"method":"adapter.configure","params":{"config":{"version":1,"general":{},"connections":[{"id":0,"type":"tcp","ip":"192.168.1.100","port":502,"timeout":1000}],"devices":[{"id":1,"connectionId":0,"slaveId":1,"consecutiveMax":64}]}}}
+{"jsonrpc":"2.0","id":2,"method":"adapter.describe","params":{}}
 ```
 
 Response:
 
 ```text
-Content-Length: 49\r\n
+Content-Length: <N>\r\n
 \r\n
-{"id":2,"jsonrpc":"2.0","result":{"status":"ok"}}
+{"id":2,"jsonrpc":"2.0","result":{"name":"modbusAdapter","version":"...","configVersion":1,"schema":{...},"defaults":{...},"capabilities":{...}}}
 ```
 
-Start polling:
+Configure connection and device:
 
 ```text
-Content-Length: 90\r\n
+Content-Length: 255\r\n
 \r\n
-{"jsonrpc":"2.0","id":3,"method":"adapter.start","params":{"registers":["${40001: 16b}"]}}
+{"jsonrpc":"2.0","id":3,"method":"adapter.configure","params":{"config":{"version":1,"general":{},"connections":[{"id":0,"type":"tcp","ip":"192.168.1.100","port":502,"timeout":1000}],"devices":[{"id":1,"connectionId":0,"slaveId":1,"consecutiveMax":64}]}}}
 ```
 
 Response:
@@ -655,12 +659,28 @@ Content-Length: 49\r\n
 {"id":3,"jsonrpc":"2.0","result":{"status":"ok"}}
 ```
 
+Start polling:
+
+```text
+Content-Length: 90\r\n
+\r\n
+{"jsonrpc":"2.0","id":4,"method":"adapter.start","params":{"registers":["${40001: 16b}"]}}
+```
+
+Response:
+
+```text
+Content-Length: 49\r\n
+\r\n
+{"id":4,"jsonrpc":"2.0","result":{"status":"ok"}}
+```
+
 Read request:
 
 ```text
 Content-Length: 64\r\n
 \r\n
-{"jsonrpc":"2.0","id":4,"method":"adapter.readData","params":{}}
+{"jsonrpc":"2.0","id":5,"method":"adapter.readData","params":{}}
 ```
 
 Response (when Modbus read completes):
@@ -668,5 +688,5 @@ Response (when Modbus read completes):
 ```text
 Content-Length: 77\r\n
 \r\n
-{"id":4,"jsonrpc":"2.0","result":{"registers":[{"valid":true,"value":1234}]}}
+{"id":5,"jsonrpc":"2.0","result":{"registers":[{"valid":true,"value":1234}]}}
 ```
