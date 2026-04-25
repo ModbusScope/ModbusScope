@@ -371,7 +371,8 @@ Only one `readData` request can be in flight at a time. A second request while t
 The `registers` array has the same length and order as the `registers` array passed to `adapter.start`. Each entry has a numeric `value` (double) and a `valid` flag. A register with `"valid": false` could not be read (communication error, timeout, or no device configured). Its `"value"` is `0.0`.
 
 **Errors:**
-- `-32000` — Read already in progress
+- `-32000` — Read already in progress (a previous `readData` has not yet completed)
+- `-32000` — Read timed out (data-source I/O did not complete within the timeout window)
 
 ---
 
@@ -427,7 +428,7 @@ Carries a log or diagnostic message from the adapter. Emitted for every Qt log m
 | `-32601` | Method not found | Unknown method name |
 | `-32602` | Invalid params | Required fields missing or out of range |
 | `-32603` | Internal error | Unexpected server-side error |
-| `-32000` | Read in progress | `adapter.readData` called while a previous read has not yet completed |
+| `-32000` | Server error | `adapter.readData` called while a previous read has not yet completed, or the read timed out |
 
 ---
 
@@ -440,6 +441,9 @@ Client                              Adapter
   |                                    |
   |-- adapter.initialize ------------> |
   |<- { "status": "ok" } ------------ |
+  |                                    |
+  |-- adapter.describe -------------> |
+  |<- { "name": ..., "schema": ... } - |
   |                                    |
   |-- adapter.configure ------------> |
   |<- { "status": "ok" } ------------ |
