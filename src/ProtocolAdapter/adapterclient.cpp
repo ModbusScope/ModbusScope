@@ -247,15 +247,13 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
         return;
     }
 
-    if (method == QStringLiteral("adapter.readData") && _state == State::ACTIVE)
+    if (method == QStringLiteral("adapter.readData"))
     {
-        ResultDoubleList invalidResults;
-        invalidResults.reserve(_pendingExpressions.size());
-        for (int i = 0; i < _pendingExpressions.size(); ++i)
+        if (_state == State::ACTIVE)
         {
-            invalidResults.append(ResultDouble(0.0, ResultState::State::INVALID));
+            ResultDoubleList invalidResults(_pendingExpressions.size(), ResultDouble(0.0, ResultState::State::INVALID));
+            emit readDataResult(invalidResults);
         }
-        emit readDataResult(invalidResults);
         return;
     }
 

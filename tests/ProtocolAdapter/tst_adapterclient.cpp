@@ -1024,4 +1024,22 @@ void TestAdapterClient::readDataErrorInNonActiveStateIsIgnored()
     QCOMPARE(spyError.count(), 0);
 }
 
+void TestAdapterClient::readDataErrorInIdleStateIsIgnored()
+{
+    auto* mock = new MockAdapterProcess();
+    AdapterClient client(mock);
+
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+    QSignalSpy spyData(&client, &AdapterClient::readDataResult);
+
+    // Client is in IDLE state — no driveToActive call
+    QJsonObject error;
+    error["code"] = -32000;
+    error["message"] = QStringLiteral("Read timed out");
+    mock->injectError(5, "adapter.readData", error);
+
+    QCOMPARE(spyData.count(), 0);
+    QCOMPARE(spyError.count(), 0);
+}
+
 QTEST_GUILESS_MAIN(TestAdapterClient)

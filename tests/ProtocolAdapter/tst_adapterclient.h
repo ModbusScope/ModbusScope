@@ -57,6 +57,7 @@ private slots:
 
     void readDataErrorIsNonFatal();
     void readDataErrorInNonActiveStateIsIgnored();
+    void readDataErrorInIdleStateIsIgnored();
 };
 
 #endif // TST_ADAPTERCLIENT_H
