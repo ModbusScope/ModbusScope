@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.19)
 
-project(notonlymodbusscope
+project(modbusscope
     LANGUAGES CXX
     DESCRIPTION "Create logs from value read via Modbus"
-    VERSION 0.0.1
+    VERSION 5.0.0
 )
 
 set(SCOPESOURCE ScopeSource)

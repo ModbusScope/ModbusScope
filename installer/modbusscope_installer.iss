@@ -2,7 +2,7 @@
 
 #define MyAppName "ModbusScope"
 #define MyAppExtension "mbs"
-#define MyAppExeName "notonlymodbusscope.exe"
+#define MyAppExeName "ModbusScope.exe"
 #define MyAppLocation "deploy"
 #define MyAppVersion GetFileVersion(MyAppLocation + '\' + MyAppExeName)
 

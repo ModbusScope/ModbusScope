@@ -10,38 +10,38 @@ on:
       - master
 
 jobs:
-  # coverage:
-  #   runs-on: ubuntu-latest
-  #   container: docker://jgeudens/qt-linux:6.8.3_build_1
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v6.0.0
+  coverage:
+    runs-on: ubuntu-latest
+    container: docker://jgeudens/qt-linux:6.8.3_build_1
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6.0.0
 
-  #   - name: Start display server
-  #     run: bash /start.sh &
+    - name: Start display server
+      run: bash /start.sh &
 
-  #   - name: configure safe directory for git
-  #     run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+    - name: configure safe directory for git
+      run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
       
-  #   - name: Prepare environment for Ninja build with coverage
-  #     run: |
-  #       cmake . -GNinja -DUSE_GCOV=ON
-  #       ninja
+    - name: Prepare environment for Ninja build with coverage
+      run: |
+        cmake . -GNinja -DUSE_GCOV=ON
+        ninja
 
-  #   - name: Generate gcovr coverage report
-  #     run: |
-  #       ctest
-  #       gcovr --gcov-ignore-parse-errors --cobertura cobertura.xml
+    - name: Generate gcovr coverage report
+      run: |
+        ctest
+        gcovr --gcov-ignore-parse-errors --cobertura cobertura.xml
 
-  #   - name: Run codacy-coverage-reporter
-  #     uses: codacy/codacy-coverage-reporter-action@v1
-  #     with:
-  #       api-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-  #       language: 'CPP'
-  #       coverage-reports: cobertura.xml
-  #     env:
-  #       PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-  #     if: ${{ !!env.PROJECT_TOKEN }}
+    - name: Run codacy-coverage-reporter
+      uses: codacy/codacy-coverage-reporter-action@v1
+      with:
+        api-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        language: 'CPP'
+        coverage-reports: cobertura.xml
+      env:
+        PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+      if: ${{ !!env.PROJECT_TOKEN }}
 
   sonarqube:
     runs-on: ubuntu-latest

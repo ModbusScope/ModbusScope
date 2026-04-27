@@ -1,13 +1,16 @@
+The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/ModbusScope/ModbusScope/releases).
 
 ## [v4.2.1](https://github.com/jgeudens/ModbusScope/releases/tag/4.2.1) (31/03/2026)
 
 ### Fixed
 
-* xx
+* Fix incorrect data displayed when polling multiple devices on the same connection (e.g. multiple slave IDs on a serial bus)
 
 ### Changed
 
-* xx
+* Rework diagnostic logging to generate fewer logs when extensive logging is disabled
+* Improve copying diagnostic logs to the clipboard
+* Improve enabling debug logs
 
 ## [v4.2.0](https://github.com/jgeudens/ModbusScope/releases/tag/4.2.0) (09/01/2026)
 
