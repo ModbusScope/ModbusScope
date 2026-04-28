@@ -9,7 +9,7 @@
 
 /*!
  * \param[in]     pGraphDataModel   Graph data model
- * \param[out]    registerList      List of modbus registers
+ * \param[out]    registerList      List of registers
  */
 void GraphDataHandler::setupExpressions(GraphDataModel* pGraphDataModel, QList<DataPoint>& registerList)
 {

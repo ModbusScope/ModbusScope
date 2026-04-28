@@ -36,10 +36,8 @@
 using namespace std;
 
 /** \file
-	\brief Implementation of a modbus register expression parser.
+    \brief Implementation of a register expression parser.
 */
-
-
 
 /** \brief Namespace for mathematical applications. */
 namespace mu
