@@ -203,7 +203,11 @@ MainWindow::MainWindow(QStringList cmdArguments,
     _pUi->actionUpdateAvailable->setVisible(false);
     _pUpdateNotify = new UpdateNotify(new VersionDownloader(), Util::currentVersion());
     connect(_pUpdateNotify, &UpdateNotify::updateCheckResult, this, &MainWindow::showVersionUpdate);
+
+#ifndef DEBUG
+    /* Don't check for updates in debug mode */
     _pUpdateNotify->checkForUpdate();
+#endif
 
     // Default to full auto scaling
     setAxisToAuto();
