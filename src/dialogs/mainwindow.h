@@ -14,7 +14,7 @@ class MainWindow;
 }
 
 // Forward declaration
-class ModbusPoll;
+class AdapterPoll;
 class GraphDataHandler;
 class QCustomPlot;
 class GraphDataModel;
@@ -109,7 +109,7 @@ private:
     void handleFileOpen(QString filename);
 
     Ui::MainWindow* _pUi;
-    ModbusPoll* _pModbusPoll;
+    AdapterPoll* _pAdapterPoll;
     GraphView* _pGraphView;
 
     GuiModel* _pGuiModel;

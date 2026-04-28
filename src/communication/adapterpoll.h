@@ -1,5 +1,5 @@
-#ifndef MODBUSPOLL_H
-#define MODBUSPOLL_H
+#ifndef ADAPTERPOLL_H
+#define ADAPTERPOLL_H
 
 #include "ProtocolAdapter/adaptermanager.h"
 #include "communication/datapoint.h"
@@ -11,12 +11,12 @@
 // Forward declaration
 class SettingsModel;
 
-class ModbusPoll : public QObject
+class AdapterPoll : public QObject
 {
     Q_OBJECT
 public:
-    explicit ModbusPoll(SettingsModel* pSettingsModel, QObject* parent = nullptr);
-    ~ModbusPoll();
+    explicit AdapterPoll(SettingsModel* pSettingsModel, QObject* parent = nullptr);
+    ~AdapterPoll();
 
     void initAdapter();
     void startCommunication(QList<DataPoint>& registerList);
@@ -29,7 +29,7 @@ public:
      * \brief Returns the AdapterManager owned by this poll instance.
      *
      * Callers that need to interact with the adapter directly (e.g. to call
-     * buildExpression()) should use this accessor rather than going through ModbusPoll.
+     * buildExpression()) should use this accessor rather than going through AdapterPoll.
      */
     AdapterManager* adapterManager() const;
 
@@ -53,4 +53,4 @@ private:
     AdapterManager* _pAdapterManager;
 };
 
-#endif // MODBUSPOLL_H
+#endif // ADAPTERPOLL_H

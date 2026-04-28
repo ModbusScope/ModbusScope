@@ -1,7 +1,7 @@
 
 #include "dialogs/mainwindow.h"
+#include "communication/adapterpoll.h"
 #include "communication/communicationstats.h"
-#include "communication/modbuspoll.h"
 #include "customwidgets/markerinfo.h"
 #include "customwidgets/mostrecentmenu.h"
 #include "customwidgets/notesdock.h"
@@ -60,8 +60,8 @@ MainWindow::MainWindow(QStringList cmdArguments,
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
 
     _pGraphDataHandler = new GraphDataHandler();
-    _pModbusPoll = new ModbusPoll(_pSettingsModel);
-    connect(_pModbusPoll, &ModbusPoll::registerDataReady, _pGraphDataHandler, &GraphDataHandler::handleRegisterData);
+    _pAdapterPoll = new AdapterPoll(_pSettingsModel);
+    connect(_pAdapterPoll, &AdapterPoll::registerDataReady, _pGraphDataHandler, &GraphDataHandler::handleRegisterData);
 
     _pGraphView = new GraphView(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
     _pDataFileHandler =
@@ -217,7 +217,7 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
     handleCommandLineArguments(cmdArguments);
 
-    _pModbusPoll->initAdapter();
+    _pAdapterPoll->initAdapter();
 
 #if 0
     //Debugging
@@ -237,7 +237,7 @@ MainWindow::MainWindow(QStringList cmdArguments,
 MainWindow::~MainWindow()
 {
     delete _pGraphView;
-    delete _pModbusPoll;
+    delete _pAdapterPoll;
     delete _pGraphShowHide;
     delete _pMostRecentMenu;
     delete _pDataFileHandler;
@@ -397,7 +397,7 @@ void MainWindow::showRegisterDialog()
         _pGuiModel->setGuiState(GuiState::INIT);
     }
 
-    RegisterDialog registerDialog(_pGraphDataModel, _pSettingsModel, _pModbusPoll->adapterManager(), this);
+    RegisterDialog registerDialog(_pGraphDataModel, _pSettingsModel, _pAdapterPoll->adapterManager(), this);
     registerDialog.exec();
 }
 
@@ -441,7 +441,7 @@ void MainWindow::toggleZoom(bool checked)
 void MainWindow::clearData()
 {
     _pCommunicationStats->resetTiming();
-    _pModbusPoll->resetCommunicationStats();
+    _pAdapterPoll->resetCommunicationStats();
     _pGraphView->clearResults();
     _pGuiModel->clearMarkersState();
     _pDataFileHandler->rewriteDataFile();
@@ -483,7 +483,7 @@ void MainWindow::startScope()
         QList<DataPoint> registerList;
         _pGraphDataHandler->setupExpressions(_pGraphDataModel, registerList);
 
-        _pModbusPoll->startCommunication(registerList);
+        _pAdapterPoll->startCommunication(registerList);
         _pCommunicationStats->start();
 
         if (_pSettingsModel->writeDuringLog())
@@ -499,7 +499,7 @@ void MainWindow::startScope()
 
 void MainWindow::stopScope()
 {
-    _pModbusPoll->stopCommunication();
+    _pAdapterPoll->stopCommunication();
     _pCommunicationStats->stop();
 
     if (_pSettingsModel->writeDuringLog())
@@ -807,7 +807,7 @@ void MainWindow::dragEnterEvent(QDragEnterEvent* e)
 
 void MainWindow::dropEvent(QDropEvent* e)
 {
-    if (!_pModbusPoll->isActive())
+    if (!_pAdapterPoll->isActive())
     {
         const QString filename(e->mimeData()->urls().constLast().toLocalFile());
         handleFileOpen(filename);
