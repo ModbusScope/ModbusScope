@@ -16,14 +16,14 @@
 MainApp::MainApp(QStringList cmdArguments, QObject* parent) : QObject(parent)
 {
     /* Setup diagnostic model and logging before all the rest */
-    _pDiagnosticModel = new DiagnosticModel();
+    _pDiagnosticModel = new DiagnosticModel(this);
     ScopeLogging::Logger().initLogging(_pDiagnosticModel);
 
-    _pGuiModel = new GuiModel();
-    _pSettingsModel = new SettingsModel();
-    _pGraphDataModel = new GraphDataModel();
-    _pNoteModel = new NoteModel();
-    _pDataParserModel = new DataParserModel();
+    _pGuiModel = new GuiModel(this);
+    _pSettingsModel = new SettingsModel(this);
+    _pGraphDataModel = new GraphDataModel(this);
+    _pNoteModel = new NoteModel(this);
+    _pDataParserModel = new DataParserModel(this);
 
     _pMainWin = new MainWindow(cmdArguments, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel,
                                _pDiagnosticModel, _pDataParserModel);
@@ -43,13 +43,6 @@ MainApp::MainApp(QStringList cmdArguments, QObject* parent) : QObject(parent)
 MainApp::~MainApp()
 {
     delete _pMainWin;
-
-    delete _pDataParserModel;
-    delete _pDiagnosticModel;
-    delete _pNoteModel;
-    delete _pGraphDataModel;
-    delete _pSettingsModel;
-    delete _pGuiModel;
 }
 
 void MainApp::logInitialInfo()

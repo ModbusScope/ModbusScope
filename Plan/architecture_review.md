@@ -6,7 +6,7 @@
 
 ## 1. Critical Issues
 
-### 1.1 Unsafe object lifetime in `MainApp`
+### 1.1 Unsafe object lifetime in `MainApp` [DONE]
 **File:** `src/mainapp.cpp:48–58`
 
 All six models are allocated without a Qt parent. The destructor manually deletes `MainWindow` _first_ (line 50), then the models (lines 52–57). At the moment `MainWindow` is deleted, it tears down widget children — but all model signals are still live. Qt disconnects them safely during `QObject::~QObject`, so there is no crash today, but the order is fragile and non-obvious. Any future eager access to a model from a widget destructor would be a use-after-free.
