@@ -1,6 +1,8 @@
 
 #include "adapterdata.h"
 
+#include <climits>
+
 AdapterData::AdapterData() = default;
 
 void AdapterData::setName(const QString& name)
@@ -105,6 +107,16 @@ void AdapterData::updateFromDescribe(const QJsonObject& describeResult)
     _schema = describeResult.value("schema").toObject();
     _defaults = describeResult.value("defaults").toObject();
     _capabilities = describeResult.value("capabilities").toObject();
+}
+
+int AdapterData::maxDevicesFromSchema() const
+{
+    const QJsonObject devicesSchema = _schema.value("properties").toObject().value("devices").toObject();
+    if (devicesSchema.contains("maxItems"))
+    {
+        return devicesSchema.value("maxItems").toInt(INT_MAX);
+    }
+    return INT_MAX;
 }
 
 QJsonObject AdapterData::effectiveConfig() const

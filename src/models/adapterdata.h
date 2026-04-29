@@ -52,6 +52,12 @@ public:
      */
     QJsonObject effectiveConfig() const;
 
+    /*!
+     * \brief Return the maximum number of devices from the schema's devices.maxItems.
+     * \return The maxItems value, or INT_MAX if not specified.
+     */
+    int maxDevicesFromSchema() const;
+
 private:
     QString _name;
     QString _version;

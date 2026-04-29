@@ -12,6 +12,8 @@
 #include <QSet>
 #include <QVBoxLayout>
 
+#include <climits>
+
 AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWidget* parent)
     : QWidget(parent), _pSettingsModel(pSettingsModel)
 {
@@ -80,6 +82,8 @@ AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWid
     {
         _pDeviceTabs->setTabs(pages, names);
     }
+
+    updateAddButtonVisibility();
 }
 
 /*! \brief Add a new device tab with a unique, auto-incremented device ID.
@@ -131,6 +135,8 @@ void AdapterDeviceSettings::handleAddTab()
     auto* tab = new DeviceConfigTab(_pSettingsModel, defaultAdapterId, defaultValues, _pDeviceTabs);
     connectTabNameTracking(tab);
     _pDeviceTabs->addNewTab(constructTabName(tab), tab);
+
+    updateAddButtonVisibility();
 }
 
 void AdapterDeviceSettings::handleCloseTab(QWidget* widget)
@@ -139,6 +145,31 @@ void AdapterDeviceSettings::handleCloseTab(QWidget* widget)
     if (tab && tab->deviceId() >= 0)
     {
         _pSettingsModel->removeDevice(static_cast<deviceId_t>(tab->deviceId()));
+    }
+
+    updateAddButtonVisibility();
+}
+
+int AdapterDeviceSettings::maxAllowedDevices() const
+{
+    const QStringList adapterIds = validAdapterIds();
+    if (adapterIds.isEmpty())
+    {
+        return INT_MAX;
+    }
+    int minMax = INT_MAX;
+    for (const auto& adapterId : adapterIds)
+    {
+        minMax = qMin(minMax, _pSettingsModel->adapterData(adapterId)->maxDevicesFromSchema());
+    }
+    return minMax;
+}
+
+void AdapterDeviceSettings::updateAddButtonVisibility()
+{
+    if (_pDeviceTabs)
+    {
+        _pDeviceTabs->setAddButtonVisible(_pDeviceTabs->count() < maxAllowedDevices());
     }
 }
 

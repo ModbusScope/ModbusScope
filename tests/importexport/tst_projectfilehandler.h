@@ -19,6 +19,10 @@ private slots:
     void loadSetsAdapterConfigInSettingsModel();
     void savePreservesAdapterConfigAfterDialogAccept();
     void roundTripPreservesAdapterConfig();
+
+    void applyAdapterSettingsTruncatesDevicesExceedingMaxItems();
+    void applyDeviceSettingsTruncatesDevicesExceedingMaxItems();
+    void applyDeviceSettingsNoLimitWhenSchemaAbsent();
 };
 
 #endif /* TST_PROJECTFILEHANDLER_H */

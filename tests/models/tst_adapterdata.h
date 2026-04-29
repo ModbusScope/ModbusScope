@@ -29,6 +29,9 @@ private slots:
     void deviceSetAndGetAdapterId();
     void deviceListForAdapterFiltersCorrectly();
     void deviceListForAdapterUnknownReturnsEmpty();
+
+    void maxDevicesFromSchemaReturnsIntMaxWhenAbsent();
+    void maxDevicesFromSchemaReturnsValue();
 };
 
 #endif /* TEST_ADAPTERDATA_H__ */

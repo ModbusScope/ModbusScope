@@ -16,6 +16,8 @@
 #include <QFile>
 #include <QFileDialog>
 
+#include <climits>
+
 ProjectFileHandler::ProjectFileHandler(GuiModel* pGuiModel,
                                        SettingsModel* pSettingsModel,
                                        GraphDataModel* pGraphDataModel)
@@ -138,7 +140,21 @@ void ProjectFileHandler::applyAdapterSettings(const QList<ProjectFileData::Adapt
 {
     for (const ProjectFileData::AdapterFileSettings& adapter : adapters)
     {
-        _pSettingsModel->setAdapterCurrentConfig(adapter.type, adapter.settings);
+        const AdapterData* pAdapterData = _pSettingsModel->adapterData(adapter.type);
+        const int maxDevices = pAdapterData ? pAdapterData->maxDevicesFromSchema() : INT_MAX;
+
+        QJsonObject settings = adapter.settings;
+        if (maxDevices != INT_MAX && settings.contains("devices"))
+        {
+            QJsonArray devices = settings.value("devices").toArray();
+            while (devices.size() > maxDevices)
+            {
+                devices.removeLast();
+            }
+            settings["devices"] = devices;
+        }
+
+        _pSettingsModel->setAdapterCurrentConfig(adapter.type, settings);
     }
 }
 
@@ -283,8 +299,25 @@ void ProjectFileHandler::applyDeviceSettings(const QList<ProjectFileData::Device
         return;
     }
 
+    int maxDevices = INT_MAX;
+    const QStringList adapterIds = _pSettingsModel->adapterIds();
+    for (const auto& adapterId : adapterIds)
+    {
+        const AdapterData* pAdapterData = _pSettingsModel->adapterData(adapterId);
+        if (!pAdapterData->schema().isEmpty())
+        {
+            maxDevices = qMin(maxDevices, pAdapterData->maxDevicesFromSchema());
+        }
+    }
+
+    int count = 0;
     for (const ProjectFileData::DeviceSettings& devSettings : deviceSettings)
     {
+        if (count >= maxDevices)
+        {
+            break;
+        }
+
         if (!devSettings.bDeviceId)
         {
             continue;
@@ -299,6 +332,7 @@ void ProjectFileHandler::applyDeviceSettings(const QList<ProjectFileData::Device
             pDev->setName(devSettings.name);
         }
         pDev->setAdapterId(adapterId);
+        ++count;
     }
 }
 

@@ -8,6 +8,8 @@
 #include <QJsonObject>
 #include <QTest>
 
+#include <climits>
+
 void TestAdapterData::init()
 {
 }
@@ -262,6 +264,47 @@ void TestAdapterData::deviceListForAdapterUnknownReturnsEmpty()
     SettingsModel model;
 
     QVERIFY(model.deviceListForAdapter("opcua").isEmpty());
+}
+
+/*!
+ * \brief maxDevicesFromSchema returns INT_MAX when the schema has no devices.maxItems.
+ */
+void TestAdapterData::maxDevicesFromSchemaReturnsIntMaxWhenAbsent()
+{
+    AdapterData data;
+
+    QJsonObject schema;
+    schema["type"] = "object";
+    QJsonObject describeResult;
+    describeResult["schema"] = schema;
+    data.updateFromDescribe(describeResult);
+
+    QCOMPARE(data.maxDevicesFromSchema(), INT_MAX);
+}
+
+/*!
+ * \brief maxDevicesFromSchema returns the maxItems value from schema.properties.devices.
+ */
+void TestAdapterData::maxDevicesFromSchemaReturnsValue()
+{
+    AdapterData data;
+
+    QJsonObject devicesSchema;
+    devicesSchema["type"] = "array";
+    devicesSchema["maxItems"] = 3;
+
+    QJsonObject properties;
+    properties["devices"] = devicesSchema;
+
+    QJsonObject schema;
+    schema["type"] = "object";
+    schema["properties"] = properties;
+
+    QJsonObject describeResult;
+    describeResult["schema"] = schema;
+    data.updateFromDescribe(describeResult);
+
+    QCOMPARE(data.maxDevicesFromSchema(), 3);
 }
 
 QTEST_GUILESS_MAIN(TestAdapterData)
