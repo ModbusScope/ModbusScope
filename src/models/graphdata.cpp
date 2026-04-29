@@ -102,7 +102,12 @@ void GraphData::setExpressionState(GraphData::ExpressionState status)
     _expressionState = status;
 }
 
-QSharedPointer<QCPGraphDataContainer> GraphData::dataMap()
+QSharedPointer<const QCPGraphDataContainer> GraphData::dataMap() const
+{
+    return _pDataMap;
+}
+
+QSharedPointer<QCPGraphDataContainer> GraphData::mutableDataMap()
 {
     return _pDataMap;
 }

@@ -68,7 +68,7 @@ void MarkerInfoItem::updateData()
         return;
     }
 
-    QSharedPointer<QCPGraphDataContainer> dataMap = _pGraphDataModel->dataMap(graphIdx);
+    QSharedPointer<const QCPGraphDataContainer> dataMap = _pGraphDataModel->dataMap(graphIdx);
 
     if (dataMap->isEmpty())
     {
@@ -221,7 +221,7 @@ double MarkerInfoItem::calculateMarkerExpressionValue(quint32 expressionMask)
         return 0;
     }
 
-    QSharedPointer<QCPGraphDataContainer> pDataMap = _pGraphDataModel->dataMap(graphIdx);
+    QSharedPointer<const QCPGraphDataContainer> pDataMap = _pGraphDataModel->dataMap(graphIdx);
 
     if (pDataMap->isEmpty())
     {

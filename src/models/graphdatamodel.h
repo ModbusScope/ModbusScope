@@ -55,7 +55,8 @@ public:
     bool isExpressionValid(quint32 index) const;
     qint32 selectedGraph() const;
     QString simplifiedExpression(quint32 index) const;
-    QSharedPointer<QCPGraphDataContainer> dataMap(quint32 index);
+    QSharedPointer<const QCPGraphDataContainer> dataMap(quint32 index) const;
+    QSharedPointer<QCPGraphDataContainer> mutableDataMap(quint32 index);
 
     qint64 communicationStartTime();
     qint64 communicationEndTime();

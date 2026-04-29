@@ -384,9 +384,14 @@ QString GraphDataModel::simplifiedExpression(quint32 index) const
     return _graphData[index].expression().simplified();
 }
 
-QSharedPointer<QCPGraphDataContainer> GraphDataModel::dataMap(quint32 index)
+QSharedPointer<const QCPGraphDataContainer> GraphDataModel::dataMap(quint32 index) const
 {
     return _graphData[index].dataMap();
+}
+
+QSharedPointer<QCPGraphDataContainer> GraphDataModel::mutableDataMap(quint32 index)
+{
+    return _graphData[index].mutableDataMap();
 }
 
 
@@ -508,7 +513,7 @@ void GraphDataModel::setActive(quint32 index, bool bActive)
         // When deactivated, clear data
         if (!bActive)
         {
-            _graphData[index].dataMap()->clear();
+            _graphData[index].mutableDataMap()->clear();
         }
         else
         {

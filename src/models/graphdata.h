@@ -49,7 +49,8 @@ public:
     void setExpressionState(ExpressionState status);
     bool isExpressionValid() const;
 
-    QSharedPointer<QCPGraphDataContainer> dataMap();
+    QSharedPointer<const QCPGraphDataContainer> dataMap() const;
+    QSharedPointer<QCPGraphDataContainer> mutableDataMap();
 
 private:
 

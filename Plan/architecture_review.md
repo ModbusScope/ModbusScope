@@ -59,7 +59,7 @@ This makes the class ~700 lines, hard to test in isolation, and difficult to ext
 
 ---
 
-### 2.2 `GraphDataModel::dataMap()` leaks mutable internals
+### 2.2 `GraphDataModel::dataMap()` leaks mutable internals [DONE]
 **File:** `src/models/graphdatamodel.h:58`
 
 ```cpp
