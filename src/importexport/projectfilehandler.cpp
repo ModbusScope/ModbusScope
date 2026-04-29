@@ -20,8 +20,9 @@
 
 ProjectFileHandler::ProjectFileHandler(GuiModel* pGuiModel,
                                        SettingsModel* pSettingsModel,
-                                       GraphDataModel* pGraphDataModel)
-    : QObject(nullptr)
+                                       GraphDataModel* pGraphDataModel,
+                                       QObject* parent)
+    : QObject(parent)
 {
     _pGuiModel = pGuiModel;
     _pSettingsModel = pSettingsModel;

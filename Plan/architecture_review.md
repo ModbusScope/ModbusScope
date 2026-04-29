@@ -109,7 +109,7 @@ A static setter injects a model pointer into a utility class globally. This is h
 
 ---
 
-### 2.6 `ProjectFileHandler` created without Qt parent
+### 2.6 `ProjectFileHandler` created without Qt parent [DONE]
 **File:** `src/dialogs/mainwindow.cpp:69`
 
 ```cpp

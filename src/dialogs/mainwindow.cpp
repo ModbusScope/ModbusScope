@@ -60,15 +60,15 @@ MainWindow::MainWindow(QStringList cmdArguments,
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
 
     _pGraphDataHandler = new GraphDataHandler();
-    _pAdapterPoll = new AdapterPoll(_pSettingsModel);
+    _pAdapterPoll = new AdapterPoll(_pSettingsModel, this);
     connect(_pAdapterPoll, &AdapterPoll::registerDataReady, _pGraphDataHandler, &GraphDataHandler::handleRegisterData);
 
     _pGraphView = new GraphView(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
     _pDataFileHandler =
       new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel, _pSettingsModel, _pDataParserModel, this);
-    _pProjectFileHandler = new ProjectFileHandler(_pGuiModel, _pSettingsModel, _pGraphDataModel);
-    _pExpressionStatus = new ExpressionStatus(_pGraphDataModel, pSettingsModel);
-    _pCommunicationStats = new CommunicationStats(_pGraphDataModel);
+    _pProjectFileHandler = new ProjectFileHandler(_pGuiModel, _pSettingsModel, _pGraphDataModel, this);
+    _pExpressionStatus = new ExpressionStatus(_pGraphDataModel, pSettingsModel, this);
+    _pCommunicationStats = new CommunicationStats(_pGraphDataModel, 50, this);
 
     _pLegend = _pUi->legend;
     _pLegend->setModels(_pGuiModel, _pGraphDataModel);
@@ -201,7 +201,7 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
     /* Trigger update check */
     _pUi->actionUpdateAvailable->setVisible(false);
-    _pUpdateNotify = new UpdateNotify(new VersionDownloader(), Util::currentVersion());
+    _pUpdateNotify = new UpdateNotify(new VersionDownloader(), Util::currentVersion(), this);
     connect(_pUpdateNotify, &UpdateNotify::updateCheckResult, this, &MainWindow::showVersionUpdate);
 
 #ifndef DEBUG
@@ -240,16 +240,13 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
 MainWindow::~MainWindow()
 {
+    delete _pGraphDataHandler;
+
     delete _pGraphView;
-    delete _pAdapterPoll;
     delete _pGraphShowHide;
     delete _pMostRecentMenu;
     delete _pDataFileHandler;
-    delete _pProjectFileHandler;
-    delete _pExpressionStatus;
     delete _pStatusBar;
-
-    delete _pUpdateNotify;
 
     delete _pUi;
 }
