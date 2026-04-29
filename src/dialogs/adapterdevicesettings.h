@@ -36,6 +36,8 @@ private:
     QStringList validAdapterIds() const;
     QString constructTabName(DeviceConfigTab* tab) const;
     void connectTabNameTracking(DeviceConfigTab* tab);
+    int maxAllowedDevices() const;
+    void updateAddButtonVisibility();
 
     SettingsModel* _pSettingsModel;
     AddableTabWidget* _pDeviceTabs{ nullptr };

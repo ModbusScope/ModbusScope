@@ -18,6 +18,30 @@
 namespace {
 
 /*!
+ * \brief Build an adapter describe object with schema.properties.devices.maxItems set.
+ */
+QJsonObject buildDescribeWithMaxItems(int maxItems)
+{
+    QJsonObject devicesSchema;
+    devicesSchema["type"] = "array";
+    devicesSchema["maxItems"] = maxItems;
+
+    QJsonObject properties;
+    properties["devices"] = devicesSchema;
+
+    QJsonObject schema;
+    schema["type"] = "object";
+    schema["properties"] = properties;
+
+    QJsonObject describe;
+    describe["name"] = "testAdapter";
+    describe["schema"] = schema;
+    describe["defaults"] = QJsonObject();
+    describe["capabilities"] = QJsonObject();
+    return describe;
+}
+
+/*!
  * \brief Write a minimal MBS project JSON to a temp file and return the path.
  *
  * \param adapters  JSON array for the "adapters" key.
@@ -399,6 +423,123 @@ void TestProjectFileHandler::roundTripPreservesAdapterConfig()
     QCOMPARE(savedDevices.first().toObject()["name"].toString(), QStringLiteral("Sensor"));
 
     QFile::remove(loadPath);
+}
+
+/*!
+ * \brief Adapter settings with more devices than maxItems are truncated on load.
+ */
+void TestProjectFileHandler::applyAdapterSettingsTruncatesDevicesExceedingMaxItems()
+{
+    QJsonArray adapterDevices;
+    for (int i = 1; i <= 5; ++i)
+    {
+        QJsonObject dev;
+        dev["id"] = i;
+        adapterDevices.append(dev);
+    }
+
+    QJsonObject adapterSettings;
+    adapterSettings["devices"] = adapterDevices;
+
+    QJsonArray adapters;
+    QJsonObject adapter;
+    adapter["type"] = "modbus";
+    adapter["settings"] = adapterSettings;
+    adapters.append(adapter);
+
+    const QString path = writeTempProjectFile(adapters, QJsonArray());
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    settingsModel.updateAdapterFromDescribe("modbus", buildDescribeWithMaxItems(2));
+    handler.openProjectFile(path);
+
+    const QJsonArray storedDevices = settingsModel.adapterData("modbus")->currentConfig()["devices"].toArray();
+    QCOMPARE(storedDevices.size(), 2);
+    QCOMPARE(storedDevices.first().toObject()["id"].toInt(), 1);
+    QCOMPARE(storedDevices.last().toObject()["id"].toInt(), 2);
+
+    QFile::remove(path);
+}
+
+/*!
+ * \brief Generic devices exceeding the adapter schema maxItems are ignored on load.
+ */
+void TestProjectFileHandler::applyDeviceSettingsTruncatesDevicesExceedingMaxItems()
+{
+    QJsonArray adapters;
+    QJsonObject adapter;
+    adapter["type"] = "modbus";
+    adapter["settings"] = QJsonObject();
+    adapters.append(adapter);
+
+    QJsonArray devices;
+    for (int i = 1; i <= 5; ++i)
+    {
+        QJsonObject dev;
+        dev["id"] = i;
+        QJsonObject adapterRef;
+        adapterRef["type"] = "modbus";
+        dev["adapter"] = adapterRef;
+        devices.append(dev);
+    }
+
+    const QString path = writeTempProjectFile(adapters, devices);
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    settingsModel.updateAdapterFromDescribe("modbus", buildDescribeWithMaxItems(2));
+    handler.openProjectFile(path);
+
+    QCOMPARE(settingsModel.deviceList().size(), 2);
+
+    QFile::remove(path);
+}
+
+/*!
+ * \brief All devices are loaded when no adapter schema is present (no maxItems limit).
+ */
+void TestProjectFileHandler::applyDeviceSettingsNoLimitWhenSchemaAbsent()
+{
+    QJsonArray adapters;
+    QJsonObject adapter;
+    adapter["type"] = "modbus";
+    adapter["settings"] = QJsonObject();
+    adapters.append(adapter);
+
+    QJsonArray devices;
+    for (int i = 1; i <= 5; ++i)
+    {
+        QJsonObject dev;
+        dev["id"] = i;
+        QJsonObject adapterRef;
+        adapterRef["type"] = "modbus";
+        dev["adapter"] = adapterRef;
+        devices.append(dev);
+    }
+
+    const QString path = writeTempProjectFile(adapters, devices);
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    /* No describe call — adapter schema is empty, no limit applies */
+    handler.openProjectFile(path);
+
+    QCOMPARE(settingsModel.deviceList().size(), 5);
+
+    QFile::remove(path);
 }
 
 QTEST_GUILESS_MAIN(TestProjectFileHandler)

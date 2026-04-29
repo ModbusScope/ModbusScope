@@ -15,6 +15,7 @@ public:
     ~AddableTabWidget() = default;
 
     void setTabName(int index, const QString& name);
+    void setAddButtonVisible(bool visible);
 
     void setTabs(const QList<QWidget*>& pages, const QStringList& names);
     void addNewTab(const QString& name, QWidget* content);

@@ -22,8 +22,8 @@ void AddableTabWidget::handleCloseTab(int index)
     }
 
     QWidget* page = widget(index);
-    emit tabClosed(page);
     removeTab(index);
+    emit tabClosed(page);
     if (page)
     {
         page->deleteLater();
@@ -62,6 +62,11 @@ QWidget* AddableTabWidget::tabContent(int index) const
         return widget(index);
     }
     return nullptr;
+}
+
+void AddableTabWidget::setAddButtonVisible(bool visible)
+{
+    _addButton->setVisible(visible);
 }
 
 void AddableTabWidget::setTabName(int index, const QString& name)
