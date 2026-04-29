@@ -1,5 +1,6 @@
 {
     "capabilities": {
+        "maxDevices": 3,
         "requiresRestartOn": [
             "connections",
             "devices"
@@ -242,6 +243,7 @@
                     ],
                     "type": "object"
                 },
+                "maxItems": 3,
                 "type": "array"
             },
             "general": {
@@ -258,5 +260,5 @@
         },
         "type": "object"
     },
-    "version": "0.0.1"
+    "version": "0.0.2-dev-limited_devices+396af2e"
 }
