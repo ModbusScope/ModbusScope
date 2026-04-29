@@ -138,7 +138,7 @@ These are the most business-critical classes. Changes to `GraphDataModel` in par
 
 ---
 
-### 3.2 `GraphDataHandler` is an unnecessary `QObject`
+### 3.2 `GraphDataHandler` is an unnecessary `QObject` [DONE]
 **File:** `src/datahandling/graphdatahandler.h`
 
 `GraphDataHandler` inherits `QObject` solely to expose one slot (`handleRegisterData`) and emit one signal (`graphDataReady`). The slot just transforms `ResultDoubleList → ResultDoubleList` and the signal is a fan-out. This could be a plain function call or a non-QObject with `std::function` callbacks, eliminating the metaclass overhead and making it trivially testable without the event loop.

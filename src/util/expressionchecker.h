@@ -30,10 +30,8 @@ public:
 signals:
     void resultsReady(bool valid);
 
-private slots:
-    void handleDataReady(ResultDoubleList resultList);
-
 private:
+    void handleDataReady(ResultDoubleList resultList);
 
     GraphDataModel _localGraphDataModel;
     GraphDataHandler _graphDataHandler;

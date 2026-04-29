@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "util/recentfilemodule.h"
+#include "util/result.h"
 #include "util/updatenotify.h"
 
 #include <QButtonGroup>
@@ -101,6 +102,7 @@ private slots:
     void updateDataFileNotes();
 
     void showVersionUpdate(UpdateNotify::UpdateState result);
+    void onRegisterDataReady(ResultDoubleList results);
 
 private:
     void setAxisToAuto();

@@ -61,7 +61,7 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
     _pGraphDataHandler = new GraphDataHandler();
     _pAdapterPoll = new AdapterPoll(_pSettingsModel, this);
-    connect(_pAdapterPoll, &AdapterPoll::registerDataReady, _pGraphDataHandler, &GraphDataHandler::handleRegisterData);
+    connect(_pAdapterPoll, &AdapterPoll::registerDataReady, this, &MainWindow::onRegisterDataReady);
 
     _pGraphView = new GraphView(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
     _pDataFileHandler =
@@ -214,10 +214,6 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
     handleGraphsCountChanged();
 
-    connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pGraphView, &GraphView::plotResults);
-    connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pLegend, &Legend::addLastReceivedDataToLegend);
-    connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pCommunicationStats,
-            &CommunicationStats::updateCommunicationStats);
 
     handleCommandLineArguments(cmdArguments);
 
@@ -833,6 +829,14 @@ void MainWindow::updateDataFileNotes()
             _pDataFileHandler->updateNoteLines();
         }
     }
+}
+
+void MainWindow::onRegisterDataReady(ResultDoubleList results)
+{
+    ResultDoubleList processed = _pGraphDataHandler->handleRegisterData(results);
+    _pGraphView->plotResults(processed);
+    _pLegend->addLastReceivedDataToLegend(processed);
+    _pCommunicationStats->updateCommunicationStats(processed);
 }
 
 void MainWindow::showVersionUpdate(UpdateNotify::UpdateState result)

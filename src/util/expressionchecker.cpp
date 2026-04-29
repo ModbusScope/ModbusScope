@@ -3,7 +3,6 @@
 
 ExpressionChecker::ExpressionChecker(QObject* parent) : QObject(parent)
 {
-    connect(&_graphDataHandler, &GraphDataHandler::graphDataReady, this, &ExpressionChecker::handleDataReady);
 }
 
 void ExpressionChecker::setExpression(QString expr)
@@ -66,7 +65,7 @@ bool ExpressionChecker::checkForDevices(QList<deviceId_t> const& deviceIdList)
 
 void ExpressionChecker::checkWithValues(ResultDoubleList results)
 {
-    _graphDataHandler.handleRegisterData(results);
+    handleDataReady(_graphDataHandler.handleRegisterData(results));
 }
 
 bool ExpressionChecker::isValid()
