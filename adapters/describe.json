@@ -1,0 +1,262 @@
+{
+    "capabilities": {
+        "requiresRestartOn": [
+            "connections",
+            "devices"
+        ],
+        "supportsHotReload": false
+    },
+    "configVersion": 1,
+    "defaults": {
+        "connections": [
+            {
+                "baudrate": 115200,
+                "databits": 8,
+                "id": 1,
+                "ip": "127.0.0.1",
+                "name": "Connection 1",
+                "parity": "N",
+                "persistent": true,
+                "port": 502,
+                "portName": "COM1",
+                "stopbits": 1,
+                "timeout": 1000,
+                "type": "tcp"
+            }
+        ],
+        "devices": [
+            {
+                "connectionId": 1,
+                "consecutiveMax": 125,
+                "id": 1,
+                "int32LittleEndian": true,
+                "slaveId": 1
+            }
+        ],
+        "general": {
+        },
+        "version": 1
+    },
+    "name": "modbusAdapter",
+    "schema": {
+        "properties": {
+            "connections": {
+                "items": {
+                    "else": {
+                        "properties": {
+                            "baudrate": {
+                                "description": "Baud rate (serial only)",
+                                "enum": [
+                                    1200,
+                                    2400,
+                                    4800,
+                                    9600,
+                                    19200,
+                                    38400,
+                                    57600,
+                                    115200
+                                ],
+                                "title": "Baud Rate",
+                                "type": "integer",
+                                "x-enumLabels": [
+                                    "1200",
+                                    "2400",
+                                    "4800",
+                                    "9600",
+                                    "19200",
+                                    "38400",
+                                    "57600",
+                                    "115200"
+                                ]
+                            },
+                            "databits": {
+                                "description": "Data bits (serial only)",
+                                "enum": [
+                                    5,
+                                    6,
+                                    7,
+                                    8
+                                ],
+                                "title": "Data Bits",
+                                "type": "integer",
+                                "x-enumLabels": [
+                                    "5",
+                                    "6",
+                                    "7",
+                                    "8"
+                                ]
+                            },
+                            "parity": {
+                                "description": "Parity: N=none, E=even, O=odd (serial only)",
+                                "enum": [
+                                    "N",
+                                    "E",
+                                    "O"
+                                ],
+                                "title": "Parity",
+                                "type": "string",
+                                "x-enumLabels": [
+                                    "None",
+                                    "Even",
+                                    "Odd"
+                                ]
+                            },
+                            "portName": {
+                                "description": "Serial port name (serial only)",
+                                "title": "Serial Port Name",
+                                "type": "string"
+                            },
+                            "stopbits": {
+                                "description": "Stop bits: 1, 1.5 (=3), or 2 (serial only)",
+                                "enum": [
+                                    1,
+                                    2,
+                                    3
+                                ],
+                                "title": "Stop Bits",
+                                "type": "integer",
+                                "x-enumLabels": [
+                                    "1",
+                                    "2",
+                                    "1.5"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "portName",
+                            "baudrate",
+                            "stopbits"
+                        ]
+                    },
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "tcp"
+                            }
+                        }
+                    },
+                    "properties": {
+                        "id": {
+                            "description": "Connection identifier",
+                            "minimum": 1,
+                            "title": "Connection ID",
+                            "type": "integer"
+                        },
+                        "name": {
+                            "description": "Human-readable connection name (default: \"Connection <id>\")",
+                            "title": "Connection Name",
+                            "type": "string"
+                        },
+                        "persistent": {
+                            "description": "Keep connection open between reads",
+                            "title": "Keep Connection Persistent",
+                            "type": "boolean"
+                        },
+                        "timeout": {
+                            "description": "Timeout in milliseconds",
+                            "minimum": 0,
+                            "title": "Timeout (ms)",
+                            "type": "integer"
+                        },
+                        "type": {
+                            "description": "Connection type",
+                            "enum": [
+                                "tcp",
+                                "serial"
+                            ],
+                            "title": "Connection Type",
+                            "type": "string",
+                            "x-enumLabels": [
+                                "TCP",
+                                "Serial"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "id",
+                        "type"
+                    ],
+                    "then": {
+                        "properties": {
+                            "ip": {
+                                "description": "IP address (TCP only)",
+                                "title": "IP Address",
+                                "type": "string"
+                            },
+                            "port": {
+                                "description": "TCP port (TCP only)",
+                                "maximum": 65535,
+                                "minimum": 1,
+                                "title": "TCP Port",
+                                "type": "integer"
+                            }
+                        },
+                        "required": [
+                            "ip",
+                            "port"
+                        ]
+                    },
+                    "type": "object"
+                },
+                "type": "array"
+            },
+            "devices": {
+                "items": {
+                    "properties": {
+                        "connectionId": {
+                            "description": "Connection identifier this device uses",
+                            "minimum": 1,
+                            "title": "Connection",
+                            "type": "integer"
+                        },
+                        "consecutiveMax": {
+                            "description": "Max registers per single read request",
+                            "maximum": 125,
+                            "minimum": 1,
+                            "title": "Max Consecutive Registers",
+                            "type": "integer"
+                        },
+                        "id": {
+                            "description": "Device identifier",
+                            "minimum": 1,
+                            "title": "Device ID",
+                            "type": "integer"
+                        },
+                        "int32LittleEndian": {
+                            "description": "Byte order for 32-bit values (false = big endian)",
+                            "title": "32-bit Little Endian",
+                            "type": "boolean"
+                        },
+                        "slaveId": {
+                            "description": "Modbus slave ID",
+                            "maximum": 247,
+                            "minimum": 1,
+                            "title": "Slave ID",
+                            "type": "integer"
+                        }
+                    },
+                    "required": [
+                        "id",
+                        "connectionId",
+                        "slaveId"
+                    ],
+                    "type": "object"
+                },
+                "type": "array"
+            },
+            "general": {
+                "properties": {
+                },
+                "required": [
+                ],
+                "type": "object"
+            },
+            "version": {
+                "description": "Config schema version",
+                "type": "integer"
+            }
+        },
+        "type": "object"
+    },
+    "version": "0.0.1"
+}

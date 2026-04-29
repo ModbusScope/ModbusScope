@@ -382,6 +382,11 @@
     <string>Open Data File</string>
    </property>
   </action>
+  <action name="actionImportFromMbcFile">
+   <property name="text">
+    <string>&amp;Import MBC File...</string>
+   </property>
+  </action>
   <action name="actionHighlightSamplePoints">
    <property name="checkable">
     <bool>true</bool>
@@ -495,11 +500,6 @@
    </property>
    <property name="text">
     <string>Save &amp;Project</string>
-   </property>
-  </action>
-  <action name="actionImportFromMbcFile">
-   <property name="text">
-    <string>&amp;Import MBC File...</string>
    </property>
   </action>
   <action name="actionSettings">

@@ -22,19 +22,19 @@ GraphScale::GraphScale(GuiModel* pGuiModel, ScopePlot* pPlot, QObject *parent) :
     _pPlot->setNoAntialiasingOnDrag(true);
 
     // Replace y-axis with custom value axis
-    _pPlot->axisRect()->removeAxis(_pPlot->axisRect()->axes(QCPAxis::atLeft)[0]);
+    _pPlot->axisRect()->removeAxis(_pPlot->axisRect()->axes(QCPAxis::atLeft).at(0));
     _pPlot->axisRect()->addAxis(QCPAxis::atLeft, new ValueAxis(_pPlot->axisRect(), QCPAxis::atLeft));
 
     // Replace y2-axis with custom value axis
-    _pPlot->axisRect()->removeAxis(_pPlot->axisRect()->axes(QCPAxis::atRight)[0]);
+    _pPlot->axisRect()->removeAxis(_pPlot->axisRect()->axes(QCPAxis::atRight).at(0));
     _pPlot->axisRect()->addAxis(QCPAxis::atRight, new ValueAxis(_pPlot->axisRect(), QCPAxis::atRight));
 
     connect(_pPlot->xAxis, QOverload<const QCPRange &>::of(&QCPAxis::rangeChanged), this, &GraphScale::timeAxisRangeChanged);
     
     // Fix axis settings
-    QCPAxis * pXAxis = _pPlot->axisRect()->axes(QCPAxis::atBottom)[0];
-    QCPAxis * pYAxis = _pPlot->axisRect()->axes(QCPAxis::atLeft)[0];
-    QCPAxis * pY2Axis = _pPlot->axisRect()->axes(QCPAxis::atRight)[0];
+    QCPAxis * pXAxis = _pPlot->axisRect()->axes(QCPAxis::atBottom).at(0);
+    QCPAxis * pYAxis = _pPlot->axisRect()->axes(QCPAxis::atLeft).at(0);
+    QCPAxis * pY2Axis = _pPlot->axisRect()->axes(QCPAxis::atRight).at(0);
     pYAxis->grid()->setVisible(true);
     pY2Axis->grid()->setVisible(true);
 

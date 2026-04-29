@@ -13,7 +13,7 @@
 #include "util/scopelogging.h"
 #include "util/util.h"
 
-MainApp::MainApp(QStringList cmdArguments, QObject *parent) : QObject(parent)
+MainApp::MainApp(QStringList cmdArguments, QObject* parent) : QObject(parent)
 {
     /* Setup diagnostic model and logging before all the rest */
     _pDiagnosticModel = new DiagnosticModel();
@@ -25,13 +25,8 @@ MainApp::MainApp(QStringList cmdArguments, QObject *parent) : QObject(parent)
     _pNoteModel = new NoteModel();
     _pDataParserModel = new DataParserModel();
 
-    _pMainWin = new MainWindow(cmdArguments,
-                               _pGuiModel,
-                               _pSettingsModel,
-                               _pGraphDataModel,
-                               _pNoteModel,
-                               _pDiagnosticModel,
-                               _pDataParserModel);
+    _pMainWin = new MainWindow(cmdArguments, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel,
+                               _pDiagnosticModel, _pDataParserModel);
 
     FileSelectionHelper::setGuiModel(_pGuiModel);
 
@@ -59,16 +54,16 @@ MainApp::~MainApp()
 
 void MainApp::logInitialInfo()
 {
-    qCInfo(scopeGeneralInfo) << QString("ModbusScope v%1").arg(Util::currentVersion());
+    qCInfo(scopeGeneralInfo) << qUtf8Printable(QString("ModbusScope v%1").arg(Util::currentVersion()));
 #ifdef DEBUG
-    qCInfo(scopeGeneralInfo) << QString("DEV git: %1:%2").arg(GIT_BRANCH, GIT_COMMIT_HASH);
+    qCInfo(scopeGeneralInfo) << qUtf8Printable(QString("DEV git: %1:%2").arg(GIT_BRANCH, GIT_COMMIT_HASH));
 #endif
 
-    qCInfo(scopeGeneralInfo) << QString("Qt library v%1").arg(QLibraryInfo::version().toString());
+    qCInfo(scopeGeneralInfo) << qUtf8Printable(QString("Qt library v%1").arg(QLibraryInfo::version().toString()));
 
-    qCInfo(scopeGeneralInfo) << QString("OS: %1").arg(QSysInfo::prettyProductName());
+    qCInfo(scopeGeneralInfo) << qUtf8Printable(QString("OS: %1").arg(QSysInfo::prettyProductName()));
 
-    qCInfo(scopeGeneralInfo) << QString("Locale language code: %1").arg(QLocale().bcp47Name());
-    qCInfo(scopeGeneralInfo) << QString("Locale decimal separator: %1").arg(QLocale().decimalPoint());
-    qCInfo(scopeGeneralInfo) << QString("Locale group separator: %1").arg(QLocale().groupSeparator());
+    qCInfo(scopeGeneralInfo) << qUtf8Printable(QString("Locale language code: %1").arg(QLocale().bcp47Name()));
+    qCInfo(scopeGeneralInfo) << qUtf8Printable(QString("Locale decimal separator: %1").arg(QLocale().decimalPoint()));
+    qCInfo(scopeGeneralInfo) << qUtf8Printable(QString("Locale group separator: %1").arg(QLocale().groupSeparator()));
 }

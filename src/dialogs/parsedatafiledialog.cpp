@@ -33,7 +33,7 @@ ParseDataFileDialog::ParseDataFileDialog(DataParserModel* pParserModel, QStringL
     _pParserModel = pParserModel;
     _dataFileSample = dataFileSample;
 
-    _pPresetHandler = new PresetHandler(new PresetParser());
+    _pPresetHandler = new PresetHandler(std::make_unique<PresetParser>());
 
     // load presets
     loadPreset();

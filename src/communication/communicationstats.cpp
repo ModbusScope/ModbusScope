@@ -5,10 +5,11 @@
 
 const uint32_t CommunicationStats::_cUpdateTime = 500;
 
-CommunicationStats::CommunicationStats(GraphDataModel* pGraphDataModel, quint32 sampleCalculationSize, QObject *parent)
-    : QObject{parent}, _pGraphDataModel (pGraphDataModel), _sampleCalculationSize(sampleCalculationSize)
+CommunicationStats::CommunicationStats(GraphDataModel* pGraphDataModel, quint32 sampleCalculationSize, QObject* parent)
+    : QObject{ parent }, _pGraphDataModel(pGraphDataModel), _sampleCalculationSize(sampleCalculationSize)
 {
-    connect(this, &CommunicationStats::triggerRunTimeUpdate, _pGraphDataModel, &GraphDataModel::communicationTimeStatsChanged);
+    connect(this, &CommunicationStats::triggerRunTimeUpdate, _pGraphDataModel,
+            &GraphDataModel::communicationTimeStatsChanged);
 }
 
 void CommunicationStats::updateTimingInfo()
@@ -16,11 +17,7 @@ void CommunicationStats::updateTimingInfo()
     QList<double> diffList;
     quint32 timeMedian;
 
-    if (_pGraphDataModel->size() == 0u)
-    {
-        timeMedian = 0u;
-    }
-    else if (_pGraphDataModel->dataMap(0)->size() <= 1)
+    if (_pGraphDataModel->size() == 0u || _pGraphDataModel->dataMap(0)->size() <= 1)
     {
         timeMedian = 0u;
     }
@@ -71,7 +68,8 @@ void CommunicationStats::stop()
 
 void CommunicationStats::incrementCommunicationStats(quint32 successes, quint32 errors)
 {
-    _pGraphDataModel->setCommunicationStats(_pGraphDataModel->communicationSuccessCount() + successes, _pGraphDataModel->communicationErrorCount() + errors);
+    _pGraphDataModel->setCommunicationStats(_pGraphDataModel->communicationSuccessCount() + successes,
+                                            _pGraphDataModel->communicationErrorCount() + errors);
 }
 
 void CommunicationStats::updateRuntime()
@@ -88,7 +86,7 @@ void CommunicationStats::updateCommunicationStats(ResultDoubleList resultList)
 {
     quint32 error = 0;
     quint32 success = 0;
-    for(const auto &result: resultList)
+    for (const auto& result : resultList)
     {
         result.isValid() ? success++ : error++;
     }

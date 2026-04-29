@@ -9,6 +9,8 @@
 #include <QTest>
 #include <gmock/gmock-matchers.h>
 
+#include <memory>
+
 using ::testing::Return;
 using namespace testing;
 
@@ -25,10 +27,11 @@ void TestPresetHandler::cleanup()
 
 void TestPresetHandler::determinePresetEmptyList()
 {
-    MockPresetParser presetParser;
-    auto presetHandler = new PresetHandler(&presetParser);
+    auto pPresetParser = std::make_unique<MockPresetParser>();
+    MockPresetParser* pPresetParserRaw = pPresetParser.get();
+    auto presetHandler = std::make_unique<PresetHandler>(std::move(pPresetParser));
 
-    EXPECT_CALL(presetParser, presetCount())
+    EXPECT_CALL(*pPresetParserRaw, presetCount())
             .Times(1)
             .WillOnce(Return(0));
 
@@ -37,13 +40,14 @@ void TestPresetHandler::determinePresetEmptyList()
 
 void TestPresetHandler::determinePresetFail()
 {
-    MockPresetParser presetParser;
-    auto presetHandler = new PresetHandler(&presetParser);
+    auto pPresetParser = std::make_unique<MockPresetParser>();
+    MockPresetParser* pPresetParserRaw = pPresetParser.get();
+    auto presetHandler = std::make_unique<PresetHandler>(std::move(pPresetParser));
 
-    EXPECT_CALL(presetParser, presetCount())
+    EXPECT_CALL(*pPresetParserRaw, presetCount())
             .WillRepeatedly(Return(3));
 
-    EXPECT_CALL(presetParser, preset(_))
+    EXPECT_CALL(*pPresetParserRaw, preset(_))
             .WillRepeatedly(Invoke([](int id) -> PresetParser::Preset {
         PresetParser::Preset p;
         switch(id)
@@ -59,13 +63,14 @@ void TestPresetHandler::determinePresetFail()
 
 void TestPresetHandler::determinePresetSuccess()
 {
-    MockPresetParser presetParser;
-    auto presetHandler = new PresetHandler(&presetParser);
+    auto pPresetParser = std::make_unique<MockPresetParser>();
+    MockPresetParser* pPresetParserRaw = pPresetParser.get();
+    auto presetHandler = std::make_unique<PresetHandler>(std::move(pPresetParser));
 
-    EXPECT_CALL(presetParser, presetCount())
+    EXPECT_CALL(*pPresetParserRaw, presetCount())
             .WillRepeatedly(Return(3));
 
-    EXPECT_CALL(presetParser, preset(_))
+    EXPECT_CALL(*pPresetParserRaw, preset(_))
             .WillRepeatedly(Invoke([](int id) -> PresetParser::Preset {
         PresetParser::Preset p;
         switch(id)
@@ -81,26 +86,28 @@ void TestPresetHandler::determinePresetSuccess()
 
 void TestPresetHandler::emptyNameList()
 {
-    MockPresetParser presetParser;
-    auto presetHandler = new PresetHandler(&presetParser);
+    auto pPresetParser = std::make_unique<MockPresetParser>();
+    MockPresetParser* pPresetParserRaw = pPresetParser.get();
+    auto presetHandler = std::make_unique<PresetHandler>(std::move(pPresetParser));
 
-    EXPECT_CALL(presetParser, presetCount())
+    EXPECT_CALL(*pPresetParserRaw, presetCount())
             .WillRepeatedly(Return(0));
 
-    EXPECT_CALL(presetParser, preset(_)).Times(0);
+    EXPECT_CALL(*pPresetParserRaw, preset(_)).Times(0);
 
     QCOMPARE(presetHandler->nameList().size(), 0);
 }
 
 void TestPresetHandler::nameList()
 {
-    MockPresetParser presetParser;
-    auto presetHandler = new PresetHandler(&presetParser);
+    auto pPresetParser = std::make_unique<MockPresetParser>();
+    MockPresetParser* pPresetParserRaw = pPresetParser.get();
+    auto presetHandler = std::make_unique<PresetHandler>(std::move(pPresetParser));
 
-    EXPECT_CALL(presetParser, presetCount())
+    EXPECT_CALL(*pPresetParserRaw, presetCount())
             .WillRepeatedly(Return(3));
 
-    EXPECT_CALL(presetParser, preset(_))
+    EXPECT_CALL(*pPresetParserRaw, preset(_))
             .WillRepeatedly(Invoke([](int id) -> PresetParser::Preset {
         PresetParser::Preset p;
         switch(id)

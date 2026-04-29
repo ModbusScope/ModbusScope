@@ -18,10 +18,22 @@ execute_process(
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/util/version.h.in ${CMAKE_CURRENT_SOURCE_DIR}/util/version.h)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../resources/modbusscope.rc.in ${CMAKE_CURRENT_SOURCE_DIR}/../resources/modbusscope.rc)
 
-FILE(GLOB_RECURSE SRCS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/*.h") #all .cpp/.h in current "src" folder and sub folders
-FILE(GLOB_RECURSE UIS "${CMAKE_CURRENT_SOURCE_DIR}/*.ui") #all .ui in current "src" folder and sub folders
+file(GLOB_RECURSE SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/*.h") #all .cpp/.h in current "src" folder and sub folders
+file(GLOB_RECURSE UIS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.ui") #all .ui in current "src" folder and sub folders
 
-qt_add_library (${SCOPESOURCE} STATIC ${SRCS} ${UIS})
+qt_add_library(${SCOPESOURCE} STATIC ${SRCS} ${UIS})
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_definitions(${SCOPESOURCE} PRIVATE DEBUG)
+endif()
+
+target_include_directories(${SCOPESOURCE} PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_include_directories(${SCOPESOURCE} SYSTEM PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/../libraries
+)
 
 # Default GUI type is blank
 set(GUI_TYPE "")
@@ -29,7 +41,7 @@ set(GUI_TYPE "")
 if(WIN32)
     set(GUI_TYPE WIN32)
     set(target_dir "bin/win")
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(target_dir "bin/linux")
 else()
     message(SEND_ERROR "You are on an unsupported platform! (Not Win or Unix)")
@@ -52,11 +64,20 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 # Reset GUI type to blank
 set(GUI_TYPE "")
 
+# Copy adapter binaries next to the main executable so they can be found at runtime
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:modbusadapter>
+        $<TARGET_FILE:dummymodbusadapter>
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMENT "Copying adapter binaries to output directory"
+)
+
 # Do platform specific post target stuff
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
     install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 
 elseif(WIN32)
     # not required
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+endif (CMAKE_SYSTEM_NAME STREQUAL "Linux")

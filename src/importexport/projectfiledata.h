@@ -1,149 +1,111 @@
 #ifndef PROJECTFILEDATA
 #define PROJECTFILEDATA
 
-#include "models/connectiontypes.h"
 #include "models/device.h"
 #include <QColor>
+#include <QJsonObject>
 #include <QList>
 
-namespace ProjectFileData
+namespace ProjectFileData {
+
+typedef struct _AdapterFileSettings
 {
-    typedef struct _RegisterSettings
-    {
-        QString text = QString("");
-        bool bActive = false;
-        ConnectionTypes::connectionId_t connectionId = 0;
+    QString type;         //!< Adapter type identifier, e.g. "modbus"
+    QJsonObject settings; //!< Opaque settings blob passed as-is to the adapter
 
-        QString expression = QString("0");
+} AdapterFileSettings;
 
-        bool bColor = false;
-        QColor color;
+typedef struct _RegisterSettings
+{
+    QString text = QString("");
+    bool bActive = false;
 
-        quint32 valueAxis = 0;
+    QString expression = QString("0");
 
-    } RegisterSettings;
+    bool bColor = false;
+    QColor color;
 
-    typedef struct
-    {
-        QList<RegisterSettings> registerList;
-    } ScopeSettings;
+    quint32 valueAxis = 0;
 
-    typedef struct _XAxisSettings
-    {
-        bool bSliding = false;
-        quint32 slidingInterval = 60;
+} RegisterSettings;
 
-    } XAxisSettings;
+typedef struct
+{
+    QList<RegisterSettings> registerList;
+} ScopeSettings;
 
-    typedef struct _YAxisSettings
-    {
-        bool bWindowScale = false;
+typedef struct _XAxisSettings
+{
+    bool bSliding = false;
+    quint32 slidingInterval = 60;
 
-        bool bMinMax = false;
-        double scaleMin = 0;
-        double scaleMax = 10;
-    } YAxisSettings;
+} XAxisSettings;
 
-    typedef struct _ScaleSettings
-    {
-        XAxisSettings xAxis;
-        YAxisSettings yAxis;
-        YAxisSettings y2Axis;
-    } ScaleSettings;
+typedef struct _YAxisSettings
+{
+    bool bWindowScale = false;
 
-    typedef struct
-    {
-        ScaleSettings scaleSettings;
+    bool bMinMax = false;
+    double scaleMin = 0;
+    double scaleMax = 10;
+} YAxisSettings;
 
-    } ViewSettings;
+typedef struct _ScaleSettings
+{
+    XAxisSettings xAxis;
+    YAxisSettings yAxis;
+    YAxisSettings y2Axis;
+} ScaleSettings;
 
-    typedef struct _LogSettings
-    {
-        bool bPollTime = false;
-        quint32 pollTime;
+typedef struct
+{
+    ScaleSettings scaleSettings;
 
-        bool bAbsoluteTimes = false;
+} ViewSettings;
 
-        bool bLogToFile = true;
-        bool bLogToFileFile = false;
-        QString logFile;
+typedef struct _LogSettings
+{
+    bool bPollTime = false;
+    quint32 pollTime;
 
-    } LogSettings;
+    bool bAbsoluteTimes = false;
 
-    typedef struct _ConnectionSettings
-    {
-        bool bConnectionId = false;
-        ConnectionTypes::connectionId_t connectionId = 0;
+    bool bLogToFile = true;
+    bool bLogToFileFile = false;
+    QString logFile;
 
-        bool bConnectionState = true;
+} LogSettings;
 
-        bool bConnectionType = false;
-        QString connectionType;
+typedef struct _DeviceSettings
+{
+    bool bDeviceId = false;
+    deviceId_t deviceId = Device::cFirstDeviceId;
 
-        bool bIp = false;
-        QString ip;
+    bool bName = false;
+    QString name = QString("");
 
-        bool bPort = false;
-        quint16 port;
+    /* JSON format fields */
+    quint32 adapterId = 0; //!< Index into GeneralSettings::adapterList
+    QString adapterType;   //!< Quick-lookup copy of adapters[adapterId].type
 
-        bool bPortName = false;
-        QString portName;
+} DeviceSettings;
 
-        bool bBaudrate = false;
-        quint32 baudrate;
+typedef struct _GeneralSettings
+{
+    QList<DeviceSettings> deviceSettings;
+    LogSettings logSettings;
 
-        bool bParity = false;
-        quint32 parity = 0;
+    /* JSON format: populated by ProjectFileJsonParser */
+    QList<AdapterFileSettings> adapterList;
 
-        bool bStopbits = false;
-        quint32 stopbits;
+} GeneralSettings;
 
-        bool bDatabits = false;
-        quint32 databits;
-
-        bool bTimeout = false;
-        quint32 timeout;
-
-        bool bPersistentConnection = true;
-
-    } ConnectionSettings;
-
-    typedef struct _DeviceSettings
-    {
-        bool bDeviceId = false;
-        deviceId_t deviceId = Device::cFirstDeviceId;
-
-        bool bName = false;
-        QString name = QString("");
-
-        bool bConnectionId = false;
-        ConnectionTypes::connectionId_t connectionId = 0;
-
-        bool bSlaveId = false;
-        quint8 slaveId;
-
-        bool bConsecutiveMax = false;
-        quint8 consecutiveMax;
-
-        bool bInt32LittleEndian = true;
-
-    } DeviceSettings;
-
-    typedef struct _GeneralSettings
-    {
-        QList<ConnectionSettings> connectionSettings;
-        QList<DeviceSettings> deviceSettings;
-        LogSettings logSettings;
-
-    } GeneralSettings;
-
-    typedef struct
-    {
-        GeneralSettings general;
-        ScopeSettings scope;
-        ViewSettings view;
-    } ProjectSettings;
-}
+typedef struct
+{
+    GeneralSettings general;
+    ScopeSettings scope;
+    ViewSettings view;
+} ProjectSettings;
+} // namespace ProjectFileData
 
 #endif // PROJECTFILEDATA
-

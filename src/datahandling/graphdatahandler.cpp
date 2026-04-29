@@ -9,30 +9,25 @@
 
 /*!
  * \param[in]     pGraphDataModel   Graph data model
- * \param[out]    registerList      List of modbus registers
+ * \param[out]    registerList      List of registers
  */
-void GraphDataHandler::setupExpressions(GraphDataModel* pGraphDataModel, QList<ModbusRegister>& registerList)
+void GraphDataHandler::setupExpressions(GraphDataModel* pGraphDataModel, QList<DataPoint>& registerList)
 {
     QStringList exprList;
-    QList<ModbusRegister> regList;
 
     pGraphDataModel->activeGraphIndexList(&_activeIndexList);
-    for(quint16 graphIdx: std::as_const(_activeIndexList))
+    for (quint16 graphIdx : std::as_const(_activeIndexList))
     {
         exprList.append(pGraphDataModel->expression(graphIdx));
     }
 
     ExpressionParser exprParser(exprList);
-    exprParser.modbusRegisters(regList);
-
-    qCInfo(scopeComm) << "Active registers: " << ModbusRegister::dumpListToString(regList);
-
-    QStringList processedExpList;
-    exprParser.processedExpressions(processedExpList);
+    const QList<DataPoint> regList = exprParser.dataPoints();
+    const QStringList processedExpList = exprParser.processedExpressions();
 
     _valueParsers.clear();
 
-    for(const QString &expr: std::as_const(processedExpList))
+    for (const QString& expr : std::as_const(processedExpList))
     {
         _valueParsers.append(QMuParser(expr));
     }
@@ -90,7 +85,7 @@ void GraphDataHandler::handleRegisterData(ResultDoubleList results)
 
             auto msg = QString("Expression evaluation failed (%1)").arg(parser.msg());
 
-            qCWarning(scopeComm) << msg;
+            qCWarning(scopeComm) << qUtf8Printable(msg);
         }
 
         registerList.append(result);
@@ -98,6 +93,3 @@ void GraphDataHandler::handleRegisterData(ResultDoubleList results)
 
     emit graphDataReady(registerList);
 }
-
-
-

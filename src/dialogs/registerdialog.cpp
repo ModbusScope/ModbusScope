@@ -1,6 +1,7 @@
 
 #include "registerdialog.h"
 
+#include "ProtocolAdapter/adaptermanager.h"
 #include "customwidgets/actionbuttondelegate.h"
 #include "dialogs/addregisterwidget.h"
 #include "dialogs/expressionsdialog.h"
@@ -11,7 +12,10 @@
 
 #include <QColorDialog>
 
-RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel, SettingsModel* pSettingsModel, QWidget* parent)
+RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel,
+                               SettingsModel* pSettingsModel,
+                               AdapterManager* pAdapterManager,
+                               QWidget* parent)
     : QDialog(parent), _pUi(new Ui::RegisterDialog)
 {
     _pUi->setupUi(this);
@@ -21,6 +25,7 @@ RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel, SettingsModel* p
 
     _pGraphDataModel = pGraphDataModel;
     _pSettingsModel = pSettingsModel;
+    _pAdapterManager = pAdapterManager;
 
     // Setup registerView
     _pUi->registerView->setModel(_pGraphDataModel);
@@ -39,7 +44,8 @@ RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel, SettingsModel* p
 
     /* Except following columns */
     _pUi->registerView->horizontalHeader()->setSectionResizeMode(GraphDataModel::column::TEXT, QHeaderView::Stretch);
-    _pUi->registerView->horizontalHeader()->setSectionResizeMode(GraphDataModel::column::EXPRESSION, QHeaderView::Stretch);
+    _pUi->registerView->horizontalHeader()->setSectionResizeMode(GraphDataModel::column::EXPRESSION,
+                                                                 QHeaderView::Stretch);
 
     auto triggers = QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed;
     _pUi->registerView->setEditTriggers(triggers);
@@ -66,12 +72,17 @@ RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel, SettingsModel* p
     connect(_pUi->btnRemove, &QPushButton::released, this, &RegisterDialog::removeRegisterRow);
     connect(_pGraphDataModel, &GraphDataModel::rowsInserted, this, &RegisterDialog::onRegisterInserted);
 
-    auto registerPopupMenu = new AddRegisterWidget(_pSettingsModel, this);
-    connect(registerPopupMenu, &AddRegisterWidget::graphDataConfigured, this, &RegisterDialog::addRegister);
+    const QStringList ids = _pSettingsModel->adapterIds();
+    const QString adapterId = ids.isEmpty() ? QString() : ids.first();
+    if (!adapterId.isEmpty())
+    {
+        auto registerPopupMenu = new AddRegisterWidget(_pSettingsModel, adapterId, _pAdapterManager, this);
+        connect(registerPopupMenu, &AddRegisterWidget::graphDataConfigured, this, &RegisterDialog::addRegister);
 
-    _registerPopupAction = std::make_unique<QWidgetAction>(this);
-    _registerPopupAction->setDefaultWidget(registerPopupMenu);
-    _pUi->btnAdd->addAction(_registerPopupAction.get());
+        _registerPopupAction = std::make_unique<QWidgetAction>(this);
+        _registerPopupAction->setDefaultWidget(registerPopupMenu);
+        _pUi->btnAdd->addAction(_registerPopupAction.get());
+    }
 }
 
 RegisterDialog::~RegisterDialog()
@@ -79,7 +90,7 @@ RegisterDialog::~RegisterDialog()
     delete _pUi;
 }
 
-void RegisterDialog::addRegister(const GraphData &graphData)
+void RegisterDialog::addRegister(const GraphData& graphData)
 {
     _pGraphDataModel->add(graphData);
 }
@@ -91,10 +102,7 @@ void RegisterDialog::addDefaultRegister()
 
 void RegisterDialog::activatedCell(QModelIndex modelIndex)
 {
-    if (
-        (modelIndex.column() == GraphDataModel::column::COLOR)
-        && (modelIndex.row() < _pGraphDataModel->size())
-        )
+    if ((modelIndex.column() == GraphDataModel::column::COLOR) && (modelIndex.row() < _pGraphDataModel->size()))
     {
         QColor color = QColorDialog::getColor(_pGraphDataModel->color(modelIndex.row()));
 
@@ -105,7 +113,7 @@ void RegisterDialog::activatedCell(QModelIndex modelIndex)
     }
 }
 
-void RegisterDialog::onRegisterInserted(const QModelIndex &parent, int first, int last)
+void RegisterDialog::onRegisterInserted(const QModelIndex& parent, int first, int last)
 {
     Q_UNUSED(parent);
     Q_UNUSED(last);
@@ -117,14 +125,14 @@ void RegisterDialog::onRegisterInserted(const QModelIndex &parent, int first, in
 void RegisterDialog::removeRegisterRow()
 {
     // get list of selected rows
-    QItemSelectionModel *selected = _pUi->registerView->selectionModel();
+    QItemSelectionModel* selected = _pUi->registerView->selectionModel();
     QModelIndexList rowList = selected->selectedRows();
 
     // sort QModelIndexList
     // We need to remove the highest rows first
     std::sort(rowList.begin(), rowList.end(), &RegisterDialog::sortRegistersLastFirst);
 
-    foreach(QModelIndex rowIndex, rowList)
+    foreach (QModelIndex rowIndex, rowList)
     {
         _pGraphDataModel->removeRow(rowIndex.row());
     }
@@ -141,7 +149,7 @@ void RegisterDialog::handleExpressionEdit(const QModelIndex& index)
     {
         _pUi->registerView->closePersistentEditor(index);
 
-        ExpressionsDialog exprDialog(_pGraphDataModel, index.row(), this);
+        ExpressionsDialog exprDialog(_pGraphDataModel, index.row(), _pAdapterManager, this);
 
         exprDialog.exec();
     }
@@ -167,7 +175,7 @@ int RegisterDialog::selectedRowAfterDelete(int deletedStartIndex, int rowCnt)
     return nextSelectedRow;
 }
 
-bool RegisterDialog::sortRegistersLastFirst(const QModelIndex &s1, const QModelIndex &s2)
+bool RegisterDialog::sortRegistersLastFirst(const QModelIndex& s1, const QModelIndex& s2)
 {
     return s1.row() > s2.row();
 }

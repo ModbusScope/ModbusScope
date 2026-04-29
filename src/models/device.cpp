@@ -1,16 +1,9 @@
 
 #include "device.h"
 
-using connectionId_t = ConnectionTypes::connectionId_t;
-
 deviceId_t const Device::cFirstDeviceId = 1;
 
-Device::Device(deviceId_t devdId)
-    : _connectionId(0),
-      _name(QString("Device %1").arg(devdId)),
-      _slaveId(1),
-      _consecutiveMax(125),
-      _bInt32LittleEndian(true)
+Device::Device(deviceId_t devdId) : _name(QString("Device %1").arg(devdId)), _adapterId("modbus")
 {
 }
 
@@ -19,47 +12,17 @@ void Device::setName(QString const& name)
     _name = name;
 }
 
-void Device::setConnectionId(connectionId_t connectionId)
-{
-    _connectionId = connectionId;
-}
-
 QString Device::name()
 {
     return _name;
 }
 
-connectionId_t Device::connectionId()
+void Device::setAdapterId(const QString& adapterId)
 {
-    return _connectionId;
+    _adapterId = adapterId;
 }
 
-void Device::setConsecutiveMax(quint8 max)
+QString Device::adapterId() const
 {
-    _consecutiveMax = max;
-}
-
-quint8 Device::consecutiveMax()
-{
-    return _consecutiveMax;
-}
-
-void Device::setInt32LittleEndian(bool int32LittleEndian)
-{
-    _bInt32LittleEndian = int32LittleEndian;
-}
-
-bool Device::int32LittleEndian()
-{
-    return _bInt32LittleEndian;
-}
-
-quint8 Device::slaveId()
-{
-    return _slaveId;
-}
-
-void Device::setSlaveId(quint8 id)
-{
-    _slaveId = id;
+    return _adapterId;
 }

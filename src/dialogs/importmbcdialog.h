@@ -48,17 +48,17 @@ private:
     void handleAcceptUpdate(const QModelIndex& index);
     bool confirmClose();
 
-    Ui::ImportMbcDialog *_pUi;
+    Ui::ImportMbcDialog* _pUi;
 
     CenteredBoxProxyStyle _centeredBoxStyle;
     std::unique_ptr<ActionButtonDelegate> _pUpdateDelegate;
 
-    GuiModel * _pGuiModel;
+    GuiModel* _pGuiModel;
     GraphDataModel* _pGraphDataModel;
     MbcRegisterModel _mbcRegisterModel;
     MbcUpdateModel* _pMbcUpdateModel;
 
-    MbcRegisterFilter * _pTabProxyFilter;
+    MbcRegisterFilter* _pTabProxyFilter;
 };
 
 #endif // IMPORTMBCDIALOG_H

@@ -1,3 +1,5 @@
+#ifndef TST_MBCFILEIMPORTER_H
+#define TST_MBCFILEIMPORTER_H
 
 #include "importexport/mbcregisterdata.h"
 
@@ -16,6 +18,18 @@ private slots:
     void importRegisterOptions();
     void importAutoIncrement();
 
+    void importInvalidXml();
+    void importWrongRootTag();
+    void importMissingName();
+    void importMissingAddress();
+    void importMissingRw();
+    void importWriteOnlyRegister();
+    void importUnknownType();
+    void importMixedReadWriteRegisters();
+    void importEmptyVarTag();
+
 private:
     void verifyRegList(QList <MbcRegisterData> list1, QList <MbcRegisterData> list2);
 };
+
+#endif // TST_MBCFILEIMPORTER_H

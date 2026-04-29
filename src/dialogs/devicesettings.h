@@ -4,12 +4,9 @@
 #include "models/settingsmodel.h"
 #include <QWidget>
 
-// Forward declaration
+// Forward declarations
+class AddableTabWidget;
 class DeviceForm;
-
-namespace Ui {
-class DeviceSettings;
-}
 
 class DeviceSettings : public QWidget
 {
@@ -17,21 +14,17 @@ class DeviceSettings : public QWidget
 
 public:
     explicit DeviceSettings(SettingsModel* pSettingsModel, QWidget* parent = nullptr);
-    ~DeviceSettings();
-
-signals:
-    void settingsTabsSwitched();
 
 private slots:
     void handleAddTab();
-    void handleCloseTab(int index);
+    void handleCloseTab(QWidget* widget);
     void updateTabName(deviceId_t devId);
 
 private:
     DeviceForm* createForm(deviceId_t devId);
     QString constructTabName(deviceId_t devId);
 
-    Ui::DeviceSettings* _pUi;
+    AddableTabWidget* _pDeviceTabs;
     SettingsModel* _pSettingsModel;
 };
 

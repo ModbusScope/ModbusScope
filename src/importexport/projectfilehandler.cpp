@@ -2,8 +2,11 @@
 #include "projectfilehandler.h"
 
 #include "importexport/projectfiledata.h"
-#include "importexport/projectfileexporter.h"
-#include "importexport/projectfileparser.h"
+#include "importexport/projectfilejsonexporter.h"
+#include "importexport/projectfilejsonparser.h"
+#include "importexport/projectfilexmlparser.h"
+#include "models/adapterdata.h"
+#include "models/device.h"
 #include "models/graphdatamodel.h"
 #include "models/guimodel.h"
 #include "models/settingsmodel.h"
@@ -13,9 +16,10 @@
 #include <QFile>
 #include <QFileDialog>
 
-using connectionId_t = ConnectionTypes::connectionId_t;
-
-ProjectFileHandler::ProjectFileHandler(GuiModel* pGuiModel, SettingsModel* pSettingsModel, GraphDataModel* pGraphDataModel) : QObject(nullptr)
+ProjectFileHandler::ProjectFileHandler(GuiModel* pGuiModel,
+                                       SettingsModel* pSettingsModel,
+                                       GraphDataModel* pGraphDataModel)
+    : QObject(nullptr)
 {
     _pGuiModel = pGuiModel;
     _pSettingsModel = pSettingsModel;
@@ -24,7 +28,6 @@ ProjectFileHandler::ProjectFileHandler(GuiModel* pGuiModel, SettingsModel* pSett
 
 void ProjectFileHandler::openProjectFile(QString projectFilePath)
 {
-    ProjectFileParser fileParser;
     ProjectFileData::ProjectSettings loadedSettings;
     QFile file(projectFilePath);
 
@@ -34,9 +37,29 @@ void ProjectFileHandler::openProjectFile(QString projectFilePath)
         QTextStream in(&file);
         QString projectFileContents = in.readAll();
 
-        GeneralError parseErr = fileParser.parseFile(projectFileContents, &loadedSettings);
+        GeneralError parseErr;
+        QString trimmed = projectFileContents.trimmed();
+        if (trimmed.startsWith('{'))
+        {
+            ProjectFileJsonParser jsonParser;
+            parseErr = jsonParser.parseFile(projectFileContents, &loadedSettings);
+        }
+        else if (trimmed.startsWith('<'))
+        {
+            ProjectFileXmlParser xmlParser;
+            parseErr =
+              xmlParser.parseFile(projectFileContents, &loadedSettings, QFileInfo(projectFilePath).absolutePath());
+        }
+        else
+        {
+            parseErr.reportError(tr("The file is not a valid MBS project file."));
+        }
+
         if (parseErr.result())
         {
+            _storedAdapters = loadedSettings.general.adapterList;
+            _storedDevices = loadedSettings.general.deviceSettings;
+
             this->updateProjectSetting(&loadedSettings);
 
             _pGuiModel->setProjectFilePath(projectFilePath);
@@ -56,8 +79,7 @@ void ProjectFileHandler::openProjectFile(QString projectFilePath)
 void ProjectFileHandler::selectProjectSaveFile()
 {
     QFileDialog dialog;
-    FileSelectionHelper::configureFileDialog(&dialog,
-                                             FileSelectionHelper::DIALOG_TYPE_SAVE,
+    FileSelectionHelper::configureFileDialog(&dialog, FileSelectionHelper::DIALOG_TYPE_SAVE,
                                              FileSelectionHelper::FILE_TYPE_MBS);
 
     QString selectedFile = FileSelectionHelper::showDialog(&dialog);
@@ -74,16 +96,17 @@ void ProjectFileHandler::saveProjectFile()
     QString projectFile = _pGuiModel->projectFilePath();
     if (!projectFile.isEmpty())
     {
-        ProjectFileExporter projectFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel);
-        projectFileExporter.exportProjectFile(projectFile);
+        const QList<ProjectFileData::AdapterFileSettings> adapters = buildCurrentAdapters();
+        const QList<ProjectFileData::DeviceSettings> devices = buildCurrentDevices(adapters);
+        ProjectFileJsonExporter projectFileExporter(_pGuiModel, _pSettingsModel, _pGraphDataModel);
+        projectFileExporter.exportProjectFile(projectFile, adapters, devices);
     }
 }
 
 void ProjectFileHandler::selectProjectOpenFile()
 {
     QFileDialog dialog;
-    FileSelectionHelper::configureFileDialog(&dialog,
-                                             FileSelectionHelper::DIALOG_TYPE_OPEN,
+    FileSelectionHelper::configureFileDialog(&dialog, FileSelectionHelper::DIALOG_TYPE_OPEN,
                                              FileSelectionHelper::FILE_TYPE_MBS);
 
     QString selectedFile = FileSelectionHelper::showDialog(&dialog);
@@ -98,189 +121,121 @@ void ProjectFileHandler::reloadProjectFile()
     this->openProjectFile(_pGuiModel->projectFilePath());
 }
 
-void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings * pProjectSettings)
+void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings* pProjectSettings)
 {
-    const int connCnt = pProjectSettings->general.connectionSettings.size();
+    applyAdapterSettings(pProjectSettings->general.adapterList);
+    applyDeviceSettings(pProjectSettings->general.deviceSettings);
+    applyLogSettings(pProjectSettings->general.logSettings);
+    applyViewSettings(pProjectSettings->view);
+    applyGraphData(pProjectSettings->scope);
+}
 
-    for(int idx = 0; idx < connCnt; idx++)
+/*!
+ * \brief Apply loaded adapter settings to SettingsModel so the dialog shows the correct values.
+ * \param adapters Adapter list parsed from the project file.
+ */
+void ProjectFileHandler::applyAdapterSettings(const QList<ProjectFileData::AdapterFileSettings>& adapters)
+{
+    for (const ProjectFileData::AdapterFileSettings& adapter : adapters)
     {
-        connectionId_t connectionId;
+        _pSettingsModel->setAdapterCurrentConfig(adapter.type, adapter.settings);
+    }
+}
 
-        if (pProjectSettings->general.connectionSettings[idx].bConnectionId)
+/*!
+ * \brief Build the adapters list from live SettingsModel state, with fallback to stored data.
+ *
+ * Adapters that have a stored config in SettingsModel (set via the dialog or on load) are
+ * written from the model. Any adapter present in the original file but not in the model is
+ * preserved unchanged to avoid data loss.
+ */
+QList<ProjectFileData::AdapterFileSettings> ProjectFileHandler::buildCurrentAdapters()
+{
+    QList<ProjectFileData::AdapterFileSettings> result;
+    QStringList handledTypes;
+
+    for (const QString& adapterId : _pSettingsModel->adapterIds())
+    {
+        const AdapterData* pAdapter = _pSettingsModel->adapterData(adapterId);
+        if (pAdapter->hasStoredConfig())
         {
-            connectionId = pProjectSettings->general.connectionSettings[idx].connectionId;
-        }
-        else
-        {
-            /* Default to connection 1 */
-            connectionId = ConnectionTypes::ID_1;
-        }
-
-        if (connectionId < ConnectionTypes::ID_CNT)
-        {
-            auto connData = _pSettingsModel->connectionSettings(connectionId);
-
-            _pSettingsModel->setConnectionState(connectionId, pProjectSettings->general.connectionSettings[idx].bConnectionState);
-
-            if (pProjectSettings->general.connectionSettings[idx].bConnectionType
-                && pProjectSettings->general.connectionSettings[idx].connectionType.toLower() == "serial"
-                )
-            {
-                connData->setConnectionType(ConnectionTypes::TYPE_SERIAL);
-            }
-            else
-            {
-                connData->setConnectionType(ConnectionTypes::TYPE_TCP);
-            }
-
-            if (pProjectSettings->general.connectionSettings[idx].bIp)
-            {
-                connData->setIpAddress(pProjectSettings->general.connectionSettings[idx].ip);
-            }
-
-            if (pProjectSettings->general.connectionSettings[idx].bPort)
-            {
-                connData->setPort(pProjectSettings->general.connectionSettings[idx].port);
-            }
-
-            if (pProjectSettings->general.connectionSettings[idx].bPortName)
-            {
-                connData->setPortName(pProjectSettings->general.connectionSettings[idx].portName);
-            }
-
-            const quint32 detectedBaud = pProjectSettings->general.connectionSettings[idx].baudrate;
-            if (pProjectSettings->general.connectionSettings[idx].bBaudrate)
-            {
-                if (
-                    detectedBaud == QSerialPort::Baud1200
-                    || detectedBaud == QSerialPort::Baud2400
-                    || detectedBaud == QSerialPort::Baud4800
-                    || detectedBaud == QSerialPort::Baud9600
-                    || detectedBaud == QSerialPort::Baud19200
-                    || detectedBaud == QSerialPort::Baud38400
-                    || detectedBaud == QSerialPort::Baud57600
-                    || detectedBaud == QSerialPort::Baud115200
-                )
-                {
-                    connData->setBaudrate(static_cast<QSerialPort::BaudRate>(detectedBaud));
-                }
-            }
-
-            const quint32 detectedParity = pProjectSettings->general.connectionSettings[idx].parity;
-            if (pProjectSettings->general.connectionSettings[idx].bParity)
-            {
-                if (
-                    detectedParity == QSerialPort::NoParity
-                    || detectedParity == QSerialPort::EvenParity
-                    || detectedParity == QSerialPort::OddParity
-                )
-                {
-                    connData->setParity(static_cast<QSerialPort::Parity>(detectedParity));
-                }
-            }
-
-            const quint32 detectedStopBits = pProjectSettings->general.connectionSettings[idx].stopbits;
-            if (pProjectSettings->general.connectionSettings[idx].bStopbits)
-            {
-                if (
-                    detectedStopBits == QSerialPort::OneStop
-                    || detectedStopBits == QSerialPort::OneAndHalfStop
-                    || detectedStopBits == QSerialPort::TwoStop
-                )
-                {
-                    connData->setStopbits(static_cast<QSerialPort::StopBits>(detectedStopBits));
-                }
-            }
-
-            const quint32 detectedDataBits = pProjectSettings->general.connectionSettings[idx].databits;
-            if (pProjectSettings->general.connectionSettings[idx].bDatabits)
-            {
-                if (
-                    detectedDataBits == QSerialPort::Data5
-                    || detectedDataBits == QSerialPort::Data6
-                    || detectedDataBits == QSerialPort::Data7
-                    || detectedDataBits == QSerialPort::Data8
-                )
-                {
-                    connData->setDatabits(static_cast<QSerialPort::DataBits>(detectedDataBits));
-                }
-            }
-
-            if (pProjectSettings->general.connectionSettings[idx].bTimeout)
-            {
-                connData->setTimeout(pProjectSettings->general.connectionSettings[idx].timeout);
-            }
-
-            connData->setPersistentConnection(pProjectSettings->general.connectionSettings[idx].bPersistentConnection);
+            ProjectFileData::AdapterFileSettings settings;
+            settings.type = adapterId;
+            settings.settings = pAdapter->currentConfig();
+            result.append(settings);
+            handledTypes.append(adapterId);
         }
     }
 
-    _pSettingsModel->removeAllDevice();
-
-    const int deviceCnt = pProjectSettings->general.deviceSettings.size();
-    if (deviceCnt == 0)
+    for (const ProjectFileData::AdapterFileSettings& stored : _storedAdapters)
     {
-        deviceId_t deviceId = Device::cFirstDeviceId; /* Default to first device */
-        _pSettingsModel->addDevice(deviceId);
+        if (!handledTypes.contains(stored.type))
+        {
+            result.append(stored);
+        }
     }
 
-    for (int idx = 0; idx < deviceCnt; idx++)
+    return result;
+}
+
+/*!
+ * \brief Build the generic devices list from live SettingsModel state.
+ * \param adapters The adapters list (used to compute the numeric adapterId index).
+ */
+QList<ProjectFileData::DeviceSettings> ProjectFileHandler::buildCurrentDevices(
+  const QList<ProjectFileData::AdapterFileSettings>& adapters)
+{
+    QList<ProjectFileData::DeviceSettings> result;
+
+    for (const deviceId_t devId : _pSettingsModel->deviceList())
     {
-        deviceId_t deviceId = Device::cFirstDeviceId; /* Default to first device */
-
-        if (pProjectSettings->general.deviceSettings[idx].bDeviceId)
+        Device* pDev = _pSettingsModel->deviceSettings(devId);
+        ProjectFileData::DeviceSettings ds;
+        ds.bDeviceId = true;
+        ds.deviceId = devId;
+        ds.bName = true;
+        ds.name = pDev->name();
+        ds.adapterType = pDev->adapterId();
+        ds.adapterId = 0;
+        for (int i = 0; i < adapters.size(); ++i)
         {
-            deviceId = pProjectSettings->general.deviceSettings[idx].deviceId;
+            if (adapters[i].type == ds.adapterType)
+            {
+                ds.adapterId = static_cast<quint32>(i);
+                break;
+            }
         }
-        _pSettingsModel->addDevice(deviceId);
-
-        auto deviceData = _pSettingsModel->deviceSettings(deviceId);
-
-        connectionId_t connectionId = ConnectionTypes::ID_1; /* Default to connection 1 */
-        if (pProjectSettings->general.deviceSettings[idx].bConnectionId)
-        {
-            connectionId = pProjectSettings->general.deviceSettings[idx].connectionId;
-        }
-        deviceData->setConnectionId(connectionId);
-
-        if (pProjectSettings->general.deviceSettings[idx].bName)
-        {
-            deviceData->setName(pProjectSettings->general.deviceSettings[idx].name);
-        }
-
-        if (pProjectSettings->general.deviceSettings[idx].bSlaveId)
-        {
-            deviceData->setSlaveId(pProjectSettings->general.deviceSettings[idx].slaveId);
-        }
-
-        if (pProjectSettings->general.deviceSettings[idx].bConsecutiveMax)
-        {
-            deviceData->setConsecutiveMax(pProjectSettings->general.deviceSettings[idx].consecutiveMax);
-        }
-
-        deviceData->setInt32LittleEndian(pProjectSettings->general.deviceSettings[idx].bInt32LittleEndian);
+        result.append(ds);
     }
 
-    if (pProjectSettings->general.logSettings.bPollTime)
+    return result;
+}
+
+void ProjectFileHandler::applyLogSettings(const ProjectFileData::LogSettings& logSettings)
+{
+    if (logSettings.bPollTime)
     {
-        _pSettingsModel->setPollTime(pProjectSettings->general.logSettings.pollTime);
+        _pSettingsModel->setPollTime(logSettings.pollTime);
     }
 
-    _pSettingsModel->setAbsoluteTimes(pProjectSettings->general.logSettings.bAbsoluteTimes);
+    _pSettingsModel->setAbsoluteTimes(logSettings.bAbsoluteTimes);
 
-    _pSettingsModel->setWriteDuringLog(pProjectSettings->general.logSettings.bLogToFile);
-    if (pProjectSettings->general.logSettings.bLogToFileFile)
+    _pSettingsModel->setWriteDuringLog(logSettings.bLogToFile);
+    if (logSettings.bLogToFileFile)
     {
-        _pSettingsModel->setWriteDuringLogFile(pProjectSettings->general.logSettings.logFile);
+        _pSettingsModel->setWriteDuringLogFile(logSettings.logFile);
     }
     else
     {
-         _pSettingsModel->setWriteDuringLogFileToDefault();
+        _pSettingsModel->setWriteDuringLogFileToDefault();
     }
+}
 
-    if (pProjectSettings->view.scaleSettings.xAxis.bSliding)
+void ProjectFileHandler::applyViewSettings(const ProjectFileData::ViewSettings& viewSettings)
+{
+    if (viewSettings.scaleSettings.xAxis.bSliding)
     {
-        _pGuiModel->setxAxisSlidingInterval(static_cast<qint32>(pProjectSettings->view.scaleSettings.xAxis.slidingInterval));
+        _pGuiModel->setxAxisSlidingInterval(static_cast<qint32>(viewSettings.scaleSettings.xAxis.slidingInterval));
         _pGuiModel->setxAxisScale(AxisMode::SCALE_SLIDING);
     }
     else
@@ -288,13 +243,13 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
         _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
     }
 
-    if (pProjectSettings->view.scaleSettings.yAxis.bMinMax)
+    if (viewSettings.scaleSettings.yAxis.bMinMax)
     {
-        _pGuiModel->setyAxisMin(pProjectSettings->view.scaleSettings.yAxis.scaleMin);
-        _pGuiModel->setyAxisMax(pProjectSettings->view.scaleSettings.yAxis.scaleMax);
+        _pGuiModel->setyAxisMin(viewSettings.scaleSettings.yAxis.scaleMin);
+        _pGuiModel->setyAxisMax(viewSettings.scaleSettings.yAxis.scaleMax);
         _pGuiModel->setyAxisScale(AxisMode::SCALE_MINMAX);
     }
-    else if (pProjectSettings->view.scaleSettings.yAxis.bWindowScale)
+    else if (viewSettings.scaleSettings.yAxis.bWindowScale)
     {
         _pGuiModel->setyAxisScale(AxisMode::SCALE_WINDOW_AUTO);
     }
@@ -303,13 +258,13 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
         _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
     }
 
-    if (pProjectSettings->view.scaleSettings.y2Axis.bMinMax)
+    if (viewSettings.scaleSettings.y2Axis.bMinMax)
     {
-        _pGuiModel->sety2AxisMin(pProjectSettings->view.scaleSettings.y2Axis.scaleMin);
-        _pGuiModel->sety2AxisMax(pProjectSettings->view.scaleSettings.y2Axis.scaleMax);
+        _pGuiModel->sety2AxisMin(viewSettings.scaleSettings.y2Axis.scaleMin);
+        _pGuiModel->sety2AxisMax(viewSettings.scaleSettings.y2Axis.scaleMax);
         _pGuiModel->sety2AxisScale(AxisMode::SCALE_MINMAX);
     }
-    else if (pProjectSettings->view.scaleSettings.y2Axis.bWindowScale)
+    else if (viewSettings.scaleSettings.y2Axis.bWindowScale)
     {
         _pGuiModel->sety2AxisScale(AxisMode::SCALE_WINDOW_AUTO);
     }
@@ -317,17 +272,49 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings *
     {
         _pGuiModel->sety2AxisScale(AxisMode::SCALE_AUTO);
     }
+}
 
+void ProjectFileHandler::applyDeviceSettings(const QList<ProjectFileData::DeviceSettings>& deviceSettings)
+{
+    _pSettingsModel->removeAllDevice();
+
+    if (deviceSettings.isEmpty())
+    {
+        return;
+    }
+
+    for (const ProjectFileData::DeviceSettings& devSettings : deviceSettings)
+    {
+        if (!devSettings.bDeviceId)
+        {
+            continue;
+        }
+
+        const QString adapterId = devSettings.adapterType.isEmpty() ? QString("modbus") : devSettings.adapterType;
+
+        _pSettingsModel->addDevice(devSettings.deviceId);
+        Device* pDev = _pSettingsModel->deviceSettings(devSettings.deviceId);
+        if (devSettings.bName)
+        {
+            pDev->setName(devSettings.name);
+        }
+        pDev->setAdapterId(adapterId);
+    }
+}
+
+void ProjectFileHandler::applyGraphData(const ProjectFileData::ScopeSettings& scopeSettings)
+{
     _pGraphDataModel->clear();
-    for (qint32 i = 0; i < pProjectSettings->scope.registerList.size(); i++)
+    for (qint32 i = 0; i < scopeSettings.registerList.size(); i++)
     {
         GraphData rowData;
-        ProjectFileData::RegisterSettings const* const pSettingData = &pProjectSettings->scope.registerList[i];
+        ProjectFileData::RegisterSettings const* const pSettingData = &scopeSettings.registerList[i];
 
         rowData.setActive(pSettingData->bActive);
         rowData.setLabel(pSettingData->text);
         rowData.setColor(pSettingData->color);
-        rowData.setValueAxis(pSettingData->valueAxis == 1 ? GraphData::VALUE_AXIS_SECONDARY : GraphData::VALUE_AXIS_PRIMARY);
+        rowData.setValueAxis(pSettingData->valueAxis == 1 ? GraphData::VALUE_AXIS_SECONDARY
+                                                          : GraphData::VALUE_AXIS_PRIMARY);
         rowData.setExpression(pSettingData->expression);
 
         _pGraphDataModel->add(rowData);

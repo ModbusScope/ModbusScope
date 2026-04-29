@@ -3,7 +3,7 @@
 		<Width>820</Width>
 		<Height>600</Height>
 	</Size>
-	
+
 	<Modbus>
 		<Port>COM3</Port>
 		<Baudrate>9600</Baudrate>
@@ -18,7 +18,7 @@
 		<ShowType>true</ShowType>
 		<ShowReadwrite>true</ShowReadwrite>
 	</Modbus>
-	
+
 	<modbustcpserver>
 		<enable>true</enable>
 		<port>502</port>
@@ -43,5 +43,5 @@
         <var><reg>40010</reg><text>Signed data</text><type>int16</type><rw>r</rw></var>
         <var><reg>40011</reg><text>Large signed data</text><type>int32</type><rw>r</rw></var>
     </tab>
-	
+
 </modbuscontrol>

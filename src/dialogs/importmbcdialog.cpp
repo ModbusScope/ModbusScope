@@ -14,14 +14,20 @@
 
 #include <QFileDialog>
 
+/*!
+ * \brief Constructs the ImportMbcDialog.
+ * \param pGuiModel Used to read/write the last imported MBC file path.
+ * \param pGraphDatamodel Used to detect update suggestions and to add new registers.
+ * \param parent Parent widget.
+ */
 ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel, GraphDataModel* pGraphDatamodel, QWidget* parent)
     : QDialog(parent), _pUi(new Ui::ImportMbcDialog), _pGuiModel(pGuiModel), _pGraphDataModel(pGraphDatamodel)
 {
     _pUi->setupUi(this);
 
-    _pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel);
+    _pMbcUpdateModel = new MbcUpdateModel(_pGraphDataModel, this);
 
-    _pTabProxyFilter = new MbcRegisterFilter();
+    _pTabProxyFilter = new MbcRegisterFilter(this);
     _pTabProxyFilter->setSourceModel(&_mbcRegisterModel);
 
     /* Disable question mark button */
@@ -63,7 +69,7 @@ ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel, GraphDataModel* pGraphData
 
     _pUi->tblMbcUpdate->setFocusPolicy(Qt::NoFocus);
 
-    _pUpdateDelegate = std::make_unique<ActionButtonDelegate>(_pUi->tblMbcUpdate);
+    _pUpdateDelegate = std::make_unique<ActionButtonDelegate>();
     _pUpdateDelegate->setCharacter(QChar(0x2190));
     connect(_pUpdateDelegate.get(), &ActionButtonDelegate::clicked, this, &ImportMbcDialog::handleAcceptUpdate);
 
@@ -85,6 +91,10 @@ ImportMbcDialog::~ImportMbcDialog()
     delete _pUi;
 }
 
+/*!
+ * \brief Opens the dialog, auto-loading the last imported file when available.
+ * \return QDialog::exec() return value.
+ */
 int ImportMbcDialog::exec()
 {
     QString filePath = _pGuiModel->lastMbcImportedFile();
@@ -142,7 +152,7 @@ void ImportMbcDialog::importSelectedRegisters()
         _pGraphDataModel->add(regList);
     }
 
-    setSelectedSelectionstate(Qt::Unchecked);
+    _mbcRegisterModel.clearAllSelections();
 }
 
 void ImportMbcDialog::visibleItemsDataChanged()
@@ -223,7 +233,13 @@ void ImportMbcDialog::dragEnterEvent(QDragEnterEvent* e)
 
 void ImportMbcDialog::dropEvent(QDropEvent* e)
 {
-    const QString filename(e->mimeData()->urls().last().toLocalFile());
+    const QList<QUrl> urls = e->mimeData()->urls();
+    if (urls.isEmpty())
+    {
+        return;
+    }
+
+    const QString filename(urls.constLast().toLocalFile());
 
     _pUi->lineMbcfile->setText(filename);
     _pGuiModel->setLastMbcImportedFile(filename);
@@ -277,17 +293,22 @@ void ImportMbcDialog::updateMbcRegisters(QString filePath)
 
         /* Clear data from table widget */
         _mbcRegisterModel.reset();
+        _pMbcUpdateModel->setMbcRegisters(QList<MbcRegisterData>());
+        _pUi->cmbTabFilter->clear();
+        _pUi->cmbTabFilter->addItem(MbcRegisterFilter::cTabNoFilter);
         registerDataChanged();
 
-        if (registerList.size() > 0)
+        if (!registerList.isEmpty())
         {
             _mbcRegisterModel.fill(registerList, tabList);
             _pMbcUpdateModel->setMbcRegisters(registerList);
 
             /* Update combo box */
-            _pUi->cmbTabFilter->clear();
-            _pUi->cmbTabFilter->addItem(MbcRegisterFilter::cTabNoFilter);
             _pUi->cmbTabFilter->addItems(tabList);
+        }
+        else if (!fileImporter.lastErrorMessage().isEmpty())
+        {
+            Util::showError(fileImporter.lastErrorMessage());
         }
     }
     else

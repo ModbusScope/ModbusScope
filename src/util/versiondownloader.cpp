@@ -1,12 +1,15 @@
 #include "versiondownloader.h"
 
-#include <QUrl>
+#include "util/util.h"
+#include "util/version.h"
 #include <QByteArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QSysInfo>
+#include <QUrl>
+#include <QUrlQuery>
 
-VersionDownloader::VersionDownloader(QObject *parent) :
-    QObject(parent)
+VersionDownloader::VersionDownloader(QObject* parent) : QObject(parent)
 {
     connect(&_webCtrl, &QNetworkAccessManager::finished, this, &VersionDownloader::updateManifestDownloaded);
 }
@@ -17,7 +20,17 @@ VersionDownloader::~VersionDownloader()
 
 void VersionDownloader::performCheck()
 {
-    auto versionManifest = QUrl("https://api.github.com/repos/ModbusScope/ModbusScope/releases/latest");
+    QString versionString = Util::currentVersion();
+#ifdef DEBUG
+    versionString += QString("-%1-%2").arg(GIT_BRANCH, GIT_COMMIT_HASH);
+#endif
+
+    QUrlQuery query;
+    query.addQueryItem("v", versionString);
+    query.addQueryItem("os", QSysInfo::kernelType());
+
+    QUrl versionManifest("https://modbusscope.jensgeudens.workers.dev");
+    versionManifest.setQuery(query);
 
     _webCtrl.get(QNetworkRequest(versionManifest));
 }

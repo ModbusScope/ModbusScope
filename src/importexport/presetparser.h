@@ -2,9 +2,10 @@
 #define PRESETPARSER_H
 
 #include <QObject>
-#include <QMessageBox>
 #include <QDomDocument>
-#include <QDateTime>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 class PresetParser : public QObject
 {
@@ -44,7 +45,9 @@ public slots:
 
 private:
 
-    bool parsePresetTag(const QDomElement &element, Preset *pPreset);
+    bool parsePresetTag(const QDomElement& element, Preset* pPreset);
+    void parsePresetsFromJson(const QString& fileContent);
+    bool parsePresetFromJson(const QJsonObject& obj, Preset* pPreset);
 
     QList<PresetParser::Preset> _presetList;
 

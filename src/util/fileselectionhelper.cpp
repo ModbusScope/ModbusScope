@@ -7,9 +7,8 @@
 
 GuiModel* FileSelectionHelper::_pGuiModel;
 
-FileSelectionHelper::FileSelectionHelper(QObject *parent) : QObject(parent)
+FileSelectionHelper::FileSelectionHelper(QObject* parent) : QObject(parent)
 {
-
 }
 
 void FileSelectionHelper::configureFileDialog(QFileDialog* pDialog, DialogType dialogType, FileType fileType)
@@ -102,8 +101,6 @@ void FileSelectionHelper::configureFileType(QFileDialog* pDialog, FileType fileT
         break;
 
     case FILE_TYPE_NONE:
-        break;
-
     default:
         break;
     }

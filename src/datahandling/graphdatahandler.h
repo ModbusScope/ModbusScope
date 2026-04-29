@@ -1,11 +1,11 @@
 #ifndef GRAPHDATAHANDLER_H
 #define GRAPHDATAHANDLER_H
 
-#include "communication/modbusregister.h"
+#include "communication/datapoint.h"
 #include "datahandling/qmuparser.h"
 #include "util/result.h"
 
-//Forward declaration
+// Forward declaration
 class GraphDataModel;
 
 class GraphDataHandler : public QObject
@@ -14,7 +14,7 @@ class GraphDataHandler : public QObject
 public:
     GraphDataHandler() = default;
 
-    void setupExpressions(GraphDataModel* pGraphDataModel, QList<ModbusRegister>& registerList);
+    void setupExpressions(GraphDataModel* pGraphDataModel, QList<DataPoint>& registerList);
 
     QString expressionParseMsg(qint32 exprIdx) const;
     qint32 expressionErrorPos(qint32 exprIdx) const;
@@ -27,7 +27,6 @@ signals:
     void graphDataReady(ResultDoubleList resultList);
 
 private:
-
     QList<quint16> _activeIndexList;
     QList<QMuParser> _valueParsers;
 };

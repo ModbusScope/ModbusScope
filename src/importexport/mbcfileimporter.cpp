@@ -1,21 +1,40 @@
 #include "mbcfileimporter.h"
 
 #include "importexport/mbcregisterdata.h"
-#include "util/util.h"
 
-MbcFileImporter::MbcFileImporter(QString * pMbcFileContent) : QObject(nullptr)
+#include <limits>
+
+/*!
+ * \brief Constructs the importer and immediately parses the given MBC file content.
+ * \param pMbcFileContent Pointer to the XML string read from the .mbc file.
+ */
+MbcFileImporter::MbcFileImporter(QString* pMbcFileContent) : QObject(nullptr)
 {
     parseRegisters(pMbcFileContent);
 }
 
-QList <MbcRegisterData> MbcFileImporter::registerList()
+/*!
+ * \brief Returns the list of parsed register definitions.
+ */
+QList<MbcRegisterData> MbcFileImporter::registerList()
 {
     return _registerList;
 }
 
+/*!
+ * \brief Returns the list of tab names found in the MBC file.
+ */
 QStringList MbcFileImporter::tabList()
 {
     return _tabList;
+}
+
+/*!
+ * \brief Returns the error message from the last parse attempt, or an empty string on success.
+ */
+QString MbcFileImporter::lastErrorMessage()
+{
+    return _lastErrorMessage;
 }
 
 void MbcFileImporter::parseRegisters(QString* pMbcFileContent)
@@ -25,6 +44,7 @@ void MbcFileImporter::parseRegisters(QString* pMbcFileContent)
     /* Clear register and tab list */
     _registerList.clear();
     _tabList.clear();
+    _lastErrorMessage.clear();
 
     QDomDocument domDocument;
     QDomDocument::ParseResult result =
@@ -55,16 +75,16 @@ void MbcFileImporter::parseRegisters(QString* pMbcFileContent)
         }
         else
         {
-            Util::showError(tr("The file is not a valid ModbusControl project file."));
+            _lastErrorMessage = tr("The file is not a valid ModbusControl project file.");
             bRet = false;
         }
     }
     else
     {
-        Util::showError(tr("Parse error at line %1, column %2:\n%3")
-                          .arg(result.errorLine)
-                          .arg(result.errorColumn)
-                          .arg(result.errorMessage));
+        _lastErrorMessage = tr("Parse error at line %1, column %2:\n%3")
+                              .arg(result.errorLine)
+                              .arg(result.errorColumn)
+                              .arg(result.errorMessage);
         bRet = false;
     }
 
@@ -75,7 +95,7 @@ void MbcFileImporter::parseRegisters(QString* pMbcFileContent)
     }
 }
 
-bool MbcFileImporter::parseTabTag(const QDomElement &element)
+bool MbcFileImporter::parseTabTag(const QDomElement& element)
 {
     bool bRet = true;
     bool bFoundName = false;
@@ -102,7 +122,7 @@ bool MbcFileImporter::parseTabTag(const QDomElement &element)
             }
             else
             {
-                Util::showError(tr("No name tag in tab tag"));
+                _lastErrorMessage = tr("No name tag in tab tag");
                 bRet = false;
                 break;
             }
@@ -117,7 +137,7 @@ bool MbcFileImporter::parseTabTag(const QDomElement &element)
     return bRet;
 }
 
-bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
+bool MbcFileImporter::parseVarTag(const QDomElement& element, qint32 tabIdx)
 {
     bool bRet = true;
 
@@ -148,11 +168,11 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
         }
         else if (child.tagName().toLower().trimmed() == MbcFileDefinitions::cReadWrite)
         {
-             rw = child.text().toLower().trimmed();
+            rw = child.text().toLower().trimmed();
         }
         else if (child.tagName().toLower().trimmed() == MbcFileDefinitions::cDecimals)
         {
-             decimals = child.text();
+            decimals = child.text();
         }
         else
         {
@@ -162,13 +182,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
     }
 
     /* Check for empty tag or unsupported 32 bit register */
-    if (
-            !name.isEmpty()
-            || !addr.isEmpty()
-            || !strType.isEmpty()
-            || !rw.isEmpty()
-            || !decimals.isEmpty()
-    )
+    if (!name.isEmpty() || !addr.isEmpty() || !strType.isEmpty() || !rw.isEmpty() || !decimals.isEmpty())
     {
         /* Obligated */
         if (name.isEmpty())
@@ -242,7 +256,15 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
         {
             if (!decimals.isEmpty())
             {
-                modbusRegister.setDecimals(static_cast<quint16>(decimals.toUInt(&bRet)));
+                const auto parsedDecimals = decimals.toUInt(&bRet);
+                if (bRet && parsedDecimals <= std::numeric_limits<quint8>::max())
+                {
+                    modbusRegister.setDecimals(static_cast<quint8>(parsedDecimals));
+                }
+                else
+                {
+                    bRet = false;
+                }
             }
         }
 
@@ -252,7 +274,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
             _registerList.append(modbusRegister);
 
             if (ModbusDataType::is32Bit(modbusRegister.type()))
-            {               
+            {
                 /* Increment address with 2 */
                 _nextRegisterAddr = static_cast<qint32>(modbusRegister.registerAddress()) + 2;
             }
@@ -264,11 +286,11 @@ bool MbcFileImporter::parseVarTag(const QDomElement &element, qint32 tabIdx)
         }
         else
         {
-            Util::showError(tr("A tag is not present or value is not valid.\n\nName: %1\nRegister address: %2\nType: %3\nDecimals: %4")
-                                .arg(name, addr, strType, decimals)
-                            );
+            _lastErrorMessage =
+              tr(
+                "A tag is not present or value is not valid.\n\nName: %1\nRegister address: %2\nType: %3\nDecimals: %4")
+                .arg(name, addr, strType, decimals);
         }
-
     }
     else
     {

@@ -1,6 +1,5 @@
-
-#ifndef TEST_MBCUPDATEMODEL_H__
-#define TEST_MBCUPDATEMODEL_H__
+#ifndef TEST_MBCUPDATEMODEL_H
+#define TEST_MBCUPDATEMODEL_H
 
 #include <QObject>
 
@@ -21,9 +20,20 @@ private slots:
     void updateText();
     void updateExpression();
 
+    void columnCount();
+    void userRoleHiddenWhenNoUpdate();
+    void userRoleVisibleWhenUpdatePresent();
+    void flagsNoUpdateIsDisabled();
+    void flagsWithUpdateIsEnabled();
+    void rowCountTracksGraphModel();
+    void setMbcRegistersTriggersCheck();
+    void updateTextToolTip();
+    void updateExpressionToolTip();
+    void displayColumnsCurrentValues();
+
 private:
     SettingsModel* _pSettingsModel;
     GraphDataModel* _pGraphDataModel;
 };
 
-#endif /* TEST_MBCUPDATEMODEL_H__ */
+#endif /* TEST_MBCUPDATEMODEL_H */

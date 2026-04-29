@@ -14,7 +14,7 @@ class MainWindow;
 }
 
 // Forward declaration
-class ModbusPoll;
+class AdapterPoll;
 class GraphDataHandler;
 class QCustomPlot;
 class GraphDataModel;
@@ -40,10 +40,14 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QStringList cmdArguments, GuiModel *pGuiModel, SettingsModel *pSettingsModel,
-                        GraphDataModel *pGraphDataModel, NoteModel *pNoteModel,
-                        DiagnosticModel *pDiagnosticModel,
-                        DataParserModel *pDataParserModel, QWidget *parent = nullptr);
+    explicit MainWindow(QStringList cmdArguments,
+                        GuiModel* pGuiModel,
+                        SettingsModel* pSettingsModel,
+                        GraphDataModel* pGraphDataModel,
+                        NoteModel* pNoteModel,
+                        DiagnosticModel* pDiagnosticModel,
+                        DataParserModel* pDataParserModel,
+                        QWidget* parent = nullptr);
     ~MainWindow();
 
 protected:
@@ -91,47 +95,47 @@ private slots:
     void scaleWidgetUndocked(bool bFloat);
     void legendWidgetUndocked(bool bFloat);
     void showContextMenu(const QPoint& pos);
-    void dragEnterEvent(QDragEnterEvent *e);
-    void dropEvent(QDropEvent *e);
-    void appFocusChanged(QWidget *old, QWidget *now);
+    void dragEnterEvent(QDragEnterEvent* e);
+    void dropEvent(QDropEvent* e);
+    void appFocusChanged(QWidget* old, QWidget* now);
     void updateDataFileNotes();
 
     void showVersionUpdate(UpdateNotify::UpdateState result);
 
 private:
     void setAxisToAuto();
-    void showRegisterDialog(QString mbcFile);
+    void showRegisterDialog();
     void handleCommandLineArguments(QStringList cmdArguments);
     void handleFileOpen(QString filename);
 
-    Ui::MainWindow * _pUi;
-    ModbusPoll * _pModbusPoll;
-    GraphView * _pGraphView;
+    Ui::MainWindow* _pUi;
+    AdapterPoll* _pAdapterPoll;
+    GraphView* _pGraphView;
 
-    GuiModel * _pGuiModel;
-    SettingsModel * _pSettingsModel;
-    GraphDataModel * _pGraphDataModel;
-    NoteModel * _pNoteModel;
-    DiagnosticModel * _pDiagnosticModel;
-    DataParserModel * _pDataParserModel;
+    GuiModel* _pGuiModel;
+    SettingsModel* _pSettingsModel;
+    GraphDataModel* _pGraphDataModel;
+    NoteModel* _pNoteModel;
+    DiagnosticModel* _pDiagnosticModel;
+    DataParserModel* _pDataParserModel;
 
     UpdateNotify* _pUpdateNotify;
     GraphDataHandler* _pGraphDataHandler;
     ExpressionStatus* _pExpressionStatus;
     CommunicationStats* _pCommunicationStats;
 
-    DiagnosticDialog * _pDiagnosticDialog;
+    DiagnosticDialog* _pDiagnosticDialog;
 
     DataFileHandler* _pDataFileHandler;
     ProjectFileHandler* _pProjectFileHandler;
 
-    NotesDock * _pNotesDock;
-    MarkerInfo * _pMarkerInfo;
-    Legend * _pLegend;
-    StatusBar * _pStatusBar;
+    NotesDock* _pNotesDock;
+    MarkerInfo* _pMarkerInfo;
+    Legend* _pLegend;
+    StatusBar* _pStatusBar;
 
     QMenu _menuRightClick;
-    QMenu * _pGraphShowHide;
+    QMenu* _pGraphShowHide;
 
     MostRecentMenu* _pMostRecentMenu;
     RecentFileModule _recentFileModule;

@@ -1,4 +1,3 @@
-
 #include "tst_mbcregisterfilter.h"
 
 #include "models/mbcregisterfilter.h"
@@ -77,6 +76,65 @@ void TestMbcRegisterFilter::tabTextFilter()
     QVERIFY(_pFilterProxy->filterAcceptsRow(1, QModelIndex()));
     QVERIFY(_pFilterProxy->filterAcceptsRow(2, QModelIndex()) == false);
     QVERIFY(_pFilterProxy->filterAcceptsRow(3, QModelIndex()) == false);
+}
+
+void TestMbcRegisterFilter::tabNoFilterShowsAll()
+{
+    // Explicitly setting the "No Filter" value should show all rows regardless of tab
+    _pFilterProxy->setTab(MbcRegisterFilter::cTabNoFilter);
+
+    QVERIFY(_pFilterProxy->filterAcceptsRow(0, QModelIndex()));
+    QVERIFY(_pFilterProxy->filterAcceptsRow(1, QModelIndex()));
+    QVERIFY(_pFilterProxy->filterAcceptsRow(2, QModelIndex()));
+    QVERIFY(_pFilterProxy->filterAcceptsRow(3, QModelIndex()));
+}
+
+void TestMbcRegisterFilter::tabFilterHidesOtherTabs()
+{
+    _pFilterProxy->setTab("tab2");
+
+    QVERIFY(_pFilterProxy->filterAcceptsRow(0, QModelIndex()) == false);
+    QVERIFY(_pFilterProxy->filterAcceptsRow(1, QModelIndex()) == false);
+    QVERIFY(_pFilterProxy->filterAcceptsRow(2, QModelIndex()));
+    QVERIFY(_pFilterProxy->filterAcceptsRow(3, QModelIndex()));
+}
+
+void TestMbcRegisterFilter::textFilterCaseInsensitive()
+{
+    // Filter is case-insensitive — "test1" should match "Test1"
+    _pFilterProxy->setTextFilter("test1");
+
+    QVERIFY(_pFilterProxy->filterAcceptsRow(0, QModelIndex()));
+    QVERIFY(_pFilterProxy->filterAcceptsRow(1, QModelIndex()) == false);
+    QVERIFY(_pFilterProxy->filterAcceptsRow(2, QModelIndex()) == false);
+    QVERIFY(_pFilterProxy->filterAcceptsRow(3, QModelIndex()) == false);
+}
+
+void TestMbcRegisterFilter::addressFilterPartialMatch()
+{
+    // Partial address match — "400" should match 40001 and 40002 but not 41002/41003
+    _pFilterProxy->setTextFilter("400");
+
+    QVERIFY(_pFilterProxy->filterAcceptsRow(0, QModelIndex()));
+    QVERIFY(_pFilterProxy->filterAcceptsRow(1, QModelIndex()));
+    QVERIFY(_pFilterProxy->filterAcceptsRow(2, QModelIndex()) == false);
+    QVERIFY(_pFilterProxy->filterAcceptsRow(3, QModelIndex()) == false);
+}
+
+void TestMbcRegisterFilter::emptyModelAcceptsNothing()
+{
+    // An empty model with no rows should accept no row indices
+    MbcRegisterModel emptyModel;
+    MbcRegisterFilter emptyFilter;
+    emptyFilter.setSourceModel(&emptyModel);
+
+    QVERIFY(emptyFilter.filterAcceptsRow(0, QModelIndex()) == false);
+}
+
+void TestMbcRegisterFilter::outOfRangeRowRejected()
+{
+    // Row index beyond model size should be rejected
+    QVERIFY(_pFilterProxy->filterAcceptsRow(100, QModelIndex()) == false);
 }
 
 QTEST_GUILESS_MAIN(TestMbcRegisterFilter)

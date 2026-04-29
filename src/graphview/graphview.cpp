@@ -20,8 +20,13 @@
 #include <QVector>
 #include <QtGlobal>
 
-GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel *pNoteModel, ScopePlot * pPlot, QObject *parent) :
-    QObject(parent)
+GraphView::GraphView(GuiModel* pGuiModel,
+                     SettingsModel* pSettingsModel,
+                     GraphDataModel* pGraphDataModel,
+                     NoteModel* pNoteModel,
+                     ScopePlot* pPlot,
+                     QObject* parent)
+    : QObject(parent)
 {
     _pGuiModel = pGuiModel;
     _pGraphDataModel = pGraphDataModel;
@@ -30,21 +35,21 @@ GraphView::GraphView(GuiModel * pGuiModel, SettingsModel *pSettingsModel, GraphD
     _pPlot = pPlot;
 
     /*
-    * Greatly improves performance
-    *
-    * phFastPolylines	Graph/Curve lines are drawn with a faster method. This reduces the quality especially
-    *                   of the line segment joins. (Only relevant for solid line pens.)
-    * phCacheLabels		axis (tick) labels will be cached as pixmaps, increasing replot performance.
-    * */
+     * Greatly improves performance
+     *
+     * phFastPolylines	Graph/Curve lines are drawn with a faster method. This reduces the quality especially
+     *                   of the line segment joins. (Only relevant for solid line pens.)
+     * phCacheLabels		axis (tick) labels will be cached as pixmaps, increasing replot performance.
+     * */
     _pPlot->setPlottingHints(QCP::phCacheLabels | QCP::phFastPolylines);
 
     _pPlot->setInteraction(QCP::iSelectPlottables, true);
 
     /*
-    * Use other modifier key than Ctrl for multi select.
-    * ModbusScope uses Ctrl for adding/moving marker.
-    * Note: Multi select is disabled, but modifier needs to be changed from default.
-    * */
+     * Use other modifier key than Ctrl for multi select.
+     * ModbusScope uses Ctrl for adding/moving marker.
+     * Note: Multi select is disabled, but modifier needs to be changed from default.
+     * */
     _pPlot->setMultiSelectModifier(Qt::ShiftModifier);
 
     // Samples are enabled
@@ -88,7 +93,7 @@ qint32 GraphView::graphDataSize()
     return _pPlot->graph(0)->data()->size();
 }
 
-bool GraphView::valuesUnderCursor(QList<double> &valueList)
+bool GraphView::valuesUnderCursor(QList<double>& valueList)
 {
     bool bRet = true;
 
@@ -104,14 +109,11 @@ bool GraphView::valuesUnderCursor(QList<double> &valueList)
         // Check all graphs
         for (qint32 activeGraphIndex = 0; activeGraphIndex < _pPlot->graphCount(); activeGraphIndex++)
         {
-            if (
-                    _pPlot->underMouse()
-                    && bValid
-                    && keyRange.contains(xPos)
-                )
+            if (_pPlot->underMouse() && bValid && keyRange.contains(xPos))
             {
                 const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeGraphIndex);
-                QCPGraphDataContainer::const_iterator graphDataIt = _pGraphDataModel->dataMap(graphIdx).data()->findBegin(tooltipPos, false);
+                QCPGraphDataContainer::const_iterator graphDataIt =
+                  _pGraphDataModel->dataMap(graphIdx).data()->findBegin(tooltipPos, false);
                 valueList.append(graphDataIt->value);
             }
             else
@@ -128,7 +130,6 @@ bool GraphView::valuesUnderCursor(QList<double> &valueList)
     }
 
     return bRet;
-
 }
 
 QPointF GraphView::pixelToPointF(const QPoint& pixel) const
@@ -197,7 +198,7 @@ void GraphView::clearGraph(const quint32 graphIdx)
             QCPGraphDataContainer::iterator it = _pGraphDataModel->dataMap(graphIdx)->begin();
 
             /* Clear all values, keep keys */
-            while(it != _pGraphDataModel->dataMap(graphIdx)->end())
+            while (it != _pGraphDataModel->dataMap(graphIdx)->end())
             {
                 it->value = 0u;
                 it++;
@@ -225,7 +226,7 @@ void GraphView::updateGraphs()
         qint32 maxSampleCount = 0;
         quint32 maxSampleIdx = 0;
 
-        foreach(quint16 graphIdx, activeGraphList)
+        foreach (quint16 graphIdx, activeGraphList)
         {
             const qint32 sampleCount = _pGraphDataModel->dataMap(graphIdx)->size();
             if (sampleCount > maxSampleCount)
@@ -236,9 +237,9 @@ void GraphView::updateGraphs()
         }
 
         // Graph that have less points will be zeroed with that amount of points
-        foreach(quint16 graphIdx, activeGraphList)
+        foreach (quint16 graphIdx, activeGraphList)
         {
-            QCPGraph * pGraph = _pPlot->addGraph();
+            QCPGraph* pGraph = _pPlot->addGraph();
             setGraphAxis(pGraph, _pGraphDataModel->valueAxis(graphIdx));
             setGraphColor(pGraph, _pGraphDataModel->color(graphIdx));
             pGraph->setSelectable(QCP::stWhole);
@@ -256,7 +257,7 @@ void GraphView::updateGraphs()
 
                 // Add zero value for every key (x-coordinate)
                 QCPGraphDataContainer::const_iterator refIt = pReferenceMap->constBegin();
-                while(refIt != pReferenceMap->constEnd())
+                while (refIt != pReferenceMap->constEnd())
                 {
                     pMap->add(QCPGraphData(refIt->key, 0));
                     refIt++;
@@ -290,7 +291,7 @@ void GraphView::changeGraphColor(const quint32 graphIdx)
 }
 
 void GraphView::changeGraphAxis(const quint32 graphIdx)
-{   
+{
     if (_pGraphDataModel->isActive(graphIdx))
     {
         const quint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
@@ -362,9 +363,11 @@ void GraphView::addData(QList<double> timeData, QList<QList<double> > data)
     {
         _pGuiModel->setHighlightSamples(false);
 
-        for (qint32 i = 0; i <  _pPlot->graphCount(); i++)
+        for (qint32 i = 0; i < _pPlot->graphCount(); i++)
         {
-             _pPlot->graph(i)->pen().setWidth(1);
+            QPen pen = _pPlot->graph(i)->pen();
+            pen.setWidth(1);
+            _pPlot->graph(i)->setPen(pen);
         }
 
         _pPlot->setNotAntialiasedElements(QCP::aeAll);
@@ -414,7 +417,7 @@ void GraphView::plotResults(ResultDoubleList resultList)
     QList<double> dataList;
 
     uint32_t i = 0;
-    for (const auto &result: resultList)
+    for (const auto& result : resultList)
     {
         if (result.isValid())
         {
@@ -432,7 +435,7 @@ void GraphView::plotResults(ResultDoubleList resultList)
 
     emit dataAddedToPlot(timeData, dataList);
 
-   rescalePlot();
+    rescalePlot();
 }
 
 void GraphView::clearResults()
@@ -454,7 +457,7 @@ void GraphView::showMarkers()
     _pGuiModel->setEndMarkerPos(getClosestPoint(endPos));
 }
 
-void GraphView::mousePress(QMouseEvent *event)
+void GraphView::mousePress(QMouseEvent* event)
 {
     if (_pGraphViewZoom->handleMousePress(event))
     {
@@ -503,12 +506,12 @@ void GraphView::mousePress(QMouseEvent *event)
     }
 }
 
-void GraphView::mouseRelease(QMouseEvent *event)
+void GraphView::mouseRelease(QMouseEvent* event)
 {
     Q_UNUSED(event);
 
-    (void)_pGraphViewZoom->handleMouseRelease();
-    (void)_pNoteHandling->handleMouseRelease();
+    (void) _pGraphViewZoom->handleMouseRelease();
+    (void) _pNoteHandling->handleMouseRelease();
 
     /* Always re-enable range drag */
     _pGraphScale->enableRangeZoom();
@@ -526,22 +529,14 @@ void GraphView::mouseWheel()
     }
 }
 
-void GraphView::mouseMove(QMouseEvent *event)
+void GraphView::mouseMove(QMouseEvent* event)
 {
     // Check for graph drag
-    if(event->buttons() & Qt::LeftButton)
+    if (event->buttons() & Qt::LeftButton)
     {
         if (!(event->modifiers() & Qt::ControlModifier))
         {
-            if (_pGraphViewZoom->handleMouseMove(event))
-            {
-                /* Already handled by graph zoom */
-            }
-            else if (_pNoteHandling->handleMouseMove(event))
-            {
-                /* Already handled by graph zoom */
-            }
-            else
+            if (!_pGraphViewZoom->handleMouseMove(event) && !_pNoteHandling->handleMouseMove(event))
             {
                 _pGraphScale->handleDrag();
             }
@@ -562,7 +557,7 @@ void GraphView::handleSelectionChanged(bool selected)
 {
     if (selected)
     {
-        QCPGraph * pGraph = qobject_cast<QCPGraph *>(QObject::sender());
+        QCPGraph* pGraph = qobject_cast<QCPGraph*>(QObject::sender());
         const qint32 activeIdx = getActiveGraphIndex(pGraph);
         const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeIdx);
         _pGraphDataModel->setSelectedGraph(graphIdx);
@@ -594,7 +589,7 @@ void GraphView::handleSelectionChanged(bool selected)
 
 void GraphView::paintTimeStampToolTip(QPoint pos)
 {
-    if  (_pGuiModel->cursorValues() && (_pPlot->graphCount() > 0))
+    if (_pGuiModel->cursorValues() && (_pPlot->graphCount() > 0))
     {
         const double xPos = _pPlot->xAxis->pixelToCoord(pos.x());
         double tooltipPos = getClosestPoint(xPos);
@@ -605,7 +600,7 @@ void GraphView::paintTimeStampToolTip(QPoint pos)
         if (bValid && keyRange.contains(xPos))
         {
             QString toolText = FormatRelativeTime::formatTime(tooltipPos);
-            QPoint location= _pPlot->mapToGlobal(pos);
+            QPoint location = _pPlot->mapToGlobal(pos);
 
             if (location != _tooltipLocation)
             {
@@ -617,7 +612,7 @@ void GraphView::paintTimeStampToolTip(QPoint pos)
         else
         {
             QToolTip::hideText();
-            _tooltipLocation = QPoint(-1 ,-1);
+            _tooltipLocation = QPoint(-1, -1);
         }
     }
     else
@@ -625,7 +620,7 @@ void GraphView::paintTimeStampToolTip(QPoint pos)
         if (QToolTip::isVisible())
         {
             QToolTip::hideText();
-            _tooltipLocation = QPoint(-1 ,-1);
+            _tooltipLocation = QPoint(-1, -1);
         }
     }
 }
@@ -646,7 +641,8 @@ void GraphView::handleSamplePoints()
             const int pointCount = upperBoundIt - lowerBoundIt;
 
             /* Get size in pixels */
-            const double sizePx = _pPlot->xAxis->coordToPixel(upperBoundIt->key) - _pPlot->xAxis->coordToPixel(lowerBoundIt->key);
+            const double sizePx =
+              _pPlot->xAxis->coordToPixel(upperBoundIt->key) - _pPlot->xAxis->coordToPixel(lowerBoundIt->key);
 
             /* Calculate number of pixels per point */
             double nrOfPixelsPerPoint;
@@ -664,7 +660,6 @@ void GraphView::handleSamplePoints()
             {
                 bHighlight = true;
             }
-
         }
     }
 
@@ -687,7 +682,7 @@ void GraphView::highlightSamples(bool bState)
     }
 }
 
-void GraphView::setGraphColor(QCPGraph* _pGraph, const QColor &color)
+void GraphView::setGraphColor(QCPGraph* _pGraph, const QColor& color)
 {
     QPen pen;
     pen.setColor(color);
@@ -697,7 +692,7 @@ void GraphView::setGraphColor(QCPGraph* _pGraph, const QColor &color)
     _pGraph->selectionDecorator()->setPen(pen);
 }
 
-void GraphView::setGraphAxis(QCPGraph* _pGraph, const GraphData::valueAxis_t &axis)
+void GraphView::setGraphAxis(QCPGraph* _pGraph, const GraphData::valueAxis_t& axis)
 {
     if (axis == GraphData::VALUE_AXIS_SECONDARY)
     {
@@ -717,7 +712,7 @@ double GraphView::getClosestPoint(double coordinate)
         QCPGraphDataContainer::const_iterator leftIt = _pPlot->graph(0)->data()->findBegin(coordinate);
 
         auto rightIt = leftIt + 1;
-        if (rightIt !=  _pPlot->graph(0)->data()->constEnd())
+        if (rightIt != _pPlot->graph(0)->data()->constEnd())
         {
 
             const double diffReference = rightIt->key - leftIt->key;
@@ -763,7 +758,7 @@ void GraphView::updateSecondaryAxisVisibility()
     rescalePlot();
 }
 
-qint32 GraphView::getActiveGraphIndex(QCPGraph const * const pGraph)
+qint32 GraphView::getActiveGraphIndex(QCPGraph const* const pGraph)
 {
     qint32 idx = -1;
     for (int i = 0; i < _pPlot->graphCount(); ++i)

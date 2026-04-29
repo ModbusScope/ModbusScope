@@ -1,20 +1,8 @@
 #include "settingsmodel.h"
-#include "models/connectiontypes.h"
-
-using connectionId_t = ConnectionTypes::connectionId_t;
+#include "util/scopelogging.h"
 
 SettingsModel::SettingsModel(QObject* parent) : QObject(parent)
 {
-
-    for (quint8 i = 0; i < ConnectionTypes::ID_CNT; i++)
-    {
-        ConnectionSettings connectionSettings;
-        _connectionSettings.append(connectionSettings);
-    }
-
-    /* Connection 1 is always enabled */
-    _connectionSettings[ConnectionTypes::ID_1].bConnectionState = true;
-
     _devices[Device::cFirstDeviceId] = Device(Device::cFirstDeviceId);
 
     _pollTime = 250;
@@ -65,12 +53,7 @@ bool SettingsModel::absoluteTimes()
 
 deviceId_t SettingsModel::addNewDevice()
 {
-    deviceId_t newId = Device::cFirstDeviceId;
-
-    while (_devices.contains(newId))
-    {
-        newId++;
-    }
+    deviceId_t newId = _devices.isEmpty() ? Device::cFirstDeviceId : static_cast<deviceId_t>(_devices.lastKey() + 1);
 
     _devices[newId] = Device(newId);
 
@@ -111,13 +94,13 @@ QList<deviceId_t> SettingsModel::deviceList()
     return list;
 }
 
-QList<deviceId_t> SettingsModel::deviceListForConnection(connectionId_t connectionId)
+QList<deviceId_t> SettingsModel::deviceListForAdapter(const QString& adapterId)
 {
     QList<deviceId_t> list;
 
     for (auto i = _devices.cbegin(), end = _devices.cend(); i != end; ++i)
     {
-        if (static_cast<Device>(i.value()).connectionId() == connectionId)
+        if (i.value().adapterId() == adapterId)
         {
             list.append(i.key());
         }
@@ -159,11 +142,6 @@ QString SettingsModel::writeDuringLogFile()
     return _writeDuringLogFile;
 }
 
-Connection* SettingsModel::connectionSettings(connectionId_t connectionId)
-{
-    return &_connectionSettings[connectionId].connectionData;
-}
-
 Device* SettingsModel::deviceSettings(deviceId_t devId)
 {
 #if 0
@@ -173,32 +151,89 @@ Check validity
     return &_devices[devId];
 }
 
-void SettingsModel::setConnectionState(connectionId_t connectionId, bool bState)
+/*! \brief Return a pointer to the AdapterData for the given adapter ID.
+ * \param adapterId  The adapter identifier string.
+ * \return Pointer to the AdapterData entry; inserts a default entry if not present.
+ */
+const AdapterData* SettingsModel::adapterData(const QString& adapterId)
 {
-    /* Connection 1 can't be disabled */
-    if (connectionId == ConnectionTypes::ID_1)
+    if (!_adapters.contains(adapterId))
     {
-        bState = true;
+        _adapters[adapterId] = AdapterData();
     }
-
-    _connectionSettings[connectionId].bConnectionState = bState;
+    return &_adapters[adapterId];
 }
 
-QList<ConnectionTypes::connectionId_t> SettingsModel::connectionList() const
+/*! \brief Return the list of registered adapter IDs.
+ * \return QStringList of all adapter ID strings currently in the model.
+ */
+QStringList SettingsModel::adapterIds() const
 {
-    QList<connectionId_t> list;
-
-    for (quint8 i = 0; i < ConnectionTypes::ID_CNT; i++)
-    {
-        list.append(static_cast<connectionId_t>(i));
-    }
-
-    return list;
+    return _adapters.keys();
 }
 
-bool SettingsModel::connectionState(connectionId_t connectionId)
+/*! \brief Remove the adapter entry with the given ID.
+ * \param adapterId  The adapter identifier string to remove.
+ */
+void SettingsModel::removeAdapter(const QString& adapterId)
 {
-    return _connectionSettings[connectionId].bConnectionState;
+    _adapters.remove(adapterId);
+}
+
+/*! \brief Persist a new configuration for an adapter and notify observers.
+ *
+ * Sets the adapter's current config and marks it as having a stored config,
+ * then emits adapterDataChanged() so listeners can react.
+ * \param adapterId  The adapter identifier string.
+ * \param config     The configuration JSON object to store.
+ */
+void SettingsModel::setAdapterCurrentConfig(const QString& adapterId, const QJsonObject& config)
+{
+    if (!_adapters.contains(adapterId))
+    {
+        _adapters[adapterId] = AdapterData();
+    }
+    _adapters[adapterId].setCurrentConfig(config);
+    _adapters[adapterId].setHasStoredConfig(true);
+    emit adapterDataChanged(adapterId);
+}
+
+/*! \brief Store the data point schema from an adapter.dataPointSchema response and notify observers.
+ * \param adapterId  The adapter identifier string.
+ * \param schema     The full data point schema object (addressSchema, dataTypes, defaultDataType).
+ */
+void SettingsModel::setAdapterDataPointSchema(const QString& adapterId, const QJsonObject& schema)
+{
+    if (!_adapters.contains(adapterId))
+    {
+        _adapters[adapterId] = AdapterData();
+    }
+    _adapters[adapterId].setDataPointSchema(schema);
+    emit adapterDataChanged(adapterId);
+}
+
+void SettingsModel::updateAdapterFromDescribe(const QString& adapterId, const QJsonObject& describeResult)
+{
+    if (!_adapters.contains(adapterId))
+    {
+        _adapters[adapterId] = AdapterData();
+    }
+    _adapters[adapterId].updateFromDescribe(describeResult);
+
+    const QString version = _adapters[adapterId].version();
+    QString versionTxt("unknown version");
+    if (!version.isEmpty())
+    {
+        versionTxt = QString(tr("v%1")).arg(version);
+    }
+    qCInfo(scopeComm) << qUtf8Printable(QString("Adapter %1: %2").arg(adapterId, versionTxt));
+
+    emit adapterDataChanged(adapterId);
+}
+
+bool SettingsModel::hasDevice(deviceId_t devId) const
+{
+    return _devices.contains(devId);
 }
 
 bool SettingsModel::updateDeviceId(deviceId_t oldId, deviceId_t newId)

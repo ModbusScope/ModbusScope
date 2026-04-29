@@ -5,7 +5,7 @@
 #include <QDateTime>
 
 Q_LOGGING_CATEGORY(scopeComm, "scope.comm")
-Q_LOGGING_CATEGORY(scopeCommConnection, "scope.comm.connection")
+Q_LOGGING_CATEGORY(scopeAdapter, "scope.comm.adapter")
 Q_LOGGING_CATEGORY(scopeGeneralInfo, "scope.general.info")
 Q_LOGGING_CATEGORY(scopePreset, "scope.preset")
 Q_LOGGING_CATEGORY(scopeUi, "scope.ui")

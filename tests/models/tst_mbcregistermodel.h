@@ -1,6 +1,5 @@
-
-#ifndef TEST_MBCREGISTERMODEL_H__
-#define TEST_MBCREGISTERMODEL_H__
+#ifndef TST_MBCREGISTERMODEL_H
+#define TST_MBCREGISTERMODEL_H
 
 #include <QObject>
 
@@ -31,10 +30,20 @@ private slots:
     void selectAllWhenMixedChecked();
     void selectAllSkipNonReadable();
 
+    void setDataOnDisabledRowDoesNothing();
+    void setDataInvalidIndexReturnsFalse();
+    void headerDataCheckState();
+    void setHeaderDataCheckState();
+    void setHeaderDataPartiallyChecked();
+    void dataInvalidIndexReturnsNull();
+    void fillTwiceResetsFirst();
+    void setSelectionstateEmptyListDoesNothing();
+    void selectedRegisterListEmpty();
+
 private:
 
     void fillModel(MbcRegisterModel * pMbcRegisterModel);
 
 };
 
-#endif /* TEST_MBCREGISTERMODEL_H__ */
+#endif /* TST_MBCREGISTERMODEL_H */

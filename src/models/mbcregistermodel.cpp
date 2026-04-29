@@ -2,14 +2,21 @@
 
 #include "customwidgets/centeredbox.h"
 
-MbcRegisterModel::MbcRegisterModel(QObject *parent)
-    : QAbstractTableModel(parent)
+/*!
+ * \brief Constructs an empty MbcRegisterModel.
+ */
+MbcRegisterModel::MbcRegisterModel(QObject* parent) : QAbstractTableModel(parent)
 {
     _mbcRegisterList.clear();
     _tabList.clear();
     _selection = Qt::Unchecked;
 }
 
+/*!
+ * \brief Returns header data for the given section.
+ *
+ * Section 0 uses Qt::CheckStateRole to drive the select-all checkbox in MbcHeader.
+ */
 QVariant MbcRegisterModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal)
@@ -53,6 +60,10 @@ QVariant MbcRegisterModel::headerData(int section, Qt::Orientation orientation, 
     return QVariant();
 }
 
+/*!
+ * \brief Sets header data; used to drive the select-all checkbox state.
+ * \return True when the change was applied.
+ */
 bool MbcRegisterModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant& value, int role)
 {
     bool bRet = false;
@@ -76,7 +87,10 @@ bool MbcRegisterModel::setHeaderData(int section, Qt::Orientation orientation, c
     return bRet;
 }
 
-int MbcRegisterModel::rowCount(const QModelIndex &parent) const
+/*!
+ * \brief Returns the number of rows (registers) in the model.
+ */
+int MbcRegisterModel::rowCount(const QModelIndex& parent) const
 {
     if (parent.isValid())
         return 0;
@@ -84,7 +98,10 @@ int MbcRegisterModel::rowCount(const QModelIndex &parent) const
     return _mbcRegisterList.size();
 }
 
-int MbcRegisterModel::columnCount(const QModelIndex &parent) const
+/*!
+ * \brief Returns the number of columns.
+ */
+int MbcRegisterModel::columnCount(const QModelIndex& parent) const
 {
     if (parent.isValid())
         return 0;
@@ -92,7 +109,10 @@ int MbcRegisterModel::columnCount(const QModelIndex &parent) const
     return cColumnCnt;
 }
 
-QVariant MbcRegisterModel::data(const QModelIndex &index, int role) const
+/*!
+ * \brief Returns data for the given index and role.
+ */
+QVariant MbcRegisterModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid())
         return QVariant();
@@ -171,7 +191,11 @@ QVariant MbcRegisterModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-bool MbcRegisterModel::setData(const QModelIndex & index, const QVariant & value, int role)
+/*!
+ * \brief Sets check state for cColumnSelected when the item is enabled.
+ * \return True when the change was applied.
+ */
+bool MbcRegisterModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
     if (!index.isValid())
         return false;
@@ -193,6 +217,11 @@ bool MbcRegisterModel::setData(const QModelIndex & index, const QVariant & value
     return bRet;
 }
 
+/*!
+ * \brief Sets the check state for the given list of indices.
+ *
+ * Non-enabled rows are always forced to unchecked.
+ */
 void MbcRegisterModel::setSelectionstate(QList<QModelIndex>& indexList, Qt::CheckState state)
 {
     if (indexList.isEmpty())
@@ -218,16 +247,25 @@ void MbcRegisterModel::setSelectionstate(QList<QModelIndex>& indexList, Qt::Chec
     emit dataChanged(this->index(0, 0), this->index(rowCount() - 1, 0));
 }
 
+/*!
+ * \brief Clears all data from the model.
+ */
 void MbcRegisterModel::reset()
 {
     beginResetModel();
 
     _mbcRegisterList.clear();
     _tabList.clear();
+    _selection = Qt::Unchecked;
 
     endResetModel();
 }
 
+/*!
+ * \brief Fills the model with a list of parsed register definitions.
+ * \param mbcRegisterList Registers read from the MBC file.
+ * \param tabList Tab names corresponding to the tabIdx fields.
+ */
 void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList tabList)
 {
     if (rowCount() != 0)
@@ -240,7 +278,7 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
 
     _tabList = tabList;
 
-    for(qint32 idx = 0; idx < mbcRegisterList.size(); idx++)
+    for (qint32 idx = 0; idx < mbcRegisterList.size(); idx++)
     {
         // Get result before adding to list
         _mbcRegisterList.append({ mbcRegisterList[idx], false, false });
@@ -255,7 +293,12 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
     endInsertRows();
 }
 
-Qt::ItemFlags MbcRegisterModel::flags(const QModelIndex & index) const
+/*!
+ * \brief Returns item flags for the given index.
+ *
+ * Only cColumnSelected is user-checkable. Non-readable rows are disabled.
+ */
+Qt::ItemFlags MbcRegisterModel::flags(const QModelIndex& index) const
 {
     if (!index.isValid())
     {
@@ -278,6 +321,9 @@ Qt::ItemFlags MbcRegisterModel::flags(const QModelIndex & index) const
     return flags;
 }
 
+/*!
+ * \brief Returns a list of GraphData objects for all selected registers.
+ */
 QList<GraphData> MbcRegisterModel::selectedRegisterList()
 {
     QList<GraphData> _selectedRegisterList;
@@ -299,6 +345,9 @@ QList<GraphData> MbcRegisterModel::selectedRegisterList()
     return _selectedRegisterList;
 }
 
+/*!
+ * \brief Returns the count of currently selected registers.
+ */
 quint32 MbcRegisterModel::selectedRegisterCount()
 {
     quint32 cnt = 0;
@@ -313,4 +362,20 @@ quint32 MbcRegisterModel::selectedRegisterCount()
     }
 
     return cnt;
+}
+
+/*!
+ * \brief Unchecks every row in the source model regardless of current filter state.
+ */
+void MbcRegisterModel::clearAllSelections()
+{
+    for (MbcRegister& row : _mbcRegisterList)
+    {
+        row.bSelected = false;
+    }
+
+    if (!_mbcRegisterList.isEmpty())
+    {
+        emit dataChanged(this->index(0, 0), this->index(rowCount() - 1, 0));
+    }
 }

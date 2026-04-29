@@ -1,4 +1,3 @@
-
 #include "tst_mbcregistermodel.h"
 
 #include "models/mbcregistermodel.h"
@@ -487,6 +486,116 @@ void TestMbcRegisterModel::selectAllSkipNonReadable()
     QModelIndex modelIdx = pMbcRegisterModel->index(0, 0);
     QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::CheckStateRole), Qt::Checked);
     QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::CheckStateRole), Qt::Unchecked);
+}
+
+void TestMbcRegisterModel::setDataOnDisabledRowDoesNothing()
+{
+    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
+    QList<MbcRegisterData> mbcRegisterList =
+      QList<MbcRegisterData>() << MbcRegisterData(40001, ModbusDataType::Type::UNSIGNED_16, "NonReadable", 0, false, 0);
+    QStringList tabList = QStringList() << QString("Tab0");
+    pMbcRegisterModel->fill(mbcRegisterList, tabList);
+
+    QModelIndex modelIdx = pMbcRegisterModel->index(0, cColumnSelected);
+
+    // setData must refuse the change on a disabled row
+    QCOMPARE(pMbcRegisterModel->setData(modelIdx, QVariant(Qt::Checked), Qt::CheckStateRole), false);
+    QCOMPARE(pMbcRegisterModel->data(modelIdx, Qt::CheckStateRole), Qt::Unchecked);
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 0);
+}
+
+void TestMbcRegisterModel::setDataInvalidIndexReturnsFalse()
+{
+    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
+    fillModel(pMbcRegisterModel);
+
+    QCOMPARE(pMbcRegisterModel->setData(QModelIndex(), QVariant(Qt::Checked), Qt::CheckStateRole), false);
+}
+
+void TestMbcRegisterModel::headerDataCheckState()
+{
+    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
+
+    // Initial check state should be unchecked
+    QVariant checkState = pMbcRegisterModel->headerData(cColumnSelected, Qt::Horizontal, Qt::CheckStateRole);
+    QCOMPARE(checkState.toInt(), static_cast<int>(Qt::Unchecked));
+}
+
+void TestMbcRegisterModel::setHeaderDataCheckState()
+{
+    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
+    QSignalSpy spy(pMbcRegisterModel, &MbcRegisterModel::headerDataChanged);
+
+    bool result = pMbcRegisterModel->setHeaderData(cColumnSelected, Qt::Horizontal,
+                                                   QVariant(Qt::Checked), Qt::CheckStateRole);
+    QVERIFY(result);
+    QCOMPARE(spy.count(), 1);
+
+    QVariant checkState = pMbcRegisterModel->headerData(cColumnSelected, Qt::Horizontal, Qt::CheckStateRole);
+    QCOMPARE(checkState.toInt(), static_cast<int>(Qt::Checked));
+}
+
+void TestMbcRegisterModel::setHeaderDataPartiallyChecked()
+{
+    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
+
+    bool result = pMbcRegisterModel->setHeaderData(cColumnSelected, Qt::Horizontal,
+                                                   QVariant(Qt::PartiallyChecked), Qt::CheckStateRole);
+    QVERIFY(result);
+
+    QVariant checkState = pMbcRegisterModel->headerData(cColumnSelected, Qt::Horizontal, Qt::CheckStateRole);
+    QCOMPARE(checkState.toInt(), static_cast<int>(Qt::PartiallyChecked));
+}
+
+void TestMbcRegisterModel::dataInvalidIndexReturnsNull()
+{
+    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
+    fillModel(pMbcRegisterModel);
+
+    QCOMPARE(pMbcRegisterModel->data(QModelIndex(), Qt::DisplayRole), QVariant());
+}
+
+void TestMbcRegisterModel::fillTwiceResetsFirst()
+{
+    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
+    QSignalSpy resetSpy(pMbcRegisterModel, SIGNAL(modelReset()));
+
+    fillModel(pMbcRegisterModel);
+    QCOMPARE(pMbcRegisterModel->rowCount(), 2);
+
+    // Second fill with different data
+    QList<MbcRegisterData> mbcRegisterList =
+      QList<MbcRegisterData>() << MbcRegisterData(41001, ModbusDataType::Type::UNSIGNED_16, "NewReg1", 0, true, 0)
+                               << MbcRegisterData(41002, ModbusDataType::Type::UNSIGNED_16, "NewReg2", 0, true, 0)
+                               << MbcRegisterData(41003, ModbusDataType::Type::UNSIGNED_16, "NewReg3", 0, true, 0);
+    QStringList tabList = QStringList() << QString("Tab0");
+    pMbcRegisterModel->fill(mbcRegisterList, tabList);
+
+    QCOMPARE(pMbcRegisterModel->rowCount(), 3);
+    // resetSpy should have been called once (from the second fill triggering reset)
+    QVERIFY(resetSpy.count() >= 1);
+}
+
+void TestMbcRegisterModel::setSelectionstateEmptyListDoesNothing()
+{
+    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
+    fillModel(pMbcRegisterModel);
+    QSignalSpy spy(pMbcRegisterModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
+
+    QList<QModelIndex> emptyList;
+    pMbcRegisterModel->setSelectionstate(emptyList, Qt::Checked);
+
+    // No dataChanged should be emitted for empty list
+    QCOMPARE(spy.count(), 0);
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 0);
+}
+
+void TestMbcRegisterModel::selectedRegisterListEmpty()
+{
+    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
+
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 0);
+    QVERIFY(pMbcRegisterModel->selectedRegisterList().isEmpty());
 }
 
 void TestMbcRegisterModel::fillModel(MbcRegisterModel * pMbcRegisterModel)

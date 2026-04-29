@@ -2,11 +2,12 @@
 #define SETTINGSDIALOG_H
 
 #include <QDialog>
+#include <QList>
 
-// Forward decleration
+// Forward declaration
 class SettingsModel;
-class ConnectionSettings;
-class DeviceSettings;
+class AdapterSettings;
+class AdapterDeviceSettings;
 
 namespace Ui {
 class SettingsDialog;
@@ -25,18 +26,13 @@ private slots:
     void settingsStackSwitch(int newRow);
 
 private:
-    enum
-    {
-        PAGE_CONNECTION = 0,
-        PAGE_DEVICE = 1,
-        PAGE_LOG = 2,
-    };
+    void acceptAllValues();
 
     Ui::SettingsDialog* _pUi;
 
     SettingsModel* _pSettingsModel;
-    ConnectionSettings* _pConnSettings;
-    DeviceSettings* _pDevSettings;
+    QList<AdapterSettings*> _dynamicSettings;
+    AdapterDeviceSettings* _pDevSettings;
 };
 
 #endif // SETTINGSDIALOG_H

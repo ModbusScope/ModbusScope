@@ -10,34 +10,34 @@ class MbcRegisterData
 {
 public:
     explicit MbcRegisterData();
-    MbcRegisterData(quint32 registerAddress, ModbusDataType::Type type, QString name, qint32 tabIdx, bool bReadable, quint8 decimals);
+    MbcRegisterData(
+      quint32 registerAddress, ModbusDataType::Type type, QString name, qint32 tabIdx, bool bReadable, quint8 decimals);
     ~MbcRegisterData();
 
     bool compare(MbcRegisterData* pMbcRegdata);
 
     quint32 registerAddress() const;
-    void setRegisterAddress(const quint32 &registerAddress);
+    void setRegisterAddress(const quint32& registerAddress);
 
     void setType(ModbusDataType::Type type);
 
     ModbusDataType::Type type() const;
 
     QString name() const;
-    void setName(const QString &name);
+    void setName(const QString& name);
 
     qint32 tabIdx() const;
-    void setTabIdx(const qint32 &tabIdx);
+    void setTabIdx(const qint32& tabIdx);
 
     bool isReadable() const;
     void setReadable(bool isReadable);
 
     quint8 decimals() const;
-    void setDecimals(const quint8 &decimals);
+    void setDecimals(const quint8& decimals);
 
     QString toExpression() const;
 
 private:
-
     quint32 _registerAddress;
     QString _name;
     qint32 _tabIdx;

@@ -1,10 +1,10 @@
 
-#ifndef TEST_DIAGNOSTICMODEL_H__
-#define TEST_DIAGNOSTICMODEL_H__
+#ifndef TST_DIAGNOSTICMODEL_H
+#define TST_DIAGNOSTICMODEL_H
 
 #include <QObject>
 
-class TestDiagnosticModel: public QObject
+class TestDiagnosticModel : public QObject
 {
     Q_OBJECT
 private slots:
@@ -12,6 +12,7 @@ private slots:
     void cleanup();
 
     void addClear();
+    void clearEmpty();
     void headerData();
     void data();
     void dataSeverity();
@@ -22,9 +23,7 @@ private slots:
     void addLogSameSeverity();
 
 private:
-
-        QString _category;
-
+    QString _category;
 };
 
-#endif /* TEST_DIAGNOSTICMODEL_H__ */
+#endif // TST_DIAGNOSTICMODEL_H

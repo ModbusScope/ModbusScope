@@ -1,3 +1,5 @@
+#ifndef MBCTESTDATA_H
+#define MBCTESTDATA_H
 
 #include "importexport/mbcregisterdata.h"
 
@@ -27,3 +29,5 @@ public:
 private:
 
 };
+
+#endif // MBCTESTDATA_H

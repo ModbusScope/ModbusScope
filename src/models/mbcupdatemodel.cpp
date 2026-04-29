@@ -2,6 +2,10 @@
 
 #include "graphdatamodel.h"
 
+/*!
+ * \brief Constructs the model and connects to GraphDataModel change signals.
+ * \param pGraphDataModel The graph data model to compare imported registers against.
+ */
 MbcUpdateModel::MbcUpdateModel(GraphDataModel* pGraphDataModel, QObject* parent)
     : QAbstractTableModel(parent), _pGraphDataModel(pGraphDataModel)
 {
@@ -14,6 +18,9 @@ MbcUpdateModel::MbcUpdateModel(GraphDataModel* pGraphDataModel, QObject* parent)
     connect(_pGraphDataModel, &GraphDataModel::removed, this, &MbcUpdateModel::checkUpdate);
 }
 
+/*!
+ * \brief Returns column header labels.
+ */
 QVariant MbcUpdateModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if ((orientation == Qt::Horizontal) && (role == Qt::DisplayRole))
@@ -40,6 +47,9 @@ QVariant MbcUpdateModel::headerData(int section, Qt::Orientation orientation, in
     return QVariant();
 }
 
+/*!
+ * \brief Returns the number of rows — one per graph in GraphDataModel.
+ */
 int MbcUpdateModel::rowCount(const QModelIndex& parent) const
 {
     if (parent.isValid())
@@ -48,6 +58,9 @@ int MbcUpdateModel::rowCount(const QModelIndex& parent) const
     return _pGraphDataModel->size();
 }
 
+/*!
+ * \brief Returns the number of columns.
+ */
 int MbcUpdateModel::columnCount(const QModelIndex& parent) const
 {
     if (parent.isValid())
@@ -56,6 +69,9 @@ int MbcUpdateModel::columnCount(const QModelIndex& parent) const
     return cColumnCnt;
 }
 
+/*!
+ * \brief Returns item flags; rows without a detected update are disabled.
+ */
 Qt::ItemFlags MbcUpdateModel::flags(const QModelIndex& index) const
 {
     using UpdateField = MbcUpdateModel::UpdateInfo::UpdateField;
@@ -74,6 +90,12 @@ Qt::ItemFlags MbcUpdateModel::flags(const QModelIndex& index) const
     return flags;
 }
 
+/*!
+ * \brief Returns data for the given index.
+ *
+ * Qt::UserRole returns "hidden" for update columns when no update is pending,
+ * allowing the delegate to hide the action button.
+ */
 QVariant MbcUpdateModel::data(const QModelIndex& index, int role) const
 {
     using UpdateField = MbcUpdateModel::UpdateInfo::UpdateField;
@@ -145,6 +167,10 @@ QVariant MbcUpdateModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
+/*!
+ * \brief Sets the imported register list and triggers an update check.
+ * \param mbcRegisterList Registers just imported from the MBC file.
+ */
 void MbcUpdateModel::setMbcRegisters(QList<MbcRegisterData> mbcRegisterList)
 {
     _mbcRegisterList = mbcRegisterList;

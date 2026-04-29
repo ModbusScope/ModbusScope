@@ -13,7 +13,6 @@ void TestDiagnosticModel::init()
 
 void TestDiagnosticModel::cleanup()
 {
-
 }
 
 void TestDiagnosticModel::addClear()
@@ -39,6 +38,19 @@ void TestDiagnosticModel::addClear()
     QCOMPARE(diagModel.rowCount(), 0);
 }
 
+void TestDiagnosticModel::clearEmpty()
+{
+    DiagnosticModel diagModel;
+
+    QCOMPARE(diagModel.size(), 0);
+
+    // Clearing an empty model must not crash or hang
+    diagModel.clear();
+
+    QCOMPARE(diagModel.size(), 0);
+    QCOMPARE(diagModel.rowCount(), 0);
+}
+
 void TestDiagnosticModel::headerData()
 {
     DiagnosticModel diagModel;
@@ -49,7 +61,6 @@ void TestDiagnosticModel::headerData()
 
     QCOMPARE(diagModel.headerData(1, Qt::Horizontal, Qt::DisplayRole), QVariant());
     QCOMPARE(diagModel.headerData(1, Qt::Horizontal, Qt::EditRole), QVariant());
-
 }
 
 void TestDiagnosticModel::data()
@@ -102,14 +113,14 @@ void TestDiagnosticModel::addLog()
     DiagnosticModel diagModel;
     diagModel.setMinimumSeverityLevel(Diagnostic::LOG_INFO);
 
-    QSignalSpy spy(&diagModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
+    QSignalSpy spy(&diagModel, SIGNAL(dataChanged(QModelIndex, QModelIndex, QVector<int>)));
 
     Diagnostic logErr(_category, Diagnostic::LOG_WARNING, 10, QString("Error"));
     diagModel.addLog(logErr.category(), logErr.severity(), logErr.timeOffset(), logErr.message());
 
     QCOMPARE(spy.count(), 1);
 
-    QModelIndex changedIndex = diagModel.index(diagModel.size()-1);
+    QModelIndex changedIndex = diagModel.index(diagModel.size() - 1);
 
     QList<QVariant> arguments = spy.takeFirst();
 
@@ -122,7 +133,7 @@ void TestDiagnosticModel::addLogLowerSeverity()
     DiagnosticModel diagModel;
     diagModel.setMinimumSeverityLevel(Diagnostic::LOG_INFO);
 
-    QSignalSpy spy(&diagModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
+    QSignalSpy spy(&diagModel, SIGNAL(dataChanged(QModelIndex, QModelIndex, QVector<int>)));
 
     Diagnostic logErr(_category, Diagnostic::LOG_DEBUG, 10, QString("Debug"));
     diagModel.addLog(logErr.category(), logErr.severity(), logErr.timeOffset(), logErr.message());
@@ -136,14 +147,14 @@ void TestDiagnosticModel::addLogSameSeverity()
     DiagnosticModel diagModel;
     diagModel.setMinimumSeverityLevel(Diagnostic::LOG_INFO);
 
-    QSignalSpy spy(&diagModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
+    QSignalSpy spy(&diagModel, SIGNAL(dataChanged(QModelIndex, QModelIndex, QVector<int>)));
 
     Diagnostic logErr(_category, Diagnostic::LOG_INFO, 10, QString("Info"));
     diagModel.addLog(logErr.category(), logErr.severity(), logErr.timeOffset(), logErr.message());
 
     QCOMPARE(spy.count(), 1);
 
-    QModelIndex changedIndex = diagModel.index(diagModel.size()-1);
+    QModelIndex changedIndex = diagModel.index(diagModel.size() - 1);
 
     QList<QVariant> arguments = spy.takeFirst();
 

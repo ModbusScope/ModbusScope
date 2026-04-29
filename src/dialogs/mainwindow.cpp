@@ -1,7 +1,7 @@
 
 #include "dialogs/mainwindow.h"
+#include "communication/adapterpoll.h"
 #include "communication/communicationstats.h"
-#include "communication/modbuspoll.h"
 #include "customwidgets/markerinfo.h"
 #include "customwidgets/mostrecentmenu.h"
 #include "customwidgets/notesdock.h"
@@ -34,18 +34,22 @@
 
 using GuiState = GuiModel::GuiState;
 
-MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
-                       SettingsModel* pSettingsModel, GraphDataModel* pGraphDataModel,
-                       NoteModel* pNoteModel, DiagnosticModel* pDiagnosticModel,
-                       DataParserModel* pDataParserModel, QWidget *parent) :
-    QMainWindow(parent),
-    _pUi(new Ui::MainWindow),
-    _pGuiModel(pGuiModel),
-    _pSettingsModel(pSettingsModel),
-    _pGraphDataModel(pGraphDataModel),
-    _pNoteModel(pNoteModel),
-    _pDiagnosticModel(pDiagnosticModel),
-    _pDataParserModel(pDataParserModel)
+MainWindow::MainWindow(QStringList cmdArguments,
+                       GuiModel* pGuiModel,
+                       SettingsModel* pSettingsModel,
+                       GraphDataModel* pGraphDataModel,
+                       NoteModel* pNoteModel,
+                       DiagnosticModel* pDiagnosticModel,
+                       DataParserModel* pDataParserModel,
+                       QWidget* parent)
+    : QMainWindow(parent),
+      _pUi(new Ui::MainWindow),
+      _pGuiModel(pGuiModel),
+      _pSettingsModel(pSettingsModel),
+      _pGraphDataModel(pGraphDataModel),
+      _pNoteModel(pNoteModel),
+      _pDiagnosticModel(pDiagnosticModel),
+      _pDataParserModel(pDataParserModel)
 {
     _pUi->setupUi(this);
 
@@ -56,11 +60,12 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
 
     _pGraphDataHandler = new GraphDataHandler();
-    _pModbusPoll = new ModbusPoll(_pSettingsModel);
-    connect(_pModbusPoll, &ModbusPoll::registerDataReady, _pGraphDataHandler, &GraphDataHandler::handleRegisterData);
+    _pAdapterPoll = new AdapterPoll(_pSettingsModel);
+    connect(_pAdapterPoll, &AdapterPoll::registerDataReady, _pGraphDataHandler, &GraphDataHandler::handleRegisterData);
 
     _pGraphView = new GraphView(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
-    _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel, _pSettingsModel, _pDataParserModel, this);
+    _pDataFileHandler =
+      new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel, _pSettingsModel, _pDataParserModel, this);
     _pProjectFileHandler = new ProjectFileHandler(_pGuiModel, _pSettingsModel, _pGraphDataModel);
     _pExpressionStatus = new ExpressionStatus(_pGraphDataModel, pSettingsModel);
     _pCommunicationStats = new CommunicationStats(_pGraphDataModel);
@@ -84,13 +89,17 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pUi->actionManageNotes, &QAction::triggered, this, &MainWindow::showNotesDialog);
     connect(_pUi->actionExit, &QAction::triggered, this, &MainWindow::exitApplication);
     connect(_pUi->actionSaveDataFile, &QAction::triggered, _pDataFileHandler, &DataFileHandler::selectDataExportFile);
-    connect(_pUi->actionOpenProjectFile, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::selectProjectOpenFile);
-    connect(_pUi->actionReloadProjectFile, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::reloadProjectFile);
+    connect(_pUi->actionOpenProjectFile, &QAction::triggered, _pProjectFileHandler,
+            &ProjectFileHandler::selectProjectOpenFile);
+    connect(_pUi->actionReloadProjectFile, &QAction::triggered, _pProjectFileHandler,
+            &ProjectFileHandler::reloadProjectFile);
     connect(_pUi->actionOpenDataFile, &QAction::triggered, _pDataFileHandler, &DataFileHandler::selectDataImportFile);
     connect(_pUi->actionImportFromMbcFile, &QAction::triggered, this, &MainWindow::showMbcImportDialog);
     connect(_pUi->actionExportImage, &QAction::triggered, this, &MainWindow::selectImageExportFile);
-    connect(_pUi->actionSaveProjectFileAs, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::selectProjectSaveFile);
-    connect(_pUi->actionSaveProjectFile, &QAction::triggered, _pProjectFileHandler, &ProjectFileHandler::saveProjectFile);
+    connect(_pUi->actionSaveProjectFileAs, &QAction::triggered, _pProjectFileHandler,
+            &ProjectFileHandler::selectProjectSaveFile);
+    connect(_pUi->actionSaveProjectFile, &QAction::triggered, _pProjectFileHandler,
+            &ProjectFileHandler::saveProjectFile);
     connect(_pUi->actionAbout, &QAction::triggered, this, &MainWindow::showAbout);
     connect(_pUi->actionOnlineDocumentation, &QAction::triggered, this, &MainWindow::openOnlineDoc);
     connect(_pUi->actionUpdateAvailable, &QAction::triggered, this, &MainWindow::openUpdateUrl);
@@ -100,7 +109,8 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pUi->actionSettings, &QAction::triggered, this, &MainWindow::showSettingsDialog);
     connect(_pUi->actionRegisterSettings, &QAction::triggered, this, &MainWindow::handleShowRegisterDialog);
     connect(_pUi->actionAddNote, &QAction::triggered, this, &MainWindow::addNoteToGraph);
-    connect(_pUi->actionZoom, &QAction::triggered, this, &MainWindow::toggleZoom); /* Only called on GUI click, not on setChecked */
+    connect(_pUi->actionZoom, &QAction::triggered, this,
+            &MainWindow::toggleZoom); /* Only called on GUI click, not on setChecked */
 
     /*-- connect model to view --*/
     connect(_pGuiModel, &GuiModel::highlightSamplesChanged, this, &MainWindow::updateHighlightSampleMenu);
@@ -183,7 +193,8 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     connect(_pUi->customPlot, &QCustomPlot::customContextMenuRequested, this, &MainWindow::showContextMenu);
 
     /* handle focus change */
-    connect(dynamic_cast<QApplication*>(QApplication::instance()), &QApplication::focusChanged, this, &MainWindow::appFocusChanged);
+    connect(dynamic_cast<QApplication*>(QApplication::instance()), &QApplication::focusChanged, this,
+            &MainWindow::appFocusChanged);
 
     /* Update notes in data file when requested by notes model */
     connect(_pNoteModel, &NoteModel::dataFileUpdateRequested, this, &MainWindow::updateDataFileNotes);
@@ -201,9 +212,12 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
 
     connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pGraphView, &GraphView::plotResults);
     connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pLegend, &Legend::addLastReceivedDataToLegend);
-    connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pCommunicationStats, &CommunicationStats::updateCommunicationStats);
+    connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pCommunicationStats,
+            &CommunicationStats::updateCommunicationStats);
 
     handleCommandLineArguments(cmdArguments);
+
+    _pAdapterPoll->initAdapter();
 
 #if 0
     //Debugging
@@ -218,13 +232,12 @@ MainWindow::MainWindow(QStringList cmdArguments, GuiModel* pGuiModel,
     //_pGraphDataModel->setActive(2, false);
 
 #endif
-
 }
 
 MainWindow::~MainWindow()
 {
     delete _pGraphView;
-    delete _pModbusPoll;
+    delete _pAdapterPoll;
     delete _pGraphShowHide;
     delete _pMostRecentMenu;
     delete _pDataFileHandler;
@@ -257,17 +270,14 @@ void MainWindow::keyReleaseEvent(QKeyEvent* event)
     QMainWindow::keyReleaseEvent(event);
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
+void MainWindow::closeEvent(QCloseEvent* event)
 {
-    if (
-            (_pGuiModel->guiState() == GuiState::DATA_LOADED)
-            && (_pNoteModel->isNotesDataUpdated())
-        )
+    if ((_pGuiModel->guiState() == GuiState::DATA_LOADED) && (_pNoteModel->isNotesDataUpdated()))
     {
-        QMessageBox::StandardButton resBtn = QMessageBox::question(this, windowTitle(),
-                                                                    tr("The notes are changed.\nDo you want discard the changes or update (save) the data file?\n"),
-                                                                    QMessageBox::Cancel | QMessageBox::Discard | QMessageBox::Save,
-                                                                    QMessageBox::Cancel);
+        QMessageBox::StandardButton resBtn = QMessageBox::question(
+          this, windowTitle(),
+          tr("The notes are changed.\nDo you want discard the changes or update (save) the data file?\n"),
+          QMessageBox::Cancel | QMessageBox::Discard | QMessageBox::Save, QMessageBox::Cancel);
         if (resBtn == QMessageBox::Cancel)
         {
             event->ignore();
@@ -305,8 +315,7 @@ void MainWindow::selectImageExportFile()
     const QPixmap pixMap = this->window()->grab();
 
     QFileDialog dialog(this);
-    FileSelectionHelper::configureFileDialog(&dialog,
-                                             FileSelectionHelper::DIALOG_TYPE_SAVE,
+    FileSelectionHelper::configureFileDialog(&dialog, FileSelectionHelper::DIALOG_TYPE_SAVE,
                                              FileSelectionHelper::FILE_TYPE_PNG);
 
     QString selectedFile = FileSelectionHelper::showDialog(&dialog);
@@ -323,7 +332,7 @@ void MainWindow::selectImageExportFile()
 
 void MainWindow::showAbout()
 {
-    AboutDialog aboutDialog(_pUpdateNotify, this);
+    AboutDialog aboutDialog(_pUpdateNotify, _pSettingsModel, this);
 
     aboutDialog.exec();
 }
@@ -343,7 +352,7 @@ void MainWindow::openUpdateUrl()
 
 void MainWindow::menuShowHideGraphClicked(bool bState)
 {
-    QAction * pAction = qobject_cast<QAction *>(QObject::sender());
+    QAction* pAction = qobject_cast<QAction*>(QObject::sender());
 
     const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(pAction->data().toInt());
     _pGraphDataModel->setVisible(graphIdx, bState);
@@ -358,7 +367,7 @@ void MainWindow::showSettingsDialog()
 void MainWindow::handleShowRegisterDialog(bool checked)
 {
     Q_UNUSED(checked);
-    showRegisterDialog(QString(""));
+    showRegisterDialog();
 }
 
 void MainWindow::setAxisToAuto()
@@ -368,12 +377,15 @@ void MainWindow::setAxisToAuto()
     _pGuiModel->sety2AxisScale(AxisMode::SCALE_AUTO);
 }
 
-void MainWindow::showRegisterDialog(QString mbcFile)
+void MainWindow::showRegisterDialog()
 {
     if (_pGuiModel->guiState() == GuiState::DATA_LOADED)
     {
         QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(this, "Clear data?", "An imported data file is loaded. Do you want to clear the data and start adding registers for a new log?", QMessageBox::Yes|QMessageBox::No);
+        reply = QMessageBox::question(
+          this, "Clear data?",
+          "An imported data file is loaded. Do you want to clear the data and start adding registers for a new log?",
+          QMessageBox::Yes | QMessageBox::No);
         if (reply != QMessageBox::Yes)
         {
             return;
@@ -385,25 +397,14 @@ void MainWindow::showRegisterDialog(QString mbcFile)
         _pGuiModel->setGuiState(GuiState::INIT);
     }
 
-    RegisterDialog registerDialog(_pGraphDataModel, _pSettingsModel, this);
-
-    if (mbcFile.isEmpty())
-    {
-        registerDialog.exec();
-    }
-    else
-    {
-        _pGuiModel->setLastMbcImportedFile(mbcFile);
-        showMbcImportDialog();
-    }
+    RegisterDialog registerDialog(_pGraphDataModel, _pSettingsModel, _pAdapterPoll->adapterManager(), this);
+    registerDialog.exec();
 }
 
 void MainWindow::addNoteToGraph()
 {
     bool ok;
-    QString text = QInputDialog::getText(this, tr("Add note"),
-                                         tr("Note text:"), QLineEdit::Normal,
-                                         "", &ok);
+    QString text = QInputDialog::getText(this, tr("Add note"), tr("Note text:"), QLineEdit::Normal, "", &ok);
     if (ok)
     {
         Note newNote(text, _lastRightClickPos);
@@ -440,7 +441,7 @@ void MainWindow::toggleZoom(bool checked)
 void MainWindow::clearData()
 {
     _pCommunicationStats->resetTiming();
-    _pModbusPoll->resetCommunicationStats();
+    _pAdapterPoll->resetCommunicationStats();
     _pGraphView->clearResults();
     _pGuiModel->clearMarkersState();
     _pDataFileHandler->rewriteDataFile();
@@ -479,10 +480,10 @@ void MainWindow::startScope()
 
         clearData();
 
-        QList<ModbusRegister> registerList;
+        QList<DataPoint> registerList;
         _pGraphDataHandler->setupExpressions(_pGraphDataModel, registerList);
 
-        _pModbusPoll->startCommunication(registerList);
+        _pAdapterPoll->startCommunication(registerList);
         _pCommunicationStats->start();
 
         if (_pSettingsModel->writeDuringLog())
@@ -498,7 +499,7 @@ void MainWindow::startScope()
 
 void MainWindow::stopScope()
 {
-    _pModbusPoll->stopCommunication();
+    _pAdapterPoll->stopCommunication();
     _pCommunicationStats->stop();
 
     if (_pSettingsModel->writeDuringLog())
@@ -564,7 +565,7 @@ void MainWindow::handleGraphColorChange(const quint32 graphIdx)
     {
         const quint32 activeIdx = static_cast<quint32>(_pGraphDataModel->convertToActiveGraphIndex(graphIdx));
 
-        QPixmap pixmap(20,5);
+        QPixmap pixmap(20, 5);
         pixmap.fill(_pGraphDataModel->color(graphIdx));
 
         QIcon showHideIcon = QIcon(pixmap);
@@ -620,13 +621,13 @@ void MainWindow::rebuildGraphMenu()
     QList<quint16> activeGraphList;
     _pGraphDataModel->activeGraphIndexList(&activeGraphList);
 
-    for(qint32 activeIdx = 0; activeIdx < activeGraphList.size(); activeIdx++)
+    for (qint32 activeIdx = 0; activeIdx < activeGraphList.size(); activeIdx++)
     {
 
         QString label = _pGraphDataModel->label(activeGraphList[activeIdx]);
-        QAction * pShowHideAction = _pGraphShowHide->addAction(label);
+        QAction* pShowHideAction = _pGraphShowHide->addAction(label);
 
-        QPixmap pixmap(20,5);
+        QPixmap pixmap(20, 5);
         pixmap.fill(_pGraphDataModel->color(activeGraphList[activeIdx]));
         QIcon icon = QIcon(pixmap);
 
@@ -734,7 +735,7 @@ void MainWindow::updateGuiState()
         _pUi->actionSaveProjectFileAs->setEnabled(false);
         _pUi->actionSaveProjectFile->setEnabled(false);
         _pUi->actionExportImage->setEnabled(true);
-        _pUi->actionClearData->setEnabled(false);        
+        _pUi->actionClearData->setEnabled(false);
         _pUi->actionReloadProjectFile->setEnabled(false);
 
         _pGuiModel->setWindowTitleDetail(QFileInfo(_pDataParserModel->dataFilePath()).fileName());
@@ -796,7 +797,7 @@ void MainWindow::showContextMenu(const QPoint& pos)
     }
 }
 
-void MainWindow::dragEnterEvent(QDragEnterEvent *e)
+void MainWindow::dragEnterEvent(QDragEnterEvent* e)
 {
     if (e->mimeData()->hasUrls())
     {
@@ -804,16 +805,16 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *e)
     }
 }
 
-void MainWindow::dropEvent(QDropEvent *e)
+void MainWindow::dropEvent(QDropEvent* e)
 {
-    if (!_pModbusPoll->isActive())
+    if (!_pAdapterPoll->isActive())
     {
-        const QString filename(e->mimeData()->urls().last().toLocalFile());
+        const QString filename(e->mimeData()->urls().constLast().toLocalFile());
         handleFileOpen(filename);
     }
 }
 
-void MainWindow::appFocusChanged(QWidget *old, QWidget *now)
+void MainWindow::appFocusChanged(QWidget* old, QWidget* now)
 {
     Q_UNUSED(now);
     if (old != nullptr)
@@ -856,8 +857,9 @@ void MainWindow::handleCommandLineArguments(QStringList cmdArguments)
     argumentParser.setApplicationDescription("Log data through the Modbus protocol");
     argumentParser.addHelpOption();
 
-	// Project file option
-    argumentParser.addPositionalArgument("project file", QCoreApplication::translate("main", "Project file (.mbs) to open"));
+    // Project file option
+    argumentParser.addPositionalArgument("project file",
+                                         QCoreApplication::translate("main", "Project file (.mbs) to open"));
 
     // Process arguments
     argumentParser.process(cmdArguments);
@@ -873,13 +875,15 @@ void MainWindow::handleFileOpen(QString filename)
 {
     QFileInfo fileInfo(filename);
     _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
-    if (fileInfo.completeSuffix().toLower() == QString("mbs"))
+    const QString suffix = fileInfo.suffix().toLower();
+    if (suffix == QStringLiteral("mbs"))
     {
         _pProjectFileHandler->openProjectFile(filename);
     }
-    else if (fileInfo.completeSuffix().toLower() == QString("mbc"))
+    else if (suffix == QStringLiteral("mbc"))
     {
-        showRegisterDialog(filename);
+        _pGuiModel->setLastMbcImportedFile(filename);
+        showMbcImportDialog();
     }
     else
     {
@@ -887,4 +891,3 @@ void MainWindow::handleFileOpen(QString filename)
         _pDataFileHandler->openDataFile(filename);
     }
 }
-

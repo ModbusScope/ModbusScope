@@ -1,10 +1,13 @@
 #include "settingsdialog.h"
 #include "ui_settingsdialog.h"
 
-#include "dialogs/connectionsettings.h"
-#include "dialogs/devicesettings.h"
+#include "dialogs/adapterdevicesettings.h"
+#include "dialogs/adaptersettings.h"
 #include "dialogs/logsettings.h"
-#include <qlabel.h>
+#include "models/adapterdata.h"
+#include "models/settingsmodel.h"
+
+#include <QJsonObject>
 
 SettingsDialog::SettingsDialog(SettingsModel* pSettingsModel, QWidget* parent)
     : QDialog(parent), _pUi(new Ui::SettingsDialog), _pSettingsModel(pSettingsModel)
@@ -19,27 +22,65 @@ SettingsDialog::SettingsDialog(SettingsModel* pSettingsModel, QWidget* parent)
     _pUi->settingsList->setFont(font);
     _pUi->settingsList->setStyleSheet("QListWidget {padding: 10px;} QListWidget::item { margin: 10px; }");
 
-    auto listItem = new QListWidgetItem(_pUi->settingsList);
-    listItem->setText("Connections");
-    listItem->setIcon(QIcon(":/menu_icon/icons/network.svg"));
-    _pUi->settingsList->addItem(listItem);
+    // Remove the placeholder page inserted by the UI designer
+    while (_pUi->settingsStack->count() > 0)
+    {
+        _pUi->settingsStack->removeWidget(_pUi->settingsStack->widget(0));
+    }
 
-    listItem = new QListWidgetItem(_pUi->settingsList);
-    listItem->setText("Devices");
-    listItem->setIcon(QIcon(":/menu_icon/icons/circuit-board.svg"));
-    _pUi->settingsList->addItem(listItem);
+    // Build dynamic pages from schema.properties of all adapters (all keys except "devices")
+    const QStringList adapterIds = pSettingsModel->adapterIds();
+    for (const auto& id : adapterIds)
+    {
+        if (pSettingsModel->adapterData(id)->schema().isEmpty())
+        {
+            continue;
+        }
 
-    listItem = new QListWidgetItem(_pUi->settingsList);
-    listItem->setText("Log");
-    listItem->setIcon(QIcon(":/menu_icon/icons/clipboard-list.svg"));
-    _pUi->settingsList->addItem(listItem);
+        const QJsonObject schemaProps = pSettingsModel->adapterData(id)->schema().value("properties").toObject();
 
-    _pConnSettings = new ConnectionSettings(_pSettingsModel);
-    _pDevSettings = new DeviceSettings(_pSettingsModel);
+        for (auto it = schemaProps.constBegin(); it != schemaProps.constEnd(); ++it)
+        {
+            const QString& key = it.key();
+            if (key == "devices")
+            {
+                continue;
+            }
 
-    _pUi->settingsStack->insertWidget(PAGE_CONNECTION, _pConnSettings);
-    _pUi->settingsStack->insertWidget(PAGE_DEVICE, _pDevSettings);
-    _pUi->settingsStack->insertWidget(PAGE_LOG, new LogSettings(_pSettingsModel));
+            const QJsonObject propSchema = it.value().toObject();
+            if (!AdapterSettings::isRenderableProperty(propSchema))
+            {
+                continue;
+            }
+
+            const QString title = key[0].toUpper() + key.mid(1);
+            auto* listItem = new QListWidgetItem(_pUi->settingsList);
+            listItem->setText(title);
+            listItem->setIcon(QIcon(":/menu_icon/icons/settings.svg"));
+            _pUi->settingsList->addItem(listItem);
+
+            auto* page = new AdapterSettings(pSettingsModel, id, key, this);
+            _dynamicSettings.append(page);
+            _pUi->settingsStack->addWidget(page);
+        }
+    }
+
+    // Fixed: Devices page
+    auto* devItem = new QListWidgetItem(_pUi->settingsList);
+    devItem->setText("Devices");
+    devItem->setIcon(QIcon(":/menu_icon/icons/circuit-board.svg"));
+    _pUi->settingsList->addItem(devItem);
+
+    _pDevSettings = new AdapterDeviceSettings(pSettingsModel, this);
+    _pUi->settingsStack->addWidget(_pDevSettings);
+
+    // Fixed: Log page
+    auto* logItem = new QListWidgetItem(_pUi->settingsList);
+    logItem->setText("Log");
+    logItem->setIcon(QIcon(":/menu_icon/icons/clipboard-list.svg"));
+    _pUi->settingsList->addItem(logItem);
+
+    _pUi->settingsStack->addWidget(new LogSettings(pSettingsModel, this));
 
     connect(_pUi->settingsList, &QListWidget::currentRowChanged, this, &SettingsDialog::settingsStackSwitch);
 }
@@ -49,30 +90,26 @@ SettingsDialog::~SettingsDialog()
     delete _pUi;
 }
 
+void SettingsDialog::acceptAllValues()
+{
+    for (auto* page : std::as_const(_dynamicSettings))
+    {
+        page->acceptValues();
+    }
+    _pDevSettings->acceptValues();
+}
+
 void SettingsDialog::done(int r)
 {
-    Q_UNUSED(r);
+    if (r == QDialog::Accepted)
+    {
+        acceptAllValues();
+    }
 
-    _pConnSettings->acceptValues();
-
-    QDialog::done(QDialog::Accepted);
+    QDialog::done(r);
 }
 
 void SettingsDialog::settingsStackSwitch(int newRow)
 {
-    auto previousTab = _pUi->settingsStack->currentIndex();
-
-    // Update connection settings when switching away from tab
-    if (previousTab == PAGE_CONNECTION)
-    {
-        _pConnSettings->acceptValues();
-    }
-
-    // Validate device settings when switching to tab
-    if (newRow == PAGE_DEVICE)
-    {
-        _pDevSettings->settingsTabsSwitched();
-    }
-
     _pUi->settingsStack->setCurrentIndex(newRow);
 }

@@ -1,3 +1,5 @@
+#ifndef TST_MBCREGISTERFILTER_H
+#define TST_MBCREGISTERFILTER_H
 
 #include <QObject>
 
@@ -19,9 +21,18 @@ private slots:
     void textAddressFilter();
     void tabTextFilter();
 
+    void tabNoFilterShowsAll();
+    void tabFilterHidesOtherTabs();
+    void textFilterCaseInsensitive();
+    void addressFilterPartialMatch();
+    void emptyModelAcceptsNothing();
+    void outOfRangeRowRejected();
+
 private:
     MbcRegisterModel* _pMbcRegisterModel;
 
     MbcRegisterFilter* _pFilterProxy;
 
 };
+
+#endif // TST_MBCREGISTERFILTER_H
