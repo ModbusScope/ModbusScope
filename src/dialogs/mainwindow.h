@@ -1,7 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "datahandling/graphdatahandler.h"
 #include "util/recentfilemodule.h"
+#include "util/result.h"
 #include "util/updatenotify.h"
 
 #include <QButtonGroup>
@@ -15,7 +17,6 @@ class MainWindow;
 
 // Forward declaration
 class AdapterPoll;
-class GraphDataHandler;
 class QCustomPlot;
 class GraphDataModel;
 class NoteModel;
@@ -101,6 +102,7 @@ private slots:
     void updateDataFileNotes();
 
     void showVersionUpdate(UpdateNotify::UpdateState result);
+    void onRegisterDataReady(const ResultDoubleList& results);
 
 private:
     void setAxisToAuto();
@@ -120,7 +122,7 @@ private:
     DataParserModel* _pDataParserModel;
 
     UpdateNotify* _pUpdateNotify;
-    GraphDataHandler* _pGraphDataHandler;
+    GraphDataHandler _graphDataHandler;
     ExpressionStatus* _pExpressionStatus;
     CommunicationStats* _pCommunicationStats;
 

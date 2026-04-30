@@ -59,16 +59,15 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
 
-    _pGraphDataHandler = new GraphDataHandler();
-    _pAdapterPoll = new AdapterPoll(_pSettingsModel);
-    connect(_pAdapterPoll, &AdapterPoll::registerDataReady, _pGraphDataHandler, &GraphDataHandler::handleRegisterData);
+    _pAdapterPoll = new AdapterPoll(_pSettingsModel, this);
+    connect(_pAdapterPoll, &AdapterPoll::registerDataReady, this, &MainWindow::onRegisterDataReady);
 
     _pGraphView = new GraphView(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
     _pDataFileHandler =
       new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel, _pSettingsModel, _pDataParserModel, this);
-    _pProjectFileHandler = new ProjectFileHandler(_pGuiModel, _pSettingsModel, _pGraphDataModel);
-    _pExpressionStatus = new ExpressionStatus(_pGraphDataModel, pSettingsModel);
-    _pCommunicationStats = new CommunicationStats(_pGraphDataModel);
+    _pProjectFileHandler = new ProjectFileHandler(_pGuiModel, _pSettingsModel, _pGraphDataModel, this);
+    _pExpressionStatus = new ExpressionStatus(_pGraphDataModel, pSettingsModel, this);
+    _pCommunicationStats = new CommunicationStats(_pGraphDataModel, 50, this);
 
     _pLegend = _pUi->legend;
     _pLegend->setModels(_pGuiModel, _pGraphDataModel);
@@ -201,7 +200,8 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
     /* Trigger update check */
     _pUi->actionUpdateAvailable->setVisible(false);
-    _pUpdateNotify = new UpdateNotify(new VersionDownloader(), Util::currentVersion());
+    auto* pVersionDownloader = new VersionDownloader(this);
+    _pUpdateNotify = new UpdateNotify(pVersionDownloader, Util::currentVersion(), this);
     connect(_pUpdateNotify, &UpdateNotify::updateCheckResult, this, &MainWindow::showVersionUpdate);
 
 #ifndef DEBUG
@@ -213,11 +213,6 @@ MainWindow::MainWindow(QStringList cmdArguments,
     setAxisToAuto();
 
     handleGraphsCountChanged();
-
-    connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pGraphView, &GraphView::plotResults);
-    connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pLegend, &Legend::addLastReceivedDataToLegend);
-    connect(_pGraphDataHandler, &GraphDataHandler::graphDataReady, _pCommunicationStats,
-            &CommunicationStats::updateCommunicationStats);
 
     handleCommandLineArguments(cmdArguments);
 
@@ -240,16 +235,8 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
 MainWindow::~MainWindow()
 {
-    delete _pGraphView;
-    delete _pAdapterPoll;
-    delete _pGraphShowHide;
-    delete _pMostRecentMenu;
-    delete _pDataFileHandler;
-    delete _pProjectFileHandler;
-    delete _pExpressionStatus;
-    delete _pStatusBar;
-
-    delete _pUpdateNotify;
+    _pAdapterPoll->stopCommunication();
+    disconnect(_pAdapterPoll, &AdapterPoll::registerDataReady, this, &MainWindow::onRegisterDataReady);
 
     delete _pUi;
 }
@@ -485,7 +472,7 @@ void MainWindow::startScope()
         clearData();
 
         QList<DataPoint> registerList;
-        _pGraphDataHandler->setupExpressions(_pGraphDataModel, registerList);
+        _graphDataHandler.setupExpressions(_pGraphDataModel, registerList);
 
         _pAdapterPoll->startCommunication(registerList);
         _pCommunicationStats->start();
@@ -836,6 +823,14 @@ void MainWindow::updateDataFileNotes()
             _pDataFileHandler->updateNoteLines();
         }
     }
+}
+
+void MainWindow::onRegisterDataReady(const ResultDoubleList& results)
+{
+    ResultDoubleList processed = _graphDataHandler.handleRegisterData(results);
+    _pGraphView->plotResults(processed);
+    _pLegend->addLastReceivedDataToLegend(processed);
+    _pCommunicationStats->updateCommunicationStats(processed);
 }
 
 void MainWindow::showVersionUpdate(UpdateNotify::UpdateState result)

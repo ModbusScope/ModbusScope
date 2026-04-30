@@ -311,5 +311,3 @@ void TestProjectFileXmlParser::logFileRelativePath()
 }
 
 QTEST_MAIN(TestProjectFileXmlParser)
-
-#include "tst_projectfilexmlparser.moc"

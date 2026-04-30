@@ -8,9 +8,8 @@
 // Forward declaration
 class GraphDataModel;
 
-class GraphDataHandler : public QObject
+class GraphDataHandler
 {
-    Q_OBJECT
 public:
     GraphDataHandler() = default;
 
@@ -20,11 +19,7 @@ public:
     qint32 expressionErrorPos(qint32 exprIdx) const;
     QMuParser::ErrorType expressionErrorType(qint32 exprIdx) const;
 
-public slots:
-    void handleRegisterData(ResultDoubleList results);
-
-signals:
-    void graphDataReady(ResultDoubleList resultList);
+    ResultDoubleList handleRegisterData(const ResultDoubleList& results);
 
 private:
     QList<quint16> _activeIndexList;

@@ -65,7 +65,13 @@ QMuParser::ErrorType GraphDataHandler::expressionErrorType(qint32 exprIdx) const
     return _valueParsers[exprIdx].errorType();
 }
 
-void GraphDataHandler::handleRegisterData(ResultDoubleList results)
+/*!
+ * \brief Evaluates each configured expression against the raw register results.
+ * \param results Raw register read results from the adapter (one entry per Modbus register).
+ * \return Expression-evaluated results (one entry per graph expression). Entries are marked
+ *         INVALID when expression evaluation fails; the input values are not passed through.
+ */
+ResultDoubleList GraphDataHandler::handleRegisterData(const ResultDoubleList& results)
 {
     ResultDoubleList registerList;
 
@@ -91,5 +97,5 @@ void GraphDataHandler::handleRegisterData(ResultDoubleList results)
         registerList.append(result);
     }
 
-    emit graphDataReady(registerList);
+    return registerList;
 }

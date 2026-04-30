@@ -188,17 +188,17 @@ void GraphView::clearGraph(const quint32 graphIdx)
         else if (activeGraphList.size() == 1)
         {
             /* Only one graph active: clear all data */
-            _pGraphDataModel->dataMap(graphIdx)->clear();
+            _pGraphDataModel->mutableDataMap(graphIdx)->clear();
 
             _pPlot->replot();
         }
         else
         {
             /* Several active graph, keep time data but clear data */
-            QCPGraphDataContainer::iterator it = _pGraphDataModel->dataMap(graphIdx)->begin();
+            QCPGraphDataContainer::iterator it = _pGraphDataModel->mutableDataMap(graphIdx)->begin();
 
             /* Clear all values, keep keys */
-            while (it != _pGraphDataModel->dataMap(graphIdx)->end())
+            while (it != _pGraphDataModel->mutableDataMap(graphIdx)->end())
             {
                 it->value = 0u;
                 it++;
@@ -247,12 +247,13 @@ void GraphView::updateGraphs()
 
             connect(pGraph, QOverload<bool>::of(&QCPGraph::selectionChanged), this, &GraphView::handleSelectionChanged);
 
-            QSharedPointer<QCPGraphDataContainer> pMap = _pGraphDataModel->dataMap(graphIdx);
+            QSharedPointer<QCPGraphDataContainer> pMap = _pGraphDataModel->mutableDataMap(graphIdx);
 
             // Set data to zero when needed
             if (pMap->size() != maxSampleCount)
             {
-                const QSharedPointer<QCPGraphDataContainer> pReferenceMap = _pGraphDataModel->dataMap(maxSampleIdx);
+                const QSharedPointer<const QCPGraphDataContainer> pReferenceMap =
+                  _pGraphDataModel->dataMap(maxSampleIdx);
                 pMap->clear();
 
                 // Add zero value for every key (x-coordinate)

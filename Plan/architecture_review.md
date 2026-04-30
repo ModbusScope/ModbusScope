@@ -6,7 +6,7 @@
 
 ## 1. Critical Issues
 
-### 1.1 Unsafe object lifetime in `MainApp`
+### 1.1 Unsafe object lifetime in `MainApp` [DONE]
 **File:** `src/mainapp.cpp:48–58`
 
 All six models are allocated without a Qt parent. The destructor manually deletes `MainWindow` _first_ (line 50), then the models (lines 52–57). At the moment `MainWindow` is deleted, it tears down widget children — but all model signals are still live. Qt disconnects them safely during `QObject::~QObject`, so there is no crash today, but the order is fragile and non-obvious. Any future eager access to a model from a widget destructor would be a use-after-free.
@@ -59,7 +59,7 @@ This makes the class ~700 lines, hard to test in isolation, and difficult to ext
 
 ---
 
-### 2.2 `GraphDataModel::dataMap()` leaks mutable internals
+### 2.2 `GraphDataModel::dataMap()` leaks mutable internals [DONE]
 **File:** `src/models/graphdatamodel.h:58`
 
 ```cpp
@@ -109,7 +109,7 @@ A static setter injects a model pointer into a utility class globally. This is h
 
 ---
 
-### 2.6 `ProjectFileHandler` created without Qt parent
+### 2.6 `ProjectFileHandler` created without Qt parent [DONE]
 **File:** `src/dialogs/mainwindow.cpp:69`
 
 ```cpp
@@ -138,7 +138,7 @@ These are the most business-critical classes. Changes to `GraphDataModel` in par
 
 ---
 
-### 3.2 `GraphDataHandler` is an unnecessary `QObject`
+### 3.2 `GraphDataHandler` is an unnecessary `QObject` [DONE]
 **File:** `src/datahandling/graphdatahandler.h`
 
 `GraphDataHandler` inherits `QObject` solely to expose one slot (`handleRegisterData`) and emit one signal (`graphDataReady`). The slot just transforms `ResultDoubleList → ResultDoubleList` and the signal is a fan-out. This could be a plain function call or a non-QObject with `std::function` callbacks, eliminating the metaclass overhead and making it trivially testable without the event loop.

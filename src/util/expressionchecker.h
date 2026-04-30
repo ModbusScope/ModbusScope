@@ -9,8 +9,7 @@ class ExpressionChecker : public QObject
 {
     Q_OBJECT
 public:
-
-    explicit ExpressionChecker(QObject *parent = nullptr);
+    explicit ExpressionChecker(QObject* parent = nullptr);
 
     void setExpression(QString expr);
 
@@ -30,10 +29,8 @@ public:
 signals:
     void resultsReady(bool valid);
 
-private slots:
-    void handleDataReady(ResultDoubleList resultList);
-
 private:
+    void handleDataReady(ResultDoubleList resultList);
 
     GraphDataModel _localGraphDataModel;
     GraphDataHandler _graphDataHandler;

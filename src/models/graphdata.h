@@ -1,9 +1,9 @@
 #ifndef GRAPHDATA_H
 #define GRAPHDATA_H
 
-#include <QtGlobal>
-#include <QColor>
 #include "qcustomplot/qcustomplot.h"
+#include <QColor>
+#include <QtGlobal>
 
 class GraphData
 {
@@ -34,10 +34,10 @@ public:
     void setVisible(bool bVisible);
 
     QString label() const;
-    void setLabel(const QString &label);
+    void setLabel(const QString& label);
 
     QColor color() const;
-    void setColor(const QColor &color);
+    void setColor(const QColor& color);
 
     bool isActive() const;
     void setActive(bool bActive);
@@ -49,10 +49,10 @@ public:
     void setExpressionState(ExpressionState status);
     bool isExpressionValid() const;
 
-    QSharedPointer<QCPGraphDataContainer> dataMap();
+    QSharedPointer<const QCPGraphDataContainer> dataMap() const;
+    QSharedPointer<QCPGraphDataContainer> mutableDataMap();
 
 private:
-
     valueAxis_t _valueAxis;
     bool _bVisible;
     QString _label;
@@ -63,7 +63,6 @@ private:
     ExpressionState _expressionState;
 
     QSharedPointer<QCPGraphDataContainer> _pDataMap;
-
 };
 
 #endif // GRAPHDATA_H

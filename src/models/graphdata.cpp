@@ -15,10 +15,7 @@ GraphData::GraphData()
     _pDataMap = QSharedPointer<QCPGraphDataContainer>(new QCPGraphDataContainer);
 }
 
-GraphData::~GraphData()
-{
-    _pDataMap.clear();
-}
+GraphData::~GraphData() = default;
 
 GraphData::valueAxis_t GraphData::valueAxis() const
 {
@@ -48,7 +45,7 @@ QString GraphData::label() const
     return _label;
 }
 
-void GraphData::setLabel(const QString &label)
+void GraphData::setLabel(const QString& label)
 {
     /* Remove separator char (used in export) from label */
     QString cleanedLabel = QString(label).remove(Util::separatorCharacter());
@@ -61,7 +58,7 @@ QColor GraphData::color() const
     return _color;
 }
 
-void GraphData::setColor(const QColor &color)
+void GraphData::setColor(const QColor& color)
 {
     _color = color;
 }
@@ -102,7 +99,12 @@ void GraphData::setExpressionState(GraphData::ExpressionState status)
     _expressionState = status;
 }
 
-QSharedPointer<QCPGraphDataContainer> GraphData::dataMap()
+QSharedPointer<const QCPGraphDataContainer> GraphData::dataMap() const
+{
+    return _pDataMap;
+}
+
+QSharedPointer<QCPGraphDataContainer> GraphData::mutableDataMap()
 {
     return _pDataMap;
 }
