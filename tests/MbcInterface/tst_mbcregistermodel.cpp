@@ -89,8 +89,8 @@ void TestMbcRegisterModel::flagsDisabled()
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
 
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
-            << MbcRegisterData(40001, ModbusDataType::Type::UNSIGNED_16, "Test1", 0, false, 0) /* Not readable */
-            << MbcRegisterData(40002, ModbusDataType::Type::UNSIGNED_16, "Test2", 0, true, 0);
+            << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "Test1", 0, false, 0) /* Not readable */
+            << MbcRegisterData(40002, MbcDataType::Type::UNSIGNED_16, "Test2", 0, true, 0);
     QStringList tabList = QStringList() << QString("Tab0");
 
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
@@ -153,14 +153,14 @@ void TestMbcRegisterModel::fillData()
     QCOMPARE(resetSignalSpy.count(), 0);
 
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
-            << MbcRegisterData(40001, ModbusDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
-            << MbcRegisterData(40002, ModbusDataType::Type::SIGNED_32, "Test2", 1, true, 0)
-            << MbcRegisterData(40004, ModbusDataType::Type::UNSIGNED_16, "Test4", 1, true, 0)
-            << MbcRegisterData(40005, ModbusDataType::Type::SIGNED_16, "Test5", 0, true, 2)
-            << MbcRegisterData(40010, ModbusDataType::Type::UNSIGNED_16, "Test10", 2, true, 3)
-            << MbcRegisterData(40011, ModbusDataType::Type::SIGNED_16, "Test11", 2, false, 0) // Disabled: not readable
-            << MbcRegisterData(40002, ModbusDataType::Type::SIGNED_16, "Test6", 0, true, 0)
-            << MbcRegisterData(40004, ModbusDataType::Type::SIGNED_16, "Test13", 0, true, 0);
+            << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
+            << MbcRegisterData(40002, MbcDataType::Type::SIGNED_32, "Test2", 1, true, 0)
+            << MbcRegisterData(40004, MbcDataType::Type::UNSIGNED_16, "Test4", 1, true, 0)
+            << MbcRegisterData(40005, MbcDataType::Type::SIGNED_16, "Test5", 0, true, 2)
+            << MbcRegisterData(40010, MbcDataType::Type::UNSIGNED_16, "Test10", 2, true, 3)
+            << MbcRegisterData(40011, MbcDataType::Type::SIGNED_16, "Test11", 2, false, 0) // Disabled: not readable
+            << MbcRegisterData(40002, MbcDataType::Type::SIGNED_16, "Test6", 0, true, 0)
+            << MbcRegisterData(40004, MbcDataType::Type::SIGNED_16, "Test13", 0, true, 0);
 
     QStringList tabList = QStringList() << QString("Tab0") << QString("Tab1") << QString("Tab2");
     QSignalSpy rowsInsertedSpy(pMbcRegisterModel, SIGNAL(rowsInserted(const QModelIndex, int, int)));
@@ -226,7 +226,7 @@ void TestMbcRegisterModel::fillData()
         QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnTab), Qt::DisplayRole), tabList[mbcRegisterList[rowIdx].tabIdx()]);
         QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnDecimals), Qt::DisplayRole), mbcRegisterList[rowIdx].decimals());
 
-        auto type = ModbusDataType::typeString(mbcRegisterList[rowIdx].type());
+        auto type = MbcDataType::typeString(mbcRegisterList[rowIdx].type());
         QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnType), Qt::DisplayRole), type);
     }
 }
@@ -250,8 +250,8 @@ void TestMbcRegisterModel::selectedRegisterListAndCount()
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
 
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
-            << MbcRegisterData(40001, ModbusDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
-            << MbcRegisterData(40002, ModbusDataType::Type::UNSIGNED_16, "Test2", 0, true, 0);
+            << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
+            << MbcRegisterData(40002, MbcDataType::Type::UNSIGNED_16, "Test2", 0, true, 0);
     QStringList tabList = QStringList() << QString("Tab0");
 
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
@@ -330,7 +330,7 @@ void TestMbcRegisterModel::selectedRegisterListAndCount32()
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
 
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
-            << MbcRegisterData(40001, ModbusDataType::Type::UNSIGNED_32, "Test1", 0, true, 0);
+            << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_32, "Test1", 0, true, 0);
     QStringList tabList = QStringList() << QString("Tab0");
 
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
@@ -357,9 +357,9 @@ void TestMbcRegisterModel::selectedRegisterListDecimals()
     MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
 
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
-            << MbcRegisterData(40001, ModbusDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
-            << MbcRegisterData(40002, ModbusDataType::Type::UNSIGNED_16, "Test2", 0, true, 1)
-            << MbcRegisterData(40003, ModbusDataType::Type::UNSIGNED_16, "Test3", 0, true, 2);
+            << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
+            << MbcRegisterData(40002, MbcDataType::Type::UNSIGNED_16, "Test2", 0, true, 1)
+            << MbcRegisterData(40003, MbcDataType::Type::UNSIGNED_16, "Test3", 0, true, 2);
     QStringList tabList = QStringList() << QString("Tab0");
 
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
@@ -468,8 +468,8 @@ void TestMbcRegisterModel::selectAllSkipNonReadable()
 {
     MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
     QList<MbcRegisterData> mbcRegisterList =
-      QList<MbcRegisterData>() << MbcRegisterData(40001, ModbusDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
-                               << MbcRegisterData(40002, ModbusDataType::Type::UNSIGNED_16, "Test2", 0, false, 0);
+      QList<MbcRegisterData>() << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
+                               << MbcRegisterData(40002, MbcDataType::Type::UNSIGNED_16, "Test2", 0, false, 0);
     QStringList tabList = QStringList() << QString("Tab0");
 
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
@@ -492,7 +492,7 @@ void TestMbcRegisterModel::setDataOnDisabledRowDoesNothing()
 {
     MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
     QList<MbcRegisterData> mbcRegisterList =
-      QList<MbcRegisterData>() << MbcRegisterData(40001, ModbusDataType::Type::UNSIGNED_16, "NonReadable", 0, false, 0);
+      QList<MbcRegisterData>() << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "NonReadable", 0, false, 0);
     QStringList tabList = QStringList() << QString("Tab0");
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
 
@@ -565,9 +565,9 @@ void TestMbcRegisterModel::fillTwiceResetsFirst()
 
     // Second fill with different data
     QList<MbcRegisterData> mbcRegisterList =
-      QList<MbcRegisterData>() << MbcRegisterData(41001, ModbusDataType::Type::UNSIGNED_16, "NewReg1", 0, true, 0)
-                               << MbcRegisterData(41002, ModbusDataType::Type::UNSIGNED_16, "NewReg2", 0, true, 0)
-                               << MbcRegisterData(41003, ModbusDataType::Type::UNSIGNED_16, "NewReg3", 0, true, 0);
+      QList<MbcRegisterData>() << MbcRegisterData(41001, MbcDataType::Type::UNSIGNED_16, "NewReg1", 0, true, 0)
+                               << MbcRegisterData(41002, MbcDataType::Type::UNSIGNED_16, "NewReg2", 0, true, 0)
+                               << MbcRegisterData(41003, MbcDataType::Type::UNSIGNED_16, "NewReg3", 0, true, 0);
     QStringList tabList = QStringList() << QString("Tab0");
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
 
@@ -601,8 +601,8 @@ void TestMbcRegisterModel::selectedRegisterListEmpty()
 void TestMbcRegisterModel::fillModel(MbcRegisterModel * pMbcRegisterModel)
 {
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
-            << MbcRegisterData(40001, ModbusDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
-            << MbcRegisterData(40002, ModbusDataType::Type::UNSIGNED_16, "Test2", 0, true, 0);
+            << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
+            << MbcRegisterData(40002, MbcDataType::Type::UNSIGNED_16, "Test2", 0, true, 0);
     QStringList tabList = QStringList() << QString("Tab0");
 
     pMbcRegisterModel->fill(mbcRegisterList, tabList);

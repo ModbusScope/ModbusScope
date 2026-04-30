@@ -1,9 +1,9 @@
-#ifndef MODBUSDATATYPE_H
-#define MODBUSDATATYPE_H
+#ifndef MBCDATATYPE_H
+#define MBCDATATYPE_H
 
 #include <QString>
 
-class ModbusDataType
+class MbcDataType
 {
 
 public:
@@ -17,12 +17,12 @@ public:
         FLOAT_32 = 4,
     };
 
-    static bool is32Bit(ModbusDataType::Type type)
+    static bool is32Bit(MbcDataType::Type type)
     {
         return cDataTypes[static_cast<int>(type)].b32Bit;
     }
 
-    static QString typeString(ModbusDataType::Type type)
+    static QString typeString(MbcDataType::Type type)
     {
         switch (type)
         {
@@ -94,4 +94,4 @@ private:
 
 
 
-#endif // MODBUSDATATYPE_H
+#endif // MBCDATATYPE_H

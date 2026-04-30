@@ -1,7 +1,7 @@
 #ifndef MBCREGISTERDATA_H
 #define MBCREGISTERDATA_H
 
-#include "MbcInterface/modbusdatatype.h"
+#include "MbcInterface/mbcdatatype.h"
 
 #include <QString>
 #include <QtGlobal>
@@ -11,7 +11,7 @@ class MbcRegisterData
 public:
     explicit MbcRegisterData();
     MbcRegisterData(
-      quint32 registerAddress, ModbusDataType::Type type, QString name, qint32 tabIdx, bool bReadable, quint8 decimals);
+      quint32 registerAddress, MbcDataType::Type type, QString name, qint32 tabIdx, bool bReadable, quint8 decimals);
     ~MbcRegisterData();
 
     bool compare(MbcRegisterData* pMbcRegdata);
@@ -19,9 +19,9 @@ public:
     quint32 registerAddress() const;
     void setRegisterAddress(const quint32& registerAddress);
 
-    void setType(ModbusDataType::Type type);
+    void setType(MbcDataType::Type type);
 
-    ModbusDataType::Type type() const;
+    MbcDataType::Type type() const;
 
     QString name() const;
     void setName(const QString& name);
@@ -41,7 +41,7 @@ private:
     quint32 _registerAddress;
     QString _name;
     qint32 _tabIdx;
-    ModbusDataType::Type _type;
+    MbcDataType::Type _type;
     bool _bReadable;
     quint8 _decimals;
 };

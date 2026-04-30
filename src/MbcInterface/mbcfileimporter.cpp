@@ -237,7 +237,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement& element, qint32 tabIdx)
         if (bRet)
         {
             bool bOk;
-            ModbusDataType::Type type = ModbusDataType::convertMbcString(strType, bOk);
+            MbcDataType::Type type = MbcDataType::convertMbcString(strType, bOk);
 
             if (bOk)
             {
@@ -271,7 +271,7 @@ bool MbcFileImporter::parseVarTag(const QDomElement& element, qint32 tabIdx)
             /* Save register in list */
             _registerList.append(modbusRegister);
 
-            if (ModbusDataType::is32Bit(modbusRegister.type()))
+            if (MbcDataType::is32Bit(modbusRegister.type()))
             {
                 /* Increment address with 2 */
                 _nextRegisterAddr = static_cast<qint32>(modbusRegister.registerAddress()) + 2;

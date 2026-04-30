@@ -1,6 +1,6 @@
-#include "modbusdatatype.h"
+#include "mbcdatatype.h"
 
-const ModbusDataType::TypeSettings ModbusDataType::cDataTypes[] =
+const MbcDataType::TypeSettings MbcDataType::cDataTypes[] =
 {
     /* UNSIGNED_16 */ {false},
     /* SIGNED_16   */ {false},
