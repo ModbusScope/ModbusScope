@@ -6,7 +6,7 @@
  * \brief Default constructor — initialises all fields to safe defaults.
  */
 MbcRegisterData::MbcRegisterData()
-    : _registerAddress(0), _tabIdx(0), _type(ModbusDataType::Type::UNSIGNED_16), _bReadable(true), _decimals(0)
+    : _registerAddress(0), _tabIdx(0), _type(MbcDataType::Type::UNSIGNED_16), _bReadable(true), _decimals(0)
 {
 }
 
@@ -24,7 +24,7 @@ MbcRegisterData::~MbcRegisterData()
  * \param decimals Number of decimal places for display scaling.
  */
 MbcRegisterData::MbcRegisterData(
-  quint32 registerAddress, ModbusDataType::Type type, QString name, qint32 tabIdx, bool bReadable, quint8 decimals)
+  quint32 registerAddress, MbcDataType::Type type, QString name, qint32 tabIdx, bool bReadable, quint8 decimals)
     : _registerAddress(registerAddress),
       _name(name),
       _tabIdx(tabIdx),
@@ -95,7 +95,7 @@ void MbcRegisterData::setRegisterAddress(const quint32& registerAddress)
 /*!
  * \brief Sets the data type of the register.
  */
-void MbcRegisterData::setType(ModbusDataType::Type type)
+void MbcRegisterData::setType(MbcDataType::Type type)
 {
     _type = type;
 }
@@ -103,7 +103,7 @@ void MbcRegisterData::setType(ModbusDataType::Type type)
 /*!
  * \brief Returns the data type of the register.
  */
-ModbusDataType::Type MbcRegisterData::type() const
+MbcDataType::Type MbcRegisterData::type() const
 {
     return _type;
 }
@@ -180,7 +180,7 @@ void MbcRegisterData::setDecimals(const quint8& decimals)
  */
 QString MbcRegisterData::toExpression() const
 {
-    const QString typeStr = ModbusDataType::typeString(_type);
+    const QString typeStr = MbcDataType::typeString(_type);
     const QString suffix = (typeStr == QStringLiteral("16b")) ? QString() : QString(":%1").arg(typeStr);
     const QString registerStr = QString("${%1%2}").arg(_registerAddress).arg(suffix);
 

@@ -1,5 +1,3 @@
-add_xtest_mock(tst_mbcregistermodel)
-add_xtest_mock(tst_mbcupdatemodel)
 add_xtest(tst_diagnostic)
 add_xtest(tst_diagnosticmodel)
 add_xtest(tst_graphdata)

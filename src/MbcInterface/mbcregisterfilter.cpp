@@ -1,6 +1,6 @@
 #include "mbcregisterfilter.h"
 
-#include "models/mbcregistermodel.h"
+#include "MbcInterface/mbcregistermodel.h"
 
 const QString MbcRegisterFilter::cTabNoFilter = QString("No Filter");
 

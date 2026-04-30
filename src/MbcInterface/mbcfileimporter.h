@@ -1,7 +1,7 @@
 #ifndef MBCFILEIMPORTER_H
 #define MBCFILEIMPORTER_H
 
-#include "importexport/mbcregisterdata.h"
+#include "MbcInterface/mbcregisterdata.h"
 
 #include <QDomDocument>
 #include <QObject>

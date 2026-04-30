@@ -4,7 +4,7 @@
 #include <QDialog>
 
 #include "customwidgets/centeredbox.h"
-#include "models/mbcregistermodel.h"
+#include "MbcInterface/mbcregistermodel.h"
 
 /* Forward declaration */
 class ActionButtonDelegate;

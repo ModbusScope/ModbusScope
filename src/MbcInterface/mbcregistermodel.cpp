@@ -180,7 +180,7 @@ QVariant MbcRegisterModel::data(const QModelIndex& index, int role) const
             break;
 
         case cColumnType:
-            return ModbusDataType::typeString(mbcRegister.registerData.type());
+            return MbcDataType::typeString(mbcRegister.registerData.type());
             break;
 
         default:

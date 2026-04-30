@@ -1,7 +1,7 @@
 #ifndef TST_MBCFILEIMPORTER_H
 #define TST_MBCFILEIMPORTER_H
 
-#include "importexport/mbcregisterdata.h"
+#include "MbcInterface/mbcregisterdata.h"
 
 #include <QObject>
 

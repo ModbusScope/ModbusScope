@@ -1,0 +1,5 @@
+
+add_xtest_mock(tst_mbcfileimporter ${CMAKE_CURRENT_SOURCE_DIR}/mbctestdata.cpp)
+add_xtest_mock(tst_mbcregisterfilter)
+add_xtest_mock(tst_mbcregistermodel)
+add_xtest_mock(tst_mbcupdatemodel)

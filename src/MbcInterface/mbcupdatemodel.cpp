@@ -1,6 +1,6 @@
 #include "mbcupdatemodel.h"
 
-#include "graphdatamodel.h"
+#include "models/graphdatamodel.h"
 
 /*!
  * \brief Constructs the model and connects to GraphDataModel change signals.

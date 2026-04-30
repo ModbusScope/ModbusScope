@@ -1,7 +1,7 @@
 #ifndef MBCTESTDATA_H
 #define MBCTESTDATA_H
 
-#include "importexport/mbcregisterdata.h"
+#include "MbcInterface/mbcregisterdata.h"
 
 #include <QObject>
 

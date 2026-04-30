@@ -1,5 +1,5 @@
-#ifndef TEST_MBCUPDATEMODEL_H
-#define TEST_MBCUPDATEMODEL_H
+#ifndef TST_MBCUPDATEMODEL_H
+#define TST_MBCUPDATEMODEL_H
 
 #include <QObject>
 
@@ -36,4 +36,4 @@ private:
     GraphDataModel* _pGraphDataModel;
 };
 
-#endif /* TEST_MBCUPDATEMODEL_H */
+#endif // TST_MBCUPDATEMODEL_H
