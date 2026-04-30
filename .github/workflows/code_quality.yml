@@ -57,7 +57,7 @@ jobs:
         fetch-depth: 0
 
     - name: Install Build Wrapper
-      uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v7.1
+      uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v8.0
       
     - name: Run build-wrapper
       run: |
@@ -67,7 +67,7 @@ jobs:
       if: ${{ !!env.SONAR_TOKEN && !!env.GITHUB_TOKEN }}
 
     - name: SonarQube Scan
-      uses: SonarSource/sonarqube-scan-action@v7.1
+      uses: SonarSource/sonarqube-scan-action@v8.0
       with:
         # Consult https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/scanners/sonarscanner/ for more information and options
         args: >
