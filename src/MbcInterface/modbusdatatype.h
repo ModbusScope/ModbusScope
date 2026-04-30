@@ -28,20 +28,15 @@ public:
         {
         case Type::SIGNED_16:
             return "s16b";
-            break;
         case Type::UNSIGNED_32:
             return "32b";
-            break;
         case Type::SIGNED_32:
             return "s32b";
-            break;
         case Type::FLOAT_32:
             return "f32b";
-            break;
         case Type::UNSIGNED_16:
         default:
             return "16b";
-            break;
         }
     }
 

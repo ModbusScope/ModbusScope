@@ -1,7 +1,5 @@
 #include "mbcfileimporter.h"
 
-#include "MbcInterface/mbcregisterdata.h"
-
 #include <limits>
 
 /*!
