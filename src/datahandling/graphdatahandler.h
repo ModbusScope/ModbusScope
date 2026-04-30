@@ -19,7 +19,7 @@ public:
     qint32 expressionErrorPos(qint32 exprIdx) const;
     QMuParser::ErrorType expressionErrorType(qint32 exprIdx) const;
 
-    ResultDoubleList handleRegisterData(ResultDoubleList results);
+    ResultDoubleList handleRegisterData(const ResultDoubleList& results);
 
 private:
     QList<quint16> _activeIndexList;

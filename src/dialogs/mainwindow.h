@@ -102,7 +102,7 @@ private slots:
     void updateDataFileNotes();
 
     void showVersionUpdate(UpdateNotify::UpdateState result);
-    void onRegisterDataReady(ResultDoubleList results);
+    void onRegisterDataReady(const ResultDoubleList& results);
 
 private:
     void setAxisToAuto();
@@ -122,7 +122,7 @@ private:
     DataParserModel* _pDataParserModel;
 
     UpdateNotify* _pUpdateNotify;
-    GraphDataHandler* _pGraphDataHandler;
+    GraphDataHandler _graphDataHandler;
     ExpressionStatus* _pExpressionStatus;
     CommunicationStats* _pCommunicationStats;
 

@@ -65,7 +65,7 @@ QMuParser::ErrorType GraphDataHandler::expressionErrorType(qint32 exprIdx) const
     return _valueParsers[exprIdx].errorType();
 }
 
-ResultDoubleList GraphDataHandler::handleRegisterData(ResultDoubleList results)
+ResultDoubleList GraphDataHandler::handleRegisterData(const ResultDoubleList& results)
 {
     ResultDoubleList registerList;
 

@@ -15,10 +15,7 @@ GraphData::GraphData()
     _pDataMap = QSharedPointer<QCPGraphDataContainer>(new QCPGraphDataContainer);
 }
 
-GraphData::~GraphData()
-{
-    _pDataMap.clear();
-}
+GraphData::~GraphData() = default;
 
 GraphData::valueAxis_t GraphData::valueAxis() const
 {

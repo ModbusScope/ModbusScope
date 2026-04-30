@@ -59,7 +59,6 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
 
-    _pGraphDataHandler = new GraphDataHandler();
     _pAdapterPoll = new AdapterPoll(_pSettingsModel, this);
     connect(_pAdapterPoll, &AdapterPoll::registerDataReady, this, &MainWindow::onRegisterDataReady);
 
@@ -238,14 +237,6 @@ MainWindow::~MainWindow()
 {
     _pAdapterPoll->stopCommunication();
     disconnect(_pAdapterPoll, &AdapterPoll::registerDataReady, this, &MainWindow::onRegisterDataReady);
-
-    delete _pGraphDataHandler;
-
-    delete _pGraphView;
-    delete _pGraphShowHide;
-    delete _pMostRecentMenu;
-    delete _pDataFileHandler;
-    delete _pStatusBar;
 
     delete _pUi;
 }
@@ -481,7 +472,7 @@ void MainWindow::startScope()
         clearData();
 
         QList<DataPoint> registerList;
-        _pGraphDataHandler->setupExpressions(_pGraphDataModel, registerList);
+        _graphDataHandler.setupExpressions(_pGraphDataModel, registerList);
 
         _pAdapterPoll->startCommunication(registerList);
         _pCommunicationStats->start();
@@ -834,9 +825,9 @@ void MainWindow::updateDataFileNotes()
     }
 }
 
-void MainWindow::onRegisterDataReady(ResultDoubleList results)
+void MainWindow::onRegisterDataReady(const ResultDoubleList& results)
 {
-    ResultDoubleList processed = _pGraphDataHandler->handleRegisterData(results);
+    ResultDoubleList processed = _graphDataHandler.handleRegisterData(results);
     _pGraphView->plotResults(processed);
     _pLegend->addLastReceivedDataToLegend(processed);
     _pCommunicationStats->updateCommunicationStats(processed);
