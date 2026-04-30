@@ -1,7 +1,7 @@
 #ifndef MBCREGISTERDATA_H
 #define MBCREGISTERDATA_H
 
-#include "util/modbusdatatype.h"
+#include "MbcInterface/modbusdatatype.h"
 
 #include <QString>
 #include <QtGlobal>

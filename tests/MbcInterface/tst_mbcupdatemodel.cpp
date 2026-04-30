@@ -1,7 +1,7 @@
 #include "tst_mbcupdatemodel.h"
 
+#include "MbcInterface/mbcupdatemodel.h"
 #include "models/graphdatamodel.h"
-#include "models/mbcupdatemodel.h"
 #include "models/settingsmodel.h"
 
 #include <QTest>

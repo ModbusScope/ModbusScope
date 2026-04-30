@@ -1,6 +1,6 @@
 #include "mbcfileimporter.h"
 
-#include "importexport/mbcregisterdata.h"
+#include "MbcInterface/mbcregisterdata.h"
 
 #include <limits>
 

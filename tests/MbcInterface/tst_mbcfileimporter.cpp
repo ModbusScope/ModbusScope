@@ -1,6 +1,6 @@
 #include "tst_mbcfileimporter.h"
 
-#include "importexport/mbcfileimporter.h"
+#include "MbcInterface/mbcfileimporter.h"
 #include "mbctestdata.h"
 
 #include <QTest>

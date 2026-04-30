@@ -1,6 +1,6 @@
 #include "tst_mbcregistermodel.h"
 
-#include "models/mbcregistermodel.h"
+#include "MbcInterface/mbcregistermodel.h"
 
 #include "gmock/gmock.h"
 #include <QSignalSpy>

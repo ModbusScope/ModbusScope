@@ -1,7 +1,7 @@
 #ifndef MBCUPDATEMODEL_H
 #define MBCUPDATEMODEL_H
 
-#include "importexport/mbcregisterdata.h"
+#include "MbcInterface/mbcregisterdata.h"
 
 #include <QAbstractTableModel>
 

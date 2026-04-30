@@ -1,7 +1,7 @@
 #include "tst_mbcregisterfilter.h"
 
-#include "models/mbcregisterfilter.h"
-#include "models/mbcregistermodel.h"
+#include "MbcInterface/mbcregisterfilter.h"
+#include "MbcInterface/mbcregistermodel.h"
 
 #include <QTest>
 
