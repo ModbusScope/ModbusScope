@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "datahandling/graphdatahandler.h"
 #include "util/recentfilemodule.h"
 #include "util/result.h"
 #include "util/updatenotify.h"
@@ -16,7 +17,6 @@ class MainWindow;
 
 // Forward declaration
 class AdapterPoll;
-class GraphDataHandler;
 class QCustomPlot;
 class GraphDataModel;
 class NoteModel;

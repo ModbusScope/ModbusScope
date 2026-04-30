@@ -200,7 +200,7 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
     /* Trigger update check */
     _pUi->actionUpdateAvailable->setVisible(false);
-    _pUpdateNotify = new UpdateNotify(new VersionDownloader(), Util::currentVersion(), this);
+    _pUpdateNotify = new UpdateNotify(new VersionDownloader(this), Util::currentVersion(), this);
     connect(_pUpdateNotify, &UpdateNotify::updateCheckResult, this, &MainWindow::showVersionUpdate);
 
 #ifndef DEBUG

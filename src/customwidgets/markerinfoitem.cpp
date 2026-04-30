@@ -18,7 +18,7 @@ MarkerInfoItem::MarkerInfoItem(QWidget* parent) : QFrame(parent)
     _pGraphCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
     QWidget* pInfoWidget = new QWidget(this);
-    QHBoxLayout* pInfoLayout = new QHBoxLayout(this);
+    QHBoxLayout* pInfoLayout = new QHBoxLayout(pInfoWidget);
 
     _pGraphDataLabelLeft = new QLabel("", this);
     _pGraphDataLabelRight = new QLabel("", this);
@@ -28,8 +28,6 @@ MarkerInfoItem::MarkerInfoItem(QWidget* parent) : QFrame(parent)
     pInfoLayout->setContentsMargins(0, 2, 0, 0); // This is redundant with setMargin, which is deprecated
     pInfoLayout->addWidget(_pGraphDataLabelLeft);
     pInfoLayout->addWidget(_pGraphDataLabelRight);
-
-    pInfoWidget->setLayout(pInfoLayout);
 
     _pLayout->addWidget(_pGraphCombo);
     _pLayout->addWidget(pInfoWidget);
