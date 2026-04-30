@@ -236,6 +236,9 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
 MainWindow::~MainWindow()
 {
+    _pAdapterPoll->stopCommunication();
+    disconnect(_pAdapterPoll, &AdapterPoll::registerDataReady, this, &MainWindow::onRegisterDataReady);
+
     delete _pGraphDataHandler;
 
     delete _pGraphView;
