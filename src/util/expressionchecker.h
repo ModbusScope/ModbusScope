@@ -9,8 +9,7 @@ class ExpressionChecker : public QObject
 {
     Q_OBJECT
 public:
-
-    explicit ExpressionChecker(QObject *parent = nullptr);
+    explicit ExpressionChecker(QObject* parent = nullptr);
 
     void setExpression(QString expr);
 

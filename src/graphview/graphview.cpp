@@ -252,7 +252,8 @@ void GraphView::updateGraphs()
             // Set data to zero when needed
             if (pMap->size() != maxSampleCount)
             {
-                const QSharedPointer<const QCPGraphDataContainer> pReferenceMap = _pGraphDataModel->dataMap(maxSampleIdx);
+                const QSharedPointer<const QCPGraphDataContainer> pReferenceMap =
+                  _pGraphDataModel->dataMap(maxSampleIdx);
                 pMap->clear();
 
                 // Add zero value for every key (x-coordinate)

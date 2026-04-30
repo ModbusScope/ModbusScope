@@ -7,7 +7,7 @@
 #include "models/guimodel.h"
 #include "util/util.h"
 
-MarkerInfoItem::MarkerInfoItem(QWidget *parent) : QFrame(parent)
+MarkerInfoItem::MarkerInfoItem(QWidget* parent) : QFrame(parent)
 {
     _pLayout = new QVBoxLayout();
 
@@ -17,8 +17,8 @@ MarkerInfoItem::MarkerInfoItem(QWidget *parent) : QFrame(parent)
     _pGraphCombo = new QComboBox(this);
     _pGraphCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
-    QWidget * pInfoWidget = new QWidget(this);
-    QHBoxLayout *pInfoLayout = new QHBoxLayout(this);
+    QWidget* pInfoWidget = new QWidget(this);
+    QHBoxLayout* pInfoLayout = new QHBoxLayout(this);
 
     _pGraphDataLabelLeft = new QLabel("", this);
     _pGraphDataLabelRight = new QLabel("", this);
@@ -34,12 +34,13 @@ MarkerInfoItem::MarkerInfoItem(QWidget *parent) : QFrame(parent)
     _pLayout->addWidget(_pGraphCombo);
     _pLayout->addWidget(pInfoWidget);
 
-    connect(_pGraphCombo, QOverload<const int>::of(&QComboBox::currentIndexChanged), this, &MarkerInfoItem::graphSelected);
+    connect(_pGraphCombo, QOverload<const int>::of(&QComboBox::currentIndexChanged), this,
+            &MarkerInfoItem::graphSelected);
 
     setLayout(_pLayout);
 }
 
-void MarkerInfoItem::setModel(GuiModel * pGuiModel, GraphDataModel * pGraphDataModel)
+void MarkerInfoItem::setModel(GuiModel* pGuiModel, GraphDataModel* pGraphDataModel)
 {
     _pGuiModel = pGuiModel;
     _pGraphDataModel = pGraphDataModel;
@@ -78,7 +79,7 @@ void MarkerInfoItem::updateData()
     QStringList expressionList;
     const quint32 mask = _pGuiModel->markerExpressionMask();
 
-    for(qint32 idx = 0; idx < GuiModel::cMarkerExpressionBits.size(); idx++)
+    for (qint32 idx = 0; idx < GuiModel::cMarkerExpressionBits.size(); idx++)
     {
         if (mask & GuiModel::cMarkerExpressionBits[idx])
         {
@@ -90,14 +91,16 @@ void MarkerInfoItem::updateData()
     }
 
     /* Add permanent items (y1, y2) */
-    expressionList.prepend(GuiModel::cMarkerExpressionEnd.arg(Util::formatDoubleForExport(dataMap->findBegin(_pGuiModel->endMarkerPos(), false)->value)));
-    expressionList.prepend(GuiModel::cMarkerExpressionStart.arg(Util::formatDoubleForExport(dataMap->findBegin(_pGuiModel->startMarkerPos(), false)->value)));
+    expressionList.prepend(GuiModel::cMarkerExpressionEnd.arg(
+      Util::formatDoubleForExport(dataMap->findBegin(_pGuiModel->endMarkerPos(), false)->value)));
+    expressionList.prepend(GuiModel::cMarkerExpressionStart.arg(
+      Util::formatDoubleForExport(dataMap->findBegin(_pGuiModel->startMarkerPos(), false)->value)));
 
     /* Construct labels data */
     const qint32 leftRowCount = expressionList.size() - expressionList.size() / 2;
     QString graphDataLeft;
     QString graphDataRight;
-    for(qint32 idx = 0; idx < expressionList.size(); idx++)
+    for (qint32 idx = 0; idx < expressionList.size(); idx++)
     {
         if (idx < leftRowCount)
         {
@@ -125,7 +128,7 @@ void MarkerInfoItem::updateGraphList(void)
 
 void MarkerInfoItem::updateColor(quint32 graphIdx)
 {
-    QPixmap pixmap(20,5);
+    QPixmap pixmap(20, 5);
     pixmap.fill(_pGraphDataModel->color(graphIdx));
 
     QIcon graphIcon = QIcon(pixmap);
@@ -136,7 +139,8 @@ void MarkerInfoItem::updateColor(quint32 graphIdx)
 
 void MarkerInfoItem::updateLabel(quint32 graphIdx)
 {
-    _pGraphCombo->setItemText(_pGraphDataModel->convertToActiveGraphIndex(graphIdx) + 1, _pGraphDataModel->label(graphIdx));
+    _pGraphCombo->setItemText(_pGraphDataModel->convertToActiveGraphIndex(graphIdx) + 1,
+                              _pGraphDataModel->label(graphIdx));
 }
 
 void MarkerInfoItem::removeFromGraphList(const quint32 index)
@@ -147,12 +151,12 @@ void MarkerInfoItem::removeFromGraphList(const quint32 index)
     /* correct selected index when needed */
     if (currentSelectedIdx != -1)
     {
-        if ((qint32)index == currentSelectedIdx)
+        if ((qint32) index == currentSelectedIdx)
         {
             /* Current selected is removed */
             currentSelectedIdx = -1;
         }
-        else if ((qint32)index < currentSelectedIdx)
+        else if ((qint32) index < currentSelectedIdx)
         {
             /* Graph removed in front of our graph */
             currentSelectedIdx--;
@@ -166,19 +170,18 @@ void MarkerInfoItem::removeFromGraphList(const quint32 index)
     updateList();
 
     selectGraph(currentSelectedIdx);
-
 }
 
 void MarkerInfoItem::graphSelected(qint32 index)
 {
     if (index > 0)
     {
-         updateData();
+        updateData();
     }
     else
     {
-         _pGraphDataLabelLeft->setText("None");
-         _pGraphDataLabelRight->setText("");
+        _pGraphDataLabelLeft->setText("None");
+        _pGraphDataLabelRight->setText("");
     }
 }
 
@@ -191,7 +194,7 @@ void MarkerInfoItem::updateList()
 
     _pGraphCombo->addItem("None", -1);
 
-    foreach(quint16 idx, activeGraphList)
+    foreach (quint16 idx, activeGraphList)
     {
         _pGraphCombo->addItem(_pGraphDataModel->label(idx), QVariant(idx));
 
@@ -201,7 +204,7 @@ void MarkerInfoItem::updateList()
 
 void MarkerInfoItem::selectGraph(qint32 graphIndex)
 {
-    for(qint32 comboIdx = 0; comboIdx < _pGraphCombo->count(); comboIdx++)
+    for (qint32 comboIdx = 0; comboIdx < _pGraphCombo->count(); comboIdx++)
     {
         if (_pGraphCombo->itemData(comboIdx).toInt() == graphIndex)
         {
@@ -228,7 +231,8 @@ double MarkerInfoItem::calculateMarkerExpressionValue(quint32 expressionMask)
         return 0;
     }
 
-    const double valueDiff = pDataMap->findBegin(_pGuiModel->endMarkerPos(), false)->value - pDataMap->findBegin(_pGuiModel->startMarkerPos(), false)->value;
+    const double valueDiff = pDataMap->findBegin(_pGuiModel->endMarkerPos(), false)->value -
+                             pDataMap->findBegin(_pGuiModel->startMarkerPos(), false)->value;
     const double timeDiff = _pGuiModel->endMarkerPos() - _pGuiModel->startMarkerPos();
 
     QCPGraphDataContainer::const_iterator dataPoint;
@@ -307,7 +311,6 @@ double MarkerInfoItem::calculateMarkerExpressionValue(quint32 expressionMask)
     {
         result = 0;
     }
-
 
     return result;
 }

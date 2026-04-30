@@ -10,7 +10,7 @@
 class GraphDataModel;
 class SettingsModel;
 
-class TestGraphDataHandler: public QObject
+class TestGraphDataHandler : public QObject
 {
     Q_OBJECT
 
@@ -31,12 +31,10 @@ private slots:
     void graphData_fail();
 
 private:
-
     ResultDoubleList doHandleRegisterData(ResultDoubleList modbusResults);
 
     SettingsModel* _pSettingsModel;
     GraphDataModel* _pGraphDataModel;
-
 };
 
 #endif /* TEST_GRAPHDATAHANDLER_H__ */

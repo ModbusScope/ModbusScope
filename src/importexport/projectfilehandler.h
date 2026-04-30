@@ -14,7 +14,10 @@ class ProjectFileHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit ProjectFileHandler(GuiModel* pGuiModel, SettingsModel* pSettingsModel, GraphDataModel* pGraphDataModel, QObject* parent = nullptr);
+    explicit ProjectFileHandler(GuiModel* pGuiModel,
+                                SettingsModel* pSettingsModel,
+                                GraphDataModel* pGraphDataModel,
+                                QObject* parent = nullptr);
 
     void openProjectFile(QString projectFilePath);
 

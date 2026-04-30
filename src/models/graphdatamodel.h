@@ -1,9 +1,9 @@
 #ifndef GRAPHDATAMODEL_H
 #define GRAPHDATAMODEL_H
 
-#include <QObject>
 #include <QAbstractTableModel>
 #include <QList>
+#include <QObject>
 
 #include "models/graphdata.h"
 
@@ -11,8 +11,8 @@ class GraphDataModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-
-    enum column {
+    enum column
+    {
         COLOR = 0,
         ACTIVE,
         TEXT,
@@ -24,22 +24,22 @@ public:
 
     static const QColor lightRed;
 
-    explicit GraphDataModel(QObject *parent = nullptr);
+    explicit GraphDataModel(QObject* parent = nullptr);
 
     /* Functions for QTableView (model) */
-    int rowCount(const QModelIndex &parent = QModelIndex()) const ;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const;
+    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    bool setData(const QModelIndex & index, const QVariant & value, int role);
-    Qt::ItemFlags flags(const QModelIndex & index) const;
+    bool setData(const QModelIndex& index, const QVariant& value, int role);
+    Qt::ItemFlags flags(const QModelIndex& index) const;
     Qt::DropActions supportedDropActions() const;
 
-    bool removeRows(int row, int count, const QModelIndex &parent);
-    bool insertRows(int row, int count, const QModelIndex &parent);
+    bool removeRows(int row, int count, const QModelIndex& parent);
+    bool insertRows(int row, int count, const QModelIndex& parent);
 
-    QMimeData* mimeData(const QModelIndexList &indexes) const;
-    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
+    QMimeData* mimeData(const QModelIndexList& indexes) const;
+    bool dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent);
 
     /* Functions for other classes */
     qint32 size() const;
@@ -67,8 +67,8 @@ public:
 
     void setValueAxis(quint32 index, GraphData::valueAxis_t axis);
     void setVisible(quint32 index, bool bVisible);
-    void setLabel(quint32 index, const QString &label);
-    void setColor(quint32 index, const QColor &color);
+    void setLabel(quint32 index, const QString& label);
+    void setColor(quint32 index, const QColor& color);
     void setActive(quint32 index, bool bActive);
     void setExpression(quint32 index, QString expression);
     void setExpressionState(quint32 index, GraphData::ExpressionState status);
@@ -88,7 +88,7 @@ public:
     void removeRegister(qint32 idx);
     void clear();
 
-    void activeGraphIndexList(QList<quint16> * pList);
+    void activeGraphIndexList(QList<quint16>* pList);
 
     qint32 convertToActiveGraphIndex(quint32 graphIdx);
     qint32 convertToGraphIndex(quint32 activeIdx);

@@ -7,8 +7,7 @@
 
 const QColor GraphDataModel::lightRed = QColor(240, 128, 128); // #f08080
 
-GraphDataModel::GraphDataModel(QObject *parent)
-    : QAbstractTableModel(parent), _selectedGraphIdx(-1)
+GraphDataModel::GraphDataModel(QObject* parent) : QAbstractTableModel(parent), _selectedGraphIdx(-1)
 {
     _graphData.clear();
     _startTime = 0;
@@ -28,17 +27,17 @@ GraphDataModel::GraphDataModel(QObject *parent)
     connect(this, &GraphDataModel::removed, this, &GraphDataModel::modelCompleteDataChanged);
 }
 
-int GraphDataModel::rowCount(const QModelIndex & /*parent*/) const
+int GraphDataModel::rowCount(const QModelIndex& /*parent*/) const
 {
     return size();
 }
 
-int GraphDataModel::columnCount(const QModelIndex & /*parent*/) const
+int GraphDataModel::columnCount(const QModelIndex& /*parent*/) const
 {
     return column::COUNT;
 }
 
-QVariant GraphDataModel::data(const QModelIndex &index, int role) const
+QVariant GraphDataModel::data(const QModelIndex& index, int role) const
 {
     switch (index.column())
     {
@@ -139,15 +138,14 @@ QVariant GraphDataModel::headerData(int section, Qt::Orientation orientation, in
         }
         else
         {
-            //Can't happen because it is hidden
+            // Can't happen because it is hidden
         }
     }
 
     return QVariant();
 }
 
-
-bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, int role)
+bool GraphDataModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
     bool bRet = true;
 
@@ -198,10 +196,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
             bool bSuccess = false;
             const quint8 newValueAxis = static_cast<quint8>(value.toUInt(&bSuccess));
 
-            if (
-                    (bSuccess)
-                    && (newValueAxis < GraphData::VALUE_AXIS_CNT)
-                )
+            if ((bSuccess) && (newValueAxis < GraphData::VALUE_AXIS_CNT))
             {
                 setValueAxis(index.row(), static_cast<GraphData::valueAxis_t>(newValueAxis));
             }
@@ -215,7 +210,6 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
         break;
     default:
         break;
-
     }
 
     // Notify view(s) of change
@@ -224,7 +218,7 @@ bool GraphDataModel::setData(const QModelIndex & index, const QVariant & value, 
     return bRet;
 }
 
-Qt::ItemFlags GraphDataModel::flags(const QModelIndex & index) const
+Qt::ItemFlags GraphDataModel::flags(const QModelIndex& index) const
 {
     Qt::ItemFlags itemFlags = Qt::NoItemFlags;
 
@@ -242,7 +236,7 @@ Qt::ItemFlags GraphDataModel::flags(const QModelIndex & index) const
     if (index.column() == column::ACTIVE)
     {
         // checkable
-        itemFlags |= Qt::ItemIsSelectable |  Qt::ItemIsUserCheckable;
+        itemFlags |= Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
     }
     else if (index.column() == column::COLOR)
     {
@@ -250,7 +244,7 @@ Qt::ItemFlags GraphDataModel::flags(const QModelIndex & index) const
     }
     else
     {
-        itemFlags |= Qt::ItemIsSelectable |  Qt::ItemIsEditable;
+        itemFlags |= Qt::ItemIsSelectable | Qt::ItemIsEditable;
     }
 
     return itemFlags;
@@ -261,7 +255,7 @@ Qt::DropActions GraphDataModel::supportedDropActions() const
     return Qt::MoveAction;
 }
 
-bool GraphDataModel::removeRows(int row, int count, const QModelIndex & parent)
+bool GraphDataModel::removeRows(int row, int count, const QModelIndex& parent)
 {
     Q_UNUSED(parent);
     Q_UNUSED(count);
@@ -271,12 +265,9 @@ bool GraphDataModel::removeRows(int row, int count, const QModelIndex & parent)
     return true;
 }
 
-bool GraphDataModel::insertRows(int row, int count, const QModelIndex &parent)
+bool GraphDataModel::insertRows(int row, int count, const QModelIndex& parent)
 {
-    if (
-        (count != 1)
-        || (row != size())
-        )
+    if ((count != 1) || (row != size()))
     {
         qDebug() << "RegisterModel: Not supported";
     }
@@ -290,9 +281,9 @@ bool GraphDataModel::insertRows(int row, int count, const QModelIndex &parent)
     return true;
 }
 
-QMimeData *GraphDataModel::mimeData(const QModelIndexList &indexes) const
+QMimeData* GraphDataModel::mimeData(const QModelIndexList& indexes) const
 {
-    QMimeData *data = QAbstractTableModel::mimeData(indexes);
+    QMimeData* data = QAbstractTableModel::mimeData(indexes);
 
     if (data)
     {
@@ -302,7 +293,8 @@ QMimeData *GraphDataModel::mimeData(const QModelIndexList &indexes) const
     return data;
 }
 
-bool GraphDataModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+bool GraphDataModel::dropMimeData(
+  const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent)
 {
     Q_UNUSED(parent);
     Q_UNUSED(column);
@@ -394,7 +386,6 @@ QSharedPointer<QCPGraphDataContainer> GraphDataModel::mutableDataMap(quint32 ind
     return _graphData[index].mutableDataMap();
 }
 
-
 qint64 GraphDataModel::communicationStartTime()
 {
     return _startTime;
@@ -425,10 +416,7 @@ void GraphDataModel::setCommunicationEndTime(qint64 endTime)
 
 void GraphDataModel::setCommunicationStats(quint32 successCount, quint32 errorCount)
 {
-    if (
-        (_successCount != successCount)
-        || (_errorCount != errorCount)
-        )
+    if ((_successCount != successCount) || (_errorCount != errorCount))
     {
         _successCount = successCount;
         _errorCount = errorCount;
@@ -465,8 +453,8 @@ void GraphDataModel::setValueAxis(quint32 index, GraphData::valueAxis_t axis)
 {
     if (_graphData[index].valueAxis() != axis)
     {
-         _graphData[index].setValueAxis(axis);
-         emit valueAxisChanged(index);
+        _graphData[index].setValueAxis(axis);
+        emit valueAxisChanged(index);
     }
 }
 
@@ -484,21 +472,21 @@ void GraphDataModel::setVisible(quint32 index, bool bVisible)
     }
 }
 
-void GraphDataModel::setLabel(quint32 index, const QString &label)
+void GraphDataModel::setLabel(quint32 index, const QString& label)
 {
     if (_graphData[index].label() != label)
     {
-         _graphData[index].setLabel(label);
-         emit labelChanged(index);
+        _graphData[index].setLabel(label);
+        emit labelChanged(index);
     }
 }
 
-void GraphDataModel::setColor(quint32 index, const QColor &color)
+void GraphDataModel::setColor(quint32 index, const QColor& color)
 {
     if (_graphData[index].color() != color)
     {
-         _graphData[index].setColor(color);
-         emit colorChanged(index);
+        _graphData[index].setColor(color);
+        emit colorChanged(index);
     }
 }
 
@@ -529,8 +517,8 @@ void GraphDataModel::setExpression(quint32 index, QString expression)
 {
     if (_graphData[index].expression() != expression)
     {
-         _graphData[index].setExpression(expression);
-         emit expressionChanged(index);
+        _graphData[index].setExpression(expression);
+        emit expressionChanged(index);
     }
 }
 
@@ -586,7 +574,7 @@ void GraphDataModel::add()
 
 void GraphDataModel::add(QList<QString> labelList)
 {
-    foreach(QString label, labelList)
+    foreach (QString label, labelList)
     {
         add();
         setLabel(_graphData.size() - 1, label);
@@ -626,12 +614,12 @@ void GraphDataModel::clear()
 }
 
 // Get list of active graph indexes
-void GraphDataModel::activeGraphIndexList(QList<quint16> * pList)
+void GraphDataModel::activeGraphIndexList(QList<quint16>* pList)
 {
     // Clear list
     pList->clear();
 
-    foreach(quint32 idx, _activeGraphList)
+    foreach (quint32 idx, _activeGraphList)
     {
         pList->append(idx);
     }
@@ -721,7 +709,7 @@ void GraphDataModel::removeFromModel(qint32 row)
 void GraphDataModel::moveRow(int sourceRow, int destRow)
 {
     int newRow = destRow;
-    if(newRow == -1 || newRow >= rowCount())
+    if (newRow == -1 || newRow >= rowCount())
     {
         newRow = rowCount() - 1;
     }

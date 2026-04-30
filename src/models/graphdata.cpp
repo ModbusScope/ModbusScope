@@ -45,7 +45,7 @@ QString GraphData::label() const
     return _label;
 }
 
-void GraphData::setLabel(const QString &label)
+void GraphData::setLabel(const QString& label)
 {
     /* Remove separator char (used in export) from label */
     QString cleanedLabel = QString(label).remove(Util::separatorCharacter());
@@ -58,7 +58,7 @@ QColor GraphData::color() const
     return _color;
 }
 
-void GraphData::setColor(const QColor &color)
+void GraphData::setColor(const QColor& color)
 {
     _color = color;
 }

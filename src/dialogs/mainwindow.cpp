@@ -213,7 +213,6 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
     handleGraphsCountChanged();
 
-
     handleCommandLineArguments(cmdArguments);
 
     _pAdapterPoll->initAdapter();
