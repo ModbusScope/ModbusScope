@@ -1,6 +1,8 @@
 
 # Introduction
 
+[**Website**](https://modbusscope.github.io/) | [**Download**](https://github.com/ModbusScope/ModbusScope/releases/latest)
+
 ModbusScope is a graphical user interface tool designed for logging and visualizing data using the Modbus protocol. It supports real-time data visualization, enabling users to see graphical representations of data while logging. The tool also allows users to export logged data to CSV files for further analysis. It's highly configurable to suit various data logging needs and supports multiple Modbus devices simultaneously, making it ideal for monitoring devices in industrial automation, energy management, and environmental monitoring.
 
 ## Features

@@ -14,7 +14,7 @@ ModbusScope is a graphical user interface tool designed for logging and visualiz
 
 It started as a personal project and has grown into something people actually rely on. What sets it apart is long-term commitment: the goal is a stable, well-maintained application, not just rapidly shipping features and moving on. ModbusScope is actively maintained and continuously improved.
 
-[**Getting started**](https://modbusscope.readthedocs.io/en/stable/pages/overview.html) | [**Download**](https://github.com/ModbusScope/ModbusScope/releases/latest) | [**Release notes**](https://modbusscope.readthedocs.io/en/stable/pages/release_notes.html)
+[**Website**](https://modbusscope.github.io/) | [**Getting started**](https://modbusscope.readthedocs.io/en/stable/pages/overview.html) | [**Download**](https://github.com/ModbusScope/ModbusScope/releases/latest) | [**Release notes**](https://modbusscope.readthedocs.io/en/stable/pages/release_notes.html)
 
 ## Features
 
