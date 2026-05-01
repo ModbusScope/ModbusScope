@@ -1,7 +1,7 @@
 
 #include "tst_projectfilexmlparser.h"
 
-#include "importexport/projectfilexmlparser.h"
+#include "importexport/legacy/projectfilexmlparser.h"
 #include "projectfilexmltestdata.h"
 
 #include <QDir>
