@@ -8,6 +8,8 @@ target_compile_definitions(tst_dummyadapter PRIVATE
 
 target_link_libraries(tst_dummyadapter Qt::Test ${QT_LIB} ${SCOPESOURCE})
 
+add_dependencies(tst_dummyadapter dummymodbusadapter)
+
 add_test(NAME tst_dummyadapter COMMAND tst_dummyadapter)
 
 if(UNIX AND NOT APPLE)

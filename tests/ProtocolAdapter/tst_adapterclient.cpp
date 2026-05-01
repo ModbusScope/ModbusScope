@@ -508,7 +508,7 @@ void TestAdapterClient::stopSessionDuringAwaitingConfig()
 void TestAdapterClient::shutdownNoAckTimesOutToSessionStopped()
 {
     auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock, nullptr, 50 /* ms */);
+    AdapterClient client(mock, nullptr, 250 /* ms */);
 
     QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
@@ -526,7 +526,7 @@ void TestAdapterClient::shutdownNoAckTimesOutToSessionStopped()
     QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.shutdown"));
 
     /* Wait for the shutdown timer to fire */
-    QTest::qWait(150);
+    QVERIFY2(spyStopped.wait(2000), "sessionStopped not emitted after shutdown timeout");
 
     /* sessionStopped must be emitted, not sessionError */
     QCOMPARE(spyStopped.count(), 1);
