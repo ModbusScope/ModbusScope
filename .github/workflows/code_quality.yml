@@ -58,6 +58,8 @@ jobs:
 
     - name: Install Build Wrapper
       uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v8.0
+      with:
+        skipSignatureVerification: true
       
     - name: Run build-wrapper
       run: |
