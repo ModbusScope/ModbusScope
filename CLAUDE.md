@@ -2,7 +2,7 @@
 
 ## Build
 
-> **Preferred workflow:** use the sub-agents (`@agent-build`, `@agent-test-runner`, `@agent-quality`) defined in `.claude/agents/` — see the [Development](#development) section. The commands below are provided as reference and fallback only.
+> **Preferred workflow:** use the sub-agents (`@agent-build`, `@agent-test-runner`, `@agent-quality`, `@agent-code-reviewer`) defined in `.claude/agents/` — see the [Development](#development) section. The commands below are provided as reference and fallback only.
 
 All commands run from the **project root** unless noted.
 
@@ -40,24 +40,26 @@ clang-format -i src/path/to/file.cpp
 
 ```text
 src/
-├── communication/   Communication (using external adapters)
-├── models/          Data models (SettingsModel, GraphDataModel, DiagnosticModel, Device, Connection)
-├── datahandling/    Expression parsing, graph data processing
-├── importexport/    CSV export, MBS project files, MBC device config import
-├── dialogs/         UI dialogs and MainWindow
-├── customwidgets/   Qt custom widgets
-├── graphview/       Graph rendering (qcustomplot)
-└── util/            Logging (ScopeLogging), formatting helpers
-tests/               Google Test + Qt Test; test files named tst_*.cpp
-libraries/           Vendored: qcustomplot, muparser
+├── communication/    Polling orchestration (AdapterPoll, CommunicationStats)
+├── ProtocolAdapter/  Adapter subprocess management (AdapterManager, AdapterClient, AdapterProcess)
+├── MbcInterface/     MBC device config file import and register models
+├── models/           Data models (SettingsModel, GraphDataModel, DiagnosticModel, Device, GuiModel, NoteModel)
+├── datahandling/     Expression parsing, graph data processing
+├── importexport/     CSV export, MBS project files
+├── dialogs/          UI dialogs and MainWindow
+├── customwidgets/    Qt custom widgets
+├── graphview/        Graph rendering (qcustomplot)
+└── util/             Logging (ScopeLogging), formatting helpers
+tests/                Google Test + Qt Test; test files named tst_*.cpp
+libraries/            Vendored: qcustomplot, muparser
 ```
 
 ## Architecture
 
 - **SettingsModel** is the central config store — connections, devices, poll time
-- **ModbusPoll** orchestrates polling: iterates connections, delegates to **ModbusMaster** per connection
-- **ModbusMaster** manages one connection's read cycle via **ModbusConnection** (Qt Modbus)
-- **GraphDataHandler** processes raw Modbus results and applies user expressions
+- **AdapterPoll** orchestrates polling via a timer, delegates to **AdapterManager**
+- **AdapterManager** owns the adapter subprocess and drives the full session lifecycle (init, configure, read, stop) via **AdapterClient** (RPC) and **AdapterProcess** (subprocess)
+- **GraphDataHandler** processes raw adapter results and applies user expressions
 - Models emit Qt signals; UI layers observe them — no direct model→UI calls
 
 ## Code Style
@@ -76,17 +78,17 @@ Enforced by `.clang-format` (Mozilla-based, C++20):
 
 - Prefer readability and maintainability over using the latest C++ features (avoid syntax sugar that may be less familiar to new contributors).
 - Avoid lambda expressions with more than 2 captures or multiple statements; use named functions instead for clarity.
-- Make sure to document public functions with brief Doxygen comments in the source file
+- Document public functions with brief Doxygen comments in the **`.cpp` source file** (not the header); the header only carries the declaration.
 - Only use early return for error handling, avoid deep nesting
 - When fixing a bug, add a test that reproduces the issue before implementing the fix.
 
 ## Development
 
-Several sub-agents are defined in `.claude/agents/` to keep build/test/lint output out of the main context:
+Several sub-agents are defined in `.claude/agents/` to keep build/test/lint/review output out of the main context:
 
 - **`@agent-build`** - runs cmake + ninja; reports only errors and warnings.
 - **`@agent-test-runner`** - runs ctest; reports only failing tests with their error messages.
 - **`@agent-quality`** - runs clang-format, clang-tidy, and clazy; reports only violations.
 - **`@agent-code-reviewer`** - reviews code for quality, safety, and best practices; provides specific, actionable feedback.
 
-Always use these agents rather than running the commands directly. After making source file changes: build, then run tests, then run quality checks, then run code review - all required steps must pass before the work is done.
+Always use these agents rather than running the commands directly. After every significant source change, run all four in order — **build → test → quality → review** — and all must pass before the work is considered done.
