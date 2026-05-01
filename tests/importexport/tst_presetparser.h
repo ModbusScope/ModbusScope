@@ -17,6 +17,14 @@ private slots:
     void invalidFileJson();
     void skipInvalidThenLoadValid();
 
+    void tabSeparator();
+    void tabSeparatorJson();
+    void xmlSkipInvalidThenLoadValid();
+    void optionalFieldsXml();
+    void optionalFieldsJson();
+    void minimalPresetXml();
+    void minimalPresetJson();
+
 private:
 };
 
