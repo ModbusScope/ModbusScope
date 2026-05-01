@@ -6,6 +6,7 @@
 #include <QSignalSpy>
 #include <QTest>
 #include <gmock/gmock-matchers.h>
+#include <memory>
 
 #include "../mocks/gmockutils.h"
 
@@ -33,11 +34,11 @@ void TestMbcRegisterModel::cleanup()
 
 void TestMbcRegisterModel::rowCount()
 {
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
 
     QCOMPARE(pMbcRegisterModel->rowCount(), 0);
 
-    fillModel(pMbcRegisterModel);
+    fillModel(pMbcRegisterModel.get());
 
     QVERIFY(pMbcRegisterModel->rowCount() != 0);
 
@@ -47,14 +48,14 @@ void TestMbcRegisterModel::rowCount()
 
 void TestMbcRegisterModel::columnCount()
 {
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
 
     QCOMPARE(pMbcRegisterModel->columnCount(QModelIndex()), cColumnCnt);
 }
 
 void TestMbcRegisterModel::headerData()
 {
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
 
     QCOMPARE(pMbcRegisterModel->headerData(cColumnSelected, Qt::Horizontal, Qt::DisplayRole).toString(), QString(""));
     QCOMPARE(pMbcRegisterModel->headerData(cColumnAddress, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Address"));
@@ -68,9 +69,9 @@ void TestMbcRegisterModel::headerData()
 
 void TestMbcRegisterModel::flagsEnabled()
 {
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
 
-    fillModel(pMbcRegisterModel);
+    fillModel(pMbcRegisterModel.get());
 
     QModelIndex modelIdx = pMbcRegisterModel->index(0,0);
     Qt::ItemFlags enabledFlags = Qt::ItemIsSelectable |  Qt::ItemIsEnabled;
@@ -86,7 +87,7 @@ void TestMbcRegisterModel::flagsEnabled()
 
 void TestMbcRegisterModel::flagsDisabled()
 {
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
 
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
             << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "Test1", 0, false, 0) /* Not readable */
@@ -110,10 +111,10 @@ void TestMbcRegisterModel::flagsDisabled()
 
 void TestMbcRegisterModel::setData()
 {
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
-    fillModel(pMbcRegisterModel);
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
+    fillModel(pMbcRegisterModel.get());
 
-    QSignalSpy spy(pMbcRegisterModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
+    QSignalSpy spy(pMbcRegisterModel.get(), SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
 
     /* Check failures */
     QCOMPARE(pMbcRegisterModel->setData(QModelIndex(), QVariant(), Qt::CheckStateRole), false);
@@ -140,14 +141,14 @@ void TestMbcRegisterModel::setData()
 
 void TestMbcRegisterModel::fillData()
 {
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
-    QSignalSpy resetSignalSpy(pMbcRegisterModel, SIGNAL(modelReset()));
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
+    QSignalSpy resetSignalSpy(pMbcRegisterModel.get(), SIGNAL(modelReset()));
 
     /*-- Test fill and expected signals --*/
 
     QCOMPARE(pMbcRegisterModel->rowCount(), 0);
 
-    fillModel(pMbcRegisterModel);
+    fillModel(pMbcRegisterModel.get());
 
     QVERIFY(pMbcRegisterModel->rowCount() != 0);
     QCOMPARE(resetSignalSpy.count(), 0);
@@ -163,7 +164,7 @@ void TestMbcRegisterModel::fillData()
             << MbcRegisterData(40004, MbcDataType::Type::SIGNED_16, "Test13", 0, true, 0);
 
     QStringList tabList = QStringList() << QString("Tab0") << QString("Tab1") << QString("Tab2");
-    QSignalSpy rowsInsertedSpy(pMbcRegisterModel, SIGNAL(rowsInserted(const QModelIndex, int, int)));
+    QSignalSpy rowsInsertedSpy(pMbcRegisterModel.get(), SIGNAL(rowsInserted(const QModelIndex, int, int)));
 
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
 
@@ -233,10 +234,10 @@ void TestMbcRegisterModel::fillData()
 
 void TestMbcRegisterModel::reset()
 {
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
-    QSignalSpy resetSignalSpy(pMbcRegisterModel, SIGNAL(modelReset()));
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
+    QSignalSpy resetSignalSpy(pMbcRegisterModel.get(), SIGNAL(modelReset()));
 
-    fillModel(pMbcRegisterModel);
+    fillModel(pMbcRegisterModel.get());
     QVERIFY(pMbcRegisterModel->rowCount() != 0);
 
     pMbcRegisterModel->reset();
@@ -247,7 +248,7 @@ void TestMbcRegisterModel::reset()
 
 void TestMbcRegisterModel::selectedRegisterListAndCount()
 {
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
 
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
             << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
@@ -327,7 +328,7 @@ void TestMbcRegisterModel::selectedRegisterListAndCount()
 
 void TestMbcRegisterModel::selectedRegisterListAndCount32()
 {
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
 
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
             << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_32, "Test1", 0, true, 0);
@@ -354,7 +355,7 @@ void TestMbcRegisterModel::selectedRegisterListAndCount32()
 
 void TestMbcRegisterModel::selectedRegisterListDecimals()
 {
-    MbcRegisterModel * pMbcRegisterModel = new MbcRegisterModel();
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
 
     QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
             << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
@@ -396,8 +397,8 @@ void TestMbcRegisterModel::selectedRegisterListDecimals()
 
 void TestMbcRegisterModel::selectAllWhenUnchecked()
 {
-    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
-    fillModel(pMbcRegisterModel);
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
+    fillModel(pMbcRegisterModel.get());
 
     QVERIFY(pMbcRegisterModel->rowCount() == 2);
 
@@ -417,8 +418,8 @@ void TestMbcRegisterModel::selectAllWhenUnchecked()
 
 void TestMbcRegisterModel::selectAllWhenChecked()
 {
-    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
-    fillModel(pMbcRegisterModel);
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
+    fillModel(pMbcRegisterModel.get());
     QVERIFY(pMbcRegisterModel->rowCount() == 2);
 
     QModelIndex modelIdx = pMbcRegisterModel->index(0, 0);
@@ -442,8 +443,8 @@ void TestMbcRegisterModel::selectAllWhenChecked()
 
 void TestMbcRegisterModel::selectAllWhenMixedChecked()
 {
-    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
-    fillModel(pMbcRegisterModel);
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
+    fillModel(pMbcRegisterModel.get());
     QVERIFY(pMbcRegisterModel->rowCount() == 2);
 
     QModelIndex modelIdx = pMbcRegisterModel->index(0, 0);
@@ -466,7 +467,7 @@ void TestMbcRegisterModel::selectAllWhenMixedChecked()
 
 void TestMbcRegisterModel::selectAllSkipNonReadable()
 {
-    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
     QList<MbcRegisterData> mbcRegisterList =
       QList<MbcRegisterData>() << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
                                << MbcRegisterData(40002, MbcDataType::Type::UNSIGNED_16, "Test2", 0, false, 0);
@@ -490,7 +491,7 @@ void TestMbcRegisterModel::selectAllSkipNonReadable()
 
 void TestMbcRegisterModel::setDataOnDisabledRowDoesNothing()
 {
-    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
     QList<MbcRegisterData> mbcRegisterList =
       QList<MbcRegisterData>() << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "NonReadable", 0, false, 0);
     QStringList tabList = QStringList() << QString("Tab0");
@@ -506,15 +507,15 @@ void TestMbcRegisterModel::setDataOnDisabledRowDoesNothing()
 
 void TestMbcRegisterModel::setDataInvalidIndexReturnsFalse()
 {
-    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
-    fillModel(pMbcRegisterModel);
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
+    fillModel(pMbcRegisterModel.get());
 
     QCOMPARE(pMbcRegisterModel->setData(QModelIndex(), QVariant(Qt::Checked), Qt::CheckStateRole), false);
 }
 
 void TestMbcRegisterModel::headerDataCheckState()
 {
-    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
 
     // Initial check state should be unchecked
     QVariant checkState = pMbcRegisterModel->headerData(cColumnSelected, Qt::Horizontal, Qt::CheckStateRole);
@@ -523,8 +524,8 @@ void TestMbcRegisterModel::headerDataCheckState()
 
 void TestMbcRegisterModel::setHeaderDataCheckState()
 {
-    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
-    QSignalSpy spy(pMbcRegisterModel, &MbcRegisterModel::headerDataChanged);
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
+    QSignalSpy spy(pMbcRegisterModel.get(), &MbcRegisterModel::headerDataChanged);
 
     bool result = pMbcRegisterModel->setHeaderData(cColumnSelected, Qt::Horizontal,
                                                    QVariant(Qt::Checked), Qt::CheckStateRole);
@@ -537,7 +538,7 @@ void TestMbcRegisterModel::setHeaderDataCheckState()
 
 void TestMbcRegisterModel::setHeaderDataPartiallyChecked()
 {
-    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
 
     bool result = pMbcRegisterModel->setHeaderData(cColumnSelected, Qt::Horizontal,
                                                    QVariant(Qt::PartiallyChecked), Qt::CheckStateRole);
@@ -549,18 +550,18 @@ void TestMbcRegisterModel::setHeaderDataPartiallyChecked()
 
 void TestMbcRegisterModel::dataInvalidIndexReturnsNull()
 {
-    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
-    fillModel(pMbcRegisterModel);
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
+    fillModel(pMbcRegisterModel.get());
 
     QCOMPARE(pMbcRegisterModel->data(QModelIndex(), Qt::DisplayRole), QVariant());
 }
 
 void TestMbcRegisterModel::fillTwiceResetsFirst()
 {
-    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
-    QSignalSpy resetSpy(pMbcRegisterModel, SIGNAL(modelReset()));
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
+    QSignalSpy resetSpy(pMbcRegisterModel.get(), SIGNAL(modelReset()));
 
-    fillModel(pMbcRegisterModel);
+    fillModel(pMbcRegisterModel.get());
     QCOMPARE(pMbcRegisterModel->rowCount(), 2);
 
     // Second fill with different data
@@ -578,9 +579,9 @@ void TestMbcRegisterModel::fillTwiceResetsFirst()
 
 void TestMbcRegisterModel::setSelectionstateEmptyListDoesNothing()
 {
-    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
-    fillModel(pMbcRegisterModel);
-    QSignalSpy spy(pMbcRegisterModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
+    fillModel(pMbcRegisterModel.get());
+    QSignalSpy spy(pMbcRegisterModel.get(), SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
 
     QList<QModelIndex> emptyList;
     pMbcRegisterModel->setSelectionstate(emptyList, Qt::Checked);
@@ -592,7 +593,7 @@ void TestMbcRegisterModel::setSelectionstateEmptyListDoesNothing()
 
 void TestMbcRegisterModel::selectedRegisterListEmpty()
 {
-    MbcRegisterModel* pMbcRegisterModel = new MbcRegisterModel();
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
 
     QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 0);
     QVERIFY(pMbcRegisterModel->selectedRegisterList().isEmpty());
