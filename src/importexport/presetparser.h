@@ -1,21 +1,26 @@
 #ifndef PRESETPARSER_H
 #define PRESETPARSER_H
 
-#include <QObject>
-#include <QDomDocument>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QObject>
 
 class PresetParser : public QObject
 {
     Q_OBJECT
 public:
-		
     typedef struct _Preset
     {
-        _Preset() : commentSequence(QString("")), column(1), labelRow(1),
-                    dataRow(1), bTimeInMilliSeconds(true), keyword(QString("")) {}
+        _Preset()
+            : commentSequence(QString("")),
+              column(1),
+              labelRow(1),
+              dataRow(1),
+              bTimeInMilliSeconds(true),
+              keyword(QString(""))
+        {
+        }
 
         QString name;
         QChar fieldSeparator;
@@ -25,11 +30,11 @@ public:
         quint32 column;
         qint32 labelRow;
         quint32 dataRow;
-        
+
         bool bTimeInMilliSeconds;
 
         QString keyword;
-        
+
     } Preset;
 
     explicit PresetParser();
@@ -44,13 +49,10 @@ signals:
 public slots:
 
 private:
-
-    bool parsePresetTag(const QDomElement& element, Preset* pPreset);
     void parsePresetsFromJson(const QString& fileContent);
     bool parsePresetFromJson(const QJsonObject& obj, Preset* pPreset);
 
     QList<PresetParser::Preset> _presetList;
-
 };
 
 #endif // PRESETPARSER_H

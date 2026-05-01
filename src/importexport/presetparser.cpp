@@ -1,12 +1,10 @@
 
 #include "presetparser.h"
 
+#include "importexport/legacy/presetxmlparser.h"
 #include "util/scopelogging.h"
 
-PresetParser::PresetParser()
-{
-    _presetList.clear();
-}
+PresetParser::PresetParser() = default;
 
 PresetParser::Preset PresetParser::preset(quint32 index)
 {
@@ -28,43 +26,8 @@ void PresetParser::parsePresets(QString fileContent)
     }
     else
     {
-        QDomDocument domDocument;
-
-        QDomDocument::ParseResult result =
-          domDocument.setContent(fileContent, QDomDocument::ParseOption::UseNamespaceProcessing);
-        if (!result)
-        {
-            auto msg = QString(tr("Parse error at line %1, column %2:\n%3")
-                                 .arg(result.errorLine)
-                                 .arg(result.errorColumn)
-                                 .arg(result.errorMessage));
-            qCWarning(scopePreset) << qUtf8Printable(msg);
-        }
-        else
-        {
-            QDomElement root = domDocument.documentElement();
-            if (root.tagName() == "modbusscope")
-            {
-                QDomElement tag = root.firstChildElement();
-                while (!tag.isNull())
-                {
-                    if (tag.tagName() == "parsepreset")
-                    {
-                        Preset preset;
-                        if (parsePresetTag(tag, &preset))
-                        {
-                            _presetList.append(preset);
-                        }
-                        // else: invalid preset, skip and continue loading remaining presets
-                    }
-                    else
-                    {
-                        // unknown: ignore
-                    }
-                    tag = tag.nextSiblingElement();
-                }
-            }
-        }
+        PresetXmlParser xmlParser;
+        xmlParser.parsePresets(fileContent, &_presetList);
     }
 }
 
@@ -89,13 +52,15 @@ void PresetParser::parsePresetsFromJson(const QString& fileContent)
         return;
     }
 
-    if (!doc.object().contains("presets") || !doc.object().value("presets").isArray())
+    QJsonObject root = doc.object();
+
+    if (!root.contains("presets") || !root.value("presets").isArray())
     {
         qCWarning(scopePreset) << tr("JSON preset file missing 'presets' array");
         return;
     }
 
-    QJsonArray presetsArray = doc.object().value("presets").toArray();
+    QJsonArray presetsArray = root.value("presets").toArray();
 
     for (const QJsonValue& value : std::as_const(presetsArray))
     {
@@ -216,137 +181,4 @@ bool PresetParser::parsePresetFromJson(const QJsonObject& obj, Preset* pPreset)
     }
 
     return true;
-}
-
-bool PresetParser::parsePresetTag(const QDomElement& element, Preset* pPreset)
-{
-    bool bFieldseparator = false;
-    bool bName = false;
-    bool bDecimalSeparator = false;
-
-    bool bRet = true;
-    QDomElement child = element.firstChildElement();
-    while (!child.isNull())
-    {
-        if (child.tagName() == "name")
-        {
-            bName = true;
-            pPreset->name = child.text();
-        }
-        else if (child.tagName() == "fieldseparator")
-        {
-            bFieldseparator = true;
-            if (child.text().trimmed().compare(QString(R"(\t)"), Qt::CaseInsensitive) == 0)
-            {
-                pPreset->fieldSeparator = '\t';
-            }
-            else if (child.text().size() > 0)
-            {
-                pPreset->fieldSeparator = child.text().at(0);
-            }
-            else
-            {
-                // No data
-                bRet = false;
-                qCWarning(scopePreset) << tr("Field separator is empty");
-                break;
-            }
-        }
-        else if (child.tagName() == "decimalseparator")
-        {
-            bDecimalSeparator = true;
-            if (child.text().size() > 0)
-            {
-                pPreset->decimalSeparator = child.text().at(0);
-            }
-            else
-            {
-                bRet = false;
-                qCWarning(scopePreset) << tr("Decimal separator is empty");
-                break;
-            }
-        }
-        else if (child.tagName() == "thousandseparator")
-        {
-            if (child.text().size() > 0)
-            {
-                pPreset->thousandSeparator = child.text().at(0);
-            }
-            else
-            {
-                pPreset->thousandSeparator = ' ';
-            }
-        }
-        else if (child.tagName() == "commentSequence")
-        {
-            pPreset->commentSequence = child.text();
-        }
-        else if (child.tagName() == "column")
-        {
-            pPreset->column = child.text().toUInt(&bRet);
-            if (!bRet)
-            {
-                qCWarning(scopePreset) << tr("Column ( %1 ) is not a valid number.").arg(child.text());
-                break;
-            }
-        }
-        else if (child.tagName() == "labelrow")
-        {
-            pPreset->labelRow = child.text().toInt(&bRet);
-            if ((!bRet) || (pPreset->labelRow < -1))
-            {
-                qCWarning(scopePreset)
-                  << tr("Label row ( %1 ) is not a valid number. Specify -1 to indicate the absence of label row")
-                       .arg(child.text());
-                break;
-            }
-        }
-        else if (child.tagName() == "datarow")
-        {
-            pPreset->dataRow = child.text().toUInt(&bRet);
-            if (!bRet)
-            {
-                qCWarning(scopePreset) << tr("Data row ( %1 ) is not a valid number.").arg(child.text());
-                break;
-            }
-        }
-        else if (child.tagName() == "timeinmilliseconds")
-        {
-            if (!child.text().toLower().compare("true"))
-            {
-                pPreset->bTimeInMilliSeconds = true;
-            }
-            else
-            {
-                pPreset->bTimeInMilliSeconds = false;
-            }
-        }
-        else if (child.tagName() == "keyword")
-        {
-            pPreset->keyword = child.text();
-        }
-        else
-        {
-            // unknown tag: ignore
-        }
-        child = child.nextSiblingElement();
-    }
-
-    if (!bName)
-    {
-        qCWarning(scopePreset) << tr("Name is not specified.");
-        bRet = false;
-    }
-    else if (!bFieldseparator)
-    {
-        qCWarning(scopePreset) << tr("Field separator is not specified (%1).").arg(pPreset->name);
-        bRet = false;
-    }
-    else if (!bDecimalSeparator)
-    {
-        qCWarning(scopePreset) << tr("Decimal separator is not specified (%1).").arg(pPreset->name);
-        bRet = false;
-    }
-
-    return bRet;
 }
