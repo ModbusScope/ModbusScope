@@ -11,6 +11,8 @@
 #include <QStringList>
 #include <QTimer>
 
+#include <memory>
+
 /*!
  * \brief Lifecycle manager for an external adapter process communicating via JSON-RPC 2.0.
  *
@@ -21,14 +23,16 @@
  *   requestStatus() → getStatus → statusResult()
  *   stopSession() → shutdown → process exit → sessionStopped()
  *
- * Takes ownership of the AdapterProcess passed to the constructor.
+ * Takes ownership of the AdapterProcess passed to the constructor via std::unique_ptr.
  */
 class AdapterClient : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit AdapterClient(AdapterProcess* pProcess, QObject* parent = nullptr, int handshakeTimeoutMs = 10000);
+    explicit AdapterClient(std::unique_ptr<AdapterProcess> pProcess,
+                           QObject* parent = nullptr,
+                           int handshakeTimeoutMs = 10000);
     ~AdapterClient();
 
     /*!
@@ -234,7 +238,7 @@ private:
 
     static constexpr int cHandshakeTimeoutMs = 10000;
 
-    AdapterProcess* _pProcess;
+    std::unique_ptr<AdapterProcess> _pProcess;
     QTimer _handshakeTimer;
     int _handshakeTimeoutMs;
     QJsonObject _pendingConfig;

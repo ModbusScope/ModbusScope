@@ -10,6 +10,8 @@
 #include <QSignalSpy>
 #include <QTest>
 
+#include <memory>
+
 namespace {
 
 constexpr int cSessionTimeoutMs = 10000;
@@ -68,7 +70,7 @@ QJsonObject realConfig()
 void TestDummyAdapter::initTestCase()
 {
     const QString executable = QString::fromUtf8(DUMMY_ADAPTER_EXECUTABLE);
-    QVERIFY2(QFileInfo(executable).exists(),
+    QVERIFY2(QFileInfo::exists(executable),
              qPrintable(QStringLiteral("DUMMY_ADAPTER_EXECUTABLE not found on disk: %1").arg(executable)));
     QVERIFY2(QFileInfo(executable).isExecutable(),
              qPrintable(QStringLiteral("DUMMY_ADAPTER_EXECUTABLE is not executable: %1").arg(executable)));
@@ -83,7 +85,7 @@ void TestDummyAdapter::initTestCase()
  */
 void TestDummyAdapter::init()
 {
-    _pClient = new AdapterClient(new AdapterProcess(), this);
+    _pClient = new AdapterClient(std::make_unique<AdapterProcess>(), this);
 }
 
 /*!

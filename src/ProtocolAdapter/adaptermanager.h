@@ -9,7 +9,6 @@
 #include <QStringList>
 
 class AdapterClient;
-class AdapterProcess;
 class SettingsModel;
 
 /*!
@@ -115,7 +114,6 @@ private slots:
 
 private:
     SettingsModel* _pSettingsModel;
-    AdapterProcess* _pAdapterProcess;
     AdapterClient* _pAdapterClient;
 };
 
