@@ -9,6 +9,8 @@
 #include <QSignalSpy>
 #include <QTest>
 
+#include <memory>
+
 /* ---- Mock AdapterProcess ---- */
 
 /*!
@@ -109,8 +111,9 @@ void TestAdapterClient::cleanup()
 
 void TestAdapterClient::lifecycleInitializeToStart()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyStarted(&client, &AdapterClient::sessionStarted);
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
@@ -154,8 +157,9 @@ void TestAdapterClient::lifecycleInitializeToStart()
 
 void TestAdapterClient::describeSignalEmitted()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyDescribe(&client, &AdapterClient::describeResult);
 
@@ -174,8 +178,9 @@ void TestAdapterClient::describeSignalEmitted()
 
 void TestAdapterClient::readDataValidResults()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spy(&client, &AdapterClient::readDataResult);
 
@@ -204,8 +209,9 @@ void TestAdapterClient::readDataValidResults()
 
 void TestAdapterClient::readDataEmptyRegisters()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spy(&client, &AdapterClient::readDataResult);
 
@@ -226,8 +232,9 @@ void TestAdapterClient::readDataEmptyRegisters()
 
 void TestAdapterClient::requestStatusEmitsSignal()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spy(&client, &AdapterClient::statusResult);
 
@@ -247,8 +254,9 @@ void TestAdapterClient::requestStatusEmitsSignal()
 
 void TestAdapterClient::errorResponseEmitsSessionError()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spy(&client, &AdapterClient::sessionError);
 
@@ -265,8 +273,9 @@ void TestAdapterClient::errorResponseEmitsSessionError()
 
 void TestAdapterClient::unexpectedResponseEmitsNoSignals()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyStarted(&client, &AdapterClient::sessionStarted);
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
@@ -282,8 +291,9 @@ void TestAdapterClient::unexpectedResponseEmitsNoSignals()
 
 void TestAdapterClient::notificationIgnored()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyStarted(&client, &AdapterClient::sessionStarted);
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
@@ -301,8 +311,9 @@ void TestAdapterClient::notificationIgnored()
 
 void TestAdapterClient::diagnosticNotificationForwarded()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyDiagnostic(&client, &AdapterClient::diagnosticReceived);
 
@@ -316,8 +327,9 @@ void TestAdapterClient::diagnosticNotificationForwarded()
 
 void TestAdapterClient::diagnosticNotificationDebugLevel()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyDiagnostic(&client, &AdapterClient::diagnosticReceived);
 
@@ -331,8 +343,9 @@ void TestAdapterClient::diagnosticNotificationDebugLevel()
 
 void TestAdapterClient::diagnosticMalformedParams()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyDiagnostic(&client, &AdapterClient::diagnosticReceived);
 
@@ -344,8 +357,9 @@ void TestAdapterClient::diagnosticMalformedParams()
 
 void TestAdapterClient::processErrorEmitsSessionError()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spy(&client, &AdapterClient::sessionError);
 
@@ -358,8 +372,9 @@ void TestAdapterClient::processErrorEmitsSessionError()
 
 void TestAdapterClient::stopSessionDuringLifecycle()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
 
@@ -378,8 +393,9 @@ void TestAdapterClient::stopSessionDuringLifecycle()
 
 void TestAdapterClient::doubleStopSession()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
 
@@ -403,8 +419,9 @@ void TestAdapterClient::doubleStopSession()
 
 void TestAdapterClient::requestReadDataWhenNotActive()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyData(&client, &AdapterClient::readDataResult);
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
@@ -419,8 +436,9 @@ void TestAdapterClient::requestReadDataWhenNotActive()
 
 void TestAdapterClient::nonObjectResultEmitsSessionError()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
 
@@ -435,8 +453,9 @@ void TestAdapterClient::nonObjectResultEmitsSessionError()
 
 void TestAdapterClient::errorDuringShutdownSuppressed()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
 
@@ -463,8 +482,9 @@ void TestAdapterClient::errorDuringShutdownSuppressed()
 
 void TestAdapterClient::awaitingConfigPausesBeforeConfigure()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyDescribe(&client, &AdapterClient::describeResult);
 
@@ -486,8 +506,9 @@ void TestAdapterClient::awaitingConfigPausesBeforeConfigure()
 
 void TestAdapterClient::stopSessionDuringAwaitingConfig()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
 
@@ -507,8 +528,9 @@ void TestAdapterClient::stopSessionDuringAwaitingConfig()
 
 void TestAdapterClient::shutdownNoAckTimesOutToSessionStopped()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock, nullptr, 50 /* ms */);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned), nullptr, 250 /* ms */);
 
     QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
@@ -526,7 +548,7 @@ void TestAdapterClient::shutdownNoAckTimesOutToSessionStopped()
     QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.shutdown"));
 
     /* Wait for the shutdown timer to fire */
-    QTest::qWait(150);
+    QVERIFY2(spyStopped.wait(2000), "sessionStopped not emitted after shutdown timeout");
 
     /* sessionStopped must be emitted, not sessionError */
     QCOMPARE(spyStopped.count(), 1);
@@ -535,8 +557,9 @@ void TestAdapterClient::shutdownNoAckTimesOutToSessionStopped()
 
 void TestAdapterClient::shutdownAckEmitsSessionStoppedAfterProcessExit()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
@@ -567,8 +590,9 @@ void TestAdapterClient::shutdownAckEmitsSessionStoppedAfterProcessExit()
 
 void TestAdapterClient::processErrorDuringStoppingNoSessionError()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
     QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
@@ -589,8 +613,9 @@ void TestAdapterClient::processErrorDuringStoppingNoSessionError()
 
 void TestAdapterClient::processErrorDuringStoppingThenProcessFinished()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
     QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
@@ -629,8 +654,9 @@ static void driveToActive(AdapterClient& client, MockAdapterProcess* mock)
 
 void TestAdapterClient::requestDataPointSchemaEmitsSignal()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spySchema(&client, &AdapterClient::dataPointSchemaResult);
 
@@ -651,8 +677,9 @@ void TestAdapterClient::requestDataPointSchemaEmitsSignal()
 
 void TestAdapterClient::requestDataPointSchemaInWrongStateIgnored()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spySchema(&client, &AdapterClient::dataPointSchemaResult);
 
@@ -665,8 +692,9 @@ void TestAdapterClient::requestDataPointSchemaInWrongStateIgnored()
 
 void TestAdapterClient::describeDataPointInAwaitingConfig()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyDescReg(&client, &AdapterClient::describeDataPointResult);
 
@@ -690,8 +718,9 @@ void TestAdapterClient::describeDataPointInAwaitingConfig()
 
 void TestAdapterClient::describeDataPointInActiveState()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyDescReg(&client, &AdapterClient::describeDataPointResult);
 
@@ -709,8 +738,9 @@ void TestAdapterClient::describeDataPointInActiveState()
 
 void TestAdapterClient::describeDataPointInWrongStateIgnored()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyDescReg(&client, &AdapterClient::describeDataPointResult);
 
@@ -723,8 +753,9 @@ void TestAdapterClient::describeDataPointInWrongStateIgnored()
 
 void TestAdapterClient::validateDataPointValid()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyValidate(&client, &AdapterClient::validateDataPointResult);
 
@@ -744,8 +775,9 @@ void TestAdapterClient::validateDataPointValid()
 
 void TestAdapterClient::validateDataPointInvalid()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyValidate(&client, &AdapterClient::validateDataPointResult);
 
@@ -763,8 +795,9 @@ void TestAdapterClient::validateDataPointInvalid()
 
 void TestAdapterClient::validateDataPointInActiveState()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyValidate(&client, &AdapterClient::validateDataPointResult);
 
@@ -784,8 +817,9 @@ void TestAdapterClient::validateDataPointInActiveState()
 
 void TestAdapterClient::validateDataPointInWrongStateIgnored()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyValidate(&client, &AdapterClient::validateDataPointResult);
 
@@ -798,8 +832,9 @@ void TestAdapterClient::validateDataPointInWrongStateIgnored()
 
 void TestAdapterClient::buildExpressionRequestAndResponse()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyBuild(&client, &AdapterClient::buildExpressionResult);
 
@@ -824,8 +859,9 @@ void TestAdapterClient::buildExpressionRequestAndResponse()
 
 void TestAdapterClient::buildExpressionInActiveState()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyBuild(&client, &AdapterClient::buildExpressionResult);
 
@@ -847,8 +883,9 @@ void TestAdapterClient::buildExpressionInActiveState()
 
 void TestAdapterClient::buildExpressionInWrongStateIgnored()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyBuild(&client, &AdapterClient::buildExpressionResult);
 
@@ -861,8 +898,9 @@ void TestAdapterClient::buildExpressionInWrongStateIgnored()
 
 void TestAdapterClient::buildExpressionOmitsDefaultDataType()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     driveToAwaitingConfig(client, mock);
 
@@ -874,8 +912,9 @@ void TestAdapterClient::buildExpressionOmitsDefaultDataType()
 
 void TestAdapterClient::buildExpressionOmitsDefaultDeviceId()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     driveToAwaitingConfig(client, mock);
 
@@ -887,8 +926,9 @@ void TestAdapterClient::buildExpressionOmitsDefaultDeviceId()
 
 void TestAdapterClient::expressionHelpRequestAndResponse()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyHelp(&client, &AdapterClient::expressionHelpResult);
 
@@ -908,8 +948,9 @@ void TestAdapterClient::expressionHelpRequestAndResponse()
 
 void TestAdapterClient::expressionHelpInActiveState()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyHelp(&client, &AdapterClient::expressionHelpResult);
 
@@ -927,8 +968,9 @@ void TestAdapterClient::expressionHelpInActiveState()
 
 void TestAdapterClient::expressionHelpInWrongStateIgnored()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyHelp(&client, &AdapterClient::expressionHelpResult);
 
@@ -941,8 +983,9 @@ void TestAdapterClient::expressionHelpInWrongStateIgnored()
 
 void TestAdapterClient::expressionHelpErrorIsNonFatal()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
     QSignalSpy spyHelp(&client, &AdapterClient::expressionHelpResult);
@@ -969,8 +1012,9 @@ void TestAdapterClient::expressionHelpErrorIsNonFatal()
 
 void TestAdapterClient::readDataErrorIsNonFatal()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
     QSignalSpy spyData(&client, &AdapterClient::readDataResult);
@@ -1006,8 +1050,9 @@ void TestAdapterClient::readDataErrorIsNonFatal()
 
 void TestAdapterClient::readDataErrorInNonActiveStateIsIgnored()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
     QSignalSpy spyData(&client, &AdapterClient::readDataResult);
@@ -1026,8 +1071,9 @@ void TestAdapterClient::readDataErrorInNonActiveStateIsIgnored()
 
 void TestAdapterClient::readDataErrorInIdleStateIsIgnored()
 {
-    auto* mock = new MockAdapterProcess();
-    AdapterClient client(mock);
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
     QSignalSpy spyData(&client, &AdapterClient::readDataResult);

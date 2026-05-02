@@ -10,11 +10,12 @@
 #include <QDir>
 #include <QFileInfo>
 
+#include <memory>
+
 AdapterManager::AdapterManager(SettingsModel* pSettingsModel, QObject* parent)
     : QObject(parent), _pSettingsModel(pSettingsModel)
 {
-    _pAdapterProcess = new AdapterProcess(this);
-    _pAdapterClient = new AdapterClient(_pAdapterProcess, this);
+    _pAdapterClient = new AdapterClient(std::make_unique<AdapterProcess>(), this);
 
     connect(_pAdapterClient, &AdapterClient::sessionStarted, this, &AdapterManager::sessionStarted);
     connect(_pAdapterClient, &AdapterClient::readDataResult, this, &AdapterManager::readDataResult);

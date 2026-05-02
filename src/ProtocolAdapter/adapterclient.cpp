@@ -4,20 +4,21 @@
 
 #include <QJsonArray>
 
-AdapterClient::AdapterClient(AdapterProcess* pProcess, QObject* parent, int handshakeTimeoutMs)
-    : QObject(parent), _pProcess(pProcess), _handshakeTimeoutMs(handshakeTimeoutMs)
+#include <memory>
+
+AdapterClient::AdapterClient(std::unique_ptr<AdapterProcess> pProcess, QObject* parent, int handshakeTimeoutMs)
+    : QObject(parent), _pProcess(std::move(pProcess)), _handshakeTimeoutMs(handshakeTimeoutMs)
 {
-    Q_ASSERT(pProcess);
-    _pProcess->setParent(this);
+    Q_ASSERT(_pProcess);
 
     _handshakeTimer.setSingleShot(true);
     connect(&_handshakeTimer, &QTimer::timeout, this, &AdapterClient::onHandshakeTimeout);
 
-    connect(_pProcess, &AdapterProcess::responseReceived, this, &AdapterClient::onResponseReceived);
-    connect(_pProcess, &AdapterProcess::errorReceived, this, &AdapterClient::onErrorReceived);
-    connect(_pProcess, &AdapterProcess::processError, this, &AdapterClient::onProcessError);
-    connect(_pProcess, &AdapterProcess::processFinished, this, &AdapterClient::onProcessFinished);
-    connect(_pProcess, &AdapterProcess::notificationReceived, this, &AdapterClient::onNotificationReceived);
+    connect(_pProcess.get(), &AdapterProcess::responseReceived, this, &AdapterClient::onResponseReceived);
+    connect(_pProcess.get(), &AdapterProcess::errorReceived, this, &AdapterClient::onErrorReceived);
+    connect(_pProcess.get(), &AdapterProcess::processError, this, &AdapterClient::onProcessError);
+    connect(_pProcess.get(), &AdapterProcess::processFinished, this, &AdapterClient::onProcessFinished);
+    connect(_pProcess.get(), &AdapterProcess::notificationReceived, this, &AdapterClient::onNotificationReceived);
 }
 
 AdapterClient::~AdapterClient() = default;

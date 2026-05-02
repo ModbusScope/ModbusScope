@@ -4,10 +4,13 @@
 #include "ProtocolAdapter/adapterprocess.h"
 #include "util/result.h"
 
+#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QSignalSpy>
 #include <QTest>
+
+#include <memory>
 
 namespace {
 
@@ -58,6 +61,22 @@ QJsonObject realConfig()
 } // namespace
 
 /*!
+ * \brief Asserts that the dummy adapter binary is executable before any test runs.
+ *
+ * If the binary is missing or not executable every QSignalSpy::wait() would
+ * run to its full ceiling, making the suite hang for minutes before failing.
+ * Catching it here gives an immediate, actionable error message instead.
+ */
+void TestDummyAdapter::initTestCase()
+{
+    const QString executable = QString::fromUtf8(DUMMY_ADAPTER_EXECUTABLE);
+    QVERIFY2(QFileInfo::exists(executable),
+             qPrintable(QStringLiteral("DUMMY_ADAPTER_EXECUTABLE not found on disk: %1").arg(executable)));
+    QVERIFY2(QFileInfo(executable).isExecutable(),
+             qPrintable(QStringLiteral("DUMMY_ADAPTER_EXECUTABLE is not executable: %1").arg(executable)));
+}
+
+/*!
  * \brief Creates a fresh AdapterClient before each test.
  *
  * Parenting _pClient to this ensures it is always deleted — even when a
@@ -66,7 +85,7 @@ QJsonObject realConfig()
  */
 void TestDummyAdapter::init()
 {
-    _pClient = new AdapterClient(new AdapterProcess(), this);
+    _pClient = new AdapterClient(std::make_unique<AdapterProcess>(), this);
 }
 
 /*!

@@ -7,6 +7,8 @@ target_compile_definitions(tst_adapterprocess PRIVATE
     DUMMY_ADAPTER_EXECUTABLE="$<TARGET_FILE:dummymodbusadapter>"
 )
 
+add_dependencies(tst_adapterprocess dummymodbusadapter)
+
 if(UNIX AND NOT APPLE)
     # Derive Qt library path so tests can find Qt shared libraries when run
     # directly from the build tree before a full install (RPATH is $ORIGIN).
