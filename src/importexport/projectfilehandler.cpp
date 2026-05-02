@@ -1,10 +1,10 @@
 
 #include "projectfilehandler.h"
 
+#include "importexport/legacy/projectfilexmlparser.h"
 #include "importexport/projectfiledata.h"
 #include "importexport/projectfilejsonexporter.h"
 #include "importexport/projectfilejsonparser.h"
-#include "importexport/projectfilexmlparser.h"
 #include "models/adapterdata.h"
 #include "models/device.h"
 #include "models/graphdatamodel.h"
