@@ -29,7 +29,6 @@ void TestMbcRegisterModel::init()
 
 void TestMbcRegisterModel::cleanup()
 {
-
 }
 
 void TestMbcRegisterModel::rowCount()
@@ -45,7 +44,6 @@ void TestMbcRegisterModel::rowCount()
     /* tested thoroughly in fill test case */
 }
 
-
 void TestMbcRegisterModel::columnCount()
 {
     auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
@@ -58,11 +56,13 @@ void TestMbcRegisterModel::headerData()
     auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
 
     QCOMPARE(pMbcRegisterModel->headerData(cColumnSelected, Qt::Horizontal, Qt::DisplayRole).toString(), QString(""));
-    QCOMPARE(pMbcRegisterModel->headerData(cColumnAddress, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Address"));
+    QCOMPARE(pMbcRegisterModel->headerData(cColumnAddress, Qt::Horizontal, Qt::DisplayRole).toString(),
+             QString("Address"));
     QCOMPARE(pMbcRegisterModel->headerData(cColumnText, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Text"));
     QCOMPARE(pMbcRegisterModel->headerData(cColumnType, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Type"));
     QCOMPARE(pMbcRegisterModel->headerData(cColumnTab, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Tab"));
-    QCOMPARE(pMbcRegisterModel->headerData(cColumnDecimals, Qt::Horizontal, Qt::DisplayRole).toString(), QString("Decimals"));
+    QCOMPARE(pMbcRegisterModel->headerData(cColumnDecimals, Qt::Horizontal, Qt::DisplayRole).toString(),
+             QString("Decimals"));
 
     QCOMPARE(pMbcRegisterModel->headerData(cColumnCnt, Qt::Horizontal, Qt::DisplayRole), QVariant());
 }
@@ -73,8 +73,8 @@ void TestMbcRegisterModel::flagsEnabled()
 
     fillModel(pMbcRegisterModel.get());
 
-    QModelIndex modelIdx = pMbcRegisterModel->index(0,0);
-    Qt::ItemFlags enabledFlags = Qt::ItemIsSelectable |  Qt::ItemIsEnabled;
+    QModelIndex modelIdx = pMbcRegisterModel->index(0, 0);
+    Qt::ItemFlags enabledFlags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 
     QCOMPARE(pMbcRegisterModel->flags(QModelIndex()), Qt::NoItemFlags);
     QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnSelected)), Qt::ItemIsUserCheckable | enabledFlags);
@@ -89,14 +89,15 @@ void TestMbcRegisterModel::flagsDisabled()
 {
     auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
 
-    QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
-            << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "Test1", 0, false, 0) /* Not readable */
-            << MbcRegisterData(40002, MbcDataType::Type::UNSIGNED_16, "Test2", 0, true, 0);
+    QList<MbcRegisterData> mbcRegisterList =
+      QList<MbcRegisterData>() << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "Test1", 0, false,
+                                                  0) /* Not readable */
+                               << MbcRegisterData(40002, MbcDataType::Type::UNSIGNED_16, "Test2", 0, true, 0);
     QStringList tabList = QStringList() << QString("Tab0");
 
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
 
-    QModelIndex modelIdx = pMbcRegisterModel->index(0,0);
+    QModelIndex modelIdx = pMbcRegisterModel->index(0, 0);
     Qt::ItemFlags disabledFlags = Qt::NoItemFlags;
 
     QCOMPARE(pMbcRegisterModel->flags(QModelIndex()), Qt::NoItemFlags);
@@ -106,7 +107,6 @@ void TestMbcRegisterModel::flagsDisabled()
     QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnText)), disabledFlags);
     QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnTab)), disabledFlags);
     QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnDecimals)), disabledFlags);
-
 }
 
 void TestMbcRegisterModel::setData()
@@ -114,7 +114,7 @@ void TestMbcRegisterModel::setData()
     auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
     fillModel(pMbcRegisterModel.get());
 
-    QSignalSpy spy(pMbcRegisterModel.get(), SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
+    QSignalSpy spy(pMbcRegisterModel.get(), SIGNAL(dataChanged(QModelIndex, QModelIndex, QVector<int>)));
 
     /* Check failures */
     QCOMPARE(pMbcRegisterModel->setData(QModelIndex(), QVariant(), Qt::CheckStateRole), false);
@@ -153,15 +153,16 @@ void TestMbcRegisterModel::fillData()
     QVERIFY(pMbcRegisterModel->rowCount() != 0);
     QCOMPARE(resetSignalSpy.count(), 0);
 
-    QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
-            << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
-            << MbcRegisterData(40002, MbcDataType::Type::SIGNED_32, "Test2", 1, true, 0)
-            << MbcRegisterData(40004, MbcDataType::Type::UNSIGNED_16, "Test4", 1, true, 0)
-            << MbcRegisterData(40005, MbcDataType::Type::SIGNED_16, "Test5", 0, true, 2)
-            << MbcRegisterData(40010, MbcDataType::Type::UNSIGNED_16, "Test10", 2, true, 3)
-            << MbcRegisterData(40011, MbcDataType::Type::SIGNED_16, "Test11", 2, false, 0) // Disabled: not readable
-            << MbcRegisterData(40002, MbcDataType::Type::SIGNED_16, "Test6", 0, true, 0)
-            << MbcRegisterData(40004, MbcDataType::Type::SIGNED_16, "Test13", 0, true, 0);
+    QList<MbcRegisterData> mbcRegisterList =
+      QList<MbcRegisterData>() << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
+                               << MbcRegisterData(40002, MbcDataType::Type::SIGNED_32, "Test2", 1, true, 0)
+                               << MbcRegisterData(40004, MbcDataType::Type::UNSIGNED_16, "Test4", 1, true, 0)
+                               << MbcRegisterData(40005, MbcDataType::Type::SIGNED_16, "Test5", 0, true, 2)
+                               << MbcRegisterData(40010, MbcDataType::Type::UNSIGNED_16, "Test10", 2, true, 3)
+                               << MbcRegisterData(40011, MbcDataType::Type::SIGNED_16, "Test11", 2, false,
+                                                  0) // Disabled: not readable
+                               << MbcRegisterData(40002, MbcDataType::Type::SIGNED_16, "Test6", 0, true, 0)
+                               << MbcRegisterData(40004, MbcDataType::Type::SIGNED_16, "Test13", 0, true, 0);
 
     QStringList tabList = QStringList() << QString("Tab0") << QString("Tab1") << QString("Tab2");
     QSignalSpy rowsInsertedSpy(pMbcRegisterModel.get(), SIGNAL(rowsInserted(const QModelIndex, int, int)));
@@ -180,7 +181,7 @@ void TestMbcRegisterModel::fillData()
 
     QModelIndex modelIdx = pMbcRegisterModel->index(0, 0);
 
-    const Qt::ItemFlags enabledFlags = Qt::ItemIsSelectable |  Qt::ItemIsEnabled;
+    const Qt::ItemFlags enabledFlags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     const Qt::ItemFlags disabledFlags = Qt::NoItemFlags;
 
     int row = 0;
@@ -206,7 +207,8 @@ void TestMbcRegisterModel::fillData()
     QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), enabledFlags); // flags
 
     row = 5;
-    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "Not readable");
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(),
+             "Not readable");
     QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), disabledFlags); // flags
 
     row = 6;
@@ -217,15 +219,18 @@ void TestMbcRegisterModel::fillData()
     QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(row, cColumnSelected), Qt::ToolTipRole).toString(), "");
     QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(row, cColumnAddress)), enabledFlags); // flags
 
-
     /* Loop when possible */
     for (int rowIdx = 0; rowIdx < mbcRegisterList.size(); rowIdx++)
     {
         QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnSelected), Qt::CheckStateRole), Qt::Unchecked);
-        QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnAddress), Qt::DisplayRole), mbcRegisterList[rowIdx].registerAddress());
-        QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnText), Qt::DisplayRole), mbcRegisterList[rowIdx].name());
-        QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnTab), Qt::DisplayRole), tabList[mbcRegisterList[rowIdx].tabIdx()]);
-        QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnDecimals), Qt::DisplayRole), mbcRegisterList[rowIdx].decimals());
+        QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnAddress), Qt::DisplayRole),
+                 mbcRegisterList[rowIdx].registerAddress());
+        QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnText), Qt::DisplayRole),
+                 mbcRegisterList[rowIdx].name());
+        QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnTab), Qt::DisplayRole),
+                 tabList[mbcRegisterList[rowIdx].tabIdx()]);
+        QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnDecimals), Qt::DisplayRole),
+                 mbcRegisterList[rowIdx].decimals());
 
         auto type = MbcDataType::typeString(mbcRegisterList[rowIdx].type());
         QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(rowIdx, cColumnType), Qt::DisplayRole), type);
@@ -250,9 +255,9 @@ void TestMbcRegisterModel::selectedRegisterListAndCount()
 {
     auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
 
-    QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
-            << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
-            << MbcRegisterData(40002, MbcDataType::Type::UNSIGNED_16, "Test2", 0, true, 0);
+    QList<MbcRegisterData> mbcRegisterList =
+      QList<MbcRegisterData>() << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
+                               << MbcRegisterData(40002, MbcDataType::Type::UNSIGNED_16, "Test2", 0, true, 0);
     QStringList tabList = QStringList() << QString("Tab0");
 
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
@@ -330,8 +335,8 @@ void TestMbcRegisterModel::selectedRegisterListAndCount32()
 {
     auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
 
-    QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
-            << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_32, "Test1", 0, true, 0);
+    QList<MbcRegisterData> mbcRegisterList =
+      QList<MbcRegisterData>() << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_32, "Test1", 0, true, 0);
     QStringList tabList = QStringList() << QString("Tab0");
 
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
@@ -357,10 +362,10 @@ void TestMbcRegisterModel::selectedRegisterListDecimals()
 {
     auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
 
-    QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
-            << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
-            << MbcRegisterData(40002, MbcDataType::Type::UNSIGNED_16, "Test2", 0, true, 1)
-            << MbcRegisterData(40003, MbcDataType::Type::UNSIGNED_16, "Test3", 0, true, 2);
+    QList<MbcRegisterData> mbcRegisterList =
+      QList<MbcRegisterData>() << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
+                               << MbcRegisterData(40002, MbcDataType::Type::UNSIGNED_16, "Test2", 0, true, 1)
+                               << MbcRegisterData(40003, MbcDataType::Type::UNSIGNED_16, "Test3", 0, true, 2);
     QStringList tabList = QStringList() << QString("Tab0");
 
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
@@ -527,8 +532,8 @@ void TestMbcRegisterModel::setHeaderDataCheckState()
     auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
     QSignalSpy spy(pMbcRegisterModel.get(), &MbcRegisterModel::headerDataChanged);
 
-    bool result = pMbcRegisterModel->setHeaderData(cColumnSelected, Qt::Horizontal,
-                                                   QVariant(Qt::Checked), Qt::CheckStateRole);
+    bool result =
+      pMbcRegisterModel->setHeaderData(cColumnSelected, Qt::Horizontal, QVariant(Qt::Checked), Qt::CheckStateRole);
     QVERIFY(result);
     QCOMPARE(spy.count(), 1);
 
@@ -540,8 +545,8 @@ void TestMbcRegisterModel::setHeaderDataPartiallyChecked()
 {
     auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
 
-    bool result = pMbcRegisterModel->setHeaderData(cColumnSelected, Qt::Horizontal,
-                                                   QVariant(Qt::PartiallyChecked), Qt::CheckStateRole);
+    bool result = pMbcRegisterModel->setHeaderData(cColumnSelected, Qt::Horizontal, QVariant(Qt::PartiallyChecked),
+                                                   Qt::CheckStateRole);
     QVERIFY(result);
 
     QVariant checkState = pMbcRegisterModel->headerData(cColumnSelected, Qt::Horizontal, Qt::CheckStateRole);
@@ -581,7 +586,7 @@ void TestMbcRegisterModel::setSelectionstateEmptyListDoesNothing()
 {
     auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
     fillModel(pMbcRegisterModel.get());
-    QSignalSpy spy(pMbcRegisterModel.get(), SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
+    QSignalSpy spy(pMbcRegisterModel.get(), SIGNAL(dataChanged(QModelIndex, QModelIndex, QVector<int>)));
 
     QList<QModelIndex> emptyList;
     pMbcRegisterModel->setSelectionstate(emptyList, Qt::Checked);
@@ -599,11 +604,11 @@ void TestMbcRegisterModel::selectedRegisterListEmpty()
     QVERIFY(pMbcRegisterModel->selectedRegisterList().isEmpty());
 }
 
-void TestMbcRegisterModel::fillModel(MbcRegisterModel * pMbcRegisterModel)
+void TestMbcRegisterModel::fillModel(MbcRegisterModel* pMbcRegisterModel)
 {
-    QList<MbcRegisterData> mbcRegisterList = QList<MbcRegisterData>()
-            << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
-            << MbcRegisterData(40002, MbcDataType::Type::UNSIGNED_16, "Test2", 0, true, 0);
+    QList<MbcRegisterData> mbcRegisterList =
+      QList<MbcRegisterData>() << MbcRegisterData(40001, MbcDataType::Type::UNSIGNED_16, "Test1", 0, true, 0)
+                               << MbcRegisterData(40002, MbcDataType::Type::UNSIGNED_16, "Test2", 0, true, 0);
     QStringList tabList = QStringList() << QString("Tab0");
 
     pMbcRegisterModel->fill(mbcRegisterList, tabList);
