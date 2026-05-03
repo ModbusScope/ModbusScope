@@ -73,6 +73,7 @@ Enforced by `.clang-format` (Mozilla-based, C++20):
 - Classes: `PascalCase`; methods: `camelCase`
 - Use Qt doxygen style for comments: `/*!` for multi-line blocks, `//!` for single-line; use `\brief`, `\param`, `\return` (backslash prefix, not `@`)
 - Use `#ifndef`/`#define`/`#endif` include guards in all header files (not `#pragma once`); guard name is the filename uppercased with dots replaced by underscores (e.g. `FOO_BAR_H`)
+- Keep commit message brief and informative; use the imperative mood (e.g. "Add feature X", "Fix bug Y", "Refactor Z"); include a description in the body if needed, but keep it brief.
 
 ## Key Conventions
 
