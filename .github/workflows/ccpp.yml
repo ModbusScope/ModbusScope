@@ -21,6 +21,12 @@ jobs:
       - name: Configure safe directory for git
         run: git config --global --add safe.directory ${GITHUB_WORKSPACE}
 
+      - name: Cache linuxdeploy tools
+        uses: actions/cache@v5.0.0
+        with:
+          path: release/src/bin/linux/linuxdeploy*.AppImage
+          key: linuxdeploy-${{ runner.os }}
+
       - name: Update Modules and Build
         run: bash scripts/build_linux.sh
 
