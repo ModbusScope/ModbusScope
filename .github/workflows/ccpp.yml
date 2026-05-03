@@ -55,6 +55,12 @@ jobs:
           path: ${{ github.workspace }}\Qt
           key: ${{ runner.os }}-qt-build-${{ hashFiles('scripts\setup_windows.bat') }}
 
+      - name: Compiler cache (sccache)
+        uses: mozilla-actions/sccache-action@v0.0.9
+
+      - name: Enable sccache GHA backend
+        run: echo "SCCACHE_GHA_ENABLED=true" >> $env:GITHUB_ENV
+
       - name: Setup, build and deploy
         shell: cmd
         run: scripts\full_build_and_deploy_windows.bat '${{ steps.cache.outputs.cache-hit }}' ${{ github.workspace }}\Qt
