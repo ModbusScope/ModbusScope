@@ -28,9 +28,29 @@ QJsonObject TestAddRegisterWidget::buildAddressSchema()
     addressField["minimum"] = 0;
     addressField["maximum"] = 65535;
 
+    QJsonObject dataTypeSchema;
+    dataTypeSchema["type"] = QStringLiteral("string");
+    dataTypeSchema["title"] = QStringLiteral("Data type");
+    dataTypeSchema["enum"] = QJsonArray{ QStringLiteral("16b"), QStringLiteral("s16b"), QStringLiteral("32b"),
+                                         QStringLiteral("s32b"), QStringLiteral("f32b") };
+    dataTypeSchema["x-enumLabels"] =
+      QJsonArray{ QStringLiteral("unsigned 16-bit"), QStringLiteral("signed 16-bit"), QStringLiteral("unsigned 32-bit"),
+                  QStringLiteral("signed 32-bit"), QStringLiteral("32-bit float") };
+    dataTypeSchema["default"] = QStringLiteral("16b");
+
+    QJsonObject deviceIdSchema;
+    deviceIdSchema["type"] = QStringLiteral("integer");
+    deviceIdSchema["title"] = QStringLiteral("Device ID");
+    deviceIdSchema["minimum"] = 1;
+    /* Tests inject enum values directly via setSchema; the constructor patches these from SettingsModel */
+    deviceIdSchema["enum"] = QJsonArray{ 1, 2 };
+    deviceIdSchema["x-enumLabels"] = QJsonArray{ QStringLiteral("Device 1"), QStringLiteral("Device 2") };
+
     QJsonObject properties;
     properties["objectType"] = objectTypeSchema;
     properties["address"] = addressField;
+    properties["dataType"] = dataTypeSchema;
+    properties["deviceId"] = deviceIdSchema;
 
     QJsonObject schema;
     schema["type"] = QStringLiteral("object");
@@ -41,22 +61,14 @@ QJsonObject TestAddRegisterWidget::buildAddressSchema()
 
 QJsonObject TestAddRegisterWidget::buildTestRegisterSchema()
 {
-    QJsonArray dataTypes;
-    dataTypes.append(QJsonObject{ { QStringLiteral("id"), QStringLiteral("16b") },
-                                  { QStringLiteral("label"), QStringLiteral("Unsigned 16-bit") } });
-    dataTypes.append(QJsonObject{ { QStringLiteral("id"), QStringLiteral("s16b") },
-                                  { QStringLiteral("label"), QStringLiteral("Signed 16-bit") } });
-    dataTypes.append(QJsonObject{ { QStringLiteral("id"), QStringLiteral("32b") },
-                                  { QStringLiteral("label"), QStringLiteral("Unsigned 32-bit") } });
-    dataTypes.append(QJsonObject{ { QStringLiteral("id"), QStringLiteral("s32b") },
-                                  { QStringLiteral("label"), QStringLiteral("Signed 32-bit") } });
-    dataTypes.append(QJsonObject{ { QStringLiteral("id"), QStringLiteral("f32b") },
-                                  { QStringLiteral("label"), QStringLiteral("32-bit float") } });
+    QJsonObject defaults;
+    defaults["objectType"] = QStringLiteral("holding-register");
+    defaults["address"] = 0;
+    defaults["dataType"] = QStringLiteral("16b");
 
     QJsonObject schema;
     schema["addressSchema"] = buildAddressSchema();
-    schema["dataTypes"] = dataTypes;
-    schema["defaultDataType"] = QStringLiteral("16b");
+    schema["defaults"] = defaults;
     return schema;
 }
 
@@ -85,7 +97,9 @@ void TestAddRegisterWidget::registerDefault()
 
     _pRegWidget->_pAddressForm->setSchema(
       buildAddressSchema(), QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding-register") },
-                                         { QStringLiteral("address"), 100 } });
+                                         { QStringLiteral("address"), 100 },
+                                         { QStringLiteral("dataType"), QStringLiteral("16b") },
+                                         { QStringLiteral("deviceId"), 1 } });
 
     GraphData graphData;
     addRegister(graphData, QStringLiteral("${h100}"));
@@ -105,10 +119,8 @@ void TestAddRegisterWidget::registerType()
 {
     _pRegWidget->_pAddressForm->setSchema(
       buildAddressSchema(), QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding-register") },
-                                         { QStringLiteral("address"), 0 } });
-
-    /* Select "32b" (index 2 in the combo: 16b, s16b, 32b, ...) */
-    _pRegWidget->_pUi->cmbType->setCurrentIndex(2);
+                                         { QStringLiteral("address"), 0 },
+                                         { QStringLiteral("dataType"), QStringLiteral("32b") } });
 
     GraphData graphData;
     addRegister(graphData, QStringLiteral("${h0:32b}"));
@@ -132,26 +144,16 @@ void TestAddRegisterWidget::registerObjectType()
 
 void TestAddRegisterWidget::registerDevice()
 {
-    delete _pRegWidget;
-    _pRegWidget = nullptr;
-
-    const deviceId_t devId2 = _settingsModel.addNewDevice();
-    _settingsModel.deviceSettings(devId2)->setAdapterId("modbus");
-
-    _pRegWidget = new AddRegisterWidget(&_settingsModel, QStringLiteral("modbus"), _pMockAdapterManager);
-
     _pRegWidget->_pAddressForm->setSchema(
       buildAddressSchema(), QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding-register") },
-                                         { QStringLiteral("address"), 0 } });
-
-    /* Select device 2 (index 1) */
-    _pRegWidget->_pUi->cmbDevice->setCurrentIndex(1);
+                                         { QStringLiteral("address"), 0 },
+                                         { QStringLiteral("deviceId"), 2 } });
 
     GraphData graphData;
     addRegister(graphData, QStringLiteral("${h0@2}"));
 
     QCOMPARE(graphData.expression(), QStringLiteral("${h0@2}"));
-    QCOMPARE(_pMockAdapterManager->buildCalls[0].deviceId, devId2);
+    QCOMPARE(_pMockAdapterManager->buildCalls[0].deviceId, static_cast<deviceId_t>(2));
 }
 
 void TestAddRegisterWidget::registerValueAxis()
