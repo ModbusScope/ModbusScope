@@ -666,13 +666,15 @@ void TestAdapterClient::requestDataPointSchemaEmitsSignal()
 
     QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.dataPointSchema"));
 
+    QJsonObject defaults;
+    defaults["dataType"] = QStringLiteral("16b");
     QJsonObject schema;
-    schema["defaultDataType"] = QStringLiteral("16b");
+    schema["defaults"] = defaults;
     mock->injectResponse(3, "adapter.dataPointSchema", schema);
 
     QCOMPARE(spySchema.count(), 1);
     QJsonObject received = spySchema.at(0).at(0).value<QJsonObject>();
-    QCOMPARE(received["defaultDataType"].toString(), QStringLiteral("16b"));
+    QCOMPARE(received["defaults"].toObject()["dataType"].toString(), QStringLiteral("16b"));
 }
 
 void TestAdapterClient::requestDataPointSchemaInWrongStateIgnored()

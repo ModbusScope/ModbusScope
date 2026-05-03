@@ -189,36 +189,35 @@ void TestAdapterData::setAndGetDataPointSchema()
     QJsonObject addressSchema;
     addressSchema["type"] = QStringLiteral("object");
 
-    QJsonArray dataTypes;
-    QJsonObject type16b;
-    type16b["id"] = QStringLiteral("16b");
-    type16b["label"] = QStringLiteral("Unsigned 16-bit");
-    dataTypes.append(type16b);
+    QJsonObject defaults;
+    defaults["dataType"] = QStringLiteral("16b");
 
     QJsonObject schema;
     schema["addressSchema"] = addressSchema;
-    schema["dataTypes"] = dataTypes;
-    schema["defaultDataType"] = QStringLiteral("16b");
+    schema["defaults"] = defaults;
 
     data.setDataPointSchema(schema);
 
     const QJsonObject stored = data.dataPointSchema();
-    QCOMPARE(stored["defaultDataType"].toString(), QStringLiteral("16b"));
-    QCOMPARE(stored["dataTypes"].toArray().size(), 1);
+    QCOMPARE(stored["defaults"].toObject()["dataType"].toString(), QStringLiteral("16b"));
+    QVERIFY(stored.contains(QStringLiteral("addressSchema")));
 }
 
 void TestAdapterData::settingsModelSetAdapterDataPointSchema()
 {
     SettingsModel model;
 
+    QJsonObject defaults;
+    defaults["dataType"] = QStringLiteral("16b");
+
     QJsonObject schema;
-    schema["defaultDataType"] = QStringLiteral("16b");
+    schema["defaults"] = defaults;
 
     model.setAdapterDataPointSchema("modbus", schema);
 
     const AdapterData* data = model.adapterData("modbus");
     const QJsonObject stored = data->dataPointSchema();
-    QCOMPARE(stored["defaultDataType"].toString(), QStringLiteral("16b"));
+    QCOMPARE(stored["defaults"].toObject()["dataType"].toString(), QStringLiteral("16b"));
 }
 
 void TestAdapterData::deviceAdapterIdDefaultsToModbus()

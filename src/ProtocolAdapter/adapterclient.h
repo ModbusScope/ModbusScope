@@ -180,7 +180,7 @@ signals:
 
     /*!
      * \brief Emitted when an adapter.dataPointSchema response has been received.
-     * \param schema The full data point schema object (addressSchema, dataTypes, defaultDataType).
+     * \param schema The full data point schema object (addressSchema, defaults).
      */
     void dataPointSchemaResult(QJsonObject schema);
 

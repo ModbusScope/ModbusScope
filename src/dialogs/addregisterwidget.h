@@ -39,11 +39,12 @@ private slots:
 private:
     void resetFields();
     void collectPendingGraphData();
+    QJsonObject buildSchema(const QString& adapterId) const;
 
     Ui::AddRegisterWidget* _pUi;
     SchemaFormWidget* _pAddressForm;
     QJsonObject _addressSchema;
-    int _defaultTypeIndex{ 0 };
+    QJsonObject _dataPointDefaults;
 
     SettingsModel* _pSettingsModel;
     AdapterManager* _pAdapterManager;
