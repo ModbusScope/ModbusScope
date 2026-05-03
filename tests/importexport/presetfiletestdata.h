@@ -15,6 +15,14 @@ public:
     static QString cInvalidFileJson;
     static QString cMixedInvalidEntries;
 
+    static QString cXmlTabSeparator;
+    static QString cXmlSkipInvalidLoadValid;
+    static QString cXmlOptionalFields;
+    static QString cXmlMinimalPreset;
+    static QString cJsonTabSeparator;
+    static QString cJsonOptionalFields;
+    static QString cJsonMinimalPreset;
+
 private:
 };
 

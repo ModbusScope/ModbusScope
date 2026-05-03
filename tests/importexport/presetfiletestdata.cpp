@@ -49,6 +49,80 @@ QString PresetFileTestData::cInvalidFileJson = QString("{\n"
                                                        "    ]\n"
                                                        "}\n");
 
+QString PresetFileTestData::cXmlTabSeparator = QString(
+  "<modbusscope>                                                  \n"
+  "    <parsepreset>                                              \n"
+  "        <name>tab-preset</name>                                \n"
+  "        <fieldseparator>\\t</fieldseparator>                   \n"
+  "        <decimalseparator>.</decimalseparator>                 \n"
+  "    </parsepreset>                                             \n"
+  "</modbusscope>                                                 \n");
+
+QString PresetFileTestData::cXmlSkipInvalidLoadValid = QString(
+  "<modbusscope>                                                  \n"
+  "    <parsepreset>                                              \n"
+  "    </parsepreset>                                             \n"
+  "    <parsepreset>                                              \n"
+  "        <name>valid</name>                                     \n"
+  "        <fieldseparator>;</fieldseparator>                     \n"
+  "        <decimalseparator>,</decimalseparator>                 \n"
+  "    </parsepreset>                                             \n"
+  "</modbusscope>                                                 \n");
+
+QString PresetFileTestData::cXmlOptionalFields = QString(
+  "<modbusscope>                                                  \n"
+  "    <parsepreset>                                              \n"
+  "        <name>opt-preset</name>                                \n"
+  "        <fieldseparator>;</fieldseparator>                     \n"
+  "        <decimalseparator>,</decimalseparator>                 \n"
+  "        <labelrow>-1</labelrow>                                \n"
+  "        <keyword>test-keyword</keyword>                        \n"
+  "        <timeinmilliseconds>true</timeinmilliseconds>          \n"
+  "    </parsepreset>                                             \n"
+  "</modbusscope>                                                 \n");
+
+QString PresetFileTestData::cXmlMinimalPreset = QString(
+  "<modbusscope>                                                  \n"
+  "    <parsepreset>                                              \n"
+  "        <name>minimal</name>                                   \n"
+  "        <fieldseparator>;</fieldseparator>                     \n"
+  "        <decimalseparator>,</decimalseparator>                 \n"
+  "    </parsepreset>                                             \n"
+  "</modbusscope>                                                 \n");
+
+QString PresetFileTestData::cJsonTabSeparator = QString("{\n"
+                                                        "    \"presets\": [\n"
+                                                        "        {\n"
+                                                        "            \"name\": \"tab-preset\",\n"
+                                                        "            \"fieldseparator\": \"\\t\",\n"
+                                                        "            \"decimalseparator\": \".\"\n"
+                                                        "        }\n"
+                                                        "    ]\n"
+                                                        "}\n");
+
+QString PresetFileTestData::cJsonOptionalFields = QString("{\n"
+                                                          "    \"presets\": [\n"
+                                                          "        {\n"
+                                                          "            \"name\": \"opt-preset\",\n"
+                                                          "            \"fieldseparator\": \";\",\n"
+                                                          "            \"decimalseparator\": \",\",\n"
+                                                          "            \"labelrow\": -1,\n"
+                                                          "            \"keyword\": \"test-keyword\",\n"
+                                                          "            \"timeinmilliseconds\": true\n"
+                                                          "        }\n"
+                                                          "    ]\n"
+                                                          "}\n");
+
+QString PresetFileTestData::cJsonMinimalPreset = QString("{\n"
+                                                         "    \"presets\": [\n"
+                                                         "        {\n"
+                                                         "            \"name\": \"minimal\",\n"
+                                                         "            \"fieldseparator\": \";\",\n"
+                                                         "            \"decimalseparator\": \",\"\n"
+                                                         "        }\n"
+                                                         "    ]\n"
+                                                         "}\n");
+
 QString PresetFileTestData::cMixedInvalidEntries = QString("{\n"
                                                            "    \"presets\": [\n"
                                                            "        {\n"
