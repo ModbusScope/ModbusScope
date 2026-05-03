@@ -93,7 +93,7 @@ jobs:
           name: modbusscope-windows
           path: all-artifacts/windows
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@v8.0.1
         with:
           name: modbusscope-user-manual
           path: all-artifacts/docs
