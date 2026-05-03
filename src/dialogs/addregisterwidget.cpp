@@ -35,45 +35,17 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel,
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    /* Build the address form from the adapter's data point schema */
-    const AdapterData* adapterData = _pSettingsModel->adapterData(adapterId);
-    const QJsonObject dataPointSchema = adapterData->dataPointSchema();
-    _addressSchema = dataPointSchema["addressSchema"].toObject();
-    _pAddressForm->setSchema(_addressSchema, QJsonObject());
+    const QJsonObject dataPointSchema = pSettingsModel->adapterData(adapterId)->dataPointSchema();
+    _addressSchema = buildSchema(adapterId);
+    _dataPointDefaults = dataPointSchema["defaults"].toObject();
 
     auto* addressLayout = new QVBoxLayout(_pUi->addressContainer);
     addressLayout->setContentsMargins(0, 0, 0, 0);
     addressLayout->addWidget(_pAddressForm);
 
-    /* Populate data type combo from the adapter's dataTypes array */
-    const QJsonArray dataTypes = dataPointSchema["dataTypes"].toArray();
-    const QString defaultTypeId = dataPointSchema["defaultDataType"].toString();
-    for (const QJsonValue& entry : dataTypes)
-    {
-        const QJsonObject typeObj = entry.toObject();
-        _pUi->cmbType->addItem(typeObj["label"].toString(), typeObj["id"].toString());
-    }
-
-    /* Pre-select the default data type and remember the index for resetFields() */
-    _defaultTypeIndex = _pUi->cmbType->findData(defaultTypeId);
-    if (_defaultTypeIndex < 0)
-    {
-        _defaultTypeIndex = 0;
-    }
-    _pUi->cmbType->setCurrentIndex(_defaultTypeIndex);
-
-    /* Populate device combo */
-    _pUi->cmbDevice->clear();
-    const auto deviceList = _pSettingsModel->deviceListForAdapter(adapterId);
-    for (deviceId_t devId : std::as_const(deviceList))
-    {
-        _pUi->cmbDevice->addItem(QString(tr("Device %1").arg(devId)), devId);
-    }
-
-    if (deviceList.isEmpty())
+    if (_pSettingsModel->deviceListForAdapter(adapterId).isEmpty())
     {
         _pUi->btnAdd->setEnabled(false);
-        _pUi->cmbDevice->setEnabled(false);
     }
 
     connect(_pUi->btnAdd, &QPushButton::clicked, this, &AddRegisterWidget::handleResultAccept);
@@ -92,27 +64,49 @@ AddRegisterWidget::~AddRegisterWidget()
     delete _pUi;
 }
 
+/*!
+ * \brief Build the address schema patched with available devices as a deviceId enum.
+ * \param adapterId Adapter whose data point schema and device list to use.
+ * \return The patched schema object ready for SchemaFormWidget.
+ */
+QJsonObject AddRegisterWidget::buildSchema(const QString& adapterId) const
+{
+    const AdapterData* adapterData = _pSettingsModel->adapterData(adapterId);
+    QJsonObject schema = adapterData->dataPointSchema()["addressSchema"].toObject();
+
+    const auto deviceList = _pSettingsModel->deviceListForAdapter(adapterId);
+    QJsonArray deviceEnum;
+    QJsonArray deviceLabels;
+    for (deviceId_t devId : deviceList)
+    {
+        deviceEnum.append(static_cast<int>(devId));
+        deviceLabels.append(tr("Device %1").arg(devId));
+    }
+
+    QJsonObject propsObj = schema.value("properties").toObject();
+    if (propsObj.contains(QStringLiteral("deviceId")))
+    {
+        QJsonObject deviceIdProp = propsObj.value("deviceId").toObject();
+        deviceIdProp["enum"] = deviceEnum;
+        deviceIdProp["x-enumLabels"] = deviceLabels;
+        propsObj["deviceId"] = deviceIdProp;
+        schema["properties"] = propsObj;
+    }
+
+    return schema;
+}
+
 void AddRegisterWidget::handleResultAccept()
 {
-    if (_pUi->cmbDevice->count() == 0)
-    {
-        return;
-    }
-
     collectPendingGraphData();
 
-    const QJsonObject addressValues = _pAddressForm->values();
-    const QString typeId = _pUi->cmbType->currentData().toString();
-
-    deviceId_t deviceId = Device::cFirstDeviceId;
-    const QVariant devData = _pUi->cmbDevice->currentData();
-    if (devData.canConvert<deviceId_t>())
-    {
-        deviceId = devData.value<deviceId_t>();
-    }
+    QJsonObject allValues = _pAddressForm->values();
+    const QString dataType = allValues.take(QStringLiteral("dataType")).toString();
+    const deviceId_t deviceId =
+      static_cast<deviceId_t>(allValues.take(QStringLiteral("deviceId")).toInt(Device::cFirstDeviceId));
 
     _pUi->btnAdd->setEnabled(false);
-    _pAdapterManager->buildExpression(addressValues, typeId, deviceId);
+    _pAdapterManager->buildExpression(allValues, dataType, deviceId);
 }
 
 void AddRegisterWidget::onBuildExpressionResult(const QString& expression)
@@ -133,10 +127,8 @@ void AddRegisterWidget::onBuildExpressionResult(const QString& expression)
 void AddRegisterWidget::resetFields()
 {
     _pUi->lineName->setText("Name of curve");
-    _pUi->cmbType->setCurrentIndex(_defaultTypeIndex);
-    _pUi->cmbDevice->setCurrentIndex(0);
     _pUi->radioPrimary->setChecked(true);
-    _pAddressForm->setSchema(_addressSchema, QJsonObject());
+    _pAddressForm->setSchema(_addressSchema, _dataPointDefaults);
 }
 
 /*!

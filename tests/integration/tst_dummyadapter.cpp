@@ -234,8 +234,7 @@ void TestDummyAdapter::dataPointSchemaReturnsRequiredFields()
 
     const QJsonObject schema = spySchema.at(0).at(0).value<QJsonObject>();
     QVERIFY2(schema.contains(QStringLiteral("addressSchema")), "dataPointSchema missing 'addressSchema'");
-    QVERIFY2(schema.contains(QStringLiteral("dataTypes")), "dataPointSchema missing 'dataTypes'");
-    QVERIFY2(schema.contains(QStringLiteral("defaultDataType")), "dataPointSchema missing 'defaultDataType'");
+    QVERIFY2(schema.contains(QStringLiteral("defaults")), "dataPointSchema missing 'defaults'");
 }
 
 void TestDummyAdapter::describeDataPointReturnsStructuredFields()
