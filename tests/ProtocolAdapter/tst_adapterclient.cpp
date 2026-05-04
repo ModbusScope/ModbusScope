@@ -678,9 +678,9 @@ void TestAdapterClient::requestDataPointSchemaEmitsSignal()
 
     QCOMPARE(spySchema.count(), 1);
     QJsonObject received = spySchema.at(0).at(0).value<QJsonObject>();
-    QCOMPARE(received["defaults"].toObject()["dataType"].toString(), QStringLiteral("16b"));
-    QCOMPARE(received["addressSchema"].toObject()["addressType"].toString(), QStringLiteral("ip"));
-    QCOMPARE(received["addressSchema"].toObject()["bits"].toInt(), 16);
+    QCOMPARE(received["defaults"].toObject().value("dataType").toString(), QStringLiteral("16b"));
+    QCOMPARE(received["addressSchema"].toObject().value("addressType").toString(), QStringLiteral("ip"));
+    QCOMPARE(received["addressSchema"].toObject().value("bits").toInt(), 16);
 }
 
 void TestAdapterClient::requestDataPointSchemaInWrongStateIgnored()
