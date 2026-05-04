@@ -666,13 +666,21 @@ void TestAdapterClient::requestDataPointSchemaEmitsSignal()
 
     QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.dataPointSchema"));
 
+    QJsonObject defaults;
+    defaults["dataType"] = QStringLiteral("16b");
+    QJsonObject addressSchema;
+    addressSchema["addressType"] = QStringLiteral("ip");
+    addressSchema["bits"] = 16;
     QJsonObject schema;
-    schema["defaultDataType"] = QStringLiteral("16b");
+    schema["defaults"] = defaults;
+    schema["addressSchema"] = addressSchema;
     mock->injectResponse(3, "adapter.dataPointSchema", schema);
 
     QCOMPARE(spySchema.count(), 1);
     QJsonObject received = spySchema.at(0).at(0).value<QJsonObject>();
-    QCOMPARE(received["defaultDataType"].toString(), QStringLiteral("16b"));
+    QCOMPARE(received["defaults"].toObject().value("dataType").toString(), QStringLiteral("16b"));
+    QCOMPARE(received["addressSchema"].toObject().value("addressType").toString(), QStringLiteral("ip"));
+    QCOMPARE(received["addressSchema"].toObject().value("bits").toInt(), 16);
 }
 
 void TestAdapterClient::requestDataPointSchemaInWrongStateIgnored()
@@ -841,7 +849,7 @@ void TestAdapterClient::buildExpressionRequestAndResponse()
     driveToAwaitingConfig(client, mock);
 
     QJsonObject fields;
-    fields["objectType"] = QStringLiteral("holding-register");
+    fields["objectType"] = QStringLiteral("holding register");
     fields["address"] = 0;
 
     client.buildExpression(fields, QStringLiteral("f32b"), 2);
@@ -868,7 +876,7 @@ void TestAdapterClient::buildExpressionInActiveState()
     driveToActive(client, mock);
 
     QJsonObject fields;
-    fields["objectType"] = QStringLiteral("holding-register");
+    fields["objectType"] = QStringLiteral("holding register");
     fields["address"] = 5;
 
     client.buildExpression(fields, QStringLiteral("16b"), 1);

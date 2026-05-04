@@ -201,23 +201,22 @@ Each element is a register subexpression string with the syntax:
       },
       "dataType": {
         "type": "string",
-        "title": "Data type"
+        "title": "Data type",
+        "enum": ["16b", "s16b", "32b", "s32b", "f32b"],
+        "x-enumLabels": ["unsigned 16-bit", "signed 16-bit", "unsigned 32-bit", "signed 32-bit", "32-bit float"]
       }
     },
     "required": ["objectType", "address"]
   },
-  "dataTypes": [
-    { "id": "16b", "label": "unsigned 16-bit" },
-    { "id": "s16b", "label": "signed 16-bit" },
-    { "id": "32b", "label": "unsigned 32-bit" },
-    { "id": "s32b", "label": "signed 32-bit" },
-    { "id": "f32b", "label": "32-bit float" }
-  ],
-  "defaultDataType": "16b"
+  "defaults": {
+    "objectType": "holding register",
+    "address": 0,
+    "dataType": "16b"
+  }
 }
 ```
 
-The `dataType` property within `addressSchema` has no `enum` constraint; the available values are supplied by the top-level `dataTypes` array, and `defaultDataType` (`"16b"`) indicates which value to pre-select.
+The `defaults` object provides pre-population values for the form fields: holding register, address 0, and unsigned 16-bit.
 
 ---
 

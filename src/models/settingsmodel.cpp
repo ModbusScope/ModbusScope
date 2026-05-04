@@ -200,7 +200,7 @@ void SettingsModel::setAdapterCurrentConfig(const QString& adapterId, const QJso
 
 /*! \brief Store the data point schema from an adapter.dataPointSchema response and notify observers.
  * \param adapterId  The adapter identifier string.
- * \param schema     The full data point schema object (addressSchema, dataTypes, defaultDataType).
+ * \param schema     The full data point schema object (addressSchema, defaults).
  */
 void SettingsModel::setAdapterDataPointSchema(const QString& adapterId, const QJsonObject& schema)
 {
