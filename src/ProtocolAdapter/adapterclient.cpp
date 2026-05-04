@@ -206,7 +206,7 @@ void AdapterClient::stopSession()
     {
         _state = State::STOPPING;
         _pProcess->stop();
-        /* sessionStopped is emitted from onProcessFinished once the process exits */
+        /* sessionStopped is emitted from onProcessFinished or onProcessError */
     }
 }
 
@@ -421,12 +421,6 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
     else if (method == "adapter.getStatus" && _state == State::ACTIVE)
     {
         emit statusResult(result["active"].toBool());
-    }
-    else if (method == "adapter.shutdown" && _state == State::STOPPING)
-    {
-        qCInfo(scopeComm) << "AdapterClient: shutdown acknowledged";
-        _pProcess->stop();
-        /* sessionStopped is emitted from onProcessFinished once the process exits */
     }
     else if (method == "adapter.stop" && _state == State::STOPPING_SESSION)
     {
