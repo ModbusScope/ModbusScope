@@ -16,8 +16,8 @@ QJsonObject TestAddRegisterWidget::buildAddressSchema()
     QJsonObject objectTypeSchema;
     objectTypeSchema["type"] = QStringLiteral("string");
     objectTypeSchema["title"] = QStringLiteral("Object type");
-    objectTypeSchema["enum"] = QJsonArray{ QStringLiteral("coil"), QStringLiteral("discrete-input"),
-                                           QStringLiteral("input-register"), QStringLiteral("holding-register") };
+    objectTypeSchema["enum"] = QJsonArray{ QStringLiteral("coil"), QStringLiteral("discrete input"),
+                                           QStringLiteral("input register"), QStringLiteral("holding register") };
     objectTypeSchema["x-enumLabels"] =
       QJsonArray{ QStringLiteral("Coil"), QStringLiteral("Discrete Input"), QStringLiteral("Input Register"),
                   QStringLiteral("Holding Register") };
@@ -62,7 +62,7 @@ QJsonObject TestAddRegisterWidget::buildAddressSchema()
 QJsonObject TestAddRegisterWidget::buildTestRegisterSchema()
 {
     QJsonObject defaults;
-    defaults["objectType"] = QStringLiteral("holding-register");
+    defaults["objectType"] = QStringLiteral("holding register");
     defaults["address"] = 0;
     defaults["dataType"] = QStringLiteral("16b");
 
@@ -96,7 +96,7 @@ void TestAddRegisterWidget::registerDefault()
     QTest::keyClicks(_pRegWidget->_pUi->lineName, "Register 1");
 
     _pRegWidget->_pAddressForm->setSchema(
-      buildAddressSchema(), QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding-register") },
+      buildAddressSchema(), QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
                                          { QStringLiteral("address"), 100 },
                                          { QStringLiteral("dataType"), QStringLiteral("16b") },
                                          { QStringLiteral("deviceId"), 1 } });
@@ -109,7 +109,7 @@ void TestAddRegisterWidget::registerDefault()
     QVERIFY(graphData.isActive());
 
     QCOMPARE(_pMockAdapterManager->buildCalls.size(), 1);
-    QCOMPARE(_pMockAdapterManager->buildCalls[0].fields["objectType"].toString(), QStringLiteral("holding-register"));
+    QCOMPARE(_pMockAdapterManager->buildCalls[0].fields["objectType"].toString(), QStringLiteral("holding register"));
     QCOMPARE(_pMockAdapterManager->buildCalls[0].fields["address"].toInt(), 100);
     QCOMPARE(_pMockAdapterManager->buildCalls[0].dataType, QStringLiteral("16b"));
     QCOMPARE(_pMockAdapterManager->buildCalls[0].deviceId, Device::cFirstDeviceId);
@@ -118,7 +118,7 @@ void TestAddRegisterWidget::registerDefault()
 void TestAddRegisterWidget::registerType()
 {
     _pRegWidget->_pAddressForm->setSchema(
-      buildAddressSchema(), QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding-register") },
+      buildAddressSchema(), QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
                                          { QStringLiteral("address"), 0 },
                                          { QStringLiteral("dataType"), QStringLiteral("32b") } });
 
@@ -132,20 +132,20 @@ void TestAddRegisterWidget::registerType()
 void TestAddRegisterWidget::registerObjectType()
 {
     _pRegWidget->_pAddressForm->setSchema(
-      buildAddressSchema(), QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("input-register") },
+      buildAddressSchema(), QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("input register") },
                                          { QStringLiteral("address"), 0 } });
 
     GraphData graphData;
     addRegister(graphData, QStringLiteral("${i0}"));
 
     QCOMPARE(graphData.expression(), QStringLiteral("${i0}"));
-    QCOMPARE(_pMockAdapterManager->buildCalls[0].fields["objectType"].toString(), QStringLiteral("input-register"));
+    QCOMPARE(_pMockAdapterManager->buildCalls[0].fields["objectType"].toString(), QStringLiteral("input register"));
 }
 
 void TestAddRegisterWidget::registerDevice()
 {
     _pRegWidget->_pAddressForm->setSchema(
-      buildAddressSchema(), QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding-register") },
+      buildAddressSchema(), QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
                                          { QStringLiteral("address"), 0 },
                                          { QStringLiteral("deviceId"), 2 } });
 

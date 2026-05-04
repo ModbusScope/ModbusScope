@@ -843,7 +843,7 @@ void TestAdapterClient::buildExpressionRequestAndResponse()
     driveToAwaitingConfig(client, mock);
 
     QJsonObject fields;
-    fields["objectType"] = QStringLiteral("holding-register");
+    fields["objectType"] = QStringLiteral("holding register");
     fields["address"] = 0;
 
     client.buildExpression(fields, QStringLiteral("f32b"), 2);
@@ -870,7 +870,7 @@ void TestAdapterClient::buildExpressionInActiveState()
     driveToActive(client, mock);
 
     QJsonObject fields;
-    fields["objectType"] = QStringLiteral("holding-register");
+    fields["objectType"] = QStringLiteral("holding register");
     fields["address"] = 5;
 
     client.buildExpression(fields, QStringLiteral("16b"), 1);
