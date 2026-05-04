@@ -210,7 +210,11 @@ void TestAdapterData::settingsModelSetAdapterDataPointSchema()
     QJsonObject defaults;
     defaults["dataType"] = QStringLiteral("16b");
 
+    QJsonObject addressSchema;
+    addressSchema["type"] = QStringLiteral("object");
+
     QJsonObject schema;
+    schema["addressSchema"] = addressSchema;
     schema["defaults"] = defaults;
 
     model.setAdapterDataPointSchema("modbus", schema);
@@ -218,6 +222,7 @@ void TestAdapterData::settingsModelSetAdapterDataPointSchema()
     const AdapterData* data = model.adapterData("modbus");
     const QJsonObject stored = data->dataPointSchema();
     QCOMPARE(stored["defaults"].toObject()["dataType"].toString(), QStringLiteral("16b"));
+    QCOMPARE(stored["addressSchema"].toObject()["type"].toString(), QStringLiteral("object"));
 }
 
 void TestAdapterData::deviceAdapterIdDefaultsToModbus()
