@@ -18,11 +18,9 @@ AdapterPoll::AdapterPoll(SettingsModel* pSettingsModel, QObject* parent) : QObje
 
     connect(_pAdapterManager, &AdapterManager::sessionStarted, this, &AdapterPoll::triggerRegisterRead);
     connect(_pAdapterManager, &AdapterManager::readDataResult, this, &AdapterPoll::onReadDataResult);
-    connect(_pAdapterManager, &AdapterManager::sessionStopped, this, &AdapterPoll::initAdapter);
     connect(_pAdapterManager, &AdapterManager::sessionError, this, [this](QString message) {
         qCWarning(scopeComm) << "AdapterManager error:" << message;
         _bPollActive = false;
-        disconnect(_pAdapterManager, &AdapterManager::sessionStopped, this, &AdapterPoll::initAdapter);
     });
 }
 
@@ -44,17 +42,28 @@ void AdapterPoll::startCommunication(QList<DataPoint>& registerList)
     _registerList = registerList;
     _bPollActive = true;
 
-    /* Re-establish auto-restart in case it was disconnected by a prior session error */
-    disconnect(_pAdapterManager, &AdapterManager::sessionStopped, this, &AdapterPoll::initAdapter);
-    connect(_pAdapterManager, &AdapterManager::sessionStopped, this, &AdapterPoll::initAdapter);
-
     qCInfo(scopeComm) << "Active registers: " << DataPoint::dumpListToString(_registerList);
     qCInfo(scopeComm) << qUtf8Printable(QString("Start logging: %1").arg(FormatDateTime::currentDateTime()));
 
     resetCommunicationStats();
 
     QStringList expressions = buildRegisterExpressions(_registerList);
-    _pAdapterManager->startSession(expressions);
+
+    if (_pAdapterManager->isAdapterReady())
+    {
+        _pAdapterManager->startSession(expressions);
+    }
+    else
+    {
+        _pendingExpressions = expressions;
+        connect(_pAdapterManager, &AdapterManager::adapterReady,
+                this, &AdapterPoll::onAdapterReady, Qt::SingleShotConnection);
+        if (_pAdapterManager->isAdapterIdle())
+        {
+            _pAdapterManager->initAdapter();
+        }
+        /* else: adapter is already initializing; onAdapterReady fires when it reaches AWAITING_CONFIG */
+    }
 }
 
 void AdapterPoll::resetCommunicationStats()
@@ -111,6 +120,14 @@ void AdapterPoll::onReadDataResult(ResultDoubleList results)
 AdapterManager* AdapterPoll::adapterManager() const
 {
     return _pAdapterManager;
+}
+
+void AdapterPoll::onAdapterReady()
+{
+    if (_bPollActive)
+    {
+        _pAdapterManager->startSession(_pendingExpressions);
+    }
 }
 
 QStringList AdapterPoll::buildRegisterExpressions(const QList<DataPoint>& registerList)

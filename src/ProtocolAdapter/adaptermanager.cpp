@@ -23,6 +23,7 @@ AdapterManager::AdapterManager(SettingsModel* pSettingsModel, QObject* parent)
     connect(_pAdapterClient, &AdapterClient::expressionHelpResult, this, &AdapterManager::expressionHelpResult);
     connect(_pAdapterClient, &AdapterClient::sessionStopped, this, &AdapterManager::sessionStopped);
     connect(_pAdapterClient, &AdapterClient::sessionError, this, &AdapterManager::sessionError);
+    connect(_pAdapterClient, &AdapterClient::adapterReady, this, &AdapterManager::adapterReady);
     connect(_pAdapterClient, &AdapterClient::describeResult, this, &AdapterManager::onDescribeResult);
     connect(_pAdapterClient, &AdapterClient::dataPointSchemaResult, this, &AdapterManager::onDataPointSchemaResult);
     connect(_pAdapterClient, &AdapterClient::diagnosticReceived, this, &AdapterManager::onAdapterDiagnostic);
@@ -51,13 +52,25 @@ void AdapterManager::startSession(const QStringList& registerExpressions)
     _pAdapterClient->provideConfig(config, registerExpressions);
 }
 
+/*! \brief Returns true when the adapter is ready to accept provideConfig() (AWAITING_CONFIG state). */
+bool AdapterManager::isAdapterReady() const
+{
+    return _pAdapterClient->isReady();
+}
+
+/*! \brief Returns true when the adapter process is not running (IDLE state). */
+bool AdapterManager::isAdapterIdle() const
+{
+    return _pAdapterClient->isIdle();
+}
+
 /*! \brief Send an adapter.expressionHelp request to retrieve expression syntax help text. */
 void AdapterManager::requestExpressionHelp()
 {
     _pAdapterClient->requestExpressionHelp();
 }
 
-/*! \brief Send adapter.shutdown and signal the adapter process to stop. */
+/*! \brief Send adapter.stop to pause polling and keep the adapter process alive. */
 void AdapterManager::stopSession()
 {
     _pAdapterClient->stopSession();

@@ -23,6 +23,16 @@ AdapterClient::AdapterClient(std::unique_ptr<AdapterProcess> pProcess, QObject* 
 
 AdapterClient::~AdapterClient() = default;
 
+bool AdapterClient::isReady() const
+{
+    return _state == State::AWAITING_CONFIG;
+}
+
+bool AdapterClient::isIdle() const
+{
+    return _state == State::IDLE;
+}
+
 void AdapterClient::prepareAdapter(const QString& adapterPath)
 {
     if (_state != State::IDLE)
@@ -178,7 +188,7 @@ void AdapterClient::requestExpressionHelp()
 
 void AdapterClient::stopSession()
 {
-    if (_state == State::IDLE || _state == State::STOPPING)
+    if (_state == State::IDLE || _state == State::STOPPING || _state == State::STOPPING_SESSION)
     {
         return;
     }
@@ -188,8 +198,8 @@ void AdapterClient::stopSession()
 
     if (_state == State::ACTIVE || _state == State::STARTING)
     {
-        _state = State::STOPPING;
-        _pProcess->sendRequest("adapter.shutdown", QJsonObject());
+        _state = State::STOPPING_SESSION;
+        _pProcess->sendRequest("adapter.stop", QJsonObject());
         _handshakeTimer.start(_handshakeTimeoutMs);
     }
     else
@@ -265,7 +275,12 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
     _state = State::IDLE;
     _pProcess->stop();
 
-    if (previousState != State::STOPPING)
+    if (previousState == State::STOPPING || previousState == State::STOPPING_SESSION)
+    {
+        /* User-initiated stop: suppress the error and emit a clean stop signal. */
+        emit sessionStopped();
+    }
+    else
     {
         emit sessionError(QString("Adapter error on %1: %2").arg(method, errorMsg));
     }
@@ -274,7 +289,13 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
 void AdapterClient::onProcessError(const QString& message)
 {
     _handshakeTimer.stop();
-    if (_state != State::STOPPING)
+    if (_state == State::STOPPING || _state == State::STOPPING_SESSION)
+    {
+        _pendingAuxRequests.clear();
+        _state = State::IDLE;
+        emit sessionStopped();
+    }
+    else if (_state != State::IDLE)
     {
         _pendingAuxRequests.clear();
         _state = State::IDLE;
@@ -286,7 +307,7 @@ void AdapterClient::onProcessFinished()
 {
     _handshakeTimer.stop();
     _pendingAuxRequests.clear();
-    if (_state == State::STOPPING)
+    if (_state == State::STOPPING || _state == State::STOPPING_SESSION)
     {
         _state = State::IDLE;
         emit sessionStopped();
@@ -301,11 +322,11 @@ void AdapterClient::onProcessFinished()
 void AdapterClient::onHandshakeTimeout()
 {
     qCWarning(scopeComm) << "AdapterClient: handshake timed out in state" << static_cast<int>(_state);
-    bool wasStopping = (_state == State::STOPPING);
+    bool wasUserStop = (_state == State::STOPPING || _state == State::STOPPING_SESSION);
     _pendingAuxRequests.clear();
     _state = State::IDLE;
     _pProcess->stop();
-    if (wasStopping)
+    if (wasUserStop)
     {
         emit sessionStopped();
     }
@@ -362,6 +383,7 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
         _handshakeTimer.stop();
         _state = State::AWAITING_CONFIG;
         emit describeResult(result);
+        emit adapterReady();
     }
     else if (method == "adapter.configure" && _state == State::CONFIGURING)
     {
@@ -405,6 +427,14 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
         qCInfo(scopeComm) << "AdapterClient: shutdown acknowledged";
         _pProcess->stop();
         /* sessionStopped is emitted from onProcessFinished once the process exits */
+    }
+    else if (method == "adapter.stop" && _state == State::STOPPING_SESSION)
+    {
+        qCInfo(scopeComm) << "AdapterClient: session stopped, adapter kept alive, awaiting config";
+        _handshakeTimer.stop();
+        _state = State::AWAITING_CONFIG;
+        emit sessionStopped();
+        emit adapterReady();
     }
     else if (method == "adapter.dataPointSchema" && _state == State::AWAITING_CONFIG)
     {

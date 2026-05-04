@@ -376,6 +376,21 @@ The `registers` array has the same length and order as the `registers` array pas
 
 ---
 
+### `adapter.stop`
+
+Stops data-source activity (polling, subscriptions, etc.) without terminating the adapter process. The adapter returns to the state it was in after `adapter.configure`, ready to accept a new `adapter.configure` + `adapter.start` sequence.
+
+Use `adapter.stop` to pause between sessions while keeping the adapter process alive. Use `adapter.shutdown` only when the adapter process should exit.
+
+**Params:** `{}` (none required)
+
+**Result:**
+```json
+{ "status": "ok" }
+```
+
+---
+
 ### `adapter.shutdown`
 
 Stops all activity and terminates the adapter process.
@@ -434,7 +449,9 @@ Carries a log or diagnostic message from the adapter. Emitted for every Qt log m
 
 ## Session Lifecycle
 
-A typical session follows this sequence:
+### Initialization
+
+The adapter process is started once and initialized with `adapter.initialize` and `adapter.describe`. After `adapter.describe` the adapter is in AWAITING_CONFIG state and ready to accept configuration.
 
 ```text
 Client                              Adapter
@@ -444,24 +461,36 @@ Client                              Adapter
   |                                    |
   |-- adapter.describe -------------> |
   |<- { "name": ..., "schema": ... } - |
-  |                                    |
+  |                          [AWAITING_CONFIG]
+```
+
+### Session (repeatable)
+
+Once initialized, the client may run any number of sessions without restarting the adapter process. Each session starts with `adapter.configure` to ensure settings are in sync, followed by `adapter.start` to begin data-source activity.
+
+```text
   |-- adapter.configure ------------> |
   |<- { "status": "ok" } ------------ |
   |                                    |
   |-- adapter.start ----------------> |
   |<- { "status": "ok" } ------------ |
-  |                                    |
-  |-- adapter.getStatus ------------> |
-  |<- { "active": true } ------------ |
-  |                                    |
+  |                          [ACTIVE]  |
   |-- adapter.readData -------------> |
   |                  [I/O ...]         |
   |<- { "registers": [...] } -------- |
+  |    (readData loop repeats)         |
   |                                    |
-  |-- adapter.readData -------------> |
-  |                  [I/O ...]         |
-  |<- { "registers": [...] } -------- |
-  |                                    |
+  |-- adapter.stop -----------------> |
+  |<- { "status": "ok" } ------------ |
+  |                          [AWAITING_CONFIG]
+  |    (next session: back to configure)
+```
+
+### Teardown
+
+When the adapter process should exit, close stdin (EOF) or send `adapter.shutdown`. The adapter shuts down automatically on EOF.
+
+```text
   |-- adapter.shutdown -------------> |
   |<- { "status": "ok" } ------------ |
   |                          [exits]   |

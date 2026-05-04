@@ -21,7 +21,7 @@
  *   provideConfig()  → configure  → start    → sessionStarted()
  *   requestReadData() → readData → readDataResult()
  *   requestStatus() → getStatus → statusResult()
- *   stopSession() → shutdown → process exit → sessionStopped()
+ *   stopSession() → stop → AWAITING_CONFIG → sessionStopped()
  *
  * Takes ownership of the AdapterProcess passed to the constructor via std::unique_ptr.
  */
@@ -77,12 +77,25 @@ public:
     void requestStatus();
 
     /*!
-     * \brief Send adapter.shutdown and signal the adapter process to stop.
+     * \brief Send adapter.stop to pause polling and keep the adapter process alive.
      *
-     * The sessionStopped() signal is emitted asynchronously once the process
-     * has fully exited.
+     * When ACTIVE, sends adapter.stop and transitions to STOPPING_SESSION. The adapter
+     * remains alive in AWAITING_CONFIG state; provideConfig() can be called again for
+     * the next session. sessionStopped() is emitted once the adapter acknowledges.
+     *
+     * When called in any other non-idle state, the process is force-killed directly.
      */
     void stopSession();
+
+    /*!
+     * \brief Returns true when the adapter is ready to accept provideConfig() (AWAITING_CONFIG state).
+     */
+    bool isReady() const;
+
+    /*!
+     * \brief Returns true when the adapter process is not running (IDLE state).
+     */
+    bool isIdle() const;
 
     /*!
      * \brief Send an adapter.dataPointSchema request to discover the data point UI schema.
@@ -164,12 +177,22 @@ signals:
     void statusResult(bool active);
 
     /*!
-     * \brief Emitted when the adapter process has been intentionally stopped and the client is IDLE.
+     * \brief Emitted when the adapter has stopped polling and is ready for the next session.
      *
-     * This signal is not emitted on unexpected process exits or errors — only after
-     * a successful stopSession() call. The caller may use this to re-invoke prepareAdapter().
+     * After a normal stopSession() this is emitted while the adapter process is still alive
+     * (the client is in AWAITING_CONFIG). If adapter.stop times out or fails, the process is
+     * force-killed and this signal is still emitted (client is then IDLE).
      */
     void sessionStopped();
+
+    /*!
+     * \brief Emitted whenever the client enters AWAITING_CONFIG state.
+     *
+     * Fired both during initial adapter initialization (after adapter.describe) and after
+     * a session is stopped via adapter.stop. Callers waiting to start a new session
+     * should connect to this signal when the adapter is not yet ready.
+     */
+    void adapterReady();
 
     /*!
      * \brief Emitted when an adapter.diagnostic notification is received from the adapter.
@@ -219,7 +242,8 @@ protected:
         CONFIGURING,
         STARTING,
         ACTIVE,
-        STOPPING
+        STOPPING_SESSION, /*!< adapter.stop sent; adapter stays alive, transitioning to AWAITING_CONFIG */
+        STOPPING          /*!< process is being force-killed */
     };
 
     State _state{ State::IDLE };

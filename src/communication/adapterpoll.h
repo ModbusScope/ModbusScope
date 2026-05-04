@@ -39,11 +39,13 @@ signals:
 private slots:
     void triggerRegisterRead();
     void onReadDataResult(ResultDoubleList results);
+    void onAdapterReady();
 
 private:
     QStringList buildRegisterExpressions(const QList<DataPoint>& registerList);
 
     QList<DataPoint> _registerList;
+    QStringList _pendingExpressions;
 
     bool _bPollActive;
     QTimer* _pPollTimer;
