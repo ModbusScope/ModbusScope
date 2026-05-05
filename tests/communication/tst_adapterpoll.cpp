@@ -1,9 +1,9 @@
 #include "tst_adapterpoll.h"
 
+#include "ProtocolAdapter/adaptermanager.h"
 #include "communication/adapterpoll.h"
 #include "communication/datapoint.h"
 #include "models/settingsmodel.h"
-#include "ProtocolAdapter/adaptermanager.h"
 
 #include <QSignalSpy>
 #include <QTest>
@@ -14,15 +14,35 @@ class MockAdapterManager : public AdapterManager
 {
     Q_OBJECT
 public:
-    explicit MockAdapterManager(QObject* parent = nullptr) : AdapterManager(nullptr, parent) {}
+    explicit MockAdapterManager(QObject* parent = nullptr) : AdapterManager(nullptr, parent)
+    {
+    }
 
-    bool isAdapterReady() const override { return _mockReady; }
-    bool isAdapterIdle() const override { return _mockIdle; }
-    void startSession(const QStringList& expressions) override { _startCalls.append(expressions); }
-    void initAdapter() override { _initCount++; }
-    void stopSession() override { _stopCount++; }
+    bool isAdapterReady() const override
+    {
+        return _mockReady;
+    }
+    bool isAdapterIdle() const override
+    {
+        return _mockIdle;
+    }
+    void startSession(const QStringList& expressions) override
+    {
+        _startCalls.append(expressions);
+    }
+    void initAdapter() override
+    {
+        _initCount++;
+    }
+    void stopSession() override
+    {
+        _stopCount++;
+    }
 
-    void triggerAdapterReady() { emit adapterReady(); }
+    void triggerAdapterReady()
+    {
+        emit adapterReady();
+    }
 
     bool _mockReady{ false };
     bool _mockIdle{ false };

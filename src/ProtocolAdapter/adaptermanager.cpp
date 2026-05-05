@@ -48,6 +48,12 @@ void AdapterManager::initAdapter()
 void AdapterManager::startSession(const QStringList& registerExpressions)
 {
     const AdapterData* data = _pSettingsModel->adapterData("modbus");
+    if (data == nullptr)
+    {
+        qCWarning(scopeComm) << "AdapterManager: no adapter data found for 'modbus'";
+        emit sessionError(QStringLiteral("No adapter configuration found for 'modbus'"));
+        return;
+    }
     QJsonObject config = data->effectiveConfig();
     _pAdapterClient->provideConfig(config, registerExpressions);
 }
