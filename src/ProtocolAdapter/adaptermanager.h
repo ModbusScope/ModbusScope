@@ -30,7 +30,7 @@ public:
      * Resolves the adapter binary path relative to the running executable and
      * calls AdapterClient::prepareAdapter().
      */
-    void initAdapter();
+    virtual void initAdapter();
 
     /*!
      * \brief Provide register expressions to the adapter and start the session.
@@ -40,27 +40,27 @@ public:
      *
      * \param registerExpressions Register expression strings to pass to the adapter.
      */
-    void startSession(const QStringList& registerExpressions);
+    virtual void startSession(const QStringList& registerExpressions);
 
     /*!
      * \brief Send adapter.stop to pause polling and keep the adapter process alive.
      */
-    void stopSession();
+    virtual void stopSession();
 
     /*!
      * \brief Returns true when the adapter is in AWAITING_CONFIG and ready for provideConfig().
      */
-    bool isAdapterReady() const;
+    virtual bool isAdapterReady() const;
 
     /*!
      * \brief Returns true when the adapter process is not running (IDLE state).
      */
-    bool isAdapterIdle() const;
+    virtual bool isAdapterIdle() const;
 
     /*!
      * \brief Send an adapter.readData request to the active adapter.
      */
-    void requestReadData();
+    virtual void requestReadData();
 
     /*!
      * \brief Request the adapter to construct a register expression from its component parts.

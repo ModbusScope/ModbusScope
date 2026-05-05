@@ -16,13 +16,21 @@ class AdapterPoll : public QObject
     Q_OBJECT
 public:
     explicit AdapterPoll(SettingsModel* pSettingsModel, QObject* parent = nullptr);
+
+    /*!
+     * \brief Constructor for testing: accepts a pre-built AdapterManager instead of creating one.
+     *
+     * The caller retains ownership of \a pAdapterManager; it is not reparented.
+     */
+    explicit AdapterPoll(SettingsModel* pSettingsModel, AdapterManager* pAdapterManager, QObject* parent = nullptr);
+
     ~AdapterPoll();
 
     void initAdapter();
     void startCommunication(QList<DataPoint>& registerList);
     void stopCommunication();
 
-    bool isActive();
+    bool isActive() const;
     void resetCommunicationStats();
 
     /*!
@@ -48,6 +56,8 @@ private:
     QStringList _pendingExpressions;
 
     bool _bPollActive;
+    bool _bWaitingForAdapterReady;
+    QMetaObject::Connection _adapterReadyConnection;
     QTimer* _pPollTimer;
     qint64 _lastPollStart;
 

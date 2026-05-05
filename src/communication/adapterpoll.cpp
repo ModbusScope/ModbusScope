@@ -5,7 +5,8 @@
 #include "util/formatdatetime.h"
 #include "util/scopelogging.h"
 
-AdapterPoll::AdapterPoll(SettingsModel* pSettingsModel, QObject* parent) : QObject(parent), _bPollActive(false)
+AdapterPoll::AdapterPoll(SettingsModel* pSettingsModel, QObject* parent)
+    : QObject(parent), _bPollActive(false), _bWaitingForAdapterReady(false)
 {
     _pPollTimer = new QTimer(this);
     _pPollTimer->setSingleShot(true);
@@ -15,6 +16,26 @@ AdapterPoll::AdapterPoll(SettingsModel* pSettingsModel, QObject* parent) : QObje
     _lastPollStart = QDateTime::currentMSecsSinceEpoch();
 
     _pAdapterManager = new AdapterManager(_pSettingsModel, this);
+
+    connect(_pAdapterManager, &AdapterManager::sessionStarted, this, &AdapterPoll::triggerRegisterRead);
+    connect(_pAdapterManager, &AdapterManager::readDataResult, this, &AdapterPoll::onReadDataResult);
+    connect(_pAdapterManager, &AdapterManager::sessionError, this, [this](QString message) {
+        qCWarning(scopeComm) << "AdapterManager error:" << message;
+        _bPollActive = false;
+    });
+}
+
+AdapterPoll::AdapterPoll(SettingsModel* pSettingsModel, AdapterManager* pAdapterManager, QObject* parent)
+    : QObject(parent), _bPollActive(false), _bWaitingForAdapterReady(false)
+{
+    _pPollTimer = new QTimer(this);
+    _pPollTimer->setSingleShot(true);
+    connect(_pPollTimer, &QTimer::timeout, this, &AdapterPoll::triggerRegisterRead);
+
+    _pSettingsModel = pSettingsModel;
+    _lastPollStart = QDateTime::currentMSecsSinceEpoch();
+
+    _pAdapterManager = pAdapterManager;
 
     connect(_pAdapterManager, &AdapterManager::sessionStarted, this, &AdapterPoll::triggerRegisterRead);
     connect(_pAdapterManager, &AdapterManager::readDataResult, this, &AdapterPoll::onReadDataResult);
@@ -56,8 +77,12 @@ void AdapterPoll::startCommunication(QList<DataPoint>& registerList)
     else
     {
         _pendingExpressions = expressions;
-        connect(_pAdapterManager, &AdapterManager::adapterReady,
-                this, &AdapterPoll::onAdapterReady, Qt::SingleShotConnection);
+        if (!_bWaitingForAdapterReady)
+        {
+            _bWaitingForAdapterReady = true;
+            _adapterReadyConnection = connect(_pAdapterManager, &AdapterManager::adapterReady, this,
+                                              &AdapterPoll::onAdapterReady, Qt::SingleShotConnection);
+        }
         if (_pAdapterManager->isAdapterIdle())
         {
             _pAdapterManager->initAdapter();
@@ -74,13 +99,19 @@ void AdapterPoll::resetCommunicationStats()
 void AdapterPoll::stopCommunication()
 {
     _bPollActive = false;
+    if (_bWaitingForAdapterReady)
+    {
+        disconnect(_adapterReadyConnection);
+        _bWaitingForAdapterReady = false;
+    }
+    _pendingExpressions.clear();
     _pPollTimer->stop();
     _pAdapterManager->stopSession();
 
     qCInfo(scopeComm) << qUtf8Printable(QString("Stop logging: %1").arg(FormatDateTime::currentDateTime()));
 }
 
-bool AdapterPoll::isActive()
+bool AdapterPoll::isActive() const
 {
     return _bPollActive;
 }
@@ -124,9 +155,11 @@ AdapterManager* AdapterPoll::adapterManager() const
 
 void AdapterPoll::onAdapterReady()
 {
+    _bWaitingForAdapterReady = false;
     if (_bPollActive)
     {
         _pAdapterManager->startSession(_pendingExpressions);
+        _pendingExpressions.clear();
     }
 }
 
