@@ -130,8 +130,8 @@ Client (AdapterClient)                    Adapter (ModbusAdapter)
          |-- {"id":12,                              |
          |    "method":"adapter.stop",              |
          |    "params":{}}                         -->  StopHandler
-[STOP_   |                                          |    -> stopCommunication()
- SESSION]|<- {"id":12,"result":{"status":"ok"}}     |    -> _bPollActive = false
+[STOPPING|                                          |    -> stopCommunication()
+_SESSION]|<- {"id":12,"result":{"status":"ok"}}     |    -> _bPollActive = false
          |   _state = AWAITING_CONFIG               |    (process stays alive)
          |   emit sessionStopped()                  |
          |   emit adapterReady()                    |
@@ -187,8 +187,8 @@ Adapter (any handler)                     Client (AdapterClient)
 ### Handshake timeout (10 s, any in-progress state)
 
 ```text
-[STOP_   |   _handshakeTimer fires (10 000 ms)      |
- SESSION]|   -> onHandshakeTimeout()                |
+[STOPPING|   _handshakeTimer fires (10 000 ms)      |
+_SESSION]|   -> onHandshakeTimeout()                |
          |   -> _pProcess->stop()                   |
          |   emit sessionStopped()   (user-initiated stop)
 [IDLE]   |
@@ -256,8 +256,8 @@ CONFIG]  |   [close write channel, kill timer 3s]   |
 ### adapter.stop timeout — fallback to process kill
 
 ```text
-[STOP_   |   _handshakeTimer fires (10 s)           |
- SESSION]|   -> onHandshakeTimeout()                |
+[STOPPING|   _handshakeTimer fires (10 s)           |
+_SESSION]|   -> onHandshakeTimeout()                |
          |   -> _pProcess->stop()                   |
          |   emit sessionStopped()                  |
 [IDLE]   |
