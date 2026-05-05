@@ -370,6 +370,36 @@ void TestAdapterClient::processErrorEmitsSessionError()
     QVERIFY(spy.at(0).at(0).toString().contains("crashed"));
 }
 
+void TestAdapterClient::stopSessionDuringStarting()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    /* Drive to STARTING state: configure acknowledged, adapter.start sent but not yet replied */
+    client.prepareAdapter(QStringLiteral("./dummy"));
+    mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(2, "adapter.describe", describeResult());
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("reg1") });
+    mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
+    /* adapter.start (id 4) is in-flight but not acknowledged */
+
+    int requestCountBeforeStop = mock->sentRequests.size();
+
+    QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+
+    client.stopSession();
+
+    /* Must NOT send adapter.stop (session not yet established) */
+    QCOMPARE(mock->sentRequests.size(), requestCountBeforeStop);
+
+    /* Process exits → sessionStopped emitted, no error */
+    mock->injectProcessFinished();
+    QCOMPARE(spyStopped.count(), 1);
+    QCOMPARE(spyError.count(), 0);
+}
+
 void TestAdapterClient::stopSessionDuringLifecycle()
 {
     auto mockOwned = std::make_unique<MockAdapterProcess>();

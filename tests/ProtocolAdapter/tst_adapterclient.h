@@ -22,6 +22,7 @@ private slots:
     void diagnosticNotificationDebugLevel();
     void diagnosticMalformedParams();
     void processErrorEmitsSessionError();
+    void stopSessionDuringStarting();
     void stopSessionDuringLifecycle();
     void doubleStopSession();
     void requestReadDataWhenNotActive();

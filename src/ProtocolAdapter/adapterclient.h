@@ -83,7 +83,8 @@ public:
      * remains alive in AWAITING_CONFIG state; provideConfig() can be called again for
      * the next session. sessionStopped() is emitted once the adapter acknowledges.
      *
-     * When called in any other non-idle state, the process is force-killed directly.
+     * When called in STARTING or any other non-ACTIVE non-idle state, the process is
+     * force-killed directly (adapter.stop requires an established session).
      */
     void stopSession();
 

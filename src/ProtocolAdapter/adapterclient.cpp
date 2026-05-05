@@ -196,7 +196,7 @@ void AdapterClient::stopSession()
     _handshakeTimer.stop();
     _pendingAuxRequests.clear();
 
-    if (_state == State::ACTIVE || _state == State::STARTING)
+    if (_state == State::ACTIVE)
     {
         _state = State::STOPPING_SESSION;
         _pProcess->sendRequest("adapter.stop", QJsonObject());
@@ -204,6 +204,8 @@ void AdapterClient::stopSession()
     }
     else
     {
+        /* STARTING and all other mid-handshake states: force-kill.
+           adapter.stop requires an established session (adapter.start acknowledged). */
         _state = State::STOPPING;
         _pProcess->stop();
         /* sessionStopped is emitted from onProcessFinished or onProcessError */
