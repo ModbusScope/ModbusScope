@@ -1,12 +1,14 @@
 # Adapter JSON-RPC Sequence Diagram
 
-This document describes the full JSON-RPC 2.0 message exchange between the host application (`AdapterClient`) and the adapter process (`ModbusAdapter`) over Content-Length–framed stdio.
+This document describes the full JSON-RPC 2.0 message exchange between the host
+application (`AdapterClient`) and the adapter process (`ModbusAdapter`) over
+Content-Length–framed stdio.
 
 ---
 
 ## Normal Session (Happy Path)
 
-```
+```text
 Client (AdapterClient)                    Adapter (ModbusAdapter)
          |                                          |
 [IDLE]   |                                          |
@@ -140,9 +142,11 @@ Client (AdapterClient)                    Adapter (ModbusAdapter)
 
 ## Session Restart (adapter kept alive)
 
-After `adapter.stop` the adapter remains alive in AWAITING_CONFIG. A new session sends `adapter.configure` + `adapter.start` directly, without relaunching the process.
+After `adapter.stop` the adapter remains alive in AWAITING_CONFIG. A new
+session sends `adapter.configure` + `adapter.start` directly, without
+relaunching the process.
 
-```
+```text
 Client (AdapterClient)                    Adapter (ModbusAdapter)
          |                                          |
 [AWAIT]  | (provideConfig called)                   |
@@ -162,7 +166,7 @@ Client (AdapterClient)                    Adapter (ModbusAdapter)
 
 ## Adapter Notification (any time)
 
-```
+```text
 Adapter (any handler)                     Client (AdapterClient)
          |                                          |
          |-- {"jsonrpc":"2.0",                      |
@@ -182,7 +186,7 @@ Adapter (any handler)                     Client (AdapterClient)
 
 ### Handshake timeout (10 s, any in-progress state)
 
-```
+```text
 [STOP_   |   _handshakeTimer fires (10 000 ms)      |
  SESSION]|   -> onHandshakeTimeout()                |
          |   -> _pProcess->stop()                   |
@@ -198,7 +202,7 @@ Adapter (any handler)                     Client (AdapterClient)
 
 ### Adapter process crash (unexpected exit)
 
-```
+```text
 [ACTIVE] |                  [process exits]         |
          |<- onProcessFinished() [state != STOPPING]|
          |   emit sessionError("Adapter process exited unexpectedly")
@@ -207,7 +211,7 @@ Adapter (any handler)                     Client (AdapterClient)
 
 ### RPC error on a lifecycle method
 
-```
+```text
 [CONFIG] |-- adapter.configure -----------------> |
          |<- {"id":N,"error":{                     |
          |    "code":-32602,                        |
@@ -221,7 +225,7 @@ Adapter (any handler)                     Client (AdapterClient)
 
 ### readData timeout (adapter-side, 5 s)
 
-```
+```text
 [ACTIVE] |-- adapter.readData -----------------> |
          |        [Modbus I/O stalls > 5 s]        |
          |<- {"id":N,"error":{                     |
@@ -233,12 +237,13 @@ Adapter (any handler)                     Client (AdapterClient)
 [IDLE]   |
 ```
 
-> **Known issue:** a Modbus read timeout should be a recoverable per-read failure, not a
-> session-level error. See GitHub issue for the fix in `AdapterClient::onErrorReceived()`.
+> **Known issue:** a Modbus read timeout should be a recoverable per-read failure,
+> not a session-level error. See GitHub issue for the fix in
+> `AdapterClient::onErrorReceived()`.
 
 ### stopSession() called before ACTIVE (direct process kill)
 
-```
+```text
 [INIT/   |   stopSession()                          |
 DESC/    |   -> _state = STOPPING                   |
 AWAIT/   |   -> _pProcess->stop()                   |
@@ -250,7 +255,7 @@ CONFIG]  |   [close write channel, kill timer 3s]   |
 
 ### adapter.stop timeout — fallback to process kill
 
-```
+```text
 [STOP_   |   _handshakeTimer fires (10 s)           |
  SESSION]|   -> onHandshakeTimeout()                |
          |   -> _pProcess->stop()                   |
@@ -263,7 +268,7 @@ CONFIG]  |   [close write channel, kill timer 3s]   |
 ## State Machine Summary
 
 | State | Entered from | Key action | Leaves to |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `IDLE` | startup / error / stop timeout | — | `INITIALIZING` |
 | `INITIALIZING` | `prepareAdapter()` | send `adapter.initialize`, start 10 s timer | `DESCRIBING` |
 | `DESCRIBING` | `initialize` response | send `adapter.describe` | `AWAITING_CONFIG` |
@@ -271,5 +276,5 @@ CONFIG]  |   [close write channel, kill timer 3s]   |
 | `CONFIGURING` | `provideConfig()` | send `adapter.configure`, start 10 s timer | `STARTING` |
 | `STARTING` | `configure` response | send `adapter.start` | `ACTIVE` |
 | `ACTIVE` | `start` response | emit `sessionStarted()`, stop timer | `STOPPING_SESSION` |
-| `STOPPING_SESSION` | `stopSession()` from ACTIVE/STARTING | send `adapter.stop`, start 10 s timer; adapter stays alive | `AWAITING_CONFIG` (on success) / `IDLE` (on timeout or error) |
+| `STOPPING_SESSION` | `stopSession()` from ACTIVE | send `adapter.stop`, start 10 s timer; adapter stays alive | `AWAITING_CONFIG` (on success) / `IDLE` (on timeout or error) |
 | `STOPPING` | `stopSession()` from any non-ACTIVE state | `_pProcess->stop()` directly | `IDLE` |
