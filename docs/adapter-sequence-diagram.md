@@ -1,12 +1,14 @@
 # Adapter JSON-RPC Sequence Diagram
 
-This document describes the full JSON-RPC 2.0 message exchange between the host application (`AdapterClient`) and the adapter process (`ModbusAdapter`) over Content-Length–framed stdio.
+This document describes the full JSON-RPC 2.0 message exchange between the host
+application (`AdapterClient`) and the adapter process (`ModbusAdapter`) over
+Content-Length–framed stdio.
 
 ---
 
 ## Normal Session (Happy Path)
 
-```
+```text
 Client (AdapterClient)                    Adapter (ModbusAdapter)
          |                                          |
 [IDLE]   |                                          |
@@ -126,22 +128,45 @@ Client (AdapterClient)                    Adapter (ModbusAdapter)
          | --- stopSession() ---                    |
          |                                          |
          |-- {"id":12,                              |
-         |    "method":"adapter.shutdown",          |
-         |    "params":{}}                         -->  ShutdownHandler
-[STOP]   |                                          |    -> stopCommunication()
-         |<- {"id":12,"result":{"status":"ok"}}     |    -> _bPollActive = false
-         |  _pProcess->stop()                       |    -> emit shutdownRequested()
-         |  [close write channel, kill timer 3s]   |    -> QApplication::quit()
-         |                  [process exits]         |
-[IDLE]   |<- onProcessFinished()                   |
-         |   emit sessionStopped()                 |
+         |    "method":"adapter.stop",              |
+         |    "params":{}}                         -->  StopHandler
+[STOPPING|                                          |    -> stopCommunication()
+_SESSION]|<- {"id":12,"result":{"status":"ok"}}     |    -> _bPollActive = false
+         |   _state = AWAITING_CONFIG               |    (process stays alive)
+         |   emit sessionStopped()                  |
+         |   emit adapterReady()                    |
+[AWAIT]  |                                          |
+```
+
+---
+
+## Session Restart (adapter kept alive)
+
+After `adapter.stop` the adapter remains alive in AWAITING_CONFIG. A new
+session sends `adapter.configure` + `adapter.start` directly, without
+relaunching the process.
+
+```text
+Client (AdapterClient)                    Adapter (ModbusAdapter)
+         |                                          |
+[AWAIT]  | (provideConfig called)                   |
+         |-- {"id":13,                              |
+         |    "method":"adapter.configure",         |
+         |    "params":{"config":{...}}}           -->  ConfigureHandler
+[CONFIG] |<- {"id":13,"result":{"status":"ok"}}     |
+         |                                          |
+         |-- {"id":14,                              |
+         |    "method":"adapter.start",             |
+         |    "params":{"registers":[...]}}        -->  StartHandler
+[START]  |<- {"id":14,"result":{"status":"ok"}}     |
+[ACTIVE] |   emit sessionStarted()                  |
 ```
 
 ---
 
 ## Adapter Notification (any time)
 
-```
+```text
 Adapter (any handler)                     Client (AdapterClient)
          |                                          |
          |-- {"jsonrpc":"2.0",                      |
@@ -161,8 +186,14 @@ Adapter (any handler)                     Client (AdapterClient)
 
 ### Handshake timeout (10 s, any in-progress state)
 
-```
-[any]    |   _handshakeTimer fires (10 000 ms)      |
+```text
+[STOPPING|   _handshakeTimer fires (10 000 ms)      |
+_SESSION]|   -> onHandshakeTimeout()                |
+         |   -> _pProcess->stop()                   |
+         |   emit sessionStopped()   (user-initiated stop)
+[IDLE]   |
+
+[other]  |   _handshakeTimer fires (10 000 ms)      |
          |   -> onHandshakeTimeout()                |
          |   -> _pProcess->stop()                   |
          |   emit sessionError("Adapter handshake timed out")
@@ -171,7 +202,7 @@ Adapter (any handler)                     Client (AdapterClient)
 
 ### Adapter process crash (unexpected exit)
 
-```
+```text
 [ACTIVE] |                  [process exits]         |
          |<- onProcessFinished() [state != STOPPING]|
          |   emit sessionError("Adapter process exited unexpectedly")
@@ -180,7 +211,7 @@ Adapter (any handler)                     Client (AdapterClient)
 
 ### RPC error on a lifecycle method
 
-```
+```text
 [CONFIG] |-- adapter.configure -----------------> |
          |<- {"id":N,"error":{                     |
          |    "code":-32602,                        |
@@ -194,7 +225,7 @@ Adapter (any handler)                     Client (AdapterClient)
 
 ### readData timeout (adapter-side, 5 s)
 
-```
+```text
 [ACTIVE] |-- adapter.readData -----------------> |
          |        [Modbus I/O stalls > 5 s]        |
          |<- {"id":N,"error":{                     |
@@ -206,12 +237,13 @@ Adapter (any handler)                     Client (AdapterClient)
 [IDLE]   |
 ```
 
-> **Known issue:** a Modbus read timeout should be a recoverable per-read failure, not a
-> session-level error. See GitHub issue for the fix in `AdapterClient::onErrorReceived()`.
+> **Known issue:** a Modbus read timeout should be a recoverable per-read failure,
+> not a session-level error. See GitHub issue for the fix in
+> `AdapterClient::onErrorReceived()`.
 
-### stopSession() called before ACTIVE (no adapter.shutdown sent)
+### stopSession() called before ACTIVE (direct process kill)
 
-```
+```text
 [INIT/   |   stopSession()                          |
 DESC/    |   -> _state = STOPPING                   |
 AWAIT/   |   -> _pProcess->stop()                   |
@@ -221,18 +253,28 @@ CONFIG]  |   [close write channel, kill timer 3s]   |
          |   emit sessionStopped()                  |
 ```
 
+### adapter.stop timeout — fallback to process kill
+
+```text
+[STOPPING|   _handshakeTimer fires (10 s)           |
+_SESSION]|   -> onHandshakeTimeout()                |
+         |   -> _pProcess->stop()                   |
+         |   emit sessionStopped()                  |
+[IDLE]   |
+```
+
 ---
 
 ## State Machine Summary
 
 | State | Entered from | Key action | Leaves to |
-|---|---|---|---|
-| `IDLE` | startup / `sessionStopped` / error | — | `INITIALIZING` |
+| --- | --- | --- | --- |
+| `IDLE` | startup / error / stop timeout | — | `INITIALIZING` |
 | `INITIALIZING` | `prepareAdapter()` | send `adapter.initialize`, start 10 s timer | `DESCRIBING` |
 | `DESCRIBING` | `initialize` response | send `adapter.describe` | `AWAITING_CONFIG` |
-| `AWAITING_CONFIG` | `describe` response | emit `describeResult()`, stop timer | `CONFIGURING` |
+| `AWAITING_CONFIG` | `describe` response or `adapter.stop` response | emit `describeResult()` / `sessionStopped()` + `adapterReady()`, stop timer | `CONFIGURING` |
 | `CONFIGURING` | `provideConfig()` | send `adapter.configure`, start 10 s timer | `STARTING` |
 | `STARTING` | `configure` response | send `adapter.start` | `ACTIVE` |
-| `ACTIVE` | `start` response | emit `sessionStarted()`, stop timer | `STOPPING` |
-| `STOPPING` | `stopSession()` from ACTIVE/STARTING | send `adapter.shutdown`, start 10 s timer | `IDLE` |
-| `STOPPING` | `stopSession()` from any other state | `_pProcess->stop()` directly | `IDLE` |
+| `ACTIVE` | `start` response | emit `sessionStarted()`, stop timer | `STOPPING_SESSION` |
+| `STOPPING_SESSION` | `stopSession()` from ACTIVE | send `adapter.stop`, start 10 s timer; adapter stays alive | `AWAITING_CONFIG` (on success) / `IDLE` (on timeout or error) |
+| `STOPPING` | `stopSession()` from any non-ACTIVE state | `_pProcess->stop()` directly | `IDLE` |

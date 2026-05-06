@@ -3,6 +3,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add `adapter.stop` method to stop Modbus polling without terminating the adapter process
+
 ### Changed
 
 - Limited number of devices for now

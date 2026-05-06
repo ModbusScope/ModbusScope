@@ -370,6 +370,36 @@ void TestAdapterClient::processErrorEmitsSessionError()
     QVERIFY(spy.at(0).at(0).toString().contains("crashed"));
 }
 
+void TestAdapterClient::stopSessionDuringStarting()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    /* Drive to STARTING state: configure acknowledged, adapter.start sent but not yet replied */
+    client.prepareAdapter(QStringLiteral("./dummy"));
+    mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(2, "adapter.describe", describeResult());
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("reg1") });
+    mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
+    /* adapter.start (id 4) is in-flight but not acknowledged */
+
+    int requestCountBeforeStop = mock->sentRequests.size();
+
+    QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+
+    client.stopSession();
+
+    /* Must NOT send adapter.stop (session not yet established) */
+    QCOMPARE(mock->sentRequests.size(), requestCountBeforeStop);
+
+    /* Process exits → sessionStopped emitted, no error */
+    mock->injectProcessFinished();
+    QCOMPARE(spyStopped.count(), 1);
+    QCOMPARE(spyError.count(), 0);
+}
+
 void TestAdapterClient::stopSessionDuringLifecycle()
 {
     auto mockOwned = std::make_unique<MockAdapterProcess>();
@@ -407,11 +437,11 @@ void TestAdapterClient::doubleStopSession()
     mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
     mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
 
-    /* First stop sends shutdown */
+    /* First stop sends adapter.stop (adapter stays alive) */
     client.stopSession();
     int requestsAfterFirstStop = mock->sentRequests.size();
 
-    /* Second stop should be a no-op (state is STOPPING) */
+    /* Second stop should be a no-op (state is STOPPING_SESSION) */
     client.stopSession();
     QCOMPARE(mock->sentRequests.size(), requestsAfterFirstStop);
     QCOMPARE(spyError.count(), 0);
@@ -451,13 +481,14 @@ void TestAdapterClient::nonObjectResultEmitsSessionError()
     QVERIFY(spyError.at(0).at(0).toString().contains("non-object"));
 }
 
-void TestAdapterClient::errorDuringShutdownSuppressed()
+void TestAdapterClient::errorDuringAdapterStopSuppressed()
 {
     auto mockOwned = std::make_unique<MockAdapterProcess>();
     auto* mock = mockOwned.get();
     AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
+    QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
 
     /* Drive to ACTIVE state */
     client.prepareAdapter(QStringLiteral("./dummy"));
@@ -467,17 +498,20 @@ void TestAdapterClient::errorDuringShutdownSuppressed()
     mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
     mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
 
-    /* Initiate shutdown */
+    /* Initiate stop — sends adapter.stop, not adapter.shutdown */
     client.stopSession();
+    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.stop"));
 
-    /* Simulate an error response for the shutdown request */
+    /* Simulate an error response for adapter.stop (e.g. adapter misbehaves) */
     QJsonObject error;
     error["code"] = -32603;
     error["message"] = "internal error";
-    mock->injectError(5, "adapter.shutdown", error);
+    mock->injectError(5, "adapter.stop", error);
 
-    /* sessionError should NOT be emitted during intentional shutdown */
+    /* sessionError must NOT be emitted — it was a user-initiated stop */
     QCOMPARE(spyError.count(), 0);
+    /* sessionStopped IS emitted as fallback (process is force-killed) */
+    QCOMPARE(spyStopped.count(), 1);
 }
 
 void TestAdapterClient::awaitingConfigPausesBeforeConfigure()
@@ -526,7 +560,7 @@ void TestAdapterClient::stopSessionDuringAwaitingConfig()
     QCOMPARE(mock->sentRequests.size(), 2);
 }
 
-void TestAdapterClient::shutdownNoAckTimesOutToSessionStopped()
+void TestAdapterClient::adapterStopNoAckTimesOutToSessionStopped()
 {
     auto mockOwned = std::make_unique<MockAdapterProcess>();
     auto* mock = mockOwned.get();
@@ -543,25 +577,26 @@ void TestAdapterClient::shutdownNoAckTimesOutToSessionStopped()
     mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
     mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
 
-    /* Initiate shutdown — adapter never responds */
+    /* Initiate stop — adapter never responds to adapter.stop */
     client.stopSession();
-    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.shutdown"));
+    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.stop"));
 
-    /* Wait for the shutdown timer to fire */
-    QVERIFY2(spyStopped.wait(2000), "sessionStopped not emitted after shutdown timeout");
+    /* Wait for the handshake timer to fire (fallback: process killed) */
+    QVERIFY2(spyStopped.wait(2000), "sessionStopped not emitted after adapter.stop timeout");
 
     /* sessionStopped must be emitted, not sessionError */
     QCOMPARE(spyStopped.count(), 1);
     QCOMPARE(spyError.count(), 0);
 }
 
-void TestAdapterClient::shutdownAckEmitsSessionStoppedAfterProcessExit()
+void TestAdapterClient::adapterStopAckEmitsSessionStoppedImmediately()
 {
     auto mockOwned = std::make_unique<MockAdapterProcess>();
     auto* mock = mockOwned.get();
     AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
+    QSignalSpy spyReady(&client, &AdapterClient::adapterReady);
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
 
     /* Drive to ACTIVE state */
@@ -572,20 +607,21 @@ void TestAdapterClient::shutdownAckEmitsSessionStoppedAfterProcessExit()
     mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
     mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
 
-    /* Initiate shutdown and inject the adapter's acknowledgment */
+    /* Initiate stop — sends adapter.stop (process stays alive) */
     client.stopSession();
-    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.shutdown"));
-    mock->injectResponse(5, "adapter.shutdown", QJsonObject{ { "status", "ok" } });
+    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.stop"));
 
-    /* sessionStopped must NOT be emitted yet — the process has not exited */
-    QCOMPARE(spyStopped.count(), 0);
-    QCOMPARE(spyError.count(), 0);
+    /* Inject the adapter.stop acknowledgment */
+    mock->injectResponse(5, "adapter.stop", QJsonObject{ { "status", "ok" } });
 
-    /* Simulate the adapter process exiting — now sessionStopped must fire */
-    mock->injectProcessFinished();
-
+    /* sessionStopped is emitted immediately — process is still alive, adapter in AWAITING_CONFIG */
     QCOMPARE(spyStopped.count(), 1);
+    QCOMPARE(spyReady.count(), 2); /* once after describe, once after stop */
     QCOMPARE(spyError.count(), 0);
+
+    /* Adapter is now in AWAITING_CONFIG — provideConfig() must be accepted */
+    client.provideConfig(QJsonObject(), QStringList());
+    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.configure"));
 }
 
 void TestAdapterClient::processErrorDuringStoppingNoSessionError()
@@ -604,11 +640,12 @@ void TestAdapterClient::processErrorDuringStoppingNoSessionError()
     mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
     mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
 
+    /* stopSession sends adapter.stop; process error during STOPPING_SESSION emits sessionStopped */
     client.stopSession();
     mock->injectProcessError(QStringLiteral("Adapter process crashed"));
 
     QCOMPARE(spyError.count(), 0);
-    QCOMPARE(spyStopped.count(), 0);
+    QCOMPARE(spyStopped.count(), 1);
 }
 
 void TestAdapterClient::processErrorDuringStoppingThenProcessFinished()
@@ -1094,6 +1131,119 @@ void TestAdapterClient::readDataErrorInIdleStateIsIgnored()
 
     QCOMPARE(spyData.count(), 0);
     QCOMPARE(spyError.count(), 0);
+}
+
+void TestAdapterClient::stopSessionSendsAdapterStop()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    driveToActive(client, mock);
+
+    client.stopSession();
+
+    /* adapter.stop (not adapter.shutdown) must be sent — adapter process stays alive */
+    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.stop"));
+}
+
+void TestAdapterClient::adapterReadyEmittedAfterDescribe()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyReady(&client, &AdapterClient::adapterReady);
+
+    client.prepareAdapter(QStringLiteral("./dummy"));
+    mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
+
+    QCOMPARE(spyReady.count(), 0);
+
+    mock->injectResponse(2, "adapter.describe", describeResult());
+
+    QCOMPARE(spyReady.count(), 1);
+}
+
+void TestAdapterClient::adapterReadyEmittedAfterStop()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyReady(&client, &AdapterClient::adapterReady);
+
+    driveToActive(client, mock);
+
+    /* adapterReady was emitted once during describe */
+    QCOMPARE(spyReady.count(), 1);
+
+    client.stopSession();
+    mock->injectResponse(5, "adapter.stop", QJsonObject{ { "status", "ok" } });
+
+    /* adapterReady emitted again when adapter.stop transitions to AWAITING_CONFIG */
+    QCOMPARE(spyReady.count(), 2);
+}
+
+void TestAdapterClient::canProvideConfigAfterStop()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyStarted(&client, &AdapterClient::sessionStarted);
+    QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
+
+    driveToActive(client, mock);
+
+    /* Stop the session — adapter.stop sent, adapter stays alive */
+    client.stopSession();
+    mock->injectResponse(5, "adapter.stop", QJsonObject{ { "status", "ok" } });
+
+    QCOMPARE(spyStopped.count(), 1);
+
+    /* Re-start: provideConfig should be accepted immediately (no process restart) */
+    client.provideConfig(QJsonObject{ { "version", 1 } }, QStringList{ QStringLiteral("${h0}") });
+    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.configure"));
+
+    mock->injectResponse(6, "adapter.configure", QJsonObject{ { "status", "ok" } });
+    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.start"));
+
+    mock->injectResponse(7, "adapter.start", QJsonObject{ { "status", "ok" } });
+    QCOMPARE(spyStarted.count(), 2);
+}
+
+void TestAdapterClient::isReadyAndIsIdleAccessors()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    /* Initially IDLE */
+    QVERIFY(client.isIdle());
+    QVERIFY(!client.isReady());
+
+    client.prepareAdapter(QStringLiteral("./dummy"));
+    /* INITIALIZING */
+    QVERIFY(!client.isIdle());
+    QVERIFY(!client.isReady());
+
+    mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
+    /* DESCRIBING */
+    QVERIFY(!client.isIdle());
+    QVERIFY(!client.isReady());
+
+    mock->injectResponse(2, "adapter.describe", describeResult());
+    /* AWAITING_CONFIG */
+    QVERIFY(!client.isIdle());
+    QVERIFY(client.isReady());
+
+    client.provideConfig(QJsonObject(), QStringList());
+    mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
+    /* ACTIVE */
+    QVERIFY(!client.isIdle());
+    QVERIFY(!client.isReady());
 }
 
 QTEST_GUILESS_MAIN(TestAdapterClient)

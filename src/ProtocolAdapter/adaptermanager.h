@@ -30,7 +30,7 @@ public:
      * Resolves the adapter binary path relative to the running executable and
      * calls AdapterClient::prepareAdapter().
      */
-    void initAdapter();
+    virtual void initAdapter();
 
     /*!
      * \brief Provide register expressions to the adapter and start the session.
@@ -40,17 +40,27 @@ public:
      *
      * \param registerExpressions Register expression strings to pass to the adapter.
      */
-    void startSession(const QStringList& registerExpressions);
+    virtual void startSession(const QStringList& registerExpressions);
 
     /*!
-     * \brief Send adapter.shutdown and signal the adapter process to stop.
+     * \brief Send adapter.stop to pause polling and keep the adapter process alive.
      */
-    void stopSession();
+    virtual void stopSession();
+
+    /*!
+     * \brief Returns true when the adapter is in AWAITING_CONFIG and ready for provideConfig().
+     */
+    virtual bool isAdapterReady() const;
+
+    /*!
+     * \brief Returns true when the adapter process is not running (IDLE state).
+     */
+    virtual bool isAdapterIdle() const;
 
     /*!
      * \brief Send an adapter.readData request to the active adapter.
      */
-    void requestReadData();
+    virtual void requestReadData();
 
     /*!
      * \brief Request the adapter to construct a register expression from its component parts.
@@ -81,8 +91,17 @@ signals:
     //! Emitted when the adapter has been initialized, described, configured, and started.
     void sessionStarted();
 
-    //! Emitted when the adapter process has been intentionally stopped and the client is IDLE.
+    //! Emitted when the adapter has stopped polling and is ready for the next session.
     void sessionStopped();
+
+    /*!
+     * \brief Emitted whenever the adapter enters AWAITING_CONFIG state.
+     *
+     * Fired after initial initialization (adapter.describe) and after each session stop
+     * (adapter.stop). Callers that need to start a session and are unsure whether the
+     * adapter is ready should connect to this signal and call startSession() from the slot.
+     */
+    void adapterReady();
 
     /*!
      * \brief Emitted when an unrecoverable error occurs (process failure, RPC error).

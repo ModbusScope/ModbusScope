@@ -22,17 +22,24 @@ private slots:
     void diagnosticNotificationDebugLevel();
     void diagnosticMalformedParams();
     void processErrorEmitsSessionError();
+    void stopSessionDuringStarting();
     void stopSessionDuringLifecycle();
     void doubleStopSession();
     void requestReadDataWhenNotActive();
     void nonObjectResultEmitsSessionError();
-    void errorDuringShutdownSuppressed();
-    void shutdownNoAckTimesOutToSessionStopped();
+    void errorDuringAdapterStopSuppressed();
+    void adapterStopNoAckTimesOutToSessionStopped();
     void awaitingConfigPausesBeforeConfigure();
     void stopSessionDuringAwaitingConfig();
-    void shutdownAckEmitsSessionStoppedAfterProcessExit();
+    void adapterStopAckEmitsSessionStoppedImmediately();
     void processErrorDuringStoppingNoSessionError();
     void processErrorDuringStoppingThenProcessFinished();
+
+    void stopSessionSendsAdapterStop();
+    void adapterReadyEmittedAfterDescribe();
+    void adapterReadyEmittedAfterStop();
+    void canProvideConfigAfterStop();
+    void isReadyAndIsIdleAccessors();
 
     void requestDataPointSchemaEmitsSignal();
     void requestDataPointSchemaInWrongStateIgnored();
