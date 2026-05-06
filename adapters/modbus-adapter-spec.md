@@ -1,14 +1,19 @@
 # Modbus Adapter Implementation Specification
 
-This document defines the Modbus adapter's concrete payloads for the generic methods defined in adapter. Refer to the protocol spec for transport framing, method signatures, the notification and error-code contracts, and the session lifecycle.
+This document defines the Modbus adapter's concrete payloads for the generic methods defined in adapter. Refer to the
+protocol spec for transport framing, method signatures, the notification and error-code contracts, and the session
+lifecycle.
 
-Only methods whose request or response shape is Modbus-specific are documented here. Methods not listed (`adapter.initialize`, `adapter.getStatus`, `adapter.readData`, `adapter.shutdown`) use the generic payloads defined in the protocol spec without further specialization.
+Only methods whose request or response shape is Modbus-specific are documented here. Methods not listed
+(`adapter.initialize`, `adapter.getStatus`, `adapter.readData`, `adapter.stop`, `adapter.shutdown`) use the generic
+payloads defined in the protocol spec without further specialization.
 
 ---
 
 ## `adapter.describe`
 
 **Result (Release build):**
+
 ```json
 {
   "name": "modbusAdapter",
@@ -23,7 +28,9 @@ Only methods whose request or response shape is Modbus-specific are documented h
 }
 ```
 
-**Result (Debug build):** the `version` field appends `-<git-branch>+<commit-hash>`, e.g. `"0.0.1-dev-diagnostics+c471210"`. Branch names with slashes are converted to hyphens (e.g. `dev/diagnostics` → `dev-diagnostics`). Consumers must not treat `version` as a fixed literal; parse or compare it accordingly.
+**Result (Debug build):** the `version` field appends `-<git-branch>+<commit-hash>`, e.g. `"0.0.1-dev-diagnostics+c471210"`.
+Branch names with slashes are converted to hyphens (e.g. `dev/diagnostics` → `dev-diagnostics`). Consumers must not
+treat `version` as a fixed literal; parse or compare it accordingly.
 
 > **Note:** Update this spec whenever the Modbus JSON-RPC implementation changes.
 
@@ -36,7 +43,10 @@ Only methods whose request or response shape is Modbus-specific are documented h
 | `defaults` | Default config values. The `connections` array contains a single TCP entry that also includes serial-specific fields (`portName`, `baudrate`, `parity`, `databits`, `stopbits`) so callers can see serial defaults without needing a second example. |
 | `capabilities` | Feature flags |
 
-The connection schema uses JSON Schema Draft 7 `if`/`then`/`else` to express type-dependent fields. When `type` equals `"tcp"`, the fields in `then.properties` apply (TCP-specific). Otherwise, when `type` is not `"tcp"`, the fields in `else.properties` apply (serial-specific). A UI can use this to enable or disable the relevant fields based on the selected connection type.
+The connection schema uses JSON Schema Draft 7 `if`/`then`/`else` to express type-dependent fields. When `type` equals
+`"tcp"`, the fields in `then.properties` apply (TCP-specific). Otherwise, when `type` is not `"tcp"`, the fields in
+`else.properties` apply (serial-specific). A UI can use this to enable or disable the relevant fields based on the
+selected connection type.
 
 ---
 
@@ -45,6 +55,7 @@ The connection schema uses JSON Schema Draft 7 `if`/`then`/`else` to express typ
 Applies Modbus connection and device configuration to the adapter. Must be called before `adapter.start`.
 
 **Params:**
+
 ```json
 {
   "config": {
@@ -177,6 +188,7 @@ Each element is a register subexpression string with the syntax:
 ## `adapter.dataPointSchema`
 
 **Result:**
+
 ```json
 {
   "addressSchema": {
@@ -216,13 +228,15 @@ Each element is a register subexpression string with the syntax:
 }
 ```
 
-The `defaults` object provides pre-population values for the form fields: holding register, address 0, and unsigned 16-bit.
+The `defaults` object provides pre-population values for the form fields: holding register, address 0,
+and unsigned 16-bit.
 
 ---
 
 ## `adapter.describeDataPoint`
 
 **Params:**
+
 ```json
 {
   "expression": "${40001: 16b}"
@@ -230,6 +244,7 @@ The `defaults` object provides pre-population values for the form fields: holdin
 ```
 
 **Result (valid):**
+
 ```json
 {
   "valid": true,
@@ -244,6 +259,7 @@ The `defaults` object provides pre-population values for the form fields: holdin
 ```
 
 **Result (invalid):**
+
 ```json
 {
   "valid": false,
@@ -256,6 +272,7 @@ The `defaults` object provides pre-population values for the form fields: holdin
 ## `adapter.validateDataPoint`
 
 **Params:**
+
 ```json
 {
   "expression": "${40001: 16b}"
@@ -263,11 +280,13 @@ The `defaults` object provides pre-population values for the form fields: holdin
 ```
 
 **Result (valid):**
+
 ```json
 { "valid": true }
 ```
 
 **Result (invalid):**
+
 ```json
 {
   "valid": false,
@@ -308,7 +327,8 @@ The `defaults` object provides pre-population values for the form fields: holdin
 { "helpText": "<html>...</html>" }
 ```
 
-The returned HTML documents the Modbus register expression syntax defined under [`adapter.start`](#adapterstart) (address prefixes, optional `deviceId` and `type`, and the list of type values).
+The returned HTML documents the Modbus register expression syntax defined under [`adapter.start`](#adapterstart)
+(address prefixes, optional `deviceId` and `type`, and the list of type values).
 
 ---
 
