@@ -4,6 +4,7 @@
 #include "customwidgets/centeredbox.h"
 
 #include <QDialog>
+#include <QMetaObject>
 #include <QWidgetAction>
 
 /* Forward declaration */
@@ -36,6 +37,8 @@ private slots:
     void activatedCell(QModelIndex modelIndex);
     void onRegisterInserted(const QModelIndex& parent, int first, int last);
     void handleExpressionEdit(const QModelIndex& index);
+    void requestDefaultExpression();
+    void onDefaultExpressionBuilt(const QString& expression);
 
 private:
     int selectedRowAfterDelete(int deletedStartIndex, int rowCnt);
@@ -52,6 +55,8 @@ private:
     std::unique_ptr<RegisterValueAxisDelegate> _valueAxisDelegate;
     std::unique_ptr<ActionButtonDelegate> _expressionDelegate;
     std::unique_ptr<QWidgetAction> _registerPopupAction;
+
+    QMetaObject::Connection _defaultExpressionConn;
 };
 
 #endif // REGISTERDIALOG_H

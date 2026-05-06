@@ -106,11 +106,18 @@ void AddRegisterWidget::handleResultAccept()
       static_cast<deviceId_t>(allValues.take(QStringLiteral("deviceId")).toInt(Device::cFirstDeviceId));
 
     _pUi->btnAdd->setEnabled(false);
+    _pendingBuildExpression = true;
     _pAdapterManager->buildExpression(allValues, dataType, deviceId);
 }
 
 void AddRegisterWidget::onBuildExpressionResult(const QString& expression)
 {
+    if (!_pendingBuildExpression)
+    {
+        return;
+    }
+    _pendingBuildExpression = false;
+
     _pUi->btnAdd->setEnabled(true);
 
     if (expression.isEmpty())

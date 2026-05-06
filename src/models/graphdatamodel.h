@@ -78,6 +78,7 @@ public:
     void setCommunicationEndTime(qint64 endTime);
     void setCommunicationStats(quint32 successCount, quint32 errorCount);
     void setMedianPollTime(quint32 pollTime);
+    void setDefaultExpression(const QString& expression);
 
     void add(GraphData rowData);
     void add(QList<GraphData> graphDataList);
@@ -128,6 +129,8 @@ private:
     quint32 _successCount;
     quint32 _errorCount;
     quint32 _medianPollTime;
+
+    QString _defaultExpression;
 
     QList<GraphData> _graphData;
     QList<quint32> _activeGraphList;

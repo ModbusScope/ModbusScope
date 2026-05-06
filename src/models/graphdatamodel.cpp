@@ -14,6 +14,7 @@ GraphDataModel::GraphDataModel(QObject* parent) : QAbstractTableModel(parent), _
     _endTime = 0;
     _successCount = 0;
     _errorCount = 0;
+    _defaultExpression = QStringLiteral("${h0}");
 
     connect(this, &GraphDataModel::visibilityChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::labelChanged, this, &GraphDataModel::modelDataChanged);
@@ -564,12 +565,22 @@ void GraphDataModel::add(QList<GraphData> graphDataList)
 void GraphDataModel::add()
 {
     GraphData data;
-
-    quint32 registerAddr = 40001;
     data.setLabel("New curve");
-    data.setExpression(QString("${%1}").arg(registerAddr));
-
+    data.setExpression(_defaultExpression);
     add(data);
+}
+
+/*!
+ * \brief Sets the default expression used when adding a new register without an explicit expression.
+ * \param expression The expression string to use as the default (e.g. \c ${h0}).
+ */
+void GraphDataModel::setDefaultExpression(const QString& expression)
+{
+    if (expression.isEmpty())
+    {
+        return;
+    }
+    _defaultExpression = expression;
 }
 
 void GraphDataModel::add(QList<QString> labelList)
