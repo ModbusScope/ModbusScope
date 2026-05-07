@@ -49,8 +49,6 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel,
     }
 
     connect(_pUi->btnAdd, &QPushButton::clicked, this, &AddRegisterWidget::handleResultAccept);
-    connect(_pAdapterManager, &AdapterManager::buildExpressionResult, this,
-            &AddRegisterWidget::onBuildExpressionResult);
 
     _axisGroup.setExclusive(true);
     _axisGroup.addButton(_pUi->radioPrimary);
@@ -106,17 +104,15 @@ void AddRegisterWidget::handleResultAccept()
       static_cast<deviceId_t>(allValues.take(QStringLiteral("deviceId")).toInt(Device::cFirstDeviceId));
 
     _pUi->btnAdd->setEnabled(false);
-    _pendingBuildExpression = true;
+    _buildExpressionConn = connect(_pAdapterManager, &AdapterManager::buildExpressionResult,
+                                   this, &AddRegisterWidget::onBuildExpressionResult);
     _pAdapterManager->buildExpression(allValues, dataType, deviceId);
 }
 
 void AddRegisterWidget::onBuildExpressionResult(const QString& expression)
 {
-    if (!_pendingBuildExpression)
-    {
-        return;
-    }
-    _pendingBuildExpression = false;
+    QObject::disconnect(_buildExpressionConn);
+    _buildExpressionConn = {};
 
     _pUi->btnAdd->setEnabled(true);
 
