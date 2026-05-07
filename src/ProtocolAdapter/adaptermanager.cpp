@@ -58,6 +58,12 @@ void AdapterManager::startSession(const QStringList& registerExpressions)
     _pAdapterClient->provideConfig(config, registerExpressions);
 }
 
+/*! \brief Returns the identifier string of the active adapter. */
+QString AdapterManager::adapterId() const
+{
+    return QStringLiteral("modbus");
+}
+
 /*! \brief Returns true when the adapter is ready to accept provideConfig() (AWAITING_CONFIG state). */
 bool AdapterManager::isAdapterReady() const
 {

@@ -74,8 +74,7 @@ RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel,
     connect(_pUi->btnRemove, &QPushButton::released, this, &RegisterDialog::removeRegisterRow);
     connect(_pGraphDataModel, &GraphDataModel::rowsInserted, this, &RegisterDialog::onRegisterInserted);
 
-    const QStringList ids = _pSettingsModel->adapterIds();
-    const QString adapterId = ids.isEmpty() ? QString() : ids.first();
+    const QString adapterId = _pAdapterManager->adapterId();
     if (!adapterId.isEmpty())
     {
         auto registerPopupMenu = new AddRegisterWidget(_pSettingsModel, adapterId, _pAdapterManager, this);
@@ -190,13 +189,8 @@ bool RegisterDialog::sortRegistersLastFirst(const QModelIndex& s1, const QModelI
  */
 void RegisterDialog::requestDefaultExpression()
 {
-    const QStringList ids = _pSettingsModel->adapterIds();
-    if (ids.isEmpty())
-    {
-        return;
-    }
-
-    const QJsonObject defaults = _pSettingsModel->adapterData(ids.first())->dataPointSchema()["defaults"].toObject();
+    const QJsonObject defaults =
+      _pSettingsModel->adapterData(_pAdapterManager->adapterId())->dataPointSchema().value("defaults").toObject();
     if (defaults.isEmpty())
     {
         return;
@@ -206,8 +200,8 @@ void RegisterDialog::requestDefaultExpression()
     {
         QObject::disconnect(_defaultExpressionConn);
     }
-    _defaultExpressionConn = connect(_pAdapterManager, &AdapterManager::buildExpressionResult,
-                                     this, &RegisterDialog::onDefaultExpressionBuilt);
+    _defaultExpressionConn = connect(_pAdapterManager, &AdapterManager::buildExpressionResult, this,
+                                     &RegisterDialog::onDefaultExpressionBuilt);
 
     QJsonObject addressFields = defaults;
     const QString dataType = addressFields.take(QStringLiteral("dataType")).toString();
