@@ -104,6 +104,10 @@ void AddRegisterWidget::handleResultAccept()
       static_cast<deviceId_t>(allValues.take(QStringLiteral("deviceId")).toInt(Device::cFirstDeviceId));
 
     _pUi->btnAdd->setEnabled(false);
+    if (_buildExpressionConn)
+    {
+        QObject::disconnect(_buildExpressionConn);
+    }
     _buildExpressionConn = connect(_pAdapterManager, &AdapterManager::buildExpressionResult,
                                    this, &AddRegisterWidget::onBuildExpressionResult);
     _pAdapterManager->buildExpression(allValues, dataType, deviceId);
