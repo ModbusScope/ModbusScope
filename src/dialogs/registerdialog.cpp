@@ -205,6 +205,7 @@ void RegisterDialog::requestDefaultExpression()
 
     QJsonObject addressFields = defaults;
     const QString dataType = addressFields.take(QStringLiteral("dataType")).toString();
+    _pendingDefaultExpression = true;
     _pAdapterManager->buildExpression(addressFields, dataType, 0);
 }
 
@@ -214,6 +215,12 @@ void RegisterDialog::requestDefaultExpression()
  */
 void RegisterDialog::onDefaultExpressionBuilt(const QString& expression)
 {
+    if (!_pendingDefaultExpression)
+    {
+        return;
+    }
+
+    _pendingDefaultExpression = false;
     QObject::disconnect(_defaultExpressionConn);
     _defaultExpressionConn = {};
 

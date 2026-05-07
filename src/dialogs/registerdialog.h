@@ -57,6 +57,7 @@ private:
     std::unique_ptr<QWidgetAction> _registerPopupAction;
 
     QMetaObject::Connection _defaultExpressionConn;
+    bool _pendingDefaultExpression = false;
 };
 
 #endif // REGISTERDIALOG_H
