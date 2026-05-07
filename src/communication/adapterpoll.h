@@ -52,11 +52,17 @@ private slots:
 private:
     QStringList buildRegisterExpressions(const QList<DataPoint>& registerList);
 
+    enum class PollState
+    {
+        Inactive,
+        WaitingForAdapter,
+        Active
+    };
+
     QList<DataPoint> _registerList;
     QStringList _pendingExpressions;
 
-    bool _bPollActive;
-    bool _bWaitingForAdapterReady;
+    PollState _pollState = PollState::Inactive;
     QMetaObject::Connection _adapterReadyConnection;
     QTimer* _pPollTimer;
     qint64 _lastPollStart;
