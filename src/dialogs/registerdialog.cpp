@@ -27,6 +27,8 @@ RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel,
     _pSettingsModel = pSettingsModel;
     _pAdapterManager = pAdapterManager;
 
+    connect(_pAdapterManager, &AdapterManager::sessionStarted, this, &RegisterDialog::requestDefaultExpression);
+
     // Setup registerView
     _pUi->registerView->setModel(_pGraphDataModel);
     _pUi->registerView->verticalHeader()->hide();
@@ -72,8 +74,7 @@ RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel,
     connect(_pUi->btnRemove, &QPushButton::released, this, &RegisterDialog::removeRegisterRow);
     connect(_pGraphDataModel, &GraphDataModel::rowsInserted, this, &RegisterDialog::onRegisterInserted);
 
-    const QStringList ids = _pSettingsModel->adapterIds();
-    const QString adapterId = ids.isEmpty() ? QString() : ids.first();
+    const QString adapterId = _pAdapterManager->adapterId();
     if (!adapterId.isEmpty())
     {
         auto registerPopupMenu = new AddRegisterWidget(_pSettingsModel, adapterId, _pAdapterManager, this);
@@ -178,4 +179,53 @@ int RegisterDialog::selectedRowAfterDelete(int deletedStartIndex, int rowCnt)
 bool RegisterDialog::sortRegistersLastFirst(const QModelIndex& s1, const QModelIndex& s2)
 {
     return s1.row() > s2.row();
+}
+
+/*!
+ * \brief Requests a default expression from the adapter using its own schema defaults.
+ *
+ * Called when the adapter session starts. The result is used to keep the default new-register
+ * expression in sync with whatever the adapter considers its default data point.
+ */
+void RegisterDialog::requestDefaultExpression()
+{
+    const QJsonObject defaults =
+      _pSettingsModel->adapterData(_pAdapterManager->adapterId())->dataPointSchema().value("defaults").toObject();
+    if (defaults.isEmpty())
+    {
+        return;
+    }
+
+    if (_defaultExpressionConn)
+    {
+        QObject::disconnect(_defaultExpressionConn);
+    }
+    _defaultExpressionConn = connect(_pAdapterManager, &AdapterManager::buildExpressionResult, this,
+                                     &RegisterDialog::onDefaultExpressionBuilt);
+
+    QJsonObject addressFields = defaults;
+    const QString dataType = addressFields.take(QStringLiteral("dataType")).toString();
+    _pendingDefaultExpression = true;
+    _pAdapterManager->buildExpression(addressFields, dataType, 0);
+}
+
+/*!
+ * \brief Applies the adapter-provided default expression to the graph data model.
+ * \param expression The default expression string returned by the adapter.
+ */
+void RegisterDialog::onDefaultExpressionBuilt(const QString& expression)
+{
+    if (!_pendingDefaultExpression)
+    {
+        return;
+    }
+
+    _pendingDefaultExpression = false;
+    QObject::disconnect(_defaultExpressionConn);
+    _defaultExpressionConn = {};
+
+    if (!expression.isEmpty())
+    {
+        _pGraphDataModel->setDefaultExpression(expression);
+    }
 }

@@ -48,6 +48,11 @@ public:
     virtual void stopSession();
 
     /*!
+     * \brief Returns the identifier string of the active adapter.
+     */
+    virtual QString adapterId() const;
+
+    /*!
      * \brief Returns true when the adapter is in AWAITING_CONFIG and ready for provideConfig().
      */
     virtual bool isAdapterReady() const;
