@@ -126,24 +126,26 @@ void AdapterPoll::triggerRegisterRead()
 
 void AdapterPoll::onReadDataResult(ResultDoubleList results)
 {
+    if (_pollState != PollState::Active)
+    {
+        return;
+    }
+
     emit registerDataReady(results);
 
-    if (_pollState == PollState::Active)
+    const quint32 passedInterval = static_cast<quint32>(QDateTime::currentMSecsSinceEpoch() - _lastPollStart);
+    uint waitInterval;
+
+    if (passedInterval > _pSettingsModel->pollTime())
     {
-        const quint32 passedInterval = static_cast<quint32>(QDateTime::currentMSecsSinceEpoch() - _lastPollStart);
-        uint waitInterval;
-
-        if (passedInterval > _pSettingsModel->pollTime())
-        {
-            waitInterval = 1;
-        }
-        else
-        {
-            waitInterval = _pSettingsModel->pollTime() - passedInterval;
-        }
-
-        _pPollTimer->start(static_cast<int>(waitInterval));
+        waitInterval = 1;
     }
+    else
+    {
+        waitInterval = _pSettingsModel->pollTime() - passedInterval;
+    }
+
+    _pPollTimer->start(static_cast<int>(waitInterval));
 }
 
 /*! \brief Returns the AdapterManager owned by this instance. */
