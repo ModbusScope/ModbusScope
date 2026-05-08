@@ -21,6 +21,10 @@ AdapterPoll::AdapterPoll(SettingsModel* pSettingsModel, QObject* parent)
     connect(_pAdapterManager, &AdapterManager::readDataResult, this, &AdapterPoll::onReadDataResult);
     connect(_pAdapterManager, &AdapterManager::sessionError, this, [this](QString message) {
         qCWarning(scopeComm) << "AdapterManager error:" << message;
+        if (_pollState == PollState::WaitingForAdapter)
+        {
+            disconnect(_adapterReadyConnection);
+        }
         _pollState = PollState::Inactive;
     });
 }
@@ -41,6 +45,10 @@ AdapterPoll::AdapterPoll(SettingsModel* pSettingsModel, AdapterManager* pAdapter
     connect(_pAdapterManager, &AdapterManager::readDataResult, this, &AdapterPoll::onReadDataResult);
     connect(_pAdapterManager, &AdapterManager::sessionError, this, [this](QString message) {
         qCWarning(scopeComm) << "AdapterManager error:" << message;
+        if (_pollState == PollState::WaitingForAdapter)
+        {
+            disconnect(_adapterReadyConnection);
+        }
         _pollState = PollState::Inactive;
     });
 }
