@@ -29,6 +29,8 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
     {
         connect(_pAdapterManager, &AdapterManager::expressionHelpResult,
                 this, &ExpressionsDialog::handleExpressionHelpResult);
+        connect(_pAdapterManager, &AdapterManager::describeDataPointResult,
+                this, &ExpressionsDialog::handleDescribeDataPointResult);
         _pAdapterManager->requestExpressionHelp();
     }
 
@@ -62,18 +64,22 @@ void ExpressionsDialog::handleExpressionChange()
     {
         _expressionChecker.setExpression(expression);
 
-        /* Save current test values */
+        /* Save current test values keyed by address (Qt::UserRole), not displayed text */
         QMap<QString, QString> testValueMap;
         for(qint32 idx = 0; idx < _pUi->tblExpressionInput->rowCount(); idx++)
         {
-            QString descr = _pUi->tblExpressionInput->item(idx, 0)->text();
-            QString value = _pUi->tblExpressionInput->item(idx, 1)->text();
-
-            testValueMap.insert(descr, value);
+            QTableWidgetItem* pAddrItem = _pUi->tblExpressionInput->item(idx, 0);
+            QTableWidgetItem* pValueItem = _pUi->tblExpressionInput->item(idx, 1);
+            if (pAddrItem != nullptr && pValueItem != nullptr)
+            {
+                testValueMap.insert(pAddrItem->data(Qt::UserRole).toString(), pValueItem->text());
+            }
         }
 
         QStringList descriptions;
+        QStringList addresses;
         _expressionChecker.descriptions(descriptions);
+        _expressionChecker.addresses(addresses);
 
         _bUpdating = true;
         _pUi->tblExpressionInput->setRowCount(descriptions.size());
@@ -81,17 +87,20 @@ void ExpressionsDialog::handleExpressionChange()
 
         for(qint32 idx = 0; idx < descriptions.size(); idx++)
         {
-            QString regDescr = descriptions[idx];
-            QTableWidgetItem *newRegisterDescr = new QTableWidgetItem(regDescr);
-            newRegisterDescr->setFlags(newRegisterDescr->flags() & ~Qt::ItemIsEditable);
-            _pUi->tblExpressionInput->setItem(idx, 0, newRegisterDescr);
+            QTableWidgetItem* pRegItem = new QTableWidgetItem(descriptions[idx]);
+            pRegItem->setFlags(pRegItem->flags() & ~Qt::ItemIsEditable);
+            pRegItem->setData(Qt::UserRole, addresses[idx]);
+            _pUi->tblExpressionInput->setItem(idx, 0, pRegItem);
 
-            QString testVal = testValueMap.contains(regDescr) ? testValueMap[regDescr]: "0";
-            QTableWidgetItem *newRegisterValue = new QTableWidgetItem(testVal);
-            _pUi->tblExpressionInput->setItem(idx, 1, newRegisterValue);
+            QString testVal = testValueMap.contains(addresses[idx]) ? testValueMap[addresses[idx]] : "0";
+            _pUi->tblExpressionInput->setItem(idx, 1, new QTableWidgetItem(testVal));
         }
 
         _bUpdating = false;
+
+        _pendingDescribeAddresses = addresses;
+        _nextDescribeRow = 0;
+        startNextDescribe();
 
         handleInputChange();
     }
@@ -141,6 +150,31 @@ void ExpressionsDialog::handleAccept()
 void ExpressionsDialog::handleExpressionHelpResult(const QString& helpText)
 {
     _pUi->lblInfo->setText(helpText);
+}
+
+void ExpressionsDialog::startNextDescribe()
+{
+    if (_pAdapterManager != nullptr && _nextDescribeRow < _pendingDescribeAddresses.size())
+    {
+        _pAdapterManager->describeDataPoint(_pendingDescribeAddresses[_nextDescribeRow]);
+    }
+}
+
+void ExpressionsDialog::handleDescribeDataPointResult(const QJsonObject& result)
+{
+    if (_nextDescribeRow >= _pUi->tblExpressionInput->rowCount())
+    {
+        return;
+    }
+
+    QString description = result["description"].toString();
+    if (!description.isEmpty())
+    {
+        _pUi->tblExpressionInput->item(_nextDescribeRow, 0)->setText(description);
+    }
+
+    _nextDescribeRow++;
+    startNextDescribe();
 }
 
 void ExpressionsDialog::handleResultReady(bool valid)

@@ -15,6 +15,7 @@ public:
 
     QString expression(void);
     void descriptions(QStringList& descr);
+    void addresses(QStringList& addrs);
     qsizetype requiredValueCount();
 
     bool checkForDevices(QList<deviceId_t> const& deviceIdList);
@@ -38,6 +39,7 @@ private:
     QList<deviceId_t> _expectedDeviceIdList;
 
     QStringList _descriptions;
+    QStringList _addresses;
 
     bool _bValid;
     double _result;

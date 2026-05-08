@@ -10,6 +10,7 @@ private slots:
     void cleanup();
 
     void dataIsPrimed();
+    void addressesMatchExpression();
     void expressionIsValid();
     void expressionHasSyntaxError();
     void valueErrorIsNotSyntaxError();

@@ -82,6 +82,16 @@ public:
     virtual void requestExpressionHelp();
 
     /*!
+     * \brief Send an adapter.describeDataPoint request to retrieve a human-readable description of a data point expression.
+     *
+     * Can be called when the adapter is in AWAITING_CONFIG or ACTIVE state.
+     * Emits describeDataPointResult() when the adapter responds.
+     *
+     * \param expression The data point expression string to describe.
+     */
+    virtual void describeDataPoint(const QString& expression);
+
+    /*!
      * \brief Route an adapter.diagnostic notification to the diagnostics log.
      *
      * Public for testability. Maps the adapter's level string to the appropriate
@@ -131,6 +141,12 @@ signals:
      * \param helpText HTML string describing expression syntax.
      */
     void expressionHelpResult(QString helpText);
+
+    /*!
+     * \brief Emitted when an adapter.describeDataPoint response has been received.
+     * \param result The full result object (valid, fields, description or error).
+     */
+    void describeDataPointResult(QJsonObject result);
 
 private slots:
     void onDescribeResult(const QJsonObject& description);

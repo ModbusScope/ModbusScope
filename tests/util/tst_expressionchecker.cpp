@@ -34,6 +34,18 @@ void TestExpressionChecker::dataIsPrimed()
     QCOMPARE(checker.requiredValueCount(), 2);
 }
 
+void TestExpressionChecker::addressesMatchExpression()
+{
+    ExpressionChecker checker;
+
+    checker.setExpression("${40001} + ${40002}");
+
+    QStringList addrs;
+    checker.addresses(addrs);
+    auto expAddresses = QStringList() << "${40001}" << "${40002}";
+    QCOMPARE(addrs, expAddresses);
+}
+
 void TestExpressionChecker::expressionIsValid()
 {
     ExpressionChecker checker;

@@ -16,9 +16,11 @@ void ExpressionChecker::setExpression(QString expr)
 
     _expectedDeviceIdList.clear();
     _descriptions.clear();
+    _addresses.clear();
     for (DataPoint const& reg : std::as_const(registerList))
     {
         _descriptions.append(reg.description());
+        _addresses.append(reg.address());
 
         if (!_expectedDeviceIdList.contains(reg.deviceId()))
         {
@@ -42,6 +44,11 @@ QString ExpressionChecker::expression(void)
 void ExpressionChecker::descriptions(QStringList& descr)
 {
     descr = _descriptions;
+}
+
+void ExpressionChecker::addresses(QStringList& addrs)
+{
+    addrs = _addresses;
 }
 
 qsizetype ExpressionChecker::requiredValueCount()
