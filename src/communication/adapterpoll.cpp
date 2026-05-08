@@ -19,14 +19,7 @@ AdapterPoll::AdapterPoll(SettingsModel* pSettingsModel, QObject* parent)
 
     connect(_pAdapterManager, &AdapterManager::sessionStarted, this, &AdapterPoll::triggerRegisterRead);
     connect(_pAdapterManager, &AdapterManager::readDataResult, this, &AdapterPoll::onReadDataResult);
-    connect(_pAdapterManager, &AdapterManager::sessionError, this, [this](QString message) {
-        qCWarning(scopeComm) << "AdapterManager error:" << message;
-        if (_pollState == PollState::WaitingForAdapter)
-        {
-            disconnect(_adapterReadyConnection);
-        }
-        _pollState = PollState::Inactive;
-    });
+    connect(_pAdapterManager, &AdapterManager::sessionError, this, &AdapterPoll::onSessionError);
 }
 
 AdapterPoll::AdapterPoll(SettingsModel* pSettingsModel, AdapterManager* pAdapterManager, QObject* parent)
@@ -43,14 +36,7 @@ AdapterPoll::AdapterPoll(SettingsModel* pSettingsModel, AdapterManager* pAdapter
 
     connect(_pAdapterManager, &AdapterManager::sessionStarted, this, &AdapterPoll::triggerRegisterRead);
     connect(_pAdapterManager, &AdapterManager::readDataResult, this, &AdapterPoll::onReadDataResult);
-    connect(_pAdapterManager, &AdapterManager::sessionError, this, [this](QString message) {
-        qCWarning(scopeComm) << "AdapterManager error:" << message;
-        if (_pollState == PollState::WaitingForAdapter)
-        {
-            disconnect(_adapterReadyConnection);
-        }
-        _pollState = PollState::Inactive;
-    });
+    connect(_pAdapterManager, &AdapterManager::sessionError, this, &AdapterPoll::onSessionError);
 }
 
 AdapterPoll::~AdapterPoll() = default;
@@ -109,6 +95,7 @@ void AdapterPoll::stopCommunication()
     if (_pollState == PollState::WaitingForAdapter)
     {
         disconnect(_adapterReadyConnection);
+        _adapterReadyConnection = {};
     }
     _pollState = PollState::Inactive;
     _pendingExpressions.clear();
@@ -170,6 +157,17 @@ void AdapterPoll::onAdapterReady()
         _pAdapterManager->startSession(_pendingExpressions);
         _pendingExpressions.clear();
     }
+}
+
+void AdapterPoll::onSessionError(const QString& message)
+{
+    qCWarning(scopeComm) << "AdapterManager error:" << message;
+    if (_pollState == PollState::WaitingForAdapter)
+    {
+        disconnect(_adapterReadyConnection);
+        _adapterReadyConnection = {};
+    }
+    _pollState = PollState::Inactive;
 }
 
 QStringList AdapterPoll::buildRegisterExpressions(const QList<DataPoint>& registerList)

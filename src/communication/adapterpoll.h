@@ -48,6 +48,7 @@ private slots:
     void triggerRegisterRead();
     void onReadDataResult(ResultDoubleList results);
     void onAdapterReady();
+    void onSessionError(const QString& message);
 
 private:
     QStringList buildRegisterExpressions(const QList<DataPoint>& registerList);
