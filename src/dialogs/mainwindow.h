@@ -35,6 +35,7 @@ class StatusBar;
 class ExpressionStatus;
 class MostRecentMenu;
 class CommunicationStats;
+class CommunicationStatsModel;
 
 class MainWindow : public QMainWindow
 {
@@ -45,6 +46,7 @@ public:
                         GuiModel* pGuiModel,
                         SettingsModel* pSettingsModel,
                         GraphDataModel* pGraphDataModel,
+                        CommunicationStatsModel* pCommunicationStatsModel,
                         NoteModel* pNoteModel,
                         DiagnosticModel* pDiagnosticModel,
                         DataParserModel* pDataParserModel,
@@ -117,6 +119,7 @@ private:
     GuiModel* _pGuiModel;
     SettingsModel* _pSettingsModel;
     GraphDataModel* _pGraphDataModel;
+    CommunicationStatsModel* _pCommunicationStatsModel;
     NoteModel* _pNoteModel;
     DiagnosticModel* _pDiagnosticModel;
     DataParserModel* _pDataParserModel;

@@ -2,6 +2,7 @@
 
 #include "dialogs/mainwindow.h"
 
+#include "models/communicationstatsmodel.h"
 #include "models/dataparsermodel.h"
 #include "models/diagnosticmodel.h"
 #include "models/graphdatamodel.h"
@@ -22,11 +23,12 @@ MainApp::MainApp(QStringList cmdArguments, QObject* parent) : QObject(parent)
     _pGuiModel = new GuiModel(this);
     _pSettingsModel = new SettingsModel(this);
     _pGraphDataModel = new GraphDataModel(this);
+    _pCommunicationStatsModel = new CommunicationStatsModel(this);
     _pNoteModel = new NoteModel(this);
     _pDataParserModel = new DataParserModel(this);
 
-    _pMainWin = new MainWindow(cmdArguments, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel,
-                               _pDiagnosticModel, _pDataParserModel);
+    _pMainWin = new MainWindow(cmdArguments, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pCommunicationStatsModel,
+                               _pNoteModel, _pDiagnosticModel, _pDataParserModel);
 
     FileSelectionHelper::setGuiModel(_pGuiModel);
 

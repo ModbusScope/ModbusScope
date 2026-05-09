@@ -7,6 +7,7 @@
 /* Forward declaration */
 class SettingsModel;
 class GraphDataModel;
+class CommunicationStatsModel;
 class NoteModel;
 
 class DataFileExporter : public QObject
@@ -15,6 +16,7 @@ class DataFileExporter : public QObject
 public:
     explicit DataFileExporter(SettingsModel* pSettingsModel,
                               GraphDataModel* pGraphDataModel,
+                              CommunicationStatsModel* pCommunicationStatsModel,
                               NoteModel* pNoteModel,
                               QObject* parent = nullptr);
     ~DataFileExporter();
@@ -53,6 +55,7 @@ private:
 
     SettingsModel* _pSettingsModel;
     GraphDataModel* _pGraphDataModel;
+    CommunicationStatsModel* _pCommunicationStatsModel;
     NoteModel* _pNoteModel;
 
     QStringList _dataExportBuffer;

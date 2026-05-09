@@ -7,7 +7,6 @@
 
 #include "models/graphdata.h"
 
-class CommunicationStatsModel;
 class GraphDataStore;
 
 class GraphDataModel : public QAbstractTableModel
@@ -61,13 +60,6 @@ public:
     QSharedPointer<const QCPGraphDataContainer> dataMap(quint32 index) const;
     QSharedPointer<QCPGraphDataContainer> mutableDataMap(quint32 index);
 
-    qint64 communicationStartTime();
-    qint64 communicationEndTime();
-    quint32 communicationErrorCount();
-    quint32 communicationSuccessCount();
-    qint64 communicationRunTime();
-    quint32 medianPollTime();
-
     void setValueAxis(quint32 index, GraphData::valueAxis_t axis);
     void setVisible(quint32 index, bool bVisible);
     void setLabel(quint32 index, const QString& label);
@@ -77,10 +69,6 @@ public:
     void setExpressionState(quint32 index, GraphData::ExpressionState status);
     void setSelectedGraph(qint32 index);
 
-    void setCommunicationStartTime(qint64 startTime);
-    void setCommunicationEndTime(qint64 endTime);
-    void setCommunicationStats(quint32 successCount, quint32 errorCount);
-    void setMedianPollTime(quint32 pollTime);
     void setDefaultExpression(const QString& expression);
 
     void add(GraphData rowData);
@@ -109,9 +97,6 @@ signals:
     void selectedGraphChanged(const qint32 graphIdx);
     void graphsAddData(QList<double>, QList<QList<double> > data);
 
-    void communicationStatsChanged();
-    void communicationTimeStatsChanged();
-
     void moved();
     void added(const quint32 idx);
     void removed(const quint32 idx);
@@ -129,7 +114,6 @@ private:
     QString _defaultExpression;
 
     GraphDataStore* _pStore;
-    CommunicationStatsModel* _pStats;
 };
 
 #endif // GRAPHDATAMODEL_H

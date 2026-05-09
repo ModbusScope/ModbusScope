@@ -2,7 +2,6 @@
 #include "graphdatamodel.h"
 
 #include "customwidgets/centeredbox.h"
-#include "models/communicationstatsmodel.h"
 #include "models/graphdata.h"
 #include "models/graphdatastore.h"
 #include "util/util.h"
@@ -10,10 +9,7 @@
 const QColor GraphDataModel::lightRed = QColor(240, 128, 128); // #f08080
 
 GraphDataModel::GraphDataModel(QObject* parent)
-    : QAbstractTableModel(parent),
-      _defaultExpression(QStringLiteral("${h0}")),
-      _pStore(new GraphDataStore(this)),
-      _pStats(new CommunicationStatsModel(this))
+    : QAbstractTableModel(parent), _defaultExpression(QStringLiteral("${h0}")), _pStore(new GraphDataStore(this))
 {
     connect(_pStore, &GraphDataStore::valueAxisChanged, this, &GraphDataModel::valueAxisChanged);
     connect(_pStore, &GraphDataStore::visibilityChanged, this, &GraphDataModel::visibilityChanged);
@@ -30,9 +26,6 @@ GraphDataModel::GraphDataModel(QObject* parent)
     connect(this, &GraphDataModel::activeChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::expressionChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::expressionStateChanged, this, &GraphDataModel::modelDataChanged);
-
-    connect(_pStats, &CommunicationStatsModel::statsChanged, this, &GraphDataModel::communicationStatsChanged);
-    connect(_pStats, &CommunicationStatsModel::timeStatsChanged, this, &GraphDataModel::communicationTimeStatsChanged);
 }
 
 int GraphDataModel::rowCount(const QModelIndex& /*parent*/) const
@@ -392,56 +385,6 @@ QSharedPointer<const QCPGraphDataContainer> GraphDataModel::dataMap(quint32 inde
 QSharedPointer<QCPGraphDataContainer> GraphDataModel::mutableDataMap(quint32 index)
 {
     return _pStore->mutableDataMap(index);
-}
-
-qint64 GraphDataModel::communicationStartTime()
-{
-    return _pStats->startTime();
-}
-
-void GraphDataModel::setCommunicationStartTime(qint64 startTime)
-{
-    _pStats->setStartTime(startTime);
-}
-
-qint64 GraphDataModel::communicationEndTime()
-{
-    return _pStats->endTime();
-}
-
-void GraphDataModel::setCommunicationEndTime(qint64 endTime)
-{
-    _pStats->setEndTime(endTime);
-}
-
-void GraphDataModel::setCommunicationStats(quint32 successCount, quint32 errorCount)
-{
-    _pStats->setStats(successCount, errorCount);
-}
-
-void GraphDataModel::setMedianPollTime(quint32 pollTime)
-{
-    _pStats->setMedianPollTime(pollTime);
-}
-
-quint32 GraphDataModel::communicationErrorCount()
-{
-    return _pStats->errorCount();
-}
-
-quint32 GraphDataModel::communicationSuccessCount()
-{
-    return _pStats->successCount();
-}
-
-qint64 GraphDataModel::communicationRunTime()
-{
-    return _pStats->runTime();
-}
-
-quint32 GraphDataModel::medianPollTime()
-{
-    return _pStats->medianPollTime();
 }
 
 void GraphDataModel::setValueAxis(quint32 index, GraphData::valueAxis_t axis)
