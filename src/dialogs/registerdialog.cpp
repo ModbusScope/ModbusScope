@@ -196,12 +196,8 @@ void RegisterDialog::requestDefaultExpression()
         return;
     }
 
-    if (_defaultExpressionConn)
-    {
-        QObject::disconnect(_defaultExpressionConn);
-    }
-    _defaultExpressionConn = connect(_pAdapterManager, &AdapterManager::buildExpressionResult, this,
-                                     &RegisterDialog::onDefaultExpressionBuilt);
+    connect(_pAdapterManager, &AdapterManager::buildExpressionResult, this, &RegisterDialog::onDefaultExpressionBuilt,
+            Qt::SingleShotConnection);
 
     QJsonObject addressFields = defaults;
     const QString dataType = addressFields.take(QStringLiteral("dataType")).toString();
@@ -214,9 +210,6 @@ void RegisterDialog::requestDefaultExpression()
  */
 void RegisterDialog::onDefaultExpressionBuilt(const QString& expression)
 {
-    QObject::disconnect(_defaultExpressionConn);
-    _defaultExpressionConn = {};
-
     if (!expression.isEmpty())
     {
         _pGraphDataModel->setDefaultExpression(expression);

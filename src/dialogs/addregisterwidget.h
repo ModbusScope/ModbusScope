@@ -6,7 +6,6 @@
 
 #include <QButtonGroup>
 #include <QJsonObject>
-#include <QMetaObject>
 #include <QWidget>
 
 class AdapterManager;
@@ -54,7 +53,6 @@ private:
 
     /* Temporary storage while waiting for buildExpression response */
     GraphData _pendingGraphData;
-    QMetaObject::Connection _buildExpressionConn;
 };
 
 #endif // ADDREGISTERWIDGET_H
