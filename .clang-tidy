@@ -3,12 +3,18 @@ Checks: >
   bugprone-*,
   clang-analyzer-*,
   performance-*,
+  readability-*,
   -clang-analyzer-cplusplus.NewDelete,
   -clang-analyzer-cplusplus.NewDeleteLeaks,
   -bugprone-reserved-identifier,
   -bugprone-easily-swappable-parameters,
   -bugprone-narrowing-conversions,
-  -performance-unnecessary-value-param
+  -performance-unnecessary-value-param,
+  -readability-magic-numbers,
+  -readability-identifier-naming,
+  -readability-string-compare,
+  -readability-qualified-auto,
+  -readability-uppercase-literal-suffix
 
 WarningsAsErrors: "*"
 HeaderFilterRegex: "src/.*"

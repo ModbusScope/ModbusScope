@@ -400,7 +400,7 @@ void ParseDataFileDialog::updatePreview()
     {
         stateText = tr("Label row is greater data row!");
     }
-    else if (_dataFileSample.size() == 0)
+    else if (_dataFileSample.empty())
     {
         stateText = tr("No data file loaded!");
     }
