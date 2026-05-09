@@ -27,10 +27,10 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
 
     if (_pAdapterManager != nullptr)
     {
-        connect(_pAdapterManager, &AdapterManager::expressionHelpResult,
-                this, &ExpressionsDialog::handleExpressionHelpResult);
-        connect(_pAdapterManager, &AdapterManager::describeDataPointResult,
-                this, &ExpressionsDialog::handleDescribeDataPointResult);
+        connect(_pAdapterManager, &AdapterManager::expressionHelpResult, this,
+                &ExpressionsDialog::handleExpressionHelpResult);
+        connect(_pAdapterManager, &AdapterManager::describeDataPointResult, this,
+                &ExpressionsDialog::handleDescribeDataPointResult);
         _pAdapterManager->requestExpressionHelp();
     }
 
@@ -66,7 +66,7 @@ void ExpressionsDialog::handleExpressionChange()
 
         /* Save current test values keyed by address (Qt::UserRole), not displayed text */
         QMap<QString, QString> testValueMap;
-        for(qint32 idx = 0; idx < _pUi->tblExpressionInput->rowCount(); idx++)
+        for (qint32 idx = 0; idx < _pUi->tblExpressionInput->rowCount(); idx++)
         {
             QTableWidgetItem* pAddrItem = _pUi->tblExpressionInput->item(idx, 0);
             QTableWidgetItem* pValueItem = _pUi->tblExpressionInput->item(idx, 1);
@@ -85,7 +85,7 @@ void ExpressionsDialog::handleExpressionChange()
         _pUi->tblExpressionInput->setRowCount(descriptions.size());
         _pHighlighter->setExpressionErrorPosition(-1);
 
-        for(qint32 idx = 0; idx < descriptions.size(); idx++)
+        for (qint32 idx = 0; idx < descriptions.size(); idx++)
         {
             QTableWidgetItem* pRegItem = new QTableWidgetItem(descriptions[idx]);
             pRegItem->setFlags(pRegItem->flags() & ~Qt::ItemIsEditable);
@@ -114,19 +114,19 @@ void ExpressionsDialog::handleInputChange()
         const auto white = QColorConstants::White;
 
         ResultDoubleList results;
-        for(qint32 idx = 0; idx < _pUi->tblExpressionInput->rowCount(); idx++)
+        for (qint32 idx = 0; idx < _pUi->tblExpressionInput->rowCount(); idx++)
         {
             QTableWidgetItem* pValueItem = _pUi->tblExpressionInput->item(idx, 1);
             QString valueStr = pValueItem->text();
             bool bOk = false;
             double value = valueStr.toDouble(&bOk);
-            results.append(ResultDouble(value, bOk ? State::SUCCESS: State::INVALID));
+            results.append(ResultDouble(value, bOk ? State::SUCCESS : State::INVALID));
 
             /* Avoid recursive signal/slots calling */
             _pUi->tblExpressionInput->blockSignals(true);
 
-            pValueItem->setBackground(bOk ? white: lightRed);
-            pValueItem->setToolTip(bOk ? QString(): QStringLiteral("Not a valid number"));
+            pValueItem->setBackground(bOk ? white : lightRed);
+            pValueItem->setToolTip(bOk ? QString() : QStringLiteral("Not a valid number"));
 
             _pUi->tblExpressionInput->blockSignals(false);
         }

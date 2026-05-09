@@ -83,7 +83,8 @@ void AdapterManager::requestExpressionHelp()
     _pAdapterClient->requestExpressionHelp();
 }
 
-/*! \brief Send an adapter.describeDataPoint request to retrieve a human-readable description of a data point expression.
+/*! \brief Send an adapter.describeDataPoint request to retrieve a human-readable description of a data point
+ * expression.
  * \param expression The data point expression string to describe.
  */
 void AdapterManager::describeDataPoint(const QString& expression)

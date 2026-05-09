@@ -1,10 +1,10 @@
 
 #include <QObject>
 
-class TestExpressionChecker: public QObject
+class TestExpressionChecker : public QObject
 {
     Q_OBJECT
-    
+
 private slots:
     void init();
     void cleanup();
@@ -19,5 +19,4 @@ private slots:
     void checkForDevices_missing();
 
 private:
-
 };

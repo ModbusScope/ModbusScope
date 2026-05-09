@@ -82,7 +82,8 @@ public:
     virtual void requestExpressionHelp();
 
     /*!
-     * \brief Send an adapter.describeDataPoint request to retrieve a human-readable description of a data point expression.
+     * \brief Send an adapter.describeDataPoint request to retrieve a human-readable description of a data point
+     * expression.
      *
      * Can be called when the adapter is in AWAITING_CONFIG or ACTIVE state.
      * Emits describeDataPointResult() when the adapter responds.
