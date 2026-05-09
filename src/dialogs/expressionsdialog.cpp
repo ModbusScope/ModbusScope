@@ -29,8 +29,6 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
     {
         connect(_pAdapterManager, &AdapterManager::expressionHelpResult, this,
                 &ExpressionsDialog::handleExpressionHelpResult);
-        connect(_pAdapterManager, &AdapterManager::describeDataPointResult, this,
-                &ExpressionsDialog::handleDescribeDataPointResult);
         _pAdapterManager->requestExpressionHelp();
     }
 
@@ -100,6 +98,11 @@ void ExpressionsDialog::handleExpressionChange()
 
         _pendingDescribeAddresses = addresses;
         _nextDescribeRow = 0;
+        if (_pAdapterManager != nullptr)
+        {
+            QObject::disconnect(_pAdapterManager, &AdapterManager::describeDataPointResult, this,
+                                &ExpressionsDialog::handleDescribeDataPointResult);
+        }
         startNextDescribe();
 
         handleInputChange();
@@ -156,6 +159,8 @@ void ExpressionsDialog::startNextDescribe()
 {
     if (_pAdapterManager != nullptr && _nextDescribeRow < _pendingDescribeAddresses.size())
     {
+        connect(_pAdapterManager, &AdapterManager::describeDataPointResult, this,
+                &ExpressionsDialog::handleDescribeDataPointResult, Qt::SingleShotConnection);
         _pAdapterManager->describeDataPoint(_pendingDescribeAddresses[_nextDescribeRow]);
     }
 }
@@ -168,9 +173,10 @@ void ExpressionsDialog::handleDescribeDataPointResult(const QJsonObject& result)
     }
 
     QString description = result["description"].toString();
-    if (!description.isEmpty())
+    QTableWidgetItem* pItem = _pUi->tblExpressionInput->item(_nextDescribeRow, 0);
+    if (pItem != nullptr && !description.isEmpty())
     {
-        _pUi->tblExpressionInput->item(_nextDescribeRow, 0)->setText(description);
+        pItem->setText(description);
     }
 
     _nextDescribeRow++;
