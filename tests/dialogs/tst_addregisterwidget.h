@@ -66,6 +66,7 @@ private slots:
     void registerDevice();
     void registerValueAxis();
     void buildExpressionEmptyResponseIgnored();
+    void buildExpressionDoesNotInterfereWithOtherConnections();
 
 private:
     void clickAdd();

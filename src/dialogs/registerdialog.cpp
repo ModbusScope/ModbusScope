@@ -133,7 +133,7 @@ void RegisterDialog::removeRegisterRow()
     // We need to remove the highest rows first
     std::sort(rowList.begin(), rowList.end(), &RegisterDialog::sortRegistersLastFirst);
 
-    foreach (QModelIndex rowIndex, rowList)
+    for (const QModelIndex& rowIndex : std::as_const(rowList))
     {
         _pGraphDataModel->removeRow(rowIndex.row());
     }
@@ -196,16 +196,14 @@ void RegisterDialog::requestDefaultExpression()
         return;
     }
 
-    if (_defaultExpressionConn)
-    {
-        QObject::disconnect(_defaultExpressionConn);
-    }
-    _defaultExpressionConn = connect(_pAdapterManager, &AdapterManager::buildExpressionResult, this,
-                                     &RegisterDialog::onDefaultExpressionBuilt);
+    /* Disconnect any pending connection from a previous session before installing a new one */
+    QObject::disconnect(_pAdapterManager, &AdapterManager::buildExpressionResult, this,
+                        &RegisterDialog::onDefaultExpressionBuilt);
+    connect(_pAdapterManager, &AdapterManager::buildExpressionResult, this, &RegisterDialog::onDefaultExpressionBuilt,
+            Qt::SingleShotConnection);
 
     QJsonObject addressFields = defaults;
     const QString dataType = addressFields.take(QStringLiteral("dataType")).toString();
-    _pendingDefaultExpression = true;
     _pAdapterManager->buildExpression(addressFields, dataType, 0);
 }
 
@@ -215,15 +213,6 @@ void RegisterDialog::requestDefaultExpression()
  */
 void RegisterDialog::onDefaultExpressionBuilt(const QString& expression)
 {
-    if (!_pendingDefaultExpression)
-    {
-        return;
-    }
-
-    _pendingDefaultExpression = false;
-    QObject::disconnect(_defaultExpressionConn);
-    _defaultExpressionConn = {};
-
     if (!expression.isEmpty())
     {
         _pGraphDataModel->setDefaultExpression(expression);

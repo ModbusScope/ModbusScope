@@ -4,7 +4,6 @@
 #include "customwidgets/centeredbox.h"
 
 #include <QDialog>
-#include <QMetaObject>
 #include <QWidgetAction>
 
 /* Forward declaration */
@@ -55,9 +54,6 @@ private:
     std::unique_ptr<RegisterValueAxisDelegate> _valueAxisDelegate;
     std::unique_ptr<ActionButtonDelegate> _expressionDelegate;
     std::unique_ptr<QWidgetAction> _registerPopupAction;
-
-    QMetaObject::Connection _defaultExpressionConn;
-    bool _pendingDefaultExpression = false;
 };
 
 #endif // REGISTERDIALOG_H

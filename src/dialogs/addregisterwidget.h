@@ -53,7 +53,6 @@ private:
 
     /* Temporary storage while waiting for buildExpression response */
     GraphData _pendingGraphData;
-    bool _pendingBuildExpression = false;
 };
 
 #endif // ADDREGISTERWIDGET_H
