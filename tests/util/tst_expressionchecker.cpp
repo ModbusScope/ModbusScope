@@ -25,13 +25,23 @@ void TestExpressionChecker::dataIsPrimed()
     checker.setExpression(expr);
     QCOMPARE(checker.expression(), expr);
 
-    QStringList descriptions;
-    checker.descriptions(descriptions);
+    QStringList descriptions = checker.descriptions();
     auto expDescriptions = QStringList() << "${40001}, device id 1"
                                          << "${40002}, device id 1";
     QCOMPARE(descriptions, expDescriptions);
 
     QCOMPARE(checker.requiredValueCount(), 2);
+}
+
+void TestExpressionChecker::addressesMatchExpression()
+{
+    ExpressionChecker checker;
+
+    checker.setExpression("${40001} + ${40002}");
+
+    QStringList addrs = checker.addresses();
+    auto expAddresses = QStringList() << "${40001}" << "${40002}";
+    QCOMPARE(addrs, expAddresses);
 }
 
 void TestExpressionChecker::expressionIsValid()

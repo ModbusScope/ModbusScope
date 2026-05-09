@@ -5,6 +5,8 @@
 #include "util/expressionchecker.h"
 
 #include <QDialog>
+#include <QJsonObject>
+#include <QStringList>
 
 /* Forward declarations */
 class AdapterManager;
@@ -32,8 +34,11 @@ private slots:
     void handleAccept();
     void handleResultReady(bool valid);
     void handleExpressionHelpResult(const QString& helpText);
+    void handleDescribeDataPointResult(const QJsonObject& result);
 
 private:
+    void startNextDescribe();
+
     Ui::ExpressionsDialog* _pUi;
 
     qint32 _graphIdx;
@@ -45,6 +50,9 @@ private:
     ExpressionHighlighting* _pHighlighter;
 
     bool _bUpdating;
+
+    QStringList _pendingDescribeAddresses;
+    qint32 _nextDescribeRow = 0;
 };
 
 #endif // EXPRESSIONSDIALOG_H

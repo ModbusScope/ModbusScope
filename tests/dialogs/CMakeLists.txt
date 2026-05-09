@@ -3,3 +3,4 @@
 add_xtest(tst_addregisterwidget)
 add_xtest(tst_adaptersettings)
 add_xtest(tst_adapterdevicesettings)
+add_xtest(tst_expressionsdialog tst_expressionsdialog.h)

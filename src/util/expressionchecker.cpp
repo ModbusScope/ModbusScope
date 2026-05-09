@@ -5,7 +5,7 @@ ExpressionChecker::ExpressionChecker(QObject* parent) : QObject(parent)
 {
 }
 
-void ExpressionChecker::setExpression(QString expr)
+void ExpressionChecker::setExpression(const QString& expr)
 {
     _localGraphDataModel.clear();
     _localGraphDataModel.add();
@@ -16,9 +16,11 @@ void ExpressionChecker::setExpression(QString expr)
 
     _expectedDeviceIdList.clear();
     _descriptions.clear();
+    _addresses.clear();
     for (DataPoint const& reg : std::as_const(registerList))
     {
         _descriptions.append(reg.description());
+        _addresses.append(reg.address());
 
         if (!_expectedDeviceIdList.contains(reg.deviceId()))
         {
@@ -39,9 +41,14 @@ QString ExpressionChecker::expression(void)
     }
 }
 
-void ExpressionChecker::descriptions(QStringList& descr)
+QStringList ExpressionChecker::descriptions() const
 {
-    descr = _descriptions;
+    return _descriptions;
+}
+
+QStringList ExpressionChecker::addresses() const
+{
+    return _addresses;
 }
 
 qsizetype ExpressionChecker::requiredValueCount()

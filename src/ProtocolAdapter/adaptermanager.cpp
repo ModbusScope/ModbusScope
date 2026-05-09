@@ -21,6 +21,7 @@ AdapterManager::AdapterManager(SettingsModel* pSettingsModel, QObject* parent)
     connect(_pAdapterClient, &AdapterClient::readDataResult, this, &AdapterManager::readDataResult);
     connect(_pAdapterClient, &AdapterClient::buildExpressionResult, this, &AdapterManager::buildExpressionResult);
     connect(_pAdapterClient, &AdapterClient::expressionHelpResult, this, &AdapterManager::expressionHelpResult);
+    connect(_pAdapterClient, &AdapterClient::describeDataPointResult, this, &AdapterManager::describeDataPointResult);
     connect(_pAdapterClient, &AdapterClient::sessionStopped, this, &AdapterManager::sessionStopped);
     connect(_pAdapterClient, &AdapterClient::sessionError, this, &AdapterManager::sessionError);
     connect(_pAdapterClient, &AdapterClient::adapterReady, this, &AdapterManager::adapterReady);
@@ -80,6 +81,15 @@ bool AdapterManager::isAdapterIdle() const
 void AdapterManager::requestExpressionHelp()
 {
     _pAdapterClient->requestExpressionHelp();
+}
+
+/*! \brief Send an adapter.describeDataPoint request to retrieve a human-readable description of a data point
+ * expression.
+ * \param expression The data point expression string to describe.
+ */
+void AdapterManager::describeDataPoint(const QString& expression)
+{
+    _pAdapterClient->describeDataPoint(expression);
 }
 
 /*! \brief Send adapter.stop to pause polling and keep the adapter process alive. */
