@@ -166,7 +166,7 @@ void ExpressionsDialog::startNextDescribe()
 
 void ExpressionsDialog::handleDescribeDataPointResult(const QJsonObject& result)
 {
-    if (_nextDescribeRow >= _pUi->tblExpressionInput->rowCount())
+    if (_nextDescribeRow >= _pendingDescribeAddresses.size())
     {
         return;
     }
