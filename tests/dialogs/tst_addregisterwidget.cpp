@@ -180,6 +180,30 @@ void TestAddRegisterWidget::buildExpressionEmptyResponseIgnored()
     QVERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
 }
 
+void TestAddRegisterWidget::buildExpressionDoesNotInterfereWithOtherConnections()
+{
+    /* Simulate a persistent connection already active (e.g. RegisterDialog's requestDefaultExpression) */
+    int secondaryReceiveCount = 0;
+    QObject::connect(_pMockAdapterManager, &AdapterManager::buildExpressionResult, _pMockAdapterManager,
+                     [&secondaryReceiveCount](const QString&) { secondaryReceiveCount++; });
+
+    /* AddRegisterWidget connects with Qt::SingleShotConnection and receives the result */
+    GraphData graphData;
+    addRegister(graphData, QStringLiteral("${h0}"));
+    QCOMPARE(graphData.expression(), QStringLiteral("${h0}"));
+
+    /* The secondary persistent connection also received the signal */
+    QCOMPARE(secondaryReceiveCount, 1);
+
+    /* A second injection must not re-trigger AddRegisterWidget (its SingleShotConnection auto-disconnected) */
+    QSignalSpy spy(_pRegWidget, &AddRegisterWidget::graphDataConfigured);
+    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
+    QCOMPARE(spy.count(), 0);
+
+    /* The persistent secondary connection still fires on subsequent emissions */
+    QCOMPARE(secondaryReceiveCount, 2);
+}
+
 void TestAddRegisterWidget::clickAdd()
 {
     QTest::mouseClick(_pRegWidget->_pUi->btnAdd, Qt::LeftButton);
