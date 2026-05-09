@@ -133,7 +133,7 @@ void RegisterDialog::removeRegisterRow()
     // We need to remove the highest rows first
     std::sort(rowList.begin(), rowList.end(), &RegisterDialog::sortRegistersLastFirst);
 
-    foreach (QModelIndex rowIndex, rowList)
+    for (const QModelIndex& rowIndex : std::as_const(rowList))
     {
         _pGraphDataModel->removeRow(rowIndex.row());
     }
