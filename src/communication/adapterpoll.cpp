@@ -5,8 +5,7 @@
 #include "util/formatdatetime.h"
 #include "util/scopelogging.h"
 
-AdapterPoll::AdapterPoll(SettingsModel* pSettingsModel, QObject* parent)
-    : QObject(parent)
+AdapterPoll::AdapterPoll(SettingsModel* pSettingsModel, QObject* parent) : QObject(parent)
 {
     _pPollTimer = new QTimer(this);
     _pPollTimer->setSingleShot(true);
