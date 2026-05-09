@@ -11,13 +11,15 @@ cp adapters/dummymodbusadapter release/src/bin/linux/
 
 cd release/src/bin/linux/
 
-# now, build AppImage using linuxdeploy and linuxdeploy-plugin-qt
-# download linuxdeploy and its Qt plugin
-wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
-
-# make them executable
-chmod +x linuxdeploy*.AppImage
+# download linuxdeploy and its Qt plugin if not already cached
+if [ ! -f linuxdeploy-x86_64.AppImage ]; then
+  wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+  chmod +x linuxdeploy-x86_64.AppImage
+fi
+if [ ! -f linuxdeploy-plugin-qt-x86_64.AppImage ]; then
+  wget https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+  chmod +x linuxdeploy-plugin-qt-x86_64.AppImage
+fi
 
 # Generate AppImage
 # The adapter binaries use $ORIGIN RPATH; linuxdeploy patches their RPATH and
