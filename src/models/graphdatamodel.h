@@ -7,6 +7,9 @@
 
 #include "models/graphdata.h"
 
+class CommunicationStatsModel;
+class GraphDataStore;
+
 class GraphDataModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -119,23 +122,14 @@ private slots:
     void modelCompleteDataChanged();
 
 private:
-    void updateActiveGraphList(void);
     void addToModel(GraphData graphData);
     void removeFromModel(qint32 row);
     void moveRow(int sourceRow, int destRow);
 
-    qint64 _startTime;
-    qint64 _endTime;
-    quint32 _successCount;
-    quint32 _errorCount;
-    quint32 _medianPollTime;
-
     QString _defaultExpression;
 
-    QList<GraphData> _graphData;
-    QList<quint32> _activeGraphList;
-
-    qint32 _selectedGraphIdx;
+    GraphDataStore* _pStore;
+    CommunicationStatsModel* _pStats;
 };
 
 #endif // GRAPHDATAMODEL_H
