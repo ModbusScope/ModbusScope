@@ -11,11 +11,11 @@ class ExpressionChecker : public QObject
 public:
     explicit ExpressionChecker(QObject* parent = nullptr);
 
-    void setExpression(QString expr);
+    void setExpression(const QString& expr);
 
     QString expression(void);
-    void descriptions(QStringList& descr);
-    void addresses(QStringList& addrs);
+    QStringList descriptions() const;
+    QStringList addresses() const;
     qsizetype requiredValueCount();
 
     bool checkForDevices(QList<deviceId_t> const& deviceIdList);

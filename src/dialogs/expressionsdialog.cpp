@@ -74,10 +74,8 @@ void ExpressionsDialog::handleExpressionChange()
             }
         }
 
-        QStringList descriptions;
-        QStringList addresses;
-        _expressionChecker.descriptions(descriptions);
-        _expressionChecker.addresses(addresses);
+        QStringList descriptions = _expressionChecker.descriptions();
+        QStringList addresses = _expressionChecker.addresses();
 
         _bUpdating = true;
         _pUi->tblExpressionInput->setRowCount(descriptions.size());
@@ -157,7 +155,8 @@ void ExpressionsDialog::handleExpressionHelpResult(const QString& helpText)
 
 void ExpressionsDialog::startNextDescribe()
 {
-    if (_pAdapterManager != nullptr && _nextDescribeRow < _pendingDescribeAddresses.size())
+    if (_pAdapterManager != nullptr && !_pAdapterManager->isAdapterIdle() &&
+        _nextDescribeRow < _pendingDescribeAddresses.size())
     {
         connect(_pAdapterManager, &AdapterManager::describeDataPointResult, this,
                 &ExpressionsDialog::handleDescribeDataPointResult, Qt::SingleShotConnection);

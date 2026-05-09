@@ -5,7 +5,7 @@ ExpressionChecker::ExpressionChecker(QObject* parent) : QObject(parent)
 {
 }
 
-void ExpressionChecker::setExpression(QString expr)
+void ExpressionChecker::setExpression(const QString& expr)
 {
     _localGraphDataModel.clear();
     _localGraphDataModel.add();
@@ -41,14 +41,14 @@ QString ExpressionChecker::expression(void)
     }
 }
 
-void ExpressionChecker::descriptions(QStringList& descr)
+QStringList ExpressionChecker::descriptions() const
 {
-    descr = _descriptions;
+    return _descriptions;
 }
 
-void ExpressionChecker::addresses(QStringList& addrs)
+QStringList ExpressionChecker::addresses() const
 {
-    addrs = _addresses;
+    return _addresses;
 }
 
 qsizetype ExpressionChecker::requiredValueCount()
