@@ -5,8 +5,7 @@
 #include "util/formatdatetime.h"
 #include "util/scopelogging.h"
 
-AdapterPoll::AdapterPoll(SettingsModel* pSettingsModel, QObject* parent)
-    : QObject(parent), _bPollActive(false), _bWaitingForAdapterReady(false)
+AdapterPoll::AdapterPoll(SettingsModel* pSettingsModel, QObject* parent) : QObject(parent)
 {
     _pPollTimer = new QTimer(this);
     _pPollTimer->setSingleShot(true);
@@ -19,14 +18,11 @@ AdapterPoll::AdapterPoll(SettingsModel* pSettingsModel, QObject* parent)
 
     connect(_pAdapterManager, &AdapterManager::sessionStarted, this, &AdapterPoll::triggerRegisterRead);
     connect(_pAdapterManager, &AdapterManager::readDataResult, this, &AdapterPoll::onReadDataResult);
-    connect(_pAdapterManager, &AdapterManager::sessionError, this, [this](QString message) {
-        qCWarning(scopeComm) << "AdapterManager error:" << message;
-        _bPollActive = false;
-    });
+    connect(_pAdapterManager, &AdapterManager::sessionError, this, &AdapterPoll::onSessionError);
 }
 
 AdapterPoll::AdapterPoll(SettingsModel* pSettingsModel, AdapterManager* pAdapterManager, QObject* parent)
-    : QObject(parent), _bPollActive(false), _bWaitingForAdapterReady(false)
+    : QObject(parent)
 {
     _pPollTimer = new QTimer(this);
     _pPollTimer->setSingleShot(true);
@@ -39,10 +35,7 @@ AdapterPoll::AdapterPoll(SettingsModel* pSettingsModel, AdapterManager* pAdapter
 
     connect(_pAdapterManager, &AdapterManager::sessionStarted, this, &AdapterPoll::triggerRegisterRead);
     connect(_pAdapterManager, &AdapterManager::readDataResult, this, &AdapterPoll::onReadDataResult);
-    connect(_pAdapterManager, &AdapterManager::sessionError, this, [this](QString message) {
-        qCWarning(scopeComm) << "AdapterManager error:" << message;
-        _bPollActive = false;
-    });
+    connect(_pAdapterManager, &AdapterManager::sessionError, this, &AdapterPoll::onSessionError);
 }
 
 AdapterPoll::~AdapterPoll() = default;
@@ -61,7 +54,6 @@ void AdapterPoll::initAdapter()
 void AdapterPoll::startCommunication(QList<DataPoint>& registerList)
 {
     _registerList = registerList;
-    _bPollActive = true;
 
     qCInfo(scopeComm) << "Active registers: " << DataPoint::dumpListToString(_registerList);
     qCInfo(scopeComm) << qUtf8Printable(QString("Start logging: %1").arg(FormatDateTime::currentDateTime()));
@@ -72,14 +64,15 @@ void AdapterPoll::startCommunication(QList<DataPoint>& registerList)
 
     if (_pAdapterManager->isAdapterReady())
     {
+        _pollState = PollState::Active;
         _pAdapterManager->startSession(expressions);
     }
     else
     {
         _pendingExpressions = expressions;
-        if (!_bWaitingForAdapterReady)
+        if (_pollState != PollState::WaitingForAdapter)
         {
-            _bWaitingForAdapterReady = true;
+            _pollState = PollState::WaitingForAdapter;
             _adapterReadyConnection = connect(_pAdapterManager, &AdapterManager::adapterReady, this,
                                               &AdapterPoll::onAdapterReady, Qt::SingleShotConnection);
         }
@@ -98,12 +91,12 @@ void AdapterPoll::resetCommunicationStats()
 
 void AdapterPoll::stopCommunication()
 {
-    _bPollActive = false;
-    if (_bWaitingForAdapterReady)
+    if (_pollState == PollState::WaitingForAdapter)
     {
         disconnect(_adapterReadyConnection);
-        _bWaitingForAdapterReady = false;
+        _adapterReadyConnection = {};
     }
+    _pollState = PollState::Inactive;
     _pendingExpressions.clear();
     _pPollTimer->stop();
     _pAdapterManager->stopSession();
@@ -113,12 +106,12 @@ void AdapterPoll::stopCommunication()
 
 bool AdapterPoll::isActive() const
 {
-    return _bPollActive;
+    return _pollState != PollState::Inactive;
 }
 
 void AdapterPoll::triggerRegisterRead()
 {
-    if (_bPollActive)
+    if (_pollState == PollState::Active)
     {
         _lastPollStart = QDateTime::currentMSecsSinceEpoch();
         _pAdapterManager->requestReadData();
@@ -127,24 +120,26 @@ void AdapterPoll::triggerRegisterRead()
 
 void AdapterPoll::onReadDataResult(ResultDoubleList results)
 {
+    if (_pollState != PollState::Active)
+    {
+        return;
+    }
+
     emit registerDataReady(results);
 
-    if (_bPollActive)
+    const quint32 passedInterval = static_cast<quint32>(QDateTime::currentMSecsSinceEpoch() - _lastPollStart);
+    uint waitInterval;
+
+    if (passedInterval > _pSettingsModel->pollTime())
     {
-        const quint32 passedInterval = static_cast<quint32>(QDateTime::currentMSecsSinceEpoch() - _lastPollStart);
-        uint waitInterval;
-
-        if (passedInterval > _pSettingsModel->pollTime())
-        {
-            waitInterval = 1;
-        }
-        else
-        {
-            waitInterval = _pSettingsModel->pollTime() - passedInterval;
-        }
-
-        _pPollTimer->start(static_cast<int>(waitInterval));
+        waitInterval = 1;
     }
+    else
+    {
+        waitInterval = _pSettingsModel->pollTime() - passedInterval;
+    }
+
+    _pPollTimer->start(static_cast<int>(waitInterval));
 }
 
 /*! \brief Returns the AdapterManager owned by this instance. */
@@ -155,12 +150,23 @@ AdapterManager* AdapterPoll::adapterManager() const
 
 void AdapterPoll::onAdapterReady()
 {
-    _bWaitingForAdapterReady = false;
-    if (_bPollActive)
+    if (_pollState == PollState::WaitingForAdapter)
     {
+        _pollState = PollState::Active;
         _pAdapterManager->startSession(_pendingExpressions);
         _pendingExpressions.clear();
     }
+}
+
+void AdapterPoll::onSessionError(const QString& message)
+{
+    qCWarning(scopeComm) << "AdapterManager error:" << message;
+    if (_pollState == PollState::WaitingForAdapter)
+    {
+        disconnect(_adapterReadyConnection);
+        _adapterReadyConnection = {};
+    }
+    _pollState = PollState::Inactive;
 }
 
 QStringList AdapterPoll::buildRegisterExpressions(const QList<DataPoint>& registerList)
