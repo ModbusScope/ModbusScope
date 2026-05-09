@@ -196,6 +196,9 @@ void RegisterDialog::requestDefaultExpression()
         return;
     }
 
+    /* Disconnect any pending connection from a previous session before installing a new one */
+    QObject::disconnect(_pAdapterManager, &AdapterManager::buildExpressionResult, this,
+                        &RegisterDialog::onDefaultExpressionBuilt);
     connect(_pAdapterManager, &AdapterManager::buildExpressionResult, this, &RegisterDialog::onDefaultExpressionBuilt,
             Qt::SingleShotConnection);
 
