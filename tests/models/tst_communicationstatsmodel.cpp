@@ -84,4 +84,11 @@ void TestCommunicationStatsModel::runTimeReflectsStartTime()
     QVERIFY(runTime < 5000);
 }
 
+void TestCommunicationStatsModel::runTimeIsZeroWhenNotStarted()
+{
+    CommunicationStatsModel model;
+
+    QCOMPARE(model.runTime(), 0);
+}
+
 QTEST_GUILESS_MAIN(TestCommunicationStatsModel)

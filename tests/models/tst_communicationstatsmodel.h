@@ -18,6 +18,7 @@ private slots:
     void setEndTimeStores();
     void setMedianPollTimeStores();
     void runTimeReflectsStartTime();
+    void runTimeIsZeroWhenNotStarted();
 };
 
 #endif /* TST_COMMUNICATIONSTATSMODEL_H */

@@ -43,9 +43,16 @@ quint32 CommunicationStatsModel::medianPollTime() const
 
 /*!
  * \brief Returns the elapsed time in milliseconds since the communication start time.
+ *
+ * Returns 0 if communication has not started yet (i.e. start time is unset).
  */
 qint64 CommunicationStatsModel::runTime() const
 {
+    if (_startTime == 0)
+    {
+        return 0;
+    }
+
     return QDateTime::currentMSecsSinceEpoch() - _startTime;
 }
 

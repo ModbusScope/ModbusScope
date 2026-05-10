@@ -61,7 +61,6 @@ void CommunicationStats::resetTiming()
 void CommunicationStats::start()
 {
     resetTiming();
-    _pStatsModel->setMedianPollTime(0);
     _bRunning = true;
     _runtimeTimer.singleShot(_cUpdateTime, this, &CommunicationStats::updateRuntime);
 }
