@@ -58,6 +58,7 @@ signals:
     void selectedGraphChanged(qint32 graphIdx);
 
 private:
+    void resetSelection();
     void updateActiveGraphList();
 
     QList<GraphData> _graphData;

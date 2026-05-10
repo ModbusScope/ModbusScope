@@ -227,20 +227,32 @@ void GraphDataStore::insertGraphData(GraphData graphData)
 
 void GraphDataStore::eraseGraphDataAt(qint32 row)
 {
+    resetSelection();
     _graphData.removeAt(row);
     updateActiveGraphList();
 }
 
 void GraphDataStore::clearAllGraphData()
 {
+    resetSelection();
     _graphData.clear();
     updateActiveGraphList();
 }
 
 void GraphDataStore::moveGraphRow(int sourceRow, int destRow)
 {
+    resetSelection();
     _graphData.move(sourceRow, destRow);
     updateActiveGraphList();
+}
+
+void GraphDataStore::resetSelection()
+{
+    if (_selectedGraphIdx != -1)
+    {
+        _selectedGraphIdx = -1;
+        emit selectedGraphChanged(-1);
+    }
 }
 
 void GraphDataStore::updateActiveGraphList()

@@ -23,6 +23,12 @@ private slots:
     void convertToActiveGraphIndexRoundTrip();
     void setVisibleFalseOnSelectedGraphResetsSelection();
     void moveGraphRowReorders();
+
+    void eraseSelectedGraphResetsSelection();
+    void eraseGraphBeforeSelectedResetsSelection();
+    void eraseGraphAfterSelectedResetsSelection();
+    void clearAllGraphDataResetsSelection();
+    void moveRowResetsSelection();
 };
 
 #endif /* TST_GRAPHDATASTORE_H */

@@ -179,4 +179,72 @@ void TestGraphDataStore::moveGraphRowReorders()
     QCOMPARE(store.label(2), QStringLiteral("A"));
 }
 
+void TestGraphDataStore::eraseSelectedGraphResetsSelection()
+{
+    GraphDataStore store;
+    store.insertGraphData(makeGraph("A", "${h0}"));
+    store.insertGraphData(makeGraph("B", "${h1}"));
+    store.setSelectedGraph(1);
+    QCOMPARE(store.selectedGraph(), 1);
+
+    store.eraseGraphDataAt(1);
+
+    QCOMPARE(store.selectedGraph(), -1);
+}
+
+void TestGraphDataStore::eraseGraphBeforeSelectedResetsSelection()
+{
+    GraphDataStore store;
+    store.insertGraphData(makeGraph("A", "${h0}"));
+    store.insertGraphData(makeGraph("B", "${h1}"));
+    store.insertGraphData(makeGraph("C", "${h2}"));
+    store.setSelectedGraph(2);
+    QCOMPARE(store.selectedGraph(), 2);
+
+    store.eraseGraphDataAt(0);
+
+    QCOMPARE(store.selectedGraph(), -1);
+}
+
+void TestGraphDataStore::eraseGraphAfterSelectedResetsSelection()
+{
+    GraphDataStore store;
+    store.insertGraphData(makeGraph("A", "${h0}"));
+    store.insertGraphData(makeGraph("B", "${h1}"));
+    store.insertGraphData(makeGraph("C", "${h2}"));
+    store.setSelectedGraph(0);
+    QCOMPARE(store.selectedGraph(), 0);
+
+    store.eraseGraphDataAt(2);
+
+    QCOMPARE(store.selectedGraph(), -1);
+}
+
+void TestGraphDataStore::clearAllGraphDataResetsSelection()
+{
+    GraphDataStore store;
+    store.insertGraphData(makeGraph("A", "${h0}"));
+    store.insertGraphData(makeGraph("B", "${h1}"));
+    store.setSelectedGraph(1);
+    QCOMPARE(store.selectedGraph(), 1);
+
+    store.clearAllGraphData();
+
+    QCOMPARE(store.selectedGraph(), -1);
+}
+
+void TestGraphDataStore::moveRowResetsSelection()
+{
+    GraphDataStore store;
+    store.insertGraphData(makeGraph("A", "${h0}"));
+    store.insertGraphData(makeGraph("B", "${h1}"));
+    store.insertGraphData(makeGraph("C", "${h2}"));
+    store.setSelectedGraph(0);
+    QCOMPARE(store.selectedGraph(), 0);
+
+    store.moveGraphRow(0, 2);
+
+    QCOMPARE(store.selectedGraph(), -1);
+}
+
 QTEST_GUILESS_MAIN(TestGraphDataStore)
