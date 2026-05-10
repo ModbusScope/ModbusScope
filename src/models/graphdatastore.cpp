@@ -3,6 +3,8 @@
 
 #include "util/util.h"
 
+#include <algorithm>
+
 GraphDataStore::GraphDataStore(QObject* parent) : QObject(parent), _selectedGraphIdx(-1)
 {
 }
@@ -191,7 +193,7 @@ void GraphDataStore::activeGraphIndexList(QList<quint16>* pList) const
 
 qint32 GraphDataStore::convertToActiveGraphIndex(quint32 graphIdx) const
 {
-    qint16 result = -1;
+    qint32 result = -1;
     for (qint32 activeIdx = 0; activeIdx < _activeGraphList.size(); activeIdx++)
     {
         if (_activeGraphList[activeIdx] == graphIdx)

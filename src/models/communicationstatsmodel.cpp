@@ -11,26 +11,31 @@ CommunicationStatsModel::CommunicationStatsModel(QObject* parent)
 {
 }
 
+//! Returns the communication start time as milliseconds since the epoch.
 qint64 CommunicationStatsModel::startTime() const
 {
     return _startTime;
 }
 
+//! Returns the communication end time as milliseconds since the epoch.
 qint64 CommunicationStatsModel::endTime() const
 {
     return _endTime;
 }
 
+//! Returns the number of successful communication cycles.
 quint32 CommunicationStatsModel::successCount() const
 {
     return _successCount;
 }
 
+//! Returns the number of failed communication cycles.
 quint32 CommunicationStatsModel::errorCount() const
 {
     return _errorCount;
 }
 
+//! Returns the median poll interval in milliseconds.
 quint32 CommunicationStatsModel::medianPollTime() const
 {
     return _medianPollTime;
@@ -44,20 +49,16 @@ qint64 CommunicationStatsModel::runTime() const
     return QDateTime::currentMSecsSinceEpoch() - _startTime;
 }
 
+//! Sets the communication start time to \a startTime (milliseconds since epoch).
 void CommunicationStatsModel::setStartTime(qint64 startTime)
 {
-    if (_startTime != startTime)
-    {
-        _startTime = startTime;
-    }
+    _startTime = startTime;
 }
 
+//! Sets the communication end time to \a endTime (milliseconds since epoch).
 void CommunicationStatsModel::setEndTime(qint64 endTime)
 {
-    if (_endTime != endTime)
-    {
-        _endTime = endTime;
-    }
+    _endTime = endTime;
 }
 
 /*!
@@ -73,6 +74,7 @@ void CommunicationStatsModel::setStats(quint32 successCount, quint32 errorCount)
     }
 }
 
+//! Sets the median poll interval to \a pollTime milliseconds.
 void CommunicationStatsModel::setMedianPollTime(quint32 pollTime)
 {
     _medianPollTime = pollTime;
