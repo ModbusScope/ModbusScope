@@ -406,7 +406,7 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
     {
         ResultDoubleList results;
         const QJsonArray registers = result["registers"].toArray();
-        for (const QJsonValue& entry : registers)
+        for (const auto& entry : registers)
         {
             QJsonObject reg = entry.toObject();
             if (reg["valid"].toBool())

@@ -99,7 +99,7 @@ void AdapterDeviceSettings::handleAddTab()
     {
         return;
     }
-    const QString defaultAdapterId = adapterIds.first();
+    const QString& defaultAdapterId = adapterIds.first();
 
     QJsonObject defaultValues;
     const QJsonArray defaultDevices =

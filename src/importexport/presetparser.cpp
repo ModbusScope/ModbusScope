@@ -62,7 +62,7 @@ void PresetParser::parsePresetsFromJson(const QString& fileContent)
 
     QJsonArray presetsArray = root.value("presets").toArray();
 
-    for (const QJsonValue& value : std::as_const(presetsArray))
+    for (const auto& value : std::as_const(presetsArray))
     {
         if (!value.isObject())
         {

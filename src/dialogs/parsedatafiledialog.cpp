@@ -12,17 +12,15 @@ const QList<ParseDataFileDialog::ComboListItem> ParseDataFileDialog::_fieldSepar
   QList<ComboListItem>() << ComboListItem(" ; (semicolon)", ";") << ComboListItem(" , (comma)", ",")
                          << ComboListItem(" tab", QString('\t')) << ComboListItem(" custom", "custom");
 
-const QList<ParseDataFileDialog::ComboListItem> ParseDataFileDialog::_decimalSeparatorList
-                                    = QList<ComboListItem>() << ComboListItem(" , (comma)", ",")
-                                                            << ComboListItem(" . (point)", ".");
+const QList<ParseDataFileDialog::ComboListItem> ParseDataFileDialog::_decimalSeparatorList =
+  QList<ComboListItem>() << ComboListItem(" , (comma)", ",") << ComboListItem(" . (point)", ".");
 
-const QList<ParseDataFileDialog::ComboListItem> ParseDataFileDialog::_groupSeparatorList
-                                    = QList<ComboListItem>() << ComboListItem(" , (comma)", ",")
-                                                            << ComboListItem(" . (point)", ".")
-                                                            << ComboListItem("   (space)", " ");
+const QList<ParseDataFileDialog::ComboListItem> ParseDataFileDialog::_groupSeparatorList =
+  QList<ComboListItem>() << ComboListItem(" , (comma)", ",") << ComboListItem(" . (point)", ".")
+                         << ComboListItem("   (space)", " ");
 
-const QColor ParseDataFileDialog::_cColorLabel = QColor(150, 255, 150); // darker screen
-const QColor ParseDataFileDialog::_cColorData = QColor(200, 255, 200); // lighter green
+const QColor ParseDataFileDialog::_cColorLabel = QColor(150, 255, 150);   // darker screen
+const QColor ParseDataFileDialog::_cColorData = QColor(200, 255, 200);    // lighter green
 const QColor ParseDataFileDialog::_cColorIgnored = QColor(175, 175, 175); // grey
 
 ParseDataFileDialog::ParseDataFileDialog(DataParserModel* pParserModel, QStringList dataFileSample, QWidget* parent)
@@ -44,17 +42,17 @@ ParseDataFileDialog::ParseDataFileDialog(DataParserModel* pParserModel, QStringL
     _pUi->tablePreview->setFocusPolicy(Qt::NoFocus);
 
     /*-- Fill combo boxes --*/
-    foreach(ComboListItem listItem, _decimalSeparatorList)
+    foreach (ComboListItem listItem, _decimalSeparatorList)
     {
         _pUi->comboDecimalSeparator->addItem(listItem.name, listItem.userData);
     }
 
-    foreach(ComboListItem listItem, _fieldSeparatorList)
+    foreach (ComboListItem listItem, _fieldSeparatorList)
     {
         _pUi->comboFieldSeparator->addItem(listItem.name, listItem.userData);
     }
 
-    foreach(ComboListItem listItem, _groupSeparatorList)
+    foreach (ComboListItem listItem, _groupSeparatorList)
     {
         _pUi->comboGroupSeparator->addItem(listItem.name, listItem.userData);
     }
@@ -69,7 +67,8 @@ ParseDataFileDialog::ParseDataFileDialog(DataParserModel* pParserModel, QStringL
     connect(_pParserModel, &DataParserModel::dataFilePathChanged, this, &ParseDataFileDialog::updatePath);
     connect(_pParserModel, &DataParserModel::fieldSeparatorChanged, this, &ParseDataFileDialog::updateFieldSeparator);
     connect(_pParserModel, &DataParserModel::groupSeparatorChanged, this, &ParseDataFileDialog::updategroupSeparator);
-    connect(_pParserModel, &DataParserModel::decimalSeparatorChanged, this, &ParseDataFileDialog::updateDecimalSeparator);
+    connect(_pParserModel, &DataParserModel::decimalSeparatorChanged, this,
+            &ParseDataFileDialog::updateDecimalSeparator);
     connect(_pParserModel, &DataParserModel::commentSequenceChanged, this, &ParseDataFileDialog::updateCommentSequence);
     connect(_pParserModel, &DataParserModel::dataRowChanged, this, &ParseDataFileDialog::updateDataRow);
     connect(_pParserModel, &DataParserModel::columnChanged, this, &ParseDataFileDialog::updateColumn);
@@ -77,21 +76,30 @@ ParseDataFileDialog::ParseDataFileDialog(DataParserModel* pParserModel, QStringL
     connect(_pParserModel, &DataParserModel::timeInMilliSecondsChanged, this, &ParseDataFileDialog::updateTimeFormat);
 
     // Handle signal from controls
-    connect(_pUi->comboFieldSeparator, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ParseDataFileDialog::fieldSeparatorSelected);
-    connect(_pUi->lineCustomFieldSeparator, &QLineEdit::editingFinished, this, &ParseDataFileDialog::customFieldSeparatorUpdated);
-    connect(_pUi->comboGroupSeparator, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ParseDataFileDialog::groupSeparatorSelected);
-    connect(_pUi->comboDecimalSeparator, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ParseDataFileDialog::decimalSeparatorSelected);
+    connect(_pUi->comboFieldSeparator, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+            &ParseDataFileDialog::fieldSeparatorSelected);
+    connect(_pUi->lineCustomFieldSeparator, &QLineEdit::editingFinished, this,
+            &ParseDataFileDialog::customFieldSeparatorUpdated);
+    connect(_pUi->comboGroupSeparator, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+            &ParseDataFileDialog::groupSeparatorSelected);
+    connect(_pUi->comboDecimalSeparator, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+            &ParseDataFileDialog::decimalSeparatorSelected);
     connect(_pUi->lineComment, &QLineEdit::editingFinished, this, &ParseDataFileDialog::commentUpdated);
     connect(_pUi->spinDataRow, QOverload<int>::of(&QSpinBox::valueChanged), this, &ParseDataFileDialog::dataRowUpdated);
     connect(_pUi->spinColumn, QOverload<int>::of(&QSpinBox::valueChanged), this, &ParseDataFileDialog::columnUpdated);
-    connect(_pUi->spinLabelRow, QOverload<int>::of(&QSpinBox::valueChanged), this, &ParseDataFileDialog::labelRowUpdated);
-    connect(_pUi->comboPreset, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ParseDataFileDialog::presetSelected);
+    connect(_pUi->spinLabelRow, QOverload<int>::of(&QSpinBox::valueChanged), this,
+            &ParseDataFileDialog::labelRowUpdated);
+    connect(_pUi->comboPreset, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+            &ParseDataFileDialog::presetSelected);
 
     // Signal to change preset to manual
-    connect(_pUi->comboFieldSeparator, QOverload<int>::of(&QComboBox::activated), this, &ParseDataFileDialog::setPresetToManual);
+    connect(_pUi->comboFieldSeparator, QOverload<int>::of(&QComboBox::activated), this,
+            &ParseDataFileDialog::setPresetToManual);
     connect(_pUi->lineCustomFieldSeparator, &QLineEdit::textEdited, this, &ParseDataFileDialog::setPresetToManual);
-    connect(_pUi->comboGroupSeparator, QOverload<int>::of(&QComboBox::activated), this, &ParseDataFileDialog::setPresetToManual);
-    connect(_pUi->comboDecimalSeparator, QOverload<int>::of(&QComboBox::activated), this, &ParseDataFileDialog::setPresetToManual);
+    connect(_pUi->comboGroupSeparator, QOverload<int>::of(&QComboBox::activated), this,
+            &ParseDataFileDialog::setPresetToManual);
+    connect(_pUi->comboDecimalSeparator, QOverload<int>::of(&QComboBox::activated), this,
+            &ParseDataFileDialog::setPresetToManual);
     connect(_pUi->lineComment, &QLineEdit::textEdited, this, &ParseDataFileDialog::setPresetToManual);
     connect(_pUi->spinDataRow, &QSpinBox::editingFinished, this, &ParseDataFileDialog::setPresetToManual);
     connect(_pUi->spinColumn, &QSpinBox::editingFinished, this, &ParseDataFileDialog::setPresetToManual);
@@ -121,7 +129,7 @@ ParseDataFileDialog::~ParseDataFileDialog()
 
 void ParseDataFileDialog::updatePath()
 {
-    _pUi->lineDataFile->setText( QFileInfo(_pParserModel->dataFilePath()).fileName());
+    _pUi->lineDataFile->setText(QFileInfo(_pParserModel->dataFilePath()).fileName());
 }
 
 void ParseDataFileDialog::updateFieldSeparator()
@@ -150,14 +158,16 @@ void ParseDataFileDialog::updateFieldSeparator()
 
 void ParseDataFileDialog::updategroupSeparator()
 {
-    _pUi->comboGroupSeparator->setCurrentIndex(findIndexInCombo(_groupSeparatorList, QString(_pParserModel->groupSeparator())));
+    _pUi->comboGroupSeparator->setCurrentIndex(
+      findIndexInCombo(_groupSeparatorList, QString(_pParserModel->groupSeparator())));
 
     updatePreview();
 }
 
 void ParseDataFileDialog::updateDecimalSeparator()
 {
-    _pUi->comboDecimalSeparator->setCurrentIndex(findIndexInCombo(_decimalSeparatorList, QString(_pParserModel->decimalSeparator())));
+    _pUi->comboDecimalSeparator->setCurrentIndex(
+      findIndexInCombo(_decimalSeparatorList, QString(_pParserModel->decimalSeparator())));
 
     updatePreview();
 }
@@ -171,21 +181,21 @@ void ParseDataFileDialog::updateCommentSequence()
 
 void ParseDataFileDialog::updateDataRow()
 {
-    _pUi->spinDataRow->setValue(_pParserModel->dataRow() + 1);  // + 1 based because 0 based internally
+    _pUi->spinDataRow->setValue(_pParserModel->dataRow() + 1); // + 1 based because 0 based internally
 
     updatePreview();
 }
 
 void ParseDataFileDialog::updateColumn()
 {
-    _pUi->spinColumn->setValue(_pParserModel->column() + 1);  // + 1 based because 0 based internally
+    _pUi->spinColumn->setValue(_pParserModel->column() + 1); // + 1 based because 0 based internally
 
     updatePreview();
 }
 
 void ParseDataFileDialog::updateLabelRow()
 {
-    _pUi->spinLabelRow->setValue(_pParserModel->labelRow() + 1);   // + 1 based because 0 based internally
+    _pUi->spinLabelRow->setValue(_pParserModel->labelRow() + 1); // + 1 based because 0 based internally
 
     updatePreview();
 }
@@ -252,22 +262,22 @@ void ParseDataFileDialog::commentUpdated()
 
 void ParseDataFileDialog::dataRowUpdated()
 {
-    _pParserModel->setDataRow(_pUi->spinDataRow->value() - 1);  // - 1 based because 0 based internally
+    _pParserModel->setDataRow(_pUi->spinDataRow->value() - 1); // - 1 based because 0 based internally
 }
 
 void ParseDataFileDialog::columnUpdated()
 {
-    _pParserModel->setColumn(_pUi->spinColumn->value() - 1);  // - 1 based because 0 based internally
+    _pParserModel->setColumn(_pUi->spinColumn->value() - 1); // - 1 based because 0 based internally
 }
 
 void ParseDataFileDialog::labelRowUpdated()
 {
-    _pParserModel->setLabelRow(_pUi->spinLabelRow->value() - 1);   // - 1 based because 0 based internally
+    _pParserModel->setLabelRow(_pUi->spinLabelRow->value() - 1); // - 1 based because 0 based internally
 }
 
 void ParseDataFileDialog::timeFormatUpdated(int id)
 {
-    _pParserModel->setTimeInMilliSeconds(id ? true: false);
+    _pParserModel->setTimeInMilliSeconds(id ? true : false);
 }
 
 void ParseDataFileDialog::presetSelected(int index)
@@ -284,7 +294,7 @@ void ParseDataFileDialog::done(int r)
 {
     bool bValid = true;
 
-    if(QDialog::Accepted == r)  // ok was pressed
+    if (QDialog::Accepted == r) // ok was pressed
     {
         // Validate the data
         bValid = validateSettingsData();
@@ -354,7 +364,7 @@ void ParseDataFileDialog::loadPreset(void)
     _pUi->comboPreset->clear();
     _pUi->comboPreset->addItem("Manual");
 
-    foreach(auto name, _pPresetHandler->nameList())
+    foreach (auto name, _pPresetHandler->nameList())
     {
         _pUi->comboPreset->addItem(name);
     }
@@ -372,7 +382,7 @@ void ParseDataFileDialog::setPresetAccordingKeyword(QString filename)
     }
     else
     {
-         presetComboIndex = presetIdx + _cPresetListOffset;
+        presetComboIndex = presetIdx + _cPresetListOffset;
     }
 
     _pUi->comboPreset->setCurrentIndex(-1);
@@ -388,11 +398,9 @@ void ParseDataFileDialog::updatePreview()
     previewData.clear();
     stateText.clear();
 
-    if (
-        (_pParserModel->fieldSeparator() == _pParserModel->groupSeparator())
-        || (_pParserModel->decimalSeparator() == _pParserModel->groupSeparator())
-        || (_pParserModel->decimalSeparator() == _pParserModel->fieldSeparator())
-        )
+    if ((_pParserModel->fieldSeparator() == _pParserModel->groupSeparator()) ||
+        (_pParserModel->decimalSeparator() == _pParserModel->groupSeparator()) ||
+        (_pParserModel->decimalSeparator() == _pParserModel->fieldSeparator()))
     {
         stateText = tr("Parser setting are not valid (field, group, decimal)!");
     }
@@ -441,7 +449,7 @@ void ParseDataFileDialog::updatePreview()
     updatePreviewLayout(bRet, stateText);
 }
 
-void ParseDataFileDialog::updatePreviewData(QList<QStringList> & previewData)
+void ParseDataFileDialog::updatePreviewData(QList<QStringList>& previewData)
 {
     // find maximum of columns
     qint32 maxCol = 0;
@@ -461,11 +469,11 @@ void ParseDataFileDialog::updatePreviewData(QList<QStringList> & previewData)
     _pUi->tablePreview->setRowCount(previewData.size());
 
     // Add data
-    for(qint32 rowIdx = 0; rowIdx < _pUi->tablePreview->rowCount(); rowIdx++)
+    for (qint32 rowIdx = 0; rowIdx < _pUi->tablePreview->rowCount(); rowIdx++)
     {
-        for(qint32 columnIdx = 0; columnIdx < _pUi->tablePreview->columnCount(); columnIdx++)
+        for (qint32 columnIdx = 0; columnIdx < _pUi->tablePreview->columnCount(); columnIdx++)
         {
-            QStringList rowData = previewData[rowIdx];
+            const QStringList& rowData = previewData[rowIdx];
             QString cellData = QString("");
             if (columnIdx < rowData.size())
             {

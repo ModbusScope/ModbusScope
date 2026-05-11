@@ -81,7 +81,7 @@ void MarkerInfoItem::updateData()
     {
         if (mask & GuiModel::cMarkerExpressionBits[idx])
         {
-            QString expression = GuiModel::cMarkerExpressionStrings[idx];
+            const QString& expression = GuiModel::cMarkerExpressionStrings[idx];
             const double expressionValue = calculateMarkerExpressionValue(GuiModel::cMarkerExpressionBits[idx]);
 
             expressionList.append(expression.arg(Util::formatDoubleForExport(expressionValue)));
