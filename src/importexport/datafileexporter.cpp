@@ -91,7 +91,7 @@ void DataFileExporter::exportDataFile(QString dataFile)
         if (bRet)
         {
             QList<quint16> activeGraphIndexes;
-            _pGraphDataModel->activeGraphIndexList(&activeGraphIndexes);
+            _pGraphDataModel->activeGraphIndexList(activeGraphIndexes);
             QList<QCPGraphDataContainer::const_iterator> dataListIterators;
 
             for (qint32 idx = 0; idx < activeGraphIndexes.size(); idx++)

@@ -37,7 +37,7 @@ public:
     void setExpressionState(quint32 index, GraphData::ExpressionState status);
     void setSelectedGraph(qint32 index);
 
-    void activeGraphIndexList(QList<quint16>* pList) const;
+    void activeGraphIndexList(QList<quint16>& list) const;
     qint32 convertToActiveGraphIndex(quint32 graphIdx) const;
     qint32 convertToGraphIndex(quint32 activeIdx) const;
 

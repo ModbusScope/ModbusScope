@@ -14,11 +14,8 @@
 
 using State = ResultState::State;
 
-Legend::Legend(QWidget *parent) : QFrame(parent),
-    _popupMenuItem(0),
-    _pGuiModel(nullptr),
-    _pGraphDataModel(nullptr),
-    _pGraphView(nullptr)
+Legend::Legend(QWidget* parent)
+    : QFrame(parent), _popupMenuItem(0), _pGuiModel(nullptr), _pGraphDataModel(nullptr), _pGraphView(nullptr)
 {
     _pLayout = new QVBoxLayout();
 
@@ -27,7 +24,7 @@ Legend::Legend(QWidget *parent) : QFrame(parent),
     _pLegendTable->setRowCount(0);
     _pLegendTable->setColumnCount(cColummnCount);
 
-    _pLegendTable->verticalHeader()->setDefaultSectionSize(_pLegendTable->verticalHeader()->fontMetrics().height()+2);
+    _pLegendTable->verticalHeader()->setDefaultSectionSize(_pLegendTable->verticalHeader()->fontMetrics().height() + 2);
     _pLegendTable->verticalHeader()->hide();
 
     _pLegendTable->setShowGrid(false);
@@ -35,10 +32,10 @@ Legend::Legend(QWidget *parent) : QFrame(parent),
     _pLegendTable->setFocusPolicy(Qt::NoFocus);
     _pLegendTable->setSelectionMode(QAbstractItemView::NoSelection);
     _pLegendTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    _pLegendTable->setHorizontalHeaderLabels(QStringList()<<" " << " " << "Value" << "Register");
+    _pLegendTable->setHorizontalHeaderLabels(QStringList() << " " << " " << "Value" << "Register");
     _pLegendTable->hide();
 
-    QHeaderView * horizontalHeader = _pLegendTable->horizontalHeader();
+    QHeaderView* horizontalHeader = _pLegendTable->horizontalHeader();
     QFontMetrics fontMetric = _pLegendTable->horizontalHeader()->fontMetrics();
 
     horizontalHeader->setMinimumSectionSize(fontMetric.boundingRect("X").width());
@@ -65,7 +62,7 @@ Legend::Legend(QWidget *parent) : QFrame(parent),
     _pToggleVisibilityAction = _pLegendMenu->addAction("Toggle item visibility");
     _pToggleVisibilityAction->setEnabled(false);
 
-    (void)_pLegendMenu->addSeparator();
+    (void) _pLegendMenu->addSeparator();
     _pHideAllAction = _pLegendMenu->addAction("Hide all");
     _pHideAllAction->setEnabled(false);
 
@@ -75,21 +72,18 @@ Legend::Legend(QWidget *parent) : QFrame(parent),
     /*
      * Use timer to avoid click when doubleclicked
      * https://forum.qt.io/topic/25513/how-can-i-prevent-the-clicked-signal-when-i-want-to-grab-the-doubleclicked-signal-in-mytablewidget/9?_=1738268572974&lang=en-US
-    */
+     */
     _clickTimer.setInterval(qApp->doubleClickInterval());
-    connect(&_clickTimer, &QTimer::timeout, this, [=, this]() {
-        this->cellClicked(this->_clickedRow, this->_clickedColumn);
-    });
+    connect(&_clickTimer, &QTimer::timeout, this,
+            [=, this]() { this->cellClicked(this->_clickedRow, this->_clickedColumn); });
 
     connect(_pToggleVisibilityAction, &QAction::triggered, this, &Legend::toggleVisibilityClicked);
     connect(_pHideAllAction, &QAction::triggered, this, &Legend::hideAll);
     connect(_pShowAllAction, &QAction::triggered, this, &Legend::showAll);
-    connect(_pLegendTable, &QTableWidget::cellClicked, this, [=, this](int rows, int columns) {
-        this->processClick(false, rows, columns); 
-    });
-    connect(_pLegendTable, &QTableWidget::cellDoubleClicked, this, [=, this](int rows, int columns) {
-        this->processClick(true, rows, columns);
-    });
+    connect(_pLegendTable, &QTableWidget::cellClicked, this,
+            [=, this](int rows, int columns) { this->processClick(false, rows, columns); });
+    connect(_pLegendTable, &QTableWidget::cellDoubleClicked, this,
+            [=, this](int rows, int columns) { this->processClick(true, rows, columns); });
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &Legend::customContextMenuRequested, this, &Legend::showContextMenu);
@@ -100,12 +94,12 @@ Legend::~Legend()
     delete _pLegendMenu;
 }
 
-void Legend::setGraphview(GraphView * pGraphView)
+void Legend::setGraphview(GraphView* pGraphView)
 {
     _pGraphView = pGraphView;
 }
 
-void Legend::setModels(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel)
+void Legend::setModels(GuiModel* pGuiModel, GraphDataModel* pGraphDataModel)
 {
     _pGuiModel = pGuiModel;
     _pGraphDataModel = pGraphDataModel;
@@ -123,7 +117,7 @@ void Legend::setModels(GuiModel *pGuiModel, GraphDataModel * pGraphDataModel)
 
 void Legend::clearLegendData()
 {
-    for(auto &result: _lastReceivedList)
+    for (auto& result : _lastReceivedList)
     {
         result.setState(State::NO_VALUE);
     }
@@ -159,7 +153,7 @@ void Legend::updateLegend()
     {
         QList<quint16> activeList;
 
-        _pGraphDataModel->activeGraphIndexList(&activeList);
+        _pGraphDataModel->activeGraphIndexList(activeList);
         _pLegendTable->setRowCount(0);
 
         for (qint32 idx = 0; idx < activeList.size(); idx++)
@@ -192,7 +186,7 @@ void Legend::changeGraphVisibility(quint32 graphIdx)
 
     if (activeGraphIdx != -1)
     {
-        QFont itemFont = _pLegendTable->item((int)activeGraphIdx, cColummnValue)->font();
+        QFont itemFont = _pLegendTable->item((int) activeGraphIdx, cColummnValue)->font();
         QColor foreGroundColor;
         QColor graphColor;
 
@@ -211,14 +205,14 @@ void Legend::changeGraphVisibility(quint32 graphIdx)
             graphColor = Qt::white;
         }
 
-        _pLegendTable->item((int)activeGraphIdx, cColummnAxis)->setFont(itemFont);
-        _pLegendTable->item((int)activeGraphIdx, cColummnValue)->setFont(itemFont);
-        _pLegendTable->item((int)activeGraphIdx, cColummnText)->setFont(itemFont);
+        _pLegendTable->item((int) activeGraphIdx, cColummnAxis)->setFont(itemFont);
+        _pLegendTable->item((int) activeGraphIdx, cColummnValue)->setFont(itemFont);
+        _pLegendTable->item((int) activeGraphIdx, cColummnText)->setFont(itemFont);
 
-        _pLegendTable->item((int)activeGraphIdx, cColummnColor)->setBackground(graphColor);
-        _pLegendTable->item((int)activeGraphIdx, cColummnAxis)->setForeground(foreGroundColor);
-        _pLegendTable->item((int)activeGraphIdx, cColummnValue)->setForeground(foreGroundColor);
-        _pLegendTable->item((int)activeGraphIdx, cColummnText)->setForeground(foreGroundColor);
+        _pLegendTable->item((int) activeGraphIdx, cColummnColor)->setBackground(graphColor);
+        _pLegendTable->item((int) activeGraphIdx, cColummnAxis)->setForeground(foreGroundColor);
+        _pLegendTable->item((int) activeGraphIdx, cColummnValue)->setForeground(foreGroundColor);
+        _pLegendTable->item((int) activeGraphIdx, cColummnText)->setForeground(foreGroundColor);
     }
 }
 
@@ -228,7 +222,7 @@ void Legend::changeGraphColor(const quint32 graphIdx)
 
     if (activeGraphIdx != -1)
     {
-        _pLegendTable->item((int)activeGraphIdx, cColummnColor)->setBackground(_pGraphDataModel->color(graphIdx));
+        _pLegendTable->item((int) activeGraphIdx, cColummnColor)->setBackground(_pGraphDataModel->color(graphIdx));
     }
 }
 
@@ -238,7 +232,7 @@ void Legend::changeGraphAxis(const quint32 graphIdx)
 
     if (activeGraphIdx != -1)
     {
-        _pLegendTable->item((int)activeGraphIdx, cColummnAxis)->setText(valueAxisText(graphIdx));
+        _pLegendTable->item((int) activeGraphIdx, cColummnAxis)->setText(valueAxisText(graphIdx));
     }
 }
 
@@ -248,7 +242,7 @@ void Legend::changeGraphLabel(const quint32 graphIdx)
 
     if (activeGraphIdx != -1)
     {
-       _pLegendTable->item((int)activeGraphIdx, cColummnText)->setText(_pGraphDataModel->label(graphIdx));
+        _pLegendTable->item((int) activeGraphIdx, cColummnText)->setText(_pGraphDataModel->label(graphIdx));
     }
 }
 
@@ -320,10 +314,10 @@ void Legend::addItem(quint32 graphIdx)
     _pLegendTable->item(row, cColummnColor)->setBackground(_pGraphDataModel->color(graphIdx));
 
     _pLegendTable->setItem(row, cColummnAxis, new QTableWidgetItem(valueAxisText(graphIdx)));
-    _pLegendTable->item(row,cColummnAxis)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    _pLegendTable->item(row, cColummnAxis)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 
     _pLegendTable->setItem(row, cColummnValue, new QTableWidgetItem("-"));
-    _pLegendTable->item(row,cColummnValue)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    _pLegendTable->item(row, cColummnValue)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 
     _pLegendTable->setItem(row, cColummnText, new QTableWidgetItem(_pGraphDataModel->label(graphIdx)));
 
@@ -342,7 +336,7 @@ void Legend::toggleItemVisibility(qint32 activeGraphIdx)
 
 QString Legend::valueAxisText(quint32 graphIdx)
 {
-    return _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_SECONDARY ? "Y2": "Y1";
+    return _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_SECONDARY ? "Y2" : "Y1";
 }
 
 void Legend::showContextMenu(const QPoint& pos)
@@ -369,11 +363,9 @@ void Legend::toggleVisibilityClicked()
     toggleItemVisibility(_popupMenuItem);
 }
 
-
-
 void Legend::hideAll()
 {
-    for(qint32 idx = 0; idx < _pGraphDataModel->size(); idx++)
+    for (qint32 idx = 0; idx < _pGraphDataModel->size(); idx++)
     {
         _pGraphDataModel->setVisible(idx, false);
     }
@@ -381,7 +373,7 @@ void Legend::hideAll()
 
 void Legend::showAll()
 {
-    for(qint32 idx = 0; idx < _pGraphDataModel->size(); idx++)
+    for (qint32 idx = 0; idx < _pGraphDataModel->size(); idx++)
     {
         _pGraphDataModel->setVisible(idx, true);
     }
@@ -454,7 +446,8 @@ void Legend::cellDoubleClicked(int row, int column)
             {
                 auto valueAxis = _pGraphDataModel->valueAxis(graphIdx);
 
-                valueAxis = valueAxis == GraphData::VALUE_AXIS_PRIMARY ? GraphData::VALUE_AXIS_SECONDARY: GraphData::VALUE_AXIS_PRIMARY;
+                valueAxis = valueAxis == GraphData::VALUE_AXIS_PRIMARY ? GraphData::VALUE_AXIS_SECONDARY
+                                                                       : GraphData::VALUE_AXIS_PRIMARY;
                 _pGraphDataModel->setValueAxis(graphIdx, valueAxis);
             }
         }

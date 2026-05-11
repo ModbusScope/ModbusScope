@@ -182,7 +182,7 @@ void GraphView::clearGraph(const quint32 graphIdx)
     {
 
         QList<quint16> activeGraphList;
-        _pGraphDataModel->activeGraphIndexList(&activeGraphList);
+        _pGraphDataModel->activeGraphIndexList(activeGraphList);
 
         if (activeGraphList.size() <= 0)
         {
@@ -220,7 +220,7 @@ void GraphView::updateGraphs()
     _pPlot->clearGraphs();
 
     QList<quint16> activeGraphList;
-    _pGraphDataModel->activeGraphIndexList(&activeGraphList);
+    _pGraphDataModel->activeGraphIndexList(activeGraphList);
 
     if (activeGraphList.size() > 0)
     {

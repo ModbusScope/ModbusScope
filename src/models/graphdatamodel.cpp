@@ -497,9 +497,9 @@ void GraphDataModel::clear()
     }
 }
 
-void GraphDataModel::activeGraphIndexList(QList<quint16>* pList)
+void GraphDataModel::activeGraphIndexList(QList<quint16>& list)
 {
-    _pStore->activeGraphIndexList(pList);
+    _pStore->activeGraphIndexList(list);
 }
 
 qint32 GraphDataModel::convertToActiveGraphIndex(quint32 graphIdx)

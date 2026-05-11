@@ -601,7 +601,7 @@ void MainWindow::handleGraphsCountChanged()
     rebuildGraphMenu();
 
     QList<quint16> activeGraphList;
-    _pGraphDataModel->activeGraphIndexList(&activeGraphList);
+    _pGraphDataModel->activeGraphIndexList(activeGraphList);
 
     const bool bEnabled = !activeGraphList.isEmpty();
     _pUi->actionZoom->setEnabled(bEnabled);
@@ -614,7 +614,7 @@ void MainWindow::rebuildGraphMenu()
     _pGraphShowHide->clear();
 
     QList<quint16> activeGraphList;
-    _pGraphDataModel->activeGraphIndexList(&activeGraphList);
+    _pGraphDataModel->activeGraphIndexList(activeGraphList);
 
     for (qint32 activeIdx = 0; activeIdx < activeGraphList.size(); activeIdx++)
     {

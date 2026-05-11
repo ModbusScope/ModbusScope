@@ -179,16 +179,16 @@ void GraphDataStore::setSelectedGraph(qint32 index)
 /*!
  * \brief Returns a sorted list of the indices of all active graphs.
  */
-void GraphDataStore::activeGraphIndexList(QList<quint16>* pList) const
+void GraphDataStore::activeGraphIndexList(QList<quint16>& list) const
 {
-    pList->clear();
+    list.clear();
 
     for (quint32 idx : _activeGraphList)
     {
-        pList->append(idx);
+        list.append(idx);
     }
 
-    std::sort(pList->begin(), pList->end(), std::less<int>());
+    std::sort(list.begin(), list.end(), std::less<int>());
 }
 
 qint32 GraphDataStore::convertToActiveGraphIndex(quint32 graphIdx) const

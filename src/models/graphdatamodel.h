@@ -80,7 +80,7 @@ public:
     void removeRegister(qint32 idx);
     void clear();
 
-    void activeGraphIndexList(QList<quint16>* pList);
+    void activeGraphIndexList(QList<quint16>& list);
 
     qint32 convertToActiveGraphIndex(quint32 graphIdx);
     qint32 convertToGraphIndex(quint32 activeIdx);

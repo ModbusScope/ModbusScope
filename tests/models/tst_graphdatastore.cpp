@@ -133,7 +133,7 @@ void TestGraphDataStore::activeGraphIndexListReturnsSortedIndices()
     store.insertGraphData(makeGraph("C", "${h2}", true));
 
     QList<quint16> list;
-    store.activeGraphIndexList(&list);
+    store.activeGraphIndexList(list);
 
     QCOMPARE(list.size(), 2);
     QCOMPARE(list.at(0), quint16(0));
