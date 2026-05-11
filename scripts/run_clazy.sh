@@ -1,5 +1,5 @@
 #!/bin/bash
-set -uo pipefail
+set -euo pipefail
 
 BUILD_DIR="${BUILD_DIR:-build}"
 QT_PREFIX="${QT_PREFIX:-/opt/Qt/6.8.3/gcc_64}"
