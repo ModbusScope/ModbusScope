@@ -59,13 +59,21 @@ qint64 CommunicationStatsModel::runTime() const
 //! Sets the communication start time to \a startTime (milliseconds since epoch).
 void CommunicationStatsModel::setStartTime(qint64 startTime)
 {
-    _startTime = startTime;
+    if (startTime != _startTime)
+    {
+        _startTime = startTime;
+        emit timeStatsChanged();
+    }
 }
 
 //! Sets the communication end time to \a endTime (milliseconds since epoch).
 void CommunicationStatsModel::setEndTime(qint64 endTime)
 {
-    _endTime = endTime;
+    if (endTime != _endTime)
+    {
+        _endTime = endTime;
+        emit timeStatsChanged();
+    }
 }
 
 /*!
@@ -84,5 +92,9 @@ void CommunicationStatsModel::setStats(quint32 successCount, quint32 errorCount)
 //! Sets the median poll interval to \a pollTime milliseconds.
 void CommunicationStatsModel::setMedianPollTime(quint32 pollTime)
 {
-    _medianPollTime = pollTime;
+    if (pollTime != _medianPollTime)
+    {
+        _medianPollTime = pollTime;
+        emit timeStatsChanged();
+    }
 }

@@ -73,6 +73,39 @@ void TestCommunicationStatsModel::setMedianPollTimeStores()
     QCOMPARE(model.medianPollTime(), 500u);
 }
 
+void TestCommunicationStatsModel::setStartTimeEmitsSignal()
+{
+    CommunicationStatsModel model;
+    QSignalSpy spy(&model, &CommunicationStatsModel::timeStatsChanged);
+
+    model.setStartTime(12345);
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(model.startTime(), 12345);
+}
+
+void TestCommunicationStatsModel::setEndTimeEmitsSignal()
+{
+    CommunicationStatsModel model;
+    QSignalSpy spy(&model, &CommunicationStatsModel::timeStatsChanged);
+
+    model.setEndTime(99999);
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(model.endTime(), 99999);
+}
+
+void TestCommunicationStatsModel::setMedianPollTimeEmitsSignal()
+{
+    CommunicationStatsModel model;
+    QSignalSpy spy(&model, &CommunicationStatsModel::timeStatsChanged);
+
+    model.setMedianPollTime(500);
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(model.medianPollTime(), 500u);
+}
+
 void TestCommunicationStatsModel::runTimeReflectsStartTime()
 {
     CommunicationStatsModel model;

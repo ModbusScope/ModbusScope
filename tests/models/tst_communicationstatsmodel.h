@@ -17,6 +17,9 @@ private slots:
     void setStartTimeStores();
     void setEndTimeStores();
     void setMedianPollTimeStores();
+    void setStartTimeEmitsSignal();
+    void setEndTimeEmitsSignal();
+    void setMedianPollTimeEmitsSignal();
     void runTimeReflectsStartTime();
     void runTimeIsZeroWhenNotStarted();
 };
