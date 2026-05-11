@@ -2,11 +2,14 @@
 Checks: >
   bugprone-*,
   clang-analyzer-*,
+  performance-*,
   -clang-analyzer-cplusplus.NewDelete,
   -clang-analyzer-cplusplus.NewDeleteLeaks,
   -bugprone-reserved-identifier,
   -bugprone-easily-swappable-parameters,
-  -bugprone-narrowing-conversions
+  -bugprone-narrowing-conversions,
+  -performance-unnecessary-value-param,
+  -performance-enum-size
 
 WarningsAsErrors: "*"
 HeaderFilterRegex: "src/.*"

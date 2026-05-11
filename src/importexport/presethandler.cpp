@@ -127,7 +127,7 @@ void PresetHandler::determinePresetFile(QString& presetFile)
     QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
     if (!docPath.isEmpty())
     {
-        QString documentsfolder = docPath[0];
+        const QString& documentsfolder = docPath[0];
         QString basePath = documentsfolder + "/ModbusScope/";
 
         if (QFileInfo::exists(basePath + _presetFilenameJson))

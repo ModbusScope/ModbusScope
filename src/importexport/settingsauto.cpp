@@ -193,7 +193,7 @@ bool SettingsAuto::testLocale(QStringList previewData, QLocale locale, QString f
 
                 for (qint32 idx = 1; idx < fields.size(); idx++)
                 {
-                    const QString field = fields[idx];
+                    const QString& field = fields[idx];
 
                     if (isAbsoluteDate(field))
                     {

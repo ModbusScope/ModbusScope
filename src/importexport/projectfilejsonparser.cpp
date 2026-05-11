@@ -145,7 +145,7 @@ GeneralError ProjectFileJsonParser::parseAdapters(const QJsonArray& adaptersArra
 {
     GeneralError parseErr;
 
-    for (const QJsonValue& val : adaptersArray)
+    for (const auto& val : adaptersArray)
     {
         if (!val.isObject())
         {
@@ -185,7 +185,7 @@ GeneralError ProjectFileJsonParser::parseDevices(const QJsonArray& devicesArray,
 {
     GeneralError parseErr;
 
-    for (const QJsonValue& val : devicesArray)
+    for (const auto& val : devicesArray)
     {
         if (!val.isObject())
         {
@@ -302,7 +302,7 @@ GeneralError ProjectFileJsonParser::parseScope(const QJsonArray& scopeArray, Sco
 {
     GeneralError parseErr;
 
-    for (const QJsonValue& val : scopeArray)
+    for (const auto& val : scopeArray)
     {
         if (!val.isObject())
         {
@@ -371,7 +371,7 @@ GeneralError ProjectFileJsonParser::parseView(const QJsonObject& viewObject, Vie
     if (scaleObj.contains(ProjectFileDefinitions::cYaxisTag) && scaleObj[ProjectFileDefinitions::cYaxisTag].isArray())
     {
         const QJsonArray yaxisArray = scaleObj[ProjectFileDefinitions::cYaxisTag].toArray();
-        for (const QJsonValue& yval : yaxisArray)
+        for (const auto& yval : yaxisArray)
         {
             if (!yval.isObject())
             {
