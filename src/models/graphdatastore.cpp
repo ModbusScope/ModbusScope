@@ -183,7 +183,7 @@ void GraphDataStore::activeGraphIndexList(QList<quint16>* pList) const
 {
     pList->clear();
 
-    foreach (quint32 idx, _activeGraphList)
+    for (quint32 idx : _activeGraphList)
     {
         pList->append(idx);
     }

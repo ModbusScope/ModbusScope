@@ -221,7 +221,7 @@ void DataFileHandler::parseDataFile()
             _pNoteModel->clear();
             if (!data.notes.isEmpty())
             {
-                foreach (Note note, data.notes)
+                for (Note note : data.notes)
                 {
                     _pNoteModel->add(note);
                 }
