@@ -554,7 +554,10 @@ void GraphDataModel::moveRow(int sourceRow, int destRow)
 
     if (sourceRow != newRow)
     {
+        const int destinationChild = newRow > sourceRow ? newRow + 1 : newRow;
+        beginMoveRows(QModelIndex(), sourceRow, sourceRow, QModelIndex(), destinationChild);
         _pStore->moveGraphRow(sourceRow, newRow);
+        endMoveRows();
     }
 
     modelCompleteDataChanged();
