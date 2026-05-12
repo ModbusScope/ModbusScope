@@ -5,7 +5,8 @@
 
 namespace {
 
-enum column {
+enum column
+{
     DRAGGABLE = 0,
     KEY_DATA,
     VALUE_DATA,
@@ -16,7 +17,7 @@ enum column {
 
 }
 
-NoteModel::NoteModel(QObject *parent) : QAbstractTableModel(parent)
+NoteModel::NoteModel(QObject* parent) : QAbstractTableModel(parent)
 {
     _noteList.clear();
     _bNotesDataUpdated = false;
@@ -50,24 +51,24 @@ QVariant NoteModel::headerData(int section, Qt::Orientation orientation, int rol
         }
         else
         {
-            //Can't happen because it is hidden
+            // Can't happen because it is hidden
         }
     }
 
     return QVariant();
 }
 
-int NoteModel::rowCount(const QModelIndex & /*parent*/) const
+int NoteModel::rowCount(const QModelIndex& /*parent*/) const
 {
     return size();
 }
 
-int NoteModel::columnCount(const QModelIndex & /*parent*/) const
+int NoteModel::columnCount(const QModelIndex& /*parent*/) const
 {
     return column::COUNT; // Number of visible members of struct
 }
 
-QVariant NoteModel::data(const QModelIndex &index, int role) const
+QVariant NoteModel::data(const QModelIndex& index, int role) const
 {
     switch (index.column())
     {
@@ -105,13 +106,12 @@ QVariant NoteModel::data(const QModelIndex &index, int role) const
 
     default:
         break;
-
     }
 
     return QVariant();
 }
 
-bool NoteModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool NoteModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
     bool bRet = true;
 
@@ -147,7 +147,7 @@ bool NoteModel::setData(const QModelIndex &index, const QVariant &value, int rol
     return bRet;
 }
 
-bool NoteModel::removeRows (int row, int count, const QModelIndex & parent)
+bool NoteModel::removeRows(int row, int count, const QModelIndex& parent)
 {
     Q_UNUSED(parent);
     Q_UNUSED(count);
@@ -157,14 +157,14 @@ bool NoteModel::removeRows (int row, int count, const QModelIndex & parent)
     return true;
 }
 
-Qt::ItemFlags NoteModel::flags(const QModelIndex &index) const
+Qt::ItemFlags NoteModel::flags(const QModelIndex& index) const
 {
     Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 
     switch (index.column())
     {
     case column::DRAGGABLE:
-        flags |=  Qt::ItemIsUserCheckable;
+        flags |= Qt::ItemIsUserCheckable;
         break;
     case column::TEXT:
         flags |= Qt::ItemIsEditable;
@@ -181,7 +181,7 @@ qint32 NoteModel::size() const
     return _noteList.size();
 }
 
-void NoteModel::add(Note &note)
+void NoteModel::add(const Note& note)
 {
     /* Call function to prepare view */
     beginInsertRows(QModelIndex(), size(), size());
@@ -210,7 +210,7 @@ void NoteModel::remove(qint32 idx)
 void NoteModel::clear()
 {
     qint32 count = size();
-    for(qint32 idx = 0; idx < count; idx++)
+    for (qint32 idx = 0; idx < count; idx++)
     {
         remove(0);
     }
@@ -250,9 +250,9 @@ void NoteModel::setText(quint32 idx, QString text)
 {
     if (_noteList[idx].text() != text)
     {
-         _noteList[idx].setText(text);
-         setNotesDataUpdated(true);
-         emit textChanged(idx);
+        _noteList[idx].setText(text);
+        setNotesDataUpdated(true);
+        emit textChanged(idx);
     }
 }
 
@@ -260,8 +260,8 @@ void NoteModel::setDraggable(quint32 idx, bool bState)
 {
     if (_noteList[idx].draggable() != bState)
     {
-         _noteList[idx].setDraggable(bState);
-         emit draggableChanged(idx);
+        _noteList[idx].setDraggable(bState);
+        emit draggableChanged(idx);
     }
 }
 
@@ -269,8 +269,8 @@ void NoteModel::setNotesDataUpdated(bool bUpdated)
 {
     if (_bNotesDataUpdated != bUpdated)
     {
-         _bNotesDataUpdated = bUpdated;
-         emit notesDataUpdatedChanged();
+        _bNotesDataUpdated = bUpdated;
+        emit notesDataUpdatedChanged();
     }
 }
 
