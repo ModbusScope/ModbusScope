@@ -182,7 +182,8 @@ void DataFileHandler::parseDataFile()
     {
         DataFileParser dataParser(_pDataParserModel);
         DataFileParser::FileData data;
-        QProgressDialog progressDialog("Loading file...", QString(), 0, 100, static_cast<QWidget*>(parent()));
+        QWidget* pw = qobject_cast<QWidget*>(parent());
+        QProgressDialog progressDialog("Loading file...", QString(), 0, 100, pw);
 
         progressDialog.setWindowModality(Qt::WindowModal);
         progressDialog.setMinimumDuration(0);
