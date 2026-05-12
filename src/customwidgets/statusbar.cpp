@@ -4,7 +4,6 @@
 
 #include "customwidgets/clickablelabel.h"
 #include "models/communicationstatsmodel.h"
-#include "models/graphdatamodel.h"
 #include "models/guimodel.h"
 
 using GuiState = GuiModel::GuiState;
@@ -16,14 +15,8 @@ const QString StatusBar::_cStatsTemplate = QString("Success: %1\tErrors: %2");
 const QString StatusBar::_cRuntime = QString("Runtime: %1");
 const QString StatusBar::_cRuntimeWithPoll = QString("Runtime: %1\tPoll time: %2");
 
-StatusBar::StatusBar(GuiModel* pGuiModel,
-                     GraphDataModel* pGraphDataModel,
-                     CommunicationStatsModel* pCommunicationStatsModel,
-                     QWidget* parent)
-    : QStatusBar(parent),
-      _pGuiModel(pGuiModel),
-      _pGraphDataModel(pGraphDataModel),
-      _pCommunicationStatsModel(pCommunicationStatsModel)
+StatusBar::StatusBar(GuiModel* pGuiModel, CommunicationStatsModel* pCommunicationStatsModel, QWidget* parent)
+    : QStatusBar(parent), _pGuiModel(pGuiModel), _pCommunicationStatsModel(pCommunicationStatsModel)
 {
     _pStatusState = new QLabel(_cStateStopped, this);
     _pStatusState->setFrameStyle((int) QFrame::Panel | (int) QFrame::Sunken);

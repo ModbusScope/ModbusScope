@@ -77,7 +77,7 @@ MainWindow::MainWindow(QStringList cmdArguments,
     _pLegend->setModels(_pGuiModel, _pGraphDataModel);
     _pLegend->setGraphview(_pGraphView);
 
-    _pStatusBar = new StatusBar(_pGuiModel, _pGraphDataModel, _pCommunicationStatsModel, this);
+    _pStatusBar = new StatusBar(_pGuiModel, _pCommunicationStatsModel, this);
     setStatusBar(_pStatusBar);
 
     _pMarkerInfo = _pUi->markerInfo;

@@ -5,7 +5,6 @@
 #include <QStatusBar>
 
 class GuiModel;
-class GraphDataModel;
 class CommunicationStatsModel;
 class ClickableLabel;
 
@@ -14,7 +13,6 @@ class StatusBar : public QStatusBar
     Q_OBJECT
 public:
     explicit StatusBar(GuiModel* pGuiModel,
-                       GraphDataModel* pGraphDataModel,
                        CommunicationStatsModel* pCommunicationStatsModel,
                        QWidget* parent = nullptr);
 
@@ -29,7 +27,6 @@ signals:
 
 private:
     GuiModel* _pGuiModel;
-    GraphDataModel* _pGraphDataModel;
     CommunicationStatsModel* _pCommunicationStatsModel;
 
     ClickableLabel* _pStatusStats;
