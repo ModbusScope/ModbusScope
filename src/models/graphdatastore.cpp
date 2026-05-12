@@ -188,7 +188,7 @@ void GraphDataStore::activeGraphIndexList(QList<quint16>& list) const
         list.append(idx);
     }
 
-    std::sort(list.begin(), list.end(), std::less<int>());
+    std::sort(list.begin(), list.end());
 }
 
 qint32 GraphDataStore::convertToActiveGraphIndex(quint32 graphIdx) const
