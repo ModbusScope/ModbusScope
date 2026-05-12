@@ -119,8 +119,10 @@ void TestGraphDataStore::setActiveTrueRestoresVisibility()
     store.setActive(0, false);
     store.setVisible(0, false);
 
+    QSignalSpy visSpy(&store, &GraphDataStore::visibilityChanged);
     store.setActive(0, true);
 
+    QCOMPARE(visSpy.count(), 1);
     QVERIFY(store.isActive(0));
     QVERIFY(store.isVisible(0));
 }

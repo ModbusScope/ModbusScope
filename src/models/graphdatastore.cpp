@@ -134,7 +134,7 @@ void GraphDataStore::setActive(quint32 index, bool bActive)
         else
         {
             /* When re-activated, always make the graph visible */
-            _graphData[index].setVisible(true);
+            setVisible(index, true);
         }
 
         emit activeChanged(index);
