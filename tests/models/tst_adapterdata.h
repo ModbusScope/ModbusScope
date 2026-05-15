@@ -16,6 +16,7 @@ private slots:
     void updateFromDescribeMissingFields();
     void effectiveConfigReturnsDefaults();
     void effectiveConfigReturnsStoredConfig();
+    void effectiveConfigFillsMissingKeysFromDefaults();
 
     void settingsModelAdapterDataCreatesEntry();
     void settingsModelAdapterIds();

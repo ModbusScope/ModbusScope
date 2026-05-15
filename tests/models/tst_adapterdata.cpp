@@ -126,6 +126,33 @@ void TestAdapterData::effectiveConfigReturnsStoredConfig()
     QCOMPARE(config["setting"].toString(), QStringLiteral("stored_value"));
 }
 
+void TestAdapterData::effectiveConfigFillsMissingKeysFromDefaults()
+{
+    AdapterData data;
+
+    QJsonObject defaults;
+    defaults["general"] = QJsonObject();
+    defaults["connections"] = QJsonArray();
+
+    QJsonObject describeResult;
+    describeResult["name"] = "testAdapter";
+    describeResult["defaults"] = defaults;
+    data.updateFromDescribe(describeResult);
+
+    /* Stored config from an old project file: missing the "general" key */
+    QJsonObject storedConfig;
+    storedConfig["connections"] = QJsonArray();
+    data.setCurrentConfig(storedConfig);
+    data.setHasStoredConfig(true);
+
+    QJsonObject config = data.effectiveConfig();
+
+    /* "general" must be filled in from defaults */
+    QVERIFY(config.value("general").isObject());
+    /* "connections" from stored config is preserved */
+    QVERIFY(config.value("connections").isArray());
+}
+
 void TestAdapterData::settingsModelAdapterDataCreatesEntry()
 {
     SettingsModel model;
