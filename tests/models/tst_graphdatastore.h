@@ -29,6 +29,18 @@ private slots:
     void eraseGraphAfterSelectedResetsSelection();
     void clearAllGraphDataResetsSelection();
     void moveRowResetsSelection();
+
+    void insertInactiveGraphDoesNotIncreaseActiveCount();
+    void setActiveNoopDoesNotEmitSignal();
+    void setSelectedGraphEmitsSignal();
+    void setSelectedGraphOnInvisibleGraphIsIgnored();
+    void setVisibleTrueEmitsSignal();
+    void setVisibleFalseEmitsSignal();
+    void setValueAxisEmitsSignal();
+    void setExpressionEmitsSignal();
+    void setExpressionStateEmitsSignal();
+    void setLabelEmitsSignal();
+    void setColorEmitsSignal();
 };
 
 #endif /* TST_GRAPHDATASTORE_H */
