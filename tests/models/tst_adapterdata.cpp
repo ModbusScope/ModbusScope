@@ -132,7 +132,7 @@ void TestAdapterData::effectiveConfigFillsMissingKeysFromDefaults()
 
     QJsonObject defaults;
     defaults["general"] = QJsonObject();
-    defaults["connections"] = QJsonArray();
+    defaults["connections"] = QJsonArray{ QStringLiteral("default_connection") };
 
     QJsonObject describeResult;
     describeResult["name"] = "testAdapter";
@@ -141,7 +141,7 @@ void TestAdapterData::effectiveConfigFillsMissingKeysFromDefaults()
 
     /* Stored config from an old project file: missing the "general" key */
     QJsonObject storedConfig;
-    storedConfig["connections"] = QJsonArray();
+    storedConfig["connections"] = QJsonArray{ QStringLiteral("stored_connection") };
     data.setCurrentConfig(storedConfig);
     data.setHasStoredConfig(true);
 
@@ -149,8 +149,8 @@ void TestAdapterData::effectiveConfigFillsMissingKeysFromDefaults()
 
     /* "general" must be filled in from defaults */
     QVERIFY(config.value("general").isObject());
-    /* "connections" from stored config is preserved */
-    QVERIFY(config.value("connections").isArray());
+    /* "connections" must come from the stored config, not from defaults */
+    QCOMPARE(config.value("connections").toArray(), QJsonArray{ QStringLiteral("stored_connection") });
 }
 
 void TestAdapterData::settingsModelAdapterDataCreatesEntry()
