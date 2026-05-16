@@ -121,9 +121,22 @@ int AdapterData::maxDevicesFromSchema() const
 
 QJsonObject AdapterData::effectiveConfig() const
 {
-    if (_hasStoredConfig)
+    if (!_hasStoredConfig)
     {
-        return _currentConfig;
+        return _defaults;
     }
-    return _defaults;
+
+    /* Use defaults as the base so that keys added to the adapter after a project file was
+     * saved (e.g. 'general') are automatically filled in rather than left absent.
+     * This is a shallow merge: each top-level key in _currentConfig replaces the
+     * corresponding key in result entirely. Nested objects are not merged — if a stored
+     * key holds a QJsonObject, the whole sub-object is taken from _currentConfig and none
+     * of the default's nested keys are backfilled. A recursive merge would be needed if
+     * per-key deep backfilling is ever required (see result/_currentConfig/_defaults here). */
+    QJsonObject result = _defaults;
+    for (auto it = _currentConfig.constBegin(); it != _currentConfig.constEnd(); ++it)
+    {
+        result[it.key()] = it.value();
+    }
+    return result;
 }
