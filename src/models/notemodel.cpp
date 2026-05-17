@@ -261,6 +261,7 @@ void NoteModel::setDraggable(quint32 idx, bool bState)
     if (_noteList[idx].draggable() != bState)
     {
         _noteList[idx].setDraggable(bState);
+        setNotesDataUpdated(true);
         emit draggableChanged(idx);
     }
 }
