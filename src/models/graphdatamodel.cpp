@@ -480,7 +480,7 @@ void GraphDataModel::setAllData(QList<double> timeData, QList<QList<double> > da
 
 void GraphDataModel::removeRegister(qint32 idx)
 {
-    if (idx < _pStore->size())
+    if ((idx >= 0) && (idx < _pStore->size()))
     {
         removeFromModel(idx);
     }

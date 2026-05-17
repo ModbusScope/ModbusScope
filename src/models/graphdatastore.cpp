@@ -161,8 +161,14 @@ void GraphDataStore::setExpressionState(quint32 index, GraphData::ExpressionStat
 
 void GraphDataStore::setSelectedGraph(qint32 index)
 {
-    if (index >= 0)
+    // -1 is the sentinel for "no selection" and bypasses bounds/visibility checks
+    if (index != -1)
     {
+        if ((index < 0) || (index >= _graphData.size()))
+        {
+            return;
+        }
+
         if (!isVisible(index))
         {
             return;
