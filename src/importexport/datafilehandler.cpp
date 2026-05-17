@@ -5,6 +5,7 @@
 #include "importexport/datafileexporter.h"
 #include "importexport/datafileparser.h"
 #include "importexport/settingsauto.h"
+#include "models/communicationstatsmodel.h"
 #include "models/dataparsermodel.h"
 #include "models/graphdatamodel.h"
 #include "models/guimodel.h"
@@ -13,13 +14,21 @@
 #include "util/fileselectionhelper.h"
 #include "util/util.h"
 
-#include <QWidget>
 #include <QProgressDialog>
+#include <QWidget>
 
-DataFileHandler::DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphDataModel, NoteModel* pNoteModel, SettingsModel * pSettingsModel, DataParserModel * pDataParserModel, QWidget *parent) : QObject(parent)
+DataFileHandler::DataFileHandler(GuiModel* pGuiModel,
+                                 GraphDataModel* pGraphDataModel,
+                                 CommunicationStatsModel* pCommunicationStatsModel,
+                                 NoteModel* pNoteModel,
+                                 SettingsModel* pSettingsModel,
+                                 DataParserModel* pDataParserModel,
+                                 QWidget* parent)
+    : QObject(parent)
 {
     _pGuiModel = pGuiModel;
     _pGraphDataModel = pGraphDataModel;
+    _pCommunicationStatsModel = pCommunicationStatsModel;
     _pNoteModel = pNoteModel;
     _pSettingsModel = pSettingsModel;
     _pDataParserModel = pDataParserModel;
@@ -27,7 +36,8 @@ DataFileHandler::DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphData
     _pDataFileStream = nullptr;
     _pDataFile = nullptr;
 
-    _pDataFileExporter = new DataFileExporter(_pSettingsModel, _pGraphDataModel, _pNoteModel);
+    _pDataFileExporter =
+      new DataFileExporter(_pSettingsModel, _pGraphDataModel, _pCommunicationStatsModel, _pNoteModel);
 
     connect(this, &DataFileHandler::startDataParsing, this, &DataFileHandler::parseDataFile);
 }
@@ -128,8 +138,7 @@ bool DataFileHandler::updateNoteLines()
 void DataFileHandler::selectDataImportFile()
 {
     QFileDialog dialog;
-    FileSelectionHelper::configureFileDialog(&dialog,
-                                             FileSelectionHelper::DIALOG_TYPE_OPEN,
+    FileSelectionHelper::configureFileDialog(&dialog, FileSelectionHelper::DIALOG_TYPE_OPEN,
                                              FileSelectionHelper::FILE_TYPE_NONE);
     dialog.setDefaultSuffix("csv");
     dialog.setWindowTitle(tr("Select data file"));
@@ -147,8 +156,7 @@ void DataFileHandler::selectDataImportFile()
 void DataFileHandler::selectDataExportFile()
 {
     QFileDialog dialog;
-    FileSelectionHelper::configureFileDialog(&dialog,
-                                             FileSelectionHelper::DIALOG_TYPE_SAVE,
+    FileSelectionHelper::configureFileDialog(&dialog, FileSelectionHelper::DIALOG_TYPE_SAVE,
                                              FileSelectionHelper::FILE_TYPE_CSV);
 
     QString selectedFile = FileSelectionHelper::showDialog(&dialog);
@@ -158,7 +166,7 @@ void DataFileHandler::selectDataExportFile()
     }
 }
 
-void DataFileHandler::exportDataLine(double timeData, QList <double> dataValues)
+void DataFileHandler::exportDataLine(double timeData, QList<double> dataValues)
 {
     _pDataFileExporter->exportDataLine(timeData, dataValues);
 }
@@ -174,7 +182,8 @@ void DataFileHandler::parseDataFile()
     {
         DataFileParser dataParser(_pDataParserModel);
         DataFileParser::FileData data;
-        QProgressDialog progressDialog("Loading file...", QString(), 0, 100, dynamic_cast<QWidget *>(parent()));
+        QWidget* pw = qobject_cast<QWidget*>(parent());
+        QProgressDialog progressDialog("Loading file...", QString(), 0, 100, pw);
 
         progressDialog.setWindowModality(Qt::WindowModal);
         progressDialog.setMinimumDuration(0);
@@ -202,7 +211,8 @@ void DataFileHandler::parseDataFile()
             {
                 for (int idx = 0; idx < data.dataLabel.size(); idx++)
                 {
-                    auto valueAxis = data.axis[idx] == 1 ? GraphData::VALUE_AXIS_SECONDARY : GraphData::VALUE_AXIS_PRIMARY;
+                    auto valueAxis =
+                      data.axis[idx] == 1 ? GraphData::VALUE_AXIS_SECONDARY : GraphData::VALUE_AXIS_PRIMARY;
                     _pGraphDataModel->setValueAxis(static_cast<quint32>(idx), valueAxis);
                 }
             }
@@ -212,7 +222,7 @@ void DataFileHandler::parseDataFile()
             _pNoteModel->clear();
             if (!data.notes.isEmpty())
             {
-                foreach(Note note, data.notes)
+                for (const Note& note : std::as_const(data.notes))
                 {
                     _pNoteModel->add(note);
                 }
@@ -231,7 +241,6 @@ void DataFileHandler::parseDataFile()
         cleanUpFileHandler();
     }
 }
-
 
 void DataFileHandler::handleError(QString msg)
 {

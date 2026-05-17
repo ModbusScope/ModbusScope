@@ -1,15 +1,21 @@
 #include "communicationstats.h"
 
+#include "models/communicationstatsmodel.h"
 #include "models/graphdatamodel.h"
 #include <algorithm>
 
 const uint32_t CommunicationStats::_cUpdateTime = 500;
 
-CommunicationStats::CommunicationStats(GraphDataModel* pGraphDataModel, quint32 sampleCalculationSize, QObject* parent)
-    : QObject{ parent }, _pGraphDataModel(pGraphDataModel), _sampleCalculationSize(sampleCalculationSize)
+CommunicationStats::CommunicationStats(GraphDataModel* pGraphDataModel,
+                                       CommunicationStatsModel* pStatsModel,
+                                       quint32 sampleCalculationSize,
+                                       QObject* parent)
+    : QObject{ parent },
+      _pGraphDataModel(pGraphDataModel),
+      _pStatsModel(pStatsModel),
+      _sampleCalculationSize(sampleCalculationSize)
 {
-    connect(this, &CommunicationStats::triggerRunTimeUpdate, _pGraphDataModel,
-            &GraphDataModel::communicationTimeStatsChanged);
+    connect(this, &CommunicationStats::triggerRunTimeUpdate, _pStatsModel, &CommunicationStatsModel::timeStatsChanged);
 }
 
 void CommunicationStats::updateTimingInfo()
@@ -40,14 +46,14 @@ void CommunicationStats::updateTimingInfo()
         timeMedian = diffList[(elementCnt - 1) / 2];
     }
 
-    _pGraphDataModel->setMedianPollTime(timeMedian);
+    _pStatsModel->setMedianPollTime(timeMedian);
 }
 
 void CommunicationStats::resetTiming()
 {
-    _pGraphDataModel->setCommunicationStats(0, 0);
-    _pGraphDataModel->setCommunicationStartTime(QDateTime::currentMSecsSinceEpoch());
-    _pGraphDataModel->setMedianPollTime(0);
+    _pStatsModel->setStats(0, 0);
+    _pStatsModel->setStartTime(QDateTime::currentMSecsSinceEpoch());
+    _pStatsModel->setMedianPollTime(0);
 
     emit triggerRunTimeUpdate();
 }
@@ -55,21 +61,19 @@ void CommunicationStats::resetTiming()
 void CommunicationStats::start()
 {
     resetTiming();
-    _pGraphDataModel->setMedianPollTime(0);
     _bRunning = true;
     _runtimeTimer.singleShot(_cUpdateTime, this, &CommunicationStats::updateRuntime);
 }
 
 void CommunicationStats::stop()
 {
-    _pGraphDataModel->setCommunicationEndTime(QDateTime::currentMSecsSinceEpoch());
+    _pStatsModel->setEndTime(QDateTime::currentMSecsSinceEpoch());
     _bRunning = false;
 }
 
 void CommunicationStats::incrementCommunicationStats(quint32 successes, quint32 errors)
 {
-    _pGraphDataModel->setCommunicationStats(_pGraphDataModel->communicationSuccessCount() + successes,
-                                            _pGraphDataModel->communicationErrorCount() + errors);
+    _pStatsModel->setStats(_pStatsModel->successCount() + successes, _pStatsModel->errorCount() + errors);
 }
 
 void CommunicationStats::updateRuntime()

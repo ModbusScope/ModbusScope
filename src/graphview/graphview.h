@@ -9,6 +9,7 @@
 /* forward declaration */
 class GuiModel;
 class GraphDataModel;
+class CommunicationStatsModel;
 class NoteModel;
 class SettingsModel;
 class GraphScale;
@@ -22,14 +23,19 @@ class GraphView : public QObject
 {
     Q_OBJECT
 public:
-
-    explicit GraphView(GuiModel *pGuiModel, SettingsModel * pSettingsModel, GraphDataModel * pGraphDataModel, NoteModel * pNoteModel, ScopePlot *pPlot, QObject *parent = nullptr);
+    explicit GraphView(GuiModel* pGuiModel,
+                       SettingsModel* pSettingsModel,
+                       GraphDataModel* pGraphDataModel,
+                       CommunicationStatsModel* pCommunicationStatsModel,
+                       NoteModel* pNoteModel,
+                       ScopePlot* pPlot,
+                       QObject* parent = nullptr);
     virtual ~GraphView();
 
     qint32 graphDataSize();
-    bool valuesUnderCursor(QList<double> &valueList);
+    bool valuesUnderCursor(QList<double>& valueList);
 
-    QPointF pixelToPointF(const QPoint &pixel) const;
+    QPointF pixelToPointF(const QPoint& pixel) const;
     double pixelToClosestKey(double pixel);
 
     void showMarkers();
@@ -57,10 +63,10 @@ signals:
     void afterGraphUpdate();
 
 private slots:
-    void mousePress(QMouseEvent *event);
-    void mouseRelease(QMouseEvent *event);
+    void mousePress(QMouseEvent* event);
+    void mouseRelease(QMouseEvent* event);
     void mouseWheel();
-    void mouseMove(QMouseEvent *event);
+    void mouseMove(QMouseEvent* event);
     void handleSelectionChanged(bool selected);
 
     void handleSamplePoints();
@@ -68,19 +74,20 @@ private slots:
 private:
     void paintTimeStampToolTip(QPoint pos);
     void highlightSamples(bool bState);
-    void setGraphColor(QCPGraph* _pGraph, const QColor &color);
-    void setGraphAxis(QCPGraph* _pGraph, const GraphData::valueAxis_t &axis);
+    void setGraphColor(QCPGraph* _pGraph, const QColor& color);
+    void setGraphAxis(QCPGraph* _pGraph, const GraphData::valueAxis_t& axis);
     double roundToAxisRange(double value, QCPAxis const* pAxis) const;
     double getClosestPoint(double coordinate);
     void updateSecondaryAxisVisibility();
-    qint32 getActiveGraphIndex(const QCPGraph * const pGraph);
+    qint32 getActiveGraphIndex(const QCPGraph* const pGraph);
 
     QVector<QString> _tickLabels;
 
-    GuiModel * _pGuiModel;
-    SettingsModel * _pSettingsModel;
-    GraphDataModel * _pGraphDataModel;
-    ScopePlot * _pPlot;
+    GuiModel* _pGuiModel;
+    SettingsModel* _pSettingsModel;
+    GraphDataModel* _pGraphDataModel;
+    CommunicationStatsModel* _pCommunicationStatsModel;
+    ScopePlot* _pPlot;
     bool _bEnableSampleHighlight;
 
     GraphScale* _pGraphScale;
@@ -93,7 +100,6 @@ private:
 
     static const qint32 _cPixelPerPointThreshold = 5; /* in pixels */
     static const quint64 _cOptimizeThreshold = 1000000uL;
-
 };
 
 #endif // GRAPHVIEW_H

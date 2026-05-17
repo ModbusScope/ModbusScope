@@ -7,6 +7,7 @@
 // Forward declaration
 class GuiModel;
 class GraphDataModel;
+class CommunicationStatsModel;
 class NoteModel;
 class SettingsModel;
 class DataParserModel;
@@ -16,7 +17,13 @@ class DataFileHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit DataFileHandler(GuiModel* pGuiModel, GraphDataModel* pGraphDataModel, NoteModel* pNoteModel, SettingsModel *pSettingsModel, DataParserModel * pDataParserModel, QWidget *parent = nullptr);
+    explicit DataFileHandler(GuiModel* pGuiModel,
+                             GraphDataModel* pGraphDataModel,
+                             CommunicationStatsModel* pCommunicationStatsModel,
+                             NoteModel* pNoteModel,
+                             SettingsModel* pSettingsModel,
+                             DataParserModel* pDataParserModel,
+                             QWidget* parent = nullptr);
     ~DataFileHandler();
 
     void openDataFile(QString dataFilePath);
@@ -34,7 +41,7 @@ public slots:
     void selectDataImportFile();
     void selectDataExportFile();
 
-    void exportDataLine(double timeData, QList <double> dataValues);
+    void exportDataLine(double timeData, QList<double> dataValues);
     void rewriteDataFile(void);
 
     void parseDataFile();
@@ -44,14 +51,14 @@ private slots:
     void cleanUpFileHandler();
 
 private:
-
     GuiModel* _pGuiModel;
     GraphDataModel* _pGraphDataModel;
+    CommunicationStatsModel* _pCommunicationStatsModel;
     NoteModel* _pNoteModel;
     SettingsModel* _pSettingsModel;
 
-    DataFileExporter * _pDataFileExporter;
-    DataParserModel * _pDataParserModel;
+    DataFileExporter* _pDataFileExporter;
+    DataParserModel* _pDataParserModel;
 
     QTextStream* _pDataFileStream;
     QFile* _pDataFile;

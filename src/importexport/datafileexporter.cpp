@@ -1,6 +1,7 @@
 
 #include "datafileexporter.h"
 
+#include "models/communicationstatsmodel.h"
 #include "models/graphdatamodel.h"
 #include "models/notemodel.h"
 #include "models/settingsmodel.h"
@@ -10,12 +11,14 @@
 
 DataFileExporter::DataFileExporter(SettingsModel* pSettingsModel,
                                    GraphDataModel* pGraphDataModel,
+                                   CommunicationStatsModel* pCommunicationStatsModel,
                                    NoteModel* pNoteModel,
                                    QObject* parent)
     : QObject(parent)
 {
     _pSettingsModel = pSettingsModel;
     _pGraphDataModel = pGraphDataModel;
+    _pCommunicationStatsModel = pCommunicationStatsModel;
     _pNoteModel = pNoteModel;
 
     lastLogTime = QDateTime::currentMSecsSinceEpoch();
@@ -88,7 +91,7 @@ void DataFileExporter::exportDataFile(QString dataFile)
         if (bRet)
         {
             QList<quint16> activeGraphIndexes;
-            _pGraphDataModel->activeGraphIndexList(&activeGraphIndexes);
+            _pGraphDataModel->activeGraphIndexList(activeGraphIndexes);
             QList<QCPGraphDataContainer::const_iterator> dataListIterators;
 
             for (qint32 idx = 0; idx < activeGraphIndexes.size(); idx++)
@@ -275,7 +278,7 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
         header.append(comment + "ModbusScope version" + Util::separatorCharacter() + Util::currentVersion());
 
         // Save start time
-        dt = QDateTime::fromMSecsSinceEpoch(_pGraphDataModel->communicationStartTime());
+        dt = QDateTime::fromMSecsSinceEpoch(_pCommunicationStatsModel->startTime());
         header.append(comment + "Start time" + Util::separatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss"));
 
         // Save end time
@@ -285,15 +288,15 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
         }
         else
         {
-            dt = QDateTime::fromMSecsSinceEpoch(_pGraphDataModel->communicationEndTime());
+            dt = QDateTime::fromMSecsSinceEpoch(_pCommunicationStatsModel->endTime());
             header.append(comment + "End time" + Util::separatorCharacter() + dt.toString("dd-MM-yyyy HH:mm:ss"));
         }
 
         header.append(comment + "Poll interval" + Util::separatorCharacter() +
                       QString::number(_pSettingsModel->pollTime()));
 
-        quint32 success = _pGraphDataModel->communicationSuccessCount();
-        quint32 error = _pGraphDataModel->communicationErrorCount();
+        quint32 success = _pCommunicationStatsModel->successCount();
+        quint32 error = _pCommunicationStatsModel->errorCount();
         header.append(comment + "Communication success" + Util::separatorCharacter() + QString::number(success));
         header.append(comment + "Communication errors" + Util::separatorCharacter() + QString::number(error));
 

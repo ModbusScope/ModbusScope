@@ -15,7 +15,7 @@ void GraphDataHandler::setupExpressions(GraphDataModel* pGraphDataModel, QList<D
 {
     QStringList exprList;
 
-    pGraphDataModel->activeGraphIndexList(&_activeIndexList);
+    pGraphDataModel->activeGraphIndexList(_activeIndexList);
     for (quint16 graphIdx : std::as_const(_activeIndexList))
     {
         exprList.append(pGraphDataModel->expression(graphIdx));

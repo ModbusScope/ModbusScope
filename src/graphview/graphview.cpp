@@ -7,6 +7,7 @@
 #include "graphview/graphviewzoom.h"
 #include "graphview/notehandling.h"
 #include "graphview/scopeplot.h"
+#include "models/communicationstatsmodel.h"
 #include "models/graphdatamodel.h"
 #include "models/guimodel.h"
 #include "models/notemodel.h"
@@ -23,6 +24,7 @@
 GraphView::GraphView(GuiModel* pGuiModel,
                      SettingsModel* pSettingsModel,
                      GraphDataModel* pGraphDataModel,
+                     CommunicationStatsModel* pCommunicationStatsModel,
                      NoteModel* pNoteModel,
                      ScopePlot* pPlot,
                      QObject* parent)
@@ -30,6 +32,7 @@ GraphView::GraphView(GuiModel* pGuiModel,
 {
     _pGuiModel = pGuiModel;
     _pGraphDataModel = pGraphDataModel;
+    _pCommunicationStatsModel = pCommunicationStatsModel;
     _pSettingsModel = pSettingsModel;
 
     _pPlot = pPlot;
@@ -179,7 +182,7 @@ void GraphView::clearGraph(const quint32 graphIdx)
     {
 
         QList<quint16> activeGraphList;
-        _pGraphDataModel->activeGraphIndexList(&activeGraphList);
+        _pGraphDataModel->activeGraphIndexList(activeGraphList);
 
         if (activeGraphList.size() <= 0)
         {
@@ -217,7 +220,7 @@ void GraphView::updateGraphs()
     _pPlot->clearGraphs();
 
     QList<quint16> activeGraphList;
-    _pGraphDataModel->activeGraphIndexList(&activeGraphList);
+    _pGraphDataModel->activeGraphIndexList(activeGraphList);
 
     if (activeGraphList.size() > 0)
     {
@@ -412,7 +415,7 @@ void GraphView::plotResults(ResultDoubleList resultList)
     }
     else
     {
-        timeData = QDateTime::currentMSecsSinceEpoch() - _pGraphDataModel->communicationStartTime();
+        timeData = QDateTime::currentMSecsSinceEpoch() - _pCommunicationStatsModel->startTime();
     }
 
     QList<double> dataList;

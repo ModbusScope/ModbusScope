@@ -16,6 +16,7 @@
 #include "graphview/graphview.h"
 #include "importexport/datafilehandler.h"
 #include "importexport/projectfilehandler.h"
+#include "models/communicationstatsmodel.h"
 #include "models/dataparsermodel.h"
 #include "models/diagnosticmodel.h"
 #include "models/graphdatamodel.h"
@@ -38,6 +39,7 @@ MainWindow::MainWindow(QStringList cmdArguments,
                        GuiModel* pGuiModel,
                        SettingsModel* pSettingsModel,
                        GraphDataModel* pGraphDataModel,
+                       CommunicationStatsModel* pCommunicationStatsModel,
                        NoteModel* pNoteModel,
                        DiagnosticModel* pDiagnosticModel,
                        DataParserModel* pDataParserModel,
@@ -47,6 +49,7 @@ MainWindow::MainWindow(QStringList cmdArguments,
       _pGuiModel(pGuiModel),
       _pSettingsModel(pSettingsModel),
       _pGraphDataModel(pGraphDataModel),
+      _pCommunicationStatsModel(pCommunicationStatsModel),
       _pNoteModel(pNoteModel),
       _pDiagnosticModel(pDiagnosticModel),
       _pDataParserModel(pDataParserModel)
@@ -62,18 +65,19 @@ MainWindow::MainWindow(QStringList cmdArguments,
     _pAdapterPoll = new AdapterPoll(_pSettingsModel, this);
     connect(_pAdapterPoll, &AdapterPoll::registerDataReady, this, &MainWindow::onRegisterDataReady);
 
-    _pGraphView = new GraphView(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pNoteModel, _pUi->customPlot, this);
-    _pDataFileHandler =
-      new DataFileHandler(_pGuiModel, _pGraphDataModel, _pNoteModel, _pSettingsModel, _pDataParserModel, this);
+    _pGraphView = new GraphView(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pCommunicationStatsModel, _pNoteModel,
+                                _pUi->customPlot, this);
+    _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pCommunicationStatsModel, _pNoteModel,
+                                            _pSettingsModel, _pDataParserModel, this);
     _pProjectFileHandler = new ProjectFileHandler(_pGuiModel, _pSettingsModel, _pGraphDataModel, this);
     _pExpressionStatus = new ExpressionStatus(_pGraphDataModel, pSettingsModel, this);
-    _pCommunicationStats = new CommunicationStats(_pGraphDataModel, 50, this);
+    _pCommunicationStats = new CommunicationStats(_pGraphDataModel, _pCommunicationStatsModel, 50, this);
 
     _pLegend = _pUi->legend;
     _pLegend->setModels(_pGuiModel, _pGraphDataModel);
     _pLegend->setGraphview(_pGraphView);
 
-    _pStatusBar = new StatusBar(_pGuiModel, _pGraphDataModel, this);
+    _pStatusBar = new StatusBar(_pGuiModel, _pCommunicationStatsModel, this);
     setStatusBar(_pStatusBar);
 
     _pMarkerInfo = _pUi->markerInfo;
@@ -597,7 +601,7 @@ void MainWindow::handleGraphsCountChanged()
     rebuildGraphMenu();
 
     QList<quint16> activeGraphList;
-    _pGraphDataModel->activeGraphIndexList(&activeGraphList);
+    _pGraphDataModel->activeGraphIndexList(activeGraphList);
 
     const bool bEnabled = !activeGraphList.isEmpty();
     _pUi->actionZoom->setEnabled(bEnabled);
@@ -610,7 +614,7 @@ void MainWindow::rebuildGraphMenu()
     _pGraphShowHide->clear();
 
     QList<quint16> activeGraphList;
-    _pGraphDataModel->activeGraphIndexList(&activeGraphList);
+    _pGraphDataModel->activeGraphIndexList(activeGraphList);
 
     for (qint32 activeIdx = 0; activeIdx < activeGraphList.size(); activeIdx++)
     {

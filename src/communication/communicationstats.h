@@ -6,12 +6,16 @@
 #include <QTimer>
 
 class GraphDataModel;
+class CommunicationStatsModel;
 
 class CommunicationStats : public QObject
 {
     Q_OBJECT
 public:
-    explicit CommunicationStats(GraphDataModel* pGraphDataModel, quint32 sampleCalculationSize = 50, QObject *parent = nullptr);
+    explicit CommunicationStats(GraphDataModel* pGraphDataModel,
+                                CommunicationStatsModel* pStatsModel,
+                                quint32 sampleCalculationSize = 50,
+                                QObject* parent = nullptr);
 
     void resetTiming();
     void start();
@@ -31,8 +35,9 @@ private slots:
 
 private:
     GraphDataModel* _pGraphDataModel;
+    CommunicationStatsModel* _pStatsModel;
 
-    bool _bRunning{false};
+    bool _bRunning{ false };
 
     QTimer _runtimeTimer;
 

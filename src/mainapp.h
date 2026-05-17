@@ -5,6 +5,7 @@
 
 class MainWindow;
 class GraphDataModel;
+class CommunicationStatsModel;
 class NoteModel;
 class DiagnosticModel;
 class SettingsModel;
@@ -15,24 +16,23 @@ class MainApp : public QObject
 {
     Q_OBJECT
 public:
-    explicit MainApp(QStringList cmdArguments, QObject *parent = nullptr);
+    explicit MainApp(QStringList cmdArguments, QObject* parent = nullptr);
     ~MainApp();
 
 signals:
 
 private:
-
     void logInitialInfo();
 
-    SettingsModel * _pSettingsModel;
-    GraphDataModel * _pGraphDataModel;
-    NoteModel * _pNoteModel;
-    DiagnosticModel * _pDiagnosticModel;
-    GuiModel * _pGuiModel;
-    DataParserModel * _pDataParserModel;
+    SettingsModel* _pSettingsModel;
+    GraphDataModel* _pGraphDataModel;
+    CommunicationStatsModel* _pCommunicationStatsModel;
+    NoteModel* _pNoteModel;
+    DiagnosticModel* _pDiagnosticModel;
+    GuiModel* _pGuiModel;
+    DataParserModel* _pDataParserModel;
 
     MainWindow* _pMainWin;
-
 };
 
 #endif // MAINAPP_H

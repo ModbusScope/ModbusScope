@@ -7,6 +7,8 @@
 
 #include "models/graphdata.h"
 
+class GraphDataStore;
+
 class GraphDataModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -58,13 +60,6 @@ public:
     QSharedPointer<const QCPGraphDataContainer> dataMap(quint32 index) const;
     QSharedPointer<QCPGraphDataContainer> mutableDataMap(quint32 index);
 
-    qint64 communicationStartTime();
-    qint64 communicationEndTime();
-    quint32 communicationErrorCount();
-    quint32 communicationSuccessCount();
-    qint64 communicationRunTime();
-    quint32 medianPollTime();
-
     void setValueAxis(quint32 index, GraphData::valueAxis_t axis);
     void setVisible(quint32 index, bool bVisible);
     void setLabel(quint32 index, const QString& label);
@@ -74,10 +69,6 @@ public:
     void setExpressionState(quint32 index, GraphData::ExpressionState status);
     void setSelectedGraph(qint32 index);
 
-    void setCommunicationStartTime(qint64 startTime);
-    void setCommunicationEndTime(qint64 endTime);
-    void setCommunicationStats(quint32 successCount, quint32 errorCount);
-    void setMedianPollTime(quint32 pollTime);
     void setDefaultExpression(const QString& expression);
 
     void add(GraphData rowData);
@@ -89,7 +80,7 @@ public:
     void removeRegister(qint32 idx);
     void clear();
 
-    void activeGraphIndexList(QList<quint16>* pList);
+    void activeGraphIndexList(QList<quint16>& list);
 
     qint32 convertToActiveGraphIndex(quint32 graphIdx);
     qint32 convertToGraphIndex(quint32 activeIdx);
@@ -106,9 +97,6 @@ signals:
     void selectedGraphChanged(const qint32 graphIdx);
     void graphsAddData(QList<double>, QList<QList<double> > data);
 
-    void communicationStatsChanged();
-    void communicationTimeStatsChanged();
-
     void moved();
     void added(const quint32 idx);
     void removed(const quint32 idx);
@@ -119,23 +107,13 @@ private slots:
     void modelCompleteDataChanged();
 
 private:
-    void updateActiveGraphList(void);
     void addToModel(GraphData graphData);
     void removeFromModel(qint32 row);
     void moveRow(int sourceRow, int destRow);
 
-    qint64 _startTime;
-    qint64 _endTime;
-    quint32 _successCount;
-    quint32 _errorCount;
-    quint32 _medianPollTime;
-
     QString _defaultExpression;
 
-    QList<GraphData> _graphData;
-    QList<quint32> _activeGraphList;
-
-    qint32 _selectedGraphIdx;
+    GraphDataStore* _pStore;
 };
 
 #endif // GRAPHDATAMODEL_H

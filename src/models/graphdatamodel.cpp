@@ -3,18 +3,22 @@
 
 #include "customwidgets/centeredbox.h"
 #include "models/graphdata.h"
+#include "models/graphdatastore.h"
 #include "util/util.h"
 
 const QColor GraphDataModel::lightRed = QColor(240, 128, 128); // #f08080
 
-GraphDataModel::GraphDataModel(QObject* parent) : QAbstractTableModel(parent), _selectedGraphIdx(-1)
+GraphDataModel::GraphDataModel(QObject* parent)
+    : QAbstractTableModel(parent), _defaultExpression(QStringLiteral("${h0}")), _pStore(new GraphDataStore(this))
 {
-    _graphData.clear();
-    _startTime = 0;
-    _endTime = 0;
-    _successCount = 0;
-    _errorCount = 0;
-    _defaultExpression = QStringLiteral("${h0}");
+    connect(_pStore, &GraphDataStore::valueAxisChanged, this, &GraphDataModel::valueAxisChanged);
+    connect(_pStore, &GraphDataStore::visibilityChanged, this, &GraphDataModel::visibilityChanged);
+    connect(_pStore, &GraphDataStore::labelChanged, this, &GraphDataModel::labelChanged);
+    connect(_pStore, &GraphDataStore::colorChanged, this, &GraphDataModel::colorChanged);
+    connect(_pStore, &GraphDataStore::activeChanged, this, &GraphDataModel::activeChanged);
+    connect(_pStore, &GraphDataStore::expressionChanged, this, &GraphDataModel::expressionChanged);
+    connect(_pStore, &GraphDataStore::expressionStateChanged, this, &GraphDataModel::expressionStateChanged);
+    connect(_pStore, &GraphDataStore::selectedGraphChanged, this, &GraphDataModel::selectedGraphChanged);
 
     connect(this, &GraphDataModel::visibilityChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::labelChanged, this, &GraphDataModel::modelDataChanged);
@@ -22,10 +26,6 @@ GraphDataModel::GraphDataModel(QObject* parent) : QAbstractTableModel(parent), _
     connect(this, &GraphDataModel::activeChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::expressionChanged, this, &GraphDataModel::modelDataChanged);
     connect(this, &GraphDataModel::expressionStateChanged, this, &GraphDataModel::modelDataChanged);
-
-    /* When adding or removing graphs, the complete view should be refreshed to make sure all indexes are updated */
-    connect(this, &GraphDataModel::added, this, &GraphDataModel::modelCompleteDataChanged);
-    connect(this, &GraphDataModel::removed, this, &GraphDataModel::modelCompleteDataChanged);
 }
 
 int GraphDataModel::rowCount(const QModelIndex& /*parent*/) const
@@ -319,234 +319,112 @@ bool GraphDataModel::dropMimeData(
 
 qint32 GraphDataModel::size() const
 {
-    return _graphData.size();
+    return _pStore->size();
 }
 
 qint32 GraphDataModel::activeCount() const
 {
-    return _activeGraphList.size();
+    return _pStore->activeCount();
 }
 
 GraphData::valueAxis_t GraphDataModel::valueAxis(quint32 index) const
 {
-    return _graphData[index].valueAxis();
+    return _pStore->valueAxis(index);
 }
 
 bool GraphDataModel::isVisible(quint32 index) const
 {
-    return _graphData[index].isVisible();
+    return _pStore->isVisible(index);
 }
 
 QString GraphDataModel::label(quint32 index) const
 {
-    return _graphData[index].label();
+    return _pStore->label(index);
 }
 
 QColor GraphDataModel::color(quint32 index) const
 {
-    return _graphData[index].color();
+    return _pStore->color(index);
 }
 
 bool GraphDataModel::isActive(quint32 index) const
 {
-    return _graphData[index].isActive();
+    return _pStore->isActive(index);
 }
 
 QString GraphDataModel::expression(quint32 index) const
 {
-    return _graphData[index].expression();
+    return _pStore->expression(index);
 }
 
 GraphData::ExpressionState GraphDataModel::expressionState(quint32 index) const
 {
-    return _graphData[index].expressionState();
+    return _pStore->expressionState(index);
 }
 
 bool GraphDataModel::isExpressionValid(quint32 index) const
 {
-    return _graphData[index].isExpressionValid();
+    return _pStore->isExpressionValid(index);
 }
 
 qint32 GraphDataModel::selectedGraph() const
 {
-    return _selectedGraphIdx;
+    return _pStore->selectedGraph();
 }
 
 QString GraphDataModel::simplifiedExpression(quint32 index) const
 {
-    return _graphData[index].expression().simplified();
+    return _pStore->simplifiedExpression(index);
 }
 
 QSharedPointer<const QCPGraphDataContainer> GraphDataModel::dataMap(quint32 index) const
 {
-    return _graphData[index].dataMap();
+    return _pStore->dataMap(index);
 }
 
 QSharedPointer<QCPGraphDataContainer> GraphDataModel::mutableDataMap(quint32 index)
 {
-    return _graphData[index].mutableDataMap();
-}
-
-qint64 GraphDataModel::communicationStartTime()
-{
-    return _startTime;
-}
-
-void GraphDataModel::setCommunicationStartTime(qint64 startTime)
-{
-    if (_startTime != startTime)
-    {
-        _startTime = startTime;
-        // No signal yet
-    }
-}
-
-qint64 GraphDataModel::communicationEndTime()
-{
-    return _endTime;
-}
-
-void GraphDataModel::setCommunicationEndTime(qint64 endTime)
-{
-    if (_endTime != endTime)
-    {
-        _endTime = endTime;
-        // No signal yet
-    }
-}
-
-void GraphDataModel::setCommunicationStats(quint32 successCount, quint32 errorCount)
-{
-    if ((_successCount != successCount) || (_errorCount != errorCount))
-    {
-        _successCount = successCount;
-        _errorCount = errorCount;
-        emit communicationStatsChanged();
-    }
-}
-
-void GraphDataModel::setMedianPollTime(quint32 pollTime)
-{
-    _medianPollTime = pollTime;
-}
-
-quint32 GraphDataModel::communicationErrorCount()
-{
-    return _errorCount;
-}
-
-quint32 GraphDataModel::communicationSuccessCount()
-{
-    return _successCount;
-}
-
-qint64 GraphDataModel::communicationRunTime()
-{
-    return QDateTime::currentMSecsSinceEpoch() - communicationStartTime();
-}
-
-quint32 GraphDataModel::medianPollTime()
-{
-    return _medianPollTime;
+    return _pStore->mutableDataMap(index);
 }
 
 void GraphDataModel::setValueAxis(quint32 index, GraphData::valueAxis_t axis)
 {
-    if (_graphData[index].valueAxis() != axis)
-    {
-        _graphData[index].setValueAxis(axis);
-        emit valueAxisChanged(index);
-    }
+    _pStore->setValueAxis(index, axis);
 }
 
 void GraphDataModel::setVisible(quint32 index, bool bVisible)
 {
-    if (_graphData[index].isVisible() != bVisible)
-    {
-        _graphData[index].setVisible(bVisible);
-        emit visibilityChanged(index);
-
-        if (!bVisible && (static_cast<qint32>(index) == _selectedGraphIdx))
-        {
-            setSelectedGraph(-1);
-        }
-    }
+    _pStore->setVisible(index, bVisible);
 }
 
 void GraphDataModel::setLabel(quint32 index, const QString& label)
 {
-    if (_graphData[index].label() != label)
-    {
-        _graphData[index].setLabel(label);
-        emit labelChanged(index);
-    }
+    _pStore->setLabel(index, label);
 }
 
 void GraphDataModel::setColor(quint32 index, const QColor& color)
 {
-    if (_graphData[index].color() != color)
-    {
-        _graphData[index].setColor(color);
-        emit colorChanged(index);
-    }
+    _pStore->setColor(index, color);
 }
 
 void GraphDataModel::setActive(quint32 index, bool bActive)
 {
-    if (_graphData[index].isActive() != bActive)
-    {
-        _graphData[index].setActive(bActive);
-
-        updateActiveGraphList();
-
-        // When deactivated, clear data
-        if (!bActive)
-        {
-            _graphData[index].mutableDataMap()->clear();
-        }
-        else
-        {
-            // when (re)-added, make sure graph is always visible
-            _graphData[index].setVisible(true);
-        }
-
-        emit activeChanged(index);
-    }
+    _pStore->setActive(index, bActive);
 }
 
 void GraphDataModel::setExpression(quint32 index, QString expression)
 {
-    if (_graphData[index].expression() != expression)
-    {
-        _graphData[index].setExpression(expression);
-        emit expressionChanged(index);
-    }
+    _pStore->setExpression(index, expression);
 }
 
 void GraphDataModel::setExpressionState(quint32 index, GraphData::ExpressionState status)
 {
-    if (_graphData[index].expressionState() != status)
-    {
-        _graphData[index].setExpressionState(status);
-        emit expressionStateChanged(index);
-    }
+    _pStore->setExpressionState(index, status);
 }
 
 void GraphDataModel::setSelectedGraph(qint32 index)
 {
-    if (index >= 0)
-    {
-        if (!isVisible(index))
-        {
-            return;
-        }
-    }
-
-    if (index != _selectedGraphIdx)
-    {
-        _selectedGraphIdx = index;
-        emit selectedGraphChanged(_selectedGraphIdx);
-    }
+    _pStore->setSelectedGraph(index);
 }
 
 void GraphDataModel::add(GraphData rowData)
@@ -588,7 +466,7 @@ void GraphDataModel::add(QList<QString> labelList)
     foreach (QString label, labelList)
     {
         add();
-        setLabel(_graphData.size() - 1, label);
+        setLabel(_pStore->size() - 1, label);
     }
 }
 
@@ -602,7 +480,7 @@ void GraphDataModel::setAllData(QList<double> timeData, QList<QList<double> > da
 
 void GraphDataModel::removeRegister(qint32 idx)
 {
-    if (idx < _graphData.size())
+    if ((idx >= 0) && (idx < _pStore->size()))
     {
         removeFromModel(idx);
     }
@@ -610,66 +488,28 @@ void GraphDataModel::removeRegister(qint32 idx)
 
 void GraphDataModel::clear()
 {
-    if (_graphData.size() > 0)
+    if (_pStore->size() > 0)
     {
-        beginRemoveRows(QModelIndex(), 0, _graphData.size() - 1);
-
-        _graphData.clear();
-
-        updateActiveGraphList();
-
+        beginRemoveRows(QModelIndex(), 0, _pStore->size() - 1);
+        _pStore->clearAllGraphData();
         endRemoveRows();
-
         emit removed(0);
     }
 }
 
-// Get list of active graph indexes
-void GraphDataModel::activeGraphIndexList(QList<quint16>* pList)
+void GraphDataModel::activeGraphIndexList(QList<quint16>& list)
 {
-    // Clear list
-    pList->clear();
-
-    foreach (quint32 idx, _activeGraphList)
-    {
-        pList->append(idx);
-    }
-
-    // sort qList
-    std::sort(pList->begin(), pList->end(), std::less<int>());
+    _pStore->activeGraphIndexList(list);
 }
 
 qint32 GraphDataModel::convertToActiveGraphIndex(quint32 graphIdx)
 {
-    qint16 result = -1;
-    for (qint32 activeIdx = 0; activeIdx < _activeGraphList.size(); activeIdx++)
-    {
-        if (_activeGraphList[activeIdx] == graphIdx)
-        {
-            result = activeIdx;
-            break;
-        }
-    }
-    return result;
+    return _pStore->convertToActiveGraphIndex(graphIdx);
 }
 
 qint32 GraphDataModel::convertToGraphIndex(quint32 activeIdx)
 {
-    return _activeGraphList[activeIdx];
-}
-
-void GraphDataModel::updateActiveGraphList(void)
-{
-    // Clear list
-    _activeGraphList.clear();
-
-    for (qint32 idx = 0; idx < _graphData.size(); idx++)
-    {
-        if (_graphData[idx].isActive())
-        {
-            _activeGraphList.append(idx);
-        }
-    }
+    return _pStore->convertToGraphIndex(activeIdx);
 }
 
 void GraphDataModel::modelDataChanged(quint32 idx)
@@ -684,37 +524,20 @@ void GraphDataModel::modelCompleteDataChanged()
 
 void GraphDataModel::addToModel(GraphData graphData)
 {
-    /* Call function to prepare view */
-    beginInsertRows(QModelIndex(), size(), size());
-
-    /* Select color */
-    if (!graphData.color().isValid())
-    {
-        quint32 colorIndex = _graphData.size() % Util::cColorlist.size();
-        graphData.setColor(Util::cColorlist[colorIndex]);
-    }
-
-    _graphData.append(graphData);
-
-    updateActiveGraphList();
-
-    /* Call function to trigger view update */
+    beginInsertRows(QModelIndex(), _pStore->size(), _pStore->size());
+    _pStore->insertGraphData(graphData);
     endInsertRows();
-
-    emit added(size() - 1);
+    emit added(_pStore->size() - 1);
+    modelCompleteDataChanged();
 }
 
 void GraphDataModel::removeFromModel(qint32 row)
 {
     beginRemoveRows(QModelIndex(), row, row);
-
-    _graphData.removeAt(row);
-
-    updateActiveGraphList();
-
+    _pStore->eraseGraphDataAt(row);
     endRemoveRows();
-
     emit removed(row);
+    modelCompleteDataChanged();
 }
 
 void GraphDataModel::moveRow(int sourceRow, int destRow)
@@ -731,10 +554,12 @@ void GraphDataModel::moveRow(int sourceRow, int destRow)
 
     if (sourceRow != newRow)
     {
-        _graphData.move(sourceRow, newRow);
+        const int destinationChild = newRow > sourceRow ? newRow + 1 : newRow;
+        beginMoveRows(QModelIndex(), sourceRow, sourceRow, QModelIndex(), destinationChild);
+        _pStore->moveGraphRow(sourceRow, newRow);
+        endMoveRows();
     }
 
     modelCompleteDataChanged();
-
     emit moved();
 }

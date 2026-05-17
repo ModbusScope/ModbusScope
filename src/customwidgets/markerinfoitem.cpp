@@ -186,7 +186,7 @@ void MarkerInfoItem::graphSelected(qint32 index)
 void MarkerInfoItem::updateList()
 {
     QList<quint16> activeGraphList;
-    _pGraphDataModel->activeGraphIndexList(&activeGraphList);
+    _pGraphDataModel->activeGraphIndexList(activeGraphList);
 
     _pGraphCombo->clear();
 
