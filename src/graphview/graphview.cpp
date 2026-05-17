@@ -55,8 +55,7 @@ GraphView::GraphView(GuiModel* pGuiModel,
      * */
     _pPlot->setMultiSelectModifier(Qt::ShiftModifier);
 
-    // Samples are enabled
-    _bEnableSampleHighlight = true;
+    _bCurrentHighlightState = false;
 
     // Add layer to move graph in front
     _pPlot->addLayer("topMain", _pPlot->layer("main"), QCustomPlot::limAbove);
@@ -69,7 +68,8 @@ GraphView::GraphView(GuiModel* pGuiModel,
     connect(_pPlot, &ScopePlot::mouseRelease, this, &GraphView::mouseRelease);
     connect(_pPlot, &ScopePlot::mouseWheel, this, &GraphView::mouseWheel);
     connect(_pPlot, &ScopePlot::mouseMove, this, &GraphView::mouseMove);
-    connect(_pPlot, &ScopePlot::beforeReplot, this, &GraphView::enableSamplePoints);
+    connect(_pPlot->xAxis, QOverload<const QCPRange&>::of(&QCPAxis::rangeChanged), this,
+            &GraphView::handleSamplePoints);
 
     _pGraphScale = new GraphScale(_pGuiModel, _pPlot, this);
     _pGraphViewZoom = new GraphViewZoom(_pGuiModel, _pPlot, this);
@@ -172,8 +172,7 @@ void GraphView::updateTooltip()
 
 void GraphView::enableSamplePoints()
 {
-    _bEnableSampleHighlight = _pGuiModel->highlightSamples();
-    _pPlot->replot();
+    handleSamplePoints();
 }
 
 void GraphView::clearGraph(const quint32 graphIdx)
@@ -633,42 +632,43 @@ void GraphView::handleSamplePoints()
 {
     bool bHighlight = false;
 
-    if (_bEnableSampleHighlight)
+    if (_pGuiModel->highlightSamples() && _pPlot->graphCount() > 0 && graphDataSize() > 0)
     {
-        if (_pPlot->graphCount() > 0 && (graphDataSize() > 0))
+        QCPRange axisRange = _pPlot->xAxis->range();
+
+        auto lowerBoundIt = _pPlot->graph(0)->data()->findBegin(axisRange.lower, false);
+        auto upperBoundIt = _pPlot->graph(0)->data()->findBegin(axisRange.upper);
+
+        const int pointCount = upperBoundIt - lowerBoundIt;
+
+        /* Get size in pixels */
+        const double sizePx =
+          _pPlot->xAxis->coordToPixel(upperBoundIt->key) - _pPlot->xAxis->coordToPixel(lowerBoundIt->key);
+
+        /* Calculate number of pixels per point */
+        double nrOfPixelsPerPoint;
+
+        if (lowerBoundIt != upperBoundIt)
         {
-            QCPRange axisRange = _pPlot->xAxis->range();
+            nrOfPixelsPerPoint = sizePx / qAbs(pointCount);
+        }
+        else
+        {
+            nrOfPixelsPerPoint = sizePx;
+        }
 
-            auto lowerBoundIt = _pPlot->graph(0)->data()->findBegin(axisRange.lower, false);
-            auto upperBoundIt = _pPlot->graph(0)->data()->findBegin(axisRange.upper);
-
-            const int pointCount = upperBoundIt - lowerBoundIt;
-
-            /* Get size in pixels */
-            const double sizePx =
-              _pPlot->xAxis->coordToPixel(upperBoundIt->key) - _pPlot->xAxis->coordToPixel(lowerBoundIt->key);
-
-            /* Calculate number of pixels per point */
-            double nrOfPixelsPerPoint;
-
-            if (lowerBoundIt != upperBoundIt)
-            {
-                nrOfPixelsPerPoint = sizePx / qAbs(pointCount);
-            }
-            else
-            {
-                nrOfPixelsPerPoint = sizePx;
-            }
-
-            if (nrOfPixelsPerPoint > _cPixelPerPointThreshold)
-            {
-                bHighlight = true;
-            }
+        if (nrOfPixelsPerPoint > _cPixelPerPointThreshold)
+        {
+            bHighlight = true;
         }
     }
 
-    /* TODO: add hysteresis to highlight sample points */
-    highlightSamples(bHighlight);
+    if (bHighlight != _bCurrentHighlightState)
+    {
+        _bCurrentHighlightState = bHighlight;
+        highlightSamples(bHighlight);
+        _pPlot->replot();
+    }
 }
 
 void GraphView::highlightSamples(bool bState)
