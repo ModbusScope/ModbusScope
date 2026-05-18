@@ -63,7 +63,7 @@ bool ActionButtonDelegate::editorEvent(QEvent* event,
         return false;
     }
 
-    auto mouseEvent = dynamic_cast<QMouseEvent const*>(event);
+    auto mouseEvent = static_cast<QMouseEvent const*>(event); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
     if (mouseEvent->button() == Qt::LeftButton && this->buttonRect(option).contains(mouseEvent->pos()))
     {
         emit clicked(index);

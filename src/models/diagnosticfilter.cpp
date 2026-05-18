@@ -10,17 +10,15 @@ DiagnosticFilter::DiagnosticFilter(QObject* parent) : QSortFilterProxyModel(pare
 bool DiagnosticFilter::filterAcceptsRow(int source_row, const QModelIndex& source_parent) const
 {
     Q_UNUSED(source_parent);
-    Diagnostic::LogSeverity severity =
-      qobject_cast<DiagnosticModel*>(sourceModel())->dataSeverity(static_cast<quint32>(source_row));
-
-    if (_filterBitmask & (1 << severity))
-    {
-        return true;
-    }
-    else
+    DiagnosticModel* pModel = qobject_cast<DiagnosticModel*>(sourceModel());
+    if (pModel == nullptr)
     {
         return false;
     }
+
+    Diagnostic::LogSeverity severity = pModel->dataSeverity(static_cast<quint32>(source_row));
+
+    return (_filterBitmask & (1 << severity)) != 0;
 }
 
 void DiagnosticFilter::setFilterBitmask(quint32 bitmask)
