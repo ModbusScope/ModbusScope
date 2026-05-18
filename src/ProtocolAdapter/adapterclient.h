@@ -233,7 +233,15 @@ signals:
      */
     void expressionHelpResult(QString helpText);
 
-protected:
+private slots:
+    void onResponseReceived(int id, const QString& method, const QJsonValue& result);
+    void onErrorReceived(int id, const QString& method, const QJsonObject& error);
+    void onProcessError(const QString& message);
+    void onProcessFinished();
+    void onHandshakeTimeout();
+    void onNotificationReceived(QString method, QJsonValue params);
+
+private:
     enum class State
     {
         IDLE,
@@ -247,21 +255,12 @@ protected:
         STOPPING          /*!< process is being force-killed */
     };
 
-    State _state{ State::IDLE };
-
-private slots:
-    void onResponseReceived(int id, const QString& method, const QJsonValue& result);
-    void onErrorReceived(int id, const QString& method, const QJsonObject& error);
-    void onProcessError(const QString& message);
-    void onProcessFinished();
-    void onHandshakeTimeout();
-    void onNotificationReceived(QString method, QJsonValue params);
-
-private:
     void handleLifecycleResponse(int id, const QString& method, const QJsonObject& result);
     bool consumeAuxResponse(const QString& method, int id);
 
     static constexpr int cHandshakeTimeoutMs = 10000;
+
+    State _state{ State::IDLE };
 
     std::unique_ptr<AdapterProcess> _pProcess;
     QTimer _handshakeTimer;
