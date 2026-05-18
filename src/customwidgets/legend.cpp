@@ -75,15 +75,15 @@ Legend::Legend(QWidget* parent)
      */
     _clickTimer.setInterval(qApp->doubleClickInterval());
     connect(&_clickTimer, &QTimer::timeout, this,
-            [=, this]() { this->cellClicked(this->_clickedRow, this->_clickedColumn); });
+            [this]() { this->cellClicked(this->_clickedRow, this->_clickedColumn); });
 
     connect(_pToggleVisibilityAction, &QAction::triggered, this, &Legend::toggleVisibilityClicked);
     connect(_pHideAllAction, &QAction::triggered, this, &Legend::hideAll);
     connect(_pShowAllAction, &QAction::triggered, this, &Legend::showAll);
     connect(_pLegendTable, &QTableWidget::cellClicked, this,
-            [=, this](int rows, int columns) { this->processClick(false, rows, columns); });
+            [this](int rows, int columns) { this->processClick(false, rows, columns); });
     connect(_pLegendTable, &QTableWidget::cellDoubleClicked, this,
-            [=, this](int rows, int columns) { this->processClick(true, rows, columns); });
+            [this](int rows, int columns) { this->processClick(true, rows, columns); });
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &Legend::customContextMenuRequested, this, &Legend::showContextMenu);
