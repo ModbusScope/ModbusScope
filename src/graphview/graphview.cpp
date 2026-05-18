@@ -638,28 +638,32 @@ void GraphView::handleSamplePoints()
 
         auto lowerBoundIt = _pPlot->graph(0)->data()->findBegin(axisRange.lower, false);
         auto upperBoundIt = _pPlot->graph(0)->data()->findBegin(axisRange.upper);
+        const auto endIt = _pPlot->graph(0)->data()->constEnd();
 
-        const int pointCount = upperBoundIt - lowerBoundIt;
-
-        /* Get size in pixels */
-        const double sizePx =
-          _pPlot->xAxis->coordToPixel(upperBoundIt->key) - _pPlot->xAxis->coordToPixel(lowerBoundIt->key);
-
-        /* Calculate number of pixels per point */
-        double nrOfPixelsPerPoint;
-
-        if (lowerBoundIt != upperBoundIt)
+        if (lowerBoundIt != endIt)
         {
-            nrOfPixelsPerPoint = sizePx / qAbs(pointCount);
-        }
-        else
-        {
-            nrOfPixelsPerPoint = sizePx;
-        }
+            const int pointCount = upperBoundIt - lowerBoundIt;
 
-        if (nrOfPixelsPerPoint > _cPixelPerPointThreshold)
-        {
-            bHighlight = true;
+            /* Get size in pixels */
+            const double sizePx =
+              _pPlot->xAxis->coordToPixel(upperBoundIt->key) - _pPlot->xAxis->coordToPixel(lowerBoundIt->key);
+
+            /* Calculate number of pixels per point */
+            double nrOfPixelsPerPoint;
+
+            if (lowerBoundIt != upperBoundIt)
+            {
+                nrOfPixelsPerPoint = sizePx / qAbs(pointCount);
+            }
+            else
+            {
+                nrOfPixelsPerPoint = sizePx;
+            }
+
+            if (nrOfPixelsPerPoint > _cPixelPerPointThreshold)
+            {
+                bHighlight = true;
+            }
         }
     }
 
