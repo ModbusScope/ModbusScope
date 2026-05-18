@@ -88,7 +88,7 @@ private:
     GraphDataModel* _pGraphDataModel;
     CommunicationStatsModel* _pCommunicationStatsModel;
     ScopePlot* _pPlot;
-    bool _bEnableSampleHighlight;
+    bool _bCurrentHighlightState;
 
     GraphScale* _pGraphScale;
     GraphViewZoom* _pGraphViewZoom;
