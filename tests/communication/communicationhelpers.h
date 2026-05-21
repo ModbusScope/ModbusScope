@@ -12,13 +12,12 @@ class CommunicationHelpers : public QObject
     Q_OBJECT
 
 public:
-
-    static void addExpressionsToModel(GraphDataModel* pModel, QStringList &exprList)
+    static void addExpressionsToModel(GraphDataModel* pModel, const QStringList& exprList)
     {
-        for(const QString &expr: std::as_const(exprList))
+        for (const QString& expr : std::as_const(exprList))
         {
             pModel->add();
-            pModel->setExpression(pModel->size() - 1, expr);
+            pModel->setExpression(GraphIdx(pModel->size() - 1), expr);
         }
     }
 
@@ -30,10 +29,7 @@ public:
         QCOMPARE(actResultList, resultList);
     }
 
-
 private:
-
 };
-
 
 #endif // COMMUNICATIONHELPERS_H

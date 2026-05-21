@@ -9,13 +9,13 @@ using ExpressionState = GraphData::ExpressionState;
 
 ExpressionStatus::ExpressionStatus(GraphDataModel* pGraphDataModel, SettingsModel* pSettingsModel, QObject* parent)
     : QObject(parent),
-      _checker(parent),
+      _checker(this),
       _deviceCheckPassed(true),
       _pGraphDataModel(pGraphDataModel),
       _pSettingsModel(pSettingsModel)
 {
-    connect(_pGraphDataModel, &GraphDataModel::added, this, &ExpressionStatus::handlExpressionsChanged);
-    connect(_pGraphDataModel, &GraphDataModel::expressionChanged, this, &ExpressionStatus::handlExpressionsChanged);
+    connect(_pGraphDataModel, &GraphDataModel::added, this, &ExpressionStatus::handleExpressionsChanged);
+    connect(_pGraphDataModel, &GraphDataModel::expressionChanged, this, &ExpressionStatus::handleExpressionsChanged);
 
     connect(&_checker, &ExpressionChecker::resultsReady, this, &ExpressionStatus::handleResultReady);
 }
@@ -56,7 +56,7 @@ void ExpressionStatus::handleResultReady(bool valid)
     }
 }
 
-void ExpressionStatus::handlExpressionsChanged(const quint32 graphIdx)
+void ExpressionStatus::handleExpressionsChanged(GraphIdx graphIdx)
 {
     QString expression = _pGraphDataModel->expression(graphIdx);
 
@@ -81,7 +81,7 @@ void ExpressionStatus::verifyExpression(QString const& expression, QList<deviceI
 
     const auto count = _checker.requiredValueCount();
     ResultDoubleList valueList;
-    while(valueList.count() < count)
+    while (valueList.count() < count)
     {
         valueList.append(ResultDouble(1, State::SUCCESS));
     }
