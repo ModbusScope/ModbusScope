@@ -283,16 +283,10 @@ void SettingsAuto::loadDataFileSample(QTextStream* pDataStream, QStringList& dat
     /* Clear result buffer */
     dataFileSample.clear();
 
-    bool bRet = true;
-    do
+    while (!pDataStream->atEnd() && dataFileSample.size() < sampleLength)
     {
-        if (pDataStream->atEnd())
-        {
-            break;
-        }
-
         /* Read line */
-        bRet = pDataStream->readLineInto(&lineData, 0);
+        const bool bRet = pDataStream->readLineInto(&lineData, 0);
 
         if (bRet)
         {
@@ -306,8 +300,7 @@ void SettingsAuto::loadDataFileSample(QTextStream* pDataStream, QStringList& dat
             dataFileSample.clear();
             break;
         }
-
-    } while (bRet && (dataFileSample.size() < sampleLength));
+    }
 
     /* Set cursor back to beginning */
     pDataStream->seek(0);

@@ -5,15 +5,12 @@
 #include <QDateTime>
 #include <QIODevice>
 
-const QString DataFileParser::_cDatePattern = QString(R"(\s*(\d{1,2})[\-\/\s](\d{1,2})[\-\/\s](\d{4})\s*([0-2][0-9]):([0-5][0-9]):([0-5][0-9])[.,]?(\d{0,3}))");
+const QString DataFileParser::_cDatePattern =
+  QString(R"(\s*(\d{1,2})[\-\/\s](\d{1,2})[\-\/\s](\d{4})\s*([0-2][0-9]):([0-5][0-9]):([0-5][0-9])[.,]?(\d{0,3}))");
 const QString DataFileParser::_cTrimStrimPattern = QString(R"(\"?(.[^\"]*)\"?)");
 
-DataFileParser::DataFileParser(DataParserModel *pDataParserModel)
-    : _lineNumber(0),
-     _totalCharSize(0),
-     _charCount(0),
-     _lastPercentageUpdate(0),
-     _expectedFields(1)
+DataFileParser::DataFileParser(DataParserModel* pDataParserModel)
+    : _lineNumber(0), _totalCharSize(0), _charCount(0), _lastPercentageUpdate(0), _expectedFields(1)
 {
     _pDataParserModel = pDataParserModel;
 
@@ -26,11 +23,10 @@ DataFileParser::DataFileParser(DataParserModel *pDataParserModel)
 
 DataFileParser::~DataFileParser()
 {
-
 }
 
 // Return false on error
-bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData)
+bool DataFileParser::processDataFile(QTextStream* pDataStream, FileData* pData)
 {
     bool bRet = true;
     QString line;
@@ -68,7 +64,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
     /* Read complete file */
     if (bRet)
     {
-        do
+        while (lineIdx <= _pDataParserModel->labelRow())
         {
             bRet = readLineFromFile(pDataStream, &line);
 
@@ -82,7 +78,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
                     // Remove property name
                     idList.removeFirst();
 
-                    foreach(QString strColor, idList)
+                    foreach (QString strColor, idList)
                     {
                         if (QColor::isValidColorName(strColor))
                         {
@@ -101,7 +97,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
                     // Remove property name
                     idList.removeFirst();
 
-                    foreach(QString strAxis, idList)
+                    foreach (QString strAxis, idList)
                     {
                         bool bOk = false;
                         quint32 axis = strAxis.toUInt(&bOk);
@@ -128,8 +124,8 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
                     else
                     {
                         QString error = QString(tr("Invalid note data\n"
-                                                   "Line: %1\n"
-                                                   ).arg(line));
+                                                   "Line: %1\n")
+                                                  .arg(line));
                         emit parseErrorOccurred(error);
                     }
                 }
@@ -141,7 +137,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
             }
 
             lineIdx++;
-        } while(lineIdx <= _pDataParserModel->labelRow());
+        }
     }
 
     // Process register labels
@@ -154,7 +150,8 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
         if (_expectedFields <= 1)
         {
             emit parseErrorOccurred(QString(tr("Incorrect graph data found. "
-                                 "<br><br>Found field separator: \'%1\'")).arg(_pDataParserModel->fieldSeparator()));
+                                               "<br><br>Found field separator: \'%1\'"))
+                                      .arg(_pDataParserModel->fieldSeparator()));
             bRet = false;
         }
     }
@@ -164,7 +161,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
         /* Clear color list when size is not ok */
         if ((pData->colors.size() + 1) != static_cast<int>(_expectedFields))
         {
-             pData->colors.clear();
+            pData->colors.clear();
         }
     }
 
@@ -172,7 +169,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
     if (bRet)
     {
         // Trim labels
-        for(qint32 i = 0; i < pData->dataLabel.size(); i++)
+        for (qint32 i = 0; i < pData->dataLabel.size(); i++)
         {
             pData->dataLabel[i] = pData->dataLabel[i].trimmed();
 
@@ -198,7 +195,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
     if (bRet)
     {
         // Read till data
-        while(lineIdx < _pDataParserModel->dataRow())
+        while (lineIdx < _pDataParserModel->dataRow())
         {
             bRet = readLineFromFile(pDataStream, &line);
 
@@ -219,7 +216,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
 
         // Time data is put on first row, rest is filtered out
 
-		// Get time data from data
+        // Get time data from data
         pData->timeRow = pData->dataRows[0];
 
         // Remove time data from data row
@@ -229,7 +226,7 @@ bool DataFileParser::processDataFile(QTextStream * pDataStream, FileData * pData
     return bRet;
 }
 
-bool DataFileParser::parseDataLines(QTextStream* pDataStream, QList<QList<double> > &dataRows)
+bool DataFileParser::parseDataLines(QTextStream* pDataStream, QList<QList<double> >& dataRows)
 {
     QString line;
     bool bRet = true;
@@ -252,13 +249,14 @@ bool DataFileParser::parseDataLines(QTextStream* pDataStream, QList<QList<double
         if (!strippedLine.isEmpty() && !isCommentLine(strippedLine))
         {
             QStringList paramList = strippedLine.split(_pDataParserModel->fieldSeparator());
-            const quint32 lineDataCount = static_cast<quint32>(paramList.size() - static_cast<qint32>(_pDataParserModel->column()));
+            const quint32 lineDataCount =
+              static_cast<quint32>(paramList.size() - static_cast<qint32>(_pDataParserModel->column()));
 
             if (lineDataCount != _expectedFields)
             {
                 QString error = QString(tr("The number of label columns doesn't match number of data columns!\n\n"
-                                        "Line number: %1\n"
-                                        ).arg(_lineNumber));
+                                           "Line number: %1\n")
+                                          .arg(_lineNumber));
                 emit parseErrorOccurred(error);
                 bRet = false;
                 break;
@@ -279,10 +277,7 @@ bool DataFileParser::parseDataLines(QTextStream* pDataStream, QList<QList<double
                     number = parseDouble(strNumber, &bOk);
                 }
 
-                if (
-                    (bOk == false)
-                    && (static_cast<quint32>(i) == _pDataParserModel->column())
-                )
+                if ((bOk == false) && (static_cast<quint32>(i) == _pDataParserModel->column()))
                 {
                     // Parse time data
                     number = static_cast<double>(parseDateTime(strNumber, &bOk));
@@ -292,8 +287,9 @@ bool DataFileParser::parseDataLines(QTextStream* pDataStream, QList<QList<double
                         QString error = QString(tr("Invalid absolute date (while processing data)\n"
                                                    "Line number: %1\n"
                                                    "Line: \"%2\"\n"
-                                                   "\n\nExpected date format: \'%3\'"
-                                                   ).arg(_lineNumber).arg(strippedLine, "dd-MM-yyyy hh:mm:ss.zzz"));
+                                                   "\n\nExpected date format: \'%3\'")
+                                                  .arg(_lineNumber)
+                                                  .arg(strippedLine, "dd-MM-yyyy hh:mm:ss.zzz"));
                         emit parseErrorOccurred(error);
                         bRet = false;
                         break;
@@ -303,10 +299,8 @@ bool DataFileParser::parseDataLines(QTextStream* pDataStream, QList<QList<double
                 if (bOk)
                 {
                     /* Only multiply for first column (time data) */
-                    if (
-                        (static_cast<quint32>(i) == _pDataParserModel->column())
-                        && (!_pDataParserModel->timeInMilliSeconds())
-                        )
+                    if ((static_cast<quint32>(i) == _pDataParserModel->column()) &&
+                        (!_pDataParserModel->timeInMilliSeconds()))
                     {
                         number *= 1000;
                     }
@@ -318,8 +312,9 @@ bool DataFileParser::parseDataLines(QTextStream* pDataStream, QList<QList<double
                     QString error = QString(tr("Invalid data (while processing data)\n"
                                                "Line number: %1\n"
                                                "Line: \"%2\"\n"
-                                               "\n\nExpected decimal separator character: \'%3\'"
-                                               ).arg(_lineNumber).arg(strippedLine, _pDataParserModel->decimalSeparator()));
+                                               "\n\nExpected decimal separator character: \'%3\'")
+                                              .arg(_lineNumber)
+                                              .arg(strippedLine, _pDataParserModel->decimalSeparator()));
                     emit parseErrorOccurred(error);
                     bRet = false;
                     break;
@@ -335,29 +330,29 @@ bool DataFileParser::parseDataLines(QTextStream* pDataStream, QList<QList<double
 
         // Read next line
         bResult = readLineFromFile(pDataStream, &line);
-
     }
 
     return bRet;
 }
 
 // Return false on error
-bool DataFileParser::readLineFromFile(QTextStream* pDataStream, QString *pLine)
+bool DataFileParser::readLineFromFile(QTextStream* pDataStream, QString* pLine)
 {
     bool bRet = false;
 
     // Read line of data (skip empty line)
-    do
+    bRet = pDataStream->readLineInto(pLine, 0);
+    _lineNumber++;
+    while (bRet && pLine->trimmed().isEmpty())
     {
         bRet = pDataStream->readLineInto(pLine, 0);
         _lineNumber++;
-
-    } while (bRet && pLine->trimmed().isEmpty());
+    }
 
     /*
      * Moved outside of loop for some performance optimizations
      * But this means that a small deviation will be created
-    */
+     */
     if (bRet)
     {
         checkProgressUpdate(static_cast<quint32>(pLine->size()));
@@ -366,7 +361,7 @@ bool DataFileParser::readLineFromFile(QTextStream* pDataStream, QString *pLine)
     return bRet;
 }
 
-qint64 DataFileParser::parseDateTime(QString rawData, bool *bOk)
+qint64 DataFileParser::parseDateTime(QString rawData, bool* bOk)
 {
     QRegularExpressionMatch match = _dateParseRegex.match(rawData);
 
@@ -393,23 +388,23 @@ qint64 DataFileParser::parseDateTime(QString rawData, bool *bOk)
         milliseconds = "0";
     }
 
-    QString dateStr = QString("%1-%2-%3 %4:%5:%6.%7").arg(day,2, '0')
-                        .arg(month,2, '0')
+    QString dateStr = QString("%1-%2-%3 %4:%5:%6.%7")
+                        .arg(day, 2, '0')
+                        .arg(month, 2, '0')
                         .arg(year)
-                        .arg(hours,2, '0')
-                        .arg(minutes,2, '0')
-                        .arg(seconds,2, '0')
-                        .arg(milliseconds,3, '0');
+                        .arg(hours, 2, '0')
+                        .arg(minutes, 2, '0')
+                        .arg(seconds, 2, '0')
+                        .arg(milliseconds.leftJustified(3, '0'));
 
     const QDateTime date = QDateTime::fromString(dateStr, "dd-MM-yyyy hh:mm:ss.zzz");
 
     *bOk = date.isValid();
 
     return date.toMSecsSinceEpoch();
-
 }
 
-bool DataFileParser::parseNoteField(QStringList noteFieldList, Note * pNote)
+bool DataFileParser::parseNoteField(QStringList noteFieldList, Note* pNote)
 {
 
     /* We expect
@@ -496,7 +491,6 @@ bool DataFileParser::isCommentLine(QString line)
 
     return bRet;
 }
-
 
 void DataFileParser::checkProgressUpdate(quint32 charRead)
 {

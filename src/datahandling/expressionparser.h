@@ -23,7 +23,7 @@ private:
     QStringList _processedExpressions;
     QList<DataPoint> _dataPoints;
 
-    const QRegularExpression _findRegRegex;
+    QRegularExpression _findRegRegex;
 
     static const QString _cRegisterFunctionTemplate;
 };
