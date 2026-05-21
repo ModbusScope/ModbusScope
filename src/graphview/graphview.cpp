@@ -306,11 +306,11 @@ void GraphView::changeGraphAxis(const quint32 graphIdx)
     }
 }
 
-void GraphView::changeSelectedGraph(const qint32 activeGraphIdx)
+void GraphView::changeSelectedGraph(const qint32 graphIdx)
 {
     QList<QCPGraph*> selectedGraphs = _pPlot->selectedGraphs();
 
-    if (activeGraphIdx == -1)
+    if (graphIdx == -1)
     {
         for (QCPGraph* selectedGraph : std::as_const(selectedGraphs))
         {
@@ -319,6 +319,12 @@ void GraphView::changeSelectedGraph(const qint32 activeGraphIdx)
     }
     else
     {
+        const qint32 activeGraphIdx = _pGraphDataModel->convertToActiveGraphIndex(static_cast<quint32>(graphIdx));
+        if (activeGraphIdx == -1)
+        {
+            return;
+        }
+
         auto graph = _pPlot->graph(activeGraphIdx);
         const bool bAlreadySelected = selectedGraphs.contains(graph);
 
@@ -562,13 +568,23 @@ void GraphView::handleSelectionChanged(bool selected)
     {
         QCPGraph* pGraph = qobject_cast<QCPGraph*>(QObject::sender());
         const qint32 activeIdx = getActiveGraphIndex(pGraph);
-        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeIdx);
-        _pGraphDataModel->setSelectedGraph(graphIdx);
+        if (activeIdx == -1)
+        {
+            _pGraphDataModel->setSelectedGraph(-1);
+        }
+        else
+        {
+            const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(static_cast<quint32>(activeIdx));
+            _pGraphDataModel->setSelectedGraph(graphIdx);
+        }
     }
     else
     {
         _pGraphDataModel->setSelectedGraph(-1);
     }
+
+    const qint32 selectedGraph = _pGraphDataModel->selectedGraph();
+    const qint32 selectedActiveIdx = (selectedGraph == -1) ? -1 : _pGraphDataModel->convertToActiveGraphIndex(selectedGraph);
 
     for (qint32 idx = 0; idx < _pPlot->graphCount(); idx++)
     {
@@ -577,7 +593,7 @@ void GraphView::handleSelectionChanged(bool selected)
         QColor normalPen = QColor(baseColor.red(), baseColor.green(), baseColor.blue(), 255);
         QColor transparentPen = QColor(baseColor.red(), baseColor.green(), baseColor.blue(), 16);
 
-        if ((_pGraphDataModel->selectedGraph() == -1) || (idx == _pGraphDataModel->selectedGraph()))
+        if ((selectedActiveIdx == -1) || (idx == selectedActiveIdx))
         {
             graphPen.setColor(normalPen);
         }
