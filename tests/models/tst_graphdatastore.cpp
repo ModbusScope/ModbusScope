@@ -321,6 +321,24 @@ void TestGraphDataStore::setSelectedGraphEmitsSignal()
     QCOMPARE(store.selectedGraph(), 0);
 }
 
+void TestGraphDataStore::setSelectedGraphOnThirdRegisterWithMiddleInactiveEmitsGraphIndex()
+{
+    GraphDataStore store;
+    store.insertGraphData(makeGraph("A", "${h0}", true));
+    store.insertGraphData(makeGraph("B", "${h1}", false));
+    store.insertGraphData(makeGraph("C", "${h2}", true));
+
+    QSignalSpy spy(&store, &GraphDataStore::selectedGraphChanged);
+    store.setSelectedGraph(2);
+
+    // signal must carry graph index (2), not the active index (1)
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toInt(), 2);
+    QCOMPARE(store.selectedGraph(), 2);
+    // and the active index for graph 2 must be 1, not 2
+    QCOMPARE(store.convertToActiveGraphIndex(2), 1);
+}
+
 void TestGraphDataStore::setSelectedGraphOnInvisibleGraphIsIgnored()
 {
     GraphDataStore store;

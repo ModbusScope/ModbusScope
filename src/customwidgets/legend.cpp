@@ -379,13 +379,15 @@ void Legend::showAll()
     }
 }
 
-void Legend::handleSelectedGraphChanged(const qint32 activeGraphIdx)
+void Legend::handleSelectedGraphChanged(const qint32 graphIdx)
 {
+    const qint32 activeIdx = (graphIdx == -1) ? -1 : _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+
     for (int idx = 0; idx < _pLegendTable->rowCount(); idx++)
     {
         QFont itemFont = _pLegendTable->item(idx, cColummnValue)->font();
 
-        if (idx == activeGraphIdx)
+        if (idx == activeIdx)
         {
             itemFont.setBold(true);
         }
@@ -422,7 +424,7 @@ void Legend::cellDoubleClicked(int row, int column)
 {
     if (column == cColummnColor)
     {
-        if (row != -1)
+        if ((row != -1) && (row < _pGraphDataModel->activeCount()))
         {
             const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(static_cast<quint32>(row));
             if (_pGraphDataModel->isVisible(graphIdx))
@@ -439,7 +441,7 @@ void Legend::cellDoubleClicked(int row, int column)
     }
     else if (column == cColummnAxis)
     {
-        if (row != -1)
+        if ((row != -1) && (row < _pGraphDataModel->activeCount()))
         {
             const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(static_cast<quint32>(row));
             if (_pGraphDataModel->isVisible(graphIdx))
@@ -465,7 +467,7 @@ void Legend::cellClicked(int row, int column)
 
     _clickTimer.stop();
 
-    if ((row != -1) && (row < _pGraphDataModel->size()))
+    if ((row != -1) && (row < _pGraphDataModel->activeCount()))
     {
         const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(row);
         qint32 toSelectGraph = (_pGraphDataModel->selectedGraph() != graphIdx) ? graphIdx : -1;

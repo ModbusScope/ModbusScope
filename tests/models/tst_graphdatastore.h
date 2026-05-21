@@ -33,6 +33,7 @@ private slots:
     void insertInactiveGraphDoesNotIncreaseActiveCount();
     void setActiveNoopDoesNotEmitSignal();
     void setSelectedGraphEmitsSignal();
+    void setSelectedGraphOnThirdRegisterWithMiddleInactiveEmitsGraphIndex();
     void setSelectedGraphOnInvisibleGraphIsIgnored();
     void setVisibleTrueEmitsSignal();
     void setVisibleFalseEmitsSignal();
