@@ -395,7 +395,7 @@ qint64 DataFileParser::parseDateTime(QString rawData, bool* bOk)
                         .arg(hours, 2, '0')
                         .arg(minutes, 2, '0')
                         .arg(seconds, 2, '0')
-                        .arg(milliseconds, 3, '0');
+                        .arg(milliseconds.leftJustified(3, '0'));
 
     const QDateTime date = QDateTime::fromString(dateStr, "dd-MM-yyyy hh:mm:ss.zzz");
 
