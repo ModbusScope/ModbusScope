@@ -11,6 +11,7 @@
 #include "dialogs/aboutdialog.h"
 #include "dialogs/diagnosticdialog.h"
 #include "dialogs/importmbcdialog.h"
+#include "dialogs/quickstartdialog.h"
 #include "dialogs/registerdialog.h"
 #include "dialogs/settingsdialog.h"
 #include "dialogs/ui_mainwindow.h"
@@ -33,6 +34,8 @@
 #include "util/versiondownloader.h"
 
 #include <QDateTime>
+#include <QSettings>
+#include <QTimer>
 
 using GuiState = GuiModel::GuiState;
 
@@ -108,6 +111,7 @@ MainWindow::MainWindow(QStringList cmdArguments,
     connect(_pUi->actionSaveProjectFile, &QAction::triggered, _pProjectFileHandler,
             &ProjectFileHandler::saveProjectFile);
     connect(_pUi->actionAbout, &QAction::triggered, this, &MainWindow::showAbout);
+    connect(_pUi->actionQuickStart, &QAction::triggered, this, &MainWindow::showQuickStartDialog);
     connect(_pUi->actionOnlineDocumentation, &QAction::triggered, this, &MainWindow::openOnlineDoc);
     connect(_pUi->actionUpdateAvailable, &QAction::triggered, this, &MainWindow::openUpdateUrl);
     connect(_pUi->actionHighlightSamplePoints, &QAction::toggled, _pGuiModel, &GuiModel::setHighlightSamples);
@@ -226,6 +230,9 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
     _pAdapterPoll->initAdapter();
 
+    // Defer until after the main window is shown — avoids a modal dialog blocking constructor completion
+    QTimer::singleShot(0, this, &MainWindow::showFirstInstallDialogIfNeeded);
+
 #if 0
     //Debugging
     _pGraphDataModel->add();
@@ -334,6 +341,23 @@ void MainWindow::showAbout()
     AboutDialog aboutDialog(_pUpdateNotify, _pSettingsModel, this);
 
     aboutDialog.exec();
+}
+
+void MainWindow::showQuickStartDialog()
+{
+    QuickStartDialog dialog(this);
+    dialog.exec();
+}
+
+void MainWindow::showFirstInstallDialogIfNeeded()
+{
+    static const QString cFirstInstallKey = QStringLiteral("general/firstInstallShown");
+    QSettings settings;
+    if (!settings.contains(cFirstInstallKey))
+    {
+        settings.setValue(cFirstInstallKey, true);
+        showQuickStartDialog();
+    }
 }
 
 void MainWindow::openOnlineDoc()

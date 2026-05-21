@@ -26,6 +26,7 @@ class SettingsModel;
 class DataParserModel;
 class DiagnosticDialog;
 class NotesDock;
+class QuickStartDialog;
 class GuiModel;
 class GraphView;
 class MarkerInfo;
@@ -107,10 +108,12 @@ private slots:
 
     void showVersionUpdate(UpdateNotify::UpdateState result);
     void onRegisterDataReady(const ResultDoubleList& results);
+    void showQuickStartDialog();
 
 private:
     void setAxisToAuto();
     void showRegisterDialog();
+    void showFirstInstallDialogIfNeeded();
     void handleCommandLineArguments(QStringList cmdArguments);
     void handleFileOpen(QString filename);
 
