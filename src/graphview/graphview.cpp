@@ -114,7 +114,7 @@ bool GraphView::valuesUnderCursor(QList<double>& valueList)
         {
             if (_pPlot->underMouse() && bValid && keyRange.contains(xPos))
             {
-                const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeGraphIndex);
+                const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(ActiveIdx(activeGraphIndex));
                 QCPGraphDataContainer::const_iterator graphDataIt =
                   _pGraphDataModel->dataMap(graphIdx).data()->findBegin(tooltipPos, false);
                 valueList.append(graphDataIt->value);
@@ -175,12 +175,12 @@ void GraphView::enableSamplePoints()
     handleSamplePoints();
 }
 
-void GraphView::clearGraph(const quint32 graphIdx)
+void GraphView::clearGraph(GraphIdx graphIdx)
 {
     if (_pGraphDataModel->isActive(graphIdx))
     {
 
-        QList<quint16> activeGraphList;
+        QList<GraphIdx> activeGraphList;
         _pGraphDataModel->activeGraphIndexList(activeGraphList);
 
         if (activeGraphList.size() <= 0)
@@ -218,7 +218,7 @@ void GraphView::updateGraphs()
 
     _pPlot->clearGraphs();
 
-    QList<quint16> activeGraphList;
+    QList<GraphIdx> activeGraphList;
     _pGraphDataModel->activeGraphIndexList(activeGraphList);
 
     if (activeGraphList.size() > 0)
@@ -226,9 +226,9 @@ void GraphView::updateGraphs()
         // All graphs should have the same amount of points.
         // Loop over graphs and get maximum count of samples
         qint32 maxSampleCount = 0;
-        quint32 maxSampleIdx = 0;
+        GraphIdx maxSampleIdx;
 
-        foreach (quint16 graphIdx, activeGraphList)
+        foreach (GraphIdx graphIdx, activeGraphList)
         {
             const qint32 sampleCount = _pGraphDataModel->dataMap(graphIdx)->size();
             if (sampleCount > maxSampleCount)
@@ -239,7 +239,7 @@ void GraphView::updateGraphs()
         }
 
         // Graph that have less points will be zeroed with that amount of points
-        foreach (quint16 graphIdx, activeGraphList)
+        foreach (GraphIdx graphIdx, activeGraphList)
         {
             QCPGraph* pGraph = _pPlot->addGraph();
             setGraphAxis(pGraph, _pGraphDataModel->valueAxis(graphIdx));
@@ -281,24 +281,24 @@ void GraphView::updateGraphs()
     emit afterGraphUpdate();
 }
 
-void GraphView::changeGraphColor(const quint32 graphIdx)
+void GraphView::changeGraphColor(GraphIdx graphIdx)
 {
     if (_pGraphDataModel->isActive(graphIdx))
     {
-        const quint32 activeIdx = static_cast<quint32>(_pGraphDataModel->convertToActiveGraphIndex(graphIdx));
+        const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
-        setGraphColor(_pPlot->graph(activeIdx), _pGraphDataModel->color(graphIdx));
+        setGraphColor(_pPlot->graph(activeIdx.v), _pGraphDataModel->color(graphIdx));
 
         _pPlot->replot();
     }
 }
 
-void GraphView::changeGraphAxis(const quint32 graphIdx)
+void GraphView::changeGraphAxis(GraphIdx graphIdx)
 {
     if (_pGraphDataModel->isActive(graphIdx))
     {
-        const quint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
-        setGraphAxis(_pPlot->graph(activeIdx), _pGraphDataModel->valueAxis(graphIdx));
+        const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+        setGraphAxis(_pPlot->graph(activeIdx.v), _pGraphDataModel->valueAxis(graphIdx));
 
         updateSecondaryAxisVisibility();
 
@@ -306,11 +306,11 @@ void GraphView::changeGraphAxis(const quint32 graphIdx)
     }
 }
 
-void GraphView::changeSelectedGraph(const qint32 graphIdx)
+void GraphView::changeSelectedGraph(GraphIdx graphIdx)
 {
     QList<QCPGraph*> selectedGraphs = _pPlot->selectedGraphs();
 
-    if (graphIdx == -1)
+    if (!graphIdx.isValid())
     {
         for (QCPGraph* selectedGraph : std::as_const(selectedGraphs))
         {
@@ -319,13 +319,13 @@ void GraphView::changeSelectedGraph(const qint32 graphIdx)
     }
     else
     {
-        const qint32 activeGraphIdx = _pGraphDataModel->convertToActiveGraphIndex(static_cast<quint32>(graphIdx));
-        if (activeGraphIdx == -1)
+        const ActiveIdx activeGraphIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+        if (!activeGraphIdx.isValid())
         {
             return;
         }
 
-        auto graph = _pPlot->graph(activeGraphIdx);
+        auto graph = _pPlot->graph(activeGraphIdx.v);
         const bool bAlreadySelected = selectedGraphs.contains(graph);
 
         if (!bAlreadySelected)
@@ -344,11 +344,11 @@ void GraphView::changeSelectedGraph(const qint32 graphIdx)
     _pPlot->replot();
 }
 
-void GraphView::bringToFront(const qint32 activeGraphIdx)
+void GraphView::bringToFront(ActiveIdx activeGraphIdx)
 {
-    _pPlot->graph(activeGraphIdx)->setLayer("topMain");
+    _pPlot->graph(activeGraphIdx.v)->setLayer("topMain");
 
-    const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeGraphIdx);
+    const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(activeGraphIdx);
 
     _pGraphIndicators->setFrontGraph(graphIdx);
     _pPlot->replot();
@@ -386,15 +386,15 @@ void GraphView::addData(QList<double> timeData, QList<QList<double> > data)
     _pPlot->replot();
 }
 
-void GraphView::handleGraphVisibilityChange(quint32 graphIdx)
+void GraphView::handleGraphVisibilityChange(GraphIdx graphIdx)
 {
     if (_pGraphDataModel->isActive(graphIdx))
     {
         const bool bShow = _pGraphDataModel->isVisible(graphIdx);
 
-        const quint32 activeIdx = static_cast<quint32>(_pGraphDataModel->convertToActiveGraphIndex(graphIdx));
+        const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
-        _pPlot->graph(activeIdx)->setVisible(bShow);
+        _pPlot->graph(activeIdx.v)->setVisible(bShow);
         _pGraphMarkers->updateTracersVisibility();
         _pGraphIndicators->updateIndicatorVisibility();
         rescalePlot();
@@ -567,24 +567,25 @@ void GraphView::handleSelectionChanged(bool selected)
     if (selected)
     {
         QCPGraph* pGraph = qobject_cast<QCPGraph*>(QObject::sender());
-        const qint32 activeIdx = getActiveGraphIndex(pGraph);
-        if (activeIdx == -1)
+        const ActiveIdx activeIdx = getActiveGraphIndex(pGraph);
+        if (!activeIdx.isValid())
         {
-            _pGraphDataModel->setSelectedGraph(-1);
+            _pGraphDataModel->setSelectedGraph(GraphIdx());
         }
         else
         {
-            const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(static_cast<quint32>(activeIdx));
+            const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(activeIdx);
             _pGraphDataModel->setSelectedGraph(graphIdx);
         }
     }
     else
     {
-        _pGraphDataModel->setSelectedGraph(-1);
+        _pGraphDataModel->setSelectedGraph(GraphIdx());
     }
 
-    const qint32 selectedGraph = _pGraphDataModel->selectedGraph();
-    const qint32 selectedActiveIdx = (selectedGraph == -1) ? -1 : _pGraphDataModel->convertToActiveGraphIndex(selectedGraph);
+    const GraphIdx selectedGraph = _pGraphDataModel->selectedGraph();
+    const ActiveIdx selectedActiveIdx =
+      selectedGraph.isValid() ? _pGraphDataModel->convertToActiveGraphIndex(selectedGraph) : ActiveIdx();
 
     for (qint32 idx = 0; idx < _pPlot->graphCount(); idx++)
     {
@@ -593,7 +594,7 @@ void GraphView::handleSelectionChanged(bool selected)
         QColor normalPen = QColor(baseColor.red(), baseColor.green(), baseColor.blue(), 255);
         QColor transparentPen = QColor(baseColor.red(), baseColor.green(), baseColor.blue(), 16);
 
-        if ((selectedActiveIdx == -1) || (idx == selectedActiveIdx))
+        if (!selectedActiveIdx.isValid() || (idx == selectedActiveIdx.v))
         {
             graphPen.setColor(normalPen);
         }
@@ -769,7 +770,7 @@ void GraphView::updateSecondaryAxisVisibility()
     bool bSecondaryVisibility = false;
     for (qint32 activeGraphIndex = 0; activeGraphIndex < _pPlot->graphCount(); activeGraphIndex++)
     {
-        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeGraphIndex);
+        const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(ActiveIdx(activeGraphIndex));
         if (_pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_SECONDARY)
         {
             bSecondaryVisibility = true;
@@ -782,16 +783,14 @@ void GraphView::updateSecondaryAxisVisibility()
     rescalePlot();
 }
 
-qint32 GraphView::getActiveGraphIndex(QCPGraph const* const pGraph)
+ActiveIdx GraphView::getActiveGraphIndex(QCPGraph const* const pGraph)
 {
-    qint32 idx = -1;
     for (int i = 0; i < _pPlot->graphCount(); ++i)
     {
         if (_pPlot->graph(i) == pGraph)
         {
-            idx = i;
-            break;
+            return ActiveIdx(i);
         }
     }
-    return idx;
+    return ActiveIdx();
 }

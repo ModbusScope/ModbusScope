@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "scopeplot.h"
+#include "util/graphindex.h"
 
 // Forward declaration
 class GuiModel;
@@ -24,7 +25,7 @@ private slots:
     void updateMarkersVisibility();
     void setStartMarker();
     void setEndMarker();
-    void updateValueAxis(quint32 graphIdx);
+    void updateValueAxis(GraphIdx graphIdx);
 
 private:
 

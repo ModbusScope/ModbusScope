@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "expressionchecker.h"
+#include "util/graphindex.h"
 
 /* Forward declarations */
 class GraphDataModel;
@@ -19,7 +20,7 @@ public:
 
 private slots:
     void handleResultReady(bool valid);
-    void handlExpressionsChanged(const quint32 graphIdx);
+    void handlExpressionsChanged(GraphIdx graphIdx);
 
 private:
     void verifyExpression(QString const& expression, QList<deviceId_t> const& deviceIdList);

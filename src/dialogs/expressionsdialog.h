@@ -22,7 +22,7 @@ class ExpressionsDialog : public QDialog
 
 public:
     explicit ExpressionsDialog(GraphDataModel* pGraphDataModel,
-                               qint32 idx,
+                               GraphIdx idx,
                                AdapterManager* pAdapterManager,
                                QWidget* parent = nullptr);
     ~ExpressionsDialog();
@@ -41,7 +41,7 @@ private:
 
     Ui::ExpressionsDialog* _pUi;
 
-    qint32 _graphIdx;
+    GraphIdx _graphIdx;
 
     GraphDataModel* _pGraphDataModel;
     AdapterManager* _pAdapterManager;

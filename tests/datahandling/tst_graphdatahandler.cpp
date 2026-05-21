@@ -112,16 +112,16 @@ void TestGraphDataHandler::manyInactiveRegisters()
     for (uint32_t idx = 0; idx < 8; idx++)
     {
         _pGraphDataModel->add();
-        _pGraphDataModel->setExpression(idx, "${40001}");
-        _pGraphDataModel->setActive(idx, false);
+        _pGraphDataModel->setExpression(GraphIdx(idx), "${40001}");
+        _pGraphDataModel->setActive(GraphIdx(idx), false);
     }
 
     _pGraphDataModel->add();
-    _pGraphDataModel->setExpression(8, "${40002}");
+    _pGraphDataModel->setExpression(GraphIdx(8), "${40002}");
 
     _pGraphDataModel->add();
-    _pGraphDataModel->setExpression(9, "${40003}");
-    _pGraphDataModel->setActive(9, false);
+    _pGraphDataModel->setExpression(GraphIdx(9), "${40003}");
+    _pGraphDataModel->setActive(GraphIdx(9), false);
 
     auto expDataPoints = QList<DataPoint>() << DataPoint("${40002}", Device::cFirstDeviceId);
 

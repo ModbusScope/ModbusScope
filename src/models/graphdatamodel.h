@@ -6,6 +6,7 @@
 #include <QObject>
 
 #include "models/graphdata.h"
+#include "util/graphindex.h"
 
 class GraphDataStore;
 
@@ -47,27 +48,27 @@ public:
     qint32 size() const;
     qint32 activeCount() const;
 
-    GraphData::valueAxis_t valueAxis(quint32 index) const;
-    bool isVisible(quint32 index) const;
-    QString label(quint32 index) const;
-    QColor color(quint32 index) const;
-    bool isActive(quint32 index) const;
-    QString expression(quint32 index) const;
-    GraphData::ExpressionState expressionState(quint32 index) const;
-    bool isExpressionValid(quint32 index) const;
-    qint32 selectedGraph() const;
-    QString simplifiedExpression(quint32 index) const;
-    QSharedPointer<const QCPGraphDataContainer> dataMap(quint32 index) const;
-    QSharedPointer<QCPGraphDataContainer> mutableDataMap(quint32 index);
+    GraphData::valueAxis_t valueAxis(GraphIdx index) const;
+    bool isVisible(GraphIdx index) const;
+    QString label(GraphIdx index) const;
+    QColor color(GraphIdx index) const;
+    bool isActive(GraphIdx index) const;
+    QString expression(GraphIdx index) const;
+    GraphData::ExpressionState expressionState(GraphIdx index) const;
+    bool isExpressionValid(GraphIdx index) const;
+    GraphIdx selectedGraph() const;
+    QString simplifiedExpression(GraphIdx index) const;
+    QSharedPointer<const QCPGraphDataContainer> dataMap(GraphIdx index) const;
+    QSharedPointer<QCPGraphDataContainer> mutableDataMap(GraphIdx index);
 
-    void setValueAxis(quint32 index, GraphData::valueAxis_t axis);
-    void setVisible(quint32 index, bool bVisible);
-    void setLabel(quint32 index, const QString& label);
-    void setColor(quint32 index, const QColor& color);
-    void setActive(quint32 index, bool bActive);
-    void setExpression(quint32 index, QString expression);
-    void setExpressionState(quint32 index, GraphData::ExpressionState status);
-    void setSelectedGraph(qint32 index);
+    void setValueAxis(GraphIdx index, GraphData::valueAxis_t axis);
+    void setVisible(GraphIdx index, bool bVisible);
+    void setLabel(GraphIdx index, const QString& label);
+    void setColor(GraphIdx index, const QColor& color);
+    void setActive(GraphIdx index, bool bActive);
+    void setExpression(GraphIdx index, QString expression);
+    void setExpressionState(GraphIdx index, GraphData::ExpressionState status);
+    void setSelectedGraph(GraphIdx index);
 
     void setDefaultExpression(const QString& expression);
 
@@ -77,38 +78,38 @@ public:
     void add(QList<QString> labelList);
     void setAllData(QList<double> timeData, QList<QList<double> > data);
 
-    void removeRegister(qint32 idx);
+    void removeRegister(GraphIdx idx);
     void clear();
 
-    void activeGraphIndexList(QList<quint16>& list);
+    void activeGraphIndexList(QList<GraphIdx>& list);
 
-    qint32 convertToActiveGraphIndex(quint32 graphIdx);
-    qint32 convertToGraphIndex(quint32 activeIdx);
+    ActiveIdx convertToActiveGraphIndex(GraphIdx graphIdx);
+    GraphIdx convertToGraphIndex(ActiveIdx activeIdx);
 
 signals:
 
-    void valueAxisChanged(const quint32 graphIdx);
-    void visibilityChanged(const quint32 graphIdx);
-    void labelChanged(const quint32 graphIdx);
-    void colorChanged(const quint32 graphIdx);
-    void activeChanged(const quint32 graphIdx);
-    void expressionChanged(const quint32 graphIdx);
-    void expressionStateChanged(const quint32 graphIdx);
-    void selectedGraphChanged(const qint32 graphIdx);
+    void valueAxisChanged(GraphIdx graphIdx);
+    void visibilityChanged(GraphIdx graphIdx);
+    void labelChanged(GraphIdx graphIdx);
+    void colorChanged(GraphIdx graphIdx);
+    void activeChanged(GraphIdx graphIdx);
+    void expressionChanged(GraphIdx graphIdx);
+    void expressionStateChanged(GraphIdx graphIdx);
+    void selectedGraphChanged(GraphIdx graphIdx);
     void graphsAddData(QList<double>, QList<QList<double> > data);
 
     void moved();
-    void added(const quint32 idx);
-    void removed(const quint32 idx);
+    void added(GraphIdx idx);
+    void removed(GraphIdx idx);
 
 private slots:
 
-    void modelDataChanged(quint32 idx);
+    void modelDataChanged(GraphIdx idx);
     void modelCompleteDataChanged();
 
 private:
     void addToModel(GraphData graphData);
-    void removeFromModel(qint32 row);
+    void removeFromModel(int row);
     void moveRow(int sourceRow, int destRow);
 
     QString _defaultExpression;

@@ -34,8 +34,8 @@ void TestMbcUpdateModel::rowCount()
 void TestMbcUpdateModel::noUpdate()
 {
     _pGraphDataModel->add();
-    _pGraphDataModel->setExpression(0, "${40001}");
-    _pGraphDataModel->setLabel(0, "Register 40001");
+    _pGraphDataModel->setExpression(GraphIdx(0), "${40001}");
+    _pGraphDataModel->setLabel(GraphIdx(0), "Register 40001");
 
     std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
@@ -63,8 +63,8 @@ void TestMbcUpdateModel::noUpdate()
 void TestMbcUpdateModel::tooMuchDifference()
 {
     _pGraphDataModel->add();
-    _pGraphDataModel->setExpression(0, "${40001}");
-    _pGraphDataModel->setLabel(0, "Register 40001");
+    _pGraphDataModel->setExpression(GraphIdx(0), "${40001}");
+    _pGraphDataModel->setLabel(GraphIdx(0), "Register 40001");
 
     std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
@@ -89,8 +89,8 @@ void TestMbcUpdateModel::tooMuchDifference()
 void TestMbcUpdateModel::updateText()
 {
     _pGraphDataModel->add();
-    _pGraphDataModel->setExpression(0, "${40001}");
-    _pGraphDataModel->setLabel(0, "Register 40001");
+    _pGraphDataModel->setExpression(GraphIdx(0), "${40001}");
+    _pGraphDataModel->setLabel(GraphIdx(0), "Register 40001");
 
     std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
@@ -118,8 +118,8 @@ void TestMbcUpdateModel::updateText()
 void TestMbcUpdateModel::updateExpression()
 {
     _pGraphDataModel->add();
-    _pGraphDataModel->setExpression(0, "${40001}");
-    _pGraphDataModel->setLabel(0, "Register 40001");
+    _pGraphDataModel->setExpression(GraphIdx(0), "${40001}");
+    _pGraphDataModel->setLabel(GraphIdx(0), "Register 40001");
 
     std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
@@ -156,8 +156,8 @@ void TestMbcUpdateModel::userRoleHiddenWhenNoUpdate()
 {
     // When there is no pending update the UserRole should return "hidden"
     _pGraphDataModel->add();
-    _pGraphDataModel->setExpression(0, "${40001}");
-    _pGraphDataModel->setLabel(0, "Reg");
+    _pGraphDataModel->setExpression(GraphIdx(0), "${40001}");
+    _pGraphDataModel->setLabel(GraphIdx(0), "Reg");
 
     std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
@@ -176,8 +176,8 @@ void TestMbcUpdateModel::userRoleVisibleWhenUpdatePresent()
 {
     // When there is a text update the cColumnUpdateText UserRole should NOT return "hidden"
     _pGraphDataModel->add();
-    _pGraphDataModel->setExpression(0, "${40001}");
-    _pGraphDataModel->setLabel(0, "Old Name");
+    _pGraphDataModel->setExpression(GraphIdx(0), "${40001}");
+    _pGraphDataModel->setLabel(GraphIdx(0), "Old Name");
 
     std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
@@ -200,8 +200,8 @@ void TestMbcUpdateModel::userRoleVisibleWhenUpdatePresent()
 void TestMbcUpdateModel::flagsNoUpdateIsDisabled()
 {
     _pGraphDataModel->add();
-    _pGraphDataModel->setExpression(0, "${40001}");
-    _pGraphDataModel->setLabel(0, "Reg");
+    _pGraphDataModel->setExpression(GraphIdx(0), "${40001}");
+    _pGraphDataModel->setLabel(GraphIdx(0), "Reg");
 
     std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
@@ -213,8 +213,8 @@ void TestMbcUpdateModel::flagsNoUpdateIsDisabled()
 void TestMbcUpdateModel::flagsWithUpdateIsEnabled()
 {
     _pGraphDataModel->add();
-    _pGraphDataModel->setExpression(0, "${40001}");
-    _pGraphDataModel->setLabel(0, "Old Label");
+    _pGraphDataModel->setExpression(GraphIdx(0), "${40001}");
+    _pGraphDataModel->setLabel(GraphIdx(0), "Old Label");
 
     std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
@@ -243,8 +243,8 @@ void TestMbcUpdateModel::rowCountTracksGraphModel()
 void TestMbcUpdateModel::setMbcRegistersTriggersCheck()
 {
     _pGraphDataModel->add();
-    _pGraphDataModel->setExpression(0, "${40001}");
-    _pGraphDataModel->setLabel(0, "Old Label");
+    _pGraphDataModel->setExpression(GraphIdx(0), "${40001}");
+    _pGraphDataModel->setLabel(GraphIdx(0), "Old Label");
 
     std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
@@ -264,8 +264,8 @@ void TestMbcUpdateModel::setMbcRegistersTriggersCheck()
 void TestMbcUpdateModel::updateTextToolTip()
 {
     _pGraphDataModel->add();
-    _pGraphDataModel->setExpression(0, "${40001}");
-    _pGraphDataModel->setLabel(0, "Register 40001");
+    _pGraphDataModel->setExpression(GraphIdx(0), "${40001}");
+    _pGraphDataModel->setLabel(GraphIdx(0), "Register 40001");
 
     std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
@@ -281,8 +281,8 @@ void TestMbcUpdateModel::updateTextToolTip()
 void TestMbcUpdateModel::updateExpressionToolTip()
 {
     _pGraphDataModel->add();
-    _pGraphDataModel->setExpression(0, "${40001}");
-    _pGraphDataModel->setLabel(0, "Register 40001");
+    _pGraphDataModel->setExpression(GraphIdx(0), "${40001}");
+    _pGraphDataModel->setLabel(GraphIdx(0), "Register 40001");
 
     std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 
@@ -299,8 +299,8 @@ void TestMbcUpdateModel::displayColumnsCurrentValues()
 {
     // Verify that cColumnExpression and cColumnText show the current graph data values
     _pGraphDataModel->add();
-    _pGraphDataModel->setExpression(0, "${40001}");
-    _pGraphDataModel->setLabel(0, "MyRegister");
+    _pGraphDataModel->setExpression(GraphIdx(0), "${40001}");
+    _pGraphDataModel->setLabel(GraphIdx(0), "MyRegister");
 
     std::unique_ptr<MbcUpdateModel> pMbcUpdateModel = std::make_unique<MbcUpdateModel>(_pGraphDataModel);
 

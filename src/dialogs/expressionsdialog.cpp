@@ -8,7 +8,7 @@
 using State = ResultState::State;
 
 ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
-                                     qint32 idx,
+                                     GraphIdx idx,
                                      AdapterManager* pAdapterManager,
                                      QWidget* parent)
     : QDialog(parent),

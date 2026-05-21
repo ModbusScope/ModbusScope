@@ -3,11 +3,13 @@
 #define TST_GRAPHDATASTORE_H
 
 #include <QObject>
+#include "util/graphindex.h"
 
 class TestGraphDataStore : public QObject
 {
     Q_OBJECT
 private slots:
+    void initTestCase();
     void init();
     void cleanup();
 

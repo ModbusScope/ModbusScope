@@ -9,7 +9,7 @@ void ExpressionChecker::setExpression(const QString& expr)
 {
     _localGraphDataModel.clear();
     _localGraphDataModel.add();
-    _localGraphDataModel.setExpression(0, expr);
+    _localGraphDataModel.setExpression(GraphIdx(0), expr);
 
     QList<DataPoint> registerList;
     _graphDataHandler.setupExpressions(&_localGraphDataModel, registerList);
@@ -33,7 +33,7 @@ QString ExpressionChecker::expression(void)
 {
     if (_localGraphDataModel.size() > 0)
     {
-        return _localGraphDataModel.expression(0);
+        return _localGraphDataModel.expression(GraphIdx(0));
     }
     else
     {

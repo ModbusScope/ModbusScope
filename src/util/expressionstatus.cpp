@@ -32,19 +32,19 @@ void ExpressionStatus::handleResultReady(bool valid)
     const qint32 size = _pGraphDataModel->size();
     for (qint32 idx = 0; idx < size; idx++)
     {
-        if (_pGraphDataModel->expression(idx) == verifiedExpression)
+        if (_pGraphDataModel->expression(GraphIdx(idx)) == verifiedExpression)
         {
             if (_checker.syntaxError())
             {
-                _pGraphDataModel->setExpressionState(idx, ExpressionState::SYNTAX_ERROR);
+                _pGraphDataModel->setExpressionState(GraphIdx(idx), ExpressionState::SYNTAX_ERROR);
             }
             else if (!_deviceCheckPassed)
             {
-                _pGraphDataModel->setExpressionState(idx, ExpressionState::UNKNOWN_DEVICE);
+                _pGraphDataModel->setExpressionState(GraphIdx(idx), ExpressionState::UNKNOWN_DEVICE);
             }
             else
             {
-                _pGraphDataModel->setExpressionState(idx, ExpressionState::VALID);
+                _pGraphDataModel->setExpressionState(GraphIdx(idx), ExpressionState::VALID);
             }
             break;
         }

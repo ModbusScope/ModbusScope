@@ -6,6 +6,8 @@
 #include <QComboBox>
 #include <QVBoxLayout>
 
+#include "util/graphindex.h"
+
 /* Forward declarations */
 class GuiModel;
 class GraphDataModel;
@@ -27,9 +29,9 @@ public slots:
 
 private slots:
     
-    void updateColor(quint32 graphIdx);
-    void updateLabel(quint32 graphIdx);
-    void removeFromGraphList(const quint32 index);
+    void updateColor(GraphIdx graphIdx);
+    void updateLabel(GraphIdx graphIdx);
+    void removeFromGraphList(GraphIdx index);
     void graphSelected(qint32 index);
 
 

@@ -3,6 +3,7 @@
 
 #include "models/graphdata.h"
 #include "models/graphdatastore.h"
+#include "util/graphindex.h"
 #include "util/util.h"
 
 #include <QSignalSpy>
@@ -15,6 +16,12 @@ static GraphData makeGraph(const QString& label, const QString& expression, bool
     g.setExpression(expression);
     g.setActive(active);
     return g;
+}
+
+void TestGraphDataStore::initTestCase()
+{
+    qRegisterMetaType<GraphIdx>("GraphIdx");
+    qRegisterMetaType<ActiveIdx>("ActiveIdx");
 }
 
 void TestGraphDataStore::init()
@@ -47,7 +54,7 @@ void TestGraphDataStore::insertAssignsColorFromList()
     // do not set a color — store should assign one
     store.insertGraphData(g);
 
-    QCOMPARE(store.color(0), Util::cColorlist[0]);
+    QCOMPARE(store.color(GraphIdx(0)), Util::cColorlist[0]);
 }
 
 void TestGraphDataStore::insertPreservesExplicitColor()
@@ -59,7 +66,7 @@ void TestGraphDataStore::insertPreservesExplicitColor()
     g.setColor(QColor(Qt::red));
     store.insertGraphData(g);
 
-    QCOMPARE(store.color(0), QColor(Qt::red));
+    QCOMPARE(store.color(GraphIdx(0)), QColor(Qt::red));
 }
 
 void TestGraphDataStore::eraseRemovesCorrectEntry()
@@ -69,12 +76,12 @@ void TestGraphDataStore::eraseRemovesCorrectEntry()
     store.insertGraphData(makeGraph("B", "${h1}"));
     store.insertGraphData(makeGraph("C", "${h2}"));
 
-    store.eraseGraphDataAt(1);
+    store.eraseGraphDataAt(GraphIdx(1));
 
     QCOMPARE(store.size(), 2);
     QCOMPARE(store.activeCount(), 2);
-    QCOMPARE(store.label(0), QStringLiteral("A"));
-    QCOMPARE(store.label(1), QStringLiteral("C"));
+    QCOMPARE(store.label(GraphIdx(0)), QStringLiteral("A"));
+    QCOMPARE(store.label(GraphIdx(1)), QStringLiteral("C"));
 }
 
 void TestGraphDataStore::clearEmptiesStore()
@@ -100,10 +107,10 @@ void TestGraphDataStore::setActiveFalseRemovesFromActiveCount()
 
     QCOMPARE(store.activeCount(), 2);
 
-    store.setActive(0, false);
+    store.setActive(GraphIdx(0), false);
 
     QCOMPARE(store.activeCount(), 1);
-    QVERIFY(!store.isActive(0));
+    QVERIFY(!store.isActive(GraphIdx(0)));
 }
 
 void TestGraphDataStore::setActiveFalseClearsData()
@@ -112,28 +119,28 @@ void TestGraphDataStore::setActiveFalseClearsData()
     store.insertGraphData(makeGraph("A", "${h0}", true));
 
     QSignalSpy spy(&store, &GraphDataStore::activeChanged);
-    store.setActive(0, false);
+    store.setActive(GraphIdx(0), false);
 
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toUInt(), 0u);
-    QVERIFY(!store.isActive(0));
-    QVERIFY(store.dataMap(0)->isEmpty());
+    QCOMPARE(spy.at(0).at(0).value<GraphIdx>(), GraphIdx(0));
+    QVERIFY(!store.isActive(GraphIdx(0)));
+    QVERIFY(store.dataMap(GraphIdx(0))->isEmpty());
 }
 
 void TestGraphDataStore::setActiveTrueRestoresVisibility()
 {
     GraphDataStore store;
     store.insertGraphData(makeGraph("A", "${h0}", true));
-    store.setActive(0, false);
-    store.setVisible(0, false);
+    store.setActive(GraphIdx(0), false);
+    store.setVisible(GraphIdx(0), false);
 
     QSignalSpy visSpy(&store, &GraphDataStore::visibilityChanged);
-    store.setActive(0, true);
+    store.setActive(GraphIdx(0), true);
 
     QCOMPARE(visSpy.count(), 1);
-    QCOMPARE(visSpy.at(0).at(0).toUInt(), 0u);
-    QVERIFY(store.isActive(0));
-    QVERIFY(store.isVisible(0));
+    QCOMPARE(visSpy.at(0).at(0).value<GraphIdx>(), GraphIdx(0));
+    QVERIFY(store.isActive(GraphIdx(0)));
+    QVERIFY(store.isVisible(GraphIdx(0)));
 }
 
 void TestGraphDataStore::activeGraphIndexListReturnsSortedIndices()
@@ -143,12 +150,12 @@ void TestGraphDataStore::activeGraphIndexListReturnsSortedIndices()
     store.insertGraphData(makeGraph("B", "${h1}", false));
     store.insertGraphData(makeGraph("C", "${h2}", true));
 
-    QList<quint16> list;
+    QList<GraphIdx> list;
     store.activeGraphIndexList(list);
 
     QCOMPARE(list.size(), 2);
-    QCOMPARE(list.at(0), quint16(0));
-    QCOMPARE(list.at(1), quint16(2));
+    QCOMPARE(list.at(0), GraphIdx(0));
+    QCOMPARE(list.at(1), GraphIdx(2));
 }
 
 void TestGraphDataStore::convertToActiveGraphIndexRoundTrip()
@@ -159,25 +166,25 @@ void TestGraphDataStore::convertToActiveGraphIndexRoundTrip()
     store.insertGraphData(makeGraph("C", "${h2}", true));
 
     // graph index 2 is the second active graph (active index 1)
-    QCOMPARE(store.convertToActiveGraphIndex(2), 1);
-    QCOMPARE(store.convertToGraphIndex(1), 2);
-    // graph index 1 is inactive — must return -1
-    QCOMPARE(store.convertToActiveGraphIndex(1), -1);
+    QCOMPARE(store.convertToActiveGraphIndex(GraphIdx(2)), ActiveIdx(1));
+    QCOMPARE(store.convertToGraphIndex(ActiveIdx(1)), GraphIdx(2));
+    // graph index 1 is inactive — must return invalid (NONE)
+    QCOMPARE(store.convertToActiveGraphIndex(GraphIdx(1)), ActiveIdx());
 }
 
 void TestGraphDataStore::setVisibleFalseOnSelectedGraphResetsSelection()
 {
     GraphDataStore store;
     store.insertGraphData(makeGraph("A", "${h0}", true));
-    store.setSelectedGraph(0);
-    QCOMPARE(store.selectedGraph(), 0);
+    store.setSelectedGraph(GraphIdx(0));
+    QCOMPARE(store.selectedGraph(), GraphIdx(0));
 
     QSignalSpy visSpy(&store, &GraphDataStore::visibilityChanged);
-    store.setVisible(0, false);
+    store.setVisible(GraphIdx(0), false);
 
     QCOMPARE(visSpy.count(), 1);
-    QCOMPARE(visSpy.at(0).at(0).toUInt(), 0u);
-    QCOMPARE(store.selectedGraph(), -1);
+    QCOMPARE(visSpy.at(0).at(0).value<GraphIdx>(), GraphIdx(0));
+    QCOMPARE(store.selectedGraph(), GraphIdx());
 }
 
 void TestGraphDataStore::moveGraphRowReorders()
@@ -188,18 +195,18 @@ void TestGraphDataStore::moveGraphRowReorders()
     store.insertGraphData(makeGraph("C", "${h2}"));
 
     // QList::move(0, 2): remove A from 0, insert at 2 → [B, C, A]
-    store.moveGraphRow(0, 2);
+    store.moveGraphRow(GraphIdx(0), GraphIdx(2));
 
-    QCOMPARE(store.label(0), QStringLiteral("B"));
-    QCOMPARE(store.label(1), QStringLiteral("C"));
-    QCOMPARE(store.label(2), QStringLiteral("A"));
+    QCOMPARE(store.label(GraphIdx(0)), QStringLiteral("B"));
+    QCOMPARE(store.label(GraphIdx(1)), QStringLiteral("C"));
+    QCOMPARE(store.label(GraphIdx(2)), QStringLiteral("A"));
 
-    QList<quint16> activeList;
+    QList<GraphIdx> activeList;
     store.activeGraphIndexList(activeList);
     QCOMPARE(activeList.size(), 3);
-    QCOMPARE(activeList.at(0), quint16(0));
-    QCOMPARE(activeList.at(1), quint16(1));
-    QCOMPARE(activeList.at(2), quint16(2));
+    QCOMPARE(activeList.at(0), GraphIdx(0));
+    QCOMPARE(activeList.at(1), GraphIdx(1));
+    QCOMPARE(activeList.at(2), GraphIdx(2));
 }
 
 void TestGraphDataStore::eraseSelectedGraphResetsSelection()
@@ -207,15 +214,15 @@ void TestGraphDataStore::eraseSelectedGraphResetsSelection()
     GraphDataStore store;
     store.insertGraphData(makeGraph("A", "${h0}"));
     store.insertGraphData(makeGraph("B", "${h1}"));
-    store.setSelectedGraph(1);
-    QCOMPARE(store.selectedGraph(), 1);
+    store.setSelectedGraph(GraphIdx(1));
+    QCOMPARE(store.selectedGraph(), GraphIdx(1));
 
     QSignalSpy spy(&store, &GraphDataStore::selectedGraphChanged);
-    store.eraseGraphDataAt(1);
+    store.eraseGraphDataAt(GraphIdx(1));
 
-    QCOMPARE(store.selectedGraph(), -1);
+    QCOMPARE(store.selectedGraph(), GraphIdx());
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toInt(), -1);
+    QCOMPARE(spy.at(0).at(0).value<GraphIdx>(), GraphIdx());
 }
 
 void TestGraphDataStore::eraseGraphBeforeSelectedResetsSelection()
@@ -224,15 +231,15 @@ void TestGraphDataStore::eraseGraphBeforeSelectedResetsSelection()
     store.insertGraphData(makeGraph("A", "${h0}"));
     store.insertGraphData(makeGraph("B", "${h1}"));
     store.insertGraphData(makeGraph("C", "${h2}"));
-    store.setSelectedGraph(2);
-    QCOMPARE(store.selectedGraph(), 2);
+    store.setSelectedGraph(GraphIdx(2));
+    QCOMPARE(store.selectedGraph(), GraphIdx(2));
 
     QSignalSpy spy(&store, &GraphDataStore::selectedGraphChanged);
-    store.eraseGraphDataAt(0);
+    store.eraseGraphDataAt(GraphIdx(0));
 
-    QCOMPARE(store.selectedGraph(), -1);
+    QCOMPARE(store.selectedGraph(), GraphIdx());
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toInt(), -1);
+    QCOMPARE(spy.at(0).at(0).value<GraphIdx>(), GraphIdx());
 }
 
 void TestGraphDataStore::eraseGraphAfterSelectedResetsSelection()
@@ -241,15 +248,15 @@ void TestGraphDataStore::eraseGraphAfterSelectedResetsSelection()
     store.insertGraphData(makeGraph("A", "${h0}"));
     store.insertGraphData(makeGraph("B", "${h1}"));
     store.insertGraphData(makeGraph("C", "${h2}"));
-    store.setSelectedGraph(0);
-    QCOMPARE(store.selectedGraph(), 0);
+    store.setSelectedGraph(GraphIdx(0));
+    QCOMPARE(store.selectedGraph(), GraphIdx(0));
 
     QSignalSpy spy(&store, &GraphDataStore::selectedGraphChanged);
-    store.eraseGraphDataAt(2);
+    store.eraseGraphDataAt(GraphIdx(2));
 
-    QCOMPARE(store.selectedGraph(), -1);
+    QCOMPARE(store.selectedGraph(), GraphIdx());
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toInt(), -1);
+    QCOMPARE(spy.at(0).at(0).value<GraphIdx>(), GraphIdx());
 }
 
 void TestGraphDataStore::clearAllGraphDataResetsSelection()
@@ -257,15 +264,15 @@ void TestGraphDataStore::clearAllGraphDataResetsSelection()
     GraphDataStore store;
     store.insertGraphData(makeGraph("A", "${h0}"));
     store.insertGraphData(makeGraph("B", "${h1}"));
-    store.setSelectedGraph(1);
-    QCOMPARE(store.selectedGraph(), 1);
+    store.setSelectedGraph(GraphIdx(1));
+    QCOMPARE(store.selectedGraph(), GraphIdx(1));
 
     QSignalSpy spy(&store, &GraphDataStore::selectedGraphChanged);
     store.clearAllGraphData();
 
-    QCOMPARE(store.selectedGraph(), -1);
+    QCOMPARE(store.selectedGraph(), GraphIdx());
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toInt(), -1);
+    QCOMPARE(spy.at(0).at(0).value<GraphIdx>(), GraphIdx());
 }
 
 void TestGraphDataStore::moveRowResetsSelection()
@@ -274,15 +281,15 @@ void TestGraphDataStore::moveRowResetsSelection()
     store.insertGraphData(makeGraph("A", "${h0}"));
     store.insertGraphData(makeGraph("B", "${h1}"));
     store.insertGraphData(makeGraph("C", "${h2}"));
-    store.setSelectedGraph(0);
-    QCOMPARE(store.selectedGraph(), 0);
+    store.setSelectedGraph(GraphIdx(0));
+    QCOMPARE(store.selectedGraph(), GraphIdx(0));
 
     QSignalSpy spy(&store, &GraphDataStore::selectedGraphChanged);
-    store.moveGraphRow(0, 2);
+    store.moveGraphRow(GraphIdx(0), GraphIdx(2));
 
-    QCOMPARE(store.selectedGraph(), -1);
+    QCOMPARE(store.selectedGraph(), GraphIdx());
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toInt(), -1);
+    QCOMPARE(spy.at(0).at(0).value<GraphIdx>(), GraphIdx());
 }
 
 void TestGraphDataStore::insertInactiveGraphDoesNotIncreaseActiveCount()
@@ -303,7 +310,7 @@ void TestGraphDataStore::setActiveNoopDoesNotEmitSignal()
     store.insertGraphData(makeGraph("A", "${h0}", true));
 
     QSignalSpy spy(&store, &GraphDataStore::activeChanged);
-    store.setActive(0, true);
+    store.setActive(GraphIdx(0), true);
 
     QCOMPARE(spy.count(), 0);
 }
@@ -314,11 +321,11 @@ void TestGraphDataStore::setSelectedGraphEmitsSignal()
     store.insertGraphData(makeGraph("A", "${h0}", true));
 
     QSignalSpy spy(&store, &GraphDataStore::selectedGraphChanged);
-    store.setSelectedGraph(0);
+    store.setSelectedGraph(GraphIdx(0));
 
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toInt(), 0);
-    QCOMPARE(store.selectedGraph(), 0);
+    QCOMPARE(spy.at(0).at(0).value<GraphIdx>(), GraphIdx(0));
+    QCOMPARE(store.selectedGraph(), GraphIdx(0));
 }
 
 void TestGraphDataStore::setSelectedGraphOnThirdRegisterWithMiddleInactiveEmitsGraphIndex()
@@ -329,39 +336,39 @@ void TestGraphDataStore::setSelectedGraphOnThirdRegisterWithMiddleInactiveEmitsG
     store.insertGraphData(makeGraph("C", "${h2}", true));
 
     QSignalSpy spy(&store, &GraphDataStore::selectedGraphChanged);
-    store.setSelectedGraph(2);
+    store.setSelectedGraph(GraphIdx(2));
 
     // signal must carry graph index (2), not the active index (1)
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toInt(), 2);
-    QCOMPARE(store.selectedGraph(), 2);
+    QCOMPARE(spy.at(0).at(0).value<GraphIdx>(), GraphIdx(2));
+    QCOMPARE(store.selectedGraph(), GraphIdx(2));
     // and the active index for graph 2 must be 1, not 2
-    QCOMPARE(store.convertToActiveGraphIndex(2), 1);
+    QCOMPARE(store.convertToActiveGraphIndex(GraphIdx(2)), ActiveIdx(1));
 }
 
 void TestGraphDataStore::setSelectedGraphOnInvisibleGraphIsIgnored()
 {
     GraphDataStore store;
     store.insertGraphData(makeGraph("A", "${h0}", true));
-    store.setVisible(0, false);
+    store.setVisible(GraphIdx(0), false);
 
-    store.setSelectedGraph(0);
+    store.setSelectedGraph(GraphIdx(0));
 
-    QCOMPARE(store.selectedGraph(), -1);
+    QCOMPARE(store.selectedGraph(), GraphIdx());
 }
 
 void TestGraphDataStore::setVisibleTrueEmitsSignal()
 {
     GraphDataStore store;
     store.insertGraphData(makeGraph("A", "${h0}", true));
-    store.setVisible(0, false);
+    store.setVisible(GraphIdx(0), false);
 
     QSignalSpy spy(&store, &GraphDataStore::visibilityChanged);
-    store.setVisible(0, true);
+    store.setVisible(GraphIdx(0), true);
 
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toUInt(), 0u);
-    QVERIFY(store.isVisible(0));
+    QCOMPARE(spy.at(0).at(0).value<GraphIdx>(), GraphIdx(0));
+    QVERIFY(store.isVisible(GraphIdx(0)));
 }
 
 void TestGraphDataStore::setVisibleFalseEmitsSignal()
@@ -371,11 +378,11 @@ void TestGraphDataStore::setVisibleFalseEmitsSignal()
     store.insertGraphData(makeGraph("B", "${h1}", true));
 
     QSignalSpy spy(&store, &GraphDataStore::visibilityChanged);
-    store.setVisible(1, false);
+    store.setVisible(GraphIdx(1), false);
 
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toUInt(), 1u);
-    QVERIFY(!store.isVisible(1));
+    QCOMPARE(spy.at(0).at(0).value<GraphIdx>(), GraphIdx(1));
+    QVERIFY(!store.isVisible(GraphIdx(1)));
 }
 
 void TestGraphDataStore::setValueAxisEmitsSignal()
@@ -384,11 +391,11 @@ void TestGraphDataStore::setValueAxisEmitsSignal()
     store.insertGraphData(makeGraph("A", "${h0}", true));
 
     QSignalSpy spy(&store, &GraphDataStore::valueAxisChanged);
-    store.setValueAxis(0, GraphData::VALUE_AXIS_SECONDARY);
+    store.setValueAxis(GraphIdx(0), GraphData::VALUE_AXIS_SECONDARY);
 
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toUInt(), 0u);
-    QCOMPARE(store.valueAxis(0), GraphData::VALUE_AXIS_SECONDARY);
+    QCOMPARE(spy.at(0).at(0).value<GraphIdx>(), GraphIdx(0));
+    QCOMPARE(store.valueAxis(GraphIdx(0)), GraphData::VALUE_AXIS_SECONDARY);
 }
 
 void TestGraphDataStore::setExpressionEmitsSignal()
@@ -397,11 +404,11 @@ void TestGraphDataStore::setExpressionEmitsSignal()
     store.insertGraphData(makeGraph("A", "${h0}", true));
 
     QSignalSpy spy(&store, &GraphDataStore::expressionChanged);
-    store.setExpression(0, "${h5}");
+    store.setExpression(GraphIdx(0), "${h5}");
 
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toUInt(), 0u);
-    QCOMPARE(store.expression(0), QStringLiteral("${h5}"));
+    QCOMPARE(spy.at(0).at(0).value<GraphIdx>(), GraphIdx(0));
+    QCOMPARE(store.expression(GraphIdx(0)), QStringLiteral("${h5}"));
 }
 
 void TestGraphDataStore::setExpressionStateEmitsSignal()
@@ -410,12 +417,12 @@ void TestGraphDataStore::setExpressionStateEmitsSignal()
     store.insertGraphData(makeGraph("A", "${h0}", true));
 
     QSignalSpy spy(&store, &GraphDataStore::expressionStateChanged);
-    store.setExpressionState(0, GraphData::ExpressionState::VALID);
+    store.setExpressionState(GraphIdx(0), GraphData::ExpressionState::VALID);
 
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toUInt(), 0u);
-    QCOMPARE(store.expressionState(0), GraphData::ExpressionState::VALID);
-    QVERIFY(store.isExpressionValid(0));
+    QCOMPARE(spy.at(0).at(0).value<GraphIdx>(), GraphIdx(0));
+    QCOMPARE(store.expressionState(GraphIdx(0)), GraphData::ExpressionState::VALID);
+    QVERIFY(store.isExpressionValid(GraphIdx(0)));
 }
 
 void TestGraphDataStore::setLabelEmitsSignal()
@@ -424,11 +431,11 @@ void TestGraphDataStore::setLabelEmitsSignal()
     store.insertGraphData(makeGraph("A", "${h0}", true));
 
     QSignalSpy spy(&store, &GraphDataStore::labelChanged);
-    store.setLabel(0, "NewLabel");
+    store.setLabel(GraphIdx(0), "NewLabel");
 
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toUInt(), 0u);
-    QCOMPARE(store.label(0), QStringLiteral("NewLabel"));
+    QCOMPARE(spy.at(0).at(0).value<GraphIdx>(), GraphIdx(0));
+    QCOMPARE(store.label(GraphIdx(0)), QStringLiteral("NewLabel"));
 }
 
 void TestGraphDataStore::setColorEmitsSignal()
@@ -437,11 +444,11 @@ void TestGraphDataStore::setColorEmitsSignal()
     store.insertGraphData(makeGraph("A", "${h0}", true));
 
     QSignalSpy spy(&store, &GraphDataStore::colorChanged);
-    store.setColor(0, QColor(Qt::blue));
+    store.setColor(GraphIdx(0), QColor(Qt::blue));
 
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toUInt(), 0u);
-    QCOMPARE(store.color(0), QColor(Qt::blue));
+    QCOMPARE(spy.at(0).at(0).value<GraphIdx>(), GraphIdx(0));
+    QCOMPARE(store.color(GraphIdx(0)), QColor(Qt::blue));
 }
 
 QTEST_GUILESS_MAIN(TestGraphDataStore)

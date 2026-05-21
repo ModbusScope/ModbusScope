@@ -34,7 +34,7 @@ void GraphIndicators::clear()
     }
 }
 
-void GraphIndicators::add(quint32 graphIdx, QCPGraph* pGraph)
+void GraphIndicators::add(GraphIdx graphIdx, QCPGraph* pGraph)
 {
     /* Hidden tracer to get correct interpolated value */
     auto valueTracer = new QCPItemTracer(_pPlot);
@@ -81,17 +81,17 @@ void GraphIndicators::updateIndicatorVisibility()
 
 void GraphIndicators::updateVisibility()
 {
-    for (uint32_t idx = 0; idx < _axisValueTracers.size(); idx++)
+    for (qint32 idx = 0; idx < _axisValueTracers.size(); idx++)
     {
-        _axisValueTracers[idx]->setVisible(determineVisibility(idx));
+        _axisValueTracers[idx]->setVisible(determineVisibility(ActiveIdx(idx)));
     }
 }
 
-bool GraphIndicators::determineVisibility(uint32_t activeIdx)
+bool GraphIndicators::determineVisibility(ActiveIdx activeIdx)
 {
-    const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeIdx);
+    const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(activeIdx);
 
-    auto pPos = _axisValueTracers[activeIdx]->position;
+    auto pPos = _axisValueTracers[activeIdx.v]->position;
 
     bool bVisibility = _pGraphDataModel->isVisible(graphIdx)
                         && !_pGraphDataModel->dataMap(graphIdx)->isEmpty()
@@ -101,13 +101,13 @@ bool GraphIndicators::determineVisibility(uint32_t activeIdx)
     return bVisibility;
 }
 
-void GraphIndicators::setFrontGraph(quint32 graphIdx)
+void GraphIndicators::setFrontGraph(GraphIdx graphIdx)
 {
-    const qint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+    const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
-    if (activeIdx != -1)
+    if (activeIdx.isValid())
     {
-        _axisValueTracers[activeIdx]->setLayer("topAxes");
+        _axisValueTracers[activeIdx.v]->setLayer("topAxes");
         _pPlot->replot(QCustomPlot::rpRefreshHint);
     }
 }
@@ -119,9 +119,9 @@ void GraphIndicators::setTracerPosition()
 
 void GraphIndicators::setTracerPosition(const QCPRange &newRange)
 {
-    for (uint32_t idx = 0; idx < _valueTracers.size(); idx++)
+    for (qint32 idx = 0; idx < _valueTracers.size(); idx++)
     {
-        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(idx);
+        const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(ActiveIdx(idx));
         const double key = _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_PRIMARY ? newRange.lower: newRange.upper;
         const double axisRectCoord = _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_PRIMARY ? 0: 1;
 
@@ -138,33 +138,33 @@ void GraphIndicators::setTracerPosition(const QCPRange &newRange)
     _pPlot->replot(QCustomPlot::rpRefreshHint);
 }
 
-void GraphIndicators::updateColor(quint32 graphIdx)
+void GraphIndicators::updateColor(GraphIdx graphIdx)
 {
-    const qint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+    const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
-    if (activeIdx != -1)
+    if (activeIdx.isValid())
     {
-        auto pen = _axisValueTracers[activeIdx]->pen();
+        auto pen = _axisValueTracers[activeIdx.v]->pen();
         pen.setColor(_pGraphDataModel->color(graphIdx));
-        _axisValueTracers[activeIdx]->setPen(pen);
+        _axisValueTracers[activeIdx.v]->setPen(pen);
     }
 }
 
-void GraphIndicators::updateValueAxis(quint32 graphIdx)
+void GraphIndicators::updateValueAxis(GraphIdx graphIdx)
 {
     configureValueAxis(graphIdx);
 
     setTracerPosition(_pPlot->xAxis->range());
 }
 
-void GraphIndicators::configureValueAxis(quint32 graphIdx)
+void GraphIndicators::configureValueAxis(GraphIdx graphIdx)
 {
-    const qint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+    const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
-    if (activeIdx != -1)
+    if (activeIdx.isValid())
     {
         auto valueAxis = _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_PRIMARY ? _pPlot->yAxis: _pPlot->yAxis2;
-        _axisValueTracers[activeIdx]->position->setAxisRect(valueAxis->axisRect());
-        _axisValueTracers[activeIdx]->position->setAxes(nullptr, valueAxis);
+        _axisValueTracers[activeIdx.v]->position->setAxisRect(valueAxis->axisRect());
+        _axisValueTracers[activeIdx.v]->position->setAxes(nullptr, valueAxis);
     }
 }

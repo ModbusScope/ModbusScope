@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "scopeplot.h"
+#include "util/graphindex.h"
 
 // Forward declaration
 class GraphDataModel;
@@ -15,20 +16,20 @@ public:
     virtual ~GraphIndicators();
 
     void clear();
-    void add(quint32 graphIdx, QCPGraph* pGraph);
-    void setFrontGraph(quint32 graphIdx);
+    void add(GraphIdx graphIdx, QCPGraph* pGraph);
+    void setFrontGraph(GraphIdx graphIdx);
     void updateIndicatorVisibility();
 
 private slots:
     void setTracerPosition(const QCPRange &newRange);
-    void updateColor(quint32 graphIdx);
-    void updateValueAxis(quint32 graphIdx);
+    void updateColor(GraphIdx graphIdx);
+    void updateValueAxis(GraphIdx graphIdx);
 
 private:
     void setTracerPosition();
-    void configureValueAxis(quint32 graphIdx);
+    void configureValueAxis(GraphIdx graphIdx);
     void updateVisibility();
-    bool determineVisibility(uint32_t activeIdx);
+    bool determineVisibility(ActiveIdx activeIdx);
 
     GraphDataModel* _pGraphDataModel;
     ScopePlot* _pPlot;
