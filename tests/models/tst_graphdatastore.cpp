@@ -143,7 +143,7 @@ void TestGraphDataStore::setActiveTrueRestoresVisibility()
     QVERIFY(store.isVisible(GraphIdx(0)));
 }
 
-void TestGraphDataStore::activeGraphIndexListReturnsSortedIndices()
+void TestGraphDataStore::activeGraphIndexListReturnsCorrectIndices()
 {
     GraphDataStore store;
     store.insertGraphData(makeGraph("A", "${h0}", true));

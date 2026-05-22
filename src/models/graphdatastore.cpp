@@ -3,8 +3,6 @@
 
 #include "util/util.h"
 
-#include <algorithm>
-
 GraphDataStore::GraphDataStore(QObject* parent) : QObject(parent)
 {
 }
@@ -182,18 +180,11 @@ void GraphDataStore::setSelectedGraph(GraphIdx index)
 }
 
 /*!
- * \brief Returns a sorted list of the indices of all active graphs.
+ * \brief Returns the active graph indices in ascending order.
  */
 void GraphDataStore::activeGraphIndexList(QList<GraphIdx>& list) const
 {
-    list.clear();
-
-    for (GraphIdx idx : _activeGraphList)
-    {
-        list.append(idx);
-    }
-
-    std::sort(list.begin(), list.end());
+    list = _activeGraphList;
 }
 
 ActiveIdx GraphDataStore::convertToActiveGraphIndex(GraphIdx graphIdx) const
