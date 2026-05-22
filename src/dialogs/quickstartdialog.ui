@@ -23,12 +23,6 @@
    <bool>true</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="contentsMargins">
-    <number>20</number>
-    <number>20</number>
-    <number>20</number>
-    <number>20</number>
-   </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayoutHeader">
      <item>
