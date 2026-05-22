@@ -8,6 +8,7 @@
 #include "util/updatenotify.h"
 
 #include <QButtonGroup>
+#include <QLabel>
 #include <QListWidgetItem>
 #include <QMainWindow>
 #include <QMenu>
@@ -58,6 +59,7 @@ protected:
     void keyPressEvent(QKeyEvent* event);
     void keyReleaseEvent(QKeyEvent* event);
     void closeEvent(QCloseEvent* event);
+    bool eventFilter(QObject* watched, QEvent* event) override;
 
 private slots:
 
@@ -139,6 +141,8 @@ private:
     MarkerInfo* _pMarkerInfo;
     Legend* _pLegend;
     StatusBar* _pStatusBar;
+
+    QLabel* _pEmptyStateLabel;
 
     QMenu _menuRightClick;
     QMenu* _pGraphShowHide;

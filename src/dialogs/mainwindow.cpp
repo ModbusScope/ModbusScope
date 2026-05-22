@@ -58,6 +58,13 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
     QApplication::setStyle(QStyleFactory::create("Fusion"));
 
+    _pEmptyStateLabel = new QLabel("No registers configured — click Register Settings to add one", _pUi->customPlot);
+    _pEmptyStateLabel->setAlignment(Qt::AlignCenter);
+    _pEmptyStateLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
+    _pEmptyStateLabel->setStyleSheet("color: #888888; font-size: 13px;");
+    _pEmptyStateLabel->resize(_pUi->customPlot->size());
+    _pUi->customPlot->installEventFilter(this);
+
     _pDiagnosticDialog = new DiagnosticDialog(_pDiagnosticModel, this);
 
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
@@ -297,6 +304,15 @@ void MainWindow::closeEvent(QCloseEvent* event)
     {
         event->accept();
     }
+}
+
+bool MainWindow::eventFilter(QObject* watched, QEvent* event)
+{
+    if (watched == _pUi->customPlot && event->type() == QEvent::Resize)
+    {
+        _pEmptyStateLabel->resize(_pUi->customPlot->size());
+    }
+    return QMainWindow::eventFilter(watched, event);
 }
 
 void MainWindow::exitApplication()
@@ -619,6 +635,8 @@ void MainWindow::handleGraphsCountChanged()
     const bool bEnabled = !activeGraphList.isEmpty();
     _pUi->actionZoom->setEnabled(bEnabled);
     _pUi->actionToggleMarkers->setEnabled(bEnabled);
+
+    _pEmptyStateLabel->setVisible(_pGraphDataModel->size() == 0);
 }
 
 void MainWindow::rebuildGraphMenu()
