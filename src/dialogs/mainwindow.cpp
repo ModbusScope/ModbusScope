@@ -349,7 +349,7 @@ void MainWindow::menuShowHideGraphClicked(bool bState)
 {
     QAction* pAction = qobject_cast<QAction*>(QObject::sender());
 
-    const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(ActiveIdx(pAction->data().toInt()));
+    const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(pAction->data().value<ActiveIdx>());
     _pGraphDataModel->setVisible(graphIdx, bState);
 }
 
@@ -626,7 +626,7 @@ void MainWindow::rebuildGraphMenu()
         pixmap.fill(_pGraphDataModel->color(activeGraphList[activeIdx]));
         QIcon icon = QIcon(pixmap);
 
-        pShowHideAction->setData(activeIdx); // stores active index as plain int for menuShowHideGraphClicked
+        pShowHideAction->setData(QVariant::fromValue(ActiveIdx(activeIdx)));
         pShowHideAction->setIcon(icon);
         pShowHideAction->setCheckable(true);
         pShowHideAction->setChecked(_pGraphDataModel->isVisible(activeGraphList[activeIdx]));
