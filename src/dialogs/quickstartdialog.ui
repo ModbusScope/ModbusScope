@@ -70,17 +70,17 @@
        </item>
        <item>
         <widget class="QLabel" name="lblTitle">
-         <property name="text">
-          <string>Welcome to ModbusScope</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignmentFlag::AlignCenter</set>
-         </property>
          <property name="font">
           <font>
            <pointsize>14</pointsize>
            <bold>true</bold>
           </font>
+         </property>
+         <property name="text">
+          <string>Welcome to ModbusScope</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
         </widget>
        </item>
@@ -130,13 +130,13 @@
          <height>16777215</height>
         </size>
        </property>
-       <property name="text">
-        <string>1.</string>
-       </property>
        <property name="font">
         <font>
          <bold>true</bold>
         </font>
+       </property>
+       <property name="text">
+        <string>1.</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignmentFlag::AlignTop</set>
@@ -146,7 +146,7 @@
      <item>
       <widget class="QLabel" name="lblStep1">
        <property name="text">
-        <string>Open &lt;b&gt;Tools → Settings&lt;/b&gt; to configure your connection and device.</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open &lt;span style=&quot; font-weight:700;&quot;&gt;Project → Settings&lt;/span&gt; to configure your connection and device.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="wordWrap">
         <bool>true</bool>
@@ -171,13 +171,13 @@
          <height>16777215</height>
         </size>
        </property>
-       <property name="text">
-        <string>2.</string>
-       </property>
        <property name="font">
         <font>
          <bold>true</bold>
         </font>
+       </property>
+       <property name="text">
+        <string>2.</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignmentFlag::AlignTop</set>
@@ -187,7 +187,7 @@
      <item>
       <widget class="QLabel" name="lblStep2">
        <property name="text">
-        <string>Open &lt;b&gt;Tools → Registers&lt;/b&gt; to add the Modbus registers you want to monitor.</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open &lt;span style=&quot; font-weight:700;&quot;&gt;Project → Registers&lt;/span&gt; to add the Modbus registers you want to monitor.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="wordWrap">
         <bool>true</bool>
@@ -212,13 +212,13 @@
          <height>16777215</height>
         </size>
        </property>
-       <property name="text">
-        <string>3.</string>
-       </property>
        <property name="font">
         <font>
          <bold>true</bold>
         </font>
+       </property>
+       <property name="text">
+        <string>3.</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignmentFlag::AlignTop</set>
