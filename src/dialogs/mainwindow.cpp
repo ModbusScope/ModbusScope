@@ -5,6 +5,7 @@
 #include "customwidgets/markerinfo.h"
 #include "customwidgets/mostrecentmenu.h"
 #include "customwidgets/notesdock.h"
+#include "customwidgets/overlaylabel.h"
 #include "customwidgets/statusbar.h"
 #include "datahandling/graphdatahandler.h"
 #include "dialogs/aboutdialog.h"
@@ -58,12 +59,8 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
     QApplication::setStyle(QStyleFactory::create("Fusion"));
 
-    _pEmptyStateLabel =
-      new QLabel(tr("No registers configured — click Register Settings to add one"), _pUi->customPlot);
-    _pEmptyStateLabel->setAlignment(Qt::AlignCenter);
-    _pEmptyStateLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
-    _pEmptyStateLabel->setStyleSheet("color: #888888; font-size: 13px;");
-    _pUi->customPlot->installEventFilter(this);
+    _pOverlayLabel =
+      new OverlayLabel(tr("No registers configured — click Register Settings to add one"), _pUi->customPlot, this);
 
     _pDiagnosticDialog = new DiagnosticDialog(_pDiagnosticModel, this);
 
@@ -305,15 +302,6 @@ void MainWindow::closeEvent(QCloseEvent* event)
     {
         event->accept();
     }
-}
-
-bool MainWindow::eventFilter(QObject* watched, QEvent* event)
-{
-    if (watched == _pUi->customPlot && event->type() == QEvent::Resize)
-    {
-        _pEmptyStateLabel->resize(_pUi->customPlot->size());
-    }
-    return QMainWindow::eventFilter(watched, event);
 }
 
 void MainWindow::exitApplication()
@@ -637,7 +625,7 @@ void MainWindow::handleGraphsCountChanged()
     _pUi->actionZoom->setEnabled(bEnabled);
     _pUi->actionToggleMarkers->setEnabled(bEnabled);
 
-    _pEmptyStateLabel->setVisible(_pGraphDataModel->activeCount() == 0);
+    _pOverlayLabel->setVisible(!bEnabled);
 }
 
 void MainWindow::rebuildGraphMenu()

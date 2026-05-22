@@ -8,7 +8,6 @@
 #include "util/updatenotify.h"
 
 #include <QButtonGroup>
-#include <QLabel>
 #include <QListWidgetItem>
 #include <QMainWindow>
 #include <QMenu>
@@ -36,6 +35,7 @@ class Legend;
 class StatusBar;
 class ExpressionStatus;
 class MostRecentMenu;
+class OverlayLabel;
 class CommunicationStats;
 class CommunicationStatsModel;
 
@@ -59,7 +59,6 @@ protected:
     void keyPressEvent(QKeyEvent* event) override;
     void keyReleaseEvent(QKeyEvent* event) override;
     void closeEvent(QCloseEvent* event) override;
-    bool eventFilter(QObject* watched, QEvent* event) override;
     void dragEnterEvent(QDragEnterEvent* e) override;
     void dropEvent(QDropEvent* e) override;
 
@@ -142,7 +141,7 @@ private:
     Legend* _pLegend;
     StatusBar* _pStatusBar;
 
-    QLabel* _pEmptyStateLabel;
+    OverlayLabel* _pOverlayLabel;
 
     QMenu _menuRightClick;
     QMenu* _pGraphShowHide;
