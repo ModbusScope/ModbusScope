@@ -58,11 +58,11 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
     QApplication::setStyle(QStyleFactory::create("Fusion"));
 
-    _pEmptyStateLabel = new QLabel("No registers configured — click Register Settings to add one", _pUi->customPlot);
+    _pEmptyStateLabel =
+      new QLabel(tr("No registers configured — click Register Settings to add one"), _pUi->customPlot);
     _pEmptyStateLabel->setAlignment(Qt::AlignCenter);
     _pEmptyStateLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
     _pEmptyStateLabel->setStyleSheet("color: #888888; font-size: 13px;");
-    _pEmptyStateLabel->resize(_pUi->customPlot->size());
     _pUi->customPlot->installEventFilter(this);
 
     _pDiagnosticDialog = new DiagnosticDialog(_pDiagnosticModel, this);
@@ -147,6 +147,7 @@ MainWindow::MainWindow(QStringList cmdArguments,
     connect(_pGraphDataModel, &GraphDataModel::graphsAddData, this, &MainWindow::setAxisToAuto);
 
     connect(_pGraphDataModel, &GraphDataModel::activeChanged, this, &MainWindow::rebuildGraphMenu);
+    connect(_pGraphDataModel, &GraphDataModel::activeChanged, this, &MainWindow::handleGraphsCountChanged);
     connect(_pGraphDataModel, &GraphDataModel::activeChanged, _pGraphView, &GraphView::updateGraphs);
 
     connect(_pGraphDataModel, &GraphDataModel::colorChanged, this, &MainWindow::handleGraphColorChange);
@@ -636,7 +637,7 @@ void MainWindow::handleGraphsCountChanged()
     _pUi->actionZoom->setEnabled(bEnabled);
     _pUi->actionToggleMarkers->setEnabled(bEnabled);
 
-    _pEmptyStateLabel->setVisible(_pGraphDataModel->size() == 0);
+    _pEmptyStateLabel->setVisible(_pGraphDataModel->activeCount() == 0);
 }
 
 void MainWindow::rebuildGraphMenu()
