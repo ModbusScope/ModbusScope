@@ -500,17 +500,17 @@ void GraphDataModel::clear()
     }
 }
 
-void GraphDataModel::activeGraphIndexList(QList<GraphIdx>& list)
+void GraphDataModel::activeGraphIndexList(QList<GraphIdx>& list) const
 {
     _pStore->activeGraphIndexList(list);
 }
 
-ActiveIdx GraphDataModel::convertToActiveGraphIndex(GraphIdx graphIdx)
+ActiveIdx GraphDataModel::convertToActiveGraphIndex(GraphIdx graphIdx) const
 {
     return _pStore->convertToActiveGraphIndex(graphIdx);
 }
 
-GraphIdx GraphDataModel::convertToGraphIndex(ActiveIdx activeIdx)
+GraphIdx GraphDataModel::convertToGraphIndex(ActiveIdx activeIdx) const
 {
     return _pStore->convertToGraphIndex(activeIdx);
 }

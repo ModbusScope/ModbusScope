@@ -81,10 +81,10 @@ public:
     void removeRegister(GraphIdx idx);
     void clear();
 
-    void activeGraphIndexList(QList<GraphIdx>& list);
+    void activeGraphIndexList(QList<GraphIdx>& list) const;
 
-    ActiveIdx convertToActiveGraphIndex(GraphIdx graphIdx);
-    GraphIdx convertToGraphIndex(ActiveIdx activeIdx);
+    ActiveIdx convertToActiveGraphIndex(GraphIdx graphIdx) const;
+    GraphIdx convertToGraphIndex(ActiveIdx activeIdx) const;
 
 signals:
 

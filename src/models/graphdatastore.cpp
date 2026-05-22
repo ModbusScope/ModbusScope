@@ -210,7 +210,10 @@ ActiveIdx GraphDataStore::convertToActiveGraphIndex(GraphIdx graphIdx) const
 
 GraphIdx GraphDataStore::convertToGraphIndex(ActiveIdx activeIdx) const
 {
-    Q_ASSERT(activeIdx.isValid() && activeIdx.v < _activeGraphList.size());
+    if (!activeIdx.isValid() || activeIdx.v >= _activeGraphList.size())
+    {
+        return GraphIdx();
+    }
     return _activeGraphList[activeIdx.v];
 }
 
