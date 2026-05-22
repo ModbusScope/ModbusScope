@@ -346,10 +346,18 @@ void GraphView::changeSelectedGraph(GraphIdx graphIdx)
 
 void GraphView::bringToFront(ActiveIdx activeGraphIdx)
 {
-    _pPlot->graph(activeGraphIdx.v)->setLayer("topMain");
+    if (!activeGraphIdx.isValid() || activeGraphIdx.v >= _pPlot->graphCount())
+    {
+        return;
+    }
 
     const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(activeGraphIdx);
+    if (!graphIdx.isValid())
+    {
+        return;
+    }
 
+    _pPlot->graph(activeGraphIdx.v)->setLayer("topMain");
     _pGraphIndicators->setFrontGraph(graphIdx);
     _pPlot->replot();
 }
