@@ -336,16 +336,31 @@ qint32 GraphDataModel::activeCount() const
     return _pStore->activeCount();
 }
 
+/*!
+ * \brief Returns the value axis assignment for the given graph.
+ * \param index GraphIdx identifying the graph in the full (active + inactive) list.
+ * \return Primary or secondary axis assignment; default-constructed value if index is invalid.
+ */
 GraphData::valueAxis_t GraphDataModel::valueAxis(GraphIdx index) const
 {
     return _pStore->valueAxis(index);
 }
 
+/*!
+ * \brief Returns whether the graph is currently visible in the plot.
+ * \param index GraphIdx identifying the graph.
+ * \return True if visible; false if hidden or if \a index is invalid.
+ */
 bool GraphDataModel::isVisible(GraphIdx index) const
 {
     return _pStore->isVisible(index);
 }
 
+/*!
+ * \brief Returns the display label for the given graph.
+ * \param index GraphIdx identifying the graph.
+ * \return Label string; empty string if \a index is invalid.
+ */
 QString GraphDataModel::label(GraphIdx index) const
 {
     return _pStore->label(index);
@@ -386,11 +401,21 @@ QString GraphDataModel::simplifiedExpression(GraphIdx index) const
     return _pStore->simplifiedExpression(index);
 }
 
+/*!
+ * \brief Returns a read-only view of the graph's time-series data container.
+ * \param index GraphIdx identifying the graph.
+ * \return Shared pointer to the data container; null if \a index is invalid.
+ */
 QSharedPointer<const QCPGraphDataContainer> GraphDataModel::dataMap(GraphIdx index) const
 {
     return _pStore->dataMap(index);
 }
 
+/*!
+ * \brief Returns a writable reference to the graph's time-series data container.
+ * \param index GraphIdx identifying the graph.
+ * \return Shared pointer to the data container; null if \a index is invalid.
+ */
 QSharedPointer<QCPGraphDataContainer> GraphDataModel::mutableDataMap(GraphIdx index)
 {
     return _pStore->mutableDataMap(index);
@@ -436,11 +461,19 @@ void GraphDataModel::setSelectedGraph(GraphIdx index)
     _pStore->setSelectedGraph(index);
 }
 
+/*!
+ * \brief Appends a single graph with the given data to the model.
+ * \param rowData Fully populated GraphData to add.
+ */
 void GraphDataModel::add(GraphData rowData)
 {
     addToModel(rowData);
 }
 
+/*!
+ * \brief Appends a list of graphs to the model.
+ * \param graphDataList List of GraphData entries to add in order.
+ */
 void GraphDataModel::add(QList<GraphData> graphDataList)
 {
     for (qint32 idx = 0; idx < graphDataList.size(); idx++)
@@ -449,6 +482,9 @@ void GraphDataModel::add(QList<GraphData> graphDataList)
     }
 }
 
+/*!
+ * \brief Appends a new empty graph using the default expression.
+ */
 void GraphDataModel::add()
 {
     GraphData data;
@@ -506,16 +542,36 @@ void GraphDataModel::clear()
     }
 }
 
+/*!
+ * \brief Fills \a list with the GraphIdx of every currently active graph, in ascending order.
+ * \param list Output list; existing contents are replaced.
+ */
 void GraphDataModel::activeGraphIndexList(QList<GraphIdx>& list) const
 {
     _pStore->activeGraphIndexList(list);
 }
 
+/*!
+ * \brief Converts a GraphIdx to the corresponding ActiveIdx.
+ *
+ * A GraphIdx identifies a graph's position in the full (active + inactive) list.
+ * An ActiveIdx is its sequential slot in QCustomPlot (active graphs only, 0-based).
+ *
+ * \param graphIdx Graph to look up.
+ * \return The ActiveIdx for the graph, or an invalid ActiveIdx (isValid() == false)
+ *         if the graph is not currently active.
+ */
 ActiveIdx GraphDataModel::convertToActiveGraphIndex(GraphIdx graphIdx) const
 {
     return _pStore->convertToActiveGraphIndex(graphIdx);
 }
 
+/*!
+ * \brief Converts an ActiveIdx back to the corresponding GraphIdx.
+ * \param activeIdx Active-graph slot to look up.
+ * \return The GraphIdx for the slot, or an invalid GraphIdx (isValid() == false)
+ *         if \a activeIdx is out of range.
+ */
 GraphIdx GraphDataModel::convertToGraphIndex(ActiveIdx activeIdx) const
 {
     return _pStore->convertToGraphIndex(activeIdx);
