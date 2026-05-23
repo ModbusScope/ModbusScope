@@ -126,19 +126,32 @@ void MarkerInfoItem::updateGraphList(void)
 
 void MarkerInfoItem::updateColor(GraphIdx graphIdx)
 {
-    QPixmap pixmap(20, 5);
-    pixmap.fill(_pGraphDataModel->color(graphIdx));
-
-    QIcon graphIcon = QIcon(pixmap);
+    const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+    if (!activeIdx.isValid())
+        return;
 
     /* + 1 for none selection */
-    _pGraphCombo->setItemIcon(_pGraphDataModel->convertToActiveGraphIndex(graphIdx).v + 1, graphIcon);
+    const int idx = activeIdx.v + 1;
+    if (idx >= _pGraphCombo->count())
+        return;
+
+    QPixmap pixmap(20, 5);
+    pixmap.fill(_pGraphDataModel->color(graphIdx));
+    _pGraphCombo->setItemIcon(idx, QIcon(pixmap));
 }
 
 void MarkerInfoItem::updateLabel(GraphIdx graphIdx)
 {
-    _pGraphCombo->setItemText(_pGraphDataModel->convertToActiveGraphIndex(graphIdx).v + 1,
-                              _pGraphDataModel->label(graphIdx));
+    const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+    if (!activeIdx.isValid())
+        return;
+
+    /* + 1 for none selection */
+    const int idx = activeIdx.v + 1;
+    if (idx >= _pGraphCombo->count())
+        return;
+
+    _pGraphCombo->setItemText(idx, _pGraphDataModel->label(graphIdx));
 }
 
 void MarkerInfoItem::removeFromGraphList(GraphIdx index)
