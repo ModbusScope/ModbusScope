@@ -128,12 +128,16 @@ void MarkerInfoItem::updateColor(GraphIdx graphIdx)
 {
     const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
     if (!activeIdx.isValid())
+    {
         return;
+    }
 
     /* + 1 for none selection */
     const int idx = activeIdx.v + 1;
     if (idx >= _pGraphCombo->count())
+    {
         return;
+    }
 
     QPixmap pixmap(20, 5);
     pixmap.fill(_pGraphDataModel->color(graphIdx));
@@ -144,12 +148,16 @@ void MarkerInfoItem::updateLabel(GraphIdx graphIdx)
 {
     const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
     if (!activeIdx.isValid())
+    {
         return;
+    }
 
     /* + 1 for none selection */
     const int idx = activeIdx.v + 1;
     if (idx >= _pGraphCombo->count())
+    {
         return;
+    }
 
     _pGraphCombo->setItemText(idx, _pGraphDataModel->label(graphIdx));
 }

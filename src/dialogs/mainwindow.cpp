@@ -550,7 +550,9 @@ void MainWindow::handleGraphVisibilityChange(GraphIdx graphIdx)
     {
         const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
         if (!activeIdx.isValid() || activeIdx.v >= _pGraphShowHide->actions().size())
+        {
             return;
+        }
 
         _pGraphShowHide->actions().at(activeIdx.v)->setChecked(_pGraphDataModel->isVisible(graphIdx));
     }
@@ -562,7 +564,9 @@ void MainWindow::handleGraphColorChange(GraphIdx graphIdx)
     {
         const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
         if (!activeIdx.isValid() || activeIdx.v >= _pGraphShowHide->actions().size())
+        {
             return;
+        }
 
         QPixmap pixmap(20, 5);
         pixmap.fill(_pGraphDataModel->color(graphIdx));
@@ -579,7 +583,9 @@ void MainWindow::handleGraphLabelChange(GraphIdx graphIdx)
     {
         const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
         if (!activeIdx.isValid() || activeIdx.v >= _pGraphShowHide->actions().size())
+        {
             return;
+        }
 
         _pGraphShowHide->actions().at(activeIdx.v)->setText(_pGraphDataModel->label(graphIdx));
     }

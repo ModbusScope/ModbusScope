@@ -41,7 +41,9 @@ int GraphDataModel::columnCount(const QModelIndex& /*parent*/) const
 QVariant GraphDataModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid() || index.row() < 0 || index.row() >= _pStore->size())
+    {
         return QVariant();
+    }
 
     const GraphIdx graphIdx(index.row());
 
@@ -154,7 +156,9 @@ QVariant GraphDataModel::headerData(int section, Qt::Orientation orientation, in
 bool GraphDataModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
     if (!index.isValid() || index.row() < 0 || index.row() >= _pStore->size())
+    {
         return false;
+    }
 
     bool bRet = true;
     const GraphIdx graphIdx(index.row());
