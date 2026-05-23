@@ -4,6 +4,8 @@
 #include "expressionchecker.h"
 #include "util/graphindex.h"
 #include <QObject>
+#include <QPair>
+#include <QQueue>
 
 /* Forward declarations */
 class GraphDataModel;
@@ -31,7 +33,7 @@ private:
     GraphDataModel* _pGraphDataModel;
     SettingsModel* _pSettingsModel;
 
-    QQueue<QString> _expressionQueue;
+    QQueue<QPair<GraphIdx, QString>> _expressionQueue;
 };
 
 #endif // EXPRESSION_STATUS_H

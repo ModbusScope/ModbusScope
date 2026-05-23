@@ -27,32 +27,25 @@ void ExpressionStatus::handleResultReady(bool valid)
     */
     Q_UNUSED(valid);
 
-    QString verifiedExpression = _expressionQueue.dequeue();
+    const QPair<GraphIdx, QString> item = _expressionQueue.dequeue();
+    const GraphIdx graphIdx = item.first;
 
-    const qint32 size = _pGraphDataModel->size();
-    for (qint32 idx = 0; idx < size; idx++)
+    if (_checker.syntaxError())
     {
-        if (_pGraphDataModel->expression(GraphIdx(idx)) == verifiedExpression)
-        {
-            if (_checker.syntaxError())
-            {
-                _pGraphDataModel->setExpressionState(GraphIdx(idx), ExpressionState::SYNTAX_ERROR);
-            }
-            else if (!_deviceCheckPassed)
-            {
-                _pGraphDataModel->setExpressionState(GraphIdx(idx), ExpressionState::UNKNOWN_DEVICE);
-            }
-            else
-            {
-                _pGraphDataModel->setExpressionState(GraphIdx(idx), ExpressionState::VALID);
-            }
-            break;
-        }
+        _pGraphDataModel->setExpressionState(graphIdx, ExpressionState::SYNTAX_ERROR);
+    }
+    else if (!_deviceCheckPassed)
+    {
+        _pGraphDataModel->setExpressionState(graphIdx, ExpressionState::UNKNOWN_DEVICE);
+    }
+    else
+    {
+        _pGraphDataModel->setExpressionState(graphIdx, ExpressionState::VALID);
     }
 
     if (!_expressionQueue.isEmpty())
     {
-        verifyExpression(_expressionQueue.head(), _pSettingsModel->deviceList());
+        verifyExpression(_expressionQueue.head().second, _pSettingsModel->deviceList());
     }
 }
 
@@ -65,7 +58,7 @@ void ExpressionStatus::handleExpressionsChanged(GraphIdx graphIdx)
     {
         bStartChecker = true;
     }
-    _expressionQueue.enqueue(expression);
+    _expressionQueue.enqueue(qMakePair(graphIdx, expression));
 
     if (bStartChecker)
     {
