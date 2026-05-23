@@ -451,4 +451,69 @@ void TestGraphDataStore::setColorEmitsSignal()
     QCOMPARE(store.color(GraphIdx(0)), QColor(Qt::blue));
 }
 
+void TestGraphDataStore::invalidGraphIdxGettersReturnSafeDefaults()
+{
+    GraphDataStore store;
+
+    // default-constructed (v = -1): all getters must return safe defaults
+    QCOMPARE(store.isActive(GraphIdx()), false);
+    QCOMPARE(store.isVisible(GraphIdx()), false);
+    QCOMPARE(store.isExpressionValid(GraphIdx()), false);
+    QVERIFY(store.label(GraphIdx()).isEmpty());
+    QVERIFY(store.expression(GraphIdx()).isEmpty());
+    QVERIFY(store.simplifiedExpression(GraphIdx()).isEmpty());
+    QVERIFY(!store.color(GraphIdx()).isValid());
+    QVERIFY(!store.dataMap(GraphIdx()));
+    QVERIFY(!store.mutableDataMap(GraphIdx()));
+
+    // out-of-range after clear: same safe defaults
+    store.insertGraphData(makeGraph("A", "${h0}"));
+    store.clearAllGraphData();
+
+    const GraphIdx stale(0);
+    QCOMPARE(store.isActive(stale), false);
+    QCOMPARE(store.isVisible(stale), false);
+    QCOMPARE(store.isExpressionValid(stale), false);
+    QVERIFY(store.label(stale).isEmpty());
+    QVERIFY(store.expression(stale).isEmpty());
+    QVERIFY(store.simplifiedExpression(stale).isEmpty());
+    QVERIFY(!store.color(stale).isValid());
+    QVERIFY(!store.dataMap(stale));
+    QVERIFY(!store.mutableDataMap(stale));
+}
+
+void TestGraphDataStore::invalidGraphIdxMutatorsEmitNoSignals()
+{
+    GraphDataStore store;
+    store.insertGraphData(makeGraph("A", "${h0}"));
+    store.clearAllGraphData();
+
+    const GraphIdx stale(0);
+
+    QSignalSpy activeSpy(&store, &GraphDataStore::activeChanged);
+    QSignalSpy visSpy(&store, &GraphDataStore::visibilityChanged);
+    QSignalSpy labelSpy(&store, &GraphDataStore::labelChanged);
+    QSignalSpy colorSpy(&store, &GraphDataStore::colorChanged);
+    QSignalSpy exprSpy(&store, &GraphDataStore::expressionChanged);
+    QSignalSpy selSpy(&store, &GraphDataStore::selectedGraphChanged);
+    QSignalSpy axisSpy(&store, &GraphDataStore::valueAxisChanged);
+
+    store.setActive(stale, true);
+    store.setVisible(stale, false);
+    store.setLabel(stale, "x");
+    store.setColor(stale, QColor(Qt::red));
+    store.setExpression(stale, "${h9}");
+    store.setSelectedGraph(stale);
+    store.setValueAxis(stale, GraphData::VALUE_AXIS_SECONDARY);
+
+    QCOMPARE(activeSpy.count(), 0);
+    QCOMPARE(visSpy.count(), 0);
+    QCOMPARE(labelSpy.count(), 0);
+    QCOMPARE(colorSpy.count(), 0);
+    QCOMPARE(exprSpy.count(), 0);
+    QCOMPARE(selSpy.count(), 0);
+    QCOMPARE(axisSpy.count(), 0);
+    QCOMPARE(store.selectedGraph(), GraphIdx());
+}
+
 QTEST_GUILESS_MAIN(TestGraphDataStore)

@@ -44,6 +44,9 @@ private slots:
     void setExpressionStateEmitsSignal();
     void setLabelEmitsSignal();
     void setColorEmitsSignal();
+
+    void invalidGraphIdxGettersReturnSafeDefaults();
+    void invalidGraphIdxMutatorsEmitNoSignals();
 };
 
 #endif /* TST_GRAPHDATASTORE_H */

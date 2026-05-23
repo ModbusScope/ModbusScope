@@ -19,7 +19,6 @@ qint32 GraphDataStore::activeCount() const
 
 GraphData::valueAxis_t GraphDataStore::valueAxis(GraphIdx index) const
 {
-    Q_ASSERT(index.v >= 0 && index.v < _graphData.size());
     if (index.v < 0 || index.v >= _graphData.size())
         return {};
     return _graphData[index.v].valueAxis();
@@ -27,7 +26,6 @@ GraphData::valueAxis_t GraphDataStore::valueAxis(GraphIdx index) const
 
 bool GraphDataStore::isVisible(GraphIdx index) const
 {
-    Q_ASSERT(index.v >= 0 && index.v < _graphData.size());
     if (index.v < 0 || index.v >= _graphData.size())
         return false;
     return _graphData[index.v].isVisible();
@@ -35,7 +33,6 @@ bool GraphDataStore::isVisible(GraphIdx index) const
 
 QString GraphDataStore::label(GraphIdx index) const
 {
-    Q_ASSERT(index.v >= 0 && index.v < _graphData.size());
     if (index.v < 0 || index.v >= _graphData.size())
         return {};
     return _graphData[index.v].label();
@@ -43,7 +40,6 @@ QString GraphDataStore::label(GraphIdx index) const
 
 QColor GraphDataStore::color(GraphIdx index) const
 {
-    Q_ASSERT(index.v >= 0 && index.v < _graphData.size());
     if (index.v < 0 || index.v >= _graphData.size())
         return {};
     return _graphData[index.v].color();
@@ -51,7 +47,6 @@ QColor GraphDataStore::color(GraphIdx index) const
 
 bool GraphDataStore::isActive(GraphIdx index) const
 {
-    Q_ASSERT(index.v >= 0 && index.v < _graphData.size());
     if (index.v < 0 || index.v >= _graphData.size())
         return false;
     return _graphData[index.v].isActive();
@@ -59,7 +54,6 @@ bool GraphDataStore::isActive(GraphIdx index) const
 
 QString GraphDataStore::expression(GraphIdx index) const
 {
-    Q_ASSERT(index.v >= 0 && index.v < _graphData.size());
     if (index.v < 0 || index.v >= _graphData.size())
         return {};
     return _graphData[index.v].expression();
@@ -67,7 +61,6 @@ QString GraphDataStore::expression(GraphIdx index) const
 
 GraphData::ExpressionState GraphDataStore::expressionState(GraphIdx index) const
 {
-    Q_ASSERT(index.v >= 0 && index.v < _graphData.size());
     if (index.v < 0 || index.v >= _graphData.size())
         return {};
     return _graphData[index.v].expressionState();
@@ -75,7 +68,6 @@ GraphData::ExpressionState GraphDataStore::expressionState(GraphIdx index) const
 
 bool GraphDataStore::isExpressionValid(GraphIdx index) const
 {
-    Q_ASSERT(index.v >= 0 && index.v < _graphData.size());
     if (index.v < 0 || index.v >= _graphData.size())
         return false;
     return _graphData[index.v].isExpressionValid();
@@ -88,7 +80,6 @@ GraphIdx GraphDataStore::selectedGraph() const
 
 QString GraphDataStore::simplifiedExpression(GraphIdx index) const
 {
-    Q_ASSERT(index.v >= 0 && index.v < _graphData.size());
     if (index.v < 0 || index.v >= _graphData.size())
         return {};
     return _graphData[index.v].expression().simplified();
@@ -96,7 +87,6 @@ QString GraphDataStore::simplifiedExpression(GraphIdx index) const
 
 QSharedPointer<const QCPGraphDataContainer> GraphDataStore::dataMap(GraphIdx index) const
 {
-    Q_ASSERT(index.v >= 0 && index.v < _graphData.size());
     if (index.v < 0 || index.v >= _graphData.size())
         return {};
     return _graphData[index.v].dataMap();
@@ -104,7 +94,6 @@ QSharedPointer<const QCPGraphDataContainer> GraphDataStore::dataMap(GraphIdx ind
 
 QSharedPointer<QCPGraphDataContainer> GraphDataStore::mutableDataMap(GraphIdx index)
 {
-    Q_ASSERT(index.v >= 0 && index.v < _graphData.size());
     if (index.v < 0 || index.v >= _graphData.size())
         return {};
     return _graphData[index.v].mutableDataMap();
@@ -112,7 +101,6 @@ QSharedPointer<QCPGraphDataContainer> GraphDataStore::mutableDataMap(GraphIdx in
 
 void GraphDataStore::setValueAxis(GraphIdx index, GraphData::valueAxis_t axis)
 {
-    Q_ASSERT(index.v >= 0 && index.v < _graphData.size());
     if (index.v < 0 || index.v >= _graphData.size())
         return;
     if (_graphData[index.v].valueAxis() != axis)
@@ -124,7 +112,6 @@ void GraphDataStore::setValueAxis(GraphIdx index, GraphData::valueAxis_t axis)
 
 void GraphDataStore::setVisible(GraphIdx index, bool bVisible)
 {
-    Q_ASSERT(index.v >= 0 && index.v < _graphData.size());
     if (index.v < 0 || index.v >= _graphData.size())
         return;
     if (_graphData[index.v].isVisible() != bVisible)
@@ -141,7 +128,6 @@ void GraphDataStore::setVisible(GraphIdx index, bool bVisible)
 
 void GraphDataStore::setLabel(GraphIdx index, const QString& label)
 {
-    Q_ASSERT(index.v >= 0 && index.v < _graphData.size());
     if (index.v < 0 || index.v >= _graphData.size())
         return;
     if (_graphData[index.v].label() != label)
@@ -153,7 +139,6 @@ void GraphDataStore::setLabel(GraphIdx index, const QString& label)
 
 void GraphDataStore::setColor(GraphIdx index, const QColor& color)
 {
-    Q_ASSERT(index.v >= 0 && index.v < _graphData.size());
     if (index.v < 0 || index.v >= _graphData.size())
         return;
     if (_graphData[index.v].color() != color)
@@ -165,7 +150,6 @@ void GraphDataStore::setColor(GraphIdx index, const QColor& color)
 
 void GraphDataStore::setActive(GraphIdx index, bool bActive)
 {
-    Q_ASSERT(index.v >= 0 && index.v < _graphData.size());
     if (index.v < 0 || index.v >= _graphData.size())
         return;
     if (_graphData[index.v].isActive() != bActive)
@@ -189,7 +173,6 @@ void GraphDataStore::setActive(GraphIdx index, bool bActive)
 
 void GraphDataStore::setExpression(GraphIdx index, QString expression)
 {
-    Q_ASSERT(index.v >= 0 && index.v < _graphData.size());
     if (index.v < 0 || index.v >= _graphData.size())
         return;
     if (_graphData[index.v].expression() != expression)
@@ -201,7 +184,6 @@ void GraphDataStore::setExpression(GraphIdx index, QString expression)
 
 void GraphDataStore::setExpressionState(GraphIdx index, GraphData::ExpressionState status)
 {
-    Q_ASSERT(index.v >= 0 && index.v < _graphData.size());
     if (index.v < 0 || index.v >= _graphData.size())
         return;
     if (_graphData[index.v].expressionState() != status)
