@@ -1,6 +1,6 @@
 # Expression operators reference
 
-Expressions are evaluated by a custom MuParser instance. Register references (`${...}`) are resolved first; the resulting numeric values are then passed to the parser.
+Register references (`${...}`) are resolved first; the resulting numeric values are then passed to the expression parser.
 
 ## Arithmetic operators
 

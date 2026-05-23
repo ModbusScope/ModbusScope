@@ -8,7 +8,7 @@ When ModbusScope reads a register, the process has two stages.
 
 In the first stage, the application resolves all `${...}` references in the expression. Each reference is replaced with the numeric value read from the corresponding Modbus address. If any referenced address fails to read (timeout, Modbus exception, out-of-range index), the entire expression result is marked invalid for that cycle and no point is plotted.
 
-In the second stage, the resulting arithmetic string is passed to the expression parser (MuParser), which evaluates it to a single `double`. This value is what appears on the graph.
+In the second stage, the resulting arithmetic string is passed to the expression parser, which evaluates it to a single number. This value is what appears on the graph.
 
 ## What the parser can do
 
@@ -18,7 +18,7 @@ An expression can reference multiple registers. `${40001} * ${40002@2}` reads on
 
 ## What the parser cannot do
 
-There are no math functions (`sin`, `cos`, `sqrt`, and so on). The custom MuParser configuration used by ModbusScope overrides the default function set and provides only the register lookup function internally.
+There are no math functions (`sin`, `cos`, `sqrt`, and so on).
 
 There is no state between samples. Each poll cycle evaluates the expression from scratch. You cannot compute a running average, accumulate a counter, or compare the current value to the previous one.
 
