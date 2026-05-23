@@ -175,6 +175,10 @@ void GraphView::enableSamplePoints()
     handleSamplePoints();
 }
 
+/*!
+ * \brief Clears the data for the given graph, preserving time keys when other graphs are active.
+ * \param graphIdx Graph index in the full graph list.
+ */
 void GraphView::clearGraph(GraphIdx graphIdx)
 {
     if (_pGraphDataModel->isActive(graphIdx))
@@ -211,6 +215,9 @@ void GraphView::clearGraph(GraphIdx graphIdx)
     }
 }
 
+/*!
+ * \brief Rebuilds all plotted graphs from the active-graph list in the data model.
+ */
 void GraphView::updateGraphs()
 {
     _pGraphMarkers->clearTracers();
@@ -281,6 +288,10 @@ void GraphView::updateGraphs()
     emit afterGraphUpdate();
 }
 
+/*!
+ * \brief Updates the pen color of the plotted graph to match the model color.
+ * \param graphIdx Graph index in the full graph list.
+ */
 void GraphView::changeGraphColor(GraphIdx graphIdx)
 {
     if (_pGraphDataModel->isActive(graphIdx))
@@ -293,6 +304,10 @@ void GraphView::changeGraphColor(GraphIdx graphIdx)
     }
 }
 
+/*!
+ * \brief Moves the plotted graph to the primary or secondary value axis.
+ * \param graphIdx Graph index in the full graph list.
+ */
 void GraphView::changeGraphAxis(GraphIdx graphIdx)
 {
     if (_pGraphDataModel->isActive(graphIdx))
@@ -306,6 +321,10 @@ void GraphView::changeGraphAxis(GraphIdx graphIdx)
     }
 }
 
+/*!
+ * \brief Selects or deselects the given graph in the plot, clearing any previous selection.
+ * \param graphIdx Graph index to select, or an invalid GraphIdx to clear the selection.
+ */
 void GraphView::changeSelectedGraph(GraphIdx graphIdx)
 {
     QList<QCPGraph*> selectedGraphs = _pPlot->selectedGraphs();
@@ -344,6 +363,10 @@ void GraphView::changeSelectedGraph(GraphIdx graphIdx)
     _pPlot->replot();
 }
 
+/*!
+ * \brief Moves the specified graph to the top drawing layer so it renders above others.
+ * \param activeGraphIdx Sequential slot index of the active graph.
+ */
 void GraphView::bringToFront(ActiveIdx activeGraphIdx)
 {
     if (!activeGraphIdx.isValid() || activeGraphIdx.v >= _pPlot->graphCount())
@@ -362,6 +385,11 @@ void GraphView::bringToFront(ActiveIdx activeGraphIdx)
     _pPlot->replot();
 }
 
+/*!
+ * \brief Appends time-series data to all active graphs and rescales the axes.
+ * \param timeData Shared time keys for all graphs.
+ * \param data Per-graph value lists, aligned with \a timeData.
+ */
 void GraphView::addData(QList<double> timeData, QList<QList<double> > data)
 {
     quint64 totalPoints = 0;
@@ -394,6 +422,10 @@ void GraphView::addData(QList<double> timeData, QList<QList<double> > data)
     _pPlot->replot();
 }
 
+/*!
+ * \brief Shows or hides the plotted graph and refreshes markers and indicators.
+ * \param graphIdx Graph index in the full graph list.
+ */
 void GraphView::handleGraphVisibilityChange(GraphIdx graphIdx)
 {
     if (_pGraphDataModel->isActive(graphIdx))
