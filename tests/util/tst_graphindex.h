@@ -11,25 +11,25 @@ class TestGraphIndex : public QObject
 private slots:
     void initTestCase();
 
-    void graphIdx_defaultConstructed_isInvalid();
-    void graphIdx_explicitValue_isValid();
-    void graphIdx_explicitValue_storesValue();
-    void graphIdx_noneConstant_matchesDefault();
+    void graphIdxDefaultConstructedIsInvalid();
+    void graphIdxExplicitValueIsValid();
+    void graphIdxExplicitValueStoresValue();
+    void graphIdxNoneConstantMatchesDefault();
 
-    void graphIdx_equality_sameValue();
-    void graphIdx_equality_differentValues();
-    void graphIdx_inequality();
-    void graphIdx_lessThan();
+    void graphIdxEqualitySameValue();
+    void graphIdxEqualityDifferentValues();
+    void graphIdxInequality();
+    void graphIdxLessThan();
 
-    void activeIdx_defaultConstructed_isInvalid();
-    void activeIdx_explicitValue_isValid();
-    void activeIdx_explicitValue_storesValue();
-    void activeIdx_noneConstant_matchesDefault();
+    void activeIdxDefaultConstructedIsInvalid();
+    void activeIdxExplicitValueIsValid();
+    void activeIdxExplicitValueStoresValue();
+    void activeIdxNoneConstantMatchesDefault();
 
-    void activeIdx_equality_sameValue();
-    void activeIdx_equality_differentValues();
-    void activeIdx_inequality();
-    void activeIdx_lessThan();
+    void activeIdxEqualitySameValue();
+    void activeIdxEqualityDifferentValues();
+    void activeIdxInequality();
+    void activeIdxLessThan();
 
     void metatype_graphIdx_isRegistered();
     void metatype_activeIdx_isRegistered();

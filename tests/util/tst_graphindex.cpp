@@ -14,13 +14,13 @@ void TestGraphIndex::initTestCase()
 
 // ---- GraphIdx ----
 
-void TestGraphIndex::graphIdx_defaultConstructed_isInvalid()
+void TestGraphIndex::graphIdxDefaultConstructedIsInvalid()
 {
     GraphIdx idx;
     QVERIFY(!idx.isValid());
 }
 
-void TestGraphIndex::graphIdx_explicitValue_isValid()
+void TestGraphIndex::graphIdxExplicitValueIsValid()
 {
     GraphIdx idx(0);
     QVERIFY(idx.isValid());
@@ -29,36 +29,36 @@ void TestGraphIndex::graphIdx_explicitValue_isValid()
     QVERIFY(idx2.isValid());
 }
 
-void TestGraphIndex::graphIdx_explicitValue_storesValue()
+void TestGraphIndex::graphIdxExplicitValueStoresValue()
 {
     GraphIdx idx(7);
     QCOMPARE(idx.v, 7);
 }
 
-void TestGraphIndex::graphIdx_noneConstant_matchesDefault()
+void TestGraphIndex::graphIdxNoneConstantMatchesDefault()
 {
     QCOMPARE(GraphIdx::NONE, -1);
     GraphIdx idx;
     QCOMPARE(idx.v, GraphIdx::NONE);
 }
 
-void TestGraphIndex::graphIdx_equality_sameValue()
+void TestGraphIndex::graphIdxEqualitySameValue()
 {
     QVERIFY(GraphIdx(3) == GraphIdx(3));
 }
 
-void TestGraphIndex::graphIdx_equality_differentValues()
+void TestGraphIndex::graphIdxEqualityDifferentValues()
 {
     QVERIFY(!(GraphIdx(2) == GraphIdx(5)));
 }
 
-void TestGraphIndex::graphIdx_inequality()
+void TestGraphIndex::graphIdxInequality()
 {
     QVERIFY(GraphIdx(1) != GraphIdx(2));
     QVERIFY(!(GraphIdx(1) != GraphIdx(1)));
 }
 
-void TestGraphIndex::graphIdx_lessThan()
+void TestGraphIndex::graphIdxLessThan()
 {
     QVERIFY(GraphIdx(0) < GraphIdx(1));
     QVERIFY(!(GraphIdx(1) < GraphIdx(0)));
@@ -67,13 +67,13 @@ void TestGraphIndex::graphIdx_lessThan()
 
 // ---- ActiveIdx ----
 
-void TestGraphIndex::activeIdx_defaultConstructed_isInvalid()
+void TestGraphIndex::activeIdxDefaultConstructedIsInvalid()
 {
     ActiveIdx idx;
     QVERIFY(!idx.isValid());
 }
 
-void TestGraphIndex::activeIdx_explicitValue_isValid()
+void TestGraphIndex::activeIdxExplicitValueIsValid()
 {
     ActiveIdx idx(0);
     QVERIFY(idx.isValid());
@@ -82,36 +82,36 @@ void TestGraphIndex::activeIdx_explicitValue_isValid()
     QVERIFY(idx2.isValid());
 }
 
-void TestGraphIndex::activeIdx_explicitValue_storesValue()
+void TestGraphIndex::activeIdxExplicitValueStoresValue()
 {
     ActiveIdx idx(4);
     QCOMPARE(idx.v, 4);
 }
 
-void TestGraphIndex::activeIdx_noneConstant_matchesDefault()
+void TestGraphIndex::activeIdxNoneConstantMatchesDefault()
 {
     QCOMPARE(ActiveIdx::NONE, -1);
     ActiveIdx idx;
     QCOMPARE(idx.v, ActiveIdx::NONE);
 }
 
-void TestGraphIndex::activeIdx_equality_sameValue()
+void TestGraphIndex::activeIdxEqualitySameValue()
 {
     QVERIFY(ActiveIdx(2) == ActiveIdx(2));
 }
 
-void TestGraphIndex::activeIdx_equality_differentValues()
+void TestGraphIndex::activeIdxEqualityDifferentValues()
 {
     QVERIFY(!(ActiveIdx(0) == ActiveIdx(3)));
 }
 
-void TestGraphIndex::activeIdx_inequality()
+void TestGraphIndex::activeIdxInequality()
 {
     QVERIFY(ActiveIdx(0) != ActiveIdx(1));
     QVERIFY(!(ActiveIdx(0) != ActiveIdx(0)));
 }
 
-void TestGraphIndex::activeIdx_lessThan()
+void TestGraphIndex::activeIdxLessThan()
 {
     QVERIFY(ActiveIdx(0) < ActiveIdx(1));
     QVERIFY(!(ActiveIdx(1) < ActiveIdx(0)));
