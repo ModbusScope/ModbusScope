@@ -1,32 +1,34 @@
 # Create CSV parse presets
 
-This guide shows how to create a `presets.xml` file so that ModbusScope automatically applies the right parse settings when opening certain CSV files.
+This guide shows how to create a `presets.json` file so that ModbusScope automatically applies the right parse settings when opening certain CSV files.
 
 ## Steps
 
-1. Create a file named `presets.xml` and place it in one of these locations:
-   - `C:\Users\<USER>\Documents\ModbusScope\presets.xml` (Windows, checked first)
+1. Create a file named `presets.json` and place it in one of these locations:
+   - `C:\Users\<USER>\Documents\ModbusScope\presets.json` (Windows, checked first)
    - Same folder as the ModbusScope executable (fallback)
 
 2. Write your presets using this structure:
 
-   ```xml
-   <modbusscope>
-     <parsepreset>
-       <name>My preset</name>
-       <keyword>-mydevice</keyword>
-       <fieldseparator><![CDATA[;]]></fieldseparator>
-       <decimalseparator><![CDATA[,]]></decimalseparator>
-       <thousandseparator><![CDATA[ ]]></thousandseparator>
-       <commentSequence><![CDATA[//]]></commentSequence>
-       <column>1</column>
-       <labelrow>1</labelrow>
-       <datarow>2</datarow>
-     </parsepreset>
-   </modbusscope>
+   ```json
+   {
+     "presets": [
+       {
+         "name": "My preset",
+         "keyword": "-mydevice",
+         "fieldseparator": ";",
+         "decimalseparator": ",",
+         "thousandseparator": " ",
+         "commentsequence": "//",
+         "column": 1,
+         "labelrow": 1,
+         "datarow": 2
+       }
+     ]
+   }
    ```
 
-3. Adjust the values to match your file format. See [Reference: Preset file format](../reference/preset-file-format.md) for all available elements.
+3. Adjust the values to match your file format. See [Reference: Preset file format](../reference/preset-file-format.md) for all available fields.
 
 4. Save the file and reopen ModbusScope (or open a CSV file — presets are loaded when the import dialog opens).
 
@@ -34,9 +36,10 @@ This guide shows how to create a `presets.xml` file so that ModbusScope automati
 
 ## Notes
 
-- If a valid `presets.xml` is found, it replaces the built-in presets entirely.
-- A preset can omit `<keyword>` if you always want to select it manually.
-- Timestamps in seconds: add `<timeinmilliseconds>false</timeinmilliseconds>` to have ModbusScope convert them on load.
+- If a valid preset file is found, it replaces the built-in presets entirely.
+- A preset can omit `keyword` if you always want to select it manually.
+- Timestamps in seconds: set `"timeinmilliseconds": false` to have ModbusScope convert them on load.
+- Existing `presets.xml` files continue to work without changes. See [Reference: Preset file format — backward compatibility](../reference/preset-file-format.md#backward-compatibility-xml-format).
 
 ## See also
 

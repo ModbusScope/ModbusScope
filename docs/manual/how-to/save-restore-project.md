@@ -30,4 +30,4 @@ Drag the `.mbs` file from your file explorer onto the ModbusScope main window.
 
 ### Compatibility
 
-Starting with ModbusScope v4, the `.mbs` format changed to support the full 16-bit address range. Files saved with v3.x are converted automatically on open. Files saved before v3.x are not supported; open them in v3.x first and re-save.
+Project files are now saved as JSON. `.mbs` files from ModbusScope v3 and v4 (XML format) load automatically and are saved as JSON the next time you use **File > Save Project As...**. Files saved before v3.x are not supported; open them in v3.x first and re-save.
