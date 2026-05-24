@@ -27,7 +27,7 @@ If your device uses different values, substitute them at each step.
 2. Click **Add device**.
 3. Set **Name** to `My device`.
 4. Set **Connection ID** to `1` (the connection you just created).
-5. Set **Slave ID** to `1`.
+5. Set **Slave ID** to `1` (the Modbus slave ID of the device).
 6. Click **OK**.
 
 ## Step 3 — Add registers
@@ -45,13 +45,15 @@ If your device uses different values, substitute them at each step.
 
 The graph starts updating in real time. Each register appears as a line.
 
+You can pan and zoom the live graph at any time: scroll to zoom, drag to pan. This is useful for inspecting recent samples while logging continues.
+
 > If the graph shows no data or the status bar shows connection errors, verify the IP address, port, and slave ID in Steps 1 and 2.
 
 ## Step 5 — Stop logging
 
 1. Click **Stop Logging** when you have collected enough data.
 
-The graph freezes. You can now pan and zoom the data.
+The graph stops updating. You can continue to pan and zoom the captured data before exporting it.
 
 ## Step 6 — Export to CSV
 
