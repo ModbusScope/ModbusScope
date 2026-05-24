@@ -25,3 +25,7 @@ This guide shows how to place markers on the graph to measure time and value dif
 
 - Markers must be placed on actual logged samples. Clicking between samples snaps to the nearest one.
 - To remove markers, go to **View > Remove markers** or close the Markers panel.
+
+## See also
+
+- [Navigate the graph](navigate-the-graph.md)

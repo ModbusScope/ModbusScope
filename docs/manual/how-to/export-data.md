@@ -24,7 +24,7 @@ This guide shows how to export data from a logging session as a CSV file or as a
 
 - The CSV format uses the field and decimal separators configured in your locale settings.
 - To re-open an exported CSV in ModbusScope, see [Open a CSV data file](open-csv-file.md).
-- The image export captures the current zoom level and visible area of the graph.
+- The image export captures the current zoom level and visible area of the graph. See [Navigate the graph](navigate-the-graph.md) to set up the view before exporting.
 
 ## See also
 

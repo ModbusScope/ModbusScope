@@ -49,13 +49,27 @@ You can pan and zoom the live graph at any time: scroll to zoom, drag to pan. Th
 
 > If the graph shows no data or the status bar shows connection errors, verify the IP address, port, and slave ID in Steps 1 and 2.
 
-## Step 5 — Stop logging
+## Step 5 — Navigate the graph
+
+The **Scale options** panel at the bottom of the window controls how the axes scale.
+
+1. Under **X axis**, select **Sliding window** and set the interval to `60` seconds.
+
+   The graph now shows only the last 60 seconds of data, scrolling forward as new samples arrive.
+
+2. Under **Y axis**, select **Window auto-scale**.
+
+   The y-axis rescales automatically to the values visible in the current x-window.
+
+You can also navigate with the mouse: scroll to zoom both axes, drag to pan. To zoom a single axis, click its label first, then scroll or drag. Double-click an axis label to reset it to auto-scale.
+
+## Step 6 — Stop logging
 
 1. Click **Stop Logging** when you have collected enough data.
 
 The graph stops updating. You can continue to pan and zoom the captured data before exporting it.
 
-## Step 6 — Export to CSV
+## Step 7 — Export to CSV
 
 1. Go to **File > Save Data File As...**.
 2. Choose a folder and file name.
@@ -67,6 +81,7 @@ The graph stops updating. You can continue to pan and zoom the captured data bef
 
 ## What's next
 
+- [Navigate the graph: scaling, zoom, and pan](../how-to/navigate-the-graph.md)
 - [Add a second connection and device](../how-to/configure-tcp-connection.md)
 - [Write expressions to convert or combine register values](../how-to/write-expressions.md)
 - [Save your register configuration as a project file](../how-to/save-restore-project.md)
