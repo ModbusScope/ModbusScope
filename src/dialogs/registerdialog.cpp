@@ -105,7 +105,7 @@ void RegisterDialog::activatedCell(QModelIndex modelIndex)
 {
     if ((modelIndex.column() == GraphDataModel::column::COLOR) && (modelIndex.row() < _pGraphDataModel->size()))
     {
-        QColor color = QColorDialog::getColor(_pGraphDataModel->color(modelIndex.row()));
+        QColor color = QColorDialog::getColor(_pGraphDataModel->color(GraphIdx(modelIndex.row())));
 
         if (color.isValid())
         {
@@ -150,7 +150,7 @@ void RegisterDialog::handleExpressionEdit(const QModelIndex& index)
     {
         _pUi->registerView->closePersistentEditor(index);
 
-        ExpressionsDialog exprDialog(_pGraphDataModel, index.row(), _pAdapterManager, this);
+        ExpressionsDialog exprDialog(_pGraphDataModel, GraphIdx(index.row()), _pAdapterManager, this);
 
         exprDialog.exec();
     }

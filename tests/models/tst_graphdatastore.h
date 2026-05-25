@@ -2,12 +2,14 @@
 #ifndef TST_GRAPHDATASTORE_H
 #define TST_GRAPHDATASTORE_H
 
+#include "util/graphindex.h"
 #include <QObject>
 
 class TestGraphDataStore : public QObject
 {
     Q_OBJECT
 private slots:
+    void initTestCase();
     void init();
     void cleanup();
 
@@ -19,7 +21,7 @@ private slots:
     void setActiveFalseRemovesFromActiveCount();
     void setActiveFalseClearsData();
     void setActiveTrueRestoresVisibility();
-    void activeGraphIndexListReturnsSortedIndices();
+    void activeGraphIndexListReturnsCorrectIndices();
     void convertToActiveGraphIndexRoundTrip();
     void setVisibleFalseOnSelectedGraphResetsSelection();
     void moveGraphRowReorders();
@@ -42,6 +44,9 @@ private slots:
     void setExpressionStateEmitsSignal();
     void setLabelEmitsSignal();
     void setColorEmitsSignal();
+
+    void invalidGraphIdxGettersReturnSafeDefaults();
+    void invalidGraphIdxMutatorsEmitNoSignals();
 };
 
 #endif /* TST_GRAPHDATASTORE_H */

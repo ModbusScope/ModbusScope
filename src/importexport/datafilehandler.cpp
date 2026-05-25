@@ -203,7 +203,7 @@ void DataFileHandler::parseDataFile()
             {
                 for (int idx = 0; idx < data.dataLabel.size(); idx++)
                 {
-                    _pGraphDataModel->setColor(static_cast<quint32>(idx), data.colors[idx]);
+                    _pGraphDataModel->setColor(GraphIdx(idx), data.colors[idx]);
                 }
             }
 
@@ -213,7 +213,7 @@ void DataFileHandler::parseDataFile()
                 {
                     auto valueAxis =
                       data.axis[idx] == 1 ? GraphData::VALUE_AXIS_SECONDARY : GraphData::VALUE_AXIS_PRIMARY;
-                    _pGraphDataModel->setValueAxis(static_cast<quint32>(idx), valueAxis);
+                    _pGraphDataModel->setValueAxis(GraphIdx(idx), valueAxis);
                 }
             }
 

@@ -126,11 +126,11 @@ QVariant MbcUpdateModel::data(const QModelIndex& index, int role) const
         {
 
         case cColumnExpression:
-            return _pGraphDataModel->simplifiedExpression(index.row());
+            return _pGraphDataModel->simplifiedExpression(GraphIdx(index.row()));
             break;
 
         case cColumnText:
-            return _pGraphDataModel->label(index.row());
+            return _pGraphDataModel->label(GraphIdx(index.row()));
             break;
 
         case cColumnUpdateExpression:
@@ -193,8 +193,8 @@ void MbcUpdateModel::checkUpdate()
     // Preprocess graph data model into lookup tables
     for (quint32 idx = 0; idx < graphSize; ++idx)
     {
-        exprToIndex.insert(_pGraphDataModel->expression(idx), idx);
-        labelToIndex.insert(_pGraphDataModel->label(idx), idx);
+        exprToIndex.insert(_pGraphDataModel->expression(GraphIdx(idx)), idx);
+        labelToIndex.insert(_pGraphDataModel->label(GraphIdx(idx)), idx);
     }
 
     for (const auto& mbcRegister : std::as_const(_mbcRegisterList))
@@ -205,7 +205,7 @@ void MbcUpdateModel::checkUpdate()
         if (exprToIndex.contains(checkExpr))
         {
             int idx = exprToIndex[checkExpr];
-            if (_updateInfo[idx].update == UpdateField::None && _pGraphDataModel->label(idx) != checkName)
+            if (_updateInfo[idx].update == UpdateField::None && _pGraphDataModel->label(GraphIdx(idx)) != checkName)
             {
                 _updateInfo[idx].update = UpdateField::Text;
                 _updateInfo[idx].expression.clear();
@@ -215,7 +215,7 @@ void MbcUpdateModel::checkUpdate()
         else if (labelToIndex.contains(checkName))
         {
             int idx = labelToIndex[checkName];
-            if (_updateInfo[idx].update == UpdateField::None && _pGraphDataModel->expression(idx) != checkExpr)
+            if (_updateInfo[idx].update == UpdateField::None && _pGraphDataModel->expression(GraphIdx(idx)) != checkExpr)
             {
                 _updateInfo[idx].update = UpdateField::Expression;
                 _updateInfo[idx].expression = checkExpr;

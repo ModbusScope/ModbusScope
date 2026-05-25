@@ -4,14 +4,15 @@
 #include "graphview/graphview.h"
 #include "models/graphdatamodel.h"
 
-GraphIndicators::GraphIndicators(GraphDataModel * pGraphDataModel, ScopePlot* pPlot, QObject *parent) :
-    QObject(parent),
-    _pGraphDataModel(pGraphDataModel),
-    _pPlot(pPlot)
+GraphIndicators::GraphIndicators(GraphDataModel* pGraphDataModel, ScopePlot* pPlot, QObject* parent)
+    : QObject(parent), _pGraphDataModel(pGraphDataModel), _pPlot(pPlot)
 {
-    connect(_pPlot->xAxis, QOverload<const QCPRange &>::of(&QCPAxis::rangeChanged), this, QOverload<const QCPRange &>::of(&GraphIndicators::setTracerPosition));
-    connect(_pPlot->yAxis, QOverload<const QCPRange &>::of(&QCPAxis::rangeChanged), this, QOverload<>::of(&GraphIndicators::setTracerPosition));
-    connect(_pPlot->yAxis2, QOverload<const QCPRange &>::of(&QCPAxis::rangeChanged), this, QOverload<>::of(&GraphIndicators::setTracerPosition));
+    connect(_pPlot->xAxis, QOverload<const QCPRange&>::of(&QCPAxis::rangeChanged), this,
+            QOverload<const QCPRange&>::of(&GraphIndicators::setTracerPosition));
+    connect(_pPlot->yAxis, QOverload<const QCPRange&>::of(&QCPAxis::rangeChanged), this,
+            QOverload<>::of(&GraphIndicators::setTracerPosition));
+    connect(_pPlot->yAxis2, QOverload<const QCPRange&>::of(&QCPAxis::rangeChanged), this,
+            QOverload<>::of(&GraphIndicators::setTracerPosition));
 
     connect(_pGraphDataModel, &GraphDataModel::colorChanged, this, &GraphIndicators::updateColor);
     connect(_pGraphDataModel, &GraphDataModel::valueAxisChanged, this, &GraphIndicators::updateValueAxis);
@@ -24,7 +25,7 @@ GraphIndicators::~GraphIndicators()
 
 void GraphIndicators::clear()
 {
-    while(!_valueTracers.isEmpty())
+    while (!_valueTracers.isEmpty())
     {
         _pPlot->removeItem(_valueTracers.last());
         _valueTracers.removeLast();
@@ -34,7 +35,12 @@ void GraphIndicators::clear()
     }
 }
 
-void GraphIndicators::add(quint32 graphIdx, QCPGraph* pGraph)
+/*!
+ * \brief Adds a pair of tracers for the given graph to track its value on the axis.
+ * \param graphIdx Graph index in the full graph list.
+ * \param pGraph Pointer to the QCPGraph to attach the tracer to.
+ */
+void GraphIndicators::add(GraphIdx graphIdx, QCPGraph* pGraph)
 {
     /* Hidden tracer to get correct interpolated value */
     auto valueTracer = new QCPItemTracer(_pPlot);
@@ -81,33 +87,41 @@ void GraphIndicators::updateIndicatorVisibility()
 
 void GraphIndicators::updateVisibility()
 {
-    for (uint32_t idx = 0; idx < _axisValueTracers.size(); idx++)
+    for (qint32 idx = 0; idx < _axisValueTracers.size(); idx++)
     {
-        _axisValueTracers[idx]->setVisible(determineVisibility(idx));
+        _axisValueTracers[idx]->setVisible(determineVisibility(ActiveIdx(idx)));
     }
 }
 
-bool GraphIndicators::determineVisibility(uint32_t activeIdx)
+/*!
+ * \brief Returns whether the axis tracer for the given active graph should be visible.
+ * \param activeIdx Sequential slot index of the active graph.
+ * \return True if the tracer is in range and the graph is visible with data; false otherwise.
+ */
+bool GraphIndicators::determineVisibility(ActiveIdx activeIdx)
 {
-    const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeIdx);
+    const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(activeIdx);
 
-    auto pPos = _axisValueTracers[activeIdx]->position;
+    auto pPos = _axisValueTracers[activeIdx.v]->position;
 
-    bool bVisibility = _pGraphDataModel->isVisible(graphIdx)
-                        && !_pGraphDataModel->dataMap(graphIdx)->isEmpty()
-                        && (pPos->value() >= pPos->valueAxis()->range().lower)
-                        && (pPos->value() <= pPos->valueAxis()->range().upper);
+    bool bVisibility = _pGraphDataModel->isVisible(graphIdx) && !_pGraphDataModel->dataMap(graphIdx)->isEmpty() &&
+                       (pPos->value() >= pPos->valueAxis()->range().lower) &&
+                       (pPos->value() <= pPos->valueAxis()->range().upper);
 
     return bVisibility;
 }
 
-void GraphIndicators::setFrontGraph(quint32 graphIdx)
+/*!
+ * \brief Moves the tracer for the given graph to the top drawing layer.
+ * \param graphIdx Graph index in the full graph list.
+ */
+void GraphIndicators::setFrontGraph(GraphIdx graphIdx)
 {
-    const qint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+    const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
-    if (activeIdx != -1)
+    if (activeIdx.isValid())
     {
-        _axisValueTracers[activeIdx]->setLayer("topAxes");
+        _axisValueTracers[activeIdx.v]->setLayer("topAxes");
         _pPlot->replot(QCustomPlot::rpRefreshHint);
     }
 }
@@ -117,13 +131,14 @@ void GraphIndicators::setTracerPosition()
     setTracerPosition(_pPlot->xAxis->range());
 }
 
-void GraphIndicators::setTracerPosition(const QCPRange &newRange)
+void GraphIndicators::setTracerPosition(const QCPRange& newRange)
 {
-    for (uint32_t idx = 0; idx < _valueTracers.size(); idx++)
+    for (qint32 idx = 0; idx < _valueTracers.size(); idx++)
     {
-        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(idx);
-        const double key = _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_PRIMARY ? newRange.lower: newRange.upper;
-        const double axisRectCoord = _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_PRIMARY ? 0: 1;
+        const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(ActiveIdx(idx));
+        const double key =
+          _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_PRIMARY ? newRange.lower : newRange.upper;
+        const double axisRectCoord = _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_PRIMARY ? 0 : 1;
 
         /* Use hidden tracer to get correct value */
         _valueTracers[idx]->setGraphKey(key);
@@ -138,33 +153,46 @@ void GraphIndicators::setTracerPosition(const QCPRange &newRange)
     _pPlot->replot(QCustomPlot::rpRefreshHint);
 }
 
-void GraphIndicators::updateColor(quint32 graphIdx)
+/*!
+ * \brief Updates the tracer pen color to match the current graph color.
+ * \param graphIdx Graph index in the full graph list.
+ */
+void GraphIndicators::updateColor(GraphIdx graphIdx)
 {
-    const qint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+    const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
-    if (activeIdx != -1)
+    if (activeIdx.isValid())
     {
-        auto pen = _axisValueTracers[activeIdx]->pen();
+        auto pen = _axisValueTracers[activeIdx.v]->pen();
         pen.setColor(_pGraphDataModel->color(graphIdx));
-        _axisValueTracers[activeIdx]->setPen(pen);
+        _axisValueTracers[activeIdx.v]->setPen(pen);
     }
 }
 
-void GraphIndicators::updateValueAxis(quint32 graphIdx)
+/*!
+ * \brief Re-configures the tracer axis and repositions it after a value-axis change.
+ * \param graphIdx Graph index in the full graph list.
+ */
+void GraphIndicators::updateValueAxis(GraphIdx graphIdx)
 {
     configureValueAxis(graphIdx);
 
     setTracerPosition(_pPlot->xAxis->range());
 }
 
-void GraphIndicators::configureValueAxis(quint32 graphIdx)
+/*!
+ * \brief Binds the tracer position to the correct primary or secondary value axis.
+ * \param graphIdx Graph index in the full graph list.
+ */
+void GraphIndicators::configureValueAxis(GraphIdx graphIdx)
 {
-    const qint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+    const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
-    if (activeIdx != -1)
+    if (activeIdx.isValid())
     {
-        auto valueAxis = _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_PRIMARY ? _pPlot->yAxis: _pPlot->yAxis2;
-        _axisValueTracers[activeIdx]->position->setAxisRect(valueAxis->axisRect());
-        _axisValueTracers[activeIdx]->position->setAxes(nullptr, valueAxis);
+        auto valueAxis =
+          _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_PRIMARY ? _pPlot->yAxis : _pPlot->yAxis2;
+        _axisValueTracers[activeIdx.v]->position->setAxisRect(valueAxis->axisRect());
+        _axisValueTracers[activeIdx.v]->position->setAxes(nullptr, valueAxis);
     }
 }

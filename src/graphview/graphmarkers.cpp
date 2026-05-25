@@ -4,6 +4,7 @@
 #include "graphview/graphview.h"
 #include "models/graphdatamodel.h"
 #include "models/guimodel.h"
+#include "util/graphindex.h"
 
 GraphMarkers::GraphMarkers(GraphDataModel * pGraphDataModel, GuiModel* pGuiModel, ScopePlot* pPlot, QObject *parent) :
     QObject(parent),
@@ -112,23 +113,23 @@ void GraphMarkers::setEndMarker()
     _pPlot->replot();
 }
 
-void GraphMarkers::updateValueAxis(quint32 graphIdx)
+void GraphMarkers::updateValueAxis(GraphIdx graphIdx)
 {
-    const qint32 activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+    const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
-    if (activeIdx != -1)
+    if (activeIdx.isValid())
     {
         auto valueAxis = _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_PRIMARY ? _pPlot->yAxis: _pPlot->yAxis2;
-        _startTracerList[activeIdx]->position->setAxes(_pPlot->xAxis, valueAxis);
-        _endTracerList[activeIdx]->position->setAxes(_pPlot->xAxis, valueAxis);
+        _startTracerList[activeIdx.v]->position->setAxes(_pPlot->xAxis, valueAxis);
+        _endTracerList[activeIdx.v]->position->setAxes(_pPlot->xAxis, valueAxis);
     }
 }
 
 void GraphMarkers::setTracerVisibility(QList<QCPItemTracer *> &tracerList, bool bMarkerVisibility)
 {
-    for (uint32_t activeIdx = 0; activeIdx < tracerList.size(); activeIdx++)
+    for (qint32 activeIdx = 0; activeIdx < tracerList.size(); activeIdx++)
     {
-        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeIdx);
+        const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(ActiveIdx(activeIdx));
 
         const bool bVisility = bMarkerVisibility && _pGraphDataModel->isVisible(graphIdx);
         tracerList[activeIdx]->setVisible(bVisility);

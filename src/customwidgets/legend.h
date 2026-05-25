@@ -10,6 +10,7 @@
 #include <QMenu>
 #include <QTimer>
 
+#include "util/graphindex.h"
 #include "util/result.h"
 
 /* Forward declaration */
@@ -35,22 +36,22 @@ public slots:
 
 private slots:
     void updateLegend();
-    void changeGraphVisibility(quint32 graphIdx);
-    void changeGraphColor(const quint32 graphIdx);
-    void changeGraphAxis(const quint32 graphIdx);
-    void changeGraphLabel(const quint32 graphIdx);
+    void changeGraphVisibility(GraphIdx graphIdx);
+    void changeGraphColor(GraphIdx graphIdx);
+    void changeGraphAxis(GraphIdx graphIdx);
+    void changeGraphLabel(GraphIdx graphIdx);
     void showContextMenu(const QPoint& pos);
     void toggleVisibilityClicked();
     void hideAll();
     void showAll();
-    void handleSelectedGraphChanged(const qint32 activeGraphIdx);
+    void handleSelectedGraphChanged(GraphIdx graphIdx);
 
 private:
     void updateCursorDataInLegend();
     void updateValueDataInLegend();
-    void addItem(quint32 graphIdx);
-    void toggleItemVisibility(qint32 activeGraphIdx);
-    QString valueAxisText(quint32 graphIdx);
+    void addItem(GraphIdx graphIdx);
+    void toggleItemVisibility(ActiveIdx activeGraphIdx);
+    QString valueAxisText(GraphIdx graphIdx);
 
     void processClick(bool bDoubleClick, int row, int column);
     void cellDoubleClicked(int row, int column);
@@ -58,7 +59,7 @@ private:
 
     // Last data
     ResultDoubleList _lastReceivedList;
-    qint32 _popupMenuItem;
+    ActiveIdx _popupMenuItem;
 
     // Models
     GuiModel * _pGuiModel;

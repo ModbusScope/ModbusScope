@@ -326,11 +326,11 @@ void ImportMbcDialog::handleAcceptUpdate(const QModelIndex& index)
 
     if (index.column() == MbcUpdateModel::cColumnUpdateExpression)
     {
-        _pGraphDataModel->setExpression(index.row(), _pMbcUpdateModel->data(index).toString());
+        _pGraphDataModel->setExpression(GraphIdx(index.row()), _pMbcUpdateModel->data(index).toString());
     }
     else if (index.column() == MbcUpdateModel::cColumnUpdateText)
     {
-        _pGraphDataModel->setLabel(index.row(), _pMbcUpdateModel->data(index).toString());
+        _pGraphDataModel->setLabel(GraphIdx(index.row()), _pMbcUpdateModel->data(index).toString());
     }
     else
     {

@@ -3,9 +3,7 @@
 
 #include "util/util.h"
 
-#include <algorithm>
-
-GraphDataStore::GraphDataStore(QObject* parent) : QObject(parent), _selectedGraphIdx(-1)
+GraphDataStore::GraphDataStore(QObject* parent) : QObject(parent)
 {
 }
 
@@ -19,117 +17,181 @@ qint32 GraphDataStore::activeCount() const
     return _activeGraphList.size();
 }
 
-GraphData::valueAxis_t GraphDataStore::valueAxis(quint32 index) const
+GraphData::valueAxis_t GraphDataStore::valueAxis(GraphIdx index) const
 {
-    return _graphData[index].valueAxis();
+    if (index.v < 0 || index.v >= _graphData.size())
+    {
+        return {};
+    }
+    return _graphData[index.v].valueAxis();
 }
 
-bool GraphDataStore::isVisible(quint32 index) const
+bool GraphDataStore::isVisible(GraphIdx index) const
 {
-    return _graphData[index].isVisible();
+    if (index.v < 0 || index.v >= _graphData.size())
+    {
+        return false;
+    }
+    return _graphData[index.v].isVisible();
 }
 
-QString GraphDataStore::label(quint32 index) const
+QString GraphDataStore::label(GraphIdx index) const
 {
-    return _graphData[index].label();
+    if (index.v < 0 || index.v >= _graphData.size())
+    {
+        return {};
+    }
+    return _graphData[index.v].label();
 }
 
-QColor GraphDataStore::color(quint32 index) const
+QColor GraphDataStore::color(GraphIdx index) const
 {
-    return _graphData[index].color();
+    if (index.v < 0 || index.v >= _graphData.size())
+    {
+        return {};
+    }
+    return _graphData[index.v].color();
 }
 
-bool GraphDataStore::isActive(quint32 index) const
+bool GraphDataStore::isActive(GraphIdx index) const
 {
-    return _graphData[index].isActive();
+    if (index.v < 0 || index.v >= _graphData.size())
+    {
+        return false;
+    }
+    return _graphData[index.v].isActive();
 }
 
-QString GraphDataStore::expression(quint32 index) const
+QString GraphDataStore::expression(GraphIdx index) const
 {
-    return _graphData[index].expression();
+    if (index.v < 0 || index.v >= _graphData.size())
+    {
+        return {};
+    }
+    return _graphData[index.v].expression();
 }
 
-GraphData::ExpressionState GraphDataStore::expressionState(quint32 index) const
+GraphData::ExpressionState GraphDataStore::expressionState(GraphIdx index) const
 {
-    return _graphData[index].expressionState();
+    if (index.v < 0 || index.v >= _graphData.size())
+    {
+        return {};
+    }
+    return _graphData[index.v].expressionState();
 }
 
-bool GraphDataStore::isExpressionValid(quint32 index) const
+bool GraphDataStore::isExpressionValid(GraphIdx index) const
 {
-    return _graphData[index].isExpressionValid();
+    if (index.v < 0 || index.v >= _graphData.size())
+    {
+        return false;
+    }
+    return _graphData[index.v].isExpressionValid();
 }
 
-qint32 GraphDataStore::selectedGraph() const
+GraphIdx GraphDataStore::selectedGraph() const
 {
     return _selectedGraphIdx;
 }
 
-QString GraphDataStore::simplifiedExpression(quint32 index) const
+QString GraphDataStore::simplifiedExpression(GraphIdx index) const
 {
-    return _graphData[index].expression().simplified();
-}
-
-QSharedPointer<const QCPGraphDataContainer> GraphDataStore::dataMap(quint32 index) const
-{
-    return _graphData[index].dataMap();
-}
-
-QSharedPointer<QCPGraphDataContainer> GraphDataStore::mutableDataMap(quint32 index)
-{
-    return _graphData[index].mutableDataMap();
-}
-
-void GraphDataStore::setValueAxis(quint32 index, GraphData::valueAxis_t axis)
-{
-    if (_graphData[index].valueAxis() != axis)
+    if (index.v < 0 || index.v >= _graphData.size())
     {
-        _graphData[index].setValueAxis(axis);
+        return {};
+    }
+    return _graphData[index.v].expression().simplified();
+}
+
+QSharedPointer<const QCPGraphDataContainer> GraphDataStore::dataMap(GraphIdx index) const
+{
+    if (index.v < 0 || index.v >= _graphData.size())
+    {
+        return {};
+    }
+    return _graphData[index.v].dataMap();
+}
+
+QSharedPointer<QCPGraphDataContainer> GraphDataStore::mutableDataMap(GraphIdx index)
+{
+    if (index.v < 0 || index.v >= _graphData.size())
+    {
+        return {};
+    }
+    return _graphData[index.v].mutableDataMap();
+}
+
+void GraphDataStore::setValueAxis(GraphIdx index, GraphData::valueAxis_t axis)
+{
+    if (index.v < 0 || index.v >= _graphData.size())
+    {
+        return;
+    }
+    if (_graphData[index.v].valueAxis() != axis)
+    {
+        _graphData[index.v].setValueAxis(axis);
         emit valueAxisChanged(index);
     }
 }
 
-void GraphDataStore::setVisible(quint32 index, bool bVisible)
+void GraphDataStore::setVisible(GraphIdx index, bool bVisible)
 {
-    if (_graphData[index].isVisible() != bVisible)
+    if (index.v < 0 || index.v >= _graphData.size())
     {
-        _graphData[index].setVisible(bVisible);
+        return;
+    }
+    if (_graphData[index.v].isVisible() != bVisible)
+    {
+        _graphData[index.v].setVisible(bVisible);
         emit visibilityChanged(index);
 
-        if (!bVisible && (static_cast<qint32>(index) == _selectedGraphIdx))
+        if (!bVisible && (index == _selectedGraphIdx))
         {
-            setSelectedGraph(-1);
+            setSelectedGraph(GraphIdx());
         }
     }
 }
 
-void GraphDataStore::setLabel(quint32 index, const QString& label)
+void GraphDataStore::setLabel(GraphIdx index, const QString& label)
 {
-    if (_graphData[index].label() != label)
+    if (index.v < 0 || index.v >= _graphData.size())
     {
-        _graphData[index].setLabel(label);
+        return;
+    }
+    if (_graphData[index.v].label() != label)
+    {
+        _graphData[index.v].setLabel(label);
         emit labelChanged(index);
     }
 }
 
-void GraphDataStore::setColor(quint32 index, const QColor& color)
+void GraphDataStore::setColor(GraphIdx index, const QColor& color)
 {
-    if (_graphData[index].color() != color)
+    if (index.v < 0 || index.v >= _graphData.size())
     {
-        _graphData[index].setColor(color);
+        return;
+    }
+    if (_graphData[index.v].color() != color)
+    {
+        _graphData[index.v].setColor(color);
         emit colorChanged(index);
     }
 }
 
-void GraphDataStore::setActive(quint32 index, bool bActive)
+void GraphDataStore::setActive(GraphIdx index, bool bActive)
 {
-    if (_graphData[index].isActive() != bActive)
+    if (index.v < 0 || index.v >= _graphData.size())
     {
-        _graphData[index].setActive(bActive);
+        return;
+    }
+    if (_graphData[index.v].isActive() != bActive)
+    {
+        _graphData[index.v].setActive(bActive);
         updateActiveGraphList();
 
         if (!bActive)
         {
-            _graphData[index].mutableDataMap()->clear();
+            _graphData[index.v].mutableDataMap()->clear();
         }
         else
         {
@@ -141,30 +203,37 @@ void GraphDataStore::setActive(quint32 index, bool bActive)
     }
 }
 
-void GraphDataStore::setExpression(quint32 index, QString expression)
+void GraphDataStore::setExpression(GraphIdx index, QString expression)
 {
-    if (_graphData[index].expression() != expression)
+    if (index.v < 0 || index.v >= _graphData.size())
     {
-        _graphData[index].setExpression(expression);
+        return;
+    }
+    if (_graphData[index.v].expression() != expression)
+    {
+        _graphData[index.v].setExpression(expression);
         emit expressionChanged(index);
     }
 }
 
-void GraphDataStore::setExpressionState(quint32 index, GraphData::ExpressionState status)
+void GraphDataStore::setExpressionState(GraphIdx index, GraphData::ExpressionState status)
 {
-    if (_graphData[index].expressionState() != status)
+    if (index.v < 0 || index.v >= _graphData.size())
     {
-        _graphData[index].setExpressionState(status);
+        return;
+    }
+    if (_graphData[index.v].expressionState() != status)
+    {
+        _graphData[index.v].setExpressionState(status);
         emit expressionStateChanged(index);
     }
 }
 
-void GraphDataStore::setSelectedGraph(qint32 index)
+void GraphDataStore::setSelectedGraph(GraphIdx index)
 {
-    // -1 is the sentinel for "no selection" and bypasses bounds/visibility checks
-    if (index != -1)
+    if (index.isValid())
     {
-        if ((index < 0) || (index >= _graphData.size()))
+        if (index.v >= _graphData.size())
         {
             return;
         }
@@ -183,37 +252,32 @@ void GraphDataStore::setSelectedGraph(qint32 index)
 }
 
 /*!
- * \brief Returns a sorted list of the indices of all active graphs.
+ * \brief Returns the active graph indices in ascending order.
  */
-void GraphDataStore::activeGraphIndexList(QList<quint16>& list) const
+void GraphDataStore::activeGraphIndexList(QList<GraphIdx>& list) const
 {
-    list.clear();
-
-    for (quint32 idx : _activeGraphList)
-    {
-        list.append(idx);
-    }
-
-    std::sort(list.begin(), list.end());
+    list = _activeGraphList;
 }
 
-qint32 GraphDataStore::convertToActiveGraphIndex(quint32 graphIdx) const
+ActiveIdx GraphDataStore::convertToActiveGraphIndex(GraphIdx graphIdx) const
 {
-    qint32 result = -1;
     for (qint32 activeIdx = 0; activeIdx < _activeGraphList.size(); activeIdx++)
     {
         if (_activeGraphList[activeIdx] == graphIdx)
         {
-            result = activeIdx;
-            break;
+            return ActiveIdx(activeIdx);
         }
     }
-    return result;
+    return ActiveIdx();
 }
 
-qint32 GraphDataStore::convertToGraphIndex(quint32 activeIdx) const
+GraphIdx GraphDataStore::convertToGraphIndex(ActiveIdx activeIdx) const
 {
-    return _activeGraphList[activeIdx];
+    if (!activeIdx.isValid() || activeIdx.v >= _activeGraphList.size())
+    {
+        return GraphIdx();
+    }
+    return _activeGraphList[activeIdx.v];
 }
 
 /*!
@@ -231,10 +295,15 @@ void GraphDataStore::insertGraphData(GraphData graphData)
     updateActiveGraphList();
 }
 
-void GraphDataStore::eraseGraphDataAt(qint32 row)
+void GraphDataStore::eraseGraphDataAt(GraphIdx row)
 {
+    Q_ASSERT(row.v >= 0 && row.v < _graphData.size());
+    if (row.v < 0 || row.v >= _graphData.size())
+    {
+        return;
+    }
     resetSelection();
-    _graphData.removeAt(row);
+    _graphData.removeAt(row.v);
     updateActiveGraphList();
 }
 
@@ -245,19 +314,25 @@ void GraphDataStore::clearAllGraphData()
     updateActiveGraphList();
 }
 
-void GraphDataStore::moveGraphRow(int sourceRow, int destRow)
+void GraphDataStore::moveGraphRow(GraphIdx sourceRow, GraphIdx destRow)
 {
+    Q_ASSERT(sourceRow.v >= 0 && sourceRow.v < _graphData.size());
+    Q_ASSERT(destRow.v >= 0 && destRow.v < _graphData.size());
+    if (sourceRow.v < 0 || sourceRow.v >= _graphData.size() || destRow.v < 0 || destRow.v >= _graphData.size())
+    {
+        return;
+    }
     resetSelection();
-    _graphData.move(sourceRow, destRow);
+    _graphData.move(sourceRow.v, destRow.v);
     updateActiveGraphList();
 }
 
 void GraphDataStore::resetSelection()
 {
-    if (_selectedGraphIdx != -1)
+    if (_selectedGraphIdx.isValid())
     {
-        _selectedGraphIdx = -1;
-        emit selectedGraphChanged(-1);
+        _selectedGraphIdx = GraphIdx();
+        emit selectedGraphChanged(GraphIdx());
     }
 }
 
@@ -269,7 +344,7 @@ void GraphDataStore::updateActiveGraphList()
     {
         if (_graphData[idx].isActive())
         {
-            _activeGraphList.append(idx);
+            _activeGraphList.append(GraphIdx(idx));
         }
     }
 }

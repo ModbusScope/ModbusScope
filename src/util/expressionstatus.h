@@ -1,8 +1,11 @@
 #ifndef EXPRESSION_STATUS_H
 #define EXPRESSION_STATUS_H
 
-#include <QObject>
 #include "expressionchecker.h"
+#include "util/graphindex.h"
+#include <QObject>
+#include <QPair>
+#include <QQueue>
 
 /* Forward declarations */
 class GraphDataModel;
@@ -19,7 +22,7 @@ public:
 
 private slots:
     void handleResultReady(bool valid);
-    void handlExpressionsChanged(const quint32 graphIdx);
+    void handleExpressionsChanged(GraphIdx graphIdx);
 
 private:
     void verifyExpression(QString const& expression, QList<deviceId_t> const& deviceIdList);
@@ -30,8 +33,7 @@ private:
     GraphDataModel* _pGraphDataModel;
     SettingsModel* _pSettingsModel;
 
-    QQueue<QString> _expressionQueue;
-
+    QQueue<QPair<GraphIdx, QString>> _expressionQueue;
 };
 
 #endif // EXPRESSION_STATUS_H

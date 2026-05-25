@@ -2,6 +2,7 @@
 #define GRAPHVIEW_H
 
 #include "models/graphdata.h"
+#include "util/graphindex.h"
 #include "util/result.h"
 
 #include <QObject>
@@ -44,15 +45,15 @@ public slots:
 
     void updateTooltip();
     void enableSamplePoints();
-    void clearGraph(const quint32 graphIdx);
+    void clearGraph(GraphIdx graphIdx);
     void updateGraphs();
-    void changeGraphColor(const quint32 graphIdx);
-    void changeGraphAxis(const quint32 graphIdx);
-    void changeSelectedGraph(const qint32 activeGraphIdx);
-    void bringToFront(const qint32 activeGraphIdx);
+    void changeGraphColor(GraphIdx graphIdx);
+    void changeGraphAxis(GraphIdx graphIdx);
+    void changeSelectedGraph(GraphIdx graphIdx);
+    void bringToFront(ActiveIdx activeGraphIdx);
 
     void addData(QList<double> timeData, QList<QList<double> > data);
-    void handleGraphVisibilityChange(quint32 graphIdx);
+    void handleGraphVisibilityChange(GraphIdx graphIdx);
     void rescalePlot();
     void plotResults(ResultDoubleList resultList);
     void clearResults();
@@ -79,7 +80,7 @@ private:
     double roundToAxisRange(double value, QCPAxis const* pAxis) const;
     double getClosestPoint(double coordinate);
     void updateSecondaryAxisVisibility();
-    qint32 getActiveGraphIndex(const QCPGraph* const pGraph);
+    ActiveIdx getActiveGraphIndex(const QCPGraph* const pGraph);
 
     QVector<QString> _tickLabels;
 

@@ -133,11 +133,11 @@ QJsonArray ProjectFileJsonExporter::createScopeArray()
     for (qint32 idx = 0; idx < _pGraphDataModel->size(); idx++)
     {
         QJsonObject regObj;
-        regObj[ProjectFileDefinitions::cActiveAttribute] = _pGraphDataModel->isActive(idx);
-        regObj[ProjectFileDefinitions::cTextTag] = _pGraphDataModel->label(idx);
-        regObj[ProjectFileDefinitions::cExpressionTag] = _pGraphDataModel->expression(idx);
-        regObj[ProjectFileDefinitions::cColorTag] = _pGraphDataModel->color(idx).name();
-        regObj[ProjectFileDefinitions::cValueAxisTag] = static_cast<int>(_pGraphDataModel->valueAxis(idx));
+        regObj[ProjectFileDefinitions::cActiveAttribute] = _pGraphDataModel->isActive(GraphIdx(idx));
+        regObj[ProjectFileDefinitions::cTextTag] = _pGraphDataModel->label(GraphIdx(idx));
+        regObj[ProjectFileDefinitions::cExpressionTag] = _pGraphDataModel->expression(GraphIdx(idx));
+        regObj[ProjectFileDefinitions::cColorTag] = _pGraphDataModel->color(GraphIdx(idx)).name();
+        regObj[ProjectFileDefinitions::cValueAxisTag] = static_cast<int>(_pGraphDataModel->valueAxis(GraphIdx(idx)));
         scopeArray.append(regObj);
     }
 

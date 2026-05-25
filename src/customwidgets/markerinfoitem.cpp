@@ -60,9 +60,9 @@ void MarkerInfoItem::setModel(GuiModel* pGuiModel, GraphDataModel* pGraphDataMod
 
 void MarkerInfoItem::updateData()
 {
-    const qint32 graphIdx = _pGraphCombo->currentData().toInt();
+    const GraphIdx graphIdx(_pGraphCombo->currentData().toInt());
 
-    if (graphIdx < 0)
+    if (!graphIdx.isValid())
     {
         return;
     }
@@ -124,24 +124,45 @@ void MarkerInfoItem::updateGraphList(void)
     selectGraph(currentSelectedIdx);
 }
 
-void MarkerInfoItem::updateColor(quint32 graphIdx)
+void MarkerInfoItem::updateColor(GraphIdx graphIdx)
 {
-    QPixmap pixmap(20, 5);
-    pixmap.fill(_pGraphDataModel->color(graphIdx));
-
-    QIcon graphIcon = QIcon(pixmap);
+    const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+    if (!activeIdx.isValid())
+    {
+        return;
+    }
 
     /* + 1 for none selection */
-    _pGraphCombo->setItemIcon(_pGraphDataModel->convertToActiveGraphIndex(graphIdx) + 1, graphIcon);
+    const int idx = activeIdx.v + 1;
+    if (idx >= _pGraphCombo->count())
+    {
+        return;
+    }
+
+    QPixmap pixmap(20, 5);
+    pixmap.fill(_pGraphDataModel->color(graphIdx));
+    _pGraphCombo->setItemIcon(idx, QIcon(pixmap));
 }
 
-void MarkerInfoItem::updateLabel(quint32 graphIdx)
+void MarkerInfoItem::updateLabel(GraphIdx graphIdx)
 {
-    _pGraphCombo->setItemText(_pGraphDataModel->convertToActiveGraphIndex(graphIdx) + 1,
-                              _pGraphDataModel->label(graphIdx));
+    const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+    if (!activeIdx.isValid())
+    {
+        return;
+    }
+
+    /* + 1 for none selection */
+    const int idx = activeIdx.v + 1;
+    if (idx >= _pGraphCombo->count())
+    {
+        return;
+    }
+
+    _pGraphCombo->setItemText(idx, _pGraphDataModel->label(graphIdx));
 }
 
-void MarkerInfoItem::removeFromGraphList(const quint32 index)
+void MarkerInfoItem::removeFromGraphList(GraphIdx index)
 {
     /* Get current select index */
     qint32 currentSelectedIdx = _pGraphCombo->currentData().toInt();
@@ -149,12 +170,12 @@ void MarkerInfoItem::removeFromGraphList(const quint32 index)
     /* correct selected index when needed */
     if (currentSelectedIdx != -1)
     {
-        if ((qint32) index == currentSelectedIdx)
+        if (index.v == currentSelectedIdx)
         {
             /* Current selected is removed */
             currentSelectedIdx = -1;
         }
-        else if ((qint32) index < currentSelectedIdx)
+        else if (index.v < currentSelectedIdx)
         {
             /* Graph removed in front of our graph */
             currentSelectedIdx--;
@@ -185,16 +206,16 @@ void MarkerInfoItem::graphSelected(qint32 index)
 
 void MarkerInfoItem::updateList()
 {
-    QList<quint16> activeGraphList;
+    QList<GraphIdx> activeGraphList;
     _pGraphDataModel->activeGraphIndexList(activeGraphList);
 
     _pGraphCombo->clear();
 
     _pGraphCombo->addItem("None", -1);
 
-    foreach (quint16 idx, activeGraphList)
+    foreach (GraphIdx idx, activeGraphList)
     {
-        _pGraphCombo->addItem(_pGraphDataModel->label(idx), QVariant(idx));
+        _pGraphCombo->addItem(_pGraphDataModel->label(idx), QVariant(idx.v));
 
         updateColor(idx);
     }
@@ -215,9 +236,9 @@ void MarkerInfoItem::selectGraph(qint32 graphIndex)
 double MarkerInfoItem::calculateMarkerExpressionValue(quint32 expressionMask)
 {
     double result = 0;
-    const qint32 graphIdx = _pGraphCombo->currentData().toInt();
+    const GraphIdx graphIdx(_pGraphCombo->currentData().toInt());
 
-    if (graphIdx < 0)
+    if (!graphIdx.isValid())
     {
         return 0;
     }

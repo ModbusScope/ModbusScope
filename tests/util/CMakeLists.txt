@@ -1,4 +1,6 @@
 add_xtest(tst_expressionchecker)
+add_xtest(tst_expressionstatus)
 add_xtest(tst_formatrelativetime)
+add_xtest(tst_graphindex)
 add_xtest_mock(tst_updatenotify)
 add_xtest(tst_util)

@@ -9,13 +9,13 @@ using ExpressionState = GraphData::ExpressionState;
 
 ExpressionStatus::ExpressionStatus(GraphDataModel* pGraphDataModel, SettingsModel* pSettingsModel, QObject* parent)
     : QObject(parent),
-      _checker(parent),
+      _checker(this),
       _deviceCheckPassed(true),
       _pGraphDataModel(pGraphDataModel),
       _pSettingsModel(pSettingsModel)
 {
-    connect(_pGraphDataModel, &GraphDataModel::added, this, &ExpressionStatus::handlExpressionsChanged);
-    connect(_pGraphDataModel, &GraphDataModel::expressionChanged, this, &ExpressionStatus::handlExpressionsChanged);
+    connect(_pGraphDataModel, &GraphDataModel::added, this, &ExpressionStatus::handleExpressionsChanged);
+    connect(_pGraphDataModel, &GraphDataModel::expressionChanged, this, &ExpressionStatus::handleExpressionsChanged);
 
     connect(&_checker, &ExpressionChecker::resultsReady, this, &ExpressionStatus::handleResultReady);
 }
@@ -27,36 +27,34 @@ void ExpressionStatus::handleResultReady(bool valid)
     */
     Q_UNUSED(valid);
 
-    QString verifiedExpression = _expressionQueue.dequeue();
+    const QPair<GraphIdx, QString> item = _expressionQueue.dequeue();
+    const GraphIdx graphIdx = item.first;
 
-    const qint32 size = _pGraphDataModel->size();
-    for (qint32 idx = 0; idx < size; idx++)
+    if (_pGraphDataModel->expression(graphIdx) == item.second)
     {
-        if (_pGraphDataModel->expression(idx) == verifiedExpression)
+        if (_checker.syntaxError())
         {
-            if (_checker.syntaxError())
-            {
-                _pGraphDataModel->setExpressionState(idx, ExpressionState::SYNTAX_ERROR);
-            }
-            else if (!_deviceCheckPassed)
-            {
-                _pGraphDataModel->setExpressionState(idx, ExpressionState::UNKNOWN_DEVICE);
-            }
-            else
-            {
-                _pGraphDataModel->setExpressionState(idx, ExpressionState::VALID);
-            }
-            break;
+            _pGraphDataModel->setExpressionState(graphIdx, ExpressionState::SYNTAX_ERROR);
+        }
+        else if (!_deviceCheckPassed)
+        {
+            _pGraphDataModel->setExpressionState(graphIdx, ExpressionState::UNKNOWN_DEVICE);
+        }
+        else
+        {
+            _pGraphDataModel->setExpressionState(graphIdx, ExpressionState::VALID);
         }
     }
+    /* else: index is stale — graph was removed or reordered since this check
+       was enqueued. Drop the result to avoid updating the wrong graph. */
 
     if (!_expressionQueue.isEmpty())
     {
-        verifyExpression(_expressionQueue.head(), _pSettingsModel->deviceList());
+        verifyExpression(_expressionQueue.head().second, _pSettingsModel->deviceList());
     }
 }
 
-void ExpressionStatus::handlExpressionsChanged(const quint32 graphIdx)
+void ExpressionStatus::handleExpressionsChanged(GraphIdx graphIdx)
 {
     QString expression = _pGraphDataModel->expression(graphIdx);
 
@@ -65,7 +63,7 @@ void ExpressionStatus::handlExpressionsChanged(const quint32 graphIdx)
     {
         bStartChecker = true;
     }
-    _expressionQueue.enqueue(expression);
+    _expressionQueue.enqueue(qMakePair(graphIdx, expression));
 
     if (bStartChecker)
     {
@@ -81,7 +79,7 @@ void ExpressionStatus::verifyExpression(QString const& expression, QList<deviceI
 
     const auto count = _checker.requiredValueCount();
     ResultDoubleList valueList;
-    while(valueList.count() < count)
+    while (valueList.count() < count)
     {
         valueList.append(ResultDouble(1, State::SUCCESS));
     }

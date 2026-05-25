@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "datahandling/graphdatahandler.h"
+#include "util/graphindex.h"
 #include "util/recentfilemodule.h"
 #include "util/result.h"
 #include "util/updatenotify.h"
@@ -81,9 +82,9 @@ private slots:
     void handleOpenRecentProject(QString projectFile);
 
     /* Model change handlers */
-    void handleGraphVisibilityChange(quint32 graphIdx);
-    void handleGraphColorChange(const quint32 graphIdx);
-    void handleGraphLabelChange(const quint32 graphIdx);
+    void handleGraphVisibilityChange(GraphIdx graphIdx);
+    void handleGraphColorChange(GraphIdx graphIdx);
+    void handleGraphLabelChange(GraphIdx graphIdx);
 
     void updateHighlightSampleMenu();
     void handleZoomStateChanged();

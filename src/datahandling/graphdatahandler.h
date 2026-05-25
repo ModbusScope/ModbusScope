@@ -3,6 +3,7 @@
 
 #include "communication/datapoint.h"
 #include "datahandling/qmuparser.h"
+#include "util/graphindex.h"
 #include "util/result.h"
 
 // Forward declaration
@@ -22,7 +23,7 @@ public:
     ResultDoubleList handleRegisterData(const ResultDoubleList& results);
 
 private:
-    QList<quint16> _activeIndexList;
+    QList<GraphIdx> _activeIndexList;
     QList<QMuParser> _valueParsers;
 };
 

@@ -15,7 +15,7 @@
 using State = ResultState::State;
 
 Legend::Legend(QWidget* parent)
-    : QFrame(parent), _popupMenuItem(0), _pGuiModel(nullptr), _pGraphDataModel(nullptr), _pGraphView(nullptr)
+    : QFrame(parent), _pGuiModel(nullptr), _pGraphDataModel(nullptr), _pGraphView(nullptr)
 {
     _pLayout = new QVBoxLayout();
 
@@ -151,14 +151,14 @@ void Legend::updateLegend()
 
     if (_pGraphDataModel->activeCount() != 0)
     {
-        QList<quint16> activeList;
+        QList<GraphIdx> activeList;
 
         _pGraphDataModel->activeGraphIndexList(activeList);
         _pLegendTable->setRowCount(0);
 
-        for (qint32 idx = 0; idx < activeList.size(); idx++)
+        for (GraphIdx idx : std::as_const(activeList))
         {
-            addItem(activeList[idx]);
+            addItem(idx);
             _lastReceivedList.append(ResultDouble(0, State::NO_VALUE));
         }
 
@@ -180,13 +180,13 @@ void Legend::updateLegend()
     }
 }
 
-void Legend::changeGraphVisibility(quint32 graphIdx)
+void Legend::changeGraphVisibility(GraphIdx graphIdx)
 {
-    const qint32 activeGraphIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+    const ActiveIdx activeGraphIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
-    if (activeGraphIdx != -1)
+    if (activeGraphIdx.isValid())
     {
-        QFont itemFont = _pLegendTable->item((int) activeGraphIdx, cColummnValue)->font();
+        QFont itemFont = _pLegendTable->item(activeGraphIdx.v, cColummnValue)->font();
         QColor foreGroundColor;
         QColor graphColor;
 
@@ -205,44 +205,44 @@ void Legend::changeGraphVisibility(quint32 graphIdx)
             graphColor = Qt::white;
         }
 
-        _pLegendTable->item((int) activeGraphIdx, cColummnAxis)->setFont(itemFont);
-        _pLegendTable->item((int) activeGraphIdx, cColummnValue)->setFont(itemFont);
-        _pLegendTable->item((int) activeGraphIdx, cColummnText)->setFont(itemFont);
+        _pLegendTable->item(activeGraphIdx.v, cColummnAxis)->setFont(itemFont);
+        _pLegendTable->item(activeGraphIdx.v, cColummnValue)->setFont(itemFont);
+        _pLegendTable->item(activeGraphIdx.v, cColummnText)->setFont(itemFont);
 
-        _pLegendTable->item((int) activeGraphIdx, cColummnColor)->setBackground(graphColor);
-        _pLegendTable->item((int) activeGraphIdx, cColummnAxis)->setForeground(foreGroundColor);
-        _pLegendTable->item((int) activeGraphIdx, cColummnValue)->setForeground(foreGroundColor);
-        _pLegendTable->item((int) activeGraphIdx, cColummnText)->setForeground(foreGroundColor);
+        _pLegendTable->item(activeGraphIdx.v, cColummnColor)->setBackground(graphColor);
+        _pLegendTable->item(activeGraphIdx.v, cColummnAxis)->setForeground(foreGroundColor);
+        _pLegendTable->item(activeGraphIdx.v, cColummnValue)->setForeground(foreGroundColor);
+        _pLegendTable->item(activeGraphIdx.v, cColummnText)->setForeground(foreGroundColor);
     }
 }
 
-void Legend::changeGraphColor(const quint32 graphIdx)
+void Legend::changeGraphColor(GraphIdx graphIdx)
 {
-    const qint32 activeGraphIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+    const ActiveIdx activeGraphIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
-    if (activeGraphIdx != -1)
+    if (activeGraphIdx.isValid())
     {
-        _pLegendTable->item((int) activeGraphIdx, cColummnColor)->setBackground(_pGraphDataModel->color(graphIdx));
+        _pLegendTable->item(activeGraphIdx.v, cColummnColor)->setBackground(_pGraphDataModel->color(graphIdx));
     }
 }
 
-void Legend::changeGraphAxis(const quint32 graphIdx)
+void Legend::changeGraphAxis(GraphIdx graphIdx)
 {
-    const qint32 activeGraphIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+    const ActiveIdx activeGraphIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
-    if (activeGraphIdx != -1)
+    if (activeGraphIdx.isValid())
     {
-        _pLegendTable->item((int) activeGraphIdx, cColummnAxis)->setText(valueAxisText(graphIdx));
+        _pLegendTable->item(activeGraphIdx.v, cColummnAxis)->setText(valueAxisText(graphIdx));
     }
 }
 
-void Legend::changeGraphLabel(const quint32 graphIdx)
+void Legend::changeGraphLabel(GraphIdx graphIdx)
 {
-    const qint32 activeGraphIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+    const ActiveIdx activeGraphIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
-    if (activeGraphIdx != -1)
+    if (activeGraphIdx.isValid())
     {
-        _pLegendTable->item((int) activeGraphIdx, cColummnText)->setText(_pGraphDataModel->label(graphIdx));
+        _pLegendTable->item(activeGraphIdx.v, cColummnText)->setText(_pGraphDataModel->label(graphIdx));
     }
 }
 
@@ -305,7 +305,7 @@ void Legend::updateValueDataInLegend()
     }
 }
 
-void Legend::addItem(quint32 graphIdx)
+void Legend::addItem(GraphIdx graphIdx)
 {
     int row = _pLegendTable->rowCount();
     _pLegendTable->insertRow(row);
@@ -324,17 +324,17 @@ void Legend::addItem(quint32 graphIdx)
     changeGraphVisibility(graphIdx);
 }
 
-void Legend::toggleItemVisibility(qint32 activeGraphIdx)
+void Legend::toggleItemVisibility(ActiveIdx activeGraphIdx)
 {
-    if (activeGraphIdx != -1)
+    if (activeGraphIdx.isValid())
     {
-        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(activeGraphIdx);
+        const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(activeGraphIdx);
 
         _pGraphDataModel->setVisible(graphIdx, !_pGraphDataModel->isVisible(graphIdx));
     }
 }
 
-QString Legend::valueAxisText(quint32 graphIdx)
+QString Legend::valueAxisText(GraphIdx graphIdx)
 {
     return _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_SECONDARY ? "Y2" : "Y1";
 }
@@ -344,7 +344,7 @@ void Legend::showContextMenu(const QPoint& pos)
     const QPoint posInLegendContent = _pLegendTable->viewport()->mapFromParent(pos);
     qint32 row = _pLegendTable->indexAt(posInLegendContent).row();
 
-    _popupMenuItem = row;
+    _popupMenuItem = ActiveIdx(row);
 
     if (row == -1)
     {
@@ -367,7 +367,7 @@ void Legend::hideAll()
 {
     for (qint32 idx = 0; idx < _pGraphDataModel->size(); idx++)
     {
-        _pGraphDataModel->setVisible(idx, false);
+        _pGraphDataModel->setVisible(GraphIdx(idx), false);
     }
 }
 
@@ -375,19 +375,19 @@ void Legend::showAll()
 {
     for (qint32 idx = 0; idx < _pGraphDataModel->size(); idx++)
     {
-        _pGraphDataModel->setVisible(idx, true);
+        _pGraphDataModel->setVisible(GraphIdx(idx), true);
     }
 }
 
-void Legend::handleSelectedGraphChanged(const qint32 graphIdx)
+void Legend::handleSelectedGraphChanged(GraphIdx graphIdx)
 {
-    const qint32 activeIdx = (graphIdx == -1) ? -1 : _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+    const ActiveIdx activeIdx = graphIdx.isValid() ? _pGraphDataModel->convertToActiveGraphIndex(graphIdx) : ActiveIdx();
 
     for (int idx = 0; idx < _pLegendTable->rowCount(); idx++)
     {
         QFont itemFont = _pLegendTable->item(idx, cColummnValue)->font();
 
-        if (idx == activeIdx)
+        if (idx == activeIdx.v)
         {
             itemFont.setBold(true);
         }
@@ -426,7 +426,7 @@ void Legend::cellDoubleClicked(int row, int column)
     {
         if ((row != -1) && (row < _pGraphDataModel->activeCount()))
         {
-            const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(static_cast<quint32>(row));
+            const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(ActiveIdx(row));
             if (_pGraphDataModel->isVisible(graphIdx))
             {
                 QColor color = QColorDialog::getColor(_pGraphDataModel->color(graphIdx));
@@ -443,7 +443,7 @@ void Legend::cellDoubleClicked(int row, int column)
     {
         if ((row != -1) && (row < _pGraphDataModel->activeCount()))
         {
-            const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(static_cast<quint32>(row));
+            const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(ActiveIdx(row));
             if (_pGraphDataModel->isVisible(graphIdx))
             {
                 auto valueAxis = _pGraphDataModel->valueAxis(graphIdx);
@@ -457,7 +457,7 @@ void Legend::cellDoubleClicked(int row, int column)
     else
     {
         /* Other columns */
-        toggleItemVisibility(row);
+        toggleItemVisibility(ActiveIdx(row));
     }
 }
 
@@ -469,8 +469,8 @@ void Legend::cellClicked(int row, int column)
 
     if ((row != -1) && (row < _pGraphDataModel->activeCount()))
     {
-        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(row);
-        qint32 toSelectGraph = (_pGraphDataModel->selectedGraph() != graphIdx) ? graphIdx : -1;
+        const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(ActiveIdx(row));
+        GraphIdx toSelectGraph = (_pGraphDataModel->selectedGraph() != graphIdx) ? graphIdx : GraphIdx();
         _pGraphDataModel->setSelectedGraph(toSelectGraph);
     }
 }

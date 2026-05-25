@@ -40,18 +40,25 @@ int GraphDataModel::columnCount(const QModelIndex& /*parent*/) const
 
 QVariant GraphDataModel::data(const QModelIndex& index, int role) const
 {
+    if (!index.isValid() || index.row() < 0 || index.row() >= _pStore->size())
+    {
+        return QVariant();
+    }
+
+    const GraphIdx graphIdx(index.row());
+
     switch (index.column())
     {
     case column::COLOR:
         if (role == Qt::BackgroundRole)
         {
-            return color(index.row());
+            return color(graphIdx);
         }
         break;
     case column::ACTIVE:
         if (role == Qt::CheckStateRole)
         {
-            if (isActive(index.row()))
+            if (isActive(graphIdx))
             {
                 return Qt::Checked;
             }
@@ -72,25 +79,25 @@ QVariant GraphDataModel::data(const QModelIndex& index, int role) const
     case column::TEXT:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return label(index.row());
+            return label(graphIdx);
         }
         break;
     case column::EXPRESSION:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            return simplifiedExpression(index.row());
+            return simplifiedExpression(graphIdx);
         }
-        else if ((role == Qt::BackgroundRole) && !isExpressionValid(index.row()))
+        else if ((role == Qt::BackgroundRole) && !isExpressionValid(graphIdx))
         {
             return lightRed;
         }
         else if (role == Qt::ToolTipRole)
         {
-            if (expressionState(index.row()) == GraphData::ExpressionState::SYNTAX_ERROR)
+            if (expressionState(graphIdx) == GraphData::ExpressionState::SYNTAX_ERROR)
             {
                 return tr("The expression has a syntax error");
             }
-            else if (expressionState(index.row()) == GraphData::ExpressionState::UNKNOWN_DEVICE)
+            else if (expressionState(graphIdx) == GraphData::ExpressionState::UNKNOWN_DEVICE)
             {
                 return tr("The expression contains an unknown device");
             }
@@ -103,7 +110,7 @@ QVariant GraphDataModel::data(const QModelIndex& index, int role) const
     case column::VALUE_AXIS:
         if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-            QString axis = valueAxis(index.row()) == GraphData::VALUE_AXIS_PRIMARY ? "Y1" : "Y2";
+            QString axis = valueAxis(graphIdx) == GraphData::VALUE_AXIS_PRIMARY ? "Y1" : "Y2";
             return axis;
         }
         break;
@@ -148,7 +155,13 @@ QVariant GraphDataModel::headerData(int section, Qt::Orientation orientation, in
 
 bool GraphDataModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
+    if (!index.isValid() || index.row() < 0 || index.row() >= _pStore->size())
+    {
+        return false;
+    }
+
     bool bRet = true;
+    const GraphIdx graphIdx(index.row());
 
     switch (index.column())
     {
@@ -158,7 +171,7 @@ bool GraphDataModel::setData(const QModelIndex& index, const QVariant& value, in
             if (value.canConvert<QColor>())
             {
                 QColor color = value.value<QColor>();
-                setColor(index.row(), color);
+                setColor(graphIdx, color);
             }
             else
             {
@@ -171,24 +184,24 @@ bool GraphDataModel::setData(const QModelIndex& index, const QVariant& value, in
         {
             if (value == Qt::Checked)
             {
-                setActive(index.row(), true);
+                setActive(graphIdx, true);
             }
             else
             {
-                setActive(index.row(), false);
+                setActive(graphIdx, false);
             }
         }
         break;
     case column::TEXT:
         if (role == Qt::EditRole)
         {
-            setLabel(index.row(), value.toString());
+            setLabel(graphIdx, value.toString());
         }
         break;
     case column::EXPRESSION:
         if (role == Qt::EditRole)
         {
-            setExpression(index.row(), value.toString());
+            setExpression(graphIdx, value.toString());
         }
         break;
     case column::VALUE_AXIS:
@@ -199,7 +212,7 @@ bool GraphDataModel::setData(const QModelIndex& index, const QVariant& value, in
 
             if ((bSuccess) && (newValueAxis < GraphData::VALUE_AXIS_CNT))
             {
-                setValueAxis(index.row(), static_cast<GraphData::valueAxis_t>(newValueAxis));
+                setValueAxis(graphIdx, static_cast<GraphData::valueAxis_t>(newValueAxis));
             }
             else
             {
@@ -327,111 +340,144 @@ qint32 GraphDataModel::activeCount() const
     return _pStore->activeCount();
 }
 
-GraphData::valueAxis_t GraphDataModel::valueAxis(quint32 index) const
+/*!
+ * \brief Returns the value axis assignment for the given graph.
+ * \param index GraphIdx identifying the graph in the full (active + inactive) list.
+ * \return Primary or secondary axis assignment; default-constructed value if index is invalid.
+ */
+GraphData::valueAxis_t GraphDataModel::valueAxis(GraphIdx index) const
 {
     return _pStore->valueAxis(index);
 }
 
-bool GraphDataModel::isVisible(quint32 index) const
+/*!
+ * \brief Returns whether the graph is currently visible in the plot.
+ * \param index GraphIdx identifying the graph.
+ * \return True if visible; false if hidden or if \a index is invalid.
+ */
+bool GraphDataModel::isVisible(GraphIdx index) const
 {
     return _pStore->isVisible(index);
 }
 
-QString GraphDataModel::label(quint32 index) const
+/*!
+ * \brief Returns the display label for the given graph.
+ * \param index GraphIdx identifying the graph.
+ * \return Label string; empty string if \a index is invalid.
+ */
+QString GraphDataModel::label(GraphIdx index) const
 {
     return _pStore->label(index);
 }
 
-QColor GraphDataModel::color(quint32 index) const
+QColor GraphDataModel::color(GraphIdx index) const
 {
     return _pStore->color(index);
 }
 
-bool GraphDataModel::isActive(quint32 index) const
+bool GraphDataModel::isActive(GraphIdx index) const
 {
     return _pStore->isActive(index);
 }
 
-QString GraphDataModel::expression(quint32 index) const
+QString GraphDataModel::expression(GraphIdx index) const
 {
     return _pStore->expression(index);
 }
 
-GraphData::ExpressionState GraphDataModel::expressionState(quint32 index) const
+GraphData::ExpressionState GraphDataModel::expressionState(GraphIdx index) const
 {
     return _pStore->expressionState(index);
 }
 
-bool GraphDataModel::isExpressionValid(quint32 index) const
+bool GraphDataModel::isExpressionValid(GraphIdx index) const
 {
     return _pStore->isExpressionValid(index);
 }
 
-qint32 GraphDataModel::selectedGraph() const
+GraphIdx GraphDataModel::selectedGraph() const
 {
     return _pStore->selectedGraph();
 }
 
-QString GraphDataModel::simplifiedExpression(quint32 index) const
+QString GraphDataModel::simplifiedExpression(GraphIdx index) const
 {
     return _pStore->simplifiedExpression(index);
 }
 
-QSharedPointer<const QCPGraphDataContainer> GraphDataModel::dataMap(quint32 index) const
+/*!
+ * \brief Returns a read-only view of the graph's time-series data container.
+ * \param index GraphIdx identifying the graph.
+ * \return Shared pointer to the data container; null if \a index is invalid.
+ */
+QSharedPointer<const QCPGraphDataContainer> GraphDataModel::dataMap(GraphIdx index) const
 {
     return _pStore->dataMap(index);
 }
 
-QSharedPointer<QCPGraphDataContainer> GraphDataModel::mutableDataMap(quint32 index)
+/*!
+ * \brief Returns a writable reference to the graph's time-series data container.
+ * \param index GraphIdx identifying the graph.
+ * \return Shared pointer to the data container; null if \a index is invalid.
+ */
+QSharedPointer<QCPGraphDataContainer> GraphDataModel::mutableDataMap(GraphIdx index)
 {
     return _pStore->mutableDataMap(index);
 }
 
-void GraphDataModel::setValueAxis(quint32 index, GraphData::valueAxis_t axis)
+void GraphDataModel::setValueAxis(GraphIdx index, GraphData::valueAxis_t axis)
 {
     _pStore->setValueAxis(index, axis);
 }
 
-void GraphDataModel::setVisible(quint32 index, bool bVisible)
+void GraphDataModel::setVisible(GraphIdx index, bool bVisible)
 {
     _pStore->setVisible(index, bVisible);
 }
 
-void GraphDataModel::setLabel(quint32 index, const QString& label)
+void GraphDataModel::setLabel(GraphIdx index, const QString& label)
 {
     _pStore->setLabel(index, label);
 }
 
-void GraphDataModel::setColor(quint32 index, const QColor& color)
+void GraphDataModel::setColor(GraphIdx index, const QColor& color)
 {
     _pStore->setColor(index, color);
 }
 
-void GraphDataModel::setActive(quint32 index, bool bActive)
+void GraphDataModel::setActive(GraphIdx index, bool bActive)
 {
     _pStore->setActive(index, bActive);
 }
 
-void GraphDataModel::setExpression(quint32 index, QString expression)
+void GraphDataModel::setExpression(GraphIdx index, QString expression)
 {
     _pStore->setExpression(index, expression);
 }
 
-void GraphDataModel::setExpressionState(quint32 index, GraphData::ExpressionState status)
+void GraphDataModel::setExpressionState(GraphIdx index, GraphData::ExpressionState status)
 {
     _pStore->setExpressionState(index, status);
 }
 
-void GraphDataModel::setSelectedGraph(qint32 index)
+void GraphDataModel::setSelectedGraph(GraphIdx index)
 {
     _pStore->setSelectedGraph(index);
 }
 
+/*!
+ * \brief Appends a single graph with the given data to the model.
+ * \param rowData Fully populated GraphData to add.
+ */
 void GraphDataModel::add(GraphData rowData)
 {
     addToModel(rowData);
 }
 
+/*!
+ * \brief Appends a list of graphs to the model.
+ * \param graphDataList List of GraphData entries to add in order.
+ */
 void GraphDataModel::add(QList<GraphData> graphDataList)
 {
     for (qint32 idx = 0; idx < graphDataList.size(); idx++)
@@ -440,6 +486,9 @@ void GraphDataModel::add(QList<GraphData> graphDataList)
     }
 }
 
+/*!
+ * \brief Appends a new empty graph using the default expression.
+ */
 void GraphDataModel::add()
 {
     GraphData data;
@@ -466,7 +515,7 @@ void GraphDataModel::add(QList<QString> labelList)
     foreach (QString label, labelList)
     {
         add();
-        setLabel(_pStore->size() - 1, label);
+        setLabel(GraphIdx(_pStore->size() - 1), label);
     }
 }
 
@@ -478,11 +527,11 @@ void GraphDataModel::setAllData(QList<double> timeData, QList<QList<double> > da
     }
 }
 
-void GraphDataModel::removeRegister(qint32 idx)
+void GraphDataModel::removeRegister(GraphIdx idx)
 {
-    if ((idx >= 0) && (idx < _pStore->size()))
+    if (idx.isValid() && idx.v < _pStore->size())
     {
-        removeFromModel(idx);
+        removeFromModel(idx.v);
     }
 }
 
@@ -493,28 +542,48 @@ void GraphDataModel::clear()
         beginRemoveRows(QModelIndex(), 0, _pStore->size() - 1);
         _pStore->clearAllGraphData();
         endRemoveRows();
-        emit removed(0);
+        emit removed(GraphIdx(0));
     }
 }
 
-void GraphDataModel::activeGraphIndexList(QList<quint16>& list)
+/*!
+ * \brief Fills \a list with the GraphIdx of every currently active graph, in ascending order.
+ * \param list Output list; existing contents are replaced.
+ */
+void GraphDataModel::activeGraphIndexList(QList<GraphIdx>& list) const
 {
     _pStore->activeGraphIndexList(list);
 }
 
-qint32 GraphDataModel::convertToActiveGraphIndex(quint32 graphIdx)
+/*!
+ * \brief Converts a GraphIdx to the corresponding ActiveIdx.
+ *
+ * A GraphIdx identifies a graph's position in the full (active + inactive) list.
+ * An ActiveIdx is its sequential slot in QCustomPlot (active graphs only, 0-based).
+ *
+ * \param graphIdx Graph to look up.
+ * \return The ActiveIdx for the graph, or an invalid ActiveIdx (isValid() == false)
+ *         if the graph is not currently active.
+ */
+ActiveIdx GraphDataModel::convertToActiveGraphIndex(GraphIdx graphIdx) const
 {
     return _pStore->convertToActiveGraphIndex(graphIdx);
 }
 
-qint32 GraphDataModel::convertToGraphIndex(quint32 activeIdx)
+/*!
+ * \brief Converts an ActiveIdx back to the corresponding GraphIdx.
+ * \param activeIdx Active-graph slot to look up.
+ * \return The GraphIdx for the slot, or an invalid GraphIdx (isValid() == false)
+ *         if \a activeIdx is out of range.
+ */
+GraphIdx GraphDataModel::convertToGraphIndex(ActiveIdx activeIdx) const
 {
     return _pStore->convertToGraphIndex(activeIdx);
 }
 
-void GraphDataModel::modelDataChanged(quint32 idx)
+void GraphDataModel::modelDataChanged(GraphIdx idx)
 {
-    emit dataChanged(index(idx, 0), index(idx, columnCount() - 1));
+    emit dataChanged(index(idx.v, 0), index(idx.v, columnCount() - 1));
 }
 
 void GraphDataModel::modelCompleteDataChanged()
@@ -527,16 +596,16 @@ void GraphDataModel::addToModel(GraphData graphData)
     beginInsertRows(QModelIndex(), _pStore->size(), _pStore->size());
     _pStore->insertGraphData(graphData);
     endInsertRows();
-    emit added(_pStore->size() - 1);
+    emit added(GraphIdx(_pStore->size() - 1));
     modelCompleteDataChanged();
 }
 
-void GraphDataModel::removeFromModel(qint32 row)
+void GraphDataModel::removeFromModel(int row)
 {
     beginRemoveRows(QModelIndex(), row, row);
-    _pStore->eraseGraphDataAt(row);
+    _pStore->eraseGraphDataAt(GraphIdx(row));
     endRemoveRows();
-    emit removed(row);
+    emit removed(GraphIdx(row));
     modelCompleteDataChanged();
 }
 
@@ -556,7 +625,7 @@ void GraphDataModel::moveRow(int sourceRow, int destRow)
     {
         const int destinationChild = newRow > sourceRow ? newRow + 1 : newRow;
         beginMoveRows(QModelIndex(), sourceRow, sourceRow, QModelIndex(), destinationChild);
-        _pStore->moveGraphRow(sourceRow, newRow);
+        _pStore->moveGraphRow(GraphIdx(sourceRow), GraphIdx(newRow));
         endMoveRows();
     }
 

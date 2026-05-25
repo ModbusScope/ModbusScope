@@ -349,7 +349,7 @@ void MainWindow::menuShowHideGraphClicked(bool bState)
 {
     QAction* pAction = qobject_cast<QAction*>(QObject::sender());
 
-    const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(pAction->data().toInt());
+    const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(pAction->data().value<ActiveIdx>());
     _pGraphDataModel->setVisible(graphIdx, bState);
 }
 
@@ -544,37 +544,50 @@ void MainWindow::handleOpenRecentProject(QString projectFile)
     _pProjectFileHandler->openProjectFile(projectFile);
 }
 
-void MainWindow::handleGraphVisibilityChange(quint32 graphIdx)
+void MainWindow::handleGraphVisibilityChange(GraphIdx graphIdx)
 {
     if (_pGraphDataModel->isActive(graphIdx))
     {
-        const quint32 activeIdx = static_cast<quint32>(_pGraphDataModel->convertToActiveGraphIndex(graphIdx));
+        const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+        if (!activeIdx.isValid() || activeIdx.v >= _pGraphShowHide->actions().size())
+        {
+            return;
+        }
 
-        _pGraphShowHide->actions().at(activeIdx)->setChecked(_pGraphDataModel->isVisible(graphIdx));
+        _pGraphShowHide->actions().at(activeIdx.v)->setChecked(_pGraphDataModel->isVisible(graphIdx));
     }
 }
 
-void MainWindow::handleGraphColorChange(const quint32 graphIdx)
+void MainWindow::handleGraphColorChange(GraphIdx graphIdx)
 {
     if (_pGraphDataModel->isActive(graphIdx))
     {
-        const quint32 activeIdx = static_cast<quint32>(_pGraphDataModel->convertToActiveGraphIndex(graphIdx));
+        const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+        if (!activeIdx.isValid() || activeIdx.v >= _pGraphShowHide->actions().size())
+        {
+            return;
+        }
 
         QPixmap pixmap(20, 5);
         pixmap.fill(_pGraphDataModel->color(graphIdx));
 
         QIcon showHideIcon = QIcon(pixmap);
 
-        _pGraphShowHide->actions().at(activeIdx)->setIcon(showHideIcon);
+        _pGraphShowHide->actions().at(activeIdx.v)->setIcon(showHideIcon);
     }
 }
 
-void MainWindow::handleGraphLabelChange(const quint32 graphIdx)
+void MainWindow::handleGraphLabelChange(GraphIdx graphIdx)
 {
     if (_pGraphDataModel->isActive(graphIdx))
     {
-        const quint32 activeIdx = static_cast<quint32>(_pGraphDataModel->convertToActiveGraphIndex(graphIdx));
-        _pGraphShowHide->actions().at(activeIdx)->setText(_pGraphDataModel->label(graphIdx));
+        const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+        if (!activeIdx.isValid() || activeIdx.v >= _pGraphShowHide->actions().size())
+        {
+            return;
+        }
+
+        _pGraphShowHide->actions().at(activeIdx.v)->setText(_pGraphDataModel->label(graphIdx));
     }
 }
 
@@ -600,7 +613,7 @@ void MainWindow::handleGraphsCountChanged()
 {
     rebuildGraphMenu();
 
-    QList<quint16> activeGraphList;
+    QList<GraphIdx> activeGraphList;
     _pGraphDataModel->activeGraphIndexList(activeGraphList);
 
     const bool bEnabled = !activeGraphList.isEmpty();
@@ -613,7 +626,7 @@ void MainWindow::rebuildGraphMenu()
     // Regenerate graph menu
     _pGraphShowHide->clear();
 
-    QList<quint16> activeGraphList;
+    QList<GraphIdx> activeGraphList;
     _pGraphDataModel->activeGraphIndexList(activeGraphList);
 
     for (qint32 activeIdx = 0; activeIdx < activeGraphList.size(); activeIdx++)
@@ -626,7 +639,7 @@ void MainWindow::rebuildGraphMenu()
         pixmap.fill(_pGraphDataModel->color(activeGraphList[activeIdx]));
         QIcon icon = QIcon(pixmap);
 
-        pShowHideAction->setData(activeIdx);
+        pShowHideAction->setData(QVariant::fromValue(ActiveIdx(activeIdx)));
         pShowHideAction->setIcon(icon);
         pShowHideAction->setCheckable(true);
         pShowHideAction->setChecked(_pGraphDataModel->isVisible(activeGraphList[activeIdx]));

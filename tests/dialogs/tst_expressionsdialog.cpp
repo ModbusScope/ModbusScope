@@ -14,7 +14,7 @@ void TestExpressionsDialog::init()
     _pGraphDataModel = new GraphDataModel(this);
     _pGraphDataModel->add(GraphData());
     _pMockAdapterManager = new MockAdapterManager(this);
-    _pDialog = new ExpressionsDialog(_pGraphDataModel, 0, _pMockAdapterManager);
+    _pDialog = new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pMockAdapterManager);
 }
 
 void TestExpressionsDialog::cleanup()

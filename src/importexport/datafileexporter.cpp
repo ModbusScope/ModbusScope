@@ -90,7 +90,7 @@ void DataFileExporter::exportDataFile(QString dataFile)
 
         if (bRet)
         {
-            QList<quint16> activeGraphIndexes;
+            QList<GraphIdx> activeGraphIndexes;
             _pGraphDataModel->activeGraphIndexList(activeGraphIndexes);
             QList<QCPGraphDataContainer::const_iterator> dataListIterators;
 
@@ -375,7 +375,7 @@ QString DataFileExporter::createPropertyRow(registerProperty prop)
 
     for (qint32 i = 0; i < _pGraphDataModel->activeCount(); i++)
     {
-        const qint32 graphIdx = _pGraphDataModel->convertToGraphIndex(i);
+        const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(ActiveIdx(i));
 
         QString propertyString;
         switch (prop)
