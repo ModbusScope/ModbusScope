@@ -638,17 +638,17 @@ void MainWindow::rebuildGraphMenu()
     for (qint32 activeIdx = 0; activeIdx < activeGraphList.size(); activeIdx++)
     {
 
-        QString label = _pGraphDataModel->label(activeGraphList[activeIdx]);
+        QString label = _pGraphDataModel->label(activeGraphList.at(activeIdx));
         QAction* pShowHideAction = _pGraphShowHide->addAction(label);
 
         QPixmap pixmap(20, 5);
-        pixmap.fill(_pGraphDataModel->color(activeGraphList[activeIdx]));
+        pixmap.fill(_pGraphDataModel->color(activeGraphList.at(activeIdx)));
         QIcon icon = QIcon(pixmap);
 
         pShowHideAction->setData(QVariant::fromValue(ActiveIdx(activeIdx)));
         pShowHideAction->setIcon(icon);
         pShowHideAction->setCheckable(true);
-        pShowHideAction->setChecked(_pGraphDataModel->isVisible(activeGraphList[activeIdx]));
+        pShowHideAction->setChecked(_pGraphDataModel->isVisible(activeGraphList.at(activeIdx)));
 
         connect(pShowHideAction, &QAction::toggled, this, &MainWindow::menuShowHideGraphClicked);
     }
