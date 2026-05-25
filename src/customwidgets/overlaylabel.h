@@ -20,7 +20,7 @@ protected:
 
 private:
     QPointer<QWidget> _pTargetWidget;
-    QLabel* _pLabel;
+    QPointer<QLabel> _pLabel;
 };
 
 #endif // OVERLAYLABEL_H

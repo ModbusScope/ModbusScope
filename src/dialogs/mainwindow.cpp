@@ -143,7 +143,6 @@ MainWindow::MainWindow(QStringList cmdArguments,
     connect(_pGraphDataModel, &GraphDataModel::graphsAddData, _pGraphView, &GraphView::addData);
     connect(_pGraphDataModel, &GraphDataModel::graphsAddData, this, &MainWindow::setAxisToAuto);
 
-    connect(_pGraphDataModel, &GraphDataModel::activeChanged, this, &MainWindow::rebuildGraphMenu);
     connect(_pGraphDataModel, &GraphDataModel::activeChanged, this, &MainWindow::handleGraphsCountChanged);
     connect(_pGraphDataModel, &GraphDataModel::activeChanged, _pGraphView, &GraphView::updateGraphs);
 

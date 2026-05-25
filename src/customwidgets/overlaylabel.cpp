@@ -31,7 +31,10 @@ OverlayLabel::OverlayLabel(const QString& text, QWidget* pParent, QObject* paren
  */
 void OverlayLabel::setVisible(bool visible)
 {
-    _pLabel->setVisible(visible);
+    if (_pLabel)
+    {
+        _pLabel->setVisible(visible);
+    }
 }
 
 /*!
@@ -41,7 +44,10 @@ bool OverlayLabel::eventFilter(QObject* watched, QEvent* event)
 {
     if (!_pTargetWidget.isNull() && watched == _pTargetWidget && event->type() == QEvent::Resize)
     {
-        _pLabel->resize(_pTargetWidget->size());
+        if (_pLabel)
+        {
+            _pLabel->resize(_pTargetWidget->size());
+        }
     }
     return QObject::eventFilter(watched, event);
 }
