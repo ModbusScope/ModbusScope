@@ -30,18 +30,23 @@ void ExpressionStatus::handleResultReady(bool valid)
     const QPair<GraphIdx, QString> item = _expressionQueue.dequeue();
     const GraphIdx graphIdx = item.first;
 
-    if (_checker.syntaxError())
+    if (_pGraphDataModel->expression(graphIdx) == item.second)
     {
-        _pGraphDataModel->setExpressionState(graphIdx, ExpressionState::SYNTAX_ERROR);
+        if (_checker.syntaxError())
+        {
+            _pGraphDataModel->setExpressionState(graphIdx, ExpressionState::SYNTAX_ERROR);
+        }
+        else if (!_deviceCheckPassed)
+        {
+            _pGraphDataModel->setExpressionState(graphIdx, ExpressionState::UNKNOWN_DEVICE);
+        }
+        else
+        {
+            _pGraphDataModel->setExpressionState(graphIdx, ExpressionState::VALID);
+        }
     }
-    else if (!_deviceCheckPassed)
-    {
-        _pGraphDataModel->setExpressionState(graphIdx, ExpressionState::UNKNOWN_DEVICE);
-    }
-    else
-    {
-        _pGraphDataModel->setExpressionState(graphIdx, ExpressionState::VALID);
-    }
+    /* else: index is stale — graph was removed or reordered since this check
+       was enqueued. Drop the result to avoid updating the wrong graph. */
 
     if (!_expressionQueue.isEmpty())
     {
