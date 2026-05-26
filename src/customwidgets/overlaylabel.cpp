@@ -8,11 +8,10 @@
  * \brief Constructs an OverlayLabel centered over \a pParent.
  *
  * \param text     The message to display.
- * \param pParent  The widget to overlay; owns the label as a child.
- * \param parent   QObject parent for memory management.
+ * \param pParent  The widget to overlay; owns both the label and this object as children.
  */
-OverlayLabel::OverlayLabel(const QString& text, QWidget* pParent, QObject* parent)
-    : QObject(parent), _pTargetWidget(pParent), _pLabel(new QLabel(text, pParent))
+OverlayLabel::OverlayLabel(const QString& text, QWidget* pParent)
+    : QObject(pParent), _pTargetWidget(pParent), _pLabel(new QLabel(text, pParent))
 {
     Q_ASSERT(pParent != nullptr);
 

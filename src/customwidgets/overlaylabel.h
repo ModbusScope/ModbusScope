@@ -11,7 +11,7 @@ class OverlayLabel : public QObject
 {
     Q_OBJECT
 public:
-    explicit OverlayLabel(const QString& text, QWidget* pParent, QObject* parent = nullptr);
+    explicit OverlayLabel(const QString& text, QWidget* pParent);
 
     void setVisible(bool visible);
 
