@@ -35,6 +35,7 @@ class Legend;
 class StatusBar;
 class ExpressionStatus;
 class MostRecentMenu;
+class OverlayLabel;
 class CommunicationStats;
 class CommunicationStatsModel;
 
@@ -55,9 +56,11 @@ public:
     ~MainWindow();
 
 protected:
-    void keyPressEvent(QKeyEvent* event);
-    void keyReleaseEvent(QKeyEvent* event);
-    void closeEvent(QCloseEvent* event);
+    void keyPressEvent(QKeyEvent* event) override;
+    void keyReleaseEvent(QKeyEvent* event) override;
+    void closeEvent(QCloseEvent* event) override;
+    void dragEnterEvent(QDragEnterEvent* e) override;
+    void dropEvent(QDropEvent* e) override;
 
 private slots:
 
@@ -99,8 +102,6 @@ private slots:
     void scaleWidgetUndocked(bool bFloat);
     void legendWidgetUndocked(bool bFloat);
     void showContextMenu(const QPoint& pos);
-    void dragEnterEvent(QDragEnterEvent* e);
-    void dropEvent(QDropEvent* e);
     void appFocusChanged(QWidget* old, QWidget* now);
     void updateDataFileNotes();
 
@@ -139,6 +140,8 @@ private:
     MarkerInfo* _pMarkerInfo;
     Legend* _pLegend;
     StatusBar* _pStatusBar;
+
+    OverlayLabel* _pOverlayLabel;
 
     QMenu _menuRightClick;
     QMenu* _pGraphShowHide;

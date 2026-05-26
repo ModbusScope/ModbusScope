@@ -15,6 +15,10 @@ private slots:
     void addUsesCustomDefaultExpression();
     void setDefaultExpressionUpdatesSubsequentAdds();
     void setDefaultExpressionIgnoresEmptyString();
+
+    void activeCountZeroWhenEmpty();
+    void activeCountReflectsAddedRegisters();
+    void activeCountZeroWhenAllDeactivated();
 };
 
 #endif /* TST_GRAPHDATAMODEL_H */

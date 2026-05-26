@@ -5,6 +5,7 @@
 #include "customwidgets/markerinfo.h"
 #include "customwidgets/mostrecentmenu.h"
 #include "customwidgets/notesdock.h"
+#include "customwidgets/overlaylabel.h"
 #include "customwidgets/statusbar.h"
 #include "datahandling/graphdatahandler.h"
 #include "dialogs/aboutdialog.h"
@@ -57,6 +58,9 @@ MainWindow::MainWindow(QStringList cmdArguments,
     _pUi->setupUi(this);
 
     QApplication::setStyle(QStyleFactory::create("Fusion"));
+
+    _pOverlayLabel =
+      new OverlayLabel(tr("No registers configured — click Register Settings to add one"), _pUi->customPlot);
 
     _pDiagnosticDialog = new DiagnosticDialog(_pDiagnosticModel, this);
 
@@ -139,7 +143,7 @@ MainWindow::MainWindow(QStringList cmdArguments,
     connect(_pGraphDataModel, &GraphDataModel::graphsAddData, _pGraphView, &GraphView::addData);
     connect(_pGraphDataModel, &GraphDataModel::graphsAddData, this, &MainWindow::setAxisToAuto);
 
-    connect(_pGraphDataModel, &GraphDataModel::activeChanged, this, &MainWindow::rebuildGraphMenu);
+    connect(_pGraphDataModel, &GraphDataModel::activeChanged, this, &MainWindow::handleGraphsCountChanged);
     connect(_pGraphDataModel, &GraphDataModel::activeChanged, _pGraphView, &GraphView::updateGraphs);
 
     connect(_pGraphDataModel, &GraphDataModel::colorChanged, this, &MainWindow::handleGraphColorChange);
@@ -619,6 +623,8 @@ void MainWindow::handleGraphsCountChanged()
     const bool bEnabled = !activeGraphList.isEmpty();
     _pUi->actionZoom->setEnabled(bEnabled);
     _pUi->actionToggleMarkers->setEnabled(bEnabled);
+
+    _pOverlayLabel->setVisible(!bEnabled);
 }
 
 void MainWindow::rebuildGraphMenu()
@@ -632,17 +638,17 @@ void MainWindow::rebuildGraphMenu()
     for (qint32 activeIdx = 0; activeIdx < activeGraphList.size(); activeIdx++)
     {
 
-        QString label = _pGraphDataModel->label(activeGraphList[activeIdx]);
+        QString label = _pGraphDataModel->label(activeGraphList.at(activeIdx));
         QAction* pShowHideAction = _pGraphShowHide->addAction(label);
 
         QPixmap pixmap(20, 5);
-        pixmap.fill(_pGraphDataModel->color(activeGraphList[activeIdx]));
+        pixmap.fill(_pGraphDataModel->color(activeGraphList.at(activeIdx)));
         QIcon icon = QIcon(pixmap);
 
         pShowHideAction->setData(QVariant::fromValue(ActiveIdx(activeIdx)));
         pShowHideAction->setIcon(icon);
         pShowHideAction->setCheckable(true);
-        pShowHideAction->setChecked(_pGraphDataModel->isVisible(activeGraphList[activeIdx]));
+        pShowHideAction->setChecked(_pGraphDataModel->isVisible(activeGraphList.at(activeIdx)));
 
         connect(pShowHideAction, &QAction::toggled, this, &MainWindow::menuShowHideGraphClicked);
     }

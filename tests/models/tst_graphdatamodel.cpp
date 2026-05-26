@@ -54,4 +54,31 @@ void TestGraphDataModel::setDefaultExpressionIgnoresEmptyString()
     QCOMPARE(model.expression(GraphIdx(0)), QStringLiteral("${i0}"));
 }
 
+void TestGraphDataModel::activeCountZeroWhenEmpty()
+{
+    GraphDataModel model;
+    QCOMPARE(model.activeCount(), 0);
+}
+
+void TestGraphDataModel::activeCountReflectsAddedRegisters()
+{
+    GraphDataModel model;
+    model.add();
+    QCOMPARE(model.activeCount(), 1);
+    model.add();
+    QCOMPARE(model.activeCount(), 2);
+}
+
+void TestGraphDataModel::activeCountZeroWhenAllDeactivated()
+{
+    /* Registers that exist but are inactive must not count — this is the condition
+       used to show the empty-state label in the graph area. */
+    GraphDataModel model;
+    model.add();
+    QCOMPARE(model.activeCount(), 1);
+
+    model.setActive(GraphIdx(0), false);
+    QCOMPARE(model.activeCount(), 0);
+}
+
 QTEST_GUILESS_MAIN(TestGraphDataModel)
