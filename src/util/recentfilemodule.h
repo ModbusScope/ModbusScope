@@ -1,14 +1,14 @@
 #ifndef RECENTFILEMODULE_H
 #define RECENTFILEMODULE_H
 
-#include <QSettings>
 #include <QList>
+#include <QSettings>
 
 class RecentFileModule : public QObject
 {
     Q_OBJECT
 public:
-    explicit RecentFileModule(QObject *parent = nullptr);
+    explicit RecentFileModule(QObject* parent = nullptr);
 
     void clearRecentProjectFiles();
     void loadRecentProjectFiles();

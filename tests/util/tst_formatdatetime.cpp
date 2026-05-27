@@ -3,9 +3,9 @@
 
 #include "util/formatdatetime.h"
 
-#include <QTest>
 #include <QDateTime>
 #include <QLocale>
+#include <QTest>
 
 void TestFormatDateTime::init()
 {

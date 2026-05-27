@@ -2,8 +2,7 @@
 
 const QString RecentFileModule::_cProjectFileSection = QString("recentProjectFiles");
 
-RecentFileModule::RecentFileModule(QObject *parent)
-    : QObject{parent}
+RecentFileModule::RecentFileModule(QObject* parent) : QObject{ parent }
 {
     loadRecentProjectFiles();
 }

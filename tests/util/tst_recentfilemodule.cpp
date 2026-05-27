@@ -3,10 +3,10 @@
 
 #include "util/recentfilemodule.h"
 
-#include <QTest>
 #include <QCoreApplication>
 #include <QSettings>
 #include <QSignalSpy>
+#include <QTest>
 
 static const QString cTestOrg = QStringLiteral("ModbusScopeTest");
 static const QString cTestApp = QStringLiteral("tst_recentfilemodule");
