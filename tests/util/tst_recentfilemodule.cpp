@@ -10,7 +10,6 @@
 
 static const QString cTestOrg = QStringLiteral("ModbusScopeTest");
 static const QString cTestApp = QStringLiteral("tst_recentfilemodule");
-static const int cMostRecentCount = 5;
 
 void TestRecentFileModule::init()
 {
@@ -59,12 +58,12 @@ void TestRecentFileModule::updateRespectsCap()
 {
     RecentFileModule module;
 
-    for (int i = 0; i < cMostRecentCount + 2; ++i)
+    for (int i = 0; i < static_cast<int>(RecentFileModule::cMostRecentCount) + 2; ++i)
     {
         module.updateRecentProjectFiles(QStringLiteral("/file%1.mbs").arg(i));
     }
 
-    QCOMPARE(module.recentProjectFiles().size(), cMostRecentCount);
+    QCOMPARE(module.recentProjectFiles().size(), static_cast<int>(RecentFileModule::cMostRecentCount));
 }
 
 void TestRecentFileModule::clearRecentProjectFiles()
@@ -85,6 +84,7 @@ void TestRecentFileModule::persistsAcrossInstances()
         RecentFileModule first;
         first.updateRecentProjectFiles(QStringLiteral("/a.mbs"));
         first.updateRecentProjectFiles(QStringLiteral("/b.mbs"));
+        QSettings().sync();
     }
 
     RecentFileModule second;

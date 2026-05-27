@@ -16,6 +16,8 @@ public:
 
     QList<QString> recentProjectFiles();
 
+    static constexpr quint32 cMostRecentCount = 5;
+
 signals:
     void mostRecentProjectFileUpdated();
 
@@ -23,7 +25,6 @@ private:
     QSettings _settings;
     QList<QString> _recentProjectFiles;
 
-    static const quint32 _cMostRecentCount = 5;
     static const QString _cProjectFileSection;
 };
 

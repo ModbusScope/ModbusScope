@@ -34,7 +34,7 @@ void RecentFileModule::updateRecentProjectFiles(const QString filePath)
     _recentProjectFiles.removeAll(filePath);
     _recentProjectFiles.prepend(filePath);
 
-    while (_recentProjectFiles.size() > _cMostRecentCount)
+    while (static_cast<quint32>(_recentProjectFiles.size()) > cMostRecentCount)
     {
         _recentProjectFiles.removeLast();
     }

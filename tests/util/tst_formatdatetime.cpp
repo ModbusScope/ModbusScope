@@ -37,7 +37,7 @@ void TestFormatDateTime::dateTimeStringFormat()
 void TestFormatDateTime::formatDateTime()
 {
     // Construct a local-time QDateTime directly to avoid timezone conversion
-    const QDateTime dt = QDateTime(QDate(2020, 10, 17), QTime(11, 57, 5, 11));
+    const QDateTime dt = QDateTime(QDate(2020, 10, 17), QTime(11, 57, 5, 11), Qt::LocalTime);
 
     QCOMPARE(FormatDateTime::formatDateTime(dt), QStringLiteral("17/10/2020 11:57:05,011"));
 }

@@ -51,7 +51,6 @@ void TestNote::setPosition_doubles()
     // key != value to catch a copy-paste error that would pass (key, key)
     note.setPosition(3.0, 7.0);
 
-    QCOMPARE(note.position(), QPointF(3.0, 7.0));
     QCOMPARE(note.position().x(), 3.0);
     QCOMPARE(note.position().y(), 7.0);
 }
