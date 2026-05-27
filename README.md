@@ -4,8 +4,7 @@ Docs: [![Documentation Status](https://readthedocs.org/projects/modbusscope/badg
 
 Build status: [![Build](https://github.com/ModbusScope/ModbusScope/actions/workflows/ccpp.yml/badge.svg?branch=master)](https://github.com/ModbusScope/ModbusScope/actions/workflows/ccpp.yml)
 
-Quality: [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=ModbusScope_ModbusScope&metric=bugs)](https://sonarcloud.io/summary/new_code?id=ModbusScope_ModbusScope)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/17cc00fd773c415bbe15e07be97ce79d)](https://app.codacy.com/gh/ModbusScope/ModbusScope/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+Quality: [![Codacy Badge](https://app.codacy.com/project/badge/Grade/17cc00fd773c415bbe15e07be97ce79d)](https://app.codacy.com/gh/ModbusScope/ModbusScope/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![CodeScene general](https://codescene.io/images/analyzed-by-codescene-badge.svg)](https://codescene.io/projects/39268)
 
 # ModbusScope
