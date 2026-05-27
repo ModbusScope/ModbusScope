@@ -40,7 +40,7 @@ QVariant DiagnosticModel::data(const QModelIndex& index, int role) const
 {
     if (index.isValid() && (role == Qt::DisplayRole))
     {
-        return _logList[index.row()].toString();
+        return _logList.at(index.row()).toString();
     }
 
     return QVariant();
@@ -55,7 +55,7 @@ Diagnostic::LogSeverity DiagnosticModel::dataSeverity(quint32 index) const
 {
     if (index < static_cast<quint32>(size()))
     {
-        return _logList[index].severity();
+        return _logList.at(index).severity();
     }
 
     return Diagnostic::LOG_DEBUG;
@@ -119,12 +119,12 @@ void DiagnosticModel::clear()
 
 QString DiagnosticModel::toString(quint32 idx) const
 {
-    return _logList[idx].toString();
+    return _logList.at(idx).toString();
 }
 
 QString DiagnosticModel::toExportString(quint32 idx) const
 {
-    return _logList[idx].toExportString();
+    return _logList.at(idx).toExportString();
 }
 
 void DiagnosticModel::setMinimumSeverityLevel(Diagnostic::LogSeverity minSeverity)

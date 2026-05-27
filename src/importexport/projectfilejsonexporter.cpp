@@ -32,12 +32,12 @@ void ProjectFileJsonExporter::exportProjectFile(const QString& projectFile,
                                                 const QList<ProjectFileData::DeviceSettings>& devices)
 {
     QJsonObject root;
-    root[ProjectFileDefinitions::cVersionKey] = static_cast<int>(ProjectFileDefinitions::cCurrentJsonVersion);
-    root[ProjectFileDefinitions::cAdaptersKey] = createAdaptersArray(adapters);
-    root[ProjectFileDefinitions::cDevicesJsonKey] = createDevicesArray(devices);
-    root[ProjectFileDefinitions::cLogTag] = createLogObject();
-    root[ProjectFileDefinitions::cScopeTag] = createScopeArray();
-    root[ProjectFileDefinitions::cViewTag] = createViewObject();
+    root.insert(ProjectFileDefinitions::cVersionKey, static_cast<int>(ProjectFileDefinitions::cCurrentJsonVersion));
+    root.insert(ProjectFileDefinitions::cAdaptersKey, createAdaptersArray(adapters));
+    root.insert(ProjectFileDefinitions::cDevicesJsonKey, createDevicesArray(devices));
+    root.insert(ProjectFileDefinitions::cLogTag, createLogObject());
+    root.insert(ProjectFileDefinitions::cScopeTag, createScopeArray());
+    root.insert(ProjectFileDefinitions::cViewTag, createViewObject());
 
     QJsonDocument doc(root);
     QSaveFile file(projectFile);
@@ -73,8 +73,8 @@ QJsonArray ProjectFileJsonExporter::createAdaptersArray(const QList<ProjectFileD
     for (const ProjectFileData::AdapterFileSettings& adapter : std::as_const(adapters))
     {
         QJsonObject adapterObj;
-        adapterObj[ProjectFileDefinitions::cAdapterTypeKey] = adapter.type;
-        adapterObj[ProjectFileDefinitions::cAdapterSettingsKey] = adapter.settings;
+        adapterObj.insert(ProjectFileDefinitions::cAdapterTypeKey, adapter.type);
+        adapterObj.insert(ProjectFileDefinitions::cAdapterSettingsKey, adapter.settings);
         adaptersArray.append(adapterObj);
     }
     return adaptersArray;
@@ -90,13 +90,13 @@ QJsonArray ProjectFileJsonExporter::createDevicesArray(const QList<ProjectFileDa
     for (const ProjectFileData::DeviceSettings& dev : std::as_const(devices))
     {
         QJsonObject adapterRef;
-        adapterRef[ProjectFileDefinitions::cAdapterTypeKey] = dev.adapterType;
+        adapterRef.insert(ProjectFileDefinitions::cAdapterTypeKey, dev.adapterType);
 
         QJsonObject devObj;
-        devObj[ProjectFileDefinitions::cIdJsonKey] = static_cast<int>(dev.deviceId);
-        devObj[ProjectFileDefinitions::cAdapterIdKey] = static_cast<int>(dev.adapterId);
-        devObj[ProjectFileDefinitions::cDeviceNameTag] = dev.name;
-        devObj[ProjectFileDefinitions::cAdapterKey] = adapterRef;
+        devObj.insert(ProjectFileDefinitions::cIdJsonKey, static_cast<int>(dev.deviceId));
+        devObj.insert(ProjectFileDefinitions::cAdapterIdKey, static_cast<int>(dev.adapterId));
+        devObj.insert(ProjectFileDefinitions::cDeviceNameTag, dev.name);
+        devObj.insert(ProjectFileDefinitions::cAdapterKey, adapterRef);
         devicesArray.append(devObj);
     }
     return devicesArray;
@@ -108,18 +108,18 @@ QJsonArray ProjectFileJsonExporter::createDevicesArray(const QList<ProjectFileDa
 QJsonObject ProjectFileJsonExporter::createLogObject()
 {
     QJsonObject logObj;
-    logObj[ProjectFileDefinitions::cPollTimeTag] = static_cast<int>(_pSettingsModel->pollTime());
-    logObj[ProjectFileDefinitions::cAbsoluteTimesTag] = _pSettingsModel->absoluteTimes();
+    logObj.insert(ProjectFileDefinitions::cPollTimeTag, static_cast<int>(_pSettingsModel->pollTime()));
+    logObj.insert(ProjectFileDefinitions::cAbsoluteTimesTag, _pSettingsModel->absoluteTimes());
 
     QJsonObject logToFileObj;
-    logToFileObj[ProjectFileDefinitions::cEnabledAttribute] = _pSettingsModel->writeDuringLog();
+    logToFileObj.insert(ProjectFileDefinitions::cEnabledAttribute, _pSettingsModel->writeDuringLog());
 
     if (_pSettingsModel->writeDuringLog() && (_pSettingsModel->writeDuringLogFile() != SettingsModel::defaultLogPath()))
     {
-        logToFileObj[ProjectFileDefinitions::cFilenameTag] = _pSettingsModel->writeDuringLogFile();
+        logToFileObj.insert(ProjectFileDefinitions::cFilenameTag, _pSettingsModel->writeDuringLogFile());
     }
 
-    logObj[ProjectFileDefinitions::cLogToFileTag] = logToFileObj;
+    logObj.insert(ProjectFileDefinitions::cLogToFileTag, logToFileObj);
     return logObj;
 }
 
@@ -133,11 +133,12 @@ QJsonArray ProjectFileJsonExporter::createScopeArray()
     for (qint32 idx = 0; idx < _pGraphDataModel->size(); idx++)
     {
         QJsonObject regObj;
-        regObj[ProjectFileDefinitions::cActiveAttribute] = _pGraphDataModel->isActive(GraphIdx(idx));
-        regObj[ProjectFileDefinitions::cTextTag] = _pGraphDataModel->label(GraphIdx(idx));
-        regObj[ProjectFileDefinitions::cExpressionTag] = _pGraphDataModel->expression(GraphIdx(idx));
-        regObj[ProjectFileDefinitions::cColorTag] = _pGraphDataModel->color(GraphIdx(idx)).name();
-        regObj[ProjectFileDefinitions::cValueAxisTag] = static_cast<int>(_pGraphDataModel->valueAxis(GraphIdx(idx)));
+        regObj.insert(ProjectFileDefinitions::cActiveAttribute, _pGraphDataModel->isActive(GraphIdx(idx)));
+        regObj.insert(ProjectFileDefinitions::cTextTag, _pGraphDataModel->label(GraphIdx(idx)));
+        regObj.insert(ProjectFileDefinitions::cExpressionTag, _pGraphDataModel->expression(GraphIdx(idx)));
+        regObj.insert(ProjectFileDefinitions::cColorTag, _pGraphDataModel->color(GraphIdx(idx)).name());
+        regObj.insert(ProjectFileDefinitions::cValueAxisTag,
+                      static_cast<int>(_pGraphDataModel->valueAxis(GraphIdx(idx))));
         scopeArray.append(regObj);
     }
 
@@ -152,31 +153,31 @@ QJsonObject ProjectFileJsonExporter::createViewObject()
     QJsonObject xaxisObj;
     if (_pGuiModel->xAxisScalingMode() == AxisMode::SCALE_SLIDING)
     {
-        xaxisObj[ProjectFileDefinitions::cModeAttribute] = QString(ProjectFileDefinitions::cSlidingValue);
-        xaxisObj[ProjectFileDefinitions::cSlidingintervalTag] = static_cast<int>(_pGuiModel->xAxisSlidingSec());
+        xaxisObj.insert(ProjectFileDefinitions::cModeAttribute, QString(ProjectFileDefinitions::cSlidingValue));
+        xaxisObj.insert(ProjectFileDefinitions::cSlidingintervalTag, static_cast<int>(_pGuiModel->xAxisSlidingSec()));
     }
     else
     {
-        xaxisObj[ProjectFileDefinitions::cModeAttribute] = QString(ProjectFileDefinitions::cAutoValue);
+        xaxisObj.insert(ProjectFileDefinitions::cModeAttribute, QString(ProjectFileDefinitions::cAutoValue));
     }
 
     auto buildYAxis = [](int axisId, AxisMode::AxisScaleOptions mode, double minVal, double maxVal) -> QJsonObject {
         QJsonObject yaxisObj;
-        yaxisObj[ProjectFileDefinitions::cAxisAttribute] = axisId;
+        yaxisObj.insert(ProjectFileDefinitions::cAxisAttribute, axisId);
 
         if (mode == AxisMode::SCALE_WINDOW_AUTO)
         {
-            yaxisObj[ProjectFileDefinitions::cModeAttribute] = QString(ProjectFileDefinitions::cWindowAutoValue);
+            yaxisObj.insert(ProjectFileDefinitions::cModeAttribute, QString(ProjectFileDefinitions::cWindowAutoValue));
         }
         else if (mode == AxisMode::SCALE_MINMAX)
         {
-            yaxisObj[ProjectFileDefinitions::cModeAttribute] = QString(ProjectFileDefinitions::cMinmaxValue);
-            yaxisObj[ProjectFileDefinitions::cMinTag] = minVal;
-            yaxisObj[ProjectFileDefinitions::cMaxTag] = maxVal;
+            yaxisObj.insert(ProjectFileDefinitions::cModeAttribute, QString(ProjectFileDefinitions::cMinmaxValue));
+            yaxisObj.insert(ProjectFileDefinitions::cMinTag, minVal);
+            yaxisObj.insert(ProjectFileDefinitions::cMaxTag, maxVal);
         }
         else
         {
-            yaxisObj[ProjectFileDefinitions::cModeAttribute] = QString(ProjectFileDefinitions::cAutoValue);
+            yaxisObj.insert(ProjectFileDefinitions::cModeAttribute, QString(ProjectFileDefinitions::cAutoValue));
         }
 
         return yaxisObj;
@@ -187,11 +188,11 @@ QJsonObject ProjectFileJsonExporter::createViewObject()
     yaxisArray.append(buildYAxis(1, _pGuiModel->y2AxisScalingMode(), _pGuiModel->y2AxisMin(), _pGuiModel->y2AxisMax()));
 
     QJsonObject scaleObj;
-    scaleObj[ProjectFileDefinitions::cXaxisTag] = xaxisObj;
-    scaleObj[ProjectFileDefinitions::cYaxisTag] = yaxisArray;
+    scaleObj.insert(ProjectFileDefinitions::cXaxisTag, xaxisObj);
+    scaleObj.insert(ProjectFileDefinitions::cYaxisTag, yaxisArray);
 
     QJsonObject viewObj;
-    viewObj[ProjectFileDefinitions::cScaleTag] = scaleObj;
+    viewObj.insert(ProjectFileDefinitions::cScaleTag, scaleObj);
     return viewObj;
 }
 

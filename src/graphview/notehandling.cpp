@@ -8,11 +8,8 @@
 
 const static quint32 NO_DRAGGED_NOTE = 0xFFFFFFFF;
 
-NoteHandling::NoteHandling(NoteModel* pNoteModel, ScopePlot* pPlot, QObject *parent):
-    QObject(parent),
-    _pNoteModel(pNoteModel),
-    _pPlot(pPlot),
-    _pGraphview(dynamic_cast<GraphView*>(parent))
+NoteHandling::NoteHandling(NoteModel* pNoteModel, ScopePlot* pPlot, QObject* parent)
+    : QObject(parent), _pNoteModel(pNoteModel), _pPlot(pPlot), _pGraphview(dynamic_cast<GraphView*>(parent))
 {
 
     // Note model
@@ -28,16 +25,15 @@ NoteHandling::NoteHandling(NoteModel* pNoteModel, ScopePlot* pPlot, QObject *par
 
 NoteHandling::~NoteHandling()
 {
-
 }
 
-bool NoteHandling::handleMousePress(QMouseEvent *event)
+bool NoteHandling::handleMousePress(QMouseEvent* event)
 {
     _pDraggedNoteIdx = NO_DRAGGED_NOTE;
-    QCPAbstractItem * pItem = _pPlot->itemAt(event->pos(), false);
-    for(int idx = 0; idx < _notesItems.size(); idx++)
+    QCPAbstractItem* pItem = _pPlot->itemAt(event->pos(), false);
+    for (int idx = 0; idx < _notesItems.size(); idx++)
     {
-        if (_notesItems[idx]->isItem(pItem))
+        if (_notesItems.at(idx)->isItem(pItem))
         {
             _pDraggedNoteIdx = idx;
             break;
@@ -47,7 +43,7 @@ bool NoteHandling::handleMousePress(QMouseEvent *event)
     if (_pDraggedNoteIdx != NO_DRAGGED_NOTE)
     {
         /* Save cursor offset */
-        _pixelOffset = event->pos() - _notesItems[_pDraggedNoteIdx]->position();
+        _pixelOffset = event->pos() - _notesItems.at(_pDraggedNoteIdx)->position();
 
         return true;
     }
@@ -62,7 +58,7 @@ bool NoteHandling::handleMouseRelease()
     return false;
 }
 
-bool NoteHandling::handleMouseMove(QMouseEvent *event)
+bool NoteHandling::handleMouseMove(QMouseEvent* event)
 {
     if ((_pDraggedNoteIdx != NO_DRAGGED_NOTE) && _pNoteModel->draggable(_pDraggedNoteIdx))
     {
@@ -76,21 +72,20 @@ bool NoteHandling::handleMouseMove(QMouseEvent *event)
 
 void NoteHandling::handleNotePositionChanged(const quint32 idx)
 {
-    _notesItems[idx]->setPosition(_pNoteModel->notePosition(idx)); // place position at left/top of axis rect
+    _notesItems.at(idx)->setPosition(_pNoteModel->notePosition(idx)); // place position at left/top of axis rect
     _pPlot->replot();
 }
 
 void NoteHandling::handleNoteTextChanged(const quint32 idx)
 {
-    _notesItems[idx]->setText(_pNoteModel->textData(idx));
+    _notesItems.at(idx)->setText(_pNoteModel->textData(idx));
     _pPlot->replot();
 }
 
 void NoteHandling::handleNoteAdded(const quint32 idx)
 {
-    auto newNote = QSharedPointer<NoteItem>( new NoteItem(_pPlot,
-                                              _pNoteModel->textData(idx),
-                                              _pNoteModel->notePosition(idx)));
+    auto newNote =
+      QSharedPointer<NoteItem>(new NoteItem(_pPlot, _pNoteModel->textData(idx), _pNoteModel->notePosition(idx)));
 
     _notesItems.append(newNote);
 

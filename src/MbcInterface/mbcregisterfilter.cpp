@@ -2,8 +2,6 @@
 
 #include "MbcInterface/mbcregistermodel.h"
 
-const QString MbcRegisterFilter::cTabNoFilter = QString("No Filter");
-
 /*!
  * \brief Constructs the filter with no active tab or text filter.
  */

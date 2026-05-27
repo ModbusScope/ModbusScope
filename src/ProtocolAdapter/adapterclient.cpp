@@ -66,7 +66,7 @@ void AdapterClient::provideConfig(QJsonObject config, QStringList registerExpres
     _state = State::CONFIGURING;
     _handshakeTimer.start(_handshakeTimeoutMs);
     QJsonObject params;
-    params["config"] = _pendingConfig;
+    params.insert("config", _pendingConfig);
     _pProcess->sendRequest("adapter.configure", params);
 }
 

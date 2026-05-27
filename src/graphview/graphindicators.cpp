@@ -89,7 +89,7 @@ void GraphIndicators::updateVisibility()
 {
     for (qint32 idx = 0; idx < _axisValueTracers.size(); idx++)
     {
-        _axisValueTracers[idx]->setVisible(determineVisibility(ActiveIdx(idx)));
+        _axisValueTracers.at(idx)->setVisible(determineVisibility(ActiveIdx(idx)));
     }
 }
 
@@ -102,7 +102,7 @@ bool GraphIndicators::determineVisibility(ActiveIdx activeIdx)
 {
     const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(activeIdx);
 
-    auto pPos = _axisValueTracers[activeIdx.v]->position;
+    auto pPos = _axisValueTracers.at(activeIdx.v)->position;
 
     bool bVisibility = _pGraphDataModel->isVisible(graphIdx) && !_pGraphDataModel->dataMap(graphIdx)->isEmpty() &&
                        (pPos->value() >= pPos->valueAxis()->range().lower) &&
@@ -121,7 +121,7 @@ void GraphIndicators::setFrontGraph(GraphIdx graphIdx)
 
     if (activeIdx.isValid())
     {
-        _axisValueTracers[activeIdx.v]->setLayer("topAxes");
+        _axisValueTracers.at(activeIdx.v)->setLayer("topAxes");
         _pPlot->replot(QCustomPlot::rpRefreshHint);
     }
 }
@@ -141,11 +141,11 @@ void GraphIndicators::setTracerPosition(const QCPRange& newRange)
         const double axisRectCoord = _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_PRIMARY ? 0 : 1;
 
         /* Use hidden tracer to get correct value */
-        _valueTracers[idx]->setGraphKey(key);
-        _valueTracers[idx]->updatePosition();
+        _valueTracers.at(idx)->setGraphKey(key);
+        _valueTracers.at(idx)->updatePosition();
 
         /* Set key to Y-axis intersection and value to interpolated value */
-        _axisValueTracers[idx]->position->setCoords(axisRectCoord, _valueTracers[idx]->position->value());
+        _axisValueTracers.at(idx)->position->setCoords(axisRectCoord, _valueTracers.at(idx)->position->value());
     }
 
     updateVisibility();
@@ -163,9 +163,9 @@ void GraphIndicators::updateColor(GraphIdx graphIdx)
 
     if (activeIdx.isValid())
     {
-        auto pen = _axisValueTracers[activeIdx.v]->pen();
+        auto pen = _axisValueTracers.at(activeIdx.v)->pen();
         pen.setColor(_pGraphDataModel->color(graphIdx));
-        _axisValueTracers[activeIdx.v]->setPen(pen);
+        _axisValueTracers.at(activeIdx.v)->setPen(pen);
     }
 }
 
@@ -192,7 +192,7 @@ void GraphIndicators::configureValueAxis(GraphIdx graphIdx)
     {
         auto valueAxis =
           _pGraphDataModel->valueAxis(graphIdx) == GraphData::VALUE_AXIS_PRIMARY ? _pPlot->yAxis : _pPlot->yAxis2;
-        _axisValueTracers[activeIdx.v]->position->setAxisRect(valueAxis->axisRect());
-        _axisValueTracers[activeIdx.v]->position->setAxes(nullptr, valueAxis);
+        _axisValueTracers.at(activeIdx.v)->position->setAxisRect(valueAxis->axisRect());
+        _axisValueTracers.at(activeIdx.v)->position->setAxes(nullptr, valueAxis);
     }
 }

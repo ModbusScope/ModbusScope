@@ -4,10 +4,11 @@
 
 #include <QAction>
 
-MostRecentMenu::MostRecentMenu(QMenu* mostRecentMenu, RecentFileModule *recentFileModule, QObject *parent)
-    : QObject{parent}, _mostRecentMenu(mostRecentMenu), _recentFileModule(recentFileModule)
+MostRecentMenu::MostRecentMenu(QMenu* mostRecentMenu, RecentFileModule* recentFileModule, QObject* parent)
+    : QObject{ parent }, _mostRecentMenu(mostRecentMenu), _recentFileModule(recentFileModule)
 {
-    connect(_recentFileModule, &RecentFileModule::mostRecentProjectFileUpdated, this, &MostRecentMenu::handleMostRecentProjectFileUpdate);
+    connect(_recentFileModule, &RecentFileModule::mostRecentProjectFileUpdated, this,
+            &MostRecentMenu::handleMostRecentProjectFileUpdate);
 
     handleMostRecentProjectFileUpdate();
 }
@@ -29,7 +30,7 @@ void MostRecentMenu::handleMostRecentProjectFileUpdate()
     {
         for (quint32 idx = 0; idx < _recentProjectFiles.size(); idx++)
         {
-            auto projectFileAction = new QAction(_recentProjectFiles[idx]);
+            auto projectFileAction = new QAction(_recentProjectFiles.at(idx));
             projectFileAction->setData(idx);
 
             connect(projectFileAction, &QAction::triggered, this, &MostRecentMenu::handleRecentProjectFileClicked);
@@ -41,7 +42,7 @@ void MostRecentMenu::handleMostRecentProjectFileUpdate()
 
 void MostRecentMenu::handleRecentProjectFileClicked()
 {
-    QAction* const pAction = qobject_cast<QAction * const>(QObject::sender());
+    QAction* const pAction = qobject_cast<QAction* const>(QObject::sender());
     QString filename = _recentProjectFiles.at(pAction->data().toInt());
 
     emit openRecentProject(filename);

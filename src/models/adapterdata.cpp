@@ -136,7 +136,7 @@ QJsonObject AdapterData::effectiveConfig() const
     QJsonObject result = _defaults;
     for (auto it = _currentConfig.constBegin(); it != _currentConfig.constEnd(); ++it)
     {
-        result[it.key()] = it.value();
+        result.insert(it.key(), it.value());
     }
     return result;
 }
