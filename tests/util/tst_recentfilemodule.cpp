@@ -58,12 +58,13 @@ void TestRecentFileModule::updateRespectsCap()
 {
     RecentFileModule module;
 
-    for (int i = 0; i < static_cast<int>(RecentFileModule::cMostRecentCount) + 2; ++i)
+    const int maxFiles = static_cast<int>(RecentFileModule::cMostRecentCount);
+    for (int i = 0; i < maxFiles + 2; ++i)
     {
         module.updateRecentProjectFiles(QStringLiteral("/file%1.mbs").arg(i));
     }
 
-    QCOMPARE(module.recentProjectFiles().size(), static_cast<int>(RecentFileModule::cMostRecentCount));
+    QCOMPARE(module.recentProjectFiles().size(), maxFiles);
 }
 
 void TestRecentFileModule::clearRecentProjectFiles()
