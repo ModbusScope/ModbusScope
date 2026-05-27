@@ -1,6 +1,6 @@
 
-#ifndef TEST_FORMATDATETIME_H__
-#define TEST_FORMATDATETIME_H__
+#ifndef TST_FORMATDATETIME_H
+#define TST_FORMATDATETIME_H
 
 #include <QObject>
 
@@ -22,4 +22,4 @@ private slots:
 private:
 };
 
-#endif /* TEST_FORMATDATETIME_H__ */
+#endif /* TST_FORMATDATETIME_H */

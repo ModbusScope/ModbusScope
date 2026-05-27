@@ -1,6 +1,6 @@
 
-#ifndef TEST_DATAPOINT_H__
-#define TEST_DATAPOINT_H__
+#ifndef TST_DATAPOINT_H
+#define TST_DATAPOINT_H
 
 #include <QObject>
 
@@ -26,4 +26,4 @@ private slots:
 private:
 };
 
-#endif /* TEST_DATAPOINT_H__ */
+#endif /* TST_DATAPOINT_H */

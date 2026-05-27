@@ -1,6 +1,6 @@
 
-#ifndef TEST_RECENTFILEMODULE_H__
-#define TEST_RECENTFILEMODULE_H__
+#ifndef TST_RECENTFILEMODULE_H
+#define TST_RECENTFILEMODULE_H
 
 #include <QObject>
 
@@ -25,4 +25,4 @@ private slots:
 private:
 };
 
-#endif /* TEST_RECENTFILEMODULE_H__ */
+#endif /* TST_RECENTFILEMODULE_H */

@@ -1,6 +1,6 @@
 
-#ifndef TEST_NOTE_H__
-#define TEST_NOTE_H__
+#ifndef TST_NOTE_H
+#define TST_NOTE_H
 
 #include <QObject>
 
@@ -24,4 +24,4 @@ private slots:
 private:
 };
 
-#endif /* TEST_NOTE_H__ */
+#endif /* TST_NOTE_H */
