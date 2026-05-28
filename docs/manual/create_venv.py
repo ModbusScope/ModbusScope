@@ -1,4 +1,4 @@
-#!python3.7
+#!python3.12
 """
 Script to setup a venv
 """
