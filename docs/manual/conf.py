@@ -8,7 +8,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'ModbusScope'
-copyright = '2025, Jens Geudens'
+copyright = '2026, Jens Geudens'
 author = 'Jens Geudens'
 
 
