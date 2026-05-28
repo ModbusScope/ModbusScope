@@ -19,7 +19,7 @@ Go to **Help > Diagnostic logs...**. The window shows a live list of log entries
 **Modbus exception** entries appear when the device responds but signals an error at the protocol level. Common exception codes:
 
 | Code | Name | Typical cause |
-|---|---|---|
+| --- | --- | --- |
 | 1 | Illegal function | The device does not support the requested function code (e.g. coil reads on a device that has none) |
 | 2 | Illegal data address | The register address does not exist on the device |
 | 3 | Illegal data value | The request is malformed (e.g. requesting more registers than the protocol allows) |

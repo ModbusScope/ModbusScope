@@ -7,7 +7,7 @@ A device represents one Modbus slave. Each device is linked to a connection and 
 ## Settings
 
 | Setting | Type | Default | Description |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Name | String | — | User-visible label for the device |
 | ID | Integer | — | Internal ID used in register expressions (`@DEVICE`) |
 | Connection ID | Integer | `1` | Which connection this device communicates over |

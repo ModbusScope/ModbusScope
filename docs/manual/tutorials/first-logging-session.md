@@ -3,6 +3,7 @@
 This tutorial walks you through a complete ModbusScope session from a fresh install to a saved CSV file. You will connect to a Modbus TCP device, add three registers, log data, and export it.
 
 **What you need:**
+
 - ModbusScope installed on your computer ([download](https://github.com/ModbusScope/ModbusScope/releases/latest))
 - A Modbus TCP device reachable on your network (this tutorial uses `192.168.1.10`, port `502`, slave ID `1`)
 - Three holding registers at addresses `40001`, `40002`, `40003`

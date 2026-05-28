@@ -17,11 +17,11 @@ This guide shows how to import register definitions from a ModbusControl (`.mbc`
 
 After opening the file with either option:
 
-4. In the import dialog, review the registers found in the file.
+1. In the import dialog, review the registers found in the file.
 
    ![MBC import dialog](<../_static/user_manual/import_from_mbc_dialog.png>)
 
-5. Select the registers you want to add and click **Import**.
+2. Select the registers you want to add and click **Import**.
 
 **Result:** The selected registers are added to the register list with their names and addresses. You can edit them further in the Register Settings dialog.
 

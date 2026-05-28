@@ -5,7 +5,7 @@ Open via **Settings > Log**.
 ## Settings
 
 | Setting | Type | Default | Description |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Poll interval | Integer (ms) | `250` | Target time between poll cycles. The actual interval may be longer depending on Modbus response time |
 | Use absolute timestamps | Checkbox | Off | When off, timestamps are relative to session start (milliseconds elapsed). When on, absolute date-time values are logged |
 | Write temporary file | Checkbox | On | When on, data is written to a temporary file as it is logged. Allows recovery if the application crashes before export |

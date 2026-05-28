@@ -18,7 +18,7 @@ The file contains a single `presets` array. Each object in the array is one pres
 ## Preset fields
 
 | Field | Required | Type | Description |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `name` | Yes | String | Display name shown in the preset dropdown |
 | `fieldseparator` | Yes | String | Character separating columns. Use `\t` for tab |
 | `decimalseparator` | Yes | String | Character for decimal point |

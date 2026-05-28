@@ -5,7 +5,7 @@ Register references (`${...}`) are resolved first; the resulting numeric values 
 ## Arithmetic operators
 
 | Operator | Operation | Example |
-|---|---|---|
+| --- | --- | --- |
 | `+` | Addition | `${40001} + 100` |
 | `-` | Subtraction | `${40001} - ${40002}` |
 | `*` | Multiplication | `${40001} * 0.1` |
@@ -18,7 +18,7 @@ Register references (`${...}`) are resolved first; the resulting numeric values 
 Operands are truncated to 32-bit integers before the operation.
 
 | Operator | Operation | Example |
-|---|---|---|
+| --- | --- | --- |
 | `&` | Bitwise AND | `${40001} & 0xFF` |
 | `\|` | Bitwise OR | `${40001} \| 0x8000` |
 | `>>` | Right shift | `${40001} >> 8` |
@@ -29,7 +29,7 @@ Operands are truncated to 32-bit integers before the operation.
 Return `1.0` (true) or `0.0` (false).
 
 | Operator | Meaning |
-|---|---|
+| --- | --- |
 | `==` | Equal |
 | `!=` | Not equal |
 | `<` | Less than |
@@ -40,7 +40,7 @@ Return `1.0` (true) or `0.0` (false).
 ## Logical operators
 
 | Operator | Meaning | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `&&` | Logical AND | Returns `1.0` or `0.0` |
 | `\|\|` | Logical OR | Returns `1.0` or `0.0` |
 
@@ -62,14 +62,14 @@ Use parentheses to override precedence.
 ## Unary operators
 
 | Operator | Meaning |
-|---|---|
+| --- | --- |
 | `-` | Negate |
 | `+` | Identity (no effect) |
 
 ## Number literals
 
 | Format | Prefix | Example |
-|---|---|---|
+| --- | --- | --- |
 | Decimal | none | `42`, `3.14`, `1,5` |
 | Hexadecimal | `0x` | `0xFF`, `0x1000` |
 | Binary | `0b` | `0b11111000` |
