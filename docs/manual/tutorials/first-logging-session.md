@@ -1,6 +1,6 @@
 # Your first logging session
 
-This tutorial walks you through a complete ModbusScope session from a fresh install to a saved CSV file. You will connect to a Modbus TCP device, add three registers, log data, and export it.
+This tutorial walks you through a complete ModbusScope session from a fresh installation to a saved CSV file. You will connect to a Modbus TCP device, add three registers, log data, and export it.
 
 **What you need:**
 

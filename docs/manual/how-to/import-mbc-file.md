@@ -1,4 +1,4 @@
-# Import registers from a MBC file
+# Import registers from an MBC file
 
 This guide shows how to import register definitions from a ModbusControl (`.mbc`) project file.
 

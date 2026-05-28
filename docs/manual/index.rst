@@ -4,7 +4,7 @@ ModbusScope documentation
 =========================
 
 .. include:: intro.md
-   :parser: commonmark
+   :parser: myst_parser.sphinx_
 
 .. toctree::
    :maxdepth: 1

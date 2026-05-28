@@ -24,7 +24,7 @@ The file contains a single `presets` array. Each object in the array is one pres
 | `decimalseparator` | Yes | String | Character for decimal point |
 | `keyword` | No | String | If the opened filename contains this string (case-insensitive), this preset is selected automatically |
 | `thousandseparator` | No | String | Grouping character for large numbers |
-| `commentsequence` | No | String (1–2 chars) | Lines beginning with this string are skipped |
+| `commentsequence` | No | String | Lines beginning with this string are skipped |
 | `column` | No | Integer (1-based) | Column index of the timestamp. Default: `1` |
 | `labelrow` | No | Integer (1-based) | Row containing column headers. Use `-1` for files with no header. Default: `1` |
 | `datarow` | No | Integer (1-based) | First row of data. Default: `1` |
