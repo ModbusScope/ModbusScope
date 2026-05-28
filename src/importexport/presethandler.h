@@ -3,9 +3,9 @@
 
 #include <memory>
 
+#include "presetparser.h"
 #include <QObject>
 #include <QStringList>
-#include "presetparser.h"
 
 /* Forward declaration */
 class DataParserModel;
@@ -14,7 +14,7 @@ class PresetHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit PresetHandler(std::unique_ptr<PresetParser> pPresetParser, QObject *parent = nullptr);
+    explicit PresetHandler(std::unique_ptr<PresetParser> pPresetParser, QObject* parent = nullptr);
     ~PresetHandler() = default;
 
     void loadPresetsFromFile(QString path);
@@ -23,17 +23,15 @@ public:
     QStringList nameList(void);
     qint32 determinePreset(QString filename);
 
-    static void determinePresetFile(QString &presetFile);
+    static void determinePresetFile(QString& presetFile);
 
 signals:
 
 private:
-
     std::unique_ptr<PresetParser> _pPresetParser;
 
-    static const QString _presetFilename;
-    static const QString _presetFilenameJson;
-
+    static constexpr QLatin1String _presetFilename{ "presets.xml" };
+    static constexpr QLatin1String _presetFilenameJson{ "presets.json" };
 };
 
 #endif // PRESETHANDLER_H

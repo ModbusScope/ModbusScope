@@ -86,7 +86,7 @@ void DeviceConfigTab::onAdapterChanged(int index)
     }
 
     const int currentId = deviceId();
-    defaultValues["id"] = currentId;
+    defaultValues.insert("id", currentId);
 
     if (currentId >= 0 && _pSettingsModel->hasDevice(static_cast<deviceId_t>(currentId)))
     {
@@ -124,9 +124,9 @@ void DeviceConfigTab::rebuildSchemaForm(const QString& adapterId, const QJsonObj
     // yet, but that would require some additional handling to avoid conflicts with existing IDs.
     QJsonObject propsObj = itemSchema.value("properties").toObject();
     QJsonObject idProp = propsObj.value("id").toObject();
-    idProp["readOnly"] = true;
-    propsObj["id"] = idProp;
-    itemSchema["properties"] = propsObj;
+    idProp.insert("readOnly", true);
+    propsObj.insert("id", idProp);
+    itemSchema.insert("properties", propsObj);
 
     _pSchemaForm = new SchemaFormWidget(this);
     _pSchemaForm->setSchema(itemSchema, deviceValues);

@@ -8,13 +8,16 @@
 #include <QFileInfo>
 #include <QPushButton>
 
+// NOLINTNEXTLINE(bugprone-throwing-static-initialization)
 const QList<ParseDataFileDialog::ComboListItem> ParseDataFileDialog::_fieldSeparatorList =
   QList<ComboListItem>() << ComboListItem(" ; (semicolon)", ";") << ComboListItem(" , (comma)", ",")
                          << ComboListItem(" tab", QString('\t')) << ComboListItem(" custom", "custom");
 
+// NOLINTNEXTLINE(bugprone-throwing-static-initialization)
 const QList<ParseDataFileDialog::ComboListItem> ParseDataFileDialog::_decimalSeparatorList =
   QList<ComboListItem>() << ComboListItem(" , (comma)", ",") << ComboListItem(" . (point)", ".");
 
+// NOLINTNEXTLINE(bugprone-throwing-static-initialization)
 const QList<ParseDataFileDialog::ComboListItem> ParseDataFileDialog::_groupSeparatorList =
   QList<ComboListItem>() << ComboListItem(" , (comma)", ",") << ComboListItem(" . (point)", ".")
                          << ComboListItem("   (space)", " ");
@@ -344,7 +347,7 @@ qint32 ParseDataFileDialog::findIndexInCombo(QList<ComboListItem> comboItemList,
 
     for (qint32 i = 0; i < comboItemList.size(); i++)
     {
-        if (comboItemList[i].userData.compare(userDataKey, Qt::CaseInsensitive) == 0)
+        if (comboItemList.at(i).userData.compare(userDataKey, Qt::CaseInsensitive) == 0)
         {
             index = i;
             break;
@@ -432,11 +435,11 @@ void ParseDataFileDialog::updatePreview()
         QStringList lineData;
         if (bRet)
         {
-            lineData = _dataFileSample[idx].trimmed().split(_pParserModel->fieldSeparator());
+            lineData = _dataFileSample.at(idx).trimmed().split(_pParserModel->fieldSeparator());
         }
         else
         {
-            lineData = QStringList() << _dataFileSample[idx].trimmed();
+            lineData = QStringList() << _dataFileSample.at(idx).trimmed();
         }
 
         previewData.append(lineData);
@@ -473,11 +476,11 @@ void ParseDataFileDialog::updatePreviewData(QList<QStringList>& previewData)
     {
         for (qint32 columnIdx = 0; columnIdx < _pUi->tablePreview->columnCount(); columnIdx++)
         {
-            const QStringList& rowData = previewData[rowIdx];
+            const QStringList& rowData = previewData.at(rowIdx);
             QString cellData = QString("");
             if (columnIdx < rowData.size())
             {
-                cellData = rowData[columnIdx];
+                cellData = rowData.at(columnIdx);
             }
             _pUi->tablePreview->setItem(rowIdx, columnIdx, new QTableWidgetItem(cellData));
         }

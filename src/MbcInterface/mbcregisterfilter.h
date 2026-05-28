@@ -11,7 +11,7 @@ public:
     MbcRegisterFilter(QObject* parent = nullptr);
     bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override;
 
-    static const QString cTabNoFilter;
+    static constexpr QLatin1String cTabNoFilter{ "No Filter" };
 
 public slots:
     void setTab(QString tab);

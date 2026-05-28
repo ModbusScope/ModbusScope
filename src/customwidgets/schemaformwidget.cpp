@@ -360,31 +360,31 @@ QJsonObject SchemaFormWidget::values() const
 
         if (auto* spin = qobject_cast<QSpinBox*>(widget))
         {
-            result[key] = spin->value();
+            result.insert(key, spin->value());
         }
         else if (auto* dspin = qobject_cast<QDoubleSpinBox*>(widget))
         {
-            result[key] = dspin->value();
+            result.insert(key, dspin->value());
         }
         else if (auto* check = qobject_cast<QCheckBox*>(widget))
         {
-            result[key] = check->isChecked();
+            result.insert(key, check->isChecked());
         }
         else if (auto* combo = qobject_cast<QComboBox*>(widget))
         {
             QVariant data = combo->currentData();
             if (data.userType() == QMetaType::Int)
             {
-                result[key] = data.toInt();
+                result.insert(key, data.toInt());
             }
             else
             {
-                result[key] = data.toString();
+                result.insert(key, data.toString());
             }
         }
         else if (auto* edit = qobject_cast<QLineEdit*>(widget))
         {
-            result[key] = edit->text();
+            result.insert(key, edit->text());
         }
     }
     return result;

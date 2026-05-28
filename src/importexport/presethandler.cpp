@@ -8,9 +8,6 @@
 #include <QStandardPaths>
 #include <QTextStream>
 
-const QString PresetHandler::_presetFilename = QString("presets.xml");
-const QString PresetHandler::_presetFilenameJson = QString("presets.json");
-
 /*!
  * \brief Constructs a PresetHandler.
  * \param pPresetParser Ownership-transferred parser used to read preset files.
@@ -127,7 +124,7 @@ void PresetHandler::determinePresetFile(QString& presetFile)
     QStringList docPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
     if (!docPath.isEmpty())
     {
-        const QString& documentsfolder = docPath[0];
+        const QString& documentsfolder = docPath.at(0);
         QString basePath = documentsfolder + "/ModbusScope/";
 
         if (QFileInfo::exists(basePath + _presetFilenameJson))
