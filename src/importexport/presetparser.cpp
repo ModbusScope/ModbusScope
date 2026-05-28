@@ -137,10 +137,10 @@ bool PresetParser::parsePresetFromJson(const QJsonObject& obj, Preset* pPreset)
 
     if (obj.contains("column"))
     {
-        bool ok = obj.value("column").isDouble() && (obj.value("column").toInt(-1) >= 0);
+        bool ok = obj.value("column").isDouble() && (obj.value("column").toInt(-1) >= 1);
         if (!ok)
         {
-            qCWarning(scopePreset) << tr("Column is not a valid number.");
+            qCWarning(scopePreset) << tr("Column must be a positive integer (1-based).");
             return false;
         }
         pPreset->column = static_cast<quint32>(obj.value("column").toInt());
@@ -161,10 +161,10 @@ bool PresetParser::parsePresetFromJson(const QJsonObject& obj, Preset* pPreset)
 
     if (obj.contains("datarow"))
     {
-        bool ok = obj.value("datarow").isDouble() && (obj.value("datarow").toInt(-1) >= 0);
+        bool ok = obj.value("datarow").isDouble() && (obj.value("datarow").toInt(-1) >= 1);
         if (!ok)
         {
-            qCWarning(scopePreset) << tr("Data row is not a valid number.");
+            qCWarning(scopePreset) << tr("Data row must be a positive integer (1-based).");
             return false;
         }
         pPreset->dataRow = static_cast<quint32>(obj.value("datarow").toInt());

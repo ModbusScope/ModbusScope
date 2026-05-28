@@ -74,7 +74,10 @@ void PresetHandler::fillWithPresetData(qint32 presetIndex, DataParserModel* pPar
         auto preset = _pPresetParser->preset(presetIndex);
         pParserModel->setColumn(preset.column - 1);
         pParserModel->setDataRow(preset.dataRow - 1);
-        pParserModel->setLabelRow(preset.labelRow - 1);
+        if (preset.labelRow >= 1)
+        {
+            pParserModel->setLabelRow(static_cast<quint32>(preset.labelRow) - 1);
+        }
         pParserModel->setDecimalSeparator(preset.decimalSeparator);
         pParserModel->setFieldSeparator(preset.fieldSeparator);
         pParserModel->setGroupSeparator(preset.thousandSeparator);
