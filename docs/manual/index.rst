@@ -59,4 +59,4 @@ ModbusScope documentation
    :maxdepth: 1
    :caption: Release notes
 
-   Release notes <pages/changelog_link>
+   Release notes <pages/release_notes>

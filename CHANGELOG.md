@@ -1,5 +1,25 @@
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/ModbusScope/ModbusScope/releases).
 
+## [v5.0.0](https://github.com/ModbusScope/ModbusScope/releases/tag/5.0.0) (29/05/2026)
+
+### Added
+
+* Modbus communication now runs as a separate **adapter** process that is bundled with the application
+  * The adapter is started and managed by ModbusScope and keeps running between logging sessions
+  * Adapter configuration is stored in the project file
+* Show a message in the graph area when no registers are configured yet
+
+### Changed
+
+* Project files (`.mbs`) are now saved as JSON; older XML project files (ModbusScope v3 and v4) still load automatically
+* Completely rewritten user manual, organised into tutorials, how-to guides, reference and explanation (Diataxis)
+* Major stability hardening of the graph data handling to prevent crashes (strong-typed graph indices and bounds checking)
+* Update bundled dependencies
+
+### Removed
+
+* Removed SonarCloud integration (internal tooling only)
+
 ## [v4.2.2](https://github.com/jgeudens/ModbusScope/releases/tag/4.2.2) (28/04/2026)
 
 ### Changed
