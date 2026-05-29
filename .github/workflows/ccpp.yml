@@ -34,9 +34,10 @@ jobs:
       - name: Deploy
         run: bash scripts/deploy_linux.sh
 
-      - uses: actions/upload-artifact@v7.0.1
+      - uses: actions/upload-artifact@v8.0.1
         with:
           name: modbusscope-linux
+          retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 90 || 3 }}
           path: ModbusScope*.AppImage
 
   windows:
@@ -66,9 +67,10 @@ jobs:
         shell: cmd
         run: scripts\full_build_and_deploy_windows.bat '${{ steps.cache.outputs.cache-hit }}' ${{ github.workspace }}\Qt
 
-      - uses: actions/upload-artifact@v7.0.1
+      - uses: actions/upload-artifact@v8.0.1
         with:
           name: modbusscope-windows
+          retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 90 || 3 }}
           path: |
             ModbusScope.zip
             ModbusScope_setup.exe
@@ -86,9 +88,10 @@ jobs:
           sh create_doc.sh
           mv docs/manual/_build/latex/modbusscope.pdf modbusscope-user-manual.pdf
 
-      - uses: actions/upload-artifact@v7.0.1
+      - uses: actions/upload-artifact@v8.0.1
         with:
           name: modbusscope-user-manual
+          retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 90 || 3 }}
           path: modbusscope-user-manual.pdf
 
   package:
@@ -111,7 +114,8 @@ jobs:
           name: modbusscope-user-manual
           path: all-artifacts/docs
 
-      - uses: actions/upload-artifact@v7.0.1
+      - uses: actions/upload-artifact@v8.0.1
         with:
           name: modbusscope-all-platforms
+          retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 90 || 3 }}
           path: all-artifacts/
