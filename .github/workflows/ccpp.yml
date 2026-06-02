@@ -5,7 +5,6 @@ on: push
 
 env:
   BUILD_TYPE: ${{ startsWith(github.ref, 'refs/tags/') && 'Release' || 'Debug' }}
-  LINUXDEPLOY_VERSION: "2026-05"
 
 jobs:
   linux:
@@ -21,12 +20,6 @@ jobs:
 
       - name: Configure safe directory for git
         run: git config --global --add safe.directory ${GITHUB_WORKSPACE}
-
-      - name: Cache linuxdeploy tools
-        uses: actions/cache@v5.0.5
-        with:
-          path: release/src/bin/linux/linuxdeploy*.AppImage
-          key: linuxdeploy-${{ runner.os }}-${{ env.LINUXDEPLOY_VERSION }}
 
       - name: Update Modules and Build
         run: bash scripts/build_linux.sh
@@ -48,20 +41,6 @@ jobs:
 
       - name: Install Qt installer
         run: pip3 install aqtinstall==3.3.0
-
-      # Cache go build cache, used to speedup go test
-      - name: Qt Build Cache
-        uses: actions/cache@v5.0.5
-        id: cache
-        with:
-          path: ${{ github.workspace }}\Qt
-          key: ${{ runner.os }}-qt-build-${{ hashFiles('scripts\setup_windows.bat') }}
-
-      - name: Compiler cache (sccache)
-        uses: mozilla-actions/sccache-action@v0.0.10
-
-      - name: Enable sccache GHA backend
-        run: echo "SCCACHE_GHA_ENABLED=true" >> $env:GITHUB_ENV
 
       - name: Setup, build and deploy
         shell: cmd
