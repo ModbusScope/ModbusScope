@@ -420,7 +420,8 @@ void MainWindow::showRegisterDialog()
         _pGuiModel->setGuiState(GuiState::INIT);
     }
 
-    RegisterDialog registerDialog(_pGraphDataModel, _pSettingsModel, _pAdapterPoll->adapterManager(), this);
+    RegisterDialog registerDialog(_pGraphDataModel, _pSettingsModel,
+                                  _pAdapterPoll->adapterHub()->adapterManager("modbus"), this);
     registerDialog.exec();
 }
 

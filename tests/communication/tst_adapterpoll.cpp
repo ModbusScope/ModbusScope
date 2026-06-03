@@ -1,6 +1,6 @@
 #include "tst_adapterpoll.h"
 
-#include "ProtocolAdapter/adaptermanager.h"
+#include "ProtocolAdapter/adapterhub.h"
 #include "communication/adapterpoll.h"
 #include "communication/datapoint.h"
 #include "models/settingsmodel.h"
@@ -8,13 +8,13 @@
 #include <QSignalSpy>
 #include <QTest>
 
-/* ---- Mock AdapterManager ---- */
+/* ---- Mock AdapterHub ---- */
 
-class MockAdapterManager : public AdapterManager
+class MockAdapterHub : public AdapterHub
 {
     Q_OBJECT
 public:
-    explicit MockAdapterManager(QObject* parent = nullptr) : AdapterManager(nullptr, parent)
+    explicit MockAdapterHub(QObject* parent = nullptr) : AdapterHub(parent)
     {
     }
 
@@ -38,6 +38,9 @@ public:
     {
         _stopCount++;
     }
+    void requestReadData() override
+    {
+    }
 
     void triggerAdapterReady()
     {
@@ -54,20 +57,20 @@ public:
 /* ---- Fixture ---- */
 
 static SettingsModel* s_pSettingsModel = nullptr;
-static MockAdapterManager* s_pMockManager = nullptr;
+static MockAdapterHub* s_pMockHub = nullptr;
 static AdapterPoll* s_pPoll = nullptr;
 
 void TestAdapterPoll::init()
 {
     s_pSettingsModel = new SettingsModel;
-    s_pMockManager = new MockAdapterManager;
-    s_pPoll = new AdapterPoll(s_pSettingsModel, s_pMockManager);
+    s_pMockHub = new MockAdapterHub;
+    s_pPoll = new AdapterPoll(s_pSettingsModel, s_pMockHub);
 }
 
 void TestAdapterPoll::cleanup()
 {
     delete s_pPoll;
-    delete s_pMockManager;
+    delete s_pMockHub;
     delete s_pSettingsModel;
 }
 
@@ -75,57 +78,57 @@ void TestAdapterPoll::cleanup()
 
 void TestAdapterPoll::startCommunicationWhenAdapterReady()
 {
-    s_pMockManager->_mockReady = true;
+    s_pMockHub->_mockReady = true;
 
     QList<DataPoint> registers{ DataPoint(QStringLiteral("${h0}"), 1) };
     s_pPoll->startCommunication(registers);
 
-    QCOMPARE(s_pMockManager->_startCalls.size(), 1);
-    QCOMPARE(s_pMockManager->_initCount, 0);
+    QCOMPARE(s_pMockHub->_startCalls.size(), 1);
+    QCOMPARE(s_pMockHub->_initCount, 0);
     QVERIFY(s_pPoll->isActive());
 }
 
 void TestAdapterPoll::startCommunicationWhenAdapterIdle()
 {
-    s_pMockManager->_mockReady = false;
-    s_pMockManager->_mockIdle = true;
+    s_pMockHub->_mockReady = false;
+    s_pMockHub->_mockIdle = true;
 
     QList<DataPoint> registers{ DataPoint(QStringLiteral("${h0}"), 1) };
     s_pPoll->startCommunication(registers);
 
     /* startSession not called yet — waiting for adapterReady */
-    QCOMPARE(s_pMockManager->_startCalls.size(), 0);
+    QCOMPARE(s_pMockHub->_startCalls.size(), 0);
     /* initAdapter called to kick off the process */
-    QCOMPARE(s_pMockManager->_initCount, 1);
+    QCOMPARE(s_pMockHub->_initCount, 1);
 
-    s_pMockManager->triggerAdapterReady();
+    s_pMockHub->triggerAdapterReady();
 
-    QCOMPARE(s_pMockManager->_startCalls.size(), 1);
-    QCOMPARE(s_pMockManager->_startCalls[0], QStringList{ QStringLiteral("${h0}") });
+    QCOMPARE(s_pMockHub->_startCalls.size(), 1);
+    QCOMPARE(s_pMockHub->_startCalls[0], QStringList{ QStringLiteral("${h0}") });
 }
 
 void TestAdapterPoll::startCommunicationWhenAdapterInitializing()
 {
-    s_pMockManager->_mockReady = false;
-    s_pMockManager->_mockIdle = false;
+    s_pMockHub->_mockReady = false;
+    s_pMockHub->_mockIdle = false;
 
     QList<DataPoint> registers{ DataPoint(QStringLiteral("${h1}"), 1) };
     s_pPoll->startCommunication(registers);
 
     /* Neither startSession nor initAdapter called — adapter is mid-init */
-    QCOMPARE(s_pMockManager->_startCalls.size(), 0);
-    QCOMPARE(s_pMockManager->_initCount, 0);
+    QCOMPARE(s_pMockHub->_startCalls.size(), 0);
+    QCOMPARE(s_pMockHub->_initCount, 0);
 
-    s_pMockManager->triggerAdapterReady();
+    s_pMockHub->triggerAdapterReady();
 
-    QCOMPARE(s_pMockManager->_startCalls.size(), 1);
-    QCOMPARE(s_pMockManager->_startCalls[0], QStringList{ QStringLiteral("${h1}") });
+    QCOMPARE(s_pMockHub->_startCalls.size(), 1);
+    QCOMPARE(s_pMockHub->_startCalls[0], QStringList{ QStringLiteral("${h1}") });
 }
 
 void TestAdapterPoll::doubleStartCommunicationWhileInitializing()
 {
-    s_pMockManager->_mockReady = false;
-    s_pMockManager->_mockIdle = false;
+    s_pMockHub->_mockReady = false;
+    s_pMockHub->_mockIdle = false;
 
     QList<DataPoint> registers1{ DataPoint(QStringLiteral("${h0}"), 1) };
     QList<DataPoint> registers2{ DataPoint(QStringLiteral("${h1}"), 1) };
@@ -134,17 +137,17 @@ void TestAdapterPoll::doubleStartCommunicationWhileInitializing()
     /* Second call before adapterReady fires — must not register a second connection */
     s_pPoll->startCommunication(registers2);
 
-    s_pMockManager->triggerAdapterReady();
+    s_pMockHub->triggerAdapterReady();
 
     /* startSession called exactly once with the latest expressions */
-    QCOMPARE(s_pMockManager->_startCalls.size(), 1);
-    QCOMPARE(s_pMockManager->_startCalls[0], QStringList{ QStringLiteral("${h1}") });
+    QCOMPARE(s_pMockHub->_startCalls.size(), 1);
+    QCOMPARE(s_pMockHub->_startCalls[0], QStringList{ QStringLiteral("${h1}") });
 }
 
 void TestAdapterPoll::stopCommunicationClearsPendingState()
 {
-    s_pMockManager->_mockReady = false;
-    s_pMockManager->_mockIdle = true;
+    s_pMockHub->_mockReady = false;
+    s_pMockHub->_mockIdle = true;
 
     QList<DataPoint> registers{ DataPoint(QStringLiteral("${h0}"), 1) };
     s_pPoll->startCommunication(registers);
@@ -152,17 +155,17 @@ void TestAdapterPoll::stopCommunicationClearsPendingState()
 
     s_pPoll->stopCommunication();
     QVERIFY(!s_pPoll->isActive());
-    QCOMPARE(s_pMockManager->_stopCount, 1);
+    QCOMPARE(s_pMockHub->_stopCount, 1);
 
     /* adapterReady fires after stop — must not trigger startSession */
-    s_pMockManager->triggerAdapterReady();
-    QCOMPARE(s_pMockManager->_startCalls.size(), 0);
+    s_pMockHub->triggerAdapterReady();
+    QCOMPARE(s_pMockHub->_startCalls.size(), 0);
 }
 
 void TestAdapterPoll::stopCommunicationAllowsNewWaitAfterRestart()
 {
-    s_pMockManager->_mockReady = false;
-    s_pMockManager->_mockIdle = false;
+    s_pMockHub->_mockReady = false;
+    s_pMockHub->_mockIdle = false;
 
     QList<DataPoint> registers1{ DataPoint(QStringLiteral("${h0}"), 1) };
     s_pPoll->startCommunication(registers1);
@@ -174,10 +177,10 @@ void TestAdapterPoll::stopCommunicationAllowsNewWaitAfterRestart()
     QList<DataPoint> registers2{ DataPoint(QStringLiteral("${h2}"), 1) };
     s_pPoll->startCommunication(registers2);
 
-    s_pMockManager->triggerAdapterReady();
+    s_pMockHub->triggerAdapterReady();
 
-    QCOMPARE(s_pMockManager->_startCalls.size(), 1);
-    QCOMPARE(s_pMockManager->_startCalls[0], QStringList{ QStringLiteral("${h2}") });
+    QCOMPARE(s_pMockHub->_startCalls.size(), 1);
+    QCOMPARE(s_pMockHub->_startCalls[0], QStringList{ QStringLiteral("${h2}") });
 }
 
 QTEST_GUILESS_MAIN(TestAdapterPoll)
