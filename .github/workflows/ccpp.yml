@@ -5,7 +5,6 @@ on: push
 
 env:
   BUILD_TYPE: ${{ startsWith(github.ref, 'refs/tags/') && 'Release' || 'Debug' }}
-  LINUXDEPLOY_VERSION: "2026-05"
 
 jobs:
   linux:
@@ -22,12 +21,6 @@ jobs:
       - name: Configure safe directory for git
         run: git config --global --add safe.directory ${GITHUB_WORKSPACE}
 
-      - name: Cache linuxdeploy tools
-        uses: actions/cache@v5.0.5
-        with:
-          path: release/src/bin/linux/linuxdeploy*.AppImage
-          key: linuxdeploy-${{ runner.os }}-${{ env.LINUXDEPLOY_VERSION }}
-
       - name: Update Modules and Build
         run: bash scripts/build_linux.sh
 
@@ -37,7 +30,7 @@ jobs:
       - uses: actions/upload-artifact@v7.0.1
         with:
           name: modbusscope-linux
-          retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 90 || 3 }}
+          retention-days: 1
           path: ModbusScope*.AppImage
 
   windows:
@@ -49,20 +42,6 @@ jobs:
       - name: Install Qt installer
         run: pip3 install aqtinstall==3.3.0
 
-      # Cache go build cache, used to speedup go test
-      - name: Qt Build Cache
-        uses: actions/cache@v5.0.5
-        id: cache
-        with:
-          path: ${{ github.workspace }}\Qt
-          key: ${{ runner.os }}-qt-build-${{ hashFiles('scripts\setup_windows.bat') }}
-
-      - name: Compiler cache (sccache)
-        uses: mozilla-actions/sccache-action@v0.0.10
-
-      - name: Enable sccache GHA backend
-        run: echo "SCCACHE_GHA_ENABLED=true" >> $env:GITHUB_ENV
-
       - name: Setup, build and deploy
         shell: cmd
         run: scripts\full_build_and_deploy_windows.bat '${{ steps.cache.outputs.cache-hit }}' ${{ github.workspace }}\Qt
@@ -70,7 +49,7 @@ jobs:
       - uses: actions/upload-artifact@v7.0.1
         with:
           name: modbusscope-windows
-          retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 90 || 3 }}
+          retention-days: 1
           path: |
             ModbusScope.zip
             ModbusScope_setup.exe
@@ -91,7 +70,7 @@ jobs:
       - uses: actions/upload-artifact@v7.0.1
         with:
           name: modbusscope-user-manual
-          retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 90 || 3 }}
+          retention-days: 1
           path: modbusscope-user-manual.pdf
 
   package:
@@ -117,5 +96,5 @@ jobs:
       - uses: actions/upload-artifact@v7.0.1
         with:
           name: modbusscope-all-platforms
-          retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 90 || 3 }}
+          retention-days: ${{ startsWith(github.ref, 'refs/tags/') && 7 || 3 }}
           path: all-artifacts/

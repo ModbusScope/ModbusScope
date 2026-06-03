@@ -10,7 +10,7 @@ echo %PATH%
 
 g++ -v
 
-cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%BUILD_TYPE% -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ..
+cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ..
 IF ERRORLEVEL 1 GOTO errorHandling
 
 ninja
