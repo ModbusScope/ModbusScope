@@ -85,6 +85,8 @@
     <property name="title">
      <string>&amp;Help</string>
     </property>
+    <addaction name="actionQuickStart"/>
+    <addaction name="separator"/>
     <addaction name="actionUpdateAvailable"/>
     <addaction name="actionAbout"/>
     <addaction name="actionOnlineDocumentation"/>
@@ -509,6 +511,11 @@
    </property>
    <property name="text">
     <string>&amp;Settings...</string>
+   </property>
+  </action>
+  <action name="actionQuickStart">
+   <property name="text">
+    <string>&amp;Quick Start...</string>
    </property>
   </action>
  </widget>
