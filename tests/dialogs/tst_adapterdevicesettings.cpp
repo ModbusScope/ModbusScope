@@ -667,4 +667,40 @@ void TestAdapterDeviceSettings::editingDeviceIdInSchemaFormUpdatesCorrectModelDe
 
 #endif
 
+void TestAdapterDeviceSettings::twoAdaptersWithSameDefaultDeviceIdShowsSingleTab()
+{
+    SettingsModel model;
+
+    auto makeDescribeWithDefault = [](const QString& name) {
+        QJsonObject describe = makeAdapterDescribe(name);
+        QJsonObject defaultDevice;
+        defaultDevice["id"] = 1;
+        QJsonObject defaults;
+        defaults["devices"] = QJsonArray{ defaultDevice };
+        defaults["connections"] = QJsonArray();
+        defaults["general"] = QJsonObject();
+        describe["defaults"] = defaults;
+        return describe;
+    };
+    model.updateAdapterFromDescribe("adapterA", makeDescribeWithDefault("adapterA"));
+    model.updateAdapterFromDescribe("adapterB", makeDescribeWithDefault("adapterB"));
+
+    QVERIFY(!model.adapterData("adapterA")->hasStoredConfig());
+    QVERIFY(!model.adapterData("adapterB")->hasStoredConfig());
+
+    AdapterDeviceSettings w(&model);
+
+    auto* tabs = w.findChild<AddableTabWidget*>();
+    QVERIFY(tabs != nullptr);
+    QCOMPARE(tabs->count(), 1);
+
+    auto* tab = qobject_cast<DeviceConfigTab*>(tabs->tabContent(0));
+    QVERIFY(tab != nullptr);
+    QCOMPARE(tab->values().value("id").toInt(-1), 1);
+    QCOMPARE(tab->adapterId(), QStringLiteral("adapterA"));
+
+    QCOMPARE(model.deviceList().size(), 1);
+    QVERIFY(model.hasDevice(1));
+}
+
 QTEST_MAIN(TestAdapterDeviceSettings)

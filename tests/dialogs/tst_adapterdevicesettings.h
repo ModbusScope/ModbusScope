@@ -30,6 +30,7 @@ private slots:
     void cancelAndReopenDoesNotLeakDeviceIds();
     void addTabAfterIdEditDoesNotDuplicate();
     void acceptValuesClearsDevicesForEmptiedAdapter();
+    void twoAdaptersWithSameDefaultDeviceIdShowsSingleTab();
 #if 0
     void editingDeviceIdInSchemaFormUpdatesCorrectModelDevice();
 #endif

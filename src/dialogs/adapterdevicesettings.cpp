@@ -58,6 +58,7 @@ AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWid
 
     QList<QWidget*> pages;
     QStringList names;
+    QSet<deviceId_t> seenDeviceIds;
     for (const auto& adapterId : adapterIds)
     {
         const AdapterData* pAdapter = pSettingsModel->adapterData(adapterId);
@@ -69,7 +70,13 @@ AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWid
             const int id = deviceObj.value("id").toInt(-1);
             if (id >= 0)
             {
-                pSettingsModel->addDevice(static_cast<deviceId_t>(id));
+                const deviceId_t devId = static_cast<deviceId_t>(id);
+                if (seenDeviceIds.contains(devId))
+                {
+                    continue;
+                }
+                seenDeviceIds.insert(devId);
+                pSettingsModel->addDevice(devId);
             }
             auto* tab = new DeviceConfigTab(pSettingsModel, adapterId, deviceObj, _pDeviceTabs);
             connectTabNameTracking(tab);
