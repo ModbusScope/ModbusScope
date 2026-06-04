@@ -25,13 +25,25 @@ QList<AdapterInfo> AdapterDiscovery::discover(const QString& appDir)
     for (const QFileInfo& fi : entries)
     {
         const QString baseName = fi.completeBaseName();
-        if (baseName.endsWith(cAdapterSuffix, Qt::CaseInsensitive))
+        if (!baseName.endsWith(cAdapterSuffix, Qt::CaseInsensitive))
         {
-            const QString id = baseName.chopped(cAdapterSuffix.length());
-            if (!id.isEmpty())
-            {
-                result.append({ id, fi.absoluteFilePath() });
-            }
+            continue;
+        }
+#ifdef Q_OS_WIN
+        if (fi.suffix().compare(QStringLiteral("exe"), Qt::CaseInsensitive) != 0)
+        {
+            continue;
+        }
+#else
+        if (!fi.isExecutable())
+        {
+            continue;
+        }
+#endif
+        const QString id = baseName.chopped(cAdapterSuffix.length());
+        if (!id.isEmpty())
+        {
+            result.append({ id, fi.absoluteFilePath() });
         }
     }
 

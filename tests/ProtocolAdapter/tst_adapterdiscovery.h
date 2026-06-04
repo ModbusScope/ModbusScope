@@ -12,6 +12,7 @@ private slots:
     void discoverMultipleAdapters();
     void ignoreNonAdapterFiles();
     void ignoreEmptyIdAdapter();
+    void ignoreNonExecutableAdapter();
 };
 
 #endif // TST_ADAPTERDISCOVERY_H

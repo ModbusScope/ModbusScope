@@ -7,11 +7,32 @@
 #include <QTemporaryDir>
 #include <QTest>
 
-static bool touchFile(const QString& path)
+static bool touchExecutable(const QString& path)
 {
     QFile f(path);
-    return f.open(QIODevice::WriteOnly);
+    if (!f.open(QIODevice::WriteOnly))
+    {
+        return false;
+    }
+    f.close();
+#ifndef Q_OS_WIN
+    return f.setPermissions(f.permissions() | QFileDevice::ExeOwner);
+#else
+    return true;
+#endif
 }
+
+#ifdef Q_OS_WIN
+static QString adapterName(const QString& base)
+{
+    return base + QStringLiteral(".exe");
+}
+#else
+static QString adapterName(const QString& base)
+{
+    return base;
+}
+#endif
 
 void TestAdapterDiscovery::discoverEmpty()
 {
@@ -26,20 +47,20 @@ void TestAdapterDiscovery::discoverSingleAdapter()
 {
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
-    QVERIFY(touchFile(QDir(dir.path()).filePath(QStringLiteral("modbusadapter"))));
+    QVERIFY(touchExecutable(QDir(dir.path()).filePath(adapterName(QStringLiteral("modbusadapter")))));
 
     const QList<AdapterInfo> result = AdapterDiscovery::discover(dir.path());
     QCOMPARE(result.size(), 1);
     QCOMPARE(result[0].id, QStringLiteral("modbus"));
-    QVERIFY(result[0].binaryPath.endsWith(QStringLiteral("modbusadapter")));
+    QVERIFY(result[0].binaryPath.contains(QStringLiteral("modbusadapter")));
 }
 
 void TestAdapterDiscovery::discoverMultipleAdapters()
 {
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
-    QVERIFY(touchFile(QDir(dir.path()).filePath(QStringLiteral("modbusadapter"))));
-    QVERIFY(touchFile(QDir(dir.path()).filePath(QStringLiteral("canopenadapter"))));
+    QVERIFY(touchExecutable(QDir(dir.path()).filePath(adapterName(QStringLiteral("modbusadapter")))));
+    QVERIFY(touchExecutable(QDir(dir.path()).filePath(adapterName(QStringLiteral("canopenadapter")))));
 
     const QList<AdapterInfo> result = AdapterDiscovery::discover(dir.path());
     QCOMPARE(result.size(), 2);
@@ -58,9 +79,9 @@ void TestAdapterDiscovery::ignoreNonAdapterFiles()
 {
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
-    QVERIFY(touchFile(QDir(dir.path()).filePath(QStringLiteral("modbusadapter"))));
-    QVERIFY(touchFile(QDir(dir.path()).filePath(QStringLiteral("modbusscope"))));
-    QVERIFY(touchFile(QDir(dir.path()).filePath(QStringLiteral("readme.txt"))));
+    QVERIFY(touchExecutable(QDir(dir.path()).filePath(adapterName(QStringLiteral("modbusadapter")))));
+    QVERIFY(touchExecutable(QDir(dir.path()).filePath(QStringLiteral("modbusscope"))));
+    QVERIFY(touchExecutable(QDir(dir.path()).filePath(QStringLiteral("readme.txt"))));
 
     const QList<AdapterInfo> result = AdapterDiscovery::discover(dir.path());
     QCOMPARE(result.size(), 1);
@@ -72,10 +93,28 @@ void TestAdapterDiscovery::ignoreEmptyIdAdapter()
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     /* A file named exactly "adapter" would yield an empty id — must be ignored */
-    QVERIFY(touchFile(QDir(dir.path()).filePath(QStringLiteral("adapter"))));
+    QVERIFY(touchExecutable(QDir(dir.path()).filePath(adapterName(QStringLiteral("adapter")))));
 
     const QList<AdapterInfo> result = AdapterDiscovery::discover(dir.path());
     QVERIFY(result.isEmpty());
+}
+
+void TestAdapterDiscovery::ignoreNonExecutableAdapter()
+{
+#ifdef Q_OS_WIN
+    QSKIP("Execute-bit check is Unix-only; Windows uses .exe extension instead");
+#else
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    /* Create a correctly-named file but without the execute bit — must be ignored */
+    QFile f(QDir(dir.path()).filePath(QStringLiteral("modbusadapter")));
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    f.close();
+    f.setPermissions(f.permissions() & ~(QFileDevice::ExeOwner | QFileDevice::ExeGroup | QFileDevice::ExeOther));
+
+    const QList<AdapterInfo> result = AdapterDiscovery::discover(dir.path());
+    QVERIFY(result.isEmpty());
+#endif
 }
 
 QTEST_GUILESS_MAIN(TestAdapterDiscovery)
