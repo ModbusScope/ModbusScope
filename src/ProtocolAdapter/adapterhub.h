@@ -7,7 +7,10 @@
 #include <QMap>
 #include <QObject>
 #include <QSet>
+#include <QString>
 #include <QStringList>
+
+inline constexpr char cModbusAdapterId[] = "modbus";
 
 class AdapterManager;
 class SettingsModel;

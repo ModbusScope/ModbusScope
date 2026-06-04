@@ -7,10 +7,10 @@
 #include <QTemporaryDir>
 #include <QTest>
 
-static void touchFile(const QString& path)
+static bool touchFile(const QString& path)
 {
     QFile f(path);
-    f.open(QIODevice::WriteOnly);
+    return f.open(QIODevice::WriteOnly);
 }
 
 void TestAdapterDiscovery::discoverEmpty()
@@ -26,7 +26,7 @@ void TestAdapterDiscovery::discoverSingleAdapter()
 {
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
-    touchFile(QDir(dir.path()).filePath(QStringLiteral("modbusadapter")));
+    QVERIFY(touchFile(QDir(dir.path()).filePath(QStringLiteral("modbusadapter"))));
 
     const QList<AdapterInfo> result = AdapterDiscovery::discover(dir.path());
     QCOMPARE(result.size(), 1);
@@ -38,8 +38,8 @@ void TestAdapterDiscovery::discoverMultipleAdapters()
 {
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
-    touchFile(QDir(dir.path()).filePath(QStringLiteral("modbusadapter")));
-    touchFile(QDir(dir.path()).filePath(QStringLiteral("canopenadapter")));
+    QVERIFY(touchFile(QDir(dir.path()).filePath(QStringLiteral("modbusadapter"))));
+    QVERIFY(touchFile(QDir(dir.path()).filePath(QStringLiteral("canopenadapter"))));
 
     const QList<AdapterInfo> result = AdapterDiscovery::discover(dir.path());
     QCOMPARE(result.size(), 2);
@@ -58,9 +58,9 @@ void TestAdapterDiscovery::ignoreNonAdapterFiles()
 {
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
-    touchFile(QDir(dir.path()).filePath(QStringLiteral("modbusadapter")));
-    touchFile(QDir(dir.path()).filePath(QStringLiteral("modbusscope")));
-    touchFile(QDir(dir.path()).filePath(QStringLiteral("readme.txt")));
+    QVERIFY(touchFile(QDir(dir.path()).filePath(QStringLiteral("modbusadapter"))));
+    QVERIFY(touchFile(QDir(dir.path()).filePath(QStringLiteral("modbusscope"))));
+    QVERIFY(touchFile(QDir(dir.path()).filePath(QStringLiteral("readme.txt"))));
 
     const QList<AdapterInfo> result = AdapterDiscovery::discover(dir.path());
     QCOMPARE(result.size(), 1);
@@ -72,7 +72,7 @@ void TestAdapterDiscovery::ignoreEmptyIdAdapter()
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     /* A file named exactly "adapter" would yield an empty id — must be ignored */
-    touchFile(QDir(dir.path()).filePath(QStringLiteral("adapter")));
+    QVERIFY(touchFile(QDir(dir.path()).filePath(QStringLiteral("adapter"))));
 
     const QList<AdapterInfo> result = AdapterDiscovery::discover(dir.path());
     QVERIFY(result.isEmpty());

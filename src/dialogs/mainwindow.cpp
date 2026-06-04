@@ -420,7 +420,7 @@ void MainWindow::showRegisterDialog()
         _pGuiModel->setGuiState(GuiState::INIT);
     }
 
-    AdapterManager* pAdapterManager = _pAdapterPoll->adapterHub()->adapterManager("modbus");
+    AdapterManager* pAdapterManager = _pAdapterPoll->adapterHub()->adapterManager(cModbusAdapterId);
     if (pAdapterManager == nullptr)
     {
         qCWarning(scopeComm) << "MainWindow: no modbus adapter available — cannot open register dialog";
