@@ -55,7 +55,7 @@ SettingsDialog::SettingsDialog(SettingsModel* pSettingsModel, QWidget* parent)
 
             const QString title = key.left(1).toUpper() + key.mid(1);
             auto* listItem = new QListWidgetItem(_pUi->settingsList);
-            listItem->setText(title);
+            listItem->setText(title + " [" + id + "]");
             listItem->setIcon(QIcon(":/menu_icon/icons/settings.svg"));
             _pUi->settingsList->addItem(listItem);
 
