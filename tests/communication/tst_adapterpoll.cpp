@@ -46,6 +46,14 @@ public:
     {
         emit adapterReady();
     }
+    void triggerSessionStarted()
+    {
+        emit sessionStarted();
+    }
+    void triggerSessionError(const QString& message)
+    {
+        emit sessionError(message);
+    }
     void triggerReadDataResult(const QString& adapterId, ResultDoubleList results)
     {
         emit readDataResult(adapterId, results);
@@ -187,6 +195,62 @@ void TestAdapterPoll::stopCommunicationAllowsNewWaitAfterRestart()
 
     QCOMPARE(s_pMockHub->_startCalls.size(), 1);
     QCOMPARE(s_pMockHub->_startCalls[0].second, QStringList{ QStringLiteral("${h2}") });
+}
+
+void TestAdapterPoll::phantomAdapterDoesNotHangPoll()
+{
+    /* MockAdapterHub::adapterManager() returns nullptr for all IDs (base-class behaviour),
+     * so every adapter group created by buildAdapterGroups() is "phantom".
+     * triggerRegisterRead() must not insert phantom IDs into _pendingResultAdapters,
+     * otherwise readDataResult would never drain it and registerDataReady would never fire. */
+    s_pMockHub->_mockReady = true;
+
+    QList<DataPoint> registers{ DataPoint(QStringLiteral("${h0}"), 1) };
+    s_pPoll->startCommunication(registers);
+    QVERIFY(s_pPoll->isActive());
+
+    QSignalSpy spy(s_pPoll, &AdapterPoll::registerDataReady);
+
+    /* sessionStarted fires triggerRegisterRead(); with the fix, _pendingResultAdapters
+     * remains empty because adapterManager("modbus") == nullptr */
+    s_pMockHub->triggerSessionStarted();
+
+    /* A result arrives — since _pendingResultAdapters is empty the merge runs immediately */
+    ResultDoubleList results;
+    results.append(Result<double>(1.0, ResultState::State::SUCCESS));
+    s_pMockHub->triggerReadDataResult(QStringLiteral("modbus"), results);
+
+    QCOMPARE(spy.count(), 1);
+}
+
+void TestAdapterPoll::sessionErrorClearsForRestart()
+{
+    /* After a session error, _pendingResults and _pendingResultAdapters must be cleared
+     * so that a subsequent startCommunication() cycle starts with a clean slate. */
+    s_pMockHub->_mockReady = true;
+
+    QList<DataPoint> registers{ DataPoint(QStringLiteral("${h0}"), 1) };
+    s_pPoll->startCommunication(registers);
+    QVERIFY(s_pPoll->isActive());
+
+    /* Simulate error mid-session */
+    s_pMockHub->triggerSessionError(QStringLiteral("test error"));
+    QVERIFY(!s_pPoll->isActive());
+
+    /* Restart without an explicit stopCommunication() */
+    s_pPoll->startCommunication(registers);
+    QVERIFY(s_pPoll->isActive());
+
+    QSignalSpy spy(s_pPoll, &AdapterPoll::registerDataReady);
+
+    /* New read cycle — must complete cleanly without stale data interference */
+    s_pMockHub->triggerSessionStarted();
+
+    ResultDoubleList results;
+    results.append(Result<double>(2.0, ResultState::State::SUCCESS));
+    s_pMockHub->triggerReadDataResult(QStringLiteral("modbus"), results);
+
+    QCOMPARE(spy.count(), 1);
 }
 
 QTEST_GUILESS_MAIN(TestAdapterPoll)

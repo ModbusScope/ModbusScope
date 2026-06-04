@@ -115,7 +115,14 @@ void AdapterPoll::triggerRegisterRead()
         _pendingResultAdapters.clear();
         for (auto it = _adapterGroups.constBegin(); it != _adapterGroups.constEnd(); ++it)
         {
-            _pendingResultAdapters.insert(it.key());
+            if (_pAdapterHub->adapterManager(it.key()) != nullptr)
+            {
+                _pendingResultAdapters.insert(it.key());
+            }
+            else
+            {
+                qCWarning(scopeComm) << "AdapterPoll: no manager for adapter" << it.key() << "- skipping in poll cycle";
+            }
         }
         _pendingResults.clear();
         _pAdapterHub->requestReadData();
@@ -143,9 +150,15 @@ void AdapterPoll::onReadDataResult(const QString& adapterId, ResultDoubleList re
     {
         const ResultDoubleList& groupResults = _pendingResults.value(it.key());
         const QList<int>& indices = it.value().originalIndices;
+        if (groupResults.size() != indices.size())
+        {
+            qCWarning(scopeComm) << "AdapterPoll: adapter" << it.key() << "returned" << groupResults.size()
+                                 << "results for" << indices.size() << "registers — skipping group";
+            continue;
+        }
         for (int j = 0; j < indices.size(); j++)
         {
-            merged[indices[j]] = groupResults.value(j);
+            merged[indices[j]] = groupResults[j];
         }
     }
 
@@ -190,6 +203,8 @@ void AdapterPoll::onSessionError(const QString& message)
         _adapterReadyConnection = {};
     }
     _pollState = PollState::Inactive;
+    _pendingResults.clear();
+    _pendingResultAdapters.clear();
 }
 
 void AdapterPoll::buildAdapterGroups(const QList<DataPoint>& registerList)

@@ -27,7 +27,7 @@ QList<AdapterInfo> AdapterDiscovery::discover(const QString& appDir)
         const QString baseName = fi.completeBaseName();
         if (baseName.endsWith(cAdapterSuffix, Qt::CaseInsensitive))
         {
-            const QString id = baseName.left(baseName.length() - cAdapterSuffix.length());
+            const QString id = baseName.chopped(cAdapterSuffix.length());
             if (!id.isEmpty())
             {
                 result.append({ id, fi.absoluteFilePath() });

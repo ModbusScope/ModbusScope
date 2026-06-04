@@ -54,10 +54,6 @@ void AdapterHub::initAdapter()
     for (auto it = _adapterManagers.constBegin(); it != _adapterManagers.constEnd(); ++it)
     {
         _pendingReadyAdapters.insert(it.key());
-    }
-
-    for (auto it = _adapterManagers.constBegin(); it != _adapterManagers.constEnd(); ++it)
-    {
         it.value()->initAdapter();
     }
 }

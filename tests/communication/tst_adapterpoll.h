@@ -16,6 +16,8 @@ private slots:
     void doubleStartCommunicationWhileInitializing();
     void stopCommunicationClearsPendingState();
     void stopCommunicationAllowsNewWaitAfterRestart();
+    void phantomAdapterDoesNotHangPoll();
+    void sessionErrorClearsForRestart();
 };
 
 #endif // TST_ADAPTERPOLL_H
