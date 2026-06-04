@@ -39,9 +39,9 @@ AdapterPoll::AdapterPoll(SettingsModel* pSettingsModel, AdapterHub* pAdapterHub,
 
 AdapterPoll::~AdapterPoll() = default;
 
-/*! \brief Prepare the protocol adapter subprocess for use.
+/*! \brief Prepare all protocol adapter subprocesses for use.
  *
- * Delegates to AdapterHub::initAdapter().
+ * Delegates to AdapterHub::initAdapter(), which discovers and starts each adapter.
  */
 void AdapterPoll::initAdapter()
 {
@@ -57,16 +57,15 @@ void AdapterPoll::startCommunication(QList<DataPoint>& registerList)
 
     resetCommunicationStats();
 
-    QStringList expressions = buildRegisterExpressions(_registerList);
+    buildAdapterGroups(_registerList);
 
     if (_pAdapterHub->isAdapterReady())
     {
         _pollState = PollState::Active;
-        _pAdapterHub->startSession(expressions);
+        startSessions();
     }
     else
     {
-        _pendingExpressions = expressions;
         if (_pollState != PollState::WaitingForAdapter)
         {
             _pollState = PollState::WaitingForAdapter;
@@ -94,7 +93,9 @@ void AdapterPoll::stopCommunication()
         _adapterReadyConnection = {};
     }
     _pollState = PollState::Inactive;
-    _pendingExpressions.clear();
+    _adapterGroups.clear();
+    _pendingResults.clear();
+    _pendingResultAdapters.clear();
     _pPollTimer->stop();
     _pAdapterHub->stopSession();
 
@@ -111,18 +112,44 @@ void AdapterPoll::triggerRegisterRead()
     if (_pollState == PollState::Active)
     {
         _lastPollStart = QDateTime::currentMSecsSinceEpoch();
+        _pendingResultAdapters.clear();
+        for (auto it = _adapterGroups.constBegin(); it != _adapterGroups.constEnd(); ++it)
+        {
+            _pendingResultAdapters.insert(it.key());
+        }
+        _pendingResults.clear();
         _pAdapterHub->requestReadData();
     }
 }
 
-void AdapterPoll::onReadDataResult(ResultDoubleList results)
+void AdapterPoll::onReadDataResult(const QString& adapterId, ResultDoubleList results)
 {
     if (_pollState != PollState::Active)
     {
         return;
     }
 
-    emit registerDataReady(results);
+    _pendingResults.insert(adapterId, results);
+    _pendingResultAdapters.remove(adapterId);
+
+    if (!_pendingResultAdapters.isEmpty())
+    {
+        return;
+    }
+
+    /* All adapters have responded — reconstruct the merged list in original register order */
+    ResultDoubleList merged(_registerList.size());
+    for (auto it = _adapterGroups.constBegin(); it != _adapterGroups.constEnd(); ++it)
+    {
+        const ResultDoubleList& groupResults = _pendingResults.value(it.key());
+        const QList<int>& indices = it.value().originalIndices;
+        for (int j = 0; j < indices.size(); j++)
+        {
+            merged[indices[j]] = groupResults.value(j);
+        }
+    }
+
+    emit registerDataReady(merged);
 
     const quint32 passedInterval = static_cast<quint32>(QDateTime::currentMSecsSinceEpoch() - _lastPollStart);
     uint waitInterval;
@@ -150,8 +177,7 @@ void AdapterPoll::onAdapterReady()
     if (_pollState == PollState::WaitingForAdapter)
     {
         _pollState = PollState::Active;
-        _pAdapterHub->startSession(_pendingExpressions);
-        _pendingExpressions.clear();
+        startSessions();
     }
 }
 
@@ -166,12 +192,23 @@ void AdapterPoll::onSessionError(const QString& message)
     _pollState = PollState::Inactive;
 }
 
-QStringList AdapterPoll::buildRegisterExpressions(const QList<DataPoint>& registerList)
+void AdapterPoll::buildAdapterGroups(const QList<DataPoint>& registerList)
 {
-    QStringList expressions;
-    for (const DataPoint& reg : registerList)
+    _adapterGroups.clear();
+    for (int i = 0; i < registerList.size(); i++)
     {
-        expressions.append(reg.address());
+        const DataPoint& dp = registerList[i];
+        Device* dev = _pSettingsModel->deviceSettings(dp.deviceId());
+        const QString adapterId = (dev != nullptr) ? dev->adapterId() : QStringLiteral("modbus");
+        _adapterGroups[adapterId].expressions.append(dp.address());
+        _adapterGroups[adapterId].originalIndices.append(i);
     }
-    return expressions;
+}
+
+void AdapterPoll::startSessions()
+{
+    for (auto it = _adapterGroups.constBegin(); it != _adapterGroups.constEnd(); ++it)
+    {
+        _pAdapterHub->startSession(it.key(), it.value().expressions);
+    }
 }

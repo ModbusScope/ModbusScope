@@ -4,20 +4,23 @@
 #include "util/result.h"
 
 #include <QJsonObject>
+#include <QMap>
 #include <QObject>
+#include <QSet>
 #include <QStringList>
 
 class AdapterManager;
 class SettingsModel;
 
 /*!
- * \brief Owns and coordinates the adapter manager(s) for the application.
+ * \brief Owns and coordinates all discovered adapter managers.
  *
- * In the current single-adapter implementation, AdapterHub creates and owns one
- * AdapterManager and forwards its lifecycle signals. Future phases will extend
- * this class to discover and manage multiple adapter binaries.
+ * On initAdapter(), AdapterHub uses AdapterDiscovery to locate adapter binaries,
+ * creates one AdapterManager per binary, and gates the adapterReady() and
+ * sessionStarted() signals until all managers have reached the required state.
  *
- * Virtual methods allow a mock subclass to be injected in unit tests.
+ * Virtual methods allow a mock subclass to be injected in unit tests via the
+ * protected constructor.
  */
 class AdapterHub : public QObject
 {
@@ -26,7 +29,7 @@ public:
     explicit AdapterHub(SettingsModel* pSettingsModel, QObject* parent = nullptr);
 
     virtual void initAdapter();
-    virtual void startSession(const QStringList& expressions);
+    virtual void startSession(const QString& adapterId, const QStringList& expressions);
     virtual void stopSession();
     virtual void requestReadData();
 
@@ -39,7 +42,7 @@ signals:
     void sessionStopped();
     void adapterReady();
     void sessionError(QString message);
-    void readDataResult(ResultDoubleList results);
+    void readDataResult(const QString& adapterId, ResultDoubleList results);
     void buildExpressionResult(QString expression);
     void expressionHelpResult(QString helpText);
     void describeDataPointResult(QJsonObject result);
@@ -47,8 +50,17 @@ signals:
 protected:
     explicit AdapterHub(QObject* parent = nullptr);
 
+private slots:
+    void onManagerAdapterReady(const QString& id);
+    void onManagerSessionStarted(const QString& id);
+
 private:
-    AdapterManager* _pAdapterManager;
+    void connectManager(AdapterManager* mgr, const QString& id);
+
+    SettingsModel* _pSettingsModel;
+    QMap<QString, AdapterManager*> _adapterManagers;
+    QSet<QString> _pendingReadyAdapters;
+    QSet<QString> _pendingStartAdapters;
 };
 
 #endif // ADAPTERHUB_H

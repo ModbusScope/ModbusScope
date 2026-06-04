@@ -30,7 +30,7 @@ public:
     };
 
     explicit MockAdapterManager(SettingsModel* pSettingsModel, QObject* parent = nullptr)
-        : AdapterManager(pSettingsModel, parent)
+        : AdapterManager(QStringLiteral("modbus"), QString(), pSettingsModel, parent)
     {
     }
 

@@ -1,79 +1,173 @@
 
 #include "ProtocolAdapter/adapterhub.h"
 
+#include "ProtocolAdapter/adapterdiscovery.h"
 #include "ProtocolAdapter/adaptermanager.h"
 #include "models/settingsmodel.h"
+#include "util/scopelogging.h"
+
+#include <QCoreApplication>
 
 AdapterHub::AdapterHub(SettingsModel* pSettingsModel, QObject* parent)
-    : QObject(parent), _pAdapterManager(new AdapterManager(pSettingsModel, this))
+    : QObject(parent), _pSettingsModel(pSettingsModel)
 {
-    connect(_pAdapterManager, &AdapterManager::sessionStarted, this, &AdapterHub::sessionStarted);
-    connect(_pAdapterManager, &AdapterManager::sessionStopped, this, &AdapterHub::sessionStopped);
-    connect(_pAdapterManager, &AdapterManager::adapterReady, this, &AdapterHub::adapterReady);
-    connect(_pAdapterManager, &AdapterManager::sessionError, this, &AdapterHub::sessionError);
-    connect(_pAdapterManager, &AdapterManager::readDataResult, this, &AdapterHub::readDataResult);
-    connect(_pAdapterManager, &AdapterManager::buildExpressionResult, this, &AdapterHub::buildExpressionResult);
-    connect(_pAdapterManager, &AdapterManager::expressionHelpResult, this, &AdapterHub::expressionHelpResult);
-    connect(_pAdapterManager, &AdapterManager::describeDataPointResult, this, &AdapterHub::describeDataPointResult);
 }
 
 /*! \brief Protected constructor for mock subclasses used in unit tests.
  *
- * Does not create an AdapterManager. Subclasses that override all virtual methods
+ * Does not create any AdapterManager. Subclasses that override all virtual methods
  * can use this to avoid instantiating real adapter infrastructure.
  */
-AdapterHub::AdapterHub(QObject* parent) : QObject(parent), _pAdapterManager(nullptr)
+AdapterHub::AdapterHub(QObject* parent) : QObject(parent), _pSettingsModel(nullptr)
 {
 }
 
-/*! \brief Launch the adapter subprocess and begin the initialization handshake. */
+/*! \brief Discover adapter binaries and start the initialization handshake for each.
+ *
+ * Uses AdapterDiscovery to locate binaries in the application directory, creates one
+ * AdapterManager per binary, and calls initAdapter() on each. The hub's adapterReady()
+ * signal is emitted only after all managers have reached AWAITING_CONFIG state.
+ */
 void AdapterHub::initAdapter()
 {
-    _pAdapterManager->initAdapter();
+    qDeleteAll(_adapterManagers);
+    _adapterManagers.clear();
+    _pendingReadyAdapters.clear();
+    _pendingStartAdapters.clear();
+
+    const QList<AdapterInfo> discovered = AdapterDiscovery::discover(QCoreApplication::applicationDirPath());
+
+    if (discovered.isEmpty())
+    {
+        qCWarning(scopeComm) << "AdapterHub: no adapter binaries found in" << QCoreApplication::applicationDirPath();
+        emit sessionError(QStringLiteral("No adapter binaries found"));
+        return;
+    }
+
+    for (const AdapterInfo& info : discovered)
+    {
+        auto* mgr = new AdapterManager(info.id, info.binaryPath, _pSettingsModel, this);
+        _adapterManagers.insert(info.id, mgr);
+        connectManager(mgr, info.id);
+    }
+
+    for (auto it = _adapterManagers.constBegin(); it != _adapterManagers.constEnd(); ++it)
+    {
+        _pendingReadyAdapters.insert(it.key());
+    }
+
+    for (auto it = _adapterManagers.constBegin(); it != _adapterManagers.constEnd(); ++it)
+    {
+        it.value()->initAdapter();
+    }
 }
 
-/*! \brief Provide register expressions to the adapter and start the session.
+/*! \brief Provide register expressions to the named adapter and start its session.
+ * \param adapterId   Adapter identifier (e.g. "modbus").
  * \param expressions Register expression strings to pass to the adapter.
  */
-void AdapterHub::startSession(const QStringList& expressions)
+void AdapterHub::startSession(const QString& adapterId, const QStringList& expressions)
 {
-    _pAdapterManager->startSession(expressions);
+    AdapterManager* mgr = _adapterManagers.value(adapterId, nullptr);
+    if (mgr != nullptr)
+    {
+        _pendingStartAdapters.insert(adapterId);
+        mgr->startSession(expressions);
+    }
+    else
+    {
+        qCWarning(scopeComm) << "AdapterHub::startSession: unknown adapter" << adapterId;
+    }
 }
 
-/*! \brief Send adapter.stop to pause polling and keep the adapter process alive. */
+/*! \brief Send adapter.stop to all active adapter managers. */
 void AdapterHub::stopSession()
 {
-    _pAdapterManager->stopSession();
+    for (auto it = _adapterManagers.constBegin(); it != _adapterManagers.constEnd(); ++it)
+    {
+        _pendingReadyAdapters.insert(it.key());
+        it.value()->stopSession();
+    }
 }
 
-/*! \brief Send an adapter.readData request to the active adapter. */
+/*! \brief Send adapter.readData to all adapter managers. */
 void AdapterHub::requestReadData()
 {
-    _pAdapterManager->requestReadData();
+    for (auto it = _adapterManagers.constBegin(); it != _adapterManagers.constEnd(); ++it)
+    {
+        it.value()->requestReadData();
+    }
 }
 
 /*! \brief Return the AdapterManager for the given adapter ID.
- *
  * \param id Adapter identifier string (e.g. "modbus").
  * \return Pointer to the matching AdapterManager, or nullptr if not found.
  */
 AdapterManager* AdapterHub::adapterManager(const QString& id) const
 {
-    if (_pAdapterManager != nullptr && _pAdapterManager->adapterId() == id)
-    {
-        return _pAdapterManager;
-    }
-    return nullptr;
+    return _adapterManagers.value(id, nullptr);
 }
 
-/*! \brief Returns true when the adapter is in AWAITING_CONFIG and ready for provideConfig(). */
+/*! \brief Returns true when all adapter managers are in AWAITING_CONFIG state. */
 bool AdapterHub::isAdapterReady() const
 {
-    return _pAdapterManager->isAdapterReady();
+    if (_adapterManagers.isEmpty())
+    {
+        return false;
+    }
+    for (const AdapterManager* mgr : _adapterManagers)
+    {
+        if (!mgr->isAdapterReady())
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
-/*! \brief Returns true when the adapter process is not running (IDLE state). */
+/*! \brief Returns true when all adapter managers are in IDLE state (no subprocess running). */
 bool AdapterHub::isAdapterIdle() const
 {
-    return _pAdapterManager->isAdapterIdle();
+    if (_adapterManagers.isEmpty())
+    {
+        return true;
+    }
+    for (const AdapterManager* mgr : _adapterManagers)
+    {
+        if (!mgr->isAdapterIdle())
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+void AdapterHub::onManagerAdapterReady(const QString& id)
+{
+    _pendingReadyAdapters.remove(id);
+    if (_pendingReadyAdapters.isEmpty())
+    {
+        emit adapterReady();
+    }
+}
+
+void AdapterHub::onManagerSessionStarted(const QString& id)
+{
+    _pendingStartAdapters.remove(id);
+    if (_pendingStartAdapters.isEmpty())
+    {
+        emit sessionStarted();
+    }
+}
+
+void AdapterHub::connectManager(AdapterManager* mgr, const QString& id)
+{
+    connect(mgr, &AdapterManager::adapterReady, this, [this, id]() { onManagerAdapterReady(id); });
+    connect(mgr, &AdapterManager::sessionStarted, this, [this, id]() { onManagerSessionStarted(id); });
+    connect(mgr, &AdapterManager::sessionStopped, this, &AdapterHub::sessionStopped);
+    connect(mgr, &AdapterManager::sessionError, this, &AdapterHub::sessionError);
+    connect(mgr, &AdapterManager::readDataResult, this, [this, id](ResultDoubleList r) { emit readDataResult(id, r); });
+    connect(mgr, &AdapterManager::buildExpressionResult, this, &AdapterHub::buildExpressionResult);
+    connect(mgr, &AdapterManager::expressionHelpResult, this, &AdapterHub::expressionHelpResult);
+    connect(mgr, &AdapterManager::describeDataPointResult, this, &AdapterHub::describeDataPointResult);
 }

@@ -22,7 +22,10 @@ class AdapterManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit AdapterManager(SettingsModel* pSettingsModel, QObject* parent = nullptr);
+    explicit AdapterManager(const QString& adapterId,
+                            const QString& adapterBinaryPath,
+                            SettingsModel* pSettingsModel,
+                            QObject* parent = nullptr);
 
     /*!
      * \brief Launch the adapter subprocess and begin the initialization handshake.
@@ -154,6 +157,8 @@ private slots:
     void onDataPointSchemaResult(const QJsonObject& schema);
 
 private:
+    QString _adapterId;
+    QString _adapterBinaryPath;
     SettingsModel* _pSettingsModel;
     AdapterClient* _pAdapterClient;
 };

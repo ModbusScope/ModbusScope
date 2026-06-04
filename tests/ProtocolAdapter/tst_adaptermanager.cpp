@@ -28,7 +28,7 @@ void captureHandler(QtMsgType type, const QMessageLogContext&, const QString& ms
 void TestAdapterManager::init()
 {
     _pSettingsModel = new SettingsModel;
-    _pAdapterManager = new AdapterManager(_pSettingsModel);
+    _pAdapterManager = new AdapterManager(QStringLiteral("modbus"), QString(), _pSettingsModel);
     /* Enable debug output for scope.comm.adapter so qCDebug calls reach the handler */
     QLoggingCategory::setFilterRules(QStringLiteral("scope.comm.adapter.debug=true"));
 }

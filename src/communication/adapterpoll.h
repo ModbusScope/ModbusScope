@@ -5,6 +5,8 @@
 #include "communication/datapoint.h"
 #include "util/result.h"
 
+#include <QMap>
+#include <QSet>
 #include <QStringList>
 #include <QTimer>
 
@@ -46,12 +48,22 @@ signals:
 
 private slots:
     void triggerRegisterRead();
-    void onReadDataResult(ResultDoubleList results);
+    void onReadDataResult(const QString& adapterId, ResultDoubleList results);
     void onAdapterReady();
     void onSessionError(const QString& message);
 
 private:
-    QStringList buildRegisterExpressions(const QList<DataPoint>& registerList);
+    /*!
+     * \brief Tracks the register expressions and their original positions for one adapter.
+     */
+    struct AdapterGroup
+    {
+        QStringList expressions;
+        QList<int> originalIndices;
+    };
+
+    void buildAdapterGroups(const QList<DataPoint>& registerList);
+    void startSessions();
 
     enum class PollState
     {
@@ -61,7 +73,9 @@ private:
     };
 
     QList<DataPoint> _registerList;
-    QStringList _pendingExpressions;
+    QMap<QString, AdapterGroup> _adapterGroups;
+    QMap<QString, ResultDoubleList> _pendingResults;
+    QSet<QString> _pendingResultAdapters;
 
     PollState _pollState = PollState::Inactive;
     QMetaObject::Connection _adapterReadyConnection;

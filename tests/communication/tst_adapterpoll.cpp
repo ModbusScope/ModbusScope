@@ -26,9 +26,9 @@ public:
     {
         return _mockIdle;
     }
-    void startSession(const QStringList& expressions) override
+    void startSession(const QString& adapterId, const QStringList& expressions) override
     {
-        _startCalls.append(expressions);
+        _startCalls.append({ adapterId, expressions });
     }
     void initAdapter() override
     {
@@ -46,10 +46,14 @@ public:
     {
         emit adapterReady();
     }
+    void triggerReadDataResult(const QString& adapterId, ResultDoubleList results)
+    {
+        emit readDataResult(adapterId, results);
+    }
 
     bool _mockReady{ false };
     bool _mockIdle{ false };
-    QList<QStringList> _startCalls;
+    QList<QPair<QString, QStringList>> _startCalls;
     int _initCount{ 0 };
     int _stopCount{ 0 };
 };
@@ -104,7 +108,8 @@ void TestAdapterPoll::startCommunicationWhenAdapterIdle()
     s_pMockHub->triggerAdapterReady();
 
     QCOMPARE(s_pMockHub->_startCalls.size(), 1);
-    QCOMPARE(s_pMockHub->_startCalls[0], QStringList{ QStringLiteral("${h0}") });
+    QCOMPARE(s_pMockHub->_startCalls[0].first, QStringLiteral("modbus"));
+    QCOMPARE(s_pMockHub->_startCalls[0].second, QStringList{ QStringLiteral("${h0}") });
 }
 
 void TestAdapterPoll::startCommunicationWhenAdapterInitializing()
@@ -122,7 +127,8 @@ void TestAdapterPoll::startCommunicationWhenAdapterInitializing()
     s_pMockHub->triggerAdapterReady();
 
     QCOMPARE(s_pMockHub->_startCalls.size(), 1);
-    QCOMPARE(s_pMockHub->_startCalls[0], QStringList{ QStringLiteral("${h1}") });
+    QCOMPARE(s_pMockHub->_startCalls[0].first, QStringLiteral("modbus"));
+    QCOMPARE(s_pMockHub->_startCalls[0].second, QStringList{ QStringLiteral("${h1}") });
 }
 
 void TestAdapterPoll::doubleStartCommunicationWhileInitializing()
@@ -141,7 +147,7 @@ void TestAdapterPoll::doubleStartCommunicationWhileInitializing()
 
     /* startSession called exactly once with the latest expressions */
     QCOMPARE(s_pMockHub->_startCalls.size(), 1);
-    QCOMPARE(s_pMockHub->_startCalls[0], QStringList{ QStringLiteral("${h1}") });
+    QCOMPARE(s_pMockHub->_startCalls[0].second, QStringList{ QStringLiteral("${h1}") });
 }
 
 void TestAdapterPoll::stopCommunicationClearsPendingState()
@@ -180,7 +186,7 @@ void TestAdapterPoll::stopCommunicationAllowsNewWaitAfterRestart()
     s_pMockHub->triggerAdapterReady();
 
     QCOMPARE(s_pMockHub->_startCalls.size(), 1);
-    QCOMPARE(s_pMockHub->_startCalls[0], QStringList{ QStringLiteral("${h2}") });
+    QCOMPARE(s_pMockHub->_startCalls[0].second, QStringList{ QStringLiteral("${h2}") });
 }
 
 QTEST_GUILESS_MAIN(TestAdapterPoll)

@@ -18,7 +18,8 @@ class MockAdapterManager : public AdapterManager
     Q_OBJECT
 
 public:
-    explicit MockAdapterManager(QObject* parent = nullptr) : AdapterManager(nullptr, parent)
+    explicit MockAdapterManager(QObject* parent = nullptr)
+        : AdapterManager(QStringLiteral("modbus"), QString(), nullptr, parent)
     {
     }
 
