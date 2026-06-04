@@ -60,7 +60,7 @@ MainWindow::MainWindow(QStringList cmdArguments,
     QApplication::setStyle(QStyleFactory::create("Fusion"));
 
     _pOverlayLabel =
-      new OverlayLabel(tr("No registers configured — click Register Settings to add one"), _pUi->customPlot);
+      new OverlayLabel(tr("No registers configured — click Registers to add one"), _pUi->customPlot);
 
     _pDiagnosticDialog = new DiagnosticDialog(_pDiagnosticModel, this);
 

@@ -33,7 +33,7 @@ If your device uses different values, substitute them at each step.
 
 ## Step 3 — Add registers
 
-1. Click **Register Settings** in the toolbar.
+1. Click **Registers** in the toolbar.
 2. Click **Add** to add a new row.
 3. In the **Expression** column, type `${40001}`. Set **Name** to `Register 1`.
 4. Add a second row: expression `${40002}`, name `Register 2`.
