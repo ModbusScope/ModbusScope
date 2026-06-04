@@ -19,7 +19,7 @@ Time (ms);Register 1;Register 2;Register 3
 | Column | Content | Type |
 | --- | --- | --- |
 | 1 | Timestamp | Integer (ms from session start) or absolute date-time when absolute timestamps are enabled |
-| 2..N | Register values | Numeric, one column per register in the order they appear in Register Settings |
+| 2..N | Register values | Numeric, one column per register in the order they appear in Registers |
 
 ## Separators (export)
 

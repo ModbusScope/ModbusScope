@@ -4,7 +4,7 @@ This guide shows how to write an expression that calculates or combines register
 
 ## Steps
 
-1. Click **Register Settings** in the toolbar.
+1. Click **Registers** in the toolbar.
 2. In the row you want to edit, click the `...` button in the **Expression** column to open the **Compose expression** window.
 
    ![Compose expression dialog](<../_static/user_manual/expression_dialog.png>)

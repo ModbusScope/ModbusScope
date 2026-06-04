@@ -8,9 +8,9 @@ You must have at least one connection and one device configured. See [Configure 
 
 ## Steps
 
-1. Click **Register Settings** in the toolbar.
+1. Click **Registers** in the toolbar.
 
-   ![Register settings dialog](<../_static/user_manual/add_register_dialog.png>)
+   ![Registers dialog](<../_static/user_manual/add_register_dialog.png>)
 
 2. Click **Add** to insert a new register row.
 3. In the **Expression** column, enter the register address using `${...}` syntax (e.g. `${40001}`). See [Reference: Register syntax](../reference/register-syntax.md) for all supported forms.
