@@ -56,6 +56,7 @@ protected:
 private slots:
     void onManagerAdapterReady(const QString& id);
     void onManagerSessionStarted(const QString& id);
+    void onManagerSessionError(const QString& id, const QString& message);
 
 private:
     void connectManager(AdapterManager* mgr, const QString& id);

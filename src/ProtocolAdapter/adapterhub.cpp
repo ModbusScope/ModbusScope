@@ -46,6 +46,12 @@ void AdapterHub::initAdapter()
 
     for (const AdapterInfo& info : discovered)
     {
+        if (_adapterManagers.contains(info.id))
+        {
+            qCWarning(scopeComm) << "AdapterHub: duplicate adapter id" << info.id << "for" << info.binaryPath
+                                 << "- skipping";
+            continue;
+        }
         auto* mgr = new AdapterManager(info.id, info.binaryPath, _pSettingsModel, this);
         _adapterManagers.insert(info.id, mgr);
         connectManager(mgr, info.id);
@@ -156,12 +162,23 @@ void AdapterHub::onManagerSessionStarted(const QString& id)
     }
 }
 
+void AdapterHub::onManagerSessionError(const QString& id, const QString& message)
+{
+    _pendingStartAdapters.remove(id);
+    if (_pendingStartAdapters.isEmpty())
+    {
+        emit sessionStarted();
+    }
+    emit sessionError(message);
+}
+
 void AdapterHub::connectManager(AdapterManager* mgr, const QString& id)
 {
     connect(mgr, &AdapterManager::adapterReady, this, [this, id]() { onManagerAdapterReady(id); });
     connect(mgr, &AdapterManager::sessionStarted, this, [this, id]() { onManagerSessionStarted(id); });
     connect(mgr, &AdapterManager::sessionStopped, this, &AdapterHub::sessionStopped);
-    connect(mgr, &AdapterManager::sessionError, this, &AdapterHub::sessionError);
+    connect(mgr, &AdapterManager::sessionError, this,
+            [this, id](QString message) { onManagerSessionError(id, message); });
     connect(mgr, &AdapterManager::readDataResult, this, [this, id](ResultDoubleList r) { emit readDataResult(id, r); });
     connect(mgr, &AdapterManager::buildExpressionResult, this, &AdapterHub::buildExpressionResult);
     connect(mgr, &AdapterManager::expressionHelpResult, this, &AdapterHub::expressionHelpResult);
