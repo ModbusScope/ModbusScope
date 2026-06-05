@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: docker://jgeudens/qt-linux:6.8.3_build_1
+      image: docker://jgeudens/qt-linux:6.8.3_build_2
     steps:
       - uses: actions/checkout@v6.0.2
 
