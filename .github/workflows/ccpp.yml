@@ -42,6 +42,13 @@ jobs:
       - name: Install Qt installer
         run: pip3 install aqtinstall==3.3.0
 
+      - name: Qt Build Cache
+        uses: actions/cache@v5.0.5
+        id: cache
+        with:
+          path: ${{ github.workspace }}\Qt
+          key: ${{ runner.os }}-qt-build-${{ hashFiles('scripts\setup_windows.bat') }}
+
       - name: Setup, build and deploy
         shell: cmd
         run: scripts\full_build_and_deploy_windows.bat '${{ steps.cache.outputs.cache-hit }}' ${{ github.workspace }}\Qt
