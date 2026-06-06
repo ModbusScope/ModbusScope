@@ -1,10 +1,12 @@
 #ifndef ADAPTERPOLL_H
 #define ADAPTERPOLL_H
 
-#include "ProtocolAdapter/adaptermanager.h"
+#include "ProtocolAdapter/adapterhub.h"
 #include "communication/datapoint.h"
 #include "util/result.h"
 
+#include <QMap>
+#include <QSet>
 #include <QStringList>
 #include <QTimer>
 
@@ -18,11 +20,11 @@ public:
     explicit AdapterPoll(SettingsModel* pSettingsModel, QObject* parent = nullptr);
 
     /*!
-     * \brief Constructor for testing: accepts a pre-built AdapterManager instead of creating one.
+     * \brief Constructor for testing: accepts a pre-built AdapterHub instead of creating one.
      *
-     * The caller retains ownership of \a pAdapterManager; it is not reparented.
+     * The caller retains ownership of \a pAdapterHub; it is not reparented.
      */
-    explicit AdapterPoll(SettingsModel* pSettingsModel, AdapterManager* pAdapterManager, QObject* parent = nullptr);
+    explicit AdapterPoll(SettingsModel* pSettingsModel, AdapterHub* pAdapterHub, QObject* parent = nullptr);
 
     ~AdapterPoll();
 
@@ -34,24 +36,34 @@ public:
     void resetCommunicationStats();
 
     /*!
-     * \brief Returns the AdapterManager owned by this poll instance.
+     * \brief Returns the AdapterHub owned by this poll instance.
      *
-     * Callers that need to interact with the adapter directly (e.g. to call
-     * buildExpression()) should use this accessor rather than going through AdapterPoll.
+     * Callers that need to interact with an adapter directly (e.g. to call
+     * buildExpression()) should obtain the relevant AdapterManager from the hub.
      */
-    AdapterManager* adapterManager() const;
+    AdapterHub* adapterHub() const;
 
 signals:
     void registerDataReady(ResultDoubleList registers);
 
 private slots:
     void triggerRegisterRead();
-    void onReadDataResult(ResultDoubleList results);
+    void onReadDataResult(const QString& adapterId, ResultDoubleList results);
     void onAdapterReady();
     void onSessionError(const QString& message);
 
 private:
-    QStringList buildRegisterExpressions(const QList<DataPoint>& registerList);
+    /*!
+     * \brief Tracks the register expressions and their original positions for one adapter.
+     */
+    struct AdapterGroup
+    {
+        QStringList expressions;
+        QList<int> originalIndices;
+    };
+
+    void buildAdapterGroups(const QList<DataPoint>& registerList);
+    void startSessions();
 
     enum class PollState
     {
@@ -61,7 +73,9 @@ private:
     };
 
     QList<DataPoint> _registerList;
-    QStringList _pendingExpressions;
+    QMap<QString, AdapterGroup> _adapterGroups;
+    QMap<QString, ResultDoubleList> _pendingResults;
+    QSet<QString> _pendingResultAdapters;
 
     PollState _pollState = PollState::Inactive;
     QMetaObject::Connection _adapterReadyConnection;
@@ -69,7 +83,7 @@ private:
     qint64 _lastPollStart;
 
     SettingsModel* _pSettingsModel;
-    AdapterManager* _pAdapterManager;
+    AdapterHub* _pAdapterHub;
 };
 
 #endif // ADAPTERPOLL_H

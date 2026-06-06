@@ -6,14 +6,13 @@
 #include "models/settingsmodel.h"
 #include "util/scopelogging.h"
 
-#include <QCoreApplication>
-#include <QDir>
-#include <QFileInfo>
-
 #include <memory>
 
-AdapterManager::AdapterManager(SettingsModel* pSettingsModel, QObject* parent)
-    : QObject(parent), _pSettingsModel(pSettingsModel)
+AdapterManager::AdapterManager(const QString& adapterId,
+                               const QString& adapterBinaryPath,
+                               SettingsModel* pSettingsModel,
+                               QObject* parent)
+    : QObject(parent), _adapterId(adapterId), _adapterBinaryPath(adapterBinaryPath), _pSettingsModel(pSettingsModel)
 {
     _pAdapterClient = new AdapterClient(std::make_unique<AdapterProcess>(), this);
 
@@ -37,10 +36,7 @@ AdapterManager::AdapterManager(SettingsModel* pSettingsModel, QObject* parent)
  */
 void AdapterManager::initAdapter()
 {
-    const QString suffix = QFileInfo(QCoreApplication::applicationFilePath()).suffix();
-    const QString adapterName = "modbusadapter" + (suffix.isEmpty() ? QString() : "." + suffix);
-    const QString adapterPath = QDir(QCoreApplication::applicationDirPath()).filePath(adapterName);
-    _pAdapterClient->prepareAdapter(adapterPath);
+    _pAdapterClient->prepareAdapter(_adapterBinaryPath);
 }
 
 /*! \brief Fetch the effective adapter config from the settings model and start the session.
@@ -48,11 +44,11 @@ void AdapterManager::initAdapter()
  */
 void AdapterManager::startSession(const QStringList& registerExpressions)
 {
-    const AdapterData* data = _pSettingsModel->adapterData("modbus");
+    const AdapterData* data = _pSettingsModel->adapterData(_adapterId);
     if (data == nullptr)
     {
-        qCWarning(scopeComm) << "AdapterManager: no adapter data found for 'modbus'";
-        emit sessionError(QStringLiteral("No adapter configuration found for 'modbus'"));
+        qCWarning(scopeComm) << "AdapterManager: no adapter data found for" << _adapterId;
+        emit sessionError(QStringLiteral("No adapter configuration found for '%1'").arg(_adapterId));
         return;
     }
     QJsonObject config = data->effectiveConfig();
@@ -62,7 +58,7 @@ void AdapterManager::startSession(const QStringList& registerExpressions)
 /*! \brief Returns the identifier string of the active adapter. */
 QString AdapterManager::adapterId() const
 {
-    return QStringLiteral("modbus");
+    return _adapterId;
 }
 
 /*! \brief Returns true when the adapter is ready to accept provideConfig() (AWAITING_CONFIG state). */
@@ -120,7 +116,7 @@ void AdapterManager::buildExpression(const QJsonObject& addressFields, const QSt
  */
 void AdapterManager::onDescribeResult(const QJsonObject& description)
 {
-    _pSettingsModel->updateAdapterFromDescribe("modbus", description);
+    _pSettingsModel->updateAdapterFromDescribe(_adapterId, description);
     _pAdapterClient->requestDataPointSchema();
 }
 
@@ -129,7 +125,7 @@ void AdapterManager::onDescribeResult(const QJsonObject& description)
  */
 void AdapterManager::onDataPointSchemaResult(const QJsonObject& schema)
 {
-    _pSettingsModel->setAdapterDataPointSchema("modbus", schema);
+    _pSettingsModel->setAdapterDataPointSchema(_adapterId, schema);
 }
 
 /*!
