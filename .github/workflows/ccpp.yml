@@ -47,7 +47,7 @@ jobs:
         id: cache
         with:
           path: ${{ github.workspace }}\Qt
-          key: ${{ runner.os }}-qt-build-${{ hashFiles('scripts\setup_windows.bat') }}
+          key: ${{ runner.os }}-qt-build-${{ hashFiles('scripts/setup_windows.bat') }}
 
       - name: Setup, build and deploy
         shell: cmd
