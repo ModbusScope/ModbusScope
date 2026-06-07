@@ -12,7 +12,7 @@ on:
 jobs:
   coverage:
     runs-on: ubuntu-latest
-    container: docker://jgeudens/qt-linux:6.8.3_build_1
+    container: docker://jgeudens/qt-linux:6.8.3_build_2
     steps:
     - name: Checkout
       uses: actions/checkout@v6.0.2
@@ -45,34 +45,24 @@ jobs:
 
   clazy:
     runs-on: ubuntu-latest
-    container: docker://jgeudens/qt-linux:6.8.3_build_1
+    container: docker://jgeudens/qt-linux:6.8.3_build_2
     steps:
     - uses: actions/checkout@v6.0.2
 
     - name: Configure safe directory for git
       run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
-
-    - name: Install clazy
-      run: |
-        apt-get update
-        apt-get install -y clazy
 
     - name: Run clazy
       run: bash scripts/run_clazy.sh
 
   clang-tidy:
     runs-on: ubuntu-latest
-    container: docker://jgeudens/qt-linux:6.8.3_build_1
+    container: docker://jgeudens/qt-linux:6.8.3_build_2
     steps:
     - uses: actions/checkout@v6.0.2
 
     - name: Configure safe directory for git
       run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
-
-    - name: Install clang-tidy
-      run: |
-        apt-get update
-        apt-get install -y clang-tidy
 
     - name: Run clang-tidy
       run: bash scripts/run_clang_tidy.sh
