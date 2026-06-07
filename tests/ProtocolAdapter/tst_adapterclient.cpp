@@ -29,7 +29,10 @@ public:
         QJsonObject params;
     };
 
-    QList<SentRequest> sentRequests;
+    const QList<SentRequest>& sentRequests() const
+    {
+        return _sentRequests;
+    }
 
     bool start(const QString&) override
     {
@@ -43,7 +46,7 @@ public:
     int sendRequest(const QString& method, const QJsonObject& params) override
     {
         int id = _nextMockId++;
-        sentRequests.append({ method, params });
+        _sentRequests.append({ method, params });
         return id;
     }
 
@@ -79,6 +82,7 @@ public:
 
 private:
     int _nextMockId{ 1 };
+    QList<SentRequest> _sentRequests;
 };
 
 /* ---- Helpers ---- */
@@ -86,8 +90,7 @@ private:
 static QJsonObject describeResult()
 {
     QJsonObject caps;
-    caps["supportsHotReload"] = false;
-    caps["requiresRestartOn"] = QJsonArray{ "connections", "devices" };
+    caps["mbcCompatible"] = true;
 
     QJsonObject result;
     result["name"] = "modbusAdapter";
@@ -122,31 +125,31 @@ void TestAdapterClient::lifecycleInitializeToStart()
     client.prepareAdapter(QStringLiteral("./dummy"));
 
     /* 1. initialize was sent */
-    QCOMPARE(mock->sentRequests.size(), 1);
-    QCOMPARE(mock->sentRequests[0].method, QStringLiteral("adapter.initialize"));
+    QCOMPARE(mock->sentRequests().size(), 1);
+    QCOMPARE(mock->sentRequests()[0].method, QStringLiteral("adapter.initialize"));
 
     /* 2. initialize ok → describe sent */
     mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
-    QCOMPARE(mock->sentRequests.size(), 2);
-    QCOMPARE(mock->sentRequests[1].method, QStringLiteral("adapter.describe"));
+    QCOMPARE(mock->sentRequests().size(), 2);
+    QCOMPARE(mock->sentRequests()[1].method, QStringLiteral("adapter.describe"));
     QCOMPARE(spyStarted.count(), 0);
 
     /* 3. describe ok → describeResult emitted, awaiting config */
     mock->injectResponse(2, "adapter.describe", describeResult());
-    QCOMPARE(mock->sentRequests.size(), 2);
+    QCOMPARE(mock->sentRequests().size(), 2);
     QCOMPARE(spyDescribe.count(), 1);
     QCOMPARE(spyStarted.count(), 0);
 
     /* 4. provide config → configure sent */
     client.provideConfig(QJsonObject(), QStringList());
-    QCOMPARE(mock->sentRequests.size(), 3);
-    QCOMPARE(mock->sentRequests[2].method, QStringLiteral("adapter.configure"));
+    QCOMPARE(mock->sentRequests().size(), 3);
+    QCOMPARE(mock->sentRequests()[2].method, QStringLiteral("adapter.configure"));
     QCOMPARE(spyStarted.count(), 0);
 
     /* 5. configure ok → start sent */
     mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
-    QCOMPARE(mock->sentRequests.size(), 4);
-    QCOMPARE(mock->sentRequests[3].method, QStringLiteral("adapter.start"));
+    QCOMPARE(mock->sentRequests().size(), 4);
+    QCOMPARE(mock->sentRequests()[3].method, QStringLiteral("adapter.start"));
     QCOMPARE(spyStarted.count(), 0);
 
     /* 6. start ok → sessionStarted emitted */
@@ -384,7 +387,7 @@ void TestAdapterClient::stopSessionDuringStarting()
     mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
     /* adapter.start (id 4) is in-flight but not acknowledged */
 
-    int requestCountBeforeStop = mock->sentRequests.size();
+    int requestCountBeforeStop = mock->sentRequests().size();
 
     QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
@@ -392,7 +395,7 @@ void TestAdapterClient::stopSessionDuringStarting()
     client.stopSession();
 
     /* Must NOT send adapter.stop (session not yet established) */
-    QCOMPARE(mock->sentRequests.size(), requestCountBeforeStop);
+    QCOMPARE(mock->sentRequests().size(), requestCountBeforeStop);
 
     /* Process exits → sessionStopped emitted, no error */
     mock->injectProcessFinished();
@@ -412,7 +415,7 @@ void TestAdapterClient::stopSessionDuringLifecycle()
 
     /* Drive to DESCRIBING state */
     mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
-    QCOMPARE(mock->sentRequests.size(), 2);
+    QCOMPARE(mock->sentRequests().size(), 2);
 
     /* Stop during lifecycle — should not crash, should go to IDLE */
     client.stopSession();
@@ -439,11 +442,11 @@ void TestAdapterClient::doubleStopSession()
 
     /* First stop sends adapter.stop (adapter stays alive) */
     client.stopSession();
-    int requestsAfterFirstStop = mock->sentRequests.size();
+    int requestsAfterFirstStop = mock->sentRequests().size();
 
     /* Second stop should be a no-op (state is STOPPING_SESSION) */
     client.stopSession();
-    QCOMPARE(mock->sentRequests.size(), requestsAfterFirstStop);
+    QCOMPARE(mock->sentRequests().size(), requestsAfterFirstStop);
     QCOMPARE(spyError.count(), 0);
 }
 
@@ -461,7 +464,7 @@ void TestAdapterClient::requestReadDataWhenNotActive()
 
     QCOMPARE(spyData.count(), 0);
     QCOMPARE(spyError.count(), 0);
-    QCOMPARE(mock->sentRequests.size(), 0);
+    QCOMPARE(mock->sentRequests().size(), 0);
 }
 
 void TestAdapterClient::nonObjectResultEmitsSessionError()
@@ -500,7 +503,7 @@ void TestAdapterClient::errorDuringAdapterStopSuppressed()
 
     /* Initiate stop — sends adapter.stop, not adapter.shutdown */
     client.stopSession();
-    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.stop"));
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.stop"));
 
     /* Simulate an error response for adapter.stop (e.g. adapter misbehaves) */
     QJsonObject error;
@@ -528,14 +531,14 @@ void TestAdapterClient::awaitingConfigPausesBeforeConfigure()
 
     /* After describe, no configure should have been sent yet */
     QCOMPARE(spyDescribe.count(), 1);
-    QCOMPARE(mock->sentRequests.size(), 2);
-    QCOMPARE(mock->sentRequests[0].method, QStringLiteral("adapter.initialize"));
-    QCOMPARE(mock->sentRequests[1].method, QStringLiteral("adapter.describe"));
+    QCOMPARE(mock->sentRequests().size(), 2);
+    QCOMPARE(mock->sentRequests()[0].method, QStringLiteral("adapter.initialize"));
+    QCOMPARE(mock->sentRequests()[1].method, QStringLiteral("adapter.describe"));
 
     /* Now provide config → configure is sent */
     client.provideConfig(QJsonObject{ { "version", 1 } }, QStringList());
-    QCOMPARE(mock->sentRequests.size(), 3);
-    QCOMPARE(mock->sentRequests[2].method, QStringLiteral("adapter.configure"));
+    QCOMPARE(mock->sentRequests().size(), 3);
+    QCOMPARE(mock->sentRequests()[2].method, QStringLiteral("adapter.configure"));
 }
 
 void TestAdapterClient::stopSessionDuringAwaitingConfig()
@@ -557,7 +560,7 @@ void TestAdapterClient::stopSessionDuringAwaitingConfig()
 
     /* provideConfig after stop should be silently ignored */
     client.provideConfig(QJsonObject(), QStringList());
-    QCOMPARE(mock->sentRequests.size(), 2);
+    QCOMPARE(mock->sentRequests().size(), 2);
 }
 
 void TestAdapterClient::adapterStopNoAckTimesOutToSessionStopped()
@@ -579,7 +582,7 @@ void TestAdapterClient::adapterStopNoAckTimesOutToSessionStopped()
 
     /* Initiate stop — adapter never responds to adapter.stop */
     client.stopSession();
-    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.stop"));
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.stop"));
 
     /* Wait for the handshake timer to fire (fallback: process killed) */
     QVERIFY2(spyStopped.wait(2000), "sessionStopped not emitted after adapter.stop timeout");
@@ -609,7 +612,7 @@ void TestAdapterClient::adapterStopAckEmitsSessionStoppedImmediately()
 
     /* Initiate stop — sends adapter.stop (process stays alive) */
     client.stopSession();
-    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.stop"));
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.stop"));
 
     /* Inject the adapter.stop acknowledgment */
     mock->injectResponse(5, "adapter.stop", QJsonObject{ { "status", "ok" } });
@@ -621,7 +624,7 @@ void TestAdapterClient::adapterStopAckEmitsSessionStoppedImmediately()
 
     /* Adapter is now in AWAITING_CONFIG — provideConfig() must be accepted */
     client.provideConfig(QJsonObject(), QStringList());
-    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.configure"));
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.configure"));
 }
 
 void TestAdapterClient::processErrorDuringStoppingNoSessionError()
@@ -701,7 +704,7 @@ void TestAdapterClient::requestDataPointSchemaEmitsSignal()
 
     client.requestDataPointSchema();
 
-    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.dataPointSchema"));
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.dataPointSchema"));
 
     QJsonObject defaults;
     defaults["dataType"] = QStringLiteral("16b");
@@ -732,7 +735,7 @@ void TestAdapterClient::requestDataPointSchemaInWrongStateIgnored()
     client.requestDataPointSchema();
 
     QCOMPARE(spySchema.count(), 0);
-    QCOMPARE(mock->sentRequests.size(), 0);
+    QCOMPARE(mock->sentRequests().size(), 0);
 }
 
 void TestAdapterClient::describeDataPointInAwaitingConfig()
@@ -747,8 +750,8 @@ void TestAdapterClient::describeDataPointInAwaitingConfig()
 
     client.describeDataPoint(QStringLiteral("${h0}"));
 
-    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.describeDataPoint"));
-    QCOMPARE(mock->sentRequests.last().params["expression"].toString(), QStringLiteral("${h0}"));
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.describeDataPoint"));
+    QCOMPARE(mock->sentRequests().last().params["expression"].toString(), QStringLiteral("${h0}"));
 
     QJsonObject result;
     result["valid"] = true;
@@ -773,7 +776,7 @@ void TestAdapterClient::describeDataPointInActiveState()
 
     client.describeDataPoint(QStringLiteral("${h0}"));
 
-    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.describeDataPoint"));
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.describeDataPoint"));
 
     mock->injectResponse(5, "adapter.describeDataPoint",
                          QJsonObject{ { "valid", true }, { "description", QStringLiteral("Holding register 0") } });
@@ -793,7 +796,7 @@ void TestAdapterClient::describeDataPointInWrongStateIgnored()
     client.describeDataPoint(QStringLiteral("${h0}"));
 
     QCOMPARE(spyDescReg.count(), 0);
-    QCOMPARE(mock->sentRequests.size(), 0);
+    QCOMPARE(mock->sentRequests().size(), 0);
 }
 
 void TestAdapterClient::validateDataPointValid()
@@ -808,8 +811,8 @@ void TestAdapterClient::validateDataPointValid()
 
     client.validateDataPoint(QStringLiteral("${40001: 16b}"));
 
-    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.validateDataPoint"));
-    QCOMPARE(mock->sentRequests.last().params["expression"].toString(), QStringLiteral("${40001: 16b}"));
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.validateDataPoint"));
+    QCOMPARE(mock->sentRequests().last().params["expression"].toString(), QStringLiteral("${40001: 16b}"));
 
     mock->injectResponse(3, "adapter.validateDataPoint", QJsonObject{ { "valid", true } });
 
@@ -850,8 +853,8 @@ void TestAdapterClient::validateDataPointInActiveState()
 
     client.validateDataPoint(QStringLiteral("${h0}"));
 
-    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.validateDataPoint"));
-    QCOMPARE(mock->sentRequests.last().params["expression"].toString(), QStringLiteral("${h0}"));
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.validateDataPoint"));
+    QCOMPARE(mock->sentRequests().last().params["expression"].toString(), QStringLiteral("${h0}"));
 
     mock->injectResponse(5, "adapter.validateDataPoint", QJsonObject{ { "valid", true } });
 
@@ -872,7 +875,7 @@ void TestAdapterClient::validateDataPointInWrongStateIgnored()
     client.validateDataPoint(QStringLiteral("${h0}"));
 
     QCOMPARE(spyValidate.count(), 0);
-    QCOMPARE(mock->sentRequests.size(), 0);
+    QCOMPARE(mock->sentRequests().size(), 0);
 }
 
 void TestAdapterClient::buildExpressionRequestAndResponse()
@@ -891,10 +894,10 @@ void TestAdapterClient::buildExpressionRequestAndResponse()
 
     client.buildExpression(fields, QStringLiteral("f32b"), 2);
 
-    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.buildExpression"));
-    QCOMPARE(mock->sentRequests.last().params["fields"].toObject(), fields);
-    QCOMPARE(mock->sentRequests.last().params["dataType"].toString(), QStringLiteral("f32b"));
-    QCOMPARE(mock->sentRequests.last().params["deviceId"].toInt(), 2);
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.buildExpression"));
+    QCOMPARE(mock->sentRequests().last().params["fields"].toObject(), fields);
+    QCOMPARE(mock->sentRequests().last().params["dataType"].toString(), QStringLiteral("f32b"));
+    QCOMPARE(mock->sentRequests().last().params["deviceId"].toInt(), 2);
 
     mock->injectResponse(3, "adapter.buildExpression", QJsonObject{ { "expression", QStringLiteral("${h0@2:f32b}") } });
 
@@ -918,7 +921,7 @@ void TestAdapterClient::buildExpressionInActiveState()
 
     client.buildExpression(fields, QStringLiteral("16b"), 1);
 
-    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.buildExpression"));
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.buildExpression"));
 
     mock->injectResponse(5, "adapter.buildExpression", QJsonObject{ { "expression", QStringLiteral("${h5}") } });
 
@@ -938,7 +941,7 @@ void TestAdapterClient::buildExpressionInWrongStateIgnored()
     client.buildExpression(QJsonObject(), QStringLiteral("16b"), 1);
 
     QCOMPARE(spyBuild.count(), 0);
-    QCOMPARE(mock->sentRequests.size(), 0);
+    QCOMPARE(mock->sentRequests().size(), 0);
 }
 
 void TestAdapterClient::buildExpressionOmitsDefaultDataType()
@@ -952,7 +955,7 @@ void TestAdapterClient::buildExpressionOmitsDefaultDataType()
     /* Empty dataType should not be sent in params */
     client.buildExpression(QJsonObject(), QString(), 1);
 
-    QVERIFY(!mock->sentRequests.last().params.contains(QStringLiteral("dataType")));
+    QVERIFY(!mock->sentRequests().last().params.contains(QStringLiteral("dataType")));
 }
 
 void TestAdapterClient::buildExpressionOmitsDefaultDeviceId()
@@ -966,7 +969,7 @@ void TestAdapterClient::buildExpressionOmitsDefaultDeviceId()
     /* deviceId == 0 should not be sent in params */
     client.buildExpression(QJsonObject(), QStringLiteral("16b"), 0);
 
-    QVERIFY(!mock->sentRequests.last().params.contains(QStringLiteral("deviceId")));
+    QVERIFY(!mock->sentRequests().last().params.contains(QStringLiteral("deviceId")));
 }
 
 void TestAdapterClient::expressionHelpRequestAndResponse()
@@ -981,8 +984,8 @@ void TestAdapterClient::expressionHelpRequestAndResponse()
 
     client.requestExpressionHelp();
 
-    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.expressionHelp"));
-    QVERIFY(mock->sentRequests.last().params.isEmpty());
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.expressionHelp"));
+    QVERIFY(mock->sentRequests().last().params.isEmpty());
 
     mock->injectResponse(3, "adapter.expressionHelp",
                          QJsonObject{ { "helpText", QStringLiteral("<html>help</html>") } });
@@ -1003,7 +1006,7 @@ void TestAdapterClient::expressionHelpInActiveState()
 
     client.requestExpressionHelp();
 
-    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.expressionHelp"));
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.expressionHelp"));
 
     mock->injectResponse(5, "adapter.expressionHelp",
                          QJsonObject{ { "helpText", QStringLiteral("<html>help</html>") } });
@@ -1023,7 +1026,7 @@ void TestAdapterClient::expressionHelpInWrongStateIgnored()
     client.requestExpressionHelp();
 
     QCOMPARE(spyHelp.count(), 0);
-    QCOMPARE(mock->sentRequests.size(), 0);
+    QCOMPARE(mock->sentRequests().size(), 0);
 }
 
 void TestAdapterClient::expressionHelpErrorIsNonFatal()
@@ -1144,7 +1147,7 @@ void TestAdapterClient::stopSessionSendsAdapterStop()
     client.stopSession();
 
     /* adapter.stop (not adapter.shutdown) must be sent — adapter process stays alive */
-    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.stop"));
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.stop"));
 }
 
 void TestAdapterClient::adapterReadyEmittedAfterDescribe()
@@ -1204,10 +1207,10 @@ void TestAdapterClient::canProvideConfigAfterStop()
 
     /* Re-start: provideConfig should be accepted immediately (no process restart) */
     client.provideConfig(QJsonObject{ { "version", 1 } }, QStringList{ QStringLiteral("${h0}") });
-    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.configure"));
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.configure"));
 
     mock->injectResponse(6, "adapter.configure", QJsonObject{ { "status", "ok" } });
-    QCOMPARE(mock->sentRequests.last().method, QStringLiteral("adapter.start"));
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.start"));
 
     mock->injectResponse(7, "adapter.start", QJsonObject{ { "status", "ok" } });
     QCOMPARE(spyStarted.count(), 2);

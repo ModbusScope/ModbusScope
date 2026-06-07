@@ -39,6 +39,7 @@ public:
     const AdapterData* adapterData(const QString& adapterId);
     QStringList adapterIds() const;
     void removeAdapter(const QString& adapterId);
+    bool isMbcCompatible() const;
 
     void setAdapterCurrentConfig(const QString& adapterId, const QJsonObject& config);
     void updateAdapterFromDescribe(const QString& adapterId, const QJsonObject& describeResult);

@@ -82,6 +82,11 @@ QJsonObject AdapterData::capabilities() const
     return _capabilities;
 }
 
+bool AdapterData::isMbcCompatible() const
+{
+    return _capabilities.value("mbcCompatible").toBool();
+}
+
 QJsonObject AdapterData::currentConfig() const
 {
     return _currentConfig;

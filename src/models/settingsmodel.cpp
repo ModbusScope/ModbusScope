@@ -180,6 +180,21 @@ void SettingsModel::removeAdapter(const QString& adapterId)
     _adapters.remove(adapterId);
 }
 
+/*! \brief Return whether any registered adapter reports mbcCompatible capability.
+ * \return True if at least one adapter has mbcCompatible: true in its capabilities.
+ */
+bool SettingsModel::isMbcCompatible() const
+{
+    for (const AdapterData& adapter : _adapters)
+    {
+        if (adapter.isMbcCompatible())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 /*! \brief Persist a new configuration for an adapter and notify observers.
  *
  * Sets the adapter's current config and marks it as having a stored config,

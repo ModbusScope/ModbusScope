@@ -62,8 +62,7 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
     QApplication::setStyle(QStyleFactory::create("Fusion"));
 
-    _pOverlayLabel =
-      new OverlayLabel(tr("No registers configured — click Registers to add one"), _pUi->customPlot);
+    _pOverlayLabel = new OverlayLabel(tr("No registers configured — click Registers to add one"), _pUi->customPlot);
 
     _pDiagnosticDialog = new DiagnosticDialog(_pDiagnosticModel, this);
 
@@ -177,6 +176,7 @@ MainWindow::MainWindow(QStringList cmdArguments,
     connect(_pGraphView, &GraphView::dataAddedToPlot, _pCommunicationStats, &CommunicationStats::updateTimingInfo);
 
     connect(_pStatusBar, &StatusBar::openDiagnostics, this, &MainWindow::showDiagnostic);
+    connect(_pSettingsModel, &SettingsModel::adapterDataChanged, this, &MainWindow::updateGuiState);
 
     _pGraphShowHide = _pUi->menuShowHide;
 
@@ -707,7 +707,7 @@ void MainWindow::updateGuiState()
         _pUi->actionRegisterSettings->setEnabled(true);
         _pUi->actionStart->setEnabled(true);
         _pUi->actionOpenDataFile->setEnabled(true);
-        _pUi->actionImportFromMbcFile->setEnabled(true);
+        _pUi->actionImportFromMbcFile->setEnabled(_pSettingsModel->isMbcCompatible());
         _pUi->actionOpenProjectFile->setEnabled(true);
         _pUi->actionSaveDataFile->setEnabled(false);
         _pUi->actionExportImage->setEnabled(false);
@@ -744,7 +744,7 @@ void MainWindow::updateGuiState()
         _pUi->actionRegisterSettings->setEnabled(true);
         _pUi->actionStart->setEnabled(true);
         _pUi->actionOpenDataFile->setEnabled(true);
-        _pUi->actionImportFromMbcFile->setEnabled(true);
+        _pUi->actionImportFromMbcFile->setEnabled(_pSettingsModel->isMbcCompatible());
         _pUi->actionOpenProjectFile->setEnabled(true);
         _pUi->actionSaveDataFile->setEnabled(true);
         _pUi->actionSaveProjectFileAs->setEnabled(true);
@@ -772,7 +772,7 @@ void MainWindow::updateGuiState()
         _pUi->actionRegisterSettings->setEnabled(true);
         _pUi->actionStart->setEnabled(true);
         _pUi->actionOpenDataFile->setEnabled(true);
-        _pUi->actionImportFromMbcFile->setEnabled(true);
+        _pUi->actionImportFromMbcFile->setEnabled(_pSettingsModel->isMbcCompatible());
         _pUi->actionOpenProjectFile->setEnabled(true);
 
         _pUi->actionSaveDataFile->setEnabled(false);
@@ -934,8 +934,11 @@ void MainWindow::handleFileOpen(QString filename)
     }
     else if (suffix == QStringLiteral("mbc"))
     {
-        _pGuiModel->setLastMbcImportedFile(filename);
-        showMbcImportDialog();
+        if (_pSettingsModel->isMbcCompatible())
+        {
+            _pGuiModel->setLastMbcImportedFile(filename);
+            showMbcImportDialog();
+        }
     }
     else
     {
