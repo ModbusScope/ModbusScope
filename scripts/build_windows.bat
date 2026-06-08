@@ -2,7 +2,7 @@ echo on
 
 IF "%BUILD_TYPE%"=="" SET BUILD_TYPE=Debug
 
-echo Building ModbusScope using MinGW ...
+echo Building using MinGW ...
 mkdir release
 cd release
 
