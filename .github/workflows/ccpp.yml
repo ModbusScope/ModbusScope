@@ -13,7 +13,7 @@ jobs:
     container:
       image: docker://jgeudens/qt-linux:6.8.3_build_2
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v6.0.3
 
       - name: Start display server
         run: bash /start.sh &
@@ -37,7 +37,7 @@ jobs:
     runs-on: windows-2022
 
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v6.0.3
 
       - name: Install Qt installer
         run: pip3 install aqtinstall==3.3.0
