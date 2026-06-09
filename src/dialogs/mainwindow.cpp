@@ -939,6 +939,10 @@ void MainWindow::handleFileOpen(QString filename)
             _pGuiModel->setLastMbcImportedFile(filename);
             showMbcImportDialog();
         }
+        else
+        {
+            Util::showError(tr("MBC import is not supported by the current adapter configuration."));
+        }
     }
     else
     {
