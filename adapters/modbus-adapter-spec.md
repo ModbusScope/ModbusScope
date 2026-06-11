@@ -22,8 +22,7 @@ payloads defined in the protocol spec without further specialization.
   "schema": { ... },
   "defaults": { ... },
   "capabilities": {
-    "supportsHotReload": false,
-    "requiresRestartOn": ["connections", "devices"]
+    "mbcCompatible": true
   }
 }
 ```

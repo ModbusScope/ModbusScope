@@ -36,6 +36,7 @@ public:
     QJsonObject schema() const;
     QJsonObject defaults() const;
     QJsonObject capabilities() const;
+    bool isMbcCompatible() const;
     QJsonObject currentConfig() const;
     bool hasStoredConfig() const;
     QJsonObject dataPointSchema() const;

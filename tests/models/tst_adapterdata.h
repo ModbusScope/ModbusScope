@@ -33,6 +33,10 @@ private slots:
 
     void maxDevicesFromSchemaReturnsIntMaxWhenAbsent();
     void maxDevicesFromSchemaReturnsValue();
+
+    void isMbcCompatibleTrue();
+    void isMbcCompatibleFalse();
+    void settingsModelIsMbcCompatible();
 };
 
 #endif /* TEST_ADAPTERDATA_H__ */

@@ -37,8 +37,7 @@ void TestAdapterData::updateFromDescribe()
     AdapterData data;
 
     QJsonObject caps;
-    caps["supportsHotReload"] = false;
-    caps["requiresRestartOn"] = QJsonArray{ "connections", "devices" };
+    caps["mbcCompatible"] = true;
 
     QJsonObject defaults;
     defaults["version"] = 1;
@@ -62,7 +61,8 @@ void TestAdapterData::updateFromDescribe()
     QCOMPARE(data.configVersion(), 2);
     QCOMPARE(data.schema().value("type").toString(), QStringLiteral("object"));
     QCOMPARE(data.defaults().value("version").toInt(), 1);
-    QCOMPARE(data.capabilities().value("supportsHotReload").toBool(), false);
+    QCOMPARE(data.capabilities().value("mbcCompatible").toBool(), true);
+    QVERIFY(data.isMbcCompatible());
 }
 
 void TestAdapterData::updateFromDescribeMissingFields()
@@ -336,6 +336,58 @@ void TestAdapterData::maxDevicesFromSchemaReturnsValue()
     data.updateFromDescribe(describeResult);
 
     QCOMPARE(data.maxDevicesFromSchema(), 3);
+}
+
+void TestAdapterData::isMbcCompatibleTrue()
+{
+    AdapterData data;
+
+    QJsonObject caps;
+    caps["mbcCompatible"] = true;
+
+    QJsonObject describeResult;
+    describeResult["name"] = "modbusAdapter";
+    describeResult["capabilities"] = caps;
+    data.updateFromDescribe(describeResult);
+
+    QVERIFY(data.isMbcCompatible());
+}
+
+void TestAdapterData::isMbcCompatibleFalse()
+{
+    AdapterData data;
+
+    QJsonObject caps;
+    caps["mbcCompatible"] = false;
+
+    QJsonObject describeResult;
+    describeResult["name"] = "testAdapter";
+    describeResult["capabilities"] = caps;
+    data.updateFromDescribe(describeResult);
+
+    QVERIFY(!data.isMbcCompatible());
+}
+
+void TestAdapterData::settingsModelIsMbcCompatible()
+{
+    SettingsModel model;
+
+    /* No adapters yet → not compatible */
+    QVERIFY(!model.isMbcCompatible());
+
+    /* Register an adapter without mbcCompatible */
+    QJsonObject descNone;
+    descNone["name"] = "noMbc";
+    descNone["capabilities"] = QJsonObject{ { "mbcCompatible", false } };
+    model.updateAdapterFromDescribe("none", descNone);
+    QVERIFY(!model.isMbcCompatible());
+
+    /* Add a second adapter with mbcCompatible: true */
+    QJsonObject descMbc;
+    descMbc["name"] = "withMbc";
+    descMbc["capabilities"] = QJsonObject{ { "mbcCompatible", true } };
+    model.updateAdapterFromDescribe("mbc", descMbc);
+    QVERIFY(model.isMbcCompatible());
 }
 
 QTEST_GUILESS_MAIN(TestAdapterData)

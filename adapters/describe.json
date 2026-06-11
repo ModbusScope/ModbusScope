@@ -1,11 +1,7 @@
 {
     "capabilities": {
         "maxDevices": 3,
-        "requiresRestartOn": [
-            "connections",
-            "devices"
-        ],
-        "supportsHotReload": false
+        "mbcCompatible": true
     },
     "configVersion": 1,
     "defaults": {
@@ -260,5 +256,5 @@
         },
         "type": "object"
     },
-    "version": "0.0.2-master+06bd3d9"
+    "version": "0.0.2-unknown+unknown"
 }

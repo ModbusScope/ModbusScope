@@ -1,7 +1,14 @@
-
 # Changelog
 
 ## Unreleased
+
+### Changed
+
+* Update capabilities
+  * Remove unused `supportsHotReload`and `requiresRestartOn`
+  * Add `mbcCompatible`
+
+## v0.0.2 - (07/05/2026)
 
 ### Added
 
