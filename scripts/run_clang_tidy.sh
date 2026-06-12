@@ -19,5 +19,5 @@ echo "=== Running clang-tidy ==="
 if [[ -n "${SINGLE_FILE}" ]]; then
     clang-tidy -quiet -p "${BUILD_DIR}" "${SINGLE_FILE}"
 else
-    run-clang-tidy -quiet -hide-progress -p "${BUILD_DIR}" -j "$(nproc)" "$(pwd)/src/.*\.cpp\$"
+    run-clang-tidy -quiet -p "${BUILD_DIR}" -j "$(nproc)" "$(pwd)/src/.*\.cpp\$"
 fi

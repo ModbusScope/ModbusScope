@@ -12,10 +12,10 @@ on:
 jobs:
   coverage:
     runs-on: ubuntu-latest
-    container: docker://jgeudens/qt-linux:6.8.3_build_2
+    container: docker://jgeudens/qt-linux:6.8.3_build_3
     steps:
     - name: Checkout
-      uses: actions/checkout@v6.0.2
+      uses: actions/checkout@v6.0.3
 
     - name: Start display server
       run: bash /start.sh &
@@ -45,9 +45,9 @@ jobs:
 
   clazy:
     runs-on: ubuntu-latest
-    container: docker://jgeudens/qt-linux:6.8.3_build_2
+    container: docker://jgeudens/qt-linux:6.8.3_build_3
     steps:
-    - uses: actions/checkout@v6.0.2
+    - uses: actions/checkout@v6.0.3
 
     - name: Configure safe directory for git
       run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
@@ -57,9 +57,9 @@ jobs:
 
   clang-tidy:
     runs-on: ubuntu-latest
-    container: docker://jgeudens/qt-linux:6.8.3_build_2
+    container: docker://jgeudens/qt-linux:6.8.3_build_3
     steps:
-    - uses: actions/checkout@v6.0.2
+    - uses: actions/checkout@v6.0.3
 
     - name: Configure safe directory for git
       run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
