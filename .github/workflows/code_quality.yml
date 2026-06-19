@@ -15,7 +15,7 @@ jobs:
     container: docker://jgeudens/qt-linux:6.8.3_build_3
     steps:
     - name: Checkout
-      uses: actions/checkout@v6.0.3
+      uses: actions/checkout@v7.0.0
 
     - name: Start display server
       run: bash /start.sh &
@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     container: docker://jgeudens/qt-linux:6.8.3_build_3
     steps:
-    - uses: actions/checkout@v6.0.3
+    - uses: actions/checkout@v7.0.0
 
     - name: Configure safe directory for git
       run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     container: docker://jgeudens/qt-linux:6.8.3_build_3
     steps:
-    - uses: actions/checkout@v6.0.3
+    - uses: actions/checkout@v7.0.0
 
     - name: Configure safe directory for git
       run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
