@@ -33,9 +33,9 @@ Docs are available at [https://modbusscope.readthedocs.io](https://modbusscope.r
 
 ## Architecture and licensing
 
-The Modbus protocol support is implemented as an external adapter. This adapter is free to use and is bundled with ModbusScope for a smooth out-of-the-box experience. The main application is licensed under the GPL.
+The visualization core of ModbusScope is open-source and released under the [GNU General Public License v3.0](https://github.com/ModbusScope/ModbusScope/blob/master/LICENSE).
 
-Support for additional protocols beyond Modbus is being explored. The intent is to keep existing Modbus functionality free, while having flexibility in how future protocol support is offered.
+Protocol support is implemented through adapters — self-contained components that handle communication for a specific protocol. The Modbus adapter is bundled with ModbusScope for a smooth out-of-the-box experience, and additional protocols can be supported by adding new adapters.
 
 ## Feedback and ideas
 
