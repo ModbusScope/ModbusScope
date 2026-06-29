@@ -43,7 +43,7 @@ jobs:
         run: pip3 install aqtinstall==3.3.0
 
       - name: Qt Build Cache
-        uses: actions/cache@v6.0.0
+        uses: actions/cache@v6.1.0
         id: cache
         with:
           path: ${{ github.workspace }}\Qt
