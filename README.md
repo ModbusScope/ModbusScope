@@ -13,7 +13,7 @@ ModbusScope is a graphical user interface tool designed for logging and visualiz
 
 It started as a personal project and has grown into something people actually rely on. What sets it apart is long-term commitment: the goal is a stable, well-maintained application, not just rapidly shipping features and moving on. ModbusScope is actively maintained and continuously improved.
 
-[**Website**](https://modbusscope.github.io/) | [**Getting started**](https://modbusscope.readthedocs.io/en/stable/pages/overview.html) | [**Download**](https://github.com/ModbusScope/ModbusScope/releases/latest) | [**Release notes**](https://modbusscope.readthedocs.io/en/stable/pages/release_notes.html)
+[**Website**](https://modbusscope.com/) | [**Getting started**](https://modbusscope.readthedocs.io/en/stable/pages/overview.html) | [**Download**](https://github.com/ModbusScope/ModbusScope/releases/latest) | [**Release notes**](https://modbusscope.readthedocs.io/en/stable/pages/release_notes.html)
 
 ## Features
 
@@ -33,9 +33,9 @@ Docs are available at [https://modbusscope.readthedocs.io](https://modbusscope.r
 
 ## Architecture and licensing
 
-The Modbus protocol support is implemented as an external adapter. This adapter is free to use and is bundled with ModbusScope for a smooth out-of-the-box experience. The main application is licensed under the GPL.
+The visualization core of ModbusScope is open-source and released under the [GNU General Public License v3.0](https://github.com/ModbusScope/ModbusScope/blob/master/LICENSE).
 
-Support for additional protocols beyond Modbus is being explored. The intent is to keep existing Modbus functionality free, while having flexibility in how future protocol support is offered.
+Protocol support is implemented through adapters — self-contained components that handle communication for a specific protocol. The Modbus adapter is bundled with ModbusScope for a smooth out-of-the-box experience, and additional protocols can be supported by adding new adapters.
 
 ## Feedback and ideas
 

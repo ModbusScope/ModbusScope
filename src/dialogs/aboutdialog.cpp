@@ -39,7 +39,7 @@ AboutDialog::~AboutDialog()
 
 void AboutDialog::openHomePage(void)
 {
-    QDesktopServices::openUrl(QUrl("https://modbusscope.github.io/"));
+    QDesktopServices::openUrl(QUrl("https://modbusscope.com/"));
 }
 
 void AboutDialog::openLicense(void)
