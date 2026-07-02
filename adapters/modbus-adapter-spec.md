@@ -23,6 +23,10 @@ payloads defined in the protocol spec without further specialization.
   "defaults": { ... },
   "capabilities": {
     "mbcCompatible": true
+  },
+  "license": {
+    "state": "notFound",
+    "path": "/home/user/.config/ModbusScope/licenses/modbusAdapter.lic"
   }
 }
 ```
@@ -39,8 +43,59 @@ treat `version` as a fixed literal; parse or compare it accordingly.
 | `version` | Adapter software version. Release: `"<semver>"`. Debug: `"<semver>-<git-branch-safe>+<commit-hash>"` (slashes in branch name replaced with hyphens). |
 | `configVersion` | Current config schema version |
 | `schema` | JSON Schema–compatible object describing the `config` object accepted by `adapter.configure` |
-| `defaults` | Default config values. The `connections` array contains a single TCP entry that also includes serial-specific fields (`portName`, `baudrate`, `parity`, `databits`, `stopbits`) so callers can see serial defaults without needing a second example. |
+| `defaults` | Default config values. The `connections` array contains a single TCP entry that also includes serial-specific fields (`portName`, `baudrate`, `parity`, `databits`, `stopbits`) and, when `MODBUSADAPTER_ENABLE_GATEWAY` is set, gateway fields (`gatewayEnabled`, `gatewayHost`, `gatewayPort`) so callers can see all defaults without needing separate examples. |
 | `capabilities` | Feature flags |
+| `license` | Current license state object (see below) |
+
+### `license` object
+
+Evaluated on every `adapter.describe` call. Always present.
+
+| Field | Present when | Description |
+| --- | --- | --- |
+| `state` | always | `"valid"`, `"notFound"`, or `"invalid"` |
+| `path` | always | Absolute path of the `.lic` file the adapter looks for, e.g. `~/.config/ModbusScope/licenses/modbusAdapter.lic` |
+| `product` | `state == "valid"` | Product name from the signed payload |
+| `customer` | `state == "valid"` | Customer name from the signed payload |
+| `email` | `state == "valid"` | Email address from the signed payload |
+| `licenseId` | `state == "valid"` | License identifier from the signed payload |
+| `expires` | `state == "valid"` and license has an expiry date | ISO date string (`"YYYY-MM-DD"`); omitted for perpetual licenses |
+| `reason` | `state == "invalid"` | Human-readable description of why verification failed |
+
+**Examples:**
+
+License file not present at the expected path:
+
+```json
+{
+  "state": "notFound",
+  "path": "/home/user/.config/ModbusScope/licenses/modbusAdapter.lic"
+}
+```
+
+License file present but verification failed:
+
+```json
+{
+  "state": "invalid",
+  "path": "/home/user/.config/ModbusScope/licenses/modbusAdapter.lic",
+  "reason": "signature verification failed"
+}
+```
+
+Valid license:
+
+```json
+{
+  "state": "valid",
+  "path": "/home/user/.config/ModbusScope/licenses/modbusAdapter.lic",
+  "product": "modbusAdapter",
+  "customer": "ACME Corp",
+  "email": "customer@example.com",
+  "licenseId": "LIC-2026-001",
+  "expires": "2027-01-01"
+}
+```
 
 The connection schema uses JSON Schema Draft 7 `if`/`then`/`else` to express type-dependent fields. When `type` equals
 `"tcp"`, the fields in `then.properties` apply (TCP-specific). Otherwise, when `type` is not `"tcp"`, the fields in
@@ -79,6 +134,15 @@ Applies Modbus connection and device configuration to the adapter. Must be calle
         "stopbits": 1,
         "timeout": 1000,
         "persistent": false
+      },
+      {
+        "id": 2,
+        "type": "tcp",
+        "ip": "192.168.1.200",
+        "port": 502,
+        "gatewayEnabled": true,
+        "gatewayHost": "127.0.0.1",
+        "gatewayPort": 5021
       }
     ],
     "devices": [
@@ -129,6 +193,20 @@ Serial-specific fields:
 | `databits` | integer | `8` | Data bits: `5`, `6`, `7`, or `8` |
 | `stopbits` | integer | `1` | Stop bits: `1` (one), `2` (two), or `3` (one-and-a-half) |
 
+Gateway fields (TCP connections only):
+
+| Field | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `gatewayEnabled` | boolean | no | `false` | Open a Modbus TCP gateway server on this connection |
+| `gatewayHost` | string | no | `"127.0.0.1"` | Host/IP the gateway server listens on |
+| `gatewayPort` | integer | conditional | — | TCP port the gateway listens on (1–65535); required when `gatewayEnabled` is `true` |
+
+Cross-field validation rules (not expressed in the JSON Schema):
+
+- `gatewayPort` is required if `gatewayEnabled` is `true`; omitting it causes a configure error.
+- No two connections may share the same `gatewayPort`.
+- A TCP connection's gateway cannot forward to its own upstream host:port (prevents trivial loops).
+
 **Device fields:**
 
 | Field | Type | Required | Description |
@@ -138,6 +216,43 @@ Serial-specific fields:
 | `slaveId` | integer | yes | Modbus slave ID (`1`–`247`) |
 | `consecutiveMax` | integer | no | Max registers per single read request (default: `125`) |
 | `int32LittleEndian` | boolean | no | Byte order for 32-bit values (default: `true` = little endian) |
+
+**Free version limit:** without a valid license, a session is limited to a maximum of 2 devices.
+Requesting more returns a JSON-RPC error:
+
+```json
+{"id":3,"jsonrpc":"2.0","error":{"code":-32602,"message":"Too many devices: maximum allowed is 2"}}
+```
+
+An `adapter.diagnostic` warning notification is also sent for this condition.
+
+---
+
+## Modbus Gateway
+
+When `gatewayEnabled` is `true` on a connection, the adapter opens a Modbus TCP server on
+`gatewayHost:gatewayPort` after `adapter.start`. This server acts as a transparent proxy:
+every Modbus request received from a downstream client is forwarded verbatim to the upstream
+device, and the response (including Modbus exception codes) is returned unchanged.
+
+| Scenario | Gateway response |
+| --- | --- |
+| Upstream unreachable or timeout | Exception `0x0B` — Gateway Target Device Failed to Respond |
+| Re-entrant request (forwarding already in progress) | Exception `0x06` — Server Device Busy |
+| Upstream returns a Modbus exception | Exception code passed through unmodified |
+
+All function codes (reads and writes) are forwarded. TCP connections only — serial gateways are
+not supported in this version.
+
+For connections where polling and gateway share the same upstream device, the adapter multiplexes
+both over a single `QModbusClient`; no additional TCP connection is opened for gateway traffic.
+
+The gateway is torn down on `adapter.stop` and re-established on the next `adapter.start` call,
+so stop/start cycles correctly rebind the listening port.
+
+> **Feature flag:** Set the `MODBUSADAPTER_ENABLE_GATEWAY` environment variable to expose gateway
+> fields in the `adapter.describe` schema and defaults output. Configure validation and runtime
+> behaviour are active regardless.
 
 ---
 
@@ -155,6 +270,15 @@ Starts Modbus polling with the configuration applied by `adapter.configure`.
 
 Each element is a register subexpression string with the syntax:
 `${address [@ deviceId] [: type]}`
+
+**Free version limit:** without a valid license, a session is limited to a maximum of 10 registers.
+Requesting more returns a JSON-RPC error:
+
+```json
+{"id":4,"jsonrpc":"2.0","error":{"code":-32602,"message":"Invalid params: free version is limited to 10 registers (11 configured); a license is required to log more"}}
+```
+
+An `adapter.diagnostic` warning notification is also sent for this condition.
 
 **Address format:**
 
