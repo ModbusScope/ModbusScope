@@ -27,6 +27,7 @@ private:
     void showVersionUpdate(UpdateNotify* updateNotify);
     void setVersionInfo();
     void setAdapterVersionInfo(SettingsModel* pSettingsModel);
+    void setLicenseInfo(SettingsModel* pSettingsModel);
     void setLibraryVersionInfo();
 
     Ui::AboutDialog* _pUi;

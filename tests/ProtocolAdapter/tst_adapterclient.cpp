@@ -92,6 +92,10 @@ static QJsonObject describeResult()
     QJsonObject caps;
     caps["mbcCompatible"] = true;
 
+    QJsonObject license;
+    license["state"] = "notFound";
+    license["path"] = "/home/user/.config/ModbusScope/modbusAdapter/licenses/modbusAdapter.lic";
+
     QJsonObject result;
     result["name"] = "modbusAdapter";
     result["version"] = "1.0.0";
@@ -99,6 +103,7 @@ static QJsonObject describeResult()
     result["schema"] = QJsonObject{};
     result["defaults"] = QJsonObject{};
     result["capabilities"] = caps;
+    result["license"] = license;
     return result;
 }
 
@@ -177,6 +182,7 @@ void TestAdapterClient::describeSignalEmitted()
     QJsonObject received = spyDescribe.at(0).at(0).value<QJsonObject>();
     QCOMPARE(received["name"].toString(), QStringLiteral("modbusAdapter"));
     QCOMPARE(received["configVersion"].toInt(), 1);
+    QCOMPARE(received["license"].toObject().value("state").toString(), QStringLiteral("notFound"));
 }
 
 void TestAdapterClient::readDataValidResults()

@@ -37,6 +37,9 @@ private slots:
     void isMbcCompatibleTrue();
     void isMbcCompatibleFalse();
     void settingsModelIsMbcCompatible();
+
+    void licenseFieldParsed();
+    void updateFromDescribeMissingLicense();
 };
 
 #endif /* TEST_ADAPTERDATA_H__ */
