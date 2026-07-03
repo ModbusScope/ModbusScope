@@ -53,3 +53,4 @@ set "QML2_IMPORT_PATH=%QT_INSTALL_DIR%\%QT%\%QT_ARCH_PATH%\qml\"
 set "CMAKE_PREFIX_PATH=%QT_INSTALL_DIR%\%QT%\%QT_ARCH_PATH%\lib\cmake\Qt6"
 
 set "OPENSSL_DIR=%QT_INSTALL_DIR%\Tools\OpenSSLv3\Win_x64\bin"
+set "SODIUM_DIR=C:\msys64\mingw64\bin"
