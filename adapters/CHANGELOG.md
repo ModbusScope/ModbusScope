@@ -14,7 +14,7 @@
 - Remove the application name directory from the license file path (now `~/.config/ModbusScope/licenses/<adapter>.lic`)
 - Change supported devices to 2 in free version
 - Update capabilities
-  - Remove unused `supportsHotReload`and `requiresRestartOn`
+  - Remove unused `supportsHotReload` and `requiresRestartOn`
   - Add `mbcCompatible`
 
 ## v0.0.2 - (07/05/2026)

@@ -9,7 +9,7 @@ license text must accompany any distributed copy of these binaries.
 - License: ISC License
 - Copyright: Copyright (c) 2013-2026 Frank Denis <j at pureftpd dot org>
 
-```
+```text
 ISC License
 
 Copyright (c) 2013-2026
