@@ -20,7 +20,7 @@ QString licenseLogText(const AdapterLicenseInfo& info)
     }
     if (info.state == "valid")
     {
-        QString text = QString("license valid: %1 <%2>, ID %3").arg(info.customer, info.email, info.licenseId);
+        QString text = QString("license valid for %1").arg(info.customer);
         if (!info.expires.isEmpty())
         {
             text += QString(", expires %1").arg(info.expires);
