@@ -1,29 +1,47 @@
 param(
     [Parameter(Mandatory = $true)][string]$DeployDir,
-    [Parameter(Mandatory = $true)][string[]]$Executables,
+    [Parameter(Mandatory = $true)][string]$Executables,
     [int]$TimeoutSeconds = 5
 )
 
 $ErrorActionPreference = 'Stop'
+$VerbosePreference = 'Continue'
 
-# NTSTATUS values Windows uses when a process image fails to load.
+# NTSTATUS values Windows uses when a process image fails to load. Bare hex
+# literals above 0x7FFFFFFF parse as (negative) Int32, not UInt32, so they'd
+# never match $code below (also UInt32) unless reinterpreted the same way.
+function ConvertTo-UInt32Bits([int]$value) {
+    return [uint32]([int64]$value -band 0xFFFFFFFFL)
+}
 $LoaderFailureCodes = @{
-    0xC0000135 = 'STATUS_DLL_NOT_FOUND - a required DLL could not be located'
-    0xC0000139 = 'STATUS_ENTRYPOINT_NOT_FOUND - a DLL is present but missing an expected export'
-    0xC000007B = 'STATUS_INVALID_IMAGE_FORMAT - architecture/bitness mismatch'
-    0xC0000005 = 'STATUS_ACCESS_VIOLATION - crashed on startup'
+    (ConvertTo-UInt32Bits 0xC0000135) = 'STATUS_DLL_NOT_FOUND - a required DLL could not be located'
+    (ConvertTo-UInt32Bits 0xC0000139) = 'STATUS_ENTRYPOINT_NOT_FOUND - a DLL is present but missing an expected export'
+    (ConvertTo-UInt32Bits 0xC000007B) = 'STATUS_INVALID_IMAGE_FORMAT - architecture/bitness mismatch'
+    (ConvertTo-UInt32Bits 0xC0000005) = 'STATUS_ACCESS_VIOLATION - crashed on startup'
 }
 
+# $Executables is a single comma-separated string, not [string[]]: PowerShell's
+# -File argument binder does not slurp multiple bareword/CLI tokens into an
+# array parameter, so a batch caller can't produce a real array literal.
+$executableList = $Executables -split ','
+
 # Launch everything first so one shared timeout covers all executables.
-$launched = foreach ($exeName in $Executables) {
+$launched = foreach ($exeName in $executableList) {
     $exePath = Join-Path $DeployDir $exeName
     if (-not (Test-Path $exePath)) {
-        Write-Host "[FAIL] $exeName - not found in $DeployDir"
+        Write-Verbose "[FAIL] $exeName - not found in $DeployDir"
         [PSCustomObject]@{ Name = $exeName; Process = $null }
         continue
     }
-    Write-Host "Starting $exeName ..."
-    $proc = Start-Process -FilePath $exePath -WorkingDirectory $DeployDir -NoNewWindow -PassThru
+    Write-Verbose "Starting $exeName ..."
+    # Use Process.Start directly rather than the Start-Process cmdlet: with
+    # -PassThru, Start-Process's returned object unreliably reports ExitCode
+    # (observed blank/0 even for a process that has genuinely exited).
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $exePath
+    $psi.WorkingDirectory = $DeployDir
+    $psi.UseShellExecute = $false
+    $proc = [System.Diagnostics.Process]::Start($psi)
     [PSCustomObject]@{ Name = $exeName; Process = $proc }
 }
 
@@ -34,25 +52,28 @@ foreach ($item in $launched) {
     if (-not $item.Process) { $failures += $item.Name; continue }
     $proc = $item.Process
     if ($proc.HasExited) {
-        $code = [uint32]$proc.ExitCode
+        # ExitCode is a signed Int32; loader failure NTSTATUS codes (e.g.
+        # 0xC0000135) are >= 0x80000000, so reinterpret the bits rather than
+        # casting directly (a direct [uint32] cast overflows on negative values).
+        $code = ConvertTo-UInt32Bits $proc.ExitCode
         $hex = '0x{0:X8}' -f $code
         if ($LoaderFailureCodes.ContainsKey($code)) {
-            Write-Host "[FAIL] $($item.Name) exited after ${TimeoutSeconds}s with $hex ($($LoaderFailureCodes[$code]))"
+            Write-Output "[FAIL] $($item.Name) exited after ${TimeoutSeconds}s with $hex ($($LoaderFailureCodes[$code]))"
         } else {
-            Write-Host "[FAIL] $($item.Name) exited early after ${TimeoutSeconds}s with exit code $($proc.ExitCode) ($hex)"
+            Write-Output "[FAIL] $($item.Name) exited early after ${TimeoutSeconds}s with exit code $($proc.ExitCode) ($hex)"
         }
         $failures += $item.Name
     } else {
-        Write-Host "[PASS] $($item.Name) still running after ${TimeoutSeconds}s"
+        Write-Output "[PASS] $($item.Name) still running after ${TimeoutSeconds}s"
         Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
     }
 }
 
 if ($failures.Count -gt 0) {
-    Write-Host ""
-    Write-Host "Deployment smoke test FAILED for: $($failures -join ', ')"
+    Write-Output ""
+    Write-Output "Deployment smoke test FAILED for: $($failures -join ', ')"
     exit 1
 }
-Write-Host ""
-Write-Host "Deployment smoke test passed for all executables."
+Write-Output ""
+Write-Output "Deployment smoke test passed for all executables."
 exit 0
