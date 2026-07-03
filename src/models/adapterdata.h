@@ -12,7 +12,19 @@
  */
 struct AdapterLicenseInfo
 {
-    QString state;
+    //! \brief Parsed form of the license object's "state" field.
+    enum class State
+    {
+        Unknown, //!< No license was reported, or the raw state was not recognized.
+        Valid,
+        Invalid,
+        NotFound
+    };
+
+    //! \brief Convert the raw "state" string from the license object into a \a State.
+    static State stateFromString(const QString& state);
+
+    State state{ State::Unknown };
     QString path;
     QString reason;
     QString customer;

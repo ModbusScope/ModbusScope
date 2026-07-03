@@ -10,15 +10,15 @@ namespace {
  */
 QString licenseLogText(const AdapterLicenseInfo& info)
 {
-    if (info.state == "notFound")
+    if (info.state == AdapterLicenseInfo::State::NotFound)
     {
         return QString("license not found (searched %1)").arg(info.path);
     }
-    if (info.state == "invalid")
+    if (info.state == AdapterLicenseInfo::State::Invalid)
     {
         return QString("license invalid: %1 (path: %2)").arg(info.reason, info.path);
     }
-    if (info.state == "valid")
+    if (info.state == AdapterLicenseInfo::State::Valid)
     {
         QString text = QString("license valid for %1").arg(info.customer);
         if (!info.expires.isEmpty())
@@ -279,7 +279,7 @@ void SettingsModel::updateAdapterFromDescribe(const QString& adapterId, const QJ
     const QString licenseText = licenseLogText(licenseInfo);
     if (!licenseText.isEmpty())
     {
-        if (licenseInfo.state == "valid")
+        if (licenseInfo.state == AdapterLicenseInfo::State::Valid)
         {
             qCInfo(scopeComm) << qUtf8Printable(QString("Adapter %1: %2").arg(adapterId, licenseText));
         }

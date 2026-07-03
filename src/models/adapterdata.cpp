@@ -97,12 +97,31 @@ QJsonObject AdapterData::license() const
     return _license;
 }
 
+//! \brief Convert the raw "state" string from the license object into a \a State.
+//! \return The matching \a State, or State::Unknown if the string is not recognized.
+AdapterLicenseInfo::State AdapterLicenseInfo::stateFromString(const QString& state)
+{
+    if (state == "valid")
+    {
+        return State::Valid;
+    }
+    if (state == "invalid")
+    {
+        return State::Invalid;
+    }
+    if (state == "notFound")
+    {
+        return State::NotFound;
+    }
+    return State::Unknown;
+}
+
 //! \brief Parses the raw license JSON into its known fields.
 //! \return An AdapterLicenseInfo with empty fields if no license was reported.
 AdapterLicenseInfo AdapterData::licenseInfo() const
 {
     AdapterLicenseInfo info;
-    info.state = _license.value("state").toString();
+    info.state = AdapterLicenseInfo::stateFromString(_license.value("state").toString());
     info.path = _license.value("path").toString();
     info.reason = _license.value("reason").toString();
     info.customer = _license.value("customer").toString();

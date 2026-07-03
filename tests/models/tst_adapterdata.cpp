@@ -418,7 +418,7 @@ void TestAdapterData::licenseFieldParsed()
     QCOMPARE(data.license().value("expires").toString(), QStringLiteral("2027-01-01"));
 
     const AdapterLicenseInfo info = data.licenseInfo();
-    QCOMPARE(info.state, QStringLiteral("valid"));
+    QCOMPARE(info.state, AdapterLicenseInfo::State::Valid);
     QCOMPARE(info.customer, QStringLiteral("ACME Corp"));
     QCOMPARE(info.email, QStringLiteral("customer@example.com"));
     QCOMPARE(info.licenseId, QStringLiteral("LIC-2026-001"));

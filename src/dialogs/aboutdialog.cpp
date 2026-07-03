@@ -120,7 +120,7 @@ void AboutDialog::setLicenseInfo(SettingsModel* pSettingsModel)
     for (const QString& id : pSettingsModel->adapterIds())
     {
         license = pSettingsModel->adapterData(id)->licenseInfo();
-        if (!license.state.isEmpty())
+        if (license.state != AdapterLicenseInfo::State::Unknown)
         {
             break;
         }
@@ -128,7 +128,7 @@ void AboutDialog::setLicenseInfo(SettingsModel* pSettingsModel)
 
     QString licenseTxt;
 
-    if (license.state == "valid")
+    if (license.state == AdapterLicenseInfo::State::Valid)
     {
         licenseTxt = QString(tr("Licensed to %1 <%2>, ID %3")).arg(license.customer, license.email, license.licenseId);
         if (!license.expires.isEmpty())
@@ -136,11 +136,11 @@ void AboutDialog::setLicenseInfo(SettingsModel* pSettingsModel)
             licenseTxt += QString(tr(", expires %1")).arg(license.expires);
         }
     }
-    else if (license.state == "invalid")
+    else if (license.state == AdapterLicenseInfo::State::Invalid)
     {
         licenseTxt = QString(tr("License invalid: %1")).arg(license.reason);
     }
-    else if (license.state == "notFound")
+    else if (license.state == AdapterLicenseInfo::State::NotFound)
     {
         licenseTxt = QString(tr("No license found (searched %1)")).arg(license.path);
     }
