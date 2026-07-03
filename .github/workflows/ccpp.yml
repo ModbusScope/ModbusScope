@@ -49,6 +49,10 @@ jobs:
           path: ${{ github.workspace }}\Qt
           key: ${{ runner.os }}-qt-build-${{ hashFiles('scripts/setup_windows.bat') }}
 
+      - name: Install libsodium
+        shell: cmd
+        run: C:\msys64\usr\bin\pacman.exe -S --noconfirm mingw-w64-x86_64-libsodium
+
       - name: Setup, build and deploy
         shell: cmd
         run: scripts\full_build_and_deploy_windows.bat '${{ steps.cache.outputs.cache-hit }}' ${{ github.workspace }}\Qt

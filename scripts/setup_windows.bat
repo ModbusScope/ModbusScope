@@ -42,6 +42,7 @@ dir %QT_INSTALL_DIR%\Tools
 
 REM Set env variables with path
 set "PATH=%QT_INSTALL_DIR%\%QT%\%QT_ARCH_PATH%\bin;%PATH%"
+set "PATH=C:\msys64\mingw64\bin;%PATH%"
 set "PATH=%QT_INSTALL_DIR%\Tools\mingw1310_64\bin;%PATH%"
 set "PATH=%QT_INSTALL_DIR%\Tools\CMake_64\bin;%PATH%"
 set "PATH=%QT_INSTALL_DIR%\Tools\Ninja;%PATH%"

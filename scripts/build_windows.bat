@@ -10,7 +10,7 @@ echo %PATH%
 
 g++ -v
 
-cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ..
+cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%BUILD_TYPE% -DCMAKE_PREFIX_PATH="C:\msys64\mingw64;%CMAKE_PREFIX_PATH%" ..
 IF ERRORLEVEL 1 GOTO errorHandling
 
 ninja
