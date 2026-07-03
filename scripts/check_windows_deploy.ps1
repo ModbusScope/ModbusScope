@@ -41,6 +41,13 @@ $launched = foreach ($exeName in $executableList) {
     $psi.FileName = $exePath
     $psi.WorkingDirectory = $DeployDir
     $psi.UseShellExecute = $false
+    # Give the child its own stdin pipe rather than inheriting ours: on a
+    # non-interactive CI runner, inherited stdin can already be at EOF, which
+    # makes a stdio-server adapter read no request and exit(0) immediately
+    # instead of idling - a false failure unrelated to missing DLLs. An
+    # explicit pipe we never close/write to just blocks forever, in every
+    # environment.
+    $psi.RedirectStandardInput = $true
     $proc = [System.Diagnostics.Process]::Start($psi)
     [PSCustomObject]@{ Name = $exeName; Process = $proc }
 }
