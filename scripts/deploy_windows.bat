@@ -37,6 +37,17 @@ IF ERRORLEVEL 1 GOTO errorHandling
 xcopy "%OPENSSL_DIR%\libssl-3-x64.dll" .
 IF ERRORLEVEL 1 GOTO errorHandling
 
+REM Add libsodium dll
+echo "SODIUM_DIR: %SODIUM_DIR%"
+
+xcopy "%SODIUM_DIR%\libsodium-26.dll" .
+IF ERRORLEVEL 1 GOTO errorHandling
+
+REM Verify no DLL is missing: launch each deployed executable and confirm it
+REM doesn't immediately exit with a loader failure (e.g. missing dependency).
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0check_windows_deploy.ps1" -DeployDir "%CD%" -Executables modbusscope.exe,modbusadapter.exe
+IF ERRORLEVEL 1 GOTO errorHandling
+
 cd ..
 7z a ModbusScope.zip ".\%DEPLOY_DIR%\*"
 IF ERRORLEVEL 1 GOTO errorHandling

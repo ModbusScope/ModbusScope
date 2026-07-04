@@ -28,6 +28,7 @@ void TestAdapterData::defaultConstruction()
     QVERIFY(data.schema().isEmpty());
     QVERIFY(data.defaults().isEmpty());
     QVERIFY(data.capabilities().isEmpty());
+    QVERIFY(data.license().isEmpty());
     QVERIFY(data.currentConfig().isEmpty());
     QCOMPARE(data.hasStoredConfig(), false);
 }
@@ -81,6 +82,7 @@ void TestAdapterData::updateFromDescribeMissingFields()
     QVERIFY(data.schema().isEmpty());
     QVERIFY(data.defaults().isEmpty());
     QVERIFY(data.capabilities().isEmpty());
+    QVERIFY(data.license().isEmpty());
 }
 
 void TestAdapterData::effectiveConfigReturnsDefaults()
@@ -388,6 +390,51 @@ void TestAdapterData::settingsModelIsMbcCompatible()
     descMbc["capabilities"] = QJsonObject{ { "mbcCompatible", true } };
     model.updateAdapterFromDescribe("mbc", descMbc);
     QVERIFY(model.isMbcCompatible());
+}
+
+void TestAdapterData::licenseFieldParsed()
+{
+    AdapterData data;
+
+    QJsonObject license;
+    license["state"] = "valid";
+    license["path"] = "/home/user/.config/ModbusScope/modbusAdapter/licenses/modbusAdapter.lic";
+    license["product"] = "modbusAdapter";
+    license["customer"] = "ACME Corp";
+    license["email"] = "customer@example.com";
+    license["licenseId"] = "LIC-2026-001";
+    license["expires"] = "2027-01-01";
+
+    QJsonObject describeResult;
+    describeResult["name"] = "modbusAdapter";
+    describeResult["license"] = license;
+
+    data.updateFromDescribe(describeResult);
+
+    QCOMPARE(data.license().value("state").toString(), QStringLiteral("valid"));
+    QCOMPARE(data.license().value("customer").toString(), QStringLiteral("ACME Corp"));
+    QCOMPARE(data.license().value("email").toString(), QStringLiteral("customer@example.com"));
+    QCOMPARE(data.license().value("licenseId").toString(), QStringLiteral("LIC-2026-001"));
+    QCOMPARE(data.license().value("expires").toString(), QStringLiteral("2027-01-01"));
+
+    const AdapterLicenseInfo info = data.licenseInfo();
+    QCOMPARE(info.state, AdapterLicenseInfo::State::Valid);
+    QCOMPARE(info.customer, QStringLiteral("ACME Corp"));
+    QCOMPARE(info.email, QStringLiteral("customer@example.com"));
+    QCOMPARE(info.licenseId, QStringLiteral("LIC-2026-001"));
+    QCOMPARE(info.expires, QStringLiteral("2027-01-01"));
+}
+
+void TestAdapterData::updateFromDescribeMissingLicense()
+{
+    AdapterData data;
+
+    QJsonObject describeResult;
+    describeResult["name"] = "minimalAdapter";
+
+    data.updateFromDescribe(describeResult);
+
+    QVERIFY(data.license().isEmpty());
 }
 
 QTEST_GUILESS_MAIN(TestAdapterData)

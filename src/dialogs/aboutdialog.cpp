@@ -27,6 +27,7 @@ AboutDialog::AboutDialog(UpdateNotify* pUpdateNotify, SettingsModel* pSettingsMo
 
     setVersionInfo();
     setAdapterVersionInfo(pSettingsModel);
+    setLicenseInfo(pSettingsModel);
     setLibraryVersionInfo();
 
     showVersionUpdate(pUpdateNotify);
@@ -110,6 +111,42 @@ void AboutDialog::setAdapterVersionInfo(SettingsModel* pSettingsModel)
 
     _pUi->lblAdapterVersion->setVisible(!versionTxt.isEmpty());
     _pUi->lblAdapterVersion->setText(versionTxt);
+}
+
+void AboutDialog::setLicenseInfo(SettingsModel* pSettingsModel)
+{
+    AdapterLicenseInfo license;
+
+    for (const QString& id : pSettingsModel->adapterIds())
+    {
+        license = pSettingsModel->adapterData(id)->licenseInfo();
+        if (license.state != AdapterLicenseInfo::State::Unknown)
+        {
+            break;
+        }
+    }
+
+    QString licenseTxt;
+
+    if (license.state == AdapterLicenseInfo::State::Valid)
+    {
+        licenseTxt = QString(tr("Licensed to %1 <%2>, ID %3")).arg(license.customer, license.email, license.licenseId);
+        if (!license.expires.isEmpty())
+        {
+            licenseTxt += QString(tr(", expires %1")).arg(license.expires);
+        }
+    }
+    else if (license.state == AdapterLicenseInfo::State::Invalid)
+    {
+        licenseTxt = QString(tr("License invalid: %1")).arg(license.reason);
+    }
+    else if (license.state == AdapterLicenseInfo::State::NotFound)
+    {
+        licenseTxt = QString(tr("No license found (searched %1)")).arg(license.path);
+    }
+
+    _pUi->lblLicenseInfo->setVisible(!licenseTxt.isEmpty());
+    _pUi->lblLicenseInfo->setText(licenseTxt);
 }
 
 void AboutDialog::setLibraryVersionInfo()

@@ -1,6 +1,6 @@
 {
     "capabilities": {
-        "maxDevices": 3,
+        "maxDevices": 99,
         "mbcCompatible": true
     },
     "configVersion": 1,
@@ -33,6 +33,10 @@
         "general": {
         },
         "version": 1
+    },
+    "license": {
+        "path": "/root/.config/ModbusScope/licenses/modbusAdapter.lic",
+        "state": "notFound"
     },
     "name": "modbusAdapter",
     "schema": {
@@ -239,7 +243,7 @@
                     ],
                     "type": "object"
                 },
-                "maxItems": 3,
+                "maxItems": 99,
                 "type": "array"
             },
             "general": {
@@ -256,5 +260,5 @@
         },
         "type": "object"
     },
-    "version": "0.0.2-unknown+unknown"
+    "version": "0.0.2-master+0ecca86"
 }

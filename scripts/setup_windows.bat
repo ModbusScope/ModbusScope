@@ -42,6 +42,7 @@ dir %QT_INSTALL_DIR%\Tools
 
 REM Set env variables with path
 set "PATH=%QT_INSTALL_DIR%\%QT%\%QT_ARCH_PATH%\bin;%PATH%"
+set "PATH=C:\msys64\mingw64\bin;%PATH%"
 set "PATH=%QT_INSTALL_DIR%\Tools\mingw1310_64\bin;%PATH%"
 set "PATH=%QT_INSTALL_DIR%\Tools\CMake_64\bin;%PATH%"
 set "PATH=%QT_INSTALL_DIR%\Tools\Ninja;%PATH%"
@@ -52,3 +53,4 @@ set "QML2_IMPORT_PATH=%QT_INSTALL_DIR%\%QT%\%QT_ARCH_PATH%\qml\"
 set "CMAKE_PREFIX_PATH=%QT_INSTALL_DIR%\%QT%\%QT_ARCH_PATH%\lib\cmake\Qt6"
 
 set "OPENSSL_DIR=%QT_INSTALL_DIR%\Tools\OpenSSLv3\Win_x64\bin"
+set "SODIUM_DIR=C:\msys64\mingw64\bin"

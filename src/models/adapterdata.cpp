@@ -35,6 +35,11 @@ void AdapterData::setCapabilities(const QJsonObject& capabilities)
     _capabilities = capabilities;
 }
 
+void AdapterData::setLicense(const QJsonObject& license)
+{
+    _license = license;
+}
+
 void AdapterData::setCurrentConfig(const QJsonObject& config)
 {
     _currentConfig = config;
@@ -87,6 +92,45 @@ bool AdapterData::isMbcCompatible() const
     return _capabilities.value("mbcCompatible").toBool();
 }
 
+QJsonObject AdapterData::license() const
+{
+    return _license;
+}
+
+//! \brief Convert the raw "state" string from the license object into a \a State.
+//! \return The matching \a State, or State::Unknown if the string is not recognized.
+AdapterLicenseInfo::State AdapterLicenseInfo::stateFromString(const QString& state)
+{
+    if (state == "valid")
+    {
+        return State::Valid;
+    }
+    if (state == "invalid")
+    {
+        return State::Invalid;
+    }
+    if (state == "notFound")
+    {
+        return State::NotFound;
+    }
+    return State::Unknown;
+}
+
+//! \brief Parses the raw license JSON into its known fields.
+//! \return An AdapterLicenseInfo with empty fields if no license was reported.
+AdapterLicenseInfo AdapterData::licenseInfo() const
+{
+    AdapterLicenseInfo info;
+    info.state = AdapterLicenseInfo::stateFromString(_license.value("state").toString());
+    info.path = _license.value("path").toString();
+    info.reason = _license.value("reason").toString();
+    info.customer = _license.value("customer").toString();
+    info.email = _license.value("email").toString();
+    info.licenseId = _license.value("licenseId").toString();
+    info.expires = _license.value("expires").toString();
+    return info;
+}
+
 QJsonObject AdapterData::currentConfig() const
 {
     return _currentConfig;
@@ -112,6 +156,7 @@ void AdapterData::updateFromDescribe(const QJsonObject& describeResult)
     _schema = describeResult.value("schema").toObject();
     _defaults = describeResult.value("defaults").toObject();
     _capabilities = describeResult.value("capabilities").toObject();
+    _license = describeResult.value("license").toObject();
 }
 
 int AdapterData::maxDevicesFromSchema() const

@@ -5,6 +5,35 @@
 #include <QString>
 
 /*!
+ * \brief Parsed fields of an adapter.describe "license" object.
+ *
+ * Mirrors the fields documented for the license object in the adapter spec.
+ * Fields not applicable to the current \a state are left empty.
+ */
+struct AdapterLicenseInfo
+{
+    //! \brief Parsed form of the license object's "state" field.
+    enum class State
+    {
+        Unknown, //!< No license was reported, or the raw state was not recognized.
+        Valid,
+        Invalid,
+        NotFound
+    };
+
+    //! \brief Convert the raw "state" string from the license object into a \a State.
+    static State stateFromString(const QString& state);
+
+    State state{ State::Unknown };
+    QString path;
+    QString reason;
+    QString customer;
+    QString email;
+    QString licenseId;
+    QString expires;
+};
+
+/*!
  * \brief Holds adapter describe metadata, register schema, and opaque configuration.
  *
  * Stores the result of an adapter.describe response (name, version, schema,
@@ -26,6 +55,7 @@ public:
     void setSchema(const QJsonObject& schema);
     void setDefaults(const QJsonObject& defaults);
     void setCapabilities(const QJsonObject& capabilities);
+    void setLicense(const QJsonObject& license);
     void setCurrentConfig(const QJsonObject& config);
     void setHasStoredConfig(bool hasStoredConfig);
     void setDataPointSchema(const QJsonObject& schema);
@@ -37,6 +67,8 @@ public:
     QJsonObject defaults() const;
     QJsonObject capabilities() const;
     bool isMbcCompatible() const;
+    QJsonObject license() const;
+    AdapterLicenseInfo licenseInfo() const;
     QJsonObject currentConfig() const;
     bool hasStoredConfig() const;
     QJsonObject dataPointSchema() const;
@@ -66,6 +98,7 @@ private:
     QJsonObject _schema;
     QJsonObject _defaults;
     QJsonObject _capabilities;
+    QJsonObject _license;
     QJsonObject _currentConfig;
     bool _hasStoredConfig{ false };
     QJsonObject _dataPointSchema;

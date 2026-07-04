@@ -1,6 +1,38 @@
 #include "settingsmodel.h"
 #include "util/scopelogging.h"
 
+namespace {
+
+/*!
+ * \brief Build a human-readable summary of an adapter's parsed license info.
+ * \param info The license info parsed from an adapter.describe response.
+ * \return An empty string when the adapter didn't report any license info.
+ */
+QString licenseLogText(const AdapterLicenseInfo& info)
+{
+    if (info.state == AdapterLicenseInfo::State::NotFound)
+    {
+        return QString("license not found (searched %1)").arg(info.path);
+    }
+    if (info.state == AdapterLicenseInfo::State::Invalid)
+    {
+        return QString("license invalid: %1 (path: %2)").arg(info.reason, info.path);
+    }
+    if (info.state == AdapterLicenseInfo::State::Valid)
+    {
+        QString text = QString("license valid for %1").arg(info.customer);
+        if (!info.expires.isEmpty())
+        {
+            text += QString(", expires %1").arg(info.expires);
+        }
+        return text;
+    }
+
+    return QString();
+}
+
+} // namespace
+
 SettingsModel::SettingsModel(QObject* parent) : QObject(parent)
 {
     _devices[Device::cFirstDeviceId] = Device(Device::cFirstDeviceId);
@@ -242,6 +274,20 @@ void SettingsModel::updateAdapterFromDescribe(const QString& adapterId, const QJ
         versionTxt = QString(tr("v%1")).arg(version);
     }
     qCInfo(scopeComm) << qUtf8Printable(QString("Adapter %1: %2").arg(adapterId, versionTxt));
+
+    const AdapterLicenseInfo licenseInfo = _adapters[adapterId].licenseInfo();
+    const QString licenseText = licenseLogText(licenseInfo);
+    if (!licenseText.isEmpty())
+    {
+        if (licenseInfo.state == AdapterLicenseInfo::State::Valid)
+        {
+            qCInfo(scopeComm) << qUtf8Printable(QString("Adapter %1: %2").arg(adapterId, licenseText));
+        }
+        else
+        {
+            qCWarning(scopeComm) << qUtf8Printable(QString("Adapter %1: %2").arg(adapterId, licenseText));
+        }
+    }
 
     emit adapterDataChanged(adapterId);
 }
