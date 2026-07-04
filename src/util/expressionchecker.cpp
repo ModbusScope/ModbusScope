@@ -17,10 +17,12 @@ void ExpressionChecker::setExpression(const QString& expr)
     _expectedDeviceIdList.clear();
     _descriptions.clear();
     _addresses.clear();
+    _deviceIds.clear();
     for (DataPoint const& reg : std::as_const(registerList))
     {
         _descriptions.append(reg.description());
         _addresses.append(reg.address());
+        _deviceIds.append(reg.deviceId());
 
         if (!_expectedDeviceIdList.contains(reg.deviceId()))
         {
@@ -49,6 +51,11 @@ QStringList ExpressionChecker::descriptions() const
 QStringList ExpressionChecker::addresses() const
 {
     return _addresses;
+}
+
+QList<deviceId_t> ExpressionChecker::deviceIds() const
+{
+    return _deviceIds;
 }
 
 qsizetype ExpressionChecker::requiredValueCount()

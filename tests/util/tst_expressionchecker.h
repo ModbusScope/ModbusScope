@@ -11,6 +11,7 @@ private slots:
 
     void dataIsPrimed();
     void addressesMatchExpression();
+    void deviceIdsMatchAddresses();
     void expressionIsValid();
     void expressionHasSyntaxError();
     void valueErrorIsNotSyntaxError();

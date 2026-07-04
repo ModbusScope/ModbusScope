@@ -424,13 +424,13 @@ void MainWindow::showRegisterDialog()
         _pGuiModel->setGuiState(GuiState::INIT);
     }
 
-    AdapterManager* pAdapterManager = _pScopeController->adapterHub()->adapterManager(cModbusAdapterId);
-    if (pAdapterManager == nullptr)
+    AdapterHub* pAdapterHub = _pAdapterPoll->adapterHub();
+    if (pAdapterHub->adapterIds().isEmpty())
     {
-        qCWarning(scopeComm) << "MainWindow: no modbus adapter available — cannot open register dialog";
+        qCWarning(scopeComm) << "MainWindow: no adapters available — cannot open register dialog";
         return;
     }
-    RegisterDialog registerDialog(_pGraphDataModel, _pSettingsModel, pAdapterManager, this);
+    RegisterDialog registerDialog(_pGraphDataModel, _pSettingsModel, pAdapterHub, this);
     registerDialog.exec();
 }
 

@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QWidget>
 
+class AdapterHub;
 class AdapterManager;
 class SchemaFormWidget;
 class SettingsModel;
@@ -23,10 +24,7 @@ class AddRegisterWidget : public QWidget
     friend class TestAddRegisterWidget;
 
 public:
-    explicit AddRegisterWidget(SettingsModel* pSettingsModel,
-                               const QString& adapterId,
-                               AdapterManager* pAdapterManager,
-                               QWidget* parent = nullptr);
+    explicit AddRegisterWidget(SettingsModel* pSettingsModel, AdapterHub* pAdapterHub, QWidget* parent = nullptr);
     ~AddRegisterWidget();
 
 signals:
@@ -35,10 +33,13 @@ signals:
 private slots:
     void handleResultAccept();
     void onBuildExpressionResult(const QString& expression);
+    void onAdapterSelectionChanged(int index);
 
 private:
     void resetFields();
     void collectPendingGraphData();
+    void applyAdapter(const QString& adapterId);
+    QString selectedAdapterId() const;
     QJsonObject buildSchema(const QString& adapterId) const;
 
     Ui::AddRegisterWidget* _pUi;
@@ -47,6 +48,7 @@ private:
     QJsonObject _dataPointDefaults;
 
     SettingsModel* _pSettingsModel;
+    AdapterHub* _pAdapterHub;
     AdapterManager* _pAdapterManager;
 
     QButtonGroup _axisGroup;
