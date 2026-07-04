@@ -213,13 +213,7 @@ void AdapterPoll::buildAdapterGroups(const QList<DataPoint>& registerList)
     for (int i = 0; i < registerList.size(); i++)
     {
         const DataPoint& dp = registerList[i];
-        Device* dev = _pSettingsModel->deviceSettings(dp.deviceId());
-        if (dev == nullptr)
-        {
-            qCWarning(scopeComm) << "AdapterPoll: no device settings for deviceId" << dp.deviceId() << "at index" << i
-                                 << "— defaulting to modbus adapter";
-        }
-        const QString adapterId = (dev != nullptr) ? dev->adapterId() : cModbusAdapterId;
+        const QString adapterId = _pSettingsModel->adapterIdForDevice(dp.deviceId());
         _adapterGroups[adapterId].expressions.append(dp.address());
         _adapterGroups[adapterId].originalIndices.append(i);
     }

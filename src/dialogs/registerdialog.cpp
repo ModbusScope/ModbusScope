@@ -1,6 +1,7 @@
 
 #include "registerdialog.h"
 
+#include "ProtocolAdapter/adapterhub.h"
 #include "ProtocolAdapter/adaptermanager.h"
 #include "customwidgets/actionbuttondelegate.h"
 #include "dialogs/addregisterwidget.h"
@@ -15,7 +16,7 @@
 
 RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel,
                                SettingsModel* pSettingsModel,
-                               AdapterManager* pAdapterManager,
+                               AdapterHub* pAdapterHub,
                                QWidget* parent)
     : QDialog(parent), _pUi(new Ui::RegisterDialog)
 {
@@ -26,9 +27,14 @@ RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel,
 
     _pGraphDataModel = pGraphDataModel;
     _pSettingsModel = pSettingsModel;
-    _pAdapterManager = pAdapterManager;
+    _pAdapterHub = pAdapterHub;
+    _pDefaultExpressionManager = defaultExpressionManager();
 
-    connect(_pAdapterManager, &AdapterManager::sessionStarted, this, &RegisterDialog::requestDefaultExpression);
+    if (_pDefaultExpressionManager != nullptr)
+    {
+        connect(_pDefaultExpressionManager, &AdapterManager::sessionStarted, this,
+                &RegisterDialog::requestDefaultExpression);
+    }
 
     // Setup registerView
     _pUi->registerView->setModel(_pGraphDataModel);
@@ -75,10 +81,9 @@ RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel,
     connect(_pUi->btnRemove, &QPushButton::released, this, &RegisterDialog::removeRegisterRow);
     connect(_pGraphDataModel, &GraphDataModel::rowsInserted, this, &RegisterDialog::onRegisterInserted);
 
-    const QString adapterId = _pAdapterManager->adapterId();
-    if (!adapterId.isEmpty())
+    if (!_pAdapterHub->adapterIds().isEmpty())
     {
-        auto registerPopupMenu = new AddRegisterWidget(_pSettingsModel, adapterId, _pAdapterManager, this);
+        auto registerPopupMenu = new AddRegisterWidget(_pSettingsModel, _pAdapterHub, this);
         connect(registerPopupMenu, &AddRegisterWidget::graphDataConfigured, this, &RegisterDialog::addRegister);
 
         _registerPopupAction = std::make_unique<QWidgetAction>(this);
@@ -151,10 +156,32 @@ void RegisterDialog::handleExpressionEdit(const QModelIndex& index)
     {
         _pUi->registerView->closePersistentEditor(index);
 
-        ExpressionsDialog exprDialog(_pGraphDataModel, GraphIdx(index.row()), _pAdapterManager, this);
+        ExpressionsDialog exprDialog(_pGraphDataModel, GraphIdx(index.row()), _pAdapterHub, _pSettingsModel, this);
 
         exprDialog.exec();
     }
+}
+
+/*!
+ * \brief Determine which adapter manager drives the default new-register expression.
+ *
+ * The modbus adapter is preferred to keep the existing single-adapter behavior;
+ * when it is not available the first discovered adapter is used.
+ * \return Pointer to the manager, or nullptr when no adapters are available.
+ */
+AdapterManager* RegisterDialog::defaultExpressionManager() const
+{
+    AdapterManager* pManager = _pAdapterHub->adapterManager(cModbusAdapterId);
+    if (pManager == nullptr)
+    {
+        const QStringList adapterIds = _pAdapterHub->adapterIds();
+        if (!adapterIds.isEmpty())
+        {
+            pManager = _pAdapterHub->adapterManager(adapterIds.first());
+        }
+    }
+
+    return pManager;
 }
 
 int RegisterDialog::selectedRowAfterDelete(int deletedStartIndex, int rowCnt)
@@ -190,22 +217,29 @@ bool RegisterDialog::sortRegistersLastFirst(const QModelIndex& s1, const QModelI
  */
 void RegisterDialog::requestDefaultExpression()
 {
-    const QJsonObject defaults =
-      _pSettingsModel->adapterData(_pAdapterManager->adapterId())->dataPointSchema().value("defaults").toObject();
+    if (_pDefaultExpressionManager == nullptr)
+    {
+        return;
+    }
+
+    const QJsonObject defaults = _pSettingsModel->adapterData(_pDefaultExpressionManager->adapterId())
+                                   ->dataPointSchema()
+                                   .value("defaults")
+                                   .toObject();
     if (defaults.isEmpty())
     {
         return;
     }
 
     /* Disconnect any pending connection from a previous session before installing a new one */
-    QObject::disconnect(_pAdapterManager, &AdapterManager::buildExpressionResult, this,
+    QObject::disconnect(_pDefaultExpressionManager, &AdapterManager::buildExpressionResult, this,
                         &RegisterDialog::onDefaultExpressionBuilt);
-    connect(_pAdapterManager, &AdapterManager::buildExpressionResult, this, &RegisterDialog::onDefaultExpressionBuilt,
-            Qt::SingleShotConnection);
+    connect(_pDefaultExpressionManager, &AdapterManager::buildExpressionResult, this,
+            &RegisterDialog::onDefaultExpressionBuilt, Qt::SingleShotConnection);
 
     QJsonObject addressFields = defaults;
     const QString dataType = addressFields.take(QStringLiteral("dataType")).toString();
-    _pAdapterManager->buildExpression(addressFields, dataType, 0);
+    _pDefaultExpressionManager->buildExpression(addressFields, dataType, 0);
 }
 
 /*!

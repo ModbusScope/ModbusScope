@@ -8,6 +8,7 @@
 
 /* Forward declaration */
 class GraphDataModel;
+class AdapterHub;
 class AdapterManager;
 class SettingsModel;
 class RegisterValueAxisDelegate;
@@ -25,7 +26,7 @@ class RegisterDialog : public QDialog
 public:
     explicit RegisterDialog(GraphDataModel* pGraphDataModel,
                             SettingsModel* pSettingsModel,
-                            AdapterManager* pAdapterManager,
+                            AdapterHub* pAdapterHub,
                             QWidget* parent = nullptr);
     ~RegisterDialog();
 
@@ -41,13 +42,15 @@ private slots:
 
 private:
     int selectedRowAfterDelete(int deletedStartIndex, int rowCnt);
+    AdapterManager* defaultExpressionManager() const;
     static bool sortRegistersLastFirst(const QModelIndex& s1, const QModelIndex& s2);
 
     Ui::RegisterDialog* _pUi;
 
     GraphDataModel* _pGraphDataModel;
     SettingsModel* _pSettingsModel;
-    AdapterManager* _pAdapterManager;
+    AdapterHub* _pAdapterHub;
+    AdapterManager* _pDefaultExpressionManager;
 
     CenteredBoxProxyStyle _centeredBoxStyle;
 

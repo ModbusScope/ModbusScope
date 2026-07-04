@@ -72,6 +72,29 @@ QJsonObject TestAddRegisterWidget::buildTestRegisterSchema()
     return schema;
 }
 
+QJsonObject TestAddRegisterWidget::buildSimRegisterSchema()
+{
+    QJsonObject channelField;
+    channelField["type"] = QStringLiteral("integer");
+    channelField["title"] = QStringLiteral("Channel");
+    channelField["minimum"] = 0;
+
+    QJsonObject properties;
+    properties["channel"] = channelField;
+
+    QJsonObject addressSchema;
+    addressSchema["type"] = QStringLiteral("object");
+    addressSchema["properties"] = properties;
+
+    QJsonObject defaults;
+    defaults["channel"] = 3;
+
+    QJsonObject schema;
+    schema["addressSchema"] = addressSchema;
+    schema["defaults"] = defaults;
+    return schema;
+}
+
 void TestAddRegisterWidget::init()
 {
     _settingsModel.removeAllDevice();
@@ -79,7 +102,9 @@ void TestAddRegisterWidget::init()
     _settingsModel.deviceSettings(Device::cFirstDeviceId)->setAdapterId("modbus");
 
     _pMockAdapterManager = new MockAdapterManager(&_settingsModel);
-    _pRegWidget = new AddRegisterWidget(&_settingsModel, QStringLiteral("modbus"), _pMockAdapterManager);
+    _pMockHub = new MockAdapterHub();
+    _pMockHub->addManager(QStringLiteral("modbus"), _pMockAdapterManager);
+    _pRegWidget = new AddRegisterWidget(&_settingsModel, _pMockHub);
 }
 
 void TestAddRegisterWidget::cleanup()
@@ -88,6 +113,28 @@ void TestAddRegisterWidget::cleanup()
     _pRegWidget = nullptr;
     delete _pMockAdapterManager;
     _pMockAdapterManager = nullptr;
+    delete _pMockSimAdapterManager;
+    _pMockSimAdapterManager = nullptr;
+    delete _pMockHub;
+    _pMockHub = nullptr;
+}
+
+/*!
+ * \brief Register a second ("sim") adapter and rebuild the widget with both adapters.
+ */
+void TestAddRegisterWidget::addSimAdapter()
+{
+    _settingsModel.setAdapterDataPointSchema("sim", buildSimRegisterSchema());
+
+    QJsonObject describeResult;
+    describeResult["name"] = QStringLiteral("Simulator");
+    _settingsModel.updateAdapterFromDescribe(QStringLiteral("sim"), describeResult);
+
+    _pMockSimAdapterManager = new MockAdapterManager(&_settingsModel, QStringLiteral("sim"));
+    _pMockHub->addManager(QStringLiteral("sim"), _pMockSimAdapterManager);
+
+    delete _pRegWidget;
+    _pRegWidget = new AddRegisterWidget(&_settingsModel, _pMockHub);
 }
 
 void TestAddRegisterWidget::registerDefault()
@@ -202,6 +249,69 @@ void TestAddRegisterWidget::buildExpressionDoesNotInterfereWithOtherConnections(
 
     /* The persistent secondary connection still fires on subsequent emissions */
     QCOMPARE(secondaryReceiveCount, 2);
+}
+
+void TestAddRegisterWidget::adapterComboHiddenWithSingleAdapter()
+{
+    QVERIFY(!_pRegWidget->_pUi->cmbAdapter->isVisibleTo(_pRegWidget));
+}
+
+void TestAddRegisterWidget::adapterComboListsAdapters()
+{
+    addSimAdapter();
+
+    QVERIFY(_pRegWidget->_pUi->cmbAdapter->isVisibleTo(_pRegWidget));
+    QCOMPARE(_pRegWidget->_pUi->cmbAdapter->count(), 2);
+
+    /* Adapter IDs are listed alphabetically; label falls back to the ID without describe data */
+    QCOMPARE(_pRegWidget->_pUi->cmbAdapter->itemText(0), QStringLiteral("modbus"));
+    QCOMPARE(_pRegWidget->_pUi->cmbAdapter->itemData(0).toString(), QStringLiteral("modbus"));
+    QCOMPARE(_pRegWidget->_pUi->cmbAdapter->itemText(1), QStringLiteral("Simulator"));
+    QCOMPARE(_pRegWidget->_pUi->cmbAdapter->itemData(1).toString(), QStringLiteral("sim"));
+}
+
+void TestAddRegisterWidget::switchAdapterRebuildsSchema()
+{
+    addSimAdapter();
+
+    _pRegWidget->_pUi->cmbAdapter->setCurrentIndex(1);
+
+    QVERIFY(_pRegWidget->_addressSchema["properties"].toObject().contains(QStringLiteral("channel")));
+    QCOMPARE(_pRegWidget->_dataPointDefaults["channel"].toInt(), 3);
+    QCOMPARE(_pRegWidget->_pAddressForm->values()["channel"].toInt(), 3);
+}
+
+void TestAddRegisterWidget::buildExpressionRoutedToSelectedAdapter()
+{
+    _settingsModel.addDevice(2);
+    _settingsModel.deviceSettings(2)->setAdapterId("sim");
+
+    addSimAdapter();
+
+    _pRegWidget->_pUi->cmbAdapter->setCurrentIndex(1);
+
+    QSignalSpy spy(_pRegWidget, &AddRegisterWidget::graphDataConfigured);
+    clickAdd();
+
+    QCOMPARE(_pMockSimAdapterManager->buildCalls.size(), 1);
+    QCOMPARE(_pMockAdapterManager->buildCalls.size(), 0);
+
+    _pMockSimAdapterManager->injectBuildExpressionResult(QStringLiteral("${c3}"));
+    QCOMPARE(spy.count(), 1);
+}
+
+void TestAddRegisterWidget::btnAddDisabledWhenSelectedAdapterHasNoDevices()
+{
+    addSimAdapter();
+
+    /* Only device 1 exists and it belongs to the modbus adapter */
+    QVERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
+
+    _pRegWidget->_pUi->cmbAdapter->setCurrentIndex(1);
+    QVERIFY(!_pRegWidget->_pUi->btnAdd->isEnabled());
+
+    _pRegWidget->_pUi->cmbAdapter->setCurrentIndex(0);
+    QVERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
 }
 
 void TestAddRegisterWidget::clickAdd()

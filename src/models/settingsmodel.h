@@ -35,6 +35,7 @@ public:
 
     QList<deviceId_t> deviceList();
     QList<deviceId_t> deviceListForAdapter(const QString& adapterId);
+    QString adapterIdForDevice(deviceId_t devId) const;
 
     const AdapterData* adapterData(const QString& adapterId);
     QStringList adapterIds() const;
