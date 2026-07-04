@@ -173,10 +173,6 @@ void AdapterHub::onManagerSessionStarted(const QString& id)
 void AdapterHub::onManagerSessionError(const QString& id, const QString& message)
 {
     _pendingStartAdapters.remove(id);
-    if (_pendingStartAdapters.isEmpty())
-    {
-        emit sessionStarted();
-    }
     emit sessionError(message);
 }
 

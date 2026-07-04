@@ -28,6 +28,9 @@ class SettingsModel;
 class AdapterHub : public QObject
 {
     Q_OBJECT
+
+    friend class TestAdapterHub;
+
 public:
     explicit AdapterHub(SettingsModel* pSettingsModel, QObject* parent = nullptr);
 
