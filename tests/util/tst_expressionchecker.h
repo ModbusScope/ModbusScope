@@ -1,4 +1,7 @@
 
+#ifndef TST_EXPRESSIONCHECKER_H
+#define TST_EXPRESSIONCHECKER_H
+
 #include <QObject>
 
 class TestExpressionChecker : public QObject
@@ -21,3 +24,5 @@ private slots:
 
 private:
 };
+
+#endif // TST_EXPRESSIONCHECKER_H

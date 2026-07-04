@@ -98,6 +98,8 @@ QJsonObject TestAddRegisterWidget::buildSimRegisterSchema()
 void TestAddRegisterWidget::init()
 {
     _settingsModel.removeAllDevice();
+    /* Drop the sim adapter data a previous multi-adapter test may have registered */
+    _settingsModel.removeAdapter(QStringLiteral("sim"));
     _settingsModel.setAdapterDataPointSchema("modbus", buildTestRegisterSchema());
     _settingsModel.deviceSettings(Device::cFirstDeviceId)->setAdapterId("modbus");
 
@@ -253,14 +255,14 @@ void TestAddRegisterWidget::buildExpressionDoesNotInterfereWithOtherConnections(
 
 void TestAddRegisterWidget::adapterComboHiddenWithSingleAdapter()
 {
-    QVERIFY(!_pRegWidget->_pUi->cmbAdapter->isVisibleTo(_pRegWidget));
+    QVERIFY(_pRegWidget->_pUi->cmbAdapter->isHidden());
 }
 
 void TestAddRegisterWidget::adapterComboListsAdapters()
 {
     addSimAdapter();
 
-    QVERIFY(_pRegWidget->_pUi->cmbAdapter->isVisibleTo(_pRegWidget));
+    QVERIFY(!_pRegWidget->_pUi->cmbAdapter->isHidden());
     QCOMPARE(_pRegWidget->_pUi->cmbAdapter->count(), 2);
 
     /* Adapter IDs are listed alphabetically; label falls back to the ID without describe data */
