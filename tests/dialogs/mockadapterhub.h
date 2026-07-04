@@ -34,6 +34,34 @@ public:
         return _managers.keys();
     }
 
+    bool isAdapterReady() const override
+    {
+        if (_managers.isEmpty())
+        {
+            return false;
+        }
+        for (const AdapterManager* pManager : _managers)
+        {
+            if (!pManager->isAdapterReady())
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool isAdapterIdle() const override
+    {
+        for (const AdapterManager* pManager : _managers)
+        {
+            if (!pManager->isAdapterIdle())
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
 private:
     QMap<QString, AdapterManager*> _managers;
 };

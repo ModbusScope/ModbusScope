@@ -200,9 +200,11 @@ void TestExpressionsDialog::describeSkipsIdleAdapter()
 
 void TestExpressionsDialog::helpComboHiddenWithSingleAdapter()
 {
+    /* Use isHidden(): the surrounding info panel (widgetInfo) starts collapsed,
+     * so visibility relative to the dialog is always false */
     auto* pHelpWidget = _pDialog->findChild<QWidget*>("widgetHelpAdapter");
     QVERIFY(pHelpWidget != nullptr);
-    QVERIFY(!pHelpWidget->isVisibleTo(_pDialog));
+    QVERIFY(pHelpWidget->isHidden());
 }
 
 void TestExpressionsDialog::helpComboVisibleWithTwoAdapters()
@@ -212,7 +214,7 @@ void TestExpressionsDialog::helpComboVisibleWithTwoAdapters()
 
     auto* pHelpWidget = _pDialog->findChild<QWidget*>("widgetHelpAdapter");
     QVERIFY(pHelpWidget != nullptr);
-    QVERIFY(pHelpWidget->isVisibleTo(_pDialog));
+    QVERIFY(!pHelpWidget->isHidden());
 
     auto* pCombo = _pDialog->findChild<QComboBox*>("cmbHelpAdapter");
     QVERIFY(pCombo != nullptr);
