@@ -51,6 +51,10 @@ This is a solo-maintained project, so code contributions are not accepted at thi
 
 For support, please visit the [documentation](https://modbusscope.readthedocs.io/en/stable/) or open an issue on the [GitHub page](https://github.com/ModbusScope/ModbusScope/issues).
 
+## Security
+
+If you believe you have found a security vulnerability in ModbusScope, please report it privately to [security@modbusscope.com](mailto:security@modbusscope.com) — not via the public issue tracker. See the [security policy](SECURITY.md) for the full disclosure process and what to expect.
+
 ## Privacy
 
 ### Update checks

@@ -93,3 +93,8 @@ Several sub-agents are defined in `.claude/agents/` to keep build/test/lint/revi
 - **`@agent-code-reviewer`** - reviews code for quality, safety, and best practices; provides specific, actionable feedback.
 
 Always use these agents rather than running the commands directly. After every significant source change, run all four in order — **build → test → quality → review** — and all must pass before the work is considered done.
+
+> **Cloud/web container (claude.ai or Claude Code app):** Skip `@agent-build`,
+> `@agent-test-runner`, and `@agent-quality` — the build toolchain is not
+> available there. CI runs those checks automatically on push. Only
+> `@agent-code-reviewer` should still be run.
