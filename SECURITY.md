@@ -1,8 +1,7 @@
 # Security Policy
 
-ModbusScope takes the security of its users seriously. This document describes how to
-report a vulnerability and what you can expect from us — our coordinated vulnerability
-disclosure (CVD) policy.
+This document describes how to report a vulnerability in ModbusScope and what you can
+expect from us (coordinated vulnerability disclosure).
 
 ## Scope
 
@@ -18,7 +17,7 @@ Out of scope:
 
 - Issues that require physical access to a user's machine or social engineering
 - Vulnerabilities in third-party dependencies without a demonstrated impact on
-  ModbusScope — please report those upstream (a heads-up to us is still welcome)
+  ModbusScope; report those upstream (a heads-up to us is still welcome)
 - Limitations of the Modbus protocol itself: Modbus has no authentication or encryption
   by design, so protocol-level weaknesses are not vulnerabilities in ModbusScope
 
@@ -27,10 +26,11 @@ Out of scope:
 Security fixes are provided for the latest release line and ship as patch releases,
 separate from feature updates.
 
-| Version | Supported |
-| ------- | --------- |
-| 4.2.x   | ✔         |
-| < 4.2   | ✘ — please update to the latest release |
+| Version | Supported                         |
+| ------- | --------------------------------- |
+| 5.0.x   | ✔                                 |
+| 4.2.x   | ✔                                 |
+| < 4.2   | ✘ (update to a supported release) |
 
 ## How to report a vulnerability
 
@@ -61,7 +61,7 @@ Please include, where possible:
 
 We follow a coordinated disclosure process with a default window of **90 days** from the
 initial report to public disclosure. The window can be shortened (fix available earlier,
-or the issue is already public) or extended (a fix genuinely needs more time) by mutual
+or the issue is already public) or extended (a fix needs more time) by mutual
 agreement.
 
 Once a fixed version is available, we publish an advisory via
@@ -78,5 +78,3 @@ We will not pursue legal action against researchers who, in good faith:
   of services or other users
 - Do not exploit a vulnerability beyond what is necessary to demonstrate it, and stop and
   report as soon as it is confirmed
-
-Thank you for helping keep ModbusScope and its users safe.
