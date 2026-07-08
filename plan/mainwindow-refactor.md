@@ -8,7 +8,7 @@ collaborator objects. The constructor alone is ~200 lines of manual `connect()`
 wiring. It mixes at least eight distinct responsibilities:
 
 | # | Responsibility | Representative members |
-|---|---|---|
+| --- | --- | --- |
 | 1 | Object graph construction & ownership | constructor (`new` everything, wire it together) |
 | 2 | Signal/slot glue (model→view, view→handler) | constructor connect blocks |
 | 3 | Menu/action → command dispatch | `startScope`, `stopScope`, `showSettingsDialog`, `showAbout`, `showDiagnostic`, `selectImageExportFile` |
@@ -34,7 +34,7 @@ window/OS events, and forward user intent. Target ~250–300 lines.
 
 ## Target architecture
 
-```
+```text
 MainApp
  ├── ScopeController        (headless: session + file/data logic + adapter)   <- reusable by CLI
  ├── MainWindow (GUI front-end, thin)
@@ -47,6 +47,7 @@ MainApp
 ## Work items
 
 ### 1. Extract CLI parsing into `MainApp`  (low risk, unblocks headless)
+
 - Move `handleCommandLineArguments` (`QCommandLineParser` setup) out of the
   `MainWindow` constructor up to `MainApp`/`main.cpp`.
 - Parse once, pass a typed result (project file path, room for future
@@ -55,12 +56,14 @@ MainApp
   GUI-vs-CLI decision.
 
 ### 2. Extract `GuiStateController`  (low risk, highly testable)
+
 - Move `updateGuiState` (~87 lines) and `projectFileLoaded` into a class that
   maps `GuiState` -> action enable/disable.
 - Takes the `Ui::MainWindow*` (or a small interface) and `GuiModel`.
 - Add unit tests (fits the repo "add a test when fixing" convention).
 
 ### 3. Extract `GraphMenuController`  (self-contained cluster)
+
 - Move `rebuildGraphMenu`, `handleGraphColorChange`, `handleGraphLabelChange`,
   `handleGraphVisibilityChange`, `menuShowHideGraphClicked`,
   `handleGraphsCountChanged`.
@@ -69,6 +72,7 @@ MainApp
   boilerplate into one helper.
 
 ### 4. Extract `ScopeController`  (the big one — the UI/CLI seam)
+
 - A `QObject` (no widget dependency) owning the session lifecycle and non-UI
   collaborators: `AdapterPoll`, `GraphDataHandler`, `CommunicationStats`,
   `DataFileHandler`, `ProjectFileHandler`, `ExpressionStatus`, relevant models.
@@ -81,6 +85,7 @@ MainApp
   another consumer.
 
 ### 5. Constructor cleanup
+
 - Split the ~120 lines of `connect()` calls into `setupConnections()` /
   `setupMenuActions()` helpers (or a `MainWindowWiring` collaborator).
 
