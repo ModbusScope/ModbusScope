@@ -13,7 +13,7 @@ private slots:
     void lifecycleInitializeToStart();
     void describeSignalEmitted();
     void readDataValidResults();
-    void readDataEmptyRegisters();
+    void readDataEmptyDataPoints();
     void requestStatusEmitsSignal();
     void errorResponseEmitsSessionError();
     void unexpectedResponseEmitsNoSignals();
