@@ -59,7 +59,7 @@ Evaluated on every `adapter.describe` call. Always present.
 | `customer` | `state == "valid"` | Customer name from the signed payload |
 | `email` | `state == "valid"` | Email address from the signed payload |
 | `licenseId` | `state == "valid"` | License identifier from the signed payload |
-| `expires` | `state == "valid"` and license has an expiry date | ISO date string (`"YYYY-MM-DD"`); omitted for perpetual licenses |
+| `expires` | `state == "valid"` and license has an expiry date | ISO date string (`"YYYY-MM-DD"`); omitted for perpetual licenses. The license is valid for all releases whose feature train (`x.y.0`) started on or before this date, including their security patches; it is not a wall-clock expiry. |
 | `reason` | `state == "invalid"` | Human-readable description of why verification failed |
 
 **Examples:**
@@ -264,18 +264,18 @@ Starts Modbus polling with the configuration applied by `adapter.configure`.
 
 ```json
 {
-  "registers": ["${40001: 16b}", "${h0 @ 2: f32b}"]
+  "dataPoints": ["${40001: 16b}", "${h0 @ 2: f32b}"]
 }
 ```
 
-Each element is a register subexpression string with the syntax:
+Each `dataPoints` element is a register subexpression string with the syntax:
 `${address [@ deviceId] [: type]}`
 
-**Free version limit:** without a valid license, a session is limited to a maximum of 10 registers.
+**Free version limit:** without a valid license, a session is limited to a maximum of 5 registers.
 Requesting more returns a JSON-RPC error:
 
 ```json
-{"id":4,"jsonrpc":"2.0","error":{"code":-32602,"message":"Invalid params: free version is limited to 10 registers (11 configured); a license is required to log more"}}
+{"id":4,"jsonrpc":"2.0","error":{"code":-32602,"message":"Invalid params: free version is limited to 5 registers (6 configured); a license is required to log more"}}
 ```
 
 An `adapter.diagnostic` warning notification is also sent for this condition.
@@ -510,9 +510,9 @@ Content-Length: 49\r\n
 Start polling:
 
 ```text
-Content-Length: 90\r\n
+Content-Length: 91\r\n
 \r\n
-{"jsonrpc":"2.0","id":4,"method":"adapter.start","params":{"registers":["${40001: 16b}"]}}
+{"jsonrpc":"2.0","id":4,"method":"adapter.start","params":{"dataPoints":["${40001: 16b}"]}}
 ```
 
 Response:
@@ -534,7 +534,7 @@ Content-Length: 64\r\n
 Response (when Modbus read completes):
 
 ```text
-Content-Length: 77\r\n
+Content-Length: 78\r\n
 \r\n
-{"id":5,"jsonrpc":"2.0","result":{"registers":[{"valid":true,"value":1234}]}}
+{"id":5,"jsonrpc":"2.0","result":{"dataPoints":[{"valid":true,"value":1234}]}}
 ```

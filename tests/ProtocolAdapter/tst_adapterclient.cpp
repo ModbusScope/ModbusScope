@@ -203,10 +203,10 @@ void TestAdapterClient::readDataValidResults()
 
     client.requestReadData();
 
-    QJsonArray registers;
-    registers.append(QJsonObject{ { "valid", true }, { "value", 42.0 } });
-    registers.append(QJsonObject{ { "valid", false }, { "value", 0.0 } });
-    mock->injectResponse(5, "adapter.readData", QJsonObject{ { "registers", registers } });
+    QJsonArray dataPoints;
+    dataPoints.append(QJsonObject{ { "valid", true }, { "value", 42.0 } });
+    dataPoints.append(QJsonObject{ { "valid", false }, { "value", 0.0 } });
+    mock->injectResponse(5, "adapter.readData", QJsonObject{ { "dataPoints", dataPoints } });
 
     QCOMPARE(spy.count(), 1);
     ResultDoubleList results = spy.at(0).at(0).value<ResultDoubleList>();
@@ -216,7 +216,7 @@ void TestAdapterClient::readDataValidResults()
     QVERIFY(!results[1].isValid());
 }
 
-void TestAdapterClient::readDataEmptyRegisters()
+void TestAdapterClient::readDataEmptyDataPoints()
 {
     auto mockOwned = std::make_unique<MockAdapterProcess>();
     auto* mock = mockOwned.get();
@@ -232,7 +232,7 @@ void TestAdapterClient::readDataEmptyRegisters()
     mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
 
     client.requestReadData();
-    mock->injectResponse(5, "adapter.readData", QJsonObject{ { "registers", QJsonArray{} } });
+    mock->injectResponse(5, "adapter.readData", QJsonObject{ { "dataPoints", QJsonArray{} } });
 
     QCOMPARE(spy.count(), 1);
     ResultDoubleList results = spy.at(0).at(0).value<ResultDoubleList>();
@@ -291,7 +291,7 @@ void TestAdapterClient::unexpectedResponseEmitsNoSignals()
     QSignalSpy spyData(&client, &AdapterClient::readDataResult);
 
     /* Inject a response for an ID that was never requested */
-    mock->injectResponse(99, "adapter.readData", QJsonObject{ { "registers", QJsonArray{} } });
+    mock->injectResponse(99, "adapter.readData", QJsonObject{ { "dataPoints", QJsonArray{} } });
 
     QCOMPARE(spyStarted.count(), 0);
     QCOMPARE(spyError.count(), 0);
@@ -1093,10 +1093,10 @@ void TestAdapterClient::readDataErrorIsNonFatal()
 
     spyData.clear();
     client.requestReadData();
-    QJsonArray registers;
-    registers.append(QJsonObject{ { "valid", true }, { "value", 1.0 } });
-    registers.append(QJsonObject{ { "valid", true }, { "value", 2.0 } });
-    mock->injectResponse(6, "adapter.readData", QJsonObject{ { "registers", registers } });
+    QJsonArray dataPoints;
+    dataPoints.append(QJsonObject{ { "valid", true }, { "value", 1.0 } });
+    dataPoints.append(QJsonObject{ { "valid", true }, { "value", 2.0 } });
+    mock->injectResponse(6, "adapter.readData", QJsonObject{ { "dataPoints", dataPoints } });
 
     QCOMPARE(spyData.count(), 1);
     QCOMPARE(spyError.count(), 0);

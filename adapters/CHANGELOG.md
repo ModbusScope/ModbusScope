@@ -6,15 +6,16 @@
 
 - Add initial implementation of Modbus gateway
 - Add license verification
-- Add limit of 10 registers in free version
+- Add limit of 5 registers in free version
 - Add `MODBUSADAPTER_LICENSE_PATH` env var to override the license file path in debug builds
 
 ### Changed
 
 - Remove the application name directory from the license file path (now `~/.config/ModbusScope/licenses/<adapter>.lic`)
+- License expiry is now checked against the release-train date (the `x.y.0` feature release date) instead of the build date, so security patch releases never invalidate a license that covered the feature release
 - Change supported devices to 2 in free version
 - Update capabilities
-  - Remove unused `supportsHotReload`and `requiresRestartOn`
+  - Remove unused `supportsHotReload` and `requiresRestartOn`
   - Add `mbcCompatible`
 
 ## v0.0.2 - (07/05/2026)

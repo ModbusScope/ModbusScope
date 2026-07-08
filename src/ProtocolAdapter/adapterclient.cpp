@@ -392,7 +392,7 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
         qCInfo(scopeComm) << "AdapterClient: configured, sending start";
         _state = State::STARTING;
         QJsonObject params;
-        params["registers"] = QJsonArray::fromStringList(_pendingExpressions);
+        params["dataPoints"] = QJsonArray::fromStringList(_pendingExpressions);
         _pProcess->sendRequest("adapter.start", params);
     }
     else if (method == "adapter.start" && _state == State::STARTING)
@@ -405,13 +405,13 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
     else if (method == "adapter.readData" && _state == State::ACTIVE)
     {
         ResultDoubleList results;
-        const QJsonArray registers = result["registers"].toArray();
-        for (const auto& entry : registers)
+        const QJsonArray dataPoints = result["dataPoints"].toArray();
+        for (const auto& entry : dataPoints)
         {
-            QJsonObject reg = entry.toObject();
-            if (reg["valid"].toBool())
+            QJsonObject dataPoint = entry.toObject();
+            if (dataPoint["valid"].toBool())
             {
-                results.append(ResultDouble(reg["value"].toDouble(), ResultState::State::SUCCESS));
+                results.append(ResultDouble(dataPoint["value"].toDouble(), ResultState::State::SUCCESS));
             }
             else
             {

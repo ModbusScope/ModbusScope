@@ -196,16 +196,16 @@ configuration applied by `adapter.configure`. Must be called after
 
 ```json
 {
-  "registers": ["<expression>", "<expression>", ...]
+  "dataPoints": ["<expression>", "<expression>", ...]
 }
 ```
 
-Each element of `registers` is an adapter-specific expression string identifying
+Each element of `dataPoints` is an adapter-specific expression string identifying
 a data point to observe. The syntax of expressions is defined by the adapter's
 implementation spec (see `adapter.expressionHelp` for the HTML rendering and
 `adapter.dataPointSchema` for the structured form).
 
-An empty `registers` array is valid and starts activity with no data points
+An empty `dataPoints` array is valid and starts activity with no data points
 configured.
 
 **Result:**
@@ -427,16 +427,16 @@ the first is pending returns an error immediately.
 
 ```json
 {
-  "registers": [
+  "dataPoints": [
     { "value": 42.0, "valid": true },
     { "value": 0.0,  "valid": false }
   ]
 }
 ```
 
-The `registers` array has the same length and order as the `registers` array
+The `dataPoints` array has the same length and order as the `dataPoints` array
 passed to `adapter.start`. Each entry has a numeric `value` (double) and a
-`valid` flag. A register with `"valid": false` could not be read (communication
+`valid` flag. A data point with `"valid": false` could not be read (communication
 error, timeout, or no device configured). Its `"value"` is `0.0`.
 
 **Errors:**
@@ -562,7 +562,7 @@ settings are in sync, followed by `adapter.start` to begin data-source activity.
   |                          [ACTIVE]  |
   |-- adapter.readData -------------> |
   |                  [I/O ...]         |
-  |<- { "registers": [...] } -------- |
+  |<- { "dataPoints": [...] } ------- |
   |    (readData loop repeats)         |
   |                                    |
   |-- adapter.stop -----------------> |

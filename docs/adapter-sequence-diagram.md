@@ -103,7 +103,7 @@ Client (AdapterClient)                    Adapter (ModbusAdapter)
          |                                          |
          |-- {"id":9,                               |
          |    "method":"adapter.start",             |
-         |    "params":{"registers":              |
+         |    "params":{"dataPoints":              |
          |      ["${40001:16b}","${h0@2:f32b}"]}}  -->  StartHandler
 [START]  |                                          |    -> ModbusPoll.startCommunication()
          |                                          |    -> _bPollActive = true
@@ -119,7 +119,7 @@ Client (AdapterClient)                    Adapter (ModbusAdapter)
          |    "method":"adapter.readData",          |
          |    "params":{}}                         -->  ReadDataHandler [DEFERRED]
          |                  [Modbus TCP/Serial I/O] |    -> triggerRegisterRead()
-         |<- {"id":11,"result":{"registers":[       |    -> registerDataReady signal
+         |<- {"id":11,"result":{"dataPoints":[      |    -> registerDataReady signal
          |    {"value":1234,"valid":true},          |    -> emit responseReady()
          |    {"value":0.0,"valid":false}]}}        |
          |                                          |
@@ -157,7 +157,7 @@ Client (AdapterClient)                    Adapter (ModbusAdapter)
          |                                          |
          |-- {"id":14,                              |
          |    "method":"adapter.start",             |
-         |    "params":{"registers":[...]}}        -->  StartHandler
+         |    "params":{"dataPoints":[...]}}       -->  StartHandler
 [START]  |<- {"id":14,"result":{"status":"ok"}}     |
 [ACTIVE] |   emit sessionStarted()                  |
 ```
