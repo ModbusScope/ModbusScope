@@ -7,6 +7,12 @@
 #include <QSharedPointer>
 #include <QtGlobal>
 
+/*!
+ * \brief Settings and data of a single graph.
+ *
+ * Note: copies of a GraphData share the same underlying GraphDataSeries
+ * (GraphDataStore relies on this when storing GraphData by value).
+ */
 class GraphData
 {
 

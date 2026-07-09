@@ -23,7 +23,7 @@ void CommunicationStats::updateTimingInfo()
     QList<double> diffList;
     quint32 timeMedian;
 
-    if (_pGraphDataModel->size() == 0u || _pGraphDataModel->dataSeries(GraphIdx(0))->size() <= 1)
+    if (_pGraphDataModel->size() == 0 || _pGraphDataModel->dataSeries(GraphIdx(0))->size() <= 1)
     {
         timeMedian = 0u;
     }

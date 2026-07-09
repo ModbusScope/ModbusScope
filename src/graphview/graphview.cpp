@@ -216,7 +216,7 @@ void GraphView::clearGraph(GraphIdx graphIdx)
             /* Clear all values, keep timestamps */
             while (it != pDataSeries->end())
             {
-                it->value = 0u;
+                it->value = 0.0;
                 it++;
             }
 
