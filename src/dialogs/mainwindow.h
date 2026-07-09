@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 #include "datahandling/graphdatahandler.h"
-#include "util/graphindex.h"
 #include "util/recentfilemodule.h"
 #include "util/result.h"
 #include "util/updatenotify.h"
@@ -40,6 +39,7 @@ class OverlayLabel;
 class CommunicationStats;
 class CommunicationStatsModel;
 class GuiStateController;
+class GraphMenuController;
 
 class MainWindow : public QMainWindow
 {
@@ -72,7 +72,6 @@ private slots:
     void showAbout();
     void openOnlineDoc();
     void openUpdateUrl();
-    void menuShowHideGraphClicked(bool bState);
     void showSettingsDialog();
     void handleShowRegisterDialog(bool checked);
     void addNoteToGraph();
@@ -87,14 +86,9 @@ private slots:
     void handleOpenRecentProject(QString projectFile);
 
     /* Model change handlers */
-    void handleGraphVisibilityChange(GraphIdx graphIdx);
-    void handleGraphColorChange(GraphIdx graphIdx);
-    void handleGraphLabelChange(GraphIdx graphIdx);
-
     void updateHighlightSampleMenu();
     void handleZoomStateChanged();
-    void rebuildGraphMenu();
-    void handleGraphsCountChanged();
+    void handleActiveGraphsChanged(bool bActiveGraphs);
     void updateWindowTitle();
     void handleProjectFilePathChanged();
     void updateMarkerDockVisibility();
@@ -146,12 +140,12 @@ private:
     OverlayLabel* _pOverlayLabel;
 
     QMenu _menuRightClick;
-    QMenu* _pGraphShowHide;
 
     MostRecentMenu* _pMostRecentMenu;
     RecentFileModule _recentFileModule;
 
     GuiStateController* _pGuiStateController;
+    GraphMenuController* _pGraphMenuController;
 
     QPointF _lastRightClickPos;
 };

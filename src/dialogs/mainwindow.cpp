@@ -10,6 +10,7 @@
 #include "datahandling/graphdatahandler.h"
 #include "dialogs/aboutdialog.h"
 #include "dialogs/diagnosticdialog.h"
+#include "dialogs/graphmenucontroller.h"
 #include "dialogs/guistatecontroller.h"
 #include "dialogs/importmbcdialog.h"
 #include "dialogs/quickstartdialog.h"
@@ -139,30 +140,22 @@ MainWindow::MainWindow(QString openFilePath,
     connect(_pGuiModel, &GuiModel::markerStateChanged, this, &MainWindow::updateMarkerDockVisibility);
     connect(_pGuiModel, &GuiModel::zoomStateChanged, this, &MainWindow::handleZoomStateChanged);
 
-    connect(_pGraphDataModel, &GraphDataModel::visibilityChanged, this, &MainWindow::handleGraphVisibilityChange);
     connect(_pGraphDataModel, &GraphDataModel::visibilityChanged, _pGraphView, &GraphView::handleGraphVisibilityChange);
 
     connect(_pGraphDataModel, &GraphDataModel::graphsAddData, _pGraphView, &GraphView::addData);
     connect(_pGraphDataModel, &GraphDataModel::graphsAddData, this, &MainWindow::setAxisToAuto);
 
-    connect(_pGraphDataModel, &GraphDataModel::activeChanged, this, &MainWindow::handleGraphsCountChanged);
     connect(_pGraphDataModel, &GraphDataModel::activeChanged, _pGraphView, &GraphView::updateGraphs);
 
-    connect(_pGraphDataModel, &GraphDataModel::colorChanged, this, &MainWindow::handleGraphColorChange);
     connect(_pGraphDataModel, &GraphDataModel::colorChanged, _pGraphView, &GraphView::changeGraphColor);
 
     connect(_pGraphDataModel, &GraphDataModel::valueAxisChanged, _pGraphView, &GraphView::changeGraphAxis);
     connect(_pGraphDataModel, &GraphDataModel::selectedGraphChanged, _pGraphView, &GraphView::changeSelectedGraph);
 
-    connect(_pGraphDataModel, &GraphDataModel::labelChanged, this, &MainWindow::handleGraphLabelChange);
-
-    connect(_pGraphDataModel, &GraphDataModel::added, this, &MainWindow::handleGraphsCountChanged);
     connect(_pGraphDataModel, &GraphDataModel::added, _pGraphView, &GraphView::updateGraphs);
 
-    connect(_pGraphDataModel, &GraphDataModel::moved, this, &MainWindow::rebuildGraphMenu);
     connect(_pGraphDataModel, &GraphDataModel::moved, _pGraphView, &GraphView::updateGraphs);
 
-    connect(_pGraphDataModel, &GraphDataModel::removed, this, &MainWindow::handleGraphsCountChanged);
     connect(_pGraphDataModel, &GraphDataModel::removed, _pGraphView, &GraphView::updateGraphs);
 
     connect(_pGraphDataModel, &GraphDataModel::expressionChanged, _pGraphView, &GraphView::clearGraph);
@@ -194,7 +187,9 @@ MainWindow::MainWindow(QString openFilePath,
     _pGuiStateController =
       new GuiStateController(_pGuiModel, _pSettingsModel, _pDataParserModel, guiStateActions, this);
 
-    _pGraphShowHide = _pUi->menuShowHide;
+    _pGraphMenuController = new GraphMenuController(_pGraphDataModel, _pUi->menuShowHide, _pOverlayLabel, this);
+    connect(_pGraphMenuController, &GraphMenuController::activeGraphsChanged, this,
+            &MainWindow::handleActiveGraphsChanged);
 
     // Compose rightclick menu
     _menuRightClick.addMenu(_pUi->menuShowHide);
@@ -240,7 +235,7 @@ MainWindow::MainWindow(QString openFilePath,
     // Default to full auto scaling
     setAxisToAuto();
 
-    handleGraphsCountChanged();
+    _pGraphMenuController->handleGraphsCountChanged();
 
     if (!openFilePath.isEmpty())
     {
@@ -390,14 +385,6 @@ void MainWindow::openUpdateUrl()
     {
         QDesktopServices::openUrl(_pUpdateNotify->link());
     }
-}
-
-void MainWindow::menuShowHideGraphClicked(bool bState)
-{
-    QAction* pAction = qobject_cast<QAction*>(QObject::sender());
-
-    const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(pAction->data().value<ActiveIdx>());
-    _pGraphDataModel->setVisible(graphIdx, bState);
 }
 
 void MainWindow::showSettingsDialog()
@@ -597,53 +584,6 @@ void MainWindow::handleOpenRecentProject(QString projectFile)
     _pProjectFileHandler->openProjectFile(projectFile);
 }
 
-void MainWindow::handleGraphVisibilityChange(GraphIdx graphIdx)
-{
-    if (_pGraphDataModel->isActive(graphIdx))
-    {
-        const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
-        if (!activeIdx.isValid() || activeIdx.v >= _pGraphShowHide->actions().size())
-        {
-            return;
-        }
-
-        _pGraphShowHide->actions().at(activeIdx.v)->setChecked(_pGraphDataModel->isVisible(graphIdx));
-    }
-}
-
-void MainWindow::handleGraphColorChange(GraphIdx graphIdx)
-{
-    if (_pGraphDataModel->isActive(graphIdx))
-    {
-        const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
-        if (!activeIdx.isValid() || activeIdx.v >= _pGraphShowHide->actions().size())
-        {
-            return;
-        }
-
-        QPixmap pixmap(20, 5);
-        pixmap.fill(_pGraphDataModel->color(graphIdx));
-
-        QIcon showHideIcon = QIcon(pixmap);
-
-        _pGraphShowHide->actions().at(activeIdx.v)->setIcon(showHideIcon);
-    }
-}
-
-void MainWindow::handleGraphLabelChange(GraphIdx graphIdx)
-{
-    if (_pGraphDataModel->isActive(graphIdx))
-    {
-        const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
-        if (!activeIdx.isValid() || activeIdx.v >= _pGraphShowHide->actions().size())
-        {
-            return;
-        }
-
-        _pGraphShowHide->actions().at(activeIdx.v)->setText(_pGraphDataModel->label(graphIdx));
-    }
-}
-
 void MainWindow::updateHighlightSampleMenu()
 {
     /* set menu to checked */
@@ -662,54 +602,10 @@ void MainWindow::handleZoomStateChanged()
     }
 }
 
-void MainWindow::handleGraphsCountChanged()
+void MainWindow::handleActiveGraphsChanged(bool bActiveGraphs)
 {
-    rebuildGraphMenu();
-
-    QList<GraphIdx> activeGraphList;
-    _pGraphDataModel->activeGraphIndexList(activeGraphList);
-
-    const bool bEnabled = !activeGraphList.isEmpty();
-    _pUi->actionZoom->setEnabled(bEnabled);
-    _pUi->actionToggleMarkers->setEnabled(bEnabled);
-
-    _pOverlayLabel->setVisible(!bEnabled);
-}
-
-void MainWindow::rebuildGraphMenu()
-{
-    // Regenerate graph menu
-    _pGraphShowHide->clear();
-
-    QList<GraphIdx> activeGraphList;
-    _pGraphDataModel->activeGraphIndexList(activeGraphList);
-
-    for (qint32 activeIdx = 0; activeIdx < activeGraphList.size(); activeIdx++)
-    {
-
-        QString label = _pGraphDataModel->label(activeGraphList.at(activeIdx));
-        QAction* pShowHideAction = _pGraphShowHide->addAction(label);
-
-        QPixmap pixmap(20, 5);
-        pixmap.fill(_pGraphDataModel->color(activeGraphList.at(activeIdx)));
-        QIcon icon = QIcon(pixmap);
-
-        pShowHideAction->setData(QVariant::fromValue(ActiveIdx(activeIdx)));
-        pShowHideAction->setIcon(icon);
-        pShowHideAction->setCheckable(true);
-        pShowHideAction->setChecked(_pGraphDataModel->isVisible(activeGraphList.at(activeIdx)));
-
-        connect(pShowHideAction, &QAction::toggled, this, &MainWindow::menuShowHideGraphClicked);
-    }
-
-    if (!activeGraphList.isEmpty())
-    {
-        _pGraphShowHide->setEnabled(true);
-    }
-    else
-    {
-        _pGraphShowHide->setEnabled(false);
-    }
+    _pUi->actionZoom->setEnabled(bActiveGraphs);
+    _pUi->actionToggleMarkers->setEnabled(bActiveGraphs);
 }
 
 void MainWindow::updateWindowTitle()
