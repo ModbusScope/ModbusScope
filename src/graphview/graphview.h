@@ -6,6 +6,7 @@
 #include "util/result.h"
 
 #include <QObject>
+#include <QPoint>
 
 /* forward declaration */
 class QCPAxis;

@@ -6,6 +6,8 @@
 #include "models/graphdatastore.h"
 #include "util/util.h"
 
+#include <QMimeData>
+
 const QColor GraphDataModel::lightRed = QColor(240, 128, 128); // #f08080
 
 GraphDataModel::GraphDataModel(QObject* parent)

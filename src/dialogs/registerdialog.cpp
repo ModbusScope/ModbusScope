@@ -11,6 +11,7 @@
 #include "registervalueaxisdelegate.h"
 
 #include <QColorDialog>
+#include <QShortcut>
 
 RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel,
                                SettingsModel* pSettingsModel,

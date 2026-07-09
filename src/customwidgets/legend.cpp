@@ -7,7 +7,9 @@
 #include "util/result.h"
 #include "util/util.h"
 
+#include <QApplication>
 #include <QColorDialog>
+#include <QHeaderView>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QStyleOption>

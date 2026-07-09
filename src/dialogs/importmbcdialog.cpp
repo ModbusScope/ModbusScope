@@ -13,6 +13,7 @@
 #include "util/util.h"
 
 #include <QFileDialog>
+#include <QMimeData>
 
 /*!
  * \brief Constructs the ImportMbcDialog.

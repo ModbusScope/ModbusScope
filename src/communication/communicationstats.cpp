@@ -2,6 +2,7 @@
 
 #include "models/communicationstatsmodel.h"
 #include "models/graphdatamodel.h"
+#include <QDateTime>
 #include <algorithm>
 
 const uint32_t CommunicationStats::_cUpdateTime = 500;
