@@ -45,7 +45,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QStringList cmdArguments,
+    explicit MainWindow(QString openFilePath,
                         GuiModel* pGuiModel,
                         SettingsModel* pSettingsModel,
                         GraphDataModel* pGraphDataModel,
@@ -114,7 +114,6 @@ private:
     void setAxisToAuto();
     void showRegisterDialog();
     void showFirstInstallDialogIfNeeded();
-    void handleCommandLineArguments(QStringList cmdArguments);
     void handleFileOpen(QString filename);
 
     Ui::MainWindow* _pUi;

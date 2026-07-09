@@ -38,7 +38,7 @@
 
 using GuiState = GuiModel::GuiState;
 
-MainWindow::MainWindow(QStringList cmdArguments,
+MainWindow::MainWindow(QString openFilePath,
                        GuiModel* pGuiModel,
                        SettingsModel* pSettingsModel,
                        GraphDataModel* pGraphDataModel,
@@ -225,7 +225,10 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
     handleGraphsCountChanged();
 
-    handleCommandLineArguments(cmdArguments);
+    if (!openFilePath.isEmpty())
+    {
+        handleFileOpen(openFilePath);
+    }
 
     _pAdapterPoll->initAdapter();
 
@@ -899,26 +902,6 @@ void MainWindow::showVersionUpdate(UpdateNotify::UpdateState result)
 
         _pUi->actionUpdateAvailable->setText(strUpdate);
         _pUi->actionUpdateAvailable->setVisible(true);
-    }
-}
-
-void MainWindow::handleCommandLineArguments(QStringList cmdArguments)
-{
-    QCommandLineParser argumentParser;
-    argumentParser.setApplicationDescription("Log data through the Modbus protocol");
-    argumentParser.addHelpOption();
-
-    // Project file option
-    argumentParser.addPositionalArgument("project file",
-                                         QCoreApplication::translate("main", "Project file (.mbs) to open"));
-
-    // Process arguments
-    argumentParser.process(cmdArguments);
-
-    if (!argumentParser.positionalArguments().isEmpty())
-    {
-        QString filename = argumentParser.positionalArguments().at(0);
-        handleFileOpen(filename);
     }
 }
 
