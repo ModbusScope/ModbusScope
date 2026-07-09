@@ -70,7 +70,7 @@ AddRegisterWidget::~AddRegisterWidget()
 QJsonObject AddRegisterWidget::buildSchema(const QString& adapterId) const
 {
     const AdapterData* adapterData = _pSettingsModel->adapterData(adapterId);
-    QJsonObject schema = adapterData->dataPointSchema()["addressSchema"].toObject();
+    QJsonObject schema = adapterData->dataPointSchema().value("addressSchema").toObject();
 
     const auto deviceList = _pSettingsModel->deviceListForAdapter(adapterId);
     QJsonArray deviceEnum;
