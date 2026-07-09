@@ -39,6 +39,7 @@ class MostRecentMenu;
 class OverlayLabel;
 class CommunicationStats;
 class CommunicationStatsModel;
+class GuiStateController;
 
 class MainWindow : public QMainWindow
 {
@@ -95,8 +96,7 @@ private slots:
     void rebuildGraphMenu();
     void handleGraphsCountChanged();
     void updateWindowTitle();
-    void projectFileLoaded();
-    void updateGuiState();
+    void handleProjectFilePathChanged();
     void updateMarkerDockVisibility();
 
     /* Misc */
@@ -150,6 +150,8 @@ private:
 
     MostRecentMenu* _pMostRecentMenu;
     RecentFileModule _recentFileModule;
+
+    GuiStateController* _pGuiStateController;
 
     QPointF _lastRightClickPos;
 };

@@ -10,6 +10,7 @@
 #include "datahandling/graphdatahandler.h"
 #include "dialogs/aboutdialog.h"
 #include "dialogs/diagnosticdialog.h"
+#include "dialogs/guistatecontroller.h"
 #include "dialogs/importmbcdialog.h"
 #include "dialogs/quickstartdialog.h"
 #include "dialogs/registerdialog.h"
@@ -128,8 +129,7 @@ MainWindow::MainWindow(QString openFilePath,
     connect(_pGuiModel, &GuiModel::cursorValuesChanged, _pLegend, &Legend::updateDataInLegend);
 
     connect(_pGuiModel, &GuiModel::windowTitleChanged, this, &MainWindow::updateWindowTitle);
-    connect(_pGuiModel, &GuiModel::projectFilePathChanged, this, &MainWindow::projectFileLoaded);
-    connect(_pGuiModel, &GuiModel::guiStateChanged, this, &MainWindow::updateGuiState);
+    connect(_pGuiModel, &GuiModel::projectFilePathChanged, this, &MainWindow::handleProjectFilePathChanged);
     connect(_pGuiModel, &GuiModel::xAxisScalingChanged, _pGraphView, &GraphView::rescalePlot);
     connect(_pGuiModel, &GuiModel::xAxisSlidingIntervalChanged, _pGraphView, &GraphView::rescalePlot);
     connect(_pGuiModel, &GuiModel::yAxisScalingChanged, _pGraphView, &GraphView::rescalePlot);
@@ -175,7 +175,24 @@ MainWindow::MainWindow(QString openFilePath,
     connect(_pGraphView, &GraphView::dataAddedToPlot, _pCommunicationStats, &CommunicationStats::updateTimingInfo);
 
     connect(_pStatusBar, &StatusBar::openDiagnostics, this, &MainWindow::showDiagnostic);
-    connect(_pSettingsModel, &SettingsModel::adapterDataChanged, this, &MainWindow::updateGuiState);
+
+    const GuiStateActions guiStateActions{
+        .pStart = _pUi->actionStart,
+        .pStop = _pUi->actionStop,
+        .pSettings = _pUi->actionSettings,
+        .pRegisterSettings = _pUi->actionRegisterSettings,
+        .pOpenDataFile = _pUi->actionOpenDataFile,
+        .pImportFromMbcFile = _pUi->actionImportFromMbcFile,
+        .pOpenProjectFile = _pUi->actionOpenProjectFile,
+        .pSaveDataFile = _pUi->actionSaveDataFile,
+        .pExportImage = _pUi->actionExportImage,
+        .pSaveProjectFileAs = _pUi->actionSaveProjectFileAs,
+        .pSaveProjectFile = _pUi->actionSaveProjectFile,
+        .pReloadProjectFile = _pUi->actionReloadProjectFile,
+        .pClearData = _pUi->actionClearData,
+    };
+    _pGuiStateController =
+      new GuiStateController(_pGuiModel, _pSettingsModel, _pDataParserModel, guiStateActions, this);
 
     _pGraphShowHide = _pUi->menuShowHide;
 
@@ -700,108 +717,10 @@ void MainWindow::updateWindowTitle()
     setWindowTitle(_pGuiModel->windowTitle());
 }
 
-void MainWindow::updateGuiState()
+void MainWindow::handleProjectFilePathChanged()
 {
-    if (_pGuiModel->guiState() == GuiState::INIT)
+    if (!_pGuiModel->projectFilePath().isEmpty())
     {
-        _pUi->actionStop->setEnabled(false);
-        _pUi->actionSettings->setEnabled(true);
-        _pUi->actionRegisterSettings->setEnabled(true);
-        _pUi->actionStart->setEnabled(true);
-        _pUi->actionOpenDataFile->setEnabled(true);
-        _pUi->actionImportFromMbcFile->setEnabled(_pSettingsModel->isMbcCompatible());
-        _pUi->actionOpenProjectFile->setEnabled(true);
-        _pUi->actionSaveDataFile->setEnabled(false);
-        _pUi->actionExportImage->setEnabled(false);
-        _pUi->actionSaveProjectFileAs->setEnabled(true);
-        _pUi->actionClearData->setEnabled(true);
-
-        _pDataParserModel->resetSettings();
-        _pGuiModel->setProjectFilePath(QString(""));
-
-        _pGuiModel->setWindowTitleDetail(QString(""));
-    }
-    else if (_pGuiModel->guiState() == GuiState::STARTED)
-    {
-        // Communication active
-        _pUi->actionStop->setEnabled(true);
-        _pUi->actionSettings->setEnabled(false);
-        _pUi->actionRegisterSettings->setEnabled(false);
-        _pUi->actionStart->setEnabled(false);
-        _pUi->actionOpenDataFile->setEnabled(false);
-        _pUi->actionImportFromMbcFile->setEnabled(false);
-        _pUi->actionOpenProjectFile->setEnabled(false);
-        _pUi->actionSaveDataFile->setEnabled(false);
-        _pUi->actionSaveProjectFileAs->setEnabled(false);
-        _pUi->actionSaveProjectFile->setEnabled(false);
-        _pUi->actionReloadProjectFile->setEnabled(false);
-        _pUi->actionExportImage->setEnabled(true);
-        _pUi->actionClearData->setEnabled(true);
-    }
-    else if (_pGuiModel->guiState() == GuiState::STOPPED)
-    {
-        // Communication not active
-        _pUi->actionStop->setEnabled(false);
-        _pUi->actionSettings->setEnabled(true);
-        _pUi->actionRegisterSettings->setEnabled(true);
-        _pUi->actionStart->setEnabled(true);
-        _pUi->actionOpenDataFile->setEnabled(true);
-        _pUi->actionImportFromMbcFile->setEnabled(_pSettingsModel->isMbcCompatible());
-        _pUi->actionOpenProjectFile->setEnabled(true);
-        _pUi->actionSaveDataFile->setEnabled(true);
-        _pUi->actionSaveProjectFileAs->setEnabled(true);
-        _pUi->actionExportImage->setEnabled(true);
-        _pUi->actionClearData->setEnabled(true);
-
-        _pDataParserModel->resetSettings();
-
-        if (_pGuiModel->projectFilePath().isEmpty())
-        {
-            _pUi->actionReloadProjectFile->setEnabled(false);
-            _pUi->actionSaveProjectFile->setEnabled(false);
-        }
-        else
-        {
-            _pUi->actionReloadProjectFile->setEnabled(true);
-            _pUi->actionSaveProjectFile->setEnabled(true);
-        }
-    }
-    else if (_pGuiModel->guiState() == GuiState::DATA_LOADED)
-    {
-        // Communication not active
-        _pUi->actionStop->setEnabled(false);
-        _pUi->actionSettings->setEnabled(true);
-        _pUi->actionRegisterSettings->setEnabled(true);
-        _pUi->actionStart->setEnabled(true);
-        _pUi->actionOpenDataFile->setEnabled(true);
-        _pUi->actionImportFromMbcFile->setEnabled(_pSettingsModel->isMbcCompatible());
-        _pUi->actionOpenProjectFile->setEnabled(true);
-
-        _pUi->actionSaveDataFile->setEnabled(false);
-        _pUi->actionSaveProjectFileAs->setEnabled(false);
-        _pUi->actionSaveProjectFile->setEnabled(false);
-        _pUi->actionExportImage->setEnabled(true);
-        _pUi->actionClearData->setEnabled(false);
-        _pUi->actionReloadProjectFile->setEnabled(false);
-
-        _pGuiModel->setWindowTitleDetail(QFileInfo(_pDataParserModel->dataFilePath()).fileName());
-    }
-}
-
-void MainWindow::projectFileLoaded()
-{
-    // if a project file is previously loaded, then it can be reloaded
-    if (_pGuiModel->projectFilePath().isEmpty())
-    {
-        _pGuiModel->setWindowTitleDetail("");
-        _pUi->actionReloadProjectFile->setEnabled(false);
-        _pUi->actionSaveProjectFile->setEnabled(false);
-    }
-    else
-    {
-        _pGuiModel->setWindowTitleDetail(QFileInfo(_pGuiModel->projectFilePath()).fileName());
-        _pUi->actionReloadProjectFile->setEnabled(true);
-        _pUi->actionSaveProjectFile->setEnabled(true);
         _recentFileModule.updateRecentProjectFiles(_pGuiModel->projectFilePath());
     }
 }
