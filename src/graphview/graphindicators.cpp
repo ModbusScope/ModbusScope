@@ -104,7 +104,7 @@ bool GraphIndicators::determineVisibility(ActiveIdx activeIdx)
 
     auto pPos = _axisValueTracers.at(activeIdx.v)->position;
 
-    bool bVisibility = _pGraphDataModel->isVisible(graphIdx) && !_pGraphDataModel->dataMap(graphIdx)->isEmpty() &&
+    bool bVisibility = _pGraphDataModel->isVisible(graphIdx) && !_pGraphDataModel->dataSeries(graphIdx)->isEmpty() &&
                        (pPos->value() >= pPos->valueAxis()->range().lower) &&
                        (pPos->value() <= pPos->valueAxis()->range().upper);
 

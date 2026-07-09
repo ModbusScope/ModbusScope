@@ -118,13 +118,16 @@ void TestGraphDataStore::setActiveFalseClearsData()
     GraphDataStore store;
     store.insertGraphData(makeGraph("A", "${h0}", true));
 
+    store.mutableDataSeries(GraphIdx(0))->add(1, 10);
+    QVERIFY(!store.dataSeries(GraphIdx(0))->isEmpty());
+
     QSignalSpy spy(&store, &GraphDataStore::activeChanged);
     store.setActive(GraphIdx(0), false);
 
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.at(0).at(0).value<GraphIdx>(), GraphIdx(0));
     QVERIFY(!store.isActive(GraphIdx(0)));
-    QVERIFY(store.dataMap(GraphIdx(0))->isEmpty());
+    QVERIFY(store.dataSeries(GraphIdx(0))->isEmpty());
 }
 
 void TestGraphDataStore::setActiveTrueRestoresVisibility()
@@ -463,8 +466,8 @@ void TestGraphDataStore::invalidGraphIdxGettersReturnSafeDefaults()
     QVERIFY(store.expression(GraphIdx()).isEmpty());
     QVERIFY(store.simplifiedExpression(GraphIdx()).isEmpty());
     QVERIFY(!store.color(GraphIdx()).isValid());
-    QVERIFY(!store.dataMap(GraphIdx()));
-    QVERIFY(!store.mutableDataMap(GraphIdx()));
+    QVERIFY(!store.dataSeries(GraphIdx()));
+    QVERIFY(!store.mutableDataSeries(GraphIdx()));
 
     // out-of-range after clear: same safe defaults
     store.insertGraphData(makeGraph("A", "${h0}"));
@@ -478,8 +481,8 @@ void TestGraphDataStore::invalidGraphIdxGettersReturnSafeDefaults()
     QVERIFY(store.expression(stale).isEmpty());
     QVERIFY(store.simplifiedExpression(stale).isEmpty());
     QVERIFY(!store.color(stale).isValid());
-    QVERIFY(!store.dataMap(stale));
-    QVERIFY(!store.mutableDataMap(stale));
+    QVERIFY(!store.dataSeries(stale));
+    QVERIFY(!store.mutableDataSeries(stale));
 }
 
 void TestGraphDataStore::invalidGraphIdxMutatorsEmitNoSignals()

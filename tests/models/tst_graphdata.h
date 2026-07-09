@@ -13,6 +13,7 @@ private slots:
 
     void setLabel();
     void setExpressionResetsStatus();
+    void copiesShareDataSeries();
 
 private:
 

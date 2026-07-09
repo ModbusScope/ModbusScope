@@ -406,23 +406,23 @@ QString GraphDataModel::simplifiedExpression(GraphIdx index) const
 }
 
 /*!
- * \brief Returns a read-only view of the graph's time-series data container.
+ * \brief Returns a read-only view of the graph's time-series data.
  * \param index GraphIdx identifying the graph.
- * \return Shared pointer to the data container; null if \a index is invalid.
+ * \return Shared pointer to the data series; null if \a index is invalid.
  */
-QSharedPointer<const QCPGraphDataContainer> GraphDataModel::dataMap(GraphIdx index) const
+QSharedPointer<const GraphDataSeries> GraphDataModel::dataSeries(GraphIdx index) const
 {
-    return _pStore->dataMap(index);
+    return _pStore->dataSeries(index);
 }
 
 /*!
- * \brief Returns a writable reference to the graph's time-series data container.
+ * \brief Returns a writable reference to the graph's time-series data.
  * \param index GraphIdx identifying the graph.
- * \return Shared pointer to the data container; null if \a index is invalid.
+ * \return Shared pointer to the data series; null if \a index is invalid.
  */
-QSharedPointer<QCPGraphDataContainer> GraphDataModel::mutableDataMap(GraphIdx index)
+QSharedPointer<GraphDataSeries> GraphDataModel::mutableDataSeries(GraphIdx index)
 {
-    return _pStore->mutableDataMap(index);
+    return _pStore->mutableDataSeries(index);
 }
 
 void GraphDataModel::setValueAxis(GraphIdx index, GraphData::valueAxis_t axis)

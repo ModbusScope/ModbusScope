@@ -5,7 +5,6 @@
 #include "models/graphdatamodel.h"
 #include "models/notemodel.h"
 #include "models/settingsmodel.h"
-#include "qcustomplot/qcustomplot.h"
 #include "util/formatdatetime.h"
 #include "util/util.h"
 
@@ -92,20 +91,20 @@ void DataFileExporter::exportDataFile(QString dataFile)
         {
             QList<GraphIdx> activeGraphIndexes;
             _pGraphDataModel->activeGraphIndexList(activeGraphIndexes);
-            QList<QCPGraphDataContainer::const_iterator> dataListIterators;
+            QList<GraphDataSeries::const_iterator> dataListIterators;
 
             for (qint32 idx = 0; idx < activeGraphIndexes.size(); idx++)
             {
                 // Save iterators to data lists
-                dataListIterators.append(_pGraphDataModel->dataMap(activeGraphIndexes[idx])->constBegin());
+                dataListIterators.append(_pGraphDataModel->dataSeries(activeGraphIndexes[idx])->constBegin());
             }
 
             // Add data lines
-            const qint32 dataCount = _pGraphDataModel->dataMap(activeGraphIndexes[0])->size();
+            const qint32 dataCount = _pGraphDataModel->dataSeries(activeGraphIndexes[0])->size();
             for (qint32 i = 0; i < dataCount; i++)
             {
                 QList<double> dataRowValues;
-                double key = dataListIterators[0]->key;
+                double key = dataListIterators[0]->timestamp;
                 for (qint32 d = 0; d < dataListIterators.size(); d++)
                 {
                     dataRowValues.append(dataListIterators[d]->value);
