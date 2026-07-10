@@ -103,6 +103,8 @@ private slots:
     void handleScopeError(QString message);
 
 private:
+    void setupMenuActions();
+    void setupConnections();
     void setAxisToAuto();
     void showRegisterDialog();
     void showFirstInstallDialogIfNeeded();

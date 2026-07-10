@@ -69,11 +69,6 @@ MainWindow::MainWindow(ScopeController* pScopeController,
 
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
 
-    connect(_pScopeController, &ScopeController::dataProcessed, this, &MainWindow::handleDataProcessed);
-    connect(_pScopeController, &ScopeController::dataCleared, this, &MainWindow::handleDataCleared);
-    connect(_pScopeController, &ScopeController::errorOccurred, this, &MainWindow::handleScopeError);
-    connect(_pScopeController, &ScopeController::mbcImportRequested, this, &MainWindow::showMbcImportDialog);
-
     _pGraphView = new GraphView(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pCommunicationStatsModel, _pNoteModel,
                                 _pUi->customPlot, this);
 
@@ -89,7 +84,77 @@ MainWindow::MainWindow(ScopeController* pScopeController,
 
     _pUi->scaleOptions->setModels(_pGuiModel);
 
-    /*-- Connect menu actions --*/
+    setupMenuActions();
+    setupConnections();
+
+    const GuiStateActions guiStateActions{
+        .pStart = _pUi->actionStart,
+        .pStop = _pUi->actionStop,
+        .pSettings = _pUi->actionSettings,
+        .pRegisterSettings = _pUi->actionRegisterSettings,
+        .pOpenDataFile = _pUi->actionOpenDataFile,
+        .pImportFromMbcFile = _pUi->actionImportFromMbcFile,
+        .pOpenProjectFile = _pUi->actionOpenProjectFile,
+        .pSaveDataFile = _pUi->actionSaveDataFile,
+        .pExportImage = _pUi->actionExportImage,
+        .pSaveProjectFileAs = _pUi->actionSaveProjectFileAs,
+        .pSaveProjectFile = _pUi->actionSaveProjectFile,
+        .pReloadProjectFile = _pUi->actionReloadProjectFile,
+        .pClearData = _pUi->actionClearData,
+    };
+    _pGuiStateController =
+      new GuiStateController(_pGuiModel, _pSettingsModel, _pDataParserModel, guiStateActions, this);
+
+    _pGraphMenuController = new GraphMenuController(_pGraphDataModel, _pUi->menuShowHide, _pOverlayLabel, this);
+    connect(_pGraphMenuController, &GraphMenuController::activeGraphsChanged, this,
+            &MainWindow::handleActiveGraphsChanged);
+
+    this->setAcceptDrops(true);
+
+    /* Trigger update check */
+    _pUi->actionUpdateAvailable->setVisible(false);
+    auto* pVersionDownloader = new VersionDownloader(this);
+    _pUpdateNotify = new UpdateNotify(pVersionDownloader, Util::currentVersion(), this);
+    connect(_pUpdateNotify, &UpdateNotify::updateCheckResult, this, &MainWindow::showVersionUpdate);
+
+#ifndef DEBUG
+    /* Don't check for updates in debug mode */
+    _pUpdateNotify->checkForUpdate();
+#endif
+
+    // Default to full auto scaling
+    setAxisToAuto();
+
+    _pGraphMenuController->handleGraphsCountChanged();
+
+    // Defer until after the main window is shown — avoids a modal dialog blocking constructor completion
+    QTimer::singleShot(0, this, &MainWindow::showFirstInstallDialogIfNeeded);
+
+#if 0
+    //Debugging
+    _pGraphDataModel->add();
+    _pGraphDataModel->setExpression(0, "${40001}");
+    _pGraphDataModel->setLabel(0, "Data xx");
+
+    _pGraphDataModel->add();
+    _pGraphDataModel->setExpression(1, "${40003}");
+    _pGraphDataModel->setLabel(1, "Data 02");
+
+    //_pGraphDataModel->setActive(2, false);
+
+#endif
+}
+
+MainWindow::~MainWindow()
+{
+    delete _pUi;
+}
+
+/*!
+ * \brief Wire up menu actions, the right-click context menu and the recent-projects menu
+ */
+void MainWindow::setupMenuActions()
+{
     connect(_pUi->actionStart, &QAction::triggered, _pScopeController, &ScopeController::start);
     connect(_pUi->actionStop, &QAction::triggered, _pScopeController, &ScopeController::stop);
     connect(_pUi->actionDiagnostic, &QAction::triggered, this, &MainWindow::showDiagnostic);
@@ -122,7 +187,30 @@ MainWindow::MainWindow(ScopeController* pScopeController,
     connect(_pUi->actionZoom, &QAction::triggered, this,
             &MainWindow::toggleZoom); /* Only called on GUI click, not on setChecked */
 
-    /*-- connect model to view --*/
+    // Compose rightclick menu
+    _menuRightClick.addMenu(_pUi->menuShowHide);
+    _menuRightClick.addSeparator();
+    _menuRightClick.addAction(_pUi->actionHighlightSamplePoints);
+    _menuRightClick.addAction(_pUi->actionClearData);
+    _menuRightClick.addAction(_pUi->actionToggleMarkers);
+    _menuRightClick.addSeparator();
+    _menuRightClick.addAction(_pUi->actionAddNote);
+    _menuRightClick.addAction(_pUi->actionManageNotes);
+
+    _pMostRecentMenu = new MostRecentMenu(_pUi->menuMostRecentProject, &_recentFileModule);
+    connect(_pMostRecentMenu, &MostRecentMenu::openRecentProject, this, &MainWindow::handleOpenRecentProject);
+}
+
+/*!
+ * \brief Wire up model-to-view/controller signals and window-level event connections
+ */
+void MainWindow::setupConnections()
+{
+    connect(_pScopeController, &ScopeController::dataProcessed, this, &MainWindow::handleDataProcessed);
+    connect(_pScopeController, &ScopeController::dataCleared, this, &MainWindow::handleDataCleared);
+    connect(_pScopeController, &ScopeController::errorOccurred, this, &MainWindow::handleScopeError);
+    connect(_pScopeController, &ScopeController::mbcImportRequested, this, &MainWindow::showMbcImportDialog);
+
     connect(_pGuiModel, &GuiModel::highlightSamplesChanged, this, &MainWindow::updateHighlightSampleMenu);
     connect(_pGuiModel, &GuiModel::highlightSamplesChanged, _pGraphView, &GraphView::enableSamplePoints);
     connect(_pGuiModel, &GuiModel::cursorValuesChanged, _pGraphView, &GraphView::updateTooltip);
@@ -170,92 +258,14 @@ MainWindow::MainWindow(ScopeController* pScopeController,
 
     connect(_pStatusBar, &StatusBar::openDiagnostics, this, &MainWindow::showDiagnostic);
 
-    const GuiStateActions guiStateActions{
-        .pStart = _pUi->actionStart,
-        .pStop = _pUi->actionStop,
-        .pSettings = _pUi->actionSettings,
-        .pRegisterSettings = _pUi->actionRegisterSettings,
-        .pOpenDataFile = _pUi->actionOpenDataFile,
-        .pImportFromMbcFile = _pUi->actionImportFromMbcFile,
-        .pOpenProjectFile = _pUi->actionOpenProjectFile,
-        .pSaveDataFile = _pUi->actionSaveDataFile,
-        .pExportImage = _pUi->actionExportImage,
-        .pSaveProjectFileAs = _pUi->actionSaveProjectFileAs,
-        .pSaveProjectFile = _pUi->actionSaveProjectFile,
-        .pReloadProjectFile = _pUi->actionReloadProjectFile,
-        .pClearData = _pUi->actionClearData,
-    };
-    _pGuiStateController =
-      new GuiStateController(_pGuiModel, _pSettingsModel, _pDataParserModel, guiStateActions, this);
-
-    _pGraphMenuController = new GraphMenuController(_pGraphDataModel, _pUi->menuShowHide, _pOverlayLabel, this);
-    connect(_pGraphMenuController, &GraphMenuController::activeGraphsChanged, this,
-            &MainWindow::handleActiveGraphsChanged);
-
-    // Compose rightclick menu
-    _menuRightClick.addMenu(_pUi->menuShowHide);
-    _menuRightClick.addSeparator();
-    _menuRightClick.addAction(_pUi->actionHighlightSamplePoints);
-    _menuRightClick.addAction(_pUi->actionClearData);
-    _menuRightClick.addAction(_pUi->actionToggleMarkers);
-    _menuRightClick.addSeparator();
-    _menuRightClick.addAction(_pUi->actionAddNote);
-    _menuRightClick.addAction(_pUi->actionManageNotes);
-
-    _pMostRecentMenu = new MostRecentMenu(_pUi->menuMostRecentProject, &_recentFileModule);
-    connect(_pMostRecentMenu, &MostRecentMenu::openRecentProject, this, &MainWindow::handleOpenRecentProject);
-
-    this->setAcceptDrops(true);
-
-    // For dock undock
     connect(_pUi->scaleOptionsDock, &QDockWidget::topLevelChanged, this, &MainWindow::scaleWidgetUndocked);
     connect(_pUi->legendDock, &QDockWidget::topLevelChanged, this, &MainWindow::legendWidgetUndocked);
 
-    // For rightclick menu
     _pUi->customPlot->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(_pUi->customPlot, &QWidget::customContextMenuRequested, this, &MainWindow::showContextMenu);
 
-    /* handle focus change */
     connect(dynamic_cast<QApplication*>(QApplication::instance()), &QApplication::focusChanged, this,
             &MainWindow::appFocusChanged);
-
-    /* Trigger update check */
-    _pUi->actionUpdateAvailable->setVisible(false);
-    auto* pVersionDownloader = new VersionDownloader(this);
-    _pUpdateNotify = new UpdateNotify(pVersionDownloader, Util::currentVersion(), this);
-    connect(_pUpdateNotify, &UpdateNotify::updateCheckResult, this, &MainWindow::showVersionUpdate);
-
-#ifndef DEBUG
-    /* Don't check for updates in debug mode */
-    _pUpdateNotify->checkForUpdate();
-#endif
-
-    // Default to full auto scaling
-    setAxisToAuto();
-
-    _pGraphMenuController->handleGraphsCountChanged();
-
-    // Defer until after the main window is shown — avoids a modal dialog blocking constructor completion
-    QTimer::singleShot(0, this, &MainWindow::showFirstInstallDialogIfNeeded);
-
-#if 0
-    //Debugging
-    _pGraphDataModel->add();
-    _pGraphDataModel->setExpression(0, "${40001}");
-    _pGraphDataModel->setLabel(0, "Data xx");
-
-    _pGraphDataModel->add();
-    _pGraphDataModel->setExpression(1, "${40003}");
-    _pGraphDataModel->setLabel(1, "Data 02");
-
-    //_pGraphDataModel->setActive(2, false);
-
-#endif
-}
-
-MainWindow::~MainWindow()
-{
-    delete _pUi;
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* event)

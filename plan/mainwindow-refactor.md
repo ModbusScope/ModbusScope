@@ -1,5 +1,25 @@
 # MainWindow Refactor Plan
 
+## Status: Implemented
+
+All five steps below have been implemented on `dev/mainwindow_split`, one commit per step:
+
+1. CLI parsing moved to `MainApp::parseCommandLine`.
+2. `GuiStateController` extracted (`src/dialogs/guistatecontroller.h/.cpp`).
+3. `GraphMenuController` extracted (`src/dialogs/graphmenucontroller.h/.cpp`).
+4. `ScopeController` extracted (`src/controllers/scopecontroller.h/.cpp`) — `MainApp` now
+   constructs it before `MainWindow` and drives `openFile()`/`initAdapter()` itself. Note: only
+   the no-registers and MBC-incompatible error paths were converted to signals; `DataFileHandler`/
+   `ProjectFileHandler`'s other error paths still show blocking `QMessageBox` dialogs — full
+   headless safety for file-open failures is follow-up work for a future `ScopeCliRunner`.
+5. `MainWindow`'s constructor wiring split into `setupMenuActions()`/`setupConnections()`.
+
+`MainWindow` is down from ~950 to ~645 lines (not quite the ~250-300 target quoted below, since
+that estimate didn't fully account for how many one-line dialog-launching/event-handler slots
+must stay on the class regardless of extraction). Each step has unit tests where the plan called
+for them (`GuiStateController`, `GraphMenuController`, `ScopeController`) and passed build/test/
+quality/review gates.
+
 ## Problem
 
 `src/dialogs/mainwindow.cpp` is a classic god class (~950 lines). The header
