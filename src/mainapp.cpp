@@ -1,5 +1,6 @@
 #include "mainapp.h"
 
+#include "controllers/scopecontroller.h"
 #include "dialogs/mainwindow.h"
 
 #include "models/communicationstatsmodel.h"
@@ -32,12 +33,22 @@ MainApp::MainApp(QStringList cmdArguments, QObject* parent) : QObject(parent)
     _pNoteModel = new NoteModel(this);
     _pDataParserModel = new DataParserModel(this);
 
-    _pMainWin = new MainWindow(options.fileToOpen, _pGuiModel, _pSettingsModel, _pGraphDataModel,
+    _pScopeController = new ScopeController(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pCommunicationStatsModel,
+                                            _pNoteModel, _pDataParserModel, this);
+
+    _pMainWin = new MainWindow(_pScopeController, _pGuiModel, _pSettingsModel, _pGraphDataModel,
                                _pCommunicationStatsModel, _pNoteModel, _pDiagnosticModel, _pDataParserModel);
 
     FileSelectionHelper::setGuiModel(_pGuiModel);
 
     logInitialInfo();
+
+    if (!options.fileToOpen.isEmpty())
+    {
+        _pScopeController->openFile(options.fileToOpen);
+    }
+
+    _pScopeController->initAdapter();
 
     _pMainWin->show();
 
@@ -50,6 +61,7 @@ MainApp::MainApp(QStringList cmdArguments, QObject* parent) : QObject(parent)
 MainApp::~MainApp()
 {
     delete _pMainWin;
+    delete _pScopeController;
 }
 
 /*!

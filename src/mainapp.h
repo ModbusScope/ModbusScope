@@ -12,6 +12,7 @@ class DiagnosticModel;
 class SettingsModel;
 class DataParserModel;
 class GuiModel;
+class ScopeController;
 
 class MainApp : public QObject
 {
@@ -40,6 +41,7 @@ private:
     GuiModel* _pGuiModel;
     DataParserModel* _pDataParserModel;
 
+    ScopeController* _pScopeController;
     MainWindow* _pMainWin;
 };
 

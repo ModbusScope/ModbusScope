@@ -23,7 +23,7 @@ public:
                              NoteModel* pNoteModel,
                              SettingsModel* pSettingsModel,
                              DataParserModel* pDataParserModel,
-                             QWidget* parent = nullptr);
+                             QObject* parent = nullptr);
     ~DataFileHandler();
 
     void openDataFile(QString dataFilePath);
