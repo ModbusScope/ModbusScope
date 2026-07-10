@@ -85,7 +85,7 @@ Callers can freely mutate the returned `Device` without the model emitting any c
 
 ---
 
-### 2.4 `MainWindow` is a god class
+### 2.4 `MainWindow` is a god class [DONE]
 **File:** `src/dialogs/mainwindow.cpp`
 
 - Constructor is 160+ lines, wires 40+ signal/slot connections.
@@ -93,6 +93,8 @@ Callers can freely mutate the returned `Device` without the model emitting any c
 - Directly calls `_pGraphDataModel->clear()` and `_pNoteModel->clear()` (lines 470–471) — business logic scattered into the view layer.
 
 **Fix (incremental):** Extract a non-UI `ApplicationController` (or `ScopeController`) that owns the service objects (`ModbusPoll`, `GraphDataHandler`, `CommunicationStats`) and exposes coarse actions (`startScope()`, `stopScope()`, `clearData()`). `MainWindow` delegates to it rather than wiring everything directly.
+
+**Done:** Split into `ScopeController` (`src/controllers/scopecontroller.h/.cpp` — owns `AdapterPoll`, `GraphDataHandler`, `CommunicationStats`, `DataFileHandler`, `ProjectFileHandler`, `ExpressionStatus`; exposes `start()`/`stop()`/`clear()`/`openFile()`), `GuiStateController` (`src/dialogs/guistatecontroller.h/.cpp` — GuiState → action enablement) and `GraphMenuController` (`src/dialogs/graphmenucontroller.h/.cpp` — show/hide submenu). `MainWindow` is down from ~950 to ~645 lines and only constructs collaborators, launches dialogs and forwards intent. Remaining gap: `DataFileHandler`/`ProjectFileHandler` still call `Util::showError()` (a blocking `QMessageBox`) on most error paths — only `ScopeController::start()`'s no-registers case and `openFile()`'s MBC-incompatible case were converted to the headless-safe `errorOccurred` signal. Full headless safety for file-open failures is follow-up work for whenever a CLI runner is actually built.
 
 ---
 
