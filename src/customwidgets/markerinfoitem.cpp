@@ -67,9 +67,9 @@ void MarkerInfoItem::updateData()
         return;
     }
 
-    QSharedPointer<const QCPGraphDataContainer> dataMap = _pGraphDataModel->dataMap(graphIdx);
+    QSharedPointer<const GraphDataSeries> dataSeries = _pGraphDataModel->dataSeries(graphIdx);
 
-    if (dataMap->isEmpty())
+    if (dataSeries->isEmpty())
     {
         return;
     }
@@ -90,9 +90,9 @@ void MarkerInfoItem::updateData()
 
     /* Add permanent items (y1, y2) */
     expressionList.prepend(GuiModel::cMarkerExpressionEnd.arg(
-      Util::formatDoubleForExport(dataMap->findBegin(_pGuiModel->endMarkerPos(), false)->value)));
+      Util::formatDoubleForExport(dataSeries->findBegin(_pGuiModel->endMarkerPos(), false)->value)));
     expressionList.prepend(GuiModel::cMarkerExpressionStart.arg(
-      Util::formatDoubleForExport(dataMap->findBegin(_pGuiModel->startMarkerPos(), false)->value)));
+      Util::formatDoubleForExport(dataSeries->findBegin(_pGuiModel->startMarkerPos(), false)->value)));
 
     /* Construct labels data */
     const qint32 leftRowCount = expressionList.size() - expressionList.size() / 2;
@@ -243,32 +243,32 @@ double MarkerInfoItem::calculateMarkerExpressionValue(quint32 expressionMask)
         return 0;
     }
 
-    QSharedPointer<const QCPGraphDataContainer> pDataMap = _pGraphDataModel->dataMap(graphIdx);
+    QSharedPointer<const GraphDataSeries> pDataSeries = _pGraphDataModel->dataSeries(graphIdx);
 
-    if (pDataMap->isEmpty())
+    if (pDataSeries->isEmpty())
     {
         return 0;
     }
 
-    const double valueDiff = pDataMap->findBegin(_pGuiModel->endMarkerPos(), false)->value -
-                             pDataMap->findBegin(_pGuiModel->startMarkerPos(), false)->value;
+    const double valueDiff = pDataSeries->findBegin(_pGuiModel->endMarkerPos(), false)->value -
+                             pDataSeries->findBegin(_pGuiModel->startMarkerPos(), false)->value;
     const double timeDiff = _pGuiModel->endMarkerPos() - _pGuiModel->startMarkerPos();
 
-    QCPGraphDataContainer::const_iterator dataPoint;
-    QCPGraphDataContainer::const_iterator start;
-    QCPGraphDataContainer::const_iterator end;
+    GraphDataSeries::const_iterator dataPoint;
+    GraphDataSeries::const_iterator start;
+    GraphDataSeries::const_iterator end;
 
     /* make sure we go in ascending order */
     if (_pGuiModel->endMarkerPos() > _pGuiModel->startMarkerPos())
     {
-        start = pDataMap->findBegin(_pGuiModel->startMarkerPos(), false);
-        end = pDataMap->findEnd(_pGuiModel->endMarkerPos(), false);
+        start = pDataSeries->findBegin(_pGuiModel->startMarkerPos(), false);
+        end = pDataSeries->findEnd(_pGuiModel->endMarkerPos(), false);
     }
     else
     {
         /* Change order */
-        start = pDataMap->findBegin(_pGuiModel->endMarkerPos());
-        end = pDataMap->findEnd(_pGuiModel->startMarkerPos());
+        start = pDataSeries->findBegin(_pGuiModel->endMarkerPos());
+        end = pDataSeries->findEnd(_pGuiModel->startMarkerPos());
     }
 
     if (expressionMask == GuiModel::cDifferenceMask)

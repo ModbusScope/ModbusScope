@@ -2,6 +2,7 @@
 
 #include "models/communicationstatsmodel.h"
 #include "models/graphdatamodel.h"
+#include <QDateTime>
 #include <algorithm>
 
 const uint32_t CommunicationStats::_cUpdateTime = 500;
@@ -23,20 +24,20 @@ void CommunicationStats::updateTimingInfo()
     QList<double> diffList;
     quint32 timeMedian;
 
-    if (_pGraphDataModel->size() == 0u || _pGraphDataModel->dataMap(GraphIdx(0))->size() <= 1)
+    if (_pGraphDataModel->size() == 0 || _pGraphDataModel->dataSeries(GraphIdx(0))->size() <= 1)
     {
         timeMedian = 0u;
     }
     else
     {
-        auto graphDate = _pGraphDataModel->dataMap(GraphIdx(0));
+        auto graphDate = _pGraphDataModel->dataSeries(GraphIdx(0));
         const quint32 elementCnt = std::min(static_cast<quint32>(graphDate->size()), _sampleCalculationSize);
 
         auto dataIterator = graphDate->constEnd() - elementCnt;
 
         for (; dataIterator != graphDate->constEnd() - 1; ++dataIterator)
         {
-            double diff = (dataIterator + 1)->mainKey() - dataIterator->mainKey();
+            double diff = (dataIterator + 1)->timestamp - dataIterator->timestamp;
 
             diffList.append(qAbs(diff));
         }

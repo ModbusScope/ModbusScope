@@ -56,6 +56,18 @@ void TestGraphData::setExpressionResetsStatus()
     QCOMPARE(GraphData::ExpressionState::UNKNOWN, graphData.expressionState());
 }
 
+void TestGraphData::copiesShareDataSeries()
+{
+    GraphData graphData;
+
+    GraphData copy = graphData;
+    copy.mutableDataSeries()->add(1, 10);
+
+    /* GraphData copies share the same data series (GraphDataStore relies on this) */
+    QCOMPARE(graphData.dataSeries()->size(), 1);
+    QCOMPARE(graphData.dataSeries()->constBegin()->value, 10.0);
+}
+
 /* TODO: Add extra test for other functions */
 
 QTEST_GUILESS_MAIN(TestGraphData)

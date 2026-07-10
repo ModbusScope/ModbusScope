@@ -1,10 +1,18 @@
 #ifndef GRAPHDATA_H
 #define GRAPHDATA_H
 
-#include "qcustomplot/qcustomplot.h"
+#include "models/graphdataseries.h"
+
 #include <QColor>
+#include <QSharedPointer>
 #include <QtGlobal>
 
+/*!
+ * \brief Settings and data of a single graph.
+ *
+ * Note: copies of a GraphData share the same underlying GraphDataSeries
+ * (GraphDataStore relies on this when storing GraphData by value).
+ */
 class GraphData
 {
 
@@ -49,8 +57,8 @@ public:
     void setExpressionState(ExpressionState status);
     bool isExpressionValid() const;
 
-    QSharedPointer<const QCPGraphDataContainer> dataMap() const;
-    QSharedPointer<QCPGraphDataContainer> mutableDataMap();
+    QSharedPointer<const GraphDataSeries> dataSeries() const;
+    QSharedPointer<GraphDataSeries> mutableDataSeries();
 
 private:
     valueAxis_t _valueAxis;
@@ -62,7 +70,7 @@ private:
     QString _expression;
     ExpressionState _expressionState;
 
-    QSharedPointer<QCPGraphDataContainer> _pDataMap;
+    QSharedPointer<GraphDataSeries> _pDataSeries;
 };
 
 #endif // GRAPHDATA_H

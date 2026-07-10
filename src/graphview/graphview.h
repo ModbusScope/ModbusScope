@@ -6,8 +6,12 @@
 #include "util/result.h"
 
 #include <QObject>
+#include <QPoint>
 
 /* forward declaration */
+class QCPAxis;
+class QCPGraph;
+class QMouseEvent;
 class GuiModel;
 class GraphDataModel;
 class CommunicationStatsModel;
@@ -75,6 +79,7 @@ private slots:
 private:
     void paintTimeStampToolTip(QPoint pos);
     void highlightSamples(bool bState);
+    void loadGraphDataFromModel(GraphIdx graphIdx, QCPGraph* pGraph);
     void setGraphColor(QCPGraph* _pGraph, const QColor& color);
     void setGraphAxis(QCPGraph* _pGraph, const GraphData::valueAxis_t& axis);
     double roundToAxisRange(double value, QCPAxis const* pAxis) const;

@@ -103,22 +103,22 @@ QString GraphDataStore::simplifiedExpression(GraphIdx index) const
     return _graphData[index.v].expression().simplified();
 }
 
-QSharedPointer<const QCPGraphDataContainer> GraphDataStore::dataMap(GraphIdx index) const
+QSharedPointer<const GraphDataSeries> GraphDataStore::dataSeries(GraphIdx index) const
 {
     if (index.v < 0 || index.v >= _graphData.size())
     {
         return {};
     }
-    return _graphData[index.v].dataMap();
+    return _graphData[index.v].dataSeries();
 }
 
-QSharedPointer<QCPGraphDataContainer> GraphDataStore::mutableDataMap(GraphIdx index)
+QSharedPointer<GraphDataSeries> GraphDataStore::mutableDataSeries(GraphIdx index)
 {
     if (index.v < 0 || index.v >= _graphData.size())
     {
         return {};
     }
-    return _graphData[index.v].mutableDataMap();
+    return _graphData[index.v].mutableDataSeries();
 }
 
 void GraphDataStore::setValueAxis(GraphIdx index, GraphData::valueAxis_t axis)
@@ -191,7 +191,7 @@ void GraphDataStore::setActive(GraphIdx index, bool bActive)
 
         if (!bActive)
         {
-            _graphData[index.v].mutableDataMap()->clear();
+            _graphData[index.v].mutableDataSeries()->clear();
         }
         else
         {

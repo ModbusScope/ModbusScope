@@ -12,7 +12,7 @@ GraphData::GraphData()
     _expression = QStringLiteral("0");
     _expressionState = ExpressionState::UNKNOWN;
 
-    _pDataMap = QSharedPointer<QCPGraphDataContainer>(new QCPGraphDataContainer);
+    _pDataSeries = QSharedPointer<GraphDataSeries>(new GraphDataSeries);
 }
 
 GraphData::~GraphData() = default;
@@ -99,12 +99,12 @@ void GraphData::setExpressionState(GraphData::ExpressionState status)
     _expressionState = status;
 }
 
-QSharedPointer<const QCPGraphDataContainer> GraphData::dataMap() const
+QSharedPointer<const GraphDataSeries> GraphData::dataSeries() const
 {
-    return _pDataMap;
+    return _pDataSeries;
 }
 
-QSharedPointer<QCPGraphDataContainer> GraphData::mutableDataMap()
+QSharedPointer<GraphDataSeries> GraphData::mutableDataSeries()
 {
-    return _pDataMap;
+    return _pDataSeries;
 }

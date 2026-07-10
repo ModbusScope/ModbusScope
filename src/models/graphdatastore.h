@@ -26,8 +26,8 @@ public:
     bool isExpressionValid(GraphIdx index) const;
     GraphIdx selectedGraph() const;
     QString simplifiedExpression(GraphIdx index) const;
-    QSharedPointer<const QCPGraphDataContainer> dataMap(GraphIdx index) const;
-    QSharedPointer<QCPGraphDataContainer> mutableDataMap(GraphIdx index);
+    QSharedPointer<const GraphDataSeries> dataSeries(GraphIdx index) const;
+    QSharedPointer<GraphDataSeries> mutableDataSeries(GraphIdx index);
 
     void setValueAxis(GraphIdx index, GraphData::valueAxis_t axis);
     void setVisible(GraphIdx index, bool bVisible);

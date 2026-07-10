@@ -7,15 +7,16 @@
 #include "util/result.h"
 #include "util/util.h"
 
+#include <QApplication>
 #include <QColorDialog>
+#include <QHeaderView>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QStyleOption>
 
 using State = ResultState::State;
 
-Legend::Legend(QWidget* parent)
-    : QFrame(parent), _pGuiModel(nullptr), _pGraphDataModel(nullptr), _pGraphView(nullptr)
+Legend::Legend(QWidget* parent) : QFrame(parent), _pGuiModel(nullptr), _pGraphDataModel(nullptr), _pGraphView(nullptr)
 {
     _pLayout = new QVBoxLayout();
 
@@ -381,7 +382,8 @@ void Legend::showAll()
 
 void Legend::handleSelectedGraphChanged(GraphIdx graphIdx)
 {
-    const ActiveIdx activeIdx = graphIdx.isValid() ? _pGraphDataModel->convertToActiveGraphIndex(graphIdx) : ActiveIdx();
+    const ActiveIdx activeIdx =
+      graphIdx.isValid() ? _pGraphDataModel->convertToActiveGraphIndex(graphIdx) : ActiveIdx();
 
     for (int idx = 0; idx < _pLegendTable->rowCount(); idx++)
     {

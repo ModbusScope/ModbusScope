@@ -25,7 +25,6 @@
 #include "models/guimodel.h"
 #include "models/notemodel.h"
 #include "models/settingsmodel.h"
-#include "qcustomplot/qcustomplot.h"
 #include "util/expressionstatus.h"
 #include "util/fileselectionhelper.h"
 #include "util/scopelogging.h"
@@ -201,7 +200,7 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
     // For rightclick menu
     _pUi->customPlot->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(_pUi->customPlot, &QCustomPlot::customContextMenuRequested, this, &MainWindow::showContextMenu);
+    connect(_pUi->customPlot, &QWidget::customContextMenuRequested, this, &MainWindow::showContextMenu);
 
     /* handle focus change */
     connect(dynamic_cast<QApplication*>(QApplication::instance()), &QApplication::focusChanged, this,

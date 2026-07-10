@@ -14,6 +14,8 @@
 #include "util/scopelogging.h"
 #include "util/util.h"
 
+#include <QLibraryInfo>
+
 MainApp::MainApp(QStringList cmdArguments, QObject* parent) : QObject(parent)
 {
     /* Setup diagnostic model and logging before all the rest */

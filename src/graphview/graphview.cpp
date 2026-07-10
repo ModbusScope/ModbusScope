@@ -21,6 +21,12 @@
 #include <QVector>
 #include <QtGlobal>
 
+/*
+ * The GraphDataSeries in the data model is the single source of truth for graph data.
+ * Each QCPGraph holds a private render copy of that data. Every function that mutates
+ * graph data must write the model series first and then update the render copy.
+ */
+
 GraphView::GraphView(GuiModel* pGuiModel,
                      SettingsModel* pSettingsModel,
                      GraphDataModel* pGraphDataModel,
@@ -115,8 +121,8 @@ bool GraphView::valuesUnderCursor(QList<double>& valueList)
             if (_pPlot->underMouse() && bValid && keyRange.contains(xPos))
             {
                 const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(ActiveIdx(activeGraphIndex));
-                QCPGraphDataContainer::const_iterator graphDataIt =
-                  _pGraphDataModel->dataMap(graphIdx).data()->findBegin(tooltipPos, false);
+                GraphDataSeries::const_iterator graphDataIt =
+                  _pGraphDataModel->dataSeries(graphIdx).data()->findBegin(tooltipPos, false);
                 valueList.append(graphDataIt->value);
             }
             else
@@ -194,21 +200,28 @@ void GraphView::clearGraph(GraphIdx graphIdx)
         else if (activeGraphList.size() == 1)
         {
             /* Only one graph active: clear all data */
-            _pGraphDataModel->mutableDataMap(graphIdx)->clear();
+            _pGraphDataModel->mutableDataSeries(graphIdx)->clear();
+
+            const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+            _pPlot->graph(activeIdx.v)->data()->clear();
 
             _pPlot->replot();
         }
         else
         {
             /* Several active graph, keep time data but clear data */
-            QCPGraphDataContainer::iterator it = _pGraphDataModel->mutableDataMap(graphIdx)->begin();
+            QSharedPointer<GraphDataSeries> pDataSeries = _pGraphDataModel->mutableDataSeries(graphIdx);
+            GraphDataSeries::iterator it = pDataSeries->begin();
 
-            /* Clear all values, keep keys */
-            while (it != _pGraphDataModel->mutableDataMap(graphIdx)->end())
+            /* Clear all values, keep timestamps */
+            while (it != pDataSeries->end())
             {
-                it->value = 0u;
+                it->value = 0.0;
                 it++;
             }
+
+            const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
+            loadGraphDataFromModel(graphIdx, _pPlot->graph(activeIdx.v));
 
             _pPlot->replot();
         }
@@ -237,7 +250,7 @@ void GraphView::updateGraphs()
 
         foreach (GraphIdx graphIdx, activeGraphList)
         {
-            const qint32 sampleCount = _pGraphDataModel->dataMap(graphIdx)->size();
+            const qint32 sampleCount = _pGraphDataModel->dataSeries(graphIdx)->size();
             if (sampleCount > maxSampleCount)
             {
                 maxSampleCount = sampleCount;
@@ -256,25 +269,25 @@ void GraphView::updateGraphs()
 
             connect(pGraph, QOverload<bool>::of(&QCPGraph::selectionChanged), this, &GraphView::handleSelectionChanged);
 
-            QSharedPointer<QCPGraphDataContainer> pMap = _pGraphDataModel->mutableDataMap(graphIdx);
+            QSharedPointer<GraphDataSeries> pDataSeries = _pGraphDataModel->mutableDataSeries(graphIdx);
 
             // Set data to zero when needed
-            if (pMap->size() != maxSampleCount)
+            if (pDataSeries->size() != maxSampleCount)
             {
-                const QSharedPointer<const QCPGraphDataContainer> pReferenceMap =
-                  _pGraphDataModel->dataMap(maxSampleIdx);
-                pMap->clear();
+                const QSharedPointer<const GraphDataSeries> pReferenceSeries =
+                  _pGraphDataModel->dataSeries(maxSampleIdx);
+                pDataSeries->clear();
 
-                // Add zero value for every key (x-coordinate)
-                QCPGraphDataContainer::const_iterator refIt = pReferenceMap->constBegin();
-                while (refIt != pReferenceMap->constEnd())
+                // Add zero value for every timestamp (x-coordinate)
+                GraphDataSeries::const_iterator refIt = pReferenceSeries->constBegin();
+                while (refIt != pReferenceSeries->constEnd())
                 {
-                    pMap->add(QCPGraphData(refIt->key, 0));
+                    pDataSeries->add(refIt->timestamp, 0);
                     refIt++;
                 }
             }
 
-            pGraph->setData(pMap);
+            loadGraphDataFromModel(graphIdx, pGraph);
 
             _pGraphMarkers->addTracer(pGraph);
             _pGraphIndicators->add(graphIdx, pGraph);
@@ -286,6 +299,31 @@ void GraphView::updateGraphs()
     _pPlot->replot();
 
     emit afterGraphUpdate();
+}
+
+/*!
+ * \brief Replaces the graph's render data with a copy of the model's data series.
+ * \param graphIdx Graph index in the full graph list.
+ * \param pGraph Plotted graph to update.
+ */
+void GraphView::loadGraphDataFromModel(GraphIdx graphIdx, QCPGraph* pGraph)
+{
+    const QSharedPointer<const GraphDataSeries> pDataSeries = _pGraphDataModel->dataSeries(graphIdx);
+
+    QVector<double> timestamps;
+    QVector<double> values;
+    timestamps.reserve(pDataSeries->size());
+    values.reserve(pDataSeries->size());
+
+    GraphDataSeries::const_iterator it = pDataSeries->constBegin();
+    while (it != pDataSeries->constEnd())
+    {
+        timestamps.append(it->timestamp);
+        values.append(it->value);
+        it++;
+    }
+
+    pGraph->setData(timestamps, values, true);
 }
 
 /*!
@@ -397,6 +435,9 @@ void GraphView::addData(QList<double> timeData, QList<QList<double> > data)
 
     for (qint32 i = 0; i < data.size(); i++)
     {
+        const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(ActiveIdx(i));
+        _pGraphDataModel->mutableDataSeries(graphIdx)->setSamples(timeData, data.at(i));
+
         QVector<double> graphData = data.at(i).toVector();
         _pPlot->graph(i)->setData(timeDataVector, graphData, true);
 
@@ -465,20 +506,18 @@ void GraphView::plotResults(ResultDoubleList resultList)
 
     QList<double> dataList;
 
-    uint32_t i = 0;
+    qint32 i = 0;
     for (const auto& result : resultList)
     {
-        if (result.isValid())
-        {
-            // No error, add points
-            _pPlot->graph(i)->addData(timeData, result.value());
-            dataList.append(result.value());
-        }
-        else
-        {
-            _pPlot->graph(i)->addData(timeData, 0);
-            dataList.append(0);
-        }
+        /* Invalid results are stored as zero */
+        const double value = result.isValid() ? result.value() : 0;
+
+        const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(ActiveIdx(i));
+        _pGraphDataModel->mutableDataSeries(graphIdx)->add(timeData, value);
+
+        _pPlot->graph(i)->addData(timeData, value);
+        dataList.append(value);
+
         i++;
     }
 
@@ -491,6 +530,9 @@ void GraphView::clearResults()
 {
     for (qint32 i = 0; i < _pPlot->graphCount(); i++)
     {
+        const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(ActiveIdx(i));
+        _pGraphDataModel->mutableDataSeries(graphIdx)->clear();
+
         _pPlot->graph(i)->data()->clear();
     }
 

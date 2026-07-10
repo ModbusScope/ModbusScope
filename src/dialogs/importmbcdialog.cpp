@@ -1,18 +1,19 @@
 #include "importmbcdialog.h"
 
-#include "customwidgets/actionbuttondelegate.h"
-#include "dialogs/ui_importmbcdialog.h"
 #include "MbcInterface/mbcfileimporter.h"
 #include "MbcInterface/mbcheader.h"
 #include "MbcInterface/mbcregisterfilter.h"
 #include "MbcInterface/mbcregistermodel.h"
 #include "MbcInterface/mbcupdatemodel.h"
+#include "customwidgets/actionbuttondelegate.h"
+#include "dialogs/ui_importmbcdialog.h"
 #include "models/graphdatamodel.h"
 #include "models/guimodel.h"
 #include "util/fileselectionhelper.h"
 #include "util/util.h"
 
 #include <QFileDialog>
+#include <QMimeData>
 
 /*!
  * \brief Constructs the ImportMbcDialog.

@@ -17,6 +17,7 @@
 #include <QFileDialog>
 
 #include <climits>
+#include <utility>
 
 ProjectFileHandler::ProjectFileHandler(GuiModel* pGuiModel,
                                        SettingsModel* pSettingsModel,
@@ -171,7 +172,8 @@ QList<ProjectFileData::AdapterFileSettings> ProjectFileHandler::buildCurrentAdap
     QList<ProjectFileData::AdapterFileSettings> result;
     QStringList handledTypes;
 
-    for (const QString& adapterId : _pSettingsModel->adapterIds())
+    const QStringList adapterIds = _pSettingsModel->adapterIds();
+    for (const QString& adapterId : adapterIds)
     {
         const AdapterData* pAdapter = _pSettingsModel->adapterData(adapterId);
         if (pAdapter->hasStoredConfig())
@@ -184,7 +186,7 @@ QList<ProjectFileData::AdapterFileSettings> ProjectFileHandler::buildCurrentAdap
         }
     }
 
-    for (const ProjectFileData::AdapterFileSettings& stored : _storedAdapters)
+    for (const ProjectFileData::AdapterFileSettings& stored : std::as_const(_storedAdapters))
     {
         if (!handledTypes.contains(stored.type))
         {
@@ -204,7 +206,8 @@ QList<ProjectFileData::DeviceSettings> ProjectFileHandler::buildCurrentDevices(
 {
     QList<ProjectFileData::DeviceSettings> result;
 
-    for (const deviceId_t devId : _pSettingsModel->deviceList())
+    const QList<deviceId_t> devices = _pSettingsModel->deviceList();
+    for (const deviceId_t devId : devices)
     {
         Device* pDev = _pSettingsModel->deviceSettings(devId);
         ProjectFileData::DeviceSettings ds;
