@@ -31,6 +31,10 @@ GuiStateController::GuiStateController(GuiModel* pGuiModel,
     connect(_pGuiModel, &GuiModel::guiStateChanged, this, &GuiStateController::updateGuiState);
     connect(_pGuiModel, &GuiModel::projectFilePathChanged, this, &GuiStateController::projectFileLoaded);
     connect(_pSettingsModel, &SettingsModel::adapterDataChanged, this, &GuiStateController::updateGuiState);
+
+    // GuiModel starts in GuiState::INIT without emitting guiStateChanged(), so apply the initial
+    // action state here rather than relying on the .ui file's hardcoded defaults to match it.
+    updateGuiState();
 }
 
 /*!

@@ -596,8 +596,12 @@ void MainWindow::dropEvent(QDropEvent* e)
 {
     if (!_pScopeController->isPolling())
     {
-        const QString filename(e->mimeData()->urls().constLast().toLocalFile());
-        _pScopeController->openFile(filename);
+        const QList<QUrl> urls = e->mimeData()->urls();
+        if (urls.isEmpty())
+        {
+            return;
+        }
+        _pScopeController->openFile(urls.constLast().toLocalFile());
     }
 }
 

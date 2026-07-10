@@ -12,6 +12,7 @@
 #include "util/expressionstatus.h"
 
 #include <QFileInfo>
+#include <utility>
 
 using GuiState = GuiModel::GuiState;
 

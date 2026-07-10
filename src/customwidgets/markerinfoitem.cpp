@@ -4,6 +4,7 @@
 #include <limits>
 
 #include "models/graphdatamodel.h"
+#include "models/graphdataseries.h"
 #include "models/guimodel.h"
 #include "util/util.h"
 
@@ -90,9 +91,9 @@ void MarkerInfoItem::updateData()
 
     /* Add permanent items (y1, y2) */
     expressionList.prepend(GuiModel::cMarkerExpressionEnd.arg(
-      Util::formatDoubleForExport(dataSeries->findBegin(_pGuiModel->endMarkerPos(), false)->value)));
+      Util::formatDoubleForExport(markerValue(*dataSeries, _pGuiModel->endMarkerPos()))));
     expressionList.prepend(GuiModel::cMarkerExpressionStart.arg(
-      Util::formatDoubleForExport(dataSeries->findBegin(_pGuiModel->startMarkerPos(), false)->value)));
+      Util::formatDoubleForExport(markerValue(*dataSeries, _pGuiModel->startMarkerPos()))));
 
     /* Construct labels data */
     const qint32 leftRowCount = expressionList.size() - expressionList.size() / 2;
@@ -233,6 +234,28 @@ void MarkerInfoItem::selectGraph(qint32 graphIndex)
     }
 }
 
+/*!
+ * \brief Look up the sample value at \p markerPos, clamped to the series' extent
+ *
+ * findBegin() returns constEnd() when \p markerPos lies beyond the last sample (e.g. the marker was
+ * snapped to a different, longer-running graph). In that case the last sample's value is used instead.
+ * \p dataSeries must not be empty.
+ * \param dataSeries Series to sample.
+ * \param markerPos Timestamp to look up.
+ * \return Value of the sample at or after \p markerPos, or the last sample's value when out of range.
+ */
+double MarkerInfoItem::markerValue(const GraphDataSeries& dataSeries, double markerPos)
+{
+    Q_ASSERT(!dataSeries.isEmpty());
+
+    GraphDataSeries::const_iterator it = dataSeries.findBegin(markerPos, false);
+    if (it == dataSeries.constEnd())
+    {
+        --it;
+    }
+    return it->value;
+}
+
 double MarkerInfoItem::calculateMarkerExpressionValue(quint32 expressionMask)
 {
     double result = 0;
@@ -250,8 +273,8 @@ double MarkerInfoItem::calculateMarkerExpressionValue(quint32 expressionMask)
         return 0;
     }
 
-    const double valueDiff = pDataSeries->findBegin(_pGuiModel->endMarkerPos(), false)->value -
-                             pDataSeries->findBegin(_pGuiModel->startMarkerPos(), false)->value;
+    const double valueDiff =
+      markerValue(*pDataSeries, _pGuiModel->endMarkerPos()) - markerValue(*pDataSeries, _pGuiModel->startMarkerPos());
     const double timeDiff = _pGuiModel->endMarkerPos() - _pGuiModel->startMarkerPos();
 
     GraphDataSeries::const_iterator dataPoint;
