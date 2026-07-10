@@ -61,18 +61,31 @@ void TestGuiStateController::cleanup()
     delete _pDataParserModel;
     _pDataParserModel = nullptr;
 
+    delete _pStart;
     _pStart = nullptr;
+    delete _pStop;
     _pStop = nullptr;
+    delete _pSettings;
     _pSettings = nullptr;
+    delete _pRegisterSettings;
     _pRegisterSettings = nullptr;
+    delete _pOpenDataFile;
     _pOpenDataFile = nullptr;
+    delete _pImportFromMbcFile;
     _pImportFromMbcFile = nullptr;
+    delete _pOpenProjectFile;
     _pOpenProjectFile = nullptr;
+    delete _pSaveDataFile;
     _pSaveDataFile = nullptr;
+    delete _pExportImage;
     _pExportImage = nullptr;
+    delete _pSaveProjectFileAs;
     _pSaveProjectFileAs = nullptr;
+    delete _pSaveProjectFile;
     _pSaveProjectFile = nullptr;
+    delete _pReloadProjectFile;
     _pReloadProjectFile = nullptr;
+    delete _pClearData;
     _pClearData = nullptr;
 }
 
@@ -122,6 +135,7 @@ void TestGuiStateController::stoppedStateNoProject()
     QVERIFY(_pRegisterSettings->isEnabled());
     QVERIFY(_pStart->isEnabled());
     QVERIFY(_pOpenDataFile->isEnabled());
+    QVERIFY(!_pImportFromMbcFile->isEnabled());
     QVERIFY(_pOpenProjectFile->isEnabled());
     QVERIFY(_pSaveDataFile->isEnabled());
     QVERIFY(_pSaveProjectFileAs->isEnabled());
@@ -152,6 +166,7 @@ void TestGuiStateController::dataLoadedState()
     QVERIFY(_pSettings->isEnabled());
     QVERIFY(_pStart->isEnabled());
     QVERIFY(_pOpenDataFile->isEnabled());
+    QVERIFY(!_pImportFromMbcFile->isEnabled());
     QVERIFY(_pOpenProjectFile->isEnabled());
 
     QVERIFY(!_pSaveDataFile->isEnabled());

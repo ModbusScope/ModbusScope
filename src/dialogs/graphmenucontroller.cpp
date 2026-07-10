@@ -74,6 +74,10 @@ QIcon GraphMenuController::colorIcon(const QColor& color)
 void GraphMenuController::menuShowHideGraphClicked(bool bState)
 {
     QAction* pAction = qobject_cast<QAction*>(QObject::sender());
+    if (pAction == nullptr)
+    {
+        return;
+    }
 
     const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(pAction->data().value<ActiveIdx>());
     _pGraphDataModel->setVisible(graphIdx, bState);

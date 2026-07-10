@@ -59,9 +59,9 @@ void GuiStateController::updateGuiState()
         _actions.pSaveProjectFile->setEnabled(false);
 
         _pDataParserModel->resetSettings();
-        _pGuiModel->setProjectFilePath(QString(""));
+        _pGuiModel->setProjectFilePath("");
 
-        _pGuiModel->setWindowTitleDetail(QString(""));
+        _pGuiModel->setWindowTitleDetail("");
     }
     else if (_pGuiModel->guiState() == GuiState::STARTED)
     {

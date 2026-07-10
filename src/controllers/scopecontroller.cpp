@@ -140,7 +140,7 @@ void ScopeController::start()
     }
     else
     {
-        emit errorOccurred(tr("There are no register in the scope list. Please select at least one register."));
+        emit errorOccurred(tr("There are no registers in the scope list. Please select at least one register."));
     }
 }
 
