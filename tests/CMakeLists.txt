@@ -48,6 +48,7 @@ endfunction()
 set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/../src/dialogs ${CMAKE_CURRENT_SOURCE_DIR}/../src/customwidgets)
 
 add_subdirectory(communication)
+add_subdirectory(controllers)
 add_subdirectory(customwidgets)
 add_subdirectory(datahandling)
 add_subdirectory(dialogs)

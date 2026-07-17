@@ -90,4 +90,3 @@ void TestExpressionsDialog::describeDispatch_abortsOnExpressionChange()
 }
 
 QTEST_MAIN(TestExpressionsDialog)
-#include "tst_expressionsdialog.moc"

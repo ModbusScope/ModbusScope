@@ -1,8 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "datahandling/graphdatahandler.h"
-#include "util/graphindex.h"
 #include "util/recentfilemodule.h"
 #include "util/result.h"
 #include "util/updatenotify.h"
@@ -17,7 +15,6 @@ class MainWindow;
 }
 
 // Forward declaration
-class AdapterPoll;
 class QCustomPlot;
 class GraphDataModel;
 class NoteModel;
@@ -34,18 +31,20 @@ class DataFileHandler;
 class ProjectFileHandler;
 class Legend;
 class StatusBar;
-class ExpressionStatus;
 class MostRecentMenu;
 class OverlayLabel;
 class CommunicationStats;
 class CommunicationStatsModel;
+class GuiStateController;
+class GraphMenuController;
+class ScopeController;
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QStringList cmdArguments,
+    explicit MainWindow(ScopeController* pScopeController,
                         GuiModel* pGuiModel,
                         SettingsModel* pSettingsModel,
                         GraphDataModel* pGraphDataModel,
@@ -71,14 +70,10 @@ private slots:
     void showAbout();
     void openOnlineDoc();
     void openUpdateUrl();
-    void menuShowHideGraphClicked(bool bState);
     void showSettingsDialog();
     void handleShowRegisterDialog(bool checked);
     void addNoteToGraph();
     void toggleZoom(bool checked);
-    void clearData();
-    void startScope();
-    void stopScope();
     void showDiagnostic();
     void showNotesDialog();
     void showMbcImportDialog();
@@ -86,17 +81,11 @@ private slots:
     void handleOpenRecentProject(QString projectFile);
 
     /* Model change handlers */
-    void handleGraphVisibilityChange(GraphIdx graphIdx);
-    void handleGraphColorChange(GraphIdx graphIdx);
-    void handleGraphLabelChange(GraphIdx graphIdx);
-
     void updateHighlightSampleMenu();
     void handleZoomStateChanged();
-    void rebuildGraphMenu();
-    void handleGraphsCountChanged();
+    void handleActiveGraphsChanged(bool bActiveGraphs);
     void updateWindowTitle();
-    void projectFileLoaded();
-    void updateGuiState();
+    void handleProjectFilePathChanged();
     void updateMarkerDockVisibility();
 
     /* Misc */
@@ -104,21 +93,24 @@ private slots:
     void legendWidgetUndocked(bool bFloat);
     void showContextMenu(const QPoint& pos);
     void appFocusChanged(QWidget* old, QWidget* now);
-    void updateDataFileNotes();
 
     void showVersionUpdate(UpdateNotify::UpdateState result);
-    void onRegisterDataReady(const ResultDoubleList& results);
     void showQuickStartDialog();
 
+    /* ScopeController handlers */
+    void handleDataProcessed(const ResultDoubleList& results);
+    void handleDataCleared();
+    void handleScopeError(QString message);
+
 private:
+    void setupMenuActions();
+    void setupConnections();
     void setAxisToAuto();
     void showRegisterDialog();
     void showFirstInstallDialogIfNeeded();
-    void handleCommandLineArguments(QStringList cmdArguments);
-    void handleFileOpen(QString filename);
 
     Ui::MainWindow* _pUi;
-    AdapterPoll* _pAdapterPoll;
+    ScopeController* _pScopeController;
     GraphView* _pGraphView;
 
     GuiModel* _pGuiModel;
@@ -130,14 +122,8 @@ private:
     DataParserModel* _pDataParserModel;
 
     UpdateNotify* _pUpdateNotify;
-    GraphDataHandler _graphDataHandler;
-    ExpressionStatus* _pExpressionStatus;
-    CommunicationStats* _pCommunicationStats;
 
     DiagnosticDialog* _pDiagnosticDialog;
-
-    DataFileHandler* _pDataFileHandler;
-    ProjectFileHandler* _pProjectFileHandler;
 
     NotesDock* _pNotesDock;
     MarkerInfo* _pMarkerInfo;
@@ -147,10 +133,12 @@ private:
     OverlayLabel* _pOverlayLabel;
 
     QMenu _menuRightClick;
-    QMenu* _pGraphShowHide;
 
     MostRecentMenu* _pMostRecentMenu;
     RecentFileModule _recentFileModule;
+
+    GuiStateController* _pGuiStateController;
+    GraphMenuController* _pGraphMenuController;
 
     QPointF _lastRightClickPos;
 };

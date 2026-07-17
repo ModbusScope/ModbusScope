@@ -1,0 +1,1 @@
+add_xtest(tst_scopecontroller tst_scopecontroller.h)

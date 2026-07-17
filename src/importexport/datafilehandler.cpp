@@ -24,7 +24,7 @@ DataFileHandler::DataFileHandler(GuiModel* pGuiModel,
                                  NoteModel* pNoteModel,
                                  SettingsModel* pSettingsModel,
                                  DataParserModel* pDataParserModel,
-                                 QWidget* parent)
+                                 QObject* parent)
     : QObject(parent)
 {
     _pGuiModel = pGuiModel;

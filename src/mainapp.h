@@ -2,6 +2,7 @@
 #define MAINAPP_H
 
 #include <QObject>
+#include <QString>
 
 class MainWindow;
 class GraphDataModel;
@@ -11,6 +12,7 @@ class DiagnosticModel;
 class SettingsModel;
 class DataParserModel;
 class GuiModel;
+class ScopeController;
 
 class MainApp : public QObject
 {
@@ -22,6 +24,13 @@ public:
 signals:
 
 private:
+    struct CommandLineOptions
+    {
+        QString fileToOpen; /* empty when no positional argument given */
+    };
+
+    static CommandLineOptions parseCommandLine(const QStringList& cmdArguments);
+
     void logInitialInfo();
 
     SettingsModel* _pSettingsModel;
@@ -32,6 +41,7 @@ private:
     GuiModel* _pGuiModel;
     DataParserModel* _pDataParserModel;
 
+    ScopeController* _pScopeController;
     MainWindow* _pMainWin;
 };
 

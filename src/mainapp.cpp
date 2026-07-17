@@ -1,5 +1,6 @@
 #include "mainapp.h"
 
+#include "controllers/scopecontroller.h"
 #include "dialogs/mainwindow.h"
 
 #include "models/communicationstatsmodel.h"
@@ -14,10 +15,13 @@
 #include "util/scopelogging.h"
 #include "util/util.h"
 
+#include <QCommandLineParser>
 #include <QLibraryInfo>
 
 MainApp::MainApp(QStringList cmdArguments, QObject* parent) : QObject(parent)
 {
+    const CommandLineOptions options = parseCommandLine(cmdArguments);
+
     /* Setup diagnostic model and logging before all the rest */
     _pDiagnosticModel = new DiagnosticModel(this);
     ScopeLogging::Logger().initLogging(_pDiagnosticModel);
@@ -29,12 +33,22 @@ MainApp::MainApp(QStringList cmdArguments, QObject* parent) : QObject(parent)
     _pNoteModel = new NoteModel(this);
     _pDataParserModel = new DataParserModel(this);
 
-    _pMainWin = new MainWindow(cmdArguments, _pGuiModel, _pSettingsModel, _pGraphDataModel, _pCommunicationStatsModel,
-                               _pNoteModel, _pDiagnosticModel, _pDataParserModel);
+    _pScopeController = new ScopeController(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pCommunicationStatsModel,
+                                            _pNoteModel, _pDataParserModel, this);
+
+    _pMainWin = new MainWindow(_pScopeController, _pGuiModel, _pSettingsModel, _pGraphDataModel,
+                               _pCommunicationStatsModel, _pNoteModel, _pDiagnosticModel, _pDataParserModel);
 
     FileSelectionHelper::setGuiModel(_pGuiModel);
 
     logInitialInfo();
+
+    if (!options.fileToOpen.isEmpty())
+    {
+        _pScopeController->openFile(options.fileToOpen);
+    }
+
+    _pScopeController->initAdapter();
 
     _pMainWin->show();
 
@@ -47,6 +61,34 @@ MainApp::MainApp(QStringList cmdArguments, QObject* parent) : QObject(parent)
 MainApp::~MainApp()
 {
     delete _pMainWin;
+    delete _pScopeController;
+}
+
+/*!
+ * \brief Parse the command line arguments into typed options
+ * \param cmdArguments Raw application arguments
+ * \return Parsed options (file to open when a positional argument is given)
+ */
+MainApp::CommandLineOptions MainApp::parseCommandLine(const QStringList& cmdArguments)
+{
+    QCommandLineParser argumentParser;
+    argumentParser.setApplicationDescription("Log data through the Modbus protocol");
+    argumentParser.addHelpOption();
+
+    // Project file option
+    argumentParser.addPositionalArgument("project file",
+                                         QCoreApplication::translate("main", "Project file (.mbs) to open"));
+
+    // Process arguments
+    argumentParser.process(cmdArguments);
+
+    CommandLineOptions options;
+    if (!argumentParser.positionalArguments().isEmpty())
+    {
+        options.fileToOpen = argumentParser.positionalArguments().at(0);
+    }
+
+    return options;
 }
 
 void MainApp::logInitialInfo()

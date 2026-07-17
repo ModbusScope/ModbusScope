@@ -1,15 +1,17 @@
 
 #include "dialogs/mainwindow.h"
-#include "communication/adapterpoll.h"
+#include "ProtocolAdapter/adapterhub.h"
 #include "communication/communicationstats.h"
+#include "controllers/scopecontroller.h"
 #include "customwidgets/markerinfo.h"
 #include "customwidgets/mostrecentmenu.h"
 #include "customwidgets/notesdock.h"
 #include "customwidgets/overlaylabel.h"
 #include "customwidgets/statusbar.h"
-#include "datahandling/graphdatahandler.h"
 #include "dialogs/aboutdialog.h"
 #include "dialogs/diagnosticdialog.h"
+#include "dialogs/graphmenucontroller.h"
+#include "dialogs/guistatecontroller.h"
 #include "dialogs/importmbcdialog.h"
 #include "dialogs/quickstartdialog.h"
 #include "dialogs/registerdialog.h"
@@ -25,7 +27,6 @@
 #include "models/guimodel.h"
 #include "models/notemodel.h"
 #include "models/settingsmodel.h"
-#include "util/expressionstatus.h"
 #include "util/fileselectionhelper.h"
 #include "util/scopelogging.h"
 #include "util/updatenotify.h"
@@ -38,7 +39,7 @@
 
 using GuiState = GuiModel::GuiState;
 
-MainWindow::MainWindow(QStringList cmdArguments,
+MainWindow::MainWindow(ScopeController* pScopeController,
                        GuiModel* pGuiModel,
                        SettingsModel* pSettingsModel,
                        GraphDataModel* pGraphDataModel,
@@ -49,6 +50,7 @@ MainWindow::MainWindow(QStringList cmdArguments,
                        QWidget* parent)
     : QMainWindow(parent),
       _pUi(new Ui::MainWindow),
+      _pScopeController(pScopeController),
       _pGuiModel(pGuiModel),
       _pSettingsModel(pSettingsModel),
       _pGraphDataModel(pGraphDataModel),
@@ -67,16 +69,8 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
     _pNotesDock = new NotesDock(_pNoteModel, _pGuiModel, this);
 
-    _pAdapterPoll = new AdapterPoll(_pSettingsModel, this);
-    connect(_pAdapterPoll, &AdapterPoll::registerDataReady, this, &MainWindow::onRegisterDataReady);
-
     _pGraphView = new GraphView(_pGuiModel, _pSettingsModel, _pGraphDataModel, _pCommunicationStatsModel, _pNoteModel,
                                 _pUi->customPlot, this);
-    _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pCommunicationStatsModel, _pNoteModel,
-                                            _pSettingsModel, _pDataParserModel, this);
-    _pProjectFileHandler = new ProjectFileHandler(_pGuiModel, _pSettingsModel, _pGraphDataModel, this);
-    _pExpressionStatus = new ExpressionStatus(_pGraphDataModel, pSettingsModel, this);
-    _pCommunicationStats = new CommunicationStats(_pGraphDataModel, _pCommunicationStatsModel, 50, this);
 
     _pLegend = _pUi->legend;
     _pLegend->setModels(_pGuiModel, _pGraphDataModel);
@@ -90,124 +84,32 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
     _pUi->scaleOptions->setModels(_pGuiModel);
 
-    /*-- Connect menu actions --*/
-    connect(_pUi->actionStart, &QAction::triggered, this, &MainWindow::startScope);
-    connect(_pUi->actionStop, &QAction::triggered, this, &MainWindow::stopScope);
-    connect(_pUi->actionDiagnostic, &QAction::triggered, this, &MainWindow::showDiagnostic);
-    connect(_pUi->actionManageNotes, &QAction::triggered, this, &MainWindow::showNotesDialog);
-    connect(_pUi->actionExit, &QAction::triggered, this, &MainWindow::exitApplication);
-    connect(_pUi->actionSaveDataFile, &QAction::triggered, _pDataFileHandler, &DataFileHandler::selectDataExportFile);
-    connect(_pUi->actionOpenProjectFile, &QAction::triggered, _pProjectFileHandler,
-            &ProjectFileHandler::selectProjectOpenFile);
-    connect(_pUi->actionReloadProjectFile, &QAction::triggered, _pProjectFileHandler,
-            &ProjectFileHandler::reloadProjectFile);
-    connect(_pUi->actionOpenDataFile, &QAction::triggered, _pDataFileHandler, &DataFileHandler::selectDataImportFile);
-    connect(_pUi->actionImportFromMbcFile, &QAction::triggered, this, &MainWindow::showMbcImportDialog);
-    connect(_pUi->actionExportImage, &QAction::triggered, this, &MainWindow::selectImageExportFile);
-    connect(_pUi->actionSaveProjectFileAs, &QAction::triggered, _pProjectFileHandler,
-            &ProjectFileHandler::selectProjectSaveFile);
-    connect(_pUi->actionSaveProjectFile, &QAction::triggered, _pProjectFileHandler,
-            &ProjectFileHandler::saveProjectFile);
-    connect(_pUi->actionAbout, &QAction::triggered, this, &MainWindow::showAbout);
-    connect(_pUi->actionQuickStart, &QAction::triggered, this, &MainWindow::showQuickStartDialog);
-    connect(_pUi->actionOnlineDocumentation, &QAction::triggered, this, &MainWindow::openOnlineDoc);
-    connect(_pUi->actionUpdateAvailable, &QAction::triggered, this, &MainWindow::openUpdateUrl);
-    connect(_pUi->actionHighlightSamplePoints, &QAction::toggled, _pGuiModel, &GuiModel::setHighlightSamples);
-    connect(_pUi->actionClearData, &QAction::triggered, this, &MainWindow::clearData);
-    connect(_pUi->actionToggleMarkers, &QAction::triggered, this, &MainWindow::toggleMarkersState);
-    connect(_pUi->actionSettings, &QAction::triggered, this, &MainWindow::showSettingsDialog);
-    connect(_pUi->actionRegisterSettings, &QAction::triggered, this, &MainWindow::handleShowRegisterDialog);
-    connect(_pUi->actionAddNote, &QAction::triggered, this, &MainWindow::addNoteToGraph);
-    connect(_pUi->actionZoom, &QAction::triggered, this,
-            &MainWindow::toggleZoom); /* Only called on GUI click, not on setChecked */
+    setupMenuActions();
+    setupConnections();
 
-    /*-- connect model to view --*/
-    connect(_pGuiModel, &GuiModel::highlightSamplesChanged, this, &MainWindow::updateHighlightSampleMenu);
-    connect(_pGuiModel, &GuiModel::highlightSamplesChanged, _pGraphView, &GraphView::enableSamplePoints);
-    connect(_pGuiModel, &GuiModel::cursorValuesChanged, _pGraphView, &GraphView::updateTooltip);
-    connect(_pGuiModel, &GuiModel::cursorValuesChanged, _pLegend, &Legend::updateDataInLegend);
+    const GuiStateActions guiStateActions{
+        .pStart = _pUi->actionStart,
+        .pStop = _pUi->actionStop,
+        .pSettings = _pUi->actionSettings,
+        .pRegisterSettings = _pUi->actionRegisterSettings,
+        .pOpenDataFile = _pUi->actionOpenDataFile,
+        .pImportFromMbcFile = _pUi->actionImportFromMbcFile,
+        .pOpenProjectFile = _pUi->actionOpenProjectFile,
+        .pSaveDataFile = _pUi->actionSaveDataFile,
+        .pExportImage = _pUi->actionExportImage,
+        .pSaveProjectFileAs = _pUi->actionSaveProjectFileAs,
+        .pSaveProjectFile = _pUi->actionSaveProjectFile,
+        .pReloadProjectFile = _pUi->actionReloadProjectFile,
+        .pClearData = _pUi->actionClearData,
+    };
+    _pGuiStateController =
+      new GuiStateController(_pGuiModel, _pSettingsModel, _pDataParserModel, guiStateActions, this);
 
-    connect(_pGuiModel, &GuiModel::windowTitleChanged, this, &MainWindow::updateWindowTitle);
-    connect(_pGuiModel, &GuiModel::projectFilePathChanged, this, &MainWindow::projectFileLoaded);
-    connect(_pGuiModel, &GuiModel::guiStateChanged, this, &MainWindow::updateGuiState);
-    connect(_pGuiModel, &GuiModel::xAxisScalingChanged, _pGraphView, &GraphView::rescalePlot);
-    connect(_pGuiModel, &GuiModel::xAxisSlidingIntervalChanged, _pGraphView, &GraphView::rescalePlot);
-    connect(_pGuiModel, &GuiModel::yAxisScalingChanged, _pGraphView, &GraphView::rescalePlot);
-    connect(_pGuiModel, &GuiModel::y2AxisScalingChanged, _pGraphView, &GraphView::rescalePlot);
-    connect(_pGuiModel, &GuiModel::yAxisMinMaxchanged, _pGraphView, &GraphView::rescalePlot);
-    connect(_pGuiModel, &GuiModel::y2AxisMinMaxchanged, _pGraphView, &GraphView::rescalePlot);
-    connect(_pGuiModel, &GuiModel::markerStateChanged, this, &MainWindow::updateMarkerDockVisibility);
-    connect(_pGuiModel, &GuiModel::zoomStateChanged, this, &MainWindow::handleZoomStateChanged);
-
-    connect(_pGraphDataModel, &GraphDataModel::visibilityChanged, this, &MainWindow::handleGraphVisibilityChange);
-    connect(_pGraphDataModel, &GraphDataModel::visibilityChanged, _pGraphView, &GraphView::handleGraphVisibilityChange);
-
-    connect(_pGraphDataModel, &GraphDataModel::graphsAddData, _pGraphView, &GraphView::addData);
-    connect(_pGraphDataModel, &GraphDataModel::graphsAddData, this, &MainWindow::setAxisToAuto);
-
-    connect(_pGraphDataModel, &GraphDataModel::activeChanged, this, &MainWindow::handleGraphsCountChanged);
-    connect(_pGraphDataModel, &GraphDataModel::activeChanged, _pGraphView, &GraphView::updateGraphs);
-
-    connect(_pGraphDataModel, &GraphDataModel::colorChanged, this, &MainWindow::handleGraphColorChange);
-    connect(_pGraphDataModel, &GraphDataModel::colorChanged, _pGraphView, &GraphView::changeGraphColor);
-
-    connect(_pGraphDataModel, &GraphDataModel::valueAxisChanged, _pGraphView, &GraphView::changeGraphAxis);
-    connect(_pGraphDataModel, &GraphDataModel::selectedGraphChanged, _pGraphView, &GraphView::changeSelectedGraph);
-
-    connect(_pGraphDataModel, &GraphDataModel::labelChanged, this, &MainWindow::handleGraphLabelChange);
-
-    connect(_pGraphDataModel, &GraphDataModel::added, this, &MainWindow::handleGraphsCountChanged);
-    connect(_pGraphDataModel, &GraphDataModel::added, _pGraphView, &GraphView::updateGraphs);
-
-    connect(_pGraphDataModel, &GraphDataModel::moved, this, &MainWindow::rebuildGraphMenu);
-    connect(_pGraphDataModel, &GraphDataModel::moved, _pGraphView, &GraphView::updateGraphs);
-
-    connect(_pGraphDataModel, &GraphDataModel::removed, this, &MainWindow::handleGraphsCountChanged);
-    connect(_pGraphDataModel, &GraphDataModel::removed, _pGraphView, &GraphView::updateGraphs);
-
-    connect(_pGraphDataModel, &GraphDataModel::expressionChanged, _pGraphView, &GraphView::clearGraph);
-
-    connect(_pGraphDataModel, &GraphDataModel::colorChanged, _pDataFileHandler, &DataFileHandler::rewriteDataFile);
-    connect(_pGraphView, &GraphView::afterGraphUpdate, _pDataFileHandler, &DataFileHandler::rewriteDataFile);
-
-    connect(_pGraphView, &GraphView::cursorValueUpdate, _pLegend, &Legend::updateDataInLegend);
-    connect(_pGraphView, &GraphView::dataAddedToPlot, _pDataFileHandler, &DataFileHandler::exportDataLine);
-    connect(_pGraphView, &GraphView::dataAddedToPlot, _pCommunicationStats, &CommunicationStats::updateTimingInfo);
-
-    connect(_pStatusBar, &StatusBar::openDiagnostics, this, &MainWindow::showDiagnostic);
-    connect(_pSettingsModel, &SettingsModel::adapterDataChanged, this, &MainWindow::updateGuiState);
-
-    _pGraphShowHide = _pUi->menuShowHide;
-
-    // Compose rightclick menu
-    _menuRightClick.addMenu(_pUi->menuShowHide);
-    _menuRightClick.addSeparator();
-    _menuRightClick.addAction(_pUi->actionHighlightSamplePoints);
-    _menuRightClick.addAction(_pUi->actionClearData);
-    _menuRightClick.addAction(_pUi->actionToggleMarkers);
-    _menuRightClick.addSeparator();
-    _menuRightClick.addAction(_pUi->actionAddNote);
-    _menuRightClick.addAction(_pUi->actionManageNotes);
-
-    _pMostRecentMenu = new MostRecentMenu(_pUi->menuMostRecentProject, &_recentFileModule);
-    connect(_pMostRecentMenu, &MostRecentMenu::openRecentProject, this, &MainWindow::handleOpenRecentProject);
+    _pGraphMenuController = new GraphMenuController(_pGraphDataModel, _pUi->menuShowHide, _pOverlayLabel, this);
+    connect(_pGraphMenuController, &GraphMenuController::activeGraphsChanged, this,
+            &MainWindow::handleActiveGraphsChanged);
 
     this->setAcceptDrops(true);
-
-    // For dock undock
-    connect(_pUi->scaleOptionsDock, &QDockWidget::topLevelChanged, this, &MainWindow::scaleWidgetUndocked);
-    connect(_pUi->legendDock, &QDockWidget::topLevelChanged, this, &MainWindow::legendWidgetUndocked);
-
-    // For rightclick menu
-    _pUi->customPlot->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(_pUi->customPlot, &QWidget::customContextMenuRequested, this, &MainWindow::showContextMenu);
-
-    /* handle focus change */
-    connect(dynamic_cast<QApplication*>(QApplication::instance()), &QApplication::focusChanged, this,
-            &MainWindow::appFocusChanged);
-
-    /* Update notes in data file when requested by notes model */
-    connect(_pNoteModel, &NoteModel::dataFileUpdateRequested, this, &MainWindow::updateDataFileNotes);
 
     /* Trigger update check */
     _pUi->actionUpdateAvailable->setVisible(false);
@@ -223,11 +125,7 @@ MainWindow::MainWindow(QStringList cmdArguments,
     // Default to full auto scaling
     setAxisToAuto();
 
-    handleGraphsCountChanged();
-
-    handleCommandLineArguments(cmdArguments);
-
-    _pAdapterPoll->initAdapter();
+    _pGraphMenuController->handleGraphsCountChanged();
 
     // Defer until after the main window is shown — avoids a modal dialog blocking constructor completion
     QTimer::singleShot(0, this, &MainWindow::showFirstInstallDialogIfNeeded);
@@ -249,10 +147,125 @@ MainWindow::MainWindow(QStringList cmdArguments,
 
 MainWindow::~MainWindow()
 {
-    _pAdapterPoll->stopCommunication();
-    disconnect(_pAdapterPoll, &AdapterPoll::registerDataReady, this, &MainWindow::onRegisterDataReady);
-
     delete _pUi;
+}
+
+/*!
+ * \brief Wire up menu actions, the right-click context menu and the recent-projects menu
+ */
+void MainWindow::setupMenuActions()
+{
+    connect(_pUi->actionStart, &QAction::triggered, _pScopeController, &ScopeController::start);
+    connect(_pUi->actionStop, &QAction::triggered, _pScopeController, &ScopeController::stop);
+    connect(_pUi->actionDiagnostic, &QAction::triggered, this, &MainWindow::showDiagnostic);
+    connect(_pUi->actionManageNotes, &QAction::triggered, this, &MainWindow::showNotesDialog);
+    connect(_pUi->actionExit, &QAction::triggered, this, &MainWindow::exitApplication);
+    connect(_pUi->actionSaveDataFile, &QAction::triggered, _pScopeController->dataFileHandler(),
+            &DataFileHandler::selectDataExportFile);
+    connect(_pUi->actionOpenProjectFile, &QAction::triggered, _pScopeController->projectFileHandler(),
+            &ProjectFileHandler::selectProjectOpenFile);
+    connect(_pUi->actionReloadProjectFile, &QAction::triggered, _pScopeController->projectFileHandler(),
+            &ProjectFileHandler::reloadProjectFile);
+    connect(_pUi->actionOpenDataFile, &QAction::triggered, _pScopeController->dataFileHandler(),
+            &DataFileHandler::selectDataImportFile);
+    connect(_pUi->actionImportFromMbcFile, &QAction::triggered, this, &MainWindow::showMbcImportDialog);
+    connect(_pUi->actionExportImage, &QAction::triggered, this, &MainWindow::selectImageExportFile);
+    connect(_pUi->actionSaveProjectFileAs, &QAction::triggered, _pScopeController->projectFileHandler(),
+            &ProjectFileHandler::selectProjectSaveFile);
+    connect(_pUi->actionSaveProjectFile, &QAction::triggered, _pScopeController->projectFileHandler(),
+            &ProjectFileHandler::saveProjectFile);
+    connect(_pUi->actionAbout, &QAction::triggered, this, &MainWindow::showAbout);
+    connect(_pUi->actionQuickStart, &QAction::triggered, this, &MainWindow::showQuickStartDialog);
+    connect(_pUi->actionOnlineDocumentation, &QAction::triggered, this, &MainWindow::openOnlineDoc);
+    connect(_pUi->actionUpdateAvailable, &QAction::triggered, this, &MainWindow::openUpdateUrl);
+    connect(_pUi->actionHighlightSamplePoints, &QAction::toggled, _pGuiModel, &GuiModel::setHighlightSamples);
+    connect(_pUi->actionClearData, &QAction::triggered, _pScopeController, &ScopeController::clear);
+    connect(_pUi->actionToggleMarkers, &QAction::triggered, this, &MainWindow::toggleMarkersState);
+    connect(_pUi->actionSettings, &QAction::triggered, this, &MainWindow::showSettingsDialog);
+    connect(_pUi->actionRegisterSettings, &QAction::triggered, this, &MainWindow::handleShowRegisterDialog);
+    connect(_pUi->actionAddNote, &QAction::triggered, this, &MainWindow::addNoteToGraph);
+    connect(_pUi->actionZoom, &QAction::triggered, this,
+            &MainWindow::toggleZoom); /* Only called on GUI click, not on setChecked */
+
+    // Compose rightclick menu
+    _menuRightClick.addMenu(_pUi->menuShowHide);
+    _menuRightClick.addSeparator();
+    _menuRightClick.addAction(_pUi->actionHighlightSamplePoints);
+    _menuRightClick.addAction(_pUi->actionClearData);
+    _menuRightClick.addAction(_pUi->actionToggleMarkers);
+    _menuRightClick.addSeparator();
+    _menuRightClick.addAction(_pUi->actionAddNote);
+    _menuRightClick.addAction(_pUi->actionManageNotes);
+
+    _pMostRecentMenu = new MostRecentMenu(_pUi->menuMostRecentProject, &_recentFileModule);
+    connect(_pMostRecentMenu, &MostRecentMenu::openRecentProject, this, &MainWindow::handleOpenRecentProject);
+}
+
+/*!
+ * \brief Wire up model-to-view/controller signals and window-level event connections
+ */
+void MainWindow::setupConnections()
+{
+    connect(_pScopeController, &ScopeController::dataProcessed, this, &MainWindow::handleDataProcessed);
+    connect(_pScopeController, &ScopeController::dataCleared, this, &MainWindow::handleDataCleared);
+    connect(_pScopeController, &ScopeController::errorOccurred, this, &MainWindow::handleScopeError);
+    connect(_pScopeController, &ScopeController::mbcImportRequested, this, &MainWindow::showMbcImportDialog);
+
+    connect(_pGuiModel, &GuiModel::highlightSamplesChanged, this, &MainWindow::updateHighlightSampleMenu);
+    connect(_pGuiModel, &GuiModel::highlightSamplesChanged, _pGraphView, &GraphView::enableSamplePoints);
+    connect(_pGuiModel, &GuiModel::cursorValuesChanged, _pGraphView, &GraphView::updateTooltip);
+    connect(_pGuiModel, &GuiModel::cursorValuesChanged, _pLegend, &Legend::updateDataInLegend);
+
+    connect(_pGuiModel, &GuiModel::windowTitleChanged, this, &MainWindow::updateWindowTitle);
+    connect(_pGuiModel, &GuiModel::projectFilePathChanged, this, &MainWindow::handleProjectFilePathChanged);
+    connect(_pGuiModel, &GuiModel::xAxisScalingChanged, _pGraphView, &GraphView::rescalePlot);
+    connect(_pGuiModel, &GuiModel::xAxisSlidingIntervalChanged, _pGraphView, &GraphView::rescalePlot);
+    connect(_pGuiModel, &GuiModel::yAxisScalingChanged, _pGraphView, &GraphView::rescalePlot);
+    connect(_pGuiModel, &GuiModel::y2AxisScalingChanged, _pGraphView, &GraphView::rescalePlot);
+    connect(_pGuiModel, &GuiModel::yAxisMinMaxchanged, _pGraphView, &GraphView::rescalePlot);
+    connect(_pGuiModel, &GuiModel::y2AxisMinMaxchanged, _pGraphView, &GraphView::rescalePlot);
+    connect(_pGuiModel, &GuiModel::markerStateChanged, this, &MainWindow::updateMarkerDockVisibility);
+    connect(_pGuiModel, &GuiModel::zoomStateChanged, this, &MainWindow::handleZoomStateChanged);
+
+    connect(_pGraphDataModel, &GraphDataModel::visibilityChanged, _pGraphView, &GraphView::handleGraphVisibilityChange);
+
+    connect(_pGraphDataModel, &GraphDataModel::graphsAddData, _pGraphView, &GraphView::addData);
+    connect(_pGraphDataModel, &GraphDataModel::graphsAddData, this, &MainWindow::setAxisToAuto);
+
+    connect(_pGraphDataModel, &GraphDataModel::activeChanged, _pGraphView, &GraphView::updateGraphs);
+
+    connect(_pGraphDataModel, &GraphDataModel::colorChanged, _pGraphView, &GraphView::changeGraphColor);
+
+    connect(_pGraphDataModel, &GraphDataModel::valueAxisChanged, _pGraphView, &GraphView::changeGraphAxis);
+    connect(_pGraphDataModel, &GraphDataModel::selectedGraphChanged, _pGraphView, &GraphView::changeSelectedGraph);
+
+    connect(_pGraphDataModel, &GraphDataModel::added, _pGraphView, &GraphView::updateGraphs);
+
+    connect(_pGraphDataModel, &GraphDataModel::moved, _pGraphView, &GraphView::updateGraphs);
+
+    connect(_pGraphDataModel, &GraphDataModel::removed, _pGraphView, &GraphView::updateGraphs);
+
+    connect(_pGraphDataModel, &GraphDataModel::expressionChanged, _pGraphView, &GraphView::clearGraph);
+
+    connect(_pGraphView, &GraphView::afterGraphUpdate, _pScopeController->dataFileHandler(),
+            &DataFileHandler::rewriteDataFile);
+
+    connect(_pGraphView, &GraphView::cursorValueUpdate, _pLegend, &Legend::updateDataInLegend);
+    connect(_pGraphView, &GraphView::dataAddedToPlot, _pScopeController->dataFileHandler(),
+            &DataFileHandler::exportDataLine);
+    connect(_pGraphView, &GraphView::dataAddedToPlot, _pScopeController->communicationStats(),
+            &CommunicationStats::updateTimingInfo);
+
+    connect(_pStatusBar, &StatusBar::openDiagnostics, this, &MainWindow::showDiagnostic);
+
+    connect(_pUi->scaleOptionsDock, &QDockWidget::topLevelChanged, this, &MainWindow::scaleWidgetUndocked);
+    connect(_pUi->legendDock, &QDockWidget::topLevelChanged, this, &MainWindow::legendWidgetUndocked);
+
+    _pUi->customPlot->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(_pUi->customPlot, &QWidget::customContextMenuRequested, this, &MainWindow::showContextMenu);
+
+    connect(dynamic_cast<QApplication*>(QApplication::instance()), &QApplication::focusChanged, this,
+            &MainWindow::appFocusChanged);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* event)
@@ -293,7 +306,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
         }
         else if (resBtn == QMessageBox::Save)
         {
-            if (_pDataFileHandler->updateNoteLines())
+            if (_pScopeController->dataFileHandler()->updateNoteLines())
             {
                 event->accept();
             }
@@ -372,14 +385,6 @@ void MainWindow::openUpdateUrl()
     }
 }
 
-void MainWindow::menuShowHideGraphClicked(bool bState)
-{
-    QAction* pAction = qobject_cast<QAction*>(QObject::sender());
-
-    const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(pAction->data().value<ActiveIdx>());
-    _pGraphDataModel->setVisible(graphIdx, bState);
-}
-
 void MainWindow::showSettingsDialog()
 {
     SettingsDialog dialog(_pSettingsModel);
@@ -419,7 +424,7 @@ void MainWindow::showRegisterDialog()
         _pGuiModel->setGuiState(GuiState::INIT);
     }
 
-    AdapterManager* pAdapterManager = _pAdapterPoll->adapterHub()->adapterManager(cModbusAdapterId);
+    AdapterManager* pAdapterManager = _pScopeController->adapterHub()->adapterManager(cModbusAdapterId);
     if (pAdapterManager == nullptr)
     {
         qCWarning(scopeComm) << "MainWindow: no modbus adapter available — cannot open register dialog";
@@ -466,78 +471,6 @@ void MainWindow::toggleZoom(bool checked)
     }
 }
 
-void MainWindow::clearData()
-{
-    _pCommunicationStats->resetTiming();
-    _pAdapterPoll->resetCommunicationStats();
-    _pGraphView->clearResults();
-    _pGuiModel->clearMarkersState();
-    _pDataFileHandler->rewriteDataFile();
-    _pNoteModel->clear();
-    _pLegend->clearLegendData();
-
-    if (_pGuiModel->xAxisScalingMode() == AxisMode::SCALE_MANUAL)
-    {
-        _pGuiModel->setxAxisScale(AxisMode::SCALE_AUTO);
-    }
-
-    if (_pGuiModel->yAxisScalingMode() == AxisMode::SCALE_MANUAL)
-    {
-        _pGuiModel->setyAxisScale(AxisMode::SCALE_AUTO);
-    }
-
-    if (_pGuiModel->y2AxisScalingMode() == AxisMode::SCALE_MANUAL)
-    {
-        _pGuiModel->sety2AxisScale(AxisMode::SCALE_AUTO);
-    }
-}
-
-void MainWindow::startScope()
-{
-    if (_pGuiModel->guiState() == GuiState::DATA_LOADED)
-    {
-        _pGraphDataModel->clear();
-        _pNoteModel->clear();
-
-        _pGuiModel->setGuiState(GuiState::INIT);
-    }
-
-    if (_pGraphDataModel->activeCount() != 0)
-    {
-        _pGuiModel->setGuiState(GuiState::STARTED);
-
-        clearData();
-
-        QList<DataPoint> registerList;
-        _graphDataHandler.setupExpressions(_pGraphDataModel, registerList);
-
-        _pAdapterPoll->startCommunication(registerList);
-        _pCommunicationStats->start();
-
-        if (_pSettingsModel->writeDuringLog())
-        {
-            _pDataFileHandler->enableExporterDuringLog();
-        }
-    }
-    else
-    {
-        Util::showError("There are no register in the scope list. Please select at least one register.");
-    }
-}
-
-void MainWindow::stopScope()
-{
-    _pAdapterPoll->stopCommunication();
-    _pCommunicationStats->stop();
-
-    if (_pSettingsModel->writeDuringLog())
-    {
-        _pDataFileHandler->disableExporterDuringLog();
-    }
-
-    _pGuiModel->setGuiState(GuiState::STOPPED);
-}
-
 void MainWindow::showDiagnostic()
 {
     _pDiagnosticDialog->show();
@@ -574,54 +507,7 @@ void MainWindow::toggleMarkersState()
 
 void MainWindow::handleOpenRecentProject(QString projectFile)
 {
-    _pProjectFileHandler->openProjectFile(projectFile);
-}
-
-void MainWindow::handleGraphVisibilityChange(GraphIdx graphIdx)
-{
-    if (_pGraphDataModel->isActive(graphIdx))
-    {
-        const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
-        if (!activeIdx.isValid() || activeIdx.v >= _pGraphShowHide->actions().size())
-        {
-            return;
-        }
-
-        _pGraphShowHide->actions().at(activeIdx.v)->setChecked(_pGraphDataModel->isVisible(graphIdx));
-    }
-}
-
-void MainWindow::handleGraphColorChange(GraphIdx graphIdx)
-{
-    if (_pGraphDataModel->isActive(graphIdx))
-    {
-        const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
-        if (!activeIdx.isValid() || activeIdx.v >= _pGraphShowHide->actions().size())
-        {
-            return;
-        }
-
-        QPixmap pixmap(20, 5);
-        pixmap.fill(_pGraphDataModel->color(graphIdx));
-
-        QIcon showHideIcon = QIcon(pixmap);
-
-        _pGraphShowHide->actions().at(activeIdx.v)->setIcon(showHideIcon);
-    }
-}
-
-void MainWindow::handleGraphLabelChange(GraphIdx graphIdx)
-{
-    if (_pGraphDataModel->isActive(graphIdx))
-    {
-        const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
-        if (!activeIdx.isValid() || activeIdx.v >= _pGraphShowHide->actions().size())
-        {
-            return;
-        }
-
-        _pGraphShowHide->actions().at(activeIdx.v)->setText(_pGraphDataModel->label(graphIdx));
-    }
+    _pScopeController->projectFileHandler()->openProjectFile(projectFile);
 }
 
 void MainWindow::updateHighlightSampleMenu()
@@ -642,54 +528,10 @@ void MainWindow::handleZoomStateChanged()
     }
 }
 
-void MainWindow::handleGraphsCountChanged()
+void MainWindow::handleActiveGraphsChanged(bool bActiveGraphs)
 {
-    rebuildGraphMenu();
-
-    QList<GraphIdx> activeGraphList;
-    _pGraphDataModel->activeGraphIndexList(activeGraphList);
-
-    const bool bEnabled = !activeGraphList.isEmpty();
-    _pUi->actionZoom->setEnabled(bEnabled);
-    _pUi->actionToggleMarkers->setEnabled(bEnabled);
-
-    _pOverlayLabel->setVisible(!bEnabled);
-}
-
-void MainWindow::rebuildGraphMenu()
-{
-    // Regenerate graph menu
-    _pGraphShowHide->clear();
-
-    QList<GraphIdx> activeGraphList;
-    _pGraphDataModel->activeGraphIndexList(activeGraphList);
-
-    for (qint32 activeIdx = 0; activeIdx < activeGraphList.size(); activeIdx++)
-    {
-
-        QString label = _pGraphDataModel->label(activeGraphList.at(activeIdx));
-        QAction* pShowHideAction = _pGraphShowHide->addAction(label);
-
-        QPixmap pixmap(20, 5);
-        pixmap.fill(_pGraphDataModel->color(activeGraphList.at(activeIdx)));
-        QIcon icon = QIcon(pixmap);
-
-        pShowHideAction->setData(QVariant::fromValue(ActiveIdx(activeIdx)));
-        pShowHideAction->setIcon(icon);
-        pShowHideAction->setCheckable(true);
-        pShowHideAction->setChecked(_pGraphDataModel->isVisible(activeGraphList.at(activeIdx)));
-
-        connect(pShowHideAction, &QAction::toggled, this, &MainWindow::menuShowHideGraphClicked);
-    }
-
-    if (!activeGraphList.isEmpty())
-    {
-        _pGraphShowHide->setEnabled(true);
-    }
-    else
-    {
-        _pGraphShowHide->setEnabled(false);
-    }
+    _pUi->actionZoom->setEnabled(bActiveGraphs);
+    _pUi->actionToggleMarkers->setEnabled(bActiveGraphs);
 }
 
 void MainWindow::updateWindowTitle()
@@ -697,108 +539,10 @@ void MainWindow::updateWindowTitle()
     setWindowTitle(_pGuiModel->windowTitle());
 }
 
-void MainWindow::updateGuiState()
+void MainWindow::handleProjectFilePathChanged()
 {
-    if (_pGuiModel->guiState() == GuiState::INIT)
+    if (!_pGuiModel->projectFilePath().isEmpty())
     {
-        _pUi->actionStop->setEnabled(false);
-        _pUi->actionSettings->setEnabled(true);
-        _pUi->actionRegisterSettings->setEnabled(true);
-        _pUi->actionStart->setEnabled(true);
-        _pUi->actionOpenDataFile->setEnabled(true);
-        _pUi->actionImportFromMbcFile->setEnabled(_pSettingsModel->isMbcCompatible());
-        _pUi->actionOpenProjectFile->setEnabled(true);
-        _pUi->actionSaveDataFile->setEnabled(false);
-        _pUi->actionExportImage->setEnabled(false);
-        _pUi->actionSaveProjectFileAs->setEnabled(true);
-        _pUi->actionClearData->setEnabled(true);
-
-        _pDataParserModel->resetSettings();
-        _pGuiModel->setProjectFilePath(QString(""));
-
-        _pGuiModel->setWindowTitleDetail(QString(""));
-    }
-    else if (_pGuiModel->guiState() == GuiState::STARTED)
-    {
-        // Communication active
-        _pUi->actionStop->setEnabled(true);
-        _pUi->actionSettings->setEnabled(false);
-        _pUi->actionRegisterSettings->setEnabled(false);
-        _pUi->actionStart->setEnabled(false);
-        _pUi->actionOpenDataFile->setEnabled(false);
-        _pUi->actionImportFromMbcFile->setEnabled(false);
-        _pUi->actionOpenProjectFile->setEnabled(false);
-        _pUi->actionSaveDataFile->setEnabled(false);
-        _pUi->actionSaveProjectFileAs->setEnabled(false);
-        _pUi->actionSaveProjectFile->setEnabled(false);
-        _pUi->actionReloadProjectFile->setEnabled(false);
-        _pUi->actionExportImage->setEnabled(true);
-        _pUi->actionClearData->setEnabled(true);
-    }
-    else if (_pGuiModel->guiState() == GuiState::STOPPED)
-    {
-        // Communication not active
-        _pUi->actionStop->setEnabled(false);
-        _pUi->actionSettings->setEnabled(true);
-        _pUi->actionRegisterSettings->setEnabled(true);
-        _pUi->actionStart->setEnabled(true);
-        _pUi->actionOpenDataFile->setEnabled(true);
-        _pUi->actionImportFromMbcFile->setEnabled(_pSettingsModel->isMbcCompatible());
-        _pUi->actionOpenProjectFile->setEnabled(true);
-        _pUi->actionSaveDataFile->setEnabled(true);
-        _pUi->actionSaveProjectFileAs->setEnabled(true);
-        _pUi->actionExportImage->setEnabled(true);
-        _pUi->actionClearData->setEnabled(true);
-
-        _pDataParserModel->resetSettings();
-
-        if (_pGuiModel->projectFilePath().isEmpty())
-        {
-            _pUi->actionReloadProjectFile->setEnabled(false);
-            _pUi->actionSaveProjectFile->setEnabled(false);
-        }
-        else
-        {
-            _pUi->actionReloadProjectFile->setEnabled(true);
-            _pUi->actionSaveProjectFile->setEnabled(true);
-        }
-    }
-    else if (_pGuiModel->guiState() == GuiState::DATA_LOADED)
-    {
-        // Communication not active
-        _pUi->actionStop->setEnabled(false);
-        _pUi->actionSettings->setEnabled(true);
-        _pUi->actionRegisterSettings->setEnabled(true);
-        _pUi->actionStart->setEnabled(true);
-        _pUi->actionOpenDataFile->setEnabled(true);
-        _pUi->actionImportFromMbcFile->setEnabled(_pSettingsModel->isMbcCompatible());
-        _pUi->actionOpenProjectFile->setEnabled(true);
-
-        _pUi->actionSaveDataFile->setEnabled(false);
-        _pUi->actionSaveProjectFileAs->setEnabled(false);
-        _pUi->actionSaveProjectFile->setEnabled(false);
-        _pUi->actionExportImage->setEnabled(true);
-        _pUi->actionClearData->setEnabled(false);
-        _pUi->actionReloadProjectFile->setEnabled(false);
-
-        _pGuiModel->setWindowTitleDetail(QFileInfo(_pDataParserModel->dataFilePath()).fileName());
-    }
-}
-
-void MainWindow::projectFileLoaded()
-{
-    // if a project file is previously loaded, then it can be reloaded
-    if (_pGuiModel->projectFilePath().isEmpty())
-    {
-        _pGuiModel->setWindowTitleDetail("");
-        _pUi->actionReloadProjectFile->setEnabled(false);
-        _pUi->actionSaveProjectFile->setEnabled(false);
-    }
-    else
-    {
-        _pGuiModel->setWindowTitleDetail(QFileInfo(_pGuiModel->projectFilePath()).fileName());
-        _pUi->actionReloadProjectFile->setEnabled(true);
-        _pUi->actionSaveProjectFile->setEnabled(true);
         _recentFileModule.updateRecentProjectFiles(_pGuiModel->projectFilePath());
     }
 }
@@ -850,10 +594,14 @@ void MainWindow::dragEnterEvent(QDragEnterEvent* e)
 
 void MainWindow::dropEvent(QDropEvent* e)
 {
-    if (!_pAdapterPoll->isActive())
+    if (!_pScopeController->isPolling())
     {
-        const QString filename(e->mimeData()->urls().constLast().toLocalFile());
-        handleFileOpen(filename);
+        const QList<QUrl> urls = e->mimeData()->urls();
+        if (urls.isEmpty())
+        {
+            return;
+        }
+        _pScopeController->openFile(urls.constLast().toLocalFile());
     }
 }
 
@@ -866,23 +614,21 @@ void MainWindow::appFocusChanged(QWidget* old, QWidget* now)
     }
 }
 
-void MainWindow::updateDataFileNotes()
+void MainWindow::handleDataProcessed(const ResultDoubleList& results)
 {
-    if (_pGuiModel->guiState() == GuiState::DATA_LOADED)
-    {
-        if (_pNoteModel->isNotesDataUpdated())
-        {
-            _pDataFileHandler->updateNoteLines();
-        }
-    }
+    _pGraphView->plotResults(results);
+    _pLegend->addLastReceivedDataToLegend(results);
 }
 
-void MainWindow::onRegisterDataReady(const ResultDoubleList& results)
+void MainWindow::handleDataCleared()
 {
-    ResultDoubleList processed = _graphDataHandler.handleRegisterData(results);
-    _pGraphView->plotResults(processed);
-    _pLegend->addLastReceivedDataToLegend(processed);
-    _pCommunicationStats->updateCommunicationStats(processed);
+    _pGraphView->clearResults();
+    _pLegend->clearLegendData();
+}
+
+void MainWindow::handleScopeError(QString message)
+{
+    Util::showError(message);
 }
 
 void MainWindow::showVersionUpdate(UpdateNotify::UpdateState result)
@@ -899,53 +645,5 @@ void MainWindow::showVersionUpdate(UpdateNotify::UpdateState result)
 
         _pUi->actionUpdateAvailable->setText(strUpdate);
         _pUi->actionUpdateAvailable->setVisible(true);
-    }
-}
-
-void MainWindow::handleCommandLineArguments(QStringList cmdArguments)
-{
-    QCommandLineParser argumentParser;
-    argumentParser.setApplicationDescription("Log data through the Modbus protocol");
-    argumentParser.addHelpOption();
-
-    // Project file option
-    argumentParser.addPositionalArgument("project file",
-                                         QCoreApplication::translate("main", "Project file (.mbs) to open"));
-
-    // Process arguments
-    argumentParser.process(cmdArguments);
-
-    if (!argumentParser.positionalArguments().isEmpty())
-    {
-        QString filename = argumentParser.positionalArguments().at(0);
-        handleFileOpen(filename);
-    }
-}
-
-void MainWindow::handleFileOpen(QString filename)
-{
-    QFileInfo fileInfo(filename);
-    _pGuiModel->setLastDir(fileInfo.dir().absolutePath());
-    const QString suffix = fileInfo.suffix().toLower();
-    if (suffix == QStringLiteral("mbs"))
-    {
-        _pProjectFileHandler->openProjectFile(filename);
-    }
-    else if (suffix == QStringLiteral("mbc"))
-    {
-        if (_pSettingsModel->isMbcCompatible())
-        {
-            _pGuiModel->setLastMbcImportedFile(filename);
-            showMbcImportDialog();
-        }
-        else
-        {
-            Util::showError(tr("MBC import is not supported by the current adapter configuration."));
-        }
-    }
-    else
-    {
-        /* Assume data file import */
-        _pDataFileHandler->openDataFile(filename);
     }
 }
