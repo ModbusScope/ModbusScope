@@ -424,7 +424,7 @@ void MainWindow::showRegisterDialog()
         _pGuiModel->setGuiState(GuiState::INIT);
     }
 
-    AdapterHub* pAdapterHub = _pAdapterPoll->adapterHub();
+    AdapterHub* pAdapterHub = _pScopeController->adapterHub();
     if (pAdapterHub->adapterIds().isEmpty())
     {
         qCWarning(scopeComm) << "MainWindow: no adapters available — cannot open register dialog";
