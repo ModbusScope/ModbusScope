@@ -7,4 +7,5 @@ const MbcDataType::TypeSettings MbcDataType::cDataTypes[] =
     /* UNSIGNED_32 */ {true},
     /* SIGNED_32   */ {true},
     /* FLOAT_32    */ {true},
+    /* STRING      */ {false},
 };

@@ -15,11 +15,17 @@ public:
         UNSIGNED_32 = 2,
         SIGNED_32 = 3,
         FLOAT_32 = 4,
+        STRING = 5,
     };
 
     static bool is32Bit(MbcDataType::Type type)
     {
         return cDataTypes[static_cast<int>(type)].b32Bit;
+    }
+
+    static bool isSupported(MbcDataType::Type type)
+    {
+        return type != Type::STRING;
     }
 
     static QString typeString(MbcDataType::Type type)
@@ -34,6 +40,8 @@ public:
             return "s32b";
         case Type::FLOAT_32:
             return "f32b";
+        case Type::STRING:
+            return "string";
         case Type::UNSIGNED_16:
         default:
             return "16b";
@@ -74,6 +82,12 @@ public:
         else if (strType == "float32")
         {
             return Type::FLOAT_32;
+        }
+        else if (strType.startsWith("string"))
+        {
+            /* String types (e.g. "string50") are not plottable, but are kept so they
+             * can be shown as invalid rather than failing the whole import. */
+            return Type::STRING;
         }
         else
         {

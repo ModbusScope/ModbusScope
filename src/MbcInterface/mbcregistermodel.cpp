@@ -121,7 +121,11 @@ QVariant MbcRegisterModel::data(const QModelIndex& index, int role) const
 
     if (role == Qt::ToolTipRole)
     {
-        if (!mbcRegister.registerData.isReadable())
+        if (!MbcDataType::isSupported(mbcRegister.registerData.type()))
+        {
+            return "String data type is not supported";
+        }
+        else if (!mbcRegister.registerData.isReadable())
         {
             return "Not readable";
         }
@@ -283,7 +287,8 @@ void MbcRegisterModel::fill(QList<MbcRegisterData> mbcRegisterList, QStringList 
         // Get result before adding to list
         _mbcRegisterList.append({ mbcRegisterList[idx], false, false });
 
-        if (_mbcRegisterList.last().registerData.isReadable())
+        const MbcRegisterData& registerData = _mbcRegisterList.last().registerData;
+        if (registerData.isReadable() && MbcDataType::isSupported(registerData.type()))
         {
             _mbcRegisterList.last().bEnabled = true;
         }

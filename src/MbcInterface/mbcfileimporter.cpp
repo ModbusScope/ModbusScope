@@ -245,7 +245,8 @@ bool MbcFileImporter::parseVarTag(const QDomElement& element, qint32 tabIdx)
             }
             else
             {
-                bRet = false;
+                /* Unknown/unsupported type: ignore this var and continue parsing */
+                return true;
             }
         }
 

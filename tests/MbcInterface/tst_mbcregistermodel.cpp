@@ -494,6 +494,27 @@ void TestMbcRegisterModel::selectAllSkipNonReadable()
     QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(1, cColumnSelected), Qt::CheckStateRole), Qt::Unchecked);
 }
 
+void TestMbcRegisterModel::stringTypeRowDisabled()
+{
+    auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
+    QList<MbcRegisterData> mbcRegisterList =
+      QList<MbcRegisterData>() << MbcRegisterData(40058, MbcDataType::Type::STRING, "FileName", 0, true, 0);
+    QStringList tabList = QStringList() << QString("Tab0");
+    pMbcRegisterModel->fill(mbcRegisterList, tabList);
+
+    QModelIndex modelIdx = pMbcRegisterModel->index(0, 0);
+
+    // A string-type register is disabled and carries an explanatory tooltip
+    QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), Qt::NoItemFlags);
+    QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(),
+             "String data type is not supported");
+
+    // It cannot be checked
+    QModelIndex selectIdx = pMbcRegisterModel->index(0, cColumnSelected);
+    QCOMPARE(pMbcRegisterModel->setData(selectIdx, QVariant(Qt::Checked), Qt::CheckStateRole), false);
+    QCOMPARE(pMbcRegisterModel->selectedRegisterCount(), 0);
+}
+
 void TestMbcRegisterModel::setDataOnDisabledRowDoesNothing()
 {
     auto pMbcRegisterModel = std::make_unique<MbcRegisterModel>();
