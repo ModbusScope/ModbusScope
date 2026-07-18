@@ -117,7 +117,7 @@ QVariant MbcRegisterModel::data(const QModelIndex& index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    auto const mbcRegister = _mbcRegisterList[index.row()];
+    const MbcRegister& mbcRegister = _mbcRegisterList[index.row()];
 
     if (role == Qt::ToolTipRole)
     {

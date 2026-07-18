@@ -18,14 +18,31 @@ public:
         STRING = 5,
     };
 
+    //! Number of Type enum values; keep cDataTypes in mbcdatatype.cpp the same length.
+    static const int cTypeCount = static_cast<int>(Type::STRING) + 1;
+
     static bool is32Bit(MbcDataType::Type type)
     {
         return cDataTypes[static_cast<int>(type)].b32Bit;
     }
 
+    //! \brief Whether ModbusScope can plot a register of this type.
     static bool isSupported(MbcDataType::Type type)
     {
-        return type != Type::STRING;
+        return cDataTypes[static_cast<int>(type)].bSupported;
+    }
+
+    //! \brief Byte length of a string type such as "string50" (0 when not a sized string).
+    static quint32 stringByteLength(const QString& strType)
+    {
+        if (!strType.startsWith("string"))
+        {
+            return 0;
+        }
+
+        bool bOk = false;
+        const quint32 bytes = strType.mid(6).toUInt(&bOk);
+        return bOk ? bytes : 0;
     }
 
     static QString typeString(MbcDataType::Type type)
@@ -48,7 +65,7 @@ public:
         }
     }
 
-    static Type convertMbcString(QString strType, bool& bOk)
+    static Type convertMbcString(const QString& strType, bool& bOk)
     {
         bOk = true;
 
@@ -101,9 +118,10 @@ private:
     struct TypeSettings
     {
         bool b32Bit;
+        bool bSupported;
     };
 
-    static const TypeSettings cDataTypes[];
+    static const TypeSettings cDataTypes[cTypeCount];
 };
 
 

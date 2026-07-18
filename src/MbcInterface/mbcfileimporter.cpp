@@ -245,7 +245,9 @@ bool MbcFileImporter::parseVarTag(const QDomElement& element, qint32 tabIdx)
             }
             else
             {
-                /* Unknown/unsupported type: ignore this var and continue parsing */
+                /* Unknown/unsupported type: ignore this var but keep the auto-increment
+                 * address advancing so a following <reg>*</reg> still resolves. */
+                _nextRegisterAddr = static_cast<qint32>(modbusRegister.registerAddress()) + 1;
                 return true;
             }
         }
@@ -272,16 +274,23 @@ bool MbcFileImporter::parseVarTag(const QDomElement& element, qint32 tabIdx)
             /* Save register in list */
             _registerList.append(modbusRegister);
 
-            if (MbcDataType::is32Bit(modbusRegister.type()))
+            /* Advance the auto-increment address by the number of registers this
+             * variable occupies (2 bytes per register). */
+            qint32 registerSpan = 1;
+            if (modbusRegister.type() == MbcDataType::Type::STRING)
             {
-                /* Increment address with 2 */
-                _nextRegisterAddr = static_cast<qint32>(modbusRegister.registerAddress()) + 2;
+                const quint32 bytes = MbcDataType::stringByteLength(strType);
+                if (bytes >= 2)
+                {
+                    registerSpan = static_cast<qint32>((bytes + 1) / 2);
+                }
             }
-            else
+            else if (MbcDataType::is32Bit(modbusRegister.type()))
             {
-                /* Increment address with 1 */
-                _nextRegisterAddr = static_cast<qint32>(modbusRegister.registerAddress()) + 1;
+                registerSpan = 2;
             }
+
+            _nextRegisterAddr = static_cast<qint32>(modbusRegister.registerAddress()) + registerSpan;
         }
         else
         {

@@ -27,6 +27,8 @@ private slots:
     void importUnknownType();
     void importStringType();
     void importStringTypeMixed();
+    void importAutoIncrementAfterSkippedType();
+    void importAutoIncrementAfterString();
     void importMixedReadWriteRegisters();
     void importEmptyVarTag();
 

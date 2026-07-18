@@ -172,6 +172,38 @@ void TestMbcFileImporter::importStringTypeMixed()
     QCOMPARE(regList[1].type(), MbcDataType::Type::STRING);
 }
 
+void TestMbcFileImporter::importAutoIncrementAfterSkippedType()
+{
+    // A skipped unknown-type var must still advance the auto-increment address so that
+    // a following <reg>*</reg> resolves instead of aborting the whole import.
+    QString content = "<?xml version=\"1.0\"?><modbuscontrol><tab><name>T1</name>"
+                      "<var><reg>40001</reg><text>Unknown</text><type>unknowntype</type><rw>r</rw></var>"
+                      "<var><reg>*</reg><text>Next</text><type>uint16</type><rw>r</rw></var>"
+                      "</tab></modbuscontrol>";
+    MbcFileImporter mbcFileImporter(&content);
+
+    QList<MbcRegisterData> regList = mbcFileImporter.registerList();
+    QCOMPARE(regList.size(), 1);
+    QCOMPARE(regList[0].name(), QString("Next"));
+    QCOMPARE(regList[0].registerAddress(), quint32(40002));
+}
+
+void TestMbcFileImporter::importAutoIncrementAfterString()
+{
+    // A string50 occupies 25 registers (50 bytes), so a following <reg>*</reg> must be
+    // placed after the whole string field, not one register later.
+    QString content = "<?xml version=\"1.0\"?><modbuscontrol><tab><name>T1</name>"
+                      "<var><reg>40100</reg><text>Str</text><type>string50</type><rw>r</rw></var>"
+                      "<var><reg>*</reg><text>Next</text><type>uint16</type><rw>r</rw></var>"
+                      "</tab></modbuscontrol>";
+    MbcFileImporter mbcFileImporter(&content);
+
+    QList<MbcRegisterData> regList = mbcFileImporter.registerList();
+    QCOMPARE(regList.size(), 2);
+    QCOMPARE(regList[0].type(), MbcDataType::Type::STRING);
+    QCOMPARE(regList[1].registerAddress(), quint32(40125));
+}
+
 void TestMbcFileImporter::importMixedReadWriteRegisters()
 {
     // Mix of readable and non-readable registers; all should be present
