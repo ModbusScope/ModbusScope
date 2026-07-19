@@ -12,14 +12,6 @@ const MbcDataType::TypeSettings MbcDataType::cDataTypes[] =
 };
 
 /*!
- * \brief Whether ModbusScope can plot a register of this type.
- */
-bool MbcDataType::isSupported(MbcDataType::Type type)
-{
-    return cDataTypes[static_cast<int>(type)].bSupported;
-}
-
-/*!
  * \brief Byte length of a string type such as "string50" (0 when not a sized string).
  */
 quint32 MbcDataType::stringByteLength(const QString& strType)

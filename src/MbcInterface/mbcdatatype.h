@@ -23,7 +23,17 @@ public:
         return cDataTypes[static_cast<int>(type)].b32Bit;
     }
 
-    static bool isSupported(MbcDataType::Type type);
+    //! \brief Whether ModbusScope can plot a register of this type.
+    //!
+    //! Kept inline (like is32Bit() above) rather than in mbcdatatype.cpp: defining it
+    //! out-of-line puts it in the same translation unit as cDataTypes's definition,
+    //! where the array's size becomes visible and clang-tidy's
+    //! cppcoreguidelines-pro-bounds-constant-array-index flags this runtime-indexed
+    //! lookup.
+    static bool isSupported(MbcDataType::Type type)
+    {
+        return cDataTypes[static_cast<int>(type)].bSupported;
+    }
 
     static quint32 stringByteLength(const QString& strType);
 
