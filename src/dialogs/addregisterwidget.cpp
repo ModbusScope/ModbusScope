@@ -121,9 +121,27 @@ void AddRegisterWidget::applyAdapter(const QString& adapterId)
     const QJsonObject dataPointSchema = _pSettingsModel->adapterData(adapterId)->dataPointSchema();
     _addressSchema = buildSchema(adapterId);
     _dataPointDefaults = dataPointSchema["defaults"].toObject();
-    _pAddressForm->setSchema(_addressSchema, _dataPointDefaults);
+    rebuildAddressForm();
 
-    _pUi->btnAdd->setEnabled(!_pSettingsModel->deviceListForAdapter(adapterId).isEmpty());
+    _pUi->btnAdd->setEnabled(isAdapterUsable(adapterId));
+}
+
+/*!
+ * \brief Rebuilds the address form widgets from the currently cached schema and defaults.
+ */
+void AddRegisterWidget::rebuildAddressForm()
+{
+    _pAddressForm->setSchema(_addressSchema, _dataPointDefaults);
+}
+
+/*!
+ * \brief Returns whether the given adapter has a manager and at least one configured device.
+ * \param adapterId Identifier of the adapter to check.
+ */
+bool AddRegisterWidget::isAdapterUsable(const QString& adapterId) const
+{
+    return (_pAdapterHub->adapterManager(adapterId) != nullptr) &&
+           !_pSettingsModel->deviceListForAdapter(adapterId).isEmpty();
 }
 
 /*!
@@ -171,9 +189,7 @@ void AddRegisterWidget::onBuildExpressionResult(const QString& expression)
 {
     /* Recompute instead of unconditionally enabling: the user may have switched
      * to an adapter without devices while the request was in flight */
-    const bool selectedAdapterUsable =
-      (_pAdapterManager != nullptr) && !_pSettingsModel->deviceListForAdapter(selectedAdapterId()).isEmpty();
-    _pUi->btnAdd->setEnabled(selectedAdapterUsable);
+    _pUi->btnAdd->setEnabled(isAdapterUsable(selectedAdapterId()));
 
     if (expression.isEmpty())
     {
@@ -184,13 +200,13 @@ void AddRegisterWidget::onBuildExpressionResult(const QString& expression)
     emit graphDataConfigured(_pendingGraphData);
 
     resetFields();
+    rebuildAddressForm();
 }
 
 void AddRegisterWidget::resetFields()
 {
     _pUi->lineName->setText("Name of curve");
     _pUi->radioPrimary->setChecked(true);
-    _pAddressForm->setSchema(_addressSchema, _dataPointDefaults);
 }
 
 /*!
