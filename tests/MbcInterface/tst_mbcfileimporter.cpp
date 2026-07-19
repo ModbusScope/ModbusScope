@@ -130,13 +130,78 @@ void TestMbcFileImporter::importWriteOnlyRegister()
 
 void TestMbcFileImporter::importUnknownType()
 {
-    // An unrecognised type string causes the parser to emit an error and clear lists
+    // An unrecognised type is ignored: the var is skipped but other valid vars remain
     QString content = "<?xml version=\"1.0\"?><modbuscontrol><tab><name>T1</name>"
-                      "<var><reg>40001</reg><text>Reg1</text><type>unknowntype</type><rw>r</rw></var>"
+                      "<var><reg>40001</reg><text>Unknown</text><type>unknowntype</type><rw>r</rw></var>"
+                      "<var><reg>40002</reg><text>Valid</text><type>uint16</type><rw>r</rw></var>"
                       "</tab></modbuscontrol>";
     MbcFileImporter mbcFileImporter(&content);
 
-    QVERIFY(mbcFileImporter.registerList().isEmpty());
+    QList<MbcRegisterData> regList = mbcFileImporter.registerList();
+    QCOMPARE(regList.size(), 1);
+    QCOMPARE(regList[0].name(), QString("Valid"));
+    QCOMPARE(regList[0].registerAddress(), quint32(40002));
+}
+
+void TestMbcFileImporter::importStringType()
+{
+    // A string type is kept (not aborted) so it can be shown as an invalid register
+    QString content = "<?xml version=\"1.0\"?><modbuscontrol><tab><name>T1</name>"
+                      "<var><reg>40058</reg><text>File name</text><type>string50</type><rw>r</rw></var>"
+                      "</tab></modbuscontrol>";
+    MbcFileImporter mbcFileImporter(&content);
+
+    QList<MbcRegisterData> regList = mbcFileImporter.registerList();
+    QCOMPARE(regList.size(), 1);
+    QCOMPARE(regList[0].name(), QString("File name"));
+    QCOMPARE(regList[0].type(), MbcDataType::Type::STRING);
+}
+
+void TestMbcFileImporter::importStringTypeMixed()
+{
+    // A string var alongside a normal var: both are imported
+    QString content = "<?xml version=\"1.0\"?><modbuscontrol><tab><name>T1</name>"
+                      "<var><reg>40001</reg><text>Value</text><type>uint16</type><rw>r</rw></var>"
+                      "<var><reg>40058</reg><text>File name</text><type>string50</type><rw>r</rw></var>"
+                      "</tab></modbuscontrol>";
+    MbcFileImporter mbcFileImporter(&content);
+
+    QList<MbcRegisterData> regList = mbcFileImporter.registerList();
+    QCOMPARE(regList.size(), 2);
+    QCOMPARE(regList[0].type(), MbcDataType::Type::UNSIGNED_16);
+    QCOMPARE(regList[1].type(), MbcDataType::Type::STRING);
+}
+
+void TestMbcFileImporter::importAutoIncrementAfterSkippedType()
+{
+    // A skipped unknown-type var must still advance the auto-increment address so that
+    // a following <reg>*</reg> resolves instead of aborting the whole import.
+    QString content = "<?xml version=\"1.0\"?><modbuscontrol><tab><name>T1</name>"
+                      "<var><reg>40001</reg><text>Unknown</text><type>unknowntype</type><rw>r</rw></var>"
+                      "<var><reg>*</reg><text>Next</text><type>uint16</type><rw>r</rw></var>"
+                      "</tab></modbuscontrol>";
+    MbcFileImporter mbcFileImporter(&content);
+
+    QList<MbcRegisterData> regList = mbcFileImporter.registerList();
+    QCOMPARE(regList.size(), 1);
+    QCOMPARE(regList[0].name(), QString("Next"));
+    QCOMPARE(regList[0].registerAddress(), quint32(40002));
+}
+
+void TestMbcFileImporter::importAutoIncrementAfterString()
+{
+    // A string50 occupies 25 registers (50 bytes), so a following <reg>*</reg> must be
+    // placed after the whole string field, not one register later.
+    QString content = "<?xml version=\"1.0\"?><modbuscontrol><tab><name>T1</name>"
+                      "<var><reg>40100</reg><text>Str</text><type>string50</type><rw>r</rw></var>"
+                      "<var><reg>*</reg><text>Next</text><type>uint16</type><rw>r</rw></var>"
+                      "</tab></modbuscontrol>";
+    MbcFileImporter mbcFileImporter(&content);
+
+    QList<MbcRegisterData> regList = mbcFileImporter.registerList();
+    QCOMPARE(regList.size(), 2);
+    QCOMPARE(regList[0].type(), MbcDataType::Type::STRING);
+    QCOMPARE(regList[1].registerAddress(), quint32(40125));
 }
 
 void TestMbcFileImporter::importMixedReadWriteRegisters()

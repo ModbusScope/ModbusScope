@@ -15,12 +15,31 @@ public:
         UNSIGNED_32 = 2,
         SIGNED_32 = 3,
         FLOAT_32 = 4,
+        STRING = 5,
     };
 
     static bool is32Bit(MbcDataType::Type type)
     {
         return cDataTypes[static_cast<int>(type)].b32Bit;
     }
+
+    /*!
+     * \brief Whether ModbusScope can plot a register of this type.
+     *
+     * Kept inline (like is32Bit() above) rather than in mbcdatatype.cpp: defining it
+     * out-of-line puts it in the same translation unit as cDataTypes's definition,
+     * where the array's size becomes visible and clang-tidy's
+     * cppcoreguidelines-pro-bounds-constant-array-index flags this runtime-indexed
+     * lookup.
+     * \param type The data type to check.
+     * \return True when the type can be plotted.
+     */
+    static bool isSupported(MbcDataType::Type type)
+    {
+        return cDataTypes[static_cast<int>(type)].bSupported;
+    }
+
+    static quint32 stringByteLength(const QString& strType);
 
     static QString typeString(MbcDataType::Type type)
     {
@@ -34,13 +53,15 @@ public:
             return "s32b";
         case Type::FLOAT_32:
             return "f32b";
+        case Type::STRING:
+            return "string";
         case Type::UNSIGNED_16:
         default:
             return "16b";
         }
     }
 
-    static Type convertMbcString(QString strType, bool& bOk)
+    static Type convertMbcString(const QString& strType, bool& bOk)
     {
         bOk = true;
 
@@ -75,6 +96,12 @@ public:
         {
             return Type::FLOAT_32;
         }
+        else if (strType.startsWith("string"))
+        {
+            /* String types (e.g. "string50") are not plottable, but are kept so they
+             * can be shown as invalid rather than failing the whole import. */
+            return Type::STRING;
+        }
         else
         {
             bOk = false;
@@ -87,8 +114,14 @@ private:
     struct TypeSettings
     {
         bool b32Bit;
+        bool bSupported;
     };
 
+    /*!
+     * Deliberately unsized (extern array of unknown bound): a fixed bound here would
+     * let clang-tidy's cppcoreguidelines-pro-bounds-constant-array-index treat this as
+     * a bounds-checkable array and flag the runtime-indexed lookups above.
+     */
     static const TypeSettings cDataTypes[];
 };
 

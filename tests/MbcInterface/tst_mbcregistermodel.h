@@ -30,6 +30,7 @@ private slots:
     void selectAllWhenMixedChecked();
     void selectAllSkipNonReadable();
 
+    void stringTypeRowDisabled();
     void setDataOnDisabledRowDoesNothing();
     void setDataInvalidIndexReturnsFalse();
     void headerDataCheckState();

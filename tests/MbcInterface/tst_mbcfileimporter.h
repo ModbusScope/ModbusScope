@@ -25,6 +25,10 @@ private slots:
     void importMissingRw();
     void importWriteOnlyRegister();
     void importUnknownType();
+    void importStringType();
+    void importStringTypeMixed();
+    void importAutoIncrementAfterSkippedType();
+    void importAutoIncrementAfterString();
     void importMixedReadWriteRegisters();
     void importEmptyVarTag();
 
