@@ -1,6 +1,6 @@
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/ModbusScope/ModbusScope/releases).
 
-## [v5.0.0](https://github.com/ModbusScope/ModbusScope/releases/tag/5.0.0) (29/05/2026)
+## Unreleased
 
 ### Added
 
@@ -8,6 +8,10 @@ The latest *ModbusScope* installer or standalone version can always be downloade
   * The adapter is started and managed by ModbusScope
   * Adapter configuration is stored in the project file
 * Show a message in the graph area when no registers are configured yet
+
+### Fixed
+
+* Fix MBC import aborting entirely when the file contains a string register; string registers are now shown disabled instead
 
 ### Changed
 
