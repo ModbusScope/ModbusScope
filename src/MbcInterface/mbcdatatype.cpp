@@ -1,6 +1,6 @@
 #include "mbcdatatype.h"
 
-const MbcDataType::TypeSettings MbcDataType::cDataTypes[MbcDataType::cTypeCount] =
+const MbcDataType::TypeSettings MbcDataType::cDataTypes[] =
 {
     /*                   32-bit  supported */
     /* UNSIGNED_16 */ {  false,  true      },
@@ -10,6 +10,9 @@ const MbcDataType::TypeSettings MbcDataType::cDataTypes[MbcDataType::cTypeCount]
     /* FLOAT_32    */ {  true,   true      },
     /* STRING      */ {  false,  false     },
 };
+
+static_assert(sizeof(MbcDataType::cDataTypes) / sizeof(MbcDataType::cDataTypes[0]) == MbcDataType::cTypeCount,
+              "cDataTypes must have one entry per Type enum value");
 
 /*!
  * \brief Whether ModbusScope can plot a register of this type.

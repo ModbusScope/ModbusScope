@@ -18,7 +18,8 @@ public:
         STRING = 5,
     };
 
-    //! Number of Type enum values; keep cDataTypes in mbcdatatype.cpp the same length.
+    //! Number of Type enum values; cDataTypes in mbcdatatype.cpp is statically asserted
+    //! to have this many entries.
     static const int cTypeCount = static_cast<int>(Type::STRING) + 1;
 
     static bool is32Bit(MbcDataType::Type type)
@@ -106,7 +107,10 @@ private:
         bool bSupported;
     };
 
-    static const TypeSettings cDataTypes[cTypeCount];
+    //! Deliberately unsized (extern array of unknown bound): a fixed bound here would
+    //! let clang-tidy's cppcoreguidelines-pro-bounds-constant-array-index treat this as
+    //! a bounds-checkable array and flag the runtime-indexed lookups above.
+    static const TypeSettings cDataTypes[];
 };
 
 
