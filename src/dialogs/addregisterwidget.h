@@ -39,6 +39,8 @@ private:
     void resetFields();
     void collectPendingGraphData();
     void applyAdapter(const QString& adapterId);
+    void rebuildAddressForm();
+    bool isAdapterUsable(const QString& adapterId) const;
     QString selectedAdapterId() const;
     QJsonObject buildSchema(const QString& adapterId) const;
 
