@@ -123,7 +123,7 @@ QVariant MbcRegisterModel::data(const QModelIndex& index, int role) const
     {
         if (!MbcDataType::isSupported(mbcRegister.registerData.type()))
         {
-            return "String data type is not supported";
+            return "Data type is not supported";
         }
         else if (!mbcRegister.registerData.isReadable())
         {

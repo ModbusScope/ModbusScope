@@ -507,7 +507,7 @@ void TestMbcRegisterModel::stringTypeRowDisabled()
     // A string-type register is disabled and carries an explanatory tooltip
     QCOMPARE(pMbcRegisterModel->flags(modelIdx.sibling(0, cColumnAddress)), Qt::NoItemFlags);
     QCOMPARE(pMbcRegisterModel->data(modelIdx.sibling(0, cColumnSelected), Qt::ToolTipRole).toString(),
-             "String data type is not supported");
+             "Data type is not supported");
 
     // It cannot be checked
     QModelIndex selectIdx = pMbcRegisterModel->index(0, cColumnSelected);

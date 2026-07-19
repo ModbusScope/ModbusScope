@@ -26,24 +26,9 @@ public:
         return cDataTypes[static_cast<int>(type)].b32Bit;
     }
 
-    //! \brief Whether ModbusScope can plot a register of this type.
-    static bool isSupported(MbcDataType::Type type)
-    {
-        return cDataTypes[static_cast<int>(type)].bSupported;
-    }
+    static bool isSupported(MbcDataType::Type type);
 
-    //! \brief Byte length of a string type such as "string50" (0 when not a sized string).
-    static quint32 stringByteLength(const QString& strType)
-    {
-        if (!strType.startsWith("string"))
-        {
-            return 0;
-        }
-
-        bool bOk = false;
-        const quint32 bytes = strType.mid(6).toUInt(&bOk);
-        return bOk ? bytes : 0;
-    }
+    static quint32 stringByteLength(const QString& strType);
 
     static QString typeString(MbcDataType::Type type)
     {
