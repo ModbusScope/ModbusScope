@@ -23,13 +23,17 @@ public:
         return cDataTypes[static_cast<int>(type)].b32Bit;
     }
 
-    //! \brief Whether ModbusScope can plot a register of this type.
-    //!
-    //! Kept inline (like is32Bit() above) rather than in mbcdatatype.cpp: defining it
-    //! out-of-line puts it in the same translation unit as cDataTypes's definition,
-    //! where the array's size becomes visible and clang-tidy's
-    //! cppcoreguidelines-pro-bounds-constant-array-index flags this runtime-indexed
-    //! lookup.
+    /*!
+     * \brief Whether ModbusScope can plot a register of this type.
+     *
+     * Kept inline (like is32Bit() above) rather than in mbcdatatype.cpp: defining it
+     * out-of-line puts it in the same translation unit as cDataTypes's definition,
+     * where the array's size becomes visible and clang-tidy's
+     * cppcoreguidelines-pro-bounds-constant-array-index flags this runtime-indexed
+     * lookup.
+     * \param type The data type to check.
+     * \return True when the type can be plotted.
+     */
     static bool isSupported(MbcDataType::Type type)
     {
         return cDataTypes[static_cast<int>(type)].bSupported;
@@ -113,9 +117,11 @@ private:
         bool bSupported;
     };
 
-    //! Deliberately unsized (extern array of unknown bound): a fixed bound here would
-    //! let clang-tidy's cppcoreguidelines-pro-bounds-constant-array-index treat this as
-    //! a bounds-checkable array and flag the runtime-indexed lookups above.
+    /*!
+     * Deliberately unsized (extern array of unknown bound): a fixed bound here would
+     * let clang-tidy's cppcoreguidelines-pro-bounds-constant-array-index treat this as
+     * a bounds-checkable array and flag the runtime-indexed lookups above.
+     */
     static const TypeSettings cDataTypes[];
 };
 

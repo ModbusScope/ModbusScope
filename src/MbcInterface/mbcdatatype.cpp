@@ -13,6 +13,8 @@ const MbcDataType::TypeSettings MbcDataType::cDataTypes[] =
 
 /*!
  * \brief Byte length of a string type such as "string50" (0 when not a sized string).
+ * \param strType The string representation of the type.
+ * \return The byte length, or 0 if not a sized string.
  */
 quint32 MbcDataType::stringByteLength(const QString& strType)
 {
