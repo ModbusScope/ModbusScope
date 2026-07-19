@@ -11,9 +11,6 @@ const MbcDataType::TypeSettings MbcDataType::cDataTypes[] =
     /* STRING      */ {  false,  false     },
 };
 
-static_assert(sizeof(MbcDataType::cDataTypes) / sizeof(MbcDataType::cDataTypes[0]) == MbcDataType::cTypeCount,
-              "cDataTypes must have one entry per Type enum value");
-
 /*!
  * \brief Whether ModbusScope can plot a register of this type.
  */

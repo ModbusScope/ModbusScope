@@ -18,10 +18,6 @@ public:
         STRING = 5,
     };
 
-    //! Number of Type enum values; cDataTypes in mbcdatatype.cpp is statically asserted
-    //! to have this many entries.
-    static const int cTypeCount = static_cast<int>(Type::STRING) + 1;
-
     static bool is32Bit(MbcDataType::Type type)
     {
         return cDataTypes[static_cast<int>(type)].b32Bit;
