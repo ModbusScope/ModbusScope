@@ -77,6 +77,7 @@ AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWid
                 }
                 seenDeviceIds.insert(devId);
                 pSettingsModel->addDevice(devId);
+                pSettingsModel->deviceSettings(devId)->setAdapterId(adapterId);
             }
             auto* tab = new DeviceConfigTab(pSettingsModel, adapterId, deviceObj, _pDeviceTabs);
             connectTabNameTracking(tab);

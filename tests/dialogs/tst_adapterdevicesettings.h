@@ -31,6 +31,7 @@ private slots:
     void addTabAfterIdEditDoesNotDuplicate();
     void acceptValuesClearsDevicesForEmptiedAdapter();
     void twoAdaptersWithSameDefaultDeviceIdShowsSingleTab();
+    void existingDeviceAdapterIdMatchesConfigOnOpen();
 #if 0
     void editingDeviceIdInSchemaFormUpdatesCorrectModelDevice();
 #endif
