@@ -72,6 +72,14 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMENT "Copying modbusadapter to output directory"
 )
 
+# Copy iec104adapter next to the main executable so it can be found at runtime
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:iec104adapter>
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMENT "Copying iec104adapter to output directory"
+)
+
 # Do platform specific post target stuff
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
