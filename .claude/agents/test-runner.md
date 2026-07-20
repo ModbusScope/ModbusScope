@@ -6,7 +6,8 @@ model: haiku
 effort: low
 ---
 
-Run the test suite from the project root:
+Run the test suite from the project root. The project must be built first.
+
   ctest --test-dir build --output-on-failure
 
 Report only failing tests with their error messages. If all tests pass, say so briefly with the count.
