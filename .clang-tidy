@@ -30,4 +30,4 @@ Checks: >
 
 WarningsAsErrors: "*"
 HeaderFilterRegex: "src/.*"
-ExcludeHeaderFilterRegex: ".*(qcustomplot|ui_[a-z]+).h"
+ExcludeHeaderFilterRegex: ".*(qcustomplot|ui_[a-z]+\\.h).*|.*/build/.*"
