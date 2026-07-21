@@ -31,6 +31,7 @@ class AdapterClient : public QObject
 
 public:
     explicit AdapterClient(std::unique_ptr<AdapterProcess> pProcess,
+                           QString adapterId = QString(),
                            QObject* parent = nullptr,
                            int handshakeTimeoutMs = 10000);
     ~AdapterClient();
@@ -262,6 +263,7 @@ private:
 
     State _state{ State::IDLE };
 
+    QString _adapterId;
     std::unique_ptr<AdapterProcess> _pProcess;
     QTimer _handshakeTimer;
     int _handshakeTimeoutMs;

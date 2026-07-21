@@ -573,7 +573,7 @@ void TestAdapterClient::adapterStopNoAckTimesOutToSessionStopped()
 {
     auto mockOwned = std::make_unique<MockAdapterProcess>();
     auto* mock = mockOwned.get();
-    AdapterClient client(std::move(mockOwned), nullptr, 250 /* ms */);
+    AdapterClient client(std::move(mockOwned), QString(), nullptr, 250 /* ms */);
 
     QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
     QSignalSpy spyError(&client, &AdapterClient::sessionError);

@@ -85,7 +85,7 @@ void TestDummyAdapter::initTestCase()
  */
 void TestDummyAdapter::init()
 {
-    _pClient = new AdapterClient(std::make_unique<AdapterProcess>(), this);
+    _pClient = new AdapterClient(std::make_unique<AdapterProcess>(), QString(), this);
 }
 
 /*!
