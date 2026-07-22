@@ -73,6 +73,12 @@ bool AdapterManager::isAdapterIdle() const
     return _pAdapterClient->isIdle();
 }
 
+/*! \brief Returns true when the adapter has an established session (ACTIVE state). */
+bool AdapterManager::isAdapterActive() const
+{
+    return _pAdapterClient->isActive();
+}
+
 /*! \brief Send an adapter.expressionHelp request to retrieve expression syntax help text. */
 void AdapterManager::requestExpressionHelp()
 {
