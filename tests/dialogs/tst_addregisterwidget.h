@@ -3,6 +3,7 @@
 #define TST_ADDREGISTERWIDGET_H
 
 #include "ProtocolAdapter/adaptermanager.h"
+#include "mockadapterhub.h"
 #include "models/graphdata.h"
 #include "models/settingsmodel.h"
 
@@ -29,8 +30,10 @@ public:
         deviceId_t deviceId;
     };
 
-    explicit MockAdapterManager(SettingsModel* pSettingsModel, QObject* parent = nullptr)
-        : AdapterManager(QStringLiteral("modbus"), QString(), pSettingsModel, parent)
+    explicit MockAdapterManager(SettingsModel* pSettingsModel,
+                                const QString& adapterId = QStringLiteral("modbus"),
+                                QObject* parent = nullptr)
+        : AdapterManager(adapterId, QString(), pSettingsModel, parent)
     {
     }
 
@@ -68,14 +71,24 @@ private slots:
     void buildExpressionEmptyResponseIgnored();
     void buildExpressionDoesNotInterfereWithOtherConnections();
 
+    void adapterComboHiddenWithSingleAdapter();
+    void adapterComboListsAdapters();
+    void switchAdapterRebuildsSchema();
+    void buildExpressionRoutedToSelectedAdapter();
+    void btnAddDisabledWhenSelectedAdapterHasNoDevices();
+
 private:
     void clickAdd();
     void addRegister(GraphData& graphData, const QString& expression);
+    void addSimAdapter();
     static QJsonObject buildAddressSchema();
     static QJsonObject buildTestRegisterSchema();
+    static QJsonObject buildSimRegisterSchema();
 
     SettingsModel _settingsModel;
+    MockAdapterHub* _pMockHub{ nullptr };
     MockAdapterManager* _pMockAdapterManager{ nullptr };
+    MockAdapterManager* _pMockSimAdapterManager{ nullptr };
     AddRegisterWidget* _pRegWidget{ nullptr };
 };
 

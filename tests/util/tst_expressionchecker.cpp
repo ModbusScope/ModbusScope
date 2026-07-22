@@ -44,6 +44,19 @@ void TestExpressionChecker::addressesMatchExpression()
     QCOMPARE(addrs, expAddresses);
 }
 
+void TestExpressionChecker::deviceIdsMatchAddresses()
+{
+    ExpressionChecker checker;
+
+    checker.setExpression("${40001} + ${40002@2}");
+
+    QCOMPARE(checker.addresses(), QStringList() << "${40001}" << "${40002@2}");
+
+    QList<deviceId_t> expDeviceIds;
+    expDeviceIds << static_cast<deviceId_t>(1) << static_cast<deviceId_t>(2);
+    QCOMPARE(checker.deviceIds(), expDeviceIds);
+}
+
 void TestExpressionChecker::expressionIsValid()
 {
     ExpressionChecker checker;

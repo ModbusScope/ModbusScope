@@ -1,6 +1,7 @@
 #include "addregisterwidget.h"
 #include "ui_addregisterwidget.h"
 
+#include "ProtocolAdapter/adapterhub.h"
 #include "ProtocolAdapter/adaptermanager.h"
 #include "customwidgets/schemaformwidget.h"
 #include "models/adapterdata.h"
@@ -11,21 +12,21 @@
 #include <QVBoxLayout>
 
 /*!
- * \brief Constructs the widget and populates it from the adapter's register schema.
+ * \brief Constructs the widget and populates it from the selected adapter's register schema.
+ *
+ * The adapter selector is filled with all discovered adapters and hidden when
+ * only a single adapter is available.
  * \param pSettingsModel Pointer to the application settings model.
- * \param adapterId      Identifier of the adapter whose register schema to use.
- * \param pAdapterManager Pointer to the adapter manager used to build expression strings.
+ * \param pAdapterHub    Pointer to the adapter hub used to look up adapter managers.
  * \param parent         Optional parent widget.
  */
-AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel,
-                                     const QString& adapterId,
-                                     AdapterManager* pAdapterManager,
-                                     QWidget* parent)
+AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel, AdapterHub* pAdapterHub, QWidget* parent)
     : QWidget(parent),
       _pUi(new Ui::AddRegisterWidget),
       _pAddressForm(new SchemaFormWidget(this)),
       _pSettingsModel(pSettingsModel),
-      _pAdapterManager(pAdapterManager)
+      _pAdapterHub(pAdapterHub),
+      _pAdapterManager(nullptr)
 {
     _pUi->setupUi(this);
 
@@ -35,18 +36,24 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel,
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    const QJsonObject dataPointSchema = pSettingsModel->adapterData(adapterId)->dataPointSchema();
-    _addressSchema = buildSchema(adapterId);
-    _dataPointDefaults = dataPointSchema["defaults"].toObject();
-
     auto* addressLayout = new QVBoxLayout(_pUi->addressContainer);
     addressLayout->setContentsMargins(0, 0, 0, 0);
     addressLayout->addWidget(_pAddressForm);
 
-    if (_pSettingsModel->deviceListForAdapter(adapterId).isEmpty())
+    const QStringList adapterIds = _pAdapterHub->adapterIds();
+    for (const QString& adapterId : adapterIds)
     {
-        _pUi->btnAdd->setEnabled(false);
+        QString label = _pSettingsModel->adapterData(adapterId)->name();
+        if (label.isEmpty())
+        {
+            label = adapterId;
+        }
+        _pUi->cmbAdapter->addItem(label, adapterId);
     }
+    _pUi->cmbAdapter->setVisible(adapterIds.size() > 1);
+
+    /* Connect after populating to avoid spurious slot calls during addItem */
+    connect(_pUi->cmbAdapter, &QComboBox::currentIndexChanged, this, &AddRegisterWidget::onAdapterSelectionChanged);
 
     connect(_pUi->btnAdd, &QPushButton::clicked, this, &AddRegisterWidget::handleResultAccept);
 
@@ -54,6 +61,7 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel,
     _axisGroup.addButton(_pUi->radioPrimary);
     _axisGroup.addButton(_pUi->radioSecondary);
 
+    applyAdapter(selectedAdapterId());
     resetFields();
 }
 
@@ -94,8 +102,76 @@ QJsonObject AddRegisterWidget::buildSchema(const QString& adapterId) const
     return schema;
 }
 
+/*!
+ * \brief Switch the widget to the given adapter's register schema.
+ *
+ * Rebuilds the address form from the adapter's data point schema and updates
+ * the add button state based on manager and device availability.
+ * \param adapterId Identifier of the adapter to use.
+ */
+void AddRegisterWidget::applyAdapter(const QString& adapterId)
+{
+    _pAdapterManager = _pAdapterHub->adapterManager(adapterId);
+    if (_pAdapterManager == nullptr)
+    {
+        _pUi->btnAdd->setEnabled(false);
+        return;
+    }
+
+    const QJsonObject dataPointSchema = _pSettingsModel->adapterData(adapterId)->dataPointSchema();
+    _addressSchema = buildSchema(adapterId);
+    _dataPointDefaults = dataPointSchema["defaults"].toObject();
+    rebuildAddressForm();
+
+    _pUi->btnAdd->setEnabled(isAdapterUsable(adapterId));
+}
+
+/*!
+ * \brief Rebuilds the address form widgets from the currently cached schema and defaults.
+ */
+void AddRegisterWidget::rebuildAddressForm()
+{
+    _pAddressForm->setSchema(_addressSchema, _dataPointDefaults);
+}
+
+/*!
+ * \brief Returns whether the given adapter has a manager and at least one configured device.
+ * \param adapterId Identifier of the adapter to check.
+ */
+bool AddRegisterWidget::isAdapterUsable(const QString& adapterId) const
+{
+    return (_pAdapterHub->adapterManager(adapterId) != nullptr) &&
+           !_pSettingsModel->deviceListForAdapter(adapterId).isEmpty();
+}
+
+/*!
+ * \brief Returns the adapter ID of the adapter currently selected in the adapter combo box.
+ */
+QString AddRegisterWidget::selectedAdapterId() const
+{
+    return _pUi->cmbAdapter->currentData().toString();
+}
+
+/*!
+ * \brief Rebuilds the address form when another adapter is selected.
+ *
+ * The curve name and axis selection are kept so switching adapters only
+ * replaces the address fields.
+ * \param index Index of the newly selected combo box entry (unused).
+ */
+void AddRegisterWidget::onAdapterSelectionChanged(int index)
+{
+    Q_UNUSED(index);
+    applyAdapter(selectedAdapterId());
+}
+
 void AddRegisterWidget::handleResultAccept()
 {
+    if (_pAdapterManager == nullptr)
+    {
+        return;
+    }
+
     collectPendingGraphData();
 
     QJsonObject allValues = _pAddressForm->values();
@@ -111,7 +187,9 @@ void AddRegisterWidget::handleResultAccept()
 
 void AddRegisterWidget::onBuildExpressionResult(const QString& expression)
 {
-    _pUi->btnAdd->setEnabled(true);
+    /* Recompute instead of unconditionally enabling: the user may have switched
+     * to an adapter without devices while the request was in flight */
+    _pUi->btnAdd->setEnabled(isAdapterUsable(selectedAdapterId()));
 
     if (expression.isEmpty())
     {
@@ -122,13 +200,13 @@ void AddRegisterWidget::onBuildExpressionResult(const QString& expression)
     emit graphDataConfigured(_pendingGraphData);
 
     resetFields();
+    rebuildAddressForm();
 }
 
 void AddRegisterWidget::resetFields()
 {
     _pUi->lineName->setText("Name of curve");
     _pUi->radioPrimary->setChecked(true);
-    _pAddressForm->setSchema(_addressSchema, _dataPointDefaults);
 }
 
 /*!

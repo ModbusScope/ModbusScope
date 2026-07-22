@@ -110,6 +110,14 @@ AdapterManager* AdapterHub::adapterManager(const QString& id) const
     return _adapterManagers.value(id, nullptr);
 }
 
+/*! \brief Return the list of discovered adapter IDs.
+ * \return QStringList of adapter ID strings, sorted alphabetically.
+ */
+QStringList AdapterHub::adapterIds() const
+{
+    return _adapterManagers.keys();
+}
+
 /*! \brief Returns true when all adapter managers are in AWAITING_CONFIG state. */
 bool AdapterHub::isAdapterReady() const
 {
@@ -165,10 +173,6 @@ void AdapterHub::onManagerSessionStarted(const QString& id)
 void AdapterHub::onManagerSessionError(const QString& id, const QString& message)
 {
     _pendingStartAdapters.remove(id);
-    if (_pendingStartAdapters.isEmpty())
-    {
-        emit sessionStarted();
-    }
     emit sessionError(message);
 }
 

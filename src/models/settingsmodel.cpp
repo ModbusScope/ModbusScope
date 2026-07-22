@@ -141,6 +141,18 @@ QList<deviceId_t> SettingsModel::deviceListForAdapter(const QString& adapterId)
     return list;
 }
 
+/*! \brief Return the adapter ID that owns the given device.
+ *
+ * When the device is unknown, the adapter ID of a default-constructed Device
+ * ("modbus") is returned without inserting a new device entry.
+ * \param devId  The device identifier.
+ * \return The adapter ID string associated with the device.
+ */
+QString SettingsModel::adapterIdForDevice(deviceId_t devId) const
+{
+    return _devices.value(devId).adapterId();
+}
+
 void SettingsModel::setWriteDuringLog(bool bState)
 {
     if (_bWriteDuringLog != bState)

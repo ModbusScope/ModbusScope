@@ -1,20 +1,25 @@
 #include "expressionsdialog.h"
 #include "ui_expressionsdialog.h"
 
+#include "ProtocolAdapter/adapterhub.h"
 #include "ProtocolAdapter/adaptermanager.h"
 #include "dialogs/expressionhighlighting.h"
+#include "models/adapterdata.h"
 #include "models/graphdatamodel.h"
+#include "models/settingsmodel.h"
 
 using State = ResultState::State;
 
 ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
                                      GraphIdx idx,
-                                     AdapterManager* pAdapterManager,
+                                     AdapterHub* pAdapterHub,
+                                     SettingsModel* pSettingsModel,
                                      QWidget* parent)
     : QDialog(parent),
       _pUi(new Ui::ExpressionsDialog),
       _pGraphDataModel(pGraphDataModel),
-      _pAdapterManager(pAdapterManager),
+      _pAdapterHub(pAdapterHub),
+      _pSettingsModel(pSettingsModel),
       _bUpdating(false)
 {
     _pUi->setupUi(this);
@@ -25,12 +30,7 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
 
     connect(&_expressionChecker, &ExpressionChecker::resultsReady, this, &ExpressionsDialog::handleResultReady);
 
-    if (_pAdapterManager != nullptr)
-    {
-        connect(_pAdapterManager, &AdapterManager::expressionHelpResult, this,
-                &ExpressionsDialog::handleExpressionHelpResult);
-        _pAdapterManager->requestExpressionHelp();
-    }
+    populateHelpAdapters();
 
     _pUi->tblExpressionInput->setRowCount(0);
     _pUi->tblExpressionInput->setColumnCount(2);
@@ -95,10 +95,11 @@ void ExpressionsDialog::handleExpressionChange()
         _bUpdating = false;
 
         _pendingDescribeAddresses = addresses;
+        _pendingDescribeDeviceIds = _expressionChecker.deviceIds();
         _nextDescribeRow = 0;
-        if (_pAdapterManager != nullptr)
+        if (_pDescribeManager != nullptr)
         {
-            QObject::disconnect(_pAdapterManager, &AdapterManager::describeDataPointResult, this,
+            QObject::disconnect(_pDescribeManager, &AdapterManager::describeDataPointResult, this,
                                 &ExpressionsDialog::handleDescribeDataPointResult);
         }
         startNextDescribe();
@@ -153,14 +154,124 @@ void ExpressionsDialog::handleExpressionHelpResult(const QString& helpText)
     _pUi->lblInfo->setText(helpText);
 }
 
+/*!
+ * \brief Fill the help adapter selector and request help text for the initial selection.
+ *
+ * The selector is hidden when fewer than two adapters are available.
+ */
+void ExpressionsDialog::populateHelpAdapters()
+{
+    if (_pAdapterHub == nullptr)
+    {
+        _pUi->widgetHelpAdapter->setVisible(false);
+        return;
+    }
+
+    const QStringList adapterIds = _pAdapterHub->adapterIds();
+    for (const QString& adapterId : adapterIds)
+    {
+        QString label;
+        if (_pSettingsModel != nullptr)
+        {
+            label = _pSettingsModel->adapterData(adapterId)->name();
+        }
+        if (label.isEmpty())
+        {
+            label = adapterId;
+        }
+        _pUi->cmbHelpAdapter->addItem(label, adapterId);
+    }
+    _pUi->widgetHelpAdapter->setVisible(adapterIds.size() > 1);
+
+    /* Connect after populating to avoid spurious slot calls during addItem */
+    connect(_pUi->cmbHelpAdapter, &QComboBox::currentIndexChanged, this, &ExpressionsDialog::onHelpAdapterChanged);
+
+    if (!adapterIds.isEmpty())
+    {
+        requestHelpForAdapter(_pUi->cmbHelpAdapter->currentData().toString());
+    }
+}
+
+/*!
+ * \brief Request expression help text from the given adapter.
+ *
+ * Any pending help connection to a previously selected adapter is dropped so a
+ * late response cannot overwrite the newly selected adapter's help text.
+ * \param adapterId Identifier of the adapter to request help from.
+ */
+void ExpressionsDialog::requestHelpForAdapter(const QString& adapterId)
+{
+    if (_pHelpManager != nullptr)
+    {
+        QObject::disconnect(_pHelpManager, &AdapterManager::expressionHelpResult, this,
+                            &ExpressionsDialog::handleExpressionHelpResult);
+    }
+
+    _pUi->lblInfo->clear();
+
+    _pHelpManager = _pAdapterHub->adapterManager(adapterId);
+    if (_pHelpManager == nullptr)
+    {
+        return;
+    }
+
+    connect(_pHelpManager, &AdapterManager::expressionHelpResult, this,
+            &ExpressionsDialog::handleExpressionHelpResult, Qt::SingleShotConnection);
+    _pHelpManager->requestExpressionHelp();
+}
+
+/*!
+ * \brief Show the expression help of the newly selected adapter.
+ * \param index Index of the newly selected combo box entry (unused).
+ */
+void ExpressionsDialog::onHelpAdapterChanged(int index)
+{
+    Q_UNUSED(index);
+    requestHelpForAdapter(_pUi->cmbHelpAdapter->currentData().toString());
+}
+
+/*!
+ * \brief Resolve the adapter manager responsible for the data point at the given row.
+ *
+ * The row's device ID is mapped to its owning adapter via the settings model.
+ * \param row Row index into the pending describe lists.
+ * \return Pointer to the manager, or nullptr when it is unknown or not running.
+ */
+AdapterManager* ExpressionsDialog::managerForDescribeRow(qint32 row) const
+{
+    if (_pAdapterHub == nullptr || _pSettingsModel == nullptr || row >= _pendingDescribeDeviceIds.size())
+    {
+        return nullptr;
+    }
+
+    const QString adapterId = _pSettingsModel->adapterIdForDevice(_pendingDescribeDeviceIds[row]);
+    AdapterManager* pManager = _pAdapterHub->adapterManager(adapterId);
+    if (pManager == nullptr || pManager->isAdapterIdle())
+    {
+        return nullptr;
+    }
+
+    return pManager;
+}
+
 void ExpressionsDialog::startNextDescribe()
 {
-    if (_pAdapterManager != nullptr && !_pAdapterManager->isAdapterIdle() &&
-        _nextDescribeRow < _pendingDescribeAddresses.size())
+    _pDescribeManager = nullptr;
+    while (_nextDescribeRow < _pendingDescribeAddresses.size() && _pDescribeManager == nullptr)
     {
-        connect(_pAdapterManager, &AdapterManager::describeDataPointResult, this,
-                &ExpressionsDialog::handleDescribeDataPointResult, Qt::SingleShotConnection);
-        _pAdapterManager->describeDataPoint(_pendingDescribeAddresses[_nextDescribeRow]);
+        AdapterManager* pManager = managerForDescribeRow(_nextDescribeRow);
+        if (pManager != nullptr)
+        {
+            _pDescribeManager = pManager;
+            connect(pManager, &AdapterManager::describeDataPointResult, this,
+                    &ExpressionsDialog::handleDescribeDataPointResult, Qt::SingleShotConnection);
+            pManager->describeDataPoint(_pendingDescribeAddresses[_nextDescribeRow]);
+        }
+        else
+        {
+            /* Adapter unavailable for this row: keep the parser description and try the next row */
+            _nextDescribeRow++;
+        }
     }
 }
 

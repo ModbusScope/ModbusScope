@@ -28,6 +28,9 @@ class SettingsModel;
 class AdapterHub : public QObject
 {
     Q_OBJECT
+
+    friend class TestAdapterHub;
+
 public:
     explicit AdapterHub(SettingsModel* pSettingsModel, QObject* parent = nullptr);
 
@@ -37,6 +40,7 @@ public:
     virtual void requestReadData();
 
     virtual AdapterManager* adapterManager(const QString& id) const;
+    virtual QStringList adapterIds() const;
     virtual bool isAdapterReady() const;
     virtual bool isAdapterIdle() const;
 

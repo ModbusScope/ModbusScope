@@ -9,8 +9,10 @@
 #include <QStringList>
 
 /* Forward declarations */
+class AdapterHub;
 class AdapterManager;
 class ExpressionHighlighting;
+class SettingsModel;
 
 namespace Ui {
 class ExpressionsDialog;
@@ -23,7 +25,8 @@ class ExpressionsDialog : public QDialog
 public:
     explicit ExpressionsDialog(GraphDataModel* pGraphDataModel,
                                GraphIdx idx,
-                               AdapterManager* pAdapterManager,
+                               AdapterHub* pAdapterHub,
+                               SettingsModel* pSettingsModel,
                                QWidget* parent = nullptr);
     ~ExpressionsDialog();
 
@@ -35,16 +38,23 @@ private slots:
     void handleResultReady(bool valid);
     void handleExpressionHelpResult(const QString& helpText);
     void handleDescribeDataPointResult(const QJsonObject& result);
+    void onHelpAdapterChanged(int index);
 
 private:
     void startNextDescribe();
+    void populateHelpAdapters();
+    void requestHelpForAdapter(const QString& adapterId);
+    AdapterManager* managerForDescribeRow(qint32 row) const;
 
     Ui::ExpressionsDialog* _pUi;
 
     GraphIdx _graphIdx;
 
     GraphDataModel* _pGraphDataModel;
-    AdapterManager* _pAdapterManager;
+    AdapterHub* _pAdapterHub;
+    SettingsModel* _pSettingsModel;
+    AdapterManager* _pDescribeManager = nullptr;
+    AdapterManager* _pHelpManager = nullptr;
 
     ExpressionChecker _expressionChecker;
     ExpressionHighlighting* _pHighlighter;
@@ -52,6 +62,7 @@ private:
     bool _bUpdating;
 
     QStringList _pendingDescribeAddresses;
+    QList<deviceId_t> _pendingDescribeDeviceIds;
     qint32 _nextDescribeRow = 0;
 };
 

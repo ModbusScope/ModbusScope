@@ -703,4 +703,24 @@ void TestAdapterDeviceSettings::twoAdaptersWithSameDefaultDeviceIdShowsSingleTab
     QVERIFY(model.hasDevice(1));
 }
 
+void TestAdapterDeviceSettings::existingDeviceAdapterIdMatchesConfigOnOpen()
+{
+    SettingsModel model;
+
+    // Use id=2: SettingsModel pre-populates device 1 (cFirstDeviceId), so use a
+    // different id to genuinely exercise the "not yet in model" path.
+    QJsonObject dev;
+    dev["id"] = 2;
+    setupAdapter(model, "adapterB", QJsonArray{ dev });
+
+    // Device is not yet registered in the model — AdapterDeviceSettings must add it
+    // and assign it the adapter its config came from, not Device's constructor default.
+    QVERIFY(!model.hasDevice(2));
+
+    AdapterDeviceSettings w(&model);
+
+    QVERIFY(model.hasDevice(2));
+    QCOMPARE(model.deviceSettings(2)->adapterId(), QStringLiteral("adapterB"));
+}
+
 QTEST_MAIN(TestAdapterDeviceSettings)
