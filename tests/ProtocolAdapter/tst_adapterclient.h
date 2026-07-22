@@ -39,7 +39,7 @@ private slots:
     void adapterReadyEmittedAfterDescribe();
     void adapterReadyEmittedAfterStop();
     void canProvideConfigAfterStop();
-    void isReadyAndIsIdleAccessors();
+    void isReadyIsIdleAndIsActiveAccessors();
 
     void requestDataPointSchemaEmitsSignal();
     void requestDataPointSchemaInWrongStateIgnored();

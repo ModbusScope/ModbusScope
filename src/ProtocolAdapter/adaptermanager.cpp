@@ -14,7 +14,7 @@ AdapterManager::AdapterManager(const QString& adapterId,
                                QObject* parent)
     : QObject(parent), _adapterId(adapterId), _adapterBinaryPath(adapterBinaryPath), _pSettingsModel(pSettingsModel)
 {
-    _pAdapterClient = new AdapterClient(std::make_unique<AdapterProcess>(), this);
+    _pAdapterClient = new AdapterClient(std::make_unique<AdapterProcess>(), _adapterId, this);
 
     connect(_pAdapterClient, &AdapterClient::sessionStarted, this, &AdapterManager::sessionStarted);
     connect(_pAdapterClient, &AdapterClient::readDataResult, this, &AdapterManager::readDataResult);
@@ -71,6 +71,12 @@ bool AdapterManager::isAdapterReady() const
 bool AdapterManager::isAdapterIdle() const
 {
     return _pAdapterClient->isIdle();
+}
+
+/*! \brief Returns true when the adapter has an established session (ACTIVE state). */
+bool AdapterManager::isAdapterActive() const
+{
+    return _pAdapterClient->isActive();
 }
 
 /*! \brief Send an adapter.expressionHelp request to retrieve expression syntax help text. */
