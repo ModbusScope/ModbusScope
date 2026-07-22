@@ -100,6 +100,11 @@ public:
     bool isIdle() const;
 
     /*!
+     * \brief Returns true when the adapter has an established session (ACTIVE state).
+     */
+    bool isActive() const;
+
+    /*!
      * \brief Send an adapter.dataPointSchema request to discover the data point UI schema.
      *
      * Must only be called after describeResult() has been emitted (i.e., in the

@@ -47,6 +47,11 @@ bool AdapterClient::isIdle() const
     return _state == State::IDLE;
 }
 
+bool AdapterClient::isActive() const
+{
+    return _state == State::ACTIVE;
+}
+
 void AdapterClient::prepareAdapter(const QString& adapterPath)
 {
     if (_state != State::IDLE)

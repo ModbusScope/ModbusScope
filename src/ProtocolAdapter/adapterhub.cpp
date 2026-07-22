@@ -82,22 +82,46 @@ void AdapterHub::startSession(const QString& adapterId, const QStringList& expre
     }
 }
 
-/*! \brief Send adapter.stop to all active adapter managers. */
+/*! \brief Send adapter.stop to every adapter manager with a session in progress or established.
+ *
+ * A manager that never started a session (still AWAITING_CONFIG) or has no process running
+ * (IDLE) is left untouched. A manager mid-handshake (CONFIGURING/STARTING) is force-stopped but
+ * not waited on, since only a graceful stop from ACTIVE emits adapterReady(). A force-stopped
+ * mid-handshake manager is also purged from _pendingStartAdapters here, since that force-stop
+ * only emits sessionStopped() - never the sessionStarted()/sessionError() that would otherwise
+ * clear it.
+ */
 void AdapterHub::stopSession()
 {
     for (auto it = _adapterManagers.constBegin(); it != _adapterManagers.constEnd(); ++it)
     {
-        _pendingReadyAdapters.insert(it.key());
-        it.value()->stopSession();
+        AdapterManager* mgr = it.value();
+        if (mgr->isAdapterIdle() || mgr->isAdapterReady())
+        {
+            continue;
+        }
+
+        if (mgr->isAdapterActive())
+        {
+            _pendingReadyAdapters.insert(it.key());
+        }
+        else
+        {
+            _pendingStartAdapters.remove(it.key());
+        }
+        mgr->stopSession();
     }
 }
 
-/*! \brief Send adapter.readData to all adapter managers. */
+/*! \brief Send adapter.readData to all adapter managers with an established session. */
 void AdapterHub::requestReadData()
 {
     for (auto it = _adapterManagers.constBegin(); it != _adapterManagers.constEnd(); ++it)
     {
-        it.value()->requestReadData();
+        if (it.value()->isAdapterActive())
+        {
+            it.value()->requestReadData();
+        }
     }
 }
 

@@ -10,6 +10,10 @@ private slots:
     void errorOnSingleAdapterEmitsErrorOnly();
     void errorOnLastPendingAdapterDoesNotEmitSessionStarted();
     void allAdaptersSucceedEmitsSessionStartedOnce();
+    void requestReadDataSkipsInactiveAdapters();
+    void stopSessionOnlyWaitsOnActiveAdapters();
+    void stopSessionForceStopsMidHandshakeAdaptersWithoutWaiting();
+    void stopSessionPurgesPendingStartForForceStoppedAdapters();
 };
 
 #endif // TST_ADAPTERHUB_H
