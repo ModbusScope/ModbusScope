@@ -573,7 +573,7 @@ void TestAdapterClient::adapterStopNoAckTimesOutToSessionStopped()
 {
     auto mockOwned = std::make_unique<MockAdapterProcess>();
     auto* mock = mockOwned.get();
-    AdapterClient client(std::move(mockOwned), nullptr, 250 /* ms */);
+    AdapterClient client(std::move(mockOwned), QString(), nullptr, 250 /* ms */);
 
     QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
     QSignalSpy spyError(&client, &AdapterClient::sessionError);
@@ -1222,7 +1222,7 @@ void TestAdapterClient::canProvideConfigAfterStop()
     QCOMPARE(spyStarted.count(), 2);
 }
 
-void TestAdapterClient::isReadyAndIsIdleAccessors()
+void TestAdapterClient::isReadyIsIdleAndIsActiveAccessors()
 {
     auto mockOwned = std::make_unique<MockAdapterProcess>();
     auto* mock = mockOwned.get();
@@ -1231,21 +1231,25 @@ void TestAdapterClient::isReadyAndIsIdleAccessors()
     /* Initially IDLE */
     QVERIFY(client.isIdle());
     QVERIFY(!client.isReady());
+    QVERIFY(!client.isActive());
 
     client.prepareAdapter(QStringLiteral("./dummy"));
     /* INITIALIZING */
     QVERIFY(!client.isIdle());
     QVERIFY(!client.isReady());
+    QVERIFY(!client.isActive());
 
     mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
     /* DESCRIBING */
     QVERIFY(!client.isIdle());
     QVERIFY(!client.isReady());
+    QVERIFY(!client.isActive());
 
     mock->injectResponse(2, "adapter.describe", describeResult());
     /* AWAITING_CONFIG */
     QVERIFY(!client.isIdle());
     QVERIFY(client.isReady());
+    QVERIFY(!client.isActive());
 
     client.provideConfig(QJsonObject(), QStringList());
     mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
@@ -1253,6 +1257,7 @@ void TestAdapterClient::isReadyAndIsIdleAccessors()
     /* ACTIVE */
     QVERIFY(!client.isIdle());
     QVERIFY(!client.isReady());
+    QVERIFY(client.isActive());
 }
 
 QTEST_GUILESS_MAIN(TestAdapterClient)

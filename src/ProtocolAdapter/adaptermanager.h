@@ -66,6 +66,11 @@ public:
     virtual bool isAdapterIdle() const;
 
     /*!
+     * \brief Returns true when the adapter has an established session (ACTIVE state).
+     */
+    virtual bool isAdapterActive() const;
+
+    /*!
      * \brief Send an adapter.readData request to the active adapter.
      */
     virtual void requestReadData();

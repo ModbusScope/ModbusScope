@@ -6,8 +6,22 @@
 
 #include <memory>
 
-AdapterClient::AdapterClient(std::unique_ptr<AdapterProcess> pProcess, QObject* parent, int handshakeTimeoutMs)
-    : QObject(parent), _pProcess(std::move(pProcess)), _handshakeTimeoutMs(handshakeTimeoutMs)
+/*!
+ * \brief Construct an AdapterClient driving \a pProcess.
+ * \param pProcess          Transport for the adapter subprocess; ownership is taken.
+ * \param adapterId         Identifier of the adapter this client talks to (e.g. "modbus", "iec104"),
+ *                          used only to tag diagnostic log lines. May be empty.
+ * \param parent            Optional QObject parent.
+ * \param handshakeTimeoutMs Timeout in milliseconds for adapter handshake responses.
+ */
+AdapterClient::AdapterClient(std::unique_ptr<AdapterProcess> pProcess,
+                             QString adapterId,
+                             QObject* parent,
+                             int handshakeTimeoutMs)
+    : QObject(parent),
+      _adapterId(std::move(adapterId)),
+      _pProcess(std::move(pProcess)),
+      _handshakeTimeoutMs(handshakeTimeoutMs)
 {
     Q_ASSERT(_pProcess);
 
@@ -33,11 +47,16 @@ bool AdapterClient::isIdle() const
     return _state == State::IDLE;
 }
 
+bool AdapterClient::isActive() const
+{
+    return _state == State::ACTIVE;
+}
+
 void AdapterClient::prepareAdapter(const QString& adapterPath)
 {
     if (_state != State::IDLE)
     {
-        qCWarning(scopeComm) << "AdapterClient: prepareAdapter called in non-idle state";
+        qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "prepareAdapter called in non-idle state";
         return;
     }
 
@@ -46,7 +65,7 @@ void AdapterClient::prepareAdapter(const QString& adapterPath)
         return;
     }
 
-    qCInfo(scopeComm) << "AdapterClient: process started, sending initialize";
+    qCInfo(scopeComm) << "AdapterClient:" << _adapterId << "process started, sending initialize";
     _state = State::INITIALIZING;
     _handshakeTimer.start(_handshakeTimeoutMs);
     _pProcess->sendRequest("adapter.initialize", QJsonObject());
@@ -56,7 +75,8 @@ void AdapterClient::provideConfig(QJsonObject config, QStringList registerExpres
 {
     if (_state != State::AWAITING_CONFIG)
     {
-        qCWarning(scopeComm) << "AdapterClient: provideConfig called in unexpected state" << static_cast<int>(_state);
+        qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "provideConfig called in unexpected state"
+                             << static_cast<int>(_state);
         return;
     }
 
@@ -74,7 +94,7 @@ void AdapterClient::requestReadData()
 {
     if (_state != State::ACTIVE)
     {
-        qCWarning(scopeComm) << "AdapterClient: requestReadData called in non-active state";
+        qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "requestReadData called in non-active state";
         return;
     }
 
@@ -85,7 +105,7 @@ void AdapterClient::requestStatus()
 {
     if (_state != State::ACTIVE)
     {
-        qCWarning(scopeComm) << "AdapterClient: requestStatus called in non-active state";
+        qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "requestStatus called in non-active state";
         return;
     }
 
@@ -99,7 +119,7 @@ void AdapterClient::requestDataPointSchema()
 {
     if (_state != State::AWAITING_CONFIG)
     {
-        qCWarning(scopeComm) << "AdapterClient: requestDataPointSchema called in unexpected state"
+        qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "requestDataPointSchema called in unexpected state"
                              << static_cast<int>(_state);
         return;
     }
@@ -115,7 +135,7 @@ void AdapterClient::describeDataPoint(const QString& expression)
 {
     if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE)
     {
-        qCWarning(scopeComm) << "AdapterClient: describeDataPoint called in unexpected state"
+        qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "describeDataPoint called in unexpected state"
                              << static_cast<int>(_state);
         return;
     }
@@ -133,7 +153,7 @@ void AdapterClient::validateDataPoint(const QString& expression)
 {
     if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE)
     {
-        qCWarning(scopeComm) << "AdapterClient: validateDataPoint called in unexpected state"
+        qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "validateDataPoint called in unexpected state"
                              << static_cast<int>(_state);
         return;
     }
@@ -153,7 +173,8 @@ void AdapterClient::buildExpression(const QJsonObject& addressFields, const QStr
 {
     if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE)
     {
-        qCWarning(scopeComm) << "AdapterClient: buildExpression called in unexpected state" << static_cast<int>(_state);
+        qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "buildExpression called in unexpected state"
+                             << static_cast<int>(_state);
         return;
     }
 
@@ -178,7 +199,7 @@ void AdapterClient::requestExpressionHelp()
 {
     if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE)
     {
-        qCWarning(scopeComm) << "AdapterClient: requestExpressionHelp called in unexpected state"
+        qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "requestExpressionHelp called in unexpected state"
                              << static_cast<int>(_state);
         return;
     }
@@ -220,7 +241,7 @@ void AdapterClient::onResponseReceived(int id, const QString& method, const QJso
     }
     else
     {
-        qCWarning(scopeComm) << "AdapterClient: unexpected non-object result for" << method;
+        qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "unexpected non-object result for" << method;
         _handshakeTimer.stop();
         /* Set IDLE before stop() so onProcessFinished's IDLE guard suppresses any
            duplicate sessionError emission when the process exits asynchronously. */
@@ -235,7 +256,7 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
 {
     _handshakeTimer.stop();
     QString errorMsg = error.value("message").toString();
-    qCWarning(scopeComm) << "AdapterClient: error for" << method << ":" << errorMsg;
+    qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "error for" << method << ":" << errorMsg;
 
     /* For auxiliary requests, a JSON-RPC error is a non-fatal result rather
        than a session-level failure. Translate to the corresponding result signal or swallow. */
@@ -323,7 +344,8 @@ void AdapterClient::onProcessFinished()
 
 void AdapterClient::onHandshakeTimeout()
 {
-    qCWarning(scopeComm) << "AdapterClient: handshake timed out in state" << static_cast<int>(_state);
+    qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "handshake timed out in state"
+                         << static_cast<int>(_state);
     bool wasUserStop = (_state == State::STOPPING || _state == State::STOPPING_SESSION);
     _pendingAuxRequests.clear();
     _state = State::IDLE;
@@ -347,7 +369,7 @@ void AdapterClient::onNotificationReceived(QString method, QJsonValue params)
 
     if (!params.isObject())
     {
-        qCWarning(scopeComm) << "AdapterClient: adapter.diagnostic params is not an object";
+        qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "adapter.diagnostic params is not an object";
         return;
     }
 
@@ -364,7 +386,7 @@ bool AdapterClient::consumeAuxResponse(const QString& method, int id)
 {
     if (_pendingAuxRequests.value(method, -1) != id)
     {
-        qCWarning(scopeComm) << "AdapterClient: ignoring stale response for" << method;
+        qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "ignoring stale response for" << method;
         return false;
     }
     _pendingAuxRequests.remove(method);
@@ -375,13 +397,13 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
 {
     if (method == "adapter.initialize" && _state == State::INITIALIZING)
     {
-        qCInfo(scopeComm) << "AdapterClient: initialized, sending describe";
+        qCInfo(scopeComm) << "AdapterClient:" << _adapterId << "initialized, sending describe";
         _state = State::DESCRIBING;
         _pProcess->sendRequest("adapter.describe", QJsonObject());
     }
     else if (method == "adapter.describe" && _state == State::DESCRIBING)
     {
-        qCInfo(scopeComm) << "AdapterClient: described, awaiting config";
+        qCInfo(scopeComm) << "AdapterClient:" << _adapterId << "described, awaiting config";
         _handshakeTimer.stop();
         _state = State::AWAITING_CONFIG;
         emit describeResult(result);
@@ -389,7 +411,7 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
     }
     else if (method == "adapter.configure" && _state == State::CONFIGURING)
     {
-        qCInfo(scopeComm) << "AdapterClient: configured, sending start";
+        qCInfo(scopeComm) << "AdapterClient:" << _adapterId << "configured, sending start";
         _state = State::STARTING;
         QJsonObject params;
         params["dataPoints"] = QJsonArray::fromStringList(_pendingExpressions);
@@ -397,7 +419,7 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
     }
     else if (method == "adapter.start" && _state == State::STARTING)
     {
-        qCInfo(scopeComm) << "AdapterClient: started";
+        qCInfo(scopeComm) << "AdapterClient:" << _adapterId << "started";
         _handshakeTimer.stop();
         _state = State::ACTIVE;
         emit sessionStarted();
@@ -426,7 +448,7 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
     }
     else if (method == "adapter.stop" && _state == State::STOPPING_SESSION)
     {
-        qCInfo(scopeComm) << "AdapterClient: session stopped, adapter kept alive, awaiting config";
+        qCInfo(scopeComm) << "AdapterClient:" << _adapterId << "session stopped, adapter kept alive, awaiting config";
         _handshakeTimer.stop();
         _state = State::AWAITING_CONFIG;
         emit sessionStopped();
@@ -474,7 +496,7 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
     }
     else
     {
-        qCWarning(scopeComm) << "AdapterClient: unexpected response for" << method << "in state"
+        qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "unexpected response for" << method << "in state"
                              << static_cast<int>(_state);
     }
 }

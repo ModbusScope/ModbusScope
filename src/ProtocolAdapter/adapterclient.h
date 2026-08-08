@@ -31,6 +31,7 @@ class AdapterClient : public QObject
 
 public:
     explicit AdapterClient(std::unique_ptr<AdapterProcess> pProcess,
+                           QString adapterId = QString(),
                            QObject* parent = nullptr,
                            int handshakeTimeoutMs = 10000);
     ~AdapterClient();
@@ -97,6 +98,11 @@ public:
      * \brief Returns true when the adapter process is not running (IDLE state).
      */
     bool isIdle() const;
+
+    /*!
+     * \brief Returns true when the adapter has an established session (ACTIVE state).
+     */
+    bool isActive() const;
 
     /*!
      * \brief Send an adapter.dataPointSchema request to discover the data point UI schema.
@@ -262,6 +268,7 @@ private:
 
     State _state{ State::IDLE };
 
+    QString _adapterId;
     std::unique_ptr<AdapterProcess> _pProcess;
     QTimer _handshakeTimer;
     int _handshakeTimeoutMs;
