@@ -315,6 +315,40 @@ void TestAddRegisterWidget::switchAdapterWhileMenuOpenResizesPopup()
     QVERIFY(heightWithOneField < heightWithFourFields);
 }
 
+void TestAddRegisterWidget::switchToLargerSchemaWhileMenuOpenShowsAllFields()
+{
+    addSimAdapter();
+
+    /* See switchAdapterWhileMenuOpenResizesPopup for why ownership is handed off up front. */
+    AddRegisterWidget* pWidget = _pRegWidget;
+    _pRegWidget = nullptr;
+
+    QMenu menu;
+    auto* action = new QWidgetAction(&menu);
+    action->setDefaultWidget(pWidget);
+    menu.addAction(action);
+
+    /* Start from sim (1 field) so the switch below grows the form. */
+    pWidget->_pUi->cmbAdapter->setCurrentIndex(1);
+    menu.show();
+
+    /* Switch, while the popup is open, from sim (1 field) to modbus (4 fields). Newly created
+     * field widgets used to stay hidden until the next event loop turn, which made QFormLayout
+     * treat them as zero-sized and left the popup too small to show the rebuilt form - see
+     * SchemaFormWidget::addFieldRow(). Check the state right after the switch, with no event
+     * loop turn in between, so a regression here fails immediately instead of only intermittently. */
+    pWidget->_pUi->cmbAdapter->setCurrentIndex(0);
+
+    QLayout* addressFormLayout = pWidget->_pAddressForm->layout();
+    QCOMPARE(addressFormLayout->count(), 8); /* modbus schema: 4 fields x (label + field) */
+    for (int i = 0; i < addressFormLayout->count(); ++i)
+    {
+        QVERIFY(addressFormLayout->itemAt(i)->widget()->isVisible());
+    }
+
+    menu.hide();
+}
+
 void TestAddRegisterWidget::buildExpressionRoutedToSelectedAdapter()
 {
     _settingsModel.addDevice(2);
