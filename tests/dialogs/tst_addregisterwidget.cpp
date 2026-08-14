@@ -289,34 +289,30 @@ void TestAddRegisterWidget::switchAdapterWhileMenuOpenResizesPopup()
 {
     addSimAdapter();
 
+    /* QWidgetAction::setDefaultWidget() takes ownership of the widget: its destructor
+     * unconditionally deletes it. Hand it off and clear the fixture pointer up front - before
+     * the QVERIFY below, which returns early on failure - so cleanup()'s `delete _pRegWidget`
+     * can never race with the action's destructor deleting the same object. */
+    AddRegisterWidget* pWidget = _pRegWidget;
+    _pRegWidget = nullptr;
+
     QMenu menu;
     auto* action = new QWidgetAction(&menu);
-    action->setDefaultWidget(_pRegWidget);
+    action->setDefaultWidget(pWidget);
+    /* Reparents pWidget into `menu` synchronously (QMenu::actionEvent). */
     menu.addAction(action);
 
-    /* Showing forces the menu to adopt the widget and size itself, as happens
-     * the first time RegisterDialog's btnAdd popup is opened. */
+    /* Showing lays out the menu for the first time, sizing it to fit the modbus schema (4 fields). */
     menu.show();
     const int heightWithFourFields = menu.height();
 
     /* Switch, while the popup is open, from modbus (4 fields) to sim (1 field) */
-    _pRegWidget->_pUi->cmbAdapter->setCurrentIndex(1);
-
-    QVERIFY(menu.height() < heightWithFourFields);
+    pWidget->_pUi->cmbAdapter->setCurrentIndex(1);
+    const int heightWithOneField = menu.height();
 
     menu.hide();
 
-    /* QWidgetAction::setDefaultWidget() reparents the widget into whichever container
-     * displays it, but ~QWidgetAction() unconditionally deletes the default widget too.
-     * If the widget were still a child of `menu` when `menu` is destroyed below, both
-     * menu's own child cleanup and the action's destructor would try to delete it,
-     * causing a double free. releaseWidget() detaches it (parent -> nullptr) first, so
-     * only the action's destructor deletes it. */
-    action->releaseWidget(_pRegWidget);
-
-    /* Ownership remains with `action` (destroyed below with `menu`); avoid a double
-     * delete in cleanup(). */
-    _pRegWidget = nullptr;
+    QVERIFY(heightWithOneField < heightWithFourFields);
 }
 
 void TestAddRegisterWidget::buildExpressionRoutedToSelectedAdapter()
