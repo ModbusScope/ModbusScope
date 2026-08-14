@@ -74,6 +74,7 @@ private slots:
     void adapterComboHiddenWithSingleAdapter();
     void adapterComboListsAdapters();
     void switchAdapterRebuildsSchema();
+    void switchAdapterWhileMenuOpenResizesPopup();
     void buildExpressionRoutedToSelectedAdapter();
     void btnAddDisabledWhenSelectedAdapterHasNoDevices();
 
