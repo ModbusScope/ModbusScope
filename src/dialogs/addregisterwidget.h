@@ -40,6 +40,7 @@ private:
     void collectPendingGraphData();
     void applyAdapter(const QString& adapterId);
     void rebuildAddressForm();
+    void resizeContainingMenu();
     bool isAdapterUsable(const QString& adapterId) const;
     QString selectedAdapterId() const;
     QJsonObject buildSchema(const QString& adapterId) const;

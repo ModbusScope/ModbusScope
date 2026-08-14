@@ -8,8 +8,10 @@
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QMenu>
 #include <QSignalSpy>
 #include <QTest>
+#include <QWidgetAction>
 
 QJsonObject TestAddRegisterWidget::buildAddressSchema()
 {
@@ -281,6 +283,30 @@ void TestAddRegisterWidget::switchAdapterRebuildsSchema()
     QVERIFY(_pRegWidget->_addressSchema["properties"].toObject().contains(QStringLiteral("channel")));
     QCOMPARE(_pRegWidget->_dataPointDefaults["channel"].toInt(), 3);
     QCOMPARE(_pRegWidget->_pAddressForm->values()["channel"].toInt(), 3);
+}
+
+void TestAddRegisterWidget::switchAdapterWhileMenuOpenResizesPopup()
+{
+    addSimAdapter();
+
+    QMenu menu;
+    auto* action = new QWidgetAction(&menu);
+    action->setDefaultWidget(_pRegWidget);
+    menu.addAction(action);
+
+    /* Showing forces the menu to adopt the widget and size itself, as happens
+     * the first time RegisterDialog's btnAdd popup is opened. */
+    menu.show();
+    const int heightWithFourFields = menu.height();
+
+    /* Switch, while the popup is open, from modbus (4 fields) to sim (1 field) */
+    _pRegWidget->_pUi->cmbAdapter->setCurrentIndex(1);
+
+    QVERIFY(menu.height() < heightWithFourFields);
+
+    menu.hide();
+    /* Ownership of _pRegWidget transferred to menu when shown; avoid double delete in cleanup() */
+    _pRegWidget = nullptr;
 }
 
 void TestAddRegisterWidget::buildExpressionRoutedToSelectedAdapter()

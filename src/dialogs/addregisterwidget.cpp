@@ -9,6 +9,7 @@
 #include "models/settingsmodel.h"
 
 #include <QJsonArray>
+#include <QMenu>
 #include <QVBoxLayout>
 
 /*!
@@ -124,6 +125,8 @@ void AddRegisterWidget::applyAdapter(const QString& adapterId)
     rebuildAddressForm();
 
     _pUi->btnAdd->setEnabled(isAdapterUsable(adapterId));
+
+    resizeContainingMenu();
 }
 
 /*!
@@ -132,6 +135,22 @@ void AddRegisterWidget::applyAdapter(const QString& adapterId)
 void AddRegisterWidget::rebuildAddressForm()
 {
     _pAddressForm->setSchema(_addressSchema, _dataPointDefaults);
+}
+
+/*!
+ * \brief Resizes the enclosing popup menu to fit this widget's current content.
+ *
+ * When hosted as a QWidgetAction's default widget inside a QToolButton's popup menu (as
+ * RegisterDialog does for btnAdd), QMenu computes and caches its size when shown and does not
+ * observe later size changes of an already-embedded widget. Without this, switching adapters
+ * while the popup is open leaves it clipped to whichever adapter was shown first.
+ */
+void AddRegisterWidget::resizeContainingMenu()
+{
+    if (auto* menu = qobject_cast<QMenu*>(window()))
+    {
+        menu->resize(menu->sizeHint());
+    }
 }
 
 /*!
