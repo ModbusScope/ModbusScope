@@ -107,7 +107,8 @@ QJsonObject AddRegisterWidget::buildSchema(const QString& adapterId) const
  * \brief Switch the widget to the given adapter's register schema.
  *
  * Rebuilds the address form from the adapter's data point schema and updates
- * the add button state based on manager and device availability.
+ * the add button state based on manager and device availability. Also resizes
+ * the enclosing popup menu, if any, to fit the rebuilt form.
  * \param adapterId Identifier of the adapter to use.
  */
 void AddRegisterWidget::applyAdapter(const QString& adapterId)
@@ -220,6 +221,7 @@ void AddRegisterWidget::onBuildExpressionResult(const QString& expression)
 
     resetFields();
     rebuildAddressForm();
+    resizeContainingMenu();
 }
 
 void AddRegisterWidget::resetFields()
