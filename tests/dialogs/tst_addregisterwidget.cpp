@@ -305,7 +305,17 @@ void TestAddRegisterWidget::switchAdapterWhileMenuOpenResizesPopup()
     QVERIFY(menu.height() < heightWithFourFields);
 
     menu.hide();
-    /* Ownership of _pRegWidget transferred to menu when shown; avoid double delete in cleanup() */
+
+    /* QWidgetAction::setDefaultWidget() reparents the widget into whichever container
+     * displays it, but ~QWidgetAction() unconditionally deletes the default widget too.
+     * If the widget were still a child of `menu` when `menu` is destroyed below, both
+     * menu's own child cleanup and the action's destructor would try to delete it,
+     * causing a double free. releaseWidget() detaches it (parent -> nullptr) first, so
+     * only the action's destructor deletes it. */
+    action->releaseWidget(_pRegWidget);
+
+    /* Ownership remains with `action` (destroyed below with `menu`); avoid a double
+     * delete in cleanup(). */
     _pRegWidget = nullptr;
 }
 
