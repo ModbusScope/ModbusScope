@@ -8,8 +8,10 @@
 #include "models/device.h"
 #include "models/settingsmodel.h"
 
+#include <QCoreApplication>
 #include <QJsonArray>
 #include <QMenu>
+#include <QResizeEvent>
 #include <QVBoxLayout>
 
 /*!
@@ -142,16 +144,25 @@ void AddRegisterWidget::rebuildAddressForm()
  * \brief Resizes the enclosing popup menu to fit this widget's current content.
  *
  * When hosted as a QWidgetAction's default widget inside a QToolButton's popup menu (as
- * RegisterDialog does for btnAdd), QMenu computes and caches its size when shown and does not
- * observe later size changes of an already-embedded widget. Without this, switching adapters
- * while the popup is open leaves it clipped to whichever adapter was shown first.
+ * RegisterDialog does for btnAdd), QMenu caches its action layout and only recomputes it for
+ * specific events (its action list changing, being shown, or being resized) - it has no way to
+ * know an already-embedded widget's own content changed. Without this, switching adapters while
+ * the popup is open leaves it clipped to whichever adapter was shown first. A synthetic resize
+ * event forces QMenu to mark its cached layout dirty and recompute it, so the sizeHint() below
+ * reflects the rebuilt form instead of stale, cached action rects.
  */
 void AddRegisterWidget::resizeContainingMenu()
 {
-    if (auto* menu = qobject_cast<QMenu*>(window()))
+    auto* menu = qobject_cast<QMenu*>(window());
+    if (menu == nullptr)
     {
-        menu->resize(menu->sizeHint());
+        return;
     }
+
+    QResizeEvent resizeEvent(menu->size(), menu->size());
+    QCoreApplication::sendEvent(menu, &resizeEvent);
+
+    menu->resize(menu->sizeHint());
 }
 
 /*!
