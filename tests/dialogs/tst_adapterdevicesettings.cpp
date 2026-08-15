@@ -723,4 +723,71 @@ void TestAdapterDeviceSettings::existingDeviceAdapterIdMatchesConfigOnOpen()
     QCOMPARE(model.deviceSettings(2)->adapterId(), QStringLiteral("adapterB"));
 }
 
+void TestAdapterDeviceSettings::sharedDefaultDeviceIdReconciledOnDescribeWithoutOpeningDialog()
+{
+    SettingsModel model;
+
+    auto makeDescribeWithDefault = [](const QString& name) {
+        QJsonObject describe = makeAdapterDescribe(name);
+        QJsonObject defaultDevice;
+        defaultDevice["id"] = 1;
+        QJsonObject defaults;
+        defaults["devices"] = QJsonArray{ defaultDevice };
+        defaults["connections"] = QJsonArray();
+        defaults["general"] = QJsonObject();
+        describe["defaults"] = defaults;
+        return describe;
+    };
+
+    // No AdapterDeviceSettings is constructed here: reconciliation must happen as soon as
+    // adapters describe, not only when the user opens Settings.
+    model.updateAdapterFromDescribe("adapterA", makeDescribeWithDefault("adapterA"));
+    model.updateAdapterFromDescribe("adapterB", makeDescribeWithDefault("adapterB"));
+
+    QCOMPARE(model.deviceList().size(), 1);
+    QVERIFY(model.hasDevice(1));
+    QCOMPARE(model.deviceSettings(1)->adapterId(), QStringLiteral("adapterA"));
+}
+
+void TestAdapterDeviceSettings::explicitDeviceAssignmentSurvivesLaterAdapterRedescribe()
+{
+    SettingsModel model;
+
+    auto makeDescribeWithDefault = [](const QString& name) {
+        QJsonObject describe = makeAdapterDescribe(name);
+        QJsonObject defaultDevice;
+        defaultDevice["id"] = 1;
+        QJsonObject defaults;
+        defaults["devices"] = QJsonArray{ defaultDevice };
+        defaults["connections"] = QJsonArray();
+        defaults["general"] = QJsonObject();
+        describe["defaults"] = defaults;
+        return describe;
+    };
+
+    // Both adapters declare device 1 in their raw, never-configured defaults.
+    model.updateAdapterFromDescribe("adapterA", makeDescribeWithDefault("adapterA"));
+    model.updateAdapterFromDescribe("adapterB", makeDescribeWithDefault("adapterB"));
+
+    // adapterA wins the shared ID while neither adapter has an explicit config yet.
+    QCOMPARE(model.deviceSettings(1)->adapterId(), QStringLiteral("adapterA"));
+
+    // The user explicitly (re)assigns device 1 to adapterB and saves it: adapterB now has a
+    // real, stored config declaring device 1, while adapterA's config is still untouched defaults.
+    QJsonObject dev;
+    dev["id"] = 1;
+    QJsonObject config;
+    config["general"] = QJsonObject();
+    config["connections"] = QJsonArray();
+    config["devices"] = QJsonArray{ dev };
+    model.setAdapterCurrentConfig("adapterB", config);
+    model.deviceSettings(1)->setAdapterId("adapterB");
+
+    // adapterA reconnects and redescribes; its raw defaults still declare device 1, but the
+    // explicit assignment to adapterB must survive rather than be silently reclaimed by adapterA.
+    model.updateAdapterFromDescribe("adapterA", makeDescribeWithDefault("adapterA"));
+
+    QCOMPARE(model.deviceSettings(1)->adapterId(), QStringLiteral("adapterB"));
+}
+
 QTEST_MAIN(TestAdapterDeviceSettings)

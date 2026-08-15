@@ -56,6 +56,8 @@ AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWid
         }
     }
 
+    pSettingsModel->reconcileDevicesWithAdapters();
+
     QList<QWidget*> pages;
     QStringList names;
     QSet<deviceId_t> seenDeviceIds;
@@ -76,8 +78,6 @@ AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWid
                     continue;
                 }
                 seenDeviceIds.insert(devId);
-                pSettingsModel->addDevice(devId);
-                pSettingsModel->deviceSettings(devId)->setAdapterId(adapterId);
             }
             auto* tab = new DeviceConfigTab(pSettingsModel, adapterId, deviceObj, _pDeviceTabs);
             connectTabNameTracking(tab);

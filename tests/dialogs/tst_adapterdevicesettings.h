@@ -32,6 +32,8 @@ private slots:
     void acceptValuesClearsDevicesForEmptiedAdapter();
     void twoAdaptersWithSameDefaultDeviceIdShowsSingleTab();
     void existingDeviceAdapterIdMatchesConfigOnOpen();
+    void sharedDefaultDeviceIdReconciledOnDescribeWithoutOpeningDialog();
+    void explicitDeviceAssignmentSurvivesLaterAdapterRedescribe();
 #if 0
     void editingDeviceIdInSchemaFormUpdatesCorrectModelDevice();
 #endif

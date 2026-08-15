@@ -1,6 +1,9 @@
 #include "settingsmodel.h"
 #include "util/scopelogging.h"
 
+#include <QJsonArray>
+#include <QSet>
+
 namespace {
 
 /*!
@@ -263,6 +266,7 @@ void SettingsModel::updateAdapterFromDescribe(const QString& adapterId, const QJ
         _adapters[adapterId] = AdapterData();
     }
     _adapters[adapterId].updateFromDescribe(describeResult);
+    reconcileDevicesWithAdapters();
 
     const QString version = _adapters[adapterId].version();
     QString versionTxt("unknown version");
@@ -287,6 +291,80 @@ void SettingsModel::updateAdapterFromDescribe(const QString& adapterId, const QJ
     }
 
     emit adapterDataChanged(adapterId);
+}
+
+/*! \brief Claim each adapter-declared default device ID for the first adapter that declares it.
+ *
+ * For every adapter with known schema, walks its effective config's device list and, for any
+ * device ID not already claimed earlier in the resulting order, ensures the device exists and
+ * assigns it that adapter. This keeps a device ID shared by two adapters' defaults (e.g. both
+ * declaring device 1) consistently assigned to one adapter as soon as adapter data is available,
+ * instead of leaving it on Device's constructor default until the user opens Settings.
+ *
+ * Adapters with an explicitly saved config (hasStoredConfig()) are considered before adapters
+ * still on raw, never-configured defaults, so a device the user deliberately assigned to one
+ * adapter can't later be reclaimed by another adapter that merely happens to share that device ID
+ * in its untouched defaults — this method re-runs on every describe, including reconnects, so a
+ * once-off "first adapter alphabetically wins" rule would let a later reconnect silently steal a
+ * device back from its explicitly configured owner. Within each of those two groups, adapters are
+ * considered in adapterIds() order, so a device ID shared by two equally-unconfigured (or two
+ * equally-configured) adapters still resolves deterministically, just not meaningfully — that
+ * remaining tie only matters before either adapter has been explicitly configured.
+ *
+ * Deliberately does not remove devices no adapter currently declares — that pruning is only safe
+ * once every relevant adapter's config is known, whereas this runs incrementally as each adapter
+ * describes and must not delete devices belonging to adapters that simply haven't described yet.
+ */
+void SettingsModel::reconcileDevicesWithAdapters()
+{
+    QStringList validAdapterIds;
+    const QStringList allAdapterIds = adapterIds();
+    for (const auto& id : allAdapterIds)
+    {
+        if (!_adapters[id].schema().isEmpty())
+        {
+            validAdapterIds.append(id);
+        }
+    }
+
+    QStringList orderedAdapterIds;
+    for (const auto& id : validAdapterIds)
+    {
+        if (_adapters[id].hasStoredConfig())
+        {
+            orderedAdapterIds.append(id);
+        }
+    }
+    for (const auto& id : validAdapterIds)
+    {
+        if (!_adapters[id].hasStoredConfig())
+        {
+            orderedAdapterIds.append(id);
+        }
+    }
+
+    QSet<deviceId_t> seenDeviceIds;
+    for (const auto& adapterId : orderedAdapterIds)
+    {
+        const QJsonArray devices = _adapters[adapterId].effectiveConfig().value("devices").toArray();
+        for (const auto& device : devices)
+        {
+            const int id = device.toObject().value("id").toInt(-1);
+            if (id < 0)
+            {
+                continue;
+            }
+
+            const deviceId_t devId = static_cast<deviceId_t>(id);
+            if (seenDeviceIds.contains(devId))
+            {
+                continue;
+            }
+            seenDeviceIds.insert(devId);
+            addDevice(devId);
+            deviceSettings(devId)->setAdapterId(adapterId);
+        }
+    }
 }
 
 bool SettingsModel::hasDevice(deviceId_t devId) const
