@@ -12,7 +12,9 @@
 #include <QSet>
 #include <QVBoxLayout>
 
+#include <algorithm>
 #include <climits>
+#include <numeric>
 
 AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWidget* parent)
     : QWidget(parent), _pSettingsModel(pSettingsModel)
@@ -101,10 +103,43 @@ AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWid
 
     if (!pages.isEmpty())
     {
+        sortPagesByDeviceId(pages, names);
         _pDeviceTabs->setTabs(pages, names);
     }
 
     updateAddButtonVisibility();
+}
+
+/*! \brief Stable-sort device tabs by device ID.
+ *
+ * Tabs are built adapter-by-adapter (in \c SettingsModel::adapterIds() order, which is
+ * alphabetical, not creation order), so a device on an alphabetically-earlier adapter would
+ * otherwise be shown before a device added earlier but living on a later adapter. Sorting by
+ * ID keeps tab order consistent with device add order across dialog reopens. Tabs without a
+ * valid ID (id < 0) keep their relative order and sort after all ID'd tabs.
+ */
+void AdapterDeviceSettings::sortPagesByDeviceId(QList<QWidget*>& pages, QStringList& names)
+{
+    QList<int> order(pages.size());
+    std::iota(order.begin(), order.end(), 0);
+
+    auto deviceIdAt = [&pages](int index) {
+        auto* tab = qobject_cast<DeviceConfigTab*>(pages[index]);
+        const int id = tab ? tab->deviceId() : -1;
+        return id >= 0 ? id : INT_MAX;
+    };
+
+    std::stable_sort(order.begin(), order.end(), [&](int a, int b) { return deviceIdAt(a) < deviceIdAt(b); });
+
+    QList<QWidget*> sortedPages;
+    QStringList sortedNames;
+    for (const int index : order)
+    {
+        sortedPages.append(pages[index]);
+        sortedNames.append(names[index]);
+    }
+    pages = sortedPages;
+    names = sortedNames;
 }
 
 /*! \brief Add a new device tab with a unique, auto-incremented device ID.

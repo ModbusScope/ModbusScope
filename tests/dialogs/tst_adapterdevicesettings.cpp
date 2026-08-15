@@ -842,4 +842,107 @@ void TestAdapterDeviceSettings::reassigningExistingDeviceOwnerEmitsDeviceListCha
     QCOMPARE(spy.count(), 1);
 }
 
+void TestAdapterDeviceSettings::addTabAfterDefaultDeviceKeepsOrder()
+{
+    SettingsModel model;
+
+    // Mirrors the real "modbus" adapter: no stored config yet, defaults already
+    // contain one device (id=1), matching SettingsModel's built-in device 1.
+    QJsonObject describe = makeAdapterDescribe("modbus");
+    QJsonObject defaultDevice;
+    defaultDevice["id"] = 1;
+    QJsonObject defaults;
+    defaults["devices"] = QJsonArray{ defaultDevice };
+    defaults["connections"] = QJsonArray();
+    defaults["general"] = QJsonObject();
+    describe["defaults"] = defaults;
+    model.updateAdapterFromDescribe("modbus", describe);
+
+    QVERIFY(!model.adapterData("modbus")->hasStoredConfig());
+
+    AdapterDeviceSettings w(&model);
+
+    auto* tabs = w.findChild<AddableTabWidget*>();
+    QVERIFY(tabs != nullptr);
+    QCOMPARE(tabs->count(), 1);
+
+    auto* firstTab = qobject_cast<DeviceConfigTab*>(tabs->tabContent(0));
+    QVERIFY(firstTab != nullptr);
+    QCOMPARE(firstTab->values().value("id").toInt(-1), 1);
+
+    emit tabs->addTabRequested();
+
+    QCOMPARE(tabs->count(), 2);
+
+    // The original first device's tab must still be at index 0, unchanged.
+    auto* tab0After = qobject_cast<DeviceConfigTab*>(tabs->tabContent(0));
+    auto* tab1After = qobject_cast<DeviceConfigTab*>(tabs->tabContent(1));
+    QVERIFY(tab0After != nullptr);
+    QVERIFY(tab1After != nullptr);
+
+    QCOMPARE(tab0After, firstTab); // same widget instance, still first
+    QCOMPARE(tab0After->values().value("id").toInt(-1), 1);
+    QCOMPARE(tab1After->values().value("id").toInt(-1), 2);
+}
+
+void TestAdapterDeviceSettings::reopenAfterAdapterSwitchPreservesDeviceOrder()
+{
+    SettingsModel model;
+
+    // SettingsModel::adapterIds() returns adapters alphabetically, not in creation or
+    // usage order, so pick adapter IDs where that alphabetical order differs from the
+    // order devices are actually added in.
+    QJsonObject dev1;
+    dev1["id"] = 1;
+    setupAdapter(model, "adapterA", QJsonArray{ dev1 });
+    setupAdapter(model, "adapterZ", QJsonArray());
+
+    // Session 1: switch device 1 (originally on adapterA) over to adapterZ,
+    // then add a new device (always goes to adapterIds().first() == adapterA),
+    // then accept (as OK would do).
+    {
+        AdapterDeviceSettings w(&model);
+        auto* tabs = w.findChild<AddableTabWidget*>();
+        QVERIFY(tabs != nullptr);
+        QCOMPARE(tabs->count(), 1);
+
+        auto* tab0 = qobject_cast<DeviceConfigTab*>(tabs->tabContent(0));
+        QVERIFY(tab0 != nullptr);
+        QCOMPARE(tab0->deviceId(), 1);
+
+        auto* combo = tab0->findChild<QComboBox*>();
+        QVERIFY(combo != nullptr);
+        int zIdx = combo->findData("adapterZ");
+        QVERIFY(zIdx >= 0);
+        combo->setCurrentIndex(zIdx);
+        QCOMPARE(tab0->adapterId(), QStringLiteral("adapterZ"));
+
+        emit tabs->addTabRequested(); // device 2, goes to adapterA (first() alphabetically)
+        QCOMPARE(tabs->count(), 2);
+        auto* tab1 = qobject_cast<DeviceConfigTab*>(tabs->tabContent(1));
+        QVERIFY(tab1 != nullptr);
+        QCOMPARE(tab1->deviceId(), 2);
+        QCOMPARE(tab1->adapterId(), QStringLiteral("adapterA"));
+
+        w.acceptValues();
+    }
+
+    // Session 2: reopen. Device 1 was added first and should still appear
+    // before device 2 in the tab order.
+    {
+        AdapterDeviceSettings w2(&model);
+        auto* tabs = w2.findChild<AddableTabWidget*>();
+        QVERIFY(tabs != nullptr);
+        QCOMPARE(tabs->count(), 2);
+
+        auto* tab0 = qobject_cast<DeviceConfigTab*>(tabs->tabContent(0));
+        auto* tab1 = qobject_cast<DeviceConfigTab*>(tabs->tabContent(1));
+        QVERIFY(tab0 != nullptr);
+        QVERIFY(tab1 != nullptr);
+
+        QCOMPARE(tab0->deviceId(), 1); // device 1 (added first) must stay first
+        QCOMPARE(tab1->deviceId(), 2);
+    }
+}
+
 QTEST_MAIN(TestAdapterDeviceSettings)

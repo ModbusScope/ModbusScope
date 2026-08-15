@@ -36,6 +36,8 @@ private slots:
     void explicitDeviceAssignmentSurvivesLaterAdapterRedescribe();
     void dialogBuildsTabFromReconciledOwnerNotFirstAdapter();
     void reassigningExistingDeviceOwnerEmitsDeviceListChanged();
+    void addTabAfterDefaultDeviceKeepsOrder();
+    void reopenAfterAdapterSwitchPreservesDeviceOrder();
 #if 0
     void editingDeviceIdInSchemaFormUpdatesCorrectModelDevice();
 #endif
