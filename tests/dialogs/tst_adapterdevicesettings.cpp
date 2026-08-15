@@ -846,8 +846,12 @@ void TestAdapterDeviceSettings::addTabAfterDefaultDeviceKeepsOrder()
 {
     SettingsModel model;
 
-    // Mirrors the real "modbus" adapter: no stored config yet, defaults already
-    // contain one device (id=1), matching SettingsModel's built-in device 1.
+    // Single-adapter sanity check: handleAddTab() appends directly and never needs
+    // reordering here, so this doesn't exercise sortPagesByDeviceId() itself (that's
+    // covered by reopenAfterAdapterSwitchPreservesDeviceOrder below). This just guards
+    // the common case: mirrors the real "modbus" adapter, with no stored config yet and
+    // defaults that already contain one device (id=1), matching SettingsModel's
+    // built-in device 1.
     QJsonObject describe = makeAdapterDescribe("modbus");
     QJsonObject defaultDevice;
     defaultDevice["id"] = 1;
@@ -912,7 +916,7 @@ void TestAdapterDeviceSettings::reopenAfterAdapterSwitchPreservesDeviceOrder()
 
         auto* combo = tab0->findChild<QComboBox*>();
         QVERIFY(combo != nullptr);
-        int zIdx = combo->findData("adapterZ");
+        int zIdx = combo->findData(QStringLiteral("adapterZ"));
         QVERIFY(zIdx >= 0);
         combo->setCurrentIndex(zIdx);
         QCOMPARE(tab0->adapterId(), QStringLiteral("adapterZ"));

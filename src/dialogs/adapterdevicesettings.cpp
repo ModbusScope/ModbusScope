@@ -116,20 +116,24 @@ AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWid
  * alphabetical, not creation order), so a device on an alphabetically-earlier adapter would
  * otherwise be shown before a device added earlier but living on a later adapter. Sorting by
  * ID keeps tab order consistent with device add order across dialog reopens. Tabs without a
- * valid ID (id < 0) keep their relative order and sort after all ID'd tabs.
+ * valid ID (id < 0) keep their relative order and sort after all ID'd tabs. As a side effect,
+ * two devices on the same adapter whose stored JSON array was not already ID-ascending get
+ * normalized to ID order too, since acceptValues() re-derives that array from tab order.
  */
 void AdapterDeviceSettings::sortPagesByDeviceId(QList<QWidget*>& pages, QStringList& names)
 {
+    QList<int> ids;
+    ids.reserve(pages.size());
+    for (auto* page : pages)
+    {
+        auto* tab = qobject_cast<DeviceConfigTab*>(page);
+        const int id = tab ? tab->deviceId() : -1;
+        ids.append(id >= 0 ? id : INT_MAX);
+    }
+
     QList<int> order(pages.size());
     std::iota(order.begin(), order.end(), 0);
-
-    auto deviceIdAt = [&pages](int index) {
-        auto* tab = qobject_cast<DeviceConfigTab*>(pages[index]);
-        const int id = tab ? tab->deviceId() : -1;
-        return id >= 0 ? id : INT_MAX;
-    };
-
-    std::stable_sort(order.begin(), order.end(), [&](int a, int b) { return deviceIdAt(a) < deviceIdAt(b); });
+    std::stable_sort(order.begin(), order.end(), [&ids](int a, int b) { return ids[a] < ids[b]; });
 
     QList<QWidget*> sortedPages;
     QStringList sortedNames;
