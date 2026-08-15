@@ -40,19 +40,10 @@ QJsonObject TestAddRegisterWidget::buildAddressSchema()
                   QStringLiteral("signed 32-bit"), QStringLiteral("32-bit float") };
     dataTypeSchema["default"] = QStringLiteral("16b");
 
-    QJsonObject deviceIdSchema;
-    deviceIdSchema["type"] = QStringLiteral("integer");
-    deviceIdSchema["title"] = QStringLiteral("Device ID");
-    deviceIdSchema["minimum"] = 1;
-    /* Tests inject enum values directly via setSchema; the constructor patches these from SettingsModel */
-    deviceIdSchema["enum"] = QJsonArray{ 1, 2 };
-    deviceIdSchema["x-enumLabels"] = QJsonArray{ QStringLiteral("Device 1"), QStringLiteral("Device 2") };
-
     QJsonObject properties;
     properties["objectType"] = objectTypeSchema;
     properties["address"] = addressField;
     properties["dataType"] = dataTypeSchema;
-    properties["deviceId"] = deviceIdSchema;
 
     QJsonObject schema;
     schema["type"] = QStringLiteral("object");
@@ -124,9 +115,10 @@ void TestAddRegisterWidget::cleanup()
 }
 
 /*!
- * \brief Register a second ("sim") adapter and rebuild the widget with both adapters.
+ * \brief Register a second ("sim") adapter with a device bound to it, and rebuild the widget.
+ * \return The id of the newly created device.
  */
-void TestAddRegisterWidget::addSimAdapter()
+deviceId_t TestAddRegisterWidget::addSimAdapter()
 {
     _settingsModel.setAdapterDataPointSchema("sim", buildSimRegisterSchema());
 
@@ -137,8 +129,21 @@ void TestAddRegisterWidget::addSimAdapter()
     _pMockSimAdapterManager = new MockAdapterManager(&_settingsModel, QStringLiteral("sim"));
     _pMockHub->addManager(QStringLiteral("sim"), _pMockSimAdapterManager);
 
+    const deviceId_t simDeviceId = _settingsModel.addNewDevice();
+    _settingsModel.deviceSettings(simDeviceId)->setAdapterId(QStringLiteral("sim"));
+
     delete _pRegWidget;
     _pRegWidget = new AddRegisterWidget(&_settingsModel, _pMockHub);
+
+    return simDeviceId;
+}
+
+/*!
+ * \brief Returns the cmbDevice index whose item data matches the given device id.
+ */
+int TestAddRegisterWidget::indexForDevice(deviceId_t devId) const
+{
+    return _pRegWidget->_pUi->cmbDevice->findData(QVariant(devId));
 }
 
 void TestAddRegisterWidget::registerDefault()
@@ -149,8 +154,7 @@ void TestAddRegisterWidget::registerDefault()
     _pRegWidget->_pAddressForm->setSchema(
       buildAddressSchema(), QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
                                          { QStringLiteral("address"), 100 },
-                                         { QStringLiteral("dataType"), QStringLiteral("16b") },
-                                         { QStringLiteral("deviceId"), 1 } });
+                                         { QStringLiteral("dataType"), QStringLiteral("16b") } });
 
     GraphData graphData;
     addRegister(graphData, QStringLiteral("${h100}"));
@@ -195,16 +199,21 @@ void TestAddRegisterWidget::registerObjectType()
 
 void TestAddRegisterWidget::registerDevice()
 {
+    const deviceId_t secondDeviceId = _settingsModel.addNewDevice();
+    _settingsModel.deviceSettings(secondDeviceId)->setAdapterId(QStringLiteral("modbus"));
+    delete _pRegWidget;
+    _pRegWidget = new AddRegisterWidget(&_settingsModel, _pMockHub);
+
+    _pRegWidget->_pUi->cmbDevice->setCurrentIndex(indexForDevice(secondDeviceId));
     _pRegWidget->_pAddressForm->setSchema(
       buildAddressSchema(), QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
-                                         { QStringLiteral("address"), 0 },
-                                         { QStringLiteral("deviceId"), 2 } });
+                                         { QStringLiteral("address"), 0 } });
 
     GraphData graphData;
     addRegister(graphData, QStringLiteral("${h0@2}"));
 
     QCOMPARE(graphData.expression(), QStringLiteral("${h0@2}"));
-    QCOMPARE(_pMockAdapterManager->buildCalls[0].deviceId, static_cast<deviceId_t>(2));
+    QCOMPARE(_pMockAdapterManager->buildCalls[0].deviceId, secondDeviceId);
 }
 
 void TestAddRegisterWidget::registerValueAxis()
@@ -255,39 +264,39 @@ void TestAddRegisterWidget::buildExpressionDoesNotInterfereWithOtherConnections(
     QCOMPARE(secondaryReceiveCount, 2);
 }
 
-void TestAddRegisterWidget::adapterComboHiddenWithSingleAdapter()
+void TestAddRegisterWidget::deviceComboHiddenWithSingleDevice()
 {
-    QVERIFY(_pRegWidget->_pUi->cmbAdapter->isHidden());
+    QVERIFY(_pRegWidget->_pUi->cmbDevice->isHidden());
 }
 
-void TestAddRegisterWidget::adapterComboListsAdapters()
+void TestAddRegisterWidget::deviceComboListsDevices()
 {
-    addSimAdapter();
+    const deviceId_t simDeviceId = addSimAdapter();
 
-    QVERIFY(!_pRegWidget->_pUi->cmbAdapter->isHidden());
-    QCOMPARE(_pRegWidget->_pUi->cmbAdapter->count(), 2);
+    QVERIFY(!_pRegWidget->_pUi->cmbDevice->isHidden());
+    QCOMPARE(_pRegWidget->_pUi->cmbDevice->count(), 2);
 
-    /* Adapter IDs are listed alphabetically; label falls back to the ID without describe data */
-    QCOMPARE(_pRegWidget->_pUi->cmbAdapter->itemText(0), QStringLiteral("modbus"));
-    QCOMPARE(_pRegWidget->_pUi->cmbAdapter->itemData(0).toString(), QStringLiteral("modbus"));
-    QCOMPARE(_pRegWidget->_pUi->cmbAdapter->itemText(1), QStringLiteral("Simulator"));
-    QCOMPARE(_pRegWidget->_pUi->cmbAdapter->itemData(1).toString(), QStringLiteral("sim"));
+    /* Devices are listed in ascending id order; label defaults to "Device N" */
+    QCOMPARE(_pRegWidget->_pUi->cmbDevice->itemText(0), QStringLiteral("Device 1"));
+    QCOMPARE(_pRegWidget->_pUi->cmbDevice->itemData(0).value<deviceId_t>(), Device::cFirstDeviceId);
+    QCOMPARE(_pRegWidget->_pUi->cmbDevice->itemText(1), QString("Device %1").arg(simDeviceId));
+    QCOMPARE(_pRegWidget->_pUi->cmbDevice->itemData(1).value<deviceId_t>(), simDeviceId);
 }
 
-void TestAddRegisterWidget::switchAdapterRebuildsSchema()
+void TestAddRegisterWidget::switchDeviceRebuildsSchema()
 {
-    addSimAdapter();
+    const deviceId_t simDeviceId = addSimAdapter();
 
-    _pRegWidget->_pUi->cmbAdapter->setCurrentIndex(1);
+    _pRegWidget->_pUi->cmbDevice->setCurrentIndex(indexForDevice(simDeviceId));
 
     QVERIFY(_pRegWidget->_addressSchema["properties"].toObject().contains(QStringLiteral("channel")));
     QCOMPARE(_pRegWidget->_dataPointDefaults["channel"].toInt(), 3);
     QCOMPARE(_pRegWidget->_pAddressForm->values()["channel"].toInt(), 3);
 }
 
-void TestAddRegisterWidget::switchAdapterWhileMenuOpenResizesPopup()
+void TestAddRegisterWidget::switchDeviceWhileMenuOpenResizesPopup()
 {
-    addSimAdapter();
+    const deviceId_t simDeviceId = addSimAdapter();
 
     /* QWidgetAction::setDefaultWidget() takes ownership of the widget: its destructor
      * unconditionally deletes it. Hand it off and clear the fixture pointer up front - before
@@ -302,24 +311,24 @@ void TestAddRegisterWidget::switchAdapterWhileMenuOpenResizesPopup()
     /* Reparents pWidget into `menu` synchronously (QMenu::actionEvent). */
     menu.addAction(action);
 
-    /* Showing lays out the menu for the first time, sizing it to fit the modbus schema (4 fields). */
+    /* Showing lays out the menu for the first time, sizing it to fit the modbus schema (3 fields). */
     menu.show();
-    const int heightWithFourFields = menu.height();
+    const int heightWithThreeFields = menu.height();
 
-    /* Switch, while the popup is open, from modbus (4 fields) to sim (1 field) */
-    pWidget->_pUi->cmbAdapter->setCurrentIndex(1);
+    /* Switch, while the popup is open, from modbus (3 fields) to sim (1 field) */
+    pWidget->_pUi->cmbDevice->setCurrentIndex(pWidget->_pUi->cmbDevice->findData(QVariant(simDeviceId)));
     const int heightWithOneField = menu.height();
 
     menu.hide();
 
-    QVERIFY(heightWithOneField < heightWithFourFields);
+    QVERIFY(heightWithOneField < heightWithThreeFields);
 }
 
 void TestAddRegisterWidget::switchToLargerSchemaWhileMenuOpenShowsAllFields()
 {
-    addSimAdapter();
+    const deviceId_t simDeviceId = addSimAdapter();
 
-    /* See switchAdapterWhileMenuOpenResizesPopup for why ownership is handed off up front. */
+    /* See switchDeviceWhileMenuOpenResizesPopup for why ownership is handed off up front. */
     AddRegisterWidget* pWidget = _pRegWidget;
     _pRegWidget = nullptr;
 
@@ -329,18 +338,18 @@ void TestAddRegisterWidget::switchToLargerSchemaWhileMenuOpenShowsAllFields()
     menu.addAction(action);
 
     /* Start from sim (1 field) so the switch below grows the form. */
-    pWidget->_pUi->cmbAdapter->setCurrentIndex(1);
+    pWidget->_pUi->cmbDevice->setCurrentIndex(pWidget->_pUi->cmbDevice->findData(QVariant(simDeviceId)));
     menu.show();
 
-    /* Switch, while the popup is open, from sim (1 field) to modbus (4 fields). Newly created
+    /* Switch, while the popup is open, from sim (1 field) to modbus (3 fields). Newly created
      * field widgets used to stay hidden until the next event loop turn, which made QFormLayout
      * treat them as zero-sized and left the popup too small to show the rebuilt form - see
      * SchemaFormWidget::addFieldRow(). Check the state right after the switch, with no event
      * loop turn in between, so a regression here fails immediately instead of only intermittently. */
-    pWidget->_pUi->cmbAdapter->setCurrentIndex(0);
+    pWidget->_pUi->cmbDevice->setCurrentIndex(pWidget->_pUi->cmbDevice->findData(QVariant(Device::cFirstDeviceId)));
 
     QLayout* addressFormLayout = pWidget->_pAddressForm->layout();
-    QCOMPARE(addressFormLayout->count(), 8); /* modbus schema: 4 fields x (label + field) */
+    QCOMPARE(addressFormLayout->count(), 6); /* modbus schema: 3 fields x (label + field) */
     for (int i = 0; i < addressFormLayout->count(); ++i)
     {
         QVERIFY(addressFormLayout->itemAt(i)->widget()->isVisible());
@@ -349,36 +358,38 @@ void TestAddRegisterWidget::switchToLargerSchemaWhileMenuOpenShowsAllFields()
     menu.hide();
 }
 
-void TestAddRegisterWidget::buildExpressionRoutedToSelectedAdapter()
+void TestAddRegisterWidget::buildExpressionRoutedToSelectedDevice()
 {
-    _settingsModel.addDevice(2);
-    _settingsModel.deviceSettings(2)->setAdapterId("sim");
+    const deviceId_t simDeviceId = addSimAdapter();
 
-    addSimAdapter();
-
-    _pRegWidget->_pUi->cmbAdapter->setCurrentIndex(1);
+    _pRegWidget->_pUi->cmbDevice->setCurrentIndex(indexForDevice(simDeviceId));
 
     QSignalSpy spy(_pRegWidget, &AddRegisterWidget::graphDataConfigured);
     clickAdd();
 
     QCOMPARE(_pMockSimAdapterManager->buildCalls.size(), 1);
     QCOMPARE(_pMockAdapterManager->buildCalls.size(), 0);
+    QCOMPARE(_pMockSimAdapterManager->buildCalls[0].deviceId, simDeviceId);
 
     _pMockSimAdapterManager->injectBuildExpressionResult(QStringLiteral("${c3}"));
     QCOMPARE(spy.count(), 1);
 }
 
-void TestAddRegisterWidget::btnAddDisabledWhenSelectedAdapterHasNoDevices()
+void TestAddRegisterWidget::btnAddDisabledWhenSelectedDeviceAdapterUnavailable()
 {
-    addSimAdapter();
+    /* Bind a second device to an adapter id that is never registered in the mock hub */
+    const deviceId_t unavailableDeviceId = _settingsModel.addNewDevice();
+    _settingsModel.deviceSettings(unavailableDeviceId)->setAdapterId(QStringLiteral("unavailable"));
+    delete _pRegWidget;
+    _pRegWidget = new AddRegisterWidget(&_settingsModel, _pMockHub);
 
-    /* Only device 1 exists and it belongs to the modbus adapter */
+    /* Only device 1 is initially selected and it belongs to the modbus adapter */
     QVERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
 
-    _pRegWidget->_pUi->cmbAdapter->setCurrentIndex(1);
+    _pRegWidget->_pUi->cmbDevice->setCurrentIndex(indexForDevice(unavailableDeviceId));
     QVERIFY(!_pRegWidget->_pUi->btnAdd->isEnabled());
 
-    _pRegWidget->_pUi->cmbAdapter->setCurrentIndex(0);
+    _pRegWidget->_pUi->cmbDevice->setCurrentIndex(indexForDevice(Device::cFirstDeviceId));
     QVERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
 }
 

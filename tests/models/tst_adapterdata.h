@@ -28,8 +28,6 @@ private slots:
 
     void deviceAdapterIdDefaultsToModbus();
     void deviceSetAndGetAdapterId();
-    void deviceListForAdapterFiltersCorrectly();
-    void deviceListForAdapterUnknownReturnsEmpty();
 
     void maxDevicesFromSchemaReturnsIntMaxWhenAbsent();
     void maxDevicesFromSchemaReturnsValue();

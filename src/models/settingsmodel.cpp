@@ -126,21 +126,6 @@ QList<deviceId_t> SettingsModel::deviceList()
     return list;
 }
 
-QList<deviceId_t> SettingsModel::deviceListForAdapter(const QString& adapterId)
-{
-    QList<deviceId_t> list;
-
-    for (auto i = _devices.cbegin(), end = _devices.cend(); i != end; ++i)
-    {
-        if (i.value().adapterId() == adapterId)
-        {
-            list.append(i.key());
-        }
-    }
-
-    return list;
-}
-
 /*! \brief Return the adapter ID that owns the given device.
  *
  * When the device is unknown, the adapter ID of a default-constructed Device
