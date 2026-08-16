@@ -56,6 +56,10 @@ AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWid
         }
     }
 
+    /* Must run before the tab-building loop below: that loop's ownership check assumes
+     * device ownership is already reconciled. */
+    pSettingsModel->reconcileDevicesWithAdapters();
+
     QList<QWidget*> pages;
     QStringList names;
     QSet<deviceId_t> seenDeviceIds;
@@ -75,9 +79,18 @@ AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWid
                 {
                     continue;
                 }
+                if (pSettingsModel->hasDevice(devId) && pSettingsModel->adapterIdForDevice(devId) != adapterId)
+                {
+                    /* reconcileDevicesWithAdapters() above already resolved this device ID to a
+                     * different adapter (e.g. that adapter has an explicit stored config, while
+                     * this one still only shares the ID in its untouched defaults). Skip it here
+                     * so its tab is built from the reconciled owner's own declaration below,
+                     * instead of from this adapter's declaration purely because it was iterated
+                     * first — building it from the wrong adapter would make acceptValues() write
+                     * an empty devices array back to the real owner, wiping its stored config. */
+                    continue;
+                }
                 seenDeviceIds.insert(devId);
-                pSettingsModel->addDevice(devId);
-                pSettingsModel->deviceSettings(devId)->setAdapterId(adapterId);
             }
             auto* tab = new DeviceConfigTab(pSettingsModel, adapterId, deviceObj, _pDeviceTabs);
             connectTabNameTracking(tab);

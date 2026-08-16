@@ -71,16 +71,19 @@ private slots:
     void buildExpressionEmptyResponseIgnored();
     void buildExpressionDoesNotInterfereWithOtherConnections();
 
-    void adapterComboHiddenWithSingleAdapter();
-    void adapterComboListsAdapters();
-    void switchAdapterRebuildsSchema();
-    void buildExpressionRoutedToSelectedAdapter();
-    void btnAddDisabledWhenSelectedAdapterHasNoDevices();
+    void deviceComboVisibleWithSingleDevice();
+    void deviceComboListsDevices();
+    void switchDeviceRebuildsSchema();
+    void switchDeviceWhileMenuOpenResizesPopup();
+    void switchToLargerSchemaWhileMenuOpenShowsAllFields();
+    void buildExpressionRoutedToSelectedDevice();
+    void btnAddDisabledWhenSelectedDeviceAdapterUnavailable();
 
 private:
     void clickAdd();
     void addRegister(GraphData& graphData, const QString& expression);
-    void addSimAdapter();
+    deviceId_t addSimAdapter();
+    int indexForDevice(deviceId_t devId) const;
     static QJsonObject buildAddressSchema();
     static QJsonObject buildTestRegisterSchema();
     static QJsonObject buildSimRegisterSchema();

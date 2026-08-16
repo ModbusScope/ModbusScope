@@ -8,14 +8,16 @@
 #include "models/device.h"
 #include "models/settingsmodel.h"
 
+#include <QCoreApplication>
 #include <QJsonArray>
+#include <QMenu>
+#include <QResizeEvent>
 #include <QVBoxLayout>
 
 /*!
- * \brief Constructs the widget and populates it from the selected adapter's register schema.
+ * \brief Constructs the widget and populates it from the selected device's register schema.
  *
- * The adapter selector is filled with all discovered adapters and hidden when
- * only a single adapter is available.
+ * The device selector is filled with all configured devices.
  * \param pSettingsModel Pointer to the application settings model.
  * \param pAdapterHub    Pointer to the adapter hub used to look up adapter managers.
  * \param parent         Optional parent widget.
@@ -40,20 +42,10 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel, AdapterHub* 
     addressLayout->setContentsMargins(0, 0, 0, 0);
     addressLayout->addWidget(_pAddressForm);
 
-    const QStringList adapterIds = _pAdapterHub->adapterIds();
-    for (const QString& adapterId : adapterIds)
-    {
-        QString label = _pSettingsModel->adapterData(adapterId)->name();
-        if (label.isEmpty())
-        {
-            label = adapterId;
-        }
-        _pUi->cmbAdapter->addItem(label, adapterId);
-    }
-    _pUi->cmbAdapter->setVisible(adapterIds.size() > 1);
+    populateDeviceCombo();
 
     /* Connect after populating to avoid spurious slot calls during addItem */
-    connect(_pUi->cmbAdapter, &QComboBox::currentIndexChanged, this, &AddRegisterWidget::onAdapterSelectionChanged);
+    connect(_pUi->cmbDevice, &QComboBox::currentIndexChanged, this, &AddRegisterWidget::onDeviceSelectionChanged);
 
     connect(_pUi->btnAdd, &QPushButton::clicked, this, &AddRegisterWidget::handleResultAccept);
 
@@ -61,8 +53,20 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel, AdapterHub* 
     _axisGroup.addButton(_pUi->radioPrimary);
     _axisGroup.addButton(_pUi->radioSecondary);
 
-    applyAdapter(selectedAdapterId());
+    applyDevice(selectedDeviceId());
     resetFields();
+}
+
+/*!
+ * \brief Fills the device combo box with all configured devices.
+ */
+void AddRegisterWidget::populateDeviceCombo()
+{
+    const QList<deviceId_t> deviceIds = _pSettingsModel->deviceList();
+    for (deviceId_t devId : deviceIds)
+    {
+        _pUi->cmbDevice->addItem(_pSettingsModel->deviceSettings(devId)->name(), QVariant(devId));
+    }
 }
 
 AddRegisterWidget::~AddRegisterWidget()
@@ -71,59 +75,90 @@ AddRegisterWidget::~AddRegisterWidget()
 }
 
 /*!
- * \brief Build the address schema patched with available devices as a deviceId enum.
- * \param adapterId Adapter whose data point schema and device list to use.
- * \return The patched schema object ready for SchemaFormWidget.
+ * \brief Build the address schema with the adapter's own deviceId field stripped out.
+ *
+ * The device is already fixed by the outer device selection, so the adapter's
+ * addressSchema (which may declare its own generic deviceId field) must not
+ * render a second, redundant device picker inside the address form.
+ * \param adapterData Adapter whose data point schema to use.
+ * \return The schema object ready for SchemaFormWidget, without a deviceId property.
  */
-QJsonObject AddRegisterWidget::buildSchema(const QString& adapterId) const
+QJsonObject AddRegisterWidget::buildSchema(const AdapterData* adapterData) const
 {
-    const AdapterData* adapterData = _pSettingsModel->adapterData(adapterId);
     QJsonObject schema = adapterData->dataPointSchema().value("addressSchema").toObject();
-
-    const auto deviceList = _pSettingsModel->deviceListForAdapter(adapterId);
-    QJsonArray deviceEnum;
-    QJsonArray deviceLabels;
-    for (deviceId_t devId : deviceList)
-    {
-        deviceEnum.append(static_cast<int>(devId));
-        deviceLabels.append(tr("Device %1").arg(devId));
-    }
 
     QJsonObject propsObj = schema.value("properties").toObject();
     if (propsObj.contains(QStringLiteral("deviceId")))
     {
-        QJsonObject deviceIdProp = propsObj.value("deviceId").toObject();
-        deviceIdProp["enum"] = deviceEnum;
-        deviceIdProp["x-enumLabels"] = deviceLabels;
-        propsObj["deviceId"] = deviceIdProp;
+        propsObj.remove(QStringLiteral("deviceId"));
         schema["properties"] = propsObj;
+
+        QJsonArray required = schema.value("required").toArray();
+        for (int i = 0; i < required.size(); ++i)
+        {
+            if (required.at(i).toString() == QStringLiteral("deviceId"))
+            {
+                required.removeAt(i);
+                schema["required"] = required;
+                break;
+            }
+        }
     }
 
     return schema;
 }
 
 /*!
- * \brief Switch the widget to the given adapter's register schema.
+ * \brief Switch the widget to the given device's adapter and register schema.
  *
- * Rebuilds the address form from the adapter's data point schema and updates
- * the add button state based on manager and device availability.
- * \param adapterId Identifier of the adapter to use.
+ * Rebuilds the address form from the device's adapter's data point schema and
+ * updates the add button state based on manager availability. Also resizes
+ * the enclosing popup menu, if any, to fit the rebuilt form.
+ * \param deviceId Identifier of the device to use.
  */
-void AddRegisterWidget::applyAdapter(const QString& adapterId)
+void AddRegisterWidget::applyDevice(deviceId_t deviceId)
 {
-    _pAdapterManager = _pAdapterHub->adapterManager(adapterId);
-    if (_pAdapterManager == nullptr)
+    if (_pUi->cmbDevice->count() == 0)
     {
+        _pAdapterManager = nullptr;
+        _pUi->lblProtocol->clear();
         _pUi->btnAdd->setEnabled(false);
         return;
     }
 
-    const QJsonObject dataPointSchema = _pSettingsModel->adapterData(adapterId)->dataPointSchema();
-    _addressSchema = buildSchema(adapterId);
-    _dataPointDefaults = dataPointSchema["defaults"].toObject();
+    const QString adapterId = _pSettingsModel->adapterIdForDevice(deviceId);
+    _pAdapterManager = _pAdapterHub->adapterManager(adapterId);
+
+    if (_pAdapterManager == nullptr)
+    {
+        /* Adapter isn't currently discovered/running: show the bare id rather than
+         * looking it up (adapterData() would otherwise insert a phantom entry for
+         * an id that was never actually registered), and clear the stale form from
+         * whichever device was selected before. */
+        _pUi->lblProtocol->setText(tr("Protocol: %1").arg(adapterId));
+        _addressSchema = QJsonObject();
+        _dataPointDefaults = QJsonObject();
+        rebuildAddressForm();
+        _pUi->btnAdd->setEnabled(false);
+        resizeContainingMenu();
+        return;
+    }
+
+    const AdapterData* adapterData = _pSettingsModel->adapterData(adapterId);
+    QString protocolLabel = adapterData->name();
+    if (protocolLabel.isEmpty())
+    {
+        protocolLabel = adapterId;
+    }
+    _pUi->lblProtocol->setText(tr("Protocol: %1").arg(protocolLabel));
+
+    _addressSchema = buildSchema(adapterData);
+    _dataPointDefaults = adapterData->dataPointSchema().value("defaults").toObject();
     rebuildAddressForm();
 
-    _pUi->btnAdd->setEnabled(isAdapterUsable(adapterId));
+    _pUi->btnAdd->setEnabled(isSelectionUsable());
+
+    resizeContainingMenu();
 }
 
 /*!
@@ -135,34 +170,57 @@ void AddRegisterWidget::rebuildAddressForm()
 }
 
 /*!
- * \brief Returns whether the given adapter has a manager and at least one configured device.
- * \param adapterId Identifier of the adapter to check.
- */
-bool AddRegisterWidget::isAdapterUsable(const QString& adapterId) const
-{
-    return (_pAdapterHub->adapterManager(adapterId) != nullptr) &&
-           !_pSettingsModel->deviceListForAdapter(adapterId).isEmpty();
-}
-
-/*!
- * \brief Returns the adapter ID of the adapter currently selected in the adapter combo box.
- */
-QString AddRegisterWidget::selectedAdapterId() const
-{
-    return _pUi->cmbAdapter->currentData().toString();
-}
-
-/*!
- * \brief Rebuilds the address form when another adapter is selected.
+ * \brief Resizes the enclosing popup menu to fit this widget's current content.
  *
- * The curve name and axis selection are kept so switching adapters only
+ * When hosted as a QWidgetAction's default widget inside a QToolButton's popup menu (as
+ * RegisterDialog does for btnAdd), QMenu caches its action layout and only recomputes it for
+ * specific events (its action list changing, being shown, or being resized) - it has no way to
+ * know an already-embedded widget's own content changed. Without this, switching devices while
+ * the popup is open leaves it clipped to whichever device's form was shown first. A synthetic resize
+ * event forces QMenu to mark its cached layout dirty and recompute it, so the sizeHint() below
+ * reflects the rebuilt form instead of stale, cached action rects.
+ */
+void AddRegisterWidget::resizeContainingMenu()
+{
+    auto* menu = qobject_cast<QMenu*>(window());
+    if (menu == nullptr)
+    {
+        return;
+    }
+
+    QResizeEvent resizeEvent(menu->size(), menu->size());
+    QCoreApplication::sendEvent(menu, &resizeEvent);
+
+    menu->resize(menu->sizeHint());
+}
+
+/*!
+ * \brief Returns whether the currently selected device's adapter has a live manager.
+ */
+bool AddRegisterWidget::isSelectionUsable() const
+{
+    return _pAdapterManager != nullptr;
+}
+
+/*!
+ * \brief Returns the ID of the device currently selected in the device combo box.
+ */
+deviceId_t AddRegisterWidget::selectedDeviceId() const
+{
+    return static_cast<deviceId_t>(_pUi->cmbDevice->currentData().toUInt());
+}
+
+/*!
+ * \brief Rebuilds the address form when another device is selected.
+ *
+ * The curve name and axis selection are kept so switching devices only
  * replaces the address fields.
  * \param index Index of the newly selected combo box entry (unused).
  */
-void AddRegisterWidget::onAdapterSelectionChanged(int index)
+void AddRegisterWidget::onDeviceSelectionChanged(int index)
 {
     Q_UNUSED(index);
-    applyAdapter(selectedAdapterId());
+    applyDevice(selectedDeviceId());
 }
 
 void AddRegisterWidget::handleResultAccept()
@@ -176,8 +234,7 @@ void AddRegisterWidget::handleResultAccept()
 
     QJsonObject allValues = _pAddressForm->values();
     const QString dataType = allValues.take(QStringLiteral("dataType")).toString();
-    const deviceId_t deviceId =
-      static_cast<deviceId_t>(allValues.take(QStringLiteral("deviceId")).toInt(Device::cFirstDeviceId));
+    const deviceId_t deviceId = selectedDeviceId();
 
     _pUi->btnAdd->setEnabled(false);
     connect(_pAdapterManager, &AdapterManager::buildExpressionResult, this, &AddRegisterWidget::onBuildExpressionResult,
@@ -188,8 +245,8 @@ void AddRegisterWidget::handleResultAccept()
 void AddRegisterWidget::onBuildExpressionResult(const QString& expression)
 {
     /* Recompute instead of unconditionally enabling: the user may have switched
-     * to an adapter without devices while the request was in flight */
-    _pUi->btnAdd->setEnabled(isAdapterUsable(selectedAdapterId()));
+     * to a device whose adapter is unavailable while the request was in flight */
+    _pUi->btnAdd->setEnabled(isSelectionUsable());
 
     if (expression.isEmpty())
     {
@@ -201,6 +258,7 @@ void AddRegisterWidget::onBuildExpressionResult(const QString& expression)
 
     resetFields();
     rebuildAddressForm();
+    resizeContainingMenu();
 }
 
 void AddRegisterWidget::resetFields()

@@ -1,6 +1,9 @@
 #include "settingsmodel.h"
 #include "util/scopelogging.h"
 
+#include <QJsonArray>
+#include <QSet>
+
 namespace {
 
 /*!
@@ -126,21 +129,6 @@ QList<deviceId_t> SettingsModel::deviceList()
     return list;
 }
 
-QList<deviceId_t> SettingsModel::deviceListForAdapter(const QString& adapterId)
-{
-    QList<deviceId_t> list;
-
-    for (auto i = _devices.cbegin(), end = _devices.cend(); i != end; ++i)
-    {
-        if (i.value().adapterId() == adapterId)
-        {
-            list.append(i.key());
-        }
-    }
-
-    return list;
-}
-
 /*! \brief Return the adapter ID that owns the given device.
  *
  * When the device is unknown, the adapter ID of a default-constructed Device
@@ -241,8 +229,13 @@ bool SettingsModel::isMbcCompatible() const
 
 /*! \brief Persist a new configuration for an adapter and notify observers.
  *
- * Sets the adapter's current config and marks it as having a stored config,
- * then emits adapterDataChanged() so listeners can react.
+ * Sets the adapter's current config and marks it as having a stored config, then emits
+ * adapterDataChanged() so listeners can react. Deliberately does not reconcile device
+ * ownership itself: a device named in the stored config may not be meant to exist in
+ * \c _devices yet (e.g. a project file's devices section can omit a device the adapter
+ * config still lists) — registration and ownership stay driven by
+ * reconcileDevicesWithAdapters()'s own trigger points (updateAdapterFromDescribe() and
+ * AdapterDeviceSettings opening), not by every config write.
  * \param adapterId  The adapter identifier string.
  * \param config     The configuration JSON object to store.
  */
@@ -278,6 +271,7 @@ void SettingsModel::updateAdapterFromDescribe(const QString& adapterId, const QJ
         _adapters[adapterId] = AdapterData();
     }
     _adapters[adapterId].updateFromDescribe(describeResult);
+    reconcileDevicesWithAdapters();
 
     const QString version = _adapters[adapterId].version();
     QString versionTxt("unknown version");
@@ -302,6 +296,103 @@ void SettingsModel::updateAdapterFromDescribe(const QString& adapterId, const QJ
     }
 
     emit adapterDataChanged(adapterId);
+}
+
+/*! \brief Claim each adapter-declared default device ID for the adapter that should own it.
+ *
+ * For every adapter with known schema, walks its effective config's device list and, for any
+ * device ID not already claimed earlier in the resulting order, ensures the device exists and
+ * assigns it that adapter. This keeps a device ID shared by two adapters' defaults (e.g. both
+ * declaring device 1) consistently assigned to one adapter as soon as adapter data is available,
+ * instead of leaving it on Device's constructor default until the user opens Settings.
+ *
+ * Adapters with an explicitly saved config (hasStoredConfig()) are considered before adapters
+ * still on raw, never-configured defaults, so a device the user deliberately assigned to one
+ * adapter can't later be reclaimed by another adapter that merely happens to share that device ID
+ * in its untouched defaults — this method re-runs on every describe, including reconnects, so a
+ * once-off "first adapter alphabetically wins" rule would let a later reconnect silently steal a
+ * device back from its explicitly configured owner. Within each of those two groups, adapters are
+ * considered in adapterIds() order, so a device ID shared by two equally-unconfigured (or two
+ * equally-configured) adapters still resolves deterministically, just not meaningfully — that
+ * remaining tie only matters before either adapter has been explicitly configured.
+ *
+ * Any code that needs to know which adapter owns a device must read it back via
+ * deviceSettings()/adapterIdForDevice() rather than re-deriving ownership itself (e.g. by picking
+ * the first adapter that declares a given device ID) — that would disagree with this method's
+ * tie-break and could silently discard the reconciled owner's config.
+ *
+ * Deliberately does not remove devices no adapter currently declares — that pruning is only safe
+ * once every relevant adapter's config is known, whereas this runs incrementally as each adapter
+ * describes and must not delete devices belonging to adapters that simply haven't described yet.
+ */
+void SettingsModel::reconcileDevicesWithAdapters()
+{
+    QStringList validAdapterIds;
+    const QStringList allAdapterIds = adapterIds();
+    for (const auto& id : allAdapterIds)
+    {
+        if (!_adapters.value(id).schema().isEmpty())
+        {
+            validAdapterIds.append(id);
+        }
+    }
+
+    QStringList orderedAdapterIds;
+    for (const auto& id : validAdapterIds)
+    {
+        if (_adapters.value(id).hasStoredConfig())
+        {
+            orderedAdapterIds.append(id);
+        }
+    }
+    for (const auto& id : validAdapterIds)
+    {
+        if (!_adapters.value(id).hasStoredConfig())
+        {
+            orderedAdapterIds.append(id);
+        }
+    }
+
+    QSet<deviceId_t> seenDeviceIds;
+    bool ownerChanged = false;
+    for (const auto& adapterId : orderedAdapterIds)
+    {
+        const QJsonArray devices = _adapters.value(adapterId).effectiveConfig().value("devices").toArray();
+        for (const auto& device : devices)
+        {
+            const int id = device.toObject().value("id").toInt(-1);
+            if (id < 0)
+            {
+                continue;
+            }
+
+            const deviceId_t devId = static_cast<deviceId_t>(id);
+            if (seenDeviceIds.contains(devId))
+            {
+                continue;
+            }
+            seenDeviceIds.insert(devId);
+
+            const bool alreadyKnownDevice = _devices.contains(devId);
+            addDevice(devId);
+            if (deviceSettings(devId)->adapterId() != adapterId)
+            {
+                deviceSettings(devId)->setAdapterId(adapterId);
+                if (alreadyKnownDevice)
+                {
+                    /* addDevice() only emits deviceListChanged() for brand-new devices; an
+                     * already-known device silently changing owner needs its own notification,
+                     * deferred until the end so a pass reassigning several devices only emits once. */
+                    ownerChanged = true;
+                }
+            }
+        }
+    }
+
+    if (ownerChanged)
+    {
+        emit deviceListChanged();
+    }
 }
 
 bool SettingsModel::hasDevice(deviceId_t devId) const

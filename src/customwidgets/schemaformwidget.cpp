@@ -70,14 +70,7 @@ void SchemaFormWidget::setSchema(const QJsonObject& schema, const QJsonObject& v
 
     for (const auto& key : orderedKeys)
     {
-        QJsonObject propSchema = properties.value(key).toObject();
-        QJsonValue currentValue = values.value(key);
-
-        QString label = propSchema.value("title").toString(key);
-        QWidget* widget = createWidgetForProperty(propSchema, currentValue);
-        wireFieldChanged(key, widget);
-        _fields.append({ key, widget });
-        _pFormLayout->addRow(label + ":", widget);
+        addFieldRow(key, properties.value(key).toObject(), values.value(key));
     }
 
     if (!parseConditional(schema))
@@ -85,26 +78,19 @@ void SchemaFormWidget::setSchema(const QJsonObject& schema, const QJsonObject& v
         return;
     }
 
+    /* addFieldRow() shows every row unconditionally, including these then/else fields, so the
+     * applyConditional() call below - which runs synchronously before this function returns -
+     * must stay in place to hide whichever branch isn't active. */
     const QJsonObject thenProps = schema.value("then").toObject().value("properties").toObject();
     for (const QString& key : std::as_const(_thenKeys))
     {
-        QJsonObject propSchema = thenProps.value(key).toObject();
-        QString label = propSchema.value("title").toString(key);
-        QWidget* widget = createWidgetForProperty(propSchema, values.value(key));
-        wireFieldChanged(key, widget);
-        _fields.append({ key, widget });
-        _pFormLayout->addRow(label + ":", widget);
+        addFieldRow(key, thenProps.value(key).toObject(), values.value(key));
     }
 
     const QJsonObject elseProps = schema.value("else").toObject().value("properties").toObject();
     for (const QString& key : std::as_const(_elseKeys))
     {
-        QJsonObject propSchema = elseProps.value(key).toObject();
-        QString label = propSchema.value("title").toString(key);
-        QWidget* widget = createWidgetForProperty(propSchema, values.value(key));
-        wireFieldChanged(key, widget);
-        _fields.append({ key, widget });
-        _pFormLayout->addRow(label + ":", widget);
+        addFieldRow(key, elseProps.value(key).toObject(), values.value(key));
     }
 
     QComboBox* triggerCombo = nullptr;
@@ -125,6 +111,34 @@ void SchemaFormWidget::setSchema(const QJsonObject& schema, const QJsonObject& v
     else
     {
         applyConditional(values.value(_conditionalTriggerKey).toVariant().toString());
+    }
+}
+
+/*!
+ * \brief Builds the widget for \a key, wires it up, and adds it as a row.
+ *
+ * Explicitly shows the new field widget and its label: a widget created under an
+ * already-visible parent doesn't inherit visibility on its own (it only picks it up on
+ * the next event loop turn, when its ancestor's deferred child-show catches up), so
+ * QFormLayout treats it as hidden and reports a QSize(0, 0) row until then. Left alone,
+ * that made AddRegisterWidget::resizeContainingMenu()'s immediate sizeHint() query see a
+ * too-small form whenever setSchema() added more rows than the previous schema had.
+ * \param key        Schema property key, used to look up the field's current value later.
+ * \param propSchema Schema fragment describing this single property.
+ * \param value      Current value for the property.
+ */
+void SchemaFormWidget::addFieldRow(const QString& key, const QJsonObject& propSchema, const QJsonValue& value)
+{
+    QString label = propSchema.value("title").toString(key);
+    QWidget* widget = createWidgetForProperty(propSchema, value);
+    wireFieldChanged(key, widget);
+    _fields.append({ key, widget });
+    _pFormLayout->addRow(label + ":", widget);
+
+    widget->show();
+    if (QWidget* fieldLabel = _pFormLayout->labelForField(widget))
+    {
+        fieldLabel->show();
     }
 }
 

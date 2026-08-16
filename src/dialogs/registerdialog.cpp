@@ -81,7 +81,7 @@ RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel,
     connect(_pUi->btnRemove, &QPushButton::released, this, &RegisterDialog::removeRegisterRow);
     connect(_pGraphDataModel, &GraphDataModel::rowsInserted, this, &RegisterDialog::onRegisterInserted);
 
-    if (!_pAdapterHub->adapterIds().isEmpty())
+    if (!_pSettingsModel->deviceList().isEmpty())
     {
         auto registerPopupMenu = new AddRegisterWidget(_pSettingsModel, _pAdapterHub, this);
         connect(registerPopupMenu, &AddRegisterWidget::graphDataConfigured, this, &RegisterDialog::addRegister);
@@ -165,23 +165,20 @@ void RegisterDialog::handleExpressionEdit(const QModelIndex& index)
 /*!
  * \brief Determine which adapter manager drives the default new-register expression.
  *
- * The modbus adapter is preferred to keep the existing single-adapter behavior;
- * when it is not available the first discovered adapter is used.
- * \return Pointer to the manager, or nullptr when no adapters are available.
+ * Uses the first configured device's adapter, consistent with AddRegisterWidget's
+ * device-first selection.
+ * \return Pointer to the manager, or nullptr when no devices are configured.
  */
 AdapterManager* RegisterDialog::defaultExpressionManager() const
 {
-    AdapterManager* pManager = _pAdapterHub->adapterManager(cModbusAdapterId);
-    if (pManager == nullptr)
+    const QList<deviceId_t> deviceIds = _pSettingsModel->deviceList();
+    if (deviceIds.isEmpty())
     {
-        const QStringList adapterIds = _pAdapterHub->adapterIds();
-        if (!adapterIds.isEmpty())
-        {
-            pManager = _pAdapterHub->adapterManager(adapterIds.first());
-        }
+        return nullptr;
     }
 
-    return pManager;
+    const QString adapterId = _pSettingsModel->adapterIdForDevice(deviceIds.first());
+    return _pAdapterHub->adapterManager(adapterId);
 }
 
 int RegisterDialog::selectedRowAfterDelete(int deletedStartIndex, int rowCnt)

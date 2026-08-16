@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QWidget>
 
+class AdapterData;
 class AdapterHub;
 class AdapterManager;
 class SchemaFormWidget;
@@ -33,16 +34,18 @@ signals:
 private slots:
     void handleResultAccept();
     void onBuildExpressionResult(const QString& expression);
-    void onAdapterSelectionChanged(int index);
+    void onDeviceSelectionChanged(int index);
 
 private:
     void resetFields();
     void collectPendingGraphData();
-    void applyAdapter(const QString& adapterId);
+    void populateDeviceCombo();
+    void applyDevice(deviceId_t deviceId);
     void rebuildAddressForm();
-    bool isAdapterUsable(const QString& adapterId) const;
-    QString selectedAdapterId() const;
-    QJsonObject buildSchema(const QString& adapterId) const;
+    void resizeContainingMenu();
+    bool isSelectionUsable() const;
+    deviceId_t selectedDeviceId() const;
+    QJsonObject buildSchema(const AdapterData* adapterData) const;
 
     Ui::AddRegisterWidget* _pUi;
     SchemaFormWidget* _pAddressForm;

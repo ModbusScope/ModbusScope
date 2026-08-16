@@ -55,6 +55,8 @@ private slots:
 private:
     QWidget* createWidgetForProperty(const QJsonObject& propSchema, const QJsonValue& value);
 
+    void addFieldRow(const QString& key, const QJsonObject& propSchema, const QJsonValue& value);
+
     //! If \a widget is a QLineEdit, connects its textChanged to emit fieldChanged(\a key).
     void wireFieldChanged(const QString& key, QWidget* widget);
 

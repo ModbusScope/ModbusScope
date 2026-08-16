@@ -34,7 +34,6 @@ public:
     bool hasDevice(deviceId_t devId) const;
 
     QList<deviceId_t> deviceList();
-    QList<deviceId_t> deviceListForAdapter(const QString& adapterId);
     QString adapterIdForDevice(deviceId_t devId) const;
 
     const AdapterData* adapterData(const QString& adapterId);
@@ -45,6 +44,7 @@ public:
     void setAdapterCurrentConfig(const QString& adapterId, const QJsonObject& config);
     void updateAdapterFromDescribe(const QString& adapterId, const QJsonObject& describeResult);
     void setAdapterDataPointSchema(const QString& adapterId, const QJsonObject& schema);
+    void reconcileDevicesWithAdapters();
 
     static const QString defaultLogPath()
     {
