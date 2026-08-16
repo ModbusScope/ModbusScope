@@ -379,21 +379,23 @@ device, so expression syntax stays entirely within the adapter.
 
 ### `adapter.expressionHelp`
 
-Returns static HTML help text describing the data point expression syntax. The
-core displays this in the expression editor info panel so the explanation stays
-co-located with the adapter that owns the syntax.
+Returns a static HTML fragment describing the adapter-specific data point
+addressing syntax. The core prepends its own generic expression syntax
+explanation (operators, number formats) and displays the combined HTML in the
+expression editor info panel, so the adapter only needs to document the
+syntax it owns.
 
 **Params:** `{}` (none required)
 
 **Result:**
 
 ```json
-{ "helpText": "<html>...</html>" }
+{ "helpText": "<p>...</p>" }
 ```
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `helpText` | string | HTML string suitable for display in a rich-text label |
+| `helpText` | string | HTML fragment (no `<html>`/`<body>` wrapper) suitable for embedding in a rich-text label |
 
 ---
 
