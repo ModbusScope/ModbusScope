@@ -264,9 +264,9 @@ void TestAddRegisterWidget::buildExpressionDoesNotInterfereWithOtherConnections(
     QCOMPARE(secondaryReceiveCount, 2);
 }
 
-void TestAddRegisterWidget::deviceComboHiddenWithSingleDevice()
+void TestAddRegisterWidget::deviceComboVisibleWithSingleDevice()
 {
-    QVERIFY(_pRegWidget->_pUi->cmbDevice->isHidden());
+    QVERIFY(!_pRegWidget->_pUi->cmbDevice->isHidden());
 }
 
 void TestAddRegisterWidget::deviceComboListsDevices()

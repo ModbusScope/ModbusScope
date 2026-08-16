@@ -71,7 +71,7 @@ private slots:
     void buildExpressionEmptyResponseIgnored();
     void buildExpressionDoesNotInterfereWithOtherConnections();
 
-    void deviceComboHiddenWithSingleDevice();
+    void deviceComboVisibleWithSingleDevice();
     void deviceComboListsDevices();
     void switchDeviceRebuildsSchema();
     void switchDeviceWhileMenuOpenResizesPopup();

@@ -17,8 +17,7 @@
 /*!
  * \brief Constructs the widget and populates it from the selected device's register schema.
  *
- * The device selector is filled with all configured devices and hidden when
- * only a single device is available.
+ * The device selector is filled with all configured devices.
  * \param pSettingsModel Pointer to the application settings model.
  * \param pAdapterHub    Pointer to the adapter hub used to look up adapter managers.
  * \param parent         Optional parent widget.
@@ -60,9 +59,6 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel, AdapterHub* 
 
 /*!
  * \brief Fills the device combo box with all configured devices.
- *
- * The combo is hidden when only a single device is configured, since there is
- * nothing to choose between.
  */
 void AddRegisterWidget::populateDeviceCombo()
 {
@@ -71,7 +67,6 @@ void AddRegisterWidget::populateDeviceCombo()
     {
         _pUi->cmbDevice->addItem(_pSettingsModel->deviceSettings(devId)->name(), QVariant(devId));
     }
-    _pUi->cmbDevice->setVisible(deviceIds.size() > 1);
 }
 
 AddRegisterWidget::~AddRegisterWidget()
