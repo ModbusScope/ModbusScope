@@ -236,7 +236,14 @@ void TestExpressionsDialog::helpRoutedToSelectedAdapter()
     QCOMPARE(pSimManager->helpRequestCount, 0);
 
     _pMockAdapterManager->injectExpressionHelp(QStringLiteral("Modbus help"));
-    QCOMPARE(pInfoLabel->text(), QStringLiteral("Modbus help"));
+    /* Label combines the core's generic expression info with the adapter's fragment,
+     * wrapped in a single well-formed document */
+    QVERIFY(pInfoLabel->text().startsWith(QStringLiteral("<html><head/><body>")));
+    QVERIFY(pInfoLabel->text().endsWith(QStringLiteral("</body></html>")));
+    QVERIFY(pInfoLabel->text().contains(QStringLiteral("Expression Information")));
+    QVERIFY(pInfoLabel->text().contains(QStringLiteral("Modbus help")));
+    QVERIFY(pInfoLabel->text().indexOf(QStringLiteral("Expression Information")) <
+            pInfoLabel->text().indexOf(QStringLiteral("Modbus help")));
 
     auto* pCombo = _pDialog->findChild<QComboBox*>("cmbHelpAdapter");
     QVERIFY(pCombo != nullptr);
@@ -247,11 +254,13 @@ void TestExpressionsDialog::helpRoutedToSelectedAdapter()
     QCOMPARE(pInfoLabel->text(), QString());
 
     pSimManager->injectExpressionHelp(QStringLiteral("Sim help"));
-    QCOMPARE(pInfoLabel->text(), QStringLiteral("Sim help"));
+    QVERIFY(pInfoLabel->text().contains(QStringLiteral("Sim help")));
+    QVERIFY(!pInfoLabel->text().contains(QStringLiteral("Modbus help")));
 
     /* A late response from the deselected modbus adapter is ignored */
     _pMockAdapterManager->injectExpressionHelp(QStringLiteral("Stale modbus help"));
-    QCOMPARE(pInfoLabel->text(), QStringLiteral("Sim help"));
+    QVERIFY(pInfoLabel->text().contains(QStringLiteral("Sim help")));
+    QVERIFY(!pInfoLabel->text().contains(QStringLiteral("Stale modbus help")));
 }
 
 QTEST_MAIN(TestExpressionsDialog)

@@ -447,11 +447,12 @@ and unsigned 16-bit.
 **Result:**
 
 ```json
-{ "helpText": "<html>...</html>" }
+{ "helpText": "<p>...</p>" }
 ```
 
-The returned HTML documents the Modbus register expression syntax defined under [`adapter.start`](#adapterstart)
-(address prefixes, optional `deviceId` and `type`, and the list of type values).
+`helpText` is an HTML fragment (no `<html>`/`<body>` wrapper) documenting the Modbus register expression syntax
+defined under [`adapter.start`](#adapterstart) (address prefixes, optional `deviceId` and `type`, and the list of
+type values).
 
 ---
 

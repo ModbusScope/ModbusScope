@@ -10,6 +10,27 @@
 
 using State = ResultState::State;
 
+namespace {
+
+/*!
+ * \brief Generic expression syntax info, common to every adapter.
+ *
+ * Adapter-specific addressing syntax is appended by handleExpressionHelpResult().
+ */
+QString genericExpressionInfoHtml()
+{
+    return QStringLiteral("<p><span style=\" font-size:12pt; font-weight:600;\">Expression Information</span></p>"
+                          "<p>The most common binary operators are supported (|, &amp;, &lt;&lt;, &gt;&gt;). "
+                          "The basic arithmetic operators are also supported (+, -, *, /, %, ^). "
+                          "Hexadecimal numbers can be represented with the &quot;0x&quot; prefix. "
+                          "Binary numbers can be represented with the &quot;0b&quot; prefix. "
+                          "Floating point numbers are also supported. "
+                          "Both a decimal point and a comma can be used as the decimal separator. "
+                          "The first one encountered is used as the decimal separator for the whole expression.</p>");
+}
+
+} // namespace
+
 ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
                                      GraphIdx idx,
                                      AdapterHub* pAdapterHub,
@@ -151,7 +172,9 @@ void ExpressionsDialog::handleAccept()
 
 void ExpressionsDialog::handleExpressionHelpResult(const QString& helpText)
 {
-    _pUi->lblInfo->setText(helpText);
+    const QString fullHelpHtml =
+      QStringLiteral("<html><head/><body>") + genericExpressionInfoHtml() + helpText + QStringLiteral("</body></html>");
+    _pUi->lblInfo->setText(fullHelpHtml);
 }
 
 /*!
@@ -215,8 +238,8 @@ void ExpressionsDialog::requestHelpForAdapter(const QString& adapterId)
         return;
     }
 
-    connect(_pHelpManager, &AdapterManager::expressionHelpResult, this,
-            &ExpressionsDialog::handleExpressionHelpResult, Qt::SingleShotConnection);
+    connect(_pHelpManager, &AdapterManager::expressionHelpResult, this, &ExpressionsDialog::handleExpressionHelpResult,
+            Qt::SingleShotConnection);
     _pHelpManager->requestExpressionHelp();
 }
 
