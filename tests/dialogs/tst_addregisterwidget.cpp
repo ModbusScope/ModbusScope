@@ -355,6 +355,14 @@ void TestAddRegisterWidget::switchToLargerSchemaWhileMenuOpenShowsAllFields()
         QVERIFY(addressFormLayout->itemAt(i)->widget()->isVisible());
     }
 
+    /* isVisible() alone doesn't catch a too-small popup: a widget stays visible even when its
+     * geometry falls outside the QMenu window bounds. Map the last field's bottom edge into the
+     * menu's coordinate space to confirm resizeContainingMenu() actually grew the popup enough to
+     * show it, rather than leaving it clipped by the window edge. */
+    QWidget* pLastField = addressFormLayout->itemAt(addressFormLayout->count() - 1)->widget();
+    const int lastFieldBottomInMenu = pLastField->mapTo(&menu, QPoint(0, pLastField->height())).y();
+    QVERIFY(lastFieldBottomInMenu <= menu.height());
+
     menu.hide();
 }
 
