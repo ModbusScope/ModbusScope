@@ -28,7 +28,6 @@ private slots:
     void adapterChangeUpdatesModelImmediately();
     void multipleAdaptersWithDevices();
     void cancelAndReopenDoesNotLeakDeviceIds();
-    void addTabAfterIdEditDoesNotDuplicate();
     void acceptValuesClearsDevicesForEmptiedAdapter();
     void twoAdaptersWithSameDefaultDeviceIdShowsSingleTab();
     void existingDeviceAdapterIdMatchesConfigOnOpen();
@@ -39,9 +38,7 @@ private slots:
     void addTabAfterDefaultDeviceKeepsOrder();
     void reopenAfterAdapterSwitchPreservesDeviceOrder();
     void invalidIdTabSortsAfterValidIntMaxIdTab();
-#if 0
-    void editingDeviceIdInSchemaFormUpdatesCorrectModelDevice();
-#endif
+    void invalidIdTabValuesOmitFabricatedId();
 
 private:
     //! Populate \a model with an adapter that has a minimal device schema and

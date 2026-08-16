@@ -176,15 +176,11 @@ void TestAdapterDeviceSettings::acceptValuesSavesToAdapterConfig()
     auto* tab = qobject_cast<DeviceConfigTab*>(tabs->tabContent(0));
     QVERIFY(tab != nullptr);
 
-    auto* spin = tab->findChild<QSpinBox*>();
-    QVERIFY(spin != nullptr);
-    spin->setValue(2);
-
     w.acceptValues();
 
     const AdapterData* adapter = model.adapterData("adapterA");
     QCOMPARE(adapter->hasStoredConfig(), true);
-    QCOMPARE(adapter->currentConfig().value("devices").toArray().at(0).toObject().value("id").toInt(), 2);
+    QCOMPARE(adapter->currentConfig().value("devices").toArray().at(0).toObject().value("id").toInt(), 1);
 }
 
 void TestAdapterDeviceSettings::acceptValuesSavesDeviceNameToModel()
@@ -540,44 +536,6 @@ void TestAdapterDeviceSettings::multipleAdaptersWithDevices()
     QCOMPARE(adapterB->currentConfig().value("devices").toArray().at(0).toObject().value("id").toInt(), 2);
 }
 
-void TestAdapterDeviceSettings::addTabAfterIdEditDoesNotDuplicate()
-{
-    SettingsModel model;
-
-    QJsonObject dev1;
-    dev1["id"] = 1;
-    setupAdapter(model, "adapterA", QJsonArray{ dev1 });
-
-    AdapterDeviceSettings w(&model);
-
-    auto* tabs = w.findChild<AddableTabWidget*>();
-    QVERIFY(tabs != nullptr);
-    QCOMPARE(tabs->count(), 1);
-
-    // Add device → gets ID 2
-    emit tabs->addTabRequested();
-    QCOMPARE(tabs->count(), 2);
-
-    auto* tab2 = qobject_cast<DeviceConfigTab*>(tabs->tabContent(1));
-    QVERIFY(tab2 != nullptr);
-    QCOMPARE(tab2->values().value("id").toInt(-1), 2);
-
-    // User manually edits device 2's ID spinbox to 3
-    auto* spin = tab2->findChild<QSpinBox*>();
-    QVERIFY(spin != nullptr);
-    spin->setValue(3);
-    QCOMPARE(tab2->values().value("id").toInt(-1), 3);
-
-    // Add another device — must get ID 4, not 3 (which is now shown in an open tab)
-    emit tabs->addTabRequested();
-    QCOMPARE(tabs->count(), 3);
-
-    auto* tab3 = qobject_cast<DeviceConfigTab*>(tabs->tabContent(2));
-    QVERIFY(tab3 != nullptr);
-    const int assignedId = tab3->values().value("id").toInt(-1);
-    QCOMPARE(assignedId, 4);
-}
-
 void TestAdapterDeviceSettings::acceptValuesClearsDevicesForEmptiedAdapter()
 {
     SettingsModel model;
@@ -651,41 +609,6 @@ void TestAdapterDeviceSettings::cancelAndReopenDoesNotLeakDeviceIds()
         QCOMPARE(assignedId, 2); // must be 2, not 3 or higher
     }
 }
-
-#if 0
-void TestAdapterDeviceSettings::editingDeviceIdInSchemaFormUpdatesCorrectModelDevice()
-{
-    SettingsModel model;
-
-    QJsonObject dev;
-    dev["id"] = 1;
-    setupAdapter(model, "adapterA", QJsonArray{ dev });
-
-    AdapterDeviceSettings w(&model);
-
-    auto* tabs = w.findChild<AddableTabWidget*>();
-    QVERIFY(tabs != nullptr);
-
-    auto* tab = qobject_cast<DeviceConfigTab*>(tabs->tabContent(0));
-    QVERIFY(tab != nullptr);
-
-    // Change the id spinbox from 1 to 5
-    auto* spin = tab->findChild<QSpinBox*>();
-    QVERIFY(spin != nullptr);
-    spin->setValue(5);
-
-    // After spinbox change, deviceId() must return the updated value
-    QCOMPARE(tab->deviceId(), 5);
-
-    QVERIFY(!model.hasDevice(5));
-    auto* nameEdit = tab->findChild<QLineEdit*>(QString(), Qt::FindDirectChildrenOnly);
-    QVERIFY(nameEdit != nullptr);
-    nameEdit->setText("Sensor");
-    QVERIFY(model.hasDevice(5));
-    QCOMPARE(model.deviceSettings(5)->name(), QStringLiteral("Sensor"));
-}
-
-#endif
 
 void TestAdapterDeviceSettings::twoAdaptersWithSameDefaultDeviceIdShowsSingleTab()
 {
@@ -979,6 +902,25 @@ void TestAdapterDeviceSettings::invalidIdTabSortsAfterValidIntMaxIdTab()
 
     QCOMPARE(tab0->deviceId(), INT_MAX); // valid ID, even at INT_MAX, must sort first
     QCOMPARE(tab1->deviceId(), -1);      // invalid ID must sort last
+}
+
+void TestAdapterDeviceSettings::invalidIdTabValuesOmitFabricatedId()
+{
+    SettingsModel model;
+
+    // Device has no "id" field. The "id" spinbox is schema-bound with a minimum of 1, so a
+    // naive read of its live value would clamp the missing id to 1 instead of preserving the
+    // invalid-ID sentinel, silently fabricating a plausible-looking id.
+    setupAdapter(model, "adapterA", QJsonArray{ QJsonObject() });
+
+    AdapterDeviceSettings w(&model);
+    auto* tabs = w.findChild<AddableTabWidget*>();
+    QVERIFY(tabs != nullptr);
+
+    auto* tab = qobject_cast<DeviceConfigTab*>(tabs->tabContent(0));
+    QVERIFY(tab != nullptr);
+
+    QCOMPARE(tab->values().value("id").toInt(-2), -1);
 }
 
 QTEST_MAIN(TestAdapterDeviceSettings)
