@@ -354,6 +354,7 @@ void SettingsModel::reconcileDevicesWithAdapters()
     }
 
     QSet<deviceId_t> seenDeviceIds;
+    bool ownerChanged = false;
     for (const auto& adapterId : orderedAdapterIds)
     {
         const QJsonArray devices = _adapters.value(adapterId).effectiveConfig().value("devices").toArray();
@@ -380,11 +381,17 @@ void SettingsModel::reconcileDevicesWithAdapters()
                 if (alreadyKnownDevice)
                 {
                     /* addDevice() only emits deviceListChanged() for brand-new devices; an
-                     * already-known device silently changing owner needs its own notification. */
-                    emit deviceListChanged();
+                     * already-known device silently changing owner needs its own notification,
+                     * deferred until the end so a pass reassigning several devices only emits once. */
+                    ownerChanged = true;
                 }
             }
         }
+    }
+
+    if (ownerChanged)
+    {
+        emit deviceListChanged();
     }
 }
 
