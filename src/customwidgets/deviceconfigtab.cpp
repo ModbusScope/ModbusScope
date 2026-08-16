@@ -136,11 +136,13 @@ void DeviceConfigTab::rebuildSchemaForm(const QString& adapterId, const QJsonObj
 
 QJsonObject DeviceConfigTab::values() const
 {
-    if (_pSchemaForm)
-    {
-        return _pSchemaForm->values();
-    }
-    return QJsonObject();
+    QJsonObject result = _pSchemaForm ? _pSchemaForm->values() : QJsonObject();
+
+    /* The "id" field is always readOnly (see rebuildSchemaForm()), so its schema-bound widget
+     * value must never be trusted: a missing id is clamped to the widget's minimum by Qt,
+     * silently fabricating a plausible-looking id instead of preserving the invalid sentinel. */
+    result.insert("id", _deviceId);
+    return result;
 }
 
 QString DeviceConfigTab::adapterId() const
@@ -155,13 +157,5 @@ QString DeviceConfigTab::deviceName() const
 
 int DeviceConfigTab::deviceId() const
 {
-    if (_pSchemaForm)
-    {
-        const int id = _pSchemaForm->values().value("id").toInt(-1);
-        if (id >= 0)
-        {
-            return id;
-        }
-    }
     return _deviceId;
 }

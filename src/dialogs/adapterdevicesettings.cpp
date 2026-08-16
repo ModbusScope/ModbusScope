@@ -12,7 +12,9 @@
 #include <QSet>
 #include <QVBoxLayout>
 
+#include <algorithm>
 #include <climits>
+#include <numeric>
 
 AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWidget* parent)
     : QWidget(parent), _pSettingsModel(pSettingsModel)
@@ -101,10 +103,47 @@ AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWid
 
     if (!pages.isEmpty())
     {
+        sortPagesByDeviceId(pages, names);
         _pDeviceTabs->setTabs(pages, names);
     }
 
     updateAddButtonVisibility();
+}
+
+/*! \brief Stable-sort device tabs by device ID.
+ *
+ * Tabs are built adapter-by-adapter (in \c SettingsModel::adapterIds() order, which is
+ * alphabetical, not creation order), so a device on an alphabetically-earlier adapter would
+ * otherwise be shown before a device added earlier but living on a later adapter. Sorting by
+ * ID keeps tab order consistent with device add order across dialog reopens. Tabs without a
+ * valid ID (id < 0) keep their relative order and sort after all ID'd tabs. As a side effect,
+ * two devices on the same adapter whose stored JSON array was not already ID-ascending get
+ * normalized to ID order too, since acceptValues() re-derives that array from tab order.
+ */
+void AdapterDeviceSettings::sortPagesByDeviceId(QList<QWidget*>& pages, QStringList& names)
+{
+    QList<long long> ids;
+    ids.reserve(pages.size());
+    for (auto* page : pages)
+    {
+        auto* tab = qobject_cast<DeviceConfigTab*>(page);
+        const int id = tab ? tab->deviceId() : -1;
+        ids.append(id >= 0 ? static_cast<long long>(id) : LLONG_MAX);
+    }
+
+    QList<int> order(pages.size());
+    std::iota(order.begin(), order.end(), 0);
+    std::stable_sort(order.begin(), order.end(), [&ids](int a, int b) { return ids[a] < ids[b]; });
+
+    QList<QWidget*> sortedPages;
+    QStringList sortedNames;
+    for (const int index : order)
+    {
+        sortedPages.append(pages[index]);
+        sortedNames.append(names[index]);
+    }
+    pages = sortedPages;
+    names = sortedNames;
 }
 
 /*! \brief Add a new device tab with a unique, auto-incremented device ID.

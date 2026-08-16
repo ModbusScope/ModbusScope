@@ -1,6 +1,7 @@
 #ifndef ADAPTERDEVICESETTINGS_H
 #define ADAPTERDEVICESETTINGS_H
 
+#include <QList>
 #include <QStringList>
 #include <QWidget>
 
@@ -38,6 +39,7 @@ private:
     void connectTabNameTracking(DeviceConfigTab* tab);
     int maxAllowedDevices() const;
     void updateAddButtonVisibility();
+    static void sortPagesByDeviceId(QList<QWidget*>& pages, QStringList& names);
 
     SettingsModel* _pSettingsModel;
     AddableTabWidget* _pDeviceTabs{ nullptr };
