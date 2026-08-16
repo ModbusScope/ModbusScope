@@ -923,4 +923,43 @@ void TestAdapterDeviceSettings::invalidIdTabValuesOmitFabricatedId()
     QCOMPARE(tab->values().value("id").toInt(-2), -1);
 }
 
+void TestAdapterDeviceSettings::addTabDefaultsToModbusEvenWhenNotFirstAlphabetically()
+{
+    SettingsModel model;
+
+    // "aaaadapter" is alphabetically first, so validAdapterIds().first() would pick it over
+    // "modbus" unless handleAddTab() explicitly prefers modbus.
+    setupAdapter(model, "aaaadapter", QJsonArray());
+    setupAdapter(model, "modbus", QJsonArray());
+
+    AdapterDeviceSettings w(&model);
+    auto* tabs = w.findChild<AddableTabWidget*>();
+    QVERIFY(tabs != nullptr);
+    QCOMPARE(tabs->count(), 0);
+
+    emit tabs->addTabRequested();
+
+    QCOMPARE(tabs->count(), 1);
+    auto* tab = qobject_cast<DeviceConfigTab*>(tabs->tabContent(0));
+    QVERIFY(tab != nullptr);
+    QCOMPARE(tab->adapterId(), QStringLiteral("modbus"));
+}
+
+void TestAdapterDeviceSettings::initialDeviceReconciliationPrefersModbusOverDiscoveryOrder()
+{
+    SettingsModel model;
+
+    // SettingsModel pre-populates device 1 on "modbus" (Device's constructor default).
+    QCOMPARE(model.deviceSettings(1)->adapterId(), QStringLiteral("modbus"));
+
+    // "aaaadapter" also declares default device 1 in its untouched defaults and describes
+    // first (e.g. it responded before modbus during adapter discovery). Without a modbus
+    // tie-break, reconcileDevicesWithAdapters() would reassign device 1 to "aaaadapter"
+    // purely because it sorts alphabetically ahead of "modbus".
+    model.updateAdapterFromDescribe("aaaadapter", makeAdapterDescribeWithDefaultDevice("aaaadapter", 1));
+    model.updateAdapterFromDescribe("modbus", makeAdapterDescribeWithDefaultDevice("modbus", 1));
+
+    QCOMPARE(model.deviceSettings(1)->adapterId(), QStringLiteral("modbus"));
+}
+
 QTEST_MAIN(TestAdapterDeviceSettings)

@@ -1,5 +1,6 @@
 #include "adapterdevicesettings.h"
 
+#include "ProtocolAdapter/adapterhub.h"
 #include "customwidgets/addabletabwidget.h"
 #include "customwidgets/deviceconfigtab.h"
 #include "models/adapterdata.h"
@@ -159,7 +160,8 @@ void AdapterDeviceSettings::handleAddTab()
     {
         return;
     }
-    const QString& defaultAdapterId = adapterIds.first();
+    const QString defaultAdapterId =
+      adapterIds.contains(QString(cModbusAdapterId)) ? QString(cModbusAdapterId) : adapterIds.first();
 
     QJsonObject defaultValues;
     const QJsonArray defaultDevices =
