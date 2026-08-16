@@ -12,17 +12,22 @@ using State = ResultState::State;
 
 namespace {
 
-/* Generic expression syntax info, common to every adapter. Adapter-specific addressing
- * syntax is appended by handleExpressionHelpResult(). */
-const QString cGenericExpressionInfoHtml = QStringLiteral(
-    "<p><span style=\" font-size:12pt; font-weight:600;\">Expression Information</span></p>"
-    "<p>The most common binary operators are supported (|, &amp;, &lt;&lt;, &gt;&gt;). "
-    "The basic arithmetic operators are also supported (+, -, *, /, %, ^). "
-    "Hexadecimal numbers can be represented with the &quot;0x&quot; prefix. "
-    "Binary are represented with &quot;0b&quot; prefix. "
-    "Floating point number are also supported. "
-    "Both a decimal point as comma can be used. "
-    "The first encountered character is used as floating point separator.</p>");
+/*!
+ * \brief Generic expression syntax info, common to every adapter.
+ *
+ * Adapter-specific addressing syntax is appended by handleExpressionHelpResult().
+ */
+QString genericExpressionInfoHtml()
+{
+    return QStringLiteral("<p><span style=\" font-size:12pt; font-weight:600;\">Expression Information</span></p>"
+                          "<p>The most common binary operators are supported (|, &amp;, &lt;&lt;, &gt;&gt;). "
+                          "The basic arithmetic operators are also supported (+, -, *, /, %, ^). "
+                          "Hexadecimal numbers can be represented with the &quot;0x&quot; prefix. "
+                          "Binary numbers are represented with &quot;0b&quot; prefix. "
+                          "Floating point number are also supported. "
+                          "Both a decimal point as comma can be used. "
+                          "The first encountered character is used as floating point separator.</p>");
+}
 
 } // namespace
 
@@ -168,7 +173,7 @@ void ExpressionsDialog::handleAccept()
 void ExpressionsDialog::handleExpressionHelpResult(const QString& helpText)
 {
     const QString fullHelpHtml =
-      QStringLiteral("<html><head/><body>") + cGenericExpressionInfoHtml + helpText + QStringLiteral("</body></html>");
+      QStringLiteral("<html><head/><body>") + genericExpressionInfoHtml() + helpText + QStringLiteral("</body></html>");
     _pUi->lblInfo->setText(fullHelpHtml);
 }
 
@@ -233,8 +238,8 @@ void ExpressionsDialog::requestHelpForAdapter(const QString& adapterId)
         return;
     }
 
-    connect(_pHelpManager, &AdapterManager::expressionHelpResult, this,
-            &ExpressionsDialog::handleExpressionHelpResult, Qt::SingleShotConnection);
+    connect(_pHelpManager, &AdapterManager::expressionHelpResult, this, &ExpressionsDialog::handleExpressionHelpResult,
+            Qt::SingleShotConnection);
     _pHelpManager->requestExpressionHelp();
 }
 

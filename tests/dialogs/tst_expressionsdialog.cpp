@@ -243,7 +243,7 @@ void TestExpressionsDialog::helpRoutedToSelectedAdapter()
     QVERIFY(pInfoLabel->text().contains(QStringLiteral("Expression Information")));
     QVERIFY(pInfoLabel->text().contains(QStringLiteral("Modbus help")));
     QVERIFY(pInfoLabel->text().indexOf(QStringLiteral("Expression Information")) <
-      pInfoLabel->text().indexOf(QStringLiteral("Modbus help")));
+            pInfoLabel->text().indexOf(QStringLiteral("Modbus help")));
 
     auto* pCombo = _pDialog->findChild<QComboBox*>("cmbHelpAdapter");
     QVERIFY(pCombo != nullptr);
