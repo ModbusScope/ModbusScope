@@ -23,10 +23,10 @@ QString genericExpressionInfoHtml()
                           "<p>The most common binary operators are supported (|, &amp;, &lt;&lt;, &gt;&gt;). "
                           "The basic arithmetic operators are also supported (+, -, *, /, %, ^). "
                           "Hexadecimal numbers can be represented with the &quot;0x&quot; prefix. "
-                          "Binary numbers are represented with &quot;0b&quot; prefix. "
-                          "Floating point number are also supported. "
-                          "Both a decimal point as comma can be used. "
-                          "The first encountered character is used as floating point separator.</p>");
+                          "Binary numbers can be represented with the &quot;0b&quot; prefix. "
+                          "Floating point numbers are also supported. "
+                          "Both a decimal point and a comma can be used as the decimal separator. "
+                          "The first one encountered is used as the decimal separator for the whole expression.</p>");
 }
 
 } // namespace
