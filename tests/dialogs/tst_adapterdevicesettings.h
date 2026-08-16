@@ -38,6 +38,7 @@ private slots:
     void reassigningExistingDeviceOwnerEmitsDeviceListChanged();
     void addTabAfterDefaultDeviceKeepsOrder();
     void reopenAfterAdapterSwitchPreservesDeviceOrder();
+    void invalidIdTabSortsAfterValidIntMaxIdTab();
 #if 0
     void editingDeviceIdInSchemaFormUpdatesCorrectModelDevice();
 #endif

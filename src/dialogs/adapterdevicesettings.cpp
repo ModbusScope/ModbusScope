@@ -122,13 +122,13 @@ AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWid
  */
 void AdapterDeviceSettings::sortPagesByDeviceId(QList<QWidget*>& pages, QStringList& names)
 {
-    QList<int> ids;
+    QList<long long> ids;
     ids.reserve(pages.size());
     for (auto* page : pages)
     {
         auto* tab = qobject_cast<DeviceConfigTab*>(page);
         const int id = tab ? tab->deviceId() : -1;
-        ids.append(id >= 0 ? id : INT_MAX);
+        ids.append(id >= 0 ? static_cast<long long>(id) : LLONG_MAX);
     }
 
     QList<int> order(pages.size());

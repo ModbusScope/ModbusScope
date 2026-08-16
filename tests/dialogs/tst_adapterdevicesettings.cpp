@@ -14,6 +14,8 @@
 #include <QSpinBox>
 #include <QTest>
 
+#include <climits>
+
 namespace {
 
 //! Build a minimal adapter describe result with a devices schema containing
@@ -947,6 +949,36 @@ void TestAdapterDeviceSettings::reopenAfterAdapterSwitchPreservesDeviceOrder()
         QCOMPARE(tab0->deviceId(), 1); // device 1 (added first) must stay first
         QCOMPARE(tab1->deviceId(), 2);
     }
+}
+
+void TestAdapterDeviceSettings::invalidIdTabSortsAfterValidIntMaxIdTab()
+{
+    SettingsModel model;
+
+    // adapterA is alphabetically first, so its tab is built before adapterB's. Its device
+    // has no "id" field, giving it the invalid-ID sentinel used by sortPagesByDeviceId().
+    setupAdapter(model, "adapterA", QJsonArray{ QJsonObject() });
+
+    // adapterB's device has the largest valid ID an int can hold. A sentinel that collides
+    // with INT_MAX (rather than one strictly wider than int) would tie with the invalid tab
+    // above and let std::stable_sort keep the invalid tab first, violating the documented
+    // invalid-ID-last rule.
+    QJsonObject devB;
+    devB["id"] = INT_MAX;
+    setupAdapter(model, "adapterB", QJsonArray{ devB });
+
+    AdapterDeviceSettings w(&model);
+    auto* tabs = w.findChild<AddableTabWidget*>();
+    QVERIFY(tabs != nullptr);
+    QCOMPARE(tabs->count(), 2);
+
+    auto* tab0 = qobject_cast<DeviceConfigTab*>(tabs->tabContent(0));
+    auto* tab1 = qobject_cast<DeviceConfigTab*>(tabs->tabContent(1));
+    QVERIFY(tab0 != nullptr);
+    QVERIFY(tab1 != nullptr);
+
+    QCOMPARE(tab0->deviceId(), INT_MAX); // valid ID, even at INT_MAX, must sort first
+    QCOMPARE(tab1->deviceId(), -1);      // invalid ID must sort last
 }
 
 QTEST_MAIN(TestAdapterDeviceSettings)
