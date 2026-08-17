@@ -1,4 +1,6 @@
 #include "settingsmodel.h"
+
+#include "ProtocolAdapter/adapterhub.h"
 #include "util/scopelogging.h"
 
 #include <QJsonArray>
@@ -358,7 +360,7 @@ void SettingsModel::reconcileDevicesWithAdapters()
             unconfiguredAdapterIds.append(id);
         }
     }
-    const int modbusIndex = unconfiguredAdapterIds.indexOf(QStringLiteral("modbus"));
+    const int modbusIndex = unconfiguredAdapterIds.indexOf(QString(cModbusAdapterId));
     if (modbusIndex > 0)
     {
         unconfiguredAdapterIds.move(modbusIndex, 0);
