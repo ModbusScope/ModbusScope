@@ -1,4 +1,6 @@
 #include "settingsmodel.h"
+
+#include "ProtocolAdapter/adapterhub.h"
 #include "util/scopelogging.h"
 
 #include <QJsonArray>
@@ -314,7 +316,11 @@ void SettingsModel::updateAdapterFromDescribe(const QString& adapterId, const QJ
  * device back from its explicitly configured owner. Within each of those two groups, adapters are
  * considered in adapterIds() order, so a device ID shared by two equally-unconfigured (or two
  * equally-configured) adapters still resolves deterministically, just not meaningfully — that
- * remaining tie only matters before either adapter has been explicitly configured.
+ * remaining tie only matters before either adapter has been explicitly configured. The one
+ * exception: within the unconfigured group, "modbus" is moved to the front of that order when
+ * present, so the app's built-in initial device (Device::cFirstDeviceId, "modbus" by
+ * construction) can't be silently reassigned to another adapter that merely happens to sort
+ * alphabetically ahead of it and share the same default device ID.
  *
  * Any code that needs to know which adapter owns a device must read it back via
  * deviceSettings()/adapterIdForDevice() rather than re-deriving ownership itself (e.g. by picking
@@ -345,13 +351,21 @@ void SettingsModel::reconcileDevicesWithAdapters()
             orderedAdapterIds.append(id);
         }
     }
+
+    QStringList unconfiguredAdapterIds;
     for (const auto& id : validAdapterIds)
     {
         if (!_adapters.value(id).hasStoredConfig())
         {
-            orderedAdapterIds.append(id);
+            unconfiguredAdapterIds.append(id);
         }
     }
+    const int modbusIndex = unconfiguredAdapterIds.indexOf(QString(cModbusAdapterId));
+    if (modbusIndex > 0)
+    {
+        unconfiguredAdapterIds.move(modbusIndex, 0);
+    }
+    orderedAdapterIds.append(unconfiguredAdapterIds);
 
     QSet<deviceId_t> seenDeviceIds;
     bool ownerChanged = false;

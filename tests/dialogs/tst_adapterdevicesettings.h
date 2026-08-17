@@ -39,6 +39,8 @@ private slots:
     void reopenAfterAdapterSwitchPreservesDeviceOrder();
     void invalidIdTabSortsAfterValidIntMaxIdTab();
     void invalidIdTabValuesOmitFabricatedId();
+    void addTabDefaultsToModbusEvenWhenNotFirstAlphabetically();
+    void initialDeviceReconciliationPrefersModbusOverDiscoveryOrder();
 
 private:
     //! Populate \a model with an adapter that has a minimal device schema and

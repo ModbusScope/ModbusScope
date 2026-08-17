@@ -368,6 +368,7 @@ void MainWindow::showFirstInstallDialogIfNeeded()
     if (!settings.contains(cFirstInstallKey))
     {
         settings.setValue(cFirstInstallKey, true);
+        settings.sync();
         showQuickStartDialog();
     }
 }
