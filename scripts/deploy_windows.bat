@@ -15,7 +15,7 @@ copy modbusscope.exe %DEPLOY_DIR%
 IF ERRORLEVEL 1 GOTO errorHandling
 
 REM Copy adapter binary into the flat deployment directory
-copy %~dp0..\adapters\modbusadapter.exe %DEPLOY_DIR%
+copy %~dp0..\adapters\Modbus\modbusadapter.exe %DEPLOY_DIR%
 IF ERRORLEVEL 1 GOTO errorHandling
 
 cd %DEPLOY_DIR%
