@@ -41,6 +41,10 @@ private slots:
     void invalidIdTabValuesOmitFabricatedId();
     void addTabDefaultsToModbusEvenWhenNotFirstAlphabetically();
     void initialDeviceReconciliationPrefersModbusOverDiscoveryOrder();
+    void addButtonRemainsAvailableWhenAdapterOverLimit();
+    void warningLabelShowsForOverLimitAdapter();
+    void addingDeviceForModbusNotBlockedByOtherAdapterOverLimit();
+    void doesNotDropDevicesWhenAdapterConfigMatchesDeviceList();
 
 private:
     //! Populate \a model with an adapter that has a minimal device schema and

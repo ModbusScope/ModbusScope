@@ -13,6 +13,7 @@
 #include <QSignalSpy>
 #include <QSpinBox>
 #include <QTest>
+#include <QToolButton>
 
 #include <climits>
 
@@ -78,6 +79,23 @@ QJsonObject makeAdapterDescribeWithDefaultDevice(const QString& adapterName, int
     defaults["connections"] = QJsonArray();
     defaults["general"] = QJsonObject();
     describe["defaults"] = defaults;
+
+    return describe;
+}
+
+//! Build a describe result like makeAdapterDescribe(), but with the devices schema's
+//! maxItems set to the given limit.
+QJsonObject makeAdapterDescribeWithMaxItems(const QString& adapterName, int maxItems)
+{
+    QJsonObject describe = makeAdapterDescribe(adapterName);
+
+    QJsonObject schema = describe["schema"].toObject();
+    QJsonObject topProps = schema["properties"].toObject();
+    QJsonObject devicesSchema = topProps["devices"].toObject();
+    devicesSchema["maxItems"] = maxItems;
+    topProps["devices"] = devicesSchema;
+    schema["properties"] = topProps;
+    describe["schema"] = schema;
 
     return describe;
 }
@@ -960,6 +978,142 @@ void TestAdapterDeviceSettings::initialDeviceReconciliationPrefersModbusOverDisc
     model.updateAdapterFromDescribe("modbus", makeAdapterDescribeWithDefaultDevice("modbus", 1));
 
     QCOMPARE(model.deviceSettings(1)->adapterId(), QStringLiteral("modbus"));
+}
+
+void TestAdapterDeviceSettings::addButtonRemainsAvailableWhenAdapterOverLimit()
+{
+    SettingsModel model;
+
+    QJsonObject dev0;
+    dev0["id"] = 1;
+    QJsonObject dev1;
+    dev1["id"] = 2;
+
+    model.updateAdapterFromDescribe("adapterA", makeAdapterDescribeWithMaxItems("adapterA", 1));
+    QJsonObject config;
+    config["general"] = QJsonObject();
+    config["connections"] = QJsonArray();
+    config["devices"] = QJsonArray{ dev0, dev1 };
+    model.setAdapterCurrentConfig("adapterA", config);
+
+    AdapterDeviceSettings w(&model);
+
+    auto* tabs = w.findChild<AddableTabWidget*>();
+    QVERIFY(tabs != nullptr);
+    // Both devices are loaded even though adapterA only allows 1 — no silent block.
+    QCOMPARE(tabs->count(), 2);
+
+    auto* addButton = qobject_cast<QToolButton*>(tabs->cornerWidget(Qt::TopLeftCorner));
+    QVERIFY(addButton != nullptr);
+    // NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage) -- QVERIFY aborts if null
+    QVERIFY(!addButton->isHidden());
+}
+
+void TestAdapterDeviceSettings::warningLabelShowsForOverLimitAdapter()
+{
+    SettingsModel model;
+
+    QJsonObject dev0;
+    dev0["id"] = 1;
+    QJsonObject dev1;
+    dev1["id"] = 2;
+
+    model.updateAdapterFromDescribe("adapterA", makeAdapterDescribeWithMaxItems("adapterA", 1));
+    QJsonObject config;
+    config["general"] = QJsonObject();
+    config["connections"] = QJsonArray();
+    config["devices"] = QJsonArray{ dev0, dev1 };
+    model.setAdapterCurrentConfig("adapterA", config);
+
+    AdapterDeviceSettings w(&model);
+
+    auto* warningLabel = w.findChild<QLabel*>("deviceLimitWarningLabel");
+    QVERIFY(warningLabel != nullptr);
+    QVERIFY(!warningLabel->isHidden());
+    QVERIFY(warningLabel->text().contains("adapterA"));
+    QVERIFY(warningLabel->text().contains("1"));
+    QVERIFY(warningLabel->text().contains("2"));
+}
+
+void TestAdapterDeviceSettings::addingDeviceForModbusNotBlockedByOtherAdapterOverLimit()
+{
+    SettingsModel model;
+
+    QJsonObject dev0;
+    dev0["id"] = 1;
+    QJsonObject dev1;
+    dev1["id"] = 2;
+
+    model.updateAdapterFromDescribe("dummy", makeAdapterDescribeWithMaxItems("dummy", 1));
+    QJsonObject dummyConfig;
+    dummyConfig["general"] = QJsonObject();
+    dummyConfig["connections"] = QJsonArray();
+    dummyConfig["devices"] = QJsonArray{ dev0, dev1 };
+    model.setAdapterCurrentConfig("dummy", dummyConfig);
+
+    setupAdapter(model, "modbus", QJsonArray());
+
+    AdapterDeviceSettings w(&model);
+
+    auto* tabs = w.findChild<AddableTabWidget*>();
+    QVERIFY(tabs != nullptr);
+    QCOMPARE(tabs->count(), 2);
+
+    // "dummy" is already over its limit of 1, but that must not stop a device from being
+    // added for "modbus" (the default target adapter), which has no configured limit.
+    emit tabs->addTabRequested();
+
+    QCOMPARE(tabs->count(), 3);
+    auto* newTab = qobject_cast<DeviceConfigTab*>(tabs->tabContent(2));
+    QVERIFY(newTab != nullptr);
+    QCOMPARE(newTab->adapterId(), QStringLiteral("modbus"));
+
+    auto* addButton = qobject_cast<QToolButton*>(tabs->cornerWidget(Qt::TopLeftCorner));
+    QVERIFY(addButton != nullptr);
+    // NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage) -- QVERIFY aborts if null
+    QVERIFY(!addButton->isHidden());
+}
+
+/*!
+ * \brief Regression test for the interaction between ProjectFileHandler's
+ * applyAdapterSettings()/applyDeviceSettings() and this dialog's constructor-time pruning: when
+ * an adapter's stored config and SettingsModel's generic device list already agree on the full
+ * set of devices (as they now do after a project load, even beyond the adapter's maxItems), the
+ * constructor must not silently remove any of them.
+ */
+void TestAdapterDeviceSettings::doesNotDropDevicesWhenAdapterConfigMatchesDeviceList()
+{
+    SettingsModel model;
+
+    model.updateAdapterFromDescribe("modbus", makeAdapterDescribeWithMaxItems("modbus", 2));
+
+    QJsonArray deviceArray;
+    for (int i = 1; i <= 5; ++i)
+    {
+        QJsonObject dev;
+        dev["id"] = i;
+        deviceArray.append(dev);
+
+        model.addDevice(static_cast<deviceId_t>(i));
+        model.deviceSettings(static_cast<deviceId_t>(i))->setAdapterId("modbus");
+    }
+
+    QJsonObject config;
+    config["general"] = QJsonObject();
+    config["connections"] = QJsonArray();
+    config["devices"] = deviceArray;
+    model.setAdapterCurrentConfig("modbus", config);
+
+    AdapterDeviceSettings w(&model);
+
+    auto* tabs = w.findChild<AddableTabWidget*>();
+    QVERIFY(tabs != nullptr);
+    QCOMPARE(tabs->count(), 5);
+    QCOMPARE(model.deviceList().size(), 5);
+
+    auto* warningLabel = w.findChild<QLabel*>("deviceLimitWarningLabel");
+    QVERIFY(warningLabel != nullptr);
+    QVERIFY(!warningLabel->isHidden());
 }
 
 QTEST_MAIN(TestAdapterDeviceSettings)

@@ -16,7 +16,6 @@
 #include <QFile>
 #include <QFileDialog>
 
-#include <climits>
 #include <utility>
 
 ProjectFileHandler::ProjectFileHandler(GuiModel* pGuiModel,
@@ -136,27 +135,19 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings* 
 
 /*!
  * \brief Apply loaded adapter settings to SettingsModel so the dialog shows the correct values.
+ *
+ * Stores every device from the project file, even beyond an adapter's maxDevicesFromSchema()
+ * limit: AdapterData::configForWire() caps what is actually sent to the adapter subprocess, so
+ * truncating here would only silently drop devices from the UI without any indication to the
+ * user.
+ *
  * \param adapters Adapter list parsed from the project file.
  */
 void ProjectFileHandler::applyAdapterSettings(const QList<ProjectFileData::AdapterFileSettings>& adapters)
 {
     for (const ProjectFileData::AdapterFileSettings& adapter : adapters)
     {
-        const AdapterData* pAdapterData = _pSettingsModel->adapterData(adapter.type);
-        const int maxDevices = pAdapterData ? pAdapterData->maxDevicesFromSchema() : INT_MAX;
-
-        QJsonObject settings = adapter.settings;
-        if (maxDevices != INT_MAX && settings.contains("devices"))
-        {
-            QJsonArray devices = settings.value("devices").toArray();
-            while (devices.size() > maxDevices)
-            {
-                devices.removeLast();
-            }
-            settings["devices"] = devices;
-        }
-
-        _pSettingsModel->setAdapterCurrentConfig(adapter.type, settings);
+        _pSettingsModel->setAdapterCurrentConfig(adapter.type, adapter.settings);
     }
 }
 
@@ -303,25 +294,8 @@ void ProjectFileHandler::applyDeviceSettings(const QList<ProjectFileData::Device
         return;
     }
 
-    int maxDevices = INT_MAX;
-    const QStringList adapterIds = _pSettingsModel->adapterIds();
-    for (const auto& adapterId : adapterIds)
-    {
-        const AdapterData* pAdapterData = _pSettingsModel->adapterData(adapterId);
-        if (!pAdapterData->schema().isEmpty())
-        {
-            maxDevices = qMin(maxDevices, pAdapterData->maxDevicesFromSchema());
-        }
-    }
-
-    int count = 0;
     for (const ProjectFileData::DeviceSettings& devSettings : deviceSettings)
     {
-        if (count >= maxDevices)
-        {
-            break;
-        }
-
         if (!devSettings.bDeviceId)
         {
             continue;
@@ -336,7 +310,6 @@ void ProjectFileHandler::applyDeviceSettings(const QList<ProjectFileData::Device
             pDev->setName(devSettings.name);
         }
         pDev->setAdapterId(adapterId);
-        ++count;
     }
 }
 

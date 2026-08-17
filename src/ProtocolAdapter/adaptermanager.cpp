@@ -51,7 +51,7 @@ void AdapterManager::startSession(const QStringList& registerExpressions)
         emit sessionError(QStringLiteral("No adapter configuration found for '%1'").arg(_adapterId));
         return;
     }
-    QJsonObject config = data->effectiveConfig();
+    QJsonObject config = data->configForWire();
     _pAdapterClient->provideConfig(config, registerExpressions);
 }
 

@@ -426,9 +426,14 @@ void TestProjectFileHandler::roundTripPreservesAdapterConfig()
 }
 
 /*!
- * \brief Adapter settings with more devices than maxItems are truncated on load.
+ * \brief Adapter settings with more devices than maxItems are still all stored on load; only
+ * AdapterData::configForWire() (used when sending to the adapter subprocess) caps the count.
+ * Truncating here as well would desync currentConfig() from the generic device list SettingsModel
+ * builds from the same project file's top-level "devices" section, causing AdapterDeviceSettings
+ * to silently delete the "missing" devices the next time it's opened (see
+ * openingProjectWithExcessDevicesKeepsAllDevicesInDialog below).
  */
-void TestProjectFileHandler::applyAdapterSettingsTruncatesDevicesExceedingMaxItems()
+void TestProjectFileHandler::applyAdapterSettingsDoesNotTruncateDevicesExceedingMaxItems()
 {
     QJsonArray adapterDevices;
     for (int i = 1; i <= 5; ++i)
@@ -458,18 +463,72 @@ void TestProjectFileHandler::applyAdapterSettingsTruncatesDevicesExceedingMaxIte
     settingsModel.updateAdapterFromDescribe("modbus", buildDescribeWithMaxItems(2));
     handler.openProjectFile(path);
 
-    const QJsonArray storedDevices = settingsModel.adapterData("modbus")->currentConfig()["devices"].toArray();
-    QCOMPARE(storedDevices.size(), 2);
-    QCOMPARE(storedDevices.first().toObject()["id"].toInt(), 1);
-    QCOMPARE(storedDevices.last().toObject()["id"].toInt(), 2);
+    const QJsonArray storedDevices = settingsModel.adapterData("modbus")->currentConfig().value("devices").toArray();
+    QCOMPARE(storedDevices.size(), 5);
 
     QFile::remove(path);
 }
 
 /*!
- * \brief Generic devices exceeding the adapter schema maxItems are ignored on load.
+ * \brief Regression test: opening a project file with more devices for an adapter than its
+ * current maxItems allows must leave the adapter's stored config and SettingsModel's generic
+ * device list in agreement. Previously, applyAdapterSettings() truncated the adapter's own
+ * stored "devices" array to maxItems while applyDeviceSettings() loaded every device into the
+ * generic device list — the two disagreed, which (see
+ * TestAdapterDeviceSettings::doesNotDropDevicesWhenAdapterConfigMatchesDeviceList in
+ * tst_adapterdevicesettings.cpp, a GUI test) made AdapterDeviceSettings's constructor silently
+ * delete any device present in the generic list but absent from the (truncated) adapter config.
  */
-void TestProjectFileHandler::applyDeviceSettingsTruncatesDevicesExceedingMaxItems()
+void TestProjectFileHandler::openingProjectWithExcessDevicesKeepsAdapterConfigAndDeviceListConsistent()
+{
+    QJsonArray adapterDevices;
+    QJsonArray topLevelDevices;
+    for (int i = 1; i <= 5; ++i)
+    {
+        QJsonObject dev;
+        dev["id"] = i;
+        adapterDevices.append(dev);
+
+        QJsonObject topDev;
+        topDev["id"] = i;
+        QJsonObject adapterRef;
+        adapterRef["type"] = "modbus";
+        topDev["adapter"] = adapterRef;
+        topLevelDevices.append(topDev);
+    }
+
+    QJsonObject adapterSettings;
+    adapterSettings["devices"] = adapterDevices;
+
+    QJsonArray adapters;
+    QJsonObject adapter;
+    adapter["type"] = "modbus";
+    adapter["settings"] = adapterSettings;
+    adapters.append(adapter);
+
+    const QString path = writeTempProjectFile(adapters, topLevelDevices);
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    settingsModel.updateAdapterFromDescribe("modbus", buildDescribeWithMaxItems(2));
+    handler.openProjectFile(path);
+
+    const QJsonArray storedDevices = settingsModel.adapterData("modbus")->currentConfig().value("devices").toArray();
+    QCOMPARE(storedDevices.size(), 5);
+    QCOMPARE(settingsModel.deviceList().size(), 5);
+
+    QFile::remove(path);
+}
+
+/*!
+ * \brief Generic devices exceeding the adapter schema maxItems are still loaded (no silent
+ *        drop); the limit is surfaced as a UI indication rather than enforced here.
+ */
+void TestProjectFileHandler::applyDeviceSettingsDoesNotTruncateDevicesExceedingMaxItems()
 {
     QJsonArray adapters;
     QJsonObject adapter;
@@ -499,7 +558,59 @@ void TestProjectFileHandler::applyDeviceSettingsTruncatesDevicesExceedingMaxItem
     settingsModel.updateAdapterFromDescribe("modbus", buildDescribeWithMaxItems(2));
     handler.openProjectFile(path);
 
-    QCOMPARE(settingsModel.deviceList().size(), 2);
+    QCOMPARE(settingsModel.deviceList().size(), 5);
+
+    QFile::remove(path);
+}
+
+/*!
+ * \brief A low maxItems on one adapter must not cap devices belonging to a different adapter.
+ */
+void TestProjectFileHandler::applyDeviceSettingsNotCappedByOtherAdaptersLowerLimit()
+{
+    QJsonArray adapters;
+    QJsonObject modbusAdapter;
+    modbusAdapter["type"] = "modbus";
+    modbusAdapter["settings"] = QJsonObject();
+    adapters.append(modbusAdapter);
+    QJsonObject dummyAdapter;
+    dummyAdapter["type"] = "dummy";
+    dummyAdapter["settings"] = QJsonObject();
+    adapters.append(dummyAdapter);
+
+    QJsonArray devices;
+    QJsonObject dummyDevice;
+    dummyDevice["id"] = 1;
+    QJsonObject dummyRef;
+    dummyRef["type"] = "dummy";
+    dummyDevice["adapter"] = dummyRef;
+    devices.append(dummyDevice);
+
+    for (int i = 2; i <= 5; ++i)
+    {
+        QJsonObject dev;
+        dev["id"] = i;
+        QJsonObject adapterRef;
+        adapterRef["type"] = "modbus";
+        dev["adapter"] = adapterRef;
+        devices.append(dev);
+    }
+
+    const QString path = writeTempProjectFile(adapters, devices);
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    // Dummy allows only 1 device; modbus allows plenty. Dummy's low limit must not
+    // truncate the 4 modbus devices.
+    settingsModel.updateAdapterFromDescribe("dummy", buildDescribeWithMaxItems(1));
+    settingsModel.updateAdapterFromDescribe("modbus", buildDescribeWithMaxItems(99));
+    handler.openProjectFile(path);
+
+    QCOMPARE(settingsModel.deviceList().size(), 5);
 
     QFile::remove(path);
 }

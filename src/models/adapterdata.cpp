@@ -1,6 +1,8 @@
 
 #include "adapterdata.h"
 
+#include <QJsonArray>
+
 #include <climits>
 
 AdapterData::AdapterData() = default;
@@ -187,6 +189,23 @@ QJsonObject AdapterData::effectiveConfig() const
     for (auto it = _currentConfig.constBegin(); it != _currentConfig.constEnd(); ++it)
     {
         result.insert(it.key(), it.value());
+    }
+    return result;
+}
+
+QJsonObject AdapterData::configForWire() const
+{
+    QJsonObject result = effectiveConfig();
+
+    const int maxDevices = maxDevicesFromSchema();
+    if (maxDevices != INT_MAX && result.contains("devices"))
+    {
+        QJsonArray devices = result.value("devices").toArray();
+        while (devices.size() > maxDevices)
+        {
+            devices.removeLast();
+        }
+        result["devices"] = devices;
     }
     return result;
 }

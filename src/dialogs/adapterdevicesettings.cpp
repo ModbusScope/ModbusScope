@@ -31,6 +31,17 @@ AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWid
         return;
     }
 
+    _pLimitWarningLabel = new QLabel(this);
+    _pLimitWarningLabel->setObjectName("deviceLimitWarningLabel");
+    _pLimitWarningLabel->setWordWrap(true);
+    /* Adapter names come from the adapter subprocess's describe response, so treat them as
+     * untrusted: force plain text to prevent a misbehaving adapter from injecting rich-text
+     * formatting into this label. */
+    _pLimitWarningLabel->setTextFormat(Qt::PlainText);
+    _pLimitWarningLabel->setStyleSheet("QLabel { color: #b35900; }");
+    _pLimitWarningLabel->setVisible(false);
+    layout->addWidget(_pLimitWarningLabel);
+
     _pDeviceTabs = new AddableTabWidget(this);
     layout->addWidget(_pDeviceTabs, 1);
 
@@ -96,7 +107,7 @@ AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWid
                 seenDeviceIds.insert(devId);
             }
             auto* tab = new DeviceConfigTab(pSettingsModel, adapterId, deviceObj, _pDeviceTabs);
-            connectTabNameTracking(tab);
+            connectTabTracking(tab);
             pages.append(tab);
             names.append(constructTabName(tab));
         }
@@ -108,7 +119,7 @@ AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWid
         _pDeviceTabs->setTabs(pages, names);
     }
 
-    updateAddButtonVisibility();
+    updateDeviceLimitIndication();
 }
 
 /*! \brief Stable-sort device tabs by device ID.
@@ -195,10 +206,10 @@ void AdapterDeviceSettings::handleAddTab()
     defaultValues["id"] = static_cast<int>(newId);
 
     auto* tab = new DeviceConfigTab(_pSettingsModel, defaultAdapterId, defaultValues, _pDeviceTabs);
-    connectTabNameTracking(tab);
+    connectTabTracking(tab);
     _pDeviceTabs->addNewTab(constructTabName(tab), tab);
 
-    updateAddButtonVisibility();
+    updateDeviceLimitIndication();
 }
 
 void AdapterDeviceSettings::handleCloseTab(QWidget* widget)
@@ -209,30 +220,55 @@ void AdapterDeviceSettings::handleCloseTab(QWidget* widget)
         _pSettingsModel->removeDevice(static_cast<deviceId_t>(tab->deviceId()));
     }
 
-    updateAddButtonVisibility();
+    updateDeviceLimitIndication();
 }
 
-int AdapterDeviceSettings::maxAllowedDevices() const
+/*! \brief Build a warning message listing adapters whose configured device count exceeds
+ *  their schema's maxItems, or an empty string if all adapters are within their limit.
+ */
+QString AdapterDeviceSettings::deviceLimitWarningMessage() const
 {
-    const QStringList adapterIds = validAdapterIds();
-    if (adapterIds.isEmpty())
+    if (!_pDeviceTabs)
     {
-        return INT_MAX;
+        return QString();
     }
-    int minMax = INT_MAX;
-    for (const auto& adapterId : adapterIds)
+
+    QMap<QString, int> countByAdapter;
+    for (int i = 0; i < _pDeviceTabs->count(); ++i)
     {
-        minMax = qMin(minMax, _pSettingsModel->adapterData(adapterId)->maxDevicesFromSchema());
+        auto* tab = qobject_cast<DeviceConfigTab*>(_pDeviceTabs->tabContent(i));
+        if (tab)
+        {
+            ++countByAdapter[tab->adapterId()];
+        }
     }
-    return minMax;
+
+    QStringList warnings;
+    for (auto it = countByAdapter.constBegin(); it != countByAdapter.constEnd(); ++it)
+    {
+        const AdapterData* pAdapter = _pSettingsModel->adapterData(it.key());
+        const int maxDevices = pAdapter->maxDevicesFromSchema();
+        if (it.value() > maxDevices)
+        {
+            const QString adapterName = pAdapter->name().isEmpty() ? it.key() : pAdapter->name();
+            warnings.append(QString("%1 allows at most %2 device(s), but %3 are configured.")
+                              .arg(adapterName)
+                              .arg(maxDevices)
+                              .arg(it.value()));
+        }
+    }
+    return warnings.join('\n');
 }
 
-void AdapterDeviceSettings::updateAddButtonVisibility()
+void AdapterDeviceSettings::updateDeviceLimitIndication()
 {
-    if (_pDeviceTabs)
+    if (!_pLimitWarningLabel)
     {
-        _pDeviceTabs->setAddButtonVisible(_pDeviceTabs->count() < maxAllowedDevices());
+        return;
     }
+    const QString message = deviceLimitWarningMessage();
+    _pLimitWarningLabel->setText(message);
+    _pLimitWarningLabel->setVisible(!message.isEmpty());
 }
 
 QStringList AdapterDeviceSettings::validAdapterIds() const
@@ -269,10 +305,11 @@ QString AdapterDeviceSettings::constructTabName(DeviceConfigTab* tab) const
     return QStringLiteral("Device");
 }
 
-void AdapterDeviceSettings::connectTabNameTracking(DeviceConfigTab* tab)
+void AdapterDeviceSettings::connectTabTracking(DeviceConfigTab* tab)
 {
     connect(tab, &DeviceConfigTab::nameChanged, tab,
             [this, tab]() { _pDeviceTabs->setTabName(_pDeviceTabs->indexOf(tab), constructTabName(tab)); });
+    connect(tab, &DeviceConfigTab::adapterChanged, this, &AdapterDeviceSettings::updateDeviceLimitIndication);
 }
 
 void AdapterDeviceSettings::acceptValues()

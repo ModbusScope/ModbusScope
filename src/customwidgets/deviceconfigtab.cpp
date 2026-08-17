@@ -94,6 +94,7 @@ void DeviceConfigTab::onAdapterChanged(int index)
     }
 
     rebuildSchemaForm(newAdapterId, defaultValues);
+    emit adapterChanged(newAdapterId);
 }
 
 void DeviceConfigTab::onNameChanged(const QString& name)
