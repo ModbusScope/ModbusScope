@@ -282,6 +282,13 @@ void ExpressionsDialog::startNextDescribe()
     _pDescribeManager = nullptr;
     while (_nextDescribeRow < _pendingDescribeAddresses.size() && _pDescribeManager == nullptr)
     {
+        if (_pSettingsModel != nullptr && !_pSettingsModel->hasDevice(_pendingDescribeDeviceIds[_nextDescribeRow]))
+        {
+            setDescribeRowText(_nextDescribeRow, QStringLiteral("Invalid device"));
+            _nextDescribeRow++;
+            continue;
+        }
+
         AdapterManager* pManager = managerForDescribeRow(_nextDescribeRow);
         if (pManager != nullptr)
         {
@@ -298,6 +305,20 @@ void ExpressionsDialog::startNextDescribe()
     }
 }
 
+/*!
+ * \brief Set the description text of a pending-describe row, if the row still has an item.
+ * \param row  Row index into the describe table.
+ * \param text Text to set; ignored when empty.
+ */
+void ExpressionsDialog::setDescribeRowText(qint32 row, const QString& text)
+{
+    QTableWidgetItem* pItem = _pUi->tblExpressionInput->item(row, 0);
+    if (pItem != nullptr && !text.isEmpty())
+    {
+        pItem->setText(text);
+    }
+}
+
 void ExpressionsDialog::handleDescribeDataPointResult(const QJsonObject& result)
 {
     if (_nextDescribeRow >= _pendingDescribeAddresses.size())
@@ -305,12 +326,7 @@ void ExpressionsDialog::handleDescribeDataPointResult(const QJsonObject& result)
         return;
     }
 
-    QString description = result["description"].toString();
-    QTableWidgetItem* pItem = _pUi->tblExpressionInput->item(_nextDescribeRow, 0);
-    if (pItem != nullptr && !description.isEmpty())
-    {
-        pItem->setText(description);
-    }
+    setDescribeRowText(_nextDescribeRow, result["description"].toString());
 
     _nextDescribeRow++;
     startNextDescribe();

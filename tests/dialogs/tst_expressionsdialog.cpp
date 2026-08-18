@@ -198,6 +198,28 @@ void TestExpressionsDialog::describeSkipsIdleAdapter()
     QCOMPARE(_pMockAdapterManager->describeCalls[0], QStringLiteral("${40002}"));
 }
 
+void TestExpressionsDialog::describeShowsInvalidDeviceMessage()
+{
+    /* Device 99 was never added to the settings model */
+    auto* pEdit = _pDialog->findChild<QPlainTextEdit*>("lineExpression");
+    QVERIFY(pEdit != nullptr);
+
+    pEdit->setPlainText(QStringLiteral("${40001@99} + ${40002}"));
+
+    /* Row 0 is skipped without a describe call; the chain continues with row 1 */
+    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
+    QCOMPARE(_pMockAdapterManager->describeCalls[0], QStringLiteral("${40002}"));
+
+    _pMockAdapterManager->injectDescribeResult(QStringLiteral("Modbus reg"));
+
+    auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
+    QVERIFY(pTable != nullptr);
+    QCOMPARE(pTable->item(0, 0)->text(), QStringLiteral("Invalid device"));
+    QCOMPARE(pTable->item(1, 0)->text(), QStringLiteral("Modbus reg"));
+
+    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
+}
+
 void TestExpressionsDialog::helpComboHiddenWithSingleAdapter()
 {
     /* Use isHidden(): the surrounding info panel (widgetInfo) starts collapsed,
