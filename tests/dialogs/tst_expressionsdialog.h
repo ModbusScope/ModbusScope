@@ -77,6 +77,7 @@ private slots:
     void describeRoutedPerDeviceAdapter();
     void describeSkipsUnavailableAdapter();
     void describeSkipsIdleAdapter();
+    void describeShowsInvalidDeviceMessage();
     void helpComboHiddenWithSingleAdapter();
     void helpComboVisibleWithTwoAdapters();
     void helpRoutedToSelectedAdapter();

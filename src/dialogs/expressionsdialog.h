@@ -45,6 +45,7 @@ private:
     void populateHelpAdapters();
     void requestHelpForAdapter(const QString& adapterId);
     AdapterManager* managerForDescribeRow(qint32 row) const;
+    void setDescribeRowText(qint32 row, const QString& text);
 
     Ui::ExpressionsDialog* _pUi;
 
