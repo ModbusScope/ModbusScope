@@ -21,6 +21,11 @@ DiagnosticDialog::DiagnosticDialog(DiagnosticModel* pDiagnosticModel, QWidget* p
     _pUi->setupUi(this);
     _bAutoScroll = false;
 
+    _pUi->label->setText(tr("You should only enable this when you want to debug the connection. When "
+                             "enabled, all data reads are logged. This will increase the log size very "
+                             "much. While enabled, all logs are also automatically appended to %1.")
+                              .arg(DebugLogFileWriter::defaultFilePath()));
+
     _pDiagnosticModel = pDiagnosticModel;
 
     _pSeverityProxyFilter = new DiagnosticFilter();
