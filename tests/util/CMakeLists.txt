@@ -1,3 +1,4 @@
+add_xtest(tst_debuglogfilewriter)
 add_xtest(tst_expressionchecker)
 add_xtest(tst_expressionstatus)
 add_xtest(tst_formatdatetime)

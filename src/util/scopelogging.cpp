@@ -61,11 +61,26 @@ void ScopeLogging::handleLog(QtMsgType type, const QMessageLogContext& context, 
         _pDiagnosticModel->addLog(context.category, logSeverity, offset, msg);
     }
 
+    if (_debugLogFileWriter.isEnabled())
+    {
+        Diagnostic log(context.category, logSeverity, offset, msg);
+        _debugLogFileWriter.writeLine(log.toExportString());
+    }
+
 #if 0
     QByteArray localMsg = msg.toLocal8Bit();
 
     fprintf(stderr, "%08d - %s\n", offset, localMsg.constData());
 #endif
+}
+
+/*!
+ * \brief Enable or disable automatically appending all log messages to a file in the temp folder
+ * \param bEnabled  When true, log messages are appended (never truncating existing content)
+ */
+void ScopeLogging::setDebugFileLoggingEnabled(bool bEnabled)
+{
+    _debugLogFileWriter.setEnabled(bEnabled);
 }
 
 namespace ModbusScopeLog {

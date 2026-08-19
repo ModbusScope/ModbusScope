@@ -3,6 +3,8 @@
 
 #include <QLoggingCategory>
 
+#include "util/debuglogfilewriter.h"
+
 Q_DECLARE_LOGGING_CATEGORY(scopeAdapter)
 Q_DECLARE_LOGGING_CATEGORY(scopeComm)
 Q_DECLARE_LOGGING_CATEGORY(scopeGeneralInfo)
@@ -23,10 +25,13 @@ public:
 
     void handleLog(QtMsgType type, const QMessageLogContext& context, const QString& msg);
 
+    void setDebugFileLoggingEnabled(bool bEnabled);
+
 private:
     qint64 _logStartTime;
 
     DiagnosticModel* _pDiagnosticModel;
+    DebugLogFileWriter _debugLogFileWriter;
 };
 
 inline ScopeLogging& ScopeLogging::Logger()

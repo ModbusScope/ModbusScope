@@ -165,6 +165,7 @@ void DiagnosticDialog::handleEnableDebugLog(Qt::CheckState state)
     if (state == Qt::Checked)
     {
         _pDiagnosticModel->setMinimumSeverityLevel(Diagnostic::LOG_DEBUG);
+        ScopeLogging::Logger().setDebugFileLoggingEnabled(true);
 
         _pUi->checkDebug->setChecked(true);
         _pUi->checkDebug->setEnabled(true);
@@ -177,6 +178,7 @@ void DiagnosticDialog::handleEnableDebugLog(Qt::CheckState state)
         handleFilterChange();
 
         _pDiagnosticModel->setMinimumSeverityLevel(Diagnostic::LOG_INFO);
+        ScopeLogging::Logger().setDebugFileLoggingEnabled(false);
     }
 }
 
