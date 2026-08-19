@@ -35,6 +35,14 @@ void ScopeLogging::initLogging(DiagnosticModel* pDiagnosticModel)
 #endif
 }
 
+/*!
+ * \brief Route a Qt log message to the diagnostic model and, when enabled, the debug log file
+ *
+ * Installed via qInstallMessageHandler(), which Qt may invoke from any thread that logs a
+ * message. This codebase does not use worker threads today, so all calls happen to originate
+ * from the main thread; a future change that logs from a background thread would need to
+ * synchronize access to _pDiagnosticModel and _debugLogFileWriter here.
+ */
 void ScopeLogging::handleLog(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
     Diagnostic::LogSeverity logSeverity;
@@ -77,10 +85,11 @@ void ScopeLogging::handleLog(QtMsgType type, const QMessageLogContext& context, 
 /*!
  * \brief Enable or disable automatically appending all log messages to a file in the temp folder
  * \param bEnabled  When true, log messages are appended (never truncating existing content)
+ * \return True on success, false when enabling failed (e.g. the temp folder is not writable)
  */
-void ScopeLogging::setDebugFileLoggingEnabled(bool bEnabled)
+bool ScopeLogging::setDebugFileLoggingEnabled(bool bEnabled)
 {
-    _debugLogFileWriter.setEnabled(bEnabled);
+    return _debugLogFileWriter.setEnabled(bEnabled);
 }
 
 namespace ModbusScopeLog {

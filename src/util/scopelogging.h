@@ -25,7 +25,7 @@ public:
 
     void handleLog(QtMsgType type, const QMessageLogContext& context, const QString& msg);
 
-    void setDebugFileLoggingEnabled(bool bEnabled);
+    bool setDebugFileLoggingEnabled(bool bEnabled);
 
 private:
     qint64 _logStartTime;

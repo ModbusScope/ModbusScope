@@ -6,7 +6,7 @@
  * \brief Constructor for DebugLogFileWriter
  * \param filePath  Path of the file to append log lines to when enabled
  */
-DebugLogFileWriter::DebugLogFileWriter(QString filePath) : _filePath(filePath), _file(filePath) {}
+DebugLogFileWriter::DebugLogFileWriter(QString filePath) : _file(filePath) {}
 
 /*!
  * \brief Default location of the debug log file: a fixed name in the OS temp folder
@@ -15,32 +15,30 @@ DebugLogFileWriter::DebugLogFileWriter(QString filePath) : _filePath(filePath), 
 QString DebugLogFileWriter::defaultFilePath()
 {
     const QString cDefaultLogFileName = "ModbusScope-debuglog.txt";
-    QString tempDir = QDir::toNativeSeparators(QDir::tempPath());
 
-    if (tempDir.right(1) != QDir::separator())
-    {
-        tempDir.append(QDir::separator());
-    }
-
-    return tempDir.append(cDefaultLogFileName);
+    return QDir::toNativeSeparators(QDir(QDir::tempPath()).filePath(cDefaultLogFileName));
 }
 
 /*!
  * \brief Enable or disable writing to the debug log file
  * \param bEnabled  When true, opens the file in append mode (never truncates existing content);
  *                  when false, closes the file
+ * \return True when the requested state was reached (false when opening the file failed)
  */
-void DebugLogFileWriter::setEnabled(bool bEnabled)
+bool DebugLogFileWriter::setEnabled(bool bEnabled)
 {
     if (bEnabled == isEnabled())
     {
-        return;
+        return true;
     }
 
     if (bEnabled)
     {
-        _file.setFileName(_filePath);
-        _file.open(QIODevice::Append | QIODevice::Text);
+        if (!_file.open(QIODevice::Append | QIODevice::Text))
+        {
+            return false;
+        }
+
         _stream.setDevice(&_file);
     }
     else
@@ -48,6 +46,8 @@ void DebugLogFileWriter::setEnabled(bool bEnabled)
         _stream.setDevice(nullptr);
         _file.close();
     }
+
+    return true;
 }
 
 /*!

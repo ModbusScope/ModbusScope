@@ -4,6 +4,7 @@
 #include "importexport/diagnosticexporter.h"
 #include "models/diagnosticfilter.h"
 #include "models/diagnosticmodel.h"
+#include "util/debuglogfilewriter.h"
 #include "util/fileselectionhelper.h"
 #include "util/scopelogging.h"
 #include "util/util.h"
@@ -165,7 +166,10 @@ void DiagnosticDialog::handleEnableDebugLog(Qt::CheckState state)
     if (state == Qt::Checked)
     {
         _pDiagnosticModel->setMinimumSeverityLevel(Diagnostic::LOG_DEBUG);
-        ScopeLogging::Logger().setDebugFileLoggingEnabled(true);
+        if (!ScopeLogging::Logger().setDebugFileLoggingEnabled(true))
+        {
+            Util::showError(tr("Failed to open debug log file (%1)").arg(DebugLogFileWriter::defaultFilePath()));
+        }
 
         _pUi->checkDebug->setChecked(true);
         _pUi->checkDebug->setEnabled(true);

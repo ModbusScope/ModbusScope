@@ -3,7 +3,6 @@
 #define TST_DEBUGLOGFILEWRITER_H
 
 #include <QObject>
-#include <QTemporaryDir>
 
 class TestDebugLogFileWriter : public QObject
 {
@@ -11,16 +10,13 @@ class TestDebugLogFileWriter : public QObject
 
 private slots:
 
-    void init();
-    void cleanup();
-
     void writeLineWhileDisabledDoesNothing();
     void writeLineWhileEnabledAppendsLines();
     void writtenLinesAreFlushedImmediately();
     void reenablingAppendsRatherThanTruncates();
+    void setEnabledFailsForUnwritablePath();
 
 private:
-    QTemporaryDir* _pTempDir;
 };
 
 #endif /* TST_DEBUGLOGFILEWRITER_H */

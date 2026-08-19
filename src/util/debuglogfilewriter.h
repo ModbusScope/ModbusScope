@@ -12,13 +12,12 @@ public:
 
     static QString defaultFilePath();
 
-    void setEnabled(bool bEnabled);
+    bool setEnabled(bool bEnabled);
     bool isEnabled() const;
 
     void writeLine(const QString& line);
 
 private:
-    QString _filePath;
     QFile _file;
     QTextStream _stream;
 };
