@@ -73,7 +73,7 @@ bool AdapterManager::isAdapterIdle() const
     return _pAdapterClient->isIdle();
 }
 
-/*! \brief Returns true when the adapter has an established session (ACTIVE state). */
+/*! \brief Returns true when the adapter has an established session, including a degraded one. */
 bool AdapterManager::isAdapterActive() const
 {
     return _pAdapterClient->isActive();

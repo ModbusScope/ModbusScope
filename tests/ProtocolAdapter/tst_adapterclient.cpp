@@ -1396,6 +1396,42 @@ void TestAdapterClient::errorDuringStopAfterConfigureErrorIsSuppressed()
     QVERIFY(client.isIdle());
 }
 
+/*!
+ * \brief Regression test: describeDataPoint/validateDataPoint/buildExpression/requestExpressionHelp
+ * must keep working against a degraded (ACTIVE_DEGRADED) session's still-alive process, exactly as
+ * they already do in AWAITING_CONFIG or a genuinely ACTIVE session — these RPCs don't depend on the
+ * session having been successfully configured or started.
+ */
+void TestAdapterClient::auxRequestsWorkInDegradedSession()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    driveToAwaitingConfig(client, mock);
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h0}") });
+    QJsonObject error;
+    error["code"] = -32602;
+    error["message"] = QStringLiteral("Too many devices: maximum allowed is 2");
+    mock->injectError(3, "adapter.configure", error);
+    QVERIFY(client.isActive());
+
+    client.describeDataPoint(QStringLiteral("${h0}"));
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.describeDataPoint"));
+
+    client.validateDataPoint(QStringLiteral("${h0}"));
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.validateDataPoint"));
+
+    QJsonObject fields;
+    fields["objectType"] = QStringLiteral("holding register");
+    fields["address"] = 0;
+    client.buildExpression(fields, QStringLiteral("16b"), 1);
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.buildExpression"));
+
+    client.requestExpressionHelp();
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.expressionHelp"));
+}
+
 void TestAdapterClient::stopSessionSendsAdapterStop()
 {
     auto mockOwned = std::make_unique<MockAdapterProcess>();

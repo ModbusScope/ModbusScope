@@ -75,6 +75,7 @@ private slots:
     void configureErrorAllowsRetryAfterStop();
     void requestStatusInDegradedSessionAfterConfigureErrorReturnsFalseLocally();
     void errorDuringStopAfterConfigureErrorIsSuppressed();
+    void auxRequestsWorkInDegradedSession();
 };
 
 #endif // TST_ADAPTERCLIENT_H

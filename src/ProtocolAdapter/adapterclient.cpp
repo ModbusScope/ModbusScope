@@ -145,7 +145,7 @@ void AdapterClient::requestDataPointSchema()
  */
 void AdapterClient::describeDataPoint(const QString& expression)
 {
-    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE)
+    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE && _state != State::ACTIVE_DEGRADED)
     {
         qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "describeDataPoint called in unexpected state"
                              << static_cast<int>(_state);
@@ -163,7 +163,7 @@ void AdapterClient::describeDataPoint(const QString& expression)
  */
 void AdapterClient::validateDataPoint(const QString& expression)
 {
-    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE)
+    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE && _state != State::ACTIVE_DEGRADED)
     {
         qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "validateDataPoint called in unexpected state"
                              << static_cast<int>(_state);
@@ -183,7 +183,7 @@ void AdapterClient::validateDataPoint(const QString& expression)
  */
 void AdapterClient::buildExpression(const QJsonObject& addressFields, const QString& dataType, deviceId_t deviceId)
 {
-    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE)
+    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE && _state != State::ACTIVE_DEGRADED)
     {
         qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "buildExpression called in unexpected state"
                              << static_cast<int>(_state);
@@ -209,7 +209,7 @@ void AdapterClient::buildExpression(const QJsonObject& addressFields, const QStr
  */
 void AdapterClient::requestExpressionHelp()
 {
-    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE)
+    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE && _state != State::ACTIVE_DEGRADED)
     {
         qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "requestExpressionHelp called in unexpected state"
                              << static_cast<int>(_state);

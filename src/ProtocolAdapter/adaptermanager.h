@@ -66,7 +66,7 @@ public:
     virtual bool isAdapterIdle() const;
 
     /*!
-     * \brief Returns true when the adapter has an established session (ACTIVE state).
+     * \brief Returns true when the adapter has an established session, including a degraded one.
      */
     virtual bool isAdapterActive() const;
 
