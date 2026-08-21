@@ -47,7 +47,8 @@ signals:
     void registerDataReady(ResultDoubleList registers);
 
     /*!
-     * \brief Emitted when the adapter session fails fatally while communication is running.
+     * \brief Emitted when the adapter session fails fatally while communication is running or
+     * still pending (including the WaitingForAdapter state, before any session has started).
      *
      * By the time this fires, polling has already been halted internally (pollState reset to
      * Inactive); callers must resync any "communication running" state of their own and surface
