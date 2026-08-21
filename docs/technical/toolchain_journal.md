@@ -21,6 +21,15 @@ cmake -DCMAKE_PREFIX_PATH=/opt/Qt/5.15.1/gcc_64/lib/cmake/Qt5 -GNinja ..
 ninja
 ```
 
+### Missing OpenGL dev headers (Fedora)
+
+CMake configure fails with `WrapOpenGL` not found (Qt6Gui requires it, which cascades to
+Qt6Widgets failing to configure). Install the OpenGL dev package:
+
+```bash
+sudo dnf install -y mesa-libGL-devel
+```
+
 ## Build doc
 
 ### System wide install
