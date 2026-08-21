@@ -229,7 +229,17 @@ void AdapterClient::stopSession()
     _handshakeTimer.stop();
     _pendingAuxRequests.clear();
 
-    if (_state == State::ACTIVE || _state == State::ACTIVE_DEGRADED)
+    if (_state == State::ACTIVE_DEGRADED)
+    {
+        /* No real session was ever established with the adapter (adapter.configure or
+           adapter.start was rejected), so there is nothing to tell it to stop: transition
+           locally exactly as a successful adapter.stop response would. */
+        qCInfo(scopeComm) << "AdapterClient:" << _adapterId << "degraded session stopped locally, awaiting config";
+        _state = State::AWAITING_CONFIG;
+        emit sessionStopped();
+        emit adapterReady();
+    }
+    else if (_state == State::ACTIVE)
     {
         _state = State::STOPPING_SESSION;
         _pProcess->sendRequest("adapter.stop", QJsonObject());

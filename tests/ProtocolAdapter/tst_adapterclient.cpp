@@ -1188,6 +1188,7 @@ void TestAdapterClient::startErrorAllowsRetryAfterStop()
     AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
+    QSignalSpy spyReady(&client, &AdapterClient::adapterReady);
 
     driveToAwaitingConfig(client, mock);
     client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h0}") });
@@ -1196,54 +1197,21 @@ void TestAdapterClient::startErrorAllowsRetryAfterStop()
     error["code"] = -32602;
     error["message"] = QStringLiteral("Invalid params: Invalid register address: ${h0}");
     mock->injectError(4, "adapter.start", error);
+    spyReady.clear();
 
-    /* User fixes the expression and restarts the session: stopSession() must behave exactly
-       as it would for a genuinely-active session, sending adapter.stop rather than force-killing. */
+    /* Degraded session never established a real remote session, so stopSession() transitions
+       locally without sending adapter.stop, emitting sessionStopped() then adapterReady(). */
+    int requestCountBeforeStop = mock->sentRequests().size();
     client.stopSession();
-    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.stop"));
-    mock->injectResponse(5, "adapter.stop", QJsonObject{ { "status", "ok" } });
+    QCOMPARE(mock->sentRequests().size(), requestCountBeforeStop);
     QCOMPARE(spyStopped.count(), 1);
+    QCOMPARE(spyReady.count(), 1);
     QVERIFY(client.isReady());
 
     client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h1}") });
-    mock->injectResponse(6, "adapter.configure", QJsonObject{ { "status", "ok" } });
-    mock->injectResponse(7, "adapter.start", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(5, "adapter.configure", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(6, "adapter.start", QJsonObject{ { "status", "ok" } });
     QVERIFY(client.isActive());
-}
-
-void TestAdapterClient::errorDuringStopAfterStartErrorIsSuppressed()
-{
-    auto mockOwned = std::make_unique<MockAdapterProcess>();
-    auto* mock = mockOwned.get();
-    AdapterClient client(std::move(mockOwned));
-
-    QSignalSpy spyError(&client, &AdapterClient::sessionError);
-    QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
-
-    driveToAwaitingConfig(client, mock);
-    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h0}") });
-    mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
-    QJsonObject startError;
-    startError["code"] = -32602;
-    startError["message"] = QStringLiteral("Invalid params: Invalid register address: ${h0}");
-    mock->injectError(4, "adapter.start", startError);
-
-    client.stopSession();
-    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.stop"));
-
-    /* Pins down current behavior for the (currently theoretical, per source review of the real
-       adapters' unconditional/idempotent StopHandler) case where adapter.stop itself errors after
-       a degraded start: this must behave exactly like errorDuringAdapterStopSuppressed() for a
-       genuinely-active session — force-kill and sessionStopped(), never sessionError() — rather than
-       leaving the client stuck in STOPPING_SESSION. */
-    QJsonObject stopError;
-    stopError["code"] = -32603;
-    stopError["message"] = "internal error";
-    mock->injectError(5, "adapter.stop", stopError);
-
-    QCOMPARE(spyError.count(), 0);
-    QCOMPARE(spyStopped.count(), 1);
-    QVERIFY(client.isIdle());
 }
 
 void TestAdapterClient::requestStatusInDegradedSessionReturnsFalseLocally()
@@ -1324,17 +1292,17 @@ void TestAdapterClient::configureErrorAllowsRetryAfterStop()
     error["message"] = QStringLiteral("Too many devices: maximum allowed is 2");
     mock->injectError(3, "adapter.configure", error);
 
-    /* User removes the extra device and restarts the session: stopSession() must behave exactly
-       as it would for a genuinely-active session, sending adapter.stop rather than force-killing. */
+    /* Degraded session never established a real remote session, so stopSession() transitions
+       locally without sending adapter.stop. */
+    int requestCountBeforeStop = mock->sentRequests().size();
     client.stopSession();
-    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.stop"));
-    mock->injectResponse(4, "adapter.stop", QJsonObject{ { "status", "ok" } });
+    QCOMPARE(mock->sentRequests().size(), requestCountBeforeStop);
     QCOMPARE(spyStopped.count(), 1);
     QVERIFY(client.isReady());
 
     client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h1}") });
-    mock->injectResponse(5, "adapter.configure", QJsonObject{ { "status", "ok" } });
-    mock->injectResponse(6, "adapter.start", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(4, "adapter.configure", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(5, "adapter.start", QJsonObject{ { "status", "ok" } });
     QVERIFY(client.isActive());
 }
 
@@ -1360,40 +1328,6 @@ void TestAdapterClient::requestStatusInDegradedSessionAfterConfigureErrorReturns
     QCOMPARE(mock->sentRequests().size(), requestCountBeforeStatus);
     QCOMPARE(spyStatus.count(), 1);
     QCOMPARE(spyStatus.at(0).at(0).toBool(), false);
-}
-
-void TestAdapterClient::errorDuringStopAfterConfigureErrorIsSuppressed()
-{
-    auto mockOwned = std::make_unique<MockAdapterProcess>();
-    auto* mock = mockOwned.get();
-    AdapterClient client(std::move(mockOwned));
-
-    QSignalSpy spyError(&client, &AdapterClient::sessionError);
-    QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
-
-    driveToAwaitingConfig(client, mock);
-    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h0}") });
-    QJsonObject configureError;
-    configureError["code"] = -32602;
-    configureError["message"] = QStringLiteral("Too many devices: maximum allowed is 2");
-    mock->injectError(3, "adapter.configure", configureError);
-
-    client.stopSession();
-    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.stop"));
-
-    /* Pins down current behavior for the (currently theoretical, per source review of the real
-       adapters' unconditional/idempotent StopHandler) case where adapter.stop itself errors after
-       a degraded configure: this must behave exactly like errorDuringAdapterStopSuppressed() for a
-       genuinely-active session — force-kill and sessionStopped(), never sessionError() — rather than
-       leaving the client stuck in STOPPING_SESSION. */
-    QJsonObject stopError;
-    stopError["code"] = -32603;
-    stopError["message"] = "internal error";
-    mock->injectError(4, "adapter.stop", stopError);
-
-    QCOMPARE(spyError.count(), 0);
-    QCOMPARE(spyStopped.count(), 1);
-    QVERIFY(client.isIdle());
 }
 
 /*!

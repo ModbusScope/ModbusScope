@@ -69,12 +69,10 @@ private slots:
     void startErrorIsNonFatal();
     void startErrorAllowsRetryAfterStop();
     void requestStatusInDegradedSessionReturnsFalseLocally();
-    void errorDuringStopAfterStartErrorIsSuppressed();
 
     void configureErrorIsNonFatal();
     void configureErrorAllowsRetryAfterStop();
     void requestStatusInDegradedSessionAfterConfigureErrorReturnsFalseLocally();
-    void errorDuringStopAfterConfigureErrorIsSuppressed();
     void auxRequestsWorkInDegradedSession();
 };
 

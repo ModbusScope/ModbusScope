@@ -8,6 +8,8 @@
 
 #include <QCoreApplication>
 
+#include <utility>
+
 AdapterHub::AdapterHub(SettingsModel* pSettingsModel, QObject* parent)
     : QObject(parent), _pSettingsModel(pSettingsModel)
 {
@@ -90,9 +92,16 @@ void AdapterHub::startSession(const QString& adapterId, const QStringList& expre
  * mid-handshake manager is also purged from _pendingStartAdapters here, since that force-stop
  * only emits sessionStopped() - never the sessionStarted()/sessionError() that would otherwise
  * clear it.
+ *
+ * _pendingReadyAdapters/_pendingStartAdapters are fully updated for every manager being stopped
+ * before any manager's stopSession() is actually called (mirroring initAdapter()'s two-pass
+ * pattern), since a degraded manager's stopSession() emits adapterReady() synchronously: calling
+ * it mid-loop could otherwise drain _pendingReadyAdapters and fire AdapterHub::adapterReady()
+ * before every manager in this sweep has even been asked to stop.
  */
 void AdapterHub::stopSession()
 {
+    QList<AdapterManager*> managersToStop;
     for (auto it = _adapterManagers.constBegin(); it != _adapterManagers.constEnd(); ++it)
     {
         AdapterManager* mgr = it.value();
@@ -109,6 +118,11 @@ void AdapterHub::stopSession()
         {
             _pendingStartAdapters.remove(it.key());
         }
+        managersToStop.append(mgr);
+    }
+
+    for (AdapterManager* mgr : std::as_const(managersToStop))
+    {
         mgr->stopSession();
     }
 }

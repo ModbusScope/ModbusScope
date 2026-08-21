@@ -87,6 +87,10 @@ public:
      * remains alive in AWAITING_CONFIG state; provideConfig() can be called again for
      * the next session. sessionStopped() is emitted once the adapter acknowledges.
      *
+     * When ACTIVE_DEGRADED, no adapter.stop is sent (no real session was ever established);
+     * the client transitions to AWAITING_CONFIG immediately and emits sessionStopped() then
+     * adapterReady() synchronously.
+     *
      * When called in STARTING or any other non-ACTIVE non-idle state, the process is
      * force-killed directly (adapter.stop requires an established session).
      */
@@ -270,9 +274,9 @@ private:
         ACTIVE_DEGRADED,  /*!< adapter.configure or adapter.start was rejected: the process stays
                                alive, but never received a working config, so
                                requestReadData()/requestStatus() answer locally instead of
-                               contacting it. Functionally equivalent to ACTIVE everywhere a real
-                               session would behave the same (stopSession() still sends a real
-                               adapter.stop; isActive() is still true). */
+                               contacting it. isActive() is still true, but stopSession() skips
+                               adapter.stop (no real session exists to tell the adapter to stop)
+                               and transitions to AWAITING_CONFIG locally instead. */
         STOPPING_SESSION, /*!< adapter.stop sent; adapter stays alive, transitioning to AWAITING_CONFIG */
         STOPPING          /*!< process is being force-killed */
     };

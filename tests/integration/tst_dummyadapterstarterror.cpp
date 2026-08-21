@@ -71,7 +71,13 @@ void TestDummyAdapterStartError::startWithInvalidExpressionKeepsAdapterAliveAndP
        a valid expression. */
     QSignalSpy spyStopped(_pAdapterManager, &AdapterManager::sessionStopped);
     _pAdapterManager->stopSession();
-    QVERIFY2(spyStopped.wait(cSessionTimeoutMs), "sessionStopped not emitted after stopSession");
+    /* A degraded session's stopSession() transitions locally and synchronously (no adapter
+       round-trip), so the signal may already have fired before wait() starts watching for a new
+       one — check count() first. */
+    if (spyStopped.isEmpty())
+    {
+        QVERIFY2(spyStopped.wait(cSessionTimeoutMs), "sessionStopped not emitted after stopSession");
+    }
 
     QSignalSpy spyRestarted(_pAdapterManager, &AdapterManager::sessionStarted);
     _pAdapterManager->startSession(QStringList{ QStringLiteral("${0}") });
