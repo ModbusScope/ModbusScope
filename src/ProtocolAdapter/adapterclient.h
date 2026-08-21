@@ -23,6 +23,9 @@
  *   requestStatus() → getStatus → statusResult()
  *   stopSession() → stop → AWAITING_CONFIG → sessionStopped()
  *
+ * A rejected adapter.start lands in ACTIVE_DEGRADED instead of ACTIVE: sessionStarted() is still
+ * emitted, but requestReadData()/requestStatus() answer locally.
+ *
  * Takes ownership of the AdapterProcess passed to the constructor via std::unique_ptr.
  */
 class AdapterClient : public QObject
@@ -100,7 +103,7 @@ public:
     bool isIdle() const;
 
     /*!
-     * \brief Returns true when the adapter has an established session (ACTIVE state).
+     * \brief Returns true when the adapter has an established session (ACTIVE or ACTIVE_DEGRADED state).
      */
     bool isActive() const;
 
@@ -263,6 +266,12 @@ private:
         CONFIGURING,
         STARTING,
         ACTIVE,
+        ACTIVE_DEGRADED,  /*!< adapter.configure or adapter.start was rejected: the process stays
+                               alive, but never received a working config, so
+                               requestReadData()/requestStatus() answer locally instead of
+                               contacting it. Functionally equivalent to ACTIVE everywhere a real
+                               session would behave the same (stopSession() still sends a real
+                               adapter.stop; isActive() is still true). */
         STOPPING_SESSION, /*!< adapter.stop sent; adapter stays alive, transitioning to AWAITING_CONFIG */
         STOPPING          /*!< process is being force-killed */
     };
@@ -270,6 +279,7 @@ private:
     void handleLifecycleResponse(int id, const QString& method, const QJsonObject& result);
     bool consumeAuxResponse(const QString& method, int id);
     ResultDoubleList invalidResults() const;
+    void degradeSession(const QString& diagnosticMessage);
 
     static constexpr int cHandshakeTimeoutMs = 10000;
 
@@ -282,7 +292,6 @@ private:
     QJsonObject _pendingConfig;
     QStringList _pendingExpressions;
     QMap<QString, int> _pendingAuxRequests;
-    bool _sessionStartFailed{ false };
 };
 
 #endif // ADAPTERCLIENT_H
