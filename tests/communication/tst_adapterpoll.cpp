@@ -267,6 +267,17 @@ void TestAdapterPoll::sessionErrorEmitsCommunicationError()
     QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("test error"));
 }
 
+void TestAdapterPoll::sessionErrorWhileInactiveDoesNotEmitCommunicationError()
+{
+    /* AdapterHub::sessionError can fire outside any startCommunication() cycle (e.g. a failed
+       adapter discovery at application startup); AdapterPoll must not surface that as a
+       communicationError since no communication session was ever running or requested. */
+    QSignalSpy spy(s_pPoll, &AdapterPoll::communicationError);
+    s_pMockHub->triggerSessionError(QStringLiteral("startup error"));
+
+    QCOMPARE(spy.count(), 0);
+}
+
 QTEST_GUILESS_MAIN(TestAdapterPoll)
 
 #include "tst_adapterpoll.moc"

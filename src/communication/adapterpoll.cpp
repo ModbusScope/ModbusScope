@@ -197,6 +197,10 @@ void AdapterPoll::onAdapterReady()
 void AdapterPoll::onSessionError(const QString& message)
 {
     qCWarning(scopeComm) << "AdapterHub error:" << message;
+    /* AdapterHub::sessionError can also fire outside any startCommunication() cycle (e.g. a failed
+       adapter discovery/initAdapter() at application startup); only tell callers about it when it
+       actually broke an active or pending communication session. */
+    const bool wasCommunicationRelevant = (_pollState != PollState::Inactive);
     if (_pollState == PollState::WaitingForAdapter)
     {
         disconnect(_adapterReadyConnection);
@@ -205,7 +209,10 @@ void AdapterPoll::onSessionError(const QString& message)
     _pollState = PollState::Inactive;
     _pendingResults.clear();
     _pendingResultAdapters.clear();
-    emit communicationError(message);
+    if (wasCommunicationRelevant)
+    {
+        emit communicationError(message);
+    }
 }
 
 void AdapterPoll::buildAdapterGroups(const QList<DataPoint>& registerList)

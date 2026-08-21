@@ -19,6 +19,7 @@ private slots:
     void phantomAdapterDoesNotHangPoll();
     void sessionErrorClearsForRestart();
     void sessionErrorEmitsCommunicationError();
+    void sessionErrorWhileInactiveDoesNotEmitCommunicationError();
 };
 
 #endif // TST_ADAPTERPOLL_H
