@@ -253,6 +253,20 @@ void TestAdapterPoll::sessionErrorClearsForRestart()
     QCOMPARE(spy.count(), 1);
 }
 
+void TestAdapterPoll::sessionErrorEmitsCommunicationError()
+{
+    s_pMockHub->_mockReady = true;
+
+    QList<DataPoint> registers{ DataPoint(QStringLiteral("${h0}"), 1) };
+    s_pPoll->startCommunication(registers);
+
+    QSignalSpy spy(s_pPoll, &AdapterPoll::communicationError);
+    s_pMockHub->triggerSessionError(QStringLiteral("test error"));
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("test error"));
+}
+
 QTEST_GUILESS_MAIN(TestAdapterPoll)
 
 #include "tst_adapterpoll.moc"

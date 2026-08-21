@@ -205,6 +205,7 @@ void AdapterPoll::onSessionError(const QString& message)
     _pollState = PollState::Inactive;
     _pendingResults.clear();
     _pendingResultAdapters.clear();
+    emit communicationError(message);
 }
 
 void AdapterPoll::buildAdapterGroups(const QList<DataPoint>& registerList)

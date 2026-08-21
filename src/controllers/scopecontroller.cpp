@@ -43,6 +43,7 @@ ScopeController::ScopeController(GuiModel* pGuiModel,
 {
     _pAdapterPoll = new AdapterPoll(_pSettingsModel, this);
     connect(_pAdapterPoll, &AdapterPoll::registerDataReady, this, &ScopeController::onRegisterDataReady);
+    connect(_pAdapterPoll, &AdapterPoll::communicationError, this, &ScopeController::onCommunicationError);
 
     _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pCommunicationStatsModel, _pNoteModel,
                                             _pSettingsModel, _pDataParserModel, this);
@@ -58,6 +59,7 @@ ScopeController::~ScopeController()
 {
     _pAdapterPoll->stopCommunication();
     disconnect(_pAdapterPoll, &AdapterPoll::registerDataReady, this, &ScopeController::onRegisterDataReady);
+    disconnect(_pAdapterPoll, &AdapterPoll::communicationError, this, &ScopeController::onCommunicationError);
 }
 
 /*!
@@ -158,6 +160,16 @@ void ScopeController::stop()
     }
 
     _pGuiModel->setGuiState(GuiState::STOPPED);
+}
+
+/*!
+ * \brief Handle a fatal adapter session failure by stopping the session and surfacing the error
+ * \param message Human-readable error description from AdapterPoll::communicationError
+ */
+void ScopeController::onCommunicationError(const QString& message)
+{
+    stop();
+    emit errorOccurred(message);
 }
 
 /*!
