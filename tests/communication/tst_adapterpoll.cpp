@@ -278,6 +278,25 @@ void TestAdapterPoll::sessionErrorWhileInactiveDoesNotEmitCommunicationError()
     QCOMPARE(spy.count(), 0);
 }
 
+void TestAdapterPoll::sessionErrorWhileWaitingForAdapterEmitsCommunicationError()
+{
+    /* A session error while still waiting for the adapter to become ready (e.g. it failed to
+       initialize) must be surfaced exactly like an error during an active session. */
+    s_pMockHub->_mockReady = false;
+    s_pMockHub->_mockIdle = true;
+
+    QList<DataPoint> registers{ DataPoint(QStringLiteral("${h0}"), 1) };
+    s_pPoll->startCommunication(registers);
+    QVERIFY(s_pPoll->isActive());
+    QCOMPARE(s_pMockHub->_startCalls.size(), 0);
+
+    QSignalSpy spy(s_pPoll, &AdapterPoll::communicationError);
+    s_pMockHub->triggerSessionError(QStringLiteral("adapter init failed"));
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("adapter init failed"));
+}
+
 QTEST_GUILESS_MAIN(TestAdapterPoll)
 
 #include "tst_adapterpoll.moc"

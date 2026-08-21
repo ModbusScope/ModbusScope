@@ -20,6 +20,7 @@ private slots:
     void sessionErrorClearsForRestart();
     void sessionErrorEmitsCommunicationError();
     void sessionErrorWhileInactiveDoesNotEmitCommunicationError();
+    void sessionErrorWhileWaitingForAdapterEmitsCommunicationError();
 };
 
 #endif // TST_ADAPTERPOLL_H
