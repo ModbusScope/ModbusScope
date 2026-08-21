@@ -302,6 +302,18 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
         return;
     }
 
+    /* A rejected adapter.configure (e.g. too many devices for an unlicensed session) is a
+       configuration problem, not an adapter/process failure: the adapter stays alive.
+       Treat the session as started but degraded, exactly like a rejected adapter.start below,
+       so polling continues and every requestReadData() call reports invalid results instead of
+       the subprocess being killed and the caller waiting indefinitely for a session that will
+       never start. */
+    if (method == QStringLiteral("adapter.configure") && _state == State::CONFIGURING)
+    {
+        degradeSession(QStringLiteral("Adapter rejected configuration: %1").arg(errorMsg));
+        return;
+    }
+
     /* A rejected adapter.start (e.g. an invalid register expression) is a configuration
        problem, not an adapter/process failure: the adapter stays alive and configured.
        Treat the session as started but degraded, so polling continues and every

@@ -23,8 +23,8 @@
  *   requestStatus() → getStatus → statusResult()
  *   stopSession() → stop → AWAITING_CONFIG → sessionStopped()
  *
- * A rejected adapter.start lands in ACTIVE_DEGRADED instead of ACTIVE: sessionStarted() is still
- * emitted, but requestReadData()/requestStatus() answer locally.
+ * A rejected adapter.configure or adapter.start lands in ACTIVE_DEGRADED instead of ACTIVE:
+ * sessionStarted() is still emitted, but requestReadData()/requestStatus() answer locally.
  *
  * Takes ownership of the AdapterProcess passed to the constructor via std::unique_ptr.
  */
@@ -160,9 +160,10 @@ signals:
      * \brief Emitted when the adapter has been initialized, described, and configured, and a session
      * start has been attempted.
      *
-     * Also emitted when adapter.start is rejected (e.g. an invalid register expression): the session
-     * is considered started but degraded, so requestReadData() reports invalid results for every
-     * register instead of leaving the caller waiting indefinitely for a session that will never start.
+     * Also emitted when adapter.configure or adapter.start is rejected (e.g. too many devices for
+     * an unlicensed session, or an invalid register expression): the session is considered started
+     * but degraded, so requestReadData() reports invalid results for every register instead of
+     * leaving the caller waiting indefinitely for a session that will never start.
      */
     void sessionStarted();
 

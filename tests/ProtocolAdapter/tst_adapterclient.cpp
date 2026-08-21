@@ -1271,6 +1271,131 @@ void TestAdapterClient::requestStatusInDegradedSessionReturnsFalseLocally()
     QCOMPARE(spyStatus.at(0).at(0).toBool(), false);
 }
 
+void TestAdapterClient::configureErrorIsNonFatal()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyStarted(&client, &AdapterClient::sessionStarted);
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+    QSignalSpy spyData(&client, &AdapterClient::readDataResult);
+    QSignalSpy spyDiagnostic(&client, &AdapterClient::diagnosticReceived);
+
+    driveToAwaitingConfig(client, mock);
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h0}") });
+
+    QJsonObject error;
+    error["code"] = -32602;
+    error["message"] = QStringLiteral("Too many devices: maximum allowed is 2");
+    mock->injectError(3, "adapter.configure", error);
+
+    /* Rejected configure must not be treated as a fatal/unrecoverable error: no sessionError,
+       the adapter process is left running, and the session is reported as started so
+       polling for other adapters is not blocked. */
+    QCOMPARE(spyError.count(), 0);
+    QCOMPARE(spyStarted.count(), 1);
+    QCOMPARE(spyDiagnostic.count(), 1);
+    QVERIFY(client.isActive());
+
+    /* Polling must continue: every readData request now yields invalid results locally,
+       without ever contacting the (never-configured) adapter process. */
+    int requestCountBeforeRead = mock->sentRequests().size();
+    client.requestReadData();
+    QCOMPARE(mock->sentRequests().size(), requestCountBeforeRead);
+    QCOMPARE(spyData.count(), 1);
+    ResultDoubleList results = spyData.at(0).at(0).value<ResultDoubleList>();
+    QCOMPARE(results.size(), 1);
+    QVERIFY(!results[0].isValid());
+}
+
+void TestAdapterClient::configureErrorAllowsRetryAfterStop()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
+
+    driveToAwaitingConfig(client, mock);
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h0}") });
+    QJsonObject error;
+    error["code"] = -32602;
+    error["message"] = QStringLiteral("Too many devices: maximum allowed is 2");
+    mock->injectError(3, "adapter.configure", error);
+
+    /* User removes the extra device and restarts the session: stopSession() must behave exactly
+       as it would for a genuinely-active session, sending adapter.stop rather than force-killing. */
+    client.stopSession();
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.stop"));
+    mock->injectResponse(4, "adapter.stop", QJsonObject{ { "status", "ok" } });
+    QCOMPARE(spyStopped.count(), 1);
+    QVERIFY(client.isReady());
+
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h1}") });
+    mock->injectResponse(5, "adapter.configure", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(6, "adapter.start", QJsonObject{ { "status", "ok" } });
+    QVERIFY(client.isActive());
+}
+
+void TestAdapterClient::requestStatusInDegradedSessionAfterConfigureErrorReturnsFalseLocally()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyStatus(&client, &AdapterClient::statusResult);
+
+    driveToAwaitingConfig(client, mock);
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h0}") });
+    QJsonObject error;
+    error["code"] = -32602;
+    error["message"] = QStringLiteral("Too many devices: maximum allowed is 2");
+    mock->injectError(3, "adapter.configure", error);
+
+    int requestCountBeforeStatus = mock->sentRequests().size();
+    client.requestStatus();
+
+    /* Must not contact the never-configured adapter process for status either. */
+    QCOMPARE(mock->sentRequests().size(), requestCountBeforeStatus);
+    QCOMPARE(spyStatus.count(), 1);
+    QCOMPARE(spyStatus.at(0).at(0).toBool(), false);
+}
+
+void TestAdapterClient::errorDuringStopAfterConfigureErrorIsSuppressed()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+    QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
+
+    driveToAwaitingConfig(client, mock);
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h0}") });
+    QJsonObject configureError;
+    configureError["code"] = -32602;
+    configureError["message"] = QStringLiteral("Too many devices: maximum allowed is 2");
+    mock->injectError(3, "adapter.configure", configureError);
+
+    client.stopSession();
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.stop"));
+
+    /* Pins down current behavior for the (currently theoretical, per source review of the real
+       adapters' unconditional/idempotent StopHandler) case where adapter.stop itself errors after
+       a degraded configure: this must behave exactly like errorDuringAdapterStopSuppressed() for a
+       genuinely-active session — force-kill and sessionStopped(), never sessionError() — rather than
+       leaving the client stuck in STOPPING_SESSION. */
+    QJsonObject stopError;
+    stopError["code"] = -32603;
+    stopError["message"] = "internal error";
+    mock->injectError(4, "adapter.stop", stopError);
+
+    QCOMPARE(spyError.count(), 0);
+    QCOMPARE(spyStopped.count(), 1);
+    QVERIFY(client.isIdle());
+}
+
 void TestAdapterClient::stopSessionSendsAdapterStop()
 {
     auto mockOwned = std::make_unique<MockAdapterProcess>();
