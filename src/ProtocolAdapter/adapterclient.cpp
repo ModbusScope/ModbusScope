@@ -283,7 +283,7 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
     /* For auxiliary requests, a JSON-RPC error is a non-fatal result rather
        than a session-level failure. Translate to the corresponding result signal or swallow. */
     if (method == QStringLiteral("adapter.validateDataPoint") &&
-        (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
+        (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
     {
         if (_pendingAuxRequests.value(method, -1) == id)
         {
@@ -294,7 +294,7 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
     }
 
     if (method == QStringLiteral("adapter.expressionHelp") &&
-        (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
+        (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
     {
         if (_pendingAuxRequests.value(method, -1) == id)
         {
@@ -525,7 +525,8 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
         }
         emit dataPointSchemaResult(result);
     }
-    else if (method == "adapter.describeDataPoint" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
+    else if (method == "adapter.describeDataPoint" &&
+             (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
     {
         if (!consumeAuxResponse(method, id))
         {
@@ -533,7 +534,8 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
         }
         emit describeDataPointResult(result);
     }
-    else if (method == "adapter.validateDataPoint" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
+    else if (method == "adapter.validateDataPoint" &&
+             (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
     {
         if (!consumeAuxResponse(method, id))
         {
@@ -541,7 +543,8 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
         }
         emit validateDataPointResult(result["valid"].toBool(), result["error"].toString());
     }
-    else if (method == "adapter.buildExpression" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
+    else if (method == "adapter.buildExpression" &&
+             (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
     {
         if (!consumeAuxResponse(method, id))
         {
@@ -549,7 +552,8 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
         }
         emit buildExpressionResult(result["expression"].toString());
     }
-    else if (method == "adapter.expressionHelp" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
+    else if (method == "adapter.expressionHelp" &&
+             (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
     {
         if (!consumeAuxResponse(method, id))
         {

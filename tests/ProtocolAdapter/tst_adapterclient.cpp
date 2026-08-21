@@ -1342,6 +1342,11 @@ void TestAdapterClient::auxRequestsWorkInDegradedSession()
     auto* mock = mockOwned.get();
     AdapterClient client(std::move(mockOwned));
 
+    QSignalSpy spyDescReg(&client, &AdapterClient::describeDataPointResult);
+    QSignalSpy spyValidate(&client, &AdapterClient::validateDataPointResult);
+    QSignalSpy spyBuild(&client, &AdapterClient::buildExpressionResult);
+    QSignalSpy spyHelp(&client, &AdapterClient::expressionHelpResult);
+
     driveToAwaitingConfig(client, mock);
     client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h0}") });
     QJsonObject error;
@@ -1352,18 +1357,74 @@ void TestAdapterClient::auxRequestsWorkInDegradedSession()
 
     client.describeDataPoint(QStringLiteral("${h0}"));
     QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.describeDataPoint"));
+    mock->injectResponse(4, "adapter.describeDataPoint",
+                         QJsonObject{ { "valid", true }, { "description", QStringLiteral("Holding register 0") } });
+    QCOMPARE(spyDescReg.count(), 1);
 
     client.validateDataPoint(QStringLiteral("${h0}"));
     QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.validateDataPoint"));
+    mock->injectResponse(5, "adapter.validateDataPoint", QJsonObject{ { "valid", true } });
+    QCOMPARE(spyValidate.count(), 1);
+    QCOMPARE(spyValidate.at(0).at(0).toBool(), true);
 
     QJsonObject fields;
     fields["objectType"] = QStringLiteral("holding register");
     fields["address"] = 0;
     client.buildExpression(fields, QStringLiteral("16b"), 1);
     QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.buildExpression"));
+    mock->injectResponse(6, "adapter.buildExpression", QJsonObject{ { "expression", QStringLiteral("${h0}") } });
+    QCOMPARE(spyBuild.count(), 1);
+    QCOMPARE(spyBuild.at(0).at(0).toString(), QStringLiteral("${h0}"));
 
     client.requestExpressionHelp();
     QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.expressionHelp"));
+    mock->injectResponse(7, "adapter.expressionHelp",
+                         QJsonObject{ { "helpText", QStringLiteral("<html>help</html>") } });
+    QCOMPARE(spyHelp.count(), 1);
+}
+
+/*!
+ * \brief Regression test: a JSON-RPC error response to validateDataPoint/expressionHelp while
+ * ACTIVE_DEGRADED must be treated as a non-fatal aux result, exactly as it already is in
+ * AWAITING_CONFIG or a genuinely ACTIVE session, rather than tearing down the still-alive process.
+ */
+void TestAdapterClient::auxRequestErrorsAreNonFatalInDegradedSession()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+    QSignalSpy spyValidate(&client, &AdapterClient::validateDataPointResult);
+    QSignalSpy spyHelp(&client, &AdapterClient::expressionHelpResult);
+
+    driveToAwaitingConfig(client, mock);
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h0}") });
+    QJsonObject configError;
+    configError["code"] = -32602;
+    configError["message"] = QStringLiteral("Too many devices: maximum allowed is 2");
+    mock->injectError(3, "adapter.configure", configError);
+    QVERIFY(client.isActive());
+
+    client.validateDataPoint(QStringLiteral("${bad}"));
+    QJsonObject validateError;
+    validateError["code"] = -32602;
+    validateError["message"] = QStringLiteral("Unknown type 'bad'");
+    mock->injectError(4, "adapter.validateDataPoint", validateError);
+    QCOMPARE(spyValidate.count(), 1);
+    QCOMPARE(spyValidate.at(0).at(0).toBool(), false);
+    QCOMPARE(spyValidate.at(0).at(1).toString(), QStringLiteral("Unknown type 'bad'"));
+
+    client.requestExpressionHelp();
+    QJsonObject helpError;
+    helpError["code"] = -32601;
+    helpError["message"] = QStringLiteral("Method not found");
+    mock->injectError(5, "adapter.expressionHelp", helpError);
+    QCOMPARE(spyHelp.count(), 0);
+
+    /* Session must remain alive and usable throughout — no sessionError emitted */
+    QCOMPARE(spyError.count(), 0);
+    QVERIFY(client.isActive());
 }
 
 void TestAdapterClient::stopSessionSendsAdapterStop()
