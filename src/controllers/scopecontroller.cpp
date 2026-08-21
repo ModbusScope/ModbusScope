@@ -133,6 +133,13 @@ void ScopeController::start()
         _graphDataHandler.setupExpressions(_pGraphDataModel, registerList);
 
         _pAdapterPoll->startCommunication(registerList);
+        if (!_pAdapterPoll->isActive())
+        {
+            /* A synchronous session error was already handled by onCommunicationError(), which
+               called stop(); starting communication stats or the exporter here would resurrect
+               state that stop() just tore down. */
+            return;
+        }
         _pCommunicationStats->start();
 
         if (_pSettingsModel->writeDuringLog())
