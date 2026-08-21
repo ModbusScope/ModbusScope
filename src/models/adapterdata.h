@@ -87,7 +87,7 @@ public:
 
     /*!
      * \brief Return the maximum number of devices from the schema's devices.maxItems.
-     * \return The maxItems value, or INT_MAX if not specified.
+     * \return The maxItems value, or INT_MAX if not specified or negative.
      */
     int maxDevicesFromSchema() const;
 
