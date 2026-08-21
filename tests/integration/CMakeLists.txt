@@ -26,6 +26,20 @@ add_dependencies(tst_dummydevicelimit dummyadapter)
 
 add_test(NAME tst_dummydevicelimit COMMAND tst_dummydevicelimit)
 
+add_executable(tst_dummyadapterstarterror
+    tst_dummyadapterstarterror.cpp
+)
+
+target_compile_definitions(tst_dummyadapterstarterror PRIVATE
+    DUMMY_STANDALONE_ADAPTER_EXECUTABLE="$<TARGET_FILE:dummyadapter>"
+)
+
+target_link_libraries(tst_dummyadapterstarterror Qt::Test ${QT_LIB} ${SCOPESOURCE})
+
+add_dependencies(tst_dummyadapterstarterror dummyadapter)
+
+add_test(NAME tst_dummyadapterstarterror COMMAND tst_dummyadapterstarterror)
+
 if(UNIX AND NOT APPLE)
     # Derive Qt library path so tests can find Qt shared libraries when run
     # directly from the build tree before a full install (RPATH is $ORIGIN).

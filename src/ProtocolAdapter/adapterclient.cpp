@@ -83,6 +83,7 @@ void AdapterClient::provideConfig(QJsonObject config, QStringList registerExpres
     _pendingExpressions = registerExpressions;
     _pendingConfig = config;
     _pendingAuxRequests.clear();
+    _sessionStartFailed = false;
     _state = State::CONFIGURING;
     _handshakeTimer.start(_handshakeTimeoutMs);
     QJsonObject params;
@@ -98,6 +99,12 @@ void AdapterClient::requestReadData()
         return;
     }
 
+    if (_sessionStartFailed)
+    {
+        emit readDataResult(invalidResults());
+        return;
+    }
+
     _pProcess->sendRequest("adapter.readData", QJsonObject());
 }
 
@@ -106,6 +113,12 @@ void AdapterClient::requestStatus()
     if (_state != State::ACTIVE)
     {
         qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "requestStatus called in non-active state";
+        return;
+    }
+
+    if (_sessionStartFailed)
+    {
+        emit statusResult(false);
         return;
     }
 
@@ -246,6 +259,7 @@ void AdapterClient::onResponseReceived(int id, const QString& method, const QJso
         /* Set IDLE before stop() so onProcessFinished's IDLE guard suppresses any
            duplicate sessionError emission when the process exits asynchronously. */
         _pendingAuxRequests.clear();
+        _sessionStartFailed = false;
         _state = State::IDLE;
         _pProcess->stop();
         emit sessionError(QString("Unexpected non-object result for %1").arg(method));
@@ -285,9 +299,21 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
     {
         if (_state == State::ACTIVE)
         {
-            ResultDoubleList invalidResults(_pendingExpressions.size(), ResultDouble(0.0, ResultState::State::INVALID));
-            emit readDataResult(invalidResults);
+            emit readDataResult(invalidResults());
         }
+        return;
+    }
+
+    /* A rejected adapter.start (e.g. an invalid register expression) is a configuration
+       problem, not an adapter/process failure: the adapter stays alive and configured.
+       Treat the session as started but degraded, so polling continues and every
+       requestReadData() call reports invalid results instead of tearing the session down. */
+    if (method == QStringLiteral("adapter.start") && _state == State::STARTING)
+    {
+        _sessionStartFailed = true;
+        _state = State::ACTIVE;
+        emit diagnosticReceived(QStringLiteral("error"), QStringLiteral("Adapter rejected start: %1").arg(errorMsg));
+        emit sessionStarted();
         return;
     }
 
@@ -295,6 +321,7 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
     /* Set IDLE before stop() so onProcessFinished's IDLE guard suppresses any
        duplicate sessionError emission when the process exits asynchronously. */
     _pendingAuxRequests.clear();
+    _sessionStartFailed = false;
     _state = State::IDLE;
     _pProcess->stop();
 
@@ -315,12 +342,14 @@ void AdapterClient::onProcessError(const QString& message)
     if (_state == State::STOPPING || _state == State::STOPPING_SESSION)
     {
         _pendingAuxRequests.clear();
+        _sessionStartFailed = false;
         _state = State::IDLE;
         emit sessionStopped();
     }
     else if (_state != State::IDLE)
     {
         _pendingAuxRequests.clear();
+        _sessionStartFailed = false;
         _state = State::IDLE;
         emit sessionError(message);
     }
@@ -332,11 +361,13 @@ void AdapterClient::onProcessFinished()
     _pendingAuxRequests.clear();
     if (_state == State::STOPPING || _state == State::STOPPING_SESSION)
     {
+        _sessionStartFailed = false;
         _state = State::IDLE;
         emit sessionStopped();
     }
     else if (_state != State::IDLE)
     {
+        _sessionStartFailed = false;
         _state = State::IDLE;
         emit sessionError("Adapter process exited unexpectedly");
     }
@@ -348,6 +379,7 @@ void AdapterClient::onHandshakeTimeout()
                          << static_cast<int>(_state);
     bool wasUserStop = (_state == State::STOPPING || _state == State::STOPPING_SESSION);
     _pendingAuxRequests.clear();
+    _sessionStartFailed = false;
     _state = State::IDLE;
     _pProcess->stop();
     if (wasUserStop)
@@ -391,6 +423,15 @@ bool AdapterClient::consumeAuxResponse(const QString& method, int id)
     }
     _pendingAuxRequests.remove(method);
     return true;
+}
+
+/*!
+ * \brief Build one INVALID result per pending register expression.
+ * \return A ResultDoubleList the same size as the expressions passed to the current session.
+ */
+ResultDoubleList AdapterClient::invalidResults() const
+{
+    return ResultDoubleList(_pendingExpressions.size(), ResultDouble(0.0, ResultState::State::INVALID));
 }
 
 void AdapterClient::handleLifecycleResponse(int id, const QString& method, const QJsonObject& result)

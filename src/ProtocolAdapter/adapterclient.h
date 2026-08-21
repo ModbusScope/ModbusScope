@@ -154,7 +154,12 @@ public:
 
 signals:
     /*!
-     * \brief Emitted when the adapter has been initialized, described, configured, and started.
+     * \brief Emitted when the adapter has been initialized, described, and configured, and a session
+     * start has been attempted.
+     *
+     * Also emitted when adapter.start is rejected (e.g. an invalid register expression): the session
+     * is considered started but degraded, so requestReadData() reports invalid results for every
+     * register instead of leaving the caller waiting indefinitely for a session that will never start.
      */
     void sessionStarted();
 
@@ -202,9 +207,10 @@ signals:
     void adapterReady();
 
     /*!
-     * \brief Emitted when an adapter.diagnostic notification is received from the adapter.
-     * \param level Severity level string: "debug", "info", or "warning".
-     * \param message The diagnostic message from the adapter.
+     * \brief Emitted when an adapter.diagnostic notification is received from the adapter, or when
+     * AdapterClient itself synthesizes a diagnostic (e.g. a non-fatal adapter.start rejection).
+     * \param level Severity level string: "debug", "info", "warning", or "error".
+     * \param message The diagnostic message.
      */
     void diagnosticReceived(QString level, QString message);
 
@@ -263,6 +269,7 @@ private:
 
     void handleLifecycleResponse(int id, const QString& method, const QJsonObject& result);
     bool consumeAuxResponse(const QString& method, int id);
+    ResultDoubleList invalidResults() const;
 
     static constexpr int cHandshakeTimeoutMs = 10000;
 
@@ -275,6 +282,7 @@ private:
     QJsonObject _pendingConfig;
     QStringList _pendingExpressions;
     QMap<QString, int> _pendingAuxRequests;
+    bool _sessionStartFailed{ false };
 };
 
 #endif // ADAPTERCLIENT_H
