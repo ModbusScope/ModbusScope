@@ -17,7 +17,7 @@ https://stackoverflow.com/questions/55384422/how-to-use-google-mock-with-cppunit
 ```bash
 mkdir build
 cd build
-cmake -DCMAKE_PREFIX_PATH=/opt/Qt/5.15.1/gcc_64/lib/cmake/Qt5 -GNinja ..
+cmake -DCMAKE_PREFIX_PATH=/opt/qt/5.15.1/gcc_64/lib/cmake/Qt5 -GNinja ..
 ninja
 ```
 

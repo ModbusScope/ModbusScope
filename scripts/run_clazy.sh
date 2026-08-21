@@ -2,7 +2,7 @@
 set -euo pipefail
 
 BUILD_DIR="${BUILD_DIR:-build}"
-QT_PREFIX="${QT_PREFIX:-/opt/Qt/6.8.3/gcc_64}"
+QT_PREFIX="${QT_PREFIX:-/opt/qt/6.8.3/gcc_64}"
 SINGLE_FILE="${1:-}"
 
 echo "=== Configuring (compile_commands.json) ==="
