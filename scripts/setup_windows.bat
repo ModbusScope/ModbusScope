@@ -25,20 +25,20 @@ if %CACHE_HIT% EQU 1 (
 echo "Cache miss: installing Qt"
 
 REM Install Qt
-aqt install-qt --outputdir %QT_INSTALL_DIR% %QT_HOST% %QT_TARGET% %QT% %QT_ARCH%  -m %QT_MODULES%
+aqt install-qt --outputdir "%QT_INSTALL_DIR%" %QT_HOST% %QT_TARGET% %QT% %QT_ARCH%  -m %QT_MODULES%
 
 REM Install Tools
 REM Qt 6.8.x uses mingw 13.1.0 (GCC 13.1.0) (https://wiki.qt.io/MinGW)
-aqt install-tool --outputdir %QT_INSTALL_DIR% %QT_HOST% %QT_TARGET% tools_mingw1310
-aqt install-tool --outputdir %QT_INSTALL_DIR% %QT_HOST% %QT_TARGET% tools_cmake
-aqt install-tool --outputdir %QT_INSTALL_DIR% %QT_HOST% %QT_TARGET% tools_ninja
-aqt install-tool --outputdir %QT_INSTALL_DIR% %QT_HOST% %QT_TARGET% tools_opensslv3_x64
+aqt install-tool --outputdir "%QT_INSTALL_DIR%" %QT_HOST% %QT_TARGET% tools_mingw1310
+aqt install-tool --outputdir "%QT_INSTALL_DIR%" %QT_HOST% %QT_TARGET% tools_cmake
+aqt install-tool --outputdir "%QT_INSTALL_DIR%" %QT_HOST% %QT_TARGET% tools_ninja
+aqt install-tool --outputdir "%QT_INSTALL_DIR%" %QT_HOST% %QT_TARGET% tools_opensslv3_x64
 
 :cache_hit
 
 REM Debug info
 echo Debug info
-dir %QT_INSTALL_DIR%\Tools
+dir "%QT_INSTALL_DIR%\Tools"
 
 REM Set env variables with path
 set "PATH=%QT_INSTALL_DIR%\%QT%\%QT_ARCH_PATH%\bin;%PATH%"
