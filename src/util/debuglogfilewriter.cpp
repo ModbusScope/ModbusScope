@@ -1,12 +1,15 @@
 #include "util/debuglogfilewriter.h"
 
 #include <QDir>
+#include <QMutexLocker>
 
 /*!
  * \brief Constructor for DebugLogFileWriter
  * \param filePath  Path of the file to append log lines to when enabled
  */
-DebugLogFileWriter::DebugLogFileWriter(QString filePath) : _file(filePath) {}
+DebugLogFileWriter::DebugLogFileWriter(QString filePath) : _file(filePath)
+{
+}
 
 /*!
  * \brief Default location of the debug log file: a fixed name in the OS temp folder
@@ -27,7 +30,9 @@ QString DebugLogFileWriter::defaultFilePath()
  */
 bool DebugLogFileWriter::setEnabled(bool bEnabled)
 {
-    if (bEnabled == isEnabled())
+    const QMutexLocker locker(&_mutex);
+
+    if (bEnabled == _file.isOpen())
     {
         return true;
     }
@@ -56,6 +61,8 @@ bool DebugLogFileWriter::setEnabled(bool bEnabled)
  */
 bool DebugLogFileWriter::isEnabled() const
 {
+    const QMutexLocker locker(&_mutex);
+
     return _file.isOpen();
 }
 
@@ -65,7 +72,9 @@ bool DebugLogFileWriter::isEnabled() const
  */
 void DebugLogFileWriter::writeLine(const QString& line)
 {
-    if (!isEnabled())
+    const QMutexLocker locker(&_mutex);
+
+    if (!_file.isOpen())
     {
         return;
     }

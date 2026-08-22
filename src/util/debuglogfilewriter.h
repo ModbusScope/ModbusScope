@@ -2,6 +2,7 @@
 #define DEBUGLOGFILEWRITER_H
 
 #include <QFile>
+#include <QMutex>
 #include <QString>
 #include <QTextStream>
 
@@ -18,6 +19,7 @@ public:
     void writeLine(const QString& line);
 
 private:
+    mutable QMutex _mutex;
     QFile _file;
     QTextStream _stream;
 };

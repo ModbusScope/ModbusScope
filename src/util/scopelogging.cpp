@@ -3,12 +3,37 @@
 #include "models/diagnosticmodel.h"
 
 #include <QDateTime>
+#include <QMetaObject>
 
 Q_LOGGING_CATEGORY(scopeComm, "scope.comm")
 Q_LOGGING_CATEGORY(scopeAdapter, "scope.comm.adapter")
 Q_LOGGING_CATEGORY(scopeGeneralInfo, "scope.general.info")
 Q_LOGGING_CATEGORY(scopePreset, "scope.preset")
 Q_LOGGING_CATEGORY(scopeUi, "scope.ui")
+
+namespace {
+
+/*!
+ * \brief Functor that delivers a single log entry to a DiagnosticModel
+ *
+ * Used with QMetaObject::invokeMethod() to move the addLog() call onto the model's own
+ * thread, since ScopeLogging::handleLog() may be invoked by Qt from any thread.
+ */
+struct LogDispatcher
+{
+    DiagnosticModel* pModel;
+    QString category;
+    Diagnostic::LogSeverity severity;
+    qint32 offset;
+    QString message;
+
+    void operator()() const
+    {
+        pModel->addLog(category, severity, offset, message);
+    }
+};
+
+} // namespace
 
 ScopeLogging::ScopeLogging()
 {
@@ -39,9 +64,9 @@ void ScopeLogging::initLogging(DiagnosticModel* pDiagnosticModel)
  * \brief Route a Qt log message to the diagnostic model and, when enabled, the debug log file
  *
  * Installed via qInstallMessageHandler(), which Qt may invoke from any thread that logs a
- * message. This codebase does not use worker threads today, so all calls happen to originate
- * from the main thread; a future change that logs from a background thread would need to
- * synchronize access to _pDiagnosticModel and _debugLogFileWriter here.
+ * message. DiagnosticModel is not thread-safe, so DiagnosticModel::addLog() is dispatched onto
+ * the model's own (GUI) thread instead of being called directly. DebugLogFileWriter guards its
+ * own state internally, so it can be accessed directly from whichever thread is logging.
  */
 void ScopeLogging::handleLog(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
@@ -66,7 +91,10 @@ void ScopeLogging::handleLog(QtMsgType type, const QMessageLogContext& context, 
 
     if (_pDiagnosticModel != nullptr)
     {
-        _pDiagnosticModel->addLog(context.category, logSeverity, offset, msg);
+        const QString category = QString::fromUtf8(context.category);
+
+        QMetaObject::invokeMethod(_pDiagnosticModel,
+                                  LogDispatcher{ _pDiagnosticModel, category, logSeverity, offset, msg });
     }
 
     if (_debugLogFileWriter.isEnabled())
