@@ -58,6 +58,7 @@ signals:
 
 private slots:
     void onRegisterDataReady(const ResultDoubleList& results);
+    void onCommunicationError(const QString& message);
     void updateDataFileNotes();
 
 private:

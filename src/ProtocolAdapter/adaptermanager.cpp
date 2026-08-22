@@ -51,7 +51,7 @@ void AdapterManager::startSession(const QStringList& registerExpressions)
         emit sessionError(QStringLiteral("No adapter configuration found for '%1'").arg(_adapterId));
         return;
     }
-    QJsonObject config = data->effectiveConfig();
+    QJsonObject config = data->configForWire();
     _pAdapterClient->provideConfig(config, registerExpressions);
 }
 
@@ -73,7 +73,7 @@ bool AdapterManager::isAdapterIdle() const
     return _pAdapterClient->isIdle();
 }
 
-/*! \brief Returns true when the adapter has an established session (ACTIVE state). */
+/*! \brief Returns true when the adapter has an established session, including a degraded one. */
 bool AdapterManager::isAdapterActive() const
 {
     return _pAdapterClient->isActive();

@@ -65,6 +65,16 @@ private slots:
     void readDataErrorIsNonFatal();
     void readDataErrorInNonActiveStateIsIgnored();
     void readDataErrorInIdleStateIsIgnored();
+
+    void startErrorIsNonFatal();
+    void startErrorAllowsRetryAfterStop();
+    void requestStatusInDegradedSessionReturnsFalseLocally();
+
+    void configureErrorIsNonFatal();
+    void configureErrorAllowsRetryAfterStop();
+    void requestStatusInDegradedSessionAfterConfigureErrorReturnsFalseLocally();
+    void auxRequestsWorkInDegradedSession();
+    void auxRequestErrorsAreNonFatalInDegradedSession();
 };
 
 #endif // TST_ADAPTERCLIENT_H

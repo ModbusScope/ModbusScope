@@ -6,7 +6,7 @@ cp resources/ModbusScope.desktop release/src/bin/linux/
 cp resources/icon/icon-256x256.png release/src/bin/linux/ModbusScope.png
 
 # Copy modbusadapter so linuxdeploy bundles it alongside the main executable
-cp adapters/modbusadapter release/src/bin/linux/
+cp adapters/Modbus/modbusadapter release/src/bin/linux/
 
 cd release/src/bin/linux/
 

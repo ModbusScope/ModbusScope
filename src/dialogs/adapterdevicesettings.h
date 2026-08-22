@@ -8,6 +8,7 @@
 class SettingsModel;
 class AddableTabWidget;
 class DeviceConfigTab;
+class QLabel;
 
 /*!
  * \brief Settings page for adapter device configuration.
@@ -36,13 +37,14 @@ private slots:
 private:
     QStringList validAdapterIds() const;
     QString constructTabName(DeviceConfigTab* tab) const;
-    void connectTabNameTracking(DeviceConfigTab* tab);
-    int maxAllowedDevices() const;
-    void updateAddButtonVisibility();
+    void connectTabTracking(DeviceConfigTab* tab);
+    QString deviceLimitWarningMessage() const;
+    void updateDeviceLimitIndication();
     static void sortPagesByDeviceId(QList<QWidget*>& pages, QStringList& names);
 
     SettingsModel* _pSettingsModel;
     AddableTabWidget* _pDeviceTabs{ nullptr };
+    QLabel* _pLimitWarningLabel{ nullptr };
 };
 
 #endif // ADAPTERDEVICESETTINGS_H

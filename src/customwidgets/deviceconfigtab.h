@@ -55,6 +55,8 @@ public:
 signals:
     //! Emitted when the device name field changes.
     void nameChanged(const QString& name);
+    //! Emitted when the selected protocol adapter changes.
+    void adapterChanged(const QString& newAdapterId);
 
 private slots:
     void onAdapterChanged(int index);

@@ -46,6 +46,16 @@ public:
 signals:
     void registerDataReady(ResultDoubleList registers);
 
+    /*!
+     * \brief Emitted when the adapter session fails fatally while communication is running or
+     * still pending (including the WaitingForAdapter state, before any session has started).
+     *
+     * By the time this fires, polling has already been halted internally (pollState reset to
+     * Inactive); callers must resync any "communication running" state of their own and surface
+     * \a message to the user, since none of this is otherwise externally visible.
+     */
+    void communicationError(QString message);
+
 private slots:
     void triggerRegisterRead();
     void onReadDataResult(const QString& adapterId, ResultDoubleList results);

@@ -49,7 +49,7 @@ bool AdapterClient::isIdle() const
 
 bool AdapterClient::isActive() const
 {
-    return _state == State::ACTIVE;
+    return _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED;
 }
 
 void AdapterClient::prepareAdapter(const QString& adapterPath)
@@ -92,9 +92,15 @@ void AdapterClient::provideConfig(QJsonObject config, QStringList registerExpres
 
 void AdapterClient::requestReadData()
 {
-    if (_state != State::ACTIVE)
+    if (_state != State::ACTIVE && _state != State::ACTIVE_DEGRADED)
     {
         qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "requestReadData called in non-active state";
+        return;
+    }
+
+    if (_state == State::ACTIVE_DEGRADED)
+    {
+        emit readDataResult(invalidResults());
         return;
     }
 
@@ -103,9 +109,15 @@ void AdapterClient::requestReadData()
 
 void AdapterClient::requestStatus()
 {
-    if (_state != State::ACTIVE)
+    if (_state != State::ACTIVE && _state != State::ACTIVE_DEGRADED)
     {
         qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "requestStatus called in non-active state";
+        return;
+    }
+
+    if (_state == State::ACTIVE_DEGRADED)
+    {
+        emit statusResult(false);
         return;
     }
 
@@ -133,7 +145,7 @@ void AdapterClient::requestDataPointSchema()
  */
 void AdapterClient::describeDataPoint(const QString& expression)
 {
-    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE)
+    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE && _state != State::ACTIVE_DEGRADED)
     {
         qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "describeDataPoint called in unexpected state"
                              << static_cast<int>(_state);
@@ -151,7 +163,7 @@ void AdapterClient::describeDataPoint(const QString& expression)
  */
 void AdapterClient::validateDataPoint(const QString& expression)
 {
-    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE)
+    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE && _state != State::ACTIVE_DEGRADED)
     {
         qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "validateDataPoint called in unexpected state"
                              << static_cast<int>(_state);
@@ -171,7 +183,7 @@ void AdapterClient::validateDataPoint(const QString& expression)
  */
 void AdapterClient::buildExpression(const QJsonObject& addressFields, const QString& dataType, deviceId_t deviceId)
 {
-    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE)
+    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE && _state != State::ACTIVE_DEGRADED)
     {
         qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "buildExpression called in unexpected state"
                              << static_cast<int>(_state);
@@ -197,7 +209,7 @@ void AdapterClient::buildExpression(const QJsonObject& addressFields, const QStr
  */
 void AdapterClient::requestExpressionHelp()
 {
-    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE)
+    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE && _state != State::ACTIVE_DEGRADED)
     {
         qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "requestExpressionHelp called in unexpected state"
                              << static_cast<int>(_state);
@@ -217,7 +229,17 @@ void AdapterClient::stopSession()
     _handshakeTimer.stop();
     _pendingAuxRequests.clear();
 
-    if (_state == State::ACTIVE)
+    if (_state == State::ACTIVE_DEGRADED)
+    {
+        /* No real session was ever established with the adapter (adapter.configure or
+           adapter.start was rejected), so there is nothing to tell it to stop: transition
+           locally exactly as a successful adapter.stop response would. */
+        qCInfo(scopeComm) << "AdapterClient:" << _adapterId << "degraded session stopped locally, awaiting config";
+        _state = State::AWAITING_CONFIG;
+        emit sessionStopped();
+        emit adapterReady();
+    }
+    else if (_state == State::ACTIVE)
     {
         _state = State::STOPPING_SESSION;
         _pProcess->sendRequest("adapter.stop", QJsonObject());
@@ -261,7 +283,7 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
     /* For auxiliary requests, a JSON-RPC error is a non-fatal result rather
        than a session-level failure. Translate to the corresponding result signal or swallow. */
     if (method == QStringLiteral("adapter.validateDataPoint") &&
-        (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
+        (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
     {
         if (_pendingAuxRequests.value(method, -1) == id)
         {
@@ -272,7 +294,7 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
     }
 
     if (method == QStringLiteral("adapter.expressionHelp") &&
-        (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
+        (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
     {
         if (_pendingAuxRequests.value(method, -1) == id)
         {
@@ -285,9 +307,30 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
     {
         if (_state == State::ACTIVE)
         {
-            ResultDoubleList invalidResults(_pendingExpressions.size(), ResultDouble(0.0, ResultState::State::INVALID));
-            emit readDataResult(invalidResults);
+            emit readDataResult(invalidResults());
         }
+        return;
+    }
+
+    /* A rejected adapter.configure (e.g. too many devices for an unlicensed session) is a
+       configuration problem, not an adapter/process failure: the adapter stays alive.
+       Treat the session as started but degraded, exactly like a rejected adapter.start below,
+       so polling continues and every requestReadData() call reports invalid results instead of
+       the subprocess being killed and the caller waiting indefinitely for a session that will
+       never start. */
+    if (method == QStringLiteral("adapter.configure") && _state == State::CONFIGURING)
+    {
+        degradeSession(QStringLiteral("Adapter rejected configuration: %1").arg(errorMsg));
+        return;
+    }
+
+    /* A rejected adapter.start (e.g. an invalid register expression) is a configuration
+       problem, not an adapter/process failure: the adapter stays alive and configured.
+       Treat the session as started but degraded, so polling continues and every
+       requestReadData() call reports invalid results instead of tearing the session down. */
+    if (method == QStringLiteral("adapter.start") && _state == State::STARTING)
+    {
+        degradeSession(QStringLiteral("Adapter rejected start: %1").arg(errorMsg));
         return;
     }
 
@@ -393,6 +436,26 @@ bool AdapterClient::consumeAuxResponse(const QString& method, int id)
     return true;
 }
 
+/*!
+ * \brief Build one INVALID result per pending register expression.
+ * \return A ResultDoubleList the same size as the expressions passed to the current session.
+ */
+ResultDoubleList AdapterClient::invalidResults() const
+{
+    return ResultDoubleList(_pendingExpressions.size(), ResultDouble(0.0, ResultState::State::INVALID));
+}
+
+/*!
+ * \brief Transition into ACTIVE_DEGRADED and notify callers that the session is started-but-broken.
+ * \param diagnosticMessage Human-readable description of the rejected setup RPC, forwarded via diagnosticReceived().
+ */
+void AdapterClient::degradeSession(const QString& diagnosticMessage)
+{
+    _state = State::ACTIVE_DEGRADED;
+    emit diagnosticReceived(QStringLiteral("error"), diagnosticMessage);
+    emit sessionStarted();
+}
+
 void AdapterClient::handleLifecycleResponse(int id, const QString& method, const QJsonObject& result)
 {
     if (method == "adapter.initialize" && _state == State::INITIALIZING)
@@ -462,7 +525,8 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
         }
         emit dataPointSchemaResult(result);
     }
-    else if (method == "adapter.describeDataPoint" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
+    else if (method == "adapter.describeDataPoint" &&
+             (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
     {
         if (!consumeAuxResponse(method, id))
         {
@@ -470,7 +534,8 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
         }
         emit describeDataPointResult(result);
     }
-    else if (method == "adapter.validateDataPoint" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
+    else if (method == "adapter.validateDataPoint" &&
+             (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
     {
         if (!consumeAuxResponse(method, id))
         {
@@ -478,7 +543,8 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
         }
         emit validateDataPointResult(result["valid"].toBool(), result["error"].toString());
     }
-    else if (method == "adapter.buildExpression" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
+    else if (method == "adapter.buildExpression" &&
+             (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
     {
         if (!consumeAuxResponse(method, id))
         {
@@ -486,7 +552,8 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
         }
         emit buildExpressionResult(result["expression"].toString());
     }
-    else if (method == "adapter.expressionHelp" && (_state == State::AWAITING_CONFIG || _state == State::ACTIVE))
+    else if (method == "adapter.expressionHelp" &&
+             (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
     {
         if (!consumeAuxResponse(method, id))
         {

@@ -311,6 +311,189 @@ void TestAdapterData::maxDevicesFromSchemaReturnsValue()
     QCOMPARE(data.maxDevicesFromSchema(), 3);
 }
 
+/*!
+ * \brief maxDevicesFromSchema returns INT_MAX when maxItems is negative, since a negative
+ * limit is invalid schema data rather than a real cap.
+ */
+void TestAdapterData::maxDevicesFromSchemaReturnsIntMaxWhenNegative()
+{
+    AdapterData data;
+
+    QJsonObject devicesSchema;
+    devicesSchema["type"] = "array";
+    devicesSchema["maxItems"] = -1;
+
+    QJsonObject properties;
+    properties["devices"] = devicesSchema;
+
+    QJsonObject schema;
+    schema["type"] = "object";
+    schema["properties"] = properties;
+
+    QJsonObject describeResult;
+    describeResult["schema"] = schema;
+    data.updateFromDescribe(describeResult);
+
+    QCOMPARE(data.maxDevicesFromSchema(), INT_MAX);
+}
+
+/*!
+ * \brief maxDevicesFromSchema returns 0 when maxItems is explicitly 0, since that is a
+ * legitimate limit ("no devices allowed") rather than invalid schema data.
+ */
+void TestAdapterData::maxDevicesFromSchemaReturnsZeroWhenExplicit()
+{
+    AdapterData data;
+
+    QJsonObject devicesSchema;
+    devicesSchema["type"] = "array";
+    devicesSchema["maxItems"] = 0;
+
+    QJsonObject properties;
+    properties["devices"] = devicesSchema;
+
+    QJsonObject schema;
+    schema["type"] = "object";
+    schema["properties"] = properties;
+
+    QJsonObject describeResult;
+    describeResult["schema"] = schema;
+    data.updateFromDescribe(describeResult);
+
+    QCOMPARE(data.maxDevicesFromSchema(), 0);
+}
+
+/*!
+ * \brief configForWire caps the "devices" array to maxDevicesFromSchema(), unlike
+ * effectiveConfig() which returns every stored device.
+ */
+void TestAdapterData::configForWireCapsDevicesToMaxItems()
+{
+    AdapterData data;
+
+    QJsonObject devicesSchema;
+    devicesSchema["type"] = "array";
+    devicesSchema["maxItems"] = 2;
+    QJsonObject properties;
+    properties["devices"] = devicesSchema;
+    QJsonObject schema;
+    schema["type"] = "object";
+    schema["properties"] = properties;
+
+    QJsonObject describeResult;
+    describeResult["schema"] = schema;
+    data.updateFromDescribe(describeResult);
+
+    QJsonArray devices;
+    for (int i = 1; i <= 5; ++i)
+    {
+        QJsonObject dev;
+        dev["id"] = i;
+        devices.append(dev);
+    }
+    QJsonObject config;
+    config["devices"] = devices;
+    data.setCurrentConfig(config);
+    data.setHasStoredConfig(true);
+
+    QCOMPARE(data.effectiveConfig().value("devices").toArray().size(), 5);
+    QCOMPARE(data.configForWire().value("devices").toArray().size(), 2);
+}
+
+/*!
+ * \brief configForWire returns every device unchanged when the schema has no devices.maxItems.
+ */
+void TestAdapterData::configForWireReturnsAllDevicesWhenNoLimit()
+{
+    AdapterData data;
+
+    QJsonArray devices;
+    for (int i = 1; i <= 5; ++i)
+    {
+        QJsonObject dev;
+        dev["id"] = i;
+        devices.append(dev);
+    }
+    QJsonObject config;
+    config["devices"] = devices;
+    data.setCurrentConfig(config);
+    data.setHasStoredConfig(true);
+
+    QCOMPARE(data.configForWire().value("devices").toArray().size(), 5);
+}
+
+/*!
+ * \brief configForWire does not truncate devices when the schema's maxItems is negative,
+ * since a negative limit is treated as unbounded rather than causing the removal loop
+ * to run without a valid stopping point.
+ */
+void TestAdapterData::configForWireDoesNotTruncateWhenMaxItemsNegative()
+{
+    AdapterData data;
+
+    QJsonObject devicesSchema;
+    devicesSchema["type"] = "array";
+    devicesSchema["maxItems"] = -1;
+    QJsonObject properties;
+    properties["devices"] = devicesSchema;
+    QJsonObject schema;
+    schema["type"] = "object";
+    schema["properties"] = properties;
+
+    QJsonObject describeResult;
+    describeResult["schema"] = schema;
+    data.updateFromDescribe(describeResult);
+
+    QJsonArray devices;
+    for (int i = 1; i <= 5; ++i)
+    {
+        QJsonObject dev;
+        dev["id"] = i;
+        devices.append(dev);
+    }
+    QJsonObject config;
+    config["devices"] = devices;
+    data.setCurrentConfig(config);
+    data.setHasStoredConfig(true);
+
+    QCOMPARE(data.configForWire().value("devices").toArray().size(), 5);
+}
+
+/*!
+ * \brief configForWire removes every device when the schema's maxItems is explicitly 0.
+ */
+void TestAdapterData::configForWireRemovesAllDevicesWhenMaxItemsZero()
+{
+    AdapterData data;
+
+    QJsonObject devicesSchema;
+    devicesSchema["type"] = "array";
+    devicesSchema["maxItems"] = 0;
+    QJsonObject properties;
+    properties["devices"] = devicesSchema;
+    QJsonObject schema;
+    schema["type"] = "object";
+    schema["properties"] = properties;
+
+    QJsonObject describeResult;
+    describeResult["schema"] = schema;
+    data.updateFromDescribe(describeResult);
+
+    QJsonArray devices;
+    for (int i = 1; i <= 5; ++i)
+    {
+        QJsonObject dev;
+        dev["id"] = i;
+        devices.append(dev);
+    }
+    QJsonObject config;
+    config["devices"] = devices;
+    data.setCurrentConfig(config);
+    data.setHasStoredConfig(true);
+
+    QCOMPARE(data.configForWire().value("devices").toArray().size(), 0);
+}
+
 void TestAdapterData::isMbcCompatibleTrue()
 {
     AdapterData data;

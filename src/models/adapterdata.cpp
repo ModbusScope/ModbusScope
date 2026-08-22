@@ -1,6 +1,8 @@
 
 #include "adapterdata.h"
 
+#include <QJsonArray>
+
 #include <climits>
 
 AdapterData::AdapterData() = default;
@@ -162,11 +164,15 @@ void AdapterData::updateFromDescribe(const QJsonObject& describeResult)
 int AdapterData::maxDevicesFromSchema() const
 {
     const QJsonObject devicesSchema = _schema.value("properties").toObject().value("devices").toObject();
-    if (devicesSchema.contains("maxItems"))
+    if (!devicesSchema.contains("maxItems"))
     {
-        return devicesSchema.value("maxItems").toInt(INT_MAX);
+        return INT_MAX;
     }
-    return INT_MAX;
+
+    /* A negative or non-numeric maxItems is invalid schema data; treat it as unbounded rather
+     * than risk truncating every configured device or hanging the removal loop in configForWire(). */
+    const int maxItems = devicesSchema.value("maxItems").toInt(INT_MAX);
+    return maxItems >= 0 ? maxItems : INT_MAX;
 }
 
 QJsonObject AdapterData::effectiveConfig() const
@@ -187,6 +193,23 @@ QJsonObject AdapterData::effectiveConfig() const
     for (auto it = _currentConfig.constBegin(); it != _currentConfig.constEnd(); ++it)
     {
         result.insert(it.key(), it.value());
+    }
+    return result;
+}
+
+QJsonObject AdapterData::configForWire() const
+{
+    QJsonObject result = effectiveConfig();
+
+    const int maxDevices = maxDevicesFromSchema();
+    if (maxDevices != INT_MAX && result.contains("devices"))
+    {
+        QJsonArray devices = result.value("devices").toArray();
+        while (devices.size() > maxDevices)
+        {
+            devices.removeLast();
+        }
+        result["devices"] = devices;
     }
     return result;
 }

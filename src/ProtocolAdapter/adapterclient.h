@@ -23,6 +23,9 @@
  *   requestStatus() → getStatus → statusResult()
  *   stopSession() → stop → AWAITING_CONFIG → sessionStopped()
  *
+ * A rejected adapter.configure or adapter.start lands in ACTIVE_DEGRADED instead of ACTIVE:
+ * sessionStarted() is still emitted, but requestReadData()/requestStatus() answer locally.
+ *
  * Takes ownership of the AdapterProcess passed to the constructor via std::unique_ptr.
  */
 class AdapterClient : public QObject
@@ -84,6 +87,10 @@ public:
      * remains alive in AWAITING_CONFIG state; provideConfig() can be called again for
      * the next session. sessionStopped() is emitted once the adapter acknowledges.
      *
+     * When ACTIVE_DEGRADED, no adapter.stop is sent (no real session was ever established);
+     * the client transitions to AWAITING_CONFIG immediately and emits sessionStopped() then
+     * adapterReady() synchronously.
+     *
      * When called in STARTING or any other non-ACTIVE non-idle state, the process is
      * force-killed directly (adapter.stop requires an established session).
      */
@@ -100,7 +107,7 @@ public:
     bool isIdle() const;
 
     /*!
-     * \brief Returns true when the adapter has an established session (ACTIVE state).
+     * \brief Returns true when the adapter has an established session (ACTIVE or ACTIVE_DEGRADED state).
      */
     bool isActive() const;
 
@@ -154,7 +161,13 @@ public:
 
 signals:
     /*!
-     * \brief Emitted when the adapter has been initialized, described, configured, and started.
+     * \brief Emitted when the adapter has been initialized, described, and configured, and a session
+     * start has been attempted.
+     *
+     * Also emitted when adapter.configure or adapter.start is rejected (e.g. too many devices for
+     * an unlicensed session, or an invalid register expression): the session is considered started
+     * but degraded, so requestReadData() reports invalid results for every register instead of
+     * leaving the caller waiting indefinitely for a session that will never start.
      */
     void sessionStarted();
 
@@ -202,9 +215,10 @@ signals:
     void adapterReady();
 
     /*!
-     * \brief Emitted when an adapter.diagnostic notification is received from the adapter.
-     * \param level Severity level string: "debug", "info", or "warning".
-     * \param message The diagnostic message from the adapter.
+     * \brief Emitted when an adapter.diagnostic notification is received from the adapter, or when
+     * AdapterClient itself synthesizes a diagnostic (e.g. a non-fatal adapter.start rejection).
+     * \param level Severity level string: "debug", "info", "warning", or "error".
+     * \param message The diagnostic message.
      */
     void diagnosticReceived(QString level, QString message);
 
@@ -257,12 +271,20 @@ private:
         CONFIGURING,
         STARTING,
         ACTIVE,
+        ACTIVE_DEGRADED,  /*!< adapter.configure or adapter.start was rejected: the process stays
+                               alive, but never received a working config, so
+                               requestReadData()/requestStatus() answer locally instead of
+                               contacting it. isActive() is still true, but stopSession() skips
+                               adapter.stop (no real session exists to tell the adapter to stop)
+                               and transitions to AWAITING_CONFIG locally instead. */
         STOPPING_SESSION, /*!< adapter.stop sent; adapter stays alive, transitioning to AWAITING_CONFIG */
         STOPPING          /*!< process is being force-killed */
     };
 
     void handleLifecycleResponse(int id, const QString& method, const QJsonObject& result);
     bool consumeAuxResponse(const QString& method, int id);
+    ResultDoubleList invalidResults() const;
+    void degradeSession(const QString& diagnosticMessage);
 
     static constexpr int cHandshakeTimeoutMs = 10000;
 

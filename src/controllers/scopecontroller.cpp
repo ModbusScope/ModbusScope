@@ -43,6 +43,7 @@ ScopeController::ScopeController(GuiModel* pGuiModel,
 {
     _pAdapterPoll = new AdapterPoll(_pSettingsModel, this);
     connect(_pAdapterPoll, &AdapterPoll::registerDataReady, this, &ScopeController::onRegisterDataReady);
+    connect(_pAdapterPoll, &AdapterPoll::communicationError, this, &ScopeController::onCommunicationError);
 
     _pDataFileHandler = new DataFileHandler(_pGuiModel, _pGraphDataModel, _pCommunicationStatsModel, _pNoteModel,
                                             _pSettingsModel, _pDataParserModel, this);
@@ -58,6 +59,7 @@ ScopeController::~ScopeController()
 {
     _pAdapterPoll->stopCommunication();
     disconnect(_pAdapterPoll, &AdapterPoll::registerDataReady, this, &ScopeController::onRegisterDataReady);
+    disconnect(_pAdapterPoll, &AdapterPoll::communicationError, this, &ScopeController::onCommunicationError);
 }
 
 /*!
@@ -131,6 +133,13 @@ void ScopeController::start()
         _graphDataHandler.setupExpressions(_pGraphDataModel, registerList);
 
         _pAdapterPoll->startCommunication(registerList);
+        if (!_pAdapterPoll->isActive())
+        {
+            /* A synchronous session error was already handled by onCommunicationError(), which
+               called stop(); starting communication stats or the exporter here would resurrect
+               state that stop() just tore down. */
+            return;
+        }
         _pCommunicationStats->start();
 
         if (_pSettingsModel->writeDuringLog())
@@ -158,6 +167,16 @@ void ScopeController::stop()
     }
 
     _pGuiModel->setGuiState(GuiState::STOPPED);
+}
+
+/*!
+ * \brief Handle a fatal adapter session failure by stopping the session and surfacing the error
+ * \param message Human-readable error description from AdapterPoll::communicationError
+ */
+void ScopeController::onCommunicationError(const QString& message)
+{
+    stop();
+    emit errorOccurred(message);
 }
 
 /*!

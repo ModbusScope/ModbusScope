@@ -80,16 +80,25 @@ public:
     void updateFromDescribe(const QJsonObject& describeResult);
 
     /*!
-     * \brief Return the configuration to send to adapter.configure.
+     * \brief Return the stored or default configuration, for UI display.
      * \return The stored config if available, otherwise the defaults from describe.
      */
     QJsonObject effectiveConfig() const;
 
     /*!
      * \brief Return the maximum number of devices from the schema's devices.maxItems.
-     * \return The maxItems value, or INT_MAX if not specified.
+     * \return The maxItems value, or INT_MAX if not specified or negative.
      */
     int maxDevicesFromSchema() const;
+
+    /*!
+     * \brief Return the configuration to actually send to adapter.configure.
+     * \return effectiveConfig() with its "devices" array capped to maxDevicesFromSchema(), so
+     * the adapter subprocess is never sent more devices than its own schema allows. UI code
+     * that needs to show every configured device to the user (even ones beyond the adapter's
+     * current limit) should use effectiveConfig() instead.
+     */
+    QJsonObject configForWire() const;
 
 private:
     QString _name;

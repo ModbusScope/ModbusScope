@@ -45,6 +45,13 @@ public:
     void stopSession() override
     {
         _stopSessionCalls++;
+        if (_emitsAdapterReadySynchronouslyOnStop)
+        {
+            /* Mirrors AdapterClient::stopSession() for ACTIVE_DEGRADED, which transitions
+               locally and emits adapterReady() synchronously instead of waiting on a real
+               adapter.stop round-trip. */
+            emit adapterReady();
+        }
     }
 
     int readDataCalls() const
@@ -56,10 +63,16 @@ public:
         return _stopSessionCalls;
     }
 
+    void setEmitsAdapterReadySynchronouslyOnStop(bool emitsSynchronously)
+    {
+        _emitsAdapterReadySynchronouslyOnStop = emitsSynchronously;
+    }
+
 private:
     FakeState _state;
     int _readDataCalls = 0;
     int _stopSessionCalls = 0;
+    bool _emitsAdapterReadySynchronouslyOnStop = false;
 };
 
 } // namespace
@@ -231,6 +244,41 @@ void TestAdapterHub::stopSessionPurgesPendingStartForForceStoppedAdapters()
     /* If "modbus" were still pending, this alone would not be enough to empty the set. */
     hub.onManagerSessionStarted(QStringLiteral("iec104"));
     QCOMPARE(startedSpy.count(), 1);
+}
+
+/*!
+ * \brief Regression test: stopSession() must not fire AdapterHub::adapterReady() until every
+ * manager in the sweep has been asked to stop, even when one manager (a degraded session)
+ * emits adapterReady() synchronously from within its own stopSession() call. Previously
+ * _pendingReadyAdapters was populated one manager at a time, right before that manager's
+ * stopSession() was called; a synchronous adapterReady() from an early manager (sorted first
+ * by id) could drain the set and fire AdapterHub::adapterReady() before later managers had
+ * even been asked to stop, and again a second time once they genuinely finished.
+ */
+void TestAdapterHub::stopSessionWaitsForAllAdaptersWhenOneStopsSynchronously()
+{
+    AdapterHub hub;
+    auto* pSynchronous = new FakeAdapterManager(QStringLiteral("iec104"), FakeAdapterManager::FakeState::Active, &hub);
+    pSynchronous->setEmitsAdapterReadySynchronouslyOnStop(true);
+    auto* pAsynchronous = new FakeAdapterManager(QStringLiteral("modbus"), FakeAdapterManager::FakeState::Active, &hub);
+    hub._adapterManagers.insert(QStringLiteral("iec104"), pSynchronous);
+    hub._adapterManagers.insert(QStringLiteral("modbus"), pAsynchronous);
+    /* Wire adapterReady() the same way initAdapter() does in production, so pSynchronous's
+       synchronous emission from within stopSession() actually reaches AdapterHub. */
+    hub.connectManager(pSynchronous, QStringLiteral("iec104"));
+    hub.connectManager(pAsynchronous, QStringLiteral("modbus"));
+
+    QSignalSpy readySpy(&hub, &AdapterHub::adapterReady);
+
+    hub.stopSession();
+
+    /* "iec104" already fired adapterReady() synchronously, but "modbus" has not yet acknowledged
+       its own stop: AdapterHub::adapterReady() must not have fired yet. */
+    QCOMPARE(readySpy.count(), 0);
+    QCOMPARE(pAsynchronous->stopSessionCalls(), 1);
+
+    emit pAsynchronous->adapterReady();
+    QCOMPARE(readySpy.count(), 1);
 }
 
 QTEST_GUILESS_MAIN(TestAdapterHub)

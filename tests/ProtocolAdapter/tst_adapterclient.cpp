@@ -1142,6 +1142,291 @@ void TestAdapterClient::readDataErrorInIdleStateIsIgnored()
     QCOMPARE(spyError.count(), 0);
 }
 
+void TestAdapterClient::startErrorIsNonFatal()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyStarted(&client, &AdapterClient::sessionStarted);
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+    QSignalSpy spyData(&client, &AdapterClient::readDataResult);
+    QSignalSpy spyDiagnostic(&client, &AdapterClient::diagnosticReceived);
+
+    driveToAwaitingConfig(client, mock);
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h0}") });
+    mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
+
+    QJsonObject error;
+    error["code"] = -32602;
+    error["message"] = QStringLiteral("Invalid params: Invalid register address: ${h0}");
+    mock->injectError(4, "adapter.start", error);
+
+    /* Rejected start must not be treated as a fatal/unrecoverable error: no sessionError,
+       the adapter process is left running, and the session is reported as started so
+       polling for other adapters is not blocked. */
+    QCOMPARE(spyError.count(), 0);
+    QCOMPARE(spyStarted.count(), 1);
+    QCOMPARE(spyDiagnostic.count(), 1);
+    QVERIFY(client.isActive());
+
+    /* Polling must continue: every readData request now yields invalid results locally,
+       without ever contacting the (never-started) adapter process. */
+    int requestCountBeforeRead = mock->sentRequests().size();
+    client.requestReadData();
+    QCOMPARE(mock->sentRequests().size(), requestCountBeforeRead);
+    QCOMPARE(spyData.count(), 1);
+    ResultDoubleList results = spyData.at(0).at(0).value<ResultDoubleList>();
+    QCOMPARE(results.size(), 1);
+    QVERIFY(!results[0].isValid());
+}
+
+void TestAdapterClient::startErrorAllowsRetryAfterStop()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
+    QSignalSpy spyReady(&client, &AdapterClient::adapterReady);
+
+    driveToAwaitingConfig(client, mock);
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h0}") });
+    mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
+    QJsonObject error;
+    error["code"] = -32602;
+    error["message"] = QStringLiteral("Invalid params: Invalid register address: ${h0}");
+    mock->injectError(4, "adapter.start", error);
+    spyReady.clear();
+
+    /* Degraded session never established a real remote session, so stopSession() transitions
+       locally without sending adapter.stop, emitting sessionStopped() then adapterReady(). */
+    int requestCountBeforeStop = mock->sentRequests().size();
+    client.stopSession();
+    QCOMPARE(mock->sentRequests().size(), requestCountBeforeStop);
+    QCOMPARE(spyStopped.count(), 1);
+    QCOMPARE(spyReady.count(), 1);
+    QVERIFY(client.isReady());
+
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h1}") });
+    mock->injectResponse(5, "adapter.configure", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(6, "adapter.start", QJsonObject{ { "status", "ok" } });
+    QVERIFY(client.isActive());
+}
+
+void TestAdapterClient::requestStatusInDegradedSessionReturnsFalseLocally()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyStatus(&client, &AdapterClient::statusResult);
+
+    driveToAwaitingConfig(client, mock);
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h0}") });
+    mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
+    QJsonObject error;
+    error["code"] = -32602;
+    error["message"] = QStringLiteral("Invalid params: Invalid register address: ${h0}");
+    mock->injectError(4, "adapter.start", error);
+
+    int requestCountBeforeStatus = mock->sentRequests().size();
+    client.requestStatus();
+
+    /* Must not contact the never-started adapter process for status either. */
+    QCOMPARE(mock->sentRequests().size(), requestCountBeforeStatus);
+    QCOMPARE(spyStatus.count(), 1);
+    QCOMPARE(spyStatus.at(0).at(0).toBool(), false);
+}
+
+void TestAdapterClient::configureErrorIsNonFatal()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyStarted(&client, &AdapterClient::sessionStarted);
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+    QSignalSpy spyData(&client, &AdapterClient::readDataResult);
+    QSignalSpy spyDiagnostic(&client, &AdapterClient::diagnosticReceived);
+
+    driveToAwaitingConfig(client, mock);
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h0}") });
+
+    QJsonObject error;
+    error["code"] = -32602;
+    error["message"] = QStringLiteral("Too many devices: maximum allowed is 2");
+    mock->injectError(3, "adapter.configure", error);
+
+    /* Rejected configure must not be treated as a fatal/unrecoverable error: no sessionError,
+       the adapter process is left running, and the session is reported as started so
+       polling for other adapters is not blocked. */
+    QCOMPARE(spyError.count(), 0);
+    QCOMPARE(spyStarted.count(), 1);
+    QCOMPARE(spyDiagnostic.count(), 1);
+    QVERIFY(client.isActive());
+
+    /* Polling must continue: every readData request now yields invalid results locally,
+       without ever contacting the (never-configured) adapter process. */
+    int requestCountBeforeRead = mock->sentRequests().size();
+    client.requestReadData();
+    QCOMPARE(mock->sentRequests().size(), requestCountBeforeRead);
+    QCOMPARE(spyData.count(), 1);
+    ResultDoubleList results = spyData.at(0).at(0).value<ResultDoubleList>();
+    QCOMPARE(results.size(), 1);
+    QVERIFY(!results[0].isValid());
+}
+
+void TestAdapterClient::configureErrorAllowsRetryAfterStop()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyStopped(&client, &AdapterClient::sessionStopped);
+
+    driveToAwaitingConfig(client, mock);
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h0}") });
+    QJsonObject error;
+    error["code"] = -32602;
+    error["message"] = QStringLiteral("Too many devices: maximum allowed is 2");
+    mock->injectError(3, "adapter.configure", error);
+
+    /* Degraded session never established a real remote session, so stopSession() transitions
+       locally without sending adapter.stop. */
+    int requestCountBeforeStop = mock->sentRequests().size();
+    client.stopSession();
+    QCOMPARE(mock->sentRequests().size(), requestCountBeforeStop);
+    QCOMPARE(spyStopped.count(), 1);
+    QVERIFY(client.isReady());
+
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h1}") });
+    mock->injectResponse(4, "adapter.configure", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(5, "adapter.start", QJsonObject{ { "status", "ok" } });
+    QVERIFY(client.isActive());
+}
+
+void TestAdapterClient::requestStatusInDegradedSessionAfterConfigureErrorReturnsFalseLocally()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyStatus(&client, &AdapterClient::statusResult);
+
+    driveToAwaitingConfig(client, mock);
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h0}") });
+    QJsonObject error;
+    error["code"] = -32602;
+    error["message"] = QStringLiteral("Too many devices: maximum allowed is 2");
+    mock->injectError(3, "adapter.configure", error);
+
+    int requestCountBeforeStatus = mock->sentRequests().size();
+    client.requestStatus();
+
+    /* Must not contact the never-configured adapter process for status either. */
+    QCOMPARE(mock->sentRequests().size(), requestCountBeforeStatus);
+    QCOMPARE(spyStatus.count(), 1);
+    QCOMPARE(spyStatus.at(0).at(0).toBool(), false);
+}
+
+/*!
+ * \brief Regression test: describeDataPoint/validateDataPoint/buildExpression/requestExpressionHelp
+ * must keep working against a degraded (ACTIVE_DEGRADED) session's still-alive process, exactly as
+ * they already do in AWAITING_CONFIG or a genuinely ACTIVE session — these RPCs don't depend on the
+ * session having been successfully configured or started.
+ */
+void TestAdapterClient::auxRequestsWorkInDegradedSession()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyDescReg(&client, &AdapterClient::describeDataPointResult);
+    QSignalSpy spyValidate(&client, &AdapterClient::validateDataPointResult);
+    QSignalSpy spyBuild(&client, &AdapterClient::buildExpressionResult);
+    QSignalSpy spyHelp(&client, &AdapterClient::expressionHelpResult);
+
+    driveToAwaitingConfig(client, mock);
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h0}") });
+    QJsonObject error;
+    error["code"] = -32602;
+    error["message"] = QStringLiteral("Too many devices: maximum allowed is 2");
+    mock->injectError(3, "adapter.configure", error);
+    QVERIFY(client.isActive());
+
+    client.describeDataPoint(QStringLiteral("${h0}"));
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.describeDataPoint"));
+    mock->injectResponse(4, "adapter.describeDataPoint",
+                         QJsonObject{ { "valid", true }, { "description", QStringLiteral("Holding register 0") } });
+    QCOMPARE(spyDescReg.count(), 1);
+
+    client.validateDataPoint(QStringLiteral("${h0}"));
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.validateDataPoint"));
+    mock->injectResponse(5, "adapter.validateDataPoint", QJsonObject{ { "valid", true } });
+    QCOMPARE(spyValidate.count(), 1);
+    QCOMPARE(spyValidate.at(0).at(0).toBool(), true);
+
+    QJsonObject fields;
+    fields["objectType"] = QStringLiteral("holding register");
+    fields["address"] = 0;
+    client.buildExpression(fields, QStringLiteral("16b"), 1);
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.buildExpression"));
+    mock->injectResponse(6, "adapter.buildExpression", QJsonObject{ { "expression", QStringLiteral("${h0}") } });
+    QCOMPARE(spyBuild.count(), 1);
+    QCOMPARE(spyBuild.at(0).at(0).toString(), QStringLiteral("${h0}"));
+
+    client.requestExpressionHelp();
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.expressionHelp"));
+    mock->injectResponse(7, "adapter.expressionHelp",
+                         QJsonObject{ { "helpText", QStringLiteral("<html>help</html>") } });
+    QCOMPARE(spyHelp.count(), 1);
+}
+
+/*!
+ * \brief Regression test: a JSON-RPC error response to validateDataPoint/expressionHelp while
+ * ACTIVE_DEGRADED must be treated as a non-fatal aux result, exactly as it already is in
+ * AWAITING_CONFIG or a genuinely ACTIVE session, rather than tearing down the still-alive process.
+ */
+void TestAdapterClient::auxRequestErrorsAreNonFatalInDegradedSession()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+    QSignalSpy spyValidate(&client, &AdapterClient::validateDataPointResult);
+    QSignalSpy spyHelp(&client, &AdapterClient::expressionHelpResult);
+
+    driveToAwaitingConfig(client, mock);
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h0}") });
+    QJsonObject configError;
+    configError["code"] = -32602;
+    configError["message"] = QStringLiteral("Too many devices: maximum allowed is 2");
+    mock->injectError(3, "adapter.configure", configError);
+    QVERIFY(client.isActive());
+
+    client.validateDataPoint(QStringLiteral("${bad}"));
+    QJsonObject validateError;
+    validateError["code"] = -32602;
+    validateError["message"] = QStringLiteral("Unknown type 'bad'");
+    mock->injectError(4, "adapter.validateDataPoint", validateError);
+    QCOMPARE(spyValidate.count(), 1);
+    QCOMPARE(spyValidate.at(0).at(0).toBool(), false);
+    QCOMPARE(spyValidate.at(0).at(1).toString(), QStringLiteral("Unknown type 'bad'"));
+
+    client.requestExpressionHelp();
+    QJsonObject helpError;
+    helpError["code"] = -32601;
+    helpError["message"] = QStringLiteral("Method not found");
+    mock->injectError(5, "adapter.expressionHelp", helpError);
+    QCOMPARE(spyHelp.count(), 0);
+
+    /* Session must remain alive and usable throughout — no sessionError emitted */
+    QCOMPARE(spyError.count(), 0);
+    QVERIFY(client.isActive());
+}
+
 void TestAdapterClient::stopSessionSendsAdapterStop()
 {
     auto mockOwned = std::make_unique<MockAdapterProcess>();

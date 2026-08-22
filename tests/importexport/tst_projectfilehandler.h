@@ -20,9 +20,11 @@ private slots:
     void savePreservesAdapterConfigAfterDialogAccept();
     void roundTripPreservesAdapterConfig();
 
-    void applyAdapterSettingsTruncatesDevicesExceedingMaxItems();
-    void applyDeviceSettingsTruncatesDevicesExceedingMaxItems();
+    void applyAdapterSettingsDoesNotTruncateDevicesExceedingMaxItems();
+    void applyDeviceSettingsDoesNotTruncateDevicesExceedingMaxItems();
     void applyDeviceSettingsNoLimitWhenSchemaAbsent();
+    void applyDeviceSettingsNotCappedByOtherAdaptersLowerLimit();
+    void openingProjectWithExcessDevicesKeepsAdapterConfigAndDeviceListConsistent();
 };
 
 #endif /* TST_PROJECTFILEHANDLER_H */
