@@ -13,7 +13,6 @@
 #include <QFileDialog>
 #include <QModelIndex>
 #include <QScrollBar>
-#include <QSignalBlocker>
 #include <algorithm>
 
 DiagnosticDialog::DiagnosticDialog(DiagnosticModel* pDiagnosticModel, QWidget* parent)
@@ -176,13 +175,7 @@ void DiagnosticDialog::handleEnableDebugLog(Qt::CheckState state)
         _pDiagnosticModel->setMinimumSeverityLevel(Diagnostic::LOG_DEBUG);
         if (!ScopeLogging::Logger().setDebugFileLoggingEnabled(true))
         {
-            _pDiagnosticModel->setMinimumSeverityLevel(Diagnostic::LOG_INFO);
-
-            const QSignalBlocker blocker(_pUi->checkDebugLogs);
-            _pUi->checkDebugLogs->setChecked(false);
-
             Util::showError(tr("Failed to open debug log file (%1)").arg(DebugLogFileWriter::defaultFilePath()));
-            return;
         }
 
         _pUi->checkDebug->setChecked(true);
