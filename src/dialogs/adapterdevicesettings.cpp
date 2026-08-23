@@ -224,7 +224,8 @@ void AdapterDeviceSettings::handleCloseTab(QWidget* widget)
 }
 
 /*! \brief Build a warning message listing adapters whose configured device count exceeds
- *  their schema's maxItems, or an empty string if all adapters are within their limit.
+ *  their effective device limit (the smaller of the schema's maxItems and the adapter's
+ *  reported capabilities.maxDevices), or an empty string if all adapters are within their limit.
  */
 QString AdapterDeviceSettings::deviceLimitWarningMessage() const
 {
@@ -247,13 +248,13 @@ QString AdapterDeviceSettings::deviceLimitWarningMessage() const
     for (auto it = countByAdapter.constBegin(); it != countByAdapter.constEnd(); ++it)
     {
         const AdapterData* pAdapter = _pSettingsModel->adapterData(it.key());
-        const int maxDevices = pAdapter->maxDevicesFromSchema();
-        if (it.value() > maxDevices)
+        const int deviceLimit = pAdapter->maxDevices();
+        if (it.value() > deviceLimit)
         {
             const QString adapterName = pAdapter->name().isEmpty() ? it.key() : pAdapter->name();
             warnings.append(QString("%1 allows at most %2 device(s), but %3 are configured.")
                               .arg(adapterName)
-                              .arg(maxDevices)
+                              .arg(deviceLimit)
                               .arg(it.value()));
         }
     }

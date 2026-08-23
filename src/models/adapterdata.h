@@ -92,9 +92,24 @@ public:
     int maxDevicesFromSchema() const;
 
     /*!
+     * \brief Return the maximum number of devices from capabilities.maxDevices.
+     * \return The maxDevices value, or INT_MAX if not specified or negative.
+     */
+    int maxDevicesFromCapabilities() const;
+
+    /*!
+     * \brief Return the effective device limit currently in force for this adapter.
+     * \return The smaller of maxDevicesFromSchema() and maxDevicesFromCapabilities(), since
+     * both are legitimate caps for different reasons: the schema's maxItems is a fixed
+     * structural maximum, while capabilities.maxDevices is the live, license-aware limit
+     * actually enforced by adapter.configure.
+     */
+    int maxDevices() const;
+
+    /*!
      * \brief Return the configuration to actually send to adapter.configure.
-     * \return effectiveConfig() with its "devices" array capped to maxDevicesFromSchema(), so
-     * the adapter subprocess is never sent more devices than its own schema allows. UI code
+     * \return effectiveConfig() with its "devices" array capped to maxDevices(), so
+     * the adapter subprocess is never sent more devices than it currently allows. UI code
      * that needs to show every configured device to the user (even ones beyond the adapter's
      * current limit) should use effectiveConfig() instead.
      */

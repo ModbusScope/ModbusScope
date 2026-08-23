@@ -3,6 +3,7 @@
 
 #include <QJsonArray>
 
+#include <algorithm>
 #include <climits>
 
 AdapterData::AdapterData() = default;
@@ -175,6 +176,24 @@ int AdapterData::maxDevicesFromSchema() const
     return maxItems >= 0 ? maxItems : INT_MAX;
 }
 
+int AdapterData::maxDevicesFromCapabilities() const
+{
+    if (!_capabilities.contains("maxDevices"))
+    {
+        return INT_MAX;
+    }
+
+    /* A negative or non-numeric maxDevices is invalid capability data; treat it as unbounded
+     * rather than risk truncating every configured device. */
+    const int maxDevices = _capabilities.value("maxDevices").toInt(INT_MAX);
+    return maxDevices >= 0 ? maxDevices : INT_MAX;
+}
+
+int AdapterData::maxDevices() const
+{
+    return std::min(maxDevicesFromSchema(), maxDevicesFromCapabilities());
+}
+
 QJsonObject AdapterData::effectiveConfig() const
 {
     if (!_hasStoredConfig)
@@ -201,11 +220,11 @@ QJsonObject AdapterData::configForWire() const
 {
     QJsonObject result = effectiveConfig();
 
-    const int maxDevices = maxDevicesFromSchema();
-    if (maxDevices != INT_MAX && result.contains("devices"))
+    const int maxDevicesLimit = maxDevices();
+    if (maxDevicesLimit != INT_MAX && result.contains("devices"))
     {
         QJsonArray devices = result.value("devices").toArray();
-        while (devices.size() > maxDevices)
+        while (devices.size() > maxDevicesLimit)
         {
             devices.removeLast();
         }

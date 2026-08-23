@@ -364,6 +364,103 @@ void TestAdapterData::maxDevicesFromSchemaReturnsZeroWhenExplicit()
 }
 
 /*!
+ * \brief maxDevicesFromCapabilities returns INT_MAX when capabilities has no maxDevices.
+ */
+void TestAdapterData::maxDevicesFromCapabilitiesReturnsIntMaxWhenAbsent()
+{
+    AdapterData data;
+
+    QJsonObject describeResult;
+    describeResult["capabilities"] = QJsonObject();
+    data.updateFromDescribe(describeResult);
+
+    QCOMPARE(data.maxDevicesFromCapabilities(), INT_MAX);
+}
+
+/*!
+ * \brief maxDevicesFromCapabilities returns the maxDevices value from capabilities.
+ */
+void TestAdapterData::maxDevicesFromCapabilitiesReturnsValue()
+{
+    AdapterData data;
+
+    QJsonObject caps;
+    caps["maxDevices"] = 2;
+
+    QJsonObject describeResult;
+    describeResult["capabilities"] = caps;
+    data.updateFromDescribe(describeResult);
+
+    QCOMPARE(data.maxDevicesFromCapabilities(), 2);
+}
+
+/*!
+ * \brief maxDevicesFromCapabilities returns INT_MAX when maxDevices is negative, since a
+ * negative limit is invalid capability data rather than a real cap.
+ */
+void TestAdapterData::maxDevicesFromCapabilitiesReturnsIntMaxWhenNegative()
+{
+    AdapterData data;
+
+    QJsonObject caps;
+    caps["maxDevices"] = -1;
+
+    QJsonObject describeResult;
+    describeResult["capabilities"] = caps;
+    data.updateFromDescribe(describeResult);
+
+    QCOMPARE(data.maxDevicesFromCapabilities(), INT_MAX);
+}
+
+/*!
+ * \brief maxDevicesFromCapabilities returns 0 when maxDevices is explicitly 0, since that is a
+ * legitimate limit ("no devices allowed") rather than invalid capability data.
+ */
+void TestAdapterData::maxDevicesFromCapabilitiesReturnsZeroWhenExplicit()
+{
+    AdapterData data;
+
+    QJsonObject caps;
+    caps["maxDevices"] = 0;
+
+    QJsonObject describeResult;
+    describeResult["capabilities"] = caps;
+    data.updateFromDescribe(describeResult);
+
+    QCOMPARE(data.maxDevicesFromCapabilities(), 0);
+}
+
+/*!
+ * \brief maxDevices returns the smaller of maxDevicesFromSchema() and
+ * maxDevicesFromCapabilities(), reproducing the real Modbus adapter's describe response where
+ * the schema's maxItems (a fixed structural cap) is larger than the license-aware
+ * capabilities.maxDevices actually enforced by adapter.configure.
+ */
+void TestAdapterData::maxDevicesReturnsSmallerOfSchemaAndCapabilities()
+{
+    AdapterData data;
+
+    QJsonObject devicesSchema;
+    devicesSchema["type"] = "array";
+    devicesSchema["maxItems"] = 99;
+    QJsonObject properties;
+    properties["devices"] = devicesSchema;
+    QJsonObject schema;
+    schema["type"] = "object";
+    schema["properties"] = properties;
+
+    QJsonObject caps;
+    caps["maxDevices"] = 2;
+
+    QJsonObject describeResult;
+    describeResult["schema"] = schema;
+    describeResult["capabilities"] = caps;
+    data.updateFromDescribe(describeResult);
+
+    QCOMPARE(data.maxDevices(), 2);
+}
+
+/*!
  * \brief configForWire caps the "devices" array to maxDevicesFromSchema(), unlike
  * effectiveConfig() which returns every stored device.
  */
@@ -492,6 +589,46 @@ void TestAdapterData::configForWireRemovesAllDevicesWhenMaxItemsZero()
     data.setHasStoredConfig(true);
 
     QCOMPARE(data.configForWire().value("devices").toArray().size(), 0);
+}
+
+/*!
+ * \brief configForWire caps the "devices" array to capabilities.maxDevices even when the
+ * schema's maxItems is larger, reproducing the real Modbus adapter's license-aware limit.
+ */
+void TestAdapterData::configForWireCapsDevicesToCapabilitiesMaxDevices()
+{
+    AdapterData data;
+
+    QJsonObject devicesSchema;
+    devicesSchema["type"] = "array";
+    devicesSchema["maxItems"] = 99;
+    QJsonObject properties;
+    properties["devices"] = devicesSchema;
+    QJsonObject schema;
+    schema["type"] = "object";
+    schema["properties"] = properties;
+
+    QJsonObject caps;
+    caps["maxDevices"] = 2;
+
+    QJsonObject describeResult;
+    describeResult["schema"] = schema;
+    describeResult["capabilities"] = caps;
+    data.updateFromDescribe(describeResult);
+
+    QJsonArray devices;
+    for (int i = 1; i <= 5; ++i)
+    {
+        QJsonObject dev;
+        dev["id"] = i;
+        devices.append(dev);
+    }
+    QJsonObject config;
+    config["devices"] = devices;
+    data.setCurrentConfig(config);
+    data.setHasStoredConfig(true);
+
+    QCOMPARE(data.configForWire().value("devices").toArray().size(), 2);
 }
 
 void TestAdapterData::isMbcCompatibleTrue()

@@ -137,6 +137,28 @@ See the adapter's implementation spec for a concrete response example.
 | `defaults` | Default config values |
 | `capabilities` | Feature flags |
 
+#### Structural vs. enforced limits
+
+`schema` and `capabilities` can each express a maximum for the same concept,
+but they mean different things:
+
+- A JSON Schema constraint on a `schema` property (e.g. `maxItems` on an
+  array-valued property such as `devices`) is a **fixed, structural** upper
+  bound — the largest value `adapter.configure` could structurally ever
+  accept, independent of runtime state such as licensing.
+- A matching entry in `capabilities` (e.g. a `max<Noun>` key, such as
+  `maxDevices`) is the **live, currently-enforced** limit. It MAY be smaller
+  than the schema's structural bound, and MAY change between `adapter.describe`
+  calls — for example, when a license state changes.
+
+When both exist for the same concept, `capabilities` is authoritative for
+what `adapter.configure` will actually accept right now. Clients that
+validate configuration, warn on over-limit input, or truncate configuration
+before sending it must consult `capabilities`, not just `schema` — relying on
+`schema` alone under-reports the effective limit whenever the two diverge.
+See the adapter's implementation spec for which capability keys, if any,
+mirror a schema limit.
+
 Each property in `schema` MAY include the following additional fields (standard
 JSON Schema annotations and custom extensions):
 
