@@ -4,6 +4,7 @@
 #include "importexport/diagnosticexporter.h"
 #include "models/diagnosticfilter.h"
 #include "models/diagnosticmodel.h"
+#include "util/debuglogfilewriter.h"
 #include "util/fileselectionhelper.h"
 #include "util/scopelogging.h"
 #include "util/util.h"
@@ -20,6 +21,11 @@ DiagnosticDialog::DiagnosticDialog(DiagnosticModel* pDiagnosticModel, QWidget* p
     _pUi->setupUi(this);
     _bAutoScroll = false;
 
+    _pUi->label->setText(tr("You should only enable this when you want to debug the connection. When "
+                            "enabled, all data reads are logged. This will increase the log size very "
+                            "much. While enabled, all logs are also automatically appended to %1.")
+                           .arg(DebugLogFileWriter::defaultFilePath()));
+
     _pDiagnosticModel = pDiagnosticModel;
 
     _pSeverityProxyFilter = new DiagnosticFilter();
@@ -31,7 +37,8 @@ DiagnosticDialog::DiagnosticDialog(DiagnosticModel* pDiagnosticModel, QWidget* p
     _categoryFilterGroup.addButton(_pUi->checkWarning);
     _categoryFilterGroup.addButton(_pUi->checkDebug);
 
-    connect(&_categoryFilterGroup, QOverload<int>::of(&QButtonGroup::idClicked), this, &DiagnosticDialog::handleFilterChange);
+    connect(&_categoryFilterGroup, QOverload<int>::of(&QButtonGroup::idClicked), this,
+            &DiagnosticDialog::handleFilterChange);
 
     this->handleFilterChange(); // Update filter
 
@@ -41,10 +48,12 @@ DiagnosticDialog::DiagnosticDialog(DiagnosticModel* pDiagnosticModel, QWidget* p
 
     connect(_pUi->checkDebugLogs, &QCheckBox::checkStateChanged, this, &DiagnosticDialog::handleEnableDebugLog);
 
-    connect(_pUi->listError->verticalScrollBar(), &QScrollBar::valueChanged, this, &DiagnosticDialog::handleScrollbarChange);
+    connect(_pUi->listError->verticalScrollBar(), &QScrollBar::valueChanged, this,
+            &DiagnosticDialog::handleScrollbarChange);
 
     // Disable auto scroll when selecting an item
-    connect(_pUi->listError->selectionModel(), &QItemSelectionModel::selectionChanged, this, &DiagnosticDialog::handleErrorSelectionChanged);
+    connect(_pUi->listError->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+            &DiagnosticDialog::handleErrorSelectionChanged);
 
     // Handle layout change (filter change, add, clear, ...)
     connect(_pDiagnosticModel, &QAbstractItemModel::rowsInserted, this, &DiagnosticDialog::handleLogsChanged);
@@ -117,12 +126,11 @@ void DiagnosticDialog::handleCheckAutoScrollChanged(Qt::CheckState state)
     {
         setAutoScroll(true);
     }
-
 }
 
 void DiagnosticDialog::handleScrollbarChange()
 {
-    const QScrollBar * pScroll = _pUi->listError->verticalScrollBar();
+    const QScrollBar* pScroll = _pUi->listError->verticalScrollBar();
     if (pScroll->value() == pScroll->maximum())
     {
         setAutoScroll(true);
@@ -165,6 +173,10 @@ void DiagnosticDialog::handleEnableDebugLog(Qt::CheckState state)
     if (state == Qt::Checked)
     {
         _pDiagnosticModel->setMinimumSeverityLevel(Diagnostic::LOG_DEBUG);
+        if (!ScopeLogging::Logger().setDebugFileLoggingEnabled(true))
+        {
+            Util::showError(tr("Failed to open debug log file (%1)").arg(DebugLogFileWriter::defaultFilePath()));
+        }
 
         _pUi->checkDebug->setChecked(true);
         _pUi->checkDebug->setEnabled(true);
@@ -177,14 +189,14 @@ void DiagnosticDialog::handleEnableDebugLog(Qt::CheckState state)
         handleFilterChange();
 
         _pDiagnosticModel->setMinimumSeverityLevel(Diagnostic::LOG_INFO);
+        ScopeLogging::Logger().setDebugFileLoggingEnabled(false);
     }
 }
 
 void DiagnosticDialog::handleExportLog()
 {
     QFileDialog dialog(this);
-    FileSelectionHelper::configureFileDialog(&dialog,
-                                             FileSelectionHelper::DIALOG_TYPE_SAVE,
+    FileSelectionHelper::configureFileDialog(&dialog, FileSelectionHelper::DIALOG_TYPE_SAVE,
                                              FileSelectionHelper::FILE_TYPE_LOG);
 
     QString selectedFile = FileSelectionHelper::showDialog(&dialog);
@@ -213,7 +225,7 @@ void DiagnosticDialog::showContextMenu(const QPoint& pos)
 
 void DiagnosticDialog::handleCopyDiagnostics()
 {
-    QModelIndexList indexlist =_pUi->listError->selectionModel()->selectedRows();
+    QModelIndexList indexlist = _pUi->listError->selectionModel()->selectedRows();
     std::sort(indexlist.begin(), indexlist.end(), std::less<QModelIndex>());
 
     QString clipboardText;
@@ -247,7 +259,7 @@ void DiagnosticDialog::updateScroll()
     }
     else
     {
-       // Don't auto scroll
+        // Don't auto scroll
     }
 }
 
@@ -255,7 +267,8 @@ void DiagnosticDialog::updateLogCount()
 {
     if (_pSeverityProxyFilter->rowCount())
     {
-        _pUi->grpBoxLogs->setTitle(QString("Logs (%1/%2)").arg(_pSeverityProxyFilter->rowCount()).arg(_pDiagnosticModel->size()));
+        _pUi->grpBoxLogs->setTitle(
+          QString("Logs (%1/%2)").arg(_pSeverityProxyFilter->rowCount()).arg(_pDiagnosticModel->size()));
     }
     else
     {
