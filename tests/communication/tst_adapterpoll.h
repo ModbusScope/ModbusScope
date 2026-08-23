@@ -11,8 +11,7 @@ private slots:
     void cleanup();
 
     void startCommunicationWhenAdapterReady();
-    void startCommunicationWhenAdapterIdle();
-    void startCommunicationWhenAdapterInitializing();
+    void startCommunicationWhenAdapterNotReady();
     void doubleStartCommunicationWhileInitializing();
     void stopCommunicationClearsPendingState();
     void stopCommunicationAllowsNewWaitAfterRestart();

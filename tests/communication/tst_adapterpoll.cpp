@@ -22,10 +22,6 @@ public:
     {
         return _mockReady;
     }
-    bool isAdapterIdle() const override
-    {
-        return _mockIdle;
-    }
     void startSession(const QString& adapterId, const QStringList& expressions) override
     {
         _startCalls.append({ adapterId, expressions });
@@ -60,7 +56,6 @@ public:
     }
 
     bool _mockReady{ false };
-    bool _mockIdle{ false };
     QList<QPair<QString, QStringList>> _startCalls;
     int _initCount{ 0 };
     int _stopCount{ 0 };
@@ -100,17 +95,19 @@ void TestAdapterPoll::startCommunicationWhenAdapterReady()
     QVERIFY(s_pPoll->isActive());
 }
 
-void TestAdapterPoll::startCommunicationWhenAdapterIdle()
+void TestAdapterPoll::startCommunicationWhenAdapterNotReady()
 {
+    /* AdapterPoll no longer distinguishes "idle" from "mid-init" — it unconditionally asks the
+       hub to get ready and lets AdapterHub decide, per-manager, what actually needs restarting
+       (see F13 in the multi-device coherence audit). */
     s_pMockHub->_mockReady = false;
-    s_pMockHub->_mockIdle = true;
 
     QList<DataPoint> registers{ DataPoint(QStringLiteral("${h0}"), 1) };
     s_pPoll->startCommunication(registers);
 
     /* startSession not called yet — waiting for adapterReady */
     QCOMPARE(s_pMockHub->_startCalls.size(), 0);
-    /* initAdapter called to kick off the process */
+    /* initAdapter called unconditionally to ask the hub to get ready */
     QCOMPARE(s_pMockHub->_initCount, 1);
 
     s_pMockHub->triggerAdapterReady();
@@ -120,29 +117,9 @@ void TestAdapterPoll::startCommunicationWhenAdapterIdle()
     QCOMPARE(s_pMockHub->_startCalls[0].second, QStringList{ QStringLiteral("${h0}") });
 }
 
-void TestAdapterPoll::startCommunicationWhenAdapterInitializing()
-{
-    s_pMockHub->_mockReady = false;
-    s_pMockHub->_mockIdle = false;
-
-    QList<DataPoint> registers{ DataPoint(QStringLiteral("${h1}"), 1) };
-    s_pPoll->startCommunication(registers);
-
-    /* Neither startSession nor initAdapter called — adapter is mid-init */
-    QCOMPARE(s_pMockHub->_startCalls.size(), 0);
-    QCOMPARE(s_pMockHub->_initCount, 0);
-
-    s_pMockHub->triggerAdapterReady();
-
-    QCOMPARE(s_pMockHub->_startCalls.size(), 1);
-    QCOMPARE(s_pMockHub->_startCalls[0].first, QStringLiteral("modbus"));
-    QCOMPARE(s_pMockHub->_startCalls[0].second, QStringList{ QStringLiteral("${h1}") });
-}
-
 void TestAdapterPoll::doubleStartCommunicationWhileInitializing()
 {
     s_pMockHub->_mockReady = false;
-    s_pMockHub->_mockIdle = false;
 
     QList<DataPoint> registers1{ DataPoint(QStringLiteral("${h0}"), 1) };
     QList<DataPoint> registers2{ DataPoint(QStringLiteral("${h1}"), 1) };
@@ -161,7 +138,6 @@ void TestAdapterPoll::doubleStartCommunicationWhileInitializing()
 void TestAdapterPoll::stopCommunicationClearsPendingState()
 {
     s_pMockHub->_mockReady = false;
-    s_pMockHub->_mockIdle = true;
 
     QList<DataPoint> registers{ DataPoint(QStringLiteral("${h0}"), 1) };
     s_pPoll->startCommunication(registers);
@@ -179,7 +155,6 @@ void TestAdapterPoll::stopCommunicationClearsPendingState()
 void TestAdapterPoll::stopCommunicationAllowsNewWaitAfterRestart()
 {
     s_pMockHub->_mockReady = false;
-    s_pMockHub->_mockIdle = false;
 
     QList<DataPoint> registers1{ DataPoint(QStringLiteral("${h0}"), 1) };
     s_pPoll->startCommunication(registers1);
@@ -283,7 +258,6 @@ void TestAdapterPoll::sessionErrorWhileWaitingForAdapterEmitsCommunicationError(
     /* A session error while still waiting for the adapter to become ready (e.g. it failed to
        initialize) must be surfaced exactly like an error during an active session. */
     s_pMockHub->_mockReady = false;
-    s_pMockHub->_mockIdle = true;
 
     QList<DataPoint> registers{ DataPoint(QStringLiteral("${h0}"), 1) };
     s_pPoll->startCommunication(registers);

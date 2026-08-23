@@ -154,7 +154,7 @@ Where: `src/dialogs/adaptersettings.cpp:158` · `src/customwidgets/deviceconfigt
 
 ## 5. Runtime behaviour with more than one adapter
 
-### F13 — A mixed idle/ready fleet deadlocks the start path [High]
+### F13 — A mixed idle/ready fleet deadlocks the start path [High] — Fixed
 
 `AdapterHub::isAdapterReady()` requires *all* managers ready; `isAdapterIdle()` requires *all* idle. `startCommunication()` handles exactly those two cases:
 
@@ -165,6 +165,8 @@ else { wait; if (isAdapterIdle()) initAdapter(); }
 ```
 
 When one adapter has crashed to `IDLE` and another is still `AWAITING_CONFIG`, neither predicate holds. The poll enters `WaitingForAdapter`, arms a single-shot connection to `adapterReady`, and calls nothing — and `adapterReady` only fires when `_pendingReadyAdapters` drains, which requires an `initAdapter()` or `stopSession()` that never comes. The state is reachable: any adapter process dying mid-session produces it, and `stopSession()` skips both idle and ready managers, so it persists across a stop/start.
+
+**Fixed:** `AdapterHub::initAdapter()` is now idempotent and per-manager — it (re)starts only the managers currently `IDLE`, leaving ready/mid-handshake/active managers untouched. `AdapterPoll` no longer reasons about a fleet-wide idle predicate at all; the aggregate `isAdapterIdle()` was removed. Regression test: `tst_adapterhub.cpp::initAdapterReinitializesOnlyIdleManagers`.
 
 Where: `src/communication/adapterpoll.cpp:62` · `src/ProtocolAdapter/adapterhub.cpp:102` · `:160` · `:177`
 
