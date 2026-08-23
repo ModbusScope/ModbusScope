@@ -413,14 +413,3 @@ bool SettingsModel::hasDevice(deviceId_t devId) const
 {
     return _devices.contains(devId);
 }
-
-bool SettingsModel::updateDeviceId(deviceId_t oldId, deviceId_t newId)
-{
-    if (!_devices.contains(oldId) || _devices.contains(newId))
-        return false;
-
-    Device device = _devices.take(oldId);
-    _devices.insert(newId, device);
-    emit deviceListChanged();
-    return true;
-}

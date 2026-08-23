@@ -34,10 +34,18 @@ private slots:
     void maxDevicesFromSchemaReturnsIntMaxWhenNegative();
     void maxDevicesFromSchemaReturnsZeroWhenExplicit();
 
+    void maxDevicesFromCapabilitiesReturnsIntMaxWhenAbsent();
+    void maxDevicesFromCapabilitiesReturnsValue();
+    void maxDevicesFromCapabilitiesReturnsIntMaxWhenNegative();
+    void maxDevicesFromCapabilitiesReturnsZeroWhenExplicit();
+
+    void maxDevicesReturnsSmallerOfSchemaAndCapabilities();
+
     void configForWireCapsDevicesToMaxItems();
     void configForWireReturnsAllDevicesWhenNoLimit();
     void configForWireDoesNotTruncateWhenMaxItemsNegative();
     void configForWireRemovesAllDevicesWhenMaxItemsZero();
+    void configForWireCapsDevicesToCapabilitiesMaxDevices();
 
     void isMbcCompatibleTrue();
     void isMbcCompatibleFalse();

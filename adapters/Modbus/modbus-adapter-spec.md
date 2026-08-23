@@ -22,7 +22,9 @@ payloads defined in the protocol spec without further specialization.
   "schema": { ... },
   "defaults": { ... },
   "capabilities": {
-    "mbcCompatible": true
+    "mbcCompatible": true,
+    "maxDevices": 2,
+    "maxRegisters": 5
   },
   "license": {
     "state": "notFound",
@@ -44,8 +46,22 @@ treat `version` as a fixed literal; parse or compare it accordingly.
 | `configVersion` | Current config schema version |
 | `schema` | JSON Schema–compatible object describing the `config` object accepted by `adapter.configure` |
 | `defaults` | Default config values. The `connections` array contains a single TCP entry that also includes serial-specific fields (`portName`, `baudrate`, `parity`, `databits`, `stopbits`) and, when `MODBUSADAPTER_ENABLE_GATEWAY` is set, gateway fields (`gatewayEnabled`, `gatewayHost`, `gatewayPort`) so callers can see all defaults without needing separate examples. |
-| `capabilities` | Feature flags |
+| `capabilities` | Feature flags and license-aware limits (see below) |
 | `license` | Current license state object (see below) |
+
+### `capabilities` object
+
+Evaluated on every `adapter.describe` call, so it always reflects the adapter's current license state — a license
+added or removed while the process is running is picked up on the next call, without a restart.
+
+| Field | Present when | Description |
+| --- | --- | --- |
+| `mbcCompatible` | always | `true` — reserved compatibility flag |
+| `maxDevices` | always | Maximum number of devices currently enforced by `adapter.configure`: `99` when licensed, `2` when unlicensed. This is the live, license-aware limit — distinct from `schema.properties.devices.maxItems`, which is a fixed structural maximum (`99`) independent of license state. |
+| `maxRegisters` | only when unlicensed | Maximum number of register expressions currently enforced by `adapter.start`: `5`. Omitted entirely when licensed, since no register cap is enforced in that case. |
+
+See the free-version limits documented under [`adapter.configure`](#adapterconfigure) and
+[`adapter.start`](#adapterstart) for the corresponding error responses when these limits are exceeded.
 
 ### `license` object
 
@@ -450,9 +466,11 @@ and unsigned 16-bit.
 { "helpText": "<p>...</p>" }
 ```
 
-`helpText` is an HTML fragment (no `<html>`/`<body>` wrapper) documenting the Modbus register expression syntax
-defined under [`adapter.start`](#adapterstart) (address prefixes, optional `deviceId` and `type`, and the list of
-type values).
+`helpText` is an HTML **fragment** (no `<html>`/`<body>` wrapper) documenting only the Modbus
+register expression syntax defined under [`adapter.start`](#adapterstart) (address prefixes,
+optional `deviceId` and `type`, and the list of type values). The generic expression syntax
+(operators, number formats) is documented by the host application and is not part of this
+response; the host composes both into the final display.
 
 ---
 

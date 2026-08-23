@@ -100,6 +100,21 @@ QJsonObject makeAdapterDescribeWithMaxItems(const QString& adapterName, int maxI
     return describe;
 }
 
+//! Build a describe result like makeAdapterDescribeWithMaxItems(), but also setting
+//! capabilities.maxDevices to the given limit, independent of the schema's maxItems.
+QJsonObject makeAdapterDescribeWithMaxItemsAndCapabilitiesMaxDevices(const QString& adapterName,
+                                                                     int maxItems,
+                                                                     int capabilitiesMaxDevices)
+{
+    QJsonObject describe = makeAdapterDescribeWithMaxItems(adapterName, maxItems);
+
+    QJsonObject capabilities;
+    capabilities["maxDevices"] = capabilitiesMaxDevices;
+    describe["capabilities"] = capabilities;
+
+    return describe;
+}
+
 } // namespace
 
 void TestAdapterDeviceSettings::setupAdapter(SettingsModel& model, const QString& adapterId, const QJsonArray& devices)
@@ -1033,6 +1048,40 @@ void TestAdapterDeviceSettings::warningLabelShowsForOverLimitAdapter()
     QVERIFY(warningLabel->text().contains("adapterA"));
     QVERIFY(warningLabel->text().contains("1"));
     QVERIFY(warningLabel->text().contains("2"));
+}
+
+//! Reproduces the real Modbus adapter's describe response, where the schema's maxItems (a
+//! fixed structural cap, e.g. 99) is much larger than capabilities.maxDevices (the live,
+//! license-aware limit actually enforced by adapter.configure, e.g. 2 when unlicensed). The
+//! warning label must key off the effective limit (the smaller of the two), not just maxItems,
+//! or a user running unlicensed with more devices than their license allows sees no warning.
+void TestAdapterDeviceSettings::warningLabelShowsForOverCapabilitiesMaxDevices()
+{
+    SettingsModel model;
+
+    QJsonObject dev0;
+    dev0["id"] = 1;
+    QJsonObject dev1;
+    dev1["id"] = 2;
+    QJsonObject dev2;
+    dev2["id"] = 3;
+
+    model.updateAdapterFromDescribe("adapterA",
+                                    makeAdapterDescribeWithMaxItemsAndCapabilitiesMaxDevices("adapterA", 99, 2));
+    QJsonObject config;
+    config["general"] = QJsonObject();
+    config["connections"] = QJsonArray();
+    config["devices"] = QJsonArray{ dev0, dev1, dev2 };
+    model.setAdapterCurrentConfig("adapterA", config);
+
+    AdapterDeviceSettings w(&model);
+
+    auto* warningLabel = w.findChild<QLabel*>("deviceLimitWarningLabel");
+    QVERIFY(warningLabel != nullptr);
+    QVERIFY(!warningLabel->isHidden());
+    QVERIFY(warningLabel->text().contains("adapterA"));
+    QVERIFY(warningLabel->text().contains("2"));
+    QVERIFY(warningLabel->text().contains("3"));
 }
 
 void TestAdapterDeviceSettings::addingDeviceForModbusNotBlockedByOtherAdapterOverLimit()

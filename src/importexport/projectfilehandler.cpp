@@ -136,7 +136,7 @@ void ProjectFileHandler::updateProjectSetting(ProjectFileData::ProjectSettings* 
 /*!
  * \brief Apply loaded adapter settings to SettingsModel so the dialog shows the correct values.
  *
- * Stores every device from the project file, even beyond an adapter's maxDevicesFromSchema()
+ * Stores every device from the project file, even beyond an adapter's maxDevices()
  * limit: AdapterData::configForWire() caps what is actually sent to the adapter subprocess, so
  * truncating here would only silently drop devices from the UI without any indication to the
  * user.

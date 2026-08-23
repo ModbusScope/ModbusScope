@@ -32,13 +32,14 @@ QJsonObject deviceObject(int id, int connectionId)
 }
 
 /*!
- * \brief Rebuild a describe object for \a pAdapterData, with the devices schema's maxItems removed.
+ * \brief Rebuild a describe object for \a pAdapterData, with the client-side device limit removed.
  *
  * The real dummy adapter binary always enforces its own device limit (1) at adapter.configure
- * regardless of what the client believes; removing maxItems from the client-side schema disables
- * AdapterData::configForWire()'s local truncation, so an over-limit config actually reaches the
- * real subprocess — reproducing the scenario (as seen with the real Modbus adapter) where the
- * client's belief about the limit doesn't match what the adapter actually enforces.
+ * regardless of what the client believes; removing the schema's devices.maxItems and
+ * capabilities.maxDevices disables AdapterData::configForWire()'s local truncation (see
+ * AdapterData::maxDevices()), so an over-limit config actually reaches the real subprocess —
+ * reproducing the scenario (as seen with the real Modbus adapter) where the client's belief
+ * about the limit doesn't match what the adapter actually enforces.
  */
 QJsonObject describeWithoutDeviceLimit(const AdapterData* pAdapterData)
 {
@@ -49,13 +50,16 @@ QJsonObject describeWithoutDeviceLimit(const AdapterData* pAdapterData)
     properties["devices"] = devicesSchema;
     schema["properties"] = properties;
 
+    QJsonObject capabilities = pAdapterData->capabilities();
+    capabilities.remove("maxDevices");
+
     QJsonObject describe;
     describe["name"] = pAdapterData->name();
     describe["version"] = pAdapterData->version();
     describe["configVersion"] = pAdapterData->configVersion();
     describe["schema"] = schema;
     describe["defaults"] = pAdapterData->defaults();
-    describe["capabilities"] = pAdapterData->capabilities();
+    describe["capabilities"] = capabilities;
     describe["license"] = pAdapterData->license();
     return describe;
 }
