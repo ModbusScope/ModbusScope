@@ -401,6 +401,34 @@ void TestAddRegisterWidget::btnAddDisabledWhenSelectedDeviceAdapterUnavailable()
     QVERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
 }
 
+void TestAddRegisterWidget::deviceComboRefreshesLiveOnDeviceAdded()
+{
+    QCOMPARE(_pRegWidget->_pUi->cmbDevice->count(), 1);
+
+    /* Mirrors addSimAdapter()'s setup, but without deleting/reconstructing _pRegWidget:
+     * the point of this test is that the combo now picks up the new device on its own. */
+    _settingsModel.setAdapterDataPointSchema("sim", buildSimRegisterSchema());
+    QJsonObject describeResult;
+    describeResult["name"] = QStringLiteral("Simulator");
+    _settingsModel.updateAdapterFromDescribe(QStringLiteral("sim"), describeResult);
+    _pMockSimAdapterManager = new MockAdapterManager(&_settingsModel, QStringLiteral("sim"));
+    _pMockHub->addManager(QStringLiteral("sim"), _pMockSimAdapterManager);
+
+    const deviceId_t simDeviceId = _settingsModel.addNewDevice();
+    _settingsModel.deviceSettings(simDeviceId)->setAdapterId(QStringLiteral("sim"));
+
+    QCOMPARE(_pRegWidget->_pUi->cmbDevice->count(), 2);
+    QCOMPARE(_pRegWidget->_pUi->cmbDevice->itemText(1), QString("Device %1").arg(simDeviceId));
+}
+
+void TestAddRegisterWidget::deviceComboDisablesAddWhenLastDeviceRemoved()
+{
+    _settingsModel.removeDevice(Device::cFirstDeviceId);
+
+    QCOMPARE(_pRegWidget->_pUi->cmbDevice->count(), 0);
+    QVERIFY(!_pRegWidget->_pUi->btnAdd->isEnabled());
+}
+
 void TestAddRegisterWidget::clickAdd()
 {
     QTest::mouseClick(_pRegWidget->_pUi->btnAdd, Qt::LeftButton);

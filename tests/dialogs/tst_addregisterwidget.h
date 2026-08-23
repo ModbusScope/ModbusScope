@@ -78,6 +78,8 @@ private slots:
     void switchToLargerSchemaWhileMenuOpenShowsAllFields();
     void buildExpressionRoutedToSelectedDevice();
     void btnAddDisabledWhenSelectedDeviceAdapterUnavailable();
+    void deviceComboRefreshesLiveOnDeviceAdded();
+    void deviceComboDisablesAddWhenLastDeviceRemoved();
 
 private:
     void clickAdd();

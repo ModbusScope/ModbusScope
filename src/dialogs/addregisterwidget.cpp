@@ -12,6 +12,7 @@
 #include <QJsonArray>
 #include <QMenu>
 #include <QResizeEvent>
+#include <QSignalBlocker>
 #include <QVBoxLayout>
 
 /*!
@@ -46,6 +47,7 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel, AdapterHub* 
 
     /* Connect after populating to avoid spurious slot calls during addItem */
     connect(_pUi->cmbDevice, &QComboBox::currentIndexChanged, this, &AddRegisterWidget::onDeviceSelectionChanged);
+    connect(_pSettingsModel, &SettingsModel::deviceListChanged, this, &AddRegisterWidget::refreshDeviceCombo);
 
     connect(_pUi->btnAdd, &QPushButton::clicked, this, &AddRegisterWidget::handleResultAccept);
 
@@ -58,15 +60,39 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel, AdapterHub* 
 }
 
 /*!
- * \brief Fills the device combo box with all configured devices.
+ * \brief Clears and refills the device combo box with all configured devices.
  */
 void AddRegisterWidget::populateDeviceCombo()
 {
+    _pUi->cmbDevice->clear();
+
     const QList<deviceId_t> deviceIds = _pSettingsModel->deviceList();
     for (deviceId_t devId : deviceIds)
     {
         _pUi->cmbDevice->addItem(_pSettingsModel->deviceSettings(devId)->name(), QVariant(devId));
     }
+}
+
+/*!
+ * \brief Repopulates the device combo box, preserving the current selection where possible.
+ *
+ * Signals are blocked while the combo box is cleared and rebuilt so the transient,
+ * possibly-empty intermediate states it passes through don't reach applyDevice();
+ * the device is applied exactly once, for the final selection.
+ */
+void AddRegisterWidget::refreshDeviceCombo()
+{
+    const deviceId_t previousSelection = selectedDeviceId();
+
+    {
+        const QSignalBlocker blocker(_pUi->cmbDevice);
+        populateDeviceCombo();
+
+        const int idx = _pUi->cmbDevice->findData(QVariant(previousSelection));
+        _pUi->cmbDevice->setCurrentIndex(idx >= 0 ? idx : 0);
+    }
+
+    applyDevice(selectedDeviceId());
 }
 
 AddRegisterWidget::~AddRegisterWidget()

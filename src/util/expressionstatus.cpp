@@ -16,6 +16,7 @@ ExpressionStatus::ExpressionStatus(GraphDataModel* pGraphDataModel, SettingsMode
 {
     connect(_pGraphDataModel, &GraphDataModel::added, this, &ExpressionStatus::handleExpressionsChanged);
     connect(_pGraphDataModel, &GraphDataModel::expressionChanged, this, &ExpressionStatus::handleExpressionsChanged);
+    connect(_pSettingsModel, &SettingsModel::deviceListChanged, this, &ExpressionStatus::handleDeviceListChanged);
 
     connect(&_checker, &ExpressionChecker::resultsReady, this, &ExpressionStatus::handleResultReady);
 }
@@ -68,6 +69,15 @@ void ExpressionStatus::handleExpressionsChanged(GraphIdx graphIdx)
     if (bStartChecker)
     {
         verifyExpression(expression, _pSettingsModel->deviceList());
+    }
+}
+
+void ExpressionStatus::handleDeviceListChanged()
+{
+    const qint32 count = _pGraphDataModel->size();
+    for (qint32 idx = 0; idx < count; idx++)
+    {
+        handleExpressionsChanged(GraphIdx(idx));
     }
 }
 

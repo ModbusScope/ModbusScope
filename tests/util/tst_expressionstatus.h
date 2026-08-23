@@ -19,6 +19,7 @@ private slots:
     void syntaxErrorExpression_setsSyntaxErrorState();
     void registerExpression_noDevice_setsUnknownDeviceState();
     void afterRemoval_subsequentExpressionChange_setsCorrectState();
+    void deviceRemoved_revalidatesReferencingExpression();
 
 private:
     GraphDataModel* _pGraphDataModel = nullptr;
