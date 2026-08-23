@@ -1,6 +1,7 @@
 {
     "capabilities": {
-        "maxDevices": 99,
+        "maxDevices": 2,
+        "maxRegisters": 5,
         "mbcCompatible": true
     },
     "configVersion": 1,
@@ -123,6 +124,13 @@
                                 ]
                             }
                         },
+                        "propertyOrder": [
+                            "portName",
+                            "baudrate",
+                            "parity",
+                            "databits",
+                            "stopbits"
+                        ],
                         "required": [
                             "portName",
                             "baudrate",
@@ -173,6 +181,13 @@
                             ]
                         }
                     },
+                    "propertyOrder": [
+                        "id",
+                        "name",
+                        "type",
+                        "timeout",
+                        "persistent"
+                    ],
                     "required": [
                         "id",
                         "type"
@@ -192,6 +207,10 @@
                                 "type": "integer"
                             }
                         },
+                        "propertyOrder": [
+                            "ip",
+                            "port"
+                        ],
                         "required": [
                             "ip",
                             "port"
@@ -236,6 +255,13 @@
                             "type": "integer"
                         }
                     },
+                    "propertyOrder": [
+                        "id",
+                        "connectionId",
+                        "slaveId",
+                        "consecutiveMax",
+                        "int32LittleEndian"
+                    ],
                     "required": [
                         "id",
                         "connectionId",
@@ -249,6 +275,8 @@
             "general": {
                 "properties": {
                 },
+                "propertyOrder": [
+                ],
                 "required": [
                 ],
                 "type": "object"
@@ -260,5 +288,5 @@
         },
         "type": "object"
     },
-    "version": "0.0.2-master+9b6bc01"
+    "version": "0.0.2-master+8428d7c"
 }

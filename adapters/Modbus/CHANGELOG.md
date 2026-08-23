@@ -8,6 +8,7 @@
 - Add license verification
 - Add limit of 5 registers in free version
 - Add `MODBUSADAPTER_LICENSE_PATH` env var to override the license file path in debug builds
+- Update schema to control order of UI elements in the settings dialog
 
 ### Changed
 
