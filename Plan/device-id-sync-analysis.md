@@ -24,7 +24,7 @@ The `Device` class (`device.h:23-26`) only stores `_name` and `_adapterId` — n
 
 - **SettingsModel device map**: `settingsmodel.cpp:144-150` — `_devices[devId]` returns Device* where ID is the map key
 - **JSON config storage**: Adapter's `currentConfig["devices"][N]["id"]` — stored in adapter data
-- **SettingsModel::updateDeviceId()**: `settingsmodel.cpp:229-237` — exists but is never called from UI
+- **SettingsModel::updateDeviceId()**: removed as dead code (2026-08-23), since it was never called from UI. Option 1 below would require re-adding it.
 
 ### Synchronization Flow
 
@@ -75,7 +75,7 @@ Made the device ID field **read-only** in the UI. The ID is assigned at device c
 
 ### Future Fix (Proper Sync)
 
-Option 1: Call `SettingsModel::updateDeviceId(oldId, newId)` when ID edited
+Option 1: Re-add `SettingsModel::updateDeviceId(oldId, newId)` (removed as dead code) and call it when ID edited
 - Requires detecting ID change in acceptValues()
 - Map key needs to be renamed in _devices map
 
