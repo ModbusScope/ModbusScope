@@ -160,7 +160,7 @@ class MockCC : public CC {
 // Tests that a method with expanded name compiles.
 TEST(OnCallSyntaxTest, CompilesWithMethodNameExpandedFromMacro) {
   MockCC cc;
-  ON_CALL(cc, Method());
+  (void)ON_CALL(cc, Method());
 }
 
 // Tests that the method with expanded name not only compiles but runs
@@ -193,7 +193,7 @@ TEST(OnCallSyntaxTest, EvaluatesFirstArgumentOnce) {
   MockA a;
   MockA* pa = &a;
 
-  ON_CALL(*pa++, DoA(_));
+  (void)ON_CALL(*pa++, DoA(_));
   EXPECT_EQ(&a + 1, pa);
 }
 
@@ -201,7 +201,7 @@ TEST(OnCallSyntaxTest, EvaluatesSecondArgumentOnce) {
   MockA a;
   int n = 0;
 
-  ON_CALL(a, DoA(n++));
+  (void)ON_CALL(a, DoA(n++));
   EXPECT_EQ(1, n);
 }
 
@@ -232,7 +232,7 @@ TEST(OnCallSyntaxTest, WillByDefaultIsMandatory) {
 
   EXPECT_DEATH_IF_SUPPORTED(
       {
-        ON_CALL(a, DoA(5));
+        (void)ON_CALL(a, DoA(5));
         a.DoA(5);
       },
       "");
@@ -804,9 +804,8 @@ TEST(ExpectCallTest, InfersCardinality1WhenThereIsWillRepeatedly) {
       "to be called at least once");
 }
 
-#if defined(GTEST_INTERNAL_CPLUSPLUS_LANG) && \
-    GTEST_INTERNAL_CPLUSPLUS_LANG >= 201703L
-
+// TODO(b/396121064) - Fix this test under MSVC
+#ifndef _MSC_VER
 // It should be possible to return a non-moveable type from a mock action in
 // C++17 and above, where it's guaranteed that such a type can be initialized
 // from a prvalue returned from a function.
@@ -847,7 +846,7 @@ TEST(ExpectCallTest, NonMoveableType) {
   EXPECT_EQ(17, mock.AsStdFunction()().x);
 }
 
-#endif  // C++17 and above
+#endif  // _MSC_VER
 
 // Tests that the n-th action is taken for the n-th matching
 // invocation.
@@ -2046,7 +2045,7 @@ class GMockVerboseFlagTest : public VerboseFlagPreservingFixture {
     NaggyMock<MockA> a;
     const std::string note =
         "NOTE: You can safely ignore the above warning unless this "
-        "call should not happen.  Do not suppress it by blindly adding "
+        "call should not happen.  Do not suppress it by adding "
         "an EXPECT_CALL() if you don't mean to enforce the call.  "
         "See "
         "https://github.com/google/googletest/blob/main/docs/"

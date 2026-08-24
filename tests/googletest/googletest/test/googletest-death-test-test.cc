@@ -208,6 +208,7 @@ int DieInDebugElse12(int* sideeffect) {
 #ifdef GTEST_OS_WINDOWS
 
 // Death in dbg due to Windows CRT assertion failure, not opt.
+#ifdef _DEBUG
 int DieInCRTDebugElse12(int* sideeffect) {
   if (sideeffect) *sideeffect = 12;
 
@@ -222,6 +223,7 @@ int DieInCRTDebugElse12(int* sideeffect) {
 
   return 12;
 }
+#endif  // _DEBUG
 
 #endif  // GTEST_OS_WINDOWS
 
@@ -291,7 +293,7 @@ TEST(ExitStatusPredicateTest, KilledBySignal) {
   const int status_kill = KilledExitStatus(SIGKILL);
   const testing::KilledBySignal pred_segv(SIGSEGV);
   const testing::KilledBySignal pred_kill(SIGKILL);
-#if !(defined(GTEST_OS_LINUX_ANDROID) && __ANDROID_API__ <= 21)
+#if !(defined(GTEST_OS_LINUX_ANDROID) && __ANDROID_API__ <= 23)
   EXPECT_PRED1(pred_segv, status_segv);
 #endif
   EXPECT_PRED1(pred_kill, status_kill);

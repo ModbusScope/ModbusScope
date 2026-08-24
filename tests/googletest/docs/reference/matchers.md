@@ -1,5 +1,7 @@
 # Matchers Reference
 
+<!-- disableFinding(LINK_RELATIVE_G3DOC) -->
+
 A **matcher** matches a *single* argument. You can use it inside `ON_CALL()` or
 `EXPECT_CALL()`, or use it to validate a value directly using two macros:
 
@@ -42,11 +44,14 @@ Matcher                     | Description
 | `Lt(value)`            | `argument < value`                                  |
 | `Ne(value)`            | `argument != value`                                 |
 | `IsFalse()`            | `argument` evaluates to `false` in a Boolean context. |
+| `DistanceFrom(target, m)` | The distance between `argument` and `target` (computed by `abs(argument - target)`) matches `m`. |
+| `DistanceFrom(target, get_distance, m)` | The distance between `argument` and `target` (computed by `get_distance(argument, target)`) matches `m`. |
 | `IsTrue()`             | `argument` evaluates to `true` in a Boolean context. |
 | `IsNull()`             | `argument` is a `NULL` pointer (raw or smart).      |
 | `NotNull()`            | `argument` is a non-null pointer (raw or smart).    |
-| `Optional(m)`          | `argument` is `optional<>` that contains a value matching `m`. (For testing whether an `optional<>` is set, check for equality with `nullopt`. You may need to use `Eq(nullopt)` if the inner type doesn't have `==`.)|
+| `Optional(m)`          | `argument` is `optional<>` that contains a value matching `m`. (For testing whether an `optional<>` is unset, check for equality with `nullopt`. You may need to use `Eq(nullopt)` if the inner type doesn't have `==`.)|
 | `VariantWith<T>(m)`    | `argument` is `variant<>` that holds the alternative of type T with a value matching `m`. |
+| `AnyWith<T>(m)`        | `argument` is `any<>` that holds a value of type T with a value matching `m`. |
 | `Ref(variable)`        | `argument` is a reference to `variable`.            |
 | `TypedEq<type>(value)` | `argument` has type `type` and is equal to `value`. You may need to use this instead of `Eq(value)` when the mock function is overloaded. |
 
@@ -108,6 +113,33 @@ The `argument` can be either a C string or a C++ string object:
 use the regular expression syntax defined
 [here](../advanced.md#regular-expression-syntax). All of these matchers, except
 `ContainsRegex()` and `MatchesRegex()` work for wide strings as well.
+
+## Exception Matchers
+
+| Matcher                                   | Description                      |
+| :---------------------------------------- | :------------------------------- |
+| `Throws<E>()` | The `argument` is a callable object that, when called, throws an exception of the expected type `E`. |
+| `Throws<E>(m)` | The `argument` is a callable object that, when called, throws an exception of type `E` that satisfies the matcher `m`. |
+| `ThrowsMessage<E>(m)` | The `argument` is a callable object that, when called, throws an exception of type `E` with a message that satisfies the matcher `m`. |
+
+Examples:
+
+```cpp
+auto argument = [] { throw std::runtime_error("error msg"); };
+
+// Checks if the lambda throws a `std::runtime_error`.
+EXPECT_THAT(argument, Throws<std::runtime_error>());
+
+// Checks if the lambda throws a `std::runtime_error` with a specific message
+// that matches "error msg".
+EXPECT_THAT(argument,
+            Throws<std::runtime_error>(Property(&std::runtime_error::what,
+                                                Eq("error msg"))));
+
+// Checks if the lambda throws a `std::runtime_error` with a message that
+// contains "msg".
+EXPECT_THAT(argument, ThrowsMessage<std::runtime_error>(HasSubstr("msg")));
+```
 
 ## Container Matchers
 
@@ -171,6 +203,11 @@ messages, you can use:
 | `Property(&class::property, m)` | `argument.property()` (or `argument->property()` when `argument` is a plain pointer) matches matcher `m`, where `argument` is an object of type _class_. The method `property()` must take no argument and be declared as `const`. |
 | `Property(property_name, &class::property, m)` | The same as the two-parameter version, but provides a better error message.
 
+{: .callout .warning}
+Warning: Don't use `Property()` against member functions that you do not own,
+because taking addresses of functions is fragile and generally not part of the
+contract of the function.
+
 **Notes:**
 
 *   You can use `FieldsAre()` to match any type that supports structured
@@ -188,10 +225,6 @@ messages, you can use:
     MyStruct s;
     EXPECT_THAT(s, FieldsAre(42, "aloha"));
     ```
-
-*   Don't use `Property()` against member functions that you do not own, because
-    taking addresses of functions is fragile and generally not part of the
-    contract of the function.
 
 ## Matching the Result of a Function, Functor, or Callback
 
@@ -223,6 +256,14 @@ Matcher | Description
 `Le()`  | `x <= y`
 `Lt()`  | `x < y`
 `Ne()`  | `x != y`
+`FloatEq()` | `x` approximately equals `y`
+`DoubleEq()` | `x` approximately equals `y`
+`NanSensitiveFloatEq()` | Same as `FloatEq()`, but treats two NaNs as equal
+`NanSensitiveDoubleEq()` | Same as `DoubleEq()`, but treats two NaNs as equal
+`FloatNear(max_abs_error)` | `x` is within `max_abs_error` of `y`
+`DoubleNear(max_abs_error)` | `x` is within `max_abs_error` of `y`
+`NanSensitiveFloatNear(max_abs_error)` | Same as `FloatNear(max_abs_error)`, but treats two NaNs as near
+`NanSensitiveDoubleNear(max_abs_error)` | Same as `DoubleNear(max_abs_error)`, but treats two NaNs as near
 
 You can use the following selectors to pick a subset of the arguments (or
 reorder them) to participate in the matching:
@@ -265,6 +306,13 @@ which must be a permanent callback.
 | `Value(value, m)` | evaluates to `true` if `value` matches `m`. |
 
 ## Defining Matchers
+
+{: .callout .note}
+Note: full details about defining new matchers are in the
+[cookbook](../gmock_cook_book.md#NewMatchers). In particular, if `MATCHER`
+macros are not sufficient, you can directly implement
+[monomorphic](../gmock_cook_book.md#MonomorphicMatchers) or
+[polymorphic](../gmock_cook_book.md#PolymorphicMatchers) matchers.
 
 | Macro                                | Description                           |
 | :----------------------------------- | :------------------------------------ |
