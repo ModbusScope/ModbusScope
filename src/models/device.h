@@ -18,6 +18,9 @@ public:
     QString name();
     QString adapterId() const;
 
+    bool operator==(const Device& other) const;
+    bool operator!=(const Device& other) const;
+
     static deviceId_t const cFirstDeviceId;
 
 private:

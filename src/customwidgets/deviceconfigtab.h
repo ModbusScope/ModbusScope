@@ -16,6 +16,10 @@ class QVBoxLayout;
  * Displays a combo box to select the protocol adapter for this device, followed by
  * a schema-driven form for device-specific settings from the selected adapter's schema.
  * When the adapter selection changes the form is rebuilt with the new adapter's schema.
+ *
+ * The tab holds the working copy of a single device: it never writes to SettingsModel, so
+ * edits are discarded when the dialog is cancelled. Its owner reads the edited values back
+ * through values(), deviceName() and adapterId() when the user accepts.
  */
 class DeviceConfigTab : public QWidget
 {
@@ -24,6 +28,7 @@ class DeviceConfigTab : public QWidget
 public:
     explicit DeviceConfigTab(SettingsModel* pSettingsModel,
                              const QString& adapterId,
+                             const QString& deviceName,
                              const QJsonObject& deviceValues,
                              QWidget* parent = nullptr);
     ~DeviceConfigTab() = default;

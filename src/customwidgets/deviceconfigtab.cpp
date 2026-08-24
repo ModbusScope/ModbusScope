@@ -2,7 +2,6 @@
 
 #include "customwidgets/schemaformwidget.h"
 #include "models/adapterdata.h"
-#include "models/device.h"
 #include "models/settingsmodel.h"
 
 #include <QComboBox>
@@ -14,6 +13,7 @@
 
 DeviceConfigTab::DeviceConfigTab(SettingsModel* pSettingsModel,
                                  const QString& adapterId,
+                                 const QString& deviceName,
                                  const QJsonObject& deviceValues,
                                  QWidget* parent)
     : QWidget(parent),
@@ -32,10 +32,7 @@ DeviceConfigTab::DeviceConfigTab(SettingsModel* pSettingsModel,
     nameRow->addStretch();
     _pLayout->addLayout(nameRow);
 
-    if (_deviceId >= 0 && pSettingsModel->hasDevice(static_cast<deviceId_t>(_deviceId)))
-    {
-        _pNameEdit->setText(pSettingsModel->deviceSettings(static_cast<deviceId_t>(_deviceId))->name());
-    }
+    _pNameEdit->setText(deviceName);
 
     auto* adapterRow = new QHBoxLayout;
     adapterRow->addWidget(new QLabel("Protocol adapter:", this));
@@ -85,13 +82,7 @@ void DeviceConfigTab::onAdapterChanged(int index)
         defaultValues = defaultDevices.first().toObject();
     }
 
-    const int currentId = deviceId();
-    defaultValues.insert("id", currentId);
-
-    if (currentId >= 0 && _pSettingsModel->hasDevice(static_cast<deviceId_t>(currentId)))
-    {
-        _pSettingsModel->deviceSettings(static_cast<deviceId_t>(currentId))->setAdapterId(newAdapterId);
-    }
+    defaultValues.insert("id", deviceId());
 
     rebuildSchemaForm(newAdapterId, defaultValues);
     emit adapterChanged(newAdapterId);
@@ -99,11 +90,6 @@ void DeviceConfigTab::onAdapterChanged(int index)
 
 void DeviceConfigTab::onNameChanged(const QString& name)
 {
-    const int id = deviceId();
-    if (id >= 0 && _pSettingsModel->hasDevice(static_cast<deviceId_t>(id)))
-    {
-        _pSettingsModel->deviceSettings(static_cast<deviceId_t>(id))->setName(name);
-    }
     emit nameChanged(name);
 }
 

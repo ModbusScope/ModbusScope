@@ -31,6 +31,7 @@ public:
     void removeDevice(deviceId_t devId);
     void removeAllDevice();
     bool hasDevice(deviceId_t devId) const;
+    void applyDeviceList(const QMap<deviceId_t, Device>& devices);
 
     QList<deviceId_t> deviceList();
     QString adapterIdForDevice(deviceId_t devId) const;

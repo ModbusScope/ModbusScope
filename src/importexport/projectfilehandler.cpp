@@ -1,6 +1,7 @@
 
 #include "projectfilehandler.h"
 
+#include "ProtocolAdapter/adapterhub.h"
 #include "importexport/legacy/projectfilexmlparser.h"
 #include "importexport/projectfiledata.h"
 #include "importexport/projectfilejsonexporter.h"
@@ -15,6 +16,7 @@
 
 #include <QFile>
 #include <QFileDialog>
+#include <QMap>
 
 #include <utility>
 
@@ -285,14 +287,16 @@ void ProjectFileHandler::applyViewSettings(const ProjectFileData::ViewSettings& 
     }
 }
 
+/*! \brief Replace the model's device list with the devices parsed from the project file.
+ *
+ * The whole list is applied at once, so a load emits deviceListChanged() a single time
+ * instead of once per device with the model briefly empty in between.
+ * \param deviceSettings  The devices section of the project file. An empty list clears the
+ * model's device list; entries without a device ID are skipped.
+ */
 void ProjectFileHandler::applyDeviceSettings(const QList<ProjectFileData::DeviceSettings>& deviceSettings)
 {
-    _pSettingsModel->removeAllDevice();
-
-    if (deviceSettings.isEmpty())
-    {
-        return;
-    }
+    QMap<deviceId_t, Device> devices;
 
     for (const ProjectFileData::DeviceSettings& devSettings : deviceSettings)
     {
@@ -301,20 +305,17 @@ void ProjectFileHandler::applyDeviceSettings(const QList<ProjectFileData::Device
             continue;
         }
 
-        const QString adapterId = devSettings.adapterType.isEmpty() ? QString("modbus") : devSettings.adapterType;
-        const QString deviceName = devSettings.bName ? devSettings.name : QString();
-
-        _pSettingsModel->addDevice(devSettings.deviceId, adapterId, deviceName);
-
-        /* addDevice() applied both to a new device already; repeat them so a project file
-           listing the same device id twice keeps its last entry's settings, as before. */
-        Device* pDev = _pSettingsModel->deviceSettings(devSettings.deviceId);
+        Device device(devSettings.deviceId);
         if (devSettings.bName)
         {
-            pDev->setName(devSettings.name);
+            device.setName(devSettings.name);
         }
-        pDev->setAdapterId(adapterId);
+        device.setAdapterId(devSettings.adapterType.isEmpty() ? QString(cModbusAdapterId) : devSettings.adapterType);
+
+        devices.insert(devSettings.deviceId, device);
     }
+
+    _pSettingsModel->applyDeviceList(devices);
 }
 
 void ProjectFileHandler::applyGraphData(const ProjectFileData::ScopeSettings& scopeSettings)

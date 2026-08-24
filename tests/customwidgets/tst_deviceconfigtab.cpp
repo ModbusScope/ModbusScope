@@ -6,6 +6,8 @@
 #include <QComboBox>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QLineEdit>
+#include <QSignalSpy>
 #include <QTest>
 
 namespace {
@@ -59,7 +61,7 @@ void TestDeviceConfigTab::comboContainsAllAdapterIds()
     SettingsModel model;
     setupTwoAdapters(model);
 
-    DeviceConfigTab tab(&model, "adapterA", QJsonObject());
+    DeviceConfigTab tab(&model, "adapterA", QString(), QJsonObject());
 
     auto* combo = tab.findChild<QComboBox*>(QString(), Qt::FindDirectChildrenOnly);
     QVERIFY(combo != nullptr);
@@ -79,7 +81,7 @@ void TestDeviceConfigTab::constructorSelectsCorrectAdapter()
     SettingsModel model;
     setupTwoAdapters(model);
 
-    DeviceConfigTab tab(&model, "adapterB", QJsonObject());
+    DeviceConfigTab tab(&model, "adapterB", QString(), QJsonObject());
 
     QCOMPARE(tab.adapterId(), QStringLiteral("adapterB"));
 
@@ -96,7 +98,7 @@ void TestDeviceConfigTab::valuesReturnsDeviceFieldValues()
     QJsonObject deviceValues;
     deviceValues["name"] = "Pump";
 
-    DeviceConfigTab tab(&model, "adapterA", deviceValues);
+    DeviceConfigTab tab(&model, "adapterA", QString(), deviceValues);
 
     QCOMPARE(tab.values().value("name").toString(), QStringLiteral("Pump"));
 }
@@ -106,14 +108,34 @@ void TestDeviceConfigTab::adapterIdMatchesComboInitially()
     SettingsModel model;
     setupTwoAdapters(model);
 
-    DeviceConfigTab tab(&model, "adapterA", QJsonObject());
+    DeviceConfigTab tab(&model, "adapterA", QString(), QJsonObject());
 
     auto* combo = tab.findChild<QComboBox*>(QString(), Qt::FindDirectChildrenOnly);
     QVERIFY(combo != nullptr);
     QCOMPARE(tab.adapterId(), combo->currentData().toString());
 }
 
-void TestDeviceConfigTab::deviceNameInitializesFromDeviceModel()
+void TestDeviceConfigTab::deviceNameInitializesFromConstructorArgument()
+{
+    SettingsModel model;
+    setupTwoAdapters(model);
+
+    // The tab holds the working copy, so its owner supplies the name rather than the tab
+    // reading it back from SettingsModel. A device with a name it has not been given shows none.
+    model.addDevice(5);
+    model.deviceSettings(5)->setName("Pump Station");
+
+    QJsonObject deviceValues;
+    deviceValues["id"] = 5;
+
+    DeviceConfigTab named(&model, "adapterA", "Booster Pump", deviceValues);
+    QCOMPARE(named.deviceName(), QStringLiteral("Booster Pump"));
+
+    DeviceConfigTab unnamed(&model, "adapterA", QString(), deviceValues);
+    QVERIFY(unnamed.deviceName().isEmpty());
+}
+
+void TestDeviceConfigTab::nameChangeDoesNotWriteModel()
 {
     SettingsModel model;
     setupTwoAdapters(model);
@@ -123,20 +145,42 @@ void TestDeviceConfigTab::deviceNameInitializesFromDeviceModel()
     QJsonObject deviceValues;
     deviceValues["id"] = 5;
 
-    DeviceConfigTab tab(&model, "adapterA", deviceValues);
-    QCOMPARE(tab.deviceName(), QStringLiteral("Pump Station"));
+    DeviceConfigTab tab(&model, "adapterA", "Pump Station", deviceValues);
+    QSignalSpy spy(&tab, &DeviceConfigTab::nameChanged);
+
+    auto* nameEdit = tab.findChild<QLineEdit*>(QString(), Qt::FindDirectChildrenOnly);
+    QVERIFY(nameEdit != nullptr);
+    nameEdit->setText("Renamed");
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(tab.deviceName(), QStringLiteral("Renamed"));
+
+    // The edit lives only in the tab until the owning page accepts it.
+    QCOMPARE(model.deviceSettings(5)->name(), QStringLiteral("Pump Station"));
 }
 
-void TestDeviceConfigTab::deviceNameEmptyForUnregisteredDevice()
+void TestDeviceConfigTab::adapterChangeDoesNotWriteModel()
 {
     SettingsModel model;
     setupTwoAdapters(model);
+    model.addDevice(5);
+    model.deviceSettings(5)->setAdapterId("adapterA");
 
     QJsonObject deviceValues;
-    deviceValues["id"] = 99;
+    deviceValues["id"] = 5;
 
-    DeviceConfigTab tab(&model, "adapterA", deviceValues);
-    QVERIFY(tab.deviceName().isEmpty());
+    DeviceConfigTab tab(&model, "adapterA", QString(), deviceValues);
+    QSignalSpy spy(&tab, &DeviceConfigTab::adapterChanged);
+
+    auto* combo = tab.findChild<QComboBox*>(QString(), Qt::FindDirectChildrenOnly);
+    QVERIFY(combo != nullptr);
+    combo->setCurrentIndex(combo->findData(QStringLiteral("adapterB")));
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(tab.adapterId(), QStringLiteral("adapterB"));
+
+    // The reassignment lives only in the tab until the owning page accepts it.
+    QCOMPARE(model.deviceSettings(5)->adapterId(), QStringLiteral("adapterA"));
 }
 
 void TestDeviceConfigTab::adapterChangeUsesDefaults()
@@ -152,7 +196,7 @@ void TestDeviceConfigTab::adapterChangeUsesDefaults()
     describeB["defaults"] = defaults;
     model.updateAdapterFromDescribe("adapterB", describeB);
 
-    DeviceConfigTab tab(&model, "adapterA", QJsonObject());
+    DeviceConfigTab tab(&model, "adapterA", QString(), QJsonObject());
 
     auto* combo = tab.findChild<QComboBox*>(QString(), Qt::FindDirectChildrenOnly);
     QVERIFY(combo != nullptr);

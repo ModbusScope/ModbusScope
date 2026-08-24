@@ -23,9 +23,15 @@ private slots:
     void deviceNamePersistedAfterAcceptAndReopen();
     void addTabDoesNotReuseIdFromAdapterConfig();
     void addTabWithGapAssignsNextAfterMax();
-    void closeTabRemovesDeviceFromModel();
-    void nameChangeUpdatesModelImmediately();
-    void adapterChangeUpdatesModelImmediately();
+    void closeTabRemovesDeviceFromModelOnAccept();
+    void nameChangeDoesNotReachModelUntilAccept();
+    void adapterChangeDoesNotReachModelUntilAccept();
+    void cancelDiscardsDeviceListEdits();
+    void cancelDiscardsDeviceFieldEdits();
+    void openingDialogKeepsDeviceNoAdapterDeclares();
+    void openingDialogKeepsDevicesOfUndescribedAdapter();
+    void adapterDescribingWhileOpenIsNotOverwrittenOnAccept();
+    void acceptEmitsDeviceListChangedOnce();
     void multipleAdaptersWithDevices();
     void cancelAndReopenDoesNotLeakDeviceIds();
     void acceptValuesClearsDevicesForEmptiedAdapter();

@@ -11,6 +11,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QTemporaryFile>
 #include <QTest>
@@ -240,6 +241,86 @@ void TestProjectFileHandler::applyDeviceSettingsMultipleAdapters()
 
     QCOMPARE(settingsModel.deviceSettings(1)->adapterId(), QStringLiteral("modbus"));
     QCOMPARE(settingsModel.deviceSettings(2)->adapterId(), QStringLiteral("custom"));
+
+    QFile::remove(path);
+}
+
+/*!
+ * \brief A device entry without a "name" keeps Device's constructor default.
+ */
+void TestProjectFileHandler::applyDeviceSettingsWithoutNameKeepsDefault()
+{
+    QJsonArray adapters;
+    QJsonObject adapter;
+    adapter["type"] = "modbus";
+    adapter["settings"] = QJsonObject();
+    adapters.append(adapter);
+
+    QJsonArray devices;
+    QJsonObject dev;
+    dev["id"] = 4;
+    dev["adapterId"] = 0;
+    QJsonObject ref;
+    ref["type"] = "modbus";
+    dev["adapter"] = ref;
+    devices.append(dev);
+
+    const QString path = writeTempProjectFile(adapters, devices);
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    handler.openProjectFile(path);
+
+    QVERIFY(settingsModel.hasDevice(4));
+    QCOMPARE(settingsModel.deviceSettings(4)->name(), QStringLiteral("Device 4"));
+
+    QFile::remove(path);
+}
+
+/*!
+ * \brief A project load reports its device list as one change, not one per device.
+ *
+ * SettingsModel::applyDeviceList() replaces the whole list at once, so observers of
+ * deviceListChanged() (expression validation, the add-register device combo) never see the
+ * intermediate states of a device-by-device rebuild.
+ */
+void TestProjectFileHandler::applyDeviceSettingsEmitsDeviceListChangedOnce()
+{
+    QJsonArray adapters;
+    QJsonObject adapter;
+    adapter["type"] = "modbus";
+    adapter["settings"] = QJsonObject();
+    adapters.append(adapter);
+
+    QJsonArray devices;
+    for (int id = 1; id <= 3; ++id)
+    {
+        QJsonObject dev;
+        dev["id"] = id;
+        dev["adapterId"] = 0;
+        QJsonObject ref;
+        ref["type"] = "modbus";
+        dev["adapter"] = ref;
+        devices.append(dev);
+    }
+
+    const QString path = writeTempProjectFile(adapters, devices);
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    QSignalSpy spy(&settingsModel, &SettingsModel::deviceListChanged);
+    handler.openProjectFile(path);
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(settingsModel.deviceList().size(), 3);
 
     QFile::remove(path);
 }

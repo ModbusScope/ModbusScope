@@ -14,8 +14,9 @@ private slots:
     void constructorSelectsCorrectAdapter();
     void valuesReturnsDeviceFieldValues();
     void adapterIdMatchesComboInitially();
-    void deviceNameInitializesFromDeviceModel();
-    void deviceNameEmptyForUnregisteredDevice();
+    void deviceNameInitializesFromConstructorArgument();
+    void nameChangeDoesNotWriteModel();
+    void adapterChangeDoesNotWriteModel();
     void adapterChangeUsesDefaults();
 
 private:
