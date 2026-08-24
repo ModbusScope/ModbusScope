@@ -63,7 +63,6 @@ void ProjectFileHandler::openProjectFile(QString projectFilePath)
         if (parseErr.result())
         {
             _storedAdapters = loadedSettings.general.adapterList;
-            _storedDevices = loadedSettings.general.deviceSettings;
 
             this->updateProjectSetting(&loadedSettings);
 
