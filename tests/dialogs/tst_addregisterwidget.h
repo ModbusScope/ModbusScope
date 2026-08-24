@@ -79,6 +79,7 @@ private slots:
     void buildExpressionRoutedToSelectedDevice();
     void btnAddDisabledWhenSelectedDeviceAdapterUnavailable();
     void deviceComboRefreshesLiveOnDeviceAdded();
+    void deviceAddedToEmptyListAppliesConfiguredAdapter();
     void deviceComboDisablesAddWhenLastDeviceRemoved();
 
 private:

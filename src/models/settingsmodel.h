@@ -27,7 +27,7 @@ public:
     bool absoluteTimes();
 
     deviceId_t addNewDevice();
-    void addDevice(deviceId_t devId);
+    void addDevice(deviceId_t devId, const QString& adapterId = QString());
     void removeDevice(deviceId_t devId);
     void removeAllDevice();
     bool hasDevice(deviceId_t devId) const;

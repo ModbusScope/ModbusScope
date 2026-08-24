@@ -98,11 +98,23 @@ deviceId_t SettingsModel::addNewDevice()
     return newId;
 }
 
-void SettingsModel::addDevice(deviceId_t devId)
+/*! \brief Add a device to the model, unless it already exists.
+ *
+ * The adapter is assigned before deviceListChanged() is emitted, so observers that
+ * inspect the new device's owner from that signal (AddRegisterWidget rebuilds its
+ * address form there) never see the default adapter of a not-yet-configured device.
+ * \param devId      Identifier of the device to add.
+ * \param adapterId  Adapter owning the device; empty keeps Device's default adapter.
+ */
+void SettingsModel::addDevice(deviceId_t devId, const QString& adapterId)
 {
     if (!_devices.contains(devId))
     {
         _devices[devId] = Device(devId);
+        if (!adapterId.isEmpty())
+        {
+            _devices[devId].setAdapterId(adapterId);
+        }
         emit deviceListChanged();
     }
 }
@@ -388,7 +400,7 @@ void SettingsModel::reconcileDevicesWithAdapters()
             seenDeviceIds.insert(devId);
 
             const bool alreadyKnownDevice = _devices.contains(devId);
-            addDevice(devId);
+            addDevice(devId, adapterId);
             if (deviceSettings(devId)->adapterId() != adapterId)
             {
                 deviceSettings(devId)->setAdapterId(adapterId);

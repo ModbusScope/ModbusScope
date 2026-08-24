@@ -421,6 +421,35 @@ void TestAddRegisterWidget::deviceComboRefreshesLiveOnDeviceAdded()
     QCOMPARE(_pRegWidget->_pUi->cmbDevice->itemText(1), QString("Device %1").arg(simDeviceId));
 }
 
+void TestAddRegisterWidget::deviceAddedToEmptyListAppliesConfiguredAdapter()
+{
+    _settingsModel.setAdapterDataPointSchema("sim", buildSimRegisterSchema());
+    QJsonObject describeResult;
+    describeResult["name"] = QStringLiteral("Simulator");
+    _settingsModel.updateAdapterFromDescribe(QStringLiteral("sim"), describeResult);
+    _pMockSimAdapterManager = new MockAdapterManager(&_settingsModel, QStringLiteral("sim"));
+    _pMockHub->addManager(QStringLiteral("sim"), _pMockSimAdapterManager);
+
+    /* Start from an empty device list, so the device added below becomes the selected one
+     * and the combo refresh has to build its address form from the sim adapter. */
+    _settingsModel.removeAllDevice();
+    delete _pRegWidget;
+    _pRegWidget = new AddRegisterWidget(&_settingsModel, _pMockHub);
+    QCOMPARE(_pRegWidget->_pUi->cmbDevice->count(), 0);
+
+    const deviceId_t simDeviceId = Device::cFirstDeviceId;
+    _settingsModel.addDevice(simDeviceId, QStringLiteral("sim"));
+
+    /* The adapter must already be assigned when deviceListChanged() arrives: assigning it
+     * afterwards left the widget showing Device's default ("modbus") adapter instead. */
+    QCOMPARE(_pRegWidget->_pUi->cmbDevice->count(), 1);
+    QCOMPARE(_pRegWidget->_pUi->lblProtocol->text(), QStringLiteral("Protocol: Simulator"));
+    QVERIFY(_pRegWidget->_addressSchema["properties"].toObject().contains(QStringLiteral("channel")));
+    const QJsonObject addressValues = _pRegWidget->_pAddressForm->values();
+    QCOMPARE(addressValues.value("channel").toInt(), 3);
+    QVERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
+}
+
 void TestAddRegisterWidget::deviceComboDisablesAddWhenLastDeviceRemoved()
 {
     _settingsModel.removeDevice(Device::cFirstDeviceId);

@@ -303,12 +303,14 @@ void ProjectFileHandler::applyDeviceSettings(const QList<ProjectFileData::Device
 
         const QString adapterId = devSettings.adapterType.isEmpty() ? QString("modbus") : devSettings.adapterType;
 
-        _pSettingsModel->addDevice(devSettings.deviceId);
+        _pSettingsModel->addDevice(devSettings.deviceId, adapterId);
         Device* pDev = _pSettingsModel->deviceSettings(devSettings.deviceId);
         if (devSettings.bName)
         {
             pDev->setName(devSettings.name);
         }
+        /* addDevice() already assigned the adapter for a new device; repeat it so a project
+           file listing the same device id twice keeps its last entry's adapter, as before. */
         pDev->setAdapterId(adapterId);
     }
 }
