@@ -29,6 +29,6 @@ manifest:
 
   - name: lucide-icons
     dst: icons
-    tag: 0.469.0
+    tag: 1.34.0
     src: icons
     repo-path: lucide-icons/lucide.git
