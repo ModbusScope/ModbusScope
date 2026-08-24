@@ -728,4 +728,129 @@ void TestAdapterData::updateFromDescribeMissingLicense()
     QVERIFY(data.license().isEmpty());
 }
 
+/*!
+ * \brief configForWire drops a repeated device id, keeping the first occurrence.
+ *
+ * A project file can carry the same device id twice (the legacy XML format synthesises ids from
+ * <connectionid>, which defaults to 0 when absent), and the stored config keeps it verbatim.
+ * Sending it on would tell the adapter subprocess about more devices than the model holds.
+ */
+void TestAdapterData::configForWireRemovesDuplicateDeviceIds()
+{
+    AdapterData data;
+
+    QJsonObject describeResult;
+    describeResult["schema"] = QJsonObject();
+    data.updateFromDescribe(describeResult);
+
+    QJsonArray devices;
+    QJsonObject firstDev;
+    firstDev["id"] = 1;
+    firstDev["slaveId"] = 2;
+    devices.append(firstDev);
+    QJsonObject duplicateDev;
+    duplicateDev["id"] = 1;
+    duplicateDev["slaveId"] = 3;
+    devices.append(duplicateDev);
+    QJsonObject otherDev;
+    otherDev["id"] = 2;
+    devices.append(otherDev);
+
+    QJsonObject config;
+    config["devices"] = devices;
+    data.setCurrentConfig(config);
+    data.setHasStoredConfig(true);
+
+    /* effectiveConfig() is the stored config and keeps the duplicate; only the wire config drops it. */
+    QCOMPARE(data.effectiveConfig().value("devices").toArray().size(), 3);
+
+    const QJsonArray wireDevices = data.configForWire().value("devices").toArray();
+    QCOMPARE(wireDevices.size(), 2);
+    QCOMPARE(wireDevices.at(0).toObject().value("id").toInt(), 1);
+    QCOMPARE(wireDevices.at(0).toObject().value("slaveId").toInt(), 2);
+    QCOMPARE(wireDevices.at(1).toObject().value("id").toInt(), 2);
+}
+
+/*!
+ * \brief configForWire drops duplicates before capping, so a duplicate costs no device slot.
+ *
+ * Truncating first would let a repeated id push a distinct device past the adapter's limit and
+ * out of the wire config.
+ */
+void TestAdapterData::configForWireDedupesBeforeTruncating()
+{
+    AdapterData data;
+
+    QJsonObject devicesSchema;
+    devicesSchema["type"] = "array";
+    devicesSchema["maxItems"] = 2;
+    QJsonObject properties;
+    properties["devices"] = devicesSchema;
+    QJsonObject schema;
+    schema["type"] = "object";
+    schema["properties"] = properties;
+
+    QJsonObject describeResult;
+    describeResult["schema"] = schema;
+    data.updateFromDescribe(describeResult);
+
+    QJsonArray devices;
+    for (int id : { 1, 1, 2, 3 })
+    {
+        QJsonObject dev;
+        dev["id"] = id;
+        devices.append(dev);
+    }
+
+    QJsonObject config;
+    config["devices"] = devices;
+    data.setCurrentConfig(config);
+    data.setHasStoredConfig(true);
+
+    const QJsonArray wireDevices = data.configForWire().value("devices").toArray();
+    QCOMPARE(wireDevices.size(), 2);
+    QCOMPARE(wireDevices.at(0).toObject().value("id").toInt(), 1);
+    QCOMPARE(wireDevices.at(1).toObject().value("id").toInt(), 2);
+}
+
+/*!
+ * \brief configForWire leaves entries carrying no usable device id alone.
+ *
+ * Only a genuine repeat of a real id is dropped. Entries with no "id" key are not duplicates of
+ * one another, so collapsing them would silently delete adapter device config.
+ */
+void TestAdapterData::configForWireKeepsDevicesWithoutId()
+{
+    AdapterData data;
+
+    QJsonObject describeResult;
+    describeResult["schema"] = QJsonObject();
+    data.updateFromDescribe(describeResult);
+
+    QJsonArray devices;
+    QJsonObject firstNoId;
+    firstNoId["slaveId"] = 7;
+    devices.append(firstNoId);
+    QJsonObject secondNoId;
+    secondNoId["slaveId"] = 8;
+    devices.append(secondNoId);
+    QJsonObject realDev;
+    realDev["id"] = 1;
+    devices.append(realDev);
+    QJsonObject duplicateDev;
+    duplicateDev["id"] = 1;
+    devices.append(duplicateDev);
+
+    QJsonObject config;
+    config["devices"] = devices;
+    data.setCurrentConfig(config);
+    data.setHasStoredConfig(true);
+
+    const QJsonArray wireDevices = data.configForWire().value("devices").toArray();
+    QCOMPARE(wireDevices.size(), 3);
+    QCOMPARE(wireDevices.at(0).toObject().value("slaveId").toInt(), 7);
+    QCOMPARE(wireDevices.at(1).toObject().value("slaveId").toInt(), 8);
+    QCOMPARE(wireDevices.at(2).toObject().value("id").toInt(), 1);
+}
+
 QTEST_GUILESS_MAIN(TestAdapterData)

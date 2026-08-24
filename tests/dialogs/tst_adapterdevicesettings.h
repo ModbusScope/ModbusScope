@@ -36,6 +36,7 @@ private slots:
     void cancelAndReopenDoesNotLeakDeviceIds();
     void acceptValuesClearsDevicesForEmptiedAdapter();
     void twoAdaptersWithSameDefaultDeviceIdShowsSingleTab();
+    void adapterDeclaringSameDeviceIdTwiceShowsSingleTab();
     void existingDeviceAdapterIdMatchesConfigOnOpen();
     void sharedDefaultDeviceIdReconciledOnDescribeWithoutOpeningDialog();
     void explicitDeviceAssignmentSurvivesLaterAdapterRedescribe();

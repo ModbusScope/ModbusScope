@@ -194,6 +194,29 @@ QString ProjectFileXmlTestData::cDataLevel4LegacyConnection = QString(
     "</modbusscope>                                                             \n"
 );
 
+QString ProjectFileXmlTestData::cDataLevel4LegacyConnectionNoIds = QString(
+    "<?xml version=\"1.0\"?>                                                    \n"
+    "<modbusscope datalevel=\"4\">                                              \n"
+    " <modbus>                                                                  \n"
+    "  <connection>                                                             \n"
+    "   <enabled>true</enabled>                                                 \n"
+    "   <type>tcp</type>                                                        \n"
+    "   <ip>127.0.0.1</ip>                                                      \n"
+    "   <port>502</port>                                                        \n"
+    "   <slaveid>2</slaveid>                                                    \n"
+    "  </connection>                                                            \n"
+    "  <connection>                                                             \n"
+    "   <enabled>true</enabled>                                                 \n"
+    "   <type>tcp</type>                                                        \n"
+    "   <ip>127.0.0.2</ip>                                                      \n"
+    "   <port>502</port>                                                        \n"
+    "   <slaveid>3</slaveid>                                                    \n"
+    "  </connection>                                                            \n"
+    " </modbus>                                                                 \n"
+    " <scope/>                                                                  \n"
+    "</modbusscope>                                                             \n"
+);
+
 QString ProjectFileXmlTestData::cLogSettings = QString(
     "<?xml version=\"1.0\"?>                                    \n"
     "<modbusscope datalevel=\"5\">                              \n"

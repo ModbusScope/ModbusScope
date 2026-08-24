@@ -11,6 +11,8 @@
 #include <QTemporaryDir>
 #include <QTest>
 
+#include <utility>
+
 using ProjectFileData::ProjectSettings;
 
 void TestProjectFileXmlParser::init()
@@ -199,6 +201,37 @@ void TestProjectFileXmlParser::dataLevel4LegacyConnection()
     QCOMPARE(adapterDevices[0].toObject()["slaveid"].toInt(), 2);
     QCOMPARE(adapterDevices[0].toObject()["consecutivemax"].toInt(), 122);
     QVERIFY(adapterDevices[0].toObject()["int32littleendian"].toBool());
+}
+
+/*!
+ * \brief Two legacy connections omitting <connectionid> both synthesise device id 1.
+ *
+ * This is the root of the duplicate device id that ProjectFileHandler::applyDeviceSettings()
+ * merges and AdapterData::configForWire() drops: the id is derived from <connectionid>, which
+ * defaults to 0 when the tag is absent. The parser must keep accepting such a file - it is
+ * otherwise valid, and refusing it would stop a project that has always opened from opening.
+ */
+void TestProjectFileXmlParser::dataLevel4LegacyConnectionsWithoutConnectionIdCollide()
+{
+    ProjectFileXmlParser parser;
+    ProjectSettings settings;
+
+    GeneralError err = parser.parseFile(ProjectFileXmlTestData::cDataLevel4LegacyConnectionNoIds, &settings);
+    QVERIFY(err.result());
+
+    QCOMPARE(settings.general.deviceSettings.size(), 2);
+    for (const ProjectFileData::DeviceSettings& device : std::as_const(settings.general.deviceSettings))
+    {
+        QVERIFY(device.bDeviceId);
+        QCOMPARE(device.deviceId, static_cast<deviceId_t>(1));
+        QVERIFY(!device.bName);
+    }
+
+    /* The same collision reaches the adapter blob, which is why configForWire() dedupes. */
+    QJsonArray adapterDevices = settings.general.adapterList[0].settings["devices"].toArray();
+    QCOMPARE(adapterDevices.size(), 2);
+    QCOMPARE(adapterDevices[0].toObject().value("id").toInt(), 1);
+    QCOMPARE(adapterDevices[1].toObject().value("id").toInt(), 1);
 }
 
 void TestProjectFileXmlParser::logSettings()

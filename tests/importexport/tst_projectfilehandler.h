@@ -56,6 +56,11 @@ private slots:
     void applyDeviceSettingsEmptyListClearsModel();
     void applyDeviceSettingsClearsPreviousDevices();
 
+    void duplicateDeviceIdKeepsNameFromEarlierEntry();
+    void duplicateDeviceIdLastSpecifiedFieldWins();
+    void duplicateDeviceIdKeepsAdapterFromEarlierEntry();
+    void duplicateDeviceIdIsReportedWithoutRefusingTheFile();
+
     void loadSetsAdapterConfigInSettingsModel();
     void savePreservesAdapterConfigAfterDialogAccept();
     void roundTripPreservesAdapterConfig();

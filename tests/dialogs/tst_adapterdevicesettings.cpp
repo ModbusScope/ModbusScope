@@ -908,6 +908,39 @@ void TestAdapterDeviceSettings::twoAdaptersWithSameDefaultDeviceIdShowsSingleTab
     QVERIFY(model.hasDevice(1));
 }
 
+/*!
+ * \brief One adapter listing the same device id twice yields a single tab and a single device.
+ *
+ * reconcileDevicesWithAdapters() skips an id it has already seen. Across adapters that skip is
+ * the ownership tie-break; within one adapter's own list it is a no-op, since the id is already
+ * assigned to that same adapter. This pins that no-op so the skip is not mistaken for dead code.
+ */
+void TestAdapterDeviceSettings::adapterDeclaringSameDeviceIdTwiceShowsSingleTab()
+{
+    SettingsModel model;
+
+    QJsonObject dev;
+    dev["id"] = 2;
+    setupAdapter(model, "adapterB", QJsonArray{ dev, dev });
+
+    AdapterDeviceSettings w(&model);
+
+    auto* tabs = w.findChild<AddableTabWidget*>();
+    QVERIFY(tabs != nullptr);
+    QCOMPARE(tabs->count(), 1);
+
+    auto* tab = qobject_cast<DeviceConfigTab*>(tabs->tabContent(0));
+    QVERIFY(tab != nullptr);
+    QCOMPARE(tab->values().value("id").toInt(-1), 2);
+    QCOMPARE(tab->adapterId(), QStringLiteral("adapterB"));
+
+    /* Device 1 is the one SettingsModel's constructor creates; the adapter's two entries add
+       device 2 exactly once, so the repeat produced no second device and no second tab. */
+    QCOMPARE(model.deviceList().size(), 2);
+    QVERIFY(model.hasDevice(2));
+    QCOMPARE(model.deviceSettings(2)->adapterId(), QStringLiteral("adapterB"));
+}
+
 void TestAdapterDeviceSettings::existingDeviceAdapterIdMatchesConfigOnOpen()
 {
     SettingsModel model;

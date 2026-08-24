@@ -422,6 +422,14 @@ void SettingsModel::reconcileDevicesWithAdapters()
             const deviceId_t devId = static_cast<deviceId_t>(id);
             if (seenDeviceIds.contains(devId))
             {
+                /* Across adapters this is the ownership tie-break described above. Within a single
+                 * adapter's own list a repeated id is a genuine no-op: the id is already assigned to
+                 * that same adapter, so addDevice() would find the device present and setAdapterId()
+                 * would write back the adapter it already has. That case is reachable from a legacy
+                 * project file, but it is deliberately not reported here - this method re-runs on
+                 * every describe, including reconnects, so a warning would repeat for as long as the
+                 * adapter keeps advertising the duplicate. ProjectFileHandler::applyDeviceSettings()
+                 * reports it once, at load. */
                 continue;
             }
             seenDeviceIds.insert(devId);

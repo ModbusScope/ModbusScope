@@ -2,6 +2,7 @@
 #include "adapterdata.h"
 
 #include <QJsonArray>
+#include <QSet>
 
 #include <algorithm>
 #include <climits>
@@ -216,19 +217,70 @@ QJsonObject AdapterData::effectiveConfig() const
     return result;
 }
 
+/*! \brief Remove entries repeating a device id already seen, keeping the first of each.
+ *
+ * First wins, matching the direction of configForWire()'s cap, which drops from the end, and
+ * SettingsModel::reconcileDevicesWithAdapters(), which awards a contested id to the first
+ * claimant. Entries carrying no usable id are passed through untouched - only a genuine repeat
+ * is dropped.
+ * \param devices  The device array to filter.
+ * \return The array with repeated device ids removed.
+ */
+static QJsonArray removeDuplicateDeviceIds(const QJsonArray& devices)
+{
+    QJsonArray result;
+    QSet<int> seenIds;
+
+    for (const auto& device : devices)
+    {
+        const int id = device.toObject().value("id").toInt(-1);
+        if (id >= 0)
+        {
+            if (seenIds.contains(id))
+            {
+                continue;
+            }
+            seenIds.insert(id);
+        }
+        result.append(device);
+    }
+    return result;
+}
+
+/*! \brief Build the config sent to the adapter subprocess.
+ *
+ * Two adjustments are made to the stored config, and the order matters. Duplicate device ids are
+ * dropped first: a project file can carry the same id twice (the legacy XML format synthesises
+ * ids from <connectionid>, which defaults to 0 when the tag is absent), and leaving the repeat in
+ * would both tell the adapter about more devices than the model holds and let it consume one of
+ * the adapter's device slots, pushing a distinct device out of the cap below.
+ *
+ * The stored config itself keeps the duplicate: applyAdapterSettings() round-trips adapter keys
+ * this application does not interpret, and AdapterDeviceSettings::acceptValues() rewrites the
+ * array from the dialog's tabs, so a stored duplicate clears the first time the user accepts the
+ * settings dialog.
+ * \return The effective config with duplicate devices removed and the device count capped.
+ */
 QJsonObject AdapterData::configForWire() const
 {
     QJsonObject result = effectiveConfig();
 
-    const int maxDevicesLimit = maxDevices();
-    if (maxDevicesLimit != INT_MAX && result.contains("devices"))
+    if (!result.contains("devices"))
     {
-        QJsonArray devices = result.value("devices").toArray();
+        return result;
+    }
+
+    QJsonArray devices = removeDuplicateDeviceIds(result.value("devices").toArray());
+
+    const int maxDevicesLimit = maxDevices();
+    if (maxDevicesLimit != INT_MAX)
+    {
         while (devices.size() > maxDevicesLimit)
         {
             devices.removeLast();
         }
-        result["devices"] = devices;
     }
+
+    result["devices"] = devices;
     return result;
 }

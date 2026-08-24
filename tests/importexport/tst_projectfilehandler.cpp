@@ -404,6 +404,218 @@ void TestProjectFileHandler::applyDeviceSettingsClearsPreviousDevices()
 }
 
 /*!
+ * \brief A repeated device ID whose later entry omits the name keeps the earlier entry's name.
+ *
+ * A missing "name" key means the entry does not specify one, not that the name should be reset
+ * to Device's placeholder. The user would otherwise see "Device 1" in place of the name their
+ * project file gave the device.
+ */
+void TestProjectFileHandler::duplicateDeviceIdKeepsNameFromEarlierEntry()
+{
+    QJsonArray adapters;
+    QJsonObject adapter;
+    adapter["type"] = "modbus";
+    adapter["settings"] = QJsonObject();
+    adapters.append(adapter);
+
+    QJsonObject adapterRef;
+    adapterRef["type"] = "modbus";
+
+    QJsonArray devices;
+
+    QJsonObject dev1;
+    dev1["id"] = 1;
+    dev1["name"] = "Boiler";
+    dev1["adapterId"] = 0;
+    dev1["adapter"] = adapterRef;
+    devices.append(dev1);
+
+    QJsonObject dev2;
+    dev2["id"] = 1;
+    dev2["adapterId"] = 0;
+    dev2["adapter"] = adapterRef;
+    devices.append(dev2);
+
+    const QString path = writeTempProjectFile(adapters, devices);
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    handler.openProjectFile(path);
+
+    QCOMPARE(settingsModel.deviceList().size(), 1);
+    QCOMPARE(settingsModel.deviceSettings(1)->name(), QStringLiteral("Boiler"));
+
+    QFile::remove(path);
+}
+
+/*!
+ * \brief A repeated device ID takes every field the later entry actually specifies.
+ *
+ * The merge must not degenerate into "first entry wins": a field present in a later entry
+ * overrides the earlier one, in file order.
+ */
+void TestProjectFileHandler::duplicateDeviceIdLastSpecifiedFieldWins()
+{
+    QJsonArray adapters;
+    QJsonObject modbusAdapter;
+    modbusAdapter["type"] = "modbus";
+    modbusAdapter["settings"] = QJsonObject();
+    adapters.append(modbusAdapter);
+    QJsonObject dummyAdapter;
+    dummyAdapter["type"] = "dummy";
+    dummyAdapter["settings"] = QJsonObject();
+    adapters.append(dummyAdapter);
+
+    QJsonArray devices;
+
+    QJsonObject dev1;
+    dev1["id"] = 1;
+    dev1["name"] = "Boiler";
+    dev1["adapterId"] = 0;
+    QJsonObject modbusRef;
+    modbusRef["type"] = "modbus";
+    dev1["adapter"] = modbusRef;
+    devices.append(dev1);
+
+    QJsonObject dev2;
+    dev2["id"] = 1;
+    dev2["name"] = "Pump";
+    dev2["adapterId"] = 1;
+    QJsonObject dummyRef;
+    dummyRef["type"] = "dummy";
+    dev2["adapter"] = dummyRef;
+    devices.append(dev2);
+
+    const QString path = writeTempProjectFile(adapters, devices);
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    handler.openProjectFile(path);
+
+    QCOMPARE(settingsModel.deviceList().size(), 1);
+    QCOMPARE(settingsModel.deviceSettings(1)->name(), QStringLiteral("Pump"));
+    QCOMPARE(settingsModel.deviceSettings(1)->adapterId(), QStringLiteral("dummy"));
+
+    QFile::remove(path);
+}
+
+/*!
+ * \brief A repeated device ID whose later entry omits the adapter keeps the earlier adapter.
+ *
+ * An absent adapter type means the entry does not specify one; falling back to "modbus" here
+ * would hand the device to an adapter no entry in the file ever named.
+ */
+void TestProjectFileHandler::duplicateDeviceIdKeepsAdapterFromEarlierEntry()
+{
+    QJsonArray adapters;
+    QJsonObject modbusAdapter;
+    modbusAdapter["type"] = "modbus";
+    modbusAdapter["settings"] = QJsonObject();
+    adapters.append(modbusAdapter);
+    QJsonObject dummyAdapter;
+    dummyAdapter["type"] = "dummy";
+    dummyAdapter["settings"] = QJsonObject();
+    adapters.append(dummyAdapter);
+
+    QJsonArray devices;
+
+    QJsonObject dev1;
+    dev1["id"] = 1;
+    dev1["name"] = "Boiler";
+    dev1["adapterId"] = 1;
+    QJsonObject dummyRef;
+    dummyRef["type"] = "dummy";
+    dev1["adapter"] = dummyRef;
+    devices.append(dev1);
+
+    QJsonObject dev2;
+    dev2["id"] = 1;
+    dev2["name"] = "Pump";
+    devices.append(dev2);
+
+    const QString path = writeTempProjectFile(adapters, devices);
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    handler.openProjectFile(path);
+
+    QCOMPARE(settingsModel.deviceList().size(), 1);
+    QCOMPARE(settingsModel.deviceSettings(1)->name(), QStringLiteral("Pump"));
+    QCOMPARE(settingsModel.deviceSettings(1)->adapterId(), QStringLiteral("dummy"));
+
+    QFile::remove(path);
+}
+
+/*!
+ * \brief A duplicate device ID is logged, and the project file still loads.
+ *
+ * The legacy XML format synthesises device IDs from <connectionid>, which defaults to 0 when
+ * absent, so a file that has always opened can carry a duplicate. Reporting it through
+ * GeneralError would abort the parse and refuse such a file, so it is a warning instead.
+ */
+void TestProjectFileHandler::duplicateDeviceIdIsReportedWithoutRefusingTheFile()
+{
+    QJsonArray adapters;
+    QJsonObject adapter;
+    adapter["type"] = "modbus";
+    adapter["settings"] = QJsonObject();
+    adapters.append(adapter);
+
+    QJsonObject adapterRef;
+    adapterRef["type"] = "modbus";
+
+    QJsonArray devices;
+
+    QJsonObject dev1;
+    dev1["id"] = 1;
+    dev1["name"] = "Boiler";
+    dev1["adapterId"] = 0;
+    dev1["adapter"] = adapterRef;
+    devices.append(dev1);
+
+    QJsonObject dev2;
+    dev2["id"] = 1;
+    dev2["adapterId"] = 0;
+    dev2["adapter"] = adapterRef;
+    devices.append(dev2);
+
+    const QString path = writeTempProjectFile(adapters, devices);
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    /* ignoreMessage fails the test when the message never arrives, so this is the assertion
+       that the duplicate is reported at all. */
+    QTest::ignoreMessage(QtWarningMsg, "ProjectFileHandler: duplicate device id 1 in project file - "
+                                       "later entries override the fields they specify");
+
+    handler.openProjectFile(path);
+
+    QVERIFY(settingsModel.hasDevice(1));
+
+    /* Only the success branch sets the project file path, so this proves the load was not
+       aborted the way a GeneralError would have aborted it. */
+    QCOMPARE(guiModel.projectFilePath(), path);
+
+    QFile::remove(path);
+}
+
+/*!
  * \brief Loading a project file applies adapter settings to SettingsModel.
  */
 void TestProjectFileHandler::loadSetsAdapterConfigInSettingsModel()

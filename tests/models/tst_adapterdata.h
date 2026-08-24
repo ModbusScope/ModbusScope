@@ -46,6 +46,9 @@ private slots:
     void configForWireDoesNotTruncateWhenMaxItemsNegative();
     void configForWireRemovesAllDevicesWhenMaxItemsZero();
     void configForWireCapsDevicesToCapabilitiesMaxDevices();
+    void configForWireRemovesDuplicateDeviceIds();
+    void configForWireDedupesBeforeTruncating();
+    void configForWireKeepsDevicesWithoutId();
 
     void isMbcCompatibleTrue();
     void isMbcCompatibleFalse();

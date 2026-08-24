@@ -12,6 +12,7 @@
 #include "models/guimodel.h"
 #include "models/settingsmodel.h"
 #include "util/fileselectionhelper.h"
+#include "util/scopelogging.h"
 #include "util/util.h"
 
 #include <QFile>
@@ -290,6 +291,26 @@ void ProjectFileHandler::applyViewSettings(const ProjectFileData::ViewSettings& 
  *
  * The whole list is applied at once, so a load emits deviceListChanged() a single time
  * instead of once per device with the model briefly empty in between.
+ *
+ * A project file may name the same device ID more than once. The legacy XML format makes this
+ * reachable without any hand-editing: it synthesises the ID from <connectionid>, which defaults
+ * to 0 when the tag is absent, so two enabled <connection> tags that both omit it map to device
+ * 1. Such a file must still load, so a duplicate is merged rather than rejected, and reported
+ * through the log instead of GeneralError - GeneralError aborts the parse and would leave the
+ * user with a file that used to open and now does not.
+ *
+ * The merge is field by field, in file order: a later entry overrides only the fields it
+ * actually specifies. A later entry without a name therefore keeps the name an earlier entry
+ * gave the device instead of resetting it to Device's placeholder, and a later entry without an
+ * adapter type keeps the earlier entry's adapter. This follows the meaning the parser already
+ * assigns to a missing field everywhere else: bName, and an empty adapter type, mean "not
+ * specified in this entry", never "reset to the default".
+ *
+ * This rule is deliberately unrelated to SettingsModel::reconcileDevicesWithAdapters(), which
+ * resolves a different collision - two adapters each claiming the same device ID - and awards it
+ * to the first adapter in its own priority order. Here there is a single flat list from a single
+ * file and no ownership question to arbitrate, so file order decides. Neither rule should be
+ * changed to match the other.
  * \param deviceSettings  The devices section of the project file. An empty list clears the
  * model's device list; entries without a device ID are skipped.
  */
@@ -304,14 +325,33 @@ void ProjectFileHandler::applyDeviceSettings(const QList<ProjectFileData::Device
             continue;
         }
 
-        Device device(devSettings.deviceId);
+        const deviceId_t devId = devSettings.deviceId;
+        if (devices.contains(devId))
+        {
+            qCWarning(scopeGeneralInfo) << qUtf8Printable(
+              QString("ProjectFileHandler: duplicate device id %1 in project file - later entries "
+                      "override the fields they specify")
+                .arg(devId));
+        }
+        else
+        {
+            /* Set the fallback explicitly rather than leaning on Device's own default, so the
+               adapter a file-loaded device falls back to is decided here and stays put if that
+               default ever changes. */
+            Device newDevice(devId);
+            newDevice.setAdapterId(QString(cModbusAdapterId));
+            devices.insert(devId, newDevice);
+        }
+
+        Device& device = devices[devId];
         if (devSettings.bName)
         {
             device.setName(devSettings.name);
         }
-        device.setAdapterId(devSettings.adapterType.isEmpty() ? QString(cModbusAdapterId) : devSettings.adapterType);
-
-        devices.insert(devSettings.deviceId, device);
+        if (!devSettings.adapterType.isEmpty())
+        {
+            device.setAdapterId(devSettings.adapterType);
+        }
     }
 
     _pSettingsModel->applyDeviceList(devices);

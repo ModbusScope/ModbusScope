@@ -13,6 +13,7 @@ public:
     static QString cDataLevel5Connection;
     static QString cDataLevel5MixedMulti;
     static QString cDataLevel4LegacyConnection;
+    static QString cDataLevel4LegacyConnectionNoIds;
 
     static QString cLogSettings;
     static QString cScaleSliding;

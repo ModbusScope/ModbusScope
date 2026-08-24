@@ -343,6 +343,9 @@ void AdapterDeviceSettings::acceptValues()
         const int deviceId = tab->deviceId();
         if (deviceId >= 0)
         {
+            /* No duplicate-id handling needed here, unlike the project file load path: tabs are
+               built one per unique model device id, the id field is read-only, and handleAddTab()
+               assigns max+1, so two tabs can never carry the same id. */
             Device device(static_cast<deviceId_t>(deviceId));
             device.setName(tab->deviceName());
             device.setAdapterId(tab->adapterId());
