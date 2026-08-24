@@ -44,6 +44,7 @@ private:
     void applyDevice(deviceId_t deviceId);
     void rebuildAddressForm();
     void resizeContainingMenu();
+    void closeContainingMenu();
     bool isSelectionUsable() const;
     deviceId_t selectedDeviceId() const;
     QJsonObject buildSchema(const AdapterData* adapterData) const;
