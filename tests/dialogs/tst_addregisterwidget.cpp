@@ -476,6 +476,27 @@ void TestAddRegisterWidget::addRegisterClosesContainingMenu()
     QVERIFY(!menu.isVisible());
 }
 
+void TestAddRegisterWidget::emptyExpressionResponseLeavesContainingMenuOpen()
+{
+    /* See switchDeviceWhileMenuOpenResizesPopup for why ownership is handed off up front. */
+    AddRegisterWidget* pWidget = _pRegWidget;
+    _pRegWidget = nullptr;
+
+    QMenu menu;
+    auto* action = new QWidgetAction(&menu);
+    action->setDefaultWidget(pWidget);
+    menu.addAction(action);
+
+    menu.show();
+
+    QTest::mouseClick(pWidget->_pUi->btnAdd, Qt::LeftButton);
+    _pMockAdapterManager->injectBuildExpressionResult(QString());
+
+    QVERIFY(menu.isVisible());
+
+    menu.hide();
+}
+
 void TestAddRegisterWidget::clickAdd()
 {
     QTest::mouseClick(_pRegWidget->_pUi->btnAdd, Qt::LeftButton);

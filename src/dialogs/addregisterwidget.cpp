@@ -227,6 +227,11 @@ void AddRegisterWidget::resizeContainingMenu()
  * RegisterDialog does for btnAdd), clicking this widget's own "Add" button doesn't trigger
  * the QWidgetAction itself, so QMenu never closes on its own. Close it explicitly so adding
  * a register behaves like any other menu action.
+ *
+ * Only called from onBuildExpressionResult(), which runs on a later event loop turn than the
+ * "Add" button click that triggered the request (buildExpression() replies asynchronously over
+ * the adapter subprocess IPC channel) - closing the menu here never nests inside btnAdd's own
+ * click handling.
  */
 void AddRegisterWidget::closeContainingMenu()
 {
