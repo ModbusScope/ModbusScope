@@ -154,6 +154,47 @@ void TestProjectFileHandler::applyDeviceSettingsAppliesName()
 }
 
 /*!
+ * \brief The device name is applied before the model announces the new device.
+ */
+void TestProjectFileHandler::applyDeviceSettingsAppliesNameBeforeNotifying()
+{
+    QJsonArray adapters;
+    QJsonObject adapter;
+    adapter["type"] = "modbus";
+    adapter["settings"] = QJsonObject();
+    adapters.append(adapter);
+
+    QJsonArray devices;
+    QJsonObject dev;
+    dev["id"] = 1;
+    dev["name"] = "Pump";
+    dev["adapterId"] = 0;
+    QJsonObject adapterRef;
+    adapterRef["type"] = "modbus";
+    dev["adapter"] = adapterRef;
+    devices.append(dev);
+
+    const QString path = writeTempProjectFile(adapters, devices);
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    DeviceNameProbe probe(&settingsModel, 1);
+
+    handler.openProjectFile(path);
+
+    /* Setting the name after addDevice() left every observer of the load with the
+     * placeholder name the Device constructor assigns. */
+    QVERIFY(!probe.names.isEmpty());
+    QCOMPARE(probe.names.first(), QStringLiteral("Pump"));
+
+    QFile::remove(path);
+}
+
+/*!
  * \brief Devices referencing different adapters each get the correct adapterId string.
  */
 void TestProjectFileHandler::applyDeviceSettingsMultipleAdapters()
