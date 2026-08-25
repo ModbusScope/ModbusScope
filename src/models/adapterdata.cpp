@@ -265,12 +265,13 @@ QJsonObject AdapterData::configForWire() const
 {
     QJsonObject result = effectiveConfig();
 
-    if (!result.contains("devices"))
+    const QJsonValue devicesValue = result.value("devices");
+    if (!devicesValue.isArray())
     {
         return result;
     }
 
-    QJsonArray devices = removeDuplicateDeviceIds(result.value("devices").toArray());
+    QJsonArray devices = removeDuplicateDeviceIds(devicesValue.toArray());
 
     const int maxDevicesLimit = maxDevices();
     if (maxDevicesLimit != INT_MAX)

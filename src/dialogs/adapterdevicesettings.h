@@ -40,10 +40,6 @@ public:
     explicit AdapterDeviceSettings(SettingsModel* pSettingsModel, QWidget* parent = nullptr);
     ~AdapterDeviceSettings() = default;
 
-    /*!
-     * \brief Apply the open tabs to SettingsModel: the per-adapter device JSON arrays and
-     * the device list itself.
-     */
     void acceptValues();
 
 private slots:
