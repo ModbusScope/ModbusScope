@@ -67,10 +67,6 @@ void AdapterHub::initAdapter()
         }
     }
 
-    /* Single-pass loop is safe only because AdapterManager::initAdapter() is fully asynchronous
-       (it spawns a subprocess) and can never re-enter onManagerAdapterReady() synchronously from
-       within this loop, unlike stopSession()'s two-pass pattern below, which guards against a
-       degraded manager's synchronous adapterReady(). */
     for (auto it = _adapterManagers.constBegin(); it != _adapterManagers.constEnd(); ++it)
     {
         if (it.value()->isAdapterIdle())
@@ -101,18 +97,13 @@ void AdapterHub::startSession(const QString& adapterId, const QStringList& expre
 
 /*! \brief Send adapter.stop to every adapter manager with a session in progress or established.
  *
- * A manager that never started a session (still AWAITING_CONFIG) or has no process running
- * (IDLE) is left untouched. A manager mid-handshake (CONFIGURING/STARTING) is force-stopped but
- * not waited on, since only a graceful stop from ACTIVE emits adapterReady(). A force-stopped
- * mid-handshake manager is also purged from _pendingStartAdapters here, since that force-stop
- * only emits sessionStopped() - never the sessionStarted()/sessionError() that would otherwise
- * clear it.
+ * A manager that never started a session (AWAITING_CONFIG) or has no process running (IDLE) is
+ * left untouched. A manager mid-handshake is force-stopped but not waited on, and is purged from
+ * _pendingStartAdapters directly since its force-stop never emits sessionStarted()/sessionError().
  *
- * _pendingReadyAdapters/_pendingStartAdapters are fully updated for every manager being stopped
- * before any manager's stopSession() is actually called (mirroring initAdapter()'s two-pass
- * pattern), since a degraded manager's stopSession() emits adapterReady() synchronously: calling
- * it mid-loop could otherwise drain _pendingReadyAdapters and fire AdapterHub::adapterReady()
- * before every manager in this sweep has even been asked to stop.
+ * Bookkeeping for every manager being stopped is updated before any manager's stopSession() is
+ * actually called, since a degraded manager's stopSession() can emit adapterReady() synchronously
+ * and must not be allowed to fire AdapterHub::adapterReady() mid-sweep.
  */
 void AdapterHub::stopSession()
 {
