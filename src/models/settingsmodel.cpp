@@ -91,12 +91,11 @@ bool SettingsModel::absoluteTimes()
 /*! \brief Replace the complete device list in a single step.
  *
  * Intended for callers that already know the full intended device list — the Settings
- * dialog's accept path, a project file load, and adapter reconciliation. Building the same
- * result from field-by-field edits to the existing list would emit deviceListChanged() once
- * per device while briefly exposing states that were never intended to be observed (a device
- * removed before being re-added under a new owner), and renames and adapter reassignments
- * would not be signalled at all, since the Device setters are plain field writes. This emits
- * exactly one deviceListChanged(), and only when something changed.
+ * dialog's accept path, a project file load, and adapter reconciliation. Applying the list
+ * atomically means observers of deviceListChanged() never see an intermediate state (e.g. a
+ * device briefly missing while being reassigned to a new owner), and renames or adapter
+ * reassignments are always signalled even though Device's own setters are plain field writes.
+ * Emits exactly one deviceListChanged(), and only when something actually changed.
  * \param devices  The complete new device list, keyed by device ID.
  */
 void SettingsModel::applyDeviceList(const QMap<deviceId_t, Device>& devices)

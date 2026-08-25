@@ -10,8 +10,7 @@
 /*! \brief Device-list edits for tests, built on SettingsModel::applyDeviceList().
  *
  * applyDeviceList() replaces the whole list, so a test that only wants to add or drop one
- * device has to read the current list back first. These helpers do that, keeping the
- * convenience the model no longer carries out of SettingsModel itself.
+ * device has to read the current list back first. These helpers do that.
  */
 namespace DeviceListHelpers {
 
