@@ -2,8 +2,10 @@
 #define REGISTERDIALOG_H
 
 #include "customwidgets/centeredbox.h"
+#include "models/device.h"
 
 #include <QDialog>
+#include <QList>
 #include <QWidgetAction>
 
 /* Forward declaration */
@@ -42,7 +44,7 @@ private slots:
 
 private:
     int selectedRowAfterDelete(int deletedStartIndex, int rowCnt);
-    AdapterManager* defaultExpressionManager() const;
+    void initDefaultExpressionTarget(const QList<deviceId_t>& deviceIds);
     static bool sortRegistersLastFirst(const QModelIndex& s1, const QModelIndex& s2);
 
     Ui::RegisterDialog* _pUi;
@@ -51,6 +53,7 @@ private:
     SettingsModel* _pSettingsModel;
     AdapterHub* _pAdapterHub;
     AdapterManager* _pDefaultExpressionManager;
+    deviceId_t _defaultExpressionDeviceId{ 0 };
 
     CenteredBoxProxyStyle _centeredBoxStyle;
 
