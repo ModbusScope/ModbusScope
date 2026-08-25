@@ -1,5 +1,6 @@
 #include "tst_deviceconfigtab.h"
 
+#include "../models/devicelisthelpers.h"
 #include "customwidgets/deviceconfigtab.h"
 #include "models/settingsmodel.h"
 
@@ -122,8 +123,7 @@ void TestDeviceConfigTab::deviceNameInitializesFromConstructorArgument()
 
     // The tab holds the working copy, so its owner supplies the name rather than the tab
     // reading it back from SettingsModel. A device with a name it has not been given shows none.
-    model.addDevice(5);
-    model.deviceSettings(5)->setName("Pump Station");
+    DeviceListHelpers::seedDevice(&model, 5, QString(), QStringLiteral("Pump Station"));
 
     QJsonObject deviceValues;
     deviceValues["id"] = 5;
@@ -139,8 +139,7 @@ void TestDeviceConfigTab::nameChangeDoesNotWriteModel()
 {
     SettingsModel model;
     setupTwoAdapters(model);
-    model.addDevice(5);
-    model.deviceSettings(5)->setName("Pump Station");
+    DeviceListHelpers::seedDevice(&model, 5, QString(), QStringLiteral("Pump Station"));
 
     QJsonObject deviceValues;
     deviceValues["id"] = 5;
@@ -163,8 +162,7 @@ void TestDeviceConfigTab::adapterChangeDoesNotWriteModel()
 {
     SettingsModel model;
     setupTwoAdapters(model);
-    model.addDevice(5);
-    model.deviceSettings(5)->setAdapterId("adapterA");
+    DeviceListHelpers::seedDevice(&model, 5, QStringLiteral("adapterA"));
 
     QJsonObject deviceValues;
     deviceValues["id"] = 5;

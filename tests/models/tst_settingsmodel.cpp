@@ -71,7 +71,10 @@ void TestSettingsModel::applyDeviceListReplacesList()
 void TestSettingsModel::applyDeviceListEmitsOnceForMultipleChanges()
 {
     SettingsModel model;
-    model.addDevice(2);
+    QMap<deviceId_t, Device> initial;
+    initial.insert(1, makeDevice(1, "Device 1", "modbus"));
+    initial.insert(2, makeDevice(2, "Device 2", "modbus"));
+    model.applyDeviceList(initial);
 
     QSignalSpy spy(&model, &SettingsModel::deviceListChanged);
 

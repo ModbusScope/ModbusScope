@@ -1,6 +1,7 @@
 
 #include "tst_projectfilehandler.h"
 
+#include "../models/devicelisthelpers.h"
 #include "importexport/projectfilehandler.h"
 #include "models/adapterdata.h"
 #include "models/device.h"
@@ -187,8 +188,9 @@ void TestProjectFileHandler::applyDeviceSettingsAppliesNameBeforeNotifying()
 
     handler.openProjectFile(path);
 
-    /* Setting the name after addDevice() left every observer of the load with the
-     * placeholder name the Device constructor assigns. */
+    /* Regression guard: the device's real name must be in place before deviceListChanged()
+     * is emitted, or every observer of the load sees the placeholder name Device's
+     * constructor assigns instead. */
     QVERIFY(!probe.names.isEmpty());
     QCOMPARE(probe.names.first(), QStringLiteral("Pump"));
 
@@ -328,8 +330,8 @@ void TestProjectFileHandler::applyDeviceSettingsEmitsDeviceListChangedOnce()
 /*!
  * \brief Loading a project with an empty devices section clears all devices, including stale ones.
  *
- * Regression: applyDeviceSettings used to return early before calling removeAllDevice() when
- * the list was empty, leaving previously-loaded devices in the model.
+ * Regression: applyDeviceSettings used to return early before clearing the device list when
+ * the new list was empty, leaving previously-loaded devices in the model.
  */
 void TestProjectFileHandler::applyDeviceSettingsEmptyListClearsModel()
 {
@@ -341,7 +343,7 @@ void TestProjectFileHandler::applyDeviceSettingsEmptyListClearsModel()
     GraphDataModel graphDataModel(&settingsModel);
 
     /* Pre-populate a stale device that should be cleared */
-    settingsModel.addDevice(99);
+    DeviceListHelpers::seedDevice(&settingsModel, 99);
     QVERIFY(settingsModel.deviceList().contains(99));
 
     ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
@@ -389,7 +391,7 @@ void TestProjectFileHandler::applyDeviceSettingsClearsPreviousDevices()
     GraphDataModel graphDataModel(&settingsModel);
 
     /* Pre-populate a device that should be cleared on load */
-    settingsModel.addDevice(3);
+    DeviceListHelpers::seedDevice(&settingsModel, 3);
 
     ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
     handler.openProjectFile(path);

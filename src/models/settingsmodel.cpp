@@ -88,63 +88,15 @@ bool SettingsModel::absoluteTimes()
     return _bAbsoluteTimes;
 }
 
-deviceId_t SettingsModel::addNewDevice()
-{
-    deviceId_t newId = _devices.isEmpty() ? Device::cFirstDeviceId : static_cast<deviceId_t>(_devices.lastKey() + 1);
-
-    _devices[newId] = Device(newId);
-
-    emit deviceListChanged();
-    return newId;
-}
-
-/*! \brief Add a device to the model, unless it already exists.
- *
- * The device is fully configured before deviceListChanged() is emitted, so observers
- * reading it from that signal (AddRegisterWidget rebuilds its address form there and
- * labels its combo box entries) never see a half-configured device.
- * \param devId      Identifier of the device to add.
- * \param adapterId  Adapter owning the device; empty keeps Device's default adapter.
- * \param name       Display name of the device; empty keeps Device's default name.
- */
-void SettingsModel::addDevice(deviceId_t devId, const QString& adapterId, const QString& name)
-{
-    if (!_devices.contains(devId))
-    {
-        _devices[devId] = Device(devId);
-        if (!adapterId.isEmpty())
-        {
-            _devices[devId].setAdapterId(adapterId);
-        }
-        if (!name.isEmpty())
-        {
-            _devices[devId].setName(name);
-        }
-        emit deviceListChanged();
-    }
-}
-
-void SettingsModel::removeDevice(deviceId_t devId)
-{
-    _devices.remove(devId);
-    emit deviceListChanged();
-}
-
-void SettingsModel::removeAllDevice()
-{
-    _devices.clear();
-    emit deviceListChanged();
-}
-
 /*! \brief Replace the complete device list in a single step.
  *
  * Intended for callers that already know the full intended device list — the Settings
- * dialog's accept path and a project file load. Building the same result from
- * removeAllDevice()/addDevice() plus the Device setters would emit deviceListChanged()
- * once per device while briefly exposing states that were never intended to be observed
- * (a device removed before being re-added under a new owner), and renames and adapter
- * reassignments would not be signalled at all, since the Device setters are plain field
- * writes. This emits exactly one deviceListChanged(), and only when something changed.
+ * dialog's accept path, a project file load, and adapter reconciliation. Building the same
+ * result from field-by-field edits to the existing list would emit deviceListChanged() once
+ * per device while briefly exposing states that were never intended to be observed (a device
+ * removed before being re-added under a new owner), and renames and adapter reassignments
+ * would not be signalled at all, since the Device setters are plain field writes. This emits
+ * exactly one deviceListChanged(), and only when something changed.
  * \param devices  The complete new device list, keyed by device ID.
  */
 void SettingsModel::applyDeviceList(const QMap<deviceId_t, Device>& devices)

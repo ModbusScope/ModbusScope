@@ -1,6 +1,7 @@
 
 #include "tst_expressionstatus.h"
 
+#include "../models/devicelisthelpers.h"
 #include "models/graphdata.h"
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
@@ -94,7 +95,7 @@ void TestExpressionStatus::afterRemoval_subsequentExpressionChange_setsCorrectSt
 
 void TestExpressionStatus::deviceRemoved_revalidatesReferencingExpression()
 {
-    const deviceId_t secondDeviceId = _pSettingsModel->addNewDevice();
+    const deviceId_t secondDeviceId = DeviceListHelpers::seedNextDevice(_pSettingsModel);
 
     ExpressionStatus status(_pGraphDataModel, _pSettingsModel);
 
@@ -102,7 +103,7 @@ void TestExpressionStatus::deviceRemoved_revalidatesReferencingExpression()
     _pGraphDataModel->setExpression(GraphIdx(0), QString("${40001@%1}").arg(secondDeviceId));
     QCOMPARE(_pGraphDataModel->expressionState(GraphIdx(0)), ExpressionState::VALID);
 
-    _pSettingsModel->removeDevice(secondDeviceId);
+    DeviceListHelpers::dropDevice(_pSettingsModel, secondDeviceId);
 
     QCOMPARE(_pGraphDataModel->expressionState(GraphIdx(0)), ExpressionState::UNKNOWN_DEVICE);
 }

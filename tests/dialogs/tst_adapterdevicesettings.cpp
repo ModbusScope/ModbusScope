@@ -1,5 +1,6 @@
 #include "tst_adapterdevicesettings.h"
 
+#include "../models/devicelisthelpers.h"
 #include "customwidgets/addabletabwidget.h"
 #include "customwidgets/deviceconfigtab.h"
 #include "dialogs/adapterdevicesettings.h"
@@ -164,8 +165,7 @@ void TestAdapterDeviceSettings::deviceModelNameUsedAsTabTitle()
 
     setupAdapter(model, "adapterA", QJsonArray{ dev });
 
-    model.addDevice(1);
-    model.deviceSettings(1)->setName("Pump");
+    DeviceListHelpers::seedDevice(&model, 1, QString(), QStringLiteral("Pump"));
 
     AdapterDeviceSettings w(&model);
 
@@ -225,8 +225,7 @@ void TestAdapterDeviceSettings::acceptValuesSavesDeviceNameToModel()
     dev["id"] = 1;
     setupAdapter(model, "adapterA", QJsonArray{ dev });
 
-    model.addDevice(1);
-    model.deviceSettings(1)->setName("Old Name");
+    DeviceListHelpers::seedDevice(&model, 1, QString(), QStringLiteral("Old Name"));
 
     AdapterDeviceSettings w(&model);
 
@@ -654,9 +653,7 @@ void TestAdapterDeviceSettings::openingDialogKeepsDeviceNoAdapterDeclares()
     // Device 3 exists in the device list, owned by a described adapter whose config does not
     // declare it — as after loading an older or hand-edited project file. Opening the dialog
     // must not delete it.
-    model.addDevice(3);
-    model.deviceSettings(3)->setName("Orphan");
-    model.deviceSettings(3)->setAdapterId("adapterA");
+    DeviceListHelpers::seedDevice(&model, 3, QStringLiteral("adapterA"), QStringLiteral("Orphan"));
 
     AdapterDeviceSettings w(&model);
 
@@ -691,9 +688,7 @@ void TestAdapterDeviceSettings::openingDialogKeepsDevicesOfUndescribedAdapter()
     QJsonObject config;
     config["devices"] = QJsonArray{ dev7 };
     model.setAdapterCurrentConfig("later", config);
-    model.addDevice(7);
-    model.deviceSettings(7)->setName("Remote");
-    model.deviceSettings(7)->setAdapterId("later");
+    DeviceListHelpers::seedDevice(&model, 7, QStringLiteral("later"), QStringLiteral("Remote"));
 
     AdapterDeviceSettings w(&model);
 
@@ -725,9 +720,7 @@ void TestAdapterDeviceSettings::adapterDescribingWhileOpenIsNotOverwrittenOnAcce
     QJsonObject config;
     config["devices"] = QJsonArray{ dev7 };
     model.setAdapterCurrentConfig("later", config);
-    model.addDevice(7);
-    model.deviceSettings(7)->setName("Remote");
-    model.deviceSettings(7)->setAdapterId("later");
+    DeviceListHelpers::seedDevice(&model, 7, QStringLiteral("later"), QStringLiteral("Remote"));
 
     AdapterDeviceSettings w(&model);
 
@@ -1409,15 +1402,19 @@ void TestAdapterDeviceSettings::doesNotDropDevicesWhenAdapterConfigMatchesDevice
     model.updateAdapterFromDescribe("modbus", makeAdapterDescribeWithMaxItems("modbus", 2));
 
     QJsonArray deviceArray;
+    QMap<deviceId_t, Device> devices;
     for (int i = 1; i <= 5; ++i)
     {
         QJsonObject dev;
         dev["id"] = i;
         deviceArray.append(dev);
 
-        model.addDevice(static_cast<deviceId_t>(i));
-        model.deviceSettings(static_cast<deviceId_t>(i))->setAdapterId("modbus");
+        const auto devId = static_cast<deviceId_t>(i);
+        Device device(devId);
+        device.setAdapterId(QStringLiteral("modbus"));
+        devices.insert(devId, device);
     }
+    model.applyDeviceList(devices);
 
     QJsonObject config;
     config["general"] = QJsonObject();
