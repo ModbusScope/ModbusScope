@@ -1,5 +1,6 @@
 #include "tst_dummydevicelimit.h"
 
+#include "../models/devicelisthelpers.h"
 #include "ProtocolAdapter/adaptermanager.h"
 #include "models/device.h"
 #include "models/settingsmodel.h"
@@ -35,10 +36,8 @@ void TestDummyDeviceLimit::sessionStartsWithTwoDevicesOverLimit()
     QVERIFY2(spyReady.wait(cSessionTimeoutMs), "adapterReady not emitted");
 
     // The dummy adapter's schema declares devices.maxItems = 1 (capabilities.maxDevices = 1).
-    _pSettingsModel->addDevice(1);
-    _pSettingsModel->deviceSettings(1)->setAdapterId(QStringLiteral("dummy"));
-    _pSettingsModel->addDevice(2);
-    _pSettingsModel->deviceSettings(2)->setAdapterId(QStringLiteral("dummy"));
+    DeviceListHelpers::seedDevice(_pSettingsModel, 1, QStringLiteral("dummy"));
+    DeviceListHelpers::seedDevice(_pSettingsModel, 2, QStringLiteral("dummy"));
 
     QJsonObject connection;
     connection["id"] = 1;

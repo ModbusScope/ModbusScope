@@ -187,9 +187,9 @@ void ScopeController::clear()
     _pCommunicationStats->resetTiming();
     _pAdapterPoll->resetCommunicationStats();
 
-    // Authoritative model-side clear (also needed by a future headless caller with no GraphView);
+    // Authoritative model-side clear, also needed by a future headless caller with no GraphView.
     // GraphView::clearResults(), triggered below via dataCleared(), redundantly clears the same
-    // series for currently-plotted graphs plus the QCPGraph curve data itself — harmless overlap.
+    // data for currently-plotted graphs — harmless overlap.
     QList<GraphIdx> activeGraphList;
     _pGraphDataModel->activeGraphIndexList(activeGraphList);
     for (const GraphIdx& graphIdx : std::as_const(activeGraphList))

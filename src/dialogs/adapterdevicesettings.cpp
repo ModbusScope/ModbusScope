@@ -10,12 +10,9 @@
 #include <QJsonArray>
 #include <QLabel>
 #include <QMap>
-#include <QSet>
 #include <QVBoxLayout>
 
-#include <algorithm>
-#include <climits>
-#include <numeric>
+#include <utility>
 
 AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWidget* parent)
     : QWidget(parent), _pSettingsModel(pSettingsModel)
@@ -23,8 +20,8 @@ AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWid
     auto* layout = new QVBoxLayout(this);
     setLayout(layout);
 
-    const QStringList adapterIds = validAdapterIds();
-    if (adapterIds.isEmpty())
+    _validAdapterIds = validAdapterIds();
+    if (_validAdapterIds.isEmpty())
     {
         layout->addWidget(new QLabel("No adapter schema available.", this));
         layout->addStretch();
@@ -48,138 +45,87 @@ AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWid
     connect(_pDeviceTabs, &AddableTabWidget::addTabRequested, this, &AdapterDeviceSettings::handleAddTab);
     connect(_pDeviceTabs, &AddableTabWidget::tabClosed, this, &AdapterDeviceSettings::handleCloseTab);
 
-    QSet<deviceId_t> configDeviceIds;
-    for (const auto& adapterId : adapterIds)
-    {
-        const QJsonArray devices = pSettingsModel->adapterData(adapterId)->effectiveConfig().value("devices").toArray();
-        for (const auto& device : devices)
-        {
-            const int id = device.toObject().value("id").toInt(-1);
-            if (id >= 0)
-            {
-                configDeviceIds.insert(static_cast<deviceId_t>(id));
-            }
-        }
-    }
-    const QList<deviceId_t> modelDeviceIds = pSettingsModel->deviceList();
-    for (const deviceId_t devId : modelDeviceIds)
-    {
-        if (!configDeviceIds.contains(devId))
-        {
-            pSettingsModel->removeDevice(devId);
-        }
-    }
-
-    /* Must run before the tab-building loop below: that loop's ownership check assumes
-     * device ownership is already reconciled. */
+    /* Must run before the tab-building loop below: it reads each device's owner back from the
+     * model, which reconciliation is what decides. */
     pSettingsModel->reconcileDevicesWithAdapters();
 
+    /* One tab per device the model knows. reconcileDevicesWithAdapters() has already
+     * registered every device the adapters declare, so this covers those too — and it
+     * additionally shows a device the model holds that its own adapter's config does not
+     * mention (from an older or hand-edited project file) instead of silently dropping it.
+     * deviceList() is ascending, so tabs come out in device ID order without a separate sort. */
     QList<QWidget*> pages;
     QStringList names;
-    QSet<deviceId_t> seenDeviceIds;
-    for (const auto& adapterId : adapterIds)
+    const QList<deviceId_t> deviceIds = pSettingsModel->deviceList();
+    for (const deviceId_t devId : deviceIds)
     {
-        const AdapterData* pAdapter = pSettingsModel->adapterData(adapterId);
-        const QJsonArray devices = pAdapter->effectiveConfig().value("devices").toArray();
-
-        for (const auto& device : devices)
+        const QString adapterId = pSettingsModel->adapterIdForDevice(devId);
+        if (!_validAdapterIds.contains(adapterId))
         {
-            const QJsonObject deviceObj = device.toObject();
-            const int id = deviceObj.value("id").toInt(-1);
-            if (id >= 0)
-            {
-                const deviceId_t devId = static_cast<deviceId_t>(id);
-                if (seenDeviceIds.contains(devId))
-                {
-                    continue;
-                }
-                if (pSettingsModel->hasDevice(devId) && pSettingsModel->adapterIdForDevice(devId) != adapterId)
-                {
-                    /* reconcileDevicesWithAdapters() above already resolved this device ID to a
-                     * different adapter (e.g. that adapter has an explicit stored config, while
-                     * this one still only shares the ID in its untouched defaults). Skip it here
-                     * so its tab is built from the reconciled owner's own declaration below,
-                     * instead of from this adapter's declaration purely because it was iterated
-                     * first — building it from the wrong adapter would make acceptValues() write
-                     * an empty devices array back to the real owner, wiping its stored config. */
-                    continue;
-                }
-                seenDeviceIds.insert(devId);
-            }
-            auto* tab = new DeviceConfigTab(pSettingsModel, adapterId, deviceObj, _pDeviceTabs);
-            connectTabTracking(tab);
-            pages.append(tab);
-            names.append(constructTabName(tab));
+            /* The owning adapter has not described, so there is no schema to render this
+             * device with. Showing it under another adapter would make accepting the dialog
+             * reassign it and reset its fields to that adapter's defaults, so note it here and
+             * hand it back to the model unchanged in acceptValues(). */
+            _deviceIdsWithoutTab.append(devId);
+            continue;
         }
+
+        auto* tab =
+          createTab(adapterId, pSettingsModel->deviceSettings(devId)->name(), deviceValuesFor(adapterId, devId));
+        pages.append(tab);
+        names.append(constructTabName(tab));
     }
+
+    appendTabsWithoutDeviceId(pages, names);
 
     if (!pages.isEmpty())
     {
-        sortPagesByDeviceId(pages, names);
         _pDeviceTabs->setTabs(pages, names);
     }
 
     updateDeviceLimitIndication();
 }
 
-/*! \brief Stable-sort device tabs by device ID.
+/*! \brief Append a tab for every adapter-declared device that carries no usable device ID.
  *
- * Tabs are built adapter-by-adapter (in \c SettingsModel::adapterIds() order, which is
- * alphabetical, not creation order), so a device on an alphabetically-earlier adapter would
- * otherwise be shown before a device added earlier but living on a later adapter. Sorting by
- * ID keeps tab order consistent with device add order across dialog reopens. Tabs without a
- * valid ID (id < 0) keep their relative order and sort after all ID'd tabs. As a side effect,
- * two devices on the same adapter whose stored JSON array was not already ID-ascending get
- * normalized to ID order too, since acceptValues() re-derives that array from tab order.
+ * SettingsModel's device list is keyed by device ID, so such an entry cannot be represented
+ * there and is missed by the tab loop in the constructor. Appending them last keeps every
+ * valid device ahead of them in tab order.
+ * \param pages  Tab widgets built so far; appended to.
+ * \param names  Matching tab titles; appended to.
  */
-void AdapterDeviceSettings::sortPagesByDeviceId(QList<QWidget*>& pages, QStringList& names)
+void AdapterDeviceSettings::appendTabsWithoutDeviceId(QList<QWidget*>& pages, QStringList& names)
 {
-    QList<long long> ids;
-    ids.reserve(pages.size());
-    for (auto* page : pages)
+    for (const auto& adapterId : std::as_const(_validAdapterIds))
     {
-        auto* tab = qobject_cast<DeviceConfigTab*>(page);
-        const int id = tab ? tab->deviceId() : -1;
-        ids.append(id >= 0 ? static_cast<long long>(id) : LLONG_MAX);
+        const QJsonArray devices =
+          _pSettingsModel->adapterData(adapterId)->effectiveConfig().value("devices").toArray();
+        for (const auto& device : devices)
+        {
+            const QJsonObject deviceObj = device.toObject();
+            if (deviceObj.value("id").toInt(-1) < 0)
+            {
+                auto* tab = createTab(adapterId, QString(), deviceObj);
+                pages.append(tab);
+                names.append(constructTabName(tab));
+            }
+        }
     }
-
-    QList<int> order(pages.size());
-    std::iota(order.begin(), order.end(), 0);
-    std::stable_sort(order.begin(), order.end(), [&ids](int a, int b) { return ids[a] < ids[b]; });
-
-    QList<QWidget*> sortedPages;
-    QStringList sortedNames;
-    for (const int index : order)
-    {
-        sortedPages.append(pages[index]);
-        sortedNames.append(names[index]);
-    }
-    pages = sortedPages;
-    names = sortedNames;
 }
 
 /*! \brief Add a new device tab with a unique, auto-incremented device ID.
  *
- * Creates a SettingsModel device with its adapter already assigned, then opens
- * a new DeviceConfigTab pre-populated with the adapter's default values and the
- * assigned ID.
+ * The tab is the working copy: nothing is registered in SettingsModel until acceptValues()
+ * runs, so cancelling the dialog leaves the device list untouched. The new ID is one past the
+ * highest ID held by the model or by an already open tab, so it collides with neither a saved
+ * device nor one added earlier in this session.
  */
 void AdapterDeviceSettings::handleAddTab()
 {
-    const QStringList adapterIds = validAdapterIds();
-    if (adapterIds.isEmpty())
+    const QString adapterId = defaultAdapterId();
+    if (adapterId.isEmpty())
     {
         return;
-    }
-    const QString defaultAdapterId =
-      adapterIds.contains(QString(cModbusAdapterId)) ? QString(cModbusAdapterId) : adapterIds.first();
-
-    QJsonObject defaultValues;
-    const QJsonArray defaultDevices =
-      _pSettingsModel->adapterData(defaultAdapterId)->defaults().value("devices").toArray();
-    if (!defaultDevices.isEmpty())
-    {
-        defaultValues = defaultDevices.first().toObject();
     }
 
     deviceId_t maxId = 0;
@@ -191,21 +137,17 @@ void AdapterDeviceSettings::handleAddTab()
     for (int i = 0; i < _pDeviceTabs->count(); ++i)
     {
         auto* tab = qobject_cast<DeviceConfigTab*>(_pDeviceTabs->tabContent(i));
-        if (tab)
+        if (tab && tab->deviceId() >= 0)
         {
-            const int id = tab->values().value("id").toInt(-1);
-            if (id >= 0)
-            {
-                maxId = qMax(maxId, static_cast<deviceId_t>(id));
-            }
+            maxId = qMax(maxId, static_cast<deviceId_t>(tab->deviceId()));
         }
     }
     const deviceId_t newId = (maxId > 0) ? maxId + 1 : Device::cFirstDeviceId;
-    _pSettingsModel->addDevice(newId, defaultAdapterId);
-    defaultValues["id"] = static_cast<int>(newId);
 
-    auto* tab = new DeviceConfigTab(_pSettingsModel, defaultAdapterId, defaultValues, _pDeviceTabs);
-    connectTabTracking(tab);
+    /* newId is higher than every known device, so this yields the adapter's default device
+     * with the new ID applied. Device's constructor supplies the same default name the model
+     * would have given it. */
+    auto* tab = createTab(adapterId, Device(newId).name(), deviceValuesFor(adapterId, newId));
     _pDeviceTabs->addNewTab(constructTabName(tab), tab);
 
     updateDeviceLimitIndication();
@@ -213,12 +155,10 @@ void AdapterDeviceSettings::handleAddTab()
 
 void AdapterDeviceSettings::handleCloseTab(QWidget* widget)
 {
-    auto* tab = qobject_cast<DeviceConfigTab*>(widget);
-    if (tab && tab->deviceId() >= 0)
-    {
-        _pSettingsModel->removeDevice(static_cast<deviceId_t>(tab->deviceId()));
-    }
+    Q_UNUSED(widget);
 
+    /* The tab has already been taken out of _pDeviceTabs, so the working copy no longer holds
+     * this device. It leaves SettingsModel only once acceptValues() runs. */
     updateDeviceLimitIndication();
 }
 
@@ -286,32 +226,88 @@ QStringList AdapterDeviceSettings::validAdapterIds() const
     return result;
 }
 
+/*! \brief Return the adapter a device should target when nothing else decides it.
+ * \return "modbus" when it has a usable schema, so the app's built-in initial device keeps its
+ * conventional owner; otherwise the first adapter that has one, or an empty string when none has.
+ */
+QString AdapterDeviceSettings::defaultAdapterId() const
+{
+    if (_validAdapterIds.contains(QString(cModbusAdapterId)))
+    {
+        return QString(cModbusAdapterId);
+    }
+    return _validAdapterIds.isEmpty() ? QString() : _validAdapterIds.first();
+}
+
+/*! \brief Build the schema form values for one device on a given adapter.
+ * \param adapterId  The adapter whose config and defaults to read.
+ * \param devId      The device identifier.
+ * \return The device's own entry in the adapter's effective config when it declares one.
+ * Otherwise the adapter's default device with \a devId applied, which covers both a device the
+ * model knows but the config does not declare, and a device being added for the first time.
+ */
+QJsonObject AdapterDeviceSettings::deviceValuesFor(const QString& adapterId, deviceId_t devId) const
+{
+    const AdapterData* pAdapter = _pSettingsModel->adapterData(adapterId);
+
+    const QJsonArray devices = pAdapter->effectiveConfig().value("devices").toArray();
+    for (const auto& device : devices)
+    {
+        const QJsonObject deviceObj = device.toObject();
+        if (deviceObj.value("id").toInt(-1) == static_cast<int>(devId))
+        {
+            return deviceObj;
+        }
+    }
+
+    QJsonObject values;
+    const QJsonArray defaultDevices = pAdapter->defaults().value("devices").toArray();
+    if (!defaultDevices.isEmpty())
+    {
+        values = defaultDevices.first().toObject();
+    }
+    values["id"] = static_cast<int>(devId);
+    return values;
+}
+
 QString AdapterDeviceSettings::constructTabName(DeviceConfigTab* tab) const
 {
     const int id = tab->deviceId();
-    if (id >= 0)
+    if (id < 0)
     {
-        const deviceId_t devId = static_cast<deviceId_t>(id);
-        if (_pSettingsModel->hasDevice(devId))
-        {
-            const QString name = _pSettingsModel->deviceSettings(devId)->name();
-            if (!name.isEmpty())
-            {
-                return name;
-            }
-        }
-        return QString("Device #%1").arg(id);
+        return QStringLiteral("Device");
     }
-    return QStringLiteral("Device");
+
+    const QString name = tab->deviceName();
+    return name.isEmpty() ? QString("Device #%1").arg(id) : name;
 }
 
-void AdapterDeviceSettings::connectTabTracking(DeviceConfigTab* tab)
+/*! \brief Create a device tab and keep its title and the device-limit warning in sync with it.
+ * \param adapterId    The adapter to preselect in the tab's adapter combo.
+ * \param deviceName   The name to show in the tab's name field.
+ * \param deviceValues The schema form values for the device.
+ * \return The new tab. It is not added to the tab widget — the caller decides where it goes.
+ */
+DeviceConfigTab* AdapterDeviceSettings::createTab(const QString& adapterId,
+                                                  const QString& deviceName,
+                                                  const QJsonObject& deviceValues)
 {
+    auto* tab = new DeviceConfigTab(_pSettingsModel, adapterId, deviceName, deviceValues, _pDeviceTabs);
+
     connect(tab, &DeviceConfigTab::nameChanged, tab,
             [this, tab]() { _pDeviceTabs->setTabName(_pDeviceTabs->indexOf(tab), constructTabName(tab)); });
     connect(tab, &DeviceConfigTab::adapterChanged, this, &AdapterDeviceSettings::updateDeviceLimitIndication);
+
+    return tab;
 }
 
+/*! \brief Apply the open tabs to SettingsModel in one transaction.
+ *
+ * Writes each adapter's device JSON array, then the device list itself. A device added,
+ * removed, renamed or moved to another adapter on this page reaches the model only here, so
+ * cancelling the dialog discards all of it. The device list is applied in a single call so
+ * observers of deviceListChanged() see one coherent change instead of a per-device sequence.
+ */
 void AdapterDeviceSettings::acceptValues()
 {
     if (!_pDeviceTabs)
@@ -320,20 +316,51 @@ void AdapterDeviceSettings::acceptValues()
     }
 
     QMap<QString, QJsonArray> devicesByAdapter;
-    for (int i = 0; i < _pDeviceTabs->count(); ++i)
+
+    /* Devices with no tab were never editable here, so they are read back from the model as it
+     * stands now rather than from a copy taken when the dialog opened — that would revert a
+     * change the model made in the meantime, such as an ownership reconcile. One that has since
+     * been removed from the model stays removed. */
+    QMap<deviceId_t, Device> devices;
+    for (const deviceId_t devId : std::as_const(_deviceIdsWithoutTab))
     {
-        auto* tab = qobject_cast<DeviceConfigTab*>(_pDeviceTabs->tabContent(i));
-        if (tab)
+        if (_pSettingsModel->hasDevice(devId))
         {
-            devicesByAdapter[tab->adapterId()].append(tab->values());
+            devices.insert(devId, *_pSettingsModel->deviceSettings(devId));
         }
     }
 
-    const QStringList allAdapterIds = validAdapterIds();
-    for (const auto& adapterId : allAdapterIds)
+    for (int i = 0; i < _pDeviceTabs->count(); ++i)
+    {
+        auto* tab = qobject_cast<DeviceConfigTab*>(_pDeviceTabs->tabContent(i));
+        if (tab == nullptr)
+        {
+            continue;
+        }
+
+        devicesByAdapter[tab->adapterId()].append(tab->values());
+
+        const int deviceId = tab->deviceId();
+        if (deviceId >= 0)
+        {
+            /* Tabs are built one per unique model device id, the id field is read-only, and
+               handleAddTab() assigns max+1, so two tabs can never carry the same id here. */
+            Device device(static_cast<deviceId_t>(deviceId));
+            device.setName(tab->deviceName());
+            device.setAdapterId(tab->adapterId());
+            devices.insert(static_cast<deviceId_t>(deviceId), device);
+        }
+    }
+
+    /* Deliberately the adapter set captured when this page was built, not a fresh one: an
+     * adapter that described while the dialog was open has no tab here, so writing it would
+     * clear the very devices config it just brought in. */
+    for (const auto& adapterId : std::as_const(_validAdapterIds))
     {
         QJsonObject config = _pSettingsModel->adapterData(adapterId)->effectiveConfig();
         config["devices"] = devicesByAdapter.value(adapterId);
         _pSettingsModel->setAdapterCurrentConfig(adapterId, config);
     }
+
+    _pSettingsModel->applyDeviceList(devices);
 }

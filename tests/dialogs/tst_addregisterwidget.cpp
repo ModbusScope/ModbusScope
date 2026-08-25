@@ -1,6 +1,7 @@
 
 #include "tst_addregisterwidget.h"
 
+#include "../models/devicelisthelpers.h"
 #include "customwidgets/schemaformwidget.h"
 #include "dialogs/addregisterwidget.h"
 #include "models/device.h"
@@ -90,11 +91,11 @@ QJsonObject TestAddRegisterWidget::buildSimRegisterSchema()
 
 void TestAddRegisterWidget::init()
 {
-    _settingsModel.removeAllDevice();
+    DeviceListHelpers::clearDevices(&_settingsModel);
+    DeviceListHelpers::seedDevice(&_settingsModel, Device::cFirstDeviceId, QStringLiteral("modbus"));
     /* Drop the sim adapter data a previous multi-adapter test may have registered */
     _settingsModel.removeAdapter(QStringLiteral("sim"));
     _settingsModel.setAdapterDataPointSchema("modbus", buildTestRegisterSchema());
-    _settingsModel.deviceSettings(Device::cFirstDeviceId)->setAdapterId("modbus");
 
     _pMockAdapterManager = new MockAdapterManager(&_settingsModel);
     _pMockHub = new MockAdapterHub();
@@ -129,8 +130,7 @@ deviceId_t TestAddRegisterWidget::addSimAdapter()
     _pMockSimAdapterManager = new MockAdapterManager(&_settingsModel, QStringLiteral("sim"));
     _pMockHub->addManager(QStringLiteral("sim"), _pMockSimAdapterManager);
 
-    const deviceId_t simDeviceId = _settingsModel.addNewDevice();
-    _settingsModel.deviceSettings(simDeviceId)->setAdapterId(QStringLiteral("sim"));
+    const deviceId_t simDeviceId = DeviceListHelpers::seedNextDevice(&_settingsModel, QStringLiteral("sim"));
 
     delete _pRegWidget;
     _pRegWidget = new AddRegisterWidget(&_settingsModel, _pMockHub);
@@ -199,8 +199,7 @@ void TestAddRegisterWidget::registerObjectType()
 
 void TestAddRegisterWidget::registerDevice()
 {
-    const deviceId_t secondDeviceId = _settingsModel.addNewDevice();
-    _settingsModel.deviceSettings(secondDeviceId)->setAdapterId(QStringLiteral("modbus"));
+    const deviceId_t secondDeviceId = DeviceListHelpers::seedNextDevice(&_settingsModel, QStringLiteral("modbus"));
     delete _pRegWidget;
     _pRegWidget = new AddRegisterWidget(&_settingsModel, _pMockHub);
 
@@ -386,8 +385,8 @@ void TestAddRegisterWidget::buildExpressionRoutedToSelectedDevice()
 void TestAddRegisterWidget::btnAddDisabledWhenSelectedDeviceAdapterUnavailable()
 {
     /* Bind a second device to an adapter id that is never registered in the mock hub */
-    const deviceId_t unavailableDeviceId = _settingsModel.addNewDevice();
-    _settingsModel.deviceSettings(unavailableDeviceId)->setAdapterId(QStringLiteral("unavailable"));
+    const deviceId_t unavailableDeviceId =
+      DeviceListHelpers::seedNextDevice(&_settingsModel, QStringLiteral("unavailable"));
     delete _pRegWidget;
     _pRegWidget = new AddRegisterWidget(&_settingsModel, _pMockHub);
 
@@ -414,8 +413,7 @@ void TestAddRegisterWidget::deviceComboRefreshesLiveOnDeviceAdded()
     _pMockSimAdapterManager = new MockAdapterManager(&_settingsModel, QStringLiteral("sim"));
     _pMockHub->addManager(QStringLiteral("sim"), _pMockSimAdapterManager);
 
-    const deviceId_t simDeviceId = _settingsModel.addNewDevice();
-    _settingsModel.deviceSettings(simDeviceId)->setAdapterId(QStringLiteral("sim"));
+    const deviceId_t simDeviceId = DeviceListHelpers::seedNextDevice(&_settingsModel, QStringLiteral("sim"));
 
     QCOMPARE(_pRegWidget->_pUi->cmbDevice->count(), 2);
     QCOMPARE(_pRegWidget->_pUi->cmbDevice->itemText(1), QString("Device %1").arg(simDeviceId));
@@ -432,13 +430,13 @@ void TestAddRegisterWidget::deviceAddedToEmptyListAppliesConfiguredAdapter()
 
     /* Start from an empty device list, so the device added below becomes the selected one
      * and the combo refresh has to build its address form from the sim adapter. */
-    _settingsModel.removeAllDevice();
+    DeviceListHelpers::clearDevices(&_settingsModel);
     delete _pRegWidget;
     _pRegWidget = new AddRegisterWidget(&_settingsModel, _pMockHub);
     QCOMPARE(_pRegWidget->_pUi->cmbDevice->count(), 0);
 
     const deviceId_t simDeviceId = Device::cFirstDeviceId;
-    _settingsModel.addDevice(simDeviceId, QStringLiteral("sim"));
+    DeviceListHelpers::seedDevice(&_settingsModel, simDeviceId, QStringLiteral("sim"));
 
     /* The adapter must already be assigned when deviceListChanged() arrives: assigning it
      * afterwards left the widget showing Device's default ("modbus") adapter instead. */
@@ -452,7 +450,7 @@ void TestAddRegisterWidget::deviceAddedToEmptyListAppliesConfiguredAdapter()
 
 void TestAddRegisterWidget::deviceComboDisablesAddWhenLastDeviceRemoved()
 {
-    _settingsModel.removeDevice(Device::cFirstDeviceId);
+    DeviceListHelpers::dropDevice(&_settingsModel, Device::cFirstDeviceId);
 
     QCOMPARE(_pRegWidget->_pUi->cmbDevice->count(), 0);
     QVERIFY(!_pRegWidget->_pUi->btnAdd->isEnabled());

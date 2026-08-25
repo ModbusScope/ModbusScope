@@ -20,6 +20,7 @@ private slots:
     void dataLevel5Connection();
     void dataLevel5MixedMulti();
     void dataLevel4LegacyConnection();
+    void dataLevel4LegacyConnectionsWithoutConnectionIdCollide();
 
     void logSettings();
 

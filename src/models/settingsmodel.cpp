@@ -88,51 +88,24 @@ bool SettingsModel::absoluteTimes()
     return _bAbsoluteTimes;
 }
 
-deviceId_t SettingsModel::addNewDevice()
-{
-    deviceId_t newId = _devices.isEmpty() ? Device::cFirstDeviceId : static_cast<deviceId_t>(_devices.lastKey() + 1);
-
-    _devices[newId] = Device(newId);
-
-    emit deviceListChanged();
-    return newId;
-}
-
-/*! \brief Add a device to the model, unless it already exists.
+/*! \brief Replace the complete device list in a single step.
  *
- * The device is fully configured before deviceListChanged() is emitted, so observers
- * reading it from that signal (AddRegisterWidget rebuilds its address form there and
- * labels its combo box entries) never see a half-configured device.
- * \param devId      Identifier of the device to add.
- * \param adapterId  Adapter owning the device; empty keeps Device's default adapter.
- * \param name       Display name of the device; empty keeps Device's default name.
+ * Intended for callers that already know the full intended device list — the Settings
+ * dialog's accept path, a project file load, and adapter reconciliation. Applying the list
+ * atomically means observers of deviceListChanged() never see an intermediate state (e.g. a
+ * device briefly missing while being reassigned to a new owner), and renames or adapter
+ * reassignments are always signalled even though Device's own setters are plain field writes.
+ * Emits exactly one deviceListChanged(), and only when something actually changed.
+ * \param devices  The complete new device list, keyed by device ID.
  */
-void SettingsModel::addDevice(deviceId_t devId, const QString& adapterId, const QString& name)
+void SettingsModel::applyDeviceList(const QMap<deviceId_t, Device>& devices)
 {
-    if (!_devices.contains(devId))
+    if (_devices == devices)
     {
-        _devices[devId] = Device(devId);
-        if (!adapterId.isEmpty())
-        {
-            _devices[devId].setAdapterId(adapterId);
-        }
-        if (!name.isEmpty())
-        {
-            _devices[devId].setName(name);
-        }
-        emit deviceListChanged();
+        return;
     }
-}
 
-void SettingsModel::removeDevice(deviceId_t devId)
-{
-    _devices.remove(devId);
-    emit deviceListChanged();
-}
-
-void SettingsModel::removeAllDevice()
-{
-    _devices.clear();
+    _devices = devices;
     emit deviceListChanged();
 }
 
@@ -347,6 +320,8 @@ void SettingsModel::updateAdapterFromDescribe(const QString& adapterId, const QJ
  * Deliberately does not remove devices no adapter currently declares — that pruning is only safe
  * once every relevant adapter's config is known, whereas this runs incrementally as each adapter
  * describes and must not delete devices belonging to adapters that simply haven't described yet.
+ * That rule is expressed by seeding the target map from the current device list, and the whole
+ * pass is applied as a single applyDeviceList() call, so observers see one coherent change.
  */
 void SettingsModel::reconcileDevicesWithAdapters()
 {
@@ -384,8 +359,8 @@ void SettingsModel::reconcileDevicesWithAdapters()
     }
     orderedAdapterIds.append(unconfiguredAdapterIds);
 
+    QMap<deviceId_t, Device> reconciledDevices = _devices;
     QSet<deviceId_t> seenDeviceIds;
-    bool ownerChanged = false;
     for (const auto& adapterId : orderedAdapterIds)
     {
         const QJsonArray devices = _adapters.value(adapterId).effectiveConfig().value("devices").toArray();
@@ -400,30 +375,26 @@ void SettingsModel::reconcileDevicesWithAdapters()
             const deviceId_t devId = static_cast<deviceId_t>(id);
             if (seenDeviceIds.contains(devId))
             {
+                /* Across adapters this is the ownership tie-break described above. Within a single
+                 * adapter's own list a repeated id is a genuine no-op: the id is already assigned to
+                 * that same adapter, so reassigning it below would just write back the adapter it
+                 * already has. That case is reachable from a legacy project file, but it is
+                 * deliberately not reported here - this method re-runs on every describe, including
+                 * reconnects, so a warning would repeat for as long as the adapter keeps advertising
+                 * the duplicate. ProjectFileHandler::applyDeviceSettings() reports it once, at load. */
                 continue;
             }
             seenDeviceIds.insert(devId);
 
-            const bool alreadyKnownDevice = _devices.contains(devId);
-            addDevice(devId, adapterId);
-            if (deviceSettings(devId)->adapterId() != adapterId)
+            if (!reconciledDevices.contains(devId))
             {
-                deviceSettings(devId)->setAdapterId(adapterId);
-                if (alreadyKnownDevice)
-                {
-                    /* addDevice() only emits deviceListChanged() for brand-new devices; an
-                     * already-known device silently changing owner needs its own notification,
-                     * deferred until the end so a pass reassigning several devices only emits once. */
-                    ownerChanged = true;
-                }
+                reconciledDevices.insert(devId, Device(devId));
             }
+            reconciledDevices[devId].setAdapterId(adapterId);
         }
     }
 
-    if (ownerChanged)
-    {
-        emit deviceListChanged();
-    }
+    applyDeviceList(reconciledDevices);
 }
 
 bool SettingsModel::hasDevice(deviceId_t devId) const

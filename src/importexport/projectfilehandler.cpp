@@ -1,6 +1,7 @@
 
 #include "projectfilehandler.h"
 
+#include "ProtocolAdapter/adapterhub.h"
 #include "importexport/legacy/projectfilexmlparser.h"
 #include "importexport/projectfiledata.h"
 #include "importexport/projectfilejsonexporter.h"
@@ -11,10 +12,12 @@
 #include "models/guimodel.h"
 #include "models/settingsmodel.h"
 #include "util/fileselectionhelper.h"
+#include "util/scopelogging.h"
 #include "util/util.h"
 
 #include <QFile>
 #include <QFileDialog>
+#include <QMap>
 
 #include <utility>
 
@@ -61,7 +64,6 @@ void ProjectFileHandler::openProjectFile(QString projectFilePath)
         if (parseErr.result())
         {
             _storedAdapters = loadedSettings.general.adapterList;
-            _storedDevices = loadedSettings.general.deviceSettings;
 
             this->updateProjectSetting(&loadedSettings);
 
@@ -285,14 +287,21 @@ void ProjectFileHandler::applyViewSettings(const ProjectFileData::ViewSettings& 
     }
 }
 
+/*! \brief Replace the model's device list with the devices parsed from the project file.
+ *
+ * The whole list is applied at once, so a load emits deviceListChanged() a single time
+ * instead of once per device with the model briefly empty in between.
+ *
+ * A project file may name the same device ID more than once (e.g. a legacy XML file with two
+ * <connection> tags that both default to id 0). Such a duplicate is merged rather than rejected,
+ * field by field in file order: a later entry overrides only the fields it actually specifies,
+ * so a missing name or adapter type keeps the value an earlier entry gave the device.
+ * \param deviceSettings  The devices section of the project file. An empty list clears the
+ * model's device list; entries without a device ID are skipped.
+ */
 void ProjectFileHandler::applyDeviceSettings(const QList<ProjectFileData::DeviceSettings>& deviceSettings)
 {
-    _pSettingsModel->removeAllDevice();
-
-    if (deviceSettings.isEmpty())
-    {
-        return;
-    }
+    QMap<deviceId_t, Device> devices;
 
     for (const ProjectFileData::DeviceSettings& devSettings : deviceSettings)
     {
@@ -301,20 +310,36 @@ void ProjectFileHandler::applyDeviceSettings(const QList<ProjectFileData::Device
             continue;
         }
 
-        const QString adapterId = devSettings.adapterType.isEmpty() ? QString("modbus") : devSettings.adapterType;
-        const QString deviceName = devSettings.bName ? devSettings.name : QString();
+        const deviceId_t devId = devSettings.deviceId;
+        if (devices.contains(devId))
+        {
+            qCWarning(scopeGeneralInfo) << qUtf8Printable(
+              QString("ProjectFileHandler: duplicate device id %1 in project file - later entries "
+                      "override the fields they specify")
+                .arg(devId));
+        }
+        else
+        {
+            /* Set the fallback explicitly rather than leaning on Device's own default, so the
+               adapter a file-loaded device falls back to is decided here and stays put if that
+               default ever changes. */
+            Device newDevice(devId);
+            newDevice.setAdapterId(QString(cModbusAdapterId));
+            devices.insert(devId, newDevice);
+        }
 
-        _pSettingsModel->addDevice(devSettings.deviceId, adapterId, deviceName);
-
-        /* addDevice() applied both to a new device already; repeat them so a project file
-           listing the same device id twice keeps its last entry's settings, as before. */
-        Device* pDev = _pSettingsModel->deviceSettings(devSettings.deviceId);
+        Device& device = devices[devId];
         if (devSettings.bName)
         {
-            pDev->setName(devSettings.name);
+            device.setName(devSettings.name);
         }
-        pDev->setAdapterId(adapterId);
+        if (!devSettings.adapterType.isEmpty())
+        {
+            device.setAdapterId(devSettings.adapterType);
+        }
     }
+
+    _pSettingsModel->applyDeviceList(devices);
 }
 
 void ProjectFileHandler::applyGraphData(const ProjectFileData::ScopeSettings& scopeSettings)

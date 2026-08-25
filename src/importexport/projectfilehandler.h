@@ -48,7 +48,6 @@ private:
     GraphDataModel* _pGraphDataModel;
 
     QList<ProjectFileData::AdapterFileSettings> _storedAdapters;
-    QList<ProjectFileData::DeviceSettings> _storedDevices;
 };
 
 #endif // PROJECTFILEHANDLER_H

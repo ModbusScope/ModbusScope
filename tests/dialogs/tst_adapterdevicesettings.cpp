@@ -1,5 +1,6 @@
 #include "tst_adapterdevicesettings.h"
 
+#include "../models/devicelisthelpers.h"
 #include "customwidgets/addabletabwidget.h"
 #include "customwidgets/deviceconfigtab.h"
 #include "dialogs/adapterdevicesettings.h"
@@ -164,8 +165,7 @@ void TestAdapterDeviceSettings::deviceModelNameUsedAsTabTitle()
 
     setupAdapter(model, "adapterA", QJsonArray{ dev });
 
-    model.addDevice(1);
-    model.deviceSettings(1)->setName("Pump");
+    DeviceListHelpers::seedDevice(&model, 1, QString(), QStringLiteral("Pump"));
 
     AdapterDeviceSettings w(&model);
 
@@ -178,7 +178,7 @@ void TestAdapterDeviceSettings::missingNameFallsBackToDeviceN()
 {
     SettingsModel model;
 
-    // Device with no "id" field — id defaults to -1, no Device lookup possible
+    // Device with no "id" field — id defaults to -1, so it cannot be named from the device list
     setupAdapter(model, "adapterA", QJsonArray{ QJsonObject() });
 
     AdapterDeviceSettings w(&model);
@@ -189,7 +189,8 @@ void TestAdapterDeviceSettings::missingNameFallsBackToDeviceN()
     {
         return;
     }
-    QVERIFY(tabs->tabText(0).startsWith("Device"));
+    QCOMPARE(tabs->count(), 1);
+    QCOMPARE(tabs->tabText(0), QStringLiteral("Device"));
 }
 
 void TestAdapterDeviceSettings::acceptValuesSavesToAdapterConfig()
@@ -224,8 +225,7 @@ void TestAdapterDeviceSettings::acceptValuesSavesDeviceNameToModel()
     dev["id"] = 1;
     setupAdapter(model, "adapterA", QJsonArray{ dev });
 
-    model.addDevice(1);
-    model.deviceSettings(1)->setName("Old Name");
+    DeviceListHelpers::seedDevice(&model, 1, QString(), QStringLiteral("Old Name"));
 
     AdapterDeviceSettings w(&model);
 
@@ -269,12 +269,15 @@ void TestAdapterDeviceSettings::addTabUsesDeviceDefaults()
 
     auto* tabs = w.findChild<AddableTabWidget*>();
     QVERIFY(tabs != nullptr);
-    QCOMPARE(tabs->count(), 0);
+    // Device 5 was registered when the adapter described its default device, before the empty
+    // stored config replaced it. The config no longer declares it, but it is shown rather than
+    // dropped. (Device 1 is owned by "modbus", which never described here, so it has no tab.)
+    QCOMPARE(tabs->count(), 1);
 
     emit tabs->addTabRequested();
 
-    QCOMPARE(tabs->count(), 1);
-    auto* tab = qobject_cast<DeviceConfigTab*>(tabs->tabContent(0));
+    QCOMPARE(tabs->count(), 2);
+    auto* tab = qobject_cast<DeviceConfigTab*>(tabs->tabContent(1));
     QVERIFY(tab != nullptr);
 
     auto* spin = tab->findChild<QSpinBox*>();
@@ -282,6 +285,9 @@ void TestAdapterDeviceSettings::addTabUsesDeviceDefaults()
     // The adapter default id (5) must be overridden with a unique SettingsModel id.
     const int assignedId = spin->value();
     QVERIFY(assignedId != 5);
+
+    w.acceptValues();
+
     QVERIFY(model.hasDevice(static_cast<deviceId_t>(assignedId)));
     QCOMPARE(model.deviceSettings(static_cast<deviceId_t>(assignedId))->adapterId(), QStringLiteral("adapterA"));
 }
@@ -312,6 +318,8 @@ void TestAdapterDeviceSettings::addTabIncrementsDeviceId()
 
     QVERIFY(id0 >= 1);
     QVERIFY(id1 > id0);
+
+    w.acceptValues();
 
     // Both ids must be present in the SettingsModel and linked to the adapter.
     QVERIFY(model.hasDevice(static_cast<deviceId_t>(id0)));
@@ -349,10 +357,14 @@ void TestAdapterDeviceSettings::deviceIdPreservedWhenAdapterChanged()
 
     // The device ID must be preserved across the adapter switch
     QCOMPARE(tab->values().value("id").toInt(-1), originalId);
-    // The device must still exist in the model
-    QVERIFY(model.hasDevice(static_cast<deviceId_t>(originalId)));
     // The tab must now report the new adapter
     QCOMPARE(tab->adapterId(), QStringLiteral("adapterB"));
+
+    w.acceptValues();
+
+    // The device keeps its ID once the edits are applied, now owned by the new adapter
+    QVERIFY(model.hasDevice(static_cast<deviceId_t>(originalId)));
+    QCOMPARE(model.deviceSettings(static_cast<deviceId_t>(originalId))->adapterId(), QStringLiteral("adapterB"));
 }
 
 void TestAdapterDeviceSettings::deviceNamePersistedAfterAcceptAndReopen()
@@ -410,9 +422,8 @@ void TestAdapterDeviceSettings::addTabDoesNotReuseIdFromAdapterConfig()
 {
     SettingsModel model;
 
-    // Use id=2: SettingsModel pre-populates device 1 (cFirstDeviceId), so the
-    // first free slot found by addNewDevice() would be 2 — colliding with this tab
-    // unless the constructor registers it first.
+    // Use id=2: SettingsModel pre-populates device 1 (cFirstDeviceId), so a naive "first free
+    // slot" rule would pick 2 — colliding with this tab unless the constructor registers it first.
     QJsonObject dev;
     dev["id"] = 2;
     setupAdapter(model, "adapterA", QJsonArray{ dev });
@@ -435,6 +446,8 @@ void TestAdapterDeviceSettings::addTabDoesNotReuseIdFromAdapterConfig()
     const int assignedId = tab->values().value("id").toInt(-1);
     QVERIFY(assignedId != 2);
     QCOMPARE(assignedId, 3);
+
+    w.acceptValues();
     QVERIFY(model.hasDevice(static_cast<deviceId_t>(assignedId)));
 }
 
@@ -465,10 +478,12 @@ void TestAdapterDeviceSettings::addTabWithGapAssignsNextAfterMax()
 
     const int assignedId = tab->values().value("id").toInt(-1);
     QCOMPARE(assignedId, 4);
+
+    w.acceptValues();
     QVERIFY(model.hasDevice(static_cast<deviceId_t>(assignedId)));
 }
 
-void TestAdapterDeviceSettings::closeTabRemovesDeviceFromModel()
+void TestAdapterDeviceSettings::closeTabRemovesDeviceFromModelOnAccept()
 {
     SettingsModel model;
 
@@ -487,11 +502,17 @@ void TestAdapterDeviceSettings::closeTabRemovesDeviceFromModel()
 
     tabs->handleCloseTab(0);
 
+    // Closing a tab only removes it from the working copy.
+    QVERIFY(model.hasDevice(1));
+    QVERIFY(model.hasDevice(2));
+
+    w.acceptValues();
+
     QVERIFY(!model.hasDevice(1));
     QVERIFY(model.hasDevice(2));
 }
 
-void TestAdapterDeviceSettings::nameChangeUpdatesModelImmediately()
+void TestAdapterDeviceSettings::nameChangeDoesNotReachModelUntilAccept()
 {
     SettingsModel model;
 
@@ -507,14 +528,22 @@ void TestAdapterDeviceSettings::nameChangeUpdatesModelImmediately()
     auto* tab = qobject_cast<DeviceConfigTab*>(tabs->tabContent(0));
     QVERIFY(tab != nullptr);
 
+    const QString originalName = model.deviceSettings(1)->name();
+
     auto* nameEdit = tab->findChild<QLineEdit*>(QString(), Qt::FindDirectChildrenOnly);
     QVERIFY(nameEdit != nullptr);
     nameEdit->setText("Live Name");
 
+    // The rename is held in the tab, so cancelling the dialog would discard it.
+    QCOMPARE(model.deviceSettings(1)->name(), originalName);
+    QCOMPARE(tabs->tabText(0), QStringLiteral("Live Name"));
+
+    w.acceptValues();
+
     QCOMPARE(model.deviceSettings(1)->name(), QStringLiteral("Live Name"));
 }
 
-void TestAdapterDeviceSettings::adapterChangeUpdatesModelImmediately()
+void TestAdapterDeviceSettings::adapterChangeDoesNotReachModelUntilAccept()
 {
     SettingsModel model;
     setupAdapter(model, "adapterA", QJsonArray());
@@ -531,7 +560,7 @@ void TestAdapterDeviceSettings::adapterChangeUpdatesModelImmediately()
 
     const int devId = tab->values().value("id").toInt(-1);
     QVERIFY(devId >= 1);
-    QCOMPARE(model.deviceSettings(static_cast<deviceId_t>(devId))->adapterId(), QStringLiteral("adapterA"));
+    const QString originalAdapterId = model.deviceSettings(static_cast<deviceId_t>(devId))->adapterId();
 
     auto* adapterCombo = tab->findChild<QComboBox*>();
     QVERIFY(adapterCombo != nullptr);
@@ -539,7 +568,207 @@ void TestAdapterDeviceSettings::adapterChangeUpdatesModelImmediately()
     QVERIFY(adapterBIdx >= 0);
     adapterCombo->setCurrentIndex(adapterBIdx);
 
+    // The reassignment is held in the tab, so cancelling the dialog would discard it.
+    QCOMPARE(model.deviceSettings(static_cast<deviceId_t>(devId))->adapterId(), originalAdapterId);
+
+    w.acceptValues();
+
     QCOMPARE(model.deviceSettings(static_cast<deviceId_t>(devId))->adapterId(), QStringLiteral("adapterB"));
+}
+
+void TestAdapterDeviceSettings::cancelDiscardsDeviceListEdits()
+{
+    SettingsModel model;
+
+    QJsonObject dev1;
+    dev1["id"] = 1;
+    QJsonObject dev2;
+    dev2["id"] = 2;
+    setupAdapter(model, "adapterA", QJsonArray{ dev1, dev2 });
+
+    QList<deviceId_t> devicesBefore;
+    {
+        AdapterDeviceSettings w(&model);
+
+        /* Snapshot after construction: reconciling the adapter's declared devices into the
+         * model is not an edit. The add and close below are, and must not survive. */
+        devicesBefore = model.deviceList();
+        QCOMPARE(devicesBefore.size(), 2);
+
+        auto* tabs = w.findChild<AddableTabWidget*>();
+        QVERIFY(tabs != nullptr);
+
+        emit tabs->addTabRequested();
+        tabs->handleCloseTab(0);
+
+        // w destroyed without acceptValues()
+    }
+
+    QCOMPARE(model.deviceList(), devicesBefore);
+}
+
+void TestAdapterDeviceSettings::cancelDiscardsDeviceFieldEdits()
+{
+    SettingsModel model;
+
+    QJsonObject dev;
+    dev["id"] = 1;
+    setupAdapter(model, "adapterA", QJsonArray{ dev });
+    setupAdapter(model, "adapterB", QJsonArray());
+
+    model.deviceSettings(1)->setName("Pump");
+    const QString adapterBefore = model.deviceSettings(1)->adapterId();
+
+    {
+        AdapterDeviceSettings w(&model);
+
+        auto* tabs = w.findChild<AddableTabWidget*>();
+        QVERIFY(tabs != nullptr);
+        auto* tab = qobject_cast<DeviceConfigTab*>(tabs->tabContent(0));
+        QVERIFY(tab != nullptr);
+
+        auto* nameEdit = tab->findChild<QLineEdit*>(QString(), Qt::FindDirectChildrenOnly);
+        QVERIFY(nameEdit != nullptr);
+        nameEdit->setText("Renamed");
+
+        auto* adapterCombo = tab->findChild<QComboBox*>();
+        QVERIFY(adapterCombo != nullptr);
+        adapterCombo->setCurrentIndex(adapterCombo->findData(QStringLiteral("adapterB")));
+
+        // w destroyed without acceptValues()
+    }
+
+    QCOMPARE(model.deviceSettings(1)->name(), QStringLiteral("Pump"));
+    QCOMPARE(model.deviceSettings(1)->adapterId(), adapterBefore);
+}
+
+void TestAdapterDeviceSettings::openingDialogKeepsDeviceNoAdapterDeclares()
+{
+    SettingsModel model;
+
+    QJsonObject dev;
+    dev["id"] = 1;
+    setupAdapter(model, "adapterA", QJsonArray{ dev });
+
+    // Device 3 exists in the device list, owned by a described adapter whose config does not
+    // declare it — as after loading an older or hand-edited project file. Opening the dialog
+    // must not delete it.
+    DeviceListHelpers::seedDevice(&model, 3, QStringLiteral("adapterA"), QStringLiteral("Orphan"));
+
+    AdapterDeviceSettings w(&model);
+
+    QVERIFY(model.hasDevice(3));
+
+    auto* tabs = w.findChild<AddableTabWidget*>();
+    QVERIFY(tabs != nullptr);
+    QCOMPARE(tabs->count(), 2);
+    QCOMPARE(tabs->tabText(1), QStringLiteral("Orphan"));
+
+    // Accepting writes it into its owning adapter's config, repairing the inconsistency.
+    w.acceptValues();
+
+    QVERIFY(model.hasDevice(3));
+    QCOMPARE(model.adapterData("adapterA")->currentConfig().value("devices").toArray().size(), 2);
+}
+
+void TestAdapterDeviceSettings::openingDialogKeepsDevicesOfUndescribedAdapter()
+{
+    SettingsModel model;
+
+    QJsonObject dev1;
+    dev1["id"] = 1;
+    setupAdapter(model, "adapterA", QJsonArray{ dev1 });
+
+    /* "later" has a stored config from a project file but has not described yet, so it has no
+     * schema to build a device form from. Device 7 must therefore get no tab — rendering it
+     * under adapterA would reassign it and reset its fields on accept — and must survive both
+     * opening and accepting the dialog untouched. */
+    QJsonObject dev7;
+    dev7["id"] = 7;
+    QJsonObject config;
+    config["devices"] = QJsonArray{ dev7 };
+    model.setAdapterCurrentConfig("later", config);
+    DeviceListHelpers::seedDevice(&model, 7, QStringLiteral("later"), QStringLiteral("Remote"));
+
+    AdapterDeviceSettings w(&model);
+
+    auto* tabs = w.findChild<AddableTabWidget*>();
+    QVERIFY(tabs != nullptr);
+    QCOMPARE(tabs->count(), 1);
+
+    w.acceptValues();
+
+    QVERIFY(model.hasDevice(7));
+    QCOMPARE(model.deviceSettings(7)->name(), QStringLiteral("Remote"));
+    QCOMPARE(model.deviceSettings(7)->adapterId(), QStringLiteral("later"));
+
+    // The undescribed adapter's own stored config must be left alone too.
+    QCOMPARE(model.adapterData("later")->currentConfig().value("devices").toArray().size(), 1);
+}
+
+void TestAdapterDeviceSettings::adapterDescribingWhileOpenIsNotOverwrittenOnAccept()
+{
+    SettingsModel model;
+
+    QJsonObject dev1;
+    dev1["id"] = 1;
+    setupAdapter(model, "adapterA", QJsonArray{ dev1 });
+
+    // "later" has a stored config declaring device 7 but has not described yet.
+    QJsonObject dev7;
+    dev7["id"] = 7;
+    QJsonObject config;
+    config["devices"] = QJsonArray{ dev7 };
+    model.setAdapterCurrentConfig("later", config);
+    DeviceListHelpers::seedDevice(&model, 7, QStringLiteral("later"), QStringLiteral("Remote"));
+
+    AdapterDeviceSettings w(&model);
+
+    auto* tabs = w.findChild<AddableTabWidget*>();
+    QVERIFY(tabs != nullptr);
+    QCOMPARE(tabs->count(), 1);
+
+    /* The dialog keeps the event loop running, so an adapter's describe response can land
+     * while it is open. "later" becomes a valid adapter, but this page never built a tab for
+     * it — accepting must not write an empty devices array over the config it just brought in.
+     */
+    model.updateAdapterFromDescribe("later", makeAdapterDescribe("later"));
+    QVERIFY(!model.adapterData("later")->schema().isEmpty());
+
+    w.acceptValues();
+
+    QCOMPARE(model.adapterData("later")->currentConfig().value("devices").toArray().size(), 1);
+    QVERIFY(model.hasDevice(7));
+    QCOMPARE(model.deviceSettings(7)->name(), QStringLiteral("Remote"));
+    QCOMPARE(model.deviceSettings(7)->adapterId(), QStringLiteral("later"));
+}
+
+void TestAdapterDeviceSettings::acceptEmitsDeviceListChangedOnce()
+{
+    SettingsModel model;
+
+    QJsonObject dev1;
+    dev1["id"] = 1;
+    QJsonObject dev2;
+    dev2["id"] = 2;
+    setupAdapter(model, "adapterA", QJsonArray{ dev1, dev2 });
+
+    AdapterDeviceSettings w(&model);
+
+    auto* tabs = w.findChild<AddableTabWidget*>();
+    QVERIFY(tabs != nullptr);
+
+    emit tabs->addTabRequested();
+    tabs->handleCloseTab(0);
+
+    QSignalSpy spy(&model, &SettingsModel::deviceListChanged);
+    w.acceptValues();
+
+    // One add plus one remove must reach observers as a single coherent change.
+    QCOMPARE(spy.count(), 1);
+    QVERIFY(!model.hasDevice(1));
+    QVERIFY(model.hasDevice(2));
+    QVERIFY(model.hasDevice(3));
 }
 
 void TestAdapterDeviceSettings::multipleAdaptersWithDevices()
@@ -612,6 +841,8 @@ void TestAdapterDeviceSettings::cancelAndReopenDoesNotLeakDeviceIds()
     dev1["id"] = 1;
     setupAdapter(model, "adapterA", QJsonArray{ dev1 });
 
+    const QList<deviceId_t> devicesBefore = model.deviceList();
+
     // First session: add a device then destroy without accepting (simulate cancel)
     {
         AdapterDeviceSettings w(&model);
@@ -620,10 +851,12 @@ void TestAdapterDeviceSettings::cancelAndReopenDoesNotLeakDeviceIds()
         QVERIFY(tabs != nullptr);
         QCOMPARE(tabs->count(), 1);
 
-        emit tabs->addTabRequested(); // addNewDevice() → ID 2; leaks into model on cancel
+        emit tabs->addTabRequested(); // ID 2, held in the new tab only
         QCOMPARE(tabs->count(), 2);
-        // w destroyed without acceptValues() — leaked device 2 remains in model
+        // w destroyed without acceptValues() — device 2 never reaches the model
     }
+
+    QCOMPARE(model.deviceList(), devicesBefore);
 
     // Second session: config still has only device 1
     {
@@ -666,6 +899,39 @@ void TestAdapterDeviceSettings::twoAdaptersWithSameDefaultDeviceIdShowsSingleTab
 
     QCOMPARE(model.deviceList().size(), 1);
     QVERIFY(model.hasDevice(1));
+}
+
+/*!
+ * \brief One adapter listing the same device id twice yields a single tab and a single device.
+ *
+ * reconcileDevicesWithAdapters() skips an id it has already seen. Across adapters that skip is
+ * the ownership tie-break; within one adapter's own list it is a no-op, since the id is already
+ * assigned to that same adapter. This pins that no-op so the skip is not mistaken for dead code.
+ */
+void TestAdapterDeviceSettings::adapterDeclaringSameDeviceIdTwiceShowsSingleTab()
+{
+    SettingsModel model;
+
+    QJsonObject dev;
+    dev["id"] = 2;
+    setupAdapter(model, "adapterB", QJsonArray{ dev, dev });
+
+    AdapterDeviceSettings w(&model);
+
+    auto* tabs = w.findChild<AddableTabWidget*>();
+    QVERIFY(tabs != nullptr);
+    QCOMPARE(tabs->count(), 1);
+
+    auto* tab = qobject_cast<DeviceConfigTab*>(tabs->tabContent(0));
+    QVERIFY(tab != nullptr);
+    QCOMPARE(tab->values().value("id").toInt(-1), 2);
+    QCOMPARE(tab->adapterId(), QStringLiteral("adapterB"));
+
+    /* Device 1 is the one SettingsModel's constructor creates; the adapter's two entries add
+       device 2 exactly once, so the repeat produced no second device and no second tab. */
+    QCOMPARE(model.deviceList().size(), 2);
+    QVERIFY(model.hasDevice(2));
+    QCOMPARE(model.deviceSettings(2)->adapterId(), QStringLiteral("adapterB"));
 }
 
 void TestAdapterDeviceSettings::existingDeviceAdapterIdMatchesConfigOnOpen()
@@ -792,8 +1058,8 @@ void TestAdapterDeviceSettings::reassigningExistingDeviceOwnerEmitsDeviceListCha
 
     // adapterA reconnects and redescribes, re-running reconciliation: adapterB's stored
     // config now wins the tie over adapterA's still-untouched defaults. Device 1 already
-    // existed in the model, so addDevice() alone won't emit — reconciliation must emit
-    // deviceListChanged() itself when it silently reassigns an already-known device's owner.
+    // existed, so nothing is added or removed — only its owner changes, and that alone
+    // must reach observers.
     model.updateAdapterFromDescribe("adapterA", makeAdapterDescribeWithDefaultDevice("adapterA", 1));
 
     QCOMPARE(model.deviceSettings(1)->adapterId(), QStringLiteral("adapterB"));
@@ -911,14 +1177,12 @@ void TestAdapterDeviceSettings::invalidIdTabSortsAfterValidIntMaxIdTab()
 {
     SettingsModel model;
 
-    // adapterA is alphabetically first, so its tab is built before adapterB's. Its device
-    // has no "id" field, giving it the invalid-ID sentinel used by sortPagesByDeviceId().
+    // adapterA is alphabetically first, so it is walked before adapterB. Its device has no
+    // "id" field, so it cannot be held in the device list and gets its tab appended last.
     setupAdapter(model, "adapterA", QJsonArray{ QJsonObject() });
 
-    // adapterB's device has the largest valid ID an int can hold. A sentinel that collides
-    // with INT_MAX (rather than one strictly wider than int) would tie with the invalid tab
-    // above and let std::stable_sort keep the invalid tab first, violating the documented
-    // invalid-ID-last rule.
+    // adapterB's device has the largest valid ID an int can hold. Every valid device — even
+    // one at INT_MAX — must still come ahead of the entry that has no ID at all.
     QJsonObject devB;
     devB["id"] = INT_MAX;
     setupAdapter(model, "adapterB", QJsonArray{ devB });
@@ -933,8 +1197,8 @@ void TestAdapterDeviceSettings::invalidIdTabSortsAfterValidIntMaxIdTab()
     QVERIFY(tab0 != nullptr);
     QVERIFY(tab1 != nullptr);
 
-    QCOMPARE(tab0->deviceId(), INT_MAX); // valid ID, even at INT_MAX, must sort first
-    QCOMPARE(tab1->deviceId(), -1);      // invalid ID must sort last
+    QCOMPARE(tab0->deviceId(), INT_MAX); // valid ID, even at INT_MAX, must come first
+    QCOMPARE(tab1->deviceId(), -1);      // invalid ID must come last
 }
 
 void TestAdapterDeviceSettings::invalidIdTabValuesOmitFabricatedId()
@@ -968,12 +1232,13 @@ void TestAdapterDeviceSettings::addTabDefaultsToModbusEvenWhenNotFirstAlphabetic
     AdapterDeviceSettings w(&model);
     auto* tabs = w.findChild<AddableTabWidget*>();
     QVERIFY(tabs != nullptr);
-    QCOMPARE(tabs->count(), 0);
+    // Tab 0 is the pre-populated device 1; the added tab follows it.
+    QCOMPARE(tabs->count(), 1);
 
     emit tabs->addTabRequested();
 
-    QCOMPARE(tabs->count(), 1);
-    auto* tab = qobject_cast<DeviceConfigTab*>(tabs->tabContent(0));
+    QCOMPARE(tabs->count(), 2);
+    auto* tab = qobject_cast<DeviceConfigTab*>(tabs->tabContent(1));
     QVERIFY(tab != nullptr);
     QCOMPARE(tab->adapterId(), QStringLiteral("modbus"));
 }
@@ -1137,15 +1402,19 @@ void TestAdapterDeviceSettings::doesNotDropDevicesWhenAdapterConfigMatchesDevice
     model.updateAdapterFromDescribe("modbus", makeAdapterDescribeWithMaxItems("modbus", 2));
 
     QJsonArray deviceArray;
+    QMap<deviceId_t, Device> devices;
     for (int i = 1; i <= 5; ++i)
     {
         QJsonObject dev;
         dev["id"] = i;
         deviceArray.append(dev);
 
-        model.addDevice(static_cast<deviceId_t>(i));
-        model.deviceSettings(static_cast<deviceId_t>(i))->setAdapterId("modbus");
+        const auto devId = static_cast<deviceId_t>(i);
+        Device device(devId);
+        device.setAdapterId(QStringLiteral("modbus"));
+        devices.insert(devId, device);
     }
+    model.applyDeviceList(devices);
 
     QJsonObject config;
     config["general"] = QJsonObject();
