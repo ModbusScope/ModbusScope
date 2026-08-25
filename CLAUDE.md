@@ -77,6 +77,7 @@ Enforced by `.clang-format` (Mozilla-based, C++20):
 
 ## Key Conventions
 
+- Don't explain difference between previous and current code in comments.
 - Prefer readability and maintainability over using the latest C++ features (avoid syntax sugar that may be less familiar to new contributors).
 - Avoid lambda expressions with more than 2 captures or multiple statements; use named functions instead for clarity.
 - Document public functions with brief Doxygen comments in the **`.cpp` source file** (not the header); the header only carries the declaration.
