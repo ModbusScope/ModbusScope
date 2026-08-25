@@ -369,6 +369,8 @@ void SettingsModel::updateAdapterFromDescribe(const QString& adapterId, const QJ
  * Deliberately does not remove devices no adapter currently declares — that pruning is only safe
  * once every relevant adapter's config is known, whereas this runs incrementally as each adapter
  * describes and must not delete devices belonging to adapters that simply haven't described yet.
+ * That rule is expressed by seeding the target map from the current device list, and the whole
+ * pass is applied as a single applyDeviceList() call, so observers see one coherent change.
  */
 void SettingsModel::reconcileDevicesWithAdapters()
 {
@@ -406,8 +408,8 @@ void SettingsModel::reconcileDevicesWithAdapters()
     }
     orderedAdapterIds.append(unconfiguredAdapterIds);
 
+    QMap<deviceId_t, Device> reconciledDevices = _devices;
     QSet<deviceId_t> seenDeviceIds;
-    bool ownerChanged = false;
     for (const auto& adapterId : orderedAdapterIds)
     {
         const QJsonArray devices = _adapters.value(adapterId).effectiveConfig().value("devices").toArray();
@@ -424,36 +426,24 @@ void SettingsModel::reconcileDevicesWithAdapters()
             {
                 /* Across adapters this is the ownership tie-break described above. Within a single
                  * adapter's own list a repeated id is a genuine no-op: the id is already assigned to
-                 * that same adapter, so addDevice() would find the device present and setAdapterId()
-                 * would write back the adapter it already has. That case is reachable from a legacy
-                 * project file, but it is deliberately not reported here - this method re-runs on
-                 * every describe, including reconnects, so a warning would repeat for as long as the
-                 * adapter keeps advertising the duplicate. ProjectFileHandler::applyDeviceSettings()
-                 * reports it once, at load. */
+                 * that same adapter, so reassigning it below would just write back the adapter it
+                 * already has. That case is reachable from a legacy project file, but it is
+                 * deliberately not reported here - this method re-runs on every describe, including
+                 * reconnects, so a warning would repeat for as long as the adapter keeps advertising
+                 * the duplicate. ProjectFileHandler::applyDeviceSettings() reports it once, at load. */
                 continue;
             }
             seenDeviceIds.insert(devId);
 
-            const bool alreadyKnownDevice = _devices.contains(devId);
-            addDevice(devId, adapterId);
-            if (deviceSettings(devId)->adapterId() != adapterId)
+            if (!reconciledDevices.contains(devId))
             {
-                deviceSettings(devId)->setAdapterId(adapterId);
-                if (alreadyKnownDevice)
-                {
-                    /* addDevice() only emits deviceListChanged() for brand-new devices; an
-                     * already-known device silently changing owner needs its own notification,
-                     * deferred until the end so a pass reassigning several devices only emits once. */
-                    ownerChanged = true;
-                }
+                reconciledDevices.insert(devId, Device(devId));
             }
+            reconciledDevices[devId].setAdapterId(adapterId);
         }
     }
 
-    if (ownerChanged)
-    {
-        emit deviceListChanged();
-    }
+    applyDeviceList(reconciledDevices);
 }
 
 bool SettingsModel::hasDevice(deviceId_t devId) const

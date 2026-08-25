@@ -3,6 +3,8 @@
 #include "models/device.h"
 #include "models/settingsmodel.h"
 
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QMap>
 #include <QSignalSpy>
 #include <QTest>
@@ -16,6 +18,33 @@ Device makeDevice(deviceId_t devId, const QString& name, const QString& adapterI
     device.setName(name);
     device.setAdapterId(adapterId);
     return device;
+}
+
+/*! \brief Build a describe result declaring the given device IDs as untouched defaults.
+ *
+ * The schema only has to be non-empty: reconcileDevicesWithAdapters() skips adapters that
+ * have not published one, but never looks inside it.
+ */
+QJsonObject makeDescribeWithDefaultDevices(const QList<int>& deviceIds)
+{
+    QJsonArray devices;
+    for (const int id : deviceIds)
+    {
+        QJsonObject device;
+        device["id"] = id;
+        devices.append(device);
+    }
+
+    QJsonObject defaults;
+    defaults["devices"] = devices;
+
+    QJsonObject schema;
+    schema["type"] = "object";
+
+    QJsonObject describe;
+    describe["schema"] = schema;
+    describe["defaults"] = defaults;
+    return describe;
 }
 
 } // namespace
@@ -98,6 +127,69 @@ void TestSettingsModel::applyDeviceListEmptyClearsList()
 
     QVERIFY(model.deviceList().isEmpty());
     QCOMPARE(spy.count(), 1);
+}
+
+void TestSettingsModel::reconcileEmitsOnceWhenClaimingMultipleDevices()
+{
+    SettingsModel model;
+
+    QSignalSpy spy(&model, &SettingsModel::deviceListChanged);
+
+    /* Devices 5, 6 and 7 are new to the model and device 1 - the one SettingsModel's own
+     * constructor creates - moves off its "modbus" default. Four changes, one describe,
+     * one signal. */
+    model.updateAdapterFromDescribe("adapterA", makeDescribeWithDefaultDevices({ 1, 5, 6, 7 }));
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(model.deviceList(), QList<deviceId_t>({ 1, 5, 6, 7 }));
+    QCOMPARE(model.deviceSettings(5)->adapterId(), QStringLiteral("adapterA"));
+    QCOMPARE(model.deviceSettings(1)->adapterId(), QStringLiteral("adapterA"));
+}
+
+void TestSettingsModel::reconcileKeepsDeviceNoAdapterDeclares()
+{
+    SettingsModel model;
+
+    QMap<deviceId_t, Device> devices;
+    devices.insert(3, makeDevice(3, "Orphan", "adapterA"));
+    model.applyDeviceList(devices);
+
+    QSignalSpy spy(&model, &SettingsModel::deviceListChanged);
+
+    // adapterA declares device 1 only; device 3 is in no adapter's config and must survive.
+    model.updateAdapterFromDescribe("adapterA", makeDescribeWithDefaultDevices({ 1 }));
+
+    QVERIFY(model.hasDevice(3));
+    QCOMPARE(model.deviceSettings(3)->name(), QStringLiteral("Orphan"));
+    QCOMPARE(model.deviceSettings(3)->adapterId(), QStringLiteral("adapterA"));
+    QVERIFY(model.hasDevice(1));
+    QCOMPARE(spy.count(), 1);
+}
+
+void TestSettingsModel::reconcileKeepsNameWhenAdapterClaimsDevice()
+{
+    SettingsModel model;
+
+    QMap<deviceId_t, Device> devices;
+    devices.insert(1, makeDevice(1, "Pump", "modbus"));
+    model.applyDeviceList(devices);
+
+    // Claiming a device for another adapter changes its owner, never its name.
+    model.updateAdapterFromDescribe("adapterA", makeDescribeWithDefaultDevices({ 1 }));
+
+    QCOMPARE(model.deviceSettings(1)->adapterId(), QStringLiteral("adapterA"));
+    QCOMPARE(model.deviceSettings(1)->name(), QStringLiteral("Pump"));
+}
+
+void TestSettingsModel::reconcileIsSilentWhenNothingChanges()
+{
+    SettingsModel model;
+    model.updateAdapterFromDescribe("modbus", makeDescribeWithDefaultDevices({ 1 }));
+
+    QSignalSpy spy(&model, &SettingsModel::deviceListChanged);
+    model.reconcileDevicesWithAdapters();
+
+    QCOMPARE(spy.count(), 0);
 }
 
 QTEST_MAIN(TestSettingsModel)

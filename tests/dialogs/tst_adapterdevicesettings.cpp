@@ -1065,8 +1065,8 @@ void TestAdapterDeviceSettings::reassigningExistingDeviceOwnerEmitsDeviceListCha
 
     // adapterA reconnects and redescribes, re-running reconciliation: adapterB's stored
     // config now wins the tie over adapterA's still-untouched defaults. Device 1 already
-    // existed in the model, so addDevice() alone won't emit — reconciliation must emit
-    // deviceListChanged() itself when it silently reassigns an already-known device's owner.
+    // existed, so nothing is added or removed — only its owner changes, and that alone
+    // must reach observers.
     model.updateAdapterFromDescribe("adapterA", makeAdapterDescribeWithDefaultDevice("adapterA", 1));
 
     QCOMPARE(model.deviceSettings(1)->adapterId(), QStringLiteral("adapterB"));

@@ -13,6 +13,11 @@ private slots:
     void applyDeviceListIsSilentWhenNothingChanged();
     void applyDeviceListDetectsFieldOnlyChange();
     void applyDeviceListEmptyClearsList();
+
+    void reconcileEmitsOnceWhenClaimingMultipleDevices();
+    void reconcileKeepsDeviceNoAdapterDeclares();
+    void reconcileKeepsNameWhenAdapterClaimsDevice();
+    void reconcileIsSilentWhenNothingChanges();
 };
 
 #endif // TST_SETTINGSMODEL_H
