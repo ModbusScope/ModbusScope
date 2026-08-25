@@ -92,4 +92,19 @@ void TestExpressionStatus::afterRemoval_subsequentExpressionChange_setsCorrectSt
     QCOMPARE(_pGraphDataModel->expressionState(GraphIdx(0)), ExpressionState::SYNTAX_ERROR);
 }
 
+void TestExpressionStatus::deviceRemoved_revalidatesReferencingExpression()
+{
+    const deviceId_t secondDeviceId = _pSettingsModel->addNewDevice();
+
+    ExpressionStatus status(_pGraphDataModel, _pSettingsModel);
+
+    _pGraphDataModel->add();
+    _pGraphDataModel->setExpression(GraphIdx(0), QString("${40001@%1}").arg(secondDeviceId));
+    QCOMPARE(_pGraphDataModel->expressionState(GraphIdx(0)), ExpressionState::VALID);
+
+    _pSettingsModel->removeDevice(secondDeviceId);
+
+    QCOMPARE(_pGraphDataModel->expressionState(GraphIdx(0)), ExpressionState::UNKNOWN_DEVICE);
+}
+
 QTEST_GUILESS_MAIN(TestExpressionStatus)

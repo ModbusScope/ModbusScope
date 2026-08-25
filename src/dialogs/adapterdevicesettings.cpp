@@ -160,9 +160,9 @@ void AdapterDeviceSettings::sortPagesByDeviceId(QList<QWidget*>& pages, QStringL
 
 /*! \brief Add a new device tab with a unique, auto-incremented device ID.
  *
- * Creates a SettingsModel device via addNewDevice() to obtain a unique ID,
- * sets its adapter, then opens a new DeviceConfigTab pre-populated with
- * the adapter's default values and the assigned ID.
+ * Creates a SettingsModel device with its adapter already assigned, then opens
+ * a new DeviceConfigTab pre-populated with the adapter's default values and the
+ * assigned ID.
  */
 void AdapterDeviceSettings::handleAddTab()
 {
@@ -201,8 +201,7 @@ void AdapterDeviceSettings::handleAddTab()
         }
     }
     const deviceId_t newId = (maxId > 0) ? maxId + 1 : Device::cFirstDeviceId;
-    _pSettingsModel->addDevice(newId);
-    _pSettingsModel->deviceSettings(newId)->setAdapterId(defaultAdapterId);
+    _pSettingsModel->addDevice(newId, defaultAdapterId);
     defaultValues["id"] = static_cast<int>(newId);
 
     auto* tab = new DeviceConfigTab(_pSettingsModel, defaultAdapterId, defaultValues, _pDeviceTabs);

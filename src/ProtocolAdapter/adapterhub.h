@@ -18,9 +18,11 @@ class SettingsModel;
 /*!
  * \brief Owns and coordinates all discovered adapter managers.
  *
- * On initAdapter(), AdapterHub uses AdapterDiscovery to locate adapter binaries,
- * creates one AdapterManager per binary, and gates the adapterReady() and
- * sessionStarted() signals until all managers have reached the required state.
+ * On the first initAdapter() call, AdapterHub uses AdapterDiscovery to locate adapter
+ * binaries and creates one AdapterManager per binary. Every call, including the first,
+ * (re)starts only the managers currently idle - e.g. after one has crashed - and gates the
+ * adapterReady() and sessionStarted() signals until all managers have reached the required
+ * state.
  *
  * Virtual methods allow a mock subclass to be injected in unit tests via the
  * protected constructor.
@@ -42,7 +44,6 @@ public:
     virtual AdapterManager* adapterManager(const QString& id) const;
     virtual QStringList adapterIds() const;
     virtual bool isAdapterReady() const;
-    virtual bool isAdapterIdle() const;
 
 signals:
     void sessionStarted();

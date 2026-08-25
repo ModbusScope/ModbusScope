@@ -23,6 +23,7 @@ public:
 private slots:
     void handleResultReady(bool valid);
     void handleExpressionsChanged(GraphIdx graphIdx);
+    void handleDeviceListChanged();
 
 private:
     void verifyExpression(QString const& expression, QList<deviceId_t> const& deviceIdList);

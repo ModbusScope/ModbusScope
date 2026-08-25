@@ -53,6 +53,10 @@ public:
             emit adapterReady();
         }
     }
+    void initAdapter() override
+    {
+        _initAdapterCalls++;
+    }
 
     int readDataCalls() const
     {
@@ -61,6 +65,10 @@ public:
     int stopSessionCalls() const
     {
         return _stopSessionCalls;
+    }
+    int initAdapterCalls() const
+    {
+        return _initAdapterCalls;
     }
 
     void setEmitsAdapterReadySynchronouslyOnStop(bool emitsSynchronously)
@@ -72,6 +80,7 @@ private:
     FakeState _state;
     int _readDataCalls = 0;
     int _stopSessionCalls = 0;
+    int _initAdapterCalls = 0;
     bool _emitsAdapterReadySynchronouslyOnStop = false;
 };
 
@@ -278,6 +287,40 @@ void TestAdapterHub::stopSessionWaitsForAllAdaptersWhenOneStopsSynchronously()
     QCOMPARE(pAsynchronous->stopSessionCalls(), 1);
 
     emit pAsynchronous->adapterReady();
+    QCOMPARE(readySpy.count(), 1);
+}
+
+/*!
+ * \brief F13 regression test: a mixed idle/ready fleet must not deadlock the start path.
+ *
+ * Reproduces the exact scenario from the multi-device coherence audit: one adapter has
+ * crashed back to IDLE while a sibling is still AWAITING_CONFIG. Under the old fleet-wide
+ * isAdapterIdle()/isAdapterReady() predicates neither ever becomes true for this mix, so
+ * initAdapter() was never called and adapterReady() never fired. initAdapter() must instead
+ * restart only the idle manager and leave the ready one untouched, and the hub must still
+ * become ready once that one manager reports back.
+ */
+void TestAdapterHub::initAdapterReinitializesOnlyIdleManagers()
+{
+    AdapterHub hub;
+    auto* pIdle = new FakeAdapterManager(QStringLiteral("modbus"), FakeAdapterManager::FakeState::Idle, &hub);
+    auto* pReady =
+      new FakeAdapterManager(QStringLiteral("iec104"), FakeAdapterManager::FakeState::AwaitingConfig, &hub);
+    hub._adapterManagers.insert(QStringLiteral("modbus"), pIdle);
+    hub._adapterManagers.insert(QStringLiteral("iec104"), pReady);
+    hub.connectManager(pIdle, QStringLiteral("modbus"));
+    hub.connectManager(pReady, QStringLiteral("iec104"));
+
+    QSignalSpy readySpy(&hub, &AdapterHub::adapterReady);
+
+    hub.initAdapter();
+
+    QCOMPARE(pIdle->initAdapterCalls(), 1);
+    QCOMPARE(pReady->initAdapterCalls(), 0);
+
+    /* Only the previously-idle adapter needs to report back - the already-ready sibling was
+       never added to _pendingReadyAdapters, so it doesn't need to re-report. */
+    hub.onManagerAdapterReady(QStringLiteral("modbus"));
     QCOMPARE(readySpy.count(), 1);
 }
 

@@ -35,6 +35,7 @@ private slots:
     void handleResultAccept();
     void onBuildExpressionResult(const QString& expression);
     void onDeviceSelectionChanged(int index);
+    void refreshDeviceCombo();
 
 private:
     void resetFields();

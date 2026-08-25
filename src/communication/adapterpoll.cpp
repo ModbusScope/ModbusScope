@@ -72,11 +72,7 @@ void AdapterPoll::startCommunication(QList<DataPoint>& registerList)
             _adapterReadyConnection = connect(_pAdapterHub, &AdapterHub::adapterReady, this,
                                               &AdapterPoll::onAdapterReady, Qt::SingleShotConnection);
         }
-        if (_pAdapterHub->isAdapterIdle())
-        {
-            _pAdapterHub->initAdapter();
-        }
-        /* else: adapter is already initializing; onAdapterReady fires when it reaches AWAITING_CONFIG */
+        _pAdapterHub->initAdapter();
     }
 }
 

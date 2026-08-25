@@ -24,45 +24,60 @@ AdapterHub::AdapterHub(QObject* parent) : QObject(parent), _pSettingsModel(nullp
 {
 }
 
-/*! \brief Discover adapter binaries and start the initialization handshake for each.
+/*! \brief Ensure every discovered adapter has an initialization handshake in flight or complete.
  *
- * Uses AdapterDiscovery to locate binaries in the application directory, creates one
- * AdapterManager per binary, and calls initAdapter() on each. The hub's adapterReady()
- * signal is emitted only after all managers have reached AWAITING_CONFIG state.
+ * On the first call, uses AdapterDiscovery to locate adapter binaries in the application
+ * directory and creates one AdapterManager per binary. On every call, including the first,
+ * (re)starts the handshake only for managers currently in IDLE state; a manager that is already
+ * ready, mid-handshake, active, or degraded is left untouched.
+ *
+ * This makes the call idempotent and safe to repeat at any time - in particular, when one
+ * adapter has crashed back to IDLE while its siblings are unaffected, only the crashed one is
+ * restarted. The hub's adapterReady() signal still fires once every manager - old and newly
+ * restarted alike - is back in AWAITING_CONFIG.
  */
 void AdapterHub::initAdapter()
 {
-    qDeleteAll(_adapterManagers);
-    _adapterManagers.clear();
-    _pendingReadyAdapters.clear();
-    _pendingStartAdapters.clear();
-
-    const QList<AdapterInfo> discovered = AdapterDiscovery::discover(QCoreApplication::applicationDirPath());
-
-    if (discovered.isEmpty())
+    if (_adapterManagers.isEmpty())
     {
-        qCWarning(scopeComm) << "AdapterHub: no adapter binaries found in" << QCoreApplication::applicationDirPath();
-        emit sessionError(QStringLiteral("No adapter binaries found"));
-        return;
-    }
+        _pendingReadyAdapters.clear();
+        _pendingStartAdapters.clear();
 
-    for (const AdapterInfo& info : discovered)
-    {
-        if (_adapterManagers.contains(info.id))
+        const QList<AdapterInfo> discovered = AdapterDiscovery::discover(QCoreApplication::applicationDirPath());
+
+        if (discovered.isEmpty())
         {
-            qCWarning(scopeComm) << "AdapterHub: duplicate adapter id" << info.id << "for" << info.binaryPath
-                                 << "- skipping";
-            continue;
+            qCWarning(scopeComm) << "AdapterHub: no adapter binaries found in"
+                                 << QCoreApplication::applicationDirPath();
+            emit sessionError(QStringLiteral("No adapter binaries found"));
+            return;
         }
-        auto* mgr = new AdapterManager(info.id, info.binaryPath, _pSettingsModel, this);
-        _adapterManagers.insert(info.id, mgr);
-        connectManager(mgr, info.id);
+
+        for (const AdapterInfo& info : discovered)
+        {
+            if (_adapterManagers.contains(info.id))
+            {
+                qCWarning(scopeComm) << "AdapterHub: duplicate adapter id" << info.id << "for" << info.binaryPath
+                                     << "- skipping";
+                continue;
+            }
+            auto* mgr = new AdapterManager(info.id, info.binaryPath, _pSettingsModel, this);
+            _adapterManagers.insert(info.id, mgr);
+            connectManager(mgr, info.id);
+        }
     }
 
+    /* Single-pass loop is safe only because AdapterManager::initAdapter() is fully asynchronous
+       (it spawns a subprocess) and can never re-enter onManagerAdapterReady() synchronously from
+       within this loop, unlike stopSession()'s two-pass pattern below, which guards against a
+       degraded manager's synchronous adapterReady(). */
     for (auto it = _adapterManagers.constBegin(); it != _adapterManagers.constEnd(); ++it)
     {
-        _pendingReadyAdapters.insert(it.key());
-        it.value()->initAdapter();
+        if (it.value()->isAdapterIdle())
+        {
+            _pendingReadyAdapters.insert(it.key());
+            it.value()->initAdapter();
+        }
     }
 }
 
@@ -166,23 +181,6 @@ bool AdapterHub::isAdapterReady() const
     for (const AdapterManager* mgr : _adapterManagers)
     {
         if (!mgr->isAdapterReady())
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
-/*! \brief Returns true when all adapter managers are in IDLE state (no subprocess running). */
-bool AdapterHub::isAdapterIdle() const
-{
-    if (_adapterManagers.isEmpty())
-    {
-        return true;
-    }
-    for (const AdapterManager* mgr : _adapterManagers)
-    {
-        if (!mgr->isAdapterIdle())
         {
             return false;
         }

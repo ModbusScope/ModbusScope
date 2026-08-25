@@ -15,6 +15,7 @@ private slots:
     void stopSessionForceStopsMidHandshakeAdaptersWithoutWaiting();
     void stopSessionPurgesPendingStartForForceStoppedAdapters();
     void stopSessionWaitsForAllAdaptersWhenOneStopsSynchronously();
+    void initAdapterReinitializesOnlyIdleManagers();
 };
 
 #endif // TST_ADAPTERHUB_H
