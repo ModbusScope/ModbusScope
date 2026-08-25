@@ -28,12 +28,24 @@ RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel,
     _pGraphDataModel = pGraphDataModel;
     _pSettingsModel = pSettingsModel;
     _pAdapterHub = pAdapterHub;
-    _pDefaultExpressionManager = defaultExpressionManager();
+
+    const QList<deviceId_t> deviceIds = _pSettingsModel->deviceList();
+    initDefaultExpressionTarget(deviceIds);
 
     if (_pDefaultExpressionManager != nullptr)
     {
         connect(_pDefaultExpressionManager, &AdapterManager::sessionStarted, this,
                 &RegisterDialog::requestDefaultExpression);
+
+        /* sessionStarted() only fires once per session: if the adapter is already active, or
+         * already past adapter.describe and awaiting configuration (both states buildExpression()
+         * accepts, and the schema is already available in either), that emission has already
+         * happened and the connection above will never fire for it. Request the default
+         * expression directly for that case. */
+        if (_pDefaultExpressionManager->isAdapterActive() || _pDefaultExpressionManager->isAdapterReady())
+        {
+            requestDefaultExpression();
+        }
     }
 
     // Setup registerView
@@ -81,7 +93,7 @@ RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel,
     connect(_pUi->btnRemove, &QPushButton::released, this, &RegisterDialog::removeRegisterRow);
     connect(_pGraphDataModel, &GraphDataModel::rowsInserted, this, &RegisterDialog::onRegisterInserted);
 
-    if (!_pSettingsModel->deviceList().isEmpty())
+    if (!deviceIds.isEmpty())
     {
         auto registerPopupMenu = new AddRegisterWidget(_pSettingsModel, _pAdapterHub, this);
         connect(registerPopupMenu, &AddRegisterWidget::graphDataConfigured, this, &RegisterDialog::addRegister);
@@ -163,22 +175,24 @@ void RegisterDialog::handleExpressionEdit(const QModelIndex& index)
 }
 
 /*!
- * \brief Determine which adapter manager drives the default new-register expression.
+ * \brief Determine which device and adapter manager drive the default new-register expression.
  *
- * Uses the first configured device's adapter, consistent with AddRegisterWidget's
- * device-first selection.
- * \return Pointer to the manager, or nullptr when no devices are configured.
+ * Uses the first configured device and its adapter, consistent with AddRegisterWidget's
+ * device-first selection. Sets _pDefaultExpressionManager to nullptr when no devices are
+ * configured.
+ * \param deviceIds The currently configured device IDs, as returned by SettingsModel::deviceList().
  */
-AdapterManager* RegisterDialog::defaultExpressionManager() const
+void RegisterDialog::initDefaultExpressionTarget(const QList<deviceId_t>& deviceIds)
 {
-    const QList<deviceId_t> deviceIds = _pSettingsModel->deviceList();
     if (deviceIds.isEmpty())
     {
-        return nullptr;
+        _pDefaultExpressionManager = nullptr;
+        return;
     }
 
-    const QString adapterId = _pSettingsModel->adapterIdForDevice(deviceIds.first());
-    return _pAdapterHub->adapterManager(adapterId);
+    _defaultExpressionDeviceId = deviceIds.first();
+    const QString adapterId = _pSettingsModel->adapterIdForDevice(_defaultExpressionDeviceId);
+    _pDefaultExpressionManager = _pAdapterHub->adapterManager(adapterId);
 }
 
 int RegisterDialog::selectedRowAfterDelete(int deletedStartIndex, int rowCnt)
@@ -236,7 +250,7 @@ void RegisterDialog::requestDefaultExpression()
 
     QJsonObject addressFields = defaults;
     const QString dataType = addressFields.take(QStringLiteral("dataType")).toString();
-    _pDefaultExpressionManager->buildExpression(addressFields, dataType, 0);
+    _pDefaultExpressionManager->buildExpression(addressFields, dataType, _defaultExpressionDeviceId);
 }
 
 /*!
