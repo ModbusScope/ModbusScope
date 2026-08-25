@@ -221,6 +221,30 @@ void AddRegisterWidget::resizeContainingMenu()
 }
 
 /*!
+ * \brief Closes the enclosing popup menu, if any, after a register was successfully added.
+ *
+ * When hosted as a QWidgetAction's default widget inside a QToolButton's popup menu (as
+ * RegisterDialog does for btnAdd), clicking this widget's own "Add" button doesn't trigger
+ * the QWidgetAction itself, so QMenu never closes on its own. Close it explicitly so adding
+ * a register behaves like any other menu action.
+ *
+ * Only called from onBuildExpressionResult(), which runs on a later event loop turn than the
+ * "Add" button click that triggered the request (buildExpression() replies asynchronously over
+ * the adapter subprocess IPC channel) - closing the menu here never nests inside btnAdd's own
+ * click handling.
+ */
+void AddRegisterWidget::closeContainingMenu()
+{
+    auto* menu = qobject_cast<QMenu*>(window());
+    if (menu == nullptr)
+    {
+        return;
+    }
+
+    menu->close();
+}
+
+/*!
  * \brief Returns whether the currently selected device's adapter has a live manager.
  */
 bool AddRegisterWidget::isSelectionUsable() const
@@ -284,7 +308,7 @@ void AddRegisterWidget::onBuildExpressionResult(const QString& expression)
 
     resetFields();
     rebuildAddressForm();
-    resizeContainingMenu();
+    closeContainingMenu();
 }
 
 void AddRegisterWidget::resetFields()

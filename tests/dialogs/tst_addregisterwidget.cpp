@@ -456,6 +456,47 @@ void TestAddRegisterWidget::deviceComboDisablesAddWhenLastDeviceRemoved()
     QVERIFY(!_pRegWidget->_pUi->btnAdd->isEnabled());
 }
 
+void TestAddRegisterWidget::addRegisterClosesContainingMenu()
+{
+    /* See switchDeviceWhileMenuOpenResizesPopup for why ownership is handed off up front. */
+    AddRegisterWidget* pWidget = _pRegWidget;
+    _pRegWidget = nullptr;
+
+    QMenu menu;
+    auto* action = new QWidgetAction(&menu);
+    action->setDefaultWidget(pWidget);
+    menu.addAction(action);
+
+    menu.show();
+    QVERIFY(menu.isVisible());
+
+    QTest::mouseClick(pWidget->_pUi->btnAdd, Qt::LeftButton);
+    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
+
+    QVERIFY(!menu.isVisible());
+}
+
+void TestAddRegisterWidget::emptyExpressionResponseLeavesContainingMenuOpen()
+{
+    /* See switchDeviceWhileMenuOpenResizesPopup for why ownership is handed off up front. */
+    AddRegisterWidget* pWidget = _pRegWidget;
+    _pRegWidget = nullptr;
+
+    QMenu menu;
+    auto* action = new QWidgetAction(&menu);
+    action->setDefaultWidget(pWidget);
+    menu.addAction(action);
+
+    menu.show();
+
+    QTest::mouseClick(pWidget->_pUi->btnAdd, Qt::LeftButton);
+    _pMockAdapterManager->injectBuildExpressionResult(QString());
+
+    QVERIFY(menu.isVisible());
+
+    menu.hide();
+}
+
 void TestAddRegisterWidget::clickAdd()
 {
     QTest::mouseClick(_pRegWidget->_pUi->btnAdd, Qt::LeftButton);

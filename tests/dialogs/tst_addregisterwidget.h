@@ -81,6 +81,8 @@ private slots:
     void deviceComboRefreshesLiveOnDeviceAdded();
     void deviceAddedToEmptyListAppliesConfiguredAdapter();
     void deviceComboDisablesAddWhenLastDeviceRemoved();
+    void addRegisterClosesContainingMenu();
+    void emptyExpressionResponseLeavesContainingMenuOpen();
 
 private:
     void clickAdd();
