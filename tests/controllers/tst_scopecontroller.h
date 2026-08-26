@@ -19,6 +19,9 @@ private slots:
     void cleanup();
 
     void startWithoutRegistersEmitsError();
+    void startWithUnknownDeviceEmitsError();
+    void startWithDeviceTruncatedByAdapterLimitEmitsError();
+    void startWithDeviceOwnedByUnavailableAdapterEmitsError();
     void startFromDataLoadedResetsSession();
     void clearEmitsDataClearedAndResets();
     void openFileSetsLastDir();

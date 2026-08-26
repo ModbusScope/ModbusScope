@@ -6,9 +6,9 @@ Device → adapter routing works where it was deliberately built for multiple ad
 
 | Question | Verdict |
 |---|---|
-| Is it adapter-dependent? | **Partially.** The routing spine (grouping, sessions, result merge, register creation) is fully adapter-aware. Five entry points still assume a single Modbus adapter and device 1. |
-| Is it coherent everywhere? | **No.** Ownership is resolved in three different places with three different rules, and the settings dialog mutates the model before the user presses OK. |
-| Is the work finished? | **Not yet.** `deviceListChanged()` is emitted six times and connected zero times. Two pre-adapter UI files are still compiled into the binary. |
+| Is it adapter-dependent? | **Partially.** The routing spine (grouping, sessions, result merge, register creation) is fully adapter-aware. Four entry points still assume a single Modbus adapter and device 1. |
+| Is it coherent everywhere? | **Mostly.** Ownership is now resolved by two rules instead of three (adapter reconciliation, and project-file load), and the settings dialog no longer mutates the model before OK. Pressing OK still marks every adapter as explicitly configured, even ones with no tabs. |
+| Is the work finished? | **Closer.** `deviceListChanged()` now has consumers, the settings dialog is transactional, and `ScopeController::start()` now validates every referenced device before logging begins. An unknown device still resolves to `"modbus"` everywhere else, and the project file still writes device→adapter twice. |
 
 Scope: `src/models`, `src/communication`, `src/ProtocolAdapter`, `src/dialogs`, `src/importexport`. Base: `f019fc9` on `claude/reconcile-devices-review-k18elr`. Analysis only — no code changed. Severity reflects likelihood of silent wrong behaviour, not implementation cost.
 
@@ -62,7 +62,9 @@ These paths were built for the multi-adapter world and hold up. They are the ref
 
 The consequence sits in `buildAdapterGroups()`: a register referencing a deleted or never-created device produces a group keyed `"modbus"`, and `${40001@7}` is sent to the Modbus adapter, which has no device 7. The failure surfaces as adapter-side errors or invalid values, never as "this register points at a device that doesn't exist".
 
-Where: `src/models/device.cpp:6` · `src/models/settingsmodel.cpp:141` · `src/communication/adapterpoll.cpp:218`
+**Partially addressed:** `ScopeController::start()` — `buildAdapterGroups()`'s only caller — now checks `hasDevice()` for every referenced device before starting a session, and refuses with a message naming the device instead of misrouting it. The underlying fallback is untouched, though, and still misroutes silently everywhere else `adapterIdForDevice()` is called outside session start (`AdapterDeviceSettings`, `AddRegisterWidget`, `RegisterDialog`, `ExpressionsDialog`) — this is the gap "Where to start" item 2 (an explicit "unassigned" adapter ID) still closes.
+
+Where: `src/models/device.cpp:6` · `src/models/settingsmodel.cpp:141` · `src/communication/adapterpoll.cpp:218` · `src/controllers/scopecontroller.cpp:181`
 
 ### F2 — MBC import is hardcoded to device 1 and gated on the wrong adapter [High]
 
@@ -71,14 +73,6 @@ Where: `src/models/device.cpp:6` · `src/models/settingsmodel.cpp:141` · `src/c
 The gate is equally loose: `isMbcCompatible()` returns true if *any* registered adapter reports the capability, so the import is enabled even when device 1 belongs to an adapter that does not support MBC. There is no device picker in the import flow at all.
 
 Where: `src/MbcInterface/mbcregisterdata.cpp:181` · `src/models/settingsmodel.cpp:220` · `src/controllers/scopecontroller.cpp:237`
-
-### F3 — The default new register always targets the first device [Medium]
-
-`RegisterDialog::defaultExpressionManager()` picks `deviceList().first()`'s adapter, and `requestDefaultExpression()` then calls `buildExpression(fields, type, 0)`. Zero means "omit deviceId" on the wire, so the returned expression has no `@N` and resolves to device 1 on parse.
-
-When the lowest device ID is not 1 — entirely possible after deleting device 1 — the default register silently points at a device that does not exist, using a schema fetched from a different adapter.
-
-Where: `src/dialogs/registerdialog.cpp:172` · `src/dialogs/registerdialog.cpp:239` · `src/ProtocolAdapter/adapterclient.cpp:200`
 
 ### F4 — Adapter diagnostics are indistinguishable between adapters [Medium]
 
@@ -98,23 +92,7 @@ Where: `src/communication/communicationstats.cpp:22`
 
 ## 4. Coherence breaks across layers
 
-**Root cause:** Device ownership is decided in three places with three different rules: `reconcileDevicesWithAdapters()` (stored-config priority), `AdapterDeviceSettings`'s constructor (prune, then reconcile, then dedupe by iteration order), and `ProjectFileHandler::applyDeviceSettings()` (file wins, fall back to `"modbus"`). Each is individually defensible; together they make "who owns device N?" depend on which one ran last.
-
-### F6 — `deviceListChanged()` has no consumers [High]
-
-The signal is emitted from six call sites in `SettingsModel` — including the reconciliation path, where a comment explains at length why an already-known device changing owner needs its own notification. Nothing in `src/` connects to it. The only reference outside the model is a `QSignalSpy` in a test.
-
-So the notification is produced with care and then discarded. Concretely: `ExpressionStatus` re-validates only on `added` and `expressionChanged`, so deleting a device never re-marks the registers that referenced it as `UNKNOWN_DEVICE` — they stay green and fail at poll time. `AddRegisterWidget::populateDeviceCombo()` runs once in the constructor and never refreshes.
-
-Where: `src/models/settingsmodel.h:71` · `src/util/expressionstatus.cpp:17` · `src/dialogs/addregisterwidget.cpp:63`
-
-### F7 — The settings dialog mutates the model before OK, and Cancel doesn't undo it [High]
-
-Adapter config is applied transactionally through `acceptValues()`, called only from `SettingsDialog::done()` on `Accepted`. The device list is not. `handleAddTab()` calls `addDevice()` immediately, `handleCloseTab()` calls `removeDevice()` immediately, `DeviceConfigTab::onNameChanged()` writes the name on every keystroke, and `onAdapterChanged()` reassigns ownership on selection.
-
-The leak is known — a test comment reads *"addNewDevice() → ID 2; leaks into model on cancel"* — and the prune step at the top of the next dialog open partially masks it. Renames and adapter reassignments are not masked at all: they survive Cancel permanently, because the pruner only removes devices that no adapter config mentions.
-
-Where: `src/dialogs/adapterdevicesettings.cpp:204` · `:220` · `src/customwidgets/deviceconfigtab.cpp:91` · `:103` · `tests/dialogs/tst_adapterdevicesettings.cpp:608`
+**Root cause:** Device ownership is decided in two places with two different rules: `reconcileDevicesWithAdapters()` (stored-config priority, run whenever the Devices page opens or an adapter describes) and `ProjectFileHandler::applyDeviceSettings()` (file wins, fall back to `"modbus"`, run on project load). Each is individually defensible; together they can still disagree about "who owns device N?" depending on which one ran last.
 
 ### F8 — Pressing OK marks every adapter as explicitly configured [Medium]
 
@@ -124,19 +102,13 @@ Where: `src/dialogs/adapterdevicesettings.cpp:204` · `:220` · `src/customwidge
 
 Where: `src/dialogs/adapterdevicesettings.cpp:332` · `src/models/settingsmodel.cpp:244` · `src/importexport/projectfilehandler.cpp:170`
 
-### F9 — The device limit warns, then silently truncates, and nothing gates Start [Medium]
+### F9 — The device limit warns, but doesn't prevent adding a device past it [Low]
 
-Exceeding an adapter's `devices.maxItems` produces an orange label and nothing else — the tab is created, the device enters the model, and the config is stored. At session start `configForWire()` drops devices from the *end* of the array, which after `sortPagesByDeviceId()` means the highest IDs.
+Exceeding an adapter's device limit produces an orange label and nothing else — the tab is created, the device enters the model, and the config is stored. At session start `configForWire()` still drops devices from the *end* of the array once it exceeds `maxDevices()` (the smaller of the schema's `maxItems` and the adapter's license-aware `capabilities.maxDevices`).
 
-Those devices remain in `SettingsModel`, so `buildAdapterGroups()` still routes their registers to the adapter, which was never told they exist. `ScopeController::start()` checks only that at least one register is active — not that every referenced device exists, is owned by a live adapter, and survived truncation. The integration test that covers this path passes an empty register list.
+**Addressed:** those devices used to stay in `SettingsModel` with `buildAdapterGroups()` silently routing their registers to an adapter that was never told they exist. `ScopeController::sessionValidationError()` now checks, for every referenced device, that it exists, survived `configForWire()`'s truncation, and is owned by a live adapter — `start()` refuses with a message naming the device instead of starting a session that would misroute it. Covered directly by `tst_scopecontroller.cpp`'s `startWithUnknownDeviceEmitsError`, `startWithDeviceTruncatedByAdapterLimitEmitsError` and `startWithDeviceOwnedByUnavailableAdapterEmitsError` (the old `tst_dummydevicelimit` integration test still only passes an empty register list, so it exercises the adapter-side truncation but not this gate). What remains: the orange label is still advisory only — nothing stops a device being added past the limit in the first place, it just now fails cleanly at Start instead of silently at runtime.
 
-Where: `src/models/adapterdata.cpp:200` · `src/dialogs/adapterdevicesettings.cpp:229` · `src/controllers/scopecontroller.cpp:126` · `tests/integration/tst_dummydevicelimit.cpp:68`
-
-### F10 — Opening the devices page deletes devices as a side effect [Medium]
-
-Before building any tabs, `AdapterDeviceSettings`'s constructor removes every model device not named by some adapter's `effectiveConfig()`. This is how the F7 leak gets cleaned up, but it is unconditional and unrelated to accepting: merely navigating to the Devices page and pressing Cancel can permanently drop a device that a hand-edited or older project file introduced.
-
-Where: `src/dialogs/adapterdevicesettings.cpp:51`
+Where: `src/models/adapterdata.cpp:200` · `src/dialogs/adapterdevicesettings.cpp:229` · `src/controllers/scopecontroller.cpp:120` · `:181` · `tests/controllers/tst_scopecontroller.cpp:63` · `tests/integration/tst_dummydevicelimit.cpp:68`
 
 ### F11 — The project file stores device→adapter twice and reads one [Low]
 
@@ -153,22 +125,6 @@ Where: `src/dialogs/adaptersettings.cpp:158` · `src/customwidgets/deviceconfigt
 ---
 
 ## 5. Runtime behaviour with more than one adapter
-
-### F13 — A mixed idle/ready fleet deadlocks the start path [High] — Fixed
-
-`AdapterHub::isAdapterReady()` requires *all* managers ready; `isAdapterIdle()` requires *all* idle. `startCommunication()` handles exactly those two cases:
-
-```
-if (isAdapterReady()) start;
-else { wait; if (isAdapterIdle()) initAdapter(); }
-// else: adapter is already initializing  <- single-adapter reasoning
-```
-
-When one adapter has crashed to `IDLE` and another is still `AWAITING_CONFIG`, neither predicate holds. The poll enters `WaitingForAdapter`, arms a single-shot connection to `adapterReady`, and calls nothing — and `adapterReady` only fires when `_pendingReadyAdapters` drains, which requires an `initAdapter()` or `stopSession()` that never comes. The state is reachable: any adapter process dying mid-session produces it, and `stopSession()` skips both idle and ready managers, so it persists across a stop/start.
-
-**Fixed:** `AdapterHub::initAdapter()` is now idempotent and per-manager — it (re)starts only the managers currently `IDLE`, leaving ready/mid-handshake/active managers untouched. `AdapterPoll` no longer reasons about a fleet-wide idle predicate at all; the aggregate `isAdapterIdle()` was removed. Regression test: `tst_adapterhub.cpp::initAdapterReinitializesOnlyIdleManagers`.
-
-Where: `src/communication/adapterpoll.cpp:62` · `src/ProtocolAdapter/adapterhub.cpp:102` · `:160` · `:177`
 
 ### F14 — One hung adapter stalls the whole poll cycle, with no timeout [High]
 
@@ -194,55 +150,30 @@ Where: `src/communication/adapterpoll.cpp:153`
 
 ---
 
-## 6. Dead code from the pre-adapter era
+## 6. Test coverage
 
-Four files implement a complete, earlier device editor that nothing instantiates. `src/CMakeLists.txt` uses `GLOB_RECURSE`, so they are compiled into every build.
-
-| File | Status | Why it matters |
-|---|---|---|
-| `dialogs/devicesettings.{h,cpp}` | Unreferenced | Replaced by `AdapterDeviceSettings`. Sole caller of `SettingsModel::addNewDevice()` in `src/`. |
-| `customwidgets/deviceform.{h,cpp,ui}` | Unreferenced | Sole caller of `updateDeviceId()`. Offers a device-ID spinbox — a capability the current UI deliberately forbids, since `DeviceConfigTab` forces `id` read-only to avoid collisions with existing IDs. |
-
-Keeping them alive keeps two `SettingsModel` APIs alive with them. `addNewDevice()` and `updateDeviceId()` are unreachable from the shipping UI, are not adapter-aware (neither touches `adapterId`, and `updateDeviceId()` would silently break every expression referencing the old ID), and are still part of the public model surface.
-
-One stale comment travels with them: `AdapterDeviceSettings::handleAddTab()`'s doc block says it "creates a SettingsModel device via `addNewDevice()`", but the code computes its own ID and calls `addDevice()` — a difference that matters, because the hand-rolled version also scans open tabs for unsaved IDs.
-
----
-
-## 7. Test coverage
-
-Reconciliation is well tested — but only through the dialog, and only for ownership. The gaps sit where the routing actually runs.
+Reconciliation and dialog cancel semantics now have direct, model-level coverage. The remaining gaps sit where the routing actually runs.
 
 | Area | Coverage | Gap |
 |---|---|---|
-| `reconcileDevices…` | Indirect | No `tst_settingsmodel` exists. Every case runs through `tst_adapterdevicesettings`, so model-level behaviour can only be asserted via a widget. |
+| `reconcileDevices…` | Direct | `tst_settingsmodel` now covers it at the model level (single-emission, never-prune, name preservation across reassignment, no-op silence). |
 | AdapterPoll grouping | Single adapter | Every assertion indexes `_startCalls[0]`. Nothing exercises two groups, the index-preserving merge, partial arrival ordering, or F16's mismatch path. |
-| Mixed adapter states | None | `tst_adapterhub` covers aggregate ready/idle, but no test drives one adapter to `IDLE` while another stays ready — the F13 deadlock. |
-| Device limit | Config only | `tst_dummydevicelimit` confirms the session starts after truncation, using an empty register list — so it cannot catch registers aimed at a truncated device. |
-| Cancel semantics | Partial | `cancelAndReopenDoesNotLeakDeviceIds` asserts IDs are reused, and documents the leak. Nothing asserts that a rename or adapter reassignment is rolled back — because neither is. |
+| Mixed adapter states | Direct | `tst_adapterhub::initAdapterReinitializesOnlyIdleManagers` now covers the former F13 deadlock scenario directly. |
+| Device limit | Direct | `tst_scopecontroller` now covers a register aimed at an unknown, truncated, or unavailable-adapter device directly, at the layer that gates Start. `tst_dummydevicelimit` still only confirms the adapter-side session starts after truncation, using an empty register list. |
+| Cancel semantics | Direct | `cancelDiscardsDeviceListEdits`, `cancelDiscardsDeviceFieldEdits`, `nameChangeDoesNotReachModelUntilAccept` and `adapterChangeDoesNotReachModelUntilAccept` now assert renames and reassignments are discarded on cancel. |
 
 ---
 
-## 8. Where to start
+## 7. Where to start
 
 Ordered by how much they unblock, not by size.
 
-1. **Give `deviceListChanged()` its consumers (F6).** Connect `ExpressionStatus` so device removal re-validates every expression, and refresh `AddRegisterWidget`'s device combo. This is the smallest change with the widest reach, and it makes F1's failure visible instead of silent.
+1. **Add a read-data timeout (F14).** Per-adapter, reusing the handshake-timeout machinery. Decide alongside it whether a timed-out adapter fails the session (current F15 policy) or degrades to invalid results for its own registers.
 
-2. **Fix the mixed-state start path (F13).** Have `AdapterHub` re-init only the managers that are actually idle, rather than making `AdapterPoll` reason about a fleet-wide predicate. A crashed adapter should not be able to wedge the Start button.
+2. **Introduce an explicit "unassigned" adapter ID (F1).** Stop letting `"modbus"` double as the default. Every silent misroute above depends on an unknown device resolving to a real adapter — `ScopeController::start()` now catches it at session start, but `AdapterDeviceSettings`, `AddRegisterWidget`, `RegisterDialog` and `ExpressionsDialog` all still call `adapterIdForDevice()` directly.
 
-3. **Add a read-data timeout (F14).** Per-adapter, reusing the handshake-timeout machinery. Decide alongside it whether a timed-out adapter fails the session (current F15 policy) or degrades to invalid results for its own registers.
+3. **Give MBC import a device (F2).** Add a device selector, emit `@deviceId` from `toExpression()`, and gate the action on the selected device's adapter rather than on any adapter.
 
-4. **Make the device list transactional (F7, F10).** Have `AdapterDeviceSettings` edit a working copy and apply it in `acceptValues()`, alongside the adapter configs it already applies there. That removes the leak, the lost renames, and the need for the destructive prune on open.
+4. **Stop `acceptValues()` flagging untouched adapters (F8).** Write only adapters that actually own tabs, so `hasStoredConfig` keeps meaning what reconciliation and the exporter assume it means.
 
-5. **Validate the session before starting it (F1, F9).** In `ScopeController::start()`, check that every referenced device exists, is owned by a live adapter, and survived `configForWire()` truncation. Refuse with a message naming the devices rather than letting the adapter fail obscurely.
-
-6. **Introduce an explicit "unassigned" adapter ID (F1).** Stop letting `"modbus"` double as the default. Every silent misroute above depends on an unknown device resolving to a real adapter.
-
-7. **Give MBC import a device (F2).** Add a device selector, emit `@deviceId` from `toExpression()`, and gate the action on the selected device's adapter rather than on any adapter.
-
-8. **Stop `acceptValues()` flagging untouched adapters (F8).** Write only adapters that actually own tabs, so `hasStoredConfig` keeps meaning what reconciliation and the exporter assume it means.
-
-9. **Delete the pre-adapter editor, and its model APIs with it.** `devicesettings`, `deviceform`, `addNewDevice()`, `updateDeviceId()`. Removing them makes "device IDs are immutable after creation" a property of the model, not a convention of one dialog.
-
-10. **Add `tst_settingsmodel` and a two-adapter `AdapterPoll` test.** Reconciliation deserves direct coverage, and the fan-out/merge is the one piece of multi-device machinery with no multi-adapter test at all.
+5. **Add a two-adapter `AdapterPoll` test.** Reconciliation now has direct model-level coverage via `tst_settingsmodel`; the fan-out/merge remains the one piece of multi-device machinery with no multi-adapter test.
