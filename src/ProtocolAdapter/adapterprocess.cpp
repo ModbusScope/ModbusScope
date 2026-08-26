@@ -145,8 +145,12 @@ void AdapterProcess::onMessageReceived(QByteArray body)
 
     if (msg.contains("method"))
     {
-        qCDebug(scopeComm) << "AdapterProcess: notification:" << msg["method"].toString();
-        emit notificationReceived(msg["method"].toString(), msg.value("params"));
+        QString method = msg["method"].toString();
+        if (method != QStringLiteral("adapter.diagnostic"))
+        {
+            qCDebug(scopeComm) << "AdapterProcess: notification:" << method;
+        }
+        emit notificationReceived(method, msg.value("params"));
         return;
     }
 
