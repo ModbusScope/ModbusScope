@@ -5,8 +5,9 @@ set -ex
 cp resources/ModbusScope.desktop release/src/bin/linux/
 cp resources/icon/icon-256x256.png release/src/bin/linux/ModbusScope.png
 
-# Copy modbusadapter so linuxdeploy bundles it alongside the main executable
+# Copy modbusadapter and iec104adapter so linuxdeploy bundles them alongside the main executable
 cp adapters/Modbus/modbusadapter release/src/bin/linux/
+cp adapters/IEC104/iec104adapter release/src/bin/linux/
 
 # Pre-create the AppDir share folder so the demo data ends up in the AppImage
 mkdir -p release/src/bin/linux/AppDir/usr/share/modbusscope
@@ -42,6 +43,7 @@ export APPIMAGE_EXTRACT_AND_RUN=1 # Workaround because FUSE isn't available in D
 ./linuxdeploy-x86_64.AppImage --appdir AppDir \
     -e modbusscope \
     -e modbusadapter \
+    -e iec104adapter \
     -i ModbusScope.png \
     -d ModbusScope.desktop \
     --plugin qt \

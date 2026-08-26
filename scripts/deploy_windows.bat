@@ -14,8 +14,11 @@ mkdir %DEPLOY_DIR%
 copy modbusscope.exe %DEPLOY_DIR%
 IF ERRORLEVEL 1 GOTO errorHandling
 
-REM Copy adapter binary into the flat deployment directory
+REM Copy adapter binaries into the flat deployment directory
 copy "%~dp0..\adapters\Modbus\modbusadapter.exe" "%DEPLOY_DIR%"
+IF ERRORLEVEL 1 GOTO errorHandling
+
+copy "%~dp0..\adapters\IEC104\iec104adapter.exe" "%DEPLOY_DIR%"
 IF ERRORLEVEL 1 GOTO errorHandling
 
 REM Copy demo data file
@@ -57,6 +60,9 @@ IF ERRORLEVEL 1 GOTO errorHandling
 windeployqt.exe modbusadapter.exe -verbose 2
 IF ERRORLEVEL 1 GOTO errorHandling
 
+windeployqt.exe iec104adapter.exe -verbose 2
+IF ERRORLEVEL 1 GOTO errorHandling
+
 REM Add OpenSSL dll's
 echo "OPENSSL_DIR: %OPENSSL_DIR%"
 
@@ -74,7 +80,7 @@ IF ERRORLEVEL 1 GOTO errorHandling
 
 REM Verify no DLL is missing: launch each deployed executable and confirm it
 REM doesn't immediately exit with a loader failure (e.g. missing dependency).
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0check_windows_deploy.ps1" -DeployDir "%CD%" -Executables modbusscope.exe,modbusadapter.exe
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0check_windows_deploy.ps1" -DeployDir "%CD%" -Executables modbusscope.exe,modbusadapter.exe,iec104adapter.exe
 IF ERRORLEVEL 1 GOTO errorHandling
 
 cd ..
