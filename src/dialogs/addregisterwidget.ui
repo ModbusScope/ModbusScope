@@ -72,7 +72,7 @@
    <item>
     <widget class="QPushButton" name="btnAdd">
      <property name="text">
-      <string>Add register</string>
+      <string>Add data point</string>
      </property>
     </widget>
    </item>

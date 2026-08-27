@@ -417,10 +417,10 @@
      <normaloff>:/menu_icon/icons/list.svg</normaloff>:/menu_icon/icons/list.svg</iconset>
    </property>
    <property name="text">
-    <string>&amp;Registers</string>
+    <string>&amp;Data Points</string>
    </property>
    <property name="iconText">
-    <string>Registers</string>
+    <string>Data Points</string>
    </property>
   </action>
   <action name="actionToggleMarkers">

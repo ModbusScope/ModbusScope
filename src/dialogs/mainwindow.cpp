@@ -63,7 +63,7 @@ MainWindow::MainWindow(ScopeController* pScopeController,
 
     QApplication::setStyle(QStyleFactory::create("Fusion"));
 
-    _pOverlayLabel = new OverlayLabel(tr("No registers configured — click Registers to add one"), _pUi->customPlot);
+    _pOverlayLabel = new OverlayLabel(tr("No data points configured — click Data Points to add one"), _pUi->customPlot);
 
     _pDiagnosticDialog = new DiagnosticDialog(_pDiagnosticModel, this);
 
@@ -412,7 +412,7 @@ void MainWindow::showRegisterDialog()
         QMessageBox::StandardButton reply;
         reply = QMessageBox::question(
           this, "Clear data?",
-          "An imported data file is loaded. Do you want to clear the data and start adding registers for a new log?",
+          "An imported data file is loaded. Do you want to clear the data and start adding data points for a new log?",
           QMessageBox::Yes | QMessageBox::No);
         if (reply != QMessageBox::Yes)
         {
@@ -428,7 +428,7 @@ void MainWindow::showRegisterDialog()
     AdapterHub* pAdapterHub = _pScopeController->adapterHub();
     if (pAdapterHub->adapterIds().isEmpty())
     {
-        qCWarning(scopeComm) << "MainWindow: no adapters available — cannot open register dialog";
+        qCWarning(scopeComm) << "MainWindow: no adapters available — cannot open data points dialog";
         return;
     }
     RegisterDialog registerDialog(_pGraphDataModel, _pSettingsModel, pAdapterHub, this);

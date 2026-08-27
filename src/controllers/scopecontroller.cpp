@@ -24,7 +24,7 @@ using GuiState = GuiModel::GuiState;
  * \brief Construct the controller and its owned session/data-handling collaborators
  * \param pGuiModel GUI state / project-path model
  * \param pSettingsModel Settings model (adapters, devices, poll time)
- * \param pGraphDataModel Graph data model (registers, expressions, series data)
+ * \param pGraphDataModel Graph data model (data points, expressions, series data)
  * \param pCommunicationStatsModel Communication statistics model
  * \param pNoteModel Notes model
  * \param pDataParserModel Data-file parser settings model
@@ -115,7 +115,7 @@ CommunicationStats* ScopeController::communicationStats() const
 }
 
 /*!
- * \brief Start a logging session, or report an error when no registers are configured
+ * \brief Start a logging session, or report an error when no data points are configured
  */
 void ScopeController::start()
 {
@@ -160,7 +160,7 @@ void ScopeController::start()
     }
     else
     {
-        emit errorOccurred(tr("There are no registers in the scope list. Please select at least one register."));
+        emit errorOccurred(tr("There are no data points in the scope list. Please select at least one data point."));
     }
 }
 
