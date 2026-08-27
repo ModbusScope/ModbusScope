@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Data Points</string>
+   <string>Signals</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

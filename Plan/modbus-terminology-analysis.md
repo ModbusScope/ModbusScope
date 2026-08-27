@@ -20,6 +20,36 @@ The problem is everything *around* that layer: the parts of the UI, C++ literals
 were written when Modbus was the only protocol and still hardcode that assumption. Those are cataloged
 below.
 
+## Two-level model: Signal vs. Data Point
+
+The original version of this report treated "Register" as a single term and proposed collapsing it to
+one generic replacement ("Data point"). That was wrong — the app actually has **two distinct
+protocol-agnostic concepts** that "Register" was ambiguously standing in for, and the codebase already
+has a name for one of them:
+
+- **Data point** — one raw `(address, deviceId)` reference read from the adapter for a single poll —
+  e.g. the `${5@2}` token on its own. This is *already* an established internal concept:
+  `src/communication/datapoint.h` defines a `DataPoint` class (address + device ID), and
+  `ExpressionParser::dataPoints()` (`src/datahandling/expressionparser.cpp:14-20`) extracts the
+  deduplicated list of these from every configured Expression before polling. The entire
+  `adapter.dataPointSchema` / `adapter.describeDataPoint` / `adapter.buildExpression` RPC vocabulary
+  (`src/ProtocolAdapter/adapterclient.{h,cpp}`, `src/ProtocolAdapter/adaptermanager.{h,cpp}`,
+  `src/models/adapterdata.{h,cpp}`) already uses "data point" correctly at this atomic, adapter-specific
+  level — untouched by this migration, and doesn't need to be.
+- **Signal** — the named, colored, user-configured graph row (Name / Expression / Color / Y-Axis) that a
+  user adds and sees plotted. A Signal is computed by evaluating its **Expression** — a muParser formula
+  — over one or more **Data Points**, e.g. `${5@2} + ${6}` sums two Data Points into one Signal value.
+  It is not itself "the result of a poll"; it's the result of evaluating an Expression.
+
+The first pass of app-shell rewording (Phase 1) initially renamed the Signal-level UI chrome ("Register(s)"
+→ menu, dialog title, buttons, error messages, default curve name) to "Data Point(s)" — which collided
+with the existing atomic-level meaning and was inaccurate (a Signal can combine several Data Points, so
+it isn't itself "a data point"). This was corrected: Signal-level UI text now says "Signal(s)", and
+`expressionsdialog.cpp`'s "Compose Expression" table — which lists one row per raw `${...}` address found
+*inside* an Expression being composed, confirmed via `_expressionChecker.addresses()` — keeps "Data
+Point" as its column header, since that one *is* genuinely at the atomic level. See the corrected mapping
+in section 3.
+
 ## How this was gathered
 
 Grepped `src/**/*.ui`, `src/**/*.cpp` (`tr("...")`, `setText`, `setWindowTitle`, `setHeaderData`), CSV
@@ -176,31 +206,35 @@ page would document IEC 104/BACnet addressing once those adapters exist.
 
 | Modbus-specific term | Suggested generic term | Rationale |
 | --- | --- | --- |
-| Register / Registers | **Data point** / **Data points** | Matches the existing internal RPC vocabulary (`adapter.describeDataPoint`) — the backend already calls these "data points"; the UI should catch up |
-| "Add register" (dialog/button) | **Add data point** | — |
-| "Registers" menu/toolbar/dock title | **Data Points** | — |
-| "Unknown register" (default name) | **Unknown data point** | — |
-| Register list column header wording ("Register" in Legend/Expressions tables) | **Data point** | Column headers in `legend.cpp` and `expressionsdialog.cpp` |
-| CSV default column name "Register N" | **Data point N** (or reuse "Value N") | Cosmetic; changing it affects exported file compatibility — treat as a breaking change for downstream CSV consumers, needs a decision |
-| "Import registers from mbc file" / "Import selected registers" | "Import data points from MBC file" / "Import selected data points" | Keep "MBC file" as-is (real file-format name); only reword the surrounding copy |
-| "the Modbus registers you want to monitor" (Quick Start) | "the data points you want to monitor" | Quick Start is onboarding chrome and should not name a specific protocol |
+| Register / Registers (the graph row: Name/Expression/Color/Y-Axis) | **Signal** / **Signals** | The row is the result of evaluating an *Expression* over one or more *Data Points* — it isn't itself "a data point," so it needs its own name, distinct from the pre-existing atomic `DataPoint` class. "Signal" fits the product's oscilloscope framing ("…Scope") and has no collision with existing vocabulary |
+| "Add register" (dialog/button) | **Add signal** | — |
+| "Registers" menu/toolbar/dock title | **Signals** | — |
+| "Unknown register" (default name) | **Unknown signal** | — |
+| Legend table column header ("Register" in `legend.cpp`) | **Signal** | Shows the curve's `label()`/Name — Signal-level, confirmed via `graphdatamodel.cpp` calls in `legend.cpp` |
+| "Compose Expression" table column header ("Register" in `expressionsdialog.cpp`) | **Data Point** (unchanged from the original proposal) | This table lists one row per raw `${...}` address found *inside* the Expression being composed (`_expressionChecker.addresses()`) — genuinely atomic-level, so "Data Point" is correct here, not "Signal" |
+| CSV default column name "Register N" | **Signal N** (or reuse "Value N") | Cosmetic; changing it affects exported file compatibility — treat as a breaking change for downstream CSV consumers, needs a decision |
+| "Import registers from mbc file" / "Import selected registers" | *(left as-is — see MBC section below)* | The user decided the MBC import dialog should keep "register" wording, since `.mbc` is a Modbus-only file format |
+| "the Modbus registers you want to monitor" (Quick Start) | "the signals you want to monitor" | Quick Start is onboarding chrome and should not name a specific protocol |
 | Slave / Slave ID | **Device** / **Device ID** (already used elsewhere in the app: `Device`, `deviceId_t`) | The app already models "device" generically; "Slave ID" is the one Modbus-specific holdout name for what's otherwise just a per-device identifier. Note IEC 104 (Common Address of ASDU) and BACnet (Device Instance) have their own equivalents — this label is properly adapter-schema-owned (see Context section), so this row is guidance for the Modbus adapter's own schema copy, not for app-shell code |
 | Master | **Client** (Modbus 2020 terminology) or simply omit — the app never actually says "master" in-repo today | No code changes needed; flagged for awareness only |
 | Coil / Discrete Input / Holding Register / Input Register | *(leave as Modbus adapter schema vocabulary — correct as-is)* | These are real Modbus object-type names with no generic equivalent; BACnet/IEC 104 adapters will supply their own type labels through the same schema mechanism |
 | Function code | *(protocol-internal; not currently surfaced to the user)* | No action needed |
-| MBC file / "Import from MBC" | *(leave as-is — real file format name)* | Reword only the sentence-level copy around it, not the feature name |
+| MBC file / "Import from MBC" | *(leave as-is — real file format name and terminology)* | Reword only truly generic sentence-level copy elsewhere; the dialog itself, including its "register" wording, stays Modbus-specific per user decision |
 | "Modbus TCP" / "Modbus RTU" (adapter type labels, connection dialogs) | *(leave as adapter-supplied display name)* | Already resolved via `pAdapter->name()` (`src/dialogs/adapterdevicesettings.cpp:193`) — not hardcoded |
 
 ---
 
 ## 4. Suggested phased approach
 
-1. **App shell wording** (small, low-risk, high-visibility): rename the menu/toolbar/dock/dialog
-   chrome — "Registers" → "Data Points" — across `mainwindow.ui`, `registerdialog.ui`,
-   `addregisterwidget.ui`, and the associated `tr()` strings in `mainwindow.cpp`,
-   `scopecontroller.cpp`, `importmbcdialog.cpp`/`.ui`, `quickstartdialog.ui`, `legend.cpp`,
-   `expressionsdialog.cpp`, and the default label in `graphdata.cpp`. This is almost entirely string
-   literals — no architectural change, since the underlying models/columns are already generic.
+1. **App shell wording** (small, low-risk, high-visibility; done) — rename the menu/toolbar/dock/dialog
+   chrome — "Registers" → "Signals" — across `mainwindow.ui`, `registerdialog.ui`,
+   `addregisterwidget.ui`, and the associated `tr()`/plain-string literals in `mainwindow.cpp`,
+   `scopecontroller.cpp`, `quickstartdialog.ui`, `legend.cpp`, and the default label in `graphdata.cpp`.
+   `expressionsdialog.cpp`'s "Data Point" column header was left as-is (it's genuinely atomic-level, see
+   section 2 above). The MBC import dialog (`importmbcdialog.cpp`/`.ui`) was intentionally left
+   untouched — the user decided "register" wording is correct there, since `.mbc` is a Modbus-only file
+   format. This was almost entirely string literals — no architectural change, since the underlying
+   models/columns were already generic.
 2. **Fix the leaky adapter id** (`addregisterwidget.cpp:164,179`, `settingsdialog.cpp:56-58`): add a
    proper display name to the adapter contract so "Protocol: modbusAdapter" and "Connections [modbus]"
    become "Protocol: Modbus" / "Connections [Modbus]". Small, self-contained, and removes the most
