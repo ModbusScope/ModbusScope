@@ -177,7 +177,7 @@ class StackInterface {
 template <typename Elem>
 class MockStack : public StackInterface<Elem> {
   ...
-  MOCK_METHOD(int, GetSize, (), (override));
+  MOCK_METHOD(int, GetSize, (), (const, override));
   MOCK_METHOD(void, Push, (const Elem& x), (override));
 };
 ```
@@ -900,15 +900,16 @@ using ::testing::Not;
 
 Matchers are function objects, and parametrized matchers can be composed just
 like any other function. However because their types can be long and rarely
-provide meaningful information, it can be easier to express them with C++14
-generic lambdas to avoid specifying types. For example,
+provide meaningful information, it can be easier to express them with template
+parameters and `auto`. For example,
 
 ```cpp
 using ::testing::Contains;
 using ::testing::Property;
 
-inline constexpr auto HasFoo = [](const auto& f) {
-  return Property("foo", &MyClass::foo, Contains(f));
+template <typename SubMatcher>
+inline constexpr auto HasFoo(const SubMatcher& sub_matcher) {
+  return Property("foo", &MyClass::foo, Contains(sub_matcher));
 };
 ...
   EXPECT_THAT(x, HasFoo("blah"));
@@ -936,8 +937,8 @@ casts a matcher `m` to type `Matcher<T>`. To ensure safety, gMock checks that
     floating-point numbers), the conversion from `T` to `U` is not lossy (in
     other words, any value representable by `T` can also be represented by `U`);
     and
-3.  When `U` is a reference, `T` must also be a reference (as the underlying
-    matcher may be interested in the address of the `U` value).
+3.  When `U` is a non-const reference, `T` must also be a reference (as the
+    underlying matcher may be interested in the address of the `U` value).
 
 The code won't compile if any of these conditions isn't met.
 
@@ -3385,30 +3386,6 @@ With this definition, the above assertion will give a better message:
     Actual: 27 (the remainder is 6)
 ```
 
-#### Using EXPECT_ Statements in Matchers
-
-You can also use `EXPECT_...` (and `ASSERT_...`) statements inside custom
-matcher definitions. In many cases, this allows you to write your matcher more
-concisely while still providing an informative error message. For example:
-
-```cpp
-MATCHER(IsDivisibleBy7, "") {
-  const auto remainder = arg % 7;
-  EXPECT_EQ(remainder, 0);
-  return true;
-}
-```
-
-If you write a test that includes the line `EXPECT_THAT(27, IsDivisibleBy7());`,
-you will get an error something like the following:
-
-```shell
-Expected equality of these values:
-  remainder
-    Which is: 6
-  0
-```
-
 #### `MatchAndExplain`
 
 You should let `MatchAndExplain()` print *any additional information* that can
@@ -3419,14 +3396,74 @@ itself, as gMock already prints it for you.
 
 #### Argument Types
 
-The type of the value being matched (`arg_type`) is determined by the
-context in which you use the matcher and is supplied to you by the compiler, so
-you don't need to worry about declaring it (nor can you). This allows the
-matcher to be polymorphic. For example, `IsDivisibleBy7()` can be used to match
-any type where the value of `(arg % 7) == 0` can be implicitly converted to a
-`bool`. In the `Bar(IsDivisibleBy7())` example above, if method `Bar()` takes an
-`int`, `arg_type` will be `int`; if it takes an `unsigned long`, `arg_type` will
-be `unsigned long`; and so on.
+The type of the value being matched (`arg_type`) is determined by the context in
+which you use the matcher and is supplied to you by the compiler, so you don't
+need to worry about declaring it (nor can you). This allows the matcher to be
+polymorphic. For example, `IsDivisibleBy7()` can be used to match any type where
+the value of `(arg % 7) == 0` can be implicitly converted to a `bool`. In the
+`Bar(IsDivisibleBy7())` example above, if method `Bar()` takes an `int`,
+`arg_type` will be `int`; if it takes an `unsigned long`, `arg_type` will be
+`unsigned long`; and so on.
+
+#### Anti-pattern: Using EXPECT_ Statements in Matchers
+
+Using `EXPECT_...` statements inside custom matcher definitions is an
+**anti-pattern** and should be avoided.
+
+While it might appear to write matchers more concisely and generate informative
+messages, this pattern has critical issues:
+
+1.  **Negation Breakage (`Not`):** If wrapped in `Not(IsDivisibleBy7())`,
+    evaluating it still triggers the internal `EXPECT_EQ`, registering a test
+    failure on the runner even when the overall assertion is expected to
+    succeed.
+2.  **Composition / Container Breakage (`AnyOf`, `AllOf`, `Contains`):** When
+    composed or used inside container matchers, elements that are expected
+    mismatches will trigger the internal `EXPECT_` and register spurious
+    failures.
+3.  **ASSERT_* compilation errors:** `ASSERT_*` macros use `return;` to abort
+    from a void function. Since matchers return `bool`, using `ASSERT_` inside
+    them triggers a compilation error.
+4.  **Purity Violations:** Matchers must be functionally pure (side-effect
+    free), whereas registering global failures is a major side effect.
+5.  **Line Number Confusion:** Failure reports point to the matcher's definition
+    line rather than the calling `EXPECT_THAT`
+    line.
+
+##### The Anti-Pattern
+
+```cpp
+// Anti-pattern: Do not do this!
+MATCHER(IsDivisibleBy7, "") {
+  const auto remainder = arg % 7;
+  EXPECT_EQ(remainder, 0);  // Spurious failures if negated/composed!
+  return true;
+}
+```
+
+##### The Correct Solution
+
+To write concise matchers that delegate to other matchers and safely propagate
+the mismatch explanation, use **`::testing::ExplainMatchResult`** instead,
+passing it the sub-matcher, the value to check, and the `result_listener`:
+
+```cpp
+MATCHER(IsDivisibleBy7, "") {
+  const auto remainder = arg % 7;
+  return ::testing::ExplainMatchResult(::testing::Eq(0), remainder,
+                                       result_listener);
+}
+```
+
+If you write a test that includes the line:
+
+```cpp
+EXPECT_THAT(28, Not(IsDivisibleBy7()));
+```
+
+it will correctly report the mismatch, properly point to the `EXPECT_THAT` line
+number, and support negation (`Not`) and composition (`AllOf`, `AnyOf`, etc.)
+without registering spurious failures.
 
 ### Writing New Parameterized Matchers Quickly
 
@@ -3565,12 +3602,17 @@ general leads to better compiler error messages that pay off in the long run.
 They also allow overloading matchers based on parameter types (as opposed to
 just based on the number of parameters).
 
-### Writing New Monomorphic Matchers
+### Writing New Monomorphic Matchers {#MonomorphicMatchers}
 
-A matcher of argument type `T` implements the matcher interface for `T` and does
-two things: it tests whether a value of type `T` matches the matcher, and can
-describe what kind of values it matches. The latter ability is used for
-generating readable error messages when expectations are violated.
+A matcher of type `testing::Matcher<T>` implements the matcher interface for `T`
+and does two things: it tests whether a value of type `T` matches the matcher,
+and can describe what kind of values it matches. The latter ability is used for
+generating readable error messages when expectations are violated. Some matchers
+can even explain why it matches or doesn't match a certain value, which can be
+helpful when the reason isn't obvious.
+
+Because a matcher of type `testing::Matcher<T>` for a particular type `T` can
+only be used to match a value of type `T`, we call it "monomorphic."
 
 A matcher of `T` must declare a typedef like:
 
@@ -3585,7 +3627,7 @@ and supports the following operations:
 bool matched = matcher.MatchAndExplain(value, maybe_os);
 // where `value` is of type `T` and
 // `maybe_os` is of type `std::ostream*`, where it can be null if the caller
-// is not interested in there textual explanation.
+// is not interested in the textual explanation.
 
 matcher.DescribeTo(os);
 matcher.DescribeNegationTo(os);
@@ -3660,10 +3702,18 @@ Expected: is divisible by 7
 Tip: for convenience, `MatchAndExplain()` can take a `MatchResultListener*`
 instead of `std::ostream*`.
 
-### Writing New Polymorphic Matchers
+### Writing New Polymorphic Matchers {#PolymorphicMatchers}
 
-Expanding what we learned above to *polymorphic* matchers is now just as simple
-as adding templates in the right place.
+Unlike a monomorphic matcher, which can only be used to match a value of a
+particular type, a *polymorphic* matcher is one that can be used to match values
+of multiple types. For example, `Eq(5)` is a polymorphic matcher as it can be
+used to match an `int`, a `double`, a `float`, and so on. You should think of a
+polymorphic matcher as a *matcher factory* as opposed to a
+`testing::Matcher<SomeType>` - itself is not an actual matcher, but can be
+implicitly converted to a `testing::Matcher<SomeType>` depending on the context.
+
+Expanding what we learned above to polymorphic matchers is now as simple as
+adding templates in the right place.
 
 ```cpp
 
@@ -3788,6 +3838,26 @@ virtual.
 
 Like in a monomorphic matcher, you may explain the match result by streaming
 additional information to the `listener` argument in `MatchAndExplain()`.
+
+### Implementing Composite Matchers {#CompositeMatchers}
+
+Sometimes we want to define a matcher that takes other matchers as parameters.
+For example, `DistanceFrom(target, m)` is a polymorphic matcher that takes a
+matcher `m` as a parameter. It tests that the distance from `target` to the
+value being matched satisfies sub-matcher `m`.
+
+If you are implementing such a composite matcher, you'll need to generate the
+description of the matcher based on the description(s) of its sub-matcher(s).
+You can see the implementation of `DistanceFrom()` in
+`googlemock/include/gmock/gmock-matchers.h` for an example. In particular, pay
+attention to `DistanceFromMatcherImpl`. Notice that it stores the sub-matcher as
+a `const Matcher<const Distance&> distance_matcher_` instead of a polymorphic
+matcher - this allows it to call `distance_matcher_.DescribeTo(os)` to describe
+the sub-matcher. If the sub-matcher is stored as a polymorphic matcher instead,
+it would not be possible to get its description as in general polymorphic
+matchers don't know how to describe themselves - they are matcher factories
+instead of actual matchers; only after being converted to `Matcher<SomeType>`
+can they be described.
 
 ### Writing New Cardinalities
 

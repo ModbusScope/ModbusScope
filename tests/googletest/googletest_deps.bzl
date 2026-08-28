@@ -6,20 +6,36 @@ load("//:fake_fuchsia_sdk.bzl", "fake_fuchsia_sdk")
 def googletest_deps():
     """Loads common dependencies needed to use the googletest library."""
 
-    if not native.existing_rule("com_googlesource_code_re2"):
+    if not native.existing_rule("re2"):
         http_archive(
-            name = "com_googlesource_code_re2",
-            sha256 = "eb2df807c781601c14a260a507a5bb4509be1ee626024cb45acbd57cb9d4032b",
-            strip_prefix = "re2-2024-07-02",
-            urls = ["https://github.com/google/re2/releases/download/2024-07-02/re2-2024-07-02.tar.gz"],
+            name = "re2",
+            sha256 = "87f6029d2f6de8aa023654240a03ada90e876ce9a4676e258dd01ea4c26ffd67",
+            strip_prefix = "re2-2025-11-05",
+            urls = ["https://github.com/google/re2/releases/download/2025-11-05/re2-2025-11-05.tar.gz"],
         )
 
-    if not native.existing_rule("com_google_absl"):
+    if not native.existing_rule("abseil-cpp"):
         http_archive(
-            name = "com_google_absl",
-            sha256 = "733726b8c3a6d39a4120d7e45ea8b41a434cdacde401cba500f14236c49b39dc",
-            strip_prefix = "abseil-cpp-20240116.2",
-            urls = ["https://github.com/abseil/abseil-cpp/releases/download/20240116.2/abseil-cpp-20240116.2.tar.gz"],
+            name = "abseil-cpp",
+            sha256 = "4c124408da902be896a2f368042729655709db5e3004ec99f57e3e14439bc1b2",
+            strip_prefix = "abseil-cpp-20260107.0",
+            urls = ["https://github.com/abseil/abseil-cpp/releases/download/20260107.0/abseil-cpp-20260107.0.tar.gz"],
+        )
+
+    if not native.existing_rule("bazel_features"):
+        http_archive(
+            name = "bazel_features",
+            sha256 = "9390b391a68d3b24aef7966bce8556d28003fe3f022a5008efc7807e8acaaf1a",
+            strip_prefix = "bazel_features-1.36.0",
+            url = "https://github.com/bazel-contrib/bazel_features/releases/download/v1.36.0/bazel_features-v1.36.0.tar.gz",
+        )
+
+    if not native.existing_rule("rules_cc"):
+        http_archive(
+            name = "rules_cc",
+            sha256 = "207ea073dd20a705f9e8bc5ac02f5203e9621fc672774bb1a0935aefab7aebfa",
+            strip_prefix = "rules_cc-0.2.8",
+            url = "https://github.com/bazelbuild/rules_cc/releases/download/0.2.8/rules_cc-0.2.8.tar.gz",
         )
 
     if not native.existing_rule("fuchsia_sdk"):
