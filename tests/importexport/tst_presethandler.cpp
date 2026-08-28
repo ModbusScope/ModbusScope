@@ -22,7 +22,6 @@ void TestPresetHandler::init()
 
 void TestPresetHandler::cleanup()
 {
-
 }
 
 void TestPresetHandler::determinePresetEmptyList()
@@ -31,9 +30,7 @@ void TestPresetHandler::determinePresetEmptyList()
     MockPresetParser* pPresetParserRaw = pPresetParser.get();
     auto presetHandler = std::make_unique<PresetHandler>(std::move(pPresetParser));
 
-    EXPECT_CALL(*pPresetParserRaw, presetCount())
-            .Times(1)
-            .WillOnce(Return(0));
+    EXPECT_CALL(*pPresetParserRaw, presetCount()).Times(1).WillOnce(Return(0));
 
     QCOMPARE(presetHandler->determinePreset(""), -1);
 }
@@ -44,19 +41,21 @@ void TestPresetHandler::determinePresetFail()
     MockPresetParser* pPresetParserRaw = pPresetParser.get();
     auto presetHandler = std::make_unique<PresetHandler>(std::move(pPresetParser));
 
-    EXPECT_CALL(*pPresetParserRaw, presetCount())
-            .WillRepeatedly(Return(3));
+    EXPECT_CALL(*pPresetParserRaw, presetCount()).WillRepeatedly(Return(3));
 
-    EXPECT_CALL(*pPresetParserRaw, preset(_))
-            .WillRepeatedly(Invoke([](int id) -> PresetParser::Preset {
+    EXPECT_CALL(*pPresetParserRaw, preset(_)).WillRepeatedly([](int id) -> PresetParser::Preset {
         PresetParser::Preset p;
-        switch(id)
+        switch (id)
         {
-        case 0: p.keyword = QString("-be"); break;
-        case 1: p.keyword = QString("-us"); break;
+        case 0:
+            p.keyword = QString("-be");
+            break;
+        case 1:
+            p.keyword = QString("-us");
+            break;
         }
         return p;
-    }));
+    });
 
     QCOMPARE(presetHandler->determinePreset("-it"), -1);
 }
@@ -67,19 +66,21 @@ void TestPresetHandler::determinePresetSuccess()
     MockPresetParser* pPresetParserRaw = pPresetParser.get();
     auto presetHandler = std::make_unique<PresetHandler>(std::move(pPresetParser));
 
-    EXPECT_CALL(*pPresetParserRaw, presetCount())
-            .WillRepeatedly(Return(3));
+    EXPECT_CALL(*pPresetParserRaw, presetCount()).WillRepeatedly(Return(3));
 
-    EXPECT_CALL(*pPresetParserRaw, preset(_))
-            .WillRepeatedly(Invoke([](int id) -> PresetParser::Preset {
+    EXPECT_CALL(*pPresetParserRaw, preset(_)).WillRepeatedly([](int id) -> PresetParser::Preset {
         PresetParser::Preset p;
-        switch(id)
+        switch (id)
         {
-        case 0: p.keyword = QString("-be"); break;
-        case 1: p.keyword = QString("-us"); break;
+        case 0:
+            p.keyword = QString("-be");
+            break;
+        case 1:
+            p.keyword = QString("-us");
+            break;
         }
         return p;
-    }));
+    });
 
     QCOMPARE(presetHandler->determinePreset("test-us"), 1);
 }
@@ -90,8 +91,7 @@ void TestPresetHandler::emptyNameList()
     MockPresetParser* pPresetParserRaw = pPresetParser.get();
     auto presetHandler = std::make_unique<PresetHandler>(std::move(pPresetParser));
 
-    EXPECT_CALL(*pPresetParserRaw, presetCount())
-            .WillRepeatedly(Return(0));
+    EXPECT_CALL(*pPresetParserRaw, presetCount()).WillRepeatedly(Return(0));
 
     EXPECT_CALL(*pPresetParserRaw, preset(_)).Times(0);
 
@@ -104,20 +104,24 @@ void TestPresetHandler::nameList()
     MockPresetParser* pPresetParserRaw = pPresetParser.get();
     auto presetHandler = std::make_unique<PresetHandler>(std::move(pPresetParser));
 
-    EXPECT_CALL(*pPresetParserRaw, presetCount())
-            .WillRepeatedly(Return(3));
+    EXPECT_CALL(*pPresetParserRaw, presetCount()).WillRepeatedly(Return(3));
 
-    EXPECT_CALL(*pPresetParserRaw, preset(_))
-            .WillRepeatedly(Invoke([](int id) -> PresetParser::Preset {
+    EXPECT_CALL(*pPresetParserRaw, preset(_)).WillRepeatedly([](int id) -> PresetParser::Preset {
         PresetParser::Preset p;
-        switch(id)
+        switch (id)
         {
-        case 0: p.name = QString("be"); break;
-        case 1: p.name = QString("us"); break;
-        case 2: p.name = QString("it"); break;
+        case 0:
+            p.name = QString("be");
+            break;
+        case 1:
+            p.name = QString("us");
+            break;
+        case 2:
+            p.name = QString("it");
+            break;
         }
         return p;
-    }));
+    });
 
     QStringList nameList = presetHandler->nameList();
     QCOMPARE(nameList.size(), 3);
