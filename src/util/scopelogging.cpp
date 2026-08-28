@@ -56,7 +56,7 @@ void ScopeLogging::initLogging(DiagnosticModel* pDiagnosticModel)
      * Qt only allows a wildcard as a prefix or suffix of a category name, never embedded
      * (e.g. "qt.qpa.wayland.*.warning" is silently dropped), so list categories explicitly. */
     QStringList filterRules;
-    filterRules << QStringLiteral("qt.qpa.wayland.warning = false");
+    filterRules << QStringLiteral("qt.qpa.wayland.* = false");
 
     QLoggingCategory::setFilterRules(filterRules.join(QLatin1Char('\n')));
 }
