@@ -1,6 +1,7 @@
 #ifndef SCOPECONTROLLER_H
 #define SCOPECONTROLLER_H
 
+#include "communication/datapoint.h"
 #include "datahandling/graphdatahandler.h"
 #include "util/result.h"
 
@@ -62,6 +63,8 @@ private slots:
     void updateDataFileNotes();
 
 private:
+    QString sessionValidationError(const QList<DataPoint>& registerList) const;
+
     GuiModel* _pGuiModel;
     SettingsModel* _pSettingsModel;
     GraphDataModel* _pGraphDataModel;

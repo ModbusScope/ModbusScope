@@ -1,5 +1,6 @@
 #include "tst_scopecontroller.h"
 
+#include "../models/devicelisthelpers.h"
 #include "controllers/scopecontroller.h"
 #include "models/communicationstatsmodel.h"
 #include "models/dataparsermodel.h"
@@ -10,6 +11,8 @@
 #include "models/settingsmodel.h"
 #include "util/graphindex.h"
 
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QSignalSpy>
 #include <QTest>
 
@@ -54,6 +57,82 @@ void TestScopeController::startWithoutRegistersEmitsError()
     _pController->start();
 
     QCOMPARE(spy.count(), 1);
+    QCOMPARE(_pGuiModel->guiState(), GuiState::INIT);
+}
+
+void TestScopeController::startWithUnknownDeviceEmitsError()
+{
+    _pGraphDataModel->add();
+    _pGraphDataModel->setExpression(GraphIdx(0), QStringLiteral("${45332@99}"));
+    _pGraphDataModel->setActive(GraphIdx(0), true);
+
+    QSignalSpy spy(_pController, &ScopeController::errorOccurred);
+
+    _pController->start();
+
+    QCOMPARE(spy.count(), 1);
+    QVERIFY(spy.at(0).at(0).toString().contains(QStringLiteral("99")));
+    QCOMPARE(_pGuiModel->guiState(), GuiState::INIT);
+    QVERIFY(!_pController->isPolling());
+}
+
+void TestScopeController::startWithDeviceTruncatedByAdapterLimitEmitsError()
+{
+    DeviceListHelpers::seedDevice(_pSettingsModel, 1, QStringLiteral("modbus"));
+    DeviceListHelpers::seedDevice(_pSettingsModel, 2, QStringLiteral("modbus"));
+
+    // The adapter's schema allows only one device; configForWire() drops the second.
+    QJsonObject devicesSchema;
+    devicesSchema["maxItems"] = 1;
+    QJsonObject properties;
+    properties["devices"] = devicesSchema;
+    QJsonObject schema;
+    schema["properties"] = properties;
+    QJsonObject describeResult;
+    describeResult["schema"] = schema;
+    _pSettingsModel->updateAdapterFromDescribe(QStringLiteral("modbus"), describeResult);
+
+    QJsonObject device1;
+    device1["id"] = 1;
+    QJsonObject device2;
+    device2["id"] = 2;
+    QJsonObject config;
+    config["devices"] = QJsonArray({ device1, device2 });
+    _pSettingsModel->setAdapterCurrentConfig(QStringLiteral("modbus"), config);
+
+    _pGraphDataModel->add();
+    _pGraphDataModel->setExpression(GraphIdx(0), QStringLiteral("${100}"));
+    _pGraphDataModel->setActive(GraphIdx(0), true);
+
+    _pGraphDataModel->add();
+    _pGraphDataModel->setExpression(GraphIdx(1), QStringLiteral("${200@2}"));
+    _pGraphDataModel->setActive(GraphIdx(1), true);
+
+    QSignalSpy spy(_pController, &ScopeController::errorOccurred);
+
+    _pController->start();
+
+    QCOMPARE(spy.count(), 1);
+    const QString message = spy.at(0).at(0).toString();
+    QVERIFY(message.contains(QStringLiteral("Device 2")));
+    QVERIFY(message.contains(QStringLiteral("device limit exceeded")));
+    QCOMPARE(_pGuiModel->guiState(), GuiState::INIT);
+}
+
+void TestScopeController::startWithDeviceOwnedByUnavailableAdapterEmitsError()
+{
+    DeviceListHelpers::seedDevice(_pSettingsModel, 1, QStringLiteral("dummy"));
+
+    _pGraphDataModel->add();
+    _pGraphDataModel->setExpression(GraphIdx(0), QStringLiteral("${100}"));
+    _pGraphDataModel->setActive(GraphIdx(0), true);
+
+    QSignalSpy spy(_pController, &ScopeController::errorOccurred);
+
+    _pController->start();
+
+    QCOMPARE(spy.count(), 1);
+    QVERIFY(spy.at(0).at(0).toString().contains(QStringLiteral("dummy")));
     QCOMPARE(_pGuiModel->guiState(), GuiState::INIT);
 }
 

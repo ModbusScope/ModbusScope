@@ -12,6 +12,10 @@
 #include "util/expressionstatus.h"
 
 #include <QFileInfo>
+#include <QHash>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QSet>
 #include <utility>
 
 using GuiState = GuiModel::GuiState;
@@ -125,12 +129,19 @@ void ScopeController::start()
 
     if (_pGraphDataModel->activeCount() != 0)
     {
+        QList<DataPoint> registerList;
+        _graphDataHandler.setupExpressions(_pGraphDataModel, registerList);
+
+        const QString validationError = sessionValidationError(registerList);
+        if (!validationError.isEmpty())
+        {
+            emit errorOccurred(validationError);
+            return;
+        }
+
         _pGuiModel->setGuiState(GuiState::STARTED);
 
         clear();
-
-        QList<DataPoint> registerList;
-        _graphDataHandler.setupExpressions(_pGraphDataModel, registerList);
 
         _pAdapterPoll->startCommunication(registerList);
         if (!_pAdapterPoll->isActive())
@@ -151,6 +162,95 @@ void ScopeController::start()
     {
         emit errorOccurred(tr("There are no registers in the scope list. Please select at least one register."));
     }
+}
+
+/*!
+ * \brief Check that every device referenced by a register can actually be reached
+ *
+ * Guards against three ways a register's device can silently fail to route correctly: it may
+ * not exist at all (in which case SettingsModel::adapterIdForDevice() falls back to "modbus"
+ * rather than reporting an error), it may have been dropped from the owning adapter's wire
+ * config by AdapterData::configForWire()'s device-limit truncation, or its owning adapter may
+ * not be a real, discovered adapter at all. The truncation check only runs for an adapter
+ * SettingsModel already knows about, so it never has to insert a placeholder AdapterData entry
+ * as a side effect of validation alone.
+ * \param registerList  The registers about to be sent to AdapterPoll::startCommunication().
+ * \return An empty string when every device is reachable; otherwise a message naming each
+ * problem device, suitable for errorOccurred().
+ */
+QString ScopeController::sessionValidationError(const QList<DataPoint>& registerList) const
+{
+    QStringList problems;
+    QSet<deviceId_t> seenDevices;
+    QHash<QString, QJsonValue> wireDevicesByAdapter;
+
+    for (const DataPoint& dataPoint : registerList)
+    {
+        const deviceId_t devId = dataPoint.deviceId();
+        if (seenDevices.contains(devId))
+        {
+            continue;
+        }
+        seenDevices.insert(devId);
+
+        if (!_pSettingsModel->hasDevice(devId))
+        {
+            problems.append(tr("Device %1: no such device").arg(devId));
+            continue;
+        }
+
+        const QString deviceName = _pSettingsModel->deviceSettings(devId)->name();
+        const QString adapterId = _pSettingsModel->adapterIdForDevice(devId);
+
+        /* adapterData() inserts a default entry for an unknown adapterId, which would leave a
+           phantom entry behind for validation alone - only look up wire config for an adapter
+           SettingsModel already knows about. An adapter it has never heard of can't have
+           truncated anything, so fall through to the liveness check below. */
+        if (_pSettingsModel->adapterIds().contains(adapterId))
+        {
+            if (!wireDevicesByAdapter.contains(adapterId))
+            {
+                wireDevicesByAdapter[adapterId] =
+                  _pSettingsModel->adapterData(adapterId)->configForWire().value("devices");
+            }
+
+            const QJsonValue& wireDevices = wireDevicesByAdapter[adapterId];
+            if (wireDevices.isArray())
+            {
+                const QJsonArray wireDeviceArray = wireDevices.toArray();
+                bool survivesTruncation = false;
+                for (const auto& wireDevice : wireDeviceArray)
+                {
+                    if (wireDevice.toObject().value("id").toInt(-1) == static_cast<int>(devId))
+                    {
+                        survivesTruncation = true;
+                        break;
+                    }
+                }
+
+                if (!survivesTruncation)
+                {
+                    problems.append(tr("Device %1 (\"%2\"): dropped from adapter '%3' (device limit exceeded)")
+                                      .arg(devId)
+                                      .arg(deviceName, adapterId));
+                    continue;
+                }
+            }
+        }
+
+        if (adapterHub()->adapterManager(adapterId) == nullptr)
+        {
+            problems.append(
+              tr("Device %1 (\"%2\"): adapter '%3' is not available").arg(devId).arg(deviceName, adapterId));
+        }
+    }
+
+    if (problems.isEmpty())
+    {
+        return QString();
+    }
+
+    return tr("Logging cannot start because the following devices are misconfigured:\n%1").arg(problems.join('\n'));
 }
 
 /*!
