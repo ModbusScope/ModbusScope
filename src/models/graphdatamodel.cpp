@@ -494,13 +494,13 @@ void GraphDataModel::add(QList<GraphData> graphDataList)
 void GraphDataModel::add()
 {
     GraphData data;
-    data.setLabel("New curve");
+    data.setLabel(uniqueLabel(QStringLiteral("New signal")));
     data.setExpression(_defaultExpression);
     add(data);
 }
 
 /*!
- * \brief Sets the default expression used when adding a new register without an explicit expression.
+ * \brief Sets the default expression used when adding a new signal without an explicit expression.
  * \param expression The expression string to use as the default (e.g. \c ${h0}).
  */
 void GraphDataModel::setDefaultExpression(const QString& expression)
@@ -633,4 +633,31 @@ void GraphDataModel::moveRow(int sourceRow, int destRow)
 
     modelCompleteDataChanged();
     emit moved();
+}
+
+QString GraphDataModel::uniqueLabel(const QString& base) const
+{
+    QString candidate = base;
+    qint32 suffix = 2;
+
+    while (labelInUse(candidate))
+    {
+        candidate = QStringLiteral("%1 %2").arg(base).arg(suffix);
+        suffix++;
+    }
+
+    return candidate;
+}
+
+bool GraphDataModel::labelInUse(const QString& candidateLabel) const
+{
+    for (qint32 i = 0; i < size(); i++)
+    {
+        if (label(GraphIdx(i)) == candidateLabel)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }

@@ -263,7 +263,7 @@ deviceId_t AddRegisterWidget::selectedDeviceId() const
 /*!
  * \brief Rebuilds the address form when another device is selected.
  *
- * The curve name and axis selection are kept so switching devices only
+ * The signal name and axis selection are kept so switching devices only
  * replaces the address fields.
  * \param index Index of the newly selected combo box entry (unused).
  */
@@ -313,7 +313,7 @@ void AddRegisterWidget::onBuildExpressionResult(const QString& expression)
 
 void AddRegisterWidget::resetFields()
 {
-    _pUi->lineName->setText("Name of curve");
+    _pUi->lineName->setText("Name of signal");
     _pUi->radioPrimary->setChecked(true);
 }
 
