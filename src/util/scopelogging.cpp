@@ -4,6 +4,7 @@
 
 #include <QDateTime>
 #include <QMetaObject>
+#include <QStringList>
 
 Q_LOGGING_CATEGORY(scopeComm, "scope.comm")
 Q_LOGGING_CATEGORY(scopeAdapter, "scope.comm.adapter")
@@ -51,13 +52,13 @@ void ScopeLogging::initLogging(DiagnosticModel* pDiagnosticModel)
     /* Make sure debug messages are printed in console (disabled by default in Ubuntu) */
     QLoggingCategory::defaultCategory()->setEnabled(QtDebugMsg, true);
 
-#ifdef VERBOSE
-    // Enable to have internal QModbus debug messages
-    QLoggingCategory::setFilterRules(QStringLiteral("qt.modbus* = true"));
-    QLoggingCategory::setFilterRules(QStringLiteral("scope.connection* = false"));
-#else
-    // QLoggingCategory::setFilterRules("*=false\n");
-#endif
+    /* Silence noisy Qt platform plugin warnings that are unrelated to application logic.
+     * Qt only allows a wildcard as a prefix or suffix of a category name, never embedded
+     * (e.g. "qt.qpa.wayland.*.warning" is silently dropped), so list categories explicitly. */
+    QStringList filterRules;
+    filterRules << QStringLiteral("qt.qpa.wayland.warning = false");
+
+    QLoggingCategory::setFilterRules(filterRules.join(QLatin1Char('\n')));
 }
 
 /*!
