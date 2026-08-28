@@ -5,13 +5,13 @@ This page describes the format of `.csv` files written and read by ModbusScope.
 ## File structure
 
 ```text
-Time (ms);Register 1;Register 2;Register 3
+Time (ms);Signal 1;Signal 2;Signal 3
 0;100;200;300
 250;101;201;301
 500;102;202;302
 ```
 
-- **Row 1**: column headers. The first column is always the timestamp header; subsequent columns are register names.
+- **Row 1**: column headers. The first column is always the timestamp header; subsequent columns are signal names.
 - **Rows 2+**: one data row per poll cycle.
 
 ## Column layout
@@ -19,7 +19,7 @@ Time (ms);Register 1;Register 2;Register 3
 | Column | Content | Type |
 | --- | --- | --- |
 | 1 | Timestamp | Integer (ms from session start) or absolute date-time when absolute timestamps are enabled |
-| 2..N | Register values | Numeric, one column per register in the order they appear in Registers |
+| 2..N | Signal values | Numeric, one column per signal in the order they appear in Signals |
 
 ## Separators (export)
 

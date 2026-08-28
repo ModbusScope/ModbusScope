@@ -1,12 +1,12 @@
 # Your first logging session
 
-This tutorial walks you through a complete ModbusScope session from a fresh installation to a saved CSV file. You will connect to a Modbus TCP device, add three registers, log data, and export it.
+This tutorial walks you through a complete ModbusScope session from a fresh installation to a saved CSV file. You will connect to a Modbus TCP device, add three signals, log data, and export it.
 
 **What you need:**
 
 - ModbusScope installed on your computer ([download](https://github.com/ModbusScope/ModbusScope/releases/latest))
 - A Modbus TCP device reachable on your network (this tutorial uses `192.168.1.10`, port `502`, slave ID `1`)
-- Three holding registers at addresses `40001`, `40002`, `40003`
+- Three holding-register data points at addresses `40001`, `40002`, `40003`
 
 If your device uses different values, substitute them at each step.
 
@@ -31,20 +31,20 @@ If your device uses different values, substitute them at each step.
 5. Set **Slave ID** to `1` (the Modbus slave ID of the device).
 6. Click **OK**.
 
-## Step 3 — Add registers
+## Step 3 — Add signals
 
-1. Click **Registers** in the toolbar.
+1. Click **Signals** in the toolbar.
 2. Click **Add** to add a new row.
-3. In the **Expression** column, type `${40001}`. Set **Name** to `Register 1`.
-4. Add a second row: expression `${40002}`, name `Register 2`.
-5. Add a third row: expression `${40003}`, name `Register 3`.
+3. In the **Expression** column, type `${40001}`. Set **Name** to `Signal 1`.
+4. Add a second row: expression `${40002}`, name `Signal 2`.
+5. Add a third row: expression `${40003}`, name `Signal 3`.
 6. Click **OK**.
 
 ## Step 4 — Start logging
 
 1. Click **Start Logging**.
 
-The graph starts updating in real time. Each register appears as a line.
+The graph starts updating in real time. Each signal appears as a line.
 
 You can pan and zoom the live graph at any time: scroll to zoom, drag to pan. This is useful for inspecting recent samples while logging continues.
 
@@ -76,7 +76,7 @@ The graph stops updating. You can continue to pan and zoom the captured data bef
 2. Choose a folder and file name.
 3. Click **Save**.
 
-**Result:** You have a `.csv` file containing timestamps and the values of all three registers, one column each.
+**Result:** You have a `.csv` file containing timestamps and the values of all three signals, one column each.
 
 ---
 
@@ -84,5 +84,5 @@ The graph stops updating. You can continue to pan and zoom the captured data bef
 
 - [Navigate the graph: scaling, zoom, and pan](../how-to/navigate-the-graph.md)
 - [Add a second connection and device](../how-to/configure-tcp-connection.md)
-- [Write expressions to convert or combine register values](../how-to/write-expressions.md)
-- [Save your register configuration as a project file](../how-to/save-restore-project.md)
+- [Write expressions to convert or combine data point values](../how-to/write-expressions.md)
+- [Save your signal configuration as a project file](../how-to/save-restore-project.md)

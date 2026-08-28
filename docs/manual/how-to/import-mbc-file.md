@@ -32,4 +32,4 @@ After opening the file with either option:
 
 ## See also
 
-- [Add registers manually](add-registers.md)
+- [Add signals manually](add-registers.md)

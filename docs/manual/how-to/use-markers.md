@@ -14,8 +14,8 @@ This guide shows how to place markers on the graph to measure time and value dif
 3. Read the values in the **Markers** panel:
    - **Time 1 / Time 2**: timestamp of each marker
    - **Time diff**: elapsed time between the two markers
-   - **Value**: the register value at each marker position, per register
-   - **Value diff**: the difference in value between the two markers, per register
+   - **Value**: each signal's value at the marker position
+   - **Value diff**: the difference in value between the two markers, per signal
 
 4. To move a marker, hold `Ctrl` and click again at a new position using the same mouse button (left for left marker, right for right marker).
 
