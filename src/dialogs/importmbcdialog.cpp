@@ -18,7 +18,7 @@
 /*!
  * \brief Constructs the ImportMbcDialog.
  * \param pGuiModel Used to read/write the last imported MBC file path.
- * \param pGraphDatamodel Used to detect update suggestions and to add new registers.
+ * \param pGraphDatamodel Used to detect update suggestions and to add new signals.
  * \param parent Parent widget.
  */
 ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel, GraphDataModel* pGraphDatamodel, QWidget* parent)

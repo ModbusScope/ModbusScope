@@ -52,15 +52,15 @@ public:
     void prepareAdapter(const QString& adapterPath);
 
     /*!
-     * \brief Provide the configuration and register expressions to send to adapter.configure and adapter.start.
+     * \brief Provide the configuration and data point expressions to send to adapter.configure and adapter.start.
      *
      * Must be called after describeResult() has been emitted (i.e., in the
      * AWAITING_CONFIG state). Sends adapter.configure with the given config,
-     * then continues to adapter.start with the register expressions, and emits
+     * then continues to adapter.start with the data point expressions, and emits
      * sessionStarted() on success.
      *
      * \param config JSON object passed as the \c config param to adapter.configure.
-     * \param registerExpressions Register expression strings passed to adapter.start.
+     * \param registerExpressions Data point expression strings passed to adapter.start.
      */
     void provideConfig(QJsonObject config, QStringList registerExpressions);
 
@@ -165,15 +165,15 @@ signals:
      * start has been attempted.
      *
      * Also emitted when adapter.configure or adapter.start is rejected (e.g. too many devices for
-     * an unlicensed session, or an invalid register expression): the session is considered started
-     * but degraded, so requestReadData() reports invalid results for every register instead of
+     * an unlicensed session, or an invalid data point expression): the session is considered started
+     * but degraded, so requestReadData() reports invalid results for every data point instead of
      * leaving the caller waiting indefinitely for a session that will never start.
      */
     void sessionStarted();
 
     /*!
      * \brief Emitted when an adapter.readData response has been received.
-     * \param results One entry per register, in the same order as the expressions passed to provideConfig().
+     * \param results One entry per data point, in the same order as the expressions passed to provideConfig().
      */
     void readDataResult(ResultDoubleList results);
 

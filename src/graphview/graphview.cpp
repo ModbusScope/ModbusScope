@@ -22,9 +22,9 @@
 #include <QtGlobal>
 
 /*
- * The GraphDataSeries in the data model is the single source of truth for graph data.
+ * The GraphDataSeries in the data model is the single source of truth for a signal's data.
  * Each QCPGraph holds a private render copy of that data. Every function that mutates
- * graph data must write the model series first and then update the render copy.
+ * signal data must write the model series first and then update the render copy.
  */
 
 GraphView::GraphView(GuiModel* pGuiModel,
@@ -302,7 +302,7 @@ void GraphView::updateGraphs()
 }
 
 /*!
- * \brief Replaces the graph's render data with a copy of the model's data series.
+ * \brief Replaces the signal's render data with a copy of the model's data series.
  * \param graphIdx Graph index in the full graph list.
  * \param pGraph Plotted graph to update.
  */
@@ -424,9 +424,9 @@ void GraphView::bringToFront(ActiveIdx activeGraphIdx)
 }
 
 /*!
- * \brief Appends time-series data to all active graphs and rescales the axes.
- * \param timeData Shared time keys for all graphs.
- * \param data Per-graph value lists, aligned with \a timeData.
+ * \brief Appends time-series data to all active signals and rescales the axes.
+ * \param timeData Shared time keys for all signals.
+ * \param data Per-signal value lists, aligned with \a timeData.
  */
 void GraphView::addData(QList<double> timeData, QList<QList<double> > data)
 {

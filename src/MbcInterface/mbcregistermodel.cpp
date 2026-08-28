@@ -327,7 +327,7 @@ Qt::ItemFlags MbcRegisterModel::flags(const QModelIndex& index) const
 }
 
 /*!
- * \brief Returns a list of GraphData objects for all selected registers.
+ * \brief Returns a list of GraphData objects (signals) for all selected registers.
  */
 QList<GraphData> MbcRegisterModel::selectedRegisterList()
 {

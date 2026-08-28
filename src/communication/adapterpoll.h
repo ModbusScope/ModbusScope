@@ -64,7 +64,7 @@ private slots:
 
 private:
     /*!
-     * \brief Tracks the register expressions and their original positions for one adapter.
+     * \brief Tracks the data point expressions and their original positions for one adapter.
      */
     struct AdapterGroup
     {

@@ -3,7 +3,7 @@
 
 #include <QList>
 
-//! Single sample of a graph: timestamp in milliseconds and the computed value
+//! Single sample of a signal: timestamp in milliseconds and the computed value
 struct GraphSample
 {
     double timestamp;

@@ -20,7 +20,7 @@ QList<DataPoint> ExpressionParser::dataPoints() const
 }
 
 /*!
- * \brief Returns the list of processed expressions with register references replaced.
+ * \brief Returns the list of processed expressions with data point references replaced.
  */
 QStringList ExpressionParser::processedExpressions() const
 {

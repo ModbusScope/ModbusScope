@@ -165,16 +165,16 @@ void ScopeController::start()
 }
 
 /*!
- * \brief Check that every device referenced by a register can actually be reached
+ * \brief Check that every device referenced by a data point can actually be reached
  *
- * Guards against three ways a register's device can silently fail to route correctly: it may
+ * Guards against three ways a data point's device can silently fail to route correctly: it may
  * not exist at all (in which case SettingsModel::adapterIdForDevice() falls back to "modbus"
  * rather than reporting an error), it may have been dropped from the owning adapter's wire
  * config by AdapterData::configForWire()'s device-limit truncation, or its owning adapter may
  * not be a real, discovered adapter at all. The truncation check only runs for an adapter
  * SettingsModel already knows about, so it never has to insert a placeholder AdapterData entry
  * as a side effect of validation alone.
- * \param registerList  The registers about to be sent to AdapterPoll::startCommunication().
+ * \param registerList  The data points about to be sent to AdapterPoll::startCommunication().
  * \return An empty string when every device is reachable; otherwise a message naming each
  * problem device, suitable for errorOccurred().
  */
@@ -352,7 +352,7 @@ void ScopeController::openFile(QString filename)
 }
 
 /*!
- * \brief Process incoming register data and update communication statistics
+ * \brief Process incoming data point results and update communication statistics
  */
 void ScopeController::onRegisterDataReady(const ResultDoubleList& results)
 {

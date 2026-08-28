@@ -9,7 +9,7 @@
 
 /*!
  * \param[in]     pGraphDataModel   Graph data model
- * \param[out]    registerList      List of registers
+ * \param[out]    registerList      List of data points
  */
 void GraphDataHandler::setupExpressions(GraphDataModel* pGraphDataModel, QList<DataPoint>& registerList)
 {
@@ -66,8 +66,8 @@ QMuParser::ErrorType GraphDataHandler::expressionErrorType(qint32 exprIdx) const
 }
 
 /*!
- * \brief Evaluates each configured expression against the raw register results.
- * \param results Raw register read results from the adapter (one entry per Modbus register).
+ * \brief Evaluates each configured expression against the raw data point results.
+ * \param results Raw data point read results from the adapter (one entry per data point).
  * \return Expression-evaluated results (one entry per graph expression). Entries are marked
  *         INVALID when expression evaluation fails; the input values are not passed through.
  */

@@ -36,7 +36,7 @@ void GraphIndicators::clear()
 }
 
 /*!
- * \brief Adds a pair of tracers for the given graph to track its value on the axis.
+ * \brief Adds a pair of tracers for the given signal to track its value on the axis.
  * \param graphIdx Graph index in the full graph list.
  * \param pGraph Pointer to the QCPGraph to attach the tracer to.
  */
@@ -94,9 +94,9 @@ void GraphIndicators::updateVisibility()
 }
 
 /*!
- * \brief Returns whether the axis tracer for the given active graph should be visible.
- * \param activeIdx Sequential slot index of the active graph.
- * \return True if the tracer is in range and the graph is visible with data; false otherwise.
+ * \brief Returns whether the axis tracer for the given active signal should be visible.
+ * \param activeIdx Sequential slot index of the active signal.
+ * \return True if the tracer is in range and the signal is visible with data; false otherwise.
  */
 bool GraphIndicators::determineVisibility(ActiveIdx activeIdx)
 {
@@ -112,7 +112,7 @@ bool GraphIndicators::determineVisibility(ActiveIdx activeIdx)
 }
 
 /*!
- * \brief Moves the tracer for the given graph to the top drawing layer.
+ * \brief Moves the tracer for the given signal to the top drawing layer.
  * \param graphIdx Graph index in the full graph list.
  */
 void GraphIndicators::setFrontGraph(GraphIdx graphIdx)
@@ -154,7 +154,7 @@ void GraphIndicators::setTracerPosition(const QCPRange& newRange)
 }
 
 /*!
- * \brief Updates the tracer pen color to match the current graph color.
+ * \brief Updates the tracer pen color to match the current signal color.
  * \param graphIdx Graph index in the full graph list.
  */
 void GraphIndicators::updateColor(GraphIdx graphIdx)
