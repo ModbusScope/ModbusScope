@@ -2,8 +2,8 @@
 # For more info see https://dfetch.rtfd.io/en/latest/getting_started.html
 dfetch:
   branch: main
-  hash: 93b6c074f64c2c251800e88387c77760
-  last_fetch: 24/08/2026, 20:48:25
+  hash: 94160cc95e6bca2244d9af288d48719d
+  last_fetch: 28/08/2026, 12:54:13
   patch: ''
   remote_url: https://github.com/google/googletest
   revision: ''
