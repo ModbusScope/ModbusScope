@@ -40,7 +40,7 @@ void AdapterManager::initAdapter()
 }
 
 /*! \brief Fetch the effective adapter config from the settings model and start the session.
- * \param registerExpressions Register expression strings to pass to the adapter.
+ * \param registerExpressions Data point expression strings to pass to the adapter.
  */
 void AdapterManager::startSession(const QStringList& registerExpressions)
 {
@@ -107,8 +107,8 @@ void AdapterManager::requestReadData()
 }
 
 /*!
- * \brief Request the adapter to construct a register expression from its component parts.
- * \param addressFields Address field values from the register schema form.
+ * \brief Request the adapter to construct a data point expression from its component parts.
+ * \param addressFields Address field values from the data point schema form.
  * \param dataType      Data type identifier; empty string uses the adapter default.
  * \param deviceId      Device identifier; 0 uses the adapter default.
  */

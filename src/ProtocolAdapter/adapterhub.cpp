@@ -77,9 +77,9 @@ void AdapterHub::initAdapter()
     }
 }
 
-/*! \brief Provide register expressions to the named adapter and start its session.
+/*! \brief Provide data point expressions to the named adapter and start its session.
  * \param adapterId   Adapter identifier (e.g. "modbus").
- * \param expressions Register expression strings to pass to the adapter.
+ * \param expressions Data point expression strings to pass to the adapter.
  */
 void AdapterHub::startSession(const QString& adapterId, const QStringList& expressions)
 {

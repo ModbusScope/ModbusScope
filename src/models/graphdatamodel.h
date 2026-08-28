@@ -111,6 +111,8 @@ private:
     void addToModel(GraphData graphData);
     void removeFromModel(int row);
     void moveRow(int sourceRow, int destRow);
+    QString uniqueLabel(const QString& base) const;
+    bool labelInUse(const QString& candidateLabel) const;
 
     QString _defaultExpression;
 

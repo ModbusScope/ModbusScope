@@ -4,7 +4,7 @@
 
 /*!
  * \brief Constructs the model and connects to GraphDataModel change signals.
- * \param pGraphDataModel The graph data model to compare imported registers against.
+ * \param pGraphDataModel The graph data model whose existing signals are compared against imported registers.
  */
 MbcUpdateModel::MbcUpdateModel(GraphDataModel* pGraphDataModel, QObject* parent)
     : QAbstractTableModel(parent), _pGraphDataModel(pGraphDataModel)
@@ -215,7 +215,8 @@ void MbcUpdateModel::checkUpdate()
         else if (labelToIndex.contains(checkName))
         {
             int idx = labelToIndex[checkName];
-            if (_updateInfo[idx].update == UpdateField::None && _pGraphDataModel->expression(GraphIdx(idx)) != checkExpr)
+            if (_updateInfo[idx].update == UpdateField::None &&
+                _pGraphDataModel->expression(GraphIdx(idx)) != checkExpr)
             {
                 _updateInfo[idx].update = UpdateField::Expression;
                 _updateInfo[idx].expression = checkExpr;

@@ -238,7 +238,7 @@ void MarkerInfoItem::selectGraph(qint32 graphIndex)
  * \brief Look up the sample value at \p markerPos, clamped to the series' extent
  *
  * findBegin() returns constEnd() when \p markerPos lies beyond the last sample (e.g. the marker was
- * snapped to a different, longer-running graph). In that case the last sample's value is used instead.
+ * snapped to a different, longer-running signal). In that case the last sample's value is used instead.
  * \p dataSeries must not be empty.
  * \param dataSeries Series to sample.
  * \param markerPos Timestamp to look up.

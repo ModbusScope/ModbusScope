@@ -42,7 +42,7 @@
       <item row="2" column="0" colspan="2">
        <widget class="QLineEdit" name="lineName">
         <property name="text">
-         <string>Name of curve</string>
+         <string>Name of signal</string>
         </property>
        </widget>
       </item>
@@ -72,7 +72,7 @@
    <item>
     <widget class="QPushButton" name="btnAdd">
      <property name="text">
-      <string>Add register</string>
+      <string>Add signal</string>
      </property>
     </widget>
    </item>

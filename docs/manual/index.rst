@@ -24,7 +24,7 @@ ModbusScope documentation
 
    Configure a TCP connection <how-to/configure-tcp-connection>
    Configure an RTU connection <how-to/configure-rtu-connection>
-   Add registers <how-to/add-registers>
+   Add signals <how-to/add-data-points>
    Write expressions <how-to/write-expressions>
    Import from MBC file <how-to/import-mbc-file>
    Use markers <how-to/use-markers>

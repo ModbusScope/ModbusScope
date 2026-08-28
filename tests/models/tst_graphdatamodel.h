@@ -16,6 +16,11 @@ private slots:
     void setDefaultExpressionUpdatesSubsequentAdds();
     void setDefaultExpressionIgnoresEmptyString();
 
+    void addAssignsUniqueDefaultLabel();
+    void addReusesLabelFreedByRename();
+    void addReusesLabelFreedByRemove();
+    void addUniqueLabelIsCaseSensitive();
+
     void activeCountZeroWhenEmpty();
     void activeCountReflectsAddedRegisters();
     void activeCountZeroWhenAllDeactivated();

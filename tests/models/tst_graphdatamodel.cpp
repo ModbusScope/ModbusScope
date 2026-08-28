@@ -54,6 +54,58 @@ void TestGraphDataModel::setDefaultExpressionIgnoresEmptyString()
     QCOMPARE(model.expression(GraphIdx(0)), QStringLiteral("${i0}"));
 }
 
+void TestGraphDataModel::addAssignsUniqueDefaultLabel()
+{
+    GraphDataModel model;
+    model.add();
+    model.add();
+    model.add();
+
+    QCOMPARE(model.label(GraphIdx(0)), QStringLiteral("New signal"));
+    QCOMPARE(model.label(GraphIdx(1)), QStringLiteral("New signal 2"));
+    QCOMPARE(model.label(GraphIdx(2)), QStringLiteral("New signal 3"));
+}
+
+void TestGraphDataModel::addReusesLabelFreedByRename()
+{
+    GraphDataModel model;
+    model.add();
+    model.setLabel(GraphIdx(0), QStringLiteral("Renamed"));
+
+    model.add();
+    model.add();
+
+    QCOMPARE(model.label(GraphIdx(1)), QStringLiteral("New signal"));
+    QCOMPARE(model.label(GraphIdx(2)), QStringLiteral("New signal 2"));
+}
+
+void TestGraphDataModel::addReusesLabelFreedByRemove()
+{
+    GraphDataModel model;
+    model.add();
+    model.add();
+    model.add();
+    QCOMPARE(model.label(GraphIdx(1)), QStringLiteral("New signal 2"));
+
+    model.removeRegister(GraphIdx(1));
+    model.add();
+
+    QCOMPARE(model.label(GraphIdx(2)), QStringLiteral("New signal 2"));
+}
+
+void TestGraphDataModel::addUniqueLabelIsCaseSensitive()
+{
+    /* "new signal" (lowercase) must not be treated as colliding with the "New signal" default,
+       so the next add() reuses "New signal" rather than skipping to "New signal 2". */
+    GraphDataModel model;
+    model.add();
+    model.setLabel(GraphIdx(0), QStringLiteral("new signal"));
+
+    model.add();
+
+    QCOMPARE(model.label(GraphIdx(1)), QStringLiteral("New signal"));
+}
+
 void TestGraphDataModel::activeCountZeroWhenEmpty()
 {
     GraphDataModel model;

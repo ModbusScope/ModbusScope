@@ -33,7 +33,7 @@ Legend::Legend(QWidget* parent) : QFrame(parent), _pGuiModel(nullptr), _pGraphDa
     _pLegendTable->setFocusPolicy(Qt::NoFocus);
     _pLegendTable->setSelectionMode(QAbstractItemView::NoSelection);
     _pLegendTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    _pLegendTable->setHorizontalHeaderLabels(QStringList() << " " << " " << "Value" << "Register");
+    _pLegendTable->setHorizontalHeaderLabels(QStringList() << " " << " " << "Value" << "Signal");
     _pLegendTable->hide();
 
     QHeaderView* horizontalHeader = _pLegendTable->horizontalHeader();

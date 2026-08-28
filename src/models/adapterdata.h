@@ -34,7 +34,7 @@ struct AdapterLicenseInfo
 };
 
 /*!
- * \brief Holds adapter describe metadata, register schema, and opaque configuration.
+ * \brief Holds adapter describe metadata, data point schema, and opaque configuration.
  *
  * Stores the result of an adapter.describe response (name, version, schema,
  * defaults, capabilities), the data point schema from adapter.dataPointSchema,

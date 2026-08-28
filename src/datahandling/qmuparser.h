@@ -3,11 +3,11 @@
  * mathematical expressions.
  *
  * The QMuParser class is a wrapper around muparser that provides an interface to set the expression,
- * evaluate it, and retrieve the result and error information. It also allows setting register values
+ * evaluate it, and retrieve the result and error information. It also allows setting data point values
  * that can be used in the expression. The class handles syntax errors and other exceptions thrown by
  * muparser and provides error messages and positions for easier debugging.
  *
- * All QMuParser instances share the same register values, which are set through the static method
+ * All QMuParser instances share the same data point values, which are set through the static method
  * setRegistersData.
  */
 #ifndef QMUPARSER_H

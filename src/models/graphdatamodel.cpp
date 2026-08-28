@@ -343,8 +343,8 @@ qint32 GraphDataModel::activeCount() const
 }
 
 /*!
- * \brief Returns the value axis assignment for the given graph.
- * \param index GraphIdx identifying the graph in the full (active + inactive) list.
+ * \brief Returns the value axis assignment for the given signal.
+ * \param index GraphIdx identifying the signal in the full (active + inactive) list.
  * \return Primary or secondary axis assignment; default-constructed value if index is invalid.
  */
 GraphData::valueAxis_t GraphDataModel::valueAxis(GraphIdx index) const
@@ -353,8 +353,8 @@ GraphData::valueAxis_t GraphDataModel::valueAxis(GraphIdx index) const
 }
 
 /*!
- * \brief Returns whether the graph is currently visible in the plot.
- * \param index GraphIdx identifying the graph.
+ * \brief Returns whether the signal is currently visible in the plot.
+ * \param index GraphIdx identifying the signal.
  * \return True if visible; false if hidden or if \a index is invalid.
  */
 bool GraphDataModel::isVisible(GraphIdx index) const
@@ -363,8 +363,8 @@ bool GraphDataModel::isVisible(GraphIdx index) const
 }
 
 /*!
- * \brief Returns the display label for the given graph.
- * \param index GraphIdx identifying the graph.
+ * \brief Returns the display label for the given signal.
+ * \param index GraphIdx identifying the signal.
  * \return Label string; empty string if \a index is invalid.
  */
 QString GraphDataModel::label(GraphIdx index) const
@@ -408,8 +408,8 @@ QString GraphDataModel::simplifiedExpression(GraphIdx index) const
 }
 
 /*!
- * \brief Returns a read-only view of the graph's time-series data.
- * \param index GraphIdx identifying the graph.
+ * \brief Returns a read-only view of the signal's time-series data.
+ * \param index GraphIdx identifying the signal.
  * \return Shared pointer to the data series; null if \a index is invalid.
  */
 QSharedPointer<const GraphDataSeries> GraphDataModel::dataSeries(GraphIdx index) const
@@ -418,8 +418,8 @@ QSharedPointer<const GraphDataSeries> GraphDataModel::dataSeries(GraphIdx index)
 }
 
 /*!
- * \brief Returns a writable reference to the graph's time-series data.
- * \param index GraphIdx identifying the graph.
+ * \brief Returns a writable reference to the signal's time-series data.
+ * \param index GraphIdx identifying the signal.
  * \return Shared pointer to the data series; null if \a index is invalid.
  */
 QSharedPointer<GraphDataSeries> GraphDataModel::mutableDataSeries(GraphIdx index)
@@ -468,7 +468,7 @@ void GraphDataModel::setSelectedGraph(GraphIdx index)
 }
 
 /*!
- * \brief Appends a single graph with the given data to the model.
+ * \brief Appends a single signal with the given data to the model.
  * \param rowData Fully populated GraphData to add.
  */
 void GraphDataModel::add(GraphData rowData)
@@ -477,7 +477,7 @@ void GraphDataModel::add(GraphData rowData)
 }
 
 /*!
- * \brief Appends a list of graphs to the model.
+ * \brief Appends a list of signals to the model.
  * \param graphDataList List of GraphData entries to add in order.
  */
 void GraphDataModel::add(QList<GraphData> graphDataList)
@@ -489,18 +489,18 @@ void GraphDataModel::add(QList<GraphData> graphDataList)
 }
 
 /*!
- * \brief Appends a new empty graph using the default expression.
+ * \brief Appends a new empty signal using the default expression.
  */
 void GraphDataModel::add()
 {
     GraphData data;
-    data.setLabel("New curve");
+    data.setLabel(uniqueLabel(QStringLiteral("New signal")));
     data.setExpression(_defaultExpression);
     add(data);
 }
 
 /*!
- * \brief Sets the default expression used when adding a new register without an explicit expression.
+ * \brief Sets the default expression used when adding a new signal without an explicit expression.
  * \param expression The expression string to use as the default (e.g. \c ${h0}).
  */
 void GraphDataModel::setDefaultExpression(const QString& expression)
@@ -633,4 +633,31 @@ void GraphDataModel::moveRow(int sourceRow, int destRow)
 
     modelCompleteDataChanged();
     emit moved();
+}
+
+QString GraphDataModel::uniqueLabel(const QString& base) const
+{
+    QString candidate = base;
+    qint32 suffix = 2;
+
+    while (labelInUse(candidate))
+    {
+        candidate = QStringLiteral("%1 %2").arg(base).arg(suffix);
+        suffix++;
+    }
+
+    return candidate;
+}
+
+bool GraphDataModel::labelInUse(const QString& candidateLabel) const
+{
+    for (qint32 i = 0; i < size(); i++)
+    {
+        if (label(GraphIdx(i)) == candidateLabel)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }

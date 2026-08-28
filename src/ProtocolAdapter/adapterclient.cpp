@@ -324,7 +324,7 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
         return;
     }
 
-    /* A rejected adapter.start (e.g. an invalid register expression) is a configuration
+    /* A rejected adapter.start (e.g. an invalid data point expression) is a configuration
        problem, not an adapter/process failure: the adapter stays alive and configured.
        Treat the session as started but degraded, so polling continues and every
        requestReadData() call reports invalid results instead of tearing the session down. */
@@ -437,7 +437,7 @@ bool AdapterClient::consumeAuxResponse(const QString& method, int id)
 }
 
 /*!
- * \brief Build one INVALID result per pending register expression.
+ * \brief Build one INVALID result per pending data point expression.
  * \return A ResultDoubleList the same size as the expressions passed to the current session.
  */
 ResultDoubleList AdapterClient::invalidResults() const

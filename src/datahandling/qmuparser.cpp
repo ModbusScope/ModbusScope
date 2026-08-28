@@ -115,10 +115,10 @@ void QMuParser::setExpression(QString expr)
 }
 
 /*!
- *   Sets the register values that can be used in the expressions. The register values are shared
+ *   Sets the data point values that can be used in the expressions. The data point values are shared
  *   across all instances of QMuParser.
  *
- *   \param regValues A list of Result<double> objects representing the register values and their validity.
+ *   \param regValues A list of Result<double> objects representing the data point values and their validity.
  */
 void QMuParser::setRegistersData(const ResultDoubleList& regValues)
 {

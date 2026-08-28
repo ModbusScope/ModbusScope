@@ -140,7 +140,7 @@ void AdapterPoll::onReadDataResult(const QString& adapterId, ResultDoubleList re
         return;
     }
 
-    /* All adapters have responded — reconstruct the merged list in original register order */
+    /* All adapters have responded — reconstruct the merged list in original data point order */
     ResultDoubleList merged(_registerList.size());
     for (auto it = _adapterGroups.constBegin(); it != _adapterGroups.constEnd(); ++it)
     {

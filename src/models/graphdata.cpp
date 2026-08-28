@@ -6,7 +6,7 @@ GraphData::GraphData()
 {
     _valueAxis = VALUE_AXIS_PRIMARY;
     _bVisible = true;
-    _label = QString("Unknown register");
+    _label = QString("Unknown signal");
     _color = "-1"; // Invalid color
     _bActive = true;
     _expression = QStringLiteral("0");

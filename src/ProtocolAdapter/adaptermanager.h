@@ -36,12 +36,12 @@ public:
     virtual void initAdapter();
 
     /*!
-     * \brief Provide register expressions to the adapter and start the session.
+     * \brief Provide data point expressions to the adapter and start the session.
      *
      * Fetches the effective adapter configuration from the settings model, then
      * calls AdapterClient::provideConfig() to configure and start the adapter.
      *
-     * \param registerExpressions Register expression strings to pass to the adapter.
+     * \param registerExpressions Data point expression strings to pass to the adapter.
      */
     virtual void startSession(const QStringList& registerExpressions);
 
@@ -76,9 +76,9 @@ public:
     virtual void requestReadData();
 
     /*!
-     * \brief Request the adapter to construct a register expression from its component parts.
+     * \brief Request the adapter to construct a data point expression from its component parts.
      *
-     * \param addressFields Address field values as returned by the register schema form.
+     * \param addressFields Address field values as returned by the data point schema form.
      * \param dataType      Data type identifier (e.g. "16b"). Pass empty string for the adapter default.
      * \param deviceId      Device identifier. Pass 0 for the adapter default.
      */
@@ -135,13 +135,13 @@ signals:
 
     /*!
      * \brief Emitted when an adapter.readData response has been received.
-     * \param results One entry per register, in the same order as the expressions passed to startSession().
+     * \param results One entry per data point, in the same order as the expressions passed to startSession().
      */
     void readDataResult(ResultDoubleList results);
 
     /*!
      * \brief Emitted when an adapter.buildExpression response has been received.
-     * \param expression The constructed register expression string (e.g. \c ${h0:f32b}).
+     * \param expression The constructed data point expression string (e.g. \c ${h0:f32b}).
      */
     void buildExpressionResult(QString expression);
 

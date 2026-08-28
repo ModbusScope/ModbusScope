@@ -1,6 +1,6 @@
-# Add Modbus registers
+# Add signals
 
-This guide shows how to add registers to monitor in ModbusScope.
+This guide shows how to add signals to monitor in ModbusScope.
 
 ## Before you start
 
@@ -8,27 +8,27 @@ You must have at least one connection and one device configured. See [Configure 
 
 ## Steps
 
-1. Click **Registers** in the toolbar.
+1. Click **Signals** in the toolbar.
 
-   ![Registers dialog](<../_static/user_manual/add_register_dialog.png>)
+   ![Signals dialog](<../_static/user_manual/add_register_dialog.png>)
 
-2. Click **Add** to insert a new register row.
-3. In the **Expression** column, enter the register address using `${...}` syntax (e.g. `${40001}`). See [Reference: Register syntax](../reference/register-syntax.md) for all supported forms.
+2. Click **Add** to insert a new signal row.
+3. In the **Expression** column, enter the data point address using `${...}` syntax (e.g. `${40001}`). See [Reference: Register syntax](../reference/register-syntax.md) for all supported forms.
 4. In the **Name** column, enter a label for the graph legend.
 5. In the **Color** column, pick a line color.
 6. In the **Data type** column, select the type that matches your device (`16b`, `s16b`, `32b`, `s32b`, `f32b`). For coils and discrete inputs, the type is ignored.
 7. In the **Y-axis** column, select `Y1` or `Y2`.
-8. Repeat steps 2–7 for each register.
+8. Repeat steps 2–7 for each signal.
 9. Click **OK**.
 
-**Result:** The registers appear in the main window. They will be polled when you click **Start Logging**.
+**Result:** The signals appear in the main window. They will be polled when you click **Start Logging**.
 
 ## Tips
 
 - To reference a specific device, add `@DEVICE` to the expression (e.g. `${40001@2}` reads from device 2). Device 1 is used by default.
 - To calculate or combine values, use an expression instead of a bare address. See [Write expressions](write-expressions.md).
 - Importing registers from a `.mbc` file is faster than adding them by hand. See [Import from MBC file](import-mbc-file.md).
-- Consecutive register addresses are read in a single Modbus packet. Gaps between addresses split the request and slow down the poll rate. See [Optimize poll rate](optimize-poll-rate.md).
+- Consecutive data point addresses are read in a single Modbus packet. Gaps between addresses split the request and slow down the poll rate. See [Optimize poll rate](optimize-poll-rate.md).
 
 ## See also
 
