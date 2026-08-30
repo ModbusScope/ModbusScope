@@ -12,12 +12,17 @@
 
 ### Changed
 
-- Remove the application name directory from the license file path (now `~/.config/ModbusScope/licenses/<adapter>.lic`)
+- Update the license file path (now `~/.config/ModbusScope/licenses/<adapter>.lic`)
 - License expiry is now checked against the release-train date (the `x.y.0` feature release date) instead of the build date, so security patch releases never invalidate a license that covered the feature release
 - Change supported devices to 2 in free version
 - Update capabilities
   - Remove unused `supportsHotReload` and `requiresRestartOn`
   - Add `mbcCompatible`
+
+### Fixed
+
+- Fixed and updated logging messages
+- Fix register list debug log printing a pointer address instead of the register list contents
 
 ## v0.0.2 - (07/05/2026)
 
