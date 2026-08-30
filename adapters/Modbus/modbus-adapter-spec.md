@@ -24,6 +24,7 @@ payloads defined in the protocol spec without further specialization.
   "capabilities": {
     "mbcCompatible": true,
     "maxDevices": 2,
+    "gateway": false,
     "maxRegisters": 5
   },
   "license": {
@@ -58,6 +59,7 @@ added or removed while the process is running is picked up on the next call, wit
 | --- | --- | --- |
 | `mbcCompatible` | always | `true` — reserved compatibility flag |
 | `maxDevices` | always | Maximum number of devices currently enforced by `adapter.configure`: `99` when licensed, `2` when unlicensed. This is the live, license-aware limit — distinct from `schema.properties.devices.maxItems`, which is a fixed structural maximum (`99`) independent of license state. |
+| `gateway` | always | `true` only when both the `MODBUSADAPTER_ENABLE_GATEWAY` environment variable is set **and** the license is currently valid; `false` otherwise. Reflects whether the gateway will actually validate and start — see [Modbus Gateway](#modbus-gateway). |
 | `maxRegisters` | only when unlicensed | Maximum number of register expressions currently enforced by `adapter.start`: `5`. Omitted entirely when licensed, since no register cap is enforced in that case. |
 
 See the free-version limits documented under [`adapter.configure`](#adapterconfigure) and
@@ -269,6 +271,12 @@ so stop/start cycles correctly rebind the listening port.
 > **Feature flag:** Set the `MODBUSADAPTER_ENABLE_GATEWAY` environment variable to expose gateway
 > fields in the `adapter.describe` schema and defaults output. Configure validation and runtime
 > behaviour are active regardless.
+>
+> **License required:** A valid license is also required. `adapter.configure` rejects any
+> connection with `gatewayEnabled: true` when unlicensed (error `-32602`, "Modbus gateway
+> requires a valid license"), and `adapter.start` skips starting a gateway for any such
+> connection if the license becomes invalid before then (an `adapter.diagnostic` warning
+> notification is sent for this condition, as with the device/register limits above).
 
 ---
 

@@ -46,16 +46,29 @@ void AdapterSettings::buildSection(const QJsonObject& propSchema, const QJsonVal
         _itemSchema = propSchema.value("items").toObject();
         _pItemTabs = new AddableTabWidget(this);
 
+        // A previous accept may have stripped an inactive if/then/else branch's fields
+        // from a stored item (see SchemaFormWidget::values()); backfill them here so
+        // switching back to that branch shows the adapter's defaults instead of blanks.
+        const QJsonObject defaultItem =
+          _pSettingsModel->adapterData(_adapterId)->defaults().value(_propertyKey).toArray().at(0).toObject();
+
         const QJsonArray itemsArray = configValue.toArray();
         QList<QWidget*> pages;
         QStringList names;
         for (int i = 0; i < itemsArray.size(); ++i)
         {
+            QJsonObject itemValues = defaultItem;
+            const QJsonObject storedValues = itemsArray.at(i).toObject();
+            for (auto it = storedValues.constBegin(); it != storedValues.constEnd(); ++it)
+            {
+                itemValues.insert(it.key(), it.value());
+            }
+
             auto* form = new SchemaFormWidget(_pItemTabs);
-            form->setSchema(_itemSchema, itemsArray.at(i).toObject());
+            form->setSchema(_itemSchema, itemValues);
             connectTabNameTracking(form);
             pages.append(form);
-            const QString itemName = itemsArray.at(i).toObject().value("name").toString();
+            const QString itemName = storedValues.value("name").toString();
             names.append(itemName.isEmpty() ? formatTabName(i + 1) : itemName);
         }
 

@@ -1,5 +1,6 @@
 {
     "capabilities": {
+        "gateway": false,
         "maxDevices": 2,
         "maxRegisters": 5,
         "mbcCompatible": true
@@ -184,9 +185,9 @@
                     "propertyOrder": [
                         "id",
                         "name",
-                        "type",
                         "timeout",
-                        "persistent"
+                        "persistent",
+                        "type"
                     ],
                     "required": [
                         "id",
@@ -288,5 +289,5 @@
         },
         "type": "object"
     },
-    "version": "0.0.2-master+8428d7c"
+    "version": "0.0.2-master+7da8e8d"
 }
