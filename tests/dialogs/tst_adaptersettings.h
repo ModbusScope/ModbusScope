@@ -25,6 +25,7 @@ private slots:
     void tabNameUsesNameFieldOnLoad();
     void tabNameUpdatesWhenNameFieldChanges();
     void acceptValuesStoresConfigInAdapterData();
+    void switchingConnectionTypeAfterReloadUsesDefaults();
 };
 
 #endif // TST_ADAPTERSETTINGS_H

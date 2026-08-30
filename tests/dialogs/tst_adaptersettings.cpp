@@ -5,6 +5,7 @@
 #include "dialogs/adaptersettings.h"
 #include "models/settingsmodel.h"
 
+#include <QComboBox>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLabel>
@@ -536,6 +537,105 @@ void TestAdapterSettings::acceptValuesStoresConfigInAdapterData()
     QCOMPARE(adapter->hasStoredConfig(), true);
     QCOMPARE(adapter->currentConfig().value("connections").toArray().at(0).toObject().value("host").toString(),
              QStringLiteral("192.168.1.1"));
+}
+
+void TestAdapterSettings::switchingConnectionTypeAfterReloadUsesDefaults()
+{
+    SettingsModel model;
+
+    QJsonObject typeProp;
+    typeProp["type"] = "string";
+    typeProp["enum"] = QJsonArray{ "tcp", "serial" };
+    QJsonObject itemProps;
+    itemProps["type"] = typeProp;
+
+    QJsonObject portProp;
+    portProp["type"] = "integer";
+    QJsonObject thenProps;
+    thenProps["port"] = portProp;
+    QJsonObject thenObj;
+    thenObj["properties"] = thenProps;
+
+    QJsonObject portNameProp;
+    portNameProp["type"] = "string";
+    QJsonObject elseProps;
+    elseProps["portName"] = portNameProp;
+    QJsonObject elseObj;
+    elseObj["properties"] = elseProps;
+
+    QJsonObject ifTypeConst;
+    ifTypeConst["const"] = "tcp";
+    QJsonObject ifProps;
+    ifProps["type"] = ifTypeConst;
+    QJsonObject ifObj;
+    ifObj["properties"] = ifProps;
+
+    QJsonObject itemSchema;
+    itemSchema["type"] = "object";
+    itemSchema["properties"] = itemProps;
+    itemSchema["if"] = ifObj;
+    itemSchema["then"] = thenObj;
+    itemSchema["else"] = elseObj;
+
+    QJsonObject propSchema;
+    propSchema["type"] = "array";
+    propSchema["items"] = itemSchema;
+
+    QJsonObject topProps;
+    topProps["connections"] = propSchema;
+    QJsonObject schema;
+    schema["type"] = "object";
+    schema["properties"] = topProps;
+
+    QJsonObject defaultConn;
+    defaultConn["type"] = "tcp";
+    defaultConn["port"] = 502;
+    defaultConn["portName"] = "COM1";
+    QJsonObject defaults;
+    defaults["connections"] = QJsonArray{ defaultConn };
+
+    QJsonObject describe;
+    describe["name"] = "testAdapter";
+    describe["version"] = "1.0.0";
+    describe["configVersion"] = 1;
+    describe["schema"] = schema;
+    describe["defaults"] = defaults;
+    describe["capabilities"] = QJsonObject();
+
+    model.updateAdapterFromDescribe("testAdapter", describe);
+
+    // Simulate a connection that already went through one save-with-stripping:
+    // "portName" (the inactive "else" branch when type is "tcp") was dropped.
+    QJsonObject conn0;
+    conn0["type"] = "tcp";
+    conn0["port"] = 1234;
+    QJsonObject config;
+    config["connections"] = QJsonArray{ conn0 };
+    model.setAdapterCurrentConfig("testAdapter", config);
+
+    AdapterSettings w(&model, "testAdapter", "connections");
+
+    auto* tabs = w.findChild<AddableTabWidget*>();
+    QVERIFY(tabs != nullptr);
+    QCOMPARE(tabs->count(), 1);
+
+    auto* form = qobject_cast<SchemaFormWidget*>(tabs->tabContent(0));
+    QVERIFY(form != nullptr);
+
+    // The stored value must survive the backfill, not just the default.
+    QCOMPARE(form->values().value("port").toInt(), 1234);
+
+    auto* combo = form->findChild<QComboBox*>();
+    QVERIFY(combo != nullptr);
+    combo->setCurrentIndex(combo->findData("serial"));
+
+    auto* portNameEdit = form->findChild<QLineEdit*>();
+    QVERIFY(portNameEdit != nullptr);
+    QCOMPARE(portNameEdit->text(), QStringLiteral("COM1"));
+
+    // Switching back, the stored "port" must still be the original value, not the default.
+    combo->setCurrentIndex(combo->findData("tcp"));
+    QCOMPARE(form->values().value("port").toInt(), 1234);
 }
 
 QTEST_MAIN(TestAdapterSettings)
