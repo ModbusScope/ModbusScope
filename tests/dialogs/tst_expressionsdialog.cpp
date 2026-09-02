@@ -220,40 +220,57 @@ void TestExpressionsDialog::describeShowsInvalidDeviceMessage()
     QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
 }
 
-void TestExpressionsDialog::helpComboHiddenWithSingleAdapter()
+void TestExpressionsDialog::helpComboHiddenWithSingleDevice()
 {
     /* Use isHidden(): the surrounding info panel (widgetInfo) starts collapsed,
      * so visibility relative to the dialog is always false */
-    auto* pHelpWidget = _pDialog->findChild<QWidget*>("widgetHelpAdapter");
+    auto* pHelpWidget = _pDialog->findChild<QWidget*>("widgetHelpDevice");
     QVERIFY(pHelpWidget != nullptr);
     QVERIFY(pHelpWidget->isHidden());
 }
 
-void TestExpressionsDialog::helpComboVisibleWithTwoAdapters()
+void TestExpressionsDialog::helpComboVisibleWithTwoDevices()
 {
+    _pSettingsModel->deviceSettings(2)->setAdapterId("sim");
     addSimAdapter();
     recreateDialog();
 
-    auto* pHelpWidget = _pDialog->findChild<QWidget*>("widgetHelpAdapter");
+    auto* pHelpWidget = _pDialog->findChild<QWidget*>("widgetHelpDevice");
     QVERIFY(pHelpWidget != nullptr);
     QVERIFY(!pHelpWidget->isHidden());
 
-    auto* pCombo = _pDialog->findChild<QComboBox*>("cmbHelpAdapter");
+    auto* pCombo = _pDialog->findChild<QComboBox*>("cmbHelpDevice");
     QVERIFY(pCombo != nullptr);
     QCOMPARE(pCombo->count(), 2);
     QCOMPARE(pCombo->itemData(0).toString(), QStringLiteral("modbus"));
     QCOMPARE(pCombo->itemData(1).toString(), QStringLiteral("sim"));
 }
 
-void TestExpressionsDialog::helpRoutedToSelectedAdapter()
+void TestExpressionsDialog::helpComboShowsNameProtocolAndId()
 {
+    _pSettingsModel->deviceSettings(2)->setAdapterId("sim");
+    _pSettingsModel->deviceSettings(2)->setName(QStringLiteral("PLC-North"));
+    addSimAdapter();
+    recreateDialog();
+
+    auto* pCombo = _pDialog->findChild<QComboBox*>("cmbHelpDevice");
+    QVERIFY(pCombo != nullptr);
+    QCOMPARE(pCombo->count(), 2);
+    /* Label format: "<device name> (<protocol>) [<device id>]" */
+    QCOMPARE(pCombo->itemText(0), QStringLiteral("Device 1 (modbus) [1]"));
+    QCOMPARE(pCombo->itemText(1), QStringLiteral("PLC-North (sim) [2]"));
+}
+
+void TestExpressionsDialog::helpRoutedToSelectedDevice()
+{
+    _pSettingsModel->deviceSettings(2)->setAdapterId("sim");
     MockAdapterManager* pSimManager = addSimAdapter();
     recreateDialog();
 
     auto* pInfoLabel = _pDialog->findChild<QLabel*>("lblInfo");
     QVERIFY(pInfoLabel != nullptr);
 
-    /* The dialog requested help from the initially selected (modbus) adapter */
+    /* The dialog requested help from the initially selected device's (modbus) adapter */
     QCOMPARE(_pMockAdapterManager->helpRequestCount, 1);
     QCOMPARE(pSimManager->helpRequestCount, 0);
 
@@ -267,11 +284,11 @@ void TestExpressionsDialog::helpRoutedToSelectedAdapter()
     QVERIFY(pInfoLabel->text().indexOf(QStringLiteral("Expression Information")) <
             pInfoLabel->text().indexOf(QStringLiteral("Modbus help")));
 
-    auto* pCombo = _pDialog->findChild<QComboBox*>("cmbHelpAdapter");
+    auto* pCombo = _pDialog->findChild<QComboBox*>("cmbHelpDevice");
     QVERIFY(pCombo != nullptr);
     pCombo->setCurrentIndex(1);
 
-    /* Selecting the sim adapter clears the help text and requests its help */
+    /* Selecting the device on the sim adapter clears the help text and requests its help */
     QCOMPARE(pSimManager->helpRequestCount, 1);
     QCOMPARE(pInfoLabel->text(), QString());
 
@@ -283,6 +300,30 @@ void TestExpressionsDialog::helpRoutedToSelectedAdapter()
     _pMockAdapterManager->injectExpressionHelp(QStringLiteral("Stale modbus help"));
     QVERIFY(pInfoLabel->text().contains(QStringLiteral("Sim help")));
     QVERIFY(!pInfoLabel->text().contains(QStringLiteral("Stale modbus help")));
+}
+
+void TestExpressionsDialog::helpSwitchingBetweenDevicesOnSameAdapterSkipsRedundantRequest()
+{
+    /* Device 3 shares the modbus adapter with device 1 */
+    _pSettingsModel->deviceSettings(3)->setAdapterId("modbus");
+    recreateDialog();
+
+    auto* pInfoLabel = _pDialog->findChild<QLabel*>("lblInfo");
+    QVERIFY(pInfoLabel != nullptr);
+    QCOMPARE(_pMockAdapterManager->helpRequestCount, 1);
+
+    _pMockAdapterManager->injectExpressionHelp(QStringLiteral("Modbus help"));
+    QVERIFY(pInfoLabel->text().contains(QStringLiteral("Modbus help")));
+
+    auto* pCombo = _pDialog->findChild<QComboBox*>("cmbHelpDevice");
+    QVERIFY(pCombo != nullptr);
+    QCOMPARE(pCombo->count(), 2);
+    pCombo->setCurrentIndex(1);
+
+    /* Switching to the other device on the same adapter is a no-op: no new
+     * request is issued and the already-shown help text is not cleared */
+    QCOMPARE(_pMockAdapterManager->helpRequestCount, 1);
+    QVERIFY(pInfoLabel->text().contains(QStringLiteral("Modbus help")));
 }
 
 QTEST_MAIN(TestExpressionsDialog)

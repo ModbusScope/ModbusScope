@@ -51,7 +51,7 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
 
     connect(&_expressionChecker, &ExpressionChecker::resultsReady, this, &ExpressionsDialog::handleResultReady);
 
-    populateHelpAdapters();
+    populateHelpDevices();
 
     _pUi->tblExpressionInput->setRowCount(0);
     _pUi->tblExpressionInput->setColumnCount(2);
@@ -178,40 +178,42 @@ void ExpressionsDialog::handleExpressionHelpResult(const QString& helpText)
 }
 
 /*!
- * \brief Fill the help adapter selector and request help text for the initial selection.
+ * \brief Fill the help device selector and request help text for the initial selection.
  *
- * The selector is hidden when fewer than two adapters are available.
+ * Each entry represents a configured device, labeled with its name, protocol and id.
+ * The selector is hidden when fewer than two devices are available.
  */
-void ExpressionsDialog::populateHelpAdapters()
+void ExpressionsDialog::populateHelpDevices()
 {
-    if (_pAdapterHub == nullptr)
+    if (_pAdapterHub == nullptr || _pSettingsModel == nullptr)
     {
-        _pUi->widgetHelpAdapter->setVisible(false);
+        _pUi->widgetHelpDevice->setVisible(false);
         return;
     }
 
-    const QStringList adapterIds = _pAdapterHub->adapterIds();
-    for (const QString& adapterId : adapterIds)
+    const QList<deviceId_t> deviceIds = _pSettingsModel->deviceList();
+    for (deviceId_t deviceId : deviceIds)
     {
-        QString label;
-        if (_pSettingsModel != nullptr)
+        Device* pDevice = _pSettingsModel->deviceSettings(deviceId);
+        const QString adapterId = pDevice->adapterId();
+
+        QString protocolLabel = _pSettingsModel->adapterData(adapterId)->name();
+        if (protocolLabel.isEmpty())
         {
-            label = _pSettingsModel->adapterData(adapterId)->name();
+            protocolLabel = adapterId;
         }
-        if (label.isEmpty())
-        {
-            label = adapterId;
-        }
-        _pUi->cmbHelpAdapter->addItem(label, adapterId);
+
+        const QString label = QStringLiteral("%1 (%2) [%3]").arg(pDevice->name(), protocolLabel).arg(deviceId);
+        _pUi->cmbHelpDevice->addItem(label, adapterId);
     }
-    _pUi->widgetHelpAdapter->setVisible(adapterIds.size() > 1);
+    _pUi->widgetHelpDevice->setVisible(deviceIds.size() > 1);
 
     /* Connect after populating to avoid spurious slot calls during addItem */
-    connect(_pUi->cmbHelpAdapter, &QComboBox::currentIndexChanged, this, &ExpressionsDialog::onHelpAdapterChanged);
+    connect(_pUi->cmbHelpDevice, &QComboBox::currentIndexChanged, this, &ExpressionsDialog::onHelpDeviceChanged);
 
-    if (!adapterIds.isEmpty())
+    if (!deviceIds.isEmpty())
     {
-        requestHelpForAdapter(_pUi->cmbHelpAdapter->currentData().toString());
+        requestHelpForAdapter(_pUi->cmbHelpDevice->currentData().toString());
     }
 }
 
@@ -220,10 +222,18 @@ void ExpressionsDialog::populateHelpAdapters()
  *
  * Any pending help connection to a previously selected adapter is dropped so a
  * late response cannot overwrite the newly selected adapter's help text.
+ * A no-op if the given adapter is already the one being shown, since multiple
+ * devices can share the same adapter and switching between them should not
+ * flicker the help text or trigger a redundant request.
  * \param adapterId Identifier of the adapter to request help from.
  */
 void ExpressionsDialog::requestHelpForAdapter(const QString& adapterId)
 {
+    if (_pHelpManager != nullptr && _pHelpManager->adapterId() == adapterId)
+    {
+        return;
+    }
+
     if (_pHelpManager != nullptr)
     {
         QObject::disconnect(_pHelpManager, &AdapterManager::expressionHelpResult, this,
@@ -244,13 +254,13 @@ void ExpressionsDialog::requestHelpForAdapter(const QString& adapterId)
 }
 
 /*!
- * \brief Show the expression help of the newly selected adapter.
+ * \brief Show the expression help of the newly selected device's adapter.
  * \param index Index of the newly selected combo box entry (unused).
  */
-void ExpressionsDialog::onHelpAdapterChanged(int index)
+void ExpressionsDialog::onHelpDeviceChanged(int index)
 {
     Q_UNUSED(index);
-    requestHelpForAdapter(_pUi->cmbHelpAdapter->currentData().toString());
+    requestHelpForAdapter(_pUi->cmbHelpDevice->currentData().toString());
 }
 
 /*!

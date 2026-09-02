@@ -78,9 +78,11 @@ private slots:
     void describeSkipsUnavailableAdapter();
     void describeSkipsIdleAdapter();
     void describeShowsInvalidDeviceMessage();
-    void helpComboHiddenWithSingleAdapter();
-    void helpComboVisibleWithTwoAdapters();
-    void helpRoutedToSelectedAdapter();
+    void helpComboHiddenWithSingleDevice();
+    void helpComboVisibleWithTwoDevices();
+    void helpComboShowsNameProtocolAndId();
+    void helpRoutedToSelectedDevice();
+    void helpSwitchingBetweenDevicesOnSameAdapterSkipsRedundantRequest();
 
 private:
     MockAdapterManager* addSimAdapter();
