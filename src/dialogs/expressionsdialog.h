@@ -38,11 +38,11 @@ private slots:
     void handleResultReady(bool valid);
     void handleExpressionHelpResult(const QString& helpText);
     void handleDescribeDataPointResult(const QJsonObject& result);
-    void onHelpAdapterChanged(int index);
+    void onHelpDeviceChanged(int index);
 
 private:
     void startNextDescribe();
-    void populateHelpAdapters();
+    void populateHelpDevices();
     void requestHelpForAdapter(const QString& adapterId);
     AdapterManager* managerForDescribeRow(qint32 row) const;
     void setDescribeRowText(qint32 row, const QString& text);

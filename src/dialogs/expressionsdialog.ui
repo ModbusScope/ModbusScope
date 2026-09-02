@@ -187,7 +187,7 @@
     <widget class="QWidget" name="widgetInfo" native="true">
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <property name="spacing">
-       <number>0</number>
+       <number>8</number>
       </property>
       <property name="leftMargin">
        <number>0</number>
@@ -202,7 +202,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QWidget" name="widgetHelpAdapter" native="true">
+       <widget class="QWidget" name="widgetHelpDevice" native="true">
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <property name="leftMargin">
           <number>0</number>
@@ -217,14 +217,14 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QLabel" name="lblHelpAdapter">
+          <widget class="QLabel" name="lblHelpDevice">
            <property name="text">
-            <string>Adapter</string>
+            <string>Device</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="cmbHelpAdapter"/>
+          <widget class="QComboBox" name="cmbHelpDevice"/>
          </item>
          <item>
           <spacer name="horizontalSpacer">
@@ -254,7 +254,7 @@
          <string/>
         </property>
         <property name="textFormat">
-         <enum>Qt::RichText</enum>
+         <enum>Qt::TextFormat::RichText</enum>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
