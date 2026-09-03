@@ -12,12 +12,14 @@
 
 #include <QDesktopServices>
 #include <QLibraryInfo>
+#include <QTextDocument>
 #include <QUrl>
 
 AboutDialog::AboutDialog(UpdateNotify* pUpdateNotify, SettingsModel* pSettingsModel, QWidget* parent)
     : QDialog(parent), _pUi(new Ui::AboutDialog)
 {
     _pUi->setupUi(this);
+    _pUi->textAdapters->document()->setDocumentMargin(12);
 
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -26,8 +28,7 @@ AboutDialog::AboutDialog(UpdateNotify* pUpdateNotify, SettingsModel* pSettingsMo
     connect(_pUi->btnLicense, &QPushButton::clicked, this, &AboutDialog::openLicense);
 
     setVersionInfo();
-    setAdapterVersionInfo(pSettingsModel);
-    setLicenseInfo(pSettingsModel);
+    setAdapterInfo(pSettingsModel);
     setLibraryVersionInfo();
 
     showVersionUpdate(pUpdateNotify);
@@ -95,58 +96,65 @@ void AboutDialog::setVersionInfo()
     _pUi->lblVersion->setText(QString(tr("v%1%2 (%3)")).arg(Util::currentVersion(), betaTxt, arch));
 }
 
-void AboutDialog::setAdapterVersionInfo(SettingsModel* pSettingsModel)
+void AboutDialog::setAdapterInfo(SettingsModel* pSettingsModel)
 {
-    QString versionTxt;
+    const QStringList adapterIds = pSettingsModel->adapterIds();
 
-    for (const QString& id : pSettingsModel->adapterIds())
+    if (adapterIds.isEmpty())
     {
-        const QString version = pSettingsModel->adapterData(id)->version();
-        if (!version.isEmpty())
-        {
-            versionTxt = QString(tr("Adapter: v%1")).arg(version);
-            break;
-        }
+        _pUi->textAdapters->setVisible(false);
+        return;
     }
 
-    _pUi->lblAdapterVersion->setVisible(!versionTxt.isEmpty());
-    _pUi->lblAdapterVersion->setText(versionTxt);
+    QStringList blocks;
+
+    for (const QString& id : adapterIds)
+    {
+        const AdapterData* pAdapter = pSettingsModel->adapterData(id);
+
+        QString headerTxt = QString("<b>%1</b>").arg((pAdapter->name().isEmpty() ? id : pAdapter->name()).toHtmlEscaped());
+        if (!pAdapter->version().isEmpty())
+        {
+            headerTxt += QString("<br/>v%1").arg(pAdapter->version().toHtmlEscaped());
+        }
+
+        blocks << QString("<p style=\"margin-top:8px;\">%1<br/>%2</p>")
+                    .arg(headerTxt, licenseInfoHtml(pAdapter->licenseInfo()));
+    }
+
+    _pUi->textAdapters->setHtml(blocks.join("<hr/>"));
+    _pUi->textAdapters->setVisible(true);
 }
 
-void AboutDialog::setLicenseInfo(SettingsModel* pSettingsModel)
+//! \brief Build an HTML fragment describing an adapter's license state, with all
+//! adapter-supplied fields HTML-escaped since they originate from the adapter subprocess.
+QString AboutDialog::licenseInfoHtml(const AdapterLicenseInfo& license)
 {
-    AdapterLicenseInfo license;
-
-    for (const QString& id : pSettingsModel->adapterIds())
+    switch (license.state)
     {
-        license = pSettingsModel->adapterData(id)->licenseInfo();
-        if (license.state != AdapterLicenseInfo::State::Unknown)
+    case AdapterLicenseInfo::State::Valid:
+    {
+        QString txt =
+          tr("Licensed to %1, ID %2").arg(license.customer.toHtmlEscaped(), license.licenseId.toHtmlEscaped());
+        if (!license.email.isEmpty())
         {
-            break;
+            txt += QString(" &lt;%1&gt;").arg(license.email.toHtmlEscaped());
         }
-    }
-
-    QString licenseTxt;
-
-    if (license.state == AdapterLicenseInfo::State::Valid)
-    {
-        licenseTxt = QString(tr("Licensed to %1 <%2>, ID %3")).arg(license.customer, license.email, license.licenseId);
         if (!license.expires.isEmpty())
         {
-            licenseTxt += QString(tr(", expires %1")).arg(license.expires);
+            txt += tr(", expires %1").arg(license.expires.toHtmlEscaped());
         }
+        return txt;
     }
-    else if (license.state == AdapterLicenseInfo::State::Invalid)
-    {
-        licenseTxt = QString(tr("License invalid: %1")).arg(license.reason);
-    }
-    else if (license.state == AdapterLicenseInfo::State::NotFound)
-    {
-        licenseTxt = QString(tr("No license found (searched %1)")).arg(license.path);
+    case AdapterLicenseInfo::State::Invalid:
+        return tr("License invalid: %1").arg(license.reason.toHtmlEscaped());
+    case AdapterLicenseInfo::State::NotFound:
+        return tr("No license found (searched %1)").arg(license.path.toHtmlEscaped());
+    case AdapterLicenseInfo::State::Unknown:
+        return tr("No license information reported");
     }
 
-    _pUi->lblLicenseInfo->setVisible(!licenseTxt.isEmpty());
-    _pUi->lblLicenseInfo->setText(licenseTxt);
+    return tr("No license information reported");
 }
 
 void AboutDialog::setLibraryVersionInfo()

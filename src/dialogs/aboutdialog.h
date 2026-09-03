@@ -6,6 +6,7 @@
 // Forward declaration
 class UpdateNotify;
 class SettingsModel;
+struct AdapterLicenseInfo;
 
 namespace Ui {
 class AboutDialog;
@@ -26,9 +27,9 @@ private slots:
 private:
     void showVersionUpdate(UpdateNotify* updateNotify);
     void setVersionInfo();
-    void setAdapterVersionInfo(SettingsModel* pSettingsModel);
-    void setLicenseInfo(SettingsModel* pSettingsModel);
+    void setAdapterInfo(SettingsModel* pSettingsModel);
     void setLibraryVersionInfo();
+    static QString licenseInfoHtml(const AdapterLicenseInfo& license);
 
     Ui::AboutDialog* _pUi;
 };
