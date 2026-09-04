@@ -55,6 +55,19 @@
     </layout>
    </item>
    <item>
+    <widget class="QLabel" name="dataPointLimitWarningLabel">
+     <property name="visible">
+      <bool>false</bool>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QTableView" name="registerView">
      <property name="minimumSize">
       <size>

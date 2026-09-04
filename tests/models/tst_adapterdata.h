@@ -41,6 +41,11 @@ private slots:
 
     void maxDevicesReturnsSmallerOfSchemaAndCapabilities();
 
+    void maxRegistersReturnsIntMaxWhenAbsent();
+    void maxRegistersReturnsValue();
+    void maxRegistersReturnsIntMaxWhenNegative();
+    void maxRegistersReturnsZeroWhenExplicit();
+
     void configForWireCapsDevicesToMaxItems();
     void configForWireReturnsAllDevicesWhenNoLimit();
     void configForWireDoesNotTruncateWhenMaxItemsNegative();

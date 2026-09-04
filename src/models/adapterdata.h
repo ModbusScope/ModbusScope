@@ -97,6 +97,8 @@ public:
      */
     int maxDevicesFromCapabilities() const;
 
+    int maxRegisters() const;
+
     /*!
      * \brief Return the effective device limit currently in force for this adapter.
      * \return The smaller of maxDevicesFromSchema() and maxDevicesFromCapabilities(), since
@@ -116,6 +118,8 @@ public:
     QJsonObject configForWire() const;
 
 private:
+    int capabilityLimit(const QString& key) const;
+
     QString _name;
     QString _version;
     int _configVersion{ 0 };

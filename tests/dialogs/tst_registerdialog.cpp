@@ -7,6 +7,7 @@
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QLabel>
 #include <QTest>
 
 /*!
@@ -152,6 +153,99 @@ void TestRegisterDialog::defaultRegisterRequestedAgainWhenSessionRestartsAfterAl
     _pMockAdapterManager->injectSessionStarted();
 
     QCOMPARE(_pMockAdapterManager->buildCalls.count(), 2);
+}
+
+/*!
+ * \brief Builds a describe response reporting a data point limit in its capabilities.
+ * \param maxRegisters The limit to report, or a negative value to leave the key out entirely
+ *        (which is how the adapter reports that it enforces no limit).
+ */
+QJsonObject TestRegisterDialog::buildDescribeWithMaxRegisters(int maxRegisters)
+{
+    QJsonObject capabilities;
+    if (maxRegisters >= 0)
+    {
+        capabilities["maxRegisters"] = maxRegisters;
+    }
+
+    QJsonObject describeResult;
+    describeResult["name"] = QStringLiteral("modbus");
+    describeResult["capabilities"] = capabilities;
+    return describeResult;
+}
+
+//! Add \a count active signals, each reading its own data point from the default device.
+void TestRegisterDialog::seedSignals(int count)
+{
+    for (int idx = 0; idx < count; idx++)
+    {
+        _pGraphDataModel->add();
+        _pGraphDataModel->setExpression(GraphIdx(_pGraphDataModel->size() - 1), QString("${%1}").arg(40001 + idx));
+    }
+}
+
+void TestRegisterDialog::dataPointLimitWarningHiddenWhenWithinLimit()
+{
+    DeviceListHelpers::seedDevice(&_settingsModel, 1, QStringLiteral("modbus"));
+    _settingsModel.updateAdapterFromDescribe(QStringLiteral("modbus"), buildDescribeWithMaxRegisters(5));
+    seedSignals(5);
+
+    _pDialog = new RegisterDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+
+    auto* warningLabel = _pDialog->findChild<QLabel*>("dataPointLimitWarningLabel");
+    QVERIFY(warningLabel != nullptr);
+    QVERIFY(warningLabel->isHidden());
+}
+
+void TestRegisterDialog::dataPointLimitWarningShownWhenExceeded()
+{
+    DeviceListHelpers::seedDevice(&_settingsModel, 1, QStringLiteral("modbus"));
+    _settingsModel.updateAdapterFromDescribe(QStringLiteral("modbus"), buildDescribeWithMaxRegisters(5));
+    seedSignals(6);
+
+    _pDialog = new RegisterDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+
+    auto* warningLabel = _pDialog->findChild<QLabel*>("dataPointLimitWarningLabel");
+    QVERIFY(warningLabel != nullptr);
+    QVERIFY(!warningLabel->isHidden());
+    QVERIFY(warningLabel->text().contains("modbus"));
+    QVERIFY(warningLabel->text().contains("5"));
+    QVERIFY(warningLabel->text().contains("6"));
+}
+
+/*!
+ * \brief Deactivating a signal drops its data point from the session, so the warning must
+ * disappear again while the dialog stays open.
+ */
+void TestRegisterDialog::dataPointLimitWarningHiddenWhenSignalDeactivated()
+{
+    DeviceListHelpers::seedDevice(&_settingsModel, 1, QStringLiteral("modbus"));
+    _settingsModel.updateAdapterFromDescribe(QStringLiteral("modbus"), buildDescribeWithMaxRegisters(5));
+    seedSignals(6);
+
+    _pDialog = new RegisterDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+
+    auto* warningLabel = _pDialog->findChild<QLabel*>("dataPointLimitWarningLabel");
+    QVERIFY(warningLabel != nullptr);
+    QVERIFY(!warningLabel->isHidden());
+
+    _pGraphDataModel->setActive(GraphIdx(0), false);
+
+    QVERIFY(warningLabel->isHidden());
+}
+
+//! A licensed adapter reports no maxRegisters at all, so no number of signals may warn.
+void TestRegisterDialog::dataPointLimitWarningHiddenWhenAdapterReportsNoLimit()
+{
+    DeviceListHelpers::seedDevice(&_settingsModel, 1, QStringLiteral("modbus"));
+    _settingsModel.updateAdapterFromDescribe(QStringLiteral("modbus"), buildDescribeWithMaxRegisters(-1));
+    seedSignals(20);
+
+    _pDialog = new RegisterDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+
+    auto* warningLabel = _pDialog->findChild<QLabel*>("dataPointLimitWarningLabel");
+    QVERIFY(warningLabel != nullptr);
+    QVERIFY(warningLabel->isHidden());
 }
 
 QTEST_MAIN(TestRegisterDialog)
