@@ -24,7 +24,7 @@ QStringList activeExpressions(const GraphDataModel* pGraphDataModel);
 
 QList<DataPoint> activeDataPoints(const GraphDataModel* pGraphDataModel);
 
-QMap<QString, int> countPerAdapter(const QList<DataPoint>& dataPoints, SettingsModel* pSettingsModel);
+QMap<QString, int> countPerAdapter(const QList<DataPoint>& dataPoints, const SettingsModel* pSettingsModel);
 
 } // namespace DataPointUsage
 
