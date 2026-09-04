@@ -140,6 +140,13 @@ li.checked::marker { content: &quot;\2612&quot;; }
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="btnLoadLicense">
+         <property name="text">
+          <string>Load License...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="horizontalSpacerRight">
          <property name="orientation">
           <enum>Qt::Orientation::Horizontal</enum>
