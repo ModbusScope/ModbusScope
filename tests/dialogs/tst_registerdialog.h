@@ -79,8 +79,15 @@ private slots:
     void defaultRegisterRequestedImmediatelyWhenAdapterAlreadyReady();
     void defaultRegisterRequestedAgainWhenSessionRestartsAfterAlreadyActive();
 
+    void dataPointLimitWarningHiddenWhenWithinLimit();
+    void dataPointLimitWarningShownWhenExceeded();
+    void dataPointLimitWarningHiddenWhenSignalDeactivated();
+    void dataPointLimitWarningHiddenWhenAdapterReportsNoLimit();
+
 private:
     static QJsonObject buildTestRegisterSchema();
+    static QJsonObject buildDescribeWithMaxRegisters(int maxRegisters);
+    void seedSignals(int count);
 
     SettingsModel _settingsModel;
     GraphDataModel* _pGraphDataModel{ nullptr };

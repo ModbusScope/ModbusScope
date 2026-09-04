@@ -1,3 +1,4 @@
+add_xtest(tst_datapointusage)
 add_xtest(tst_expressionparser)
 add_xtest(tst_graphdatahandler)
 add_xtest(tst_qmuparser)

@@ -461,6 +461,74 @@ void TestAdapterData::maxDevicesReturnsSmallerOfSchemaAndCapabilities()
 }
 
 /*!
+ * \brief maxRegisters returns INT_MAX when capabilities has no maxRegisters, which is how a
+ * licensed adapter reports that it enforces no data point limit at all.
+ */
+void TestAdapterData::maxRegistersReturnsIntMaxWhenAbsent()
+{
+    AdapterData data;
+
+    QJsonObject describeResult;
+    describeResult["capabilities"] = QJsonObject();
+    data.updateFromDescribe(describeResult);
+
+    QCOMPARE(data.maxRegisters(), INT_MAX);
+}
+
+/*!
+ * \brief maxRegisters returns the maxRegisters value from capabilities.
+ */
+void TestAdapterData::maxRegistersReturnsValue()
+{
+    AdapterData data;
+
+    QJsonObject caps;
+    caps["maxRegisters"] = 5;
+
+    QJsonObject describeResult;
+    describeResult["capabilities"] = caps;
+    data.updateFromDescribe(describeResult);
+
+    QCOMPARE(data.maxRegisters(), 5);
+}
+
+/*!
+ * \brief maxRegisters returns INT_MAX when maxRegisters is negative, since a negative limit is
+ * invalid capability data rather than a real cap.
+ */
+void TestAdapterData::maxRegistersReturnsIntMaxWhenNegative()
+{
+    AdapterData data;
+
+    QJsonObject caps;
+    caps["maxRegisters"] = -1;
+
+    QJsonObject describeResult;
+    describeResult["capabilities"] = caps;
+    data.updateFromDescribe(describeResult);
+
+    QCOMPARE(data.maxRegisters(), INT_MAX);
+}
+
+/*!
+ * \brief maxRegisters returns 0 when maxRegisters is explicitly 0, since that is a legitimate
+ * limit ("no data points allowed") rather than invalid capability data.
+ */
+void TestAdapterData::maxRegistersReturnsZeroWhenExplicit()
+{
+    AdapterData data;
+
+    QJsonObject caps;
+    caps["maxRegisters"] = 0;
+
+    QJsonObject describeResult;
+    describeResult["capabilities"] = caps;
+    data.updateFromDescribe(describeResult);
+
+    QCOMPARE(data.maxRegisters(), 0);
+}
+
+/*!
  * \brief configForWire caps the "devices" array to maxDevicesFromSchema(), unlike
  * effectiveConfig() which returns every stored device.
  */

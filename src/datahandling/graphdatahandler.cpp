@@ -1,5 +1,6 @@
 #include "graphdatahandler.h"
 
+#include "datahandling/datapointusage.h"
 #include "datahandling/expressionparser.h"
 #include "datahandling/qmuparser.h"
 #include "models/graphdatamodel.h"
@@ -13,15 +14,9 @@
  */
 void GraphDataHandler::setupExpressions(GraphDataModel* pGraphDataModel, QList<DataPoint>& registerList)
 {
-    QStringList exprList;
-
     pGraphDataModel->activeGraphIndexList(_activeIndexList);
-    for (GraphIdx graphIdx : std::as_const(_activeIndexList))
-    {
-        exprList.append(pGraphDataModel->expression(graphIdx));
-    }
 
-    ExpressionParser exprParser(exprList);
+    ExpressionParser exprParser(DataPointUsage::activeExpressions(pGraphDataModel));
     const QList<DataPoint> regList = exprParser.dataPoints();
     const QStringList processedExpList = exprParser.processedExpressions();
 

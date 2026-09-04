@@ -4,9 +4,11 @@
 #include "ProtocolAdapter/adapterhub.h"
 #include "ProtocolAdapter/adaptermanager.h"
 #include "customwidgets/actionbuttondelegate.h"
+#include "datahandling/datapointusage.h"
 #include "dialogs/addregisterwidget.h"
 #include "dialogs/expressionsdialog.h"
 #include "dialogs/ui_registerdialog.h"
+#include "models/adapterdata.h"
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
 #include "registervalueaxisdelegate.h"
@@ -102,6 +104,8 @@ RegisterDialog::RegisterDialog(GraphDataModel* pGraphDataModel,
         _registerPopupAction->setDefaultWidget(registerPopupMenu);
         _pUi->btnAdd->addAction(_registerPopupAction.get());
     }
+
+    setupDataPointLimitIndication();
 }
 
 RegisterDialog::~RegisterDialog()
@@ -263,4 +267,77 @@ void RegisterDialog::onDefaultExpressionBuilt(const QString& expression)
     {
         _pGraphDataModel->setDefaultExpression(expression);
     }
+}
+
+/*!
+ * \brief Style the data point limit warning and keep it in sync with the signal list.
+ */
+void RegisterDialog::setupDataPointLimitIndication()
+{
+    /* Adapter names come from the adapter subprocess's describe response, so treat them as
+     * untrusted: force plain text to prevent a misbehaving adapter from injecting rich-text
+     * formatting into this label. */
+    _pUi->dataPointLimitWarningLabel->setTextFormat(Qt::PlainText);
+    _pUi->dataPointLimitWarningLabel->setStyleSheet("QLabel { color: #b35900; }");
+
+    /* dataChanged covers activating a signal and editing its expression, including edits made
+     * through the expression dialog: the model emits it for the complete row. */
+    connect(_pGraphDataModel, &GraphDataModel::rowsInserted, this, &RegisterDialog::updateDataPointLimitIndication);
+    connect(_pGraphDataModel, &GraphDataModel::rowsRemoved, this, &RegisterDialog::updateDataPointLimitIndication);
+    connect(_pGraphDataModel, &GraphDataModel::modelReset, this, &RegisterDialog::updateDataPointLimitIndication);
+    connect(_pGraphDataModel, &GraphDataModel::dataChanged, this, &RegisterDialog::updateDataPointLimitIndication);
+
+    updateDataPointLimitIndication();
+}
+
+/*!
+ * \brief Build a warning message listing adapters that are asked to read more data points than
+ *  they currently allow, or an empty string when every adapter is within its limit.
+ *
+ * The limit is the adapter's reported capabilities.maxRegisters, which is only present while the
+ * adapter enforces a cap (for example when no valid license is found).
+ */
+QString RegisterDialog::dataPointLimitWarningMessage() const
+{
+    const QList<DataPoint> dataPoints = DataPointUsage::activeDataPoints(_pGraphDataModel);
+    const QMap<QString, int> countByAdapter = DataPointUsage::countPerAdapter(dataPoints, _pSettingsModel);
+
+    /* adapterData() inserts a default entry for an unknown adapterId, which would leave a phantom
+       entry behind for a warning alone. An adapter SettingsModel has never heard of cannot have
+       reported a limit either, so there is nothing to warn about. */
+    const QStringList knownAdapterIds = _pSettingsModel->adapterIds();
+
+    QStringList warnings;
+    for (auto it = countByAdapter.constBegin(); it != countByAdapter.constEnd(); ++it)
+    {
+        if (!knownAdapterIds.contains(it.key()))
+        {
+            continue;
+        }
+
+        const AdapterData* pAdapter = _pSettingsModel->adapterData(it.key());
+        const int dataPointLimit = pAdapter->maxRegisters();
+        if (it.value() > dataPointLimit)
+        {
+            const QString adapterName = pAdapter->name().isEmpty() ? it.key() : pAdapter->name();
+            warnings.append(QString("%1 allows at most %2 data point(s), but %3 are configured.")
+                              .arg(adapterName)
+                              .arg(dataPointLimit)
+                              .arg(it.value()));
+        }
+    }
+
+    return warnings.join('\n');
+}
+
+/*!
+ * \brief Show the data point limit warning while a limit is exceeded, hide it otherwise.
+ *
+ * Logging is never blocked: the adapter reports the limit itself when a session starts.
+ */
+void RegisterDialog::updateDataPointLimitIndication()
+{
+    const QString message = dataPointLimitWarningMessage();
+    _pUi->dataPointLimitWarningLabel->setText(message);
+    _pUi->dataPointLimitWarningLabel->setVisible(!message.isEmpty());
 }

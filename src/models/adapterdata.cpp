@@ -179,15 +179,39 @@ int AdapterData::maxDevicesFromSchema() const
 
 int AdapterData::maxDevicesFromCapabilities() const
 {
-    if (!_capabilities.contains("maxDevices"))
+    return capabilityLimit("maxDevices");
+}
+
+/*!
+ * \brief Return the maximum number of data points the adapter currently accepts per session.
+ * \return capabilities.maxRegisters, or INT_MAX when the adapter reports no such limit.
+ *
+ * The adapter only reports this capability while it enforces a cap (for example when no valid
+ * license is found); an absent key therefore means unlimited. The limit is enforced by the
+ * adapter itself when a session starts, so it is only used to inform the user.
+ */
+int AdapterData::maxRegisters() const
+{
+    return capabilityLimit("maxRegisters");
+}
+
+/*!
+ * \brief Return a max<Noun> limit from the capabilities object.
+ * \param key The capability key holding the limit.
+ * \return The reported limit, or INT_MAX when the key is absent or holds an invalid value.
+ *
+ * A negative or non-numeric limit is invalid capability data; it is treated as unbounded rather
+ * than risk truncating every configured item or warning the user about a limit that is not real.
+ */
+int AdapterData::capabilityLimit(const QString& key) const
+{
+    if (!_capabilities.contains(key))
     {
         return INT_MAX;
     }
 
-    /* A negative or non-numeric maxDevices is invalid capability data; treat it as unbounded
-     * rather than risk truncating every configured device. */
-    const int maxDevices = _capabilities.value("maxDevices").toInt(INT_MAX);
-    return maxDevices >= 0 ? maxDevices : INT_MAX;
+    const int limit = _capabilities.value(key).toInt(INT_MAX);
+    return limit >= 0 ? limit : INT_MAX;
 }
 
 int AdapterData::maxDevices() const
