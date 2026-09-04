@@ -100,6 +100,12 @@ void FileSelectionHelper::configureFileType(QFileDialog* pDialog, FileType fileT
         pDialog->setNameFilter(tr("LOG files (*.log)"));
         break;
 
+    case FILE_TYPE_LIC:
+        pDialog->setDefaultSuffix("lic");
+        pDialog->setWindowTitle(tr("Select license file"));
+        pDialog->setNameFilter(tr("License files (*.lic)"));
+        break;
+
     case FILE_TYPE_NONE:
     default:
         break;

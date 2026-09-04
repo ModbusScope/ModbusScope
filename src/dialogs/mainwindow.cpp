@@ -127,8 +127,11 @@ MainWindow::MainWindow(ScopeController* pScopeController,
 
     _pGraphMenuController->handleGraphsCountChanged();
 
-    // Defer until after the main window is shown — avoids a modal dialog blocking constructor completion
+#ifndef DEBUG
+    /* Don't show the first-install dialog in debug builds */
+    /* Defer until after the main window is shown — avoids a modal dialog blocking constructor completion */
     QTimer::singleShot(0, this, &MainWindow::showFirstInstallDialogIfNeeded);
+#endif
 
 #if 0
     //Debugging
