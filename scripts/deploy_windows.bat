@@ -21,6 +21,9 @@ IF ERRORLEVEL 1 GOTO errorHandling
 copy "%~dp0..\adapters\IEC104\iec104adapter.exe" "%DEPLOY_DIR%"
 IF ERRORLEVEL 1 GOTO errorHandling
 
+copy "%~dp0..\adapters\BACnet\bacnetAdapter.exe" "%DEPLOY_DIR%"
+IF ERRORLEVEL 1 GOTO errorHandling
+
 cd %DEPLOY_DIR%
 
 REM Run windeployqt on both executables. Because they share the same Qt
@@ -32,6 +35,9 @@ windeployqt.exe modbusadapter.exe -verbose 2
 IF ERRORLEVEL 1 GOTO errorHandling
 
 windeployqt.exe iec104adapter.exe -verbose 2
+IF ERRORLEVEL 1 GOTO errorHandling
+
+windeployqt.exe bacnetAdapter.exe -verbose 2
 IF ERRORLEVEL 1 GOTO errorHandling
 
 REM Add OpenSSL dll's
@@ -51,7 +57,7 @@ IF ERRORLEVEL 1 GOTO errorHandling
 
 REM Verify no DLL is missing: launch each deployed executable and confirm it
 REM doesn't immediately exit with a loader failure (e.g. missing dependency).
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0check_windows_deploy.ps1" -DeployDir "%CD%" -Executables modbusscope.exe,modbusadapter.exe,iec104adapter.exe
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0check_windows_deploy.ps1" -DeployDir "%CD%" -Executables modbusscope.exe,modbusadapter.exe,iec104adapter.exe,bacnetAdapter.exe
 IF ERRORLEVEL 1 GOTO errorHandling
 
 cd ..

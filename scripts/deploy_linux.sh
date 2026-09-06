@@ -5,9 +5,10 @@ set -ex
 cp resources/ModbusScope.desktop release/src/bin/linux/
 cp resources/icon/icon-256x256.png release/src/bin/linux/ModbusScope.png
 
-# Copy modbusadapter and iec104adapter so linuxdeploy bundles them alongside the main executable
+# Copy modbusadapter, iec104adapter and bacnetAdapter so linuxdeploy bundles them alongside the main executable
 cp adapters/Modbus/modbusadapter release/src/bin/linux/
 cp adapters/IEC104/iec104adapter release/src/bin/linux/
+cp adapters/BACnet/bacnetAdapter release/src/bin/linux/
 
 cd release/src/bin/linux/
 
@@ -29,6 +30,7 @@ export APPIMAGE_EXTRACT_AND_RUN=1 # Workaround because FUSE isn't available in D
     -e modbusscope \
     -e modbusadapter \
     -e iec104adapter \
+    -e bacnetAdapter \
     -i ModbusScope.png \
     -d ModbusScope.desktop \
     --plugin qt \

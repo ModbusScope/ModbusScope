@@ -10,6 +10,8 @@
 #   adapters/IEC104/dummyiec104adapter     (Linux)
 #   adapters/IEC104/iec104adapter.exe      (Windows)
 #   adapters/IEC104/dummyiec104adapter.exe (Windows)
+#   adapters/BACnet/bacnetAdapter          (Linux)
+#   adapters/BACnet/bacnetAdapter.exe      (Windows)
 #   adapters/Dummy/dummyadapter            (Linux)
 #   adapters/Dummy/dummyadapter.exe        (Windows)
 
@@ -43,6 +45,11 @@ set_target_properties(iec104adapter PROPERTIES
 add_executable(dummyiec104adapter IMPORTED GLOBAL)
 set_target_properties(dummyiec104adapter PROPERTIES
     IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/IEC104/dummyiec104adapter${_adapter_suffix}"
+)
+
+add_executable(bacnetadapter IMPORTED GLOBAL)
+set_target_properties(bacnetadapter PROPERTIES
+    IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/BACnet/bacnetAdapter${_adapter_suffix}"
 )
 
 # dummyadapter is a real, user-selectable protocol adapter (AdapterDiscovery picks it up as
