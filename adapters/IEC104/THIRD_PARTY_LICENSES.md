@@ -1,6 +1,6 @@
 # Third-Party Licenses
 
-## lib60870 (v2.4.0)
+## lib60870 (v2.4.1)
 
 - Project: lib60870 — IEC 60870-5-101/104 protocol library, MZ Automation GmbH
 - Source: <https://github.com/mz-automation/lib60870>, vendored at `libraries/lib60870`
