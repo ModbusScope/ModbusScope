@@ -1,10 +1,10 @@
 # Changelog
 
-## Unreleased
+## v0.0.3 - 08/09/2026
 
 ### Added
 
-- Add initial implementation of Modbus gateway
+- Add initial implementation of Modbus gateway (disabled for now)
 - Add license verification
 - Add limit of 5 registers in free version
 - Add `MODBUSADAPTER_LICENSE_PATH` env var to override the license file path in debug builds
@@ -24,7 +24,7 @@
 - Fixed and updated logging messages
 - Fix register list debug log printing a pointer address instead of the register list contents
 
-## v0.0.2 - (07/05/2026)
+## v0.0.2 - 07/05/2026
 
 ### Added
 
@@ -38,6 +38,6 @@
   - `defaults` now provides the initial `objectType`, `address`, and `dataType` values
   - Available data types are moved inline into the schema property
 
-## v0.0.1 - (25/04/2026)
+## v0.0.1 - 25/04/2026
 
 Initial version of the adapter for the Modbus protocol.

@@ -66,3 +66,7 @@ venv
 .vscode/
 
 coverage/
+
+describe.json
+
+*-adapter-spec.md
