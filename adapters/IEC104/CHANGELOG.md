@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.0.2 - 15/09/2026
+
+### Changed
+
+- Disable verbose communication logging
+
 ## v0.0.1 - 08/09/2026
 
 ### Added
