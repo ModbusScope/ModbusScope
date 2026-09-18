@@ -227,6 +227,23 @@ void TestGraphDataHandler::graphData_allNoValueInputsYieldsNoValueNotInvalid()
 }
 
 /*!
+ * \brief Flags reported on inputs that are all still NoValue are part of the aggregate too: the
+ * expression is NoValue, but must not lose them.
+ */
+void TestGraphDataHandler::graphData_allNoValueInputsKeepFlags()
+{
+    auto exprList = QStringList() << "${40001} + ${40002}";
+
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    auto regResults = ResultDoubleList() << ResultDouble(0, State::NoValue, Flag::OldData)
+                                         << ResultDouble(0, State::NoValue, Flag::Blocked);
+    auto expected = ResultDoubleList() << ResultDouble(0, State::NoValue, Flag::OldData | Flag::Blocked);
+
+    QCOMPARE(doHandleRegisterData(regResults), expected);
+}
+
+/*!
  * \brief As soon as one contributing data point has any real state, a failed evaluation is a
  * genuine Invalid again, not NoValue.
  */

@@ -33,6 +33,7 @@ private slots:
     void graphData_degradedInputPropagatesFlags();
     void graphData_failedEvaluationUnionsInputFlags();
     void graphData_allNoValueInputsYieldsNoValueNotInvalid();
+    void graphData_allNoValueInputsKeepFlags();
     void graphData_partialNoValueWithInvalidYieldsInvalid();
     void graphData_constantExpressionIsGoodNoFlags();
     void graphData_degradedInputWithoutFlagsStaysDegraded();
