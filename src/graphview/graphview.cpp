@@ -278,11 +278,12 @@ void GraphView::updateGraphs()
                   _pGraphDataModel->dataSeries(maxSampleIdx);
                 pDataSeries->clear();
 
-                // Add zero value for every timestamp (x-coordinate)
+                // Add zero value for every timestamp (x-coordinate); nothing was measured for it
+                const DataQuality::Quality noValue{ DataQuality::State::NoValue, DataQuality::Flag::NoFlags };
                 GraphDataSeries::const_iterator refIt = pReferenceSeries->constBegin();
                 while (refIt != pReferenceSeries->constEnd())
                 {
-                    pDataSeries->add(refIt->timestamp, 0);
+                    pDataSeries->add(refIt->timestamp, 0, noValue);
                     refIt++;
                 }
             }
@@ -509,11 +510,11 @@ void GraphView::plotResults(ResultDoubleList resultList)
     qint32 i = 0;
     for (const auto& result : resultList)
     {
-        /* Invalid results are stored as zero */
-        const double value = result.isValid() ? result.value() : 0;
+        /* Non-usable results are stored as zero; the quality still travels with the sample */
+        const double value = result.isUsable() ? result.value() : 0;
 
         const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(ActiveIdx(i));
-        _pGraphDataModel->mutableDataSeries(graphIdx)->add(timeData, value);
+        _pGraphDataModel->mutableDataSeries(graphIdx)->add(timeData, value, result.quality());
 
         _pPlot->graph(i)->addData(timeData, value);
         dataList.append(value);

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **Breaking: adapter protocol version 2.** `adapter.readData` reports quality via an explicit `state`/`flags` model instead of a flat `valid` boolean; this adapter declares no `capabilities.quality` and never reports a flag, so every point is still simply `good` or `invalid`. `adapter.initialize`/`adapter.describe` negotiate a `protocolVersion`. See `docs/plan/quality-descriptors-implementation-plan.md` (IEC104Adapter repo).
+
 ## v0.0.3 - 08/09/2026
 
 ### Added

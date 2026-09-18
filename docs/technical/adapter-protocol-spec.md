@@ -92,13 +92,27 @@ Content-Length: <N>\r\n
 Lifecycle signal sent by the client to indicate a session is starting. No
 configuration is applied.
 
-**Params:** `{}` (none required)
+**Params:**
+
+```json
+{ "protocolVersion": 2 }
+```
+
+`protocolVersion` is the version of this generic contract the client speaks (see
+[Protocol version vs. config version](#protocol-version-vs-config-version)
+below). The client always sends it; an adapter that does not support the
+requested version SHOULD reject the request with an error naming the version(s)
+it does support.
 
 **Result:**
 
 ```json
-{ "status": "ok" }
+{ "status": "ok", "protocolVersion": 2 }
 ```
+
+`protocolVersion` in the result echoes the version the adapter itself speaks.
+The client compares this against the `adapter.describe` response (below) as
+the authoritative check — see that section.
 
 ---
 
@@ -117,11 +131,16 @@ capabilities. Call this after `adapter.initialize` to discover what
   "name": "<adapter-id>",
   "version": "<semver>",
   "configVersion": 1,
+  "protocolVersion": 2,
   "schema": { ... },
   "defaults": { ... },
   "capabilities": {
     "supportsHotReload": false,
-    "requiresRestartOn": ["connections", "devices"]
+    "requiresRestartOn": ["connections", "devices"],
+    "quality": {
+      "flags": ["<flag-id>", ...],
+      "protocolNames": { "<flag-id>": "<protocol-mnemonic>", ... }
+    }
   }
 }
 ```
@@ -133,9 +152,36 @@ See the adapter's implementation spec for a concrete response example.
 | `name` | Adapter identifier |
 | `version` | Adapter software version. Release builds carry a plain semver (`"<semver>"`). Debug builds MAY append a pre-release tag and/or `+<build-metadata>` suffix identifying the branch, commit, or other build info. Consumers must not treat `version` as a fixed literal; parse or compare it accordingly. The exact debug format is defined by the adapter's implementation spec. |
 | `configVersion` | Current config schema version |
+| `protocolVersion` | Version of the generic `adapter.*` contract this adapter speaks — see below |
 | `schema` | JSON Schema–compatible object describing the `config` object accepted by `adapter.configure` |
 | `defaults` | Default config values |
-| `capabilities` | Feature flags |
+| `capabilities` | Feature flags; `quality` (optional) declares the data-quality detail flags this adapter may report through `adapter.readData` — see that section |
+
+#### Protocol version vs. config version
+
+`protocolVersion` and `configVersion` version two different things and change
+independently:
+
+- `configVersion` versions only the shape of the `config` object accepted by
+  `adapter.configure` for *this specific adapter*. It is adapter-defined and
+  has no meaning to the generic transport.
+- `protocolVersion` versions the generic `adapter.*` contract itself — the
+  shape every method in this document produces and expects, most notably
+  `adapter.readData`'s result (see below). It is the same integer across every
+  adapter, defined by this specification, and MUST match exactly between
+  client and adapter.
+
+The client sends `protocolVersion` in `adapter.initialize`'s params and treats
+the `protocolVersion` echoed back by `adapter.describe` as authoritative: an
+absent value or one that does not exactly equal the version the client speaks
+means the adapter is **incompatible**. The client MUST NOT call
+`adapter.configure` or `adapter.start` on an incompatible adapter, MUST report
+a diagnostic naming the adapter and the found/required versions, and MUST
+otherwise leave the adapter unusable (no data is read) — a mismatch here means
+the two sides could disagree on the meaning of `adapter.readData`'s result, so
+guessing is not an option. A stale adapter binary silently read under the old
+shape, with its `"valid": false` misread as a good `0.0`, is exactly the
+failure mode this guard exists to prevent.
 
 #### Structural vs. enforced limits
 
@@ -452,16 +498,31 @@ the first is pending returns an error immediately.
 ```json
 {
   "dataPoints": [
-    { "value": 42.0, "valid": true },
-    { "value": 0.0,  "valid": false }
+    { "value": 42.0 },
+    { "value": 12.5, "state": "degraded", "flags": ["substituted"] },
+    { "state": "invalid", "flags": ["oldData"] },
+    { "state": "invalid" },
+    { "state": "noValue" }
   ]
 }
 ```
 
 The `dataPoints` array has the same length and order as the `dataPoints` array
-passed to `adapter.start`. Each entry has a numeric `value` (double) and a
-`valid` flag. A data point with `"valid": false` could not be read (communication
-error, timeout, or no device configured). Its `"value"` is `0.0`.
+passed to `adapter.start`. Each entry carries a `state`, an optional `value`,
+and an optional `flags` array:
+
+| Field | Rule |
+| --- | --- |
+| `value` | A number, present if and only if the point is usable (`state` is `good` or `degraded`). Never present, never a fabricated `0.0`, for `invalid` or `noValue`. A client MUST treat a `good` or `degraded` point (or a `dataPoints` entry that is not an object) that has no numeric `value` as `invalid` (plus one diagnostic per session) rather than as a value of `0.0`. |
+| `state` | One of `good`, `degraded`, `invalid`, `noValue`. **Omitted means `good`** — a producer MAY always write it explicitly, but the common case need not spend the bytes. A client MUST accept both forms and MUST reject an unrecognised value by treating the point as `invalid` (plus one diagnostic) — it MUST NOT fall back to `good`. |
+| `flags` | Optional array of adapter-defined detail-flag ids (e.g. `"substituted"`), further qualifying *why* a point is `degraded` or `invalid`. Omitted or empty means no flags. A `good` point that carries flags is contradictory; a client SHOULD treat it as `degraded`. A client MUST ignore any flag id it does not recognise (collecting unrecognised ids into at most one diagnostic per session) rather than reject the point — this is what lets an adapter add a new flag without a `protocolVersion` bump. The set of flag ids a given adapter may ever send is declared in `adapter.describe`'s `capabilities.quality` (see that section); an adapter that declares no `quality` capability sends no `flags` at all. |
+
+State meanings:
+
+- **`good`** — a normal measurement, no caveats.
+- **`degraded`** — a real, usable measurement the source flagged in some way (see `flags` for detail); the client may use `value` but should be able to indicate to the user that it is not a plain good reading.
+- **`invalid`** — the source says this value must not be used. Covers both a communication error and the source explicitly marking the value as invalid at the point of origin.
+- **`noValue`** — no measurement has been received yet for this point (for example, immediately after `adapter.start`, before the first read cycle has populated it). Distinct from `invalid`: nothing is wrong, this data point's first value simply has not arrived.
 
 **Errors:**
 
@@ -561,14 +622,15 @@ and `adapter.describe`. After `adapter.describe` the adapter is in
 AWAITING_CONFIG state and ready to accept configuration.
 
 ```text
-Client                              Adapter
-  |                                    |
-  |-- adapter.initialize ------------> |
-  |<- { "status": "ok" } ------------ |
-  |                                    |
-  |-- adapter.describe -------------> |
-  |<- { "name": ..., "schema": ... } - |
-  |                          [AWAITING_CONFIG]
+Client                                            Adapter
+  |                                                  |
+  |-- adapter.initialize {"protocolVersion":2} ---> |
+  |<- { "status": "ok", "protocolVersion": 2 } ----- |
+  |                                                  |
+  |-- adapter.describe ---------------------------> |
+  |<- { "name": ..., "protocolVersion": 2, ... } --- |
+  |    (client checks protocolVersion matches before proceeding)
+  |                                        [AWAITING_CONFIG]
 ```
 
 ### Session (repeatable)

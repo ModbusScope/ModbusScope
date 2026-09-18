@@ -1,9 +1,12 @@
 #include "tst_dummyadapterstarterror.h"
 
+#include "modbusconfighelpers.h"
+
 #include "ProtocolAdapter/adaptermanager.h"
 #include "models/settingsmodel.h"
 #include "util/result.h"
 
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QSignalSpy>
 #include <QTest>
@@ -11,13 +14,14 @@
 namespace {
 constexpr int cSessionTimeoutMs = 10000;
 constexpr int cReadTimeoutMs = 5000;
+const QString cAdapterId = QStringLiteral("modbus");
 } // namespace
 
 void TestDummyAdapterStartError::init()
 {
     _pSettingsModel = new SettingsModel;
-    _pAdapterManager = new AdapterManager(
-      QStringLiteral("dummy"), QString::fromUtf8(DUMMY_STANDALONE_ADAPTER_EXECUTABLE), _pSettingsModel, this);
+    _pAdapterManager =
+      new AdapterManager(cAdapterId, QString::fromUtf8(DUMMY_ADAPTER_EXECUTABLE), _pSettingsModel, this);
 }
 
 void TestDummyAdapterStartError::cleanup()
@@ -29,9 +33,9 @@ void TestDummyAdapterStartError::cleanup()
 }
 
 /*!
- * \brief Reproduces the original bug report against the real "dummy" adapter binary.
+ * \brief Reproduces the original bug report against the real Modbus adapter binary.
  *
- * "${h0}" is rejected by the adapter's RegisterAddress::parse, which previously caused
+ * "${not_an_address}" is rejected by the adapter's address parsing at adapter.start, which previously caused
  * AdapterClient to force-kill the subprocess and emit a fatal sessionError — silently halting
  * polling for every adapter. The session must now be reported as started (degraded) instead,
  * readData must keep returning invalid results without contacting the process, and the process
@@ -44,12 +48,14 @@ void TestDummyAdapterStartError::startWithInvalidExpressionKeepsAdapterAliveAndP
     _pAdapterManager->initAdapter();
     QVERIFY2(spyReady.wait(cSessionTimeoutMs), "adapterReady not emitted");
 
-    _pSettingsModel->setAdapterCurrentConfig(QStringLiteral("dummy"), QJsonObject());
+    _pSettingsModel->setAdapterCurrentConfig(
+      cAdapterId, ModbusConfigHelpers::config(QJsonArray({ ModbusConfigHelpers::connection(1) }),
+                                              QJsonArray({ ModbusConfigHelpers::device(1, 1) })));
 
     QSignalSpy spyStarted(_pAdapterManager, &AdapterManager::sessionStarted);
     QSignalSpy spyError(_pAdapterManager, &AdapterManager::sessionError);
 
-    _pAdapterManager->startSession(QStringList{ QStringLiteral("${h0}") });
+    _pAdapterManager->startSession(QStringList{ QStringLiteral("${not_an_address}") });
 
     QVERIFY2(spyStarted.wait(cSessionTimeoutMs), "sessionStarted not emitted after a rejected adapter.start");
     QCOMPARE(spyError.count(), 0);
@@ -64,7 +70,7 @@ void TestDummyAdapterStartError::startWithInvalidExpressionKeepsAdapterAliveAndP
     }
     const auto results = spyData.at(0).at(0).value<ResultDoubleList>();
     QCOMPARE(results.size(), 1);
-    QVERIFY2(!results[0].isValid(), "Expected an invalid result for the never-configured register");
+    QVERIFY2(!results[0].isUsable(), "Expected an invalid result for the never-configured register");
 
     /* Prove the real subprocess is still alive and responsive — not just that the client-side
        state machine thinks so — by driving a full stop/reconfigure/restart cycle against it with
@@ -80,7 +86,7 @@ void TestDummyAdapterStartError::startWithInvalidExpressionKeepsAdapterAliveAndP
     }
 
     QSignalSpy spyRestarted(_pAdapterManager, &AdapterManager::sessionStarted);
-    _pAdapterManager->startSession(QStringList{ QStringLiteral("${0}") });
+    _pAdapterManager->startSession(QStringList{ QStringLiteral("${40001}") });
     QVERIFY2(spyRestarted.wait(cSessionTimeoutMs), "sessionStarted not emitted on retry with a valid expression");
 
     QSignalSpy spyRetryData(_pAdapterManager, &AdapterManager::readDataResult);
@@ -88,7 +94,7 @@ void TestDummyAdapterStartError::startWithInvalidExpressionKeepsAdapterAliveAndP
     QVERIFY2(spyRetryData.wait(cReadTimeoutMs), "readDataResult not emitted after successful retry");
     const auto retryResults = spyRetryData.at(0).at(0).value<ResultDoubleList>();
     QCOMPARE(retryResults.size(), 1);
-    QVERIFY2(retryResults[0].isValid(), "Expected a real SUCCESS result from the still-running adapter process");
+    QVERIFY2(retryResults[0].isUsable(), "Expected a real SUCCESS result from the still-running adapter process");
 }
 
 QTEST_GUILESS_MAIN(TestDummyAdapterStartError)

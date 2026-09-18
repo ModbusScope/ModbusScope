@@ -3,6 +3,7 @@
 
 #include <QJsonObject>
 #include <QString>
+#include <QStringList>
 
 /*!
  * \brief Parsed fields of an adapter.describe "license" object.
@@ -63,10 +64,15 @@ public:
     QString name() const;
     QString version() const;
     int configVersion() const;
+    int protocolVersion() const;
     QJsonObject schema() const;
     QJsonObject defaults() const;
     QJsonObject capabilities() const;
     bool isMbcCompatible() const;
+
+    bool reportsQuality() const;
+    QStringList qualityFlags() const;
+    QString qualityProtocolName(const QString& id) const;
     QJsonObject license() const;
     AdapterLicenseInfo licenseInfo() const;
     QJsonObject currentConfig() const;
@@ -123,6 +129,7 @@ private:
     QString _name;
     QString _version;
     int _configVersion{ 0 };
+    int _protocolVersion{ 0 };
     QJsonObject _schema;
     QJsonObject _defaults;
     QJsonObject _capabilities;

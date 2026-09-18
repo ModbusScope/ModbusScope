@@ -6,7 +6,7 @@
 #include <QSignalSpy>
 #include <QTest>
 
-using State = ResultState::State;
+using State = DataQuality::State;
 
 void TestExpressionChecker::init()
 {
@@ -66,7 +66,7 @@ void TestExpressionChecker::expressionIsValid()
 
     QSignalSpy spyResult(&checker, &ExpressionChecker::resultsReady);
 
-    auto resultList = ResultDoubleList() << ResultDouble(2, State::SUCCESS) << ResultDouble(1, State::SUCCESS);
+    auto resultList = ResultDoubleList() << ResultDouble(2, State::Good) << ResultDouble(1, State::Good);
     checker.checkWithValues(resultList);
 
     QCOMPARE(spyResult.count(), 1);
@@ -91,7 +91,7 @@ void TestExpressionChecker::expressionHasSyntaxError()
 
     QSignalSpy spyResult(&checker, &ExpressionChecker::resultsReady);
 
-    auto resultList = ResultDoubleList() << ResultDouble(2, State::SUCCESS);
+    auto resultList = ResultDoubleList() << ResultDouble(2, State::Good);
     checker.checkWithValues(resultList);
 
     QCOMPARE(spyResult.count(), 1);
@@ -116,7 +116,7 @@ void TestExpressionChecker::valueErrorIsNotSyntaxError()
 
     QSignalSpy spyResult(&checker, &ExpressionChecker::resultsReady);
 
-    auto resultList = ResultDoubleList() << ResultDouble(0, State::SUCCESS);
+    auto resultList = ResultDoubleList() << ResultDouble(0, State::Good);
     checker.checkWithValues(resultList);
 
     QCOMPARE(spyResult.count(), 1);

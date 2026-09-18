@@ -6,6 +6,36 @@
 
 #include <memory>
 
+namespace {
+
+/*!
+ * \brief Extracts the string entries of a readData data point's "flags" value.
+ *
+ * A missing or non-array "flags" value, or a non-string entry within it, yields no candidate
+ * for that entry rather than a crash — malformed input degrades gracefully into "no flags"
+ * instead of being rejected outright.
+ */
+QStringList flagIdCandidates(const QJsonValue& flagsValue)
+{
+    QStringList ids;
+    if (!flagsValue.isArray())
+    {
+        return ids;
+    }
+
+    const QJsonArray flagsArray = flagsValue.toArray();
+    for (const auto& entry : flagsArray)
+    {
+        if (entry.isString())
+        {
+            ids.append(entry.toString());
+        }
+    }
+    return ids;
+}
+
+} // namespace
+
 /*!
  * \brief Construct an AdapterClient driving \a pProcess.
  * \param pProcess          Transport for the adapter subprocess; ownership is taken.
@@ -67,8 +97,11 @@ void AdapterClient::prepareAdapter(const QString& adapterPath)
 
     qCInfo(scopeComm) << "AdapterClient:" << _adapterId << "process started, sending initialize";
     _state = State::INITIALIZING;
+    _incompatibilityReason.clear();
     _handshakeTimer.start(_handshakeTimeoutMs);
-    _pProcess->sendRequest("adapter.initialize", QJsonObject());
+    QJsonObject params;
+    params["protocolVersion"] = cProtocolVersion;
+    _pProcess->sendRequest("adapter.initialize", params);
 }
 
 void AdapterClient::provideConfig(QJsonObject config, QStringList registerExpressions)
@@ -81,6 +114,18 @@ void AdapterClient::provideConfig(QJsonObject config, QStringList registerExpres
     }
 
     _pendingExpressions = registerExpressions;
+    _reportedUnrecognisedReadDataState = false;
+    _reportedMalformedReadDataPoint = false;
+    _reportedUnknownFlagIds.clear();
+
+    if (!_incompatibilityReason.isEmpty())
+    {
+        _state = State::ACTIVE_DEGRADED;
+        _incompatibleAnnouncePending = true;
+        QMetaObject::invokeMethod(this, &AdapterClient::announceIncompatibleSession, Qt::QueuedConnection);
+        return;
+    }
+
     _pendingConfig = config;
     _pendingAuxRequests.clear();
     _state = State::CONFIGURING;
@@ -136,6 +181,11 @@ void AdapterClient::requestDataPointSchema()
         return;
     }
 
+    if (isAuxRequestRefused("requestDataPointSchema"))
+    {
+        return;
+    }
+
     _pendingAuxRequests["adapter.dataPointSchema"] = _pProcess->sendRequest("adapter.dataPointSchema", QJsonObject());
 }
 
@@ -149,6 +199,11 @@ void AdapterClient::describeDataPoint(const QString& expression)
     {
         qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "describeDataPoint called in unexpected state"
                              << static_cast<int>(_state);
+        return;
+    }
+
+    if (isAuxRequestRefused("describeDataPoint"))
+    {
         return;
     }
 
@@ -170,6 +225,11 @@ void AdapterClient::validateDataPoint(const QString& expression)
         return;
     }
 
+    if (isAuxRequestRefused("validateDataPoint"))
+    {
+        return;
+    }
+
     QJsonObject params;
     params["expression"] = expression;
     _pendingAuxRequests["adapter.validateDataPoint"] = _pProcess->sendRequest("adapter.validateDataPoint", params);
@@ -187,6 +247,11 @@ void AdapterClient::buildExpression(const QJsonObject& addressFields, const QStr
     {
         qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "buildExpression called in unexpected state"
                              << static_cast<int>(_state);
+        return;
+    }
+
+    if (isAuxRequestRefused("buildExpression"))
+    {
         return;
     }
 
@@ -216,6 +281,11 @@ void AdapterClient::requestExpressionHelp()
         return;
     }
 
+    if (isAuxRequestRefused("requestExpressionHelp"))
+    {
+        return;
+    }
+
     _pendingAuxRequests["adapter.expressionHelp"] = _pProcess->sendRequest("adapter.expressionHelp", QJsonObject());
 }
 
@@ -228,6 +298,7 @@ void AdapterClient::stopSession()
 
     _handshakeTimer.stop();
     _pendingAuxRequests.clear();
+    _incompatibleAnnouncePending = false;
 
     if (_state == State::ACTIVE_DEGRADED)
     {
@@ -442,7 +513,161 @@ bool AdapterClient::consumeAuxResponse(const QString& method, int id)
  */
 ResultDoubleList AdapterClient::invalidResults() const
 {
-    return ResultDoubleList(_pendingExpressions.size(), ResultDouble(0.0, ResultState::State::INVALID));
+    return ResultDoubleList(_pendingExpressions.size(), ResultDouble(0.0, DataQuality::State::Invalid));
+}
+
+/*!
+ * \brief Decodes an adapter.readData result into one Result per data point.
+ *
+ * Strict per the protocol-2 contract (docs/technical/adapter-protocol-spec.md): an unrecognised
+ * "state" string never falls back to good, a usable point without a numeric value is not
+ * accepted as a value, and an unrecognised flag id is dropped rather than rejecting the point.
+ * Each kind of violation raises one diagnostic per session (per distinct id for flags), so a
+ * persistently misbehaving adapter does not flood the diagnostic log every poll.
+ *
+ * \param result The full adapter.readData result object.
+ * \return One Result<double> per entry in "dataPoints", in order.
+ */
+ResultDoubleList AdapterClient::decodeReadDataResult(const QJsonObject& result)
+{
+    ResultDoubleList results;
+    ReadDataIssues issues;
+
+    const QJsonArray dataPoints = result["dataPoints"].toArray();
+    for (const auto& entry : dataPoints)
+    {
+        results.append(decodeDataPoint(entry, issues));
+    }
+
+    if (issues.unrecognisedState && !_reportedUnrecognisedReadDataState)
+    {
+        _reportedUnrecognisedReadDataState = true;
+        emit diagnosticReceived(QStringLiteral("error"),
+                                QStringLiteral("Adapter '%1' sent an unrecognised adapter.readData state; "
+                                               "treating the affected data point(s) as invalid")
+                                  .arg(_adapterId));
+    }
+
+    if (issues.malformedPoint && !_reportedMalformedReadDataPoint)
+    {
+        _reportedMalformedReadDataPoint = true;
+        emit diagnosticReceived(QStringLiteral("error"),
+                                QStringLiteral("Adapter '%1' sent an adapter.readData data point that is not an "
+                                               "object or has no numeric value; treating it as invalid")
+                                  .arg(_adapterId));
+    }
+
+    if (!issues.newUnknownFlagIds.isEmpty())
+    {
+        emit diagnosticReceived(QStringLiteral("warning"),
+                                QStringLiteral("Adapter '%1' sent unrecognised adapter.readData flag id(s): %2")
+                                  .arg(_adapterId, issues.newUnknownFlagIds.join(QStringLiteral(", "))));
+    }
+
+    return results;
+}
+
+/*!
+ * \brief Decodes a single adapter.readData "dataPoints" entry.
+ * \param entry The entry as received; anything other than an object is malformed.
+ * \param issues Updated with any contract violation found: an unrecognised state, a usable point
+ * without a numeric value (or a non-object entry), and flag ids not recognised by
+ * DataQuality::flagsFromIds() that this client has not reported yet.
+ * \return The decoded Result. State defaults to Good when "state" is absent; a point that
+ * violates the contract is Invalid. A Good point carrying flags is promoted to Degraded, so flags
+ * never sit on an unflagged-looking Good.
+ */
+ResultDouble AdapterClient::decodeDataPoint(const QJsonValue& entry, ReadDataIssues& issues)
+{
+    if (!entry.isObject())
+    {
+        issues.malformedPoint = true;
+        return ResultDouble(0.0, DataQuality::State::Invalid);
+    }
+
+    const QJsonObject dataPoint = entry.toObject();
+
+    DataQuality::State state = DataQuality::State::Good;
+    if (dataPoint.contains(QStringLiteral("state")))
+    {
+        const std::optional<DataQuality::State> parsed =
+          DataQuality::stateFromId(dataPoint[QStringLiteral("state")].toString());
+        if (parsed.has_value())
+        {
+            state = parsed.value();
+        }
+        else
+        {
+            state = DataQuality::State::Invalid;
+            issues.unrecognisedState = true;
+        }
+    }
+
+    const bool usable = (state == DataQuality::State::Good) || (state == DataQuality::State::Degraded);
+    const QJsonValue valueEntry = dataPoint[QStringLiteral("value")];
+    if (usable && !valueEntry.isDouble())
+    {
+        issues.malformedPoint = true;
+        return ResultDouble(0.0, DataQuality::State::Invalid);
+    }
+
+    QStringList unknownIds;
+    const DataQuality::Flags flags =
+      DataQuality::flagsFromIds(flagIdCandidates(dataPoint[QStringLiteral("flags")]), unknownIds);
+    for (const QString& id : std::as_const(unknownIds))
+    {
+        if (!_reportedUnknownFlagIds.contains(id))
+        {
+            _reportedUnknownFlagIds.insert(id);
+            issues.newUnknownFlagIds.append(id);
+        }
+    }
+
+    ResultDouble decoded(usable ? valueEntry.toDouble() : 0.0, state);
+    decoded.addFlags(flags);
+    return decoded;
+}
+
+/*!
+ * \brief Reports a session that was degraded because the adapter's protocol version is incompatible.
+ *
+ * Runs queued rather than from provideConfig(): unlike the other degraded paths there is no RPC
+ * round trip to make it asynchronous, and a synchronous sessionStarted() would reach the caller
+ * while it is still starting the remaining adapters. Does nothing if the session was stopped in
+ * the meantime, and announces each degraded session once even if it was stopped and started again
+ * before this ran.
+ */
+void AdapterClient::announceIncompatibleSession()
+{
+    if (!_incompatibleAnnouncePending || _state != State::ACTIVE_DEGRADED)
+    {
+        return;
+    }
+
+    _incompatibleAnnouncePending = false;
+    emit diagnosticReceived(QStringLiteral("error"), _incompatibilityReason);
+    emit sessionStarted();
+}
+
+/*!
+ * \brief Returns whether an auxiliary request (schema, describe, validate, build, help) must not be
+ * sent because the adapter speaks an incompatible protocol version.
+ *
+ * Such an adapter is left unusable: its reply shapes are not guaranteed, and an unexpected reply or
+ * error to one of these requests would be treated as fatal for the whole polling session.
+ *
+ * \param requestName Name of the request, for the log message.
+ */
+bool AdapterClient::isAuxRequestRefused(const char* requestName) const
+{
+    if (_incompatibilityReason.isEmpty())
+    {
+        return false;
+    }
+
+    qCWarning(scopeComm) << "AdapterClient:" << _adapterId << requestName
+                         << "not sent, adapter has an incompatible protocol version";
+    return true;
 }
 
 /*!
@@ -466,6 +691,19 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
     }
     else if (method == "adapter.describe" && _state == State::DESCRIBING)
     {
+        const int adapterProtocolVersion = result["protocolVersion"].toInt(-1);
+        if (adapterProtocolVersion != cProtocolVersion)
+        {
+            qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "protocol version mismatch: found"
+                                 << adapterProtocolVersion << "required" << cProtocolVersion;
+            _incompatibilityReason = QStringLiteral("Adapter '%1' speaks protocol version %2; this application "
+                                                    "requires version %3")
+                                       .arg(_adapterId)
+                                       .arg(adapterProtocolVersion)
+                                       .arg(cProtocolVersion);
+            emit diagnosticReceived(QStringLiteral("error"), _incompatibilityReason);
+        }
+
         qCInfo(scopeComm) << "AdapterClient:" << _adapterId << "described, awaiting config";
         _handshakeTimer.stop();
         _state = State::AWAITING_CONFIG;
@@ -489,21 +727,7 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
     }
     else if (method == "adapter.readData" && _state == State::ACTIVE)
     {
-        ResultDoubleList results;
-        const QJsonArray dataPoints = result["dataPoints"].toArray();
-        for (const auto& entry : dataPoints)
-        {
-            QJsonObject dataPoint = entry.toObject();
-            if (dataPoint["valid"].toBool())
-            {
-                results.append(ResultDouble(dataPoint["value"].toDouble(), ResultState::State::SUCCESS));
-            }
-            else
-            {
-                results.append(ResultDouble(0.0, ResultState::State::INVALID));
-            }
-        }
-        emit readDataResult(results);
+        emit readDataResult(decodeReadDataResult(result));
     }
     else if (method == "adapter.getStatus" && _state == State::ACTIVE)
     {

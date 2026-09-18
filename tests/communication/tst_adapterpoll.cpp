@@ -192,10 +192,31 @@ void TestAdapterPoll::phantomAdapterDoesNotHangPoll()
 
     /* A result arrives — since _pendingResultAdapters is empty the merge runs immediately */
     ResultDoubleList results;
-    results.append(Result<double>(1.0, ResultState::State::SUCCESS));
+    results.append(Result<double>(1.0, DataQuality::State::Good));
     s_pMockHub->triggerReadDataResult(QStringLiteral("modbus"), results);
 
     QCOMPARE(spy.count(), 1);
+}
+
+/*!
+ * \brief An adapter that returns a different number of results than data points requested is a
+ * fault: its data points must come out Invalid, never NoValue ("not started yet").
+ */
+void TestAdapterPoll::mismatchedGroupResultsAreInvalidNotNoValue()
+{
+    s_pMockHub->_mockReady = true;
+
+    QList<DataPoint> registers{ DataPoint(QStringLiteral("${h0}"), 1) };
+    s_pPoll->startCommunication(registers);
+
+    QSignalSpy spy(s_pPoll, &AdapterPoll::registerDataReady);
+    s_pMockHub->triggerSessionStarted();
+    s_pMockHub->triggerReadDataResult(QStringLiteral("modbus"), ResultDoubleList());
+
+    QCOMPARE(spy.count(), 1);
+    const auto merged = spy.at(0).at(0).value<ResultDoubleList>();
+    QCOMPARE(merged.size(), 1);
+    QCOMPARE(merged[0].state(), DataQuality::State::Invalid);
 }
 
 void TestAdapterPoll::sessionErrorClearsForRestart()
@@ -222,7 +243,7 @@ void TestAdapterPoll::sessionErrorClearsForRestart()
     s_pMockHub->triggerSessionStarted();
 
     ResultDoubleList results;
-    results.append(Result<double>(2.0, ResultState::State::SUCCESS));
+    results.append(Result<double>(2.0, DataQuality::State::Good));
     s_pMockHub->triggerReadDataResult(QStringLiteral("modbus"), results);
 
     QCOMPARE(spy.count(), 1);

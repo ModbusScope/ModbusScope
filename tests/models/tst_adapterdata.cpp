@@ -85,6 +85,104 @@ void TestAdapterData::updateFromDescribeMissingFields()
     QVERIFY(data.license().isEmpty());
 }
 
+void TestAdapterData::protocolVersionDefaultsToZero()
+{
+    AdapterData data;
+
+    QCOMPARE(data.protocolVersion(), 0);
+}
+
+void TestAdapterData::protocolVersionParsedFromDescribe()
+{
+    AdapterData data;
+
+    QJsonObject describeResult;
+    describeResult["name"] = "modbusAdapter";
+    describeResult["protocolVersion"] = 2;
+
+    data.updateFromDescribe(describeResult);
+
+    QCOMPARE(data.protocolVersion(), 2);
+}
+
+void TestAdapterData::reportsQualityFalseWhenCapabilityAbsent()
+{
+    AdapterData data;
+
+    QJsonObject describeResult;
+    describeResult["capabilities"] = QJsonObject{ { "mbcCompatible", true } };
+    data.updateFromDescribe(describeResult);
+
+    QVERIFY(!data.reportsQuality());
+}
+
+void TestAdapterData::reportsQualityTrueWhenCapabilityPresent()
+{
+    AdapterData data;
+
+    QJsonObject quality;
+    quality["flags"] = QJsonArray{ "substituted", "oldData" };
+
+    QJsonObject describeResult;
+    describeResult["capabilities"] = QJsonObject{ { "quality", quality } };
+    data.updateFromDescribe(describeResult);
+
+    QVERIFY(data.reportsQuality());
+}
+
+void TestAdapterData::qualityFlagsReturnsDeclaredFlags()
+{
+    AdapterData data;
+
+    QJsonObject quality;
+    quality["flags"] = QJsonArray{ "substituted", "oldData" };
+
+    QJsonObject describeResult;
+    describeResult["capabilities"] = QJsonObject{ { "quality", quality } };
+    data.updateFromDescribe(describeResult);
+
+    QCOMPARE(data.qualityFlags(), QStringList({ "substituted", "oldData" }));
+}
+
+void TestAdapterData::qualityFlagsEmptyWhenNoQualityCapability()
+{
+    AdapterData data;
+
+    data.updateFromDescribe(QJsonObject{ { "name", "modbusAdapter" } });
+
+    QVERIFY(data.qualityFlags().isEmpty());
+}
+
+void TestAdapterData::qualityProtocolNameReturnsMnemonic()
+{
+    AdapterData data;
+
+    QJsonObject quality;
+    quality["flags"] = QJsonArray{ "oldData" };
+    quality["protocolNames"] = QJsonObject{ { "oldData", "NT" } };
+
+    QJsonObject describeResult;
+    describeResult["capabilities"] = QJsonObject{ { "quality", quality } };
+    data.updateFromDescribe(describeResult);
+
+    QCOMPARE(data.qualityProtocolName("oldData"), QStringLiteral("NT"));
+}
+
+void TestAdapterData::qualityProtocolNameEmptyWhenUnknownId()
+{
+    AdapterData data;
+
+    QJsonObject quality;
+    quality["flags"] = QJsonArray{ "oldData" };
+    quality["protocolNames"] = QJsonObject{ { "oldData", "NT" } };
+
+    QJsonObject describeResult;
+    describeResult["capabilities"] = QJsonObject{ { "quality", quality } };
+    data.updateFromDescribe(describeResult);
+
+    QVERIFY(data.qualityProtocolName("substituted").isEmpty());
+}
+
 void TestAdapterData::effectiveConfigReturnsDefaults()
 {
     AdapterData data;

@@ -61,12 +61,27 @@ void GraphDataSeries::add(const GraphSample& sample)
 
 /*!
  * \brief Adds a sample to the series, keeping the samples sorted by timestamp.
+ *
+ * The sample's quality is left at its default (DataQuality::State::Good, no flags). Use the
+ * quality-carrying overload when the caller has real quality information to attach.
+ *
  * \param timestamp Timestamp of the sample.
  * \param value Value of the sample.
  */
 void GraphDataSeries::add(double timestamp, double value)
 {
-    add(GraphSample{timestamp, value});
+    add(GraphSample{ timestamp, value, DataQuality::Quality{} });
+}
+
+/*!
+ * \brief Adds a sample to the series, keeping the samples sorted by timestamp.
+ * \param timestamp Timestamp of the sample.
+ * \param value Value of the sample.
+ * \param quality Data quality of the sample.
+ */
+void GraphDataSeries::add(double timestamp, double value, const DataQuality::Quality& quality)
+{
+    add(GraphSample{ timestamp, value, quality });
 }
 
 /*!

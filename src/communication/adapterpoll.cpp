@@ -140,8 +140,9 @@ void AdapterPoll::onReadDataResult(const QString& adapterId, ResultDoubleList re
         return;
     }
 
-    /* All adapters have responded — reconstruct the merged list in original data point order */
-    ResultDoubleList merged(_registerList.size());
+    /* All adapters have responded — reconstruct the merged list in original data point order.
+     * Data points not covered by a usable group result are a fault, so they start out Invalid. */
+    ResultDoubleList merged(_registerList.size(), ResultDouble(0.0, DataQuality::State::Invalid));
     for (auto it = _adapterGroups.constBegin(); it != _adapterGroups.constEnd(); ++it)
     {
         const ResultDoubleList& groupResults = _pendingResults.value(it.key());

@@ -14,6 +14,15 @@ private slots:
     void defaultConstruction();
     void updateFromDescribe();
     void updateFromDescribeMissingFields();
+    void protocolVersionDefaultsToZero();
+    void protocolVersionParsedFromDescribe();
+
+    void reportsQualityFalseWhenCapabilityAbsent();
+    void reportsQualityTrueWhenCapabilityPresent();
+    void qualityFlagsReturnsDeclaredFlags();
+    void qualityFlagsEmptyWhenNoQualityCapability();
+    void qualityProtocolNameReturnsMnemonic();
+    void qualityProtocolNameEmptyWhenUnknownId();
     void effectiveConfigReturnsDefaults();
     void effectiveConfigReturnsStoredConfig();
     void effectiveConfigFillsMissingKeysFromDefaults();

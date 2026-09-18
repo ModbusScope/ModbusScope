@@ -227,7 +227,7 @@ void QMuParser::registerValue(int index, double* value, bool* success)
     if (index >= 0 && index < _registerValues.size())
     {
         *value = _registerValues[index].value();
-        *success = _registerValues[index].isValid();
+        *success = _registerValues[index].isUsable();
     }
     else
     {

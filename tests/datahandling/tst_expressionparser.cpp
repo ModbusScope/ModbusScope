@@ -266,6 +266,56 @@ void TestExpressionParser::manyRegistersHighIndex()
     verifyParsing(input, expDataPoints, expExpressions);
 }
 
+/*!
+ * \brief A single expression referencing two data points must report both their indices.
+ */
+void TestExpressionParser::dataPointIndicesSingleExpression()
+{
+    auto input = QStringList() << "${45332} + ${45333}";
+    ExpressionParser parser(input);
+
+    auto expected = QList<QList<int>>() << (QList<int>() << 0 << 1);
+    QCOMPARE(parser.expressionDataPointIndices(), expected);
+}
+
+/*!
+ * \brief Each expression must report only the indices of the data points it itself references,
+ * one entry per expression, in the same order the expressions were passed in.
+ */
+void TestExpressionParser::dataPointIndicesMultipleExpressions()
+{
+    auto input = QStringList() << "${45332} + ${45333}" << "${45334}";
+    ExpressionParser parser(input);
+
+    auto expected = QList<QList<int>>() << (QList<int>() << 0 << 1) << (QList<int>() << 2);
+    QCOMPARE(parser.expressionDataPointIndices(), expected);
+}
+
+/*!
+ * \brief A data point referenced from two different expressions must appear in both of their
+ * index lists, deduplicated to a single shared data point index.
+ */
+void TestExpressionParser::dataPointIndicesSharedDataPoint()
+{
+    auto input = QStringList() << "${45332} + ${45333}" << "${45332}";
+    ExpressionParser parser(input);
+
+    auto expected = QList<QList<int>>() << (QList<int>() << 0 << 1) << (QList<int>() << 0);
+    QCOMPARE(parser.expressionDataPointIndices(), expected);
+}
+
+/*!
+ * \brief A constant expression with no data point references must report an empty index list.
+ */
+void TestExpressionParser::dataPointIndicesConstantExpressionIsEmpty()
+{
+    auto input = QStringList() << "2";
+    ExpressionParser parser(input);
+
+    auto expected = QList<QList<int>>() << QList<int>();
+    QCOMPARE(parser.expressionDataPointIndices(), expected);
+}
+
 void TestExpressionParser::verifyParsing(const QStringList& exprList,
                                          const QList<DataPoint>& expectedDataPoints,
                                          const QStringList& expectedExpression)

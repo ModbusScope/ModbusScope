@@ -12,7 +12,7 @@ class TestDummyDeviceLimit : public QObject
 private slots:
     void init();
     void cleanup();
-    void sessionStartsWithTwoDevicesOverLimit();
+    void sessionStartsWithMoreDevicesThanLimit();
 
 private:
     SettingsModel* _pSettingsModel{ nullptr };

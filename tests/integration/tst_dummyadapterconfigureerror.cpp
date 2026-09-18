@@ -1,5 +1,7 @@
 #include "tst_dummyadapterconfigureerror.h"
 
+#include "modbusconfighelpers.h"
+
 #include "ProtocolAdapter/adaptermanager.h"
 #include "models/adapterdata.h"
 #include "models/settingsmodel.h"
@@ -13,28 +15,12 @@
 namespace {
 constexpr int cSessionTimeoutMs = 10000;
 constexpr int cReadTimeoutMs = 5000;
-constexpr char cAdapterId[] = "dummy";
-
-QJsonObject connectionObject(int id)
-{
-    QJsonObject connection;
-    connection["id"] = id;
-    connection["name"] = QStringLiteral("Connection %1").arg(id);
-    return connection;
-}
-
-QJsonObject deviceObject(int id, int connectionId)
-{
-    QJsonObject device;
-    device["id"] = id;
-    device["connectionId"] = connectionId;
-    return device;
-}
+constexpr char cAdapterId[] = "modbus";
 
 /*!
  * \brief Rebuild a describe object for \a pAdapterData, with the client-side device limit removed.
  *
- * The real dummy adapter binary always enforces its own device limit (1) at adapter.configure
+ * The real Modbus adapter binary always enforces its own device limit at adapter.configure
  * regardless of what the client believes; removing the schema's devices.maxItems and
  * capabilities.maxDevices disables AdapterData::configForWire()'s local truncation (see
  * AdapterData::maxDevices()), so an over-limit config actually reaches the real subprocess —
@@ -57,6 +43,7 @@ QJsonObject describeWithoutDeviceLimit(const AdapterData* pAdapterData)
     describe["name"] = pAdapterData->name();
     describe["version"] = pAdapterData->version();
     describe["configVersion"] = pAdapterData->configVersion();
+    describe["protocolVersion"] = pAdapterData->protocolVersion();
     describe["schema"] = schema;
     describe["defaults"] = pAdapterData->defaults();
     describe["capabilities"] = capabilities;
@@ -69,8 +56,8 @@ QJsonObject describeWithoutDeviceLimit(const AdapterData* pAdapterData)
 void TestDummyAdapterConfigureError::init()
 {
     _pSettingsModel = new SettingsModel;
-    _pAdapterManager = new AdapterManager(
-      QString::fromUtf8(cAdapterId), QString::fromUtf8(DUMMY_STANDALONE_ADAPTER_EXECUTABLE), _pSettingsModel, this);
+    _pAdapterManager = new AdapterManager(QString::fromUtf8(cAdapterId), QString::fromUtf8(DUMMY_ADAPTER_EXECUTABLE),
+                                          _pSettingsModel, this);
 }
 
 void TestDummyAdapterConfigureError::cleanup()
@@ -82,7 +69,7 @@ void TestDummyAdapterConfigureError::cleanup()
 }
 
 /*!
- * \brief Reproduces the reported bug against the real "dummy" adapter binary: a device count that
+ * \brief Reproduces the reported bug against the real Modbus adapter binary: a device count that
  * exceeds the adapter's actual device limit is rejected by adapter.configure. This previously
  * caused AdapterClient to force-kill the subprocess and emit a fatal sessionError — silently
  * halting polling for every adapter, with no readData ever happening. The session must now be
@@ -96,24 +83,30 @@ void TestDummyAdapterConfigureError::configureOverDeviceLimitKeepsAdapterAliveAn
     _pAdapterManager->initAdapter();
     QVERIFY2(spyReady.wait(cSessionTimeoutMs), "adapterReady not emitted");
 
-    /* The dummy adapter's own schema already declares devices.maxItems = 1, matching its real
-       enforced limit, so ModbusScope's own truncation would normally prevent this configure from
-       ever being rejected. Remove the client-side limit so the over-limit config actually reaches
-       the real subprocess. */
-    const QJsonObject unboundedDescribe =
-      describeWithoutDeviceLimit(_pSettingsModel->adapterData(QString::fromUtf8(cAdapterId)));
+    /* The adapter declares its device limit, so ModbusScope's own truncation would normally prevent
+       this configure from ever being rejected. Remove the client-side limit so the over-limit
+       config actually reaches the real subprocess. */
+    const AdapterData* pAdapterData = _pSettingsModel->adapterData(QString::fromUtf8(cAdapterId));
+    QVERIFY(pAdapterData != nullptr);
+    const int deviceLimit = pAdapterData->maxDevices();
+    QVERIFY2(deviceLimit >= 1 && deviceLimit < 1000, "expected the adapter to declare a finite device limit");
+
+    const QJsonObject unboundedDescribe = describeWithoutDeviceLimit(pAdapterData);
     _pSettingsModel->updateAdapterFromDescribe(QString::fromUtf8(cAdapterId), unboundedDescribe);
 
-    QJsonObject config;
-    config["general"] = QJsonObject();
-    config["connections"] = QJsonArray{ connectionObject(1) };
-    config["devices"] = QJsonArray{ deviceObject(1, 1), deviceObject(2, 1) };
-    _pSettingsModel->setAdapterCurrentConfig(QString::fromUtf8(cAdapterId), config);
+    QJsonArray overLimitDevices;
+    for (int id = 1; id <= deviceLimit + 1; id++)
+    {
+        overLimitDevices.append(ModbusConfigHelpers::device(id, 1, id));
+    }
+    _pSettingsModel->setAdapterCurrentConfig(
+      QString::fromUtf8(cAdapterId),
+      ModbusConfigHelpers::config(QJsonArray({ ModbusConfigHelpers::connection(1) }), overLimitDevices));
 
     QSignalSpy spyStarted(_pAdapterManager, &AdapterManager::sessionStarted);
     QSignalSpy spyError(_pAdapterManager, &AdapterManager::sessionError);
 
-    _pAdapterManager->startSession(QStringList{ QStringLiteral("${0}") });
+    _pAdapterManager->startSession(QStringList{ QStringLiteral("${40001}") });
 
     QVERIFY2(spyStarted.wait(cSessionTimeoutMs), "sessionStarted not emitted after a rejected adapter.configure");
     QCOMPARE(spyError.count(), 0);
@@ -128,7 +121,7 @@ void TestDummyAdapterConfigureError::configureOverDeviceLimitKeepsAdapterAliveAn
     }
     const auto results = spyData.at(0).at(0).value<ResultDoubleList>();
     QCOMPARE(results.size(), 1);
-    QVERIFY2(!results[0].isValid(), "Expected an invalid result for the never-configured register");
+    QVERIFY2(!results[0].isUsable(), "Expected an invalid result for the never-configured register");
 
     /* Prove the real subprocess is still alive and responsive — not just that the client-side
        state machine thinks so — by driving a full stop/reconfigure/restart cycle against it with a
@@ -143,14 +136,12 @@ void TestDummyAdapterConfigureError::configureOverDeviceLimitKeepsAdapterAliveAn
         QVERIFY2(spyStopped.wait(cSessionTimeoutMs), "sessionStopped not emitted after stopSession");
     }
 
-    QJsonObject compliantConfig;
-    compliantConfig["general"] = QJsonObject();
-    compliantConfig["connections"] = QJsonArray{ connectionObject(1) };
-    compliantConfig["devices"] = QJsonArray{ deviceObject(1, 1) };
-    _pSettingsModel->setAdapterCurrentConfig(QString::fromUtf8(cAdapterId), compliantConfig);
+    _pSettingsModel->setAdapterCurrentConfig(
+      QString::fromUtf8(cAdapterId), ModbusConfigHelpers::config(QJsonArray({ ModbusConfigHelpers::connection(1) }),
+                                                                 QJsonArray({ ModbusConfigHelpers::device(1, 1) })));
 
     QSignalSpy spyRestarted(_pAdapterManager, &AdapterManager::sessionStarted);
-    _pAdapterManager->startSession(QStringList{ QStringLiteral("${0}") });
+    _pAdapterManager->startSession(QStringList{ QStringLiteral("${40001}") });
     QVERIFY2(spyRestarted.wait(cSessionTimeoutMs), "sessionStarted not emitted on retry with a compliant device count");
 
     QSignalSpy spyRetryData(_pAdapterManager, &AdapterManager::readDataResult);
@@ -158,7 +149,7 @@ void TestDummyAdapterConfigureError::configureOverDeviceLimitKeepsAdapterAliveAn
     QVERIFY2(spyRetryData.wait(cReadTimeoutMs), "readDataResult not emitted after successful retry");
     const auto retryResults = spyRetryData.at(0).at(0).value<ResultDoubleList>();
     QCOMPARE(retryResults.size(), 1);
-    QVERIFY2(retryResults[0].isValid(), "Expected a real SUCCESS result from the still-running adapter process");
+    QVERIFY2(retryResults[0].isUsable(), "Expected a real SUCCESS result from the still-running adapter process");
 }
 
 QTEST_GUILESS_MAIN(TestDummyAdapterConfigureError)
