@@ -94,6 +94,9 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(DataQuality::Flags)
  * decoding needs to decide whether a value was sent. The two currently agree (both are true for
  * Good/Degraded only) but are named for their distinct call sites so they can diverge without a
  * rename if a future state ever carries a value without being usable.
+ *
+ * A Good result never carries flags: the constructor and addFlags() promote it to Degraded, and
+ * setValue() starts from a clean, flag-free Good.
  */
 template<typename T>
 class Result
@@ -155,8 +158,9 @@ Result<T>::Result() : Result(0, DataQuality::State::NoValue)
 
 template<class T>
 Result<T>::Result(T value, DataQuality::State state, DataQuality::Flags flags)
-    : _value(value), _state(state), _flags(flags)
+    : _value(value), _state(state), _flags(DataQuality::Flag::NoFlags)
 {
+    addFlags(flags);
 }
 
 template<class T>
@@ -175,6 +179,7 @@ void Result<T>::setValue(T value)
 {
     _value = value;
     _state = DataQuality::State::Good;
+    _flags = DataQuality::Flag::NoFlags;
 }
 
 template<class T>

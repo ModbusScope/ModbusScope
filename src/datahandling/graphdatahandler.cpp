@@ -70,7 +70,7 @@ QMuParser::ErrorType GraphDataHandler::expressionErrorType(qint32 exprIdx) const
  * expression itself is well-formed, in which case it is NoValue too ("not started yet" rather than
  * "broken", so the gap before the first read is not reported as a failure). An input result that
  * is missing altogether counts as a real fault, not as NoValue. Flags are the union of the
- * contributing inputs' flags on both paths; every referenced data point contributes, even one an
+ * contributing inputs' flags on every path; every referenced data point contributes, even one an
  * expression such as if() does not end up evaluating. A constant expression (no data point
  * references) that evaluates successfully is Good with no flags.
  *
@@ -136,8 +136,13 @@ ResultDoubleList GraphDataHandler::handleRegisterData(const ResultDoubleList& re
 
             qCWarning(scopeComm) << qUtf8Printable(msg);
         }
-        /* else: every contributing data point is still NoValue and the expression itself is fine, so
-         * the result stays at its default NoValue state; not an evaluation failure worth logging. */
+        else
+        {
+            /* Every contributing data point is still NoValue and the expression itself is fine, so
+             * the result stays NoValue; not an evaluation failure worth logging. Flags the inputs
+             * reported are still part of the aggregate. */
+            result.addFlags(flags);
+        }
 
         registerList.append(result);
     }
