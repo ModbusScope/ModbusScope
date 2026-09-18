@@ -211,9 +211,9 @@ void TestAdapterClient::readDataValidResults()
     QCOMPARE(spy.count(), 1);
     ResultDoubleList results = spy.at(0).at(0).value<ResultDoubleList>();
     QCOMPARE(results.size(), 2);
-    QVERIFY(results[0].isValid());
+    QVERIFY(results[0].isUsable());
     QCOMPARE(results[0].value(), 42.0);
-    QVERIFY(!results[1].isValid());
+    QVERIFY(!results[1].isUsable());
 }
 
 void TestAdapterClient::readDataEmptyDataPoints()
@@ -1088,8 +1088,8 @@ void TestAdapterClient::readDataErrorIsNonFatal()
     QCOMPARE(spyData.count(), 1);
     ResultDoubleList results = spyData.at(0).at(0).value<ResultDoubleList>();
     QCOMPARE(results.size(), 2);
-    QVERIFY(!results[0].isValid());
-    QVERIFY(!results[1].isValid());
+    QVERIFY(!results[0].isUsable());
+    QVERIFY(!results[1].isUsable());
 
     spyData.clear();
     client.requestReadData();
@@ -1178,7 +1178,7 @@ void TestAdapterClient::startErrorIsNonFatal()
     QCOMPARE(spyData.count(), 1);
     ResultDoubleList results = spyData.at(0).at(0).value<ResultDoubleList>();
     QCOMPARE(results.size(), 1);
-    QVERIFY(!results[0].isValid());
+    QVERIFY(!results[0].isUsable());
 }
 
 void TestAdapterClient::startErrorAllowsRetryAfterStop()
@@ -1274,7 +1274,7 @@ void TestAdapterClient::configureErrorIsNonFatal()
     QCOMPARE(spyData.count(), 1);
     ResultDoubleList results = spyData.at(0).at(0).value<ResultDoubleList>();
     QCOMPARE(results.size(), 1);
-    QVERIFY(!results[0].isValid());
+    QVERIFY(!results[0].isUsable());
 }
 
 void TestAdapterClient::configureErrorAllowsRetryAfterStop()

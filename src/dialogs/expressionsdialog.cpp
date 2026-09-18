@@ -8,7 +8,7 @@
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
 
-using State = ResultState::State;
+using State = DataQuality::State;
 
 namespace {
 
@@ -143,7 +143,7 @@ void ExpressionsDialog::handleInputChange()
             QString valueStr = pValueItem->text();
             bool bOk = false;
             double value = valueStr.toDouble(&bOk);
-            results.append(ResultDouble(value, bOk ? State::SUCCESS : State::INVALID));
+            results.append(ResultDouble(value, bOk ? State::Good : State::Invalid));
 
             /* Avoid recursive signal/slots calling */
             _pUi->tblExpressionInput->blockSignals(true);

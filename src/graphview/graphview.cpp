@@ -510,7 +510,7 @@ void GraphView::plotResults(ResultDoubleList resultList)
     for (const auto& result : resultList)
     {
         /* Invalid results are stored as zero */
-        const double value = result.isValid() ? result.value() : 0;
+        const double value = result.isUsable() ? result.value() : 0;
 
         const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(ActiveIdx(i));
         _pGraphDataModel->mutableDataSeries(graphIdx)->add(timeData, value);

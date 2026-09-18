@@ -14,7 +14,7 @@
 #include <QPainter>
 #include <QStyleOption>
 
-using State = ResultState::State;
+using State = DataQuality::State;
 
 Legend::Legend(QWidget* parent) : QFrame(parent), _pGuiModel(nullptr), _pGraphDataModel(nullptr), _pGraphView(nullptr)
 {
@@ -120,7 +120,7 @@ void Legend::clearLegendData()
 {
     for (auto& result : _lastReceivedList)
     {
-        result.setState(State::NO_VALUE);
+        result.setState(State::NoValue);
     }
 
     updateDataInLegend();
@@ -160,7 +160,7 @@ void Legend::updateLegend()
         for (GraphIdx idx : std::as_const(activeList))
         {
             addItem(idx);
-            _lastReceivedList.append(ResultDouble(0, State::NO_VALUE));
+            _lastReceivedList.append(ResultDouble(0, State::NoValue));
         }
 
         _pNoGraphs->hide();
@@ -284,7 +284,7 @@ void Legend::updateValueDataInLegend()
         for (const auto& result : std::as_const(_lastReceivedList))
         {
             QString dataValue;
-            if (result.isValid())
+            if (result.isUsable())
             {
                 dataValue = QString("%1").arg(Util::formatDoubleForExport(result.value()));
             }
@@ -296,7 +296,7 @@ void Legend::updateValueDataInLegend()
             _pLegendTable->item(i, cColummnValue)->setText(dataValue);
 
             const QColor background =
-              result.state() == State::INVALID ? GraphDataModel::lightRed : QColorConstants::White;
+              result.state() == State::Invalid ? GraphDataModel::lightRed : QColorConstants::White;
             _pLegendTable->item(i, cColummnAxis)->setBackground(background);
             _pLegendTable->item(i, cColummnValue)->setBackground(background);
             _pLegendTable->item(i, cColummnText)->setBackground(background);

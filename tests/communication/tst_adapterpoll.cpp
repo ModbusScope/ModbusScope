@@ -192,7 +192,7 @@ void TestAdapterPoll::phantomAdapterDoesNotHangPoll()
 
     /* A result arrives — since _pendingResultAdapters is empty the merge runs immediately */
     ResultDoubleList results;
-    results.append(Result<double>(1.0, ResultState::State::SUCCESS));
+    results.append(Result<double>(1.0, DataQuality::State::Good));
     s_pMockHub->triggerReadDataResult(QStringLiteral("modbus"), results);
 
     QCOMPARE(spy.count(), 1);
@@ -222,7 +222,7 @@ void TestAdapterPoll::sessionErrorClearsForRestart()
     s_pMockHub->triggerSessionStarted();
 
     ResultDoubleList results;
-    results.append(Result<double>(2.0, ResultState::State::SUCCESS));
+    results.append(Result<double>(2.0, DataQuality::State::Good));
     s_pMockHub->triggerReadDataResult(QStringLiteral("modbus"), results);
 
     QCOMPARE(spy.count(), 1);

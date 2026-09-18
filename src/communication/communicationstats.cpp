@@ -93,7 +93,8 @@ void CommunicationStats::updateCommunicationStats(ResultDoubleList resultList)
     quint32 success = 0;
     for (const auto& result : resultList)
     {
-        result.isValid() ? success++ : error++;
+        /* A degraded (flagged) value is still a successful read, so it counts as success */
+        result.isUsable() ? success++ : error++;
     }
 
     incrementCommunicationStats(success, error);

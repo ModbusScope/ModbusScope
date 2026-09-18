@@ -442,7 +442,7 @@ bool AdapterClient::consumeAuxResponse(const QString& method, int id)
  */
 ResultDoubleList AdapterClient::invalidResults() const
 {
-    return ResultDoubleList(_pendingExpressions.size(), ResultDouble(0.0, ResultState::State::INVALID));
+    return ResultDoubleList(_pendingExpressions.size(), ResultDouble(0.0, DataQuality::State::Invalid));
 }
 
 /*!
@@ -496,11 +496,11 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
             QJsonObject dataPoint = entry.toObject();
             if (dataPoint["valid"].toBool())
             {
-                results.append(ResultDouble(dataPoint["value"].toDouble(), ResultState::State::SUCCESS));
+                results.append(ResultDouble(dataPoint["value"].toDouble(), DataQuality::State::Good));
             }
             else
             {
-                results.append(ResultDouble(0.0, ResultState::State::INVALID));
+                results.append(ResultDouble(0.0, DataQuality::State::Invalid));
             }
         }
         emit readDataResult(results);

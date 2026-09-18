@@ -10,7 +10,7 @@
 
 Q_DECLARE_METATYPE(Result<quint16>);
 
-using State = ResultState::State;
+using State = DataQuality::State;
 
 void TestGraphDataHandler::init()
 {
@@ -78,7 +78,7 @@ void TestGraphDataHandler::error()
     QList<DataPoint> registerList;
     dataHandler.setupExpressions(_pGraphDataModel, registerList);
 
-    auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS);
+    auto regResults = ResultDoubleList() << ResultDouble(1, State::Good);
     dataHandler.handleRegisterData(regResults);
 
     QCOMPARE(dataHandler.expressionErrorPos(0), errorPos);
@@ -96,7 +96,7 @@ void TestGraphDataHandler::sameRegisterDifferentType()
     GraphDataHandler dataHandler;
     QList<DataPoint> registerList;
     dataHandler.setupExpressions(_pGraphDataModel, registerList);
-    auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS) << ResultDouble(1, State::SUCCESS);
+    auto regResults = ResultDoubleList() << ResultDouble(1, State::Good) << ResultDouble(1, State::Good);
     dataHandler.handleRegisterData(regResults);
 
     QCOMPARE(dataHandler.expressionErrorPos(0), -1);
@@ -137,8 +137,8 @@ void TestGraphDataHandler::graphData()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS) << ResultDouble(2, State::SUCCESS);
-    auto expected = ResultDoubleList() << ResultDouble(3, State::SUCCESS);
+    auto regResults = ResultDoubleList() << ResultDouble(1, State::Good) << ResultDouble(2, State::Good);
+    auto expected = ResultDoubleList() << ResultDouble(3, State::Good);
 
     QCOMPARE(doHandleRegisterData(regResults), expected);
 }
@@ -153,13 +153,13 @@ void TestGraphDataHandler::graphDataTwice()
     QList<DataPoint> registerList;
     dataHandler.setupExpressions(_pGraphDataModel, registerList);
 
-    auto regResults_1 = ResultDoubleList() << ResultDouble(1, State::SUCCESS) << ResultDouble(2, State::SUCCESS);
+    auto regResults_1 = ResultDoubleList() << ResultDouble(1, State::Good) << ResultDouble(2, State::Good);
     auto result_1 = dataHandler.handleRegisterData(regResults_1);
-    QCOMPARE(result_1, ResultDoubleList() << ResultDouble(3, State::SUCCESS));
+    QCOMPARE(result_1, ResultDoubleList() << ResultDouble(3, State::Good));
 
-    auto regResults_2 = ResultDoubleList() << ResultDouble(3, State::SUCCESS) << ResultDouble(4, State::SUCCESS);
+    auto regResults_2 = ResultDoubleList() << ResultDouble(3, State::Good) << ResultDouble(4, State::Good);
     auto result_2 = dataHandler.handleRegisterData(regResults_2);
-    QCOMPARE(result_2, ResultDoubleList() << ResultDouble(7, State::SUCCESS));
+    QCOMPARE(result_2, ResultDoubleList() << ResultDouble(7, State::Good));
 }
 
 void TestGraphDataHandler::graphData_fail()
@@ -169,8 +169,8 @@ void TestGraphDataHandler::graphData_fail()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS) << ResultDouble(0, State::INVALID);
-    auto expected = ResultDoubleList() << ResultDouble(0, State::INVALID) << ResultDouble(1, State::SUCCESS);
+    auto regResults = ResultDoubleList() << ResultDouble(1, State::Good) << ResultDouble(0, State::Invalid);
+    auto expected = ResultDoubleList() << ResultDouble(0, State::Invalid) << ResultDouble(1, State::Good);
 
     QCOMPARE(doHandleRegisterData(regResults), expected);
 }
