@@ -120,10 +120,9 @@ void AdapterHub::stopSession()
         {
             _pendingReadyAdapters.insert(it.key());
         }
-        else
-        {
-            _pendingStartAdapters.remove(it.key());
-        }
+
+        /* An active (degraded) manager can still owe its sessionStarted(), which stopping cancels */
+        _pendingStartAdapters.remove(it.key());
         managersToStop.append(mgr);
     }
 

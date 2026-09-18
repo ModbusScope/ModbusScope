@@ -70,24 +70,8 @@ public:
     QJsonObject capabilities() const;
     bool isMbcCompatible() const;
 
-    /*!
-     * \brief Returns whether this adapter may report data-quality detail flags.
-     * \return True when capabilities.quality is present in the last adapter.describe response.
-     */
     bool reportsQuality() const;
-
-    /*!
-     * \brief Returns the data-quality detail flag ids this adapter may report.
-     * \return capabilities.quality.flags, or an empty list when reportsQuality() is false.
-     */
     QStringList qualityFlags() const;
-
-    /*!
-     * \brief Returns the adapter's own protocol mnemonic for a data-quality flag id.
-     * \param id A flag id, as returned by qualityFlags().
-     * \return capabilities.quality.protocolNames[id] (e.g. "SB" for "substituted"), or an empty
-     * string when not declared.
-     */
     QString qualityProtocolName(const QString& id) const;
     QJsonObject license() const;
     AdapterLicenseInfo licenseInfo() const;

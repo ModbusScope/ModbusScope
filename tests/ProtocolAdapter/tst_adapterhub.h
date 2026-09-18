@@ -14,6 +14,7 @@ private slots:
     void stopSessionOnlyWaitsOnActiveAdapters();
     void stopSessionForceStopsMidHandshakeAdaptersWithoutWaiting();
     void stopSessionPurgesPendingStartForForceStoppedAdapters();
+    void stopSessionPurgesPendingStartForActiveAdapters();
     void stopSessionWaitsForAllAdaptersWhenOneStopsSynchronously();
     void initAdapterReinitializesOnlyIdleManagers();
 };

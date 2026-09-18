@@ -17,7 +17,13 @@ private slots:
     void readDataUnrecognisedStateTreatedAsInvalidWithDiagnostic();
     void readDataUnknownFlagIdEmitsDiagnosticOnce();
     void initializeParamsIncludeProtocolVersion();
-    void describeProtocolVersionMismatchDegradesSession();
+    void describeProtocolVersionMismatchNeverConfiguresAdapter();
+    void incompatibleAdapterStoppedBeforeAnnounceNeverAnnounces();
+    void incompatibleAdapterStopAndRestartAnnouncesOnce();
+    void incompatibleAdapterRefusesAuxRequests();
+    void readDataUsablePointWithoutValueTreatedAsInvalid();
+    void readDataGoodWithFlagsIsPromotedToDegraded();
+    void readDataUnknownFlagDiagnosticRepeatsInNewSession();
     void readDataEmptyDataPoints();
     void requestStatusEmitsSignal();
     void errorResponseEmitsSessionError();

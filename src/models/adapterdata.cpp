@@ -101,11 +101,19 @@ bool AdapterData::isMbcCompatible() const
     return _capabilities.value("mbcCompatible").toBool();
 }
 
+/*!
+ * \brief Returns whether this adapter may report data-quality detail flags.
+ * \return True when capabilities.quality is present in the last adapter.describe response.
+ */
 bool AdapterData::reportsQuality() const
 {
     return _capabilities.value("quality").isObject();
 }
 
+/*!
+ * \brief Returns the data-quality detail flag ids this adapter may report.
+ * \return capabilities.quality.flags, or an empty list when reportsQuality() is false.
+ */
 QStringList AdapterData::qualityFlags() const
 {
     QStringList flags;
@@ -117,6 +125,12 @@ QStringList AdapterData::qualityFlags() const
     return flags;
 }
 
+/*!
+ * \brief Returns the adapter's own protocol mnemonic for a data-quality flag id.
+ * \param id A flag id, as returned by qualityFlags().
+ * \return capabilities.quality.protocolNames[id] (e.g. "SB" for "substituted"), or an empty string
+ * when not declared.
+ */
 QString AdapterData::qualityProtocolName(const QString& id) const
 {
     const QJsonObject protocolNames = _capabilities.value("quality").toObject().value("protocolNames").toObject();

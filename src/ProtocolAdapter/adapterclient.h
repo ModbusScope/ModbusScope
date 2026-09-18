@@ -60,6 +60,9 @@ public:
      * then continues to adapter.start with the data point expressions, and emits
      * sessionStarted() on success.
      *
+     * If the adapter reported an incompatible protocol version, adapter.configure and adapter.start
+     * are never sent: the session is degraded instead (see sessionStarted()).
+     *
      * \param config JSON object passed as the \c config param to adapter.configure.
      * \param registerExpressions Data point expression strings passed to adapter.start.
      */
@@ -168,7 +171,10 @@ signals:
      * Also emitted when adapter.configure or adapter.start is rejected (e.g. too many devices for
      * an unlicensed session, or an invalid data point expression): the session is considered started
      * but degraded, so requestReadData() reports invalid results for every data point instead of
-     * leaving the caller waiting indefinitely for a session that will never start.
+     * leaving the caller waiting indefinitely for a session that will never start. The same applies
+     * to an adapter that reported an incompatible protocol version: it is never configured or
+     * started, and is announced (once per session, after provideConfig() returns) together with an
+     * error diagnostic.
      */
     void sessionStarted();
 
@@ -272,8 +278,9 @@ private:
         CONFIGURING,
         STARTING,
         ACTIVE,
-        ACTIVE_DEGRADED,  /*!< adapter.configure or adapter.start was rejected: the process stays
-                               alive, but never received a working config, so
+        ACTIVE_DEGRADED,  /*!< adapter.configure or adapter.start was rejected, or the adapter's
+                               protocol version is incompatible: the process stays alive, but
+                               never received a working config, so
                                requestReadData()/requestStatus() answer locally instead of
                                contacting it. isActive() is still true, but stopSession() skips
                                adapter.stop (no real session exists to tell the adapter to stop)
@@ -282,14 +289,22 @@ private:
         STOPPING          /*!< process is being force-killed */
     };
 
+    //! Contract violations noticed while decoding one adapter.readData result.
+    struct ReadDataIssues
+    {
+        bool unrecognisedState{ false };
+        bool malformedPoint{ false };
+        QStringList newUnknownFlagIds;
+    };
+
     void handleLifecycleResponse(int id, const QString& method, const QJsonObject& result);
     bool consumeAuxResponse(const QString& method, int id);
     ResultDoubleList invalidResults() const;
     void degradeSession(const QString& diagnosticMessage);
+    void announceIncompatibleSession();
+    bool isAuxRequestRefused(const char* requestName) const;
     ResultDoubleList decodeReadDataResult(const QJsonObject& result);
-    ResultDouble decodeDataPoint(const QJsonObject& dataPoint,
-                                 bool& sawUnrecognisedState,
-                                 QStringList& newUnknownFlagIds);
+    ResultDouble decodeDataPoint(const QJsonValue& entry, ReadDataIssues& issues);
 
     static constexpr int cHandshakeTimeoutMs = 10000;
 
@@ -303,8 +318,15 @@ private:
     QStringList _pendingExpressions;
     QMap<QString, int> _pendingAuxRequests;
 
-    //! Guards against repeating the same adapter.readData decode diagnostic on every poll cycle.
+    //! Why the adapter's protocol version is not usable; empty when it matches. Kept until the
+    //! next handshake, so no later session can configure or start an incompatible adapter.
+    QString _incompatibilityReason;
+    bool _incompatibleAnnouncePending{ false };
+
+    //! Guard against repeating the same adapter.readData decode diagnostic on every poll cycle;
+    //! reset when a new session is configured.
     bool _reportedUnrecognisedReadDataState{ false };
+    bool _reportedMalformedReadDataPoint{ false };
     QSet<QString> _reportedUnknownFlagIds;
 };
 

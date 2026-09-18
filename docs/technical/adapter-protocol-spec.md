@@ -513,9 +513,9 @@ and an optional `flags` array:
 
 | Field | Rule |
 | --- | --- |
-| `value` | A number, present if and only if the point is usable (`state` is `good` or `degraded`). Never present, never a fabricated `0.0`, for `invalid` or `noValue`. |
+| `value` | A number, present if and only if the point is usable (`state` is `good` or `degraded`). Never present, never a fabricated `0.0`, for `invalid` or `noValue`. A client MUST treat a `good` or `degraded` point (or a `dataPoints` entry that is not an object) that has no numeric `value` as `invalid` (plus one diagnostic per session) rather than as a value of `0.0`. |
 | `state` | One of `good`, `degraded`, `invalid`, `noValue`. **Omitted means `good`** — a producer MAY always write it explicitly, but the common case need not spend the bytes. A client MUST accept both forms and MUST reject an unrecognised value by treating the point as `invalid` (plus one diagnostic) — it MUST NOT fall back to `good`. |
-| `flags` | Optional array of adapter-defined detail-flag ids (e.g. `"substituted"`), further qualifying *why* a point is `degraded` or `invalid`. Omitted or empty means no flags. A client MUST ignore any flag id it does not recognise (collecting unrecognised ids into at most one diagnostic per session) rather than reject the point — this is what lets an adapter add a new flag without a `protocolVersion` bump. The set of flag ids a given adapter may ever send is declared in `adapter.describe`'s `capabilities.quality` (see that section); an adapter that declares no `quality` capability sends no `flags` at all. |
+| `flags` | Optional array of adapter-defined detail-flag ids (e.g. `"substituted"`), further qualifying *why* a point is `degraded` or `invalid`. Omitted or empty means no flags. A `good` point that carries flags is contradictory; a client SHOULD treat it as `degraded`. A client MUST ignore any flag id it does not recognise (collecting unrecognised ids into at most one diagnostic per session) rather than reject the point — this is what lets an adapter add a new flag without a `protocolVersion` bump. The set of flag ids a given adapter may ever send is declared in `adapter.describe`'s `capabilities.quality` (see that section); an adapter that declares no `quality` capability sends no `flags` at all. |
 
 State meanings:
 
