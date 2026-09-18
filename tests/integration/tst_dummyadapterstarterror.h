@@ -7,7 +7,7 @@ class SettingsModel;
 class AdapterManager;
 
 /*!
- * \brief Integration test for a rejected adapter.start against the real "dummy" adapter binary.
+ * \brief Integration test for a rejected adapter.start against the real Modbus adapter binary.
  *
  * Regression coverage for a bug where a syntactically invalid register expression (rejected by
  * adapter.start) caused ModbusScope to force-kill the adapter subprocess and halt polling globally

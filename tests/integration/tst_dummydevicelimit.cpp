@@ -1,7 +1,10 @@
 #include "tst_dummydevicelimit.h"
 
 #include "../models/devicelisthelpers.h"
+#include "modbusconfighelpers.h"
+
 #include "ProtocolAdapter/adaptermanager.h"
+#include "models/adapterdata.h"
 #include "models/device.h"
 #include "models/settingsmodel.h"
 
@@ -12,13 +15,14 @@
 
 namespace {
 constexpr int cSessionTimeoutMs = 10000;
-}
+constexpr char cAdapterId[] = "modbus";
+} // namespace
 
 void TestDummyDeviceLimit::init()
 {
     _pSettingsModel = new SettingsModel;
-    _pAdapterManager = new AdapterManager(
-      QStringLiteral("dummy"), QString::fromUtf8(DUMMY_STANDALONE_ADAPTER_EXECUTABLE), _pSettingsModel, this);
+    _pAdapterManager = new AdapterManager(QString::fromUtf8(cAdapterId), QString::fromUtf8(DUMMY_ADAPTER_EXECUTABLE),
+                                          _pSettingsModel, this);
 }
 
 void TestDummyDeviceLimit::cleanup()
@@ -29,43 +33,38 @@ void TestDummyDeviceLimit::cleanup()
     _pSettingsModel = nullptr;
 }
 
-void TestDummyDeviceLimit::sessionStartsWithTwoDevicesOverLimit()
+/*!
+ * \brief Configuring more devices than the adapter allows must still start a session: the client
+ * cuts the device list down to the limit the adapter declared instead of sending it as is.
+ */
+void TestDummyDeviceLimit::sessionStartsWithMoreDevicesThanLimit()
 {
     QSignalSpy spyReady(_pAdapterManager, &AdapterManager::adapterReady);
     _pAdapterManager->initAdapter();
     QVERIFY2(spyReady.wait(cSessionTimeoutMs), "adapterReady not emitted");
 
-    // The dummy adapter's schema declares devices.maxItems = 1 (capabilities.maxDevices = 1).
-    DeviceListHelpers::seedDevice(_pSettingsModel, 1, QStringLiteral("dummy"));
-    DeviceListHelpers::seedDevice(_pSettingsModel, 2, QStringLiteral("dummy"));
+    const AdapterData* pAdapterData = _pSettingsModel->adapterData(QString::fromUtf8(cAdapterId));
+    QVERIFY(pAdapterData != nullptr);
+    const int deviceLimit = pAdapterData->maxDevices();
+    QVERIFY2(deviceLimit >= 1 && deviceLimit < 1000, "expected the adapter to declare a finite device limit");
 
-    QJsonObject connection;
-    connection["id"] = 1;
-    connection["name"] = "Connection 1";
+    QJsonArray devices;
+    for (int id = 1; id <= deviceLimit + 1; id++)
+    {
+        DeviceListHelpers::seedDevice(_pSettingsModel, id, QString::fromUtf8(cAdapterId));
+        devices.append(ModbusConfigHelpers::device(id, 1, id));
+    }
 
-    QJsonObject device1;
-    device1["id"] = 1;
-    device1["connectionId"] = 1;
-
-    QJsonObject device2;
-    device2["id"] = 2;
-    device2["connectionId"] = 1;
-
-    QJsonObject config;
-    config["version"] = 1;
-    config["general"] = QJsonObject();
-    config["connections"] = QJsonArray({ connection });
-    config["devices"] = QJsonArray({ device1, device2 });
-
-    _pSettingsModel->setAdapterCurrentConfig(QStringLiteral("dummy"), config);
+    _pSettingsModel->setAdapterCurrentConfig(
+      QString::fromUtf8(cAdapterId),
+      ModbusConfigHelpers::config(QJsonArray({ ModbusConfigHelpers::connection(1) }), devices));
 
     QSignalSpy spyStarted(_pAdapterManager, &AdapterManager::sessionStarted);
     QSignalSpy spyError(_pAdapterManager, &AdapterManager::sessionError);
 
     _pAdapterManager->startSession(QStringList());
 
-    QVERIFY2(spyStarted.wait(cSessionTimeoutMs),
-             "sessionStarted not emitted with 2 devices for a maxDevices=1 adapter");
+    QVERIFY2(spyStarted.wait(cSessionTimeoutMs), "sessionStarted not emitted with more devices than the limit");
     QCOMPARE(spyError.count(), 0);
 }
 
