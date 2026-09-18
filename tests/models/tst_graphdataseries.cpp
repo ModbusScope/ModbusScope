@@ -57,6 +57,34 @@ void TestGraphDataSeries::addAllowsDuplicateTimestamps()
     QCOMPARE((series.constBegin() + 1)->timestamp, 1.0);
 }
 
+/*!
+ * \brief The two-arg add() overload leaves the sample's quality at its default (Good, no
+ * flags), since the caller has no quality information to attach.
+ */
+void TestGraphDataSeries::addTwoArgOverloadDefaultsToGoodNoFlags()
+{
+    GraphDataSeries series;
+
+    series.add(1, 10);
+
+    QCOMPARE(series.constBegin()->quality.state, DataQuality::State::Good);
+    QCOMPARE(series.constBegin()->quality.flags, DataQuality::Flags(DataQuality::Flag::NoFlags));
+}
+
+/*!
+ * \brief The three-arg add() overload stores the caller-supplied quality on the sample.
+ */
+void TestGraphDataSeries::addThreeArgOverloadStoresQuality()
+{
+    GraphDataSeries series;
+
+    const DataQuality::Quality quality{ DataQuality::State::Degraded, DataQuality::Flag::Overflow };
+    series.add(1, 10, quality);
+
+    QCOMPARE(series.constBegin()->quality.state, DataQuality::State::Degraded);
+    QCOMPARE(series.constBegin()->quality.flags, DataQuality::Flags(DataQuality::Flag::Overflow));
+}
+
 void TestGraphDataSeries::sizeIsEmptyClear()
 {
     GraphDataSeries series;

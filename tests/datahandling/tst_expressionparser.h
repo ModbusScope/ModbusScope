@@ -37,6 +37,11 @@ private slots:
 
     void manyRegistersHighIndex();
 
+    void dataPointIndicesSingleExpression();
+    void dataPointIndicesMultipleExpressions();
+    void dataPointIndicesSharedDataPoint();
+    void dataPointIndicesConstantExpressionIsEmpty();
+
     void verifyParsing(const QStringList& exprList,
                        const QList<DataPoint>& expectedDataPoints,
                        const QStringList& expectedExpression);

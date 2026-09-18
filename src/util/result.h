@@ -60,21 +60,10 @@ enum class Flag : quint32
 };
 Q_DECLARE_FLAGS(Flags, Flag)
 
-//! Wire id for \a state, e.g. State::Degraded -> "degraded".
 QLatin1StringView stateId(State state);
-
-//! Parses a wire state id; returns nullopt for anything unrecognised so a caller never falls
-//! back to State::Good on unknown input.
 std::optional<State> stateFromId(const QString& id);
-
-//! Wire id for a single \a flag, e.g. Flag::OldData -> "oldData".
 QLatin1StringView flagId(Flag flag);
-
-//! Wire ids for every flag set in \a flags, in stable declaration order.
 QStringList flagIds(Flags flags);
-
-//! Parses wire flag ids into \a Flags. Any id not recognised is appended to \a unknownIds
-//! (left untouched otherwise) and simply skipped, rather than rejecting the whole value.
 Flags flagsFromIds(const QStringList& ids, QStringList& unknownIds);
 
 /*!
@@ -106,7 +95,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(DataQuality::Flags)
  * Good/Degraded only) but are named for their distinct call sites so they can diverge without a
  * rename if a future state ever carries a value without being usable.
  */
-template <typename T>
+template<typename T>
 class Result
 {
 public:
@@ -159,36 +148,36 @@ private:
 
 /* Implementations need to be in header */
 
-template <class T>
+template<class T>
 Result<T>::Result() : Result(0, DataQuality::State::NoValue)
 {
 }
 
-template <class T>
+template<class T>
 Result<T>::Result(T value, DataQuality::State state, DataQuality::Flags flags)
     : _value(value), _state(state), _flags(flags)
 {
 }
 
-template <class T>
+template<class T>
 Result<T>::Result(const Result<T>& copy) : _value(copy._value), _state(copy._state), _flags(copy._flags)
 {
 }
 
-template <class T>
+template<class T>
 T Result<T>::value() const
 {
     return _value;
 }
 
-template <class T>
+template<class T>
 void Result<T>::setValue(T value)
 {
     _value = value;
     _state = DataQuality::State::Good;
 }
 
-template <class T>
+template<class T>
 void Result<T>::setError()
 {
     _value = 0;
@@ -196,37 +185,37 @@ void Result<T>::setError()
     _flags = DataQuality::Flag::NoFlags;
 }
 
-template <class T>
+template<class T>
 bool Result<T>::isUsable() const
 {
     return _state == DataQuality::State::Good || _state == DataQuality::State::Degraded;
 }
 
-template <class T>
+template<class T>
 bool Result<T>::hasValue() const
 {
     return _state == DataQuality::State::Good || _state == DataQuality::State::Degraded;
 }
 
-template <class T>
+template<class T>
 DataQuality::State Result<T>::state() const
 {
     return _state;
 }
 
-template <class T>
+template<class T>
 void Result<T>::setState(DataQuality::State state)
 {
     _state = state;
 }
 
-template <class T>
+template<class T>
 DataQuality::Flags Result<T>::flags() const
 {
     return _flags;
 }
 
-template <class T>
+template<class T>
 void Result<T>::addFlags(DataQuality::Flags flags)
 {
     _flags |= flags;
@@ -236,13 +225,13 @@ void Result<T>::addFlags(DataQuality::Flags flags)
     }
 }
 
-template <class T>
+template<class T>
 DataQuality::Quality Result<T>::quality() const
 {
     return DataQuality::Quality{ _state, _flags };
 }
 
-template <class T>
+template<class T>
 Result<T>& Result<T>::operator=(Result<T> const& result)
 {
     // self-assignment guard
@@ -259,12 +248,17 @@ Result<T>& Result<T>::operator=(Result<T> const& result)
     return *this;
 }
 
-template <class T>
+template<class T>
 QDebug operator<<(QDebug debug, const Result<T>& result)
 {
     QDebugStateSaver saver(debug);
-    debug.nospace().noquote() << '(' << DataQuality::stateId(result.state()).toString() << ", " << result.value()
-                              << ')';
+    debug.nospace().noquote() << '(' << DataQuality::stateId(result.state()).toString() << ", " << result.value();
+    const QStringList flagIds = DataQuality::flagIds(result.flags());
+    if (!flagIds.isEmpty())
+    {
+        debug << ", " << flagIds.join(QLatin1Char('|'));
+    }
+    debug << ')';
 
     return debug;
 }

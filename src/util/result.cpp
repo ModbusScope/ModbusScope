@@ -3,20 +3,20 @@
 namespace DataQuality {
 
 /*!
- * \brief Returns the wire id for \a state.
+ * \brief Returns the wire id for \a state, e.g. State::Degraded -> "degraded".
  */
 QLatin1StringView stateId(State state)
 {
     switch (state)
     {
-        case State::Good:
-            return QLatin1StringView("good");
-        case State::Degraded:
-            return QLatin1StringView("degraded");
-        case State::Invalid:
-            return QLatin1StringView("invalid");
-        case State::NoValue:
-            return QLatin1StringView("noValue");
+    case State::Good:
+        return QLatin1StringView("good");
+    case State::Degraded:
+        return QLatin1StringView("degraded");
+    case State::Invalid:
+        return QLatin1StringView("invalid");
+    case State::NoValue:
+        return QLatin1StringView("noValue");
     }
 
     Q_UNREACHABLE();
@@ -24,7 +24,8 @@ QLatin1StringView stateId(State state)
 
 /*!
  * \brief Parses a wire state id.
- * \return The matching state, or nullopt if \a id is not recognised.
+ * \return The matching state, or nullopt if \a id is not recognised, so a caller never falls back to
+ * State::Good on unknown input.
  */
 std::optional<State> stateFromId(const QString& id)
 {
@@ -49,22 +50,22 @@ std::optional<State> stateFromId(const QString& id)
 }
 
 /*!
- * \brief Returns the wire id for a single \a flag.
+ * \brief Returns the wire id for a single \a flag, e.g. Flag::OldData -> "oldData".
  */
 QLatin1StringView flagId(Flag flag)
 {
     switch (flag)
     {
-        case Flag::NoFlags:
-            return QLatin1StringView();
-        case Flag::Substituted:
-            return QLatin1StringView("substituted");
-        case Flag::Blocked:
-            return QLatin1StringView("blocked");
-        case Flag::Overflow:
-            return QLatin1StringView("overflow");
-        case Flag::OldData:
-            return QLatin1StringView("oldData");
+    case Flag::NoFlags:
+        return QLatin1StringView();
+    case Flag::Substituted:
+        return QLatin1StringView("substituted");
+    case Flag::Blocked:
+        return QLatin1StringView("blocked");
+    case Flag::Overflow:
+        return QLatin1StringView("overflow");
+    case Flag::OldData:
+        return QLatin1StringView("oldData");
     }
 
     Q_UNREACHABLE();

@@ -16,6 +16,7 @@ private slots:
     void stopCommunicationClearsPendingState();
     void stopCommunicationAllowsNewWaitAfterRestart();
     void phantomAdapterDoesNotHangPoll();
+    void mismatchedGroupResultsAreInvalidNotNoValue();
     void sessionErrorClearsForRestart();
     void sessionErrorEmitsCommunicationError();
     void sessionErrorWhileInactiveDoesNotEmitCommunicationError();
