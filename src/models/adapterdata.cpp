@@ -76,6 +76,11 @@ int AdapterData::configVersion() const
     return _configVersion;
 }
 
+int AdapterData::protocolVersion() const
+{
+    return _protocolVersion;
+}
+
 QJsonObject AdapterData::schema() const
 {
     return _schema;
@@ -94,6 +99,28 @@ QJsonObject AdapterData::capabilities() const
 bool AdapterData::isMbcCompatible() const
 {
     return _capabilities.value("mbcCompatible").toBool();
+}
+
+bool AdapterData::reportsQuality() const
+{
+    return _capabilities.value("quality").isObject();
+}
+
+QStringList AdapterData::qualityFlags() const
+{
+    QStringList flags;
+    const QJsonArray flagsArray = _capabilities.value("quality").toObject().value("flags").toArray();
+    for (const auto& flag : flagsArray)
+    {
+        flags.append(flag.toString());
+    }
+    return flags;
+}
+
+QString AdapterData::qualityProtocolName(const QString& id) const
+{
+    const QJsonObject protocolNames = _capabilities.value("quality").toObject().value("protocolNames").toObject();
+    return protocolNames.value(id).toString();
 }
 
 QJsonObject AdapterData::license() const
@@ -157,6 +184,7 @@ void AdapterData::updateFromDescribe(const QJsonObject& describeResult)
     _name = describeResult.value("name").toString();
     _version = describeResult.value("version").toString();
     _configVersion = describeResult.value("configVersion").toInt(0);
+    _protocolVersion = describeResult.value("protocolVersion").toInt(0);
     _schema = describeResult.value("schema").toObject();
     _defaults = describeResult.value("defaults").toObject();
     _capabilities = describeResult.value("capabilities").toObject();

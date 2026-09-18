@@ -13,6 +13,11 @@ private slots:
     void lifecycleInitializeToStart();
     void describeSignalEmitted();
     void readDataValidResults();
+    void readDataDecodesAllStatesAndFlags();
+    void readDataUnrecognisedStateTreatedAsInvalidWithDiagnostic();
+    void readDataUnknownFlagIdEmitsDiagnosticOnce();
+    void initializeParamsIncludeProtocolVersion();
+    void describeProtocolVersionMismatchDegradesSession();
     void readDataEmptyDataPoints();
     void requestStatusEmitsSignal();
     void errorResponseEmitsSessionError();

@@ -100,11 +100,29 @@ static QJsonObject describeResult()
     result["name"] = "modbusAdapter";
     result["version"] = "1.0.0";
     result["configVersion"] = 1;
+    result["protocolVersion"] = cProtocolVersion;
     result["schema"] = QJsonObject{};
     result["defaults"] = QJsonObject{};
     result["capabilities"] = caps;
     result["license"] = license;
     return result;
+}
+
+/* ---- Helper: drive client to AWAITING_CONFIG state ---- */
+static void driveToAwaitingConfig(AdapterClient& client, MockAdapterProcess* mock)
+{
+    client.prepareAdapter(QStringLiteral("./dummy"));
+    mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(2, "adapter.describe", describeResult());
+}
+
+/* ---- Helper: drive client to ACTIVE state ---- */
+static void driveToActive(AdapterClient& client, MockAdapterProcess* mock)
+{
+    driveToAwaitingConfig(client, mock);
+    client.provideConfig(QJsonObject(), QStringList());
+    mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
 }
 
 /* ---- Tests ---- */
@@ -204,16 +222,175 @@ void TestAdapterClient::readDataValidResults()
     client.requestReadData();
 
     QJsonArray dataPoints;
-    dataPoints.append(QJsonObject{ { "valid", true }, { "value", 42.0 } });
-    dataPoints.append(QJsonObject{ { "valid", false }, { "value", 0.0 } });
+    dataPoints.append(QJsonObject{ { "value", 42.0 } });
+    dataPoints.append(QJsonObject{ { "state", "invalid" } });
     mock->injectResponse(5, "adapter.readData", QJsonObject{ { "dataPoints", dataPoints } });
 
     QCOMPARE(spy.count(), 1);
     ResultDoubleList results = spy.at(0).at(0).value<ResultDoubleList>();
     QCOMPARE(results.size(), 2);
     QVERIFY(results[0].isUsable());
+    QCOMPARE(results[0].state(), DataQuality::State::Good);
     QCOMPARE(results[0].value(), 42.0);
     QVERIFY(!results[1].isUsable());
+    QCOMPARE(results[1].state(), DataQuality::State::Invalid);
+}
+
+/*!
+ * \brief adapter.readData "state" may be omitted (meaning good), or explicitly "degraded" /
+ * "noValue", each with its own flags; every combination must decode to the matching
+ * DataQuality::State and DataQuality::Flags.
+ */
+void TestAdapterClient::readDataDecodesAllStatesAndFlags()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spy(&client, &AdapterClient::readDataResult);
+
+    driveToActive(client, mock);
+    client.requestReadData();
+
+    QJsonArray dataPoints;
+    dataPoints.append(QJsonObject{ { "value", 1.0 } });
+    dataPoints.append(
+      QJsonObject{ { "value", 2.0 }, { "state", "degraded" }, { "flags", QJsonArray{ "substituted" } } });
+    dataPoints.append(QJsonObject{ { "state", "invalid" }, { "flags", QJsonArray{ "oldData" } } });
+    dataPoints.append(QJsonObject{ { "state", "noValue" } });
+    mock->injectResponse(5, "adapter.readData", QJsonObject{ { "dataPoints", dataPoints } });
+
+    QCOMPARE(spy.count(), 1);
+    ResultDoubleList results = spy.at(0).at(0).value<ResultDoubleList>();
+    QCOMPARE(results.size(), 4);
+
+    QCOMPARE(results[0].state(), DataQuality::State::Good);
+    QCOMPARE(results[0].flags(), DataQuality::Flags(DataQuality::Flag::NoFlags));
+
+    QCOMPARE(results[1].state(), DataQuality::State::Degraded);
+    QCOMPARE(results[1].value(), 2.0);
+    QCOMPARE(results[1].flags(), DataQuality::Flags(DataQuality::Flag::Substituted));
+
+    QCOMPARE(results[2].state(), DataQuality::State::Invalid);
+    QCOMPARE(results[2].flags(), DataQuality::Flags(DataQuality::Flag::OldData));
+
+    QCOMPARE(results[3].state(), DataQuality::State::NoValue);
+}
+
+/*!
+ * \brief An unrecognised "state" id must decode as Invalid, never fall back to Good, and must
+ * raise at most one diagnostic per client lifetime even if it recurs on later polls.
+ */
+void TestAdapterClient::readDataUnrecognisedStateTreatedAsInvalidWithDiagnostic()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spy(&client, &AdapterClient::readDataResult);
+    QSignalSpy spyDiagnostic(&client, &AdapterClient::diagnosticReceived);
+
+    driveToActive(client, mock);
+
+    client.requestReadData();
+    QJsonArray dataPoints;
+    dataPoints.append(QJsonObject{ { "value", 1.0 }, { "state", "futureState" } });
+    mock->injectResponse(5, "adapter.readData", QJsonObject{ { "dataPoints", dataPoints } });
+
+    ResultDoubleList results = spy.at(0).at(0).value<ResultDoubleList>();
+    QCOMPARE(results[0].state(), DataQuality::State::Invalid);
+    QCOMPARE(spyDiagnostic.count(), 1);
+
+    /* Same unrecognised state on the next poll must not raise a second diagnostic. */
+    client.requestReadData();
+    mock->injectResponse(6, "adapter.readData", QJsonObject{ { "dataPoints", dataPoints } });
+    QCOMPARE(spyDiagnostic.count(), 1);
+}
+
+/*!
+ * \brief An unrecognised flag id must be dropped rather than reject the data point, and must
+ * raise at most one diagnostic per distinct id for the lifetime of the client.
+ */
+void TestAdapterClient::readDataUnknownFlagIdEmitsDiagnosticOnce()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spy(&client, &AdapterClient::readDataResult);
+    QSignalSpy spyDiagnostic(&client, &AdapterClient::diagnosticReceived);
+
+    driveToActive(client, mock);
+
+    client.requestReadData();
+    QJsonArray dataPoints;
+    dataPoints.append(
+      QJsonObject{ { "value", 1.0 }, { "state", "degraded" }, { "flags", QJsonArray{ "futureFlag" } } });
+    mock->injectResponse(5, "adapter.readData", QJsonObject{ { "dataPoints", dataPoints } });
+
+    ResultDoubleList results = spy.at(0).at(0).value<ResultDoubleList>();
+    QCOMPARE(results[0].state(), DataQuality::State::Degraded);
+    QCOMPARE(results[0].flags(), DataQuality::Flags(DataQuality::Flag::NoFlags));
+    QCOMPARE(spyDiagnostic.count(), 1);
+
+    /* Same unknown flag id again must not raise a second diagnostic. */
+    client.requestReadData();
+    mock->injectResponse(6, "adapter.readData", QJsonObject{ { "dataPoints", dataPoints } });
+    QCOMPARE(spyDiagnostic.count(), 1);
+}
+
+/*!
+ * \brief adapter.initialize params must carry this application's protocolVersion.
+ */
+void TestAdapterClient::initializeParamsIncludeProtocolVersion()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    client.prepareAdapter(QStringLiteral("./dummy"));
+
+    QCOMPARE(mock->sentRequests().size(), 1);
+    QCOMPARE(mock->sentRequests()[0].method, QStringLiteral("adapter.initialize"));
+    QCOMPARE(mock->sentRequests()[0].params["protocolVersion"].toInt(-1), cProtocolVersion);
+}
+
+/*!
+ * \brief A describe response whose protocolVersion does not match this application's must
+ * degrade the session (never call adapter.configure) and report a diagnostic, exactly like the
+ * other setup-rejection paths (see startErrorIsNonFatal).
+ */
+void TestAdapterClient::describeProtocolVersionMismatchDegradesSession()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyStarted(&client, &AdapterClient::sessionStarted);
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+    QSignalSpy spyDiagnostic(&client, &AdapterClient::diagnosticReceived);
+    QSignalSpy spyData(&client, &AdapterClient::readDataResult);
+
+    client.prepareAdapter(QStringLiteral("./dummy"));
+    mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
+
+    QJsonObject staleDescribe = describeResult();
+    staleDescribe["protocolVersion"] = cProtocolVersion - 1;
+    mock->injectResponse(2, "adapter.describe", staleDescribe);
+
+    QCOMPARE(spyError.count(), 0);
+    QCOMPARE(spyStarted.count(), 1);
+    QCOMPARE(spyDiagnostic.count(), 1);
+    QVERIFY(client.isActive());
+
+    /* A degraded session must never reach adapter.configure. */
+    QCOMPARE(mock->sentRequests().size(), 2);
+
+    /* Polling continues locally, without contacting the (never-configured) adapter process. */
+    int requestCountBeforeRead = mock->sentRequests().size();
+    client.requestReadData();
+    QCOMPARE(mock->sentRequests().size(), requestCountBeforeRead);
+    QCOMPARE(spyData.count(), 1);
 }
 
 void TestAdapterClient::readDataEmptyDataPoints()
@@ -679,23 +856,6 @@ void TestAdapterClient::processErrorDuringStoppingThenProcessFinished()
 
     QCOMPARE(spyError.count(), 0);
     QCOMPARE(spyStopped.count(), 1);
-}
-
-/* ---- Helper: drive client to AWAITING_CONFIG state ---- */
-static void driveToAwaitingConfig(AdapterClient& client, MockAdapterProcess* mock)
-{
-    client.prepareAdapter(QStringLiteral("./dummy"));
-    mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
-    mock->injectResponse(2, "adapter.describe", describeResult());
-}
-
-/* ---- Helper: drive client to ACTIVE state ---- */
-static void driveToActive(AdapterClient& client, MockAdapterProcess* mock)
-{
-    driveToAwaitingConfig(client, mock);
-    client.provideConfig(QJsonObject(), QStringList());
-    mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
-    mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
 }
 
 void TestAdapterClient::requestDataPointSchemaEmitsSignal()

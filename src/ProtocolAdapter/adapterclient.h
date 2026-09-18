@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QMap>
 #include <QObject>
+#include <QSet>
 #include <QStringList>
 #include <QTimer>
 
@@ -285,6 +286,10 @@ private:
     bool consumeAuxResponse(const QString& method, int id);
     ResultDoubleList invalidResults() const;
     void degradeSession(const QString& diagnosticMessage);
+    ResultDoubleList decodeReadDataResult(const QJsonObject& result);
+    ResultDouble decodeDataPoint(const QJsonObject& dataPoint,
+                                 bool& sawUnrecognisedState,
+                                 QStringList& newUnknownFlagIds);
 
     static constexpr int cHandshakeTimeoutMs = 10000;
 
@@ -297,6 +302,10 @@ private:
     QJsonObject _pendingConfig;
     QStringList _pendingExpressions;
     QMap<QString, int> _pendingAuxRequests;
+
+    //! Guards against repeating the same adapter.readData decode diagnostic on every poll cycle.
+    bool _reportedUnrecognisedReadDataState{ false };
+    QSet<QString> _reportedUnknownFlagIds;
 };
 
 #endif // ADAPTERCLIENT_H
