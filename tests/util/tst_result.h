@@ -16,6 +16,9 @@ private slots:
     void constructorLeavesUnflaggedGoodAsGood();
     void setValueClearsStaleFlags();
     void addFlagsAfterSetValueDegrades();
+    void setStateGoodWithFlagsStaysDegraded();
+    void setStateGoodWithoutFlagsIsGood();
+    void setStateKeepsFlagsOnOtherStates();
 };
 
 #endif // TST_RESULT_H

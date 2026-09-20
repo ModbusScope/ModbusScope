@@ -508,7 +508,8 @@ the first is pending returns an error immediately.
 ```
 
 The `dataPoints` array has the same length and order as the `dataPoints` array
-passed to `adapter.start`. Each entry carries a `state`, an optional `value`,
+passed to `adapter.start`. A client treats a missing trailing entry as `invalid`,
+ignores surplus entries, and raises one diagnostic per session. Each entry carries a `state`, an optional `value`,
 and an optional `flags` array:
 
 | Field | Rule |

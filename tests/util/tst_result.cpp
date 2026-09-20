@@ -69,4 +69,38 @@ void TestResult::addFlagsAfterSetValueDegrades()
     QCOMPARE(result.flags(), Flags(Flag::Overflow));
 }
 
+/*!
+ * \brief Requesting Good on a result that carries flags must keep it Degraded, so flagged data
+ * never looks clean.
+ */
+void TestResult::setStateGoodWithFlagsStaysDegraded()
+{
+    ResultDouble result(1.0, State::Degraded, Flag::Substituted);
+
+    result.setState(State::Good);
+
+    QCOMPARE(result.state(), State::Degraded);
+    QCOMPARE(result.flags(), Flags(Flag::Substituted));
+}
+
+void TestResult::setStateGoodWithoutFlagsIsGood()
+{
+    ResultDouble result(1.0, State::Invalid);
+
+    result.setState(State::Good);
+
+    QCOMPARE(result.state(), State::Good);
+    QCOMPARE(result.flags(), Flags(Flag::NoFlags));
+}
+
+void TestResult::setStateKeepsFlagsOnOtherStates()
+{
+    ResultDouble result(1.0, State::Degraded, Flag::OldData);
+
+    result.setState(State::Invalid);
+
+    QCOMPARE(result.state(), State::Invalid);
+    QCOMPARE(result.flags(), Flags(Flag::OldData));
+}
+
 QTEST_GUILESS_MAIN(TestResult)

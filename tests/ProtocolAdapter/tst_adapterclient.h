@@ -24,6 +24,10 @@ private slots:
     void readDataUsablePointWithoutValueTreatedAsInvalid();
     void readDataGoodWithFlagsIsPromotedToDegraded();
     void readDataUnknownFlagDiagnosticRepeatsInNewSession();
+    void readDataMissingDataPointsPaddedWithInvalid();
+    void readDataSurplusDataPointsIgnored();
+    void readDataMissingDataPointsArrayAllInvalid();
+    void readDataCountMismatchDiagnosticRepeatsInNewSession();
     void readDataEmptyDataPoints();
     void requestStatusEmitsSignal();
     void errorResponseEmitsSessionError();

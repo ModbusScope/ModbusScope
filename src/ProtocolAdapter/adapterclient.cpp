@@ -116,6 +116,7 @@ void AdapterClient::provideConfig(QJsonObject config, QStringList registerExpres
     _pendingExpressions = registerExpressions;
     _reportedUnrecognisedReadDataState = false;
     _reportedMalformedReadDataPoint = false;
+    _reportedReadDataCountMismatch = false;
     _reportedUnknownFlagIds.clear();
 
     if (!_incompatibilityReason.isEmpty())
@@ -525,8 +526,11 @@ ResultDoubleList AdapterClient::invalidResults() const
  * Each kind of violation raises one diagnostic per session (per distinct id for flags), so a
  * persistently misbehaving adapter does not flood the diagnostic log every poll.
  *
+ * The result always holds one entry per expression of the current session: points the adapter
+ * did not send are Invalid and surplus points are ignored.
+ *
  * \param result The full adapter.readData result object.
- * \return One Result<double> per entry in "dataPoints", in order.
+ * \return One Result<double> per expression, in order.
  */
 ResultDoubleList AdapterClient::decodeReadDataResult(const QJsonObject& result)
 {
@@ -534,9 +538,28 @@ ResultDoubleList AdapterClient::decodeReadDataResult(const QJsonObject& result)
     ReadDataIssues issues;
 
     const QJsonArray dataPoints = result["dataPoints"].toArray();
-    for (const auto& entry : dataPoints)
+    const int expectedCount = static_cast<int>(_pendingExpressions.size());
+    const int decodeCount = qMin(static_cast<int>(dataPoints.size()), expectedCount);
+    for (int idx = 0; idx < decodeCount; idx++)
     {
-        results.append(decodeDataPoint(entry, issues));
+        results.append(decodeDataPoint(dataPoints.at(idx), issues));
+    }
+
+    while (results.size() < expectedCount)
+    {
+        results.append(ResultDouble(0.0, DataQuality::State::Invalid));
+    }
+
+    if (dataPoints.size() != expectedCount && !_reportedReadDataCountMismatch)
+    {
+        _reportedReadDataCountMismatch = true;
+        emit diagnosticReceived(QStringLiteral("error"),
+                                QStringLiteral("Adapter '%1' sent %2 adapter.readData data point(s) for %3 "
+                                               "expression(s); missing points are treated as invalid and "
+                                               "surplus points are ignored")
+                                  .arg(_adapterId)
+                                  .arg(dataPoints.size())
+                                  .arg(expectedCount));
     }
 
     if (issues.unrecognisedState && !_reportedUnrecognisedReadDataState)

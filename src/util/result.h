@@ -95,8 +95,8 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(DataQuality::Flags)
  * Good/Degraded only) but are named for their distinct call sites so they can diverge without a
  * rename if a future state ever carries a value without being usable.
  *
- * A Good result never carries flags: the constructor and addFlags() promote it to Degraded, and
- * setValue() starts from a clean, flag-free Good.
+ * A Good result never carries flags: the constructor, setState() and addFlags() promote it to
+ * Degraded, and setValue() starts from a clean, flag-free Good.
  */
 template<typename T>
 class Result
@@ -115,6 +115,8 @@ public:
     bool hasValue() const;
 
     DataQuality::State state() const;
+    //! Sets \a state and keeps the flags. Requesting State::Good while flags are present yields
+    //! State::Degraded.
     void setState(DataQuality::State state);
 
     DataQuality::Flags flags() const;
@@ -212,6 +214,10 @@ template<class T>
 void Result<T>::setState(DataQuality::State state)
 {
     _state = state;
+    if (_flags && _state == DataQuality::State::Good)
+    {
+        _state = DataQuality::State::Degraded;
+    }
 }
 
 template<class T>

@@ -327,6 +327,7 @@ private:
     //! reset when a new session is configured.
     bool _reportedUnrecognisedReadDataState{ false };
     bool _reportedMalformedReadDataPoint{ false };
+    bool _reportedReadDataCountMismatch{ false };
     QSet<QString> _reportedUnknownFlagIds;
 };
 

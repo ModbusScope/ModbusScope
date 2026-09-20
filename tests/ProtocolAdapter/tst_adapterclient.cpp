@@ -117,11 +117,22 @@ static void driveToAwaitingConfig(AdapterClient& client, MockAdapterProcess* moc
     mock->injectResponse(2, "adapter.describe", describeResult());
 }
 
-/* ---- Helper: drive client to ACTIVE state ---- */
-static void driveToActive(AdapterClient& client, MockAdapterProcess* mock)
+/* ---- Helper: one register expression per data point ---- */
+static QStringList expressionList(int count)
+{
+    QStringList expressions;
+    for (int idx = 0; idx < count; idx++)
+    {
+        expressions.append(QStringLiteral("${h%1}").arg(idx));
+    }
+    return expressions;
+}
+
+/* ---- Helper: drive client to ACTIVE state with the given number of register expressions ---- */
+static void driveToActive(AdapterClient& client, MockAdapterProcess* mock, int expressionCount = 0)
 {
     driveToAwaitingConfig(client, mock);
-    client.provideConfig(QJsonObject(), QStringList());
+    client.provideConfig(QJsonObject(), expressionList(expressionCount));
     mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
     mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
 }
@@ -212,13 +223,7 @@ void TestAdapterClient::readDataValidResults()
 
     QSignalSpy spy(&client, &AdapterClient::readDataResult);
 
-    /* Drive to ACTIVE state */
-    client.prepareAdapter(QStringLiteral("./dummy"));
-    mock->injectResponse(1, "adapter.initialize", QJsonObject{ { "status", "ok" } });
-    mock->injectResponse(2, "adapter.describe", describeResult());
-    client.provideConfig(QJsonObject(), QStringList());
-    mock->injectResponse(3, "adapter.configure", QJsonObject{ { "status", "ok" } });
-    mock->injectResponse(4, "adapter.start", QJsonObject{ { "status", "ok" } });
+    driveToActive(client, mock, 2);
 
     client.requestReadData();
 
@@ -250,7 +255,7 @@ void TestAdapterClient::readDataDecodesAllStatesAndFlags()
 
     QSignalSpy spy(&client, &AdapterClient::readDataResult);
 
-    driveToActive(client, mock);
+    driveToActive(client, mock, 4);
     client.requestReadData();
 
     QJsonArray dataPoints;
@@ -291,7 +296,7 @@ void TestAdapterClient::readDataUnrecognisedStateTreatedAsInvalidWithDiagnostic(
     QSignalSpy spy(&client, &AdapterClient::readDataResult);
     QSignalSpy spyDiagnostic(&client, &AdapterClient::diagnosticReceived);
 
-    driveToActive(client, mock);
+    driveToActive(client, mock, 1);
 
     client.requestReadData();
     QJsonArray dataPoints;
@@ -321,7 +326,7 @@ void TestAdapterClient::readDataUnknownFlagIdEmitsDiagnosticOnce()
     QSignalSpy spy(&client, &AdapterClient::readDataResult);
     QSignalSpy spyDiagnostic(&client, &AdapterClient::diagnosticReceived);
 
-    driveToActive(client, mock);
+    driveToActive(client, mock, 1);
 
     client.requestReadData();
     QJsonArray dataPoints;
@@ -521,7 +526,7 @@ void TestAdapterClient::readDataUsablePointWithoutValueTreatedAsInvalid()
     QSignalSpy spy(&client, &AdapterClient::readDataResult);
     QSignalSpy spyDiagnostic(&client, &AdapterClient::diagnosticReceived);
 
-    driveToActive(client, mock);
+    driveToActive(client, mock, 5);
     client.requestReadData();
 
     QJsonArray dataPoints;
@@ -557,7 +562,7 @@ void TestAdapterClient::readDataGoodWithFlagsIsPromotedToDegraded()
 
     QSignalSpy spy(&client, &AdapterClient::readDataResult);
 
-    driveToActive(client, mock);
+    driveToActive(client, mock, 1);
     client.requestReadData();
 
     QJsonArray dataPoints;
@@ -586,19 +591,145 @@ void TestAdapterClient::readDataUnknownFlagDiagnosticRepeatsInNewSession()
       QJsonObject{ { "value", 1.0 }, { "state", "degraded" }, { "flags", QJsonArray{ "futureFlag" } } });
     const QJsonObject readDataResult{ { "dataPoints", dataPoints } };
 
-    driveToActive(client, mock);
+    driveToActive(client, mock, 1);
     client.requestReadData();
     mock->injectResponse(5, "adapter.readData", readDataResult);
     QCOMPARE(spyDiagnostic.count(), 1);
 
     client.stopSession();
     mock->injectResponse(6, "adapter.stop", QJsonObject{ { "status", "ok" } });
-    client.provideConfig(QJsonObject(), QStringList());
+    client.provideConfig(QJsonObject(), expressionList(1));
     mock->injectResponse(7, "adapter.configure", QJsonObject{ { "status", "ok" } });
     mock->injectResponse(8, "adapter.start", QJsonObject{ { "status", "ok" } });
 
     client.requestReadData();
     mock->injectResponse(9, "adapter.readData", readDataResult);
+    QCOMPARE(spyDiagnostic.count(), 2);
+}
+
+/*!
+ * \brief A readData result with fewer data points than expressions must still yield one result
+ * per expression: the missing trailing points are Invalid, and the mismatch is reported once per
+ * session.
+ */
+void TestAdapterClient::readDataMissingDataPointsPaddedWithInvalid()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spy(&client, &AdapterClient::readDataResult);
+    QSignalSpy spyDiagnostic(&client, &AdapterClient::diagnosticReceived);
+
+    driveToActive(client, mock, 3);
+
+    client.requestReadData();
+    QJsonArray dataPoints;
+    dataPoints.append(QJsonObject{ { "value", 1.0 } });
+    mock->injectResponse(5, "adapter.readData", QJsonObject{ { "dataPoints", dataPoints } });
+
+    QCOMPARE(spy.count(), 1);
+    const ResultDoubleList results = spy.at(0).at(0).value<ResultDoubleList>();
+    QCOMPARE(results.size(), 3);
+    QCOMPARE(results[0].state(), DataQuality::State::Good);
+    QCOMPARE(results[0].value(), 1.0);
+    QCOMPARE(results[1].state(), DataQuality::State::Invalid);
+    QCOMPARE(results[2].state(), DataQuality::State::Invalid);
+    QCOMPARE(spyDiagnostic.count(), 1);
+
+    /* The same mismatch on the next poll must not raise a second diagnostic. */
+    client.requestReadData();
+    mock->injectResponse(6, "adapter.readData", QJsonObject{ { "dataPoints", dataPoints } });
+    QCOMPARE(spy.count(), 2);
+    QCOMPARE(spyDiagnostic.count(), 1);
+}
+
+/*!
+ * \brief Surplus data points beyond the number of expressions are ignored.
+ */
+void TestAdapterClient::readDataSurplusDataPointsIgnored()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spy(&client, &AdapterClient::readDataResult);
+    QSignalSpy spyDiagnostic(&client, &AdapterClient::diagnosticReceived);
+
+    driveToActive(client, mock, 1);
+
+    client.requestReadData();
+    QJsonArray dataPoints;
+    dataPoints.append(QJsonObject{ { "value", 1.0 } });
+    dataPoints.append(QJsonObject{ { "value", 2.0 } });
+    dataPoints.append(QJsonObject{ { "value", 3.0 } });
+    mock->injectResponse(5, "adapter.readData", QJsonObject{ { "dataPoints", dataPoints } });
+
+    QCOMPARE(spy.count(), 1);
+    const ResultDoubleList results = spy.at(0).at(0).value<ResultDoubleList>();
+    QCOMPARE(results.size(), 1);
+    QCOMPARE(results[0].value(), 1.0);
+    QCOMPARE(spyDiagnostic.count(), 1);
+}
+
+/*!
+ * \brief A readData result without a "dataPoints" array yields one Invalid result per expression.
+ */
+void TestAdapterClient::readDataMissingDataPointsArrayAllInvalid()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spy(&client, &AdapterClient::readDataResult);
+    QSignalSpy spyDiagnostic(&client, &AdapterClient::diagnosticReceived);
+
+    driveToActive(client, mock, 2);
+
+    client.requestReadData();
+    mock->injectResponse(5, "adapter.readData", QJsonObject{});
+
+    QCOMPARE(spy.count(), 1);
+    const ResultDoubleList results = spy.at(0).at(0).value<ResultDoubleList>();
+    QCOMPARE(results.size(), 2);
+    QCOMPARE(results[0].state(), DataQuality::State::Invalid);
+    QCOMPARE(results[1].state(), DataQuality::State::Invalid);
+    QCOMPARE(spyDiagnostic.count(), 1);
+}
+
+/*!
+ * \brief A count mismatch is reported once per session, so it is reported again after the session
+ * is restarted, and not at all while the counts match.
+ */
+void TestAdapterClient::readDataCountMismatchDiagnosticRepeatsInNewSession()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyDiagnostic(&client, &AdapterClient::diagnosticReceived);
+
+    QJsonArray dataPoints;
+    dataPoints.append(QJsonObject{ { "value", 1.0 } });
+    const QJsonObject matching{ { "dataPoints", dataPoints } };
+
+    driveToActive(client, mock, 2);
+    client.requestReadData();
+    mock->injectResponse(5, "adapter.readData", matching);
+    QCOMPARE(spyDiagnostic.count(), 1);
+
+    client.stopSession();
+    mock->injectResponse(6, "adapter.stop", QJsonObject{ { "status", "ok" } });
+    client.provideConfig(QJsonObject(), expressionList(1));
+    mock->injectResponse(7, "adapter.configure", QJsonObject{ { "status", "ok" } });
+    mock->injectResponse(8, "adapter.start", QJsonObject{ { "status", "ok" } });
+
+    client.requestReadData();
+    mock->injectResponse(9, "adapter.readData", matching);
+    QCOMPARE(spyDiagnostic.count(), 1);
+
+    client.requestReadData();
+    mock->injectResponse(10, "adapter.readData", QJsonObject{});
     QCOMPARE(spyDiagnostic.count(), 2);
 }
 
