@@ -6,8 +6,6 @@
 #include "models/graphdatamodel.h"
 #include "util/scopelogging.h"
 
-#include <QRegularExpression>
-
 /*!
  * \param[in]     pGraphDataModel   Graph data model
  * \param[out]    registerList      List of data points
@@ -23,7 +21,7 @@ void GraphDataHandler::setupExpressions(GraphDataModel* pGraphDataModel, QList<D
 
     _valueParsers.clear();
 
-    for (const QString& expr : std::as_const(processedExpList))
+    for (const QString& expr : processedExpList)
     {
         _valueParsers.append(QMuParser(expr));
     }
@@ -61,18 +59,104 @@ QMuParser::ErrorType GraphDataHandler::expressionErrorType(qint32 exprIdx) const
     return _valueParsers[exprIdx].errorType();
 }
 
+namespace {
+
+//! Quality of the data points one expression references, combined into what its result needs.
+struct InputSummary
+{
+    DataQuality::Flags flags = DataQuality::Flag::NoFlags;
+    bool anyDegraded = false;
+    bool allNoValue = false;
+};
+
+/*!
+ * \brief Combines the quality of the data points an expression references.
+ *
+ * Flags are the union over every referenced data point, even one an expression such as if() does
+ * not end up evaluating. A data point whose result is missing altogether is a real fault, so it
+ * prevents allNoValue. A constant expression (no references) is never allNoValue.
+ *
+ * \param dataPointIndices Indices into \a results of the data points the expression references.
+ * \param results Raw data point read results from the adapter.
+ */
+InputSummary summarizeInputs(const QList<int>& dataPointIndices, const ResultDoubleList& results)
+{
+    InputSummary summary;
+    summary.allNoValue = !dataPointIndices.isEmpty();
+
+    for (int dataPointIdx : dataPointIndices)
+    {
+        if (dataPointIdx < 0 || dataPointIdx >= results.size())
+        {
+            summary.allNoValue = false;
+            continue;
+        }
+
+        const ResultDouble& input = results[dataPointIdx];
+        summary.flags |= input.flags();
+
+        if (input.state() == DataQuality::State::Degraded)
+        {
+            summary.anyDegraded = true;
+        }
+        if (input.state() != DataQuality::State::NoValue)
+        {
+            summary.allNoValue = false;
+        }
+    }
+
+    return summary;
+}
+
+/*!
+ * \brief Evaluates one expression and derives the quality of its result from its inputs.
+ *
+ * A successful evaluation is Degraded when any input was Degraded (whether or not it carried
+ * flags), otherwise Good. A failed evaluation is NoValue when every input is still NoValue and the
+ * failure came from the inputs rather than from the expression itself ("not started yet" rather
+ * than "broken"); any other failure is Invalid. The inputs' flags are carried over on every path.
+ *
+ * \param parser The expression to evaluate.
+ * \param inputs Combined quality of the data points the expression references.
+ */
+ResultDouble evaluateExpression(QMuParser& parser, const InputSummary& inputs)
+{
+    ResultDouble result; /* Defaults to NoValue */
+
+    if (parser.evaluate())
+    {
+        result.setValue(parser.value());
+        result.addFlags(inputs.flags);
+        if (inputs.anyDegraded)
+        {
+            result.setState(DataQuality::State::Degraded);
+        }
+    }
+    else if (inputs.allNoValue && parser.errorType() == QMuParser::ErrorType::OTHER)
+    {
+        /* Not an evaluation failure worth logging. A malformed expression (any other error type)
+         * is a fault even while every input is still NoValue. */
+        result.addFlags(inputs.flags);
+    }
+    else
+    {
+        result.setError();
+        result.addFlags(inputs.flags);
+
+        auto msg = QString("Expression evaluation failed (%1)").arg(parser.msg());
+
+        qCWarning(scopeComm) << qUtf8Printable(msg);
+    }
+
+    return result;
+}
+
+} // namespace
+
 /*!
  * \brief Evaluates each configured expression against the raw data point results.
  *
- * State and flags are aggregated across the expression's contributing data points: a successful
- * evaluation is Degraded when any input was Degraded (whether or not it carried flags), otherwise
- * Good; a failed evaluation is Invalid, unless every contributing input is still NoValue and the
- * expression itself is well-formed, in which case it is NoValue too ("not started yet" rather than
- * "broken", so the gap before the first read is not reported as a failure). An input result that
- * is missing altogether counts as a real fault, not as NoValue. Flags are the union of the
- * contributing inputs' flags on every path; every referenced data point contributes, even one an
- * expression such as if() does not end up evaluating. A constant expression (no data point
- * references) that evaluates successfully is Good with no flags.
+ * The quality of each result is aggregated from the data points its expression references.
  *
  * \param results Raw data point read results from the adapter (one entry per data point).
  * \return Expression-evaluated results (one entry per graph expression). The input values are
@@ -86,65 +170,8 @@ ResultDoubleList GraphDataHandler::handleRegisterData(const ResultDoubleList& re
 
     for (qsizetype exprIdx = 0; exprIdx < _valueParsers.size(); exprIdx++)
     {
-        QMuParser& parser = _valueParsers[exprIdx];
-        const QList<int> dataPointIndices =
-          (exprIdx < _expressionDataPointIndices.size()) ? _expressionDataPointIndices[exprIdx] : QList<int>();
-
-        DataQuality::Flags flags = DataQuality::Flag::NoFlags;
-        bool anyDegraded = false;
-        bool allNoValue = !dataPointIndices.isEmpty();
-        for (int dataPointIdx : dataPointIndices)
-        {
-            if (dataPointIdx < 0 || dataPointIdx >= results.size())
-            {
-                allNoValue = false;
-                continue;
-            }
-            flags |= results[dataPointIdx].flags();
-            if (results[dataPointIdx].state() == DataQuality::State::Degraded)
-            {
-                anyDegraded = true;
-            }
-            if (results[dataPointIdx].state() != DataQuality::State::NoValue)
-            {
-                allNoValue = false;
-            }
-        }
-
-        ResultDouble result;
-
-        const bool evaluated = parser.evaluate();
-        /* Only a failure caused by the inputs themselves counts as "not started yet"; a malformed
-         * expression is a fault even while every input is still NoValue. */
-        const bool inputsUnavailable = allNoValue && (parser.errorType() == QMuParser::ErrorType::OTHER);
-
-        if (evaluated)
-        {
-            result.setValue(parser.value());
-            result.addFlags(flags);
-            if (anyDegraded)
-            {
-                result.setState(DataQuality::State::Degraded);
-            }
-        }
-        else if (!inputsUnavailable)
-        {
-            result.setError();
-            result.addFlags(flags);
-
-            auto msg = QString("Expression evaluation failed (%1)").arg(parser.msg());
-
-            qCWarning(scopeComm) << qUtf8Printable(msg);
-        }
-        else
-        {
-            /* Every contributing data point is still NoValue and the expression itself is fine, so
-             * the result stays NoValue; not an evaluation failure worth logging. Flags the inputs
-             * reported are still part of the aggregate. */
-            result.addFlags(flags);
-        }
-
-        registerList.append(result);
+        const InputSummary inputs = summarizeInputs(_expressionDataPointIndices.at(exprIdx), results);
+        registerList.append(evaluateExpression(_valueParsers[exprIdx], inputs));
     }
 
     return registerList;

@@ -40,7 +40,9 @@ private slots:
     void dataPointIndicesSingleExpression();
     void dataPointIndicesMultipleExpressions();
     void dataPointIndicesSharedDataPoint();
+    void dataPointIndicesRepeatedReferenceIsListedOnce();
     void dataPointIndicesConstantExpressionIsEmpty();
+    void dataPointIndicesStayAlignedWithMixedExpressions();
 
     void verifyParsing(const QStringList& exprList,
                        const QList<DataPoint>& expectedDataPoints,

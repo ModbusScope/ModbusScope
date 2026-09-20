@@ -305,6 +305,19 @@ void TestExpressionParser::dataPointIndicesSharedDataPoint()
 }
 
 /*!
+ * \brief A data point referenced more than once within one expression must be listed once, at
+ * the position of its first reference.
+ */
+void TestExpressionParser::dataPointIndicesRepeatedReferenceIsListedOnce()
+{
+    auto input = QStringList() << "${45332} + ${45333} + ${45332}";
+    ExpressionParser parser(input);
+
+    auto expected = QList<QList<int>>() << (QList<int>() << 0 << 1);
+    QCOMPARE(parser.expressionDataPointIndices(), expected);
+}
+
+/*!
  * \brief A constant expression with no data point references must report an empty index list.
  */
 void TestExpressionParser::dataPointIndicesConstantExpressionIsEmpty()
@@ -313,6 +326,19 @@ void TestExpressionParser::dataPointIndicesConstantExpressionIsEmpty()
     ExpressionParser parser(input);
 
     auto expected = QList<QList<int>>() << QList<int>();
+    QCOMPARE(parser.expressionDataPointIndices(), expected);
+}
+
+/*!
+ * \brief Constant and unparsable expressions must still get an (empty) entry, so the index lists
+ * stay aligned with the expressions that follow them.
+ */
+void TestExpressionParser::dataPointIndicesStayAlignedWithMixedExpressions()
+{
+    auto input = QStringList() << "${1}" << "2" << "${}" << "${2}";
+    ExpressionParser parser(input);
+
+    auto expected = QList<QList<int>>() << (QList<int>() << 0) << QList<int>() << QList<int>() << (QList<int>() << 1);
     QCOMPARE(parser.expressionDataPointIndices(), expected);
 }
 

@@ -30,10 +30,9 @@ QStringList ExpressionParser::processedExpressions() const
 /*!
  * \brief Returns, for each expression, the indices into dataPoints() it references.
  *
- * One entry per expression passed to the constructor, in the same order. A data point referenced by
- * more than one expression appears in each of their index lists; an expression with no data point
- * references (a constant expression) has an empty list. Needed to aggregate data quality over an
- * expression's inputs even when the expression itself fails to evaluate.
+ * One entry per expression passed to the constructor, in the same order. Indices are unique within
+ * an expression and ordered by first reference. A data point shared by several expressions appears
+ * in each of their lists; a constant expression has an empty list.
  */
 QList<QList<int>> ExpressionParser::expressionDataPointIndices() const
 {
@@ -75,8 +74,13 @@ QString ExpressionParser::processExpression(QString const& graphExpr, QList<int>
             DataPoint dataPoint;
             if (processRegisterExpression(regDef, dataPoint))
             {
-                QString regFunc = constructInternalRegisterFunction(dataPoint, regDef.size(), dataPointIndices);
-                resultExpr.replace(regDef, regFunc);
+                const int idx = findOrAddDataPoint(dataPoint);
+                if (!dataPointIndices.contains(idx))
+                {
+                    dataPointIndices.append(idx);
+                }
+
+                resultExpr.replace(regDef, constructInternalRegisterFunction(idx, regDef.size()));
             }
         }
     }
@@ -114,9 +118,7 @@ bool ExpressionParser::processRegisterExpression(const QString& regExpr, DataPoi
     return true;
 }
 
-QString ExpressionParser::constructInternalRegisterFunction(DataPoint const& dataPoint,
-                                                            int size,
-                                                            QList<int>& dataPointIndices)
+int ExpressionParser::findOrAddDataPoint(DataPoint const& dataPoint)
 {
     qsizetype idx = _dataPoints.indexOf(dataPoint);
     if (idx < 0)
@@ -124,8 +126,12 @@ QString ExpressionParser::constructInternalRegisterFunction(DataPoint const& dat
         _dataPoints.append(dataPoint);
         idx = _dataPoints.size() - 1;
     }
-    dataPointIndices.append(static_cast<int>(idx));
 
+    return static_cast<int>(idx);
+}
+
+QString ExpressionParser::constructInternalRegisterFunction(int idx, int size)
+{
     /* Add dummy whitespaces to make sure positions in internal representations match visible expressions */
     QString regIdx = QString::number(idx);
     const int spacesCount = qMax(0, size - 3 - regIdx.size()); /* ignore ${} and idx string length */

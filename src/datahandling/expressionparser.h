@@ -19,7 +19,8 @@ private:
 
     QString processExpression(QString const& expr, QList<int>& dataPointIndices);
     bool processRegisterExpression(const QString& regExpr, DataPoint& dataPoint);
-    QString constructInternalRegisterFunction(DataPoint const& dataPoint, int size, QList<int>& dataPointIndices);
+    int findOrAddDataPoint(DataPoint const& dataPoint);
+    QString constructInternalRegisterFunction(int idx, int size);
 
     QStringList _processedExpressions;
     QList<DataPoint> _dataPoints;
