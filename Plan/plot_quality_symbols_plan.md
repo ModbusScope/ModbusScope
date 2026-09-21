@@ -103,118 +103,78 @@ keyed by `GraphIdx`, independent of the main graphs' positional indices.
 
 ## Implementation
 
-### 1. New: `src/graphview/graphqualitystyle.h`/`.cpp`
+> **Status: implemented.** Two deviations from the original design are marked below; both
+> came out of the maintainability review and reduce the moving parts rather than add any.
 
-Pure mapping table, no Qt widget dependency beyond `QCPScatterStyle` (header-only from
-qcustomplot, safe to unit test):
+### 1. `src/graphview/graphqualitymarkers.h`/`.cpp` (class `GraphQualityMarkers`)
 
-```cpp
-namespace GraphQualityStyle {
-    QCPScatterStyle scatterStyleFor(DataQuality::State state); // returns ssNone for Good
-    QString displayText(DataQuality::State state, DataQuality::Flags flags); // for tooltips
-}
-```
-
-### 2. New: `src/graphview/graphqualitymarkers.h`/`.cpp` (class `GraphQualityMarkers`)
-
-Modeled directly on the existing sibling components `GraphMarkers`
-(`src/graphview/graphmarkers.h`) and `GraphIndicators`
-(`src/graphview/graphindicators.h`) — same constructor shape, same
+Modeled on the existing sibling components `GraphMarkers` (`src/graphview/graphmarkers.h`)
+and `GraphIndicators` (`src/graphview/graphindicators.h`) — same constructor shape, same
 `GraphDataModel*`/`ScopePlot*` dependencies, owned by `GraphView`.
 
+**Deviation 1 — no separate `graphqualitystyle.h`/`.cpp`.** The state→symbol mapping is a
+file-static `scatterStyle()` in `graphqualitymarkers.cpp`. A file pair for ~15 lines of pure
+mapping earned nothing once the tooltip work (its only other would-be consumer) was deferred,
+and the marker tests assert the rendered scatter shapes end to end anyway, which covers the
+mapping better than testing it in isolation would.
+
+**Deviation 2 — one `rebuild()` instead of paired `clear()`/`addSignal()`/`rebuildFromSeries()`.**
+The review flagged the biggest risk as six hand-synchronized call sites that a future change
+could silently forget. `rebuild()` tears everything down and re-derives it from the model, so
+it is idempotent and self-contained: every cold path just calls it, and there is no partial
+state to keep in step. Only the live poll path stays incremental.
+
 ```cpp
-class GraphQualityMarkers : public QObject
-{
-public:
-    explicit GraphQualityMarkers(GraphDataModel* pGraphDataModel, GuiModel* pGuiModel,
-                                  ScopePlot* pPlot, QObject* parent = nullptr);
-
-    void clear();                                    // drop all overlay curves + bookkeeping
-    void addSignal(GraphIdx graphIdx);                // create the (up to 3) overlay curves for a newly plotted signal
-    void rebuildFromSeries(GraphIdx graphIdx);        // full O(n) resync from GraphDataModel::dataSeries(graphIdx)
-    void appendSample(GraphIdx graphIdx, double timestamp, double value,
-                       const DataQuality::Quality& quality); // live single-point path
-    void setAxis(GraphIdx graphIdx, const GraphData::valueAxis_t& axis);
-    void setVisible(GraphIdx graphIdx, bool bVisible);
-
-private:
-    struct SignalOverlays { QCPCurve* degraded; QCPCurve* invalid; QCPCurve* noValue; };
-    QMap<qint32 /* GraphIdx.v */, SignalOverlays> _overlays;
-    ...
-};
+void rebuild();  // full teardown + rebuild of every overlay from the model
+void appendSample(GraphIdx graphIdx, double timestamp, double value, const DataQuality::Quality& quality);
+void setAxis(GraphIdx graphIdx, GraphData::valueAxis_t axis);
+void setVisible(GraphIdx graphIdx, bool bVisible);
 ```
 
-`rebuildFromSeries()` does a single pass over the series (not one pass per state) and
-buckets each sample's `(timestamp, value)` into the vector matching its `quality.state`,
-then calls `setData()` on the three curves once. `appendSample()` looks up the sample's
-state and calls `addData()`-equivalent on the matching curve only (or no-ops for `Good`).
+`setAxis()`/`setVisible()` are kept only because they are O(1) where `rebuild()` would be
+O(n) — `rebuild()` re-derives both from the model too, so they cannot drift out of sync.
+Overlays are keyed by `GraphIdx` (which already has `operator<`), not by a raw int, keeping
+the codebase's strong-index discipline.
 
-### 3. `src/graphview/graphview.h`/`.cpp` — wire it in
+`rebuild()` buckets each signal's samples in a single pass over its `GraphDataSeries` and
+calls `setData()` once per overlay curve. Each curve is created with `lsNone`,
+`QCP::stNone` (so marker clicks never steal a graph selection), `removeFromLegend()`, and a
+dedicated `qualityMarkers` layer stacked above `topMain`.
+
+### 2. `src/graphview/graphview.h`/`.cpp` — wire it in
 
 - Constructor/destructor: create/destroy `_pGraphQualityMarkers` alongside
-  `_pGraphMarkers`/`_pGraphIndicators` (`.cpp:82`, `.cpp:95` today).
-- `updateGraphs()` (`.cpp:234-303`): call `_pGraphQualityMarkers->clear()` next to
-  `_pGraphMarkers->clearTracers()`/`_pGraphIndicators->clear()` (line 236-238, before
-  `_pPlot->clearGraphs()`); inside the `foreach (graphIdx, activeGraphList)` loop
-  (line 262-295), after `loadGraphDataFromModel(graphIdx, pGraph)` (line 291) call
-  `_pGraphQualityMarkers->addSignal(graphIdx)` then `rebuildFromSeries(graphIdx)`.
-- `clearGraph()` (`.cpp:188-229`): both branches end by either clearing the series
-  entirely (line 203-206) or zeroing `.value` while keeping timestamps (line 213-221).
-  The latter branch previously left `it->quality` untouched, which would have surfaced as
-  stale quality markers surviving a "clear graph" — already fixed separately (see below),
-  ahead of this feature. After either branch, call
-  `_pGraphQualityMarkers->rebuildFromSeries(graphIdx)`.
-- `plotResults()` (`.cpp:493-528`): right after `_pPlot->graph(i)->addData(timeData,
-  value)` (line 519), add
-  `_pGraphQualityMarkers->appendSample(graphIdx, timeData, value, result.quality())`.
-- `addData()` (`.cpp:432-465`, bulk/import path): `GraphDataSeries::setSamples()`
-  (`graphdataseries.h:38`) has no quality-carrying overload, so imported data has no
-  per-sample quality today (see Open Questions). Call
-  `_pGraphQualityMarkers->rebuildFromSeries(graphIdx)` per signal anyway, so overlays are
-  at least cleared/consistent rather than stale from a previous session.
-- `changeGraphAxis()` (`.cpp:350-361`): also call
-  `_pGraphQualityMarkers->setAxis(graphIdx, _pGraphDataModel->valueAxis(graphIdx))` so
-  markers move with their signal when it switches primary/secondary axis.
-- `changeGraphColor()` (`.cpp:334-344`): deliberately **not** touched — marker colors are
-  fixed per quality state, not per signal, so the same shape/color always means the same
-  thing across every trace.
-- `handleGraphVisibilityChange()` (`.cpp:471-484`): call
-  `_pGraphQualityMarkers->setVisible(graphIdx, bShow)`.
-- `clearResults()` (`.cpp:530-541`): after the existing loop, call
-  `_pGraphQualityMarkers->clear()` then re-`addSignal()`/`rebuildFromSeries()` for each
-  active graph (mirrors what the loop already does for the main graphs, just via
-  `GraphIdx` instead of raw plot index — note this function currently loops
-  `_pPlot->graphCount()` directly, which stays correct since overlays are invisible to
-  `graphCount()`).
+  `_pGraphMarkers`/`_pGraphIndicators`.
+- `rebuild()` on the cold paths: `updateGraphs()` (after the padding loop, so padded
+  `NoValue` samples are included), both branches of `clearGraph()`, `addData()` and
+  `clearResults()`.
+- `appendSample()` on the live poll path in `plotResults()`, right after the main graph's
+  `addData()`.
+- `setAxis()` from `changeGraphAxis()`, `setVisible()` from `handleGraphVisibilityChange()`.
+- `changeGraphColor()` deliberately untouched — marker colors are fixed per quality state,
+  not per signal, so a symbol always means the same thing across every trace.
 
 Markers are always shown — no user-facing toggle in v1 (see Open Questions).
 
 ## Testing
 
-`GraphView` had no existing unit tests before the prerequisite fix above added
-`tests/graphview/tst_graphview.cpp` (a real `GraphView` + `ScopePlot` instantiated
-headlessly, following the `tst_scopecontroller.cpp`/`tst_graphmenucontroller.cpp`
-pattern of constructing the model quintet directly). That file is now the natural home
-for `GraphQualityMarkers` lifecycle tests too, not just the style table:
+`tests/graphview/tst_graphview.cpp` (added with the prerequisite fix above) covers both the
+fix and the markers, driving a real `GraphView` + `ScopePlot` headlessly:
 
-- **`tests/graphview/tst_graphview.cpp`**: extend with tests that resync/rebuild logic —
-  e.g. seed a `GraphDataSeries` with a mix of `Good`/`Degraded`/`Invalid`/`NoValue`
-  samples, call `updateGraphs()`, and assert the resulting overlay curves' data matches
-  the expected per-state bucketing. This is the part flagged as highest-risk during
-  review (manual lifecycle sync across six call sites in `GraphView`), so it should not
-  be left to manual verification alone.
-- **New `tests/graphview/tst_graphqualitystyle.cpp`**: pure table-driven tests of
-  `GraphQualityStyle::scatterStyleFor()`/`displayText()` — no widget needed, follows the
-  `tst_*.cpp` convention.
-- **`tests/models/tst_graphdataseries.cpp`**: already covers `GraphSample.quality` — no
-  change needed.
-- **`tests/datahandling/tst_graphdatahandler.cpp`**: already covers expression-quality
-  aggregation — no change needed.
-- **Manual verification** (required regardless, and the only option in a cloud/web
-  session per `CLAUDE.md`): run the app against `DummyAdapter` configured to emit
-  `Degraded`/`Invalid`/`NoValue` samples — `tests/integration/tst_dummyadapterquality.h/.cpp`
-  already shows how to drive this at the protocol level — and visually confirm markers
-  render, track pan/zoom, and follow axis switches.
+- `qualityMarkersBucketSamplesByState` — a mixed-quality series produces the right marker
+  counts and coordinates per shape, and asserts `graphCount()` still equals the active-signal
+  count, i.e. the overlays really are `QCPCurve`s and cannot corrupt the positional
+  `graph(i)` loops.
+- `qualityMarkersShowPaddedSamplesAsNoValue` — `updateGraphs()`'s zero-padding of a short
+  series shows up as `NoValue` markers, the ambiguity this feature set out to fix.
+- `qualityMarkersAppendLiveSample` — `plotResults()` routes a live `Invalid` result to the
+  matching overlay only.
+- `qualityMarkersFollowGraphVisibility` — overlays hide and show with their signal.
+
+The remaining verification is visual and cannot be automated here: run the app against
+`DummyAdapter` emitting `Degraded`/`Invalid`/`NoValue`
+(`tests/integration/tst_dummyadapterquality.h/.cpp` shows how to drive it at the protocol
+level) and confirm the markers read well at realistic data densities.
 
 ## Open questions (flagged, not blocking)
 
@@ -235,9 +195,7 @@ for `GraphQualityMarkers` lifecycle tests too, not just the style table:
 ## Rollout
 
 1. ~~Prerequisite `clearGraph()` quality-reset fix + `tst_graphview.cpp`~~ — done.
-2. `GraphQualityStyle` + its unit tests.
-3. `GraphQualityMarkers` (including lifecycle-sync tests in `tst_graphview.cpp`) + wiring
-   into `GraphView`'s lifecycle (the six call sites above).
+2. ~~`GraphQualityMarkers` + wiring into `GraphView`'s lifecycle + marker tests~~ — done.
 
 Each step: build → test → quality → `code-reviewer` agent, per `CLAUDE.md` (skip
 build/test/quality steps in a cloud/web container; CI covers them there).
@@ -246,8 +204,8 @@ build/test/quality steps in a cloud/web container; CI covers them there).
 
 1. Build: `mkdir -p build && cmake -GNinja -S . -B build && ninja -C build` — clean under
    `-Wall -Wextra -Werror`.
-2. Test: `ctest --test-dir build --output-on-failure` — all pass, including the new
-   `tst_graphqualitystyle`.
+2. Test: `ctest --test-dir build --output-on-failure` — all pass, including
+   `tst_graphview`.
 3. Quality: `clang-format`, `./scripts/run_clang_tidy.sh`,
    `./scripts/run_clazy.sh` against every new/changed file — no violations.
 4. Manual: DummyAdapter run as described under Testing.
