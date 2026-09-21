@@ -220,7 +220,7 @@ void GraphQualityMarkers::loadSeries(GraphIdx graphIdx)
             timestamps[stateIdx].append(it->timestamp);
             values[stateIdx].append(it->value);
         }
-        it++;
+        ++it;
     }
 
     const QList<QCPCurve*> curveList = _overlays.value(graphIdx);
