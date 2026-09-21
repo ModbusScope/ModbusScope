@@ -2,12 +2,14 @@
 
 #include "models/graphdatamodel.h"
 
+#include <array>
 #include <utility>
 
 /* The states that get a marker. Good needs none: it is the plain line already drawn. */
-static const DataQuality::State cMarkedStates[] = { DataQuality::State::Degraded, DataQuality::State::Invalid,
-                                                    DataQuality::State::NoValue };
-static const qint32 cMarkedStateCount = 3;
+static constexpr std::array<DataQuality::State, 3> cMarkedStates = { DataQuality::State::Degraded,
+                                                                     DataQuality::State::Invalid,
+                                                                     DataQuality::State::NoValue };
+static constexpr qint32 cMarkedStateCount = static_cast<qint32>(cMarkedStates.size());
 
 static const double cMarkerSize = 8;
 static const char* const cMarkerLayer = "qualityMarkers";
@@ -19,7 +21,7 @@ static qint32 markerIndex(DataQuality::State state)
 {
     for (qint32 idx = 0; idx < cMarkedStateCount; idx++)
     {
-        if (cMarkedStates[idx] == state)
+        if (cMarkedStates.at(idx) == state)
         {
             return idx;
         }
@@ -179,7 +181,7 @@ void GraphQualityMarkers::addOverlays(GraphIdx graphIdx)
     {
         QCPCurve* pCurve = new QCPCurve(_pPlot->xAxis, _pPlot->yAxis);
         pCurve->setLineStyle(QCPCurve::lsNone);
-        pCurve->setScatterStyle(scatterStyle(cMarkedStates[idx]));
+        pCurve->setScatterStyle(scatterStyle(cMarkedStates.at(idx)));
         pCurve->setSelectable(QCP::stNone);
         pCurve->setLayer(QLatin1String(cMarkerLayer));
         pCurve->removeFromLegend();
