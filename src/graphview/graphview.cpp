@@ -213,10 +213,13 @@ void GraphView::clearGraph(GraphIdx graphIdx)
             QSharedPointer<GraphDataSeries> pDataSeries = _pGraphDataModel->mutableDataSeries(graphIdx);
             GraphDataSeries::iterator it = pDataSeries->begin();
 
-            /* Clear all values, keep timestamps */
+            /* Clear all values, keep timestamps. No measurement exists for these timestamps
+             * anymore, so quality is reset to NoValue, matching the padding samples
+             * updateGraphs() creates for the same situation. */
             while (it != pDataSeries->end())
             {
                 it->value = 0.0;
+                it->quality = DataQuality::Quality{ DataQuality::State::NoValue, DataQuality::Flag::NoFlags };
                 it++;
             }
 
