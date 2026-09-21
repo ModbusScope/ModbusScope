@@ -30,6 +30,20 @@ plain `timestamps`/`values` vectors and calls `pGraph->setData(timestamps, value
 (line 327). No new data model or protocol work is needed — this plan is scoped
 entirely to `src/graphview/`.
 
+### Prerequisite fix (already applied, separate commit)
+
+While mapping this out, `GraphView::clearGraph()`'s "several active graphs" branch
+(`.cpp:210-227`) turned out to zero a sample's `value` while leaving its `quality`
+untouched, so a sample that used to be `Invalid`/`Degraded` kept reporting that stale
+quality after a "clear graph" even though its value is now a meaningless placeholder.
+This is fixed ahead of this feature (`it->quality` reset to
+`DataQuality::Quality{DataQuality::State::NoValue, DataQuality::Flag::NoFlags}` alongside
+`it->value = 0.0`, matching the padding samples `updateGraphs()` already creates for the
+same "no measurement for this timestamp" case at `.cpp:281-288`), with a regression test
+in the new `tests/graphview/tst_graphview.cpp`. Fixing it separately, before the marker
+feature exists, means the feature doesn't inherit a latent data-correctness bug and the
+fix's own diff/blame stays readable on its own.
+
 ## Design
 
 ### Rendering mechanism: `QCPCurve` overlays, not a second `QCPGraph`
@@ -122,7 +136,6 @@ public:
                        const DataQuality::Quality& quality); // live single-point path
     void setAxis(GraphIdx graphIdx, const GraphData::valueAxis_t& axis);
     void setVisible(GraphIdx graphIdx, bool bVisible);
-    void setEnabled(bool bEnabled);                   // global on/off (the new user toggle)
 
 private:
     struct SignalOverlays { QCPCurve* degraded; QCPCurve* invalid; QCPCurve* noValue; };
@@ -146,10 +159,10 @@ state and calls `addData()`-equivalent on the matching curve only (or no-ops for
   (line 262-295), after `loadGraphDataFromModel(graphIdx, pGraph)` (line 291) call
   `_pGraphQualityMarkers->addSignal(graphIdx)` then `rebuildFromSeries(graphIdx)`.
 - `clearGraph()` (`.cpp:188-229`): both branches end by either clearing the series
-  entirely (line 203-206) or zeroing `.value` while keeping timestamps (line 213-221,
-  which must also reset `it->quality` to `DataQuality::Quality{}` there — currently it
-  doesn't touch quality at all, a pre-existing gap this feature would otherwise expose as
-  stale markers surviving a "clear graph"). After either branch, call
+  entirely (line 203-206) or zeroing `.value` while keeping timestamps (line 213-221).
+  The latter branch previously left `it->quality` untouched, which would have surfaced as
+  stale quality markers surviving a "clear graph" — already fixed separately (see below),
+  ahead of this feature. After either branch, call
   `_pGraphQualityMarkers->rebuildFromSeries(graphIdx)`.
 - `plotResults()` (`.cpp:493-528`): right after `_pPlot->graph(i)->addData(timeData,
   value)` (line 519), add
@@ -173,35 +186,23 @@ state and calls `addData()`-equivalent on the matching curve only (or no-ops for
   `GraphIdx` instead of raw plot index — note this function currently loops
   `_pPlot->graphCount()` directly, which stays correct since overlays are invisible to
   `graphCount()`).
-- New slot `updateQualityMarkersVisibility()`: calls
-  `_pGraphQualityMarkers->setEnabled(_pGuiModel->showQualityMarkers())`.
 
-### 4. `src/models/guimodel.h`/`.cpp` — new toggle, mirroring `highlightSamples` exactly
-
-- `.h`: `bool showQualityMarkers() const;` / `void setShowQualityMarkers(bool);` /
-  `signal showQualityMarkersChanged();` / `bool _bShowQualityMarkers{true};` (pattern at
-  `guimodel.h:53,82,101`).
-- `.cpp`: getter/setter mirroring `highlightSamples()`/`setHighlightSamples()`
-  (`.cpp:87-99`); emit the new signal from `triggerUpdate()` (`.cpp:69-84`) alongside
-  `highlightSamplesChanged()`.
-- Not persisted to `SettingsModel`/project file — confirmed `highlightSamples` itself
-  isn't persisted either (transient GUI/view state), so this stays consistent.
-
-### 5. MainWindow UI wiring (mirrors `actionHighlightSamplePoints` exactly)
-
-- `mainwindow.ui`: new `QAction actionShowQualityMarkers` in the same View menu as
-  `actionHighlightSamplePoints`.
-- `mainwindow.cpp`: `connect(actionShowQualityMarkers, toggled, _pGuiModel,
-  setShowQualityMarkers)` (pattern at line 184); `connect(_pGuiModel,
-  showQualityMarkersChanged, _pGraphView, updateQualityMarkersVisibility)` (pattern at
-  line 217-218); initialize `actionShowQualityMarkers->setChecked(true)` where
-  `actionHighlightSamplePoints` is initialized (line 520).
+Markers are always shown — no user-facing toggle in v1 (see Open Questions).
 
 ## Testing
 
-`GraphView` has no existing unit tests (`tests/` has no `graphview/` directory) because it
-owns a live `ScopePlot`/`QCustomPlot` widget — this plan does not change that.
+`GraphView` had no existing unit tests before the prerequisite fix above added
+`tests/graphview/tst_graphview.cpp` (a real `GraphView` + `ScopePlot` instantiated
+headlessly, following the `tst_scopecontroller.cpp`/`tst_graphmenucontroller.cpp`
+pattern of constructing the model quintet directly). That file is now the natural home
+for `GraphQualityMarkers` lifecycle tests too, not just the style table:
 
+- **`tests/graphview/tst_graphview.cpp`**: extend with tests that resync/rebuild logic —
+  e.g. seed a `GraphDataSeries` with a mix of `Good`/`Degraded`/`Invalid`/`NoValue`
+  samples, call `updateGraphs()`, and assert the resulting overlay curves' data matches
+  the expected per-state bucketing. This is the part flagged as highest-risk during
+  review (manual lifecycle sync across six call sites in `GraphView`), so it should not
+  be left to manual verification alone.
 - **New `tests/graphview/tst_graphqualitystyle.cpp`**: pure table-driven tests of
   `GraphQualityStyle::scatterStyleFor()`/`displayText()` — no widget needed, follows the
   `tst_*.cpp` convention.
@@ -213,26 +214,30 @@ owns a live `ScopePlot`/`QCustomPlot` widget — this plan does not change that.
   session per `CLAUDE.md`): run the app against `DummyAdapter` configured to emit
   `Degraded`/`Invalid`/`NoValue` samples — `tests/integration/tst_dummyadapterquality.h/.cpp`
   already shows how to drive this at the protocol level — and visually confirm markers
-  render, track pan/zoom, follow axis switches, and respect the new toggle.
+  render, track pan/zoom, and follow axis switches.
 
 ## Open questions (flagged, not blocking)
 
-1. Exact shapes/colors above are a first proposal for confirmation, not a final spec.
-2. Imported/loaded project files (CSV, `.mbs`) have no per-sample quality today
+1. No user-facing on/off toggle in v1 — markers always render when present. Revisit only
+   if real usage shows them visually noisy; adding a toggle later is a small, additive
+   change (`GuiModel` property + one menu action), not a redesign.
+2. Exact shapes/colors above are a first proposal for confirmation, not a final spec.
+3. Imported/loaded project files (CSV, `.mbs`) have no per-sample quality today
    (`GraphDataSeries::setSamples()` is a 2-arg, quality-less overload) — persisting
    quality through file formats is a separate, out-of-scope change; overlays will simply
    be empty after a reload until that exists.
-3. Per-flag sub-symbols (e.g. a different shape for `Substituted` vs. `OldData`) are
+4. Per-flag sub-symbols (e.g. a different shape for `Substituted` vs. `OldData`) are
    deferred to tooltip text in v1 — revisit if users need to distinguish flags visually.
-4. Phase 2 stretch: extend `paintTimeStampToolTip()`/`updateTooltip()`
+5. Phase 2 stretch: extend `paintTimeStampToolTip()`/`updateTooltip()`
    (`.cpp` — tooltip code) to show `GraphQualityStyle::displayText()` for a hovered
    non-`Good` sample.
 
 ## Rollout
 
-1. `GraphQualityStyle` + its unit tests.
-2. `GraphQualityMarkers` + wiring into `GraphView`'s lifecycle (the six call sites above).
-3. `GuiModel` + `MainWindow` toggle.
+1. ~~Prerequisite `clearGraph()` quality-reset fix + `tst_graphview.cpp`~~ — done.
+2. `GraphQualityStyle` + its unit tests.
+3. `GraphQualityMarkers` (including lifecycle-sync tests in `tst_graphview.cpp`) + wiring
+   into `GraphView`'s lifecycle (the six call sites above).
 
 Each step: build → test → quality → `code-reviewer` agent, per `CLAUDE.md` (skip
 build/test/quality steps in a cloud/web container; CI covers them there).
