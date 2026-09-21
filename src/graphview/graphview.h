@@ -21,6 +21,7 @@ class GraphScale;
 class GraphViewZoom;
 class GraphMarkers;
 class GraphIndicators;
+class GraphQualityMarkers;
 class NoteHandling;
 class ScopePlot;
 
@@ -100,6 +101,7 @@ private:
     GraphViewZoom* _pGraphViewZoom;
     GraphMarkers* _pGraphMarkers;
     GraphIndicators* _pGraphIndicators;
+    GraphQualityMarkers* _pGraphQualityMarkers;
     NoteHandling* _pNoteHandling;
 
     QPoint _tooltipLocation;

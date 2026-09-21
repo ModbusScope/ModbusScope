@@ -1,6 +1,8 @@
 #ifndef TST_GRAPHVIEW_H
 #define TST_GRAPHVIEW_H
 
+#include "qcustomplot/qcustomplot.h"
+
 #include <QObject>
 
 class GuiModel;
@@ -21,7 +23,16 @@ private slots:
 
     void clearGraphWithMultipleActiveGraphsResetsQualityToNoValue();
 
+    void qualityMarkersBucketSamplesByState();
+    void qualityMarkersShowPaddedSamplesAsNoValue();
+    void qualityMarkersAppendLiveSample();
+    void qualityMarkersFollowGraphVisibility();
+
 private:
+    QList<QCPCurve*> markerCurves() const;
+    QCPCurve* markerCurve(QCPScatterStyle::ScatterShape shape) const;
+    int markerCount(QCPScatterStyle::ScatterShape shape) const;
+
     QWidget* _pHost = nullptr;
     ScopePlot* _pPlot = nullptr;
     GuiModel* _pGuiModel = nullptr;
