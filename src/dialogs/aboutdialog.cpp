@@ -33,6 +33,7 @@ AboutDialog::AboutDialog(UpdateNotify* pUpdateNotify, SettingsModel* pSettingsMo
 
     connect(_pUi->btnHomepage, &QPushButton::clicked, this, &AboutDialog::openHomePage);
     connect(_pUi->btnLicense, &QPushButton::clicked, this, &AboutDialog::openLicense);
+    connect(_pUi->btnRequestLicense, &QPushButton::clicked, this, &AboutDialog::openRequestLicense);
     connect(_pUi->btnLoadLicense, &QPushButton::clicked, this, &AboutDialog::loadLicense);
 
     setVersionInfo();
@@ -55,6 +56,11 @@ void AboutDialog::openHomePage(void)
 void AboutDialog::openLicense(void)
 {
     QDesktopServices::openUrl(QUrl("https://github.com/ModbusScope/ModbusScope/issues"));
+}
+
+void AboutDialog::openRequestLicense(void)
+{
+    QDesktopServices::openUrl(QUrl("https://modbusscope.com/"));
 }
 
 void AboutDialog::loadLicense(void)

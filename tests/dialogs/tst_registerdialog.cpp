@@ -211,6 +211,7 @@ void TestRegisterDialog::dataPointLimitWarningShownWhenExceeded()
     QVERIFY(warningLabel->text().contains("modbus"));
     QVERIFY(warningLabel->text().contains("5"));
     QVERIFY(warningLabel->text().contains("6"));
+    QVERIFY(warningLabel->text().contains("Request License"));
 }
 
 /*!

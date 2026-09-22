@@ -327,6 +327,12 @@ QString RegisterDialog::dataPointLimitWarningMessage() const
         }
     }
 
+    if (warnings.isEmpty())
+    {
+        return QString();
+    }
+
+    warnings.append(tr("A license removes this limit - see Help > About > Request License."));
     return warnings.join('\n');
 }
 
