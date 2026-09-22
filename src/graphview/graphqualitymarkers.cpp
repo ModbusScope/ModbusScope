@@ -31,6 +31,35 @@ static qint32 markerIndex(DataQuality::State state)
 }
 
 /*!
+ * \brief Returns the marker path for Invalid: a diamond with an inscribed cross.
+ *
+ * QCPScatterStyle has no built-in "diamond with a cross" shape, only circle/square variants
+ * (ssCrossCircle, ssCrossSquare), which fill the shape and then stroke a cross on top with the
+ * same pen. This builds the same thing for a diamond via ssCustom.
+ *
+ * Coordinates follow ssCustom's reference size of 6 (its drawShape() case scales the path by
+ * size/6): the diamond's half-width is 3, and the cross is inscribed at the diamond's edge
+ * (|x|+|y|=3, so x=y=1.5 on the diagonal) rather than spanning the full bounding box, matching how
+ * ssCrossCircle keeps its cross inside the circle instead of poking out of it.
+ */
+static QPainterPath invalidMarkerPath()
+{
+    QPainterPath path;
+    path.moveTo(-3, 0);
+    path.lineTo(0, -3);
+    path.lineTo(3, 0);
+    path.lineTo(0, 3);
+    path.closeSubpath();
+
+    path.moveTo(-1.5, -1.5);
+    path.lineTo(1.5, 1.5);
+    path.moveTo(-1.5, 1.5);
+    path.lineTo(1.5, -1.5);
+
+    return path;
+}
+
+/*!
  * \brief Returns the scatter style that represents \a state in the plot.
  *
  * Colors are fixed per quality state instead of following the signal color, so the same symbol
@@ -46,8 +75,11 @@ static QCPScatterStyle scatterStyle(DataQuality::State state)
     case DataQuality::State::Degraded:
         return QCPScatterStyle(QCPScatterStyle::ssTriangle, QColor(255, 140, 0), QColor(255, 140, 0), cMarkerSize);
     case DataQuality::State::Invalid:
-        return QCPScatterStyle(QCPScatterStyle::ssDiamond, GraphDataModel::lightRed, GraphDataModel::lightRed,
+    {
+        static const QPainterPath cInvalidPath = invalidMarkerPath();
+        return QCPScatterStyle(cInvalidPath, QPen(GraphDataModel::lightRed), QBrush(GraphDataModel::lightRed),
                                cMarkerSize);
+    }
     case DataQuality::State::NoValue:
         return QCPScatterStyle(QCPScatterStyle::ssSquare, Qt::gray, Qt::gray, cMarkerSize);
     case DataQuality::State::Good:

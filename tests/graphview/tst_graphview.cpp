@@ -100,11 +100,11 @@ void TestGraphView::qualityMarkersBucketSamplesByState()
     QCOMPARE(markerCurves().size(), 3);
 
     QCOMPARE(markerCount(QCPScatterStyle::ssTriangle), 1);
-    QCOMPARE(markerCount(QCPScatterStyle::ssDiamond), 2);
+    QCOMPARE(markerCount(QCPScatterStyle::ssCustom), 2);
     QCOMPARE(markerCount(QCPScatterStyle::ssSquare), 1);
 
     /* Markers carry the coordinates of the sample they mark */
-    const QCPCurve* pInvalidCurve = markerCurve(QCPScatterStyle::ssDiamond);
+    const QCPCurve* pInvalidCurve = markerCurve(QCPScatterStyle::ssCustom);
     QVERIFY(pInvalidCurve != nullptr);
     QCOMPARE(pInvalidCurve->data()->constBegin()->key, 3.0);
     QCOMPARE(pInvalidCurve->data()->constBegin()->value, 30.0);
@@ -130,13 +130,13 @@ void TestGraphView::qualityMarkersAppendLiveSample()
     _pGraphDataModel->add();
     _pGraphView->updateGraphs();
 
-    QCOMPARE(markerCount(QCPScatterStyle::ssDiamond), 0);
+    QCOMPARE(markerCount(QCPScatterStyle::ssCustom), 0);
 
     ResultDoubleList resultList;
     resultList.append(ResultDouble(0.0, DataQuality::State::Invalid));
     _pGraphView->plotResults(resultList);
 
-    QCOMPARE(markerCount(QCPScatterStyle::ssDiamond), 1);
+    QCOMPARE(markerCount(QCPScatterStyle::ssCustom), 1);
     QCOMPARE(markerCount(QCPScatterStyle::ssTriangle), 0);
 }
 
@@ -146,13 +146,13 @@ void TestGraphView::qualityMarkersFollowGraphVisibility()
     _pGraphDataModel->mutableDataSeries(GraphIdx(0))->add(1.0, 10.0, quality(DataQuality::State::Invalid));
     _pGraphView->updateGraphs();
 
-    QVERIFY(markerCurve(QCPScatterStyle::ssDiamond) != nullptr);
-    QVERIFY(markerCurve(QCPScatterStyle::ssDiamond)->visible());
+    QVERIFY(markerCurve(QCPScatterStyle::ssCustom) != nullptr);
+    QVERIFY(markerCurve(QCPScatterStyle::ssCustom)->visible());
 
     _pGraphDataModel->setVisible(GraphIdx(0), false);
     _pGraphView->handleGraphVisibilityChange(GraphIdx(0));
 
-    QVERIFY(!markerCurve(QCPScatterStyle::ssDiamond)->visible());
+    QVERIFY(!markerCurve(QCPScatterStyle::ssCustom)->visible());
 }
 
 QList<QCPCurve*> TestGraphView::markerCurves() const
