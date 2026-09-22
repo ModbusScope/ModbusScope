@@ -35,18 +35,21 @@ static qint32 markerIndex(DataQuality::State state)
  *
  * Colors are fixed per quality state instead of following the signal color, so the same symbol
  * always means the same thing regardless of which signal it belongs to. Invalid reuses the red
- * the legend already uses for invalid values.
+ * the legend already uses for invalid values. Shapes are solid-filled (pen and brush the same
+ * color) rather than outlines, so a marker fully covers the graph's own scatter dot underneath it
+ * instead of leaving it visible through the middle (e.g. when "highlight sample points" is on).
  */
 static QCPScatterStyle scatterStyle(DataQuality::State state)
 {
     switch (state)
     {
     case DataQuality::State::Degraded:
-        return QCPScatterStyle(QCPScatterStyle::ssTriangle, QColor(255, 140, 0), cMarkerSize);
+        return QCPScatterStyle(QCPScatterStyle::ssTriangle, QColor(255, 140, 0), QColor(255, 140, 0), cMarkerSize);
     case DataQuality::State::Invalid:
-        return QCPScatterStyle(QCPScatterStyle::ssCross, GraphDataModel::lightRed, cMarkerSize);
+        return QCPScatterStyle(QCPScatterStyle::ssDiamond, GraphDataModel::lightRed, GraphDataModel::lightRed,
+                               cMarkerSize);
     case DataQuality::State::NoValue:
-        return QCPScatterStyle(QCPScatterStyle::ssSquare, Qt::gray, cMarkerSize);
+        return QCPScatterStyle(QCPScatterStyle::ssSquare, Qt::gray, Qt::gray, cMarkerSize);
     case DataQuality::State::Good:
         break;
     }
