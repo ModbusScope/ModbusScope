@@ -14,6 +14,8 @@ private slots:
     void addAppendsInOrder();
     void addInsertsSortedWhenOutOfOrder();
     void addAllowsDuplicateTimestamps();
+    void addTwoArgOverloadDefaultsToGoodNoFlags();
+    void addThreeArgOverloadStoresQuality();
     void sizeIsEmptyClear();
     void setSamplesReplacesExistingData();
 

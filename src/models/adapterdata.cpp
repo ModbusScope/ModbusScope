@@ -76,6 +76,11 @@ int AdapterData::configVersion() const
     return _configVersion;
 }
 
+int AdapterData::protocolVersion() const
+{
+    return _protocolVersion;
+}
+
 QJsonObject AdapterData::schema() const
 {
     return _schema;
@@ -94,6 +99,42 @@ QJsonObject AdapterData::capabilities() const
 bool AdapterData::isMbcCompatible() const
 {
     return _capabilities.value("mbcCompatible").toBool();
+}
+
+/*!
+ * \brief Returns whether this adapter may report data-quality detail flags.
+ * \return True when capabilities.quality is present in the last adapter.describe response.
+ */
+bool AdapterData::reportsQuality() const
+{
+    return _capabilities.value("quality").isObject();
+}
+
+/*!
+ * \brief Returns the data-quality detail flag ids this adapter may report.
+ * \return capabilities.quality.flags, or an empty list when reportsQuality() is false.
+ */
+QStringList AdapterData::qualityFlags() const
+{
+    QStringList flags;
+    const QJsonArray flagsArray = _capabilities.value("quality").toObject().value("flags").toArray();
+    for (const auto& flag : flagsArray)
+    {
+        flags.append(flag.toString());
+    }
+    return flags;
+}
+
+/*!
+ * \brief Returns the adapter's own protocol mnemonic for a data-quality flag id.
+ * \param id A flag id, as returned by qualityFlags().
+ * \return capabilities.quality.protocolNames[id] (e.g. "SB" for "substituted"), or an empty string
+ * when not declared.
+ */
+QString AdapterData::qualityProtocolName(const QString& id) const
+{
+    const QJsonObject protocolNames = _capabilities.value("quality").toObject().value("protocolNames").toObject();
+    return protocolNames.value(id).toString();
 }
 
 QJsonObject AdapterData::license() const
@@ -157,6 +198,7 @@ void AdapterData::updateFromDescribe(const QJsonObject& describeResult)
     _name = describeResult.value("name").toString();
     _version = describeResult.value("version").toString();
     _configVersion = describeResult.value("configVersion").toInt(0);
+    _protocolVersion = describeResult.value("protocolVersion").toInt(0);
     _schema = describeResult.value("schema").toObject();
     _defaults = describeResult.value("defaults").toObject();
     _capabilities = describeResult.value("capabilities").toObject();

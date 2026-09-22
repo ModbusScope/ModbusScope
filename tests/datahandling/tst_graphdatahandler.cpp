@@ -10,7 +10,8 @@
 
 Q_DECLARE_METATYPE(Result<quint16>);
 
-using State = ResultState::State;
+using State = DataQuality::State;
+using Flag = DataQuality::Flag;
 
 void TestGraphDataHandler::init()
 {
@@ -78,7 +79,7 @@ void TestGraphDataHandler::error()
     QList<DataPoint> registerList;
     dataHandler.setupExpressions(_pGraphDataModel, registerList);
 
-    auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS);
+    auto regResults = ResultDoubleList() << ResultDouble(1, State::Good);
     dataHandler.handleRegisterData(regResults);
 
     QCOMPARE(dataHandler.expressionErrorPos(0), errorPos);
@@ -96,7 +97,7 @@ void TestGraphDataHandler::sameRegisterDifferentType()
     GraphDataHandler dataHandler;
     QList<DataPoint> registerList;
     dataHandler.setupExpressions(_pGraphDataModel, registerList);
-    auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS) << ResultDouble(1, State::SUCCESS);
+    auto regResults = ResultDoubleList() << ResultDouble(1, State::Good) << ResultDouble(1, State::Good);
     dataHandler.handleRegisterData(regResults);
 
     QCOMPARE(dataHandler.expressionErrorPos(0), -1);
@@ -137,8 +138,8 @@ void TestGraphDataHandler::graphData()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS) << ResultDouble(2, State::SUCCESS);
-    auto expected = ResultDoubleList() << ResultDouble(3, State::SUCCESS);
+    auto regResults = ResultDoubleList() << ResultDouble(1, State::Good) << ResultDouble(2, State::Good);
+    auto expected = ResultDoubleList() << ResultDouble(3, State::Good);
 
     QCOMPARE(doHandleRegisterData(regResults), expected);
 }
@@ -153,13 +154,13 @@ void TestGraphDataHandler::graphDataTwice()
     QList<DataPoint> registerList;
     dataHandler.setupExpressions(_pGraphDataModel, registerList);
 
-    auto regResults_1 = ResultDoubleList() << ResultDouble(1, State::SUCCESS) << ResultDouble(2, State::SUCCESS);
+    auto regResults_1 = ResultDoubleList() << ResultDouble(1, State::Good) << ResultDouble(2, State::Good);
     auto result_1 = dataHandler.handleRegisterData(regResults_1);
-    QCOMPARE(result_1, ResultDoubleList() << ResultDouble(3, State::SUCCESS));
+    QCOMPARE(result_1, ResultDoubleList() << ResultDouble(3, State::Good));
 
-    auto regResults_2 = ResultDoubleList() << ResultDouble(3, State::SUCCESS) << ResultDouble(4, State::SUCCESS);
+    auto regResults_2 = ResultDoubleList() << ResultDouble(3, State::Good) << ResultDouble(4, State::Good);
     auto result_2 = dataHandler.handleRegisterData(regResults_2);
-    QCOMPARE(result_2, ResultDoubleList() << ResultDouble(7, State::SUCCESS));
+    QCOMPARE(result_2, ResultDoubleList() << ResultDouble(7, State::Good));
 }
 
 void TestGraphDataHandler::graphData_fail()
@@ -169,10 +170,215 @@ void TestGraphDataHandler::graphData_fail()
 
     CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
 
-    auto regResults = ResultDoubleList() << ResultDouble(1, State::SUCCESS) << ResultDouble(0, State::INVALID);
-    auto expected = ResultDoubleList() << ResultDouble(0, State::INVALID) << ResultDouble(1, State::SUCCESS);
+    auto regResults = ResultDoubleList() << ResultDouble(1, State::Good) << ResultDouble(0, State::Invalid);
+    auto expected = ResultDoubleList() << ResultDouble(0, State::Invalid) << ResultDouble(1, State::Good);
 
     QCOMPARE(doHandleRegisterData(regResults), expected);
+}
+
+/*!
+ * \brief A successfully evaluated expression must be Degraded, not Good, when any contributing
+ * data point was Degraded, and must carry the union of the contributing points' flags.
+ */
+void TestGraphDataHandler::graphData_degradedInputPropagatesFlags()
+{
+    auto exprList = QStringList() << "${40001} + ${40002}";
+
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    auto regResults = ResultDoubleList() << ResultDouble(1, State::Degraded, Flag::Substituted)
+                                         << ResultDouble(2, State::Good);
+    auto expected = ResultDoubleList() << ResultDouble(3, State::Degraded, Flag::Substituted);
+
+    QCOMPARE(doHandleRegisterData(regResults), expected);
+}
+
+/*!
+ * \brief A failed evaluation must still carry the union of the contributing points' flags, not
+ * just their state.
+ */
+void TestGraphDataHandler::graphData_failedEvaluationUnionsInputFlags()
+{
+    auto exprList = QStringList() << "${40001} + ${40002}";
+
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    auto regResults = ResultDoubleList() << ResultDouble(1, State::Good)
+                                         << ResultDouble(0, State::Invalid, Flag::OldData);
+    auto expected = ResultDoubleList() << ResultDouble(0, State::Invalid, Flag::OldData);
+
+    QCOMPARE(doHandleRegisterData(regResults), expected);
+}
+
+/*!
+ * \brief An expression whose contributing data points are all still NoValue must itself be
+ * NoValue ("not started yet"), never Invalid ("broken") — see handleRegisterData().
+ */
+void TestGraphDataHandler::graphData_allNoValueInputsYieldsNoValueNotInvalid()
+{
+    auto exprList = QStringList() << "${40001} + ${40002}";
+
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    auto regResults = ResultDoubleList() << ResultDouble(0, State::NoValue) << ResultDouble(0, State::NoValue);
+    auto expected = ResultDoubleList() << ResultDouble(0, State::NoValue);
+
+    QCOMPARE(doHandleRegisterData(regResults), expected);
+}
+
+/*!
+ * \brief Flags reported on inputs that are all still NoValue are part of the aggregate too: the
+ * expression is NoValue, but must not lose them.
+ */
+void TestGraphDataHandler::graphData_allNoValueInputsKeepFlags()
+{
+    auto exprList = QStringList() << "${40001} + ${40002}";
+
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    auto regResults = ResultDoubleList() << ResultDouble(0, State::NoValue, Flag::OldData)
+                                         << ResultDouble(0, State::NoValue, Flag::Blocked);
+    auto expected = ResultDoubleList() << ResultDouble(0, State::NoValue, Flag::OldData | Flag::Blocked);
+
+    QCOMPARE(doHandleRegisterData(regResults), expected);
+}
+
+/*!
+ * \brief As soon as one contributing data point has any real state, a failed evaluation is a
+ * genuine Invalid again, not NoValue.
+ */
+void TestGraphDataHandler::graphData_partialNoValueWithInvalidYieldsInvalid()
+{
+    auto exprList = QStringList() << "${40001} + ${40002}";
+
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    auto regResults = ResultDoubleList() << ResultDouble(0, State::NoValue) << ResultDouble(0, State::Invalid);
+    auto expected = ResultDoubleList() << ResultDouble(0, State::Invalid);
+
+    QCOMPARE(doHandleRegisterData(regResults), expected);
+}
+
+/*!
+ * \brief A constant expression (no data point references) that evaluates successfully is Good
+ * with no flags, since it has no contributing data points to aggregate over.
+ */
+void TestGraphDataHandler::graphData_constantExpressionIsGoodNoFlags()
+{
+    auto exprList = QStringList() << "10 + 5";
+
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    auto expected = ResultDoubleList() << ResultDouble(15, State::Good);
+
+    QCOMPARE(doHandleRegisterData(ResultDoubleList()), expected);
+}
+
+/*!
+ * \brief A Degraded input that carries no recognised flag (the wire allows `state: degraded`
+ * without `flags`, and an unknown flag id is dropped on decode) must still make the expression
+ * Degraded: the state, not only the flag set, decides.
+ */
+void TestGraphDataHandler::graphData_degradedInputWithoutFlagsStaysDegraded()
+{
+    auto exprList = QStringList() << "${40001} + ${40002}";
+
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    auto regResults = ResultDoubleList() << ResultDouble(1, State::Degraded) << ResultDouble(2, State::Good);
+    auto expected = ResultDoubleList() << ResultDouble(3, State::Degraded);
+
+    QCOMPARE(doHandleRegisterData(regResults), expected);
+}
+
+/*!
+ * \brief A genuine syntax error must be reported as Invalid even while every input is still
+ * NoValue; only a failure caused by the missing inputs themselves is "not started yet".
+ */
+void TestGraphDataHandler::graphData_syntaxErrorWithAllNoValueInputsYieldsInvalid()
+{
+    auto exprList = QStringList() << "${40001}++";
+
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    auto regResults = ResultDoubleList() << ResultDouble(0, State::NoValue);
+    auto expected = ResultDoubleList() << ResultDouble(0, State::Invalid);
+
+    QCOMPARE(doHandleRegisterData(regResults), expected);
+}
+
+/*!
+ * \brief An expression that mixes '.' and ',' as decimal separators is malformed and must be
+ * Invalid even while every input is still NoValue.
+ */
+void TestGraphDataHandler::graphData_invalidExpressionWithAllNoValueInputsYieldsInvalid()
+{
+    auto exprList = QStringList() << "${40001} + 1.5 + 2,5";
+
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    auto regResults = ResultDoubleList() << ResultDouble(0, State::NoValue);
+    auto expected = ResultDoubleList() << ResultDouble(0, State::Invalid);
+
+    QCOMPARE(doHandleRegisterData(regResults), expected);
+}
+
+/*!
+ * \brief Fewer input results than the expression references is a protocol problem, not
+ * "not started yet": the expression must be Invalid rather than NoValue.
+ */
+void TestGraphDataHandler::graphData_missingInputResultsYieldsInvalid()
+{
+    auto exprList = QStringList() << "${40001} + ${40002}";
+
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    auto expected = ResultDoubleList() << ResultDouble(0, State::Invalid);
+
+    QCOMPARE(doHandleRegisterData(ResultDoubleList()), expected);
+}
+
+/*!
+ * \brief Two expressions sharing one flagged input are aggregated independently: an expression
+ * that does not reference the flagged data point must stay Good.
+ */
+void TestGraphDataHandler::graphData_sharedInputAggregatedPerExpression()
+{
+    auto exprList = QStringList() << "${40001}"
+                                  << "${40001} + ${40002}"
+                                  << "${40002}";
+
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    auto regResults = ResultDoubleList() << ResultDouble(1, State::Good)
+                                         << ResultDouble(2, State::Degraded, Flag::Substituted);
+    auto expected = ResultDoubleList() << ResultDouble(1, State::Good)
+                                       << ResultDouble(3, State::Degraded, Flag::Substituted)
+                                       << ResultDouble(2, State::Degraded, Flag::Substituted);
+
+    QCOMPARE(doHandleRegisterData(regResults), expected);
+}
+
+/*!
+ * \brief The same handler evaluated again with clean inputs must not carry over the previous
+ * cycle's state or flags.
+ */
+void TestGraphDataHandler::graphData_qualityDoesNotLeakBetweenCalls()
+{
+    auto exprList = QStringList() << "${40001}";
+
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    GraphDataHandler dataHandler;
+    QList<DataPoint> registerList;
+    dataHandler.setupExpressions(_pGraphDataModel, registerList);
+
+    auto flagged = ResultDoubleList() << ResultDouble(1, State::Degraded, Flag::Overflow);
+    auto flaggedExpected = ResultDoubleList() << ResultDouble(1, State::Degraded, Flag::Overflow);
+    QCOMPARE(dataHandler.handleRegisterData(flagged), flaggedExpected);
+
+    auto clean = ResultDoubleList() << ResultDouble(2, State::Good);
+    QCOMPARE(dataHandler.handleRegisterData(clean), ResultDoubleList() << ResultDouble(2, State::Good));
 }
 
 ResultDoubleList TestGraphDataHandler::doHandleRegisterData(ResultDoubleList modbusResults)

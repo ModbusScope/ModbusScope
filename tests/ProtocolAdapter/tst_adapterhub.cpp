@@ -256,6 +256,23 @@ void TestAdapterHub::stopSessionPurgesPendingStartForForceStoppedAdapters()
 }
 
 /*!
+ * \brief A degraded (active) manager can still owe its sessionStarted() when it is stopped; that
+ * pending start must be cancelled too, otherwise a later session that does not include this
+ * adapter would never see AdapterHub::sessionStarted().
+ */
+void TestAdapterHub::stopSessionPurgesPendingStartForActiveAdapters()
+{
+    AdapterHub hub;
+    auto* pDegraded = new FakeAdapterManager(QStringLiteral("iec104"), FakeAdapterManager::FakeState::Active, &hub);
+    hub._adapterManagers.insert(QStringLiteral("iec104"), pDegraded);
+    hub._pendingStartAdapters.insert(QStringLiteral("iec104"));
+
+    hub.stopSession();
+
+    QVERIFY(hub._pendingStartAdapters.isEmpty());
+}
+
+/*!
  * \brief Regression test: stopSession() must not fire AdapterHub::adapterReady() until every
  * manager in the sweep has been asked to stop, even when one manager (a degraded session)
  * emits adapterReady() synchronously from within its own stopSession() call. Previously

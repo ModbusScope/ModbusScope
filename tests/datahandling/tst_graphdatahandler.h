@@ -30,6 +30,19 @@ private slots:
     void graphDataTwice();
     void graphData_fail();
 
+    void graphData_degradedInputPropagatesFlags();
+    void graphData_failedEvaluationUnionsInputFlags();
+    void graphData_allNoValueInputsYieldsNoValueNotInvalid();
+    void graphData_allNoValueInputsKeepFlags();
+    void graphData_partialNoValueWithInvalidYieldsInvalid();
+    void graphData_constantExpressionIsGoodNoFlags();
+    void graphData_degradedInputWithoutFlagsStaysDegraded();
+    void graphData_syntaxErrorWithAllNoValueInputsYieldsInvalid();
+    void graphData_missingInputResultsYieldsInvalid();
+    void graphData_invalidExpressionWithAllNoValueInputsYieldsInvalid();
+    void graphData_sharedInputAggregatedPerExpression();
+    void graphData_qualityDoesNotLeakBetweenCalls();
+
 private:
     ResultDoubleList doHandleRegisterData(ResultDoubleList modbusResults);
 

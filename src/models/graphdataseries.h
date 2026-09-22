@@ -1,13 +1,16 @@
 #ifndef GRAPHDATASERIES_H
 #define GRAPHDATASERIES_H
 
+#include "util/result.h"
+
 #include <QList>
 
-//! Single sample of a signal: timestamp in milliseconds and the computed value
+//! Single sample of a signal: timestamp in milliseconds, the computed value, and its data quality
 struct GraphSample
 {
     double timestamp;
     double value;
+    DataQuality::Quality quality{};
 };
 
 class GraphDataSeries
@@ -31,6 +34,7 @@ public:
 
     void add(const GraphSample& sample);
     void add(double timestamp, double value);
+    void add(double timestamp, double value, const DataQuality::Quality& quality);
     void setSamples(const QList<double>& timestamps, const QList<double>& values);
 
     iterator begin();

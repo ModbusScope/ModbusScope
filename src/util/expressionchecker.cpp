@@ -109,7 +109,7 @@ bool ExpressionChecker::syntaxError()
 
 void ExpressionChecker::handleDataReady(ResultDoubleList resultList)
 {
-    _bValid = !resultList.isEmpty() && resultList.first().isValid();
+    _bValid = !resultList.isEmpty() && resultList.first().isUsable();
 
     if (_bValid)
     {

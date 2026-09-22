@@ -166,11 +166,11 @@ void TestDummyAdapter::readRegistersReturnsValidData()
     QCOMPARE(results.size(), registers.size());
     // The dummymodbusadapter stores the 0-based register offset as the register value:
     // register 40001 → offset 0, register 40002 → offset 1, register 40010 → offset 9.
-    QVERIFY2(results[0].isValid(), "Expected SUCCESS for register 40001");
+    QVERIFY2(results[0].isUsable(), "Expected SUCCESS for register 40001");
     QCOMPARE(results[0].value(), 0.0);
-    QVERIFY2(results[1].isValid(), "Expected SUCCESS for register 40002");
+    QVERIFY2(results[1].isUsable(), "Expected SUCCESS for register 40002");
     QCOMPARE(results[1].value(), 1.0);
-    QVERIFY2(results[2].isValid(), "Expected SUCCESS for register 40010");
+    QVERIFY2(results[2].isUsable(), "Expected SUCCESS for register 40010");
     QCOMPARE(results[2].value(), 9.0);
 }
 
@@ -197,9 +197,9 @@ void TestDummyAdapter::multipleReadCyclesAllSucceed()
         const auto results = spyData.takeLast().at(0).value<ResultDoubleList>();
         QCOMPARE(results.size(), registers.size());
         // The dummymodbusadapter stores the 0-based register offset as the value.
-        QVERIFY2(results[0].isValid(), "Expected SUCCESS for register 40001 on each cycle");
+        QVERIFY2(results[0].isUsable(), "Expected SUCCESS for register 40001 on each cycle");
         QCOMPARE(results[0].value(), 0.0);
-        QVERIFY2(results[1].isValid(), "Expected SUCCESS for register 40005 on each cycle");
+        QVERIFY2(results[1].isUsable(), "Expected SUCCESS for register 40005 on each cycle");
         QCOMPARE(results[1].value(), 4.0);
     }
 }

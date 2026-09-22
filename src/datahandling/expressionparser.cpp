@@ -27,18 +27,33 @@ QStringList ExpressionParser::processedExpressions() const
     return _processedExpressions;
 }
 
+/*!
+ * \brief Returns, for each expression, the indices into dataPoints() it references.
+ *
+ * One entry per expression passed to the constructor, in the same order. Indices are unique within
+ * an expression and ordered by first reference. A data point shared by several expressions appears
+ * in each of their lists; a constant expression has an empty list.
+ */
+QList<QList<int>> ExpressionParser::expressionDataPointIndices() const
+{
+    return _expressionDataPointIndices;
+}
+
 void ExpressionParser::parseExpressions(const QStringList& expressions)
 {
     _processedExpressions.clear();
     _dataPoints.clear();
+    _expressionDataPointIndices.clear();
 
     for (const QString& expression : expressions)
     {
-        _processedExpressions.append(processExpression(expression));
+        QList<int> dataPointIndices;
+        _processedExpressions.append(processExpression(expression, dataPointIndices));
+        _expressionDataPointIndices.append(dataPointIndices);
     }
 }
 
-QString ExpressionParser::processExpression(QString const& graphExpr)
+QString ExpressionParser::processExpression(QString const& graphExpr, QList<int>& dataPointIndices)
 {
     QString resultExpr = graphExpr;
     QRegularExpressionMatchIterator i = _findRegRegex.globalMatch(resultExpr);
@@ -59,8 +74,13 @@ QString ExpressionParser::processExpression(QString const& graphExpr)
             DataPoint dataPoint;
             if (processRegisterExpression(regDef, dataPoint))
             {
-                QString regFunc = constructInternalRegisterFunction(dataPoint, regDef.size());
-                resultExpr.replace(regDef, regFunc);
+                const int idx = findOrAddDataPoint(dataPoint);
+                if (!dataPointIndices.contains(idx))
+                {
+                    dataPointIndices.append(idx);
+                }
+
+                resultExpr.replace(regDef, constructInternalRegisterFunction(idx, regDef.size()));
             }
         }
     }
@@ -98,7 +118,7 @@ bool ExpressionParser::processRegisterExpression(const QString& regExpr, DataPoi
     return true;
 }
 
-QString ExpressionParser::constructInternalRegisterFunction(DataPoint const& dataPoint, int size)
+int ExpressionParser::findOrAddDataPoint(DataPoint const& dataPoint)
 {
     qsizetype idx = _dataPoints.indexOf(dataPoint);
     if (idx < 0)
@@ -107,6 +127,11 @@ QString ExpressionParser::constructInternalRegisterFunction(DataPoint const& dat
         idx = _dataPoints.size() - 1;
     }
 
+    return static_cast<int>(idx);
+}
+
+QString ExpressionParser::constructInternalRegisterFunction(int idx, int size)
+{
     /* Add dummy whitespaces to make sure positions in internal representations match visible expressions */
     QString regIdx = QString::number(idx);
     const int spacesCount = qMax(0, size - 3 - regIdx.size()); /* ignore ${} and idx string length */

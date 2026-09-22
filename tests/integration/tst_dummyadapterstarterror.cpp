@@ -64,7 +64,7 @@ void TestDummyAdapterStartError::startWithInvalidExpressionKeepsAdapterAliveAndP
     }
     const auto results = spyData.at(0).at(0).value<ResultDoubleList>();
     QCOMPARE(results.size(), 1);
-    QVERIFY2(!results[0].isValid(), "Expected an invalid result for the never-configured register");
+    QVERIFY2(!results[0].isUsable(), "Expected an invalid result for the never-configured register");
 
     /* Prove the real subprocess is still alive and responsive — not just that the client-side
        state machine thinks so — by driving a full stop/reconfigure/restart cycle against it with
@@ -88,7 +88,7 @@ void TestDummyAdapterStartError::startWithInvalidExpressionKeepsAdapterAliveAndP
     QVERIFY2(spyRetryData.wait(cReadTimeoutMs), "readDataResult not emitted after successful retry");
     const auto retryResults = spyRetryData.at(0).at(0).value<ResultDoubleList>();
     QCOMPARE(retryResults.size(), 1);
-    QVERIFY2(retryResults[0].isValid(), "Expected a real SUCCESS result from the still-running adapter process");
+    QVERIFY2(retryResults[0].isUsable(), "Expected a real SUCCESS result from the still-running adapter process");
 }
 
 QTEST_GUILESS_MAIN(TestDummyAdapterStartError)

@@ -4,7 +4,7 @@
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
 
-using State = ResultState::State;
+using State = DataQuality::State;
 using ExpressionState = GraphData::ExpressionState;
 
 ExpressionStatus::ExpressionStatus(GraphDataModel* pGraphDataModel, SettingsModel* pSettingsModel, QObject* parent)
@@ -91,7 +91,7 @@ void ExpressionStatus::verifyExpression(QString const& expression, QList<deviceI
     ResultDoubleList valueList;
     while (valueList.count() < count)
     {
-        valueList.append(ResultDouble(1, State::SUCCESS));
+        valueList.append(ResultDouble(1, State::Good));
     }
 
     _checker.checkWithValues(valueList);

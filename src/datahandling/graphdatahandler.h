@@ -25,6 +25,7 @@ public:
 private:
     QList<GraphIdx> _activeIndexList;
     QList<QMuParser> _valueParsers;
+    QList<QList<int>> _expressionDataPointIndices; //!< Parallel to _valueParsers
 };
 
 #endif // GRAPHDATAHANDLER_H
