@@ -37,6 +37,7 @@ public:
 private slots:
     void openHomePage(void);
     void openLicense(void);
+    void openRequestLicense(void);
     void loadLicense(void);
 
 private:
