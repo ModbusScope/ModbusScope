@@ -28,6 +28,9 @@ signals:
 public slots:
     void handleCloseTab(int index);
 
+private slots:
+    void confirmAndCloseTab(int index);
+
 private:
     QToolButton* _addButton = nullptr;
 };

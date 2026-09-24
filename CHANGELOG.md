@@ -8,6 +8,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
   * The adapter is started and managed by ModbusScope
   * Adapter configuration is stored in the project file
 * Show a message in the graph area when no registers are configured yet
+* Ask for confirmation before removing a connection or device tab in Settings
 
 ### Fixed
 

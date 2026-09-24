@@ -1,5 +1,7 @@
 #include "addabletabwidget.h"
 
+#include <QMessageBox>
+
 AddableTabWidget::AddableTabWidget(QWidget* parent) : QTabWidget(parent)
 {
     _addButton = new QToolButton(this);
@@ -11,7 +13,27 @@ AddableTabWidget::AddableTabWidget(QWidget* parent) : QTabWidget(parent)
     setTabsClosable(false);
 
     connect(_addButton, &QToolButton::clicked, this, &AddableTabWidget::addTabRequested);
-    connect(this, &QTabWidget::tabCloseRequested, this, &AddableTabWidget::handleCloseTab);
+    connect(this, &QTabWidget::tabCloseRequested, this, &AddableTabWidget::confirmAndCloseTab);
+}
+
+//! Asks the user to confirm before removing a tab; kept separate from handleCloseTab() so that
+//! slot stays a direct, non-interactive removal (used programmatically, e.g. by tests).
+void AddableTabWidget::confirmAndCloseTab(int index)
+{
+    if (index < 0 || index >= count())
+    {
+        return;
+    }
+
+    const QMessageBox::StandardButton reply = QMessageBox::question(
+      this, tr("Remove tab"),
+      tr("Are you sure you want to remove \"%1\"?\nAny settings on this tab will be lost.").arg(tabText(index)),
+      QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+
+    if (reply == QMessageBox::Yes)
+    {
+        handleCloseTab(index);
+    }
 }
 
 void AddableTabWidget::handleCloseTab(int index)
