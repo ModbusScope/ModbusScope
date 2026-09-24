@@ -54,6 +54,7 @@ ModbusScope documentation
    Polling and sample rate <explanation/polling-and-sample-rate>
    How expressions work <explanation/expressions>
    Diagnostic logs <explanation/diagnostic-logs>
+   Licensing <explanation/licensing>
 
 .. toctree::
    :maxdepth: 1

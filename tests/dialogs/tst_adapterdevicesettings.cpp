@@ -1313,6 +1313,7 @@ void TestAdapterDeviceSettings::warningLabelShowsForOverLimitAdapter()
     QVERIFY(warningLabel->text().contains("adapterA"));
     QVERIFY(warningLabel->text().contains("1"));
     QVERIFY(warningLabel->text().contains("2"));
+    QVERIFY(warningLabel->text().contains("Request License"));
 }
 
 //! Reproduces the real Modbus adapter's describe response, where the schema's maxItems (a
