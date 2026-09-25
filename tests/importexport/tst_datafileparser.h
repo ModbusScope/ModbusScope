@@ -29,6 +29,7 @@ private slots:
 
     void parseModbusScopeQuality();
     void parseModbusScopeQualityOddColumns();
+    void parseModbusScopeQualityMissingLabel();
 
 private:
 

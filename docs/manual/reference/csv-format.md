@@ -23,7 +23,7 @@ Time (ms);Signal 1;Signal 2;Signal 3
 
 ## Data quality columns
 
-Files written by ModbusScope contain a `//Quality;1` header line. It means every signal column is directly followed by a quality column for that signal:
+Files written by ModbusScope contain a `//Quality;1` header line, written with the file's field separator (`//Quality,1` in a comma-separated file). It means every signal column is directly followed by a quality column for that signal. Quality column labels end with `(quality)`:
 
 ```text
 //Quality;1
@@ -46,7 +46,7 @@ The quality code is `state + flags`:
 | +64 | Overflow |
 | +128 | Old data |
 
-For example, `129` is Degraded with Old data. On import, an empty quality cell reads as Good, unknown flag bits are ignored and an unknown state reads as Invalid. Files without the `//Quality` line load with every sample marked Good.
+For example, `129` is Degraded with Old data. On import, the value of an Invalid or No value sample is read as 0, an empty quality cell reads as Good, unknown flag bits are ignored and an unknown state reads as Invalid. Files without the `//Quality` line load with every sample marked Good.
 
 ## Separators (export)
 

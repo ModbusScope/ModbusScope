@@ -231,8 +231,15 @@ QString CsvData::cModbusScopeQuality = QString(
     "Time (ms);Temp;Temp (quality);Press;Press (quality)"           "\n"\
     "0;21,5;0;1,02;0"                                               "\n"\
     "1000;21,6;129;1,02;"                                           "\n"\
-    "2000;0;2;1,03;0"                                               "\n"\
-    "3000;0;3;1,04;-1"                                              "\n"\
+    "2000;7;2;1,03;0"                                               "\n"\
+    "3000;8;3;1,04;-1"                                              "\n"\
+);
+
+QString CsvData::cModbusScopeQualityMissingLabel = QString(
+    "//ModbusScope version;4.0.0"                                   "\n"\
+    "//Quality;1"                                                   "\n"\
+    "Time (ms);Temp;Press;Flow;Level"                               "\n"\
+    "0;21,5;1,02;3;4"                                               "\n"\
 );
 
 QString CsvData::cModbusScopeQualityOddColumns = QString(

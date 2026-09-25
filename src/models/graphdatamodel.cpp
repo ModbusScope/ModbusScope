@@ -522,10 +522,34 @@ void GraphDataModel::add(QList<QString> labelList)
 }
 
 /*!
+ * \brief Returns whether \a qualities holds one quality per sample of every graph in \a data.
+ */
+static bool isQualityAligned(const QList<double>& timeData,
+                             const QList<QList<double> >& data,
+                             const QList<QList<DataQuality::Quality> >& qualities)
+{
+    if (qualities.size() != data.size())
+    {
+        return false;
+    }
+
+    for (qsizetype idx = 0; idx < data.size(); idx++)
+    {
+        if (qualities[idx].size() != data[idx].size() || qualities[idx].size() != timeData.size())
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/*!
  * \brief Replaces the data of all graphs.
  * \param timeData Shared timestamps for all graphs.
  * \param data Per-graph values, aligned with \a timeData.
  * \param qualities Per-graph data quality, aligned with \a data; empty when all samples are Good.
+ *        Qualities that do not match \a data sample for sample are dropped, so all samples load as Good.
  */
 void GraphDataModel::setAllData(QList<double> timeData,
                                 QList<QList<double> > data,
@@ -536,7 +560,7 @@ void GraphDataModel::setAllData(QList<double> timeData,
         return;
     }
 
-    if (!qualities.isEmpty() && qualities.size() != data.size())
+    if (!isQualityAligned(timeData, data, qualities))
     {
         qualities.clear();
     }

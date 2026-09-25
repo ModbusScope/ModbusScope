@@ -167,6 +167,12 @@ void DataFileHandler::selectDataExportFile()
     }
 }
 
+/*!
+ * \brief Appends one line of logged data to the data file, when writing during logging is enabled.
+ * \param timeData Timestamp of the line.
+ * \param dataValues Value of each active signal.
+ * \param qualities Data quality of each active signal, aligned with \a dataValues.
+ */
 void DataFileHandler::exportDataLine(double timeData, QList<double> dataValues, QList<DataQuality::Quality> qualities)
 {
     _pDataFileExporter->exportDataLine(timeData, dataValues, qualities);

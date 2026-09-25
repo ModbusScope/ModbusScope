@@ -215,6 +215,11 @@ bool DataFileParser::processDataFile(QTextStream* pDataStream, FileData* pData)
 
         if (bQualityColumns)
         {
+            bRet = hasQualityLabels(pData->dataLabel);
+        }
+
+        if (bRet && bQualityColumns)
+        {
             // Remove quality labels, which follow their signal label
             for (qint32 i = static_cast<qint32>(signalCount); i > 0; i--)
             {
@@ -275,20 +280,53 @@ void DataFileParser::splitQualityColumns(FileData* pData)
 
     for (qint32 col = 0; col + 1 < pData->dataRows.size(); col += 2)
     {
-        valueRows.append(pData->dataRows[col]);
+        QList<double> values = pData->dataRows[col];
 
         QList<DataQuality::Quality> qualities;
         const QList<double>& qualityColumn = pData->dataRows[col + 1];
         qualities.reserve(qualityColumn.size());
-        for (double number : qualityColumn)
+        for (qsizetype idx = 0; idx < qualityColumn.size(); idx++)
         {
-            qualities.append(qualityFromNumber(number));
+            const DataQuality::Quality quality = qualityFromNumber(qualityColumn[idx]);
+
+            /* Unusable samples are stored as zero, as during logging */
+            if (quality.state == DataQuality::State::Invalid || quality.state == DataQuality::State::NoValue)
+            {
+                values[idx] = 0;
+            }
+            qualities.append(quality);
         }
+
+        valueRows.append(values);
         qualityRows.append(qualities);
     }
 
     pData->dataRows = valueRows;
     pData->qualityRows = qualityRows;
+}
+
+/*!
+ * \brief Checks that every second signal label names a quality column.
+ *
+ * Emits a parse error when a label does not end with "(quality)", so a file with a quality marker
+ * but plain signal columns is rejected instead of loading with signals silently missing.
+ * \param signalLabels Signal labels without the time label, value and quality labels alternating.
+ * \return True when every quality column label is valid.
+ */
+bool DataFileParser::hasQualityLabels(const QStringList& signalLabels)
+{
+    for (qint32 i = 1; i < signalLabels.size(); i += 2)
+    {
+        if (!signalLabels[i].endsWith("(quality)", Qt::CaseInsensitive))
+        {
+            emit parseErrorOccurred(QString(tr("Incorrect graph data found. "
+                                               "<br><br>Expected a quality column instead of \'%1\'."))
+                                      .arg(signalLabels[i]));
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /*!

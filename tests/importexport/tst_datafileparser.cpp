@@ -564,9 +564,10 @@ void TestDataFileParser::parseModbusScopeQuality()
     QCOMPARE(fileData.timeRow, QList<double>() << 0 << 1000 << 2000 << 3000);
     QCOMPARE(fileData.dataLabel, QStringList() << "Temp" << "Press");
 
+    /* Values of Invalid and NoValue samples are read as 0 */
     QList<QList<double> > dataList;
     dataList.append(QList<double>() << 21.5 << 21.6 << 0 << 0);
-    dataList.append(QList<double>() << 1.02 << 1.02 << 1.03 << 1.04);
+    dataList.append(QList<double>() << 1.02 << 1.02 << 1.03 << 0);
     QCOMPARE(fileData.dataRows, dataList);
 
     QCOMPARE(fileData.colors, QList<QColor>() << QColor("#000000") << QColor("#0000FF"));
@@ -603,6 +604,29 @@ void TestDataFileParser::parseModbusScopeQualityOddColumns()
     dataParserModel.setColumn(static_cast<quint32>(0));
     dataParserModel.setTimeInMilliSeconds(true);
 
+    QVERIFY(!dataFileParser.processDataFile(&dataStream, &fileData));
+    QCOMPARE(spyParseError.count(), 1);
+}
+
+void TestDataFileParser::parseModbusScopeQualityMissingLabel()
+{
+    DataParserModel dataParserModel;
+    QTextStream dataStream(&CsvData::cModbusScopeQualityMissingLabel);
+    DataFileParser::FileData fileData;
+    DataFileParser dataFileParser(&dataParserModel);
+
+    QSignalSpy spyParseError(&dataFileParser, &DataFileParser::parseErrorOccurred);
+
+    dataParserModel.setFieldSeparator(QChar(';'));
+    dataParserModel.setGroupSeparator(QChar(' '));
+    dataParserModel.setDecimalSeparator(QChar(','));
+    dataParserModel.setCommentSequence(QString("//"));
+    dataParserModel.setLabelRow(static_cast<quint32>(2));
+    dataParserModel.setDataRow(static_cast<quint32>(3));
+    dataParserModel.setColumn(static_cast<quint32>(0));
+    dataParserModel.setTimeInMilliSeconds(true);
+
+    /* An even column count alone is not enough: every second column must be a quality column */
     QVERIFY(!dataFileParser.processDataFile(&dataStream, &fileData));
     QCOMPARE(spyParseError.count(), 1);
 }

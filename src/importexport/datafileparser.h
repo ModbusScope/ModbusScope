@@ -42,6 +42,7 @@ private:
     bool readLineFromFile(QTextStream *pDataStream, QString *pLine);
     qint64 parseDateTime(QString rawData, bool *bOk);
     bool parseNoteField(QStringList noteFieldList, Note * pNote);
+    bool hasQualityLabels(const QStringList& signalLabels);
     void splitQualityColumns(FileData* pData);
     static DataQuality::Quality qualityFromNumber(double number);
     double parseDouble(QString strNumber, bool* bOk);
