@@ -128,4 +128,112 @@ Flags flagsFromIds(const QStringList& ids, QStringList& unknownIds)
     return flags;
 }
 
+//! Number of bits reserved for the state in a data file quality code; the flags sit above them.
+static constexpr quint32 cExportStateBits = 4;
+static constexpr quint32 cExportStateMask = (1u << cExportStateBits) - 1u;
+
+/*!
+ * \brief Encodes \a quality as the numeric quality code stored in a data file.
+ *
+ * The code is \c state \c | \c (flags \c << \c 4) with Good=0, Degraded=1, Invalid=2 and
+ * NoValue=3. The mapping is explicit so the file format does not depend on the enum order.
+ */
+quint32 toExportCode(const Quality& quality)
+{
+    quint32 stateCode = 0;
+    switch (quality.state)
+    {
+    case State::Good:
+        stateCode = 0;
+        break;
+    case State::Degraded:
+        stateCode = 1;
+        break;
+    case State::Invalid:
+        stateCode = 2;
+        break;
+    case State::NoValue:
+        stateCode = 3;
+        break;
+    }
+
+    quint32 flagCode = 0;
+    if (quality.flags.testFlag(Flag::Substituted))
+    {
+        flagCode |= 1u << 0;
+    }
+    if (quality.flags.testFlag(Flag::Blocked))
+    {
+        flagCode |= 1u << 1;
+    }
+    if (quality.flags.testFlag(Flag::Overflow))
+    {
+        flagCode |= 1u << 2;
+    }
+    if (quality.flags.testFlag(Flag::OldData))
+    {
+        flagCode |= 1u << 3;
+    }
+
+    return stateCode | (flagCode << cExportStateBits);
+}
+
+/*!
+ * \brief Decodes a numeric quality code read from a data file.
+ *
+ * Unknown flag bits are ignored. An unknown state decodes as Invalid, so unrecognised input
+ * never looks like a usable value. Good with flags is returned as Degraded.
+ *
+ * \param code The quality code as written by toExportCode().
+ * \return The decoded quality.
+ */
+Quality fromExportCode(quint32 code)
+{
+    Quality quality;
+
+    switch (code & cExportStateMask)
+    {
+    case 0:
+        quality.state = State::Good;
+        break;
+    case 1:
+        quality.state = State::Degraded;
+        break;
+    case 2:
+        quality.state = State::Invalid;
+        break;
+    case 3:
+        quality.state = State::NoValue;
+        break;
+    default:
+        quality.state = State::Invalid;
+        break;
+    }
+
+    const quint32 flagCode = code >> cExportStateBits;
+    if (flagCode & (1u << 0))
+    {
+        quality.flags |= Flag::Substituted;
+    }
+    if (flagCode & (1u << 1))
+    {
+        quality.flags |= Flag::Blocked;
+    }
+    if (flagCode & (1u << 2))
+    {
+        quality.flags |= Flag::Overflow;
+    }
+    if (flagCode & (1u << 3))
+    {
+        quality.flags |= Flag::OldData;
+    }
+
+    if (quality.flags && quality.state == State::Good)
+    {
+        quality.state = State::Degraded;
+    }
+
+    return quality;
+}
+
 } // namespace DataQuality

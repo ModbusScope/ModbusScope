@@ -1,6 +1,8 @@
 #ifndef DATAFILEHANDLER_H
 #define DATAFILEHANDLER_H
 
+#include "util/result.h"
+
 #include <QFile>
 #include <QObject>
 
@@ -41,7 +43,7 @@ public slots:
     void selectDataImportFile();
     void selectDataExportFile();
 
-    void exportDataLine(double timeData, QList<double> dataValues);
+    void exportDataLine(double timeData, QList<double> dataValues, QList<DataQuality::Quality> qualities);
     void rewriteDataFile(void);
 
     void parseDataFile();

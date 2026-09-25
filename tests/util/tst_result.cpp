@@ -103,4 +103,67 @@ void TestResult::setStateKeepsFlagsOnOtherStates()
     QCOMPARE(result.flags(), Flags(Flag::OldData));
 }
 
+/*!
+ * \brief The numeric codes are part of the data file format and must stay stable.
+ */
+void TestResult::exportCodeValues()
+{
+    using DataQuality::Quality;
+    using DataQuality::toExportCode;
+
+    QCOMPARE(toExportCode(Quality{ State::Good, Flag::NoFlags }), 0u);
+    QCOMPARE(toExportCode(Quality{ State::Degraded, Flag::NoFlags }), 1u);
+    QCOMPARE(toExportCode(Quality{ State::Invalid, Flag::NoFlags }), 2u);
+    QCOMPARE(toExportCode(Quality{ State::NoValue, Flag::NoFlags }), 3u);
+
+    QCOMPARE(toExportCode(Quality{ State::Degraded, Flag::Substituted }), 17u);
+    QCOMPARE(toExportCode(Quality{ State::Degraded, Flag::Blocked }), 33u);
+    QCOMPARE(toExportCode(Quality{ State::Degraded, Flag::Overflow }), 65u);
+    QCOMPARE(toExportCode(Quality{ State::Degraded, Flag::OldData }), 129u);
+}
+
+void TestResult::exportCodeRoundTrip()
+{
+    const QList<State> states{ State::Good, State::Degraded, State::Invalid, State::NoValue };
+
+    for (State state : states)
+    {
+        for (quint32 flagBits = 0; flagBits < 16; flagBits++)
+        {
+            const Flags flags = Flags::fromInt(flagBits);
+            if (state == State::Good && flags)
+            {
+                continue;
+            }
+
+            const DataQuality::Quality quality{ state, flags };
+            QCOMPARE(DataQuality::fromExportCode(DataQuality::toExportCode(quality)), quality);
+        }
+    }
+}
+
+void TestResult::exportCodeIgnoresUnknownFlagBits()
+{
+    const DataQuality::Quality quality = DataQuality::fromExportCode(1u | (1u << 4) | (1u << 20));
+
+    QCOMPARE(quality.state, State::Degraded);
+    QCOMPARE(quality.flags, Flags(Flag::Substituted));
+}
+
+void TestResult::exportCodeUnknownStateIsInvalid()
+{
+    const DataQuality::Quality quality = DataQuality::fromExportCode(7u);
+
+    QCOMPARE(quality.state, State::Invalid);
+    QCOMPARE(quality.flags, Flags(Flag::NoFlags));
+}
+
+void TestResult::exportCodeGoodWithFlagsIsDegraded()
+{
+    const DataQuality::Quality quality = DataQuality::fromExportCode(128u);
+
+    QCOMPARE(quality.state, State::Degraded);
+    QCOMPARE(quality.flags, Flags(Flag::OldData));
+}
+
 QTEST_GUILESS_MAIN(TestResult)

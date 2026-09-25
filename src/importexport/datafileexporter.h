@@ -1,6 +1,8 @@
 #ifndef DATAFILEEXPORTER_H
 #define DATAFILEEXPORTER_H
 
+#include "util/result.h"
+
 #include <QObject>
 #include <QStringList>
 
@@ -30,7 +32,7 @@ public:
 signals:
 
 public slots:
-    void exportDataLine(double timeData, QList<double> dataValues);
+    void exportDataLine(double timeData, QList<double> dataValues, QList<DataQuality::Quality> qualities);
     void rewriteDataFile(void);
 
 private:
@@ -49,7 +51,7 @@ private:
     QStringList constructDataHeader(bool bDuringLog);
     void createNoteRows(QStringList& noteRows);
     QString createPropertyRow(registerProperty prop);
-    QString formatData(double timeData, QList<double> dataValues);
+    QString formatData(double timeData, QList<double> dataValues, QList<DataQuality::Quality> qualities);
     bool writeToFile(QString filePath, QStringList logData);
     void clearFile(QString filePath);
 

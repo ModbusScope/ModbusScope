@@ -521,12 +521,27 @@ void GraphDataModel::add(QList<QString> labelList)
     }
 }
 
-void GraphDataModel::setAllData(QList<double> timeData, QList<QList<double> > data)
+/*!
+ * \brief Replaces the data of all graphs.
+ * \param timeData Shared timestamps for all graphs.
+ * \param data Per-graph values, aligned with \a timeData.
+ * \param qualities Per-graph data quality, aligned with \a data; empty when all samples are Good.
+ */
+void GraphDataModel::setAllData(QList<double> timeData,
+                                QList<QList<double> > data,
+                                QList<QList<DataQuality::Quality> > qualities)
 {
-    if (data.size() == size())
+    if (data.size() != size())
     {
-        emit graphsAddData(timeData, data);
+        return;
     }
+
+    if (!qualities.isEmpty() && qualities.size() != data.size())
+    {
+        qualities.clear();
+    }
+
+    emit graphsAddData(timeData, data, qualities);
 }
 
 void GraphDataModel::removeRegister(GraphIdx idx)

@@ -57,7 +57,7 @@ public slots:
     void changeSelectedGraph(GraphIdx graphIdx);
     void bringToFront(ActiveIdx activeGraphIdx);
 
-    void addData(QList<double> timeData, QList<QList<double> > data);
+    void addData(QList<double> timeData, QList<QList<double> > data, QList<QList<DataQuality::Quality> > qualities);
     void handleGraphVisibilityChange(GraphIdx graphIdx);
     void rescalePlot();
     void plotResults(ResultDoubleList resultList);
@@ -65,7 +65,7 @@ public slots:
 
 signals:
     void cursorValueUpdate();
-    void dataAddedToPlot(double timeData, QList<double> dataList);
+    void dataAddedToPlot(double timeData, QList<double> dataList, QList<DataQuality::Quality> qualityList);
     void afterGraphUpdate();
 
 private slots:

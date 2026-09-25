@@ -167,9 +167,9 @@ void DataFileHandler::selectDataExportFile()
     }
 }
 
-void DataFileHandler::exportDataLine(double timeData, QList<double> dataValues)
+void DataFileHandler::exportDataLine(double timeData, QList<double> dataValues, QList<DataQuality::Quality> qualities)
 {
-    _pDataFileExporter->exportDataLine(timeData, dataValues);
+    _pDataFileExporter->exportDataLine(timeData, dataValues, qualities);
 }
 
 void DataFileHandler::rewriteDataFile(void)
@@ -218,7 +218,7 @@ void DataFileHandler::parseDataFile()
                 }
             }
 
-            _pGraphDataModel->setAllData(data.timeRow, data.dataRows);
+            _pGraphDataModel->setAllData(data.timeRow, data.dataRows, data.qualityRows);
 
             _pNoteModel->clear();
             if (!data.notes.isEmpty())

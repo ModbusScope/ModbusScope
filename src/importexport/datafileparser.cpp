@@ -5,6 +5,9 @@
 #include <QDateTime>
 #include <QIODevice>
 
+#include <cmath>
+#include <limits>
+
 const QString DataFileParser::_cDatePattern =
   QString(R"(\s*(\d{1,2})[\-\/\s](\d{1,2})[\-\/\s](\d{4})\s*([0-2][0-9]):([0-5][0-9]):([0-5][0-9])[.,]?(\d{0,3}))");
 const QString DataFileParser::_cTrimStrimPattern = QString(R"(\"?(.[^\"]*)\"?)");
@@ -29,6 +32,7 @@ DataFileParser::~DataFileParser()
 bool DataFileParser::processDataFile(QTextStream* pDataStream, FileData* pData)
 {
     bool bRet = true;
+    bool bQualityColumns = false;
     QString line;
     quint32 lineIdx = 0;
 
@@ -114,6 +118,10 @@ bool DataFileParser::processDataFile(QTextStream* pDataStream, FileData* pData)
                         }
                     }
                 }
+                else if (static_cast<QString>(idList.first()).toLower() == "//quality")
+                {
+                    bQualityColumns = (idList.size() > 1) && (idList[1].trimmed() == "1");
+                }
                 else if (static_cast<QString>(idList.first()).toLower() == "//note")
                 {
                     Note note;
@@ -156,10 +164,24 @@ bool DataFileParser::processDataFile(QTextStream* pDataStream, FileData* pData)
         }
     }
 
+    quint32 signalCount = _expectedFields - 1;
+    if (bRet && bQualityColumns)
+    {
+        /* Every signal column is followed by its quality column */
+        if ((signalCount % 2) != 0)
+        {
+            emit parseErrorOccurred(tr("Incorrect graph data found. "
+                                       "<br><br>Every signal column must be followed by a quality column."));
+            bRet = false;
+        }
+
+        signalCount /= 2;
+    }
+
     if (bRet)
     {
         /* Clear color list when size is not ok */
-        if ((pData->colors.size() + 1) != static_cast<int>(_expectedFields))
+        if (pData->colors.size() != static_cast<int>(signalCount))
         {
             pData->colors.clear();
         }
@@ -190,6 +212,15 @@ bool DataFileParser::processDataFile(QTextStream* pDataStream, FileData* pData)
 
         // Remove time label from data
         pData->dataLabel.removeFirst();
+
+        if (bQualityColumns)
+        {
+            // Remove quality labels, which follow their signal label
+            for (qint32 i = static_cast<qint32>(signalCount); i > 0; i--)
+            {
+                pData->dataLabel.removeAt(2 * i - 1);
+            }
+        }
     }
 
     if (bRet)
@@ -223,7 +254,58 @@ bool DataFileParser::processDataFile(QTextStream* pDataStream, FileData* pData)
         pData->dataRows.removeFirst();
     }
 
+    if (bRet && bQualityColumns)
+    {
+        splitQualityColumns(pData);
+    }
+
     return bRet;
+}
+
+/*!
+ * \brief Moves the quality columns out of \a pData dataRows into qualityRows.
+ *
+ * Expects dataRows to hold value and quality columns alternately, starting with a value column.
+ * \param pData Parsed file data, updated in place.
+ */
+void DataFileParser::splitQualityColumns(FileData* pData)
+{
+    QList<QList<double> > valueRows;
+    QList<QList<DataQuality::Quality> > qualityRows;
+
+    for (qint32 col = 0; col + 1 < pData->dataRows.size(); col += 2)
+    {
+        valueRows.append(pData->dataRows[col]);
+
+        QList<DataQuality::Quality> qualities;
+        const QList<double>& qualityColumn = pData->dataRows[col + 1];
+        qualities.reserve(qualityColumn.size());
+        for (double number : qualityColumn)
+        {
+            qualities.append(qualityFromNumber(number));
+        }
+        qualityRows.append(qualities);
+    }
+
+    pData->dataRows = valueRows;
+    pData->qualityRows = qualityRows;
+}
+
+/*!
+ * \brief Converts a parsed quality cell to a quality.
+ * \param number Parsed cell content; an empty cell is parsed as 0 (Good).
+ * \return The decoded quality, or Invalid when \a number is not a valid quality code.
+ */
+DataQuality::Quality DataFileParser::qualityFromNumber(double number)
+{
+    const bool bValidCode = (number >= 0) && (number <= static_cast<double>(std::numeric_limits<quint32>::max())) &&
+                            (number == std::floor(number));
+    if (!bValidCode)
+    {
+        return DataQuality::Quality{ DataQuality::State::Invalid, DataQuality::Flag::NoFlags };
+    }
+
+    return DataQuality::fromExportCode(static_cast<quint32>(number));
 }
 
 bool DataFileParser::parseDataLines(QTextStream* pDataStream, QList<QList<double> >& dataRows)

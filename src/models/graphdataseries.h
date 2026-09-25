@@ -36,6 +36,9 @@ public:
     void add(double timestamp, double value);
     void add(double timestamp, double value, const DataQuality::Quality& quality);
     void setSamples(const QList<double>& timestamps, const QList<double>& values);
+    void setSamples(const QList<double>& timestamps,
+                    const QList<double>& values,
+                    const QList<DataQuality::Quality>& qualities);
 
     iterator begin();
     iterator end();

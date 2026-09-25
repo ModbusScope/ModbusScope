@@ -104,6 +104,29 @@ void GraphDataSeries::setSamples(const QList<double>& timestamps, const QList<do
 }
 
 /*!
+ * \brief Replaces all samples with the supplied data, which is assumed to be sorted by timestamp.
+ * \param timestamps Sample timestamps in ascending order.
+ * \param values Sample values; must have the same size as \p timestamps.
+ * \param qualities Sample data quality; must have the same size as \p timestamps.
+ */
+void GraphDataSeries::setSamples(const QList<double>& timestamps,
+                                 const QList<double>& values,
+                                 const QList<DataQuality::Quality>& qualities)
+{
+    Q_ASSERT(timestamps.size() == values.size());
+    Q_ASSERT(timestamps.size() == qualities.size());
+
+    const qsizetype count = qMin(timestamps.size(), qMin(values.size(), qualities.size()));
+
+    _samples.clear();
+    _samples.reserve(count);
+    for (qsizetype idx = 0; idx < count; idx++)
+    {
+        _samples.append(GraphSample{ timestamps[idx], values[idx], qualities[idx] });
+    }
+}
+
+/*!
  * \brief Returns a mutable iterator to the first sample.
  */
 GraphDataSeries::iterator GraphDataSeries::begin()

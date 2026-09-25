@@ -76,7 +76,9 @@ public:
     void add(QList<GraphData> graphDataList);
     void add();
     void add(QList<QString> labelList);
-    void setAllData(QList<double> timeData, QList<QList<double> > data);
+    void setAllData(QList<double> timeData,
+                    QList<QList<double> > data,
+                    QList<QList<DataQuality::Quality> > qualities = {});
 
     void removeRegister(GraphIdx idx);
     void clear();
@@ -96,7 +98,7 @@ signals:
     void expressionChanged(GraphIdx graphIdx);
     void expressionStateChanged(GraphIdx graphIdx);
     void selectedGraphChanged(GraphIdx graphIdx);
-    void graphsAddData(QList<double>, QList<QList<double> > data);
+    void graphsAddData(QList<double>, QList<QList<double> > data, QList<QList<DataQuality::Quality> > qualities);
 
     void moved();
     void added(GraphIdx idx);

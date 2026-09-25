@@ -3,6 +3,7 @@
 
 #include "models/dataparsermodel.h"
 #include "models/note.h"
+#include "util/result.h"
 
 #include <QRegularExpression>
 #include <QTextStream>
@@ -20,6 +21,7 @@ public:
 
         QStringList dataLabel;
         QList<QList<double> > dataRows;
+        QList<QList<DataQuality::Quality> > qualityRows; //!< Empty when the file has no quality columns
         QList<QColor> colors;
         QList<quint32> axis;
         QList<Note> notes;
@@ -40,6 +42,8 @@ private:
     bool readLineFromFile(QTextStream *pDataStream, QString *pLine);
     qint64 parseDateTime(QString rawData, bool *bOk);
     bool parseNoteField(QStringList noteFieldList, Note * pNote);
+    void splitQualityColumns(FileData* pData);
+    static DataQuality::Quality qualityFromNumber(double number);
     double parseDouble(QString strNumber, bool* bOk);
     bool isCommentLine(QString line);
     void checkProgressUpdate(quint32 charRead);

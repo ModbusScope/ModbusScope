@@ -52,6 +52,7 @@ void TestDataFileParser::parseModbusScopeOldFormat()
 
     QVERIFY(fileData.colors.isEmpty());
     QVERIFY(fileData.notes.isEmpty());
+    QVERIFY(fileData.qualityRows.isEmpty());
 
     QCOMPARE(spyParseError.count(), 0);
 }
@@ -533,6 +534,77 @@ void TestDataFileParser::checkProgressSignal()
 
     /* Check last percentage (clipped at 99 %) */
     QVERIFY(arguments.first().toInt()> 90);
+}
+
+void TestDataFileParser::parseModbusScopeQuality()
+{
+    using DataQuality::Flag;
+    using DataQuality::Quality;
+    using DataQuality::State;
+
+    DataParserModel dataParserModel;
+    QTextStream dataStream(&CsvData::cModbusScopeQuality);
+    DataFileParser::FileData fileData;
+    DataFileParser dataFileParser(&dataParserModel);
+
+    QSignalSpy spyParseError(&dataFileParser, &DataFileParser::parseErrorOccurred);
+
+    dataParserModel.setFieldSeparator(QChar(';'));
+    dataParserModel.setGroupSeparator(QChar(' '));
+    dataParserModel.setDecimalSeparator(QChar(','));
+    dataParserModel.setCommentSequence(QString("//"));
+    dataParserModel.setLabelRow(static_cast<quint32>(13));
+    dataParserModel.setDataRow(static_cast<quint32>(14));
+    dataParserModel.setColumn(static_cast<quint32>(0));
+    dataParserModel.setTimeInMilliSeconds(true);
+
+    QVERIFY(dataFileParser.processDataFile(&dataStream, &fileData));
+
+    QCOMPARE(fileData.axisLabel, QString("Time (ms)"));
+    QCOMPARE(fileData.timeRow, QList<double>() << 0 << 1000 << 2000 << 3000);
+    QCOMPARE(fileData.dataLabel, QStringList() << "Temp" << "Press");
+
+    QList<QList<double> > dataList;
+    dataList.append(QList<double>() << 21.5 << 21.6 << 0 << 0);
+    dataList.append(QList<double>() << 1.02 << 1.02 << 1.03 << 1.04);
+    QCOMPARE(fileData.dataRows, dataList);
+
+    QCOMPARE(fileData.colors, QList<QColor>() << QColor("#000000") << QColor("#0000FF"));
+    QCOMPARE(fileData.axis, QList<quint32>() << 0 << 1);
+
+    const Quality good{ State::Good, Flag::NoFlags };
+    QList<QList<Quality> > qualityList;
+    qualityList.append(QList<Quality>() << good << Quality{ State::Degraded, Flag::OldData }
+                                        << Quality{ State::Invalid, Flag::NoFlags }
+                                        << Quality{ State::NoValue, Flag::NoFlags });
+
+    /* An empty cell is Good, a negative code is not a valid code and reads as Invalid */
+    qualityList.append(QList<Quality>() << good << good << good << Quality{ State::Invalid, Flag::NoFlags });
+    QVERIFY(fileData.qualityRows == qualityList);
+
+    QCOMPARE(spyParseError.count(), 0);
+}
+
+void TestDataFileParser::parseModbusScopeQualityOddColumns()
+{
+    DataParserModel dataParserModel;
+    QTextStream dataStream(&CsvData::cModbusScopeQualityOddColumns);
+    DataFileParser::FileData fileData;
+    DataFileParser dataFileParser(&dataParserModel);
+
+    QSignalSpy spyParseError(&dataFileParser, &DataFileParser::parseErrorOccurred);
+
+    dataParserModel.setFieldSeparator(QChar(';'));
+    dataParserModel.setGroupSeparator(QChar(' '));
+    dataParserModel.setDecimalSeparator(QChar(','));
+    dataParserModel.setCommentSequence(QString("//"));
+    dataParserModel.setLabelRow(static_cast<quint32>(2));
+    dataParserModel.setDataRow(static_cast<quint32>(3));
+    dataParserModel.setColumn(static_cast<quint32>(0));
+    dataParserModel.setTimeInMilliSeconds(true);
+
+    QVERIFY(!dataFileParser.processDataFile(&dataStream, &fileData));
+    QCOMPARE(spyParseError.count(), 1);
 }
 
 QTEST_GUILESS_MAIN(TestDataFileParser)
