@@ -27,6 +27,10 @@ private slots:
 
     void checkProgressSignal();
 
+    void parseModbusScopeQuality();
+    void parseModbusScopeQualityOddColumns();
+    void parseModbusScopeQualityMissingLabel();
+
 private:
 
 };

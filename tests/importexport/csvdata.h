@@ -25,6 +25,10 @@ public:
     static QString cDatasetMultiAxis;
     static QString cDatasetExcelChanged;
 
+    static QString cModbusScopeQuality;
+    static QString cModbusScopeQualityOddColumns;
+    static QString cModbusScopeQualityMissingLabel;
+
 private:
 
 };

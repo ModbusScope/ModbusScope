@@ -81,6 +81,9 @@ struct Quality
     }
 };
 
+quint32 toExportCode(const Quality& quality);
+Quality fromExportCode(quint32 code);
+
 } // namespace DataQuality
 Q_DECLARE_OPERATORS_FOR_FLAGS(DataQuality::Flags)
 

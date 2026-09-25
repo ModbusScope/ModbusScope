@@ -43,14 +43,20 @@ void DataFileExporter::disableExporterDuringLog()
     flushExportBuffer();
 }
 
-void DataFileExporter::exportDataLine(double timeData, QList<double> dataValues)
+/*!
+ * \brief Buffers one line of logged data and flushes it to the data file, when writing during logging is enabled.
+ * \param timeData Timestamp of the line.
+ * \param dataValues Value of each active signal.
+ * \param qualities Data quality of each active signal, aligned with \a dataValues.
+ */
+void DataFileExporter::exportDataLine(double timeData, QList<double> dataValues, QList<DataQuality::Quality> qualities)
 {
     /* QList correspond with activeGraphList */
 
     if (_pSettingsModel->writeDuringLog())
     {
         // Use buffering
-        _dataExportBuffer.append(formatData(timeData, dataValues));
+        _dataExportBuffer.append(formatData(timeData, dataValues, qualities));
 
         if ((QDateTime::currentMSecsSinceEpoch() - lastLogTime) > _cLogBufferTimeout)
         {
@@ -104,15 +110,17 @@ void DataFileExporter::exportDataFile(QString dataFile)
             for (qint32 i = 0; i < dataCount; i++)
             {
                 QList<double> dataRowValues;
+                QList<DataQuality::Quality> dataRowQualities;
                 double key = dataListIterators[0]->timestamp;
                 for (qint32 d = 0; d < dataListIterators.size(); d++)
                 {
                     dataRowValues.append(dataListIterators[d]->value);
+                    dataRowQualities.append(dataListIterators[d]->quality);
 
                     dataListIterators[d]++;
                 }
 
-                logData.append(formatData(key, dataRowValues));
+                logData.append(formatData(key, dataRowValues, dataRowQualities));
 
                 if (i % _cLogChunkLineCount == 0)
                 {
@@ -301,6 +309,8 @@ QStringList DataFileExporter::constructDataHeader(bool bDuringLog)
 
         header.append("//");
 
+        header.append(comment + "Quality" + Util::separatorCharacter() + "1");
+
         header.append("//" + createPropertyRow(E_PROPERTY));
         header.append("//" + createPropertyRow(E_COLOR));
         header.append("//" + createPropertyRow(E_EXPRESSION));
@@ -405,13 +415,20 @@ QString DataFileExporter::createPropertyRow(registerProperty prop)
 
         // Get headers
         line.append(Util::separatorCharacter() + propertyString);
+
+        if (prop == E_LABEL)
+        {
+            line.append(Util::separatorCharacter() + propertyString + " (quality)");
+        }
     }
 
     return line;
 }
 
-QString DataFileExporter::formatData(double timeData, QList<double> dataValues)
+QString DataFileExporter::formatData(double timeData, QList<double> dataValues, QList<DataQuality::Quality> qualities)
 {
+    Q_ASSERT(dataValues.size() == qualities.size());
+
     QString line;
 
     if (_pSettingsModel->absoluteTimes())
@@ -427,10 +444,13 @@ QString DataFileExporter::formatData(double timeData, QList<double> dataValues)
         line.append(QString::number(t, 'f', 0));
     }
 
-    // Add formatted data (maximum 3 decimals, no trailing zeros)
+    // Add formatted data (maximum 3 decimals, no trailing zeros), each followed by its quality code
     for (qint32 d = 0; d < dataValues.size(); d++)
     {
         line.append(Util::separatorCharacter() + Util::formatDoubleForExport(dataValues[d]));
+
+        const DataQuality::Quality quality = d < qualities.size() ? qualities[d] : DataQuality::Quality{};
+        line.append(Util::separatorCharacter() + QString::number(DataQuality::toExportCode(quality)));
     }
 
     return line;

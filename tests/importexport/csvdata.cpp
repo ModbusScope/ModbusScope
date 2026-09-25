@@ -214,4 +214,37 @@ QString CsvData::cDatasetExcelChanged = QString(
     "2;0;4;0;0;0"                                                                            "\n"\
 );
 
+QString CsvData::cModbusScopeQuality = QString(
+    "//ModbusScope version;4.0.0"                                   "\n"\
+    "//Start time;25-09-2026 10:00:00"                              "\n"\
+    "//End time;25-09-2026 10:00:03"                                "\n"\
+    "//Poll interval;1000"                                          "\n"\
+    "//Communication success;4"                                     "\n"\
+    "//Communication errors;0"                                      "\n"\
+    "//"                                                            "\n"\
+    "//Quality;1"                                                   "\n"\
+    "//Property;Temp;Press"                                         "\n"\
+    "//Color;#000000;#0000ff"                                       "\n"\
+    "//Expression;\"${40001}\";\"${40002}\""                        "\n"\
+    "//Axis;0;1"                                                    "\n"\
+    "//"                                                            "\n"\
+    "Time (ms);Temp;Temp (quality);Press;Press (quality)"           "\n"\
+    "0;21,5;0;1,02;0"                                               "\n"\
+    "1000;21,6;129;1,02;"                                           "\n"\
+    "2000;7;2;1,03;0"                                               "\n"\
+    "3000;8;3;1,04;-1"                                              "\n"\
+);
 
+QString CsvData::cModbusScopeQualityMissingLabel = QString(
+    "//ModbusScope version;4.0.0"                                   "\n"\
+    "//Quality;1"                                                   "\n"\
+    "Time (ms);Temp;Press;Flow;Level"                               "\n"\
+    "0;21,5;1,02;3;4"                                               "\n"\
+);
+
+QString CsvData::cModbusScopeQualityOddColumns = QString(
+    "//ModbusScope version;4.0.0"                                   "\n"\
+    "//Quality;1"                                                   "\n"\
+    "Time (ms);Temp;Temp (quality);Press"                           "\n"\
+    "0;21,5;0;1,02"                                                 "\n"\
+);

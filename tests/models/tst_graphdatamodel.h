@@ -24,6 +24,9 @@ private slots:
     void activeCountZeroWhenEmpty();
     void activeCountReflectsAddedRegisters();
     void activeCountZeroWhenAllDeactivated();
+
+    void setAllDataPassesQualities();
+    void setAllDataDropsMisalignedQualities();
 };
 
 #endif /* TST_GRAPHDATAMODEL_H */

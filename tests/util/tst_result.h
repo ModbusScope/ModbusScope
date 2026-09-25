@@ -19,6 +19,12 @@ private slots:
     void setStateGoodWithFlagsStaysDegraded();
     void setStateGoodWithoutFlagsIsGood();
     void setStateKeepsFlagsOnOtherStates();
+
+    void exportCodeValues();
+    void exportCodeRoundTrip();
+    void exportCodeIgnoresUnknownFlagBits();
+    void exportCodeUnknownStateIsInvalid();
+    void exportCodeGoodWithFlagsIsDegraded();
 };
 
 #endif // TST_RESULT_H

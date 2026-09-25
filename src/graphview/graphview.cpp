@@ -441,8 +441,11 @@ void GraphView::bringToFront(ActiveIdx activeGraphIdx)
  * \brief Appends time-series data to all active signals and rescales the axes.
  * \param timeData Shared time keys for all signals.
  * \param data Per-signal value lists, aligned with \a timeData.
+ * \param qualities Per-signal data quality, aligned with \a data; empty when all samples are Good.
  */
-void GraphView::addData(QList<double> timeData, QList<QList<double> > data)
+void GraphView::addData(QList<double> timeData,
+                        QList<QList<double> > data,
+                        QList<QList<DataQuality::Quality> > qualities)
 {
     quint64 totalPoints = 0;
     const QVector<double> timeDataVector = timeData.toVector();
@@ -450,7 +453,14 @@ void GraphView::addData(QList<double> timeData, QList<QList<double> > data)
     for (qint32 i = 0; i < data.size(); i++)
     {
         const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(ActiveIdx(i));
-        _pGraphDataModel->mutableDataSeries(graphIdx)->setSamples(timeData, data.at(i));
+        if (i < qualities.size())
+        {
+            _pGraphDataModel->mutableDataSeries(graphIdx)->setSamples(timeData, data.at(i), qualities.at(i));
+        }
+        else
+        {
+            _pGraphDataModel->mutableDataSeries(graphIdx)->setSamples(timeData, data.at(i));
+        }
 
         QVector<double> graphData = data.at(i).toVector();
         _pPlot->graph(i)->setData(timeDataVector, graphData, true);
@@ -522,6 +532,7 @@ void GraphView::plotResults(ResultDoubleList resultList)
     }
 
     QList<double> dataList;
+    QList<DataQuality::Quality> qualityList;
 
     qint32 i = 0;
     for (const auto& result : resultList)
@@ -535,11 +546,12 @@ void GraphView::plotResults(ResultDoubleList resultList)
         _pPlot->graph(i)->addData(timeData, value);
         _pGraphQualityMarkers->appendSample(graphIdx, timeData, value, result.quality());
         dataList.append(value);
+        qualityList.append(result.quality());
 
         i++;
     }
 
-    emit dataAddedToPlot(timeData, dataList);
+    emit dataAddedToPlot(timeData, dataList, qualityList);
 
     rescalePlot();
 }

@@ -133,4 +133,65 @@ void TestGraphDataModel::activeCountZeroWhenAllDeactivated()
     QCOMPARE(model.activeCount(), 0);
 }
 
+namespace {
+
+using QualityRows = QList<QList<DataQuality::Quality> >;
+
+//! Calls setAllData on a model with two graphs and returns the qualities that graphsAddData emitted
+QualityRows emittedQualities(const QList<double>& timeData,
+                             const QList<QList<double> >& data,
+                             const QualityRows& qualities)
+{
+    GraphDataModel model;
+    model.add();
+    model.add();
+
+    QualityRows emitted;
+    bool bEmitted = false;
+    QObject::connect(
+      &model, &GraphDataModel::graphsAddData,
+      [&emitted](const QList<double>&, const QList<QList<double> >&, const QualityRows& q) { emitted = q; });
+    QObject::connect(&model, &GraphDataModel::graphsAddData, [&bEmitted]() { bEmitted = true; });
+
+    model.setAllData(timeData, data, qualities);
+
+    if (!bEmitted)
+    {
+        QTest::qFail("graphsAddData not emitted", __FILE__, __LINE__);
+    }
+    return emitted;
+}
+
+} // namespace
+
+void TestGraphDataModel::setAllDataPassesQualities()
+{
+    using DataQuality::Flag;
+    using DataQuality::Quality;
+    using DataQuality::State;
+
+    const QList<double> timeData{ 0, 1 };
+    const QList<QList<double> > data{ { 1, 2 }, { 3, 4 } };
+    const QualityRows qualities{ { Quality{ State::Good, Flag::NoFlags }, Quality{ State::Invalid, Flag::NoFlags } },
+                                 { Quality{ State::Degraded, Flag::OldData }, Quality{ State::Good, Flag::NoFlags } } };
+
+    QVERIFY(emittedQualities(timeData, data, qualities) == qualities);
+}
+
+void TestGraphDataModel::setAllDataDropsMisalignedQualities()
+{
+    using DataQuality::Flag;
+    using DataQuality::Quality;
+    using DataQuality::State;
+
+    const QList<double> timeData{ 0, 1 };
+    const QList<QList<double> > data{ { 1, 2 }, { 3, 4 } };
+
+    /* Second graph has one quality for two samples */
+    const QualityRows qualities{ { Quality{ State::Good, Flag::NoFlags }, Quality{ State::Invalid, Flag::NoFlags } },
+                                 { Quality{ State::Degraded, Flag::OldData } } };
+
+    QVERIFY(emittedQualities(timeData, data, qualities).isEmpty());
+}
+
 QTEST_GUILESS_MAIN(TestGraphDataModel)
