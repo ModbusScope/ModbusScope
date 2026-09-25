@@ -3,6 +3,7 @@
 
 #include "graphview/graphindicators.h"
 #include "graphview/graphmarkers.h"
+#include "graphview/graphqualitymarkers.h"
 #include "graphview/graphscaling.h"
 #include "graphview/graphviewzoom.h"
 #include "graphview/notehandling.h"
@@ -81,6 +82,7 @@ GraphView::GraphView(GuiModel* pGuiModel,
     _pGraphViewZoom = new GraphViewZoom(_pGuiModel, _pPlot, this);
     _pGraphMarkers = new GraphMarkers(pGraphDataModel, _pGuiModel, _pPlot, this);
     _pGraphIndicators = new GraphIndicators(_pGraphDataModel, _pPlot, this);
+    _pGraphQualityMarkers = new GraphQualityMarkers(_pGraphDataModel, _pPlot, this);
     _pNoteHandling = new NoteHandling(pNoteModel, _pPlot, this);
 
     updateSecondaryAxisVisibility();
@@ -94,6 +96,7 @@ GraphView::~GraphView()
     delete _pGraphViewZoom;
     delete _pGraphMarkers;
     delete _pGraphIndicators;
+    delete _pGraphQualityMarkers;
     delete _pNoteHandling;
 }
 
@@ -205,6 +208,8 @@ void GraphView::clearGraph(GraphIdx graphIdx)
             const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
             _pPlot->graph(activeIdx.v)->data()->clear();
 
+            _pGraphQualityMarkers->rebuild();
+
             _pPlot->replot();
         }
         else
@@ -213,15 +218,20 @@ void GraphView::clearGraph(GraphIdx graphIdx)
             QSharedPointer<GraphDataSeries> pDataSeries = _pGraphDataModel->mutableDataSeries(graphIdx);
             GraphDataSeries::iterator it = pDataSeries->begin();
 
-            /* Clear all values, keep timestamps */
+            /* Clear all values, keep timestamps. No measurement exists for these timestamps
+             * anymore, so quality is reset to NoValue, matching the padding samples
+             * updateGraphs() creates for the same situation. */
             while (it != pDataSeries->end())
             {
                 it->value = 0.0;
+                it->quality = DataQuality::Quality{ DataQuality::State::NoValue, DataQuality::Flag::NoFlags };
                 it++;
             }
 
             const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
             loadGraphDataFromModel(graphIdx, _pPlot->graph(activeIdx.v));
+
+            _pGraphQualityMarkers->rebuild();
 
             _pPlot->replot();
         }
@@ -295,6 +305,8 @@ void GraphView::updateGraphs()
         }
     }
 
+    _pGraphQualityMarkers->rebuild();
+
     updateSecondaryAxisVisibility();
 
     _pPlot->replot();
@@ -353,6 +365,7 @@ void GraphView::changeGraphAxis(GraphIdx graphIdx)
     {
         const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
         setGraphAxis(_pPlot->graph(activeIdx.v), _pGraphDataModel->valueAxis(graphIdx));
+        _pGraphQualityMarkers->setAxis(graphIdx, _pGraphDataModel->valueAxis(graphIdx));
 
         updateSecondaryAxisVisibility();
 
@@ -460,6 +473,8 @@ void GraphView::addData(QList<double> timeData, QList<QList<double> > data)
         _pPlot->setNotAntialiasedElements(QCP::aeAll);
     }
 
+    _pGraphQualityMarkers->rebuild();
+
     _pPlot->rescaleAxes(true);
     _pPlot->replot();
 }
@@ -477,6 +492,7 @@ void GraphView::handleGraphVisibilityChange(GraphIdx graphIdx)
         const ActiveIdx activeIdx = _pGraphDataModel->convertToActiveGraphIndex(graphIdx);
 
         _pPlot->graph(activeIdx.v)->setVisible(bShow);
+        _pGraphQualityMarkers->setVisible(graphIdx, bShow);
         _pGraphMarkers->updateTracersVisibility();
         _pGraphIndicators->updateIndicatorVisibility();
         rescalePlot();
@@ -517,6 +533,7 @@ void GraphView::plotResults(ResultDoubleList resultList)
         _pGraphDataModel->mutableDataSeries(graphIdx)->add(timeData, value, result.quality());
 
         _pPlot->graph(i)->addData(timeData, value);
+        _pGraphQualityMarkers->appendSample(graphIdx, timeData, value, result.quality());
         dataList.append(value);
 
         i++;
@@ -536,6 +553,8 @@ void GraphView::clearResults()
 
         _pPlot->graph(i)->data()->clear();
     }
+
+    _pGraphQualityMarkers->rebuild();
 
     rescalePlot();
 }
