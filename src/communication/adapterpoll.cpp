@@ -239,6 +239,8 @@ void AdapterPoll::logQualityChanges(const ResultDoubleList& results)
 {
     if (results.size() != _lastQualities.size())
     {
+        qCWarning(scopeComm) << "AdapterPoll: got" << results.size() << "results for" << _lastQualities.size()
+                             << "tracked data points - skipping quality logging";
         return;
     }
 

@@ -5,6 +5,7 @@
 #include "communication/datapoint.h"
 #include "models/settingsmodel.h"
 
+#include <QLoggingCategory>
 #include <QSignalSpy>
 #include <QStringList>
 #include <QTest>
@@ -79,7 +80,10 @@ static void captureCommDebugLogs(QtMsgType type, const QMessageLogContext& conte
         return;
     }
 
-    s_previousHandler(type, context, msg);
+    if (s_previousHandler != nullptr)
+    {
+        s_previousHandler(type, context, msg);
+    }
 }
 
 //! Starts communication for a single data point and runs one poll that returns \a result.
@@ -105,6 +109,8 @@ void TestAdapterPoll::init()
     s_pMockHub = new MockAdapterHub;
     s_pPoll = new AdapterPoll(s_pSettingsModel, s_pMockHub);
 
+    /* Enable debug output for scope.comm so qCDebug calls reach the handler */
+    QLoggingCategory::setFilterRules(QStringLiteral("scope.comm.debug=true"));
     s_commDebugLogs.clear();
     s_previousHandler = qInstallMessageHandler(captureCommDebugLogs);
 }
@@ -112,6 +118,7 @@ void TestAdapterPoll::init()
 void TestAdapterPoll::cleanup()
 {
     qInstallMessageHandler(s_previousHandler);
+    QLoggingCategory::setFilterRules(QString());
 
     delete s_pPoll;
     delete s_pMockHub;
