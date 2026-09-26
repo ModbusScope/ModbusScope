@@ -22,8 +22,8 @@ DiagnosticDialog::DiagnosticDialog(DiagnosticModel* pDiagnosticModel, QWidget* p
     _bAutoScroll = false;
 
     _pUi->label->setText(tr("You should only enable this when you want to debug the connection. When "
-                            "enabled, all data reads are logged. This will increase the log size very "
-                            "much. While enabled, all logs are also automatically appended to %1.")
+                            "enabled, every change in data point quality is logged. This can increase the "
+                            "log size a lot. While enabled, all logs are also automatically appended to %1.")
                            .arg(DebugLogFileWriter::defaultFilePath()));
 
     _pDiagnosticModel = pDiagnosticModel;

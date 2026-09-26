@@ -57,6 +57,8 @@ void AdapterPoll::startCommunication(QList<DataPoint>& registerList)
 
     resetCommunicationStats();
 
+    _lastQualities = QList<DataQuality::Quality>(_registerList.size());
+
     buildAdapterGroups(_registerList);
 
     if (_pAdapterHub->isAdapterReady())
@@ -159,6 +161,8 @@ void AdapterPoll::onReadDataResult(const QString& adapterId, ResultDoubleList re
         }
     }
 
+    logQualityChanges(merged);
+
     emit registerDataReady(merged);
 
     const quint32 passedInterval = static_cast<quint32>(QDateTime::currentMSecsSinceEpoch() - _lastPollStart);
@@ -221,6 +225,44 @@ void AdapterPoll::buildAdapterGroups(const QList<DataPoint>& registerList)
         const QString adapterId = _pSettingsModel->adapterIdForDevice(dp.deviceId());
         _adapterGroups[adapterId].expressions.append(dp.address());
         _adapterGroups[adapterId].originalIndices.append(i);
+    }
+}
+
+/*!
+ * \brief Log a debug message for every data point whose quality changed since the previous poll
+ *
+ * Only changes are logged, so a data point that stays invalid does not flood the diagnostics.
+ * The baseline at the start of communication is Good, so the first non-good result is logged too.
+ * \param results Merged results in original data point order
+ */
+void AdapterPoll::logQualityChanges(const ResultDoubleList& results)
+{
+    if (results.size() != _lastQualities.size())
+    {
+        qCWarning(scopeComm) << "AdapterPoll: got" << results.size() << "results for" << _lastQualities.size()
+                             << "tracked data points - skipping quality logging";
+        return;
+    }
+
+    for (int idx = 0; idx < results.size(); idx++)
+    {
+        const DataQuality::Quality quality = results[idx].quality();
+        if (quality == _lastQualities[idx])
+        {
+            continue;
+        }
+
+        _lastQualities[idx] = quality;
+
+        QString message =
+          QString("Data point %1: %2").arg(_registerList[idx].description(), DataQuality::stateId(quality.state));
+        const QStringList flagIds = DataQuality::flagIds(quality.flags);
+        if (!flagIds.isEmpty())
+        {
+            message.append(QString(" (%1)").arg(flagIds.join(QLatin1Char('|'))));
+        }
+
+        qCDebug(scopeComm) << qUtf8Printable(message);
     }
 }
 

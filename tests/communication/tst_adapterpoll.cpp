@@ -5,7 +5,9 @@
 #include "communication/datapoint.h"
 #include "models/settingsmodel.h"
 
+#include <QLoggingCategory>
 #include <QSignalSpy>
+#include <QStringList>
 #include <QTest>
 
 /* ---- Mock AdapterHub ---- */
@@ -66,16 +68,58 @@ public:
 static SettingsModel* s_pSettingsModel = nullptr;
 static MockAdapterHub* s_pMockHub = nullptr;
 static AdapterPoll* s_pPoll = nullptr;
+static QStringList s_commDebugLogs;
+static QtMessageHandler s_previousHandler = nullptr;
+
+//! Captures scope.comm debug messages so tests can check exactly which lines were logged.
+static void captureCommDebugLogs(QtMsgType type, const QMessageLogContext& context, const QString& msg)
+{
+    if (type == QtDebugMsg && context.category != nullptr && QByteArray(context.category) == "scope.comm")
+    {
+        s_commDebugLogs.append(msg);
+        return;
+    }
+
+    if (s_previousHandler != nullptr)
+    {
+        s_previousHandler(type, context, msg);
+    }
+}
+
+//! Starts communication for a single data point and runs one poll that returns \a result.
+static void startAndPoll(const Result<double>& result)
+{
+    s_pMockHub->_mockReady = true;
+
+    QList<DataPoint> registers{ DataPoint(QStringLiteral("${h0}"), 1) };
+    s_pPoll->startCommunication(registers);
+    s_pMockHub->triggerSessionStarted();
+    s_pMockHub->triggerReadDataResult(QStringLiteral("modbus"), ResultDoubleList{ result });
+}
+
+//! Runs one more poll that returns \a result.
+static void poll(const Result<double>& result)
+{
+    s_pMockHub->triggerReadDataResult(QStringLiteral("modbus"), ResultDoubleList{ result });
+}
 
 void TestAdapterPoll::init()
 {
     s_pSettingsModel = new SettingsModel;
     s_pMockHub = new MockAdapterHub;
     s_pPoll = new AdapterPoll(s_pSettingsModel, s_pMockHub);
+
+    /* Enable debug output for scope.comm so qCDebug calls reach the handler */
+    QLoggingCategory::setFilterRules(QStringLiteral("scope.comm.debug=true"));
+    s_commDebugLogs.clear();
+    s_previousHandler = qInstallMessageHandler(captureCommDebugLogs);
 }
 
 void TestAdapterPoll::cleanup()
 {
+    qInstallMessageHandler(s_previousHandler);
+    QLoggingCategory::setFilterRules(QString());
+
     delete s_pPoll;
     delete s_pMockHub;
     delete s_pSettingsModel;
@@ -290,6 +334,41 @@ void TestAdapterPoll::sessionErrorWhileWaitingForAdapterEmitsCommunicationError(
 
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("adapter init failed"));
+}
+
+/*!
+ * \brief A data point going bad is logged once with its expression, not again on every poll.
+ */
+void TestAdapterPoll::qualityChangeIsLoggedOnce()
+{
+    startAndPoll(Result<double>(1.0, DataQuality::State::Good));
+    QVERIFY(s_commDebugLogs.isEmpty());
+
+    poll(Result<double>(0.0, DataQuality::State::Invalid));
+    poll(Result<double>(0.0, DataQuality::State::Invalid));
+
+    QCOMPARE(s_commDebugLogs, QStringList{ QStringLiteral("Data point ${h0}, device id 1: invalid") });
+}
+
+void TestAdapterPoll::qualityRecoveryIsLogged()
+{
+    startAndPoll(Result<double>(0.0, DataQuality::State::Invalid));
+    poll(Result<double>(2.0, DataQuality::State::Good));
+
+    const QStringList expected{ QStringLiteral("Data point ${h0}, device id 1: invalid"),
+                                QStringLiteral("Data point ${h0}, device id 1: good") };
+    QCOMPARE(s_commDebugLogs, expected);
+}
+
+void TestAdapterPoll::qualityFlagsAreLogged()
+{
+    Result<double> degraded(3.0, DataQuality::State::Good);
+    degraded.addFlags(DataQuality::Flag::Blocked | DataQuality::Flag::Overflow);
+
+    startAndPoll(degraded);
+
+    QCOMPARE(s_commDebugLogs,
+             QStringList{ QStringLiteral("Data point ${h0}, device id 1: degraded (blocked|overflow)") });
 }
 
 QTEST_GUILESS_MAIN(TestAdapterPoll)
