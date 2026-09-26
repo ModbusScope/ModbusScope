@@ -21,6 +21,9 @@ private slots:
     void sessionErrorEmitsCommunicationError();
     void sessionErrorWhileInactiveDoesNotEmitCommunicationError();
     void sessionErrorWhileWaitingForAdapterEmitsCommunicationError();
+    void qualityChangeIsLoggedOnce();
+    void qualityRecoveryIsLogged();
+    void qualityFlagsAreLogged();
 };
 
 #endif // TST_ADAPTERPOLL_H

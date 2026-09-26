@@ -74,6 +74,7 @@ private:
 
     void buildAdapterGroups(const QList<DataPoint>& registerList);
     void startSessions();
+    void logQualityChanges(const ResultDoubleList& results);
 
     enum class PollState
     {
@@ -86,6 +87,7 @@ private:
     QMap<QString, AdapterGroup> _adapterGroups;
     QMap<QString, ResultDoubleList> _pendingResults;
     QSet<QString> _pendingResultAdapters;
+    QList<DataQuality::Quality> _lastQualities;
 
     PollState _pollState = PollState::Inactive;
     QMetaObject::Connection _adapterReadyConnection;
