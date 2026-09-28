@@ -5,7 +5,6 @@
 #include "communication/datapoint.h"
 #include "models/settingsmodel.h"
 
-#include <QLoggingCategory>
 #include <QSignalSpy>
 #include <QStringList>
 #include <QTest>
@@ -68,15 +67,17 @@ public:
 static SettingsModel* s_pSettingsModel = nullptr;
 static MockAdapterHub* s_pMockHub = nullptr;
 static AdapterPoll* s_pPoll = nullptr;
-static QStringList s_commDebugLogs;
+static QStringList s_commWarningLogs;
 static QtMessageHandler s_previousHandler = nullptr;
 
-//! Captures scope.comm debug messages so tests can check exactly which lines were logged.
-static void captureCommDebugLogs(QtMsgType type, const QMessageLogContext& context, const QString& msg)
+//! Captures scope.comm data point quality warnings so tests can check exactly which lines were logged.
+static void captureCommWarningLogs(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
-    if (type == QtDebugMsg && context.category != nullptr && QByteArray(context.category) == "scope.comm")
+    const bool isCommWarning =
+      (type == QtWarningMsg && context.category != nullptr && QByteArray(context.category) == "scope.comm");
+    if (isCommWarning && msg.startsWith(QStringLiteral("Data point ")))
     {
-        s_commDebugLogs.append(msg);
+        s_commWarningLogs.append(msg);
         return;
     }
 
@@ -109,16 +110,13 @@ void TestAdapterPoll::init()
     s_pMockHub = new MockAdapterHub;
     s_pPoll = new AdapterPoll(s_pSettingsModel, s_pMockHub);
 
-    /* Enable debug output for scope.comm so qCDebug calls reach the handler */
-    QLoggingCategory::setFilterRules(QStringLiteral("scope.comm.debug=true"));
-    s_commDebugLogs.clear();
-    s_previousHandler = qInstallMessageHandler(captureCommDebugLogs);
+    s_commWarningLogs.clear();
+    s_previousHandler = qInstallMessageHandler(captureCommWarningLogs);
 }
 
 void TestAdapterPoll::cleanup()
 {
     qInstallMessageHandler(s_previousHandler);
-    QLoggingCategory::setFilterRules(QString());
 
     delete s_pPoll;
     delete s_pMockHub;
@@ -342,12 +340,12 @@ void TestAdapterPoll::sessionErrorWhileWaitingForAdapterEmitsCommunicationError(
 void TestAdapterPoll::qualityChangeIsLoggedOnce()
 {
     startAndPoll(Result<double>(1.0, DataQuality::State::Good));
-    QVERIFY(s_commDebugLogs.isEmpty());
+    QVERIFY(s_commWarningLogs.isEmpty());
 
     poll(Result<double>(0.0, DataQuality::State::Invalid));
     poll(Result<double>(0.0, DataQuality::State::Invalid));
 
-    QCOMPARE(s_commDebugLogs, QStringList{ QStringLiteral("Data point ${h0}, device id 1: invalid") });
+    QCOMPARE(s_commWarningLogs, QStringList{ QStringLiteral("Data point ${h0}, device id 1: invalid") });
 }
 
 void TestAdapterPoll::qualityRecoveryIsLogged()
@@ -357,7 +355,7 @@ void TestAdapterPoll::qualityRecoveryIsLogged()
 
     const QStringList expected{ QStringLiteral("Data point ${h0}, device id 1: invalid"),
                                 QStringLiteral("Data point ${h0}, device id 1: good") };
-    QCOMPARE(s_commDebugLogs, expected);
+    QCOMPARE(s_commWarningLogs, expected);
 }
 
 void TestAdapterPoll::qualityFlagsAreLogged()
@@ -367,7 +365,7 @@ void TestAdapterPoll::qualityFlagsAreLogged()
 
     startAndPoll(degraded);
 
-    QCOMPARE(s_commDebugLogs,
+    QCOMPARE(s_commWarningLogs,
              QStringList{ QStringLiteral("Data point ${h0}, device id 1: degraded (blocked|overflow)") });
 }
 
