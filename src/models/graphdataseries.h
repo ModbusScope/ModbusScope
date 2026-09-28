@@ -30,6 +30,7 @@ public:
 
     qsizetype size() const;
     bool isEmpty() const;
+    double lastValue(double fallback) const;
     void clear();
 
     void add(const GraphSample& sample);

@@ -564,10 +564,10 @@ void TestDataFileParser::parseModbusScopeQuality()
     QCOMPARE(fileData.timeRow, QList<double>() << 0 << 1000 << 2000 << 3000);
     QCOMPARE(fileData.dataLabel, QStringList() << "Temp" << "Press");
 
-    /* Values of Invalid and NoValue samples are read as 0 */
+    /* Values of Invalid and NoValue samples are read as written */
     QList<QList<double> > dataList;
-    dataList.append(QList<double>() << 21.5 << 21.6 << 0 << 0);
-    dataList.append(QList<double>() << 1.02 << 1.02 << 1.03 << 0);
+    dataList.append(QList<double>() << 21.5 << 21.6 << 7 << 8);
+    dataList.append(QList<double>() << 1.02 << 1.02 << 1.03 << 1.04);
     QCOMPARE(fileData.dataRows, dataList);
 
     QCOMPARE(fileData.colors, QList<QColor>() << QColor("#000000") << QColor("#0000FF"));

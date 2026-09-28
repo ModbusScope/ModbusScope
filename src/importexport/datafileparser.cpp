@@ -280,24 +280,15 @@ void DataFileParser::splitQualityColumns(FileData* pData)
 
     for (qint32 col = 0; col + 1 < pData->dataRows.size(); col += 2)
     {
-        QList<double> values = pData->dataRows[col];
-
         QList<DataQuality::Quality> qualities;
         const QList<double>& qualityColumn = pData->dataRows[col + 1];
         qualities.reserve(qualityColumn.size());
         for (qsizetype idx = 0; idx < qualityColumn.size(); idx++)
         {
-            const DataQuality::Quality quality = qualityFromNumber(qualityColumn[idx]);
-
-            /* Unusable samples are stored as zero, as during logging */
-            if (quality.state == DataQuality::State::Invalid || quality.state == DataQuality::State::NoValue)
-            {
-                values[idx] = 0;
-            }
-            qualities.append(quality);
+            qualities.append(qualityFromNumber(qualityColumn[idx]));
         }
 
-        valueRows.append(values);
+        valueRows.append(pData->dataRows[col]);
         qualityRows.append(qualities);
     }
 

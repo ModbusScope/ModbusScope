@@ -2,6 +2,7 @@
 #define TST_GRAPHVIEW_H
 
 #include "qcustomplot/qcustomplot.h"
+#include "util/result.h"
 
 #include <QObject>
 
@@ -28,10 +29,18 @@ private slots:
     void qualityMarkersAppendLiveSample();
     void qualityMarkersFollowGraphVisibility();
 
+    void plotResultsHoldsLastValueWhenInvalid();
+    void plotResultsHoldsLastValueOverConsecutiveInvalid();
+    void plotResultsHoldsLastValueWhenNoValue();
+    void plotResultsUsesZeroWhenNoPreviousValue();
+    void plotResultsEmitsHeldValue();
+
 private:
     QList<QCPCurve*> markerCurves() const;
     QCPCurve* markerCurve(QCPScatterStyle::ScatterShape shape) const;
     int markerCount(QCPScatterStyle::ScatterShape shape) const;
+    void plotResult(const ResultDouble& result);
+    QList<double> seriesValues() const;
 
     QWidget* _pHost = nullptr;
     ScopePlot* _pPlot = nullptr;
