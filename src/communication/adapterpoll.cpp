@@ -262,7 +262,7 @@ void AdapterPoll::logQualityChanges(const ResultDoubleList& results)
             message.append(QString(" (%1)").arg(flagIds.join(QLatin1Char('|'))));
         }
 
-        qCDebug(scopeComm) << qUtf8Printable(message);
+        qCWarning(scopeComm) << qUtf8Printable(message);
     }
 }
 
