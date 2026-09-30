@@ -372,6 +372,45 @@ tables and tooltips without understanding protocol-specific address formats.
 
 ---
 
+### `adapter.inspectLicense`
+
+Verifies a license file and reports its details without installing or changing
+anything. The core calls this before copying a license file into the adapter's
+license location, so the user can confirm who the license was issued to.
+
+**Params:**
+
+```json
+{
+  "path": "<absolute path of the license file>"
+}
+```
+
+**Result:** the same shape as the `license` object of `adapter.describe`.
+
+```json
+{
+  "state": "valid | invalid | notFound",
+  "reason": "<message>",
+  "customer": "<name>",
+  "email": "<address>",
+  "licenseId": "<id>",
+  "expires": "<date>"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `state` | `valid` when the file passes verification, `invalid` when it does not, `notFound` when no file exists at `path` |
+| `reason` | Human-readable reason, present when `state` is `invalid` |
+| `customer`, `email`, `licenseId`, `expires` | License details, present when `state` is `valid`; `email` and `expires` are optional |
+
+There is no capability flag. An adapter that does not implement this method
+answers with a JSON-RPC error (method not found). The core treats that as
+"cannot verify" and refuses to install the license.
+
+---
+
 ### `adapter.validateDataPoint`
 
 Validates a single data point expression string without starting polling. Used

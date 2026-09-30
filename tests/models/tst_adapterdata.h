@@ -70,6 +70,9 @@ private slots:
 
     void licenseFieldParsed();
     void updateFromDescribeMissingLicense();
+    void licenseInfoFromJsonParsesAllFields();
+    void licenseInfoFromJsonMissingFields();
+    void licenseInfoFromJsonUnknownState();
 };
 
 #endif /* TEST_ADAPTERDATA_H__ */

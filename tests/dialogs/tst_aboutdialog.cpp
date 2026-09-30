@@ -39,6 +39,104 @@ void TestAboutDialog::requiresOverwriteConfirmationFalseForUnknown()
     QVERIFY(!AboutDialog::requiresOverwriteConfirmation(license));
 }
 
+void TestAboutDialog::licensePreviewTextShowsAllFields()
+{
+    AdapterLicenseInfo license;
+    license.state = AdapterLicenseInfo::State::Valid;
+    license.customer = "ACME Corp";
+    license.email = "customer@example.com";
+    license.licenseId = "LIC-2026-001";
+    license.expires = "2027-01-01";
+
+    const QString text = AboutDialog::licensePreviewText(license, false);
+
+    QVERIFY(text.contains("ACME Corp"));
+    QVERIFY(text.contains("customer@example.com"));
+    QVERIFY(text.contains("LIC-2026-001"));
+    QVERIFY(text.contains("2027-01-01"));
+    QVERIFY(text.contains("issued to you or your organisation"));
+}
+
+void TestAboutDialog::licensePreviewTextEscapesHtml()
+{
+    AdapterLicenseInfo license;
+    license.state = AdapterLicenseInfo::State::Valid;
+    license.customer = "<b>Evil</b> & Co";
+    license.email = "<x@y.z>";
+    license.licenseId = "<i>1</i>";
+    license.expires = "<u>never</u>";
+
+    const QString text = AboutDialog::licensePreviewText(license, false);
+
+    QVERIFY(!text.contains("<b>Evil</b>"));
+    QVERIFY(!text.contains("<i>1</i>"));
+    QVERIFY(!text.contains("<u>never</u>"));
+    QVERIFY(text.contains("&lt;b&gt;Evil&lt;/b&gt; &amp; Co"));
+}
+
+void TestAboutDialog::licensePreviewTextOmitsOptionalFields()
+{
+    AdapterLicenseInfo license;
+    license.state = AdapterLicenseInfo::State::Valid;
+    license.customer = "ACME Corp";
+    license.licenseId = "LIC-2026-001";
+
+    const QString text = AboutDialog::licensePreviewText(license, false);
+
+    QVERIFY(text.contains("ACME Corp"));
+    QVERIFY(text.contains("LIC-2026-001"));
+    QVERIFY(!text.contains("Email"));
+    QVERIFY(!text.contains("Expires"));
+}
+
+void TestAboutDialog::licensePreviewTextMentionsReplacedLicense()
+{
+    AdapterLicenseInfo license;
+    license.state = AdapterLicenseInfo::State::Valid;
+    license.customer = "ACME Corp";
+    license.licenseId = "LIC-2026-001";
+
+    const QString withReplace = AboutDialog::licensePreviewText(license, true);
+    const QString withoutReplace = AboutDialog::licensePreviewText(license, false);
+
+    QVERIFY(withReplace.contains("replace"));
+    QVERIFY(!withoutReplace.contains("replace"));
+}
+
+void TestAboutDialog::licenseRejectionTextInvalidShowsReason()
+{
+    AdapterLicenseInfo license;
+    license.state = AdapterLicenseInfo::State::Invalid;
+    license.reason = "license expired";
+
+    const QString text = AboutDialog::licenseRejectionText(license);
+
+    QVERIFY(text.contains("license expired"));
+}
+
+void TestAboutDialog::licenseRejectionTextNotFound()
+{
+    AdapterLicenseInfo license;
+    license.state = AdapterLicenseInfo::State::NotFound;
+
+    const QString text = AboutDialog::licenseRejectionText(license);
+
+    QVERIFY(!text.isEmpty());
+    QVERIFY(text.contains("not found", Qt::CaseInsensitive));
+}
+
+void TestAboutDialog::licenseRejectionTextEscapesHtml()
+{
+    AdapterLicenseInfo license;
+    license.state = AdapterLicenseInfo::State::Invalid;
+    license.reason = "<b>bad</b>";
+
+    const QString text = AboutDialog::licenseRejectionText(license);
+
+    QVERIFY(!text.contains("<b>bad</b>"));
+    QVERIFY(text.contains("&lt;b&gt;bad&lt;/b&gt;"));
+}
+
 void TestAboutDialog::installLicenseFileCopiesToFreshDestination()
 {
     QTemporaryDir tempDir;

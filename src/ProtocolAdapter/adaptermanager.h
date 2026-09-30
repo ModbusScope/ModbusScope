@@ -101,6 +101,16 @@ public:
     virtual void describeDataPoint(const QString& expression);
 
     /*!
+     * \brief Send an adapter.inspectLicense request to verify a license file without installing it.
+     *
+     * Emits inspectLicenseResult() when the adapter responds, or inspectLicenseFailed() when the
+     * adapter answers with an error.
+     *
+     * \param path Absolute path of the license file to inspect.
+     */
+    virtual void inspectLicense(const QString& path);
+
+    /*!
      * \brief Route an adapter.diagnostic notification to the diagnostics log.
      *
      * Public for testability. Maps the adapter's level string to the appropriate
@@ -156,6 +166,18 @@ signals:
      * \param result The full result object (valid, fields, description or error).
      */
     void describeDataPointResult(QJsonObject result);
+
+    /*!
+     * \brief Emitted when an adapter.inspectLicense response has been received.
+     * \param result The license object (state, reason, customer, email, licenseId, expires).
+     */
+    void inspectLicenseResult(QJsonObject result);
+
+    /*!
+     * \brief Emitted when the adapter answered adapter.inspectLicense with an error.
+     * \param message The error message reported by the adapter.
+     */
+    void inspectLicenseFailed(QString message);
 
 private slots:
     void onDescribeResult(const QJsonObject& description);

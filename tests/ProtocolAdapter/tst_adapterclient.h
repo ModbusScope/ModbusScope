@@ -61,6 +61,9 @@ private slots:
     void describeDataPointInAwaitingConfig();
     void describeDataPointInActiveState();
     void describeDataPointInWrongStateIgnored();
+    void inspectLicenseSendsPathAndEmitsResult();
+    void inspectLicenseErrorEmitsFailedAndKeepsSession();
+    void inspectLicenseInWrongStateIgnored();
     void validateDataPointValid();
     void validateDataPointInvalid();
     void validateDataPointInActiveState();

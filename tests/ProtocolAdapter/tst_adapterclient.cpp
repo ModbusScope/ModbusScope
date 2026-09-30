@@ -1305,6 +1305,74 @@ void TestAdapterClient::describeDataPointInWrongStateIgnored()
     QCOMPARE(mock->sentRequests().size(), 0);
 }
 
+void TestAdapterClient::inspectLicenseSendsPathAndEmitsResult()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyResult(&client, &AdapterClient::inspectLicenseResult);
+    QSignalSpy spyFailed(&client, &AdapterClient::inspectLicenseFailed);
+
+    driveToAwaitingConfig(client, mock);
+
+    client.inspectLicense(QStringLiteral("/tmp/customer.lic"));
+
+    QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.inspectLicense"));
+    QCOMPARE(mock->sentRequests().last().params["path"].toString(), QStringLiteral("/tmp/customer.lic"));
+
+    QJsonObject result;
+    result["state"] = QStringLiteral("valid");
+    result["customer"] = QStringLiteral("ACME Corp");
+    mock->injectResponse(3, "adapter.inspectLicense", result);
+
+    QCOMPARE(spyResult.count(), 1);
+    QCOMPARE(spyFailed.count(), 0);
+    const QJsonObject received = spyResult.at(0).at(0).value<QJsonObject>();
+    QCOMPARE(received["state"].toString(), QStringLiteral("valid"));
+    QCOMPARE(received["customer"].toString(), QStringLiteral("ACME Corp"));
+}
+
+void TestAdapterClient::inspectLicenseErrorEmitsFailedAndKeepsSession()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyResult(&client, &AdapterClient::inspectLicenseResult);
+    QSignalSpy spyFailed(&client, &AdapterClient::inspectLicenseFailed);
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+
+    driveToAwaitingConfig(client, mock);
+
+    client.inspectLicense(QStringLiteral("/tmp/customer.lic"));
+
+    QJsonObject error;
+    error["code"] = -32601;
+    error["message"] = QStringLiteral("Method not found");
+    mock->injectError(3, "adapter.inspectLicense", error);
+
+    QCOMPARE(spyResult.count(), 0);
+    QCOMPARE(spyFailed.count(), 1);
+    QCOMPARE(spyFailed.at(0).at(0).toString(), QStringLiteral("Method not found"));
+    QCOMPARE(spyError.count(), 0);
+    QVERIFY(client.isReady());
+}
+
+void TestAdapterClient::inspectLicenseInWrongStateIgnored()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyResult(&client, &AdapterClient::inspectLicenseResult);
+
+    client.inspectLicense(QStringLiteral("/tmp/customer.lic"));
+
+    QCOMPARE(spyResult.count(), 0);
+    QCOMPARE(mock->sentRequests().size(), 0);
+}
+
 void TestAdapterClient::validateDataPointValid()
 {
     auto mockOwned = std::make_unique<MockAdapterProcess>();

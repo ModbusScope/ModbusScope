@@ -57,6 +57,15 @@ public:
     {
         _initAdapterCalls++;
     }
+    void inspectLicense(const QString& path) override
+    {
+        _inspectedPaths << path;
+    }
+
+    QStringList inspectedPaths() const
+    {
+        return _inspectedPaths;
+    }
 
     int readDataCalls() const
     {
@@ -81,6 +90,7 @@ private:
     int _readDataCalls = 0;
     int _stopSessionCalls = 0;
     int _initAdapterCalls = 0;
+    QStringList _inspectedPaths;
     bool _emitsAdapterReadySynchronouslyOnStop = false;
 };
 
@@ -339,6 +349,44 @@ void TestAdapterHub::initAdapterReinitializesOnlyIdleManagers()
        never added to _pendingReadyAdapters, so it doesn't need to re-report. */
     hub.onManagerAdapterReady(QStringLiteral("modbus"));
     QCOMPARE(readySpy.count(), 1);
+}
+
+/*! \brief inspectLicense reaches only the manager with the given adapter id. */
+void TestAdapterHub::inspectLicenseIsRoutedToNamedManager()
+{
+    AdapterHub hub;
+    auto* pModbus =
+      new FakeAdapterManager(QStringLiteral("modbus"), FakeAdapterManager::FakeState::AwaitingConfig, &hub);
+    auto* pSim = new FakeAdapterManager(QStringLiteral("sim"), FakeAdapterManager::FakeState::AwaitingConfig, &hub);
+    hub._adapterManagers.insert(QStringLiteral("modbus"), pModbus);
+    hub._adapterManagers.insert(QStringLiteral("sim"), pSim);
+
+    hub.inspectLicense(QStringLiteral("sim"), QStringLiteral("/tmp/a.lic"));
+    hub.inspectLicense(QStringLiteral("unknown"), QStringLiteral("/tmp/b.lic"));
+
+    QCOMPARE(pSim->inspectedPaths(), QStringList{ QStringLiteral("/tmp/a.lic") });
+    QVERIFY(pModbus->inspectedPaths().isEmpty());
+}
+
+/*! \brief Manager inspectLicense signals are re-emitted by the hub. */
+void TestAdapterHub::inspectLicenseSignalsAreForwarded()
+{
+    AdapterHub hub;
+    auto* pManager =
+      new FakeAdapterManager(QStringLiteral("modbus"), FakeAdapterManager::FakeState::AwaitingConfig, &hub);
+    hub._adapterManagers.insert(QStringLiteral("modbus"), pManager);
+    hub.connectManager(pManager, QStringLiteral("modbus"));
+
+    QSignalSpy resultSpy(&hub, &AdapterHub::inspectLicenseResult);
+    QSignalSpy failedSpy(&hub, &AdapterHub::inspectLicenseFailed);
+
+    emit pManager->inspectLicenseResult(QJsonObject{ { "state", "valid" } });
+    emit pManager->inspectLicenseFailed(QStringLiteral("Method not found"));
+
+    QCOMPARE(resultSpy.count(), 1);
+    QCOMPARE(resultSpy.at(0).at(0).value<QJsonObject>().value("state").toString(), QStringLiteral("valid"));
+    QCOMPARE(failedSpy.count(), 1);
+    QCOMPARE(failedSpy.at(0).at(0).toString(), QStringLiteral("Method not found"));
 }
 
 QTEST_GUILESS_MAIN(TestAdapterHub)

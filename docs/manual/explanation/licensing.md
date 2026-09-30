@@ -12,7 +12,11 @@ Click **Request License** in the About dialog to open [modbusscope.com](https://
 
 ## Installing a license
 
-Click **Load License...** in the About dialog and select the license file for the adapter. The license takes effect the next time the adapter is initialized, for example after restarting ModbusScope.
+Click **Load License...** in the About dialog and select the license file for the adapter. The adapter verifies the file first, and ModbusScope shows who the license was issued to (customer, email, license ID and expiry date). The license is installed only after you confirm. Only load a license that was issued to you or your organisation. If a valid license is already installed, the confirmation tells you it will be replaced.
+
+A license that is expired, tampered with or otherwise invalid is never installed; ModbusScope shows the reason instead. The adapter must be running to verify a license, and older adapters that cannot verify licenses need to be updated first.
+
+The license takes effect the next time the adapter is initialized, for example after restarting ModbusScope.
 
 ## Limitations without a license
 

@@ -21,6 +21,8 @@ AdapterManager::AdapterManager(const QString& adapterId,
     connect(_pAdapterClient, &AdapterClient::buildExpressionResult, this, &AdapterManager::buildExpressionResult);
     connect(_pAdapterClient, &AdapterClient::expressionHelpResult, this, &AdapterManager::expressionHelpResult);
     connect(_pAdapterClient, &AdapterClient::describeDataPointResult, this, &AdapterManager::describeDataPointResult);
+    connect(_pAdapterClient, &AdapterClient::inspectLicenseResult, this, &AdapterManager::inspectLicenseResult);
+    connect(_pAdapterClient, &AdapterClient::inspectLicenseFailed, this, &AdapterManager::inspectLicenseFailed);
     connect(_pAdapterClient, &AdapterClient::sessionStopped, this, &AdapterManager::sessionStopped);
     connect(_pAdapterClient, &AdapterClient::sessionError, this, &AdapterManager::sessionError);
     connect(_pAdapterClient, &AdapterClient::adapterReady, this, &AdapterManager::adapterReady);
@@ -92,6 +94,14 @@ void AdapterManager::requestExpressionHelp()
 void AdapterManager::describeDataPoint(const QString& expression)
 {
     _pAdapterClient->describeDataPoint(expression);
+}
+
+/*! \brief Send an adapter.inspectLicense request to verify a license file without installing it.
+ * \param path Absolute path of the license file to inspect.
+ */
+void AdapterManager::inspectLicense(const QString& path)
+{
+    _pAdapterClient->inspectLicense(path);
 }
 
 /*! \brief Send adapter.stop to pause polling and keep the adapter process alive. */
