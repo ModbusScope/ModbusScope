@@ -214,6 +214,29 @@ void AdapterClient::describeDataPoint(const QString& expression)
 }
 
 /*!
+ * \brief Ask the adapter to verify a license file without installing it.
+ * \param path Absolute path of the license file to inspect.
+ */
+void AdapterClient::inspectLicense(const QString& path)
+{
+    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE && _state != State::ACTIVE_DEGRADED)
+    {
+        qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "inspectLicense called in unexpected state"
+                             << static_cast<int>(_state);
+        return;
+    }
+
+    if (isAuxRequestRefused("inspectLicense"))
+    {
+        return;
+    }
+
+    QJsonObject params;
+    params["path"] = path;
+    _pendingAuxRequests["adapter.inspectLicense"] = _pProcess->sendRequest("adapter.inspectLicense", params);
+}
+
+/*!
  * \brief Validate a data point expression string via the adapter.
  * \param expression The data point expression string to validate.
  */
@@ -361,6 +384,17 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
         {
             _pendingAuxRequests.remove(method);
             emit validateDataPointResult(false, errorMsg);
+        }
+        return;
+    }
+
+    if (method == QStringLiteral("adapter.inspectLicense") &&
+        (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
+    {
+        if (_pendingAuxRequests.value(method, -1) == id)
+        {
+            _pendingAuxRequests.remove(method);
+            emit inspectLicenseFailed(errorMsg);
         }
         return;
     }
@@ -780,6 +814,15 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
             return;
         }
         emit describeDataPointResult(result);
+    }
+    else if (method == "adapter.inspectLicense" &&
+             (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
+    {
+        if (!consumeAuxResponse(method, id))
+        {
+            return;
+        }
+        emit inspectLicenseResult(result);
     }
     else if (method == "adapter.validateDataPoint" &&
              (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))

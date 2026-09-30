@@ -95,6 +95,22 @@ void AdapterHub::startSession(const QString& adapterId, const QStringList& expre
     }
 }
 
+/*! \brief Ask the named adapter to verify a license file without installing it.
+ * \param adapterId Adapter identifier (e.g. "modbus").
+ * \param path      Absolute path of the license file to inspect.
+ */
+void AdapterHub::inspectLicense(const QString& adapterId, const QString& path)
+{
+    AdapterManager* mgr = _adapterManagers.value(adapterId, nullptr);
+    if (mgr == nullptr)
+    {
+        qCWarning(scopeComm) << "AdapterHub::inspectLicense: unknown adapter" << adapterId;
+        return;
+    }
+
+    mgr->inspectLicense(path);
+}
+
 /*! \brief Send adapter.stop to every adapter manager with a session in progress or established.
  *
  * A manager that never started a session (AWAITING_CONFIG) or has no process running (IDLE) is
@@ -213,4 +229,6 @@ void AdapterHub::connectManager(AdapterManager* mgr, const QString& id)
     connect(mgr, &AdapterManager::buildExpressionResult, this, &AdapterHub::buildExpressionResult);
     connect(mgr, &AdapterManager::expressionHelpResult, this, &AdapterHub::expressionHelpResult);
     connect(mgr, &AdapterManager::describeDataPointResult, this, &AdapterHub::describeDataPointResult);
+    connect(mgr, &AdapterManager::inspectLicenseResult, this, &AdapterHub::inspectLicenseResult);
+    connect(mgr, &AdapterManager::inspectLicenseFailed, this, &AdapterHub::inspectLicenseFailed);
 }

@@ -17,6 +17,8 @@ private slots:
     void stopSessionPurgesPendingStartForActiveAdapters();
     void stopSessionWaitsForAllAdaptersWhenOneStopsSynchronously();
     void initAdapterReinitializesOnlyIdleManagers();
+    void inspectLicenseIsRoutedToNamedManager();
+    void inspectLicenseSignalsAreForwarded();
 };
 
 #endif // TST_ADAPTERHUB_H

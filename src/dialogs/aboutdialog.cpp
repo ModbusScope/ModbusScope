@@ -4,6 +4,8 @@
 #include "muParserDef.h"
 #include "qcustomplot/qcustomplot.h"
 
+#include "ProtocolAdapter/adapterhub.h"
+#include "ProtocolAdapter/adaptermanager.h"
 #include "models/adapterdata.h"
 #include "models/settingsmodel.h"
 #include "util/fileselectionhelper.h"
@@ -22,8 +24,9 @@
 #include <QTextDocument>
 #include <QUrl>
 
-AboutDialog::AboutDialog(UpdateNotify* pUpdateNotify, SettingsModel* pSettingsModel, QWidget* parent)
-    : QDialog(parent), _pUi(new Ui::AboutDialog), _pSettingsModel(pSettingsModel)
+AboutDialog::AboutDialog(UpdateNotify* pUpdateNotify, SettingsModel* pSettingsModel, AdapterHub* pAdapterHub,
+                         QWidget* parent)
+    : QDialog(parent), _pUi(new Ui::AboutDialog), _pSettingsModel(pSettingsModel), _pAdapterHub(pAdapterHub)
 {
     _pUi->setupUi(this);
     _pUi->textAdapters->document()->setDocumentMargin(12);
@@ -35,6 +38,15 @@ AboutDialog::AboutDialog(UpdateNotify* pUpdateNotify, SettingsModel* pSettingsMo
     connect(_pUi->btnLicense, &QPushButton::clicked, this, &AboutDialog::openLicense);
     connect(_pUi->btnRequestLicense, &QPushButton::clicked, this, &AboutDialog::openRequestLicense);
     connect(_pUi->btnLoadLicense, &QPushButton::clicked, this, &AboutDialog::loadLicense);
+
+    _inspectTimer.setSingleShot(true);
+    _inspectTimer.setInterval(cInspectTimeoutMs);
+    connect(&_inspectTimer, &QTimer::timeout, this, &AboutDialog::onInspectLicenseTimeout);
+    if (_pAdapterHub != nullptr)
+    {
+        connect(_pAdapterHub, &AdapterHub::inspectLicenseResult, this, &AboutDialog::onInspectLicenseResult);
+        connect(_pAdapterHub, &AdapterHub::inspectLicenseFailed, this, &AboutDialog::onInspectLicenseFailed);
+    }
 
     setVersionInfo();
     setAdapterInfo(pSettingsModel);
@@ -63,7 +75,9 @@ void AboutDialog::openRequestLicense(void)
     QDesktopServices::openUrl(QUrl("https://modbusscope.com/"));
 }
 
-void AboutDialog::loadLicense(void)
+//! \brief Lets the user pick which adapter receives the license.
+//! \return The adapter id, or an empty string when nothing was selected or no adapter has a license location.
+QString AboutDialog::selectLicenseAdapter()
 {
     QStringList adapterIds;
     for (const QString& id : _pSettingsModel->adapterIds())
@@ -79,7 +93,7 @@ void AboutDialog::loadLicense(void)
     {
         QMessageBox::warning(this, tr("Load License"),
                              tr("None of the configured adapters have reported a license file location."));
-        return;
+        return QString();
     }
 
     QString adapterId = adapterIds.first();
@@ -114,13 +128,22 @@ void AboutDialog::loadLicense(void)
           QInputDialog::getItem(this, tr("Load License"), tr("Select adapter:"), displayNames, 0, false, &bOk);
         if (!bOk)
         {
-            return;
+            return QString();
         }
 
         adapterId = nameToId.value(chosenName);
     }
 
-    const AdapterLicenseInfo licenseInfo = _pSettingsModel->adapterData(adapterId)->licenseInfo();
+    return adapterId;
+}
+
+void AboutDialog::loadLicense(void)
+{
+    const QString adapterId = selectLicenseAdapter();
+    if (adapterId.isEmpty())
+    {
+        return;
+    }
 
     QFileDialog dialog(this);
     FileSelectionHelper::configureFileDialog(&dialog, FileSelectionHelper::DIALOG_TYPE_OPEN,
@@ -131,18 +154,98 @@ void AboutDialog::loadLicense(void)
         return;
     }
 
-    if (requiresOverwriteConfirmation(licenseInfo))
+    startLicenseInspection(adapterId, sourcePath);
+}
+
+//! \brief Asks the adapter to verify the chosen license file; nothing is installed until the user confirms.
+void AboutDialog::startLicenseInspection(const QString& adapterId, const QString& sourcePath)
+{
+    const AdapterManager* pManager = (_pAdapterHub != nullptr) ? _pAdapterHub->adapterManager(adapterId) : nullptr;
+    if (pManager == nullptr || !(pManager->isAdapterReady() || pManager->isAdapterActive()))
     {
-        const auto answer = QMessageBox::question(
-          this, tr("Load License"), tr("A valid license is already installed for this adapter. Overwrite it?"),
-          QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-        if (answer != QMessageBox::Yes)
-        {
-            return;
-        }
+        QMessageBox::warning(this, tr("Load License"), tr("Adapter is not running, cannot verify the license."));
+        return;
     }
 
-    const QString error = installLicenseFile(sourcePath, licenseInfo.path);
+    const AdapterLicenseInfo existing = _pSettingsModel->adapterData(adapterId)->licenseInfo();
+    _inspectDestPath = existing.path;
+    _inspectReplacesValid = requiresOverwriteConfirmation(existing);
+    _inspectSourcePath = sourcePath;
+    _inspecting = true;
+    _pUi->btnLoadLicense->setEnabled(false);
+    _inspectTimer.start();
+
+    _pAdapterHub->inspectLicense(adapterId, QFileInfo(sourcePath).absoluteFilePath());
+}
+
+//! \brief Ends a pending inspection: stops the timeout and re-enables the load button.
+void AboutDialog::finishLicenseInspection()
+{
+    _inspecting = false;
+    _inspectTimer.stop();
+    _pUi->btnLoadLicense->setEnabled(true);
+}
+
+void AboutDialog::onInspectLicenseResult(const QJsonObject& result)
+{
+    if (!_inspecting)
+    {
+        return;
+    }
+    finishLicenseInspection();
+
+    const AdapterLicenseInfo license = AdapterLicenseInfo::fromJson(result);
+    if (license.state != AdapterLicenseInfo::State::Valid)
+    {
+        QMessageBox box(QMessageBox::Warning, tr("Load License"), licenseRejectionText(license), QMessageBox::Ok, this);
+        box.setTextFormat(Qt::RichText);
+        box.exec();
+        return;
+    }
+
+    confirmAndInstallLicense(license);
+}
+
+void AboutDialog::onInspectLicenseFailed(const QString& message)
+{
+    Q_UNUSED(message);
+    if (!_inspecting)
+    {
+        return;
+    }
+    finishLicenseInspection();
+    showInspectionUnsupported();
+}
+
+void AboutDialog::onInspectLicenseTimeout()
+{
+    if (!_inspecting)
+    {
+        return;
+    }
+    finishLicenseInspection();
+    showInspectionUnsupported();
+}
+
+void AboutDialog::showInspectionUnsupported()
+{
+    QMessageBox::warning(this, tr("Load License"),
+                         tr("This adapter cannot verify licenses. Please update the adapter."));
+}
+
+//! \brief Shows the verified license details and installs the file only if the user confirms.
+void AboutDialog::confirmAndInstallLicense(const AdapterLicenseInfo& license)
+{
+    QMessageBox box(QMessageBox::Question, tr("Load License"), licensePreviewText(license, _inspectReplacesValid),
+                    QMessageBox::Yes | QMessageBox::No, this);
+    box.setTextFormat(Qt::RichText);
+    box.setDefaultButton(QMessageBox::No);
+    if (box.exec() != QMessageBox::Yes)
+    {
+        return;
+    }
+
+    const QString error = installLicenseFile(_inspectSourcePath, _inspectDestPath);
     if (!error.isEmpty())
     {
         QMessageBox::warning(this, tr("Load License"), tr("Failed to install license file: %1").arg(error));
@@ -262,6 +365,43 @@ QString AboutDialog::licenseInfoHtml(const AdapterLicenseInfo& license)
     }
 
     return tr("No license information reported");
+}
+
+//! \brief Builds the rich-text confirmation shown before a verified license is installed.
+QString AboutDialog::licensePreviewText(const AdapterLicenseInfo& license, bool replacesValid)
+{
+    QStringList lines;
+    lines << tr("This license was issued to:");
+    lines << tr("Customer: %1").arg(license.customer.toHtmlEscaped());
+    if (!license.email.isEmpty())
+    {
+        lines << tr("Email: %1").arg(license.email.toHtmlEscaped());
+    }
+    lines << tr("License ID: %1").arg(license.licenseId.toHtmlEscaped());
+    if (!license.expires.isEmpty())
+    {
+        lines << tr("Expires: %1").arg(license.expires.toHtmlEscaped());
+    }
+
+    QString text = lines.join("<br/>");
+    text += "<br/><br/>" + tr("Only load this license if it was issued to you or your organisation.");
+    if (replacesValid)
+    {
+        text += "<br/><br/>" + tr("A valid license is already installed for this adapter and will be replaced.");
+    }
+    text += "<br/><br/>" + tr("Load this license?");
+    return text;
+}
+
+//! \brief Builds the rich-text explanation for a license that will not be installed.
+QString AboutDialog::licenseRejectionText(const AdapterLicenseInfo& license)
+{
+    if (license.state == AdapterLicenseInfo::State::NotFound)
+    {
+        return tr("License file not found.");
+    }
+
+    return tr("The license is not valid and was not installed: %1").arg(license.reason.toHtmlEscaped());
 }
 
 //! \brief Returns true only when a valid license is already installed, so a fresh, invalid,
