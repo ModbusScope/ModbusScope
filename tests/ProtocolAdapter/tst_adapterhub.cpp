@@ -361,8 +361,12 @@ void TestAdapterHub::inspectLicenseIsRoutedToNamedManager()
     hub._adapterManagers.insert(QStringLiteral("modbus"), pModbus);
     hub._adapterManagers.insert(QStringLiteral("sim"), pSim);
 
+    QSignalSpy failedSpy(&hub, &AdapterHub::inspectLicenseFailed);
+
     hub.inspectLicense(QStringLiteral("sim"), QStringLiteral("/tmp/a.lic"));
+    QCOMPARE(failedSpy.count(), 0);
     hub.inspectLicense(QStringLiteral("unknown"), QStringLiteral("/tmp/b.lic"));
+    QCOMPARE(failedSpy.count(), 1);
 
     QCOMPARE(pSim->inspectedPaths(), QStringList{ QStringLiteral("/tmp/a.lic") });
     QVERIFY(pModbus->inspectedPaths().isEmpty());

@@ -405,6 +405,10 @@ license location, so the user can confirm who the license was issued to.
 | `reason` | Human-readable reason, present when `state` is `invalid` |
 | `customer`, `email`, `licenseId`, `expires` | License details, present when `state` is `valid`; `email` and `expires` are optional |
 
+**Errors:**
+
+- `-32602`: missing or non-string `path`
+
 There is no capability flag. An adapter that does not implement this method
 answers with a JSON-RPC error (method not found). The core treats that as
 "cannot verify" and refuses to install the license.

@@ -2,6 +2,7 @@
 #define ABOUTDIALOG_H
 
 #include <QDialog>
+#include <QByteArray>
 #include <QJsonObject>
 #include <QTimer>
 
@@ -24,34 +25,13 @@ public:
                          QWidget* parent = nullptr);
     ~AboutDialog();
 
-    /*!
-     * \brief Returns true when the given license state should require the user to confirm
-     * before overwriting an existing license file with a new one.
-     */
+
     static bool requiresOverwriteConfirmation(const AdapterLicenseInfo& existing);
 
-    /*!
-     * \brief Builds the confirmation text shown before a verified license is installed.
-     *
-     * All adapter-supplied fields are HTML-escaped; the result is meant for Qt::RichText.
-     * \param license The valid license reported by the adapter.
-     * \param replacesValid True when a valid license is already installed and would be overwritten.
-     */
     static QString licensePreviewText(const AdapterLicenseInfo& license, bool replacesValid);
 
-    /*!
-     * \brief Builds the text explaining why a license that is not valid will not be installed.
-     *
-     * The result is HTML-escaped and meant for Qt::RichText.
-     */
     static QString licenseRejectionText(const AdapterLicenseInfo& license);
 
-    /*!
-     * \brief Copies a license file to its installed location.
-     *
-     * Creates the destination directory if needed, replacing any existing file at destPath.
-     * \return An empty string on success, or a human-readable error message on failure.
-     */
     static QString installLicenseFile(const QString& sourcePath, const QString& destPath);
 
 private slots:
@@ -75,6 +55,7 @@ private:
     void finishLicenseInspection();
     void confirmAndInstallLicense(const AdapterLicenseInfo& license);
     void showInspectionUnsupported();
+    static QByteArray hashFile(const QString& path);
 
     static const int cInspectTimeoutMs = 5000;
 
@@ -86,6 +67,7 @@ private:
     bool _inspecting{ false };
     QString _inspectSourcePath;
     QString _inspectDestPath;
+    QByteArray _inspectSourceHash;
     bool _inspectReplacesValid{ false };
 };
 

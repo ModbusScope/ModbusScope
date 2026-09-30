@@ -1366,11 +1366,30 @@ void TestAdapterClient::inspectLicenseInWrongStateIgnored()
     AdapterClient client(std::move(mockOwned));
 
     QSignalSpy spyResult(&client, &AdapterClient::inspectLicenseResult);
+    QSignalSpy spyFailed(&client, &AdapterClient::inspectLicenseFailed);
 
     client.inspectLicense(QStringLiteral("/tmp/customer.lic"));
 
     QCOMPARE(spyResult.count(), 0);
+    QCOMPARE(spyFailed.count(), 1);
     QCOMPARE(mock->sentRequests().size(), 0);
+}
+
+void TestAdapterClient::inspectLicensePendingIsFailedWhenSessionConfigures()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyFailed(&client, &AdapterClient::inspectLicenseFailed);
+
+    driveToAwaitingConfig(client, mock);
+    client.inspectLicense(QStringLiteral("/tmp/customer.lic"));
+    QCOMPARE(spyFailed.count(), 0);
+
+    client.provideConfig(QJsonObject(), QStringList{ QStringLiteral("${h0}") });
+
+    QCOMPARE(spyFailed.count(), 1);
 }
 
 void TestAdapterClient::validateDataPointValid()

@@ -105,6 +105,7 @@ void AdapterHub::inspectLicense(const QString& adapterId, const QString& path)
     if (mgr == nullptr)
     {
         qCWarning(scopeComm) << "AdapterHub::inspectLicense: unknown adapter" << adapterId;
+        emit inspectLicenseFailed(QStringLiteral("Unknown adapter"));
         return;
     }
 
