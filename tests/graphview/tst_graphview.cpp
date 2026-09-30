@@ -9,6 +9,7 @@
 #include "models/settingsmodel.h"
 #include "util/graphindex.h"
 
+#include <QSignalSpy>
 #include <QTest>
 #include <QWidget>
 
@@ -153,6 +154,102 @@ void TestGraphView::qualityMarkersFollowGraphVisibility()
     _pGraphView->handleGraphVisibilityChange(GraphIdx(0));
 
     QVERIFY(!markerCurve(QCPScatterStyle::ssCustom)->visible());
+}
+
+void TestGraphView::plotResultsHoldsLastValueWhenInvalid()
+{
+    _pGraphDataModel->add();
+    _pGraphView->updateGraphs();
+
+    plotResult(ResultDouble(5.0, DataQuality::State::Good));
+    plotResult(ResultDouble(0.0, DataQuality::State::Invalid));
+
+    QCOMPARE(seriesValues(), QList<double>() << 5.0 << 5.0);
+
+    const QSharedPointer<const GraphDataSeries> pSeries = _pGraphDataModel->dataSeries(GraphIdx(0));
+    QCOMPARE((pSeries->constEnd() - 1)->quality.state, DataQuality::State::Invalid);
+
+    /* The marker sits on the held value */
+    const QCPCurve* pInvalidCurve = markerCurve(QCPScatterStyle::ssCustom);
+    QVERIFY(pInvalidCurve != nullptr);
+    QCOMPARE(pInvalidCurve->data()->constBegin()->value, 5.0);
+
+    /* The plotted graph holds the value as well */
+    QCOMPARE((_pPlot->graph(0)->data()->constEnd() - 1)->value, 5.0);
+}
+
+void TestGraphView::plotResultsHoldsLastValueOverConsecutiveInvalid()
+{
+    _pGraphDataModel->add();
+    _pGraphView->updateGraphs();
+
+    plotResult(ResultDouble(5.0, DataQuality::State::Good));
+    plotResult(ResultDouble(0.0, DataQuality::State::Invalid));
+    plotResult(ResultDouble(0.0, DataQuality::State::Invalid));
+    plotResult(ResultDouble(7.0, DataQuality::State::Good));
+
+    QCOMPARE(seriesValues(), QList<double>() << 5.0 << 5.0 << 5.0 << 7.0);
+}
+
+void TestGraphView::plotResultsHoldsLastValueWhenNoValue()
+{
+    _pGraphDataModel->add();
+    _pGraphView->updateGraphs();
+
+    plotResult(ResultDouble(5.0, DataQuality::State::Degraded));
+    plotResult(ResultDouble(0.0, DataQuality::State::NoValue));
+
+    QCOMPARE(seriesValues(), QList<double>() << 5.0 << 5.0);
+}
+
+void TestGraphView::plotResultsUsesZeroWhenNoPreviousValue()
+{
+    _pGraphDataModel->add();
+    _pGraphView->updateGraphs();
+
+    plotResult(ResultDouble(0.0, DataQuality::State::Invalid));
+
+    QCOMPARE(seriesValues(), QList<double>() << 0.0);
+}
+
+void TestGraphView::plotResultsEmitsHeldValue()
+{
+    _pGraphDataModel->add();
+    _pGraphView->updateGraphs();
+
+    QSignalSpy spyDataAdded(_pGraphView, &GraphView::dataAddedToPlot);
+
+    plotResult(ResultDouble(5.0, DataQuality::State::Good));
+    plotResult(ResultDouble(0.0, DataQuality::State::Invalid));
+
+    QCOMPARE(spyDataAdded.count(), 2);
+
+    const QList<QVariant> arguments = spyDataAdded.last();
+    QCOMPARE(arguments.at(1).value<QList<double> >(), QList<double>() << 5.0);
+
+    const QList<DataQuality::Quality> qualities = arguments.at(2).value<QList<DataQuality::Quality> >();
+    QCOMPARE(qualities.size(), 1);
+    QCOMPARE(qualities.first().state, DataQuality::State::Invalid);
+}
+
+void TestGraphView::plotResult(const ResultDouble& result)
+{
+    ResultDoubleList resultList;
+    resultList.append(result);
+    _pGraphView->plotResults(resultList);
+}
+
+QList<double> TestGraphView::seriesValues() const
+{
+    QList<double> values;
+
+    const QSharedPointer<const GraphDataSeries> pSeries = _pGraphDataModel->dataSeries(GraphIdx(0));
+    for (auto it = pSeries->constBegin(); it != pSeries->constEnd(); ++it)
+    {
+        values.append(it->value);
+    }
+
+    return values;
 }
 
 QList<QCPCurve*> TestGraphView::markerCurves() const

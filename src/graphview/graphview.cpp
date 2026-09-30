@@ -516,6 +516,14 @@ void GraphView::rescalePlot()
     _pPlot->replot();
 }
 
+/*!
+ * \brief Appends one poll's results as a new sample to every active signal.
+ *
+ * A result that is not usable keeps the signal's previous value (0 when there is none); its data quality is
+ * stored with the sample.
+ *
+ * \param resultList One result per active signal, in active-graph order.
+ */
 void GraphView::plotResults(ResultDoubleList resultList)
 {
     /* QList correspond with activeGraphList */
@@ -537,11 +545,12 @@ void GraphView::plotResults(ResultDoubleList resultList)
     qint32 i = 0;
     for (const auto& result : resultList)
     {
-        /* Non-usable results are stored as zero; the quality still travels with the sample */
-        const double value = result.isUsable() ? result.value() : 0;
-
         const GraphIdx graphIdx = _pGraphDataModel->convertToGraphIndex(ActiveIdx(i));
-        _pGraphDataModel->mutableDataSeries(graphIdx)->add(timeData, value, result.quality());
+        const QSharedPointer<GraphDataSeries> pDataSeries = _pGraphDataModel->mutableDataSeries(graphIdx);
+
+        const double value = result.isUsable() ? result.value() : pDataSeries->lastValue(0.0);
+
+        pDataSeries->add(timeData, value, result.quality());
 
         _pPlot->graph(i)->addData(timeData, value);
         _pGraphQualityMarkers->appendSample(graphIdx, timeData, value, result.quality());

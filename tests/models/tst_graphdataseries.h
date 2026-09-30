@@ -17,6 +17,8 @@ private slots:
     void addTwoArgOverloadDefaultsToGoodNoFlags();
     void addThreeArgOverloadStoresQuality();
     void sizeIsEmptyClear();
+    void lastValueReturnsFallbackWhenEmpty();
+    void lastValueReturnsLastSampleValue();
     void setSamplesReplacesExistingData();
 
     void findBeginOnEmptyReturnsConstEnd();

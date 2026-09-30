@@ -9,6 +9,9 @@ The latest *ModbusScope* installer or standalone version can always be downloade
   * Adapter configuration is stored in the project file
 * Show a message in the graph area when no registers are configured yet
 * Ask for confirmation before removing a connection or device tab in Settings
+* Data quality (good, degraded, invalid, no value) is now tracked per data point
+  * Plotted with a distinct marker per state (degraded, invalid, no value); an invalid or no-value sample holds the signal's last value instead of dropping to zero
+  * Exported to and imported from CSV files alongside the value
 
 ### Fixed
 
@@ -19,7 +22,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 * Project files (`.mbs`) are now saved as JSON; older XML project files (ModbusScope v3 and v4) still load automatically
 * Completely rewritten user manual, organised into tutorials, how-to guides, reference and explanation (Diataxis)
 * Update bundled dependencies
-* Adapter protocol version 2: adapters report a data quality (good, degraded, invalid, no value) per data point; adapters speaking an older protocol are refused with a diagnostic
+* Adapter protocol version 2: adapters report a data quality per data point; adapters speaking an older protocol are refused with a diagnostic
 
 ## [v4.2.2](https://github.com/jgeudens/ModbusScope/releases/tag/4.2.2) (28/04/2026)
 

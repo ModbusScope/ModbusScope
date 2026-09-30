@@ -31,6 +31,20 @@ bool GraphDataSeries::isEmpty() const
 }
 
 /*!
+ * \brief Returns the value of the last sample in the series.
+ * \param fallback Value returned when the series contains no samples.
+ */
+double GraphDataSeries::lastValue(double fallback) const
+{
+    if (_samples.isEmpty())
+    {
+        return fallback;
+    }
+
+    return _samples.last().value;
+}
+
+/*!
  * \brief Removes all samples from the series.
  */
 void GraphDataSeries::clear()

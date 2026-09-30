@@ -30,7 +30,7 @@ Files written by ModbusScope contain a `//Quality;1` header line, written with t
 Time (ms);Temp;Temp (quality);Press;Press (quality)
 0;21.5;0;1.02;0
 1000;21.6;129;1.02;0
-2000;0;2;1.03;0
+2000;21.6;2;1.03;0
 ```
 
 The quality code is `state + flags`:
@@ -39,14 +39,14 @@ The quality code is `state + flags`:
 | --- | --- |
 | 0 | Good |
 | 1 | Degraded |
-| 2 | Invalid (value written as 0) |
-| 3 | No value (value written as 0) |
+| 2 | Invalid (value is the last valid value, 0 if there was none yet) |
+| 3 | No value (value is the last valid value, 0 if there was none yet) |
 | +16 | Substituted |
 | +32 | Blocked |
 | +64 | Overflow |
 | +128 | Old data |
 
-For example, `129` is Degraded with Old data. On import, the value of an Invalid or No value sample is read as 0, an empty quality cell reads as Good, unknown flag bits are ignored and an unknown state reads as Invalid. Files without the `//Quality` line load with every sample marked Good.
+For example, `129` is Degraded with Old data. On import, the value of every sample is read as written, an empty quality cell reads as Good, unknown flag bits are ignored and an unknown state reads as Invalid. Files without the `//Quality` line load with every sample marked Good.
 
 ## Separators (export)
 

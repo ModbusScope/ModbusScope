@@ -103,6 +103,23 @@ void TestGraphDataSeries::sizeIsEmptyClear()
     QCOMPARE(series.size(), 0);
 }
 
+void TestGraphDataSeries::lastValueReturnsFallbackWhenEmpty()
+{
+    GraphDataSeries series;
+
+    QCOMPARE(series.lastValue(-1.0), -1.0);
+}
+
+void TestGraphDataSeries::lastValueReturnsLastSampleValue()
+{
+    GraphDataSeries series;
+
+    series.add(1, 10);
+    series.add(2, 20);
+
+    QCOMPARE(series.lastValue(-1.0), 20.0);
+}
+
 void TestGraphDataSeries::setSamplesReplacesExistingData()
 {
     GraphDataSeries series;
