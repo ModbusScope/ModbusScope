@@ -325,6 +325,7 @@ private:
     ResultDoubleList invalidResults() const;
     void degradeSession(const QString& diagnosticMessage);
     void announceIncompatibleSession();
+    void clearPendingAuxRequests();
     bool isAuxRequestRefused(const char* requestName) const;
     ResultDoubleList decodeReadDataResult(const QJsonObject& result);
     ResultDouble decodeDataPoint(const QJsonValue& entry, ReadDataIssues& issues);

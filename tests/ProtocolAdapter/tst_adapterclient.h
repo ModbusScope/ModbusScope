@@ -64,6 +64,7 @@ private slots:
     void inspectLicenseSendsPathAndEmitsResult();
     void inspectLicenseErrorEmitsFailedAndKeepsSession();
     void inspectLicenseInWrongStateIgnored();
+    void inspectLicensePendingIsFailedWhenSessionConfigures();
     void validateDataPointValid();
     void validateDataPointInvalid();
     void validateDataPointInActiveState();

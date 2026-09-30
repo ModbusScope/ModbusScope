@@ -20,6 +20,7 @@ private slots:
     void licenseRejectionTextInvalidShowsReason();
     void licenseRejectionTextNotFound();
     void licenseRejectionTextEscapesHtml();
+    void licenseRejectionTextUnknownAndEmptyReason();
 
     void installLicenseFileCopiesToFreshDestination();
     void installLicenseFileCreatesMissingDirectories();

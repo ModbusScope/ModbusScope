@@ -9,6 +9,7 @@
 #include "models/adapterdata.h"
 #include "models/settingsmodel.h"
 #include "util/fileselectionhelper.h"
+#include "util/scopelogging.h"
 #include "util/updatenotify.h"
 #include "util/util.h"
 #include "util/version.h"
@@ -17,6 +18,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileDialog>
+#include <QCryptographicHash>
 #include <QFileInfo>
 #include <QInputDialog>
 #include <QLibraryInfo>
@@ -157,6 +159,23 @@ void AboutDialog::loadLicense(void)
     startLicenseInspection(adapterId, sourcePath);
 }
 
+//! \brief Returns a SHA-256 hash of the file content, or an empty array if it cannot be read.
+QByteArray AboutDialog::hashFile(const QString& path)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        return QByteArray();
+    }
+
+    QCryptographicHash hash(QCryptographicHash::Sha256);
+    if (!hash.addData(&file))
+    {
+        return QByteArray();
+    }
+    return hash.result();
+}
+
 //! \brief Asks the adapter to verify the chosen license file; nothing is installed until the user confirms.
 void AboutDialog::startLicenseInspection(const QString& adapterId, const QString& sourcePath)
 {
@@ -171,6 +190,7 @@ void AboutDialog::startLicenseInspection(const QString& adapterId, const QString
     _inspectDestPath = existing.path;
     _inspectReplacesValid = requiresOverwriteConfirmation(existing);
     _inspectSourcePath = sourcePath;
+    _inspectSourceHash = hashFile(sourcePath);
     _inspecting = true;
     _pUi->btnLoadLicense->setEnabled(false);
     _inspectTimer.start();
@@ -194,7 +214,13 @@ void AboutDialog::onInspectLicenseResult(const QJsonObject& result)
     }
     finishLicenseInspection();
 
-    const AdapterLicenseInfo license = AdapterLicenseInfo::fromJson(result);
+    AdapterLicenseInfo license = AdapterLicenseInfo::fromJson(result);
+    if (license.state == AdapterLicenseInfo::State::Valid && license.customer.isEmpty())
+    {
+        /* A valid license without an identity gives the user nothing to confirm. */
+        license.state = AdapterLicenseInfo::State::Unknown;
+    }
+
     if (license.state != AdapterLicenseInfo::State::Valid)
     {
         QMessageBox box(QMessageBox::Warning, tr("Load License"), licenseRejectionText(license), QMessageBox::Ok, this);
@@ -208,11 +234,11 @@ void AboutDialog::onInspectLicenseResult(const QJsonObject& result)
 
 void AboutDialog::onInspectLicenseFailed(const QString& message)
 {
-    Q_UNUSED(message);
     if (!_inspecting)
     {
         return;
     }
+    qCWarning(scopeUi) << "License inspection failed:" << message;
     finishLicenseInspection();
     showInspectionUnsupported();
 }
@@ -242,6 +268,14 @@ void AboutDialog::confirmAndInstallLicense(const AdapterLicenseInfo& license)
     box.setDefaultButton(QMessageBox::No);
     if (box.exec() != QMessageBox::Yes)
     {
+        return;
+    }
+
+    /* The adapter verified the file before the user confirmed; refuse to install if it changed since. */
+    if (_inspectSourceHash.isEmpty() || hashFile(_inspectSourcePath) != _inspectSourceHash)
+    {
+        QMessageBox::warning(this, tr("Load License"),
+                             tr("The license file changed after it was verified. Nothing was installed."));
         return;
     }
 
@@ -367,7 +401,14 @@ QString AboutDialog::licenseInfoHtml(const AdapterLicenseInfo& license)
     return tr("No license information reported");
 }
 
-//! \brief Builds the rich-text confirmation shown before a verified license is installed.
+/*!
+ * \brief Builds the rich-text confirmation shown before a verified license is installed.
+ *
+ * All adapter-supplied fields are HTML-escaped; the result is meant for Qt::RichText.
+ * \param license The valid license reported by the adapter.
+ * \param replacesValid True when a valid license is already installed and would be overwritten.
+ * \return The confirmation text.
+ */
 QString AboutDialog::licensePreviewText(const AdapterLicenseInfo& license, bool replacesValid)
 {
     QStringList lines;
@@ -393,7 +434,11 @@ QString AboutDialog::licensePreviewText(const AdapterLicenseInfo& license, bool 
     return text;
 }
 
-//! \brief Builds the rich-text explanation for a license that will not be installed.
+/*!
+ * \brief Builds the rich-text explanation for a license that will not be installed.
+ * \param license The license reported by the adapter (not valid, or unrecognised).
+ * \return The HTML-escaped explanation.
+ */
 QString AboutDialog::licenseRejectionText(const AdapterLicenseInfo& license)
 {
     if (license.state == AdapterLicenseInfo::State::NotFound)
@@ -401,11 +446,22 @@ QString AboutDialog::licenseRejectionText(const AdapterLicenseInfo& license)
         return tr("License file not found.");
     }
 
+    if (license.state == AdapterLicenseInfo::State::Unknown)
+    {
+        return tr("The adapter returned an unrecognised response. The license was not installed.");
+    }
+
+    if (license.reason.isEmpty())
+    {
+        return tr("The license is not valid and was not installed.");
+    }
+
     return tr("The license is not valid and was not installed: %1").arg(license.reason.toHtmlEscaped());
 }
 
 //! \brief Returns true only when a valid license is already installed, so a fresh, invalid,
 //! or missing license can be replaced without prompting.
+//! \param existing The license currently reported by the adapter.
 bool AboutDialog::requiresOverwriteConfirmation(const AdapterLicenseInfo& existing)
 {
     return existing.state == AdapterLicenseInfo::State::Valid;
@@ -413,6 +469,9 @@ bool AboutDialog::requiresOverwriteConfirmation(const AdapterLicenseInfo& existi
 
 //! \brief Copies a license file to its installed location, creating the destination
 //! directory and replacing any existing file at destPath.
+//! \param sourcePath The license file to copy.
+//! \param destPath The installed location.
+//! \return An empty string on success, or a human-readable error message on failure.
 //!
 //! Copies to a temporary file first and only then swaps it into place, so a failed or
 //! aborted copy never leaves destPath deleted with nothing to replace it - important since

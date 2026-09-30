@@ -137,6 +137,17 @@ void TestAboutDialog::licenseRejectionTextEscapesHtml()
     QVERIFY(text.contains("&lt;b&gt;bad&lt;/b&gt;"));
 }
 
+void TestAboutDialog::licenseRejectionTextUnknownAndEmptyReason()
+{
+    AdapterLicenseInfo unknown;
+    QVERIFY(AboutDialog::licenseRejectionText(unknown).contains("unrecognised"));
+
+    AdapterLicenseInfo invalid;
+    invalid.state = AdapterLicenseInfo::State::Invalid;
+    QVERIFY(!AboutDialog::licenseRejectionText(invalid).endsWith(": "));
+    QVERIFY(!AboutDialog::licenseRejectionText(invalid).endsWith(":"));
+}
+
 void TestAboutDialog::installLicenseFileCopiesToFreshDestination()
 {
     QTemporaryDir tempDir;
