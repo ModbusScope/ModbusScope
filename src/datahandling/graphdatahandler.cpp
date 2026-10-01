@@ -20,10 +20,12 @@ void GraphDataHandler::setupExpressions(GraphDataModel* pGraphDataModel, QList<D
     _expressionDataPointIndices = exprParser.expressionDataPointIndices();
 
     _valueParsers.clear();
+    _lastFailureMsgs.clear();
 
     for (const QString& expr : processedExpList)
     {
         _valueParsers.append(QMuParser(expr));
+        _lastFailureMsgs.append(QString());
     }
 
     registerList = regList;
@@ -66,6 +68,7 @@ struct InputSummary
 {
     DataQuality::Flags flags = DataQuality::Flag::NoFlags;
     bool anyDegraded = false;
+    bool anyInvalid = false;
     bool allNoValue = false;
 };
 
@@ -99,6 +102,10 @@ InputSummary summarizeInputs(const QList<int>& dataPointIndices, const ResultDou
         {
             summary.anyDegraded = true;
         }
+        if (input.state() == DataQuality::State::Invalid)
+        {
+            summary.anyInvalid = true;
+        }
         if (input.state() != DataQuality::State::NoValue)
         {
             summary.allNoValue = false;
@@ -116,15 +123,24 @@ InputSummary summarizeInputs(const QList<int>& dataPointIndices, const ResultDou
  * failure came from the inputs rather than from the expression itself ("not started yet" rather
  * than "broken"); any other failure is Invalid. The inputs' flags are carried over on every path.
  *
+ * A failure caused by an Invalid input is not logged, as the poller already reports that data point.
+ * Any other failure is logged only when its message differs from the last one logged.
+ *
+ * \param exprIdx Index of the expression, used to identify it in the log.
  * \param parser The expression to evaluate.
  * \param inputs Combined quality of the data points the expression references.
+ * \param lastFailureMsg Last failure logged for this expression; updated by this function.
  */
-ResultDouble evaluateExpression(QMuParser& parser, const InputSummary& inputs)
+ResultDouble evaluateExpression(qsizetype exprIdx,
+                                QMuParser& parser,
+                                const InputSummary& inputs,
+                                QString& lastFailureMsg)
 {
     ResultDouble result; /* Defaults to NoValue */
 
     if (parser.evaluate())
     {
+        lastFailureMsg.clear();
         result.setValue(parser.value());
         result.addFlags(inputs.flags);
         if (inputs.anyDegraded)
@@ -137,15 +153,25 @@ ResultDouble evaluateExpression(QMuParser& parser, const InputSummary& inputs)
         /* Not an evaluation failure worth logging. A malformed expression (any other error type)
          * is a fault even while every input is still NoValue. */
         result.addFlags(inputs.flags);
+        lastFailureMsg.clear();
     }
     else
     {
         result.setError();
         result.addFlags(inputs.flags);
 
-        auto msg = QString("Expression evaluation failed (%1)").arg(parser.msg());
+        if (inputs.anyInvalid && parser.errorType() == QMuParser::ErrorType::OTHER)
+        {
+            lastFailureMsg.clear();
+        }
+        else if (lastFailureMsg != parser.msg())
+        {
+            lastFailureMsg = parser.msg();
 
-        qCWarning(scopeComm) << qUtf8Printable(msg);
+            auto msg = QString("Expression %1 evaluation failed (%2)").arg(exprIdx + 1).arg(lastFailureMsg);
+
+            qCWarning(scopeComm) << qUtf8Printable(msg);
+        }
     }
 
     return result;
@@ -171,7 +197,7 @@ ResultDoubleList GraphDataHandler::handleRegisterData(const ResultDoubleList& re
     for (qsizetype exprIdx = 0; exprIdx < _valueParsers.size(); exprIdx++)
     {
         const InputSummary inputs = summarizeInputs(_expressionDataPointIndices.at(exprIdx), results);
-        registerList.append(evaluateExpression(_valueParsers[exprIdx], inputs));
+        registerList.append(evaluateExpression(exprIdx, _valueParsers[exprIdx], inputs, _lastFailureMsgs[exprIdx]));
     }
 
     return registerList;

@@ -26,6 +26,7 @@ private:
     QList<GraphIdx> _activeIndexList;
     QList<QMuParser> _valueParsers;
     QList<QList<int>> _expressionDataPointIndices; //!< Parallel to _valueParsers
+    QStringList _lastFailureMsgs;                  //!< Parallel to _valueParsers; last logged failure, empty if none
 };
 
 #endif // GRAPHDATAHANDLER_H
