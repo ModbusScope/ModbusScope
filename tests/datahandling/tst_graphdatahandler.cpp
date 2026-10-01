@@ -13,6 +13,28 @@ Q_DECLARE_METATYPE(Result<quint16>);
 using State = DataQuality::State;
 using Flag = DataQuality::Flag;
 
+// The Qt message handler is a free function, so its state has to be global.
+// NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
+static QStringList s_evaluationFailureLogs; // clazy:exclude=non-pod-global-static
+static QtMessageHandler s_previousHandler = nullptr;
+// NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
+
+//! Captures "Expression evaluation failed" warnings so tests can check exactly which lines were logged.
+static void captureEvaluationFailureLogs(QtMsgType type, const QMessageLogContext& context, const QString& msg)
+{
+    if (type == QtWarningMsg && msg.contains(QStringLiteral("Expression ")) &&
+        msg.contains(QStringLiteral("evaluation failed")))
+    {
+        s_evaluationFailureLogs.append(msg);
+        return;
+    }
+
+    if (s_previousHandler != nullptr)
+    {
+        s_previousHandler(type, context, msg);
+    }
+}
+
 void TestGraphDataHandler::init()
 {
     qRegisterMetaType<Result<quint16>>("Result<quint16>");
@@ -20,10 +42,16 @@ void TestGraphDataHandler::init()
 
     _pSettingsModel = new SettingsModel;
     _pGraphDataModel = new GraphDataModel(_pSettingsModel);
+
+    s_evaluationFailureLogs.clear();
+    s_previousHandler = qInstallMessageHandler(captureEvaluationFailureLogs);
 }
 
 void TestGraphDataHandler::cleanup()
 {
+    qInstallMessageHandler(s_previousHandler);
+    s_previousHandler = nullptr;
+
     delete _pGraphDataModel;
     delete _pSettingsModel;
 }
@@ -379,6 +407,66 @@ void TestGraphDataHandler::graphData_qualityDoesNotLeakBetweenCalls()
 
     auto clean = ResultDoubleList() << ResultDouble(2, State::Good);
     QCOMPARE(dataHandler.handleRegisterData(clean), ResultDoubleList() << ResultDouble(2, State::Good));
+}
+
+/*!
+ * \brief An expression failing only because an input is Invalid is already reported once per data
+ * point by the poller, so it must not log an evaluation failure on every poll.
+ */
+void TestGraphDataHandler::graphData_invalidInputDoesNotLogEvaluationFailure()
+{
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, QStringList() << "${40001}");
+
+    GraphDataHandler dataHandler;
+    QList<DataPoint> registerList;
+    dataHandler.setupExpressions(_pGraphDataModel, registerList);
+
+    for (int poll = 0; poll < 3; poll++)
+    {
+        auto result = dataHandler.handleRegisterData(ResultDoubleList() << ResultDouble(0, State::Invalid));
+        QCOMPARE(result, ResultDoubleList() << ResultDouble(0, State::Invalid));
+    }
+
+    QVERIFY(s_evaluationFailureLogs.isEmpty());
+}
+
+/*!
+ * \brief A fault in the expression itself is logged once, not on every poll.
+ */
+void TestGraphDataHandler::graphData_expressionFaultIsLoggedOnce()
+{
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, QStringList() << "${40001}++");
+
+    GraphDataHandler dataHandler;
+    QList<DataPoint> registerList;
+    dataHandler.setupExpressions(_pGraphDataModel, registerList);
+
+    for (int poll = 0; poll < 3; poll++)
+    {
+        dataHandler.handleRegisterData(ResultDoubleList() << ResultDouble(1, State::Good));
+    }
+
+    QCOMPARE(s_evaluationFailureLogs.size(), 1);
+}
+
+/*!
+ * \brief Setting up the expressions again starts a new session, so the fault is logged again.
+ */
+void TestGraphDataHandler::graphData_expressionFaultIsLoggedAgainAfterSetup()
+{
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, QStringList() << "${40001}++");
+
+    GraphDataHandler dataHandler;
+    QList<DataPoint> registerList;
+
+    for (int session = 0; session < 2; session++)
+    {
+        dataHandler.setupExpressions(_pGraphDataModel, registerList);
+        dataHandler.handleRegisterData(ResultDoubleList() << ResultDouble(1, State::Good));
+        dataHandler.handleRegisterData(ResultDoubleList() << ResultDouble(1, State::Good));
+    }
+
+    QCOMPARE(s_evaluationFailureLogs.size(), 2);
 }
 
 ResultDoubleList TestGraphDataHandler::doHandleRegisterData(ResultDoubleList modbusResults)

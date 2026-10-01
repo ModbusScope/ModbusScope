@@ -42,6 +42,9 @@ private slots:
     void graphData_invalidExpressionWithAllNoValueInputsYieldsInvalid();
     void graphData_sharedInputAggregatedPerExpression();
     void graphData_qualityDoesNotLeakBetweenCalls();
+    void graphData_invalidInputDoesNotLogEvaluationFailure();
+    void graphData_expressionFaultIsLoggedOnce();
+    void graphData_expressionFaultIsLoggedAgainAfterSetup();
 
 private:
     ResultDoubleList doHandleRegisterData(ResultDoubleList modbusResults);
