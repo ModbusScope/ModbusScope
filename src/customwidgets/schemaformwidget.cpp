@@ -501,6 +501,12 @@ QJsonObject SchemaFormWidget::values() const
         else if (auto* combo = qobject_cast<QComboBox*>(widget))
         {
             QVariant data = combo->currentData();
+            if (!data.isValid())
+            {
+                // Empty combo (e.g. no referenced items yet): leave the key out instead of writing ""
+                continue;
+            }
+
             if (data.userType() == QMetaType::Int)
             {
                 result.insert(key, data.toInt());
