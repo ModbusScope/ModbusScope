@@ -656,6 +656,7 @@ void TestSchemaFormWidget::xRefWithoutOptionsCreatesEmptyCombo()
     auto* combo = w.findChild<QComboBox*>();
     QVERIFY(combo != nullptr);
     QCOMPARE(combo->count(), 0);
+    QVERIFY(!w.values().contains("connectionId"));
 }
 
 void TestSchemaFormWidget::referenceOptionsForSchemaReadsConfigArrays()
