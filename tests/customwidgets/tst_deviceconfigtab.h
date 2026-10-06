@@ -18,6 +18,7 @@ private slots:
     void nameChangeDoesNotWriteModel();
     void adapterChangeDoesNotWriteModel();
     void adapterChangeUsesDefaults();
+    void connectionIdRendersAsComboWithConnectionNames();
 
 private:
     //! Populate \a model with two adapters that each have a minimal device schema.
