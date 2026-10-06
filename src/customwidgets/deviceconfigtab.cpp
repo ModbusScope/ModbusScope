@@ -116,6 +116,14 @@ void DeviceConfigTab::rebuildSchemaForm(const QString& adapterId, const QJsonObj
     itemSchema.insert("properties", propsObj);
 
     _pSchemaForm = new SchemaFormWidget(this);
+
+    // Options reflect the saved adapter config, not edits pending in other dialog pages
+    const QMap<QString, QList<SchemaFormWidget::ReferenceOption>> references =
+      SchemaFormWidget::referenceOptionsForSchema(itemSchema, pAdapter->effectiveConfig());
+    for (auto it = references.constBegin(); it != references.constEnd(); ++it)
+    {
+        _pSchemaForm->setReferenceOptions(it.key(), it.value());
+    }
     _pSchemaForm->setSchema(itemSchema, deviceValues);
 
     _pLayout->insertWidget(_pLayout->count() - 1, _pSchemaForm);

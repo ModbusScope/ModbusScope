@@ -49,6 +49,36 @@ QJsonObject makeAdapterDescribe(const QString& adapterName)
     return describe;
 }
 
+//! Like makeAdapterDescribe() but the device schema also has a \c connectionId that references
+//! the \c connections collection.
+QJsonObject makeAdapterDescribeWithConnectionRef(const QString& adapterName)
+{
+    QJsonObject describe = makeAdapterDescribe(adapterName);
+
+    QJsonObject xRef;
+    xRef["collection"] = "connections";
+    xRef["value"] = "id";
+    xRef["label"] = "name";
+
+    QJsonObject connProp;
+    connProp["type"] = "integer";
+    connProp["title"] = "Connection";
+    connProp["x-ref"] = xRef;
+
+    QJsonObject schema = describe["schema"].toObject();
+    QJsonObject topProps = schema["properties"].toObject();
+    QJsonObject devices = topProps["devices"].toObject();
+    QJsonObject items = devices["items"].toObject();
+    QJsonObject itemProps = items["properties"].toObject();
+    itemProps["connectionId"] = connProp;
+    items["properties"] = itemProps;
+    devices["items"] = items;
+    topProps["devices"] = devices;
+    schema["properties"] = topProps;
+    describe["schema"] = schema;
+    return describe;
+}
+
 } // namespace
 
 void TestDeviceConfigTab::setupTwoAdapters(SettingsModel& model)
@@ -202,6 +232,34 @@ void TestDeviceConfigTab::adapterChangeUsesDefaults()
     combo->setCurrentIndex(combo->findData(QStringLiteral("adapterB")));
 
     QCOMPARE(tab.values().value("name").toString(), QStringLiteral("defaultName"));
+}
+
+void TestDeviceConfigTab::connectionIdRendersAsComboWithConnectionNames()
+{
+    SettingsModel model;
+    model.updateAdapterFromDescribe("adapterA", makeAdapterDescribeWithConnectionRef("adapterA"));
+
+    QJsonArray connections;
+    connections.append(QJsonObject{ { "id", 1 }, { "name", "Main" } });
+    connections.append(QJsonObject{ { "id", 2 }, { "name", "Backup" } });
+    model.setAdapterCurrentConfig("adapterA", QJsonObject{ { "connections", connections } });
+
+    DeviceConfigTab tab(&model, "adapterA", QString(), QJsonObject{ { "connectionId", 2 } });
+
+    // The first direct-child combo is the adapter selector; the form's combo is nested.
+    const QList<QComboBox*> combos = tab.findChildren<QComboBox*>();
+    QComboBox* refCombo = nullptr;
+    for (QComboBox* combo : combos)
+    {
+        if (combo->findText("Backup") >= 0)
+        {
+            refCombo = combo;
+        }
+    }
+    QVERIFY(refCombo != nullptr);
+    QCOMPARE(refCombo->count(), 2);
+    QCOMPARE(refCombo->currentText(), QStringLiteral("Backup"));
+    QCOMPARE(tab.values().value("connectionId").toInt(), 2);
 }
 
 QTEST_MAIN(TestDeviceConfigTab)

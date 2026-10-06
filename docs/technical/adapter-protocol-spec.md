@@ -212,6 +212,7 @@ JSON Schema annotations and custom extensions):
 | --- | --- |
 | `title` | Standard JSON Schema annotation. UI-friendly label for the field, suitable for use in form inputs and dialog labels |
 | `x-enumLabels` | Custom extension. Present on enum properties only. A string array, parallel to `enum`, giving a UI-friendly display name for each allowed value |
+| `x-ref` | Custom extension. Marks the property as a reference to an item of another array in the same config, as `{"collection": "connections", "value": "id", "label": "name"}`. `collection` is the config key of the array; `value` (default `id`) is the item key stored in the property; `label` (default `name`) is the item key shown to the user. A UI can render a picker that displays the label and stores the value. Hosts that do not know the keyword treat the property as a plain value |
 
 Schemas MAY use JSON Schema Draft 7 `if`/`then`/`else` to express type-dependent
 fields: when a discriminator field matches a value, the fields in

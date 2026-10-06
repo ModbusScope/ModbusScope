@@ -65,6 +65,7 @@ void AdapterSettings::buildSection(const QJsonObject& propSchema, const QJsonVal
             }
 
             auto* form = new SchemaFormWidget(_pItemTabs);
+            applyReferenceOptions(form);
             form->setSchema(_itemSchema, itemValues);
             connectTabNameTracking(form);
             pages.append(form);
@@ -118,6 +119,22 @@ void AdapterSettings::onSchemaFieldNameChanged(SchemaFormWidget* form, const QSt
     }
 }
 
+/*!
+ * \brief Feeds \a form the options for the collections its item schema references via \c x-ref.
+ *
+ * Options come from the saved adapter config, not from edits pending on other pages.
+ */
+void AdapterSettings::applyReferenceOptions(SchemaFormWidget* form) const
+{
+    const QMap<QString, QList<SchemaFormWidget::ReferenceOption>> references =
+      SchemaFormWidget::referenceOptionsForSchema(_itemSchema,
+                                                  _pSettingsModel->adapterData(_adapterId)->effectiveConfig());
+    for (auto it = references.constBegin(); it != references.constEnd(); ++it)
+    {
+        form->setReferenceOptions(it.key(), it.value());
+    }
+}
+
 void AdapterSettings::connectTabNameTracking(SchemaFormWidget* form)
 {
     connect(form, &SchemaFormWidget::fieldChanged, this,
@@ -160,6 +177,7 @@ void AdapterSettings::addItemTab()
         defaultValues["name"] = formatTabName(nameIndex);
     }
 
+    applyReferenceOptions(form);
     form->setSchema(_itemSchema, defaultValues);
     connectTabNameTracking(form);
     const QString tabName = defaultValues.value("name").toString();
