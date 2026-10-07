@@ -6,6 +6,7 @@
 #include <QFormLayout>
 #include <QJsonArray>
 #include <QLineEdit>
+#include <QSignalBlocker>
 #include <QSpinBox>
 #include <climits>
 #include <limits>
@@ -19,6 +20,7 @@ SchemaFormWidget::SchemaFormWidget(QWidget* parent) : QWidget(parent), _pFormLay
 void SchemaFormWidget::setSchema(const QJsonObject& schema, const QJsonObject& values)
 {
     _fields.clear();
+    _referenceCombos.clear();
     _conditionalTriggerKey.clear();
     _conditionalTriggerConst.clear();
     _thenKeys.clear();
@@ -139,41 +141,156 @@ void SchemaFormWidget::addFieldRow(const QString& key, const QJsonObject& propSc
     }
 }
 
+/*!
+ * \brief Build options from the items of a config array.
+ *
+ * Items without the value key are skipped; a missing label key falls back to the value.
+ */
+QList<SchemaFormWidget::ReferenceOption> SchemaFormWidget::optionsFromArray(const QJsonArray& items,
+                                                                            const QString& valueKey,
+                                                                            const QString& labelKey)
+{
+    QList<ReferenceOption> options;
+    for (const QJsonValue& item : items)
+    {
+        const QJsonObject obj = item.toObject();
+        if (!obj.contains(valueKey))
+        {
+            continue;
+        }
+
+        ReferenceOption option;
+        option.value = obj.value(valueKey);
+        option.label = obj.value(labelKey).toVariant().toString();
+        if (option.label.isEmpty())
+        {
+            option.label = option.value.toVariant().toString();
+        }
+        options.append(option);
+    }
+    return options;
+}
+
+/*!
+ * \brief Build the options for every collection that \a schema references through \c x-ref.
+ */
+QMap<QString, QList<SchemaFormWidget::ReferenceOption>>
+SchemaFormWidget::referenceOptionsForSchema(const QJsonObject& schema, const QJsonObject& config)
+{
+    QList<QJsonObject> propertyMaps;
+    propertyMaps.append(schema.value("properties").toObject());
+    propertyMaps.append(schema.value("then").toObject().value("properties").toObject());
+    propertyMaps.append(schema.value("else").toObject().value("properties").toObject());
+
+    QMap<QString, QList<ReferenceOption>> result;
+    for (const QJsonObject& properties : std::as_const(propertyMaps))
+    {
+        for (auto it = properties.constBegin(); it != properties.constEnd(); ++it)
+        {
+            const QJsonObject xRef = it.value().toObject().value("x-ref").toObject();
+            const QString collection = xRef.value("collection").toString();
+            if (collection.isEmpty())
+            {
+                continue;
+            }
+
+            const QString valueKey = xRef.value("value").toString("id");
+            const QString labelKey = xRef.value("label").toString("name");
+            result.insert(collection, optionsFromArray(config.value(collection).toArray(), valueKey, labelKey));
+        }
+    }
+    return result;
+}
+
+void SchemaFormWidget::setReferenceOptions(const QString& collection, const QList<ReferenceOption>& options)
+{
+    _references.insert(collection, options);
+
+    for (const ReferenceCombo& ref : std::as_const(_referenceCombos))
+    {
+        if (ref.collection == collection)
+        {
+            fillReferenceCombo(ref, QJsonValue::fromVariant(ref.pCombo->currentData()));
+        }
+    }
+}
+
+void SchemaFormWidget::populateCombo(QComboBox* pCombo, const QList<ReferenceOption>& items, bool isInteger)
+{
+    for (const ReferenceOption& item : items)
+    {
+        if (isInteger)
+        {
+            pCombo->addItem(item.label, item.value.toInt());
+        }
+        else
+        {
+            pCombo->addItem(item.label, item.value.toString());
+        }
+    }
+}
+
+void SchemaFormWidget::fillReferenceCombo(const ReferenceCombo& ref, const QJsonValue& current)
+{
+    const QSignalBlocker blocker(ref.pCombo);
+
+    ref.pCombo->clear();
+    populateCombo(ref.pCombo, _references.value(ref.collection), ref.isInteger);
+
+    if (current.isUndefined() || current.isNull())
+    {
+        return;
+    }
+
+    const QVariant currentVariant = ref.isInteger ? QVariant(current.toInt()) : QVariant(current.toString());
+    int idx = ref.pCombo->findData(currentVariant);
+    if (idx < 0)
+    {
+        // Keep a dangling reference visible instead of silently changing the stored value
+        ref.pCombo->addItem(tr("%1 (missing)").arg(current.toVariant().toString()), currentVariant);
+        idx = ref.pCombo->count() - 1;
+    }
+    ref.pCombo->setCurrentIndex(idx);
+}
+
 QWidget* SchemaFormWidget::createWidgetForProperty(const QJsonObject& propSchema, const QJsonValue& value)
 {
     QString type = propSchema.value("type").toString();
     const QJsonArray enumValues = propSchema.value("enum").toArray();
+    const QJsonObject xRef = propSchema.value("x-ref").toObject();
 
-    if (!enumValues.isEmpty())
+    if (!xRef.isEmpty())
+    {
+        auto* combo = new QComboBox(this);
+        const ReferenceCombo ref{ combo, xRef.value("collection").toString(), (type == "integer") };
+        _referenceCombos.append(ref);
+        fillReferenceCombo(ref, value);
+
+        if (propSchema.value("readOnly").toBool())
+        {
+            combo->setEnabled(false);
+        }
+
+        return combo;
+    }
+    else if (!enumValues.isEmpty())
     {
         auto* combo = new QComboBox(this);
         bool isInteger = (type == "integer");
         const QJsonArray enumLabels = propSchema.value("x-enumLabels").toArray();
 
+        QList<ReferenceOption> items;
         for (int i = 0; i < enumValues.size(); ++i)
         {
             const QJsonValue& v = enumValues.at(i);
             QString label = (i < enumLabels.size()) ? enumLabels.at(i).toString() : QString();
-
-            if (isInteger)
+            if (label.isEmpty())
             {
-                int intVal = v.toInt();
-                if (label.isEmpty())
-                {
-                    label = QString::number(intVal);
-                }
-                combo->addItem(label, intVal);
+                label = v.toVariant().toString();
             }
-            else
-            {
-                QString strVal = v.toString();
-                if (label.isEmpty())
-                {
-                    label = strVal;
-                }
-                combo->addItem(label, strVal);
-            }
+            items.append({ v, label });
         }
+        populateCombo(combo, items, isInteger);
 
         QVariant currentVariant = isInteger ? QVariant(value.toInt()) : QVariant(value.toString());
         int idx = combo->findData(currentVariant);
@@ -384,6 +501,12 @@ QJsonObject SchemaFormWidget::values() const
         else if (auto* combo = qobject_cast<QComboBox*>(widget))
         {
             QVariant data = combo->currentData();
+            if (!data.isValid())
+            {
+                // Empty combo (e.g. no referenced items yet): leave the key out instead of writing ""
+                continue;
+            }
+
             if (data.userType() == QMetaType::Int)
             {
                 result.insert(key, data.toInt());
