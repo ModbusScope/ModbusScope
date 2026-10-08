@@ -8,9 +8,9 @@ The **Scale options** panel at the bottom of the main window controls how each a
 
 The most useful setup for watching data in real time is a sliding x-axis combined with a y-axis that tracks the visible window.
 
-1. In the **Scale options** panel, under **X axis**, select **Sliding window**.
+1. In the **Scale options** panel, under **X-axis**, select **Sliding window**.
 2. Set the interval (in seconds) to the time range you want visible — for example `60` for the last minute.
-3. Under **Y axis**, select **Window auto-scale**.
+3. On the **Y1 axis** tab, select **Window auto-scale**.
 
 The graph now scrolls forward as new samples arrive, and the y-axis rescales to the values visible in the current window.
 
@@ -37,7 +37,7 @@ Double-click the axis label (the text along the axis edge). The axis returns to 
 
 ## Set a fixed y-axis range
 
-1. In the **Scale options** panel, under **Y axis**, select **Limit from**.
+1. In the **Scale options** panel, on the **Y1 axis** tab, select **Limit from**.
 2. Enter the minimum and maximum values.
 
 The y-axis is held at these bounds regardless of the logged values.

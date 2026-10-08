@@ -1,6 +1,6 @@
 # Device settings reference
 
-Open via **Settings > Device**.
+Open via **Project > Settings...** and select the **Devices** page. Each device has its own tab; use the **+** button to add one.
 
 A device represents one Modbus slave. Each device is linked to a connection and carries the Modbus-protocol parameters for that slave.
 
@@ -10,7 +10,7 @@ A device represents one Modbus slave. Each device is linked to a connection and 
 | --- | --- | --- | --- |
 | Name | String | — | User-visible label for the device |
 | ID | Integer | — | Internal ID used in register expressions (`@DEVICE`) |
-| Connection ID | Integer | `1` | Which connection this device communicates over |
+| Protocol adapter | Selection | — | Which protocol adapter this device uses |
 | Slave ID | Integer 1–247 | `1` | Modbus unit address of the slave |
 | Timeout | Integer (ms) | `1000` | Time to wait for a response from this device before reporting a timeout. Overrides the connection-level timeout for this device |
 | Max consecutive registers | Integer | `125` | Maximum number of registers fetched in a single Modbus read request. Reduce if the device rejects large requests |

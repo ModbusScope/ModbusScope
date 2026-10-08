@@ -16,12 +16,14 @@ You must have at least one connection and one device configured. See [Configure 
 3. In the **Expression** column, enter the data point address using `${...}` syntax (e.g. `${40001}`). See [Reference: Register syntax](../reference/register-syntax.md) for all supported forms.
 4. In the **Name** column, enter a label for the graph legend.
 5. In the **Color** column, pick a line color.
-6. In the **Data type** column, select the type that matches your device (`16b`, `s16b`, `32b`, `s32b`, `f32b`). For coils and discrete inputs, the type is ignored.
-7. In the **Y-axis** column, select `Y1` or `Y2`.
+6. In the **Y-Axis** column, select `Y1` or `Y2`.
+7. Use the **Active** checkbox to include or exclude a signal from polling.
 8. Repeat steps 2–7 for each signal.
 9. Click **OK**.
 
-**Result:** The signals appear in the main window. They will be polled when you click **Start Logging**.
+The data type is part of the expression (for example `${40001: s16b}`); see the register syntax reference.
+
+**Result:** The signals appear in the main window. They will be polled when you click **Start logging**.
 
 ## Tips
 

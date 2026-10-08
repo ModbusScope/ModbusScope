@@ -21,6 +21,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 * Project files (`.mbs`) are now saved as JSON; older XML project files (ModbusScope v3 and v4) still load automatically
 * Completely rewritten user manual, organised into tutorials, how-to guides, reference and explanation (Diataxis)
+* Quick Start dialog and user manual now use the current menu and button names
 * Update bundled dependencies
 * Adapter protocol version 2: adapters report a data quality per data point; adapters speaking an older protocol are refused with a diagnostic
 

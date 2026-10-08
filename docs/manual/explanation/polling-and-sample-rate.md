@@ -4,7 +4,7 @@ Understanding what determines the actual sample rate helps you configure ModbusS
 
 ## The poll cycle
 
-ModbusScope uses a timer to trigger poll cycles. Each cycle reads all active registers, appends the results to the graph, and then waits for the next timer tick. The **Poll interval** setting in Log settings is the target period for this timer — but it is a lower bound, not a guarantee.
+ModbusScope uses a timer to trigger poll cycles. Each cycle reads all active registers, appends the results to the graph, and then waits for the next timer tick. The **Poll time (ms)** setting on the **Log** page of the Settings dialog is the target period for this timer — but it is a lower bound, not a guarantee.
 
 The actual interval is `max(poll_interval, time_to_read_all_registers)`. If reading all registers takes longer than the configured interval, cycles stretch to accommodate it.
 

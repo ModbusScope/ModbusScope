@@ -1,6 +1,6 @@
 # Connection settings reference
 
-Open via **Settings > Connection**.
+Open via **Project > Settings...** and select the connection page of the Modbus adapter.
 
 Each connection slot can be configured independently. Connection 1 is always enabled; additional connections can be enabled or disabled.
 

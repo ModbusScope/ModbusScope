@@ -14,8 +14,8 @@ If your device uses different values, substitute them at each step.
 
 ## Step 1 — Add a connection
 
-1. Open ModbusScope.
-2. Go to **Settings > Connection**.
+1. Open ModbusScope. On first start the **Quick Start** dialog appears; you can reopen it later via **Help > Quick Start...**.
+2. Go to **Project > Settings...** (or click **Settings...** in the toolbar) and open the connection page of the Modbus adapter.
 3. Set **Protocol** to `TCP`.
 4. Set **IP address** to `192.168.1.10`.
 5. Set **Port** to `502`.
@@ -24,10 +24,10 @@ If your device uses different values, substitute them at each step.
 
 ## Step 2 — Add a device
 
-1. Go to **Settings > Device**.
-2. Click **Add device**.
+1. In the Settings dialog, open the **Devices** page.
+2. Click the **+** button next to the device tabs.
 3. Set **Name** to `My device`.
-4. Set **Connection ID** to `1` (the connection you just created).
+4. Set **Protocol adapter** to the Modbus adapter and select the connection you just created.
 5. Set **Slave ID** to `1` (the Modbus slave ID of the device).
 6. Click **OK**.
 
@@ -42,7 +42,7 @@ If your device uses different values, substitute them at each step.
 
 ## Step 4 — Start logging
 
-1. Click **Start Logging**.
+1. Click **Start logging**.
 
 The graph starts updating in real time. Each signal appears as a line.
 
@@ -54,11 +54,11 @@ You can pan and zoom the live graph at any time: scroll to zoom, drag to pan. Th
 
 The **Scale options** panel at the bottom of the window controls how the axes scale.
 
-1. Under **X axis**, select **Sliding window** and set the interval to `60` seconds.
+1. Under **X-axis**, select **Sliding window** and set the interval to `60` seconds.
 
    The graph now shows only the last 60 seconds of data, scrolling forward as new samples arrive.
 
-2. Under **Y axis**, select **Window auto-scale**.
+2. On the **Y1 axis** tab, select **Window auto-scale**.
 
    The y-axis rescales automatically to the values visible in the current x-window.
 
@@ -66,7 +66,7 @@ You can also navigate with the mouse: scroll to zoom both axes, drag to pan. To 
 
 ## Step 6 — Stop logging
 
-1. Click **Stop Logging** when you have collected enough data.
+1. Click **Stop logging** when you have collected enough data.
 
 The graph stops updating. You can continue to pan and zoom the captured data before exporting it.
 
