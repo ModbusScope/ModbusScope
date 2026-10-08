@@ -39,6 +39,8 @@
 
 using GuiState = GuiModel::GuiState;
 
+static const QString cHideQuickStartKey = QStringLiteral("general/hideQuickStart");
+
 MainWindow::MainWindow(ScopeController* pScopeController,
                        GuiModel* pGuiModel,
                        SettingsModel* pSettingsModel,
@@ -128,9 +130,9 @@ MainWindow::MainWindow(ScopeController* pScopeController,
     _pGraphMenuController->handleGraphsCountChanged();
 
 #ifndef DEBUG
-    /* Don't show the first-install dialog in debug builds */
-    /* Defer until after the main window is shown — avoids a modal dialog blocking constructor completion */
-    QTimer::singleShot(0, this, &MainWindow::showFirstInstallDialogIfNeeded);
+    /* Don't show the quick start dialog in debug builds */
+    /* Defer until after the main window is shown, avoids a modal dialog blocking constructor completion */
+    QTimer::singleShot(0, this, &MainWindow::showQuickStartIfNeeded);
 #endif
 
 #if 0
@@ -360,18 +362,22 @@ void MainWindow::showAbout()
 
 void MainWindow::showQuickStartDialog()
 {
+    QSettings settings;
+
     QuickStartDialog dialog(this);
+    dialog.setDontShowAgain(settings.value(cHideQuickStartKey, false).toBool());
+    connect(&dialog, &QuickStartDialog::showDocsRequested, this, &MainWindow::openOnlineDoc);
     dialog.exec();
+
+    settings.setValue(cHideQuickStartKey, dialog.dontShowAgain());
+    settings.sync();
 }
 
-void MainWindow::showFirstInstallDialogIfNeeded()
+void MainWindow::showQuickStartIfNeeded()
 {
-    static const QString cFirstInstallKey = QStringLiteral("general/firstInstallShown");
     QSettings settings;
-    if (!settings.contains(cFirstInstallKey))
+    if (!settings.value(cHideQuickStartKey, false).toBool())
     {
-        settings.setValue(cFirstInstallKey, true);
-        settings.sync();
         showQuickStartDialog();
     }
 }

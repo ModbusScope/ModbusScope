@@ -107,7 +107,7 @@ private:
     void setupConnections();
     void setAxisToAuto();
     void showRegisterDialog();
-    void showFirstInstallDialogIfNeeded();
+    void showQuickStartIfNeeded();
 
     Ui::MainWindow* _pUi;
     ScopeController* _pScopeController;

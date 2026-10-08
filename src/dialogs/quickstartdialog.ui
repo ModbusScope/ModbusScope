@@ -293,6 +293,13 @@
       <number>0</number>
      </property>
      <item>
+      <widget class="QCheckBox" name="chkDontShowAgain">
+       <property name="text">
+        <string>Don't show again</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacerCloseLeft">
        <property name="orientation">
         <enum>Qt::Orientation::Horizontal</enum>
@@ -306,24 +313,21 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="btnShowDocs">
+       <property name="text">
+        <string>Show docs</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="btnClose">
        <property name="text">
         <string>Close</string>
        </property>
       </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacerCloseRight">
-       <property name="orientation">
-        <enum>Qt::Orientation::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
      </item>
     </layout>
    </item>
