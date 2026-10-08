@@ -18,9 +18,22 @@ QuickStartDialog::QuickStartDialog(QWidget* parent) : QDialog(parent), _pUi(new 
     _pUi->lblStep3Nr->setStyleSheet(badgeStyle);
 
     connect(_pUi->btnClose, &QPushButton::clicked, this, &QDialog::reject);
+    connect(_pUi->btnShowDocs, &QPushButton::clicked, this, &QuickStartDialog::showDocsRequested);
 }
 
 QuickStartDialog::~QuickStartDialog()
 {
     delete _pUi;
+}
+
+//! \brief Set the state of the "Don't show again" checkbox.
+void QuickStartDialog::setDontShowAgain(bool bChecked)
+{
+    _pUi->chkDontShowAgain->setChecked(bChecked);
+}
+
+//! \brief Get the state of the "Don't show again" checkbox.
+bool QuickStartDialog::dontShowAgain() const
+{
+    return _pUi->chkDontShowAgain->isChecked();
 }
