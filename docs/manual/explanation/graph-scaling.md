@@ -12,7 +12,7 @@ The default **Full auto-scale** mode keeps the entire logged time range in view 
 
 **Full auto-scale** sizes the y-axis to all values ever logged, which can make recent detail hard to see if earlier data had a very different range. **Window auto-scale** restricts the y-axis to the values present in the currently visible x-window — as you pan and zoom the x-axis the y-axis rescales to match. Pairing **Sliding window** on the x-axis with **Window auto-scale** on the y-axis is the recommended setup for live monitoring: both axes stay focused on what is happening right now.
 
-**Limit from / to** fixes the y-axis at specific bounds, useful when you know the expected operating range and want consistent vertical scale across sessions. **Manual** mode, as with the x-axis, is entered automatically on drag or zoom-rectangle operations and can be reset by double-clicking the axis label.
+**Limit from** fixes the y-axis at specific bounds, useful when you know the expected operating range and want consistent vertical scale across sessions. **Manual** mode, as with the x-axis, is entered automatically on drag or zoom-rectangle operations and can be reset by double-clicking the axis label.
 
 ## See also
 

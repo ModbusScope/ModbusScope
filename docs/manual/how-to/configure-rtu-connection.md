@@ -4,7 +4,7 @@ This guide shows how to add and configure a Modbus RTU (serial) connection in Mo
 
 ## Steps
 
-1. Go to **Settings > Connection**.
+1. Go to **Project > Settings...** and open the connection page of the Modbus adapter.
 2. If more than one connection slot is available, select the one you want to configure and enable it with the **Enabled** checkbox. Connection 1 is always enabled.
 3. Set **Protocol** to `RTU`.
 4. Set **Serial port** to the port name on your system (e.g. `COM3` on Windows, `/dev/ttyS0` on Linux).
@@ -15,7 +15,7 @@ This guide shows how to add and configure a Modbus RTU (serial) connection in Mo
 9. Set **Timeout** to the maximum time in milliseconds to wait for a response.
 10. Click **OK**.
 
-**Result:** The connection is saved. You can now link a device to it in **Settings > Device**.
+**Result:** The connection is saved. You can now link a device to it in the **Devices** page of the Settings dialog.
 
 > All serial parameters (baud rate, parity, data bits, stop bits) must match the settings on the physical Modbus bus. A mismatch will prevent communication.
 

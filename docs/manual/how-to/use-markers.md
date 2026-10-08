@@ -13,7 +13,7 @@ This guide shows how to place markers on the graph to measure time and value dif
 
 3. Read the values in the **Markers** panel:
    - **Time 1 / Time 2**: timestamp of each marker
-   - **Time diff**: elapsed time between the two markers
+   - **Time Diff**: elapsed time between the two markers
    - **Value**: each signal's value at the marker position
    - **Value diff**: the difference in value between the two markers, per signal
 
@@ -24,7 +24,7 @@ This guide shows how to place markers on the graph to measure time and value dif
 ## Notes
 
 - Markers must be placed on actual logged samples. Clicking between samples snaps to the nearest one.
-- To remove markers, go to **View > Remove markers** or close the Markers panel.
+- To remove markers, click **Toggle Markers** in the toolbar or close the Markers panel.
 
 ## See also
 

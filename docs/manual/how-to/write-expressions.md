@@ -16,9 +16,9 @@ This guide shows how to write an expression that calculates or combines data poi
    - Combine voltage and current into power: `${40001} * ${40002@2}`
    - Extract the high byte of a data point: `(${40001} >> 8) & 0xFF`
 
-4. Use the **Example input** table to enter test values and verify the result. The output updates as you type.
+4. Use the **Example Input** table to enter test values and verify the result. The output updates as you type.
 5. When the expression field turns green, the syntax is valid.
-6. Click **OK** to apply.
+6. Click **Accept** to apply.
 
 **Result:** The signal uses the expression. The graph shows the calculated value instead of the raw data point value.
 

@@ -276,7 +276,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Press the &lt;b&gt;Play&lt;/b&gt; button to start reading data from your device.</string>
+          <string>Press &lt;b&gt;Start logging&lt;/b&gt; in the toolbar to start reading data from your device.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
