@@ -19,6 +19,7 @@ QuickStartDialog::QuickStartDialog(QWidget* parent) : QDialog(parent), _pUi(new 
 
     connect(_pUi->btnClose, &QPushButton::clicked, this, &QDialog::reject);
     connect(_pUi->btnShowDocs, &QPushButton::clicked, this, &QuickStartDialog::showDocsRequested);
+    connect(_pUi->btnLoadDemo, &QPushButton::clicked, this, &QuickStartDialog::loadDemoRequested);
 }
 
 QuickStartDialog::~QuickStartDialog()

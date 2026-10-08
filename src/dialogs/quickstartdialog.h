@@ -20,6 +20,7 @@ public:
 
 signals:
     void showDocsRequested();
+    void loadDemoRequested();
 
 private:
     Ui::QuickStartDialog* _pUi;

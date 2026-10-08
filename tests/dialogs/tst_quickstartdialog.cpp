@@ -38,6 +38,20 @@ void TestQuickStartDialog::showDocsButtonEmitsSignal()
     QVERIFY(dialog.isVisible());
 }
 
+void TestQuickStartDialog::loadDemoButtonEmitsSignal()
+{
+    QuickStartDialog dialog;
+    dialog.show();
+    QSignalSpy spy(&dialog, &QuickStartDialog::loadDemoRequested);
+
+    auto* pButton = dialog.findChild<QPushButton*>("btnLoadDemo");
+    QVERIFY(pButton != nullptr);
+    QTest::mouseClick(pButton, Qt::LeftButton);
+
+    QCOMPARE(spy.count(), 1);
+    QVERIFY(dialog.isVisible());
+}
+
 void TestQuickStartDialog::closeButtonRejects()
 {
     QuickStartDialog dialog;

@@ -96,6 +96,7 @@ private slots:
 
     void showVersionUpdate(UpdateNotify::UpdateState result);
     void showQuickStartDialog();
+    void handleLoadDemoRequested();
 
     /* ScopeController handlers */
     void handleDataProcessed(const ResultDoubleList& results);
@@ -111,6 +112,7 @@ private:
 
     Ui::MainWindow* _pUi;
     ScopeController* _pScopeController;
+    QString _demoFileToLoad;
     GraphView* _pGraphView;
 
     GuiModel* _pGuiModel;

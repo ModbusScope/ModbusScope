@@ -15,6 +15,8 @@ private slots:
     void decimalsFromRange();
     void roundToDecimals();
 
+    void findDemoFile();
+
 private:
 
 
