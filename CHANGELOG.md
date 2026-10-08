@@ -1,12 +1,15 @@
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/ModbusScope/ModbusScope/releases).
 
-## Unreleased
+## [v5.0.0](https://github.com/jgeudens/ModbusScope/releases/tag/5.0.0) (08/10/2026)
 
 ### Added
 
-* Modbus communication now runs as a separate **adapter** process that is bundled with the application
-  * The adapter is started and managed by ModbusScope
-  * Adapter configuration is stored in the project file
+* Modbus communication now runs as a separate **adapter** process that is bundled with the application. This allows to add other protocols in future releases
+* Licensing support
+  * Adapter license info is shown in the About dialog and diagnostic log
+  * "Request License" button, and warnings when the data point or device limit is exceeded
+* Quick Start dialog on first install, with a "Show docs" button and a "Don't show again" option
+* Debug logging is also written to a temporary log file; its path is shown in the diagnostic dialog
 * Show a message in the graph area when no registers are configured yet
 * Ask for confirmation before removing a connection or device tab in Settings
 * Data quality (good, degraded, invalid, no value) is now tracked per data point
@@ -16,14 +19,16 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 ### Fixed
 
 * Fix MBC import aborting entirely when the file contains a string register; string registers are now shown disabled instead
+* Fix the Add register popup not closing after adding a register, and not resizing when switching adapter
+* Fix fractional seconds padding when parsing dates
+* Reduce log spam when expression evaluation fails
 
 ### Changed
 
+* MBC import is only available when the adapter supports it
 * Project files (`.mbs`) are now saved as JSON; older XML project files (ModbusScope v3 and v4) still load automatically
 * Completely rewritten user manual, organised into tutorials, how-to guides, reference and explanation (Diataxis)
-* Quick Start dialog and user manual now use the current menu and button names
 * Update bundled dependencies
-* Adapter protocol version 2: adapters report a data quality per data point; adapters speaking an older protocol are refused with a diagnostic
 
 ## [v4.2.2](https://github.com/jgeudens/ModbusScope/releases/tag/4.2.2) (28/04/2026)
 
