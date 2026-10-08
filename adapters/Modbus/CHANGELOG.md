@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.0.5 - 08/10/2026
+
+### Changed
+
+- Remove the `MODBUSADAPTER_ENABLE_GATEWAY` environment variable: the Modbus gateway is now available whenever a valid license is present, and gateway fields are always part of `adapter.describe`
+
 ## v0.0.4 - 01/10/2026
 
 ### Fixed
