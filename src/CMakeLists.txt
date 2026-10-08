@@ -72,6 +72,14 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMENT "Copying modbusadapter to output directory"
 )
 
+# Copy the demo data file next to the main executable (loaded from the Quick Start dialog)
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_SOURCE_DIR}/data/demo.csv
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMENT "Copying demo.csv to output directory"
+)
+
 # dummyadapter is dev/test-only: copy it alongside modbusadapter in non-Release builds so it
 # is discoverable for manual testing, but keep it out of Release builds so a future deploy
 # script relying on "copy everything from the output dir" can't accidentally ship it.

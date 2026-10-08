@@ -18,6 +18,10 @@ REM Copy adapter binary into the flat deployment directory
 copy "%~dp0..\adapters\Modbus\modbusadapter.exe" "%DEPLOY_DIR%"
 IF ERRORLEVEL 1 GOTO errorHandling
 
+REM Copy demo data file
+copy "%~dp0..\data\demo.csv" "%DEPLOY_DIR%"
+IF ERRORLEVEL 1 GOTO errorHandling
+
 cd %DEPLOY_DIR%
 
 REM Run windeployqt on both executables. Because they share the same Qt

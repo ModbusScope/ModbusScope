@@ -33,6 +33,7 @@
 #include "util/util.h"
 #include "util/versiondownloader.h"
 
+#include <QCoreApplication>
 #include <QDateTime>
 #include <QSettings>
 #include <QTimer>
@@ -367,10 +368,37 @@ void MainWindow::showQuickStartDialog()
     QuickStartDialog dialog(this);
     dialog.setDontShowAgain(settings.value(cHideQuickStartKey, false).toBool());
     connect(&dialog, &QuickStartDialog::showDocsRequested, this, &MainWindow::openOnlineDoc);
+    connect(&dialog, &QuickStartDialog::loadDemoRequested, this, &MainWindow::handleLoadDemoRequested);
+    _demoFileToLoad.clear();
     dialog.exec();
 
     settings.setValue(cHideQuickStartKey, dialog.dontShowAgain());
     settings.sync();
+
+    if (!_demoFileToLoad.isEmpty())
+    {
+        _pScopeController->openFile(_demoFileToLoad);
+        _demoFileToLoad.clear();
+    }
+}
+
+//! \brief Close the quick start dialog and queue the demo file for loading, or show an error if it is missing.
+void MainWindow::handleLoadDemoRequested()
+{
+    const QString demoFile = Util::findDemoFile(QCoreApplication::applicationDirPath());
+    if (demoFile.isEmpty())
+    {
+        Util::showError(
+          tr("Demo file not found in the installation folder: %1").arg(QCoreApplication::applicationDirPath()));
+        return;
+    }
+
+    _demoFileToLoad = demoFile;
+    auto* pDialog = qobject_cast<QDialog*>(sender());
+    if (pDialog != nullptr)
+    {
+        pDialog->accept();
+    }
 }
 
 void MainWindow::showQuickStartIfNeeded()

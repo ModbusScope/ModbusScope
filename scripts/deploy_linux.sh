@@ -8,6 +8,10 @@ cp resources/icon/icon-256x256.png release/src/bin/linux/ModbusScope.png
 # Copy modbusadapter so linuxdeploy bundles it alongside the main executable
 cp adapters/Modbus/modbusadapter release/src/bin/linux/
 
+# Pre-create the AppDir share folder so the demo data ends up in the AppImage
+mkdir -p release/src/bin/linux/AppDir/usr/share/modbusscope
+cp data/demo.csv release/src/bin/linux/AppDir/usr/share/modbusscope/
+
 cd release/src/bin/linux/
 
 # download linuxdeploy and its Qt plugin if not already cached

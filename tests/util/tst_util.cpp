@@ -3,6 +3,10 @@
 
 #include "util/util.h"
 
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QTemporaryDir>
 #include <QTest>
 
 #define ADD_TEST(value, result)      QTest::newRow(QLocale().toString(value).toLocal8Bit()) << static_cast<double>(value) << result
@@ -70,6 +74,28 @@ void TestUtil::roundToDecimals()
     QCOMPARE(Util::roundToDecimals(100.05, 2), 100.05);
     QCOMPARE(Util::roundToDecimals(100.005, 2), 100.01);
     QCOMPARE(Util::roundToDecimals(100.004, 2), 100);
+}
+
+void TestUtil::findDemoFile()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString appDir = dir.path() + "/bin";
+    QVERIFY(QDir().mkpath(appDir));
+
+    QVERIFY(Util::findDemoFile(appDir).isEmpty());
+
+    const QString shareDir = dir.path() + "/share/modbusscope";
+    QVERIFY(QDir().mkpath(shareDir));
+    QFile shareFile(shareDir + "/demo.csv");
+    QVERIFY(shareFile.open(QIODevice::WriteOnly));
+    shareFile.close();
+    QCOMPARE(Util::findDemoFile(appDir), QFileInfo(shareFile).canonicalFilePath());
+
+    QFile appFile(appDir + "/demo.csv");
+    QVERIFY(appFile.open(QIODevice::WriteOnly));
+    appFile.close();
+    QCOMPARE(Util::findDemoFile(appDir), QFileInfo(appFile).canonicalFilePath());
 }
 
 QTEST_GUILESS_MAIN(TestUtil)

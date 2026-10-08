@@ -11,6 +11,7 @@ private slots:
     void dontShowAgainDefaultsToFalse();
     void setDontShowAgainRoundTrip();
     void showDocsButtonEmitsSignal();
+    void loadDemoButtonEmitsSignal();
     void closeButtonRejects();
 };
 

@@ -90,6 +90,8 @@ public:
         return std::round(value * factor) / factor;
     }
 
+    static QString findDemoFile(const QString& appDir);
+
     static const QList<QColor> cColorlist;
 
 private:

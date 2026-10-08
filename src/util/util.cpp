@@ -1,6 +1,9 @@
 
 #include "util.h"
 
+#include <QDir>
+#include <QFileInfo>
+
 /* For Markdown rendering
 <span style="display:inline-block; width:20px; height:20px; background: rgb(0, 0, 0);"></span>
 <span style="display:inline-block; width:20px; height:20px; background: rgb(0, 0, 255);"></span>
@@ -30,3 +33,21 @@ const QList<QColor> Util::cColorlist = QList<QColor>() << QColor(0, 0, 0)
                                                        << QColor(220, 220, 0)
                                                        << QColor(255, 165, 0);
 // clang-format on
+//! \brief Find the bundled demo data file.
+//! \param appDir Directory of the application executable.
+//! \return Path of the demo file, or an empty string if it is not present.
+QString Util::findDemoFile(const QString& appDir)
+{
+    const QStringList candidates = { QDir(appDir).filePath("demo.csv"),
+                                     QDir(appDir).filePath("../share/modbusscope/demo.csv") };
+
+    for (const QString& candidate : candidates)
+    {
+        if (QFileInfo::exists(candidate))
+        {
+            return QFileInfo(candidate).canonicalFilePath();
+        }
+    }
+
+    return QString();
+}
