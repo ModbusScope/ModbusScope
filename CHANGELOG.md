@@ -1,10 +1,15 @@
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/ModbusScope/ModbusScope/releases).
 
-## [v5.0.1](https://github.com/jgeudens/ModbusScope/releases/tag/5.0.1) (09/10/2026)
+## Unreleased
 
 ### Added
 
 * Screenshot can be copied to the clipboard; the output mode is selected from the screenshot toolbar button and can be remembered; the button icon briefly confirms a copy
+
+## [v5.0.1](https://github.com/jgeudens/ModbusScope/releases/tag/5.0.1) (09/10/2026)
+
+### Added
+
 * Modbus communication now runs as a separate **adapter** process that is bundled with the application. This allows to add other protocols in future releases
 * Licensing support
   * Adapter license info is shown in the About dialog and diagnostic log
