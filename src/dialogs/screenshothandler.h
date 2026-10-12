@@ -27,6 +27,9 @@ public:
 
     void capture(QWidget* pWindow, bool legendFloating);
 
+signals:
+    void copiedToClipboard();
+
 private:
     void saveToFile(const QPixmap& pixMap, QWidget* pParent);
     void copyToClipboard(const QPixmap& pixMap);

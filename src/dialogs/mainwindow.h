@@ -6,6 +6,7 @@
 #include "util/updatenotify.h"
 
 #include <QButtonGroup>
+#include <QIcon>
 #include <QListWidgetItem>
 #include <QMainWindow>
 #include <QMenu>
@@ -39,6 +40,7 @@ class GuiStateController;
 class GraphMenuController;
 class ScopeController;
 class ScreenshotHandler;
+class QTimer;
 
 class MainWindow : public QMainWindow
 {
@@ -68,6 +70,8 @@ private slots:
     /* Menu handlers */
     void exitApplication();
     void captureScreenshot();
+    void showScreenshotCopied();
+    void restoreScreenshotIcon();
     void showAbout();
     void openOnlineDoc();
     void openUpdateUrl();
@@ -107,6 +111,7 @@ private slots:
 private:
     void setupMenuActions();
     void setupScreenshotMenu();
+    void setupScreenshotFeedback();
     void setupConnections();
     void setAxisToAuto();
     void showRegisterDialog();
@@ -144,6 +149,9 @@ private:
     GuiStateController* _pGuiStateController;
     GraphMenuController* _pGraphMenuController;
     ScreenshotHandler* _pScreenshotHandler;
+    QTimer* _pScreenshotFeedbackTimer;
+    QIcon _screenshotDefaultIcon;
+    QIcon _screenshotCopiedIcon;
 
     QPointF _lastRightClickPos;
 };

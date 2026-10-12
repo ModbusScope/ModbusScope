@@ -112,4 +112,5 @@ void ScreenshotHandler::saveToFile(const QPixmap& pixMap, QWidget* pParent)
 void ScreenshotHandler::copyToClipboard(const QPixmap& pixMap)
 {
     QGuiApplication::clipboard()->setPixmap(pixMap);
+    emit copiedToClipboard();
 }
