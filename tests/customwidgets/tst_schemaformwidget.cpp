@@ -522,4 +522,272 @@ void TestSchemaFormWidget::fieldChangedEmittedOnStringEdit()
     QCOMPARE(args.at(1).toString(), QStringLiteral("updated"));
 }
 
+namespace {
+
+//! Schema with one integer property that references the \c connections collection.
+QJsonObject makeRefSchema(const QString& valueType = "integer")
+{
+    QJsonObject xRef;
+    xRef["collection"] = "connections";
+
+    QJsonObject propSchema;
+    propSchema["type"] = valueType;
+    propSchema["title"] = "Connection";
+    propSchema["x-ref"] = xRef;
+    return makeObjectSchema("connectionId", propSchema);
+}
+
+QList<SchemaFormWidget::ReferenceOption> makeIntOptions()
+{
+    return { { 1, "Main" }, { 2, "Backup" } };
+}
+
+} // namespace
+
+void TestSchemaFormWidget::xRefCreatesComboWithLabelsAndIdData()
+{
+    SchemaFormWidget w;
+    w.setReferenceOptions("connections", makeIntOptions());
+    w.setSchema(makeRefSchema(), QJsonObject{ { "connectionId", 2 } });
+
+    auto* combo = w.findChild<QComboBox*>();
+    QVERIFY(combo != nullptr);
+    QCOMPARE(combo->count(), 2);
+    QCOMPARE(combo->itemText(0), QStringLiteral("Main"));
+    QCOMPARE(combo->itemData(0).toInt(), 1);
+    QCOMPARE(combo->itemText(1), QStringLiteral("Backup"));
+    QCOMPARE(combo->currentIndex(), 1);
+    QVERIFY(w.findChild<QSpinBox*>() == nullptr);
+}
+
+void TestSchemaFormWidget::xRefSelectedIdRoundTripsViaValues()
+{
+    SchemaFormWidget w;
+    w.setReferenceOptions("connections", makeIntOptions());
+    w.setSchema(makeRefSchema(), QJsonObject{ { "connectionId", 1 } });
+
+    QCOMPARE(w.values().value("connectionId").toInt(), 1);
+
+    w.findChild<QComboBox*>()->setCurrentIndex(1);
+    QCOMPARE(w.values().value("connectionId").toInt(), 2);
+}
+
+void TestSchemaFormWidget::xRefStringValueRoundTrips()
+{
+    SchemaFormWidget w;
+    w.setReferenceOptions("connections", { { "a", "Alpha" }, { "b", "Beta" } });
+    w.setSchema(makeRefSchema("string"), QJsonObject{ { "connectionId", "b" } });
+
+    QCOMPARE(w.findChild<QComboBox*>()->currentText(), QStringLiteral("Beta"));
+    QCOMPARE(w.values().value("connectionId").toString(), QStringLiteral("b"));
+}
+
+void TestSchemaFormWidget::optionsFromArrayUsesKeys()
+{
+    QJsonArray items;
+    items.append(QJsonObject{ { "key", 7 }, { "title", "Seven" } });
+    items.append(QJsonObject{ { "key", 9 }, { "title", "Nine" } });
+
+    const auto options = SchemaFormWidget::optionsFromArray(items, "key", "title");
+
+    QCOMPARE(options.size(), 2);
+    QCOMPARE(options.at(0).value.toInt(), 7);
+    QCOMPARE(options.at(0).label, QStringLiteral("Seven"));
+    QCOMPARE(options.at(1).value.toInt(), 9);
+}
+
+void TestSchemaFormWidget::optionsFromArrayDefaultsToIdAndName()
+{
+    QJsonArray items;
+    items.append(QJsonObject{ { "id", 3 }, { "name", "Three" } });
+
+    const auto options = SchemaFormWidget::optionsFromArray(items);
+
+    QCOMPARE(options.size(), 1);
+    QCOMPARE(options.at(0).value.toInt(), 3);
+    QCOMPARE(options.at(0).label, QStringLiteral("Three"));
+}
+
+void TestSchemaFormWidget::xRefMissingIdShowsPlaceholderAndIsPreserved()
+{
+    SchemaFormWidget w;
+    w.setReferenceOptions("connections", makeIntOptions());
+    w.setSchema(makeRefSchema(), QJsonObject{ { "connectionId", 5 } });
+
+    auto* combo = w.findChild<QComboBox*>();
+    QVERIFY(combo != nullptr);
+    QCOMPARE(combo->count(), 3);
+    QCOMPARE(combo->currentText(), QStringLiteral("5 (missing)"));
+    QCOMPARE(w.values().value("connectionId").toInt(), 5);
+}
+
+void TestSchemaFormWidget::xRefOptionsSetAfterSchemaRepopulateAndKeepSelection()
+{
+    SchemaFormWidget w;
+    w.setReferenceOptions("connections", makeIntOptions());
+    w.setSchema(makeRefSchema(), QJsonObject{ { "connectionId", 2 } });
+
+    w.setReferenceOptions("connections", { { 3, "New" }, { 2, "Renamed" } });
+
+    auto* combo = w.findChild<QComboBox*>();
+    QCOMPARE(combo->count(), 2);
+    QCOMPARE(combo->currentText(), QStringLiteral("Renamed"));
+    QCOMPARE(w.values().value("connectionId").toInt(), 2);
+}
+
+void TestSchemaFormWidget::xRefOptionsSetAfterSchemaResolvePlaceholder()
+{
+    SchemaFormWidget w;
+    w.setSchema(makeRefSchema(), QJsonObject{ { "connectionId", 1 } });
+    QCOMPARE(w.findChild<QComboBox*>()->currentText(), QStringLiteral("1 (missing)"));
+
+    w.setReferenceOptions("connections", makeIntOptions());
+
+    auto* combo = w.findChild<QComboBox*>();
+    QCOMPARE(combo->count(), 2);
+    QCOMPARE(combo->currentText(), QStringLiteral("Main"));
+}
+
+void TestSchemaFormWidget::xRefWithoutOptionsCreatesEmptyCombo()
+{
+    SchemaFormWidget w;
+    w.setSchema(makeRefSchema(), QJsonObject());
+
+    auto* combo = w.findChild<QComboBox*>();
+    QVERIFY(combo != nullptr);
+    QCOMPARE(combo->count(), 0);
+    QVERIFY(!w.values().contains("connectionId"));
+}
+
+void TestSchemaFormWidget::referenceOptionsForSchemaReadsConfigArrays()
+{
+    QJsonObject xRef;
+    xRef["collection"] = "connections";
+    xRef["value"] = "key";
+    xRef["label"] = "title";
+    QJsonObject propSchema;
+    propSchema["type"] = "integer";
+    propSchema["x-ref"] = xRef;
+    const QJsonObject schema = makeObjectSchema("connectionId", propSchema);
+
+    QJsonArray connections;
+    connections.append(QJsonObject{ { "key", 4 }, { "title", "Four" } });
+    const QJsonObject config{ { "connections", connections } };
+
+    const auto result = SchemaFormWidget::referenceOptionsForSchema(schema, config);
+
+    QCOMPARE(result.size(), 1);
+    QVERIFY(result.contains("connections"));
+    QCOMPARE(result.value("connections").at(0).value.toInt(), 4);
+    QCOMPARE(result.value("connections").at(0).label, QStringLiteral("Four"));
+}
+
+void TestSchemaFormWidget::referenceConfigSetBeforeSchemaFillsCombo()
+{
+    SchemaFormWidget w;
+    QJsonArray connections;
+    connections.append(QJsonObject{ { "id", 1 }, { "name", "Main" } });
+    connections.append(QJsonObject{ { "id", 2 }, { "name", "Backup" } });
+    w.setReferenceConfig(QJsonObject{ { "connections", connections } });
+    w.setSchema(makeRefSchema(), QJsonObject{ { "connectionId", 2 } });
+
+    auto* combo = w.findChild<QComboBox*>();
+    QVERIFY(combo != nullptr);
+    QCOMPARE(combo->count(), 2);
+    QCOMPARE(combo->currentText(), QStringLiteral("Backup"));
+}
+
+void TestSchemaFormWidget::referenceConfigSetAfterSchemaRefillsCombo()
+{
+    SchemaFormWidget w;
+    w.setSchema(makeRefSchema(), QJsonObject{ { "connectionId", 2 } });
+
+    QJsonArray connections;
+    connections.append(QJsonObject{ { "id", 1 }, { "name", "Main" } });
+    connections.append(QJsonObject{ { "id", 2 }, { "name", "Renamed" } });
+    w.setReferenceConfig(QJsonObject{ { "connections", connections } });
+
+    auto* combo = w.findChild<QComboBox*>();
+    QVERIFY(combo != nullptr);
+    QCOMPARE(combo->count(), 2);
+    QCOMPARE(combo->currentData().toInt(), 2);
+    QCOMPARE(combo->currentText(), QStringLiteral("Renamed"));
+}
+
+void TestSchemaFormWidget::xRefNonIntegerIdDoesNotSelectIdZero()
+{
+    SchemaFormWidget w;
+    w.setReferenceOptions("connections", { { 0, "Zero" }, { 1, "One" } });
+    w.setSchema(makeRefSchema(), QJsonObject{ { "connectionId", "oops" } });
+
+    auto* combo = w.findChild<QComboBox*>();
+    QVERIFY(combo != nullptr);
+    QVERIFY(combo->currentText().contains("missing"));
+    QVERIFY(combo->currentText() != QStringLiteral("Zero"));
+}
+
+void TestSchemaFormWidget::valuesChangedEmittedForEveryFieldKind()
+{
+    QJsonObject props;
+    props["host"] = QJsonObject{ { "type", "string" } };
+    props["port"] = QJsonObject{ { "type", "integer" } };
+    props["gain"] = QJsonObject{ { "type", "number" } };
+    props["on"] = QJsonObject{ { "type", "boolean" } };
+    props["mode"] = QJsonObject{ { "type", "string" }, { "enum", QJsonArray{ "a", "b" } } };
+    QJsonObject schema;
+    schema["type"] = "object";
+    schema["properties"] = props;
+
+    SchemaFormWidget w;
+    w.setSchema(schema, QJsonObject{ { "mode", "a" } });
+    QSignalSpy spy(&w, &SchemaFormWidget::valuesChanged);
+
+    w.findChild<QLineEdit*>()->setText("x");
+    w.findChild<QSpinBox*>()->setValue(5);
+    w.findChild<QDoubleSpinBox*>()->setValue(1.5);
+    w.findChild<QCheckBox*>()->setChecked(true);
+    w.findChild<QComboBox*>()->setCurrentIndex(1);
+
+    QCOMPARE(spy.count(), 5);
+}
+
+void TestSchemaFormWidget::valuesChangedEmittedAfterTriggerSwitchedBranch()
+{
+    SchemaFormWidget w;
+    w.setSchema(makeConditionalSchema(), QJsonObject{ { "type", "tcp" }, { "ip", "127.0.0.1" }, { "port", 502 } });
+
+    // Collect values() as seen at the time of each notification
+    QList<QJsonObject> seen;
+    connect(&w, &SchemaFormWidget::valuesChanged, &w, [&w, &seen]() { seen.append(w.values()); });
+
+    const auto combos = w.findChildren<QComboBox*>();
+    QComboBox* typeCombo = nullptr;
+    for (QComboBox* combo : combos)
+    {
+        if (combo->findData(QStringLiteral("tcp")) >= 0)
+        {
+            typeCombo = combo;
+        }
+    }
+    QVERIFY(typeCombo != nullptr);
+    typeCombo->setCurrentIndex(typeCombo->findData(QStringLiteral("serial")));
+
+    QVERIFY(!seen.isEmpty());
+    QVERIFY(seen.last().contains("portName"));
+    QVERIFY(!seen.last().contains("ip"));
+}
+
+void TestSchemaFormWidget::valuesChangedEmittedWhenReferenceSelectionMoves()
+{
+    SchemaFormWidget w;
+    w.setSchema(makeRefSchema(), QJsonObject());
+    QSignalSpy spy(&w, &SchemaFormWidget::valuesChanged);
+
+    // The combo was empty; adding options selects the first one without any user edit
+    w.setReferenceOptions("connections", makeIntOptions());
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(w.values().value("connectionId").toInt(), 1);
+}
+
 QTEST_MAIN(TestSchemaFormWidget)

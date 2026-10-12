@@ -3,6 +3,7 @@
 #include "customwidgets/addabletabwidget.h"
 #include "customwidgets/schemaformwidget.h"
 #include "dialogs/adaptersettings.h"
+#include "models/adapterconfigdraft.h"
 #include "models/settingsmodel.h"
 
 #include <QComboBox>
@@ -636,6 +637,67 @@ void TestAdapterSettings::switchingConnectionTypeAfterReloadUsesDefaults()
     // Switching back, the stored "port" must still be the original value, not the default.
     combo->setCurrentIndex(combo->findData("tcp"));
     QCOMPARE(form->values().value("port").toInt(), 1234);
+}
+
+namespace {
+
+//! Describe result with a "connections" array (items with a string \c name) and a "general" object (string \c label).
+QJsonObject makeTwoPageDescribeResult()
+{
+    QJsonObject describe =
+      makeDescribeResult("connections", "array", QJsonObject{ { "name", QJsonObject{ { "type", "string" } } } });
+    QJsonObject schema = describe.value("schema").toObject();
+    QJsonObject topProps = schema.value("properties").toObject();
+    topProps["general"] =
+      QJsonObject{ { "type", "object" },
+                   { "properties", QJsonObject{ { "label", QJsonObject{ { "type", "string" } } } } } };
+    schema["properties"] = topProps;
+    describe["schema"] = schema;
+    return describe;
+}
+
+} // namespace
+
+void TestAdapterSettings::editingPagePublishesSectionToDraft()
+{
+    SettingsModel model;
+    model.updateAdapterFromDescribe("testAdapter", makeTwoPageDescribeResult());
+    model.setAdapterCurrentConfig("testAdapter",
+                                  QJsonObject{ { "connections", QJsonArray{ QJsonObject{ { "name", "Old" } } } } });
+    AdapterConfigDraft draft(&model);
+    AdapterSettings page(&model, "testAdapter", "connections", nullptr, &draft);
+
+    page.findChild<QLineEdit*>()->setText("New");
+
+    QCOMPARE(draft.config("testAdapter").value("connections").toArray().at(0).toObject().value("name").toString(),
+             QStringLiteral("New"));
+    QCOMPARE(model.adapterData("testAdapter")
+               ->effectiveConfig()
+               .value("connections")
+               .toArray()
+               .at(0)
+               .toObject()
+               .value("name")
+               .toString(),
+             QStringLiteral("Old"));
+}
+
+void TestAdapterSettings::pagesOfSameAdapterKeepEachOthersSections()
+{
+    SettingsModel model;
+    model.updateAdapterFromDescribe("testAdapter", makeTwoPageDescribeResult());
+    model.setAdapterCurrentConfig("testAdapter",
+                                  QJsonObject{ { "connections", QJsonArray{ QJsonObject{ { "name", "Old" } } } } });
+    AdapterConfigDraft draft(&model);
+    AdapterSettings connectionsPage(&model, "testAdapter", "connections", nullptr, &draft);
+    AdapterSettings generalPage(&model, "testAdapter", "general", nullptr, &draft);
+
+    connectionsPage.findChild<QLineEdit*>()->setText("New");
+    generalPage.findChild<QLineEdit*>()->setText("Label");
+
+    const QJsonObject config = draft.config("testAdapter");
+    QCOMPARE(config.value("connections").toArray().at(0).toObject().value("name").toString(), QStringLiteral("New"));
+    QCOMPARE(config.value("general").toObject().value("label").toString(), QStringLiteral("Label"));
 }
 
 QTEST_MAIN(TestAdapterSettings)

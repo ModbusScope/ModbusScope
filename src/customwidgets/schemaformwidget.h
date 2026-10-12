@@ -1,11 +1,16 @@
 #ifndef SCHEMAFORMWIDGET_H
 #define SCHEMAFORMWIDGET_H
 
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QList>
+#include <QMap>
+#include <QString>
 #include <QStringList>
 #include <QWidget>
 
+class QComboBox;
 class QFormLayout;
 
 /*!
@@ -20,44 +25,82 @@ class QFormLayout;
  * \c const condition. When detected, the active branch's fields are shown and the
  * inactive branch's fields are hidden, and visibility updates live as the trigger
  * field changes.
+ *
+ * A property carrying \c "x-ref":{"collection","value","label"} is rendered as a combo box that
+ * shows the item label and stores the item value. The items come from the host through
+ * setReferenceOptions(), keyed by collection name.
  */
 class SchemaFormWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit SchemaFormWidget(QWidget* parent = nullptr);
-    ~SchemaFormWidget() = default;
+    //! One selectable target of an \c x-ref property: the stored value and the text shown for it.
+    struct ReferenceOption
+    {
+        QJsonValue value;
+        QString label;
 
-    /*!
-     * \brief Populate the form from a JSON Schema object and current values.
-     * \param schema  A JSON Schema with \c "type":"object" and a \c "properties" map.
-     * \param values  Initial values matching the schema properties.
-     */
+        bool operator==(const ReferenceOption& other) const
+        {
+            return value == other.value && label == other.label;
+        }
+    };
+
+    explicit SchemaFormWidget(QWidget* parent = nullptr);
+
+    static QList<ReferenceOption> optionsFromArray(const QJsonArray& items,
+                                                   const QString& valueKey = QStringLiteral("id"),
+                                                   const QString& labelKey = QStringLiteral("name"));
+
+    static QMap<QString, QList<ReferenceOption>> referenceOptionsForSchema(const QJsonObject& schema,
+                                                                           const QJsonObject& config);
+
+    void setReferenceOptions(const QString& collection, const QList<ReferenceOption>& options);
+
+    void setReferenceConfig(const QJsonObject& config);
+
     void setSchema(const QJsonObject& schema, const QJsonObject& values);
 
-    /*!
-     * \brief Return current form input as a JSON object.
-     *
-     * Fields belonging to the inactive conditional branch are omitted.
-     * \return A QJsonObject with one entry per visible schema property.
-     */
     QJsonObject values() const;
 
 signals:
     //! Emitted when a string field's value changes; \a key is the property name.
     void fieldChanged(const QString& key, const QString& value);
 
+    //! Emitted when the user changes any field of the form.
+    void valuesChanged();
+
 private slots:
     //! Called when the trigger combo selection changes; re-evaluates conditional visibility.
     void onTriggerChanged(int index);
 
 private:
+    //! A combo box rendered for an \c x-ref property.
+    struct ReferenceCombo
+    {
+        QComboBox* pCombo;
+        QString collection;
+        bool isInteger;
+    };
+
+    //! Combo item data for \a value: an int when \a isInteger, otherwise a string; invalid if the type does not fit.
+    static QVariant comboKey(const QJsonValue& value, bool isInteger);
+
+    //! Recompute the reference options from the stored schema and reference config.
+    void applyReferenceConfig();
+
+    //! Fill \a pCombo with \a items; item data is an int when \a isInteger, otherwise a string.
+    static void populateCombo(QComboBox* pCombo, const QList<ReferenceOption>& items, bool isInteger);
+
+    //! Repopulate a reference combo and select \a current, adding a "(missing)" item if it is unknown.
+    void fillReferenceCombo(const ReferenceCombo& ref, const QJsonValue& current);
+
     QWidget* createWidgetForProperty(const QJsonObject& propSchema, const QJsonValue& value);
 
     void addFieldRow(const QString& key, const QJsonObject& propSchema, const QJsonValue& value);
 
-    //! If \a widget is a QLineEdit, connects its textChanged to emit fieldChanged(\a key).
+    //! Forwards changes of \a widget to valuesChanged(); a QLineEdit also emits fieldChanged(\a key).
     void wireFieldChanged(const QString& key, QWidget* widget);
 
     /*!
@@ -75,8 +118,20 @@ private:
      */
     void applyConditional(const QString& triggerValue);
 
+    //! Return true if \a widget is the field that drives the if/then/else switch.
+    bool isTriggerWidget(const QWidget* widget) const;
+
     QFormLayout* _pFormLayout;
+    QJsonObject _schema;
+    QJsonObject _referenceConfig;
+    bool _hasReferenceConfig{ false };
     QList<QPair<QString, QWidget*>> _fields;
+
+    //! Combo boxes of \c x-ref properties, repopulated by setReferenceOptions().
+    QList<ReferenceCombo> _referenceCombos;
+
+    //! Options offered per referenced collection.
+    QMap<QString, QList<ReferenceOption>> _references;
 
     //! Key in \c "properties" whose value drives the if/then/else switch.
     QString _conditionalTriggerKey;

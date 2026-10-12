@@ -2,17 +2,32 @@
 
 #include "customwidgets/addabletabwidget.h"
 #include "customwidgets/schemaformwidget.h"
+#include "models/adapterconfigdraft.h"
 #include "models/adapterdata.h"
 #include "models/settingsmodel.h"
 
 #include <QJsonArray>
 #include <QVBoxLayout>
 
+/*!
+ * \brief Constructs the page for one property of an adapter's schema.
+ * \param pSettingsModel  Model providing the adapter's schema and saved config.
+ * \param adapterId       The adapter this page belongs to.
+ * \param propertyKey     Top-level schema property this page edits.
+ * \param parent          Parent widget.
+ * \param pDraft          Draft this page publishes its values to and reads \c x-ref options from. When null
+ *                       the page uses a private draft.
+ */
 AdapterSettings::AdapterSettings(SettingsModel* pSettingsModel,
                                  const QString& adapterId,
                                  const QString& propertyKey,
-                                 QWidget* parent)
-    : QWidget(parent), _pSettingsModel(pSettingsModel), _adapterId(adapterId), _propertyKey(propertyKey)
+                                 QWidget* parent,
+                                 AdapterConfigDraft* pDraft)
+    : QWidget(parent),
+      _pSettingsModel(pSettingsModel),
+      _adapterId(adapterId),
+      _propertyKey(propertyKey),
+      _pDraft(pDraft != nullptr ? pDraft : new AdapterConfigDraft(pSettingsModel, this))
 {
     auto* layout = new QVBoxLayout(this);
 
@@ -21,8 +36,17 @@ AdapterSettings::AdapterSettings(SettingsModel* pSettingsModel,
     const QJsonValue configValue = pAdapter->effectiveConfig().value(propertyKey);
 
     buildSection(propSchema, configValue, layout);
+
+    connect(_pDraft, &AdapterConfigDraft::configChanged, this, &AdapterSettings::refreshReferenceOptions);
 }
 
+/*!
+ * \brief Returns true if the schema property produces a non-empty page.
+ *
+ * \c "type":"array" requires non-empty items schema.
+ * \c "type":"object" requires non-empty properties.
+ * Scalar types always return false.
+ */
 bool AdapterSettings::isRenderableProperty(const QJsonObject& propSchema)
 {
     const QString type = propSchema.value("type").toString();
@@ -65,8 +89,9 @@ void AdapterSettings::buildSection(const QJsonObject& propSchema, const QJsonVal
             }
 
             auto* form = new SchemaFormWidget(_pItemTabs);
+            form->setReferenceConfig(_pDraft->config(_adapterId));
             form->setSchema(_itemSchema, itemValues);
-            connectTabNameTracking(form);
+            connectForm(form);
             pages.append(form);
             const QString itemName = storedValues.value("name").toString();
             names.append(itemName.isEmpty() ? formatTabName(i + 1) : itemName);
@@ -80,13 +105,16 @@ void AdapterSettings::buildSection(const QJsonObject& propSchema, const QJsonVal
         _nextItemTabIndex = itemsArray.size() + 1;
 
         connect(_pItemTabs, &AddableTabWidget::addTabRequested, this, &AdapterSettings::addItemTab);
+        connect(_pItemTabs, &AddableTabWidget::tabClosed, this, &AdapterSettings::publishSection);
 
         layout->addWidget(_pItemTabs, 1);
     }
     else
     {
         _pForm = new SchemaFormWidget(this);
+        _pForm->setReferenceConfig(_pDraft->config(_adapterId));
         _pForm->setSchema(propSchema, configValue.toObject());
+        connectForm(_pForm);
         layout->addWidget(_pForm);
         layout->addStretch();
     }
@@ -118,8 +146,32 @@ void AdapterSettings::onSchemaFieldNameChanged(SchemaFormWidget* form, const QSt
     }
 }
 
-void AdapterSettings::connectTabNameTracking(SchemaFormWidget* form)
+/*!
+ * \brief Feeds every item form the options of the collections its schema references via \c x-ref.
+ *
+ * Options come from the draft, so they include what other pages are editing.
+ */
+void AdapterSettings::refreshReferenceOptions(const QString& adapterId)
 {
+    if (_pItemTabs == nullptr || adapterId != _adapterId)
+    {
+        return;
+    }
+
+    const QJsonObject config = _pDraft->config(_adapterId);
+    for (int i = 0; i < _pItemTabs->count(); ++i)
+    {
+        auto* form = qobject_cast<SchemaFormWidget*>(_pItemTabs->tabContent(i));
+        if (form)
+        {
+            form->setReferenceConfig(config);
+        }
+    }
+}
+
+void AdapterSettings::connectForm(SchemaFormWidget* form)
+{
+    connect(form, &SchemaFormWidget::valuesChanged, this, &AdapterSettings::publishSection);
     connect(form, &SchemaFormWidget::fieldChanged, this,
             [this, form](const QString& key, const QString& value) { onSchemaFieldNameChanged(form, key, value); });
 }
@@ -160,18 +212,18 @@ void AdapterSettings::addItemTab()
         defaultValues["name"] = formatTabName(nameIndex);
     }
 
+    form->setReferenceConfig(_pDraft->config(_adapterId));
     form->setSchema(_itemSchema, defaultValues);
-    connectTabNameTracking(form);
+    connectForm(form);
     const QString tabName = defaultValues.value("name").toString();
     const QString name = tabName.isEmpty() ? formatTabName(nameIndex) : tabName;
     _nextItemTabIndex++;
     _pItemTabs->addNewTab(name, form);
+    publishSection();
 }
 
-void AdapterSettings::acceptValues()
+QJsonValue AdapterSettings::sectionValue() const
 {
-    QJsonObject config = _pSettingsModel->adapterData(_adapterId)->effectiveConfig();
-
     if (_pItemTabs)
     {
         QJsonArray itemsArray;
@@ -183,12 +235,23 @@ void AdapterSettings::acceptValues()
                 itemsArray.append(form->values());
             }
         }
-        config[_propertyKey] = itemsArray;
-    }
-    else if (_pForm)
-    {
-        config[_propertyKey] = _pForm->values();
+        return itemsArray;
     }
 
+    return _pForm ? QJsonValue(_pForm->values()) : QJsonValue();
+}
+
+void AdapterSettings::publishSection()
+{
+    _pDraft->setSection(_adapterId, _propertyKey, sectionValue());
+}
+
+/*!
+ * \brief Write the current form values back to the adapter's configuration.
+ */
+void AdapterSettings::acceptValues()
+{
+    QJsonObject config = _pSettingsModel->adapterData(_adapterId)->effectiveConfig();
+    config[_propertyKey] = sectionValue();
     _pSettingsModel->setAdapterCurrentConfig(_adapterId, config);
 }

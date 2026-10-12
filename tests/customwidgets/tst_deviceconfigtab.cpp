@@ -2,6 +2,7 @@
 
 #include "../models/devicelisthelpers.h"
 #include "customwidgets/deviceconfigtab.h"
+#include "models/adapterconfigdraft.h"
 #include "models/settingsmodel.h"
 
 #include <QComboBox>
@@ -46,6 +47,36 @@ QJsonObject makeAdapterDescribe(const QString& adapterName)
     describe["schema"] = schema;
     describe["defaults"] = QJsonObject();
     describe["capabilities"] = QJsonObject();
+    return describe;
+}
+
+//! Like makeAdapterDescribe() but the device schema also has a \c connectionId that references
+//! the \c connections collection.
+QJsonObject makeAdapterDescribeWithConnectionRef(const QString& adapterName)
+{
+    QJsonObject describe = makeAdapterDescribe(adapterName);
+
+    QJsonObject xRef;
+    xRef["collection"] = "connections";
+    xRef["value"] = "id";
+    xRef["label"] = "name";
+
+    QJsonObject connProp;
+    connProp["type"] = "integer";
+    connProp["title"] = "Connection";
+    connProp["x-ref"] = xRef;
+
+    QJsonObject schema = describe["schema"].toObject();
+    QJsonObject topProps = schema["properties"].toObject();
+    QJsonObject devices = topProps["devices"].toObject();
+    QJsonObject items = devices["items"].toObject();
+    QJsonObject itemProps = items["properties"].toObject();
+    itemProps["connectionId"] = connProp;
+    items["properties"] = itemProps;
+    devices["items"] = items;
+    topProps["devices"] = devices;
+    schema["properties"] = topProps;
+    describe["schema"] = schema;
     return describe;
 }
 
@@ -202,6 +233,143 @@ void TestDeviceConfigTab::adapterChangeUsesDefaults()
     combo->setCurrentIndex(combo->findData(QStringLiteral("adapterB")));
 
     QCOMPARE(tab.values().value("name").toString(), QStringLiteral("defaultName"));
+}
+
+void TestDeviceConfigTab::connectionIdRendersAsComboWithConnectionNames()
+{
+    SettingsModel model;
+    model.updateAdapterFromDescribe("adapterA", makeAdapterDescribeWithConnectionRef("adapterA"));
+
+    QJsonArray connections;
+    connections.append(QJsonObject{ { "id", 1 }, { "name", "Main" } });
+    connections.append(QJsonObject{ { "id", 2 }, { "name", "Backup" } });
+    model.setAdapterCurrentConfig("adapterA", QJsonObject{ { "connections", connections } });
+
+    DeviceConfigTab tab(&model, "adapterA", QString(), QJsonObject{ { "connectionId", 2 } });
+
+    // The first direct-child combo is the adapter selector; the form's combo is nested.
+    const QList<QComboBox*> combos = tab.findChildren<QComboBox*>();
+    QComboBox* refCombo = nullptr;
+    for (QComboBox* combo : combos)
+    {
+        if (combo->findText("Backup") >= 0)
+        {
+            refCombo = combo;
+        }
+    }
+    QVERIFY(refCombo != nullptr);
+    QCOMPARE(refCombo->count(), 2);
+    QCOMPARE(refCombo->currentText(), QStringLiteral("Backup"));
+    QCOMPARE(tab.values().value("connectionId").toInt(), 2);
+}
+
+static QComboBox* findCombo(const DeviceConfigTab& tab, const QString& text)
+{
+    const QList<QComboBox*> combos = tab.findChildren<QComboBox*>();
+    for (QComboBox* combo : combos)
+    {
+        if (combo->findText(text) >= 0)
+        {
+            return combo;
+        }
+    }
+    return nullptr;
+}
+
+void TestDeviceConfigTab::connectionComboFollowsModelConfigChange()
+{
+    SettingsModel model;
+    model.updateAdapterFromDescribe("adapterA", makeAdapterDescribeWithConnectionRef("adapterA"));
+    model.setAdapterCurrentConfig(
+      "adapterA", QJsonObject{ { "connections", QJsonArray{ QJsonObject{ { "id", 1 }, { "name", "Main" } } } } });
+
+    DeviceConfigTab tab(&model, "adapterA", QString(), QJsonObject{ { "connectionId", 1 } });
+    QVERIFY(findCombo(tab, "Main") != nullptr);
+
+    QJsonArray connections;
+    connections.append(QJsonObject{ { "id", 1 }, { "name", "Renamed" } });
+    connections.append(QJsonObject{ { "id", 2 }, { "name", "Backup" } });
+    model.setAdapterCurrentConfig("adapterA", QJsonObject{ { "connections", connections } });
+
+    QComboBox* refCombo = findCombo(tab, "Backup");
+    QVERIFY(refCombo != nullptr);
+    QCOMPARE(refCombo->count(), 2);
+    QCOMPARE(refCombo->currentText(), QStringLiteral("Renamed"));
+    QCOMPARE(tab.values().value("connectionId").toInt(), 1);
+}
+
+void TestDeviceConfigTab::connectionComboFollowsDraftSection()
+{
+    SettingsModel model;
+    model.updateAdapterFromDescribe("adapterA", makeAdapterDescribeWithConnectionRef("adapterA"));
+    model.setAdapterCurrentConfig(
+      "adapterA", QJsonObject{ { "connections", QJsonArray{ QJsonObject{ { "id", 1 }, { "name", "Main" } } } } });
+    AdapterConfigDraft draft(&model);
+
+    DeviceConfigTab tab(&model, "adapterA", QString(), QJsonObject{ { "connectionId", 1 } }, nullptr, &draft);
+
+    QJsonArray pending;
+    pending.append(QJsonObject{ { "id", 1 }, { "name", "Main" } });
+    pending.append(QJsonObject{ { "id", 2 }, { "name", "Unsaved" } });
+    draft.setSection("adapterA", "connections", pending);
+
+    QComboBox* refCombo = findCombo(tab, "Unsaved");
+    QVERIFY(refCombo != nullptr);
+    QCOMPARE(refCombo->count(), 2);
+    QCOMPARE(tab.values().value("connectionId").toInt(), 1);
+
+    // The saved model config is untouched
+    QCOMPARE(model.adapterData("adapterA")->effectiveConfig().value("connections").toArray().size(), 1);
+}
+
+void TestDeviceConfigTab::draftSectionOfOtherKeyKeepsConnections()
+{
+    SettingsModel model;
+    model.updateAdapterFromDescribe("adapterA", makeAdapterDescribeWithConnectionRef("adapterA"));
+    model.setAdapterCurrentConfig(
+      "adapterA", QJsonObject{ { "connections", QJsonArray{ QJsonObject{ { "id", 1 }, { "name", "Main" } } } } });
+    AdapterConfigDraft draft(&model);
+    DeviceConfigTab tab(&model, "adapterA", QString(), QJsonObject{ { "connectionId", 1 } }, nullptr, &draft);
+
+    draft.setSection("adapterA", "connections", QJsonArray{ QJsonObject{ { "id", 1 }, { "name", "Edited" } } });
+    draft.setSection("adapterA", "general", QJsonObject{ { "poll", 500 } });
+
+    QVERIFY(findCombo(tab, "Edited") != nullptr);
+}
+
+void TestDeviceConfigTab::draftOfOtherAdapterIsIgnored()
+{
+    SettingsModel model;
+    model.updateAdapterFromDescribe("adapterA", makeAdapterDescribeWithConnectionRef("adapterA"));
+    model.updateAdapterFromDescribe("adapterB", makeAdapterDescribeWithConnectionRef("adapterB"));
+    model.setAdapterCurrentConfig(
+      "adapterA", QJsonObject{ { "connections", QJsonArray{ QJsonObject{ { "id", 1 }, { "name", "Main" } } } } });
+    AdapterConfigDraft draft(&model);
+    DeviceConfigTab tab(&model, "adapterA", QString(), QJsonObject{ { "connectionId", 1 } }, nullptr, &draft);
+
+    draft.setSection("adapterB", "connections", QJsonArray{ QJsonObject{ { "id", 7 }, { "name", "Elsewhere" } } });
+
+    QVERIFY(findCombo(tab, "Elsewhere") == nullptr);
+    QVERIFY(findCombo(tab, "Main") != nullptr);
+}
+
+void TestDeviceConfigTab::removedConnectionStaysSelectedAsMissing()
+{
+    SettingsModel model;
+    model.updateAdapterFromDescribe("adapterA", makeAdapterDescribeWithConnectionRef("adapterA"));
+    QJsonArray connections;
+    connections.append(QJsonObject{ { "id", 1 }, { "name", "Main" } });
+    connections.append(QJsonObject{ { "id", 2 }, { "name", "Backup" } });
+    model.setAdapterCurrentConfig("adapterA", QJsonObject{ { "connections", connections } });
+    AdapterConfigDraft draft(&model);
+    DeviceConfigTab tab(&model, "adapterA", QString(), QJsonObject{ { "connectionId", 2 } }, nullptr, &draft);
+
+    draft.setSection("adapterA", "connections", QJsonArray{ QJsonObject{ { "id", 1 }, { "name", "Main" } } });
+
+    QComboBox* refCombo = findCombo(tab, "Main");
+    QVERIFY(refCombo != nullptr);
+    QVERIFY(refCombo->currentText().contains("missing"));
+    QCOMPARE(tab.values().value("connectionId").toInt(), 2);
 }
 
 QTEST_MAIN(TestDeviceConfigTab)

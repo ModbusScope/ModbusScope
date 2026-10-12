@@ -1,6 +1,7 @@
 #include "deviceconfigtab.h"
 
 #include "customwidgets/schemaformwidget.h"
+#include "models/adapterconfigdraft.h"
 #include "models/adapterdata.h"
 #include "models/settingsmodel.h"
 
@@ -11,18 +12,30 @@
 #include <QLineEdit>
 #include <QVBoxLayout>
 
+/*!
+ * \brief Constructs the tab for one device.
+ * \param pSettingsModel  Model providing the adapters and their schemas.
+ * \param adapterId       Adapter to preselect.
+ * \param deviceName      Name shown in the name field.
+ * \param deviceValues    Initial values of the schema form.
+ * \param parent          Parent widget.
+ * \param pDraft          Config the \c x-ref fields read their options from, shared with the other settings pages.
+ *                       When null the tab uses a private draft that only follows the model.
+ */
 DeviceConfigTab::DeviceConfigTab(SettingsModel* pSettingsModel,
                                  const QString& adapterId,
                                  const QString& deviceName,
                                  const QJsonObject& deviceValues,
-                                 QWidget* parent)
+                                 QWidget* parent,
+                                 AdapterConfigDraft* pDraft)
     : QWidget(parent),
       _pLayout(new QVBoxLayout),
       _pNameEdit(new QLineEdit(this)),
       _pAdapterCombo(new QComboBox(this)),
       _pSchemaForm(nullptr),
       _pSettingsModel(pSettingsModel),
-      _deviceId(deviceValues.value("id").toInt(-1))
+      _deviceId(deviceValues.value("id").toInt(-1)),
+      _pDraft(pDraft != nullptr ? pDraft : new AdapterConfigDraft(pSettingsModel, this))
 {
     setLayout(_pLayout);
 
@@ -64,6 +77,7 @@ DeviceConfigTab::DeviceConfigTab(SettingsModel* pSettingsModel,
     connect(_pNameEdit, &QLineEdit::textChanged, this, &DeviceConfigTab::onNameChanged);
     connect(_pAdapterCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
             &DeviceConfigTab::onAdapterChanged);
+    connect(_pDraft, &AdapterConfigDraft::configChanged, this, &DeviceConfigTab::onDraftConfigChanged);
 
     QString effectiveAdapterId = _pAdapterCombo->currentData().toString();
     if (!effectiveAdapterId.isEmpty())
@@ -86,6 +100,14 @@ void DeviceConfigTab::onAdapterChanged(int index)
 
     rebuildSchemaForm(newAdapterId, defaultValues);
     emit adapterChanged(newAdapterId);
+}
+
+void DeviceConfigTab::onDraftConfigChanged(const QString& adapterId)
+{
+    if (_pSchemaForm != nullptr && adapterId == this->adapterId())
+    {
+        _pSchemaForm->setReferenceConfig(_pDraft->config(adapterId));
+    }
 }
 
 void DeviceConfigTab::onNameChanged(const QString& name)
@@ -116,11 +138,16 @@ void DeviceConfigTab::rebuildSchemaForm(const QString& adapterId, const QJsonObj
     itemSchema.insert("properties", propsObj);
 
     _pSchemaForm = new SchemaFormWidget(this);
+    _pSchemaForm->setReferenceConfig(_pDraft->config(adapterId));
     _pSchemaForm->setSchema(itemSchema, deviceValues);
 
     _pLayout->insertWidget(_pLayout->count() - 1, _pSchemaForm);
 }
 
+/*!
+ * \brief Return the current device values from the schema form.
+ * \return Device field values as a JSON object.
+ */
 QJsonObject DeviceConfigTab::values() const
 {
     QJsonObject result = _pSchemaForm ? _pSchemaForm->values() : QJsonObject();
@@ -132,16 +159,28 @@ QJsonObject DeviceConfigTab::values() const
     return result;
 }
 
+/*!
+ * \brief Return the currently selected adapter ID.
+ * \return Adapter identifier string.
+ */
 QString DeviceConfigTab::adapterId() const
 {
     return _pAdapterCombo->currentData().toString();
 }
 
+/*!
+ * \brief Return the current device name from the name field.
+ * \return Device name string (may be empty).
+ */
 QString DeviceConfigTab::deviceName() const
 {
     return _pNameEdit->text();
 }
 
+/*!
+ * \brief Return the device ID assigned to this tab, or -1 if none.
+ * \return Device ID as int.
+ */
 int DeviceConfigTab::deviceId() const
 {
     return _deviceId;

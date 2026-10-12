@@ -26,6 +26,8 @@ private slots:
     void tabNameUpdatesWhenNameFieldChanges();
     void acceptValuesStoresConfigInAdapterData();
     void switchingConnectionTypeAfterReloadUsesDefaults();
+    void editingPagePublishesSectionToDraft();
+    void pagesOfSameAdapterKeepEachOthersSections();
 };
 
 #endif // TST_ADAPTERSETTINGS_H

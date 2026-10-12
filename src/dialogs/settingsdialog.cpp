@@ -4,13 +4,17 @@
 #include "dialogs/adapterdevicesettings.h"
 #include "dialogs/adaptersettings.h"
 #include "dialogs/logsettings.h"
+#include "models/adapterconfigdraft.h"
 #include "models/adapterdata.h"
 #include "models/settingsmodel.h"
 
 #include <QJsonObject>
 
 SettingsDialog::SettingsDialog(SettingsModel* pSettingsModel, QWidget* parent)
-    : QDialog(parent), _pUi(new Ui::SettingsDialog), _pSettingsModel(pSettingsModel)
+    : QDialog(parent),
+      _pUi(new Ui::SettingsDialog),
+      _pSettingsModel(pSettingsModel),
+      _pDraft(new AdapterConfigDraft(pSettingsModel, this))
 {
     _pUi->setupUi(this);
 
@@ -59,7 +63,7 @@ SettingsDialog::SettingsDialog(SettingsModel* pSettingsModel, QWidget* parent)
             listItem->setIcon(QIcon(":/menu_icon/icons/settings.svg"));
             _pUi->settingsList->addItem(listItem);
 
-            auto* page = new AdapterSettings(pSettingsModel, id, key, this);
+            auto* page = new AdapterSettings(pSettingsModel, id, key, this, _pDraft);
             _dynamicSettings.append(page);
             _pUi->settingsStack->addWidget(page);
         }
@@ -71,7 +75,7 @@ SettingsDialog::SettingsDialog(SettingsModel* pSettingsModel, QWidget* parent)
     devItem->setIcon(QIcon(":/menu_icon/icons/circuit-board.svg"));
     _pUi->settingsList->addItem(devItem);
 
-    _pDevSettings = new AdapterDeviceSettings(pSettingsModel, this);
+    _pDevSettings = new AdapterDeviceSettings(pSettingsModel, this, _pDraft);
     _pUi->settingsStack->addWidget(_pDevSettings);
 
     // Fixed: Log page

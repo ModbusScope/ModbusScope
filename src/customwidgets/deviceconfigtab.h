@@ -4,6 +4,7 @@
 #include <QJsonObject>
 #include <QWidget>
 
+class AdapterConfigDraft;
 class SettingsModel;
 class SchemaFormWidget;
 class QComboBox;
@@ -30,31 +31,16 @@ public:
                              const QString& adapterId,
                              const QString& deviceName,
                              const QJsonObject& deviceValues,
-                             QWidget* parent = nullptr);
+                             QWidget* parent = nullptr,
+                             AdapterConfigDraft* pDraft = nullptr);
     ~DeviceConfigTab() = default;
 
-    /*!
-     * \brief Return the current device values from the schema form.
-     * \return Device field values as a JSON object.
-     */
     QJsonObject values() const;
 
-    /*!
-     * \brief Return the currently selected adapter ID.
-     * \return Adapter identifier string.
-     */
     QString adapterId() const;
 
-    /*!
-     * \brief Return the current device name from the name field.
-     * \return Device name string (may be empty).
-     */
     QString deviceName() const;
 
-    /*!
-     * \brief Return the device ID assigned to this tab, or -1 if none.
-     * \return Device ID as int.
-     */
     int deviceId() const;
 
 signals:
@@ -66,6 +52,7 @@ signals:
 private slots:
     void onAdapterChanged(int index);
     void onNameChanged(const QString& name);
+    void onDraftConfigChanged(const QString& adapterId);
 
 private:
     void rebuildSchemaForm(const QString& adapterId, const QJsonObject& deviceValues);
@@ -76,6 +63,7 @@ private:
     SchemaFormWidget* _pSchemaForm;
     SettingsModel* _pSettingsModel;
     int _deviceId;
+    AdapterConfigDraft* _pDraft;
 };
 
 #endif // DEVICECONFIGTAB_H

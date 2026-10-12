@@ -5,6 +5,7 @@
 #include <QString>
 #include <QWidget>
 
+class AdapterConfigDraft;
 class SettingsModel;
 class SchemaFormWidget;
 class AddableTabWidget;
@@ -27,21 +28,12 @@ public:
     explicit AdapterSettings(SettingsModel* pSettingsModel,
                              const QString& adapterId,
                              const QString& propertyKey,
-                             QWidget* parent = nullptr);
+                             QWidget* parent = nullptr,
+                             AdapterConfigDraft* pDraft = nullptr);
     ~AdapterSettings() = default;
 
-    /*!
-     * \brief Returns true if the schema property produces a non-empty page.
-     *
-     * \c "type":"array" requires non-empty items schema.
-     * \c "type":"object" requires non-empty properties.
-     * Scalar types always return false.
-     */
     static bool isRenderableProperty(const QJsonObject& propSchema);
 
-    /*!
-     * \brief Write the current form values back to the adapter's configuration.
-     */
     void acceptValues();
 
 private:
@@ -51,13 +43,24 @@ private:
     //! \brief Returns a display name for a tab at the given 1-based \a index.
     QString formatTabName(int index) const;
 
-    //! \brief Connects \a form's fieldChanged signal to keep the tab label in sync with the \c name field.
-    void connectTabNameTracking(SchemaFormWidget* form);
+    //! \brief Returns this page's current value for its schema property.
+    QJsonValue sectionValue() const;
+
+    //! \brief Publishes sectionValue() to the draft so other pages see it.
+    void publishSection();
+
+    //! \brief Feeds every item form the options of the referenced collections.
+    void refreshReferenceOptions(const QString& adapterId);
+
+    //! \brief Wires \a form to the draft and to the tab label.
+    void connectForm(SchemaFormWidget* form);
+
     void onSchemaFieldNameChanged(SchemaFormWidget* form, const QString& key, const QString& value);
 
     SettingsModel* _pSettingsModel;
     QString _adapterId;
     QString _propertyKey;
+    AdapterConfigDraft* _pDraft;
 
     AddableTabWidget* _pItemTabs{ nullptr };
     SchemaFormWidget* _pForm{ nullptr };

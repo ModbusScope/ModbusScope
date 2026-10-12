@@ -6,6 +6,7 @@
 
 // Forward declaration
 class SettingsModel;
+class AdapterConfigDraft;
 class AdapterSettings;
 class AdapterDeviceSettings;
 
@@ -31,6 +32,7 @@ private:
     Ui::SettingsDialog* _pUi;
 
     SettingsModel* _pSettingsModel;
+    AdapterConfigDraft* _pDraft;
     QList<AdapterSettings*> _dynamicSettings;
     AdapterDeviceSettings* _pDevSettings;
 };

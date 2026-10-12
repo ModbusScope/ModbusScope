@@ -31,6 +31,22 @@ private slots:
     void integerEnumMissingValueNoSchemaDefaultUsesFirstItem();
     void conditionalWithoutIfRequiredShowsCorrectFields();
     void fieldChangedEmittedOnStringEdit();
+    void xRefCreatesComboWithLabelsAndIdData();
+    void xRefSelectedIdRoundTripsViaValues();
+    void xRefStringValueRoundTrips();
+    void optionsFromArrayUsesKeys();
+    void optionsFromArrayDefaultsToIdAndName();
+    void xRefMissingIdShowsPlaceholderAndIsPreserved();
+    void xRefOptionsSetAfterSchemaRepopulateAndKeepSelection();
+    void xRefOptionsSetAfterSchemaResolvePlaceholder();
+    void xRefWithoutOptionsCreatesEmptyCombo();
+    void referenceOptionsForSchemaReadsConfigArrays();
+    void referenceConfigSetBeforeSchemaFillsCombo();
+    void referenceConfigSetAfterSchemaRefillsCombo();
+    void xRefNonIntegerIdDoesNotSelectIdZero();
+    void valuesChangedEmittedForEveryFieldKind();
+    void valuesChangedEmittedAfterTriggerSwitchedBranch();
+    void valuesChangedEmittedWhenReferenceSelectionMoves();
 };
 
 #endif // TST_SCHEMAFORMWIDGET_H
