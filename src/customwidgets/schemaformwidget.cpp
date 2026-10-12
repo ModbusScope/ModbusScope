@@ -195,8 +195,8 @@ QList<SchemaFormWidget::ReferenceOption> SchemaFormWidget::optionsFromArray(cons
  * \brief Build the options for every collection that \a schema references through \c x-ref.
  * \param schema  Object schema, including the properties of its if/then/else branches.
  * \param config  Config object holding the referenced arrays.
- * \return Options per collection name. If properties reference the same collection with
- *         different keys, the last one wins.
+ * \return Options per collection name. Properties referencing the same collection must use
+ *         the same value and label keys.
  */
 QMap<QString, QList<SchemaFormWidget::ReferenceOption>> SchemaFormWidget::referenceOptionsForSchema(
   const QJsonObject& schema, const QJsonObject& config)

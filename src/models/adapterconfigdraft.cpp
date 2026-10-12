@@ -3,6 +3,11 @@
 #include "models/adapterdata.h"
 #include "models/settingsmodel.h"
 
+/*!
+ * \brief Creates a draft configuration backed by \a pSettingsModel.
+ * \param pSettingsModel  Model holding the saved adapter configs.
+ * \param parent          Parent object.
+ */
 AdapterConfigDraft::AdapterConfigDraft(SettingsModel* pSettingsModel, QObject* parent)
     : QObject(parent), _pSettingsModel(pSettingsModel)
 {
