@@ -1,96 +1,95 @@
 # Device ID Sync Analysis
 
-## Issue Summary
+## Decision
 
-When a user changes the device ID in `DeviceConfigTab`, the change is saved to the adapter's JSON config but **does NOT propagate to SettingsModel's device map**. This causes:
-- ID change lost on next file save (file uses SettingsModel)
-- Potential ID collision if user later adds devices
-- Inconsistent state between two sources of truth
+A device ID is assigned once, when the device is created, and is **never editable** afterwards. This is a
+permanent design decision, not a temporary workaround. Renaming a device or moving it to another adapter is
+supported; changing its ID is not.
 
-## Root Cause
+## Why the ID must not change
 
-Dual-layer architecture with loose coupling:
+A device's ID lives in two places that must always agree:
 
-| Layer | Storage | ID Access |
-|-------|--------|----------|
-| SettingsModel | `_devices` map | ID = map key |
-| AdapterData | JSON `"devices"` array | `"id"` field |
+| Layer           | Storage                               | ID location                         |
+| --------------- | ------------------------------------- | ----------------------------------- |
+| `SettingsModel` | `QMap<deviceId_t, Device> _devices`   | map key (`Device` has no ID member) |
+| `AdapterData`   | adapter config JSON `"devices"` array | `"id"` field of each entry          |
 
-The `Device` class (`device.h:23-26`) only stores `_name` and `_adapterId` — not its own ID.
+The ID is also what data points and expressions use to address a device, so editing it would mean updating
+references across the project as well as both layers. Not supporting edits removes that whole class of problem.
 
-**Data flow gap**: When ID is edited in UI → SchemaForm updates JSON → `acceptValues()` writes JSON to adapter config → SettingsModel map key unchanged.
+## How the two layers are kept consistent
 
-### Code Locations
+### Single mutation point
 
-- **SettingsModel device map**: `settingsmodel.cpp:144-150` — `_devices[devId]` returns Device* where ID is the map key
-- **JSON config storage**: Adapter's `currentConfig["devices"][N]["id"]` — stored in adapter data
-- **SettingsModel::updateDeviceId()**: removed as dead code (2026-08-23), since it was never called from UI. Option 1 below would require re-adding it.
+`SettingsModel::applyDeviceList()` is the only way to change the device list in `src/`. It replaces the whole map
+in one step and emits at most one `deviceListChanged()`. Every writer builds a complete map and applies it:
+loading a project file, accepting the Settings dialog, and reconciling devices with adapters.
 
-### Synchronization Flow
+### Settings dialog (`AdapterDeviceSettings`)
 
-On **load** (`projectfilehandler.cpp:277-303`):
-1. Creates Devices in `_devices` map from file's deviceId
-2. Sets adapterId on each Device
-3. **Never syncs back to adapter config**
+- **Open:** calls `reconcileDevicesWithAdapters()`, then builds one `DeviceConfigTab` per device in the model's
+  `deviceList()`. Devices whose owning adapter has not described are not shown as tabs; they are kept in
+  `_deviceIdsWithoutTab` and handed back to the model unchanged when the dialog is accepted.
+- **Add device:** `handleAddTab()` assigns one more than the highest ID held by the model or an open tab, so a new
+  ID never collides with an existing one. Nothing reaches the model until accept.
+- **Accept:** `acceptValues()` writes each adapter's `"devices"` array from the tabs, then rebuilds the device map
+  from the same tabs and applies it with one `applyDeviceList()` call. Cancelling discards all edits.
 
-On **dialog init** (`adapterdevicesettings.cpp:35-82`):
-1. Reads IDs from JSON `deviceObj.value("id")`
-2. Calls `_pSettingsModel->addDevice(id)`
-3. Creates DeviceConfigTab widgets
-4. **Does NOT populate adapter config from SettingsModel**
+### Read-only ID in `DeviceConfigTab`
 
-On **save** (`projectfilehandler.cpp:185-212`):
-1. Reads from **SettingsModel** (`_pSettingsModel->deviceList()`)
-2. Uses model name/adapterId
-3. **Ignores ID changes in JSON**
+The ID is protected at two levels:
 
-On **accept dialog** (`adapterdevicesettings.cpp:185-208`):
-1. Reads from DeviceConfigTab::values() → SchemaForm::values() (JSON)
-2. Writes JSON to adapter config via `setAdapterCurrentConfig()`
-3. **SettingsModel map key unchanged**
+1. **UI:** `rebuildSchemaForm()` sets `"readOnly": true` on the schema's `id` property; `SchemaFormWidget::addFieldRow()`
+   disables the widget of a read-only property.
+2. **Data:** `DeviceConfigTab::values()` always writes the tab's own `_deviceId` and ignores the widget's value.
+   Even if the widget were edited, the JSON ID can't differ from the map key. Switching adapters keeps the ID
+   (`onAdapterChanged()` reinserts it into the new adapter's defaults).
 
-### Key Files
+### Adapter reconciliation
 
-| File | Purpose |
-|------|---------|
-| `src/models/device.h` | Device class (no ID member) |
-| `src/models/settingsmodel.cpp` | Device map + updateDeviceId() |
-| `src/dialogs/adapterdevicesettings.cpp` | Dialog acceptValues() |
-| `src/customwidgets/deviceconfigtab.cpp` | Device config tab |
-| `src/customwidgets/schemaformwidget.cpp` | Form field rendering |
-| `src/importexport/projectfilehandler.cpp` | File load/save |
+`reconcileDevicesWithAdapters()` runs whenever an adapter describes, and again when the Settings dialog opens. For each
+device ID an adapter's config declares, it makes sure the device exists in the model and assigns its owner. Adapters
+with a stored config claim a shared ID before unconfigured ones, and `modbus` comes first among the unconfigured ones.
+It never removes devices.
 
-## Solution Applied (Temporary)
+### Project file
 
-Made the device ID field **read-only** in the UI. The ID is assigned at device creation and should not be changed afterward.
+- **Load:** `applyAdapterSettings()` stores each adapter's config; `applyDeviceSettings()` builds the device map from
+  the file's `devices` section and applies it. A repeated device ID gets a warning, and later entries only fill in
+  fields the earlier one left empty.
+- **Save:** the `devices` section comes from `SettingsModel`, the `adapters` section from each adapter's stored config.
+  Because both are written from the same tab ID on accept, they agree.
+- **On the wire:** `AdapterData::configForWire()` drops repeated device IDs (first one wins) before capping to the
+  adapter's device limit.
 
-### Changes Made
+## Remaining loose coupling
 
-1. **schemaformwidget.cpp**: Added readOnly handling in `createWidgetForProperty()`
-   - Check schema property for `"readOnly": true` 
-   - Disable widgets when property is read-only
+The project file's `adapters` and `devices` sections are loaded independently and not cross-checked. A hand-edited
+or legacy file can make them disagree:
 
-2. **deviceconfigtab.cpp**: Inject readOnly into `id` property in `rebuildSchemaForm()`
-   - Before passing schema to SchemaFormWidget, inject `"readOnly": true` into the `id` property
+- **Device only in an adapter config:** added to the model when that adapter describes (via reconciliation).
+- **Device only in the `devices` section:** shown in the Settings dialog with the adapter's defaults, but missing
+  from the adapter config, so it is not polled until the dialog is accepted.
 
-### Future Fix (Proper Sync)
+This isn't caused by ID editing and doesn't need a fix for the read-only decision. If it ever causes problems,
+the natural fix is to reconcile the two sections once, at the end of `ProjectFileHandler` loading.
 
-Option 1: Re-add `SettingsModel::updateDeviceId(oldId, newId)` (removed as dead code) and call it when ID edited
-- Requires detecting ID change in acceptValues()
-- Map key needs to be renamed in _devices map
+## Tests
 
-Option 2: Refactor to single source of truth
-- Add `_id` member to `Device` class
-- Remove ID from map key, use QMap<quint32, Device> instead
-- Sync ID changes bidirectionally
+- `tst_deviceconfigtab`: `idFieldIsReadOnly`, `idFieldStaysReadOnlyAfterAdapterChange`, which check that the ID widget is disabled.
+- `tst_adapterdevicesettings`: ID preservation across adapter switches and accept, unique IDs for added tabs,
+  `invalidIdTabValuesOmitFabricatedId`.
+- `tst_settingsmodel`: `applyDeviceList*` and reconciliation behaviour.
 
-Option 3: Event-driven sync
-- Emit signal when ID changes in either layer
-- Listen and propagate to other layer
+## Key files
 
-## Risk Assessment
-
-- **Current**: Changing ID will cause data loss/inconsistency
-- **After readOnly fix**: ID cannot be changed, data stays consistent
-- **Adding/deleting devices**: Works correctly
-- **Just saving without editing ID**: Works correctly
+| File                                      | Purpose                                                            |
+| ----------------------------------------- | ------------------------------------------------------------------ |
+| `src/models/device.h`                     | Device class (name, adapter ID; no ID member)                      |
+| `src/models/settingsmodel.cpp`            | Device map, `applyDeviceList()`, `reconcileDevicesWithAdapters()`  |
+| `src/models/adapterdata.cpp`              | Adapter config, `configForWire()`                                  |
+| `src/dialogs/adapterdevicesettings.cpp`   | Devices page: building tabs, adding devices, `acceptValues()`      |
+| `src/customwidgets/deviceconfigtab.cpp`   | Device tab: read-only ID, `values()`                               |
+| `src/customwidgets/schemaformwidget.cpp`  | Disables `readOnly` schema fields                                  |
+| `src/importexport/projectfilehandler.cpp` | Project file load and save                                         |
