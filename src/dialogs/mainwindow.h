@@ -38,6 +38,7 @@ class CommunicationStatsModel;
 class GuiStateController;
 class GraphMenuController;
 class ScopeController;
+class ScreenshotHandler;
 
 class MainWindow : public QMainWindow
 {
@@ -66,7 +67,7 @@ private slots:
 
     /* Menu handlers */
     void exitApplication();
-    void selectImageExportFile();
+    void captureScreenshot();
     void showAbout();
     void openOnlineDoc();
     void openUpdateUrl();
@@ -105,6 +106,7 @@ private slots:
 
 private:
     void setupMenuActions();
+    void setupScreenshotMenu();
     void setupConnections();
     void setAxisToAuto();
     void showRegisterDialog();
@@ -141,6 +143,7 @@ private:
 
     GuiStateController* _pGuiStateController;
     GraphMenuController* _pGraphMenuController;
+    ScreenshotHandler* _pScreenshotHandler;
 
     QPointF _lastRightClickPos;
 };

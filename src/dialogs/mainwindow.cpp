@@ -15,6 +15,7 @@
 #include "dialogs/importmbcdialog.h"
 #include "dialogs/quickstartdialog.h"
 #include "dialogs/registerdialog.h"
+#include "dialogs/screenshothandler.h"
 #include "dialogs/settingsdialog.h"
 #include "dialogs/ui_mainwindow.h"
 #include "graphview/graphview.h"
@@ -27,16 +28,17 @@
 #include "models/guimodel.h"
 #include "models/notemodel.h"
 #include "models/settingsmodel.h"
-#include "util/fileselectionhelper.h"
 #include "util/scopelogging.h"
 #include "util/updatenotify.h"
 #include "util/util.h"
 #include "util/versiondownloader.h"
 
+#include <QActionGroup>
 #include <QCoreApplication>
 #include <QDateTime>
 #include <QSettings>
 #include <QTimer>
+#include <QToolButton>
 
 using GuiState = GuiModel::GuiState;
 
@@ -87,7 +89,9 @@ MainWindow::MainWindow(ScopeController* pScopeController,
 
     _pUi->scaleOptions->setModels(_pGuiModel);
 
+    _pScreenshotHandler = new ScreenshotHandler(this);
     setupMenuActions();
+    setupScreenshotMenu();
     setupConnections();
 
     const GuiStateActions guiStateActions{
@@ -175,7 +179,7 @@ void MainWindow::setupMenuActions()
     connect(_pUi->actionOpenDataFile, &QAction::triggered, _pScopeController->dataFileHandler(),
             &DataFileHandler::selectDataImportFile);
     connect(_pUi->actionImportFromMbcFile, &QAction::triggered, this, &MainWindow::showMbcImportDialog);
-    connect(_pUi->actionExportImage, &QAction::triggered, this, &MainWindow::selectImageExportFile);
+    connect(_pUi->actionExportImage, &QAction::triggered, this, &MainWindow::captureScreenshot);
     connect(_pUi->actionSaveProjectFileAs, &QAction::triggered, _pScopeController->projectFileHandler(),
             &ProjectFileHandler::selectProjectSaveFile);
     connect(_pUi->actionSaveProjectFile, &QAction::triggered, _pScopeController->projectFileHandler(),
@@ -333,24 +337,48 @@ void MainWindow::exitApplication()
     QApplication::quit();
 }
 
-void MainWindow::selectImageExportFile()
+void MainWindow::captureScreenshot()
 {
-    // Grab image before showing file dialog
-    const QPixmap pixMap = this->window()->grab();
+    _pScreenshotHandler->capture(this, _pUi->legendDock->isFloating());
+}
 
-    QFileDialog dialog(this);
-    FileSelectionHelper::configureFileDialog(&dialog, FileSelectionHelper::DIALOG_TYPE_SAVE,
-                                             FileSelectionHelper::FILE_TYPE_PNG);
+void MainWindow::setupScreenshotMenu()
+{
+    auto* pModeGroup = new QActionGroup(this);
 
-    QString selectedFile = FileSelectionHelper::showDialog(&dialog);
-    if (!selectedFile.isEmpty())
+    auto* pFileAction = new QAction(tr("Save to file..."), pModeGroup);
+    pFileAction->setCheckable(true);
+
+    auto* pClipboardAction = new QAction(tr("Copy to clipboard"), pModeGroup);
+    pClipboardAction->setCheckable(true);
+
+    auto* pRememberAction = new QAction(tr("Remember last selection"), this);
+    pRememberAction->setCheckable(true);
+
+    const bool bClipboard = (_pScreenshotHandler->outputMode() == ScreenshotHandler::OutputMode::Clipboard);
+    pFileAction->setChecked(!bClipboard);
+    pClipboardAction->setChecked(bClipboard);
+    pRememberAction->setChecked(_pScreenshotHandler->rememberMode());
+
+    connect(pFileAction, &QAction::triggered, this, [this]() {
+        _pScreenshotHandler->setOutputMode(ScreenshotHandler::OutputMode::File);
+    });
+    connect(pClipboardAction, &QAction::triggered, this, [this]() {
+        _pScreenshotHandler->setOutputMode(ScreenshotHandler::OutputMode::Clipboard);
+    });
+    connect(pRememberAction, &QAction::toggled, _pScreenshotHandler, &ScreenshotHandler::setRememberMode);
+
+    auto* pMenu = new QMenu(this);
+    pMenu->addAction(pFileAction);
+    pMenu->addAction(pClipboardAction);
+    pMenu->addSeparator();
+    pMenu->addAction(pRememberAction);
+
+    auto* pButton = qobject_cast<QToolButton*>(_pUi->toolBar->widgetForAction(_pUi->actionExportImage));
+    if (pButton != nullptr)
     {
-        pixMap.save(selectedFile);
-
-        if (_pUi->legendDock->isFloating())
-        {
-            qCWarning(scopeUi) << "Undocked legend not included in screenshot";
-        }
+        pButton->setMenu(pMenu);
+        pButton->setPopupMode(QToolButton::MenuButtonPopup);
     }
 }
 
