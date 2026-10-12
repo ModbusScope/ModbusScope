@@ -10,6 +10,7 @@
 #include <QJsonObject>
 #include <QLineEdit>
 #include <QSignalSpy>
+#include <QSpinBox>
 #include <QTest>
 
 namespace {
@@ -78,6 +79,44 @@ QJsonObject makeAdapterDescribeWithConnectionRef(const QString& adapterName)
     schema["properties"] = topProps;
     describe["schema"] = schema;
     return describe;
+}
+
+//! Like makeAdapterDescribe() but the device schema also has an integer \c id, as real adapters declare.
+QJsonObject makeAdapterDescribeWithIdField(const QString& adapterName)
+{
+    QJsonObject describe = makeAdapterDescribe(adapterName);
+
+    QJsonObject idProp;
+    idProp["type"] = "integer";
+    idProp["title"] = "Device ID";
+    idProp["minimum"] = 1;
+
+    QJsonObject schema = describe["schema"].toObject();
+    QJsonObject topProps = schema["properties"].toObject();
+    QJsonObject devices = topProps["devices"].toObject();
+    QJsonObject items = devices["items"].toObject();
+    QJsonObject itemProps = items["properties"].toObject();
+    itemProps["id"] = idProp;
+    items["properties"] = itemProps;
+    devices["items"] = items;
+    topProps["devices"] = devices;
+    schema["properties"] = topProps;
+    describe["schema"] = schema;
+    return describe;
+}
+
+//! Return the first combo under \a tab that has an item with \a text, or nullptr.
+QComboBox* findCombo(const DeviceConfigTab& tab, const QString& text)
+{
+    const QList<QComboBox*> combos = tab.findChildren<QComboBox*>();
+    for (QComboBox* combo : combos)
+    {
+        if (combo->findText(text) >= 0)
+        {
+            return combo;
+        }
+    }
+    return nullptr;
 }
 
 } // namespace
@@ -235,6 +274,38 @@ void TestDeviceConfigTab::adapterChangeUsesDefaults()
     QCOMPARE(tab.values().value("name").toString(), QStringLiteral("defaultName"));
 }
 
+void TestDeviceConfigTab::idFieldIsReadOnly()
+{
+    SettingsModel model;
+    model.updateAdapterFromDescribe("adapterA", makeAdapterDescribeWithIdField("adapterA"));
+
+    DeviceConfigTab tab(&model, "adapterA", QString(), QJsonObject{ { "id", 5 } });
+
+    const QList<QSpinBox*> spins = tab.findChildren<QSpinBox*>();
+    QCOMPARE(spins.size(), 1);
+    QCOMPARE(spins.first()->value(), 5);
+    QVERIFY(!spins.first()->isEnabled());
+}
+
+void TestDeviceConfigTab::idFieldStaysReadOnlyAfterAdapterChange()
+{
+    SettingsModel model;
+    model.updateAdapterFromDescribe("adapterA", makeAdapterDescribeWithIdField("adapterA"));
+    model.updateAdapterFromDescribe("adapterB", makeAdapterDescribeWithIdField("adapterB"));
+
+    DeviceConfigTab tab(&model, "adapterA", QString(), QJsonObject{ { "id", 5 } });
+
+    auto* combo = tab.findChild<QComboBox*>(QString(), Qt::FindDirectChildrenOnly);
+    QVERIFY(combo != nullptr);
+    combo->setCurrentIndex(combo->findData(QStringLiteral("adapterB")));
+
+    // The previous form is released with deleteLater(), so wait until only the rebuilt one remains.
+    QTRY_COMPARE(tab.findChildren<QSpinBox*>().size(), 1);
+    QSpinBox* spin = tab.findChildren<QSpinBox*>().constFirst();
+    QCOMPARE(spin->value(), 5);
+    QVERIFY(!spin->isEnabled());
+}
+
 void TestDeviceConfigTab::connectionIdRendersAsComboWithConnectionNames()
 {
     SettingsModel model;
@@ -247,33 +318,12 @@ void TestDeviceConfigTab::connectionIdRendersAsComboWithConnectionNames()
 
     DeviceConfigTab tab(&model, "adapterA", QString(), QJsonObject{ { "connectionId", 2 } });
 
-    // The first direct-child combo is the adapter selector; the form's combo is nested.
-    const QList<QComboBox*> combos = tab.findChildren<QComboBox*>();
-    QComboBox* refCombo = nullptr;
-    for (QComboBox* combo : combos)
-    {
-        if (combo->findText("Backup") >= 0)
-        {
-            refCombo = combo;
-        }
-    }
+    // Search by item text so the adapter selector combo is skipped.
+    QComboBox* refCombo = findCombo(tab, "Backup");
     QVERIFY(refCombo != nullptr);
     QCOMPARE(refCombo->count(), 2);
     QCOMPARE(refCombo->currentText(), QStringLiteral("Backup"));
     QCOMPARE(tab.values().value("connectionId").toInt(), 2);
-}
-
-static QComboBox* findCombo(const DeviceConfigTab& tab, const QString& text)
-{
-    const QList<QComboBox*> combos = tab.findChildren<QComboBox*>();
-    for (QComboBox* combo : combos)
-    {
-        if (combo->findText(text) >= 0)
-        {
-            return combo;
-        }
-    }
-    return nullptr;
 }
 
 void TestDeviceConfigTab::connectionComboFollowsModelConfigChange()
