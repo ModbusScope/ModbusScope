@@ -10,8 +10,8 @@
 #include <QSettings>
 #include <QWidget>
 
-static const QString cRememberModeKey = QStringLiteral("screenshot/rememberMode");
-static const QString cOutputModeKey = QStringLiteral("screenshot/outputMode");
+constexpr QLatin1String cRememberModeKey("screenshot/rememberMode");
+constexpr QLatin1String cOutputModeKey("screenshot/outputMode");
 
 //! \brief Load the remembered output mode, or default to saving to file.
 ScreenshotHandler::ScreenshotHandler(QObject* parent)
