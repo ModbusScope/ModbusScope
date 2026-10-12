@@ -253,6 +253,80 @@ void TestAdapterData::effectiveConfigFillsMissingKeysFromDefaults()
     QCOMPARE(config.value("connections").toArray(), QJsonArray{ QStringLiteral("stored_connection") });
 }
 
+void TestAdapterData::effectiveConfigBackfillsDeviceEntryFromDefaultDevice()
+{
+    AdapterData data;
+
+    QJsonObject defaultDevice{ { "id", 1 }, { "connectionId", 0 }, { "slaveId", 1 } };
+    QJsonObject defaults;
+    defaults["devices"] = QJsonArray{ defaultDevice };
+
+    QJsonObject describeResult;
+    describeResult["name"] = "testAdapter";
+    describeResult["defaults"] = defaults;
+    data.updateFromDescribe(describeResult);
+
+    /* A device entry that carries only its id, as added when aligning a project file's device sections */
+    QJsonObject storedConfig;
+    storedConfig["devices"] = QJsonArray{ QJsonObject{ { "id", 2 } } };
+    data.setCurrentConfig(storedConfig);
+    data.setHasStoredConfig(true);
+
+    const QJsonObject device = data.effectiveConfig().value("devices").toArray().at(0).toObject();
+    QCOMPARE(device.value("id").toInt(), 2);
+    QCOMPARE(device.value("connectionId").toInt(), 0);
+    QCOMPARE(device.value("slaveId").toInt(), 1);
+
+    /* The stored config itself is left as it was */
+    QCOMPARE(data.currentConfig().value("devices").toArray().at(0).toObject().size(), 1);
+}
+
+void TestAdapterData::effectiveConfigDeviceEntryKeysOverrideDefaults()
+{
+    AdapterData data;
+
+    QJsonObject defaultDevice{ { "id", 1 }, { "connectionId", 4 }, { "slaveId", 1 } };
+    QJsonObject defaults;
+    defaults["devices"] = QJsonArray{ defaultDevice };
+
+    QJsonObject describeResult;
+    describeResult["name"] = "testAdapter";
+    describeResult["defaults"] = defaults;
+    data.updateFromDescribe(describeResult);
+
+    QJsonObject storedConfig;
+    storedConfig["devices"] = QJsonArray{ QJsonObject{ { "id", 3 }, { "slaveId", 7 } } };
+    data.setCurrentConfig(storedConfig);
+    data.setHasStoredConfig(true);
+
+    const QJsonObject device = data.effectiveConfig().value("devices").toArray().at(0).toObject();
+    QCOMPARE(device.value("id").toInt(), 3);
+    QCOMPARE(device.value("slaveId").toInt(), 7);
+    QCOMPARE(device.value("connectionId").toInt(), 4);
+}
+
+void TestAdapterData::effectiveConfigDoesNotBackfillDeviceId()
+{
+    AdapterData data;
+
+    QJsonObject defaults;
+    defaults["devices"] = QJsonArray{ QJsonObject{ { "id", 1 }, { "slaveId", 1 } } };
+
+    QJsonObject describeResult;
+    describeResult["name"] = "testAdapter";
+    describeResult["defaults"] = defaults;
+    data.updateFromDescribe(describeResult);
+
+    QJsonObject storedConfig;
+    storedConfig["devices"] = QJsonArray{ QJsonObject{ { "slaveId", 5 } } };
+    data.setCurrentConfig(storedConfig);
+    data.setHasStoredConfig(true);
+
+    const QJsonObject device = data.effectiveConfig().value("devices").toArray().at(0).toObject();
+    QVERIFY(!device.contains("id"));
+    QCOMPARE(device.value("slaveId").toInt(), 5);
+}
+
 void TestAdapterData::settingsModelAdapterDataCreatesEntry()
 {
     SettingsModel model;
