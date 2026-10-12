@@ -6,6 +6,7 @@
 #include <QCoreApplication>
 #include <QGuiApplication>
 #include <QSettings>
+#include <QSignalSpy>
 #include <QTest>
 #include <QWidget>
 
@@ -72,6 +73,21 @@ void TestScreenshotHandler::captureToClipboardSetsImage()
     handler.capture(&widget, false);
 
     QVERIFY(!QGuiApplication::clipboard()->image().isNull());
+}
+
+void TestScreenshotHandler::captureToClipboardEmitsCopied()
+{
+    QWidget widget;
+    widget.resize(50, 40);
+    widget.show();
+
+    ScreenshotHandler handler;
+    handler.setOutputMode(OutputMode::Clipboard);
+
+    const QSignalSpy spy(&handler, &ScreenshotHandler::copiedToClipboard);
+    handler.capture(&widget, false);
+
+    QCOMPARE(spy.count(), 1);
 }
 
 QTEST_MAIN(TestScreenshotHandler)

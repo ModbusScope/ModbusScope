@@ -4,7 +4,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 ### Added
 
-* Screenshot can be copied to the clipboard; the output mode is selected from the screenshot toolbar button and can be remembered
+* Screenshot can be copied to the clipboard; the output mode is selected from the screenshot toolbar button and can be remembered; the button icon briefly confirms a copy
 * Modbus communication now runs as a separate **adapter** process that is bundled with the application. This allows to add other protocols in future releases
 * Licensing support
   * Adapter license info is shown in the About dialog and diagnostic log

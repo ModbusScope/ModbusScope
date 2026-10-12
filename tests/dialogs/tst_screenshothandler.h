@@ -16,6 +16,7 @@ private slots:
     void modeNotPersistedWithoutRemember();
     void modePersistedWithRemember();
     void captureToClipboardSetsImage();
+    void captureToClipboardEmitsCopied();
 };
 
 #endif // TST_SCREENSHOTHANDLER_H

@@ -43,6 +43,7 @@
 using GuiState = GuiModel::GuiState;
 
 static const QString cHideQuickStartKey = QStringLiteral("general/hideQuickStart");
+constexpr int cScreenshotFeedbackMs = 2000;
 
 MainWindow::MainWindow(ScopeController* pScopeController,
                        GuiModel* pGuiModel,
@@ -92,6 +93,7 @@ MainWindow::MainWindow(ScopeController* pScopeController,
     _pScreenshotHandler = new ScreenshotHandler(this);
     setupMenuActions();
     setupScreenshotMenu();
+    setupScreenshotFeedback();
     setupConnections();
 
     const GuiStateActions guiStateActions{
@@ -342,6 +344,31 @@ void MainWindow::captureScreenshot()
     _pScreenshotHandler->capture(this, _pUi->legendDock->isFloating());
 }
 
+//! \brief Briefly show a confirmation icon on the screenshot button.
+void MainWindow::showScreenshotCopied()
+{
+    _pUi->actionExportImage->setIcon(_screenshotCopiedIcon);
+    _pScreenshotFeedbackTimer->start();
+}
+
+//! \brief Restore the default screenshot button icon.
+void MainWindow::restoreScreenshotIcon()
+{
+    _pUi->actionExportImage->setIcon(_screenshotDefaultIcon);
+}
+
+void MainWindow::setupScreenshotFeedback()
+{
+    _screenshotDefaultIcon = _pUi->actionExportImage->icon();
+    _screenshotCopiedIcon = QIcon(":/menu_icon/icons/clipboard-check.svg");
+
+    _pScreenshotFeedbackTimer = new QTimer(this);
+    _pScreenshotFeedbackTimer->setSingleShot(true);
+    _pScreenshotFeedbackTimer->setInterval(cScreenshotFeedbackMs);
+    connect(_pScreenshotFeedbackTimer, &QTimer::timeout, this, &MainWindow::restoreScreenshotIcon);
+    connect(_pScreenshotHandler, &ScreenshotHandler::copiedToClipboard, this, &MainWindow::showScreenshotCopied);
+}
+
 void MainWindow::setupScreenshotMenu()
 {
     auto* pModeGroup = new QActionGroup(this);
@@ -360,12 +387,10 @@ void MainWindow::setupScreenshotMenu()
     pClipboardAction->setChecked(bClipboard);
     pRememberAction->setChecked(_pScreenshotHandler->rememberMode());
 
-    connect(pFileAction, &QAction::triggered, this, [this]() {
-        _pScreenshotHandler->setOutputMode(ScreenshotHandler::OutputMode::File);
-    });
-    connect(pClipboardAction, &QAction::triggered, this, [this]() {
-        _pScreenshotHandler->setOutputMode(ScreenshotHandler::OutputMode::Clipboard);
-    });
+    connect(pFileAction, &QAction::triggered, this,
+            [this]() { _pScreenshotHandler->setOutputMode(ScreenshotHandler::OutputMode::File); });
+    connect(pClipboardAction, &QAction::triggered, this,
+            [this]() { _pScreenshotHandler->setOutputMode(ScreenshotHandler::OutputMode::Clipboard); });
     connect(pRememberAction, &QAction::toggled, _pScreenshotHandler, &ScreenshotHandler::setRememberMode);
 
     auto* pMenu = new QMenu(this);
