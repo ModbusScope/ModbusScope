@@ -11,10 +11,14 @@
 
 using OutputMode = ScreenshotHandler::OutputMode;
 
-void TestScreenshotHandler::init()
+void TestScreenshotHandler::initTestCase()
 {
     QCoreApplication::setOrganizationName("ModbusScopeTest");
     QCoreApplication::setApplicationName("tst_screenshothandler");
+}
+
+void TestScreenshotHandler::init()
+{
     QSettings().clear();
 }
 
