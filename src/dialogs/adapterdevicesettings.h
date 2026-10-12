@@ -10,6 +10,7 @@
 
 class SettingsModel;
 class AddableTabWidget;
+class AdapterConfigDraft;
 class DeviceConfigTab;
 class QLabel;
 
@@ -37,7 +38,9 @@ class AdapterDeviceSettings : public QWidget
     Q_OBJECT
 
 public:
-    explicit AdapterDeviceSettings(SettingsModel* pSettingsModel, QWidget* parent = nullptr);
+    explicit AdapterDeviceSettings(SettingsModel* pSettingsModel,
+                                   QWidget* parent = nullptr,
+                                   AdapterConfigDraft* pDraft = nullptr);
     ~AdapterDeviceSettings() = default;
 
     void acceptValues();
@@ -57,6 +60,7 @@ private:
     void updateDeviceLimitIndication();
 
     SettingsModel* _pSettingsModel;
+    AdapterConfigDraft* _pDraft;
     AddableTabWidget* _pDeviceTabs{ nullptr };
     QLabel* _pLimitWarningLabel{ nullptr };
 

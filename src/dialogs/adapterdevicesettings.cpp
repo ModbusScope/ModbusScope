@@ -3,6 +3,7 @@
 #include "ProtocolAdapter/adapterhub.h"
 #include "customwidgets/addabletabwidget.h"
 #include "customwidgets/deviceconfigtab.h"
+#include "models/adapterconfigdraft.h"
 #include "models/adapterdata.h"
 #include "models/device.h"
 #include "models/settingsmodel.h"
@@ -14,8 +15,16 @@
 
 #include <utility>
 
-AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWidget* parent)
-    : QWidget(parent), _pSettingsModel(pSettingsModel)
+/*!
+ * \brief Constructs the devices page.
+ * \param pSettingsModel  Model providing the adapters and devices.
+ * \param parent          Parent widget.
+ * \param pDraft          Draft the device tabs read their \c x-ref options from. When null a private draft is used.
+ */
+AdapterDeviceSettings::AdapterDeviceSettings(SettingsModel* pSettingsModel, QWidget* parent, AdapterConfigDraft* pDraft)
+    : QWidget(parent),
+      _pSettingsModel(pSettingsModel),
+      _pDraft(pDraft != nullptr ? pDraft : new AdapterConfigDraft(pSettingsModel, this))
 {
     auto* layout = new QVBoxLayout(this);
     setLayout(layout);
@@ -299,7 +308,7 @@ DeviceConfigTab* AdapterDeviceSettings::createTab(const QString& adapterId,
                                                   const QString& deviceName,
                                                   const QJsonObject& deviceValues)
 {
-    auto* tab = new DeviceConfigTab(_pSettingsModel, adapterId, deviceName, deviceValues, _pDeviceTabs);
+    auto* tab = new DeviceConfigTab(_pSettingsModel, adapterId, deviceName, deviceValues, _pDeviceTabs, _pDraft);
 
     connect(tab, &DeviceConfigTab::nameChanged, tab,
             [this, tab]() { _pDeviceTabs->setTabName(_pDeviceTabs->indexOf(tab), constructTabName(tab)); });

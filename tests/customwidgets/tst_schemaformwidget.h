@@ -41,6 +41,12 @@ private slots:
     void xRefOptionsSetAfterSchemaResolvePlaceholder();
     void xRefWithoutOptionsCreatesEmptyCombo();
     void referenceOptionsForSchemaReadsConfigArrays();
+    void referenceConfigSetBeforeSchemaFillsCombo();
+    void referenceConfigSetAfterSchemaRefillsCombo();
+    void xRefNonIntegerIdDoesNotSelectIdZero();
+    void valuesChangedEmittedForEveryFieldKind();
+    void valuesChangedEmittedAfterTriggerSwitchedBranch();
+    void valuesChangedEmittedWhenReferenceSelectionMoves();
 };
 
 #endif // TST_SCHEMAFORMWIDGET_H

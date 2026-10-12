@@ -118,5 +118,3 @@ void TestAdapterDiscovery::ignoreNonExecutableAdapter()
 }
 
 QTEST_GUILESS_MAIN(TestAdapterDiscovery)
-
-#include "tst_adapterdiscovery.moc"

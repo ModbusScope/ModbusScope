@@ -8,17 +8,28 @@
 #include <QLineEdit>
 #include <QSignalBlocker>
 #include <QSpinBox>
-#include <climits>
 #include <limits>
 #include <utility>
 
+/*!
+ * \brief Constructs an empty form.
+ * \param parent  Parent widget.
+ */
 SchemaFormWidget::SchemaFormWidget(QWidget* parent) : QWidget(parent), _pFormLayout(new QFormLayout(this))
 {
-    setLayout(_pFormLayout);
 }
 
+/*!
+ * \brief Populate the form from a JSON Schema object and current values.
+ *
+ * Reference options set earlier through setReferenceOptions() or setReferenceConfig() are kept and
+ * offered to the new form.
+ * \param schema  A JSON Schema with \c "type":"object" and a \c "properties" map.
+ * \param values  Initial values matching the schema properties.
+ */
 void SchemaFormWidget::setSchema(const QJsonObject& schema, const QJsonObject& values)
 {
+    _schema = schema;
     _fields.clear();
     _referenceCombos.clear();
     _conditionalTriggerKey.clear();
@@ -26,6 +37,8 @@ void SchemaFormWidget::setSchema(const QJsonObject& schema, const QJsonObject& v
     _thenKeys.clear();
     _elseKeys.clear();
     _currentTriggerValue.clear();
+
+    applyReferenceConfig();
 
     // removeRow() deletes both the label and field widget
     while (_pFormLayout->rowCount() > 0)
@@ -130,6 +143,10 @@ void SchemaFormWidget::addFieldRow(const QString& key, const QJsonObject& propSc
 {
     QString label = propSchema.value("title").toString(key);
     QWidget* widget = createWidgetForProperty(propSchema, value);
+    if (propSchema.value("readOnly").toBool())
+    {
+        widget->setEnabled(false);
+    }
     wireFieldChanged(key, widget);
     _fields.append({ key, widget });
     _pFormLayout->addRow(label + ":", widget);
@@ -144,17 +161,20 @@ void SchemaFormWidget::addFieldRow(const QString& key, const QJsonObject& propSc
 /*!
  * \brief Build options from the items of a config array.
  *
- * Items without the value key are skipped; a missing label key falls back to the value.
+ * Items without a value for the value key are skipped; a missing label key falls back to the value.
+ * \param items     Array of objects, e.g. the adapter's \c connections.
+ * \param valueKey  Item key stored as the field value.
+ * \param labelKey  Item key shown to the user.
  */
 QList<SchemaFormWidget::ReferenceOption> SchemaFormWidget::optionsFromArray(const QJsonArray& items,
                                                                             const QString& valueKey,
                                                                             const QString& labelKey)
 {
     QList<ReferenceOption> options;
-    for (const QJsonValue& item : items)
+    for (const auto& item : items)
     {
         const QJsonObject obj = item.toObject();
-        if (!obj.contains(valueKey))
+        if (obj.value(valueKey).isUndefined() || obj.value(valueKey).isNull())
         {
             continue;
         }
@@ -173,9 +193,13 @@ QList<SchemaFormWidget::ReferenceOption> SchemaFormWidget::optionsFromArray(cons
 
 /*!
  * \brief Build the options for every collection that \a schema references through \c x-ref.
+ * \param schema  Object schema, including the properties of its if/then/else branches.
+ * \param config  Config object holding the referenced arrays.
+ * \return Options per collection name. If properties reference the same collection with
+ *         different keys, the last one wins.
  */
-QMap<QString, QList<SchemaFormWidget::ReferenceOption>>
-SchemaFormWidget::referenceOptionsForSchema(const QJsonObject& schema, const QJsonObject& config)
+QMap<QString, QList<SchemaFormWidget::ReferenceOption>> SchemaFormWidget::referenceOptionsForSchema(
+  const QJsonObject& schema, const QJsonObject& config)
 {
     QList<QJsonObject> propertyMaps;
     propertyMaps.append(schema.value("properties").toObject());
@@ -202,30 +226,104 @@ SchemaFormWidget::referenceOptionsForSchema(const QJsonObject& schema, const QJs
     return result;
 }
 
+/*!
+ * \brief Set the options offered by \c x-ref properties of \a collection.
+ *
+ * May be called before or after setSchema(). Existing reference combos for the collection
+ * are repopulated and keep their selection by value.
+ */
 void SchemaFormWidget::setReferenceOptions(const QString& collection, const QList<ReferenceOption>& options)
 {
+    if (_references.contains(collection) && _references.value(collection) == options)
+    {
+        return;
+    }
     _references.insert(collection, options);
 
     for (const ReferenceCombo& ref : std::as_const(_referenceCombos))
     {
         if (ref.collection == collection)
         {
-            fillReferenceCombo(ref, QJsonValue::fromVariant(ref.pCombo->currentData()));
+            const QVariant before = ref.pCombo->currentData();
+            fillReferenceCombo(ref, QJsonValue::fromVariant(before));
+            if (ref.pCombo->currentData() != before)
+            {
+                // fillReferenceCombo() blocks the combo's signals, so report the moved selection here
+                emit valuesChanged();
+            }
+            if (!_conditionalTriggerKey.isEmpty() && isTriggerWidget(ref.pCombo))
+            {
+                applyConditional(ref.pCombo->currentData().toString());
+            }
         }
     }
+}
+
+/*!
+ * \brief Set the config that holds the arrays referenced through \c x-ref.
+ *
+ * May be called before or after setSchema(). The options of every referenced collection are
+ * rebuilt from \a config; combos whose options changed keep their selection by value.
+ */
+void SchemaFormWidget::setReferenceConfig(const QJsonObject& config)
+{
+    _referenceConfig = config;
+    _hasReferenceConfig = true;
+    applyReferenceConfig();
+}
+
+void SchemaFormWidget::applyReferenceConfig()
+{
+    // Without a config the options stay whatever setReferenceOptions() was given
+    if (!_hasReferenceConfig)
+    {
+        return;
+    }
+
+    const QMap<QString, QList<ReferenceOption>> references = referenceOptionsForSchema(_schema, _referenceConfig);
+    for (auto it = references.constBegin(); it != references.constEnd(); ++it)
+    {
+        setReferenceOptions(it.key(), it.value());
+    }
+}
+
+QVariant SchemaFormWidget::comboKey(const QJsonValue& value, bool isInteger)
+{
+    if (!isInteger)
+    {
+        return value.isString() ? QVariant(value.toString()) : QVariant();
+    }
+
+    // Only whole numbers within int range are valid ids; anything else must not alias to 0
+    if (!value.isDouble())
+    {
+        return QVariant();
+    }
+    const double number = value.toDouble();
+    const int intValue = value.toInt();
+    return (static_cast<double>(intValue) == number) ? QVariant(intValue) : QVariant();
+}
+
+bool SchemaFormWidget::isTriggerWidget(const QWidget* widget) const
+{
+    for (const auto& [key, field] : _fields)
+    {
+        if (field == widget)
+        {
+            return key == _conditionalTriggerKey;
+        }
+    }
+    return false;
 }
 
 void SchemaFormWidget::populateCombo(QComboBox* pCombo, const QList<ReferenceOption>& items, bool isInteger)
 {
     for (const ReferenceOption& item : items)
     {
-        if (isInteger)
+        const QVariant key = comboKey(item.value, isInteger);
+        if (key.isValid())
         {
-            pCombo->addItem(item.label, item.value.toInt());
-        }
-        else
-        {
-            pCombo->addItem(item.label, item.value.toString());
+            pCombo->addItem(item.label, key);
         }
     }
 }
@@ -242,7 +340,7 @@ void SchemaFormWidget::fillReferenceCombo(const ReferenceCombo& ref, const QJson
         return;
     }
 
-    const QVariant currentVariant = ref.isInteger ? QVariant(current.toInt()) : QVariant(current.toString());
+    const QVariant currentVariant = comboKey(current, ref.isInteger);
     int idx = ref.pCombo->findData(currentVariant);
     if (idx < 0)
     {
@@ -266,11 +364,6 @@ QWidget* SchemaFormWidget::createWidgetForProperty(const QJsonObject& propSchema
         _referenceCombos.append(ref);
         fillReferenceCombo(ref, value);
 
-        if (propSchema.value("readOnly").toBool())
-        {
-            combo->setEnabled(false);
-        }
-
         return combo;
     }
     else if (!enumValues.isEmpty())
@@ -292,22 +385,15 @@ QWidget* SchemaFormWidget::createWidgetForProperty(const QJsonObject& propSchema
         }
         populateCombo(combo, items, isInteger);
 
-        QVariant currentVariant = isInteger ? QVariant(value.toInt()) : QVariant(value.toString());
-        int idx = combo->findData(currentVariant);
+        int idx = combo->findData(comboKey(value, isInteger));
         const QJsonValue defaultJson = propSchema.value("default");
         if (idx < 0 && !defaultJson.isUndefined() && !defaultJson.isNull())
         {
-            QVariant defaultVariant = isInteger ? QVariant(defaultJson.toInt()) : QVariant(defaultJson.toString());
-            idx = combo->findData(defaultVariant);
+            idx = combo->findData(comboKey(defaultJson, isInteger));
         }
         if (idx >= 0)
         {
             combo->setCurrentIndex(idx);
-        }
-
-        if (propSchema.value("readOnly").toBool())
-        {
-            combo->setEnabled(false);
         }
 
         return combo;
@@ -323,15 +409,10 @@ QWidget* SchemaFormWidget::createWidgetForProperty(const QJsonObject& propSchema
         auto* spin = new QSpinBox(this);
         QJsonValue minJson = propSchema.value("minimum");
         QJsonValue maxJson = propSchema.value("maximum");
-        int minVal = !minJson.isUndefined() ? minJson.toInt() : INT_MIN;
-        int maxVal = !maxJson.isUndefined() ? maxJson.toInt() : INT_MAX;
+        int minVal = !minJson.isUndefined() ? minJson.toInt() : std::numeric_limits<int>::min();
+        int maxVal = !maxJson.isUndefined() ? maxJson.toInt() : std::numeric_limits<int>::max();
         spin->setRange(minVal, maxVal);
         spin->setValue(value.toInt(0));
-
-        if (propSchema.value("readOnly").toBool())
-        {
-            spin->setEnabled(false);
-        }
 
         return spin;
     }
@@ -345,11 +426,6 @@ QWidget* SchemaFormWidget::createWidgetForProperty(const QJsonObject& propSchema
         spin->setRange(minVal, maxVal);
         spin->setValue(value.toDouble(0.0));
 
-        if (propSchema.value("readOnly").toBool())
-        {
-            spin->setEnabled(false);
-        }
-
         return spin;
     }
     else // "string" or unknown
@@ -357,24 +433,34 @@ QWidget* SchemaFormWidget::createWidgetForProperty(const QJsonObject& propSchema
         auto* edit = new QLineEdit(this);
         edit->setText(value.toString());
 
-        if (propSchema.value("readOnly").toBool())
-        {
-            edit->setReadOnly(true);
-            edit->setEnabled(false);
-        }
-
         return edit;
     }
 }
 
 void SchemaFormWidget::wireFieldChanged(const QString& key, QWidget* widget)
 {
-    auto* edit = qobject_cast<QLineEdit*>(widget);
-    if (edit == nullptr)
+    if (auto* edit = qobject_cast<QLineEdit*>(widget))
     {
-        return;
+        connect(edit, &QLineEdit::textChanged, this, &SchemaFormWidget::valuesChanged);
+        connect(edit, &QLineEdit::textChanged, this,
+                [this, key](const QString& text) { emit fieldChanged(key, text); });
     }
-    connect(edit, &QLineEdit::textChanged, this, [this, key](const QString& text) { emit fieldChanged(key, text); });
+    else if (auto* spin = qobject_cast<QSpinBox*>(widget))
+    {
+        connect(spin, QOverload<int>::of(&QSpinBox::valueChanged), this, &SchemaFormWidget::valuesChanged);
+    }
+    else if (auto* dspin = qobject_cast<QDoubleSpinBox*>(widget))
+    {
+        connect(dspin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SchemaFormWidget::valuesChanged);
+    }
+    else if (auto* check = qobject_cast<QCheckBox*>(widget))
+    {
+        connect(check, &QCheckBox::toggled, this, &SchemaFormWidget::valuesChanged);
+    }
+    else if (auto* combo = qobject_cast<QComboBox*>(widget))
+    {
+        connect(combo, &QComboBox::currentIndexChanged, this, &SchemaFormWidget::valuesChanged);
+    }
 }
 
 bool SchemaFormWidget::parseConditional(const QJsonObject& schema)
@@ -465,8 +551,17 @@ void SchemaFormWidget::onTriggerChanged(int /*index*/)
     }
 
     applyConditional(combo->currentData().toString());
+
+    // The generic change notification of the trigger combo fired before the branch switched
+    emit valuesChanged();
 }
 
+/*!
+ * \brief Return current form input as a JSON object.
+ *
+ * Fields belonging to the inactive conditional branch are omitted.
+ * \return A QJsonObject with one entry per visible schema property.
+ */
 QJsonObject SchemaFormWidget::values() const
 {
     const bool conditionMet = !_conditionalTriggerKey.isEmpty() && (_currentTriggerValue == _conditionalTriggerConst);
@@ -507,14 +602,7 @@ QJsonObject SchemaFormWidget::values() const
                 continue;
             }
 
-            if (data.userType() == QMetaType::Int)
-            {
-                result.insert(key, data.toInt());
-            }
-            else
-            {
-                result.insert(key, data.toString());
-            }
+            result.insert(key, QJsonValue::fromVariant(data));
         }
         else if (auto* edit = qobject_cast<QLineEdit*>(widget))
         {
