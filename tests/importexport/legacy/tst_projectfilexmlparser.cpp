@@ -206,7 +206,7 @@ void TestProjectFileXmlParser::dataLevel4LegacyConnection()
 /*!
  * \brief Two legacy connections omitting <connectionid> both synthesise device id 1.
  *
- * This is the root of the duplicate device id that ProjectFileHandler::applyDeviceSettings()
+ * This is the root of the duplicate device id that ProjectFileHandler::buildDeviceList()
  * merges and AdapterData::configForWire() drops: the id is derived from <connectionid>, which
  * defaults to 0 when the tag is absent. The parser must keep accepting such a file - it is
  * otherwise valid, and refusing it would stop a project that has always opened from opening.
