@@ -53,8 +53,6 @@ void ScreenshotHandler::setOutputMode(OutputMode mode)
         QSettings settings;
         settings.setValue(cOutputModeKey, static_cast<int>(_outputMode));
     }
-
-    emit outputModeChanged();
 }
 
 //! \brief Enable or disable persisting the output mode.
@@ -77,6 +75,11 @@ void ScreenshotHandler::setRememberMode(bool remember)
  */
 void ScreenshotHandler::capture(QWidget* pWindow, bool legendFloating)
 {
+    if (legendFloating)
+    {
+        qCWarning(scopeUi) << "Undocked legend not included in screenshot";
+    }
+
     // Grab image before showing any dialog
     const QPixmap pixMap = pWindow->window()->grab();
 
@@ -87,11 +90,6 @@ void ScreenshotHandler::capture(QWidget* pWindow, bool legendFloating)
     else
     {
         saveToFile(pixMap, pWindow);
-    }
-
-    if (legendFloating)
-    {
-        qCWarning(scopeUi) << "Undocked legend not included in screenshot";
     }
 }
 
@@ -104,7 +102,10 @@ void ScreenshotHandler::saveToFile(const QPixmap& pixMap, QWidget* pParent)
     const QString selectedFile = FileSelectionHelper::showDialog(&dialog);
     if (!selectedFile.isEmpty())
     {
-        pixMap.save(selectedFile);
+        if (!pixMap.save(selectedFile))
+        {
+            qCWarning(scopeUi) << "Failed to save screenshot to" << selectedFile;
+        }
     }
 }
 

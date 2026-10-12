@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+class QPixmap;
 class QWidget;
 
 class ScreenshotHandler : public QObject
@@ -25,9 +26,6 @@ public:
     void setRememberMode(bool remember);
 
     void capture(QWidget* pWindow, bool legendFloating);
-
-signals:
-    void outputModeChanged();
 
 private:
     void saveToFile(const QPixmap& pixMap, QWidget* pParent);
