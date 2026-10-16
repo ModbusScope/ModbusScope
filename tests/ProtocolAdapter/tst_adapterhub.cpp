@@ -57,7 +57,6 @@ public:
     {
         _initAdapterCalls++;
     }
-
     int readDataCalls() const
     {
         return _readDataCalls;

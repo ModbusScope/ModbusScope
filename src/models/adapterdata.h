@@ -25,6 +25,9 @@ struct AdapterLicenseInfo
     //! \brief Convert the raw "state" string from the license object into a \a State.
     static State stateFromString(const QString& state);
 
+    //! \brief Parse a license JSON object (adapter.describe "license" or adapter.inspectLicense result).
+    static AdapterLicenseInfo fromJson(const QJsonObject& json);
+
     State state{ State::Unknown };
     QString path;
     QString reason;

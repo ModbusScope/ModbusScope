@@ -128,7 +128,7 @@ void AdapterClient::provideConfig(QJsonObject config, QStringList registerExpres
     }
 
     _pendingConfig = config;
-    _pendingAuxRequests.clear();
+    clearPendingAuxRequests();
     _state = State::CONFIGURING;
     _handshakeTimer.start(_handshakeTimeoutMs);
     QJsonObject params;
@@ -211,6 +211,31 @@ void AdapterClient::describeDataPoint(const QString& expression)
     QJsonObject params;
     params["expression"] = expression;
     _pendingAuxRequests["adapter.describeDataPoint"] = _pProcess->sendRequest("adapter.describeDataPoint", params);
+}
+
+/*!
+ * \brief Ask the adapter to verify a license file without installing it.
+ * \param path Absolute path of the license file to inspect.
+ */
+void AdapterClient::inspectLicense(const QString& path)
+{
+    if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE && _state != State::ACTIVE_DEGRADED)
+    {
+        qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "inspectLicense called in unexpected state"
+                             << static_cast<int>(_state);
+        emit inspectLicenseFailed(QStringLiteral("Adapter is not ready"));
+        return;
+    }
+
+    if (isAuxRequestRefused("inspectLicense"))
+    {
+        emit inspectLicenseFailed(_incompatibilityReason);
+        return;
+    }
+
+    QJsonObject params;
+    params["path"] = path;
+    _pendingAuxRequests["adapter.inspectLicense"] = _pProcess->sendRequest("adapter.inspectLicense", params);
 }
 
 /*!
@@ -298,7 +323,7 @@ void AdapterClient::stopSession()
     }
 
     _handshakeTimer.stop();
-    _pendingAuxRequests.clear();
+    clearPendingAuxRequests();
     _incompatibleAnnouncePending = false;
 
     if (_state == State::ACTIVE_DEGRADED)
@@ -339,7 +364,7 @@ void AdapterClient::onResponseReceived(int id, const QString& method, const QJso
         _handshakeTimer.stop();
         /* Set IDLE before stop() so onProcessFinished's IDLE guard suppresses any
            duplicate sessionError emission when the process exits asynchronously. */
-        _pendingAuxRequests.clear();
+        clearPendingAuxRequests();
         _state = State::IDLE;
         _pProcess->stop();
         emit sessionError(QString("Unexpected non-object result for %1").arg(method));
@@ -361,6 +386,17 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
         {
             _pendingAuxRequests.remove(method);
             emit validateDataPointResult(false, errorMsg);
+        }
+        return;
+    }
+
+    if (method == QStringLiteral("adapter.inspectLicense") &&
+        (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
+    {
+        if (_pendingAuxRequests.value(method, -1) == id)
+        {
+            _pendingAuxRequests.remove(method);
+            emit inspectLicenseFailed(errorMsg);
         }
         return;
     }
@@ -409,7 +445,7 @@ void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonOb
     State previousState = _state;
     /* Set IDLE before stop() so onProcessFinished's IDLE guard suppresses any
        duplicate sessionError emission when the process exits asynchronously. */
-    _pendingAuxRequests.clear();
+    clearPendingAuxRequests();
     _state = State::IDLE;
     _pProcess->stop();
 
@@ -429,13 +465,13 @@ void AdapterClient::onProcessError(const QString& message)
     _handshakeTimer.stop();
     if (_state == State::STOPPING || _state == State::STOPPING_SESSION)
     {
-        _pendingAuxRequests.clear();
+        clearPendingAuxRequests();
         _state = State::IDLE;
         emit sessionStopped();
     }
     else if (_state != State::IDLE)
     {
-        _pendingAuxRequests.clear();
+        clearPendingAuxRequests();
         _state = State::IDLE;
         emit sessionError(message);
     }
@@ -444,7 +480,7 @@ void AdapterClient::onProcessError(const QString& message)
 void AdapterClient::onProcessFinished()
 {
     _handshakeTimer.stop();
-    _pendingAuxRequests.clear();
+    clearPendingAuxRequests();
     if (_state == State::STOPPING || _state == State::STOPPING_SESSION)
     {
         _state = State::IDLE;
@@ -462,7 +498,7 @@ void AdapterClient::onHandshakeTimeout()
     qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "handshake timed out in state"
                          << static_cast<int>(_state);
     bool wasUserStop = (_state == State::STOPPING || _state == State::STOPPING_SESSION);
-    _pendingAuxRequests.clear();
+    clearPendingAuxRequests();
     _state = State::IDLE;
     _pProcess->stop();
     if (wasUserStop)
@@ -681,6 +717,20 @@ void AdapterClient::announceIncompatibleSession()
  *
  * \param requestName Name of the request, for the log message.
  */
+/*!
+ * \brief Drop all in-flight auxiliary requests, reporting a pending adapter.inspectLicense as failed
+ * so its caller does not wait for a reply that can no longer arrive.
+ */
+void AdapterClient::clearPendingAuxRequests()
+{
+    const bool inspectPending = _pendingAuxRequests.contains(QStringLiteral("adapter.inspectLicense"));
+    _pendingAuxRequests.clear();
+    if (inspectPending)
+    {
+        emit inspectLicenseFailed(QStringLiteral("Request cancelled"));
+    }
+}
+
 bool AdapterClient::isAuxRequestRefused(const char* requestName) const
 {
     if (_incompatibilityReason.isEmpty())
@@ -780,6 +830,15 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
             return;
         }
         emit describeDataPointResult(result);
+    }
+    else if (method == "adapter.inspectLicense" &&
+             (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
+    {
+        if (!consumeAuxResponse(method, id))
+        {
+            return;
+        }
+        emit inspectLicenseResult(result);
     }
     else if (method == "adapter.validateDataPoint" &&
              (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))

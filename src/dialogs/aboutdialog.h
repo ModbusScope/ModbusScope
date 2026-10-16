@@ -1,9 +1,14 @@
 #ifndef ABOUTDIALOG_H
 #define ABOUTDIALOG_H
 
+#include <QByteArray>
 #include <QDialog>
+#include <QJsonObject>
+#include <QTimer>
 
 // Forward declaration
+class AdapterHub;
+class AdapterManager;
 class UpdateNotify;
 class SettingsModel;
 struct AdapterLicenseInfo;
@@ -16,22 +21,21 @@ class AboutDialog : public QDialog
 {
     Q_OBJECT
 
+    friend class TestAboutDialog;
+
 public:
-    explicit AboutDialog(UpdateNotify* pUpdateNotify, SettingsModel* pSettingsModel, QWidget* parent = nullptr);
+    explicit AboutDialog(UpdateNotify* pUpdateNotify,
+                         SettingsModel* pSettingsModel,
+                         AdapterHub* pAdapterHub,
+                         QWidget* parent = nullptr);
     ~AboutDialog();
 
-    /*!
-     * \brief Returns true when the given license state should require the user to confirm
-     * before overwriting an existing license file with a new one.
-     */
     static bool requiresOverwriteConfirmation(const AdapterLicenseInfo& existing);
 
-    /*!
-     * \brief Copies a license file to its installed location.
-     *
-     * Creates the destination directory if needed, replacing any existing file at destPath.
-     * \return An empty string on success, or a human-readable error message on failure.
-     */
+    static QString licensePreviewText(const AdapterLicenseInfo& license, bool replacesValid);
+
+    static QString licenseRejectionText(const AdapterLicenseInfo& license);
+
     static QString installLicenseFile(const QString& sourcePath, const QString& destPath);
 
 private slots:
@@ -39,6 +43,9 @@ private slots:
     void openLicense(void);
     void openRequestLicense(void);
     void loadLicense(void);
+    void onInspectLicenseResult(const QJsonObject& result);
+    void onInspectLicenseFailed(const QString& message);
+    void onInspectLicenseTimeout();
 
 private:
     void showVersionUpdate(UpdateNotify* updateNotify);
@@ -47,8 +54,26 @@ private:
     void setLibraryVersionInfo();
     static QString licenseInfoHtml(const AdapterLicenseInfo& license);
 
+    QString selectLicenseAdapter();
+    void startLicenseInspection(const QString& adapterId, const QString& sourcePath);
+    void finishLicenseInspection();
+    void confirmAndInstallLicense(const AdapterLicenseInfo& license);
+    void showInspectionUnsupported();
+    static QByteArray hashFile(const QString& path);
+
+    static const int cInspectTimeoutMs = 5000;
+
     Ui::AboutDialog* _pUi;
     SettingsModel* _pSettingsModel;
+    AdapterHub* _pAdapterHub;
+
+    AdapterManager* _pInspectManager{ nullptr };
+    QTimer _inspectTimer;
+    bool _inspecting{ false };
+    QString _inspectSourcePath;
+    QString _inspectDestPath;
+    QByteArray _inspectSourceHash;
+    bool _inspectReplacesValid{ false };
 };
 
 #endif // ABOUTDIALOG_H

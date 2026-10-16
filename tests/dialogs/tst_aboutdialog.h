@@ -13,11 +13,24 @@ private slots:
     void requiresOverwriteConfirmationFalseForNotFound();
     void requiresOverwriteConfirmationFalseForUnknown();
 
+    void licensePreviewTextShowsAllFields();
+    void licensePreviewTextEscapesHtml();
+    void licensePreviewTextOmitsOptionalFields();
+    void licensePreviewTextMentionsReplacedLicense();
+    void licenseRejectionTextInvalidShowsReason();
+    void licenseRejectionTextNotFound();
+    void licenseRejectionTextEscapesHtml();
+    void licenseRejectionTextUnknownAndEmptyReason();
+
     void installLicenseFileCopiesToFreshDestination();
     void installLicenseFileCreatesMissingDirectories();
     void installLicenseFileOverwritesExistingDestination();
     void installLicenseFileFailsWhenSourceMissing();
     void installLicenseFileHandlesSourceEqualsDestination();
+
+    void inspectionIsSentToSelectedAdapter();
+    void inspectionIgnoresRepliesFromOtherAdapter();
+    void inspectionAcceptsReplyFromSelectedAdapter();
 };
 
 #endif // TST_ABOUTDIALOG_H

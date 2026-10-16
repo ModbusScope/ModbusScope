@@ -134,6 +134,17 @@ public:
     void describeDataPoint(const QString& expression);
 
     /*!
+     * \brief Send an adapter.inspectLicense request to verify a license file without installing it.
+     *
+     * Can be called in AWAITING_CONFIG or ACTIVE state.
+     * Emits inspectLicenseResult() when the adapter responds, or inspectLicenseFailed() when the
+     * adapter answers with an error (e.g. an adapter that does not implement the method).
+     *
+     * \param path Absolute path of the license file to inspect.
+     */
+    void inspectLicense(const QString& path);
+
+    /*!
      * \brief Send an adapter.validateDataPoint request to validate a data point expression.
      *
      * Can be called in AWAITING_CONFIG or ACTIVE state.
@@ -242,6 +253,18 @@ signals:
     void describeDataPointResult(QJsonObject result);
 
     /*!
+     * \brief Emitted when an adapter.inspectLicense response has been received.
+     * \param result The license object (state, reason, customer, email, licenseId, expires).
+     */
+    void inspectLicenseResult(QJsonObject result);
+
+    /*!
+     * \brief Emitted when the adapter answered adapter.inspectLicense with a JSON-RPC error.
+     * \param message The error message reported by the adapter.
+     */
+    void inspectLicenseFailed(QString message);
+
+    /*!
      * \brief Emitted when an adapter.validateDataPoint response has been received.
      * \param valid Whether the expression is valid.
      * \param error Human-readable error message when valid is false; empty otherwise.
@@ -302,6 +325,7 @@ private:
     ResultDoubleList invalidResults() const;
     void degradeSession(const QString& diagnosticMessage);
     void announceIncompatibleSession();
+    void clearPendingAuxRequests();
     bool isAuxRequestRefused(const char* requestName) const;
     ResultDoubleList decodeReadDataResult(const QJsonObject& result);
     ResultDouble decodeDataPoint(const QJsonValue& entry, ReadDataIssues& issues);

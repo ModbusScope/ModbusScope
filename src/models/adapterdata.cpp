@@ -161,19 +161,26 @@ AdapterLicenseInfo::State AdapterLicenseInfo::stateFromString(const QString& sta
     return State::Unknown;
 }
 
+//! \brief Parses a license JSON object into its known fields.
+//! \return An AdapterLicenseInfo with empty fields for every key missing from \a json.
+AdapterLicenseInfo AdapterLicenseInfo::fromJson(const QJsonObject& json)
+{
+    AdapterLicenseInfo info;
+    info.state = stateFromString(json.value("state").toString());
+    info.path = json.value("path").toString();
+    info.reason = json.value("reason").toString();
+    info.customer = json.value("customer").toString();
+    info.email = json.value("email").toString();
+    info.licenseId = json.value("licenseId").toString();
+    info.expires = json.value("expires").toString();
+    return info;
+}
+
 //! \brief Parses the raw license JSON into its known fields.
 //! \return An AdapterLicenseInfo with empty fields if no license was reported.
 AdapterLicenseInfo AdapterData::licenseInfo() const
 {
-    AdapterLicenseInfo info;
-    info.state = AdapterLicenseInfo::stateFromString(_license.value("state").toString());
-    info.path = _license.value("path").toString();
-    info.reason = _license.value("reason").toString();
-    info.customer = _license.value("customer").toString();
-    info.email = _license.value("email").toString();
-    info.licenseId = _license.value("licenseId").toString();
-    info.expires = _license.value("expires").toString();
-    return info;
+    return AdapterLicenseInfo::fromJson(_license);
 }
 
 QJsonObject AdapterData::currentConfig() const

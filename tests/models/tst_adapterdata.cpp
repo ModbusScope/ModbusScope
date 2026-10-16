@@ -894,6 +894,54 @@ void TestAdapterData::updateFromDescribeMissingLicense()
     QVERIFY(data.license().isEmpty());
 }
 
+void TestAdapterData::licenseInfoFromJsonParsesAllFields()
+{
+    QJsonObject json;
+    json["state"] = "valid";
+    json["path"] = "/tmp/a.lic";
+    json["reason"] = "none";
+    json["customer"] = "ACME Corp";
+    json["email"] = "customer@example.com";
+    json["licenseId"] = "LIC-2026-001";
+    json["expires"] = "2027-01-01";
+
+    const AdapterLicenseInfo info = AdapterLicenseInfo::fromJson(json);
+
+    QCOMPARE(info.state, AdapterLicenseInfo::State::Valid);
+    QCOMPARE(info.path, QStringLiteral("/tmp/a.lic"));
+    QCOMPARE(info.reason, QStringLiteral("none"));
+    QCOMPARE(info.customer, QStringLiteral("ACME Corp"));
+    QCOMPARE(info.email, QStringLiteral("customer@example.com"));
+    QCOMPARE(info.licenseId, QStringLiteral("LIC-2026-001"));
+    QCOMPARE(info.expires, QStringLiteral("2027-01-01"));
+}
+
+void TestAdapterData::licenseInfoFromJsonMissingFields()
+{
+    QJsonObject json;
+    json["state"] = "invalid";
+    json["reason"] = "signature mismatch";
+
+    const AdapterLicenseInfo info = AdapterLicenseInfo::fromJson(json);
+
+    QCOMPARE(info.state, AdapterLicenseInfo::State::Invalid);
+    QCOMPARE(info.reason, QStringLiteral("signature mismatch"));
+    QVERIFY(info.customer.isEmpty());
+    QVERIFY(info.email.isEmpty());
+    QVERIFY(info.licenseId.isEmpty());
+    QVERIFY(info.expires.isEmpty());
+    QVERIFY(info.path.isEmpty());
+}
+
+void TestAdapterData::licenseInfoFromJsonUnknownState()
+{
+    QCOMPARE(AdapterLicenseInfo::fromJson(QJsonObject()).state, AdapterLicenseInfo::State::Unknown);
+
+    QJsonObject json;
+    json["state"] = "bogus";
+    QCOMPARE(AdapterLicenseInfo::fromJson(json).state, AdapterLicenseInfo::State::Unknown);
+}
+
 /*!
  * \brief configForWire drops a repeated device id, keeping the first occurrence.
  *
