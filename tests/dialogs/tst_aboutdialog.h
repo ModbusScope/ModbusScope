@@ -27,6 +27,10 @@ private slots:
     void installLicenseFileOverwritesExistingDestination();
     void installLicenseFileFailsWhenSourceMissing();
     void installLicenseFileHandlesSourceEqualsDestination();
+
+    void inspectionIsSentToSelectedAdapter();
+    void inspectionIgnoresRepliesFromOtherAdapter();
+    void inspectionAcceptsReplyFromSelectedAdapter();
 };
 
 #endif // TST_ABOUTDIALOG_H

@@ -14,11 +14,11 @@
 #include "util/util.h"
 #include "util/version.h"
 
+#include <QCryptographicHash>
 #include <QDesktopServices>
 #include <QDir>
 #include <QFile>
 #include <QFileDialog>
-#include <QCryptographicHash>
 #include <QFileInfo>
 #include <QInputDialog>
 #include <QLibraryInfo>
@@ -26,7 +26,9 @@
 #include <QTextDocument>
 #include <QUrl>
 
-AboutDialog::AboutDialog(UpdateNotify* pUpdateNotify, SettingsModel* pSettingsModel, AdapterHub* pAdapterHub,
+AboutDialog::AboutDialog(UpdateNotify* pUpdateNotify,
+                         SettingsModel* pSettingsModel,
+                         AdapterHub* pAdapterHub,
                          QWidget* parent)
     : QDialog(parent), _pUi(new Ui::AboutDialog), _pSettingsModel(pSettingsModel), _pAdapterHub(pAdapterHub)
 {
@@ -44,11 +46,6 @@ AboutDialog::AboutDialog(UpdateNotify* pUpdateNotify, SettingsModel* pSettingsMo
     _inspectTimer.setSingleShot(true);
     _inspectTimer.setInterval(cInspectTimeoutMs);
     connect(&_inspectTimer, &QTimer::timeout, this, &AboutDialog::onInspectLicenseTimeout);
-    if (_pAdapterHub != nullptr)
-    {
-        connect(_pAdapterHub, &AdapterHub::inspectLicenseResult, this, &AboutDialog::onInspectLicenseResult);
-        connect(_pAdapterHub, &AdapterHub::inspectLicenseFailed, this, &AboutDialog::onInspectLicenseFailed);
-    }
 
     setVersionInfo();
     setAdapterInfo(pSettingsModel);
@@ -177,9 +174,10 @@ QByteArray AboutDialog::hashFile(const QString& path)
 }
 
 //! \brief Asks the adapter to verify the chosen license file; nothing is installed until the user confirms.
+//! Only replies from this adapter's manager are accepted, so a late reply from another adapter is ignored.
 void AboutDialog::startLicenseInspection(const QString& adapterId, const QString& sourcePath)
 {
-    const AdapterManager* pManager = (_pAdapterHub != nullptr) ? _pAdapterHub->adapterManager(adapterId) : nullptr;
+    AdapterManager* pManager = (_pAdapterHub != nullptr) ? _pAdapterHub->adapterManager(adapterId) : nullptr;
     if (pManager == nullptr || !(pManager->isAdapterReady() || pManager->isAdapterActive()))
     {
         QMessageBox::warning(this, tr("Load License"), tr("Adapter is not running, cannot verify the license."));
@@ -195,12 +193,21 @@ void AboutDialog::startLicenseInspection(const QString& adapterId, const QString
     _pUi->btnLoadLicense->setEnabled(false);
     _inspectTimer.start();
 
-    _pAdapterHub->inspectLicense(adapterId, QFileInfo(sourcePath).absoluteFilePath());
+    _pInspectManager = pManager;
+    connect(_pInspectManager, &AdapterManager::inspectLicenseResult, this, &AboutDialog::onInspectLicenseResult);
+    connect(_pInspectManager, &AdapterManager::inspectLicenseFailed, this, &AboutDialog::onInspectLicenseFailed);
+    _pInspectManager->inspectLicense(QFileInfo(sourcePath).absoluteFilePath());
 }
 
-//! \brief Ends a pending inspection: stops the timeout and re-enables the load button.
+//! \brief Ends a pending inspection: stops the timeout, drops any late reply and re-enables the load button.
 void AboutDialog::finishLicenseInspection()
 {
+    if (_pInspectManager != nullptr)
+    {
+        disconnect(_pInspectManager, &AdapterManager::inspectLicenseResult, this, &AboutDialog::onInspectLicenseResult);
+        disconnect(_pInspectManager, &AdapterManager::inspectLicenseFailed, this, &AboutDialog::onInspectLicenseFailed);
+        _pInspectManager = nullptr;
+    }
     _inspecting = false;
     _inspectTimer.stop();
     _pUi->btnLoadLicense->setEnabled(true);

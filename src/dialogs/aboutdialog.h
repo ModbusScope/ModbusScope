@@ -1,13 +1,14 @@
 #ifndef ABOUTDIALOG_H
 #define ABOUTDIALOG_H
 
-#include <QDialog>
 #include <QByteArray>
+#include <QDialog>
 #include <QJsonObject>
 #include <QTimer>
 
 // Forward declaration
 class AdapterHub;
+class AdapterManager;
 class UpdateNotify;
 class SettingsModel;
 struct AdapterLicenseInfo;
@@ -20,11 +21,14 @@ class AboutDialog : public QDialog
 {
     Q_OBJECT
 
+    friend class TestAboutDialog;
+
 public:
-    explicit AboutDialog(UpdateNotify* pUpdateNotify, SettingsModel* pSettingsModel, AdapterHub* pAdapterHub,
+    explicit AboutDialog(UpdateNotify* pUpdateNotify,
+                         SettingsModel* pSettingsModel,
+                         AdapterHub* pAdapterHub,
                          QWidget* parent = nullptr);
     ~AboutDialog();
-
 
     static bool requiresOverwriteConfirmation(const AdapterLicenseInfo& existing);
 
@@ -63,6 +67,7 @@ private:
     SettingsModel* _pSettingsModel;
     AdapterHub* _pAdapterHub;
 
+    AdapterManager* _pInspectManager{ nullptr };
     QTimer _inspectTimer;
     bool _inspecting{ false };
     QString _inspectSourcePath;

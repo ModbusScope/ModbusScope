@@ -40,7 +40,6 @@ public:
     virtual void startSession(const QString& adapterId, const QStringList& expressions);
     virtual void stopSession();
     virtual void requestReadData();
-    virtual void inspectLicense(const QString& adapterId, const QString& path);
 
     virtual AdapterManager* adapterManager(const QString& id) const;
     virtual QStringList adapterIds() const;
@@ -55,8 +54,6 @@ signals:
     void buildExpressionResult(QString expression);
     void expressionHelpResult(QString helpText);
     void describeDataPointResult(QJsonObject result);
-    void inspectLicenseResult(QJsonObject result);
-    void inspectLicenseFailed(QString message);
 
 protected:
     explicit AdapterHub(QObject* parent = nullptr);

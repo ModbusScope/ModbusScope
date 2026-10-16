@@ -1,11 +1,70 @@
 #include "tst_aboutdialog.h"
 
 #include "dialogs/aboutdialog.h"
+#include "mockadapterhub.h"
 #include "models/adapterdata.h"
+#include "models/settingsmodel.h"
+#include "util/updatenotify.h"
+#include "util/versiondownloader.h"
 
+#include <QApplication>
 #include <QFile>
+#include <QJsonObject>
+#include <QPushButton>
 #include <QTemporaryDir>
 #include <QTest>
+#include <QTimer>
+
+namespace {
+
+/*! \brief AdapterManager double that is always ready and records inspected license paths. */
+class FakeLicenseManager : public AdapterManager
+{
+public:
+    FakeLicenseManager(const QString& id, QObject* parent) : AdapterManager(id, QString(), nullptr, parent)
+    {
+    }
+
+    bool isAdapterReady() const override
+    {
+        return true;
+    }
+
+    void inspectLicense(const QString& path) override
+    {
+        inspectedPaths << path;
+    }
+
+    QStringList inspectedPaths;
+};
+
+/*! \brief Registers an adapter whose describe result reports a license location in \a dir. */
+void addLicensedAdapter(SettingsModel* pSettingsModel, const QString& id, const QTemporaryDir& dir)
+{
+    QJsonObject license;
+    license["state"] = "notFound";
+    license["path"] = dir.filePath(id + ".lic");
+
+    QJsonObject describe;
+    describe["license"] = license;
+    pSettingsModel->updateAdapterFromDescribe(id, describe);
+}
+
+/*! \brief Closes the active modal dialog, if any, so a test cannot block on a message box.
+ *  \return True when a modal dialog was open.
+ */
+bool closeActiveModal()
+{
+    QWidget* pModal = QApplication::activeModalWidget();
+    if (pModal == nullptr)
+    {
+        return false;
+    }
+    pModal->close();
+    return true;
+}
+
+} // namespace
 
 void TestAboutDialog::requiresOverwriteConfirmationTrueForValid()
 {
@@ -242,6 +301,102 @@ void TestAboutDialog::installLicenseFileHandlesSourceEqualsDestination()
     QFile writtenFile(path);
     QVERIFY(writtenFile.open(QIODevice::ReadOnly));
     QCOMPARE(writtenFile.readAll(), QByteArray("existing-content"));
+}
+
+void TestAboutDialog::inspectionIsSentToSelectedAdapter()
+{
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+
+    SettingsModel settingsModel;
+    addLicensedAdapter(&settingsModel, "modbus", tempDir);
+    addLicensedAdapter(&settingsModel, "sim", tempDir);
+
+    MockAdapterHub hub;
+    auto* pModbus = new FakeLicenseManager("modbus", &hub);
+    auto* pSim = new FakeLicenseManager("sim", &hub);
+    hub.addManager("modbus", pModbus);
+    hub.addManager("sim", pSim);
+
+    VersionDownloader versionDownloader;
+    UpdateNotify updateNotify(&versionDownloader, "1.0.0");
+    AboutDialog dialog(&updateNotify, &settingsModel, &hub);
+
+    const QString sourcePath = tempDir.filePath("new.lic");
+    dialog.startLicenseInspection("sim", sourcePath);
+
+    QCOMPARE(pSim->inspectedPaths, QStringList{ sourcePath });
+    QVERIFY(pModbus->inspectedPaths.isEmpty());
+    QCOMPARE(dialog._pInspectManager, pSim);
+}
+
+void TestAboutDialog::inspectionIgnoresRepliesFromOtherAdapter()
+{
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+
+    SettingsModel settingsModel;
+    addLicensedAdapter(&settingsModel, "modbus", tempDir);
+    addLicensedAdapter(&settingsModel, "sim", tempDir);
+
+    MockAdapterHub hub;
+    auto* pModbus = new FakeLicenseManager("modbus", &hub);
+    auto* pSim = new FakeLicenseManager("sim", &hub);
+    hub.addManager("modbus", pModbus);
+    hub.addManager("sim", pSim);
+
+    VersionDownloader versionDownloader;
+    UpdateNotify updateNotify(&versionDownloader, "1.0.0");
+    AboutDialog dialog(&updateNotify, &settingsModel, &hub);
+    auto* pLoadButton = dialog.findChild<QPushButton*>("btnLoadLicense");
+    QVERIFY(pLoadButton != nullptr);
+
+    /* Inspection of modbus times out, then the user inspects a license for sim. */
+    dialog.startLicenseInspection("modbus", tempDir.filePath("first.lic"));
+    dialog.finishLicenseInspection();
+    QVERIFY(dialog._pInspectManager == nullptr);
+    dialog.startLicenseInspection("sim", tempDir.filePath("second.lic"));
+
+    /* The late modbus replies must not be taken as the verdict on the sim license. */
+    bool bModalShown = false;
+    QTimer::singleShot(0, &dialog, [&bModalShown]() { bModalShown = closeActiveModal(); });
+    emit pModbus->inspectLicenseResult(QJsonObject{ { "state", "invalid" }, { "reason", "expired" } });
+    emit pModbus->inspectLicenseFailed("Request cancelled");
+    QCoreApplication::processEvents();
+
+    QVERIFY(!bModalShown);
+    QVERIFY(dialog._inspecting);
+    QVERIFY(!pLoadButton->isEnabled());
+}
+
+void TestAboutDialog::inspectionAcceptsReplyFromSelectedAdapter()
+{
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+
+    SettingsModel settingsModel;
+    addLicensedAdapter(&settingsModel, "sim", tempDir);
+
+    MockAdapterHub hub;
+    auto* pSim = new FakeLicenseManager("sim", &hub);
+    hub.addManager("sim", pSim);
+
+    VersionDownloader versionDownloader;
+    UpdateNotify updateNotify(&versionDownloader, "1.0.0");
+    AboutDialog dialog(&updateNotify, &settingsModel, &hub);
+    auto* pLoadButton = dialog.findChild<QPushButton*>("btnLoadLicense");
+    QVERIFY(pLoadButton != nullptr);
+
+    dialog.startLicenseInspection("sim", tempDir.filePath("new.lic"));
+
+    bool bModalShown = false;
+    QTimer::singleShot(0, &dialog, [&bModalShown]() { bModalShown = closeActiveModal(); });
+    emit pSim->inspectLicenseResult(QJsonObject{ { "state", "invalid" }, { "reason", "expired" } });
+
+    QVERIFY(bModalShown);
+    QVERIFY(!dialog._inspecting);
+    QVERIFY(dialog._pInspectManager == nullptr);
+    QVERIFY(pLoadButton->isEnabled());
 }
 
 QTEST_MAIN(TestAboutDialog)
