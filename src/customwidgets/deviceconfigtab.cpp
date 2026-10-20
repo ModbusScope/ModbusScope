@@ -128,9 +128,8 @@ void DeviceConfigTab::rebuildSchemaForm(const QString& adapterId, const QJsonObj
     QJsonObject devicesSchema = pAdapter->schema().value("properties").toObject().value("devices").toObject();
     QJsonObject itemSchema = devicesSchema.value("items").toObject();
 
-    // Make the "id" field read-only since we don't support changing it after creation, and it must be present for
-    // existing devices. TODO: In the future we may want to allow editing it for new devices that haven't been saved
-    // yet, but that would require some additional handling to avoid conflicts with existing IDs.
+    // The "id" field is read-only: a device ID is assigned once at creation and is never edited, because it is both
+    // the SettingsModel device map key and the "id" in the adapter config, and both must stay identical.
     QJsonObject propsObj = itemSchema.value("properties").toObject();
     QJsonObject idProp = propsObj.value("id").toObject();
     idProp.insert("readOnly", true);

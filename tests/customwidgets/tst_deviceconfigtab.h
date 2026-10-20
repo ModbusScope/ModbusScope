@@ -18,6 +18,8 @@ private slots:
     void nameChangeDoesNotWriteModel();
     void adapterChangeDoesNotWriteModel();
     void adapterChangeUsesDefaults();
+    void idFieldIsReadOnly();
+    void idFieldStaysReadOnlyAfterAdapterChange();
     void connectionIdRendersAsComboWithConnectionNames();
     void connectionComboFollowsModelConfigChange();
     void connectionComboFollowsDraftSection();
