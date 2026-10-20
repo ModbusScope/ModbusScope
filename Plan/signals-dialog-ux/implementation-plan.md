@@ -19,6 +19,8 @@ Smaller findings that change details of the review:
 - `adapter.describeDataPoint` accepts a single `${...}` reference, not a full expression. The spec does not say so.
 - `buildExpression` uses the adapter's own notation. Rebuilding `${40002:s16b}` gives `${h1:s16b}`. The panel must therefore only rewrite a reference after the user changes one of its fields.
 - Expression validity in the table (`GraphData::ExpressionState`) is set by `ExpressionStatus`, which listens to one specific `GraphDataModel`. A working copy needs its own `ExpressionStatus`.
+- Copies of a `GraphData` share one `GraphDataSeries` by design (`graphdata.h`), and `GraphDataStore::setActive(false)` clears that series. A working copy built from copied `GraphData` rows would erase source samples as soon as a signal is deactivated in it, even if the user then cancels.
+- `AdapterClient` has no timeout for aux requests, and drops pending ones without notice when the adapter process exits or a session stops. A caller waiting for a `buildExpression` reply can wait forever.
 - The adapter lookup (device → adapter id → `AdapterManager`, with an "adapter not running" fallback) is written three times: `AddRegisterWidget::applyDevice()`, `ExpressionsDialog::managerForDescribeRow()` and `SignalsDialog::initDefaultExpressionTarget()`.
 
 Scope: ModbusScope only. No adapter repository needs to change. Phase 0 includes a spec update that the adapter repositories should mirror when they next sync the spec.
@@ -27,14 +29,14 @@ Scope: ModbusScope only. No adapter repository needs to change. Phase 0 includes
 
 ## 1. Module map
 
-The plan adds six modules and changes several more. Each new module has one job and can be tested without the dialogs. Names are the names after phase R.
+The plan adds six modules and changes several more. Each new module has one job and can be tested without the dialogs. Class names are the names after phase R.
 
 | Module | Location | New / changed | Job | Phase |
 | --- | --- | --- | --- | --- |
-| `DeviceComboBox` | `src/customwidgets/devicecombobox.*` | New | Device selector that fills itself from `SettingsModel` and keeps its selection when the device list changes | R |
-| `DataPointUsage` | `src/datahandling/datapointusage.*` | Changed | Also builds the data point limit warnings, now in `SignalsDialog` | R |
-| `SettingsModel` | `src/models/settingsmodel.*` | Changed | `adapterDisplayName()`: adapter name, falling back to the id, without inserting a phantom entry | R |
-| `GraphDataModel` | `src/models/graphdatamodel.*` | Changed | `removeSignals(QList<GraphIdx>)`; `clearData(GraphIdx)` (phase 3) | R, 3 |
+| `DeviceComboBox` | `src/customwidgets/devicecombobox.*` | New | Device selector that fills itself from `SettingsModel` and keeps its selection when the device list changes | 2 |
+| `DataPointUsage` | `src/datahandling/datapointusage.*` | Changed | Also builds the data point limit warnings, now in `SignalsDialog` | 3 |
+| `SettingsModel` | `src/models/settingsmodel.*` | Changed | `adapterDisplayName()`: adapter name, falling back to the id, without inserting a phantom entry | 0 |
+| `GraphDataModel` | `src/models/graphdatamodel.*` | Changed | `removeSignals(QList<GraphIdx>)`, `clearData(GraphIdx)` | 3 |
 | `AdapterClient`, `AdapterManager` | `src/ProtocolAdapter/` | Changed | Non-fatal errors for data point calls; request ids on aux requests | 0 |
 | `DataPointService` | `src/ProtocolAdapter/datapointservice.*` | New | Route data point calls for a device to its adapter; match replies to requests | 0 |
 | `ExpressionReferences` | `src/util/expressionreferences.*` | New | Find each `${...}` occurrence with its position; replace one occurrence | 2 |
@@ -75,8 +77,7 @@ The dialogs depend on the building blocks, never the other way round. `DataPoint
 
 ```mermaid
 flowchart LR
-    PR[R Terminology and extractions] --> P0
-    PR --> P1
+    PR[R Rename Signals dialog] --> P0
     P0[0 Adapter calls] --> P2[2 Building blocks]
     P1[1 Quick wins]
     P0 -.error text.-> P1
@@ -89,11 +90,11 @@ flowchart LR
     P6 --> P7
 ```
 
-Phase R goes first: it renames files and classes that every later phase touches, so doing it later would conflict with all of them. Merge it quickly to keep conflicts with other branches small. Phase 1 can be done in parallel with phases 0 and 2. Only its "show why `buildExpression` failed" item waits for phase 0. Phases 5 and 6 are independent of each other and of phase 4.
+Phase R goes first. It only renames the Signals dialog classes, which phases 0, 3, 4, 6 and 7 all edit; renaming later would conflict with each of them. It is small and mechanical, so it can be merged quickly. Refactoring of existing code lands in the phase that first needs it (see [Extractions](#extractions-from-existing-code)), so no phase waits for refactoring that brings no user-facing result. Phase 1 can be done in parallel with phases 0 and 2. Only its "show why `buildExpression` failed" item waits for phase 0. Phases 5 and 6 are independent of each other and of phase 4.
 
 | Phase | Result for the user | Size |
 | --- | --- | --- |
-| R | No visible change. Code uses *signal* and *data point*; six pieces of dialog logic are testable on their own | M |
+| R | No visible change. The Signals dialog classes are named after what users see | S |
 | 0 | Invalid address input no longer stops the adapter | M |
 | 1 | Compose expression cannot save a broken expression; editor and add form are easier to use | S |
 | 2 | No visible change. The add popup now runs on the shared editor widget | M |
@@ -105,9 +106,9 @@ Phase R goes first: it renames files and classes that every later phase touches,
 
 ---
 
-### Phase R: Terminology and extractions
+### Phase R: Rename the Signals dialog
 
-**Goal:** the code uses the same words as the UI and the manual, and the logic the later phases change is out of the dialogs and covered by tests. No behaviour changes.
+**Goal:** the classes of the Signals dialog use the same words as the UI and the manual. No behaviour changes.
 
 The terms:
 
@@ -117,11 +118,7 @@ The terms:
 | Data point | One `${...}` reference that an adapter reads | "register" for a polled value (`_registerList`, `registerDataReady`, `cMatchRegister`) |
 | Register | Only for Modbus registers: MBC files and Modbus-specific settings | — |
 
-#### R.1 Renames
-
-Mechanical renames, one commit per group. Each commit builds and passes the tests unchanged apart from the renamed names.
-
-##### Signals dialog
+New code in this effort uses *signal* and *data point* from the start. Existing code is renamed only where this effort edits it anyway:
 
 | Old | New |
 | --- | --- |
@@ -134,53 +131,26 @@ Mechanical renames, one commit per group. Each commit builds and passes the test
 | `MainWindow::showRegisterDialog()`, `handleShowRegisterDialog()`, `actionRegisterSettings` | `showSignalsDialog()`, `handleShowSignalsDialog()`, `actionSignals` |
 | `GuiStateController` action `pRegisterSettings` | `pSignals` |
 
-`AddRegisterWidget` keeps its name: phase 2 shrinks it and phase 4 deletes it.
+`AddRegisterWidget` keeps its name: phase 2 shrinks it and phase 4 deletes it. The rest of the code base (polling, expression parsing, project files, export) is renamed in a separate series, see [section 5](#5-follow-up-terminology-outside-the-signals-dialog).
 
-##### Data points in the polling and expression pipeline
+**Done when:** the renamed code builds, the tests pass with only the renamed names changed, and `grep -rn "RegisterDialog\|registerView\|RegisterValueAxis" src tests` finds nothing.
 
-| Old | New |
-| --- | --- |
-| `AdapterClient`/`AdapterManager::startSession(registerExpressions)`, `provideConfig(..., registerExpressions)` | `dataPointExpressions` |
-| `AdapterPoll::_registerList`, `triggerRegisterRead()`, `registerDataReady()`; log texts "Active registers", "registers — skipping group" | `_dataPoints`, `triggerDataPointRead()`, `dataPointValuesReady()`; "Active data points", "data points — skipping group" |
-| `ScopeController` `registerList` locals | `dataPoints` |
-| `GraphDataHandler::handleRegisterData()`, `setupExpressions(..., registerList)` | `handleDataPointValues()`, `setupExpressions(..., dataPoints)` |
-| `QMuParser::setRegistersData()`, `_registerValues`, `registerValue` | `setDataPointValues()`, `_dataPointValues`, `dataPointValue` |
-| `mu::ParserRegister`, `muparserregister.*`, `registerCb_t`, `setRegisterCallback()`; error "invalid index in register list" | `mu::ParserDataPoint`, `muparserdatapoint.*`, `dataPointCb_t`, `setDataPointCallback()`; "invalid index in data point list" |
-| `ExpressionParser::processRegisterExpression()`, `constructInternalRegisterFunction()`, `_cRegisterFunctionTemplate` | `processDataPointReference()`, `constructInternalDataPointFunction()`, `_cDataPointFunctionTemplate` |
-| `ExpressionRegex::cMatchRegister`, `cParseReg` | `cMatchDataPoint`, `cParseDataPoint` |
-| `ExpressionHighlighting::configureRegisterRules()`, `handleRegisterRules()`, `_registerExpression`, `_validRegisterExpression`, `_validRegFormat` | `configureDataPointRules()`, `handleDataPointRules()`, `_dataPointExpression`, `_validDataPointExpression`, `_validDataPointFormat` |
-| `AdapterData::maxRegisters()` | `maxDataPoints()` (still reads the `maxRegisters` capability key) |
-| `ProjectFileData::RegisterSettings`, `registerList` | `SignalSettings`, `signalList` |
-| `DataFileExporter::registerProperty` | `signalProperty` |
+---
 
-**Kept as "register"**, because the word is correct there or is part of a stored or wire format:
+### Extractions from existing code
 
-- `src/MbcInterface/`, `ImportMbcDialog` and its texts: MBC files describe Modbus registers.
-- Project file tag `ProjectFileDefinitions::cRegisterTag` (`"register"`), JSON keys, and the legacy XML parser functions named after the tags (`parseRegisterTag()`). Old project files must keep loading.
-- The `maxRegisters` capability key in the adapter protocol. Renaming it needs a protocol version change in every adapter.
-- "Consecutive register maximum" in the legacy XML parser: a Modbus setting.
-- Released `CHANGELOG.md` entries.
+Logic that sits in dialogs today, moved to where it can be tested without a widget. Each extraction lands as the first commit of the phase that needs it, keeps behaviour as is, and brings its tests in the same commit.
 
-Docs: go through the "register" occurrences in `docs/manual/` (about 30, mostly in polling and connection pages). Change the ones that mean a signal or data point; keep the Modbus-specific ones.
-
-Check after the renames: `grep -rniw "register\w*" src tests` should only hit the kept list above.
-
-#### R.2 Extractions
-
-Logic that sits in dialogs today, moved to where it can be tested without a widget. Each extraction keeps behaviour as is and adds its tests in the same commit.
-
-| # | From | To | Why now |
-| --- | --- | --- | --- |
-| E1 | `SignalsDialog::dataPointLimitWarningMessage()` | `DataPointUsage::limitWarnings(const QList<DataPoint>&, SettingsModel*)` returning one line per adapter over its limit; the dialog adds the license hint and joins | Phase 3 points the warning at the draft model; with the logic in `DataPointUsage` that is a one-argument change. Tests in `tst_datapointusage`: under, at and over the limit, unknown adapter, adapter without a name |
-| E2 | `SignalsDialog::removeSelectedSignals()`, `selectedRowAfterDelete()`, `sortRegistersLastFirst()` | `GraphDataModel::removeSignals(QList<GraphIdx>)` (removes highest first) and a free function `rowAfterRemoval(firstRemovedRow, rowCount)` | The draft in phase 3 and the panel in phase 4 also remove rows. Tests in `tst_graphdatamodel` for unsorted and duplicate indices |
-| E3 | "Adapter name, else the id" in `AddRegisterWidget::applyDevice()`, `ExpressionsDialog::populateHelpDevices()` and the limit warning | `SettingsModel::adapterDisplayName(const QString& adapterId)`, which checks `adapterIds()` first so it never inserts a phantom `AdapterData` | Three copies; the one in `ExpressionsDialog` calls `adapterData()` unguarded and can insert a phantom entry. Test in `tst_settingsmodel` |
-| E4 | `AddRegisterWidget::populateDeviceCombo()`, `refreshDeviceCombo()`, `selectedDeviceId()` and the device part of `ExpressionsDialog::populateHelpDevices()` | `DeviceComboBox` in `src/customwidgets/`: fills from `SettingsModel::deviceList()`, follows `deviceListChanged` keeping the selection with signals blocked, emits `deviceChanged(deviceId_t)`. Label style: name only, or name with protocol and id | `DataPointEditorWidget` (phase 2) and the per-reference device selector (phase 7) need it. The help selector switches from storing an adapter id to a device id and looks the adapter up. Tests in `tests/customwidgets/tst_devicecombobox.cpp` |
-| E5 | Number parsing in `ExpressionsDialog::handleInputChange()` (`QString::toDouble`) | `ExpressionValue::parse(const QString&, bool* ok)` in `src/util/` | Phase 1 adds hex and binary input; that becomes a change to one tested function |
-| E6 | `ExpressionHighlighting::handleErrorPosition()` position correction | A free function returning the start and length to mark, given the parser error position and the text | Pins today's `-2` behaviour in tests, so phase 5 changes it knowingly. Tests in `tests/dialogs/tst_expressionhighlighting.cpp` |
+| # | From | To | Lands in | Why |
+| --- | --- | --- | --- | --- |
+| E1 | `SignalsDialog::dataPointLimitWarningMessage()` | `DataPointUsage::limitWarnings(const QList<DataPoint>&, SettingsModel*)` returning one line per adapter over its limit; the dialog adds the license hint and joins | 3 | Phase 3 points the warning at the draft model; with the logic in `DataPointUsage` that is a one-argument change. Tests in `tst_datapointusage`: under, at and over the limit, unknown adapter, adapter without a name |
+| E2 | `SignalsDialog::removeSelectedSignals()`, `selectedRowAfterDelete()`, `sortRegistersLastFirst()` | `GraphDataModel::removeSignals(QList<GraphIdx>)` (removes highest first) and a free function `rowAfterRemoval(firstRemovedRow, rowCount)` | 3 | The draft in phase 3 and the panel in phase 4 also remove rows. Tests in `tst_graphdatamodel` for unsorted and duplicate indices |
+| E3 | "Adapter name, else the id" in `AddRegisterWidget::applyDevice()`, `ExpressionsDialog::populateHelpDevices()` and the limit warning | `SettingsModel::adapterDisplayName(const QString& adapterId)`, which checks `adapterIds()` first so it never inserts a phantom `AdapterData` | 0 (0.3) | Three copies; the one in `ExpressionsDialog` calls `adapterData()` unguarded and can insert a phantom entry. Test in `tst_settingsmodel` |
+| E4 | `AddRegisterWidget::populateDeviceCombo()`, `refreshDeviceCombo()`, `selectedDeviceId()` and the device part of `ExpressionsDialog::populateHelpDevices()` | `DeviceComboBox` in `src/customwidgets/`: fills from `SettingsModel::deviceList()`, follows `deviceListChanged` keeping the selection with signals blocked, emits `deviceChanged(deviceId_t)`. Label style: name only, or name with protocol and id | 2 (2.3) | `DataPointEditorWidget` and the per-reference device selector (phase 7) need it. The help selector switches from storing an adapter id to a device id and looks the adapter up. Tests in `tests/customwidgets/tst_devicecombobox.cpp` |
+| E5 | Number parsing in `ExpressionsDialog::handleInputChange()` (`QString::toDouble`) | `ExpressionValue::parse(const QString&, bool* ok)` in `src/util/` | 1 | Phase 1 adds hex and binary input; that becomes a change to one tested function |
+| E6 | `ExpressionHighlighting::handleErrorPosition()` position correction | A free function returning the start and length to mark, given the parser error position and the text | 5 | Pins today's `-2` behaviour in tests before phase 5 changes it. Tests in `tests/dialogs/tst_expressionhighlighting.cpp` |
 
 The other duplicated code is handled where it is replaced anyway: the device-to-adapter lookup and `buildSchema()` go into `DataPointService` (0.3), the describe chain in `ExpressionsDialog` into `DataPointDescriptionCache` (2.2), and the address form into `DataPointEditorWidget` (2.3).
-
-**Done when:** the grep check above only shows the kept list, E1 to E6 have tests, and the application behaves as before.
 
 ---
 
@@ -228,15 +198,21 @@ public:
 
 signals:
     void expressionBuilt(quint64 ticket, QString expression);
-    void expressionFailed(quint64 ticket, QString error);
     void dataPointDescribed(quint64 ticket, QJsonObject result);
+    void requestFailed(quint64 ticket, QString error);   // adapter error, timeout, adapter unavailable or stopped
 };
 ```
 
 - Tickets are the service's own counter, so callers never deal with per-adapter request ids. When the adapter is not usable, the service returns a ticket and emits the failure on the next event loop turn, so callers have one code path.
+- Every ticket ends in exactly one of `expressionBuilt`, `dataPointDescribed` or `requestFailed`. Nothing is left pending:
+  - **Timeout.** Each ticket has a deadline (`cRequestTimeoutMs`, 3 s to start with; these calls are local and normally answer in milliseconds). On expiry the service emits `requestFailed(ticket, "The adapter did not respond")` and forgets the ticket.
+  - **Adapter lost.** When the ticket's manager emits `sessionError` or `sessionStopped`, or reports idle, the service fails all of that manager's tickets at once ("The adapter stopped"). Needed because `AdapterClient` drops pending aux requests silently in those cases.
+  - **Late replies.** A reply for a ticket that already ended is dropped. The request id mapping from 0.2 makes this a lookup that misses.
+  - **No automatic retry.** Callers decide when to ask again (see 2.2 and 2.3), so a hanging adapter does not get a request storm.
 - `addressSchema()` absorbs `AddRegisterWidget::buildSchema()` (stripping the adapter's own `deviceId` property).
+- Land E3 (`SettingsModel::adapterDisplayName()`) first; the service and its callers use it.
 - Move the three existing callers to the service: `AddRegisterWidget::handleResultAccept()`, `ExpressionsDialog::startNextDescribe()` and `SignalsDialog::requestDefaultExpression()`. This removes the duplicated lookups and the `Qt::SingleShotConnection` plumbing.
-- Tests: `tests/ProtocolAdapter/tst_datapointservice.cpp` with the existing `MockAdapterHub` and a mock `AdapterManager`. Cover routing per device, unknown device, adapter not running, two interleaved requests answered in reverse order.
+- Tests: `tests/ProtocolAdapter/tst_datapointservice.cpp` with the existing `MockAdapterHub` and a mock `AdapterManager`. Cover routing per device, unknown device, adapter not running, two interleaved requests answered in reverse order, timeout, adapter stopping with requests pending, reply after timeout ignored. Use a short timeout injected through the constructor so tests do not wait 3 s.
 
 #### 0.4 Spec update
 
@@ -259,7 +235,7 @@ Small, independent changes from section 6, step 1 of the review. Each can be its
 | Disable Accept while `handleResultReady(valid)` is false or a device is unknown | `ExpressionsDialog` | Set an invalid expression, assert the Accept button is disabled and `handleAccept()` leaves the model unchanged |
 | Wrap the editor, show a vertical scroll bar when needed, Enter accepts, Shift+Enter is ignored | `expressionsdialog.ui`, key filter in `ExpressionsDialog` | Send Enter with a valid expression, assert accepted |
 | Standard `QDialogButtonBox` with Cancel/Accept and a compact default size; complete tab order | `expressionsdialog.ui` | Existing tests still find the buttons |
-| Example input accepts `0x` and `0b` values; default example input is `1` instead of `0` | `ExpressionValue::parse()` (E5), `ExpressionsDialog` | `100 / ${40001}` opens without an error; `0x10` evaluates as 16 |
+| Example input accepts `0x` and `0b` values; default example input is `1` instead of `0` | Extract E5 first, then extend `ExpressionValue::parse()` | `100 / ${40001}` opens without an error; `0x10` evaluates as 16 |
 | Name field uses placeholder text; empty name falls back to `GraphDataModel::uniqueLabel()` | `AddRegisterWidget` | Add with empty name gives "New signal", "New signal 2" |
 | Show the reason when `buildExpression` fails (needs 0.1) | `AddRegisterWidget` | Mock manager emits failure, assert the label shows the message and the popup stays open |
 | Manual: document the add form, remove the "turns green" claim | `docs/manual/how-to/add-data-points.md`, `write-expressions.md` | — |
@@ -293,7 +269,7 @@ QString replace(const QString& expression, const Reference& reference, const QSt
 } // namespace ExpressionReferences
 ```
 
-- Built on `ExpressionRegex::cMatchDataPoint` and `cParseDataPoint`, the same regexes the parser uses, so the two cannot disagree on what a reference is.
+- Built on `ExpressionRegex::cMatchRegister` and `cParseReg`, the same regexes the parser uses, so the two cannot disagree on what a reference is.
 - `replace()` checks that `expression.mid(start, length) == text` before replacing and returns the input unchanged otherwise. This guards against a stale reference after the expression changed underneath.
 - Tests in `tests/util/tst_expressionreferences.cpp`: no references, one, duplicates, references with whitespace (`${ 40001 @ 2 : s16b }`), invalid content inside `${}`, replacing the second of two identical references, stale reference.
 
@@ -326,9 +302,10 @@ signals:
 
 - Keyed by reference text. The device is part of the text, so one key always maps to one adapter.
 - One request per key at a time; repeated lookups while pending do not send again.
-- `Unavailable` when the device is unknown or its adapter is not running. Callers fall back to the raw reference.
+- `Unavailable` when the device is unknown, its adapter is not running, or the request failed or timed out (`requestFailed`). Callers fall back to the raw reference.
+- `Unavailable` entries are not retried on every lookup, because the table looks up on each repaint. They are dropped when an adapter becomes usable again (`AdapterManager::adapterReady` or `sessionStarted` for that adapter), so the next lookup asks again.
 - Owned by `SignalsDialog` and shared with the panel and with `ExpressionsDialog` (passed in), so a description fetched for the table is reused in the dialog.
-- Tests in `tests/models/tst_datapointdescriptioncache.cpp` with a mock service.
+- Tests in `tests/models/tst_datapointdescriptioncache.cpp` with a mock service: hit, miss, one request for repeated lookups while pending, failure gives `Unavailable` without a second request, entries retried after the adapter becomes ready.
 
 #### 2.3 `DataPointEditorWidget`
 
@@ -356,10 +333,12 @@ signals:
 ```
 
 - On `SchemaFormWidget::valuesChanged`, the widget asks the service to build the reference and shows it as a preview. Replies with an old ticket are ignored, so fast typing cannot show a stale preview.
+- While a build is pending, `hasValidExpression()` is false and the preview shows the last built reference greyed out. Callers keep their Add or write action disabled until it is true.
+- On `requestFailed` for the current ticket, the preview is cleared and `errorChanged` carries the reason with what to do, for example "The adapter did not respond. Change a field or select the device again to retry." Any field change or device selection sends a new request; there is no automatic retry.
 - `setFields()` fills the form without triggering a build. The preview shows the original reference text until the user changes a field. This is what preserves the user's notation (`${40002}` is not silently rewritten to `${h1}`).
 - Keys in `fields` that the device's schema does not know are ignored; missing keys take the schema default.
 - `AddRegisterWidget` embeds the new widget and uses `expression()` on Add, instead of sending its own `buildExpression`. `tst_addregisterwidget` should pass with only setup changes.
-- New tests in `tests/customwidgets/tst_datapointeditorwidget.cpp`: device switch rebuilds the form, `setFields()` round trip, stale reply ignored, adapter not running, build failure shows the error.
+- New tests in `tests/customwidgets/tst_datapointeditorwidget.cpp`: device switch rebuilds the form, `setFields()` round trip, stale reply ignored, adapter not running, build failure shows the error, timeout shows the error and leaves `hasValidExpression()` false, a field change after a failure sends a new request.
 
 **Done when:** the three modules have tests, the add popup works as before on top of `DataPointEditorWidget`, and `ExpressionsDialog` uses the cache instead of `startNextDescribe()`.
 
@@ -384,22 +363,23 @@ public:
 };
 ```
 
-- `model()` is a second `GraphDataModel` filled from the source on construction (label, colour, active, visible, axis, expression). It gets its own `ExpressionStatus`, so invalid rows are still marked red.
+- `model()` is a second `GraphDataModel` filled from the source on construction. Each draft row is a **new** `GraphData` that copies the settings (label, colour, active, visible, axis, expression) and gets its own empty series. Never add a source `GraphData` by value: copies share one `GraphDataSeries` (`graphdata.h`), and `GraphDataStore::setActive(false)` clears it, so deactivating a signal in the draft would erase the source samples even if the user then cancels.
+- The draft model gets its own `ExpressionStatus`, so invalid rows are still marked red.
 - The default expression (`setDefaultExpression`) is set on the draft model.
-- `DataPointUsage::limitWarnings()` (E1) gets the draft's data points, so the warning reflects what OK would apply.
+- Land E1 and E2 first. `DataPointUsage::limitWarnings()` (E1) gets the draft's data points, so the warning reflects what OK would apply.
 - `apply()` must keep the data of rows that still exist with the same expression. Removing and re-adding everything would empty the graph after a stopped log when the user only renamed a signal. A row whose expression changed loses its samples: they were computed from the old expression and no longer match it. Approach:
-  1. Track each draft row's origin (source row, or new). Before coding, check whether `GraphDataStore` keeps the `QSharedPointer<GraphDataSeries>` when a `GraphData` is added. If it does, the series pointer identifies a row with no extra field. If not, add a non-persisted row id to `GraphDataStore`.
-  2. Remove source rows that are gone (highest first), update changed properties of kept rows with the existing setters, add new rows, then move rows into draft order.
+  1. Track each draft row's origin in `SignalListDraft`: a list with the source row for each draft row, or "new". Keep it in sync with the draft model's `rowsInserted`, `rowsRemoved` and `rowsMoved`; `GraphDataModel` emits these through the standard `begin…Rows()`/`end…Rows()` calls, including drag-and-drop moves (`moveRow()` uses `beginMoveRows()`). The series pointer cannot be the identity, because draft rows do not share series with the source.
+  2. Remove source rows that are gone (highest first, through `removeSignals()` from E2), update changed properties of kept rows with the existing setters, add new rows, then move rows into draft order. Effects that destroy data happen here and only here: a kept row deactivated in the draft gets `setActive(false)` on the source during `apply()`, which clears its series as the dialog does today.
   3. For every kept row whose expression changed, clear its data series. `GraphDataSeries::clear()` exists, but there is no model-level call for one row: add `GraphDataModel::clearData(GraphIdx)` (through `GraphDataStore`) and make sure the graph view repaints that graph. Check which signal the graph view listens to for data updates before choosing the signal to emit.
   4. `hasChanges() == false` means `apply()` does nothing and no signals are emitted.
-- Tests in `tests/models/tst_signallistdraft.cpp`: no change, rename only (data series kept), expression change (data series cleared, other rows keep theirs), add, remove, reorder, combinations, expression change updates `ExpressionStatus`. Add a test for `GraphDataModel::clearData()` in `tests/models/`.
+- Tests in `tests/models/tst_signallistdraft.cpp`: no change, rename only (data series kept), expression change (data series cleared, other rows keep theirs), deactivate then discard (source series kept), deactivate then apply (source series cleared), draft rows never share a series with the source, add, remove, reorder by drag-and-drop then apply, combinations, expression change updates `ExpressionStatus`. Add a test for `GraphDataModel::clearData()` in `tests/models/`.
 
 #### 3.2 `SignalsDialog`
 
 - Construct the draft and point the table, the delegates and the limit warning at `draft.model()`.
 - Replace the OK-only box with OK/Cancel. OK calls `apply()`; Cancel and Esc do not.
 - `ExpressionsDialog` receives the draft model, so its Accept writes to the draft as well.
-- Update `tst_signalsdialog`: Cancel after add/remove leaves the source model unchanged; OK applies.
+- Update `tst_signalsdialog`: Cancel after add, remove or deactivate leaves the source model and its samples unchanged; OK applies.
 
 **Done when:** every change in the dialog, including from Compose expression, can be undone with Cancel, and pressing OK without changes leaves the graph untouched.
 
@@ -414,7 +394,12 @@ public:
 - The status line shows "Added \"…\"" or the build error from `DataPointEditorWidget::errorChanged`.
 - Remove `AddRegisterWidget`, `_addSignalAction`, `addDefaultSignal()`, `resizeContainingMenu()` and `closeContainingMenu()`. Move the relevant cases from `tst_addregisterwidget` to `tests/dialogs/tst_signaleditorpanel.cpp`.
 - The default-expression logic in `SignalsDialog` (`requestDefaultExpression()`) becomes unused once Add no longer inserts a placeholder. Remove it, unless another caller of `GraphDataModel::add()` without arguments still needs a sensible default; check `ImportMbcDialog` and project loading first.
-- Panel layout: give the table a stretch factor and the panel a fixed preferred width; at narrow widths the panel goes below the table (`QSplitter` with vertical fallback is enough).
+- Panel layout: table and panel always side by side in a horizontal `QSplitter`. No switch to a vertical layout: `QSplitter` does not change orientation by itself, and a runtime switch adds a second layout to maintain and test for a desktop dialog that rarely gets narrow.
+  - Minimum widths: table 360 px, panel 280 px. Neither side is collapsible (`setCollapsible(i, false)`).
+  - The panel content sits in a `QScrollArea` that scrolls vertically only, so a tall address form (for example BACnet, or a future adapter) never pushes the Add button out of reach.
+  - Dialog minimum size: the two minimum widths plus margins (about 680 × 400 px). The default size grows from 797 × 351 to about 1000 × 480 so the panel fits without scrolling for the bundled adapters.
+  - On resize, extra width goes to the table (stretch factors 1 and 0); the splitter position the user sets is kept while the dialog is open.
+  - Test in `tst_signalsdialog`: resize the dialog to its minimum size, then assert the table and panel are both visible, each at least its minimum width, and the Add signal button can be scrolled into view.
 - Update the manual page for adding data points and its screenshot.
 
 **Done when:** ten signals with consecutive addresses can be added without reopening anything, and the popup code is gone.
@@ -427,7 +412,7 @@ public:
 
 - **Insert data point…** toggles an inline `DataPointEditorWidget` with an **Insert at cursor** button. Insert puts `expression()` at the text cursor of the editor.
 - The data point table uses `DataPointDescriptionCache` (already done in phase 2) and `ExpressionReferences::find()` for its rows, so duplicates get one row each, in expression order. Example values stay keyed by reference text, so duplicate references share a value, as the evaluation does.
-- Error position: today the mark runs from the error to the end of the line, with a `-2` correction. Change the function extracted in E6 to mark the offending token (the reference or number at the position, else one character), and update its tests from phase R accordingly.
+- Error position: today the mark runs from the error to the end of the line, with a `-2` correction. Land E6 first, with tests that pin today's behaviour. Then change that function to mark the offending token (the reference or number at the position, else one character) and update the tests in the same commit.
 - Show per-reference adapter errors (`Invalid` from the cache) as a tooltip and red text on the row in the data point table, and keep Accept disabled while any row is `Invalid`.
 
 **Done when:** a second data point can be added to an expression without typing `${…}`, and the error mark points at the problem.
@@ -489,6 +474,7 @@ The adapter mocks answer `buildExpression` and `describeDataPoint` with canned r
 | --- | --- |
 | Duplicates such as `${40001} - ${40001}` | One entry per occurrence; each is edited on its own |
 | Device per signal or per data point | Per data point; the address form follows that device's adapter |
+| Scope of the terminology cleanup | Only the Signals dialog in this effort (phase R). The rest is a separate series with its own compatibility tests (section 5) |
 | On OK, does a row whose expression changed keep its samples from a stopped log? | No. Its data is cleared; rows with an unchanged expression keep theirs (phase 3.1). The dialog cannot be opened while logging, so this only concerns data from a stopped log |
 
 ### Recommended, to confirm
@@ -502,6 +488,45 @@ The adapter mocks answer `buildExpression` and `describeDataPoint` with canned r
 | Notation after an edit (`${40002}` becomes `${h1}`) | Accept it, but only for references the user changed | Keeping the notation would need a new `buildExpression` parameter in every adapter |
 | Default expression for Add | Remove once Add no longer inserts a placeholder row | The panel always starts from the adapter defaults |
 
-## 5. Kept out
+## 5. Follow-up: terminology outside the Signals dialog
+
+A separate series of pull requests, not a prerequisite for any phase above. It renames "register" to *data point* or *signal* in the polling and expression pipeline, the project file data types and the exporter. It brings no visible change, so it should not hold back the UX work, and it touches code with stored and wire formats, so it needs its own safety net.
+
+Before the first rename, add the tests that protect the formats:
+
+- **Project files:** for the test data in `tests/importexport/projectfilejsontestdata.cpp` and `tests/importexport/legacy/`, load, save, load again, and compare the signal list and settings. Add a case with several signals on two devices if none exists.
+- **CSV export:** `tst_datafileexporter` compares the full header and property rows as text, so renaming `registerProperty` cannot change the output unnoticed.
+- **Adapter protocol:** a test that `AdapterData` still reads the `maxRegisters` capability key after `maxRegisters()` becomes `maxDataPoints()`, and that `adapter.start` still sends the same `dataPoints` parameter.
+
+Then one pull request per group below, each building and passing the tests with only names changed.
+
+| Old | New |
+| --- | --- |
+| `AdapterClient`/`AdapterManager::startSession(registerExpressions)`, `provideConfig(..., registerExpressions)` | `dataPointExpressions` |
+| `AdapterPoll::_registerList`, `triggerRegisterRead()`, `registerDataReady()`; log texts "Active registers", "registers — skipping group" | `_dataPoints`, `triggerDataPointRead()`, `dataPointValuesReady()`; "Active data points", "data points — skipping group" |
+| `ScopeController` `registerList` locals | `dataPoints` |
+| `GraphDataHandler::handleRegisterData()`, `setupExpressions(..., registerList)` | `handleDataPointValues()`, `setupExpressions(..., dataPoints)` |
+| `QMuParser::setRegistersData()`, `_registerValues`, `registerValue` | `setDataPointValues()`, `_dataPointValues`, `dataPointValue` |
+| `mu::ParserRegister`, `muparserregister.*`, `registerCb_t`, `setRegisterCallback()`; error "invalid index in register list" | `mu::ParserDataPoint`, `muparserdatapoint.*`, `dataPointCb_t`, `setDataPointCallback()`; "invalid index in data point list" |
+| `ExpressionParser::processRegisterExpression()`, `constructInternalRegisterFunction()`, `_cRegisterFunctionTemplate` | `processDataPointReference()`, `constructInternalDataPointFunction()`, `_cDataPointFunctionTemplate` |
+| `ExpressionRegex::cMatchRegister`, `cParseReg` | `cMatchDataPoint`, `cParseDataPoint` |
+| `ExpressionHighlighting::configureRegisterRules()`, `handleRegisterRules()`, `_registerExpression`, `_validRegisterExpression`, `_validRegFormat` | `configureDataPointRules()`, `handleDataPointRules()`, `_dataPointExpression`, `_validDataPointExpression`, `_validDataPointFormat` |
+| `AdapterData::maxRegisters()` | `maxDataPoints()` (still reads the `maxRegisters` capability key) |
+| `ProjectFileData::RegisterSettings`, `registerList` | `SignalSettings`, `signalList` |
+| `DataFileExporter::registerProperty` | `signalProperty` |
+
+**Kept as "register"**, because the word is correct there or is part of a stored or wire format:
+
+- `src/MbcInterface/`, `ImportMbcDialog` and its texts: MBC files describe Modbus registers.
+- Project file tag `ProjectFileDefinitions::cRegisterTag` (`"register"`), JSON keys, and the legacy XML parser functions named after the tags (`parseRegisterTag()`). Old project files must keep loading.
+- The `maxRegisters` capability key in the adapter protocol. Renaming it needs a protocol version change in every adapter.
+- "Consecutive register maximum" in the legacy XML parser: a Modbus setting.
+- Released `CHANGELOG.md` entries.
+
+Docs: go through the "register" occurrences in `docs/manual/` (about 30, mostly in polling and connection pages). Change the ones that mean a signal or data point; keep the Modbus-specific ones.
+
+Check at the end of the series: `grep -rniw "register\w*" src tests` should only hit the kept list above.
+
+## 6. Kept out
 
 As in the review: scale and offset fields, quick templates, last read value, adding a range of addresses in one step, and a batch `describeDataPoints` call. The cache in phase 2 makes a batch call easy to add later if the number of round trips becomes a problem.
