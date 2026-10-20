@@ -7,7 +7,7 @@ A review of the Signals dialog (`RegisterDialog`), its Add popup (`AddRegisterWi
 Three things hold the workflow back:
 
 | Problem | Detail |
-|---|---|
+| --- | --- |
 | Syntax is the main interface | After a signal exists, the only way to change its address, type or device is to edit `${40001@2:s16b}` by hand. The structured form is only used once, at creation. |
 | No safety net | Every change hits the model immediately. There is no Cancel, no undo, no delete confirmation, and the expression dialog accepts invalid input. |
 | The add form is easy to miss | The structured form hides behind a split-button arrow and closes after every add, so setting up 10+ signals is slow and repetitive. |
@@ -96,7 +96,7 @@ The default size is 823×854 px. The editor takes a large block for one line, th
 The mockups keep today's feature set: the same columns, the same address fields, the same adapter calls. What changes is where things live and when they are available.
 
 | Principle | Detail |
-|---|---|
+| --- | --- |
 | Same form, both ways | The Add popup moves into a side panel bound to the selected row. Adding and editing use the same `SchemaFormWidget`. |
 | Syntax stays available | The expression column and the Compose expression dialog remain for anything beyond a plain data point. The panel never rewrites the parts of an expression it does not own. |
 | Changes can be undone | The dialog edits a working copy. OK applies, Cancel discards. |
@@ -195,7 +195,7 @@ With **Insert data point…** open, the same address form appears inline (Device
 ## 4. Behaviour
 
 | Element | Behaviour | Built on |
-|---|---|---|
+| --- | --- | --- |
 | Side panel, edit mode | Shown when one row is selected. Fills from the row's first data point reference. Edits update the row immediately. | `AddRegisterWidget` moved out of the `QWidgetAction`; `describeDataPoint` `fields` |
 | Side panel, add mode | Entered via Add. Add signal appends a row and keeps the form values except the name. | Current `handleResultAccept` path, without `closeContainingMenu` |
 | Data point list | Shown when the expression has more than one `${...}`. One entry per occurrence, in expression order, including duplicates. | `ExpressionChecker::addresses()`, `deviceIds()` |
@@ -224,7 +224,9 @@ sequenceDiagram
     P->>T: replace reference span, setExpression
 ```
 
-This needs one contract change: `describeDataPoint` must return `fields` with the same keys as `addressSchema`, plus `dataType` and `deviceId`. The adapter client tests already use `objectType` and `address` for `buildExpression`, so the Modbus adapter is likely close.
+This relies on `describeDataPoint` returning `fields` with the same keys as `addressSchema`, plus `deviceId`. All four adapters (Modbus, BACnet, IEC 104, Dummy) already do this, so only the spec needs updating; see the [implementation plan](implementation-plan.md), phase 0.4.
+
+Two rows in the table above need a different basis than listed. `ExpressionChecker::addresses()` merges duplicate references, so the data point list needs a new occurrence-based helper (`ExpressionReferences` in the plan). And `buildExpression` replies with the adapter's own notation (`${h1:s16b}` for `${40002:s16b}`), so the panel only rewrites a reference after the user changes one of its fields.
 
 ---
 
@@ -233,7 +235,7 @@ This needs one contract change: `describeDataPoint` must return `fields` with th
 Effort: **S** is a contained change in one class, **M** touches several classes or needs new tests, **L** is a redesign or a protocol change.
 
 | Change | Fixes | Effort | Notes |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Disable Accept while the expression is invalid | 2.1 | S | `handleResultReady(valid)` already has the flag |
 | Wrap the editor and shrink it; Enter accepts | 2.3 | S | .ui property change plus a key filter |
 | Placeholder text for the signal name, fallback to `uniqueLabel()` | 1.4 | S | |
@@ -250,6 +252,8 @@ Effort: **S** is a contained change in one class, **M** touches several classes 
 
 ## 6. Suggested order
 
+The [implementation plan](implementation-plan.md) breaks this down into eight phases with modules, tests and dependencies.
+
 1. **Safety and clarity.** Block invalid Accept, wrap the editor, placeholder name, empty-result error, hex example values, compact layout, manual fix. Each is small and shippable with a test in `tst_expressionsdialog` or `tst_addregisterwidget`.
 2. **Panel for adding.** Cancel with a working copy, the side panel in add mode, Insert data point in Compose expression, and the Data point column.
 3. **Panel for editing.** Agree the `fields` contract with the adapters, then add edit mode and reference replacement.
@@ -265,13 +269,15 @@ Effort: **S** is a contained change in one class, **M** touches several classes 
 ### Decided
 
 | Question | Decision |
-|---|---|
+| --- | --- |
 | The same data point appears twice, e.g. `${40001} - ${40001}`. One entry or two? | Show duplicates. Each occurrence is its own entry in the list and is edited on its own. |
 | Data points on different devices, e.g. `${40001} * ${40002@2}`. One device per signal or per data point? | A Device selector is required for each data point. The address fields shown depend on the selected device's adapter. |
 
 ### Open
 
-- Do all adapters agree to return `fields` keyed like `addressSchema`? The spec currently calls them "opaque display data".
+The remaining questions now have recommendations in the [implementation plan](implementation-plan.md), section 4:
+
+- Do all adapters agree to return `fields` keyed like `addressSchema`? They already do; the spec still calls them "opaque display data".
 - Should panel edits apply immediately to the row, or on an explicit Apply button?
 - When a data point moves to a device on another adapter, should matching field values be kept, or should the form reset to that adapter's defaults?
 - When the expression does not parse, the list cannot be built. Is showing only the parser error and Edit expression enough, or should the panel keep the last valid list read-only?
