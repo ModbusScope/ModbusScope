@@ -14,7 +14,7 @@ NotesDockWidget::NotesDockWidget(NoteModel *pNoteModel, GuiModel *pGuiModel, QWi
 {
     _pUi->setupUi(this);
 
-    // Setup registerView
+    // Setup noteView
     _pUi->noteView->setModel(_pNoteModel);
     _pUi->noteView->verticalHeader()->hide();
 

@@ -241,7 +241,7 @@ void TestAddRegisterWidget::buildExpressionEmptyResponseIgnored()
 
 void TestAddRegisterWidget::buildExpressionDoesNotInterfereWithOtherConnections()
 {
-    /* Simulate a persistent connection already active (e.g. RegisterDialog's requestDefaultExpression) */
+    /* Simulate a persistent connection already active (e.g. SignalsDialog's requestDefaultExpression) */
     int secondaryReceiveCount = 0;
     QObject::connect(_pMockAdapterManager, &AdapterManager::buildExpressionResult, _pMockAdapterManager,
                      [&secondaryReceiveCount](const QString&) { secondaryReceiveCount++; });

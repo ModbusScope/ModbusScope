@@ -14,7 +14,7 @@ struct GuiStateActions
     QAction* pStart = nullptr;
     QAction* pStop = nullptr;
     QAction* pSettings = nullptr;
-    QAction* pRegisterSettings = nullptr;
+    QAction* pSignals = nullptr;
     QAction* pOpenDataFile = nullptr;
     QAction* pImportFromMbcFile = nullptr;
     QAction* pOpenProjectFile = nullptr;

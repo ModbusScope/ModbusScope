@@ -19,7 +19,7 @@ void TestGuiStateController::init()
     _pStart = new QAction(this);
     _pStop = new QAction(this);
     _pSettings = new QAction(this);
-    _pRegisterSettings = new QAction(this);
+    _pSignals = new QAction(this);
     _pOpenDataFile = new QAction(this);
     _pImportFromMbcFile = new QAction(this);
     _pOpenProjectFile = new QAction(this);
@@ -34,7 +34,7 @@ void TestGuiStateController::init()
         .pStart = _pStart,
         .pStop = _pStop,
         .pSettings = _pSettings,
-        .pRegisterSettings = _pRegisterSettings,
+        .pSignals = _pSignals,
         .pOpenDataFile = _pOpenDataFile,
         .pImportFromMbcFile = _pImportFromMbcFile,
         .pOpenProjectFile = _pOpenProjectFile,
@@ -67,8 +67,8 @@ void TestGuiStateController::cleanup()
     _pStop = nullptr;
     delete _pSettings;
     _pSettings = nullptr;
-    delete _pRegisterSettings;
-    _pRegisterSettings = nullptr;
+    delete _pSignals;
+    _pSignals = nullptr;
     delete _pOpenDataFile;
     _pOpenDataFile = nullptr;
     delete _pImportFromMbcFile;
@@ -95,7 +95,7 @@ void TestGuiStateController::initState()
 
     QVERIFY(!_pStop->isEnabled());
     QVERIFY(_pSettings->isEnabled());
-    QVERIFY(_pRegisterSettings->isEnabled());
+    QVERIFY(_pSignals->isEnabled());
     QVERIFY(_pStart->isEnabled());
     QVERIFY(_pOpenDataFile->isEnabled());
     QVERIFY(_pOpenProjectFile->isEnabled());
@@ -113,7 +113,7 @@ void TestGuiStateController::startedState()
 
     QVERIFY(_pStop->isEnabled());
     QVERIFY(!_pSettings->isEnabled());
-    QVERIFY(!_pRegisterSettings->isEnabled());
+    QVERIFY(!_pSignals->isEnabled());
     QVERIFY(!_pStart->isEnabled());
     QVERIFY(!_pOpenDataFile->isEnabled());
     QVERIFY(!_pImportFromMbcFile->isEnabled());
@@ -132,7 +132,7 @@ void TestGuiStateController::stoppedStateNoProject()
 
     QVERIFY(!_pStop->isEnabled());
     QVERIFY(_pSettings->isEnabled());
-    QVERIFY(_pRegisterSettings->isEnabled());
+    QVERIFY(_pSignals->isEnabled());
     QVERIFY(_pStart->isEnabled());
     QVERIFY(_pOpenDataFile->isEnabled());
     QVERIFY(!_pImportFromMbcFile->isEnabled());

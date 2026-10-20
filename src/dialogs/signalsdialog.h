@@ -1,5 +1,5 @@
-#ifndef REGISTERDIALOG_H
-#define REGISTERDIALOG_H
+#ifndef SIGNALSDIALOG_H
+#define SIGNALSDIALOG_H
 
 #include "customwidgets/centeredbox.h"
 #include "models/device.h"
@@ -13,31 +13,31 @@ class GraphDataModel;
 class AdapterHub;
 class AdapterManager;
 class SettingsModel;
-class RegisterValueAxisDelegate;
+class ValueAxisDelegate;
 class ActionButtonDelegate;
 class GraphData;
 
 namespace Ui {
-class RegisterDialog;
+class SignalsDialog;
 }
 
-class RegisterDialog : public QDialog
+class SignalsDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit RegisterDialog(GraphDataModel* pGraphDataModel,
-                            SettingsModel* pSettingsModel,
-                            AdapterHub* pAdapterHub,
-                            QWidget* parent = nullptr);
-    ~RegisterDialog();
+    explicit SignalsDialog(GraphDataModel* pGraphDataModel,
+                           SettingsModel* pSettingsModel,
+                           AdapterHub* pAdapterHub,
+                           QWidget* parent = nullptr);
+    ~SignalsDialog();
 
 private slots:
-    void addRegister(const GraphData& graphData);
-    void addDefaultRegister();
-    void removeRegisterRow();
+    void addSignal(const GraphData& graphData);
+    void addDefaultSignal();
+    void removeSelectedSignals();
     void activatedCell(QModelIndex modelIndex);
-    void onRegisterInserted(const QModelIndex& parent, int first, int last);
+    void onSignalInserted(const QModelIndex& parent, int first, int last);
     void handleExpressionEdit(const QModelIndex& index);
     void requestDefaultExpression();
     void onDefaultExpressionBuilt(const QString& expression);
@@ -50,7 +50,7 @@ private:
     QString dataPointLimitWarningMessage() const;
     static bool sortRegistersLastFirst(const QModelIndex& s1, const QModelIndex& s2);
 
-    Ui::RegisterDialog* _pUi;
+    Ui::SignalsDialog* _pUi;
 
     GraphDataModel* _pGraphDataModel;
     SettingsModel* _pSettingsModel;
@@ -60,9 +60,9 @@ private:
 
     CenteredBoxProxyStyle _centeredBoxStyle;
 
-    std::unique_ptr<RegisterValueAxisDelegate> _valueAxisDelegate;
+    std::unique_ptr<ValueAxisDelegate> _valueAxisDelegate;
     std::unique_ptr<ActionButtonDelegate> _expressionDelegate;
-    std::unique_ptr<QWidgetAction> _registerPopupAction;
+    std::unique_ptr<QWidgetAction> _addSignalAction;
 };
 
-#endif // REGISTERDIALOG_H
+#endif // SIGNALSDIALOG_H

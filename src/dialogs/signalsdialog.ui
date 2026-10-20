@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>RegisterDialog</class>
- <widget class="QDialog" name="RegisterDialog">
+ <class>SignalsDialog</class>
+ <widget class="QDialog" name="SignalsDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -68,7 +68,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QTableView" name="registerView">
+    <widget class="QTableView" name="signalView">
      <property name="minimumSize">
       <size>
        <width>300</width>
@@ -95,14 +95,14 @@
  <tabstops>
   <tabstop>btnAdd</tabstop>
   <tabstop>btnRemove</tabstop>
-  <tabstop>registerView</tabstop>
+  <tabstop>signalView</tabstop>
  </tabstops>
  <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>RegisterDialog</receiver>
+   <receiver>SignalsDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -118,7 +118,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>RegisterDialog</receiver>
+   <receiver>SignalsDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

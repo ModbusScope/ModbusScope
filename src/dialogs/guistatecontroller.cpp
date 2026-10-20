@@ -46,7 +46,7 @@ void GuiStateController::updateGuiState()
     {
         _actions.pStop->setEnabled(false);
         _actions.pSettings->setEnabled(true);
-        _actions.pRegisterSettings->setEnabled(true);
+        _actions.pSignals->setEnabled(true);
         _actions.pStart->setEnabled(true);
         _actions.pOpenDataFile->setEnabled(true);
         _actions.pImportFromMbcFile->setEnabled(_pSettingsModel->isMbcCompatible());
@@ -68,7 +68,7 @@ void GuiStateController::updateGuiState()
         // Communication active
         _actions.pStop->setEnabled(true);
         _actions.pSettings->setEnabled(false);
-        _actions.pRegisterSettings->setEnabled(false);
+        _actions.pSignals->setEnabled(false);
         _actions.pStart->setEnabled(false);
         _actions.pOpenDataFile->setEnabled(false);
         _actions.pImportFromMbcFile->setEnabled(false);
@@ -85,7 +85,7 @@ void GuiStateController::updateGuiState()
         // Communication not active
         _actions.pStop->setEnabled(false);
         _actions.pSettings->setEnabled(true);
-        _actions.pRegisterSettings->setEnabled(true);
+        _actions.pSignals->setEnabled(true);
         _actions.pStart->setEnabled(true);
         _actions.pOpenDataFile->setEnabled(true);
         _actions.pImportFromMbcFile->setEnabled(_pSettingsModel->isMbcCompatible());
@@ -113,7 +113,7 @@ void GuiStateController::updateGuiState()
         // Communication not active
         _actions.pStop->setEnabled(false);
         _actions.pSettings->setEnabled(true);
-        _actions.pRegisterSettings->setEnabled(true);
+        _actions.pSignals->setEnabled(true);
         _actions.pStart->setEnabled(true);
         _actions.pOpenDataFile->setEnabled(true);
         _actions.pImportFromMbcFile->setEnabled(_pSettingsModel->isMbcCompatible());
