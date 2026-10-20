@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signals Dialog UX Review</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: single reading column, with wide bands for tables and the two proposal mockups */
+:root {
+  --bg: #f6f7f7;
+  --surface: #ffffff;
+  --ink: #1b2326;
+  --muted: #56646a;
+  --rule: #d9dfe1;
+  --accent: #0d6a73;
+  --accent-soft: #e2f0f1;
+  --high: #b3261e;
+  --high-soft: #fbe9e7;
+  --med: #9a5b00;
+  --med-soft: #fdf1dc;
+  --low: #3d5a80;
+  --low-soft: #e6edf6;
+  --code-bg: #eef1f2;
+  --trace1: #d33f3f;
+  --trace2: #2f62c9;
+  --trace3: #1a9a8a;
+  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12181a; --surface: #1a2225; --ink: #e3e9ea; --muted: #97a6ab; --rule: #2e3a3e;
+    --accent: #5cc2cb; --accent-soft: #173538;
+    --high: #f2867c; --high-soft: #3a1f1d; --med: #e9b35c; --med-soft: #372a14; --low: #92b2dd; --low-soft: #1d2a3b;
+    --code-bg: #232d31; --trace1: #ec6b6b; --trace2: #6f97e8; --trace3: #4cc5b5;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12181a; --surface: #1a2225; --ink: #e3e9ea; --muted: #97a6ab; --rule: #2e3a3e;
+  --accent: #5cc2cb; --accent-soft: #173538;
+  --high: #f2867c; --high-soft: #3a1f1d; --med: #e9b35c; --med-soft: #372a14; --low: #92b2dd; --low-soft: #1d2a3b;
+  --code-bg: #232d31; --trace1: #ec6b6b; --trace2: #6f97e8; --trace3: #4cc5b5;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 400 17px/1.6 var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 80px;
+}
+.wrap { max-width: 980px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px; }
+.prose { max-width: 68ch; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.15; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 2.9rem); font-weight: 800; letter-spacing: -0.01em; }
+h2 { font-size: 1.6rem; font-weight: 700; }
+h3 { font-size: 1.12rem; font-weight: 700; }
+p { margin: 0; }
+section { display: flex; flex-direction: column; gap: 20px; }
+.eyebrow { font: 600 0.78rem/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.lede { font-size: 1.15rem; color: var(--muted); max-width: 64ch; }
+code, .mono { font-family: var(--font-mono); font-size: 0.86em; }
+code { background: var(--code-bg); padding: 0.1em 0.35em; border-radius: 4px; }
+a { color: var(--accent); }
+.ref { font: 400 0.8rem/1.4 var(--font-mono); color: var(--muted); }
+
+header.top { display: flex; flex-direction: column; gap: 16px; border-bottom: 1px solid var(--rule); padding-bottom: 28px; }
+.trace { width: 100%; height: 46px; display: block; }
+.trace path { fill: none; stroke-width: 2; }
+
+.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.summary div { display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; min-width: 0; }
+.summary strong { font-family: var(--font-display); font-size: 1rem; }
+.summary span { color: var(--muted); font-size: 0.96rem; }
+
+/* findings */
+.finding-list { display: flex; flex-direction: column; border-top: 1px solid var(--rule); }
+.finding { display: grid; grid-template-columns: 92px 1fr; gap: 6px 18px; padding: 16px 0; border-bottom: 1px solid var(--rule); }
+.finding .body { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.finding .body p { color: var(--ink); }
+.finding .body .why { color: var(--muted); font-size: 0.97rem; }
+.pill { justify-self: start; align-self: start; font: 600 0.72rem/1 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; padding: 5px 8px; border-radius: 3px; white-space: nowrap; }
+.pill.high { color: var(--high); background: var(--high-soft); }
+.pill.med { color: var(--med); background: var(--med-soft); }
+.pill.low { color: var(--low); background: var(--low-soft); }
+@media (max-width: 560px) { .finding { grid-template-columns: 1fr; } }
+
+/* tables */
+.table-scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--rule); }
+th { font: 600 0.75rem/1.2 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); background: var(--bg); }
+tr:last-child td { border-bottom: 0; }
+td.eff { font-family: var(--font-mono); font-weight: 600; white-space: nowrap; }
+
+/* mockups */
+.mock-grid { display: grid; grid-template-columns: 1fr; gap: 28px; }
+figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+figcaption { color: var(--muted); font-size: 0.95rem; max-width: 70ch; }
+.win { border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); overflow: hidden; font-size: 0.86rem; box-shadow: 0 1px 0 var(--rule); }
+.win-title { padding: 8px 12px; border-bottom: 1px solid var(--rule); font-weight: 600; background: var(--bg); display: flex; justify-content: space-between; }
+.win-body { display: grid; grid-template-columns: minmax(0, 1fr) 250px; }
+@media (max-width: 700px) { .win-body { grid-template-columns: 1fr; } }
+.pane { padding: 12px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.pane + .pane { border-left: 1px solid var(--rule); }
+@media (max-width: 700px) { .pane + .pane { border-left: 0; border-top: 1px solid var(--rule); } }
+.toolbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.btn { border: 1px solid var(--rule); background: var(--bg); color: var(--ink); border-radius: 4px; padding: 3px 9px; font: inherit; font-size: 0.82rem; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.btn.ghost { background: transparent; }
+.search { flex: 1 1 140px; border: 1px solid var(--rule); border-radius: 4px; padding: 3px 8px; color: var(--muted); min-width: 0; }
+.mt { overflow-x: auto; }
+.mt table { font-size: 0.82rem; min-width: 560px; }
+.mt th, .mt td { padding: 5px 8px; }
+.mt th { font-size: 0.66rem; }
+.mt tr.sel td { background: var(--accent-soft); }
+.mt tr.bad td.ex { color: var(--high); }
+.sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; }
+.chk { display: inline-block; width: 13px; height: 13px; border: 1.5px solid var(--accent); border-radius: 3px; vertical-align: middle; background: var(--accent); }
+.chk.off { background: transparent; }
+.desc { color: var(--muted); }
+.live { font-family: var(--font-mono); text-align: right; }
+.field { display: grid; grid-template-columns: 82px minmax(0, 1fr); gap: 6px; align-items: center; }
+.field label { color: var(--muted); }
+.input { border: 1px solid var(--rule); border-radius: 4px; padding: 3px 7px; background: var(--surface); min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.preview { font-family: var(--font-mono); background: var(--code-bg); padding: 6px 8px; border-radius: 4px; font-size: 0.8rem; overflow-x: auto; }
+.pane-h { font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; }
+.note-bar { padding: 6px 12px; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; color: var(--muted); }
+.editor { font-family: var(--font-mono); background: var(--code-bg); border-radius: 4px; padding: 8px 10px; white-space: pre-wrap; word-break: break-word; }
+.tok-reg { color: var(--trace3); font-weight: 600; }
+.tok-num { color: var(--trace2); font-weight: 600; }
+.tok-op { color: var(--muted); }
+.status-ok { color: var(--trace3); font-weight: 600; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px dashed var(--rule); border-radius: 12px; padding: 2px 9px; font-family: var(--font-mono); font-size: 0.75rem; }
+.result { font-family: var(--font-mono); font-size: 1.3rem; font-weight: 600; }
+
+ol.steps { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 10px; max-width: 70ch; }
+ol.steps li::marker { font-family: var(--font-mono); color: var(--accent); }
+ul.plain { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; max-width: 70ch; }
+.principles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.principles div { display: flex; flex-direction: column; gap: 6px; padding-top: 12px; border-top: 2px solid var(--accent); min-width: 0; }
+.principles strong { font-family: var(--font-display); }
+.principles span { color: var(--muted); font-size: 0.96rem; }
+.mock-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; align-items: start; }
+.win.small .pane { border: 0; }
+.btn.pressed { box-shadow: inset 0 0 0 2px var(--ink); }
+.btn.disabled { opacity: 0.45; }
+.input.placeholder { color: var(--muted); font-style: italic; }
+.radios { display: flex; gap: 16px; align-items: center; }
+.rad { display: inline-block; width: 12px; height: 12px; border: 1.5px solid var(--muted); border-radius: 50%; vertical-align: -1px; }
+.rad.on { border-color: var(--accent); background: radial-gradient(circle, var(--accent) 0 3px, transparent 3.5px); }
+.mt tr.new td { background: var(--accent-soft); }
+.hl { background: var(--accent-soft); color: var(--accent); border-radius: 3px; padding: 0 2px; font-weight: 600; }
+.reflist { display: flex; flex-direction: column; border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; }
+.reflist div { display: flex; flex-wrap: wrap; gap: 4px 10px; padding: 5px 8px; border-bottom: 1px solid var(--rule); }
+.reflist div:last-child { border-bottom: 0; }
+.reflist div.on { background: var(--accent-soft); }
+.outrow { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.caret { display: inline-block; width: 1.5px; height: 1.1em; background: var(--ink); vertical-align: text-bottom; }
+.err { text-decoration: underline wavy var(--high); color: var(--high); }
+.errline { color: var(--high); background: var(--high-soft); padding: 4px 8px; border-radius: 4px; }
+.inset { display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 1px solid var(--accent); border-radius: 6px; }
+footer { color: var(--muted); font-size: 0.9rem; border-top: 1px solid var(--rule); padding-top: 18px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="top">
+  <span class="eyebrow">ModbusScope &middot; UX review &middot; Oct 2026</span>
+  <h1>Adding and editing data points</h1>
+  <p class="lede">A review of the Signals dialog (<code>RegisterDialog</code>), its Add popup (<code>AddRegisterWidget</code>) and the Compose expression dialog (<code>ExpressionsDialog</code>). It lists the pain points found in the code and screenshots, what can change in the GUI alone, and what the existing adapter protocol already makes possible.</p>
+  <svg class="trace" viewBox="0 0 980 46" preserveAspectRatio="none" aria-hidden="true">
+    <path stroke="var(--trace1)" d="M0 30 L80 30 L80 12 L200 12 L200 30 L330 30 L330 12 L470 12 L470 30 L980 30"/>
+    <path stroke="var(--trace2)" d="M0 36 C 120 36, 160 18, 280 18 S 460 40, 600 30 S 820 10, 980 22" opacity="0.8"/>
+  </svg>
+</header>
+
+<section>
+  <span class="eyebrow">Summary</span>
+  <h2>Three things hold the workflow back</h2>
+  <div class="summary">
+    <div><strong>Syntax is the main interface</strong><span>After a signal exists, the only way to change its address, type or device is to edit <code>${40001@2:s16b}</code> by hand. The structured form is only used once, at creation.</span></div>
+    <div><strong>No safety net</strong><span>Every change hits the model immediately. There is no Cancel, no undo, no delete confirmation, and the expression dialog accepts invalid input.</span></div>
+    <div><strong>The add form is easy to miss</strong><span>The structured form hides behind a split-button arrow and closes after every add, so setting up 10+ signals is slow and repetitive.</span></div>
+  </div>
+  <p class="prose">The good news: the adapter protocol already has <code>dataPointSchema</code>, <code>buildExpression</code>, <code>describeDataPoint</code> (which returns parsed <code>fields</code>) and <code>expressionHelp</code>. Most of the larger improvements below reuse these calls and <code>SchemaFormWidget</code>; few need protocol changes.</p>
+</section>
+
+<section>
+  <span class="eyebrow">Pain points</span>
+  <h2>Signals dialog</h2>
+  <div class="finding-list">
+    <div class="finding"><span class="pill high">High</span><div class="body">
+      <h3>Existing data points can only be edited as raw syntax</h3>
+      <p>The Add popup offers object type, address and data type fields, but once the signal exists the Expression cell is a plain text editor or the <code>&hellip;</code> button. Changing <em>holding register 5, s16b</em> to <em>input register 5</em> requires knowing the prefix and Modicon rules.</p>
+      <p class="why">The two paths teach different mental models: a form on the way in, a mini-language afterwards.</p>
+      <span class="ref">addregisterwidget.cpp: form only on add &middot; registerdialog.cpp:72 inline EditRole on EXPRESSION</span>
+    </div></div>
+    <div class="finding"><span class="pill high">High</span><div class="body">
+      <h3>No Cancel and no undo</h3>
+      <p>The dialog has only an OK button and writes straight to <code>GraphDataModel</code>. Delete removes rows with no confirmation and no way back, including via the <kbd>Del</kbd> shortcut on the table.</p>
+      <span class="ref">registerdialog.ui:89 buttonBox Ok only &middot; registerdialog.cpp:160 removeRow</span>
+    </div></div>
+    <div class="finding"><span class="pill high">High</span><div class="body">
+      <h3>The structured add form is hidden behind a split-button arrow</h3>
+      <p>Clicking <strong>Add</strong> inserts “New signal” with a default expression. The form appears only via the small arrow next to it. The user manual describes only the first path and tells users to type <code>${40001}</code> in the cell.</p>
+      <span class="ref">registerdialog.cpp:94 &middot; docs/manual/how-to/add-data-points.md</span>
+    </div></div>
+    <div class="finding"><span class="pill med">Medium</span><div class="body">
+      <h3>The add popup behaves like a menu, not a form</h3>
+      <ul class="plain">
+        <li>It closes after every add, so 10 consecutive registers means 10 open/fill/close cycles.</li>
+        <li>A click outside closes it and throws away what was typed.</li>
+        <li>The name resets to the literal text “Name of signal”, not a placeholder, so it is easily added as the real label.</li>
+        <li>No preview of the resulting expression before adding.</li>
+        <li>If <code>buildExpression</code> returns empty, nothing happens and no reason is shown.</li>
+        <li>Relayout needs a synthetic resize-event workaround because QMenu caches layout.</li>
+      </ul>
+      <span class="ref">addregisterwidget.cpp:209 resizeContainingMenu &middot; :301 silent empty result &middot; :316 resetFields</span>
+    </div></div>
+    <div class="finding"><span class="pill med">Medium</span><div class="body">
+      <h3>The table shows syntax, not meaning</h3>
+      <p>The Expression column shows <code>${40003:s16b}*10</code>. There is no human description (“holding register 2, signed 16-bit, Device 1”), no device name, and no last read value, although <code>describeDataPoint</code> and the graph data series exist. Invalid rows only get a light red background and one of two generic tooltips.</p>
+      <span class="ref">graphdatamodel.cpp:87-110</span>
+    </div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Compose expression dialog</h2>
+  <div class="finding-list">
+    <div class="finding"><span class="pill high">High</span><div class="body">
+      <h3>Accept works on an invalid expression</h3>
+      <p><code>handleAccept()</code> stores whatever is in the editor. The user sees a red error label but can still apply a broken expression, which then shows up as a red row in the table.</p>
+      <span class="ref">expressionsdialog.cpp:166</span>
+    </div></div>
+    <div class="finding"><span class="pill high">High</span><div class="body">
+      <h3>No way to insert a data point without typing syntax</h3>
+      <p>The dialog has no picker. To reference a second register the user must read the help panel and type <code>${...}</code> by hand, even though the same form and <code>buildExpression</code> call already exist in the Add popup.</p>
+    </div></div>
+    <div class="finding"><span class="pill med">Medium</span><div class="body">
+      <h3>The editor hides long expressions</h3>
+      <p>The editor is a multi-line <code>QPlainTextEdit</code> with <code>NoWrap</code> and both scroll bars off. Text past the right edge is invisible. Enter inserts a newline instead of accepting, for what is a one-line expression.</p>
+      <span class="ref">expressionsdialog.ui:76-96</span>
+    </div></div>
+    <div class="finding"><span class="pill med">Medium</span><div class="body">
+      <h3>Feedback is coarse</h3>
+      <ul class="plain">
+        <li>On a syntax error everything from the error position to the end of the line turns red, with a <code>-2</code> offset heuristic.</li>
+        <li>Validation is regex-level; adapter-level errors (address out of range, unknown type) from <code>describeDataPoint</code> are not shown per reference.</li>
+        <li>Test values default to <code>0</code>, so <code>100 / ${40001}</code> opens with an error.</li>
+        <li>Test values only accept decimals; <code>0x10</code> is rejected though the expression itself supports hex.</li>
+        <li>The manual says “the expression field turns green when the syntax is valid”; the code only colours register references.</li>
+      </ul>
+      <span class="ref">expressionhighlighting.cpp:104-127 &middot; expressionsdialog.cpp:112, 145</span>
+    </div></div>
+    <div class="finding"><span class="pill med">Medium</span><div class="body">
+      <h3>Layout spends space in the wrong places</h3>
+      <p>The default size is 823&times;854 px. The editor takes a large block for one line, the help panel is collapsed below, and Accept/Cancel sit in a side column instead of a standard button box. Only the three buttons are in the tab order.</p>
+    </div></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Proposed direction</span>
+  <h2>One form for adding and editing</h2>
+  <p class="prose">The mockups below keep today's feature set: the same columns, the same address fields, the same adapter calls. What changes is where things live and when they are available. Scaling, offset templates, live values and bulk actions are left for later rounds.</p>
+  <div class="principles">
+    <div><strong>Same form, both ways</strong><span>The Add popup moves into a side panel that is bound to the selected row. Adding and editing use the same <code>SchemaFormWidget</code>.</span></div>
+    <div><strong>Syntax stays available</strong><span>The expression column and the Compose expression dialog remain for anything beyond a plain data point. The panel never rewrites the parts of an expression it does not own.</span></div>
+    <div><strong>Changes can be undone</strong><span>The dialog edits a working copy. OK applies, Cancel discards.</span></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Mockup 1 &middot; Signals dialog</span>
+  <h2>Editing a selected signal</h2>
+  <figure>
+    <div class="win" role="img" aria-label="Signals dialog with a side panel editing the selected row">
+      <div class="win-title"><span>Signals</span></div>
+      <div class="win-body">
+        <div class="pane">
+          <div class="toolbar"><span class="btn primary">Add</span><span class="btn">Remove</span></div>
+          <div class="mt"><table>
+            <tr><th>Color</th><th>Active</th><th>Name</th><th>Data point</th><th>Expression</th><th>Y-Axis</th></tr>
+            <tr><td><span class="sw" style="background:var(--trace1)"></span></td><td><span class="chk"></span></td><td>Data point</td><td class="desc">holding register, 0, unsigned 16-bit, device id 1</td><td class="mono">${40001}/2</td><td>Y1</td></tr>
+            <tr class="sel"><td><span class="sw" style="background:var(--trace2)"></span></td><td><span class="chk"></span></td><td>Data point 2</td><td class="desc">holding register, 1, signed 16-bit, device id 1</td><td class="mono">${40002:s16b}</td><td>Y1</td></tr>
+            <tr><td><span class="sw" style="background:var(--trace3)"></span></td><td><span class="chk off"></span></td><td>Data point 3</td><td class="desc">holding register, 2, signed 16-bit, device id 1</td><td class="mono">${40003:s16b}*10</td><td>Y2</td></tr>
+          </table></div>
+        </div>
+        <div class="pane">
+          <span class="pane-h">Edit signal</span>
+          <div class="field"><label>Device</label><span class="input">Device 1</span></div>
+          <div class="field"><label></label><span class="desc">Protocol: modbusAdapter</span></div>
+          <div class="field"><label>Name</label><span class="input">Data point 2</span></div>
+          <div class="field"><label>Object type</label><span class="input">Holding Register</span></div>
+          <div class="field"><label>Address</label><span class="input">1</span></div>
+          <div class="field"><label>Data type</label><span class="input">signed 16-bit</span></div>
+          <div class="field"><label>Axis</label><span class="radios"><span><span class="rad on"></span> Y1</span><span><span class="rad"></span> Y2</span></span></div>
+          <div class="preview">${40002:s16b}</div>
+          <div class="toolbar"><span class="btn">Edit expression&hellip;</span></div>
+        </div>
+      </div>
+      <div class="note-bar"><span></span><span class="toolbar"><span class="btn">Cancel</span><span class="btn primary">OK</span></span></div>
+    </div>
+    <figcaption>Selecting a row fills the panel. Field edits apply to the row as you type, through <code>buildExpression</code>; the preview shows the resulting reference. The Data point column shows the adapter's description, which the Compose expression dialog already requests today.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <span class="eyebrow">Mockup 2 &middot; Signals dialog</span>
+  <h2>Adding signals</h2>
+  <figure>
+    <div class="win" role="img" aria-label="Signals dialog with the side panel in add mode">
+      <div class="win-title"><span>Signals</span></div>
+      <div class="win-body">
+        <div class="pane">
+          <div class="toolbar"><span class="btn primary pressed">Add</span><span class="btn">Remove</span></div>
+          <div class="mt"><table>
+            <tr><th>Color</th><th>Active</th><th>Name</th><th>Data point</th><th>Expression</th><th>Y-Axis</th></tr>
+            <tr><td><span class="sw" style="background:var(--trace1)"></span></td><td><span class="chk"></span></td><td>Data point</td><td class="desc">holding register, 0, unsigned 16-bit, device id 1</td><td class="mono">${40001}/2</td><td>Y1</td></tr>
+            <tr><td><span class="sw" style="background:var(--trace2)"></span></td><td><span class="chk"></span></td><td>Data point 2</td><td class="desc">holding register, 1, signed 16-bit, device id 1</td><td class="mono">${40002:s16b}</td><td>Y1</td></tr>
+            <tr class="new"><td><span class="sw" style="background:var(--trace3)"></span></td><td><span class="chk"></span></td><td>Data point 3</td><td class="desc">holding register, 2, signed 16-bit, device id 1</td><td class="mono">${40003:s16b}</td><td>Y1</td></tr>
+          </table></div>
+        </div>
+        <div class="pane">
+          <span class="pane-h">New signal</span>
+          <div class="field"><label>Device</label><span class="input">Device 1</span></div>
+          <div class="field"><label></label><span class="desc">Protocol: modbusAdapter</span></div>
+          <div class="field"><label>Name</label><span class="input placeholder">New signal</span></div>
+          <div class="field"><label>Object type</label><span class="input">Holding Register</span></div>
+          <div class="field"><label>Address</label><span class="input">3</span></div>
+          <div class="field"><label>Data type</label><span class="input">signed 16-bit</span></div>
+          <div class="field"><label>Axis</label><span class="radios"><span><span class="rad on"></span> Y1</span><span><span class="rad"></span> Y2</span></span></div>
+          <div class="preview">${h3:s16b}</div>
+          <div class="toolbar"><span class="btn primary">Add signal</span><span class="desc">Added “Data point 3”</span></div>
+        </div>
+      </div>
+      <div class="note-bar"><span></span><span class="toolbar"><span class="btn">Cancel</span><span class="btn primary">OK</span></span></div>
+    </div>
+    <figcaption><strong>Add</strong> puts the panel in add mode instead of inserting a placeholder row. After <strong>Add signal</strong> the panel stays open and keeps device, object type, data type and axis, so the next signal only needs a new address and name. An empty name falls back to <code>uniqueLabel()</code>. A failed <code>buildExpression</code> shows its reason here instead of doing nothing.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <span class="eyebrow">Mockup 3 &middot; Signals dialog</span>
+  <h2>Signals the form cannot fully describe</h2>
+  <div class="mock-pair">
+    <figure>
+      <div class="win small" role="img" aria-label="Side panel for a signal with arithmetic around one data point">
+        <div class="win-title"><span>Edit signal &middot; <span class="mono">${40001}/2</span></span></div>
+        <div class="pane">
+          <div class="field"><label>Name</label><span class="input">Data point</span></div>
+          <div class="field"><label>Object type</label><span class="input">Holding Register</span></div>
+          <div class="field"><label>Address</label><span class="input">0</span></div>
+          <div class="field"><label>Data type</label><span class="input">unsigned 16-bit</span></div>
+          <div class="preview"><span class="hl">${40001}</span>/2</div>
+          <span class="desc">The form changes the highlighted reference only. <span class="mono">/2</span> is kept.</span>
+          <div class="toolbar"><span class="btn">Edit expression&hellip;</span></div>
+        </div>
+      </div>
+      <figcaption>One data point with arithmetic: the form edits the reference and leaves the rest of the expression untouched.</figcaption>
+    </figure>
+    <figure>
+      <div class="win small" role="img" aria-label="Side panel for a signal that combines two data points">
+        <div class="win-title"><span>Edit signal &middot; <span class="mono">${40003:s16b}*10 + ${c0@2}</span></span></div>
+        <div class="pane">
+          <div class="field"><label>Name</label><span class="input">Data point 3</span></div>
+          <span class="desc">This signal combines 2 data points.</span>
+          <div class="reflist">
+            <div><span class="mono">${40003:s16b}</span><span class="desc">holding register, 2, signed 16-bit, device id 1</span></div>
+            <div class="on"><span class="mono">${c0@2}</span><span class="desc">coil, 0, unsigned 16-bit, device id 2</span></div>
+          </div>
+          <div class="field"><label>Device</label><span class="input">Device 2</span></div>
+          <div class="field"><label></label><span class="desc">Protocol: modbusAdapter</span></div>
+          <div class="field"><label>Object type</label><span class="input">Coil</span></div>
+          <div class="field"><label>Address</label><span class="input">0</span></div>
+          <div class="field"><label>Data type</label><span class="input">unsigned 16-bit</span></div>
+          <div class="preview">${40003:s16b}*10 + <span class="hl">${c0@2}</span></div>
+          <div class="toolbar"><span class="btn">Edit expression&hellip;</span></div>
+        </div>
+      </div>
+      <figcaption>Two data points on different devices: pick one from the list to edit it. Each data point has its own Device selector, and the address fields below it come from that device's adapter. Only the highlighted reference is replaced. A data point used twice is listed twice. Invalid expressions show the parser error and only offer Edit expression.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Mockup 4 &middot; Compose expression</span>
+  <h2>Composing an expression</h2>
+  <div class="mock-pair">
+    <figure>
+      <div class="win small" role="img" aria-label="Compose expression dialog with a valid expression">
+        <div class="win-title"><span>Compose expression &middot; Data point 3</span></div>
+        <div class="pane">
+          <div class="editor"><span class="tok-reg">${40003:s16b}</span> <span class="tok-op">*</span> <span class="tok-num">10</span> <span class="tok-op">+</span> <span class="tok-reg">${c0}</span> <span class="tok-op">/</span> <span class="tok-num">10</span></div>
+          <div class="toolbar"><span class="btn">Insert data point&hellip;</span></div>
+          <div class="mt"><table style="min-width:300px">
+            <tr><th>Data point</th><th>Example input</th></tr>
+            <tr><td>holding register, 2, signed 16-bit, device id 1</td><td class="mono">0</td></tr>
+            <tr><td>coil, 0, unsigned 16-bit, device id 1</td><td class="mono">0</td></tr>
+          </table></div>
+          <div class="outrow"><span class="desc">Processed output</span><span class="result">0</span></div>
+        </div>
+        <div class="note-bar"><span class="btn ghost">Show info</span><span class="toolbar"><span class="btn">Cancel</span><span class="btn primary">Accept</span></span></div>
+      </div>
+      <figcaption>Same parts as today in a compact layout: a wrapping editor, the example input table, the processed output and the info toggle. Accept and Cancel move to a standard button box. Enter accepts.</figcaption>
+    </figure>
+    <figure>
+      <div class="win small" role="img" aria-label="Compose expression dialog with the insert data point form open and an invalid expression">
+        <div class="win-title"><span>Compose expression &middot; Data point 3</span></div>
+        <div class="pane">
+          <div class="editor"><span class="tok-reg">${40003:s16b}</span> <span class="tok-op">*</span> <span class="tok-num">10</span> <span class="tok-op">+</span> <span class="caret"></span><span class="err">)</span></div>
+          <div class="errline">Unexpected parenthesis</div>
+          <div class="inset">
+            <span class="pane-h">Insert data point</span>
+            <div class="field"><label>Device</label><span class="input">Device 1</span></div>
+            <div class="field"><label>Object type</label><span class="input">Input Register</span></div>
+            <div class="field"><label>Address</label><span class="input">10</span></div>
+            <div class="field"><label>Data type</label><span class="input">unsigned 16-bit</span></div>
+            <div class="toolbar"><span class="preview">${i10}</span><span class="btn primary">Insert at cursor</span></div>
+          </div>
+        </div>
+        <div class="note-bar"><span class="btn ghost">Show info</span><span class="toolbar"><span class="btn">Cancel</span><span class="btn disabled">Accept</span></span></div>
+      </div>
+      <figcaption>Insert data point opens the same form inline and inserts the built reference at the cursor. While the expression is invalid, the error is marked at its position and Accept is disabled.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Behaviour</span>
+  <h2>How each part works</h2>
+  <div class="table-scroll"><table>
+    <tr><th>Element</th><th>Behaviour</th><th>Built on</th></tr>
+    <tr><td>Side panel, edit mode</td><td>Shown when one row is selected. Fills from the row's first data point reference. Edits update the row immediately.</td><td><code>AddRegisterWidget</code> moved out of the <code>QWidgetAction</code>; <code>describeDataPoint</code> <code>fields</code></td></tr>
+    <tr><td>Side panel, add mode</td><td>Entered via Add. Add signal appends a row and keeps the form values except the name.</td><td>Current <code>handleResultAccept</code> path, without <code>closeContainingMenu</code></td></tr>
+    <tr><td>Data point list</td><td>Shown when the expression has more than one <code>${...}</code>. One entry per occurrence, in expression order, including duplicates.</td><td>New occurrence-based helper (<code>ExpressionReferences</code>); <code>ExpressionChecker::addresses()</code> merges duplicates</td></tr>
+    <tr><td>Device per data point</td><td>Every data point has its own Device selector. Changing it rebuilds the address fields from that device's adapter schema.</td><td><code>AddRegisterWidget::applyDevice</code></td></tr>
+    <tr><td>Reference replacement</td><td>Only the selected <code>${...}</code> span is replaced. Text around it is kept as is.</td><td>Match positions from <code>ExpressionRegex::cMatchRegister</code></td></tr>
+    <tr><td>Data point column</td><td>Adapter description per reference, cached by reference text. Falls back to the raw reference while the request is pending or the adapter is not running.</td><td><code>describeDataPoint</code>, as in <code>ExpressionsDialog::startNextDescribe</code></td></tr>
+    <tr><td>Cancel / OK</td><td>The dialog works on a copy of the signal list. OK writes it back; Cancel and Esc discard it. Remove needs no confirmation because Cancel undoes it.</td><td><code>GraphDataModel</code> copy, or a recorded list of changes</td></tr>
+    <tr><td>Edit expression&hellip;</td><td>Opens Compose expression for the row. The panel refreshes after Accept.</td><td>Existing <code>handleExpressionEdit</code></td></tr>
+    <tr><td>Insert data point</td><td>Inline form in Compose expression; inserts at the cursor.</td><td><code>SchemaFormWidget</code> + <code>buildExpression</code></td></tr>
+    <tr><td>Accept state</td><td>Disabled while the expression has a syntax error or an unknown device.</td><td><code>handleResultReady(valid)</code></td></tr>
+  </table></div>
+</section>
+
+<section>
+  <span class="eyebrow">Data flow</span>
+  <h2>Editing a reference through the panel</h2>
+  <ol class="steps">
+    <li>The Signals table selects a row with <code>${40002:s16b}</code> and passes it to the side panel.</li>
+    <li>The panel asks the adapter: <code>describeDataPoint("${40002:s16b}")</code>.</li>
+    <li>The adapter returns <code>fields</code> and a description.</li>
+    <li>The panel fills its form: <code>setSchema(addressSchema, fields)</code>. The preview still shows <code>${40002:s16b}</code>.</li>
+    <li>The user changes Address to 5.</li>
+    <li>The panel asks the adapter: <code>buildExpression(fields, dataType, deviceId)</code>.</li>
+    <li>The adapter returns <code>"${h5:s16b}"</code>, in its own notation.</li>
+    <li>The panel replaces the reference span in the row's expression.</li>
+  </ol>
+  <p class="prose">This relies on <code>describeDataPoint</code> returning <code>fields</code> with the same keys as <code>addressSchema</code>, plus <code>deviceId</code>. All four adapters (Modbus, BACnet, IEC 104, Dummy) already do this, so only the spec needs updating; see the implementation plan, phase 0.4.</p>
+  <p class="prose"><code>buildExpression</code> replies with the adapter's own notation (<code>${h1:s16b}</code> for <code>${40002:s16b}</code>), so the panel only rewrites a reference after the user changes one of its fields.</p>
+</section>
+
+<section>
+  <span class="eyebrow">Improvements</span>
+  <h2>Ranked by effort</h2>
+  <p class="prose">Effort: <strong>S</strong> is a contained change in one class, <strong>M</strong> touches several classes or needs new tests, <strong>L</strong> is a redesign or a protocol change.</p>
+  <div class="table-scroll"><table>
+    <tr><th>Change</th><th>Fixes</th><th>Effort</th><th>Notes</th></tr>
+    <tr><td>Disable Accept while the expression is invalid</td><td>Invalid accept</td><td class="eff">S</td><td><code>handleResultReady(valid)</code> already has the flag.</td></tr>
+    <tr><td>Wrap the editor and shrink it; Enter accepts</td><td>Hidden text</td><td class="eff">S</td><td>.ui property change plus a key filter.</td></tr>
+    <tr><td>Placeholder text for the signal name, fallback to <code>uniqueLabel()</code></td><td>Literal placeholder</td><td class="eff">S</td><td></td></tr>
+    <tr><td>Accept hex and binary example input values</td><td>Coarse feedback</td><td class="eff">S</td><td></td></tr>
+    <tr><td>Show an error when <code>buildExpression</code> returns empty</td><td>Silent failure</td><td class="eff">S</td><td></td></tr>
+    <tr><td>Fix the manual: document the add form, drop the “turns green” claim</td><td>Discoverability</td><td class="eff">S</td><td>docs/manual/how-to/*.md</td></tr>
+    <tr><td>Compact Compose expression layout with a standard button box</td><td>Layout</td><td class="eff">S</td><td>Mockup 4</td></tr>
+    <tr><td>Cancel: edit a working copy, apply on OK</td><td>No safety net</td><td class="eff">M</td><td></td></tr>
+    <tr><td>Insert data point in Compose expression</td><td>Typing syntax</td><td class="eff">M</td><td>Mockup 4</td></tr>
+    <tr><td>Data point description column</td><td>Syntax not meaning</td><td class="eff">M</td><td>Cache per reference.</td></tr>
+    <tr><td>Error marked at its position instead of to the end of the line</td><td>Coarse feedback</td><td class="eff">M</td><td></td></tr>
+    <tr><td>Side panel in add mode replacing the popup</td><td>Hidden form, menu behaviour</td><td class="eff">M</td><td>Mockup 2. Removes the QMenu resize workaround.</td></tr>
+    <tr><td>Side panel in edit mode, including reference replacement</td><td>Raw syntax editing</td><td class="eff">L</td><td>Mockups 1 and 3. Depends on the <code>fields</code> contract.</td></tr>
+  </table></div>
+</section>
+
+<section>
+  <span class="eyebrow">Suggested order</span>
+  <h2>A path in three steps</h2>
+  <ol class="steps">
+    <li><strong>Safety and clarity.</strong> Block invalid Accept, wrap the editor, placeholder name, empty-result error, hex example values, compact layout, manual fix. Each is small and shippable with a test in <code>tst_expressionsdialog</code> or <code>tst_addregisterwidget</code>.</li>
+    <li><strong>Panel for adding.</strong> Cancel with a working copy, the side panel in add mode, Insert data point in Compose expression, and the Data point column.</li>
+    <li><strong>Panel for editing.</strong> Agree the <code>fields</code> contract with the adapters, then add edit mode and reference replacement.</li>
+  </ol>
+</section>
+
+<section>
+  <span class="eyebrow">Later</span>
+  <h2>Kept out of this round</h2>
+  <ul class="plain">
+    <li>Scale and offset fields that generate <code>${x} * a + b</code>, and quick templates such as bit or high byte.</li>
+    <li>Last read value in the table and as example input.</li>
+    <li>Adding a range of consecutive addresses in one step, and a batch <code>describeDataPoints</code> call.</li>
+  </ul>
+</section>
+
+<section>
+  <span class="eyebrow">Open questions</span>
+  <h2>Decisions before step 3</h2>
+  <h3>Decided</h3>
+  <div class="table-scroll"><table>
+    <tr><th>Question</th><th>Decision</th></tr>
+    <tr><td>The same data point appears twice, e.g. <code>${40001} - ${40001}</code>. One entry or two?</td><td>Show duplicates. Each occurrence is its own entry in the list and is edited on its own.</td></tr>
+    <tr><td>Data points on different devices, e.g. <code>${40001} * ${40002@2}</code>. Does the signal have one device or one per data point?</td><td>A Device selector is required for each data point. The address fields shown depend on the selected device's adapter.</td></tr>
+  </table></div>
+  <h3>Open</h3>
+  <ul class="plain">
+    <li>Should panel edits apply immediately to the row, or on an explicit Apply button?</li>
+    <li>When a data point moves to a device on another adapter, should matching field values be kept, or should the form reset to that adapter's defaults?</li>
+    <li>When the expression does not parse, the list cannot be built. Is showing only the parser error and Edit expression enough, or should the panel keep the last valid list read-only?</li>
+  </ul>
+</section>
+
+<footer>Based on the source of <code>src/dialogs/registerdialog.*</code>, <code>addregisterwidget.*</code>, <code>expressionsdialog.*</code>, <code>expressionhighlighting.cpp</code>, <code>models/graphdatamodel.cpp</code>, the adapter protocol spec and the manual screenshots. Not tested against a running build.</footer>
+
+</div>
+</body>
+</html>
