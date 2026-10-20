@@ -1,3 +1,8 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Signals Dialog UX Review</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -162,9 +167,10 @@ ul.plain { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column
 .err { text-decoration: underline wavy var(--high); color: var(--high); }
 .errline { color: var(--high); background: var(--high-soft); padding: 4px 8px; border-radius: 4px; }
 .inset { display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 1px solid var(--accent); border-radius: 6px; }
-pre.mermaid { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 16px; overflow-x: auto; margin: 0; }
 footer { color: var(--muted); font-size: 0.9rem; border-top: 1px solid var(--rule); padding-top: 18px; }
 </style>
+</head>
+<body>
 
 <div class="wrap">
 
@@ -335,7 +341,7 @@ footer { color: var(--muted); font-size: 0.9rem; border-top: 1px solid var(--rul
           <div class="field"><label>Address</label><span class="input">3</span></div>
           <div class="field"><label>Data type</label><span class="input">signed 16-bit</span></div>
           <div class="field"><label>Axis</label><span class="radios"><span><span class="rad on"></span> Y1</span><span><span class="rad"></span> Y2</span></span></div>
-          <div class="preview">${40004:s16b}</div>
+          <div class="preview">${h3:s16b}</div>
           <div class="toolbar"><span class="btn primary">Add signal</span><span class="desc">Added “Data point 3”</span></div>
         </div>
       </div>
@@ -438,7 +444,7 @@ footer { color: var(--muted); font-size: 0.9rem; border-top: 1px solid var(--rul
     <tr><th>Element</th><th>Behaviour</th><th>Built on</th></tr>
     <tr><td>Side panel, edit mode</td><td>Shown when one row is selected. Fills from the row's first data point reference. Edits update the row immediately.</td><td><code>AddRegisterWidget</code> moved out of the <code>QWidgetAction</code>; <code>describeDataPoint</code> <code>fields</code></td></tr>
     <tr><td>Side panel, add mode</td><td>Entered via Add. Add signal appends a row and keeps the form values except the name.</td><td>Current <code>handleResultAccept</code> path, without <code>closeContainingMenu</code></td></tr>
-    <tr><td>Data point list</td><td>Shown when the expression has more than one <code>${...}</code>. One entry per occurrence, in expression order, including duplicates.</td><td><code>ExpressionChecker::addresses()</code>, <code>deviceIds()</code></td></tr>
+    <tr><td>Data point list</td><td>Shown when the expression has more than one <code>${...}</code>. One entry per occurrence, in expression order, including duplicates.</td><td>New occurrence-based helper (<code>ExpressionReferences</code>); <code>ExpressionChecker::addresses()</code> merges duplicates</td></tr>
     <tr><td>Device per data point</td><td>Every data point has its own Device selector. Changing it rebuilds the address fields from that device's adapter schema.</td><td><code>AddRegisterWidget::applyDevice</code></td></tr>
     <tr><td>Reference replacement</td><td>Only the selected <code>${...}</code> span is replaced. Text around it is kept as is.</td><td>Match positions from <code>ExpressionRegex::cMatchRegister</code></td></tr>
     <tr><td>Data point column</td><td>Adapter description per reference, cached by reference text. Falls back to the raw reference while the request is pending or the adapter is not running.</td><td><code>describeDataPoint</code>, as in <code>ExpressionsDialog::startNextDescribe</code></td></tr>
@@ -452,21 +458,18 @@ footer { color: var(--muted); font-size: 0.9rem; border-top: 1px solid var(--rul
 <section>
   <span class="eyebrow">Data flow</span>
   <h2>Editing a reference through the panel</h2>
-  <pre class="mermaid">
-sequenceDiagram
-    participant T as Signals table
-    participant P as Side panel
-    participant A as Adapter
-    T->>P: row selected: ${40002:s16b}
-    P->>A: describeDataPoint("${40002:s16b}")
-    A-->>P: fields, description
-    P->>P: setSchema(addressSchema, fields)
-    Note over P: user changes Address to 5
-    P->>A: buildExpression(fields, dataType, deviceId)
-    A-->>P: "${40006:s16b}"
-    P->>T: replace reference span, setExpression
-  </pre>
-  <p class="prose">This needs one contract change: <code>describeDataPoint</code> must return <code>fields</code> with the same keys as <code>addressSchema</code>, plus <code>dataType</code> and <code>deviceId</code>. The test adapter client already uses <code>objectType</code> and <code>address</code> for <code>buildExpression</code>, so the Modbus adapter is likely close.</p>
+  <ol class="steps">
+    <li>The Signals table selects a row with <code>${40002:s16b}</code> and passes it to the side panel.</li>
+    <li>The panel asks the adapter: <code>describeDataPoint("${40002:s16b}")</code>.</li>
+    <li>The adapter returns <code>fields</code> and a description.</li>
+    <li>The panel fills its form: <code>setSchema(addressSchema, fields)</code>. The preview still shows <code>${40002:s16b}</code>.</li>
+    <li>The user changes Address to 5.</li>
+    <li>The panel asks the adapter: <code>buildExpression(fields, dataType, deviceId)</code>.</li>
+    <li>The adapter returns <code>"${h5:s16b}"</code>, in its own notation.</li>
+    <li>The panel replaces the reference span in the row's expression.</li>
+  </ol>
+  <p class="prose">This relies on <code>describeDataPoint</code> returning <code>fields</code> with the same keys as <code>addressSchema</code>, plus <code>deviceId</code>. All four adapters (Modbus, BACnet, IEC 104, Dummy) already do this, so only the spec needs updating; see the implementation plan, phase 0.4.</p>
+  <p class="prose"><code>buildExpression</code> replies with the adapter's own notation (<code>${h1:s16b}</code> for <code>${40002:s16b}</code>), so the panel only rewrites a reference after the user changes one of its fields.</p>
 </section>
 
 <section>
@@ -522,7 +525,6 @@ sequenceDiagram
   </table></div>
   <h3>Open</h3>
   <ul class="plain">
-    <li>Do all adapters agree to return <code>fields</code> keyed like <code>addressSchema</code>? The spec currently calls them “opaque display data”.</li>
     <li>Should panel edits apply immediately to the row, or on an explicit Apply button?</li>
     <li>When a data point moves to a device on another adapter, should matching field values be kept, or should the form reset to that adapter's defaults?</li>
     <li>When the expression does not parse, the list cannot be built. Is showing only the parser error and Edit expression enough, or should the panel keep the last valid list read-only?</li>
@@ -532,3 +534,5 @@ sequenceDiagram
 <footer>Based on the source of <code>src/dialogs/registerdialog.*</code>, <code>addregisterwidget.*</code>, <code>expressionsdialog.*</code>, <code>expressionhighlighting.cpp</code>, <code>models/graphdatamodel.cpp</code>, the adapter protocol spec and the manual screenshots. Not tested against a running build.</footer>
 
 </div>
+</body>
+</html>

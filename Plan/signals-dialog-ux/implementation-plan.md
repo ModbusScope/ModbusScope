@@ -146,7 +146,7 @@ Logic that sits in dialogs today, moved to where it can be tested without a widg
 | E1 | `SignalsDialog::dataPointLimitWarningMessage()` | `DataPointUsage::limitWarnings(const QList<DataPoint>&, SettingsModel*)` returning one line per adapter over its limit; the dialog adds the license hint and joins | 3 | Phase 3 points the warning at the draft model; with the logic in `DataPointUsage` that is a one-argument change. Tests in `tst_datapointusage`: under, at and over the limit, unknown adapter, adapter without a name |
 | E2 | `SignalsDialog::removeSelectedSignals()`, `selectedRowAfterDelete()`, `sortRegistersLastFirst()` | `GraphDataModel::removeSignals(QList<GraphIdx>)` (removes highest first) and a free function `rowAfterRemoval(firstRemovedRow, rowCount)` | 3 | The draft in phase 3 and the panel in phase 4 also remove rows. Tests in `tst_graphdatamodel` for unsorted and duplicate indices |
 | E3 | "Adapter name, else the id" in `AddRegisterWidget::applyDevice()`, `ExpressionsDialog::populateHelpDevices()` and the limit warning | `SettingsModel::adapterDisplayName(const QString& adapterId)`, which checks `adapterIds()` first so it never inserts a phantom `AdapterData` | 0 (0.3) | Three copies; the one in `ExpressionsDialog` calls `adapterData()` unguarded and can insert a phantom entry. Test in `tst_settingsmodel` |
-| E4 | `AddRegisterWidget::populateDeviceCombo()`, `refreshDeviceCombo()`, `selectedDeviceId()` and the device part of `ExpressionsDialog::populateHelpDevices()` | `DeviceComboBox` in `src/customwidgets/`: fills from `SettingsModel::deviceList()`, follows `deviceListChanged` keeping the selection with signals blocked, emits `deviceChanged(deviceId_t)`. Label style: name only, or name with protocol and id | 2 (2.3) | `DataPointEditorWidget` and the per-reference device selector (phase 7) need it. The help selector switches from storing an adapter id to a device id and looks the adapter up. Tests in `tests/customwidgets/tst_devicecombobox.cpp` |
+| E4 | `AddRegisterWidget::populateDeviceCombo()`, `refreshDeviceCombo()`, `selectedDeviceId()` and the device part of `ExpressionsDialog::populateHelpDevices()` | `DeviceComboBox` in `src/customwidgets/`: fills from `SettingsModel::deviceList()`, emits `deviceChanged(deviceId_t)`. On `deviceListChanged` it rebuilds with signals blocked, then reselects the previous device. If that device is gone, it selects the first device and emits `deviceChanged` once after unblocking, so a consumer such as `DataPointEditorWidget` never keeps the removed device's schema. With no devices left it emits `deviceChanged(0)`. Label style: name only, or name with protocol and id | 2 (2.3) | `DataPointEditorWidget` and the per-reference device selector (phase 7) need it. The help selector switches from storing an adapter id to a device id and looks the adapter up. Tests in `tests/customwidgets/tst_devicecombobox.cpp`: selection kept without a signal when another device is added or removed, one `deviceChanged` with the fallback when the selected device is removed, `deviceChanged(0)` when the list becomes empty |
 | E5 | Number parsing in `ExpressionsDialog::handleInputChange()` (`QString::toDouble`) | `ExpressionValue::parse(const QString&, bool* ok)` in `src/util/` | 1 | Phase 1 adds hex and binary input; that becomes a change to one tested function |
 | E6 | `ExpressionHighlighting::handleErrorPosition()` position correction | A free function returning the start and length to mark, given the parser error position and the text | 5 | Pins today's `-2` behaviour in tests before phase 5 changes it. Tests in `tests/dialogs/tst_expressionhighlighting.cpp` |
 
@@ -219,7 +219,7 @@ signals:
 In `docs/technical/adapter-protocol-spec.md`:
 
 - `adapter.dataPointSchema`: document the result the adapters actually return: `addressSchema` (with `dataType` as a property where the protocol has types) and `defaults`.
-- `adapter.describeDataPoint`: the parameter is one `${...}` reference. When valid, `fields` uses the same keys as `addressSchema`, plus `deviceId`, so that passing `fields` back to `buildExpression` reproduces the same data point. This replaces "the core treats them as opaque display data". All four adapters already do this.
+- `adapter.describeDataPoint`: the parameter is one `${...}` reference. When valid, `fields` uses the same keys as `addressSchema`, plus `deviceId`. Feeding it back reproduces the same data point: `deviceId` goes into the `deviceId` parameter, `dataType` (where the adapter has one) into the `dataType` parameter, and the remaining keys into `fields`. `DataPointService::buildExpression()` does this split, so callers pass the described `fields` object as is. This replaces "the core treats them as opaque display data". All four adapters already do this.
 - `adapter.buildExpression`: state that a `-32602` error is an expected, non-fatal reply.
 
 **Done when:** an invalid `buildExpression` call from the add form leaves the adapter running and shows nothing worse than today; the three callers use `DataPointService`; all existing tests pass.
@@ -280,7 +280,7 @@ Turns the sequential describe chain in `ExpressionsDialog` into a shared lookup.
 ```cpp
 struct DataPointDescription
 {
-    enum class State { Pending, Valid, Invalid, Unavailable };
+    enum class State { Pending, Valid, Invalid, Failed, Unavailable };
     State state;
     QString description;
     QJsonObject fields;
@@ -302,10 +302,13 @@ signals:
 
 - Keyed by reference text. The device is part of the text, so one key always maps to one adapter.
 - One request per key at a time; repeated lookups while pending do not send again.
-- `Unavailable` when the device is unknown, its adapter is not running, or the request failed or timed out (`requestFailed`). Callers fall back to the raw reference.
-- `Unavailable` entries are not retried on every lookup, because the table looks up on each repaint. They are dropped when an adapter becomes usable again (`AdapterManager::adapterReady` or `sessionStarted` for that adapter), so the next lookup asks again.
+- Three outcomes besides `Valid`, each with its own retry rule. Callers fall back to the raw reference for all three.
+  - `Invalid`: the adapter parsed the reference and rejected it. Kept: asking again gives the same answer.
+  - `Unavailable`: the device is unknown or its adapter is not running. Dropped when that adapter becomes usable (`AdapterManager::adapterReady` or `sessionStarted`), so the next lookup asks again.
+  - `Failed`: `requestFailed` for a timeout or adapter error while the adapter stays usable. Expires after `cFailedRetryMs` (10 s to start with); a lookup after that sends a new request. Also dropped on `adapterReady` or `sessionStarted`.
+- No outcome is retried on every lookup, because the table looks up on each repaint.
 - Owned by `SignalsDialog` and shared with the panel and with `ExpressionsDialog` (passed in), so a description fetched for the table is reused in the dialog.
-- Tests in `tests/models/tst_datapointdescriptioncache.cpp` with a mock service: hit, miss, one request for repeated lookups while pending, failure gives `Unavailable` without a second request, entries retried after the adapter becomes ready.
+- Tests in `tests/models/tst_datapointdescriptioncache.cpp` with a mock service: hit, miss, one request for repeated lookups while pending, a timeout gives `Failed` without a second request until `cFailedRetryMs` has passed, then one new request; `Unavailable` entries retried after the adapter becomes ready; `Invalid` never retried. Inject the clock or the interval so tests do not wait.
 
 #### 2.3 `DataPointEditorWidget`
 
@@ -321,9 +324,10 @@ public:
     DataPointEditorWidget(SettingsModel* pSettingsModel, DataPointService* pService, QWidget* parent = nullptr);
 
     void setDevice(deviceId_t deviceId);              // resets the form to the adapter defaults
-    void setFields(const QJsonObject& fields);        // fields from describeDataPoint; selects fields["deviceId"]
+    void setReference(const QString& referenceText,   // the reference as typed, e.g. "${40002:s16b}"
+                      const QJsonObject& fields);     // fields from describeDataPoint; selects fields["deviceId"]
     deviceId_t deviceId() const;
-    QString expression() const;                       // last reference built for the current values
+    QString expression() const;                       // referenceText until a field changes, then the last built reference
     bool hasValidExpression() const;
 
 signals:
@@ -335,10 +339,10 @@ signals:
 - On `SchemaFormWidget::valuesChanged`, the widget asks the service to build the reference and shows it as a preview. Replies with an old ticket are ignored, so fast typing cannot show a stale preview.
 - While a build is pending, `hasValidExpression()` is false and the preview shows the last built reference greyed out. Callers keep their Add or write action disabled until it is true.
 - On `requestFailed` for the current ticket, the preview is cleared and `errorChanged` carries the reason with what to do, for example "The adapter did not respond. Change a field or select the device again to retry." Any field change or device selection sends a new request; there is no automatic retry.
-- `setFields()` fills the form without triggering a build. The preview shows the original reference text until the user changes a field. This is what preserves the user's notation (`${40002}` is not silently rewritten to `${h1}`).
+- `setReference()` stores the reference text, fills the form from `fields` and does not trigger a build. `expression()` and the preview return the stored text, and `hasValidExpression()` is true, until the user changes a field; only then does the widget build and replace it. This is what preserves the user's notation (`${40002}` is not silently rewritten to `${h1}`). `setDevice()` clears the stored text.
 - Keys in `fields` that the device's schema does not know are ignored; missing keys take the schema default.
 - `AddRegisterWidget` embeds the new widget and uses `expression()` on Add, instead of sending its own `buildExpression`. `tst_addregisterwidget` should pass with only setup changes.
-- New tests in `tests/customwidgets/tst_datapointeditorwidget.cpp`: device switch rebuilds the form, `setFields()` round trip, stale reply ignored, adapter not running, build failure shows the error, timeout shows the error and leaves `hasValidExpression()` false, a field change after a failure sends a new request.
+- New tests in `tests/customwidgets/tst_datapointeditorwidget.cpp`: device switch rebuilds the form, `setReference()` keeps the original text until a field changes and then shows the built reference, stale reply ignored, adapter not running, build failure shows the error, timeout shows the error and leaves `hasValidExpression()` false, a field change after a failure sends a new request.
 
 **Done when:** the three modules have tests, the add popup works as before on top of `DataPointEditorWidget`, and `ExpressionsDialog` uses the cache instead of `startNextDescribe()`.
 
@@ -390,7 +394,8 @@ public:
 **Goal:** mockup 2 of the review. The popup and its `QMenu` workarounds are removed.
 
 - New `SignalEditorPanel` (`.h/.cpp/.ui`) on the right of the table in `signalsdialog.ui`. It contains: name (placeholder text), axis radios, `DataPointEditorWidget`, an **Add signal** button and a status line.
-- **Add** enters add mode instead of inserting a placeholder row. **Add signal** appends to the draft through `GraphDataModel::add(GraphData)`, selects the new row in the table, clears only the name and keeps device, address fields, data type and axis.
+- **Add** enters add mode instead of inserting a placeholder row. **Add signal** appends to the draft through `GraphDataModel::add(GraphData)`, clears only the name and keeps device, address fields, data type and axis.
+- Add mode and selection: entering add mode clears the table selection. After **Add signal**, the table scrolls to the new row (`scrollTo`) without selecting it, and the status line names it. Selecting a row is what puts the panel in edit mode (phase 7), so selecting the new row in code would leave add mode after every add. `onSignalInserted()`, which selects inserted rows today, becomes a `scrollTo`.
 - The status line shows "Added \"…\"" or the build error from `DataPointEditorWidget::errorChanged`.
 - Remove `AddRegisterWidget`, `_addSignalAction`, `addDefaultSignal()`, `resizeContainingMenu()` and `closeContainingMenu()`. Move the relevant cases from `tst_addregisterwidget` to `tests/dialogs/tst_signaleditorpanel.cpp`.
 - The default-expression logic in `SignalsDialog` (`requestDefaultExpression()`) becomes unused once Add no longer inserts a placeholder. Remove it, unless another caller of `GraphDataModel::add()` without arguments still needs a sensible default; check `ImportMbcDialog` and project loading first.
@@ -424,7 +429,13 @@ public:
 **Goal:** the table shows the adapter's description of each signal's data points.
 
 - Add the column in a proxy model in the dialog layer, not in `GraphDataModel`. The description depends on running adapters and only matters in this dialog; `GraphDataModel` is also used for export and the graph.
-- `SignalTableProxyModel` (`src/dialogs/signaltableproxymodel.*`), a `QIdentityProxyModel` subclass that maps one extra column. If an extra column on an identity proxy proves awkward, override `data()` for the existing Expression column's tooltip and add the column through a small `QAbstractProxyModel` instead.
+- `SignalTableProxyModel` (`src/dialogs/signaltableproxymodel.*`), a `QIdentityProxyModel` subclass with one extra column after the source columns, following the pattern of KDE's `KExtraColumnsProxyModel`. `QIdentityProxyModel` keeps forwarding row inserts, removes, moves, resets and drag-and-drop, which a plain `QAbstractProxyModel` subclass would have to reimplement. Overrides needed for the extra column:
+  - `columnCount()`: source count + 1.
+  - `index()`, `parent()`, `sibling()`: create indexes for the extra column instead of mapping them.
+  - `mapToSource()`: invalid index for the extra column. `mapFromSource()` unchanged.
+  - `data()`, `headerData()`, `flags()`: description text, header, read-only and draggable for the extra column; forward the rest.
+  - `mapSelectionToSource()`: drop extra-column indexes, so row selection keeps working.
+  - Tests in `tests/dialogs/tst_signaltableproxymodel.cpp`, including `QAbstractItemModelTester` on the proxy.
 - Text per row: the description for one reference, "2 data points" plus a tooltip with each description for more, the parser error for an invalid expression. While pending or unavailable, the raw reference.
 - Listens to `DataPointDescriptionCache::descriptionChanged` and emits `dataChanged` for the affected rows only.
 - The invalid-row tooltip shows the specific error from the cache instead of the two generic texts.
@@ -443,7 +454,7 @@ public:
   - **One reference:** the editor shows it; the expression preview marks the reference (mockup 3a).
   - **More than one:** a list of references with descriptions from the cache; selecting one loads it into the editor (mockup 3b).
   - **Expression does not parse:** the parser error and **Edit expression…** only.
-- Loading a reference: `cache.lookup(ref)` → `editor.setFields(description.fields)`. While pending, the editor is disabled with the raw reference shown.
+- Loading a reference: `cache.lookup(ref)` → `editor.setReference(ref.text, description.fields)`. While pending, the editor is disabled with the raw reference shown.
 - When the editor emits `expressionChanged` after a user edit, the panel calls `ExpressionReferences::replace()` on the row's current expression and writes the result to the draft. The rest of the expression is kept as typed.
 - After the write, the panel re-runs `find()` and keeps the same occurrence index selected, so the user can keep editing.
 - **Edit expression…** opens Compose expression for the row and refreshes the panel when it closes.

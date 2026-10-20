@@ -132,7 +132,7 @@ Selecting a row fills the panel. Field edits apply to the row through `buildExpr
 │                                                                   │ Address     [3             ]
 │                                                                   │ Data type   [signed 16-bit ▾]
 │                                                                   │ Axis        (•) Y1  ( ) Y2
-│                                                                   │ ${40004:s16b}
+│                                                                   │ ${h3:s16b}
 │                                                                   │ [Add signal]  Added "Data point 3"
 ```
 
@@ -198,7 +198,7 @@ With **Insert data point…** open, the same address form appears inline (Device
 | --- | --- | --- |
 | Side panel, edit mode | Shown when one row is selected. Fills from the row's first data point reference. Edits update the row immediately. | `AddRegisterWidget` moved out of the `QWidgetAction`; `describeDataPoint` `fields` |
 | Side panel, add mode | Entered via Add. Add signal appends a row and keeps the form values except the name. | Current `handleResultAccept` path, without `closeContainingMenu` |
-| Data point list | Shown when the expression has more than one `${...}`. One entry per occurrence, in expression order, including duplicates. | `ExpressionChecker::addresses()`, `deviceIds()` |
+| Data point list | Shown when the expression has more than one `${...}`. One entry per occurrence, in expression order, including duplicates. | New occurrence-based helper (`ExpressionReferences`); `ExpressionChecker::addresses()` merges duplicates |
 | Device per data point | Every data point has its own Device selector. Changing it rebuilds the address fields from that device's adapter schema. | `AddRegisterWidget::applyDevice` |
 | Reference replacement | Only the selected `${...}` span is replaced. Text around it is kept as is. | Match positions from `ExpressionRegex::cMatchRegister` |
 | Data point column | Adapter description per reference, cached by reference text. Falls back to the raw reference while the request is pending or the adapter is not running. | `describeDataPoint`, as in `ExpressionsDialog::startNextDescribe` |
@@ -220,13 +220,13 @@ sequenceDiagram
     P->>P: setSchema(addressSchema, fields)
     Note over P: user changes Address to 5
     P->>A: buildExpression(fields, dataType, deviceId)
-    A-->>P: "${40006:s16b}"
+    A-->>P: "${h5:s16b}"
     P->>T: replace reference span, setExpression
 ```
 
 This relies on `describeDataPoint` returning `fields` with the same keys as `addressSchema`, plus `deviceId`. All four adapters (Modbus, BACnet, IEC 104, Dummy) already do this, so only the spec needs updating; see the [implementation plan](implementation-plan.md), phase 0.4.
 
-Two rows in the table above need a different basis than listed. `ExpressionChecker::addresses()` merges duplicate references, so the data point list needs a new occurrence-based helper (`ExpressionReferences` in the plan). And `buildExpression` replies with the adapter's own notation (`${h1:s16b}` for `${40002:s16b}`), so the panel only rewrites a reference after the user changes one of its fields.
+`buildExpression` replies with the adapter's own notation (`${h1:s16b}` for `${40002:s16b}`), so the panel only rewrites a reference after the user changes one of its fields.
 
 ---
 
