@@ -7,6 +7,7 @@
 #include "dialogs/expressionhighlighting.h"
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
+#include "util/expressionvalue.h"
 
 using State = DataQuality::State;
 
@@ -140,7 +141,7 @@ void ExpressionsDialog::handleInputChange()
             QTableWidgetItem* pValueItem = _pUi->tblExpressionInput->item(idx, 1);
             QString valueStr = pValueItem->text();
             bool bOk = false;
-            double value = valueStr.toDouble(&bOk);
+            double value = ExpressionValue::parse(valueStr, &bOk);
             results.append(ResultDouble(value, bOk ? State::Good : State::Invalid));
 
             /* Avoid recursive signal/slots calling */
