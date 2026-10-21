@@ -37,19 +37,20 @@ public:
     {
     }
 
-    void buildExpression(const QJsonObject& fields, const QString& dataType, deviceId_t deviceId) override
+    int buildExpression(const QJsonObject& fields, const QString& dataType, deviceId_t deviceId) override
     {
         buildCalls.append({ fields, dataType, deviceId });
+        return buildCalls.size();
     }
 
     void requestExpressionHelp() override
     {
     }
 
-    //! Simulate the adapter returning an expression string.
+    //! Simulate the adapter returning an expression string for the last buildExpression() request.
     void injectBuildExpressionResult(const QString& expression)
     {
-        emit buildExpressionResult(expression);
+        emit buildExpressionResult(static_cast<int>(buildCalls.size()), expression);
     }
 
     QList<BuildCall> buildCalls;

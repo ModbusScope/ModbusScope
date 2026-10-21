@@ -324,8 +324,9 @@ void ExpressionsDialog::setDescribeRowText(qint32 row, const QString& text)
     }
 }
 
-void ExpressionsDialog::handleDescribeDataPointResult(const QJsonObject& result)
+void ExpressionsDialog::handleDescribeDataPointResult(int requestId, const QJsonObject& result)
 {
+    Q_UNUSED(requestId);
     if (_nextDescribeRow >= _pendingDescribeAddresses.size())
     {
         return;

@@ -37,7 +37,7 @@ private slots:
     void handleAccept();
     void handleResultReady(bool valid);
     void handleExpressionHelpResult(const QString& helpText);
-    void handleDescribeDataPointResult(const QJsonObject& result);
+    void handleDescribeDataPointResult(int requestId, const QJsonObject& result);
     void onHelpDeviceChanged(int index);
 
 private:

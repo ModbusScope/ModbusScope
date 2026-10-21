@@ -37,9 +37,10 @@ public:
     {
     }
 
-    void buildExpression(const QJsonObject& fields, const QString& dataType, deviceId_t deviceId) override
+    int buildExpression(const QJsonObject& fields, const QString& dataType, deviceId_t deviceId) override
     {
         buildCalls.append({ fields, dataType, deviceId });
+        return buildCalls.size();
     }
 
     bool isAdapterActive() const override

@@ -24,9 +24,10 @@ public:
     {
     }
 
-    void describeDataPoint(const QString& address) override
+    int describeDataPoint(const QString& address) override
     {
         describeCalls.append(address);
+        return static_cast<int>(describeCalls.size());
     }
 
     void requestExpressionHelp() override
@@ -44,7 +45,7 @@ public:
     {
         QJsonObject result;
         result["description"] = description;
-        emit describeDataPointResult(result);
+        emit describeDataPointResult(static_cast<int>(describeCalls.size()), result);
     }
 
     //! Simulate the adapter returning expression help text.

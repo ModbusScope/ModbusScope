@@ -284,8 +284,9 @@ void AddRegisterWidget::handleResultAccept()
     _pAdapterManager->buildExpression(allValues, dataType, deviceId);
 }
 
-void AddRegisterWidget::onBuildExpressionResult(const QString& expression)
+void AddRegisterWidget::onBuildExpressionResult(int requestId, const QString& expression)
 {
+    Q_UNUSED(requestId);
     /* Recompute instead of unconditionally enabling: the user may have switched
      * to a device whose adapter is unavailable while the request was in flight */
     _pUi->btnAdd->setEnabled(isSelectionUsable());

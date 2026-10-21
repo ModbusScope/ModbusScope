@@ -102,6 +102,12 @@ private slots:
     void dataPointSchemaErrorIsNonFatal();
     void lateAuxErrorDuringConfigureIsNotFatal();
     void lateAuxErrorDuringConfigureKeepsHandshakeTimer();
+
+    void interleavedDescribeRepliesKeepTheirIds();
+    void dataPointRequestsRefusedReturnMinusOne();
+    void pendingDataPointRequestsFailOnStopSession();
+    void pendingDataPointRequestsFailOnProvideConfig();
+    void pendingDataPointRequestsFailOnProcessExit();
 };
 
 #endif // TST_ADAPTERCLIENT_H

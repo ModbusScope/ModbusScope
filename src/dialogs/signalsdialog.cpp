@@ -259,10 +259,12 @@ void SignalsDialog::requestDefaultExpression()
 
 /*!
  * \brief Applies the adapter-provided default expression to the graph data model.
+ * \param requestId  Id of the buildExpression request (unused).
  * \param expression The default expression string returned by the adapter.
  */
-void SignalsDialog::onDefaultExpressionBuilt(const QString& expression)
+void SignalsDialog::onDefaultExpressionBuilt(int requestId, const QString& expression)
 {
+    Q_UNUSED(requestId);
     if (!expression.isEmpty())
     {
         _pGraphDataModel->setDefaultExpression(expression);

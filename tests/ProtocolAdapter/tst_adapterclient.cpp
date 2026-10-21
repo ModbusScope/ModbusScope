@@ -1265,7 +1265,7 @@ void TestAdapterClient::describeDataPointInAwaitingConfig()
     mock->injectResponse(3, "adapter.describeDataPoint", result);
 
     QCOMPARE(spyDescReg.count(), 1);
-    QJsonObject received = spyDescReg.at(0).at(0).value<QJsonObject>();
+    QJsonObject received = spyDescReg.at(0).at(1).value<QJsonObject>();
     QCOMPARE(received["valid"].toBool(), true);
     QCOMPARE(received["description"].toString(), QStringLiteral("Holding register 0, device 1, unsigned 16-bit"));
 }
@@ -1495,7 +1495,7 @@ void TestAdapterClient::buildExpressionRequestAndResponse()
     mock->injectResponse(3, "adapter.buildExpression", QJsonObject{ { "expression", QStringLiteral("${h0@2:f32b}") } });
 
     QCOMPARE(spyBuild.count(), 1);
-    QCOMPARE(spyBuild.at(0).at(0).toString(), QStringLiteral("${h0@2:f32b}"));
+    QCOMPARE(spyBuild.at(0).at(1).toString(), QStringLiteral("${h0@2:f32b}"));
 }
 
 void TestAdapterClient::buildExpressionInActiveState()
@@ -1519,7 +1519,7 @@ void TestAdapterClient::buildExpressionInActiveState()
     mock->injectResponse(5, "adapter.buildExpression", QJsonObject{ { "expression", QStringLiteral("${h5}") } });
 
     QCOMPARE(spyBuild.count(), 1);
-    QCOMPARE(spyBuild.at(0).at(0).toString(), QStringLiteral("${h5}"));
+    QCOMPARE(spyBuild.at(0).at(1).toString(), QStringLiteral("${h5}"));
 }
 
 void TestAdapterClient::buildExpressionInWrongStateIgnored()
@@ -1961,7 +1961,7 @@ void TestAdapterClient::auxRequestsWorkInDegradedSession()
     QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.buildExpression"));
     mock->injectResponse(6, "adapter.buildExpression", QJsonObject{ { "expression", QStringLiteral("${h0}") } });
     QCOMPARE(spyBuild.count(), 1);
-    QCOMPARE(spyBuild.at(0).at(0).toString(), QStringLiteral("${h0}"));
+    QCOMPARE(spyBuild.at(0).at(1).toString(), QStringLiteral("${h0}"));
 
     client.requestExpressionHelp();
     QCOMPARE(mock->sentRequests().last().method, QStringLiteral("adapter.expressionHelp"));
@@ -2043,7 +2043,8 @@ void TestAdapterClient::buildExpressionErrorIsNonFatal()
 
     QCOMPARE(spyError.count(), 0);
     QCOMPARE(spyFailed.count(), 1);
-    QCOMPARE(spyFailed.at(0).at(0).toString(), QStringLiteral("Address out of range"));
+    QCOMPARE(spyFailed.at(0).at(0).toInt(), 3);
+    QCOMPARE(spyFailed.at(0).at(1).toString(), QStringLiteral("Address out of range"));
     QVERIFY(client.isReady());
 }
 
@@ -2179,6 +2180,106 @@ void TestAdapterClient::lateAuxErrorDuringConfigureKeepsHandshakeTimer()
     /* adapter.configure is never answered: the handshake timeout must still fire */
     QVERIFY(spyError.wait(1000));
     QCOMPARE(spyError.at(0).at(0).toString(), QStringLiteral("Adapter handshake timed out"));
+}
+
+//! Two describe requests can be pending at once; each reply arrives with its own request id.
+void TestAdapterClient::interleavedDescribeRepliesKeepTheirIds()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyDescribe(&client, &AdapterClient::describeDataPointResult);
+
+    driveToAwaitingConfig(client, mock);
+
+    const int firstId = client.describeDataPoint(QStringLiteral("${h0}"));
+    const int secondId = client.describeDataPoint(QStringLiteral("${h1}"));
+    QCOMPARE(firstId, 3);
+    QCOMPARE(secondId, 4);
+
+    mock->injectResponse(secondId, "adapter.describeDataPoint",
+                         QJsonObject{ { "valid", true }, { "description", QStringLiteral("Holding register 1") } });
+    mock->injectResponse(firstId, "adapter.describeDataPoint",
+                         QJsonObject{ { "valid", true }, { "description", QStringLiteral("Holding register 0") } });
+
+    QCOMPARE(spyDescribe.count(), 2);
+    QCOMPARE(spyDescribe.at(0).at(0).toInt(), secondId);
+    QCOMPARE(spyDescribe.at(0).at(1).value<QJsonObject>()["description"].toString(),
+             QStringLiteral("Holding register 1"));
+    QCOMPARE(spyDescribe.at(1).at(0).toInt(), firstId);
+    QCOMPARE(spyDescribe.at(1).at(1).value<QJsonObject>()["description"].toString(),
+             QStringLiteral("Holding register 0"));
+}
+
+void TestAdapterClient::dataPointRequestsRefusedReturnMinusOne()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    /* Not started: both requests are refused and nothing is sent */
+    QCOMPARE(client.describeDataPoint(QStringLiteral("${h0}")), -1);
+    QCOMPARE(client.buildExpression(QJsonObject(), QString(), 1), -1);
+    QVERIFY(mock->sentRequests().isEmpty());
+}
+
+void TestAdapterClient::pendingDataPointRequestsFailOnStopSession()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyFailed(&client, &AdapterClient::dataPointRequestFailed);
+
+    driveToActive(client, mock);
+    const int describeId = client.describeDataPoint(QStringLiteral("${h0}"));
+    const int buildId = client.buildExpression(QJsonObject{ { "address", 0 } }, QString(), 1);
+
+    client.stopSession();
+
+    QCOMPARE(spyFailed.count(), 2);
+    QCOMPARE(spyFailed.at(0).at(0).toInt(), describeId);
+    QCOMPARE(spyFailed.at(1).at(0).toInt(), buildId);
+    QCOMPARE(spyFailed.at(0).at(1).toString(), QStringLiteral("Request cancelled"));
+}
+
+//! Starting a session drops pending data point requests; their callers are told, and late replies are ignored.
+void TestAdapterClient::pendingDataPointRequestsFailOnProvideConfig()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyFailed(&client, &AdapterClient::dataPointRequestFailed);
+    QSignalSpy spyDescribe(&client, &AdapterClient::describeDataPointResult);
+
+    driveToAwaitingConfig(client, mock);
+    const int describeId = client.describeDataPoint(QStringLiteral("${h0}"));
+
+    client.provideConfig(QJsonObject(), expressionList(1));
+    QCOMPARE(spyFailed.count(), 1);
+    QCOMPARE(spyFailed.at(0).at(0).toInt(), describeId);
+
+    mock->injectResponse(describeId, "adapter.describeDataPoint", QJsonObject{ { "valid", true } });
+    QCOMPARE(spyDescribe.count(), 0);
+}
+
+void TestAdapterClient::pendingDataPointRequestsFailOnProcessExit()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyFailed(&client, &AdapterClient::dataPointRequestFailed);
+
+    driveToAwaitingConfig(client, mock);
+    const int buildId = client.buildExpression(QJsonObject{ { "address", 0 } }, QString(), 1);
+
+    mock->injectProcessFinished();
+
+    QCOMPARE(spyFailed.count(), 1);
+    QCOMPARE(spyFailed.at(0).at(0).toInt(), buildId);
 }
 
 void TestAdapterClient::stopSessionSendsAdapterStop()

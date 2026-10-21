@@ -40,7 +40,7 @@ private slots:
     void onSignalInserted(const QModelIndex& parent, int first, int last);
     void handleExpressionEdit(const QModelIndex& index);
     void requestDefaultExpression();
-    void onDefaultExpressionBuilt(const QString& expression);
+    void onDefaultExpressionBuilt(int requestId, const QString& expression);
     void updateDataPointLimitIndication();
 
 private:
