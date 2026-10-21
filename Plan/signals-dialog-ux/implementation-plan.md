@@ -96,7 +96,7 @@ Phase R goes first. It only renames the Signals dialog classes, which phases 0, 
 | --- | --- | --- | --- |
 | R | No visible change. The Signals dialog classes are named after what users see | S | Done |
 | 0 | Invalid address input no longer stops the adapter | M | Done |
-| 1 | Compose expression cannot save a broken expression; editor and add form are easier to use | S | |
+| 1 | Compose expression cannot save a broken expression; editor and add form are easier to use | S | Done |
 | 2 | No visible change. The add popup now runs on the shared editor widget | M | |
 | 3 | Cancel discards every change made in the Signals dialog; OK clears the data of signals whose expression changed | M | |
 | 4 | Adding signals happens in a side panel that stays open | M | |
@@ -246,6 +246,8 @@ Small, independent changes from section 6, step 1 of the review. Each can be its
 | Manual: document the add form, remove the "turns green" claim | `docs/manual/how-to/add-data-points.md`, `write-expressions.md` | — |
 
 `uniqueLabel()` is private today. Make it public, or add `GraphDataModel::add(GraphData)` behaviour that fills an empty label. The second keeps the rule in the model, which is preferred.
+
+**Done.** Accept is gated on syntax errors and unknown devices only: an error caused by the example values (such as a division by zero) is shown but does not block Accept. Mixed decimal separators now count as a syntax error, also in the Signals table. Enter elsewhere in the dialog is ignored, because the button box makes Accept the default button. `GraphData` no longer has a default label, and `GraphDataModel::add()` names every unnamed signal, so project files, MBC and CSV imports follow the same rule. The screenshots `expression_dialog.png` and `add_register_dialog.png` still show the old layout.
 
 ---
 

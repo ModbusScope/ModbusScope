@@ -26,7 +26,7 @@ There are no string operations. All values are floating-point numbers.
 
 ## The compose expression dialog
 
-The compose expression window evaluates the expression in real time as you type. The expression field turns green when the syntax is valid. The example input table lets you set hypothetical data point values to verify that the expression produces the expected output before you commit it. This is useful for catching arithmetic mistakes without having to connect to a live device.
+The compose expression window evaluates the expression in real time as you type. An expression with a syntax error, or one that refers to a device that does not exist, cannot be accepted. The example input table lets you set hypothetical data point values to verify that the expression produces the expected output before you commit it. This is useful for catching arithmetic mistakes without having to connect to a live device.
 
 ## See also
 

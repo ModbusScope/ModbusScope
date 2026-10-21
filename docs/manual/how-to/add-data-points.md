@@ -12,16 +12,20 @@ You must have at least one connection and one device configured. See [Configure 
 
    ![Signals dialog](<../_static/user_manual/add_register_dialog.png>)
 
-2. Click **Add** to insert a new signal row.
-3. In the **Expression** column, enter the data point address using `${...}` syntax (e.g. `${40001}`). See [Reference: Register syntax](../reference/register-syntax.md) for all supported forms.
-4. In the **Name** column, enter a label for the graph legend.
-5. In the **Color** column, pick a line color.
-6. In the **Y-Axis** column, select `Y1` or `Y2`.
-7. Use the **Active** checkbox to include or exclude a signal from polling.
-8. Repeat steps 2–7 for each signal.
-9. Click **OK**.
+2. Click the arrow next to **Add** to open the add form.
+3. Select the **device**. The line below it shows the device's protocol.
+4. Optionally enter a **name** for the graph legend. A signal without a name is called *New signal*, *New signal 2*, and so on.
+5. Fill in the address fields. They depend on the device's protocol, for example the object type, address and data type for Modbus.
+6. Select **Y1 axis** or **Y2 axis**.
+7. Click **Add signal**. The signal is added to the table and the form closes.
 
-The data type is part of the expression (for example `${40001: s16b}`); see the register syntax reference.
+   If the adapter rejects the address, the form stays open and shows the reason above the **Add signal** button. Correct the fields and click **Add signal** again.
+
+8. Repeat steps 2–7 for each signal.
+9. In the table, adjust the **Color** and the **Active** checkbox, or rename a signal in the **Name** column.
+10. Click **OK**.
+
+Clicking **Add** itself, instead of its arrow, inserts a row with a default expression that you can edit in the **Expression** column with `${...}` syntax. See [Reference: Register syntax](../reference/register-syntax.md).
 
 **Result:** The signals appear in the main window. They will be polled when you click **Start logging**.
 
