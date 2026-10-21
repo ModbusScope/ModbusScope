@@ -14,6 +14,8 @@ class AdapterHub;
 class AdapterManager;
 class DataPointService;
 class ExpressionHighlighting;
+class QKeyEvent;
+class QPushButton;
 class SettingsModel;
 
 namespace Ui {
@@ -35,6 +37,10 @@ public:
                                QWidget* parent = nullptr);
     ~ExpressionsDialog();
 
+protected:
+    bool eventFilter(QObject* pWatched, QEvent* pEvent) override;
+    void keyPressEvent(QKeyEvent* pEvent) override;
+
 private slots:
     void handleExpressionChange();
     void handleInputChange();
@@ -51,6 +57,11 @@ private:
     void populateHelpDevices();
     void requestHelpForAdapter(const QString& adapterId);
     void setDescribeRowText(qint32 row, const QString& text);
+    void setupButtons();
+    static bool isEnterKey(const QKeyEvent* pEvent);
+    void setupExpressionEditor();
+
+    static constexpr int cExpressionEditorLines = 3;
 
     Ui::ExpressionsDialog* _pUi;
 
@@ -61,6 +72,7 @@ private:
     SettingsModel* _pSettingsModel;
     DataPointService* _pDataPointService;
     AdapterManager* _pHelpManager = nullptr;
+    QPushButton* _pAcceptButton = nullptr;
 
     ExpressionChecker _expressionChecker;
     ExpressionHighlighting* _pHighlighter;

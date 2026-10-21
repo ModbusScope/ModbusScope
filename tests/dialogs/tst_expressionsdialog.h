@@ -109,6 +109,16 @@ private slots:
     void acceptEnabledOnInvalidExampleValue();
     void acceptAppliesValidExpression();
 
+    void buttonBoxHasAcceptAndCancel();
+    void enterInExampleTableIgnored();
+    void enterOnCancelCancels();
+    void escapeCancels();
+    void cancelLeavesExpressionUnchanged();
+    void enterAcceptsValidExpression();
+    void enterIgnoredOnSyntaxError();
+    void shiftEnterIgnored();
+    void expressionEditorWraps();
+
 private:
     MockAdapterManager* addSimAdapter();
     void recreateDialog();

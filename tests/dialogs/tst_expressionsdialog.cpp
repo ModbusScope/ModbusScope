@@ -9,6 +9,7 @@
 #include "ui_expressionsdialog.h"
 
 #include <QComboBox>
+#include <QDialogButtonBox>
 #include <QLabel>
 #include <QPlainTextEdit>
 #include <QPushButton>
@@ -384,7 +385,7 @@ void TestExpressionsDialog::acceptDisabledOnSyntaxError()
     recreateDialog();
 
     _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001} +"));
-    QVERIFY(!_pDialog->_pUi->btnAccept->isEnabled());
+    QVERIFY(!_pDialog->_pAcceptButton->isEnabled());
 
     _pDialog->handleAccept();
 
@@ -399,7 +400,7 @@ void TestExpressionsDialog::acceptDisabledOnEmptyExpression()
     recreateDialog();
 
     QCOMPARE(_pDialog->_pUi->lineExpression->toPlainText(), QString());
-    QVERIFY(!_pDialog->_pUi->btnAccept->isEnabled());
+    QVERIFY(!_pDialog->_pAcceptButton->isEnabled());
 }
 
 //! A reference to a device that does not exist disables Accept and says why.
@@ -407,7 +408,7 @@ void TestExpressionsDialog::acceptDisabledOnUnknownDevice()
 {
     _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001@99}"));
 
-    QVERIFY(!_pDialog->_pUi->btnAccept->isEnabled());
+    QVERIFY(!_pDialog->_pAcceptButton->isEnabled());
     QCOMPARE(_pDialog->_pUi->lblError->text(), QStringLiteral("Unknown device in expression"));
 }
 
@@ -417,7 +418,7 @@ void TestExpressionsDialog::unknownDeviceShownWithInvalidExampleValue()
     _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001@99}"));
     _pDialog->_pUi->tblExpressionInput->item(0, 1)->setText(QStringLiteral("abc"));
 
-    QVERIFY(!_pDialog->_pUi->btnAccept->isEnabled());
+    QVERIFY(!_pDialog->_pAcceptButton->isEnabled());
     QCOMPARE(_pDialog->_pUi->lblError->text(), QStringLiteral("Unknown device in expression"));
 }
 
@@ -428,7 +429,7 @@ void TestExpressionsDialog::acceptEnabledOnDivisionByZeroExample()
     _pDialog->_pUi->tblExpressionInput->item(0, 1)->setText(QStringLiteral("0"));
 
     QVERIFY(!_pDialog->_pUi->lblError->text().isEmpty());
-    QVERIFY(_pDialog->_pUi->btnAccept->isEnabled());
+    QVERIFY(_pDialog->_pAcceptButton->isEnabled());
 }
 
 //! An example value that is not a number does not block Accept.
@@ -437,7 +438,7 @@ void TestExpressionsDialog::acceptEnabledOnInvalidExampleValue()
     _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001}"));
     _pDialog->_pUi->tblExpressionInput->item(0, 1)->setText(QStringLiteral("abc"));
 
-    QVERIFY(_pDialog->_pUi->btnAccept->isEnabled());
+    QVERIFY(_pDialog->_pAcceptButton->isEnabled());
 }
 
 //! Accept writes a valid expression to the signal and closes the dialog.
@@ -445,10 +446,123 @@ void TestExpressionsDialog::acceptAppliesValidExpression()
 {
     _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001} * 2"));
 
-    QTest::mouseClick(_pDialog->_pUi->btnAccept, Qt::LeftButton);
+    QTest::mouseClick(_pDialog->_pAcceptButton, Qt::LeftButton);
 
     QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${40001} * 2"));
     QCOMPARE(_pDialog->result(), static_cast<int>(QDialog::Accepted));
+}
+
+//! The dialog has a standard Cancel button and an Accept button.
+void TestExpressionsDialog::buttonBoxHasAcceptAndCancel()
+{
+    QCOMPARE(_pDialog->_pUi->buttonBox->buttonRole(_pDialog->_pAcceptButton), QDialogButtonBox::AcceptRole);
+    QVERIFY(_pDialog->_pUi->buttonBox->button(QDialogButtonBox::Cancel) != nullptr);
+}
+
+//! Enter in the example input table does not accept, even though Accept is the default button.
+void TestExpressionsDialog::enterInExampleTableIgnored()
+{
+    _pGraphDataModel->setExpression(GraphIdx(0), QStringLiteral("${40001}"));
+    recreateDialog();
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40002}"));
+    _pDialog->show();
+    QVERIFY(QTest::qWaitForWindowExposed(_pDialog));
+
+    _pDialog->_pUi->tblExpressionInput->setFocus();
+    QTest::keyClick(_pDialog->_pUi->tblExpressionInput, Qt::Key_Return);
+
+    QVERIFY(_pDialog->isVisible());
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${40001}"));
+}
+
+//! Enter on a focused Cancel button cancels instead of accepting.
+void TestExpressionsDialog::enterOnCancelCancels()
+{
+    _pGraphDataModel->setExpression(GraphIdx(0), QStringLiteral("${40001}"));
+    recreateDialog();
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40002}"));
+    _pDialog->show();
+    QVERIFY(QTest::qWaitForWindowExposed(_pDialog));
+
+    QPushButton* pCancelButton = _pDialog->_pUi->buttonBox->button(QDialogButtonBox::Cancel);
+    pCancelButton->setFocus();
+    QTest::keyClick(pCancelButton, Qt::Key_Return);
+
+    QCOMPARE(_pDialog->result(), static_cast<int>(QDialog::Rejected));
+    QVERIFY(!_pDialog->isVisible());
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${40001}"));
+}
+
+//! Escape closes the dialog without changing the signal.
+void TestExpressionsDialog::escapeCancels()
+{
+    _pGraphDataModel->setExpression(GraphIdx(0), QStringLiteral("${40001}"));
+    recreateDialog();
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40002}"));
+    _pDialog->show();
+    QVERIFY(QTest::qWaitForWindowExposed(_pDialog));
+
+    QTest::keyClick(_pDialog->_pUi->lineExpression, Qt::Key_Escape);
+
+    QVERIFY(!_pDialog->isVisible());
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${40001}"));
+}
+
+//! Cancel closes the dialog without changing the signal.
+void TestExpressionsDialog::cancelLeavesExpressionUnchanged()
+{
+    _pGraphDataModel->setExpression(GraphIdx(0), QStringLiteral("${40001}"));
+    recreateDialog();
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40002}"));
+
+    QTest::mouseClick(_pDialog->_pUi->buttonBox->button(QDialogButtonBox::Cancel), Qt::LeftButton);
+
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${40001}"));
+    QCOMPARE(_pDialog->result(), static_cast<int>(QDialog::Rejected));
+}
+
+//! Enter in the editor applies a valid expression and closes the dialog.
+void TestExpressionsDialog::enterAcceptsValidExpression()
+{
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001} * 2"));
+
+    QTest::keyClick(_pDialog->_pUi->lineExpression, Qt::Key_Return);
+
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${40001} * 2"));
+    QCOMPARE(_pDialog->result(), static_cast<int>(QDialog::Accepted));
+}
+
+//! Enter does nothing while the expression has a syntax error.
+void TestExpressionsDialog::enterIgnoredOnSyntaxError()
+{
+    _pGraphDataModel->setExpression(GraphIdx(0), QStringLiteral("${40001}"));
+    recreateDialog();
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001} +"));
+
+    QTest::keyClick(_pDialog->_pUi->lineExpression, Qt::Key_Enter);
+
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${40001}"));
+    QCOMPARE(_pDialog->result(), static_cast<int>(QDialog::Rejected));
+    QCOMPARE(_pDialog->_pUi->lineExpression->toPlainText(), QStringLiteral("${40001} +"));
+}
+
+//! Shift+Enter neither accepts nor adds a line break.
+void TestExpressionsDialog::shiftEnterIgnored()
+{
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001}"));
+    _pDialog->_pUi->lineExpression->moveCursor(QTextCursor::End);
+
+    QTest::keyClick(_pDialog->_pUi->lineExpression, Qt::Key_Return, Qt::ShiftModifier);
+
+    QCOMPARE(_pDialog->_pUi->lineExpression->toPlainText(), QStringLiteral("${40001}"));
+    QCOMPARE(_pDialog->result(), static_cast<int>(QDialog::Rejected));
+}
+
+//! A long expression wraps instead of scrolling sideways.
+void TestExpressionsDialog::expressionEditorWraps()
+{
+    QCOMPARE(_pDialog->_pUi->lineExpression->lineWrapMode(), QPlainTextEdit::WidgetWidth);
+    QCOMPARE(_pDialog->_pUi->lineExpression->verticalScrollBarPolicy(), Qt::ScrollBarAsNeeded);
 }
 
 QTEST_MAIN(TestExpressionsDialog)

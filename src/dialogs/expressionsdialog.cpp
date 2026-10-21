@@ -9,6 +9,9 @@
 #include "models/settingsmodel.h"
 #include "util/expressionvalue.h"
 
+#include <QKeyEvent>
+#include <QPushButton>
+
 using State = DataQuality::State;
 
 namespace {
@@ -70,9 +73,9 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
 
     _pUi->widgetInfo->setVisible(false);
     connect(_pUi->btnInfo, &QAbstractButton::toggled, _pUi->widgetInfo, &QWidget::setVisible);
-    connect(_pUi->btnCancel, &QPushButton::clicked, this, &ExpressionsDialog::handleCancel);
-    connect(_pUi->btnAccept, &QPushButton::clicked, this, &ExpressionsDialog::handleAccept);
-    _pUi->btnAccept->setEnabled(false);
+
+    setupButtons();
+    setupExpressionEditor();
 
     connect(_pUi->lineExpression, &QPlainTextEdit::textChanged, this, &ExpressionsDialog::handleExpressionChange);
     _pUi->lineExpression->setPlainText(_pGraphDataModel->expression(_graphIdx));
@@ -81,6 +84,99 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
 ExpressionsDialog::~ExpressionsDialog()
 {
     delete _pUi;
+}
+
+/*!
+ * \brief Accept the expression with Enter in the expression editor.
+ *
+ * Enter accepts when the expression can be applied. Shift+Enter is ignored, so the
+ * expression never gets a line break.
+ * \param pWatched The object that received the event.
+ * \param pEvent   The event.
+ * \return true when the event was handled here.
+ */
+bool ExpressionsDialog::eventFilter(QObject* pWatched, QEvent* pEvent)
+{
+    if (pWatched != _pUi->lineExpression || pEvent->type() != QEvent::KeyPress)
+    {
+        return QDialog::eventFilter(pWatched, pEvent);
+    }
+
+    const auto* pKeyEvent = static_cast<QKeyEvent*>(pEvent); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
+    if (!isEnterKey(pKeyEvent))
+    {
+        return QDialog::eventFilter(pWatched, pEvent);
+    }
+
+    if (!pKeyEvent->modifiers().testFlag(Qt::ShiftModifier))
+    {
+        handleAccept();
+    }
+    return true;
+}
+
+/*!
+ * \brief Ignore Enter outside the expression editor and the buttons.
+ *
+ * The button box makes Accept the default button when the dialog is shown. Without this,
+ * Enter in the example input table would apply the expression by accident. Enter on a focused
+ * button still presses that button.
+ * \param pEvent The key event.
+ */
+void ExpressionsDialog::keyPressEvent(QKeyEvent* pEvent)
+{
+    if (isEnterKey(pEvent))
+    {
+        pEvent->accept();
+        return;
+    }
+
+    QDialog::keyPressEvent(pEvent);
+}
+
+/*!
+ * \brief Return whether the key event is Return or Enter.
+ * \param pEvent The key event.
+ */
+bool ExpressionsDialog::isEnterKey(const QKeyEvent* pEvent)
+{
+    return pEvent->key() == Qt::Key_Return || pEvent->key() == Qt::Key_Enter;
+}
+
+/*!
+ * \brief Add the Accept button to the button box and set the tab order.
+ */
+void ExpressionsDialog::setupButtons()
+{
+    _pAcceptButton = _pUi->buttonBox->addButton(QStringLiteral("&Accept"), QDialogButtonBox::AcceptRole);
+    _pAcceptButton->setEnabled(false);
+
+    QPushButton* pCancelButton = _pUi->buttonBox->button(QDialogButtonBox::Cancel);
+
+    connect(_pUi->buttonBox, &QDialogButtonBox::accepted, this, &ExpressionsDialog::handleAccept);
+    connect(_pUi->buttonBox, &QDialogButtonBox::rejected, this, &ExpressionsDialog::handleCancel);
+
+    setTabOrder(_pUi->lineExpression, _pUi->tblExpressionInput);
+    setTabOrder(_pUi->tblExpressionInput, _pAcceptButton);
+    setTabOrder(_pAcceptButton, pCancelButton);
+    setTabOrder(pCancelButton, _pUi->btnInfo);
+    setTabOrder(_pUi->btnInfo, _pUi->cmbHelpDevice);
+}
+
+/*!
+ * \brief Size the expression editor to three lines and handle Enter in it.
+ *
+ * Longer expressions wrap and show a vertical scroll bar.
+ */
+void ExpressionsDialog::setupExpressionEditor()
+{
+    QPlainTextEdit* pEditor = _pUi->lineExpression;
+    const int textHeight = pEditor->fontMetrics().lineSpacing() * cExpressionEditorLines;
+    const int margins = static_cast<int>(2 * pEditor->document()->documentMargin()) + 2 * pEditor->frameWidth() +
+                        pEditor->contentsMargins().top() + pEditor->contentsMargins().bottom();
+    pEditor->setFixedHeight(textHeight + margins);
+
+    pEditor->installEventFilter(this);
 }
 
 void ExpressionsDialog::handleExpressionChange()
@@ -372,7 +468,7 @@ void ExpressionsDialog::handleResultReady(bool valid)
     }
 
     _bCanAccept = !_expressionChecker.syntaxError() && bDevicesKnown;
-    _pUi->btnAccept->setEnabled(_bCanAccept);
+    _pAcceptButton->setEnabled(_bCanAccept);
 
     _pUi->lblOut->setText(numOutput);
 
