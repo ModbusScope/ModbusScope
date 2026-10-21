@@ -196,6 +196,23 @@ QStringList SettingsModel::adapterIds() const
     return _adapters.keys();
 }
 
+/*! \brief Return the name to show for an adapter.
+ *
+ * Unlike adapterData(), this never inserts an entry for an unknown adapter ID.
+ * \param adapterId  The adapter identifier string.
+ * \return The adapter's name, or \a adapterId when the adapter is unknown or has no name.
+ */
+QString SettingsModel::adapterDisplayName(const QString& adapterId) const
+{
+    const auto it = _adapters.constFind(adapterId);
+    if (it == _adapters.constEnd() || it->name().isEmpty())
+    {
+        return adapterId;
+    }
+
+    return it->name();
+}
+
 /*! \brief Remove the adapter entry with the given ID.
  * \param adapterId  The adapter identifier string to remove.
  */

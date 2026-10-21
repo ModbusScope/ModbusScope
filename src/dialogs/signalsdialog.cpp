@@ -319,9 +319,8 @@ QString SignalsDialog::dataPointLimitWarningMessage() const
         const int dataPointLimit = pAdapter->maxRegisters();
         if (it.value() > dataPointLimit)
         {
-            const QString adapterName = pAdapter->name().isEmpty() ? it.key() : pAdapter->name();
             warnings.append(QString("%1 allows at most %2 data point(s), but %3 are configured.")
-                              .arg(adapterName)
+                              .arg(_pSettingsModel->adapterDisplayName(it.key()))
                               .arg(dataPointLimit)
                               .arg(it.value()));
         }

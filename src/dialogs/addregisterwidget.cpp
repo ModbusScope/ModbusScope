@@ -154,14 +154,12 @@ void AddRegisterWidget::applyDevice(deviceId_t deviceId)
 
     const QString adapterId = _pSettingsModel->adapterIdForDevice(deviceId);
     _pAdapterManager = _pAdapterHub->adapterManager(adapterId);
+    _pUi->lblProtocol->setText(tr("Protocol: %1").arg(_pSettingsModel->adapterDisplayName(adapterId)));
 
     if (_pAdapterManager == nullptr)
     {
-        /* Adapter isn't currently discovered/running: show the bare id rather than
-         * looking it up (adapterData() would otherwise insert a phantom entry for
-         * an id that was never actually registered), and clear the stale form from
+        /* Adapter isn't currently discovered/running: clear the stale form from
          * whichever device was selected before. */
-        _pUi->lblProtocol->setText(tr("Protocol: %1").arg(adapterId));
         _addressSchema = QJsonObject();
         _dataPointDefaults = QJsonObject();
         rebuildAddressForm();
@@ -171,12 +169,6 @@ void AddRegisterWidget::applyDevice(deviceId_t deviceId)
     }
 
     const AdapterData* adapterData = _pSettingsModel->adapterData(adapterId);
-    QString protocolLabel = adapterData->name();
-    if (protocolLabel.isEmpty())
-    {
-        protocolLabel = adapterId;
-    }
-    _pUi->lblProtocol->setText(tr("Protocol: %1").arg(protocolLabel));
 
     _addressSchema = buildSchema(adapterData);
     _dataPointDefaults = adapterData->dataPointSchema().value("defaults").toObject();

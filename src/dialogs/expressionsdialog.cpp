@@ -197,12 +197,7 @@ void ExpressionsDialog::populateHelpDevices()
         Device* pDevice = _pSettingsModel->deviceSettings(deviceId);
         const QString adapterId = pDevice->adapterId();
 
-        QString protocolLabel = _pSettingsModel->adapterData(adapterId)->name();
-        if (protocolLabel.isEmpty())
-        {
-            protocolLabel = adapterId;
-        }
-
+        const QString protocolLabel = _pSettingsModel->adapterDisplayName(adapterId);
         const QString label = QStringLiteral("%1 (%2) [%3]").arg(pDevice->name(), protocolLabel).arg(deviceId);
         _pUi->cmbHelpDevice->addItem(label, adapterId);
     }
