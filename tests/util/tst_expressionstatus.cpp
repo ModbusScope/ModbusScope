@@ -46,6 +46,16 @@ void TestExpressionStatus::syntaxErrorExpression_setsSyntaxErrorState()
     QCOMPARE(_pGraphDataModel->expressionState(GraphIdx(0)), ExpressionState::SYNTAX_ERROR);
 }
 
+void TestExpressionStatus::mixedDecimalSeparators_setsSyntaxErrorState()
+{
+    ExpressionStatus status(_pGraphDataModel, _pSettingsModel);
+
+    _pGraphDataModel->add();
+    _pGraphDataModel->setExpression(GraphIdx(0), QStringLiteral("1.1 + 1,5"));
+
+    QCOMPARE(_pGraphDataModel->expressionState(GraphIdx(0)), ExpressionState::SYNTAX_ERROR);
+}
+
 void TestExpressionStatus::registerExpression_noDevice_setsUnknownDeviceState()
 {
     /* SettingsModel has only device 1 by default. An expression referencing device 2

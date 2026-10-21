@@ -6,10 +6,12 @@
 #include "models/graphdata.h"
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
+#include "ui_expressionsdialog.h"
 
 #include <QComboBox>
 #include <QLabel>
 #include <QPlainTextEdit>
+#include <QPushButton>
 #include <QTableWidget>
 #include <QTest>
 
@@ -373,6 +375,80 @@ void TestExpressionsDialog::exampleInputAcceptsHex()
     auto* pOutput = _pDialog->findChild<QLabel*>("lblOut");
     QVERIFY(pOutput != nullptr);
     QCOMPARE(pOutput->text(), QStringLiteral("16"));
+}
+
+//! A syntax error disables Accept, and accepting anyway leaves the signal unchanged.
+void TestExpressionsDialog::acceptDisabledOnSyntaxError()
+{
+    _pGraphDataModel->setExpression(GraphIdx(0), QStringLiteral("${40001}"));
+    recreateDialog();
+
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001} +"));
+    QVERIFY(!_pDialog->_pUi->btnAccept->isEnabled());
+
+    _pDialog->handleAccept();
+
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${40001}"));
+    QCOMPARE(_pDialog->result(), static_cast<int>(QDialog::Rejected));
+}
+
+//! An empty expression cannot be accepted.
+void TestExpressionsDialog::acceptDisabledOnEmptyExpression()
+{
+    _pGraphDataModel->setExpression(GraphIdx(0), QString());
+    recreateDialog();
+
+    QCOMPARE(_pDialog->_pUi->lineExpression->toPlainText(), QString());
+    QVERIFY(!_pDialog->_pUi->btnAccept->isEnabled());
+}
+
+//! A reference to a device that does not exist disables Accept and says why.
+void TestExpressionsDialog::acceptDisabledOnUnknownDevice()
+{
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001@99}"));
+
+    QVERIFY(!_pDialog->_pUi->btnAccept->isEnabled());
+    QCOMPARE(_pDialog->_pUi->lblError->text(), QStringLiteral("Unknown device in expression"));
+}
+
+//! An unknown device is reported even when an example value is also invalid.
+void TestExpressionsDialog::unknownDeviceShownWithInvalidExampleValue()
+{
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001@99}"));
+    _pDialog->_pUi->tblExpressionInput->item(0, 1)->setText(QStringLiteral("abc"));
+
+    QVERIFY(!_pDialog->_pUi->btnAccept->isEnabled());
+    QCOMPARE(_pDialog->_pUi->lblError->text(), QStringLiteral("Unknown device in expression"));
+}
+
+//! A division by a zero example value shows an error but does not block Accept.
+void TestExpressionsDialog::acceptEnabledOnDivisionByZeroExample()
+{
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("100 / ${40001}"));
+    _pDialog->_pUi->tblExpressionInput->item(0, 1)->setText(QStringLiteral("0"));
+
+    QVERIFY(!_pDialog->_pUi->lblError->text().isEmpty());
+    QVERIFY(_pDialog->_pUi->btnAccept->isEnabled());
+}
+
+//! An example value that is not a number does not block Accept.
+void TestExpressionsDialog::acceptEnabledOnInvalidExampleValue()
+{
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001}"));
+    _pDialog->_pUi->tblExpressionInput->item(0, 1)->setText(QStringLiteral("abc"));
+
+    QVERIFY(_pDialog->_pUi->btnAccept->isEnabled());
+}
+
+//! Accept writes a valid expression to the signal and closes the dialog.
+void TestExpressionsDialog::acceptAppliesValidExpression()
+{
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001} * 2"));
+
+    QTest::mouseClick(_pDialog->_pUi->btnAccept, Qt::LeftButton);
+
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${40001} * 2"));
+    QCOMPARE(_pDialog->result(), static_cast<int>(QDialog::Accepted));
 }
 
 QTEST_MAIN(TestExpressionsDialog)

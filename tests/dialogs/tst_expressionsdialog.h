@@ -101,6 +101,14 @@ private slots:
     void exampleInputDefaultsToOne();
     void exampleInputAcceptsHex();
 
+    void acceptDisabledOnSyntaxError();
+    void acceptDisabledOnEmptyExpression();
+    void acceptDisabledOnUnknownDevice();
+    void unknownDeviceShownWithInvalidExampleValue();
+    void acceptEnabledOnDivisionByZeroExample();
+    void acceptEnabledOnInvalidExampleValue();
+    void acceptAppliesValidExpression();
+
 private:
     MockAdapterManager* addSimAdapter();
     void recreateDialog();

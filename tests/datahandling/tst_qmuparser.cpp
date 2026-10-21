@@ -297,7 +297,7 @@ void TestQMuParser::evaluateInvalidDecimal()
     QVERIFY(!parser.isSuccess());
     QVERIFY(!bSuccess);
     QCOMPARE(parser.errorPos(), -1);
-    QCOMPARE(parser.errorType(), QMuParser::ErrorType::NONE);
+    QCOMPARE(parser.errorType(), QMuParser::ErrorType::SYNTAX);
 }
 
 void TestQMuParser::evaluateDivByZero()

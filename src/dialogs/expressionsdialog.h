@@ -24,6 +24,8 @@ class ExpressionsDialog : public QDialog
 {
     Q_OBJECT
 
+    friend class TestExpressionsDialog;
+
 public:
     explicit ExpressionsDialog(GraphDataModel* pGraphDataModel,
                                GraphIdx idx,
@@ -64,6 +66,9 @@ private:
     ExpressionHighlighting* _pHighlighter;
 
     bool _bUpdating;
+
+    //! Whether the expression can be applied: no syntax error and every device exists.
+    bool _bCanAccept{ false };
 
     //! Data point table row of every pending describe request, by ticket.
     QHash<quint64, qint32> _describeRowByTicket;

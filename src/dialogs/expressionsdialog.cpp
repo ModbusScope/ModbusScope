@@ -72,6 +72,7 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
     connect(_pUi->btnInfo, &QAbstractButton::toggled, _pUi->widgetInfo, &QWidget::setVisible);
     connect(_pUi->btnCancel, &QPushButton::clicked, this, &ExpressionsDialog::handleCancel);
     connect(_pUi->btnAccept, &QPushButton::clicked, this, &ExpressionsDialog::handleAccept);
+    _pUi->btnAccept->setEnabled(false);
 
     connect(_pUi->lineExpression, &QPlainTextEdit::textChanged, this, &ExpressionsDialog::handleExpressionChange);
     _pUi->lineExpression->setPlainText(_pGraphDataModel->expression(_graphIdx));
@@ -162,8 +163,18 @@ void ExpressionsDialog::handleCancel()
     done(QDialog::Rejected);
 }
 
+/*!
+ * \brief Apply the expression to the signal and close the dialog.
+ *
+ * Does nothing while the expression has a syntax error or refers to an unknown device.
+ */
 void ExpressionsDialog::handleAccept()
 {
+    if (!_bCanAccept)
+    {
+        return;
+    }
+
     _pGraphDataModel->setExpression(_graphIdx, _pUi->lineExpression->toPlainText().trimmed());
 
     done(QDialog::Accepted);
@@ -325,6 +336,13 @@ void ExpressionsDialog::handleDescribeFailed(quint64 ticket, const QString& erro
     _describeRowByTicket.remove(ticket);
 }
 
+/*!
+ * \brief Show the evaluation result and allow Accept only when the expression can be applied.
+ *
+ * An error that depends on the example values (such as a division by zero) is shown but does not
+ * block Accept; a syntax error or a reference to an unknown device does.
+ * \param valid Whether the expression evaluated with the example values.
+ */
 void ExpressionsDialog::handleResultReady(bool valid)
 {
     _pHighlighter->setExpressionErrorPosition(_expressionChecker.errorPos());
@@ -345,6 +363,17 @@ void ExpressionsDialog::handleResultReady(bool valid)
         numOutput = QStringLiteral("-");
         backgroundStyle = "background-color: rgba(255,0,0,50%);";
     }
+
+    const bool bDevicesKnown = _expressionChecker.checkForDevices(_pSettingsModel->deviceList());
+    if (!bDevicesKnown && !_expressionChecker.syntaxError())
+    {
+        strError = QStringLiteral("Unknown device in expression");
+        backgroundStyle = "background-color: rgba(255,0,0,50%);";
+    }
+
+    _bCanAccept = !_expressionChecker.syntaxError() && bDevicesKnown;
+    _pUi->btnAccept->setEnabled(_bCanAccept);
+
     _pUi->lblOut->setText(numOutput);
 
     _pUi->lblError->setText(strError);
