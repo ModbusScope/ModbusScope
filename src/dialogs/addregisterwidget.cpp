@@ -51,6 +51,9 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel,
     connect(_pDataPointService, &DataPointService::expressionBuilt, this, &AddRegisterWidget::onExpressionBuilt);
     connect(_pDataPointService, &DataPointService::requestFailed, this, &AddRegisterWidget::onBuildRequestFailed);
 
+    _pUi->lblError->setStyleSheet("QLabel { color: #c00000; }");
+    _pUi->lblError->setVisible(false);
+
     _axisGroup.setExclusive(true);
     _axisGroup.addButton(_pUi->radioPrimary);
     _axisGroup.addButton(_pUi->radioSecondary);
@@ -110,6 +113,8 @@ AddRegisterWidget::~AddRegisterWidget()
  */
 void AddRegisterWidget::applyDevice(deviceId_t deviceId)
 {
+    setBuildError(QString());
+
     if (_pUi->cmbDevice->count() == 0)
     {
         _pUi->lblProtocol->clear();
@@ -217,6 +222,11 @@ void AddRegisterWidget::onDeviceSelectionChanged(int index)
     applyDevice(selectedDeviceId());
 }
 
+/*!
+ * \brief Ask the selected device's adapter to build the data point reference from the address fields.
+ *
+ * Hides the reason of a previous failure.
+ */
 void AddRegisterWidget::handleResultAccept()
 {
     if (!isSelectionUsable())
@@ -225,9 +235,11 @@ void AddRegisterWidget::handleResultAccept()
     }
 
     collectPendingGraphData();
+    setBuildError(QString());
 
     _pUi->btnAdd->setEnabled(false);
-    _pendingBuildTicket = _pDataPointService->buildExpression(selectedDeviceId(), _pAddressForm->values());
+    _pendingBuildDeviceId = selectedDeviceId();
+    _pendingBuildTicket = _pDataPointService->buildExpression(_pendingBuildDeviceId, _pAddressForm->values());
 }
 
 /*!
@@ -249,6 +261,7 @@ void AddRegisterWidget::onExpressionBuilt(quint64 ticket, const QString& express
 
     if (expression.isEmpty())
     {
+        showBuildErrorForPendingDevice(tr("The adapter did not return a data point reference."));
         return;
     }
 
@@ -261,7 +274,7 @@ void AddRegisterWidget::onExpressionBuilt(quint64 ticket, const QString& express
 }
 
 /*!
- * \brief Keep the form open and allow another attempt when the pending build request failed.
+ * \brief Keep the form open, show why, and allow another attempt when the pending build request failed.
  * \param ticket Ticket of the failed request; failures of other requests are ignored.
  * \param error  Why the request failed.
  */
@@ -275,6 +288,44 @@ void AddRegisterWidget::onBuildRequestFailed(quint64 ticket, const QString& erro
 
     qCWarning(scopeComm) << "AddRegisterWidget: building the expression failed:" << error;
     _pUi->btnAdd->setEnabled(isSelectionUsable());
+    showBuildErrorForPendingDevice(error);
+}
+
+/*!
+ * \brief Show why a build request failed, unless another device was selected since it was sent.
+ * \param error The reason the request failed.
+ */
+void AddRegisterWidget::showBuildErrorForPendingDevice(const QString& error)
+{
+    if (selectedDeviceId() != _pendingBuildDeviceId)
+    {
+        return;
+    }
+
+    setBuildError(error);
+}
+
+/*!
+ * \brief Show why the last build request failed, or hide the message.
+ *
+ * The message is shown as plain text. Also resizes the enclosing popup menu, if any, to fit it.
+ * \param error The reason the request failed; empty to hide the message.
+ */
+void AddRegisterWidget::setBuildError(const QString& error)
+{
+    if (_pUi->lblError->text() == error)
+    {
+        return;
+    }
+
+    _pUi->lblError->setText(error);
+    _pUi->lblError->setVisible(!error.isEmpty());
+
+    /* The label ignores its own width, so a long message wraps within the form instead of
+     * widening the popup. QMenu only uses size hints, so reserve the wrapped height explicitly. */
+    const int formWidth = _pUi->groupBox->sizeHint().width();
+    _pUi->lblError->setMinimumHeight(error.isEmpty() ? 0 : _pUi->lblError->heightForWidth(formWidth));
+    resizeContainingMenu();
 }
 
 void AddRegisterWidget::resetFields()
