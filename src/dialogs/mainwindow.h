@@ -76,7 +76,7 @@ private slots:
     void openOnlineDoc();
     void openUpdateUrl();
     void showSettingsDialog();
-    void handleShowRegisterDialog(bool checked);
+    void handleShowSignalsDialog(bool checked);
     void addNoteToGraph();
     void toggleZoom(bool checked);
     void showDiagnostic();
@@ -114,7 +114,7 @@ private:
     void setupScreenshotFeedback();
     void setupConnections();
     void setAxisToAuto();
-    void showRegisterDialog();
+    void showSignalsDialog();
     void showQuickStartIfNeeded();
 
     Ui::MainWindow* _pUi;

@@ -76,7 +76,7 @@
     </property>
     <addaction name="separator"/>
     <addaction name="actionSettings"/>
-    <addaction name="actionRegisterSettings"/>
+    <addaction name="actionSignals"/>
     <addaction name="separator"/>
     <addaction name="actionClearData"/>
     <addaction name="actionManageNotes"/>
@@ -135,7 +135,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionSettings"/>
-   <addaction name="actionRegisterSettings"/>
+   <addaction name="actionSignals"/>
    <addaction name="separator"/>
    <addaction name="actionStart"/>
    <addaction name="actionStop"/>
@@ -411,7 +411,7 @@
     <string>&amp;Clear Data</string>
    </property>
   </action>
-  <action name="actionRegisterSettings">
+  <action name="actionSignals">
    <property name="icon">
     <iconset>
      <normaloff>:/menu_icon/icons/list.svg</normaloff>:/menu_icon/icons/list.svg</iconset>

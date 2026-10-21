@@ -37,7 +37,7 @@ ImportMbcDialog::ImportMbcDialog(GuiModel* pGuiModel, GraphDataModel* pGraphData
     this->setAcceptDrops(true);
     _pUi->lineTextFilter->setAcceptDrops(false);
 
-    // Setup registerView
+    // Setup tblMbcRegisters
     _pUi->tblMbcRegisters->setModel(_pTabProxyFilter);
     _pUi->tblMbcRegisters->setSortingEnabled(false);
 

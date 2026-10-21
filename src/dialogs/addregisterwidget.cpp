@@ -199,7 +199,7 @@ void AddRegisterWidget::rebuildAddressForm()
  * \brief Resizes the enclosing popup menu to fit this widget's current content.
  *
  * When hosted as a QWidgetAction's default widget inside a QToolButton's popup menu (as
- * RegisterDialog does for btnAdd), QMenu caches its action layout and only recomputes it for
+ * SignalsDialog does for btnAdd), QMenu caches its action layout and only recomputes it for
  * specific events (its action list changing, being shown, or being resized) - it has no way to
  * know an already-embedded widget's own content changed. Without this, switching devices while
  * the popup is open leaves it clipped to whichever device's form was shown first. A synthetic resize
@@ -224,7 +224,7 @@ void AddRegisterWidget::resizeContainingMenu()
  * \brief Closes the enclosing popup menu, if any, after a register was successfully added.
  *
  * When hosted as a QWidgetAction's default widget inside a QToolButton's popup menu (as
- * RegisterDialog does for btnAdd), clicking this widget's own "Add" button doesn't trigger
+ * SignalsDialog does for btnAdd), clicking this widget's own "Add" button doesn't trigger
  * the QWidgetAction itself, so QMenu never closes on its own. Close it explicitly so adding
  * a register behaves like any other menu action.
  *

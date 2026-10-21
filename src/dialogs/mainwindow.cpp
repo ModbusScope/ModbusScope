@@ -14,9 +14,9 @@
 #include "dialogs/guistatecontroller.h"
 #include "dialogs/importmbcdialog.h"
 #include "dialogs/quickstartdialog.h"
-#include "dialogs/registerdialog.h"
 #include "dialogs/screenshothandler.h"
 #include "dialogs/settingsdialog.h"
+#include "dialogs/signalsdialog.h"
 #include "dialogs/ui_mainwindow.h"
 #include "graphview/graphview.h"
 #include "importexport/datafilehandler.h"
@@ -100,7 +100,7 @@ MainWindow::MainWindow(ScopeController* pScopeController,
         .pStart = _pUi->actionStart,
         .pStop = _pUi->actionStop,
         .pSettings = _pUi->actionSettings,
-        .pRegisterSettings = _pUi->actionRegisterSettings,
+        .pSignals = _pUi->actionSignals,
         .pOpenDataFile = _pUi->actionOpenDataFile,
         .pImportFromMbcFile = _pUi->actionImportFromMbcFile,
         .pOpenProjectFile = _pUi->actionOpenProjectFile,
@@ -194,7 +194,7 @@ void MainWindow::setupMenuActions()
     connect(_pUi->actionClearData, &QAction::triggered, _pScopeController, &ScopeController::clear);
     connect(_pUi->actionToggleMarkers, &QAction::triggered, this, &MainWindow::toggleMarkersState);
     connect(_pUi->actionSettings, &QAction::triggered, this, &MainWindow::showSettingsDialog);
-    connect(_pUi->actionRegisterSettings, &QAction::triggered, this, &MainWindow::handleShowRegisterDialog);
+    connect(_pUi->actionSignals, &QAction::triggered, this, &MainWindow::handleShowSignalsDialog);
     connect(_pUi->actionAddNote, &QAction::triggered, this, &MainWindow::addNoteToGraph);
     connect(_pUi->actionZoom, &QAction::triggered, this,
             &MainWindow::toggleZoom); /* Only called on GUI click, not on setChecked */
@@ -482,10 +482,10 @@ void MainWindow::showSettingsDialog()
     dialog.exec();
 }
 
-void MainWindow::handleShowRegisterDialog(bool checked)
+void MainWindow::handleShowSignalsDialog(bool checked)
 {
     Q_UNUSED(checked);
-    showRegisterDialog();
+    showSignalsDialog();
 }
 
 void MainWindow::setAxisToAuto()
@@ -495,7 +495,7 @@ void MainWindow::setAxisToAuto()
     _pGuiModel->sety2AxisScale(AxisMode::SCALE_AUTO);
 }
 
-void MainWindow::showRegisterDialog()
+void MainWindow::showSignalsDialog()
 {
     if (_pGuiModel->guiState() == GuiState::DATA_LOADED)
     {
@@ -521,8 +521,8 @@ void MainWindow::showRegisterDialog()
         qCWarning(scopeComm) << "MainWindow: no adapters available — cannot open signals dialog";
         return;
     }
-    RegisterDialog registerDialog(_pGraphDataModel, _pSettingsModel, pAdapterHub, this);
-    registerDialog.exec();
+    SignalsDialog signalsDialog(_pGraphDataModel, _pSettingsModel, pAdapterHub, this);
+    signalsDialog.exec();
 }
 
 void MainWindow::addNoteToGraph()

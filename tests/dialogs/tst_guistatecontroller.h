@@ -34,7 +34,7 @@ private:
     QAction* _pStart = nullptr;
     QAction* _pStop = nullptr;
     QAction* _pSettings = nullptr;
-    QAction* _pRegisterSettings = nullptr;
+    QAction* _pSignals = nullptr;
     QAction* _pOpenDataFile = nullptr;
     QAction* _pImportFromMbcFile = nullptr;
     QAction* _pOpenProjectFile = nullptr;

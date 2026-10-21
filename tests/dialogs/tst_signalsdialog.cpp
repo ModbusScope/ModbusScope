@@ -1,8 +1,8 @@
 
-#include "tst_registerdialog.h"
+#include "tst_signalsdialog.h"
 
 #include "../models/devicelisthelpers.h"
-#include "dialogs/registerdialog.h"
+#include "dialogs/signalsdialog.h"
 #include "models/graphdatamodel.h"
 
 #include <QJsonArray>
@@ -13,11 +13,11 @@
 /*!
  * \brief Builds a minimal "modbus" data-point schema with non-empty defaults.
  *
- * RegisterDialog::requestDefaultExpression() bails out early when "defaults" is
+ * SignalsDialog::requestDefaultExpression() bails out early when "defaults" is
  * empty, so the schema needs at least one default field for the flow under test
  * to reach buildExpression().
  */
-QJsonObject TestRegisterDialog::buildTestRegisterSchema()
+QJsonObject TestSignalsDialog::buildTestRegisterSchema()
 {
     QJsonObject addressField;
     addressField["type"] = QStringLiteral("integer");
@@ -40,7 +40,7 @@ QJsonObject TestRegisterDialog::buildTestRegisterSchema()
     return schema;
 }
 
-void TestRegisterDialog::init()
+void TestSignalsDialog::init()
 {
     DeviceListHelpers::clearDevices(&_settingsModel);
     _settingsModel.setAdapterDataPointSchema("modbus", buildTestRegisterSchema());
@@ -51,7 +51,7 @@ void TestRegisterDialog::init()
     _pMockHub->addManager(QStringLiteral("modbus"), _pMockAdapterManager);
 }
 
-void TestRegisterDialog::cleanup()
+void TestSignalsDialog::cleanup()
 {
     delete _pDialog;
     _pDialog = nullptr;
@@ -67,12 +67,12 @@ void TestRegisterDialog::cleanup()
  * \brief Reproduces F3: after device 1 is deleted, the default register must target the
  * lowest remaining device id, not the buildExpression() sentinel that resolves to device 1.
  */
-void TestRegisterDialog::defaultRegisterUsesLowestConfiguredDeviceId()
+void TestSignalsDialog::defaultSignalUsesLowestConfiguredDeviceId()
 {
     DeviceListHelpers::seedDevice(&_settingsModel, 2, QStringLiteral("modbus"));
     DeviceListHelpers::seedDevice(&_settingsModel, 5, QStringLiteral("modbus"));
 
-    _pDialog = new RegisterDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
 
     _pMockAdapterManager->injectSessionStarted();
 
@@ -81,12 +81,12 @@ void TestRegisterDialog::defaultRegisterUsesLowestConfiguredDeviceId()
 }
 
 //! Confirms the fix doesn't disturb the already-correct case where device 1 is present.
-void TestRegisterDialog::defaultRegisterUsesDeviceOneWhenPresent()
+void TestSignalsDialog::defaultSignalUsesDeviceOneWhenPresent()
 {
     DeviceListHelpers::seedDevice(&_settingsModel, 1, QStringLiteral("modbus"));
     DeviceListHelpers::seedDevice(&_settingsModel, 3, QStringLiteral("modbus"));
 
-    _pDialog = new RegisterDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
 
     _pMockAdapterManager->injectSessionStarted();
 
@@ -94,10 +94,10 @@ void TestRegisterDialog::defaultRegisterUsesDeviceOneWhenPresent()
     QCOMPARE(_pMockAdapterManager->buildCalls.last().deviceId, deviceId_t(1));
 }
 
-//! With no devices configured, RegisterDialog must not wire up a default-expression manager at all.
-void TestRegisterDialog::defaultRegisterSkipsBuildExpressionWhenNoDevices()
+//! With no devices configured, SignalsDialog must not wire up a default-expression manager at all.
+void TestSignalsDialog::defaultSignalSkipsBuildExpressionWhenNoDevices()
 {
-    _pDialog = new RegisterDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
 
     _pMockAdapterManager->injectSessionStarted();
 
@@ -107,15 +107,15 @@ void TestRegisterDialog::defaultRegisterSkipsBuildExpressionWhenNoDevices()
 /*!
  * \brief sessionStarted() fires only once per session. When the dialog is opened after the
  * adapter session is already active (the common case in practice), that emission is already
- * in the past, so RegisterDialog must request the default expression directly instead of
+ * in the past, so SignalsDialog must request the default expression directly instead of
  * waiting for a signal that will never come again.
  */
-void TestRegisterDialog::defaultRegisterRequestedImmediatelyWhenSessionAlreadyActive()
+void TestSignalsDialog::defaultSignalRequestedImmediatelyWhenSessionAlreadyActive()
 {
     DeviceListHelpers::seedDevice(&_settingsModel, 2, QStringLiteral("modbus"));
     _pMockAdapterManager->mockActive = true;
 
-    _pDialog = new RegisterDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
 
     QCOMPARE(_pMockAdapterManager->buildCalls.count(), 1);
     QCOMPARE(_pMockAdapterManager->buildCalls.last().deviceId, deviceId_t(2));
@@ -123,15 +123,15 @@ void TestRegisterDialog::defaultRegisterRequestedImmediatelyWhenSessionAlreadyAc
 
 /*!
  * \brief AdapterClient::buildExpression() also accepts the AWAITING_CONFIG state (adapter
- * described, schema available, session not yet started) — RegisterDialog must not wait for
+ * described, schema available, session not yet started) — SignalsDialog must not wait for
  * sessionStarted() in that state either, since the schema is already known.
  */
-void TestRegisterDialog::defaultRegisterRequestedImmediatelyWhenAdapterAlreadyReady()
+void TestSignalsDialog::defaultSignalRequestedImmediatelyWhenAdapterAlreadyReady()
 {
     DeviceListHelpers::seedDevice(&_settingsModel, 2, QStringLiteral("modbus"));
     _pMockAdapterManager->mockReady = true;
 
-    _pDialog = new RegisterDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
 
     QCOMPARE(_pMockAdapterManager->buildCalls.count(), 1);
     QCOMPARE(_pMockAdapterManager->buildCalls.last().deviceId, deviceId_t(2));
@@ -142,12 +142,12 @@ void TestRegisterDialog::defaultRegisterRequestedImmediatelyWhenAdapterAlreadyRe
  * new session from also triggering a request: requestDefaultExpression() disconnects any pending
  * buildExpressionResult connection before reconnecting, so the two requests don't interfere.
  */
-void TestRegisterDialog::defaultRegisterRequestedAgainWhenSessionRestartsAfterAlreadyActive()
+void TestSignalsDialog::defaultSignalRequestedAgainWhenSessionRestartsAfterAlreadyActive()
 {
     DeviceListHelpers::seedDevice(&_settingsModel, 2, QStringLiteral("modbus"));
     _pMockAdapterManager->mockActive = true;
 
-    _pDialog = new RegisterDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
     QCOMPARE(_pMockAdapterManager->buildCalls.count(), 1);
 
     _pMockAdapterManager->injectSessionStarted();
@@ -160,7 +160,7 @@ void TestRegisterDialog::defaultRegisterRequestedAgainWhenSessionRestartsAfterAl
  * \param maxRegisters The limit to report, or a negative value to leave the key out entirely
  *        (which is how the adapter reports that it enforces no limit).
  */
-QJsonObject TestRegisterDialog::buildDescribeWithMaxRegisters(int maxRegisters)
+QJsonObject TestSignalsDialog::buildDescribeWithMaxRegisters(int maxRegisters)
 {
     QJsonObject capabilities;
     if (maxRegisters >= 0)
@@ -175,7 +175,7 @@ QJsonObject TestRegisterDialog::buildDescribeWithMaxRegisters(int maxRegisters)
 }
 
 //! Add \a count active signals, each reading its own data point from the default device.
-void TestRegisterDialog::seedSignals(int count)
+void TestSignalsDialog::seedSignals(int count)
 {
     for (int idx = 0; idx < count; idx++)
     {
@@ -184,26 +184,26 @@ void TestRegisterDialog::seedSignals(int count)
     }
 }
 
-void TestRegisterDialog::dataPointLimitWarningHiddenWhenWithinLimit()
+void TestSignalsDialog::dataPointLimitWarningHiddenWhenWithinLimit()
 {
     DeviceListHelpers::seedDevice(&_settingsModel, 1, QStringLiteral("modbus"));
     _settingsModel.updateAdapterFromDescribe(QStringLiteral("modbus"), buildDescribeWithMaxRegisters(5));
     seedSignals(5);
 
-    _pDialog = new RegisterDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
 
     auto* warningLabel = _pDialog->findChild<QLabel*>("dataPointLimitWarningLabel");
     QVERIFY(warningLabel != nullptr);
     QVERIFY(warningLabel->isHidden());
 }
 
-void TestRegisterDialog::dataPointLimitWarningShownWhenExceeded()
+void TestSignalsDialog::dataPointLimitWarningShownWhenExceeded()
 {
     DeviceListHelpers::seedDevice(&_settingsModel, 1, QStringLiteral("modbus"));
     _settingsModel.updateAdapterFromDescribe(QStringLiteral("modbus"), buildDescribeWithMaxRegisters(5));
     seedSignals(6);
 
-    _pDialog = new RegisterDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
 
     auto* warningLabel = _pDialog->findChild<QLabel*>("dataPointLimitWarningLabel");
     QVERIFY(warningLabel != nullptr);
@@ -218,13 +218,13 @@ void TestRegisterDialog::dataPointLimitWarningShownWhenExceeded()
  * \brief Deactivating a signal drops its data point from the session, so the warning must
  * disappear again while the dialog stays open.
  */
-void TestRegisterDialog::dataPointLimitWarningHiddenWhenSignalDeactivated()
+void TestSignalsDialog::dataPointLimitWarningHiddenWhenSignalDeactivated()
 {
     DeviceListHelpers::seedDevice(&_settingsModel, 1, QStringLiteral("modbus"));
     _settingsModel.updateAdapterFromDescribe(QStringLiteral("modbus"), buildDescribeWithMaxRegisters(5));
     seedSignals(6);
 
-    _pDialog = new RegisterDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
 
     auto* warningLabel = _pDialog->findChild<QLabel*>("dataPointLimitWarningLabel");
     QVERIFY(warningLabel != nullptr);
@@ -236,17 +236,17 @@ void TestRegisterDialog::dataPointLimitWarningHiddenWhenSignalDeactivated()
 }
 
 //! A licensed adapter reports no maxRegisters at all, so no number of signals may warn.
-void TestRegisterDialog::dataPointLimitWarningHiddenWhenAdapterReportsNoLimit()
+void TestSignalsDialog::dataPointLimitWarningHiddenWhenAdapterReportsNoLimit()
 {
     DeviceListHelpers::seedDevice(&_settingsModel, 1, QStringLiteral("modbus"));
     _settingsModel.updateAdapterFromDescribe(QStringLiteral("modbus"), buildDescribeWithMaxRegisters(-1));
     seedSignals(20);
 
-    _pDialog = new RegisterDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
 
     auto* warningLabel = _pDialog->findChild<QLabel*>("dataPointLimitWarningLabel");
     QVERIFY(warningLabel != nullptr);
     QVERIFY(warningLabel->isHidden());
 }
 
-QTEST_MAIN(TestRegisterDialog)
+QTEST_MAIN(TestSignalsDialog)

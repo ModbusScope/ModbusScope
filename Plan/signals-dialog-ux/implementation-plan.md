@@ -92,17 +92,17 @@ flowchart LR
 
 Phase R goes first. It only renames the Signals dialog classes, which phases 0, 3, 4, 6 and 7 all edit; renaming later would conflict with each of them. It is small and mechanical, so it can be merged quickly. Refactoring of existing code lands in the phase that first needs it (see [Extractions](#extractions-from-existing-code)), so no phase waits for refactoring that brings no user-facing result. Phase 1 can be done in parallel with phases 0 and 2. Only its "show why `buildExpression` failed" item waits for phase 0. Phases 5 and 6 are independent of each other and of phase 4.
 
-| Phase | Result for the user | Size |
-| --- | --- | --- |
-| R | No visible change. The Signals dialog classes are named after what users see | S |
-| 0 | Invalid address input no longer stops the adapter | M |
-| 1 | Compose expression cannot save a broken expression; editor and add form are easier to use | S |
-| 2 | No visible change. The add popup now runs on the shared editor widget | M |
-| 3 | Cancel discards every change made in the Signals dialog; OK clears the data of signals whose expression changed | M |
-| 4 | Adding signals happens in a side panel that stays open | M |
-| 5 | Data points can be inserted in Compose expression without typing syntax | M |
-| 6 | The Signals table shows what each data point is | S |
-| 7 | Existing data points are edited through the same form | L |
+| Phase | Result for the user | Size | Status |
+| --- | --- | --- | --- |
+| R | No visible change. The Signals dialog classes are named after what users see | S | Done |
+| 0 | Invalid address input no longer stops the adapter | M | |
+| 1 | Compose expression cannot save a broken expression; editor and add form are easier to use | S | |
+| 2 | No visible change. The add popup now runs on the shared editor widget | M | |
+| 3 | Cancel discards every change made in the Signals dialog; OK clears the data of signals whose expression changed | M | |
+| 4 | Adding signals happens in a side panel that stays open | M | |
+| 5 | Data points can be inserted in Compose expression without typing syntax | M | |
+| 6 | The Signals table shows what each data point is | S | |
+| 7 | Existing data points are edited through the same form | L | |
 
 ---
 
@@ -134,6 +134,8 @@ New code in this effort uses *signal* and *data point* from the start. Existing 
 `AddRegisterWidget` keeps its name: phase 2 shrinks it and phase 4 deletes it. The rest of the code base (polling, expression parsing, project files, export) is renamed in a separate series, see [section 5](#5-follow-up-terminology-outside-the-signals-dialog).
 
 **Done when:** the renamed code builds, the tests pass with only the renamed names changed, and `grep -rn "RegisterDialog\|registerView\|RegisterValueAxis" src tests` finds nothing.
+
+**Done:** commit `d7ae2cad`. Besides the table above, two copied `// Setup registerView` comments in `notesdockwidget.cpp` and `importmbcdialog.cpp` now name their actual views, so the grep finds nothing. `NotesDockWidget::onRegisterInserted` is left for the follow-up series (section 5).
 
 ---
 

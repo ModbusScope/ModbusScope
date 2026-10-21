@@ -1,6 +1,6 @@
 
-#ifndef TST_REGISTERDIALOG_H
-#define TST_REGISTERDIALOG_H
+#ifndef TST_SIGNALSDIALOG_H
+#define TST_SIGNALSDIALOG_H
 
 #include "ProtocolAdapter/adaptermanager.h"
 #include "mockadapterhub.h"
@@ -10,7 +10,7 @@
 #include <QObject>
 
 class GraphDataModel;
-class RegisterDialog;
+class SignalsDialog;
 
 /*!
  * \brief Test double for AdapterManager.
@@ -52,7 +52,7 @@ public:
         return mockReady;
     }
 
-    //! Simulate the adapter session becoming ready, which RegisterDialog waits for
+    //! Simulate the adapter session becoming ready, which SignalsDialog waits for
     //! before requesting its default expression.
     void injectSessionStarted()
     {
@@ -64,7 +64,7 @@ public:
     bool mockReady{ false };
 };
 
-class TestRegisterDialog : public QObject
+class TestSignalsDialog : public QObject
 {
     Q_OBJECT
 
@@ -72,12 +72,12 @@ private slots:
     void init();
     void cleanup();
 
-    void defaultRegisterUsesLowestConfiguredDeviceId();
-    void defaultRegisterUsesDeviceOneWhenPresent();
-    void defaultRegisterSkipsBuildExpressionWhenNoDevices();
-    void defaultRegisterRequestedImmediatelyWhenSessionAlreadyActive();
-    void defaultRegisterRequestedImmediatelyWhenAdapterAlreadyReady();
-    void defaultRegisterRequestedAgainWhenSessionRestartsAfterAlreadyActive();
+    void defaultSignalUsesLowestConfiguredDeviceId();
+    void defaultSignalUsesDeviceOneWhenPresent();
+    void defaultSignalSkipsBuildExpressionWhenNoDevices();
+    void defaultSignalRequestedImmediatelyWhenSessionAlreadyActive();
+    void defaultSignalRequestedImmediatelyWhenAdapterAlreadyReady();
+    void defaultSignalRequestedAgainWhenSessionRestartsAfterAlreadyActive();
 
     void dataPointLimitWarningHiddenWhenWithinLimit();
     void dataPointLimitWarningShownWhenExceeded();
@@ -93,7 +93,7 @@ private:
     GraphDataModel* _pGraphDataModel{ nullptr };
     MockAdapterHub* _pMockHub{ nullptr };
     MockAdapterManager* _pMockAdapterManager{ nullptr };
-    RegisterDialog* _pDialog{ nullptr };
+    SignalsDialog* _pDialog{ nullptr };
 };
 
-#endif // TST_REGISTERDIALOG_H
+#endif // TST_SIGNALSDIALOG_H
