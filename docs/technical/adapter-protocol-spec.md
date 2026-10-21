@@ -292,8 +292,8 @@ configured.
 ### `adapter.dataPointSchema`
 
 Returns the schema for data point expressions — what fields make up a data point
-address, how they should be rendered in the UI, and available data types. Call
-this after `adapter.describe` to discover how to build the data point input UI.
+address and how they should be rendered in the UI. Call this after
+`adapter.describe` to discover how to build the data point input UI.
 
 **Params:** `{}` (none required)
 
@@ -302,42 +302,46 @@ this after `adapter.describe` to discover how to build the data point input UI.
 ```json
 {
   "addressSchema": { ... },
-  "dataTypes": [
-    { "id": "<type-id>", "label": "<UI label>" }
-  ],
-  "defaultDataType": "<type-id>"
+  "defaults": { ... }
 }
 ```
 
-See the adapter's implementation spec for the concrete `addressSchema`,
-`dataTypes`, and `defaultDataType` values.
+See the adapter's implementation spec for the concrete `addressSchema` and
+`defaults` values.
 
 | Field | Description |
 | --- | --- |
 | `addressSchema` | JSON Schema describing the address input fields. The core renders this with `SchemaFormWidget` |
-| `dataTypes` | Array of available data types. Each entry has `id` (used in expression strings) and `label` (UI display) |
-| `defaultDataType` | The `id` of the type to pre-select in the UI |
+| `defaults` | Value for each `addressSchema` property, used to pre-fill the form for a new data point |
 
 The `addressSchema` follows standard JSON Schema conventions. The core
 application uses it to dynamically generate the address input portion of the
 data point dialog, so it must accurately describe all required fields and their
-constraints. The `dataType` property within `addressSchema` has no `enum`
-constraint; the available values are supplied by the top-level `dataTypes`
-array, and `defaultDataType` indicates which value to pre-select.
+constraints.
+
+When the protocol has data types, `addressSchema` has a `dataType` property
+listing them (with `enum` and `x-enumLabels`). The core sends its value as the
+separate `dataType` parameter of `adapter.buildExpression`, not inside `fields`.
+
+A `deviceId` property, if present, is ignored by the core: the device is chosen
+outside the address form and sent as the `deviceId` parameter of
+`adapter.buildExpression`.
 
 ---
 
 ### `adapter.describeDataPoint`
 
-Parses a data point expression into structured fields and returns a
-human-readable description. Used by the core to display data point details in
-tables and tooltips without understanding protocol-specific address formats.
+Parses one data point reference (a single `${...}`, not a full expression with
+arithmetic) into structured fields and returns a human-readable description.
+Used by the core to display data point details in tables and tooltips, and to
+fill the address form when an existing data point is edited, without
+understanding protocol-specific address formats.
 
 **Params:**
 
 ```json
 {
-  "expression": "<expression>"
+  "expression": "${<reference>}"
 }
 ```
 
@@ -362,14 +366,26 @@ tables and tooltips without understanding protocol-specific address formats.
 
 | Field | Description |
 | --- | --- |
-| `valid` | Whether the expression is syntactically and semantically valid |
-| `fields` | Structured parsed fields — protocol-specific, but the core treats them as opaque display data |
+| `valid` | Whether the reference is syntactically and semantically valid |
+| `fields` | Parsed fields, keyed like the `addressSchema` properties of `adapter.dataPointSchema`, plus `deviceId` |
 | `description` | Human-readable description for display in tables, tooltips, and logs |
 | `error` | Human-readable error message when `valid` is false |
+
+`fields` must round-trip: calling `adapter.buildExpression` with `deviceId` from
+`fields` as the `deviceId` parameter, `dataType` from `fields` (where the
+adapter has data types) as the `dataType` parameter, and the remaining keys as
+`fields` must build a reference to the same data point. The notation of the
+built reference may differ from the described one (for example `${40002}` can
+come back as `${h1}`).
+
+An invalid reference is reported with `valid: false`, not with a JSON-RPC error.
 
 **Errors:**
 
 - `-32602` — Missing `expression` field
+
+The core treats a JSON-RPC error reply as a failed request: the session keeps
+running.
 
 ---
 
@@ -486,6 +502,10 @@ device, so expression syntax stays entirely within the adapter.
 **Errors:**
 
 - `-32602` — Missing or invalid `fields`; unknown `dataType`
+
+A `-32602` reply is an expected answer for address values the form did not
+catch (for example an address out of range). It is non-fatal: the core reports
+the request as failed and the session keeps running.
 
 ---
 

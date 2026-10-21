@@ -95,7 +95,7 @@ Phase R goes first. It only renames the Signals dialog classes, which phases 0, 
 | Phase | Result for the user | Size | Status |
 | --- | --- | --- | --- |
 | R | No visible change. The Signals dialog classes are named after what users see | S | Done |
-| 0 | Invalid address input no longer stops the adapter | M | |
+| 0 | Invalid address input no longer stops the adapter | M | Done |
 | 1 | Compose expression cannot save a broken expression; editor and add form are easier to use | S | |
 | 2 | No visible change. The add popup now runs on the shared editor widget | M | |
 | 3 | Cancel discards every change made in the Signals dialog; OK clears the data of signals whose expression changed | M | |
@@ -165,17 +165,17 @@ The other duplicated code is handled where it is replaced anyway: the device-to-
 Today an invalid `buildExpression` call (for example an address the schema did not catch) stops the adapter process. The same applies to `describeDataPoint` and `dataPointSchema`.
 
 - Add a failing test first in `tests/ProtocolAdapter/tst_adapterclient.cpp`, next to `auxRequestErrorsAreNonFatalInDegradedSession`: inject a `-32602` error for `adapter.buildExpression` and for `adapter.describeDataPoint` in `AWAITING_CONFIG` and `ACTIVE`, and assert that `sessionError` is not emitted and the client stays usable.
-- In `AdapterClient::onErrorReceived()`, handle both methods like `adapter.validateDataPoint`: consume the pending id and emit a result.
-  - `describeDataPoint`: emit `describeDataPointResult` with `{ "valid": false, "error": <message> }`, the same shape as an invalid parse.
-  - `buildExpression`: add a signal `buildExpressionFailed(QString error)` on `AdapterClient` and `AdapterManager`. Keep `buildExpressionResult` for success only, so an empty string never has to mean "failed".
+- In `AdapterClient::onErrorReceived()`, handle errors for every aux method before the handshake timer is stopped and in every state, so a late reply (for example while `adapter.configure` is pending) can neither tear down the session nor stop the handshake timer.
+  - `describeDataPoint` and `buildExpression`: emit `dataPointRequestFailed(QString error)` on `AdapterClient` and `AdapterManager`. An error reply means the request failed, not that the reference is invalid, so it must not look like `{ "valid": false }`: phase 2.2 keeps `Invalid` but retries `Failed`. `buildExpressionResult` stays for success only.
 - `dataPointSchema` errors: log and keep the session. The address form then shows no fields, as it does today for an adapter that is not running.
 
 #### 0.2 Request ids for aux requests
 
 - `AdapterClient::_pendingAuxRequests` changes from one id per method to a set of pending ids, each mapped to its method.
 - `describeDataPoint()` and `buildExpression()` return the JSON-RPC request id (`int`, `-1` when not sent). `AdapterManager` passes it through.
-- The result signals gain the id as first argument: `describeDataPointResult(int requestId, QJsonObject result)`, `buildExpressionResult(int requestId, QString expression)`, `buildExpressionFailed(int requestId, QString error)`.
-- `expressionHelp` and `dataPointSchema` keep "latest request wins". Nothing sends them concurrently.
+- The result signals gain the id as first argument: `describeDataPointResult(int requestId, QJsonObject result)`, `buildExpressionResult(int requestId, QString expression)`, `dataPointRequestFailed(int requestId, QString error)`.
+- `clearPendingAuxRequests()` emits `dataPointRequestFailed(id, "Request cancelled")` for every pending describe and build id it drops (session stop, `provideConfig()`, process exit, errors), as it already did for `inspectLicense`. `provideConfig()` drops pending requests without any lifecycle signal, so this is the only place that sees every case.
+- `expressionHelp`, `dataPointSchema`, `validateDataPoint` and `inspectLicense` keep "latest request wins". Nothing sends them concurrently.
 - Update the re-emitting signals in `AdapterHub` (lines 213-215), or drop them: nothing in `src/` or `tests/` connects to them.
 - Existing callers keep working by ignoring the id until they move to `DataPointService` in 0.3.
 
@@ -188,7 +188,8 @@ class DataPointService : public QObject
 {
     Q_OBJECT
 public:
-    DataPointService(SettingsModel* pSettingsModel, AdapterHub* pAdapterHub, QObject* parent = nullptr);
+    DataPointService(SettingsModel* pSettingsModel, AdapterHub* pAdapterHub, QObject* parent = nullptr,
+                     int requestTimeoutMs = cRequestTimeoutMs);
 
     bool isDeviceUsable(deviceId_t deviceId) const;
     QString adapterIdForDevice(deviceId_t deviceId) const;
@@ -205,10 +206,10 @@ signals:
 };
 ```
 
-- Tickets are the service's own counter, so callers never deal with per-adapter request ids. When the adapter is not usable, the service returns a ticket and emits the failure on the next event loop turn, so callers have one code path.
+- Tickets are the service's own counter, so callers never deal with per-adapter request ids. `requestFailed` is always emitted on the next event loop turn, including when the adapter is not usable, so callers have one code path and are never called back from inside an `AdapterClient` state change.
 - Every ticket ends in exactly one of `expressionBuilt`, `dataPointDescribed` or `requestFailed`. Nothing is left pending:
   - **Timeout.** Each ticket has a deadline (`cRequestTimeoutMs`, 3 s to start with; these calls are local and normally answer in milliseconds). On expiry the service emits `requestFailed(ticket, "The adapter did not respond")` and forgets the ticket.
-  - **Adapter lost.** When the ticket's manager emits `sessionError` or `sessionStopped`, or reports idle, the service fails all of that manager's tickets at once ("The adapter stopped"). Needed because `AdapterClient` drops pending aux requests silently in those cases.
+  - **Adapter lost.** `AdapterClient` reports every dropped request through `dataPointRequestFailed` (0.2), which the service passes on. A destroyed manager fails its pending tickets ("The adapter stopped").
   - **Late replies.** A reply for a ticket that already ended is dropped. The request id mapping from 0.2 makes this a lookup that misses.
   - **No automatic retry.** Callers decide when to ask again (see 2.2 and 2.3), so a hanging adapter does not get a request storm.
 - `addressSchema()` absorbs `AddRegisterWidget::buildSchema()` (stripping the adapter's own `deviceId` property).
@@ -225,6 +226,8 @@ In `docs/technical/adapter-protocol-spec.md`:
 - `adapter.buildExpression`: state that a `-32602` error is an expected, non-fatal reply.
 
 **Done when:** an invalid `buildExpression` call from the add form leaves the adapter running and shows nothing worse than today; the three callers use `DataPointService`; all existing tests pass.
+
+**Done.** Failures are reported per request id through `dataPointRequestFailed` (0.1, 0.2) instead of `{ "valid": false }` and lifecycle hooks in the service. `ExpressionsDialog` now describes all data points at once instead of one after another.
 
 ---
 
@@ -307,7 +310,7 @@ signals:
 - Three outcomes besides `Valid`, each with its own retry rule. Callers fall back to the raw reference for all three.
   - `Invalid`: the adapter parsed the reference and rejected it. Kept: asking again gives the same answer.
   - `Unavailable`: the device is unknown or its adapter is not running. Dropped when that adapter becomes usable (`AdapterManager::adapterReady` or `sessionStarted`), so the next lookup asks again.
-  - `Failed`: `requestFailed` for a timeout or adapter error while the adapter stays usable. Expires after `cFailedRetryMs` (10 s to start with); a lookup after that sends a new request. Also dropped on `adapterReady` or `sessionStarted`.
+  - `Failed`: `requestFailed` for a timeout, adapter error or cancelled request while the adapter stays usable. Expires after `cFailedRetryMs` (10 s to start with); a lookup after that sends a new request. Also dropped on `adapterReady` or `sessionStarted`.
 - No outcome is retried on every lookup, because the table looks up on each repaint.
 - Owned by `SignalsDialog` and shared with the panel and with `ExpressionsDialog` (passed in), so a description fetched for the table is reused in the dialog.
 - Tests in `tests/models/tst_datapointdescriptioncache.cpp` with a mock service: hit, miss, one request for repeated lookups while pending, a timeout gives `Failed` without a second request until `cFailedRetryMs` has passed, then one new request; `Unavailable` entries retried after the adapter becomes ready; `Invalid` never retried. Inject the clock or the interval so tests do not wait.
