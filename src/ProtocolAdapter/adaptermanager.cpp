@@ -19,6 +19,7 @@ AdapterManager::AdapterManager(const QString& adapterId,
     connect(_pAdapterClient, &AdapterClient::sessionStarted, this, &AdapterManager::sessionStarted);
     connect(_pAdapterClient, &AdapterClient::readDataResult, this, &AdapterManager::readDataResult);
     connect(_pAdapterClient, &AdapterClient::buildExpressionResult, this, &AdapterManager::buildExpressionResult);
+    connect(_pAdapterClient, &AdapterClient::dataPointRequestFailed, this, &AdapterManager::dataPointRequestFailed);
     connect(_pAdapterClient, &AdapterClient::expressionHelpResult, this, &AdapterManager::expressionHelpResult);
     connect(_pAdapterClient, &AdapterClient::describeDataPointResult, this, &AdapterManager::describeDataPointResult);
     connect(_pAdapterClient, &AdapterClient::inspectLicenseResult, this, &AdapterManager::inspectLicenseResult);

@@ -278,6 +278,17 @@ signals:
     void buildExpressionResult(QString expression);
 
     /*!
+     * \brief Emitted when the adapter answered adapter.describeDataPoint or adapter.buildExpression
+     * with a JSON-RPC error.
+     *
+     * An error reply means the request could not be handled (for example invalid address fields),
+     * not that the data point is invalid: a reference the adapter can parse but rejects is reported
+     * through describeDataPointResult() with \c valid set to false.
+     * \param error The error message reported by the adapter.
+     */
+    void dataPointRequestFailed(QString error);
+
+    /*!
      * \brief Emitted when an adapter.expressionHelp response has been received.
      * \param helpText HTML string describing expression syntax.
      */
@@ -321,6 +332,8 @@ private:
     };
 
     void handleLifecycleResponse(int id, const QString& method, const QJsonObject& result);
+    void handleAuxError(int id, const QString& method, const QString& errorMsg);
+    static bool isAuxMethod(const QString& method);
     bool consumeAuxResponse(const QString& method, int id);
     ResultDoubleList invalidResults() const;
     void degradeSession(const QString& diagnosticMessage);

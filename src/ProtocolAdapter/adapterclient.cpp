@@ -373,43 +373,19 @@ void AdapterClient::onResponseReceived(int id, const QString& method, const QJso
 
 void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonObject& error)
 {
-    _handshakeTimer.stop();
     QString errorMsg = error.value("message").toString();
     qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "error for" << method << ":" << errorMsg;
 
-    /* For auxiliary requests, a JSON-RPC error is a non-fatal result rather
-       than a session-level failure. Translate to the corresponding result signal or swallow. */
-    if (method == QStringLiteral("adapter.validateDataPoint") &&
-        (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
+    /* For auxiliary requests, a JSON-RPC error is a non-fatal result rather than a session-level
+       failure, in every state: a late reply can arrive after the session moved on (e.g. while
+       adapter.configure is pending), so it must not stop the handshake timer either. */
+    if (isAuxMethod(method))
     {
-        if (_pendingAuxRequests.value(method, -1) == id)
-        {
-            _pendingAuxRequests.remove(method);
-            emit validateDataPointResult(false, errorMsg);
-        }
+        handleAuxError(id, method, errorMsg);
         return;
     }
 
-    if (method == QStringLiteral("adapter.inspectLicense") &&
-        (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
-    {
-        if (_pendingAuxRequests.value(method, -1) == id)
-        {
-            _pendingAuxRequests.remove(method);
-            emit inspectLicenseFailed(errorMsg);
-        }
-        return;
-    }
-
-    if (method == QStringLiteral("adapter.expressionHelp") &&
-        (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
-    {
-        if (_pendingAuxRequests.value(method, -1) == id)
-        {
-            _pendingAuxRequests.remove(method);
-        }
-        return;
-    }
+    _handshakeTimer.stop();
 
     if (method == QStringLiteral("adapter.readData"))
     {
@@ -527,6 +503,48 @@ void AdapterClient::onNotificationReceived(QString method, QJsonValue params)
     QJsonObject obj = params.toObject();
     emit diagnosticReceived(obj.value(QStringLiteral("level")).toString(),
                             obj.value(QStringLiteral("message")).toString());
+}
+
+/*!
+ * \brief Translate a JSON-RPC error reply to an auxiliary request into its result signal.
+ *
+ * Errors for requests that are no longer pending are dropped.
+ * \param id       JSON-RPC request id of the reply.
+ * \param method   Auxiliary method the reply belongs to.
+ * \param errorMsg Error message reported by the adapter.
+ */
+void AdapterClient::handleAuxError(int id, const QString& method, const QString& errorMsg)
+{
+    if (!consumeAuxResponse(method, id))
+    {
+        return;
+    }
+
+    if (method == QStringLiteral("adapter.validateDataPoint"))
+    {
+        emit validateDataPointResult(false, errorMsg);
+    }
+    else if (method == QStringLiteral("adapter.inspectLicense"))
+    {
+        emit inspectLicenseFailed(errorMsg);
+    }
+    else if (method == QStringLiteral("adapter.describeDataPoint") ||
+             method == QStringLiteral("adapter.buildExpression"))
+    {
+        emit dataPointRequestFailed(errorMsg);
+    }
+}
+
+/*!
+ * \brief Returns whether \a method is an auxiliary request, which never affects the session state.
+ */
+bool AdapterClient::isAuxMethod(const QString& method)
+{
+    return method == QStringLiteral("adapter.dataPointSchema") ||
+           method == QStringLiteral("adapter.describeDataPoint") ||
+           method == QStringLiteral("adapter.buildExpression") ||
+           method == QStringLiteral("adapter.validateDataPoint") ||
+           method == QStringLiteral("adapter.inspectLicense") || method == QStringLiteral("adapter.expressionHelp");
 }
 
 /*!

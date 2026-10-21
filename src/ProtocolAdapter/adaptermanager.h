@@ -156,6 +156,12 @@ signals:
     void buildExpressionResult(QString expression);
 
     /*!
+     * \brief Emitted when the adapter answered adapter.describeDataPoint or adapter.buildExpression with an error.
+     * \param error The error message reported by the adapter.
+     */
+    void dataPointRequestFailed(QString error);
+
+    /*!
      * \brief Emitted when an adapter.expressionHelp response has been received.
      * \param helpText HTML string describing expression syntax.
      */
