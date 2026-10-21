@@ -339,4 +339,40 @@ void TestExpressionsDialog::helpSwitchingBetweenDevicesOnSameAdapterSkipsRedunda
     QVERIFY(pInfoLabel->text().contains(QStringLiteral("Modbus help")));
 }
 
+//! A new data point starts with example value 1, so a division by it evaluates.
+void TestExpressionsDialog::exampleInputDefaultsToOne()
+{
+    auto* pEdit = _pDialog->findChild<QPlainTextEdit*>("lineExpression");
+    QVERIFY(pEdit != nullptr);
+
+    pEdit->setPlainText(QStringLiteral("100 / ${40001}"));
+
+    auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
+    QVERIFY(pTable != nullptr);
+    QCOMPARE(pTable->item(0, 1)->text(), QStringLiteral("1"));
+
+    auto* pOutput = _pDialog->findChild<QLabel*>("lblOut");
+    auto* pError = _pDialog->findChild<QLabel*>("lblError");
+    QVERIFY(pOutput != nullptr);
+    QVERIFY(pError != nullptr);
+    QCOMPARE(pOutput->text(), QStringLiteral("100"));
+    QCOMPARE(pError->text(), QString());
+}
+
+//! A hexadecimal example value is evaluated as its integer value.
+void TestExpressionsDialog::exampleInputAcceptsHex()
+{
+    auto* pEdit = _pDialog->findChild<QPlainTextEdit*>("lineExpression");
+    QVERIFY(pEdit != nullptr);
+    pEdit->setPlainText(QStringLiteral("${40001}"));
+
+    auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
+    QVERIFY(pTable != nullptr);
+    pTable->item(0, 1)->setText(QStringLiteral("0x10"));
+
+    auto* pOutput = _pDialog->findChild<QLabel*>("lblOut");
+    QVERIFY(pOutput != nullptr);
+    QCOMPARE(pOutput->text(), QStringLiteral("16"));
+}
+
 QTEST_MAIN(TestExpressionsDialog)

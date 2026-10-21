@@ -98,6 +98,9 @@ private slots:
     void helpRoutedToSelectedDevice();
     void helpSwitchingBetweenDevicesOnSameAdapterSkipsRedundantRequest();
 
+    void exampleInputDefaultsToOne();
+    void exampleInputAcceptsHex();
+
 private:
     MockAdapterManager* addSimAdapter();
     void recreateDialog();

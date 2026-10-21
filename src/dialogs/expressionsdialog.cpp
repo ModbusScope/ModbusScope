@@ -116,7 +116,7 @@ void ExpressionsDialog::handleExpressionChange()
             pRegItem->setData(Qt::UserRole, addresses[idx]);
             _pUi->tblExpressionInput->setItem(idx, 0, pRegItem);
 
-            QString testVal = testValueMap.value(addresses[idx], QStringLiteral("0"));
+            QString testVal = testValueMap.value(addresses[idx], QStringLiteral("1"));
             _pUi->tblExpressionInput->setItem(idx, 1, new QTableWidgetItem(testVal));
         }
 

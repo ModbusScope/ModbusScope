@@ -15,6 +15,8 @@ private slots:
     void parseValid();
     void parseInvalid_data();
     void parseInvalid();
+    void parseNegativeZero();
+    void parseWithoutOk();
 };
 
 #endif // TST_EXPRESSIONVALUE_H
