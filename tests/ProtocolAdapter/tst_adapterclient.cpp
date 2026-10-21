@@ -46,6 +46,10 @@ public:
 
     int sendRequest(const QString& method, const QJsonObject& params) override
     {
+        if (_failSends)
+        {
+            return -1;
+        }
         int id = _nextMockId++;
         _sentRequests.append({ method, params });
         return id;
@@ -81,7 +85,14 @@ public:
         emit processFinished();
     }
 
+    //! When set, sendRequest() fails like a write to a process that is not running.
+    void setFailSends(bool failSends)
+    {
+        _failSends = failSends;
+    }
+
 private:
+    bool _failSends{ false };
     int _nextMockId{ 1 };
     QList<SentRequest> _sentRequests;
 };
@@ -2205,10 +2216,10 @@ void TestAdapterClient::interleavedDescribeRepliesKeepTheirIds()
 
     QCOMPARE(spyDescribe.count(), 2);
     QCOMPARE(spyDescribe.at(0).at(0).toInt(), secondId);
-    QCOMPARE(spyDescribe.at(0).at(1).value<QJsonObject>()["description"].toString(),
+    QCOMPARE(spyDescribe.at(0).at(1).value<QJsonObject>().value("description").toString(),
              QStringLiteral("Holding register 1"));
     QCOMPARE(spyDescribe.at(1).at(0).toInt(), firstId);
-    QCOMPARE(spyDescribe.at(1).at(1).value<QJsonObject>()["description"].toString(),
+    QCOMPARE(spyDescribe.at(1).at(1).value<QJsonObject>().value("description").toString(),
              QStringLiteral("Holding register 0"));
 }
 
@@ -2278,6 +2289,63 @@ void TestAdapterClient::pendingDataPointRequestsFailOnProcessExit()
 
     mock->injectProcessFinished();
 
+    QCOMPARE(spyFailed.count(), 1);
+    QCOMPARE(spyFailed.at(0).at(0).toInt(), buildId);
+}
+
+//! A request whose write fails is not tracked, so no stale failure is reported for it later.
+void TestAdapterClient::failedSendLeavesNoPendingRequest()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyFailed(&client, &AdapterClient::dataPointRequestFailed);
+
+    driveToActive(client, mock);
+    mock->setFailSends(true);
+    QCOMPARE(client.describeDataPoint(QStringLiteral("${h0}")), -1);
+    mock->setFailSends(false);
+
+    client.stopSession();
+
+    QCOMPARE(spyFailed.count(), 0);
+}
+
+//! A malformed reply to a data point request fails that request only, not the session.
+void TestAdapterClient::nonObjectAuxResultIsNotFatal()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyError(&client, &AdapterClient::sessionError);
+    QSignalSpy spyFailed(&client, &AdapterClient::dataPointRequestFailed);
+
+    driveToAwaitingConfig(client, mock);
+    const int buildId = client.buildExpression(QJsonObject{ { "address", 0 } }, QString(), 1);
+    mock->injectResponse(buildId, "adapter.buildExpression", QJsonValue(QStringLiteral("${h0}")));
+
+    QCOMPARE(spyError.count(), 0);
+    QCOMPARE(spyFailed.count(), 1);
+    QCOMPARE(spyFailed.at(0).at(0).toInt(), buildId);
+    QVERIFY(client.isReady());
+}
+
+void TestAdapterClient::buildExpressionWithoutExpressionFails()
+{
+    auto mockOwned = std::make_unique<MockAdapterProcess>();
+    auto* mock = mockOwned.get();
+    AdapterClient client(std::move(mockOwned));
+
+    QSignalSpy spyBuild(&client, &AdapterClient::buildExpressionResult);
+    QSignalSpy spyFailed(&client, &AdapterClient::dataPointRequestFailed);
+
+    driveToAwaitingConfig(client, mock);
+    const int buildId = client.buildExpression(QJsonObject{ { "address", 0 } }, QString(), 1);
+    mock->injectResponse(buildId, "adapter.buildExpression", QJsonObject());
+
+    QCOMPARE(spyBuild.count(), 0);
     QCOMPARE(spyFailed.count(), 1);
     QCOMPARE(spyFailed.at(0).at(0).toInt(), buildId);
 }

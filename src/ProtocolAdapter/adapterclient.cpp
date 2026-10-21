@@ -361,6 +361,11 @@ void AdapterClient::onResponseReceived(int id, const QString& method, const QJso
     {
         handleLifecycleResponse(id, method, result.toObject());
     }
+    else if (isAuxMethod(method))
+    {
+        qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "unexpected non-object result for" << method;
+        handleAuxError(id, method, QStringLiteral("The adapter sent a malformed reply"));
+    }
     else
     {
         qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "unexpected non-object result for" << method;
@@ -581,7 +586,7 @@ bool AdapterClient::consumeAuxResponse(const QString& method, int id)
  * the same method is dropped.
  * \param method JSON-RPC method name.
  * \param params Request parameters.
- * \return The JSON-RPC request id.
+ * \return The JSON-RPC request id, or -1 when the request could not be sent.
  */
 int AdapterClient::sendAuxRequest(const QString& method, const QJsonObject& params)
 {
@@ -595,6 +600,11 @@ int AdapterClient::sendAuxRequest(const QString& method, const QJsonObject& para
     }
 
     const int id = _pProcess->sendRequest(method, params);
+    if (id < 0)
+    {
+        return -1;
+    }
+
     _pendingAuxRequests.insert(id, method);
     return id;
 }
@@ -764,15 +774,6 @@ void AdapterClient::announceIncompatibleSession()
 }
 
 /*!
- * \brief Returns whether an auxiliary request (schema, describe, validate, build, help) must not be
- * sent because the adapter speaks an incompatible protocol version.
- *
- * Such an adapter is left unusable: its reply shapes are not guaranteed, and an unexpected reply or
- * error to one of these requests would be treated as fatal for the whole polling session.
- *
- * \param requestName Name of the request, for the log message.
- */
-/*!
  * \brief Drop all in-flight auxiliary requests, reporting pending data point requests and a pending
  * adapter.inspectLicense as failed so their callers do not wait for a reply that can no longer arrive.
  */
@@ -784,7 +785,7 @@ void AdapterClient::clearPendingAuxRequests()
 
     QList<int> ids = pending.keys();
     std::sort(ids.begin(), ids.end());
-    for (const int id : ids)
+    for (const int id : std::as_const(ids))
     {
         if (isDataPointMethod(pending.value(id)))
         {
@@ -792,12 +793,21 @@ void AdapterClient::clearPendingAuxRequests()
         }
     }
 
-    if (!pending.keys(QStringLiteral("adapter.inspectLicense")).isEmpty())
+    if (std::find(pending.cbegin(), pending.cend(), QStringLiteral("adapter.inspectLicense")) != pending.cend())
     {
         emit inspectLicenseFailed(QStringLiteral("Request cancelled"));
     }
 }
 
+/*!
+ * \brief Returns whether an auxiliary request (schema, describe, validate, build, help) must not be
+ * sent because the adapter speaks an incompatible protocol version.
+ *
+ * Such an adapter is left unusable: its reply shapes are not guaranteed, and an unexpected reply or
+ * error to one of these requests would be treated as fatal for the whole polling session.
+ *
+ * \param requestName Name of the request, for the log message.
+ */
 bool AdapterClient::isAuxRequestRefused(const char* requestName) const
 {
     if (_incompatibilityReason.isEmpty())
@@ -923,7 +933,13 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
         {
             return;
         }
-        emit buildExpressionResult(id, result["expression"].toString());
+        const QJsonValue expression = result.value("expression");
+        if (!expression.isString())
+        {
+            emit dataPointRequestFailed(id, QStringLiteral("The adapter sent no expression"));
+            return;
+        }
+        emit buildExpressionResult(id, expression.toString());
     }
     else if (method == "adapter.expressionHelp" &&
              (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))

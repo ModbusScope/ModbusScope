@@ -108,6 +108,9 @@ private slots:
     void pendingDataPointRequestsFailOnStopSession();
     void pendingDataPointRequestsFailOnProvideConfig();
     void pendingDataPointRequestsFailOnProcessExit();
+    void failedSendLeavesNoPendingRequest();
+    void nonObjectAuxResultIsNotFatal();
+    void buildExpressionWithoutExpressionFails();
 };
 
 #endif // TST_ADAPTERCLIENT_H
