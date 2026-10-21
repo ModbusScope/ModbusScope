@@ -469,10 +469,17 @@ void GraphDataModel::setSelectedGraph(GraphIdx index)
 
 /*!
  * \brief Appends a single signal with the given data to the model.
- * \param rowData Fully populated GraphData to add.
+ *
+ * A signal without a label gets a unique default label ("New signal", "New signal 2", ...).
+ * \param rowData GraphData to add.
  */
 void GraphDataModel::add(GraphData rowData)
 {
+    if (rowData.label().isEmpty())
+    {
+        rowData.setLabel(uniqueLabel(QStringLiteral("New signal")));
+    }
+
     addToModel(rowData);
 }
 
@@ -494,7 +501,6 @@ void GraphDataModel::add(QList<GraphData> graphDataList)
 void GraphDataModel::add()
 {
     GraphData data;
-    data.setLabel(uniqueLabel(QStringLiteral("New signal")));
     data.setExpression(_defaultExpression);
     add(data);
 }
@@ -512,12 +518,20 @@ void GraphDataModel::setDefaultExpression(const QString& expression)
     _defaultExpression = expression;
 }
 
+/*!
+ * \brief Appends a signal with the default expression for every label.
+ *
+ * An empty label gets a unique default label, as in add(GraphData).
+ * \param labelList Label of each signal to add.
+ */
 void GraphDataModel::add(QList<QString> labelList)
 {
-    foreach (QString label, labelList)
+    for (const QString& label : std::as_const(labelList))
     {
-        add();
-        setLabel(GraphIdx(_pStore->size() - 1), label);
+        GraphData data;
+        data.setLabel(label);
+        data.setExpression(_defaultExpression);
+        add(data);
     }
 }
 

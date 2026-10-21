@@ -17,6 +17,9 @@ private slots:
     void setDefaultExpressionIgnoresEmptyString();
 
     void addAssignsUniqueDefaultLabel();
+    void addGraphDataWithoutLabelGetsUniqueDefaultLabel();
+    void addGraphDataKeepsLabel();
+    void addLabelListGivesEmptyLabelUniqueDefault();
     void addReusesLabelFreedByRename();
     void addReusesLabelFreedByRemove();
     void addUniqueLabelIsCaseSensitive();

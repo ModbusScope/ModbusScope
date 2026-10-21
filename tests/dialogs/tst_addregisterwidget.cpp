@@ -280,6 +280,30 @@ void TestAddRegisterWidget::buildExpressionFailureKeepsFormUsable()
     QCOMPARE(_pMockAdapterManager->buildCalls.size(), 2);
 }
 
+//! The name field starts empty with a placeholder; an empty name is left for the model to fill in.
+void TestAddRegisterWidget::emptyNameAddsSignalWithoutLabel()
+{
+    QCOMPARE(_pRegWidget->_pUi->lineName->text(), QString());
+    QVERIFY(!_pRegWidget->_pUi->lineName->placeholderText().isEmpty());
+
+    GraphData graphData;
+    addRegister(graphData, QStringLiteral("${h0}"));
+
+    QCOMPARE(graphData.label(), QString());
+}
+
+//! The name field is cleared after a signal was added.
+void TestAddRegisterWidget::nameClearedAfterAdd()
+{
+    QTest::keyClicks(_pRegWidget->_pUi->lineName, "Register 1");
+
+    GraphData graphData;
+    addRegister(graphData, QStringLiteral("${h0}"));
+
+    QCOMPARE(graphData.label(), QStringLiteral("Register 1"));
+    QCOMPARE(_pRegWidget->_pUi->lineName->text(), QString());
+}
+
 void TestAddRegisterWidget::deviceComboVisibleWithSingleDevice()
 {
     QVERIFY(!_pRegWidget->_pUi->cmbDevice->isHidden());

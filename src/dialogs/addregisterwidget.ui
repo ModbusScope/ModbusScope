@@ -41,7 +41,7 @@
       </item>
       <item row="2" column="0" colspan="2">
        <widget class="QLineEdit" name="lineName">
-        <property name="text">
+        <property name="placeholderText">
          <string>Name of signal</string>
         </property>
        </widget>

@@ -33,7 +33,6 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel,
     _pUi->setupUi(this);
 
     _pUi->lineName->setFocus();
-    _pUi->lineName->selectAll();
 
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -280,7 +279,8 @@ void AddRegisterWidget::onBuildRequestFailed(quint64 ticket, const QString& erro
 
 void AddRegisterWidget::resetFields()
 {
-    _pUi->lineName->setText("Name of signal");
+    _pUi->lineName->clear();
+    _pUi->lineName->setFocus();
     _pUi->radioPrimary->setChecked(true);
 }
 
