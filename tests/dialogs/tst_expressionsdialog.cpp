@@ -24,14 +24,17 @@ void TestExpressionsDialog::init()
     _pMockAdapterManager = new MockAdapterManager(QStringLiteral("modbus"), this);
     _pMockHub = new MockAdapterHub(this);
     _pMockHub->addManager(QStringLiteral("modbus"), _pMockAdapterManager);
+    _pDataPointService = new DataPointService(_pSettingsModel, _pMockHub, this);
 
-    _pDialog = new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pMockHub, _pSettingsModel);
+    _pDialog = new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pMockHub, _pSettingsModel, _pDataPointService);
 }
 
 void TestExpressionsDialog::cleanup()
 {
     delete _pDialog;
     _pDialog = nullptr;
+    delete _pDataPointService;
+    _pDataPointService = nullptr;
 }
 
 /*!
@@ -55,7 +58,7 @@ void TestExpressionsDialog::recreateDialog()
 {
     delete _pDialog;
     _pMockAdapterManager->helpRequestCount = 0;
-    _pDialog = new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pMockHub, _pSettingsModel);
+    _pDialog = new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pMockHub, _pSettingsModel, _pDataPointService);
 }
 
 void TestExpressionsDialog::describeDispatch_singleAddress()
@@ -67,7 +70,7 @@ void TestExpressionsDialog::describeDispatch_singleAddress()
     QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
     QCOMPARE(_pMockAdapterManager->describeCalls[0], QStringLiteral("${40001}"));
 
-    _pMockAdapterManager->injectDescribeResult(QStringLiteral("Holding register 40001"));
+    _pMockAdapterManager->injectDescribeResult(1, QStringLiteral("Holding register 40001"));
 
     auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
     QVERIFY(pTable != nullptr);
@@ -82,16 +85,15 @@ void TestExpressionsDialog::describeDispatch_multipleAddresses()
     auto* pEdit = _pDialog->findChild<QPlainTextEdit*>("lineExpression");
     QVERIFY(pEdit != nullptr);
 
+    /* Every data point is described at once */
     pEdit->setPlainText(QStringLiteral("${40001} + ${40002}"));
-    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
-    QCOMPARE(_pMockAdapterManager->describeCalls[0], QStringLiteral("${40001}"));
-
-    _pMockAdapterManager->injectDescribeResult(QStringLiteral("Reg 1"));
     QCOMPARE(_pMockAdapterManager->describeCalls.size(), 2);
+    QCOMPARE(_pMockAdapterManager->describeCalls[0], QStringLiteral("${40001}"));
     QCOMPARE(_pMockAdapterManager->describeCalls[1], QStringLiteral("${40002}"));
 
-    _pMockAdapterManager->injectDescribeResult(QStringLiteral("Reg 2"));
-    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 2);
+    /* Replies in reverse order still land in their own row */
+    _pMockAdapterManager->injectDescribeResult(2, QStringLiteral("Reg 2"));
+    _pMockAdapterManager->injectDescribeResult(1, QStringLiteral("Reg 1"));
 
     auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
     QVERIFY(pTable != nullptr);
@@ -104,24 +106,40 @@ void TestExpressionsDialog::describeDispatch_abortsOnExpressionChange()
     auto* pEdit = _pDialog->findChild<QPlainTextEdit*>("lineExpression");
     QVERIFY(pEdit != nullptr);
 
-    /* Start describe sequence for expression A */
     pEdit->setPlainText(QStringLiteral("${40001}"));
     QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
 
-    /* Expression changes before result arrives: starts fresh sequence for B */
+    /* Expression changes before the reply arrives */
     pEdit->setPlainText(QStringLiteral("${40002}"));
     QCOMPARE(_pMockAdapterManager->describeCalls.size(), 2);
     QCOMPARE(_pMockAdapterManager->describeCalls[1], QStringLiteral("${40002}"));
 
-    /* Result arrives — must apply to expression B's row only */
-    _pMockAdapterManager->injectDescribeResult(QStringLiteral("Reg 2"));
+    /* The late reply for the old expression is ignored */
+    _pMockAdapterManager->injectDescribeResult(1, QStringLiteral("Reg 1"));
 
     auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
     QVERIFY(pTable != nullptr);
-    QCOMPARE(pTable->item(0, 0)->text(), QStringLiteral("Reg 2"));
+    QVERIFY(pTable->item(0, 0)->text() != QStringLiteral("Reg 1"));
 
-    /* Stale A connection was cancelled — no further calls triggered */
-    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 2);
+    _pMockAdapterManager->injectDescribeResult(2, QStringLiteral("Reg 2"));
+    QCOMPARE(pTable->item(0, 0)->text(), QStringLiteral("Reg 2"));
+}
+
+//! A failed describe request leaves the parser description in its row.
+void TestExpressionsDialog::describeDispatch_failureKeepsParserDescription()
+{
+    auto* pEdit = _pDialog->findChild<QPlainTextEdit*>("lineExpression");
+    QVERIFY(pEdit != nullptr);
+
+    pEdit->setPlainText(QStringLiteral("${40001}"));
+    auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
+    QVERIFY(pTable != nullptr);
+    const QString parserDescription = pTable->item(0, 0)->text();
+
+    _pMockAdapterManager->injectDescribeFailure(1, QStringLiteral("The adapter did not respond"));
+    QTest::qWait(0);
+
+    QCOMPARE(pTable->item(0, 0)->text(), parserDescription);
 }
 
 void TestExpressionsDialog::describeRoutedPerDeviceAdapter()
@@ -134,25 +152,20 @@ void TestExpressionsDialog::describeRoutedPerDeviceAdapter()
 
     pEdit->setPlainText(QStringLiteral("${40001} + ${40002@2}"));
 
-    /* First data point belongs to device 1 (modbus adapter) */
+    /* Device 1 belongs to the modbus adapter, device 2 to the sim adapter */
     QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
     QCOMPARE(_pMockAdapterManager->describeCalls[0], QStringLiteral("${40001}"));
-    QCOMPARE(pSimManager->describeCalls.size(), 0);
-
-    _pMockAdapterManager->injectDescribeResult(QStringLiteral("Modbus reg"));
-
-    /* Second data point belongs to device 2 (sim adapter) */
     QCOMPARE(pSimManager->describeCalls.size(), 1);
     QCOMPARE(pSimManager->describeCalls[0], QStringLiteral("${40002@2}"));
 
-    pSimManager->injectDescribeResult(QStringLiteral("Sim reg"));
+    /* Both managers number their requests from 1: each reply must only reach its own row */
+    pSimManager->injectDescribeResult(1, QStringLiteral("Sim reg"));
+    _pMockAdapterManager->injectDescribeResult(1, QStringLiteral("Modbus reg"));
 
     auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
     QVERIFY(pTable != nullptr);
     QCOMPARE(pTable->item(0, 0)->text(), QStringLiteral("Modbus reg"));
     QCOMPARE(pTable->item(1, 0)->text(), QStringLiteral("Sim reg"));
-
-    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
 }
 
 void TestExpressionsDialog::describeSkipsUnavailableAdapter()
@@ -165,11 +178,11 @@ void TestExpressionsDialog::describeSkipsUnavailableAdapter()
 
     pEdit->setPlainText(QStringLiteral("${40001@2} + ${40002}"));
 
-    /* Row 0 is skipped; the describe chain continues with row 1 on the modbus adapter */
+    /* Row 0 is skipped; row 1 is described by the modbus adapter */
     QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
     QCOMPARE(_pMockAdapterManager->describeCalls[0], QStringLiteral("${40002}"));
 
-    _pMockAdapterManager->injectDescribeResult(QStringLiteral("Modbus reg"));
+    _pMockAdapterManager->injectDescribeResult(1, QStringLiteral("Modbus reg"));
 
     auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
     QVERIFY(pTable != nullptr);
@@ -206,11 +219,11 @@ void TestExpressionsDialog::describeShowsInvalidDeviceMessage()
 
     pEdit->setPlainText(QStringLiteral("${40001@99} + ${40002}"));
 
-    /* Row 0 is skipped without a describe call; the chain continues with row 1 */
+    /* Row 0 is skipped without a describe call; row 1 is described */
     QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
     QCOMPARE(_pMockAdapterManager->describeCalls[0], QStringLiteral("${40002}"));
 
-    _pMockAdapterManager->injectDescribeResult(QStringLiteral("Modbus reg"));
+    _pMockAdapterManager->injectDescribeResult(1, QStringLiteral("Modbus reg"));
 
     auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
     QVERIFY(pTable != nullptr);

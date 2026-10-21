@@ -53,10 +53,11 @@ public:
         return mockReady;
     }
 
-    //! Simulate the adapter session becoming ready, which SignalsDialog waits for
+    //! Simulate the adapter session starting, which SignalsDialog waits for
     //! before requesting its default expression.
     void injectSessionStarted()
     {
+        mockActive = true;
         emit sessionStarted();
     }
 

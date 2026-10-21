@@ -139,8 +139,7 @@ void TestSignalsDialog::defaultSignalRequestedImmediatelyWhenAdapterAlreadyReady
 
 /*!
  * \brief The immediate request for an already-active session must not prevent a later, genuinely
- * new session from also triggering a request: requestDefaultExpression() disconnects any pending
- * buildExpressionResult connection before reconnecting, so the two requests don't interfere.
+ * new session from also triggering a request.
  */
 void TestSignalsDialog::defaultSignalRequestedAgainWhenSessionRestartsAfterAlreadyActive()
 {

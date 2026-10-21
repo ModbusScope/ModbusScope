@@ -3,6 +3,7 @@
 #define TST_ADDREGISTERWIDGET_H
 
 #include "ProtocolAdapter/adaptermanager.h"
+#include "ProtocolAdapter/datapointservice.h"
 #include "mockadapterhub.h"
 #include "models/graphdata.h"
 #include "models/settingsmodel.h"
@@ -47,13 +48,25 @@ public:
     {
     }
 
+    bool isAdapterReady() const override
+    {
+        return mockReady;
+    }
+
     //! Simulate the adapter returning an expression string for the last buildExpression() request.
     void injectBuildExpressionResult(const QString& expression)
     {
         emit buildExpressionResult(static_cast<int>(buildCalls.size()), expression);
     }
 
+    //! Simulate the adapter answering the last buildExpression() request with an error.
+    void injectBuildExpressionFailure(const QString& error)
+    {
+        emit dataPointRequestFailed(static_cast<int>(buildCalls.size()), error);
+    }
+
     QList<BuildCall> buildCalls;
+    bool mockReady{ true };
 };
 
 class TestAddRegisterWidget : public QObject
@@ -70,7 +83,9 @@ private slots:
     void registerDevice();
     void registerValueAxis();
     void buildExpressionEmptyResponseIgnored();
-    void buildExpressionDoesNotInterfereWithOtherConnections();
+    void buildExpressionResultForOtherRequestIgnored();
+    void buildExpressionFailureKeepsFormUsable();
+    void addStaysDisabledWhileBuildPendingAcrossDeviceSwitch();
 
     void deviceComboVisibleWithSingleDevice();
     void deviceComboListsDevices();
@@ -96,6 +111,7 @@ private:
 
     SettingsModel _settingsModel;
     MockAdapterHub* _pMockHub{ nullptr };
+    DataPointService* _pDataPointService{ nullptr };
     MockAdapterManager* _pMockAdapterManager{ nullptr };
     MockAdapterManager* _pMockSimAdapterManager{ nullptr };
     AddRegisterWidget* _pRegWidget{ nullptr };

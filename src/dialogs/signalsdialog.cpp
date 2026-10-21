@@ -3,6 +3,7 @@
 
 #include "ProtocolAdapter/adapterhub.h"
 #include "ProtocolAdapter/adaptermanager.h"
+#include "ProtocolAdapter/datapointservice.h"
 #include "customwidgets/actionbuttondelegate.h"
 #include "datahandling/datapointusage.h"
 #include "dialogs/addregisterwidget.h"
@@ -30,6 +31,8 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
     _pGraphDataModel = pGraphDataModel;
     _pSettingsModel = pSettingsModel;
     _pAdapterHub = pAdapterHub;
+    _pDataPointService = new DataPointService(_pSettingsModel, _pAdapterHub, this);
+    connect(_pDataPointService, &DataPointService::expressionBuilt, this, &SignalsDialog::onDefaultExpressionBuilt);
 
     const QList<deviceId_t> deviceIds = _pSettingsModel->deviceList();
     initDefaultExpressionTarget(deviceIds);
@@ -97,7 +100,7 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
 
     if (!deviceIds.isEmpty())
     {
-        auto pAddSignalWidget = new AddRegisterWidget(_pSettingsModel, _pAdapterHub, this);
+        auto pAddSignalWidget = new AddRegisterWidget(_pSettingsModel, _pDataPointService, this);
         connect(pAddSignalWidget, &AddRegisterWidget::graphDataConfigured, this, &SignalsDialog::addSignal);
 
         _addSignalAction = std::make_unique<QWidgetAction>(this);
@@ -172,7 +175,8 @@ void SignalsDialog::handleExpressionEdit(const QModelIndex& index)
     {
         _pUi->signalView->closePersistentEditor(index);
 
-        ExpressionsDialog exprDialog(_pGraphDataModel, GraphIdx(index.row()), _pAdapterHub, _pSettingsModel, this);
+        ExpressionsDialog exprDialog(_pGraphDataModel, GraphIdx(index.row()), _pAdapterHub, _pSettingsModel,
+                                     _pDataPointService, this);
 
         exprDialog.exec();
     }
@@ -195,7 +199,7 @@ void SignalsDialog::initDefaultExpressionTarget(const QList<deviceId_t>& deviceI
     }
 
     _defaultExpressionDeviceId = deviceIds.first();
-    const QString adapterId = _pSettingsModel->adapterIdForDevice(_defaultExpressionDeviceId);
+    const QString adapterId = _pDataPointService->adapterIdForDevice(_defaultExpressionDeviceId);
     _pDefaultExpressionManager = _pAdapterHub->adapterManager(adapterId);
 }
 
@@ -237,34 +241,28 @@ void SignalsDialog::requestDefaultExpression()
         return;
     }
 
-    const QJsonObject defaults = _pSettingsModel->adapterData(_pDefaultExpressionManager->adapterId())
-                                   ->dataPointSchema()
-                                   .value("defaults")
-                                   .toObject();
+    const QJsonObject defaults = _pDataPointService->defaults(_defaultExpressionDeviceId);
     if (defaults.isEmpty())
     {
         return;
     }
 
-    /* Disconnect any pending connection from a previous session before installing a new one */
-    QObject::disconnect(_pDefaultExpressionManager, &AdapterManager::buildExpressionResult, this,
-                        &SignalsDialog::onDefaultExpressionBuilt);
-    connect(_pDefaultExpressionManager, &AdapterManager::buildExpressionResult, this,
-            &SignalsDialog::onDefaultExpressionBuilt, Qt::SingleShotConnection);
-
-    QJsonObject addressFields = defaults;
-    const QString dataType = addressFields.take(QStringLiteral("dataType")).toString();
-    _pDefaultExpressionManager->buildExpression(addressFields, dataType, _defaultExpressionDeviceId);
+    /* Only the latest request counts: a reply to an earlier one is ignored */
+    _defaultExpressionTicket = _pDataPointService->buildExpression(_defaultExpressionDeviceId, defaults);
 }
 
 /*!
  * \brief Applies the adapter-provided default expression to the graph data model.
- * \param requestId  Id of the buildExpression request (unused).
+ * \param ticket     Ticket of the finished request; results of other requests are ignored.
  * \param expression The default expression string returned by the adapter.
  */
-void SignalsDialog::onDefaultExpressionBuilt(int requestId, const QString& expression)
+void SignalsDialog::onDefaultExpressionBuilt(quint64 ticket, const QString& expression)
 {
-    Q_UNUSED(requestId);
+    if (ticket != _defaultExpressionTicket)
+    {
+        return;
+    }
+
     if (!expression.isEmpty())
     {
         _pGraphDataModel->setDefaultExpression(expression);

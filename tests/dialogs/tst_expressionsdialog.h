@@ -3,6 +3,7 @@
 #define TST_EXPRESSIONSDIALOG_H
 
 #include "ProtocolAdapter/adaptermanager.h"
+#include "ProtocolAdapter/datapointservice.h"
 #include "mockadapterhub.h"
 
 #include <QJsonObject>
@@ -40,12 +41,23 @@ public:
         return mockIdle;
     }
 
-    //! Simulate the adapter returning a description for the last requested data point.
-    void injectDescribeResult(const QString& description)
+    bool isAdapterReady() const override
+    {
+        return !mockIdle;
+    }
+
+    //! Simulate the adapter returning a description for the request with the given id (1 for the first call).
+    void injectDescribeResult(int requestId, const QString& description)
     {
         QJsonObject result;
         result["description"] = description;
-        emit describeDataPointResult(static_cast<int>(describeCalls.size()), result);
+        emit describeDataPointResult(requestId, result);
+    }
+
+    //! Simulate the adapter answering the request with the given id with an error.
+    void injectDescribeFailure(int requestId, const QString& error)
+    {
+        emit dataPointRequestFailed(requestId, error);
     }
 
     //! Simulate the adapter returning expression help text.
@@ -74,6 +86,7 @@ private slots:
     void describeDispatch_singleAddress();
     void describeDispatch_multipleAddresses();
     void describeDispatch_abortsOnExpressionChange();
+    void describeDispatch_failureKeepsParserDescription();
 
     void describeRoutedPerDeviceAdapter();
     void describeSkipsUnavailableAdapter();
@@ -92,6 +105,7 @@ private:
     GraphDataModel* _pGraphDataModel{ nullptr };
     SettingsModel* _pSettingsModel{ nullptr };
     MockAdapterHub* _pMockHub{ nullptr };
+    DataPointService* _pDataPointService{ nullptr };
     MockAdapterManager* _pMockAdapterManager{ nullptr };
     ExpressionsDialog* _pDialog{ nullptr };
 };
