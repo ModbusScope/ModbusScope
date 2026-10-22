@@ -21,7 +21,8 @@ DataPointDescriptionCache::DataPointDescriptionCache(DataPointService* pService,
 /*!
  * \brief Returns what is known about a reference, and asks its adapter on a miss.
  *
- * Entries are keyed by reference text. While a request is pending, lookups do not send it again.
+ * Entries are keyed by reference text and are only used while the device is served by the adapter
+ * that described it. While a request is pending, lookups do not send it again.
  * An \c Invalid entry is kept; an \c Unavailable entry is kept until an adapter may have become
  * usable; a \c Failed entry is kept until the retry interval has passed.
  * descriptionChanged() is emitted when a reply arrives.
@@ -30,8 +31,9 @@ DataPointDescriptionCache::DataPointDescriptionCache(DataPointService* pService,
  */
 DataPointDescription DataPointDescriptionCache::lookup(const ExpressionReferences::Reference& reference)
 {
+    const QString adapterId = _pService->adapterIdForDevice(reference.deviceId);
     const auto it = _entries.constFind(reference.text);
-    if (it != _entries.constEnd())
+    if (it != _entries.constEnd() && it->adapterId == adapterId)
     {
         const bool bRetryDue = it->description.state == State::Failed && it->retryDeadline.hasExpired();
         if (!bRetryDue)
@@ -41,6 +43,7 @@ DataPointDescription DataPointDescriptionCache::lookup(const ExpressionReference
     }
 
     Entry entry;
+    entry.adapterId = adapterId;
     if (!_pService->isDeviceUsable(reference.deviceId))
     {
         entry.description.state = State::Unavailable;
@@ -49,20 +52,25 @@ DataPointDescription DataPointDescriptionCache::lookup(const ExpressionReference
     }
 
     const quint64 ticket = _pService->describeDataPoint(reference.deviceId, reference.text);
-    _pendingKeys.insert(ticket, reference.text);
+    _pendingRequests.insert(ticket, PendingRequest{ reference.text, adapterId });
     _entries.insert(reference.text, entry);
     return entry.description;
 }
 
 void DataPointDescriptionCache::onDataPointDescribed(quint64 ticket, const QJsonObject& result)
 {
-    if (!_pendingKeys.contains(ticket))
+    if (!_pendingRequests.contains(ticket))
     {
         return;
     }
-    const QString key = _pendingKeys.take(ticket);
+    const PendingRequest request = _pendingRequests.take(ticket);
+    if (_entries.value(request.key).adapterId != request.adapterId)
+    {
+        return;
+    }
 
     Entry entry;
+    entry.adapterId = request.adapterId;
     if (result.value("valid").toBool())
     {
         entry.description.state = State::Valid;
@@ -75,25 +83,30 @@ void DataPointDescriptionCache::onDataPointDescribed(quint64 ticket, const QJson
         entry.description.error = result.value("error").toString();
     }
 
-    _entries.insert(key, entry);
-    emit descriptionChanged(key);
+    _entries.insert(request.key, entry);
+    emit descriptionChanged(request.key);
 }
 
 void DataPointDescriptionCache::onRequestFailed(quint64 ticket, const QString& error)
 {
-    if (!_pendingKeys.contains(ticket))
+    if (!_pendingRequests.contains(ticket))
     {
         return;
     }
-    const QString key = _pendingKeys.take(ticket);
+    const PendingRequest request = _pendingRequests.take(ticket);
+    if (_entries.value(request.key).adapterId != request.adapterId)
+    {
+        return;
+    }
 
     Entry entry;
+    entry.adapterId = request.adapterId;
     entry.description.state = State::Failed;
     entry.description.error = error;
     entry.retryDeadline = QDeadlineTimer(_failedRetryMs);
 
-    _entries.insert(key, entry);
-    emit descriptionChanged(key);
+    _entries.insert(request.key, entry);
+    emit descriptionChanged(request.key);
 }
 
 /*!

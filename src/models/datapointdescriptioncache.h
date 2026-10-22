@@ -54,13 +54,20 @@ private:
     {
         DataPointDescription description;
         QDeadlineTimer retryDeadline;
+        QString adapterId;
+    };
+
+    struct PendingRequest
+    {
+        QString key;
+        QString adapterId;
     };
 
     DataPointService* _pService;
     int _failedRetryMs;
 
     QHash<QString, Entry> _entries;
-    QHash<quint64, QString> _pendingKeys;
+    QHash<quint64, PendingRequest> _pendingRequests;
 };
 
 #endif // DATAPOINTDESCRIPTIONCACHE_H

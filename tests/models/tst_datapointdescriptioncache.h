@@ -29,6 +29,8 @@ private slots:
     void failedRetriedAfterAdaptersChanged();
     void pendingReplyAppliedAfterAdaptersChanged();
     void otherTicketsIgnored();
+    void adapterChangeRequestsNewDescription();
+    void replyFromPreviousAdapterIgnored();
 
 private:
     static ExpressionReferences::Reference reference(const QString& text);

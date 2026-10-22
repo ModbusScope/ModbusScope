@@ -28,6 +28,7 @@ void DeviceComboBox::setSettingsModel(SettingsModel* pSettingsModel)
 
     _pSettingsModel = pSettingsModel;
     connect(_pSettingsModel, &SettingsModel::deviceListChanged, this, &DeviceComboBox::onDeviceListChanged);
+    connect(_pSettingsModel, &SettingsModel::adapterDataChanged, this, &DeviceComboBox::onAdapterDataChanged);
 
     const QSignalBlocker blocker(this);
     populate();
@@ -102,6 +103,27 @@ void DeviceComboBox::onDeviceListChanged()
     if (selectedDeviceId() != previousSelection)
     {
         emit deviceChanged(selectedDeviceId());
+    }
+}
+
+/*!
+ * \brief Update the labels of the devices served by \a adapterId, as its display name may have changed.
+ * \param adapterId The adapter whose data changed.
+ */
+void DeviceComboBox::onAdapterDataChanged(const QString& adapterId)
+{
+    if (_labelStyle == LabelStyle::Name)
+    {
+        return;
+    }
+
+    for (int idx = 0; idx < count(); idx++)
+    {
+        const auto deviceId = static_cast<deviceId_t>(itemData(idx).toUInt());
+        if (_pSettingsModel->adapterIdForDevice(deviceId) == adapterId)
+        {
+            setItemText(idx, deviceLabel(deviceId));
+        }
     }
 }
 

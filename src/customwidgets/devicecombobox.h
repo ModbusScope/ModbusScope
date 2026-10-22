@@ -32,6 +32,7 @@ signals:
 private slots:
     void onCurrentIndexChanged(int index);
     void onDeviceListChanged();
+    void onAdapterDataChanged(const QString& adapterId);
 
 private:
     void populate();

@@ -175,6 +175,41 @@ void TestDataPointDescriptionCache::otherTicketsIgnored()
     QCOMPARE(spy.count(), 0);
 }
 
+void TestDataPointDescriptionCache::adapterChangeRequestsNewDescription()
+{
+    MockDataPointManager simManager(QStringLiteral("sim"));
+    _pMockHub->addManager(QStringLiteral("sim"), &simManager);
+    _pCache->lookup(reference(QStringLiteral("${40001}")));
+    emit _pManager->describeDataPointResult(1, validResult(QStringLiteral("Holding register 0")));
+
+    DeviceListHelpers::seedDevice(_pSettingsModel, Device::cFirstDeviceId, QStringLiteral("sim"));
+
+    QCOMPARE(_pCache->lookup(reference(QStringLiteral("${40001}"))).state, State::Pending);
+    QCOMPARE(simManager.describeCalls, QStringList{ QStringLiteral("${40001}") });
+
+    emit simManager.describeDataPointResult(1, validResult(QStringLiteral("Simulated value")));
+
+    const DataPointDescription description = _pCache->lookup(reference(QStringLiteral("${40001}")));
+    QCOMPARE(description.state, State::Valid);
+    QCOMPARE(description.description, QStringLiteral("Simulated value"));
+}
+
+void TestDataPointDescriptionCache::replyFromPreviousAdapterIgnored()
+{
+    MockDataPointManager simManager(QStringLiteral("sim"));
+    _pMockHub->addManager(QStringLiteral("sim"), &simManager);
+    _pCache->lookup(reference(QStringLiteral("${40001}")));
+
+    DeviceListHelpers::seedDevice(_pSettingsModel, Device::cFirstDeviceId, QStringLiteral("sim"));
+    _pCache->lookup(reference(QStringLiteral("${40001}")));
+    QSignalSpy spy(_pCache, &DataPointDescriptionCache::descriptionChanged);
+
+    emit _pManager->describeDataPointResult(1, validResult(QStringLiteral("Holding register 0")));
+
+    QCOMPARE(spy.count(), 0);
+    QCOMPARE(_pCache->lookup(reference(QStringLiteral("${40001}"))).state, State::Pending);
+}
+
 ExpressionReferences::Reference TestDataPointDescriptionCache::reference(const QString& text)
 {
     return ExpressionReferences::find(text).value(0);

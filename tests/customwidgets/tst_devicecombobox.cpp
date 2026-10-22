@@ -3,6 +3,7 @@
 #include "../models/devicelisthelpers.h"
 #include "customwidgets/devicecombobox.h"
 
+#include <QJsonObject>
 #include <QSignalSpy>
 #include <QTest>
 
@@ -55,6 +56,17 @@ void TestDeviceComboBox::nameWithPlaceMarkerKeptInLabel()
     _pCombo->setLabelStyle(DeviceComboBox::LabelStyle::NameProtocolId);
 
     QCOMPARE(_pCombo->itemText(1), QStringLiteral("Pump %3 (sim) [2]"));
+}
+
+void TestDeviceComboBox::adapterNameChangeUpdatesLabels()
+{
+    _pCombo->setLabelStyle(DeviceComboBox::LabelStyle::NameProtocolId);
+
+    _pSettingsModel->updateAdapterFromDescribe(QStringLiteral("modbus"),
+                                               QJsonObject{ { "name", QStringLiteral("Modbus TCP") } });
+
+    QCOMPARE(_pCombo->itemText(0), QStringLiteral("Boiler (Modbus TCP) [1]"));
+    QCOMPARE(_pCombo->itemText(1), QStringLiteral("Pump (sim) [2]"));
 }
 
 void TestDeviceComboBox::setSelectedDeviceEmitsDeviceChanged()
