@@ -99,7 +99,7 @@ Phase R goes first. It only renames the Signals dialog classes, which phases 0, 
 | 1 | Compose expression cannot save a broken expression; editor and add form are easier to use | S | Done |
 | 2 | The add popup runs on the shared editor widget and shows the reference it will add | M | Done |
 | 3 | Cancel discards every change made in the Signals dialog; OK clears the data of signals whose expression changed | M | Done |
-| 4 | Adding signals happens in a side panel that stays open | M | |
+| 4 | Adding signals happens in a side panel that stays open | M | Done |
 | 5 | Data points can be inserted in Compose expression without typing syntax | M | |
 | 6 | The Signals table shows what each data point is | S | |
 | 7 | Existing data points are edited through the same form | L | |
@@ -432,6 +432,17 @@ public:
 - Update the manual page for adding data points and its screenshot.
 
 **Done when:** ten signals with consecutive addresses can be added without reopening anything, and the popup code is gone.
+
+**Done.** Differences from the plan above:
+
+- `SignalEditorPanel` writes to the draft model itself (`GraphDataModel::add()`); there is no `graphDataConfigured` signal any more. The status line reads the added label back from the model, so an unnamed signal shows its generated name.
+- Enter anywhere in the panel adds the signal (`keyPressEvent`) and is accepted even when Add is disabled, so it never triggers the dialog's OK.
+- The "Added" message clears once a field or the device changes. With no device configured, Add signal is disabled and the status line asks for a device.
+- The table's Delete shortcut uses `Qt::WidgetWithChildrenShortcut`, so Delete in a panel field edits that field.
+- The panel's scroll area also scrolls horizontally when needed, so a wide address form is never clipped.
+- The default expression is gone from `SignalsDialog` and from `GraphDataModel` (`setDefaultExpression()`); `add()` without arguments still uses `${h0}`, for tests and internal models.
+- Tab order runs name, address editor, axis, Add signal. Address fields that `SchemaFormWidget` rebuilds after a device change move to the end of the tab order, as they did in the popup.
+- The screenshot `add_register_dialog.png` still shows the popup.
 
 ---
 
