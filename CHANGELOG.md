@@ -6,6 +6,10 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 
 * Screenshot can be copied to the clipboard; the output mode is selected from the screenshot toolbar button and can be remembered; the button icon briefly confirms a copy
 
+### Fixed
+
+* An address the adapter rejects in the add signal form no longer stops the adapter
+
 ## [v5.0.1](https://github.com/jgeudens/ModbusScope/releases/tag/5.0.1) (09/10/2026)
 
 ### Added

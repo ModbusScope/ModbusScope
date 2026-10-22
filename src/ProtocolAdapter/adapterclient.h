@@ -5,8 +5,8 @@
 #include "models/device.h"
 #include "util/result.h"
 
+#include <QHash>
 #include <QJsonObject>
-#include <QMap>
 #include <QObject>
 #include <QSet>
 #include <QStringList>
@@ -126,12 +126,15 @@ public:
     /*!
      * \brief Send an adapter.describeDataPoint request to parse a data point expression.
      *
-     * Can be called in AWAITING_CONFIG or ACTIVE state.
-     * Emits describeDataPointResult() when the adapter responds.
+     * Can be called in AWAITING_CONFIG or ACTIVE state. Several requests can be pending at once;
+     * the reply carries the id returned here.
+     * Emits describeDataPointResult() when the adapter responds, or dataPointRequestFailed() when
+     * it answers with an error or the request is dropped.
      *
      * \param expression The data point expression string to describe.
+     * \return The JSON-RPC request id, or -1 when the request was not sent.
      */
-    void describeDataPoint(const QString& expression);
+    int describeDataPoint(const QString& expression);
 
     /*!
      * \brief Send an adapter.inspectLicense request to verify a license file without installing it.
@@ -157,14 +160,17 @@ public:
     /*!
      * \brief Send an adapter.buildExpression request to construct a data point expression string.
      *
-     * Can be called in AWAITING_CONFIG or ACTIVE state.
-     * Emits buildExpressionResult() when the adapter responds.
+     * Can be called in AWAITING_CONFIG or ACTIVE state. Several requests can be pending at once;
+     * the reply carries the id returned here.
+     * Emits buildExpressionResult() when the adapter responds, or dataPointRequestFailed() when
+     * it answers with an error or the request is dropped.
      *
      * \param addressFields Address field values as returned by the data point schema form (e.g. objectType, address).
      * \param dataType      Data type identifier (e.g. "16b"). Omitted from params when empty; adapter uses its default.
      * \param deviceId      Device identifier. Omitted from params when zero; adapter uses its default.
+     * \return The JSON-RPC request id, or -1 when the request was not sent.
      */
-    void buildExpression(const QJsonObject& addressFields, const QString& dataType, deviceId_t deviceId);
+    int buildExpression(const QJsonObject& addressFields, const QString& dataType, deviceId_t deviceId);
 
     /*!
      * \brief Send an adapter.expressionHelp request to retrieve expression syntax help text.
@@ -248,9 +254,10 @@ signals:
 
     /*!
      * \brief Emitted when an adapter.describeDataPoint response has been received.
-     * \param result The full result object (valid, fields, description or error).
+     * \param requestId The id returned by describeDataPoint().
+     * \param result    The full result object (valid, fields, description or error).
      */
-    void describeDataPointResult(QJsonObject result);
+    void describeDataPointResult(int requestId, QJsonObject result);
 
     /*!
      * \brief Emitted when an adapter.inspectLicense response has been received.
@@ -273,9 +280,23 @@ signals:
 
     /*!
      * \brief Emitted when an adapter.buildExpression response has been received.
+     * \param requestId  The id returned by buildExpression().
      * \param expression The constructed data point expression string (e.g. \c ${h0:f32b}).
      */
-    void buildExpressionResult(QString expression);
+    void buildExpressionResult(int requestId, QString expression);
+
+    /*!
+     * \brief Emitted when an adapter.describeDataPoint or adapter.buildExpression request ends
+     * without a result: the adapter answered with a JSON-RPC error, or the request was dropped
+     * because the session stopped, restarted or the process exited.
+     *
+     * An error reply means the request could not be handled (for example invalid address fields),
+     * not that the data point is invalid: a reference the adapter can parse but rejects is reported
+     * through describeDataPointResult() with \c valid set to false.
+     * \param requestId The id returned by describeDataPoint() or buildExpression().
+     * \param error     The error message reported by the adapter, or why the request was dropped.
+     */
+    void dataPointRequestFailed(int requestId, QString error);
 
     /*!
      * \brief Emitted when an adapter.expressionHelp response has been received.
@@ -321,7 +342,11 @@ private:
     };
 
     void handleLifecycleResponse(int id, const QString& method, const QJsonObject& result);
+    void handleAuxError(int id, const QString& method, const QString& errorMsg);
+    static bool isAuxMethod(const QString& method);
+    static bool isDataPointMethod(const QString& method);
     bool consumeAuxResponse(const QString& method, int id);
+    int sendAuxRequest(const QString& method, const QJsonObject& params);
     ResultDoubleList invalidResults() const;
     void degradeSession(const QString& diagnosticMessage);
     void announceIncompatibleSession();
@@ -340,7 +365,8 @@ private:
     int _handshakeTimeoutMs;
     QJsonObject _pendingConfig;
     QStringList _pendingExpressions;
-    QMap<QString, int> _pendingAuxRequests;
+    //! Method of every pending auxiliary request, by JSON-RPC request id.
+    QHash<int, QString> _pendingAuxRequests;
 
     //! Why the adapter's protocol version is not usable; empty when it matches. Kept until the
     //! next handshake, so no later session can configure or start an incompatible adapter.

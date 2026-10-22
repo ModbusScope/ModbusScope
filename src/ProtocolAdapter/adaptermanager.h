@@ -81,8 +81,9 @@ public:
      * \param addressFields Address field values as returned by the data point schema form.
      * \param dataType      Data type identifier (e.g. "16b"). Pass empty string for the adapter default.
      * \param deviceId      Device identifier. Pass 0 for the adapter default.
+     * \return The request id carried by the reply, or -1 when the request was not sent.
      */
-    virtual void buildExpression(const QJsonObject& addressFields, const QString& dataType, deviceId_t deviceId);
+    virtual int buildExpression(const QJsonObject& addressFields, const QString& dataType, deviceId_t deviceId);
 
     /*!
      * \brief Send an adapter.expressionHelp request to retrieve expression syntax help text.
@@ -94,11 +95,13 @@ public:
      * expression.
      *
      * Can be called when the adapter is in AWAITING_CONFIG or ACTIVE state.
-     * Emits describeDataPointResult() when the adapter responds.
+     * Emits describeDataPointResult() when the adapter responds, or dataPointRequestFailed()
+     * when the request ends without a result.
      *
      * \param expression The data point expression string to describe.
+     * \return The request id carried by the reply, or -1 when the request was not sent.
      */
-    virtual void describeDataPoint(const QString& expression);
+    virtual int describeDataPoint(const QString& expression);
 
     /*!
      * \brief Send an adapter.inspectLicense request to verify a license file without installing it.
@@ -151,9 +154,17 @@ signals:
 
     /*!
      * \brief Emitted when an adapter.buildExpression response has been received.
+     * \param requestId  The id returned by buildExpression().
      * \param expression The constructed data point expression string (e.g. \c ${h0:f32b}).
      */
-    void buildExpressionResult(QString expression);
+    void buildExpressionResult(int requestId, QString expression);
+
+    /*!
+     * \brief Emitted when a describeDataPoint() or buildExpression() request ends without a result.
+     * \param requestId The id returned by the request.
+     * \param error     The error message reported by the adapter, or why the request was dropped.
+     */
+    void dataPointRequestFailed(int requestId, QString error);
 
     /*!
      * \brief Emitted when an adapter.expressionHelp response has been received.
@@ -163,9 +174,10 @@ signals:
 
     /*!
      * \brief Emitted when an adapter.describeDataPoint response has been received.
-     * \param result The full result object (valid, fields, description or error).
+     * \param requestId The id returned by describeDataPoint().
+     * \param result    The full result object (valid, fields, description or error).
      */
-    void describeDataPointResult(QJsonObject result);
+    void describeDataPointResult(int requestId, QJsonObject result);
 
     /*!
      * \brief Emitted when an adapter.inspectLicense response has been received.

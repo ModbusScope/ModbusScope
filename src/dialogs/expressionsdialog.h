@@ -5,12 +5,14 @@
 #include "util/expressionchecker.h"
 
 #include <QDialog>
+#include <QHash>
 #include <QJsonObject>
 #include <QStringList>
 
 /* Forward declarations */
 class AdapterHub;
 class AdapterManager;
+class DataPointService;
 class ExpressionHighlighting;
 class SettingsModel;
 
@@ -27,6 +29,7 @@ public:
                                GraphIdx idx,
                                AdapterHub* pAdapterHub,
                                SettingsModel* pSettingsModel,
+                               DataPointService* pDataPointService,
                                QWidget* parent = nullptr);
     ~ExpressionsDialog();
 
@@ -37,14 +40,14 @@ private slots:
     void handleAccept();
     void handleResultReady(bool valid);
     void handleExpressionHelpResult(const QString& helpText);
-    void handleDescribeDataPointResult(const QJsonObject& result);
+    void handleDataPointDescribed(quint64 ticket, const QJsonObject& result);
+    void handleDescribeFailed(quint64 ticket, const QString& error);
     void onHelpDeviceChanged(int index);
 
 private:
-    void startNextDescribe();
+    void requestDescriptions(const QStringList& addresses, const QList<deviceId_t>& deviceIds);
     void populateHelpDevices();
     void requestHelpForAdapter(const QString& adapterId);
-    AdapterManager* managerForDescribeRow(qint32 row) const;
     void setDescribeRowText(qint32 row, const QString& text);
 
     Ui::ExpressionsDialog* _pUi;
@@ -54,7 +57,7 @@ private:
     GraphDataModel* _pGraphDataModel;
     AdapterHub* _pAdapterHub;
     SettingsModel* _pSettingsModel;
-    AdapterManager* _pDescribeManager = nullptr;
+    DataPointService* _pDataPointService;
     AdapterManager* _pHelpManager = nullptr;
 
     ExpressionChecker _expressionChecker;
@@ -62,9 +65,8 @@ private:
 
     bool _bUpdating;
 
-    QStringList _pendingDescribeAddresses;
-    QList<deviceId_t> _pendingDescribeDeviceIds;
-    qint32 _nextDescribeRow = 0;
+    //! Data point table row of every pending describe request, by ticket.
+    QHash<quint64, qint32> _describeRowByTicket;
 };
 
 #endif // EXPRESSIONSDIALOG_H

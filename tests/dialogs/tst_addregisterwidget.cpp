@@ -100,13 +100,16 @@ void TestAddRegisterWidget::init()
     _pMockAdapterManager = new MockAdapterManager(&_settingsModel);
     _pMockHub = new MockAdapterHub();
     _pMockHub->addManager(QStringLiteral("modbus"), _pMockAdapterManager);
-    _pRegWidget = new AddRegisterWidget(&_settingsModel, _pMockHub);
+    _pDataPointService = new DataPointService(&_settingsModel, _pMockHub);
+    _pRegWidget = new AddRegisterWidget(&_settingsModel, _pDataPointService);
 }
 
 void TestAddRegisterWidget::cleanup()
 {
     delete _pRegWidget;
     _pRegWidget = nullptr;
+    delete _pDataPointService;
+    _pDataPointService = nullptr;
     delete _pMockAdapterManager;
     _pMockAdapterManager = nullptr;
     delete _pMockSimAdapterManager;
@@ -133,7 +136,7 @@ deviceId_t TestAddRegisterWidget::addSimAdapter()
     const deviceId_t simDeviceId = DeviceListHelpers::seedNextDevice(&_settingsModel, QStringLiteral("sim"));
 
     delete _pRegWidget;
-    _pRegWidget = new AddRegisterWidget(&_settingsModel, _pMockHub);
+    _pRegWidget = new AddRegisterWidget(&_settingsModel, _pDataPointService);
 
     return simDeviceId;
 }
@@ -201,7 +204,7 @@ void TestAddRegisterWidget::registerDevice()
 {
     const deviceId_t secondDeviceId = DeviceListHelpers::seedNextDevice(&_settingsModel, QStringLiteral("modbus"));
     delete _pRegWidget;
-    _pRegWidget = new AddRegisterWidget(&_settingsModel, _pMockHub);
+    _pRegWidget = new AddRegisterWidget(&_settingsModel, _pDataPointService);
 
     _pRegWidget->_pUi->cmbDevice->setCurrentIndex(indexForDevice(secondDeviceId));
     _pRegWidget->_pAddressForm->setSchema(
@@ -239,28 +242,42 @@ void TestAddRegisterWidget::buildExpressionEmptyResponseIgnored()
     QVERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
 }
 
-void TestAddRegisterWidget::buildExpressionDoesNotInterfereWithOtherConnections()
+void TestAddRegisterWidget::buildExpressionResultForOtherRequestIgnored()
 {
-    /* Simulate a persistent connection already active (e.g. SignalsDialog's requestDefaultExpression) */
-    int secondaryReceiveCount = 0;
-    QObject::connect(_pMockAdapterManager, &AdapterManager::buildExpressionResult, _pMockAdapterManager,
-                     [&secondaryReceiveCount](const QString&) { secondaryReceiveCount++; });
-
-    /* AddRegisterWidget connects with Qt::SingleShotConnection and receives the result */
-    GraphData graphData;
-    addRegister(graphData, QStringLiteral("${h0}"));
-    QCOMPARE(graphData.expression(), QStringLiteral("${h0}"));
-
-    /* The secondary persistent connection also received the signal */
-    QCOMPARE(secondaryReceiveCount, 1);
-
-    /* A second injection must not re-trigger AddRegisterWidget (its SingleShotConnection auto-disconnected) */
     QSignalSpy spy(_pRegWidget, &AddRegisterWidget::graphDataConfigured);
+
+    clickAdd();
+
+    /* A reply to a request this widget did not send (e.g. SignalsDialog's default expression) */
+    emit _pMockAdapterManager->buildExpressionResult(99, QStringLiteral("${h7}"));
+    QCOMPARE(spy.count(), 0);
+    QVERIFY(!_pRegWidget->_pUi->btnAdd->isEnabled());
+
     _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).value<GraphData>().expression(), QStringLiteral("${h0}"));
+}
+
+/*!
+ * \brief Regression test: an adapter error for buildExpression used to stop the adapter. The form
+ * must stay open with Add enabled, so the user can correct the address and try again.
+ */
+void TestAddRegisterWidget::buildExpressionFailureKeepsFormUsable()
+{
+    QSignalSpy spy(_pRegWidget, &AddRegisterWidget::graphDataConfigured);
+
+    clickAdd();
+    QVERIFY(!_pRegWidget->_pUi->btnAdd->isEnabled());
+
+    _pMockAdapterManager->injectBuildExpressionFailure(QStringLiteral("Address out of range"));
+
+    /* Failures are delivered on the next event loop turn */
+    QTRY_VERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
     QCOMPARE(spy.count(), 0);
 
-    /* The persistent secondary connection still fires on subsequent emissions */
-    QCOMPARE(secondaryReceiveCount, 2);
+    /* A second attempt is sent */
+    clickAdd();
+    QCOMPARE(_pMockAdapterManager->buildCalls.size(), 2);
 }
 
 void TestAddRegisterWidget::deviceComboVisibleWithSingleDevice()
@@ -290,7 +307,7 @@ void TestAddRegisterWidget::switchDeviceRebuildsSchema()
 
     QVERIFY(_pRegWidget->_addressSchema["properties"].toObject().contains(QStringLiteral("channel")));
     QCOMPARE(_pRegWidget->_dataPointDefaults["channel"].toInt(), 3);
-    QCOMPARE(_pRegWidget->_pAddressForm->values()["channel"].toInt(), 3);
+    QCOMPARE(_pRegWidget->_pAddressForm->values().value("channel").toInt(), 3);
 }
 
 void TestAddRegisterWidget::switchDeviceWhileMenuOpenResizesPopup()
@@ -388,7 +405,7 @@ void TestAddRegisterWidget::btnAddDisabledWhenSelectedDeviceAdapterUnavailable()
     const deviceId_t unavailableDeviceId =
       DeviceListHelpers::seedNextDevice(&_settingsModel, QStringLiteral("unavailable"));
     delete _pRegWidget;
-    _pRegWidget = new AddRegisterWidget(&_settingsModel, _pMockHub);
+    _pRegWidget = new AddRegisterWidget(&_settingsModel, _pDataPointService);
 
     /* Only device 1 is initially selected and it belongs to the modbus adapter */
     QVERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
@@ -432,7 +449,7 @@ void TestAddRegisterWidget::deviceAddedToEmptyListAppliesConfiguredAdapter()
      * and the combo refresh has to build its address form from the sim adapter. */
     DeviceListHelpers::clearDevices(&_settingsModel);
     delete _pRegWidget;
-    _pRegWidget = new AddRegisterWidget(&_settingsModel, _pMockHub);
+    _pRegWidget = new AddRegisterWidget(&_settingsModel, _pDataPointService);
     QCOMPARE(_pRegWidget->_pUi->cmbDevice->count(), 0);
 
     const deviceId_t simDeviceId = Device::cFirstDeviceId;
@@ -495,6 +512,21 @@ void TestAddRegisterWidget::emptyExpressionResponseLeavesContainingMenuOpen()
     QVERIFY(menu.isVisible());
 
     menu.hide();
+}
+
+//! Switching devices while a build request is pending must not allow a second request that replaces it.
+void TestAddRegisterWidget::addStaysDisabledWhileBuildPendingAcrossDeviceSwitch()
+{
+    const deviceId_t secondDeviceId = DeviceListHelpers::seedNextDevice(&_settingsModel, QStringLiteral("modbus"));
+    delete _pRegWidget;
+    _pRegWidget = new AddRegisterWidget(&_settingsModel, _pDataPointService);
+
+    clickAdd();
+    _pRegWidget->_pUi->cmbDevice->setCurrentIndex(indexForDevice(secondDeviceId));
+    QVERIFY(!_pRegWidget->_pUi->btnAdd->isEnabled());
+
+    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
+    QVERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
 }
 
 void TestAddRegisterWidget::clickAdd()

@@ -8,9 +8,7 @@
 #include <QJsonObject>
 #include <QWidget>
 
-class AdapterData;
-class AdapterHub;
-class AdapterManager;
+class DataPointService;
 class SchemaFormWidget;
 class SettingsModel;
 
@@ -25,7 +23,9 @@ class AddRegisterWidget : public QWidget
     friend class TestAddRegisterWidget;
 
 public:
-    explicit AddRegisterWidget(SettingsModel* pSettingsModel, AdapterHub* pAdapterHub, QWidget* parent = nullptr);
+    explicit AddRegisterWidget(SettingsModel* pSettingsModel,
+                               DataPointService* pDataPointService,
+                               QWidget* parent = nullptr);
     ~AddRegisterWidget();
 
 signals:
@@ -33,7 +33,8 @@ signals:
 
 private slots:
     void handleResultAccept();
-    void onBuildExpressionResult(const QString& expression);
+    void onExpressionBuilt(quint64 ticket, const QString& expression);
+    void onBuildRequestFailed(quint64 ticket, const QString& error);
     void onDeviceSelectionChanged(int index);
     void refreshDeviceCombo();
 
@@ -47,7 +48,6 @@ private:
     void closeContainingMenu();
     bool isSelectionUsable() const;
     deviceId_t selectedDeviceId() const;
-    QJsonObject buildSchema(const AdapterData* adapterData) const;
 
     Ui::AddRegisterWidget* _pUi;
     SchemaFormWidget* _pAddressForm;
@@ -55,13 +55,13 @@ private:
     QJsonObject _dataPointDefaults;
 
     SettingsModel* _pSettingsModel;
-    AdapterHub* _pAdapterHub;
-    AdapterManager* _pAdapterManager;
+    DataPointService* _pDataPointService;
 
     QButtonGroup _axisGroup;
 
     /* Temporary storage while waiting for buildExpression response */
     GraphData _pendingGraphData;
+    quint64 _pendingBuildTicket{ 0 };
 };
 
 #endif // ADDREGISTERWIDGET_H

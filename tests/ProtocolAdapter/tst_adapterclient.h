@@ -94,6 +94,23 @@ private slots:
     void requestStatusInDegradedSessionAfterConfigureErrorReturnsFalseLocally();
     void auxRequestsWorkInDegradedSession();
     void auxRequestErrorsAreNonFatalInDegradedSession();
+
+    void buildExpressionErrorIsNonFatal();
+    void buildExpressionErrorIsNonFatalWhenActive();
+    void describeDataPointErrorIsNonFatal();
+    void describeDataPointErrorIsNonFatalWhenActive();
+    void dataPointSchemaErrorIsNonFatal();
+    void lateAuxErrorDuringConfigureIsNotFatal();
+    void lateAuxErrorDuringConfigureKeepsHandshakeTimer();
+
+    void interleavedDescribeRepliesKeepTheirIds();
+    void dataPointRequestsRefusedReturnMinusOne();
+    void pendingDataPointRequestsFailOnStopSession();
+    void pendingDataPointRequestsFailOnProvideConfig();
+    void pendingDataPointRequestsFailOnProcessExit();
+    void failedSendLeavesNoPendingRequest();
+    void nonObjectAuxResultIsNotFatal();
+    void buildExpressionWithoutExpressionFails();
 };
 
 #endif // TST_ADAPTERCLIENT_H

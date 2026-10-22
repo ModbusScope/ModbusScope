@@ -19,6 +19,7 @@ AdapterManager::AdapterManager(const QString& adapterId,
     connect(_pAdapterClient, &AdapterClient::sessionStarted, this, &AdapterManager::sessionStarted);
     connect(_pAdapterClient, &AdapterClient::readDataResult, this, &AdapterManager::readDataResult);
     connect(_pAdapterClient, &AdapterClient::buildExpressionResult, this, &AdapterManager::buildExpressionResult);
+    connect(_pAdapterClient, &AdapterClient::dataPointRequestFailed, this, &AdapterManager::dataPointRequestFailed);
     connect(_pAdapterClient, &AdapterClient::expressionHelpResult, this, &AdapterManager::expressionHelpResult);
     connect(_pAdapterClient, &AdapterClient::describeDataPointResult, this, &AdapterManager::describeDataPointResult);
     connect(_pAdapterClient, &AdapterClient::inspectLicenseResult, this, &AdapterManager::inspectLicenseResult);
@@ -90,10 +91,11 @@ void AdapterManager::requestExpressionHelp()
 /*! \brief Send an adapter.describeDataPoint request to retrieve a human-readable description of a data point
  * expression.
  * \param expression The data point expression string to describe.
+ * \return The request id carried by the reply, or -1 when the request was not sent.
  */
-void AdapterManager::describeDataPoint(const QString& expression)
+int AdapterManager::describeDataPoint(const QString& expression)
 {
-    _pAdapterClient->describeDataPoint(expression);
+    return _pAdapterClient->describeDataPoint(expression);
 }
 
 /*! \brief Send an adapter.inspectLicense request to verify a license file without installing it.
@@ -121,10 +123,11 @@ void AdapterManager::requestReadData()
  * \param addressFields Address field values from the data point schema form.
  * \param dataType      Data type identifier; empty string uses the adapter default.
  * \param deviceId      Device identifier; 0 uses the adapter default.
+ * \return The request id carried by the reply, or -1 when the request was not sent.
  */
-void AdapterManager::buildExpression(const QJsonObject& addressFields, const QString& dataType, deviceId_t deviceId)
+int AdapterManager::buildExpression(const QJsonObject& addressFields, const QString& dataType, deviceId_t deviceId)
 {
-    _pAdapterClient->buildExpression(addressFields, dataType, deviceId);
+    return _pAdapterClient->buildExpression(addressFields, dataType, deviceId);
 }
 
 /*! \brief Receive the adapter.describe response, update the settings model, and request the data point schema.

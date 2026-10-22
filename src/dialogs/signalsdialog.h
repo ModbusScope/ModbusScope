@@ -12,6 +12,7 @@
 class GraphDataModel;
 class AdapterHub;
 class AdapterManager;
+class DataPointService;
 class SettingsModel;
 class ValueAxisDelegate;
 class ActionButtonDelegate;
@@ -40,7 +41,7 @@ private slots:
     void onSignalInserted(const QModelIndex& parent, int first, int last);
     void handleExpressionEdit(const QModelIndex& index);
     void requestDefaultExpression();
-    void onDefaultExpressionBuilt(const QString& expression);
+    void onDefaultExpressionBuilt(quint64 ticket, const QString& expression);
     void updateDataPointLimitIndication();
 
 private:
@@ -55,8 +56,10 @@ private:
     GraphDataModel* _pGraphDataModel;
     SettingsModel* _pSettingsModel;
     AdapterHub* _pAdapterHub;
-    AdapterManager* _pDefaultExpressionManager;
+    DataPointService* _pDataPointService;
+    AdapterManager* _pDefaultExpressionManager{ nullptr };
     deviceId_t _defaultExpressionDeviceId{ 0 };
+    quint64 _defaultExpressionTicket{ 0 };
 
     CenteredBoxProxyStyle _centeredBoxStyle;
 

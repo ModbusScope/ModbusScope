@@ -4,6 +4,7 @@ add_xtest(tst_adapterprocess)
 add_xtest(tst_adaptermanager)
 add_xtest(tst_adapterdiscovery)
 add_xtest(tst_adapterhub)
+add_xtest(tst_datapointservice tst_datapointservice.h)
 
 target_compile_definitions(tst_adapterprocess PRIVATE
     DUMMY_ADAPTER_EXECUTABLE="$<TARGET_FILE:dummymodbusadapter>"

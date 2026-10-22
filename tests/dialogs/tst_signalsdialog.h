@@ -37,9 +37,10 @@ public:
     {
     }
 
-    void buildExpression(const QJsonObject& fields, const QString& dataType, deviceId_t deviceId) override
+    int buildExpression(const QJsonObject& fields, const QString& dataType, deviceId_t deviceId) override
     {
         buildCalls.append({ fields, dataType, deviceId });
+        return buildCalls.size();
     }
 
     bool isAdapterActive() const override
@@ -52,10 +53,11 @@ public:
         return mockReady;
     }
 
-    //! Simulate the adapter session becoming ready, which SignalsDialog waits for
+    //! Simulate the adapter session starting, which SignalsDialog waits for
     //! before requesting its default expression.
     void injectSessionStarted()
     {
+        mockActive = true;
         emit sessionStarted();
     }
 

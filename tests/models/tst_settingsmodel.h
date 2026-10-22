@@ -18,6 +18,10 @@ private slots:
     void reconcileKeepsDeviceNoAdapterDeclares();
     void reconcileKeepsNameWhenAdapterClaimsDevice();
     void reconcileIsSilentWhenNothingChanges();
+
+    void adapterDisplayNameUsesAdapterName();
+    void adapterDisplayNameFallsBackToIdWithoutName();
+    void adapterDisplayNameDoesNotInsertUnknownAdapter();
 };
 
 #endif // TST_SETTINGSMODEL_H

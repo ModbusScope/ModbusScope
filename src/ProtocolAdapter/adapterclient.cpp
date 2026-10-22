@@ -4,6 +4,7 @@
 
 #include <QJsonArray>
 
+#include <algorithm>
 #include <memory>
 
 namespace {
@@ -187,30 +188,31 @@ void AdapterClient::requestDataPointSchema()
         return;
     }
 
-    _pendingAuxRequests["adapter.dataPointSchema"] = _pProcess->sendRequest("adapter.dataPointSchema", QJsonObject());
+    sendAuxRequest(QStringLiteral("adapter.dataPointSchema"), QJsonObject());
 }
 
 /*!
  * \brief Request a human-readable description of a data point expression.
  * \param expression The data point expression string to describe.
+ * \return The JSON-RPC request id, or -1 when the request was not sent.
  */
-void AdapterClient::describeDataPoint(const QString& expression)
+int AdapterClient::describeDataPoint(const QString& expression)
 {
     if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE && _state != State::ACTIVE_DEGRADED)
     {
         qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "describeDataPoint called in unexpected state"
                              << static_cast<int>(_state);
-        return;
+        return -1;
     }
 
     if (isAuxRequestRefused("describeDataPoint"))
     {
-        return;
+        return -1;
     }
 
     QJsonObject params;
     params["expression"] = expression;
-    _pendingAuxRequests["adapter.describeDataPoint"] = _pProcess->sendRequest("adapter.describeDataPoint", params);
+    return sendAuxRequest(QStringLiteral("adapter.describeDataPoint"), params);
 }
 
 /*!
@@ -235,7 +237,7 @@ void AdapterClient::inspectLicense(const QString& path)
 
     QJsonObject params;
     params["path"] = path;
-    _pendingAuxRequests["adapter.inspectLicense"] = _pProcess->sendRequest("adapter.inspectLicense", params);
+    sendAuxRequest(QStringLiteral("adapter.inspectLicense"), params);
 }
 
 /*!
@@ -258,7 +260,7 @@ void AdapterClient::validateDataPoint(const QString& expression)
 
     QJsonObject params;
     params["expression"] = expression;
-    _pendingAuxRequests["adapter.validateDataPoint"] = _pProcess->sendRequest("adapter.validateDataPoint", params);
+    sendAuxRequest(QStringLiteral("adapter.validateDataPoint"), params);
 }
 
 /*!
@@ -266,19 +268,20 @@ void AdapterClient::validateDataPoint(const QString& expression)
  * \param addressFields Address field values as returned by the data point schema form.
  * \param dataType      Data type identifier; omitted from params when empty.
  * \param deviceId      Device identifier; omitted from params when zero.
+ * \return The JSON-RPC request id, or -1 when the request was not sent.
  */
-void AdapterClient::buildExpression(const QJsonObject& addressFields, const QString& dataType, deviceId_t deviceId)
+int AdapterClient::buildExpression(const QJsonObject& addressFields, const QString& dataType, deviceId_t deviceId)
 {
     if (_state != State::AWAITING_CONFIG && _state != State::ACTIVE && _state != State::ACTIVE_DEGRADED)
     {
         qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "buildExpression called in unexpected state"
                              << static_cast<int>(_state);
-        return;
+        return -1;
     }
 
     if (isAuxRequestRefused("buildExpression"))
     {
-        return;
+        return -1;
     }
 
     QJsonObject params;
@@ -292,7 +295,7 @@ void AdapterClient::buildExpression(const QJsonObject& addressFields, const QStr
     {
         params["deviceId"] = static_cast<qint64>(deviceId);
     }
-    _pendingAuxRequests["adapter.buildExpression"] = _pProcess->sendRequest("adapter.buildExpression", params);
+    return sendAuxRequest(QStringLiteral("adapter.buildExpression"), params);
 }
 
 /*!
@@ -312,7 +315,7 @@ void AdapterClient::requestExpressionHelp()
         return;
     }
 
-    _pendingAuxRequests["adapter.expressionHelp"] = _pProcess->sendRequest("adapter.expressionHelp", QJsonObject());
+    sendAuxRequest(QStringLiteral("adapter.expressionHelp"), QJsonObject());
 }
 
 void AdapterClient::stopSession()
@@ -358,6 +361,11 @@ void AdapterClient::onResponseReceived(int id, const QString& method, const QJso
     {
         handleLifecycleResponse(id, method, result.toObject());
     }
+    else if (isAuxMethod(method))
+    {
+        qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "unexpected non-object result for" << method;
+        handleAuxError(id, method, QStringLiteral("The adapter sent a malformed reply"));
+    }
     else
     {
         qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "unexpected non-object result for" << method;
@@ -373,43 +381,19 @@ void AdapterClient::onResponseReceived(int id, const QString& method, const QJso
 
 void AdapterClient::onErrorReceived(int id, const QString& method, const QJsonObject& error)
 {
-    _handshakeTimer.stop();
     QString errorMsg = error.value("message").toString();
     qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "error for" << method << ":" << errorMsg;
 
-    /* For auxiliary requests, a JSON-RPC error is a non-fatal result rather
-       than a session-level failure. Translate to the corresponding result signal or swallow. */
-    if (method == QStringLiteral("adapter.validateDataPoint") &&
-        (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
+    /* For auxiliary requests, a JSON-RPC error is a non-fatal result rather than a session-level
+       failure, in every state: a late reply can arrive after the session moved on (e.g. while
+       adapter.configure is pending), so it must not stop the handshake timer either. */
+    if (isAuxMethod(method))
     {
-        if (_pendingAuxRequests.value(method, -1) == id)
-        {
-            _pendingAuxRequests.remove(method);
-            emit validateDataPointResult(false, errorMsg);
-        }
+        handleAuxError(id, method, errorMsg);
         return;
     }
 
-    if (method == QStringLiteral("adapter.inspectLicense") &&
-        (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
-    {
-        if (_pendingAuxRequests.value(method, -1) == id)
-        {
-            _pendingAuxRequests.remove(method);
-            emit inspectLicenseFailed(errorMsg);
-        }
-        return;
-    }
-
-    if (method == QStringLiteral("adapter.expressionHelp") &&
-        (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
-    {
-        if (_pendingAuxRequests.value(method, -1) == id)
-        {
-            _pendingAuxRequests.remove(method);
-        }
-        return;
-    }
+    _handshakeTimer.stop();
 
     if (method == QStringLiteral("adapter.readData"))
     {
@@ -530,18 +514,99 @@ void AdapterClient::onNotificationReceived(QString method, QJsonValue params)
 }
 
 /*!
+ * \brief Translate a JSON-RPC error reply to an auxiliary request into its result signal.
+ *
+ * Errors for requests that are no longer pending are dropped.
+ * \param id       JSON-RPC request id of the reply.
+ * \param method   Auxiliary method the reply belongs to.
+ * \param errorMsg Error message reported by the adapter.
+ */
+void AdapterClient::handleAuxError(int id, const QString& method, const QString& errorMsg)
+{
+    if (!consumeAuxResponse(method, id))
+    {
+        return;
+    }
+
+    if (method == QStringLiteral("adapter.validateDataPoint"))
+    {
+        emit validateDataPointResult(false, errorMsg);
+    }
+    else if (method == QStringLiteral("adapter.inspectLicense"))
+    {
+        emit inspectLicenseFailed(errorMsg);
+    }
+    else if (method == QStringLiteral("adapter.describeDataPoint") ||
+             method == QStringLiteral("adapter.buildExpression"))
+    {
+        emit dataPointRequestFailed(id, errorMsg);
+    }
+}
+
+/*!
+ * \brief Returns whether \a method is a data point request, which can be pending several times at once.
+ */
+bool AdapterClient::isDataPointMethod(const QString& method)
+{
+    return method == QStringLiteral("adapter.describeDataPoint") || method == QStringLiteral("adapter.buildExpression");
+}
+
+/*!
+ * \brief Returns whether \a method is an auxiliary request, which never affects the session state.
+ */
+bool AdapterClient::isAuxMethod(const QString& method)
+{
+    return method == QStringLiteral("adapter.dataPointSchema") ||
+           method == QStringLiteral("adapter.describeDataPoint") ||
+           method == QStringLiteral("adapter.buildExpression") ||
+           method == QStringLiteral("adapter.validateDataPoint") ||
+           method == QStringLiteral("adapter.inspectLicense") || method == QStringLiteral("adapter.expressionHelp");
+}
+
+/*!
  * \brief Check that the pending aux response matches \a id and remove it from the map.
  * \return true if the response is current and was removed; false if stale (caller should discard).
  */
 bool AdapterClient::consumeAuxResponse(const QString& method, int id)
 {
-    if (_pendingAuxRequests.value(method, -1) != id)
+    if (_pendingAuxRequests.value(id) != method)
     {
         qCWarning(scopeComm) << "AdapterClient:" << _adapterId << "ignoring stale response for" << method;
         return false;
     }
-    _pendingAuxRequests.remove(method);
+    _pendingAuxRequests.remove(id);
     return true;
+}
+
+/*!
+ * \brief Send an auxiliary request and track it as pending.
+ *
+ * adapter.describeDataPoint and adapter.buildExpression can be pending several times at once.
+ * For every other auxiliary method only the latest request is answered: a pending request for
+ * the same method is dropped.
+ * \param method JSON-RPC method name.
+ * \param params Request parameters.
+ * \return The JSON-RPC request id, or -1 when the request could not be sent.
+ */
+int AdapterClient::sendAuxRequest(const QString& method, const QJsonObject& params)
+{
+    if (!isDataPointMethod(method))
+    {
+        const QList<int> sameMethodIds = _pendingAuxRequests.keys(method);
+        for (const int pendingId : sameMethodIds)
+        {
+            _pendingAuxRequests.remove(pendingId);
+        }
+    }
+
+    const int id = _pProcess->sendRequest(method, params);
+    if (id < 0)
+    {
+        return -1;
+    }
+
+    _pendingAuxRequests.insert(id, method);
+    return id;
 }
 
 /*!
@@ -709,6 +774,32 @@ void AdapterClient::announceIncompatibleSession()
 }
 
 /*!
+ * \brief Drop all in-flight auxiliary requests, reporting pending data point requests and a pending
+ * adapter.inspectLicense as failed so their callers do not wait for a reply that can no longer arrive.
+ */
+void AdapterClient::clearPendingAuxRequests()
+{
+    /* Clear before emitting: a receiver may send a new request from its slot */
+    const QHash<int, QString> pending = _pendingAuxRequests;
+    _pendingAuxRequests.clear();
+
+    QList<int> ids = pending.keys();
+    std::sort(ids.begin(), ids.end());
+    for (const int id : std::as_const(ids))
+    {
+        if (isDataPointMethod(pending.value(id)))
+        {
+            emit dataPointRequestFailed(id, QStringLiteral("Request cancelled"));
+        }
+    }
+
+    if (std::find(pending.cbegin(), pending.cend(), QStringLiteral("adapter.inspectLicense")) != pending.cend())
+    {
+        emit inspectLicenseFailed(QStringLiteral("Request cancelled"));
+    }
+}
+
+/*!
  * \brief Returns whether an auxiliary request (schema, describe, validate, build, help) must not be
  * sent because the adapter speaks an incompatible protocol version.
  *
@@ -717,20 +808,6 @@ void AdapterClient::announceIncompatibleSession()
  *
  * \param requestName Name of the request, for the log message.
  */
-/*!
- * \brief Drop all in-flight auxiliary requests, reporting a pending adapter.inspectLicense as failed
- * so its caller does not wait for a reply that can no longer arrive.
- */
-void AdapterClient::clearPendingAuxRequests()
-{
-    const bool inspectPending = _pendingAuxRequests.contains(QStringLiteral("adapter.inspectLicense"));
-    _pendingAuxRequests.clear();
-    if (inspectPending)
-    {
-        emit inspectLicenseFailed(QStringLiteral("Request cancelled"));
-    }
-}
-
 bool AdapterClient::isAuxRequestRefused(const char* requestName) const
 {
     if (_incompatibilityReason.isEmpty())
@@ -829,7 +906,7 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
         {
             return;
         }
-        emit describeDataPointResult(result);
+        emit describeDataPointResult(id, result);
     }
     else if (method == "adapter.inspectLicense" &&
              (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))
@@ -856,7 +933,13 @@ void AdapterClient::handleLifecycleResponse(int id, const QString& method, const
         {
             return;
         }
-        emit buildExpressionResult(result["expression"].toString());
+        const QJsonValue expression = result.value("expression");
+        if (!expression.isString())
+        {
+            emit dataPointRequestFailed(id, QStringLiteral("The adapter sent no expression"));
+            return;
+        }
+        emit buildExpressionResult(id, expression.toString());
     }
     else if (method == "adapter.expressionHelp" &&
              (_state == State::AWAITING_CONFIG || _state == State::ACTIVE || _state == State::ACTIVE_DEGRADED))

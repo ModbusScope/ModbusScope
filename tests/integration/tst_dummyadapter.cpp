@@ -250,7 +250,7 @@ void TestDummyAdapter::describeDataPointReturnsStructuredFields()
     _pClient->describeDataPoint(QStringLiteral("${40001}"));
     QVERIFY2(spyResult.wait(cSessionTimeoutMs), "No describeDataPointResult signal received");
 
-    const QJsonObject result = spyResult.at(0).at(0).value<QJsonObject>();
+    const QJsonObject result = spyResult.at(0).at(1).value<QJsonObject>();
     QVERIFY2(result[QStringLiteral("valid")].toBool(), "Expected valid=true for known expression '${40001}'");
     QVERIFY2(result.contains(QStringLiteral("fields")), "describeDataPoint result missing 'fields'");
     QVERIFY2(result.contains(QStringLiteral("description")), "describeDataPoint result missing 'description'");

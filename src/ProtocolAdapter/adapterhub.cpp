@@ -210,7 +210,4 @@ void AdapterHub::connectManager(AdapterManager* mgr, const QString& id)
     connect(mgr, &AdapterManager::sessionError, this,
             [this, id](QString message) { onManagerSessionError(id, message); });
     connect(mgr, &AdapterManager::readDataResult, this, [this, id](ResultDoubleList r) { emit readDataResult(id, r); });
-    connect(mgr, &AdapterManager::buildExpressionResult, this, &AdapterHub::buildExpressionResult);
-    connect(mgr, &AdapterManager::expressionHelpResult, this, &AdapterHub::expressionHelpResult);
-    connect(mgr, &AdapterManager::describeDataPointResult, this, &AdapterHub::describeDataPointResult);
 }

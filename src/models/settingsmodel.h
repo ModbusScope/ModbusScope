@@ -34,6 +34,7 @@ public:
 
     const AdapterData* adapterData(const QString& adapterId);
     QStringList adapterIds() const;
+    QString adapterDisplayName(const QString& adapterId) const;
     void removeAdapter(const QString& adapterId);
     bool isMbcCompatible() const;
 

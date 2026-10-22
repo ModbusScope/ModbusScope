@@ -51,9 +51,6 @@ signals:
     void adapterReady();
     void sessionError(QString message);
     void readDataResult(const QString& adapterId, ResultDoubleList results);
-    void buildExpressionResult(QString expression);
-    void expressionHelpResult(QString helpText);
-    void describeDataPointResult(QJsonObject result);
 
 protected:
     explicit AdapterHub(QObject* parent = nullptr);

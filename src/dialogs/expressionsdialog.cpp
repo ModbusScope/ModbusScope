@@ -3,8 +3,8 @@
 
 #include "ProtocolAdapter/adapterhub.h"
 #include "ProtocolAdapter/adaptermanager.h"
+#include "ProtocolAdapter/datapointservice.h"
 #include "dialogs/expressionhighlighting.h"
-#include "models/adapterdata.h"
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
 
@@ -35,15 +35,21 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
                                      GraphIdx idx,
                                      AdapterHub* pAdapterHub,
                                      SettingsModel* pSettingsModel,
+                                     DataPointService* pDataPointService,
                                      QWidget* parent)
     : QDialog(parent),
       _pUi(new Ui::ExpressionsDialog),
       _pGraphDataModel(pGraphDataModel),
       _pAdapterHub(pAdapterHub),
       _pSettingsModel(pSettingsModel),
+      _pDataPointService(pDataPointService),
       _bUpdating(false)
 {
     _pUi->setupUi(this);
+
+    connect(_pDataPointService, &DataPointService::dataPointDescribed, this,
+            &ExpressionsDialog::handleDataPointDescribed);
+    connect(_pDataPointService, &DataPointService::requestFailed, this, &ExpressionsDialog::handleDescribeFailed);
 
     _graphIdx = idx;
 
@@ -115,15 +121,7 @@ void ExpressionsDialog::handleExpressionChange()
 
         _bUpdating = false;
 
-        _pendingDescribeAddresses = addresses;
-        _pendingDescribeDeviceIds = _expressionChecker.deviceIds();
-        _nextDescribeRow = 0;
-        if (_pDescribeManager != nullptr)
-        {
-            QObject::disconnect(_pDescribeManager, &AdapterManager::describeDataPointResult, this,
-                                &ExpressionsDialog::handleDescribeDataPointResult);
-        }
-        startNextDescribe();
+        requestDescriptions(addresses, _expressionChecker.deviceIds());
 
         handleInputChange();
     }
@@ -197,12 +195,7 @@ void ExpressionsDialog::populateHelpDevices()
         Device* pDevice = _pSettingsModel->deviceSettings(deviceId);
         const QString adapterId = pDevice->adapterId();
 
-        QString protocolLabel = _pSettingsModel->adapterData(adapterId)->name();
-        if (protocolLabel.isEmpty())
-        {
-            protocolLabel = adapterId;
-        }
-
+        const QString protocolLabel = _pSettingsModel->adapterDisplayName(adapterId);
         const QString label = QStringLiteral("%1 (%2) [%3]").arg(pDevice->name(), protocolLabel).arg(deviceId);
         _pUi->cmbHelpDevice->addItem(label, adapterId);
     }
@@ -264,53 +257,29 @@ void ExpressionsDialog::onHelpDeviceChanged(int index)
 }
 
 /*!
- * \brief Resolve the adapter manager responsible for the data point at the given row.
+ * \brief Ask the adapters for a description of every data point in the table.
  *
- * The row's device ID is mapped to its owning adapter via the settings model.
- * \param row Row index into the pending describe lists.
- * \return Pointer to the manager, or nullptr when it is unknown or not running.
+ * Replies to requests for a previous expression are ignored. A row whose adapter is unavailable
+ * keeps the parser description; a row with an unknown device shows "Invalid device".
+ * \param addresses Data point reference of each table row.
+ * \param deviceIds Device of each table row.
  */
-AdapterManager* ExpressionsDialog::managerForDescribeRow(qint32 row) const
+void ExpressionsDialog::requestDescriptions(const QStringList& addresses, const QList<deviceId_t>& deviceIds)
 {
-    if (_pAdapterHub == nullptr || _pSettingsModel == nullptr || row >= _pendingDescribeDeviceIds.size())
-    {
-        return nullptr;
-    }
+    _describeRowByTicket.clear();
 
-    const QString adapterId = _pSettingsModel->adapterIdForDevice(_pendingDescribeDeviceIds[row]);
-    AdapterManager* pManager = _pAdapterHub->adapterManager(adapterId);
-    if (pManager == nullptr || pManager->isAdapterIdle())
+    for (qint32 row = 0; row < addresses.size() && row < deviceIds.size(); row++)
     {
-        return nullptr;
-    }
-
-    return pManager;
-}
-
-void ExpressionsDialog::startNextDescribe()
-{
-    _pDescribeManager = nullptr;
-    while (_nextDescribeRow < _pendingDescribeAddresses.size() && _pDescribeManager == nullptr)
-    {
-        if (_pSettingsModel != nullptr && !_pSettingsModel->hasDevice(_pendingDescribeDeviceIds[_nextDescribeRow]))
+        if (!_pSettingsModel->hasDevice(deviceIds[row]))
         {
-            setDescribeRowText(_nextDescribeRow, QStringLiteral("Invalid device"));
-            _nextDescribeRow++;
+            setDescribeRowText(row, QStringLiteral("Invalid device"));
             continue;
         }
 
-        AdapterManager* pManager = managerForDescribeRow(_nextDescribeRow);
-        if (pManager != nullptr)
+        if (_pDataPointService->isDeviceUsable(deviceIds[row]))
         {
-            _pDescribeManager = pManager;
-            connect(pManager, &AdapterManager::describeDataPointResult, this,
-                    &ExpressionsDialog::handleDescribeDataPointResult, Qt::SingleShotConnection);
-            pManager->describeDataPoint(_pendingDescribeAddresses[_nextDescribeRow]);
-        }
-        else
-        {
-            /* Adapter unavailable for this row: keep the parser description and try the next row */
-            _nextDescribeRow++;
+            const quint64 ticket = _pDataPointService->describeDataPoint(deviceIds[row], addresses[row]);
+            _describeRowByTicket.insert(ticket, row);
         }
     }
 }
@@ -329,17 +298,30 @@ void ExpressionsDialog::setDescribeRowText(qint32 row, const QString& text)
     }
 }
 
-void ExpressionsDialog::handleDescribeDataPointResult(const QJsonObject& result)
+/*!
+ * \brief Show the adapter's description of a data point in its table row.
+ * \param ticket Ticket of the describe request; replies for other requests are ignored.
+ * \param result The describeDataPoint result.
+ */
+void ExpressionsDialog::handleDataPointDescribed(quint64 ticket, const QJsonObject& result)
 {
-    if (_nextDescribeRow >= _pendingDescribeAddresses.size())
+    if (!_describeRowByTicket.contains(ticket))
     {
         return;
     }
 
-    setDescribeRowText(_nextDescribeRow, result["description"].toString());
+    setDescribeRowText(_describeRowByTicket.take(ticket), result["description"].toString());
+}
 
-    _nextDescribeRow++;
-    startNextDescribe();
+/*!
+ * \brief Keep the parser description of a row whose describe request failed.
+ * \param ticket Ticket of the failed request.
+ * \param error  Why the request failed (unused).
+ */
+void ExpressionsDialog::handleDescribeFailed(quint64 ticket, const QString& error)
+{
+    Q_UNUSED(error);
+    _describeRowByTicket.remove(ticket);
 }
 
 void ExpressionsDialog::handleResultReady(bool valid)
