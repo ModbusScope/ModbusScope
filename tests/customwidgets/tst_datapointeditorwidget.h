@@ -32,6 +32,10 @@ private slots:
     void timeoutShowsError();
     void fieldChangeAfterFailureSendsNewRequest();
     void noDevicesHasNoExpression();
+    void deviceSwitchClearsPreviousReference();
+    void setReferenceWithUnknownDeviceIsInvalid();
+    void retriedWhenAdapterBecomesUsable();
+    void rejectedBuildKeptWhenAdaptersChange();
 
 private:
     void createEditor();

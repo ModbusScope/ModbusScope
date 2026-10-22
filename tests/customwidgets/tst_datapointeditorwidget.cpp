@@ -283,6 +283,58 @@ void TestDataPointEditorWidget::noDevicesHasNoExpression()
     QVERIFY(_pModbusManager->buildCalls.isEmpty());
 }
 
+void TestDataPointEditorWidget::deviceSwitchClearsPreviousReference()
+{
+    createEditor();
+    emit _pModbusManager->buildExpressionResult(1, QStringLiteral("${h0}"));
+
+    _pEditor->setDevice(cSimDeviceId);
+
+    QCOMPARE(_pEditor->expression(), QString());
+    QVERIFY(!_pEditor->hasValidExpression());
+}
+
+void TestDataPointEditorWidget::setReferenceWithUnknownDeviceIsInvalid()
+{
+    createEditor();
+    QSignalSpy spy(_pEditor, &DataPointEditorWidget::errorChanged);
+
+    _pEditor->setReference(QStringLiteral("${1@9}"), QJsonObject{ { "deviceId", 9 }, { "address", 1 } });
+
+    QVERIFY(!_pEditor->hasValidExpression());
+    QCOMPARE(spy.count(), 1);
+    QVERIFY(!spy.at(0).at(0).toString().isEmpty());
+}
+
+//! An editor opened before the adapter was usable builds once the adapter becomes usable.
+void TestDataPointEditorWidget::retriedWhenAdapterBecomesUsable()
+{
+    _pModbusManager->mockReady = false;
+    createEditor();
+    QTest::qWait(0); /* deliver the queued failure */
+
+    _pModbusManager->mockReady = true;
+    emit _pMockHub->adapterReady();
+
+    QCOMPARE(_pModbusManager->buildCalls.size(), 1);
+    emit _pModbusManager->buildExpressionResult(1, QStringLiteral("${h0}"));
+    QVERIFY(_pEditor->hasValidExpression());
+}
+
+//! A build the adapter rejected is not reset when adapters change, so the user's fields are kept.
+void TestDataPointEditorWidget::rejectedBuildKeptWhenAdaptersChange()
+{
+    createEditor();
+    editField();
+    emit _pModbusManager->dataPointRequestFailed(2, QStringLiteral("Address out of range"));
+    QTest::qWait(0);
+
+    emit _pMockHub->adapterReady();
+
+    QCOMPARE(_pModbusManager->buildCalls.size(), 2);
+    QCOMPARE(_pEditor->_pAddressForm->values().value("address").toInt(), 7);
+}
+
 void TestDataPointEditorWidget::createEditor()
 {
     _pEditor = new DataPointEditorWidget(_pSettingsModel, _pService);

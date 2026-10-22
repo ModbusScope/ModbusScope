@@ -41,6 +41,8 @@ private slots:
     void onValuesChanged();
     void onExpressionBuilt(quint64 ticket, const QString& expression);
     void onRequestFailed(quint64 ticket, const QString& error);
+    void onAdapterDataChanged(const QString& adapterId);
+    void retryAfterFailure();
 
 private:
     void applyDevice(deviceId_t deviceId, const QJsonObject& fields);
@@ -61,6 +63,9 @@ private:
     bool _bValid{ false };
     QString _error;
     quint64 _pendingTicket{ 0 };
+
+    //! Set when the last build failed because the adapter was not usable; it is retried when that changes.
+    bool _bWaitingForAdapter{ false };
 
     //! Set while the form is filled in code, so its valuesChanged() does not count as a user edit.
     bool _bApplyingForm{ false };

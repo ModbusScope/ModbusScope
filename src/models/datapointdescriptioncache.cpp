@@ -56,13 +56,11 @@ DataPointDescription DataPointDescriptionCache::lookup(const ExpressionReference
 
 void DataPointDescriptionCache::onDataPointDescribed(quint64 ticket, const QJsonObject& result)
 {
-    const auto it = _pendingKeys.constFind(ticket);
-    if (it == _pendingKeys.constEnd())
+    if (!_pendingKeys.contains(ticket))
     {
         return;
     }
-    const QString key = *it;
-    _pendingKeys.erase(it);
+    const QString key = _pendingKeys.take(ticket);
 
     Entry entry;
     if (result.value("valid").toBool())
@@ -83,13 +81,11 @@ void DataPointDescriptionCache::onDataPointDescribed(quint64 ticket, const QJson
 
 void DataPointDescriptionCache::onRequestFailed(quint64 ticket, const QString& error)
 {
-    const auto it = _pendingKeys.constFind(ticket);
-    if (it == _pendingKeys.constEnd())
+    if (!_pendingKeys.contains(ticket))
     {
         return;
     }
-    const QString key = *it;
-    _pendingKeys.erase(it);
+    const QString key = _pendingKeys.take(ticket);
 
     Entry entry;
     entry.description.state = State::Failed;

@@ -12,6 +12,7 @@
 
 #include <QKeyEvent>
 #include <QPushButton>
+#include <QSignalBlocker>
 
 using State = DataQuality::State;
 
@@ -379,6 +380,9 @@ void ExpressionsDialog::showDescription(qint32 row, deviceId_t deviceId)
     {
         return;
     }
+
+    /* The description column does not change the evaluation, so don't evaluate again */
+    const QSignalBlocker blocker(_pUi->tblExpressionInput);
 
     if (!_pSettingsModel->hasDevice(deviceId))
     {

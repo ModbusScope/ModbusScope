@@ -42,6 +42,8 @@ DataPointEditorWidget::DataPointEditorWidget(SettingsModel* pSettingsModel,
     connect(_pAddressForm, &SchemaFormWidget::valuesChanged, this, &DataPointEditorWidget::onValuesChanged);
     connect(_pDataPointService, &DataPointService::expressionBuilt, this, &DataPointEditorWidget::onExpressionBuilt);
     connect(_pDataPointService, &DataPointService::requestFailed, this, &DataPointEditorWidget::onRequestFailed);
+    connect(_pDataPointService, &DataPointService::adaptersChanged, this, &DataPointEditorWidget::retryAfterFailure);
+    connect(_pSettingsModel, &SettingsModel::adapterDataChanged, this, &DataPointEditorWidget::onAdapterDataChanged);
 
     onDeviceSelected(_pDeviceCombo->selectedDeviceId());
 }
@@ -78,18 +80,27 @@ void DataPointEditorWidget::setDevice(deviceId_t deviceId)
  */
 void DataPointEditorWidget::setReference(const QString& referenceText, const QJsonObject& fields)
 {
+    _pendingTicket = 0;
+    _bWaitingForAdapter = false;
+
     const deviceId_t referenceDeviceId = static_cast<deviceId_t>(fields.value("deviceId").toInt());
-    if (_pSettingsModel->hasDevice(referenceDeviceId))
+    if (!_pSettingsModel->hasDevice(referenceDeviceId))
+    {
+        setExpression(referenceText, false);
+        setError(tr("Device %1 does not exist. Select a device to change the data point.").arg(referenceDeviceId));
+        return;
+    }
+
     {
         const QSignalBlocker blocker(_pDeviceCombo);
         _pDeviceCombo->setSelectedDeviceId(referenceDeviceId);
     }
 
-    applyDevice(_pDeviceCombo->selectedDeviceId(), fields);
+    applyDevice(referenceDeviceId, fields);
 
-    _pendingTicket = 0;
     setError(QString());
     setExpression(referenceText, true);
+    emit deviceChanged(referenceDeviceId);
 }
 
 /*!
@@ -126,15 +137,50 @@ void DataPointEditorWidget::onDeviceSelected(deviceId_t deviceId)
 {
     applyDevice(deviceId, QJsonObject());
 
-    if (!_pSettingsModel->hasDevice(deviceId))
+    /* A reference of the previous device does not belong to this one */
+    _pendingTicket = 0;
+    setExpression(QString(), false);
+
+    if (_pSettingsModel->hasDevice(deviceId))
     {
-        _pendingTicket = 0;
+        requestBuild();
+    }
+    else
+    {
         setError(QString());
-        setExpression(QString(), false);
+    }
+
+    emit deviceChanged(deviceId);
+}
+
+/*!
+ * \brief Reset the form when the adapter of the selected device published new data, unless it holds a reference.
+ * \param adapterId The adapter whose data changed.
+ */
+void DataPointEditorWidget::onAdapterDataChanged(const QString& adapterId)
+{
+    if (adapterId != _pDataPointService->adapterIdForDevice(deviceId()))
+    {
         return;
     }
 
-    requestBuild();
+    retryAfterFailure();
+}
+
+/*!
+ * \brief Reset the form to the defaults and build again when the last build failed because the adapter was not usable.
+ *
+ * Called when an adapter may have become usable. A form that failed for another reason is kept,
+ * so this never discards what the user entered.
+ */
+void DataPointEditorWidget::retryAfterFailure()
+{
+    if (!_bWaitingForAdapter)
+    {
+        return;
+    }
+
+    onDeviceSelected(deviceId());
 }
 
 void DataPointEditorWidget::onValuesChanged()
@@ -183,8 +229,13 @@ void DataPointEditorWidget::onRequestFailed(quint64 ticket, const QString& error
         return;
     }
     _pendingTicket = 0;
+    _bWaitingForAdapter = !_pDataPointService->isDeviceUsable(deviceId());
 
-    const QString reason = error.isEmpty() ? tr("The adapter did not accept the address.") : error;
+    QString reason = error.isEmpty() ? tr("The adapter did not accept the address") : error;
+    if (reason.endsWith(QLatin1Char('.')))
+    {
+        reason.chop(1);
+    }
     setExpression(QString(), false);
     setError(tr("%1. Change a field or select the device again to retry.").arg(reason));
 }
@@ -221,8 +272,6 @@ void DataPointEditorWidget::applyDevice(deviceId_t deviceId, const QJsonObject& 
     {
         _pProtocolLabel->clear();
     }
-
-    emit deviceChanged(deviceId);
 }
 
 /*!
@@ -230,6 +279,7 @@ void DataPointEditorWidget::applyDevice(deviceId_t deviceId, const QJsonObject& 
  */
 void DataPointEditorWidget::requestBuild()
 {
+    _bWaitingForAdapter = false;
     _pendingTicket = _pDataPointService->buildExpression(deviceId(), _pAddressForm->values());
     setError(QString());
     setExpression(_expression, false);

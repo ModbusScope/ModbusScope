@@ -125,5 +125,5 @@ QString DeviceComboBox::deviceLabel(deviceId_t deviceId) const
     }
 
     const QString protocolLabel = _pSettingsModel->adapterDisplayName(pDevice->adapterId());
-    return QStringLiteral("%1 (%2) [%3]").arg(pDevice->name(), protocolLabel).arg(deviceId);
+    return QStringLiteral("%1 (%2) [%3]").arg(pDevice->name(), protocolLabel, QString::number(deviceId));
 }

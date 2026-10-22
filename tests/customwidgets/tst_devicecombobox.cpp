@@ -49,6 +49,14 @@ void TestDeviceComboBox::nameProtocolIdLabels()
     QCOMPARE(_pCombo->itemText(1), QStringLiteral("Pump (sim) [2]"));
 }
 
+void TestDeviceComboBox::nameWithPlaceMarkerKeptInLabel()
+{
+    _pSettingsModel->deviceSettings(cSecondDeviceId)->setName(QStringLiteral("Pump %3"));
+    _pCombo->setLabelStyle(DeviceComboBox::LabelStyle::NameProtocolId);
+
+    QCOMPARE(_pCombo->itemText(1), QStringLiteral("Pump %3 (sim) [2]"));
+}
+
 void TestDeviceComboBox::setSelectedDeviceEmitsDeviceChanged()
 {
     QSignalSpy spy(_pCombo, &DeviceComboBox::deviceChanged);

@@ -17,6 +17,7 @@ private slots:
 
     void fillsFromModel();
     void nameProtocolIdLabels();
+    void nameWithPlaceMarkerKeptInLabel();
     void setSelectedDeviceEmitsDeviceChanged();
     void selectionKeptWhenOtherDeviceAdded();
     void selectionKeptWhenOtherDeviceRemoved();
