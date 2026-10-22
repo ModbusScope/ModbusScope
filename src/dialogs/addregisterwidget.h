@@ -35,21 +35,17 @@ private slots:
     void handleResultAccept();
     void onExpressionBuilt(quint64 ticket, const QString& expression);
     void onBuildRequestFailed(quint64 ticket, const QString& error);
-    void onDeviceSelectionChanged(int index);
-    void refreshDeviceCombo();
+    void applyDevice(deviceId_t deviceId);
 
 private:
     void resetFields();
     void collectPendingGraphData();
-    void populateDeviceCombo();
-    void applyDevice(deviceId_t deviceId);
     void rebuildAddressForm();
     void setBuildError(const QString& error);
     void showBuildErrorForPendingDevice(const QString& error);
     void resizeContainingMenu();
     void closeContainingMenu();
     bool isSelectionUsable() const;
-    deviceId_t selectedDeviceId() const;
 
     Ui::AddRegisterWidget* _pUi;
     SchemaFormWidget* _pAddressForm;

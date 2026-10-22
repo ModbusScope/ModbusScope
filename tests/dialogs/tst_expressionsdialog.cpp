@@ -258,8 +258,8 @@ void TestExpressionsDialog::helpComboVisibleWithTwoDevices()
     auto* pCombo = _pDialog->findChild<QComboBox*>("cmbHelpDevice");
     QVERIFY(pCombo != nullptr);
     QCOMPARE(pCombo->count(), 2);
-    QCOMPARE(pCombo->itemData(0).toString(), QStringLiteral("modbus"));
-    QCOMPARE(pCombo->itemData(1).toString(), QStringLiteral("sim"));
+    QCOMPARE(pCombo->itemData(0).value<deviceId_t>(), deviceId_t(1));
+    QCOMPARE(pCombo->itemData(1).value<deviceId_t>(), deviceId_t(2));
 }
 
 void TestExpressionsDialog::helpComboShowsNameProtocolAndId()

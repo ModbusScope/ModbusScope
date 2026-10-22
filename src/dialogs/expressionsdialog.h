@@ -50,7 +50,7 @@ private slots:
     void handleExpressionHelpResult(const QString& helpText);
     void handleDataPointDescribed(quint64 ticket, const QJsonObject& result);
     void handleDescribeFailed(quint64 ticket, const QString& error);
-    void onHelpDeviceChanged(int index);
+    void onHelpDeviceChanged(deviceId_t deviceId);
 
 private:
     void requestDescriptions(const QStringList& addresses, const QList<deviceId_t>& deviceIds);
