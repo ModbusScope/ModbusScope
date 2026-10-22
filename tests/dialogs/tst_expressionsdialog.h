@@ -50,6 +50,7 @@ public:
     void injectDescribeResult(int requestId, const QString& description)
     {
         QJsonObject result;
+        result["valid"] = true;
         result["description"] = description;
         emit describeDataPointResult(requestId, result);
     }
@@ -71,6 +72,7 @@ public:
     bool mockIdle{ false };
 };
 
+class DataPointDescriptionCache;
 class GraphDataModel;
 class ExpressionsDialog;
 class SettingsModel;
@@ -85,7 +87,8 @@ private slots:
 
     void describeDispatch_singleAddress();
     void describeDispatch_multipleAddresses();
-    void describeDispatch_abortsOnExpressionChange();
+    void describeDispatch_replyForRemovedReferenceIgnored();
+    void describeDispatch_cachedAcrossExpressionChanges();
     void describeDispatch_failureKeepsParserDescription();
 
     void describeRoutedPerDeviceAdapter();
@@ -127,6 +130,7 @@ private:
     SettingsModel* _pSettingsModel{ nullptr };
     MockAdapterHub* _pMockHub{ nullptr };
     DataPointService* _pDataPointService{ nullptr };
+    DataPointDescriptionCache* _pDescriptionCache{ nullptr };
     MockAdapterManager* _pMockAdapterManager{ nullptr };
     ExpressionsDialog* _pDialog{ nullptr };
 };

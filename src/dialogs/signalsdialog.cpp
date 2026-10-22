@@ -10,6 +10,7 @@
 #include "dialogs/expressionsdialog.h"
 #include "dialogs/ui_signalsdialog.h"
 #include "models/adapterdata.h"
+#include "models/datapointdescriptioncache.h"
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
 #include "valueaxisdelegate.h"
@@ -32,6 +33,7 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
     _pSettingsModel = pSettingsModel;
     _pAdapterHub = pAdapterHub;
     _pDataPointService = new DataPointService(_pSettingsModel, _pAdapterHub, this);
+    _pDescriptionCache = new DataPointDescriptionCache(_pDataPointService, this);
     connect(_pDataPointService, &DataPointService::expressionBuilt, this, &SignalsDialog::onDefaultExpressionBuilt);
 
     const QList<deviceId_t> deviceIds = _pSettingsModel->deviceList();
@@ -176,7 +178,7 @@ void SignalsDialog::handleExpressionEdit(const QModelIndex& index)
         _pUi->signalView->closePersistentEditor(index);
 
         ExpressionsDialog exprDialog(_pGraphDataModel, GraphIdx(index.row()), _pAdapterHub, _pSettingsModel,
-                                     _pDataPointService, this);
+                                     _pDescriptionCache, this);
 
         exprDialog.exec();
     }

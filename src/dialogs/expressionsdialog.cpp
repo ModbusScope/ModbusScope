@@ -3,9 +3,9 @@
 
 #include "ProtocolAdapter/adapterhub.h"
 #include "ProtocolAdapter/adaptermanager.h"
-#include "ProtocolAdapter/datapointservice.h"
 #include "customwidgets/devicecombobox.h"
 #include "dialogs/expressionhighlighting.h"
+#include "models/datapointdescriptioncache.h"
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
 #include "util/expressionvalue.h"
@@ -40,21 +40,20 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
                                      GraphIdx idx,
                                      AdapterHub* pAdapterHub,
                                      SettingsModel* pSettingsModel,
-                                     DataPointService* pDataPointService,
+                                     DataPointDescriptionCache* pDescriptionCache,
                                      QWidget* parent)
     : QDialog(parent),
       _pUi(new Ui::ExpressionsDialog),
       _pGraphDataModel(pGraphDataModel),
       _pAdapterHub(pAdapterHub),
       _pSettingsModel(pSettingsModel),
-      _pDataPointService(pDataPointService),
+      _pDescriptionCache(pDescriptionCache),
       _bUpdating(false)
 {
     _pUi->setupUi(this);
 
-    connect(_pDataPointService, &DataPointService::dataPointDescribed, this,
-            &ExpressionsDialog::handleDataPointDescribed);
-    connect(_pDataPointService, &DataPointService::requestFailed, this, &ExpressionsDialog::handleDescribeFailed);
+    connect(_pDescriptionCache, &DataPointDescriptionCache::descriptionChanged, this,
+            &ExpressionsDialog::handleDescriptionChanged);
 
     _graphIdx = idx;
 
@@ -220,7 +219,11 @@ void ExpressionsDialog::handleExpressionChange()
 
         _bUpdating = false;
 
-        requestDescriptions(addresses, _expressionChecker.deviceIds());
+        const QList<deviceId_t> deviceIds = _expressionChecker.deviceIds();
+        for (qint32 row = 0; row < addresses.size() && row < deviceIds.size(); row++)
+        {
+            showDescription(row, deviceIds[row]);
+        }
 
         handleInputChange();
     }
@@ -362,71 +365,51 @@ void ExpressionsDialog::onHelpDeviceChanged(deviceId_t deviceId)
 }
 
 /*!
- * \brief Ask the adapters for a description of every data point in the table.
+ * \brief Show the adapter's description of the data point in a table row, when it is known.
  *
- * Replies to requests for a previous expression are ignored. A row whose adapter is unavailable
- * keeps the parser description; a row with an unknown device shows "Invalid device".
- * \param addresses Data point reference of each table row.
- * \param deviceIds Device of each table row.
+ * A row with an unknown device shows "Invalid device". A row whose description is not available
+ * (pending, invalid, failed or adapter not running) keeps the parser description.
+ * \param row      Row index into the data point table.
+ * \param deviceId Device of the data point in that row.
  */
-void ExpressionsDialog::requestDescriptions(const QStringList& addresses, const QList<deviceId_t>& deviceIds)
-{
-    _describeRowByTicket.clear();
-
-    for (qint32 row = 0; row < addresses.size() && row < deviceIds.size(); row++)
-    {
-        if (!_pSettingsModel->hasDevice(deviceIds[row]))
-        {
-            setDescribeRowText(row, QStringLiteral("Invalid device"));
-            continue;
-        }
-
-        if (_pDataPointService->isDeviceUsable(deviceIds[row]))
-        {
-            const quint64 ticket = _pDataPointService->describeDataPoint(deviceIds[row], addresses[row]);
-            _describeRowByTicket.insert(ticket, row);
-        }
-    }
-}
-
-/*!
- * \brief Set the description text of a pending-describe row, if the row still has an item.
- * \param row  Row index into the describe table.
- * \param text Text to set; ignored when empty.
- */
-void ExpressionsDialog::setDescribeRowText(qint32 row, const QString& text)
+void ExpressionsDialog::showDescription(qint32 row, deviceId_t deviceId)
 {
     QTableWidgetItem* pItem = _pUi->tblExpressionInput->item(row, 0);
-    if (pItem != nullptr && !text.isEmpty())
-    {
-        pItem->setText(text);
-    }
-}
-
-/*!
- * \brief Show the adapter's description of a data point in its table row.
- * \param ticket Ticket of the describe request; replies for other requests are ignored.
- * \param result The describeDataPoint result.
- */
-void ExpressionsDialog::handleDataPointDescribed(quint64 ticket, const QJsonObject& result)
-{
-    if (!_describeRowByTicket.contains(ticket))
+    if (pItem == nullptr)
     {
         return;
     }
 
-    setDescribeRowText(_describeRowByTicket.take(ticket), result["description"].toString());
+    if (!_pSettingsModel->hasDevice(deviceId))
+    {
+        pItem->setText(QStringLiteral("Invalid device"));
+        return;
+    }
+
+    const QString referenceText = pItem->data(Qt::UserRole).toString();
+    const DataPointDescription description =
+      _pDescriptionCache->lookup({ 0, referenceText.size(), referenceText, deviceId });
+    if (description.state == DataPointDescription::State::Valid && !description.description.isEmpty())
+    {
+        pItem->setText(description.description);
+    }
 }
 
 /*!
- * \brief Keep the parser description of a row whose describe request failed.
- * \param ticket Ticket of the failed request.
- * \param error  Why the request failed (unused).
+ * \brief Show a description that arrived for a data point in the table.
+ * \param referenceText The data point reference whose description changed.
  */
-void ExpressionsDialog::handleDescribeFailed(quint64 ticket, const QString& error)
+void ExpressionsDialog::handleDescriptionChanged(const QString& referenceText)
 {
-    Q_UNUSED(error);
-    _describeRowByTicket.remove(ticket);
+    const QList<deviceId_t> deviceIds = _expressionChecker.deviceIds();
+    for (qint32 row = 0; row < _pUi->tblExpressionInput->rowCount() && row < deviceIds.size(); row++)
+    {
+        const QTableWidgetItem* pItem = _pUi->tblExpressionInput->item(row, 0);
+        if (pItem != nullptr && pItem->data(Qt::UserRole).toString() == referenceText)
+        {
+            showDescription(row, deviceIds[row]);
+        }
+    }
 }
 
 /*!

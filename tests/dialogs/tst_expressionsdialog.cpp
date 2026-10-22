@@ -2,6 +2,7 @@
 #include "tst_expressionsdialog.h"
 
 #include "dialogs/expressionsdialog.h"
+#include "models/datapointdescriptioncache.h"
 #include "models/device.h"
 #include "models/graphdata.h"
 #include "models/graphdatamodel.h"
@@ -28,14 +29,17 @@ void TestExpressionsDialog::init()
     _pMockHub = new MockAdapterHub(this);
     _pMockHub->addManager(QStringLiteral("modbus"), _pMockAdapterManager);
     _pDataPointService = new DataPointService(_pSettingsModel, _pMockHub, this);
+    _pDescriptionCache = new DataPointDescriptionCache(_pDataPointService, this);
 
-    _pDialog = new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pMockHub, _pSettingsModel, _pDataPointService);
+    _pDialog = new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pMockHub, _pSettingsModel, _pDescriptionCache);
 }
 
 void TestExpressionsDialog::cleanup()
 {
     delete _pDialog;
     _pDialog = nullptr;
+    delete _pDescriptionCache;
+    _pDescriptionCache = nullptr;
     delete _pDataPointService;
     _pDataPointService = nullptr;
 }
@@ -61,7 +65,7 @@ void TestExpressionsDialog::recreateDialog()
 {
     delete _pDialog;
     _pMockAdapterManager->helpRequestCount = 0;
-    _pDialog = new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pMockHub, _pSettingsModel, _pDataPointService);
+    _pDialog = new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pMockHub, _pSettingsModel, _pDescriptionCache);
 }
 
 void TestExpressionsDialog::describeDispatch_singleAddress()
@@ -104,7 +108,8 @@ void TestExpressionsDialog::describeDispatch_multipleAddresses()
     QCOMPARE(pTable->item(1, 0)->text(), QStringLiteral("Reg 2"));
 }
 
-void TestExpressionsDialog::describeDispatch_abortsOnExpressionChange()
+//! A reply for a data point that is no longer in the expression changes no row.
+void TestExpressionsDialog::describeDispatch_replyForRemovedReferenceIgnored()
 {
     auto* pEdit = _pDialog->findChild<QPlainTextEdit*>("lineExpression");
     QVERIFY(pEdit != nullptr);
@@ -126,6 +131,23 @@ void TestExpressionsDialog::describeDispatch_abortsOnExpressionChange()
 
     _pMockAdapterManager->injectDescribeResult(2, QStringLiteral("Reg 2"));
     QCOMPARE(pTable->item(0, 0)->text(), QStringLiteral("Reg 2"));
+}
+
+//! A data point that was described before is shown again without a new request.
+void TestExpressionsDialog::describeDispatch_cachedAcrossExpressionChanges()
+{
+    auto* pEdit = _pDialog->findChild<QPlainTextEdit*>("lineExpression");
+    QVERIFY(pEdit != nullptr);
+
+    pEdit->setPlainText(QStringLiteral("${40001}"));
+    _pMockAdapterManager->injectDescribeResult(1, QStringLiteral("Reg 1"));
+
+    pEdit->setPlainText(QStringLiteral("${40001} * 2"));
+
+    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
+    auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
+    QVERIFY(pTable != nullptr);
+    QCOMPARE(pTable->item(0, 0)->text(), QStringLiteral("Reg 1"));
 }
 
 //! A failed describe request leaves the parser description in its row.
