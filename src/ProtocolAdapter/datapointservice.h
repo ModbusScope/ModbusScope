@@ -45,6 +45,7 @@ signals:
     void expressionBuilt(quint64 ticket, QString expression);
     void dataPointDescribed(quint64 ticket, QJsonObject result);
     void requestFailed(quint64 ticket, QString error);
+    void adaptersChanged();
 
 private slots:
     void emitQueuedFailures();

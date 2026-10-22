@@ -11,6 +11,9 @@
 
 /*!
  * \brief Construct a service that routes data point requests through \a pAdapterHub.
+ *
+ * adaptersChanged() is emitted when the hub reports adapters ready or a session started,
+ * because an adapter may have become usable.
  * \param pSettingsModel   Settings model with the devices and adapter schemas.
  * \param pAdapterHub      Hub that owns the adapter managers.
  * \param parent           Optional QObject parent.
@@ -22,6 +25,8 @@ DataPointService::DataPointService(SettingsModel* pSettingsModel,
                                    int requestTimeoutMs)
     : QObject(parent), _pSettingsModel(pSettingsModel), _pAdapterHub(pAdapterHub), _requestTimeoutMs(requestTimeoutMs)
 {
+    connect(_pAdapterHub, &AdapterHub::adapterReady, this, &DataPointService::adaptersChanged);
+    connect(_pAdapterHub, &AdapterHub::sessionStarted, this, &DataPointService::adaptersChanged);
 }
 
 /*!

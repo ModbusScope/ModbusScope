@@ -291,4 +291,14 @@ void TestDataPointService::unknownAdapterAddsNoEntry()
     QVERIFY(!_pSettingsModel->adapterIds().contains(QStringLiteral("ghost")));
 }
 
+void TestDataPointService::hubReadySignalsEmitAdaptersChanged()
+{
+    QSignalSpy spy(_pService, &DataPointService::adaptersChanged);
+
+    emit _pMockHub->adapterReady();
+    emit _pMockHub->sessionStarted();
+
+    QCOMPARE(spy.count(), 2);
+}
+
 QTEST_GUILESS_MAIN(TestDataPointService)

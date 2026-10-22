@@ -35,6 +35,7 @@ private slots:
     void addressSchemaStripsDeviceId();
     void defaultsReturned();
     void unknownAdapterAddsNoEntry();
+    void hubReadySignalsEmitAdaptersChanged();
 
 private:
     static QJsonObject buildSchemaWithDeviceId();
