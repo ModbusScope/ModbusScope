@@ -17,6 +17,7 @@ private slots:
 
     void validConstantExpression_setsValidState();
     void syntaxErrorExpression_setsSyntaxErrorState();
+    void mixedDecimalSeparators_setsSyntaxErrorState();
     void registerExpression_noDevice_setsUnknownDeviceState();
     void afterRemoval_subsequentExpressionChange_setsCorrectState();
     void deviceRemoved_revalidatesReferencingExpression();

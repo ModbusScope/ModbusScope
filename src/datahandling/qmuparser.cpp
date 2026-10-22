@@ -140,7 +140,8 @@ bool QMuParser::evaluate()
         _bSuccess = false;
         _value = 0;
         _msg = QStringLiteral("Invalid expression (unexpected decimal separator)");
-        /* Error position already set */
+        _errorType = ErrorType::SYNTAX;
+        /* No error position: the conflict is between two separators, not at one place */
     }
     else
     {

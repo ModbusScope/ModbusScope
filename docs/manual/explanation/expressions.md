@@ -12,7 +12,7 @@ In the second stage, the resulting arithmetic string is passed to the expression
 
 ## What the parser can do
 
-The parser supports the operators listed in [Expression operators reference](../reference/expression-operators.md): arithmetic, bitwise operations, shifts, and comparison/logical operators. It understands decimal, hexadecimal, and binary number literals, and it handles both `.` and `,` as decimal separators depending on which one appears first in the expression.
+The parser supports the operators listed in [Expression operators reference](../reference/expression-operators.md): arithmetic, bitwise operations, shifts, and comparison/logical operators. It understands decimal, hexadecimal, and binary number literals, and it accepts either `.` or `,` as decimal separator, as long as one expression uses only one of them.
 
 An expression can reference multiple data points. `${40001} * ${40002@2}` reads one data point from device 1 and one from device 2, then multiplies them. All referenced data points are read in the same poll cycle.
 
@@ -26,7 +26,7 @@ There are no string operations. All values are floating-point numbers.
 
 ## The compose expression dialog
 
-The compose expression window evaluates the expression in real time as you type. The expression field turns green when the syntax is valid. The example input table lets you set hypothetical data point values to verify that the expression produces the expected output before you commit it. This is useful for catching arithmetic mistakes without having to connect to a live device.
+The compose expression window evaluates the expression in real time as you type. An expression with a syntax error, or one that refers to a device that does not exist, cannot be accepted. The example input table lets you set hypothetical data point values to verify that the expression produces the expected output before you commit it. This is useful for catching arithmetic mistakes without having to connect to a live device.
 
 ## See also
 

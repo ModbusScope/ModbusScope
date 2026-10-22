@@ -43,11 +43,11 @@ private:
     QStringList _addresses;
     QList<deviceId_t> _deviceIds;
 
-    bool _bValid;
-    double _result;
+    bool _bValid{ false };
+    double _result{ 0 };
     QString _strError;
-    qint32 _errorPos;
-    bool _bSyntaxError;
+    qint32 _errorPos{ -1 };
+    bool _bSyntaxError{ false };
 };
 
 #endif // EXPRESSION_CHECKER_H

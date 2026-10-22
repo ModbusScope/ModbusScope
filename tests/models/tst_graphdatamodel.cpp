@@ -66,6 +66,36 @@ void TestGraphDataModel::addAssignsUniqueDefaultLabel()
     QCOMPARE(model.label(GraphIdx(2)), QStringLiteral("New signal 3"));
 }
 
+void TestGraphDataModel::addGraphDataWithoutLabelGetsUniqueDefaultLabel()
+{
+    GraphDataModel model;
+    model.add(GraphData());
+    model.add(GraphData());
+
+    QCOMPARE(model.label(GraphIdx(0)), QStringLiteral("New signal"));
+    QCOMPARE(model.label(GraphIdx(1)), QStringLiteral("New signal 2"));
+}
+
+void TestGraphDataModel::addGraphDataKeepsLabel()
+{
+    GraphData data;
+    data.setLabel(QStringLiteral("Voltage"));
+
+    GraphDataModel model;
+    model.add(data);
+
+    QCOMPARE(model.label(GraphIdx(0)), QStringLiteral("Voltage"));
+}
+
+void TestGraphDataModel::addLabelListGivesEmptyLabelUniqueDefault()
+{
+    GraphDataModel model;
+    model.add(QList<QString>{ QStringLiteral("Voltage"), QString() });
+
+    QCOMPARE(model.label(GraphIdx(0)), QStringLiteral("Voltage"));
+    QCOMPARE(model.label(GraphIdx(1)), QStringLiteral("New signal"));
+}
+
 void TestGraphDataModel::addReusesLabelFreedByRename()
 {
     GraphDataModel model;

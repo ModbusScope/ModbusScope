@@ -41,7 +41,7 @@
       </item>
       <item row="2" column="0" colspan="2">
        <widget class="QLineEdit" name="lineName">
-        <property name="text">
+        <property name="placeholderText">
          <string>Name of signal</string>
         </property>
        </widget>
@@ -67,6 +67,25 @@
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="lblError">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::TextFormat::PlainText</enum>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>

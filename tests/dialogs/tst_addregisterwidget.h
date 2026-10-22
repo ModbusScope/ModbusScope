@@ -85,6 +85,16 @@ private slots:
     void buildExpressionEmptyResponseIgnored();
     void buildExpressionResultForOtherRequestIgnored();
     void buildExpressionFailureKeepsFormUsable();
+    void emptyNameAddsSignalWithoutLabel();
+    void nameClearedAfterAdd();
+    void buildFailureShowsReasonInOpenMenu();
+    void longBuildErrorWrapsInOpenMenu();
+    void buildFailureForPreviousDeviceNotShown();
+    void emptyBuildResultShowsReason();
+    void buildFailureWithoutReasonShowsFallback();
+    void buildErrorIsPlainText();
+    void successfulAddHidesBuildError();
+    void deviceSwitchHidesBuildError();
     void addStaysDisabledWhileBuildPendingAcrossDeviceSwitch();
 
     void deviceComboVisibleWithSingleDevice();

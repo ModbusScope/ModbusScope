@@ -44,6 +44,8 @@ private:
     void populateDeviceCombo();
     void applyDevice(deviceId_t deviceId);
     void rebuildAddressForm();
+    void setBuildError(const QString& error);
+    void showBuildErrorForPendingDevice(const QString& error);
     void resizeContainingMenu();
     void closeContainingMenu();
     bool isSelectionUsable() const;
@@ -62,6 +64,7 @@ private:
     /* Temporary storage while waiting for buildExpression response */
     GraphData _pendingGraphData;
     quint64 _pendingBuildTicket{ 0 };
+    deviceId_t _pendingBuildDeviceId{ 0 };
 };
 
 #endif // ADDREGISTERWIDGET_H

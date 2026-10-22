@@ -280,6 +280,30 @@ void TestAddRegisterWidget::buildExpressionFailureKeepsFormUsable()
     QCOMPARE(_pMockAdapterManager->buildCalls.size(), 2);
 }
 
+//! The name field starts empty with a placeholder; an empty name is left for the model to fill in.
+void TestAddRegisterWidget::emptyNameAddsSignalWithoutLabel()
+{
+    QCOMPARE(_pRegWidget->_pUi->lineName->text(), QString());
+    QVERIFY(!_pRegWidget->_pUi->lineName->placeholderText().isEmpty());
+
+    GraphData graphData;
+    addRegister(graphData, QStringLiteral("${h0}"));
+
+    QCOMPARE(graphData.label(), QString());
+}
+
+//! The name field is cleared after a signal was added.
+void TestAddRegisterWidget::nameClearedAfterAdd()
+{
+    QTest::keyClicks(_pRegWidget->_pUi->lineName, "Register 1");
+
+    GraphData graphData;
+    addRegister(graphData, QStringLiteral("${h0}"));
+
+    QCOMPARE(graphData.label(), QStringLiteral("Register 1"));
+    QCOMPARE(_pRegWidget->_pUi->lineName->text(), QString());
+}
+
 void TestAddRegisterWidget::deviceComboVisibleWithSingleDevice()
 {
     QVERIFY(!_pRegWidget->_pUi->cmbDevice->isHidden());
@@ -512,6 +536,125 @@ void TestAddRegisterWidget::emptyExpressionResponseLeavesContainingMenuOpen()
     QVERIFY(menu.isVisible());
 
     menu.hide();
+}
+
+//! A failed build shows its reason and leaves the containing popup open.
+void TestAddRegisterWidget::buildFailureShowsReasonInOpenMenu()
+{
+    /* See switchDeviceWhileMenuOpenResizesPopup for why ownership is handed off up front. */
+    AddRegisterWidget* pWidget = _pRegWidget;
+    _pRegWidget = nullptr;
+
+    QMenu menu;
+    auto* action = new QWidgetAction(&menu);
+    action->setDefaultWidget(pWidget);
+    menu.addAction(action);
+
+    menu.show();
+    QVERIFY(pWidget->_pUi->lblError->isHidden());
+
+    QTest::mouseClick(pWidget->_pUi->btnAdd, Qt::LeftButton);
+    _pMockAdapterManager->injectBuildExpressionFailure(QStringLiteral("Invalid address"));
+
+    QTRY_COMPARE(pWidget->_pUi->lblError->text(), QStringLiteral("Invalid address"));
+    QVERIFY(!pWidget->_pUi->lblError->isHidden());
+    QVERIFY(menu.isVisible());
+
+    menu.hide();
+}
+
+//! A long failure reason wraps within the form instead of widening the popup.
+void TestAddRegisterWidget::longBuildErrorWrapsInOpenMenu()
+{
+    /* See switchDeviceWhileMenuOpenResizesPopup for why ownership is handed off up front. */
+    AddRegisterWidget* pWidget = _pRegWidget;
+    _pRegWidget = nullptr;
+
+    QMenu menu;
+    auto* action = new QWidgetAction(&menu);
+    action->setDefaultWidget(pWidget);
+    menu.addAction(action);
+
+    menu.show();
+    const int widthBefore = menu.width();
+
+    const QString longError = QStringLiteral("The address is out of range for this object type. ").repeated(6);
+    QTest::mouseClick(pWidget->_pUi->btnAdd, Qt::LeftButton);
+    _pMockAdapterManager->injectBuildExpressionFailure(longError);
+    QTRY_COMPARE(pWidget->_pUi->lblError->text(), longError);
+
+    QCOMPARE(menu.width(), widthBefore);
+    QVERIFY(pWidget->_pUi->lblError->height() >=
+            pWidget->_pUi->lblError->heightForWidth(pWidget->_pUi->lblError->width()));
+
+    menu.hide();
+}
+
+//! A failure that arrives after another device was selected is not shown for that device.
+void TestAddRegisterWidget::buildFailureForPreviousDeviceNotShown()
+{
+    const deviceId_t simDeviceId = addSimAdapter();
+
+    clickAdd();
+    _pRegWidget->_pUi->cmbDevice->setCurrentIndex(indexForDevice(simDeviceId));
+    _pMockAdapterManager->injectBuildExpressionFailure(QStringLiteral("Invalid address"));
+
+    QTRY_VERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
+    QVERIFY(_pRegWidget->_pUi->lblError->isHidden());
+}
+
+//! An empty build result is reported instead of silently ignored.
+void TestAddRegisterWidget::emptyBuildResultShowsReason()
+{
+    clickAdd();
+    _pMockAdapterManager->injectBuildExpressionResult(QString());
+
+    QVERIFY(!_pRegWidget->_pUi->lblError->isHidden());
+    QVERIFY(!_pRegWidget->_pUi->lblError->text().isEmpty());
+}
+
+//! A failure without a reason still tells the user the address was not accepted.
+void TestAddRegisterWidget::buildFailureWithoutReasonShowsFallback()
+{
+    clickAdd();
+    _pMockAdapterManager->injectBuildExpressionFailure(QString());
+
+    QTRY_VERIFY(!_pRegWidget->_pUi->lblError->isHidden());
+    QVERIFY(!_pRegWidget->_pUi->lblError->text().isEmpty());
+}
+
+//! The label shows adapter text as plain text.
+void TestAddRegisterWidget::buildErrorIsPlainText()
+{
+    QCOMPARE(_pRegWidget->_pUi->lblError->textFormat(), Qt::PlainText);
+}
+
+//! A successful add after a failure hides the failure reason.
+void TestAddRegisterWidget::successfulAddHidesBuildError()
+{
+    clickAdd();
+    _pMockAdapterManager->injectBuildExpressionFailure(QStringLiteral("Invalid address"));
+    QTRY_VERIFY(!_pRegWidget->_pUi->lblError->isHidden());
+
+    GraphData graphData;
+    addRegister(graphData, QStringLiteral("${h0}"));
+
+    QVERIFY(_pRegWidget->_pUi->lblError->isHidden());
+    QCOMPARE(_pRegWidget->_pUi->lblError->text(), QString());
+}
+
+//! Selecting another device hides the failure reason.
+void TestAddRegisterWidget::deviceSwitchHidesBuildError()
+{
+    const deviceId_t simDeviceId = addSimAdapter();
+
+    clickAdd();
+    _pMockAdapterManager->injectBuildExpressionFailure(QStringLiteral("Invalid address"));
+    QTRY_VERIFY(!_pRegWidget->_pUi->lblError->isHidden());
+
+    _pRegWidget->_pUi->cmbDevice->setCurrentIndex(indexForDevice(simDeviceId));
+
+    QVERIFY(_pRegWidget->_pUi->lblError->isHidden());
 }
 
 //! Switching devices while a build request is pending must not allow a second request that replaces it.

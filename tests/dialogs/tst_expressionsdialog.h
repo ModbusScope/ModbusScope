@@ -98,6 +98,27 @@ private slots:
     void helpRoutedToSelectedDevice();
     void helpSwitchingBetweenDevicesOnSameAdapterSkipsRedundantRequest();
 
+    void exampleInputDefaultsToOne();
+    void exampleInputAcceptsHex();
+
+    void acceptDisabledOnSyntaxError();
+    void acceptDisabledOnEmptyExpression();
+    void acceptDisabledOnUnknownDevice();
+    void unknownDeviceShownWithInvalidExampleValue();
+    void acceptEnabledOnDivisionByZeroExample();
+    void acceptEnabledOnInvalidExampleValue();
+    void acceptAppliesValidExpression();
+
+    void buttonBoxHasAcceptAndCancel();
+    void enterInExampleTableIgnored();
+    void enterOnCancelCancels();
+    void escapeCancels();
+    void cancelLeavesExpressionUnchanged();
+    void enterAcceptsValidExpression();
+    void enterIgnoredOnSyntaxError();
+    void shiftEnterIgnored();
+    void expressionEditorWraps();
+
 private:
     MockAdapterManager* addSimAdapter();
     void recreateDialog();

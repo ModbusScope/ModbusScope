@@ -7,6 +7,10 @@
 #include "dialogs/expressionhighlighting.h"
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
+#include "util/expressionvalue.h"
+
+#include <QKeyEvent>
+#include <QPushButton>
 
 using State = DataQuality::State;
 
@@ -25,8 +29,8 @@ QString genericExpressionInfoHtml()
                           "Hexadecimal numbers can be represented with the &quot;0x&quot; prefix. "
                           "Binary numbers can be represented with the &quot;0b&quot; prefix. "
                           "Floating point numbers are also supported. "
-                          "Both a decimal point and a comma can be used as the decimal separator. "
-                          "The first one encountered is used as the decimal separator for the whole expression.</p>");
+                          "Both a decimal point and a comma can be used as the decimal separator, "
+                          "but an expression must use only one of them.</p>");
 }
 
 } // namespace
@@ -69,8 +73,9 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
 
     _pUi->widgetInfo->setVisible(false);
     connect(_pUi->btnInfo, &QAbstractButton::toggled, _pUi->widgetInfo, &QWidget::setVisible);
-    connect(_pUi->btnCancel, &QPushButton::clicked, this, &ExpressionsDialog::handleCancel);
-    connect(_pUi->btnAccept, &QPushButton::clicked, this, &ExpressionsDialog::handleAccept);
+
+    setupButtons();
+    setupExpressionEditor();
 
     connect(_pUi->lineExpression, &QPlainTextEdit::textChanged, this, &ExpressionsDialog::handleExpressionChange);
     _pUi->lineExpression->setPlainText(_pGraphDataModel->expression(_graphIdx));
@@ -79,6 +84,99 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
 ExpressionsDialog::~ExpressionsDialog()
 {
     delete _pUi;
+}
+
+/*!
+ * \brief Accept the expression with Enter in the expression editor.
+ *
+ * Enter accepts when the expression can be applied. Shift+Enter is ignored, so the
+ * expression never gets a line break.
+ * \param pWatched The object that received the event.
+ * \param pEvent   The event.
+ * \return true when the event was handled here.
+ */
+bool ExpressionsDialog::eventFilter(QObject* pWatched, QEvent* pEvent)
+{
+    if (pWatched != _pUi->lineExpression || pEvent->type() != QEvent::KeyPress)
+    {
+        return QDialog::eventFilter(pWatched, pEvent);
+    }
+
+    const auto* pKeyEvent = static_cast<QKeyEvent*>(pEvent); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
+    if (!isEnterKey(pKeyEvent))
+    {
+        return QDialog::eventFilter(pWatched, pEvent);
+    }
+
+    if (!pKeyEvent->modifiers().testFlag(Qt::ShiftModifier))
+    {
+        handleAccept();
+    }
+    return true;
+}
+
+/*!
+ * \brief Ignore Enter outside the expression editor and the buttons.
+ *
+ * The button box makes Accept the default button when the dialog is shown. Without this,
+ * Enter in the example input table would apply the expression by accident. Enter on a focused
+ * button still presses that button.
+ * \param pEvent The key event.
+ */
+void ExpressionsDialog::keyPressEvent(QKeyEvent* pEvent)
+{
+    if (isEnterKey(pEvent))
+    {
+        pEvent->accept();
+        return;
+    }
+
+    QDialog::keyPressEvent(pEvent);
+}
+
+/*!
+ * \brief Return whether the key event is Return or Enter.
+ * \param pEvent The key event.
+ */
+bool ExpressionsDialog::isEnterKey(const QKeyEvent* pEvent)
+{
+    return pEvent->key() == Qt::Key_Return || pEvent->key() == Qt::Key_Enter;
+}
+
+/*!
+ * \brief Add the Accept button to the button box and set the tab order.
+ */
+void ExpressionsDialog::setupButtons()
+{
+    _pAcceptButton = _pUi->buttonBox->addButton(QStringLiteral("&Accept"), QDialogButtonBox::AcceptRole);
+    _pAcceptButton->setEnabled(false);
+
+    QPushButton* pCancelButton = _pUi->buttonBox->button(QDialogButtonBox::Cancel);
+
+    connect(_pUi->buttonBox, &QDialogButtonBox::accepted, this, &ExpressionsDialog::handleAccept);
+    connect(_pUi->buttonBox, &QDialogButtonBox::rejected, this, &ExpressionsDialog::handleCancel);
+
+    setTabOrder(_pUi->lineExpression, _pUi->tblExpressionInput);
+    setTabOrder(_pUi->tblExpressionInput, _pAcceptButton);
+    setTabOrder(_pAcceptButton, pCancelButton);
+    setTabOrder(pCancelButton, _pUi->btnInfo);
+    setTabOrder(_pUi->btnInfo, _pUi->cmbHelpDevice);
+}
+
+/*!
+ * \brief Size the expression editor to three lines and handle Enter in it.
+ *
+ * Longer expressions wrap and show a vertical scroll bar.
+ */
+void ExpressionsDialog::setupExpressionEditor()
+{
+    QPlainTextEdit* pEditor = _pUi->lineExpression;
+    const int textHeight = pEditor->fontMetrics().lineSpacing() * cExpressionEditorLines;
+    const int margins = static_cast<int>(2 * pEditor->document()->documentMargin()) + 2 * pEditor->frameWidth() +
+                        pEditor->contentsMargins().top() + pEditor->contentsMargins().bottom();
+    pEditor->setFixedHeight(textHeight + margins);
+
+    pEditor->installEventFilter(this);
 }
 
 void ExpressionsDialog::handleExpressionChange()
@@ -115,7 +213,7 @@ void ExpressionsDialog::handleExpressionChange()
             pRegItem->setData(Qt::UserRole, addresses[idx]);
             _pUi->tblExpressionInput->setItem(idx, 0, pRegItem);
 
-            QString testVal = testValueMap.value(addresses[idx], QStringLiteral("0"));
+            QString testVal = testValueMap.value(addresses[idx], QStringLiteral("1"));
             _pUi->tblExpressionInput->setItem(idx, 1, new QTableWidgetItem(testVal));
         }
 
@@ -140,7 +238,7 @@ void ExpressionsDialog::handleInputChange()
             QTableWidgetItem* pValueItem = _pUi->tblExpressionInput->item(idx, 1);
             QString valueStr = pValueItem->text();
             bool bOk = false;
-            double value = valueStr.toDouble(&bOk);
+            double value = ExpressionValue::parse(valueStr, &bOk);
             results.append(ResultDouble(value, bOk ? State::Good : State::Invalid));
 
             /* Avoid recursive signal/slots calling */
@@ -161,8 +259,18 @@ void ExpressionsDialog::handleCancel()
     done(QDialog::Rejected);
 }
 
+/*!
+ * \brief Apply the expression to the signal and close the dialog.
+ *
+ * Does nothing while the expression has a syntax error or refers to an unknown device.
+ */
 void ExpressionsDialog::handleAccept()
 {
+    if (!_bCanAccept)
+    {
+        return;
+    }
+
     _pGraphDataModel->setExpression(_graphIdx, _pUi->lineExpression->toPlainText().trimmed());
 
     done(QDialog::Accepted);
@@ -324,6 +432,13 @@ void ExpressionsDialog::handleDescribeFailed(quint64 ticket, const QString& erro
     _describeRowByTicket.remove(ticket);
 }
 
+/*!
+ * \brief Show the evaluation result and allow Accept only when the expression can be applied.
+ *
+ * An error that depends on the example values (such as a division by zero) is shown but does not
+ * block Accept; a syntax error or a reference to an unknown device does.
+ * \param valid Whether the expression evaluated with the example values.
+ */
 void ExpressionsDialog::handleResultReady(bool valid)
 {
     _pHighlighter->setExpressionErrorPosition(_expressionChecker.errorPos());
@@ -344,6 +459,17 @@ void ExpressionsDialog::handleResultReady(bool valid)
         numOutput = QStringLiteral("-");
         backgroundStyle = "background-color: rgba(255,0,0,50%);";
     }
+
+    const bool bDevicesKnown = _expressionChecker.checkForDevices(_pSettingsModel->deviceList());
+    if (!bDevicesKnown && !_expressionChecker.syntaxError())
+    {
+        strError = QStringLiteral("Unknown device in expression");
+        backgroundStyle = "background-color: rgba(255,0,0,50%);";
+    }
+
+    _bCanAccept = !_expressionChecker.syntaxError() && bDevicesKnown;
+    _pAcceptButton->setEnabled(_bCanAccept);
+
     _pUi->lblOut->setText(numOutput);
 
     _pUi->lblError->setText(strError);
