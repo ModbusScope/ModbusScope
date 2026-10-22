@@ -13,13 +13,13 @@ You must have at least one connection and one device configured. See [Configure 
    ![Signals dialog](<../_static/user_manual/add_register_dialog.png>)
 
 2. Click the arrow next to **Add** to open the add form.
-3. Select the **device**. The line below it shows the device's protocol.
-4. Optionally enter a **name** for the graph legend. A signal without a name is called *New signal*, *New signal 2*, and so on.
-5. Fill in the address fields. They depend on the device's protocol, for example the object type, address and data type for Modbus.
+3. Optionally enter a **name** for the graph legend. A signal without a name is called *New signal*, *New signal 2*, and so on.
+4. Select the **device**. The line below it shows the device's protocol.
+5. Fill in the address fields. They depend on the device's protocol, for example the object type, address and data type for Modbus. Below the fields, **Reference** shows the data point reference that will be added, for example `${h0}`. It is updated after each change.
 6. Select **Y1 axis** or **Y2 axis**.
 7. Click **Add signal**. The signal is added to the table and the form closes.
 
-   If the adapter rejects the address, the form stays open and shows the reason above the **Add signal** button. Correct the fields and click **Add signal** again.
+   If the adapter rejects the address, no reference is shown, **Add signal** is disabled and the reason appears above it. Correct the fields to try again.
 
 8. Repeat steps 2–7 for each signal.
 9. In the table, adjust the **Color** and the **Active** checkbox, or rename a signal in the **Name** column.

@@ -17,6 +17,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 * Compose expression: the expression wraps, Enter accepts, and Accept and Cancel use a standard button row in a smaller dialog
 * Compose expression: example values accept hexadecimal (`0x`) and binary (`0b`) numbers and start at 1 instead of 0
 * A signal added without a name, from the add form or an import, is named "New signal", "New signal 2", and so on
+* The add signal form shows the data point reference it will add, and checks the address while you type
 
 ## [v5.0.1](https://github.com/jgeudens/ModbusScope/releases/tag/5.0.1) (09/10/2026)
 
