@@ -9,7 +9,6 @@
 #include "dialogs/addregisterwidget.h"
 #include "dialogs/expressionsdialog.h"
 #include "dialogs/ui_signalsdialog.h"
-#include "models/adapterdata.h"
 #include "models/datapointdescriptioncache.h"
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
@@ -295,39 +294,11 @@ void SignalsDialog::setupDataPointLimitIndication()
 /*!
  * \brief Build a warning message listing adapters that are asked to read more data points than
  *  they currently allow, or an empty string when every adapter is within its limit.
- *
- * The limit is the adapter's reported capabilities.maxRegisters, which is only present while the
- * adapter enforces a cap (for example when no valid license is found).
  */
 QString SignalsDialog::dataPointLimitWarningMessage() const
 {
     const QList<DataPoint> dataPoints = DataPointUsage::activeDataPoints(_pGraphDataModel);
-    const QMap<QString, int> countByAdapter = DataPointUsage::countPerAdapter(dataPoints, _pSettingsModel);
-
-    /* adapterData() inserts a default entry for an unknown adapterId, which would leave a phantom
-       entry behind for a warning alone. An adapter SettingsModel has never heard of cannot have
-       reported a limit either, so there is nothing to warn about. */
-    const QStringList knownAdapterIds = _pSettingsModel->adapterIds();
-
-    QStringList warnings;
-    for (auto it = countByAdapter.constBegin(); it != countByAdapter.constEnd(); ++it)
-    {
-        if (!knownAdapterIds.contains(it.key()))
-        {
-            continue;
-        }
-
-        const AdapterData* pAdapter = _pSettingsModel->adapterData(it.key());
-        const int dataPointLimit = pAdapter->maxRegisters();
-        if (it.value() > dataPointLimit)
-        {
-            warnings.append(QString("%1 allows at most %2 data point(s), but %3 are configured.")
-                              .arg(_pSettingsModel->adapterDisplayName(it.key()))
-                              .arg(dataPointLimit)
-                              .arg(it.value()));
-        }
-    }
-
+    QStringList warnings = DataPointUsage::limitWarnings(dataPoints, _pSettingsModel);
     if (warnings.isEmpty())
     {
         return QString();

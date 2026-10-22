@@ -26,6 +26,8 @@ QList<DataPoint> activeDataPoints(const GraphDataModel* pGraphDataModel);
 
 QMap<QString, int> countPerAdapter(const QList<DataPoint>& dataPoints, const SettingsModel* pSettingsModel);
 
+QStringList limitWarnings(const QList<DataPoint>& dataPoints, SettingsModel* pSettingsModel);
+
 } // namespace DataPointUsage
 
 #endif // DATAPOINTUSAGE_H
