@@ -288,7 +288,7 @@ void AddRegisterWidget::onBuildRequestFailed(quint64 ticket, const QString& erro
 
     qCWarning(scopeComm) << "AddRegisterWidget: building the expression failed:" << error;
     _pUi->btnAdd->setEnabled(isSelectionUsable());
-    showBuildErrorForPendingDevice(error);
+    showBuildErrorForPendingDevice(error.isEmpty() ? tr("The adapter did not accept the address.") : error);
 }
 
 /*!

@@ -613,6 +613,16 @@ void TestAddRegisterWidget::emptyBuildResultShowsReason()
     QVERIFY(!_pRegWidget->_pUi->lblError->text().isEmpty());
 }
 
+//! A failure without a reason still tells the user the address was not accepted.
+void TestAddRegisterWidget::buildFailureWithoutReasonShowsFallback()
+{
+    clickAdd();
+    _pMockAdapterManager->injectBuildExpressionFailure(QString());
+
+    QTRY_VERIFY(!_pRegWidget->_pUi->lblError->isHidden());
+    QVERIFY(!_pRegWidget->_pUi->lblError->text().isEmpty());
+}
+
 //! The label shows adapter text as plain text.
 void TestAddRegisterWidget::buildErrorIsPlainText()
 {

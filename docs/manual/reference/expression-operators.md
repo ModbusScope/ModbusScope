@@ -74,7 +74,7 @@ Use parentheses to override precedence.
 | Hexadecimal | `0x` | `0xFF`, `0x1000` |
 | Binary | `0b` | `0b11111000` |
 
-**Decimal separator:** ModbusScope uses the first separator it encounters — `.` or `,` — for the entire expression. Mixing both in one expression is invalid.
+**Decimal separator:** use either `.` or `,` as decimal separator. An expression that uses both is a syntax error.
 
 **Function argument separator:** `;` (regardless of locale).
 

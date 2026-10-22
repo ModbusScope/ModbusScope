@@ -91,6 +91,7 @@ private slots:
     void longBuildErrorWrapsInOpenMenu();
     void buildFailureForPreviousDeviceNotShown();
     void emptyBuildResultShowsReason();
+    void buildFailureWithoutReasonShowsFallback();
     void buildErrorIsPlainText();
     void successfulAddHidesBuildError();
     void deviceSwitchHidesBuildError();

@@ -29,8 +29,8 @@ QString genericExpressionInfoHtml()
                           "Hexadecimal numbers can be represented with the &quot;0x&quot; prefix. "
                           "Binary numbers can be represented with the &quot;0b&quot; prefix. "
                           "Floating point numbers are also supported. "
-                          "Both a decimal point and a comma can be used as the decimal separator. "
-                          "The first one encountered is used as the decimal separator for the whole expression.</p>");
+                          "Both a decimal point and a comma can be used as the decimal separator, "
+                          "but an expression must use only one of them.</p>");
 }
 
 } // namespace

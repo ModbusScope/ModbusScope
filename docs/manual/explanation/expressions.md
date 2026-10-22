@@ -12,7 +12,7 @@ In the second stage, the resulting arithmetic string is passed to the expression
 
 ## What the parser can do
 
-The parser supports the operators listed in [Expression operators reference](../reference/expression-operators.md): arithmetic, bitwise operations, shifts, and comparison/logical operators. It understands decimal, hexadecimal, and binary number literals, and it handles both `.` and `,` as decimal separators depending on which one appears first in the expression.
+The parser supports the operators listed in [Expression operators reference](../reference/expression-operators.md): arithmetic, bitwise operations, shifts, and comparison/logical operators. It understands decimal, hexadecimal, and binary number literals, and it accepts either `.` or `,` as decimal separator, as long as one expression uses only one of them.
 
 An expression can reference multiple data points. `${40001} * ${40002@2}` reads one data point from device 1 and one from device 2, then multiplies them. All referenced data points are read in the same poll cycle.
 
