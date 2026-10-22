@@ -15,6 +15,7 @@ class AdapterManager;
 class DataPointDescriptionCache;
 class DataPointService;
 class SettingsModel;
+class SignalListDraft;
 class ValueAxisDelegate;
 class ActionButtonDelegate;
 class GraphData;
@@ -34,6 +35,9 @@ public:
                            QWidget* parent = nullptr);
     ~SignalsDialog();
 
+public slots:
+    void accept() override;
+
 private slots:
     void addSignal(const GraphData& graphData);
     void addDefaultSignal();
@@ -52,7 +56,7 @@ private:
 
     Ui::SignalsDialog* _pUi;
 
-    GraphDataModel* _pGraphDataModel;
+    SignalListDraft* _pDraft;
     SettingsModel* _pSettingsModel;
     AdapterHub* _pAdapterHub;
     DataPointService* _pDataPointService;

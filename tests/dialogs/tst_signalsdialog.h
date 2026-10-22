@@ -86,10 +86,20 @@ private slots:
     void dataPointLimitWarningHiddenWhenSignalDeactivated();
     void dataPointLimitWarningHiddenWhenAdapterReportsNoLimit();
 
+    void buttonBoxHasOkAndCancel();
+    void tableEditsDraftNotSource();
+    void cancelDiscardsChanges();
+    void escapeDiscardsChanges();
+    void okAppliesChanges();
+    void okWithoutChangesLeavesSourceUntouched();
+
 private:
     static QJsonObject buildTestRegisterSchema();
     static QJsonObject buildDescribeWithMaxRegisters(int maxRegisters);
     void seedSignals(int count);
+    void seedSamples();
+    void editDraft();
+    GraphDataModel* draftModel() const;
 
     SettingsModel _settingsModel;
     GraphDataModel* _pGraphDataModel{ nullptr };

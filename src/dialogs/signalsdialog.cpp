@@ -12,6 +12,7 @@
 #include "models/datapointdescriptioncache.h"
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
+#include "models/signallistdraft.h"
 #include "valueaxisdelegate.h"
 
 #include <QColorDialog>
@@ -28,7 +29,7 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    _pGraphDataModel = pGraphDataModel;
+    _pDraft = new SignalListDraft(pGraphDataModel, pSettingsModel, this);
     _pSettingsModel = pSettingsModel;
     _pAdapterHub = pAdapterHub;
     _pDataPointService = new DataPointService(_pSettingsModel, _pAdapterHub, this);
@@ -55,7 +56,7 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
     }
 
     // Setup signalView
-    _pUi->signalView->setModel(_pGraphDataModel);
+    _pUi->signalView->setModel(_pDraft->model());
     _pUi->signalView->verticalHeader()->hide();
 
     _valueAxisDelegate = std::make_unique<ValueAxisDelegate>(_pUi->signalView);
@@ -97,7 +98,7 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
     // Setup handler for buttons
     connect(_pUi->btnAdd, &QPushButton::released, this, &SignalsDialog::addDefaultSignal);
     connect(_pUi->btnRemove, &QPushButton::released, this, &SignalsDialog::removeSelectedSignals);
-    connect(_pGraphDataModel, &GraphDataModel::rowsInserted, this, &SignalsDialog::onSignalInserted);
+    connect(_pDraft->model(), &GraphDataModel::rowsInserted, this, &SignalsDialog::onSignalInserted);
 
     if (!deviceIds.isEmpty())
     {
@@ -117,25 +118,37 @@ SignalsDialog::~SignalsDialog()
     delete _pUi;
 }
 
+/*!
+ * \brief Applies the changes made in the dialog to the signal list and closes the dialog.
+ */
+void SignalsDialog::accept()
+{
+    /* OK through its shortcut keeps the focus in an open cell editor; moving it commits the edit */
+    _pUi->buttonBox->setFocus();
+
+    _pDraft->apply();
+    QDialog::accept();
+}
+
 void SignalsDialog::addSignal(const GraphData& graphData)
 {
-    _pGraphDataModel->add(graphData);
+    _pDraft->model()->add(graphData);
 }
 
 void SignalsDialog::addDefaultSignal()
 {
-    _pGraphDataModel->add();
+    _pDraft->model()->add();
 }
 
 void SignalsDialog::activatedCell(QModelIndex modelIndex)
 {
-    if ((modelIndex.column() == GraphDataModel::column::COLOR) && (modelIndex.row() < _pGraphDataModel->size()))
+    if ((modelIndex.column() == GraphDataModel::column::COLOR) && (modelIndex.row() < _pDraft->model()->size()))
     {
-        QColor color = QColorDialog::getColor(_pGraphDataModel->color(GraphIdx(modelIndex.row())));
+        QColor color = QColorDialog::getColor(_pDraft->model()->color(GraphIdx(modelIndex.row())));
 
         if (color.isValid())
         {
-            _pGraphDataModel->setData(modelIndex, color, Qt::EditRole);
+            _pDraft->model()->setData(modelIndex, color, Qt::EditRole);
         }
     }
 }
@@ -165,9 +178,9 @@ void SignalsDialog::removeSelectedSignals()
         firstRow = qMin(firstRow, rowIndex.row());
     }
 
-    _pGraphDataModel->removeSignals(indices);
+    _pDraft->model()->removeSignals(indices);
 
-    _pUi->signalView->selectRow(GraphDataModel::rowAfterRemoval(firstRow, _pGraphDataModel->size()));
+    _pUi->signalView->selectRow(GraphDataModel::rowAfterRemoval(firstRow, _pDraft->model()->size()));
 }
 
 void SignalsDialog::handleExpressionEdit(const QModelIndex& index)
@@ -176,7 +189,7 @@ void SignalsDialog::handleExpressionEdit(const QModelIndex& index)
     {
         _pUi->signalView->closePersistentEditor(index);
 
-        ExpressionsDialog exprDialog(_pGraphDataModel, GraphIdx(index.row()), _pAdapterHub, _pSettingsModel,
+        ExpressionsDialog exprDialog(_pDraft->model(), GraphIdx(index.row()), _pAdapterHub, _pSettingsModel,
                                      _pDescriptionCache, this);
 
         exprDialog.exec();
@@ -241,7 +254,7 @@ void SignalsDialog::onDefaultExpressionBuilt(quint64 ticket, const QString& expr
 
     if (!expression.isEmpty())
     {
-        _pGraphDataModel->setDefaultExpression(expression);
+        _pDraft->model()->setDefaultExpression(expression);
     }
 }
 
@@ -258,10 +271,10 @@ void SignalsDialog::setupDataPointLimitIndication()
 
     /* dataChanged covers activating a signal and editing its expression, including edits made
      * through the expression dialog: the model emits it for the complete row. */
-    connect(_pGraphDataModel, &GraphDataModel::rowsInserted, this, &SignalsDialog::updateDataPointLimitIndication);
-    connect(_pGraphDataModel, &GraphDataModel::rowsRemoved, this, &SignalsDialog::updateDataPointLimitIndication);
-    connect(_pGraphDataModel, &GraphDataModel::modelReset, this, &SignalsDialog::updateDataPointLimitIndication);
-    connect(_pGraphDataModel, &GraphDataModel::dataChanged, this, &SignalsDialog::updateDataPointLimitIndication);
+    connect(_pDraft->model(), &GraphDataModel::rowsInserted, this, &SignalsDialog::updateDataPointLimitIndication);
+    connect(_pDraft->model(), &GraphDataModel::rowsRemoved, this, &SignalsDialog::updateDataPointLimitIndication);
+    connect(_pDraft->model(), &GraphDataModel::modelReset, this, &SignalsDialog::updateDataPointLimitIndication);
+    connect(_pDraft->model(), &GraphDataModel::dataChanged, this, &SignalsDialog::updateDataPointLimitIndication);
 
     updateDataPointLimitIndication();
 }
@@ -272,7 +285,7 @@ void SignalsDialog::setupDataPointLimitIndication()
  */
 QString SignalsDialog::dataPointLimitWarningMessage() const
 {
-    const QList<DataPoint> dataPoints = DataPointUsage::activeDataPoints(_pGraphDataModel);
+    const QList<DataPoint> dataPoints = DataPointUsage::activeDataPoints(_pDraft->model());
     QStringList warnings = DataPointUsage::limitWarnings(dataPoints, _pSettingsModel);
     if (warnings.isEmpty())
     {
