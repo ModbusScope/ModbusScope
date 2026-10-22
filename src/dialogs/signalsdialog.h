@@ -46,11 +46,9 @@ private slots:
     void updateDataPointLimitIndication();
 
 private:
-    int selectedRowAfterDelete(int deletedStartIndex, int rowCnt);
     void initDefaultExpressionTarget(const QList<deviceId_t>& deviceIds);
     void setupDataPointLimitIndication();
     QString dataPointLimitWarningMessage() const;
-    static bool sortRegistersLastFirst(const QModelIndex& s1, const QModelIndex& s2);
 
     Ui::SignalsDialog* _pUi;
 

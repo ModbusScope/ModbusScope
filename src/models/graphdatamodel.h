@@ -81,7 +81,11 @@ public:
                     QList<QList<DataQuality::Quality> > qualities = {});
 
     void removeRegister(GraphIdx idx);
+    void removeSignals(const QList<GraphIdx>& indices);
+    void moveSignal(GraphIdx from, GraphIdx to);
     void clear();
+
+    static int rowAfterRemoval(int firstRemovedRow, int rowCount);
 
     void activeGraphIndexList(QList<GraphIdx>& list) const;
 

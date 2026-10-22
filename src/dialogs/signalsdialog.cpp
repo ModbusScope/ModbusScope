@@ -151,23 +151,23 @@ void SignalsDialog::onSignalInserted(const QModelIndex& parent, int first, int l
 
 void SignalsDialog::removeSelectedSignals()
 {
-    // get list of selected rows
-    QItemSelectionModel* selected = _pUi->signalView->selectionModel();
-    QModelIndexList rowList = selected->selectedRows();
-
-    // sort QModelIndexList
-    // We need to remove the highest rows first
-    std::sort(rowList.begin(), rowList.end(), &SignalsDialog::sortRegistersLastFirst);
-
-    for (const QModelIndex& rowIndex : std::as_const(rowList))
+    const QModelIndexList rowList = _pUi->signalView->selectionModel()->selectedRows();
+    if (rowList.isEmpty())
     {
-        _pGraphDataModel->removeRow(rowIndex.row());
+        return;
     }
 
-    if (rowList.size() > 0)
+    QList<GraphIdx> indices;
+    int firstRow = rowList.first().row();
+    for (const QModelIndex& rowIndex : rowList)
     {
-        _pUi->signalView->selectRow(selectedRowAfterDelete(rowList.first().row(), _pGraphDataModel->size()));
+        indices.append(GraphIdx(rowIndex.row()));
+        firstRow = qMin(firstRow, rowIndex.row());
     }
+
+    _pGraphDataModel->removeSignals(indices);
+
+    _pUi->signalView->selectRow(GraphDataModel::rowAfterRemoval(firstRow, _pGraphDataModel->size()));
 }
 
 void SignalsDialog::handleExpressionEdit(const QModelIndex& index)
@@ -202,31 +202,6 @@ void SignalsDialog::initDefaultExpressionTarget(const QList<deviceId_t>& deviceI
     _defaultExpressionDeviceId = deviceIds.first();
     const QString adapterId = _pDataPointService->adapterIdForDevice(_defaultExpressionDeviceId);
     _pDefaultExpressionManager = _pAdapterHub->adapterManager(adapterId);
-}
-
-int SignalsDialog::selectedRowAfterDelete(int deletedStartIndex, int rowCnt)
-{
-    int nextSelectedRow = -1;
-
-    if (rowCnt > 0)
-    {
-        if (deletedStartIndex < rowCnt)
-        {
-            nextSelectedRow = deletedStartIndex;
-        }
-        else
-        {
-
-            nextSelectedRow = rowCnt - 1;
-        }
-    }
-
-    return nextSelectedRow;
-}
-
-bool SignalsDialog::sortRegistersLastFirst(const QModelIndex& s1, const QModelIndex& s2)
-{
-    return s1.row() > s2.row();
 }
 
 /*!
