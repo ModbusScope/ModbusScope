@@ -1,0 +1,273 @@
+#include "datapointeditorwidget.h"
+
+#include "ProtocolAdapter/datapointservice.h"
+#include "customwidgets/devicecombobox.h"
+#include "customwidgets/schemaformwidget.h"
+#include "models/settingsmodel.h"
+
+#include <QLabel>
+#include <QSignalBlocker>
+#include <QVBoxLayout>
+
+/*!
+ * \brief Constructs the editor for the first configured device and builds its default reference.
+ * \param pSettingsModel    Settings model with the devices and adapter schemas.
+ * \param pDataPointService Service that builds references through the device's adapter.
+ * \param parent            Optional parent widget.
+ */
+DataPointEditorWidget::DataPointEditorWidget(SettingsModel* pSettingsModel,
+                                             DataPointService* pDataPointService,
+                                             QWidget* parent)
+    : QWidget(parent),
+      _pSettingsModel(pSettingsModel),
+      _pDataPointService(pDataPointService),
+      _pDeviceCombo(new DeviceComboBox(this)),
+      _pProtocolLabel(new QLabel(this)),
+      _pAddressForm(new SchemaFormWidget(this)),
+      _pPreviewLabel(new QLabel(this))
+{
+    auto* pLayout = new QVBoxLayout(this);
+    pLayout->setContentsMargins(0, 0, 0, 0);
+    pLayout->addWidget(_pDeviceCombo);
+    pLayout->addWidget(_pProtocolLabel);
+    pLayout->addWidget(_pAddressForm);
+    pLayout->addWidget(_pPreviewLabel);
+
+    _pPreviewLabel->setTextFormat(Qt::PlainText);
+    _pPreviewLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
+    _pDeviceCombo->setSettingsModel(_pSettingsModel);
+
+    connect(_pDeviceCombo, &DeviceComboBox::deviceChanged, this, &DataPointEditorWidget::onDeviceSelected);
+    connect(_pAddressForm, &SchemaFormWidget::valuesChanged, this, &DataPointEditorWidget::onValuesChanged);
+    connect(_pDataPointService, &DataPointService::expressionBuilt, this, &DataPointEditorWidget::onExpressionBuilt);
+    connect(_pDataPointService, &DataPointService::requestFailed, this, &DataPointEditorWidget::onRequestFailed);
+
+    onDeviceSelected(_pDeviceCombo->selectedDeviceId());
+}
+
+/*!
+ * \brief Select a device and reset the form to its adapter's defaults.
+ *
+ * Builds the default reference of that adapter.
+ * \param deviceId The device to select.
+ */
+void DataPointEditorWidget::setDevice(deviceId_t deviceId)
+{
+    if (_pDeviceCombo->selectedDeviceId() != deviceId)
+    {
+        /* Applies the device through onDeviceSelected() */
+        _pDeviceCombo->setSelectedDeviceId(deviceId);
+        if (_pDeviceCombo->selectedDeviceId() == deviceId)
+        {
+            return;
+        }
+    }
+
+    onDeviceSelected(_pDeviceCombo->selectedDeviceId());
+}
+
+/*!
+ * \brief Show an existing reference without rebuilding it.
+ *
+ * Selects the device in \c fields["deviceId"] and fills the form from \a fields. Keys the device's
+ * schema does not know are ignored; missing keys take the adapter default. expression() returns
+ * \a referenceText as typed until the user changes a field, so its notation is kept.
+ * \param referenceText The reference as written in the expression, e.g. \c ${40002:s16b}.
+ * \param fields        The \c fields of the describeDataPoint result for the reference.
+ */
+void DataPointEditorWidget::setReference(const QString& referenceText, const QJsonObject& fields)
+{
+    const deviceId_t referenceDeviceId = static_cast<deviceId_t>(fields.value("deviceId").toInt());
+    if (_pSettingsModel->hasDevice(referenceDeviceId))
+    {
+        const QSignalBlocker blocker(_pDeviceCombo);
+        _pDeviceCombo->setSelectedDeviceId(referenceDeviceId);
+    }
+
+    applyDevice(_pDeviceCombo->selectedDeviceId(), fields);
+
+    _pendingTicket = 0;
+    setError(QString());
+    setExpression(referenceText, true);
+}
+
+/*!
+ * \brief Returns the selected device, or 0 when there are no devices.
+ */
+deviceId_t DataPointEditorWidget::deviceId() const
+{
+    return _pDeviceCombo->selectedDeviceId();
+}
+
+/*!
+ * \brief Returns the reference set with setReference(), or the last one built from the form.
+ *
+ * Only usable when hasValidExpression() is true.
+ */
+QString DataPointEditorWidget::expression() const
+{
+    return _expression;
+}
+
+/*!
+ * \brief Returns whether expression() matches the form: no build is pending and the last one succeeded.
+ */
+bool DataPointEditorWidget::hasValidExpression() const
+{
+    return _bValid;
+}
+
+/*!
+ * \brief Reset the form to the defaults of the device's adapter and build the default reference.
+ * \param deviceId The selected device; 0 when there are no devices.
+ */
+void DataPointEditorWidget::onDeviceSelected(deviceId_t deviceId)
+{
+    applyDevice(deviceId, QJsonObject());
+
+    if (!_pSettingsModel->hasDevice(deviceId))
+    {
+        _pendingTicket = 0;
+        setError(QString());
+        setExpression(QString(), false);
+        return;
+    }
+
+    requestBuild();
+}
+
+void DataPointEditorWidget::onValuesChanged()
+{
+    if (_bApplyingForm)
+    {
+        return;
+    }
+
+    requestBuild();
+}
+
+/*!
+ * \brief Show the reference the adapter built for the current request.
+ * \param ticket     Ticket of the finished request; results of other requests are ignored.
+ * \param expression The built reference.
+ */
+void DataPointEditorWidget::onExpressionBuilt(quint64 ticket, const QString& expression)
+{
+    if (ticket == 0 || ticket != _pendingTicket)
+    {
+        return;
+    }
+    _pendingTicket = 0;
+
+    if (expression.isEmpty())
+    {
+        setExpression(QString(), false);
+        setError(tr("The adapter did not return a data point reference."));
+        return;
+    }
+
+    setError(QString());
+    setExpression(expression, true);
+}
+
+/*!
+ * \brief Clear the preview and show why the current request failed.
+ * \param ticket Ticket of the failed request; failures of other requests are ignored.
+ * \param error  Why the request failed.
+ */
+void DataPointEditorWidget::onRequestFailed(quint64 ticket, const QString& error)
+{
+    if (ticket == 0 || ticket != _pendingTicket)
+    {
+        return;
+    }
+    _pendingTicket = 0;
+
+    const QString reason = error.isEmpty() ? tr("The adapter did not accept the address.") : error;
+    setExpression(QString(), false);
+    setError(tr("%1. Change a field or select the device again to retry.").arg(reason));
+}
+
+/*!
+ * \brief Rebuild the form for a device and fill it with the adapter defaults overlaid by \a fields.
+ * \param deviceId The device to use; 0 when there are no devices.
+ * \param fields   Field values to show instead of the defaults.
+ */
+void DataPointEditorWidget::applyDevice(deviceId_t deviceId, const QJsonObject& fields)
+{
+    const QJsonObject schema = _pDataPointService->addressSchema(deviceId);
+    QJsonObject values = _pDataPointService->defaults(deviceId);
+
+    const QJsonObject properties = schema.value("properties").toObject();
+    for (auto it = fields.constBegin(); it != fields.constEnd(); ++it)
+    {
+        if (properties.contains(it.key()))
+        {
+            values.insert(it.key(), it.value());
+        }
+    }
+
+    _bApplyingForm = true;
+    _pAddressForm->setSchema(schema, values);
+    _bApplyingForm = false;
+
+    if (_pSettingsModel->hasDevice(deviceId))
+    {
+        const QString adapterId = _pDataPointService->adapterIdForDevice(deviceId);
+        _pProtocolLabel->setText(tr("Protocol: %1").arg(_pSettingsModel->adapterDisplayName(adapterId)));
+    }
+    else
+    {
+        _pProtocolLabel->clear();
+    }
+
+    emit deviceChanged(deviceId);
+}
+
+/*!
+ * \brief Ask the adapter to build the reference from the form. A previous request and its error are superseded.
+ */
+void DataPointEditorWidget::requestBuild()
+{
+    _pendingTicket = _pDataPointService->buildExpression(deviceId(), _pAddressForm->values());
+    setError(QString());
+    setExpression(_expression, false);
+}
+
+/*!
+ * \brief Store the expression and its validity, update the preview and notify on change.
+ */
+void DataPointEditorWidget::setExpression(const QString& expression, bool bValid)
+{
+    const bool bChanged = expression != _expression || bValid != _bValid;
+    _expression = expression;
+    _bValid = bValid;
+
+    updatePreview();
+
+    if (bChanged)
+    {
+        emit expressionChanged(_expression);
+    }
+}
+
+void DataPointEditorWidget::setError(const QString& error)
+{
+    if (error == _error)
+    {
+        return;
+    }
+
+    _error = error;
+    emit errorChanged(_error);
+}
+
+/*!
+ * \brief Show the reference; greyed out while a newer one is being built.
+ */
+void DataPointEditorWidget::updatePreview()
+{
+    _pPreviewLabel->setText(_expression.isEmpty() ? QString() : tr("Reference: %1").arg(_expression));
+    _pPreviewLabel->setEnabled(_pendingTicket == 0);
+}

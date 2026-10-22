@@ -24,8 +24,6 @@ private slots:
     void lastDeviceRemovedEmitsZero();
 
 private:
-    void removeDevice(deviceId_t deviceId);
-
     SettingsModel* _pSettingsModel{ nullptr };
     DeviceComboBox* _pCombo{ nullptr };
 };

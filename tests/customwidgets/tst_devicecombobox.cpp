@@ -77,7 +77,7 @@ void TestDeviceComboBox::selectionKeptWhenOtherDeviceRemoved()
     _pCombo->setSelectedDeviceId(cSecondDeviceId);
     QSignalSpy spy(_pCombo, &DeviceComboBox::deviceChanged);
 
-    removeDevice(Device::cFirstDeviceId);
+    DeviceListHelpers::dropDevice(_pSettingsModel, Device::cFirstDeviceId);
 
     QCOMPARE(_pCombo->count(), 1);
     QCOMPARE(_pCombo->selectedDeviceId(), cSecondDeviceId);
@@ -89,7 +89,7 @@ void TestDeviceComboBox::selectedDeviceRemovedFallsBackToFirst()
     _pCombo->setSelectedDeviceId(cSecondDeviceId);
     QSignalSpy spy(_pCombo, &DeviceComboBox::deviceChanged);
 
-    removeDevice(cSecondDeviceId);
+    DeviceListHelpers::dropDevice(_pSettingsModel, cSecondDeviceId);
 
     QCOMPARE(_pCombo->selectedDeviceId(), Device::cFirstDeviceId);
     QCOMPARE(spy.count(), 1);
@@ -105,13 +105,6 @@ void TestDeviceComboBox::lastDeviceRemovedEmitsZero()
     QCOMPARE(_pCombo->count(), 0);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.at(0).at(0).value<deviceId_t>(), deviceId_t(0));
-}
-
-void TestDeviceComboBox::removeDevice(deviceId_t deviceId)
-{
-    QMap<deviceId_t, Device> devices = DeviceListHelpers::currentDevices(_pSettingsModel);
-    devices.remove(deviceId);
-    _pSettingsModel->applyDeviceList(devices);
 }
 
 QTEST_MAIN(TestDeviceComboBox)

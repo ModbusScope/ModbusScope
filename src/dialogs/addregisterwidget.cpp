@@ -1,12 +1,8 @@
 #include "addregisterwidget.h"
 #include "ui_addregisterwidget.h"
 
-#include "ProtocolAdapter/datapointservice.h"
-#include "customwidgets/devicecombobox.h"
-#include "customwidgets/schemaformwidget.h"
-#include "models/device.h"
-#include "models/settingsmodel.h"
-#include "util/scopelogging.h"
+#include "customwidgets/datapointeditorwidget.h"
+#include "models/graphdata.h"
 
 #include <QCoreApplication>
 #include <QMenu>
@@ -14,9 +10,7 @@
 #include <QVBoxLayout>
 
 /*!
- * \brief Constructs the widget and populates it from the selected device's register schema.
- *
- * The device selector is filled with all configured devices.
+ * \brief Constructs the widget with a data point editor for the first configured device.
  * \param pSettingsModel    Pointer to the application settings model.
  * \param pDataPointService Service that sends data point requests to the device's adapter.
  * \param parent            Optional parent widget.
@@ -26,27 +20,16 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel,
                                      QWidget* parent)
     : QWidget(parent),
       _pUi(new Ui::AddRegisterWidget),
-      _pAddressForm(new SchemaFormWidget(this)),
-      _pSettingsModel(pSettingsModel),
-      _pDataPointService(pDataPointService)
+      _pEditor(new DataPointEditorWidget(pSettingsModel, pDataPointService, this))
 {
     _pUi->setupUi(this);
-
-    _pUi->lineName->setFocus();
 
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     auto* addressLayout = new QVBoxLayout(_pUi->addressContainer);
     addressLayout->setContentsMargins(0, 0, 0, 0);
-    addressLayout->addWidget(_pAddressForm);
-
-    _pUi->cmbDevice->setSettingsModel(_pSettingsModel);
-    connect(_pUi->cmbDevice, &DeviceComboBox::deviceChanged, this, &AddRegisterWidget::applyDevice);
-
-    connect(_pUi->btnAdd, &QPushButton::clicked, this, &AddRegisterWidget::handleResultAccept);
-    connect(_pDataPointService, &DataPointService::expressionBuilt, this, &AddRegisterWidget::onExpressionBuilt);
-    connect(_pDataPointService, &DataPointService::requestFailed, this, &AddRegisterWidget::onBuildRequestFailed);
+    addressLayout->addWidget(_pEditor);
 
     _pUi->lblError->setStyleSheet("QLabel { color: #c00000; }");
     _pUi->lblError->setVisible(false);
@@ -55,7 +38,12 @@ AddRegisterWidget::AddRegisterWidget(SettingsModel* pSettingsModel,
     _axisGroup.addButton(_pUi->radioPrimary);
     _axisGroup.addButton(_pUi->radioSecondary);
 
-    applyDevice(_pUi->cmbDevice->selectedDeviceId());
+    connect(_pUi->btnAdd, &QPushButton::clicked, this, &AddRegisterWidget::handleAdd);
+    connect(_pEditor, &DataPointEditorWidget::expressionChanged, this, &AddRegisterWidget::onExpressionChanged);
+    connect(_pEditor, &DataPointEditorWidget::errorChanged, this, &AddRegisterWidget::setBuildError);
+    connect(_pEditor, &DataPointEditorWidget::deviceChanged, this, &AddRegisterWidget::resizeContainingMenu);
+
+    _pUi->btnAdd->setEnabled(_pEditor->hasValidExpression());
     resetFields();
 }
 
@@ -65,44 +53,35 @@ AddRegisterWidget::~AddRegisterWidget()
 }
 
 /*!
- * \brief Switch the widget to the given device's adapter and register schema.
- *
- * Rebuilds the address form from the device's adapter's data point schema and
- * updates the add button state based on manager availability. Also resizes
- * the enclosing popup menu, if any, to fit the rebuilt form.
- * \param deviceId Identifier of the device to use.
+ * \brief Emit the configured signal with the editor's data point reference, then reset the form.
  */
-void AddRegisterWidget::applyDevice(deviceId_t deviceId)
+void AddRegisterWidget::handleAdd()
 {
-    setBuildError(QString());
-
-    if (_pUi->cmbDevice->count() == 0)
+    if (!_pEditor->hasValidExpression())
     {
-        _pUi->lblProtocol->clear();
-        _pUi->btnAdd->setEnabled(false);
         return;
     }
 
-    const QString adapterId = _pDataPointService->adapterIdForDevice(deviceId);
-    _pUi->lblProtocol->setText(tr("Protocol: %1").arg(_pSettingsModel->adapterDisplayName(adapterId)));
+    GraphData graphData;
+    graphData.setLabel(_pUi->lineName->text());
+    graphData.setValueAxis(_pUi->radioSecondary->isChecked() ? GraphData::VALUE_AXIS_SECONDARY
+                                                             : GraphData::VALUE_AXIS_PRIMARY);
+    graphData.setExpression(_pEditor->expression());
+    emit graphDataConfigured(graphData);
 
-    /* Also clears the stale form of the previous device when this adapter has no schema */
-    _addressSchema = _pDataPointService->addressSchema(deviceId);
-    _dataPointDefaults = _pDataPointService->defaults(deviceId);
-    rebuildAddressForm();
+    resetFields();
+    _pEditor->setDevice(_pEditor->deviceId());
 
-    /* Stay disabled while a build request is pending: a second click would replace it */
-    _pUi->btnAdd->setEnabled(_pendingBuildTicket == 0 && isSelectionUsable());
-
-    resizeContainingMenu();
+    QMetaObject::invokeMethod(this, &AddRegisterWidget::closeContainingMenu, Qt::QueuedConnection);
 }
 
 /*!
- * \brief Rebuilds the address form widgets from the currently cached schema and defaults.
+ * \brief Allow Add only while the editor holds a reference built from the current form.
  */
-void AddRegisterWidget::rebuildAddressForm()
+void AddRegisterWidget::onExpressionChanged()
 {
-    _pAddressForm->setSchema(_addressSchema, _dataPointDefaults);
+    _pUi->btnAdd->setEnabled(_pEditor->hasValidExpression());
+    resizeContainingMenu();
 }
 
 /*!
@@ -131,17 +110,15 @@ void AddRegisterWidget::resizeContainingMenu()
 }
 
 /*!
- * \brief Closes the enclosing popup menu, if any, after a register was successfully added.
+ * \brief Closes the enclosing popup menu, if any, after a signal was added.
  *
  * When hosted as a QWidgetAction's default widget inside a QToolButton's popup menu (as
  * SignalsDialog does for btnAdd), clicking this widget's own "Add" button doesn't trigger
  * the QWidgetAction itself, so QMenu never closes on its own. Close it explicitly so adding
- * a register behaves like any other menu action.
+ * a signal behaves like any other menu action.
  *
- * Only called from onExpressionBuilt(), which runs on a later event loop turn than the
- * "Add" button click that triggered the request (buildExpression() replies asynchronously over
- * the adapter subprocess IPC channel) - closing the menu here never nests inside btnAdd's own
- * click handling.
+ * Called through a queued invocation from handleAdd(), so closing the menu never nests inside
+ * btnAdd's own click handling.
  */
 void AddRegisterWidget::closeContainingMenu()
 {
@@ -155,98 +132,7 @@ void AddRegisterWidget::closeContainingMenu()
 }
 
 /*!
- * \brief Returns whether the currently selected device's adapter can build expressions now.
- */
-bool AddRegisterWidget::isSelectionUsable() const
-{
-    return _pDataPointService->isDeviceUsable(_pUi->cmbDevice->selectedDeviceId());
-}
-
-/*!
- * \brief Ask the selected device's adapter to build the data point reference from the address fields.
- *
- * Hides the reason of a previous failure.
- */
-void AddRegisterWidget::handleResultAccept()
-{
-    if (!isSelectionUsable())
-    {
-        return;
-    }
-
-    collectPendingGraphData();
-    setBuildError(QString());
-
-    _pUi->btnAdd->setEnabled(false);
-    _pendingBuildDeviceId = _pUi->cmbDevice->selectedDeviceId();
-    _pendingBuildTicket = _pDataPointService->buildExpression(_pendingBuildDeviceId, _pAddressForm->values());
-}
-
-/*!
- * \brief Emit the signal configured with the expression the adapter built for the pending request.
- * \param ticket     Ticket of the finished request; results of other requests are ignored.
- * \param expression The built data point reference.
- */
-void AddRegisterWidget::onExpressionBuilt(quint64 ticket, const QString& expression)
-{
-    if (ticket != _pendingBuildTicket)
-    {
-        return;
-    }
-    _pendingBuildTicket = 0;
-
-    /* Recompute instead of unconditionally enabling: the user may have switched
-     * to a device whose adapter is unavailable while the request was in flight */
-    _pUi->btnAdd->setEnabled(isSelectionUsable());
-
-    if (expression.isEmpty())
-    {
-        showBuildErrorForPendingDevice(tr("The adapter did not return a data point reference."));
-        return;
-    }
-
-    _pendingGraphData.setExpression(expression);
-    emit graphDataConfigured(_pendingGraphData);
-
-    resetFields();
-    rebuildAddressForm();
-    closeContainingMenu();
-}
-
-/*!
- * \brief Keep the form open, show why, and allow another attempt when the pending build request failed.
- * \param ticket Ticket of the failed request; failures of other requests are ignored.
- * \param error  Why the request failed.
- */
-void AddRegisterWidget::onBuildRequestFailed(quint64 ticket, const QString& error)
-{
-    if (ticket != _pendingBuildTicket)
-    {
-        return;
-    }
-    _pendingBuildTicket = 0;
-
-    qCWarning(scopeComm) << "AddRegisterWidget: building the expression failed:" << error;
-    _pUi->btnAdd->setEnabled(isSelectionUsable());
-    showBuildErrorForPendingDevice(error.isEmpty() ? tr("The adapter did not accept the address.") : error);
-}
-
-/*!
- * \brief Show why a build request failed, unless another device was selected since it was sent.
- * \param error The reason the request failed.
- */
-void AddRegisterWidget::showBuildErrorForPendingDevice(const QString& error)
-{
-    if (_pUi->cmbDevice->selectedDeviceId() != _pendingBuildDeviceId)
-    {
-        return;
-    }
-
-    setBuildError(error);
-}
-
-/*!
- * \brief Show why the last build request failed, or hide the message.
+ * \brief Show why the data point reference could not be built, or hide the message.
  *
  * The message is shown as plain text. Also resizes the enclosing popup menu, if any, to fit it.
  * \param error The reason the request failed; empty to hide the message.
@@ -273,25 +159,4 @@ void AddRegisterWidget::resetFields()
     _pUi->lineName->clear();
     _pUi->lineName->setFocus();
     _pUi->radioPrimary->setChecked(true);
-}
-
-/*!
- * \brief Captures the current non-expression fields into \a _pendingGraphData.
- *
- * Called just before the async adapter.buildExpression request is sent, so that
- * the label and value axis are snapshotted at click time.
- */
-void AddRegisterWidget::collectPendingGraphData()
-{
-    _pendingGraphData = GraphData();
-    _pendingGraphData.setLabel(_pUi->lineName->text());
-
-    if (_pUi->radioSecondary->isChecked())
-    {
-        _pendingGraphData.setValueAxis(GraphData::VALUE_AXIS_SECONDARY);
-    }
-    else
-    {
-        _pendingGraphData.setValueAxis(GraphData::VALUE_AXIS_PRIMARY);
-    }
 }

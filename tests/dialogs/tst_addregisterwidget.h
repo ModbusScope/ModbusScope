@@ -12,6 +12,8 @@
 #include <QObject>
 
 class AddRegisterWidget;
+class DeviceComboBox;
+class SchemaFormWidget;
 
 /*!
  * \brief Test double for AdapterManager.
@@ -82,20 +84,19 @@ private slots:
     void registerObjectType();
     void registerDevice();
     void registerValueAxis();
-    void buildExpressionEmptyResponseIgnored();
-    void buildExpressionResultForOtherRequestIgnored();
+    void addDisabledUntilFirstBuildReply();
+    void addDisabledWhileBuildPending();
     void buildExpressionFailureKeepsFormUsable();
     void emptyNameAddsSignalWithoutLabel();
     void nameClearedAfterAdd();
+    void formResetAfterAdd();
     void buildFailureShowsReasonInOpenMenu();
     void longBuildErrorWrapsInOpenMenu();
-    void buildFailureForPreviousDeviceNotShown();
     void emptyBuildResultShowsReason();
     void buildFailureWithoutReasonShowsFallback();
     void buildErrorIsPlainText();
-    void successfulAddHidesBuildError();
+    void fieldChangeHidesBuildError();
     void deviceSwitchHidesBuildError();
-    void addStaysDisabledWhileBuildPendingAcrossDeviceSwitch();
 
     void deviceComboVisibleWithSingleDevice();
     void deviceComboListsDevices();
@@ -113,8 +114,11 @@ private slots:
 private:
     void clickAdd();
     void addRegister(GraphData& graphData, const QString& expression);
+    void setAddress(const QJsonObject& values);
+    bool hasLabelWithText(const QString& text) const;
     deviceId_t addSimAdapter();
-    int indexForDevice(deviceId_t devId) const;
+    static DeviceComboBox* deviceCombo(AddRegisterWidget* pWidget);
+    static SchemaFormWidget* addressForm(AddRegisterWidget* pWidget);
     static QJsonObject buildAddressSchema();
     static QJsonObject buildTestRegisterSchema();
     static QJsonObject buildSimRegisterSchema();
