@@ -36,7 +36,7 @@ The plan adds six modules and changes several more. Each new module has one job 
 | `DeviceComboBox` | `src/customwidgets/devicecombobox.*` | New | Device selector that fills itself from `SettingsModel` and keeps its selection when the device list changes | 2 |
 | `DataPointUsage` | `src/datahandling/datapointusage.*` | Changed | Also builds the data point limit warnings, now in `SignalsDialog` | 3 |
 | `SettingsModel` | `src/models/settingsmodel.*` | Changed | `adapterDisplayName()`: adapter name, falling back to the id, without inserting a phantom entry | 0 |
-| `GraphDataModel` | `src/models/graphdatamodel.*` | Changed | `removeSignals(QList<GraphIdx>)`, `clearData(GraphIdx)` | 3 |
+| `GraphDataModel` | `src/models/graphdatamodel.*` | Changed | `removeSignals(QList<GraphIdx>)`, `moveSignal(GraphIdx, GraphIdx)` | 3 |
 | `AdapterClient`, `AdapterManager` | `src/ProtocolAdapter/` | Changed | Non-fatal errors for data point calls; request ids on aux requests | 0 |
 | `DataPointService` | `src/ProtocolAdapter/datapointservice.*` | New | Route data point calls for a device to its adapter; match replies to requests | 0 |
 | `ExpressionReferences` | `src/util/expressionreferences.*` | New | Find each `${...}` occurrence with its position; replace one occurrence | 2 |
@@ -98,7 +98,7 @@ Phase R goes first. It only renames the Signals dialog classes, which phases 0, 
 | 0 | Invalid address input no longer stops the adapter | M | Done |
 | 1 | Compose expression cannot save a broken expression; editor and add form are easier to use | S | Done |
 | 2 | The add popup runs on the shared editor widget and shows the reference it will add | M | Done |
-| 3 | Cancel discards every change made in the Signals dialog; OK clears the data of signals whose expression changed | M | |
+| 3 | Cancel discards every change made in the Signals dialog; OK clears the data of signals whose expression changed | M | Done |
 | 4 | Adding signals happens in a side panel that stays open | M | |
 | 5 | Data points can be inserted in Compose expression without typing syntax | M | |
 | 6 | The Signals table shows what each data point is | S | |
@@ -402,6 +402,14 @@ public:
 - Update `tst_signalsdialog`: Cancel after add, remove or deactivate leaves the source model and its samples unchanged; OK applies.
 
 **Done when:** every change in the dialog, including from Compose expression, can be undone with Cancel, and pressing OK without changes leaves the graph untouched.
+
+**Done.** Differences from the plan above:
+
+- No `GraphDataModel::clearData()`. `MainWindow` already connects `expressionChanged` to `GraphView::clearGraph()`, so `apply()` setting a changed expression on the source clears that graph as an edit in the dialog did before. With several active graphs this keeps the timestamps and resets the values to `NoValue`, as today.
+- `GraphDataModel::moveSignal(from, to)` takes the final position; `apply()` uses it to bring the source into draft order. `rowAfterRemoval()` is a static member of `GraphDataModel`.
+- `hasChanges()` compares the draft with the source instead of tracking edits, so an edit that is undone in the draft is no change.
+- The source must not change while a draft exists; the dialog is modal, so nothing else edits the signal list meanwhile.
+- The adapter default expression is set on the draft model only; the source keeps `${h0}` until phase 4 removes the default expression.
 
 ---
 

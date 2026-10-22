@@ -23,7 +23,9 @@ You must have at least one connection and one device configured. See [Configure 
 
 8. Repeat steps 2–7 for each signal.
 9. In the table, adjust the **Color** and the **Active** checkbox, or rename a signal in the **Name** column.
-10. Click **OK**.
+10. Click **OK** to apply the changes. **Cancel** discards every change made since the dialog opened.
+
+    On **OK**, signals whose expression changed lose the data of the previous log. Other signals keep their data.
 
 Clicking **Add** itself, instead of its arrow, inserts a row with a default expression that you can edit in the **Expression** column with `${...}` syntax. See [Reference: Register syntax](../reference/register-syntax.md).
 
