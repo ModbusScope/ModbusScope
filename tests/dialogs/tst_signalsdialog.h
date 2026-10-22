@@ -16,8 +16,8 @@ class SignalsDialog;
 /*!
  * \brief Test double for AdapterManager.
  *
- * Captures buildExpression() calls and provides an inject helper to simulate
- * the adapter session starting, without a real adapter process.
+ * Captures buildExpression() calls and provides an inject helper to answer
+ * them, without a real adapter process.
  */
 class MockAdapterManager : public AdapterManager
 {
@@ -44,11 +44,6 @@ public:
         return buildCalls.size();
     }
 
-    bool isAdapterActive() const override
-    {
-        return mockActive;
-    }
-
     bool isAdapterReady() const override
     {
         return mockReady;
@@ -60,16 +55,7 @@ public:
         emit buildExpressionResult(static_cast<int>(buildCalls.size()), expression);
     }
 
-    //! Simulate the adapter session starting, which SignalsDialog waits for
-    //! before requesting its default expression.
-    void injectSessionStarted()
-    {
-        mockActive = true;
-        emit sessionStarted();
-    }
-
     QList<BuildCall> buildCalls;
-    bool mockActive{ false };
     bool mockReady{ false };
 };
 
@@ -80,13 +66,6 @@ class TestSignalsDialog : public QObject
 private slots:
     void init();
     void cleanup();
-
-    void defaultSignalUsesLowestConfiguredDeviceId();
-    void defaultSignalUsesDeviceOneWhenPresent();
-    void defaultSignalSkipsBuildExpressionWhenNoDevices();
-    void defaultSignalRequestedImmediatelyWhenSessionAlreadyActive();
-    void defaultSignalRequestedImmediatelyWhenAdapterAlreadyReady();
-    void defaultSignalRequestedAgainWhenSessionRestartsAfterAlreadyActive();
 
     void dataPointLimitWarningHiddenWhenWithinLimit();
     void dataPointLimitWarningShownWhenExceeded();

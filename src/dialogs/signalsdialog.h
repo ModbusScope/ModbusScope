@@ -2,15 +2,12 @@
 #define SIGNALSDIALOG_H
 
 #include "customwidgets/centeredbox.h"
-#include "models/device.h"
 
 #include <QDialog>
-#include <QList>
 
 /* Forward declaration */
 class GraphDataModel;
 class AdapterHub;
-class AdapterManager;
 class DataPointDescriptionCache;
 class DataPointService;
 class SettingsModel;
@@ -43,12 +40,9 @@ private slots:
     void activatedCell(QModelIndex modelIndex);
     void onSignalInserted(const QModelIndex& parent, int first, int last);
     void handleExpressionEdit(const QModelIndex& index);
-    void requestDefaultExpression();
-    void onDefaultExpressionBuilt(quint64 ticket, const QString& expression);
     void updateDataPointLimitIndication();
 
 private:
-    void initDefaultExpressionTarget(const QList<deviceId_t>& deviceIds);
     void setupEditorPanel();
     void setupDataPointLimitIndication();
     QString dataPointLimitWarningMessage() const;
@@ -61,9 +55,6 @@ private:
     DataPointService* _pDataPointService;
     DataPointDescriptionCache* _pDescriptionCache;
     SignalEditorPanel* _pPanel{ nullptr };
-    AdapterManager* _pDefaultExpressionManager{ nullptr };
-    deviceId_t _defaultExpressionDeviceId{ 0 };
-    quint64 _defaultExpressionTicket{ 0 };
 
     CenteredBoxProxyStyle _centeredBoxStyle;
 

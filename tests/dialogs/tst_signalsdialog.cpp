@@ -17,19 +17,9 @@
 #include <QTableView>
 #include <QTest>
 
-namespace {
-
-//! Build requests the add form sends when the dialog opens: one for its default reference.
-constexpr qsizetype cAddFormBuildCalls = 1;
-
-} // namespace
-
 /*!
- * \brief Builds a minimal "modbus" data-point schema with non-empty defaults.
- *
- * SignalsDialog::requestDefaultExpression() bails out early when "defaults" is
- * empty, so the schema needs at least one default field for the flow under test
- * to reach buildExpression().
+ * \brief Builds a minimal "modbus" data-point schema with non-empty defaults, so the panel
+ * builds a reference when the dialog opens.
  */
 QJsonObject TestSignalsDialog::buildTestRegisterSchema()
 {
@@ -75,99 +65,6 @@ void TestSignalsDialog::cleanup()
     _pMockAdapterManager = nullptr;
     delete _pMockHub;
     _pMockHub = nullptr;
-}
-
-/*!
- * \brief Reproduces F3: after device 1 is deleted, the default register must target the
- * lowest remaining device id, not the buildExpression() sentinel that resolves to device 1.
- */
-void TestSignalsDialog::defaultSignalUsesLowestConfiguredDeviceId()
-{
-    DeviceListHelpers::seedDevice(&_settingsModel, 2, QStringLiteral("modbus"));
-    DeviceListHelpers::seedDevice(&_settingsModel, 5, QStringLiteral("modbus"));
-
-    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
-
-    _pMockAdapterManager->injectSessionStarted();
-
-    QCOMPARE(_pMockAdapterManager->buildCalls.count(), 1);
-    QCOMPARE(_pMockAdapterManager->buildCalls.last().deviceId, deviceId_t(2));
-}
-
-//! Confirms the fix doesn't disturb the already-correct case where device 1 is present.
-void TestSignalsDialog::defaultSignalUsesDeviceOneWhenPresent()
-{
-    DeviceListHelpers::seedDevice(&_settingsModel, 1, QStringLiteral("modbus"));
-    DeviceListHelpers::seedDevice(&_settingsModel, 3, QStringLiteral("modbus"));
-
-    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
-
-    _pMockAdapterManager->injectSessionStarted();
-
-    QCOMPARE(_pMockAdapterManager->buildCalls.count(), 1);
-    QCOMPARE(_pMockAdapterManager->buildCalls.last().deviceId, deviceId_t(1));
-}
-
-//! With no devices configured, SignalsDialog must not wire up a default-expression manager at all.
-void TestSignalsDialog::defaultSignalSkipsBuildExpressionWhenNoDevices()
-{
-    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
-
-    _pMockAdapterManager->injectSessionStarted();
-
-    QCOMPARE(_pMockAdapterManager->buildCalls.count(), 0);
-}
-
-/*!
- * \brief sessionStarted() fires only once per session. When the dialog is opened after the
- * adapter session is already active (the common case in practice), that emission is already
- * in the past, so SignalsDialog must request the default expression directly instead of
- * waiting for a signal that will never come again.
- */
-void TestSignalsDialog::defaultSignalRequestedImmediatelyWhenSessionAlreadyActive()
-{
-    DeviceListHelpers::seedDevice(&_settingsModel, 2, QStringLiteral("modbus"));
-    _pMockAdapterManager->mockActive = true;
-
-    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
-
-    /* The add form also builds its default reference when the dialog opens */
-    QCOMPARE(_pMockAdapterManager->buildCalls.count(), cAddFormBuildCalls + 1);
-    QCOMPARE(_pMockAdapterManager->buildCalls.last().deviceId, deviceId_t(2));
-}
-
-/*!
- * \brief AdapterClient::buildExpression() also accepts the AWAITING_CONFIG state (adapter
- * described, schema available, session not yet started) — SignalsDialog must not wait for
- * sessionStarted() in that state either, since the schema is already known.
- */
-void TestSignalsDialog::defaultSignalRequestedImmediatelyWhenAdapterAlreadyReady()
-{
-    DeviceListHelpers::seedDevice(&_settingsModel, 2, QStringLiteral("modbus"));
-    _pMockAdapterManager->mockReady = true;
-
-    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
-
-    /* The add form also builds its default reference when the dialog opens */
-    QCOMPARE(_pMockAdapterManager->buildCalls.count(), cAddFormBuildCalls + 1);
-    QCOMPARE(_pMockAdapterManager->buildCalls.last().deviceId, deviceId_t(2));
-}
-
-/*!
- * \brief The immediate request for an already-active session must not prevent a later, genuinely
- * new session from also triggering a request.
- */
-void TestSignalsDialog::defaultSignalRequestedAgainWhenSessionRestartsAfterAlreadyActive()
-{
-    DeviceListHelpers::seedDevice(&_settingsModel, 2, QStringLiteral("modbus"));
-    _pMockAdapterManager->mockActive = true;
-
-    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
-    QCOMPARE(_pMockAdapterManager->buildCalls.count(), cAddFormBuildCalls + 1);
-
-    _pMockAdapterManager->injectSessionStarted();
-
-    QCOMPARE(_pMockAdapterManager->buildCalls.count(), cAddFormBuildCalls + 2);
 }
 
 /*!

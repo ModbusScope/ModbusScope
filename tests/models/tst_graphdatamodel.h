@@ -15,9 +15,6 @@ private slots:
     void cleanup();
 
     void addUsesDefaultExpression();
-    void addUsesCustomDefaultExpression();
-    void setDefaultExpressionUpdatesSubsequentAdds();
-    void setDefaultExpressionIgnoresEmptyString();
 
     void addAssignsUniqueDefaultLabel();
     void addGraphDataWithoutLabelGetsUniqueDefaultLabel();
