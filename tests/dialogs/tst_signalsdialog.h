@@ -10,6 +10,7 @@
 #include <QObject>
 
 class GraphDataModel;
+class SignalEditorPanel;
 class SignalsDialog;
 
 /*!
@@ -53,6 +54,12 @@ public:
         return mockReady;
     }
 
+    //! Simulate the adapter returning an expression string for the last buildExpression() request.
+    void injectBuildExpressionResult(const QString& expression)
+    {
+        emit buildExpressionResult(static_cast<int>(buildCalls.size()), expression);
+    }
+
     //! Simulate the adapter session starting, which SignalsDialog waits for
     //! before requesting its default expression.
     void injectSessionStarted()
@@ -93,6 +100,13 @@ private slots:
     void okAppliesChanges();
     void okWithoutChangesLeavesSourceUntouched();
 
+    void addButtonClearsSelectionAndFocusesName();
+    void addedSignalScrolledIntoViewNotSelected();
+    void enterInPanelDoesNotCloseDialog();
+    void deleteInNameFieldKeepsRows();
+    void cancelDiscardsPanelAdds();
+    void minimumSizeKeepsTableAndPanelUsable();
+
 private:
     static QJsonObject buildTestRegisterSchema();
     static QJsonObject buildDescribeWithMaxRegisters(int maxRegisters);
@@ -100,6 +114,9 @@ private:
     void seedSamples();
     void editDraft();
     GraphDataModel* draftModel() const;
+    SignalEditorPanel* panel() const;
+    void openWithReadyAdapter(int signalCount);
+    void addSignalThroughPanel(const QString& expression);
 
     SettingsModel _settingsModel;
     GraphDataModel* _pGraphDataModel{ nullptr };

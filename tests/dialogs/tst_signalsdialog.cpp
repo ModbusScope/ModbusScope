@@ -2,6 +2,7 @@
 #include "tst_signalsdialog.h"
 
 #include "../models/devicelisthelpers.h"
+#include "dialogs/signaleditorpanel.h"
 #include "dialogs/signalsdialog.h"
 #include "models/graphdatamodel.h"
 
@@ -9,7 +10,9 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLabel>
+#include <QLineEdit>
 #include <QPushButton>
+#include <QScrollArea>
 #include <QSignalSpy>
 #include <QTableView>
 #include <QTest>
@@ -381,6 +384,121 @@ void TestSignalsDialog::okWithoutChangesLeavesSourceUntouched()
     QCOMPARE(spyInserted.count(), 0);
     QCOMPARE(spyRemoved.count(), 0);
     QCOMPARE(_pGraphDataModel->dataSeries(GraphIdx(0))->size(), 3);
+}
+
+//! The signal editor panel next to the table.
+SignalEditorPanel* TestSignalsDialog::panel() const
+{
+    auto* pPanel = _pDialog->findChild<SignalEditorPanel*>();
+    Q_ASSERT(pPanel != nullptr);
+    return pPanel;
+}
+
+//! Seed \a signalCount signals on device 1, open the dialog with its adapter ready and show it.
+void TestSignalsDialog::openWithReadyAdapter(int signalCount)
+{
+    DeviceListHelpers::seedDevice(&_settingsModel, 1, QStringLiteral("modbus"));
+    _pMockAdapterManager->mockReady = true;
+    seedSignals(signalCount);
+
+    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+    _pDialog->show();
+    QVERIFY(QTest::qWaitForWindowExposed(_pDialog));
+}
+
+//! Answer the panel's pending build request with \a expression and click Add signal.
+void TestSignalsDialog::addSignalThroughPanel(const QString& expression)
+{
+    _pMockAdapterManager->injectBuildExpressionResult(expression);
+    QTest::mouseClick(panel()->findChild<QPushButton*>("btnAdd"), Qt::LeftButton);
+}
+
+void TestSignalsDialog::addButtonClearsSelectionAndFocusesName()
+{
+    openWithReadyAdapter(3);
+    auto* pView = _pDialog->findChild<QTableView*>("signalView");
+    pView->selectRow(1);
+
+    QTest::mouseClick(_pDialog->findChild<QPushButton*>("btnAdd"), Qt::LeftButton);
+
+    QVERIFY(!pView->selectionModel()->hasSelection());
+    /* The window's focus widget does not depend on the window being active */
+    QCOMPARE(_pDialog->focusWidget(), panel()->findChild<QLineEdit*>("lineName"));
+}
+
+//! A signal added through the panel is scrolled into view, but not selected: selection is for editing.
+void TestSignalsDialog::addedSignalScrolledIntoViewNotSelected()
+{
+    openWithReadyAdapter(40);
+    auto* pView = _pDialog->findChild<QTableView*>("signalView");
+
+    addSignalThroughPanel(QStringLiteral("${h0}"));
+
+    QCOMPARE(draftModel()->size(), 41);
+    QVERIFY(!pView->selectionModel()->hasSelection());
+    const QRect lastRowRect = pView->visualRect(draftModel()->index(40, 0));
+    QVERIFY(pView->viewport()->rect().intersects(lastRowRect));
+}
+
+void TestSignalsDialog::enterInPanelDoesNotCloseDialog()
+{
+    openWithReadyAdapter(0);
+    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
+    auto* pName = panel()->findChild<QLineEdit*>("lineName");
+    pName->setFocus();
+
+    QTest::keyClick(pName, Qt::Key_Return);
+
+    QVERIFY(_pDialog->isVisible());
+    QCOMPARE(draftModel()->size(), 1);
+    QCOMPARE(_pGraphDataModel->size(), 0);
+}
+
+void TestSignalsDialog::deleteInNameFieldKeepsRows()
+{
+    openWithReadyAdapter(2);
+    _pDialog->findChild<QTableView*>("signalView")->selectRow(0);
+    auto* pName = panel()->findChild<QLineEdit*>("lineName");
+    pName->setFocus();
+    QTest::keyClicks(pName, "ab");
+    QTest::keyClick(pName, Qt::Key_Home);
+
+    QTest::keyClick(pName, Qt::Key_Delete);
+
+    QCOMPARE(draftModel()->size(), 2);
+    QCOMPARE(pName->text(), QStringLiteral("b"));
+}
+
+void TestSignalsDialog::cancelDiscardsPanelAdds()
+{
+    openWithReadyAdapter(1);
+    addSignalThroughPanel(QStringLiteral("${h0}"));
+    QCOMPARE(draftModel()->size(), 2);
+
+    _pDialog->findChild<QDialogButtonBox*>("buttonBox")->button(QDialogButtonBox::Cancel)->click();
+
+    QCOMPARE(_pGraphDataModel->size(), 1);
+}
+
+//! At its minimum size the dialog still shows table and panel, and Add signal can be scrolled to.
+void TestSignalsDialog::minimumSizeKeepsTableAndPanelUsable()
+{
+    openWithReadyAdapter(3);
+
+    _pDialog->resize(_pDialog->minimumSize());
+    QTRY_COMPARE(_pDialog->size(), _pDialog->minimumSize());
+
+    auto* pView = _pDialog->findChild<QTableView*>("signalView");
+    auto* pScrollArea = _pDialog->findChild<QScrollArea*>("panelScrollArea");
+    QVERIFY(pView->isVisible());
+    QVERIFY(pScrollArea->isVisible());
+    QVERIFY(pView->width() >= pView->minimumWidth());
+    QVERIFY(pScrollArea->width() >= pScrollArea->minimumWidth());
+
+    auto* pAddSignal = panel()->findChild<QPushButton*>("btnAdd");
+    pScrollArea->ensureWidgetVisible(pAddSignal);
+    const QRect addRect(pAddSignal->mapTo(pScrollArea->viewport(), QPoint(0, 0)), pAddSignal->size());
+    QVERIFY(pScrollArea->viewport()->rect().contains(addRect));
 }
 
 QTEST_MAIN(TestSignalsDialog)

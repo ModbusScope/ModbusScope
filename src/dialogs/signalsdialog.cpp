@@ -6,8 +6,8 @@
 #include "ProtocolAdapter/datapointservice.h"
 #include "customwidgets/actionbuttondelegate.h"
 #include "datahandling/datapointusage.h"
-#include "dialogs/addregisterwidget.h"
 #include "dialogs/expressionsdialog.h"
+#include "dialogs/signaleditorpanel.h"
 #include "dialogs/ui_signalsdialog.h"
 #include "models/datapointdescriptioncache.h"
 #include "models/graphdatamodel.h"
@@ -91,25 +91,17 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
 
     _pUi->signalView->setStyle(&_centeredBoxStyle);
 
-    // Handle delete
+    /* Only while the table has the focus, so Delete in a panel field edits that field */
     QShortcut* shortcut = new QShortcut(QKeySequence(QKeySequence::Delete), _pUi->signalView);
+    shortcut->setContext(Qt::WidgetWithChildrenShortcut);
     connect(shortcut, &QShortcut::activated, this, &SignalsDialog::removeSelectedSignals);
 
     // Setup handler for buttons
-    connect(_pUi->btnAdd, &QPushButton::released, this, &SignalsDialog::addDefaultSignal);
-    connect(_pUi->btnRemove, &QPushButton::released, this, &SignalsDialog::removeSelectedSignals);
+    connect(_pUi->btnAdd, &QPushButton::clicked, this, &SignalsDialog::startAddSignal);
+    connect(_pUi->btnRemove, &QPushButton::clicked, this, &SignalsDialog::removeSelectedSignals);
     connect(_pDraft->model(), &GraphDataModel::rowsInserted, this, &SignalsDialog::onSignalInserted);
 
-    if (!deviceIds.isEmpty())
-    {
-        auto pAddSignalWidget = new AddRegisterWidget(_pSettingsModel, _pDataPointService, this);
-        connect(pAddSignalWidget, &AddRegisterWidget::graphDataConfigured, this, &SignalsDialog::addSignal);
-
-        _addSignalAction = std::make_unique<QWidgetAction>(this);
-        _addSignalAction->setDefaultWidget(pAddSignalWidget);
-        _pUi->btnAdd->addAction(_addSignalAction.get());
-    }
-
+    setupEditorPanel();
     setupDataPointLimitIndication();
 }
 
@@ -130,14 +122,13 @@ void SignalsDialog::accept()
     QDialog::accept();
 }
 
-void SignalsDialog::addSignal(const GraphData& graphData)
+/*!
+ * \brief Put the panel in add mode: no row selected, the name field ready for input.
+ */
+void SignalsDialog::startAddSignal()
 {
-    _pDraft->model()->add(graphData);
-}
-
-void SignalsDialog::addDefaultSignal()
-{
-    _pDraft->model()->add();
+    _pUi->signalView->clearSelection();
+    _pPanel->startAdd();
 }
 
 void SignalsDialog::activatedCell(QModelIndex modelIndex)
@@ -158,8 +149,8 @@ void SignalsDialog::onSignalInserted(const QModelIndex& parent, int first, int l
     Q_UNUSED(parent);
     Q_UNUSED(last);
 
-    /* select the first new row, this will also make the row visible */
-    _pUi->signalView->selectRow(first);
+    /* Only scroll: selecting a row is reserved for editing that signal */
+    _pUi->signalView->scrollTo(_pDraft->model()->index(first, 0));
 }
 
 void SignalsDialog::removeSelectedSignals()
@@ -256,6 +247,22 @@ void SignalsDialog::onDefaultExpressionBuilt(quint64 ticket, const QString& expr
     {
         _pDraft->model()->setDefaultExpression(expression);
     }
+}
+
+/*!
+ * \brief Place the signal editor panel next to the table; extra width goes to the table.
+ */
+void SignalsDialog::setupEditorPanel()
+{
+    _pPanel = new SignalEditorPanel(_pDraft->model(), _pSettingsModel, _pDataPointService, this);
+    _pUi->panelScrollArea->setWidget(_pPanel);
+
+    _pUi->splitter->setStretchFactor(0, 1);
+    _pUi->splitter->setStretchFactor(1, 0);
+    _pUi->splitter->setCollapsible(0, false);
+    _pUi->splitter->setCollapsible(1, false);
+
+    setMinimumSize(cMinimumWidth, cMinimumHeight);
 }
 
 /*!

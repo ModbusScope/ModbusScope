@@ -1,6 +1,6 @@
 
 
-add_xtest(tst_addregisterwidget)
+add_xtest(tst_signaleditorpanel tst_signaleditorpanel.h)
 add_xtest(tst_aboutdialog)
 add_xtest(tst_quickstartdialog tst_quickstartdialog.h)
 add_xtest(tst_adaptersettings)
