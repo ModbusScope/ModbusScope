@@ -100,7 +100,7 @@ Phase R goes first. It only renames the Signals dialog classes, which phases 0, 
 | 2 | The add popup runs on the shared editor widget and shows the reference it will add | M | Done |
 | 3 | Cancel discards every change made in the Signals dialog; OK clears the data of signals whose expression changed | M | Done |
 | 4 | Adding signals happens in a side panel that stays open | M | Done |
-| 5 | Data points can be inserted in Compose expression without typing syntax | M | |
+| 5 | Data points can be inserted in Compose expression without typing syntax | M | Done |
 | 6 | The Signals table shows what each data point is | S | |
 | 7 | Existing data points are edited through the same form | L | |
 
@@ -456,6 +456,15 @@ public:
 - Show per-reference adapter errors (`Invalid` from the cache) as a tooltip and red text on the row in the data point table, and keep Accept disabled while any row is `Invalid`.
 
 **Done when:** a second data point can be added to an expression without typing `${…}`, and the error mark points at the problem.
+
+**Done.** Differences from the plan above:
+
+- The `-2` correction was wrong, not a fixed offset to keep. muParser reports the first character of the token it did not expect; the pinning tests in `tst_expressionhighlighting` record the positions it reports for real expressions. `ExpressionErrorMark::span()` marks the reference, number or name at that position, else one character; an unexpected end of the expression (reported past the end) marks the last character that is not a space. The position counts from the start of the document, so the highlighter converts it to the line it falls in; pasted text can contain line breaks. Numbers use a local pattern, because `ExpressionRegex::cNumberHex` (`0[x]\d+`) does not match the hex digits a–f.
+- A rejected data point also names itself in the error line ("Invalid data point: …"), so the disabled Accept has a visible reason. `Failed` and `Unavailable` do not block Accept.
+- `ExpressionsDialog` takes the `DataPointService` as well as the cache. The insert form is created the first time it is shown, so opening the dialog sends no `buildExpression`, and it starts on the device of the first data point in the expression.
+- Enter in the insert form inserts. This found a bug in phase 4: a spin box emits `valueChanged` on Enter even when its value did not change, so `DataPointEditorWidget` built the reference again and Enter in an address field of the signal editor panel added nothing. The editor now keeps its reference when the form values did not change.
+- A non-editable combo box consumes Enter on some platforms (Wayland), so Enter on the device selector does nothing in the panel or the insert form.
+- The screenshot `expression_dialog.png` still shows the old layout.
 
 ---
 
