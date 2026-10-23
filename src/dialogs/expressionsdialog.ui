@@ -166,7 +166,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="cmbHelpDevice"/>
+          <widget class="DeviceComboBox" name="cmbHelpDevice"/>
          </item>
          <item>
           <spacer name="horizontalSpacer">
@@ -242,6 +242,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DeviceComboBox</class>
+   <extends>QComboBox</extends>
+   <header>customwidgets/devicecombobox.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -97,7 +97,7 @@ Phase R goes first. It only renames the Signals dialog classes, which phases 0, 
 | R | No visible change. The Signals dialog classes are named after what users see | S | Done |
 | 0 | Invalid address input no longer stops the adapter | M | Done |
 | 1 | Compose expression cannot save a broken expression; editor and add form are easier to use | S | Done |
-| 2 | No visible change. The add popup now runs on the shared editor widget | M | |
+| 2 | The add popup runs on the shared editor widget and shows the reference it will add | M | Done |
 | 3 | Cancel discards every change made in the Signals dialog; OK clears the data of signals whose expression changed | M | |
 | 4 | Adding signals happens in a side panel that stays open | M | |
 | 5 | Data points can be inserted in Compose expression without typing syntax | M | |
@@ -352,6 +352,15 @@ signals:
 - New tests in `tests/customwidgets/tst_datapointeditorwidget.cpp`: device switch rebuilds the form, `setReference()` keeps the original text until a field changes and then shows the built reference, stale reply ignored, adapter not running, build failure shows the error, timeout shows the error and leaves `hasValidExpression()` false, a field change after a failure sends a new request.
 
 **Done when:** the three modules have tests, the add popup works as before on top of `DataPointEditorWidget`, and `ExpressionsDialog` uses the cache instead of `startNextDescribe()`.
+
+**Done.** Differences from the plan above:
+
+- The add popup shows the preview, so phase 2 has a small visible change. Add inserts the built reference at once instead of sending its own `buildExpression`; it is disabled while a build is pending or failed. After Add the form returns to the adapter defaults, as before.
+- `DeviceComboBox` takes the settings model through `setSettingsModel()`, so `.ui` files can promote a `QComboBox` to it. The editor puts the device selector below the name field.
+- `AdapterHub` reports `adapterReady` and `sessionStarted` without an adapter id. `DataPointService` passes them on as `adaptersChanged()`, and the cache drops all `Unavailable` and `Failed` entries on it.
+- The error text stays in `AddRegisterWidget`; the editor only emits `errorChanged`. A new build request clears the previous error.
+- `ExpressionsDialog` takes the cache instead of the service. Its rows still come from `ExpressionChecker`; switching to `ExpressionReferences::find()` is phase 5.
+- `ExpressionReferences::find()` also returns a `${...}` whose content does not parse, with the default device.
 
 ---
 

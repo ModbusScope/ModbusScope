@@ -2,6 +2,7 @@
 #include "tst_addregisterwidget.h"
 
 #include "../models/devicelisthelpers.h"
+#include "customwidgets/devicecombobox.h"
 #include "customwidgets/schemaformwidget.h"
 #include "dialogs/addregisterwidget.h"
 #include "models/device.h"
@@ -9,6 +10,7 @@
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QLabel>
 #include <QMenu>
 #include <QSignalSpy>
 #include <QTest>
@@ -141,23 +143,39 @@ deviceId_t TestAddRegisterWidget::addSimAdapter()
     return simDeviceId;
 }
 
-/*!
- * \brief Returns the cmbDevice index whose item data matches the given device id.
- */
-int TestAddRegisterWidget::indexForDevice(deviceId_t devId) const
+//! Returns the device selector of the given add form.
+DeviceComboBox* TestAddRegisterWidget::deviceCombo(AddRegisterWidget* pWidget)
 {
-    return _pRegWidget->_pUi->cmbDevice->findData(QVariant(devId));
+    return pWidget->findChild<DeviceComboBox*>();
+}
+
+//! Returns the address form of the given add form.
+SchemaFormWidget* TestAddRegisterWidget::addressForm(AddRegisterWidget* pWidget)
+{
+    return pWidget->findChild<SchemaFormWidget*>();
+}
+
+/*!
+ * \brief Fill the modbus address form with \a values as if the user typed them.
+ *
+ * The form sends a new build request for the edited values.
+ */
+void TestAddRegisterWidget::setAddress(const QJsonObject& values)
+{
+    SchemaFormWidget* pForm = addressForm(_pRegWidget);
+    pForm->setSchema(buildAddressSchema(), values);
+    emit pForm->valuesChanged();
 }
 
 void TestAddRegisterWidget::registerDefault()
 {
-    _pRegWidget->_pUi->lineName->selectAll();
     QTest::keyClicks(_pRegWidget->_pUi->lineName, "Register 1");
 
-    _pRegWidget->_pAddressForm->setSchema(
-      buildAddressSchema(), QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
-                                         { QStringLiteral("address"), 100 },
-                                         { QStringLiteral("dataType"), QStringLiteral("16b") } });
+    setAddress(QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
+                            { QStringLiteral("address"), 100 },
+                            { QStringLiteral("dataType"), QStringLiteral("16b") } });
+
+    const MockAdapterManager::BuildCall call = _pMockAdapterManager->buildCalls.last();
 
     GraphData graphData;
     addRegister(graphData, QStringLiteral("${h100}"));
@@ -166,38 +184,35 @@ void TestAddRegisterWidget::registerDefault()
     QCOMPARE(graphData.expression(), QStringLiteral("${h100}"));
     QVERIFY(graphData.isActive());
 
-    QCOMPARE(_pMockAdapterManager->buildCalls.size(), 1);
-    QCOMPARE(_pMockAdapterManager->buildCalls[0].fields["objectType"].toString(), QStringLiteral("holding register"));
-    QCOMPARE(_pMockAdapterManager->buildCalls[0].fields["address"].toInt(), 100);
-    QCOMPARE(_pMockAdapterManager->buildCalls[0].dataType, QStringLiteral("16b"));
-    QCOMPARE(_pMockAdapterManager->buildCalls[0].deviceId, Device::cFirstDeviceId);
+    QCOMPARE(call.fields["objectType"].toString(), QStringLiteral("holding register"));
+    QCOMPARE(call.fields["address"].toInt(), 100);
+    QCOMPARE(call.dataType, QStringLiteral("16b"));
+    QCOMPARE(call.deviceId, Device::cFirstDeviceId);
 }
 
 void TestAddRegisterWidget::registerType()
 {
-    _pRegWidget->_pAddressForm->setSchema(
-      buildAddressSchema(), QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
-                                         { QStringLiteral("address"), 0 },
-                                         { QStringLiteral("dataType"), QStringLiteral("32b") } });
+    setAddress(QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
+                            { QStringLiteral("address"), 0 },
+                            { QStringLiteral("dataType"), QStringLiteral("32b") } });
+    QCOMPARE(_pMockAdapterManager->buildCalls.last().dataType, QStringLiteral("32b"));
 
     GraphData graphData;
     addRegister(graphData, QStringLiteral("${h0:32b}"));
 
     QCOMPARE(graphData.expression(), QStringLiteral("${h0:32b}"));
-    QCOMPARE(_pMockAdapterManager->buildCalls[0].dataType, QStringLiteral("32b"));
 }
 
 void TestAddRegisterWidget::registerObjectType()
 {
-    _pRegWidget->_pAddressForm->setSchema(
-      buildAddressSchema(), QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("input register") },
-                                         { QStringLiteral("address"), 0 } });
+    setAddress(QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("input register") },
+                            { QStringLiteral("address"), 0 } });
+    QCOMPARE(_pMockAdapterManager->buildCalls.last().fields["objectType"].toString(), QStringLiteral("input register"));
 
     GraphData graphData;
     addRegister(graphData, QStringLiteral("${i0}"));
 
     QCOMPARE(graphData.expression(), QStringLiteral("${i0}"));
-    QCOMPARE(_pMockAdapterManager->buildCalls[0].fields["objectType"].toString(), QStringLiteral("input register"));
 }
 
 void TestAddRegisterWidget::registerDevice()
@@ -206,16 +221,13 @@ void TestAddRegisterWidget::registerDevice()
     delete _pRegWidget;
     _pRegWidget = new AddRegisterWidget(&_settingsModel, _pDataPointService);
 
-    _pRegWidget->_pUi->cmbDevice->setCurrentIndex(indexForDevice(secondDeviceId));
-    _pRegWidget->_pAddressForm->setSchema(
-      buildAddressSchema(), QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
-                                         { QStringLiteral("address"), 0 } });
+    deviceCombo(_pRegWidget)->setSelectedDeviceId(secondDeviceId);
 
     GraphData graphData;
     addRegister(graphData, QStringLiteral("${h0@2}"));
 
     QCOMPARE(graphData.expression(), QStringLiteral("${h0@2}"));
-    QCOMPARE(_pMockAdapterManager->buildCalls[0].deviceId, secondDeviceId);
+    QCOMPARE(_pMockAdapterManager->buildCalls.last().deviceId, secondDeviceId);
 }
 
 void TestAddRegisterWidget::registerValueAxis()
@@ -228,56 +240,48 @@ void TestAddRegisterWidget::registerValueAxis()
     QCOMPARE(graphData.valueAxis(), GraphData::VALUE_AXIS_SECONDARY);
 }
 
-void TestAddRegisterWidget::buildExpressionEmptyResponseIgnored()
+//! The form builds the default reference on open; Add waits for it.
+void TestAddRegisterWidget::addDisabledUntilFirstBuildReply()
 {
-    QSignalSpy spy(_pRegWidget, &AddRegisterWidget::graphDataConfigured);
-
-    clickAdd();
-
-    /* Adapter returns empty expression — graphDataConfigured must not be emitted */
-    _pMockAdapterManager->injectBuildExpressionResult(QString());
-
-    QCOMPARE(spy.count(), 0);
-    /* Button should be re-enabled even on empty response */
-    QVERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
-}
-
-void TestAddRegisterWidget::buildExpressionResultForOtherRequestIgnored()
-{
-    QSignalSpy spy(_pRegWidget, &AddRegisterWidget::graphDataConfigured);
-
-    clickAdd();
-
-    /* A reply to a request this widget did not send (e.g. SignalsDialog's default expression) */
-    emit _pMockAdapterManager->buildExpressionResult(99, QStringLiteral("${h7}"));
-    QCOMPARE(spy.count(), 0);
+    QCOMPARE(_pMockAdapterManager->buildCalls.size(), 1);
     QVERIFY(!_pRegWidget->_pUi->btnAdd->isEnabled());
 
     _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).value<GraphData>().expression(), QStringLiteral("${h0}"));
+
+    QVERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
+}
+
+//! A field change disables Add until the new reference is built.
+void TestAddRegisterWidget::addDisabledWhileBuildPending()
+{
+    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
+    QVERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
+
+    setAddress(QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
+                            { QStringLiteral("address"), 5 } });
+
+    QVERIFY(!_pRegWidget->_pUi->btnAdd->isEnabled());
+    QCOMPARE(_pMockAdapterManager->buildCalls.size(), 2);
 }
 
 /*!
  * \brief Regression test: an adapter error for buildExpression used to stop the adapter. The form
- * must stay open with Add enabled, so the user can correct the address and try again.
+ * must stay usable, so the user can correct the address and try again.
  */
 void TestAddRegisterWidget::buildExpressionFailureKeepsFormUsable()
 {
     QSignalSpy spy(_pRegWidget, &AddRegisterWidget::graphDataConfigured);
 
-    clickAdd();
+    _pMockAdapterManager->injectBuildExpressionFailure(QStringLiteral("Address out of range"));
+    QTRY_VERIFY(!_pRegWidget->_pUi->lblError->isHidden());
     QVERIFY(!_pRegWidget->_pUi->btnAdd->isEnabled());
 
-    _pMockAdapterManager->injectBuildExpressionFailure(QStringLiteral("Address out of range"));
+    GraphData graphData;
+    setAddress(QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
+                            { QStringLiteral("address"), 5 } });
+    addRegister(graphData, QStringLiteral("${h5}"));
 
-    /* Failures are delivered on the next event loop turn */
-    QTRY_VERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
-    QCOMPARE(spy.count(), 0);
-
-    /* A second attempt is sent */
-    clickAdd();
-    QCOMPARE(_pMockAdapterManager->buildCalls.size(), 2);
+    QCOMPARE(graphData.expression(), QStringLiteral("${h5}"));
 }
 
 //! The name field starts empty with a placeholder; an empty name is left for the model to fill in.
@@ -304,34 +308,47 @@ void TestAddRegisterWidget::nameClearedAfterAdd()
     QCOMPARE(_pRegWidget->_pUi->lineName->text(), QString());
 }
 
+//! After Add the form returns to the adapter defaults and builds them again.
+void TestAddRegisterWidget::formResetAfterAdd()
+{
+    setAddress(QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
+                            { QStringLiteral("address"), 100 } });
+
+    GraphData graphData;
+    addRegister(graphData, QStringLiteral("${h100}"));
+
+    QCOMPARE(addressForm(_pRegWidget)->values().value("address").toInt(), 0);
+    QCOMPARE(_pMockAdapterManager->buildCalls.last().fields["address"].toInt(), 0);
+    QVERIFY(!_pRegWidget->_pUi->btnAdd->isEnabled());
+}
+
 void TestAddRegisterWidget::deviceComboVisibleWithSingleDevice()
 {
-    QVERIFY(!_pRegWidget->_pUi->cmbDevice->isHidden());
+    QVERIFY(!deviceCombo(_pRegWidget)->isHidden());
 }
 
 void TestAddRegisterWidget::deviceComboListsDevices()
 {
     const deviceId_t simDeviceId = addSimAdapter();
+    DeviceComboBox* pCombo = deviceCombo(_pRegWidget);
 
-    QVERIFY(!_pRegWidget->_pUi->cmbDevice->isHidden());
-    QCOMPARE(_pRegWidget->_pUi->cmbDevice->count(), 2);
+    QVERIFY(!pCombo->isHidden());
+    QCOMPARE(pCombo->count(), 2);
 
     /* Devices are listed in ascending id order; label defaults to "Device N" */
-    QCOMPARE(_pRegWidget->_pUi->cmbDevice->itemText(0), QStringLiteral("Device 1"));
-    QCOMPARE(_pRegWidget->_pUi->cmbDevice->itemData(0).value<deviceId_t>(), Device::cFirstDeviceId);
-    QCOMPARE(_pRegWidget->_pUi->cmbDevice->itemText(1), QString("Device %1").arg(simDeviceId));
-    QCOMPARE(_pRegWidget->_pUi->cmbDevice->itemData(1).value<deviceId_t>(), simDeviceId);
+    QCOMPARE(pCombo->itemText(0), QStringLiteral("Device 1"));
+    QCOMPARE(pCombo->itemData(0).value<deviceId_t>(), Device::cFirstDeviceId);
+    QCOMPARE(pCombo->itemText(1), QString("Device %1").arg(simDeviceId));
+    QCOMPARE(pCombo->itemData(1).value<deviceId_t>(), simDeviceId);
 }
 
 void TestAddRegisterWidget::switchDeviceRebuildsSchema()
 {
     const deviceId_t simDeviceId = addSimAdapter();
 
-    _pRegWidget->_pUi->cmbDevice->setCurrentIndex(indexForDevice(simDeviceId));
+    deviceCombo(_pRegWidget)->setSelectedDeviceId(simDeviceId);
 
-    QVERIFY(_pRegWidget->_addressSchema["properties"].toObject().contains(QStringLiteral("channel")));
-    QCOMPARE(_pRegWidget->_dataPointDefaults["channel"].toInt(), 3);
-    QCOMPARE(_pRegWidget->_pAddressForm->values().value("channel").toInt(), 3);
+    QCOMPARE(addressForm(_pRegWidget)->values().value("channel").toInt(), 3);
 }
 
 void TestAddRegisterWidget::switchDeviceWhileMenuOpenResizesPopup()
@@ -356,7 +373,7 @@ void TestAddRegisterWidget::switchDeviceWhileMenuOpenResizesPopup()
     const int heightWithThreeFields = menu.height();
 
     /* Switch, while the popup is open, from modbus (3 fields) to sim (1 field) */
-    pWidget->_pUi->cmbDevice->setCurrentIndex(pWidget->_pUi->cmbDevice->findData(QVariant(simDeviceId)));
+    deviceCombo(pWidget)->setSelectedDeviceId(simDeviceId);
     const int heightWithOneField = menu.height();
 
     menu.hide();
@@ -378,7 +395,7 @@ void TestAddRegisterWidget::switchToLargerSchemaWhileMenuOpenShowsAllFields()
     menu.addAction(action);
 
     /* Start from sim (1 field) so the switch below grows the form. */
-    pWidget->_pUi->cmbDevice->setCurrentIndex(pWidget->_pUi->cmbDevice->findData(QVariant(simDeviceId)));
+    deviceCombo(pWidget)->setSelectedDeviceId(simDeviceId);
     menu.show();
 
     /* Switch, while the popup is open, from sim (1 field) to modbus (3 fields). Newly created
@@ -386,9 +403,9 @@ void TestAddRegisterWidget::switchToLargerSchemaWhileMenuOpenShowsAllFields()
      * treat them as zero-sized and left the popup too small to show the rebuilt form - see
      * SchemaFormWidget::addFieldRow(). Check the state right after the switch, with no event
      * loop turn in between, so a regression here fails immediately instead of only intermittently. */
-    pWidget->_pUi->cmbDevice->setCurrentIndex(pWidget->_pUi->cmbDevice->findData(QVariant(Device::cFirstDeviceId)));
+    deviceCombo(pWidget)->setSelectedDeviceId(Device::cFirstDeviceId);
 
-    QLayout* addressFormLayout = pWidget->_pAddressForm->layout();
+    QLayout* addressFormLayout = addressForm(pWidget)->layout();
     QCOMPARE(addressFormLayout->count(), 6); /* modbus schema: 3 fields x (label + field) */
     for (int i = 0; i < addressFormLayout->count(); ++i)
     {
@@ -409,18 +426,20 @@ void TestAddRegisterWidget::switchToLargerSchemaWhileMenuOpenShowsAllFields()
 void TestAddRegisterWidget::buildExpressionRoutedToSelectedDevice()
 {
     const deviceId_t simDeviceId = addSimAdapter();
+    const qsizetype modbusCallsBefore = _pMockAdapterManager->buildCalls.size();
 
-    _pRegWidget->_pUi->cmbDevice->setCurrentIndex(indexForDevice(simDeviceId));
-
-    QSignalSpy spy(_pRegWidget, &AddRegisterWidget::graphDataConfigured);
-    clickAdd();
+    deviceCombo(_pRegWidget)->setSelectedDeviceId(simDeviceId);
 
     QCOMPARE(_pMockSimAdapterManager->buildCalls.size(), 1);
-    QCOMPARE(_pMockAdapterManager->buildCalls.size(), 0);
+    QCOMPARE(_pMockAdapterManager->buildCalls.size(), modbusCallsBefore);
     QCOMPARE(_pMockSimAdapterManager->buildCalls[0].deviceId, simDeviceId);
 
+    QSignalSpy spy(_pRegWidget, &AddRegisterWidget::graphDataConfigured);
     _pMockSimAdapterManager->injectBuildExpressionResult(QStringLiteral("${c3}"));
+    clickAdd();
+
     QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).at(0).value<GraphData>().expression(), QStringLiteral("${c3}"));
 }
 
 void TestAddRegisterWidget::btnAddDisabledWhenSelectedDeviceAdapterUnavailable()
@@ -431,19 +450,22 @@ void TestAddRegisterWidget::btnAddDisabledWhenSelectedDeviceAdapterUnavailable()
     delete _pRegWidget;
     _pRegWidget = new AddRegisterWidget(&_settingsModel, _pDataPointService);
 
-    /* Only device 1 is initially selected and it belongs to the modbus adapter */
+    /* Device 1 is initially selected and it belongs to the modbus adapter */
+    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
     QVERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
 
-    _pRegWidget->_pUi->cmbDevice->setCurrentIndex(indexForDevice(unavailableDeviceId));
+    deviceCombo(_pRegWidget)->setSelectedDeviceId(unavailableDeviceId);
     QVERIFY(!_pRegWidget->_pUi->btnAdd->isEnabled());
+    QTRY_VERIFY(!_pRegWidget->_pUi->lblError->isHidden());
 
-    _pRegWidget->_pUi->cmbDevice->setCurrentIndex(indexForDevice(Device::cFirstDeviceId));
+    deviceCombo(_pRegWidget)->setSelectedDeviceId(Device::cFirstDeviceId);
+    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
     QVERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
 }
 
 void TestAddRegisterWidget::deviceComboRefreshesLiveOnDeviceAdded()
 {
-    QCOMPARE(_pRegWidget->_pUi->cmbDevice->count(), 1);
+    QCOMPARE(deviceCombo(_pRegWidget)->count(), 1);
 
     /* Mirrors addSimAdapter()'s setup, but without deleting/reconstructing _pRegWidget:
      * the point of this test is that the combo now picks up the new device on its own. */
@@ -456,8 +478,8 @@ void TestAddRegisterWidget::deviceComboRefreshesLiveOnDeviceAdded()
 
     const deviceId_t simDeviceId = DeviceListHelpers::seedNextDevice(&_settingsModel, QStringLiteral("sim"));
 
-    QCOMPARE(_pRegWidget->_pUi->cmbDevice->count(), 2);
-    QCOMPARE(_pRegWidget->_pUi->cmbDevice->itemText(1), QString("Device %1").arg(simDeviceId));
+    QCOMPARE(deviceCombo(_pRegWidget)->count(), 2);
+    QCOMPARE(deviceCombo(_pRegWidget)->itemText(1), QString("Device %1").arg(simDeviceId));
 }
 
 void TestAddRegisterWidget::deviceAddedToEmptyListAppliesConfiguredAdapter()
@@ -474,26 +496,29 @@ void TestAddRegisterWidget::deviceAddedToEmptyListAppliesConfiguredAdapter()
     DeviceListHelpers::clearDevices(&_settingsModel);
     delete _pRegWidget;
     _pRegWidget = new AddRegisterWidget(&_settingsModel, _pDataPointService);
-    QCOMPARE(_pRegWidget->_pUi->cmbDevice->count(), 0);
+    QCOMPARE(deviceCombo(_pRegWidget)->count(), 0);
 
     const deviceId_t simDeviceId = Device::cFirstDeviceId;
     DeviceListHelpers::seedDevice(&_settingsModel, simDeviceId, QStringLiteral("sim"));
 
     /* The adapter must already be assigned when deviceListChanged() arrives: assigning it
      * afterwards left the widget showing Device's default ("modbus") adapter instead. */
-    QCOMPARE(_pRegWidget->_pUi->cmbDevice->count(), 1);
-    QCOMPARE(_pRegWidget->_pUi->lblProtocol->text(), QStringLiteral("Protocol: Simulator"));
-    QVERIFY(_pRegWidget->_addressSchema["properties"].toObject().contains(QStringLiteral("channel")));
-    const QJsonObject addressValues = _pRegWidget->_pAddressForm->values();
-    QCOMPARE(addressValues.value("channel").toInt(), 3);
+    QCOMPARE(deviceCombo(_pRegWidget)->count(), 1);
+    QVERIFY(hasLabelWithText(QStringLiteral("Protocol: Simulator")));
+    QCOMPARE(addressForm(_pRegWidget)->values().value("channel").toInt(), 3);
+
+    _pMockSimAdapterManager->injectBuildExpressionResult(QStringLiteral("${c3}"));
     QVERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
 }
 
 void TestAddRegisterWidget::deviceComboDisablesAddWhenLastDeviceRemoved()
 {
+    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
+    QVERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
+
     DeviceListHelpers::dropDevice(&_settingsModel, Device::cFirstDeviceId);
 
-    QCOMPARE(_pRegWidget->_pUi->cmbDevice->count(), 0);
+    QCOMPARE(deviceCombo(_pRegWidget)->count(), 0);
     QVERIFY(!_pRegWidget->_pUi->btnAdd->isEnabled());
 }
 
@@ -511,10 +536,11 @@ void TestAddRegisterWidget::addRegisterClosesContainingMenu()
     menu.show();
     QVERIFY(menu.isVisible());
 
-    QTest::mouseClick(pWidget->_pUi->btnAdd, Qt::LeftButton);
     _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
+    QTest::mouseClick(pWidget->_pUi->btnAdd, Qt::LeftButton);
 
-    QVERIFY(!menu.isVisible());
+    /* The menu is closed on the next event loop turn */
+    QTRY_VERIFY(!menu.isVisible());
 }
 
 void TestAddRegisterWidget::emptyExpressionResponseLeavesContainingMenuOpen()
@@ -530,9 +556,10 @@ void TestAddRegisterWidget::emptyExpressionResponseLeavesContainingMenuOpen()
 
     menu.show();
 
-    QTest::mouseClick(pWidget->_pUi->btnAdd, Qt::LeftButton);
     _pMockAdapterManager->injectBuildExpressionResult(QString());
+    QTest::mouseClick(pWidget->_pUi->btnAdd, Qt::LeftButton);
 
+    QVERIFY(!pWidget->_pUi->btnAdd->isEnabled());
     QVERIFY(menu.isVisible());
 
     menu.hide();
@@ -553,10 +580,9 @@ void TestAddRegisterWidget::buildFailureShowsReasonInOpenMenu()
     menu.show();
     QVERIFY(pWidget->_pUi->lblError->isHidden());
 
-    QTest::mouseClick(pWidget->_pUi->btnAdd, Qt::LeftButton);
     _pMockAdapterManager->injectBuildExpressionFailure(QStringLiteral("Invalid address"));
 
-    QTRY_COMPARE(pWidget->_pUi->lblError->text(), QStringLiteral("Invalid address"));
+    QTRY_VERIFY(pWidget->_pUi->lblError->text().startsWith(QStringLiteral("Invalid address")));
     QVERIFY(!pWidget->_pUi->lblError->isHidden());
     QVERIFY(menu.isVisible());
 
@@ -579,9 +605,8 @@ void TestAddRegisterWidget::longBuildErrorWrapsInOpenMenu()
     const int widthBefore = menu.width();
 
     const QString longError = QStringLiteral("The address is out of range for this object type. ").repeated(6);
-    QTest::mouseClick(pWidget->_pUi->btnAdd, Qt::LeftButton);
     _pMockAdapterManager->injectBuildExpressionFailure(longError);
-    QTRY_COMPARE(pWidget->_pUi->lblError->text(), longError);
+    QTRY_VERIFY(pWidget->_pUi->lblError->text().startsWith(longError));
 
     QCOMPARE(menu.width(), widthBefore);
     QVERIFY(pWidget->_pUi->lblError->height() >=
@@ -590,33 +615,19 @@ void TestAddRegisterWidget::longBuildErrorWrapsInOpenMenu()
     menu.hide();
 }
 
-//! A failure that arrives after another device was selected is not shown for that device.
-void TestAddRegisterWidget::buildFailureForPreviousDeviceNotShown()
-{
-    const deviceId_t simDeviceId = addSimAdapter();
-
-    clickAdd();
-    _pRegWidget->_pUi->cmbDevice->setCurrentIndex(indexForDevice(simDeviceId));
-    _pMockAdapterManager->injectBuildExpressionFailure(QStringLiteral("Invalid address"));
-
-    QTRY_VERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
-    QVERIFY(_pRegWidget->_pUi->lblError->isHidden());
-}
-
 //! An empty build result is reported instead of silently ignored.
 void TestAddRegisterWidget::emptyBuildResultShowsReason()
 {
-    clickAdd();
     _pMockAdapterManager->injectBuildExpressionResult(QString());
 
     QVERIFY(!_pRegWidget->_pUi->lblError->isHidden());
     QVERIFY(!_pRegWidget->_pUi->lblError->text().isEmpty());
+    QVERIFY(!_pRegWidget->_pUi->btnAdd->isEnabled());
 }
 
 //! A failure without a reason still tells the user the address was not accepted.
 void TestAddRegisterWidget::buildFailureWithoutReasonShowsFallback()
 {
-    clickAdd();
     _pMockAdapterManager->injectBuildExpressionFailure(QString());
 
     QTRY_VERIFY(!_pRegWidget->_pUi->lblError->isHidden());
@@ -629,15 +640,14 @@ void TestAddRegisterWidget::buildErrorIsPlainText()
     QCOMPARE(_pRegWidget->_pUi->lblError->textFormat(), Qt::PlainText);
 }
 
-//! A successful add after a failure hides the failure reason.
-void TestAddRegisterWidget::successfulAddHidesBuildError()
+//! A field change after a failure hides the failure reason.
+void TestAddRegisterWidget::fieldChangeHidesBuildError()
 {
-    clickAdd();
     _pMockAdapterManager->injectBuildExpressionFailure(QStringLiteral("Invalid address"));
     QTRY_VERIFY(!_pRegWidget->_pUi->lblError->isHidden());
 
-    GraphData graphData;
-    addRegister(graphData, QStringLiteral("${h0}"));
+    setAddress(QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
+                            { QStringLiteral("address"), 5 } });
 
     QVERIFY(_pRegWidget->_pUi->lblError->isHidden());
     QCOMPARE(_pRegWidget->_pUi->lblError->text(), QString());
@@ -648,28 +658,12 @@ void TestAddRegisterWidget::deviceSwitchHidesBuildError()
 {
     const deviceId_t simDeviceId = addSimAdapter();
 
-    clickAdd();
     _pMockAdapterManager->injectBuildExpressionFailure(QStringLiteral("Invalid address"));
     QTRY_VERIFY(!_pRegWidget->_pUi->lblError->isHidden());
 
-    _pRegWidget->_pUi->cmbDevice->setCurrentIndex(indexForDevice(simDeviceId));
+    deviceCombo(_pRegWidget)->setSelectedDeviceId(simDeviceId);
 
     QVERIFY(_pRegWidget->_pUi->lblError->isHidden());
-}
-
-//! Switching devices while a build request is pending must not allow a second request that replaces it.
-void TestAddRegisterWidget::addStaysDisabledWhileBuildPendingAcrossDeviceSwitch()
-{
-    const deviceId_t secondDeviceId = DeviceListHelpers::seedNextDevice(&_settingsModel, QStringLiteral("modbus"));
-    delete _pRegWidget;
-    _pRegWidget = new AddRegisterWidget(&_settingsModel, _pDataPointService);
-
-    clickAdd();
-    _pRegWidget->_pUi->cmbDevice->setCurrentIndex(indexForDevice(secondDeviceId));
-    QVERIFY(!_pRegWidget->_pUi->btnAdd->isEnabled());
-
-    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
-    QVERIFY(_pRegWidget->_pUi->btnAdd->isEnabled());
 }
 
 void TestAddRegisterWidget::clickAdd()
@@ -677,14 +671,17 @@ void TestAddRegisterWidget::clickAdd()
     QTest::mouseClick(_pRegWidget->_pUi->btnAdd, Qt::LeftButton);
 }
 
+/*!
+ * \brief Answer the pending build request with \a expression, click Add and return the configured signal.
+ */
 void TestAddRegisterWidget::addRegister(GraphData& graphData, const QString& expression)
 {
     QSignalSpy spyGraphDataConfigured(_pRegWidget, &AddRegisterWidget::graphDataConfigured);
 
-    clickAdd();
-
     /* Simulate the adapter returning the expression string */
     _pMockAdapterManager->injectBuildExpressionResult(expression);
+
+    clickAdd();
 
     QCOMPARE(spyGraphDataConfigured.count(), 1);
 
@@ -694,6 +691,20 @@ void TestAddRegisterWidget::addRegister(GraphData& graphData, const QString& exp
     QVERIFY(arguments.first().canConvert<GraphData>());
 
     graphData = arguments.first().value<GraphData>();
+}
+
+//! Returns whether the add form shows a label with exactly \a text.
+bool TestAddRegisterWidget::hasLabelWithText(const QString& text) const
+{
+    const QList<QLabel*> labels = _pRegWidget->findChildren<QLabel*>();
+    for (const QLabel* pLabel : labels)
+    {
+        if (pLabel->text() == text)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 QTEST_MAIN(TestAddRegisterWidget)

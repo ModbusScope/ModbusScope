@@ -10,6 +10,13 @@
 #include <QLabel>
 #include <QTest>
 
+namespace {
+
+//! Build requests the add form sends when the dialog opens: one for its default reference.
+constexpr qsizetype cAddFormBuildCalls = 1;
+
+} // namespace
+
 /*!
  * \brief Builds a minimal "modbus" data-point schema with non-empty defaults.
  *
@@ -117,7 +124,8 @@ void TestSignalsDialog::defaultSignalRequestedImmediatelyWhenSessionAlreadyActiv
 
     _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
 
-    QCOMPARE(_pMockAdapterManager->buildCalls.count(), 1);
+    /* The add form also builds its default reference when the dialog opens */
+    QCOMPARE(_pMockAdapterManager->buildCalls.count(), cAddFormBuildCalls + 1);
     QCOMPARE(_pMockAdapterManager->buildCalls.last().deviceId, deviceId_t(2));
 }
 
@@ -133,7 +141,8 @@ void TestSignalsDialog::defaultSignalRequestedImmediatelyWhenAdapterAlreadyReady
 
     _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
 
-    QCOMPARE(_pMockAdapterManager->buildCalls.count(), 1);
+    /* The add form also builds its default reference when the dialog opens */
+    QCOMPARE(_pMockAdapterManager->buildCalls.count(), cAddFormBuildCalls + 1);
     QCOMPARE(_pMockAdapterManager->buildCalls.last().deviceId, deviceId_t(2));
 }
 
@@ -147,11 +156,11 @@ void TestSignalsDialog::defaultSignalRequestedAgainWhenSessionRestartsAfterAlrea
     _pMockAdapterManager->mockActive = true;
 
     _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
-    QCOMPARE(_pMockAdapterManager->buildCalls.count(), 1);
+    QCOMPARE(_pMockAdapterManager->buildCalls.count(), cAddFormBuildCalls + 1);
 
     _pMockAdapterManager->injectSessionStarted();
 
-    QCOMPARE(_pMockAdapterManager->buildCalls.count(), 2);
+    QCOMPARE(_pMockAdapterManager->buildCalls.count(), cAddFormBuildCalls + 2);
 }
 
 /*!

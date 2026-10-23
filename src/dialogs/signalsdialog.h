@@ -12,6 +12,7 @@
 class GraphDataModel;
 class AdapterHub;
 class AdapterManager;
+class DataPointDescriptionCache;
 class DataPointService;
 class SettingsModel;
 class ValueAxisDelegate;
@@ -57,6 +58,7 @@ private:
     SettingsModel* _pSettingsModel;
     AdapterHub* _pAdapterHub;
     DataPointService* _pDataPointService;
+    DataPointDescriptionCache* _pDescriptionCache;
     AdapterManager* _pDefaultExpressionManager{ nullptr };
     deviceId_t _defaultExpressionDeviceId{ 0 };
     quint64 _defaultExpressionTicket{ 0 };

@@ -5,14 +5,12 @@
 #include "util/expressionchecker.h"
 
 #include <QDialog>
-#include <QHash>
-#include <QJsonObject>
 #include <QStringList>
 
 /* Forward declarations */
 class AdapterHub;
 class AdapterManager;
-class DataPointService;
+class DataPointDescriptionCache;
 class ExpressionHighlighting;
 class QKeyEvent;
 class QPushButton;
@@ -33,7 +31,7 @@ public:
                                GraphIdx idx,
                                AdapterHub* pAdapterHub,
                                SettingsModel* pSettingsModel,
-                               DataPointService* pDataPointService,
+                               DataPointDescriptionCache* pDescriptionCache,
                                QWidget* parent = nullptr);
     ~ExpressionsDialog();
 
@@ -48,15 +46,13 @@ private slots:
     void handleAccept();
     void handleResultReady(bool valid);
     void handleExpressionHelpResult(const QString& helpText);
-    void handleDataPointDescribed(quint64 ticket, const QJsonObject& result);
-    void handleDescribeFailed(quint64 ticket, const QString& error);
-    void onHelpDeviceChanged(int index);
+    void handleDescriptionChanged(const QString& referenceText);
+    void onHelpDeviceChanged(deviceId_t deviceId);
 
 private:
-    void requestDescriptions(const QStringList& addresses, const QList<deviceId_t>& deviceIds);
+    void showDescription(qint32 row, deviceId_t deviceId);
     void populateHelpDevices();
     void requestHelpForAdapter(const QString& adapterId);
-    void setDescribeRowText(qint32 row, const QString& text);
     void setupButtons();
     static bool isEnterKey(const QKeyEvent* pEvent);
     void setupExpressionEditor();
@@ -70,7 +66,7 @@ private:
     GraphDataModel* _pGraphDataModel;
     AdapterHub* _pAdapterHub;
     SettingsModel* _pSettingsModel;
-    DataPointService* _pDataPointService;
+    DataPointDescriptionCache* _pDescriptionCache;
     AdapterManager* _pHelpManager = nullptr;
     QPushButton* _pAcceptButton = nullptr;
 
@@ -81,9 +77,6 @@ private:
 
     //! Whether the expression can be applied: no syntax error and every device exists.
     bool _bCanAccept{ false };
-
-    //! Data point table row of every pending describe request, by ticket.
-    QHash<quint64, qint32> _describeRowByTicket;
 };
 
 #endif // EXPRESSIONSDIALOG_H
